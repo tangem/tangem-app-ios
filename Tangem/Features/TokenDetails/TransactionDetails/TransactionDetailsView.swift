@@ -50,7 +50,6 @@ struct TransactionDetailsView: View {
         .floatingSheetConfiguration { config in
             config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
             config.backgroundInteractionBehavior = .tapToDismiss
-            config.verticalSwipeBehavior = .init(target: .sheet, threshold: 100)
             config.sheetFrameUpdateAnimation = .contentFrameUpdate
         }
     }
