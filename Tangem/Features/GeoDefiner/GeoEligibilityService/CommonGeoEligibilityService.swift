@@ -10,67 +10,47 @@ import Foundation
 import TangemFoundation
 
 class CommonGeoEligibilityService: GeoEligibilityService {
-    private let geoDefiner: GeoDefiner = .init()
+    private let geoDefiner: GeoDefiner
+
+    init(geoDefiner: GeoDefiner = .init()) {
+        self.geoDefiner = geoDefiner
+    }
 
     func initialize() {
         geoDefiner.initialize()
     }
 
     func waitForGeoIpRegionIfNeeded() async {
-        guard !isPhoneRegionCodeUK, !isPhoneRegionApplePayRestricted else {
-            return
-        }
-
         // add timeout to avoid app launch delay
         try? await Task.run(withTimeout: Constants.geoIpRegionCodeTimeout) { [geoDefiner] in
-            _ = try? await geoDefiner.fetchGeoIpRegionCode()
+            await geoDefiner.waitForUpdateIfNeeded()
         }
     }
 
     func fetchGeoIpRegionCode() async -> String? {
-        if let geoIpRegionCode = geoDefiner.geoIpRegionCode {
-            return geoIpRegionCode
-        }
+        await waitForGeoIpRegionIfNeeded()
 
-        return try? await Task.run(withTimeout: Constants.geoIpRegionCodeTimeout) { [geoDefiner] in
-            try? await geoDefiner.fetchGeoIpRegionCode()
-        }
+        return regionCode
+    }
+
+    private var regionCode: String? {
+        geoDefiner.geoIpRegionCode ?? geoDefiner.phoneRegionCode
     }
 
     // MARK: - UK
 
     var isUK: Bool {
-        guard !isPhoneRegionCodeUK else {
-            return true
-        }
-
-        return geoDefiner.geoIpRegionCode?.caseInsensitiveCompare(Constants.ukRegionCode) == .orderedSame
-    }
-
-    private var isPhoneRegionCodeUK: Bool {
-        geoDefiner.phoneRegionCode?.caseInsensitiveCompare(Constants.ukRegionCode) == .orderedSame
+        regionCode?.caseInsensitiveCompare(Constants.ukRegionCode) == .orderedSame
     }
 
     // MARK: - Apple Pay
 
     var isApplePayAllowed: Bool {
-        guard !isPhoneRegionApplePayRestricted else {
-            return false
-        }
-
-        guard let code = geoDefiner.geoIpRegionCode else {
+        guard let code = regionCode else {
             return true
         }
 
         return !Constants.applePayRestrictedRegionCodes.contains(code.lowercased())
-    }
-
-    private var isPhoneRegionApplePayRestricted: Bool {
-        guard let code = geoDefiner.phoneRegionCode else {
-            return false
-        }
-
-        return Constants.applePayRestrictedRegionCodes.contains(code.lowercased())
     }
 }
 

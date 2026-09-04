@@ -71,4 +71,6 @@ enum StorageType: String {
     case yieldApyBoostFirstSeenCompletedDates = "yield_apy_boost_first_seen_completed_dates"
     case priceAlertsOnboardingShown = "price_alerts_onboarding_shown"
     case hiddenMarketingCampaigns = "hidden_marketing_campaigns"
+    case geoIpRegionCode = "geo_ip_region_code"
+    case geoIpRegionCodeUpdateDate = "geo_ip_region_code_update_date"
 }
