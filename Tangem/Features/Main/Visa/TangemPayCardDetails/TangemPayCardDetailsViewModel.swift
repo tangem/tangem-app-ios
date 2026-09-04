@@ -18,6 +18,7 @@ import TangemVisa
 final class TangemPayCardDetailsViewModel: ObservableObject {
     let cardNameDisplayMode: CardNameDisplayMode
 
+    var isDigitalCard: Bool { !repository.isPhysical }
     var cardImageURL: URL? { repository.cardImageURL }
     var cardBackgroundImageURL: URL? { repository.cardBackgroundImageURL }
 

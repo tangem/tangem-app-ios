@@ -17,8 +17,8 @@ struct TransactionHistoryExpressDataMerger {
 
     // MARK: - Dependencies
 
-    private let currentToken: TokenItem
-    private let ownerAddress: String
+    private let normalizedCurrentCurrency: ExpressCurrency
+    private let walletModelAddresses: Set<String>
     private let isEvm: Bool
     private let isUTXO: Bool
     private let syntheticTransactionFactory: TransactionHistorySyntheticTransactionFactory
@@ -26,16 +26,21 @@ struct TransactionHistoryExpressDataMerger {
     // MARK: - Init
 
     init(
-        ownerAddress: String,
+        walletModelAddresses: [String],
         currentToken: TokenItem,
         feeTokenItem: TokenItem
     ) {
-        self.currentToken = currentToken
-        self.ownerAddress = ownerAddress
-        isEvm = currentToken.blockchain.isEvm
+        let isEvm = currentToken.blockchain.isEvm
+        normalizedCurrentCurrency = currentToken.normalizedExpressCurrency
+        self.isEvm = isEvm
         isUTXO = currentToken.blockchain.isUTXO
+
+        self.walletModelAddresses = walletModelAddresses
+            .map { TransactionHistoryAddressNormalizer.normalize($0, isEvm: isEvm) }
+            .toSet()
+
         syntheticTransactionFactory = TransactionHistorySyntheticTransactionFactory(
-            ownerAddress: ownerAddress,
+            walletModelAddresses: walletModelAddresses,
             currentToken: currentToken,
             feeTokenItem: feeTokenItem
         )
@@ -173,7 +178,7 @@ struct TransactionHistoryExpressDataMerger {
         allBSDKTransactions: [TransactionRecord],
         consumedBSDKTransactionsIds: Set<TransactionRecord.ID>
     ) -> TransactionRecord? {
-        guard exchangeTransaction.from.currency == currentToken.expressCurrency.asCurrency else {
+        guard exchangeTransaction.from.currency == normalizedCurrentCurrency else {
             return nil
         }
 
@@ -196,15 +201,13 @@ struct TransactionHistoryExpressDataMerger {
         }
 
         let amountBound = (isUTXO ? Constants.sendHeuristicAmountUTXOTolerance : Constants.sendHeuristicAmountTolerance) * targetAmount
-        let normalizedFromAddress = lowerCasedAddressStringIfNeeded(exchangeTransaction.fromAddress ?? ownerAddress)
 
         return bsdkTransactionsCandidatesByReceiver
             .filter { bsdkTransaction in
                 guard
                     bsdkTransaction.isOutgoing, // Only consider outgoing transactions as potential matches
                     !consumedBSDKTransactionsIds.contains(bsdkTransaction.id),
-                    // The sender of the pay-in leg must be the owner
-                    bsdkTransaction.sourceAddresses.contains(where: { lowerCasedAddressStringIfNeeded($0) == normalizedFromAddress })
+                    isSentByOwner(bsdkTransaction)
                 else {
                     return false
                 }
@@ -228,7 +231,7 @@ struct TransactionHistoryExpressDataMerger {
     ) -> TransactionRecord? {
         guard
             exchangeTransaction.status != .refunded,
-            exchangeTransaction.to.currency == currentToken.expressCurrency.asCurrency
+            exchangeTransaction.to.currency == normalizedCurrentCurrency
         else {
             return nil
         }
@@ -252,7 +255,6 @@ struct TransactionHistoryExpressDataMerger {
         }
 
         let targetDateRange = exchangeTransaction.createdAt ... exchangeTransaction.createdAt.advanced(by: Constants.receiveHeuristicTimeWindow)
-        let normalizedFromAddress = lowerCasedAddressStringIfNeeded(exchangeTransaction.fromAddress ?? ownerAddress)
         let amountBound = Constants.receiveHeuristicAmountTolerance * targetAmount
 
         return bsdkTransactions
@@ -262,7 +264,7 @@ struct TransactionHistoryExpressDataMerger {
                     !consumedBSDKTransactionsIds.contains(bsdkTransaction.id),
                     targetDateRange.contains(bsdkTransaction.normalizedDate),
                     // Exclude self-transfers (the sender must not be the user)
-                    !bsdkTransaction.sourceAddresses.contains(where: { lowerCasedAddressStringIfNeeded($0) == normalizedFromAddress })
+                    !isSentByOwner(bsdkTransaction)
                 else {
                     return false
                 }
@@ -284,7 +286,7 @@ struct TransactionHistoryExpressDataMerger {
     ) -> TransactionRecord? {
         guard
             exchangeTransaction.status == .refunded,
-            exchangeTransaction.refund?.currency == currentToken.expressCurrency.asCurrency
+            exchangeTransaction.refund?.currency == normalizedCurrentCurrency
         else {
             return nil
         }
@@ -319,7 +321,7 @@ struct TransactionHistoryExpressDataMerger {
         consumedBSDKTransactionsIds: Set<TransactionRecord.ID>
     ) -> TransactionRecord? {
         guard
-            onrampTransaction.to.currency == currentToken.expressCurrency.asCurrency,
+            onrampTransaction.to.currency == normalizedCurrentCurrency,
             let targetAmount = onrampTransaction.to.normalizedAmount
         else {
             return nil
@@ -365,6 +367,12 @@ struct TransactionHistoryExpressDataMerger {
     }
 
     // MARK: - Helpers
+
+    private func isSentByOwner(_ bsdkTransaction: TransactionRecord) -> Bool {
+        return bsdkTransaction.source.sources.contains { source in
+            walletModelAddresses.contains(lowerCasedAddressStringIfNeeded(source.address))
+        }
+    }
 
     /// Groups BSDK transactions by their (normalized) destination address, building the grouping lazily on first
     /// use and caching it in `cache` to avoid O(n) * O(m) complexity across the send / receive matchers.
@@ -484,10 +492,6 @@ private extension TransactionRecord {
                 sum += destination.amount
             }
         }
-    }
-
-    var sourceAddresses: [String] {
-        source.sources.map(\.address)
     }
 
     var destinationAddresses: [String] {

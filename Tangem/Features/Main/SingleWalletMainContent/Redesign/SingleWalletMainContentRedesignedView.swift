@@ -69,9 +69,8 @@ private extension SingleWalletMainContentRedesignedView {
 
 #Preview {
     let userWalletModel = FakeUserWalletModel.xrpNote
-    let walletModel = userWalletModel
-        .accountModelsManager
-        .cryptoAccountModels[0]
+    let walletModel = AccountCryptoModelsAggregator
+        .cryptoAccountModels(from: userWalletModel.accountModelsManager)[0]
         .walletModelsManager
         .walletModels[0]
 
