@@ -25,12 +25,8 @@ struct TransactionViewIconViewData: Hashable {
             return DesignSystem.Icons.Card.regular20.image
         case .transfer, .operation, .unknownOperation, .tangemPay(.transfer), .yieldTopup, .yieldSend, .gaslessTransactionFee, .gaslessTransfer:
             return isOutgoing ? Assets.arrowUpMini.image : Assets.arrowDownMini.image
-        case .stake, .vote, .restake:
-            return Assets.TokenItemContextMenu.menuStaking.image
-        case .unstake, .withdraw:
-            return Assets.unstakedIcon.image
-        case .claimRewards:
-            return Assets.dollarMini.image
+        case .stake, .vote, .restake, .unstake, .withdraw, .claimRewards:
+            return DesignSystem.Icons.Stack.regular16.image
         case .tangemPay(.fee):
             return Assets.Visa.feeTransactionPercent.image
         case .tangemPay(.spend):
