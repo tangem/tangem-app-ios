@@ -12,6 +12,7 @@ import TangemAccessibilityIdentifiers
 final class TangemPayAddFundsSheet: ScreenBase<TangemPayAddFundsSheetElement> {
     private lazy var swapOptionButton = button(.swapOption)
     private lazy var receiveOptionButton = button(.receiveOption)
+    private lazy var bankTransferOptionButton = button(.bankTransferOption)
 
     @discardableResult
     func waitForScreen() -> Self {
@@ -27,6 +28,22 @@ final class TangemPayAddFundsSheet: ScreenBase<TangemPayAddFundsSheetElement> {
             waitAndAssertTrue(swapOptionButton, "Swap option should be displayed")
             waitAndAssertTrue(receiveOptionButton, "Receive option should be displayed")
             return self
+        }
+    }
+
+    @discardableResult
+    func verifyBankTransferOptionDisplayed() -> Self {
+        XCTContext.runActivity(named: "Verify Add Funds sheet shows Bank transfer option") { _ in
+            waitAndAssertTrue(bankTransferOptionButton, "Bank transfer option should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapBankTransfer() -> TangemPayVirtualAccountInfoSheet {
+        XCTContext.runActivity(named: "Tap Bank transfer option on Add Funds sheet") { _ in
+            bankTransferOptionButton.waitAndTap()
+            return TangemPayVirtualAccountInfoSheet(app)
         }
     }
 
@@ -50,6 +67,7 @@ final class TangemPayAddFundsSheet: ScreenBase<TangemPayAddFundsSheetElement> {
 enum TangemPayAddFundsSheetElement: String, UIElement {
     case swapOption
     case receiveOption
+    case bankTransferOption
 
     var accessibilityIdentifier: String {
         switch self {
@@ -57,6 +75,8 @@ enum TangemPayAddFundsSheetElement: String, UIElement {
             TangemPayAccessibilityIdentifiers.addFundsSheetSwapOption
         case .receiveOption:
             TangemPayAccessibilityIdentifiers.addFundsSheetReceiveOption
+        case .bankTransferOption:
+            TangemPayAccessibilityIdentifiers.addFundsSheetBankTransferOption
         }
     }
 }
