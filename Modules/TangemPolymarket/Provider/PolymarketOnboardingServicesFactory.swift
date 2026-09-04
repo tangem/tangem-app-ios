@@ -58,4 +58,18 @@ public struct PolymarketOnboardingServicesFactory {
             store: store
         )
     }
+
+    public func makeBridgeService(
+        builderCode: @escaping () async throws -> String,
+        supportedAssetsStore: PolymarketSupportedAssetsStore
+    ) -> PolymarketBridgeService {
+        let provider = TangemProvider<PolymarketBridgeTarget>(configuration: networkConfiguration)
+
+        return CommonPolymarketBridgeService(
+            provider: provider,
+            baseURL: PolymarketHost.bridge,
+            builderCode: builderCode,
+            supportedAssetsStore: supportedAssetsStore
+        )
+    }
 }
