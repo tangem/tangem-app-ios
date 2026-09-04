@@ -62,6 +62,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "product-instances/\(productInstanceId)/offers"
         case .getBankCredentials(let productInstanceId):
             "account/bank-credentials/\(productInstanceId)"
+        case .getBankAccounts:
+            "account/bank-accounts"
         case .getTariffPlanTransitions:
             "customer/tariff-plan/transitions"
         case .requestTariffPlanPendingTransition:
@@ -116,6 +118,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getCashbackAccrualsDocs,
              .getCashbackTransactionDetails,
              .getBankCredentials,
+             .getBankAccounts,
              .getEligibility:
             .get
 
@@ -156,6 +159,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getPin,
              .getFee,
              .getBankCredentials,
+             .getBankAccounts,
              .getTransactionLegacy,
              .getTransaction,
              .getCashbackSummary,
@@ -307,6 +311,7 @@ extension CustomerInfoManagementAPITarget {
         case reissueCard(cardId: String)
 
         case getBankCredentials(productInstanceId: String)
+        case getBankAccounts
 
         case getEligibility
         case getCashbackSummary
