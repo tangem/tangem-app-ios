@@ -357,8 +357,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/Solana.Swift.git",
       "state" : {
-        "revision" : "493281fedf15f6a70a221c9e46803b17dfb8f8c6",
-        "version" : "1.2.0-tangem19"
+        "revision" : "a3836662b148d4e35827acd6eb82732719040301",
+        "version" : "1.2.0-tangem20"
       }
     },
     {
