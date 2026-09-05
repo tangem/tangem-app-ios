@@ -83,6 +83,10 @@ final class EtherscanTransactionHistoryMapper {
                 return .transfer
             }
 
+            if let approve = ApproveHistoryMapper.approve(calldata: transaction.input, symbol: nil, decimals: nil) {
+                return .approve(approve)
+            }
+
             if let methodId = transaction.methodId {
                 return .contractMethodIdentifier(id: methodId)
             }
@@ -224,7 +228,7 @@ extension EtherscanTransactionHistoryMapper: TransactionHistoryMapper {
                 fee: mapFee(transaction),
                 status: mapStatus(transaction),
                 isOutgoing: isOutgoing,
-                type: mapType(transaction, amountType: amountType),
+                type: type,
                 date: Date(timeIntervalSince1970: timeStamp),
                 tokenTransfers: tokenTransfer(transaction),
                 isFromYieldContract: isFromYieldContract,

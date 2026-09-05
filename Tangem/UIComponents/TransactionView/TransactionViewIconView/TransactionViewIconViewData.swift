@@ -17,7 +17,9 @@ struct TransactionViewIconViewData: Hashable {
 
     var icon: Image {
         switch type {
-        case .approve, .yieldDeploy:
+        case .approve:
+            return DesignSystem.Icons.Success.regular20.image
+        case .yieldDeploy:
             return Assets.approve.image
         case .swap:
             return DesignSystem.Icons.ArrowSwapHorizontal.regular20.image
