@@ -102,6 +102,7 @@ extension CurrencySelectViewModel {
 
 private extension CurrencySelectViewState {
     mutating func update(searchText: String, allCurrencies: [CurrencySelectViewState.CurrencyItem]) {
+        self.searchText = searchText
         let searchText = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
 
         let filteredCurrencies = searchText.isEmpty
@@ -109,7 +110,6 @@ private extension CurrencySelectViewState {
             : allCurrencies.filter { $0.title.localizedStandardContains(searchText) }
 
         contentState = .success(filteredCurrencies)
-        self.searchText = searchText
     }
 }
 
