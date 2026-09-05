@@ -89,6 +89,9 @@ enum TransactionDetailsFactory {
              .yieldSend, .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin:
             return .yield(yieldContent(for: transaction, record: record, context: context))
 
+        case .approve where isDecodedApprove(record):
+            return .generic(approveContent(for: transaction, record: record, context: context))
+
         case .approve:
             return .generic(genericOperationContent(for: transaction, record: record, context: context, counterpartyLabel: Localization.commonAddress))
 
@@ -127,10 +130,25 @@ enum TransactionDetailsFactory {
         resolvedStakingTarget(for: transaction) == nil ? nil : Localization.stakingValidator
     }
 
-    private static func tokensBlock(for transaction: TransactionViewModel, isFailed: Bool, context: TransactionDetailsContext) -> TransactionDetailsTokensViewData {
+    private static func isDecodedApprove(_ record: TransactionRecord) -> Bool {
+        if case .approve = record.type {
+            return true
+        }
+
+        return false
+    }
+
+    private static func tokensBlock(
+        for transaction: TransactionViewModel,
+        isFailed: Bool,
+        caption: String?,
+        icon: TransactionDetailsTokensViewData.Single.Icon
+    ) -> TransactionDetailsTokensViewData {
         TransactionDetailsTokensViewData(
-            tokenIconInfo: context.tokenIconInfo,
+            icon: icon,
+            caption: caption,
             amountText: transaction.amount.amount,
+            fiatText: nil,
             isAmountStrikethrough: isFailed
         )
     }
@@ -146,7 +164,7 @@ enum TransactionDetailsFactory {
         counterpartyLabel: String?
     ) -> TransactionDetailsGenericOperationViewData {
         .init(
-            tokens: tokensBlock(for: transaction, isFailed: isFailed(record: record), context: context),
+            tokens: tokensBlock(for: transaction, isFailed: isFailed(record: record), caption: nil, icon: .token(context.tokenIconInfo)),
             // On-chain operations don't get a live status banner (that's an Express-only transition)
             statusBanner: nil,
             // and the "for sending X" block
@@ -163,11 +181,38 @@ enum TransactionDetailsFactory {
         context: TransactionDetailsContext
     ) -> TransactionDetailsGenericOperationViewData {
         .init(
-            tokens: tokensBlock(for: transaction, isFailed: isFailed(record: record), context: context),
+            tokens: tokensBlock(
+                for: transaction,
+                isFailed: isFailed(record: record),
+                caption: nil,
+                icon: .token(context.tokenIconInfo)
+            ),
             statusBanner: stakingStatusBanner(for: transaction, record: record),
             principalAmount: nil,
             counterparty: nil,
             info: stakingInfo(for: transaction, record: record),
+            action: nil
+        )
+    }
+
+    private static func approveContent(
+        for transaction: TransactionViewModel,
+        record: TransactionRecord,
+        context: TransactionDetailsContext
+    ) -> TransactionDetailsGenericOperationViewData {
+        let isFailed = isFailed(record: record)
+
+        return .init(
+            tokens: tokensBlock(
+                for: transaction,
+                isFailed: isFailed,
+                caption: Localization.transactionHistoryApprovedAmount,
+                icon: approvedTokenIcon(for: record, context: context)
+            ),
+            statusBanner: isFailed ? nil : highRiskBanner(for: record),
+            principalAmount: nil,
+            counterparty: nil,
+            info: networkFeeInfo(from: record),
             action: nil
         )
     }
@@ -206,6 +251,33 @@ enum TransactionDetailsFactory {
 
     private static func validatorText(for target: TransactionViewModel.StakingTarget) -> String {
         target.isResolved ? target.name : AddressFormatter(address: target.address).truncated()
+    }
+
+    /// An approve is sent to the contract of the token it approves, so that destination identifies the token to show.
+    private static func approvedTokenIcon(
+        for record: TransactionRecord,
+        context: TransactionDetailsContext
+    ) -> TransactionDetailsTokensViewData.Single.Icon {
+        guard case .single(let destination) = record.destination,
+              case .contract(let tokenContract) = destination.address,
+              let resolved = context.tokenIconInfo(forContract: tokenContract)
+        else {
+            return .unresolved(network: context.networkIconAsset)
+        }
+
+        return .token(resolved)
+    }
+
+    private static func highRiskBanner(for record: TransactionRecord) -> TransactionDetailsStatusBannerViewData? {
+        guard case .approve(let approve) = record.type, approve.allowance == .unlimited else {
+            return nil
+        }
+
+        return .init(
+            kind: .attention,
+            title: Localization.transactionHistoryApproveHighRiskTitle,
+            subtitle: Localization.transactionHistoryApproveHighRiskSubtitle
+        )
     }
 
     private static func yieldContent(
@@ -454,7 +526,7 @@ enum TransactionDetailsFactory {
         context: TransactionDetailsContext
     ) -> TransactionDetailsGenericOperationViewData {
         return .init(
-            tokens: tokensBlock(for: transaction, isFailed: isFailed(record: record), context: context),
+            tokens: tokensBlock(for: transaction, isFailed: isFailed(record: record), caption: nil, icon: .token(context.tokenIconInfo)),
             statusBanner: nil,
             principalAmount: nil,
             counterparty: counterparty(for: transaction, label: counterpartyLabel(for: transaction)),

@@ -235,7 +235,7 @@ final class TronTransactionHistoryMapper {
                         // Never produced by this mapper: no TRON contract type maps to it.
                         return transactionInfo.destination
                     }
-                case .transfer, .contractMethodIdentifier, .contractMethodName:
+                case .transfer, .contractMethodIdentifier, .contractMethodName, .approve:
                     return transactionInfo.destination
                 }
             }()
