@@ -10,6 +10,7 @@ import Foundation
 import BlockchainSdk
 import TangemExpress
 import TangemFoundation
+import TangemLocalization
 import TangemStaking
 import TangemUI
 
@@ -411,7 +412,7 @@ private extension TransactionHistoryMapper {
             timeFormatted: timeFormatted,
             amount: formattedAmount.legacy,
             value: formattedAmount.redesigned,
-            currencyCode: currencySymbol,
+            currencyCode: amountSymbol(for: record),
             isOutgoing: record.isOutgoing,
             transactionType: prepared.transactionType,
             status: status(from: record),
@@ -585,6 +586,8 @@ private extension TransactionHistoryMapper {
             return transactionType(fromContractMethodName: name, transactionRecord: record)
         case .contractMethodName(let name):
             return transactionType(fromContractMethodName: name, transactionRecord: record)
+        case .approve:
+            return .approve
         case .staking(let type, _):
             switch type {
             case .stake: return .stake
@@ -689,6 +692,11 @@ private extension TransactionHistoryMapper {
                 legacy: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
                 redesigned: balanceFormatter.formatDecimal(amount)
             )
+        case .approve:
+            return approveAmount(for: record) ?? FormattedAmount(
+                legacy: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
+                redesigned: balanceFormatter.formatDecimal(amount)
+            )
         case .yieldEnter, .yieldTopup, .yieldWithdraw:
             return FormattedAmount(
                 legacy: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
@@ -703,6 +711,41 @@ private extension TransactionHistoryMapper {
         default:
             return formatted(amount: amount, isOutgoing: record.isOutgoing, isFailed: record.status == .failed)
         }
+    }
+
+    func approveAmount(for record: TransactionRecord) -> FormattedAmount? {
+        guard case .approve(let approve) = record.type else {
+            return nil
+        }
+
+        switch approve.allowance {
+        case .revoked:
+            return FormattedAmount(
+                legacy: balanceFormatter.formatCryptoBalance(.zero, currencyCode: amountSymbol(for: record)),
+                redesigned: balanceFormatter.formatDecimal(.zero)
+            )
+        case .unlimited:
+            let legacy = approve.symbol.map(Localization.transactionHistoryUnlimitedAmount) ?? Localization.transactionHistoryUnlimited
+
+            return FormattedAmount(legacy: legacy, redesigned: Localization.transactionHistoryUnlimited)
+        case .limited(let value):
+            return FormattedAmount(
+                legacy: balanceFormatter.formatCryptoBalance(value, currencyCode: amountSymbol(for: record)),
+                redesigned: balanceFormatter.formatDecimal(value)
+            )
+        }
+    }
+
+    func amountSymbol(for record: TransactionRecord) -> String {
+        guard case .approve(let approve) = record.type else {
+            return currencySymbol
+        }
+
+        if let symbol = approve.symbol {
+            return symbol
+        }
+
+        return approve.allowance == .unlimited ? "" : .unknown
     }
 
     func makeGaslessTransactionInteractionAddress(from record: TransactionRecord) -> TransactionViewModel.InteractionAddressType? {
