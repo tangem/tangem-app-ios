@@ -91,12 +91,21 @@ enum TransactionDetailsPreviewFactory {
 
     // MARK: - Yield
 
-    static func yieldTokens() -> TransactionDetailsYieldTokensViewData {
+    static func yieldSupplied() -> TransactionDetailsYieldTokensViewData {
         .init(
-            accountIcon: .composite(backgroundColor: .purple, nameMode: .letter("M")),
+            provider: .leading(Assets.YieldModule.yieldModuleAaveLogo),
             tokenIconInfo: icon("Tether", color: .green),
             amountText: "1,294.23 USDT",
-            statusTitle: "Supplied"
+            caption: "Supplied"
+        )
+    }
+
+    static func yieldReturned() -> TransactionDetailsYieldTokensViewData {
+        .init(
+            provider: .trailing(Assets.YieldModule.yieldModuleAaveLogo),
+            tokenIconInfo: icon("Tether", color: .green),
+            amountText: "1,294.23 USDT",
+            caption: "Returned"
         )
     }
 
