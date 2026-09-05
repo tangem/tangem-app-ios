@@ -32,7 +32,7 @@ struct TransactionChipRedesigned: View {
 
             if let amountText {
                 SensitiveText(builder: amountWithCurrency, sensitive: amountText)
-                    .style(Font.Tangem.Caption12.semibold, color: amountColor)
+                    .style(DesignSystem.Font.captionMediumToken, color: amountColor)
                     .lineLimit(1)
             }
 
@@ -42,7 +42,6 @@ struct TransactionChipRedesigned: View {
         .padding(.vertical, .unit(.x1))
         .background(background)
         .clipShape(Capsule(style: .continuous))
-        .overlay(border)
         .fixedSize(horizontal: false, vertical: true)
     }
 
@@ -61,12 +60,18 @@ struct TransactionChipRedesigned: View {
         case .inProgress:
             Loader()
                 .loaderSize(.size16)
-                .loaderColor(.Tangem.Text.Status.accent)
+                .loaderColor(DesignSystem.Color.iconStatusInfo)
         case .failed, .undefined:
             iconImage(DesignSystem.Icons.Cross.regular16.image)
-        case .confirmed:
+        case .confirmed where isOperationGlyphVisible:
             iconImage(viewModel.icon.icon)
+        case .confirmed:
+            EmptyView()
         }
+    }
+
+    private var isOperationGlyphVisible: Bool {
+        viewModel.transactionType != .approve
     }
 
     private func iconImage(_ image: Image) -> some View {
@@ -80,7 +85,7 @@ struct TransactionChipRedesigned: View {
 
     private var titleView: some View {
         Text(display.title)
-            .style(Font.Tangem.Caption12.semibold, color: titleColor)
+            .style(DesignSystem.Font.captionMediumToken, color: titleColor)
             .lineLimit(1)
     }
 
@@ -93,46 +98,43 @@ struct TransactionChipRedesigned: View {
     @ViewBuilder
     private var subtitleView: some View {
         switch display.subtitle {
-        case .owner(let direction, let owner):
-            TransactionSubtitleView(direction: direction, owner: owner)
+        case .owner(let direction, let owner) where isCounterpartyVisible:
+            TransactionSubtitleView(direction: direction, owner: owner, isAddressEmphasized: true)
 
-        case .text, .express, .none:
+        case .owner, .text, .express, .none:
             EmptyView()
+        }
+    }
+
+    private var isCounterpartyVisible: Bool {
+        switch viewModel.icon.status {
+        case .failed, .undefined:
+            return false
+        case .inProgress, .confirmed:
+            return true
         }
     }
 
     private var titleColor: Color {
         switch viewModel.icon.status {
-        case .failed, .undefined: .Tangem.Text.Status.warning
-        case .inProgress: .Tangem.Text.Status.accent
-        case .confirmed: .Tangem.Text.Neutral.secondary
+        case .failed, .undefined: DesignSystem.Color.textStatusError
+        case .inProgress: DesignSystem.Color.textStatusInfo
+        case .confirmed: DesignSystem.Color.textSecondary
         }
     }
 
     private var amountColor: Color {
         switch viewModel.icon.status {
-        case .confirmed: .Tangem.Text.Neutral.primary
+        case .confirmed: DesignSystem.Color.textPrimary
         case .inProgress, .failed, .undefined: titleColor
         }
     }
 
     private var background: Color {
         switch viewModel.icon.status {
-        case .failed, .undefined: .Tangem.Markers.backgroundTintedRed
-        case .inProgress: .Tangem.Markers.backgroundTintedBlue
-        case .confirmed: .Tangem.Markers.backgroundTintedGray
-        }
-    }
-
-    @ViewBuilder
-    private var border: some View {
-        switch viewModel.icon.status {
-        case .failed, .undefined:
-            Capsule(style: .continuous).strokeBorder(Color.Tangem.Markers.borderTintedRed, lineWidth: 1)
-        case .inProgress:
-            Capsule(style: .continuous).strokeBorder(Color.Tangem.Markers.borderTintedBlue, lineWidth: 1)
-        case .confirmed:
-            Capsule(style: .continuous).strokeBorder(Color.Tangem.Markers.borderGray, lineWidth: 1)
+        case .failed, .undefined: DesignSystem.Color.bgStatusErrorSubtle
+        case .inProgress: DesignSystem.Color.bgStatusInfoSubtle
+        case .confirmed: DesignSystem.Color.bgOpaqueSecondary
         }
     }
 }
