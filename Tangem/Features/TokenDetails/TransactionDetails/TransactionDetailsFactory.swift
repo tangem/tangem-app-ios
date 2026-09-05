@@ -34,10 +34,11 @@ enum TransactionDetailsFactory {
     static func reduce(
         transaction: TransactionViewModel,
         record: TransactionRecord,
+        cryptoAmount: Decimal,
         context: TransactionDetailsContext,
         addContactHelper: TransactionDetailsAddContactHelper
     ) -> (header: TransactionDetailsHeaderViewData, content: TransactionDetailsViewModel.Content) {
-        let content = content(for: transaction, record: record, context: context)
+        let content = content(for: transaction, record: record, cryptoAmount: cryptoAmount, context: context)
 
         return (
             header(
@@ -65,6 +66,7 @@ enum TransactionDetailsFactory {
     private static func content(
         for transaction: TransactionViewModel,
         record: TransactionRecord,
+        cryptoAmount: Decimal,
         context: TransactionDetailsContext
     ) -> TransactionDetailsViewModel.Content {
         switch record.expressExtraInfo {
@@ -73,7 +75,7 @@ enum TransactionDetailsFactory {
         case .onramp(let info):
             return .onramp(onrampContent(info, context: context))
         case nil:
-            return onChainContent(for: transaction, record: record, context: context)
+            return onChainContent(for: transaction, record: record, cryptoAmount: cryptoAmount, context: context)
         }
     }
 
@@ -82,12 +84,19 @@ enum TransactionDetailsFactory {
     private static func onChainContent(
         for transaction: TransactionViewModel,
         record: TransactionRecord,
+        cryptoAmount: Decimal,
         context: TransactionDetailsContext
     ) -> TransactionDetailsViewModel.Content {
         switch transaction.transactionType {
         case .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit, .yieldReactivate,
              .yieldSend, .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin:
-            return .yield(yieldContent(for: transaction, record: record, context: context))
+            // Only the two operations that move the balance in or out of the protocol get the paired layout;
+            // the rest are a plain single-asset amount, which the generic block already renders.
+            guard let stage = yieldStage(for: transaction.transactionType) else {
+                return .generic(genericOperationContent(for: transaction, record: record, context: context, counterpartyLabel: nil))
+            }
+
+            return .yield(yieldContent(for: transaction, stage: stage, record: record, context: context))
 
         case .approve where isDecodedApprove(record):
             return .generic(approveContent(for: transaction, record: record, context: context))
@@ -98,8 +107,10 @@ enum TransactionDetailsFactory {
         case .stake, .unstake, .vote, .withdraw, .claimRewards, .restake:
             return .generic(stakingOperationContent(for: transaction, record: record, context: context))
 
-        // [REDACTED_TODO_COMMENT]
-        case .gaslessTransactionFee, .operation, .unknownOperation:
+        case .gaslessTransactionFee:
+            return .generic(gaslessFeeContent(for: transaction, record: record, cryptoAmount: cryptoAmount, context: context))
+
+        case .operation, .unknownOperation:
             return .generic(genericOperationContent(for: transaction, record: record, context: context, counterpartyLabel: resolvedStakingTargetLabel(for: transaction)))
 
         case .transfer, .gaslessTransfer, .swap, .onramp, .tangemPay:
@@ -142,13 +153,14 @@ enum TransactionDetailsFactory {
         for transaction: TransactionViewModel,
         isFailed: Bool,
         caption: String?,
+        fiatText: String?,
         icon: TransactionDetailsTokensViewData.Single.Icon
     ) -> TransactionDetailsTokensViewData {
         TransactionDetailsTokensViewData(
             icon: icon,
             caption: caption,
             amountText: transaction.amount.amount,
-            fiatText: nil,
+            fiatText: fiatText,
             isAmountStrikethrough: isFailed
         )
     }
@@ -164,7 +176,13 @@ enum TransactionDetailsFactory {
         counterpartyLabel: String?
     ) -> TransactionDetailsGenericOperationViewData {
         .init(
-            tokens: tokensBlock(for: transaction, isFailed: isFailed(record: record), caption: nil, icon: .token(context.tokenIconInfo)),
+            tokens: tokensBlock(
+                for: transaction,
+                isFailed: isFailed(record: record),
+                caption: nil,
+                fiatText: nil,
+                icon: .token(context.tokenIconInfo)
+            ),
             // On-chain operations don't get a live status banner (that's an Express-only transition)
             statusBanner: nil,
             // and the "for sending X" block
@@ -185,6 +203,7 @@ enum TransactionDetailsFactory {
                 for: transaction,
                 isFailed: isFailed(record: record),
                 caption: nil,
+                fiatText: nil,
                 icon: .token(context.tokenIconInfo)
             ),
             statusBanner: stakingStatusBanner(for: transaction, record: record),
@@ -207,6 +226,7 @@ enum TransactionDetailsFactory {
                 for: transaction,
                 isFailed: isFailed,
                 caption: Localization.transactionHistoryApprovedAmount,
+                fiatText: nil,
                 icon: approvedTokenIcon(for: record, context: context)
             ),
             statusBanner: isFailed ? nil : highRiskBanner(for: record),
@@ -280,17 +300,44 @@ enum TransactionDetailsFactory {
         )
     }
 
+    // MARK: - Gasless fee
+
+    private static func gaslessFeeContent(
+        for transaction: TransactionViewModel,
+        record: TransactionRecord,
+        cryptoAmount: Decimal,
+        context: TransactionDetailsContext
+    ) -> TransactionDetailsGenericOperationViewData {
+        .init(
+            tokens: tokensBlock(
+                for: transaction,
+                isFailed: isFailed(record: record),
+                caption: nil,
+                fiatText: fiatText(amount: cryptoAmount, currencyId: context.tokenCurrencyId),
+                icon: .token(context.tokenIconInfo)
+            ),
+            statusBanner: nil,
+            principalAmount: nil,
+            counterparty: nil,
+            info: nil,
+            action: nil
+        )
+    }
+
+    // MARK: - Yield
+
     private static func yieldContent(
         for transaction: TransactionViewModel,
+        stage: YieldStage,
         record: TransactionRecord,
         context: TransactionDetailsContext
     ) -> TransactionDetailsYieldViewData {
         .init(
             tokens: TransactionDetailsYieldTokensViewData(
-                accountIcon: context.receiverAccountIcon,
+                provider: stage.provider,
                 tokenIconInfo: context.tokenIconInfo,
                 amountText: transaction.amount.amount,
-                statusTitle: yieldStatusTitle(for: transaction.transactionType)
+                caption: stage.caption
             ),
             statusBanner: nil,
             info: networkFeeInfo(from: record),
@@ -298,13 +345,14 @@ enum TransactionDetailsFactory {
         )
     }
 
-    private static func yieldStatusTitle(for type: TransactionViewModel.TransactionType) -> String? {
+    private static func yieldStage(for type: TransactionViewModel.TransactionType) -> YieldStage? {
         switch type {
+        case .yieldEnter, .yieldEnterCoin:
+            return YieldStage(provider: .leading(Assets.YieldModule.yieldModuleAaveLogo), caption: Localization.yieldModuleTransactionSupplied)
         case .yieldWithdraw, .yieldWithdrawCoin:
-            return Localization.yieldModuleTransactionReturned
-        case .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit, .yieldReactivate, .yieldSend, .yieldTopup:
-            return Localization.yieldModuleTransactionSupplied
-        case .stake, .unstake, .vote, .withdraw, .claimRewards, .restake,
+            return YieldStage(provider: .trailing(Assets.YieldModule.yieldModuleAaveLogo), caption: Localization.yieldModuleTransactionReturned)
+        case .yieldDeploy, .yieldInit, .yieldReactivate, .yieldSend, .yieldTopup,
+             .stake, .unstake, .vote, .withdraw, .claimRewards, .restake,
              .approve, .gaslessTransactionFee, .operation, .unknownOperation,
              .transfer, .gaslessTransfer, .swap, .onramp, .tangemPay:
             return nil
@@ -526,7 +574,13 @@ enum TransactionDetailsFactory {
         context: TransactionDetailsContext
     ) -> TransactionDetailsGenericOperationViewData {
         return .init(
-            tokens: tokensBlock(for: transaction, isFailed: isFailed(record: record), caption: nil, icon: .token(context.tokenIconInfo)),
+            tokens: tokensBlock(
+                for: transaction,
+                isFailed: isFailed(record: record),
+                caption: nil,
+                fiatText: nil,
+                icon: .token(context.tokenIconInfo)
+            ),
             statusBanner: nil,
             principalAmount: nil,
             counterparty: counterparty(for: transaction, label: counterpartyLabel(for: transaction)),
@@ -725,6 +779,7 @@ enum TransactionDetailsFactory {
             menuSections: TransactionDetailsMenuFactory.menuSections(
                 for: record,
                 counterpartyAddress: counterpartyAddress,
+                transactionType: transaction.transactionType,
                 context: context,
                 addContactHelper: addContactHelper
             )
@@ -881,5 +936,14 @@ enum TransactionDetailsFactory {
         case .custom:
             return nil
         }
+    }
+}
+
+// MARK: - Yield
+
+private extension TransactionDetailsFactory {
+    struct YieldStage {
+        let provider: TransactionDetailsYieldTokensViewData.Provider
+        let caption: String
     }
 }
