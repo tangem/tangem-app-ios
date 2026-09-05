@@ -11,6 +11,36 @@ import XCTest
 @testable import Tangem
 
 class DecimalNumberFormatterTests: XCTestCase {
+    func testParsingLocalizedDigitsPreservesDecimalPrecision() {
+        let cases = [
+            (locale: "ar_SA", input: "١٬٢٣٤٫٥٦", expected: "1234.56"),
+            (locale: "fa_IR", input: "۱٬۲۳۴٫۵۶", expected: "1234.56"),
+            (locale: "ar_SA", input: "٠٫٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠١", expected: "0.000000000000000001"),
+            (locale: "fa_IR", input: "۰٫۰۰۰۰۰۰۰۰۰۰۰۰۰۰۰۰۰۱", expected: "0.000000000000000001"),
+        ]
+
+        for testCase in cases {
+            let formatter = DecimalNumberFormatter(maximumFractionDigits: 18, locale: Locale(identifier: testCase.locale))
+
+            XCTAssertEqual(formatter.mapToDecimal(string: testCase.input), Decimal(string: testCase.expected), testCase.locale)
+        }
+    }
+
+    func testLocalizedDecimalRoundTripPreservesValue() {
+        for localeIdentifier in ["en_US", "ru_RU", "ar_SA", "fa_IR"] {
+            let formatter = DecimalNumberFormatter(maximumFractionDigits: 18, locale: Locale(identifier: localeIdentifier))
+
+            for input in ["0", "1", "1234.56", "0.000000000000000001", "1234.123456789012345678"] {
+                let value = Decimal(string: input)!
+                let formatted: String = formatter.format(value: value)
+                let rounded: Decimal? = formatter.format(value: value)
+
+                XCTAssertEqual(formatter.mapToDecimal(string: formatted), value, "\(localeIdentifier): \(input)")
+                XCTAssertEqual(rounded, value, "\(localeIdentifier): \(input)")
+            }
+        }
+    }
+
     func testFormatterWithRussianLocale() {
         let numberFormatter = NumberFormatter()
         numberFormatter.locale = Locale(identifier: "ru_RU")

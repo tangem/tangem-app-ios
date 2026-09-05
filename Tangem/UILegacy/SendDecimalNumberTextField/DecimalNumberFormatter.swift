@@ -75,6 +75,14 @@ struct DecimalNumberFormatter {
 
         // Convert formatted string to correct decimal number
         let formattedValue = string
+            .map { character in
+                guard character.unicodeScalars.allSatisfy(CharacterSet.decimalDigits.contains),
+                      let digit = character.wholeNumberValue else {
+                    return String(character)
+                }
+                return String(digit)
+            }
+            .joined()
             .replacingOccurrences(of: String(numberFormatter.groupingSeparator), with: "")
             .replacingOccurrences(of: String(decimalSeparator), with: ".")
 
