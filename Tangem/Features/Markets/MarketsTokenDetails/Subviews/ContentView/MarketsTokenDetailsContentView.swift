@@ -79,10 +79,12 @@ struct MarketsTokenDetailsContentView: View {
 
     private var contentBlocks: some View {
         VStack(spacing: Constants.coinVerticalPadding) {
-            if let tokenSummaryCardViewModel = viewModel.tokenSummaryCardViewModel {
+            if let tokenSummaryCardViewModel = viewModel.tokenSummaryCardViewModel, viewModel.isTokenSummaryCardVisible {
                 MarketsTokenSummaryView(viewModel: tokenSummaryCardViewModel)
                     .padding(.horizontal, Constants.contentHorizontalPadding)
             }
+
+            newsView
 
             if let metricsViewModel = viewModel.metricsViewModel {
                 MarketsTokenDetailsMetricsView(viewModel: metricsViewModel)
@@ -105,8 +107,6 @@ struct MarketsTokenDetailsContentView: View {
                 MarketsTokenDetailsSecurityScoreView(viewModel: securityScoreViewModel)
                     .padding(.horizontal, Constants.contentHorizontalPadding)
             }
-
-            newsView
 
             if viewModel.linksSections.isNotEmpty {
                 MarketsTokenDetailsLinksView(sections: viewModel.linksSections)
@@ -152,7 +152,8 @@ struct MarketsTokenDetailsContentView: View {
                 items: viewModel.tokenNewsItems,
                 onFourthItemAppear: viewModel.logCarouselScrolledIfNeeded
             )
-            .padding(.top, Constants.newsExtraTopPadding)
+            .padding(.top, viewModel.isTokenSummaryCardVisible ? Constants.newsExtraPadding : 0)
+            .padding(.bottom, Constants.newsExtraPadding)
         }
     }
 
@@ -169,6 +170,6 @@ private extension MarketsTokenDetailsContentView {
         static let contentVerticalSpacing: CGFloat = 32
         static let contentHorizontalPadding: CGFloat = 16
         static let coinVerticalPadding: CGFloat = 12
-        static let newsExtraTopPadding: CGFloat = 20
+        static let newsExtraPadding: CGFloat = 20
     }
 }
