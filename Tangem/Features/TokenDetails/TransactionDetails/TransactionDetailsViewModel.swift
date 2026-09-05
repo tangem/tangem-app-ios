@@ -222,6 +222,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
                     reduced: TransactionDetailsFactory.reduce(
                         transaction: transaction,
                         record: record,
+                        cryptoAmount: mapper.transferAmountValue(from: record),
                         context: context,
                         addContactHelper: viewModel.makeAddContactHelper(
                             for: transaction,

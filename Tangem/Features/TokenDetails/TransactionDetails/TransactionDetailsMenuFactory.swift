@@ -15,9 +15,12 @@ import TangemLocalization
 enum TransactionDetailsMenuFactory {
     private static let balanceFormatter = BalanceFormatter()
 
+    private static let yieldProviderURL = URL(string: "https://aave.com/")!
+
     static func menuSections(
         for record: TransactionRecord,
         counterpartyAddress: String?,
+        transactionType: TransactionViewModel.TransactionType,
         context: TransactionDetailsContext,
         addContactHelper: TransactionDetailsAddContactHelper
     ) -> [TransactionDetailsHeaderViewData.MenuSection] {
@@ -66,6 +69,15 @@ enum TransactionDetailsMenuFactory {
             ))
         }
 
+        if isYieldProviderInteraction(transactionType) {
+            transactionActions.append(.init(
+                id: "exploreProvider",
+                title: Localization.yieldModuleExploreSheetExploreAaveButtonTitle,
+                icon: DesignSystem.Icons.Globe.regular24,
+                action: .openURL(yieldProviderURL)
+            ))
+        }
+
         var sections: [TransactionDetailsHeaderViewData.MenuSection] = [
             .init(id: "address", actions: addressActions),
             .init(id: "transaction", actions: transactionActions),
@@ -83,6 +95,20 @@ enum TransactionDetailsMenuFactory {
         #endif
 
         return sections.filter { $0.actions.isNotEmpty }
+    }
+
+    // MARK: - Yield provider
+
+    private static func isYieldProviderInteraction(_ transactionType: TransactionViewModel.TransactionType) -> Bool {
+        switch transactionType {
+        case .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit,
+             .yieldReactivate, .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin:
+            return true
+        case .yieldSend, .stake, .unstake, .vote, .withdraw, .claimRewards, .restake,
+             .approve, .gaslessTransactionFee, .gaslessTransfer, .operation, .unknownOperation,
+             .transfer, .swap, .onramp, .tangemPay:
+            return false
+        }
     }
 
     // MARK: - Transaction id
