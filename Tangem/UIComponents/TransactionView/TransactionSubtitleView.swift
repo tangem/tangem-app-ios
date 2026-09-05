@@ -17,6 +17,7 @@ struct TransactionSubtitleView: View {
     let direction: TransactionDisplayModel.Direction
     let owner: TransactionViewModel.SubtitleOwner
     var accessibilityIdentifier: String? = nil
+    var isAddressEmphasized: Bool = false
 
     @ScaledMetric private var glyphSize: CGFloat = 16
 
@@ -64,12 +65,16 @@ struct TransactionSubtitleView: View {
             HStack(spacing: .unit(.x1)) {
                 addressBlockies(image: blockiesImage)
                 Text(short)
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+                    .style(Font.Tangem.Caption12.semibold, color: addressColor)
                     .lineLimit(1)
                     .truncationMode(.middle)
                     .accessibilityIdentifier(accessibilityIdentifier)
             }
         }
+    }
+
+    private var addressColor: Color {
+        isAddressEmphasized ? .Tangem.Text.Neutral.primary : .Tangem.Text.Neutral.tertiary
     }
 
     @ViewBuilder

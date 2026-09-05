@@ -427,38 +427,6 @@ private extension TransactionHistoryMapper {
         getFormattedAmount(for: prepare(record))
     }
 
-    func transferAmountValue(from record: TransactionRecord) -> Decimal {
-        if record.isOutgoing {
-            let sent: Decimal = {
-                switch record.source {
-                case .single(let source):
-                    return source.amount
-                case .multiple(let sources):
-                    return sources.sum(for: walletAddresses)
-                }
-            }()
-
-            let change: Decimal = {
-                switch record.destination {
-                case .single(let destination):
-                    return walletAddresses.contains(destination.address.string) ? destination.amount : 0
-                case .multiple(let destinations):
-                    return destinations.sum(for: walletAddresses)
-                }
-            }()
-
-            return sent - change
-
-        } else {
-            switch record.destination {
-            case .single(let destination):
-                return destination.amount
-            case .multiple(let destinations):
-                return destinations.sum(for: walletAddresses)
-            }
-        }
-    }
-
     func interactionAddress(
         from record: TransactionRecord,
         transactionType: TransactionViewModel.TransactionType
@@ -650,6 +618,40 @@ extension TransactionHistoryMapper {
     enum Constants {
         static let maximumFractionDigits = 8
         static let roundingMode: NSDecimalNumber.RoundingMode = .down
+    }
+}
+
+extension TransactionHistoryMapper {
+    func transferAmountValue(from record: TransactionRecord) -> Decimal {
+        if record.isOutgoing {
+            let sent: Decimal = {
+                switch record.source {
+                case .single(let source):
+                    return source.amount
+                case .multiple(let sources):
+                    return sources.sum(for: walletAddresses)
+                }
+            }()
+
+            let change: Decimal = {
+                switch record.destination {
+                case .single(let destination):
+                    return walletAddresses.contains(destination.address.string) ? destination.amount : 0
+                case .multiple(let destinations):
+                    return destinations.sum(for: walletAddresses)
+                }
+            }()
+
+            return sent - change
+
+        } else {
+            switch record.destination {
+            case .single(let destination):
+                return destination.amount
+            case .multiple(let destinations):
+                return destinations.sum(for: walletAddresses)
+            }
+        }
     }
 }
 
