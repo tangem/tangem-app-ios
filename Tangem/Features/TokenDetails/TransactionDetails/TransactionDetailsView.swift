@@ -164,6 +164,11 @@ private extension AnyTransition {
         .background(DesignSystem.Color.bgPrimary)
 }
 
+#Preview("Approve unlimited") {
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.approveUnlimited())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
 #Preview("Fee") {
     TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.fee())
         .background(DesignSystem.Color.bgPrimary)
