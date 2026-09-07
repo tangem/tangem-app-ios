@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemPolymarketUI
 import TangemUI
@@ -33,6 +34,7 @@ struct PolymarketMainView: View {
         }
         .safeAreaInset(edge: .bottom, spacing: 0) { searchField }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+        .bindAlert($viewModel.alert)
     }
 
     // MARK: - Top bar
@@ -244,9 +246,14 @@ struct PolymarketMainView: View {
 
     private var actionButtons: some View {
         HStack(spacing: Constants.actionButtonsSpacing) {
-            TangemMainActionButton(title: Localization.commonAddFunds, icon: Assets.DesignSystem.arrowDown) {
-                viewModel.onAddFundsTap()
-            }
+            TangemMainActionButton(
+                title: Localization.commonAddFunds,
+                icon: Assets.DesignSystem.arrowDown,
+                action: viewModel.onAddFundsTap,
+                reasonTapWhenDisabled: viewModel.onAddFundsTap
+            )
+            .disabled(viewModel.addFundsState != .available)
+            .accessibilityIdentifier(PolymarketAccessibilityIdentifiers.addFundsButton)
 
             // [REDACTED_TODO_COMMENT]
             TangemMainActionButton(title: "Withdraw", icon: Assets.DesignSystem.arrowUp) {

@@ -70,13 +70,18 @@ private enum PolymarketDepositFixtures {
         """#.utf8
     )
 
+    /// Shaped after a live `POST /deposit` response — the addresses arrive wrapped in `address`.
+    /// The values are placeholders: a real bridge address exposes its owner's deposit history publicly.
     static let fundingAddresses = Data(
         #"""
         {
-          "evm": "0x5f3b1c0000000000000000000000000000000c1a",
-          "svm": "5fBaSePqQKcJmvkFvpTsUcXAKVUcbrxWQPMLdrhTGiPN",
-          "btc": "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
-          "tron": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+          "address": {
+            "evm": "0x2222222222222222222222222222222222222222",
+            "svm": "SvmFundingAddressPlaceholder22222222222222",
+            "tron": "TronFundingAddressPlaceholder2222222222",
+            "btc": "bc1qfundingaddressplaceholder22222222222222"
+          },
+          "note": "Only certain chains and tokens are supported. See /supported-assets for details."
         }
         """#.utf8
     )
@@ -248,10 +253,10 @@ struct PolymarketBridgeFundingAddressesTests {
         let addresses = mapper.mapFundingAddresses(dto)
 
         let expected: [PolymarketChainFamily: String] = [
-            .evm: "0x5f3b1c0000000000000000000000000000000c1a",
-            .svm: "5fBaSePqQKcJmvkFvpTsUcXAKVUcbrxWQPMLdrhTGiPN",
-            .btc: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
-            .tron: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+            .evm: "0x2222222222222222222222222222222222222222",
+            .svm: "SvmFundingAddressPlaceholder22222222222222",
+            .btc: "bc1qfundingaddressplaceholder22222222222222",
+            .tron: "TronFundingAddressPlaceholder2222222222",
         ]
 
         #expect(Set(expected.keys) == Set(PolymarketChainFamily.allCases))
@@ -261,9 +266,21 @@ struct PolymarketBridgeFundingAddressesTests {
         }
     }
 
+    @Test("A flat body fails on the missing envelope, so no top-level fallback can creep back in")
+    func addressesAreWrapped() throws {
+        let flatBody = Data(#"{ "evm": "0xabc" }"#.utf8)
+
+        do {
+            _ = try decoder.decode(PolymarketDTO.FundingAddressesResponse.self, from: flatBody)
+            Issue.record("Expected decoding a flat body to fail")
+        } catch DecodingError.keyNotFound(let key, _) {
+            #expect(key.stringValue == "address")
+        }
+    }
+
     @Test("A family the bridge did not return has no address, rather than borrowing another family's")
     func missingFamilyHasNoAddress() throws {
-        let body = Data(#"{ "evm": "0xabc" }"#.utf8)
+        let body = Data(#"{ "address": { "evm": "0xabc" } }"#.utf8)
 
         let dto = try decoder.decode(PolymarketDTO.FundingAddressesResponse.self, from: body)
         let addresses = mapper.mapFundingAddresses(dto)
@@ -277,29 +294,11 @@ struct PolymarketBridgeFundingAddressesTests {
 
     @Test("An empty string is not an address")
     func emptyAddressIsDropped() throws {
-        let body = Data(#"{ "evm": "0xabc", "tron": "" }"#.utf8)
+        let body = Data(#"{ "address": { "evm": "0xabc", "tron": "" } }"#.utf8)
 
         let dto = try decoder.decode(PolymarketDTO.FundingAddressesResponse.self, from: body)
         let addresses = mapper.mapFundingAddresses(dto)
 
         #expect(addresses.address(for: .tron) == nil)
-    }
-
-    @Test("Polymarket's own pages disagree on the Tron key, so both spellings are read")
-    func tronKeyIsReadUnderEitherSpelling() throws {
-        let tvmBody = Data(#"{ "evm": "0xabc", "tvm": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t" }"#.utf8)
-
-        let dto = try decoder.decode(PolymarketDTO.FundingAddressesResponse.self, from: tvmBody)
-
-        #expect(mapper.mapFundingAddresses(dto).address(for: .tron) == "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t")
-    }
-
-    @Test("When both Tron spellings arrive, the documented one wins")
-    func tronKeyWinsOverTvm() throws {
-        let bothBody = Data(#"{ "tron": "TRON_KEY", "tvm": "TVM_KEY" }"#.utf8)
-
-        let dto = try decoder.decode(PolymarketDTO.FundingAddressesResponse.self, from: bothBody)
-
-        #expect(mapper.mapFundingAddresses(dto).address(for: .tron) == "TRON_KEY")
     }
 }
