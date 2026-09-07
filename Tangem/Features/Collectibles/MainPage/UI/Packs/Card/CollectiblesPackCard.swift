@@ -26,26 +26,63 @@ private extension CollectiblesPackCard {
     // MARK: - View properties
 
     var artwork: some View {
-        CachedAsyncImage(url: model.artworkURL) { phase in
-            ZStack {
-                // The glow is the artwork itself, blurred: the gray placeholder would read as a dirty halo.
-                if let image = phase.image {
-                    glow(image)
-                }
+        artworkContent
+            .infinityFrame(axis: .horizontal)
+            .frame(height: Metrics.artworkHeight)
+            .background(DesignSystem.Color.bgSecondary)
+            .clipShape(RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous)
+                    .strokeBorder(DesignSystem.Color.borderPrimary, lineWidth: 1)
+            }
+    }
 
-                groundShadow
-                packView(for: phase)
-                    .frame(width: Metrics.packWidth, height: Metrics.packHeight)
+    @ViewBuilder
+    var artworkContent: some View {
+        if let artworkURL = model.artworkURL {
+            remoteArtwork(artworkURL)
+        } else {
+            missingArtworkBadge
+        }
+    }
+
+    func remoteArtwork(_ url: URL) -> some View {
+        CachedAsyncImage(url: url) { phase in
+            switch phase {
+            case .success(let image):
+                ZStack {
+                    // The glow is the artwork itself, blurred: the gray placeholder would read as a dirty halo.
+                    glow(image)
+                    groundShadow
+                    packImage(image)
+                        .frame(width: Metrics.packWidth, height: Metrics.packHeight)
+                }
+            case .empty:
+                ZStack {
+                    groundShadow
+                    loadingPlaceholder
+                        .frame(width: Metrics.packWidth, height: Metrics.packHeight)
+                }
+            case .failure:
+                missingArtworkBadge
+            @unknown default:
+                missingArtworkBadge
             }
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: Metrics.artworkHeight)
-        .background(DesignSystem.Color.bgSecondary)
-        .clipShape(RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous)
-                .strokeBorder(DesignSystem.Color.borderPrimary, lineWidth: 1)
-        }
+    }
+
+    var missingArtworkBadge: some View {
+        Circle()
+            .fill(DesignSystem.Color.bgOpaquePrimary)
+            .frame(size: CGSize(bothDimensions: Metrics.fallbackBadgeSize))
+            .overlay {
+                DesignSystem.Icons.Error.filled20.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .frame(size: CGSize(bothDimensions: Metrics.fallbackGlyphSize))
+                    .foregroundStyle(DesignSystem.Color.iconTertiary)
+            }
+            .accessibilityHidden(true)
     }
 
     func glow(_ image: Image) -> some View {
@@ -65,17 +102,12 @@ private extension CollectiblesPackCard {
             .offset(y: Metrics.shadowOffset)
     }
 
-    @ViewBuilder
-    func packView(for phase: AsyncImagePhase) -> some View {
-        if let image = phase.image {
-            packImage(image)
-        } else {
-            // Sized to the visible pouch inside the artwork frame (the image carries
-            // transparent margins), so the ground shadow peeks out from underneath.
-            RoundedRectangle(cornerRadius: Metrics.placeholderCornerRadius, style: .continuous)
-                .fill(DesignSystem.Color.bgTertiary)
-                .frame(width: Metrics.placeholderWidth, height: Metrics.placeholderHeight)
-        }
+    var loadingPlaceholder: some View {
+        // Sized to the visible pouch inside the artwork frame (the image carries
+        // transparent margins), so the ground shadow peeks out from underneath.
+        RoundedRectangle(cornerRadius: Metrics.placeholderCornerRadius, style: .continuous)
+            .fill(DesignSystem.Color.bgTertiary)
+            .frame(width: Metrics.placeholderWidth, height: Metrics.placeholderHeight)
     }
 
     func packImage(_ image: Image) -> some View {
@@ -129,6 +161,8 @@ extension CollectiblesPackCard {
         static let placeholderCornerRadius: CGFloat = 12
         static let placeholderWidth: CGFloat = 116
         static let placeholderHeight: CGFloat = 169
+        static let fallbackBadgeSize: CGFloat = 40
+        static let fallbackGlyphSize: CGFloat = 20
         static let contentSpacing: CGFloat = 8
         static let detailsSpacing: CGFloat = 2
         static let priceSpacing: CGFloat = 4
