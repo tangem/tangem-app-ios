@@ -93,17 +93,17 @@ public extension TangemPayBankAccountResponse {
 
 // MARK: - Enums
 
-public enum TangemPayBankAccountRail: String {
+public enum TangemPayBankAccountRail: String, Encodable {
     case ach = "ACH"
     case wire = "WIRE"
 }
 
-public enum TangemPayBankAccountBeneficiaryType: String {
+public enum TangemPayBankAccountBeneficiaryType: String, Encodable {
     case individual = "INDIVIDUAL"
     case business = "BUSINESS"
 }
 
-public enum TangemPayBankAccountType: String {
+public enum TangemPayBankAccountType: String, Encodable {
     case checking = "CHECKING"
     case savings = "SAVINGS"
 }
