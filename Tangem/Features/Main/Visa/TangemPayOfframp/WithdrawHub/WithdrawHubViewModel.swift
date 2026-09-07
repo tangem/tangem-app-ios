@@ -64,11 +64,11 @@ final class WithdrawHubViewModel: ObservableObject {
     }
 
     private func onPersonalAccountTap() {
-        // [REDACTED_TODO_COMMENT]
+        output(.startWizard(.newIndividual))
     }
 
     private func onBusinessAccountTap() {
-        // [REDACTED_TODO_COMMENT]
+        output(.startWizard(.newBusiness))
     }
 
     private func onRecentTokenTap(id: String) {
@@ -77,8 +77,7 @@ final class WithdrawHubViewModel: ObservableObject {
 
     private func onRecentAccountTap(id: String) {
         recentRecipientsStore.recordSelection(id: id)
-
-        // [REDACTED_TODO_COMMENT]
+        output(.startWizard(.saved(bankAccountId: id)))
     }
 
     private func onSeeAllTap() {
@@ -181,6 +180,7 @@ extension WithdrawHubViewModel {
         case withdrawInProgress
         case noDepositAddress
         case allRecipients
+        case startWizard(TangemPayOfframpRecipient)
         case close
     }
 }
