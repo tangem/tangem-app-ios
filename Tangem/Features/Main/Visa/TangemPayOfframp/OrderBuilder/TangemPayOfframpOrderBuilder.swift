@@ -1,0 +1,188 @@
+//
+//  TangemPayOfframpOrderBuilder.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import TangemFoundation
+import TangemPay
+
+final class TangemPayOfframpOrderBuilder {
+    private(set) var recipient: TangemPayOfframpRecipient
+    private(set) var amount: Decimal?
+    private(set) var token: TangemPayOfframpTokenSelection?
+    private(set) var rail: TangemPayBankAccountRail?
+    private(set) var isThirdParty: Bool?
+    private(set) var personalDetails: TangemPayOfframpPersonalDetails?
+    private(set) var bankDetails: TangemPayOfframpBankDetails?
+
+    init(recipient: TangemPayOfframpRecipient) {
+        self.recipient = recipient
+    }
+
+    func set(amount: Decimal) {
+        self.amount = amount
+    }
+
+    func set(token: TangemPayOfframpTokenSelection) {
+        self.token = token
+    }
+
+    func set(rail: TangemPayBankAccountRail) {
+        self.rail = rail
+    }
+
+    func set(isThirdParty: Bool) {
+        self.isThirdParty = isThirdParty
+    }
+
+    func set(personalDetails: TangemPayOfframpPersonalDetails) {
+        self.personalDetails = personalDetails
+    }
+
+    func set(bankDetails: TangemPayOfframpBankDetails) {
+        self.bankDetails = bankDetails
+    }
+
+    func selectSaved(bankAccountId: String) {
+        recipient = .saved(bankAccountId: bankAccountId)
+        isThirdParty = nil
+        personalDetails = nil
+        bankDetails = nil
+    }
+
+    func buildOrderRequest() throws(BuildError) -> TangemPayPlaceOrderRequest {
+        guard let amount else {
+            throw .missingAmount
+        }
+
+        guard let token else {
+            throw .missingToken
+        }
+
+        let amountInCents = TangemPayUtilities.fiatItem
+            .convertToCents(value: amount)
+            .intValue(roundingMode: .down)
+
+        switch recipient {
+        case .saved(let bankAccountId):
+            return TangemPayPlaceOrderRequest(
+                offrampAmountInCents: amountInCents,
+                chainId: token.chainId,
+                tokenContractAddress: token.tokenContractAddress,
+                bankAccountId: bankAccountId
+            )
+
+        case .newIndividual:
+            guard let isThirdParty else {
+                throw .missingTransferType
+            }
+
+            return try makeNewBankAccountRequest(
+                amountInCents: amountInCents,
+                token: token,
+                thirdParty: isThirdParty
+            )
+
+        case .newBusiness:
+            return try makeNewBankAccountRequest(
+                amountInCents: amountInCents,
+                token: token,
+                thirdParty: Constants.businessThirdParty
+            )
+        }
+    }
+}
+
+// MARK: - Mode B assembly
+
+private extension TangemPayOfframpOrderBuilder {
+    func makeNewBankAccountRequest(
+        amountInCents: Int,
+        token: TangemPayOfframpTokenSelection,
+        thirdParty: Bool
+    ) throws(BuildError) -> TangemPayPlaceOrderRequest {
+        guard let rail else {
+            throw .missingRail
+        }
+
+        guard let personalDetails else {
+            throw .missingPersonalDetails
+        }
+
+        guard let bankDetails else {
+            throw .missingBankDetails
+        }
+
+        let details = TangemPayPlaceOrderRequest.BankAccount.Details(
+            currency: Constants.currency,
+            rail: rail,
+            thirdParty: thirdParty,
+            beneficiary: Self.makeBeneficiary(from: personalDetails.name),
+            beneficiaryAddress: .init(
+                line1: personalDetails.line1,
+                line2: nil,
+                city: personalDetails.city,
+                region: personalDetails.region,
+                postalCode: personalDetails.postalCode,
+                countryCode: personalDetails.countryCode
+            ),
+            bankName: bankDetails.name,
+            bankAddress: .init(
+                line1: bankDetails.line1,
+                line2: nil,
+                city: bankDetails.city,
+                region: bankDetails.region,
+                postalCode: bankDetails.postalCode,
+                countryCode: Constants.bankCountryCode
+            ),
+            accountNumber: personalDetails.accountNumber,
+            routingNumber: personalDetails.routingNumber,
+            bankAccountType: personalDetails.accountType
+        )
+
+        return TangemPayPlaceOrderRequest(
+            offrampAmountInCents: amountInCents,
+            chainId: token.chainId,
+            tokenContractAddress: token.tokenContractAddress,
+            bankAccount: .init(displayName: nil, details: details)
+        )
+    }
+
+    static func makeBeneficiary(
+        from name: TangemPayOfframpPersonalDetails.Name
+    ) -> TangemPayPlaceOrderRequest.BankAccount.Beneficiary {
+        switch name {
+        case .individual(let firstName, let lastName):
+            .individual(firstName: firstName, lastName: lastName)
+        case .business(let name):
+            .business(name: name)
+        }
+    }
+}
+
+// MARK: - BuildError
+
+extension TangemPayOfframpOrderBuilder {
+    enum BuildError: Error, Equatable {
+        case missingAmount
+        case missingToken
+        case missingRail
+        case missingTransferType
+        case missingPersonalDetails
+        case missingBankDetails
+    }
+}
+
+// MARK: - Constants
+
+private extension TangemPayOfframpOrderBuilder {
+    enum Constants {
+        static let currency = "USD"
+        static let bankCountryCode = "US"
+        static let businessThirdParty = true
+    }
+}
