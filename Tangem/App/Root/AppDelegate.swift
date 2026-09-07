@@ -27,7 +27,6 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         ]
         UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor.textAccent
         servicesManager.initialize(delegate: self)
-        print("test")
         return true
     }
 
