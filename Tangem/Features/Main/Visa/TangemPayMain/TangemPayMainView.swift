@@ -233,6 +233,7 @@ struct TangemPayMainView: View {
                 SwiftUI.Button(action: viewModel.tapAddCard) {
                     TangemPayAddCardView()
                 }
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountAddCardButton)
                 .disabled(viewModel.addCardDisabled)
                 .opacity(viewModel.addCardDisabled ? 0.6 : 1)
             }
@@ -287,10 +288,12 @@ struct TangemPayMainView: View {
                 Text(Localization.tangempayPaymentAccount)
                     .font(token: DesignSystem.Font.subheadingMediumToken)
                     .foregroundStyle(DesignSystem.Color.textPrimary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountToolbarTitle)
 
                 Text(viewModel.toolbarSubtitle)
                     .font(token: DesignSystem.Font.captionMediumToken)
                     .foregroundStyle(DesignSystem.Color.textTertiary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountToolbarSubtitle)
             }
         }
 

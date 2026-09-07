@@ -10,6 +10,8 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class TangemPayTransactionDetailsScreen: Screen {
+    private static let errorLoadingText = "Error loading"
+
     let app: XCUIApplication
 
     init(_ app: XCUIApplication) {
@@ -44,6 +46,27 @@ final class TangemPayTransactionDetailsScreen: Screen {
 
     private var amountSubtitle: XCUIElement {
         app.staticTexts[TangemPayAccessibilityIdentifiers.transactionDetailsAmountSubtitle].firstMatch
+    }
+
+    private var statusReason: XCUIElement {
+        app.staticTexts[TangemPayAccessibilityIdentifiers.transactionDetailsStatusReason].firstMatch
+    }
+
+    private var statusIcon: XCUIElement {
+        app.descendants(matching: .any)
+            .matching(identifier: TangemPayAccessibilityIdentifiers.transactionDetailsStatusIcon)
+            .firstMatch
+    }
+
+    /// The retry control keeps its own identifier when the row exposes it, otherwise the row itself carries the error text.
+    private var cardRowLoadingError: XCUIElement {
+        let predicate = NSPredicate(
+            format: "identifier == %@ OR (identifier == %@ AND label CONTAINS[c] %@)",
+            TangemPayAccessibilityIdentifiers.transactionDetailsCardRowRetryButton,
+            TangemPayAccessibilityIdentifiers.transactionDetailsCardRow,
+            Self.errorLoadingText
+        )
+        return app.descendants(matching: .any).matching(predicate).firstMatch
     }
 
     @discardableResult
@@ -121,6 +144,48 @@ final class TangemPayTransactionDetailsScreen: Screen {
 
             let label = cardRow.label
             XCTAssertTrue(label.contains(cardName), "Card row should show the card name '\(cardName)'. Actual: '\(label)'")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyStatusReason(_ expectedReason: String) -> Self {
+        XCTContext.runActivity(named: "Verify status reason '\(expectedReason)'") { _ in
+            waitAndAssertTrue(statusReason, "Transaction status reason should be displayed")
+            XCTAssertEqual(
+                statusReason.label,
+                expectedReason,
+                "Status reason should be '\(expectedReason)'. Actual: '\(statusReason.label)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyStatusIconVisible() -> Self {
+        XCTContext.runActivity(named: "Verify transaction status icon is displayed") { _ in
+            waitAndAssertTrue(statusIcon, "Transaction status icon should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyCardRowLoadingError() -> Self {
+        XCTContext.runActivity(named: "Verify card row shows the loading error") { _ in
+            waitAndAssertTrue(
+                cardRowLoadingError,
+                timeout: .networkRequest,
+                "Card row should show the '\(Self.errorLoadingText)' state"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapCardRowRetry() -> Self {
+        XCTContext.runActivity(named: "Tap retry in the card row error state") { _ in
+            waitAndAssertTrue(cardRowLoadingError, "Card row retry control should be displayed")
+            cardRowLoadingError.tapEvenIfNotHittable()
             return self
         }
     }

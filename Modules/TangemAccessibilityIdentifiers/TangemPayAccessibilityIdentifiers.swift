@@ -37,6 +37,9 @@ public enum TangemPayAccessibilityIdentifiers {
 
     public static let paymentAccountCardButtonPrefix = "\(prefix)PaymentAccountCardButton"
     public static let paymentAccountCardButton = "\(prefix)PaymentAccountCardButton"
+    public static let paymentAccountAddCardButton = "\(prefix)PaymentAccountAddCardButton"
+    public static let paymentAccountToolbarTitle = "\(prefix)PaymentAccountToolbarTitle"
+    public static let paymentAccountToolbarSubtitle = "\(prefix)PaymentAccountToolbarSubtitle"
     public static let paymentAccountBalance = "\(prefix)PaymentAccountBalance"
     public static let addFundsButton = "\(prefix)AddFundsButton"
     public static let withdrawButton = "\(prefix)WithdrawButton"
@@ -141,9 +144,12 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let transactionDetailsAmount = "\(prefix)TransactionDetailsAmount"
     public static let transactionDetailsAmountSubtitle = "\(prefix)TransactionDetailsAmountSubtitle"
     public static let transactionDetailsStatus = "\(prefix)TransactionDetailsStatus"
+    public static let transactionDetailsStatusReason = "\(prefix)TransactionDetailsStatusReason"
+    public static let transactionDetailsStatusIcon = "\(prefix)TransactionDetailsStatusIcon"
     public static let transactionDetailsCategoryRow = "\(prefix)TransactionDetailsCategoryRow"
     public static let transactionDetailsMccRow = "\(prefix)TransactionDetailsMccRow"
     public static let transactionDetailsCardRow = "\(prefix)TransactionDetailsCardRow"
+    public static let transactionDetailsCardRowRetryButton = "\(prefix)TransactionDetailsCardRowRetryButton"
     public static let transactionDetailsMainButton = "\(prefix)TransactionDetailsMainButton"
 
     // MARK: - PIN setup screen
