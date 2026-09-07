@@ -352,11 +352,17 @@ final class PolymarketCardSignerStub: TangemSigner {
 
 final class PolymarketAPIProviderStub: PolymarketAPIProvider {
     private(set) var searchRequests: [PolymarketSearchRequest] = []
+    private(set) var quoteRequests: [PolymarketOrderQuoteRequest] = []
 
     private var searchResults: [Result<PolymarketSearchResult, Error>]
+    private let quoteResult: PolymarketOrderQuote?
 
-    init(searchResults: [Result<PolymarketSearchResult, Error>] = []) {
+    init(
+        searchResults: [Result<PolymarketSearchResult, Error>] = [],
+        quoteResult: PolymarketOrderQuote? = nil
+    ) {
         self.searchResults = searchResults
+        self.quoteResult = quoteResult
     }
 
     func search(request: PolymarketSearchRequest) async throws -> PolymarketSearchResult {
@@ -386,7 +392,27 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
     }
 
     func orderQuote(request: PolymarketOrderQuoteRequest) async throws -> PolymarketOrderQuote {
-        throw PolymarketDepositWalletServiceStub.StubError()
+        quoteRequests.append(request)
+
+        guard let quoteResult else {
+            throw PolymarketDepositWalletServiceStub.StubError()
+        }
+
+        return quoteResult
+    }
+}
+
+// MARK: - Geoblock
+
+final class PolymarketGeoblockStateProviderStub: PolymarketGeoblockStateProvider {
+    let state: PolymarketGeoblockState
+
+    var statePublisher: AnyPublisher<PolymarketGeoblockState, Never> {
+        .just(output: state)
+    }
+
+    init(state: PolymarketGeoblockState = .allowed) {
+        self.state = state
     }
 }
 
