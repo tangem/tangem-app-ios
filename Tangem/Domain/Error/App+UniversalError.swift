@@ -135,6 +135,8 @@ extension AnyWalletFactoryError: UniversalError {
             100005002
         case .twinWalletPublicKeyNotFound:
             100005003
+        case .accountAddressUnavailable:
+            100005004
         }
     }
 }

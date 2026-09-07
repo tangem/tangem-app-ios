@@ -8,11 +8,13 @@
 
 /// A slot of a joint account that is taken.
 struct JointAccountMember: Equatable {
-    /// Which slot this is, and — for everyone the creator let in — the invite it was taken with. Only the creator
-    /// has none: they opened the account rather than being invited into it.
+    /// Which slot this is, and — for everyone the creator let in — the invite it was taken with. The creator never
+    /// has one: they opened the account rather than being invited into it. A member has one only while the endpoint
+    /// still reports it, which is until the account is activated: once every slot is filled the invites have served
+    /// their purpose and an active account is described without them.
     enum Role: Equatable {
         case creator
-        case member(inviteId: String)
+        case member(inviteId: String?)
     }
 
     /// From 1 to 25 characters.
