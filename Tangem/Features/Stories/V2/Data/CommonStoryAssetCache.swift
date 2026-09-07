@@ -6,29 +6,32 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import CryptoSwift
 import Foundation
 import TangemStories
 
 /// Disk cache for story assets: a remote file is downloaded once, a local one passes through.
-/// Keyed by checksum, evicted LRU by last access, capped by total size.
+/// Evicted LRU, capped by total size.
 actor CommonStoryAssetCache: StoryAssetCaching {
     private let dir: URL
     private let maxBytes: Int
     private let dataLoader: StoriesDataLoader
 
-    init(maxBytes: Int = Constants.maxBytes, dataLoader: StoriesDataLoader = CommonStoriesDataLoader()) {
-        let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-        dir = caches.appendingPathComponent(Constants.directoryName, isDirectory: true)
+    init(
+        directory: URL = Constants.defaultDirectory,
+        maxBytes: Int = Constants.maxBytes,
+        dataLoader: StoriesDataLoader = CommonStoriesDataLoader()
+    ) {
+        dir = directory
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         self.maxBytes = maxBytes
         self.dataLoader = dataLoader
     }
 
-    /// A new story version carries a new checksum → a new file, so old-version files never hit.
-    /// An asset without a checksum has no version key to cache against and stays remote.
+    /// A new checksum means a new file, so a new story version never hits an old one. Without a
+    /// checksum the URL keys the entry, and content replaced behind that URL is not picked up.
     func localURL(remoteURL url: URL, checksum: String) async -> URL? {
         if url.isFileURL { return url }
-        guard !checksum.isEmpty else { return nil }
 
         let destination = dir.appendingPathComponent(fileName(checksum: checksum, url: url))
 
@@ -52,12 +55,13 @@ actor CommonStoryAssetCache: StoryAssetCaching {
 
     // MARK: - Private
 
-    /// The checksum is flattened to [letters, digits, "_"] so a malformed value can't traverse
-    /// out of the cache directory; a well-formed `sha256:<hex>` keeps its usual file name.
+    /// Hashed rather than used verbatim: neither value is a safe file name on its own.
     private func fileName(checksum: String, url: URL) -> String {
-        let base = String(checksum.map { $0.isLetter || $0.isNumber ? $0 : "_" })
-        let ext = url.pathExtension
-        return ext.isEmpty ? base : "\(base).\(ext)"
+        let name = (checksum.isEmpty ? url.absoluteString : checksum).sha256()
+
+        guard !url.pathExtension.isEmpty else { return name }
+
+        return "\(name).\(url.pathExtension)"
     }
 
     private func touch(_ url: URL) {
@@ -93,6 +97,10 @@ actor CommonStoryAssetCache: StoryAssetCaching {
 extension CommonStoryAssetCache {
     enum Constants {
         static let maxBytes = 200 * 1024 * 1024
-        static let directoryName = "StoryAssetCache"
+
+        static var defaultDirectory: URL {
+            FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent("StoryAssetCache", isDirectory: true)
+        }
     }
 }
