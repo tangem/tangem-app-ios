@@ -37,7 +37,9 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
             if let store = coordinator.recentRecipientsStore {
                 let viewModel = RecentRecipientsViewModel(
                     recentRecipientsStore: store,
-                    output: { _ in /* TODO: proceed with selection */ }
+                    output: { [weak coordinator] bankAccountId in
+                        coordinator?.startWizard(recipient: .saved(bankAccountId: bankAccountId))
+                    }
                 )
                 RecentRecipientsView(viewModel: viewModel)
             }
