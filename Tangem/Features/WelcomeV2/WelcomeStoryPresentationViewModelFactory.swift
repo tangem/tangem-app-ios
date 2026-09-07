@@ -23,6 +23,11 @@ struct WelcomeStoryPresentationViewModelFactory {
         static let scanWallet = "welcome_story_scan_wallet"
     }
 
+    enum StoryConstants {
+        static let storyID = "welcome_onboarding"
+        static let placement = "onboarding"
+    }
+
     func make(
         provider: WelcomeStoryProviding,
         onFinished: @escaping (StoryExitReason, StoryActionV2?) -> Void
@@ -33,8 +38,8 @@ struct WelcomeStoryPresentationViewModelFactory {
         guard urls.count == slideCopy.count else { return nil }
 
         let story = StoryV2(
-            id: "welcome_onboarding",
-            placements: ["onboarding"],
+            id: StoryConstants.storyID,
+            placements: [StoryConstants.placement],
             displayPolicy: .always,
             endBehavior: .loop,
             actions: makeActions(),
