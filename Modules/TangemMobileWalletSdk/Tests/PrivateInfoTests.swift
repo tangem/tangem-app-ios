@@ -36,6 +36,25 @@ struct PrivateInfoTests {
         #expect(decoded.passphrase == "")
     }
 
+    @Test(arguments: [
+        "olá",
+        // Cyrillic: 6 Characters, 12 UTF-8 bytes.
+        "\u{43F}\u{430}\u{440}\u{43E}\u{43B}\u{44C}",
+        "密码短语",
+        "e\u{301}galite\u{301}",
+        // A single Character spanning 25 UTF-8 bytes.
+        "👨‍👩‍👧‍👦",
+    ])
+    func testEncodeDecodeWithNonASCIIPassphrase(passphrase: String) throws {
+        let entropy = Data(repeating: 0xAB, count: 16)
+        let privateInfo = PrivateInfo(entropy: entropy, passphrase: passphrase)
+
+        let decoded = try #require(PrivateInfo(data: privateInfo.encode()))
+
+        #expect(decoded.entropy == entropy)
+        #expect(decoded.passphrase == passphrase)
+    }
+
     @Test
     func testDecodeInvalidData() {
         let invalidData = Data([0x00, 0x01])
