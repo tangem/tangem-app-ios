@@ -54,7 +54,7 @@ private extension CollectiblesAccountView {
             actionButtons
                 .padding(.top, Metrics.actionButtonsTopPadding)
         }
-        .frame(maxWidth: .infinity)
+        .infinityFrame(axis: .horizontal)
         .padding(.top, Metrics.topPadding)
     }
 

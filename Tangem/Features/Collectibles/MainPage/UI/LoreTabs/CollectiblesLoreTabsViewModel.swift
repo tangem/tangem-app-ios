@@ -56,15 +56,15 @@ private extension CollectiblesLoreTabsViewModel {
         state = .loading
 
         do {
-            let lores = try await provider.load()
+            let catalogue = try await provider.load()
             try Task.checkCancellation()
 
-            guard !lores.isEmpty else {
+            guard !catalogue.lores.isEmpty else {
                 state = .empty
                 return
             }
 
-            let tabs = CollectiblesLoreTabsMapper.map(lores)
+            let tabs = CollectiblesLoreTabsMapper.map(catalogue)
             selectedTab = tabs.first { $0.id == selectedTab.id } ?? CollectiblesLoreTabsMapper.allTab
             state = .content(tabs)
         } catch is CancellationError {
