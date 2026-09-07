@@ -69,6 +69,8 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
 
     private var campaignCoordinator: CampaignCoordinator?
 
+    private(set) var feedCoordinator: FeedCoordinator?
+
     // MARK: - Child view models
 
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
@@ -124,10 +126,21 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
             onActivation: weakify(self, forFunction: MainCoordinator.openMobileFinishActivation)
         )
 
+        setupFeedCoordinator()
         bind()
     }
 
     // MARK: - Private Implementation
+
+    private func setupFeedCoordinator() {
+        guard FeatureProvider.isAvailable(.nativeMarketsShtorka) else {
+            return
+        }
+
+        let coordinator = FeedCoordinator(popToRootAction: popToRootAction)
+        coordinator.start(with: .init())
+        feedCoordinator = coordinator
+    }
 
     private func bind() {
         deeplinkDestinationSubscription = deeplinkDestination
