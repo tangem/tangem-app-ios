@@ -48,7 +48,7 @@ struct MultiWalletMainContentRedesignedView: View {
         .padding(.horizontal, 12)
         .onDidAppear(perform: viewModel.onDidAppear)
         .onWillDisappear(perform: viewModel.onWillDisappear)
-        .bindAlert($viewModel.error)
+        .shtorkaCompatibleBindAlert($viewModel.error)
     }
 
     // MARK: - Notification Banners
