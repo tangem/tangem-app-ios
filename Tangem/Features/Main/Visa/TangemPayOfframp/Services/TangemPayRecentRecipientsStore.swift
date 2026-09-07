@@ -23,6 +23,14 @@ final class TangemPayRecentRecipientsStore {
             }
     }
 
+    var recipientsPublisher: some Publisher<[TangemPayBankAccountResponse], Never> {
+        stateSubject.map(\.recipients)
+    }
+
+    var recipients: [TangemPayBankAccountResponse] {
+        stateSubject.value.recipients
+    }
+
     private let repository: any TangemPayBankAccountsRepository
     private let cacheStorage: any TangemPayRecentRecipientsCacheStorage
     private let customerWalletId: String
@@ -70,6 +78,15 @@ extension TangemPayRecentRecipientsStore {
     enum State {
         case loading
         case loaded([TangemPayBankAccountResponse])
+
+        var recipients: [TangemPayBankAccountResponse] {
+            switch self {
+            case .loading:
+                []
+            case .loaded(let bankAccounts):
+                bankAccounts
+            }
+        }
     }
 }
 

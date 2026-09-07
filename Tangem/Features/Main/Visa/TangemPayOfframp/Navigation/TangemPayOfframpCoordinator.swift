@@ -18,6 +18,7 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
     // MARK: - Root view model
 
     @Published private(set) var rootViewModel: WithdrawHubViewModel?
+    @Published var path: [Route] = []
 
     // MARK: - Child coordinators
 
@@ -25,7 +26,7 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
 
     // MARK: - Shared state
 
-    private var recentRecipientsStore: TangemPayRecentRecipientsStore?
+    private(set) var recentRecipientsStore: TangemPayRecentRecipientsStore?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -69,6 +70,14 @@ extension TangemPayOfframpCoordinator {
     typealias DismissOptions = FeeCurrencyNavigatingDismissOption
 }
 
+// MARK: - Route
+
+extension TangemPayOfframpCoordinator {
+    enum Route: Hashable {
+        case recentRecipients
+    }
+}
+
 // MARK: - Withdraw hub output
 
 private extension TangemPayOfframpCoordinator {
@@ -94,6 +103,9 @@ private extension TangemPayOfframpCoordinator {
                 let viewModel = TangemPayNoDepositAddressSheetViewModel(coordinator: self)
                 floatingSheetPresenter.enqueue(sheet: viewModel)
             }
+
+        case .allRecipients:
+            path.append(.recentRecipients)
 
         case .close:
             dismiss(with: nil)

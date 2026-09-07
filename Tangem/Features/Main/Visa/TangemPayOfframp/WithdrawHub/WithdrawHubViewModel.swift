@@ -82,7 +82,7 @@ final class WithdrawHubViewModel: ObservableObject {
     }
 
     private func onSeeAllTap() {
-        // [REDACTED_TODO_COMMENT]
+        output(.allRecipients)
     }
 
     private func onWithinPortfolioTap() {
@@ -133,36 +133,14 @@ final class WithdrawHubViewModel: ObservableObject {
     private static func makeRecentAccountItem(
         from bankAccount: TangemPayBankAccountResponse
     ) -> WithdrawHubRecentAccountItem {
-        let name = makeName(for: bankAccount)
+        let name = TangemPayRecipientNameFormatter.name(for: bankAccount, style: .abbreviated)
 
         return WithdrawHubRecentAccountItem(
             id: bankAccount.id,
-            monogram: name.prefix(1).uppercased(),
+            monogram: TangemPayRecipientNameFormatter.monogram(for: name),
             name: name,
             accountNumber: bankAccount.details.accountNumber
         )
-    }
-
-    private static func makeName(for bankAccount: TangemPayBankAccountResponse) -> String {
-        let beneficiary = bankAccount.details.beneficiary
-
-        switch beneficiary.type {
-        case .business:
-            if let businessName = beneficiary.businessName?.nilIfEmpty {
-                return businessName
-            }
-
-        case .individual, .none:
-            if let firstName = beneficiary.firstName?.nilIfEmpty {
-                guard let lastNameInitial = beneficiary.lastName?.nilIfEmpty?.prefix(1) else {
-                    return firstName
-                }
-
-                return "\(firstName) \(lastNameInitial)."
-            }
-        }
-
-        return bankAccount.displayName?.nilIfEmpty ?? bankAccount.details.accountNumber
     }
 
     private func handle(_ outcome: TangemPayWithdrawFlowResolver.Outcome) {
@@ -202,6 +180,7 @@ extension WithdrawHubViewModel {
         case withdrawNote(PredefinedSwapParameters)
         case withdrawInProgress
         case noDepositAddress
+        case allRecipients
         case close
     }
 }
