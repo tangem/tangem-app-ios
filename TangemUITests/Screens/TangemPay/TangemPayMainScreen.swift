@@ -24,6 +24,12 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     private lazy var paymentAccountCardButton = app.buttons
         .matching(NSPredicate(format: "identifier BEGINSWITH %@", TangemPayAccessibilityIdentifiers.paymentAccountCardButtonPrefix))
         .firstMatch
+    private lazy var toolbarTitle = staticText(.toolbarTitle)
+    private lazy var toolbarSubtitle = staticText(.toolbarSubtitle)
+    private lazy var addCardButton = button(.addCardButton)
+    private lazy var emptyHistoryMessage = app.staticTexts
+        .matching(NSPredicate(format: "label CONTAINS %@", "You don't have any transactions yet"))
+        .firstMatch
     private lazy var balanceText = staticText(.paymentAccountBalance)
     private lazy var addFundsButton = button(.addFundsButton)
     private lazy var withdrawButton = button(.withdrawButton)
@@ -61,6 +67,57 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
         XCTContext.runActivity(named: "Read current balance") { _ in
             waitAndAssertTrue(balanceText, timeout: .networkRequest, "Balance text should be displayed")
             return balanceText.label
+        }
+    }
+
+    @discardableResult
+    func verifyHeader(title expectedTitle: String, subtitle expectedSubtitle: String) -> Self {
+        XCTContext.runActivity(named: "Verify header '\(expectedTitle)' and subtitle '\(expectedSubtitle)'") { _ in
+            waitAndAssertTrue(toolbarTitle, "Payment account title should be displayed")
+            XCTAssertEqual(toolbarTitle.label, expectedTitle, "Title should be '\(expectedTitle)'")
+
+            waitAndAssertTrue(toolbarSubtitle, "Payment account subtitle should be displayed")
+            XCTAssertEqual(toolbarSubtitle.label, expectedSubtitle, "Subtitle should be '\(expectedSubtitle)'")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyBalanceFormat() -> Self {
+        XCTContext.runActivity(named: "Verify balance is a dollar amount with two decimals") { _ in
+            waitAndAssertTrue(balanceText, timeout: .networkRequest, "Balance text should be displayed")
+            XCTAssertTrue(
+                balanceText.label.range(of: #"^\$\d[\d,]*\.\d{2}$"#, options: .regularExpression) != nil,
+                "Balance should be formatted as $X.XX. Actual: '\(balanceText.label)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyActionButtonsVisible() -> Self {
+        XCTContext.runActivity(named: "Verify Add funds and Withdraw buttons are displayed") { _ in
+            waitAndAssertTrue(addFundsButton, "Add funds button should be displayed")
+            waitAndAssertTrue(withdrawButton, "Withdraw button should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyCardsRowVisible() -> Self {
+        XCTContext.runActivity(named: "Verify card and add card buttons are displayed") { _ in
+            waitAndAssertTrue(paymentAccountCardButton, "Payment account card button should be displayed")
+            waitAndAssertTrue(addCardButton, "Add card button should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyEmptyTransactionsState() -> Self {
+        XCTContext.runActivity(named: "Verify empty transaction history state") { _ in
+            waitAndAssertTrue(emptyHistoryMessage, timeout: .networkRequest, "Empty history message should be displayed")
+            waitAndAssertTrue(historyStateIcon, "Empty history icon should be displayed")
+            return self
         }
     }
 
@@ -344,6 +401,9 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
 
 enum TangemPayMainScreenElement: String, UIElement {
     case paymentAccountBalance
+    case toolbarTitle
+    case toolbarSubtitle
+    case addCardButton
     case addFundsButton
     case withdrawButton
     case moreActionsButton
@@ -353,6 +413,12 @@ enum TangemPayMainScreenElement: String, UIElement {
         switch self {
         case .paymentAccountBalance:
             TangemPayAccessibilityIdentifiers.paymentAccountBalance
+        case .toolbarTitle:
+            TangemPayAccessibilityIdentifiers.paymentAccountToolbarTitle
+        case .toolbarSubtitle:
+            TangemPayAccessibilityIdentifiers.paymentAccountToolbarSubtitle
+        case .addCardButton:
+            TangemPayAccessibilityIdentifiers.paymentAccountAddCardButton
         case .addFundsButton:
             TangemPayAccessibilityIdentifiers.addFundsButton
         case .withdrawButton:
