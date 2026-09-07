@@ -27,6 +27,7 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
     // MARK: - Shared state
 
     private(set) var recentRecipientsStore: TangemPayRecentRecipientsStore?
+    private(set) var orderBuilder: TangemPayOfframpOrderBuilder?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -56,6 +57,10 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
                 self?.handle($0)
             }
         )
+    }
+
+    func startWizard(recipient: TangemPayOfframpRecipient) {
+        orderBuilder = TangemPayOfframpOrderBuilder(recipient: recipient)
     }
 }
 
@@ -106,6 +111,9 @@ private extension TangemPayOfframpCoordinator {
 
         case .allRecipients:
             path.append(.recentRecipients)
+
+        case .startWizard(let recipient):
+            startWizard(recipient: recipient)
 
         case .close:
             dismiss(with: nil)
