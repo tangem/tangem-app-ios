@@ -1,5 +1,5 @@
 //
-//  CommonTokenFeeProvidersManagerProvider.swift
+//  WalletModelTokenFeeProvidersManagerProvider.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,12 +8,13 @@
 
 import TangemFoundation
 
-struct CommonTokenFeeProvidersManagerProvider {
+struct WalletModelTokenFeeProvidersManagerProvider {
     @Injected(\.gaslessTransactionsNetworkManager)
     private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
 
-    let walletModel: any WalletModel
-    let supportingOptions: TokenFeeProviderSupportingOptions
+    private let walletModel: any WalletModel
+    private let tokenFeeLoaderProvider: any TokenFeeLoaderProvider
+    private let supportingOptions: TokenFeeProviderSupportingOptions
     private let isFeatureAvailable: (Feature) -> Bool
 
     init(
@@ -22,6 +23,7 @@ struct CommonTokenFeeProvidersManagerProvider {
         isFeatureAvailable: @escaping (Feature) -> Bool = FeatureProvider.isAvailable
     ) {
         self.walletModel = walletModel
+        tokenFeeLoaderProvider = WalletModelTokenFeeLoaderProvider(walletModel: walletModel)
         self.supportingOptions = supportingOptions
         self.isFeatureAvailable = isFeatureAvailable
     }
@@ -29,7 +31,7 @@ struct CommonTokenFeeProvidersManagerProvider {
 
 // MARK: - TokenFeeProvidersManagerProvider
 
-extension CommonTokenFeeProvidersManagerProvider: TokenFeeProvidersManagerProvider {
+extension WalletModelTokenFeeProvidersManagerProvider: TokenFeeProvidersManagerProvider {
     func makeTokenFeeProvidersManager() -> TokenFeeProvidersManager {
         let coinTokenFeeProvider = makeMainTokenFeeProvider()
         var feeProviders = [coinTokenFeeProvider]
@@ -50,7 +52,7 @@ extension CommonTokenFeeProvidersManagerProvider: TokenFeeProvidersManagerProvid
 
 // MARK: - Prepare initial token
 
-extension CommonTokenFeeProvidersManagerProvider {
+extension WalletModelTokenFeeProvidersManagerProvider {
     func availableGaslessTokenAddresses() -> [String] {
         if case .tron(testnet: false) = walletModel.tokenItem.blockchain {
             guard isFeatureAvailable(.tronGasless),
@@ -101,10 +103,10 @@ extension CommonTokenFeeProvidersManagerProvider {
 
 // MARK: - Private
 
-private extension CommonTokenFeeProvidersManagerProvider {
+private extension WalletModelTokenFeeProvidersManagerProvider {
     func makeMainTokenFeeProvider() -> any TokenFeeProvider {
-        let tokenFeeLoader = walletModel.tokenFeeLoaderBuilder.makeMainTokenFeeLoader()
-        let customFeeProvider = walletModel.customFeeProviderBuilder.makeCustomFeeProvider()
+        let tokenFeeLoader = tokenFeeLoaderProvider.makeMainTokenFeeLoader()
+        let customFeeProvider = tokenFeeLoaderProvider.makeCustomFeeProvider()
         let feeTokenItemBalanceProvider = walletModel.feeTokenItemBalanceProvider
 
         return CommonTokenFeeProvider(
@@ -160,11 +162,10 @@ private extension CommonTokenFeeProvidersManagerProvider {
                 feeTokenItemBalanceProvider: feeTokenItemBalanceProvider
             )
 
-            guard let tokenFeeLoader = walletModel.tokenFeeLoaderBuilder.makeGaslessTokenFeeLoader(
+            guard let tokenFeeLoader = tokenFeeLoaderProvider.makeGaslessTokenFeeLoader(
                 feeToken: feeToken,
                 yieldFeeContext: yieldFeeContext
             ) else {
-                assertionFailure("Try to create gasless TokenFeeProvider with invalid tokenItem")
                 return nil
             }
 
