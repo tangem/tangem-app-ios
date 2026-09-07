@@ -59,3 +59,20 @@ extension CommonMarketsCategoriesProvider: MarketsCategoriesProvider {
         }
     }
 }
+
+// MARK: - Dependency injection
+
+extension InjectedValues {
+    var marketsCategoriesProvider: MarketsCategoriesProvider {
+        get { Self[MarketsCategoriesProviderKey.self] }
+        set { Self[MarketsCategoriesProviderKey.self] = newValue }
+    }
+
+    private struct MarketsCategoriesProviderKey: InjectionKey {
+        static var currentValue: MarketsCategoriesProvider = CommonMarketsCategoriesProvider(
+            apiService: InjectedValues[\.tangemApiService],
+            geoEligibilityService: InjectedValues[\.geoEligibilityService],
+            cache: MarketsCategoriesCache(storage: InjectedValues[\.persistentStorage])
+        )
+    }
+}
