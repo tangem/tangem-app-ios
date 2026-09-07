@@ -30,7 +30,7 @@ struct SingleWalletMainContentRedesignedView: View {
             tokenCard
         }
         .padding(.horizontal, 12)
-        .bindAlert($viewModel.alert)
+        .shtorkaCompatibleBindAlert($viewModel.alert)
         .frame(maxHeight: .infinity, alignment: .top)
     }
 
