@@ -69,12 +69,9 @@ extension PrivateInfo {
         data.append(contentsOf: withUnsafeBytes(of: UInt32(entropy.count).bigEndian, Array.init))
         data.append(entropy)
 
-        let passphraseCount = UInt32(passphrase.count)
-        data.append(contentsOf: withUnsafeBytes(of: passphraseCount.bigEndian, Array.init))
-
-        if let passphraseBytes = passphrase.data(using: .utf8), !passphraseBytes.isEmpty {
-            data.append(contentsOf: passphraseBytes)
-        }
+        let passphraseBytes = Data(passphrase.utf8)
+        data.append(contentsOf: withUnsafeBytes(of: UInt32(passphraseBytes.count).bigEndian, Array.init))
+        data.append(passphraseBytes)
 
         return data
     }
