@@ -46,14 +46,22 @@ struct MarketTokenRowView: View {
     // MARK: - Subviews
 
     private var iconView: some View {
-        TokenIconV2(
+        tokenIcon
+            .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenIcon)
+            .padding(.trailing, 4)
+    }
+
+    private var tokenIcon: TokenIconV2 {
+        let icon = TokenIconV2(
             tokenIconInfo: .remote(name: viewModel.name, imageURL: viewModel.imageURL),
             size: .size40
         )
-        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenIcon)
-        // Adds +4pt on top of `TangemTwoLineRowLayout`'s shared icon spacing (8) to reach the
-        // 12pt icon ↔ name gap from the latest design review without forking the DS layout.
-        .padding(.trailing, 4)
+
+        guard viewModel.isRestrictedForCountry else {
+            return icon
+        }
+
+        return icon.indicatorColor(DesignSystem.Color.bgAccentYellow)
     }
 
     private var nameAndSymbolView: some View {

@@ -178,6 +178,23 @@ extension MarketsCoordinator: MarketsMainRoutable {
         openSeeAllMarket(with: .pulse, orderType: orderType)
     }
 
+    // MARK: - Real assets
+
+    func openRealAssetsCategoryFilter(with input: RealAssetsCategoryFilterInput) {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            let viewModel = MarketsRealAssetsFilterBottomSheetViewModel(
+                input: input,
+                onDismiss: { [weak self] in
+                    self?.floatingSheetPresenter.removeActiveSheet()
+                }
+            )
+
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     // MARK: - News
 
     func openSeeAllNewsWidget() {
