@@ -108,6 +108,9 @@ struct MainCoordinatorView: CoordinatorView {
             .shtorkaCompatibleFullScreenCover(item: $coordinator.mainQRScanFlowCoordinator) {
                 MainQRScanFlowCoordinatorView(coordinator: $0)
             }
+            .shtorkaCompatibleFullScreenCover(item: $coordinator.jointAccountManagementCoordinator) {
+                JointAccountManagementCoordinatorView(coordinator: $0)
+            }
             .shtorkaCompatibleSheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
