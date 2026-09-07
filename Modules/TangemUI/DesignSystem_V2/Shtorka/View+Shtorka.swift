@@ -26,15 +26,27 @@ private struct ShtorkaModifier<SheetContent: View>: ViewModifier {
     let detents: ShtorkaDetents
     @ViewBuilder let sheetContent: () -> SheetContent
 
+    @StateObject private var presentationHost = ShtorkaPresentationHost()
+
     func body(content: Content) -> some View {
         content
+            .environment(\.shtorkaPresentationHost, presentationHost)
+            .environment(\.isShtorkaActive, isPresented)
             .sheet(isPresented: $isPresented) {
                 sheetContent()
+                    .shtorkaPresentationHost(presentationHost)
+                    .environment(\.shtorkaPresentationHost, presentationHost)
+                    .environment(\.isShtorkaActive, isPresented)
                     .presentationDetents(detents.all, selection: detentSelection)
                     .presentationDragIndicator(.visible)
                     .presentationBackgroundInteraction(.enabled(upThrough: detents.medium))
                     .interactiveDismissDisabled()
                     .modifier(ShtorkaBackgroundModifier(size: size))
+            }
+            .onChange(of: isPresented) { isPresented in
+                if !isPresented {
+                    presentationHost.dismissAll()
+                }
             }
     }
 
