@@ -146,4 +146,8 @@ final class DesignSystemDemoViewModel: ObservableObject {
     func openUtilBalanceDemo() {
         coordinator?.openUtilBalanceDemo()
     }
+
+    func openShtorkaDemo() {
+        coordinator?.openShtorkaDemo()
+    }
 }

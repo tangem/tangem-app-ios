@@ -118,6 +118,7 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.utilBalanceDemoViewModel) {
                 UtilBalanceDemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.shtorkaDemoViewModel, destination: ShtorkaDemoView.init)
     }
 }
 
@@ -197,6 +198,7 @@ struct DesignSystemDemoView: View {
             DemoItem(title: "UtilGraph", open: viewModel.openUtilGraphDemo),
             DemoItem(title: "UtilPriceChange", open: viewModel.openUtilPriceChangeDemo),
             DemoItem(title: "UtilBalance", open: viewModel.openUtilBalanceDemo),
+            DemoItem(title: "Shtorka", open: viewModel.openShtorkaDemo),
             DemoItem(title: "Search", open: viewModel.openTangemSearchDemo),
             DemoItem(title: "Typography V2", open: viewModel.openTypographyV2Demo),
             DemoItem(title: "TabNavigation", open: viewModel.openTabNavigationDemo),
