@@ -13,7 +13,8 @@ import TangemFoundation
 /// - Note: Everything a joint account shares with the wallet's own accounts is delegated to the crypto account it is
 /// built on, so the two kinds cannot drift apart as that one gains behaviour.
 final class CommonJointAccountModel {
-    let jointAccountConfig: JointAccountConfig
+    let policy: JointAccountPolicy
+    let status: JointAccountStatus
     let members: [JointAccountMember]
     let invites: [JointAccountInvite]
 
@@ -21,12 +22,14 @@ final class CommonJointAccountModel {
 
     init(
         cryptoAccount: any CryptoAccountModel,
-        jointAccountConfig: JointAccountConfig,
+        policy: JointAccountPolicy,
+        status: JointAccountStatus,
         members: [JointAccountMember],
         invites: [JointAccountInvite]
     ) {
         self.cryptoAccount = cryptoAccount
-        self.jointAccountConfig = jointAccountConfig
+        self.policy = policy
+        self.status = status
         self.members = members
         self.invites = invites
     }
@@ -81,9 +84,7 @@ extension CommonJointAccountModel: JointAccountModel {
 
     @discardableResult
     func edit(with editor: Editor) async throws(AccountEditError) -> Self {
-        try await cryptoAccount.edit(with: editor)
-
-        return self
+        throw .unknownError(JointAccountModelError.editingNotSupported)
     }
 
     func archive() async throws(AccountArchivationError) {
@@ -119,9 +120,9 @@ extension CommonJointAccountModel: CustomStringConvertible {
             self,
             userInfo: [
                 "cryptoAccount": cryptoAccount,
-                "membersCount": jointAccountConfig.membersCount,
-                "signersCount": jointAccountConfig.signersCount,
-                "status": jointAccountConfig.status,
+                "membersCount": policy.membersCount,
+                "signersCount": policy.signersCount,
+                "status": status,
                 "Taken slots count": members.count,
                 "Invites count": invites.count,
             ]

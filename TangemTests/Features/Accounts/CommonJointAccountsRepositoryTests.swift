@@ -23,7 +23,7 @@ struct CommonJointAccountsRepositoryTests {
             Self.storedAccount(status: .pending, memberNames: ["Alice"]),
         ])
         let networkService = JointAccountsNetworkServiceStub(jointAccounts: [
-            Self.remoteAccount(status: .active, memberNames: ["Alice", "Bob"]),
+            Self.remoteAccount(status: .active(safeAddress: "0x8f3a1C5E7B9D0246A8C0E2B4D6F8A0C2E4B6c21b"), memberNames: ["Alice", "Bob"]),
         ])
         let sut = Self.makeSUT(networkService: networkService, storage: storage)
 
@@ -31,7 +31,7 @@ struct CommonJointAccountsRepositoryTests {
 
         let account = try #require(storage.accounts.first)
         #expect(storage.accounts.count == 1)
-        #expect(account.status == .active)
+        #expect(account.status == .active(safeAddress: "0x8f3a1C5E7B9D0246A8C0E2B4D6F8A0C2E4B6c21b"))
         #expect(account.members.map(\.name) == ["Alice", "Bob"])
     }
 
@@ -197,7 +197,6 @@ private extension CommonJointAccountsRepositoryTests {
             cryptoAccountId: cryptoAccountId,
             membersCount: 3,
             threshold: 2,
-            address: nil,
             status: status,
             members: members(named: memberNames)
         )
@@ -212,7 +211,6 @@ private extension CommonJointAccountsRepositoryTests {
             cryptoAccountId: cryptoAccountId,
             membersCount: 3,
             threshold: 2,
-            address: nil,
             status: status,
             members: members(named: memberNames)
         )
