@@ -9,5 +9,5 @@
 import Foundation
 
 protocol CollectiblesPacksProvider {
-    func load(loreID: String?, query: String) async throws -> [CollectiblesPack]
+    func load(loreID: String?, query: String, cursor: String?) async throws -> CollectiblesPacksPage
 }

@@ -14,10 +14,10 @@ import Foundation
 final class CollectiblesMainViewModel: ObservableObject {
     // MARK: - Properties
 
-    let accountViewModel = CollectiblesAccountViewModel(provider: CollectiblesAccountSummaryMockProvider())
-    let loreTabsViewModel = CollectiblesLoreTabsViewModel(provider: CollectiblesLoresMockProvider())
-    let packsViewModel = CollectiblesPacksViewModel(provider: CollectiblesPacksMockProvider())
-    let searchResultsViewModel = CollectiblesPacksViewModel(provider: CollectiblesPacksMockProvider())
+    let accountViewModel: CollectiblesAccountViewModel
+    let loreTabsViewModel: CollectiblesLoreTabsViewModel
+    let packsViewModel: CollectiblesPacksViewModel
+    let searchResultsViewModel: CollectiblesPacksViewModel
 
     private var pendingCatalogueSync: Task<Void, Never>?
 
@@ -42,6 +42,15 @@ final class CollectiblesMainViewModel: ObservableObject {
         isSearching || isSearchAvailable
     }
 
+    // MARK: - Init
+
+    init(catalogueProvider: any CollectiblesLoresProvider & CollectiblesPacksProvider = CollectiblesAPIService()) {
+        accountViewModel = CollectiblesAccountViewModel(provider: CollectiblesAccountSummaryMockProvider())
+        loreTabsViewModel = CollectiblesLoreTabsViewModel(provider: catalogueProvider)
+        packsViewModel = CollectiblesPacksViewModel(model: CollectiblesPacksModel(provider: catalogueProvider))
+        searchResultsViewModel = CollectiblesPacksViewModel(model: CollectiblesPacksModel(provider: catalogueProvider))
+    }
+
     deinit {
         pendingCatalogueSync?.cancel()
     }
@@ -52,6 +61,8 @@ final class CollectiblesMainViewModel: ObservableObject {
         await withTaskGroup(of: Void.self) { group in
             group.addTask { [weak self] in await self?.observeAccountBalance() }
             group.addTask { [weak self] in await self?.observeCatalogueState() }
+            group.addTask { [weak self] in await self?.retryTabsOnCatalogueReload() }
+            group.addTask { [weak self] in await self?.collapseCatalogueOnTabsFailure() }
             group.addTask { [weak self] in await self?.observeLoreSelection() }
             group.addTask { [weak self] in await self?.observeSearchQuery() }
             group.addTask { [weak self] in await self?.observeSearchFocus() }
@@ -110,6 +121,20 @@ private extension CollectiblesMainViewModel {
         }
     }
 
+    func retryTabsOnCatalogueReload() async {
+        for await state in await packsViewModel.$state.values where state.isLoading {
+            await loreTabsViewModel.load()
+        }
+    }
+
+    func collapseCatalogueOnTabsFailure() async {
+        for await state in await loreTabsViewModel.$state.values {
+            guard case .failed = state, !packsViewModel.state.isFailed else { continue }
+
+            packsViewModel.showFailed()
+        }
+    }
+
     func observeLoreSelection() async {
         var currentLoreID = loreTabsViewModel.selectedTab.kind.loreID
 
@@ -163,8 +188,8 @@ private extension CollectiblesMainViewModel {
         cancelPendingCatalogueSync()
 
         switch packsViewModel.state {
-        case .content(let models):
-            searchResultsViewModel.showContent(models)
+        case .content:
+            searchResultsViewModel.show(packsViewModel.catalogueSnapshot())
         case .empty:
             searchResultsViewModel.showEmpty()
         case .loading:

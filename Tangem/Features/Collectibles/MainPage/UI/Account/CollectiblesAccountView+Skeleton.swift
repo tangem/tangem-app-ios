@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 import TangemAssets
 import TangemUI
 
@@ -17,7 +18,7 @@ extension CollectiblesAccountView {
                 balance
 
                 Shimmer()
-                    .frame(maxWidth: .infinity)
+                    .infinityFrame(axis: .horizontal)
                     .frame(height: Metrics.collectionRowHeight)
                     .clipShape(
                         RoundedRectangle(
@@ -45,7 +46,7 @@ private extension CollectiblesAccountView.Skeleton {
             actionButtons
                 .padding(.top, CollectiblesAccountView.Metrics.actionButtonsTopPadding)
         }
-        .frame(maxWidth: .infinity)
+        .infinityFrame(axis: .horizontal)
         .padding(.top, CollectiblesAccountView.Metrics.topPadding)
     }
 

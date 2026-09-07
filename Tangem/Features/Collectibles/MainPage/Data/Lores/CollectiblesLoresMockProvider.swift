@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct CollectiblesLoresMockProvider: CollectiblesLoresProvider {
     /// Shared with the packs mock so the tab counters match the grid contents.
@@ -18,9 +19,9 @@ struct CollectiblesLoresMockProvider: CollectiblesLoresProvider {
         CollectiblesLore(id: "one-piece", title: "One Piece", packsCount: 12),
     ]
 
-    func load() async throws -> [CollectiblesLore] {
+    func load() async throws -> CollectiblesLoreCatalogue {
         try await Task.sleep(for: .seconds(1.5))
 
-        return Self.lores
+        return CollectiblesLoreCatalogue(lores: Self.lores, totalPacksCount: Self.lores.sum(by: \.packsCount))
     }
 }

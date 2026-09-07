@@ -9,5 +9,5 @@
 import Foundation
 
 protocol CollectiblesLoresProvider {
-    func load() async throws -> [CollectiblesLore]
+    func load() async throws -> CollectiblesLoreCatalogue
 }
