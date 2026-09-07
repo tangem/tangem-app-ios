@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemAssets
+import TangemLocalization
 
 struct WelcomeV2ExistingWalletActionFactory {
     struct Callbacks {
@@ -19,20 +20,20 @@ struct WelcomeV2ExistingWalletActionFactory {
     func make(callbacks: Callbacks) -> WelcomeV2ActionSheetViewModel {
         WelcomeV2ActionSheetViewModel(
             input: .init(
-                title: "I have a wallet",
+                title: Localization.introductionButtonIHaveAWallet,
                 items: [
                     WelcomeV2ActionSheetItem(
                         id: "hardware",
                         icon: Assets.welcomeTangemActionIcon,
-                        title: "Tangem Card or Ring",
-                        subtitle: "Use Tangem Wallet to enter the app",
+                        title: Localization.introductionCreateWalletHardwareTitle,
+                        subtitle: Localization.introductionIHaveWalletHardwareDescription,
                         action: callbacks.onHardware
                     ),
                     WelcomeV2ActionSheetItem(
                         id: "import",
                         icon: DesignSystem.Icons.ArrowDown.regular24,
-                        title: "Import existing wallet",
-                        subtitle: "Start without a hardware wallet",
+                        title: Localization.hwImportExistingWallet,
+                        subtitle: Localization.introductionCreateWalletSeedPhraseDescription,
                         action: callbacks.onImport
                     ),
                 ],
