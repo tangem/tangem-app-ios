@@ -28,9 +28,9 @@ struct PolymarketOnboardingFactory {
     }
 }
 
-// MARK: - Private implementation
+// MARK: - Owner address
 
-private extension PolymarketOnboardingFactory {
+extension PolymarketOnboardingFactory {
     func makeOwnerAddressProvider(for userWalletModel: any UserWalletModel) -> PolymarketOwnerAddressProviding {
         CommonPolymarketOwnerAddressProvider(
             keysRepository: userWalletModel.keysRepository,

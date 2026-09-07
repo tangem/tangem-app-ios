@@ -24,4 +24,29 @@ extension PolymarketUtilities {
             BlockchainNetwork(blockchain, derivationPath: derivationPath)
         )
     }
+
+    static let usdcContractAddress = "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
+
+    /// What the bridge accepts for a deposit, as opposed to the pUSD the deposit wallet ends up holding.
+    static var usdcTokenItem: TokenItem {
+        TokenItem.token(
+            Token(
+                name: "USDC",
+                symbol: "USDC",
+                contractAddress: usdcContractAddress,
+                decimalCount: Constants.usdcDecimalCount,
+                id: "usd-coin",
+                metadata: .fungibleTokenMetadata
+            ),
+            BlockchainNetwork(blockchain, derivationPath: derivationPath)
+        )
+    }
+}
+
+// MARK: - Constants
+
+private extension PolymarketUtilities {
+    enum Constants {
+        static let usdcDecimalCount = 6
+    }
 }

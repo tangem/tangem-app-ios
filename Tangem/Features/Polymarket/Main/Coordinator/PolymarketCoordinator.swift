@@ -13,6 +13,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemPolymarket
 import TangemPolymarketUI
+import TangemUI
 import TangemUIUtils
 
 final class PolymarketCoordinator: CoordinatorObject {
@@ -31,6 +32,7 @@ final class PolymarketCoordinator: CoordinatorObject {
     private let onboardingFactory = PolymarketOnboardingFactory()
 
     private var userWalletModel: (any UserWalletModel)?
+    private var addFundsInteractor: PolymarketAddFundsInteractor?
     private weak var regionWarning: PolymarketRegionRestrictionViewModel?
 
     // MARK: - Init
@@ -91,10 +93,14 @@ extension PolymarketCoordinator {
 
 extension PolymarketCoordinator: PolymarketWelcomeRoutable {
     func openPolymarketMain() {
+        let addFundsInteractor = userWalletModel.map { PolymarketAddFundsFactory().makeInteractor(for: $0) }
+        self.addFundsInteractor = addFundsInteractor
+
         viewState = .feed(PolymarketMainViewModel(
             apiProvider: PolymarketAPIProviderFactory().makeProvider(),
             geoblockService: PolymarketOnboardingServicesFactory.makeDefault().makeGeoblockService(),
             balanceProvider: CommonPolymarketBalanceProvider(userWalletModel: userWalletModel),
+            addFundsInteractor: addFundsInteractor,
             coordinator: self
         ))
     }
@@ -145,6 +151,43 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
+
+    func openAddFunds() {
+        guard let addFundsInteractor else {
+            PolymarketLogger.error(
+                "Add funds was tapped before the feed built its interactor",
+                error: CoordinatorError.missingAddFundsInteractor
+            )
+            return
+        }
+
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            let viewModel = PolymarketAddFundsSheetViewModel(interactor: addFundsInteractor, coordinator: self)
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+}
+
+// MARK: - PolymarketAddFundsSheetRoutable protocol conformance
+
+extension PolymarketCoordinator: PolymarketAddFundsSheetRoutable {
+    func openReceiveSheet(viewModel: ReceiveMainViewModel) {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            // Dismiss the active Add funds sheet first, otherwise Receive is queued behind it and never shown.
+            floatingSheetPresenter.removeActiveSheet()
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func closeAddFundsSheet() {
+        Task { @MainActor [weak self] in
+            self?.floatingSheetPresenter.removeActiveSheet()
+        }
+    }
 }
 
 // MARK: - PolymarketEventDetailsRoutable protocol conformance
@@ -152,6 +195,14 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
 extension PolymarketCoordinator: PolymarketEventDetailsRoutable {
     func dismissEventDetails() {
         destination = nil
+    }
+}
+
+// MARK: - Errors
+
+extension PolymarketCoordinator {
+    enum CoordinatorError: Error {
+        case missingAddFundsInteractor
     }
 }
 

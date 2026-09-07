@@ -1,5 +1,5 @@
 //
-//  TangemPayReceiveAddressTypesProvider.swift
+//  SingleAddressReceiveAddressTypesProvider.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Combine
 
-struct TangemPayReceiveAddressTypesProvider {
+struct SingleAddressReceiveAddressTypesProvider {
     let address: String
     let colorScheme: ReceiveAddressInfoUtils.ColorScheme
 
@@ -25,7 +25,7 @@ struct TangemPayReceiveAddressTypesProvider {
 
 // MARK: ReceiveAddressTypesProvider
 
-extension TangemPayReceiveAddressTypesProvider: ReceiveAddressTypesProvider {
+extension SingleAddressReceiveAddressTypesProvider: ReceiveAddressTypesProvider {
     var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {
         .just(output: [.address(receiveAddressInfo)])
     }

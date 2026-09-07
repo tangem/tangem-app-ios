@@ -16,18 +16,4 @@ extension PolymarketOnboardingServicesFactory {
             environment: PolymarketBFFEnvironment.current
         )
     }
-
-    static func makeDefaultBridgeService(
-        walletId: String,
-        builderCodeStore: PolymarketBuilderCodeStore = InjectedValues[\.polymarketBuilderCodeStore],
-        supportedAssetsStore: PolymarketSupportedAssetsStore = InjectedValues[\.polymarketSupportedAssetsStore]
-    ) -> PolymarketBridgeService {
-        let factory = makeDefault()
-        let configurationService = factory.makeConfigurationService(walletId: walletId, store: builderCodeStore)
-
-        return factory.makeBridgeService(
-            builderCode: { try await configurationService.builderCode() },
-            supportedAssetsStore: supportedAssetsStore
-        )
-    }
 }

@@ -32,30 +32,13 @@ extension PolymarketDTO {
     }
 
     struct FundingAddressesResponse: Decodable {
-        let evm: String?
-        let svm: String?
-        let btc: String?
-        let tron: String?
-    }
-}
+        let address: Addresses
 
-// MARK: - Tron key
-
-extension PolymarketDTO.FundingAddressesResponse {
-    private enum CodingKeys: String, CodingKey {
-        case evm
-        case svm
-        case btc
-        case tron
-        case tvm
-    }
-
-    init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-
-        evm = try container.decodeIfPresent(String.self, forKey: .evm)
-        svm = try container.decodeIfPresent(String.self, forKey: .svm)
-        btc = try container.decodeIfPresent(String.self, forKey: .btc)
-        tron = try container.decodeIfPresent(String.self, forKey: .tron) ?? container.decodeIfPresent(String.self, forKey: .tvm)
+        struct Addresses: Decodable {
+            let evm: String?
+            let svm: String?
+            let btc: String?
+            let tron: String?
+        }
     }
 }
