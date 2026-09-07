@@ -72,15 +72,19 @@ extension PortfolioTokenItemView.RowView {
             .offset(x: -3, y: -3)
     }
 
-    func tokenIcon(_ iconInfo: TokenIconInfo) -> TokenIconV2 {
-        var icon = TokenIconV2(tokenIconInfo: iconInfo, size: .size40)
-            .geometryEffect(effects?.icon)
-
-        if isAggregateRow, let indicatorColor = data.indicatorColor {
-            icon = icon.indicatorColor(indicatorColor)
+    func tokenIcon(_ iconInfo: TokenIconInfo) -> some View {
+        TokenIcon(
+            tokenIconInfo: iconInfo,
+            size: CGSize(width: iconSize, height: iconSize),
+            isWithOverlays: !isAggregateRow,
+            iconGeometryEffect: effects?.icon
+        )
+        .overlay(alignment: .bottomTrailing) {
+            if isAggregateRow, let indicatorColor = data.indicatorColor {
+                indicatorDot(indicatorColor)
+            }
         }
-
-        return icon
+        .accessibilityHidden(true)
     }
 }
 
