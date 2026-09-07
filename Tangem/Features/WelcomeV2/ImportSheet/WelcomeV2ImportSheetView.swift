@@ -81,8 +81,8 @@ struct WelcomeV2ImportSheetView: View {
 
     private func rowAccessibilityIdentifier(for item: WelcomeV2ImportSheetItem) -> String? {
         switch item.id {
-        case "recovery": OnboardingAccessibilityIdentifiers.welcomeImportSheetRecoveryPhraseButton
-        case "icloud": OnboardingAccessibilityIdentifiers.welcomeImportSheetICloudBackupButton
+        case WelcomeV2ImportSheetViewModel.ItemID.recovery: OnboardingAccessibilityIdentifiers.welcomeImportSheetRecoveryPhraseButton
+        case WelcomeV2ImportSheetViewModel.ItemID.iCloud: OnboardingAccessibilityIdentifiers.welcomeImportSheetICloudBackupButton
         default: nil
         }
     }
