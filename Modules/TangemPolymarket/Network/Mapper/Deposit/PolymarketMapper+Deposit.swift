@@ -73,10 +73,10 @@ private extension PolymarketMapper {
 
     func address(for family: PolymarketChainFamily, in dto: PolymarketDTO.FundingAddressesResponse) -> String? {
         switch family {
-        case .evm: dto.evm
-        case .svm: dto.svm
-        case .btc: dto.btc
-        case .tron: dto.tron
+        case .evm: dto.address.evm
+        case .svm: dto.address.svm
+        case .btc: dto.address.btc
+        case .tron: dto.address.tron
         }
     }
 }
