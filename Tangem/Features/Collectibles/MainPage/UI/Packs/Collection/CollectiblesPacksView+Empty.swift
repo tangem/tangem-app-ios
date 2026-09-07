@@ -26,7 +26,7 @@ extension CollectiblesPacksView {
             }
             .padding(.horizontal, Metrics.horizontalPadding)
             .padding(.vertical, Metrics.verticalPadding)
-            .frame(maxWidth: .infinity)
+            .infinityFrame(axis: .horizontal)
         }
     }
 }
@@ -52,9 +52,9 @@ private extension CollectiblesPacksView.EmptyMessage {
         icon.image
             .renderingMode(.template)
             .resizable()
-            .frame(width: Metrics.iconSize, height: Metrics.iconSize)
+            .frame(size: CGSize(bothDimensions: Metrics.iconSize))
             .foregroundStyle(color)
-            .frame(width: Metrics.containerSize, height: Metrics.containerSize)
+            .frame(size: CGSize(bothDimensions: Metrics.containerSize))
     }
 }
 

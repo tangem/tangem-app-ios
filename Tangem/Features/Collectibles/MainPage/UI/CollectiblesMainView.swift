@@ -204,6 +204,6 @@ private extension CollectiblesMainView {
 
 #Preview {
     NavigationStack {
-        CollectiblesMainView(viewModel: CollectiblesMainViewModel(), onBack: {})
+        CollectiblesMainView(viewModel: CollectiblesMainViewModel(catalogueProvider: CollectiblesCatalogueMockProvider()), onBack: {})
     }
 }
