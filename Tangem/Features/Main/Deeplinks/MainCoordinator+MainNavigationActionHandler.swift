@@ -9,6 +9,7 @@
 import Combine
 import BlockchainSdk
 import SurveySparrowSdk
+import TangemFoundation
 import TangemVisa
 
 extension MainCoordinator {
@@ -139,6 +140,12 @@ extension MainCoordinator {
             // The survey methodology (NPS / CSAT / CES) is determined by the token
             // on SurveySparrow's side, not by this flag.
             surveyViewController.surveyType = .CLASSIC
+
+            // The same wallet identifier that Customer.io and Amplitude use as the user id,
+            // so survey responses can be joined with the push/banner funnel across platforms.
+            if let userWalletId = userWalletRepository.selectedModel?.userWalletId {
+                surveyViewController.params = ["wallet_id": userWalletId.hashedStringValue]
+            }
 
             AppPresenter.shared.show(surveyViewController)
             return true
