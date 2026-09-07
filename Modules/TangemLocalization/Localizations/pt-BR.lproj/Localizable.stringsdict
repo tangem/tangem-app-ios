@@ -520,9 +520,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li ativo</string>
+        <string>%li principal ativo</string>
         <key>other</key>
-        <string>%li ativos</string>
+        <string>%li principais ativos</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
