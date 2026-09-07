@@ -25,17 +25,31 @@ final class CollectiblesDTODecodingTests {
         #expect(machine.price == Decimal(string: "49.99"))
         #expect(machine.fee == 2)
         #expect(machine.feeAmount == 1)
-        #expect(machine.contains == 5)
+        #expect(machine.contains == "5")
         #expect(machine.instantBuybackPercent == 80)
         #expect(machine.lowThreshold == 10)
         #expect(machine.odds.common == 70)
         #expect(machine.odds.epic == 2)
-        #expect(machine.tierRanges.rare.start == 30)
-        #expect(machine.tierRanges.rare.end == 99)
+
+        let rareRange = try #require(machine.tierRanges.rare)
+        #expect(rareRange.start == 30)
+        #expect(rareRange.end == 99)
+
         #expect(machine.stock.uncommon == 40)
         #expect(machine.expectedValue == 42)
         #expect(machine.image == "https://example.com/pack.png")
         #expect(machine.categoryId == "cat-1")
+    }
+
+    @Test("Decodes the live tier set: no uncommon, legendary present as null")
+    func decodesLiveTierSet() throws {
+        let machine: CollectiblesDTO.Machine = try decode(makeMachineJSON(
+            odds: #"{ "common": 80, "rare": 4, "epic": 1, "legendary": null }"#
+        ))
+
+        #expect(machine.odds.common == 80)
+        #expect(machine.odds.uncommon == nil)
+        #expect(machine.odds.legendary == nil)
     }
 
     @Test("Decodes a machine carrying no optional fields")
@@ -112,7 +126,11 @@ private extension CollectiblesDTODecodingTests {
         try JSONDecoder().decode(T.self, from: Data(json.utf8))
     }
 
-    func makeMachineJSON(contains: String = "5", image: String = "\"https://example.com/pack.png\"") -> String {
+    func makeMachineJSON(
+        contains: String = "\"5\"",
+        image: String = "\"https://example.com/pack.png\"",
+        odds: String = #"{ "common": 70, "uncommon": 20, "rare": 8, "epic": 2 }"#
+    ) -> String {
         """
         {
             "id": "m-1",
@@ -125,7 +143,7 @@ private extension CollectiblesDTODecodingTests {
             "contains": \(contains),
             "instantBuybackPercent": 80,
             "lowThreshold": 10,
-            "odds": { "common": 70, "uncommon": 20, "rare": 8, "epic": 2 },
+            "odds": \(odds),
             "tierRanges": {
                 "common": { "start": 1, "end": 9 },
                 "uncommon": { "start": 10, "end": 29 },
