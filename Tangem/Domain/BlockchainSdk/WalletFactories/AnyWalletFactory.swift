@@ -20,4 +20,6 @@ enum AnyWalletFactoryError: Error {
     case noDerivation
     case walletWithBlockchainCurveNotFound
     case twinWalletPublicKeyNotFound
+    /// The account keeps everything at one address of its own and has not been given it yet.
+    case accountAddressUnavailable
 }
