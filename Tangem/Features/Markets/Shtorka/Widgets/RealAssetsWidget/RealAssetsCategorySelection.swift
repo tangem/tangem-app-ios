@@ -29,10 +29,3 @@ struct RealAssetsCategorySelection: Hashable {
         return MarketsCategoryLocalizer.title(for: category)
     }
 }
-
-struct RealAssetsCategoryFilterInput {
-    let categories: [MarketsDTO.Categories.Category]
-    let selection: RealAssetsCategorySelection
-    let defaultSelection: RealAssetsCategorySelection
-    let onApply: (RealAssetsCategorySelection) -> Void
-}

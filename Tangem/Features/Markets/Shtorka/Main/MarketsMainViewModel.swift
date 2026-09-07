@@ -30,6 +30,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     @Injected(\.marketsWidgetsProvider) private var widgetsProvider: MarketsMainWidgetsProvider
     @Injected(\.marketsWidgetsUpdateHandler) private var widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.marketsCategoriesProvider) private var categoriesProvider: MarketsCategoriesProvider
 
     // MARK: - Properties
 
@@ -269,6 +270,8 @@ private extension MarketsMainViewModel {
                 viewModel.pauseQuotesUpdates()
             case .pulse(let viewModel):
                 viewModel.pauseQuotesUpdates()
+            case .realAssets(let viewModel):
+                viewModel.pauseQuotesUpdates()
             case .news, .earn:
                 break
             }
@@ -285,6 +288,8 @@ private extension MarketsMainViewModel {
             case .top(let viewModel):
                 viewModel.resumeQuotesUpdates()
             case .pulse(let viewModel):
+                viewModel.resumeQuotesUpdates()
+            case .realAssets(let viewModel):
                 viewModel.resumeQuotesUpdates()
             case .news, .earn:
                 break
@@ -338,6 +343,18 @@ private extension MarketsMainViewModel {
                 viewModel.pauseQuotesUpdates()
             }
             contentItem = .pulse(viewModel)
+        case .realAssets:
+            let viewModel = RealAssetsWidgetViewModel(
+                widgetType: widgetModel.type,
+                categoriesProvider: categoriesProvider,
+                widgetsUpdateHandler: widgetsUpdateHandler,
+                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+                coordinator: coordinator
+            )
+            if !isBottomSheetExpanded {
+                viewModel.pauseQuotesUpdates()
+            }
+            contentItem = .realAssets(viewModel)
         }
 
         return WidgetStateItem(type: widgetModel.type, content: contentItem)
@@ -370,6 +387,7 @@ extension MarketsMainViewModel {
         case pulse(PulseMarketWidgetViewModel)
         case news(NewsWidgetViewModel)
         case earn(EarnWidgetViewModel)
+        case realAssets(RealAssetsWidgetViewModel)
 
         var id: MarketsWidgetType {
             switch self {
@@ -381,6 +399,8 @@ extension MarketsMainViewModel {
                 return .news
             case .earn:
                 return .earn
+            case .realAssets:
+                return .realAssets
             }
         }
 
