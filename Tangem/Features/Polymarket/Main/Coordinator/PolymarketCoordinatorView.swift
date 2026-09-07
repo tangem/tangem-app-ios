@@ -21,6 +21,12 @@ struct PolymarketCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: PolymarketRegionRestrictionViewModel.self) { viewModel in
                 PolymarketRegionRestrictionView(viewModel: viewModel)
             }
+            .floatingSheetContent(for: PolymarketAddFundsSheetViewModel.self) { viewModel in
+                PolymarketAddFundsSheetView(viewModel: viewModel)
+            }
+            .floatingSheetContent(for: ReceiveMainViewModel.self) { viewModel in
+                ReceiveMainView(viewModel: viewModel)
+            }
     }
 
     @ViewBuilder
