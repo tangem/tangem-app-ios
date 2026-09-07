@@ -37,6 +37,8 @@ final class CommonMarketsMainWidgetDataService {
         switch type {
         case .market, .pulse, .news, .earn:
             return true
+        case .realAssets:
+            return FeatureProvider.isAvailable(.realAssets)
         }
     }
 
@@ -50,6 +52,8 @@ final class CommonMarketsMainWidgetDataService {
             return 3
         case .pulse:
             return 4
+        case .realAssets:
+            return 5
         }
     }
 }

@@ -286,6 +286,8 @@ struct MarketsMainView: View {
             NewsWidgetView(viewModel: viewModel)
         case .earn(let viewModel):
             EarnWidgetView(viewModel: viewModel)
+        case .realAssets(let viewModel):
+            RealAssetsWidgetView(viewModel: viewModel)
         }
     }
 }
