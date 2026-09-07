@@ -14,7 +14,7 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
     }
 
     var totalMembersCount: Int {
-        jointAccount.jointAccountConfig.membersCount
+        jointAccount.policy.membersCount
     }
 
     var invitableSlotsCount: Int {

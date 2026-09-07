@@ -83,6 +83,10 @@ final class CommonJointAccountsRepository {
 // MARK: - JointAccountsRepository protocol conformance
 
 extension CommonJointAccountsRepository: JointAccountsRepository {
+    var jointAccounts: [StoredJointAccount] {
+        persistentStorage.getList()
+    }
+
     var jointAccountsPublisher: AnyPublisher<[StoredJointAccount], Never> {
         storageDidUpdatePublisher
     }
