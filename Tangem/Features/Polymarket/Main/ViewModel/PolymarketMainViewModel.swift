@@ -13,6 +13,7 @@ import TangemFoundation
 import TangemPolymarket
 import TangemPolymarketUI
 import TangemUI
+import TangemUIUtils
 
 final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var categories: [PolymarketCategory] = [] {
@@ -25,9 +26,11 @@ final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var isTabsPinned = false
     @Published private(set) var balance: LoadableBalanceView.State = .loading(cached: .none)
     @Published private(set) var isRegionRestricted = false
+    @Published private(set) var addFundsState: AddFundsState = .loading
     @Published private(set) var isSearching = false
     @Published var isSearchFieldActive = false
     @Published var searchQuery = ""
+    @Published var alert: AlertBinder?
 
     let search: PolymarketSearchViewModel
 
@@ -43,12 +46,14 @@ final class PolymarketMainViewModel: ObservableObject {
     private let apiProvider: PolymarketAPIProvider
     private let geoblockService: PolymarketGeoblockService
     private let balanceProvider: PolymarketBalanceProvider
+    private let addFundsInteractor: PolymarketAddFundsInteractor?
     private weak var coordinator: PolymarketMainRoutable?
 
     private let balanceStateBuilder = LoadableBalanceViewStateBuilder()
 
     private var balanceSubscription: AnyCancellable?
     private var balanceRefreshTask: Task<Void, Never>?
+    private var addFundsPreparationTask: Task<Void, Never>?
     private var searchBag: Set<AnyCancellable> = []
 
     private var events: [PolymarketEvent] = []
@@ -61,12 +66,14 @@ final class PolymarketMainViewModel: ObservableObject {
         apiProvider: PolymarketAPIProvider,
         geoblockService: PolymarketGeoblockService,
         balanceProvider: PolymarketBalanceProvider,
+        addFundsInteractor: PolymarketAddFundsInteractor?,
         coordinator: PolymarketMainRoutable
     ) {
         self.apiProvider = apiProvider
         self.geoblockService = geoblockService
         search = PolymarketSearchViewModel(apiProvider: apiProvider)
         self.balanceProvider = balanceProvider
+        self.addFundsInteractor = addFundsInteractor
         self.coordinator = coordinator
         search.coordinator = self
 
@@ -79,6 +86,7 @@ final class PolymarketMainViewModel: ObservableObject {
 
     deinit {
         balanceRefreshTask?.cancel()
+        addFundsPreparationTask?.cancel()
     }
 
     private func bindSearch() {
@@ -130,6 +138,32 @@ final class PolymarketMainViewModel: ObservableObject {
             }
     }
 
+    /// A retry that keeps a usable funding target on screen leaves the button live, but one that has nothing
+    /// to offer must go back to loading — otherwise the button stays disabled and answers a tap with
+    /// "pull to refresh" while the refresh it asks for is already running.
+    private func prepareAddFunds() {
+        guard addFundsInteractor != nil else {
+            addFundsState = .unavailable
+            return
+        }
+
+        addFundsPreparationTask?.cancel()
+
+        if addFundsState != .available {
+            addFundsState = .loading
+        }
+
+        addFundsPreparationTask = runTask(in: self) { @MainActor viewModel in
+            guard let interactor = viewModel.addFundsInteractor else { return }
+
+            let state = await interactor.prepare()
+
+            guard !Task.isCancelled else { return }
+
+            viewModel.addFundsState = AddFundsState(state)
+        }
+    }
+
     // MARK: - Actions
 
     func load() {
@@ -138,6 +172,8 @@ final class PolymarketMainViewModel: ObservableObject {
         cache = [:]
         resetEvents()
         loadingState = .loading
+
+        prepareAddFunds()
 
         loadingTask = runTask(in: self) { @MainActor viewModel in
             await viewModel.loadCategories()
@@ -174,7 +210,14 @@ final class PolymarketMainViewModel: ObservableObject {
             return
         }
 
-        // [REDACTED_TODO_COMMENT]
+        switch addFundsState {
+        case .available:
+            coordinator?.openAddFunds()
+        case .loading:
+            break
+        case .unavailable:
+            alert = AlertBuilder.makeOkGotItAlert(message: PolymarketAddFundsCopy.unavailableMessage)
+        }
     }
 
     func exitSearch() {
@@ -373,6 +416,7 @@ extension PolymarketMainViewModel {
     @MainActor
     func refresh() async {
         loadRegion()
+        prepareAddFunds()
         loadingTask?.cancel()
 
         await balanceProvider.refresh()
@@ -381,6 +425,24 @@ extension PolymarketMainViewModel {
             await loadCategories()
         } else {
             await reloadSelectedCategory()
+        }
+    }
+}
+
+// MARK: - Add funds
+
+extension PolymarketMainViewModel {
+    enum AddFundsState: Equatable {
+        case loading
+        case available
+        case unavailable
+
+        init(_ state: PolymarketAddFundsInteractor.State) {
+            switch state {
+            case .loading: self = .loading
+            case .available: self = .available
+            case .unavailable: self = .unavailable
+            }
         }
     }
 }
