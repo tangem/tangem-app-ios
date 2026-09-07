@@ -15,6 +15,8 @@ import TangemLocalization
 struct TokenSummaryView: View {
     @ObservedObject var viewModel: TokenSummaryViewModel
 
+    @ScaledMetric private var iconSize: CGFloat = 40
+
     var body: some View {
         VStack(spacing: 0) {
             navigationBar
@@ -53,7 +55,8 @@ struct TokenSummaryView: View {
 
     private var navigationBar: some View {
         HStack(spacing: 12) {
-            TokenIconV2(tokenIconInfo: viewModel.tokenIconInfo, size: .size40)
+            TokenIcon(tokenIconInfo: viewModel.tokenIconInfo, size: CGSize(bothDimensions: iconSize))
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(viewModel.tokenName)
