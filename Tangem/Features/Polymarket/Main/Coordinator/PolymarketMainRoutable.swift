@@ -14,6 +14,8 @@ protocol PolymarketMainRoutable: AnyObject {
 
     func openRegionWarning()
 
+    func openAddFunds()
+
     func openEventDetails(eventID: String, category: PolymarketCategory?)
 
     func openOrder(market: PolymarketMarket, outcome: PolymarketOutcome)
