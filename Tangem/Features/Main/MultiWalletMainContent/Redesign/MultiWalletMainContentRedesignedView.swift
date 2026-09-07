@@ -33,6 +33,8 @@ struct MultiWalletMainContentRedesignedView: View {
                     polymarketAccount(viewModel: polymarketAccountViewModel)
                 }
 
+                pendingJointAccounts
+
                 listContent
             }
 
@@ -70,6 +72,16 @@ struct MultiWalletMainContentRedesignedView: View {
         .padding(.horizontal, MultiWalletMainContentConstants.polymarketAccountHorizontalPadding)
         .background(Color.Tangem.Surface.level2)
         .cornerRadiusContinuous(MultiWalletMainContentConstants.polymarketAccountCornerRadius)
+    }
+
+    // MARK: - Pending joint accounts
+
+    private var pendingJointAccounts: some View {
+        ForEach(viewModel.pendingJointAccountViewModels) { pendingJointAccountViewModel in
+            PendingJointAccountItemView(viewModel: pendingJointAccountViewModel)
+                .cornerRadius(MultiWalletMainContentConstants.cornerRadius)
+                .backgroundColor(MultiWalletMainContentConstants.tokenListBackgroundColor)
+        }
     }
 
     // MARK: - List Content

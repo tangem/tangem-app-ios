@@ -54,6 +54,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var hardwareBackupTypesCoordinator: HardwareBackupTypesCoordinator?
     @Published var manageTokensCoordinator: ManageTokensCoordinator?
     @Published var polymarketCoordinator: PolymarketCoordinator?
+    @Published var jointAccountManagementCoordinator: JointAccountManagementCoordinator?
 
     // MARK: - Child coordinators (Other)
 
@@ -664,6 +665,20 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         )
         coordinator.start(with: .init(userWalletModel: userWalletModel))
         polymarketCoordinator = coordinator
+    }
+
+    func openJointAccountMembers(jointAccount: any JointAccountModel) {
+        mainBottomSheetUIManager.hide()
+
+        let coordinator = JointAccountManagementCoordinator(
+            dismissAction: { [weak self] in
+                self?.jointAccountManagementCoordinator = nil
+                self?.mainBottomSheetUIManager.show()
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .members(jointAccount: jointAccount))
+        jointAccountManagementCoordinator = coordinator
     }
 }
 

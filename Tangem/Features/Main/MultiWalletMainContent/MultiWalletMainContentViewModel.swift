@@ -39,6 +39,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published private(set) var tangemPayAccountViewModel: TangemPayAccountViewModel?
     @Published private(set) var polymarketAccountViewModel: AccountRowButtonViewModel?
 
+    @Published private(set) var pendingJointAccountViewModels: [PendingJointAccountItemViewModel] = []
+
     @Published private(set) var isScannerBusy = false
     @Published var error: AlertBinder? = nil
     @Published private(set) var nftEntrypointViewModel: NFTEntrypointViewModel?
@@ -373,6 +375,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         nftFeatureLifecycleHandler.startObserving()
 
         bindPolymarketAccountRow()
+        bindPendingJointAccountPlates()
     }
 
     private func setupTangemPayIfNeeded() {
@@ -454,6 +457,21 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             }
             .receiveOnMain()
             .assign(to: &$polymarketAccountViewModel)
+    }
+
+    private func bindPendingJointAccountPlates() {
+        JointAccountCryptoModelsAggregator
+            .pendingJointAccountModelsPublisher(from: userWalletModel.accountModelsManager)
+            .withWeakCaptureOf(self)
+            .map { viewModel, pendingJointAccounts in
+                pendingJointAccounts.map { pendingJointAccount in
+                    PendingJointAccountItemViewModel(jointAccount: pendingJointAccount) { [weak viewModel] in
+                        viewModel?.coordinator?.openJointAccountMembers(jointAccount: pendingJointAccount)
+                    }
+                }
+            }
+            .receiveOnMain()
+            .assign(to: &$pendingJointAccountViewModels)
     }
 
     /// - Note: This method throws an opaque error if the NFT Entrypoint view model is already created and there is no need to update it.

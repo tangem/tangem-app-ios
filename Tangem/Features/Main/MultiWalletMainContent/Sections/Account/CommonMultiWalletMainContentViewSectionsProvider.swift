@@ -53,7 +53,14 @@ final class CommonMultiWalletMainContentViewSectionsProvider {
             .withWeakCaptureOf(self)
             .flatMapLatest { provider, args -> AnyPublisher<CommonSectionInput, Never> in
                 let (accountModels, accountsState) = args
-                let cryptoAccountModels = AccountCryptoModelsAggregator.cryptoAccountModels(from: accountModels)
+                // A joint account that has yet to be activated holds no tokens and is shown by a plate of its own
+                let pendingJointAccountModels = JointAccountCryptoModelsAggregator
+                    .pendingJointAccountModels(from: accountModels)
+                let cryptoAccountModels = AccountCryptoModelsAggregator
+                    .cryptoAccountModels(from: accountModels)
+                    .filter { cryptoAccountModel in
+                        !pendingJointAccountModels.contains { $0.id == cryptoAccountModel.id }
+                    }
                 let hasMultipleAccounts = accountsState == .multiple
 
                 guard cryptoAccountModels.isNotEmpty else {

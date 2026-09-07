@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 /// One of the wallet's own accounts as far as its name, its icon and its tokens go — what it adds is the members it is
 /// shared with and the rules they operate it by.
@@ -55,5 +56,22 @@ extension JointAccountModel {
     /// - Note: Clamped because the count and the members come as two independent fields of the same response.
     var freeSlotsCount: Int {
         max(0, policy.membersCount - members.count)
+    }
+
+    /// - Note: A status this version does not know is taken to be one the account works under, since the endpoint goes
+    /// on adding to the set and only these two hold the account back.
+    var isAwaitingActivation: Bool {
+        switch status {
+        case .pending, .confirming:
+            true
+        case .active, .cancelled, .unknown:
+            false
+        }
+    }
+
+    /// Invites are handed out once, to the creator alone, so holding one is what tells the creator apart from the
+    /// members they invited.
+    var canInviteMembers: Bool {
+        freeSlotsCount > 0 && invites.isNotEmpty
     }
 }
