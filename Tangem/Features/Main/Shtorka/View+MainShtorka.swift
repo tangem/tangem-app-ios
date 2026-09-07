@@ -12,9 +12,9 @@ import TangemUIUtils
 
 extension View {
     @ViewBuilder
-    func mainShtorka() -> some View {
-        if FeatureProvider.isAvailable(.nativeMarketsShtorka) {
-            modifier(MainShtorkaViewModifier())
+    func mainShtorka(coordinator: FeedCoordinator?) -> some View {
+        if FeatureProvider.isAvailable(.nativeMarketsShtorka), let coordinator {
+            modifier(MainShtorkaViewModifier(coordinator: coordinator))
         } else {
             self
         }
@@ -22,7 +22,14 @@ extension View {
 }
 
 private struct MainShtorkaViewModifier: ViewModifier {
-    @StateObject private var stateObject = MainShtorkaStateObject()
+    let coordinator: FeedCoordinator
+
+    @ObservedObject private var stateObject: MainShtorkaStateObject
+
+    init(coordinator: FeedCoordinator) {
+        self.coordinator = coordinator
+        stateObject = coordinator.shtorkaStateObject
+    }
 
     func body(content: Content) -> some View {
         content
@@ -34,8 +41,7 @@ private struct MainShtorkaViewModifier: ViewModifier {
                 size: $stateObject.size,
                 detents: stateObject.detents
             ) {
-                // Placeholder until the feed moves in.
-                Color.red.opacity(0.3)
+                FeedCoordinatorView(coordinator: coordinator)
                     .readGeometry(\.size.height) { stateObject.report(sheetHeight: $0) }
             }
     }
