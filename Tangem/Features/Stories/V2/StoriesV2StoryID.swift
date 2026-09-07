@@ -17,3 +17,10 @@ enum StoriesV2StoryID: String, CaseIterable {
     /// two is live, pending an answer from the backend.
     case swapFirstTry = "swap_first_try"
 }
+
+extension StoriesV2StoryID {
+    /// Warmed unconditionally on app start; flow-specific stories are prefetched on demand.
+    static let prefetchedOnAppStart: [StoriesV2StoryID] = [
+        .hardwareUpgrade,
+    ]
+}
