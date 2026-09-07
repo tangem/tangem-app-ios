@@ -148,11 +148,6 @@ final class WalletModelTestsMock: WalletModel {
 
     func updateRentWarning() -> AnyPublisher<String?, Never> { .just(output: nil) }
 
-    // MARK: - WalletModelFeesProvider
-
-    var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder { fatalError() }
-    var customFeeProviderBuilder: CustomFeeProviderBuilder { fatalError() }
-
     // MARK: - TransactionHistoryFetcher
 
     var canFetchHistory: Bool { false }
