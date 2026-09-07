@@ -114,6 +114,8 @@ class CommonWalletManagersRepository {
             return try walletManagerFactory.makeWalletManager(wallet: wallet, tokens: tokens, apiList: apiList)
         } catch AnyWalletFactoryError.noDerivation {
             AppLogger.warning("‼️ No derivation for \(blockchainNetwork.blockchain.displayName)")
+        } catch AnyWalletFactoryError.accountAddressUnavailable {
+            AppLogger.warning("‼️ No account address for \(blockchainNetwork.blockchain.displayName)")
         } catch {
             AppLogger.error("‼️ Failed to create \(blockchainNetwork.blockchain.displayName)", error: error)
         }

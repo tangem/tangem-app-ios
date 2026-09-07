@@ -14,11 +14,13 @@ import BlockchainSdk
 struct CommonCryptoAccountDependenciesFactory {
     typealias UserTokensRepositoryProvider = (_ derivationIdentity: CryptoAccountDerivationIdentity) -> UserTokensRepository
 
+    let userWalletId: UserWalletId
     /// A single instance per user wallet
     let derivationManager: DerivationManager?
     let derivationStyle: DerivationStyle?
     let keysRepository: KeysRepository
-    let walletFactory: AnyWalletFactory
+    let walletFactoryTypeResolver: CryptoAccountWalletFactoryTypeResolver
+    let walletFactoryProvider: WalletFactoryProvider
     let walletManagerFactory: AnyWalletManagerFactory
     let existingCurves: [EllipticCurve]
     let persistentBlockchains: [TokenItem]
@@ -33,14 +35,16 @@ struct CommonCryptoAccountDependenciesFactory {
 
 extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFactory {
     func makeDependencies(
-        forAccountWithDerivationIdentity derivationIdentity: CryptoAccountDerivationIdentity,
-        userWalletId: UserWalletId
+        forAccountWithDerivationIdentity derivationIdentity: CryptoAccountDerivationIdentity
     ) -> CryptoAccountDependencies {
         let derivationPathBuilder = AccountDerivationPathBuilderFactory.makeBuilder(
             forAccountWith: derivationIdentity,
             derivationStyle: derivationStyle
         )
+
         let userTokensRepository = userTokensRepositoryProvider(derivationIdentity)
+        let walletFactoryType = walletFactoryTypeResolver.resolve(derivationIdentity: derivationIdentity)
+        let walletFactory = walletFactoryProvider.makeWalletFactory(walletFactoryType: walletFactoryType)
 
         let userTokensManager = CommonUserTokensManager(
             userWalletId: userWalletId,

@@ -12,6 +12,10 @@ import Combine
 /// - Note: Separate from `CryptoAccountsRepository` because that one rewrites its list wholesale on every refresh,
 /// which a joint account would not survive.
 protocol JointAccountsRepository {
+    /// What is stored at this moment — the synchronous counterpart of `jointAccountsPublisher`, for the callers
+    /// that are building something right now and cannot wait for an emission.
+    var jointAccounts: [StoredJointAccount] { get }
+
     /// - Note: Emits what is stored right away, so the accounts a wallet took part in last time are there to be shown
     /// while the list is being read anew.
     var jointAccountsPublisher: AnyPublisher<[StoredJointAccount], Never> { get }

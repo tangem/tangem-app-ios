@@ -135,8 +135,7 @@ actor CommonAccountModelsManager {
                 }
 
                 let dependencies = dependenciesFactory.makeDependencies(
-                    forAccountWithDerivationIdentity: storedCryptoAccount.derivationIdentity,
-                    userWalletId: userWalletId
+                    forAccountWithDerivationIdentity: storedCryptoAccount.derivationIdentity
                 )
                 let balanceProvidingDependencies = dependencies.makeBalanceProvidingDependencies()
 

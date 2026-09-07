@@ -21,25 +21,23 @@ struct JointAccountsNetworkMapperTests {
     func createdAccountIsRead() throws {
         let response: JointAccountsDTO.Response.JointAccount = try Self.decode(Constants.createdAccountJSON)
 
-        let result = mapper.mapToCreationResult(from: response)
+        let result = try mapper.mapToCreationResult(from: response)
 
         #expect(result.account.cryptoAccountId == "0F2A4B6C8D0E2F4A61C8A9E7D6053A1B4C7E2F8D9A0B3C5E7F1A2D4B6C8E0F2A")
         #expect(result.account.membersCount == 3)
         #expect(result.account.threshold == 2)
-        #expect(result.account.address == nil)
         #expect(result.account.status == .pending)
         #expect(result.account.members.map(\.role) == [.creator])
         #expect(result.invites.map(\.id) == ["A1B2C3", "D4E5F6"])
     }
 
-    @Test("The address the whole composition adds up to is the one that gets stored")
-    func safeAddressIsRead() throws {
+    @Test("The members are read slot for slot, the creator first")
+    func membersAreRead() throws {
         let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(Constants.confirmingAccountsJSON)
 
-        let accounts = mapper.mapToJointAccounts(from: response)
+        let accounts = try mapper.mapToJointAccounts(from: response)
 
         #expect(accounts.count == 1)
-        #expect(accounts.first?.address == "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b")
         #expect(accounts.first?.status == .confirming)
         #expect(accounts.first?.members.map(\.name) == ["Alice", "Bob"])
         #expect(accounts.first?.members.map(\.role) == [.creator, .member])
@@ -50,7 +48,7 @@ struct JointAccountsNetworkMapperTests {
     func emptyListIsRead() throws {
         let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(#"{"jointAccounts":[]}"#)
 
-        #expect(mapper.mapToJointAccounts(from: response).isEmpty)
+        #expect(try mapper.mapToJointAccounts(from: response).isEmpty)
     }
 
     @Test(
@@ -58,26 +56,51 @@ struct JointAccountsNetworkMapperTests {
         arguments: [
             ("pending", JointAccountStatus.pending),
             ("confirming", .confirming),
-            ("active", .active),
             ("cancelled", .cancelled),
         ]
     )
     func namedStatusIsRead(rawStatus: String, expected: JointAccountStatus) throws {
         let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(Constants.accountsJSON(status: rawStatus))
 
-        #expect(mapper.mapToJointAccounts(from: response).map(\.status) == [expected])
+        #expect(try mapper.mapToJointAccounts(from: response).map(\.status) == [expected])
+    }
+
+    @Test("An active account is read with the address it lives at")
+    func activeStatusCarriesTheAddress() throws {
+        let json = Constants.accountsJSON(status: "active", safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b")
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(json)
+
+        let statuses = try mapper.mapToJointAccounts(from: response).map(\.status)
+
+        #expect(statuses == [.active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b")])
+    }
+
+    @Test("An active account without an address is a failure, not a guess")
+    func activeStatusWithoutAddressIsRefused() throws {
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(Constants.accountsJSON(status: "active"))
+
+        #expect(throws: JointAccountsNetworkMapperError.activeAccountWithoutAddress) {
+            try mapper.mapToJointAccounts(from: response)
+        }
     }
 
     @Test("A status this version has never heard of costs nothing but itself")
     func unfamiliarStatusIsRead() throws {
         let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(Constants.accountsJSON(status: "settling"))
 
-        #expect(mapper.mapToJointAccounts(from: response).map(\.status) == [.unknown("settling")])
+        #expect(try mapper.mapToJointAccounts(from: response).map(\.status) == [.unknown])
+    }
+
+    @Test("An answer arriving without a status at all is the contract broken, not the contract grown")
+    func missingStatusIsRefused() throws {
+        #expect(throws: DecodingError.self) {
+            let _: JointAccountsDTO.Response.JointAccounts = try Self.decode(Constants.accountsJSONWithoutStatus)
+        }
     }
 
     @Test("A stored status survives a round trip, whether this version knows it or not")
     func statusRoundTripsThroughStorage() throws {
-        for status in [JointAccountStatus.pending, .confirming, .active, .cancelled, .unknown("settling")] {
+        for status in [JointAccountStatus.pending, .confirming, .active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"), .cancelled, .unknown] {
             let encoded = try JSONEncoder().encode(status)
 
             #expect(try JSONDecoder().decode(JointAccountStatus.self, from: encoded) == status)
@@ -221,7 +244,7 @@ private extension JointAccountsNetworkMapperTests {
         }
         """
 
-        static func accountsJSON(status: String) -> String {
+        static func accountsJSON(status: String, safeAddress: String? = nil) -> String {
             """
             {
               "jointAccounts": [
@@ -229,7 +252,7 @@ private extension JointAccountsNetworkMapperTests {
                   "cryptoAccountId": "0F2A4B6C8D0E2F4A61C8A9E7D6053A1B4C7E2F8D9A0B3C5E7F1A2D4B6C8E0F2A",
                   "membersCount": 2,
                   "threshold": 2,
-                  "safeAddress": null,
+                  "safeAddress": \(safeAddress.map { "\"\($0)\"" } ?? "null"),
                   "status": "\(status)",
                   "members": []
                 }
@@ -237,6 +260,20 @@ private extension JointAccountsNetworkMapperTests {
             }
             """
         }
+
+        static let accountsJSONWithoutStatus = """
+        {
+          "jointAccounts": [
+            {
+              "cryptoAccountId": "0F2A4B6C8D0E2F4A61C8A9E7D6053A1B4C7E2F8D9A0B3C5E7F1A2D4B6C8E0F2A",
+              "membersCount": 2,
+              "threshold": 2,
+              "safeAddress": null,
+              "members": []
+            }
+          ]
+        }
+        """
 
         static let invitePreviewJSON = """
         {

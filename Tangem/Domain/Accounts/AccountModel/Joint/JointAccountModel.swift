@@ -6,10 +6,16 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 /// One of the wallet's own accounts as far as its name, its icon and its tokens go — what it adds is the members it is
 /// shared with and the rules they operate it by.
 protocol JointAccountModel: CryptoAccountModel {
-    var jointAccountConfig: JointAccountConfig { get }
+    var policy: JointAccountPolicy { get }
+
+    /// How far the account has come: waiting on its members, or activated and ready to be operated.
+    /// - Note: Apart from the config, which is what the account was created with and never changes.
+    var status: JointAccountStatus { get }
 
     /// Only the slots that are taken, in the order they were taken, the creator first.
     var members: [JointAccountMember] { get }
@@ -22,6 +28,22 @@ protocol JointAccountModel: CryptoAccountModel {
     var invites: [JointAccountInvite] { get }
 }
 
+// MARK: - Errors
+
+/// - Note: Reported wrapped in `AccountEditError.unknownError`, so it reads for whoever opens the log rather than for
+/// the user, whose alert is built from the wrapping error.
+enum JointAccountModelError: String, LocalizedError {
+    /// A joint account is what its members agreed to when they took their slots, so nothing about it is any one
+    /// member's to change.
+    case editingNotSupported
+
+    var errorDescription: String? {
+        switch self {
+        case .editingNotSupported: "A joint account cannot be edited."
+        }
+    }
+}
+
 // MARK: - Convenience
 
 extension JointAccountModel {
@@ -32,6 +54,6 @@ extension JointAccountModel {
     /// The slots an invite is still waiting to fill.
     /// - Note: Clamped because the count and the members come as two independent fields of the same response.
     var freeSlotsCount: Int {
-        max(0, jointAccountConfig.membersCount - members.count)
+        max(0, policy.membersCount - members.count)
     }
 }

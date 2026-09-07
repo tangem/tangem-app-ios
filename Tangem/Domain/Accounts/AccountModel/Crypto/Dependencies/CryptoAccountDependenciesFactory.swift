@@ -12,7 +12,6 @@ import TangemFoundation
 /// Produces required dependencies for a specific account identified by its derivation identity.
 protocol CryptoAccountDependenciesFactory {
     func makeDependencies(
-        forAccountWithDerivationIdentity derivationIdentity: CryptoAccountDerivationIdentity,
-        userWalletId: UserWalletId
+        forAccountWithDerivationIdentity derivationIdentity: CryptoAccountDerivationIdentity
     ) -> CryptoAccountDependencies
 }
