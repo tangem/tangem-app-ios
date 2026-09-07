@@ -278,6 +278,7 @@ private extension TangemPayTransactionDetailsView {
                 Row(title: Localization.tangempayCommonCard)
                     .valueAccessory {
                         errorLoadingAccessory(action: viewModel.retryCardLoad)
+                            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsCardRowRetryButton)
                     }
                     .showDivider()
                     .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsCardRow)
