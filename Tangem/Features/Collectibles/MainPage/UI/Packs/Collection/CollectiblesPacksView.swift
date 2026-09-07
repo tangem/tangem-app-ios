@@ -8,6 +8,8 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
+import TangemUIUtils
 
 struct CollectiblesPacksView: View {
     @ObservedObject var viewModel: CollectiblesPacksViewModel
@@ -28,7 +30,10 @@ private extension CollectiblesPacksView {
         case .idle, .loading:
             CollectiblesPackGrid.Skeleton(cellsCount: Constants.skeletonCellsCount)
         case .content(let models):
-            CollectiblesPackGrid(models: models)
+            VStack(spacing: 0) {
+                CollectiblesPackGrid(models: models, onLastItemAppear: viewModel.loadMore)
+                paginationFooter
+            }
         case .empty(let hasQuery):
             EmptyMessage(
                 icon: hasQuery ? DesignSystem.Icons.Binoculars.regular20 : DesignSystem.Icons.Stack.regular20,
@@ -43,6 +48,22 @@ private extension CollectiblesPacksView {
                 onRetry: viewModel.reload
             )
             .frame(minHeight: Constants.messageMinHeight)
+        }
+    }
+
+    @ViewBuilder
+    var paginationFooter: some View {
+        switch viewModel.paginationState {
+        case .none, .ready:
+            EmptyView()
+        case .loading:
+            Loader()
+                .infinityFrame(axis: .horizontal)
+                .padding(.vertical, Constants.paginationVerticalPadding)
+        case .failed:
+            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.loadMore)
+                .infinityFrame(axis: .horizontal)
+                .padding(.vertical, Constants.paginationVerticalPadding)
         }
     }
 }
@@ -69,6 +90,7 @@ private extension CollectiblesPacksView {
     enum Constants {
         static let skeletonCellsCount = 4
         static let messageMinHeight: CGFloat = 320
+        static let paginationVerticalPadding: CGFloat = 16
     }
 }
 
@@ -79,7 +101,7 @@ private extension CollectiblesPacksView {
         DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
         ScrollView {
-            CollectiblesPacksView(viewModel: CollectiblesPacksViewModel(provider: CollectiblesPacksMockProvider()))
+            CollectiblesPacksView(viewModel: CollectiblesPacksViewModel(model: CollectiblesPacksModel(provider: CollectiblesPacksMockProvider())))
         }
     }
 }
