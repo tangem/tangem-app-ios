@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 
 struct WelcomeV2View: View {
@@ -68,10 +69,10 @@ struct WelcomeV2View: View {
 
     private var titleBlock: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("Store all your assets")
+            Text(Localization.introductionTitle)
                 .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textStaticDarkPrimary)
 
-            Text("The only app you need\nto manage your finances")
+            Text(Localization.introductionSubtitle)
                 .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textStaticDarkSecondary)
         }
     }
@@ -79,7 +80,7 @@ struct WelcomeV2View: View {
     private var bottomContainer: some View {
         VStack(spacing: 12) {
             TangemUI.Button(
-                label: "Create wallet",
+                label: Localization.introductionButtonCreateWallet,
                 accessibilityLabel: nil,
                 action: viewModel.onCreateWalletTap
             )
@@ -88,7 +89,7 @@ struct WelcomeV2View: View {
             .size(.x14)
 
             TangemUI.Button(
-                label: "I have a wallet",
+                label: Localization.introductionButtonIHaveAWallet,
                 accessibilityLabel: nil,
                 action: viewModel.onExistingWalletTap
             )
@@ -120,9 +121,9 @@ struct WelcomeV2View: View {
     }
 
     private var footerAttributedString: AttributedString {
-        let terms = "Terms of service"
-        let privacy = "Privacy Policy"
-        var string = AttributedString("By continuing, you agree with \(terms) and \(privacy)")
+        let terms = Localization.introductionTermsOfService
+        let privacy = Localization.commonPrivacyPolicy
+        var string = AttributedString(Localization.introductionLegal(terms, privacy))
         string.setFontStyle(DesignSystem.Font.captionMediumToken)
         string.foregroundColor = DesignSystem.Color.textStaticDarkSecondary
 
@@ -135,8 +136,7 @@ struct WelcomeV2View: View {
         if let range = string.range(of: privacy) {
             string[range].foregroundColor = DesignSystem.Color.textStaticDarkPrimary
             string[range].font = Font.system(size: 12, weight: .semibold)
-            // [REDACTED_TODO_COMMENT]
-            string[range].link = URL(string: "about:blank")
+            string[range].link = AppConstants.privacyPolicyURL
         }
 
         return string

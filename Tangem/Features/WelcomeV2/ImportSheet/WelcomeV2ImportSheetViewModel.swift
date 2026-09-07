@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemFoundation
+import TangemLocalization
 import TangemMobileWalletBackup
 
 final class WelcomeV2ImportSheetViewModel: ObservableObject, Identifiable {
@@ -37,15 +38,15 @@ final class WelcomeV2ImportSheetViewModel: ObservableObject, Identifiable {
 
         items = [
             WelcomeV2ImportSheetItem(
-                id: Constants.recoveryItemId,
-                title: "Import recovery phrase",
+                id: ItemID.recovery,
+                title: Localization.hwCloudBackupRestoreUseRecoveryPhrase,
                 isEnabled: true,
                 isLoading: false,
                 action: input.onRecoveryPhrase
             ),
             WelcomeV2ImportSheetItem(
-                id: Constants.iCloudItemId,
-                title: "Restore iCloud backup",
+                id: ItemID.iCloud,
+                title: Localization.introductionImportIcloudRestore,
                 isEnabled: false,
                 isLoading: true,
                 action: {}
@@ -117,10 +118,10 @@ private extension WelcomeV2ImportSheetViewModel {
 
     @MainActor
     func updateICloudItem(state: ICloudBackupState) {
-        guard let index = items.firstIndex(where: { $0.id == Constants.iCloudItemId }) else { return }
+        guard let index = items.firstIndex(where: { $0.id == ItemID.iCloud }) else { return }
 
         items[index] = WelcomeV2ImportSheetItem(
-            id: Constants.iCloudItemId,
+            id: ItemID.iCloud,
             title: state.title,
             isEnabled: state.isEnabled,
             isLoading: state.isLoading,
@@ -152,9 +153,9 @@ extension WelcomeV2ImportSheetViewModel {
 
         var title: String {
             switch self {
-            case .loading, .enabled: "Restore iCloud backup"
-            case .notFound: "iCloud backup not found"
-            case .retry: "Retry iCloud backup"
+            case .loading, .enabled: Localization.introductionImportIcloudRestore
+            case .notFound: Localization.introductionImportIcloudNotFound
+            case .retry: Localization.introductionImportIcloudRetry
             }
         }
 
@@ -176,10 +177,16 @@ extension WelcomeV2ImportSheetViewModel {
 
 // MARK: - Constants
 
+extension WelcomeV2ImportSheetViewModel {
+    /// Item ids double as the key for accessibility identifiers in the view.
+    enum ItemID {
+        static let recovery = "recovery"
+        static let iCloud = "icloud"
+    }
+}
+
 private extension WelcomeV2ImportSheetViewModel {
     enum Constants {
-        static let recoveryItemId = "recovery"
-        static let iCloudItemId = "icloud"
         static let loadingTimeout: Duration = .seconds(1)
     }
 }
