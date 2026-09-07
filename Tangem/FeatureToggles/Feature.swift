@@ -47,6 +47,7 @@ enum Feature: String, Hashable, CaseIterable {
     case openTelemetryMetrics
     case expressGeoRestrictions
     case tangemPayOfframp
+    case realAssets
     case storiesV2
     case hardwareUpgradeStories
 
@@ -92,6 +93,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .openTelemetryMetrics: return "TWI-1627_opentelemetry_metrics_mirroring"
         case .expressGeoRestrictions: return "[REDACTED_INFO]_express_geo_restrictions"
         case .tangemPayOfframp: return "TWI-1632_tangem_pay_offramp"
+        case .realAssets: return "TWI-1477_real_assets_shelf"
         case .storiesV2: return "TWI-1713_stories_v2"
         case .hardwareUpgradeStories: return "TWI-1357_hardware_upgrade_stories"
         }
@@ -137,6 +139,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .openTelemetryMetrics: return .unspecified
         case .expressGeoRestrictions: return .unspecified
         case .tangemPayOfframp: return .version("6.4")
+        case .realAssets: return .unspecified
         case .storiesV2: return .unspecified
         case .hardwareUpgradeStories: return .unspecified
         }
