@@ -7,25 +7,22 @@
 //
 
 import Foundation
-import TangemFoundation
 
 enum CollectiblesLoreTabsMapper {
     static let allTab = CollectiblesLoreTabsView.LoreTab(kind: .all, title: Constants.allTabTitle, counter: nil)
 
-    static func map(_ lores: [CollectiblesLore]) -> [CollectiblesLoreTabsView.LoreTab] {
-        guard !lores.isEmpty else {
+    static func map(_ catalogue: CollectiblesLoreCatalogue) -> [CollectiblesLoreTabsView.LoreTab] {
+        guard !catalogue.lores.isEmpty else {
             return []
         }
-
-        let totalPacksCount = lores.sum(by: \.packsCount)
 
         let allTab = CollectiblesLoreTabsView.LoreTab(
             kind: .all,
             title: Constants.allTabTitle,
-            counter: "\(totalPacksCount)"
+            counter: "\(catalogue.totalPacksCount)"
         )
 
-        let loreTabs = lores.map { lore in
+        let loreTabs = catalogue.lores.map { lore in
             CollectiblesLoreTabsView.LoreTab(
                 kind: .lore(lore.id),
                 title: lore.title,

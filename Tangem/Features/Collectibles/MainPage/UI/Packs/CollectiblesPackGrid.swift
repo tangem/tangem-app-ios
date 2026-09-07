@@ -10,10 +10,18 @@ import SwiftUI
 
 struct CollectiblesPackGrid: View {
     let models: [CollectiblesPackCard.Model]
+    var onLastItemAppear: (() -> Void)?
 
     var body: some View {
         LazyVGrid(columns: Metrics.columns, alignment: .leading, spacing: Metrics.rowSpacing) {
-            ForEach(models, content: CollectiblesPackCard.init)
+            ForEach(models) { model in
+                CollectiblesPackCard(model: model)
+                    .onAppear {
+                        if model.id == models.last?.id {
+                            onLastItemAppear?()
+                        }
+                    }
+            }
         }
         .padding(.horizontal, Metrics.horizontalPadding)
     }

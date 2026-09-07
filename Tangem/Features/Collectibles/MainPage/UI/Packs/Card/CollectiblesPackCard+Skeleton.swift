@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 import TangemAssets
 import TangemUI
 
@@ -27,7 +28,7 @@ private extension CollectiblesPackCard.Skeleton {
 
     var artwork: some View {
         Shimmer()
-            .frame(maxWidth: .infinity)
+            .infinityFrame(axis: .horizontal)
             .frame(height: CollectiblesPackCard.Metrics.artworkHeight)
             .clipShape(RoundedRectangle(cornerRadius: CollectiblesPackCard.Metrics.cornerRadius, style: .continuous))
     }
