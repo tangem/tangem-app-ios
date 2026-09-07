@@ -879,6 +879,7 @@
 "introduction_title" = "Store all your assets";
 "jailbreak_warning_message" = "Devices with jailbreak are considered less secure. Your data may be exposed to additional risks.";
 "jailbreak_warning_title" = "Jailbreak detected";
+"joint_account_activated_snackbar" = "Account activated";
 "joint_account_activation_account_button_title" = "Activate account";
 "joint_account_activation_subtitle" = "Everyone in this account shares one balance. Any member can spend or withdraw the funds at any time — including without your approval";
 "joint_account_activation_title" = "You're activating a shared account";
@@ -1933,7 +1934,7 @@
 "tangem_pay_transaction_details_cashback_below_min" = "Below min trx amount";
 "tangem_pay_transaction_details_cashback_cap_reached" = "Monthly cap reached";
 "tangem_pay_transaction_details_cashback_mcc_excluded" = "MCC excluded";
-"tangem_pay_transaction_details_cashback_none" = "No cashback";
+"tangem_pay_transaction_details_cashback_none" = "—";
 "tangem_pay_transaction_details_cashback_refund" = "Return of purchase";
 "tangem_pay_transaction_details_cashback_region_excluded" = "Excluded region";
 "tangem_pay_transaction_details_category" = "Category";
@@ -2055,7 +2056,7 @@
 "tangempay_card_page_settings_title" = "Card settings";
 "tangempay_cashback_accruals_calc_description" = "We process purchases within 5 days after the operation and count only completed transactions";
 "tangempay_cashback_accruals_calc_title" = "How we calculate cashback?";
-"tangempay_cashback_accruals_exceptions_description" = "No cashback will be awarded for in-person/in-store purchases at EU merchants; also for withdrawals, transfers, quasi-cash, mobile phone bills, government services and certain other categories";
+"tangempay_cashback_accruals_exceptions_description" = "For now, cashback isn’t available for in-store purchases at EU merchants. It’s also no cashback for ATMs, quasi-cash, mobile phone bills, government services, and some other categories.";
 "tangempay_cashback_accruals_exceptions_title" = "Exceptions";
 "tangempay_cashback_accruals_pay_description" = "From the 2nd to the 5th of the next month";
 "tangempay_cashback_accruals_pay_title" = "How we pay cashback?";
@@ -2097,7 +2098,7 @@
 "tangempay_choose_network_row_loading" = "Preparing address…";
 "tangempay_come_back_if_forget_pin" = "Come back to the app if you forget it.";
 "tangempay_common_card" = "Card";
-"tangempay_common_error_loading" = "Error loading";
+"tangempay_common_error_loading" = "—";
 "tangempay_current_plan_active_till_notification" = "Your %1$@ plan is active till %2$@, then we will move you to %3$@. %4$@ won't be charged.";
 "tangempay_current_plan_awaiting_deposit_notification" = "We are in process of moving you to %@ plan and awaiting payment for plan fee";
 "tangempay_current_plan_change" = "Change plan";
@@ -2139,7 +2140,7 @@
 "tangempay_failed_to_issue_card" = "Failed to issue card";
 "tangempay_feature_will_be_available_soon_description" = "You will be available to issue additional cards for your payment account";
 "tangempay_feature_will_be_available_soon" = "Feature will be available soon";
-"tangempay_get_banner_description" = "Get your free Tangem Visa virtual card";
+"tangempay_get_banner_description" = "Free Tangem Pay card with up to 2%% cashback";
 "tangempay_get_tangem_pay" = "Get Tangem Pay";
 "tangempay_go_to_support" = "Go to Support";
 "tangempay_issue_additional_card_description" = "It generates a new set of card details";
@@ -2193,8 +2194,8 @@
 "tangempay_newonboard_topleft_title" = "No purchase fees, \n1 USDC = 1 USD";
 "tangempay_newonboard_topright_body" = "Paid in USDC, not obscure tokens";
 "tangempay_newonboard_topright_title" = "Cashback up to 2%%";
-"tangempay_onboarding_banner_description" = "Get your free Tangem Visa virtual card";
-"tangempay_onboarding_banner_title" = "Use USDC for everyday payments";
+"tangempay_onboarding_banner_description" = "Free Tangem Pay card with up to 2%% cashback";
+"tangempay_onboarding_banner_title" = "Spend crypto anywhere in real life";
 "tangempay_onboarding_get_card_button_text" = "Get card";
 "tangempay_onboarding_pay_description" = "With digital card via Apple Pay or Google Pay, no additional fees for purchases";
 "tangempay_onboarding_pay_title" = "Spend your assets anywhere";
@@ -2299,7 +2300,7 @@
 "tangempay_sync_needed_restore_access" = "Renew session";
 "tangempay_sync_needed_title" = "Payment account session expired";
 "tangempay_sync_needed" = "Use your card or ring to renew session";
-"tangempay_tangem_visa_card" = "Use USDC for everyday payments";
+"tangempay_tangem_visa_card" = "Spend crypto anywhere in real life";
 "tangempay_temporarily_unavailable" = "Connection issues";
 "tangempay_title" = "Tangem Pay";
 "tangempay_topup_bank_transfer_body" = "Receive USD from a bank account via ACH/FedWire";
@@ -2320,8 +2321,13 @@
 "tangempay_va_banking_details_error_title" = "Couldn't load banking details";
 "tangempay_va_limit_resetting_everyday" = "Limit is resetting every day";
 "tangempay_visa_benefits" = "Visa Benefits";
+"tangempay_withdraw_hub_bank_section_subtitle" = "Send to another bank using ACH or FedWire";
+"tangempay_withdraw_hub_bank_section_title" = "Bank transfer";
+"tangempay_withdraw_hub_recents_empty" = "Your recent transfers will be here";
 "tangempay_withdraw_hub_swap_section_subtitle" = "From your payment account";
 "tangempay_withdraw_hub_swap_section_title" = "Transfer or swap";
+"tangempay_withdraw_hub_to_business_account" = "To business account";
+"tangempay_withdraw_hub_to_personal_account" = "To personal account";
 "tangempay_withdraw_hub_within_portfolio" = "Within your portfolio";
 "tangempay_withdrawal_note_description" = "Funds from refunded purchases won’t be returned your on-chain Polygon balance or be available for withdrawal, but will stay on your card balance for purchases";
 "tangempay_withdrawal_note_title" = "Please note";
@@ -2602,7 +2608,7 @@
 "wallet_import_seed_description" = "Import an existing wallet with your recovery phrase.";
 "wallet_import_seed_navtitle" = "Import wallet";
 "wallet_import_seed_title" = "Enter recovery phrase";
-"wallet_import_success_description" = "You successfully import up your wallet.";
+"wallet_import_success_description" = "You successfully imported your wallet.";
 "wallet_import_success_navtitle" = "Import wallet";
 "wallet_import_success_title" = "Import completed";
 "wallet_import_title" = "Import wallet";
