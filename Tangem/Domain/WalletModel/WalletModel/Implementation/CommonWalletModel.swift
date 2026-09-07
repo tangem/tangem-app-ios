@@ -600,23 +600,6 @@ extension CommonWalletModel: WalletModelHelpers {
     }
 }
 
-// MARK: - WalletModelFeesProvider
-
-extension CommonWalletModel: WalletModelFeesProvider {
-    var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder {
-        TokenFeeLoaderBuilder(
-            tokenItem: tokenItem,
-            sourceAddress: defaultAddressString,
-            dependenciesProvider: self,
-            isDemo: isDemo
-        )
-    }
-
-    var customFeeProviderBuilder: CustomFeeProviderBuilder {
-        CustomFeeProviderBuilder(tokenItem: tokenItem, feeTokenItem: feeTokenItem, walletManager: walletManager)
-    }
-}
-
 // MARK: - Dependencies
 
 extension CommonWalletModel: WalletModelDependenciesProvider {
