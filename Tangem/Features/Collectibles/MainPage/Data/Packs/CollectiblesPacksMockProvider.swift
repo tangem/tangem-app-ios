@@ -15,17 +15,19 @@ struct CollectiblesPacksMockProvider: CollectiblesPacksProvider {
         }
     }
 
-    func load(loreID: String?, query: String) async throws -> [CollectiblesPack] {
+    func load(loreID: String?, query: String, cursor: String?) async throws -> CollectiblesPacksPage {
         try await Task.sleep(for: .seconds(1.5))
 
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        return Self.packs.filter { pack in
+        let packs = Self.packs.filter { pack in
             let matchesLore = loreID.map { pack.loreID == $0 } ?? true
             let matchesQuery = trimmedQuery.isEmpty || pack.name.localizedCaseInsensitiveContains(trimmedQuery)
 
             return matchesLore && matchesQuery
         }
+
+        return CollectiblesPacksPage(packs: packs, hasNext: false, cursor: nil)
     }
 }
 
