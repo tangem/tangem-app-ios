@@ -34,7 +34,19 @@ struct TronTransactionHistoryMapperTests {
     }
 
     @Test
-    func excludesCoinTransferBelowMinimumAmount() throws {
+    func excludesIncomingCoinTransferBelowMinimumAmount() throws {
+        let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
+        let response = makeResponse(transactions: [
+            .init(fromAddress: otherAddress, toAddress: walletAddress, value: "999"),
+        ])
+
+        let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
+
+        #expect(records.isEmpty)
+    }
+
+    @Test
+    func includesOutgoingCoinTransferBelowMinimumAmount() throws {
         let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
         let response = makeResponse(transactions: [
             .init(fromAddress: walletAddress, toAddress: otherAddress, value: "999"),
@@ -42,7 +54,9 @@ struct TronTransactionHistoryMapperTests {
 
         let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
 
-        #expect(records.isEmpty)
+        #expect(records.count == 1)
+        #expect(records[0].isOutgoing)
+        #expect(records[0].source == .single(.init(address: walletAddress, amount: Decimal(stringValue: "0.000999")!)))
     }
 
     @Test

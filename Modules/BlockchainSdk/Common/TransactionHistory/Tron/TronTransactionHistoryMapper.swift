@@ -97,6 +97,11 @@ final class TronTransactionHistoryMapper {
             return true
         }
 
+        // Outgoing transfers are always kept: they are user-initiated, even when the amount is dust.
+        if transactionInfo.isOutgoing {
+            return true
+        }
+
         return transactionInfo.source.amount >= Constants.minimumCoinTransactionAmount
     }
 
