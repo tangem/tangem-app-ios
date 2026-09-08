@@ -1,5 +1,5 @@
 //
-//  PolymarketToWinBadge.swift
+//  PolymarketAmountBadge.swift
 //  TangemPolymarketUI
 //
 //  Created by [REDACTED_AUTHOR]
@@ -13,25 +13,29 @@ import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
-public struct PolymarketToWinBadge: View, Setupable {
+public struct PolymarketAmountBadge: View, Setupable {
     private let state: State
+    private let appearance: Appearance
+    private let label: (String) -> String
 
     private var typographyToken: TangemTypographyToken = DesignSystem.Font.captionMediumToken
 
-    public init(state: State) {
+    public init(state: State, appearance: Appearance, label: @escaping (String) -> String) {
         self.state = state
+        self.appearance = appearance
+        self.label = label
     }
 
     public var body: some View {
-        label
+        text
             .padding(.horizontal, Constants.horizontalPadding)
             .padding(.vertical, Constants.verticalPadding)
-            .background(DesignSystem.Color.bgStatusInfoSubtle, in: Capsule())
+            .background(appearance.backgroundColor, in: Capsule())
     }
 
-    private var label: some View {
-        Text(Localization.predictionPlaceToWin(amountText))
-            .style(typographyToken, color: DesignSystem.Color.textStatusInfo)
+    private var text: some View {
+        Text(label(amountText))
+            .style(typographyToken, color: appearance.foregroundColor)
             .lineLimit(1)
             .tangemShimmer()
             .environment(\.isShimmerActive, isLoading)
@@ -56,15 +60,38 @@ public struct PolymarketToWinBadge: View, Setupable {
 
 // MARK: - Setupable Modifiers
 
-public extension PolymarketToWinBadge {
+public extension PolymarketAmountBadge {
     func typography(_ token: TangemTypographyToken) -> Self {
         map { $0.typographyToken = token }
     }
 }
 
+// MARK: - Appearance
+
+public extension PolymarketAmountBadge {
+    enum Appearance: Hashable, Sendable {
+        case info
+        case warning
+
+        var backgroundColor: Color {
+            switch self {
+            case .info: DesignSystem.Color.bgStatusInfoSubtle
+            case .warning: DesignSystem.Color.bgStatusWarningSubtle
+            }
+        }
+
+        var foregroundColor: Color {
+            switch self {
+            case .info: DesignSystem.Color.textStatusInfo
+            case .warning: DesignSystem.Color.textStatusWarning
+            }
+        }
+    }
+}
+
 // MARK: - State
 
-public extension PolymarketToWinBadge {
+public extension PolymarketAmountBadge {
     enum State: Hashable {
         case value(String)
         case loading(previousValue: String?)
@@ -74,9 +101,17 @@ public extension PolymarketToWinBadge {
 
 // MARK: - Constants
 
-private extension PolymarketToWinBadge {
+private extension PolymarketAmountBadge {
     enum Constants {
         static let horizontalPadding: CGFloat = 8
         static let verticalPadding: CGFloat = 2
+    }
+}
+
+// MARK: - Badges
+
+public extension PolymarketAmountBadge {
+    static func toWin(state: State) -> PolymarketAmountBadge {
+        PolymarketAmountBadge(state: state, appearance: .info, label: Localization.predictionPlaceToWin)
     }
 }
