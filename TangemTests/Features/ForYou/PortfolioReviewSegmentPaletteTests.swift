@@ -134,16 +134,16 @@ struct PortfolioReviewSegmentPaletteTests {
         #expect(assets.map(\.fiatValue).reduce(0, +) == 7800)
     }
 
-    @Test("A donut that can't be drawn leaves every row without a dot")
-    func unchartedDonutLeavesRowsWithoutDots() throws {
-        // One failed balance is enough to fail the total, and a partial sum isn't charted.
+    @Test("A failed total does not unchart the donut: the holdings still rank and the rows keep their dots")
+    func failedTotalKeepsDonutAndDots() throws {
         let state = map(fiatBalances: Self.twelveDescendingAmounts, totalBalance: .failed(cached: nil, failedItems: []))
         let content = try content(of: state)
+        let assets = try chartAssets(of: content)
 
-        #expect(content.chart == .noData(.cantLoad))
-        // Includes the "Other" bucket: its neutral marker reads as one of the dots, so it goes too.
+        // Ten ranked arcs plus the bucket, exactly as with a loaded total.
+        #expect(assets.count == 11)
         #expect(content.tokenList.count == 11)
-        #expect(content.tokenList.allSatisfy { $0.assetRow.indicatorColor == nil })
+        #expect(content.tokenList.allSatisfy { $0.assetRow.indicatorColor != nil })
     }
 
     // MARK: - Rows without a slice
@@ -357,12 +357,7 @@ private extension PortfolioReviewSegmentPaletteTests {
             indicators: [:],
             timeframe: .day
         )
-        let chart = PortfolioReviewMapper.ChartBuilder.build(
-            topHoldings: topHoldings,
-            other: other,
-            slices: slices,
-            totalBalance: .loaded(balance: (topHoldings + other).reduce(Decimal.zero) { $0 + $1.amountInFiat })
-        )
+        let chart = PortfolioReviewMapper.ChartBuilder.build(topHoldings: topHoldings, other: other, slices: slices, noDataReason: .noAmount)
 
         return Review(rows: rows, segments: SummaryGaugeChart.segments(for: chart.loadedAssets), slices: slices)
     }
