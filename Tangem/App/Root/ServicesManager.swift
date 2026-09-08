@@ -65,6 +65,7 @@ final class CommonServicesManager {
     private let customerIOWrapper: CustomerIOWrapper
 
     private var _initialized: Bool = false
+    private var isFirstLaunch = false
 
     init() {
         stakingPendingHashesSender = StakingDependenciesFactory().makePendingHashesSender()
@@ -204,11 +205,7 @@ extension CommonServicesManager: ServicesManager {
         TangemPayMocksConfigurator().initialize()
 
         recordStartAppUsageDate()
-        let initialLaunches = recordAppLaunch()
-
-        if initialLaunches == 0 {
-            KeychainCleaner.cleanAllData()
-        }
+        isFirstLaunch = recordAppLaunch() == 0
 
         AmplitudeWrapper.shared.configure()
         openTelemetryWrapper.configure()
@@ -218,6 +215,7 @@ extension CommonServicesManager: ServicesManager {
 
         configureBlockchainSdkExceptionHandler()
 
+        BackendAuthenticationRegistrar.configure()
         silentPushHandlersStorage.initialize()
 
         sellService.initialize()
@@ -252,6 +250,14 @@ extension CommonServicesManager: ServicesManager {
         }
 
         await userWalletRepository.initialize()
+
+        if isFirstLaunch {
+            await KeychainCleaner.cleanAllData()
+        }
+
+        Task {
+            await BackendAuthenticationRegistrar.registerDevice()
+        }
 
         _initialized = true
     }

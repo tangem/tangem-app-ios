@@ -54,15 +54,17 @@ final class CommonOpenTelemetryWrapper: OpenTelemetryWrapper {
     /// Anything outside the mapping's allowlist is dropped — every attribute combination is a separate
     /// series in the metrics storage, so the set must stay a reviewed list.
     private func attributes(from properties: [String: Any]?, mapping: OpenTelemetryEventMapping) -> [String: String] {
-        guard let properties else { return [:] }
+        var attributes = OpenTelemetryContextAttributes.all
 
-        return mapping.allowedProperties.reduce(into: [:]) { result, entry in
-            let (propertyKey, attributeName) = entry
+        guard let properties else { return attributes }
 
-            guard let value = properties[propertyKey] else { return }
+        for (propertyKey, attributeName) in mapping.allowedProperties {
+            guard let value = properties[propertyKey] else { continue }
 
-            result[attributeName] = value as? String ?? String(describing: value)
+            attributes[attributeName] = value as? String ?? String(describing: value)
         }
+
+        return attributes
     }
 }
 

@@ -17,15 +17,16 @@ struct WelcomeV2ActionSheetView: View {
         ZStack {
             if let importViewModel = viewModel.pushedImportSheet {
                 WelcomeV2ImportSheetView(viewModel: importViewModel)
-                    .transition(.move(edge: .trailing).combined(with: .opacity))
+                    .transition(.content)
             } else {
                 rootContent
-                    .transition(.move(edge: .leading).combined(with: .opacity))
+                    .transition(.content)
             }
         }
-        .animation(.easeInOut(duration: 0.28), value: viewModel.pushedImportSheet?.id)
         .floatingSheetConfiguration { config in
             config.backgroundInteractionBehavior = .tapToDismiss
+            config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+            config.sheetFrameUpdateAnimation = .contentFrameUpdate
         }
     }
 
@@ -51,6 +52,7 @@ struct WelcomeV2ActionSheetView: View {
                         row(for: item)
                     }
                 }
+                .allowsHitTesting(!viewModel.items.contains(where: \.isLoading))
                 .padding(.horizontal, 16)
                 .padding(.bottom, 20)
             }
@@ -62,12 +64,29 @@ struct WelcomeV2ActionSheetView: View {
             .contentLead(.start)
             .start(icon: item.icon)
             .end {
-                DesignSystem.Icons.ChevronRight.regular16.image
-                    .renderingMode(.template)
-                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+                if item.isLoading {
+                    ProgressView()
+                        .controlSize(.small)
+                        .tint(DesignSystem.Color.iconSecondary)
+                } else {
+                    DesignSystem.Icons.ChevronRight.regular16.image
+                        .renderingMode(.template)
+                        .foregroundStyle(DesignSystem.Color.iconSecondary)
+                }
             }
             .onTap(item.action)
-            .background(DesignSystem.Color.bgSecondary)
+            .background(DesignSystem.Color.bgOpaquePrimary)
             .cornerRadiusContinuous(14)
     }
+}
+
+private extension Animation {
+    static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
+}
+
+private extension AnyTransition {
+    static let content = AnyTransition.asymmetric(
+        insertion: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3).delay(0.2)),
+        removal: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3))
+    )
 }
