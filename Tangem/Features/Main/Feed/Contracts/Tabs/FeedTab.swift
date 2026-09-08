@@ -13,6 +13,7 @@ import TangemUI
 @RawCaseName
 enum FeedTab: Identifiable {
     case crypto(CryptoFeedViewModel)
+    case realAssets(RealAssetsFeedViewModel)
     case predictions
 
     var id: String { rawCaseValue }
@@ -20,6 +21,7 @@ enum FeedTab: Identifiable {
     var kind: FeedTabKind {
         switch self {
         case .crypto: .crypto
+        case .realAssets: .realAssets
         case .predictions: .predictions
         }
     }
@@ -27,6 +29,7 @@ enum FeedTab: Identifiable {
     func feedSheetSizeDidChange(to size: ShtorkaSize) {
         switch self {
         case .crypto(let viewModel): viewModel.feedSheetSizeDidChange(to: size)
+        case .realAssets(let viewModel): viewModel.feedSheetSizeDidChange(to: size)
         case .predictions: break
         }
     }
