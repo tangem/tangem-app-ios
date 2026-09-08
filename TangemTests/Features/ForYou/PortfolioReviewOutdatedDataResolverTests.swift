@@ -12,49 +12,39 @@ import Testing
 
 @Suite("PortfolioReviewOutdatedDataResolver")
 struct PortfolioReviewOutdatedDataResolverTests {
+    typealias SUT = PortfolioReviewOutdatedDataResolver
+
     private let bitcoin = TokenItem.blockchain(.init(.bitcoin(testnet: false), derivationPath: nil))
     private let ethereum = TokenItem.blockchain(.init(.ethereum(testnet: false), derivationPath: nil))
 
-    @Test("Failure of a displayed token with a cached balance shows the banner")
-    func failedDisplayedTokenWithCache() {
-        #expect(PortfolioReviewOutdatedDataResolver.isOutdated(
-            .failed(cached: 10, failedItems: [bitcoin]),
-            displayedItems: [bitcoin, ethereum]
-        ))
+    private let loadedChart = PortfolioReviewViewModel.ViewState.Chart.loaded(assets: [], assetCount: 1, topHoldingPercent: "100%")
+
+    @Test("Failure of a displayed token shows the banner, with or without a cached balance", arguments: [Decimal(10), nil])
+    func failedDisplayedToken(cached: Decimal?) {
+        #expect(SUT.isOutdated(.failed(cached: cached, failedItems: [bitcoin]), displayedItems: [bitcoin, ethereum], chart: loadedChart))
     }
 
     @Test("Failure of a token outside the displayed set does not show the banner")
     func failedTokenOutsideDisplayedSet() {
-        #expect(!PortfolioReviewOutdatedDataResolver.isOutdated(
-            .failed(cached: 10, failedItems: [ethereum]),
-            displayedItems: [bitcoin]
-        ))
+        #expect(!SUT.isOutdated(.failed(cached: 10, failedItems: [ethereum]), displayedItems: [bitcoin], chart: loadedChart))
     }
 
-    @Test("Failure without a cached balance does not show the banner")
-    func failedWithoutCache() {
-        #expect(!PortfolioReviewOutdatedDataResolver.isOutdated(
-            .failed(cached: nil, failedItems: [bitcoin]),
-            displayedItems: [bitcoin]
-        ))
+    @Test("An undrawn donut carries no banner, even with a displayed failure", arguments: [
+        PortfolioReviewViewModel.ViewState.Chart.noData(.cantLoad),
+        .noData(.noAmount),
+        nil,
+    ])
+    func unchartedDonutHidesBanner(chart: PortfolioReviewViewModel.ViewState.Chart?) {
+        #expect(!SUT.isOutdated(.failed(cached: nil, failedItems: [bitcoin]), displayedItems: [bitcoin], chart: chart))
     }
 
-    @Test("Loaded balance does not show the banner")
-    func loaded() {
-        #expect(!PortfolioReviewOutdatedDataResolver.isOutdated(
-            .loaded(balance: 10),
-            displayedItems: [bitcoin]
-        ))
-    }
-
-    @Test("Loading does not show the banner, with or without a cached balance")
-    func loading() {
-        #expect(!PortfolioReviewOutdatedDataResolver.isOutdated(.loading(cached: 10), displayedItems: [bitcoin]))
-        #expect(!PortfolioReviewOutdatedDataResolver.isOutdated(.loading(cached: nil), displayedItems: [bitcoin]))
-    }
-
-    @Test("Empty state does not show the banner")
-    func empty() {
-        #expect(!PortfolioReviewOutdatedDataResolver.isOutdated(.empty, displayedItems: [bitcoin]))
+    @Test("A state without a failure does not show the banner", arguments: [
+        TotalBalanceState.loaded(balance: 10),
+        .loading(cached: 10),
+        .loading(cached: nil),
+        .empty,
+    ])
+    func stateWithoutFailure(_ state: TotalBalanceState) {
+        #expect(!SUT.isOutdated(state, displayedItems: [bitcoin], chart: loadedChart))
     }
 }
