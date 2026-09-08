@@ -30,6 +30,8 @@ final class PolymarketCoordinator: CoordinatorObject {
     @Published var destination: Destination?
 
     private let onboardingFactory = PolymarketOnboardingFactory()
+    private var geoblockStateProvider: PolymarketGeoblockStateProvider?
+    private var balanceProvider: PolymarketBalanceProvider?
 
     private var userWalletModel: (any UserWalletModel)?
     private var addFundsInteractor: PolymarketAddFundsInteractor?
@@ -93,13 +95,21 @@ extension PolymarketCoordinator {
 
 extension PolymarketCoordinator: PolymarketWelcomeRoutable {
     func openPolymarketMain() {
+        let geoblockStateProvider = CommonPolymarketGeoblockStateProvider(
+            geoblockService: PolymarketOnboardingServicesFactory.makeDefault().makeGeoblockService()
+        )
+
+        let balanceProvider = CommonPolymarketBalanceProvider(userWalletModel: userWalletModel)
         let addFundsInteractor = userWalletModel.map { PolymarketAddFundsFactory().makeInteractor(for: $0) }
+
+        self.geoblockStateProvider = geoblockStateProvider
+        self.balanceProvider = balanceProvider
         self.addFundsInteractor = addFundsInteractor
 
         viewState = .feed(PolymarketMainViewModel(
             apiProvider: PolymarketAPIProviderFactory().makeProvider(),
-            geoblockService: PolymarketOnboardingServicesFactory.makeDefault().makeGeoblockService(),
-            balanceProvider: CommonPolymarketBalanceProvider(userWalletModel: userWalletModel),
+            geoblockStateProvider: geoblockStateProvider,
+            balanceProvider: balanceProvider,
             addFundsInteractor: addFundsInteractor,
             coordinator: self
         ))
@@ -127,13 +137,27 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
     }
 
     func openOrder(market: PolymarketMarket, outcome: PolymarketOutcome) {
+        guard let geoblockStateProvider, let balanceProvider else {
+            PolymarketLogger.error(
+                "An outcome was tapped before the feed built its providers",
+                error: CoordinatorError.missingOrderProviders
+            )
+            return
+        }
+
         let coordinator = PolymarketOrderCoordinator(
             dismissAction: { [weak self] in
                 self?.destination = nil
             }
         )
 
-        coordinator.start(with: .init(market: market, outcome: outcome))
+        coordinator.start(with: .init(
+            market: market,
+            outcome: outcome,
+            geoblockStateProvider: geoblockStateProvider,
+            balancePublisher: balanceProvider.collateralPublisher
+        ))
+
         destination = .order(coordinator)
     }
 
@@ -203,6 +227,7 @@ extension PolymarketCoordinator: PolymarketEventDetailsRoutable {
 extension PolymarketCoordinator {
     enum CoordinatorError: Error {
         case missingAddFundsInteractor
+        case missingOrderProviders
     }
 }
 

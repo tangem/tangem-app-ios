@@ -59,7 +59,7 @@ struct PolymarketAmountFractionChips: View {
     private var dismissButton: some View {
         TangemUI.Button(
             icon: Assets.hideKeyboard,
-            accessibilityLabel: Constants.dismissAccessibilityLabel,
+            accessibilityLabel: Localization.commonHide,
             action: { focused.wrappedValue = false }
         )
         .size(Constants.controlSize)
@@ -112,9 +112,6 @@ private extension PolymarketAmountFractionChips {
         static let horizontalPadding: CGFloat = 12
         static let height: CGFloat = 52
         static let controlSize: TangemUI.Button.Size = .x9
-
-        // [REDACTED_TODO_COMMENT]
-        static let dismissAccessibilityLabel = "Hide keyboard"
     }
 }
 
