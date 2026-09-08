@@ -42,7 +42,7 @@ final class RealAssetsWidgetViewModel: ObservableObject {
 
     private weak var coordinator: RealAssetsWidgetRoutable?
     private let categoriesProvider: MarketsCategoriesProvider
-    private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
+    private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler?
     private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
 
     private let filterProvider = MarketsListDataFilterProvider(supportedOrderTypes: Constants.supportedOrderTypes)
@@ -62,7 +62,7 @@ final class RealAssetsWidgetViewModel: ObservableObject {
     init(
         widgetType: MarketsWidgetType,
         categoriesProvider: MarketsCategoriesProvider,
-        widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler,
+        widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler?,
         quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
         coordinator: RealAssetsWidgetRoutable?
     ) {
@@ -153,7 +153,7 @@ private extension RealAssetsWidgetViewModel {
     func loadCategories() {
         categoriesLoadingTask?.cancel()
         tokenListLoadingState = .loading
-        widgetsUpdateHandler.performUpdateLoading(state: .loading, for: widgetType)
+        widgetsUpdateHandler?.performUpdateLoading(state: .loading, for: widgetType)
 
         let categoriesProvider = categoriesProvider
 
@@ -168,14 +168,14 @@ private extension RealAssetsWidgetViewModel {
                 }
 
                 categoriesSnapshot = snapshot
-                widgetsUpdateHandler.performUpdateLoading(state: .loaded, for: widgetType)
+                widgetsUpdateHandler?.performUpdateLoading(state: .loaded, for: widgetType)
                 select(defaultSelection)
             } catch {
                 guard let self, !error.isCancellationError else { return }
 
                 AppLogger.tag("Markets").error("Failed to load real assets categories", error: error)
                 tokenListLoadingState = .error
-                widgetsUpdateHandler.performUpdateLoading(state: .error, for: widgetType)
+                widgetsUpdateHandler?.performUpdateLoading(state: .error, for: widgetType)
             }
         }
     }
