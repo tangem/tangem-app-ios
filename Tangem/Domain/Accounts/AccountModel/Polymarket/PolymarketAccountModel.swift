@@ -15,6 +15,7 @@ protocol PolymarketAccountModel: BaseAccountModel where Icon == AccountModel.Sta
     var statePublisher: AnyPublisher<PolymarketAccountState?, Never> { get }
 
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider { get }
+    var collateralTokenBalanceProvider: TokenBalanceProvider { get }
 
     func refreshState() async
 }

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 import TangemPolymarket
 
 final class PolymarketOrderCoordinator: CoordinatorObject {
@@ -29,11 +30,17 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        viewModel = PolymarketOrderViewModel(
-            market: options.market,
-            outcome: options.outcome,
-            coordinator: self
-        )
+        Task { @MainActor in
+            let model = PolymarketOrderModel(
+                market: options.market,
+                outcome: options.outcome,
+                apiProvider: PolymarketAPIProviderFactory().makeProvider(),
+                geoblockStateProvider: options.geoblockStateProvider,
+                balancePublisher: options.balancePublisher
+            )
+
+            viewModel = PolymarketOrderViewModel(model: model, coordinator: self)
+        }
     }
 }
 
@@ -58,5 +65,7 @@ extension PolymarketOrderCoordinator {
     struct Options {
         let market: PolymarketMarket
         let outcome: PolymarketOutcome
+        let geoblockStateProvider: PolymarketGeoblockStateProvider
+        let balancePublisher: AnyPublisher<Decimal?, Never>
     }
 }

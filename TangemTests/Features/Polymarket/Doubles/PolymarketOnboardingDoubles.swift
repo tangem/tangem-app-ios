@@ -260,6 +260,7 @@ final class PolymarketBalanceServiceSpy: PolymarketBalanceService {
     }
 
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
+    var collateralTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
 
     var state: PolymarketBalanceState? { updates.last }
 
@@ -414,6 +415,8 @@ final class PolymarketGeoblockStateProviderStub: PolymarketGeoblockStateProvider
     init(state: PolymarketGeoblockState = .allowed) {
         self.state = state
     }
+
+    func refresh() {}
 }
 
 // MARK: - Search routing
