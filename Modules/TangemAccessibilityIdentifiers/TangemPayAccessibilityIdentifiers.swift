@@ -15,6 +15,7 @@ public enum TangemPayAccessibilityIdentifiers {
 
     public static let mainScreenTile = "\(prefix)MainScreenTile"
     public static let mainScreenTileBalance = "\(prefix)MainScreenTileBalance"
+    public static let mainScreenTileSubtitle = "\(prefix)MainScreenTileSubtitle"
     public static let mainScreenTileCachedIcon = "\(prefix)MainScreenTileCachedIcon"
     public static let getTangemPayBanner = "\(prefix)GetTangemPayBanner"
     public static let getTangemPayBannerOpenButton = "\(prefix)GetTangemPayBannerOpenButton"
@@ -135,6 +136,13 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let reissueCardRow = "\(prefix)ReissueCardRow"
     public static let reissueSheetConfirmButton = "\(prefix)ReissueSheetConfirmButton"
     public static let reissueSheetAddFundsButton = "\(prefix)ReissueSheetAddFundsButton"
+
+    // MARK: - Additional card issue
+
+    public static let issueAdditionalCardSheetConfirmButton = "\(prefix)IssueAdditionalCardSheetConfirmButton"
+    public static let paymentAccountIssuingCardButton = "\(prefix)PaymentAccountIssuingCardButton"
+    public static let issuingCardBanner = "\(prefix)IssuingCardBanner"
+    public static let cardIssuingMessage = "\(prefix)CardIssuingMessage"
 
     // MARK: - Transaction details
 
