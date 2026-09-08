@@ -12,11 +12,14 @@ import TangemNetworkUtils
 public final class CommonPolymarketAPIProvider {
     private let service: PolymarketAPIService
     private let mapper: PolymarketMapper
+    private let baseURL: URL
+    private let builderCodeStore: PolymarketBuilderCodeStore
 
     public init(
         baseURL: URL,
         networkConfiguration: TangemProviderConfiguration,
-        headers: [APIHeaderKeyInfo]
+        headers: [APIHeaderKeyInfo],
+        builderCodeStore: PolymarketBuilderCodeStore
     ) {
         let provider = TangemProvider<PolymarketTarget>(
             configuration: networkConfiguration,
@@ -24,6 +27,8 @@ public final class CommonPolymarketAPIProvider {
         )
         service = CommonPolymarketAPIService(provider: provider, baseURL: baseURL)
         mapper = PolymarketMapper()
+        self.baseURL = baseURL
+        self.builderCodeStore = builderCodeStore
     }
 }
 
@@ -62,6 +67,22 @@ extension CommonPolymarketAPIProvider: PolymarketAPIProvider {
 
     public func orderQuote(request: PolymarketOrderQuoteRequest) async throws -> PolymarketOrderQuote {
         let response = try await service.orderQuote(body: mapper.mapOrderQuoteRequest(request))
-        return try mapper.mapOrderQuote(response)
+        let quote = try mapper.mapOrderQuote(response)
+
+        cacheBuilderCode(quote.builderCode)
+
+        return quote
+    }
+}
+
+// MARK: - Private implementation
+
+private extension CommonPolymarketAPIProvider {
+    /// The quote carries the code the exchange is applying right now, so a stale cache is corrected from it.
+    /// Rewriting only on a mismatch keeps a quote from renewing the entry's lifetime on every poll.
+    func cacheBuilderCode(_ code: String) {
+        guard builderCodeStore.code(forHost: baseURL) != code else { return }
+
+        builderCodeStore.store(code, forHost: baseURL)
     }
 }
