@@ -129,6 +129,7 @@ private struct TangemPayAccountTile: View {
         Text(text)
             .style(TangemRowConstants.Style.Subtitle.font, color: TangemRowConstants.Style.Subtitle.color)
             .lineLimit(1)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.mainScreenTileSubtitle)
     }
 
     private func balanceTrailing(balance: LoadableBalanceView.State, showsCachedIndicator: Bool) -> some View {
