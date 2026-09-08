@@ -33,6 +33,7 @@ final class MarketTokenItemViewModel: Identifiable, ObservableObject {
     let symbol: String
     let marketCap: String
     let maxApy: String?
+    let isRestrictedForCountry: Bool
     let didTapAction: (() -> Void)?
 
     // MARK: - Private Properties
@@ -62,6 +63,7 @@ final class MarketTokenItemViewModel: Identifiable, ObservableObject {
 
         didTapAction = onTapAction
         marketCap = marketCapFormatter.formatMarketCap(tokenModel.marketCap)
+        isRestrictedForCountry = tokenModel.restrictedForCountry ?? false
 
         if let marketRating = tokenModel.marketRating {
             self.marketRating = "\(marketRating)"

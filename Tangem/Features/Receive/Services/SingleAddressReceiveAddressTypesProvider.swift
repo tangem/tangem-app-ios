@@ -1,0 +1,32 @@
+//
+//  SingleAddressReceiveAddressTypesProvider.swift
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import Combine
+
+struct SingleAddressReceiveAddressTypesProvider {
+    let address: String
+    let colorScheme: ReceiveAddressInfoUtils.ColorScheme
+
+    private var receiveAddressInfo: ReceiveAddressInfo {
+        ReceiveAddressInfo(
+            address: address,
+            type: .default,
+            localizedName: "",
+            qrBackgroundColor: colorScheme.backgroundColor,
+            qrForegroundColor: colorScheme.foregroundColor
+        )
+    }
+}
+
+// MARK: ReceiveAddressTypesProvider
+
+extension SingleAddressReceiveAddressTypesProvider: ReceiveAddressTypesProvider {
+    var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {
+        .just(output: [.address(receiveAddressInfo)])
+    }
+}

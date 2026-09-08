@@ -23,7 +23,7 @@ struct CommonJointAccountsRepositoryTests {
             Self.storedAccount(status: .pending, memberNames: ["Alice"]),
         ])
         let networkService = JointAccountsNetworkServiceStub(jointAccounts: [
-            Self.remoteAccount(status: .active, memberNames: ["Alice", "Bob"]),
+            Self.remoteAccount(status: .active(safeAddress: "0x8f3a1C5E7B9D0246A8C0E2B4D6F8A0C2E4B6c21b"), memberNames: ["Alice", "Bob"]),
         ])
         let sut = Self.makeSUT(networkService: networkService, storage: storage)
 
@@ -31,7 +31,7 @@ struct CommonJointAccountsRepositoryTests {
 
         let account = try #require(storage.accounts.first)
         #expect(storage.accounts.count == 1)
-        #expect(account.status == .active)
+        #expect(account.status == .active(safeAddress: "0x8f3a1C5E7B9D0246A8C0E2B4D6F8A0C2E4B6c21b"))
         #expect(account.members.map(\.name) == ["Alice", "Bob"])
     }
 
@@ -197,7 +197,6 @@ private extension CommonJointAccountsRepositoryTests {
             cryptoAccountId: cryptoAccountId,
             membersCount: 3,
             threshold: 2,
-            address: nil,
             status: status,
             members: members(named: memberNames)
         )
@@ -212,7 +211,6 @@ private extension CommonJointAccountsRepositoryTests {
             cryptoAccountId: cryptoAccountId,
             membersCount: 3,
             threshold: 2,
-            address: nil,
             status: status,
             members: members(named: memberNames)
         )
@@ -223,7 +221,8 @@ private extension CommonJointAccountsRepositoryTests {
             StoredJointAccount.Member(
                 name: name,
                 address: "0x8f3a1C5E7B9D0246A8C0E2B4D6F8A0C2E4B6c21\(index)",
-                role: index == 0 ? .creator : .member
+                role: index == 0 ? .creator : .member,
+                inviteId: nil
             )
         }
     }
@@ -288,13 +287,22 @@ private extension JointAccountsNetworkServiceStub {
 
 private final class JointAccountsInvitesPersistentStorageStub: JointAccountsInvitesPersistentStorage {
     private let recordsLock: OSAllocatedUnfairLock<[StoredJointAccountInvites]>
+    private let didUpdateSubject = PassthroughSubject<Void, Never>()
 
     var records: [StoredJointAccountInvites] {
         recordsLock.withLock { $0 }
     }
 
+    var didUpdatePublisher: AnyPublisher<Void, Never> {
+        didUpdateSubject.eraseToAnyPublisher()
+    }
+
     init(records: [StoredJointAccountInvites] = []) {
         recordsLock = OSAllocatedUnfairLock(initialState: records)
+    }
+
+    func getList() -> [StoredJointAccountInvites] {
+        records
     }
 
     convenience init(invites: [JointAccountInvite], forCryptoAccountId cryptoAccountId: String) {
@@ -317,6 +325,8 @@ private final class JointAccountsInvitesPersistentStorageStub: JointAccountsInvi
                 records.append(record)
             }
         }
+
+        didUpdateSubject.send()
     }
 }
 
