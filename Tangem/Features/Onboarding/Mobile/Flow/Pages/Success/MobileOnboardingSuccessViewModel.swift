@@ -72,7 +72,7 @@ private extension MobileOnboardingSuccessViewModel {
         case .walletImported:
             Localization.walletImportSuccessDescription
         case .backupContinue:
-            Localization.backupCompleteDescription
+            Localization.walletImportSuccessDescription
         case .cloudBackupCompleted:
             Localization.hwCloudBackupCompletedDescription
         case .seedPhaseBackupFinish:
