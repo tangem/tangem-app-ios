@@ -205,7 +205,8 @@ private extension PortfolioReviewViewModel {
                 state: mapped.state,
                 isOutdatedData: PortfolioReviewOutdatedDataResolver.isOutdated(
                     totalBalance,
-                    displayedItems: mapped.displayedTokenItems
+                    displayedItems: mapped.displayedTokenItems,
+                    chart: mapped.state.chart
                 )
             )
         }

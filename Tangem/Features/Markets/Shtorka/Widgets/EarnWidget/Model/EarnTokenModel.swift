@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemAssets
+import TangemLocalization
 
 // MARK: - EarnTokenModel
 
@@ -32,6 +33,14 @@ struct EarnTokenModel: Identifiable, Hashable {
 enum RateType: String, Hashable {
     case apy = "APY"
     case apr = "APR"
+
+    /// Localized earn badge ("APY 5.00%"; the label travels with translations, e.g. German spells APR out).
+    func earnBadgeText(percentText: String) -> String {
+        switch self {
+        case .apy: Localization.yieldModuleEarnBadge(percentText)
+        case .apr: Localization.stakingAprEarnBadge(percentText)
+        }
+    }
 }
 
 // MARK: - EarnType

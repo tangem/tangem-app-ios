@@ -60,6 +60,13 @@ struct EarnApyResolverTests {
         expectResolve(walletModel, product: .staking, apy: 0.03, isActive: true)
     }
 
+    @Test("Staking that pays APR keeps its rate type instead of being dressed up as APY")
+    func aprStakingKeepsItsRateType() {
+        let walletModel = makeWalletModel(staking: makeAvailableStaking(apy: 0.05, rewardType: .apr), yield: nil)
+
+        expectResolve(walletModel, product: .staking, apy: 0.05, isActive: false, rateType: .apr)
+    }
+
     // MARK: - Yield supply
 
     @Test("Yield-only, market enabled and not active: offered at the market rate")
@@ -185,12 +192,14 @@ private extension EarnApyResolverTests {
         product: EarnApyInfo.Product,
         apy: Decimal,
         isActive: Bool,
+        rateType: RateType = .apy,
         sourceLocation: SourceLocation = .init(fileID: #fileID, filePath: #filePath, line: #line, column: #column)
     ) {
         let info = SUT().resolve(for: walletModel)
         #expect(info?.product == product, sourceLocation: sourceLocation)
         #expect(info?.apy == apy, sourceLocation: sourceLocation)
         #expect(info?.isActive == isActive, sourceLocation: sourceLocation)
+        #expect(info?.rateType == rateType, sourceLocation: sourceLocation)
     }
 }
 
@@ -232,8 +241,8 @@ private extension EarnApyResolverTests {
         )
     }
 
-    func makeAvailableStaking(apy: Decimal) -> StakingManagerState {
-        .availableToStake(makeStakingYieldInfo(apy: apy))
+    func makeAvailableStaking(apy: Decimal, rewardType: RewardType = .apy) -> StakingManagerState {
+        .availableToStake(makeStakingYieldInfo(apy: apy, rewardType: rewardType))
     }
 
     func makeActiveStaking(apy: Decimal) -> StakingManagerState {
@@ -244,11 +253,11 @@ private extension EarnApyResolverTests {
         CachedStakingManagerState(rewardType: .apy, apy: apy, stakeState: stakeState, date: Date())
     }
 
-    func makeStakingYieldInfo(apy: Decimal) -> StakingYieldInfo {
+    func makeStakingYieldInfo(apy: Decimal, rewardType: RewardType = .apy) -> StakingYieldInfo {
         StakingYieldInfo(
             id: "test",
             isAvailable: true,
-            rewardType: .apy,
+            rewardType: rewardType,
             rewardRateValues: .single(apy),
             enterMinimumRequirement: 0,
             exitMinimumRequirement: 0,

@@ -9,12 +9,21 @@
 import Foundation
 
 enum PortfolioReviewOutdatedDataResolver {
-    /// The main screen's "Some token balances could not be updated" show condition, scoped to the displayed tokens.
-    static func isOutdated(_ totalBalance: TotalBalanceState, displayedItems: Set<TokenItem>) -> Bool {
+    /// The "Some token balances could not be updated" show condition: a displayed token failed to refresh
+    /// AND the donut actually drew — the banner marks rendered-but-incomplete data, so a "can't load" card
+    /// never carries it. Cache presence is irrelevant: a single valueless token nulls the combined cache
+    /// while the chart still renders from whatever the displayed holdings carry.
+    static func isOutdated(
+        _ totalBalance: TotalBalanceState,
+        displayedItems: Set<TokenItem>,
+        chart: PortfolioReviewViewModel.ViewState.Chart?
+    ) -> Bool {
+        guard case .loaded = chart else { return false }
+
         switch totalBalance {
-        case .failed(cached: .some, let failedItems):
+        case .failed(_, let failedItems):
             return failedItems.contains { displayedItems.contains($0) }
-        case .failed(cached: .none, _), .empty, .loading, .loaded:
+        case .empty, .loading, .loaded:
             return false
         }
     }

@@ -264,7 +264,7 @@ struct EarnOpportunitiesMapperTests {
         let token = try #require(items.first?.tokens.first)
 
         #expect(token.rewardAmount == nil)
-        #expect(token.apyText == PercentFormatter().format(0.05, option: .earn))
+        #expect(token.apyText == Localization.yieldModuleEarnBadge(PercentFormatter().format(0.05, option: .interval)))
     }
 
     @Test("Best-rate subtitle chip is the suggestion's rateText verbatim")
@@ -413,7 +413,7 @@ private extension EarnOpportunitiesMapperTests {
             networkName: networkId,
             cryptoBalance: crypto,
             fiatBalance: fiat,
-            apyInfo: EarnApyInfo(isActive: isActive, apy: apy, product: .staking)
+            apyInfo: EarnApyInfo(isActive: isActive, apy: apy, rateType: .apy, product: .staking)
         )
     }
 
