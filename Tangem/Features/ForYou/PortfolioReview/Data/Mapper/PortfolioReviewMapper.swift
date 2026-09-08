@@ -52,7 +52,12 @@ struct PortfolioReviewMapper {
 
         // Ranked once, here: the rows' dots and the donut's arcs read the same slices.
         let slices = PortfolioReviewSegmentPalette.slices(forRanked: topHoldings.chartableKeys)
-        let chart = ChartBuilder.build(topHoldings: topHoldings, other: other, slices: slices, totalBalance: totalBalance)
+        let chart = ChartBuilder.build(
+            topHoldings: topHoldings,
+            other: other,
+            slices: slices,
+            noDataReason: emptyChartReason(for: totalBalance)
+        )
 
         // A dot stands for an arc, so a donut that can't be drawn leaves every row without one.
         var rowSlices: [String: PortfolioReviewSegmentPalette.Slice] = [:]
