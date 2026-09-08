@@ -186,7 +186,7 @@ struct TangemPayOfferViewV2: View {
         .iconEnd(DesignSystem.Icons.LogoTangem.regular24)
         .styleType(.default)
         .horizontalLayout(.infinity)
-        .isLoading(viewModel.isLoading)
+        .loading(.spinner(if: viewModel.isLoading))
         .size(.x12)
         .padding(.horizontal, 16)
         .padding(.bottom, 12)

@@ -11,18 +11,20 @@ import TangemNetworkUtils
 
 public struct PolymarketOnboardingServicesFactory {
     private let networkConfiguration: TangemProviderConfiguration
+    private let environment: () -> PolymarketBFFEnvironment
 
-    public init(networkConfiguration: TangemProviderConfiguration) {
+    public init(
+        networkConfiguration: TangemProviderConfiguration,
+        environment: @escaping () -> PolymarketBFFEnvironment
+    ) {
         self.networkConfiguration = networkConfiguration
+        self.environment = environment
     }
 
-    public func makeWalletService(baseURL: URL, headers: [APIHeaderKeyInfo]) -> PolymarketWalletService {
-        let provider = TangemProvider<PolymarketWalletTarget>(
-            configuration: networkConfiguration,
-            additionalPlugins: [NetworkHeadersPlugin(networkHeaders: headers)]
-        )
+    public func makeWalletService() -> PolymarketDepositWalletService {
+        let provider = TangemProvider<PolymarketDepositWalletTarget>(configuration: networkConfiguration)
 
-        return CommonPolymarketWalletService(provider: provider, baseURL: baseURL)
+        return CommonPolymarketDepositWalletService(provider: provider, environment: environment)
     }
 
     public func makeGeoblockService() -> PolymarketGeoblockService {
@@ -41,5 +43,33 @@ public struct PolymarketOnboardingServicesFactory {
         let provider = TangemProvider<PolymarketCLOBTarget>(configuration: networkConfiguration)
 
         return CommonPolymarketCLOBService(provider: provider, baseURL: PolymarketHost.clob)
+    }
+
+    public func makeConfigurationService(
+        walletId: String,
+        store: PolymarketBuilderCodeStore
+    ) -> PolymarketConfigurationService {
+        let provider = TangemProvider<PolymarketConfigurationTarget>(configuration: networkConfiguration)
+
+        return CommonPolymarketConfigurationService(
+            provider: provider,
+            environment: environment,
+            walletId: walletId,
+            store: store
+        )
+    }
+
+    public func makeBridgeService(
+        builderCode: @escaping () async throws -> String,
+        supportedAssetsStore: PolymarketSupportedAssetsStore
+    ) -> PolymarketBridgeService {
+        let provider = TangemProvider<PolymarketBridgeTarget>(configuration: networkConfiguration)
+
+        return CommonPolymarketBridgeService(
+            provider: provider,
+            baseURL: PolymarketHost.bridge,
+            builderCode: builderCode,
+            supportedAssetsStore: supportedAssetsStore
+        )
     }
 }

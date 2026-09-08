@@ -382,8 +382,8 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
     }
 }
 
-@Suite("CommonTokenFeeProvidersManagerProvider — initial selection")
-struct CommonTokenFeeProvidersManagerProviderInitialSelectionTests {
+@Suite("WalletModelTokenFeeProvidersManagerProvider — initial selection")
+struct WalletModelTokenFeeProvidersManagerProviderInitialSelectionTests {
     private let tronTokenItem: TokenItem = .token(
         .init(
             name: "Tether",
@@ -452,10 +452,10 @@ struct CommonTokenFeeProvidersManagerProviderInitialSelectionTests {
         #expect(selected.feeTokenItem == nativeTokenItem)
     }
 
-    private func makeSUT() -> CommonTokenFeeProvidersManagerProvider {
-        CommonTokenFeeProvidersManagerProvider(
-            walletModel: WalletModelTestsMock(tokenItem: tronTokenItem, isEmpty: false)
-        )
+    private func makeSUT() -> WalletModelTokenFeeProvidersManagerProvider {
+        let walletModel = WalletModelTestsMock(tokenItem: tronTokenItem, isEmpty: false)
+
+        return WalletModelTokenFeeProvidersManagerProvider(walletModel: walletModel)
     }
 
     private func makeProvider(tokenItem: TokenItem, balance: Decimal) -> ControllableTokenFeeProviderStub {
@@ -467,8 +467,8 @@ struct CommonTokenFeeProvidersManagerProviderInitialSelectionTests {
     }
 }
 
-@Suite("CommonTokenFeeProvidersManagerProvider — Tron gasless availability", .serialized)
-struct CommonTokenFeeProvidersManagerProviderTronGaslessAvailabilityTests {
+@Suite("WalletModelTokenFeeProvidersManagerProvider — Tron gasless availability", .serialized)
+struct WalletModelTokenFeeProvidersManagerProviderTronGaslessAvailabilityTests {
     private let feeTokenAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
 
     @Test("Activated Tron account exposes gasless fee tokens")
@@ -508,7 +508,7 @@ struct CommonTokenFeeProvidersManagerProviderTronGaslessAvailabilityTests {
                 isAccountActivated: isAccountActivated
             )
 
-            let sut = CommonTokenFeeProvidersManagerProvider(
+            let sut = WalletModelTokenFeeProvidersManagerProvider(
                 walletModel: walletModel,
                 isFeatureAvailable: { $0 == .tronGasless }
             )

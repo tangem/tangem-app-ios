@@ -22,6 +22,14 @@ private struct TransactionHistoryAuxDataRepositoryKey: InjectionKey {
         cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory { userWalletId, refcode in
             ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
         },
-        storage: CommonTransactionHistoryAuxDataStorage()
+        storage: makeStorage()
     )
+
+    private static func makeStorage() -> TransactionHistoryAuxDataStorage {
+        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
+            return EmptyTransactionHistoryAuxDataStorage()
+        }
+
+        return CommonTransactionHistoryAuxDataStorage()
+    }
 }

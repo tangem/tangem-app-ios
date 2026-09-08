@@ -103,6 +103,10 @@ final class DesignSystemDemoViewModel: ObservableObject {
         coordinator?.openGlowRingDemo()
     }
 
+    func openStatusScreenDemo() {
+        coordinator?.openStatusScreenDemo()
+    }
+
     func openTabNavigationDemo() {
         coordinator?.openTabNavigationDemo()
     }
@@ -141,5 +145,9 @@ final class DesignSystemDemoViewModel: ObservableObject {
 
     func openUtilBalanceDemo() {
         coordinator?.openUtilBalanceDemo()
+    }
+
+    func openShtorkaDemo() {
+        coordinator?.openShtorkaDemo()
     }
 }

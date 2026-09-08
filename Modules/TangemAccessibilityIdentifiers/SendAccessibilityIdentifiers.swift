@@ -31,6 +31,9 @@ public enum SendAccessibilityIdentifiers {
     public static let alternativeFiatAmount = "sendAlternativeFiatAmount"
     public static let currencyToggleButton = "sendCurrencyToggleButton"
 
+    /// High price impact warning info button (send-confirm amount view)
+    public static let priceImpactInfoButton = "sendPriceImpactInfoButton"
+
     /// ValidatorCompactView
     public static let validatorBlock = "sendValidatorBlock"
 
@@ -113,6 +116,10 @@ public enum SendAccessibilityIdentifiers {
 
     public static func swapProviderSelectorApproveButton(name: String) -> String {
         "sendSwapProviderSelectorApproveButton_\(name)"
+    }
+
+    public static func swapProviderTypeFilterChip(_ type: String) -> String {
+        "sendSwapProviderTypeFilterChip_\(type)"
     }
 
     /// Token search in receive token list

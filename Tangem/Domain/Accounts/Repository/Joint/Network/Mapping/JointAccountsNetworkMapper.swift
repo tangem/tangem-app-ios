@@ -14,8 +14,8 @@ struct JointAccountsNetworkMapper {}
 // MARK: - Requests
 
 extension JointAccountsNetworkMapper {
-    func mapToRequest<Payload: Encodable>(from blob: JointAccountSignedBlob<Payload>) -> JointAccountsDTO.SignedRequest<Payload> {
-        JointAccountsDTO.SignedRequest(
+    func mapToRequest<Payload: Encodable>(from blob: JointAccountSignedBlob<Payload>) -> JointAccountsDTO.Request.SignedRequest<Payload> {
+        JointAccountsDTO.Request.SignedRequest(
             payload: blob.payload,
             signature: blob.signature.hexString.addHexPrefix()
         )
@@ -25,7 +25,7 @@ extension JointAccountsNetworkMapper {
 // MARK: - Responses
 
 extension JointAccountsNetworkMapper {
-    func mapToCreationResult(from response: JointAccountsDTO.Create.Response) -> JointAccountCreationResult {
+    func mapToCreationResult(from response: JointAccountsDTO.Response.JointAccount) throws -> JointAccountCreationResult {
         let invites = (response.invites ?? []).map { JointAccountInvite(id: $0.id) }
         let freeSlotsCount = max(0, response.membersCount - response.members.count)
 
@@ -35,30 +35,60 @@ extension JointAccountsNetworkMapper {
             JointAccountsLogger.warning("A joint account was created with \(invites.count) invites for \(freeSlotsCount) free slots")
         }
 
-        return JointAccountCreationResult(account: mapToJointAccount(from: response), invites: invites)
+        return try JointAccountCreationResult(account: mapToJointAccount(from: response), invites: invites)
     }
 
-    func mapToJointAccounts(from response: JointAccountsDTO.List.Response) -> [RemoteJointAccount] {
-        response.jointAccounts.map(mapToJointAccount(from:))
+    func mapToJointAccounts(from response: JointAccountsDTO.Response.JointAccounts) throws -> [RemoteJointAccount] {
+        try response.jointAccounts.map(mapToJointAccount(from:))
     }
 
-    func mapToJointAccount(from dto: JointAccountsDTO.JointAccount) -> RemoteJointAccount {
-        RemoteJointAccount(
+    func mapToJointAccount(from dto: JointAccountsDTO.Response.JointAccount) throws -> RemoteJointAccount {
+        try RemoteJointAccount(
             cryptoAccountId: dto.cryptoAccountId,
             membersCount: dto.membersCount,
             threshold: dto.threshold,
-            address: dto.safeAddress,
-            status: dto.status,
+            status: mapStatus(from: dto),
             members: dto.members.map { member in
-                StoredJointAccount.Member(name: member.name, address: member.address, role: member.role)
+                StoredJointAccount.Member(name: member.name, address: member.address, role: member.role, inviteId: member.inviteId)
             }
         )
     }
 
-    func mapToInvitePreview(from response: JointAccountsDTO.InvitePreview.Response) -> JointAccountInvitePreview {
+    func mapToInvitePreview(from response: JointAccountsDTO.Response.InvitePreview) -> JointAccountInvitePreview {
         JointAccountInvitePreview(
             config: response.config,
             creator: JointAccountInvitePreview.Creator(name: response.creator.name, address: response.creator.address)
         )
     }
+}
+
+// MARK: - Private
+
+private extension JointAccountsNetworkMapper {
+    func mapStatus(from dto: JointAccountsDTO.Response.JointAccount) throws -> JointAccountStatus {
+        switch dto.status {
+        case .pending:
+            return .pending
+        case .confirming:
+            return .confirming
+        case .active:
+            guard let safeAddress = dto.safeAddress else {
+                throw JointAccountsNetworkMapperError.activeAccountWithoutAddress
+            }
+
+            return .active(safeAddress: safeAddress)
+        case .cancelled:
+            return .cancelled
+        case .none:
+            return .unknown
+        }
+    }
+}
+
+// MARK: - Error
+
+enum JointAccountsNetworkMapperError: Error, Equatable {
+    /// An activated account is operated at its address, so an answer naming the one without the other names
+    /// nothing the app could show or spend from.
+    case activeAccountWithoutAddress
 }

@@ -20,8 +20,11 @@ struct TransactionDetailsInfoSectionViewData: Equatable {
         let content: Content
 
         enum Content: Equatable {
-            /// Rate / Network fee
+            /// A value that doesn't tell how much the user holds, like a market rate, so it stays readable
+            /// when balances are hidden.
             case text(String)
+            /// A value paid out of the user's own funds, so it's masked when balances are hidden.
+            case sensitiveText(String)
             /// Provider / Validator
             case link(Link)
         }
@@ -56,6 +59,11 @@ struct TransactionDetailsInfoSectionView: View {
                 .contentLead(.start)
                 .valueLineLimit(1)
                 .showDivider(showsDivider)
+        case .sensitiveText(let value):
+            TangemUI.Row(title: row.title)
+                .valueAccessory { sensitiveValue(value) }
+                .contentLead(.start)
+                .showDivider(showsDivider)
         case .link(let link):
             TangemUI.Row(title: row.title)
                 .valueAccessory { linkValue(link) }
@@ -65,6 +73,12 @@ struct TransactionDetailsInfoSectionView: View {
                     view.onTap { onAction(action) }
                 }
         }
+    }
+
+    private func sensitiveValue(_ value: String) -> some View {
+        SensitiveText(value)
+            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+            .lineLimit(1)
     }
 
     private func linkValue(_ link: TransactionDetailsInfoSectionViewData.Row.Link) -> some View {
@@ -101,7 +115,7 @@ struct TransactionDetailsInfoSectionView: View {
         data: .init(rows: [
             .init(id: "provider", title: "Provider", content: .link(.init(text: "Mercuryo", secondaryText: "DEX", action: .close))),
             .init(id: "rate", title: "Rate", content: .text("1,00 POL ≈ 0,07703936 USDT")),
-            .init(id: "networkFee", title: "Network fee", content: .text("0.00056 ETH")),
+            .init(id: "networkFee", title: "Network fee", content: .sensitiveText("0.00056 ETH")),
         ]),
         onAction: { _ in }
     )
