@@ -22,6 +22,14 @@ struct BLSUtilTests {
     }
 
     @Test
+    func publicKeyIgnoresPassphraseNormalizationForm() throws {
+        let fromPrecomposed = try BLSUtil.publicKey(entropy: entropy, passphrase: precomposedPassphrase)
+        let fromDecomposed = try BLSUtil.publicKey(entropy: entropy, passphrase: decomposedPassphrase)
+
+        #expect(fromPrecomposed.publicKey == fromDecomposed.publicKey)
+    }
+
+    @Test
     func signProducesCorrectBlsSignatures() throws {
         let signatures = try BLSUtil.sign(
             hashes: [Data(hexString: "824765209fcc9f8fa7cdf0f99fffaa1d5550d490aae98af563547d2811bba9cedb5b0d3ead47b4d2cfec635212150f0b0a5cb2d088837d4ff0386557eee8f6b5d0283d63d2e4e2c470d80810bc4b1ae26e7536013d6b7ee477c51643e05615c3")],
