@@ -44,7 +44,7 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     private let apiProvider: PolymarketAPIProvider
-    private let geoblockService: PolymarketGeoblockService
+    private let geoblockStateProvider: PolymarketGeoblockStateProvider
     private let balanceProvider: PolymarketBalanceProvider
     private let addFundsInteractor: PolymarketAddFundsInteractor?
     private weak var coordinator: PolymarketMainRoutable?
@@ -55,6 +55,7 @@ final class PolymarketMainViewModel: ObservableObject {
     private var balanceRefreshTask: Task<Void, Never>?
     private var addFundsPreparationTask: Task<Void, Never>?
     private var searchBag: Set<AnyCancellable> = []
+    private var bag: Set<AnyCancellable> = []
 
     private var events: [PolymarketEvent] = []
     private var cursor: String?
@@ -64,13 +65,13 @@ final class PolymarketMainViewModel: ObservableObject {
 
     init(
         apiProvider: PolymarketAPIProvider,
-        geoblockService: PolymarketGeoblockService,
+        geoblockStateProvider: PolymarketGeoblockStateProvider,
         balanceProvider: PolymarketBalanceProvider,
         addFundsInteractor: PolymarketAddFundsInteractor?,
         coordinator: PolymarketMainRoutable
     ) {
         self.apiProvider = apiProvider
-        self.geoblockService = geoblockService
+        self.geoblockStateProvider = geoblockStateProvider
         search = PolymarketSearchViewModel(apiProvider: apiProvider)
         self.balanceProvider = balanceProvider
         self.addFundsInteractor = addFundsInteractor
@@ -79,9 +80,9 @@ final class PolymarketMainViewModel: ObservableObject {
 
         bindSearch()
         bindBalance()
+        bindGeoblockState()
         startBalanceRefresh()
         load()
-        loadRegion()
     }
 
     deinit {
@@ -103,15 +104,17 @@ final class PolymarketMainViewModel: ObservableObject {
             .store(in: &searchBag)
     }
 
-    private func loadRegion() {
-        runTask(in: self) { @MainActor viewModel in
-            do {
-                viewModel.isRegionRestricted = try await viewModel.geoblockService.geoblock().isBlocked
-            } catch {
-                PolymarketLogger.error("Failed to read the region, treating it as blocked", error: error)
-                viewModel.isRegionRestricted = true
+    private func bindGeoblockState() {
+        geoblockStateProvider
+            .statePublisher
+            .map { $0 == .blocked }
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, isRestricted in
+                viewModel.isRegionRestricted = isRestricted
             }
-        }
+            .store(in: &bag)
     }
 
     private func startBalanceRefresh() {
@@ -415,8 +418,8 @@ private extension PolymarketMainViewModel {
 extension PolymarketMainViewModel {
     @MainActor
     func refresh() async {
-        loadRegion()
         prepareAddFunds()
+        geoblockStateProvider.refresh()
         loadingTask?.cancel()
 
         await balanceProvider.refresh()

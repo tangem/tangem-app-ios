@@ -16,6 +16,8 @@ import TangemUIUtils
 struct PolymarketOrderView: View {
     @ObservedObject private var viewModel: PolymarketOrderViewModel
 
+    @FocusState private var isAmountFocused: Bool
+
     init(viewModel: PolymarketOrderViewModel) {
         _viewModel = ObservedObject(wrappedValue: viewModel)
     }
@@ -25,12 +27,21 @@ struct PolymarketOrderView: View {
             topBar
 
             content
-
-            Spacer(minLength: Constants.contentToButtonGap)
-
-            nextButton
         }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+        .safeAreaInset(edge: .bottom, spacing: .zero) { bottomContainer }
+        .onWillAppear { viewModel.handleViewAction(.appeared) }
+        .onWillDisappear { viewModel.handleViewAction(.disappeared) }
+    }
+
+    // MARK: - Bottom
+
+    private var bottomContainer: some View {
+        VStack(spacing: 0) {
+            nextButton
+
+            keyboardBar
+        }
     }
 
     // MARK: - Top bar
@@ -48,7 +59,7 @@ struct PolymarketOrderView: View {
     }
 
     private var backButton: some View {
-        SwiftUI.Button(action: viewModel.dismiss) {
+        SwiftUI.Button { viewModel.handleViewAction(.backTapped) } label: {
             DesignSystem.Icons.ChevronLeft.regular20.image
                 .renderingMode(.template)
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
@@ -63,19 +74,47 @@ struct PolymarketOrderView: View {
     // MARK: - Content
 
     private var content: some View {
-        VStack(spacing: Constants.blockSpacing) {
+        GroupedScrollView(contentType: .plain(spacing: Constants.blockSpacing)) {
             PolymarketOrderMarketRow(model: viewModel.marketRow)
 
             PolymarketOrderAmountBlock(payment: viewModel.payment) {
-                amountField
+                VStack(spacing: Constants.captionSpacing) {
+                    amountField
+
+                    amountCaption
+                }
             }
 
-            PolymarketOrderSlippageRow(valueText: viewModel.slippageText, onTap: viewModel.openSlippageSelector)
-                .background(DesignSystem.Color.bgSecondary)
-                .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
+            PolymarketOrderNotificationsView(
+                notifications: viewModel.notifications,
+                onRetry: { viewModel.handleViewAction(.quoteRetryTapped) }
+            )
+
+            PolymarketOrderSlippageRow(
+                valueText: viewModel.slippageText,
+                onTap: { viewModel.handleViewAction(.slippageTapped) }
+            )
+            .background(DesignSystem.Color.bgSecondary)
+            .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
         }
-        .padding(.horizontal, Constants.horizontalPadding)
+        .horizontalPadding(Constants.horizontalPadding)
         .padding(.top, Constants.contentTopPadding)
+        .scrollDismissesKeyboard(.interactively)
+        .animation(.easeInOut(duration: Constants.notificationsAnimationDuration), value: viewModel.notifications)
+    }
+
+    @ViewBuilder
+    private var amountCaption: some View {
+        switch viewModel.amountCaption {
+        case .toWin(let text):
+            PolymarketToWinBadge(state: .value(text))
+        case .shortfall(let text):
+            Text(text)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusError)
+                .multilineTextAlignment(.center)
+        case nil:
+            EmptyView()
+        }
     }
 
     private var amountField: some View {
@@ -87,18 +126,34 @@ struct PolymarketOrderView: View {
                 placeholderColor: DesignSystem.Color.textTertiary
             ))
             .alignment(.center)
+            .focused($isAmountFocused)
+    }
+
+    // MARK: - Keyboard bar
+
+    @ViewBuilder
+    private var keyboardBar: some View {
+        if isAmountFocused {
+            PolymarketAmountFractionChips(
+                fractions: viewModel.amountFractions,
+                focused: $isAmountFocused,
+                onSelect: { viewModel.handleViewAction(.fractionTapped($0)) }
+            )
+            .transition(.opacity)
+        }
     }
 
     private var nextButton: some View {
         TangemUI.Button(
             label: Localization.commonNext,
             accessibilityLabel: Localization.commonNext,
-            action: viewModel.proceed
+            action: { viewModel.handleViewAction(.nextTapped) }
         )
         .size(.x12)
         .horizontalLayout(.infinity)
-        .disabled(true)
+        .disabled(!viewModel.isNextEnabled)
         .padding(.horizontal, Constants.horizontalPadding)
+        .padding(.top, Constants.buttonTopPadding)
         .padding(.bottom, Constants.buttonBottomPadding)
     }
 }
@@ -110,8 +165,10 @@ private extension PolymarketOrderView {
         static let horizontalPadding: CGFloat = 16
         static let contentTopPadding: CGFloat = 8
         static let blockSpacing: CGFloat = 12
-        static let contentToButtonGap: CGFloat = 24
+        static let captionSpacing: CGFloat = 8
+        static let buttonTopPadding: CGFloat = 12
         static let buttonBottomPadding: CGFloat = 12
+        static let notificationsAnimationDuration: TimeInterval = 0.3
         static let cornerRadius: CGFloat = 24
         static let toolbarHeight: CGFloat = 44
         static let barButtonSide: CGFloat = 44
