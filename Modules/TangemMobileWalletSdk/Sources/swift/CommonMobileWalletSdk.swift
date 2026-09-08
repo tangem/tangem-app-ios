@@ -41,6 +41,8 @@ public final class CommonMobileWalletSdk: MobileWalletSdk {
     }
 
     public func importWallet(entropy: Data, passphrase: String) throws -> UserWalletId {
+        try PassphraseValidator.validate(passphrase: passphrase)
+
         let masterKeys = try deriveMasterKeys(entropy: entropy, passphrase: passphrase)
 
         guard let seedKey = masterKeys.first(where: { $0.curve == .secp256k1 })?.publicKey else {
