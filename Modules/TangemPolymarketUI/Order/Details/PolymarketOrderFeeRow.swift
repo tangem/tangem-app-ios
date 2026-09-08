@@ -35,7 +35,7 @@ public struct PolymarketOrderFeeRow: View {
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
 
-            PolymarketOrderDetailIcon(asset: DesignSystem.Icons.ChevronDoubleVertical.regular16)
+            PolymarketHintIcon(asset: DesignSystem.Icons.ChevronDoubleVertical.regular16)
         }
     }
 }
