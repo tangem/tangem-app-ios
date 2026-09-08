@@ -23,7 +23,10 @@ public struct PolymarketOrderNotificationsView: View {
     public var body: some View {
         if !notifications.isEmpty {
             VStack(spacing: Constants.spacing) {
-                ForEach(notifications) { banner(for: $0) }
+                ForEach(notifications) {
+                    banner(for: $0)
+                        .transition(.opacity)
+                }
             }
         }
     }
