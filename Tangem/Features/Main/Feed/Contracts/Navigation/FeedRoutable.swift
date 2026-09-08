@@ -8,6 +8,7 @@
 
 protocol FeedRoutable: AnyObject {
     func openToken(_ token: MarketsTokenModel)
+    func openRealAssetsCategoryFilter(with input: RealAssetsCategoryFilterInput)
     func openPortfolioToken(_ walletModel: any WalletModel)
     func choosePortfolioToken(from walletModels: [any WalletModel])
     func returnToRoot()
