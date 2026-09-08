@@ -12,12 +12,15 @@ import TangemFoundation
 import BlockchainSdk
 
 struct CommonCryptoAccountDependenciesFactory {
-    typealias UserTokensRepositoryProvider = (_ derivationIndex: Int) -> UserTokensRepository
+    typealias UserTokensRepositoryProvider = (_ derivationIdentity: CryptoAccountDerivationIdentity) -> UserTokensRepository
 
+    let userWalletId: UserWalletId
     /// A single instance per user wallet
     let derivationManager: DerivationManager?
     let derivationStyle: DerivationStyle?
     let keysRepository: KeysRepository
+    let walletFactoryTypeResolver: CryptoAccountWalletFactoryTypeResolver
+    let walletFactoryProvider: WalletFactoryProvider
     let walletManagerFactory: AnyWalletManagerFactory
     let existingCurves: [EllipticCurve]
     let persistentBlockchains: [TokenItem]
@@ -32,20 +35,21 @@ struct CommonCryptoAccountDependenciesFactory {
 
 extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFactory {
     func makeDependencies(
-        forAccountWithDerivationIndex derivationIndex: Int,
-        userWalletId: UserWalletId
+        forAccountWithDerivationIdentity derivationIdentity: CryptoAccountDerivationIdentity
     ) -> CryptoAccountDependencies {
-        let derivationInfo = CommonUserTokensManager.DerivationInfo(
-            derivationIndex: derivationIndex,
-            derivationStyle: derivationStyle,
+        let derivationPathBuilder = AccountDerivationPathBuilderFactory.makeBuilder(
+            forAccountWith: derivationIdentity,
+            derivationStyle: derivationStyle
         )
 
-        let userTokensRepository = userTokensRepositoryProvider(derivationIndex)
+        let userTokensRepository = userTokensRepositoryProvider(derivationIdentity)
+        let walletFactoryType = walletFactoryTypeResolver.resolve(derivationIdentity: derivationIdentity)
+        let walletFactory = walletFactoryProvider.makeWalletFactory(walletFactoryType: walletFactoryType)
 
         let userTokensManager = CommonUserTokensManager(
             userWalletId: userWalletId,
             userTokensRepository: userTokensRepository,
-            derivationInfo: derivationInfo,
+            derivationPathBuilder: derivationPathBuilder,
             existingCurves: existingCurves,
             persistentBlockchains: persistentBlockchains,
             shouldLoadExpressAvailability: shouldLoadExpressAvailability,
@@ -55,6 +59,7 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
         let walletManagersRepository = CommonWalletManagersRepository(
             keysProvider: keysRepository,
             userTokensManager: userTokensManager,
+            walletFactory: walletFactory,
             walletManagerFactory: walletManagerFactory
         )
 
@@ -68,8 +73,7 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
         let walletModelsManager = CommonWalletModelsManager(
             walletManagersRepository: walletManagersRepository,
             walletModelsFactory: wrappedWalletModelsFactory,
-            derivationIndex: derivationIndex,
-            derivationStyle: derivationStyle
+            derivationPathBuilder: derivationPathBuilder
         )
 
         // A single instance per unique account, account-specific proxy for `derivationManager`

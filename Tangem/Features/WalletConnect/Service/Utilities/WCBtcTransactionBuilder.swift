@@ -29,8 +29,7 @@ extension CommonWCBtcTransactionBuilder: WCBtcTransactionBuilder {
         for walletModel: any WalletModel
     ) async throws -> Transaction {
         let blockchain = walletModel.tokenItem.blockchain
-        let tokenFeeLoaderBuilder = walletModel.tokenFeeLoaderBuilder
-        let tokenFeeLoader = tokenFeeLoaderBuilder.makeMainTokenFeeLoader()
+        let tokenFeeLoader = WalletModelTokenFeeLoaderProvider(walletModel: walletModel).makeMainTokenFeeLoader()
 
         guard let amountDecimal = Decimal(string: wcTransaction.amount) else {
             let error = WalletConnectTransactionRequestProcessingError.invalidPayload("Invalid BTC amount: \(wcTransaction.amount)")

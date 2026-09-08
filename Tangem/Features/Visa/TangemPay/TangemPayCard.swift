@@ -56,12 +56,26 @@ final class TangemPayCard: Identifiable {
         productInstance.status == .new || productInstance.status == .activating
     }
 
+    var isPhysical: Bool {
+        card.cardType == .physical
+    }
+
+    var isAwaitingActivation: Bool {
+        isPhysical
+            && card.cardStatus == .inactive
+            && !Constants.terminalProductStatuses.contains(productInstance.status)
+    }
+
     var isFrozen: Bool {
         productInstance.status == .blocked
     }
 
     var inflightLifecycleOperationPublisher: AnyPublisher<LifecycleOperation?, Never> {
         inflightLifecycleOperationSubject.eraseToAnyPublisher()
+    }
+
+    var inflightLifecycleOperation: LifecycleOperation? {
+        inflightLifecycleOperationSubject.value
     }
 
     var isReissuingPublisher: AnyPublisher<Bool, Never> {
@@ -101,7 +115,7 @@ final class TangemPayCard: Identifiable {
     private let snapshotSubject: CurrentValueSubject<Snapshot, Never>
     private let inflightLifecycleOperationSubject = CurrentValueSubject<LifecycleOperation?, Never>(nil)
 
-    private var pendingFreezingResetCancellable: AnyCancellable?
+    private var pendingLifecycleOperationResetCancellable: AnyCancellable?
 
     let customerService: any CustomerInfoManagementService
     private let orderStatusPollingService: TangemPayOrderStatusPollingService
@@ -143,7 +157,7 @@ final class TangemPayCard: Identifiable {
 
         switch response.status {
         case .completed, .canceled:
-            scheduleFreezingStateResetOnNextSnapshot()
+            scheduleLifecycleOperationResetOnNextSnapshot()
             refreshSignal.send(())
         case .new, .processing:
             startFreezeUnfreezeOrderPolling(orderId: response.orderId)
@@ -170,7 +184,7 @@ final class TangemPayCard: Identifiable {
 
         switch response.status {
         case .completed, .canceled:
-            scheduleFreezingStateResetOnNextSnapshot()
+            scheduleLifecycleOperationResetOnNextSnapshot()
             refreshSignal.send(())
         case .new, .processing:
             startFreezeUnfreezeOrderPolling(orderId: response.orderId)
@@ -234,7 +248,7 @@ final class TangemPayCard: Identifiable {
 
         switch response.status {
         case .completed, .canceled:
-            inflightLifecycleOperationSubject.send(nil)
+            scheduleLifecycleOperationResetOnNextSnapshot()
             refreshSignal.send(())
         case .new, .processing:
             startCloseCardOrderPolling(orderId: response.orderId)
@@ -267,16 +281,16 @@ final class TangemPayCard: Identifiable {
             orderId: orderId,
             interval: Constants.reissueOrderPollInterval,
             onCompleted: { [weak self] in
-                self?.inflightLifecycleOperationSubject.send(nil)
+                self?.scheduleLifecycleOperationResetOnNextSnapshot()
                 self?.refreshSignal.send(())
             },
             onCanceled: { [weak self] in
-                self?.inflightLifecycleOperationSubject.send(nil)
+                self?.scheduleLifecycleOperationResetOnNextSnapshot()
                 self?.refreshSignal.send(())
             },
             onFailed: { [weak self] error in
                 VisaLogger.error("Failed to poll reissue order status", error: error)
-                self?.inflightLifecycleOperationSubject.send(nil)
+                self?.scheduleLifecycleOperationResetOnNextSnapshot()
                 self?.refreshSignal.send(())
             }
         )
@@ -287,16 +301,16 @@ final class TangemPayCard: Identifiable {
             orderId: orderId,
             interval: Constants.closeCardOrderPollInterval,
             onCompleted: { [weak self] in
-                self?.inflightLifecycleOperationSubject.send(nil)
+                self?.scheduleLifecycleOperationResetOnNextSnapshot()
                 self?.refreshSignal.send(())
             },
             onCanceled: { [weak self] in
-                self?.inflightLifecycleOperationSubject.send(nil)
+                self?.scheduleLifecycleOperationResetOnNextSnapshot()
                 self?.refreshSignal.send(())
             },
             onFailed: { [weak self] error in
                 VisaLogger.error("Failed to poll close card order status", error: error)
-                self?.inflightLifecycleOperationSubject.send(nil)
+                self?.scheduleLifecycleOperationResetOnNextSnapshot()
                 self?.refreshSignal.send(())
             }
         )
@@ -307,23 +321,25 @@ final class TangemPayCard: Identifiable {
             orderId: orderId,
             interval: Constants.freezeUnfreezeOrderPollInterval,
             onCompleted: { [weak self] in
-                self?.scheduleFreezingStateResetOnNextSnapshot()
+                self?.scheduleLifecycleOperationResetOnNextSnapshot()
                 self?.refreshSignal.send(())
             },
             onCanceled: { [weak self] in
-                self?.scheduleFreezingStateResetOnNextSnapshot()
+                self?.scheduleLifecycleOperationResetOnNextSnapshot()
                 self?.refreshSignal.send(())
             },
             onFailed: { [weak self] error in
                 VisaLogger.error("Failed to poll freeze/unfreeze order status", error: error)
-                self?.scheduleFreezingStateResetOnNextSnapshot()
+                self?.scheduleLifecycleOperationResetOnNextSnapshot()
                 self?.refreshSignal.send(())
             }
         )
     }
 
-    private func scheduleFreezingStateResetOnNextSnapshot() {
-        pendingFreezingResetCancellable = snapshotSubject
+    /// Holds the in-flight state until the refreshed snapshot lands, so the card cannot blink back to its
+    /// pre-operation look while `customer/me` catches up.
+    private func scheduleLifecycleOperationResetOnNextSnapshot() {
+        pendingLifecycleOperationResetCancellable = snapshotSubject
             .dropFirst()
             .first()
             .receiveOnMain()
@@ -361,5 +377,9 @@ private extension TangemPayCard {
         static let freezeUnfreezeOrderPollInterval: TimeInterval = 5
         static let reissueOrderPollInterval: TimeInterval = 5
         static let closeCardOrderPollInterval: TimeInterval = 5
+
+        static let terminalProductStatuses: Set<VisaCustomerInfoResponse.ProductStatus> = [
+            .blocked, .deactivating, .deactivated, .canceled,
+        ]
     }
 }

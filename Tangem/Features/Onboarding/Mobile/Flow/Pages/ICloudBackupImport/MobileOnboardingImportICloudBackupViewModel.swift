@@ -232,6 +232,8 @@ private extension MobileOnboardingImportICloudBackupViewModel {
 
     func addWallet(userWalletModel: UserWalletModel) async throws {
         AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWalletModel.userWalletId)
+
+        BackendAuthenticationRegistrar.registerNewMobileWallet(userWalletModel)
         try userWalletRepository.add(userWalletModel: userWalletModel)
     }
 }

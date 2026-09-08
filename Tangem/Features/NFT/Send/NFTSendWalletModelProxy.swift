@@ -233,23 +233,6 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.fulfillRequirements(signer: signer)
     }
 
-    var customFeeProviderBuilder: CustomFeeProviderBuilder {
-        CustomFeeProviderBuilder(
-            tokenItem: tokenItem,
-            feeTokenItem: mainTokenWalletModel.feeTokenItem,
-            walletManager: mainTokenWalletModel.customFeeProviderBuilder.walletManager
-        )
-    }
-
-    var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder {
-        TokenFeeLoaderBuilder(
-            tokenItem: tokenItem,
-            sourceAddress: mainTokenWalletModel.defaultAddressString,
-            dependenciesProvider: self,
-            isDemo: mainTokenWalletModel.isDemo
-        )
-    }
-
     var blockchainDataProvider: BlockchainDataProvider {
         mainTokenWalletModel.blockchainDataProvider
     }

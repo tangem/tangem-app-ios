@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import UIKit
+import TangemFoundation
 import TangemUI
 
 final class MarketsCoordinator: CoordinatorObject {
@@ -16,7 +17,10 @@ final class MarketsCoordinator: CoordinatorObject {
 
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+
     @Injected(\.earnAnalyticsProvider) private var earnAnalyticsProvider: EarnAnalyticsProvider
+
+    private weak var polymarketWalletSelector: PolymarketWalletSelectorViewModel?
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
@@ -37,7 +41,7 @@ final class MarketsCoordinator: CoordinatorObject {
     @Published var earnListCoordinator: EarnCoordinator?
     @Published var forYouCoordinator: ForYouCoordinator?
     @Published var polymarketCoordinator: PolymarketCoordinator?
-    @Published var gachaCoordinator: GachaCoordinator?
+    @Published var collectiblesCoordinator: CollectiblesCoordinator?
 
     // MARK: - Child ViewModels
 
@@ -114,26 +118,56 @@ extension MarketsCoordinator: MarketsMainRoutable {
         forYouCoordinator = coordinator
     }
 
-    func openPolymarket() {
+    func openPolymarket(for userWalletModels: [any UserWalletModel]) {
+        guard polymarketCoordinator == nil, polymarketWalletSelector == nil else { return }
+
+        if userWalletModels.count == 1, let onlyUserWalletModel = userWalletModels.first {
+            showPolymarket(for: onlyUserWalletModel)
+        } else {
+            showPolymarketWalletSelector(from: userWalletModels)
+        }
+    }
+
+    private func showPolymarket(for userWalletModel: any UserWalletModel) {
         let coordinator = PolymarketCoordinator(
             dismissAction: { [weak self] in
                 self?.polymarketCoordinator = nil
             },
             popToRootAction: popToRootAction
         )
-        coordinator.start(with: .init())
+        coordinator.start(with: .init(userWalletModel: userWalletModel))
         polymarketCoordinator = coordinator
     }
 
-    func openGacha(with options: GachaCoordinator.Options) {
-        let coordinator = GachaCoordinator(
+    private func showPolymarketWalletSelector(from userWalletModels: [any UserWalletModel]) {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            let viewModel = PolymarketWalletSelectorViewModel(
+                userWalletModels: userWalletModels,
+                onSelect: { [weak self] userWalletModel in
+                    self?.floatingSheetPresenter.removeActiveSheet()
+                    self?.showPolymarket(for: userWalletModel)
+                },
+                onClose: { [weak self] in
+                    self?.floatingSheetPresenter.removeActiveSheet()
+                }
+            )
+
+            polymarketWalletSelector = viewModel
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openCollectibles(with options: CollectiblesCoordinator.Options) {
+        let coordinator = CollectiblesCoordinator(
             dismissAction: { [weak self] in
-                self?.gachaCoordinator = nil
+                self?.collectiblesCoordinator = nil
             },
             popToRootAction: popToRootAction
         )
         coordinator.start(with: options)
-        gachaCoordinator = coordinator
+        collectiblesCoordinator = coordinator
     }
 
     func openSeeAllTopMarketWidget() {
@@ -142,6 +176,23 @@ extension MarketsCoordinator: MarketsMainRoutable {
 
     func openSeeAllPulseMarketWidget(with orderType: MarketsListOrderType) {
         openSeeAllMarket(with: .pulse, orderType: orderType)
+    }
+
+    // MARK: - Real assets
+
+    func openRealAssetsCategoryFilter(with input: RealAssetsCategoryFilterInput) {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            let viewModel = MarketsRealAssetsFilterBottomSheetViewModel(
+                input: input,
+                onDismiss: { [weak self] in
+                    self?.floatingSheetPresenter.removeActiveSheet()
+                }
+            )
+
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     // MARK: - News
