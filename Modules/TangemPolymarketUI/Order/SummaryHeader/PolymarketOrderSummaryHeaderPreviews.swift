@@ -42,7 +42,7 @@ private extension PolymarketOrderSummaryHeaderShowcase {
 private extension PolymarketOrderSummaryHeader.Model {
     static func stub(
         amountText: String = "$4,000",
-        toWin: PolymarketToWinBadge.State = .value("$4,705.88")
+        toWin: PolymarketAmountBadge.State = .value("$4,705.88")
     ) -> Self {
         Self(
             accountName: "Polymarket account",

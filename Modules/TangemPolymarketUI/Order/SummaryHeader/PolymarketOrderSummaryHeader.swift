@@ -61,7 +61,7 @@ public struct PolymarketOrderSummaryHeader: View {
                     .lineLimit(1)
                     .minimumScaleFactor(Constants.amountMinScale)
 
-                PolymarketToWinBadge(state: model.toWin)
+                PolymarketAmountBadge.toWin(state: model.toWin)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
