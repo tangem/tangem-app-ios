@@ -8,9 +8,14 @@
 
 enum FeedTabsFactory {
     static func makeFactories() -> [any FeedTabFactory] {
-        [
-            CryptoFeedTabFactory(),
-            PredictionsFeedTabFactory(),
-        ]
+        var factories: [any FeedTabFactory] = [CryptoFeedTabFactory()]
+
+        if FeatureProvider.isAvailable(.realAssets) {
+            factories.append(RealAssetsFeedTabFactory())
+        }
+
+        factories.append(PredictionsFeedTabFactory())
+
+        return factories
     }
 }
