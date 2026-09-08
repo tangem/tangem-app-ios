@@ -629,6 +629,26 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func verifyTangemPayTileSubtitle(_ expected: String) -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile subtitle contains '\(expected)'") { _ in
+            scrollToElement(tangemPayTile)
+            // The tile is a button and may fold its texts into a single label, so both the subtitle and the tile are matched.
+            let predicate = NSPredicate(
+                format: "(identifier == %@ OR identifier == %@) AND label CONTAINS[c] %@",
+                TangemPayAccessibilityIdentifiers.mainScreenTileSubtitle,
+                TangemPayAccessibilityIdentifiers.mainScreenTile,
+                expected
+            )
+            waitAndAssertTrue(
+                app.descendants(matching: .any).matching(predicate).firstMatch,
+                timeout: .networkRequest,
+                "Tangem Pay tile subtitle should contain '\(expected)'. Actual tile label: '\(tangemPayTile.label)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func verifyGetTangemPayBannerExists() -> Self {
         XCTContext.runActivity(named: "Verify Get Tangem Pay banner is displayed") { _ in
             waitAndAssertTrue(getTangemPayBanner, timeout: .networkRequest, "Get Tangem Pay banner should be displayed on main screen")

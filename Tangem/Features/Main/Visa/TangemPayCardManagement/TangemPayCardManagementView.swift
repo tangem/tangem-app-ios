@@ -73,7 +73,10 @@ struct TangemPayCardManagementView: View {
             centered { TangemPayPlasticCardMessageView(stage: plastic.messageStage, email: email) }
 
         case .issuing:
-            centered { TangemPayCardIssuingMessageView() }
+            centered {
+                TangemPayCardIssuingMessageView()
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardIssuingMessage)
+            }
 
         case .reissuing:
             TangemPayReplacingCardBanner()
