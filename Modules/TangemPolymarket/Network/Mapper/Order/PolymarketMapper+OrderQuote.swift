@@ -25,6 +25,10 @@ extension PolymarketMapper {
             throw PolymarketAPIError.decoding(field: "side", value: response.side)
         }
 
+        guard PolymarketBuilderCode.isWellFormed(response.builderCode) else {
+            throw PolymarketAPIError.decoding(field: PolymarketBuilderCode.field, value: response.builderCode)
+        }
+
         return try PolymarketOrderQuote(
             status: quoteStatus(from: response.status),
             side: side,
