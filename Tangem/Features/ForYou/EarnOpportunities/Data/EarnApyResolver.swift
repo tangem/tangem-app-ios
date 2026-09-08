@@ -29,14 +29,14 @@ private extension WalletModel {
 
         // Active (or entering/exiting) position outlives an admin-disabled market; the flag only gates non-active tokens.
         guard !stateInfo.state.isEffectivelyActive, !stateInfo.state.isProcessing else {
-            return EarnApyInfo(isActive: true, apy: stateInfo.marketInfo?.apy ?? 0, product: .yieldSupply)
+            return EarnApyInfo(isActive: true, apy: stateInfo.marketInfo?.apy ?? 0, rateType: .apy, product: .yieldSupply)
         }
 
         guard let marketInfo = stateInfo.marketInfo, marketInfo.isActive else {
             return nil
         }
 
-        return EarnApyInfo(isActive: false, apy: marketInfo.apy, product: .yieldSupply)
+        return EarnApyInfo(isActive: false, apy: marketInfo.apy, rateType: .apy, product: .yieldSupply)
     }
 
     var stakingEarnInfo: EarnApyInfo? {
@@ -52,7 +52,8 @@ private extension WalletModel {
                 return nil
             }
 
-            return EarnApyInfo(isActive: state.isActive, apy: apy, product: .staking)
+            let rateType: RateType = state.rewardType == .apr ? .apr : .apy
+            return EarnApyInfo(isActive: state.isActive, apy: apy, rateType: rateType, product: .staking)
         case .notEnabled, .temporaryUnavailable:
             return nil
         }
