@@ -13,5 +13,5 @@ protocol JointAccountJoinRoutable: AnyObject {
     func openCreatorDetails(name: String, address: String, accentColor: Color)
     func openWalletSelection(accountSelectorViewModel: AccountSelectorViewModel)
     func closeWalletSelection()
-    func continueJoin(userWalletModel: any UserWalletModel)
+    func continueJoin(userWalletModel: any UserWalletModel, preview: JointAccountInvitePreview)
 }

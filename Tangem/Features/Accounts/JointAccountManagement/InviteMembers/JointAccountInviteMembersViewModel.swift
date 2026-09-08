@@ -9,19 +9,20 @@
 import Foundation
 
 final class JointAccountInviteMembersViewModel: ObservableObject {
-    /// Only the creator is in so far, the invites are what fills the remaining slots.
-    let joinedMembersCount = 1
+    var joinedMembersCount: Int {
+        jointAccount.members.count
+    }
 
     var totalMembersCount: Int {
-        creationContext.membersCount ?? joinedMembersCount
+        jointAccount.policy.membersCount
     }
 
     var invitableSlotsCount: Int {
-        totalMembersCount - joinedMembersCount
+        jointAccount.freeSlotsCount
     }
 
     var creatorName: String {
-        creationContext.creatorName ?? ""
+        jointAccount.creator?.name ?? ""
     }
 
     var creatorIconViewData: AddressBookContactNameIconViewData {
@@ -32,14 +33,14 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
         )
     }
 
-    private let creationContext: JointAccountCreationHelper
+    private let jointAccount: any JointAccountModel
     private weak var coordinator: JointAccountInviteMembersRoutable?
 
     init(
-        creationContext: JointAccountCreationHelper,
+        jointAccount: any JointAccountModel,
         coordinator: JointAccountInviteMembersRoutable?
     ) {
-        self.creationContext = creationContext
+        self.jointAccount = jointAccount
         self.coordinator = coordinator
     }
 

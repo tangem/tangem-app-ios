@@ -59,4 +59,9 @@ extension CommonPolymarketAPIProvider: PolymarketAPIProvider {
         let response = try await service.seriesEvents(seriesId: seriesId)
         return mapper.mapSeriesEvents(response)
     }
+
+    public func orderQuote(request: PolymarketOrderQuoteRequest) async throws -> PolymarketOrderQuote {
+        let response = try await service.orderQuote(body: mapper.mapOrderQuoteRequest(request))
+        return try mapper.mapOrderQuote(response)
+    }
 }

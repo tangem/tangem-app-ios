@@ -1,0 +1,100 @@
+//
+//  PolymarketOrderGate.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import TangemPolymarket
+import TangemPolymarketUI
+
+struct PolymarketOrderGate {
+    let notifications: [PolymarketOrderNotification]
+    let amountCaption: AmountCaption?
+    let isPrimaryButtonEnabled: Bool
+
+    init(state: PolymarketOrderModel.State) {
+        let required = state.quote.quote?.total ?? state.enteredAmount
+        let hasSufficientBalance = required.map { required in
+            state.balance.map { $0 >= required } ?? false
+        } ?? false
+
+        notifications = Self.notifications(state: state)
+        amountCaption = Self.amountCaption(state: state, required: required)
+
+        isPrimaryButtonEnabled = notifications.allSatisfy { !$0.isBlocking }
+            && state.quote.quote?.status.isPlaceable == true
+            && !state.isBelowMinAmount
+            && hasSufficientBalance
+            && state.geoblock == .allowed
+    }
+}
+
+// MARK: - Amount caption
+
+extension PolymarketOrderGate {
+    enum AmountCaption: Hashable {
+        case toWin(expected: Decimal, guaranteed: Decimal)
+        case belowMinAmount(Decimal)
+        case notEnoughForBet
+        case notEnoughForFees
+    }
+}
+
+// MARK: - Private implementation
+
+private extension PolymarketOrderGate {
+    static func notifications(state: PolymarketOrderModel.State) -> [PolymarketOrderNotification] {
+        var notifications: [PolymarketOrderNotification] = []
+
+        switch state.quote {
+        case .content(let quote):
+            switch quote.status {
+            case .partial: notifications.append(.partialFill)
+            case .belowMinOrderSize, .belowMinOrderAmount:
+                if !state.isBelowMinAmount {
+                    notifications.append(.belowMinOrder)
+                }
+            case .full, .insufficientLiquidity, .marketClosed, .undefined: break
+            }
+        case .unavailable(let unavailability):
+            switch unavailability {
+            case .insufficientLiquidity: notifications.append(.noLiquidity)
+            case .marketClosed: notifications.append(.marketClosed)
+            case .undefined: notifications.append(.quoteUnavailable)
+            }
+        case .failed:
+            notifications.append(.quoteUnavailable)
+        case .empty, .loading:
+            break
+        }
+
+        if state.geoblock == .blocked {
+            notifications.append(.regionRestricted)
+        }
+
+        return notifications
+    }
+
+    static func amountCaption(state: PolymarketOrderModel.State, required: Decimal?) -> AmountCaption? {
+        if state.isBelowMinAmount, let minAmount = state.minAmount {
+            return .belowMinAmount(minAmount)
+        }
+
+        if let balance = state.balance, let entered = state.enteredAmount {
+            if entered > balance {
+                return .notEnoughForBet
+            }
+
+            if let required, required > balance {
+                return .notEnoughForFees
+            }
+        }
+
+        guard let quote = state.quote.quote else { return nil }
+
+        return .toWin(expected: quote.expectedExecutionAmount, guaranteed: quote.shares)
+    }
+}
