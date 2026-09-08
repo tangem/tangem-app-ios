@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Combine
 import TangemPolymarket
 
 // MARK: - Previews
@@ -20,15 +21,20 @@ import TangemPolymarket
         .preferredColorScheme(.dark)
 }
 
+@MainActor
 private extension PolymarketOrderViewModel {
     static func preview(outcomeIndex: Int) -> PolymarketOrderViewModel {
         let market = PolymarketMarket.preview
 
-        return PolymarketOrderViewModel(
+        let model = PolymarketOrderModel(
             market: market,
             outcome: market.outcomes[outcomeIndex],
-            coordinator: nil
+            apiProvider: PolymarketOrderPreviewAPIProvider(),
+            geoblockStateProvider: PolymarketOrderPreviewGeoblockStateProvider(),
+            balancePublisher: .just(output: Decimal(30000))
         )
+
+        return PolymarketOrderViewModel(model: model, coordinator: nil)
     }
 }
 

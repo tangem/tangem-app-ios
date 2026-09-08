@@ -14,6 +14,8 @@ import TangemPolymarket
 protocol PolymarketGeoblockStateProvider: AnyObject {
     var state: PolymarketGeoblockState { get }
     var statePublisher: AnyPublisher<PolymarketGeoblockState, Never> { get }
+
+    func refresh()
 }
 
 final class CommonPolymarketGeoblockStateProvider {
@@ -32,7 +34,7 @@ final class CommonPolymarketGeoblockStateProvider {
         loadingTask?.cancel()
     }
 
-    private func load() {
+    func load() {
         loadingTask = runTask(in: self) { provider in
             do {
                 let geoblock = try await provider.geoblockService.geoblock()
@@ -54,5 +56,11 @@ extension CommonPolymarketGeoblockStateProvider: PolymarketGeoblockStateProvider
 
     var statePublisher: AnyPublisher<PolymarketGeoblockState, Never> {
         subject.eraseToAnyPublisher()
+    }
+
+    /// A failed read parks the region at blocked, which shuts the whole feature, so it must be retriable.
+    func refresh() {
+        loadingTask?.cancel()
+        load()
     }
 }

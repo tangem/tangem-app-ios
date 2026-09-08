@@ -60,6 +60,10 @@ extension CommonPolymarketAccountModel: PolymarketAccountModel {
         balanceService.fiatTotalTokenBalanceProvider
     }
 
+    var collateralTokenBalanceProvider: TokenBalanceProvider {
+        balanceService.collateralTokenBalanceProvider
+    }
+
     func refreshState() async {
         await refreshProcessor.execute { [weak self] in
             guard let self else { return }
