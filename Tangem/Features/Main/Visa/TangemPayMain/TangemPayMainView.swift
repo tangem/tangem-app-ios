@@ -93,6 +93,7 @@ struct TangemPayMainView: View {
 
                 if viewModel.hasIssuingEntry, !viewModel.isAwaitingDeposit {
                     TangemPayIssuingCardBannerRedesigned()
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.issuingCardBanner)
                 }
 
                 if let deliveryBannerState = viewModel.cardDeliveryBannerState {
@@ -271,6 +272,7 @@ struct TangemPayMainView: View {
             } label: {
                 TangemPaySmallCardViewRedesigned(state: entry.isGhost ? .ghost : .issuing)
             }
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountIssuingCardButton)
         }
     }
 
