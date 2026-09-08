@@ -14,20 +14,16 @@ extension PortfolioReviewMapper {
         private static let percentFormatter = PercentFormatter()
 
         /// Only ranked groups get a colour; the rest collapse into one neutral arc that closes the ring.
+        /// `noDataReason` tells a valueless portfolio apart from one that could not load at all.
         static func build(
             topHoldings: [PortfolioReviewAggregator.Group],
             other: [PortfolioReviewAggregator.Group],
             slices: [String: PortfolioReviewSegmentPalette.Slice],
-            totalBalance: TotalBalanceState
+            noDataReason: PortfolioReviewViewModel.ViewState.Chart.NoData
         ) -> PortfolioReviewViewModel.ViewState.Chart {
             let groups = topHoldings + other
             guard !groups.isEmpty else {
-                return .noData(.cantLoad)
-            }
-
-            // A failed total can't be charted even if some tokens loaded — "can't load", not a donut on a partial sum.
-            if case .failed = totalBalance {
-                return .noData(.cantLoad)
+                return .noData(noDataReason)
             }
 
             let total = groups.reduce(Decimal.zero) {
@@ -35,7 +31,7 @@ extension PortfolioReviewMapper {
             }
 
             guard total > 0 else {
-                return .noData(.noAmount)
+                return .noData(noDataReason)
             }
 
             let topShare = topHoldings.reduce(Decimal.zero) {

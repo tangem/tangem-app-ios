@@ -14,6 +14,12 @@ extension PortfolioReviewViewModel {
         case loading
         case content(Content)
 
+        var chart: Chart? {
+            guard case .content(let content) = self else { return nil }
+
+            return content.chart
+        }
+
         struct Content: Equatable {
             let tokenList: [ForYouTokenListItem]
             let periodSegments: [ForYouPeriodSegment]
