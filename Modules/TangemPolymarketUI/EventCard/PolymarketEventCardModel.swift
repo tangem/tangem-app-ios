@@ -49,15 +49,7 @@ public extension PolymarketEventCard {
         }
     }
 
-    struct Category {
-        public let name: String
-        public let iconURL: URL?
-
-        public init(name: String, iconURL: URL?) {
-            self.name = name
-            self.iconURL = iconURL
-        }
-    }
+    typealias Category = PolymarketMarketMetaRow.Category
 
     struct Row: Identifiable {
         public let id: String
