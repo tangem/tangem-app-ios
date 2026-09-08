@@ -39,6 +39,8 @@ struct FeedTabsView: View {
         switch viewModel.selectedTab {
         case .crypto(let viewModel):
             CryptoFeedView(viewModel: viewModel)
+        case .realAssets(let viewModel):
+            RealAssetsFeedView(viewModel: viewModel)
         case .predictions:
             PredictionsFeedView()
         }

@@ -13,6 +13,7 @@ import TangemUI
 @RawCaseName
 enum FeedSearchTab: Identifiable {
     case crypto(CryptoSearchViewModel)
+    case realAssets
     case predictions
 
     var id: String { rawCaseValue }
@@ -20,6 +21,7 @@ enum FeedSearchTab: Identifiable {
     var kind: FeedTabKind {
         switch self {
         case .crypto: .crypto
+        case .realAssets: .realAssets
         case .predictions: .predictions
         }
     }
@@ -27,7 +29,7 @@ enum FeedSearchTab: Identifiable {
     func setVisible(_ isVisible: Bool) {
         switch self {
         case .crypto(let viewModel): viewModel.setVisible(isVisible)
-        case .predictions: break
+        case .realAssets, .predictions: break
         }
     }
 }
