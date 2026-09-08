@@ -509,6 +509,22 @@
         <string>Up to %li business days</string>
       </dict>
     </dict>
+    <key>tangempay_withdraw_bank_eta_business_days</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li business day</string>
+        <key>other</key>
+        <string>%li business days</string>
+      </dict>
+    </dict>
     <key>top_assets_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
