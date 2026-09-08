@@ -107,7 +107,7 @@ struct PolymarketOrderView: View {
     private var amountCaption: some View {
         switch viewModel.amountCaption {
         case .toWin(let text):
-            PolymarketToWinBadge(state: .value(text))
+            PolymarketAmountBadge.toWin(state: .value(text))
         case .shortfall(let text):
             Text(text)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusError)
