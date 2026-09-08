@@ -13,6 +13,8 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     /// Every Tangem Pay row shares this accessibility identifier key, see `TransactionViewModel.TransactionType`.
     private static let tangemPayKey = "tangemPay"
     private static let historyScrollAttempts = 12
+    private static let issuingCardTitle = "Issuing a new digital card"
+    private static let issuingCardDescription = "Usually takes up to 5 minutes. In rare cases, up to 48 hours."
 
     private lazy var historyStateIcon = app.images[TxHistoryAccessibilityIdentifiers.statusStateIcon].firstMatch
     private lazy var historyErrorMessage = app.staticTexts
@@ -38,6 +40,9 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     private lazy var backButton = app.navigationBars.buttons.element(boundBy: 0)
     private lazy var applePayGuideBanner = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.addToApplePayGuideBanner].firstMatch
     private lazy var applePayGuideBannerCloseButton = app.buttons[TangemPayAccessibilityIdentifiers.addToApplePayGuideBannerCloseButton].firstMatch
+    /// Type-agnostic: the banner is a plain container, not guaranteed to surface as a specific element type.
+    private lazy var issuingCardBanner = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.issuingCardBanner].firstMatch
+    private lazy var issuingCardButton = button(.issuingCardButton)
 
     @discardableResult
     func waitForScreen() -> Self {
@@ -52,6 +57,49 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
         XCTContext.runActivity(named: "Tap card icon to open card management") { _ in
             paymentAccountCardButton.waitAndTap()
             return TangemPayCardDetailsScreen(app)
+        }
+    }
+
+    @discardableResult
+    func tapAddCard() -> TangemPayIssueAdditionalCardSheet {
+        XCTContext.runActivity(named: "Tap add card button to issue an additional card") { _ in
+            addCardButton.waitAndTap()
+            return TangemPayIssueAdditionalCardSheet(app)
+        }
+    }
+
+    @discardableResult
+    func tapIssuingCard() -> TangemPayCardDetailsScreen {
+        XCTContext.runActivity(named: "Tap the card being issued to open its screen") { _ in
+            issuingCardButton.waitAndTap()
+            return TangemPayCardDetailsScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyIssuingCardBanner() -> Self {
+        XCTContext.runActivity(named: "Verify 'Issuing a new digital card' banner is displayed") { _ in
+            waitAndAssertTrue(issuingCardBanner, timeout: .networkRequest, "Issuing card banner should be displayed")
+            waitAndAssertTrue(
+                app.staticTexts[Self.issuingCardTitle].firstMatch,
+                "Issuing card banner title should be displayed"
+            )
+            waitAndAssertTrue(
+                app.staticTexts[Self.issuingCardDescription].firstMatch,
+                "Issuing card banner description should be displayed"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitForIssuingCardBannerHidden() -> Self {
+        XCTContext.runActivity(named: "Wait for 'Issuing a new digital card' banner to disappear") { _ in
+            XCTAssertTrue(
+                issuingCardBanner.waitForNonExistence(timeout: .networkRequest),
+                "Issuing card banner should disappear once the card is issued"
+            )
+            return self
         }
     }
 
@@ -404,6 +452,7 @@ enum TangemPayMainScreenElement: String, UIElement {
     case toolbarTitle
     case toolbarSubtitle
     case addCardButton
+    case issuingCardButton
     case addFundsButton
     case withdrawButton
     case moreActionsButton
@@ -419,6 +468,8 @@ enum TangemPayMainScreenElement: String, UIElement {
             TangemPayAccessibilityIdentifiers.paymentAccountToolbarSubtitle
         case .addCardButton:
             TangemPayAccessibilityIdentifiers.paymentAccountAddCardButton
+        case .issuingCardButton:
+            TangemPayAccessibilityIdentifiers.paymentAccountIssuingCardButton
         case .addFundsButton:
             TangemPayAccessibilityIdentifiers.addFundsButton
         case .withdrawButton:
