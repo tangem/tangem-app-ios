@@ -12,6 +12,8 @@ import Combine
 protocol PolymarketBalanceProvider {
     var balancePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { get }
 
+    var collateralPublisher: AnyPublisher<Decimal?, Never> { get }
+
     func refresh() async
 }
 
@@ -30,6 +32,16 @@ struct CommonPolymarketBalanceProvider: PolymarketBalanceProvider {
         }
 
         return accountModel.fiatTotalTokenBalanceProvider.formattedBalanceTypePublisher
+    }
+
+    var collateralPublisher: AnyPublisher<Decimal?, Never> {
+        guard let accountModel else {
+            return .just(output: nil)
+        }
+
+        return accountModel.collateralTokenBalanceProvider.balanceTypePublisher
+            .map(\.value)
+            .eraseToAnyPublisher()
     }
 
     func refresh() async {
