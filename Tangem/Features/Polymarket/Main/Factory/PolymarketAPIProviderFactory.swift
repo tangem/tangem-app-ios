@@ -11,13 +11,16 @@ import TangemNetworkUtils
 import TangemPolymarket
 
 struct PolymarketAPIProviderFactory {
-    func makeProvider() -> PolymarketAPIProvider {
+    func makeProvider(
+        builderCodeStore: PolymarketBuilderCodeStore = InjectedValues[\.polymarketBuilderCodeStore]
+    ) -> PolymarketAPIProvider {
         let environment = PolymarketBFFEnvironment.current()
 
         return CommonPolymarketAPIProvider(
             baseURL: environment.baseURL,
             networkConfiguration: TangemProviderConfiguration(logOptions: .verbose),
-            headers: environment.headers.map { APIHeaderKeyInfo(headerName: $0.key, headerValue: $0.value) }
+            headers: environment.headers.map { APIHeaderKeyInfo(headerName: $0.key, headerValue: $0.value) },
+            builderCodeStore: builderCodeStore
         )
     }
 }
