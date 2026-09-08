@@ -1,5 +1,5 @@
 //
-//  PolymarketOrderDetailIcon.swift
+//  PolymarketHintIcon.swift
 //  TangemPolymarketUI
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUIUtils
 
-struct PolymarketOrderDetailIcon: View {
+struct PolymarketHintIcon: View {
     let asset: ImageType
 
     var body: some View {
@@ -25,7 +25,7 @@ struct PolymarketOrderDetailIcon: View {
 
 // MARK: - Constants
 
-private extension PolymarketOrderDetailIcon {
+private extension PolymarketHintIcon {
     enum Constants {
         static let side: CGFloat = 16
     }
