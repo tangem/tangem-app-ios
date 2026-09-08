@@ -73,6 +73,16 @@ struct PolymarketOrderQuoteMappingTests {
         #expect(quote.status == .undefined)
         #expect(!quote.status.isPlaceable)
     }
+
+    @Test(
+        "A builder code that is not thirty two bytes of hex is refused",
+        arguments: ["", "0x", "abc", "0x00000000000000000000000000000000000000000000000000000000000000a", "0xzz00000000000000000000000000000000000000000000000000000000000000"]
+    )
+    func malformedBuilderCodeIsRejected(code: String) {
+        #expect(throws: PolymarketAPIError.self) {
+            try mapper.mapOrderQuote(.stub(builderCode: code))
+        }
+    }
 }
 
 // MARK: - Fixtures
@@ -82,7 +92,8 @@ private extension PolymarketDTO.OrderQuoteResponse {
         status: String = "FULL",
         side: String = "BUY",
         worstCasePrice: String = "0.735",
-        minOrderAmount: String? = "1"
+        minOrderAmount: String? = "1",
+        builderCode: String = "0x00000000000000000000000000000000000000000000000000000000000000aa"
     ) -> PolymarketDTO.OrderQuoteResponse {
         PolymarketDTO.OrderQuoteResponse(
             status: status,
@@ -94,7 +105,7 @@ private extension PolymarketDTO.OrderQuoteResponse {
             worstCasePrice: worstCasePrice,
             fees: PolymarketDTO.OrderQuoteFees(market: "0.24", builder: "0.12", total: "0.36"),
             total: "72.36",
-            builderCode: "0x00000000000000000000000000000000000000000000000000000000000000aa",
+            builderCode: builderCode,
             minOrderSize: "5",
             minOrderAmount: minOrderAmount,
             tickSize: "0.001",
