@@ -11,6 +11,7 @@ import TangemLocalization
 import Combine
 import CombineExt
 import TangemSdk
+import TangemMobileWalletSdk
 
 class CommonCardInitializer {
     var shouldReset: Bool = false
@@ -27,6 +28,15 @@ class CommonCardInitializer {
 
 extension CommonCardInitializer: CardInitializer {
     func initializeCard(mnemonic: Mnemonic?, passphrase: String?, completion: @escaping (Result<CardInfo, TangemSdkError>) -> Void) {
+        // The card itself has no passphrase length limit, but a wallet the mobile wallet cannot reproduce
+        // would break both the upgrade between them and importing the same seed phrase twice.
+        do {
+            try PassphraseValidator.validate(passphrase: passphrase ?? "")
+        } catch {
+            completion(.failure(.underlying(error: error)))
+            return
+        }
+
         let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
         let task = PreparePrimaryCardTask(curves: config.createWalletCurves, mnemonic: mnemonic, passphrase: passphrase, shouldReset: shouldReset)
 
