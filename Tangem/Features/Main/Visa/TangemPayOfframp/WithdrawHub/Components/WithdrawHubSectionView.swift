@@ -17,7 +17,8 @@ struct WithdrawHubSectionView<StaticContent, DynamicContent>: View
     let staticContent: () -> StaticContent
     let dynamicContent: () -> DynamicContent
 
-    private let itemWidth: CGFloat = 156
+    @ScaledMetric private var itemWidth: CGFloat = Constants.itemWidth
+    @ScaledMetric private var itemHeight: CGFloat = Constants.itemHeight
 
     init(
         title: String,
@@ -45,11 +46,12 @@ struct WithdrawHubSectionView<StaticContent, DynamicContent>: View
             .padding(.horizontal, 16)
 
             ScrollView(.horizontal) {
-                HStack(spacing: 8) {
+                HStack(spacing: Constants.itemSpacing) {
                     staticContent()
-                        .frame(width: itemWidth)
+                        .frame(width: itemWidth, height: itemHeight)
 
-                    // [REDACTED_TODO_COMMENT]
+                    dynamicContent()
+                        .frame(width: itemWidth, height: itemHeight)
                 }
                 .padding(.top, 4)
                 .padding(.horizontal, 16)
@@ -61,6 +63,14 @@ struct WithdrawHubSectionView<StaticContent, DynamicContent>: View
     }
 }
 
+// MARK: - Constants
+
+private enum Constants {
+    static let itemWidth: CGFloat = 162
+    static let itemHeight: CGFloat = 136
+    static let itemSpacing: CGFloat = 8
+}
+
 // MARK: - Previews
 
 #Preview {
@@ -69,11 +79,20 @@ struct WithdrawHubSectionView<StaticContent, DynamicContent>: View
         subtitle: "From your payment account",
         staticContent: {
             WithdrawHubActionTileView(
-                icon: DesignSystem.Icons.ArrowSwapHorizontal.regular20,
-                title: "Within your portfolio",
-                action: {}
+                data: .action(
+                    icon: DesignSystem.Icons.ArrowSwapHorizontal.regular20,
+                    title: "Within your portfolio",
+                    action: {}
+                )
             )
         },
-        dynamicContent: { EmptyView() }
+        dynamicContent: {
+            WithdrawHubActionTileView(
+                data: .placeholder(
+                    icon: DesignSystem.Icons.Clock.regular20,
+                    title: "Recent transfers appear here"
+                )
+            )
+        }
     )
 }

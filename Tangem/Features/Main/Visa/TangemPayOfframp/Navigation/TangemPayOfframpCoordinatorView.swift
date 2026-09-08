@@ -14,13 +14,35 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
 
     var body: some View {
         ZStack {
-            NavigationStack {
-                if let rootViewModel = coordinator.rootViewModel {
-                    WithdrawHubView(viewModel: rootViewModel)
+            NavigationStack(path: $coordinator.path) {
+                ZStack {
+                    if let rootViewModel = coordinator.rootViewModel {
+                        WithdrawHubView(viewModel: rootViewModel)
+                    }
                 }
+                .navigationDestination(
+                    for: TangemPayOfframpCoordinator.Route.self,
+                    destination: destination
+                )
             }
 
             sheets
+        }
+    }
+
+    @ViewBuilder
+    private func destination(_ route: TangemPayOfframpCoordinator.Route) -> some View {
+        switch route {
+        case .recentRecipients:
+            if let store = coordinator.recentRecipientsStore {
+                let viewModel = RecentRecipientsViewModel(
+                    recentRecipientsStore: store,
+                    output: { [weak coordinator] bankAccountId in
+                        coordinator?.startWizard(recipient: .saved(bankAccountId: bankAccountId))
+                    }
+                )
+                RecentRecipientsView(viewModel: viewModel)
+            }
         }
     }
 

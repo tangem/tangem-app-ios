@@ -25,8 +25,6 @@ struct CommonUserWalletModelDependencies {
     private let userWalletModelConfigurableDependencies: UserWalletModelConfigurableDependencies
 
     init(userWalletId: UserWalletId, walletInfo: WalletInfo, config: UserWalletConfig, keys: WalletKeys) {
-        let walletManagerFactory = config.makeAnyWalletManagerFactory()
-
         let shouldLoadExpressAvailability = config.isFeatureVisible(.swapping) || config.isFeatureVisible(.exchange)
         let areHDWalletsSupported = config.hasFeature(.hdWallets)
         let hasTokenSynchronization = config.hasFeature(.multiCurrency)
@@ -50,22 +48,32 @@ struct CommonUserWalletModelDependencies {
         )
         .buildTangemPayManager()
 
+        let polymarketAccountProvider = PolymarketAccountProvider(
+            builder: PolymarketAccountBuilder(
+                userWalletId: userWalletId,
+                keysRepository: keysRepository,
+                keysDerivingInteractorFactory: keysDerivingInteractorFactory,
+                areHDWalletsSupported: areHDWalletsSupported
+            )
+        )
+
         let accountModelsManagerDependencies = Self.makeAccountModelsManagerDependencies(
             userWalletId: userWalletId,
             config: config,
-            hasTokenSynchronization: hasTokenSynchronization
+            hasTokenSynchronization: hasTokenSynchronization,
+            jointAccountDerivationInteractorFactory: jointAccountDerivationInteractorFactory
         )
 
         accountModelsManager = Self.makeAccountModelsManager(
             userWalletId: userWalletId,
             config: config,
-            walletInfo: walletInfo,
-            walletManagerFactory: walletManagerFactory,
             keysRepository: keysRepository,
             keysDerivingInteractorFactory: keysDerivingInteractorFactory,
-            jointAccountDerivationInteractorFactory: jointAccountDerivationInteractorFactory,
+            refcodeProvider: walletInfo.refcodeProvider,
             cryptoAccountsRepository: accountModelsManagerDependencies.cryptoAccountsRepository,
+            jointAccountsRepository: accountModelsManagerDependencies.jointAccountsRepository,
             tangemPayManager: tangemPayManager,
+            accountModelsProvider: polymarketAccountProvider,
             cryptoAccountsNetworkMapper: accountModelsManagerDependencies.networkMapper,
             archivedCryptoAccountsProvider: accountModelsManagerDependencies.archivedCryptoAccountsProvider,
             derivationManager: derivationManager,
@@ -139,7 +147,8 @@ private extension CommonUserWalletModelDependencies {
     static func makeAccountModelsManagerDependencies(
         userWalletId: UserWalletId,
         config: UserWalletConfig,
-        hasTokenSynchronization: Bool
+        hasTokenSynchronization: Bool,
+        jointAccountDerivationInteractorFactory: JointAccountDerivationInteractorFactory
     ) -> AccountModelsManagerDependencies {
         let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue)
         let auxiliaryDataStorage = CommonCryptoAccountsAuxiliaryDataStorage(
@@ -175,70 +184,6 @@ private extension CommonUserWalletModelDependencies {
             hasTokenSynchronization: hasTokenSynchronization
         )
 
-        return AccountModelsManagerDependencies(
-            networkMapper: networkMapper,
-            cryptoAccountsRepository: cryptoAccountsRepository,
-            archivedCryptoAccountsProvider: networkService
-        )
-    }
-
-    static func makeAccountModelsManager(
-        userWalletId: UserWalletId,
-        config: UserWalletConfig,
-        walletInfo: WalletInfo,
-        walletManagerFactory: AnyWalletManagerFactory,
-        keysRepository: KeysRepository,
-        keysDerivingInteractorFactory: KeysDerivingInteractorFactory,
-        jointAccountDerivationInteractorFactory: JointAccountDerivationInteractorFactory,
-        cryptoAccountsRepository: CommonCryptoAccountsRepository,
-        tangemPayManager: TangemPayManager,
-        cryptoAccountsNetworkMapper: CryptoAccountsNetworkMapper,
-        archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
-        derivationManager: DerivationManager?,
-        areHDWalletsSupported: Bool,
-        shouldLoadExpressAvailability: Bool
-    ) -> AccountModelsManager {
-        let hardwareLimitationsUtil = HardwareLimitationsUtil(config: config)
-
-        let transactionHistoryProviderRegistry: CommonTransactionHistoryProviderRegistry?
-        if FeatureProvider.isAvailable(.transactionHistoryV2) {
-            let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
-                ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
-            }
-            transactionHistoryProviderRegistry = CommonTransactionHistoryProviderRegistry(
-                cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
-                userWalletId: userWalletId,
-                walletInfo: walletInfo
-            )
-        } else {
-            transactionHistoryProviderRegistry = nil
-        }
-
-        let walletModelsFactoryProvider = WalletModelsFactoryProvider(
-            userWalletId: userWalletId,
-            userWalletConfig: config,
-            keysRepository: keysRepository,
-            keysDerivingInteractorFactory: keysDerivingInteractorFactory,
-            transactionHistoryProviderRegistry: transactionHistoryProviderRegistry ?? DummyTransactionHistoryProviderRegistry(),
-            transactionHistoryScheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage()
-        )
-
-        let dependenciesFactory = CommonCryptoAccountDependenciesFactory(
-            derivationManager: derivationManager,
-            derivationStyle: config.derivationStyle,
-            keysRepository: keysRepository,
-            walletManagerFactory: walletManagerFactory,
-            existingCurves: config.existingCurves,
-            persistentBlockchains: config.persistentBlockchains,
-            hardwareLimitationsUtil: hardwareLimitationsUtil,
-            areHDWalletsSupported: areHDWalletsSupported,
-            shouldLoadExpressAvailability: shouldLoadExpressAvailability,
-            userTokensRepositoryProvider: { derivationIndex in
-                UserTokensRepositoryAdapter(innerRepository: cryptoAccountsRepository, derivationIndex: derivationIndex)
-            },
-            walletModelsFactoryProvider: walletModelsFactoryProvider
-        )
-
         let jointAccountsRepository = CommonJointAccountsRepository(
             userWalletId: userWalletId,
             networkService: CommonJointAccountsNetworkService(userWalletId: userWalletId),
@@ -248,17 +193,79 @@ private extension CommonUserWalletModelDependencies {
             isJointAccountsAvailable: FeatureProvider.isAvailable(.jointAccounts)
         )
 
+        return AccountModelsManagerDependencies(
+            networkMapper: networkMapper,
+            cryptoAccountsRepository: cryptoAccountsRepository,
+            jointAccountsRepository: jointAccountsRepository,
+            archivedCryptoAccountsProvider: networkService
+        )
+    }
+
+    static func makeAccountModelsManager(
+        userWalletId: UserWalletId,
+        config: UserWalletConfig,
+        keysRepository: KeysRepository,
+        keysDerivingInteractorFactory: KeysDerivingInteractorFactory,
+        refcodeProvider: RefcodeProvider?,
+        cryptoAccountsRepository: CommonCryptoAccountsRepository,
+        jointAccountsRepository: CommonJointAccountsRepository,
+        tangemPayManager: TangemPayManager,
+        accountModelsProvider: any AccountModelsProvider,
+        cryptoAccountsNetworkMapper: CryptoAccountsNetworkMapper,
+        archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
+        derivationManager: DerivationManager?,
+        areHDWalletsSupported: Bool,
+        shouldLoadExpressAvailability: Bool
+    ) -> AccountModelsManager {
+        let hardwareLimitationsUtil = HardwareLimitationsUtil(config: config)
+
+        let walletModelsFactoryProvider = WalletModelsFactoryProvider(
+            userWalletId: userWalletId,
+            userWalletConfig: config,
+            keysRepository: keysRepository,
+            keysDerivingInteractorFactory: keysDerivingInteractorFactory,
+            transactionHistoryProviderResolver: TransactionHistoryProviderResolver(
+                userWalletId: userWalletId,
+                refcodeProvider: refcodeProvider
+            ),
+            transactionHistoryUpdater: TransactionHistoryUpdater()
+        )
+
+        let walletFactoryTypeResolver = CryptoAccountWalletFactoryTypeResolver(
+            userWalletId: userWalletId,
+            jointAccountsRepository: jointAccountsRepository
+        )
+        let walletFactoryProvider = WalletFactoryProvider(userWalletConfig: config)
+
+        let dependenciesFactory = CommonCryptoAccountDependenciesFactory(
+            userWalletId: userWalletId,
+            derivationManager: derivationManager,
+            derivationStyle: config.derivationStyle,
+            keysRepository: keysRepository,
+            walletFactoryTypeResolver: walletFactoryTypeResolver,
+            walletFactoryProvider: walletFactoryProvider,
+            walletManagerFactory: GenericWalletManagerFactory(),
+            existingCurves: config.existingCurves,
+            persistentBlockchains: config.persistentBlockchains,
+            hardwareLimitationsUtil: hardwareLimitationsUtil,
+            areHDWalletsSupported: areHDWalletsSupported,
+            shouldLoadExpressAvailability: shouldLoadExpressAvailability,
+            userTokensRepositoryProvider: { derivationIdentity in
+                UserTokensRepositoryAdapter(innerRepository: cryptoAccountsRepository, derivationIdentity: derivationIdentity)
+            },
+            walletModelsFactoryProvider: walletModelsFactoryProvider
+        )
+
         let accountModelsManager = CommonAccountModelsManager(
             userWalletId: userWalletId,
             cryptoAccountsRepository: cryptoAccountsRepository,
             jointAccountsRepository: jointAccountsRepository,
             tangemPayManager: tangemPayManager,
+            accountModelsProvider: accountModelsProvider,
             archivedCryptoAccountsProvider: archivedCryptoAccountsProvider,
             dependenciesFactory: dependenciesFactory,
             areHDWalletsSupported: areHDWalletsSupported
         )
-
-        transactionHistoryProviderRegistry?.setup(with: accountModelsManager)
 
         return accountModelsManager
     }
@@ -360,6 +367,7 @@ private extension CommonUserWalletModelDependencies {
     struct AccountModelsManagerDependencies {
         let networkMapper: CryptoAccountsNetworkMapper
         let cryptoAccountsRepository: CommonCryptoAccountsRepository
+        let jointAccountsRepository: CommonJointAccountsRepository
         let archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider
     }
 }

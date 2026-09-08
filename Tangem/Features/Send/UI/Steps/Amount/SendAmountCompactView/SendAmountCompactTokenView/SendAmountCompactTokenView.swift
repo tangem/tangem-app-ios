@@ -109,6 +109,7 @@ struct SendAmountCompactTokenView: View {
 
             InfoButtonView(size: .small, tooltipText: warning.infoMessage)
                 .color(color)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.priceImpactInfoButton)
         }
     }
 }

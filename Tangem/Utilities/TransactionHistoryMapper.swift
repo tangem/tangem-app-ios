@@ -10,6 +10,8 @@ import Foundation
 import BlockchainSdk
 import TangemExpress
 import TangemFoundation
+import TangemLocalization
+import TangemStaking
 import TangemUI
 
 protocol WalletModelTransactionHistoryAddressesProvider {
@@ -25,11 +27,14 @@ struct TransactionHistoryMapper {
     // Temporary: injected to obtain the gasless fee recipient address until it’s provided via app config.
     // Used to detect and classify gasless transaction fee transfers.
     @Injected(\.gaslessTransactionsNetworkManager) private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
+    @Injected(\.transactionHistoryAuxDataRepository) private var transactionHistoryAuxDataRepository: TransactionHistoryAuxDataRepository
 
     private let currencySymbol: String
     private let addressesProvider: WalletModelTransactionHistoryAddressesProvider
     private let showSign: Bool
     private let isToken: Bool
+
+    private let stakingNetwork: StakingNetworkType?
 
     private var walletAddresses: [String] {
         addressesProvider.walletAddresses
@@ -79,12 +84,14 @@ struct TransactionHistoryMapper {
         currencySymbol: String,
         addressesProvider: WalletModelTransactionHistoryAddressesProvider,
         showSign: Bool,
-        isToken: Bool
+        isToken: Bool,
+        stakingNetwork: StakingNetworkType?
     ) {
         self.currencySymbol = currencySymbol
         self.addressesProvider = addressesProvider
         self.showSign = showSign
         self.isToken = isToken
+        self.stakingNetwork = stakingNetwork
     }
 
     // [REDACTED_INFO]: when the redesign toggle is removed, drop the `DayFormatStyle`.
@@ -333,13 +340,15 @@ struct TransactionHistoryMapper {
             return nil
         }
 
+        let type = transactionType(from: record)
+
         // Only simple transfer
-        guard transactionType(from: record) == .transfer else {
+        guard type == .transfer else {
             return nil
         }
 
         // Only for user's address
-        guard case .user(let address) = interactionAddress(from: record) else {
+        guard case .user(let address) = interactionAddress(from: record, transactionType: type) else {
             return nil
         }
 
@@ -393,7 +402,7 @@ private extension TransactionHistoryMapper {
         }
 
         let formattedAmount = getFormattedAmount(for: prepared)
-        let interaction = interactionAddress(from: record)
+        let interaction = interactionAddress(from: record, transactionType: prepared.transactionType)
         let expressSubtitle = expressSubtitle(from: record, resolver: subtitleOwnerResolver)
 
         return TransactionViewModel(
@@ -403,7 +412,7 @@ private extension TransactionHistoryMapper {
             timeFormatted: timeFormatted,
             amount: formattedAmount.legacy,
             value: formattedAmount.redesigned,
-            currencyCode: currencySymbol,
+            currencyCode: amountSymbol(for: record),
             isOutgoing: record.isOutgoing,
             transactionType: prepared.transactionType,
             status: status(from: record),
@@ -418,39 +427,10 @@ private extension TransactionHistoryMapper {
         getFormattedAmount(for: prepare(record))
     }
 
-    func transferAmountValue(from record: TransactionRecord) -> Decimal {
-        if record.isOutgoing {
-            let sent: Decimal = {
-                switch record.source {
-                case .single(let source):
-                    return source.amount
-                case .multiple(let sources):
-                    return sources.sum(for: walletAddresses)
-                }
-            }()
-
-            let change: Decimal = {
-                switch record.destination {
-                case .single(let destination):
-                    return walletAddresses.contains(destination.address.string) ? destination.amount : 0
-                case .multiple(let destinations):
-                    return destinations.sum(for: walletAddresses)
-                }
-            }()
-
-            return sent - change
-
-        } else {
-            switch record.destination {
-            case .single(let destination):
-                return destination.amount
-            case .multiple(let destinations):
-                return destinations.sum(for: walletAddresses)
-            }
-        }
-    }
-
-    func interactionAddress(from record: TransactionRecord) -> TransactionViewModel.InteractionAddressType {
+    func interactionAddress(
+        from record: TransactionRecord,
+        transactionType: TransactionViewModel.TransactionType
+    ) -> TransactionViewModel.InteractionAddressType {
         if let gaslessAddress = makeGaslessTransactionInteractionAddress(from: record) {
             return gaslessAddress
         }
@@ -463,10 +443,54 @@ private extension TransactionHistoryMapper {
                 return mapToInteractionAddressType(source: record.source)
             }
         case .staking(_, let validator):
-            return .staking(validator: validator)
+            return .staking(target: validator.map(makeStakingTarget(forAddress:)))
         default:
-            return mapToInteractionAddressType(destination: record.destination)
+            let interaction = mapToInteractionAddressType(destination: record.destination)
+            return promoteToStakingTargetIfPossible(interaction, transactionType: transactionType)
         }
+    }
+
+    private func promoteToStakingTargetIfPossible(
+        _ interaction: TransactionViewModel.InteractionAddressType,
+        transactionType: TransactionViewModel.TransactionType
+    ) -> TransactionViewModel.InteractionAddressType {
+        switch transactionType {
+        case .stake, .unstake, .vote, .withdraw, .claimRewards, .restake, .operation, .unknownOperation:
+            break
+        case .transfer, .swap, .onramp, .approve,
+             .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit, .yieldReactivate, .yieldSend,
+             .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin,
+             .gaslessTransactionFee, .gaslessTransfer, .tangemPay:
+            return interaction
+        }
+
+        let address: String
+        switch interaction {
+        case .contract(let value), .user(let value):
+            address = value
+        case .multiple, .custom, .staking:
+            return interaction
+        }
+
+        let target = makeStakingTarget(forAddress: address)
+
+        guard target.isResolved else {
+            return interaction
+        }
+
+        return .staking(target: target)
+    }
+
+    private func makeStakingTarget(forAddress address: String) -> TransactionViewModel.StakingTarget {
+        guard FeatureProvider.isAvailable(.transactionHistoryV2), let stakingNetwork else {
+            return TransactionViewModel.StakingTarget(address: address, resolvedName: nil)
+        }
+
+        // The repository is keyed by normalized addresses, so we must normalize the address before looking it up
+        let normalizedAddress = TransactionHistoryAddressNormalizer.normalize(address, networkID: stakingNetwork.rawValue)
+        let target = transactionHistoryAuxDataRepository.stakingTarget(forAddress: normalizedAddress, network: stakingNetwork)
+
+        return TransactionViewModel.StakingTarget(address: address, resolvedName: target?.name)
     }
 
     func mapToInteractionAddressType(source: TransactionRecord.SourceType) -> TransactionViewModel.InteractionAddressType {
@@ -530,6 +554,8 @@ private extension TransactionHistoryMapper {
             return transactionType(fromContractMethodName: name, transactionRecord: record)
         case .contractMethodName(let name):
             return transactionType(fromContractMethodName: name, transactionRecord: record)
+        case .approve:
+            return .approve
         case .staking(let type, _):
             switch type {
             case .stake: return .stake
@@ -596,6 +622,40 @@ extension TransactionHistoryMapper {
 }
 
 extension TransactionHistoryMapper {
+    func transferAmountValue(from record: TransactionRecord) -> Decimal {
+        if record.isOutgoing {
+            let sent: Decimal = {
+                switch record.source {
+                case .single(let source):
+                    return source.amount
+                case .multiple(let sources):
+                    return sources.sum(for: walletAddresses)
+                }
+            }()
+
+            let change: Decimal = {
+                switch record.destination {
+                case .single(let destination):
+                    return walletAddresses.contains(destination.address.string) ? destination.amount : 0
+                case .multiple(let destinations):
+                    return destinations.sum(for: walletAddresses)
+                }
+            }()
+
+            return sent - change
+
+        } else {
+            switch record.destination {
+            case .single(let destination):
+                return destination.amount
+            case .multiple(let destinations):
+                return destinations.sum(for: walletAddresses)
+            }
+        }
+    }
+}
+
+extension TransactionHistoryMapper {
     func mapGaslessTransaction(contractMethodName: String, transactionRecord: TransactionRecord) -> TransactionViewModel.TransactionType {
         guard contractMethodName == "gaslessTransaction" else {
             assertionFailure("mapGaslessTransaction called with non-gasless transaction method")
@@ -629,6 +689,16 @@ private extension TransactionHistoryMapper {
         }
 
         switch prepared.transactionType {
+        case .stake, .unstake, .restake, .vote, .withdraw:
+            return FormattedAmount(
+                legacy: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
+                redesigned: balanceFormatter.formatDecimal(amount)
+            )
+        case .approve:
+            return approveAmount(for: record) ?? FormattedAmount(
+                legacy: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
+                redesigned: balanceFormatter.formatDecimal(amount)
+            )
         case .yieldEnter, .yieldTopup, .yieldWithdraw:
             return FormattedAmount(
                 legacy: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
@@ -643,6 +713,41 @@ private extension TransactionHistoryMapper {
         default:
             return formatted(amount: amount, isOutgoing: record.isOutgoing, isFailed: record.status == .failed)
         }
+    }
+
+    func approveAmount(for record: TransactionRecord) -> FormattedAmount? {
+        guard case .approve(let approve) = record.type else {
+            return nil
+        }
+
+        switch approve.allowance {
+        case .revoked:
+            return FormattedAmount(
+                legacy: balanceFormatter.formatCryptoBalance(.zero, currencyCode: amountSymbol(for: record)),
+                redesigned: balanceFormatter.formatDecimal(.zero)
+            )
+        case .unlimited:
+            let legacy = approve.symbol.map(Localization.transactionHistoryUnlimitedAmount) ?? Localization.transactionHistoryUnlimited
+
+            return FormattedAmount(legacy: legacy, redesigned: Localization.transactionHistoryUnlimited)
+        case .limited(let value):
+            return FormattedAmount(
+                legacy: balanceFormatter.formatCryptoBalance(value, currencyCode: amountSymbol(for: record)),
+                redesigned: balanceFormatter.formatDecimal(value)
+            )
+        }
+    }
+
+    func amountSymbol(for record: TransactionRecord) -> String {
+        guard case .approve(let approve) = record.type else {
+            return currencySymbol
+        }
+
+        if let symbol = approve.symbol {
+            return symbol
+        }
+
+        return approve.allowance == .unlimited ? "" : .unknown
     }
 
     func makeGaslessTransactionInteractionAddress(from record: TransactionRecord) -> TransactionViewModel.InteractionAddressType? {

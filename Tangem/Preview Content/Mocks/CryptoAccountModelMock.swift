@@ -8,12 +8,13 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 import TangemLocalization
 
 final class CryptoAccountModelMock {
     typealias OnArchive = (_ cryptoAccountModel: CryptoAccountModelMock) -> Void
 
-    let id = AccountId()
+    let id: CryptoAccountModelId
     let isMainAccount: Bool
     let walletModelsManager: WalletModelsManager
     let totalBalanceProvider: TotalBalanceProvider
@@ -48,6 +49,14 @@ final class CryptoAccountModelMock {
         userTokensManager: UserTokensManager = UserTokensManagerMock(),
         onArchive: @escaping OnArchive
     ) {
+        // A wallet of its own per mock, so that two of them never answer to the same identifier
+        id = CryptoAccountModelId(
+            userWalletId: UserWalletId(value: .randomData(count: 32)),
+            derivationIdentity: CryptoAccountDerivationIdentity(
+                derivationIndex: isMainAccount ? AccountModelUtils.mainAccountDerivationIndex : 1,
+                type: .crypto
+            )
+        )
         self.isMainAccount = isMainAccount
         self.walletModelsManager = walletModelsManager
         self.totalBalanceProvider = totalBalanceProvider
@@ -59,18 +68,6 @@ final class CryptoAccountModelMock {
 // MARK: - Auxiliary types
 
 extension CryptoAccountModelMock {
-    struct AccountId: Hashable, AccountModelPersistentIdentifierConvertible {
-        let id = UUID()
-
-        var isMainAccount: Bool {
-            false
-        }
-
-        func toPersistentIdentifier() -> UUID {
-            id
-        }
-    }
-
     private struct AccountRateProviderStub: AccountRateProvider {
         var accountRate: AccountRate {
             return .loaded(
@@ -87,6 +84,8 @@ extension CryptoAccountModelMock {
 // MARK: - CryptoAccountModel protocol conformance
 
 extension CryptoAccountModelMock: CryptoAccountModel {
+    var accountType: AccountType { .crypto }
+
     var didChangePublisher: AnyPublisher<Void, Never> {
         didChangeSubject.eraseToAnyPublisher()
     }

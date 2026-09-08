@@ -16,7 +16,6 @@ import TangemUIUtils
 struct TransactionsListViewRedesigned: View {
     let state: TransactionsListView.State
     let exploreAction: (() -> Void)?
-    let exploreConfirmationDialog: Binding<ConfirmationDialogViewModel?>?
     let openTransactionDetailsAction: (TransactionViewModel) -> Void
     let reloadButtonAction: () -> Void
     let isReloadButtonBusy: Bool
@@ -37,9 +36,6 @@ struct TransactionsListViewRedesigned: View {
                 primaryButton: exploreAction.map(notSupportedExploreButton),
                 secondaryButton: nil
             )
-            .ifLet(exploreConfirmationDialog) { view, dialog in
-                view.confirmationDialog(viewModel: dialog)
-            }
         case .loading:
             loadingContent
         case .loaded(let items):
@@ -51,9 +47,6 @@ struct TransactionsListViewRedesigned: View {
                 primaryButton: errorReloadButton,
                 secondaryButton: exploreAction.map(errorExploreButton)
             )
-            .ifLet(exploreConfirmationDialog) { view, dialog in
-                view.confirmationDialog(viewModel: dialog)
-            }
         }
     }
 
@@ -66,9 +59,6 @@ struct TransactionsListViewRedesigned: View {
                 primaryButton: exploreAction.map(emptyExploreButton),
                 secondaryButton: nil
             )
-            .ifLet(exploreConfirmationDialog) { view, dialog in
-                view.confirmationDialog(viewModel: dialog)
-            }
         } else {
             LazyVStack(spacing: .zero) {
                 ForEach(transactionItems.indexed(), id: \.1.id) { _, sectionItem in
@@ -235,7 +225,6 @@ private struct StatusStateView: View {
         TransactionsListViewRedesigned(
             state: .loaded(items),
             exploreAction: {},
-            exploreConfirmationDialog: nil,
             openTransactionDetailsAction: { _ in },
             reloadButtonAction: {},
             isReloadButtonBusy: false,
@@ -249,7 +238,6 @@ private struct StatusStateView: View {
     TransactionsListViewRedesigned(
         state: .error("oops"),
         exploreAction: {},
-        exploreConfirmationDialog: nil,
         openTransactionDetailsAction: { _ in },
         reloadButtonAction: {},
         isReloadButtonBusy: false,
@@ -262,7 +250,6 @@ private struct StatusStateView: View {
     TransactionsListViewRedesigned(
         state: .loaded([]),
         exploreAction: {},
-        exploreConfirmationDialog: nil,
         openTransactionDetailsAction: { _ in },
         reloadButtonAction: {},
         isReloadButtonBusy: false,
