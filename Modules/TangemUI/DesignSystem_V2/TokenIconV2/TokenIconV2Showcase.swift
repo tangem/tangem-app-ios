@@ -42,7 +42,9 @@ public struct TokenIconV2Showcase: View {
 
                 allSizesSection
 
-                shapesSection
+                transparentArtworkSection
+
+                squareArtworkSection
 
                 stateControls
 
@@ -158,36 +160,48 @@ public struct TokenIconV2Showcase: View {
         }
     }
 
-    // MARK: - Shapes
+    // MARK: - Artwork
 
-    /// Real logos with non-square / irregular artwork, to check the circular clip and the cutout
-    /// against transparency, wide marks, and off-center glyphs.
-    private var shapesSection: some View {
-        section(title: "Irregular artwork (real logos)") {
-            let columns = [GridItem(.adaptive(minimum: 72), spacing: 16, alignment: .top)]
+    /// Logos whose artwork is a glyph on transparency — irregular marks, wide marks and off-center
+    /// glyphs, to check the cutouts against the artwork's own alpha.
+    private var transparentArtworkSection: some View {
+        section(title: "Transparent-corner artwork (real logos)") {
+            artworkGrid(samples: Self.transparentArtworkSamples)
+        }
+    }
 
-            LazyVGrid(columns: columns, alignment: .leading, spacing: 16) {
-                ForEach(Self.shapeSamples, id: \.id) { sample in
-                    VStack(spacing: 6) {
-                        TokenIconV2(
-                            tokenIconInfo: TokenIconInfo(
-                                name: sample.name,
-                                blockchainIconAsset: showNetworkBadge ? Tokens.ethereumFill : nil,
-                                imageURL: Self.imageURL(for: sample.id),
-                                isCustom: false,
-                                customTokenColor: nil
-                            ),
-                            size: TokenIconV2.Size.size56
-                        )
-                        .grayscale(isGrayscale)
+    /// Logos shipped as a fully opaque square canvas with the glyph bleeding to the edges. These are
+    /// the ones a circular mask slices, so they're what proves the artwork mask.
+    private var squareArtworkSection: some View {
+        section(title: "Full-bleed square artwork (real logos)") {
+            artworkGrid(samples: Self.squareArtworkSamples)
+        }
+    }
 
-                        Text(sample.name)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                    }
-                    .frame(maxWidth: .infinity)
+    private func artworkGrid(samples: [ShapeSample]) -> some View {
+        let columns = [GridItem(.adaptive(minimum: 72), spacing: 16, alignment: .top)]
+
+        return LazyVGrid(columns: columns, alignment: .leading, spacing: 16) {
+            ForEach(samples, id: \.id) { sample in
+                VStack(spacing: 6) {
+                    TokenIconV2(
+                        tokenIconInfo: TokenIconInfo(
+                            name: sample.name,
+                            blockchainIconAsset: showNetworkBadge ? Tokens.ethereumFill : nil,
+                            imageURL: Self.imageURL(for: sample.id),
+                            isCustom: false,
+                            customTokenColor: nil
+                        ),
+                        size: TokenIconV2.Size.size56
+                    )
+                    .grayscale(isGrayscale)
+
+                    Text(sample.name)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
                 }
+                .frame(maxWidth: .infinity)
             }
         }
     }
@@ -264,19 +278,30 @@ public struct TokenIconV2Showcase: View {
         let name: String
     }
 
-    private static let shapeSamples: [ShapeSample] = [
+    private static let transparentArtworkSamples: [ShapeSample] = [
         ShapeSample(id: "uniswap", name: "Uniswap"),
         ShapeSample(id: "maker", name: "Maker"),
-        ShapeSample(id: "chainlink", name: "Chainlink"),
         ShapeSample(id: "aave", name: "Aave"),
         ShapeSample(id: "curve-dao-token", name: "Curve"),
-        ShapeSample(id: "1inch", name: "1inch"),
         ShapeSample(id: "the-graph", name: "The Graph"),
         ShapeSample(id: "thorchain", name: "THORChain"),
         ShapeSample(id: "pancakeswap-token", name: "PancakeSwap"),
         ShapeSample(id: "dogecoin", name: "Dogecoin"),
         ShapeSample(id: "havven", name: "Synthetix"),
         ShapeSample(id: "render-token", name: "Render"),
+    ]
+
+    private static let squareArtworkSamples: [ShapeSample] = [
+        ShapeSample(id: "tron", name: "TRON"),
+        ShapeSample(id: "okb", name: "OKB"),
+        ShapeSample(id: "stellar", name: "Stellar"),
+        ShapeSample(id: "near", name: "NEAR"),
+        ShapeSample(id: "polkadot", name: "Polkadot"),
+        ShapeSample(id: "chainlink", name: "Chainlink"),
+        ShapeSample(id: "1inch", name: "1inch"),
+        ShapeSample(id: "algorand", name: "Algorand"),
+        ShapeSample(id: "the-sandbox", name: "The Sandbox"),
+        ShapeSample(id: "wrapped-bitcoin", name: "WBTC"),
     ]
 }
 

@@ -78,7 +78,8 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
             currencySymbol: walletModel.tokenItem.currencySymbol,
             addressesProvider: walletModel,
             showSign: true,
-            isToken: walletModel.tokenItem.isToken
+            isToken: walletModel.tokenItem.isToken,
+            stakingNetwork: walletModel.tokenItem.stakingTokenItem?.network
         )
         let resolver = SubtitleOwnerResolver(
             blockchain: walletModel.tokenItem.blockchain,
@@ -194,15 +195,26 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
             }
             .removeDuplicates()
 
+        // The history publisher this sheet reads from already re-emits on `didLoadAuxData`, but `recordPublisher`
+        // above drops that emission: the record itself is unchanged when only the auxiliary data is. So an
+        // already-open sheet needs the signal directly to re-map, otherwise it keeps rendering the provider id or
+        // the raw staking address it was first built with.
+        let didLoadAuxDataPublisher = Publishers
+            .stream { [auxDataRepository] in
+                auxDataRepository.didLoadAuxData
+            }
+            .prepend(())
+
         let enrichedRecordPublisher = recordPublisher
             .combineLatest(
                 contactsPublisher.removeDuplicates(),
-                syncStatePublisher.map(\.isSynced).removeDuplicates()
+                syncStatePublisher.map(\.isSynced).removeDuplicates(),
+                didLoadAuxDataPublisher
             )
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .map { viewModel, args in
-                let (record, contacts, isAddressBookSynced) = args
+                let (record, contacts, isAddressBookSynced, _) = args
                 let transaction = mapper.mapTransactionViewModel(record, subtitleOwnerResolver: resolver)
 
                 return (
@@ -210,6 +222,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
                     reduced: TransactionDetailsFactory.reduce(
                         transaction: transaction,
                         record: record,
+                        cryptoAmount: mapper.transferAmountValue(from: record),
                         context: context,
                         addContactHelper: viewModel.makeAddContactHelper(
                             for: transaction,

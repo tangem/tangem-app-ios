@@ -18,17 +18,22 @@ struct StoredCryptoAccountCodingTests {
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
 
-    @Test("A record written before account types existed keeps none, which stands for a crypto account")
-    func recordWithoutTypeKeepsNone() throws {
-        let account = Fixtures.untyped
-        let object = try account.asDictionary(encoder: encoder)
+    @Test("A record written before account types existed reads as a crypto account")
+    func recordWithoutTypeReadsAsCrypto() throws {
+        // The shape a previous version wrote: the very same record, minus the field it did not know about
+        let preKindsRecord = try data(of: Fixtures.crypto, replacingTypeWith: nil)
 
-        let decoded = try decoder.decode(StoredCryptoAccount.self, from: encoder.encode(account))
+        let decoded = try decoder.decode(StoredCryptoAccount.self, from: preKindsRecord)
 
-        #expect(decoded == account)
-        #expect(decoded.type == nil)
-        // The shape a previous version wrote, which is what makes such a record readable at all
-        #expect(object["type"] == nil)
+        #expect(decoded == Fixtures.crypto)
+        #expect(decoded.derivationIdentity.type == .crypto)
+    }
+
+    @Test("A record carries its type from the moment it is written")
+    func recordIsWrittenWithItsType() throws {
+        let object = try Fixtures.crypto.asDictionary(encoder: encoder)
+
+        #expect(object["type"] as? String == "crypto")
     }
 
     @Test("A joint record survives a round trip")
@@ -38,16 +43,16 @@ struct StoredCryptoAccountCodingTests {
         let decoded = try decoder.decode(StoredCryptoAccount.self, from: encoder.encode(account))
 
         #expect(decoded == account)
-        #expect(decoded.type == .joint)
+        #expect(decoded.derivationIdentity.type == .joint)
     }
 
-    @Test("A record that spells the type out as null keeps no type, the same as a record that omits it")
-    func recordWithNullTypeKeepsNone() throws {
+    @Test("A record that spells the type out as null reads as a crypto account, the same as a record that omits it")
+    func recordWithNullTypeReadsAsCrypto() throws {
         let spelledOut = try data(of: Fixtures.joint, replacingTypeWith: NSNull())
 
         let decoded = try decoder.decode(StoredCryptoAccount.self, from: spelledOut)
 
-        #expect(decoded.type == nil)
+        #expect(decoded.derivationIdentity.type == .crypto)
     }
 
     @Test("A type this version cannot read is a crypto account rather than a failure")
@@ -58,8 +63,8 @@ struct StoredCryptoAccountCodingTests {
         let decodedUnknownName = try decoder.decode(StoredCryptoAccount.self, from: unknownName)
         let decodedAnotherShape = try decoder.decode(StoredCryptoAccount.self, from: anotherShape)
 
-        #expect(decodedUnknownName.type == .crypto)
-        #expect(decodedAnotherShape.type == .crypto)
+        #expect(decodedUnknownName.derivationIdentity.type == .crypto)
+        #expect(decodedAnotherShape.derivationIdentity.type == .crypto)
     }
 
     /// The storage reads the whole list at once and takes a failed read for an empty one, which sends a wallet that has
@@ -68,29 +73,30 @@ struct StoredCryptoAccountCodingTests {
     func listSurvivesAnUnreadableType() throws {
         let records = [
             try object(of: Fixtures.joint, replacingTypeWith: "shared"),
-            try Fixtures.untyped.asDictionary(encoder: encoder),
+            try object(of: Fixtures.crypto, replacingTypeWith: nil),
         ]
         let list = try JSONSerialization.data(withJSONObject: records)
 
         let decoded = try decoder.decode([StoredCryptoAccount].self, from: list)
 
         #expect(decoded.count == 2)
-        #expect(decoded.map(\.type) == [.crypto, nil])
+        #expect(decoded.map(\.derivationIdentity.type) == [.crypto, .crypto])
     }
 }
 
 // MARK: - Helpers
 
 private extension StoredCryptoAccountCodingTests {
-    /// Rewrites an encoded record the way a version that knows another type would have written it.
-    func object(of account: StoredCryptoAccount, replacingTypeWith type: Any) throws -> [String: Any] {
+    /// Rewrites an encoded record the way another version would have written it: one that knows a different type,
+    /// or — given nil — one from before the types existed.
+    func object(of account: StoredCryptoAccount, replacingTypeWith type: Any?) throws -> [String: Any] {
         var object = try account.asDictionary(encoder: encoder)
         object["type"] = type
 
         return object
     }
 
-    func data(of account: StoredCryptoAccount, replacingTypeWith type: Any) throws -> Data {
+    func data(of account: StoredCryptoAccount, replacingTypeWith type: Any?) throws -> Data {
         try JSONSerialization.data(withJSONObject: object(of: account, replacingTypeWith: type))
     }
 }
@@ -104,24 +110,24 @@ private extension StoredCryptoAccountCodingTests {
             iconColor: AccountModel.CompositeIcon.Color.azure.rawValue
         )
 
-        static let untyped = StoredCryptoAccount(
+        static let crypto = StoredCryptoAccount(
             derivationIndex: 0,
+            type: .crypto,
             name: nil,
             icon: icon,
             tokens: [],
             grouping: .none,
-            sorting: .manual,
-            type: nil
+            sorting: .manual
         )
 
         static let joint = StoredCryptoAccount(
             derivationIndex: 1,
+            type: .joint,
             name: "Family",
             icon: icon,
             tokens: [],
             grouping: .byBlockchainNetwork,
-            sorting: .byBalance,
-            type: .joint
+            sorting: .byBalance
         )
     }
 }

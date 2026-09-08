@@ -13,20 +13,32 @@ import TangemFoundation
 /// - Note: Everything a joint account shares with the wallet's own accounts is delegated to the crypto account it is
 /// built on, so the two kinds cannot drift apart as that one gains behaviour.
 final class CommonJointAccountModel {
-    let jointAccountConfig: JointAccountConfig
+    let policy: JointAccountPolicy
+    let status: JointAccountStatus
+    let members: [JointAccountMember]
+    let invites: [JointAccountInvite]
 
-    private let cryptoAccount: CommonCryptoAccountModel
+    private let cryptoAccount: any CryptoAccountModel
 
-    init(cryptoAccount: CommonCryptoAccountModel, jointAccountConfig: JointAccountConfig) {
+    init(
+        cryptoAccount: any CryptoAccountModel,
+        policy: JointAccountPolicy,
+        status: JointAccountStatus,
+        members: [JointAccountMember],
+        invites: [JointAccountInvite]
+    ) {
         self.cryptoAccount = cryptoAccount
-        self.jointAccountConfig = jointAccountConfig
+        self.policy = policy
+        self.status = status
+        self.members = members
+        self.invites = invites
     }
 }
 
 // MARK: - Identifiable protocol conformance
 
 extension CommonJointAccountModel: Identifiable {
-    var id: CommonCryptoAccountModel.AccountId {
+    var id: CryptoAccountModelId {
         cryptoAccount.id
     }
 }
@@ -50,6 +62,10 @@ extension CommonJointAccountModel: JointAccountModel {
         cryptoAccount.isMainAccount
     }
 
+    var accountType: AccountType {
+        cryptoAccount.accountType
+    }
+
     var descriptionString: String {
         cryptoAccount.descriptionString
     }
@@ -68,9 +84,7 @@ extension CommonJointAccountModel: JointAccountModel {
 
     @discardableResult
     func edit(with editor: Editor) async throws(AccountEditError) -> Self {
-        try await cryptoAccount.edit(with: editor)
-
-        return self
+        throw .unknownError(JointAccountModelError.editingNotSupported)
     }
 
     func archive() async throws(AccountArchivationError) {
@@ -106,10 +120,11 @@ extension CommonJointAccountModel: CustomStringConvertible {
             self,
             userInfo: [
                 "cryptoAccount": cryptoAccount,
-                "membersCount": jointAccountConfig.membersCount,
-                "signersCount": jointAccountConfig.signersCount,
-                "status": jointAccountConfig.status,
-                "Taken slots count": jointAccountConfig.members.count,
+                "membersCount": policy.membersCount,
+                "signersCount": policy.signersCount,
+                "status": status,
+                "Taken slots count": members.count,
+                "Invites count": invites.count,
             ]
         )
     }

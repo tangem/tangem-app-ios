@@ -104,19 +104,12 @@ else
 fi
 
 if [[ "$OPT_MINT" = false ]] ; then
-    echo "ℹ️ Skipping SwiftGen"
-else
-    echo "🚀 Running SwiftGen"
-    mint run swiftgen@6.6.3 config run --config swiftgen.yml
-fi
-
-if [[ "$OPT_MINT" = false ]] ; then
     echo "ℹ️ Skipping DS-Core generator"
 else
-    # DS-Core sources (tokens + icons) are vendored into the repo by the
+    # DS-Core sources (tokens + icons + lottie) are vendored into the repo by the
     # `update-dscore` GitHub Action — no SPM resolve, no submodule, no clone.
     # The pinned upstream commit is stored in .dscore-source-commit for humans.
-    echo "🎨 Generating DS-Core sources (tokens + icons)"
+    echo "🎨 Generating DS-Core sources (tokens + icons + lottie)"
     DSCORE_GEN_DIR="Utilities/ds-core-generator"
     DSCORE_REQUIRED_NODE=$(cat .nvmrc)
     DSCORE_REQUIRED_NODE_MAJOR=$(echo "${DSCORE_REQUIRED_NODE}" | sed 's/^v//' | cut -d. -f1)
@@ -163,6 +156,16 @@ else
     ( cd "${DSCORE_GEN_DIR}" \
         && npm ci --ignore-scripts --no-audit --no-fund --cache=.npm-cache \
         && npm run build )
+fi
+
+# SwiftGen must run after the DS-Core generator: it scans
+# Modules/TangemAssets/LottieAnimations/ — including the lottie_*.json files the
+# generator materialises — to emit the LottieFile.* accessors.
+if [[ "$OPT_MINT" = false ]] ; then
+    echo "ℹ️ Skipping SwiftGen"
+else
+    echo "🚀 Running SwiftGen"
+    mint run swiftgen@6.6.3 config run --config swiftgen.yml
 fi
 
 if [[ "$OPT_SUBMODULE" = true ]] ; then

@@ -100,7 +100,8 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
             currencySymbol: "ETH",
             addressesProvider: StubExpressSubtitleAddressesProvider(walletAddresses: ["0xSource"]),
             showSign: true,
-            isToken: false
+            isToken: false,
+            stakingNetwork: .ethereum
         )
     }
 

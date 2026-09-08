@@ -123,6 +123,26 @@ final class GaslessSwapUITests: BaseTestCase {
             .assertReceiveAmount(equals: capturedReceiveAmount)
     }
 
+    func testCexGaslessSwapWithZeroNativeBalance() {
+        setAllureId(10211)
+        launchGaslessSwap(
+            tokensState: Constants.hotWalletTokensState,
+            extraScenarios: [
+                ScenarioConfig(name: Constants.nativeBalanceScenario, initialState: Constants.zeroBalanceState),
+                ScenarioConfig(name: Constants.exchangeStatusScenario, initialState: Constants.changellyState),
+            ]
+        )
+
+        openHotWalletSwap(receiveToken: Constants.receivePolygon, amount: Constants.inputAmount)
+            .assertFeeCurrencySymbol(Constants.tokenSymbol)
+            .confirmSwap()
+
+        SendFinishScreen(app)
+            .waitForDisplay()
+            .tapCloseButton()
+            .waitForPendingExpressTransaction()
+    }
+
     func testInsufficientBalanceForFee() {
         setAllureId(5118)
         launchGaslessSwap(extraScenarios: [
@@ -196,5 +216,7 @@ final class GaslessSwapUITests: BaseTestCase {
         static let changellyState = "Changelly"
         static let usdcBalanceScenario = "polygon_usdc_balance"
         static let lowBalanceState = "LowBalance"
+        static let nativeBalanceScenario = "polygon_coin_balance"
+        static let zeroBalanceState = "ZeroBalance"
     }
 }
