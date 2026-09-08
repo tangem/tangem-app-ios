@@ -22,12 +22,7 @@ struct PolymarketOutcomeVoteView: View {
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
 
-            Text("\(outcomeTitle) \(priceText)")
-                .style(DesignSystem.Font.captionMediumToken, color: style.foregroundColor)
-                .lineLimit(1)
-                .padding(.horizontal, Constants.pillHorizontalPadding)
-                .frame(minHeight: Constants.pillMinHeight)
-                .background(style.backgroundColor, in: Capsule())
+            PolymarketOutcomePill(title: "\(outcomeTitle) \(priceText)", style: style)
         }
         .accessibilityElement(children: .combine)
     }
@@ -38,7 +33,5 @@ struct PolymarketOutcomeVoteView: View {
 private extension PolymarketOutcomeVoteView {
     enum Constants {
         static let spacing: CGFloat = 4
-        static let pillHorizontalPadding: CGFloat = 8
-        static let pillMinHeight: CGFloat = 24
     }
 }
