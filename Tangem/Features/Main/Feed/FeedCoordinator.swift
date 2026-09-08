@@ -24,6 +24,7 @@ final class FeedCoordinator: CoordinatorObject {
     @Published var portfolioTokenList: MarketsPortfolioTokenListViewModel?
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -56,6 +57,21 @@ extension FeedCoordinator: FeedRoutable {
 
         coordinator.start(with: .init(info: token, style: .marketsSheet))
         path.append(.token(coordinator))
+    }
+
+    func openRealAssetsCategoryFilter(with input: RealAssetsCategoryFilterInput) {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            let viewModel = MarketsRealAssetsFilterBottomSheetViewModel(
+                input: input,
+                onDismiss: { [weak self] in
+                    self?.floatingSheetPresenter.removeActiveSheet()
+                }
+            )
+
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     func openPortfolioToken(_ walletModel: any WalletModel) {
