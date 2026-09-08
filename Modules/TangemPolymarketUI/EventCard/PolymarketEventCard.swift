@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import Kingfisher
 import TangemAssets
 import TangemUI
 import TangemUIUtils
@@ -55,51 +54,11 @@ public struct PolymarketEventCard: View {
         .padding(16)
     }
 
-    @ViewBuilder
     private var metaRow: some View {
-        if model.category != nil || model.volumeText != nil {
-            HStack(spacing: 8) {
-                if let category = model.category {
-                    categoryBadge(category)
-                }
-
-                if let volumeText = model.volumeText {
-                    volumeView(volumeText)
-                }
-            }
-        }
-    }
-
-    private func categoryBadge(_ category: Category) -> some View {
-        HStack(spacing: 0) {
-            if let iconURL = category.iconURL {
-                KFImage(iconURL)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 16, height: 16)
-                    .accessibilityHidden(true)
-            }
-
-            Text(category.name)
-                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                .lineLimit(1)
-                .padding(.horizontal, 2)
-        }
-        .padding(.horizontal, 2)
-        .frame(minHeight: 16)
-        .background(DesignSystem.Color.bgOpaquePrimary, in: Capsule())
-    }
-
-    private func volumeView(_ volumeText: String) -> some View {
-        HStack(spacing: 4) {
-            Text(Constants.volumePrefix)
-                .foregroundStyle(DesignSystem.Color.textSecondary)
-
-            Text(volumeText)
-                .foregroundStyle(DesignSystem.Color.textPrimary)
-        }
-        .font(token: DesignSystem.Font.captionMediumToken)
-        .lineLimit(1)
+        PolymarketMarketMetaRow(
+            category: model.category,
+            volume: model.volumeText.map { .init(title: Constants.volumePrefix, value: $0) }
+        )
     }
 
     // MARK: - Market body
