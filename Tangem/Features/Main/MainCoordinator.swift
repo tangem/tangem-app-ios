@@ -53,6 +53,8 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator?
     @Published var hardwareBackupTypesCoordinator: HardwareBackupTypesCoordinator?
     @Published var manageTokensCoordinator: ManageTokensCoordinator?
+    @Published var polymarketCoordinator: PolymarketCoordinator?
+    @Published var jointAccountManagementCoordinator: JointAccountManagementCoordinator?
 
     // MARK: - Child coordinators (Other)
 
@@ -67,6 +69,8 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var mainQRScanFlowCoordinator: MainQRScanFlowCoordinator?
 
     private var campaignCoordinator: CampaignCoordinator?
+
+    private(set) var feedCoordinator: FeedCoordinator?
 
     // MARK: - Child view models
 
@@ -123,10 +127,21 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
             onActivation: weakify(self, forFunction: MainCoordinator.openMobileFinishActivation)
         )
 
+        setupFeedCoordinator()
         bind()
     }
 
     // MARK: - Private Implementation
+
+    private func setupFeedCoordinator() {
+        guard FeatureProvider.isAvailable(.nativeMarketsShtorka) else {
+            return
+        }
+
+        let coordinator = FeedCoordinator(popToRootAction: popToRootAction)
+        coordinator.start(with: .init())
+        feedCoordinator = coordinator
+    }
 
     private func bind() {
         deeplinkDestinationSubscription = deeplinkDestination
@@ -223,7 +238,8 @@ extension MainCoordinator: MainRoutable {
              .promo,
              .tokenExchanges,
              .newsList,
-             .earn:
+             .earn,
+             .jointAccountInvite:
             deeplinkDestination.send(deepLink)
         }
     }
@@ -538,7 +554,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
     private func openTangemPayMainViewAfterPlanActivation(userWalletModel: any UserWalletModel) {
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.tangemPayPlanActivationNavigationDelay) { [weak self] in
-            guard let tangemPayAccount = userWalletModel.accountModelsManager.tangemPayAccountModel?.state?.tangemPayAccount else {
+            guard let tangemPayAccount = TangemPayAccountAggregator.tangemPayAccountModel(from: userWalletModel.accountModelsManager)?.state?.tangemPayAccount else {
                 return
             }
 
@@ -562,7 +578,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             return
         }
 
-        guard let accountModel = userWalletModel.accountModelsManager.tangemPayAccountModel else {
+        guard let accountModel = TangemPayAccountAggregator.tangemPayAccountModel(from: userWalletModel.accountModelsManager) else {
             incomingActionManager.discardIncomingAction()
             return
         }
@@ -635,6 +651,34 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             }
         )
         yieldDeeplinkRouter?.handle(walletModel: walletModel, userWalletModel: userWalletModel)
+    }
+
+    func openPolymarket(userWalletModel: UserWalletModel) {
+        mainBottomSheetUIManager.hide()
+
+        let coordinator = PolymarketCoordinator(
+            dismissAction: { [weak self] in
+                self?.polymarketCoordinator = nil
+                self?.mainBottomSheetUIManager.show()
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(userWalletModel: userWalletModel))
+        polymarketCoordinator = coordinator
+    }
+
+    func openJointAccountMembers(jointAccount: any JointAccountModel) {
+        mainBottomSheetUIManager.hide()
+
+        let coordinator = JointAccountManagementCoordinator(
+            dismissAction: { [weak self] in
+                self?.jointAccountManagementCoordinator = nil
+                self?.mainBottomSheetUIManager.show()
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .members(jointAccount: jointAccount))
+        jointAccountManagementCoordinator = coordinator
     }
 }
 

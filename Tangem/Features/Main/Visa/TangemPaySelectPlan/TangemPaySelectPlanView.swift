@@ -189,7 +189,7 @@ struct TangemPaySelectPlanView: View {
                 action: viewModel.comparePlans
             )
             .size(.x12)
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .horizontalLayout(.infinity)
             .disabled(viewModel.isPlacingOrder)
 
@@ -201,7 +201,7 @@ struct TangemPaySelectPlanView: View {
             .size(.x12)
             .styleType(.default)
             .horizontalLayout(.infinity)
-            .isLoading(viewModel.isPlacingOrder)
+            .loading(.spinner(if: viewModel.isPlacingOrder))
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)

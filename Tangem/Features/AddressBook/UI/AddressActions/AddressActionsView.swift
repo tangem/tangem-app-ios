@@ -61,7 +61,7 @@ struct AddressActionsView: View {
             action: viewModel.copy
         )
         .iconEnd(DesignSystem.Icons.Copy.regular20)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .size(.x9)
         .horizontalLayout(.intrinsic)
     }
@@ -73,7 +73,7 @@ struct AddressActionsView: View {
                 accessibilityLabel: Localization.addressBookRemoveAddress,
                 action: viewModel.remove
             )
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .size(.x12)
             .horizontalLayout(.infinity)
 
@@ -82,7 +82,7 @@ struct AddressActionsView: View {
                 accessibilityLabel: Localization.addressBookEditAddress,
                 action: viewModel.edit
             )
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .size(.x12)
             .horizontalLayout(.infinity)
         }

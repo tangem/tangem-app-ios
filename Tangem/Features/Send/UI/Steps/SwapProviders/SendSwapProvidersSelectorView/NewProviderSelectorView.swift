@@ -78,6 +78,13 @@ struct NewProviderSelectorView: View {
                     selection: viewModel.providerTypeFilterSelection.asBinding
                 )
                 .style(.flexible)
+                .accessibilityIdentifier { filter in
+                    switch filter {
+                    case .all: SendAccessibilityIdentifiers.swapProviderTypeFilterChip("all")
+                    case .cex: SendAccessibilityIdentifiers.swapProviderTypeFilterChip("cex")
+                    case .dex: SendAccessibilityIdentifiers.swapProviderTypeFilterChip("dex")
+                    }
+                }
                 .padding(.top, 8)
             }
         case .approve:

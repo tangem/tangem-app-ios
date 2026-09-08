@@ -112,7 +112,7 @@ private extension MobileRemoveWalletNotificationView {
                 accessibilityLabel: nil,
                 action: secondary.handler
             )
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .horizontalLayout(.infinity)
             .size(.x12)
 

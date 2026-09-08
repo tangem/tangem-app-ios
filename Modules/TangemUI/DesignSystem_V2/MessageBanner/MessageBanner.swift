@@ -170,7 +170,7 @@ private extension MessageBanner {
         if config.secondaryButton != nil || config.primaryButton != nil {
             HStack(spacing: MessageBannerMetrics.buttonRowSpacing) {
                 if let secondaryButton = config.secondaryButton {
-                    buttonView(secondaryButton, styleType: .secondary)
+                    buttonView(secondaryButton, styleType: .secondary(.default))
                 }
 
                 if let primaryButton = config.primaryButton {
@@ -191,7 +191,7 @@ private extension MessageBanner {
         .styleType(styleType)
         .size(.x9)
         .horizontalLayout(.infinity)
-        .isLoading(model.isLoading)
+        .loading(.spinner(if: model.isLoading))
         .disabled(!model.isEnabled)
         .frame(maxWidth: .infinity)
         .accessibilityIdentifier(model.accessibilityIdentifier)

@@ -21,6 +21,23 @@ enum AppDatabaseTestFactory {
 
         return databaseQueue
     }
+
+    /// Migrates only up to `version`, so a single schema version can be frozen on its own.
+    static func makeMigratedDatabaseQueue(upTo version: AppDatabaseVersion) throws -> DatabaseQueue {
+        let databaseQueue = try DatabaseQueue()
+        try AppDatabase.makeDatabaseMigrator().migrate(databaseQueue, upTo: version.id)
+
+        return databaseQueue
+    }
+
+    /// The `sqlite_schema` dump the schema tests compare against.
+    static func schemaDump(of databaseQueue: DatabaseQueue) throws -> String {
+        try databaseQueue
+            .read { database in
+                try String.fetchAll(database, sql: "SELECT sql FROM sqlite_schema WHERE sql IS NOT NULL ORDER BY name")
+            }
+            .joined(separator: "\n\n")
+    }
 }
 
 // MARK: - Fixtures
@@ -127,7 +144,6 @@ enum AppDatabaseFixtures {
     ) -> ExpressExchangeTransactionRecord {
         ExpressExchangeTransactionRecord(
             id: id,
-            ownerAddress: "0xOwner",
             providerID: providerID,
             fromAddress: "0xFrom",
             payInAddress: "0xPayIn",
@@ -161,7 +177,6 @@ enum AppDatabaseFixtures {
     static func makeMinimalExchangeTransactionRecord() -> ExpressExchangeTransactionRecord {
         ExpressExchangeTransactionRecord(
             id: "exchange-tx-1",
-            ownerAddress: "0xOwner",
             providerID: "changelly",
             fromAddress: nil,
             payInAddress: "0xPayIn",
@@ -203,7 +218,6 @@ enum AppDatabaseFixtures {
     ) -> ExpressOnrampTransactionRecord {
         ExpressOnrampTransactionRecord(
             id: id,
-            ownerAddress: "0xOwner",
             providerID: providerID,
             payOutAddress: "0xPayOut",
             status: "failed",
@@ -228,7 +242,6 @@ enum AppDatabaseFixtures {
     static func makeMinimalOnrampTransactionRecord() -> ExpressOnrampTransactionRecord {
         ExpressOnrampTransactionRecord(
             id: "onramp-tx-1",
-            ownerAddress: "0xOwner",
             providerID: "mercuryo",
             payOutAddress: "0xPayOut",
             status: "created",
@@ -252,9 +265,9 @@ enum AppDatabaseFixtures {
 
     // MARK: Sync metadata
 
-    static func makeFullSyncMetadataRecord(ownerAddress: String, endpointType: String) -> ExpressSyncMetadataRecord {
+    static func makeFullSyncMetadataRecord(userWalletID: String, endpointType: String) -> ExpressSyncMetadataRecord {
         ExpressSyncMetadataRecord(
-            ownerAddress: ownerAddress,
+            userWalletID: userWalletID,
             endpointType: endpointType,
             archiveCursor: "archive-cursor-1",
             deltaCursor: "delta-cursor-1",
@@ -263,9 +276,9 @@ enum AppDatabaseFixtures {
         )
     }
 
-    static func makeMinimalSyncMetadataRecord(ownerAddress: String, endpointType: String) -> ExpressSyncMetadataRecord {
+    static func makeMinimalSyncMetadataRecord(userWalletID: String, endpointType: String) -> ExpressSyncMetadataRecord {
         ExpressSyncMetadataRecord(
-            ownerAddress: ownerAddress,
+            userWalletID: userWalletID,
             endpointType: endpointType,
             archiveCursor: nil,
             deltaCursor: nil,

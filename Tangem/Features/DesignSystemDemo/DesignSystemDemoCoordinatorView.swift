@@ -87,6 +87,7 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
                 TangemShimmerDemoView(viewModel: $0)
             }
             .navigation(item: $coordinator.glowRingDemoViewModel, destination: GlowRingDemoView.init)
+            .navigation(item: $coordinator.statusScreenDemoViewModel, destination: StatusScreenDemoView.init)
             .navigation(item: $coordinator.tabNavigationDemoViewModel) {
                 TabNavigationDemoView(viewModel: $0)
             }
@@ -117,6 +118,7 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.utilBalanceDemoViewModel) {
                 UtilBalanceDemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.shtorkaDemoViewModel, destination: ShtorkaDemoView.init)
     }
 }
 
@@ -188,6 +190,7 @@ struct DesignSystemDemoView: View {
             DemoItem(title: "Loader", open: viewModel.openTangemLoaderDemo),
             DemoItem(title: "Shimmer", open: viewModel.openTangemShimmerDemo),
             DemoItem(title: "GlowRing", open: viewModel.openGlowRingDemo),
+            DemoItem(title: "StatusScreen", open: viewModel.openStatusScreenDemo),
             DemoItem(title: "Fade", open: viewModel.openTangemFadeDemo),
             DemoItem(title: "TokenIconV2", open: viewModel.openTokenIconV2Demo),
             DemoItem(title: "TokenRow", open: viewModel.openTokenRowV2Demo),
@@ -195,6 +198,7 @@ struct DesignSystemDemoView: View {
             DemoItem(title: "UtilGraph", open: viewModel.openUtilGraphDemo),
             DemoItem(title: "UtilPriceChange", open: viewModel.openUtilPriceChangeDemo),
             DemoItem(title: "UtilBalance", open: viewModel.openUtilBalanceDemo),
+            DemoItem(title: "Shtorka", open: viewModel.openShtorkaDemo),
             DemoItem(title: "Search", open: viewModel.openTangemSearchDemo),
             DemoItem(title: "Typography V2", open: viewModel.openTypographyV2Demo),
             DemoItem(title: "TabNavigation", open: viewModel.openTabNavigationDemo),

@@ -22,7 +22,7 @@ struct RedesignActionButtonView<ViewModel: ActionButtonViewModel>: View {
                 reasonTapWhenDisabled: viewModel.isTappableWhileDisabled ? { viewModel.showRestrictionReason() } : nil
             )
             .accessibilityIdentifier(viewModel.model.accessibilityIdentifier)
-            .bindAlert($viewModel.alert)
+            .shtorkaCompatibleBindAlert($viewModel.alert)
         }
     }
 }

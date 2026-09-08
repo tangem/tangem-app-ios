@@ -7,8 +7,13 @@
 //
 
 import SwiftUI
+import Combine
+import TangemAssets
 import TangemFoundation
 import TangemPolymarket
+import TangemPolymarketUI
+import TangemUI
+import TangemUIUtils
 
 final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var categories: [PolymarketCategory] = [] {
@@ -19,6 +24,15 @@ final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var selectedCategoryID: Int?
     @Published private(set) var loadingState: LoadingState = .loading
     @Published private(set) var isTabsPinned = false
+    @Published private(set) var balance: LoadableBalanceView.State = .loading(cached: .none)
+    @Published private(set) var isRegionRestricted = false
+    @Published private(set) var addFundsState: AddFundsState = .loading
+    @Published private(set) var isSearching = false
+    @Published var isSearchFieldActive = false
+    @Published var searchQuery = ""
+    @Published var alert: AlertBinder?
+
+    let search: PolymarketSearchViewModel
 
     private(set) var categoryTabs: [PolymarketCategoryTab] = []
 
@@ -30,7 +44,18 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     private let apiProvider: PolymarketAPIProvider
+    private let geoblockStateProvider: PolymarketGeoblockStateProvider
+    private let balanceProvider: PolymarketBalanceProvider
+    private let addFundsInteractor: PolymarketAddFundsInteractor?
     private weak var coordinator: PolymarketMainRoutable?
+
+    private let balanceStateBuilder = LoadableBalanceViewStateBuilder()
+
+    private var balanceSubscription: AnyCancellable?
+    private var balanceRefreshTask: Task<Void, Never>?
+    private var addFundsPreparationTask: Task<Void, Never>?
+    private var searchBag: Set<AnyCancellable> = []
+    private var bag: Set<AnyCancellable> = []
 
     private var events: [PolymarketEvent] = []
     private var cursor: String?
@@ -38,11 +63,108 @@ final class PolymarketMainViewModel: ObservableObject {
     private var cache: [Int?: CategoryState] = [:]
     private var loadingTask: Task<Void, Never>?
 
-    init(apiProvider: PolymarketAPIProvider, coordinator: PolymarketMainRoutable) {
+    init(
+        apiProvider: PolymarketAPIProvider,
+        geoblockStateProvider: PolymarketGeoblockStateProvider,
+        balanceProvider: PolymarketBalanceProvider,
+        addFundsInteractor: PolymarketAddFundsInteractor?,
+        coordinator: PolymarketMainRoutable
+    ) {
         self.apiProvider = apiProvider
+        self.geoblockStateProvider = geoblockStateProvider
+        search = PolymarketSearchViewModel(apiProvider: apiProvider)
+        self.balanceProvider = balanceProvider
+        self.addFundsInteractor = addFundsInteractor
         self.coordinator = coordinator
+        search.coordinator = self
 
+        bindSearch()
+        bindBalance()
+        bindGeoblockState()
+        startBalanceRefresh()
         load()
+    }
+
+    deinit {
+        balanceRefreshTask?.cancel()
+        addFundsPreparationTask?.cancel()
+    }
+
+    private func bindSearch() {
+        $searchQuery
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, query in viewModel.search.query = query }
+            .store(in: &searchBag)
+
+        $isSearchFieldActive
+            .filter { $0 }
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in viewModel.isSearching = true }
+            .store(in: &searchBag)
+    }
+
+    private func bindGeoblockState() {
+        geoblockStateProvider
+            .statePublisher
+            .map { $0 == .blocked }
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, isRestricted in
+                viewModel.isRegionRestricted = isRestricted
+            }
+            .store(in: &bag)
+    }
+
+    private func startBalanceRefresh() {
+        balanceRefreshTask = Task { @MainActor [weak self] in
+            await self?.balanceProvider.refresh()
+
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(Constants.balanceRefreshInterval))
+
+                guard !Task.isCancelled, let self else { return }
+
+                await balanceProvider.refresh()
+            }
+        }
+    }
+
+    private func bindBalance() {
+        balanceSubscription = balanceProvider
+            .balancePublisher
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, formatted in
+                viewModel.balance = viewModel.makeBalanceState(from: formatted)
+            }
+    }
+
+    /// A retry that keeps a usable funding target on screen leaves the button live, but one that has nothing
+    /// to offer must go back to loading — otherwise the button stays disabled and answers a tap with
+    /// "pull to refresh" while the refresh it asks for is already running.
+    private func prepareAddFunds() {
+        guard addFundsInteractor != nil else {
+            addFundsState = .unavailable
+            return
+        }
+
+        addFundsPreparationTask?.cancel()
+
+        if addFundsState != .available {
+            addFundsState = .loading
+        }
+
+        addFundsPreparationTask = runTask(in: self) { @MainActor viewModel in
+            guard let interactor = viewModel.addFundsInteractor else { return }
+
+            let state = await interactor.prepare()
+
+            guard !Task.isCancelled else { return }
+
+            viewModel.addFundsState = AddFundsState(state)
+        }
     }
 
     // MARK: - Actions
@@ -54,26 +176,10 @@ final class PolymarketMainViewModel: ObservableObject {
         resetEvents()
         loadingState = .loading
 
+        prepareAddFunds()
+
         loadingTask = runTask(in: self) { @MainActor viewModel in
-            do {
-                let categories = try await viewModel.apiProvider.categories(locale: viewModel.locale)
-                try Task.checkCancellation()
-
-                // Without categories there is no feed to show, so this is an error rather than an empty state
-                guard let firstCategoryID = categories.first?.id else {
-                    viewModel.loadingState = .error
-                    return
-                }
-
-                let page = try await viewModel.apiProvider.events(request: .init(category: firstCategoryID, cursor: nil))
-                try Task.checkCancellation()
-
-                viewModel.categories = categories
-                viewModel.selectedCategoryID = firstCategoryID
-                viewModel.apply(page: page)
-            } catch {
-                viewModel.handleFetchFailure(error)
-            }
+            await viewModel.loadCategories()
         }
     }
 
@@ -92,11 +198,40 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     func loadMore() {
+        guard hasNext, loadingState != .paginationLoading else { return }
+
         fetchEvents(more: true)
     }
 
     func dismiss() {
         coordinator?.dismiss()
+    }
+
+    func onAddFundsTap() {
+        guard !isRegionRestricted else {
+            coordinator?.openRegionWarning()
+            return
+        }
+
+        switch addFundsState {
+        case .available:
+            coordinator?.openAddFunds()
+        case .loading:
+            break
+        case .unavailable:
+            alert = AlertBuilder.makeOkGotItAlert(message: PolymarketAddFundsCopy.unavailableMessage)
+        }
+    }
+
+    func exitSearch() {
+        isSearching = false
+        isSearchFieldActive = false
+        searchQuery = ""
+        search.reset()
+    }
+
+    func openEventDetails(eventID: String) {
+        coordinator?.openEventDetails(eventID: eventID, category: selectedCategory)
     }
 
     func updatePinnedState(tabsMinY: CGFloat, navBarHeight: CGFloat) {
@@ -107,6 +242,47 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     // MARK: - Private
+
+    @MainActor
+    private func loadCategories() async {
+        do {
+            let categories = try await apiProvider.categories(locale: locale)
+            try Task.checkCancellation()
+
+            guard let firstCategoryID = categories.first?.id else {
+                loadingState = .error
+                return
+            }
+
+            let page = try await apiProvider.events(request: .init(category: firstCategoryID, cursor: nil))
+            try Task.checkCancellation()
+
+            self.categories = categories
+            selectedCategoryID = firstCategoryID
+            apply(page: page)
+        } catch {
+            handleFetchFailure(error)
+        }
+    }
+
+    /// Refetches the open tab in place: the visible list stays put until the new page arrives, and the tab keeps its place.
+    @MainActor
+    private func reloadSelectedCategory() async {
+        let categoryID = selectedCategoryID
+
+        do {
+            let page = try await apiProvider.events(request: .init(category: categoryID, cursor: nil))
+            try Task.checkCancellation()
+
+            guard categoryID == selectedCategoryID else { return }
+
+            cache[categoryID] = nil
+            resetEvents()
+            apply(page: page)
+        } catch {
+            handleFetchFailure(error)
+        }
+    }
 
     private func fetchEvents(more: Bool = false) {
         loadingTask?.cancel()
@@ -151,8 +327,19 @@ final class PolymarketMainViewModel: ObservableObject {
         eventCards.append(contentsOf: newEvents.map(makeCard))
     }
 
+    private var selectedCategory: PolymarketCategory? {
+        categories.first { $0.id == selectedCategoryID }
+    }
+
     private func makeCard(for event: PolymarketEvent) -> PolymarketEventCard.Model {
-        .make(event: event, category: nil, isInActivePredicts: false, onSelectOutcome: { _, _ in })
+        .make(
+            event: event,
+            category: nil,
+            isInActivePredicts: false,
+            onSelectOutcome: { [weak self] market, outcome in
+                self?.coordinator?.openOrder(market: market, outcome: outcome)
+            }
+        )
     }
 
     private func resetEvents() {
@@ -162,8 +349,6 @@ final class PolymarketMainViewModel: ObservableObject {
         hasNext = false
     }
 
-    /// The cache keeps data only: a restored category has no request behind it, so a transient
-    /// `.paginationLoading` or `.paginationError` must not come back with it.
     private func snapshot() -> CategoryState {
         CategoryState(events: events, cursor: cursor, hasNext: hasNext)
     }
@@ -178,6 +363,29 @@ final class PolymarketMainViewModel: ObservableObject {
 
     private var locale: String? {
         Locale.current.language.languageCode?.identifier
+    }
+}
+
+private extension PolymarketMainViewModel {
+    func makeBalanceState(from formatted: FormattedTokenBalanceType) -> LoadableBalanceView.State {
+        AttributedBalanceFormatter.decimalColored(
+            balanceStateBuilder.build(type: steady(formatted)),
+            integerPart: .init(
+                font: TangemFontStyle(DesignSystem.Font.displayMediumToken),
+                color: DesignSystem.Color.textPrimary
+            ),
+            fractionalPart: .init(
+                font: TangemFontStyle(DesignSystem.Font.headingMediumToken),
+                color: DesignSystem.Color.textPrimary
+            )
+        )
+    }
+
+    /// The balance is polled in the background, and a cached value being refreshed is still the number to show.
+    func steady(_ formatted: FormattedTokenBalanceType) -> FormattedTokenBalanceType {
+        guard case .loading(.cache(let cached)) = formatted else { return formatted }
+
+        return .loaded(cached.balance)
     }
 }
 
@@ -198,5 +406,54 @@ private extension PolymarketMainViewModel {
         let events: [PolymarketEvent]
         let cursor: String?
         let hasNext: Bool
+    }
+
+    enum Constants {
+        static let balanceRefreshInterval: TimeInterval = 30
+    }
+}
+
+// MARK: - Refresh
+
+extension PolymarketMainViewModel {
+    @MainActor
+    func refresh() async {
+        prepareAddFunds()
+        geoblockStateProvider.refresh()
+        loadingTask?.cancel()
+
+        await balanceProvider.refresh()
+
+        if categories.isEmpty {
+            await loadCategories()
+        } else {
+            await reloadSelectedCategory()
+        }
+    }
+}
+
+// MARK: - Add funds
+
+extension PolymarketMainViewModel {
+    enum AddFundsState: Equatable {
+        case loading
+        case available
+        case unavailable
+
+        init(_ state: PolymarketAddFundsInteractor.State) {
+            switch state {
+            case .loading: self = .loading
+            case .available: self = .available
+            case .unavailable: self = .unavailable
+            }
+        }
+    }
+}
+
+// MARK: - PolymarketSearchRoutable protocol conformance
+
+extension PolymarketMainViewModel: PolymarketSearchRoutable {
+    func openEventDetailsFromSearch(eventID: String) {
+        coordinator?.openEventDetails(eventID: eventID, category: nil)
     }
 }

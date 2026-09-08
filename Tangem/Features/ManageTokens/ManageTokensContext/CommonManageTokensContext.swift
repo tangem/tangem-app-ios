@@ -62,7 +62,7 @@ final class CommonManageTokensContext: ManageTokensContext {
     // MARK: - Private Helpers
 
     private func findAccountForToken(_ tokenItem: TokenItem) -> (any CryptoAccountModel)? {
-        let cryptoAccounts = accountModelsManager.cryptoAccountModels
+        let cryptoAccounts = AccountCryptoModelsAggregator.cryptoAccountModels(from: accountModelsManager)
 
         // Try to find a non-main account that can accept this token
         for account in cryptoAccounts where !account.isMainAccount {

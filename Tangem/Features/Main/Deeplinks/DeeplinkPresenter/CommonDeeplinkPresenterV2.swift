@@ -130,6 +130,9 @@ private extension CommonDeeplinkPresenterV2 {
         case .earn(let earnType, let networkId):
             return constructEarnView(earnType: earnType, networkId: networkId)
 
+        case .jointAccountInvite(let inviteId):
+            return constructJointAccountInviteView(inviteId: inviteId)
+
         case .externalLink, .tangemPayMain, .tangemPayTransactionDetails, .yield:
             return nil
         }
@@ -137,7 +140,7 @@ private extension CommonDeeplinkPresenterV2 {
 
     private func presentationStyle(_ deepLink: DeepLinkDestination) -> OverlayView.PresentationStyle {
         switch deepLink {
-        case .promo, .onboardVisa:
+        case .promo, .onboardVisa, .jointAccountInvite:
             return .fullScreenCover
 
         case .expressTransactionStatus, .tokenDetails, .buy, .sell,
@@ -160,7 +163,7 @@ private extension CommonDeeplinkPresenterV2 {
              .swap, .referral,
              .staking, .yield, .marketsTokenDetails, .tokenExchanges, .externalLink,
              .markets, .onboardVisa, .tangemPayMain, .tangemPayTransactionDetails,
-             .newsDetails, .newsList, .earn:
+             .newsDetails, .newsList, .earn, .jointAccountInvite:
             return true
         }
     }
@@ -326,6 +329,7 @@ private extension CommonDeeplinkPresenterV2 {
             isUnderMarketCapLimit: nil,
             stakingOpportunities: nil,
             networks: nil,
+            restrictedForCountry: nil
         )
 
         let coordinator = coordinatorFactory.makeMarketsTokenDetailsCoordinator()
@@ -404,6 +408,23 @@ private extension CommonDeeplinkPresenterV2 {
             makeDeeplinkView(
                 view: { NewsDeeplinkContainerView(newsId: newsId, dismissAction: { Task { @MainActor in presenter.dismiss() } }) },
                 embedInNavigationStack: true
+            )
+        )
+    }
+
+    private func constructJointAccountInviteView(inviteId: String) -> AnyView {
+        let presenter = overlayViewPresenter
+        let coordinator = JointAccountJoinCoordinator(
+            dismissAction: { Task { @MainActor in presenter.dismiss() } },
+            popToRootAction: { _ in Task { @MainActor in presenter.dismiss() } }
+        )
+        coordinator.start(with: .init(inviteId: inviteId))
+
+        return AnyView(
+            makeDeeplinkView(
+                // The flow brings its own navigation stack, and every one of its screens carries a close button
+                view: { JointAccountJoinCoordinatorView(coordinator: coordinator) },
+                embedInNavigationStack: false
             )
         )
     }

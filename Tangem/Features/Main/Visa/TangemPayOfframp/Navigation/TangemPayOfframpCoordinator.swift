@@ -18,10 +18,16 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
     // MARK: - Root view model
 
     @Published private(set) var rootViewModel: WithdrawHubViewModel?
+    @Published var path: [Route] = []
 
     // MARK: - Child coordinators
 
     @Published var sendCoordinator: SendCoordinator?
+
+    // MARK: - Shared state
+
+    private(set) var recentRecipientsStore: TangemPayRecentRecipientsStore?
+    private(set) var orderBuilder: TangemPayOfframpOrderBuilder?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -32,15 +38,29 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        let recentRecipientsStore = TangemPayRecentRecipientsStore(
+            repository: CommonTangemPayBankAccountsRepository(
+                customerService: options.tangemPayAccount.customerService
+            ),
+            cacheStorage: AppSettings.shared,
+            customerWalletId: options.tangemPayAccount.userWalletId.stringValue
+        )
+        self.recentRecipientsStore = recentRecipientsStore
+
         rootViewModel = WithdrawHubViewModel(
             withdrawFlowResolver: TangemPayWithdrawFlowResolver(
                 fundingFlowBuilder: options.fundingFlowBuilder,
                 withdrawAvailabilityProvider: options.tangemPayAccount.withdrawAvailabilityProvider
             ),
+            recentRecipientsStore: recentRecipientsStore,
             output: { [weak self] in
                 self?.handle($0)
             }
         )
+    }
+
+    func startWizard(recipient: TangemPayOfframpRecipient) {
+        orderBuilder = TangemPayOfframpOrderBuilder(recipient: recipient)
     }
 }
 
@@ -53,6 +73,14 @@ extension TangemPayOfframpCoordinator {
     }
 
     typealias DismissOptions = FeeCurrencyNavigatingDismissOption
+}
+
+// MARK: - Route
+
+extension TangemPayOfframpCoordinator {
+    enum Route: Hashable {
+        case recentRecipients
+    }
 }
 
 // MARK: - Withdraw hub output
@@ -80,6 +108,12 @@ private extension TangemPayOfframpCoordinator {
                 let viewModel = TangemPayNoDepositAddressSheetViewModel(coordinator: self)
                 floatingSheetPresenter.enqueue(sheet: viewModel)
             }
+
+        case .allRecipients:
+            path.append(.recentRecipients)
+
+        case .startWizard(let recipient):
+            startWizard(recipient: recipient)
 
         case .close:
             dismiss(with: nil)

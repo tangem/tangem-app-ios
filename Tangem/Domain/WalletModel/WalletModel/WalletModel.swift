@@ -16,7 +16,7 @@ import TangemFoundation
 protocol WalletModel:
     AnyObject, Identifiable, Hashable, CustomStringConvertible,
     AvailableTokenBalanceProviderInput, WalletModelBalancesProvider,
-    WalletModelHelpers, WalletModelFeesProvider, WalletModelDependenciesProvider,
+    WalletModelHelpers, WalletModelDependenciesProvider,
     WalletModelRentProvider, WalletModelUpdater, WalletModelTransactionHistoryProvider,
     WalletModelTransactionHistoryAddressesProvider, TransactionHistoryFetcher,
     StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider,
@@ -186,13 +186,6 @@ protocol WalletModelHelpers {
     func exploreURL(for address: String, token: Token?) -> URL?
     func exploreTransactionURL(for hash: String) -> URL?
     func fulfillRequirements(signer: any TransactionSigner) -> AnyPublisher<Void, Error>
-}
-
-// MARK: - Fee
-
-protocol WalletModelFeesProvider {
-    var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder { get }
-    var customFeeProviderBuilder: CustomFeeProviderBuilder { get }
 }
 
 // MARK: - Dependencies

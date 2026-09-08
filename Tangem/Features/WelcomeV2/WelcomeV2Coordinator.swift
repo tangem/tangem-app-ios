@@ -7,43 +7,71 @@
 //
 
 import Combine
+import CombineExt
 import Foundation
 import SwiftUI
+import TangemFoundation
+import TangemLocalization
 import TangemMobileWalletBackup
+import TangemStories
+import TangemUIUtils
 
 final class WelcomeV2Coordinator: CoordinatorObject {
     @Injected(\.welcomeV2BackgroundVideoProvider)
     private var videoProvider: WelcomeV2BackgroundVideoProviding
 
+    @Injected(\.welcomeStoryProvider)
+    private var welcomeStoryProvider: WelcomeStoryProviding
+
     @Injected(\.alertPresenter)
     private var alertPresenter: AlertPresenter
+
+    @Injected(\.userWalletRepository)
+    private var userWalletRepository: UserWalletRepository
+
+    @Injected(\.failedScanTracker)
+    private var failedScanTracker: FailedScanTrackable
+
+    @Injected(\.safariManager)
+    private var safariManager: SafariManager
+
+    @Injected(\.mailComposePresenter)
+    private var mailPresenter: MailComposePresenter
+
+    @Injected(\.incomingActionManager)
+    private var incomingActionManager: IncomingActionManaging
 
     var dismissAction: Action<OutputOptions>
     var popToRootAction: Action<PopToRootOptions>
 
     @Published var rootViewModel: WelcomeV2ViewModel?
     @Published var actionSheetViewModel: WelcomeV2ActionSheetViewModel?
-    @Published var hardwareWalletViewModel: WelcomeHardwareWalletViewModel?
-    @Published var mobileCreateWalletCoordinator: MobileCreateWalletCoordinator?
+    @Published private(set) var isScanningCard = false
     @Published var importOnboardingCoordinator: OnboardingCoordinator?
     @Published var legalWebViewModel: WebViewContainerViewModel?
+    @Published var welcomeStoryViewModel: WelcomeStoryPresentationViewModel?
+    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
     @Published var tangemPayMobileOnboardingCoordinator: TangemPayMobileOnboardingCoordinator?
 
     private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
 
     private lazy var processor = WelcomeProcessor(isIdle: isIdlePublisher)
     private var bag: Set<AnyCancellable> = []
+    private var cardScanTask: Task<Void, Never>?
+    private var createMobileWalletTask: Task<Void, Never>?
 
     /// `true` while nothing the user navigated to themselves is on screen. The processor gates the promo /
     /// Tangem Pay deep links on this, so they never present over such a screen.
     private var isIdlePublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest4(
-            $actionSheetViewModel.map { $0 == nil },
-            $hardwareWalletViewModel.map { $0 == nil },
-            $mobileCreateWalletCoordinator.map { $0 == nil },
-            $importOnboardingCoordinator.map { $0 == nil }
-        )
-        .map { $0 && $1 && $2 && $3 }
+        [
+            $actionSheetViewModel.map { $0 == nil }.eraseToAnyPublisher(),
+            $isScanningCard.map { !$0 }.eraseToAnyPublisher(),
+            $importOnboardingCoordinator.map { $0 == nil }.eraseToAnyPublisher(),
+            $welcomeStoryViewModel.map { $0 == nil }.eraseToAnyPublisher(),
+            $scanTroubleshootingDialog.map { $0 == nil }.eraseToAnyPublisher(),
+        ]
+        .combineLatest()
+        .map { $0.allSatisfy { $0 } }
         .removeDuplicates()
         .eraseToAnyPublisher()
     }
@@ -57,6 +85,8 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     }
 
     deinit {
+        cardScanTask?.cancel()
+        createMobileWalletTask?.cancel()
         AppLogger.debug("WelcomeV2Coordinator deinit")
     }
 
@@ -108,10 +138,13 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     }
 
     private func resetChildCoordinators() {
-        hardwareWalletViewModel = nil
-        mobileCreateWalletCoordinator = nil
+        cardScanTask?.cancel()
+        cardScanTask = nil
+        createMobileWalletTask?.cancel()
+        createMobileWalletTask = nil
         importOnboardingCoordinator = nil
         tangemPayMobileOnboardingCoordinator = nil
+        welcomeStoryViewModel = nil
     }
 }
 
@@ -134,14 +167,6 @@ extension WelcomeV2Coordinator: WelcomeV2Routable {
         presentExistingWallet()
     }
 
-    func openHardwareWallet() {
-        presentHardwareWallet()
-    }
-
-    func closeHardwareWallet() {
-        hardwareWalletViewModel = nil
-    }
-
     func openLegal(url: URL) {
         legalWebViewModel = WebViewContainerViewModel(
             url: url,
@@ -149,6 +174,10 @@ extension WelcomeV2Coordinator: WelcomeV2Routable {
             withCloseButton: true,
             withNavigationBar: false
         )
+    }
+
+    func openShop(url: URL) {
+        safariManager.openURL(url)
     }
 
     func openMain(with userWalletModel: UserWalletModel) {
@@ -165,14 +194,12 @@ extension WelcomeV2Coordinator: WelcomeV2Routable {
 // MARK: - Sheet presentation
 
 private extension WelcomeV2Coordinator {
-    static let sheetTransitionDelay: TimeInterval = 0.35
-
     func presentCreateWallet() {
         actionSheetViewModel = WelcomeV2CreateWalletActionFactory().make(
             callbacks: .init(
-                onHardware: dismissSheetThenPresentHardware,
-                onMobile: dismissSheetThenPresentMobile,
-                onClose: dismissSheet
+                onHardware: weakify(self, forFunction: WelcomeV2Coordinator.dismissSheetThenPresentWelcomeStory),
+                onMobile: weakify(self, forFunction: WelcomeV2Coordinator.createMobileWalletShortcut),
+                onClose: weakify(self, forFunction: WelcomeV2Coordinator.dismissSheet)
             )
         )
     }
@@ -180,9 +207,9 @@ private extension WelcomeV2Coordinator {
     func presentExistingWallet() {
         actionSheetViewModel = WelcomeV2ExistingWalletActionFactory().make(
             callbacks: .init(
-                onHardware: dismissSheetThenPresentHardware,
-                onImport: presentImportWalletIfAvailable,
-                onClose: dismissSheet
+                onHardware: weakify(self, forFunction: WelcomeV2Coordinator.dismissSheetThenScanHardwareWallet),
+                onImport: weakify(self, forFunction: WelcomeV2Coordinator.presentImportWalletIfAvailable),
+                onClose: weakify(self, forFunction: WelcomeV2Coordinator.dismissSheet)
             )
         )
     }
@@ -191,7 +218,7 @@ private extension WelcomeV2Coordinator {
         guard mobileWalletFeatureProvider.isAvailable else {
             actionSheetViewModel = nil
             Task { @MainActor [weak self] in
-                try? await Task.sleep(for: .seconds(Self.sheetTransitionDelay))
+                try? await Task.sleep(for: .seconds(Constants.sheetTransitionDelay))
                 guard let self else { return }
                 alertPresenter.present(alert: mobileWalletFeatureProvider.makeRestrictionAlert())
             }
@@ -201,7 +228,7 @@ private extension WelcomeV2Coordinator {
         guard FeatureProvider.isAvailable(.mobileWalletBackup) else {
             actionSheetViewModel = nil
             Task { @MainActor [weak self] in
-                try? await Task.sleep(for: .seconds(Self.sheetTransitionDelay))
+                try? await Task.sleep(for: .seconds(Constants.sheetTransitionDelay))
                 let input = MobileOnboardingInput(flow: .walletImport(source: .importWallet))
                 self?.presentImportOnboarding(options: .mobileInput(input))
             }
@@ -221,7 +248,7 @@ private extension WelcomeV2Coordinator {
         let openRecoveryPhrase: () -> Void = { [weak self] in
             self?.actionSheetViewModel = nil
             Task { @MainActor [weak self] in
-                try? await Task.sleep(for: .seconds(Self.sheetTransitionDelay))
+                try? await Task.sleep(for: .seconds(Constants.sheetTransitionDelay))
                 let input = MobileOnboardingInput(flow: .walletImport(source: .importWallet))
                 self?.presentImportOnboarding(options: .mobileInput(input))
             }
@@ -230,7 +257,7 @@ private extension WelcomeV2Coordinator {
         let openICloudBackup: ([MobileWalletBackup]) -> Void = { [weak self] backups in
             self?.actionSheetViewModel = nil
             Task { @MainActor [weak self] in
-                try? await Task.sleep(for: .seconds(Self.sheetTransitionDelay))
+                try? await Task.sleep(for: .seconds(Constants.sheetTransitionDelay))
                 let input = MobileOnboardingInput(flow: .iCloudBackupImport(backups: backups, source: .importWallet))
                 self?.presentImportOnboarding(options: .mobileInput(input))
             }
@@ -241,13 +268,129 @@ private extension WelcomeV2Coordinator {
                 onRecoveryPhrase: openRecoveryPhrase,
                 onICloudBackup: openICloudBackup,
                 onBack: goBack,
-                onClose: dismissSheet
+                onClose: weakify(self, forFunction: WelcomeV2Coordinator.dismissSheet)
             )
         )
     }
 
-    func presentHardwareWallet() {
-        hardwareWalletViewModel = WelcomeHardwareWalletViewModel(coordinator: self)
+    func scanHardwareWallet() {
+        guard !isScanningCard, cardScanTask == nil else { return }
+        isScanningCard = true
+
+        cardScanTask = Task { @MainActor [weak self] in
+            defer {
+                self?.isScanningCard = false
+                self?.cardScanTask = nil
+            }
+            await self?.performCardScan()
+        }
+    }
+
+    @MainActor
+    func performCardScan() async {
+        let cardScanner = CardScannerFactory().makeDefaultScanner()
+        let userWalletCardScanner = UserWalletCardScanner(scanner: cardScanner)
+        let result = await userWalletCardScanner.scanCard()
+
+        guard !Task.isCancelled else { return }
+
+        switch result {
+        case .error(let error) where error.isCancellationError:
+            incomingActionManager.discardIncomingAction()
+
+        case .error(let error):
+            incomingActionManager.discardIncomingAction()
+            alertPresenter.present(alert: error.alertBinder)
+
+        case .scanTroubleshooting:
+            incomingActionManager.discardIncomingAction()
+            presentScanTroubleshootingDialog()
+
+        case .onboarding(let input, _):
+            openOnboarding(with: input)
+
+        case .success(let cardInfo):
+            await handleScanSuccess(cardInfo: cardInfo)
+        }
+    }
+
+    @MainActor
+    func handleScanSuccess(cardInfo: CardInfo) async {
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
+
+        do {
+            guard let userWalletId = UserWalletId(config: config),
+                  let encryptionKey = UserWalletEncryptionKey(config: config) else {
+                throw UserWalletRepositoryError.cantUnlockWallet
+            }
+
+            let unlockMethod = UserWalletRepositoryUnlockMethod.encryptionKey(
+                userWalletId: userWalletId,
+                encryptionKey: encryptionKey
+            )
+            let userWalletModel = try await userWalletRepository.unlock(with: unlockMethod)
+            guard !Task.isCancelled else { return }
+            openMain(with: userWalletModel)
+        } catch UserWalletRepositoryError.notFound {
+            guard !Task.isCancelled else { return }
+            await handleScanNotFound(cardInfo: cardInfo)
+        } catch {
+            alertPresenter.present(alert: error.alertBinder)
+        }
+    }
+
+    @MainActor
+    func handleScanNotFound(cardInfo: CardInfo) async {
+        do {
+            guard let userWalletModel = CommonUserWalletModelFactory().makeModel(
+                walletInfo: .cardWallet(cardInfo),
+                keys: .cardWallet(keys: cardInfo.card.wallets)
+            ) else {
+                throw UserWalletRepositoryError.cantUnlockWallet
+            }
+            guard !Task.isCancelled else { return }
+            try userWalletRepository.add(userWalletModel: userWalletModel)
+            openMain(with: userWalletModel)
+        } catch {
+            alertPresenter.present(alert: error.alertBinder)
+        }
+    }
+
+    func presentScanTroubleshootingDialog() {
+        let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
+            self?.scanHardwareWallet()
+        }
+
+        let readMoreButton = ConfirmationDialogViewModel.Button(title: Localization.commonReadMore) { [weak self] in
+            self?.safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
+        }
+
+        let requestSupportButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonRequestSupport) { [weak self] in
+            self?.requestSupport()
+        }
+
+        scanTroubleshootingDialog = ConfirmationDialogViewModel(
+            title: Localization.alertTroubleshootingScanCardTitle,
+            subtitle: Localization.alertTroubleshootingScanCardMessage,
+            buttons: [
+                tryAgainButton,
+                readMoreButton,
+                requestSupportButton,
+                ConfirmationDialogViewModel.Button.cancel,
+            ]
+        )
+    }
+
+    func requestSupport() {
+        failedScanTracker.resetCounter()
+        let mailViewModel = MailViewModel(
+            logsComposer: LogsComposer(infoProvider: BaseDataCollector()),
+            recipient: EmailConfig.default.recipient,
+            emailType: .failedToScanCard
+        )
+        Task { @MainActor [mailPresenter] in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
     }
 
     func dismissSheet() {
@@ -256,43 +399,114 @@ private extension WelcomeV2Coordinator {
 
     /// SwiftUI cannot present a fullScreenCover or a navigation push while a sheet is up,
     /// so we close the sheet first and wait for the dismiss animation before continuing.
-    func dismissSheetThenPresentHardware() {
+    func dismissSheetThenScanHardwareWallet() {
         actionSheetViewModel = nil
         Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .seconds(Self.sheetTransitionDelay))
-            self?.presentHardwareWallet()
+            try? await Task.sleep(for: .seconds(Constants.sheetTransitionDelay))
+            self?.scanHardwareWallet()
         }
     }
 
-    func dismissSheetThenPresentMobile() {
+    func dismissSheetThenPresentWelcomeStory() {
         actionSheetViewModel = nil
         Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .seconds(Self.sheetTransitionDelay))
-            self?.presentCreateMobileWallet()
+            try? await Task.sleep(for: .seconds(Constants.sheetTransitionDelay))
+            self?.presentWelcomeStory()
         }
     }
 
-    func presentCreateMobileWallet() {
+    @MainActor
+    func presentWelcomeStory() {
+        let vm = WelcomeStoryPresentationViewModelFactory().make(
+            provider: welcomeStoryProvider,
+            onFinished: { [weak self] _, action in
+                self?.handleWelcomeStoryFinish(action: action)
+            }
+        )
+
+        guard let vm else {
+            scanHardwareWallet()
+            return
+        }
+
+        welcomeStoryViewModel = vm
+    }
+
+    @MainActor
+    func handleWelcomeStoryFinish(action: StoryActionV2?) {
+        welcomeStoryViewModel = nil
+
+        switch action?.target {
+        case .screen(let key) where key == WelcomeStoryPresentationViewModelFactory.ScreenKey.hardwareWallet:
+            scanHardwareWallet()
+        case .web(let raw):
+            // Https-only, defense in depth: this action is built locally by our own factory,
+            // so the host allowlist applied to remote stories is not needed here.
+            guard let url = URL(string: raw), url.scheme?.lowercased() == "https" else { return }
+            openShop(url: url)
+        case .screen, .deeplink, .close, nil:
+            break
+        }
+    }
+
+    func createMobileWalletShortcut() {
         guard mobileWalletFeatureProvider.isAvailable else {
             alertPresenter.present(alert: mobileWalletFeatureProvider.makeRestrictionAlert())
             return
         }
 
-        let dismissAction: Action<MobileCreateWalletCoordinator.OutputOptions> = { [weak self] options in
-            guard let self else { return }
+        guard createMobileWalletTask == nil else { return }
 
-            switch options {
-            case .main(let userWalletModel):
-                mobileCreateWalletCoordinator = nil
-                dismiss(with: .main(userWalletModel))
-            case .dismiss:
-                mobileCreateWalletCoordinator = nil
+        actionSheetViewModel?.setLoading(true, for: Constants.mobileCreateRowId)
+
+        createMobileWalletTask = Task { @MainActor [weak self] in
+            defer {
+                self?.actionSheetViewModel?.setLoading(false, for: Constants.mobileCreateRowId)
+                self?.createMobileWalletTask = nil
+            }
+            guard let self else { return }
+            do {
+                try await performMobileWalletShortcut()
+            } catch {
+                guard !Task.isCancelled else { return }
+                AppLogger.error("Welcome V2: failed to create mobile wallet", error: error)
+                alertPresenter.present(alert: error.alertBinder)
             }
         }
+    }
 
-        let coordinator = MobileCreateWalletCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: MobileCreateWalletCoordinator.InputOptions(source: .createWalletIntro))
-        mobileCreateWalletCoordinator = coordinator
+    @MainActor
+    private func performMobileWalletShortcut() async throws {
+        let userWalletModel = try await MobileCreationUtil().makeCreatedModel()
+
+        guard !Task.isCancelled else { return }
+
+        AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWalletModel.userWalletId)
+        logWalletCreatedAnalytics()
+
+        try userWalletRepository.add(userWalletModel: userWalletModel)
+
+        guard !Task.isCancelled else { return }
+
+        openMain(with: userWalletModel)
+    }
+
+    private func logWalletCreatedAnalytics() {
+        var params: [Analytics.ParameterKey: String] = [
+            .creationType: Analytics.ParameterValue.walletCreationTypeNewSeed.rawValue,
+            .seedLength: Constants.seedPhraseLength,
+            .passphrase: Analytics.ParameterValue.empty.rawValue,
+            .source: Analytics.ParameterValue.createWalletIntro.rawValue,
+        ]
+
+        params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
+
+        Analytics.log(
+            event: .walletCreatedSuccessfully,
+            params: params,
+            analyticsSystems: .all,
+            contextParams: .custom(.mobileWallet)
+        )
     }
 
     func presentImportOnboarding(options: OnboardingCoordinator.Options) {
@@ -311,5 +525,15 @@ private extension WelcomeV2Coordinator {
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
         coordinator.start(with: options)
         importOnboardingCoordinator = coordinator
+    }
+}
+
+// MARK: - Constants
+
+private extension WelcomeV2Coordinator {
+    enum Constants {
+        static let sheetTransitionDelay: TimeInterval = 0.35
+        static let mobileCreateRowId = "mobile"
+        static let seedPhraseLength = "12"
     }
 }

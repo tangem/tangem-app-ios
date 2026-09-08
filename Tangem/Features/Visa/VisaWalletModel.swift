@@ -153,16 +153,6 @@ extension VisaWalletModel: WalletModelHelpers {
     }
 }
 
-extension VisaWalletModel: WalletModelFeesProvider {
-    var customFeeProviderBuilder: CustomFeeProviderBuilder {
-        fatalError("VisaWalletModel does not support CustomFeeProviderBuilder")
-    }
-
-    var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder {
-        fatalError("VisaWalletModel does not support TokenFeeLoaderBuilder")
-    }
-}
-
 extension VisaWalletModel: WalletModelDependenciesProvider {
     var blockchainDataProvider: any BlockchainDataProvider { VisaDummyBlockchainDataProvider() }
     var withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? { nil }

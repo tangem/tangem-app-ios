@@ -14,6 +14,7 @@ class MarketsListDataFilterProvider {
 
     private var _intervalTypeValue: CurrentValueSubject<MarketsPriceIntervalType, Never>
     private var _orderTypeValue: CurrentValueSubject<MarketsListOrderType, Never>
+    private var _categorySelectionValue: CurrentValueSubject<CategorySelection?, Never> = .init(nil)
 
     private var bag = Set<AnyCancellable>()
 
@@ -21,10 +22,12 @@ class MarketsListDataFilterProvider {
 
     init(
         initialOrderType: MarketsListOrderType? = nil,
-        initialIntervalType: MarketsPriceIntervalType? = nil
+        initialIntervalType: MarketsPriceIntervalType? = nil,
+        supportedOrderTypes: [MarketsListOrderType] = MarketsListOrderType.allCases
     ) {
         _intervalTypeValue = .init(initialIntervalType ?? .day)
         _orderTypeValue = .init(initialOrderType ?? .rating)
+        self.supportedOrderTypes = supportedOrderTypes
 
         bind()
     }
@@ -32,21 +35,23 @@ class MarketsListDataFilterProvider {
     // MARK: - Public Properties
 
     var filterPublisher: some Publisher<MarketsListDataProvider.Filter, Never> {
-        Publishers.CombineLatest(_intervalTypeValue, _orderTypeValue)
-            .map { interval, order in
-                MarketsListDataProvider.Filter(interval: interval, order: order)
+        Publishers.CombineLatest3(_intervalTypeValue, _orderTypeValue, _categorySelectionValue)
+            .map { interval, order, categorySelection in
+                Self.makeFilter(interval: interval, order: order, categorySelection: categorySelection)
             }
     }
 
     /// It is necessary to obtain initial values in consumers in order to avoid optionals
     var currentFilterValue: MarketsListDataProvider.Filter {
-        .init(interval: _intervalTypeValue.value, order: _orderTypeValue.value)
+        Self.makeFilter(
+            interval: _intervalTypeValue.value,
+            order: _orderTypeValue.value,
+            categorySelection: _categorySelectionValue.value
+        )
     }
 
     /// This is necessary to determine the supported values in case of expansion
-    var supportedOrderTypes: [MarketsListOrderType] {
-        MarketsListOrderType.allCases
-    }
+    let supportedOrderTypes: [MarketsListOrderType]
 
     /// This is necessary to determine the supported values in case of expansion
     var supportedPriceIntervalTypes: [MarketsPriceIntervalType] {
@@ -59,6 +64,10 @@ class MarketsListDataFilterProvider {
 
     func didSelectMarketOrder(_ option: MarketsListOrderType) {
         _orderTypeValue.send(option)
+    }
+
+    func didSelectCategory(_ selection: CategorySelection?) {
+        _categorySelectionValue.send(selection)
     }
 
     // MARK: - Private Implementation
@@ -75,6 +84,20 @@ class MarketsListDataFilterProvider {
         .store(in: &bag)
     }
 
+    private static func makeFilter(
+        interval: MarketsPriceIntervalType,
+        order: MarketsListOrderType,
+        categorySelection: CategorySelection?
+    ) -> MarketsListDataProvider.Filter {
+        MarketsListDataProvider.Filter(
+            interval: interval,
+            order: order,
+            categoryId: categorySelection?.categoryId,
+            sectorId: categorySelection?.sectorId,
+            country: categorySelection?.country
+        )
+    }
+
     private func sendAnalytics() {
         Analytics.log(
             event: .marketsTokensSort,
@@ -83,5 +106,13 @@ class MarketsListDataFilterProvider {
                 .period: _intervalTypeValue.value.rawValue,
             ]
         )
+    }
+}
+
+extension MarketsListDataFilterProvider {
+    struct CategorySelection: Hashable {
+        let categoryId: Int
+        let sectorId: Int?
+        let country: String?
     }
 }

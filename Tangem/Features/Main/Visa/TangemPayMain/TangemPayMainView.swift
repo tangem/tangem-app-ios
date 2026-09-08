@@ -93,6 +93,12 @@ struct TangemPayMainView: View {
 
                 if viewModel.hasIssuingEntry, !viewModel.isAwaitingDeposit {
                     TangemPayIssuingCardBannerRedesigned()
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.issuingCardBanner)
+                }
+
+                if let deliveryBannerState = viewModel.cardDeliveryBannerState {
+                    cardDeliveryBanner(state: deliveryBannerState)
+                        .onAppear(perform: viewModel.onCardDeliveryBannerAppear)
                 }
 
                 if let banner = viewModel.systemDowngradeBanner {
@@ -127,7 +133,6 @@ struct TangemPayMainView: View {
             TransactionsListViewRedesigned(
                 state: viewModel.tangemPayTransactionHistoryState,
                 exploreAction: nil,
-                exploreConfirmationDialog: nil,
                 openTransactionDetailsAction: { viewModel.openTransactionDetails(id: $0.hash) },
                 reloadButtonAction: viewModel.reloadHistory,
                 isReloadButtonBusy: false,
@@ -180,6 +185,23 @@ struct TangemPayMainView: View {
         .primaryButton(viewModel.awaitingDepositAddFundsButton)
     }
 
+    private func cardDeliveryBanner(state: TangemPayMainViewModel.CardDeliveryBannerState) -> some View {
+        MessageBanner(title: state.title, description: state.description)
+            .slotStart {
+                DesignSystem.Icons.Clock.regular20.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Color.iconPrimary)
+            }
+            .secondaryButton(
+                state.activatableCard.map { card in
+                    MessageBannerButton(
+                        title: Localization.tangempayCardDetailsActivate,
+                        action: { viewModel.onActivateCardBannerButton(card: card) }
+                    )
+                }
+            )
+    }
+
     private func failedToIssueCardBanner(contactSupportButton: MessageBannerButton) -> some View {
         MessageBanner(
             title: Localization.tangempayFailedToIssueCard,
@@ -212,6 +234,7 @@ struct TangemPayMainView: View {
                 SwiftUI.Button(action: viewModel.tapAddCard) {
                     TangemPayAddCardView()
                 }
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountAddCardButton)
                 .disabled(viewModel.addCardDisabled)
                 .opacity(viewModel.addCardDisabled ? 0.6 : 1)
             }
@@ -232,7 +255,12 @@ struct TangemPayMainView: View {
                 TangemPaySmallCardViewRedesigned(
                     state: card.isReissuing || card.isClosing
                         ? .replacing
-                        : .issued(cardNumberEnd: card.cardNumberEnd, isFrozen: card.isFrozen, thumbnailURL: card.thumbnailImageURL)
+                        : .issued(
+                            cardNumberEnd: card.cardNumberEnd,
+                            isFrozen: card.isFrozen,
+                            isPhysical: card.isPhysical,
+                            thumbnailURL: card.thumbnailImageURL
+                        )
                 )
             }
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountCardButton(cardId: card.cardId))
@@ -244,6 +272,7 @@ struct TangemPayMainView: View {
             } label: {
                 TangemPaySmallCardViewRedesigned(state: entry.isGhost ? .ghost : .issuing)
             }
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountIssuingCardButton)
         }
     }
 
@@ -261,10 +290,12 @@ struct TangemPayMainView: View {
                 Text(Localization.tangempayPaymentAccount)
                     .font(token: DesignSystem.Font.subheadingMediumToken)
                     .foregroundStyle(DesignSystem.Color.textPrimary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountToolbarTitle)
 
                 Text(viewModel.toolbarSubtitle)
                     .font(token: DesignSystem.Font.captionMediumToken)
                     .foregroundStyle(DesignSystem.Color.textTertiary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountToolbarSubtitle)
             }
         }
 
