@@ -14,6 +14,7 @@ import TangemPolymarket
 
 protocol PolymarketBalanceService {
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider { get }
+    var collateralTokenBalanceProvider: TokenBalanceProvider { get }
     var state: PolymarketBalanceState? { get }
 
     func update(_ state: PolymarketBalanceState)
@@ -30,10 +31,10 @@ enum PolymarketBalanceState {
 final class CommonPolymarketBalanceService {
     lazy var fiatTotalTokenBalanceProvider: TokenBalanceProvider = FiatTokenBalanceProvider(
         input: fiatRateProvider,
-        cryptoBalanceProvider: collateralBalanceProvider
+        cryptoBalanceProvider: collateralTokenBalanceProvider
     )
 
-    private lazy var collateralBalanceProvider: TokenBalanceProvider = PolymarketCollateralBalanceProvider(
+    lazy var collateralTokenBalanceProvider: TokenBalanceProvider = PolymarketCollateralBalanceProvider(
         tokenItem: tokenItem,
         tokenBalancesRepository: tokenBalancesRepository,
         balanceSubject: balanceSubject
