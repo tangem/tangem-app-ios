@@ -12,6 +12,7 @@ public extension PolymarketMarketCard {
     struct Model: Identifiable {
         public let id: String
         public let title: String
+        public let category: PolymarketMarketMetaRow.Category?
         public let volumeText: String?
         public let imageURL: URL?
         public let predictedText: String?
@@ -20,6 +21,7 @@ public extension PolymarketMarketCard {
         public init(
             id: String,
             title: String,
+            category: PolymarketMarketMetaRow.Category? = nil,
             volumeText: String?,
             imageURL: URL?,
             predictedText: String?,
@@ -27,6 +29,7 @@ public extension PolymarketMarketCard {
         ) {
             self.id = id
             self.title = title
+            self.category = category
             self.volumeText = volumeText
             self.imageURL = imageURL
             self.predictedText = predictedText

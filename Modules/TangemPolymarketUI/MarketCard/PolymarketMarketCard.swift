@@ -62,22 +62,22 @@ public struct PolymarketMarketCard: View {
     @ViewBuilder
     private var meta: some View {
         if let model {
-            HStack(spacing: 4) {
-                if let volumeText = model.volumeText {
-                    HStack(spacing: 2) {
-                        Text(Localization.predictionDetailsMarketVolume).foregroundStyle(DesignSystem.Color.textSecondary)
-                        Text(volumeText).foregroundStyle(DesignSystem.Color.textPrimary)
-                    }
-                    .font(token: DesignSystem.Font.captionMediumToken)
-                    .lineLimit(1)
+            HStack(spacing: Constants.metaSpacing) {
+                if model.category != nil || model.volumeText != nil {
+                    PolymarketMarketMetaRow(
+                        category: model.category,
+                        volume: model.volumeText.map {
+                            .init(title: Localization.predictionDetailsMarketVolume, value: $0)
+                        }
+                    )
                 }
 
                 if let predictedText = model.predictedText {
                     Text(predictedText)
                         .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusSuccess)
                         .lineLimit(1)
-                        .padding(.horizontal, 4)
-                        .frame(minHeight: 16)
+                        .padding(.horizontal, Constants.predictedPadding)
+                        .frame(minHeight: Constants.predictedMinHeight)
                         .background(DesignSystem.Color.bgStatusSuccessSubtle, in: Capsule())
                 }
             }
@@ -139,5 +139,8 @@ private extension PolymarketMarketCard {
         static let labelSpacing: CGFloat = 4
         static let labelHorizontalPadding: CGFloat = 8
         static let priceSeparator = String.bulletSign + " "
+        static let metaSpacing: CGFloat = 4
+        static let predictedPadding: CGFloat = 4
+        static let predictedMinHeight: CGFloat = 16
     }
 }
