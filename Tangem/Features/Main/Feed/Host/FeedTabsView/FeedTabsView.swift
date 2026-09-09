@@ -41,6 +41,8 @@ struct FeedTabsView: View {
             CryptoFeedView(viewModel: viewModel)
         case .realAssets(let viewModel):
             RealAssetsFeedView(viewModel: viewModel)
+        case .earn(let viewModel):
+            EarnFeedView(viewModel: viewModel)
         case .predictions:
             PredictionsFeedView()
         }
