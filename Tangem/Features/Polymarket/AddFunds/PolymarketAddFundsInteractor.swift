@@ -42,9 +42,8 @@ final class PolymarketAddFundsInteractor {
 extension PolymarketAddFundsInteractor {
     @discardableResult
     func prepare() async -> State {
-        await warmBuilderCode()
-
         do {
+            let builderCode = try await configurationService.builderCode()
             let depositWalletAddress = try await verifiedDepositWalletAddress()
             let assets = try await bridgeService.supportedAssets()
 
@@ -53,7 +52,10 @@ extension PolymarketAddFundsInteractor {
                 return store(.unavailable)
             }
 
-            let addresses = try await bridgeService.fundingAddresses(forDepositWallet: depositWalletAddress)
+            let addresses = try await bridgeService.fundingAddresses(
+                forDepositWallet: depositWalletAddress,
+                builderCode: builderCode
+            )
 
             guard let fundingAddress = addresses.address(for: asset.family) else {
                 PolymarketLogger.warning("Add funds is unavailable: the bridge answered without a \(asset.family) funding address")
@@ -117,16 +119,6 @@ private extension PolymarketAddFundsInteractor {
         }
 
         return derived
-    }
-
-    func warmBuilderCode() async {
-        do {
-            _ = try await configurationService.builderCode()
-        } catch {
-            guard !Task.isCancelled else { return }
-
-            PolymarketLogger.warning("Failed to warm up the builder code, funding will fall back to no attribution: \(error)")
-        }
     }
 }
 

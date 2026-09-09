@@ -49,11 +49,9 @@ struct PolymarketBridgeTargetTests {
         #expect(target(.supportedAssets).headers == nil)
     }
 
-    @Test("Without a builder code the funding request still forms, it just loses attribution")
-    func fundingWithoutBuilderCode() throws {
-        let funding = target(.fundingAddresses(.init(address: "0xdef0"), builderCode: nil))
-
-        #expect(funding.headers?["X-Builder-Code"] == nil)
+    @Test("The funding request carries the deposit wallet in its body")
+    func fundingCarriesTheDepositWallet() throws {
+        let funding = target(.fundingAddresses(.init(address: "0xdef0"), builderCode: PolymarketDepositFixtures.validBuilderCode))
 
         guard case .requestJSONEncodable(let encodable) = funding.task else {
             Issue.record("The funding call must carry a JSON body")
@@ -69,45 +67,6 @@ struct PolymarketBridgeTargetTests {
         guard case .requestPlain = target(.supportedAssets).task else {
             Issue.record("supported-assets must be a plain request")
             return
-        }
-    }
-}
-
-// MARK: - Attribution
-
-@Suite("Polymarket funding attribution")
-struct PolymarketFundingAttributionTests {
-    private let validCode = PolymarketDepositFixtures.validBuilderCode
-
-    @Test("A well-formed code is passed through to the header")
-    func wellFormedCodeIsUsed() async throws {
-        let code = try await CommonPolymarketBridgeService.attributionCode { validCode }
-
-        #expect(code == validCode)
-    }
-
-    @Test("An unreachable configuration endpoint costs attribution, not the deposit")
-    func configurationFailureDegrades() async throws {
-        let code = try await CommonPolymarketBridgeService.attributionCode {
-            throw PolymarketAPIError.http(statusCode: 401, problemDetail: nil)
-        }
-
-        #expect(code == nil)
-    }
-
-    @Test("Cancellation is not swallowed, so a dismissed flow stops instead of sending the request")
-    func cancellationPropagates() async {
-        await #expect(throws: CancellationError.self) {
-            try await CommonPolymarketBridgeService.attributionCode { throw CancellationError() }
-        }
-    }
-
-    @Test("A malformed code is dropped, because the bridge answers 400 to it while no header at all succeeds")
-    func malformedCodeIsDropped() async throws {
-        for malformed in ["", "0x", validCode + "00", String(validCode.dropLast()), "0xzz", String(validCode.dropFirst(2))] {
-            let code = try await CommonPolymarketBridgeService.attributionCode { malformed }
-
-            #expect(code == nil, "\(malformed) must not reach the header")
         }
     }
 }
