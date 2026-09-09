@@ -15,6 +15,7 @@ final class RealAssetsWidgetViewModel: ObservableObject {
     // MARK: - Published Properties
 
     @Published private(set) var categorySelection: RealAssetsCategorySelection?
+    @Published private(set) var featuredViewModel: RealAssetsFeaturedViewModel?
     @Published private(set) var tokenViewModels: [MarketsItemViewModel] = []
     @Published private(set) var tokenListLoadingState: MarketsTokenListLoadingState = .loading
     @Published var selectedOrder: MarketsListOrderType = .rating
@@ -100,6 +101,7 @@ final class RealAssetsWidgetViewModel: ObservableObject {
             return
         }
 
+        featuredViewModel?.tryLoadAgain()
         tokenListLoadingState = .loading
         dataProvider.reset()
         dataProvider.fetch("", with: filterProvider.currentFilterValue)
@@ -111,7 +113,7 @@ final class RealAssetsWidgetViewModel: ObservableObject {
         }
 
         let input = RealAssetsCategoryFilterInput(
-            categories: categoriesSnapshot.categories,
+            categories: categoriesSnapshot.selectableCategories,
             selection: categorySelection,
             defaultSelection: defaultSelection,
             onApply: { [weak self] selection in
@@ -129,7 +131,7 @@ final class RealAssetsWidgetViewModel: ObservableObject {
             return
         }
 
-        let umbrella = categoriesSnapshot.categories.first { $0.code == MarketsCategoryCode.realWorldAssets }
+        let umbrella = categoriesSnapshot.selectableCategories.first { $0.code == MarketsCategoryCode.realWorldAssets }
 
         if let umbrella {
             select(RealAssetsCategorySelection(category: umbrella))
@@ -169,6 +171,7 @@ private extension RealAssetsWidgetViewModel {
 
                 categoriesSnapshot = snapshot
                 widgetsUpdateHandler?.performUpdateLoading(state: .loaded, for: widgetType)
+                makeFeaturedViewModel(from: snapshot)
                 select(defaultSelection)
             } catch {
                 guard let self, !error.isCancellationError else { return }
@@ -182,8 +185,23 @@ private extension RealAssetsWidgetViewModel {
 
     func defaultSelection(from snapshot: MarketsCategoriesSnapshot) -> RealAssetsCategorySelection? {
         MarketsDefaultCategoryResolver
-            .resolve(from: snapshot.categories, regionCode: snapshot.country)
+            .resolve(from: snapshot.selectableCategories, regionCode: snapshot.country)
             .map { RealAssetsCategorySelection(category: $0) }
+    }
+
+    func makeFeaturedViewModel(from snapshot: MarketsCategoriesSnapshot) {
+        guard let featuredCategory = snapshot.featuredCategory else {
+            featuredViewModel = nil
+            return
+        }
+
+        featuredViewModel = RealAssetsFeaturedViewModel(
+            categoryId: featuredCategory.id,
+            country: snapshot.country,
+            onTokenTap: { [weak self] tokenModel in
+                self?.onTokenTap(tokenModel)
+            }
+        )
     }
 
     func select(_ selection: RealAssetsCategorySelection) {
