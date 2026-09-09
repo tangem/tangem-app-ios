@@ -401,7 +401,8 @@ final class SingleTokenNotificationManager {
         guard walletModel.tokenItem.blockchain.isGaslessTransactionSupported else { return false }
 
         if case .tron = walletModel.tokenItem.blockchain {
-            return FeatureProvider.isAvailable(.tronGasless)
+            return FeatureProvider.isAvailable(.tronGasless) &&
+                gaslessTransactionsNetworkManager.availableTronFeeTokens.contains(where: { $0.address == walletModel.tokenItem.contractAddress })
         }
 
         return true
