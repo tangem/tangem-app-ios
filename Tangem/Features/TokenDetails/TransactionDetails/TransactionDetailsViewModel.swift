@@ -96,8 +96,6 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
             mapper: mapper,
             resolver: resolver
         )
-
-        loadAddressBook() // Address book should be loaded as early as possible since it is empty by default
     }
 
     deinit {
@@ -363,12 +361,6 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
     #endif
 
     // MARK: - Address book support
-
-    private func loadAddressBook() {
-        runTask(in: self) { viewModel in
-            await viewModel.addressBookWallet.addressBookManager.load(silent: true)
-        }
-    }
 
     private func makeAddContactHelper(
         for transaction: TransactionViewModel,
