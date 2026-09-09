@@ -50,12 +50,12 @@ extension PortfolioReviewMapper {
 // MARK: - Summary
 
 private extension PortfolioReviewMapper.ChartBuilder {
-    /// The share is marked approximate only when the top really is short of the whole portfolio. A bucket
-    /// holding nothing but valueless assets leaves the share at exactly one, and that reads as a plain 100%.
+    /// Only a share that rounding lifts to a whole hundred is marked approximate: a plain 100% would claim
+    /// the top holding is the entire portfolio. Any smaller share states its own rounded value and needs no mark.
     static func topHoldingPercent(_ share: Decimal) -> String {
         let percent = percentFormatter.format(share, option: .yield)
 
-        guard share < 1 else { return percent }
+        guard share < 1, percent == percentFormatter.format(1, option: .yield) else { return percent }
 
         return "\(AppConstants.tildeSign)\(percent)"
     }
