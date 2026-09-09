@@ -15,6 +15,8 @@ struct PolymarketOrderCoordinatorView: CoordinatorView {
     var body: some View {
         coordinator.viewModel.map { viewModel in
             PolymarketOrderView(viewModel: viewModel)
+                .toolbar(.hidden, for: .navigationBar)
+                .background(FeedPopGestureEnabler())
                 .navigationLinks(links)
                 .sheet(item: $coordinator.sheet) { sheet in
                     switch sheet {

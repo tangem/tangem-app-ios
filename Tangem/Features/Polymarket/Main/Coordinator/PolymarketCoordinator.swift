@@ -13,12 +13,14 @@ import TangemFoundation
 import TangemLocalization
 import TangemPolymarket
 import TangemPolymarketUI
+import TangemStories
 import TangemUI
 import TangemUIUtils
 
 final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     private let presenceStore: PolymarketAccountPresenceStore = AppSettings.shared
 
     let dismissAction: Action<Void>
@@ -71,6 +73,7 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
 // MARK: - Entry
 
 private extension PolymarketCoordinator {
+    @MainActor
     func openEntry(for userWalletModel: any UserWalletModel) {
         let state = PolymarketAccountAggregator.polymarketAccountModel(from: userWalletModel.accountModelsManager)?.state
 
@@ -79,7 +82,7 @@ private extension PolymarketCoordinator {
             return
         }
 
-        openPolymarketMain()
+        showMain()
     }
 
     func hasExistingAccount(_ state: PolymarketAccountState?, for userWalletModel: any UserWalletModel) -> Bool {
@@ -106,7 +109,25 @@ extension PolymarketCoordinator {
 // MARK: - PolymarketWelcomeRoutable protocol conformance
 
 extension PolymarketCoordinator: PolymarketWelcomeRoutable {
-    func openPolymarketMain() {
+    func onboardingDidFinish() {
+        Task { @MainActor in
+            tangemStoriesPresenter.present(
+                story: .polymarketOnboarding(.initialWithoutImages),
+                analyticsSource: .predictions,
+                presentCompletion: { [weak self] in self?.showMain() }
+            )
+        }
+    }
+
+    func openLegalTerms(url: URL) {
+        safariManager.openURL(url)
+    }
+}
+
+// MARK: - The main screen
+
+private extension PolymarketCoordinator {
+    func showMain() {
         let geoblockStateProvider = CommonPolymarketGeoblockStateProvider(
             geoblockService: PolymarketOnboardingServicesFactory.makeDefault().makeGeoblockService()
         )
@@ -118,17 +139,13 @@ extension PolymarketCoordinator: PolymarketWelcomeRoutable {
         self.balanceProvider = balanceProvider
         self.addFundsInteractor = addFundsInteractor
 
-        viewState = .feed(PolymarketMainViewModel(
+        viewState = .main(PolymarketMainViewModel(
             apiProvider: PolymarketAPIProviderFactory().makeProvider(),
             geoblockStateProvider: geoblockStateProvider,
             balanceProvider: balanceProvider,
             addFundsInteractor: addFundsInteractor,
             coordinator: self
         ))
-    }
-
-    func openLegalTerms(url: URL) {
-        safariManager.openURL(url)
     }
 }
 
@@ -279,7 +296,7 @@ private extension PolymarketCoordinator {
     }
 
     func startAwaitingFunds() {
-        guard case .feed(let viewModel) = viewState else { return }
+        guard case .main(let viewModel) = viewState else { return }
 
         viewModel.startAwaitingFunds()
     }
@@ -309,7 +326,7 @@ extension PolymarketCoordinator {
 extension PolymarketCoordinator {
     enum ViewState {
         case welcome(PolymarketWelcomeViewModel)
-        case feed(PolymarketMainViewModel)
+        case main(PolymarketMainViewModel)
     }
 }
 
