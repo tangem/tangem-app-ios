@@ -85,6 +85,44 @@ struct CollectiblesAPIServiceTests {
         #expect(Self.queryValue("search", of: CollectiblesStubURLProtocol.requests.first) == expected)
     }
 
+    // MARK: - Machine detail
+
+    @Test("Maps the machine detail: descaled money, fractional odds, tiers in rarity order with absent ones dropped")
+    func mapsMachineDetail() async throws {
+        CollectiblesStubURLProtocol.responses = [Data(Self.machineJSON().utf8)]
+
+        let machine = try await makeSUT().load(id: "pokemon_50")
+
+        #expect(machine.name == "PKMN 50")
+        #expect(machine.price == 50)
+        #expect(machine.cardsPerPack == "1")
+        #expect(machine.buybackRate == Decimal(string: "0.85"))
+        #expect(machine.expectedValue == Decimal(string: "54.5"))
+
+        // The fixture carries no uncommon key and a null legendary: both mean the machine has no such tier.
+        #expect(machine.tiers.map(\.tier) == [.common, .rare, .epic])
+
+        let common = try #require(machine.tiers.first)
+        #expect(common.odds == Decimal(string: "0.8"))
+        #expect(common.valueRange == Decimal(30) ... Decimal(60))
+
+        let requestPath = try #require(CollectiblesStubURLProtocol.requests.first?.url?.path)
+        #expect(requestPath.hasSuffix("api/v1/machine/pokemon_50"))
+    }
+
+    @Test("An inverted value range is dropped and the tier keeps its odds")
+    func dropsInvertedValueRange() async throws {
+        let json = Self.machineJSON(commonRange: #"{"start":60,"end":30}"#)
+        CollectiblesStubURLProtocol.responses = [Data(json.utf8)]
+
+        let machine = try await makeSUT().load(id: "pokemon_50")
+
+        let common = try #require(machine.tiers.first)
+        #expect(common.tier == .common)
+        #expect(common.valueRange == nil)
+        #expect(common.odds == Decimal(string: "0.8"))
+    }
+
     // MARK: - Headers
 
     @Test("Production header composition reaches the wire: session-id, platform and version")
@@ -157,14 +195,17 @@ private extension CollectiblesAPIServiceTests {
         return Data(#"{"machines":[\#(machines.joined(separator: ","))],"hasNext":\#(hasNext),"cursor":\#(cursorJSON)}"#.utf8)
     }
 
-    static func machineJSON(externalId: String = "pokemon_50") -> String {
+    static func machineJSON(
+        externalId: String = "pokemon_50",
+        commonRange: String = #"{"start":30,"end":60}"#
+    ) -> String {
         #"""
         {"id":"01a03802-433f-7ae5-a996-f981048a0a18","externalId":"\#(externalId)","name":"Elite Pokémon Gacha Pack",
         "shortName":"PKMN 50","price":5000,"instantBuybackPercent":85,"lowThreshold":50,
         "odds":{"common":80,"rare":4,"epic":1,"legendary":null},
-        "tierRanges":{"common":{"start":30,"end":60},"rare":{"start":110,"end":250},"epic":{"start":250,"end":5001},"legendary":null},
+        "tierRanges":{"common":\#(commonRange),"rare":{"start":110,"end":250},"epic":{"start":250,"end":5001},"legendary":null},
         "stock":{"common":214,"rare":383,"epic":200,"legendary":null},
-        "expectedValue":54.49,"image":"https://example.com/pack.png","categoryId":"pokemon","contains":"1",
+        "expectedValue":54.5,"image":"https://example.com/pack.png","categoryId":"pokemon","contains":"1",
         "fee":200,"feeAmount":100,"createdAt":"2026-08-25T08:21:07.518119Z","updatedAt":"2026-09-07T04:34:30.860676Z"}
         """#
     }

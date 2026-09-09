@@ -20,19 +20,6 @@ extension CollectiblesPacksViewModel {
 }
 
 private extension CollectiblesPacksViewModel.Mapper {
-    static let priceFormattingOptions = BalanceFormattingOptions(
-        minFractionDigits: 0,
-        maxFractionDigits: 2,
-        formatEpsilonAsLowestRepresentableValue: true,
-        roundingType: .default(roundingMode: .plain, scale: 2)
-    )
-
-    static let buybackRateFormattingOption = PercentFormatter.Option(
-        fractionDigits: .init(min: 0, max: 0),
-        prefix: .empty,
-        suffix: .yield
-    )
-
     static func makeCardModel(_ pack: CollectiblesPack) -> CollectiblesPackCard.Model {
         CollectiblesPackCard.Model(
             id: pack.id,
@@ -40,7 +27,7 @@ private extension CollectiblesPacksViewModel.Mapper {
             priceText: balanceFormatter.formatFiatBalance(
                 pack.price,
                 currencyCode: pack.currencyCode,
-                formattingOptions: priceFormattingOptions
+                formattingOptions: .collectiblesDollars
             ),
             buybackText: pack.buybackRate.map(makeBuybackText),
             artworkURL: pack.artworkURL
@@ -49,6 +36,6 @@ private extension CollectiblesPacksViewModel.Mapper {
 
     static func makeBuybackText(rate: Decimal) -> String {
         // [REDACTED_TODO_COMMENT]
-        "Buyback \(percentFormatter.format(rate, option: buybackRateFormattingOption))"
+        "Buyback \(percentFormatter.format(rate, option: .collectibles))"
     }
 }

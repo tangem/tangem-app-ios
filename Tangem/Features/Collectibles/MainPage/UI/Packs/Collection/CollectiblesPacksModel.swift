@@ -95,6 +95,10 @@ final class CollectiblesPacksModel {
         Snapshot(packs: packs, cursor: cursor, hasMore: hasMore)
     }
 
+    func pack(withID id: String) -> CollectiblesPack? {
+        packs.first { $0.id == id }
+    }
+
     func catalogue() -> Catalogue {
         Catalogue(packs: packs, hasMore: hasMore)
     }
