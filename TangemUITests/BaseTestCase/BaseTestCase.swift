@@ -43,6 +43,7 @@ class BaseTestCase: XCTestCase {
         scenarios: [ScenarioConfig] = [],
         mockCardBatchIdOverride: String? = nil,
         mockCardFirmwareOverride: String? = nil,
+        extraLaunchArguments: [String] = [],
         extraLaunchEnvironment: [String: String] = [:]
     ) {
         var arguments: [String] = []
@@ -85,6 +86,8 @@ class BaseTestCase: XCTestCase {
         for (key, isEnabled) in resolvedFeatureToggles {
             arguments.append("-uitest-feature-\(key)-\(isEnabled ? "on" : "off")")
         }
+
+        arguments.append(contentsOf: extraLaunchArguments)
 
         // Pin locale/language so currency, number and date assertions don't depend on the simulator region.
         arguments.append(contentsOf: ["-AppleLocale", "en_US", "-AppleLanguages", "(en)"])
