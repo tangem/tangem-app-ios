@@ -80,9 +80,9 @@ private extension PolymarketWelcomeViewModel {
             guard let coordinator else { return }
 
             presentAccountCreatedToast()
-            coordinator.openPolymarketMain()
+            coordinator.onboardingDidFinish()
         case .handedOff:
-            presentHandedOffAlert()
+            break
         case .failed(let error):
             handle(error)
         }
@@ -107,17 +107,6 @@ private extension PolymarketWelcomeViewModel {
         // [REDACTED_TODO_COMMENT]
         Toast(view: SuccessToast(text: "Prediction account is ready"))
             .present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
-    }
-
-    @MainActor
-    func presentHandedOffAlert() {
-        // [REDACTED_TODO_COMMENT]
-        alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
-            title: "Setup is taking longer than usual",
-            message: "We are still setting up your prediction account. You can come back to it later.",
-            buttonText: Localization.commonOk,
-            buttonAction: { [weak self] in self?.coordinator?.openPolymarketMain() }
-        )
     }
 
     @MainActor
