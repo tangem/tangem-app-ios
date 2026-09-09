@@ -61,8 +61,7 @@ final class PolymarketOrderViewModel: ObservableObject {
         case .backTapped:
             coordinator?.closeOrder()
         case .nextTapped:
-            // [REDACTED_TODO_COMMENT]
-            break
+            coordinator?.openSummary(model: model)
         case .slippageTapped:
             openSlippageSelector()
         case .fractionTapped(let fraction):
@@ -127,10 +126,8 @@ private extension PolymarketOrderViewModel {
 // MARK: - Mapping
 
 private extension PolymarketOrderViewModel {
-    static let balanceFormatter = BalanceFormatter()
-
     static func makePayment(balance: Decimal?) -> PolymarketOrderPaymentRow.Model {
-        .makeCollateral(balanceText: balanceFormatter.formatFiatBalance(balance, currencyCode: Constants.currencyCode))
+        .makeCollateral(balanceText: PolymarketOrderFormatter.money(balance))
     }
 
     static func makeAmountFractions(balance: Decimal?) -> [PolymarketAmountFraction] {
@@ -142,9 +139,9 @@ private extension PolymarketOrderViewModel {
     static func makeAmountCaption(_ caption: PolymarketOrderGate.AmountCaption?) -> AmountCaption? {
         switch caption {
         case .toWin(let expected, _):
-            .toWin(balanceFormatter.formatFiatBalance(expected, currencyCode: Constants.currencyCode))
+            .toWin(PolymarketOrderFormatter.money(expected))
         case .belowMinAmount(let amount):
-            .shortfall(Localization.transferMinAmountError(balanceFormatter.formatFiatBalance(amount, currencyCode: Constants.currencyCode)))
+            .shortfall(Localization.transferMinAmountError(PolymarketOrderFormatter.money(amount)))
         case .notEnoughForBet:
             .shortfall(Localization.predictionPlaceInsufficientBalanceBet)
         case .notEnoughForFees:
@@ -161,13 +158,5 @@ extension PolymarketOrderViewModel {
     enum AmountCaption: Hashable {
         case toWin(String)
         case shortfall(String)
-    }
-}
-
-// MARK: - Constants
-
-private extension PolymarketOrderViewModel {
-    enum Constants {
-        static let currencyCode = "USD"
     }
 }
