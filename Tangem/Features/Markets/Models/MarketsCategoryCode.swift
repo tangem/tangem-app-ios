@@ -15,6 +15,7 @@ enum MarketsCategoryCode {
     static let commodities = "commodities"
     static let bonds = "bonds"
     static let stablecoins = "stablecoins"
+    static let featuredAssets = "featured-assets"
 
     enum Sector: String {
         case technology

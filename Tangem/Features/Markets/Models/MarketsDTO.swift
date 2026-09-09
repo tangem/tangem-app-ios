@@ -16,12 +16,31 @@ enum MarketsDTO {
 // MARK: - General
 
 extension MarketsDTO.General {
+    enum Order: String, Encodable {
+        case rating
+        case trending
+        case buyers
+        case gainers
+        case losers
+        case category
+
+        init(_ orderType: MarketsListOrderType) {
+            switch orderType {
+            case .rating: self = .rating
+            case .trending: self = .trending
+            case .buyers: self = .buyers
+            case .gainers: self = .gainers
+            case .losers: self = .losers
+            }
+        }
+    }
+
     struct Request: Encodable {
         let currency: String
         let offset: Int
         let limit: Int
         let interval: MarketsPriceIntervalType
-        let order: MarketsListOrderType
+        let order: Order
         let search: String?
         let showNetworks: Bool?
         let categoryId: Int?
@@ -34,7 +53,7 @@ extension MarketsDTO.General {
             offset: Int = 0,
             limit: Int = 20,
             interval: MarketsPriceIntervalType,
-            order: MarketsListOrderType,
+            order: Order,
             search: String?,
             showNetworks: Bool?,
             categoryId: Int? = nil,
