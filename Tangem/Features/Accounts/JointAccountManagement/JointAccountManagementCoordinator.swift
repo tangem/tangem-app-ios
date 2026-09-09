@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 final class JointAccountManagementCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
@@ -38,9 +39,7 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
 
         case .members(let jointAccount):
             // The account already exists, so the flow opens where the creation flow ends up
-            root = .inviteMembers(
-                JointAccountInviteMembersViewModel(jointAccount: jointAccount, coordinator: self)
-            )
+            root = .inviteMembers(JointAccountInviteMembersViewModel(jointAccount: jointAccount, coordinator: self))
         }
     }
 }
@@ -177,6 +176,7 @@ extension JointAccountManagementCoordinator: JointAccountMemberNameRoutable {
 extension JointAccountManagementCoordinator: JointAccountCreationMemberNameRoutable {
     func openInviteMembers(jointAccount: any JointAccountModel) {
         let viewModel = JointAccountInviteMembersViewModel(jointAccount: jointAccount, coordinator: self)
+
         path.append(.inviteMembers(viewModel: viewModel))
     }
 }
@@ -198,8 +198,8 @@ extension JointAccountManagementCoordinator: JointAccountInviteMembersRoutable {
         dismiss()
     }
 
-    func shareInvite() {
-        // [REDACTED_TODO_COMMENT]
+    func shareInvite(url: URL) {
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
     }
 
     func openInviteSafety() {
@@ -208,7 +208,7 @@ extension JointAccountManagementCoordinator: JointAccountInviteMembersRoutable {
         }
     }
 
-    func openMemberDetails() {
+    func openMemberDetails(member: JointAccountMember) {
         // [REDACTED_TODO_COMMENT]
     }
 }
