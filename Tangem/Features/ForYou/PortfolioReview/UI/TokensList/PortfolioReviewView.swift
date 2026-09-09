@@ -55,8 +55,8 @@ private extension PortfolioReviewView {
             accessibilityLabel: Localization.commonAddFunds,
             action: viewModel.addFundsTapped
         )
-        .size(.x9)
-        .styleType(.secondary)
+        .size(.x12)
+        .styleType(.default)
         .horizontalLayout(.infinity)
     }
 
