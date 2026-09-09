@@ -554,10 +554,10 @@ private extension UserWalletSettingsViewModel {
                     walletModelsManager: cryptoAccountModels.first?.walletModelsManager,
                     userTokensManager: cryptoAccountModels.first?.userTokensManager
                 )
-            case .standard(.multiple), .joint, .tangemPay, .polymarket:
+            case .standard(.multiple), .joint, .tangemPay, .polymarket, .collectibles:
                 // In multiple accounts case we don't support managing tokens from this screen,
                 // instead users should manage tokens from respective account details screens.
-                // Token management for joint accounts hasn't shipped yet; TangemPay and Polymarket
+                // Token management for joint accounts hasn't shipped yet; TangemPay, Polymarket and Collectibles
                 // don't support it at all
                 updateManagers(walletModelsManager: nil, userTokensManager: nil)
             case .none:

@@ -108,6 +108,9 @@ private extension AccountDetailsCoordinator {
 
         /// Polymarket does not support editing
         func resolve(accountModel: any PolymarketAccountModel) {}
+
+        /// Collectibles does not support editing
+        func resolve(accountModel: any CollectiblesAccountModel) {}
     }
 }
 
@@ -147,5 +150,8 @@ private extension AccountDetailsCoordinator {
 
         /// Polymarket does not support token management
         func resolve(accountModel: any PolymarketAccountModel) {}
+
+        /// Collectibles does not support token management
+        func resolve(accountModel: any CollectiblesAccountModel) {}
     }
 }

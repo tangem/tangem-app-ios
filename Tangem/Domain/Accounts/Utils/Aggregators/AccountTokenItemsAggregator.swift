@@ -39,6 +39,8 @@ enum AccountTokenItemsAggregator {
             }
 
             return [PolymarketUtilities.usdcTokenItem]
+        case .collectibles:
+            return []
         }
     }
 }

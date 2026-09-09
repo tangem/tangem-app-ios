@@ -217,8 +217,8 @@ final class AccountSelectorViewModel: ObservableObject {
                 accountAvailability: accountAvailability
             )
 
-        case .joint, .tangemPay, .polymarket:
-            // Token management for joint accounts hasn't shipped yet; TangemPay and Polymarket
+        case .joint, .tangemPay, .polymarket, .collectibles:
+            // Token management for joint accounts hasn't shipped yet; TangemPay, Polymarket and Collectibles
             // don't support adding tokens at all
             return nil
         }
@@ -277,8 +277,8 @@ final class AccountSelectorViewModel: ObservableObject {
                 }
             )
 
-        case .joint, .tangemPay, .polymarket:
-            // Token management for joint accounts hasn't shipped yet; TangemPay and Polymarket
+        case .joint, .tangemPay, .polymarket, .collectibles:
+            // Token management for joint accounts hasn't shipped yet; TangemPay, Polymarket and Collectibles
             // don't support adding tokens at all
             return nil
         }

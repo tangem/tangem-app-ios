@@ -397,5 +397,10 @@ private extension AccountFormViewModel {
         func resolve(accountModel: any PolymarketAccountModel) -> String? {
             nil
         }
+
+        /// Collectibles accounts don't have an editable description
+        func resolve(accountModel: any CollectiblesAccountModel) -> String? {
+            nil
+        }
     }
 }

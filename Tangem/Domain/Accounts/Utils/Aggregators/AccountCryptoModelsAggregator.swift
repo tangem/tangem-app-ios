@@ -29,7 +29,7 @@ enum AccountCryptoModelsAggregator {
             case .standard(.single(let cryptoAccountModel)): [cryptoAccountModel]
             case .standard(.multiple(let cryptoAccountModels)): cryptoAccountModels
             case .joint(let jointAccountModels): jointAccountModels
-            case .tangemPay, .polymarket: []
+            case .tangemPay, .polymarket, .collectibles: []
             }
         }
     }
