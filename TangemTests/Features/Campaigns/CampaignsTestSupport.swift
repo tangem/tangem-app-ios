@@ -89,20 +89,26 @@ final class CampaignUserWalletModelStub: UserWalletModelMock {
     }
 }
 
-/// Serves a single canned crypto account.
 final class AccountModelsManagerStub: AccountModelsManager {
-    private let account: any CryptoAccountModel
+    private let accounts: [AccountModel]
 
-    init(account: any CryptoAccountModel) {
-        self.account = account
+    init(accounts: [AccountModel]) {
+        self.accounts = accounts
+    }
+
+    convenience init(account: any CryptoAccountModel) {
+        self.init(accounts: [.standard(.single(account))])
     }
 
     var canAddCryptoAccounts: Bool { false }
     var hasArchivedCryptoAccountsPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
     var hasSyncedWithRemotePublisher: AnyPublisher<Bool, Never> { .just(output: true) }
-    var accountModels: [AccountModel] { [.standard(.single(account))] }
+    var accountModels: [AccountModel] { accounts }
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { .just(output: accountModels) }
-    var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> { .just(output: 1) }
+    var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> {
+        .just(output: AccountCryptoModelsAggregator.cryptoAccountModels(from: accounts).count)
+    }
+
     var totalJointAccountsCountPublisher: AnyPublisher<Int, Never> { .just(output: 0) }
 
     func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountCreationResult {

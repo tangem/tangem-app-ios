@@ -255,18 +255,72 @@ final class PolymarketOnboardingSignerSpy: PolymarketOnboardingSigning {
 final class PolymarketBalanceServiceSpy: PolymarketBalanceService {
     private(set) var updates: [PolymarketBalanceState] = []
 
+    private let balanceSubject = CurrentValueSubject<PolymarketBalanceState?, Never>(nil)
+
+    private lazy var balanceProvider: TokenBalanceProvider = PolymarketBalanceStateBalanceProvider(subject: balanceSubject)
+
     var unavailableCalls: Int {
         updates.filter { $0.isUnavailable }.count
     }
 
-    var fiatTotalTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
-    var collateralTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
+    var fiatTotalTokenBalanceProvider: TokenBalanceProvider { balanceProvider }
+    var collateralTokenBalanceProvider: TokenBalanceProvider { balanceProvider }
 
     var state: PolymarketBalanceState? { updates.last }
 
     func update(_ state: PolymarketBalanceState) {
         updates.append(state)
+        balanceSubject.send(state)
     }
+}
+
+private struct PolymarketBalanceStateBalanceProvider: TokenBalanceProvider {
+    let subject: CurrentValueSubject<PolymarketBalanceState?, Never>
+
+    var balanceType: TokenBalanceType {
+        Self.balanceType(from: subject.value)
+    }
+
+    var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
+        subject.map(Self.balanceType(from:)).eraseToAnyPublisher()
+    }
+
+    var formattedBalanceType: FormattedTokenBalanceType {
+        .loaded("")
+    }
+
+    var formattedBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> {
+        Just(formattedBalanceType).eraseToAnyPublisher()
+    }
+
+    private static func balanceType(from state: PolymarketBalanceState?) -> TokenBalanceType {
+        switch state {
+        case .loaded(let value): .loaded(value)
+        case .loading: .loading(.none)
+        case .failed: .failure(.none)
+        case .unavailable, .none: .empty(.noData)
+        }
+    }
+}
+
+// MARK: - Account model
+
+final class PolymarketAccountModelStub: PolymarketAccountModel {
+    let id: PolymarketAccountId
+    let state: PolymarketAccountState?
+
+    init(userWalletId: UserWalletId = UserWalletId(value: Data([0x01, 0x02, 0x03])), state: PolymarketAccountState?) {
+        id = PolymarketAccountId(userWalletId: userWalletId)
+        self.state = state
+    }
+
+    var statePublisher: AnyPublisher<PolymarketAccountState?, Never> { .just(output: state) }
+
+    var collateralTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
+
+    var fiatTotalTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
+
+    func refreshState() async {}
 }
 
 // MARK: - Account presence
