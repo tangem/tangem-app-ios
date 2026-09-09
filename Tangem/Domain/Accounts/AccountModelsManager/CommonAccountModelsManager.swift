@@ -21,6 +21,7 @@ actor CommonAccountModelsManager {
 
     private nonisolated let cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
     private nonisolated let tangemPayAccountGlobalStateProvider: TangemPayAccountGlobalStateProvider
+    private nonisolated let polymarketAccountGlobalStateProvider: PolymarketAccountGlobalStateProvider
     private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
     private nonisolated let jointAccountsRepository: JointAccountsRepository
     private nonisolated let tangemPayManager: TangemPayManager
@@ -74,8 +75,13 @@ actor CommonAccountModelsManager {
         var tangemPayAccountGlobalStateProvider: TangemPayAccountGlobalStateProvider
         self.tangemPayAccountGlobalStateProvider = tangemPayAccountGlobalStateProvider
 
+        @Injected(\.polymarketAccountGlobalStateProvider)
+        var polymarketAccountGlobalStateProvider: PolymarketAccountGlobalStateProvider
+        self.polymarketAccountGlobalStateProvider = polymarketAccountGlobalStateProvider
+
         cryptoAccountsGlobalStateProvider.register(self, forIdentifier: userWalletId)
         tangemPayAccountGlobalStateProvider.register(self, forIdentifier: userWalletId)
+        polymarketAccountGlobalStateProvider.register(self, forIdentifier: userWalletId)
 
         initialize(forUserWalletWithId: userWalletId)
     }
@@ -680,6 +686,7 @@ extension CommonAccountModelsManager: DisposableEntity {
     nonisolated func dispose() {
         cryptoAccountsGlobalStateProvider.unregister(self, forIdentifier: userWalletId)
         tangemPayAccountGlobalStateProvider.unregister(forIdentifier: userWalletId)
+        polymarketAccountGlobalStateProvider.unregister(forIdentifier: userWalletId)
 
         // Clear the `share(replay: 1)` buffer before disposing, so a late subscriber never replays an array
         // containing a just-disposed account and re-subscribes its `userTokensPublisher` ([REDACTED_INFO]).
