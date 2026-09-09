@@ -49,6 +49,48 @@ struct PortfolioReviewMapperTests {
 
         #expect(try chart(of: state) == .noData(.cantLoad))
     }
+
+    @Test("A share cut short by the Other bucket reads as approximate", arguments: [(10, false), (11, true)])
+    func approximateShareCarriesTheTilde(assetCount: Int, isApproximate: Bool) throws {
+        let state = map(makeLoadedTokens(count: assetCount), totalBalance: .loaded(balance: 100))
+
+        guard case .loaded(_, _, let percent) = try chart(of: state) else {
+            Issue.record("Expected a loaded chart")
+            return
+        }
+
+        #expect(percent.hasPrefix(AppConstants.tildeSign) == isApproximate)
+    }
+
+    @Test("A bucket holding nothing but a valueless asset leaves the share exact")
+    func valuelessBucketKeepsTheShareExact() throws {
+        // Deliberately outside `blockchains`, so reordering that list cannot merge this one into the top.
+        let unpriced = makeUnreachableToken(.blockchain(.init(.dash(testnet: false), derivationPath: nil)))
+        let state = map(makeLoadedTokens(count: 10) + [unpriced], totalBalance: .loaded(balance: 100))
+
+        guard case .loaded(_, _, let percent) = try chart(of: state) else {
+            Issue.record("Expected a loaded chart")
+            return
+        }
+
+        #expect(!percent.hasPrefix(AppConstants.tildeSign))
+    }
+
+    @Test("A share that only rounds up to a hundred still says it is approximate")
+    func shareRoundedToAHundredStaysApproximate() throws {
+        // Ten funded assets plus a dust one: the top covers 99.997%, which the two shown digits print as 100.
+        let dust = makeLoadedToken(.blockchain(.init(.dash(testnet: false), derivationPath: nil)), fiatBalance: 3)
+        let state = map(makeLoadedTokens(count: 10, balance: 10000) + [dust], totalBalance: .loaded(balance: 100))
+
+        guard case .loaded(_, _, let percent) = try chart(of: state) else {
+            Issue.record("Expected a loaded chart")
+            return
+        }
+
+        let hundred = PercentFormatter().format(1, option: .yield)
+
+        #expect(percent == "\(AppConstants.tildeSign)\(hundred)")
+    }
 }
 
 // MARK: - Helpers
@@ -64,6 +106,16 @@ private extension PortfolioReviewMapperTests {
         }
 
         return content.chart
+    }
+
+    /// The top of the ranking holds ten groups, so an eleventh asset is what creates the Other bucket.
+    func makeLoadedTokens(count: Int, balance: Decimal = 1) -> [TokenItemType] {
+        Self.blockchains.prefix(count).enumerated().map { index, blockchain in
+            makeLoadedToken(
+                .blockchain(.init(blockchain, derivationPath: nil)),
+                fiatBalance: balance * Decimal(count - index)
+            )
+        }
     }
 
     func makeLoadedToken(_ tokenItem: TokenItem, fiatBalance: Decimal) -> TokenItemType {
@@ -82,4 +134,18 @@ private extension PortfolioReviewMapperTests {
     enum TestError: Error {
         case stateIsNotContent(PortfolioReviewViewModel.ViewState)
     }
+
+    static let blockchains: [Blockchain] = [
+        .bitcoin(testnet: false),
+        .ethereum(testnet: false),
+        .cosmos(testnet: false),
+        .solana(curve: .ed25519, testnet: false),
+        .alephium(testnet: false),
+        .polygon(testnet: false),
+        .avalanche(testnet: false),
+        .tron(testnet: false),
+        .litecoin,
+        .dogecoin,
+        .kaspa(testnet: false),
+    ]
 }

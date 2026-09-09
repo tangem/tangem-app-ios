@@ -12,11 +12,13 @@ import CoreGraphics
 /// clamping into the card when the natural placement would overflow.
 enum SegmentTooltipPositioning {
     /// The slice-end anchor point (in `cardSize` coordinates), or `nil` when the index is out of range.
-    /// Sums the given `sweepsDeg`; the caller passes the same capped sweeps the ring draws, so the anchor
-    /// lands on the drawn slice end.
+    /// Sums the given `sweepsDeg` and adds `capOverlapDeg`: the drawn slice sits one round cap ahead of its
+    /// sweep, and an anchor on the raw end would point at the neighbour whenever a slice is narrower than
+    /// the cap. The hit test shifts by the same amount.
     static func anchor(
         selectedIndex: Int,
         sweepsDeg: [CGFloat],
+        capOverlapDeg: CGFloat,
         cardSize: CGSize,
         strokeWidth: CGFloat,
         ringDiameter: CGFloat,
@@ -26,7 +28,7 @@ enum SegmentTooltipPositioning {
 
         let ringCenter = CGPoint(x: cardSize.width / 2, y: ringTopPadding + ringDiameter / 2)
         let innerRadius = ringDiameter / 2 - strokeWidth / 2
-        let endFraction = sweepsDeg[0 ... selectedIndex].reduce(0, +) / 360
+        let endFraction = (sweepsDeg[0 ... selectedIndex].reduce(0, +) + capOverlapDeg) / 360
         let angle = endFraction * 2 * .pi
 
         return CGPoint(
