@@ -718,14 +718,13 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     private func editableFromAmountField() -> XCUIElement {
         // The editable field is the hittable match; the overlaid measurement field disables hit testing.
         let query = app.textFields.matching(identifier: SwapAccessibilityIdentifiers.fromAmountTextField)
-        let predicate = NSPredicate { _, _ in query.allElementsBoundByIndex.contains { $0.isHittable } }
-        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
-        XCTAssertEqual(
-            XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
-            .completed,
-            "Editable from amount field should become hittable"
-        )
-        return query.allElementsBoundByIndex.first { $0.isHittable } ?? query.firstMatch
+
+        guard let field = query.firstHittableElement() else {
+            XCTFail("Editable from amount field should become hittable")
+            return query.firstMatch
+        }
+
+        return field
     }
 }
 
