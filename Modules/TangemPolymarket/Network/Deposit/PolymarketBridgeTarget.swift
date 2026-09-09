@@ -16,7 +16,7 @@ struct PolymarketBridgeTarget: Moya.TargetType {
 
     enum Target {
         case supportedAssets
-        case fundingAddresses(PolymarketDTO.DepositRequest, builderCode: String?)
+        case fundingAddresses(PolymarketDTO.DepositRequest, builderCode: String)
     }
 
     var path: String {
@@ -47,7 +47,7 @@ struct PolymarketBridgeTarget: Moya.TargetType {
         case .supportedAssets:
             return nil
         case .fundingAddresses(_, let builderCode):
-            return builderCode.map { [Constants.builderCodeHeader: $0] }
+            return [Constants.builderCodeHeader: builderCode]
         }
     }
 }

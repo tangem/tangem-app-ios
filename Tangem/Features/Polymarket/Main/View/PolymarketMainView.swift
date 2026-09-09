@@ -135,6 +135,12 @@ struct PolymarketMainView: View {
                     .padding(.top, Constants.bannerTopSpacing)
             }
 
+            if viewModel.isAwaitingFunds {
+                PolymarketOrderNotificationsView(notifications: [.awaitingFunds])
+                    .padding(.horizontal, Constants.horizontalPadding)
+                    .padding(.top, Constants.bannerTopSpacing)
+            }
+
             exploreEventsTitle
                 .padding(.top, Constants.headerSpacing)
         }
