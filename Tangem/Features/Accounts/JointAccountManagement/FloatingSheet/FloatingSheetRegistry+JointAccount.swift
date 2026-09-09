@@ -24,6 +24,10 @@ extension FloatingSheetRegistry {
             JointAccountJoinConfirmationView(viewModel: $0)
         }
 
+        register(JointAccountActivationConfirmationViewModel.self) {
+            JointAccountActivationConfirmationView(viewModel: $0)
+        }
+
         register(JointAccountInviteSafetyViewModel.self) {
             JointAccountInviteSafetyView(viewModel: $0)
         }
