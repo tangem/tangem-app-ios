@@ -9,6 +9,8 @@
 import Foundation
 
 final class JointAccountManagementCoordinator: CoordinatorObject {
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+
     // MARK: - Navigation actions
 
     let dismissAction: Action<Void>
@@ -179,6 +181,16 @@ extension JointAccountManagementCoordinator: JointAccountCreationMemberNameRouta
     }
 }
 
+// MARK: - JointAccountInviteSafetyRoutable
+
+extension JointAccountManagementCoordinator: JointAccountInviteSafetyRoutable {
+    func closeInviteSafety() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
 // MARK: - JointAccountInviteMembersRoutable
 
 extension JointAccountManagementCoordinator: JointAccountInviteMembersRoutable {
@@ -191,7 +203,9 @@ extension JointAccountManagementCoordinator: JointAccountInviteMembersRoutable {
     }
 
     func openInviteSafety() {
-        // [REDACTED_TODO_COMMENT]
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: JointAccountInviteSafetyViewModel(coordinator: self))
+        }
     }
 
     func openMemberDetails() {
