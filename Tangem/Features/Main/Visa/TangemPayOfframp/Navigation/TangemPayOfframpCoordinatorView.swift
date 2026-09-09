@@ -43,6 +43,11 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
                 )
                 RecentRecipientsView(viewModel: viewModel)
             }
+
+        case .transferInput:
+            if let viewModel = coordinator.transferInputViewModel {
+                TransferInputView(viewModel: viewModel)
+            }
         }
     }
 
