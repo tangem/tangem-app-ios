@@ -14,6 +14,7 @@ import TangemUI
 enum FeedTab: Identifiable {
     case crypto(CryptoFeedViewModel)
     case realAssets(RealAssetsFeedViewModel)
+    case earn(EarnFeedViewModel)
     case predictions
 
     var id: String { rawCaseValue }
@@ -22,6 +23,7 @@ enum FeedTab: Identifiable {
         switch self {
         case .crypto: .crypto
         case .realAssets: .realAssets
+        case .earn: .earn
         case .predictions: .predictions
         }
     }
@@ -30,7 +32,7 @@ enum FeedTab: Identifiable {
         switch self {
         case .crypto(let viewModel): viewModel.feedSheetSizeDidChange(to: size)
         case .realAssets(let viewModel): viewModel.feedSheetSizeDidChange(to: size)
-        case .predictions: break
+        case .earn, .predictions: break
         }
     }
 }
