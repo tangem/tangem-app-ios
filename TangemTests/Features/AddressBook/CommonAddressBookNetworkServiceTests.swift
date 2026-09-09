@@ -229,6 +229,7 @@ private final class MockTangemApiService: TangemApiService {
     func loadCoins(requestModel: CoinsList.Request) async throws -> CoinsList.Response { fatalError("unused") }
     func loadCoinsList(requestModel: MarketsDTO.General.Request) async throws -> MarketsDTO.General.Response { fatalError("unused") }
     func loadCoinsCategories(requestModel: MarketsDTO.Categories.Request) async throws -> MarketsDTO.Categories.Response { fatalError("unused") }
+    func loadCoinsGeckoCategories(requestModel: MarketsDTO.GeckoCategories.Request) async throws -> MarketsDTO.GeckoCategories.Response { fatalError("unused") }
     func loadTokenMarketsDetails(requestModel: MarketsDTO.Coins.Request) async throws -> MarketsDTO.Coins.Response { fatalError("unused") }
     func loadCoinsHistoryChartPreview(requestModel: MarketsDTO.ChartsHistory.PreviewRequest) async throws -> MarketsDTO.ChartsHistory.PreviewResponse { fatalError("unused") }
     func loadHistoryChart(requestModel: MarketsDTO.ChartsHistory.HistoryRequest) async throws -> MarketsDTO.ChartsHistory.HistoryResponse { fatalError("unused") }
