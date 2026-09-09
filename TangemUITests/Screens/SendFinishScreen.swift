@@ -80,6 +80,10 @@ final class SendFinishScreen: ScreenBase<SendFinishScreenElement> {
         XCTContext.runActivity(named: "Tap Close and return to staking details") { _ in
             waitAndAssertTrue(closeButton, "Close button should exist")
             closeButton.waitAndTap()
+            XCTAssertTrue(
+                headerTitle.waitForNonExistence(timeout: .robustUIUpdate),
+                "Send finish screen should be dismissed before returning to staking details"
+            )
             return StakingDetailsScreen(app)
         }
     }
