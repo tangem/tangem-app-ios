@@ -30,7 +30,7 @@ final class MobileOnboardingICloudBackupViewModel: ObservableObject {
 
     let navigationTitle = Localization.hwCloudBackupRestoreNavtitleV2(MobileBackupConstants.iCloudServiceName)
     let passwordTitle = Localization.hwCloudBackupPasswordHint
-    let passwordWarningTitle = Localization.hwCloudBackupConsent
+    let passwordWarningTitle = Localization.hwCloudBackupConsentV2(MobileBackupConstants.appleIDServiceName)
 
     var leadingNavBarAction: MobileOnboardingFlowNavBarAction? {
         makeLeadingNavBarAction()
