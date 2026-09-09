@@ -27,12 +27,7 @@ struct CollectiblesAPIService {
 extension CollectiblesAPIService: CollectiblesLoresProvider {
     func load() async throws -> CollectiblesLoreCatalogue {
         let response: CollectiblesDTO.MachineCategoriesResponse = try await request(.categories)
-
-        let lores = response.categories.map { category in
-            CollectiblesLore(id: category.id, title: category.name, packsCount: category.machinesQuantity)
-        }
-
-        return CollectiblesLoreCatalogue(lores: lores, totalPacksCount: response.totalMachinesQuantity)
+        return Mapper.mapToLoreCatalogue(response)
     }
 }
 
@@ -52,26 +47,19 @@ extension CollectiblesAPIService: CollectiblesPacksProvider {
         let response: CollectiblesDTO.MachinesResponse = try await request(.machines(machinesRequest))
 
         return CollectiblesPacksPage(
-            packs: response.machines.map(mapToPack),
+            packs: response.machines.map(Mapper.mapToPack),
             hasNext: response.hasNext,
             cursor: response.cursor
         )
     }
 }
 
-// MARK: - Mapping
+// MARK: - CollectiblesMachineProvider
 
-private extension CollectiblesAPIService {
-    func mapToPack(_ machine: CollectiblesDTO.Machine) -> CollectiblesPack {
-        CollectiblesPack(
-            id: machine.externalId,
-            name: machine.shortName.isEmpty ? machine.name : machine.shortName,
-            loreID: machine.categoryId,
-            price: machine.price / Constants.dollarScale,
-            currencyCode: AppConstants.usdCurrencyCode,
-            buybackRate: Decimal(machine.instantBuybackPercent) / Constants.percentScale,
-            artworkURL: machine.image.flatMap(URL.init)
-        )
+extension CollectiblesAPIService: CollectiblesMachineProvider {
+    func load(id: String) async throws -> CollectiblesMachine {
+        let machine: CollectiblesDTO.Machine = try await request(.machine(externalID: id))
+        return Mapper.mapToMachine(machine)
     }
 }
 
@@ -102,10 +90,5 @@ private extension CollectiblesAPIService {
 private extension CollectiblesAPIService {
     enum Constants {
         static let pageLimit = 50
-
-        /// Backend money convention: dollar amounts arrive multiplied by 100 (`price: 5000` is $50).
-        static let dollarScale = Decimal(100)
-        /// `instantBuybackPercent` is whole percent (85), the domain rate is a fraction (0.85).
-        static let percentScale = Decimal(100)
     }
 }
