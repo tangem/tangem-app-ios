@@ -34,6 +34,10 @@ public struct PolymarketPositionDetailsView: View {
             VStack(spacing: Constants.blockSpacing) {
                 PolymarketPositionHeader(model: model.header)
 
+                if let notice = model.notice {
+                    PolymarketPositionNoticeView(notice: notice)
+                }
+
                 VStack(spacing: Constants.groupSpacing) {
                     PolymarketMarketCard(model: model.market)
 
@@ -82,6 +86,7 @@ public extension PolymarketPositionDetailsView {
         public let market: PolymarketMarketCard.Model
         public let stats: [PolymarketPositionStatTile.Model]
         public let rows: [PolymarketDetailsRowsBlock.Row]
+        public let notice: PolymarketPositionNotice?
         public let secondaryAction: Action?
         public let primaryAction: Action?
 
@@ -90,6 +95,7 @@ public extension PolymarketPositionDetailsView {
             market: PolymarketMarketCard.Model,
             stats: [PolymarketPositionStatTile.Model],
             rows: [PolymarketDetailsRowsBlock.Row],
+            notice: PolymarketPositionNotice? = nil,
             secondaryAction: Action?,
             primaryAction: Action?
         ) {
@@ -97,6 +103,7 @@ public extension PolymarketPositionDetailsView {
             self.market = market
             self.stats = stats
             self.rows = rows
+            self.notice = notice
             self.secondaryAction = secondaryAction
             self.primaryAction = primaryAction
         }
