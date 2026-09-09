@@ -23,7 +23,7 @@ enum WCAccountFinder {
                 }) {
                     return cryptoAccountModel
                 }
-            case .joint, .tangemPay, .polymarket:
+            case .joint, .tangemPay, .polymarket, .collectibles:
                 break
             }
         }
@@ -42,7 +42,7 @@ enum WCAccountFinder {
             }
 
             return cryptoAccount
-        case .joint, .tangemPay, .polymarket:
+        case .joint, .tangemPay, .polymarket, .collectibles:
             return nil
         }
     }
