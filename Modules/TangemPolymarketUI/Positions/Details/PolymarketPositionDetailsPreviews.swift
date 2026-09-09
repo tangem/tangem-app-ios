@@ -18,6 +18,14 @@ import SwiftUI
     PolymarketPositionDetailsView(model: .losing, onClose: {})
 }
 
+#Preview("Pending") {
+    PolymarketPositionDetailsView(model: .pending, onClose: {})
+}
+
+#Preview("Disputed") {
+    PolymarketPositionDetailsView(model: .disputed, onClose: {})
+}
+
 #Preview("Winning — Dark") {
     PolymarketPositionDetailsView(model: .winning, onClose: {})
         .preferredColorScheme(.dark)
@@ -93,4 +101,22 @@ private extension PolymarketPositionDetailsView.Model {
         secondaryAction: .init(title: "Close", isEnabled: false, perform: {}),
         primaryAction: .init(title: "Buy", isEnabled: false, perform: {})
     )
+}
+
+private extension PolymarketPositionDetailsView.Model {
+    static let pending = winning.awaiting(.pendingResolution, status: "Pending")
+
+    static let disputed = winning.awaiting(.disputed, status: "Disputed")
+
+    func awaiting(_ notice: PolymarketPositionNotice, status: String) -> PolymarketPositionDetailsView.Model {
+        PolymarketPositionDetailsView.Model(
+            header: header,
+            market: market,
+            stats: stats,
+            rows: rows.map { $0.title == "Status" ? .init(title: $0.title, value: status) : $0 },
+            notice: notice,
+            secondaryAction: secondaryAction.map { .init(title: $0.title, isEnabled: false, perform: $0.perform) },
+            primaryAction: primaryAction.map { .init(title: $0.title, isEnabled: false, perform: $0.perform) }
+        )
+    }
 }
