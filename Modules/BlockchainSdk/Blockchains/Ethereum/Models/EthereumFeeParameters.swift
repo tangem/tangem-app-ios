@@ -41,6 +41,8 @@ public extension EthereumFeeParameters {
             return nil
         case .gasless(let params):
             return params.maxFeePerGas
+        case .safe(let params):
+            return params.gasPrice
         }
     }
 
@@ -51,6 +53,8 @@ public extension EthereumFeeParameters {
         case .legacy(let params):
             return params.gasLimit
         case .gasless(let params):
+            return params.gasLimit
+        case .safe(let params):
             return params.gasLimit
         }
     }
@@ -63,6 +67,8 @@ public extension EthereumFeeParameters {
             return params.nonce
         case .gasless(let params):
             return params.nonce
+        case .safe(let params):
+            return params.nonce
         }
     }
 }
@@ -73,6 +79,7 @@ public enum EthereumFeeParametersType {
     case legacy(EthereumLegacyFeeParameters)
     case eip1559(EthereumEIP1559FeeParameters)
     case gasless(EthereumGaslessTransactionFeeParameters)
+    case safe(SafeTransactionFeeParameters)
 }
 
 // MARK: - EthereumLegacyFeeParameters
