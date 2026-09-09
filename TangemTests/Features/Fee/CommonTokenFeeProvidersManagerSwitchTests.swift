@@ -384,6 +384,7 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
 
 @Suite("CommonTokenFeeProvidersManagerProvider — initial selection")
 struct CommonTokenFeeProvidersManagerProviderInitialSelectionTests {
+    private let tronNativeTokenItem: TokenItem = .blockchain(.init(.tron(testnet: false), derivationPath: nil))
     private let tronTokenItem: TokenItem = .token(
         .init(
             name: "Tether",
@@ -393,13 +394,9 @@ struct CommonTokenFeeProvidersManagerProviderInitialSelectionTests {
         ),
         .init(.tron(testnet: false), derivationPath: nil)
     )
-
     @Test("Tron selects gasless token when both fee currencies have balance")
     func tronWithNativeAndGaslessBalances_selectsGasless() {
-        let native = makeProvider(
-            tokenItem: .blockchain(.init(.tron(testnet: false), derivationPath: nil)),
-            balance: 10
-        )
+        let native = makeProvider(tokenItem: tronNativeTokenItem, balance: 10)
         let gasless = makeProvider(tokenItem: tronTokenItem, balance: 100)
 
         let selected = makeSUT().prepareInitialTokenFeeProvider(main: native, all: [native, gasless])
@@ -409,10 +406,7 @@ struct CommonTokenFeeProvidersManagerProviderInitialSelectionTests {
 
     @Test("Tron selects gasless token when native balance is zero")
     func tronWithOnlyGaslessBalance_selectsGasless() {
-        let native = makeProvider(
-            tokenItem: .blockchain(.init(.tron(testnet: false), derivationPath: nil)),
-            balance: 0
-        )
+        let native = makeProvider(tokenItem: tronNativeTokenItem, balance: 0)
         let gasless = makeProvider(tokenItem: tronTokenItem, balance: 100)
 
         let selected = makeSUT().prepareInitialTokenFeeProvider(main: native, all: [native, gasless])
@@ -422,34 +416,31 @@ struct CommonTokenFeeProvidersManagerProviderInitialSelectionTests {
 
     @Test("Tron selects native token when gasless balance is zero")
     func tronWithoutGaslessBalance_selectsNative() {
-        let nativeTokenItem = TokenItem.blockchain(.init(.tron(testnet: false), derivationPath: nil))
-        let native = makeProvider(tokenItem: nativeTokenItem, balance: 10)
+        let native = makeProvider(tokenItem: tronNativeTokenItem, balance: 10)
         let gasless = makeProvider(tokenItem: tronTokenItem, balance: 0)
 
         let selected = makeSUT().prepareInitialTokenFeeProvider(main: native, all: [native, gasless])
 
-        #expect(selected.feeTokenItem == nativeTokenItem)
+        #expect(selected.feeTokenItem == tronNativeTokenItem)
     }
 
     @Test("Tron selects native token when no gasless provider exists")
     func tronWithoutGaslessProvider_selectsNative() {
-        let nativeTokenItem = TokenItem.blockchain(.init(.tron(testnet: false), derivationPath: nil))
-        let native = makeProvider(tokenItem: nativeTokenItem, balance: 10)
+        let native = makeProvider(tokenItem: tronNativeTokenItem, balance: 10)
 
         let selected = makeSUT().prepareInitialTokenFeeProvider(main: native, all: [native])
 
-        #expect(selected.feeTokenItem == nativeTokenItem)
+        #expect(selected.feeTokenItem == tronNativeTokenItem)
     }
 
     @Test("Tron keeps native fallback when neither fee currency has balance")
     func tronWithoutFeeCurrencyBalances_selectsNative() {
-        let nativeTokenItem = TokenItem.blockchain(.init(.tron(testnet: false), derivationPath: nil))
-        let native = makeProvider(tokenItem: nativeTokenItem, balance: 0)
+        let native = makeProvider(tokenItem: tronNativeTokenItem, balance: 0)
         let gasless = makeProvider(tokenItem: tronTokenItem, balance: 0)
 
         let selected = makeSUT().prepareInitialTokenFeeProvider(main: native, all: [native, gasless])
 
-        #expect(selected.feeTokenItem == nativeTokenItem)
+        #expect(selected.feeTokenItem == tronNativeTokenItem)
     }
 
     private func makeSUT() -> CommonTokenFeeProvidersManagerProvider {
@@ -470,18 +461,40 @@ struct CommonTokenFeeProvidersManagerProviderInitialSelectionTests {
 @Suite("CommonTokenFeeProvidersManagerProvider — Tron gasless availability", .serialized)
 struct CommonTokenFeeProvidersManagerProviderTronGaslessAvailabilityTests {
     private let feeTokenAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+    private let unsupportedTokenAddress = "TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8"
 
-    @Test("Activated Tron account exposes gasless fee tokens")
-    func activatedAccount_exposesGaslessFeeTokens() async {
-        await assertAvailableTokenAddresses(isAccountActivated: true, expectedAddresses: [feeTokenAddress])
+    @Test("Activated Tron account exposes the sent token when it supports gasless fees")
+    func activatedAccountWithSupportedToken_exposesSentToken() async {
+        await assertAvailableTokenAddresses(
+            tokenAddress: feeTokenAddress,
+            isAccountActivated: true,
+            expectedAddresses: [feeTokenAddress]
+        )
     }
 
     @Test("Non-activated Tron account hides gasless fee tokens")
     func nonActivatedAccount_hidesGaslessFeeTokens() async {
-        await assertAvailableTokenAddresses(isAccountActivated: false, expectedAddresses: [])
+        await assertAvailableTokenAddresses(
+            tokenAddress: feeTokenAddress,
+            isAccountActivated: false,
+            expectedAddresses: []
+        )
     }
 
-    private func assertAvailableTokenAddresses(isAccountActivated: Bool, expectedAddresses: [String]) async {
+    @Test("Activated Tron account hides fee tokens different from the token being sent")
+    func activatedAccountWithUnsupportedToken_hidesGaslessFeeTokens() async {
+        await assertAvailableTokenAddresses(
+            tokenAddress: unsupportedTokenAddress,
+            isAccountActivated: true,
+            expectedAddresses: []
+        )
+    }
+
+    private func assertAvailableTokenAddresses(
+        tokenAddress: String,
+        isAccountActivated: Bool,
+        expectedAddresses: [String]
+    ) async {
         await InjectedDependenciesIsolation.shared.run {
             let previousNetworkManager = InjectedValues[\.gaslessTransactionsNetworkManager]
             defer {
@@ -501,7 +514,15 @@ struct CommonTokenFeeProvidersManagerProviderTronGaslessAvailabilityTests {
             )
 
             let walletModel = WalletModelTestsMock(
-                tokenItem: .blockchain(.init(.tron(testnet: false), derivationPath: nil)),
+                tokenItem: .token(
+                    .init(
+                        name: "Token",
+                        symbol: "TOKEN",
+                        contractAddress: tokenAddress,
+                        decimalCount: 6
+                    ),
+                    .init(.tron(testnet: false), derivationPath: nil)
+                ),
                 isEmpty: false
             )
             walletModel.tronAccountActivationStateProviderMock = TronAccountActivationStateProviderStub(
