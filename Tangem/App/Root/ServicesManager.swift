@@ -143,6 +143,13 @@ final class CommonServicesManager {
             UITestsStorageCleaner.clearWalletData()
         }
 
+        // Stands in for the AppsFlyer callback, which never fires on internal/debug builds
+        if arguments.firstIndex(of: "-uitest-tangempay-mobile-onboarding") != nil {
+            TangemPayMobileOnboardingService().markOnboardingNeeded()
+        } else {
+            TangemPayMobileOnboardingService().markOnboardingShown()
+        }
+
         // Feature toggle overrides — reset previous overrides for deterministic UI test runs
         FeatureStorage.instance.availableFeatures = [:]
         applyFeatureToggleOverrides(from: arguments)

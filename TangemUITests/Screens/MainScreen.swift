@@ -42,6 +42,11 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var getTangemPayBanner = app.descendants(matching: .any)
         .matching(identifier: TangemPayAccessibilityIdentifiers.getTangemPayBanner)
         .firstMatch
+    /// The banner identifier overrides the one its buttons carry, so the CTA is told apart by its label.
+    private lazy var getTangemPayBannerOpenButton = app.buttons
+        .matching(identifier: TangemPayAccessibilityIdentifiers.getTangemPayBanner)
+        .matching(NSPredicate(format: "label == %@", "Learn more"))
+        .firstMatch
     private lazy var addTokensButton = app.buttons[MainAccessibilityIdentifiers.addTokensButton].firstMatch
     /// The promo banner merges its title and description into a single accessibility element, so they are
     /// matched inside that element's label rather than by identifiers of their own.
@@ -659,7 +664,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func tapGetTangemPayBanner() -> TangemPayOnboardingScreen {
         XCTContext.runActivity(named: "Tap Get Tangem Pay banner CTA") { _ in
             waitAndAssertTrue(getTangemPayBanner, timeout: .networkRequest, "Get Tangem Pay banner should be displayed on main screen")
-            app.buttons[TangemPayAccessibilityIdentifiers.getTangemPayBannerOpenButton].firstMatch.waitAndTap()
+            getTangemPayBannerOpenButton.waitAndTap()
             return TangemPayOnboardingScreen(app)
         }
     }
@@ -708,12 +713,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
 
     @discardableResult
     func verifyTangemPayTileShowsKycInProgress() -> Self {
-        XCTContext.runActivity(named: "Verify Tangem Pay tile shows KYC in progress") { _ in
-            scrollToElement(tangemPayTile)
-            let kycStatusLabel = tangemPayTile.staticTexts["KYC in progress"].firstMatch
-            waitAndAssertTrue(kycStatusLabel, timeout: .networkRequest, "Tangem Pay tile should show KYC in progress status")
-            return self
-        }
+        verifyTangemPayTileSubtitle(contains: "Verification in progress")
     }
 
     func openTangemPayKycStatusSheet() -> TangemPayKYCStatusSheet {
@@ -726,12 +726,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
 
     @discardableResult
     func verifyTangemPayTileShowsKycRejected() -> Self {
-        XCTContext.runActivity(named: "Verify Tangem Pay tile shows KYC rejected") { _ in
-            scrollToElement(tangemPayTile)
-            let kycStatusLabel = tangemPayTile.staticTexts["KYC rejected"].firstMatch
-            waitAndAssertTrue(kycStatusLabel, timeout: .networkRequest, "Tangem Pay tile should show KYC rejected status")
-            return self
-        }
+        verifyTangemPayTileSubtitle(contains: "Verification rejected")
     }
 
     func openTangemPayKycDeclinedSheet() -> TangemPayKYCDeclinedSheet {
