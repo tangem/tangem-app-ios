@@ -14,7 +14,7 @@ final class CollectiblesPacksViewModel: ObservableObject {
     // MARK: - Properties
 
     private let model: CollectiblesPacksModel
-    private let packSelectionHandler: ((CollectiblesPack) -> Void)?
+    private let packSelectionHandler: (CollectiblesPack) -> Void
 
     private var reloadTask: Task<Void, Error>?
     private var paginationTask: Task<Void, Error>?
@@ -26,7 +26,7 @@ final class CollectiblesPacksViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(model: CollectiblesPacksModel, packSelectionHandler: ((CollectiblesPack) -> Void)? = nil) {
+    init(model: CollectiblesPacksModel, packSelectionHandler: @escaping (CollectiblesPack) -> Void) {
         self.model = model
         self.packSelectionHandler = packSelectionHandler
     }
@@ -126,7 +126,7 @@ final class CollectiblesPacksViewModel: ObservableObject {
     func selectPack(withID id: String) {
         guard let pack = model.pack(withID: id) else { return }
 
-        packSelectionHandler?(pack)
+        packSelectionHandler(pack)
     }
 
     func search(query: String) {
