@@ -14,11 +14,13 @@ import TangemFoundation
 /// built on, so the two kinds cannot drift apart as that one gains behaviour.
 final class CommonJointAccountModel {
     let policy: JointAccountPolicy
-    let status: JointAccountStatus
-    let members: [JointAccountMember]
-    let invites: [JointAccountInvite]
+
+    private(set) var status: JointAccountStatus
+    private(set) var members: [JointAccountMember]
+    private(set) var invites: [JointAccountInvite]
 
     private let cryptoAccount: any CryptoAccountModel
+    private let didChangeSubject = PassthroughSubject<Void, Never>()
 
     init(
         cryptoAccount: any CryptoAccountModel,
@@ -32,6 +34,37 @@ final class CommonJointAccountModel {
         self.status = status
         self.members = members
         self.invites = invites
+    }
+}
+
+// MARK: - AccountModelEditable protocol conformance
+
+extension CommonJointAccountModel {
+    @discardableResult
+    func update(with editor: (_ editor: CommonJointAccountModelEditor) -> Void) -> Self {
+        let jointAccountModelEditor = CommonJointAccountModelEditor()
+        editor(jointAccountModelEditor)
+
+        cryptoAccount.update { cryptoAccountModelEditor in
+            jointAccountModelEditor.name.map(cryptoAccountModelEditor.setName)
+            jointAccountModelEditor.icon.map(cryptoAccountModelEditor.setIcon)
+        }
+
+        let status = jointAccountModelEditor.status ?? status
+        let members = jointAccountModelEditor.members ?? members
+        let invites = jointAccountModelEditor.invites ?? invites
+        let hasChanges = self.status != status || self.members != members || self.invites != invites
+
+        guard hasChanges else {
+            return self
+        }
+
+        self.status = status
+        self.members = members
+        self.invites = invites
+        didChangeSubject.send()
+
+        return self
     }
 }
 
@@ -55,7 +88,10 @@ extension CommonJointAccountModel: JointAccountModel {
     }
 
     var didChangePublisher: AnyPublisher<Void, Never> {
-        cryptoAccount.didChangePublisher
+        cryptoAccount
+            .didChangePublisher
+            .merge(with: didChangeSubject)
+            .eraseToAnyPublisher()
     }
 
     var isMainAccount: Bool {
@@ -83,7 +119,7 @@ extension CommonJointAccountModel: JointAccountModel {
     }
 
     @discardableResult
-    func edit(with editor: Editor) async throws(AccountEditError) -> Self {
+    func edit(with editor: (_ editor: CommonJointAccountModelEditor) -> Void) async throws(AccountEditError) -> Self {
         throw .unknownError(JointAccountModelError.editingNotSupported)
     }
 
@@ -127,5 +163,38 @@ extension CommonJointAccountModel: CustomStringConvertible {
                 "Invites count": invites.count,
             ]
         )
+    }
+}
+
+// MARK: - Auxiliary types
+
+extension CommonJointAccountModel {
+    /// Not private: a private type cannot be the witness for `Editor`.
+    final class CommonJointAccountModelEditor: JointAccountModelEditor {
+        var name: String?
+        var icon: AccountModel.CompositeIcon?
+        var status: JointAccountStatus?
+        var members: [JointAccountMember]?
+        var invites: [JointAccountInvite]?
+
+        func setName(_ name: String) {
+            self.name = name
+        }
+
+        func setIcon(_ icon: AccountModel.CompositeIcon) {
+            self.icon = icon
+        }
+
+        func setStatus(_ status: JointAccountStatus) {
+            self.status = status
+        }
+
+        func setMembers(_ members: [JointAccountMember]) {
+            self.members = members
+        }
+
+        func setInvites(_ invites: [JointAccountInvite]) {
+            self.invites = invites
+        }
     }
 }
