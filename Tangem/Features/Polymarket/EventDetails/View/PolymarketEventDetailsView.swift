@@ -31,7 +31,8 @@ struct PolymarketEventDetailsView: View {
             topBar
         }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
-        .injectMarketsNavigationConfigurator(isSimplified: true)
+        .toolbar(.hidden, for: .navigationBar)
+        .background(FeedPopGestureEnabler())
         .onWillDisappear(perform: viewModel.stopPolling)
     }
 
@@ -46,6 +47,7 @@ struct PolymarketEventDetailsView: View {
         .padding(.horizontal, Constants.horizontalPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
         .frame(height: Constants.toolbarHeight)
+        .padding(.top, Constants.barTopPadding)
         .padding(.bottom, Constants.barBottomPadding)
         .readGeometry(\.size.height, bindTo: $barHeight)
         .background {
@@ -337,6 +339,7 @@ private extension PolymarketEventDetailsView {
         static let textHorizontalPadding: CGFloat = 20
 
         static let toolbarHeight: CGFloat = 44
+        static let barTopPadding: CGFloat = 8
         static let barBottomPadding: CGFloat = 16
         static let barSpacing: CGFloat = 12
         static let barButtonSide: CGFloat = 44
