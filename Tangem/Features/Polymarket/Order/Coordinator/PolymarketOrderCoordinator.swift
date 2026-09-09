@@ -11,13 +11,19 @@ import Combine
 import TangemPolymarket
 
 final class PolymarketOrderCoordinator: CoordinatorObject {
+    @Injected(\.safariManager) private var safariManager: SafariManager
+
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Root ViewModels
 
     @Published private(set) var viewModel: PolymarketOrderViewModel?
-    @Published var slippageSelector: PolymarketSlippageSelectorViewModel?
+
+    // MARK: - Child ViewModels
+
+    @Published var destination: Destination?
+    @Published var sheet: Sheet?
 
     // MARK: - Init
 
@@ -52,9 +58,65 @@ extension PolymarketOrderCoordinator: PolymarketOrderRoutable {
     }
 
     func openSlippageSelector(percent: Decimal, onConfirm: @escaping (Decimal) -> Void) {
-        slippageSelector = PolymarketSlippageSelectorViewModel(percent: percent) { [weak self] confirmed in
+        sheet = .slippageSelector(PolymarketSlippageSelectorViewModel(percent: percent) { [weak self] confirmed in
             onConfirm(confirmed)
-            self?.slippageSelector = nil
+            self?.sheet = nil
+        })
+    }
+
+    @MainActor
+    func openSummary(model: PolymarketOrderModel) {
+        destination = .summary(PolymarketOrderSummaryViewModel(model: model, coordinator: self))
+    }
+}
+
+// MARK: - PolymarketOrderSummaryRoutable protocol conformance
+
+extension PolymarketOrderCoordinator: PolymarketOrderSummaryRoutable {
+    func closeSummary() {
+        destination = nil
+    }
+
+    func openLegalTerms(url: URL) {
+        safariManager.openURL(url)
+    }
+
+    @MainActor
+    func openFeeBreakdown(model: PolymarketOrderModel) {
+        sheet = .feeBreakdown(PolymarketFeeBreakdownSheetViewModel(model: model))
+    }
+
+    /// The result replaces the summary in the stack so that stepping back cannot reach a live Place button.
+    func openResult() {
+        destination = .result(PolymarketOrderResultViewModel(coordinator: self))
+    }
+}
+
+// MARK: - PolymarketOrderResultRoutable protocol conformance
+
+extension PolymarketOrderCoordinator: PolymarketOrderResultRoutable {}
+
+// MARK: - Navigation
+
+extension PolymarketOrderCoordinator {
+    enum Destination {
+        case summary(PolymarketOrderSummaryViewModel)
+        case result(PolymarketOrderResultViewModel)
+    }
+}
+
+// MARK: - Sheets
+
+extension PolymarketOrderCoordinator {
+    enum Sheet: Identifiable {
+        case slippageSelector(PolymarketSlippageSelectorViewModel)
+        case feeBreakdown(PolymarketFeeBreakdownSheetViewModel)
+
+        var id: String {
+            switch self {
+            case .slippageSelector: "slippageSelector"
+            case .feeBreakdown: "feeBreakdown"
+            }
         }
     }
 }
