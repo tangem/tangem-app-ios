@@ -7,6 +7,7 @@
 //
 
 import BlockchainSdk
+import TangemAssets
 import TangemExpress
 import TangemPay
 
@@ -125,6 +126,9 @@ extension SendReceiveTokenPresentation {
             return nil
         }
 
-        return SendReceiveTokenPresentation(currencySymbol: TangemPayUtilities.fiatItem.currencyCode)
+        return SendReceiveTokenPresentation(
+            currencySymbol: TangemPayUtilities.fiatItem.currencyCode,
+            icon: Assets.Visa.tokenAvatar
+        )
     }
 }
