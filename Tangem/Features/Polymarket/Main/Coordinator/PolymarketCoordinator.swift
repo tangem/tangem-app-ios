@@ -16,7 +16,7 @@ import TangemPolymarketUI
 import TangemUI
 import TangemUIUtils
 
-final class PolymarketCoordinator: CoordinatorObject {
+final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     private let presenceStore: PolymarketAccountPresenceStore = AppSettings.shared
@@ -28,6 +28,16 @@ final class PolymarketCoordinator: CoordinatorObject {
 
     @Published private(set) var viewState: ViewState?
     @Published var destination: Destination?
+    @Published var sendCoordinator: SendCoordinator? {
+        didSet {
+            guard sendCoordinator == nil, hasDispatchedDeposit else { return }
+
+            hasDispatchedDeposit = false
+            startAwaitingFunds()
+        }
+    }
+
+    @Published var tokenDetailsCoordinator: TokenDetailsCoordinator?
 
     private let onboardingFactory = PolymarketOnboardingFactory()
     private var geoblockStateProvider: PolymarketGeoblockStateProvider?
@@ -36,6 +46,8 @@ final class PolymarketCoordinator: CoordinatorObject {
     private var userWalletModel: (any UserWalletModel)?
     private var addFundsInteractor: PolymarketAddFundsInteractor?
     private weak var regionWarning: PolymarketRegionRestrictionViewModel?
+    private weak var addFundsSheet: PolymarketAddFundsSheetViewModel?
+    private var hasDispatchedDeposit = false
 
     // MARK: - Init
 
@@ -177,18 +189,41 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
     }
 
     func openAddFunds() {
-        guard let addFundsInteractor else {
-            PolymarketLogger.error(
-                "Add funds was tapped before the feed built its interactor",
-                error: CoordinatorError.missingAddFundsInteractor
-            )
-            return
-        }
-
         Task { @MainActor [weak self] in
-            guard let self else { return }
+            guard let self, addFundsSheet == nil else { return }
 
-            let viewModel = PolymarketAddFundsSheetViewModel(interactor: addFundsInteractor, coordinator: self)
+            guard let userWalletModel else {
+                PolymarketLogger.error("Add funds was tapped without a wallet", error: CoordinatorError.missingUserWalletModel)
+                return
+            }
+
+            guard let addFundsInteractor else {
+                PolymarketLogger.error(
+                    "Add funds was tapped before the feed built its interactor",
+                    error: CoordinatorError.missingAddFundsInteractor
+                )
+                return
+            }
+
+            guard let accountModel = PolymarketAccountAggregator.polymarketAccountModel(from: userWalletModel.accountModelsManager) else {
+                PolymarketLogger.error(
+                    "Add funds was tapped without a Polymarket account",
+                    error: CoordinatorError.missingPolymarketAccountModel
+                )
+                return
+            }
+
+            let viewModel = PolymarketAddFundsSheetViewModel(
+                interactor: addFundsInteractor,
+                swapParametersFactory: PolymarketSwapParametersFactory(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModelsProvider: MainScreenUIOrderedWalletModelsProvider(userWalletModel: userWalletModel),
+                    accountModel: accountModel
+                ),
+                coordinator: self
+            )
+
+            addFundsSheet = viewModel
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -202,15 +237,51 @@ extension PolymarketCoordinator: PolymarketAddFundsSheetRoutable {
             guard let self else { return }
 
             // Dismiss the active Add funds sheet first, otherwise Receive is queued behind it and never shown.
+            addFundsSheet = nil
             floatingSheetPresenter.removeActiveSheet()
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
+    func openSwapFlow(parameters: PredefinedSwapParameters) {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            addFundsSheet = nil
+            floatingSheetPresenter.removeActiveSheet()
+            openSwap(parameters: parameters)
+        }
+    }
+
     func closeAddFundsSheet() {
         Task { @MainActor [weak self] in
+            self?.addFundsSheet = nil
             self?.floatingSheetPresenter.removeActiveSheet()
         }
+    }
+}
+
+// MARK: - Swap
+
+private extension PolymarketCoordinator {
+    func openSwap(parameters: PredefinedSwapParameters) {
+        let coordinator = makeSendCoordinator()
+
+        coordinator.start(
+            with: .init(
+                type: .swap(parameters),
+                source: .main,
+                onTransactionDispatched: { [weak self] in self?.hasDispatchedDeposit = true }
+            )
+        )
+
+        sendCoordinator = coordinator
+    }
+
+    func startAwaitingFunds() {
+        guard case .feed(let viewModel) = viewState else { return }
+
+        viewModel.startAwaitingFunds()
     }
 }
 
@@ -226,8 +297,10 @@ extension PolymarketCoordinator: PolymarketEventDetailsRoutable {
 
 extension PolymarketCoordinator {
     enum CoordinatorError: Error {
+        case missingUserWalletModel
         case missingAddFundsInteractor
         case missingOrderProviders
+        case missingPolymarketAccountModel
     }
 }
 
