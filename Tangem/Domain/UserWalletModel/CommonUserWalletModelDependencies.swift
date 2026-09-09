@@ -231,29 +231,43 @@ private extension CommonUserWalletModelDependencies {
             transactionHistoryUpdater: TransactionHistoryUpdater()
         )
 
-        let walletFactoryTypeResolver = CryptoAccountWalletFactoryTypeResolver(
-            userWalletId: userWalletId,
-            jointAccountsRepository: jointAccountsRepository
-        )
-        let walletFactoryProvider = WalletFactoryProvider(userWalletConfig: config)
-
-        let dependenciesFactory = CommonCryptoAccountDependenciesFactory(
+        let cryptoAccountDependenciesFactory = CommonCryptoAccountDependenciesFactory(
             userWalletId: userWalletId,
             derivationManager: derivationManager,
             derivationStyle: config.derivationStyle,
             keysRepository: keysRepository,
-            walletFactoryTypeResolver: walletFactoryTypeResolver,
-            walletFactoryProvider: walletFactoryProvider,
+            cryptoAccountsRepository: cryptoAccountsRepository,
+            walletFactory: config.makeAnyWalletFactory(),
             walletManagerFactory: GenericWalletManagerFactory(),
             existingCurves: config.existingCurves,
             persistentBlockchains: config.persistentBlockchains,
             hardwareLimitationsUtil: hardwareLimitationsUtil,
             areHDWalletsSupported: areHDWalletsSupported,
             shouldLoadExpressAvailability: shouldLoadExpressAvailability,
-            userTokensRepositoryProvider: { derivationIdentity in
-                UserTokensRepositoryAdapter(innerRepository: cryptoAccountsRepository, derivationIdentity: derivationIdentity)
-            },
             walletModelsFactoryProvider: walletModelsFactoryProvider
+        )
+
+        let jointAccountDependenciesFactory = JointCryptoAccountDependenciesFactory(
+            userWalletId: userWalletId,
+            derivationManager: derivationManager,
+            keysRepository: keysRepository,
+            cryptoAccountsRepository: cryptoAccountsRepository,
+            jointAccountsRepository: jointAccountsRepository,
+            defaultWalletFactory: config.makeAnyWalletFactory(),
+            walletManagerFactory: GenericWalletManagerFactory(),
+            existingCurves: config.existingCurves,
+            hardwareLimitationsUtil: hardwareLimitationsUtil,
+            shouldLoadExpressAvailability: shouldLoadExpressAvailability,
+            walletModelsFactoryProvider: walletModelsFactoryProvider
+        )
+
+        let cryptoAccountModelsRegistry = CryptoAccountModelsRegistry(
+            userWalletId: userWalletId,
+            dependenciesFactory: cryptoAccountDependenciesFactory
+        )
+        let jointAccountModelsRegistry = JointAccountModelsRegistry(
+            userWalletId: userWalletId,
+            dependenciesFactory: jointAccountDependenciesFactory
         )
 
         let accountModelsManager = CommonAccountModelsManager(
@@ -263,7 +277,8 @@ private extension CommonUserWalletModelDependencies {
             tangemPayManager: tangemPayManager,
             accountModelsProvider: accountModelsProvider,
             archivedCryptoAccountsProvider: archivedCryptoAccountsProvider,
-            dependenciesFactory: dependenciesFactory,
+            cryptoAccountModelsRegistry: cryptoAccountModelsRegistry,
+            jointAccountModelsRegistry: jointAccountModelsRegistry,
             areHDWalletsSupported: areHDWalletsSupported
         )
 

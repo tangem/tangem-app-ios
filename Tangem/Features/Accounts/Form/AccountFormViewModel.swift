@@ -271,7 +271,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
     // MARK: - Private
 
-    private func editAccount(account: any BaseAccountModel) async throws(AccountEditError) {
+    private func editAccount(account: any CryptoAccountModel) async throws(AccountEditError) {
         let currentSnapshot = StateSnapshot(name: trimmedAccountName, color: selectedColor, image: selectedIcon)
 
         try await account.edit { editor in

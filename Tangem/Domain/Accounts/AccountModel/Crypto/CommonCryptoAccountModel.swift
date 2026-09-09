@@ -81,10 +81,14 @@ final class CommonCryptoAccountModel {
         self.derivationManager = derivationManager
         self.delegate = delegate
     }
+}
 
-    /// Updates the model properties directly without involving the delegate (internal use only by `AccountModelsManager`).
+// MARK: - AccountModelEditable protocol conformance
+
+extension CommonCryptoAccountModel {
+    /// Updates the model properties directly without involving the delegate (internal use only by the account model registries).
     @discardableResult
-    func update(with editor: Editor) -> Self {
+    func update(with editor: (_ editor: CommonAccountModelEditor) -> Void) -> Self {
         let accountModelEditor = CommonAccountModelEditor()
         editor(accountModelEditor)
 
@@ -137,7 +141,7 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
 
     /// Edits the account model using the provided editor closure (external use by consumers).
     @discardableResult
-    func edit(with editor: Editor) async throws(AccountEditError) -> Self {
+    func edit(with editor: (_ editor: CommonAccountModelEditor) -> Void) async throws(AccountEditError) -> Self {
         let accountModelEditor = CommonAccountModelEditor()
         editor(accountModelEditor)
 
@@ -206,7 +210,8 @@ extension CommonCryptoAccountModel: CustomStringConvertible {
 
 // MARK: - Auxiliary types
 
-private extension CommonCryptoAccountModel {
+extension CommonCryptoAccountModel {
+    /// Not private: a private type cannot be the witness for `Editor`.
     final class CommonAccountModelEditor: AccountModelEditor {
         var name: String?
         var icon: AccountModel.CompositeIcon?
