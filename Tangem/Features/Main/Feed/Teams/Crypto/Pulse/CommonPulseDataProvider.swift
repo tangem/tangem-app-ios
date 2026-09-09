@@ -19,12 +19,17 @@ final class CommonPulseDataProvider: PulseDataProvider {
         failedSubject.eraseToAnyPublisher()
     }
 
+    var isLoadingPublisher: AnyPublisher<Bool, Never> {
+        isLoadingSubject.eraseToAnyPublisher()
+    }
+
     var canLoadMore: Bool {
         listProvider.canFetchMore
     }
 
     private let tokensSubject = CurrentValueSubject<[MarketsTokenModel], Never>([])
     private let failedSubject = CurrentValueSubject<Bool, Never>(false)
+    private let isLoadingSubject = CurrentValueSubject<Bool, Never>(true)
     private let chartsRequestSubject = PassthroughSubject<Void, Never>()
 
     private let listProvider = MarketsListDataProvider()
@@ -57,9 +62,10 @@ final class CommonPulseDataProvider: PulseDataProvider {
         )
     }
 
-    func load(interval: PulseInterval, category: PulseCategory) {
+    func load(interval: PulseInterval, category: PulseCategory, tag: PulseTagSelection?, isCategoryUserInitiated: Bool) {
         filterProvider.didSelectMarketPriceInterval(interval.marketsInterval)
-        filterProvider.didSelectMarketOrder(category.marketsOrder)
+        filterProvider.didSelectMarketOrder(category.marketsOrder, isUserInitiated: isCategoryUserInitiated)
+        filterProvider.didSelectCategory(tag.map { .init(geckoCategoryId: $0.id, country: $0.country) })
         reload()
     }
 
@@ -98,6 +104,15 @@ final class CommonPulseDataProvider: PulseDataProvider {
         chartsRequestSubject.send()
     }
 
+    /// The `$items` sink swallows the empty list `reset()` produces while a reload is in flight, so when the
+    /// reload ends without a page (empty result or failure) the previous filter's list has to be cleared from here.
+    private func finishReloadWithoutItems() {
+        guard isReloading else { return }
+
+        isReloading = false
+        tokensSubject.send([])
+    }
+
     private func bind() {
         listProvider
             .$items
@@ -123,9 +138,21 @@ final class CommonPulseDataProvider: PulseDataProvider {
                 switch event {
                 case .failedToFetchData:
                     provider.failedSubject.send(true)
-                case .appendedItems, .startInitialFetch:
+                    provider.isLoadingSubject.send(false)
+                    provider.finishReloadWithoutItems()
+                case .appendedItems:
                     provider.failedSubject.send(false)
+                    provider.isLoadingSubject.send(false)
+
+                    if provider.listProvider.items.isEmpty {
+                        provider.finishReloadWithoutItems()
+                    }
+                case .startInitialFetch:
+                    provider.failedSubject.send(false)
+                    provider.isLoadingSubject.send(true)
                 case .loading, .idle, .cleared:
+                    // `.loading` also precedes a `fetch()` that bails out on an already scheduled retry,
+                    // so it must not clear the failure or the retry cycle would flicker the error state.
                     break
                 }
             }

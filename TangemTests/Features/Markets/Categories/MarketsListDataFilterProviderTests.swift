@@ -52,6 +52,28 @@ struct MarketsListDataFilterProviderTests {
         #expect(received[2].country == nil)
     }
 
+    @Test("A gecko category selection travels alone: no curated ids, only the slug and the country")
+    func geckoCategorySelection() {
+        let provider = MarketsListDataFilterProvider()
+
+        provider.didSelectCategory(.init(geckoCategoryId: "layer-1", country: "US"))
+        let filter = provider.currentFilterValue
+
+        #expect(filter.geckoCategoryId == "layer-1")
+        #expect(filter.categoryId == nil)
+        #expect(filter.sectorId == nil)
+        #expect(filter.country == "US")
+    }
+
+    @Test("The request sends geckoCategoryId only when it is set")
+    func geckoCategoryRequestParameter() {
+        let tagged = MarketsDTO.General.Request(currency: "usd", interval: .day, order: .rating, search: nil, showNetworks: nil, geckoCategoryId: "layer-1")
+        let plain = MarketsDTO.General.Request(currency: "usd", interval: .day, order: .rating, search: nil, showNetworks: nil)
+
+        #expect(tagged.parameters["geckoCategoryId"] as? String == "layer-1")
+        #expect(plain.parameters["geckoCategoryId"] == nil)
+    }
+
     @Test("Filters that differ only by category or sector are not equal")
     func filterEquality() {
         let base = MarketsListDataProvider.Filter(interval: .day, order: .rating, categoryId: 2, sectorId: nil, country: "US")
@@ -60,5 +82,9 @@ struct MarketsListDataFilterProviderTests {
         #expect(base != MarketsListDataProvider.Filter(interval: .day, order: .rating, categoryId: 3, sectorId: nil, country: "US"))
         #expect(base != MarketsListDataProvider.Filter(interval: .day, order: .rating, categoryId: 2, sectorId: 7, country: "US"))
         #expect(base != MarketsListDataProvider.Filter(interval: .day, order: .rating))
+        #expect(
+            MarketsListDataProvider.Filter(interval: .day, order: .rating, geckoCategoryId: "layer-1")
+                != MarketsListDataProvider.Filter(interval: .day, order: .rating, geckoCategoryId: "meme-token")
+        )
     }
 }

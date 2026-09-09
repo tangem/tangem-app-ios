@@ -21,6 +21,7 @@ final class MarketsCoordinator: CoordinatorObject {
     @Injected(\.earnAnalyticsProvider) private var earnAnalyticsProvider: EarnAnalyticsProvider
 
     private weak var polymarketWalletSelector: PolymarketWalletSelectorViewModel?
+    private weak var realAssetsCategoryFilterViewModel: MarketsRealAssetsFilterBottomSheetViewModel?
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
@@ -182,15 +183,18 @@ extension MarketsCoordinator: MarketsMainRoutable {
 
     func openRealAssetsCategoryFilter(with input: RealAssetsCategoryFilterInput) {
         Task { @MainActor [weak self] in
-            guard let self else { return }
+            // A second tap while the sheet is up (or queued) must not enqueue another copy behind it.
+            guard let self, realAssetsCategoryFilterViewModel == nil else { return }
 
             let viewModel = MarketsRealAssetsFilterBottomSheetViewModel(
                 input: input,
                 onDismiss: { [weak self] in
+                    self?.realAssetsCategoryFilterViewModel = nil
                     self?.floatingSheetPresenter.removeActiveSheet()
                 }
             )
 
+            realAssetsCategoryFilterViewModel = viewModel
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
