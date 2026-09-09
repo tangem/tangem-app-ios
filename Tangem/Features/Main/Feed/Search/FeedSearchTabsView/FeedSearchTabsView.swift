@@ -27,7 +27,7 @@ struct FeedSearchTabsView: View {
         switch viewModel.selectedTab {
         case .crypto(let cryptoViewModel):
             CryptoSearchView(viewModel: cryptoViewModel)
-        case .realAssets, .predictions:
+        case .realAssets, .earn, .predictions:
             // [REDACTED_TODO_COMMENT]
             FeedSearchEmptyView(title: "Search is not available in \(viewModel.selectedTab.title) yet")
         }

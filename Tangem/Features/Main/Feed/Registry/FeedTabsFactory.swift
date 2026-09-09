@@ -14,6 +14,7 @@ enum FeedTabsFactory {
             factories.append(RealAssetsFeedTabFactory())
         }
 
+        factories.append(EarnFeedTabFactory())
         factories.append(PredictionsFeedTabFactory())
 
         return factories
