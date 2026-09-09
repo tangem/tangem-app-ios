@@ -15,7 +15,7 @@ public extension PolymarketOrderSummaryHeader {
         public let accountIcon: ImageType
         public let balanceText: String
         public let amountText: String
-        public let toWin: PolymarketAmountBadge.State
+        public let toWin: PolymarketAmountBadge.State?
         public let tokenIconInfo: TokenIconInfo
 
         public init(
@@ -23,7 +23,7 @@ public extension PolymarketOrderSummaryHeader {
             accountIcon: ImageType,
             balanceText: String,
             amountText: String,
-            toWin: PolymarketAmountBadge.State,
+            toWin: PolymarketAmountBadge.State?,
             tokenIconInfo: TokenIconInfo
         ) {
             self.accountName = accountName

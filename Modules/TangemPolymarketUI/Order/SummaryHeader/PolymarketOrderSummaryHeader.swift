@@ -32,8 +32,8 @@ public struct PolymarketOrderSummaryHeader: View {
     }
 
     private var source: some View {
-        VStack(alignment: .leading, spacing: Constants.lineSpacing) {
-            HStack(spacing: Constants.lineSpacing) {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: Constants.sourceSpacing) {
                 Text(Localization.predictionPlaceSummaryFrom)
 
                 HStack(spacing: Constants.lineSpacing) {
@@ -61,7 +61,9 @@ public struct PolymarketOrderSummaryHeader: View {
                     .lineLimit(1)
                     .minimumScaleFactor(Constants.amountMinScale)
 
-                PolymarketAmountBadge.toWin(state: model.toWin)
+                if let toWin = model.toWin {
+                    PolymarketAmountBadge.toWin(state: toWin)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -76,7 +78,8 @@ private extension PolymarketOrderSummaryHeader {
     enum Constants {
         static let padding: CGFloat = 16
         static let cornerRadius: CGFloat = 24
-        static let blockSpacing: CGFloat = 12
+        static let blockSpacing: CGFloat = 20
+        static let sourceSpacing: CGFloat = 6
         static let lineSpacing: CGFloat = 4
         static let amountSpacing: CGFloat = 12
         static let accountIconSide: CGFloat = 16
