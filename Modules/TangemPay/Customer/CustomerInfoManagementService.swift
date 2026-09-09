@@ -79,6 +79,7 @@ public protocol CustomerInfoManagementService: AnyObject {
 
     func getBankCredentials(productInstanceId: String) async throws(TangemPayAPIServiceError) -> TangemPayBankCredentialsResponse
     func getBankAccounts() async throws(TangemPayAPIServiceError) -> [TangemPayBankAccountResponse]
+    func getBankOfframpOptions() async throws(TangemPayAPIServiceError) -> TangemPayBankOfframpOptionsResponse
     func loadEligibility() async throws(TangemPayAPIServiceError) -> TangemPayAvailabilityResponse
 
     func getCashbackSummary() async throws(TangemPayAPIServiceError) -> TangemPayCashbackSummaryResponse
@@ -285,6 +286,10 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
 
     public func getBankAccounts() async throws(TangemPayAPIServiceError) -> [TangemPayBankAccountResponse] {
         try await request(for: .getBankAccounts)
+    }
+
+    public func getBankOfframpOptions() async throws(TangemPayAPIServiceError) -> TangemPayBankOfframpOptionsResponse {
+        try await request(for: .getBankOfframpOptions)
     }
 
     public func loadEligibility() async throws(TangemPayAPIServiceError) -> TangemPayAvailabilityResponse {

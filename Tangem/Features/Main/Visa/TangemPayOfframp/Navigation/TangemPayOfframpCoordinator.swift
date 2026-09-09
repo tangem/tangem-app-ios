@@ -6,7 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import Combine
+import TangemFoundation
 import TangemUI
 
 final class TangemPayOfframpCoordinator: CoordinatorObject {
@@ -28,6 +29,10 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
 
     private(set) var recentRecipientsStore: TangemPayRecentRecipientsStore?
     private(set) var orderBuilder: TangemPayOfframpOrderBuilder?
+    @Published private(set) var transferInputViewModel: TransferInputViewModel?
+
+    private var tangemPayAccount: TangemPayAccount?
+    private var bag: Set<AnyCancellable> = []
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -38,6 +43,8 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        tangemPayAccount = options.tangemPayAccount
+
         let recentRecipientsStore = TangemPayRecentRecipientsStore(
             repository: CommonTangemPayBankAccountsRepository(
                 customerService: options.tangemPayAccount.customerService
@@ -57,10 +64,33 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
                 self?.handle($0)
             }
         )
+
+        bind()
     }
 
     func startWizard(recipient: TangemPayOfframpRecipient) {
-        orderBuilder = TangemPayOfframpOrderBuilder(recipient: recipient)
+        guard let tangemPayAccount else { return }
+
+        let orderBuilder = TangemPayOfframpOrderBuilder(recipient: recipient)
+        self.orderBuilder = orderBuilder
+
+        let savedRecipientName = savedRecipientName(for: recipient)
+
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            transferInputViewModel = TransferInputFactory.makeViewModel(
+                orderBuilder: orderBuilder,
+                tangemPayAccount: tangemPayAccount,
+                recipient: recipient,
+                savedRecipientName: savedRecipientName,
+                output: { [weak self] in
+                    self?.handle($0)
+                }
+            )
+
+            path.append(.transferInput)
+        }
     }
 }
 
@@ -80,6 +110,47 @@ extension TangemPayOfframpCoordinator {
 extension TangemPayOfframpCoordinator {
     enum Route: Hashable {
         case recentRecipients
+        case transferInput
+    }
+}
+
+// MARK: - Wizard lifetime
+
+private extension TangemPayOfframpCoordinator {
+    func bind() {
+        $path
+            .map { $0.contains(.transferInput) }
+            .removeDuplicates()
+            .filter { !$0 }
+            .withWeakCaptureOf(self)
+            .sink { coordinator, _ in
+                coordinator.orderBuilder = nil
+                coordinator.transferInputViewModel = nil
+            }
+            .store(in: &bag)
+    }
+
+    func savedRecipientName(for recipient: TangemPayOfframpRecipient) -> String? {
+        guard case .saved(let bankAccountId) = recipient else { return nil }
+
+        return recentRecipientsStore?
+            .recipients
+            .first { $0.id == bankAccountId }
+            .map { TangemPayRecipientNameFormatter.name(for: $0, style: .full) }
+    }
+}
+
+// MARK: - Transfer input output
+
+private extension TangemPayOfframpCoordinator {
+    func handle(_ output: TransferInputViewModel.Output) {
+        switch output {
+        case .continueWizard:
+            break
+
+        case .close:
+            dismiss(with: nil)
+        }
     }
 }
 
