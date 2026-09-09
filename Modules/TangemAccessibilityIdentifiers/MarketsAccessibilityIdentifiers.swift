@@ -43,6 +43,10 @@ public enum MarketsAccessibilityIdentifiers {
         return "marketsListTokenItem_\(uniqueId)"
     }
 
+    public static func marketsFeaturedAssetItem(uniqueId: String) -> String {
+        "marketsFeaturedAssetItem_\(uniqueId)"
+    }
+
     public static let marketsSortButton = "marketsSortButton"
 
     public static func marketsSortOption(_ orderType: String) -> String {
