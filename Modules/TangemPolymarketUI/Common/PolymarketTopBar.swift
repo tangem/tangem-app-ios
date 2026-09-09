@@ -34,31 +34,20 @@ public struct PolymarketTopBar: View {
 
             HStack(spacing: 0) {
                 if let onBack {
-                    button(icon: DesignSystem.Icons.ChevronLeft.regular20, label: Localization.commonBack, action: onBack)
+                    NavigationBarButton.back(action: onBack)
+                        .accessibilityLabel(Localization.commonBack)
                 }
 
                 Spacer(minLength: 0)
 
                 if let onClose {
-                    button(icon: DesignSystem.Icons.Cross.regular20, label: Localization.commonClose, action: onClose)
+                    NavigationBarButton.close(action: onClose)
+                        .accessibilityLabel(Localization.commonClose)
                 }
             }
         }
         .padding(.horizontal, Constants.horizontalPadding)
         .frame(height: Constants.height)
-    }
-
-    private func button(icon: ImageType, label: String, action: @escaping () -> Void) -> some View {
-        SwiftUI.Button(action: action) {
-            icon.image
-                .renderingMode(.template)
-                .foregroundStyle(DesignSystem.Color.iconPrimary)
-                .frame(size: .init(bothDimensions: Constants.buttonSide))
-                .contentShape(Circle())
-        }
-        .buttonStyle(.plain)
-        .tangemMaterialSurface(in: Circle(), interactive: true, shadow: DesignSystem.Shadow.fallbackButton)
-        .accessibilityLabel(label)
     }
 }
 
@@ -68,7 +57,6 @@ private extension PolymarketTopBar {
     enum Constants {
         static let horizontalPadding: CGFloat = 16
         static let height: CGFloat = 44
-        static let buttonSide: CGFloat = 44
         static let titleInset: CGFloat = 56
     }
 }

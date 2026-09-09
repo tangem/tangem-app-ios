@@ -146,8 +146,6 @@ extension PolymarketWelcomeViewModel {
 
 extension PolymarketWelcomeViewModel {
     enum Constants {
-        static let polymarketTermsURL = URL(string: "https://polymarket.com/tos")!
-
         static let toastTopPadding: CGFloat = 52
     }
 }
