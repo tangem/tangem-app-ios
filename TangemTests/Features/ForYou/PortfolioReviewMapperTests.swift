@@ -50,8 +50,9 @@ struct PortfolioReviewMapperTests {
         #expect(try chart(of: state) == .noData(.cantLoad))
     }
 
-    @Test("A share cut short by the Other bucket reads as approximate", arguments: [(10, false), (11, true)])
-    func approximateShareCarriesTheTilde(assetCount: Int, isApproximate: Bool) throws {
+    /// With and without the Other bucket: the bucket alone no longer makes the share approximate.
+    @Test("A share well short of a hundred states itself plainly", arguments: [10, 11])
+    func ordinaryShareCarriesNoTilde(assetCount: Int) throws {
         let state = map(makeLoadedTokens(count: assetCount), totalBalance: .loaded(balance: 100))
 
         guard case .loaded(_, _, let percent) = try chart(of: state) else {
@@ -59,7 +60,7 @@ struct PortfolioReviewMapperTests {
             return
         }
 
-        #expect(percent.hasPrefix(AppConstants.tildeSign) == isApproximate)
+        #expect(!percent.hasPrefix(AppConstants.tildeSign))
     }
 
     @Test("A bucket holding nothing but a valueless asset leaves the share exact")
