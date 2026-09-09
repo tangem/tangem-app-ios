@@ -127,6 +127,9 @@ private final class StubFeedRoutable: FeedRoutable {
     func openToken(_ token: MarketsTokenModel) {}
     func openPulseTagFilter(with input: PulseTagFilterInput) { tagFilterInputs.append(input) }
     func openRealAssetsCategoryFilter(with input: RealAssetsCategoryFilterInput) {}
+    func openEarnNetworksFilter() {}
+    func openEarnTypesFilter() {}
+    func routeOnEarnTokenResolved(_ resolution: EarnTokenResolution, source: EarnOpportunitySource) {}
     func openPortfolioToken(_ walletModel: any WalletModel) {}
     func choosePortfolioToken(from walletModels: [any WalletModel]) {}
     func returnToRoot() {}
