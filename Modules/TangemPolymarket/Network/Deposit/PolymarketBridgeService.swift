@@ -11,5 +11,8 @@ import Foundation
 public protocol PolymarketBridgeService {
     func supportedAssets() async throws -> [PolymarketSupportedAsset]
 
-    func fundingAddresses(forDepositWallet depositWalletAddress: String) async throws -> PolymarketBridgeFundingAddresses
+    func fundingAddresses(
+        forDepositWallet depositWalletAddress: String,
+        builderCode: String
+    ) async throws -> PolymarketBridgeFundingAddresses
 }

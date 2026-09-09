@@ -9,10 +9,11 @@
 import Foundation
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 
 enum PolymarketDepositNotificationEvent: Hashable {
-    case largeDepositNotRecommended
+    case depositLimits(assetSymbol: String, networkName: String, minimumFormatted: String)
 }
 
 // MARK: - NotificationEvent protocol conformance
@@ -32,14 +33,14 @@ extension PolymarketDepositNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .largeDepositNotRecommended:
+        case .depositLimits:
             return .init(iconType: .image(Assets.blueCircleWarning))
         }
     }
 
     var bannerRing: NotificationBanner.Ring? {
         switch self {
-        case .largeDepositNotRecommended:
+        case .depositLimits:
             return .info
         }
     }
@@ -87,19 +88,18 @@ extension PolymarketDepositNotificationEvent: NotificationEvent {
 
 // MARK: - Private implementation
 
-// [REDACTED_TODO_COMMENT]
 private extension PolymarketDepositNotificationEvent {
     var titleText: String {
         switch self {
-        case .largeDepositNotRecommended:
-            return "Deposits above $50,000 are not recommended"
+        case .depositLimits(let assetSymbol, let networkName, _):
+            return Localization.receiveBottomSheetWarningTitle(assetSymbol, networkName)
         }
     }
 
     var descriptionText: String {
         switch self {
-        case .largeDepositNotRecommended:
-            return "Split a larger amount into several smaller deposits."
+        case .depositLimits(_, _, let minimumFormatted):
+            return Localization.predictionAddFundsNotificationLimitsDescription(minimumFormatted)
         }
     }
 }

@@ -21,7 +21,6 @@ struct PolymarketAddFundsFactory {
         )
 
         let bridgeService = services.makeBridgeService(
-            builderCode: { try await configurationService.builderCode() },
             supportedAssetsStore: InjectedValues[\.polymarketSupportedAssetsStore]
         )
 

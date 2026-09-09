@@ -15,4 +15,5 @@ public enum PolymarketAccessibilityIdentifiers {
 
     public static let addFundsButton = "\(prefix)AddFundsButton"
     public static let addFundsSheetReceiveOption = "\(prefix)AddFundsSheetReceiveOption"
+    public static let addFundsSheetSwapOption = "\(prefix)AddFundsSheetSwapOption"
 }
