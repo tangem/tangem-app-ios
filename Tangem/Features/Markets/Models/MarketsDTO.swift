@@ -26,6 +26,7 @@ extension MarketsDTO.General {
         let showNetworks: Bool?
         let categoryId: Int?
         let sectorId: Int?
+        let geckoCategoryId: String?
         let country: String?
 
         init(
@@ -38,6 +39,7 @@ extension MarketsDTO.General {
             showNetworks: Bool?,
             categoryId: Int? = nil,
             sectorId: Int? = nil,
+            geckoCategoryId: String? = nil,
             country: String? = nil
         ) {
             self.currency = currency
@@ -49,6 +51,7 @@ extension MarketsDTO.General {
             self.showNetworks = showNetworks
             self.categoryId = categoryId
             self.sectorId = sectorId
+            self.geckoCategoryId = geckoCategoryId
             self.country = country
         }
 
@@ -77,6 +80,10 @@ extension MarketsDTO.General {
 
             if let sectorId {
                 params["sectorId"] = sectorId
+            }
+
+            if let geckoCategoryId, !geckoCategoryId.isEmpty {
+                params["geckoCategoryId"] = geckoCategoryId
             }
 
             if let country, !country.isEmpty {

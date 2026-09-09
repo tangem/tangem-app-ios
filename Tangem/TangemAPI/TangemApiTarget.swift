@@ -122,6 +122,8 @@ struct TangemApiTarget: TargetType {
             return "/coins/list"
         case .coinsCategories:
             return "/coins/categories"
+        case .coinsGeckoCategories:
+            return "/coins/gecko-categories"
         case .coinsHistoryChartPreview:
             return "/coins/history_preview"
         case .tokenMarketsDetails(let requestModel):
@@ -251,6 +253,7 @@ struct TangemApiTarget: TargetType {
              .features,
              .coinsList,
              .coinsCategories,
+             .coinsGeckoCategories,
              .coinsHistoryChartPreview,
              .tokenMarketsDetails,
              .historyChart,
@@ -358,6 +361,8 @@ struct TangemApiTarget: TargetType {
         case .coinsList(let requestData):
             return .requestParameters(parameters: requestData.parameters, encoding: URLEncoding.default)
         case .coinsCategories(let requestData):
+            return .requestParameters(parameters: requestData.parameters, encoding: URLEncoding.default)
+        case .coinsGeckoCategories(let requestData):
             return .requestParameters(parameters: requestData.parameters, encoding: URLEncoding.default)
         case .coinsHistoryChartPreview(let requestData):
             return .requestParameters(parameters: requestData.parameters, encoding: URLEncoding(destination: .queryString, arrayEncoding: .noBrackets))
@@ -518,6 +523,7 @@ struct TangemApiTarget: TargetType {
              .stories,
              .coinsList,
              .coinsCategories,
+             .coinsGeckoCategories,
              .coinsHistoryChartPreview,
              .tokenMarketsDetails,
              .historyChart,
@@ -599,6 +605,7 @@ extension TangemApiTarget {
 
         case coinsList(_ requestModel: MarketsDTO.General.Request)
         case coinsCategories(_ requestModel: MarketsDTO.Categories.Request)
+        case coinsGeckoCategories(_ requestModel: MarketsDTO.GeckoCategories.Request)
         case coinsHistoryChartPreview(_ requestModel: MarketsDTO.ChartsHistory.PreviewRequest)
         case tokenMarketsDetails(_ requestModel: MarketsDTO.Coins.Request)
         case historyChart(_ requestModel: MarketsDTO.ChartsHistory.HistoryRequest)
@@ -683,7 +690,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .coinsCategories, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns, .getJointAccounts, .getJointAccountInvite, .stories:
+        case .geo, .features, .apiList, .quotes, .coinsList, .coinsCategories, .coinsGeckoCategories, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns, .getJointAccounts, .getJointAccountInvite, .stories:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -710,6 +717,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .quotes,
              .apiList,
              .coinsList,
+             .coinsGeckoCategories,
              .coinsHistoryChartPreview,
              .historyChart,
              .tokenMarketsDetails,

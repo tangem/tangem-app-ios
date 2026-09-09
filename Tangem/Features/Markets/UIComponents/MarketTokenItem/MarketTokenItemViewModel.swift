@@ -22,6 +22,7 @@ final class MarketTokenItemViewModel: Identifiable, ObservableObject {
     @Published private(set) var priceChangeAnimation: ForegroundBlinkAnimationChange = .neutral
     @Published private(set) var priceChangeState: PriceChangeView.State = .empty
     @Published private(set) var charts: [Double]? = nil
+    @Published private(set) var isRestrictedForCountry: Bool
 
     private(set) var marketRating: String?
 
@@ -33,7 +34,6 @@ final class MarketTokenItemViewModel: Identifiable, ObservableObject {
     let symbol: String
     let marketCap: String
     let maxApy: String?
-    let isRestrictedForCountry: Bool
     let didTapAction: (() -> Void)?
 
     // MARK: - Private Properties
@@ -92,6 +92,18 @@ final class MarketTokenItemViewModel: Identifiable, ObservableObject {
         bindToIntervalUpdates()
         bindToQuotesUpdates()
         bindWithProviders(charts: chartsProvider, filter: filterProvider)
+    }
+
+    // MARK: - Implementation
+
+    /// Lists reuse a row for as long as the coin stays on screen, but the same coin comes back allowed under one
+    /// filter and restricted under another, so the marker has to follow the refetched model.
+    func updateRestriction(from tokenModel: MarketsTokenModel) {
+        let isRestricted = tokenModel.restrictedForCountry ?? false
+
+        guard isRestricted != isRestrictedForCountry else { return }
+
+        isRestrictedForCountry = isRestricted
     }
 
     // MARK: - Private Implementation
