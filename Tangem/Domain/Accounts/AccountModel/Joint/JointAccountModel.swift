@@ -58,6 +58,13 @@ extension JointAccountModel {
         max(0, policy.membersCount - members.count)
     }
 
+    /// - Warning: One of these goes to one person: whoever opens an invite takes the slot it holds.
+    var unusedInvites: [JointAccountInvite] {
+        let takenInviteIds = Set(members.compactMap { $0.role.inviteId?.lowercased() })
+
+        return invites.filter { !takenInviteIds.contains($0.id.lowercased()) }
+    }
+
     /// - Note: A status this version does not know is taken to be one the account works under, since the endpoint goes
     /// on adding to the set and only these two hold the account back.
     var isAwaitingActivation: Bool {
