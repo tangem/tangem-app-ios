@@ -13,18 +13,26 @@ public struct PolymarketOrderDetailsBlock: View {
     private let currencyCode: String
     private let feeText: String
     private let slippageText: String
+    private let onFeeTap: (() -> Void)?
     private let onSlippageTap: (() -> Void)?
 
-    public init(currencyCode: String, feeText: String, slippageText: String, onSlippageTap: (() -> Void)? = nil) {
+    public init(
+        currencyCode: String,
+        feeText: String,
+        slippageText: String,
+        onFeeTap: (() -> Void)? = nil,
+        onSlippageTap: (() -> Void)? = nil
+    ) {
         self.currencyCode = currencyCode
         self.feeText = feeText
         self.slippageText = slippageText
+        self.onFeeTap = onFeeTap
         self.onSlippageTap = onSlippageTap
     }
 
     public var body: some View {
         VStack(spacing: 0) {
-            PolymarketOrderFeeRow(currencyCode: currencyCode, valueText: feeText)
+            PolymarketOrderFeeRow(currencyCode: currencyCode, valueText: feeText, onTap: onFeeTap)
 
             PolymarketOrderSlippageRow(valueText: slippageText, onTap: onSlippageTap)
         }
