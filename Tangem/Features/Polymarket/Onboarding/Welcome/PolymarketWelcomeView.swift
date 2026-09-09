@@ -8,7 +8,6 @@
 
 import SwiftUI
 import TangemAssets
-import TangemLocalization
 import TangemPolymarketUI
 import TangemUI
 import TangemUIUtils
@@ -205,7 +204,7 @@ struct PolymarketWelcomeView: View {
 
     private var footer: some View {
         VStack(spacing: Constants.footerSpacing) {
-            legalNotice
+            PolymarketLegalLine(onTermsTap: viewModel.onLegalTermsTap(url:))
 
             TangemUI.Button(
                 label: viewModel.copy.actionTitle,
@@ -225,39 +224,6 @@ struct PolymarketWelcomeView: View {
                 .blurred()
                 .ignoresSafeArea(edges: .bottom)
         }
-    }
-
-    private var legalNotice: some View {
-        Text(legalNoticeText)
-            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-            .multilineTextAlignment(.center)
-            .fixedSize(horizontal: false, vertical: true)
-            .tint(DesignSystem.Color.textPrimary)
-            .environment(\.openURL, OpenURLAction { url in
-                viewModel.onLegalTermsTap(url: url)
-                return .handled
-            })
-    }
-
-    private var legalNoticeText: AttributedString {
-        let polymarketTerms = Localization.predictionOnboardingLegalPolymarketTerms
-        let tangemTerms = Localization.predictionOnboardingLegalTangemTerms
-
-        var text = AttributedString(Localization.predictionOnboardingLegal(polymarketTerms, tangemTerms))
-
-        link(polymarketTerms, to: PolymarketWelcomeViewModel.Constants.polymarketTermsURL, in: &text)
-        link(tangemTerms, to: AppConstants.tosURL, in: &text)
-
-        return text
-    }
-
-    private func link(_ title: String, to url: URL, in text: inout AttributedString) {
-        guard let range = text.range(of: title) else {
-            return
-        }
-
-        text[range].foregroundColor = DesignSystem.Color.textPrimary
-        text[range].link = url
     }
 }
 
