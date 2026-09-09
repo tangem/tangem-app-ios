@@ -19,18 +19,27 @@ private struct BridgeServiceStub: PolymarketBridgeService {
     var fundingAddresses = PolymarketBridgeFundingAddresses(addresses: [.evm: fundingAddress])
     var fundingAddressesError: Error?
 
+    let receivedBuilderCodes = OSAllocatedUnfairLock(initialState: [String]())
+
     func supportedAssets() async throws -> [PolymarketSupportedAsset] {
         if let assetsError { throw assetsError }
         return assets
     }
 
-    func fundingAddresses(forDepositWallet depositWalletAddress: String) async throws -> PolymarketBridgeFundingAddresses {
+    func fundingAddresses(
+        forDepositWallet depositWalletAddress: String,
+        builderCode: String
+    ) async throws -> PolymarketBridgeFundingAddresses {
+        receivedBuilderCodes.withLock { $0.append(builderCode) }
+
         if let fundingAddressesError { throw fundingAddressesError }
         return fundingAddresses
     }
 }
 
 private final class ConfigurationServiceSpy: PolymarketConfigurationService {
+    static let code = "0x" + String(repeating: "0", count: 63) + "1"
+
     var callCount: Int { lock.withLock { $0 } }
 
     private let lock = OSAllocatedUnfairLock(initialState: 0)
@@ -43,7 +52,7 @@ private final class ConfigurationServiceSpy: PolymarketConfigurationService {
     func builderCode() async throws -> String {
         lock.withLock { $0 += 1 }
         if let error { throw error }
-        return "0x" + String(repeating: "0", count: 63) + "1"
+        return Self.code
     }
 }
 
@@ -98,7 +107,10 @@ private final class FirstAttemptFailsBridgeStub: PolymarketBridgeService {
         return [.usdcPolygon]
     }
 
-    func fundingAddresses(forDepositWallet depositWalletAddress: String) async throws -> PolymarketBridgeFundingAddresses {
+    func fundingAddresses(
+        forDepositWallet depositWalletAddress: String,
+        builderCode: String
+    ) async throws -> PolymarketBridgeFundingAddresses {
         PolymarketBridgeFundingAddresses(addresses: [.evm: fundingAddress])
     }
 }
@@ -256,8 +268,8 @@ struct PolymarketAddFundsPreparationTests {
         #expect(interactor.state == .unavailable)
     }
 
-    @Test("The builder code is warmed up on entry so funding does not pay for it later")
-    func warmsUpTheBuilderCode() async {
+    @Test("The builder code is fetched on entry so funding does not pay for it later")
+    func fetchesTheBuilderCodeOnEntry() async {
         let configuration = ConfigurationServiceSpy()
         let interactor = makeInteractor(configuration: configuration)
 
@@ -266,14 +278,24 @@ struct PolymarketAddFundsPreparationTests {
         #expect(configuration.callCount == 1)
     }
 
-    @Test("A builder code that cannot be warmed up costs attribution, not availability")
-    func builderCodeFailureDoesNotBlockAddFunds() async {
+    @Test("The code the configuration handed over is the one the bridge is asked with, so attribution cannot be lost")
+    func builderCodeReachesTheBridge() async {
+        let bridge = BridgeServiceStub()
+        let interactor = makeInteractor(bridge: bridge)
+
+        await interactor.prepare()
+
+        #expect(bridge.receivedBuilderCodes.withLock { $0 } == [ConfigurationServiceSpy.code])
+    }
+
+    @Test("Without a builder code funding is withheld, since the bridge would credit an unattributed deposit")
+    func builderCodeFailureBlocksAddFunds() async {
         let configuration = ConfigurationServiceSpy(error: StubError.offline)
         let interactor = makeInteractor(configuration: configuration)
 
         await interactor.prepare()
 
-        #expect(interactor.state.fundingTarget != nil)
+        #expect(interactor.state == .unavailable)
     }
 
     @Test("Preparing the same interactor again recovers from unavailable, so a pull-to-refresh is a real retry")

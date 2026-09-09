@@ -38,3 +38,24 @@ struct TokenQuote: Hashable, Codable {
         self.date = date
     }
 }
+
+// MARK: - Merging
+
+extension TokenQuote {
+    func inheritingPriceUsd(from previous: TokenQuote?) -> TokenQuote {
+        guard priceUsd == nil, let inheritedPriceUsd = previous?.priceUsd else {
+            return self
+        }
+
+        return TokenQuote(
+            currencyId: currencyId,
+            price: price,
+            priceUsd: inheritedPriceUsd,
+            priceChange24h: priceChange24h,
+            priceChange7d: priceChange7d,
+            priceChange30d: priceChange30d,
+            currencyCode: currencyCode,
+            date: date
+        )
+    }
+}
