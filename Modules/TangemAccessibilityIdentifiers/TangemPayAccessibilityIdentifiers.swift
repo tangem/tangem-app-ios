@@ -29,6 +29,11 @@ public enum TangemPayAccessibilityIdentifiers {
 
     public static let onboardingGetCardButton = "\(prefix)OnboardingGetCardButton"
 
+    // MARK: - Mobile onboarding screen
+
+    public static let mobileOnboardingTitle = "\(prefix)MobileOnboardingTitle"
+    public static let mobileOnboardingGetCardButton = "\(prefix)MobileOnboardingGetCardButton"
+
     // MARK: - KYC status sheet
 
     public static let kycStatusSheetPrimaryButton = "\(prefix)KycStatusSheetPrimaryButton"
