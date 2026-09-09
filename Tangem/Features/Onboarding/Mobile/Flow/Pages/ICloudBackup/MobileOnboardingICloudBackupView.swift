@@ -116,7 +116,7 @@ private extension MobileOnboardingICloudBackupView {
                 .expandsHitArea(false)
 
             Text(viewModel.passwordWarningTitle)
-                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
         }
