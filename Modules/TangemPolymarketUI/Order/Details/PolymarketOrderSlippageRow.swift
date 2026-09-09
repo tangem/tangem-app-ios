@@ -35,7 +35,10 @@ public struct PolymarketOrderSlippageRow: View {
     @ViewBuilder
     private var chevron: some View {
         if onTap != nil {
-            PolymarketHintIcon(asset: DesignSystem.Icons.ChevronDoubleVertical.regular16)
+            PolymarketHintIcon(
+                asset: DesignSystem.Icons.ChevronDoubleVertical.regular20,
+                side: PolymarketHintIcon.Constants.selectSide
+            )
         }
     }
 }
