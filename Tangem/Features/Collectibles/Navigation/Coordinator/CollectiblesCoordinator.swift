@@ -17,6 +17,7 @@ final class CollectiblesCoordinator: CoordinatorObject {
     // MARK: - Publishers
 
     @Published private(set) var state: ViewState?
+    @Published var machineViewModel: CollectiblesMachineViewModel?
 
     // MARK: - Init
 
@@ -33,7 +34,8 @@ final class CollectiblesCoordinator: CoordinatorObject {
             state = .welcome(CollectiblesWelcomeViewModel(routable: self))
         case .main:
             Task { @MainActor [weak self] in
-                self?.state = .main(CollectiblesMainViewModel())
+                guard let self else { return }
+                state = .main(CollectiblesMainViewModel(routable: self))
             }
         }
     }
@@ -50,8 +52,17 @@ extension CollectiblesCoordinator: CollectiblesWelcomeRoutable {
 extension CollectiblesCoordinator: CollectiblesStoriesRoutable {
     func openMain() {
         Task { @MainActor [weak self] in
-            self?.state = .main(CollectiblesMainViewModel())
+            guard let self else { return }
+            state = .main(CollectiblesMainViewModel(routable: self))
         }
+    }
+}
+
+extension CollectiblesCoordinator: CollectiblesMainRoutable {
+    func openMachine(for pack: CollectiblesPack) {
+        guard machineViewModel == nil else { return }
+
+        machineViewModel = CollectiblesMachineViewModel(pack: pack)
     }
 }
 
