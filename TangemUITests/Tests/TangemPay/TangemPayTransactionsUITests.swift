@@ -130,7 +130,7 @@ final class TangemPayTransactionsUITests: BaseTestCase {
         launchWithTransactionHistory(state: "InitialEmpty")
             .openTangemPay()
             .waitForScreen()
-            .verifyHeader(title: "Payment account", subtitle: "Multinetwork")
+            .verifyHeader(title: "Payment account", subtitle: "US Dollars")
             .verifyBalanceFormat()
             .verifyCardsRowVisible()
             .verifyActionButtonsVisible()
