@@ -23,6 +23,8 @@ final class FeedCoordinator: CoordinatorObject {
 
     @Published var portfolioTokenList: MarketsPortfolioTokenListViewModel?
 
+    private weak var pulseTagFilterViewModel: PulseTagFilterBottomSheetViewModel?
+
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
@@ -57,6 +59,23 @@ extension FeedCoordinator: FeedRoutable {
 
         coordinator.start(with: .init(info: token, style: .marketsSheet))
         path.append(.token(coordinator))
+    }
+
+    func openPulseTagFilter(with input: PulseTagFilterInput) {
+        Task { @MainActor [weak self] in
+            guard let self, pulseTagFilterViewModel == nil else { return }
+
+            let viewModel = PulseTagFilterBottomSheetViewModel(
+                input: input,
+                onDismiss: { [weak self] in
+                    self?.pulseTagFilterViewModel = nil
+                    self?.floatingSheetPresenter.removeActiveSheet()
+                }
+            )
+
+            pulseTagFilterViewModel = viewModel
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     func openRealAssetsCategoryFilter(with input: RealAssetsCategoryFilterInput) {
