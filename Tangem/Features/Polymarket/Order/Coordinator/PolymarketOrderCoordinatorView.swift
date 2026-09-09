@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct PolymarketOrderCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: PolymarketOrderCoordinator
@@ -14,9 +15,27 @@ struct PolymarketOrderCoordinatorView: CoordinatorView {
     var body: some View {
         coordinator.viewModel.map { viewModel in
             PolymarketOrderView(viewModel: viewModel)
-                .sheet(item: $coordinator.slippageSelector) { viewModel in
-                    PolymarketSlippageSelectorView(viewModel: viewModel)
+                .navigationLinks(links)
+                .sheet(item: $coordinator.sheet) { sheet in
+                    switch sheet {
+                    case .slippageSelector(let viewModel):
+                        PolymarketSlippageSelectorView(viewModel: viewModel)
+                    case .feeBreakdown(let viewModel):
+                        PolymarketFeeBreakdownSheetView(viewModel: viewModel)
+                    }
                 }
         }
+    }
+
+    private var links: some View {
+        NavHolder()
+            .navigation(item: $coordinator.destination) { destination in
+                switch destination {
+                case .summary(let viewModel):
+                    PolymarketOrderSummaryView(viewModel: viewModel)
+                case .result(let viewModel):
+                    PolymarketOrderResultView(viewModel: viewModel)
+                }
+            }
     }
 }
