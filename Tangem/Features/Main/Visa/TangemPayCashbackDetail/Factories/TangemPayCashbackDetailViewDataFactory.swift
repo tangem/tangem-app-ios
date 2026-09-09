@@ -13,6 +13,11 @@ import TangemLocalization
 
 struct TangemPayCashbackDetailViewDataFactory {
     private let amountFormatter = TangemPayFiatAmountFormatter()
+    private let now: () -> Date
+
+    init(now: @escaping () -> Date = { .now }) {
+        self.now = now
+    }
 
     func make(
         details: TangemPayCashbackDetails,
@@ -101,14 +106,14 @@ private extension TangemPayCashbackDetailViewDataFactory {
         )
     }
 
-    func isPayoutUpcoming(endDate: Date, now: Date = .now) -> Bool {
+    func isPayoutUpcoming(endDate: Date) -> Bool {
         let calendar = Self.utcCalendar
 
         guard let deadline = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: endDate)) else {
             return false
         }
 
-        return now < deadline
+        return now() < deadline
     }
 
     func month(precedingPayoutDate date: Date) -> Int? {
@@ -304,7 +309,10 @@ private extension TangemPayCashbackDetailViewDataFactory {
     }
 
     func payoutWindow(for summary: TangemPayCashback.Summary) -> String? {
-        guard let start = summary.period.payoutStartDate, let end = summary.period.payoutEndDate else {
+        guard let start = summary.period.payoutStartDate,
+              let end = summary.period.payoutEndDate,
+              start <= end
+        else {
             return nil
         }
 
@@ -341,12 +349,14 @@ private extension TangemPayCashbackDetailViewDataFactory {
     static let payoutWindowFormatter: DateIntervalFormatter = {
         let formatter = DateIntervalFormatter()
         formatter.dateTemplate = "MMMMd"
+        formatter.timeZone = .gmt
         return formatter
     }()
 
     static let payoutDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.setLocalizedDateFormatFromTemplate("MMMMd")
+        formatter.timeZone = .gmt
         return formatter
     }()
 
@@ -354,12 +364,13 @@ private extension TangemPayCashbackDetailViewDataFactory {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "dd.MM.yyyy"
+        formatter.timeZone = .gmt
         return formatter
     }()
 
     static let utcCalendar: Calendar = {
         var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(secondsFromGMT: 0) ?? calendar.timeZone
+        calendar.timeZone = .gmt
         return calendar
     }()
 }
