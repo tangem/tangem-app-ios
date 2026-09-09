@@ -28,6 +28,7 @@ struct PolymarketOrderView: View {
                 title: Localization.predictionPlaceTitle,
                 onBack: { viewModel.handleViewAction(.backTapped) }
             )
+            .padding(.top, Constants.topBarTopPadding)
 
             content
         }
@@ -139,6 +140,7 @@ struct PolymarketOrderView: View {
 
 private extension PolymarketOrderView {
     enum Constants {
+        static let topBarTopPadding: CGFloat = 8
         static let horizontalPadding: CGFloat = 16
         static let contentTopPadding: CGFloat = 16
         static let blockSpacing: CGFloat = 8
