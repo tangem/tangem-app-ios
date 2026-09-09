@@ -14,6 +14,7 @@ final class CollectiblesPacksViewModel: ObservableObject {
     // MARK: - Properties
 
     private let model: CollectiblesPacksModel
+    private let packSelectionHandler: ((CollectiblesPack) -> Void)?
 
     private var reloadTask: Task<Void, Error>?
     private var paginationTask: Task<Void, Error>?
@@ -25,8 +26,9 @@ final class CollectiblesPacksViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(model: CollectiblesPacksModel) {
+    init(model: CollectiblesPacksModel, packSelectionHandler: ((CollectiblesPack) -> Void)? = nil) {
         self.model = model
+        self.packSelectionHandler = packSelectionHandler
     }
 
     deinit {
@@ -119,6 +121,12 @@ final class CollectiblesPacksViewModel: ObservableObject {
         cancelTasks()
         guard state.isLoading else { return }
         state = .idle
+    }
+
+    func selectPack(withID id: String) {
+        guard let pack = model.pack(withID: id) else { return }
+
+        packSelectionHandler?(pack)
     }
 
     func search(query: String) {

@@ -1,5 +1,5 @@
 //
-//  CollectiblesPacksView+Empty.swift
+//  CollectiblesEmptyMessage.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,28 +10,26 @@ import SwiftUI
 import TangemAssets
 import TangemUIUtils
 
-extension CollectiblesPacksView {
-    struct EmptyMessage: View {
-        let icon: ImageType
-        let message: String
-        let onRetry: (() -> Void)?
+struct CollectiblesEmptyMessage: View {
+    let icon: ImageType
+    let message: String
+    let onRetry: (() -> Void)?
 
-        var body: some View {
-            VStack(spacing: Metrics.spacing) {
-                iconView
+    var body: some View {
+        VStack(spacing: Metrics.spacing) {
+            iconView
 
-                Text(message)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                    .multilineTextAlignment(.center)
-            }
-            .padding(.horizontal, Metrics.horizontalPadding)
-            .padding(.vertical, Metrics.verticalPadding)
-            .infinityFrame(axis: .horizontal)
+            Text(message)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                .multilineTextAlignment(.center)
         }
+        .padding(.horizontal, Metrics.horizontalPadding)
+        .padding(.vertical, Metrics.verticalPadding)
+        .infinityFrame(axis: .horizontal)
     }
 }
 
-private extension CollectiblesPacksView.EmptyMessage {
+private extension CollectiblesEmptyMessage {
     // MARK: - View properties
 
     @ViewBuilder
@@ -60,7 +58,7 @@ private extension CollectiblesPacksView.EmptyMessage {
 
 // MARK: - Metrics
 
-private extension CollectiblesPacksView.EmptyMessage {
+private extension CollectiblesEmptyMessage {
     enum Metrics {
         static let spacing: CGFloat = 12
         static let containerSize: CGFloat = 40
@@ -77,13 +75,13 @@ private extension CollectiblesPacksView.EmptyMessage {
         DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
         VStack(spacing: 0) {
-            CollectiblesPacksView.EmptyMessage(
+            CollectiblesEmptyMessage(
                 icon: DesignSystem.Icons.Stack.regular20,
                 message: "There are no packs here yet",
                 onRetry: nil
             )
 
-            CollectiblesPacksView.EmptyMessage(
+            CollectiblesEmptyMessage(
                 icon: DesignSystem.Icons.ArrowRefresh.regular20,
                 message: "Failed to load packs.\nTap to reload",
                 onRetry: {}
