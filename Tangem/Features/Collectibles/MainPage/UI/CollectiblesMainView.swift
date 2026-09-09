@@ -223,6 +223,9 @@ private struct PreviewCatalogueProvider: CollectiblesLoresProvider, Collectibles
 
 #Preview {
     NavigationStack {
-        CollectiblesMainView(viewModel: CollectiblesMainViewModel(catalogueProvider: PreviewCatalogueProvider()), onBack: {})
+        CollectiblesMainView(
+            viewModel: CollectiblesMainViewModel(routable: nil, catalogueProvider: PreviewCatalogueProvider()),
+            onBack: {}
+        )
     }
 }
