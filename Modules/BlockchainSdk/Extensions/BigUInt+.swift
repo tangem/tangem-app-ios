@@ -14,6 +14,16 @@ import TangemFoundation
 public extension BigUInt {
     static let maxUInt256 = BigUInt(2).power(256) - 1
 
+    /// The form the JSON-RPC quantity fields take: `0x`, no leading zeroes, `0x0` for zero.
+    var hexString: String {
+        isZero ? "0x0" : "0x" + String(self, radix: 16)
+    }
+
+    /// Integer arithmetic, so the result is rounded down to a whole unit.
+    func increased(byPercent percent: BigUInt) -> BigUInt {
+        self * (100 + percent) / 100
+    }
+
     /// - Note: Based on https://github.com/attaswift/BigInt/issues/52
     /// - Warning: May lead to a loss of precision.
     var decimal: Decimal? {
