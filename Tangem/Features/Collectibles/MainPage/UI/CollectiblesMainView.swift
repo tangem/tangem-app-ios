@@ -202,8 +202,27 @@ private extension CollectiblesMainView {
 
 // MARK: - Previews
 
+private struct PreviewCatalogueProvider: CollectiblesLoresProvider, CollectiblesPacksProvider {
+    func load() async throws -> CollectiblesLoreCatalogue {
+        CollectiblesLoreCatalogue(
+            lores: [
+                CollectiblesLore(id: "pokemon", title: "Pokemon", packsCount: 7),
+                CollectiblesLore(id: "sports", title: "Sports", packsCount: 5),
+            ],
+            totalPacksCount: 12
+        )
+    }
+
+    func load(loreID: String?, query: String, cursor: String?) async throws -> CollectiblesPacksPage {
+        let packs = (1 ... 6).map { index in
+            CollectiblesPack(id: "pack-\(index)", name: "Elite \(index)", loreID: "pokemon", price: Decimal(50 * index), currencyCode: "USD", buybackRate: 0.85, artworkURL: nil)
+        }
+        return CollectiblesPacksPage(packs: packs, hasNext: false, cursor: nil)
+    }
+}
+
 #Preview {
     NavigationStack {
-        CollectiblesMainView(viewModel: CollectiblesMainViewModel(catalogueProvider: CollectiblesCatalogueMockProvider()), onBack: {})
+        CollectiblesMainView(viewModel: CollectiblesMainViewModel(catalogueProvider: PreviewCatalogueProvider()), onBack: {})
     }
 }
