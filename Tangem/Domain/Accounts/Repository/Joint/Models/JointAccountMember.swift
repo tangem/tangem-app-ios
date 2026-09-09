@@ -26,3 +26,14 @@ struct JointAccountMember: Equatable {
     let address: String
     let role: Role
 }
+
+// MARK: - Convenience
+
+extension JointAccountMember.Role {
+    var inviteId: String? {
+        switch self {
+        case .creator: nil
+        case .member(let inviteId): inviteId
+        }
+    }
+}
