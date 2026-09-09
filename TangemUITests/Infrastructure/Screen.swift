@@ -25,7 +25,13 @@ extension Screen {
                 CommonUIAccessibilityIdentifiers.backButton,
                 "BackButton"
             )
-            app.buttons.matching(predicate).firstMatch.waitAndTap()
+            // A just-dismissed sheet can leave its own back button in the tree, so the hittable match is taken.
+            guard let backButton = app.buttons.matching(predicate).firstHittableElement() else {
+                XCTFail("Back button should become hittable")
+                return Destination(app)
+            }
+
+            backButton.tap()
             return Destination(app)
         }
     }
