@@ -111,3 +111,31 @@ struct MarketsCategoriesTestError: Error, Equatable {
     static let network = MarketsCategoriesTestError(id: "network")
     static let disk = MarketsCategoriesTestError(id: "disk")
 }
+
+// MARK: - Gecko categories fixtures
+
+enum MarketsGeckoCategoriesFixture {
+    static func category(
+        id: String,
+        name: String? = nil,
+        marketCap: Decimal? = 1_000_000_000,
+        featured: Bool = false,
+        tokensCount: Int = 10
+    ) -> MarketsDTO.GeckoCategories.Category {
+        MarketsDTO.GeckoCategories.Category(
+            id: id,
+            name: name ?? id.capitalized,
+            marketCap: marketCap,
+            marketCapChange24h: nil,
+            featured: featured,
+            tokensCount: tokensCount
+        )
+    }
+
+    static let smartContracts = category(id: "smart-contract-platform", name: "Smart Contract Platform", marketCap: 2_000_000_000_000, featured: true, tokensCount: 548)
+    static let layer1 = category(id: "layer-1", name: "Layer 1 (L1)", marketCap: 1_900_000_000_000, featured: true, tokensCount: 296)
+    static let bitcoinEcosystem = category(id: "bitcoin-ecosystem", name: "Bitcoin Ecosystem", marketCap: 1_600_000_000_000, tokensCount: 212)
+    static let did = category(id: "decentralized-identifier-did", name: "DID", marketCap: 1_800_000_000, featured: true, tokensCount: 24)
+
+    static let all = [smartContracts, layer1, bitcoinEcosystem, did]
+}

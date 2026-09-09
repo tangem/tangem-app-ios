@@ -8,17 +8,26 @@
 
 import Combine
 import TangemFoundation
+import TangemLocalization
 import TangemUI
 
 final class PulseViewModel: ObservableObject {
     @Published private(set) var tokens: [MarketTokenItemViewModel] = []
     @Published private(set) var selectedInterval: PulseInterval = .day
     @Published private(set) var selectedCategory: PulseCategory = .marketCap
-    @Published private(set) var isCategoriesExpanded = false
+    @Published private(set) var selectedTag: PulseTagSelection?
     @Published private(set) var isFailed = false
+    @Published private(set) var isLoading = true
 
     let intervals = PulseInterval.allCases
-    let categories = PulseCategory.allCases
+
+    var categories: [PulseCategory] {
+        selectedTag == nil ? PulseCategory.allCases : PulseCategory.supportedWithTag
+    }
+
+    var tagChipTitle: String {
+        selectedTag?.name ?? Localization.marketCategories
+    }
 
     private let dataProvider: PulseDataProvider
     private weak var routable: (any FeedRoutable)?
@@ -56,18 +65,29 @@ final class PulseViewModel: ObservableObject {
         guard selectedInterval != interval else { return }
 
         selectedInterval = interval
-        dataProvider.load(interval: interval, category: selectedCategory)
-    }
-
-    func onToggleCategories() {
-        isCategoriesExpanded.toggle()
+        load()
     }
 
     func onSelectCategory(_ category: PulseCategory) {
         guard selectedCategory != category else { return }
 
         selectedCategory = category
-        dataProvider.load(interval: selectedInterval, category: category)
+        load()
+    }
+
+    func onTagChipTap() {
+        let input = PulseTagFilterInput(
+            selectedTagID: selectedTag?.id,
+            onApply: { [weak self] selection in
+                self?.select(tag: selection)
+            }
+        )
+
+        routable?.openPulseTagFilter(with: input)
+    }
+
+    func onTagClearTap() {
+        select(tag: nil)
     }
 
     func onSelectToken(_ token: MarketsTokenModel) {
@@ -75,7 +95,7 @@ final class PulseViewModel: ObservableObject {
     }
 
     func onRetry() {
-        dataProvider.load(interval: selectedInterval, category: selectedCategory)
+        load()
     }
 
     func onTokenAppear(_ token: MarketTokenItemViewModel) {
@@ -90,6 +110,20 @@ final class PulseViewModel: ObservableObject {
     func onTokenDisappear(_ token: MarketTokenItemViewModel) {
         visibleTokenIDs.remove(token.tokenId)
         dataProvider.setVisibleTokenIDs(visibleTokenIDs)
+    }
+
+    private func select(tag: PulseTagSelection?) {
+        guard tag != selectedTag else { return }
+
+        selectedTag = tag
+
+        let isCategoryDropped = !categories.contains(selectedCategory)
+
+        if isCategoryDropped {
+            selectedCategory = .marketCap
+        }
+
+        load(isCategoryUserInitiated: !isCategoryDropped)
     }
 
     private func bind() {
@@ -110,6 +144,15 @@ final class PulseViewModel: ObservableObject {
                 viewModel.isFailed = isFailed
             }
             .store(in: &bag)
+
+        dataProvider
+            .isLoadingPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, isLoading in
+                viewModel.isLoading = isLoading
+            }
+            .store(in: &bag)
     }
 
     private func makeRows(for tokens: [MarketsTokenModel]) -> [MarketTokenItemViewModel] {
@@ -120,6 +163,7 @@ final class PulseViewModel: ObservableObject {
                 self?.onSelectToken(token)
             }
 
+            row.updateRestriction(from: token)
             reused[token.id] = row
             return row
         }
@@ -133,6 +177,15 @@ final class PulseViewModel: ObservableObject {
         guard !isLoaded || isFailed else { return }
 
         isLoaded = true
-        dataProvider.load(interval: selectedInterval, category: selectedCategory)
+        load()
+    }
+
+    private func load(isCategoryUserInitiated: Bool = true) {
+        dataProvider.load(
+            interval: selectedInterval,
+            category: selectedCategory,
+            tag: selectedTag,
+            isCategoryUserInitiated: isCategoryUserInitiated
+        )
     }
 }
