@@ -187,7 +187,6 @@ struct MarketsTokenDetailsView: View {
                     })
 
                 content
-                    .hidden(viewModel.allDataLoadFailed)
                     .transition(.opacity)
             }
             .padding(.top, Constants.scrollViewContentTopInset)
