@@ -11,7 +11,7 @@ import TangemFoundation
 
 /// One of the wallet's own accounts as far as its name, its icon and its tokens go — what it adds is the members it is
 /// shared with and the rules they operate it by.
-protocol JointAccountModel: CryptoAccountModel {
+protocol JointAccountModel: CryptoAccountModel where Editor: JointAccountModelEditor {
     var policy: JointAccountPolicy { get }
 
     /// How far the account has come: waiting on its members, or activated and ready to be operated.

@@ -103,15 +103,24 @@ extension CryptoAccountModelMock: CryptoAccountModel {
         UserWalletModelMock()
     }
 
+    func archive() async throws(AccountArchivationError) {
+        onArchive(self)
+    }
+}
+
+// MARK: - AccountModelEditable protocol conformance
+
+extension CryptoAccountModelMock {
     @discardableResult
-    func edit(with editor: Editor) async throws(AccountEditError) -> Self {
-        let cryptoAccountModelMockEditor = CryptoAccountModelMockEditor(cryptoAccountModel: self)
-        editor(cryptoAccountModelMockEditor)
+    func edit(with editor: (_ editor: CryptoAccountModelMockEditor) -> Void) async throws(AccountEditError) -> Self {
+        editor(CryptoAccountModelMockEditor(cryptoAccountModel: self))
         return self
     }
 
-    func archive() async throws(AccountArchivationError) {
-        onArchive(self)
+    @discardableResult
+    func update(with editor: (_ editor: CryptoAccountModelMockEditor) -> Void) -> Self {
+        editor(CryptoAccountModelMockEditor(cryptoAccountModel: self))
+        return self
     }
 }
 
@@ -137,7 +146,8 @@ extension CryptoAccountModelMock: DisposableEntity {
 
 // MARK: - Auxiliary types
 
-private extension CryptoAccountModelMock {
+extension CryptoAccountModelMock {
+    /// Not private: a private type cannot be the witness for `Editor`.
     struct CryptoAccountModelMockEditor: AccountModelEditor {
         let cryptoAccountModel: CryptoAccountModelMock
 

@@ -13,15 +13,16 @@ import BlockchainSdk
 /// instead of at an address derived from the key.
 struct JointWalletFactory: AnyWalletFactory {
     private let defaultWalletFactory: any AnyWalletFactory
-    private let safeAddress: String?
+    private let safeAddressProvider: JointAccountSafeAddressProvider
 
-    init(defaultWalletFactory: any AnyWalletFactory, safeAddress: String?) {
+    init(defaultWalletFactory: any AnyWalletFactory, safeAddressProvider: JointAccountSafeAddressProvider) {
         self.defaultWalletFactory = defaultWalletFactory
-        self.safeAddress = safeAddress
+        self.safeAddressProvider = safeAddressProvider
     }
 
     func makeWallet(blockchainNetwork: BlockchainNetwork, keys: [KeyInfo]) throws -> Wallet {
-        guard let safeAddress else {
+        // Read at every call: the address arrives on activation, possibly after this factory was built
+        guard let safeAddress = safeAddressProvider.safeAddress else {
             throw AnyWalletFactoryError.accountAddressUnavailable
         }
 

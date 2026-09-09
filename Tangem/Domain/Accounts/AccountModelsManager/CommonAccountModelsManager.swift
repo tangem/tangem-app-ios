@@ -12,13 +12,6 @@ import TangemFoundation
 import TangemPay
 
 actor CommonAccountModelsManager {
-    private typealias AccountId = CryptoAccountModelId
-    private typealias Cache = [AccountId: CommonCryptoAccountModel]
-
-    nonisolated var unownedExecutor: UnownedSerialExecutor {
-        executor.asUnownedSerialExecutor()
-    }
-
     private nonisolated let cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
     private nonisolated let tangemPayAccountGlobalStateProvider: TangemPayAccountGlobalStateProvider
     private nonisolated let polymarketAccountGlobalStateProvider: PolymarketAccountGlobalStateProvider
@@ -27,12 +20,11 @@ actor CommonAccountModelsManager {
     private nonisolated let tangemPayManager: TangemPayManager
 
     private let archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider
-    private let dependenciesFactory: CryptoAccountDependenciesFactory
+    private let cryptoAccountModelsRegistry: CryptoAccountModelsRegistry
+    private let jointAccountModelsRegistry: JointAccountModelsRegistry
 
-    private let executor: any SerialExecutor
     private nonisolated let userWalletId: UserWalletId
     private let areHDWalletsSupported: Bool
-    private var cache: Cache = [:]
 
     // Manual synchronization is used for reads/writes, hence it is safe to mark this group of properties as `nonisolated(unsafe)`.
     private nonisolated(unsafe) var unsafeAccountModelsPublisher: AnyPublisher<[AccountModel], Never>?
@@ -51,7 +43,8 @@ actor CommonAccountModelsManager {
         tangemPayManager: TangemPayManager,
         accountModelsProvider: any AccountModelsProvider,
         archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
-        dependenciesFactory: CryptoAccountDependenciesFactory,
+        cryptoAccountModelsRegistry: CryptoAccountModelsRegistry,
+        jointAccountModelsRegistry: JointAccountModelsRegistry,
         areHDWalletsSupported: Bool
     ) {
         self.userWalletId = userWalletId
@@ -60,9 +53,9 @@ actor CommonAccountModelsManager {
         self.tangemPayManager = tangemPayManager
         self.accountModelsProvider = accountModelsProvider
         self.archivedCryptoAccountsProvider = archivedCryptoAccountsProvider
-        self.dependenciesFactory = dependenciesFactory
+        self.cryptoAccountModelsRegistry = cryptoAccountModelsRegistry
+        self.jointAccountModelsRegistry = jointAccountModelsRegistry
         self.areHDWalletsSupported = areHDWalletsSupported
-        executor = Executor(label: userWalletId.stringValue)
 
         // Synchronization for `cryptoAccountsGlobalStateProvider` is guaranteed by the initialization of Swift static variables,
         // so it is safe to mark `cryptoAccountsGlobalStateProvider` as `nonisolated`.
@@ -91,91 +84,6 @@ actor CommonAccountModelsManager {
         jointAccountsRepository.initialize()
     }
 
-    private func makeCryptoAccountModels(from storedCryptoAccounts: [StoredCryptoAccount]) -> [any CryptoAccountModel] {
-        let currentAccountIds = cache.keys.toSet()
-        var storedCryptoAccountsKeyedByAccountIds: [AccountId: StoredCryptoAccount] = [:]
-
-        let newAccountIds = storedCryptoAccounts
-            .compactMap { storedCryptoAccount in
-                let accountId = AccountId(userWalletId: userWalletId, derivationIdentity: storedCryptoAccount.derivationIdentity)
-
-                // Updating the `storedCryptoAccountsKeyedByAccountIds` dict within this `compactMap` loop to reduce the number of iterations
-                storedCryptoAccountsKeyedByAccountIds[accountId] = storedCryptoAccount
-
-                return accountId
-            }
-
-        let removedAccountIds = currentAccountIds.subtracting(newAccountIds)
-        let removedAccounts = cache.filter { removedAccountIds.contains($0.key) }.map { $0.value }
-        cache.removeAll { removedAccountIds.contains($0.key) }
-        let cachedAccountsIds = cache.keys.toSet() // Snapshot of currently cached account IDs before adding new ones
-
-        removedAccounts.forEach { $0.dispose() }
-
-        let newCryptoAccounts = newAccountIds
-            .compactMap { accountId -> CommonCryptoAccountModel? in
-                guard let storedCryptoAccount = storedCryptoAccountsKeyedByAccountIds[accountId] else {
-                    let message = "Stored crypto account not found for accountId: \(accountId)"
-                    AccountsLogger.warning(message)
-                    assertionFailure(message)
-                    return nil
-                }
-
-                guard let accountIcon = AccountModel.CompositeIcon(
-                    rawName: storedCryptoAccount.icon.iconName,
-                    rawColor: storedCryptoAccount.icon.iconColor
-                ) else {
-                    let message = "Invalid icon for stored crypto account: \(storedCryptoAccount)"
-                    AccountsLogger.warning(message)
-                    assertionFailure(message)
-                    return nil
-                }
-
-                // Early exit if the account is already created and cached
-                if let cachedAccount = cache[accountId] {
-                    // Update cached account properties in case they were changed remotely
-                    return cachedAccount.update { editor in
-                        storedCryptoAccount.name.map(editor.setName)
-                        editor.setIcon(accountIcon)
-                    }
-                }
-
-                let dependencies = dependenciesFactory.makeDependencies(
-                    forAccountWithDerivationIdentity: storedCryptoAccount.derivationIdentity
-                )
-                let balanceProvidingDependencies = dependencies.makeBalanceProvidingDependencies()
-
-                let cryptoAccount = CommonCryptoAccountModel(
-                    userWalletId: userWalletId,
-                    accountName: storedCryptoAccount.name,
-                    accountIcon: accountIcon,
-                    derivationIdentity: storedCryptoAccount.derivationIdentity,
-                    walletModelsManager: dependencies.walletModelsManager,
-                    userTokensManager: dependencies.userTokensManager,
-                    accountBalanceProvider: balanceProvidingDependencies.balanceProvider,
-                    accountRateProvider: balanceProvidingDependencies.ratesProvider,
-                    derivationManager: dependencies.derivationManager,
-                    delegate: self
-                )
-
-                dependencies.walletModelsFactoryInput.setCryptoAccount(cryptoAccount)
-                // Uses `walletModelsFactory` internally, therefore must be initialized after setting the account in `walletModelsFactoryInput`
-                dependencies.walletModelsManager.initialize()
-                // Updating `cache` within this `compactMap` loop to reduce the number of iterations
-                cache[accountId] = cryptoAccount
-
-                return cryptoAccount
-            }
-
-        // Trigger initial synchronization for all newly created accounts. Creating `newCryptoAccounts` is performed
-        // on a serial executor, so it may take some time if many accounts need to be created.
-        for newCryptoAccount in newCryptoAccounts where !cachedAccountsIds.contains(newCryptoAccount.id) {
-            newCryptoAccount.userTokensManager.sync {}
-        }
-
-        return newCryptoAccounts
-    }
-
     /// - Note: Manual synchronization is used since this publisher must be created in a lazy manner and lazy properties not really
     /// supported in actors (compiler warning on Swift 5.x and compiler error on Swift 6; see https://forums.swift.org/t/74609 for details).
     private nonisolated func makeOrGetAccountModelsPublisher() -> AnyPublisher<[AccountModel], Never> {
@@ -184,27 +92,9 @@ actor CommonAccountModelsManager {
                 return publisher
             }
 
-            // Shared so that the models are built — and cached, disposed and synced — once per change, however many
-            // of the account list's entries are made out of them
-            let accountModels = cryptoAccountsRepository
-                .cryptoAccountsPublisher
-                .withWeakCaptureOf(self)
-                .asyncMap { manager, storedCryptoAccounts in
-                    await manager.makeCryptoAccountModels(from: storedCryptoAccounts)
-                }
-                .share(replay: 1)
-                .eraseToAnyPublisher()
-
-            let globalState = makeGlobalCryptoAccountsStatePublisher()
-            let cryptoAccountModels = accountModels.map { $0.filter { $0.accountType == .crypto } }
-            let jointAccountModels = accountModels.map { $0.filter { $0.accountType == .joint } }
-
-            // We filter models here; `type == .crypto` will go as is.
-            // `type == .joint` will go enriching via `JointAccountInCryptoMerger`
-
             let combined = Publishers.CombineLatest4(
-                makeCryptoAccountModelsPublisher(from: cryptoAccountModels, globalState: globalState),
-                makeJointAccountModelsPublisher(from: jointAccountModels),
+                makeCryptoAccountModelsPublisher(),
+                makeJointAccountModelsPublisher(),
                 makeTangemPayAccountModelsPublisher(),
                 accountModelsProvider.accountModelsPublisher
             )
@@ -238,11 +128,27 @@ actor CommonAccountModelsManager {
             .eraseToAnyPublisher()
     }
 
-    private nonisolated func makeCryptoAccountModelsPublisher(
-        from accountModels: some Publisher<[any CryptoAccountModel], Never>,
-        globalState: some Publisher<CryptoAccounts.State, Never>
-    ) -> AnyPublisher<[AccountModel], Never> {
-        return accountModels
+    /// Only the entries of one kind, and only when they change, so that the other kind's changes do not re-run this
+    /// kind's registry.
+    private nonisolated func makeStoredCryptoAccountsPublisher(ofType accountType: AccountType) -> AnyPublisher<[StoredCryptoAccount], Never> {
+        return cryptoAccountsRepository
+            .cryptoAccountsPublisher
+            .map { $0.filter { $0.derivationIdentity.type == accountType } }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    private nonisolated func makeCryptoAccountModelsPublisher() -> AnyPublisher<[AccountModel], Never> {
+        let globalState = makeGlobalCryptoAccountsStatePublisher()
+
+        return makeStoredCryptoAccountsPublisher(ofType: .crypto)
+            .withWeakCaptureOf(self)
+            .asyncMap { manager, storedCryptoAccounts in
+                await manager.cryptoAccountModelsRegistry.cryptoAccountModels(
+                    from: storedCryptoAccounts,
+                    delegate: manager
+                )
+            }
             .combineLatest(globalState)
             .map { accountModels, globalState -> [AccountModel] in
                 let cryptoAccounts = CryptoAccountsBuilder(globalState: globalState).build(from: accountModels)
@@ -254,21 +160,24 @@ actor CommonAccountModelsManager {
 
     /// - Note: A joint account is kept apart from the wallet's own accounts, and the entry it shares with the account
     /// list does not change when it does, so its own storage is what has to bring the list round again.
-    private nonisolated func makeJointAccountModelsPublisher(
-        from accountModels: some Publisher<[any CryptoAccountModel], Never>
-    ) -> some Publisher<[AccountModel], Never> {
-        return accountModels
+    private nonisolated func makeJointAccountModelsPublisher() -> AnyPublisher<[AccountModel], Never> {
+        return makeStoredCryptoAccountsPublisher(ofType: .joint)
             .combineLatest(
                 jointAccountsRepository.jointAccountsPublisher,
                 jointAccountsRepository.jointAccountsInvitesPublisher
             )
-            .map { accountModels, storedJointAccounts, storedInvites -> [AccountModel] in
-                let jointAccountModels = JointAccountInCryptoMerger().merge(
-                    accountModels,
-                    with: storedJointAccounts,
-                    invites: storedInvites
-                )
+            .withWeakCaptureOf(self)
+            .asyncMap { manager, input in
+                let (storedCryptoAccounts, storedJointAccounts, storedInvites) = input
 
+                return await manager.jointAccountModelsRegistry.jointAccountModels(
+                    from: storedCryptoAccounts,
+                    with: storedJointAccounts,
+                    invites: storedInvites,
+                    delegate: manager
+                )
+            }
+            .map { jointAccountModels -> [AccountModel] in
                 // A wallet that shares no account with anybody has no joint entry, rather than an empty one
                 guard jointAccountModels.isNotEmpty else {
                     return []
@@ -710,28 +619,6 @@ extension CommonAccountModelsManager: DisposableEntity {
 // MARK: - Auxiliary types
 
 private extension CommonAccountModelsManager {
-    final class Executor: SerialExecutor {
-        private let workingQueue: DispatchQueue
-
-        init(label: String) {
-            workingQueue = DispatchQueue(
-                label: "com.tangem.CommonAccountModelsManager.Executor.workingQueue_\(label)",
-                target: .global(qos: .userInitiated)
-            )
-        }
-
-        func enqueue(_ job: UnownedJob) {
-            let executor = asUnownedSerialExecutor()
-            workingQueue.async {
-                job.runSynchronously(on: executor)
-            }
-        }
-
-        func asUnownedSerialExecutor() -> UnownedSerialExecutor {
-            UnownedSerialExecutor(ordinary: self)
-        }
-    }
-
     private enum ValidationFlow {
         case new(newAccountName: String, remoteState: CryptoAccountsRemoteState)
         case edit(newAccountName: String?, derivationIdentity: CryptoAccountDerivationIdentity, remoteState: CryptoAccountsRemoteState)
