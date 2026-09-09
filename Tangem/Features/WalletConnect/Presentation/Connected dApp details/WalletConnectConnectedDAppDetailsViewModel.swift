@@ -193,7 +193,7 @@ extension WalletConnectConnectedDAppDetailsViewModel {
                         break outer
                     }
 
-                case .joint, .tangemPay, .polymarket:
+                case .joint, .tangemPay, .polymarket, .collectibles:
                     break
                 }
             }

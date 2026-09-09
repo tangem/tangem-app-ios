@@ -29,7 +29,7 @@ struct AccountModelsManagerAccountCreationHelper {
             accountModels.flatMap { accountModel -> [any JointAccountModel] in
                 switch accountModel {
                 case .joint(let jointAccountModels): jointAccountModels
-                case .standard, .tangemPay, .polymarket: []
+                case .standard, .tangemPay, .polymarket, .collectibles: []
                 }
             }
         }

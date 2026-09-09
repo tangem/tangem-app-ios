@@ -609,7 +609,7 @@ extension CommonAccountModelsManager: DisposableEntity {
                 cryptoAccountModels.forEach { $0.dispose() }
             case .joint(let jointAccountModels):
                 jointAccountModels.forEach { $0.dispose() }
-            case .tangemPay, .polymarket:
+            case .tangemPay, .polymarket, .collectibles:
                 break
             }
         }
