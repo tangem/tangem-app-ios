@@ -14,7 +14,7 @@ enum PolymarketAccountAggregator {
         let polymarketAccountModels = accountModels.compactMap { accountModel -> (any PolymarketAccountModel)? in
             switch accountModel {
             case .polymarket(let polymarketAccountModel): polymarketAccountModel
-            case .standard, .joint, .tangemPay: nil
+            case .standard, .joint, .tangemPay, .collectibles: nil
             }
         }
 

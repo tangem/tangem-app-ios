@@ -148,5 +148,8 @@ private extension AccountRowButtonViewModel {
                 }
                 .store(in: &viewModel.bag)
         }
+
+        /// The model doesn't expose the vault balance yet; once it does, it becomes the subtitle here
+        func resolve(accountModel: any CollectiblesAccountModel) {}
     }
 }
