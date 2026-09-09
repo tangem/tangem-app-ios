@@ -19,6 +19,7 @@ private struct PolymarketOrderSummaryHeaderShowcase: View {
                 PolymarketOrderSummaryHeader(model: .refreshingStub)
                 PolymarketOrderSummaryHeader(model: .loadingStub)
                 PolymarketOrderSummaryHeader(model: .unavailableStub)
+                PolymarketOrderSummaryHeader(model: .noQuoteStub)
                 PolymarketOrderSummaryHeader(model: .longAmountStub)
             }
             .padding(.horizontal, Constants.horizontalPadding)
@@ -42,7 +43,7 @@ private extension PolymarketOrderSummaryHeaderShowcase {
 private extension PolymarketOrderSummaryHeader.Model {
     static func stub(
         amountText: String = "$4,000",
-        toWin: PolymarketAmountBadge.State = .value("$4,705.88")
+        toWin: PolymarketAmountBadge.State? = .value("$4,705.88")
     ) -> Self {
         Self(
             accountName: "Polymarket account",
@@ -58,6 +59,7 @@ private extension PolymarketOrderSummaryHeader.Model {
     static let refreshingStub = stub(toWin: .loading(previousValue: "$4,705.88"))
     static let loadingStub = stub(toWin: .loading(previousValue: nil))
     static let unavailableStub = stub(toWin: .unavailable)
+    static let noQuoteStub = stub(toWin: nil)
     static let longAmountStub = stub(amountText: "$1,284,900.75", toWin: .value("$1,510,471.47"))
 }
 
