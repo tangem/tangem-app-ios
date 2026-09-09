@@ -14,7 +14,6 @@ import TangemNetworkUtils
 final class CommonPolymarketBridgeService {
     private let provider: TangemProvider<PolymarketBridgeTarget>
     private let baseURL: URL
-    private let builderCode: () async throws -> String
     private let supportedAssetsStore: PolymarketSupportedAssetsStore
 
     private let decoder = JSONDecoder()
@@ -23,12 +22,10 @@ final class CommonPolymarketBridgeService {
     init(
         provider: TangemProvider<PolymarketBridgeTarget>,
         baseURL: URL,
-        builderCode: @escaping () async throws -> String,
         supportedAssetsStore: PolymarketSupportedAssetsStore
     ) {
         self.provider = provider
         self.baseURL = baseURL
-        self.builderCode = builderCode
         self.supportedAssetsStore = supportedAssetsStore
     }
 }
@@ -54,41 +51,17 @@ extension CommonPolymarketBridgeService: PolymarketBridgeService {
         return assets
     }
 
-    func fundingAddresses(forDepositWallet depositWalletAddress: String) async throws -> PolymarketBridgeFundingAddresses {
+    func fundingAddresses(
+        forDepositWallet depositWalletAddress: String,
+        builderCode: String
+    ) async throws -> PolymarketBridgeFundingAddresses {
         let payload = PolymarketDTO.DepositRequest(address: depositWalletAddress)
-        let attributionCode = try await Self.attributionCode(from: builderCode)
 
         let response: PolymarketDTO.FundingAddressesResponse = try await request(
-            .fundingAddresses(payload, builderCode: attributionCode)
+            .fundingAddresses(payload, builderCode: builderCode)
         )
 
         return mapper.mapFundingAddresses(response)
-    }
-}
-
-// MARK: - Attribution
-
-extension CommonPolymarketBridgeService {
-    static func attributionCode(
-        from builderCode: () async throws -> String
-    ) async throws -> String? {
-        let code: String
-
-        do {
-            code = try await builderCode()
-        } catch let error as CancellationError {
-            throw error
-        } catch {
-            PolymarketLogger.warning("Funding without a builder code, attribution is lost: \(error)")
-            return nil
-        }
-
-        guard PolymarketBuilderCode.isWellFormed(code) else {
-            PolymarketLogger.warning("Funding without a builder code, the provider returned a malformed one")
-            return nil
-        }
-
-        return code
     }
 }
 
