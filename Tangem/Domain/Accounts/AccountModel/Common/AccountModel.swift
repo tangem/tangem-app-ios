@@ -21,4 +21,6 @@ enum AccountModel {
     case tangemPay(any TangemPayAccountModel)
 
     case polymarket(any PolymarketAccountModel)
+
+    case collectibles(any CollectiblesAccountModel)
 }
