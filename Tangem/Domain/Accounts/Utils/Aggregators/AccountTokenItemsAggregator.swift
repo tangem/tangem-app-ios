@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemPolymarket
 
 enum AccountTokenItemsAggregator {
     static func tokenItems(from accountModelsManager: AccountModelsManager) -> [TokenItem] {
@@ -32,8 +33,12 @@ enum AccountTokenItemsAggregator {
             default:
                 return []
             }
-        case .polymarket:
-            return []
+        case .polymarket(let polymarketAccountModel):
+            guard polymarketAccountModel.state?.isAccountVisible == true else {
+                return []
+            }
+
+            return [PolymarketUtilities.usdcTokenItem]
         }
     }
 }
