@@ -57,16 +57,8 @@ struct PolymarketEventDetailsView: View {
     }
 
     private var backButton: some View {
-        SwiftUI.Button(action: viewModel.dismiss) {
-            DesignSystem.Icons.ChevronLeft.regular20.image
-                .renderingMode(.template)
-                .foregroundStyle(DesignSystem.Color.iconPrimary)
-                .frame(width: Constants.barButtonSide, height: Constants.barButtonSide)
-                .contentShape(Circle())
-        }
-        .buttonStyle(.plain)
-        .tangemMaterialSurface(in: Circle(), interactive: true, shadow: DesignSystem.Shadow.fallbackButton)
-        .accessibilityLabel(Localization.commonBack)
+        NavigationBarButton.back(action: viewModel.dismiss)
+            .accessibilityLabel(Localization.commonBack)
     }
 
     @ViewBuilder
