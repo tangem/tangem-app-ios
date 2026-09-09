@@ -91,6 +91,9 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tabNavigationDemoViewModel) {
                 TabNavigationDemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.segmentedControlDemoViewModel) {
+                SegmentedControlDemoView(viewModel: $0)
+            }
             .navigation(item: $coordinator.tangemTopNavigationDemoViewModel) {
                 TangemTopNavigationDemoView(viewModel: $0)
             }
@@ -202,6 +205,7 @@ struct DesignSystemDemoView: View {
             DemoItem(title: "Search", open: viewModel.openTangemSearchDemo),
             DemoItem(title: "Typography V2", open: viewModel.openTypographyV2Demo),
             DemoItem(title: "TabNavigation", open: viewModel.openTabNavigationDemo),
+            DemoItem(title: "SegmentedControl", open: viewModel.openSegmentedControlDemo),
             DemoItem(title: "TopNavigation", open: viewModel.openTangemTopNavigationDemo),
         ]
     }
