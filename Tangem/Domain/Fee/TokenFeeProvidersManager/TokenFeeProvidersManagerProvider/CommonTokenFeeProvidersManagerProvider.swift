@@ -54,11 +54,15 @@ extension CommonTokenFeeProvidersManagerProvider {
     func availableGaslessTokenAddresses() -> [String] {
         if case .tron(testnet: false) = walletModel.tokenItem.blockchain {
             guard isFeatureAvailable(.tronGasless),
-                  walletModel.tronAccountActivationStateProvider?.isAccountActivated == true else {
+                  walletModel.tronAccountActivationStateProvider?.isAccountActivated == true,
+                  let contractAddress = walletModel.tokenItem.contractAddress else {
                 return []
             }
 
-            return gaslessTransactionsNetworkManager.availableTronFeeTokens.map(\.address)
+            // Tron gasless supports only for the same token being sent.
+            return gaslessTransactionsNetworkManager.availableTronFeeTokens
+                .filter { $0.address == contractAddress }
+                .map(\.address)
         }
 
         return gaslessTransactionsNetworkManager.availableFeeTokens
@@ -72,9 +76,8 @@ extension CommonTokenFeeProvidersManagerProvider {
             return main
         }
 
-        // Tron specific logic
-        // Looks for gasless token (not TRX) with positive balance and selects as default gas token.
-        // Gasless fees are lower in most cases compairing to TRX.
+        // Tron: prefer gasless when the available fee token has a positive balance.
+        // Gasless fees are lower than TRX in most cases.
         // Temporary solution until we implement multi-token gas estimation.
         if case .tron(testnet: false) = walletModel.tokenItem.blockchain {
             return all.first(where: {
