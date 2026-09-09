@@ -16,7 +16,7 @@ enum TangemPayAccountAggregator {
         let tangemPayAccountModels = accountModels.compactMap { accountModel -> (any TangemPayAccountModel)? in
             switch accountModel {
             case .tangemPay(let tangemPayAccountModel): tangemPayAccountModel
-            case .standard, .joint, .polymarket: nil
+            case .standard, .joint, .polymarket, .collectibles: nil
             }
         }
 
