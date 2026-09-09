@@ -52,10 +52,23 @@ private extension CollectiblesLoreTabsView {
 
 // MARK: - Previews
 
+private struct PreviewLoresProvider: CollectiblesLoresProvider {
+    func load() async throws -> CollectiblesLoreCatalogue {
+        CollectiblesLoreCatalogue(
+            lores: [
+                CollectiblesLore(id: "pokemon", title: "Pokemon", packsCount: 7),
+                CollectiblesLore(id: "sports", title: "Sports", packsCount: 5),
+                CollectiblesLore(id: "anime", title: "Anime", packsCount: 3),
+            ],
+            totalPacksCount: 15
+        )
+    }
+}
+
 #Preview {
     ZStack {
         DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
-        CollectiblesLoreTabsView(viewModel: CollectiblesLoreTabsViewModel(provider: CollectiblesLoresMockProvider()))
+        CollectiblesLoreTabsView(viewModel: CollectiblesLoreTabsViewModel(provider: PreviewLoresProvider()))
     }
 }

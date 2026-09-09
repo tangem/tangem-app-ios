@@ -35,14 +35,14 @@ private extension CollectiblesPacksView {
                 paginationFooter
             }
         case .empty(let hasQuery):
-            EmptyMessage(
+            CollectiblesEmptyMessage(
                 icon: hasQuery ? DesignSystem.Icons.Binoculars.regular20 : DesignSystem.Icons.Stack.regular20,
                 message: emptyMessage(hasQuery: hasQuery),
                 onRetry: nil
             )
             .frame(minHeight: Constants.messageMinHeight)
         case .failed(let hasQuery):
-            EmptyMessage(
+            CollectiblesEmptyMessage(
                 icon: DesignSystem.Icons.ArrowRefresh.regular20,
                 message: failedMessage(hasQuery: hasQuery),
                 onRetry: viewModel.reload
@@ -96,12 +96,21 @@ private extension CollectiblesPacksView {
 
 // MARK: - Previews
 
+private struct PreviewPacksProvider: CollectiblesPacksProvider {
+    func load(loreID: String?, query: String, cursor: String?) async throws -> CollectiblesPacksPage {
+        let packs = (1 ... 4).map { index in
+            CollectiblesPack(id: "pack-\(index)", name: "Elite \(index)", loreID: "pokemon", price: Decimal(50 * index), currencyCode: "USD", buybackRate: 0.85, artworkURL: nil)
+        }
+        return CollectiblesPacksPage(packs: packs, hasNext: false, cursor: nil)
+    }
+}
+
 #Preview {
     ZStack {
         DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
         ScrollView {
-            CollectiblesPacksView(viewModel: CollectiblesPacksViewModel(model: CollectiblesPacksModel(provider: CollectiblesPacksMockProvider())))
+            CollectiblesPacksView(viewModel: CollectiblesPacksViewModel(model: CollectiblesPacksModel(provider: PreviewPacksProvider())))
         }
     }
 }
