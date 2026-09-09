@@ -20,6 +20,10 @@ struct RealAssetsContentView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Layout.contentSpacing) {
+            if let featuredViewModel = viewModel.featuredViewModel {
+                RealAssetsFeaturedView(viewModel: featuredViewModel)
+            }
+
             filters
 
             if viewModel.isRegionRestrictionBannerVisible {
