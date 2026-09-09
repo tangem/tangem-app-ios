@@ -11,5 +11,7 @@ import Foundation
 protocol PolymarketAddFundsSheetRoutable: AnyObject {
     func openReceiveSheet(viewModel: ReceiveMainViewModel)
 
+    func openSwapFlow(parameters: PredefinedSwapParameters)
+
     func closeAddFundsSheet()
 }

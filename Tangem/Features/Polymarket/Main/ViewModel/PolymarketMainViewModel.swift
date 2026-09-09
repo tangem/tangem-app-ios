@@ -10,6 +10,7 @@ import SwiftUI
 import Combine
 import TangemAssets
 import TangemFoundation
+import TangemLocalization
 import TangemPolymarket
 import TangemPolymarketUI
 import TangemUI
@@ -26,6 +27,7 @@ final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var isTabsPinned = false
     @Published private(set) var balance: LoadableBalanceView.State = .loading(cached: .none)
     @Published private(set) var isRegionRestricted = false
+    @Published private(set) var isAwaitingFunds = false
     @Published private(set) var addFundsState: AddFundsState = .loading
     @Published private(set) var isSearching = false
     @Published var isSearchFieldActive = false
@@ -54,6 +56,7 @@ final class PolymarketMainViewModel: ObservableObject {
     private var balanceSubscription: AnyCancellable?
     private var balanceRefreshTask: Task<Void, Never>?
     private var addFundsPreparationTask: Task<Void, Never>?
+    private var awaitingFundsTask: Task<Void, Never>?
     private var searchBag: Set<AnyCancellable> = []
     private var bag: Set<AnyCancellable> = []
 
@@ -88,6 +91,7 @@ final class PolymarketMainViewModel: ObservableObject {
     deinit {
         balanceRefreshTask?.cancel()
         addFundsPreparationTask?.cancel()
+        awaitingFundsTask?.cancel()
     }
 
     private func bindSearch() {
@@ -122,7 +126,11 @@ final class PolymarketMainViewModel: ObservableObject {
             await self?.balanceProvider.refresh()
 
             while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(Constants.balanceRefreshInterval))
+                let interval = self?.isAwaitingFunds == true
+                    ? Constants.awaitingFundsBalanceRefreshInterval
+                    : Constants.balanceRefreshInterval
+
+                try? await Task.sleep(for: .seconds(interval))
 
                 guard !Task.isCancelled, let self else { return }
 
@@ -207,6 +215,26 @@ final class PolymarketMainViewModel: ObservableObject {
         coordinator?.dismiss()
     }
 
+    /// The bridge credits the deposit out of band, so the banner is a fixed window rather than a state:
+    /// it hangs for `awaitingFundsDuration` and is not tied to the balance arriving.
+    func startAwaitingFunds() {
+        awaitingFundsTask?.cancel()
+        isAwaitingFunds = true
+
+        // The loop is parked on the long interval right now, so restart it: that refreshes once
+        // immediately and then keeps the short cadence the banner promises.
+        balanceRefreshTask?.cancel()
+        startBalanceRefresh()
+
+        awaitingFundsTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(Constants.awaitingFundsDuration))
+
+            guard !Task.isCancelled else { return }
+
+            self?.isAwaitingFunds = false
+        }
+    }
+
     func onAddFundsTap() {
         guard !isRegionRestricted else {
             coordinator?.openRegionWarning()
@@ -219,7 +247,7 @@ final class PolymarketMainViewModel: ObservableObject {
         case .loading:
             break
         case .unavailable:
-            alert = AlertBuilder.makeOkGotItAlert(message: PolymarketAddFundsCopy.unavailableMessage)
+            alert = AlertBuilder.makeOkGotItAlert(message: Localization.predictionAddFundsErrorDescription)
         }
     }
 
@@ -410,6 +438,9 @@ private extension PolymarketMainViewModel {
 
     enum Constants {
         static let balanceRefreshInterval: TimeInterval = 30
+        static let awaitingFundsDuration: TimeInterval = 30
+        /// The banner promises the balance refreshes itself every few seconds, so while it is up it does.
+        static let awaitingFundsBalanceRefreshInterval: TimeInterval = 5
     }
 }
 

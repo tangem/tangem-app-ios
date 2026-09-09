@@ -62,32 +62,36 @@ private extension PolymarketAddFundsSheetOptionView {
 // MARK: - Option
 
 extension PolymarketAddFundsSheetOptionView {
-    // [REDACTED_TODO_COMMENT]
     @RawCaseName
     enum Option: Identifiable {
+        case swap
         case receive
 
-        // [REDACTED_TODO_COMMENT]
+        /// Shares the Tangem Pay keys deliberately: same wording, and a Pay copy edit is meant to reach here.
         var title: String {
             switch self {
+            case .swap: Localization.tangempayTopupSwapTitle
             case .receive: Localization.tangempayTopupReceiveTitle
             }
         }
 
         var subtitle: String {
             switch self {
-            case .receive: Localization.tangempayTopupReceiveBody
+            case .swap: Localization.predictionAddFundsSwapSubtitle
+            case .receive: Localization.predictionAddFundsReceiveSubtitle
             }
         }
 
         var icon: ImageType {
             switch self {
+            case .swap: DesignSystem.Icons.LogoTangem.regular20
             case .receive: Assets.Visa.grid
             }
         }
 
         var accessibilityIdentifier: String {
             switch self {
+            case .swap: PolymarketAccessibilityIdentifiers.addFundsSheetSwapOption
             case .receive: PolymarketAccessibilityIdentifiers.addFundsSheetReceiveOption
             }
         }

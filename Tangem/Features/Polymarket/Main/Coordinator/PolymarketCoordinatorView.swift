@@ -27,6 +27,9 @@ struct PolymarketCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: ReceiveMainViewModel.self) { viewModel in
                 ReceiveMainView(viewModel: viewModel)
             }
+            .sheet(item: $coordinator.sendCoordinator) {
+                SendCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
@@ -50,6 +53,9 @@ struct PolymarketCoordinatorView: CoordinatorView {
                 case .order(let coordinator):
                     PolymarketOrderCoordinatorView(coordinator: coordinator)
                 }
+            }
+            .navigation(item: $coordinator.tokenDetailsCoordinator) { coordinator in
+                TokenDetailsCoordinatorView(coordinator: coordinator)
             }
     }
 }
