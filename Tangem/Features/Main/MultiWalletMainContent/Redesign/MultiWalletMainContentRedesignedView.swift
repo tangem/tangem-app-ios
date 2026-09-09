@@ -29,13 +29,13 @@ struct MultiWalletMainContentRedesignedView: View {
                     TangemPayAccountViewRedesigned(viewModel: tangemPayAccountViewModel)
                 }
 
-                if let polymarketAccountViewModel = viewModel.polymarketAccountViewModel {
-                    polymarketAccount(viewModel: polymarketAccountViewModel)
-                }
-
                 pendingJointAccounts
 
                 listContent
+
+                if let polymarketAccountViewModel = viewModel.polymarketAccountViewModel {
+                    polymarketAccount(viewModel: polymarketAccountViewModel)
+                }
             }
 
             if let nftEntrypointViewModel = viewModel.nftEntrypointViewModel {
@@ -68,10 +68,9 @@ struct MultiWalletMainContentRedesignedView: View {
         AccountRowButtonView(viewModel: viewModel) {
             PolymarketAccountBalanceView(viewModel: viewModel)
         }
-        .padding(.vertical, MultiWalletMainContentConstants.polymarketAccountVerticalPadding)
-        .padding(.horizontal, MultiWalletMainContentConstants.polymarketAccountHorizontalPadding)
-        .background(Color.Tangem.Surface.level2)
-        .cornerRadiusContinuous(MultiWalletMainContentConstants.polymarketAccountCornerRadius)
+        .padding(MultiWalletMainContentConstants.polymarketAccountPadding)
+        .background(MultiWalletMainContentConstants.tokenListBackgroundColor)
+        .cornerRadiusContinuous(MultiWalletMainContentConstants.cornerRadius)
     }
 
     // MARK: - Pending joint accounts
@@ -271,7 +270,5 @@ private enum MultiWalletMainContentConstants {
     static let cornerRadius: CGFloat = 24
     static let tokenListBackgroundColor = DesignSystem.Color.bgSecondary
 
-    static let polymarketAccountVerticalPadding: CGFloat = 12
-    static let polymarketAccountHorizontalPadding: CGFloat = 14
-    static let polymarketAccountCornerRadius: CGFloat = 20
+    static let polymarketAccountPadding: CGFloat = 16
 }

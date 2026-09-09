@@ -16,7 +16,8 @@ struct PolymarketCoordinatorView: CoordinatorView {
 
     var body: some View {
         content
-            .injectMarketsNavigationConfigurator(isSimplified: true)
+            .toolbar(.hidden, for: .navigationBar)
+            .background(FeedPopGestureEnabler())
             .navigationLinks(links)
             .floatingSheetContent(for: PolymarketRegionRestrictionViewModel.self) { viewModel in
                 PolymarketRegionRestrictionView(viewModel: viewModel)
@@ -37,7 +38,7 @@ struct PolymarketCoordinatorView: CoordinatorView {
         switch coordinator.viewState {
         case .welcome(let viewModel):
             PolymarketWelcomeView(viewModel: viewModel)
-        case .feed(let viewModel):
+        case .main(let viewModel):
             PolymarketMainView(viewModel: viewModel)
         case nil:
             EmptyView()
