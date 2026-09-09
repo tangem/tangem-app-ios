@@ -17,7 +17,7 @@ extension AccountModel {
             return cryptoAccounts.cryptoAccount(with: identifier)
         case .joint(let jointAccounts):
             return jointAccounts.jointAccount(with: identifier)
-        case .tangemPay, .polymarket:
+        case .tangemPay, .polymarket, .collectibles:
             return nil
         }
     }
@@ -68,7 +68,7 @@ extension Array where Element == AccountModel {
                 return count + 1
             case .standard(.multiple(let cryptoAccountModels)):
                 return count + cryptoAccountModels.count
-            case .joint, .tangemPay, .polymarket:
+            case .joint, .tangemPay, .polymarket, .collectibles:
                 return count
             }
         }
