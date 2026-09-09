@@ -715,6 +715,7 @@ extension Analytics {
 
         case storiesSwapStory = "[Stories] Swap Story"
         case storiesYieldPromoStory = "[Stories] Yield Promo Story"
+        case storiesPolymarketOnboardingStory = "[Stories] Polymarket Onboarding Story"
         case storiesError = "[Stories] Error"
 
         // MARK: - Tangem API Service

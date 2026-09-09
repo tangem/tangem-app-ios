@@ -36,7 +36,6 @@ struct PolymarketWelcomeView: View {
         .overlay(alignment: .topTrailing) { closeButton }
         .safeAreaInset(edge: .bottom, spacing: 0) { footer }
         .disabled(viewModel.isRunning)
-        .overlay { runOverlay }
         .alert(item: $viewModel.alert) { $0.alert }
     }
 
@@ -46,30 +45,6 @@ struct PolymarketWelcomeView: View {
             NavigationBarButton.close(action: viewModel.onCloseTap)
                 .padding(.trailing, Constants.horizontalPadding)
                 .padding(.top, Constants.closeButtonTopPadding)
-        }
-    }
-
-    @ViewBuilder
-    private var runOverlay: some View {
-        if viewModel.isRunning {
-            ZStack {
-                DesignSystem.Color.bgPrimary
-                    .opacity(Constants.runOverlayOpacity)
-                    .ignoresSafeArea()
-
-                VStack(spacing: Constants.runOverlaySpacing) {
-                    Loader()
-                        .loaderSize(.size32)
-                        .loaderColor(DesignSystem.Color.textPrimary)
-
-                    // [REDACTED_TODO_COMMENT]
-                    Text("Setting up your trading account…")
-                        .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
-                        .multilineTextAlignment(.center)
-                }
-                .padding(.horizontal, Constants.horizontalPadding)
-            }
-            .transition(.opacity)
         }
     }
 
@@ -137,7 +112,7 @@ struct PolymarketWelcomeView: View {
             alignment: .leading,
             spacing: Constants.highlightSpacing
         ) {
-            ForEach(PolymarketWelcomeContent.highlights) { highlightCard($0) }
+            ForEach(viewModel.copy.highlights) { highlightCard($0) }
         }
         .padding(Constants.horizontalPadding)
     }
@@ -173,7 +148,7 @@ struct PolymarketWelcomeView: View {
 
     private var questions: some View {
         VStack(spacing: 0) {
-            ForEach(Array(PolymarketWelcomeContent.questions.enumerated()), id: \.element.id) { index, question in
+            ForEach(Array(viewModel.copy.questions.enumerated()), id: \.element.id) { index, question in
                 questionSection(question, isFirst: index == 0)
             }
         }
@@ -204,7 +179,7 @@ struct PolymarketWelcomeView: View {
 
     private var footer: some View {
         VStack(spacing: Constants.footerSpacing) {
-            PolymarketLegalLine(onTermsTap: viewModel.onLegalTermsTap(url:))
+            PolymarketLegalLine(notice: viewModel.copy.legalNotice, onTermsTap: viewModel.onLegalTermsTap(url:))
 
             TangemUI.Button(
                 label: viewModel.copy.actionTitle,
@@ -234,9 +209,6 @@ private extension PolymarketWelcomeView {
         static let horizontalPadding: CGFloat = 24
         static let closeButtonTopPadding: CGFloat = 8
         static let scrollSpace = "polymarketWelcomeScroll"
-
-        static let runOverlayOpacity: CGFloat = 0.9
-        static let runOverlaySpacing: CGFloat = 16
 
         static let heroAspectRatio: CGFloat = 402.0 / 608.0
         static let heroTintStart: CGFloat = 380.0 / 608.0

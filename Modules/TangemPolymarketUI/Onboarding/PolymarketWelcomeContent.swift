@@ -34,6 +34,19 @@ public enum PolymarketWelcomeContent {
         ),
     ]
 
+    public static let reconnectHighlights: [Highlight] = [
+        Highlight(
+            icon: DesignSystem.Icons.Lightning.regular24,
+            title: Localization.predictionOnboardingReconnectBenefitTapTitle,
+            subtitle: Localization.predictionOnboardingReconnectBenefitTapSubtitle
+        ),
+        Highlight(
+            icon: DesignSystem.Icons.ShieldCheckmark.filled24,
+            title: Localization.predictionOnboardingReconnectBenefitSafeTitle,
+            subtitle: Localization.predictionOnboardingReconnectBenefitSafeSubtitle
+        ),
+    ]
+
     public static let questions: [Question] = [
         Question(
             title: Localization.predictionOnboardingFaqTapQuestion,
@@ -46,6 +59,13 @@ public enum PolymarketWelcomeContent {
         Question(
             title: Localization.predictionOnboardingFaqAvailabilityQuestion,
             answer: Localization.predictionOnboardingFaqAvailabilityAnswer
+        ),
+    ]
+
+    public static let reconnectQuestions: [Question] = [
+        Question(
+            title: Localization.predictionOnboardingReconnectFaqQuestion,
+            answer: Localization.predictionOnboardingReconnectFaqAnswer
         ),
     ]
 }

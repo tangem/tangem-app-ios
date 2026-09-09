@@ -13,19 +13,27 @@ public struct PolymarketWelcomeCopy {
     public let title: String
     public let subtitle: String
     public let actionTitle: String
+    public let highlights: [PolymarketWelcomeContent.Highlight]
+    public let questions: [PolymarketWelcomeContent.Question]
+    public let legalNotice: PolymarketLegalNotice
 
-    // [REDACTED_TODO_COMMENT]
     public init(hasExistingAccount: Bool) {
         guard hasExistingAccount else {
             title = Localization.predictionOnboardingTitle
             subtitle = Localization.predictionOnboardingSubtitle
             actionTitle = Localization.predictionOnboardingStartButton
+            highlights = PolymarketWelcomeContent.highlights
+            questions = PolymarketWelcomeContent.questions
+            legalNotice = .termsAgreement
 
             return
         }
 
-        title = "Continue predicting"
-        subtitle = "Your prediction account is ready, authorize this device to keep trading"
-        actionTitle = "Continue"
+        title = Localization.predictionOnboardingReconnectTitle
+        subtitle = Localization.predictionOnboardingReconnectSubtitle
+        actionTitle = Localization.predictionOnboardingReconnectButton
+        highlights = PolymarketWelcomeContent.reconnectHighlights
+        questions = PolymarketWelcomeContent.reconnectQuestions
+        legalNotice = .termsAlreadyAccepted
     }
 }
