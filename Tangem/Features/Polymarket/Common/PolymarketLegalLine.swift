@@ -9,12 +9,15 @@
 import SwiftUI
 import TangemAssets
 import TangemLocalization
+import TangemPolymarketUI
 import TangemUI
 
 struct PolymarketLegalLine: View {
+    private let notice: PolymarketLegalNotice
     private let onTermsTap: (URL) -> Void
 
-    init(onTermsTap: @escaping (URL) -> Void) {
+    init(notice: PolymarketLegalNotice = .termsAgreement, onTermsTap: @escaping (URL) -> Void) {
+        self.notice = notice
         self.onTermsTap = onTermsTap
     }
 
@@ -34,12 +37,19 @@ struct PolymarketLegalLine: View {
         let polymarketTerms = Localization.predictionOnboardingLegalPolymarketTerms
         let tangemTerms = Localization.predictionOnboardingLegalTangemTerms
 
-        var text = AttributedString(Localization.predictionOnboardingLegal(polymarketTerms, tangemTerms))
+        var text = AttributedString(sentence(polymarketTerms: polymarketTerms, tangemTerms: tangemTerms))
 
         link(polymarketTerms, to: Constants.polymarketTermsURL, in: &text)
         link(tangemTerms, to: AppConstants.tosURL, in: &text)
 
         return text
+    }
+
+    private func sentence(polymarketTerms: String, tangemTerms: String) -> String {
+        switch notice {
+        case .termsAgreement: Localization.predictionOnboardingLegal(polymarketTerms, tangemTerms)
+        case .termsAlreadyAccepted: Localization.predictionOnboardingReconnectLegal(polymarketTerms, tangemTerms)
+        }
     }
 
     private func link(_ title: String, to url: URL, in text: inout AttributedString) {
