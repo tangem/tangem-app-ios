@@ -229,7 +229,7 @@ private extension MarketsListDataProvider {
             offset: currentOffset,
             limit: limitPerPage,
             interval: filter.interval,
-            order: filter.order,
+            order: .init(filter.order),
             search: searchText,
             showNetworks: loadNetworks,
             categoryId: filter.categoryId,
