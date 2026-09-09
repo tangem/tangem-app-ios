@@ -587,30 +587,29 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
         try batchUpdates(updater)
         let updates = updater.updates
 
-        for update in updates {
-            let updatedAccount: StoredCryptoAccount
+        guard updates.isNotEmpty else {
+            return
+        }
 
+        let existingAccount = cryptoAccount
+        var updatedAccount = existingAccount
+
+        for update in updates {
             switch update {
             case .append(let tokenItems):
                 let merger = StoredCryptoAccountsMerger(preserveTokensWhileMergingAccounts: false)
-                let (account, isDirty) = merger.merge(newTokenItems: tokenItems, to: cryptoAccount)
-
-                guard isDirty else {
-                    continue
-                }
-
-                updatedAccount = account
+                updatedAccount = merger.merge(newTokenItems: tokenItems, to: updatedAccount).account
             case .remove(let tokenItem):
-                let updatedTokens = cryptoAccount
+                let updatedTokens = updatedAccount
                     .tokens
                     .filter { !$0.isEqual(to: tokenItem) }
-                updatedAccount = cryptoAccount.withTokens(updatedTokens)
+                updatedAccount = updatedAccount.withTokens(updatedTokens)
             case .update(let request):
-                updatedAccount = cryptoAccount
+                updatedAccount = updatedAccount
                     .with(sorting: request.sorting, grouping: request.grouping)
                     .withTokens(request.tokens)
             case .updateBlockchainNetwork(let blockchainNetwork, let tokenItem):
-                let updatedTokens = cryptoAccount.tokens.map { storedToken in
+                let updatedTokens = updatedAccount.tokens.map { storedToken in
                     guard storedToken.isEqual(to: tokenItem) else {
                         return storedToken
                     }
@@ -618,13 +617,17 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
                     let storedBlockchainNetwork = StoredEntryConverter.convertToStoredBlockchainNetwork(blockchainNetwork)
                     return storedToken.with(blockchainNetwork: .known(blockchainNetwork: storedBlockchainNetwork))
                 }
-                updatedAccount = cryptoAccount.withTokens(updatedTokens)
+                updatedAccount = updatedAccount.withTokens(updatedTokens)
             }
-
-            innerRepository.persistentStorage.appendNewOrUpdateExisting(updatedAccount)
         }
 
-        if updates.isNotEmpty, innerRepository.auxiliaryDataStorage.hasSyncedWithRemote {
+        guard updatedAccount != existingAccount else {
+            return
+        }
+
+        innerRepository.persistentStorage.appendNewOrUpdateExisting(updatedAccount)
+
+        if innerRepository.auxiliaryDataStorage.hasSyncedWithRemote {
             innerRepository.updateTokensOnServerDebouncer.debounce(withCompletion: { _ in })
         }
     }
