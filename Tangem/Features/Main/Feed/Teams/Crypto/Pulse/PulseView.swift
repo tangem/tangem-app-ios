@@ -62,19 +62,23 @@ struct PulseView: View {
 
                 Spacer(minLength: Constants.tagChipMinimumSpacing)
 
-                HStack(spacing: 16) {
-                    ForEach(viewModel.intervals, id: \.self) { interval in
-                        SwiftUI.Button {
-                            viewModel.onSelectInterval(interval)
-                        } label: {
-                            chip(interval.title, isSelected: interval == viewModel.selectedInterval)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .fixedSize(horizontal: true, vertical: false)
+                intervalDropDown
             }
         }
+    }
+
+    private var intervalDropDown: some View {
+        TangemDropDown(
+            singleSelection: Binding(
+                get: { PulseIntervalOption(interval: viewModel.selectedInterval) },
+                set: { viewModel.onSelectInterval($0.interval) }
+            ),
+            in: viewModel.intervals.map(PulseIntervalOption.init)
+        )
+        .accessibilityIdentifier { option in
+            MarketsAccessibilityIdentifiers.marketsIntervalSegment(option.interval.rawValue)
+        }
+        .fixedSize(horizontal: true, vertical: false)
     }
 
     private var tagChip: some View {
@@ -117,6 +121,14 @@ struct PulseView: View {
                     Capsule().fill(DesignSystem.Color.bgTertiary)
                 }
             }
+    }
+}
+
+private struct PulseIntervalOption: TangemDropDownTextProvider {
+    let interval: PulseInterval
+
+    var text: String {
+        interval.title
     }
 }
 
