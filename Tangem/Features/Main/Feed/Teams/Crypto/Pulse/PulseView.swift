@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -19,20 +20,23 @@ struct PulseView: View {
             header
                 .padding(.horizontal, Constants.horizontalPadding)
 
-            if viewModel.isCategoriesExpanded {
-                categoriesRow
-            }
+            categoriesRow
 
             if viewModel.isFailed, viewModel.tokens.isEmpty {
                 TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.onRetry)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, Constants.errorVerticalPadding)
-            } else if viewModel.tokens.isEmpty {
+            } else if viewModel.tokens.isEmpty, viewModel.isLoading {
                 LazyVStack(spacing: 0) {
                     ForEach(0 ..< Constants.skeletonRowCount, id: \.self) { _ in
                         TokenRowMarket(.shimmer)
                     }
                 }
+            } else if viewModel.tokens.isEmpty {
+                Text(Localization.marketsSearchTokenNoResultTitle)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textTertiary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, Constants.errorVerticalPadding)
             } else {
                 LazyVStack(spacing: 0) {
                     ForEach(viewModel.tokens) { token in
@@ -45,7 +49,7 @@ struct PulseView: View {
         }
         .onAppear(perform: viewModel.onViewAppear)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .animation(.easeInOut(duration: 0.3), value: viewModel.isCategoriesExpanded)
+        .animation(.easeInOut(duration: 0.3), value: viewModel.selectedTag)
     }
 
     private var header: some View {
@@ -53,40 +57,34 @@ struct PulseView: View {
             Text(Localization.marketsPulseCommonTitle)
                 .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
 
-            HStack(spacing: 16) {
-                categoriesButton
+            HStack(spacing: 0) {
+                tagChip
 
-                Spacer()
+                Spacer(minLength: Constants.tagChipMinimumSpacing)
 
-                ForEach(viewModel.intervals, id: \.self) { interval in
-                    SwiftUI.Button {
-                        viewModel.onSelectInterval(interval)
-                    } label: {
-                        chip(interval.title, isSelected: interval == viewModel.selectedInterval)
+                HStack(spacing: 16) {
+                    ForEach(viewModel.intervals, id: \.self) { interval in
+                        SwiftUI.Button {
+                            viewModel.onSelectInterval(interval)
+                        } label: {
+                            chip(interval.title, isSelected: interval == viewModel.selectedInterval)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
+                .fixedSize(horizontal: true, vertical: false)
             }
         }
     }
 
-    private var categoriesButton: some View {
-        SwiftUI.Button {
-            viewModel.onToggleCategories()
-        } label: {
-            HStack(spacing: 4) {
-                Text("Categories")
-                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
-
-                DesignSystem.Icons.ChevronDown.regular16.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .frame(width: Constants.chevronIconSize, height: Constants.chevronIconSize)
-                    .foregroundStyle(DesignSystem.Color.iconSecondary)
-                    .rotationEffect(.degrees(viewModel.isCategoriesExpanded ? 180 : 0))
-            }
-        }
-        .buttonStyle(.plain)
+    private var tagChip: some View {
+        RealAssetsCategoryChipView(
+            title: viewModel.tagChipTitle,
+            style: viewModel.selectedTag == nil ? .expandable : .selected,
+            onTap: viewModel.onTagChipTap,
+            onClear: viewModel.onTagClearTap
+        )
+        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsPulseTagChip)
     }
 
     private var categoriesRow: some View {
@@ -127,7 +125,7 @@ struct PulseView: View {
 private extension PulseView {
     enum Constants {
         static let horizontalPadding: CGFloat = 16
-        static let chevronIconSize: CGFloat = 16
+        static let tagChipMinimumSpacing: CGFloat = 8
         static let skeletonRowCount = 20
         static let errorVerticalPadding: CGFloat = 24
     }

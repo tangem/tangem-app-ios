@@ -89,4 +89,20 @@ public enum MarketsAccessibilityIdentifiers {
     public static let marketsRealAssetsFilterResetButton = "marketsRealAssetsFilterResetButton"
     public static let marketsRealAssetsFilterApplyButton = "marketsRealAssetsFilterApplyButton"
     public static let marketsRealAssetsFilterCloseButton = "marketsRealAssetsFilterCloseButton"
+
+    // MARK: - Pulse Tag Filter
+
+    public static let marketsPulseTagChip = "marketsPulseTagChip"
+    public static let marketsPulseTagFilterSearchField = "marketsPulseTagFilterSearchField"
+    public static let marketsPulseTagFilterResetButton = "marketsPulseTagFilterResetButton"
+    public static let marketsPulseTagFilterApplyButton = "marketsPulseTagFilterApplyButton"
+    public static let marketsPulseTagFilterCloseButton = "marketsPulseTagFilterCloseButton"
+
+    public static func marketsPulseTagFilterFeaturedChip(_ tagId: String) -> String {
+        "marketsPulseTagFilterFeaturedChip_\(tagId)"
+    }
+
+    public static func marketsPulseTagFilterCategoryOption(_ tagId: String) -> String {
+        "marketsPulseTagFilterCategoryOption_\(tagId)"
+    }
 }

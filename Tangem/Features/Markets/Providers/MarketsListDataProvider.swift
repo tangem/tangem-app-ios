@@ -234,6 +234,7 @@ private extension MarketsListDataProvider {
             showNetworks: loadNetworks,
             categoryId: filter.categoryId,
             sectorId: filter.sectorId,
+            geckoCategoryId: filter.geckoCategoryId,
             country: filter.country
         )
 
@@ -249,6 +250,7 @@ extension MarketsListDataProvider {
         let order: MarketsListOrderType
         let categoryId: Int?
         let sectorId: Int?
+        let geckoCategoryId: String?
         let country: String?
 
         init(
@@ -256,12 +258,14 @@ extension MarketsListDataProvider {
             order: MarketsListOrderType = .rating,
             categoryId: Int? = nil,
             sectorId: Int? = nil,
+            geckoCategoryId: String? = nil,
             country: String? = nil
         ) {
             self.interval = interval
             self.order = order
             self.categoryId = categoryId
             self.sectorId = sectorId
+            self.geckoCategoryId = geckoCategoryId
             self.country = country
         }
 
@@ -272,6 +276,7 @@ extension MarketsListDataProvider {
             hasher.combine(order.rawValue)
             hasher.combine(categoryId)
             hasher.combine(sectorId)
+            hasher.combine(geckoCategoryId)
             hasher.combine(country)
         }
 
@@ -282,6 +287,7 @@ extension MarketsListDataProvider {
                 && lhs.order == rhs.order
                 && lhs.categoryId == rhs.categoryId
                 && lhs.sectorId == rhs.sectorId
+                && lhs.geckoCategoryId == rhs.geckoCategoryId
                 && lhs.country == rhs.country
         }
     }
