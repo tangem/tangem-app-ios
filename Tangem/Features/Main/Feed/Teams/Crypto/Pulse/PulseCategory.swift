@@ -15,6 +15,9 @@ enum PulseCategory: CaseIterable, Hashable {
     case experiencedBuyers
     case trending
 
+    /// The only orders the list endpoint accepts together with `geckoCategoryId`.
+    static let supportedWithTag: [PulseCategory] = [.marketCap, .topGainers, .topLosers]
+
     var title: String {
         switch self {
         case .marketCap: Localization.marketsSortByRatingTitle

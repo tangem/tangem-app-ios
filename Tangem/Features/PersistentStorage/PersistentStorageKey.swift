@@ -30,6 +30,7 @@ enum PersistentStorageKey {
     case tokenSearchAssetHistory
     case addressBook(cid: String)
     case coinsCategoriesCache
+    case coinsGeckoCategoriesCache
 
     var path: String {
         switch self {
@@ -63,6 +64,8 @@ enum PersistentStorageKey {
             return "address_book_\(cid)"
         case .coinsCategoriesCache:
             return "coins_categories_cache"
+        case .coinsGeckoCategoriesCache:
+            return "coins_gecko_categories_cache"
         }
     }
 
@@ -103,8 +106,8 @@ enum PersistentStorageKey {
             // The cached blob is already AES-256-GCM encrypted, so it matches the convention of the
             // other per-wallet caches (e.g. accounts) rather than enabling complete file protection.
             false
-        case .coinsCategoriesCache:
-            // Public shelf configuration, and the shelf has to render while the device is locked.
+        case .coinsCategoriesCache, .coinsGeckoCategoriesCache:
+            // Public market metadata, and the shelf has to render while the device is locked.
             false
         }
     }

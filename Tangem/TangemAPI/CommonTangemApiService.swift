@@ -327,6 +327,10 @@ extension CommonTangemApiService: TangemApiService {
         return try await request(for: .coinsCategories(requestModel), decoder: decoder)
     }
 
+    func loadCoinsGeckoCategories(requestModel: MarketsDTO.GeckoCategories.Request) async throws -> MarketsDTO.GeckoCategories.Response {
+        return try await request(for: .coinsGeckoCategories(requestModel), decoder: decoder)
+    }
+
     func loadCoinsHistoryChartPreview(
         requestModel: MarketsDTO.ChartsHistory.PreviewRequest
     ) async throws -> MarketsDTO.ChartsHistory.PreviewResponse {
