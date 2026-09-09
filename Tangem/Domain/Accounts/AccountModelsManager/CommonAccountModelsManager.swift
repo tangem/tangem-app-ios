@@ -395,21 +395,24 @@ extension CommonAccountModelsManager: AccountModelsManager {
             throw .unknownError(error)
         }
 
-        do {
-            // The wallet's own account for the joint one is added by the backend, so the list has to be pulled anew to see it
-            try await cryptoAccountsRepository.loadCryptoAccountsFromRemote()
-        } catch {
-            // The account is created by [REDACTED_AUTHOR]
-            // Reporting the creation as failed would have the user attempt it anew, creating a second account and
-            // stranding the first one's invites — so the list not arriving right away is left to the next read.
-            AccountsLogger.error("Failed to reload accounts after adding a joint one for user wallet \(userWalletId)", error: error)
-        }
+        await refreshCryptoAccounts()
 
         return AccountCreationResult(
             // Joint accounts take no part in the custom-token redistribution
             operationResult: .none,
             derivationIdentity: newAccountIdentity
         )
+    }
+
+    /// Reads the wallet's own accounts again, which is how the entry the backend adds for a joint one is picked up.
+    /// - Note: A failure is logged rather than reported: the joint account exists by then, and telling the user
+    /// otherwise would have them make a second one and strand the invites of the first.
+    private func refreshCryptoAccounts() async {
+        do {
+            try await cryptoAccountsRepository.loadCryptoAccountsFromRemote()
+        } catch {
+            AccountsLogger.error("Failed to refresh the accounts of user wallet \(userWalletId)", error: error)
+        }
     }
 
     func joinJointAccount(context: JointAccountJoinContext) async throws(AccountEditError) -> AccountCreationResult {
@@ -441,6 +444,8 @@ extension CommonAccountModelsManager: AccountModelsManager {
             )
 
             try await jointAccountsRepository.joinJointAccount(withConfig: config)
+
+            await refreshCryptoAccounts()
 
             return AccountCreationResult(
                 // Joint accounts take no part in the custom-token redistribution
