@@ -31,7 +31,11 @@ private extension CollectiblesPacksView {
             CollectiblesPackGrid.Skeleton(cellsCount: Constants.skeletonCellsCount)
         case .content(let models):
             VStack(spacing: 0) {
-                CollectiblesPackGrid(models: models, onLastItemAppear: viewModel.loadMore)
+                CollectiblesPackGrid(
+                    models: models,
+                    onLastItemAppear: viewModel.loadMore,
+                    onSelect: viewModel.selectPack
+                )
                 paginationFooter
             }
         case .empty(let hasQuery):
@@ -110,7 +114,10 @@ private struct PreviewPacksProvider: CollectiblesPacksProvider {
         DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
         ScrollView {
-            CollectiblesPacksView(viewModel: CollectiblesPacksViewModel(model: CollectiblesPacksModel(provider: PreviewPacksProvider())))
+            CollectiblesPacksView(viewModel: CollectiblesPacksViewModel(
+                model: CollectiblesPacksModel(provider: PreviewPacksProvider()),
+                packSelectionHandler: { _ in }
+            ))
         }
     }
 }

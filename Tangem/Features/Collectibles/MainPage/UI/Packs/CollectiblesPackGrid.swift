@@ -7,20 +7,25 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct CollectiblesPackGrid: View {
     let models: [CollectiblesPackCard.Model]
     var onLastItemAppear: (() -> Void)?
+    var onSelect: ((CollectiblesPackCard.Model.ID) -> Void)?
 
     var body: some View {
         LazyVGrid(columns: Metrics.columns, alignment: .leading, spacing: Metrics.rowSpacing) {
             ForEach(models) { model in
-                CollectiblesPackCard(model: model)
-                    .onAppear {
-                        if model.id == models.last?.id {
-                            onLastItemAppear?()
-                        }
+                Button(action: { onSelect?(model.id) }) {
+                    CollectiblesPackCard(model: model)
+                }
+                .buttonStyle(.defaultScaled)
+                .onAppear {
+                    if model.id == models.last?.id {
+                        onLastItemAppear?()
                     }
+                }
             }
         }
         .padding(.horizontal, Metrics.horizontalPadding)

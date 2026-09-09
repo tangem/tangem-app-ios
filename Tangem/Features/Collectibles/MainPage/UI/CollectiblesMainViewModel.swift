@@ -44,11 +44,24 @@ final class CollectiblesMainViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(catalogueProvider: any CollectiblesLoresProvider & CollectiblesPacksProvider = CollectiblesAPIService()) {
+    init(
+        routable: (any CollectiblesMainRoutable)?,
+        catalogueProvider: any CollectiblesLoresProvider & CollectiblesPacksProvider = CollectiblesAPIService()
+    ) {
+        let openMachine: (CollectiblesPack) -> Void = { [weak routable] pack in
+            routable?.openMachine(for: pack)
+        }
+
         accountViewModel = CollectiblesAccountViewModel(provider: CollectiblesAccountSummaryMockProvider())
         loreTabsViewModel = CollectiblesLoreTabsViewModel(provider: catalogueProvider)
-        packsViewModel = CollectiblesPacksViewModel(model: CollectiblesPacksModel(provider: catalogueProvider))
-        searchResultsViewModel = CollectiblesPacksViewModel(model: CollectiblesPacksModel(provider: catalogueProvider))
+        packsViewModel = CollectiblesPacksViewModel(
+            model: CollectiblesPacksModel(provider: catalogueProvider),
+            packSelectionHandler: openMachine
+        )
+        searchResultsViewModel = CollectiblesPacksViewModel(
+            model: CollectiblesPacksModel(provider: catalogueProvider),
+            packSelectionHandler: openMachine
+        )
     }
 
     deinit {

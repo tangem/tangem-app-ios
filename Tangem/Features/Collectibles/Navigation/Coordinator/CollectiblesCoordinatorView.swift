@@ -22,6 +22,7 @@ struct CollectiblesCoordinatorView: CoordinatorView {
                 case .main(let viewModel):
                     NavigationStack {
                         CollectiblesMainView(viewModel: viewModel, onBack: coordinator.dismiss)
+                            .navigation(item: $coordinator.machineViewModel, destination: CollectiblesMachineView.init)
                     }
                 }
             }
