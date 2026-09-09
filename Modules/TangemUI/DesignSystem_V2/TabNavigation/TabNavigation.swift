@@ -58,7 +58,13 @@ public struct TabNavigation<Data>: View, Setupable
                         if item.id == selection.id {
                             TabSelectionPill(variant: variant)
                                 .matchedGeometryEffect(id: Constants.pillMatchID, in: pillNamespace)
-                                .modifier(TabSelectionPillScale(trigger: selection.id))
+                                .modifier(
+                                    SelectionPillScale(
+                                        trigger: selection.id,
+                                        peakScaleX: Constants.pillPeakScale,
+                                        phaseDuration: Constants.pillScalePhaseDuration
+                                    )
+                                )
                         }
                     }
                     .accessibilityIdentifier(accessibilityIdentifierFactory?(item))
@@ -114,5 +120,7 @@ private enum Constants {
     static let interItemSpacing: CGFloat = 4
     static let contentHorizontalPadding: CGFloat = 16
     static let pillMatchID = "TabNavigationSelectionPill"
+    static let pillPeakScale: CGFloat = 1.1
+    static let pillScalePhaseDuration: TimeInterval = 0.2
     static let selectionAnimation: Animation = .timingCurve(0.8, 0, 0.4, 1.2, duration: 0.4)
 }

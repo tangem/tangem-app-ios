@@ -111,6 +111,10 @@ final class DesignSystemDemoViewModel: ObservableObject {
         coordinator?.openTabNavigationDemo()
     }
 
+    func openSegmentedControlDemo() {
+        coordinator?.openSegmentedControlDemo()
+    }
+
     func openTangemTopNavigationDemo() {
         coordinator?.openTangemTopNavigationDemo()
     }
