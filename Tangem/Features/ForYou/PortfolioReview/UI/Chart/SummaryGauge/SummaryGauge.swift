@@ -24,7 +24,7 @@ struct SummaryGaugeView: View {
     @State private var pillSize: CGSize = .zero
 
     private let balanceFormatter = BalanceFormatter()
-    private let percentFormatter = PercentFormatter()
+    private let shareFormatter = PortfolioShareFormatter()
 
     private var segments: [GaugeSegment] { SummaryGaugeChart.segments(for: assets) }
     private var totalValue: Decimal { assets.reduce(0) { $0 + $1.fiatValue } }
@@ -100,18 +100,18 @@ struct SummaryGaugeView: View {
     private func tooltipPosition(for segment: GaugeSegment, cardSize: CGSize) -> CGPoint? {
         guard let index = segments.firstIndex(where: { $0.id == segment.id }) else { return nil }
 
-        // Must use the same capped sweeps the ring draws, else the anchor drifts off a floored slice's end.
-        let capDeg = GaugeSweeps.lastSegmentOverlapDeg(
+        // Must use the same sweeps and the same cap overlap the ring draws, else the anchor drifts off the
+        // drawn slice end and, for a slice narrower than the cap, lands on its neighbour.
+        let sweeps = GaugeSweeps.visualSweepAngles(weights: segments.map { CGFloat($0.value / safeTotalValue) })
+        let capOverlapDeg = GaugeSweeps.capOverlapDeg(
             strokeWidth: RingGauge.Constants.defaultLineWidth,
             arcDiameter: RingGauge.Constants.diameter - RingGauge.Constants.defaultLineWidth
         )
-        let sweeps = GaugeSweeps.visualSweepAngles(
-            weights: segments.map { CGFloat($0.value / safeTotalValue) },
-            capDeg: capDeg
-        )
+
         guard let anchor = SegmentTooltipPositioning.anchor(
             selectedIndex: index,
             sweepsDeg: sweeps,
+            capOverlapDeg: capOverlapDeg,
             cardSize: cardSize,
             strokeWidth: RingGauge.Constants.defaultLineWidth,
             ringDiameter: RingGauge.Constants.diameter,
@@ -132,10 +132,12 @@ struct SummaryGaugeView: View {
         assets.first { $0.id == segment.id }?.fiatValue ?? 0
     }
 
-    /// The slice's real share of the total (not the floored visual sweep).
+    /// The slice's real share of the total (not the floored visual sweep), stated the way the row under the
+    /// chart states it.
     private func percentText(for segment: GaugeSegment) -> String {
         let share = totalValue > 0 ? fiatValue(for: segment) / totalValue : 0
-        return percentFormatter.format(share, option: .yield)
+
+        return shareFormatter.string(for: share)
     }
 }
 

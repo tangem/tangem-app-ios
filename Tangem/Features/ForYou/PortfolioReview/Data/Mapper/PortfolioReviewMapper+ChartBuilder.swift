@@ -41,9 +41,23 @@ extension PortfolioReviewMapper {
             return .loaded(
                 assets: assets(topHoldings: topHoldings, other: other, slices: slices),
                 assetCount: topHoldings.count,
-                topHoldingPercent: percentFormatter.format(topShare, option: .yield)
+                topHoldingPercent: topHoldingPercent(topShare)
             )
         }
+    }
+}
+
+// MARK: - Summary
+
+private extension PortfolioReviewMapper.ChartBuilder {
+    /// The share is marked approximate only when the top really is short of the whole portfolio. A bucket
+    /// holding nothing but valueless assets leaves the share at exactly one, and that reads as a plain 100%.
+    static func topHoldingPercent(_ share: Decimal) -> String {
+        let percent = percentFormatter.format(share, option: .yield)
+
+        guard share < 1 else { return percent }
+
+        return "\(AppConstants.tildeSign)\(percent)"
     }
 }
 
@@ -64,7 +78,7 @@ private extension PortfolioReviewMapper.ChartBuilder {
                 id: PortfolioRowBuilder.otherID,
                 name: Localization.commonOther,
                 fiatValue: other.reduce(Decimal.zero) { $0 + $1.amountInFiat },
-                segmentColor: PortfolioReviewSegmentPalette.otherArcColor
+                segmentColor: PortfolioReviewSegmentPalette.otherColor
             ))
         }
 

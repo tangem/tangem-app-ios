@@ -35,6 +35,18 @@ struct PortfolioReviewSegmentPaletteTests {
         #expect(Set(slices.keys) == Set(ids.prefix(10)))
     }
 
+    @Test("The palette covers the whole top, so every charted holding gets an arc")
+    func paletteCoversTheWholeTop() {
+        let holdings = (0 ..< 14).map { makeHolding(groupKey: "asset\($0)", amountInFiat: Decimal(14 - $0)) }
+
+        let top = PortfolioReviewAggregator.aggregate(holdings).topHoldings
+        let slices = SUT.slices(forRanked: top.map(\.key))
+
+        // A top longer than the palette would leave a funded holding colourless: it would drop out of the
+        // ring while still counting towards the total, leaving a gap the drawing and the hit test assume away.
+        #expect(slices.count == top.count)
+    }
+
     @Test("The slice follows the rank, not the asset")
     func sliceFollowsTheRank() throws {
         let first = try #require(SUT.slices(forRanked: ["btc", "eth"])["btc"])
@@ -157,10 +169,10 @@ struct PortfolioReviewSegmentPaletteTests {
 
         let otherSegment = try #require(review.segments.first { $0.id == otherRow.id })
 
-        #expect(otherRow.assetRow.indicatorColor == SUT.otherIndicatorColor)
-        #expect(!rankColours.contains(SUT.otherIndicatorColor))
-        // Its arc closes the ring and answers taps, so it wears the ring's own grey rather than a rank shade.
-        #expect(otherSegment.color == SUT.otherArcColor)
+        #expect(otherRow.assetRow.indicatorColor == SUT.otherColor)
+        #expect(!rankColours.contains(SUT.otherColor))
+        // Its arc closes the ring and answers taps, so it wears the same neutral marker as the row's dot.
+        #expect(otherSegment.color == SUT.otherColor)
     }
 
     @Test("An addressless asset is listed without a dot")
@@ -174,6 +186,28 @@ struct PortfolioReviewSegmentPaletteTests {
 
         #expect(review.rows.rankedRowIDs == ["funded"])
         #expect(addresslessRow.assetRow.indicatorColor == nil)
+    }
+
+    @Test("A holding too small for two digits reads as less than the lowest share, not as zero")
+    func tinyShareReadsAsLessThanTheLowestOne() throws {
+        let review = makeReview([
+            makeHolding(groupKey: "whale", amountInFiat: 1_000_000),
+            makeHolding(groupKey: "dust", amountInFiat: Decimal(string: "0.01")!),
+        ])
+
+        let dustRow = try #require(review.rows.first { $0.id == "dust" })
+
+        guard case .values(_, let percent, _) = dustRow.assetRow.end else {
+            Issue.record("Expected the dust row to carry values")
+            return
+        }
+
+        let lowest = PercentFormatter().format(
+            PortfolioShareFormatter.Constants.lowestRepresentableShare,
+            option: PortfolioShareFormatter.Constants.option
+        )
+
+        #expect(percent == "<\(AppConstants.unbreakableSpace)\(lowest)")
     }
 
     @Test("Per-network child rows never carry a dot")
