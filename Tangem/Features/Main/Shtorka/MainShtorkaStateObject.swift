@@ -17,13 +17,12 @@ final class MainShtorkaStateObject: ObservableObject {
     @Published var isPresented = false
     @Published var size: ShtorkaSize = .collapsed
     @Published private(set) var detents = ShtorkaDetents()
-
-    private let heights = FeedDetentHeights()
-    private var bag = Set<AnyCancellable>()
-
     var expansionProgressPublisher: AnyPublisher<CGFloat, Never> {
         heights.expansionProgressPublisher
     }
+
+    private let heights = FeedDetentHeights()
+    private var bag = Set<AnyCancellable>()
 
     init() {
         heights.detentsPublisher.assign(to: &$detents)
@@ -55,6 +54,10 @@ final class MainShtorkaStateObject: ObservableObject {
 
     func report(safeArea insets: EdgeInsets) {
         heights.report(safeArea: insets)
+    }
+
+    func report(window height: CGFloat) {
+        heights.report(window: height)
     }
 
     func report(sheetHeight height: CGFloat) {
