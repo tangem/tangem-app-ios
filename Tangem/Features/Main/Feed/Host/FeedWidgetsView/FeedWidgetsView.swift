@@ -54,7 +54,7 @@ struct FeedWidgetsView: View {
             smallWidget(title: Localization.forYouTitle) {
                 FeedPortfolioDonutView()
             }
-            .glowRing(cornerRadius: Constants.cornerRadius)
+            .glowRing(size: .card(cornerRadius: Constants.cornerRadius))
 
         case .addAccount:
             // [REDACTED_TODO_COMMENT]
