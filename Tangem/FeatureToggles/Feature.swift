@@ -88,7 +88,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayCashback: return "TWI-1192_tangem_pay_cashback"
         case .swapChooseTokenWholeAreaTap: return "[REDACTED_INFO]_choose_token_whole_area_tap"
         case .welcomeScreenV2: return "TWI-1747_welcome_screen_v2"
-        case .nativeMarketsShtorka: return "[REDACTED_INFO]_native_markets_shtorka"
+        case .nativeMarketsShtorka: return "TWI-1608_new_shtorka_enabled"
         case .tangemPayPlastic: return "TWI-1157_tangem_pay_plastic"
         case .collectibles: return "TWI-1640_gacha_machine"
         case .openTelemetryMetrics: return "TWI-1627_opentelemetry_metrics_mirroring"
