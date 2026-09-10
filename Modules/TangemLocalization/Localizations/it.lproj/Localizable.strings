@@ -344,6 +344,7 @@
 "common_month_in[7]" = "Agosto";
 "common_month_in[8]" = "Settembre";
 "common_month_in[9]" = "Ottobre";
+"common_month" = "month";
 "common_more" = "More";
 "common_negative" = "Negative";
 "common_network_fee_title" = "Costi della rete";
@@ -446,6 +447,7 @@
 "common_wallet" = "Wallet";
 "common_wallets" = "Wallets";
 "common_warning" = "Avviso";
+"common_week" = "week";
 "common_with" = "with";
 "common_withdrawing" = "Withdrawing";
 "common_yes" = "Yes";
@@ -1523,6 +1525,10 @@
 "prediction_search_initial_subtitle" = "Search events or your predictions";
 "prediction_search_initial_title" = "Start typing to search";
 "prediction_search_results_title" = "Search results";
+"prediction_withdraw_status_failed_description" = "Something went wrong while processing your withdrawal. Please try again or contact support.";
+"prediction_withdraw_status_failed_title" = "Withdrawal failed";
+"prediction_withdraw_status_sent_description" = "Delivery may take up to %1$d minutes";
+"prediction_withdraw_status_sent_title" = "Withdrawal sent";
 "promo_campaign_already_activated_subtitle" = "Eligible cashback will be distributed to:";
 "promo_campaign_already_activated_title" = "You're already enrolled in %1$@";
 "promo_campaign_eligible_tokens" = "Eligible tokens";
@@ -2562,6 +2568,8 @@
 "transaction_history_earned_from_stake" = "Earned from stake";
 "transaction_history_empty_transactions" = "You don't have any transactions yet";
 "transaction_history_error_failed_to_load" = "Failed to load transaction history.\nClick on reload button to update the information.";
+"transaction_history_fee_for_sending" = "For sending";
+"transaction_history_fee_sending_asset" = "Send %%image%% %@";
 "transaction_history_from_inline_address" = "from: %%image%% %@";
 "transaction_history_multiple_addresses" = "Multiple addresses";
 "transaction_history_not_supported_description" = "Transaction history is currently not supported for this blockchain. But don't worry, we're working on it! In the meantime you can check it in the explorer.";
