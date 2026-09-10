@@ -30,15 +30,15 @@ final class PulseViewModel: ObservableObject {
     }
 
     private let dataProvider: PulseDataProvider
-    private weak var routable: (any FeedRoutable)?
+    private let router: any CryptoFeedRoutable
     private var rowViewModels: [String: MarketTokenItemViewModel] = [:]
     private var visibleTokenIDs: Set<String> = []
     private var isLoaded = false
     private var bag = Set<AnyCancellable>()
 
-    init(dataProvider: PulseDataProvider, routable: any FeedRoutable) {
+    init(dataProvider: PulseDataProvider, router: any CryptoFeedRoutable) {
         self.dataProvider = dataProvider
-        self.routable = routable
+        self.router = router
 
         bind()
     }
@@ -83,7 +83,7 @@ final class PulseViewModel: ObservableObject {
             }
         )
 
-        routable?.openPulseTagFilter(with: input)
+        router.openPulseTagFilter(with: input)
     }
 
     func onTagClearTap() {
@@ -91,7 +91,7 @@ final class PulseViewModel: ObservableObject {
     }
 
     func onSelectToken(_ token: MarketsTokenModel) {
-        routable?.openToken(token)
+        router.openToken(token)
     }
 
     func onRetry() {

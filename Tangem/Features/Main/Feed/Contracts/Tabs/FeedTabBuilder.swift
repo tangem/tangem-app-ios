@@ -1,5 +1,5 @@
 //
-//  FeedTabFactory.swift
+//  FeedTabBuilder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,12 +8,12 @@
 
 import Combine
 
-protocol FeedTabFactory {
-    func makeTab(navigation: any FeedRoutable) -> FeedTab
+protocol FeedTabBuilder {
+    func makeTab(context: FeedContext) -> FeedTab
 
     func makeSearchTab(
         query: AnyPublisher<String, Never>,
         history: FeedSearchHistoryProvider,
-        navigation: any FeedRoutable
+        context: FeedContext
     ) -> FeedSearchTab
 }
