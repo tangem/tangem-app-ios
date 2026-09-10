@@ -377,6 +377,7 @@ var featureModules: [PackageDescription.Target] {
                 "TangemLogger",
                 "TangemNetworkUtils",
                 "TangemAccounts",
+                "TangemAccessibilityIdentifiers",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]

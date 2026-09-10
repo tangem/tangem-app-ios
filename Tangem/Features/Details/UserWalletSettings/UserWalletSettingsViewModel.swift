@@ -262,6 +262,7 @@ private extension UserWalletSettingsViewModel {
         if nftAvailabilityProvider.isNFTAvailable(for: userWalletModel) {
             nftViewModel = DefaultToggleRowViewModel(
                 title: Localization.detailsNftTitle,
+                accessibilityIdentifier: WalletSettingsAccessibilityIdentifiers.nftToggle,
                 isOn: .init(
                     root: self,
                     default: false,
