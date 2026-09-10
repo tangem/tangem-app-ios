@@ -33,16 +33,31 @@ private struct MainShtorkaViewModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            // Read here rather than inside the sheet: the sheet's content ignores the bottom inset, so it would
-            // report zero. On the main screen the value is the window's, which is what the sheet gets.
-            .readGeometry(\.safeAreaInsets) { stateObject.report(safeArea: $0) }
+            // Read here rather than inside the sheet: the sheet's content ignores the bottom inset and a floating
+            // sheet moves its own insets during transitions. On the main screen the values are the window's.
+            .background {
+                Color.clear
+                    .readGeometry { geometry in
+                        let insets = geometry.safeAreaInsets
+                        stateObject.report(safeArea: insets)
+                        stateObject.report(window: geometry.size.height + insets.top + insets.bottom)
+                    }
+                    .ignoresSafeArea(.keyboard, edges: .bottom)
+            }
             .shtorka(
                 isPresented: $stateObject.isPresented,
                 size: $stateObject.size,
-                detents: stateObject.detents
+                detents: stateObject.detents,
+                expansionProgress: stateObject.expansionProgressPublisher
             ) {
                 FeedCoordinatorView(coordinator: coordinator)
-                    .readGeometry(\.size.height) { stateObject.report(sheetHeight: $0) }
+                    .background {
+                        Color.clear
+                            .readGeometry { geometry in
+                                stateObject.report(sheetHeight: geometry.size.height + geometry.safeAreaInsets.bottom)
+                            }
+                            .ignoresSafeArea(.keyboard, edges: .bottom)
+                    }
             }
     }
 }

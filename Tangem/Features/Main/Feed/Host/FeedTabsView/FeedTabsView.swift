@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import TangemAssets
 import TangemUI
 import TangemUIUtils
 
@@ -27,7 +26,7 @@ struct FeedTabsView: View {
                 if viewModel.tabs.count > 1 {
                     tabChips
                         .padding(.bottom, Constants.chipsBottomInset)
-                        .background(pinnedChipsBackground)
+                        .background(ShtorkaSurface(opacity: backgroundOpacity, expansionProgress: shtorkaStateObject.expansionProgressPublisher))
                         .readGeometry(\.size.height) { shtorkaStateObject.report(tabChips: $0) }
                 }
             }
@@ -54,8 +53,8 @@ struct FeedTabsView: View {
             .scrollable()
     }
 
-    private var pinnedChipsBackground: Color {
-        shtorkaStateObject.size == .full ? DesignSystem.Color.bgPrimary : .clear
+    private var backgroundOpacity: CGFloat {
+        shtorkaStateObject.size == .full ? 1 : 0
     }
 
     private var tabSelection: Binding<FeedTab> {
