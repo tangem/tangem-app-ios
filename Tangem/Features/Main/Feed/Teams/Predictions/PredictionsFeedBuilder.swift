@@ -1,5 +1,5 @@
 //
-//  PredictionsFeedTabFactory.swift
+//  PredictionsFeedBuilder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,15 +8,15 @@
 
 import Combine
 
-struct PredictionsFeedTabFactory: FeedTabFactory {
-    func makeTab(navigation: any FeedRoutable) -> FeedTab {
+struct PredictionsFeedBuilder: FeedTabBuilder {
+    func makeTab(context: FeedContext) -> FeedTab {
         .predictions
     }
 
     func makeSearchTab(
         query: AnyPublisher<String, Never>,
         history: FeedSearchHistoryProvider,
-        navigation: any FeedRoutable
+        context: FeedContext
     ) -> FeedSearchTab {
         .predictions
     }

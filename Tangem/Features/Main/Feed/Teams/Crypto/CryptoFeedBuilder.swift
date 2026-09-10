@@ -1,5 +1,5 @@
 //
-//  CryptoFeedTabFactory.swift
+//  CryptoFeedBuilder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,13 +8,13 @@
 
 import Combine
 
-struct CryptoFeedTabFactory: FeedTabFactory {
-    func makeTab(navigation: any FeedRoutable) -> FeedTab {
+struct CryptoFeedBuilder: FeedTabBuilder {
+    func makeTab(context: FeedContext) -> FeedTab {
         .crypto(
             CryptoFeedViewModel(
                 pulseDataProvider: CommonPulseDataProvider(),
                 promotionNotificationsManager: NewsPromotionNotificationsManager(),
-                routable: navigation
+                router: CryptoFeedRouter(context: context)
             )
         )
     }
@@ -22,8 +22,8 @@ struct CryptoFeedTabFactory: FeedTabFactory {
     func makeSearchTab(
         query: AnyPublisher<String, Never>,
         history: FeedSearchHistoryProvider,
-        navigation: any FeedRoutable
+        context: FeedContext
     ) -> FeedSearchTab {
-        .crypto(CryptoSearchViewModel(query: query, history: history, navigation: navigation))
+        .crypto(CryptoSearchViewModel(query: query, history: history, router: CryptoFeedRouter(context: context)))
     }
 }
