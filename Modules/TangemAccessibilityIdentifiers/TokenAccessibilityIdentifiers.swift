@@ -58,4 +58,7 @@ public enum TokenAccessibilityIdentifiers {
 
     public static let addTokenButton = "tokenAddTokenButton"
     public static let getTokenLaterButton = "tokenGetTokenLaterButton"
+
+    /// Row on the add-token screen that opens the account picker
+    public static let addTokenAccountSelectorRow = "tokenAddTokenAccountSelectorRow"
 }
