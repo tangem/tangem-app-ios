@@ -344,6 +344,7 @@
 "common_month_in[7]" = "Agosto";
 "common_month_in[8]" = "Setembro";
 "common_month_in[9]" = "Outubro";
+"common_month" = "mês";
 "common_more" = "Mais";
 "common_negative" = "Negativo";
 "common_network_fee_title" = "Taxa de rede";
@@ -446,6 +447,7 @@
 "common_wallet" = "Carteira";
 "common_wallets" = "Carteiras";
 "common_warning" = "Aviso";
+"common_week" = "semana";
 "common_with" = "com";
 "common_withdrawing" = "Retirada";
 "common_yes" = "Sim";
@@ -1523,6 +1525,10 @@
 "prediction_search_initial_subtitle" = "Pesquise eventos ou suas previsões";
 "prediction_search_initial_title" = "Comece a digitar para pesquisar";
 "prediction_search_results_title" = "Resultados da pesquisa";
+"prediction_withdraw_status_failed_description" = "Something went wrong while processing your withdrawal. Please try again or contact support.";
+"prediction_withdraw_status_failed_title" = "Withdrawal failed";
+"prediction_withdraw_status_sent_description" = "Delivery may take up to %1$d minutes";
+"prediction_withdraw_status_sent_title" = "Withdrawal sent";
 "promo_campaign_already_activated_subtitle" = "O cashback elegível será distribuído para:";
 "promo_campaign_already_activated_title" = "Você já está inscrito em %1$@";
 "promo_campaign_eligible_tokens" = "Tokens elegíveis";
@@ -2562,6 +2568,8 @@
 "transaction_history_earned_from_stake" = "Ganhos com participação";
 "transaction_history_empty_transactions" = "Você ainda não possui nenhuma transação.";
 "transaction_history_error_failed_to_load" = "Falha ao carregar o histórico de transações. Clique no botão \n para atualizar as informações.";
+"transaction_history_fee_for_sending" = "For sending";
+"transaction_history_fee_sending_asset" = "Send %%image%% %@";
 "transaction_history_from_inline_address" = "de: %%image%% %@";
 "transaction_history_multiple_addresses" = "Vários endereços";
 "transaction_history_not_supported_description" = "O histórico de transações ainda não é suportado nesta blockchain. Mas não se preocupe, estamos trabalhando nisso! Enquanto isso, você pode conferir no explorador.";
