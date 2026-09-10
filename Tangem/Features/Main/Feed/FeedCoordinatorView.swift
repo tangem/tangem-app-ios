@@ -22,29 +22,21 @@ struct FeedCoordinatorView: CoordinatorView {
                         shtorkaStateObject: coordinator.shtorkaStateObject
                     )
                     .background(FeedPopGestureEnabler())
-                    .navigationDestination(for: FeedDestination.self) { destination($0) }
+                    .navigationDestination(for: FeedDestination.self) { FeedDestinationView(destination: $0) }
+                }
+                .overlay {
+                    // A collapsed sheet shows only the header of the screen: the first tap brings the sheet up,
+                    // and the screen answers taps — Back included — once the user can see what they are tapping.
+                    if coordinator.path.isNotEmpty, coordinator.shtorkaStateObject.size == .collapsed {
+                        Color.clear
+                            .contentShape(.rect)
+                            .onTapGesture { coordinator.shtorkaStateObject.expand() }
+                    }
                 }
             }
 
-            sheets
-        }
-    }
-
-    private var sheets: some View {
-        NavHolder()
-            .sheet(item: $coordinator.portfolioTokenList) { viewModel in
-                MarketsPortfolioTokenListView(viewModel: viewModel)
-            }
-    }
-
-    @ViewBuilder
-    private func destination(_ destination: FeedDestination) -> some View {
-        switch destination {
-        case .token(let coordinator):
-            MarketsTokenDetailsCoordinatorView(coordinator: coordinator)
-                .toolbar(.hidden, for: .navigationBar)
-        case .portfolioToken(let coordinator):
-            TokenDetailsCoordinatorView(coordinator: coordinator)
+            NavHolder()
+                .sheet(item: $coordinator.presented) { FeedDestinationView(destination: $0) }
         }
     }
 }
