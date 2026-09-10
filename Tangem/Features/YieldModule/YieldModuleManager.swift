@@ -604,7 +604,10 @@ private extension CommonYieldModuleManager {
             return statePublisher
         }
 
-        let cachedStateInfo = YieldModuleManagerStateInfo(marketInfo: .init(from: cachedMarket), state: .loading(cachedState: cachedState))
+        let cachedStateInfo = YieldModuleManagerStateInfo(
+            marketInfo: .init(from: cachedMarket, includeIncentive: FeatureProvider.isAvailable(.merklIncentives)),
+            state: .loading(cachedState: cachedState)
+        )
         return statePublisher
             .prepend(cachedStateInfo)
             .eraseToAnyPublisher()
