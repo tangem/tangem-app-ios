@@ -81,6 +81,10 @@ extension WalletModel {
         let convertedAddress = try? converter.convertToETHAddress(defaultAddressString)
         return convertedAddress ?? defaultAddressString
     }
+
+    var isJointAccountParticipant: Bool {
+        account?.accountType == .joint
+    }
 }
 
 extension WalletModel {
@@ -226,6 +230,10 @@ protocol WalletModelDependenciesProvider {
     var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? { get }
     var tronGaslessTransactionsBuilder: (any TronGaslessTransactionsBuilder)? { get }
     var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { get }
+
+    // MARK: - Safe
+
+    var safeWalletManagerOperationsService: SafeWalletManagerOperationsService? { get }
 }
 
 // MARK: - Tx history

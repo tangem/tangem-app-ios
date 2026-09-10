@@ -305,6 +305,11 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.ethereumTransactionSigner
     }
 
+    /// An NFT transfer is not shaped as a Safe inner call, so it never goes out as a joint operation.
+    var safeWalletManagerOperationsService: SafeWalletManagerOperationsService? {
+        nil
+    }
+
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? {
         mainTokenWalletModel.bitcoinTransactionFeeCalculator
     }

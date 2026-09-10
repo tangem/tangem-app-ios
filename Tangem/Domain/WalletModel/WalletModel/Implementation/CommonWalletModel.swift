@@ -238,7 +238,7 @@ class CommonWalletModel {
     // MARK: - Timer
 
     private func startUpdatingTimer(silent: Bool) {
-        Task { [weak self] in
+        runTask { [weak self] in
             AppLogger.info(self, "⏰ Starting updating timer")
             try await Task.sleep(for: .seconds(10))
 
@@ -669,6 +669,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
 
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? {
         walletManager as? EthereumTransactionDataBuilder
+    }
+
+    var safeWalletManagerOperationsService: SafeWalletManagerOperationsService? {
+        walletManager as? SafeWalletManagerOperationsService
     }
 
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? {
