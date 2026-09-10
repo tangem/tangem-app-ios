@@ -33,6 +33,7 @@ struct PolymarketOrderSummaryView: View {
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .safeAreaInset(edge: .bottom, spacing: .zero) { footer }
         .onWillAppear { viewModel.handleViewAction(.appeared) }
+        .bindAlert($viewModel.alert)
         .onWillDisappear { viewModel.handleViewAction(.disappeared) }
     }
 
@@ -88,6 +89,7 @@ struct PolymarketOrderSummaryView: View {
         .styleType(.default)
         .size(.x12)
         .horizontalLayout(.infinity)
+        .loading(.spinner(if: viewModel.isPlacing))
         .disabled(!viewModel.isPlaceEnabled)
     }
 }
