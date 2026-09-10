@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Combine
 import TangemAssets
 
 public extension View {
@@ -14,9 +15,18 @@ public extension View {
         isPresented: Binding<Bool>,
         size: Binding<ShtorkaSize>,
         detents: ShtorkaDetents = ShtorkaDetents(),
+        expansionProgress: AnyPublisher<CGFloat, Never> = Empty().eraseToAnyPublisher(),
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
-        modifier(ShtorkaModifier(isPresented: isPresented, size: size, detents: detents, sheetContent: content))
+        modifier(
+            ShtorkaModifier(
+                isPresented: isPresented,
+                size: size,
+                detents: detents,
+                expansionProgress: expansionProgress,
+                sheetContent: content
+            )
+        )
     }
 }
 
@@ -24,6 +34,7 @@ private struct ShtorkaModifier<SheetContent: View>: ViewModifier {
     @Binding var isPresented: Bool
     @Binding var size: ShtorkaSize
     let detents: ShtorkaDetents
+    let expansionProgress: AnyPublisher<CGFloat, Never>
     @ViewBuilder let sheetContent: () -> SheetContent
 
     @StateObject private var presentationHost = ShtorkaPresentationHost()
@@ -41,7 +52,7 @@ private struct ShtorkaModifier<SheetContent: View>: ViewModifier {
                     .presentationDragIndicator(.visible)
                     .presentationBackgroundInteraction(.enabled(upThrough: detents.medium))
                     .interactiveDismissDisabled()
-                    .modifier(ShtorkaBackgroundModifier(size: size))
+                    .modifier(ShtorkaBackgroundModifier(size: size, expansionProgress: expansionProgress))
             }
             .onChange(of: isPresented) { isPresented in
                 if !isPresented {
@@ -60,6 +71,7 @@ private struct ShtorkaModifier<SheetContent: View>: ViewModifier {
 
 private struct ShtorkaBackgroundModifier: ViewModifier {
     let size: ShtorkaSize
+    let expansionProgress: AnyPublisher<CGFloat, Never>
 
     @ViewBuilder
     func body(content: Content) -> some View {
@@ -73,11 +85,14 @@ private struct ShtorkaBackgroundModifier: ViewModifier {
     }
 
     private func filled(_ content: Content) -> some View {
-        content.background(fill.ignoresSafeArea())
-    }
-
-    private var fill: Color {
-        size == .full ? DesignSystem.Color.bgPrimary : .clear
+        content.background {
+            ShtorkaSurface(
+                tintsMaterial: true,
+                opacity: size == .full ? 1 : 0,
+                expansionProgress: expansionProgress
+            )
+            .ignoresSafeArea()
+        }
     }
 }
 
