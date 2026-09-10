@@ -159,6 +159,8 @@ final class PolymarketOwnerAddressProviderStub: PolymarketOwnerAddressProviding 
 // MARK: - CLOB
 
 final class PolymarketCLOBServiceStub: PolymarketCLOBService {
+    struct StubError: Error {}
+
     private(set) var balanceCalls = 0
 
     private let balanceResult: Result<Decimal, Error>
@@ -195,6 +197,14 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
         case .success(let balance): return PolymarketBalanceAllowance(balance: balance, allowance: 0)
         case .failure(let error): throw error
         }
+    }
+
+    func placeOrder(
+        _ signedOrder: PolymarketSignedOrder,
+        credentials: PolymarketL2Credentials,
+        ownerAddress: String
+    ) async throws -> PolymarketOrderPlacement {
+        throw StubError()
     }
 }
 

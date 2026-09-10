@@ -18,5 +18,5 @@ protocol PolymarketMainRoutable: AnyObject {
 
     func openEventDetails(eventID: String, category: PolymarketCategory?)
 
-    func openOrder(market: PolymarketMarket, outcome: PolymarketOutcome)
+    func openOrder(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String)
 }

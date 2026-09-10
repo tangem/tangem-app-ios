@@ -16,6 +16,8 @@ final class CommonPolymarketCLOBService {
     private let baseURL: URL
 
     private let decoder = JSONDecoder()
+    private let encoder = JSONEncoder()
+    private let mapper = PolymarketMapper()
 
     init(provider: TangemProvider<PolymarketCLOBTarget>, baseURL: URL) {
         self.provider = provider
@@ -43,6 +45,74 @@ extension CommonPolymarketCLOBService: PolymarketCLOBService {
         ownerAddress: String
     ) async throws -> PolymarketBalanceAllowance {
         try await balanceAllowance(.balanceAllowance, credentials: credentials, ownerAddress: ownerAddress)
+    }
+
+    func placeOrder(
+        _ signedOrder: PolymarketSignedOrder,
+        credentials: PolymarketL2Credentials,
+        ownerAddress: String
+    ) async throws -> PolymarketOrderPlacement {
+        let body: Data
+
+        do {
+            body = try encoder.encode(mapper.mapPlaceOrderRequest(signedOrder, apiKey: credentials.apiKey))
+        } catch {
+            throw PolymarketOrderPlacementError.notSent(underlying: error)
+        }
+
+        let target = PolymarketCLOBTarget.Target.placeOrder(body: body)
+        let signedTarget = PolymarketCLOBTarget(baseURL: baseURL, target: target, authHeaders: [:])
+
+        let dto: PolymarketDTO.PlaceOrderResponse
+
+        do {
+            let authHeaders = try PolymarketL2Auth.headers(
+                credentials: credentials,
+                ownerAddress: ownerAddress,
+                timestamp: String(Int(Date().timeIntervalSince1970)),
+                method: signedTarget.method.rawValue,
+                requestPath: signedTarget.signedPath,
+                body: String(decoding: body, as: UTF8.self)
+            )
+
+            dto = try await request(target, authHeaders: authHeaders.values)
+        } catch let error as CancellationError {
+            throw error
+        } catch let error as PolymarketOrderPlacementError {
+            throw error
+        } catch let error as PolymarketAPIError {
+            throw Self.placementError(from: error)
+        } catch {
+            throw PolymarketOrderPlacementError.ambiguous(underlying: error)
+        }
+
+        guard dto.success else {
+            throw PolymarketOrderPlacementError.rejected(message: dto.errorMsg)
+        }
+
+        return mapper.mapPlaceOrder(dto)
+    }
+}
+
+// MARK: - Order placement errors
+
+extension CommonPolymarketCLOBService {
+    static func placementError(from error: PolymarketAPIError) -> PolymarketOrderPlacementError {
+        guard case .http(let statusCode, let problemDetail) = error, (400 ..< 500).contains(statusCode) else {
+            return .ambiguous(underlying: error)
+        }
+
+        let message = problemDetail?.detail ?? problemDetail?.title
+
+        guard let message, message.localizedCaseInsensitiveContains(Constants.noMatchMarker) else {
+            return .rejected(message: message)
+        }
+
+        return .noLiquidity(message: message)
+    }
+
+    private enum Constants {
+        static let noMatchMarker = "no orders found to match"
     }
 }
 

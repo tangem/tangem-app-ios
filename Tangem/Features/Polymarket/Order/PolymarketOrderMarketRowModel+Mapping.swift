@@ -11,9 +11,11 @@ import TangemPolymarket
 import TangemPolymarketUI
 
 extension PolymarketOrderMarketRow.Model {
-    static func make(market: PolymarketMarket, outcome: PolymarketOutcome) -> Self {
-        Self(
-            question: market.groupItemTitle ?? market.title,
+    static func make(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) -> Self {
+        let ownTitle = market.groupItemTitle ?? market.title
+
+        return Self(
+            question: ownTitle.isEmpty ? eventTitle : ownTitle,
             imageURL: market.imageURL ?? market.iconURL,
             outcomeTitle: outcome.title,
             outcomePriceText: PolymarketPriceFormatter.centsText(outcome.probability),

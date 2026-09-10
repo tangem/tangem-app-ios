@@ -77,6 +77,7 @@ private extension PolymarketOrderFractionTests {
         let model = PolymarketOrderModel(
             market: .fixture,
             outcome: .fixture,
+            eventTitle: "Fixture event",
             apiProvider: PolymarketAPIProviderStub(quoteResult: quote),
             geoblockStateProvider: PolymarketGeoblockStateProviderStub(),
             balancePublisher: .just(output: balance)

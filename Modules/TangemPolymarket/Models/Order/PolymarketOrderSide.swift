@@ -11,4 +11,11 @@ import Foundation
 public enum PolymarketOrderSide: String, Hashable, Sendable {
     case buy = "BUY"
     case sell = "SELL"
+
+    var wireValue: UInt64 {
+        switch self {
+        case .buy: 0
+        case .sell: 1
+        }
+    }
 }

@@ -103,9 +103,9 @@ private extension PolymarketApprovalsSigning {
         return EIP712TypedData(types: types, primaryType: primaryType, domain: domain, message: message)
     }
 
-    static let domainName = "DepositWallet"
-    static let domainVersion = "1"
-    static let chainId = 137
+    static let domainName = PolymarketDepositWalletDomain.name
+    static let domainVersion = PolymarketDepositWalletDomain.version
+    static let chainId = PolymarketChain.polygonId
     static let primaryType = "Batch"
     static let callType = "Call"
 }
