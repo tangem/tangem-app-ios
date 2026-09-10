@@ -92,7 +92,7 @@ public struct MessageBanner<SlotStart: View, SlotEnd: View, ExtraBottom: View>: 
     @ViewBuilder
     private func applyGlowRing(to content: some View) -> some View {
         if let appearance = config.glowRing {
-            content.glowRing(appearance, cornerRadius: cornerRadius)
+            content.glowRing(appearance, size: .card(cornerRadius: cornerRadius))
         } else {
             content
         }
