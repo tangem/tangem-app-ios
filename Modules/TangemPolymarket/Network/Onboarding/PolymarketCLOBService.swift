@@ -22,4 +22,10 @@ public protocol PolymarketCLOBService {
         credentials: PolymarketL2Credentials,
         ownerAddress: String
     ) async throws -> PolymarketBalanceAllowance
+
+    func placeOrder(
+        _ signedOrder: PolymarketSignedOrder,
+        credentials: PolymarketL2Credentials,
+        ownerAddress: String
+    ) async throws -> PolymarketOrderPlacement
 }
