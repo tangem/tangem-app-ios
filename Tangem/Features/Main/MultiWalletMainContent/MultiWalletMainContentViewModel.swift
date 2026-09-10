@@ -573,7 +573,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         func openPromoYield() {
-            if let apy = yieldManager.state?.marketInfo?.apy {
+            if let apy = yieldManager.state?.marketInfo?.effectiveApy {
                 coordinator?.openYieldModulePromoView(apy: apy, factory: factory)
                 logger.logEarningApyClicked(state: .disabled)
             }

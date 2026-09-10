@@ -39,6 +39,16 @@ extension CommonYieldModuleAPIService: YieldModuleAPIService {
         try await request(for: .markets(chains: chainIDs), decoder: decoder)
     }
 
+    func getIncentiveYieldMarkets(
+        chainIDs: [String]?
+    ) async throws -> YieldModuleDTO.Response.MarketsInfo {
+        let enveloped: YieldModuleDTO.Enveloped<YieldModuleDTO.Response.MarketsInfo> = try await request(
+            for: .incentiveMarkets(chains: chainIDs),
+            decoder: decoder
+        )
+        return enveloped.result
+    }
+
     func getTokenPositionInfo(
         tokenContractAddress: String,
         chainId: Int

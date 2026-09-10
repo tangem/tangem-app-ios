@@ -182,36 +182,37 @@ private extension CommonYieldModuleNetworkManager {
     }
 
     func fetchMarkets(chainIDs: [String]) async -> [YieldModuleMarketInfo] {
+        let includeIncentive = FeatureProvider.isAvailable(.merklIncentives)
+
         do {
-            let response = try await yieldModuleAPIService.getYieldMarkets(chainIDs: chainIDs)
+            let response = try await fetchMarketsInfo(chainIDs: chainIDs, includeIncentive: includeIncentive)
 
             cacheMarkets(response)
 
-            return response.tokens.compactMap {
-                return YieldModuleMarketInfo(
-                    tokenContractAddress: $0.tokenAddress,
-                    apy: $0.apy / 100,
-                    isActive: $0.isActive,
-                    chainId: $0.chainId,
-                    maxFeeNative: $0.maxFeeNative,
-                    maxFeeUSD: $0.maxFeeUSD
-                )
+            return response.tokens.map {
+                YieldModuleMarketInfo(dto: $0, includeIncentive: includeIncentive)
             }
         } catch {
             guard let cachedMarkets = yieldMarketsRepository.markets() else {
                 return []
             }
 
-            return cachedMarkets.markets.compactMap {
-                return YieldModuleMarketInfo(
-                    tokenContractAddress: $0.tokenContractAddress,
-                    apy: $0.apy / 100,
-                    isActive: $0.isActive,
-                    chainId: $0.chainId,
-                    maxFeeNative: $0.maxFeeNative,
-                    maxFeeUSD: $0.maxFeeUSD
-                )
+            return cachedMarkets.markets.map {
+                YieldModuleMarketInfo(from: $0, includeIncentive: includeIncentive)
             }
+        }
+    }
+
+    func fetchMarketsInfo(chainIDs: [String], includeIncentive: Bool) async throws -> YieldModuleDTO.Response.MarketsInfo {
+        guard includeIncentive else {
+            return try await yieldModuleAPIService.getYieldMarkets(chainIDs: chainIDs)
+        }
+
+        do {
+            return try await yieldModuleAPIService.getIncentiveYieldMarkets(chainIDs: chainIDs)
+        } catch {
+            // The incentives endpoint must never degrade base Yield Mode — fall back to the legacy markets.
+            return try await yieldModuleAPIService.getYieldMarkets(chainIDs: chainIDs)
         }
     }
 
@@ -223,7 +224,10 @@ private extension CommonYieldModuleNetworkManager {
                 isActive: $0.isActive,
                 chainId: $0.chainId,
                 maxFeeNative: $0.maxFeeNative,
-                maxFeeUSD: $0.maxFeeUSD
+                maxFeeUSD: $0.maxFeeUSD,
+                hasActiveCampaign: $0.hasActiveCampaign,
+                rewardsApr: $0.rewardsApr,
+                totalApyEst: $0.totalApyEst
             )
         }
         yieldMarketsRepository.store(

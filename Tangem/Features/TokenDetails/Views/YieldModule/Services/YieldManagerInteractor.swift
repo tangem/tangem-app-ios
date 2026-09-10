@@ -61,7 +61,7 @@ actor YieldManagerInteractor {
     }
 
     func getApy() async throws -> Decimal {
-        if let apy = manager.state?.marketInfo?.apy {
+        if let apy = manager.state?.marketInfo?.effectiveApy {
             return apy
         } else {
             let info = try await manager.fetchYieldTokenInfo()
