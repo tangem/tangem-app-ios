@@ -416,6 +416,7 @@ var featureModules: [PackageDescription.Target] {
                 "TangemLocalization",
                 "TangemUI",
                 "TangemFoundation",
+                .product(name: "Lottie", package: "lottie-spm"),
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
