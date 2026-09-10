@@ -17,6 +17,7 @@ struct FeedSearchTabsView: View {
             TabNavigation(data: viewModel.tabs, selection: tabSelection)
                 .variant(.material)
                 .scrollable()
+                .hapticFeedback()
 
             tabContent
         }
