@@ -7,6 +7,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemFoundation
 import TangemUIUtils
 
 public struct TabNavigation<Data>: View, Setupable
@@ -17,6 +18,7 @@ public struct TabNavigation<Data>: View, Setupable
     private var variant: Variant = .material
     private var isScrollable = false
     private var isLoading = false
+    private var isHapticFeedbackEnabled = false
     private var accessibilityIdentifierFactory: ((Data.Element) -> String?)?
 
     @ScaledMetric private var spacing: CGFloat = Constants.interItemSpacing
@@ -52,7 +54,13 @@ public struct TabNavigation<Data>: View, Setupable
                     TabItemView(
                         item: item,
                         isSelected: item.id == selection.id,
-                        onTap: { selection = item }
+                        onTap: {
+                            if isHapticFeedbackEnabled, item.id != selection.id {
+                                FeedbackGenerator.selection()
+                            }
+
+                            selection = item
+                        }
                     )
                     .background {
                         if item.id == selection.id {
@@ -93,6 +101,10 @@ public extension TabNavigation {
 
     func loading(_ value: Bool) -> Self {
         map { $0.isLoading = value }
+    }
+
+    func hapticFeedback(_ value: Bool = true) -> Self {
+        map { $0.isHapticFeedbackEnabled = value }
     }
 
     func accessibilityIdentifier(factory: @escaping (Data.Element) -> String?) -> Self {
