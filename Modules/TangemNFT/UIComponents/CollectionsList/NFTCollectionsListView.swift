@@ -11,6 +11,7 @@ import TangemAssets
 import TangemUIUtils
 import TangemUI
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 public struct NFTCollectionsListView: View {
     @ObservedObject private var viewModel: NFTCollectionsListViewModel
@@ -189,17 +190,21 @@ public struct NFTCollectionsListView: View {
     }
 
     private func receiveButton(shouldAddShadow: Bool) -> some View {
-        MainButton(title: Localization.nftCollectionsReceive, action: viewModel.onReceiveButtonTap)
-            .padding(.bottom, 6)
-            .if(shouldAddShadow) { view in
-                view.background(
-                    ListFooterOverlayShadowView()
-                )
-            }
-            .readGeometry(\.frame, inCoordinateSpace: coordinateSpace) { frame in
-                buttonHeight = frame.height
-                buttonMinY = frame.minY
-            }
+        MainButton(
+            title: Localization.nftCollectionsReceive,
+            accessibilityIdentifier: NFTAccessibilityIdentifiers.collectionsReceiveButton,
+            action: viewModel.onReceiveButtonTap
+        )
+        .padding(.bottom, 6)
+        .if(shouldAddShadow) { view in
+            view.background(
+                ListFooterOverlayShadowView()
+            )
+        }
+        .readGeometry(\.frame, inCoordinateSpace: coordinateSpace) { frame in
+            buttonHeight = frame.height
+            buttonMinY = frame.minY
+        }
     }
 
     private var loadingView: some View {
