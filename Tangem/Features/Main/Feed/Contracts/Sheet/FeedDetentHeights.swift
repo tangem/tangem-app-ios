@@ -26,7 +26,7 @@ final class FeedDetentHeights: ObservableObject {
     private var safeArea = EdgeInsets()
 
     private var sheetHeight: CGFloat = .zero
-    private var fullSheetHeight: CGFloat?
+    private var windowHeight: CGFloat = .zero
 
     var detentsPublisher: AnyPublisher<ShtorkaDetents, Never> {
         $detents.eraseToAnyPublisher()
@@ -42,16 +42,19 @@ final class FeedDetentHeights: ObservableObject {
     }
 
     func report(searchBar height: CGFloat) {
+        guard height > 0 else { return }
         searchBarHeight = height.roundedToDeviceScale()
         syncDetents()
     }
 
     func report(widgets height: CGFloat) {
+        guard height > 0 else { return }
         widgetsHeight = height.roundedToDeviceScale()
         syncDetents()
     }
 
     func report(tabChips height: CGFloat) {
+        guard height > 0 else { return }
         tabChipsHeight = height.roundedToDeviceScale()
         syncDetents()
     }
@@ -61,9 +64,13 @@ final class FeedDetentHeights: ObservableObject {
         syncDetents()
     }
 
+    func report(window height: CGFloat) {
+        windowHeight = height.roundedToDeviceScale()
+        expansionProgress = makeExpansionProgress()
+    }
+
     func report(sheetHeight height: CGFloat) {
-        sheetHeight = (height + safeArea.bottom).roundedToDeviceScale()
-        fullSheetHeight = max(fullSheetHeight ?? sheetHeight, sheetHeight)
+        sheetHeight = height.roundedToDeviceScale()
 
         expansionProgress = makeExpansionProgress()
     }
@@ -88,20 +95,22 @@ private extension FeedDetentHeights {
     }
 
     func makeExpansionProgress() -> CGFloat {
-        guard let fullSheetHeight else {
+        let start = medium + safeArea.bottom
+        let travel = windowHeight - safeArea.top - start
+        guard windowHeight > 0, travel > 0 else {
             return 0
         }
 
-        let travel = fullSheetHeight - collapsed
-        guard travel > 0 else {
-            return 0
-        }
-
-        return clamp((sheetHeight - collapsed) / travel, min: 0, max: 1)
+        // Finish the fill before the top snap, whose outer inset differs between system sheet styles.
+        // Selected detents cannot calibrate this range: programmatic expansion selects full before it arrives.
+        let value = (sheetHeight - start) / (travel * Constants.surfaceFadeCompletion)
+        return clamp(value, min: 0, max: 1)
     }
 
     func syncDetents() {
-        let updated = ShtorkaDetents(collapsed: .height(collapsed), medium: .height(medium))
+        let mediumDetent: PresentationDetent = widgetsHeight > 0 ? .height(max(collapsed, medium)) : ShtorkaDetents().medium
+        let updated = ShtorkaDetents(collapsed: .height(collapsed), medium: mediumDetent)
+        expansionProgress = makeExpansionProgress()
 
         guard updated != detents else {
             return
@@ -118,5 +127,6 @@ private extension FeedDetentHeights {
         static let searchToWidgetsSpacing: CGFloat = 12
         static let widgetsToChipsSpacing: CGFloat = 20
         static let bottomInset: CGFloat = 20
+        static let surfaceFadeCompletion: CGFloat = 0.9
     }
 }
