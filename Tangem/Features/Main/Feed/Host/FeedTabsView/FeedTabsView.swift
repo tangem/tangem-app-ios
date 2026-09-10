@@ -51,6 +51,7 @@ struct FeedTabsView: View {
         TabNavigation(data: viewModel.tabs, selection: tabSelection)
             .variant(.material)
             .scrollable()
+            .hapticFeedback()
     }
 
     private var backgroundOpacity: CGFloat {
