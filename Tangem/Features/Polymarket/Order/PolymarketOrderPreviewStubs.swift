@@ -17,6 +17,7 @@ extension PolymarketOrderModel {
         return PolymarketOrderModel(
             market: market,
             outcome: market.outcomes[outcomeIndex],
+            eventTitle: "2026 FIFA World Cup winner",
             apiProvider: PolymarketOrderPreviewAPIProvider(),
             geoblockStateProvider: PolymarketOrderPreviewGeoblockStateProvider(),
             balancePublisher: .just(output: Decimal(30000))

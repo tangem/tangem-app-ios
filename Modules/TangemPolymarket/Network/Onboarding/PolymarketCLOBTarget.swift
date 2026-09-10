@@ -20,6 +20,7 @@ struct PolymarketCLOBTarget: Moya.TargetType {
         case deriveCredentials
         case updateBalanceAllowance
         case balanceAllowance
+        case placeOrder(body: Data)
     }
 
     var path: String {
@@ -32,12 +33,13 @@ struct PolymarketCLOBTarget: Moya.TargetType {
         case .deriveCredentials: "/auth/derive-api-key"
         case .updateBalanceAllowance: "/balance-allowance/update"
         case .balanceAllowance: "/balance-allowance"
+        case .placeOrder: "/order"
         }
     }
 
     var method: Moya.Method {
         switch target {
-        case .createCredentials: .post
+        case .createCredentials, .placeOrder: .post
         case .deriveCredentials, .updateBalanceAllowance, .balanceAllowance: .get
         }
     }
@@ -46,6 +48,8 @@ struct PolymarketCLOBTarget: Moya.TargetType {
         switch target {
         case .createCredentials, .deriveCredentials:
             return .requestPlain
+        case .placeOrder(let body):
+            return .requestData(body)
         case .updateBalanceAllowance, .balanceAllowance:
             return .requestParameters(
                 parameters: [
@@ -58,7 +62,12 @@ struct PolymarketCLOBTarget: Moya.TargetType {
     }
 
     var headers: [String: String]? {
-        authHeaders
+        switch target {
+        case .placeOrder:
+            return authHeaders.merging(Constants.jsonHeaders) { current, _ in current }
+        case .createCredentials, .deriveCredentials, .updateBalanceAllowance, .balanceAllowance:
+            return authHeaders
+        }
     }
 }
 
@@ -69,6 +78,8 @@ private extension PolymarketCLOBTarget {
         static let collateralAssetType = "COLLATERAL"
 
         static let poly1271SignatureType = 3
+
+        static let jsonHeaders = ["Content-Type": "application/json"]
     }
 }
 
