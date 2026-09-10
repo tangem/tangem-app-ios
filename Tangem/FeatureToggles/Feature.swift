@@ -51,6 +51,7 @@ enum Feature: String, Hashable, CaseIterable {
     case realAssets
     case storiesV2
     case hardwareUpgradeStories
+    case jointAccountsGaslessTokenFee
     case merklIncentives
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
@@ -99,6 +100,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .realAssets: return "TWI-1477_real_assets_shelf"
         case .storiesV2: return "TWI-1713_stories_v2"
         case .hardwareUpgradeStories: return "TWI-1357_hardware_upgrade_stories"
+        case .jointAccountsGaslessTokenFee: return "[REDACTED_INFO]_joint_accounts_gasless_token_fee"
         case .merklIncentives: return "TWI-1520_merkl_incentives"
         }
     }
@@ -147,6 +149,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .realAssets: return .unspecified
         case .storiesV2: return .unspecified
         case .hardwareUpgradeStories: return .unspecified
+        case .jointAccountsGaslessTokenFee: return .unspecified
         case .merklIncentives: return .unspecified
         }
     }
