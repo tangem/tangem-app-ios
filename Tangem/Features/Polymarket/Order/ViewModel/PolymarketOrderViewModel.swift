@@ -42,7 +42,7 @@ final class PolymarketOrderViewModel: ObservableObject {
         self.model = model
         self.coordinator = coordinator
 
-        marketRow = .make(market: model.market, outcome: model.outcome)
+        marketRow = .make(market: model.market, outcome: model.outcome, eventTitle: model.eventTitle)
         fieldViewModel = model.amountField
         payment = Self.makePayment(balance: model.state.balance)
         slippageText = PolymarketSlippageFormatter.rowText(model.state.slippagePercent)
