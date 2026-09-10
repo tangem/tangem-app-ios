@@ -68,7 +68,6 @@ struct SupportedBlockchains {
         [
             .vanar(testnet: false),
             .zkLinkNova(testnet: false),
-            .arc(testnet: false),
         ]
     }
 
@@ -172,6 +171,7 @@ struct SupportedBlockchains {
             .igra(testnet: false),
             .robinhood(testnet: false),
             .electroneum(testnet: false),
+            .arc(testnet: false),
         ]
     }
 
