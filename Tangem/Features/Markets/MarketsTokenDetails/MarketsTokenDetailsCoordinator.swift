@@ -279,7 +279,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
         }
 
         func openPromoYield() {
-            if let apy = yieldModuleManager.state?.marketInfo?.apy {
+            if let apy = yieldModuleManager.state?.marketInfo?.effectiveApy {
                 openYieldModulePromoView(apy: apy, factory: factory)
                 logger.logEarningApyClicked(state: .disabled)
             }
