@@ -17,7 +17,7 @@ final class CryptoSearchViewModel: ObservableObject {
 
     private let history: FeedSearchHistoryProvider
     private let marketsProvider: any FeedSearchProvider<MarketsTokenModel>
-    private weak var navigation: (any FeedRoutable)?
+    private let router: any CryptoFeedRoutable
 
     private let walletModelsAggregator: WalletModelsAggregator = CommonWalletModelsAggregator()
     private let priceFormatter = MarketsTokenPriceFormatter()
@@ -34,11 +34,11 @@ final class CryptoSearchViewModel: ObservableObject {
     init(
         query: AnyPublisher<String, Never>,
         history: FeedSearchHistoryProvider,
-        navigation: any FeedRoutable,
+        router: any CryptoFeedRoutable,
         marketsProvider: any FeedSearchProvider<MarketsTokenModel> = MarketsFeedSearchProvider()
     ) {
         self.history = history
-        self.navigation = navigation
+        self.router = router
         self.marketsProvider = marketsProvider
 
         bind(to: query)
@@ -56,7 +56,7 @@ final class CryptoSearchViewModel: ObservableObject {
     func onSelectResult(_ result: CryptoSearchResult) {
         history.save(token: result.model)
         history.save(query: query)
-        navigation?.openToken(result.model)
+        router.openToken(result.model)
     }
 
     func onResultAppear(_ result: CryptoSearchResult) {
@@ -179,13 +179,13 @@ private extension CryptoSearchViewModel {
         return MarketsPortfolioTokenSearchViewModel(
             walletModels: matches,
             onSingleToken: { [weak self] walletModel in
-                self?.navigation?.openPortfolioToken(walletModel)
+                self?.router.openPortfolioToken(walletModel)
             },
             onMultipleToken: { [weak self] walletModels in
                 if walletModels.count == 1, let walletModel = walletModels.first {
-                    self?.navigation?.openPortfolioToken(walletModel)
+                    self?.router.openPortfolioToken(walletModel)
                 } else {
-                    self?.navigation?.choosePortfolioToken(from: walletModels)
+                    self?.router.choosePortfolioToken(from: walletModels)
                 }
             }
         )

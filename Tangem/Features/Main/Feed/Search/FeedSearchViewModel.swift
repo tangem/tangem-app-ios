@@ -18,7 +18,7 @@ final class FeedSearchViewModel: ObservableObject {
     let tabsViewModel: FeedSearchTabsViewModel
 
     private let historyProvider: FeedSearchHistoryProvider
-    private weak var navigation: (any FeedRoutable)?
+    private let router: any FeedSearchRoutable
 
     private var history: FeedSearchHistory = .empty
     private var bag = Set<AnyCancellable>()
@@ -26,13 +26,13 @@ final class FeedSearchViewModel: ObservableObject {
     init(
         searchBarViewModel: FeedSearchBarViewModel,
         tabsViewModel: FeedSearchTabsViewModel,
-        navigation: any FeedRoutable,
-        historyProvider: FeedSearchHistoryProvider
+        historyProvider: FeedSearchHistoryProvider,
+        router: any FeedSearchRoutable
     ) {
         self.searchBarViewModel = searchBarViewModel
         self.tabsViewModel = tabsViewModel
-        self.navigation = navigation
         self.historyProvider = historyProvider
+        self.router = router
 
         bind()
     }
@@ -66,7 +66,7 @@ final class FeedSearchViewModel: ObservableObject {
     }
 
     func onSelectRecentToken(_ token: FeedRecentToken) {
-        navigation?.openToken(token.model)
+        router.openToken(token.model)
     }
 
     func onSelectRecentQuery(_ query: FeedRecentQuery) {
