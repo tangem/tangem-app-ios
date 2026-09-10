@@ -207,13 +207,20 @@ private struct RingCanvas: View, Animatable {
         }
     }
 
+    /// The body runs one device pixel past its sweep, under the cap. Ending exactly where the cap starts
+    /// puts two anti-aliased edges of the same colour on top of each other, and the track bleeds through
+    /// the pair as a hairline seam.
     private func bodyPath(of arc: RingArc, in box: CGRect) -> Path {
-        Path { path in
+        let radius = box.width / 2
+        let outerRadius = radius + lineWidth / 2
+        let seamCoverDeg = 1 / outerRadius * 180 / .pi
+
+        return Path { path in
             path.addArc(
                 center: CGPoint(x: box.midX, y: box.midY),
-                radius: box.width / 2,
+                radius: radius,
                 startAngle: .degrees(angleDeg(at: arc.start)),
-                endAngle: .degrees(angleDeg(at: max(arc.end, arc.start))),
+                endAngle: .degrees(angleDeg(at: max(arc.end, arc.start)) + seamCoverDeg),
                 clockwise: false
             )
         }
