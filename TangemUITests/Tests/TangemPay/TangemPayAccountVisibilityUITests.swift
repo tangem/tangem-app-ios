@@ -82,6 +82,32 @@ final class TangemPayAccountVisibilityUITests: BaseTestCase {
             .verifyAccountNotVisible(payAccountName)
     }
 
+    func testPayAccountNotOfferedWhenReceivingNFT() {
+        setAllureId(11473)
+
+        launchWithPayTwoAccountsAndNFT(nftState: Constants.emptyNFTState)
+            .openNFT()
+            .waitForDisplayed()
+            .tapReceive()
+            .verifyAccountVisible(firstAccountName)
+            .verifyAccountVisible(secondAccountName)
+            .verifyAccountNotVisible(payAccountName)
+    }
+
+    func testPayAccountNotListedInNFTSendAccounts() {
+        setAllureId(11474)
+
+        // The source account's own address is filtered out of the suggestions, leaving the second account.
+        launchWithPayTwoAccountsAndNFT(nftState: Constants.singleCollectionNFTState)
+            .openNFT()
+            .waitForDisplayed()
+            .expandCollection(Constants.nftCollectionName)
+            .openAsset(Constants.nftAssetName)
+            .tapSend()
+            .verifySuggestedAccountVisible(secondAccountName)
+            .verifySuggestedAccountNotVisible(payAccountName)
+    }
+
     private func launchWithPayAndTwoAccounts() -> MainScreen {
         launchAndImportHotWallet(
             expressApiType: .mock,
@@ -90,12 +116,34 @@ final class TangemPayAccountVisibilityUITests: BaseTestCase {
         .generateMissingAddressesIfNeeded()
         .verifyTangemPayTileVisible()
     }
+
+    private func launchWithPayTwoAccountsAndNFT(nftState: String) -> MainScreen {
+        launchAndImportHotWallet(
+            expressApiType: .mock,
+            scenarios: Constants.scenarios + [ScenarioConfig(name: Constants.nftScenario, initialState: nftState)]
+        )
+        .generateMissingAddressesIfNeeded()
+        .verifyTangemPayTileVisible()
+        .openDetails()
+        .openWalletSettings()
+        .enableNFT()
+        .goBackToDetails()
+        .goBackToMain()
+    }
 }
 
 private extension TangemPayAccountVisibilityUITests {
     enum Constants {
         /// Not held by either account, so Markets offers to add it.
         static let marketsToken = "Bitcoin"
+
+        static let nftScenario = "moralis_evm_nft_api"
+        static let emptyNFTState = "Started"
+
+        /// The fixture collection has GIF media, which keeps its row out of a drawing group that would hide the asset cells.
+        static let singleCollectionNFTState = "SingleCollection"
+        static let nftCollectionName = "Tangem Test Collection"
+        static let nftAssetName = "Tangem Test NFT #1"
 
         /// Two tokens per account: Add & Manage only appears once an account holds at least two.
         static let scenarios: [ScenarioConfig] = [

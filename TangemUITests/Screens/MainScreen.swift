@@ -49,6 +49,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         .matching(NSPredicate(format: "label == %@", "Learn more"))
         .firstMatch
     private lazy var addTokensButton = app.buttons[MainAccessibilityIdentifiers.addTokensButton].firstMatch
+    private lazy var nftEntrypointRow = app.buttons[NFTAccessibilityIdentifiers.mainEntrypointRow].firstMatch
     /// The promo banner merges its title and description into a single accessibility element, so they are
     /// matched inside that element's label rather than by identifiers of their own.
     private lazy var promoBannerTitle = elementContainingText("Discover Tangem Wallet")
@@ -644,6 +645,16 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             scrollToElement(tangemPayTile)
             tangemPayTile.waitAndTap()
             return TangemPayMainScreen(app)
+        }
+    }
+
+    @discardableResult
+    func openNFT() -> NFTCollectionsScreen {
+        XCTContext.runActivity(named: "Open NFT collections from main screen") { _ in
+            waitAndAssertTrue(nftEntrypointRow, "NFT row should be displayed on main screen")
+            XCTAssertTrue(scrollTokensListToVisible(nftEntrypointRow), "NFT row should be visible after scrolling")
+            nftEntrypointRow.waitAndTap()
+            return NFTCollectionsScreen(app)
         }
     }
 
