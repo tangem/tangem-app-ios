@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import AVFoundation
+import Lottie
 import UIKit
 
 /// Playback progress ticks at 60 Hz; it lives apart from `SlidePlayerViewModel` so per-tick
@@ -43,12 +44,17 @@ public final class SlidePlayerViewModel: ObservableObject, Identifiable {
     // MARK: - Private properties
 
     public private(set) var player: AVPlayer?
+    /// Parsed lottie asset; the slide view renders whatever frame the progress points at.
+    @Published private(set) var animation: LottieAnimation?
+    private var animationTask: Task<Void, Never>?
     private var timeObserver: Any?
     private var statusObservation: NSKeyValueObservation?
     private var prerollObservation: NSKeyValueObservation?
     private var endObserver: NSObjectProtocol?
 
     private let clock: ProgressClock
+    private let animationLoader: StoryAnimationLoading
+    private let stallTimeout: TimeInterval
     private var tickerToken: AnyCancellable?
     private var stallGuardTask: Task<Void, Never>?
     private var elapsedMs: Double = 0
@@ -69,9 +75,16 @@ public final class SlidePlayerViewModel: ObservableObject, Identifiable {
     /// shows content. `isPaused` is orthogonal.
     private var isActive: Bool { state == .playing || state == .buffering }
 
-    public init(slide: SlideV2, clock: ProgressClock = RealProgressClock()) {
+    init(
+        slide: SlideV2,
+        clock: ProgressClock = RealProgressClock(),
+        animationLoader: StoryAnimationLoading = StoryAnimationLoader(),
+        stallTimeout: TimeInterval = Constants.stallTimeout
+    ) {
         self.slide = slide
         self.clock = clock
+        self.animationLoader = animationLoader
+        self.stallTimeout = stallTimeout
     }
 
     deinit {
@@ -92,8 +105,15 @@ public final class SlidePlayerViewModel: ObservableObject, Identifiable {
         state = .preparing
         playbackDurationMs = Double(slide.asset.durationMs)
 
-        if slide.asset.type == .video, let url = slide.asset.url {
-            setupVideoPlayer(url: url)
+        switch slide.asset.type {
+        case .video:
+            if let url = slide.asset.url {
+                setupVideoPlayer(url: url)
+            }
+        case .lottie:
+            loadAnimation()
+        case .image:
+            break
         }
     }
 
@@ -102,8 +122,10 @@ public final class SlidePlayerViewModel: ObservableObject, Identifiable {
         guard !isActive else { return }
 
         switch slide.asset.type {
-        case .image, .lottie:
+        case .image:
             beginTicker()
+        case .lottie:
+            startAnimationPlayback()
         case .video:
             startVideoPlayback()
         }
@@ -174,6 +196,8 @@ public final class SlidePlayerViewModel: ObservableObject, Identifiable {
     }
 
     public func teardown() {
+        animationTask?.cancel()
+        animationTask = nil
         stallGuardTask?.cancel()
         stallGuardTask = nil
         tickerToken?.cancel()
@@ -192,6 +216,14 @@ public final class SlidePlayerViewModel: ObservableObject, Identifiable {
         }
         endObserver = nil
         player?.pause()
+
+        // Nothing is running any more, so the slide must not keep looking active: `play()` would
+        // take its `!isActive` early return and the slide could never start again. `.playing` is
+        // deliberately left alone — a torn-down story is mid-dismissal, and swapping a spinner in
+        // over the last frame would flash.
+        if state == .buffering {
+            state = .preparing
+        }
     }
 
     private func resetProgress() {
@@ -218,6 +250,53 @@ public final class SlidePlayerViewModel: ObservableObject, Identifiable {
         progress.value = min(elapsedMs / max(playbackDurationMs, 1), 1)
         fireHapticsIfNeeded(atMs: elapsedMs)
         if elapsedMs >= playbackDurationMs { complete() }
+    }
+
+    // MARK: - Animation path
+
+    /// Loaded during `prepare()`, so a window neighbour is ready before it becomes visible —
+    /// the same contract the video path gets from `setupVideoPlayer`.
+    private func loadAnimation() {
+        guard animation == nil, animationTask == nil, let url = slide.asset.url else { return }
+
+        animationTask = Task { [weak self, animationLoader] in
+            let loaded = await animationLoader.animation(at: url)
+            guard !Task.isCancelled, let self else { return }
+            animationTask = nil
+            animation = loaded
+
+            // Anything but `.buffering` means nobody is waiting on this load: the slide is a
+            // window neighbour, or it has already left the active position.
+            guard state == .buffering else { return }
+
+            if animation == nil {
+                complete()
+            } else {
+                beginTicker()
+            }
+        }
+    }
+
+    /// An asset that never arrives skips the slide instead of running the progress bar over a
+    /// poster, the same way a video without a player does. Waiting is `.buffering` — the state
+    /// already means "active but no content yet", so the stall guard bounds this wait too and a
+    /// load that never lands can't leave the story sitting on a spinner. It also inherits
+    /// `SlideStage`'s spinner delay, so a load that resolves inside it shows the poster rather
+    /// than a spinner flash — the trade the video path already makes.
+    private func startAnimationPlayback() {
+        if animation != nil {
+            beginTicker()
+            return
+        }
+
+        loadAnimation()
+        guard animationTask != nil else {
+            complete()
+            return
+        }
+
+        state = .buffering
+        scheduleStallGuard()
     }
 
     // MARK: - Video path
@@ -312,18 +391,20 @@ public final class SlidePlayerViewModel: ObservableObject, Identifiable {
         }
     }
 
+    // MARK: - Stall guard
+
     /// Skips the slide when playback makes no progress across a full timeout window, at start or
-    /// mid-play. Pause windows re-arm the watchdog; `teardown()` cancels it. Buffering is the
-    /// player's own recovery path and gets a longer, but bounded, grace — a stream that never
-    /// recovers must not leave the user on an infinite spinner.
+    /// mid-play. Pause windows re-arm the watchdog; `teardown()` cancels it. Buffering — a stalled
+    /// stream or a pending animation load — gets a longer, but bounded, grace: an asset that never
+    /// arrives must not leave the user on an infinite spinner.
     private func scheduleStallGuard() {
         stallGuardTask?.cancel()
-        stallGuardTask = Task { [weak self] in
+        stallGuardTask = Task { [weak self, stallTimeout] in
             // `nil` marks a paused window: skip one comparison after resume.
             var lastWatchedMs: Int? = 0
             var bufferingWindows = 0
             while !Task.isCancelled {
-                try? await Task.sleep(nanoseconds: UInt64(Constants.stallTimeout * 1_000_000_000))
+                try? await Task.sleep(nanoseconds: UInt64(stallTimeout * 1_000_000_000))
                 guard !Task.isCancelled, let self, state != .completed else { return }
                 guard isActive, !isPaused else {
                     lastWatchedMs = nil
@@ -348,6 +429,8 @@ public final class SlidePlayerViewModel: ObservableObject, Identifiable {
             }
         }
     }
+
+    // MARK: - Completion
 
     private func complete() {
         guard state != .completed else { return }
