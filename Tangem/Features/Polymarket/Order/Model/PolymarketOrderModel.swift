@@ -21,6 +21,7 @@ final class PolymarketOrderModel: ObservableObject {
 
     let market: PolymarketMarket
     let outcome: PolymarketOutcome
+    let eventTitle: String
 
     let amountField = DecimalNumberTextFieldViewModel(maximumFractionDigits: PolymarketCollateral.decimalCount)
 
@@ -43,6 +44,7 @@ final class PolymarketOrderModel: ObservableObject {
     init(
         market: PolymarketMarket,
         outcome: PolymarketOutcome,
+        eventTitle: String,
         apiProvider: PolymarketAPIProvider,
         geoblockStateProvider: PolymarketGeoblockStateProvider,
         balancePublisher: AnyPublisher<Decimal?, Never>,
@@ -50,6 +52,7 @@ final class PolymarketOrderModel: ObservableObject {
     ) {
         self.market = market
         self.outcome = outcome
+        self.eventTitle = eventTitle
         self.apiProvider = apiProvider
         self.geoblockStateProvider = geoblockStateProvider
         self.balancePublisher = balancePublisher
@@ -93,6 +96,7 @@ final class PolymarketOrderModel: ObservableObject {
 extension PolymarketOrderModel {
     struct State: Equatable {
         var quote: PolymarketOrderQuoteState = .empty
+        var quoteReceivedAt: Date?
         var enteredAmount: Decimal?
         var minAmount: Decimal?
         var balance: Decimal?
@@ -263,6 +267,7 @@ private extension PolymarketOrderModel {
             failureClock.reset()
             state.minAmount = minAmount(from: quote)
             state.quote = PolymarketOrderQuoteState(quote: quote)
+            state.quoteReceivedAt = Date()
 
             if quote.status == .marketClosed {
                 suspendQuoteLoop()
