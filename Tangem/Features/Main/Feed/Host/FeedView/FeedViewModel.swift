@@ -15,26 +15,21 @@ final class FeedViewModel: ObservableObject {
     let tabsViewModel: FeedTabsViewModel
     let widgetsViewModel: FeedWidgetsViewModel
 
-    private weak var routable: (any FeedRoutable)?
-
     init(
         searchBarViewModel: FeedSearchBarViewModel,
         searchViewModel: FeedSearchViewModel,
         tabsViewModel: FeedTabsViewModel,
-        widgetsViewModel: FeedWidgetsViewModel,
-        routable: any FeedRoutable
+        widgetsViewModel: FeedWidgetsViewModel
     ) {
         self.searchBarViewModel = searchBarViewModel
         self.searchViewModel = searchViewModel
         self.tabsViewModel = tabsViewModel
         self.widgetsViewModel = widgetsViewModel
-        self.routable = routable
     }
 
     func sheetSizeDidChange(to size: ShtorkaSize) {
         switch size {
         case .collapsed:
-            routable?.returnToRoot()
             searchViewModel.reset()
         case .medium:
             searchViewModel.close()
