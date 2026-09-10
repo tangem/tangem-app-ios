@@ -211,6 +211,7 @@ final class WalletModelTestsMock: WalletModel {
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { nil }
     var ethereumNetworkProvider: EthereumNetworkProvider? { nil }
     var ethereumTransactionSigner: EthereumTransactionSigner? { nil }
+    var safeWalletManagerOperationsService: SafeWalletManagerOperationsService? { nil }
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? { nil }
     var accountInitializationService: BlockchainAccountInitializationService? { nil }
     var minimalBalanceProvider: MinimalBalanceProvider? { nil }
