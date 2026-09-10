@@ -55,7 +55,7 @@ private extension PolymarketClobAuth {
 
     static let domainName = "ClobAuthDomain"
     static let domainVersion = "1"
-    static let chainId = 137
+    static let chainId = PolymarketChain.polygonId
     static let primaryType = "ClobAuth"
     static let attestation = "This message attests that I control the given wallet"
 }
