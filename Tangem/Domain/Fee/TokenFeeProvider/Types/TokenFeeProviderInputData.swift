@@ -13,7 +13,7 @@ import TangemMacro
 enum TokenFeeProviderInputData: Hashable {
     case common(amount: Decimal, destination: String)
 
-    case cex(amount: Decimal)
+    case cex(amount: Decimal, destination: String? = nil)
     case dex(_ type: TokenFeeProviderInputDataDEXType)
     /// Fee multiplier applied after estimation (e.g. 3x for revoke+approve flows).
     case approve(txData: Data, toContractAddress: String, feeMultiplier: FeeMultiplier = .single)
