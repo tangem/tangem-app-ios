@@ -21,6 +21,7 @@ struct WelcomeV2ExistingWalletActionFactory {
         WelcomeV2ActionSheetViewModel(
             input: .init(
                 title: Localization.introductionButtonIHaveAWallet,
+                analyticsSheet: .welcomeV2IHaveWallet,
                 items: [
                     WelcomeV2ActionSheetItem(
                         id: "hardware",
