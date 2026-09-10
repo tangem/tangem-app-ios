@@ -67,7 +67,7 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
             .floatingSheet(
                 viewModel: coordinator.actionSheetViewModel,
                 dismissSheetAction: { [weak coordinator] in
-                    coordinator?.actionSheetViewModel = nil
+                    coordinator?.handleBackgroundSheetDismiss()
                 }
             )
             .allowsHitTesting(coordinator.actionSheetViewModel != nil)

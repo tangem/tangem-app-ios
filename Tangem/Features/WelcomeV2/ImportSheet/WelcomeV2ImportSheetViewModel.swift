@@ -13,6 +13,7 @@ import TangemMobileWalletBackup
 
 final class WelcomeV2ImportSheetViewModel: ObservableObject, Identifiable {
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
+    @Injected(\.welcomeV2AnalyticsProvider) private var analytics: WelcomeV2AnalyticsProvider
 
     let id = UUID()
     let title: String
@@ -20,11 +21,16 @@ final class WelcomeV2ImportSheetViewModel: ObservableObject, Identifiable {
     let onBack: () -> Void
     let onClose: () -> Void
 
+    /// The `Sheet` value this sheet reports in analytics; lives on the sheet so it can't
+    /// outlive it, unlike a mirror flag on the coordinator.
+    let analyticsSheet: Analytics.ParameterValue = .welcomeV2ImportExisting
+
     @Published private(set) var items: [WelcomeV2ImportSheetItem]
 
     private let onRecoveryPhrase: () -> Void
     private let onICloudBackup: ([MobileWalletBackup]) -> Void
     private let backupManager: MobileWalletBackupManager
+    private var didLogImportRequest = false
 
     init(input: Input) {
         title = input.title
@@ -103,17 +109,29 @@ private extension WelcomeV2ImportSheetViewModel {
 
     @MainActor
     func applyICloud(loadResult: Result<[MobileWalletBackup], Error>, silent: Bool) {
-        switch loadResult {
-        case .success(let backups) where backups.isEmpty:
-            updateICloudItem(state: .notFound)
-        case .success(let backups):
-            updateICloudItem(state: .enabled(backups: backups))
-        case .failure(let error):
-            updateICloudItem(state: .retry)
-            if !silent {
-                alertPresenter.present(alert: error.alertBinder)
-            }
+        let state: ICloudBackupState = switch loadResult {
+        case .success(let backups) where backups.isEmpty: .notFound
+        case .success(let backups): .enabled(backups: backups)
+        case .failure: .retry
         }
+
+        updateICloudItem(state: state)
+
+        if case .failure(let error) = loadResult, !silent {
+            alertPresenter.present(alert: error.alertBinder)
+        }
+
+        logImportRequestOnce(state: state)
+    }
+
+    /// Matches the onboarding import screen: the request carries the resolved backup availability,
+    /// so it waits for the first load result instead of firing on presentation.
+    @MainActor
+    func logImportRequestOnce(state: ICloudBackupState) {
+        guard !didLogImportRequest else { return }
+        didLogImportRequest = true
+
+        analytics.logImportWalletRequest(hasCloudBackup: state.hasBackups)
     }
 
     @MainActor
@@ -170,6 +188,13 @@ extension WelcomeV2ImportSheetViewModel {
             switch self {
             case .loading: true
             case .enabled, .notFound, .retry: false
+            }
+        }
+
+        var hasBackups: Bool {
+            switch self {
+            case .enabled: true
+            case .loading, .notFound, .retry: false
             }
         }
     }
