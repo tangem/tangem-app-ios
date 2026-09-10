@@ -344,6 +344,7 @@
 "common_month_in[7]" = "August";
 "common_month_in[8]" = "September";
 "common_month_in[9]" = "Oktober";
+"common_month" = "Monat";
 "common_more" = "Mehr";
 "common_negative" = "Negativ";
 "common_network_fee_title" = "Netzgebühr";
@@ -446,6 +447,7 @@
 "common_wallet" = "Wallet";
 "common_wallets" = "Meine Wallet";
 "common_warning" = "Warnung";
+"common_week" = "Woche";
 "common_with" = "mit";
 "common_withdrawing" = "Überweisen";
 "common_yes" = "Ja";
@@ -1523,6 +1525,10 @@
 "prediction_search_initial_subtitle" = "Veranstaltungen oder deine Vorhersagen suchen";
 "prediction_search_initial_title" = "Beginnen Sie mit der Eingabe, um zu suchen";
 "prediction_search_results_title" = "Suchergebnisse";
+"prediction_withdraw_status_failed_description" = "Something went wrong while processing your withdrawal. Please try again or contact support.";
+"prediction_withdraw_status_failed_title" = "Withdrawal failed";
+"prediction_withdraw_status_sent_description" = "Delivery may take up to %1$d minutes";
+"prediction_withdraw_status_sent_title" = "Withdrawal sent";
 "promo_campaign_already_activated_subtitle" = "Berechtigte Cashback-Zahlungen werden wie folgt ausgezahlt:";
 "promo_campaign_already_activated_title" = "Sie sind bereits eingeschrieben in %1$@";
 "promo_campaign_eligible_tokens" = "Zulässige Token";
@@ -2562,6 +2568,8 @@
 "transaction_history_earned_from_stake" = "Verdient aus dem Einsatz";
 "transaction_history_empty_transactions" = "Du hast noch keine Transaktionen";
 "transaction_history_error_failed_to_load" = "Der Transaktionsverlauf konnte nicht geladen werden.\nKlicke auf die Schaltfläche Neu laden, um die Informationen zu aktualisieren.";
+"transaction_history_fee_for_sending" = "For sending";
+"transaction_history_fee_sending_asset" = "Send %%image%% %@";
 "transaction_history_from_inline_address" = "aus: %%image%% %@";
 "transaction_history_multiple_addresses" = "Mehrere Adressen";
 "transaction_history_not_supported_description" = "Die Transaktionshistorie wird für diese Blockchain derzeit nicht verfügbar. Aber keine Sorge, wir arbeiten daran! In der Zwischenzeit kannst du es im Explorer überprüfen.";

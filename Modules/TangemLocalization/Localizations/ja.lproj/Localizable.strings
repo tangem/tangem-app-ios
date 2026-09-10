@@ -344,6 +344,7 @@
 "common_month_in[7]" = "8月";
 "common_month_in[8]" = "9月";
 "common_month_in[9]" = "10月";
+"common_month" = "月";
 "common_more" = "さらに";
 "common_negative" = "ネガティブ";
 "common_network_fee_title" = "ネットワーク手数料";
@@ -446,6 +447,7 @@
 "common_wallet" = "ウォレット";
 "common_wallets" = "ウォレット";
 "common_warning" = "警告";
+"common_week" = "週";
 "common_with" = "で";
 "common_withdrawing" = "引き出し中";
 "common_yes" = "はい";
@@ -1523,6 +1525,10 @@
 "prediction_search_initial_subtitle" = "Search events or your predictions";
 "prediction_search_initial_title" = "Start typing to search";
 "prediction_search_results_title" = "Search results";
+"prediction_withdraw_status_failed_description" = "Something went wrong while processing your withdrawal. Please try again or contact support.";
+"prediction_withdraw_status_failed_title" = "Withdrawal failed";
+"prediction_withdraw_status_sent_description" = "Delivery may take up to %1$d minutes";
+"prediction_withdraw_status_sent_title" = "Withdrawal sent";
 "promo_campaign_already_activated_subtitle" = "対象のキャッシュバックは次のアドレスに配布されます：";
 "promo_campaign_already_activated_title" = "すでに%1$@に参加しています";
 "promo_campaign_eligible_tokens" = "対象トークン";
@@ -2562,6 +2568,8 @@
 "transaction_history_earned_from_stake" = "ステーキングで獲得した金額";
 "transaction_history_empty_transactions" = "まだ取引はありません";
 "transaction_history_error_failed_to_load" = "取引履歴の読み込みに失敗しました。\n情報を更新するには、リロードボタンをクリックしてください。";
+"transaction_history_fee_for_sending" = "For sending";
+"transaction_history_fee_sending_asset" = "Send %%image%% %@";
 "transaction_history_from_inline_address" = "%%image%% %@ から";
 "transaction_history_multiple_addresses" = "複数のアドレス";
 "transaction_history_not_supported_description" = "現在、このブロックチェーンでは取引履歴はサポートされていません。しかしご心配なく！弊社で対応中です。その間、エクスプローラーで確認することができます。";
