@@ -114,7 +114,9 @@ final class YieldTokenItemPromoProvider {
             return publisher
         }
 
-        let marketsInfo = cachedMarkets.markets.map { YieldModuleMarketInfo(from: $0) }
+        let marketsInfo = cachedMarkets.markets.map {
+            YieldModuleMarketInfo(from: $0, includeIncentive: FeatureProvider.isAvailable(.merklIncentives))
+        }
 
         return publisher
             .prepend(marketsInfo)
@@ -164,7 +166,7 @@ extension YieldTokenItemPromoProvider: TokenItemPromoProvider {
                         promoProviderInput: promoProviderInput
                     ),
                     let contractAddress = selectedWalletModel.tokenItem.contractAddress,
-                    let apy = marketInfo.first(where: { $0.tokenContractAddress == contractAddress })?.apy
+                    let apy = marketInfo.first(where: { $0.tokenContractAddress == contractAddress })?.effectiveApy
                 else {
                     return nil
                 }
