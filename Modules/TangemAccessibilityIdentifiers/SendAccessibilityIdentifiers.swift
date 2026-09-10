@@ -71,6 +71,10 @@ public enum SendAccessibilityIdentifiers {
         "sendSuggestedDestinationTransactionCell_\(index)"
     }
 
+    public static func suggestedDestinationWalletAccount(name: String) -> String {
+        "sendSuggestedDestinationWalletAccount_\(name)"
+    }
+
     /// Notification banners
     public static let invalidAmountBanner = "sendInvalidAmountBanner"
     public static let totalExceedsBalanceBanner = "sendTotalExceedsBalanceBanner"
