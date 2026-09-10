@@ -17,6 +17,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var tokensList = otherElement(.tokensList)
     private lazy var organizeTokensButton = button(.organizeTokensButton)
     private lazy var addAndManageOrganizeRow = app.buttons[TokensManagementChooserAccessibilityIdentifiers.organizeTokensRow].firstMatch
+    private lazy var addAndManageAddTokensRow = app.buttons[TokensManagementChooserAccessibilityIdentifiers.addTokensRow].firstMatch
     private lazy var detailsButton = button(.detailsButton)
     private lazy var actionButtonsList = otherElement(.actionButtonsList)
     private lazy var headerCardImage = image(.headerCardImage)
@@ -285,6 +286,27 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             }
 
             return OrganizeTokensScreen(app)
+        }
+    }
+
+    /// Opens Add & Manage and picks "Add tokens". Only a wallet with several accounts lands on the account picker.
+    @discardableResult
+    func openAddTokensAccountPicker() -> AccountSelectorSheet {
+        XCTContext.runActivity(named: "Open 'Add tokens' from the Add & Manage sheet") { _ in
+            // Scroll inside the tokens list — app-level swipes can grab the Markets sheet and cover the button.
+            XCTAssertTrue(
+                scrollTokensListToVisible(organizeTokensButton),
+                "Add & Manage button should be visible after scrolling tokens list; it is only rendered once an account holds at least two tokens"
+            )
+            XCTAssertTrue(
+                organizeTokensButton.waitAndTap(timeout: .robustUIUpdate),
+                "Should successfully tap Add & Manage button"
+            )
+
+            waitAndAssertTrue(addAndManageAddTokensRow, "'Add tokens' row should be shown in the Add & Manage sheet")
+            addAndManageAddTokensRow.waitAndTap()
+
+            return AccountSelectorSheet(app)
         }
     }
 
@@ -604,6 +626,15 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Open details screen") { _ in
             detailsButton.waitAndTap()
             return DetailsScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyTangemPayTileVisible() -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile is visible on main screen") { _ in
+            scrollToElement(tangemPayTile)
+            waitAndAssertTrue(tangemPayTile, "Tangem Pay tile should be visible on main screen")
+            return self
         }
     }
 
