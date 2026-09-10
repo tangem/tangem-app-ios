@@ -25,6 +25,7 @@ struct WelcomeV2ActionSheetView: View {
         }
         .floatingSheetConfiguration { config in
             config.backgroundInteractionBehavior = .tapToDismiss
+            config.verticalSwipeBehavior = .init(target: .sheet, threshold: Constants.swipeDismissThreshold)
             config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
             config.sheetFrameUpdateAnimation = .contentFrameUpdate
         }
@@ -77,6 +78,12 @@ struct WelcomeV2ActionSheetView: View {
             .onTap(item.action)
             .background(DesignSystem.Color.bgOpaquePrimary)
             .cornerRadiusContinuous(14)
+    }
+}
+
+private extension WelcomeV2ActionSheetView {
+    enum Constants {
+        static let swipeDismissThreshold: CGFloat = 100
     }
 }
 

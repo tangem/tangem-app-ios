@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 struct WelcomeV2View: View {
     @ObservedObject var viewModel: WelcomeV2ViewModel
@@ -54,6 +55,7 @@ struct WelcomeV2View: View {
                 bottomContainer
             }
         }
+        .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 
     private var navigationBar: some View {
