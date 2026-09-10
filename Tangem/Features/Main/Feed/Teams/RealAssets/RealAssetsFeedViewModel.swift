@@ -15,11 +15,11 @@ final class RealAssetsFeedViewModel: ObservableObject {
 
     @Injected(\.marketsCategoriesProvider) private var categoriesProvider: MarketsCategoriesProvider
 
-    private weak var routable: (any FeedRoutable)?
+    private let router: any RealAssetsFeedRoutable
     private var sheetSize: ShtorkaSize = .collapsed
 
-    init(routable: any FeedRoutable) {
-        self.routable = routable
+    init(router: any RealAssetsFeedRoutable) {
+        self.router = router
     }
 
     deinit {
@@ -61,10 +61,10 @@ final class RealAssetsFeedViewModel: ObservableObject {
 
 extension RealAssetsFeedViewModel: RealAssetsWidgetRoutable {
     func openMarketsTokenDetails(for tokenInfo: MarketsTokenModel) {
-        routable?.openToken(tokenInfo)
+        router.openToken(tokenInfo)
     }
 
     func openRealAssetsCategoryFilter(with input: RealAssetsCategoryFilterInput) {
-        routable?.openRealAssetsCategoryFilter(with: input)
+        router.openCategoryFilter(with: input)
     }
 }

@@ -2,28 +2,27 @@
 //  FeedDestination.swift
 //  Tangem
 //
-//  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-enum FeedDestination {
+enum FeedDestination: Hashable, Identifiable {
     case token(MarketsTokenDetailsCoordinator)
     case portfolioToken(TokenDetailsCoordinator)
-}
+    case portfolioTokenList(MarketsPortfolioTokenListViewModel)
 
-extension FeedDestination: Hashable {
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        switch (lhs, rhs) {
-        case (.token(let lhs), .token(let rhs)): lhs === rhs
-        case (.portfolioToken(let lhs), .portfolioToken(let rhs)): lhs === rhs
-        default: false
+    var id: ObjectIdentifier {
+        switch self {
+        case .token(let coordinator): ObjectIdentifier(coordinator)
+        case .portfolioToken(let coordinator): ObjectIdentifier(coordinator)
+        case .portfolioTokenList(let viewModel): ObjectIdentifier(viewModel)
         }
     }
 
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.id == rhs.id
+    }
+
     func hash(into hasher: inout Hasher) {
-        switch self {
-        case .token(let coordinator): hasher.combine(ObjectIdentifier(coordinator))
-        case .portfolioToken(let coordinator): hasher.combine(ObjectIdentifier(coordinator))
-        }
+        hasher.combine(id)
     }
 }
