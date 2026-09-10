@@ -210,11 +210,11 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(DesignSystem.Color.bgPrimary)
-        .overlay {
-            Color.clear
-                .glowRing(appearance.glowRingAppearance, cornerRadius: layout.glowRingCornerRadius)
-                .opacity(entrance.isGlowRingVisible ? 1 : 0)
-        }
+        .glowRing(
+            appearance.glowRingAppearance,
+            size: .fullscreen,
+            isVisible: entrance.isGlowRingVisible
+        )
         .ignoresSafeArea()
     }
 
@@ -360,15 +360,6 @@ private enum StatusScreenLayout {
         switch self {
         case .compact: 20
         case .regular: 8
-        }
-    }
-
-    /// Matches the Figma `screen-radius` token — the ring hugs the device bezel, which the
-    /// short devices do not have.
-    var glowRingCornerRadius: CGFloat {
-        switch self {
-        case .compact: 0
-        case .regular: 55
         }
     }
 }
