@@ -260,7 +260,7 @@ struct ShtorkaMockBanner: View {
             cardShape
                 .strokeBorder(Color.white.opacity(0.06), lineWidth: 1)
         }
-        .glowRing(.magic, cornerRadius: 20)
+        .glowRing(.magic, size: .card(cornerRadius: 20))
     }
 
     private var header: some View {
