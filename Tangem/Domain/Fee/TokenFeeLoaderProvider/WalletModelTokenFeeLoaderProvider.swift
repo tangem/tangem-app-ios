@@ -23,6 +23,16 @@ extension WalletModelTokenFeeLoaderProvider: TokenFeeLoaderProvider {
             return DemoTokenFeeLoader(tokenItem: tokenItem)
         }
 
+        // A wallet living at a joint account's Safe pays its relayer, not the network
+        if walletModel.isJointAccountParticipant, let safeOperationsService = walletModel.safeWalletManagerOperationsService {
+            return JointAccountOperationTokenFeeLoader(
+                tokenItem: tokenItem,
+                feeTokenItem: .blockchain(tokenItem.blockchainNetwork),
+                safeOperationsService: safeOperationsService,
+                parametersProvider: CommonJointOperationParametersProvider()
+            )
+        }
+
         let tokenFeeLoader = CommonTokenFeeLoader(
             tokenItem: tokenItem,
             transactionFeeProvider: walletModel.transactionFeeProvider
@@ -57,6 +67,21 @@ extension WalletModelTokenFeeLoaderProvider: TokenFeeLoaderProvider {
     func makeGaslessTokenFeeLoader(feeToken: BSDKToken, yieldFeeContext: GaslessYieldFeeContext?) -> TokenFeeLoader? {
         let tokenItem = walletModel.tokenItem
 
+        // Until paying in a token is turned on, a Safe refunds its relayer in the coin and no token option is offered.
+        // When it is, the Safe pays out of the tokens it holds itself, so the yield-backed context has no say here.
+        if walletModel.isJointAccountParticipant, let safeOperationsService = walletModel.safeWalletManagerOperationsService {
+            if !FeatureProvider.isAvailable(.jointAccountsGaslessTokenFee) {
+                return nil
+            }
+
+            return JointAccountOperationTokenFeeLoader(
+                tokenItem: tokenItem,
+                feeTokenItem: .token(feeToken, tokenItem.blockchainNetwork),
+                safeOperationsService: safeOperationsService,
+                parametersProvider: CommonJointOperationParametersProvider()
+            )
+        }
+
         if case .tron = tokenItem.blockchain, walletModel.tronGaslessTransactionsBuilder != nil {
             return CommonTronGaslessTokenFeeLoader(
                 tokenItem: tokenItem,
@@ -81,6 +106,11 @@ extension WalletModelTokenFeeLoaderProvider: TokenFeeLoaderProvider {
     func makeCustomFeeProvider() -> (any CustomFeeProvider)? {
         let tokenItem = walletModel.tokenItem
         let feeTokenItem = walletModel.feeTokenItem
+
+        // A Safe operation is refunded on the relayer's terms, so there is nothing here for the sender to hand-edit
+        guard !walletModel.isJointAccountParticipant else {
+            return nil
+        }
 
         switch tokenItem.blockchain {
         case .bitcoin:
