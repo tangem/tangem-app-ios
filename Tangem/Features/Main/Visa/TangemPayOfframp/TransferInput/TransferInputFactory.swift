@@ -26,7 +26,7 @@ enum TransferInputFactory {
                 await accountTokens(for: tangemPayAccount)
             },
             title: title(recipient: recipient, savedRecipientName: savedRecipientName),
-            stepSubtitle: stepSubtitle(recipient: recipient),
+            stepSubtitle: TangemPayOfframpWizardStep.amount.subtitle(for: recipient),
             output: output
         )
     }
@@ -44,22 +44,6 @@ private extension TransferInputFactory {
         case .newBusiness:
             Constants.businessTitle
         }
-    }
-
-    static func stepSubtitle(recipient: TangemPayOfframpRecipient) -> String? {
-        switch recipient {
-        case .saved:
-            nil
-        case .newIndividual:
-            stepText(of: Constants.personalStepCount)
-        case .newBusiness:
-            stepText(of: Constants.businessStepCount)
-        }
-    }
-
-    static func stepText(of total: Int) -> String {
-        // [REDACTED_TODO_COMMENT]
-        "1 of \(total)"
     }
 }
 
@@ -86,7 +70,5 @@ private extension TransferInputFactory {
         static let businessTitle = "To business account"
         // [REDACTED_TODO_COMMENT]
         static let savedFallbackTitle = "Bank transfer"
-        static let personalStepCount = 4
-        static let businessStepCount = 3
     }
 }
