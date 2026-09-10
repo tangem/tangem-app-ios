@@ -536,9 +536,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Top %li asset</string>
+        <string>Actif principal</string>
         <key>other</key>
-        <string>Top %li assets</string>
+        <string>%li principaux actifs</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>

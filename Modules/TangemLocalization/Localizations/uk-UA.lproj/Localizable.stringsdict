@@ -652,7 +652,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Top %li asset</string>
+        <string>Найбільший актив</string>
+        <key>few</key>
+        <string>%li найбільші активи</string>
+        <key>many</key>
+        <string>%li найбільших активів</string>
         <key>other</key>
         <string>Top %li assets</string>
       </dict>
