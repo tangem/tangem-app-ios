@@ -47,4 +47,9 @@ struct CachedYieldModuleMarket: Codable {
     let chainId: Int?
     let maxFeeNative: Decimal?
     let maxFeeUSD: Decimal?
+    // Merkl campaign overlay, stored in the same raw percent form as `apy`.
+    // Optional so cache entries written before the incentives rollout keep decoding.
+    let hasActiveCampaign: Bool?
+    let rewardsApr: Decimal?
+    let totalApyEst: Decimal?
 }
