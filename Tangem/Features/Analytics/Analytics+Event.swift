@@ -28,6 +28,13 @@ extension Analytics {
         case introductionProcessButtonAddExistingWallet = "[Introduction Process] Button - Add Existing Wallet"
         case introductionProcessOpened = "[Introduction Process] Introduction Process Screen Opened"
         case introductionProcessLearn = "[Introduction Process] Button - Learn"
+        case introductionProcessButtonIHaveWallet = "[Introduction Process] Button - I Have Wallet"
+        case introductionProcessButtonHardwareWallet = "[Introduction Process] Button - Hardware Wallet"
+        case introductionProcessButtonSignInWithCard = "[Introduction Process] Button - Sign In With Card"
+        case introductionProcessSheetDismissed = "[Introduction Process] Sheet Dismissed"
+        case introductionProcessLegalOpened = "[Introduction Process] Legal Opened"
+        case introductionProcessScanCancelled = "[Introduction Process] Scan Cancelled"
+        case introductionProcessWelcomeMediaError = "[Introduction Process] Welcome Media Error"
 
         case promoBuy = "[Promo Screen] Button - Buy"
         case promoSuccessOpened = "[Promo Screen] Success Screen Opened"
