@@ -35,6 +35,9 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     @Injected(\.safariManager)
     private var safariManager: SafariManager
 
+    @Injected(\.welcomeV2AnalyticsProvider)
+    private var analytics: WelcomeV2AnalyticsProvider
+
     @Injected(\.mailComposePresenter)
     private var mailPresenter: MailComposePresenter
 
@@ -59,6 +62,7 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     private var bag: Set<AnyCancellable> = []
     private var cardScanTask: Task<Void, Never>?
     private var createMobileWalletTask: Task<Void, Never>?
+    private var sheetTransitionTask: Task<Void, Never>?
 
     /// `true` while nothing the user navigated to themselves is on screen. The processor gates the promo /
     /// Tangem Pay deep links on this, so they never present over such a screen.
@@ -87,6 +91,7 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     deinit {
         cardScanTask?.cancel()
         createMobileWalletTask?.cancel()
+        sheetTransitionTask?.cancel()
         AppLogger.debug("WelcomeV2Coordinator deinit")
     }
 
@@ -142,6 +147,8 @@ final class WelcomeV2Coordinator: CoordinatorObject {
         cardScanTask = nil
         createMobileWalletTask?.cancel()
         createMobileWalletTask = nil
+        sheetTransitionTask?.cancel()
+        sheetTransitionTask = nil
         importOnboardingCoordinator = nil
         tangemPayMobileOnboardingCoordinator = nil
         welcomeStoryViewModel = nil
@@ -154,6 +161,25 @@ extension WelcomeV2Coordinator {
     struct Options {}
 
     typealias OutputOptions = WelcomeCoordinator.OutputOptions
+}
+
+// MARK: - Sheet dismissal
+
+extension WelcomeV2Coordinator {
+    /// Swipe-down and backdrop tap are indistinguishable by design and share the `Dismissed` value.
+    func handleBackgroundSheetDismiss() {
+        logVisibleSheetDismissed(reason: .welcomeV2Dismissed)
+        actionSheetViewModel = nil
+    }
+
+    /// The `Sheet` param reports what was visible at dismiss time: the pushed import sheet overrides the root.
+    /// Each sheet owns its own value, so it can't drift from the one its factory set.
+    func logVisibleSheetDismissed(reason: Analytics.ParameterValue) {
+        guard let sheet = actionSheetViewModel else { return }
+
+        let visible = sheet.pushedImportSheet?.analyticsSheet ?? sheet.analyticsSheet
+        analytics.logSheetDismissed(sheet: visible, reason: reason)
+    }
 }
 
 // MARK: - WelcomeV2Routable
@@ -177,6 +203,8 @@ extension WelcomeV2Coordinator: WelcomeV2Routable {
     }
 
     func openShop(url: URL) {
+        analytics.logButtonBuy()
+        analytics.logShopScreenOpened()
         safariManager.openURL(url)
     }
 
@@ -195,11 +223,21 @@ extension WelcomeV2Coordinator: WelcomeV2Routable {
 
 private extension WelcomeV2Coordinator {
     func presentCreateWallet() {
+        analytics.logCreateWalletIntroScreenOpened()
         actionSheetViewModel = WelcomeV2CreateWalletActionFactory().make(
             callbacks: .init(
-                onHardware: weakify(self, forFunction: WelcomeV2Coordinator.dismissSheetThenPresentWelcomeStory),
-                onMobile: weakify(self, forFunction: WelcomeV2Coordinator.createMobileWalletShortcut),
-                onClose: weakify(self, forFunction: WelcomeV2Coordinator.dismissSheet)
+                onHardware: { [weak self] in
+                    self?.analytics.logHardwareWalletButton()
+                    self?.dismissSheetThenPresentWelcomeStory()
+                },
+                onMobile: { [weak self] in
+                    self?.analytics.logMobileWalletButton()
+                    self?.createMobileWalletShortcut()
+                },
+                onClose: { [weak self] in
+                    self?.logVisibleSheetDismissed(reason: .welcomeV2DismissCloseButton)
+                    self?.dismissSheet()
+                }
             )
         )
     }
@@ -207,30 +245,35 @@ private extension WelcomeV2Coordinator {
     func presentExistingWallet() {
         actionSheetViewModel = WelcomeV2ExistingWalletActionFactory().make(
             callbacks: .init(
-                onHardware: weakify(self, forFunction: WelcomeV2Coordinator.dismissSheetThenScanHardwareWallet),
+                onHardware: { [weak self] in
+                    self?.analytics.logSignInWithCardButton()
+                    self?.dismissSheetThenScanHardwareWallet()
+                },
                 onImport: weakify(self, forFunction: WelcomeV2Coordinator.presentImportWalletIfAvailable),
-                onClose: weakify(self, forFunction: WelcomeV2Coordinator.dismissSheet)
+                onClose: { [weak self] in
+                    self?.logVisibleSheetDismissed(reason: .welcomeV2DismissCloseButton)
+                    self?.dismissSheet()
+                }
             )
         )
     }
 
+    /// The import sheet reports `Import Wallet Request` itself once cloud availability resolves.
+    /// Where it never opens, the tap is reported here instead, with no backup to offer.
     func presentImportWalletIfAvailable() {
         guard mobileWalletFeatureProvider.isAvailable else {
-            actionSheetViewModel = nil
-            Task { @MainActor [weak self] in
-                try? await Task.sleep(for: .seconds(Constants.sheetTransitionDelay))
-                guard let self else { return }
-                alertPresenter.present(alert: mobileWalletFeatureProvider.makeRestrictionAlert())
+            analytics.logImportWalletRequest(hasCloudBackup: false)
+            dismissSheet { coordinator in
+                coordinator.alertPresenter.present(alert: coordinator.mobileWalletFeatureProvider.makeRestrictionAlert())
             }
             return
         }
 
         guard FeatureProvider.isAvailable(.mobileWalletBackup) else {
-            actionSheetViewModel = nil
-            Task { @MainActor [weak self] in
-                try? await Task.sleep(for: .seconds(Constants.sheetTransitionDelay))
+            analytics.logImportWalletRequest(hasCloudBackup: false)
+            dismissSheet { coordinator in
                 let input = MobileOnboardingInput(flow: .walletImport(source: .importWallet))
-                self?.presentImportOnboarding(options: .mobileInput(input))
+                coordinator.presentImportOnboarding(options: .mobileInput(input))
             }
             return
         }
@@ -241,25 +284,22 @@ private extension WelcomeV2Coordinator {
     func presentImportWallet() {
         guard let parent = actionSheetViewModel else { return }
 
-        let goBack: () -> Void = { [weak parent] in
+        let goBack: () -> Void = { [weak self, weak parent] in
+            self?.logVisibleSheetDismissed(reason: .welcomeV2DismissBackButton)
             parent?.pushedImportSheet = nil
         }
 
         let openRecoveryPhrase: () -> Void = { [weak self] in
-            self?.actionSheetViewModel = nil
-            Task { @MainActor [weak self] in
-                try? await Task.sleep(for: .seconds(Constants.sheetTransitionDelay))
+            self?.dismissSheet { coordinator in
                 let input = MobileOnboardingInput(flow: .walletImport(source: .importWallet))
-                self?.presentImportOnboarding(options: .mobileInput(input))
+                coordinator.presentImportOnboarding(options: .mobileInput(input))
             }
         }
 
         let openICloudBackup: ([MobileWalletBackup]) -> Void = { [weak self] backups in
-            self?.actionSheetViewModel = nil
-            Task { @MainActor [weak self] in
-                try? await Task.sleep(for: .seconds(Constants.sheetTransitionDelay))
+            self?.dismissSheet { coordinator in
                 let input = MobileOnboardingInput(flow: .iCloudBackupImport(backups: backups, source: .importWallet))
-                self?.presentImportOnboarding(options: .mobileInput(input))
+                coordinator.presentImportOnboarding(options: .mobileInput(input))
             }
         }
 
@@ -268,7 +308,10 @@ private extension WelcomeV2Coordinator {
                 onRecoveryPhrase: openRecoveryPhrase,
                 onICloudBackup: openICloudBackup,
                 onBack: goBack,
-                onClose: weakify(self, forFunction: WelcomeV2Coordinator.dismissSheet)
+                onClose: { [weak self] in
+                    self?.logVisibleSheetDismissed(reason: .welcomeV2DismissCloseButton)
+                    self?.dismissSheet()
+                }
             )
         )
     }
@@ -296,20 +339,25 @@ private extension WelcomeV2Coordinator {
 
         switch result {
         case .error(let error) where error.isCancellationError:
+            analytics.logScanCancelled()
             incomingActionManager.discardIncomingAction()
 
         case .error(let error):
+            analytics.logScanError(error)
             incomingActionManager.discardIncomingAction()
             alertPresenter.present(alert: error.alertBinder)
 
         case .scanTroubleshooting:
+            analytics.logScanTroubleshooting()
             incomingActionManager.discardIncomingAction()
             presentScanTroubleshootingDialog()
 
         case .onboarding(let input, _):
+            analytics.logCardWasScanned(contextParams: input.cardInput.getContextParams())
             openOnboarding(with: input)
 
         case .success(let cardInfo):
+            analytics.logCardWasScanned(contextParams: .custom(cardInfo.analyticsContextData))
             await handleScanSuccess(cardInfo: cardInfo)
         }
     }
@@ -330,6 +378,7 @@ private extension WelcomeV2Coordinator {
             )
             let userWalletModel = try await userWalletRepository.unlock(with: unlockMethod)
             guard !Task.isCancelled else { return }
+            analytics.logCardSignIn(userWalletModel: userWalletModel)
             openMain(with: userWalletModel)
         } catch UserWalletRepositoryError.notFound {
             guard !Task.isCancelled else { return }
@@ -350,6 +399,7 @@ private extension WelcomeV2Coordinator {
             }
             guard !Task.isCancelled else { return }
             try userWalletRepository.add(userWalletModel: userWalletModel)
+            analytics.logCardSignIn(userWalletModel: userWalletModel)
             openMain(with: userWalletModel)
         } catch {
             alertPresenter.present(alert: error.alertBinder)
@@ -358,14 +408,17 @@ private extension WelcomeV2Coordinator {
 
     func presentScanTroubleshootingDialog() {
         let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
+            self?.analytics.logTroubleshootingTryAgain()
             self?.scanHardwareWallet()
         }
 
         let readMoreButton = ConfirmationDialogViewModel.Button(title: Localization.commonReadMore) { [weak self] in
+            self?.analytics.logTroubleshootingReadMore()
             self?.safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
         }
 
         let requestSupportButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonRequestSupport) { [weak self] in
+            self?.analytics.logTroubleshootingRequestSupport()
             self?.requestSupport()
         }
 
@@ -397,22 +450,36 @@ private extension WelcomeV2Coordinator {
         actionSheetViewModel = nil
     }
 
-    /// SwiftUI cannot present a fullScreenCover or a navigation push while a sheet is up,
-    /// so we close the sheet first and wait for the dismiss animation before continuing.
-    func dismissSheetThenScanHardwareWallet() {
+    /// SwiftUI cannot present a fullScreenCover or a navigation push while a sheet is up, so we close
+    /// the sheet first and wait for the dismiss animation before continuing. Closing it also makes the
+    /// coordinator idle, which lets a pending deep link take the screen — hence the re-check on wake.
+    func dismissSheet(then action: @MainActor @escaping (WelcomeV2Coordinator) -> Void) {
         actionSheetViewModel = nil
-        Task { @MainActor [weak self] in
+        sheetTransitionTask?.cancel()
+
+        sheetTransitionTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .seconds(Constants.sheetTransitionDelay))
-            self?.scanHardwareWallet()
+
+            guard let self, !Task.isCancelled else { return }
+
+            sheetTransitionTask = nil
+
+            guard actionSheetViewModel == nil,
+                  importOnboardingCoordinator == nil,
+                  tangemPayMobileOnboardingCoordinator == nil else {
+                return
+            }
+
+            action(self)
         }
     }
 
+    func dismissSheetThenScanHardwareWallet() {
+        dismissSheet { $0.scanHardwareWallet() }
+    }
+
     func dismissSheetThenPresentWelcomeStory() {
-        actionSheetViewModel = nil
-        Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .seconds(Constants.sheetTransitionDelay))
-            self?.presentWelcomeStory()
-        }
+        dismissSheet { $0.presentWelcomeStory() }
     }
 
     @MainActor
@@ -425,6 +492,9 @@ private extension WelcomeV2Coordinator {
         )
 
         guard let vm else {
+            // Without the story the scan button is never shown, but the scan still starts here,
+            // so its start event has to fire for the scan outcomes to have a denominator.
+            analytics.logButtonScanCard()
             scanHardwareWallet()
             return
         }
@@ -434,10 +504,14 @@ private extension WelcomeV2Coordinator {
 
     @MainActor
     func handleWelcomeStoryFinish(action: StoryActionV2?) {
+        // The story stays tappable while it fades out, so a second tap must not repeat the action.
+        guard welcomeStoryViewModel != nil else { return }
+
         welcomeStoryViewModel = nil
 
         switch action?.target {
         case .screen(let key) where key == WelcomeStoryPresentationViewModelFactory.ScreenKey.hardwareWallet:
+            analytics.logButtonScanCard()
             scanHardwareWallet()
         case .web(let raw):
             // Https-only, defense in depth: this action is built locally by our own factory,
