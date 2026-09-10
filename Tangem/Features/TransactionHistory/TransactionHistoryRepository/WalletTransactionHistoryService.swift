@@ -47,7 +47,7 @@ extension WalletTransactionHistoryService: TransactionHistoryService {
     }
 
     var items: [TransactionRecord] {
-        syncState.withLock(\.storage)
+        syncState.withLock(\.storage.records)
     }
 
     var canFetchHistory: Bool {
@@ -62,7 +62,7 @@ extension WalletTransactionHistoryService: TransactionHistoryService {
             let pending = state.pendingCompletions
             state.updateTask = nil
             state.pendingCompletions.removeAll()
-            state.storage.removeAll()
+            state.storage.clear()
             return (state.providers, task, pending)
         }
         task?.cancel()
@@ -116,7 +116,7 @@ private extension WalletTransactionHistoryService {
             state.providers = newProviders
             state.updateTask = nil
             state.pendingCompletions.removeAll()
-            state.storage.removeAll()
+            state.storage.clear()
             return (oldProviders, oldTask, pending)
         }
         oldTask?.cancel()
@@ -203,7 +203,7 @@ private extension WalletTransactionHistoryService {
             let wrote: Bool = syncState.withLock { state in
                 guard !Task.isCancelled else { return false }
                 for response in responses {
-                    state.storage.appendMerging(response.records)
+                    state.storage.merge(response.records)
                 }
                 return true
             }
@@ -266,9 +266,24 @@ extension WalletTransactionHistoryService {
         let provider: BlockchainSdk.TransactionHistoryProvider
     }
 
+    private struct TransactionRecordsStorage {
+        private(set) var records: [TransactionRecord] = []
+        private var recordIDToIndex: [TransactionRecord.ID: Int] = [:]
+
+        mutating func clear() {
+            records.removeAll()
+            recordIDToIndex.removeAll()
+        }
+
+        @discardableResult
+        mutating func merge(_ newRecords: [TransactionRecord]) -> [String] {
+            records.appendMerging(newRecords, recordIDToIndex: &recordIDToIndex)
+        }
+    }
+
     private struct SyncState {
         var providers: [Entry] = []
-        var storage: [TransactionRecord] = []
+        var storage: TransactionRecordsStorage = .init()
         var updateTask: Task<Void, Never>?
         var pendingCompletions: [@Sendable () -> Void] = []
     }
