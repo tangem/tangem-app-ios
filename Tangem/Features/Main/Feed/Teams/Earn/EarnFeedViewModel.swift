@@ -17,10 +17,10 @@ final class EarnFeedViewModel: ObservableObject {
 
     private var dataProvider: EarnDataProvider?
 
-    private weak var routable: (any FeedRoutable)?
+    private let router: any EarnFeedRoutable
 
-    init(routable: any FeedRoutable) {
-        self.routable = routable
+    init(router: any EarnFeedRoutable) {
+        self.router = router
     }
 
     deinit {
@@ -63,14 +63,14 @@ extension EarnFeedViewModel: EarnDetailRoutable {
     func dismiss() {}
 
     func routeOnTokenResolved(_ resolution: EarnTokenResolution, source: EarnOpportunitySource) {
-        routable?.routeOnEarnTokenResolved(resolution, source: source)
+        router.routeOnTokenResolved(resolution, source: source)
     }
 
     func openNetworksFilter() {
-        routable?.openEarnNetworksFilter()
+        router.openNetworksFilter()
     }
 
     func openTypesFilter() {
-        routable?.openEarnTypesFilter()
+        router.openTypesFilter()
     }
 }
