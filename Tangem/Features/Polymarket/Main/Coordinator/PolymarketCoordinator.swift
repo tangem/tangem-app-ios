@@ -165,8 +165,8 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
         ))
     }
 
-    func openOrder(market: PolymarketMarket, outcome: PolymarketOutcome) {
-        guard let geoblockStateProvider, let balanceProvider else {
+    func openOrder(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {
+        guard let geoblockStateProvider, let balanceProvider, let userWalletModel else {
             PolymarketLogger.error(
                 "An outcome was tapped before the feed built its providers",
                 error: CoordinatorError.missingOrderProviders
@@ -183,8 +183,10 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
         coordinator.start(with: .init(
             market: market,
             outcome: outcome,
+            eventTitle: eventTitle,
             geoblockStateProvider: geoblockStateProvider,
-            balancePublisher: balanceProvider.collateralPublisher
+            balancePublisher: balanceProvider.collateralPublisher,
+            placementService: PolymarketOrderPlacementFactory().makeService(for: userWalletModel)
         ))
 
         destination = .order(coordinator)

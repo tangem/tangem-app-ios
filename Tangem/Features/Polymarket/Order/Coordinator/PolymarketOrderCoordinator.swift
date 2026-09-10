@@ -12,6 +12,7 @@ import TangemPolymarket
 
 final class PolymarketOrderCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
@@ -25,6 +26,8 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
     @Published var destination: Destination?
     @Published var sheet: Sheet?
 
+    private var placementService: PolymarketOrderPlacementService?
+
     // MARK: - Init
 
     required init(
@@ -36,10 +39,13 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        placementService = options.placementService
+
         Task { @MainActor in
             let model = PolymarketOrderModel(
                 market: options.market,
                 outcome: options.outcome,
+                eventTitle: options.eventTitle,
                 apiProvider: PolymarketAPIProviderFactory().makeProvider(),
                 geoblockStateProvider: options.geoblockStateProvider,
                 balancePublisher: options.balancePublisher
@@ -66,7 +72,13 @@ extension PolymarketOrderCoordinator: PolymarketOrderRoutable {
 
     @MainActor
     func openSummary(model: PolymarketOrderModel) {
-        destination = .summary(PolymarketOrderSummaryViewModel(model: model, coordinator: self))
+        guard let placementService else { return }
+
+        destination = .summary(PolymarketOrderSummaryViewModel(
+            model: model,
+            placementService: placementService,
+            coordinator: self
+        ))
     }
 }
 
@@ -81,14 +93,27 @@ extension PolymarketOrderCoordinator: PolymarketOrderSummaryRoutable {
         safariManager.openURL(url)
     }
 
+    func openSupport() {
+        let logsComposer = LogsComposer(infoProvider: BaseDataCollector())
+        let mailViewModel = MailViewModel(
+            logsComposer: logsComposer,
+            recipient: EmailConfig.default.recipient,
+            emailType: .appFeedback(subject: EmailConfig.default.subject)
+        )
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
+    }
+
     @MainActor
     func openFeeBreakdown(model: PolymarketOrderModel) {
         sheet = .feeBreakdown(PolymarketFeeBreakdownSheetViewModel(model: model))
     }
 
     /// The result replaces the summary in the stack so that stepping back cannot reach a live Place button.
-    func openResult() {
-        destination = .result(PolymarketOrderResultViewModel(coordinator: self))
+    func openResult(state: PolymarketOrderResultViewModel.State, content: PolymarketOrderResultViewModel.Content) {
+        destination = .result(PolymarketOrderResultViewModel(state: state, content: content, coordinator: self))
     }
 }
 
@@ -127,7 +152,9 @@ extension PolymarketOrderCoordinator {
     struct Options {
         let market: PolymarketMarket
         let outcome: PolymarketOutcome
+        let eventTitle: String
         let geoblockStateProvider: PolymarketGeoblockStateProvider
         let balancePublisher: AnyPublisher<Decimal?, Never>
+        let placementService: PolymarketOrderPlacementService
     }
 }
