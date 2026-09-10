@@ -45,6 +45,11 @@ public enum CommonUIAccessibilityIdentifiers {
         "\(tokenSelectorItemPrefix)\(name)"
     }
 
+    /// Account section header inside a token selector
+    public static func tokenSelectorAccountHeader(name: String) -> String {
+        "commonUITokenSelectorAccountHeader_\(name)"
+    }
+
     /// Account selector
     public static func accountSelectorCell(name: String) -> String {
         "commonUIAccountSelectorCell_\(name)"
