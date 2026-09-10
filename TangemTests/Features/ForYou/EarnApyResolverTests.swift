@@ -223,7 +223,8 @@ private extension EarnApyResolverTests {
             isActive: isActive,
             chainId: nil,
             maxFeeNative: nil,
-            maxFeeUSD: nil
+            maxFeeUSD: nil,
+            incentive: nil
         )
     }
 
