@@ -101,53 +101,101 @@ struct FeedDetentHeightsTests {
         #expect(count == 1)
     }
 
-    @Test("Progress runs from the collapsed height to the tallest sheet seen")
-    func progressSpansTheTravel() {
-        let sut = FeedDetentHeights()
-        sut.report(searchBar: 100)
-
-        var progress: [CGFloat] = []
-        let cancellable = sut.expansionProgressPublisher.sink { progress.append($0) }
-        defer { cancellable.cancel() }
-
-        sut.report(sheetHeight: 700)
-        #expect(progress.last == 1)
-
-        sut.report(sheetHeight: 400)
-        #expect(progress.last == 0.5)
-
+    @Test("Full to medium restores the material through intermediate heights")
+    func fullToMediumRestoresMaterial() {
+        let sut = makeMeasuredHeights()
+        sut.report(sheetHeight: 1000)
+        #expect(sut.expansionProgress == 1)
+        sut.report(sheetHeight: 592)
+        #expect(sut.expansionProgress == 0.5)
+        sut.report(sheetHeight: 232)
+        #expect(sut.expansionProgress == 0)
         sut.report(sheetHeight: 100)
-        #expect(progress.last == 0)
+        #expect(sut.expansionProgress == 0)
     }
 
-    @Test("Progress stays within its bounds")
-    func progressIsClamped() {
+    @Test("First expansion and reversing an unfinished drag use the same range")
+    func firstExpansionDoesNotCalibrateItself() {
+        let sut = makeMeasuredHeights()
+        sut.report(sheetHeight: 412)
+        #expect(sut.expansionProgress == 0.25)
+        sut.report(sheetHeight: 592)
+        #expect(sut.expansionProgress == 0.5)
+        sut.report(sheetHeight: 412)
+        #expect(sut.expansionProgress == 0.25)
+    }
+
+    @Test("Window resizing invalidates the full-height range immediately")
+    func windowResizeRecalculatesProgress() {
+        let sut = makeMeasuredHeights()
+        sut.report(sheetHeight: 592)
+        #expect(sut.expansionProgress == 0.5)
+        sut.report(window: 632)
+        #expect(sut.expansionProgress == 1)
+        sut.report(window: 1032)
+        #expect(sut.expansionProgress == 0.5)
+    }
+
+    @Test("Physical height does not add the bottom safe area twice")
+    func physicalHeightCountsBottomInsetOnce() {
+        let sut = makeMeasuredHeights()
+        sut.report(safeArea: EdgeInsets(top: 60, leading: 0, bottom: 40, trailing: 0))
+        sut.report(window: 1092)
+        sut.report(sheetHeight: 232)
+        #expect(sut.expansionProgress == 0)
+        sut.report(sheetHeight: 592)
+        #expect(sut.expansionProgress == 0.5)
+    }
+
+    @Test("A changed medium height updates the existing surface progress")
+    func contentMeasurementUpdatesProgress() {
+        let sut = makeMeasuredHeights()
+        sut.report(sheetHeight: 592)
+        #expect(sut.expansionProgress == 0.5)
+        sut.report(widgets: 460)
+        #expect(sut.expansionProgress == 0)
+    }
+
+    @Test("Missing window geometry and overscroll stay within bounds")
+    func missingGeometryAndOverscroll() {
         let sut = FeedDetentHeights()
-        sut.report(searchBar: 100)
+        sut.report(sheetHeight: 600)
+        #expect(sut.expansionProgress == 0)
+        sut.report(window: 800)
+        sut.report(sheetHeight: 900)
+        #expect(sut.expansionProgress == 1)
+        sut.report(sheetHeight: 0)
+        #expect(sut.expansionProgress == 0)
+    }
 
-        var progress: [CGFloat] = []
-        let cancellable = sut.expansionProgressPublisher.sink { progress.append($0) }
-        defer { cancellable.cancel() }
-
-        sut.report(sheetHeight: 700)
-        sut.report(sheetHeight: 40)
-
-        #expect(progress.last == 0)
+    @Test("Cold start and transient empty measurements preserve usable detents")
+    func startupDetentsStayOrdered() {
+        let sut = FeedDetentHeights()
+        sut.report(safeArea: EdgeInsets(top: 60, leading: 0, bottom: 40, trailing: 0))
+        #expect(sut.detents.medium == ShtorkaDetents().medium)
+        sut.report(widgets: 180)
+        let measured = sut.detents
+        sut.report(widgets: 0)
+        sut.report(searchBar: 0)
+        #expect(sut.detents == measured)
     }
 
     @Test("Repeated drag frames are published once")
     func progressPublishesOnChange() {
-        let sut = FeedDetentHeights()
-        sut.report(searchBar: 100)
-
+        let sut = makeMeasuredHeights()
         var count = 0
         let cancellable = sut.expansionProgressPublisher.sink { _ in count += 1 }
         defer { cancellable.cancel() }
-
-        sut.report(sheetHeight: 700)
-        sut.report(sheetHeight: 700)
-
-        // The initial zero and the single change.
+        sut.report(sheetHeight: 1000)
+        sut.report(sheetHeight: 1000)
         #expect(count == 2)
+    }
+
+    private func makeMeasuredHeights() -> FeedDetentHeights {
+        let sut = FeedDetentHeights()
+        sut.report(searchBar: 100)
+        sut.report(widgets: 100)
+        sut.report(window: 1032)
+        return sut
     }
 }
