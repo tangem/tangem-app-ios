@@ -12,6 +12,7 @@ import TangemUI
 
 struct TransferInputView: View {
     @ObservedObject var viewModel: TransferInputViewModel
+
     var body: some View {
         TransferInputContentView(
             amountFieldViewModel: viewModel.amountFieldViewModel,
