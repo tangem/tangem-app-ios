@@ -17,10 +17,10 @@ final class CryptoFeedViewModel: ObservableObject {
     init(
         pulseDataProvider: PulseDataProvider,
         promotionNotificationsManager: PromotionNotificationsManager,
-        routable: any FeedRoutable
+        router: any CryptoFeedRoutable
     ) {
         promoBanner = PromotionNotificationsViewModel(promotionNotificationsManager: promotionNotificationsManager)
-        pulse = PulseViewModel(dataProvider: pulseDataProvider, routable: routable)
+        pulse = PulseViewModel(dataProvider: pulseDataProvider, router: router)
     }
 
     func feedSheetSizeDidChange(to size: ShtorkaSize) {

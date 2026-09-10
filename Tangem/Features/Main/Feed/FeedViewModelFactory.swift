@@ -7,18 +7,18 @@
 //
 
 struct FeedViewModelFactory {
-    private let tabFactories = FeedTabsFactory.makeFactories()
+    private let tabBuilders = FeedTabsRegistry.makeBuilders()
 
-    func makeViewModel(coordinator: any FeedRoutable) -> FeedViewModel {
+    func makeViewModel(context: FeedContext) -> FeedViewModel {
         let searchBarViewModel = FeedSearchBarViewModel()
         let historyProvider = CommonFeedSearchHistoryProvider(storage: CommonFeedSearchHistoryStorage())
 
-        let tabs = tabFactories.map { $0.makeTab(navigation: coordinator) }
-        let searchTabs = tabFactories.map { factory in
-            factory.makeSearchTab(
+        let tabs = tabBuilders.map { $0.makeTab(context: context) }
+        let searchTabs = tabBuilders.map { builder in
+            builder.makeSearchTab(
                 query: searchBarViewModel.queryPublisher,
                 history: historyProvider,
-                navigation: coordinator
+                context: context
             )
         }
 
@@ -27,12 +27,11 @@ struct FeedViewModelFactory {
             searchViewModel: FeedSearchViewModel(
                 searchBarViewModel: searchBarViewModel,
                 tabsViewModel: FeedSearchTabsViewModel(tabs: searchTabs),
-                navigation: coordinator,
-                historyProvider: historyProvider
+                historyProvider: historyProvider,
+                router: FeedSearchRouter(context: context)
             ),
             tabsViewModel: FeedTabsViewModel(tabs: tabs),
-            widgetsViewModel: FeedWidgetsViewModel(widgets: FeedWidgetsFactory.makeWidgets()),
-            routable: coordinator
+            widgetsViewModel: FeedWidgetsViewModel(widgets: FeedWidgetsFactory.makeWidgets())
         )
     }
 }
