@@ -6,11 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import TangemPay
-
 struct TangemPayOfframpPersonalDetails: Equatable {
     let name: Name
-    let accountType: TangemPayBankAccountType
     let accountNumber: String
     let routingNumber: String
     let line1: String
