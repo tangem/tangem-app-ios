@@ -111,6 +111,8 @@ extension TangemPayOfframpCoordinator {
     enum Route: Hashable {
         case recentRecipients
         case transferInput
+        case transferType
+        case accountType
     }
 }
 
@@ -146,10 +148,55 @@ private extension TangemPayOfframpCoordinator {
     func handle(_ output: TransferInputViewModel.Output) {
         switch output {
         case .continueWizard:
+            continueAfterTransferInput()
+
+        case .close:
+            dismiss(with: nil)
+        }
+    }
+}
+
+// MARK: - Wizard step output
+
+extension TangemPayOfframpCoordinator {
+    func handle(_ output: TransferTypeViewModel.Output) {
+        switch output {
+        case .continueWizard:
+            path.append(.accountType)
+
+        case .close:
+            dismiss(with: nil)
+        }
+    }
+
+    func handle(_ output: AccountTypeViewModel.Output) {
+        switch output {
+        case .continueWizard:
+            // [REDACTED_TODO_COMMENT]
             break
 
         case .close:
             dismiss(with: nil)
+        }
+    }
+}
+
+// MARK: - Wizard routing
+
+private extension TangemPayOfframpCoordinator {
+    func continueAfterTransferInput() {
+        guard let orderBuilder else { return }
+
+        switch orderBuilder.recipient {
+        case .newIndividual:
+            path.append(.transferType)
+
+        case .newBusiness:
+            path.append(.accountType)
+
+        case .saved:
+            // [REDACTED_TODO_COMMENT]
+            break
         }
     }
 }
