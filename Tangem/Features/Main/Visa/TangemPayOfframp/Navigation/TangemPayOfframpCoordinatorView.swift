@@ -48,6 +48,22 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
             if let viewModel = coordinator.transferInputViewModel {
                 TransferInputView(viewModel: viewModel)
             }
+
+        case .transferType:
+            if let orderBuilder = coordinator.orderBuilder {
+                TransferTypeFactory.makeView(
+                    orderBuilder: orderBuilder,
+                    output: { [weak coordinator] in coordinator?.handle($0) }
+                )
+            }
+
+        case .accountType:
+            if let orderBuilder = coordinator.orderBuilder {
+                AccountTypeFactory.makeView(
+                    orderBuilder: orderBuilder,
+                    output: { [weak coordinator] in coordinator?.handle($0) }
+                )
+            }
         }
     }
 

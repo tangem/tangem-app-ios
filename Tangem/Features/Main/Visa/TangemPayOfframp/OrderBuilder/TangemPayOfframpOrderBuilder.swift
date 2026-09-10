@@ -16,11 +16,16 @@ final class TangemPayOfframpOrderBuilder {
     private(set) var token: TangemPayOfframpTokenSelection?
     private(set) var rail: TangemPayBankAccountRail?
     private(set) var isThirdParty: Bool?
+    private(set) var accountType: TangemPayBankAccountType?
     private(set) var personalDetails: TangemPayOfframpPersonalDetails?
     private(set) var bankDetails: TangemPayOfframpBankDetails?
 
     init(recipient: TangemPayOfframpRecipient) {
         self.recipient = recipient
+
+        if recipient == .newBusiness {
+            isThirdParty = Constants.businessThirdParty
+        }
     }
 
     func set(amount: Decimal) {
@@ -39,6 +44,10 @@ final class TangemPayOfframpOrderBuilder {
         self.isThirdParty = isThirdParty
     }
 
+    func set(accountType: TangemPayBankAccountType) {
+        self.accountType = accountType
+    }
+
     func set(personalDetails: TangemPayOfframpPersonalDetails) {
         self.personalDetails = personalDetails
     }
@@ -50,6 +59,7 @@ final class TangemPayOfframpOrderBuilder {
     func selectSaved(bankAccountId: String) {
         recipient = .saved(bankAccountId: bankAccountId)
         isThirdParty = nil
+        accountType = nil
         personalDetails = nil
         bankDetails = nil
     }
@@ -76,7 +86,7 @@ final class TangemPayOfframpOrderBuilder {
                 bankAccountId: bankAccountId
             )
 
-        case .newIndividual:
+        case .newIndividual, .newBusiness:
             guard let isThirdParty else {
                 throw .missingTransferType
             }
@@ -85,13 +95,6 @@ final class TangemPayOfframpOrderBuilder {
                 amountInCents: amountInCents,
                 token: token,
                 thirdParty: isThirdParty
-            )
-
-        case .newBusiness:
-            return try makeNewBankAccountRequest(
-                amountInCents: amountInCents,
-                token: token,
-                thirdParty: Constants.businessThirdParty
             )
         }
     }
@@ -115,6 +118,10 @@ private extension TangemPayOfframpOrderBuilder {
 
         guard let bankDetails else {
             throw .missingBankDetails
+        }
+
+        guard let accountType else {
+            throw .missingAccountType
         }
 
         let details = TangemPayPlaceOrderRequest.BankAccount.Details(
@@ -141,7 +148,7 @@ private extension TangemPayOfframpOrderBuilder {
             ),
             accountNumber: personalDetails.accountNumber,
             routingNumber: personalDetails.routingNumber,
-            bankAccountType: personalDetails.accountType
+            bankAccountType: accountType
         )
 
         return TangemPayPlaceOrderRequest(
@@ -174,6 +181,7 @@ extension TangemPayOfframpOrderBuilder {
         case missingTransferType
         case missingPersonalDetails
         case missingBankDetails
+        case missingAccountType
     }
 }
 
