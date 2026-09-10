@@ -18,8 +18,17 @@ struct SlideContentView: View {
         case .image:
             SlideImageView(url: vm.slide.asset.url, contentMode: contentMode)
         case .lottie:
-            // [REDACTED_TODO_COMMENT]
-            SlideImageView(url: vm.slide.asset.posterURL, contentMode: contentMode)
+            // Poster shows through until the animation loads, mirroring the video path.
+            ZStack {
+                SlideImageView(url: vm.slide.asset.posterURL, contentMode: contentMode)
+
+                LottieSlideView(
+                    animation: vm.animation,
+                    contentMode: contentMode,
+                    slideDurationMs: vm.slide.asset.durationMs,
+                    progress: vm.progress
+                )
+            }
         case .video:
             // Poster shows through the transparent player layer until the first frame renders,
             // so an unbuffered remote video never flashes a black screen.
