@@ -218,6 +218,7 @@ private extension TangemPayOfframpOrderBuilderTests {
         let builder = TangemPayOfframpOrderBuilder(recipient: recipient)
         builder.set(amount: 100)
         builder.set(token: makeToken())
+        builder.set(accountType: .checking)
         return builder
     }
 
@@ -226,7 +227,6 @@ private extension TangemPayOfframpOrderBuilderTests {
     ) -> TangemPayOfframpPersonalDetails {
         TangemPayOfframpPersonalDetails(
             name: name,
-            accountType: .checking,
             accountNumber: "1234567890",
             routingNumber: "021000021",
             line1: "123 Main St",
