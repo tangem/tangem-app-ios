@@ -48,7 +48,7 @@ struct TransferInputErrorBanner: View {
         .padding(Constants.padding)
         .background(DesignSystem.Color.bgSecondary)
         .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
-        .glowRing(.error, cornerRadius: Constants.cornerRadius)
+        .glowRing(.error, size: .card(cornerRadius: Constants.cornerRadius))
     }
 }
 
