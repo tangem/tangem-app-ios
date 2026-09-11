@@ -28,7 +28,6 @@ struct FeedSearchBarView: View {
             .infinityFrame(axis: .horizontal)
             .padding(.horizontal, Constants.horizontalInset)
             .padding(.top, Constants.topInset)
-            .padding(.bottom, Constants.bottomInset)
             .readGeometry(\.size.height, onChange: { reportSearchBar(height: $0) })
             .onChange(of: isActive) { isActive in
                 if !isActive {
@@ -57,7 +56,6 @@ struct FeedSearchBarView: View {
 private extension FeedSearchBarView {
     enum Constants {
         static let horizontalInset: CGFloat = 16
-        static let topInset: CGFloat = 14
-        static let bottomInset: CGFloat = 12
+        static let topInset: CGFloat = 16
     }
 }

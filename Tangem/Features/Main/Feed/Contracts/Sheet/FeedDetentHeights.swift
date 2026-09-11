@@ -13,15 +13,19 @@ import TangemUI
 import TangemUIUtils
 
 final class FeedDetentHeights: ObservableObject {
-    static let initialCollapsedHeight: CGFloat = 70
+    private static let initialSearchBarHeight: CGFloat = 60
 
-    @Published private(set) var detents: ShtorkaDetents
+    @Published private(set) var detents = ShtorkaDetents(
+        collapsed: .height(
+            FeedDetentHeights.initialSearchBarHeight + FeedConstants.searchContentInset + FeedConstants.collapsedBottomInset
+        )
+    )
 
     /// Kept out of `detents`: the sheet height arrives on every drag frame, and a detent set mutated mid-drag makes the sheet jump.
     @Published private(set) var expansionProgress: CGFloat = 0
 
-    private var searchBarHeight = FeedDetentHeights.initialCollapsedHeight
-    private var widgetsHeight: CGFloat = .zero
+    private var searchBarHeight = FeedDetentHeights.initialSearchBarHeight
+    private(set) var widgetsHeight: CGFloat = .zero
     private var tabChipsHeight: CGFloat = .zero
     private var safeArea = EdgeInsets()
 
@@ -34,11 +38,6 @@ final class FeedDetentHeights: ObservableObject {
 
     var expansionProgressPublisher: AnyPublisher<CGFloat, Never> {
         $expansionProgress.removeDuplicates().eraseToAnyPublisher()
-    }
-
-    init() {
-        detents = ShtorkaDetents(collapsed: .height(Self.initialCollapsedHeight), medium: .height(Self.initialCollapsedHeight))
-        syncDetents()
     }
 
     func report(searchBar height: CGFloat) {
@@ -79,18 +78,22 @@ final class FeedDetentHeights: ObservableObject {
 // MARK: - Private
 
 private extension FeedDetentHeights {
+    /// The search bar reports its own height; the feed's top inset below it belongs to the same block.
+    var searchBlock: CGFloat {
+        searchBarHeight + FeedConstants.searchContentInset
+    }
+
     var collapsed: CGFloat {
-        searchBarHeight
+        searchBlock + FeedConstants.collapsedBottomInset
     }
 
     var medium: CGFloat {
-        let chipsBlock = tabChipsHeight > .zero ? Constants.widgetsToChipsSpacing + tabChipsHeight : .zero
+        let chipsBlock = tabChipsHeight > .zero ? FeedConstants.widgetsToTabsSpacing + tabChipsHeight : .zero
 
-        return searchBarHeight
-            + Constants.searchToWidgetsSpacing
+        return searchBlock
             + widgetsHeight
             + chipsBlock
-            + Constants.bottomInset
+            + FeedConstants.chipsBottomInset
             - safeArea.bottom
     }
 
@@ -108,9 +111,13 @@ private extension FeedDetentHeights {
     }
 
     func syncDetents() {
-        let mediumDetent: PresentationDetent = widgetsHeight > 0 ? .height(max(collapsed, medium)) : ShtorkaDetents().medium
-        let updated = ShtorkaDetents(collapsed: .height(collapsed), medium: mediumDetent)
         expansionProgress = makeExpansionProgress()
+        // A collapsed floating sheet sits above the home indicator; an edge-attached one extends through the safe area.
+        let collapsedSafeArea = FeedConstants.usesFloatingSheet ? 0 : safeArea.bottom
+        let collapsedHeight = max(0, collapsed - collapsedSafeArea)
+        // Before content is laid out, subtracting the safe area can put medium below collapsed.
+        let mediumDetent: PresentationDetent = widgetsHeight > 0 && medium > collapsedHeight ? .height(medium) : ShtorkaDetents().medium
+        let updated = ShtorkaDetents(collapsed: .height(collapsedHeight), medium: mediumDetent)
 
         guard updated != detents else {
             return
@@ -120,13 +127,8 @@ private extension FeedDetentHeights {
     }
 }
 
-// MARK: - Constants
-
 private extension FeedDetentHeights {
     enum Constants {
-        static let searchToWidgetsSpacing: CGFloat = 12
-        static let widgetsToChipsSpacing: CGFloat = 20
-        static let bottomInset: CGFloat = 20
         static let surfaceFadeCompletion: CGFloat = 0.9
     }
 }
