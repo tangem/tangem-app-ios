@@ -102,14 +102,16 @@ private extension CommonStakeKitStakingAPIService {
         } catch {
             let apiError = try? decoder.decode(StakeKitAPIError.self, from: response.data)
 
-            if let details = apiError?.details,
+            if let apiError,
+               let details = apiError.details,
                details.code == .insufficientGasReserve,
                let shortfallString = details.shortfallAmount,
                let shortfall = Decimal(stringValue: shortfallString),
                let symbol = details.gasTokenSymbol {
                 throw StakeKitHTTPError.insufficientGasReserve(
                     shortfallAmount: shortfall,
-                    gasTokenSymbol: symbol
+                    gasTokenSymbol: symbol,
+                    apiError: apiError
                 )
             }
 
@@ -126,13 +128,22 @@ private extension CommonStakeKitStakingAPIService {
 
 public enum StakeKitHTTPError: Error, LocalizedError {
     case badStatusCode(code: Int, apiError: StakeKitAPIError?, response: String?)
-    case insufficientGasReserve(shortfallAmount: Decimal, gasTokenSymbol: String)
+    case insufficientGasReserve(shortfallAmount: Decimal, gasTokenSymbol: String, apiError: StakeKitAPIError)
+
+    public var apiError: StakeKitAPIError? {
+        switch self {
+        case .badStatusCode(_, let apiError, _):
+            apiError
+        case .insufficientGasReserve(_, _, let apiError):
+            apiError
+        }
+    }
 
     public var errorDescription: String? {
         switch self {
         case .badStatusCode(let code, let apiError, let response):
             apiError?.message ?? response ?? "HTTP error \(code)"
-        case .insufficientGasReserve(let shortfall, let symbol):
+        case .insufficientGasReserve(let shortfall, let symbol, _):
             "Insufficient \(symbol) for gas: shortfall \(shortfall)"
         }
     }

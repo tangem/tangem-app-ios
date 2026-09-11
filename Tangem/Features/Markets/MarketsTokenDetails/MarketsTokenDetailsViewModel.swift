@@ -50,6 +50,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Published private(set) var isAddButtonEnabled: Bool = true
 
     @Published private(set) var tokenSummaryCardViewModel: MarketsTokenSummaryViewModel?
+    @Published private(set) var isTokenSummaryCardVisible = false
 
     @Published private(set) var historyChartViewModel: MarketsHistoryChartViewModel?
     @Published private(set) var securityScoreViewModel: MarketsTokenDetailsSecurityScoreViewModel?
@@ -655,18 +656,30 @@ private extension MarketsTokenDetailsViewModel {
             return
         }
 
-        tokenSummaryCardViewModel = MarketsTokenSummaryViewModel(symbol: tokenInfo.symbol) { [weak self] in
-            Task { @MainActor in
-                guard let self else { return }
+        MainActor.assumeIsolated {
+            let cardViewModel = MarketsTokenSummaryViewModel(symbol: tokenInfo.symbol) { [weak self] in
+                Task { @MainActor in
+                    guard let self else { return }
 
-                self.coordinator?.openTokenSummary(
-                    self.makeTokenSummaryInput(),
-                    walletDataProvider: self.walletDataProvider
-                )
+                    self.coordinator?.openTokenSummary(
+                        self.makeTokenSummaryInput(),
+                        walletDataProvider: self.walletDataProvider
+                    )
+                }
             }
+
+            cardViewModel
+                .$state
+                .map { $0 != .unavailable }
+                .removeDuplicates()
+                .assign(to: \.isTokenSummaryCardVisible, on: self, ownership: .weak)
+                .store(in: &bag)
+
+            tokenSummaryCardViewModel = cardViewModel
         }
     }
 
+    @MainActor
     private func makeTokenSummaryInput() -> TokenSummaryInput {
         let holdings = coinHoldings()
         let networks = loadedInfo?.availableNetworks ?? []

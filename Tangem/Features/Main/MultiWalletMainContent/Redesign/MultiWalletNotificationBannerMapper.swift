@@ -16,6 +16,8 @@ import TangemAccessibilityIdentifiers
 struct NotificationBannerItem: NotificationBannerContainerItem, Equatable {
     let id: NotificationViewId
     let bannerType: NotificationBanner.BannerType
+    let variant: MessageBannerVariant?
+    let ring: NotificationBanner.Ring?
     let priority: NotificationBanner.Priority
     let stackableOverride: Bool?
     let accessibilityIdentifier: String?
@@ -38,6 +40,8 @@ private extension MultiWalletNotificationBannerMapper {
         NotificationBannerItem(
             id: input.id,
             bannerType: makeBannerType(from: input),
+            variant: input.settings.event.bannerVariant,
+            ring: input.settings.event.bannerRing,
             priority: mapPriority(from: input),
             stackableOverride: stackableOverride(from: input),
             accessibilityIdentifier: input.settings.event.accessibilityIdentifier
@@ -61,10 +65,12 @@ private extension MultiWalletNotificationBannerMapper {
             return .low
         }
 
-        switch input.severity {
-        case .critical, .warning:
+        switch effectiveBannerKind(for: input) {
+        case .status, .promo:
             return .high
-        case .info:
+        case .critical, .survey:
+            return .mid
+        case .warning, .informational:
             return .low
         }
     }
@@ -79,7 +85,6 @@ private extension MultiWalletNotificationBannerMapper {
         return makeBannerType(
             bannerKind: bannerKind,
             content: content,
-            textOnly: textOnly,
             bannerAction: bannerAction,
             closeAction: closeAction
         )
@@ -100,7 +105,6 @@ private extension MultiWalletNotificationBannerMapper {
     func makeBannerType(
         bannerKind: NotificationBannerKind,
         content: NotificationBanner.Content,
-        textOnly: NotificationBanner.TextOnly,
         bannerAction: NotificationBanner.BannerAction,
         closeAction: NotificationBanner.CloseAction?
     ) -> NotificationBanner.BannerType {
@@ -112,11 +116,11 @@ private extension MultiWalletNotificationBannerMapper {
         case .warning:
             return .warning(content, bannerAction, closeAction)
         case .informational(let alignment):
-            return .informational(textOnly, bannerAction, closeAction, mapTextAlignment(alignment))
-        case .promo(let effect):
-            return .promo(content, bannerAction, closeAction, mapEffect(effect))
+            return .informational(content, bannerAction, closeAction, mapTextAlignment(alignment))
+        case .promo:
+            return .promo(content, bannerAction, closeAction)
         case .survey:
-            return .survey(textOnly, bannerAction, closeAction)
+            return .survey(content, bannerAction, closeAction)
         }
     }
 
@@ -124,30 +128,6 @@ private extension MultiWalletNotificationBannerMapper {
         switch alignment {
         case .leading: .leading
         case .center: .center
-        }
-    }
-
-    func mapEffect(_ effect: NotificationBannerKind.Effect) -> NotificationBanner.Effect {
-        switch effect {
-        case .plain: .none
-        case .card: .bannerCard
-        case .magic: .bannerMagic
-        }
-    }
-
-    func makeSeverityBasedBannerType(
-        severity: NotificationView.Severity,
-        content: NotificationBanner.Content,
-        bannerAction: NotificationBanner.BannerAction,
-        closeAction: NotificationBanner.CloseAction?
-    ) -> NotificationBanner.BannerType {
-        switch severity {
-        case .critical:
-            return .critical(content, bannerAction, closeAction)
-        case .warning:
-            return .warning(content, bannerAction, closeAction)
-        case .info:
-            return .status(content, bannerAction, closeAction)
         }
     }
 
@@ -181,31 +161,20 @@ private extension MultiWalletNotificationBannerMapper {
             return .text(textOnly)
         }
 
-        // Redesign overrides can pin alignment explicitly; otherwise status pills center the trailing icon
-        // against the text (per design) while other kinds keep top alignment.
-        let iconAlignment: NotificationBanner.Icon.Alignment = {
-            if let explicit = messageIcon.alignment { return explicit }
-            if case .status = bannerKind { return .center }
-            return .top
-        }()
-
         switch messageIcon.iconType {
         case .image(let imageType):
             let icon = makeImageIcon(
                 imageType: imageType,
                 messageIcon: messageIcon,
                 bannerKind: bannerKind,
-                alignment: iconAlignment,
-                usesExplicitSize: messageIcon.usesExactSize
+                isRedesignOverride: input.settings.event.redesignedBannerContent != nil
             )
             return .textWithIcon(.init(text: textOnly, icon: icon))
         case .loadableIcon(let url):
-            let loadableAlignment: SwiftUI.Alignment = iconAlignment == .center ? .leading : .topLeading
             let icon = NotificationBanner.LoadableIcon(
                 url: url,
-                alignment: loadableAlignment,
-                width: mapSizeUnit(from: redesignIconSide(messageIcon.size.width)),
-                height: mapSizeUnit(from: redesignIconSide(messageIcon.size.height))
+                width: mapSizeUnit(from: messageIcon.size.width),
+                height: mapSizeUnit(from: messageIcon.size.height)
             )
             return .textWithLoadableIcon(.init(text: textOnly, icon: icon))
         default:
@@ -217,47 +186,49 @@ private extension MultiWalletNotificationBannerMapper {
         Assets.redCircleWarning,
         Assets.blueCircleWarning,
         Assets.attention,
+        Assets.DesignSystem.attention,
         Assets.warningIcon,
     ]
-
-    private func redesignIconSide(_ dimension: CGFloat) -> CGFloat {
-        max(dimension, 28)
-    }
 
     private func makeImageIcon(
         imageType: ImageType,
         messageIcon: NotificationView.MessageIcon,
         bannerKind: NotificationBannerKind,
-        alignment: NotificationBanner.Icon.Alignment,
-        usesExplicitSize: Bool
+        isRedesignOverride: Bool
     ) -> NotificationBanner.Icon {
-        guard Self.legacyWarningGlyphs.contains(imageType) else {
-            let width = usesExplicitSize ? messageIcon.size.width : redesignIconSide(messageIcon.size.width)
-            let height = usesExplicitSize ? messageIcon.size.height : redesignIconSide(messageIcon.size.height)
+        let swapsLegacyGlyphs = switch bannerKind {
+        case .status, .critical, .warning: !isRedesignOverride
+        case .informational, .promo, .survey: false
+        }
+
+        guard swapsLegacyGlyphs, Self.legacyWarningGlyphs.contains(imageType) else {
             return NotificationBanner.Icon(
                 imageType: imageType,
-                alignment: alignment,
-                width: mapSizeUnit(from: width),
-                height: mapSizeUnit(from: height),
+                width: mapSizeUnit(from: messageIcon.size.width),
+                height: mapSizeUnit(from: messageIcon.size.height),
                 renderingMode: messageIcon.renderingMode,
                 color: messageIcon.color,
                 isLeading: messageIcon.isLeading
             )
         }
 
-        let tint: Color = if case .critical = bannerKind {
-            .Tangem.Graphic.Neutral.primary
-        } else {
-            .Tangem.Graphic.Status.attention
+        if case .critical = bannerKind {
+            return NotificationBanner.Icon(
+                imageType: DesignSystem.Icons.Error.filled20,
+                width: .x5,
+                height: .x5,
+                renderingMode: .template,
+                color: DesignSystem.Color.iconStatusError,
+                isLeading: messageIcon.isLeading
+            )
         }
 
         return NotificationBanner.Icon(
             imageType: Assets.DesignSystem.attention,
-            alignment: alignment,
-            width: .x7,
-            height: .x7,
+            width: .x5,
+            height: .x5,
             renderingMode: .template,
-            color: tint,
+            color: DesignSystem.Color.iconStatusWarning,
             isLeading: messageIcon.isLeading
         )
     }

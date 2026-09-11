@@ -18,7 +18,7 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
         tokenItem: tokenItem,
         tokenBalancesRepository: tokenBalancesRepository,
         balanceSubject: balanceSubject,
-        keyPath: \.fiat.availableBalance,
+        value: \.fiat.availableBalance,
         cachesBalance: true
     )
 
@@ -26,7 +26,7 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
         tokenItem: tokenItem,
         tokenBalancesRepository: tokenBalancesRepository,
         balanceSubject: balanceSubject,
-        keyPath: \.availableForWithdrawal.amount,
+        value: \.availableForWithdrawal.amount,
         cachesBalance: false
     )
 
@@ -44,11 +44,35 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
         cryptoBalanceProvider: totalTokenBalanceProvider
     )
 
+    func availableBalanceProvider(for accountToken: TangemPayAccountToken) -> TokenBalanceProvider {
+        guard let chainId = accountToken.chainId, let contractAddress = accountToken.tokenItem.contractAddress else {
+            return availableBalanceProvider
+        }
+
+        return TangemPayTokenBalanceProvider(
+            tokenItem: accountToken.tokenItem,
+            tokenBalancesRepository: tokenBalancesRepository,
+            balanceSubject: balanceSubject,
+            value: { $0.availableForWithdrawal(chainId: chainId, tokenContractAddress: contractAddress) ?? .zero },
+            cachesBalance: false
+        )
+    }
+
+    func fiatAvailableBalanceProvider(for accountToken: TangemPayAccountToken) -> TokenBalanceProvider {
+        // The account holds USD stables only, so the account's USDC rate stands in
+        // for every per-network token.
+        FiatTokenBalanceProvider(
+            input: fiatRateProvider,
+            cryptoBalanceProvider: availableBalanceProvider(for: accountToken)
+        )
+    }
+
     private let customerInfoManagementService: any CustomerInfoManagementService
     private let tokenBalancesRepository: any TokenBalancesRepository
 
     private let tokenItem = TangemPayUtilities.usdcTokenItem
     private let balanceSubject = CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>(nil)
+    private var loadedNetworks: [TangemPayBalance.Network] = []
 
     private lazy var fiatRateProvider: FiatRateProvider = CommonFiatRateProvider(
         tokenItem: tokenItem
@@ -66,10 +90,15 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
 // MARK: - TangemPayBalancesService
 
 extension CommonTangemPayBalanceService {
+    var networks: [TangemPayBalance.Network] {
+        loadedNetworks
+    }
+
     func loadBalance() async {
         do {
             balanceSubject.send(.loading)
             let balance = try await customerInfoManagementService.getBalance()
+            loadedNetworks = balance.networks
             balanceSubject.send(.success(balance))
 
             fiatRateProvider.updateRate()

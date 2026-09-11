@@ -8,12 +8,14 @@
 
 import BlockchainSdk
 import TangemFoundation
+import TangemPay
 import TangemVisa
 
 struct TangemPayTransactionDispatcher {
     let withdrawTransactionService: TangemPayWithdrawTransactionService
     let signerFactory: TangemSignerFactory
     let walletPublicKey: Wallet.PublicKey?
+    let withdrawEligibility: TangemPayWithdrawEligibility
 }
 
 // MARK: - TransactionDispatcher
@@ -51,10 +53,13 @@ private extension TangemPayTransactionDispatcher {
             throw Error.walletPublicKeyNotFound
         }
 
+        let target = try withdrawEligibility.resolveDispatchTarget()
+
         let result = try await withdrawTransactionService.sendWithdrawTransaction(
             amount: amount,
             destination: destination,
-            walletPublicKey: walletPublicKey
+            walletPublicKey: walletPublicKey,
+            target: target
         )
 
         // The server needs a moment to produce a transaction hash before polling can pick it up.

@@ -516,6 +516,61 @@ extension CommonTangemApiService: TangemApiService {
         }
     }
 
+    // MARK: - Joint accounts
+
+    func getJointAccounts(walletId: String) async throws -> JointAccountsDTO.List.Response {
+        let target = TangemApiTarget(type: .getJointAccounts(walletId: walletId))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
+        }
+    }
+
+    func createJointAccount(
+        walletId: String, body: JointAccountsDTO.Create.Request
+    ) async throws -> JointAccountsDTO.Create.Response {
+        let target = TangemApiTarget(type: .createJointAccount(walletId: walletId, body: body))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
+        }
+    }
+
+    func getJointAccountInvite(
+        walletId: String, inviteId: String
+    ) async throws -> JointAccountsDTO.InvitePreview.Response {
+        let target = TangemApiTarget(type: .getJointAccountInvite(walletId: walletId, inviteId: inviteId))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
+        }
+    }
+
+    func joinJointAccount(
+        walletId: String, body: JointAccountsDTO.Join.Request
+    ) async throws -> JointAccountsDTO.Join.Response {
+        let target = TangemApiTarget(type: .joinJointAccount(walletId: walletId, body: body))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
+        }
+    }
+
+    func activateJointAccount(
+        walletId: String, body: JointAccountsDTO.Activate.Request
+    ) async throws -> JointAccountsDTO.Activate.Response {
+        let target = TangemApiTarget(type: .activateJointAccount(walletId: walletId, body: body))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
+        }
+    }
+
     // MARK: - Address Book
 
     func syncAddressBooks(_ request: AddressBookDTO.SyncRequest) async throws -> AddressBookDTO.Response {

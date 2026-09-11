@@ -33,6 +33,8 @@ public extension TangemPayTransactionHistoryResponse {
                 record = .payment(try container.decode(Payment.self, forKey: .payment))
             case .fee:
                 record = .fee(try container.decode(Fee.self, forKey: .fee))
+            case .refund:
+                record = .refund(try container.decode(Refund.self, forKey: .refund))
             }
         }
 
@@ -49,6 +51,8 @@ public extension TangemPayTransactionHistoryResponse {
                 try container.encode(payment, forKey: .payment)
             case .fee(let fee):
                 try container.encode(fee, forKey: .fee)
+            case .refund(let refund):
+                try container.encode(refund, forKey: .refund)
             }
         }
 
@@ -59,6 +63,7 @@ public extension TangemPayTransactionHistoryResponse {
             case collateral
             case payment
             case fee
+            case refund
         }
     }
 
@@ -67,6 +72,7 @@ public extension TangemPayTransactionHistoryResponse {
         case collateral(Collateral)
         case payment(Payment)
         case fee(Fee)
+        case refund(Refund)
     }
 
     enum TransactionType: String, Codable, Equatable {
@@ -74,6 +80,7 @@ public extension TangemPayTransactionHistoryResponse {
         case collateral
         case payment
         case fee
+        case refund
     }
 
     struct Spend: Codable, Equatable {
@@ -99,14 +106,38 @@ public extension TangemPayTransactionHistoryResponse {
         public let declinedReason: String?
         public let authorizedAt: Date
         public let postedAt: Date?
-
-        public var isDeclined: Bool {
-            status == .declined
-        }
+        public let cashback: Decimal?
+        public let cashbackStatus: TangemPayCashbackStatus?
+        public let cashbackCurrencyCode: String?
 
         public var isReversed: Bool {
             status == .reversed
         }
+    }
+
+    struct Refund: Codable, Equatable {
+        public let amount: Decimal
+        public let currency: String
+        public let localAmount: Decimal?
+        public let localCurrency: String?
+        public let sourceTransactionId: String?
+        public let merchantName: String?
+        public let merchantCategory: String?
+        public let merchantCategoryCode: String?
+        public let merchantId: String?
+        public let enrichedMerchantIcon: URL?
+        public let enrichedMerchantName: String?
+        public let enrichedMerchantCategory: String?
+        public let cardId: String
+        public let cardType: String
+        public let cardDisplayName: String?
+        public let cardNumberEnd: String?
+        public let status: PaymentStatus
+        public let authorizedAt: Date
+        public let postedAt: Date?
+        public let cashback: Decimal?
+        public let cashbackStatus: TangemPayCashbackStatus?
+        public let cashbackCurrencyCode: String?
     }
 
     struct Collateral: Codable, Equatable {
@@ -134,6 +165,12 @@ public extension TangemPayTransactionHistoryResponse {
         case completed
         case declined
         case reversed
+        case undefined
+
+        public init(from decoder: Decoder) throws {
+            let rawValue = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: rawValue.lowercased()) ?? .undefined
+        }
     }
 
     struct Fee: Codable, Equatable {
