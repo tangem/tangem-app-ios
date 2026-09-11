@@ -114,6 +114,7 @@ extension TangemPayOfframpCoordinator {
         case transferType
         case accountType
         case personalDetails
+        case bankDetails
     }
 }
 
@@ -181,6 +182,16 @@ extension TangemPayOfframpCoordinator {
     }
 
     func handle(_ output: PersonalDetailsViewModel.Output) {
+        switch output {
+        case .continueWizard:
+            path.append(.bankDetails)
+
+        case .close:
+            dismiss(with: nil)
+        }
+    }
+
+    func handle(_ output: BankDetailsViewModel.Output) {
         switch output {
         case .continueWizard:
             // [REDACTED_TODO_COMMENT]

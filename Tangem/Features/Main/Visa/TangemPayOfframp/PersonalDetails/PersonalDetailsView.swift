@@ -12,14 +12,14 @@ import TangemUI
 
 struct PersonalDetailsView: View {
     @StateObject private var viewModel: PersonalDetailsViewModel
-    @FocusState private var focusedField: PersonalDetailsField.ID?
+    @FocusState private var focusedField: OfframpFormField.ID?
 
     init(viewModel: @autoclosure @escaping () -> PersonalDetailsViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel())
     }
 
     var body: some View {
-        PersonalDetailsContentView(
+        OfframpFormContentView(
             fields: $viewModel.fields,
             focused: $focusedField,
             state: viewModel.contentState,
@@ -38,7 +38,7 @@ struct PersonalDetailsView: View {
 // MARK: - Actions
 
 private extension PersonalDetailsView {
-    func handle(_ action: PersonalDetailsContentView.Action) {
+    func handle(_ action: OfframpFormContentView.Action) {
         switch action {
         case .fieldChanged(let id):
             viewModel.fieldDidChange(id)
@@ -58,7 +58,7 @@ private extension PersonalDetailsView {
         }
     }
 
-    func moveFocus(to id: PersonalDetailsField.ID?) {
+    func moveFocus(to id: OfframpFormField.ID?) {
         guard let id else { return }
 
         focusedField = id
