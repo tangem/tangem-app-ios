@@ -89,8 +89,6 @@ private extension PolymarketFeeBreakdownSheetView {
         static let toolbarHeight: CGFloat = 44
         static let toolbarBottomPadding: CGFloat = 16
         static let rowsTopPadding: CGFloat = 12
-        /// What the rows measure at the default text size; larger ones scroll inside the sheet
-        /// or expand it, instead of pushing the total past the bottom edge.
         static let compactHeight: CGFloat = 360
 
         // [REDACTED_TODO_COMMENT]
@@ -105,7 +103,6 @@ private extension PolymarketFeeBreakdownSheetView {
 
 @MainActor
 private extension PolymarketFeeBreakdownSheetViewModel {
-    /// The sheet only opens over a priced order, so the preview walks the model to a quote first.
     static func preview() -> PolymarketFeeBreakdownSheetViewModel {
         let model = PolymarketOrderModel.preview(outcomeIndex: 0)
         model.handleViewAction(.screenAppeared)

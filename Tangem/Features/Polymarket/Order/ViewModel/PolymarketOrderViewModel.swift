@@ -58,7 +58,7 @@ final class PolymarketOrderViewModel: ObservableObject {
             model.handleViewAction(.screenAppeared)
         case .disappeared:
             model.handleViewAction(.screenDisappeared)
-        case .backTapped:
+        case .closeTapped:
             coordinator?.closeOrder()
         case .nextTapped:
             coordinator?.openSummary(model: model)
@@ -78,7 +78,7 @@ extension PolymarketOrderViewModel {
     enum ViewAction {
         case appeared
         case disappeared
-        case backTapped
+        case closeTapped
         case nextTapped
         case slippageTapped
         case fractionTapped(PolymarketAmountFraction)
@@ -141,7 +141,7 @@ private extension PolymarketOrderViewModel {
         case .toWin(let expected, _):
             .toWin(PolymarketOrderFormatter.money(expected))
         case .belowMinAmount(let amount):
-            .shortfall(Localization.transferMinAmountError(PolymarketOrderFormatter.money(amount)))
+            .shortfall(Localization.predictionPlaceMinAmountError(PolymarketOrderFormatter.money(amount)))
         case .notEnoughForBet:
             .shortfall(Localization.predictionPlaceInsufficientBalanceBet)
         case .notEnoughForFees:

@@ -67,7 +67,6 @@ extension PolymarketAddFundsSheetOptionView {
         case swap
         case receive
 
-        /// Shares the Tangem Pay keys deliberately: same wording, and a Pay copy edit is meant to reach here.
         var title: String {
             switch self {
             case .swap: Localization.tangempayTopupSwapTitle

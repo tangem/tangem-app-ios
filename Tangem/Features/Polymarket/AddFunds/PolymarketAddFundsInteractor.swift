@@ -11,7 +11,6 @@ import TangemFoundation
 import TangemPolymarket
 
 final class PolymarketAddFundsInteractor {
-    /// The last preparation outcome, kept for the sheet the user opens after the screen has already prepared it.
     var state: State { storedState.withLock { $0 } }
 
     private let bridgeService: PolymarketBridgeService
@@ -90,8 +89,6 @@ extension PolymarketAddFundsInteractor {
 // MARK: - Private implementation
 
 private extension PolymarketAddFundsInteractor {
-    /// A superseded preparation must not overwrite the state of the one that replaced it, and a cancelled
-    /// request reaches us as an ordinary connection failure rather than as `CancellationError`.
     func store(_ state: State) -> State {
         guard !Task.isCancelled else { return self.state }
 
@@ -100,10 +97,6 @@ private extension PolymarketAddFundsInteractor {
         return state
     }
 
-    /// The bridge credits the deposit to exactly the address it is given, so the locally derived one is
-    /// checked against the backend's record first. Unlike the onboarding run, funding requires that record
-    /// to already exist and to be ready to trade: a wallet the backend does not confirm has nowhere to
-    /// credit the deposit.
     func verifiedDepositWalletAddress() async throws -> String {
         guard let ownerAddress = ownerAddressProvider.getOwnerAddress() else {
             throw PolymarketAddFundsError.ownerKeyUnavailable

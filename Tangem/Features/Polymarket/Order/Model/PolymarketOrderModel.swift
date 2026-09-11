@@ -173,8 +173,6 @@ private extension PolymarketOrderModel {
         restartQuoteLoop(debounced: false)
     }
 
-    /// The field only publishes what the user typed, so a chip sets the amount here and leaves the field
-    /// to reflect it. Going through `update(value:)` alone would move the digits but not the quote.
     func apply(fraction: PolymarketAmountFraction) {
         guard let balance = state.balance, balance > 0 else { return }
 
@@ -182,7 +180,6 @@ private extension PolymarketOrderModel {
 
         amountField.update(value: amount)
 
-        // The same floor the typed value goes through, so a chip cannot ask for a quote the field would not.
         let quotable = amount >= Constants.minQuotableAmount ? amount : nil
 
         guard quotable != state.enteredAmount else { return }
@@ -191,9 +188,6 @@ private extension PolymarketOrderModel {
         restartQuoteLoop(debounced: false)
     }
 
-    /// Rounded to what the collateral can express, or the field would show one amount and the quote would
-    /// be asked for another. Max also leaves room for the fee, which the exchange charges on top of the
-    /// amount, at the rate the last quote reports.
     func spendable(fraction: PolymarketAmountFraction, of balance: Decimal) -> Decimal {
         let amount = balance * fraction.multiplier
         let spendable = fraction == .max ? amount / (1 + feeRate) : amount
