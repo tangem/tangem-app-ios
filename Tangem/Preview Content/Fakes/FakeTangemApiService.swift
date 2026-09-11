@@ -38,6 +38,10 @@ final class FakeTangemApiService: TangemApiService {
     var loadYieldBoostPromotionStatusHandler: ((String) async throws -> YieldBoostPromotionDTO.Response)?
     var registerForPromotionCampaignHandler: ((PromotionRegistrationDTO.Request) async throws -> PromotionRegistrationDTO.Response)?
 
+    // MARK: - Promotions Handlers (Tests/Previews)
+
+    var loadPromotionsHandler: ((PromotionsDTO.Load.Request) async throws -> PromotionsDTO.Load.Response)?
+
     init(geoIpRegionCode: String = "us") {
         self.geoIpRegionCode = geoIpRegionCode
     }
@@ -101,6 +105,10 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadPromotions(request: PromotionsDTO.Load.Request) async throws -> PromotionsDTO.Load.Response {
+        if let handler = loadPromotionsHandler {
+            return try await handler(request)
+        }
+
         throw "Not implemented"
     }
 

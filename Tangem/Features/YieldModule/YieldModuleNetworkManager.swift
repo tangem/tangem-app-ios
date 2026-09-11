@@ -37,6 +37,8 @@ final class CommonYieldModuleNetworkManager {
 
     private let marketsSubject = CurrentValueSubject<[YieldModuleMarketInfo], Never>([])
 
+    private let inFlightMarketsUpdate = OSAllocatedUnfairLock<UUID?>(initialState: nil)
+
     init(
         yieldModuleAPIService: YieldModuleAPIService,
         yieldMarketsRepository: YieldModuleMarketsRepository,
@@ -59,6 +61,7 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
         marketsSubject.eraseToAnyPublisher()
     }
 
+    /// Every call derives the same chain IDs from all user wallets, so the newest one subsumes the ones before it.
     func updateMarkets() {
         let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletRepository.models)
         let chainIDs = Set(
@@ -68,8 +71,33 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
             }
         )
 
-        Task { @MainActor in
-            let markets = await fetchMarkets(chainIDs: Array(chainIDs))
+        let token = UUID()
+        inFlightMarketsUpdate { $0 = token }
+
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            let (markets, freshResponse) = await fetchMarkets(chainIDs: Array(chainIDs))
+
+            // A newer request has been claimed since this one started, so its response is stale.
+            let isLatestRequest = inFlightMarketsUpdate { inFlightToken -> Bool in
+                guard inFlightToken == token else {
+                    return false
+                }
+
+                inFlightToken = nil
+
+                return true
+            }
+
+            guard isLatestRequest else {
+                return
+            }
+
+            if let freshResponse {
+                cacheMarkets(freshResponse)
+            }
+
             marketsSubject.send(markets)
         }
     }
@@ -181,25 +209,30 @@ private extension CommonYieldModuleNetworkManager {
             .store(in: &bag)
     }
 
-    func fetchMarkets(chainIDs: [String]) async -> [YieldModuleMarketInfo] {
+    /// Caching is left to the caller so that a superseded response cannot overwrite the cache after the newest one.
+    func fetchMarkets(
+        chainIDs: [String]
+    ) async -> (markets: [YieldModuleMarketInfo], freshResponse: YieldModuleDTO.Response.MarketsInfo?) {
         let includeIncentive = FeatureProvider.isAvailable(.merklIncentives)
 
         do {
             let response = try await fetchMarketsInfo(chainIDs: chainIDs, includeIncentive: includeIncentive)
 
-            cacheMarkets(response)
-
-            return response.tokens.map {
+            let markets = response.tokens.map {
                 YieldModuleMarketInfo(dto: $0, includeIncentive: includeIncentive)
             }
+
+            return (markets, response)
         } catch {
             guard let cachedMarkets = yieldMarketsRepository.markets() else {
-                return []
+                return ([], nil)
             }
 
-            return cachedMarkets.markets.map {
+            let markets = cachedMarkets.markets.map {
                 YieldModuleMarketInfo(from: $0, includeIncentive: includeIncentive)
             }
+
+            return (markets, nil)
         }
     }
 
