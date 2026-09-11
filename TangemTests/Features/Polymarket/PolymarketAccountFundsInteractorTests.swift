@@ -35,6 +35,17 @@ private struct BridgeServiceStub: PolymarketBridgeService {
         if let fundingAddressesError { throw fundingAddressesError }
         return fundingAddresses
     }
+
+    func withdrawAddresses(
+        forDepositWallet depositWalletAddress: String,
+        route: PolymarketWithdrawRoute,
+        builderCode: String
+    ) async throws -> PolymarketBridgeAddresses {
+        receivedBuilderCodes.withLock { $0.append(builderCode) }
+
+        if let fundingAddressesError { throw fundingAddressesError }
+        return fundingAddresses
+    }
 }
 
 private final class ConfigurationServiceSpy: PolymarketConfigurationService {
@@ -109,6 +120,14 @@ private final class FirstAttemptFailsBridgeStub: PolymarketBridgeService {
 
     func fundingAddresses(
         forDepositWallet depositWalletAddress: String,
+        builderCode: String
+    ) async throws -> PolymarketBridgeAddresses {
+        PolymarketBridgeAddresses(addresses: [.evm: fundingAddress])
+    }
+
+    func withdrawAddresses(
+        forDepositWallet depositWalletAddress: String,
+        route: PolymarketWithdrawRoute,
         builderCode: String
     ) async throws -> PolymarketBridgeAddresses {
         PolymarketBridgeAddresses(addresses: [.evm: fundingAddress])

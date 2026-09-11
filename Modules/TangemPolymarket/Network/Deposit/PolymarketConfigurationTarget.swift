@@ -21,16 +21,8 @@ struct PolymarketConfigurationTarget: Moya.TargetType {
 
     var headers: [String: String]? {
         var headers = environmentHeaders
-        headers[Constants.walletIdHeader] = walletId
+        headers[PolymarketBFFEnvironment.walletIdHeader] = walletId
         return headers
-    }
-}
-
-// MARK: - Constants
-
-private extension PolymarketConfigurationTarget {
-    enum Constants {
-        static let walletIdHeader = "wallet-id"
     }
 }
 
