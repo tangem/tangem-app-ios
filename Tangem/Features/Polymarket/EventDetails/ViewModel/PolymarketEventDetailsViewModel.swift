@@ -55,7 +55,7 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
 
         loadingTask = runTask(in: self) { @MainActor viewModel in
             do {
-                let event = try await viewModel.fetchWithSilentRetry()
+                let event = try await viewModel.apiProvider.event(id: viewModel.eventID)
                 viewModel.state = .content(viewModel.makeContent(from: event))
                 viewModel.startPolling()
             } catch {
@@ -68,6 +68,12 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
 
     func dismiss() {
         coordinator?.dismissEventDetails()
+    }
+
+    func resumePolling() {
+        guard pollingTask == nil, case .content = state else { return }
+
+        startPolling()
     }
 
     func stopPolling() {
@@ -84,19 +90,6 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
     }
 
     // MARK: - Loading
-
-    private func fetchWithSilentRetry() async throws -> PolymarketEvent {
-        do {
-            return try await apiProvider.event(id: eventID)
-        } catch {
-            guard !error.isCancellationError else { throw error }
-
-            PolymarketLogger.error("Event \(eventID) failed to load, retrying once", error: error)
-
-            try await Task.sleep(nanoseconds: Constants.silentRetryDelay)
-            return try await apiProvider.event(id: eventID)
-        }
-    }
 
     private func startPolling() {
         pollingTask = Task { @MainActor [weak self] in
@@ -166,7 +159,6 @@ extension PolymarketEventDetailsViewModel {
 
 private extension PolymarketEventDetailsViewModel {
     enum Constants {
-        static let silentRetryDelay: UInt64 = 1_500_000_000
         static let pollInterval: UInt64 = 10_000_000_000
         static let notFoundStatusCode = 404
     }

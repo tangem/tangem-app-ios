@@ -38,8 +38,6 @@ enum PolymarketOrderQuoteState: Equatable {
 
 // MARK: - Unavailability
 
-/// The three statuses that leave nothing to act on. Keeping them apart from the full status set means both
-/// switches over them list only cases that can actually happen.
 enum PolymarketQuoteUnavailability: Equatable {
     case insufficientLiquidity
     case marketClosed

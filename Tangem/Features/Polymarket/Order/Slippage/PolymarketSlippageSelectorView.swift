@@ -93,16 +93,16 @@ struct PolymarketSlippageSelectorView: View {
             Text(preset.title)
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                 .lineLimit(1)
-                .padding(.horizontal, Constants.horizontalPadding)
+                .padding(.horizontal, Constants.presetHorizontalPadding)
                 .frame(minHeight: Constants.presetHeight)
-                .background(DesignSystem.Color.bgSecondary, in: Capsule())
+                .background(DesignSystem.Color.bgOpaquePrimary, in: Capsule())
         }
         .buttonStyle(.plain)
     }
 
     private var description: some View {
         Text(Localization.predictionPlaceSlippageSheetDescription)
-            .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, Constants.horizontalPadding)
     }
@@ -129,12 +129,13 @@ private extension PolymarketSlippageSelectorView {
         static let titleTopPadding: CGFloat = 16
         static let toolbarHeight: CGFloat = 44
         static let titleToAmountGap: CGFloat = 52
-        static let amountToPresetsGap: CGFloat = 40
-        static let presetsToDescriptionGap: CGFloat = 24
+        static let amountToPresetsGap: CGFloat = 32
+        static let presetsToDescriptionGap: CGFloat = 16
         static let descriptionToConfirmGap: CGFloat = 24
         static let errorSpacing: CGFloat = 8
         static let presetSpacing: CGFloat = 8
-        static let presetHeight: CGFloat = 40
+        static let presetHeight: CGFloat = 32
+        static let presetHorizontalPadding: CGFloat = 12
         static let horizontalPadding: CGFloat = 16
         static let confirmHorizontalPadding: CGFloat = 16
         static let confirmVerticalPadding: CGFloat = 12
