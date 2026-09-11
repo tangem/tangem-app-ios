@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAccounts
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct TokenSelectorAccountHeaderView: View {
     let header: TokenSelectorAccountViewModel.HeaderType
@@ -24,6 +25,7 @@ struct TokenSelectorAccountHeaderView: View {
         switch header {
         case .account(let icon, let name):
             AccountInlineHeaderView(iconData: icon, name: name)
+                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.tokenSelectorAccountHeader(name: name))
         case .wallet(let name):
             Text(name)
                 .style(Fonts.Bold.footnote, color: Colors.Text.primary1)

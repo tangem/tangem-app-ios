@@ -34,7 +34,7 @@ struct JointAccountMemberCircle: View {
     @ViewBuilder
     private var glyph: some View {
         if let iconColor = state.iconColor {
-            Assets.Accounts.family.image.foregroundStyle(iconColor)
+            DesignSystem.Icons.User.regular20.image.foregroundStyle(iconColor)
         }
     }
 }

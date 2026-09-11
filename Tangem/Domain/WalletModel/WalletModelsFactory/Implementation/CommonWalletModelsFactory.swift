@@ -17,20 +17,20 @@ struct CommonWalletModelsFactory {
     private let userWalletId: UserWalletId
     private let walletModelFeaturesManagerFactory: WalletModelFeaturesManagerFactory
     private let transactionHistoryServiceProvider: TransactionHistoryServiceProvider
-    private let transactionHistoryScheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage
+    private let transactionHistoryUpdater: TransactionHistoryUpdater
 
     init(
         config: UserWalletConfig,
         userWalletId: UserWalletId,
         walletModelFeaturesManagerFactory: WalletModelFeaturesManagerFactory,
         transactionHistoryServiceProvider: TransactionHistoryServiceProvider,
-        transactionHistoryScheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage
+        transactionHistoryUpdater: TransactionHistoryUpdater
     ) {
         self.config = config
         self.userWalletId = userWalletId
         self.walletModelFeaturesManagerFactory = walletModelFeaturesManagerFactory
         self.transactionHistoryServiceProvider = transactionHistoryServiceProvider
-        self.transactionHistoryScheduledUpdatesStorage = transactionHistoryScheduledUpdatesStorage
+        self.transactionHistoryUpdater = transactionHistoryUpdater
     }
 
     private func isMainCoinCustom(
@@ -118,9 +118,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     address: walletManager.wallet.address
                 ),
                 featureManager: featureManager,
-                transactionHistoryUpdater: TransactionHistoryUpdater(
-                    scheduledUpdatesStorage: transactionHistoryScheduledUpdatesStorage
-                ),
+                transactionHistoryUpdater: transactionHistoryUpdater,
                 transactionHistoryService: transactionHistoryService,
                 receiveAddressService: receiveAddressService,
                 sendAvailabilityProvider: sendAvailabilityProvider,
@@ -158,9 +156,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                         address: walletManager.wallet.address
                     ),
                     featureManager: featureManager,
-                    transactionHistoryUpdater: TransactionHistoryUpdater(
-                        scheduledUpdatesStorage: transactionHistoryScheduledUpdatesStorage
-                    ),
+                    transactionHistoryUpdater: transactionHistoryUpdater,
                     transactionHistoryService: transactionHistoryService,
                     receiveAddressService: receiveAddressService,
                     sendAvailabilityProvider: sendAvailabilityProvider,

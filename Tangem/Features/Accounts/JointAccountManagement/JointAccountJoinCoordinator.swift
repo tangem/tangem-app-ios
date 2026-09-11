@@ -14,6 +14,7 @@ final class JointAccountJoinCoordinator: CoordinatorObject {
     // MARK: - Injected
 
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Navigation actions
 
@@ -23,6 +24,8 @@ final class JointAccountJoinCoordinator: CoordinatorObject {
     // MARK: - Root view model
 
     @Published private(set) var rootViewModel: JointAccountJoinViewModel?
+
+    @Published var path: [Step] = []
 
     // MARK: - Dependencies
 
@@ -39,24 +42,75 @@ final class JointAccountJoinCoordinator: CoordinatorObject {
     func start(with options: Options) {
         self.options = options
 
+        // The invite is read on behalf of the wallet the app has selected, whichever one ends up joining
+        guard let selectedUserWalletModel = userWalletRepository.selectedModel else {
+            // The link is only ever routed with a wallet selected, so there is nothing to read the invite with here
+            let message = "A joint account invite was opened with no wallet selected"
+            AccountsLogger.error(error: message)
+            assertionFailure(message)
+
+            dismiss()
+            return
+        }
+
+        let networkService = CommonJointAccountsNetworkService(userWalletId: selectedUserWalletModel.userWalletId)
+        let userWalletModels = userWalletRepository.models
+
         Task { @MainActor [weak self] in
             guard let self else {
                 return
             }
 
-            guard
-                let preview = try? await options.networkService.getInvitePreview(inviteId: options.inviteId),
-                let viewModel = JointAccountJoinViewModel(
-                    preview: preview,
-                    userWalletModels: options.userWalletModels,
-                    coordinator: self
-                )
-            else {
-                dismiss()
-                return
-            }
+            rootViewModel = JointAccountJoinViewModel(
+                inviteId: options.inviteId,
+                networkService: networkService,
+                userWalletModels: userWalletModels,
+                coordinator: self
+            )
+        }
+    }
+}
 
-            rootViewModel = viewModel
+// MARK: - Private
+
+private extension JointAccountJoinCoordinator {
+    func openMemberName(userWalletModel: any UserWalletModel, preview: JointAccountInvitePreview) {
+        guard let options else {
+            return
+        }
+
+        let viewModel = JointAccountMemberNameViewModel(
+            helper: JointAccountJoinMemberNameHelper(
+                inviteId: options.inviteId,
+                signedConfig: preview.config,
+                userWalletModel: userWalletModel,
+                routable: self
+            ),
+            coordinator: self
+        )
+
+        path.append(.memberName(viewModel: viewModel))
+    }
+}
+
+// MARK: - Steps
+
+extension JointAccountJoinCoordinator {
+    enum Step {
+        case memberName(viewModel: JointAccountMemberNameViewModel)
+    }
+}
+
+extension JointAccountJoinCoordinator.Step: Hashable {
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        switch (lhs, rhs) {
+        case (.memberName(let lhs), .memberName(let rhs)): lhs === rhs
+        }
+    }
+
+    func hash(into hasher: inout Hasher) {
+        switch self {
+        case .memberName(let viewModel): hasher.combine(ObjectIdentifier(viewModel))
         }
     }
 }
@@ -66,8 +120,6 @@ final class JointAccountJoinCoordinator: CoordinatorObject {
 extension JointAccountJoinCoordinator {
     struct Options {
         let inviteId: String
-        let networkService: JointAccountsNetworkService
-        let userWalletModels: [any UserWalletModel]
     }
 }
 
@@ -108,8 +160,55 @@ extension JointAccountJoinCoordinator: JointAccountJoinRoutable {
         }
     }
 
-    func continueJoin(userWalletModel: any UserWalletModel) {
-        // [REDACTED_TODO_COMMENT]
+    func continueJoin(userWalletModel: any UserWalletModel, preview: JointAccountInvitePreview) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(
+                sheet: JointAccountJoinConfirmationViewModel(
+                    userWalletModel: userWalletModel,
+                    preview: preview,
+                    coordinator: self
+                )
+            )
+        }
+    }
+}
+
+// MARK: - JointAccountJoinConfirmationRoutable
+
+extension JointAccountJoinCoordinator: JointAccountJoinConfirmationRoutable {
+    func confirmJoin(userWalletModel: any UserWalletModel, preview: JointAccountInvitePreview) {
+        Task { @MainActor [weak self] in
+            guard let self else {
+                return
+            }
+
+            floatingSheetPresenter.removeActiveSheet()
+
+            openMemberName(userWalletModel: userWalletModel, preview: preview)
+        }
+    }
+
+    /// Backing out leaves the picked wallet alone — the user stays on the invite screen with it still selected.
+    func cancelJoin() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - JointAccountMemberNameRoutable
+
+extension JointAccountJoinCoordinator: JointAccountMemberNameRoutable {
+    func closeMemberName() {
+        dismiss()
+    }
+}
+
+// MARK: - JointAccountJoinMemberNameRoutable
+
+extension JointAccountJoinCoordinator: JointAccountJoinMemberNameRoutable {
+    func closeJoinedAccount() {
+        dismiss()
     }
 }
 

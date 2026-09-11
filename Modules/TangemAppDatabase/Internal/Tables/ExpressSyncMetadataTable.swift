@@ -16,6 +16,8 @@ enum ExpressSyncMetadataTable: AppDatabaseTable {
         switch version {
         case .v1:
             try V1.register(in: database)
+        case .v2:
+            try V2.register(in: database)
         }
     }
 }
@@ -41,6 +43,14 @@ private extension ExpressSyncMetadataTable {
             }
         }
     }
+
+    enum V2 {
+        static func register(in database: Database) throws {
+            try database.alter(table: tableName) { table in
+                table.rename(column: Columns.ownerAddress, to: Columns.userWalletID)
+            }
+        }
+    }
 }
 
 // MARK: - Columns
@@ -49,6 +59,7 @@ private extension ExpressSyncMetadataTable {
     /// - Note: Only columns used twice or more are extracted to this enum.
     enum Columns {
         static let ownerAddress = "ownerAddress"
+        static let userWalletID = "userWalletID"
         static let endpointType = "endpointType"
     }
 }

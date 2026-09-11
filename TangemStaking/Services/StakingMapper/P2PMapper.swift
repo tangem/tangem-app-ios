@@ -139,6 +139,12 @@ struct P2PMapper {
         )
     }
 
+    func mapToStakingTargetSummaries(from response: P2PDTO.Vaults.VaultsInfo) -> [StakingTargetSummary] {
+        response.vaults.map {
+            StakingTargetSummary(network: item.network, address: $0.vaultAddress, name: $0.displayName)
+        }
+    }
+
     func mapToStakingTargetInfo(
         from vault: P2PDTO.Vaults.Vault,
         targetAmountInfos: [String: StakingTargetAmountLimitInfo]
