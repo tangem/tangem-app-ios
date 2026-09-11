@@ -1,5 +1,5 @@
 //
-//  PolymarketDepositEmailDataCollectorBuilder.swift
+//  PolymarketAccountEmailDataCollectorBuilder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import TangemExpress
 import TangemFoundation
 import TangemStaking
 
-struct PolymarketDepositEmailDataCollectorBuilder: EmailDataCollectorBuilder {
+struct PolymarketAccountEmailDataCollectorBuilder: EmailDataCollectorBuilder {
     func makeMailData(transaction: BSDKTransaction, isFeeIncluded: Bool, error: SendTxError) -> EmailDataCollector {
         BaseDataCollector()
     }

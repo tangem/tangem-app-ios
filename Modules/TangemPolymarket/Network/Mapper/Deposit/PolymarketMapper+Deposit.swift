@@ -40,13 +40,13 @@ extension PolymarketMapper {
 // MARK: - Funding addresses
 
 extension PolymarketMapper {
-    func mapFundingAddresses(_ dto: PolymarketDTO.FundingAddressesResponse) -> PolymarketBridgeFundingAddresses {
+    func mapBridgeAddresses(_ dto: PolymarketDTO.FundingAddressesResponse) -> PolymarketBridgeAddresses {
         let addresses = PolymarketChainFamily.allCases.reduce(into: [PolymarketChainFamily: String]()) { result, family in
             guard let address = address(for: family, in: dto), !address.isEmpty else { return }
             result[family] = address
         }
 
-        return PolymarketBridgeFundingAddresses(addresses: addresses)
+        return PolymarketBridgeAddresses(addresses: addresses)
     }
 }
 

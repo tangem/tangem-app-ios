@@ -1,5 +1,5 @@
 //
-//  PolymarketAddFundsInteractorTests.swift
+//  PolymarketAccountFundsInteractorTests.swift
 //  TangemTests
 //
 //  Copyright © 2026 Tangem AG. All rights reserved.
@@ -16,7 +16,7 @@ import TangemPolymarket
 private struct BridgeServiceStub: PolymarketBridgeService {
     var assets: [PolymarketSupportedAsset] = [.usdcPolygon]
     var assetsError: Error?
-    var fundingAddresses = PolymarketBridgeFundingAddresses(addresses: [.evm: fundingAddress])
+    var fundingAddresses = PolymarketBridgeAddresses(addresses: [.evm: fundingAddress])
     var fundingAddressesError: Error?
 
     let receivedBuilderCodes = OSAllocatedUnfairLock(initialState: [String]())
@@ -29,7 +29,7 @@ private struct BridgeServiceStub: PolymarketBridgeService {
     func fundingAddresses(
         forDepositWallet depositWalletAddress: String,
         builderCode: String
-    ) async throws -> PolymarketBridgeFundingAddresses {
+    ) async throws -> PolymarketBridgeAddresses {
         receivedBuilderCodes.withLock { $0.append(builderCode) }
 
         if let fundingAddressesError { throw fundingAddressesError }
@@ -74,7 +74,7 @@ private struct DepositWalletServiceStub: PolymarketDepositWalletService {
         .readyToTrade
     }
 
-    func submitApprovals(_ batch: PolymarketApprovalsBatch) async throws(PolymarketWalletError) -> PolymarketDepositWalletStatus {
+    func submitApprovals(_ batch: PolymarketRelayedBatch) async throws(PolymarketWalletError) -> PolymarketDepositWalletStatus {
         .readyToTrade
     }
 }
@@ -110,8 +110,8 @@ private final class FirstAttemptFailsBridgeStub: PolymarketBridgeService {
     func fundingAddresses(
         forDepositWallet depositWalletAddress: String,
         builderCode: String
-    ) async throws -> PolymarketBridgeFundingAddresses {
-        PolymarketBridgeFundingAddresses(addresses: [.evm: fundingAddress])
+    ) async throws -> PolymarketBridgeAddresses {
+        PolymarketBridgeAddresses(addresses: [.evm: fundingAddress])
     }
 }
 
@@ -156,8 +156,8 @@ private func makeInteractor(
     configuration: ConfigurationServiceSpy = ConfigurationServiceSpy(),
     walletService: DepositWalletServiceStub = DepositWalletServiceStub(),
     ownerAddressProvider: OwnerAddressProviderStub = OwnerAddressProviderStub()
-) -> PolymarketAddFundsInteractor {
-    PolymarketAddFundsInteractor(
+) -> PolymarketAccountFundsInteractor {
+    PolymarketAccountFundsInteractor(
         bridgeService: bridge,
         configurationService: configuration,
         walletService: walletService,
@@ -178,8 +178,8 @@ struct PolymarketAddFundsAssetLookupTests {
             address: "0x0000000000000000000000000000000000000001"
         )
 
-        #expect(PolymarketAddFundsInteractor.usdcOnPolygon(in: [lookalike]) == nil)
-        #expect(PolymarketAddFundsInteractor.usdcOnPolygon(in: [lookalike, .usdcPolygon]) == .usdcPolygon)
+        #expect(PolymarketUtilities.usdcOnPolygon(in: [lookalike]) == nil)
+        #expect(PolymarketUtilities.usdcOnPolygon(in: [lookalike, .usdcPolygon]) == .usdcPolygon)
     }
 
     @Test("The same contract on another chain is not a match")
@@ -190,7 +190,7 @@ struct PolymarketAddFundsAssetLookupTests {
             address: PolymarketUtilities.usdcContractAddress
         )
 
-        #expect(PolymarketAddFundsInteractor.usdcOnPolygon(in: [usdcBase]) == nil)
+        #expect(PolymarketUtilities.usdcOnPolygon(in: [usdcBase]) == nil)
     }
 
     @Test("The contract is matched regardless of address casing")
@@ -201,12 +201,12 @@ struct PolymarketAddFundsAssetLookupTests {
             address: PolymarketUtilities.usdcContractAddress.uppercased()
         )
 
-        #expect(PolymarketAddFundsInteractor.usdcOnPolygon(in: [checksummed]) != nil)
+        #expect(PolymarketUtilities.usdcOnPolygon(in: [checksummed]) != nil)
     }
 
     @Test("An empty list has nothing to match")
     func emptyList() {
-        #expect(PolymarketAddFundsInteractor.usdcOnPolygon(in: []) == nil)
+        #expect(PolymarketUtilities.usdcOnPolygon(in: []) == nil)
     }
 }
 
@@ -225,8 +225,8 @@ struct PolymarketAddFundsPreparationTests {
 
         await interactor.prepare()
 
-        guard case .available(let target) = interactor.state else {
-            Issue.record("Expected the state to be available, got \(interactor.state)")
+        guard let target = interactor.state.depositTarget else {
+            Issue.record("Expected a funding target, got \(interactor.state)")
             return
         }
 
@@ -235,8 +235,8 @@ struct PolymarketAddFundsPreparationTests {
         #expect(target.fundingAddress == fundingAddress)
     }
 
-    @Test("Add funds is unavailable when the bridge does not list USDC on Polygon")
-    func unavailableWhenNotAccepted() async {
+    @Test("A bridge that does not list USDC on Polygon withholds the deposit without blocking a withdrawal")
+    func depositWithheldWhenNotAccepted() async {
         let other = PolymarketSupportedAsset.make(
             chainId: "8453",
             symbol: "USDC",
@@ -247,16 +247,18 @@ struct PolymarketAddFundsPreparationTests {
 
         await interactor.prepare()
 
-        #expect(interactor.state == .unavailable)
+        #expect(interactor.state.depositTarget == nil)
+        #expect(interactor.state.depositWalletAddress == derivedDepositWallet)
     }
 
-    @Test("A failing bridge leaves add funds unavailable rather than crashing the screen")
-    func unavailableWhenBridgeFails() async {
+    @Test("A failing bridge withholds the deposit without blocking a withdrawal")
+    func depositWithheldWhenBridgeFails() async {
         let interactor = makeInteractor(bridge: BridgeServiceStub(assetsError: StubError.offline))
 
         await interactor.prepare()
 
-        #expect(interactor.state == .unavailable)
+        #expect(interactor.state.depositTarget == nil)
+        #expect(interactor.state.depositWalletAddress == derivedDepositWallet)
     }
 
     @Test("Without an owner key there is nothing to derive a deposit wallet from")
@@ -288,38 +290,39 @@ struct PolymarketAddFundsPreparationTests {
         #expect(bridge.receivedBuilderCodes.withLock { $0 } == [ConfigurationServiceSpy.code])
     }
 
-    @Test("Without a builder code funding is withheld, since the bridge would credit an unattributed deposit")
-    func builderCodeFailureBlocksAddFunds() async {
+    @Test("Without a builder code both flows are withheld, since the bridge would credit an unattributed deposit")
+    func builderCodeFailureBlocksBothFlows() async {
         let configuration = ConfigurationServiceSpy(error: StubError.offline)
         let interactor = makeInteractor(configuration: configuration)
 
         await interactor.prepare()
 
         #expect(interactor.state == .unavailable)
+        #expect(interactor.state.depositWalletAddress == nil)
     }
 
-    @Test("Preparing the same interactor again recovers from unavailable, so a pull-to-refresh is a real retry")
-    func retryRecoversFromUnavailable() async {
+    @Test("Preparing the same interactor again recovers the deposit target, so a pull-to-refresh is a real retry")
+    func retryRecoversTheDepositTarget() async {
         let interactor = makeInteractor(bridge: FirstAttemptFailsBridgeStub())
 
         await interactor.prepare()
-        #expect(interactor.state == .unavailable)
+        #expect(interactor.state.depositTarget == nil)
 
         await interactor.prepare()
 
-        #expect(interactor.state.fundingTarget != nil)
+        #expect(interactor.state.depositTarget != nil)
     }
 
     @Test("Preparation hands its outcome back, so the caller does not have to read the state to learn it")
     func prepareReturnsTheOutcomeItStored() async {
         let available = makeInteractor()
-        let unavailable = makeInteractor(bridge: BridgeServiceStub(assetsError: StubError.offline))
+        let unavailable = makeInteractor(configuration: ConfigurationServiceSpy(error: StubError.offline))
 
         let availableOutcome = await available.prepare()
         let unavailableOutcome = await unavailable.prepare()
 
         #expect(availableOutcome == available.state)
-        #expect(availableOutcome.fundingTarget != nil)
+        #expect(availableOutcome.depositTarget != nil)
         #expect(unavailableOutcome == .unavailable)
     }
 }
@@ -334,7 +337,7 @@ struct PolymarketAddFundsDepositWalletTests {
 
         await interactor.prepare()
 
-        #expect(interactor.state.fundingTarget != nil)
+        #expect(interactor.state.depositTarget != nil)
     }
 
     @Test("A backend record that disagrees with the derivation blocks funding instead of depositing elsewhere")
@@ -383,44 +386,46 @@ struct PolymarketAddFundsFundingAddressTests {
     @Test("The address handed to the user is the one for the matched asset's chain family")
     func usesTheAssetsFamily() async {
         let bridge = BridgeServiceStub(
-            fundingAddresses: PolymarketBridgeFundingAddresses(addresses: [.evm: fundingAddress, .btc: bitcoinFundingAddress])
+            fundingAddresses: PolymarketBridgeAddresses(addresses: [.evm: fundingAddress, .btc: bitcoinFundingAddress])
         )
 
         let interactor = makeInteractor(bridge: bridge)
         await interactor.prepare()
 
-        #expect(interactor.state.fundingTarget?.fundingAddress == fundingAddress)
+        #expect(interactor.state.depositTarget?.fundingAddress == fundingAddress)
     }
 
-    @Test("A bridge answer without an address for that family leaves add funds unavailable")
-    func unavailableWithoutAnAddressForThatFamily() async {
+    @Test("A bridge answer without an address for that family withholds the deposit alone")
+    func depositWithheldWithoutAnAddressForThatFamily() async {
         let bridge = BridgeServiceStub(
-            fundingAddresses: PolymarketBridgeFundingAddresses(addresses: [.btc: bitcoinFundingAddress])
+            fundingAddresses: PolymarketBridgeAddresses(addresses: [.btc: bitcoinFundingAddress])
         )
 
         let interactor = makeInteractor(bridge: bridge)
         await interactor.prepare()
 
-        #expect(interactor.state == .unavailable)
+        #expect(interactor.state.depositTarget == nil)
+        #expect(interactor.state.depositWalletAddress == derivedDepositWallet)
     }
 
-    @Test("A funding address that cannot be fetched leaves add funds unavailable")
-    func unavailableWhenTheFundingAddressFails() async {
+    @Test("A funding address that cannot be fetched withholds the deposit alone")
+    func depositWithheldWhenTheFundingAddressFails() async {
         let interactor = makeInteractor(bridge: BridgeServiceStub(fundingAddressesError: StubError.offline))
 
         await interactor.prepare()
 
-        #expect(interactor.state == .unavailable)
+        #expect(interactor.state.depositTarget == nil)
+        #expect(interactor.state.depositWalletAddress == derivedDepositWallet)
     }
 
     @Test("The funding address is fetched on entry so opening the receive screen costs no request")
     func fundingAddressIsFetchedOnPreparation() async {
         let interactor = makeInteractor()
 
-        #expect(interactor.state.fundingTarget == nil)
+        #expect(interactor.state.depositTarget == nil)
 
         await interactor.prepare()
 
-        #expect(interactor.state.fundingTarget != nil)
+        #expect(interactor.state.depositTarget != nil)
     }
 }
