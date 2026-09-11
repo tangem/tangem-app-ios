@@ -15,7 +15,7 @@ import TangemLocalization
 struct PortfolioRowBuilder {
     private let balanceFormatter = BalanceFormatter()
     private let iconBuilder = TokenIconInfoBuilder()
-    private let percentFormatter = PercentFormatter()
+    private let shareFormatter = PortfolioShareFormatter()
     private let sentimentMapper = PortfolioReviewSentimentMapper()
 
     func build(
@@ -110,7 +110,7 @@ private extension PortfolioRowBuilder {
                 symbol: Localization.commonOther,
                 tokenIconInfo: nil,
                 sentiment: nil,
-                indicatorColor: isRanked ? PortfolioReviewSegmentPalette.otherIndicatorColor : nil,
+                indicatorColor: isRanked ? PortfolioReviewSegmentPalette.otherColor : nil,
                 subtitle: .text(Localization.commonAssetsCount(other.count)),
                 end: .values(fiat: fiatString(fiat), percent: percentString(fiat, total: total), freshness: .fresh),
                 isLoading: false
@@ -184,7 +184,8 @@ private extension PortfolioRowBuilder {
 
     func percentString(_ value: Decimal, total: Decimal) -> String {
         guard total > 0, value > 0 else { return "" }
-        return percentFormatter.format(value / total, option: .yield)
+
+        return shareFormatter.string(for: value / total)
     }
 }
 
