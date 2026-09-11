@@ -22,34 +22,41 @@ struct PulseView: View {
 
             categoriesRow
 
-            if viewModel.isFailed, viewModel.tokens.isEmpty {
-                TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.onRetry)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, Constants.errorVerticalPadding)
-            } else if viewModel.tokens.isEmpty, viewModel.isLoading {
-                LazyVStack(spacing: 0) {
-                    ForEach(0 ..< Constants.skeletonRowCount, id: \.self) { _ in
-                        TokenRowMarket(.shimmer)
-                    }
-                }
-            } else if viewModel.tokens.isEmpty {
-                Text(Localization.marketsSearchTokenNoResultTitle)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textTertiary)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, Constants.errorVerticalPadding)
-            } else {
-                LazyVStack(spacing: 0) {
-                    ForEach(viewModel.tokens) { token in
-                        MarketTokenRowView(viewModel: token)
-                            .onAppear { viewModel.onTokenAppear(token) }
-                            .onDisappear { viewModel.onTokenDisappear(token) }
-                    }
-                }
-            }
+            tokensContent
+                .background(DesignSystem.Color.bgSecondary, in: RoundedRectangle(cornerRadius: 24))
+                .padding(.horizontal, Constants.horizontalPadding)
         }
         .onAppear(perform: viewModel.onViewAppear)
         .frame(maxWidth: .infinity, alignment: .leading)
         .animation(.easeInOut(duration: 0.3), value: viewModel.selectedTag)
+    }
+
+    @ViewBuilder
+    private var tokensContent: some View {
+        if viewModel.isFailed, viewModel.tokens.isEmpty {
+            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.onRetry)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, Constants.errorVerticalPadding)
+        } else if viewModel.tokens.isEmpty, viewModel.isLoading {
+            LazyVStack(spacing: 0) {
+                ForEach(0 ..< Constants.skeletonRowCount, id: \.self) { _ in
+                    TokenRowMarket(.shimmer)
+                }
+            }
+        } else if viewModel.tokens.isEmpty {
+            Text(Localization.marketsSearchTokenNoResultTitle)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textTertiary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, Constants.errorVerticalPadding)
+        } else {
+            LazyVStack(spacing: 0) {
+                ForEach(viewModel.tokens) { token in
+                    MarketTokenRowView(viewModel: token)
+                        .onAppear { viewModel.onTokenAppear(token) }
+                        .onDisappear { viewModel.onTokenDisappear(token) }
+                }
+            }
+        }
     }
 
     private var header: some View {
