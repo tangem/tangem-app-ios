@@ -92,6 +92,18 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         )
     }
 
+    private var usdRatePublisher: AnyPublisher<Decimal?, Never> {
+        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
+            return .just(output: nil)
+        }
+
+        return walletModel.ratePublisher
+            .map { $0.quote?.priceUsd }
+            .prepend(nil)
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     var isAccountsMode: Bool {
         userWalletRepository.models.contains {
             $0.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
@@ -199,14 +211,18 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
     }
 
+    /// Unlike Receive / Buy, copying an address isn't a top-up on its own, so the incomplete backup warning doesn't apply.
     func copyDefaultAddress() {
-        if let unavailableAlert = tokenActionAvailabilityAlertBuilder.alert(
-            for: tokenActionAvailabilityProvider.receiveAvailability, blockchain: blockchain
-        ) {
-            alert = unavailableAlert
-            return
-        }
+        TokenActionAvailabilityAlertPresenter.presentOrProceed(
+            handler: &alert,
+            receiveStatus: tokenActionAvailabilityProvider.receiveAvailability,
+            action: { [weak self] in
+                self?.performCopyDefaultAddress()
+            }
+        )
+    }
 
+    func performCopyDefaultAddress() {
         UIPasteboard.general.string = walletModel.defaultAddressString
         let heavyImpactGenerator = UIImpactFeedbackGenerator(style: .heavy)
         heavyImpactGenerator.impactOccurred()
@@ -370,10 +386,11 @@ extension SingleTokenBaseViewModel {
             .store(in: &bag)
 
         walletModel.transactionHistoryPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] newState in
+            .combineLatest(usdRatePublisher)
+            .receiveOnMain()
+            .sink { [weak self] newState, usdRate in
                 AppLogger.info(self, "New transaction history state: \(newState)")
-                self?.updateHistoryState(to: newState)
+                self?.updateHistoryState(to: newState, usdRate: usdRate)
             }
             .store(in: &bag)
 
@@ -505,7 +522,7 @@ extension SingleTokenBaseViewModel {
         })
     }
 
-    private func updateHistoryState(to newState: WalletModelTransactionHistoryState) {
+    private func updateHistoryState(to newState: WalletModelTransactionHistoryState, usdRate: Decimal?) {
         switch newState {
         case .notSupported:
             transactionHistoryState = .notSupported
@@ -521,6 +538,7 @@ extension SingleTokenBaseViewModel {
             let listItems = transactionHistoryMapper.mapTransactionListItem(
                 from: records,
                 groupingStyle: .day(.long),
+                dustFilter: TransactionHistoryDustFilter(usdRate: usdRate),
                 subtitleOwnerResolver: subtitleOwnerResolver
             )
             transactionHistoryState = .loaded(listItems)
@@ -595,36 +613,39 @@ extension SingleTokenBaseViewModel {
 
 extension SingleTokenBaseViewModel {
     private func openReceive() {
-        if let availabilityAlert = tokenActionAvailabilityAlertBuilder.alert(
-            for: tokenActionAvailabilityProvider.receiveAvailability, blockchain: blockchain
-        ) {
-            alert = availabilityAlert
-            return
-        }
-
-        tokenRouter.openReceive(walletModel: walletModel)
+        TokenActionAvailabilityAlertPresenter.presentOrProceed(
+            handler: &alert,
+            receiveStatus: tokenActionAvailabilityProvider.receiveAvailability,
+            warning: tokenActionAvailabilityProvider.availabilityWarningType,
+            action: { [weak self] in
+                guard let self else { return }
+                tokenRouter.openReceive(walletModel: walletModel)
+            }
+        )
     }
 
     private func openBuyCrypto() {
-        if let buyUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(
-            for: tokenActionAvailabilityProvider.buyAvailablity
-        ) {
-            alert = buyUnavailableAlert
-            return
-        }
-
-        tokenRouter.openOnramp(walletModel: walletModel)
+        TokenActionAvailabilityAlertPresenter.presentOrProceed(
+            handler: &alert,
+            buyStatus: tokenActionAvailabilityProvider.buyAvailablity,
+            warning: tokenActionAvailabilityProvider.availabilityWarningType,
+            action: { [weak self] in
+                guard let self else { return }
+                tokenRouter.openOnramp(walletModel: walletModel)
+            }
+        )
     }
 
     final func openOnramp(parameters: PredefinedOnrampParameters) {
-        if let unavailableAlert = tokenActionAvailabilityAlertBuilder.alert(
-            for: tokenActionAvailabilityProvider.buyAvailablity
-        ) {
-            alert = unavailableAlert
-            return
-        }
-
-        tokenRouter.openOnramp(walletModel: walletModel, parameters: parameters)
+        TokenActionAvailabilityAlertPresenter.presentOrProceed(
+            handler: &alert,
+            buyStatus: tokenActionAvailabilityProvider.buyAvailablity,
+            warning: tokenActionAvailabilityProvider.availabilityWarningType,
+            action: { [weak self] in
+                guard let self else { return }
+                tokenRouter.openOnramp(walletModel: walletModel, parameters: parameters)
+            }
+        )
     }
 
     private func openSend() {
@@ -784,9 +805,19 @@ extension SingleTokenBaseViewModel {
         logReceiveTapped()
 
         if let availabilityAlert = tokenActionAvailabilityAlertBuilder.alert(
-            for: tokenActionAvailabilityProvider.receiveAvailability, blockchain: blockchain
+            for: tokenActionAvailabilityProvider.receiveAvailability
         ) {
             alert = availabilityAlert
+            return nil
+        }
+
+        // The morphing flow needs the view model synchronously, which is impossible when the backup
+        // warning is shown: after "Continue" the receive flow is opened the regular way instead.
+        if let warning = tokenActionAvailabilityProvider.availabilityWarningType {
+            alert = tokenActionAvailabilityAlertBuilder.alert(for: warning, continueAction: { [weak self] in
+                guard let self else { return }
+                tokenRouter.openReceive(walletModel: walletModel)
+            })
             return nil
         }
 

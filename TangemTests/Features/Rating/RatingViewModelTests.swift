@@ -17,6 +17,9 @@ import TangemTestKit
 final class RatingViewModelTests: LeakTrackingTestSuite {
     typealias Rating = RatingModel.Rating
 
+    /// The view model holds its presenter weakly, so the suite keeps it alive for the duration of a test.
+    private var feedbackPresenter: RatingFeedbackPresenterSpy?
+
     // MARK: - Load
 
     @Test("Loads and shows unrated state")
@@ -26,7 +29,7 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
 
         let sut = makeSUT(spy: spy)
 
-        await sut.load()
+        await waitUntilLoaded(sut)
 
         #expect(sut.state == .unrated)
     }
@@ -38,7 +41,7 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
 
         let sut = makeSUT(spy: spy)
 
-        await sut.load()
+        await waitUntilLoaded(sut)
 
         #expect(sut.state == .rated(4))
     }
@@ -50,23 +53,21 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
 
         let sut = makeSUT(spy: spy)
 
-        await sut.load()
+        await waitUntilLoaded(sut)
 
         // Fail-open: treat errors as "not rated"
         #expect(sut.state == .unrated)
         #expect(sut.isVisible == true)
     }
 
-    @Test("Only loads once (idempotent)")
+    @Test("Loads exactly once, without an explicit trigger")
     func loadsOnce() async {
         let spy = RatingProviderSpy()
         await spy.setCheckResult(.success(nil))
 
         let sut = makeSUT(spy: spy)
 
-        await sut.load()
-        await sut.load()
-        await sut.load()
+        await waitUntilLoaded(sut)
 
         #expect(await spy.checkCalls.count == 1)
     }
@@ -80,13 +81,44 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
         var states: [RatingViewModel.State] = []
         let cancellable = sut.$state.sink { states.append($0) }
 
-        await sut.load()
+        await waitUntilLoaded(sut)
 
         await waitUntil { sut.state == .unrated }
         cancellable.cancel()
 
         #expect(states.contains(.loading))
         #expect(states.contains(.unrated))
+    }
+
+    // MARK: - Feedback presentation
+
+    @Test("Selecting a rating presents feedback through the presenter")
+    func selectingRatingPresentsFeedback() async {
+        let spy = RatingProviderSpy()
+        await spy.setCheckResult(.success(nil))
+
+        let sut = makeSUT(spy: spy)
+        await waitUntilLoaded(sut)
+
+        sut.onRatingSelected(.four)
+
+        await waitUntil { self.feedbackPresenter?.presented.isEmpty == false }
+        #expect(feedbackPresenter?.presented.count == 1)
+        #expect(sut.displayRating == 4)
+    }
+
+    @Test("Does not present feedback when the swap is already rated")
+    func doesNotPresentFeedbackWhenRated() async {
+        let spy = RatingProviderSpy()
+        await spy.setCheckResult(.success(ExistingRating(rating: 3, feedback: nil)))
+
+        let sut = makeSUT(spy: spy)
+        await waitUntilLoaded(sut)
+
+        sut.onRatingSelected(.four)
+
+        try? await Task.sleep(for: .milliseconds(500))
+        #expect(feedbackPresenter?.presented.isEmpty == true)
     }
 
     // MARK: - Submit
@@ -99,7 +131,7 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
 
         let sut = makeSUT(spy: spy)
 
-        await sut.load()
+        await waitUntilLoaded(sut)
         try await sut.submitThrowing(rating: .four, feedback: "Great!")
 
         #expect(sut.state == .submitted(4))
@@ -117,7 +149,7 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
 
         let sut = makeSUT(spy: spy)
 
-        await sut.load()
+        await waitUntilLoaded(sut)
 
         // Simulate race: someone rated while we were about to submit
         await spy.setCheckResult(.success(ExistingRating(rating: 3, feedback: nil)))
@@ -135,7 +167,7 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
 
         let sut = makeSUT(spy: spy)
 
-        await sut.load()
+        await waitUntilLoaded(sut)
 
         await #expect(throws: (any Error).self) {
             try await sut.submitThrowing(rating: .four, feedback: nil)
@@ -150,7 +182,7 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
 
         let sut = makeSUT(spy: spy)
 
-        await sut.load()
+        await waitUntilLoaded(sut)
 
         do {
             try await sut.submitThrowing(rating: .four, feedback: nil)
@@ -169,7 +201,7 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
 
         let sut = makeSUT(spy: spy)
 
-        await sut.load()
+        await waitUntilLoaded(sut)
 
         // First attempt fails
         do {
@@ -197,7 +229,7 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
 
         let sut = makeSUT(spy: spy)
 
-        await sut.load()
+        await waitUntilLoaded(sut)
         try await sut.submitThrowing(rating: .five, feedback: nil)
 
         #expect(await spy.submitCalls.isEmpty)
@@ -210,11 +242,14 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
 
         let sut = makeSUT(spy: spy)
 
-        // Don't call load(), stay in loading
+        // The load started in `init` is still in flight, so the state is `.loading`
         try await sut.submitThrowing(rating: .five, feedback: nil)
 
         #expect(await spy.submitCalls.isEmpty)
         #expect(sut.state == .loading)
+
+        // Let the in-flight load finish: while it runs it holds the view model, which would trip the leak check
+        await waitUntilLoaded(sut)
     }
 
     @Test("Does not submit when in submitted state")
@@ -225,7 +260,7 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
 
         let sut = makeSUT(spy: spy)
 
-        await sut.load()
+        await waitUntilLoaded(sut)
         try await sut.submitThrowing(rating: .four, feedback: nil)
         #expect(sut.state == .submitted(4))
 
@@ -243,7 +278,7 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
 
         let sut = makeSUT(spy: spy)
 
-        await sut.load()
+        await waitUntilLoaded(sut)
         try await sut.submitThrowing(rating: .five, feedback: nil)
 
         #expect(sut.state == .submitted(5))
@@ -260,7 +295,7 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
 
         let sut = makeSUT(spy: spy)
 
-        await sut.load()
+        await waitUntilLoaded(sut)
 
         var states: [RatingViewModel.State] = []
         let cancellable = sut.$state.sink { states.append($0) }
@@ -284,7 +319,7 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
 
         let sut = makeSUT(spy: spy)
 
-        await sut.load()
+        await waitUntilLoaded(sut)
         try await sut.submitThrowing(rating: .four, feedback: "  hello world  ")
 
         #expect(await spy.submitCalls.first?.feedback == "hello world")
@@ -298,7 +333,7 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
 
         let sut = makeSUT(spy: spy)
 
-        await sut.load()
+        await waitUntilLoaded(sut)
         try await sut.submitThrowing(rating: .four, feedback: "   \n\t  ")
 
         #expect(await spy.submitCalls.first?.feedback == nil)
@@ -320,7 +355,7 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
         await spy.setCheckResult(.success(nil))
 
         let sut = makeSUT(spy: spy)
-        await sut.load()
+        await waitUntilLoaded(sut)
 
         #expect(sut.isVisible == true)
     }
@@ -331,7 +366,7 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
         await spy.setCheckResult(.success(ExistingRating(rating: 4, feedback: nil)))
 
         let sut = makeSUT(spy: spy)
-        await sut.load()
+        await waitUntilLoaded(sut)
 
         #expect(sut.isVisible == true)
     }
@@ -343,7 +378,7 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
         await spy.setSubmitResult(.success(()))
 
         let sut = makeSUT(spy: spy)
-        await sut.load()
+        await waitUntilLoaded(sut)
         try await sut.submitThrowing(rating: .five, feedback: nil)
 
         #expect(sut.isVisible == true)
@@ -352,6 +387,11 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
 
 private extension RatingViewModelTests {
     // MARK: - Async Test Helpers
+
+    /// The view model kicks off its load in `init`, so tests wait for that to settle instead of driving it.
+    func waitUntilLoaded(_ sut: RatingViewModel) async {
+        await waitUntil { sut.state != .loading }
+    }
 
     func waitUntil(
         timeout: Duration = .seconds(2),
@@ -388,7 +428,10 @@ private extension RatingViewModelTests {
             userWalletIdHash: userWalletIdHash
         )
 
-        let viewModel = RatingViewModel(model: model)
+        let presenter = RatingFeedbackPresenterSpy()
+        feedbackPresenter = presenter
+
+        let viewModel = RatingViewModel(model: model, feedbackPresenter: presenter)
         return trackForMemoryLeaks(viewModel)
     }
 }

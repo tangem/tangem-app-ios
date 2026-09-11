@@ -7,8 +7,11 @@
 //
 
 import Foundation
+import TangemMobileWalletBackup
 
 class MobileBackupTypesCoordinator: CoordinatorObject {
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+
     let dismissAction: Action<OutputOptions>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -61,6 +64,55 @@ extension MobileBackupTypesCoordinator: MobileBackupTypesRoutable {
 
     func openMobileOnboarding(input: MobileOnboardingInput) {
         openOnboardingModal(with: .mobileInput(input))
+    }
+
+    func openMobileBackupICloudDetails(
+        backup: MobileWalletBackup,
+        userWalletModel: UserWalletModel,
+        onDelete: @escaping () -> Void
+    ) {
+        let viewModel = MobileBackupICloudDetailsViewModel(
+            backup: backup,
+            userWalletModel: userWalletModel,
+            coordinator: self,
+            onDelete: onDelete
+        )
+
+        floatingSheetPresenter.enqueue(sheet: viewModel)
+    }
+
+    func openMobileBackupICloudStorageUnavailable(input: MobileBackupStorageUnavailableInput, output: MobileBackupStorageUnavailableOutput) {
+        let viewModel = MobileBackupStorageUnavailableViewModel(input: input, output: output, coordinator: self)
+        floatingSheetPresenter.enqueue(sheet: viewModel)
+    }
+
+    func openMobileBackupICloudNotFound(output: MobileBackupNotFoundOutput) {
+        let viewModel = MobileBackupNotFoundViewModel(output: output, coordinator: self)
+        floatingSheetPresenter.enqueue(sheet: viewModel)
+    }
+}
+
+// MARK: - MobileBackupStorageUnavailableRoutable
+
+extension MobileBackupTypesCoordinator: MobileBackupStorageUnavailableRoutable {
+    func closeMobileBackupStorageUnavailable() {
+        floatingSheetPresenter.removeActiveSheet()
+    }
+}
+
+// MARK: - MobileBackupNotFoundRoutable
+
+extension MobileBackupTypesCoordinator: MobileBackupNotFoundRoutable {
+    func closeMobileBackupNotFound() {
+        floatingSheetPresenter.removeActiveSheet()
+    }
+}
+
+// MARK: - MobileBackupICloudDetailsRoutable
+
+extension MobileBackupTypesCoordinator: MobileBackupICloudDetailsRoutable {
+    func closeMobileBackupICloudDetails() {
+        floatingSheetPresenter.removeActiveSheet()
     }
 }
 

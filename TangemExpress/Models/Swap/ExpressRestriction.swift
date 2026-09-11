@@ -15,4 +15,5 @@ public enum ExpressRestriction {
     case insufficientBalance(_ requiredAmount: Decimal)
     case feeCurrencyHasZeroBalance(isFeeCurrency: Bool)
     case feeCurrencyInsufficientBalanceForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool)
+    case regionRestricted
 }

@@ -24,6 +24,18 @@ public struct ExpressWalletCurrency: Hashable {
         self.decimalCount = decimalCount
         self.symbol = symbol
     }
+
+    public static func == (lhs: ExpressWalletCurrency, rhs: ExpressWalletCurrency) -> Bool {
+        lhs.contractAddress == rhs.contractAddress
+            && lhs.network == rhs.network
+            && lhs.decimalCount == rhs.decimalCount
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(contractAddress)
+        hasher.combine(network)
+        hasher.combine(decimalCount)
+    }
 }
 
 // MARK: - Helpers

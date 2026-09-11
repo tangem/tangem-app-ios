@@ -67,7 +67,7 @@ extension VisaWalletModel: WalletModelUpdater {
         // [REDACTED_TODO_COMMENT]
     }
 
-    func updateAfterSendingTransaction() {
+    func updateAfterSendingTransaction(silent: Bool) {
         // [REDACTED_TODO_COMMENT]
     }
 }
@@ -179,6 +179,7 @@ extension VisaWalletModel: WalletModelDependenciesProvider {
     var tronTransactionFeeProvider: (any TronTransactionFeeProvider)? { nil }
     var tronAllowanceProvider: (any TronAllowanceProvider)? { nil }
     var tronTransactionDataBuilder: (any TronTransactionDataBuilder)? { nil }
+    var tronAccountActivationStateProvider: (any TronAccountActivationStateProvider)? { nil }
     var ethereumTransactionDataBuilder: (any EthereumTransactionDataBuilder)? { nil }
     var ethereumNetworkProvider: (any EthereumNetworkProvider)? { nil }
     var ethereumTransactionSigner: (any EthereumTransactionSigner)? { nil }

@@ -166,11 +166,11 @@ private extension TokenSelectorViewModelsMapper {
                 item.cryptoBalanceProvider.balanceTypePublisher
                     .prepend(item.cryptoBalanceProvider.balanceType)
                     .removeDuplicates()
-                    .map { balanceType in (item: item, isZeroBalance: balanceType.isZeroBalance) }
+                    .map { balanceType in (item: item, mayHaveFunds: balanceType.mayHaveFunds) }
             }
             .combineLatest()
             .map { pairs in
-                pairs.filter { !$0.isZeroBalance }.map(\.item)
+                pairs.filter { $0.mayHaveFunds }.map(\.item)
             }
             .eraseToAnyPublisher()
     }

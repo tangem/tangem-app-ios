@@ -31,7 +31,7 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
     }
 
     func makeDAppsStream() -> AsyncStream<[WalletConnectConnectedDApp]> {
-        AsyncStream<[WalletConnectConnectedDApp]>.multicast(
+        .multicast(
             with: self,
             onSubscribe: { repository, id, continuation in
                 // Emit current snapshot immediately so new subscribers start with actual state.

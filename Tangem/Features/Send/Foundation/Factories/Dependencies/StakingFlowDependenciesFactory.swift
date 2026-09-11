@@ -54,7 +54,7 @@ extension StakingFlowDependenciesFactory {
 
     func makeStakingPreflightValidator() -> StakingPreflightValidator? {
         switch tokenItem.blockchain {
-        case .solana where FeatureProvider.isAvailable(.solanaRentExemptionPreflight):
+        case .solana:
             return SolanaRentExemptionValidator(
                 tokenItem: tokenItem,
                 transactionValidator: stakingableToken.transactionValidator,
@@ -102,10 +102,6 @@ private extension StakingFlowDependenciesFactory {
         blockaidAPIKey: String,
         analyticsLogger: StakingSendAnalyticsLogger
     ) -> StakingValidationProvider? {
-        guard FeatureProvider.isAvailable(.stakingTransactionValidation) else {
-            return nil
-        }
-
         let blockchain = tokenItem.blockchain
 
         // Native ETH staking goes through P2P (not StakeKit) and is out of validation scope.

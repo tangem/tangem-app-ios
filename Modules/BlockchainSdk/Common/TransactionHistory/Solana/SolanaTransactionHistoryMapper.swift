@@ -208,7 +208,7 @@ private extension SolanaTransactionHistoryMapper {
         }
 
         let stakeInstructions = instructions.filter { instruction in
-            instruction.programId == Constants.stakeProgramId
+            instruction.programId == Constants.stakeProgramId || instruction.program == Constants.stakeProgram
         }
 
         if !stakeInstructions.isEmpty {
@@ -436,6 +436,7 @@ private extension SolanaTransactionHistoryMapper {
         static let systemProgramId = "11111111111111111111111111111111"
         static let computeBudgetProgramId = "ComputeBudget111111111111111111111111111111"
         static let stakeProgramId = "Stake11111111111111111111111111111111111111"
+        static let stakeProgram = "stake"
         static let tokenProgram = "spl-token"
         static let transferType = "transfer"
         static let transferCheckedType = "transferChecked"

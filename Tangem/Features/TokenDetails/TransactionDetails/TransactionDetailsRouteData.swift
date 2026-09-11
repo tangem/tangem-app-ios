@@ -13,4 +13,5 @@ struct TransactionDetailsRouteData {
     let walletModel: any WalletModel
     let userWalletInfo: UserWalletInfo
     let isAccountsMode: Bool
+    let addressBookManager: AddressBookManager
 }

@@ -106,7 +106,7 @@ public extension AccountIconView {
         case composite(backgroundColor: Color, nameMode: NameMode)
         case standalone(image: ImageType)
 
-        var backgroundColor: Color {
+        public var backgroundColor: Color {
             switch self {
             case .composite(let backgroundColor, _):
                 backgroundColor
@@ -159,6 +159,12 @@ public extension AccountIconView {
         public let padding: CGFloat
         public let size: CGSize
         let letterFontStyle: Font
+
+        public static let extraLargeSized: Self = .init(
+            padding: 34,
+            size: CGSize(bothDimensions: 60),
+            letterFontStyle: Fonts.Bold.largeTitle
+        )
 
         public static let largeSized: Self = .init(
             padding: 24,

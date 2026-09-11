@@ -241,8 +241,8 @@ private extension CommonSwapNotificationManager {
         case .restriction(.notEnoughReceivedAmount(let minAmount, let tokenSymbol), _):
             return [.notEnoughReceivedAmountForReserve(amountFormatted: "\(minAmount.formatted()) \(tokenSymbol)")]
 
-        case .restriction(.incompleteBackup, _):
-            return [.incompleteBackup]
+        case .restriction(.regionRestricted, _):
+            return [.regionRestricted]
 
         case .permissionRequired:
             return [

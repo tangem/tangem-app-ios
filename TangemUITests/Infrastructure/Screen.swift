@@ -30,6 +30,11 @@ extension Screen {
         }
     }
 
+    /// Banners can stamp their identifier onto every element inside, so matching by type avoids getting the icon.
+    func notificationBannerButton(_ bannerIdentifier: String) -> XCUIElement {
+        app.buttons[bannerIdentifier].firstMatch
+    }
+
     /// Waits for a toast with the given text to appear.
     @discardableResult
     func verifyToastVisible(text: String) -> Self {

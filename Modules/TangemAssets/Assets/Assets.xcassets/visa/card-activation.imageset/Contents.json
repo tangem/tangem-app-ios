@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "card-activation.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

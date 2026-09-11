@@ -126,6 +126,21 @@ public extension String {
     func trimmed() -> String {
         trimmingCharacters(in: .whitespacesAndNewlines)
     }
+
+    /// Keeps the ends of a value and drops the middle, so that two log lines can be told to be about the same thing
+    /// without the thing itself being written down.
+    /// - Note: What is dropped is never less than what is kept, so no length comes through whole: a value too short
+    /// to hide anything is written as `***` outright.
+    func masked() -> String {
+        switch count {
+        case 16...:
+            return "\(prefix(4))...\(suffix(4))"
+        case 8...:
+            return "\(prefix(2))...\(suffix(2))"
+        default:
+            return "***"
+        }
+    }
 }
 
 extension String: @retroactive LocalizedError {

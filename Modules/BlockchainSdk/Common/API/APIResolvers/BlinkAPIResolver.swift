@@ -13,6 +13,7 @@ import Foundation
 // BSC      - https://bsc.blinklabs.xyz/v1/***
 // Solana   - https://sol.blinklabs.xyz/v1/***
 // Arbitrum - https://arb.blinklabs.xyz/v1/***
+// Robinhood - https://robinhood.blinklabs.xyz/v1/***
 
 struct BlinkAPIResolver {
     let keysConfig: BlockchainSdkKeysConfig
@@ -41,6 +42,8 @@ struct BlinkAPIResolver {
             return "sol"
         case .arbitrum:
             return "arb"
+        case .robinhood:
+            return "robinhood"
         default:
             return nil
         }

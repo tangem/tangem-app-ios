@@ -9,8 +9,8 @@
 import XCTest
 
 final class TangemPayTransactionsUITests: BaseTestCase {
-    private static let transactionsEndpointPath = "/bff-v2/v1/customer/transactions"
-    private static let nextPageEndpointPattern = "/bff-v2/v1/customer/transactions\\?.*cursor=page1-20.*"
+    private static let transactionsEndpointPath = "/bff-v2/v1/(customer/)?transactions"
+    private static let nextPageEndpointPattern = "/bff-v2/v1/(customer/)?transactions\\?.*cursor=page1-20.*"
     private static let historyScenario = "tangem_pay_transaction_history"
 
     func testTransactionsRequested_WhenPaymentAccountOpens() {
@@ -29,7 +29,7 @@ final class TangemPayTransactionsUITests: BaseTestCase {
             XCTAssertGreaterThan(
                 requestsAfterOpening,
                 requestsBeforeOpening,
-                "Opening Payment account should request /customer/transactions"
+                "Opening Payment account should request the transactions endpoint"
             )
         }
     }
@@ -55,7 +55,7 @@ final class TangemPayTransactionsUITests: BaseTestCase {
             XCTAssertGreaterThan(
                 requestsAfterReload,
                 requestsBeforeReload,
-                "Reload should request /customer/transactions again"
+                "Reload should request the transactions endpoint again"
             )
         }
     }
@@ -79,7 +79,7 @@ final class TangemPayTransactionsUITests: BaseTestCase {
             XCTAssertGreaterThan(
                 cursorRequestsAfterScroll,
                 cursorRequestsBeforeScroll,
-                "Scrolling to the bottom should request /customer/transactions with the cursor parameter"
+                "Scrolling to the bottom should request the transactions endpoint with the cursor parameter"
             )
         }
     }

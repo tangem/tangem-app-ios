@@ -10,6 +10,9 @@ import Foundation
 
 extension AccountsDTO.Request {
     struct Accounts: Encodable {
+        /// - Warning: Deliberately says nothing about the account's kind: the v1 endpoint turns away a row that
+        /// mentions one ("property type should not exist"), and v1 is what a wallet without the joint accounts
+        /// feature asks.
         struct Account {
             let id: String
             /// Nil, if the account uses a localized name.

@@ -26,6 +26,8 @@ extension OnrampSummaryInteractorBottomInfoError: UniversalError {
             109000001
         case .tooSmallAmount:
             109000002
+        case .regionRestricted:
+            109000003
         }
     }
 }

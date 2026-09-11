@@ -11,7 +11,6 @@ import Foundation
 extension PortfolioReviewAggregator {
     /// One token on one network — a flattened `WalletModel`.
     struct TokenHolding {
-        let id: String
         /// Cross-network asset key.
         let groupKey: String
         let networkKey: String
@@ -96,6 +95,13 @@ extension PortfolioReviewAggregator {
     }
 }
 
+extension Array where Element == PortfolioReviewAggregator.Group {
+    /// A zero draws no arc, so it earns no rank colour either.
+    var chartableKeys: [String] {
+        filter { $0.amountInFiat > 0 }.map(\.key)
+    }
+}
+
 private extension Array where Element == PortfolioReviewAggregator.TokenHolding {
     var fiatSum: Decimal {
         reduce(Decimal.zero) {
@@ -105,14 +111,9 @@ private extension Array where Element == PortfolioReviewAggregator.TokenHolding 
 }
 
 private extension Array where Element == PortfolioReviewAggregator.Availability {
-    /// Value-wins collapse: a value-bearing state (onlyCache > cache > content) beats an addressless/unreachable sibling.
+    /// Value-wins collapse; among valueless siblings the more telling wins: unreachable > noRate > loading.
     var resolvedAvailability: PortfolioReviewAggregator.Availability {
-        if allSatisfy({ $0 == .loading }) {
-            return .loading
-        }
-
-        let resolved = filter { $0 != .loading }
-        let valueBearing = resolved.filter(\.showsValue)
+        let valueBearing = filter(\.showsValue)
         if !valueBearing.isEmpty {
             if valueBearing.contains(.onlyCache) {
                 return .onlyCache
@@ -123,8 +124,9 @@ private extension Array where Element == PortfolioReviewAggregator.Availability 
             return .content
         }
 
-        if resolved.contains(.unreachable) { return .unreachable }
-        if resolved.contains(.noAddress) { return .noAddress }
-        return .noRate
+        if contains(.unreachable) { return .unreachable }
+        if contains(.noRate) { return .noRate }
+        if contains(.loading) { return .loading }
+        return .noAddress
     }
 }

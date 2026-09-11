@@ -2,6 +2,22 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
+    <key>account_details_joint_members_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li person</string>
+        <key>other</key>
+        <string>%li people</string>
+      </dict>
+    </dict>
     <key>address_book_addresses</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -53,9 +69,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li asset</string>
+        <string>%li актив</string>
+        <key>few</key>
+        <string>%li активи</string>
+        <key>many</key>
+        <string>%li активів</string>
         <key>other</key>
-        <string>%li assets</string>
+        <string>%li активів</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -576,9 +596,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>It will take up to %li business day for delivery</string>
+        <string>Доставка триватиме до %li робочого дня</string>
+        <key>few</key>
+        <string>Доставка триватиме до %li робочих днів</string>
+        <key>many</key>
+        <string>Доставка триватиме до %li робочих днів</string>
         <key>other</key>
-        <string>It will take up to %li business days for delivery</string>
+        <string>Доставка триватиме до %li робочих днів</string>
       </dict>
     </dict>
     <key>tangempay_order_type_delivery_eta</key>
@@ -592,9 +616,49 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Up to %li business day</string>
+        <string>До %li робочого дня</string>
+        <key>few</key>
+        <string>До %li робочих днів</string>
+        <key>many</key>
+        <string>До %li робочих днів</string>
         <key>other</key>
-        <string>Up to %li business days</string>
+        <string>До %li робочих днів</string>
+      </dict>
+    </dict>
+    <key>tangempay_withdraw_bank_eta_business_days</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li business day</string>
+        <key>other</key>
+        <string>%li business days</string>
+      </dict>
+    </dict>
+    <key>top_assets_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Найбільший актив</string>
+        <key>few</key>
+        <string>%li найбільші активи</string>
+        <key>many</key>
+        <string>%li найбільших активів</string>
+        <key>other</key>
+        <string>Top %li assets</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>

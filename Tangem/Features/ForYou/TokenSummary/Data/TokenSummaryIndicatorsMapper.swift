@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 struct TokenSummaryIndicatorsMapper {
     struct Result {
@@ -178,7 +179,6 @@ private extension TokenSummaryIndicatorsMapper {
 private extension TokenSummaryIndicatorsMapper {
     /// Client-side display metadata for a known indicator. Row titles come from the contract, but it carries no
     /// explanations, so those live here; unknown/unsupported types have none and are dropped from the list.
-    // [REDACTED_TODO_COMMENT]
     struct Descriptor {
         let order: Int
         let info: String
@@ -186,30 +186,15 @@ private extension TokenSummaryIndicatorsMapper {
         init?(_ kind: TokenSummaryIndicator.Kind) {
             switch kind {
             case .galaxyScore:
-                self.init(
-                    order: 0,
-                    info: "It is an indicator that shows the overall health of a cryptocurrency by combining its price performance with how actively and positively it's being talked about on social media, developed by LunarCrush."
-                )
+                self.init(order: 0, info: Localization.tokenSummaryGalaxyScoreDescription)
             case .sentiment:
-                self.init(
-                    order: 1,
-                    info: "It is an indicator that shows whether people online are talking about the asset in a mostly positive or mostly negative way, based on social media and news data collected by LunarCrush."
-                )
+                self.init(order: 1, info: Localization.tokenSummarySentimentDescription)
             case .rsi:
-                self.init(
-                    order: 2,
-                    info: "It is an indicator that shows whether an asset's price has risen or fallen too quickly in the recent period, helping to spot when it might be overbought or oversold."
-                )
+                self.init(order: 2, info: Localization.tokenSummaryRsiDescription)
             case .macd:
-                self.init(
-                    order: 3,
-                    info: "It is an indicator that compares two price averages over different periods to show whether the asset's momentum is picking up or slowing down, and in which direction the trend may be shifting."
-                )
+                self.init(order: 3, info: Localization.tokenSummaryMacdDescription)
             case .maCross:
-                self.init(
-                    order: 4,
-                    info: "It is an indicator that compares the average price of an asset over the last 50 days with its average price over the last 200 days to show whether it's in a longer-term uptrend or downtrend."
-                )
+                self.init(order: 4, info: Localization.tokenSummaryMaCrossDescription)
             case .unknown:
                 return nil
             }

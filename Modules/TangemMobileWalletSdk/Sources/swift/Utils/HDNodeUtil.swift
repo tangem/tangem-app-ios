@@ -21,7 +21,7 @@ enum HDNodeUtil {
             guard let entropyPtr = buffer.baseAddress?.assumingMemoryBound(to: UInt8.self) else {
                 throw MobileWalletError.failedToDeriveKey
             }
-            return try passphrase.withCString { passphraseStr in
+            return try seedPassphrase(passphrase, for: curve).withCString { passphraseStr in
                 switch derivationPath {
                 case .none:
                     return try entropyToHDNode(
@@ -56,6 +56,14 @@ enum HDNodeUtil {
                     }
                 }
             }
+        }
+    }
+
+    /// BIP-39 derives the seed from the NFKD-normalized passphrase, while the Cardano Icarus scheme takes its bytes as typed.
+    private static func seedPassphrase(_ passphrase: String, for curve: EllipticCurve) -> String {
+        switch curve {
+        case .ed25519: passphrase
+        default: passphrase.decomposedStringWithCompatibilityMapping
         }
     }
 

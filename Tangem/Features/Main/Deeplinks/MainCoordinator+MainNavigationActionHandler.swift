@@ -9,6 +9,7 @@
 import Combine
 import BlockchainSdk
 import SurveySparrowSdk
+import TangemFoundation
 import TangemVisa
 
 extension MainCoordinator {
@@ -84,13 +85,16 @@ extension MainCoordinator {
                 return routeLinkAction(params: navigationAction.params)
 
             case .swap:
-                return routeSwapAction(userWalletId: navigationAction.params.userWalletId)
+                return routeSwapAction(params: navigationAction.params)
 
             case .onboardVisa, .payApp:
                 return routeOnboardVisaAction(
                     params: navigationAction.params,
                     deeplinkString: navigationAction.deeplinkString
                 )
+
+            case .tangemPayAccount:
+                return routeTangemPayAccountAction(params: navigationAction.params)
 
             case .promo:
                 return routePromoAction(params: navigationAction.params)
@@ -136,6 +140,12 @@ extension MainCoordinator {
             // The survey methodology (NPS / CSAT / CES) is determined by the token
             // on SurveySparrow's side, not by this flag.
             surveyViewController.surveyType = .CLASSIC
+
+            // The same wallet identifier that Customer.io and Amplitude use as the user id,
+            // so survey responses can be joined with the push/banner funnel across platforms.
+            if let userWalletId = userWalletRepository.selectedModel?.userWalletId {
+                surveyViewController.params = ["wallet_id": userWalletId.hashedStringValue]
+            }
 
             AppPresenter.shared.show(surveyViewController)
             return true
@@ -261,20 +271,35 @@ extension MainCoordinator {
             return true
         }
 
-        private func routeSwapAction(userWalletId: String?) -> Bool {
+        private func routeSwapAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            let requestedUserWalletModel = findUserWalletModel(userWalletModelId: params.userWalletId)
+
+            // Unlike the wallet-specific destinations, swap doesn't die on an unresolvable `user_wallet_id`.
             guard
-                let userWalletModel = findUserWalletModel(userWalletModelId: userWalletId),
+                let userWalletModel = requestedUserWalletModel ?? userWalletRepository.selectedModel,
                 isFeatureSupported(feature: .swapping, userWalletModel: userWalletModel)
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
             }
 
+            // The preselection goes with the wallet: those tokens were picked for a portfolio this device
+            // doesn't have, so preselecting them on the selected wallet would be a guess.
+            if let requestedUserWalletModel,
+               let parameters = DeeplinkSwapParametersResolver().resolve(
+                   params: params,
+                   accountModelsManager: requestedUserWalletModel.accountModelsManager,
+                   userWalletInfo: requestedUserWalletModel.userWalletInfo
+               ) {
+                coordinator?.openDeepLink(.swap(parameters: parameters))
+                return true
+            }
+
             let walletModels = AccountWalletModelsAggregator.walletModels(
                 from: userWalletModel.accountModelsManager
             )
 
-            guard let sourceToken = MainSwapPairResolver.makeBestEffortSourceToken(
+            guard let sourceToken = MainSwapSourceResolver.makeBestEffortSourceToken(
                 from: walletModels,
                 userWalletInfo: userWalletModel.userWalletInfo
             ) else {
@@ -282,14 +307,14 @@ extension MainCoordinator {
                 return false
             }
 
-            let resolver = MainSwapPairResolver(
+            let resolver = MainSwapSourceResolver(
                 userWalletModel: userWalletModel,
                 swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
             )
 
             coordinator?.openDeepLink(
                 .swap(
-                    parameters: .deferredPairResolution(source: sourceToken, resolver: resolver)
+                    parameters: .from(sourceToken, pair: .deferred(sourceResolver: resolver))
                 )
             )
 
@@ -410,16 +435,60 @@ extension MainCoordinator {
             return true
         }
 
+        private func routeTangemPayAccountAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            guard let coordinator,
+                  let userWalletModel = findUserWalletModel(userWalletModelId: params.userWalletId),
+                  userWalletModel.accountModelsManager.tangemPayAccountModel != nil
+            else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            let incomingAction = params.tangemPayScreen.flatMap { TangemPayIncomingActions(rawValue: $0) }
+
+            coordinator.openDeepLink(
+                .tangemPayMain(
+                    customerWalletId: userWalletModel.userWalletId.stringValue,
+                    incomingAction: incomingAction
+                )
+            )
+
+            return true
+        }
+
         private func routeTangemPayPushAction(payload: TangemPayPushPayload) -> Bool {
             guard let coordinator else {
                 incomingActionManager.discardIncomingAction()
                 return false
             }
 
-            switch payload.body {
+            switch payload.rawType {
             case .cardReady:
-                coordinator.openDeepLink(.tangemPayMain(customerWalletId: payload.customerWalletId))
-            case .transactionSpend, .declinedTopUp, .collateralWithdraw, .collateralDeposit:
+                coordinator.openDeepLink(.tangemPayMain(customerWalletId: payload.customerWalletId, incomingAction: nil))
+            case .thresholdTopUp:
+                coordinator.openDeepLink(.tangemPayMain(customerWalletId: payload.customerWalletId, incomingAction: .addFunds))
+            case .transactionSpend,
+                 .transactionSpendRefund,
+                 .declinedTopUp,
+                 .declinedReason1,
+                 .declinedReason2,
+                 .declinedReason3,
+                 .declinedReason4,
+                 .declinedReason5,
+                 .declinedReason6,
+                 .declinedReason7,
+                 .declinedReason8,
+                 .declinedReason9,
+                 .declinedReason10,
+                 .declinedReason11,
+                 .declinedReason12,
+                 .declinedReason13,
+                 .declinedReason14,
+                 .declinedReason15,
+                 .declinedReason16,
+                 .declinedReason17,
+                 .collateralWithdraw,
+                 .collateralDeposit:
                 coordinator.openDeepLink(.tangemPayTransactionDetails(payload: payload))
             }
             return true

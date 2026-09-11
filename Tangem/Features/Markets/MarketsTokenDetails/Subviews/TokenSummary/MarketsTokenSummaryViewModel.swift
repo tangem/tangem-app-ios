@@ -8,20 +8,12 @@
 
 import Foundation
 
+@MainActor
 final class MarketsTokenSummaryViewModel: ObservableObject {
     @Published private(set) var state: State = .loading
 
     /// Handed to the sheet on tap so it renders the readings already on screen instead of fetching them again.
     private(set) var indicators: [TokenSummaryIndicator] = []
-
-    /// Nothing to open while the readings are in flight, or when none arrived at all — the sheet would
-    /// only repeat the message the card already shows.
-    var isTappable: Bool {
-        switch state {
-        case .loading: false
-        case .loaded(let gaugeState): gaugeState != .dataUnavailable
-        }
-    }
 
     private let symbol: String
     private let period: TokenSummaryPeriod
@@ -47,7 +39,6 @@ final class MarketsTokenSummaryViewModel: ObservableObject {
 
     /// Loaded once per view model: the card's `task` runs again on every re-appearance, and the sheet
     /// reuses these readings.
-    @MainActor
     func loadIndicators() async {
         guard !hasLoaded else { return }
 
@@ -57,12 +48,12 @@ final class MarketsTokenSummaryViewModel: ObservableObject {
             let readings = try await indicatorsProvider.loadIndicators(symbol: symbol)
 
             indicators = readings
-            state = .loaded(mapper.map(readings: readings, timeframe: period.timeframe).gaugeState)
+            state = mapper.map(readings: readings, timeframe: period.timeframe).score.map(State.loaded) ?? .unavailable
         } catch is CancellationError {
             // Nothing arrived, so let the next appearance ask again instead of latching a verdict.
             hasLoaded = false
         } catch {
-            state = .loaded(.dataUnavailable)
+            state = .unavailable
         }
     }
 
@@ -76,6 +67,7 @@ final class MarketsTokenSummaryViewModel: ObservableObject {
 extension MarketsTokenSummaryViewModel {
     enum State: Equatable {
         case loading
-        case loaded(TokenSummaryGaugeState)
+        case loaded(TokenSummaryScore)
+        case unavailable
     }
 }

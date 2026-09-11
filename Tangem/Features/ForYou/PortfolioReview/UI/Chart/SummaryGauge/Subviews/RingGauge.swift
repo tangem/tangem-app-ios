@@ -26,27 +26,21 @@ struct RingGauge: View {
     private let lineWidth: CGFloat = Constants.defaultLineWidth
     private let baseRingColor: Color = DesignSystem.Color.borderPrimary
 
-    private struct Arc: Identifiable {
-        let id: GaugeSegment.ID
-        let start: CGFloat
-        let end: CGFloat
-        let color: Color
-    }
+    typealias Arc = RingArc
 
     private var denominator: Double {
         max(total, .leastNonzeroMagnitude)
     }
 
-    /// The centerline diameter the round-cap compensation and hit-test are measured against.
+    /// The centerline diameter the hit-test is measured against.
     private var arcDiameter: CGFloat {
         Constants.diameter - lineWidth
     }
 
-    /// Visual (floored) sweeps in degrees, one per segment — tiny holdings kept ≥ 7% of the circle.
+    /// Visual (floored) sweeps in degrees, one per segment — tiny holdings kept ≥ 1% of the circle.
     private var sweepsDeg: [CGFloat] {
         let weights = segments.map { CGFloat($0.value / denominator) }
-        let capDeg = GaugeSweeps.lastSegmentOverlapDeg(strokeWidth: lineWidth, arcDiameter: arcDiameter)
-        return GaugeSweeps.visualSweepAngles(weights: weights, capDeg: capDeg)
+        return GaugeSweeps.visualSweepAngles(weights: weights)
     }
 
     /// Contiguous arcs (no angular gap) laid out from the floored sweeps; zero-weight slices are dropped.
@@ -89,48 +83,18 @@ struct RingGauge: View {
     }
 
     private var ring: some View {
-        ZStack {
-            baseRing
-
-            ZStack {
-                if dimProgress > 0 {
-                    Circle().stroke(dimColor, lineWidth: lineWidth)
-                }
-
-                ForEach(arcs.reversed()) { arc in
-                    ZStack {
-                        strokedArc(arc)
-
-                        if dimProgress > 0, arc.id != highlightedID {
-                            dimArc(arc)
-                        }
-                    }
-                }
-            }
-            .rotationEffect(.degrees(-90))
-        }
-        .padding(lineWidth / 2) // keep the round caps inside the frame
+        RingCanvas(
+            arcs: arcs,
+            lineWidth: lineWidth,
+            baseColor: baseRingColor,
+            highlightedID: highlightedID,
+            dimProgress: dimProgress
+        )
     }
 
-    private var baseRing: some View {
-        Circle()
-            .stroke(baseRingColor, lineWidth: lineWidth)
-            .overlay { ringInnerShadow }
-    }
-
-    private var ringInnerShadow: some View {
-        Circle()
-            .stroke(.white, lineWidth: lineWidth)
-            .overlay {
-                Circle()
-                    .stroke(.black, lineWidth: lineWidth)
-                    .blur(radius: Constants.innerShadowBlur)
-                    .offset(y: Constants.innerShadowOffsetY)
-                    .blendMode(.destinationOut)
-            }
-            .compositingGroup()
-            .opacity(Constants.innerShadowOpacity)
-            .mask { Circle().stroke(.black, lineWidth: lineWidth) }
+    /// How far a round cap bulges past its body, as a fraction of the circle.
+    private var capFraction: CGFloat {
+        GaugeSweeps.capOverlapDeg(strokeWidth: lineWidth, arcDiameter: arcDiameter) / GaugeSweeps.Constants.fullCircleDeg
     }
 
     private func tapCatcher(in size: CGSize) -> some View {
@@ -149,26 +113,6 @@ struct RingGauge: View {
             }
     }
 
-    /// Selection dim: the theme-inverting 20% token scaled by the animated progress so it fades in/out.
-    private var dimColor: Color {
-        DesignSystem.Color.borderInverseTertiary.opacity(dimProgress)
-    }
-
-    private func strokedArc(_ arc: Arc) -> some View {
-        Circle()
-            .trim(from: max(arc.start, 0), to: max(arc.end, arc.start))
-            .stroke(
-                arc.color.shadow(Constants.innerShadow),
-                style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
-            )
-    }
-
-    private func dimArc(_ arc: Arc) -> some View {
-        Circle()
-            .trim(from: max(arc.start, 0), to: max(arc.end, arc.start))
-            .stroke(dimColor, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
-    }
-
     /// Returns the id of the tapped slice, or `nil` when the tap misses the ring band.
     private func hitTest(_ location: CGPoint, in size: CGSize) -> GaugeSegment.ID? {
         let center = CGPoint(x: size.width / 2, y: size.height / 2)
@@ -184,11 +128,129 @@ struct RingGauge: View {
         var fraction = atan2(dx, -dy) / (2 * .pi)
         if fraction < 0 { fraction += 1 }
 
-        // Same floored geometry as the draw pass, so hits line up with the drawn arcs.
+        // A body is covered at its start by the predecessor's cap and extended past its end by its own, so
+        // what the eye reads as a slice sits one cap ahead of its sweep. Shifting the tap back by that much
+        // keeps a tap on the pill you see, which matters most for a floored slice narrower than the cap.
+        fraction = (fraction - capFraction + 1).truncatingRemainder(dividingBy: 1)
+
         for arc in arcs where fraction >= arc.start && fraction < arc.end {
             return arc.id
         }
         return nil
+    }
+}
+
+// MARK: - Arc
+
+struct RingArc: Identifiable {
+    let id: GaugeSegment.ID
+    let start: CGFloat
+    let end: CGFloat
+    let color: Color
+}
+
+// MARK: - Canvas
+
+/// Bodies are butt-capped, so each covers exactly its own sweep; the rounding comes from a second pass of
+/// forward half-caps. Painting every cap after every body lets the last slice's cap land on slice 0, which
+/// closes the wrap seam with no special case and keeps the overlap pointing one way all around.
+///
+/// `Animatable` on the view, not on a shape: a `Canvas` has no animatable input of its own, so without the
+/// conformance the dim would jump to its final value in a single frame instead of springing in.
+private struct RingCanvas: View, Animatable {
+    let arcs: [RingArc]
+    let lineWidth: CGFloat
+    let baseColor: Color
+    let highlightedID: GaugeSegment.ID?
+    var dimProgress: CGFloat
+
+    var animatableData: CGFloat {
+        get { dimProgress }
+        set { dimProgress = newValue }
+    }
+
+    /// Selection dim: the theme-inverting token scaled by the animated progress so it fades in and out.
+    private var dimColor: Color {
+        DesignSystem.Color.borderInverseTertiary.opacity(dimProgress)
+    }
+
+    private var bodyStroke: StrokeStyle {
+        StrokeStyle(lineWidth: lineWidth, lineCap: .butt)
+    }
+
+    var body: some View {
+        Canvas { context, size in
+            let painted = arcs.reversed()
+            let box = CGRect(origin: .zero, size: size).insetBy(dx: lineWidth / 2, dy: lineWidth / 2)
+
+            context.stroke(Path(ellipseIn: box), with: .color(baseColor), lineWidth: lineWidth)
+
+            if dimProgress > 0 {
+                context.stroke(Path(ellipseIn: box), with: .color(dimColor), lineWidth: lineWidth)
+            }
+
+            for arc in painted {
+                context.stroke(bodyPath(of: arc, in: box), with: .color(arc.color), style: bodyStroke)
+
+                if dimProgress > 0, arc.id != highlightedID {
+                    context.stroke(bodyPath(of: arc, in: box), with: .color(dimColor), style: bodyStroke)
+                }
+            }
+
+            for arc in painted {
+                context.fill(capPath(at: arc.end, in: box), with: .color(arc.color))
+
+                if dimProgress > 0, arc.id != highlightedID {
+                    context.fill(capPath(at: arc.end, in: box), with: .color(dimColor))
+                }
+            }
+        }
+    }
+
+    /// The body runs one device pixel past its sweep, under the cap. Ending exactly where the cap starts
+    /// puts two anti-aliased edges of the same colour on top of each other, and the track bleeds through
+    /// the pair as a hairline seam.
+    private func bodyPath(of arc: RingArc, in box: CGRect) -> Path {
+        let radius = box.width / 2
+        let outerRadius = radius + lineWidth / 2
+        let seamCoverDeg = 1 / outerRadius * 180 / .pi
+
+        return Path { path in
+            path.addArc(
+                center: CGPoint(x: box.midX, y: box.midY),
+                radius: radius,
+                startAngle: .degrees(angleDeg(at: arc.start)),
+                endAngle: .degrees(angleDeg(at: max(arc.end, arc.start)) + seamCoverDeg),
+                clockwise: false
+            )
+        }
+    }
+
+    /// Half of a round cap: a disc of one cap radius on the centerline, split by the ring's radius at that
+    /// angle, keeping the half that bulges forward over the slice's successor.
+    private func capPath(at fraction: CGFloat, in box: CGRect) -> Path {
+        let angle = Angle.degrees(angleDeg(at: fraction))
+        let radius = box.width / 2
+        let center = CGPoint(
+            x: box.midX + radius * cos(angle.radians),
+            y: box.midY + radius * sin(angle.radians)
+        )
+
+        return Path { path in
+            path.addArc(
+                center: center,
+                radius: lineWidth / 2,
+                startAngle: angle,
+                endAngle: angle + .degrees(180),
+                clockwise: false
+            )
+            path.closeSubpath()
+        }
+    }
+
+    /// Ring fractions start at 12 o'clock and run clockwise; the drawing angles start at 3 o'clock.
+    private func angleDeg(at fraction: CGFloat) -> CGFloat {
+        fraction * GaugeSweeps.Constants.fullCircleDeg - 90
     }
 }
 
@@ -198,16 +260,6 @@ extension RingGauge {
     enum Constants {
         static let diameter: CGFloat = 200
         static let defaultLineWidth: CGFloat = 28
-
-        static let innerShadowBlur: CGFloat = 4
-        static let innerShadowOffsetY: CGFloat = 4
-        static let innerShadowOpacity: CGFloat = 0.24
-        static let innerShadow: ShadowStyle = .inner(
-            color: .white.opacity(innerShadowOpacity),
-            radius: innerShadowBlur,
-            x: 0,
-            y: innerShadowOffsetY
-        )
 
         /// The same spring as the segment tooltip's pop-in, so the dim and the tooltip move together
         /// (dampingRatio 0.82, stiffness 1100 → damping coefficient 2·0.82·√1100 ≈ 54.4 at mass 1).

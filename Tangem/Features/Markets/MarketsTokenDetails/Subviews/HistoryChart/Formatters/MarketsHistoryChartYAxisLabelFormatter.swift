@@ -14,9 +14,9 @@ final class MarketsHistoryChartYAxisLabelFormatter: AxisValueFormatter {
     func stringForValue(_ value: Double, axis: DGCharts.AxisBase?) -> String {
         guard let axis else { return "" }
 
-        if value == axis.axisMaximum {
+        if axis.matchesAxisMaximum(value) {
             return "Max"
-        } else if value == axis.axisMinimum {
+        } else if axis.matchesAxisMinimum(value) {
             return "Min"
         }
 

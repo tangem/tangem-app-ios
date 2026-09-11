@@ -47,7 +47,7 @@ extension MobileOnboardingSuccessViewModel {
             return OnboardingAccessibilityIdentifiers.seedImportSuccessContinueButton
         case .walletReady:
             return OnboardingAccessibilityIdentifiers.seedImportSuccessFinishButton
-        case .seedPhaseBackupContinue, .seedPhaseBackupFinish:
+        case .backupContinue, .cloudBackupCompleted, .seedPhaseBackupFinish:
             return OnboardingAccessibilityIdentifiers.seedImportSuccessContinueButton
         }
     }
@@ -60,8 +60,10 @@ private extension MobileOnboardingSuccessViewModel {
         let title = switch type {
         case .walletImported:
             Localization.walletImportSuccessTitle
-        case .seedPhaseBackupContinue, .seedPhaseBackupFinish:
+        case .backupContinue, .seedPhaseBackupFinish:
             Localization.backupCompleteTitle
+        case .cloudBackupCompleted:
+            Localization.hwCloudBackupCompletedTitle
         case .walletReady:
             Localization.onboardingDoneHeader
         }
@@ -69,8 +71,10 @@ private extension MobileOnboardingSuccessViewModel {
         let description = switch type {
         case .walletImported:
             Localization.walletImportSuccessDescription
-        case .seedPhaseBackupContinue:
-            Localization.backupCompleteDescription
+        case .backupContinue:
+            Localization.walletImportSuccessDescription
+        case .cloudBackupCompleted:
+            Localization.hwCloudBackupCompletedDescription
         case .seedPhaseBackupFinish:
             Localization.backupCompleteSeedDescription
         case .walletReady:
@@ -86,7 +90,7 @@ private extension MobileOnboardingSuccessViewModel {
 
     func makeActionItem() -> ActionItem {
         let title = switch type {
-        case .walletImported, .seedPhaseBackupContinue:
+        case .walletImported, .backupContinue, .cloudBackupCompleted:
             Localization.commonContinue
         case .walletReady, .seedPhaseBackupFinish:
             Localization.commonFinish
@@ -109,7 +113,8 @@ private extension MobileOnboardingSuccessViewModel {
 
 extension MobileOnboardingSuccessViewModel {
     enum SuccessType {
-        case seedPhaseBackupContinue
+        case backupContinue
+        case cloudBackupCompleted
         case seedPhaseBackupFinish
         case walletImported
         case walletReady

@@ -238,7 +238,10 @@ private final class StubGaslessTransactionsNetworkManager: GaslessTransactionsNe
     }
 
     func updateAvailableTokens() {}
-    func sendGaslessTransaction(_ transaction: GaslessTransactionsDTO.Request.GaslessTransaction) async throws -> String { "" }
+    func sendGaslessTransaction(
+        _ transaction: GaslessTransactionsDTO.Request.GaslessTransaction,
+        executorVersion: GaslessExecutorVersion
+    ) async throws -> String { "" }
     func sendGaslessBatchTransaction(_ transaction: GaslessTransactionsDTO.Request.GaslessBatchTransaction) async throws -> String { "" }
     func estimateTronGaslessTransaction(
         _ request: GaslessTransactionsDTO.Request.TronEstimate

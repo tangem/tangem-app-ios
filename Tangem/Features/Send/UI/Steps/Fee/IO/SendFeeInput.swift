@@ -12,6 +12,7 @@ import Combine
 protocol SendFeeInput: AnyObject {
     var selectedFee: TokenFee? { get }
     var selectedFeePublisher: AnyPublisher<TokenFee, Never> { get }
+    var isSelectedFeeActual: Bool { get }
 
     var shouldShowFeeSelectorRow: AnyPublisher<Bool, Never> { get }
     var supportFeeSelection: Bool { get }
@@ -19,6 +20,7 @@ protocol SendFeeInput: AnyObject {
 }
 
 extension SendFeeInput {
+    var isSelectedFeeActual: Bool { true }
     var shouldShowFeeSelectorRow: AnyPublisher<Bool, Never> { .just(output: true) }
     var supportFeeSelection: Bool { false }
 }

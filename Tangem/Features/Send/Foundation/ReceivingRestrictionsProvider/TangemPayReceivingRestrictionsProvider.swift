@@ -12,9 +12,9 @@ struct TangemPayReceivingRestrictionsProvider: ReceivingRestrictionsProvider {
     let userWalletInfo: UserWalletInfo
 
     func restriction(expectAmount: Decimal) -> ReceivedRestriction? {
-        // A card-linked wallet must not receive funds (top-up), even if it was somehow chosen as the swap destination.
+        // Not a hard restriction: topping up a wallet with an incomplete backup is confirmed at the `Swap` tap.
         if !userWalletInfo.backupState.isValid {
-            return .incompleteBackup
+            return .incompleteBackup(userWalletInfo)
         }
 
         // TangemPay has no other receiving restrictions.

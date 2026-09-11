@@ -22,6 +22,20 @@
     {
       "target" : {
         "containerPath" : "container:",
+        "identifier" : "TangemAppDatabaseTests",
+        "name" : "TangemAppDatabaseTests"
+      }
+    },
+    {
+    "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TangemBackendAuthenticationTests",
+        "name" : "TangemBackendAuthenticationTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
         "identifier" : "TangemFoundationTests",
         "name" : "TangemFoundationTests"
       }
@@ -43,8 +57,29 @@
     {
       "target" : {
         "containerPath" : "container:",
+        "identifier" : "TangemMobileWalletBackupTests",
+        "name" : "TangemMobileWalletBackupTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
         "identifier" : "TangemMobileWalletSdkTests",
         "name" : "TangemMobileWalletSdkTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TangemPolymarketTests",
+        "name" : "TangemPolymarketTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TangemOpenTelemetryTests",
+        "name" : "TangemOpenTelemetryTests"
       }
     },
     {

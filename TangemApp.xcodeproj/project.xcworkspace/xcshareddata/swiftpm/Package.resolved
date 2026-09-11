@@ -1,5 +1,5 @@
 {
-  "originHash" : "082e8f4001346ad62445b966c71c12ea42b267f0481f04251c7800afb8eeb71c",
+  "originHash" : "33f375bdf0469439fefec07fdc95abdd84d3d5afb7140d1632cb49c9c0a0431a",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -389,6 +389,24 @@
       }
     },
     {
+      "identity" : "opentelemetry-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:tangem-developments/opentelemetry-swift.git",
+      "state" : {
+        "revision" : "5acee9c246476d3bf35fae8d951bcd5901818ba6",
+        "version" : "2.5.0-tangem2"
+      }
+    },
+    {
+      "identity" : "opentelemetry-swift-core",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/open-telemetry/opentelemetry-swift-core.git",
+      "state" : {
+        "revision" : "06f8a460a66f813758d22f09025d85df45450a63",
+        "version" : "2.5.1"
+      }
+    },
+    {
       "identity" : "potentcodables",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/outfoxx/PotentCodables.git",
@@ -771,8 +789,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "67e2c57d1239eb57699bd7d62c253da1a5706ff9",
-        "version" : "5.1.3"
+        "revision" : "9497dcf84fd763c149d0e3ff0a15e74162b356b8",
+        "version" : "5.1.5"
       }
     },
     {

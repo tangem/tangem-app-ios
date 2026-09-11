@@ -18,6 +18,9 @@ final class StakeKitStakingManager {
     private let yieldInfoProvider: StakingYieldInfoProvider
     private let stateRepository: StakingManagerStateRepository
     private let analyticsLogger: StakingAnalyticsLogger
+    private let submittedActions: SubmittedPendingActionsStore = CommonSubmittedPendingActionsStore(
+        lifetime: Constants.statusUpdateTimeout
+    )
 
     // `updateState`/`updateBalances` below are no longer `@MainActor`-isolated (see [REDACTED_INFO]), so this can now be
     // written from a background thread while UI code reads it on main — guard it explicitly instead of relying
@@ -95,19 +98,20 @@ extension StakeKitStakingManager: StakingManager {
             async let actions = loadActions ? apiProvider.actions(wallet: wallet) : []
 
             let (loadedBalances, loadedYield, loadedActions) = try await (balances, yield, actions)
-            updateState(state(balances: loadedBalances, yield: loadedYield, actions: loadedActions))
+            let effectiveActions = submittedActions.mergeWithServerActions(loadedActions, currentBalances: loadedBalances)
+            updateState(state(balances: loadedBalances, yield: loadedYield, actions: effectiveActions))
 
             let effectiveStartUpdateDate = startUpdateDate ?? Date()
 
-            if loadActions, !loadedActions.isEmpty,
+            if loadActions, !effectiveActions.isEmpty,
                Date().timeIntervalSince(effectiveStartUpdateDate) < Constants.statusUpdateTimeout {
                 try await Task.sleep(for: .seconds(Constants.statusUpdateInterval)) // Refresh pending actions status until empty
                 await updateState(
                     loadActions: true,
                     startUpdateDate: effectiveStartUpdateDate,
-                    previousActions: loadedActions
+                    previousActions: effectiveActions
                 )
-            } else if loadActions, loadedActions.isEmpty, let previousActions, !previousActions.isEmpty {
+            } else if loadActions, effectiveActions.isEmpty, let previousActions, !previousActions.isEmpty {
                 // there were some actions but now there're none,
                 // so staking balances are up to date now and we need to update balance from the network
                 // to keep them in sync
@@ -176,6 +180,7 @@ extension StakeKitStakingManager: StakingManager {
     }
 
     func transactionDidSent(action: StakingAction) {
+        submittedActions.register(action: action)
         runTask(in: self) {
             await $0.updateState(loadActions: true)
         }

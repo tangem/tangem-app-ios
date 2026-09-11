@@ -30,6 +30,8 @@ enum AccountTokenItemsAggregator {
             default:
                 return []
             }
+        case .polymarket:
+            return []
         }
     }
 }

@@ -17,7 +17,8 @@ public struct TangemExpressFactory {
     public func makeExpressManager(
         expressAPIProvider: ExpressAPIProvider,
         expressRepository: ExpressRepository,
-        featureFlags: ExpressFeatureFlags
+        featureFlags: ExpressFeatureFlags,
+        preferredProviderId: ExpressProvider.Id? = nil
     ) -> ExpressManager {
         let factory = CommonExpressProviderManagerFactory(
             expressAPIProvider: expressAPIProvider,
@@ -29,7 +30,8 @@ public struct TangemExpressFactory {
             expressAPIProvider: expressAPIProvider,
             expressProviderManagerFactory: factory,
             expressRepository: expressRepository,
-            featureFlags: featureFlags
+            featureFlags: featureFlags,
+            preferredProviderId: preferredProviderId
         )
     }
 
@@ -69,7 +71,8 @@ public struct TangemExpressFactory {
         credential: ExpressAPICredential,
         configuration: URLSessionConfiguration,
         expressAPIType: ExpressAPIType,
-        exchangeDataDecoder: ExpressExchangeDataDecoder
+        exchangeDataDecoder: ExpressExchangeDataDecoder,
+        featureFlags: ExpressFeatureFlags
     ) -> ExpressAPIProvider {
         let provider = TangemProvider<ExpressAPITarget>(
             configuration: TangemProviderConfiguration(
@@ -87,7 +90,7 @@ public struct TangemExpressFactory {
             ]
         )
         let service = CommonExpressAPIService(provider: provider, expressAPIType: expressAPIType)
-        let mapper = ExpressAPIMapper(exchangeDataDecoder: exchangeDataDecoder)
+        let mapper = ExpressAPIMapper(exchangeDataDecoder: exchangeDataDecoder, featureFlags: featureFlags)
         return CommonExpressAPIProvider(expressAPIService: service, expressAPIMapper: mapper)
     }
 }

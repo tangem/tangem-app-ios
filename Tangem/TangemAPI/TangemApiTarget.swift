@@ -46,6 +46,22 @@ struct TangemApiTarget: TargetType {
             AppEnvironment.current.apiBaseUrlWithGatewaySegment
         case .getWalletCards, .saveWalletCards:
             AppEnvironment.current.apiBaseUrlWithGatewaySegment
+        case .getUserAccounts where FeatureProvider.isAvailable(.jointAccounts),
+             .saveUserAccounts where FeatureProvider.isAvailable(.jointAccounts),
+             .getArchivedUserAccounts where FeatureProvider.isAvailable(.jointAccounts):
+            // Only v2 tells the kinds of account apart: it answers with the kind of each one and counts them by kind,
+            // which is what a wallet with joint accounts is made of. Without the feature there is nothing to tell
+            // apart, so the request goes where it always went — the DTOs read either answer.
+            // Served as `/api/v2/wallets/{walletId}/accounts`, unlike the v1 it replaces
+            AppEnvironment.current.apiBaseUrlv2WithGatewaySegment
+        case .getJointAccounts,
+             .createJointAccount,
+             .getJointAccountInvite,
+             .joinJointAccount,
+             .activateJointAccount:
+            // The joint accounts contract documents these as `/api/v1/wallets/{walletId}/joint-accounts...`, unlike
+            // the plain `/v1/wallets/{walletId}/accounts` it describes beside them, so only these carry the segment
+            AppEnvironment.current.apiBaseUrlWithGatewaySegment
         default:
             AppEnvironment.current.apiBaseUrl
         }
@@ -168,6 +184,17 @@ struct TangemApiTarget: TargetType {
         case .getArchivedUserAccounts(let userWalletId):
             return "/wallets/\(userWalletId)/accounts/archived"
 
+        // MARK: - Joint accounts
+        case .getJointAccounts(let walletId),
+             .createJointAccount(let walletId, _):
+            return "/wallets/\(walletId)/joint-accounts"
+        case .getJointAccountInvite(let walletId, let inviteId):
+            return "/wallets/\(walletId)/joint-accounts/invites/\(inviteId)"
+        case .joinJointAccount(let walletId, _):
+            return "/wallets/\(walletId)/joint-accounts/join"
+        case .activateJointAccount(let walletId, _):
+            return "/wallets/\(walletId)/joint-accounts/activate"
+
         // MARK: - Address Book
         case .syncAddressBooks:
             return "/address-books/sync"
@@ -219,6 +246,8 @@ struct TangemApiTarget: TargetType {
              .pushNotificationsEligible,
              .getUserAccounts,
              .getArchivedUserAccounts,
+             .getJointAccounts,
+             .getJointAccountInvite,
              .getUserWallets,
              .getUserWallet,
              .getWalletCards,
@@ -238,6 +267,9 @@ struct TangemApiTarget: TargetType {
             return .put
         case .participateInReferralProgram,
              .createAccount,
+             .createJointAccount,
+             .joinJointAccount,
+             .activateJointAccount,
              .createUserWalletsApplication,
              .activatePromoCode,
              .createWallet,
@@ -367,6 +399,16 @@ struct TangemApiTarget: TargetType {
         case .getArchivedUserAccounts:
             return .requestPlain
 
+        // MARK: - Joint accounts
+        case .getJointAccounts, .getJointAccountInvite:
+            return .requestPlain
+        case .createJointAccount(_, let body):
+            return .requestJSONEncodable(body)
+        case .joinJointAccount(_, let body):
+            return .requestJSONEncodable(body)
+        case .activateJointAccount(_, let body):
+            return .requestJSONEncodable(body)
+
         // MARK: - Address Book
         case .syncAddressBooks(let request):
             return .requestJSONEncodable(request)
@@ -454,6 +496,11 @@ struct TangemApiTarget: TargetType {
              .saveWalletCards,
              .getUserAccounts,
              .getArchivedUserAccounts,
+             .getJointAccounts,
+             .createJointAccount,
+             .getJointAccountInvite,
+             .joinJointAccount,
+             .activateJointAccount,
              .createWallet,
              .getNotificationPreferences,
              .updateNotificationPreferences,
@@ -561,6 +608,13 @@ extension TangemApiTarget {
         case saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts)
         case getArchivedUserAccounts(userWalletId: String)
 
+        // Joint accounts
+        case getJointAccounts(walletId: String)
+        case createJointAccount(walletId: String, body: JointAccountsDTO.Create.Request)
+        case getJointAccountInvite(walletId: String, inviteId: String)
+        case joinJointAccount(walletId: String, body: JointAccountsDTO.Join.Request)
+        case activateJointAccount(walletId: String, body: JointAccountsDTO.Activate.Request)
+
         // Address Book
         case syncAddressBooks(_ request: AddressBookDTO.SyncRequest)
         case updateAddressBook(walletId: String, knownETag: String?, body: AddressBookDTO.UpdateRequest)
@@ -578,7 +632,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns:
+        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns, .getJointAccounts, .getJointAccountInvite:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -588,7 +642,14 @@ extension TangemApiTarget: CachePolicyProvider {
 
 extension TangemApiTarget: TargetTypeLogConvertible {
     var requestDescription: String {
-        path
+        switch type {
+        case .getJointAccountInvite(_, let inviteId):
+            // An invite is the account's access secret, and the path is logged for every request — unlike the body,
+            // which this endpoint already withholds
+            return path.replacingOccurrences(of: inviteId, with: inviteId.masked())
+        default:
+            return path
+        }
     }
 
     var shouldLogResponseBody: Bool {
@@ -627,7 +688,12 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .newsDetails,
              .trendingNews,
              .yieldBoostPromotionStatus,
-             .bindWalletsByCode:
+             .bindWalletsByCode,
+             .createJointAccount,
+             .joinJointAccount,
+             .getJointAccountInvite,
+             .getJointAccounts,
+             .activateJointAccount:
             return false
         case .geo,
              .features,

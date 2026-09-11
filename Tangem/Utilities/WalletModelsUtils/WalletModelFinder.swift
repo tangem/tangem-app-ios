@@ -32,17 +32,6 @@ enum WalletModelFinder {
         throw Error.walletModelNotFound
     }
 
-    static func findMainWalletModel(defaultAddress: String) throws -> Result {
-        for userWalletModel in userWalletRepository.models {
-            let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
-            if let walletModel = walletModels.first(where: { $0.isMainToken && $0.defaultAddressString == defaultAddress }) {
-                return Result(userWalletModel: userWalletModel, walletModel: walletModel)
-            }
-        }
-
-        throw Error.walletModelNotFound
-    }
-
     static func findWalletModel(tokenItem: TokenItem) throws -> Result {
         for userWalletModel in userWalletRepository.models {
             let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
@@ -68,6 +57,33 @@ enum WalletModelFinder {
         }
 
         return .init(userWalletModel: userWalletModel, walletModel: walletModel)
+    }
+
+    static func findWalletModel(userWalletId: UserWalletId, shallowMatchingTokenItem tokenItem: TokenItem) throws -> Result {
+        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) else {
+            throw Error.userWalletModelNotFound
+        }
+
+        let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
+        let walletModel = walletModels.first {
+            $0.tokenItem.networkId == tokenItem.networkId && $0.tokenItem.token == tokenItem.token
+        }
+
+        guard let walletModel else {
+            throw Error.walletModelNotFound
+        }
+
+        return .init(userWalletModel: userWalletModel, walletModel: walletModel)
+    }
+
+    static func findWalletModel(
+        address: String,
+        networkId: String,
+        isTestnet: Bool,
+        shallowMatchingTokenItem tokenItem: TokenItem
+    ) throws -> Result {
+        let owner = try findMainWalletModel(address: address, networkId: networkId, isTestnet: isTestnet)
+        return try findWalletModel(userWalletId: owner.userWalletModel.userWalletId, shallowMatchingTokenItem: tokenItem)
     }
 }
 

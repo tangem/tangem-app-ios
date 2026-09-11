@@ -25,7 +25,7 @@ extension MainCoordinator {
         case externalLink(url: URL)
         case markets(filter: MarketsDeeplinkFilter)
         case onboardVisa(deeplinkString: String?)
-        case tangemPayMain(customerWalletId: String)
+        case tangemPayMain(customerWalletId: String, incomingAction: TangemPayIncomingActions?)
         case tangemPayTransactionDetails(payload: TangemPayPushPayload)
         case newsDetails(newsId: Int)
         case newsList(initialCategoryId: Int?)
@@ -68,10 +68,10 @@ extension MainCoordinator.DeepLinkDestination: Identifiable {
             return "\(rawCaseValue)_\(filter.order.rawValue)_\(filter.interval.rawValue)"
         case .onboardVisa(let deeplinkString):
             return deeplinkString.map { "\(rawCaseValue)_\($0)" } ?? rawCaseValue
-        case .tangemPayMain(let customerWalletId):
-            return "\(rawCaseValue)_\(customerWalletId)"
+        case .tangemPayMain(let customerWalletId, let incomingAction):
+            return [rawCaseValue, customerWalletId, incomingAction?.rawValue].compactMap { $0 }.joined(separator: "_")
         case .tangemPayTransactionDetails(let payload):
-            return "\(rawCaseValue)_\(payload.customerWalletId)_\(payload.body.deeplinkIdentity)"
+            return "\(rawCaseValue)_\(payload.customerWalletId)_\(payload.deeplinkIdentity)"
         case .newsDetails(let newsId):
             return "\(rawCaseValue)_\(newsId)"
         case .newsList(let initialCategoryId):
@@ -89,30 +89,49 @@ extension MainCoordinator.DeepLinkDestination: Identifiable {
 private extension PredefinedSwapParameters {
     var deeplinkIdentity: String {
         switch self {
-        case .from(let source, let receive):
-            let receiveId = receive.map { WalletModelId(tokenItem: $0.tokenItem).id } ?? "any"
-            return "from_\(source.userWalletInfo.id.stringValue)_\(source.id.id)_\(receiveId)"
-        case .to(let receive):
+        case .from(let source, let pair, let extras, _):
+            let receiveId = switch pair {
+            case .fixed(let receive): WalletModelId(tokenItem: receive.tokenItem).id
+            case .deferred: "deferred"
+            case .userSelection: "any"
+            }
+            let amountId = extras?.sourceAmount.map { "\($0)" } ?? "any"
+            let providerId = extras?.providerId ?? "any"
+            return "from_\(source.userWalletInfo.id.stringValue)_\(source.id.id)_\(receiveId)_\(amountId)_\(providerId)"
+        case .to(let receive, _, _):
             return "to_\(receive.userWalletInfo.id.stringValue)_\(receive.id.id)"
-        case .deferredPairResolution(let source, _):
-            return "deferred_\(source.userWalletInfo.id.stringValue)_\(source.id.id)"
         }
     }
 }
 
-private extension TangemPayPushPayload.Body {
+private extension TangemPayPushPayload {
     var deeplinkIdentity: String {
-        switch self {
-        case .cardReady:
-            return "card_ready"
-        case .transactionSpend(let spend):
-            return "transaction_spend_\(spend.transactionId)"
-        case .declinedTopUp(let spend):
-            return "declined_top_up_\(spend.transactionId)"
-        case .collateralWithdraw(let collateral):
-            return "collateral_withdraw_\(collateral.transactionId)"
-        case .collateralDeposit(let collateral):
-            return "collateral_deposit_\(collateral.transactionId)"
+        switch body {
+        case .cardReady, .thresholdTopUp:
+            return rawType.rawValue
+        case .transactionSpend(let spend),
+             .transactionSpendRefund(let spend),
+             .declinedTopUp(let spend),
+             .declinedReason1(let spend),
+             .declinedReason2(let spend),
+             .declinedReason3(let spend),
+             .declinedReason4(let spend),
+             .declinedReason5(let spend),
+             .declinedReason6(let spend),
+             .declinedReason7(let spend),
+             .declinedReason8(let spend),
+             .declinedReason9(let spend),
+             .declinedReason10(let spend),
+             .declinedReason11(let spend),
+             .declinedReason12(let spend),
+             .declinedReason13(let spend),
+             .declinedReason14(let spend),
+             .declinedReason15(let spend),
+             .declinedReason16(let spend),
+             .declinedReason17(let spend):
+            return "\(rawType.rawValue)_\(spend.transactionId)"
+        case .collateralWithdraw(let collateral), .collateralDeposit(let collateral):
+            return "\(rawType.rawValue)_\(collateral.transactionId)"
         }
     }
 }

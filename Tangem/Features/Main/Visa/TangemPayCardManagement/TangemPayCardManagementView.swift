@@ -32,6 +32,8 @@ struct TangemPayCardManagementView: View {
             .safeAreaInset(edge: .bottom) {
                 if let renameVM = viewModel.cardRenameViewModel {
                     TangemPayCardRenameToolbarView(renameViewModel: renameVM)
+                } else if viewModel.isPlasticCardDelivering {
+                    redesignedPlasticFooter
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -43,13 +45,7 @@ struct TangemPayCardManagementView: View {
             }
             .alert(item: $viewModel.alert) { $0.alert }
             .onAppear(perform: viewModel.onAppear)
-            .modifyView { view in
-                if #unavailable(iOS 26.0) {
-                    view.backportTranslucentNavigationBar()
-                } else {
-                    view
-                }
-            }
+            .translucentNavigationBar()
             .redesigned()
     }
 
@@ -58,7 +54,13 @@ struct TangemPayCardManagementView: View {
             VStack(spacing: 0) {
                 redesignedCardSection
 
-                if viewModel.isIssuing {
+                if let plasticCard = viewModel.plasticCard {
+                    Spacer(minLength: 0)
+
+                    TangemPayPlasticCardMessageView(stage: plasticCard.stage, email: plasticCard.email)
+
+                    Spacer(minLength: 0)
+                } else if viewModel.isIssuing {
                     Spacer(minLength: 0)
 
                     TangemPayCardIssuingMessageView()
@@ -164,7 +166,33 @@ struct TangemPayCardManagementView: View {
             TangemPayIssuingCardDetailsViewRedesigned(isGhost: false)
         case .ghost:
             TangemPayIssuingCardDetailsViewRedesigned(isGhost: true)
+        case .plastic:
+            TangemPayPlasticCardArtStubView()
         }
+    }
+
+    private var redesignedPlasticFooter: some View {
+        VStack(spacing: Constants.plasticFooterSpacing) {
+            TangemUI.Button(
+                label: AttributedString(Localization.commonContactSupport),
+                accessibilityLabel: Localization.commonContactSupport,
+                action: viewModel.onContactSupportButton
+            )
+            .size(.x12)
+            .styleType(.secondary)
+            .horizontalLayout(.infinity)
+
+            TangemUI.Button(
+                label: AttributedString(Localization.tangempayCardDetailsActivate),
+                accessibilityLabel: Localization.tangempayCardDetailsActivate,
+                action: viewModel.onActivatePlasticCardButton
+            )
+            .size(.x12)
+            .styleType(.default)
+            .horizontalLayout(.infinity)
+        }
+        .padding(.horizontal, Constants.plasticFooterHorizontalPadding)
+        .padding(.vertical, Constants.plasticFooterVerticalPadding)
     }
 
     private var redesignedPageIndicator: some View {
@@ -253,5 +281,8 @@ struct TangemPayCardManagementView: View {
 private extension TangemPayCardManagementView {
     enum Constants {
         static let legacyCarouselHeight: CGFloat = 230
+        static let plasticFooterSpacing: CGFloat = 10
+        static let plasticFooterHorizontalPadding: CGFloat = 16
+        static let plasticFooterVerticalPadding: CGFloat = 12
     }
 }

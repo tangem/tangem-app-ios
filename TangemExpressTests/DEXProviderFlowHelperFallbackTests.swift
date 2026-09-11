@@ -256,7 +256,7 @@ private extension DEXProviderFlowHelperFallbackTests {
             expressFeeProvider: feeProvider,
             expressAPIProvider: ExpressAPIProviderStub(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags()
+            featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: false)
         )
         return DEXProviderFlowHelper(context: context)
     }
@@ -286,7 +286,7 @@ private extension DEXProviderFlowHelperFallbackTests {
     }
 
     func makeQuote(allowanceContract: String? = nil) -> ExpressQuote {
-        ExpressQuote(fromAmount: .zero, expectAmount: .zero, allowanceContract: allowanceContract, quoteId: nil, txType: nil)
+        ExpressQuote(fromAmount: .zero, expectAmount: .zero, allowanceContract: allowanceContract, quoteId: nil, txType: nil, isRestricted: false)
     }
 
     func makeData(txValue: Decimal = .zero, estimatedGasLimit: Int? = nil) -> ExpressTransactionData {
@@ -440,7 +440,7 @@ private final class SourceWalletStub: ExpressSourceWallet {
 
     func prepareForYieldModuleDEXSwap(provider: ExpressProvider) async throws {}
 
-    func yieldModuleDEXSwapData(data: ExpressTransactionData, provider: ExpressProvider, spender: String) async throws -> ExpressTransactionData {
+    func yieldModuleTransactionData(data: ExpressTransactionData, provider: ExpressProvider, spender: String?) async throws -> ExpressTransactionData {
         throw StubError.notImplemented
     }
 }
@@ -451,7 +451,7 @@ private final class ExpressAPIProviderStub: ExpressAPIProvider {
     func providers(branches: [ExpressBranch]) async throws -> [ExpressProvider] { [] }
 
     func exchangeQuote(item: ExpressSwappableQuoteItem) async throws -> ExpressQuote {
-        ExpressQuote(fromAmount: .zero, expectAmount: .zero, allowanceContract: nil, quoteId: nil, txType: nil)
+        ExpressQuote(fromAmount: .zero, expectAmount: .zero, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false)
     }
 
     func exchangeData(item: ExpressSwappableDataItem) async throws -> ExpressTransactionData {
@@ -492,7 +492,7 @@ private final class ExpressAPIProviderStub: ExpressAPIProvider {
     func onrampPairs(from: OnrampFiatCurrency, to: [ExpressWalletCurrency], country: OnrampCountry) async throws -> [OnrampPair] { [] }
 
     func onrampQuote(item: OnrampQuotesRequestItem) async throws -> OnrampQuote {
-        OnrampQuote(expectedAmount: .zero, nativePaymentAvailable: false, quoteId: nil)
+        OnrampQuote(expectedAmount: .zero, nativePaymentAvailable: false, quoteId: nil, isRestricted: false)
     }
 
     func onrampData(item: OnrampRedirectDataRequestItem) async throws -> OnrampRedirectData {

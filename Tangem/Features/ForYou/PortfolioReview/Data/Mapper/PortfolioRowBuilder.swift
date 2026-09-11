@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import struct SwiftUI.Color
 import TangemUI
 import TangemLocalization
 
@@ -14,26 +15,31 @@ import TangemLocalization
 struct PortfolioRowBuilder {
     private let balanceFormatter = BalanceFormatter()
     private let iconBuilder = TokenIconInfoBuilder()
-    private let percentFormatter = PercentFormatter()
+    private let shareFormatter = PortfolioShareFormatter()
     private let sentimentMapper = PortfolioReviewSentimentMapper()
 
     func build(
         topHoldings: [PortfolioReviewAggregator.Group],
         other: [PortfolioReviewAggregator.Group],
+        addressless: [PortfolioReviewAggregator.Group],
+        slices: [String: PortfolioReviewSegmentPalette.Slice],
         indicators: [String: [TokenSummaryIndicator]],
         timeframe: TokenSummaryIndicator.Timeframe
     ) -> [ForYouTokenListItem] {
         let total = (topHoldings + other).reduce(Decimal.zero) { $0 + $1.amountInFiat }
 
-        var items = topHoldings.map { group in
+        // Addressless assets are concrete rows, so they precede the "Other" summary that closes the list.
+        var items = (topHoldings + addressless).map { group in
             makeAssetItem(
                 group: group,
                 total: total,
+                indicatorColor: slices[group.key]?.indicator,
                 sentiment: sentimentMapper.sentiment(for: indicators[group.symbol.uppercased()], timeframe: timeframe)
             )
         }
         if !other.isEmpty {
-            items.append(makeOtherItem(other: other, total: total))
+            // The bucket's marker only reads as one of the list's dots, so it goes when the ranked ones do.
+            items.append(makeOtherItem(other: other, total: total, isRanked: !slices.isEmpty))
         }
         return items
     }
@@ -42,10 +48,15 @@ struct PortfolioRowBuilder {
 // MARK: - Rows
 
 private extension PortfolioRowBuilder {
-    func makeAssetItem(group: PortfolioReviewAggregator.Group, total: Decimal, sentiment: ForYouTokenRowData.Sentiment?) -> ForYouTokenListItem {
+    func makeAssetItem(
+        group: PortfolioReviewAggregator.Group,
+        total: Decimal,
+        indicatorColor: Color?,
+        sentiment: ForYouTokenRowData.Sentiment?
+    ) -> ForYouTokenListItem {
         ForYouTokenListItem(
             id: group.key,
-            assetRow: assetRow(for: group, total: total, sentiment: sentiment),
+            assetRow: assetRow(for: group, total: total, indicatorColor: indicatorColor, sentiment: sentiment),
             networkRows: group.networks.map { networkRow(for: $0, groupKey: group.key, total: total, sentiment: sentiment) },
             isExpanded: false,
             // Inert while loading; a single-network asset has nothing to reveal, so it stays a tap-to-open row.
@@ -53,13 +64,19 @@ private extension PortfolioRowBuilder {
         )
     }
 
-    func assetRow(for group: PortfolioReviewAggregator.Group, total: Decimal, sentiment: ForYouTokenRowData.Sentiment?) -> ForYouTokenRowData {
+    func assetRow(
+        for group: PortfolioReviewAggregator.Group,
+        total: Decimal,
+        indicatorColor: Color?,
+        sentiment: ForYouTokenRowData.Sentiment?
+    ) -> ForYouTokenRowData {
         ForYouTokenRowData(
             id: group.key,
             tokenItem: group.tokenItem,
             symbol: group.symbol,
-            tokenIconInfo: iconBuilder.build(from: group.tokenItem, isCustom: group.isCustom),
+            tokenIconInfo: group.iconInfo,
             sentiment: sentiment,
+            indicatorColor: indicatorColor,
             subtitle: .text(assetSubtitle(tokenItem: group.tokenItem, networkCount: group.networks.count)),
             end: end(availability: group.availability, fiat: group.amountInFiat, total: total),
             isLoading: group.availability == .loading
@@ -74,13 +91,15 @@ private extension PortfolioRowBuilder {
             symbol: network.sample.tokenItem.name,
             tokenIconInfo: iconBuilder.build(from: network.sample.tokenItem, isCustom: network.sample.isCustom),
             sentiment: sentiment,
+            // A network is part of an asset's slice, not a slice of its own.
+            indicatorColor: nil,
             subtitle: networkSubtitle(network),
             end: end(availability: network.availability, fiat: network.amountInFiat, total: total),
             isLoading: network.availability == .loading
         )
     }
 
-    func makeOtherItem(other: [PortfolioReviewAggregator.Group], total: Decimal) -> ForYouTokenListItem {
+    func makeOtherItem(other: [PortfolioReviewAggregator.Group], total: Decimal, isRanked: Bool) -> ForYouTokenListItem {
         let fiat = other.reduce(Decimal.zero) { $0 + $1.amountInFiat }
 
         return ForYouTokenListItem(
@@ -91,6 +110,7 @@ private extension PortfolioRowBuilder {
                 symbol: Localization.commonOther,
                 tokenIconInfo: nil,
                 sentiment: nil,
+                indicatorColor: isRanked ? PortfolioReviewSegmentPalette.otherColor : nil,
                 subtitle: .text(Localization.commonAssetsCount(other.count)),
                 end: .values(fiat: fiatString(fiat), percent: percentString(fiat, total: total), freshness: .fresh),
                 isLoading: false
@@ -115,7 +135,7 @@ private extension PortfolioRowBuilder {
                 freshness: freshness(for: availability)
             )
         case .loading, .noRate:
-            return .values(fiat: AppConstants.enDashSign, percent: "", freshness: .fresh)
+            return .values(fiat: nil, percent: "", freshness: .fresh)
         case .unreachable:
             return .unavailable(label: Localization.commonUnreachable)
         case .noAddress:
@@ -141,7 +161,7 @@ private extension PortfolioRowBuilder {
         case .unreachable:
             return .text(name)
         case .loading, .noAddress:
-            return .dotted(name, AppConstants.enDashSign)
+            return .dotted(name, nil)
         }
     }
 
@@ -164,12 +184,39 @@ private extension PortfolioRowBuilder {
 
     func percentString(_ value: Decimal, total: Decimal) -> String {
         guard total > 0, value > 0 else { return "" }
-        return percentFormatter.format(value / total, option: .yield)
+
+        return shareFormatter.string(for: value / total)
+    }
+}
+
+// MARK: - Private helpers
+
+private extension PortfolioReviewAggregator.Group {
+    var iconInfo: TokenIconInfo {
+        guard !isCustom else {
+            let built = TokenIconInfoBuilder().build(from: tokenItem, isCustom: isCustom)
+
+            return TokenIconInfo(
+                name: built.name,
+                blockchainIconAsset: nil,
+                imageURL: built.imageURL,
+                isCustom: false,
+                customTokenColor: built.customTokenColor
+            )
+        }
+
+        return TokenIconInfo(
+            name: tokenItem.name,
+            blockchainIconAsset: nil,
+            imageURL: IconURLBuilder().tokenIconURL(id: key),
+            isCustom: false,
+            customTokenColor: nil
+        )
     }
 }
 
 // MARK: - Constants
 
-private extension PortfolioRowBuilder {
+extension PortfolioRowBuilder {
     static let otherID = "for_you_other_assets"
 }

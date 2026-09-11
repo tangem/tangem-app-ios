@@ -24,7 +24,7 @@ struct SummaryGaugeView: View {
     @State private var pillSize: CGSize = .zero
 
     private let balanceFormatter = BalanceFormatter()
-    private let percentFormatter = PercentFormatter()
+    private let shareFormatter = PortfolioShareFormatter()
 
     private var segments: [GaugeSegment] { SummaryGaugeChart.segments(for: assets) }
     private var totalValue: Decimal { assets.reduce(0) { $0 + $1.fiatValue } }
@@ -68,7 +68,7 @@ struct SummaryGaugeView: View {
                 .padding(.horizontal, 36)
         } else {
             VStack(spacing: 2) {
-                Text(balanceFormatter.formatFiatBalance(totalValue))
+                SensitiveText(balanceFormatter.formatFiatBalance(totalValue))
                     .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
@@ -100,18 +100,18 @@ struct SummaryGaugeView: View {
     private func tooltipPosition(for segment: GaugeSegment, cardSize: CGSize) -> CGPoint? {
         guard let index = segments.firstIndex(where: { $0.id == segment.id }) else { return nil }
 
-        // Must use the same capped sweeps the ring draws, else the anchor drifts off a floored slice's end.
-        let capDeg = GaugeSweeps.lastSegmentOverlapDeg(
+        // Must use the same sweeps and the same cap overlap the ring draws, else the anchor drifts off the
+        // drawn slice end and, for a slice narrower than the cap, lands on its neighbour.
+        let sweeps = GaugeSweeps.visualSweepAngles(weights: segments.map { CGFloat($0.value / safeTotalValue) })
+        let capOverlapDeg = GaugeSweeps.capOverlapDeg(
             strokeWidth: RingGauge.Constants.defaultLineWidth,
             arcDiameter: RingGauge.Constants.diameter - RingGauge.Constants.defaultLineWidth
         )
-        let sweeps = GaugeSweeps.visualSweepAngles(
-            weights: segments.map { CGFloat($0.value / safeTotalValue) },
-            capDeg: capDeg
-        )
+
         guard let anchor = SegmentTooltipPositioning.anchor(
             selectedIndex: index,
             sweepsDeg: sweeps,
+            capOverlapDeg: capOverlapDeg,
             cardSize: cardSize,
             strokeWidth: RingGauge.Constants.defaultLineWidth,
             ringDiameter: RingGauge.Constants.diameter,
@@ -132,10 +132,12 @@ struct SummaryGaugeView: View {
         assets.first { $0.id == segment.id }?.fiatValue ?? 0
     }
 
-    /// The slice's real share of the total (not the floored visual sweep).
+    /// The slice's real share of the total (not the floored visual sweep), stated the way the row under the
+    /// chart states it.
     private func percentText(for segment: GaugeSegment) -> String {
         let share = totalValue > 0 ? fiatValue(for: segment) / totalValue : 0
-        return percentFormatter.format(share, option: .yield)
+
+        return shareFormatter.string(for: share)
     }
 }
 
@@ -161,11 +163,22 @@ private extension SummaryGaugeView {
 
 #Preview {
     func asset(_ name: String, _ value: Decimal) -> SummaryGaugeAsset {
-        SummaryGaugeAsset(id: name, name: name, fiatValue: value)
+        SummaryGaugeAsset(id: name, name: name, fiatValue: value, segmentColor: nil)
+    }
+
+    // Stands in for the mapper: rank by value, then colour as far as the palette reaches.
+    func ranked(_ assets: [SummaryGaugeAsset]) -> [SummaryGaugeAsset] {
+        let byValue = assets.sorted { $0.fiatValue > $1.fiatValue }
+        let slices = PortfolioReviewSegmentPalette.slices(forRanked: byValue.filter { $0.fiatValue > 0 }.map(\.id))
+
+        return byValue.map {
+            SummaryGaugeAsset(id: $0.id, name: $0.name, fiatValue: $0.fiatValue, segmentColor: slices[$0.id]?.arc)
+        }
     }
 
     let portfolios: [[SummaryGaugeAsset]] = [
         [asset("Ethereum", 5750), asset("Solana", 1800), asset("Bitcoin", 1300), asset("Polygon", 1150), asset("Avalanche", 1450), asset("Cardano", 1900)],
+        [asset("Ethereum", 5000), asset("Solana", 3000), asset("Bitcoin", 1000), asset("Polygon", 800), asset("Avalanche", 120), asset("Cardano", 80)],
         [asset("Ethereum", 5750), asset("Solana", 1800), asset("Bitcoin", 1300), asset("Polygon", 1150)],
         [asset("Ethereum", 5200), asset("Solana", 3800), asset("Bitcoin", 1000)],
         [asset("Ethereum", 5800), asset("Solana", 4200)],
@@ -175,7 +188,7 @@ private extension SummaryGaugeView {
     return ScrollView {
         VStack(spacing: 24) {
             ForEach(Array(portfolios.enumerated()), id: \.offset) { _, assets in
-                SummaryGaugeView(assets: assets, selectedID: .constant(nil))
+                SummaryGaugeView(assets: ranked(assets), selectedID: .constant(nil))
             }
 
             SummaryGaugeView(assets: [], noDataText: Localization.marketChartBubbleNoData, selectedID: .constant(nil))

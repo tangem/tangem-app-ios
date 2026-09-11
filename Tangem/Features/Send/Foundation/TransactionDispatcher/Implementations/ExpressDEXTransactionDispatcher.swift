@@ -108,10 +108,6 @@ private extension ExpressDEXTransactionDispatcher {
     }
 
     func sendTron(data: ExpressTransactionData, fee: BSDKFee) async throws -> TransactionDispatcherResult {
-        guard FeatureProvider.isAvailable(.tronDexSwap) else {
-            throw DEXTransactionDispatcherError.dexNotSupported(blockchain: feeTokenItem.blockchain.displayName)
-        }
-
         let transaction = try await buildTronTransaction(data: data, fee: fee)
         return try await transferTransactionDispatcher.send(transaction: .transfer(transaction))
     }
