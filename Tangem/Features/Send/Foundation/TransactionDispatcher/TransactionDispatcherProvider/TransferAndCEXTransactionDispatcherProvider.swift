@@ -1,5 +1,5 @@
 //
-//  TangemPayTransactionDispatcherProvider.swift
+//  TransferAndCEXTransactionDispatcherProvider.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,13 +8,13 @@
 
 import TangemStaking
 
-struct TangemPayTransactionDispatcherProvider {
+struct TransferAndCEXTransactionDispatcherProvider {
     let transactionDispatcher: any TransactionDispatcher
 }
 
 // MARK: - TransactionDispatcherProvider
 
-extension TangemPayTransactionDispatcherProvider: TransactionDispatcherProvider {
+extension TransferAndCEXTransactionDispatcherProvider: TransactionDispatcherProvider {
     func makeTransferTransactionDispatcher() -> TransactionDispatcher {
         transactionDispatcher
     }

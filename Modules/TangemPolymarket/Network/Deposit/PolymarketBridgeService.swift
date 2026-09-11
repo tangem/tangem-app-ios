@@ -14,5 +14,5 @@ public protocol PolymarketBridgeService {
     func fundingAddresses(
         forDepositWallet depositWalletAddress: String,
         builderCode: String
-    ) async throws -> PolymarketBridgeFundingAddresses
+    ) async throws -> PolymarketBridgeAddresses
 }

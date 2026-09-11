@@ -54,14 +54,14 @@ extension CommonPolymarketBridgeService: PolymarketBridgeService {
     func fundingAddresses(
         forDepositWallet depositWalletAddress: String,
         builderCode: String
-    ) async throws -> PolymarketBridgeFundingAddresses {
+    ) async throws -> PolymarketBridgeAddresses {
         let payload = PolymarketDTO.DepositRequest(address: depositWalletAddress)
 
         let response: PolymarketDTO.FundingAddressesResponse = try await request(
             .fundingAddresses(payload, builderCode: builderCode)
         )
 
-        return mapper.mapFundingAddresses(response)
+        return mapper.mapBridgeAddresses(response)
     }
 }
 

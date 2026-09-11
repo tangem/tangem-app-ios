@@ -47,7 +47,7 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
     private var balanceProvider: PolymarketBalanceProvider?
 
     private var userWalletModel: (any UserWalletModel)?
-    private var addFundsInteractor: PolymarketAddFundsInteractor?
+    private var accountFundsInteractor: PolymarketAccountFundsInteractor?
     private weak var regionWarning: PolymarketRegionRestrictionViewModel?
     private weak var addFundsSheet: PolymarketAddFundsSheetViewModel?
     private var hasDispatchedDeposit = false
@@ -134,17 +134,17 @@ private extension PolymarketCoordinator {
         )
 
         let balanceProvider = CommonPolymarketBalanceProvider(userWalletModel: userWalletModel)
-        let addFundsInteractor = userWalletModel.map { PolymarketAddFundsFactory().makeInteractor(for: $0) }
+        let accountFundsInteractor = userWalletModel.map { PolymarketAccountFundsFactory().makeInteractor(for: $0) }
 
         self.geoblockStateProvider = geoblockStateProvider
         self.balanceProvider = balanceProvider
-        self.addFundsInteractor = addFundsInteractor
+        self.accountFundsInteractor = accountFundsInteractor
 
         viewState = .main(PolymarketMainViewModel(
             apiProvider: PolymarketAPIProviderFactory().makeProvider(),
             geoblockStateProvider: geoblockStateProvider,
             balanceProvider: balanceProvider,
-            addFundsInteractor: addFundsInteractor,
+            accountFundsInteractor: accountFundsInteractor,
             coordinator: self
         ))
     }
@@ -218,10 +218,10 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
                 return
             }
 
-            guard let addFundsInteractor else {
+            guard let accountFundsInteractor else {
                 PolymarketLogger.error(
                     "Add funds was tapped before the feed built its interactor",
-                    error: CoordinatorError.missingAddFundsInteractor
+                    error: CoordinatorError.missingAccountFundsInteractor
                 )
                 return
             }
@@ -235,7 +235,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
             }
 
             let viewModel = PolymarketAddFundsSheetViewModel(
-                interactor: addFundsInteractor,
+                interactor: accountFundsInteractor,
                 swapParametersFactory: PolymarketSwapParametersFactory(
                     userWalletInfo: userWalletModel.userWalletInfo,
                     walletModelsProvider: MainScreenUIOrderedWalletModelsProvider(userWalletModel: userWalletModel),
@@ -318,7 +318,7 @@ extension PolymarketCoordinator: PolymarketEventDetailsRoutable {
 extension PolymarketCoordinator {
     enum CoordinatorError: Error {
         case missingUserWalletModel
-        case missingAddFundsInteractor
+        case missingAccountFundsInteractor
         case missingOrderProviders
         case missingPolymarketAccountModel
     }

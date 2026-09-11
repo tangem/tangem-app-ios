@@ -241,14 +241,14 @@ struct PolymarketSupportedAssetIdentityTests {
 // MARK: - Funding addresses
 
 @Suite("Polymarket bridge funding addresses")
-struct PolymarketBridgeFundingAddressesTests {
+struct PolymarketBridgeAddressesTests {
     private let decoder = JSONDecoder()
     private let mapper = PolymarketMapper()
 
     @Test("Every family the bridge can answer with resolves to its own address")
     func addressPerFamily() throws {
         let dto = try decoder.decode(PolymarketDTO.FundingAddressesResponse.self, from: PolymarketDepositFixtures.fundingAddresses)
-        let addresses = mapper.mapFundingAddresses(dto)
+        let addresses = mapper.mapBridgeAddresses(dto)
 
         let expected: [PolymarketChainFamily: String] = [
             .evm: "0x2222222222222222222222222222222222222222",
@@ -281,7 +281,7 @@ struct PolymarketBridgeFundingAddressesTests {
         let body = Data(#"{ "address": { "evm": "0xabc" } }"#.utf8)
 
         let dto = try decoder.decode(PolymarketDTO.FundingAddressesResponse.self, from: body)
-        let addresses = mapper.mapFundingAddresses(dto)
+        let addresses = mapper.mapBridgeAddresses(dto)
 
         #expect(addresses.address(for: .evm) == "0xabc")
 
@@ -295,7 +295,7 @@ struct PolymarketBridgeFundingAddressesTests {
         let body = Data(#"{ "address": { "evm": "0xabc", "tron": "" } }"#.utf8)
 
         let dto = try decoder.decode(PolymarketDTO.FundingAddressesResponse.self, from: body)
-        let addresses = mapper.mapFundingAddresses(dto)
+        let addresses = mapper.mapBridgeAddresses(dto)
 
         #expect(addresses.address(for: .tron) == nil)
     }

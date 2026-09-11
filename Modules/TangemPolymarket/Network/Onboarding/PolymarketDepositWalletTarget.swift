@@ -18,7 +18,7 @@ struct PolymarketDepositWalletTarget: Moya.TargetType {
     enum Target {
         case walletState(ownerAddress: String?, walletId: String)
         case deploy(PolymarketDTO.DeployRequest)
-        case approvals(PolymarketDTO.ApprovalsRequest)
+        case approvals(PolymarketDTO.RelayedBatchRequest)
     }
 
     var path: String {

@@ -48,14 +48,14 @@ final class PolymarketMainViewModel: ObservableObject {
     private let apiProvider: PolymarketAPIProvider
     private let geoblockStateProvider: PolymarketGeoblockStateProvider
     private let balanceProvider: PolymarketBalanceProvider
-    private let addFundsInteractor: PolymarketAddFundsInteractor?
+    private let accountFundsInteractor: PolymarketAccountFundsInteractor?
     private weak var coordinator: PolymarketMainRoutable?
 
     private let balanceStateBuilder = LoadableBalanceViewStateBuilder()
 
     private var balanceSubscription: AnyCancellable?
     private var balanceRefreshTask: Task<Void, Never>?
-    private var addFundsPreparationTask: Task<Void, Never>?
+    private var accountFundsPreparationTask: Task<Void, Never>?
     private var awaitingFundsTask: Task<Void, Never>?
     private var searchBag: Set<AnyCancellable> = []
     private var bag: Set<AnyCancellable> = []
@@ -70,14 +70,14 @@ final class PolymarketMainViewModel: ObservableObject {
         apiProvider: PolymarketAPIProvider,
         geoblockStateProvider: PolymarketGeoblockStateProvider,
         balanceProvider: PolymarketBalanceProvider,
-        addFundsInteractor: PolymarketAddFundsInteractor?,
+        accountFundsInteractor: PolymarketAccountFundsInteractor?,
         coordinator: PolymarketMainRoutable
     ) {
         self.apiProvider = apiProvider
         self.geoblockStateProvider = geoblockStateProvider
         search = PolymarketSearchViewModel(apiProvider: apiProvider)
         self.balanceProvider = balanceProvider
-        self.addFundsInteractor = addFundsInteractor
+        self.accountFundsInteractor = accountFundsInteractor
         self.coordinator = coordinator
         search.coordinator = self
 
@@ -90,7 +90,7 @@ final class PolymarketMainViewModel: ObservableObject {
 
     deinit {
         balanceRefreshTask?.cancel()
-        addFundsPreparationTask?.cancel()
+        accountFundsPreparationTask?.cancel()
         awaitingFundsTask?.cancel()
     }
 
@@ -149,20 +149,20 @@ final class PolymarketMainViewModel: ObservableObject {
             }
     }
 
-    private func prepareAddFunds() {
-        guard addFundsInteractor != nil else {
+    private func prepareAccountFunds() {
+        guard accountFundsInteractor != nil else {
             addFundsState = .unavailable
             return
         }
 
-        addFundsPreparationTask?.cancel()
+        accountFundsPreparationTask?.cancel()
 
         if addFundsState != .available {
             addFundsState = .loading
         }
 
-        addFundsPreparationTask = runTask(in: self) { @MainActor viewModel in
-            guard let interactor = viewModel.addFundsInteractor else { return }
+        accountFundsPreparationTask = runTask(in: self) { @MainActor viewModel in
+            guard let interactor = viewModel.accountFundsInteractor else { return }
 
             let state = await interactor.prepare()
 
@@ -181,7 +181,7 @@ final class PolymarketMainViewModel: ObservableObject {
         resetEvents()
         loadingState = .loading
 
-        prepareAddFunds()
+        prepareAccountFunds()
 
         loadingTask = runTask(in: self) { @MainActor viewModel in
             await viewModel.loadCategories()
@@ -475,7 +475,7 @@ private extension PolymarketMainViewModel {
 extension PolymarketMainViewModel {
     @MainActor
     func refresh() async {
-        prepareAddFunds()
+        prepareAccountFunds()
         geoblockStateProvider.refresh()
         loadingTask?.cancel()
 
@@ -497,10 +497,10 @@ extension PolymarketMainViewModel {
         case available
         case unavailable
 
-        init(_ state: PolymarketAddFundsInteractor.State) {
+        init(_ state: PolymarketAccountFundsInteractor.State) {
             switch state {
             case .loading: self = .loading
-            case .available: self = .available
+            case .ready(let readiness): self = readiness.depositTarget == nil ? .unavailable : .available
             case .unavailable: self = .unavailable
             }
         }

@@ -1,5 +1,5 @@
 //
-//  PolymarketApprovalsSigning.swift
+//  PolymarketRelayedBatchSigning.swift
 //  TangemPolymarket
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,8 +12,8 @@ import struct BlockchainSdk.EIP712TypedData
 import struct BlockchainSdk.EIP712Type
 import enum BlockchainSdk.JSON
 
-public enum PolymarketApprovalsSigning {
-    public static func digest(for approvals: PolymarketApprovalsBatch.Unsigned) throws(PolymarketApprovalsSigningError) -> Data {
+public enum PolymarketRelayedBatchSigning {
+    public static func digest(for approvals: PolymarketRelayedBatch.Unsigned) throws(PolymarketRelayedBatchSigningError) -> Data {
         guard approvals.depositWalletAddress.isEvmAddress else {
             throw .invalidDepositWalletAddress
         }
@@ -58,8 +58,8 @@ private extension Character {
     }
 }
 
-private extension PolymarketApprovalsSigning {
-    static func makeTypedData(for approvals: PolymarketApprovalsBatch.Unsigned) -> EIP712TypedData {
+private extension PolymarketRelayedBatchSigning {
+    static func makeTypedData(for approvals: PolymarketRelayedBatch.Unsigned) -> EIP712TypedData {
         let types: [String: [EIP712Type]] = [
             "EIP712Domain": [
                 .init(name: "name", type: "string"),
