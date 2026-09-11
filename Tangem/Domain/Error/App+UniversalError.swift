@@ -165,6 +165,8 @@ extension CommonUserTokensManager.Error: UniversalError {
             100011004
         case .accountDerivationNodeMismatch:
             100011005
+        case .failedToDeleteNetworkHasTokens:
+            100011006
         }
     }
 }
