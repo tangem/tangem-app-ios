@@ -41,9 +41,23 @@ extension PortfolioReviewMapper {
             return .loaded(
                 assets: assets(topHoldings: topHoldings, other: other, slices: slices),
                 assetCount: topHoldings.count,
-                topHoldingPercent: percentFormatter.format(topShare, option: .yield)
+                topHoldingPercent: topHoldingPercent(topShare)
             )
         }
+    }
+}
+
+// MARK: - Summary
+
+private extension PortfolioReviewMapper.ChartBuilder {
+    /// Only a share that rounding lifts to a whole hundred is marked approximate: a plain 100% would claim
+    /// the top holding is the entire portfolio. Any smaller share states its own rounded value and needs no mark.
+    static func topHoldingPercent(_ share: Decimal) -> String {
+        let percent = percentFormatter.format(share, option: .yield)
+
+        guard share < 1, percent == percentFormatter.format(1, option: .yield) else { return percent }
+
+        return "\(AppConstants.tildeSign)\(percent)"
     }
 }
 
@@ -64,7 +78,7 @@ private extension PortfolioReviewMapper.ChartBuilder {
                 id: PortfolioRowBuilder.otherID,
                 name: Localization.commonOther,
                 fiatValue: other.reduce(Decimal.zero) { $0 + $1.amountInFiat },
-                segmentColor: PortfolioReviewSegmentPalette.otherArcColor
+                segmentColor: PortfolioReviewSegmentPalette.otherColor
             ))
         }
 
