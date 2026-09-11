@@ -39,9 +39,21 @@ struct MarketsTokenDetailsContentView: View {
                     .padding(.horizontal, Constants.contentHorizontalPadding)
             }
 
+            restrictionBanner
+
             marketingBanner
+                .hidden(viewModel.allDataLoadFailed)
 
             content
+                .hidden(viewModel.allDataLoadFailed)
+        }
+    }
+
+    @ViewBuilder
+    private var restrictionBanner: some View {
+        if viewModel.isRestrictedForCountry {
+            BuyAndSwapRestrictionBanner()
+                .padding(.horizontal, Constants.contentHorizontalPadding)
         }
     }
 

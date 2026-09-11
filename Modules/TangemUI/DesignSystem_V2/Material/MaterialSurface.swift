@@ -13,15 +13,17 @@ import BlurSwiftUI
 public extension View {
     func tangemMaterialSurface(
         in shape: some InsettableShape,
+        isVisible: Bool = true,
         interactive: Bool = false,
         shadow: TangemShadowToken? = DesignSystem.Shadow.button
     ) -> some View {
-        modifier(MaterialSurface(shape: shape, interactive: interactive, shadow: shadow))
+        modifier(MaterialSurface(shape: shape, isVisible: isVisible, interactive: interactive, shadow: shadow))
     }
 }
 
 struct MaterialSurface<S: InsettableShape>: ViewModifier {
     let shape: S
+    let isVisible: Bool
     let interactive: Bool
     let shadow: TangemShadowToken?
 
@@ -30,22 +32,26 @@ struct MaterialSurface<S: InsettableShape>: ViewModifier {
         if #available(iOS 26.0, *) {
             content
                 .glassEffect(
-                    .regular
-                        .interactive(interactive),
+                    isVisible
+                        ? .regular
+                        .interactive(interactive)
+                        : .identity,
                     in: shape
                 )
+                .animation(.default, value: isVisible)
         } else {
             fallback(content)
+                .animation(.default, value: isVisible)
         }
     }
 
     @ViewBuilder
     private func fallback(_ content: Content) -> some View {
         let surface = content
-            .background { blurBackground }
-            .overlay { borderStroke }
+            .background { blurBackground.opacity(isVisible ? 1 : 0) }
+            .overlay { borderStroke.opacity(isVisible ? 1 : 0) }
 
-        if let shadow {
+        if let shadow, isVisible {
             surface.tangemShadow(shadow)
         } else {
             surface

@@ -31,12 +31,12 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
             walletModel: walletModel
         )
 
-        let swapTokenFeeProvidersManagerProvider = CommonTokenFeeProvidersManagerProvider(
+        let swapTokenFeeProvidersManagerProvider = WalletModelTokenFeeProvidersManagerProvider(
             walletModel: walletModel,
             supportingOptions: .swap
         )
 
-        let transferTokenFeeProvidersManager = CommonTokenFeeProvidersManagerProvider(
+        let transferTokenFeeProvidersManager = WalletModelTokenFeeProvidersManagerProvider(
             walletModel: walletModel,
             supportingOptions: .all
         ).makeTokenFeeProvidersManager()

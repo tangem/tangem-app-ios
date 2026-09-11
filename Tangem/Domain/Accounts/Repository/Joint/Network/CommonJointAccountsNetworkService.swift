@@ -33,13 +33,13 @@ extension CommonJointAccountsNetworkService: JointAccountsNetworkService {
             body: mapper.mapToRequest(from: blob)
         )
 
-        return mapper.mapToCreationResult(from: response)
+        return try mapper.mapToCreationResult(from: response)
     }
 
     func getJointAccounts() async throws -> [RemoteJointAccount] {
         let response = try await tangemApiService.getJointAccounts(walletId: userWalletId.stringValue)
 
-        return mapper.mapToJointAccounts(from: response)
+        return try mapper.mapToJointAccounts(from: response)
     }
 
     func getInvitePreview(inviteId: String) async throws -> JointAccountInvitePreview {
@@ -57,7 +57,7 @@ extension CommonJointAccountsNetworkService: JointAccountsNetworkService {
             body: mapper.mapToRequest(from: blob)
         )
 
-        return mapper.mapToJointAccount(from: response)
+        return try mapper.mapToJointAccount(from: response)
     }
 
     func activateJointAccount(blob: JointAccountActivationBlob) async throws -> RemoteJointAccount {
@@ -66,6 +66,6 @@ extension CommonJointAccountsNetworkService: JointAccountsNetworkService {
             body: mapper.mapToRequest(from: blob)
         )
 
-        return mapper.mapToJointAccount(from: response)
+        return try mapper.mapToJointAccount(from: response)
     }
 }

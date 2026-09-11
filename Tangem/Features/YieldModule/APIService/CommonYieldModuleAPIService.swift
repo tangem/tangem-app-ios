@@ -39,6 +39,28 @@ extension CommonYieldModuleAPIService: YieldModuleAPIService {
         try await request(for: .markets(chains: chainIDs), decoder: decoder)
     }
 
+    func getIncentiveYieldMarkets(
+        chainIDs: [String]?
+    ) async throws -> YieldModuleDTO.Response.MarketsInfo {
+        let enveloped: YieldModuleDTO.Enveloped<YieldModuleDTO.Response.MarketsInfo> = try await request(
+            for: .incentiveMarkets(chains: chainIDs),
+            decoder: decoder
+        )
+        return enveloped.result
+    }
+
+    func getAprHistory(
+        chainId: Int,
+        tokenAddress: String,
+        days: Int
+    ) async throws -> YieldModuleDTO.Response.AprHistory {
+        let enveloped: YieldModuleDTO.Enveloped<YieldModuleDTO.Response.AprHistory> = try await request(
+            for: .aprHistory(chainId: chainId, tokenAddress: tokenAddress, days: days),
+            decoder: decoder
+        )
+        return enveloped.result
+    }
+
     func getTokenPositionInfo(
         tokenContractAddress: String,
         chainId: Int
