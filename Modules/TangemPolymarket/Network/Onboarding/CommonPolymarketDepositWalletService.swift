@@ -55,17 +55,10 @@ extension CommonPolymarketDepositWalletService: PolymarketDepositWalletService {
         return response.status
     }
 
-    func submitApprovals(_ batch: PolymarketApprovalsBatch) async throws(PolymarketWalletError) -> PolymarketDepositWalletStatus {
-        let payload = PolymarketDTO.ApprovalsRequest(
-            ownerAddress: batch.ownerAddress,
-            depositWalletAddress: batch.depositWalletAddress,
-            nonce: batch.nonce,
-            deadline: batch.deadline,
-            calls: batch.calls.map { PolymarketDTO.ApprovalCall(target: $0.target, value: $0.value, data: $0.data) },
-            signature: batch.signature
+    func submitApprovals(_ batch: PolymarketRelayedBatch) async throws(PolymarketWalletError) -> PolymarketDepositWalletStatus {
+        let response: PolymarketDTO.WalletOperationResponse = try await request(
+            .approvals(PolymarketDTO.RelayedBatchRequest(batch: batch))
         )
-
-        let response: PolymarketDTO.WalletOperationResponse = try await request(.approvals(payload))
         return response.status
     }
 }
