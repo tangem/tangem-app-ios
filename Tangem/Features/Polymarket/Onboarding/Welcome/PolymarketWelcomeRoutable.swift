@@ -10,6 +10,7 @@ import Foundation
 
 protocol PolymarketWelcomeRoutable: AnyObject {
     func onboardingDidFinish()
+    func openRegionWarning()
     func openLegalTerms(url: URL)
     func dismiss()
 }

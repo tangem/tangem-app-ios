@@ -91,6 +91,8 @@ private extension PolymarketWelcomeViewModel {
     @MainActor
     func handle(_ error: PolymarketOnboardingError) {
         switch error {
+        case .regionBlocked:
+            coordinator?.openRegionWarning()
         case _ where error.isRetryable:
             presentRetryAlert()
         default:

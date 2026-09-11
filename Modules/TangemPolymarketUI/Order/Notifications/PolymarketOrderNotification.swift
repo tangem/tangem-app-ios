@@ -62,7 +62,7 @@ extension PolymarketOrderNotification {
     var variant: MessageBannerVariant {
         switch self {
         case .awaitingFunds: .info
-        case .partialFill, .noLiquidity: .warning
+        case .partialFill, .noLiquidity: .default
         case .belowMinOrder, .marketClosed, .regionRestricted, .quoteUnavailable: .error
         }
     }

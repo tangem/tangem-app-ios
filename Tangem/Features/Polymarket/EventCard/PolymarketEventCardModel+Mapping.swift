@@ -20,7 +20,7 @@ extension PolymarketEventCard.Model {
         let variant: PolymarketEventCard.Variant = event.totalMarketsCount > 1 ? .multiMarket : .singleMarket
 
         let rows = event.markets.prefix(MappingConstants.maxDisplayedMarkets).map { market in
-            makeRow(market: market, onSelectOutcome: onSelectOutcome)
+            makeRow(market: market, in: event, onSelectOutcome: onSelectOutcome)
         }
 
         return PolymarketEventCard.Model(
@@ -28,7 +28,7 @@ extension PolymarketEventCard.Model {
             title: event.title,
             category: category.map { .init(name: $0.label, iconURL: $0.iconURL) },
             volumeText: event.volume.map { MappingConstants.volumeFormatter.formatMarketCap($0) },
-            imageURL: event.imageURL ?? event.iconURL,
+            imageURL: event.iconURL ?? event.imageURL,
             variant: variant,
             rows: rows,
             additionalOutcomesCount: max(0, event.totalMarketsCount - rows.count),
@@ -38,9 +38,13 @@ extension PolymarketEventCard.Model {
 
     private static func makeRow(
         market: PolymarketMarket,
+        in event: PolymarketEvent,
         onSelectOutcome: @escaping (PolymarketMarket, PolymarketOutcome) -> Void
     ) -> PolymarketEventCard.Row {
-        let title = market.groupItemTitle ?? market.title
+        let title = switch event.displayMode {
+        case .groupedOutcomes: market.groupItemTitle ?? market.title
+        case .plainMarkets: market.title
+        }
         let subtitle = PolymarketPriceFormatter.percentText(market.outcomes.first?.probability)
 
         let outcomes = market.outcomes.enumerated().map { index, outcome in

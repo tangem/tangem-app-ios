@@ -69,7 +69,7 @@ public struct PolymarketOrderNotificationsView: View {
 
 private extension PolymarketOrderNotificationsView {
     enum Constants {
-        static let spacing: CGFloat = 12
+        static let spacing: CGFloat = 8
         static let infoIconSide: CGFloat = 20
         static let loaderSize: Loader.Size = .size20
     }

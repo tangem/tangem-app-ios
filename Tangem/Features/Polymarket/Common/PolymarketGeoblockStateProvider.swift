@@ -40,8 +40,10 @@ final class CommonPolymarketGeoblockStateProvider {
                 let geoblock = try await provider.geoblockService.geoblock()
                 provider.subject.send(geoblock.isBlocked ? .blocked : .allowed)
             } catch {
-                PolymarketLogger.error("Failed to read the region, treating it as blocked", error: error)
-                provider.subject.send(.blocked)
+                guard !error.isCancellationError else { return }
+
+                PolymarketLogger.error("Failed to read the region, trading is left allowed", error: error)
+                provider.subject.send(.allowed)
             }
         }
     }
@@ -58,7 +60,6 @@ extension CommonPolymarketGeoblockStateProvider: PolymarketGeoblockStateProvider
         subject.eraseToAnyPublisher()
     }
 
-    /// A failed read parks the region at blocked, which shuts the whole feature, so it must be retriable.
     func refresh() {
         loadingTask?.cancel()
         load()

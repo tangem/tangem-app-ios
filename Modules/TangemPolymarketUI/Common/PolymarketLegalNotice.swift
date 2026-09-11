@@ -8,10 +8,7 @@
 
 import Foundation
 
-/// A legal footnote a Polymarket screen asks for.
 public enum PolymarketLegalNotice {
-    /// The user agrees with the terms by proceeding.
     case termsAgreement
-    /// The terms are already accepted and still apply.
     case termsAlreadyAccepted
 }

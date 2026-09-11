@@ -78,8 +78,6 @@ extension CommonPolymarketAPIProvider: PolymarketAPIProvider {
 // MARK: - Private implementation
 
 private extension CommonPolymarketAPIProvider {
-    /// The quote carries the code the exchange is applying right now, so a stale cache is corrected from it.
-    /// Rewriting only on a mismatch keeps a quote from renewing the entry's lifetime on every poll.
     func cacheBuilderCode(_ code: String) {
         guard builderCodeStore.code(forHost: baseURL) != code else { return }
 

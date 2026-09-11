@@ -16,7 +16,6 @@ public enum PolymarketQuoteStatus: String, Hashable, Sendable {
     case belowMinOrderAmount = "BELOW_MIN_ORDER_AMOUNT"
     case marketClosed = "MARKET_CLOSED"
 
-    /// A status this build does not know, so the quote is shown as unavailable rather than guessed at.
     case undefined = "UNDEFINED"
 
     public var isPlaceable: Bool {

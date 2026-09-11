@@ -10,7 +10,6 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
-/// Shown when the feed has nothing to render: the categories failed as a whole, or a single category did.
 public struct PolymarketEmptyMessageView: View {
     private let message: String
     private let onRetry: () -> Void

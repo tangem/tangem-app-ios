@@ -24,7 +24,6 @@ public struct PolymarketOrderQuote: Hashable, Sendable {
 
     public let builderCode: String
 
-    /// The floor in shares, while `minOrderAmount` is the floor in collateral.
     public let minOrderSize: Decimal
     public let minOrderAmount: Decimal?
 

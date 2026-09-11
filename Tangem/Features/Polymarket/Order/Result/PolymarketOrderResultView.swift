@@ -16,6 +16,12 @@ struct PolymarketOrderResultView: View {
     let viewModel: PolymarketOrderResultViewModel
 
     var body: some View {
+        content
+            .toolbar(.hidden, for: .navigationBar)
+    }
+
+    @ViewBuilder
+    private var content: some View {
         if let details = viewModel.details {
             screen.details { PolymarketOrderResultDetailsView(model: details) }
         } else {

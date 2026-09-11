@@ -29,21 +29,84 @@ struct PolymarketOnboardingInteractorTests {
         #expect(signer.signCalls == 0)
     }
 
-    @Test("A relayer that answers with a terminal failure is not polled for two minutes")
+    @Test("A blocked region stops the run before the card is asked to sign")
+    func blockedRegionRefusesToOnboard() async throws {
+        let signer = PolymarketOnboardingSignerSpy()
+        let service = try makeWalletService(statuses: [.notCreated])
+        let sut = try makeSUT(
+            walletService: service,
+            signer: signer,
+            geoblockService: PolymarketGeoblockServiceStub(isBlocked: true)
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.failure?.isRegionBlocked == true)
+        #expect(signer.signCalls == 0)
+        #expect(service.submittedBatches.isEmpty)
+    }
+
+    @Test("A region that cannot be read is treated as blocked")
+    func unreadableRegionRefusesToOnboard() async throws {
+        let signer = PolymarketOnboardingSignerSpy()
+        let sut = try makeSUT(
+            walletService: makeWalletService(statuses: [.notCreated]),
+            signer: signer,
+            geoblockService: PolymarketGeoblockServiceStub(error: PolymarketAPIError.connection(underlying: URLError(.timedOut)))
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.failure?.isRegionBlocked == true)
+        #expect(signer.signCalls == 0)
+    }
+
+    @Test("Re-authorising an account that owes nothing does not consult the region")
+    func readyAccountSkipsTheRegionCheck() async throws {
+        let sut = try makeSUT(
+            walletService: makeWalletService(statuses: [.readyToTrade]),
+            credentials: PolymarketCredentialsRepositoryStub.credentials,
+            geoblockService: PolymarketGeoblockServiceStub(isBlocked: true)
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.isReady == true)
+    }
+
+    @Test("A refused deployment is retried once before the user hears about it")
+    func deployFailureIsRetriedSilently() async throws {
+        let service = try makeWalletService(
+            statuses: [.notCreated],
+            deployResults: [.success(.deploymentFailed), .success(.deployed)]
+        )
+        let sut = try makeSUT(walletService: service)
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.contains { $0.failure?.isDeploymentFailed == true } == false)
+        #expect(service.deployCalls == 2)
+    }
+
+    @Test("A deployment refused twice is reported instead of polled for two minutes")
     func deployFailureIsReportedImmediately() async throws {
-        let service = try makeWalletService(statuses: [.notCreated], deployResult: .success(.deploymentFailed))
+        let service = try makeWalletService(
+            statuses: [.notCreated],
+            deployResults: [.success(.deploymentFailed), .success(.deploymentFailed)]
+        )
         let sut = try makeSUT(walletService: service)
 
         let progress = await sut.collectProgress()
 
         #expect(progress.last?.failure?.isDeploymentFailed == true)
+        #expect(service.deployCalls == 2)
         #expect(service.submittedBatches.isEmpty)
         #expect(service.requestedKeys.count == 1)
     }
 
     @Test("A wallet id bound to another owner is never worth retrying")
     func takenWalletIdIsNotRetryable() async throws {
-        let service = try makeWalletService(statuses: [.notCreated], deployResult: .failure(.conflict(detail: nil)))
+        let service = try makeWalletService(statuses: [.notCreated], deployResults: [.failure(.conflict(detail: nil))])
         let sut = try makeSUT(walletService: service)
 
         let progress = await sut.collectProgress()
@@ -232,7 +295,7 @@ private extension PolymarketOnboardingInteractorTests {
 
     func makeWalletService(
         statuses: [PolymarketDepositWalletStatus],
-        deployResult: Result<PolymarketDepositWalletStatus, PolymarketWalletError> = .success(.deploymentInProgress),
+        deployResults: [Result<PolymarketDepositWalletStatus, PolymarketWalletError>] = [.success(.deploymentInProgress)],
         approvalsResult: Result<PolymarketDepositWalletStatus, PolymarketWalletError> = .success(.approvalsInProgress)
     ) throws -> PolymarketDepositWalletServiceStub {
         let deposit = try Self.depositWalletAddress()
@@ -243,7 +306,7 @@ private extension PolymarketOnboardingInteractorTests {
 
                 return .success(PolymarketDepositWallet(address: address, status: status))
             },
-            deployResult: deployResult,
+            deployResults: deployResults,
             approvalsResult: approvalsResult
         )
     }
@@ -253,6 +316,7 @@ private extension PolymarketOnboardingInteractorTests {
         credentials: PolymarketL2Credentials? = nil,
         credentialsRepository: PolymarketCredentialsRepository? = nil,
         signer: PolymarketOnboardingSigning = PolymarketOnboardingSignerSpy(),
+        geoblockService: PolymarketGeoblockService = PolymarketGeoblockServiceStub(),
         clobService: PolymarketCLOBService = PolymarketCLOBServiceStub()
     ) throws -> CommonPolymarketOnboardingInteractor {
         CommonPolymarketOnboardingInteractor(
@@ -260,6 +324,7 @@ private extension PolymarketOnboardingInteractorTests {
             ownerAddressProvider: PolymarketOwnerAddressProviderStub(derived: PolymarketOwnerAddressProviderStub.ownerAddress),
             signer: signer,
             credentialsRepository: credentialsRepository ?? PolymarketCredentialsRepositoryStub(stored: credentials),
+            geoblockService: geoblockService,
             walletService: walletService,
             relayerService: PolymarketRelayerServiceStub(),
             clobService: clobService,

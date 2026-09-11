@@ -13,10 +13,8 @@ public struct PolymarketOrderQuoteRequest: Hashable, Sendable {
     public let assetId: String
     public let side: PolymarketOrderSide
 
-    /// Collateral to spend when buying, shares to sell when selling.
     public let amount: Decimal
 
-    /// Always sent: the screen shows the tolerance it applies, so the backend must not substitute its own default.
     public let slippagePercent: Decimal
 
     public init(

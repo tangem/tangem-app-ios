@@ -322,7 +322,7 @@ struct PolymarketMainView: View {
     }
 
     private var failedState: some View {
-        PolymarketEmptyMessageView(message: Localization.predictionMainEventsLoadError, onRetry: viewModel.load)
+        PolymarketEmptyMessageView(message: Localization.predictionMainEventsLoadError, onRetry: viewModel.retry)
     }
 
     private var noResultsState: some View {

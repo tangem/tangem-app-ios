@@ -149,9 +149,6 @@ final class PolymarketMainViewModel: ObservableObject {
             }
     }
 
-    /// A retry that keeps a usable funding target on screen leaves the button live, but one that has nothing
-    /// to offer must go back to loading — otherwise the button stays disabled and answers a tap with
-    /// "pull to refresh" while the refresh it asks for is already running.
     private func prepareAddFunds() {
         guard addFundsInteractor != nil else {
             addFundsState = .unavailable
@@ -191,6 +188,15 @@ final class PolymarketMainViewModel: ObservableObject {
         }
     }
 
+    func retry() {
+        guard !categories.isEmpty else {
+            load()
+            return
+        }
+
+        fetchEvents()
+    }
+
     func select(categoryID: Int?) {
         guard selectedCategoryID != categoryID else { return }
 
@@ -215,14 +221,10 @@ final class PolymarketMainViewModel: ObservableObject {
         coordinator?.dismiss()
     }
 
-    /// The bridge credits the deposit out of band, so the banner is a fixed window rather than a state:
-    /// it hangs for `awaitingFundsDuration` and is not tied to the balance arriving.
     func startAwaitingFunds() {
         awaitingFundsTask?.cancel()
         isAwaitingFunds = true
 
-        // The loop is parked on the long interval right now, so restart it: that refreshes once
-        // immediately and then keeps the short cadence the banner promises.
         balanceRefreshTask?.cancel()
         startBalanceRefresh()
 
@@ -282,7 +284,7 @@ final class PolymarketMainViewModel: ObservableObject {
                 return
             }
 
-            let page = try await apiProvider.events(request: .init(category: firstCategoryID, cursor: nil))
+            let page = try await apiProvider.events(request: .init(category: firstCategoryID, limit: Constants.pageSize, cursor: nil))
             try Task.checkCancellation()
 
             self.categories = categories
@@ -293,13 +295,12 @@ final class PolymarketMainViewModel: ObservableObject {
         }
     }
 
-    /// Refetches the open tab in place: the visible list stays put until the new page arrives, and the tab keeps its place.
     @MainActor
     private func reloadSelectedCategory() async {
         let categoryID = selectedCategoryID
 
         do {
-            let page = try await apiProvider.events(request: .init(category: categoryID, cursor: nil))
+            let page = try await apiProvider.events(request: .init(category: categoryID, limit: Constants.pageSize, cursor: nil))
             try Task.checkCancellation()
 
             guard categoryID == selectedCategoryID else { return }
@@ -326,7 +327,9 @@ final class PolymarketMainViewModel: ObservableObject {
 
         loadingTask = runTask(in: self) { @MainActor viewModel in
             do {
-                let page = try await viewModel.apiProvider.events(request: .init(category: categoryID, cursor: requestCursor))
+                let page = try await viewModel.apiProvider.events(
+                    request: .init(category: categoryID, limit: Constants.pageSize, cursor: requestCursor)
+                )
                 try Task.checkCancellation()
 
                 viewModel.apply(page: page)
@@ -337,9 +340,15 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     private func apply(page: PolymarketEventsPage) {
-        append(events: page.events)
+        let added = append(events: page.events)
+
         cursor = page.cursor
         hasNext = page.hasNext
+
+        guard added > 0 || !page.hasNext else {
+            fetchEvents(more: true)
+            return
+        }
 
         loadingState = events.isEmpty ? .noResults : (page.hasNext ? .loaded : .allDataLoaded)
     }
@@ -347,12 +356,28 @@ final class PolymarketMainViewModel: ObservableObject {
     private func handleFetchFailure(_ error: Error) {
         guard !error.isCancellationError else { return }
 
+        if !events.isEmpty, Self.isStaleCursorFailure(error) {
+            cursor = nil
+        }
+
         loadingState = events.isEmpty ? .error : .paginationError
     }
 
-    private func append(events newEvents: [PolymarketEvent]) {
-        events.append(contentsOf: newEvents)
-        eventCards.append(contentsOf: newEvents.map(makeCard))
+    private static func isStaleCursorFailure(_ error: Error) -> Bool {
+        guard case .http(let statusCode, _) = error as? PolymarketAPIError else { return false }
+
+        return statusCode == Constants.staleCursorStatusCode
+    }
+
+    @discardableResult
+    private func append(events newEvents: [PolymarketEvent]) -> Int {
+        var known = Set(events.map(\.id))
+        let fresh = newEvents.filter { known.insert($0.id).inserted }
+
+        events.append(contentsOf: fresh)
+        eventCards.append(contentsOf: fresh.map(makeCard))
+
+        return fresh.count
     }
 
     private var selectedCategory: PolymarketCategory? {
@@ -409,7 +434,6 @@ private extension PolymarketMainViewModel {
         )
     }
 
-    /// The balance is polled in the background, and a cached value being refreshed is still the number to show.
     func steady(_ formatted: FormattedTokenBalanceType) -> FormattedTokenBalanceType {
         guard case .loading(.cache(let cached)) = formatted else { return formatted }
 
@@ -437,9 +461,11 @@ private extension PolymarketMainViewModel {
     }
 
     enum Constants {
+        static let pageSize = 20
+        static let staleCursorStatusCode = 502
+
         static let balanceRefreshInterval: TimeInterval = 30
         static let awaitingFundsDuration: TimeInterval = 30
-        /// The banner promises the balance refreshes itself every few seconds, so while it is up it does.
         static let awaitingFundsBalanceRefreshInterval: TimeInterval = 5
     }
 }

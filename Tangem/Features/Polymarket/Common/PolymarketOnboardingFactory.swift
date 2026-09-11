@@ -21,6 +21,7 @@ struct PolymarketOnboardingFactory {
                 signer: userWalletModel.signer
             ),
             credentialsRepository: CommonPolymarketCredentialsRepository(),
+            geoblockService: services.makeGeoblockService(),
             walletService: services.makeWalletService(),
             relayerService: services.makeRelayerService(),
             clobService: services.makeCLOBService()

@@ -52,7 +52,6 @@ public extension PolymarketDepositWalletStatus {
 }
 
 public extension PolymarketDepositWalletStatus {
-    /// The backend already holds a wallet row for this user, whatever stage it is at.
     var isKnownAccount: Bool {
         switch self {
         case .notCreated: false
