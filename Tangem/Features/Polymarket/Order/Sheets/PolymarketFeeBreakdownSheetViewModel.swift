@@ -60,8 +60,6 @@ private extension PolymarketFeeBreakdownSheetViewModel {
             .store(in: &bag)
     }
 
-    /// The last figures survive a quote that is merely in flight; one that will never arrive clears
-    /// them, so the sheet cannot state a total the row behind it already shows as a dash.
     func update(with state: PolymarketOrderModel.State) {
         guard let content = Content(state: state) else {
             isRefreshing = state.quote.isAwaited
@@ -88,7 +86,6 @@ private extension PolymarketFeeBreakdownSheetViewModel {
 
 // MARK: - Quote state
 
-/// A quote still on its way is worth shimmering for; a market that stopped answering will never send one.
 private extension PolymarketOrderQuoteState {
     var isAwaited: Bool {
         switch self {

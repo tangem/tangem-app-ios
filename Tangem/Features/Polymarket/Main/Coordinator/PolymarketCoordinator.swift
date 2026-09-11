@@ -257,7 +257,6 @@ extension PolymarketCoordinator: PolymarketAddFundsSheetRoutable {
         Task { @MainActor [weak self] in
             guard let self else { return }
 
-            // Dismiss the active Add funds sheet first, otherwise Receive is queued behind it and never shown.
             addFundsSheet = nil
             floatingSheetPresenter.removeActiveSheet()
             floatingSheetPresenter.enqueue(sheet: viewModel)

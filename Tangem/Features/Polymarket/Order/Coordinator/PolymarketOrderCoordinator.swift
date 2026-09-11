@@ -111,7 +111,6 @@ extension PolymarketOrderCoordinator: PolymarketOrderSummaryRoutable {
         sheet = .feeBreakdown(PolymarketFeeBreakdownSheetViewModel(model: model))
     }
 
-    /// The result replaces the summary in the stack so that stepping back cannot reach a live Place button.
     func openResult(state: PolymarketOrderResultViewModel.State, content: PolymarketOrderResultViewModel.Content) {
         destination = .result(PolymarketOrderResultViewModel(state: state, content: content, coordinator: self))
     }
