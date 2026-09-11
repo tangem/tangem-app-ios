@@ -14,23 +14,45 @@ struct FeedTabsView: View {
     @ObservedObject var viewModel: FeedTabsViewModel
     @ObservedObject var shtorkaStateObject: MainShtorkaStateObject
 
-    let onSwitchTab: () -> Void
+    @Binding var areChipsPinned: Bool
+    let onTabChange: (String) -> Void
+
+    @State private var chipsHeight: CGFloat = 0
 
     var body: some View {
-        LazyVStack(spacing: Constants.sectionSpacing, pinnedViews: [.sectionHeaders]) {
+        LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
             Section {
                 tabContent
-                    .padding(.top, Constants.tabContentTopInset)
+                    .id(viewModel.selectedTab.id)
                     .padding(.bottom, Constants.tabContentBottomInset)
             } header: {
                 if viewModel.tabs.count > 1 {
                     tabChips
-                        .padding(.bottom, Constants.chipsBottomInset)
-                        .background(ShtorkaSurface(opacity: backgroundOpacity, expansionProgress: shtorkaStateObject.expansionProgressPublisher))
-                        .readGeometry(\.size.height) { shtorkaStateObject.report(tabChips: $0) }
+                        .padding(.bottom, FeedConstants.chipsBottomInset)
+                        .background(alignment: .top) {
+                            if areChipsPinned {
+                                pinnedTabsFade
+                            }
+                        }
+                        .onGeometryChange(for: Bool.self, of: {
+                            $0.frame(in: .named(FeedConstants.scrollCoordinateSpace)).minY <= 0.5
+                        }) { areChipsPinned = $0 }
                 }
             }
         }
+        .onAppear { onTabChange(viewModel.selectedTab.id) }
+        .onChange(of: viewModel.selectedTab.id, perform: onTabChange)
+        .overlay(alignment: .top) { chipsMeasurer }
+    }
+
+    private var pinnedTabsFade: some View {
+        // The search bar clips the upper part of Figma's 121 pt fade; its 40 pt ramp ends 9 pt below the chips.
+        Fade(position: .top)
+            .variant(.hard)
+            .frame(height: Constants.fadeHeight)
+            .frame(height: FeedConstants.searchContentInset + chipsHeight + Constants.fadeBottomOverlap, alignment: .bottom)
+            .clipped()
+            .offset(y: -FeedConstants.searchContentInset)
     }
 
     @ViewBuilder
@@ -47,6 +69,22 @@ struct FeedTabsView: View {
         }
     }
 
+    /// The lazy pinned header stays unmeasured while collapsed, yet the medium detent needs the chips height before that.
+    @ViewBuilder
+    private var chipsMeasurer: some View {
+        if viewModel.tabs.count > 1 {
+            tabChips
+                .fixedSize(horizontal: false, vertical: true)
+                .hidden()
+                .readGeometry(\.size.height) { height in
+                    chipsHeight = height
+                    shtorkaStateObject.report(tabChips: height)
+                }
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+        }
+    }
+
     private var tabChips: some View {
         TabNavigation(data: viewModel.tabs, selection: tabSelection)
             .variant(.material)
@@ -54,22 +92,12 @@ struct FeedTabsView: View {
             .hapticFeedback()
     }
 
-    private var backgroundOpacity: CGFloat {
-        shtorkaStateObject.size == .full ? 1 : 0
-    }
-
     private var tabSelection: Binding<FeedTab> {
         Binding(
             get: { viewModel.selectedTab },
             set: { tab in
-                let isSwitchingTab = tab.id != viewModel.selectedTab.id
-
                 viewModel.onSelectTab(tab)
                 shtorkaStateObject.expand()
-
-                if isSwitchingTab {
-                    onSwitchTab()
-                }
             }
         )
     }
@@ -79,9 +107,8 @@ struct FeedTabsView: View {
 
 private extension FeedTabsView {
     enum Constants {
-        static let sectionSpacing: CGFloat = 20
-        static let tabContentTopInset: CGFloat = 4
         static let tabContentBottomInset: CGFloat = 20
-        static let chipsBottomInset: CGFloat = 8
+        static let fadeHeight: CGFloat = 96
+        static let fadeBottomOverlap: CGFloat = 9
     }
 }
