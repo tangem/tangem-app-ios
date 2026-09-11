@@ -103,7 +103,6 @@ private struct OwnerAddressProviderStub: PolymarketOwnerAddressProviding {
     }
 }
 
-/// Fails the first attempt only, so a single interactor can be watched recovering.
 private final class FirstAttemptFailsBridgeStub: PolymarketBridgeService {
     private let attempts = OSAllocatedUnfairLock(initialState: 0)
 
@@ -164,7 +163,6 @@ private extension PolymarketSupportedAsset {
     )
 }
 
-/// Any syntactically valid EVM address will do — the CREATE2 derivation only needs the 20 bytes.
 private let ownerAddress = "0x1111111111111111111111111111111111111111"
 private let fundingAddress = "0x2222222222222222222222222222222222222222"
 private let bitcoinFundingAddress = "bc1qfundingaddressplaceholder22222222222222"
