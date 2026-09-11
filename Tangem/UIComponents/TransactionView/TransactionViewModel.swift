@@ -243,8 +243,8 @@ struct TransactionViewModel: Hashable, Identifiable {
                 : Localization.transactionHistoryTransactionFromAddress(Localization.transactionHistoryMultipleAddresses)
         case .custom(let message):
             return message
-        case .staking(let validator):
-            return validator.flatMap { Localization.stakingValidator + ": " + $0 }
+        case .staking(let target):
+            return target.map { Localization.stakingValidator + ": " + $0.name }
         }
     }
 }
@@ -262,7 +262,22 @@ extension TransactionViewModel {
         case multiple(_ addresses: [String])
         // Temp solution for Visa
         case custom(message: String)
-        case staking(validator: String?)
+        case staking(target: StakingTarget?)
+    }
+
+    struct StakingTarget: Hashable {
+        let address: String
+
+        var name: String { resolvedName ?? address }
+
+        var isResolved: Bool { resolvedName != nil }
+
+        private let resolvedName: String?
+
+        init(address: String, resolvedName: String?) {
+            self.address = address
+            self.resolvedName = resolvedName
+        }
     }
 
     @CaseFlagable

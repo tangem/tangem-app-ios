@@ -71,7 +71,7 @@ struct SwapTokenSelectorViewModelBuilder {
             return nil
         }
 
-        let cryptoAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first { account in
+        let cryptoAccount = AccountCryptoModelsAggregator.cryptoAccountModels(from: userWalletModel.accountModelsManager).first { account in
             account.walletModelsManager.walletModels.contains { $0.id == tappedToken.id }
         }
 

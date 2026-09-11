@@ -31,5 +31,7 @@ public struct StoriesHostView: View {
         .animation(.default, value: viewModel.visibleStoryIndex)
         .allowsHitTesting(viewModel.allowsHitTesting)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // The page art runs to the bottom edge; the top inset stays, the bar and the close button sit against it.
+        .ignoresSafeArea(edges: .bottom)
     }
 }

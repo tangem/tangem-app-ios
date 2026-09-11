@@ -31,7 +31,9 @@ protocol DesignSystemDemoRoutable: AnyObject {
     func openTangemSnackbarDemo()
     func openTangemShimmerDemo()
     func openGlowRingDemo()
+    func openStatusScreenDemo()
     func openTabNavigationDemo()
+    func openSegmentedControlDemo()
     func openTangemTopNavigationDemo()
     func openTangemFadeDemo()
     func openTangemMessageBubbleDemo()
@@ -41,6 +43,7 @@ protocol DesignSystemDemoRoutable: AnyObject {
     func openUtilGraphDemo()
     func openUtilPriceChangeDemo()
     func openUtilBalanceDemo()
+    func openShtorkaDemo()
 }
 
 final class DesignSystemDemoCoordinator: CoordinatorObject {
@@ -70,7 +73,9 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var tangemSnackbarDemoViewModel: TangemSnackbarDemoViewModel?
     @Published var tangemShimmerDemoViewModel: TangemShimmerDemoViewModel?
     @Published var glowRingDemoViewModel: GlowRingDemoViewModel?
+    @Published var statusScreenDemoViewModel: StatusScreenDemoViewModel?
     @Published var tabNavigationDemoViewModel: TabNavigationDemoViewModel?
+    @Published var segmentedControlDemoViewModel: SegmentedControlDemoViewModel?
     @Published var tangemTopNavigationDemoViewModel: TangemTopNavigationDemoViewModel?
     @Published var tangemFadeDemoViewModel: TangemFadeDemoViewModel?
     @Published var tangemMessageBubbleDemoViewModel: TangemMessageBubbleDemoViewModel?
@@ -80,6 +85,7 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var utilGraphDemoViewModel: UtilGraphDemoViewModel?
     @Published var utilPriceChangeDemoViewModel: UtilPriceChangeDemoViewModel?
     @Published var utilBalanceDemoViewModel: UtilBalanceDemoViewModel?
+    @Published var shtorkaDemoViewModel: ShtorkaDemoViewModel?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -183,8 +189,16 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
         glowRingDemoViewModel = .init()
     }
 
+    func openStatusScreenDemo() {
+        statusScreenDemoViewModel = .init()
+    }
+
     func openTabNavigationDemo() {
         tabNavigationDemoViewModel = TabNavigationDemoViewModel()
+    }
+
+    func openSegmentedControlDemo() {
+        segmentedControlDemoViewModel = SegmentedControlDemoViewModel()
     }
 
     func openTangemTopNavigationDemo() {
@@ -221,6 +235,10 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
 
     func openUtilBalanceDemo() {
         utilBalanceDemoViewModel = .init()
+    }
+
+    func openShtorkaDemo() {
+        shtorkaDemoViewModel = .init()
     }
 }
 

@@ -20,6 +20,40 @@ final class ContextMenuScreen: ScreenBase<ContextMenuScreenElement> {
     private lazy var sellButton = button(.sell)
     private lazy var hideTokenButton = button(.hideToken)
 
+    static let derivedTokenActions: [ContextMenuScreenElement] = [
+        .analytics, .copyAddress, .receive, .send, .swap, .buy, .hideToken,
+    ]
+
+    static let underivedTokenActions: [ContextMenuScreenElement] = [.hideToken]
+
+    @discardableResult
+    func assertActions(_ expected: [ContextMenuScreenElement], exact: Bool = true) -> Self {
+        XCTContext.runActivity(named: "Assert context menu actions: \(expected.map(\.accessibilityIdentifier))") { _ in
+            for action in expected {
+                waitAndAssertTrue(button(action), "\(action.accessibilityIdentifier) button should exist")
+            }
+
+            if exact {
+                let unexpected = ContextMenuScreenElement.allCases.filter { !expected.contains($0) }
+                for action in unexpected {
+                    XCTAssertFalse(
+                        button(action).waitForExistence(timeout: .conditional),
+                        "\(action.accessibilityIdentifier) button should not exist"
+                    )
+                }
+            }
+        }
+        return self
+    }
+
+    @discardableResult
+    func dismiss() -> MainScreen {
+        XCTContext.runActivity(named: "Dismiss context menu") { _ in
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1)).tap()
+            return MainScreen(app)
+        }
+    }
+
     @discardableResult
     func waitForActionButtons() -> Self {
         XCTContext.runActivity(named: "Wait for context menu action buttons to exist") { _ in
@@ -123,7 +157,7 @@ final class ContextMenuScreen: ScreenBase<ContextMenuScreenElement> {
     }
 }
 
-enum ContextMenuScreenElement: String, UIElement {
+enum ContextMenuScreenElement: String, UIElement, CaseIterable {
     case analytics
     case buy
     case copyAddress

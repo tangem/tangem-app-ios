@@ -33,6 +33,10 @@ public enum TokenAccessibilityIdentifiers {
     /// Pending express transaction
     public static let pendingExpressTransaction = "tokenPendingExpressTransaction"
 
+    /// Pending express transaction status bottom sheet
+    public static let expressStatusSheetTitle = "tokenExpressStatusSheetTitle"
+    public static let expressStatusProviderTitle = "tokenExpressStatusProviderTitle"
+
     /// Market price block elements
     public static let marketPriceBlock = "tokenMarketPriceBlock"
     public static let marketPriceTitle = "tokenMarketPriceTitle"
@@ -54,4 +58,7 @@ public enum TokenAccessibilityIdentifiers {
 
     public static let addTokenButton = "tokenAddTokenButton"
     public static let getTokenLaterButton = "tokenGetTokenLaterButton"
+
+    /// Row on the add-token screen that opens the account picker
+    public static let addTokenAccountSelectorRow = "tokenAddTokenAccountSelectorRow"
 }

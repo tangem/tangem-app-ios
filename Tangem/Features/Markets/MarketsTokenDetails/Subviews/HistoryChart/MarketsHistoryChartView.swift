@@ -174,7 +174,8 @@ private extension MarketsHistoryChartView {
         static let labelFont: UIFont = DesignSystem.Font.captionMediumToken.uiFont
         static let labelTextColor: UIColor = .init(DesignSystem.Color.textSecondary)
         static let labelOffset: CGFloat = 12
-        static let gridLineColor: UIColor = .init(DesignSystem.Color.borderTertiary)
+        /// The design stacks a 30% layer opacity on top of the token's own alpha.
+        static let gridLineColor = UIColor(DesignSystem.Color.borderTertiary.opacity(0.3))
         static let gridLineWidth: CGFloat = 1
     }
 }

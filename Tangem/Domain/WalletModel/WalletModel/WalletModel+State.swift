@@ -65,11 +65,6 @@ enum WalletModelState: Hashable, CustomStringConvertible {
     }
 }
 
-enum WalletManagerUpdateResult: Hashable {
-    case success
-    case noAccount(message: String)
-}
-
 enum WalletModelTransactionHistoryState: CustomStringConvertible {
     case notSupported
     case notLoaded

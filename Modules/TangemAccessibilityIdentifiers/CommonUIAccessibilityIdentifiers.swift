@@ -45,6 +45,11 @@ public enum CommonUIAccessibilityIdentifiers {
         "\(tokenSelectorItemPrefix)\(name)"
     }
 
+    /// Account section header inside a token selector
+    public static func tokenSelectorAccountHeader(name: String) -> String {
+        "commonUITokenSelectorAccountHeader_\(name)"
+    }
+
     /// Account selector
     public static func accountSelectorCell(name: String) -> String {
         "commonUIAccountSelectorCell_\(name)"
@@ -54,4 +59,7 @@ public enum CommonUIAccessibilityIdentifiers {
     public static let addressesInfoButton = "commonUIAddressesInfoButton"
     public static let addressesInfoCopyButton = "commonUIAddressesInfoCopyButton"
     public static let addressesInfoText = "commonUIAddressesInfoText"
+
+    /// PopoverModifier tooltip text (single popover shown at a time)
+    public static let popoverText = "commonUIPopoverText"
 }

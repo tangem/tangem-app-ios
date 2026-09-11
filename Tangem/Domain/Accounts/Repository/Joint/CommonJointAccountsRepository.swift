@@ -19,6 +19,7 @@ final class CommonJointAccountsRepository {
     private let derivationInteractorFactory: JointAccountDerivationInteractorFactory
     private let persistentStorage: JointAccountsPersistentStorage
     private let invitesPersistentStorage: JointAccountsInvitesPersistentStorage
+    private let pendingOperationsPersistentStorage: JointAccountsPendingOperationsPersistentStorage
     private let isJointAccountsAvailable: Bool
 
     /// - Note: The contract offers no caching, so the list is asked for often and every asker gets the answer of the
@@ -47,12 +48,37 @@ final class CommonJointAccountsRepository {
         .share(replay: 1)
         .eraseToAnyPublisher()
 
+    /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
+    private lazy var invitesStorageDidUpdatePublisher: AnyPublisher<[StoredJointAccountInvites], Never> = invitesPersistentStorage
+        .didUpdatePublisher
+        .prepend(()) // An initial value to trigger loading from storage
+        .receive(on: DispatchQueue.global(qos: .userInitiated))
+        .withWeakCaptureOf(self)
+        .map { repository, _ in repository.invitesPersistentStorage.getList() }
+        .removeDuplicates()
+        .receiveOnMain()
+        .share(replay: 1)
+        .eraseToAnyPublisher()
+
+    /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
+    private lazy var pendingOperationsStorageDidUpdatePublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> = pendingOperationsPersistentStorage
+        .didUpdatePublisher
+        .prepend(()) // An initial value to trigger loading from storage
+        .receive(on: DispatchQueue.global(qos: .userInitiated))
+        .withWeakCaptureOf(self)
+        .map { repository, _ in repository.pendingOperationsPersistentStorage.getList() }
+        .removeDuplicates()
+        .receiveOnMain()
+        .share(replay: 1)
+        .eraseToAnyPublisher()
+
     init(
         userWalletId: UserWalletId,
         networkService: JointAccountsNetworkService,
         derivationInteractorFactory: JointAccountDerivationInteractorFactory,
         persistentStorage: JointAccountsPersistentStorage,
         invitesPersistentStorage: JointAccountsInvitesPersistentStorage,
+        pendingOperationsPersistentStorage: JointAccountsPendingOperationsPersistentStorage,
         isJointAccountsAvailable: Bool
     ) {
         self.userWalletId = userWalletId
@@ -60,18 +86,33 @@ final class CommonJointAccountsRepository {
         self.derivationInteractorFactory = derivationInteractorFactory
         self.persistentStorage = persistentStorage
         self.invitesPersistentStorage = invitesPersistentStorage
+        self.pendingOperationsPersistentStorage = pendingOperationsPersistentStorage
         self.isJointAccountsAvailable = isJointAccountsAvailable
         // Eager initialization of these lazy properties to ensure that there are no race conditions
         _ = loadJointAccountsDebouncer
         _ = storageDidUpdatePublisher
+        _ = invitesStorageDidUpdatePublisher
+        _ = pendingOperationsStorageDidUpdatePublisher
     }
 }
 
 // MARK: - JointAccountsRepository protocol conformance
 
 extension CommonJointAccountsRepository: JointAccountsRepository {
+    var jointAccounts: [StoredJointAccount] {
+        persistentStorage.getList()
+    }
+
     var jointAccountsPublisher: AnyPublisher<[StoredJointAccount], Never> {
         storageDidUpdatePublisher
+    }
+
+    var jointAccountsInvitesPublisher: AnyPublisher<[StoredJointAccountInvites], Never> {
+        invitesStorageDidUpdatePublisher
+    }
+
+    var jointAccountsPendingOperationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> {
+        pendingOperationsStorageDidUpdatePublisher
     }
 
     func initialize() {
@@ -121,6 +162,32 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
         try invitesPersistentStorage.save(creationResult.invites, forCryptoAccountId: creationResult.account.cryptoAccountId)
         try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: creationResult.account))
     }
+
+    func joinJointAccount(withConfig config: JointAccountJoinConfig) async throws {
+        guard isJointAccountsAvailable else {
+            throw InternalError.featureUnavailable
+        }
+
+        let payloadBuilder = JointAccountJoinPayloadBuilder(
+            userWalletId: userWalletId,
+            inviteId: config.inviteId,
+            config: config.signedConfig,
+            memberName: config.memberName
+        )
+        let interactor = derivationInteractorFactory.makeInteractor()
+
+        let result = try await interactor.deriveAndSign(
+            derivationIndex: config.derivationIndex,
+            payloadBuilder: payloadBuilder
+        )
+
+        let blob = JointAccountJoinBlob(payload: result.payload, signature: result.signature)
+
+        let account = try await networkService.joinJointAccount(blob: blob)
+
+        // No invites come back here: they belong to the creator, and this wallet has just spent the one it was given
+        try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: account))
+    }
 }
 
 // MARK: - Private
@@ -163,7 +230,10 @@ private extension CommonJointAccountsRepository {
 
         // The invites are not the endpoint's to report, so a read leaves them where they are and says nothing of them
         let accounts = remoteJointAccounts.map(StoredJointAccount.init(remote:))
+        let pendingOperations = remoteJointAccounts.compactMap(StoredJointAccountPendingOperations.init(remote:))
 
+        // The operations go first, so that an account arriving in the list finds what is in flight for it already there
+        try pendingOperationsPersistentStorage.replace(with: pendingOperations)
         try persistentStorage.replace(with: accounts)
     }
 }

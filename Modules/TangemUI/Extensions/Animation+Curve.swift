@@ -20,6 +20,10 @@ public struct AnimationCurve {
     public static let easeOutStandard = AnimationCurve(p1x: 0.65, p1y: 0, p2x: 0.35, p2y: 1)
     /// **0.69**, **0.07**, **0.27**, **0.95**
     public static let easeInOutRefined = AnimationCurve(p1x: 0.69, p1y: 0.07, p2x: 0.27, p2y: 0.95)
+    /// **0**, **0**, **0.6**, **1.2** — overshoots past the target and settles back.
+    public static let overshootPronounced = AnimationCurve(p1x: 0, p1y: 0, p2x: 0.6, p2y: 1.2)
+    /// **0.8**, **0**, **0.3**, **1.1** — eases in, overshoots slightly.
+    public static let overshootSubtle = AnimationCurve(p1x: 0.8, p1y: 0, p2x: 0.3, p2y: 1.1)
 }
 
 // MARK: - Convenience extensions

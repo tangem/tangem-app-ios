@@ -9,7 +9,7 @@
 import Foundation
 
 public enum PolymarketApprovalCalls {
-    public static func make() -> [PolymarketApprovalsBatch.Call] {
+    public static func make() -> [PolymarketRelayedBatch.Call] {
         [
             approve(spender: PolymarketApprovalContracts.conditionalTokens),
             approve(spender: PolymarketApprovalContracts.ctfExchange),
@@ -31,15 +31,15 @@ public enum PolymarketApprovalCalls {
 // MARK: - Private implementation
 
 private extension PolymarketApprovalCalls {
-    static func approve(spender: String) -> PolymarketApprovalsBatch.Call {
-        PolymarketApprovalsBatch.Call(
+    static func approve(spender: String) -> PolymarketRelayedBatch.Call {
+        PolymarketRelayedBatch.Call(
             target: PolymarketCollateral.contractAddress,
             data: Constants.approveSelector + leftPaddedWord(spender) + Constants.maxUint256
         )
     }
 
-    static func setApprovalForAll(operator operatorAddress: String) -> PolymarketApprovalsBatch.Call {
-        PolymarketApprovalsBatch.Call(
+    static func setApprovalForAll(operator operatorAddress: String) -> PolymarketRelayedBatch.Call {
+        PolymarketRelayedBatch.Call(
             target: PolymarketApprovalContracts.conditionalTokens,
             data: Constants.setApprovalForAllSelector + leftPaddedWord(operatorAddress) + Constants.boolTrue
         )

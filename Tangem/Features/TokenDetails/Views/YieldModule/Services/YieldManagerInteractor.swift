@@ -19,10 +19,13 @@ actor YieldManagerInteractor {
     private var exitFeeTask: Task<YieldTransactionFee, Error>?
     private var approveFeeTask: Task<YieldTransactionFee, Error>?
 
+    private var aprHistoryCache: [YieldIncentiveChartPeriod: YieldIncentiveChartData] = [:]
+
     // MARK: - Dependencies
 
     private let transactionDispatcher: any TransactionDispatcher
     private let manager: YieldModuleManager
+    private let chartMapper = YieldIncentiveChartMapper()
 
     // MARK: - Init
 
@@ -61,7 +64,7 @@ actor YieldManagerInteractor {
     }
 
     func getApy() async throws -> Decimal {
-        if let apy = manager.state?.marketInfo?.apy {
+        if let apy = manager.state?.marketInfo?.effectiveApy {
             return apy
         } else {
             let info = try await manager.fetchYieldTokenInfo()
@@ -79,6 +82,24 @@ actor YieldManagerInteractor {
 
     func getChartData() async throws -> YieldChartData {
         try await manager.fetchChartData()
+    }
+
+    func getIncentiveChartData(period: YieldIncentiveChartPeriod) async throws -> YieldIncentiveChartData {
+        // Daily-granularity data: fetch each period once per flow, so toggling periods back and forth
+        // doesn't refire requests.
+        if let cached = aprHistoryCache[period] {
+            return cached
+        }
+
+        let points = try await manager.fetchAprHistory(days: period.days)
+        let data = chartMapper.map(points: points, period: period)
+
+        // An empty history is worth refetching, so only a real series is kept.
+        if !points.isEmpty {
+            aprHistoryCache[period] = data
+        }
+
+        return data
     }
 
     func getCurrentFeeParameters() async throws -> EthereumFeeParameters {

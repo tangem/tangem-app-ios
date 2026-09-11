@@ -26,14 +26,14 @@ struct AddAccountTypeSelectorView: View {
             VStack(spacing: 8) {
                 Row(title: Localization.commonCryptoAccount, subtitle: Localization.addCryptoAccountSubtitle)
                     .subtitleLineLimit(nil)
-                    .start { iconView(Assets.Accounts.user) }
+                    .start { iconView(DesignSystem.Icons.User.regular20) }
                     .onTap(viewModel.onCryptoAccountTap)
                     .background(DesignSystem.Color.bgTertiary)
                     .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
 
                 Row(title: Localization.commonJointAccount, subtitle: Localization.addJointAccountSubtitle)
                     .subtitleLineLimit(nil)
-                    .start { iconView(Assets.Accounts.family) }
+                    .start { iconView(DesignSystem.Icons.Users.regular20) }
                     .onTap(viewModel.onJointAccountTap)
                     .background(DesignSystem.Color.bgTertiary)
                     .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
@@ -50,8 +50,6 @@ struct AddAccountTypeSelectorView: View {
     private func iconView(_ icon: ImageType) -> some View {
         icon.image
             .renderingMode(.template)
-            .resizable()
-            .frame(size: CGSize(bothDimensions: 20))
             .foregroundStyle(DesignSystem.Color.iconPrimary)
             .padding(10)
             .background(DesignSystem.Color.bgOpaqueSecondary)

@@ -17,7 +17,7 @@ struct KeychainSessionTokensRepositoryTests {
     func persistThenRetrieveRoundTripsTokens() async throws {
         let sut = makeSUT(keychainRepository: FakeKeychainRepository())
 
-        try await sut.persist(Self.sampleTokens)
+        try await sut.persist(tokens: Self.sampleTokens)
         let retrievedTokens = try await sut.retrieve()
 
         #expect(retrievedTokens == Self.sampleTokens)
@@ -27,7 +27,7 @@ struct KeychainSessionTokensRepositoryTests {
     func persistThenRetrieveRoundTripsTokensWithNoRefreshTokenAndNoWallets() async throws {
         let sut = makeSUT(keychainRepository: FakeKeychainRepository())
 
-        try await sut.persist(Self.tokensWithoutRefreshTokenOrWallets)
+        try await sut.persist(tokens: Self.tokensWithoutRefreshTokenOrWallets)
         let retrievedTokens = try await sut.retrieve()
 
         #expect(retrievedTokens == Self.tokensWithoutRefreshTokenOrWallets)
@@ -37,8 +37,8 @@ struct KeychainSessionTokensRepositoryTests {
     func persistReplacesPreviouslyPersistedTokens() async throws {
         let sut = makeSUT(keychainRepository: FakeKeychainRepository())
 
-        try await sut.persist(Self.sampleTokens)
-        try await sut.persist(Self.anotherSampleTokens)
+        try await sut.persist(tokens: Self.sampleTokens)
+        try await sut.persist(tokens: Self.anotherSampleTokens)
         let retrievedTokens = try await sut.retrieve()
 
         #expect(retrievedTokens == Self.anotherSampleTokens)
@@ -78,7 +78,7 @@ struct KeychainSessionTokensRepositoryTests {
         let sut = makeSUT(keychainRepository: StubKeychainRepository(insertResult: .failure(insertFailsKeychainError)))
 
         await #expect(throws: SessionTokensRepositoryError.keychainFailure(insertFailsKeychainError)) {
-            try await sut.persist(Self.sampleTokens)
+            try await sut.persist(tokens: Self.sampleTokens)
         }
     }
 
@@ -93,7 +93,7 @@ struct KeychainSessionTokensRepositoryTests {
         )
 
         await #expect(throws: SessionTokensRepositoryError.keychainFailure(updateFailsKeychainError)) {
-            try await sut.persist(Self.sampleTokens)
+            try await sut.persist(tokens: Self.sampleTokens)
         }
     }
 
@@ -101,7 +101,7 @@ struct KeychainSessionTokensRepositoryTests {
     func deleteForwardsToKeychainRepository() async throws {
         let sut = makeSUT(keychainRepository: FakeKeychainRepository())
 
-        try await sut.persist(Self.sampleTokens)
+        try await sut.persist(tokens: Self.sampleTokens)
         try await sut.delete()
 
         let retrievedTokens = try await sut.retrieve()

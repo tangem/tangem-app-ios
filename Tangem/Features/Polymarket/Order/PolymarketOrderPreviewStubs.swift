@@ -1,0 +1,49 @@
+//
+//  PolymarketOrderPreviewStubs.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import TangemPolymarket
+
+@MainActor
+extension PolymarketOrderModel {
+    static func preview(outcomeIndex: Int) -> PolymarketOrderModel {
+        let market = PolymarketMarket.preview
+
+        return PolymarketOrderModel(
+            market: market,
+            outcome: market.outcomes[outcomeIndex],
+            eventTitle: "2026 FIFA World Cup winner",
+            apiProvider: PolymarketOrderPreviewAPIProvider(),
+            geoblockStateProvider: PolymarketOrderPreviewGeoblockStateProvider(),
+            balancePublisher: .just(output: Decimal(30000))
+        )
+    }
+}
+
+extension PolymarketMarket {
+    static let preview = PolymarketMarket(
+        id: "preview",
+        title: "Will Uzbekistan win the 2026 FIFA World Cup?",
+        groupItemTitle: nil,
+        imageURL: nil,
+        iconURL: nil,
+        status: .active,
+        isNegRisk: false,
+        isAcceptingOrders: true,
+        startDate: nil,
+        endDate: nil,
+        volume: 1_240_000,
+        volume24h: nil,
+        liquidity: nil,
+        orderIndex: nil,
+        outcomes: [
+            PolymarketOutcome(assetId: "yes", title: "Yes", probability: 0.15),
+            PolymarketOutcome(assetId: "no", title: "No", probability: 0.85),
+        ]
+    )
+}

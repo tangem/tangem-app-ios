@@ -17,7 +17,9 @@ struct WithdrawHubView: View {
     var body: some View {
         WithdrawHubContentView(
             isWithinPortfolioLoading: viewModel.isWithinPortfolioLoading,
-            onWithinPortfolioTap: viewModel.onWithinPortfolioTap
+            recentTokens: viewModel.recentTokens,
+            recentAccounts: viewModel.recentAccounts,
+            onAction: viewModel.handleViewAction
         )
         .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
         .alert(item: $viewModel.alert) { $0.alert }

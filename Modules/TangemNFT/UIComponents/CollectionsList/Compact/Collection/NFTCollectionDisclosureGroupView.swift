@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct NFTCollectionDisclosureGroupView: View {
     let viewModel: NFTCollectionDisclosureGroupViewModel
@@ -47,6 +48,7 @@ struct NFTCollectionDisclosureGroupView: View {
             isExpanded: isExpanded
         )
         .padding(.vertical, 15.0)
+        .accessibilityIdentifier(NFTAccessibilityIdentifiers.collectionRow(name: viewModel.name))
     }
 
     @ViewBuilder

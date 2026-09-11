@@ -279,9 +279,11 @@ extension UserWalletSettingsCoordinator: AddAccountTypeSelectorRoutable {
             )
 
             coordinator.start(
-                with: JointAccountManagementCoordinator.Options(
-                    accountModelsManager: accountModelsManager,
-                    userWalletConfig: userWalletConfig
+                with: .creation(
+                    JointAccountManagementCoordinator.CreationOptions(
+                        accountModelsManager: accountModelsManager,
+                        userWalletConfig: userWalletConfig
+                    )
                 )
             )
 

@@ -6,7 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import Combine
+import TangemFoundation
 import TangemUI
 
 final class TangemPayOfframpCoordinator: CoordinatorObject {
@@ -18,10 +19,20 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
     // MARK: - Root view model
 
     @Published private(set) var rootViewModel: WithdrawHubViewModel?
+    @Published var path: [Route] = []
 
     // MARK: - Child coordinators
 
     @Published var sendCoordinator: SendCoordinator?
+
+    // MARK: - Shared state
+
+    private(set) var recentRecipientsStore: TangemPayRecentRecipientsStore?
+    private(set) var orderBuilder: TangemPayOfframpOrderBuilder?
+    @Published private(set) var transferInputViewModel: TransferInputViewModel?
+
+    private var tangemPayAccount: TangemPayAccount?
+    private var bag: Set<AnyCancellable> = []
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -32,15 +43,54 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        tangemPayAccount = options.tangemPayAccount
+
+        let recentRecipientsStore = TangemPayRecentRecipientsStore(
+            repository: CommonTangemPayBankAccountsRepository(
+                customerService: options.tangemPayAccount.customerService
+            ),
+            cacheStorage: AppSettings.shared,
+            customerWalletId: options.tangemPayAccount.userWalletId.stringValue
+        )
+        self.recentRecipientsStore = recentRecipientsStore
+
         rootViewModel = WithdrawHubViewModel(
             withdrawFlowResolver: TangemPayWithdrawFlowResolver(
                 fundingFlowBuilder: options.fundingFlowBuilder,
                 withdrawAvailabilityProvider: options.tangemPayAccount.withdrawAvailabilityProvider
             ),
+            recentRecipientsStore: recentRecipientsStore,
             output: { [weak self] in
                 self?.handle($0)
             }
         )
+
+        bind()
+    }
+
+    func startWizard(recipient: TangemPayOfframpRecipient) {
+        guard let tangemPayAccount else { return }
+
+        let orderBuilder = TangemPayOfframpOrderBuilder(recipient: recipient)
+        self.orderBuilder = orderBuilder
+
+        let savedRecipientName = savedRecipientName(for: recipient)
+
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            transferInputViewModel = TransferInputFactory.makeViewModel(
+                orderBuilder: orderBuilder,
+                tangemPayAccount: tangemPayAccount,
+                recipient: recipient,
+                savedRecipientName: savedRecipientName,
+                output: { [weak self] in
+                    self?.handle($0)
+                }
+            )
+
+            path.append(.transferInput)
+        }
     }
 }
 
@@ -53,6 +103,124 @@ extension TangemPayOfframpCoordinator {
     }
 
     typealias DismissOptions = FeeCurrencyNavigatingDismissOption
+}
+
+// MARK: - Route
+
+extension TangemPayOfframpCoordinator {
+    enum Route: Hashable {
+        case recentRecipients
+        case transferInput
+        case transferType
+        case accountType
+        case personalDetails
+        case bankDetails
+    }
+}
+
+// MARK: - Wizard lifetime
+
+private extension TangemPayOfframpCoordinator {
+    func bind() {
+        $path
+            .map { $0.contains(.transferInput) }
+            .removeDuplicates()
+            .filter { !$0 }
+            .withWeakCaptureOf(self)
+            .sink { coordinator, _ in
+                coordinator.orderBuilder = nil
+                coordinator.transferInputViewModel = nil
+            }
+            .store(in: &bag)
+    }
+
+    func savedRecipientName(for recipient: TangemPayOfframpRecipient) -> String? {
+        guard case .saved(let bankAccountId) = recipient else { return nil }
+
+        return recentRecipientsStore?
+            .recipients
+            .first { $0.id == bankAccountId }
+            .map { TangemPayRecipientNameFormatter.name(for: $0, style: .full) }
+    }
+}
+
+// MARK: - Transfer input output
+
+private extension TangemPayOfframpCoordinator {
+    func handle(_ output: TransferInputViewModel.Output) {
+        switch output {
+        case .continueWizard:
+            continueAfterTransferInput()
+
+        case .close:
+            dismiss(with: nil)
+        }
+    }
+}
+
+// MARK: - Wizard step output
+
+extension TangemPayOfframpCoordinator {
+    func handle(_ output: TransferTypeViewModel.Output) {
+        switch output {
+        case .continueWizard:
+            path.append(.accountType)
+
+        case .close:
+            dismiss(with: nil)
+        }
+    }
+
+    func handle(_ output: AccountTypeViewModel.Output) {
+        switch output {
+        case .continueWizard:
+            path.append(.personalDetails)
+
+        case .close:
+            dismiss(with: nil)
+        }
+    }
+
+    func handle(_ output: PersonalDetailsViewModel.Output) {
+        switch output {
+        case .continueWizard:
+            path.append(.bankDetails)
+
+        case .close:
+            dismiss(with: nil)
+        }
+    }
+
+    func handle(_ output: BankDetailsViewModel.Output) {
+        switch output {
+        case .continueWizard:
+            // [REDACTED_TODO_COMMENT]
+            break
+
+        case .close:
+            dismiss(with: nil)
+        }
+    }
+}
+
+// MARK: - Wizard routing
+
+private extension TangemPayOfframpCoordinator {
+    func continueAfterTransferInput() {
+        guard let orderBuilder else { return }
+
+        switch orderBuilder.recipient {
+        case .newIndividual:
+            path.append(.transferType)
+
+        case .newBusiness:
+            path.append(.accountType)
+
+        case .saved:
+            // [REDACTED_TODO_COMMENT]
+            break
+        }
+    }
 }
 
 // MARK: - Withdraw hub output
@@ -80,6 +248,12 @@ private extension TangemPayOfframpCoordinator {
                 let viewModel = TangemPayNoDepositAddressSheetViewModel(coordinator: self)
                 floatingSheetPresenter.enqueue(sheet: viewModel)
             }
+
+        case .allRecipients:
+            path.append(.recentRecipients)
+
+        case .startWizard(let recipient):
+            startWizard(recipient: recipient)
 
         case .close:
             dismiss(with: nil)

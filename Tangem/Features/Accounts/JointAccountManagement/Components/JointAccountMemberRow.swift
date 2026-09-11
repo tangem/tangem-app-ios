@@ -39,13 +39,15 @@ struct JointAccountMemberRow: View {
     @ViewBuilder
     private var accessoryView: some View {
         switch accessory {
+        case .empty:
+            EmptyView()
         case .info(let action):
             TangemUI.Button(
                 icon: DesignSystem.Icons.Info.regular20,
                 accessibilityLabel: title,
                 action: action
             )
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .size(.x8)
         case .invite(let action):
             TangemUI.Button(
@@ -53,7 +55,7 @@ struct JointAccountMemberRow: View {
                 accessibilityLabel: nil,
                 action: action
             )
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .size(.x8)
         }
     }
@@ -68,6 +70,7 @@ extension JointAccountMemberRow {
     }
 
     enum Accessory {
+        case empty
         case info(action: () -> Void)
         case invite(action: () -> Void)
     }

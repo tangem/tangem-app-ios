@@ -86,7 +86,7 @@ private extension TangemPayOtherNetworksSheetView {
             action: viewModel.close
         )
         .size(.x12)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .horizontalLayout(.infinity)
     }
 }

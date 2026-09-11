@@ -22,7 +22,8 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 @available(iOS, deprecated: 100000, message: "Avoid adding another derived class. Rethink your architectural decisions.")
 class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Injected(\.storyAvailabilityService) private var storyAvailabilityService: any StoryAvailabilityService
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.cryptoAccountsGlobalStateProvider)
+    private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
 
     @Published final var alert: AlertBinder?
     @Published final var transactionHistoryState: TransactionsListView.State = .loading
@@ -79,7 +80,8 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         currencySymbol: currencySymbol,
         addressesProvider: walletModel,
         showSign: true,
-        isToken: walletModel.tokenItem.isToken
+        isToken: walletModel.tokenItem.isToken,
+        stakingNetwork: walletModel.tokenItem.stakingTokenItem?.network
     )
 
     /// Resolver is cheap to rebuild and `isAccountsMode` can flip while the screen is alive
@@ -105,9 +107,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     var isAccountsMode: Bool {
-        userWalletRepository.models.contains {
-            $0.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
-        }
+        return cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
     }
 
     private lazy var pendingTransactionRecordMapper = PendingTransactionRecordMapper(formatter: BalanceFormatter())

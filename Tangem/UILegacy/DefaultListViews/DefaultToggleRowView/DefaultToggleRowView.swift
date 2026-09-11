@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 
 struct DefaultToggleRowView: View {
     private let viewModel: DefaultToggleRowViewModel
@@ -32,6 +33,7 @@ struct DefaultToggleRowView: View {
                 .labelsHidden()
                 .tint(Colors.Control.checked)
                 .disabled(viewModel.isDisabled)
+                .accessibilityIdentifier(viewModel.accessibilityIdentifier)
         }
         .padding(.vertical, 8)
         .connect(state: $isOn, to: viewModel.isOn)

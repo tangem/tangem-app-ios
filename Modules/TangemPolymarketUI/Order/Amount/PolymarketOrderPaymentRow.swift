@@ -1,0 +1,92 @@
+//
+//  PolymarketOrderPaymentRow.swift
+//  TangemPolymarketUI
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import SwiftUI
+import TangemAssets
+import TangemLocalization
+import TangemUI
+import TangemUIUtils
+
+public struct PolymarketOrderPaymentRow: View {
+    private let model: Model
+    private let onAddFunds: (() -> Void)?
+
+    public init(model: Model, onAddFunds: (() -> Void)? = nil) {
+        self.model = model
+        self.onAddFunds = onAddFunds
+    }
+
+    public var body: some View {
+        HStack(spacing: Constants.spacing) {
+            icon
+
+            texts
+
+            Spacer(minLength: Constants.spacing)
+
+            addFundsButton
+        }
+        .padding(.horizontal, Constants.horizontalPadding)
+        .padding(.vertical, Constants.verticalPadding)
+    }
+
+    private var icon: some View {
+        TokenIcon(tokenIconInfo: model.tokenIconInfo, size: Constants.iconSize)
+    }
+
+    private var texts: some View {
+        VStack(alignment: .leading, spacing: Constants.textSpacing) {
+            Text(model.symbol)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                .lineLimit(1)
+
+            Text(Localization.commonBalance(model.balanceText))
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                .lineLimit(1)
+        }
+    }
+
+    private var addFundsButton: some View {
+        TangemUI.Button(
+            label: Localization.commonAddFunds,
+            accessibilityLabel: Localization.commonAddFunds,
+            action: { onAddFunds?() }
+        )
+        .size(.x8)
+        .styleType(.secondary(.default))
+        .disabled(onAddFunds == nil)
+    }
+}
+
+// MARK: - Model
+
+public extension PolymarketOrderPaymentRow {
+    struct Model {
+        public let tokenIconInfo: TokenIconInfo
+        public let symbol: String
+        public let balanceText: String
+
+        public init(tokenIconInfo: TokenIconInfo, symbol: String, balanceText: String) {
+            self.tokenIconInfo = tokenIconInfo
+            self.symbol = symbol
+            self.balanceText = balanceText
+        }
+    }
+}
+
+// MARK: - Constants
+
+private extension PolymarketOrderPaymentRow {
+    enum Constants {
+        static let spacing: CGFloat = 12
+        static let textSpacing: CGFloat = 2
+        static let horizontalPadding: CGFloat = 16
+        static let verticalPadding: CGFloat = 12
+        static let iconSize = CGSize(bothDimensions: 36)
+    }
+}
