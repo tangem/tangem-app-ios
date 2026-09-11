@@ -6,12 +6,14 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import UIKit
 import XCTest
 
 final class TangemPayAccountVisibilityUITests: BaseTestCase {
     private let firstAccountName = "Account 1"
     private let secondAccountName = "Account 2"
     private let payAccountName = "Payment account"
+    private let qaToolsClient = QAToolsClient()
 
     func testPayAccountNotListedInWalletSettingsAccounts() {
         setAllureId(11470)
@@ -108,6 +110,27 @@ final class TangemPayAccountVisibilityUITests: BaseTestCase {
             .verifySuggestedAccountNotVisible(payAccountName)
     }
 
+    func testPayAccountNotOfferedWhenConnectingDAppViaWalletConnect() {
+        setAllureId(11472)
+
+        let qrScanScreen = launchWithPayAndTwoAccounts()
+            .openDetails()
+            .openWalletConnections()
+            .tapNewConnection()
+            .waitForQRScannerScreenToBeVisible()
+
+        // The pairing URI is fetched once the app is ready to consume it, so it cannot expire during wallet import.
+        UIPasteboard.general.string = fetchPairingURI()
+
+        qrScanScreen
+            .tapPasteButton()
+            .waitForConnectionProposalBottomSheetToBeVisible()
+            .tapAccountRow()
+            .verifyAccountVisible(firstAccountName)
+            .verifyAccountVisible(secondAccountName)
+            .verifyAccountNotVisible(payAccountName)
+    }
+
     private func launchWithPayAndTwoAccounts() -> MainScreen {
         launchAndImportHotWallet(
             expressApiType: .mock,
@@ -129,6 +152,13 @@ final class TangemPayAccountVisibilityUITests: BaseTestCase {
         .enableNFT()
         .goBackToDetails()
         .goBackToMain()
+    }
+
+    private func fetchPairingURI() -> String {
+        let deeplink = qaToolsClient.getWCURISync(network: .ethereum, uriScheme: .tangem)
+        XCTAssert(!deeplink.isEmpty, "WC URI from qa-tools must not be empty")
+        // The Paste button consumes the bare wc: URI, not the deeplink wrapping it.
+        return deeplink.replacingOccurrences(of: "\(WCURIScheme.tangem.rawValue)?uri=", with: "")
     }
 }
 
