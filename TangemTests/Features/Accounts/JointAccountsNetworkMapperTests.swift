@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemSdk
 import Testing
 @testable import Tangem
 
@@ -115,12 +116,12 @@ struct JointAccountsNetworkMapperTests {
 
         #expect(operation.operationId == "0E2F4A6C-8D0B-4C5E-9F1A-2D4B6C8E0F2A")
         #expect(operation.chainId == 1)
-        #expect(operation.status == "awaiting_signatures")
+        #expect(operation.status == .awaitingSignatures)
         #expect(operation.initiator == "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf")
         #expect(operation.deadline == nil)
         #expect(operation.safeTx.nonce == 7)
         #expect(operation.safeTx.operation == 0)
-        #expect(operation.signatures.map(\.state) == ["signed", "declined"])
+        #expect(operation.signatures.map(\.state) == [.signed, .declined])
     }
 
     @Test("A listing without operations reads the way it did before the endpoint learnt to report them")
@@ -149,6 +150,90 @@ struct JointAccountsNetworkMapperTests {
         let blob = JointAccountJoinBlob(payload: Constants.joinPayload, signature: Data([0x01, 0xAB, 0xFF]))
 
         #expect(mapper.mapToRequest(from: blob).signature == "0x01ABFF")
+    }
+
+    @Test("An operation is read into the domain with its Safe transaction typed")
+    func operationIsMapped() throws {
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(Constants.activeAccountsWithOperationJSON)
+
+        let account = try #require(try mapper.mapToJointAccounts(from: response).first)
+        let operation = try #require(account.operations.first)
+
+        #expect(operation.id == "0E2F4A6C-8D0B-4C5E-9F1A-2D4B6C8E0F2A")
+        #expect(operation.chainId == 1)
+        #expect(operation.status == .awaitingSignatures)
+        #expect(operation.initiator == "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf")
+        #expect(operation.safeTransaction.nonce == 7)
+        #expect(operation.safeTransaction.baseGas == 118_000)
+        #expect(operation.safeTransaction.gasPrice == 1_500_000_000)
+        #expect(operation.safeTransaction.data.isEmpty)
+        #expect(operation.signatures.map(\.state) == [.signed, .declined])
+    }
+
+    @Test("A gas figure that is not a number refuses the whole listing")
+    func malformedOperationIsRefused() throws {
+        let json = Constants.activeAccountsWithOperationJSON.replacingOccurrences(of: "\"baseGas\": \"118000\"", with: "\"baseGas\": \"lots\"")
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(json)
+
+        #expect(throws: JointAccountsNetworkMapperError.malformedOperation(field: "baseGas")) {
+            try mapper.mapToJointAccounts(from: response)
+        }
+    }
+
+    @Test("The calldata a token transfer carries survives the reading byte for byte")
+    func operationCallDataIsRead() throws {
+        let callData = "a9059cbb0000000000000000000000002b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c00000000000000000000000000000000000000000000000000000000000f4240"
+        let json = Constants.activeAccountsWithOperationJSON.replacingOccurrences(of: "\"data\": \"0x\"", with: "\"data\": \"0x\(callData)\"")
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(json)
+
+        let account = try #require(try mapper.mapToJointAccounts(from: response).first)
+        let operation = try #require(account.operations.first)
+
+        #expect(operation.safeTransaction.data.hexString.lowercased() == callData)
+    }
+
+    @Test("Calldata that is not hex refuses the whole listing rather than passing for an empty one", arguments: ["0xnope", "0xa9059cb"])
+    func malformedCallDataIsRefused(rawCallData: String) throws {
+        let json = Constants.activeAccountsWithOperationJSON.replacingOccurrences(of: "\"data\": \"0x\"", with: "\"data\": \"\(rawCallData)\"")
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(json)
+
+        #expect(throws: JointAccountsNetworkMapperError.malformedOperation(field: "data")) {
+            try mapper.mapToJointAccounts(from: response)
+        }
+    }
+
+    @Test("A stage this version has never heard of costs the operation its stage and nothing else")
+    func unknownOperationStatusIsRead() throws {
+        let json = Constants.activeAccountsWithOperationJSON.replacingOccurrences(of: "\"status\": \"awaiting_signatures\"", with: "\"status\": \"expired\"")
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(json)
+
+        let account = try #require(try mapper.mapToJointAccounts(from: response).first)
+        let operation = try #require(account.operations.first)
+
+        #expect(operation.status == .unknown)
+        #expect(operation.status.isInFlight == false)
+        #expect(operation.id == "0E2F4A6C-8D0B-4C5E-9F1A-2D4B6C8E0F2A")
+    }
+
+    @Test("A member's answer this version has never heard of costs that answer and nothing else")
+    func unknownSignatureStateIsRead() throws {
+        let json = Constants.activeAccountsWithOperationJSON.replacingOccurrences(of: "\"state\": \"declined\"", with: "\"state\": \"revoked\"")
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(json)
+
+        let account = try #require(try mapper.mapToJointAccounts(from: response).first)
+        let operation = try #require(account.operations.first)
+
+        #expect(operation.status == .awaitingSignatures)
+        #expect(operation.signatures.map(\.state) == [.signed, .unknown])
+    }
+
+    @Test("A stored operation stage survives a round trip, whether this version knows it or not")
+    func operationStatusRoundTripsThroughStorage() throws {
+        for status in [JointAccountOperationStatus.awaitingSignatures, .pending, .executed, .failed, .unknown] {
+            let encoded = try JSONEncoder().encode([status])
+
+            #expect(try JSONDecoder().decode([JointAccountOperationStatus].self, from: encoded) == [status])
+        }
     }
 }
 
