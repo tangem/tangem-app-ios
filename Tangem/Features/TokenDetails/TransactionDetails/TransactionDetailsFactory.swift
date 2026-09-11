@@ -171,12 +171,18 @@ enum TransactionDetailsFactory {
             rate: swapRate(fromAmount: sourceAmount, fromToken: fromToken, toAmount: destinationAmount, toToken: toToken),
             networkFee: networkFee(from: record),
             action: refund?.action ?? action(for: exchange.status, isLongRunning: isLongRunning, externalURL: exchange.externalTx?.url),
-            ratingTransaction: TransactionDetailsSwapViewData.RatingTransaction(
-                transactionId: exchange.txId,
-                providerId: exchange.providerId,
-                providerName: info.provider?.name,
-                txUrl: exchange.externalTx?.url?.absoluteString
-            )
+            ratingTransaction: ratingTransaction(for: exchange, providerName: info.provider?.name)
+        )
+    }
+
+    private static func ratingTransaction(for exchange: ExchangeTransaction, providerName: String?) -> TransactionDetailsSwapViewData.RatingTransaction? {
+        guard RatingModel.Transaction.isRateable(exchange.status) else { return nil }
+
+        return TransactionDetailsSwapViewData.RatingTransaction(
+            transactionId: exchange.txId,
+            providerId: exchange.providerId,
+            providerName: providerName,
+            txUrl: exchange.externalTx?.url?.absoluteString
         )
     }
 
