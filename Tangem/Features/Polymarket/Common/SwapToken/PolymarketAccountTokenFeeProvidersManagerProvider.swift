@@ -1,5 +1,5 @@
 //
-//  PolymarketDepositTokenFeeProvidersManagerProvider.swift
+//  PolymarketAccountTokenFeeProvidersManagerProvider.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct PolymarketDepositTokenFeeLoader: TokenFeeLoader {
+struct PolymarketAccountTokenFeeLoader: TokenFeeLoader {
     let feeTokenItem: TokenItem
 
     private var zeroFee: BSDKFee {
@@ -24,18 +24,18 @@ struct PolymarketDepositTokenFeeLoader: TokenFeeLoader {
     }
 }
 
-struct PolymarketDepositTokenFeeProvidersManagerProvider {
+struct PolymarketAccountTokenFeeProvidersManagerProvider {
     let feeTokenItem: TokenItem
     let feeTokenItemBalanceProvider: any TokenBalanceProvider
 }
 
 // MARK: - TokenFeeProvidersManagerProvider
 
-extension PolymarketDepositTokenFeeProvidersManagerProvider: TokenFeeProvidersManagerProvider {
+extension PolymarketAccountTokenFeeProvidersManagerProvider: TokenFeeProvidersManagerProvider {
     func makeTokenFeeProvidersManager() -> TokenFeeProvidersManager {
         let feeProvider: TokenFeeProvider = CommonTokenFeeProvider(
             feeTokenItem: feeTokenItem,
-            tokenFeeLoader: PolymarketDepositTokenFeeLoader(feeTokenItem: feeTokenItem),
+            tokenFeeLoader: PolymarketAccountTokenFeeLoader(feeTokenItem: feeTokenItem),
             customFeeProvider: .none,
             feeTokenItemBalanceProvider: feeTokenItemBalanceProvider,
             supportingOptions: .all

@@ -1,5 +1,5 @@
 //
-//  PolymarketAddFundsFactory.swift
+//  PolymarketAccountFundsFactory.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,10 +9,10 @@
 import Foundation
 import TangemPolymarket
 
-struct PolymarketAddFundsFactory {
+struct PolymarketAccountFundsFactory {
     private let services = PolymarketOnboardingServicesFactory.makeDefault()
 
-    func makeInteractor(for userWalletModel: any UserWalletModel) -> PolymarketAddFundsInteractor {
+    func makeInteractor(for userWalletModel: any UserWalletModel) -> PolymarketAccountFundsInteractor {
         let walletId = userWalletModel.userWalletId.stringValue
 
         let configurationService = services.makeConfigurationService(
@@ -24,7 +24,7 @@ struct PolymarketAddFundsFactory {
             supportedAssetsStore: InjectedValues[\.polymarketSupportedAssetsStore]
         )
 
-        return PolymarketAddFundsInteractor(
+        return PolymarketAccountFundsInteractor(
             bridgeService: bridgeService,
             configurationService: configurationService,
             walletService: services.makeWalletService(),

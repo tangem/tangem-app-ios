@@ -1,5 +1,5 @@
 //
-//  PolymarketApprovalsBatch.swift
+//  PolymarketRelayedBatch.swift
 //  TangemPolymarket
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct PolymarketApprovalsBatch: Hashable, Sendable {
+public struct PolymarketRelayedBatch: Hashable, Sendable {
     public let ownerAddress: String
     public let depositWalletAddress: String
     public let nonce: String
@@ -33,7 +33,7 @@ public struct PolymarketApprovalsBatch: Hashable, Sendable {
     }
 }
 
-public extension PolymarketApprovalsBatch {
+public extension PolymarketRelayedBatch {
     struct Unsigned: Hashable, Sendable {
         public let depositWalletAddress: String
         public let nonce: String
@@ -47,8 +47,8 @@ public extension PolymarketApprovalsBatch {
             self.calls = calls
         }
 
-        public func signed(by ownerAddress: String, signature: String) -> PolymarketApprovalsBatch {
-            PolymarketApprovalsBatch(
+        public func signed(by ownerAddress: String, signature: String) -> PolymarketRelayedBatch {
+            PolymarketRelayedBatch(
                 ownerAddress: ownerAddress,
                 depositWalletAddress: depositWalletAddress,
                 nonce: nonce,

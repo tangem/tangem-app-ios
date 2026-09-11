@@ -1,5 +1,5 @@
 //
-//  PolymarketBridgeFundingAddresses.swift
+//  PolymarketBridgeAddresses.swift
 //  TangemPolymarket
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct PolymarketBridgeFundingAddresses: Hashable, Sendable {
+public struct PolymarketBridgeAddresses: Hashable, Sendable {
     private let addresses: [PolymarketChainFamily: String]
 
     public init(addresses: [PolymarketChainFamily: String]) {

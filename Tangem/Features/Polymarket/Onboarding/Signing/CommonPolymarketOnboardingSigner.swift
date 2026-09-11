@@ -25,7 +25,7 @@ final class CommonPolymarketOnboardingSigner {
 
 extension CommonPolymarketOnboardingSigner: PolymarketOnboardingSigning {
     func sign(
-        approvals: PolymarketApprovalsBatch.Unsigned
+        approvals: PolymarketRelayedBatch.Unsigned
     ) async throws(PolymarketSigningError) -> PolymarketOnboardingSignatures {
         guard let ownerKey = PolymarketUtilities.getKey(from: keysRepository) else { throw .notDerived }
 
@@ -61,9 +61,9 @@ private extension CommonPolymarketOnboardingSigner {
         }
     }
 
-    func makeBatchDigest(for approvals: PolymarketApprovalsBatch.Unsigned) throws(PolymarketSigningError) -> Data {
+    func makeBatchDigest(for approvals: PolymarketRelayedBatch.Unsigned) throws(PolymarketSigningError) -> Data {
         do {
-            return try PolymarketApprovalsSigning.digest(for: approvals)
+            return try PolymarketRelayedBatchSigning.digest(for: approvals)
         } catch {
             PolymarketLogger.error("Failed to build the approvals digest", error: error)
             throw .unknown
