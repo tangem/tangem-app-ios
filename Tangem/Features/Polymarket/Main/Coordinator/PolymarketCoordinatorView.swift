@@ -51,9 +51,10 @@ struct PolymarketCoordinatorView: CoordinatorView {
                 switch destination {
                 case .eventDetails(let viewModel):
                     PolymarketEventDetailsView(viewModel: viewModel)
-                case .order(let coordinator):
-                    PolymarketOrderCoordinatorView(coordinator: coordinator)
                 }
+            }
+            .navigation(item: $coordinator.orderCoordinator) { coordinator in
+                PolymarketOrderCoordinatorView(coordinator: coordinator)
             }
             .navigation(item: $coordinator.tokenDetailsCoordinator) { coordinator in
                 TokenDetailsCoordinatorView(coordinator: coordinator)
