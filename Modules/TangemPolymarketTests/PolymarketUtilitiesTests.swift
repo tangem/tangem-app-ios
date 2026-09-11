@@ -14,7 +14,7 @@ import TangemSdk
 struct PolymarketUtilitiesTests {
     @Test("The owner path is pinned")
     func ownerPathIsPinned() {
-        #expect(PolymarketUtilities.derivationPath.rawPath == "m/44'/60'/999997'/0/0")
+        #expect(PolymarketUtilities.derivationPath.rawPath == "m/44'/60'/999899'/0/0")
     }
 
     @Test("The owner key lives on secp256k1")
