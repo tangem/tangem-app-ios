@@ -31,5 +31,9 @@ extension FloatingSheetRegistry {
         register(JointAccountInviteSafetyViewModel.self) {
             JointAccountInviteSafetyView(viewModel: $0)
         }
+
+        register(JointAccountSignersViewModel.self) {
+            JointAccountSignersView(viewModel: $0)
+        }
     }
 }
