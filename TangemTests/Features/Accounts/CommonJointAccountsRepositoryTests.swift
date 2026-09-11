@@ -8,6 +8,8 @@
 
 import Foundation
 import Combine
+import BlockchainSdk
+import BigInt
 import Testing
 import TangemFoundation
 @testable import Tangem
@@ -63,6 +65,38 @@ struct CommonJointAccountsRepositoryTests {
 
         #expect(storage.accounts.isEmpty)
         #expect(invitesStorage.getInvites(forCryptoAccountId: Self.accountId) == invites)
+    }
+
+    @Test("The operations riding inside an account are stored apart from it")
+    func pendingOperationsAreStoredApartFromTheAccount() async throws {
+        let operation = Self.operation()
+        let storage = JointAccountsPersistentStorageStub(accounts: [])
+        let pendingOperationsStorage = JointAccountsPendingOperationsPersistentStorageStub()
+        let networkService = JointAccountsNetworkServiceStub(jointAccounts: [
+            Self.remoteAccount(status: .active(safeAddress: "0x8f3a1C5E7B9D0246A8C0E2B4D6F8A0C2E4B6c21b"), operations: [operation]),
+            Self.remoteAccount(cryptoAccountId: Self.otherAccountId),
+        ])
+        let sut = Self.makeSUT(networkService: networkService, storage: storage, pendingOperationsStorage: pendingOperationsStorage)
+
+        try await sut.loadJointAccountsFromRemote()
+
+        #expect(storage.accounts.map(\.cryptoAccountId) == [Self.accountId, Self.otherAccountId])
+        #expect(pendingOperationsStorage.records == [StoredJointAccountPendingOperations(cryptoAccountId: Self.accountId, operations: [operation])])
+    }
+
+    @Test("An account with nothing in flight any more takes its operations record away")
+    func settledOperationsAreDropped() async throws {
+        let storage = JointAccountsPersistentStorageStub(accounts: [Self.storedAccount()])
+        let pendingOperationsStorage = JointAccountsPendingOperationsPersistentStorageStub(records: [
+            StoredJointAccountPendingOperations(cryptoAccountId: Self.accountId, operations: [Self.operation()]),
+        ])
+        let networkService = JointAccountsNetworkServiceStub(jointAccounts: [Self.remoteAccount()])
+        let sut = Self.makeSUT(networkService: networkService, storage: storage, pendingOperationsStorage: pendingOperationsStorage)
+
+        try await sut.loadJointAccountsFromRemote()
+
+        #expect(storage.accounts.count == 1)
+        #expect(pendingOperationsStorage.records.isEmpty)
     }
 
     @Test("An account the endpoint no longer reports is no longer stored")
@@ -163,6 +197,7 @@ private extension CommonJointAccountsRepositoryTests {
         networkService: JointAccountsNetworkService,
         storage: JointAccountsPersistentStorage,
         invitesStorage: JointAccountsInvitesPersistentStorage = JointAccountsInvitesPersistentStorageStub(),
+        pendingOperationsStorage: JointAccountsPendingOperationsPersistentStorage = JointAccountsPendingOperationsPersistentStorageStub(),
         isJointAccountsAvailable: Bool = true
     ) -> CommonJointAccountsRepository {
         CommonJointAccountsRepository(
@@ -171,6 +206,7 @@ private extension CommonJointAccountsRepositoryTests {
             derivationInteractorFactory: JointAccountDerivationInteractorFactory(),
             persistentStorage: storage,
             invitesPersistentStorage: invitesStorage,
+            pendingOperationsPersistentStorage: pendingOperationsStorage,
             isJointAccountsAvailable: isJointAccountsAvailable
         )
     }
@@ -205,14 +241,38 @@ private extension CommonJointAccountsRepositoryTests {
     static func remoteAccount(
         cryptoAccountId: String = accountId,
         status: JointAccountStatus = .pending,
-        memberNames: [String] = ["Alice"]
+        memberNames: [String] = ["Alice"],
+        operations: [JointAccountOperation] = []
     ) -> RemoteJointAccount {
         RemoteJointAccount(
             cryptoAccountId: cryptoAccountId,
             membersCount: 3,
             threshold: 2,
             status: status,
-            members: members(named: memberNames)
+            members: members(named: memberNames),
+            operations: operations
+        )
+    }
+
+    static func operation(chainId: Int = 1) -> JointAccountOperation {
+        JointAccountOperation(
+            id: "0E2F4A6C-8D0B-4C5E-9F1A-2D4B6C8E0F2A",
+            chainId: chainId,
+            safeTransaction: SafeTransaction(
+                to: "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c",
+                value: BigUInt(10).power(18),
+                data: Data(),
+                operation: 0,
+                safeTxGas: 23_520,
+                baseGas: 100_000,
+                gasPrice: 1_575_000_000,
+                gasToken: "0x0000000000000000000000000000000000000000",
+                refundReceiver: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
+                nonce: 7
+            ),
+            status: .awaitingSignatures,
+            initiator: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
+            signatures: [JointAccountOperation.Signature(address: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", state: .signed, at: "2026-09-02T10:15:00Z")]
         )
     }
 
@@ -364,6 +424,32 @@ private final class JointAccountsPersistentStorageStub: JointAccountsPersistentS
 
     func replace(with accounts: [StoredJointAccount]) throws {
         accountsLock.withLock { $0 = accounts }
+        didUpdateSubject.send()
+    }
+}
+
+private final class JointAccountsPendingOperationsPersistentStorageStub: JointAccountsPendingOperationsPersistentStorage {
+    private let recordsLock: OSAllocatedUnfairLock<[StoredJointAccountPendingOperations]>
+    private let didUpdateSubject = PassthroughSubject<Void, Never>()
+
+    var records: [StoredJointAccountPendingOperations] {
+        recordsLock.withLock { $0 }
+    }
+
+    var didUpdatePublisher: AnyPublisher<Void, Never> {
+        didUpdateSubject.eraseToAnyPublisher()
+    }
+
+    init(records: [StoredJointAccountPendingOperations] = []) {
+        recordsLock = OSAllocatedUnfairLock(initialState: records)
+    }
+
+    func getList() -> [StoredJointAccountPendingOperations] {
+        records
+    }
+
+    func replace(with records: [StoredJointAccountPendingOperations]) throws {
+        recordsLock.withLock { $0 = records }
         didUpdateSubject.send()
     }
 }
