@@ -221,6 +221,11 @@ final class PolymarketMainViewModel: ObservableObject {
         coordinator?.dismiss()
     }
 
+    @MainActor
+    func openHowItWorks() {
+        coordinator?.openHowItWorks()
+    }
+
     func startAwaitingFunds() {
         awaitingFundsTask?.cancel()
         isAwaitingFunds = true
