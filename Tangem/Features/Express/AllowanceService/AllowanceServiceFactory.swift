@@ -38,8 +38,7 @@ private extension AllowanceServiceFactory {
     }
 
     func makeTronAllowanceChecker(tokenItem: TokenItem) -> TronAllowanceChecker? {
-        guard FeatureProvider.isAvailable(.tronDexSwap),
-              let tronAllowanceProvider = walletModel.tronAllowanceProvider,
+        guard let tronAllowanceProvider = walletModel.tronAllowanceProvider,
               let tronTransactionDataBuilder = walletModel.tronTransactionDataBuilder
         else {
             return nil

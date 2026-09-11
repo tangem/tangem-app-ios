@@ -11,7 +11,10 @@ import Testing
 
 @Suite("Express amount mapping for tokens with a scaled UI amount configuration")
 struct ExpressAPIMapperScaledUIAmountTests {
-    private let mapper = ExpressAPIMapper(exchangeDataDecoder: StubExchangeDataDecoder())
+    private let mapper = ExpressAPIMapper(
+        exchangeDataDecoder: StubExchangeDataDecoder(),
+        featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: false)
+    )
 
     @Test("A CEX txValue is mapped into displayed space, matching what the chain expects to unscale")
     func cexTxValueIsMappedIntoDisplayedSpace() throws {

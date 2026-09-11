@@ -59,19 +59,35 @@ struct TotalTokenBalanceProviderTests {
         #expect(!received.contains(.loading(nil)))
         #expect(received.last == .loaded(12))
     }
+
+    @Test("Arc native balance is displayed with six decimals")
+    func arcNativeBalanceUsesSixDisplayDecimals() {
+        let tokenItem = TokenItem.blockchain(.init(.arc(testnet: false), derivationPath: nil))
+        let (sut, _, _) = makeSUT(available: .loaded(0.0000001), staking: .loaded(0), tokenItem: tokenItem)
+
+        guard case .loaded(let balance) = sut.formattedBalanceType else {
+            Issue.record("Expected loaded formatted balance")
+            return
+        }
+
+        let normalizedBalance = balance.replacingOccurrences(of: ",", with: ".")
+        #expect(normalizedBalance.contains("0.000000"))
+        #expect(!normalizedBalance.contains("0.0000001"))
+    }
 }
 
 // MARK: - Helpers
 
 private func makeSUT(
     available: TokenBalanceType,
-    staking: TokenBalanceType
+    staking: TokenBalanceType,
+    tokenItem: TokenItem = .blockchain(.init(.ethereum(testnet: false), derivationPath: nil))
 ) -> (TotalTokenBalanceProvider, MutableTokenBalanceProviderMock, MutableTokenBalanceProviderMock) {
     let availableProvider = MutableTokenBalanceProviderMock(initialState: available)
     let stakingProvider = MutableTokenBalanceProviderMock(initialState: staking)
 
     let sut = TotalTokenBalanceProvider(
-        tokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)),
+        tokenItem: tokenItem,
         availableBalanceProvider: availableProvider,
         stakingBalanceProvider: stakingProvider
     )

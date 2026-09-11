@@ -17,6 +17,7 @@ final class StepsFlowViewModel: ObservableObject {
     @Published private var stepTitles: [Step.Id: String?] = [:]
     @Published private var stepLeadingItems: [Step.Id: StepsFlowNavBarItem?] = [:]
     @Published private var stepTrailingItems: [Step.Id: StepsFlowNavBarItem?] = [:]
+    @Published private var stepBackgroundColors: [Step.Id: Color?] = [:]
     @Published private var stepLoadingStates: [Step.Id: Bool] = [:]
 
     var steps: [Step] { builder.steps }
@@ -29,6 +30,7 @@ final class StepsFlowViewModel: ObservableObject {
     var currentTitle: String? { currentStepId.flatMap { stepTitles[$0] } ?? nil }
     var currentLeadingItem: StepsFlowNavBarItem? { currentStepId.flatMap { stepLeadingItems[$0] } ?? nil }
     var currentTrailingItem: StepsFlowNavBarItem? { currentStepId.flatMap { stepTrailingItems[$0] } ?? nil }
+    var currentBackgroundColor: Color? { currentStepId.flatMap { stepBackgroundColors[$0] } ?? nil }
     var currentIsLoading: Bool { currentStepId.flatMap { stepLoadingStates[$0] } ?? false }
 
     private let builder: StepsFlowBuilder
@@ -50,6 +52,10 @@ final class StepsFlowViewModel: ObservableObject {
 
     func update(stepId: Step.Id, trailingItem: StepsFlowNavBarItem?) {
         stepTrailingItems[stepId] = trailingItem
+    }
+
+    func update(stepId: Step.Id, backgroundColor: Color?) {
+        stepBackgroundColors[stepId] = backgroundColor
     }
 
     func update(stepId: Step.Id, isLoading: Bool) {

@@ -572,8 +572,10 @@ extension StakingDetailsViewModel {
 extension Period {
     func formatted(formatter: DateComponentsFormatter) -> String {
         switch self {
-        case .constant(let days):
+        case .days(let days):
             return formatter.string(from: DateComponents(day: days)) ?? days.formatted()
+        case .seconds(let seconds):
+            return DateComponentsFormatter.seconds.string(from: DateComponents(second: seconds)) ?? seconds.formatted()
         case .variable(let min, let max):
             let minString = "\(min)"
             let maxString = formatter.string(from: DateComponents(day: max)) ?? max.formatted()
@@ -614,7 +616,7 @@ private extension RewardRateValues {
     func formatted(formatter: PercentFormatter) -> String {
         switch self {
         case .single(let value):
-            formatter.format(value, option: .staking)
+            formatter.format(value, option: .earn)
         case .interval(let min, let max):
             formatter.formatInterval(min: min, max: max)
         }
@@ -660,4 +662,13 @@ extension DateComponentsFormatter {
         formatter.allowedUnits = [.day]
         return formatter
     }
+}
+
+extension DateComponentsFormatter {
+    static let seconds: DateComponentsFormatter = {
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .full
+        formatter.allowedUnits = [.hour, .minute]
+        return formatter
+    }()
 }

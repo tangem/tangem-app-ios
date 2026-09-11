@@ -12,10 +12,12 @@ import TangemNetworkUtils
 public struct TangemPayCustomerInfoManagementServiceBuilder {
     private let apiType: VisaAPIType
     private let bffStaticToken: String
+    private let useNewTransactionsEndpoint: Bool
 
-    public init(apiType: VisaAPIType, bffStaticToken: String) {
+    public init(apiType: VisaAPIType, bffStaticToken: String, useNewTransactionsEndpoint: Bool) {
         self.apiType = apiType
         self.bffStaticToken = bffStaticToken
+        self.useNewTransactionsEndpoint = useNewTransactionsEndpoint
     }
 
     public func build(
@@ -24,6 +26,7 @@ public struct TangemPayCustomerInfoManagementServiceBuilder {
     ) -> CustomerInfoManagementService {
         CommonCustomerInfoManagementService(
             apiType: apiType,
+            useNewTransactionsEndpoint: useNewTransactionsEndpoint,
             authorizationTokenHandler: authorizationTokensHandler,
             apiService: TangemPayAPIService(
                 provider: TangemPayProviderBuilder().buildProvider(
