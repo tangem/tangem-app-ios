@@ -11,6 +11,7 @@ struct TangemPayOfframpPersonalDetails: Equatable {
     let accountNumber: String
     let routingNumber: String
     let line1: String
+    let line2: String?
     let city: String
     let region: String
     let postalCode: String

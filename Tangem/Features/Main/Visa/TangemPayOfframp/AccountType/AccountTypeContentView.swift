@@ -30,12 +30,7 @@ struct AccountTypeContentView: View {
         }
         .scrollIndicators(.hidden)
         .scrollBounceBehavior(.basedOnSize)
-        .safeAreaInset(edge: .bottom) {
-            continueButton
-                .padding(.vertical, Constants.buttonVerticalPadding)
-                .padding(.horizontal, Constants.horizontalPadding)
-                .disabled(state.selection == nil)
-        }
+        .offrampBottomBar { continueButton }
     }
 }
 
@@ -85,6 +80,7 @@ private extension AccountTypeContentView {
         .size(.x12)
         .styleType(.default)
         .horizontalLayout(.infinity)
+        .disabled(state.selection == nil)
     }
 }
 
@@ -97,7 +93,6 @@ private extension AccountTypeContentView {
         static let topPadding: CGFloat = 12
         static let horizontalPadding: CGFloat = 16
         static let bottomPadding: CGFloat = 8
-        static let buttonVerticalPadding: CGFloat = 8
         static let cardCornerRadius: CGFloat = 24
     }
 }
