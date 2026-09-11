@@ -18,6 +18,7 @@ struct YieldModuleAPITarget: TargetType {
     enum TargetType: Equatable {
         case markets(chains: [String]?)
         case incentiveMarkets(chains: [String]?)
+        case aprHistory(chainId: Int, tokenAddress: String, days: Int)
         case token(tokenContractAddress: String, chainId: Int)
         case chart(tokenContractAddress: String, chainId: Int, window: String?, bucketSizeDays: Int?)
         case activate(tokenContractAddress: String, walletAddress: String, chainId: Int, userWalletId: String)
@@ -53,7 +54,7 @@ struct YieldModuleAPITarget: TargetType {
 
     var baseURL: URL {
         switch target {
-        case .markets, .incentiveMarkets, .token, .chart, .activate, .deactivate:
+        case .markets, .incentiveMarkets, .aprHistory, .token, .chart, .activate, .deactivate:
             yieldBaseURL
         case .transactionEvents:
             tangemApiBaseURL
@@ -66,6 +67,8 @@ struct YieldModuleAPITarget: TargetType {
             return "/yield/markets"
         case .incentiveMarkets:
             return "/yield-modules/markets"
+        case .aprHistory(let chainId, let tokenAddress, _):
+            return "/yield-modules/\(chainId)/\(tokenAddress)/apr-history"
         case .token(let tokenContractAddress, let chainId):
             return "/yield/token/\(chainId)/\(tokenContractAddress)"
         case .chart(let tokenContractAddress, let chainId, _, _):
@@ -81,7 +84,7 @@ struct YieldModuleAPITarget: TargetType {
 
     var method: Moya.Method {
         switch target {
-        case .markets, .incentiveMarkets, .token, .chart:
+        case .markets, .incentiveMarkets, .aprHistory, .token, .chart:
             return .get
         case .activate, .deactivate, .transactionEvents:
             return .post
@@ -99,6 +102,11 @@ struct YieldModuleAPITarget: TargetType {
             // The incentives endpoint expects a single comma-separated `chainId` value, e.g. "1,137,43114".
             return .requestParameters(
                 parameters: ["chainId": chains.joined(separator: ",")],
+                encoding: URLEncoding(destination: .queryString)
+            )
+        case .aprHistory(_, _, let days):
+            return .requestParameters(
+                parameters: ["days": days],
                 encoding: URLEncoding(destination: .queryString)
             )
         case .markets(.none), .incentiveMarkets(.none), .token:
@@ -141,7 +149,7 @@ struct YieldModuleAPITarget: TargetType {
         switch target {
         case .activate(_, _, _, let userWalletId):
             return ["userWalletId": "\(userWalletId)"]
-        case .markets, .incentiveMarkets, .token, .chart, .deactivate, .transactionEvents:
+        case .markets, .incentiveMarkets, .aprHistory, .token, .chart, .deactivate, .transactionEvents:
             return nil
         }
     }
