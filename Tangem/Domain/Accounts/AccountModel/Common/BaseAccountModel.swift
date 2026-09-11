@@ -12,12 +12,7 @@ import Combine
 protocol BaseAccountModel: AnyObject, AccountModelAnalyticsProviding, AccountModelResolvable, Identifiable where ID: AccountModelPersistentIdentifierConvertible {
     associatedtype Icon: AccountModelIconConvertible
 
-    typealias Editor = (_ editor: AccountModelEditor) -> Void
-
     var name: String { get }
     var icon: Icon { get }
     var didChangePublisher: AnyPublisher<Void, Never> { get }
-
-    @discardableResult
-    func edit(with editor: Editor) async throws(AccountEditError) -> Self
 }

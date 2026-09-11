@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayMobileOnboardingView: View {
     @ObservedObject var viewModel: TangemPayMobileOnboardingViewModel
@@ -21,6 +22,7 @@ struct TangemPayMobileOnboardingView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
                 .padding(.top, 24)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.mobileOnboardingTitle)
 
             Assets.Visa.tangemPayOnboardingHero.image
                 .resizable()
@@ -108,5 +110,6 @@ struct TangemPayMobileOnboardingView: View {
             action: viewModel.getCard
         )
         .setIsLoading(to: viewModel.isCreating)
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.mobileOnboardingGetCardButton)
     }
 }

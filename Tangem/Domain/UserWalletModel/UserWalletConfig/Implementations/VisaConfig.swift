@@ -162,8 +162,8 @@ extension VisaConfig: UserWalletConfig {
         }
     }
 
-    func makeAnyWalletManagerFactory() -> AnyWalletManagerFactory {
-        return VisaWalletManagerFactory()
+    func makeAnyWalletFactory() -> AnyWalletFactory {
+        return VisaWalletFactory()
     }
 }
 

@@ -11,6 +11,7 @@ import CryptoKit
 import Combine
 import BlockchainSdk
 import class UIKit.UITraitCollection
+import TangemFoundation
 import TangemNetworkUtils
 
 // MARK: - Models
@@ -77,6 +78,9 @@ class MoonPayService {
     @Injected(\.keysManager) var keysManager: KeysManager
 
     @Published private var initializeState: SellServiceState = .initializing
+
+    /// `.initializing` is also the idle value of `initializeState`, so it can't double as the in-flight marker.
+    private let isInitializing = OSAllocatedUnfairLock(initialState: false)
 
     // [REDACTED_TODO_COMMENT]
     private var keys: MoonPayKeys { keysManager.moonPayKeys }
@@ -205,7 +209,20 @@ extension MoonPayService: SellService {
     }
 
     func initialize() {
-        if initializeState == .initialized {
+        guard initializeState != .initialized else {
+            return
+        }
+
+        let didClaim = isInitializing.withLock { isInitializing in
+            guard !isInitializing else {
+                return false
+            }
+
+            isInitializing = true
+            return true
+        }
+
+        guard didClaim else {
             return
         }
 
@@ -213,8 +230,11 @@ extension MoonPayService: SellService {
             session.dataTaskPublisher(for: URL(string: "https://api.moonpay.com/v4/ip_address?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey)!),
             session.dataTaskPublisher(for: URL(string: "https://api.moonpay.com/v3/currencies?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey)!)
         )
+        .receive(on: DispatchQueue.main)
         .sink(
             receiveCompletion: { [weak self] result in
+                self?.isInitializing.withLock { $0 = false }
+
                 switch result {
                 case .finished: break
                 case .failure(let error):

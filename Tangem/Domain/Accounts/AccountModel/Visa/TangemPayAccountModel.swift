@@ -31,10 +31,6 @@ protocol TangemPayAccountModel: BaseAccountModel where Icon == AccountModel.Stan
 // MARK: - Default implementations
 
 extension TangemPayAccountModel {
-    func edit(with editor: (any AccountModelEditor) -> Void) async throws(AccountEditError) -> Self {
-        self
-    }
-
     func analyticsParameters(with builder: any AccountsAnalyticsBuilder) -> [Analytics.ParameterKey: String] {
         [:]
     }

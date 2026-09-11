@@ -247,8 +247,8 @@ struct TransactionHistorySyntheticTransactionFactoryTests {
         #expect(factory.makeSyntheticTransaction(from: exchange).hash == "ExpressSyntheticTx_tx-fallback")
     }
 
-    @Test("Exchange (outgoing): a nil from-address falls back to the owner address as the source")
-    func exchangeOutgoingLegFallsBackToOwnerAddressWhenFromAddressNil() {
+    @Test("Exchange (outgoing): a nil from-address leaves the source unknown")
+    func exchangeOutgoingLegLeavesSourceUnknownWhenFromAddressNil() {
         let token = ExpressMergeTestDataFactory.ethereumToken
         let factory = ExpressMergeTestDataFactory.makeFactory(
             currentToken: token,
@@ -256,8 +256,8 @@ struct TransactionHistorySyntheticTransactionFactoryTests {
             feeTokenItem: token
         )
 
-        // Owner is on neither leg by address, and the current token is the `from` currency,
-        // so direction resolves to outgoing and the source falls back to the owner address.
+        // Owner is on neither leg by address, and the current token is the `from` currency, so direction
+        // resolves to outgoing while the sender stays unreported.
         let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
             txId: "exchange-tx",
             status: .waiting,
@@ -280,7 +280,7 @@ struct TransactionHistorySyntheticTransactionFactoryTests {
         let record = factory.makeSyntheticTransaction(from: exchange)
 
         #expect(record.isOutgoing)
-        #expect(record.singleSourceAddress == "0xOwner")
+        #expect(record.singleSourceAddress == .unknown)
     }
 
     @Test("Exchange (incoming): the actual amount is preferred over the expected amount when present")
