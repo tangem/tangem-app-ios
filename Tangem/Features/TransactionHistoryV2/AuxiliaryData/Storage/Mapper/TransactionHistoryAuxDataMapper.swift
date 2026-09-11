@@ -20,7 +20,23 @@ enum TransactionHistoryAuxDataMapper {
 
     // MARK: Express providers
 
-    static func mapToExpressProviderType(fromString string: String) throws -> ExpressProviderType {
+    static func mapToExpressProvider(_ record: ExpressProviderRecord) throws -> ExpressProvider {
+        let providerType: ExpressProviderType
+
+        do {
+            providerType = try mapToExpressProviderType(fromString: record.type)
+        } catch {
+            // An unknown provider type shouldn't prevent the provider itself from being mapped,
+            // therefore fall back to the `.unknown` type and only log the error w/o throwing it
+            TransactionHistoryLogger.warning("\(error)")
+
+            providerType = .unknown
+        }
+
+        return try mapToExpressProvider(record, providerType: providerType)
+    }
+
+    private static func mapToExpressProviderType(fromString string: String) throws -> ExpressProviderType {
         if let providerType = ExpressProviderType(rawValue: string) {
             return providerType
         }
@@ -28,17 +44,20 @@ enum TransactionHistoryAuxDataMapper {
         throw "Failed to create Express provider type from string: \(string)"
     }
 
-    static func mapToExpressProvider(_ record: ExpressProviderRecord, providerType: ExpressProviderType) throws -> ExpressProvider {
+    private static func mapToExpressProvider(
+        _ record: ExpressProviderRecord,
+        providerType: ExpressProviderType
+    ) throws -> ExpressProvider {
         return ExpressProvider(
             id: record.id,
             name: record.name,
             type: providerType,
             exchangeOnlyWithinSingleAddress: record.exchangeOnlyWithinSingleAddress,
-            imageURL: try url(fromString: record.imageURL),
-            termsOfUse: try url(fromString: record.termsOfUse),
-            privacyPolicy: try url(fromString: record.privacyPolicy),
+            imageURL: try TransactionHistoryValueMapper.url(fromString: record.imageURL),
+            termsOfUse: try TransactionHistoryValueMapper.url(fromString: record.termsOfUse),
+            privacyPolicy: try TransactionHistoryValueMapper.url(fromString: record.privacyPolicy),
             recommended: record.recommended,
-            slippage: try decimal(fromString: record.slippage)
+            slippage: try TransactionHistoryValueMapper.decimal(fromString: record.slippage)
         )
     }
 
@@ -63,7 +82,7 @@ enum TransactionHistoryAuxDataMapper {
         let identity = OnrampIdentity(
             name: record.name,
             code: record.code,
-            image: try url(fromString: record.imageURL)
+            image: try TransactionHistoryValueMapper.url(fromString: record.imageURL)
         )
 
         return OnrampFiatCurrency(
@@ -114,41 +133,20 @@ enum TransactionHistoryAuxDataMapper {
             throw "Caching of non-fungible token \(tokenItem.name) (\(tokenItem.networkId)) is not supported"
         }
 
+        // `ExpressConstants.coinContractAddress` is used as a sentinel value to indicate that the asset is a native coin
+        let contractAddress = tokenItem.token?.contractAddress ?? ExpressConstants.coinContractAddress
+
         return CryptoCurrencyRecord(
             id: tokenItem.token?.id,
             networkID: tokenItem.networkId,
             name: tokenItem.name,
             symbol: tokenItem.currencySymbol,
-            // `ExpressConstants.coinContractAddress` is used as a sentinel value to indicate that the asset is a native coin
-            contractAddress: tokenItem.token?.contractAddress ?? ExpressConstants.coinContractAddress,
+            contractAddress: TransactionHistoryAddressNormalizer.normalize(
+                contractAddress,
+                isEvm: tokenItem.blockchain.isEvm
+            ),
             decimalCount: tokenItem.decimalCount,
             updatedAt: updatedAt
         )
-    }
-
-    // MARK: - Shared helpers
-
-    private static func url(fromString string: String?) throws -> URL? {
-        guard let urlString = string?.nilIfEmpty else {
-            return nil // nil and empty strings are valid values
-        }
-
-        if let url = URL(string: urlString) {
-            return url
-        }
-
-        throw "Failed to create URL from string: \(urlString)"
-    }
-
-    private static func decimal(fromString string: String?) throws -> Decimal? {
-        guard let decimalString = string?.nilIfEmpty else {
-            return nil // nil and empty strings are valid values
-        }
-
-        if let decimal = Decimal(stringValue: decimalString) {
-            return decimal
-        }
-
-        throw "Failed to create Decimal from string: \(decimalString)"
     }
 }

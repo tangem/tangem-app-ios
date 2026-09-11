@@ -26,7 +26,11 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var missingDerivationNotification = app.descendants(matching: .any)
         .matching(identifier: MainAccessibilityIdentifiers.missingDerivationNotification)
         .firstMatch
-    private lazy var walletLockedNotification = otherElement(.walletLockedNotification)
+    private lazy var walletLockedNotification = app.descendants(matching: .any)
+        .matching(identifier: MainAccessibilityIdentifiers.walletLockedNotification)
+        .firstMatch
+    private lazy var walletLockedNotificationUnlockButton = notificationBannerButton(MainAccessibilityIdentifiers.walletLockedNotification)
+    private lazy var missingDerivationSynchronizeButton = notificationBannerButton(MainAccessibilityIdentifiers.missingDerivationNotification)
     private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
     private lazy var tangemPayTile = app.buttons[TangemPayAccessibilityIdentifiers.mainScreenTile].firstMatch
     private lazy var tangemPayTileBalance = app.staticTexts[TangemPayAccessibilityIdentifiers.mainScreenTileBalance].firstMatch
@@ -438,18 +442,19 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func verifyWalletLockedNotificationHasMessage() -> Self {
         XCTContext.runActivity(named: "Verify wallet locked notification has explanatory message") { _ in
             waitAndAssertTrue(walletLockedNotification, "Wallet locked notification should be displayed")
-            let message = walletLockedNotification.staticTexts[CommonUIAccessibilityIdentifiers.notificationMessage].firstMatch
-            waitAndAssertTrue(message, "Wallet locked notification should contain an explanatory message")
+            XCTAssertFalse(
+                walletLockedNotification.label.isEmpty,
+                "Wallet locked notification should contain an explanatory message"
+            )
             return self
         }
     }
 
     @discardableResult
     func tapWalletLockedNotification() -> Self {
-        XCTContext.runActivity(named: "Tap wallet locked notification to initiate unlock") { _ in
-            waitAndAssertTrue(walletLockedNotification, "Wallet locked notification should be displayed")
-            let unlockButton = walletLockedNotification.buttons[CommonUIAccessibilityIdentifiers.notificationButton].firstMatch
-            unlockButton.waitAndTap()
+        XCTContext.runActivity(named: "Tap Unlock on the wallet locked notification") { _ in
+            waitAndAssertTrue(walletLockedNotificationUnlockButton, "Unlock button should be displayed")
+            walletLockedNotificationUnlockButton.waitAndTap()
             return self
         }
     }
@@ -458,9 +463,12 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func selectMockCardFromScannerAlert(name: CardMockAccessibilityIdentifiers) -> Self {
         XCTContext.runActivity(named: "Select mock card from scanner alert: \(name.rawValue)") { _ in
             let walletButton = app.buttons[name.rawValue].firstMatch
-            if !walletButton.isHittable {
-                app.swipeUp()
+            guard walletButton.waitForExistence(timeout: .robustUIUpdate) else {
+                XCTFail("Mock card button '\(name.rawValue)' not found in scanner alert")
+                return self
             }
+
+            scrollActionSheetToElement(walletButton)
             walletButton.waitAndTap()
             return self
         }
@@ -471,14 +479,12 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func addNewWallet(name: CardMockAccessibilityIdentifiers) -> Self {
         XCTContext.runActivity(named: "Add new wallet: \(name.rawValue)") { _ in
+            // Details routes through the wallet type selector while mobileWalletMultiCreation is closed.
             openDetails()
                 .tapAddNewWallet()
+                .tapHardwareWallet()
 
-            let walletButton = app.buttons[name.rawValue].firstMatch
-            if !walletButton.isHittable {
-                app.swipeUp()
-            }
-            walletButton.waitAndTap()
+            selectMockCardFromScannerAlert(name: name)
 
             waitAndAssertTrue(tokensList, "Tokens list should exist after adding new wallet")
             return self
@@ -847,12 +853,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             guard missingDerivationNotification.waitForExistence(timeout: .conditional) else {
                 return self
             }
-            let generateButton = missingDerivationNotification.buttons.firstMatch
-            if generateButton.exists {
-                generateButton.waitAndTap()
-            } else {
-                missingDerivationNotification.waitAndTap()
-            }
+            waitAndAssertTrue(missingDerivationSynchronizeButton, "Synchronize addresses button should be displayed")
+            missingDerivationSynchronizeButton.waitAndTap()
             XCTAssertTrue(
                 missingDerivationNotification.waitForNonExistence(timeout: .networkRequest),
                 "Missing derivation notification should disappear after addresses are generated"
@@ -865,8 +867,10 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func verifyMissingDerivationNotificationHasMessage() -> Self {
         XCTContext.runActivity(named: "Verify missing derivation notification has explanatory message") { _ in
             waitAndAssertTrue(missingDerivationNotification, "Missing derivation notification should be displayed")
-            let message = missingDerivationNotification.staticTexts[CommonUIAccessibilityIdentifiers.notificationMessage].firstMatch
-            waitAndAssertTrue(message, "Missing derivation notification should contain an explanatory message")
+            XCTAssertFalse(
+                missingDerivationNotification.label.isEmpty,
+                "Missing derivation notification should contain an explanatory message"
+            )
             return self
         }
     }

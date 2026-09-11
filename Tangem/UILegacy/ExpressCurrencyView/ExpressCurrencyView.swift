@@ -213,6 +213,8 @@ struct ExpressCurrencyView<Content: View>: View {
             EmptyView()
         case .icon(let tokenIconInfo):
             TokenIcon(tokenIconInfo: tokenIconInfo, size: imageSize)
+        case .tangemPay:
+            TangemPayTokenIconView(size: imageSize)
         }
     }
 }

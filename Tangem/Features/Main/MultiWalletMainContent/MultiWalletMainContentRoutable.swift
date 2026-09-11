@@ -18,7 +18,7 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
     func openHardwareBackupTypes(userWalletModel: UserWalletModel)
     func openMobileBackup(userWalletModel: UserWalletModel)
-    func openMobileBackupOnboarding(userWalletModel: UserWalletModel)
+    func openMobileBackupOnboarding(userWalletModel: UserWalletModel, context: MobileWalletContext)
     func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory)
     func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory)
     func openCloreMigration(walletModel: any WalletModel)
@@ -28,7 +28,8 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openTangemPayMainView(
         userWalletInfo: UserWalletInfo,
         tangemPayAccount: TangemPayAccount,
-        userWalletModel: UserWalletModel
+        userWalletModel: UserWalletModel,
+        incomingAction: TangemPayIncomingActions?
     )
     func openTangemPaySelectPlan(
         tariffPlanSelector: any TangemPayTariffPlanSelector,

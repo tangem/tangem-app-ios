@@ -5,6 +5,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemLocalization
 import TangemUI
 
 enum TokenSummaryPeriod: CaseIterable, Identifiable {
@@ -14,13 +15,15 @@ enum TokenSummaryPeriod: CaseIterable, Identifiable {
 
     var id: Self { self }
 
-    // [REDACTED_TODO_COMMENT]
+    /// The shared period keys spell lowercase units ("day"), while the picker shows them as labels.
     var title: String {
-        switch self {
-        case .day: "Day"
-        case .week: "Week"
-        case .month: "Month"
+        let unit = switch self {
+        case .day: Localization.commonDay
+        case .week: Localization.commonWeek
+        case .month: Localization.commonMonth
         }
+
+        return unit.capitalizingFirstLetter()
     }
 }
 

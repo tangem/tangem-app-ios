@@ -416,7 +416,7 @@ struct CommonDeepLinkValidatorTests {
     // MARK: - Optional Param Destinations
 
     let optionalDestinations: [IncomingActionConstants.DeeplinkDestination] = [
-        .buy, .link, .sell, .swap, .referral, .markets, .promo,
+        .buy, .link, .sell, .referral, .markets, .promo,
     ]
 
     @Test
@@ -453,6 +453,97 @@ struct CommonDeepLinkValidatorTests {
             )
             #expect(validator.hasMinimumDataForHandling(deeplink: action))
         }
+    }
+
+    // MARK: - Swap deeplink
+
+    @Test
+    func swapWithValidParams_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .swap,
+            params: .init(
+                swapFromTokenId: "usd-coin",
+                swapFromNetworkId: "ethereum",
+                swapToTokenId: "tether",
+                swapToNetworkId: "ethereum"
+            ),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func swapWithNoParams_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .swap,
+            params: .empty,
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    /// A malformed swap parameter must not cost the whole link: it is ignored at the routing layer,
+    /// which falls back to the default swap instead of leaving the user on Main.
+    @Test
+    func swapWithInvalidCharacterInSwapParam_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .swap,
+            params: .init(swapFromTokenId: "🔥"),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    /// The exact shape reported in [REDACTED_INFO]: a garbage FROM side and amount next to a valid TO side.
+    @Test
+    func swapWithGarbageFromSideAndValidToSide_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .swap,
+            params: .init(
+                swapFromTokenId: "???",
+                swapFromNetworkId: "does not exist",
+                swapToTokenId: "ethereum",
+                swapToNetworkId: "ethereum",
+                swapFromAmount: "abc"
+            ),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func swapWithInvalidGenericTokenIdButValidSwapParams_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .swap,
+            params: .init(tokenId: "🔥", swapFromTokenId: "usd-coin"),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func swapWithInvalidCharacterInAmount_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .swap,
+            params: .init(swapFromAmount: "🔥"),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func swapWithValidAmountAndProvider_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .swap,
+            params: .init(
+                swapFromTokenId: "usd-coin",
+                swapFromNetworkId: "ethereum",
+                swapFromAmount: "0.5",
+                swapProviderId: "changelly"
+            ),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
     }
 
     // MARK: - Onboard Visa deeplink

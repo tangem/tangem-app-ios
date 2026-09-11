@@ -34,14 +34,12 @@ struct TokenSummaryScoreTests {
         #expect(TokenSummaryScore(value: -3, count: 5).outlook == .negative)
     }
 
-    @Test("Thumb position and tick count follow the score geometry")
+    @Test("Thumb position follows the score geometry")
     func geometry() {
         #expect(TokenSummaryScore(value: 2, count: 4).normalizedPosition == 0.75)
         #expect(TokenSummaryScore(value: 0, count: 5).normalizedPosition == 0.5)
         #expect(TokenSummaryScore(value: -5, count: 5).normalizedPosition == 0.0)
         #expect(TokenSummaryScore(value: 5, count: 5).normalizedPosition == 1.0)
-        #expect(TokenSummaryScore(value: 0, count: 5).tickCount == 11)
-        #expect(TokenSummaryScore(value: 0, count: 1).tickCount == 3)
     }
 }
 
