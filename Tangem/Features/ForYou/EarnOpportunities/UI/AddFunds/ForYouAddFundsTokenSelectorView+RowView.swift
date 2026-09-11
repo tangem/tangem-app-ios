@@ -20,10 +20,14 @@ extension ForYouAddFundsTokenSelectorView {
         var body: some View {
             Row(
                 title: data.name,
-                subtitle: data.network,
-                value: data.fiat,
-                subvalue: data.crypto
+                subtitle: data.network
             )
+            .valueAccessory {
+                balanceText(data.fiat, font: DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+            }
+            .subvalueAccessory {
+                balanceText(data.crypto, font: DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+            }
             .start { icon }
             .contentShape(Rectangle())
             .onTapGesture(perform: data.onTap)
@@ -38,5 +42,18 @@ private extension ForYouAddFundsTokenSelectorView.RowView {
             tokenIconInfo: data.tokenIconInfo,
             size: CGSize(bothDimensions: iconSize)
         )
+    }
+
+    /// Maskable balance; `nil` stays a plain dash — "no data" must not look like "hidden".
+    func balanceText(_ value: String?, font: TangemTypographyToken, color: Color) -> some View {
+        Group {
+            if let value {
+                SensitiveText(value)
+            } else {
+                Text(AppConstants.enDashSign)
+            }
+        }
+        .style(font, color: color)
+        .lineLimit(1)
     }
 }

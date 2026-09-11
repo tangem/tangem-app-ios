@@ -34,8 +34,10 @@ class OnrampModel {
     @Injected(\.expressAvailabilityProvider)
     private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
+    @Injected(\.alertPresenter)
+    private var alertPresenter: any AlertPresenter
+
     weak var router: OnrampModelRoutable?
-    weak var alertPresenter: SendViewAlertPresenter?
 
     // MARK: - Private injections
 
@@ -369,7 +371,7 @@ private extension OnrampModel {
                 // Do nothing
             } catch {
                 await runOnMain {
-                    model.alertPresenter?.showAlert(error.alertBinder)
+                    model.alertPresenter.present(alert: error.alertBinder)
                 }
             }
         }
@@ -612,6 +614,11 @@ extension OnrampModel: OnrampRedirectingOutput {
 
 extension OnrampModel: OnrampSummaryOutput {
     func userDidRequestOnramp(provider: OnrampProvider) {
+        guard provider.isExecutable else {
+            log("The provider \(provider) can not be executed. Skip opening the redirecting screen")
+            return
+        }
+
         _selectedOnrampProvider.send(.success(provider))
         router?.openOnrampRedirecting()
     }
@@ -634,7 +641,7 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
         case .finishStep:
             router?.openFinishStep()
         case .error(let error):
-            alertPresenter?.showAlert(error.alertBinder)
+            alertPresenter.present(alert: error.alertBinder)
         case .openKYC(let provider, let data):
             if let amount, let currencyCode = fiatCurrency?.identity.code {
                 analyticsLogger.logOnrampVerifyScreenOpened(amount: amount, currencyCode: currencyCode)
@@ -650,6 +657,13 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
 
     func handleApplePayAuthorization(_ result: ApplePayAuthorizationResult) {
         let provider = result.provider
+
+        guard provider.isExecutable else {
+            log("The provider \(provider) can not be executed. Reject the Apple Pay authorization")
+            result.fail()
+            return
+        }
+
         _selectedOnrampProvider.send(.success(provider))
 
         let applePayStartDate = Date()

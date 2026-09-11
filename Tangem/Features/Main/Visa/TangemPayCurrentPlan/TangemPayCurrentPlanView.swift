@@ -24,13 +24,7 @@ struct TangemPayCurrentPlanView: View {
             .alert(item: $viewModel.alert) { $0.alert }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbar }
-            .modifyView { view in
-                if #unavailable(iOS 26.0) {
-                    view.backportTranslucentNavigationBar()
-                } else {
-                    view
-                }
-            }
+            .translucentNavigationBar()
             .redesigned()
     }
 

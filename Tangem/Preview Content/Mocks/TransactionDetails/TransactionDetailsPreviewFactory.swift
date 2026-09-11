@@ -175,6 +175,8 @@ private extension TransactionDetailsPreviewFactory {
             walletModel: CommonWalletModel.previewWalletModel(history: [record]),
             userWalletInfo: userWalletModel.userWalletInfo,
             isAccountsMode: false,
+            addressBookManager: userWalletModel.addressBookManager,
+            addressBookAnalyticsLogger: CommonAddressBookAnalyticsLogger(),
             routable: noopRoutable
         )
     }
@@ -306,7 +308,7 @@ private extension TransactionDetailsPreviewFactory {
         )
 
         return .onramp(OnrampTransactionInfo(
-            onrampTransaction: transaction,
+            transaction: transaction,
             provider: nil,
             fiatCurrency: nil,
             cryptoCurrencies: [toCurrency: ethTokenItem]

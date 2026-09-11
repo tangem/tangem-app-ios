@@ -28,7 +28,7 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     private lazy var addFundsButton = button(.addFundsButton)
     private lazy var withdrawButton = button(.withdrawButton)
     private lazy var moreActionsButton = button(.moreActionsButton)
-    private lazy var termsAndFeesMenuItem = button("Terms and fees")
+    private lazy var termsAndFeesMenuItem = button(.termsAndLimitsMenuItem)
     private lazy var backButton = app.navigationBars.buttons.element(boundBy: 0)
     private lazy var applePayGuideBanner = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.addToApplePayGuideBanner].firstMatch
     private lazy var applePayGuideBannerCloseButton = app.buttons[TangemPayAccessibilityIdentifiers.addToApplePayGuideBannerCloseButton].firstMatch
@@ -327,6 +327,7 @@ enum TangemPayMainScreenElement: String, UIElement {
     case addFundsButton
     case withdrawButton
     case moreActionsButton
+    case termsAndLimitsMenuItem
 
     var accessibilityIdentifier: String {
         switch self {
@@ -338,6 +339,8 @@ enum TangemPayMainScreenElement: String, UIElement {
             TangemPayAccessibilityIdentifiers.withdrawButton
         case .moreActionsButton:
             TangemPayAccessibilityIdentifiers.moreActionsButton
+        case .termsAndLimitsMenuItem:
+            TangemPayAccessibilityIdentifiers.termsAndLimitsMenuItem
         }
     }
 }

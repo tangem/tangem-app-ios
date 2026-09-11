@@ -35,6 +35,16 @@ struct DefaultIncomingLinkParser {
             tokenId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.tokenId]?.lowercased(),
             networkId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.networkId]?.lowercased(),
             userWalletId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.userWalletId],
+            swapFromTokenId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.swapFromTokenId]?.lowercased(),
+            swapFromNetworkId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.swapFromNetworkId]?.lowercased(),
+            swapToTokenId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.swapToTokenId]?.lowercased(),
+            swapToNetworkId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.swapToNetworkId]?.lowercased(),
+            swapFromUserWalletId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.swapFromUserWalletId],
+            swapToUserWalletId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.swapToUserWalletId],
+            swapFromUserAccountId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.swapFromUserAccountId]?.lowercased(),
+            swapToUserAccountId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.swapToUserAccountId]?.lowercased(),
+            swapFromAmount: keyedQueryItems[IncomingActionConstants.DeeplinkParams.swapFromAmount],
+            swapProviderId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.swapProviderId],
             derivationPath: keyedQueryItems[IncomingActionConstants.DeeplinkParams.derivationPath],
             transactionId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.transactionId],
             promoCode: keyedQueryItems[IncomingActionConstants.DeeplinkParams.promoCode],
@@ -47,7 +57,8 @@ struct DefaultIncomingLinkParser {
             order: keyedQueryItems[IncomingActionConstants.DeeplinkParams.order]?.lowercased(),
             interval: keyedQueryItems[IncomingActionConstants.DeeplinkParams.interval]?.lowercased(),
             earnType: keyedQueryItems[IncomingActionConstants.DeeplinkParams.earnType]?.lowercased(),
-            surveyToken: keyedQueryItems[IncomingActionConstants.DeeplinkParams.surveyToken]
+            surveyToken: keyedQueryItems[IncomingActionConstants.DeeplinkParams.surveyToken],
+            tangemPayScreen: keyedQueryItems[IncomingActionConstants.DeeplinkParams.tangemPayScreen]?.lowercased()
         )
     }
 
