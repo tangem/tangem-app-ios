@@ -101,6 +101,8 @@ private extension KoinosNetworkService {
     enum Constants {
         static let maxDiskStorageLimit: BigUInt = 118
         static let maxNetworkLimit: BigUInt = 408
-        static let maxComputeLimit: BigUInt = 1_000_000
+        /// The original estimate of 1_000_000 is not always enough: real transfers were observed
+        /// costing up to ~1.7M compute, which made nodes reject them with "insufficient rc".
+        static let maxComputeLimit: BigUInt = 2_000_000
     }
 }
