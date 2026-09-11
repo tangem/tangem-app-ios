@@ -362,6 +362,7 @@ private final class YieldModuleManagerStub: YieldModuleManager {
     func currentNetworkFeeParameters() async throws -> EthereumFeeParameters { fatalError() }
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo { fatalError() }
     func fetchChartData() async throws -> YieldChartData { fatalError() }
+    func fetchAprHistory(days: Int) async throws -> [YieldIncentiveAprPoint] { fatalError() }
     func sendActivationState() {}
     func sendTransactionSendEvent(sourceAddress: String, transactionHash: String) {}
 }
