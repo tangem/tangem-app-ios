@@ -42,6 +42,7 @@ protocol WCTransactionDisplayModel {
 @MainActor
 final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.cryptoAccountsGlobalStateProvider) private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
 
     private let transactionData: WCHandleTransactionData
     private let simulationManager: WCTransactionSimulationManager
@@ -66,7 +67,7 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
     }
 
     var connectionTargetKind: WCTransactionConnectionTargetKind? {
-        let hasMultipleAccounts = transactionData.userWalletModel.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
+        let hasMultipleAccounts = cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
         let accountRowData = WCTransactionAccountRowViewData(account: transactionData.account)
 
         if hasMultipleAccounts, let accountRowData {

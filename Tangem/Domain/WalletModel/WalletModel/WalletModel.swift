@@ -16,7 +16,7 @@ import TangemFoundation
 protocol WalletModel:
     AnyObject, Identifiable, Hashable, CustomStringConvertible,
     AvailableTokenBalanceProviderInput, WalletModelBalancesProvider,
-    WalletModelHelpers, WalletModelFeesProvider, WalletModelDependenciesProvider,
+    WalletModelHelpers, WalletModelDependenciesProvider,
     WalletModelRentProvider, WalletModelUpdater, WalletModelTransactionHistoryProvider,
     WalletModelTransactionHistoryAddressesProvider, TransactionHistoryFetcher,
     StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider,
@@ -80,6 +80,10 @@ extension WalletModel {
         let converter = factory.makeConverter(for: tokenItem.blockchain)
         let convertedAddress = try? converter.convertToETHAddress(defaultAddressString)
         return convertedAddress ?? defaultAddressString
+    }
+
+    var isJointAccountParticipant: Bool {
+        account?.accountType == .joint
     }
 }
 
@@ -188,13 +192,6 @@ protocol WalletModelHelpers {
     func fulfillRequirements(signer: any TransactionSigner) -> AnyPublisher<Void, Error>
 }
 
-// MARK: - Fee
-
-protocol WalletModelFeesProvider {
-    var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder { get }
-    var customFeeProviderBuilder: CustomFeeProviderBuilder { get }
-}
-
 // MARK: - Dependencies
 
 protocol WalletModelDependenciesProvider {
@@ -233,6 +230,10 @@ protocol WalletModelDependenciesProvider {
     var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? { get }
     var tronGaslessTransactionsBuilder: (any TronGaslessTransactionsBuilder)? { get }
     var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { get }
+
+    // MARK: - Safe
+
+    var safeWalletManagerOperationsService: SafeWalletManagerOperationsService? { get }
 }
 
 // MARK: - Tx history

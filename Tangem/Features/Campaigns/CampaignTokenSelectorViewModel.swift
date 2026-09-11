@@ -111,7 +111,7 @@ private extension CampaignTokenSelectorViewModel {
         }
 
         let mapper = TokenItemMapper(supportedBlockchains: userWalletModel.config.supportedBlockchains)
-        let accounts = userWalletModel.accountModelsManager.cryptoAccountModels
+        let accounts = AccountCryptoModelsAggregator.cryptoAccountModels(from: userWalletModel.accountModelsManager)
 
         eligibleTokenRows = eligibleTokens.compactMap { token in
             guard let tokenId = token.tokenId, let decimals = token.decimals else {

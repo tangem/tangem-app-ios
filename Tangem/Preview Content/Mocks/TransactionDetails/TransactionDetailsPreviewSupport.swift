@@ -88,9 +88,7 @@ extension CommonWalletModel {
             walletManager: walletManager,
             stakingManager: StakingManagerMock(),
             featureManager: WalletModelFeaturesManagerMock(),
-            transactionHistoryUpdater: TransactionHistoryUpdater(
-                scheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage()
-            ),
+            transactionHistoryUpdater: TransactionHistoryUpdater(),
             transactionHistoryService: PreviewTransactionHistoryService(records: history),
             receiveAddressService: DummyReceiveAddressService(addressInfos: []),
             sendAvailabilityProvider: sendAvailabilityProvider,

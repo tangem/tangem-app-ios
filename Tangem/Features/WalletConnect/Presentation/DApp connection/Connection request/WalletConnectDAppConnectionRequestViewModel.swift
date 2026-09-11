@@ -17,6 +17,9 @@ import TangemAssets
 
 @MainActor
 final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
+    @Injected(\.cryptoAccountsGlobalStateProvider)
+    private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
+
     private let interactor: WalletConnectDAppConnectionInteractor
     private let logger: TangemLogger.Logger
     private let analyticsLogger: any WalletConnectDAppConnectionRequestAnalyticsLogger
@@ -65,7 +68,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
         case .standard(.multiple(let accounts)):
             selectedAccount = accounts.first
             hasMultipleAccounts = true
-        case .none, .tangemPay, .polymarket:
+        case .none, .joint, .tangemPay, .polymarket, .collectibles:
             selectedAccount = nil
         }
 
@@ -83,7 +86,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
 
         self.selectedAccount = selectedAccount
         self.selectedUserWallet = selectedUserWallet
-        hasMultipleAccounts = selectedUserWallet.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
+        hasMultipleAccounts = cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
 
         let cacheKey = AccountCacheKey(
             userWalletId: selectedUserWallet.userWalletId.stringValue,
@@ -155,7 +158,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
         case .standard(.multiple(let accounts)):
             selectedAccount = accounts.first
             hasMultipleAccounts = true
-        case .none, .tangemPay, .polymarket:
+        case .none, .joint, .tangemPay, .polymarket, .collectibles:
             selectedAccount = nil
             hasMultipleAccounts = false
         }

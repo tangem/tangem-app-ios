@@ -75,7 +75,7 @@ struct TangemPayDailyLimitRowRedesigned: View {
                     action: changeAction
                 )
                 .size(.x10)
-                .styleType(.secondary)
+                .styleType(.secondary(.default))
                 .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.dailyLimitChangeButton)
             }
         case .loading:

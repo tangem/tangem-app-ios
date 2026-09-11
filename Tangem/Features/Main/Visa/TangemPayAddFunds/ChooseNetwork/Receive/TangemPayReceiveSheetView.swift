@@ -214,7 +214,7 @@ private extension TangemPayReceiveSheetView {
             )
             .iconEnd(DesignSystem.Icons.Qr.regular24)
             .size(.x12)
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .horizontalLayout(.infinity)
 
             TangemUI.Button(

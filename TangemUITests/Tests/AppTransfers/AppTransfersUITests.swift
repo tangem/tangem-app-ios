@@ -259,7 +259,7 @@ final class AppTransfersUITests: BaseTestCase {
             clearStorage: true,
             scenarios: [
                 ScenarioConfig(name: "tangem_pay_eligibility", initialState: "PaeraCustomer"),
-                ScenarioConfig(name: "tangem_pay_balance_update", initialState: "InitialBalance"),
+                ScenarioConfig(name: "tangem_pay_balance_update", initialState: "InitialBalanceMultinetwork"),
                 ScenarioConfig(name: "tangem_pay_transaction_history", initialState: "InitialEmpty"),
                 ScenarioConfig(name: "user_tokens_api", initialState: "TangemPayTransferUsdc"),
             ]
@@ -269,8 +269,6 @@ final class AppTransfersUITests: BaseTestCase {
             .openTangemPay()
             .waitForScreen()
             .tapWithdraw()
-            .waitForScreen()
-            .tapGotIt()
             .validateSwapScreenDisplayed()
             .chooseTokenFromEmptySelector(Constants.tangemPayToken)
             .waitForProviderBlockNotDisplayed()

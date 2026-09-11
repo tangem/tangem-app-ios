@@ -7,8 +7,14 @@
 //
 
 import SwiftUI
+import Combine
+import TangemAssets
 import TangemFoundation
+import TangemLocalization
 import TangemPolymarket
+import TangemPolymarketUI
+import TangemUI
+import TangemUIUtils
 
 final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var categories: [PolymarketCategory] = [] {
@@ -19,6 +25,16 @@ final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var selectedCategoryID: Int?
     @Published private(set) var loadingState: LoadingState = .loading
     @Published private(set) var isTabsPinned = false
+    @Published private(set) var balance: LoadableBalanceView.State = .loading(cached: .none)
+    @Published private(set) var isRegionRestricted = false
+    @Published private(set) var isAwaitingFunds = false
+    @Published private(set) var addFundsState: AddFundsState = .loading
+    @Published private(set) var isSearching = false
+    @Published var isSearchFieldActive = false
+    @Published var searchQuery = ""
+    @Published var alert: AlertBinder?
+
+    let search: PolymarketSearchViewModel
 
     private(set) var categoryTabs: [PolymarketCategoryTab] = []
 
@@ -30,7 +46,19 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     private let apiProvider: PolymarketAPIProvider
+    private let geoblockStateProvider: PolymarketGeoblockStateProvider
+    private let balanceProvider: PolymarketBalanceProvider
+    private let accountFundsInteractor: PolymarketAccountFundsInteractor?
     private weak var coordinator: PolymarketMainRoutable?
+
+    private let balanceStateBuilder = LoadableBalanceViewStateBuilder()
+
+    private var balanceSubscription: AnyCancellable?
+    private var balanceRefreshTask: Task<Void, Never>?
+    private var accountFundsPreparationTask: Task<Void, Never>?
+    private var awaitingFundsTask: Task<Void, Never>?
+    private var searchBag: Set<AnyCancellable> = []
+    private var bag: Set<AnyCancellable> = []
 
     private var events: [PolymarketEvent] = []
     private var cursor: String?
@@ -38,11 +66,110 @@ final class PolymarketMainViewModel: ObservableObject {
     private var cache: [Int?: CategoryState] = [:]
     private var loadingTask: Task<Void, Never>?
 
-    init(apiProvider: PolymarketAPIProvider, coordinator: PolymarketMainRoutable) {
+    init(
+        apiProvider: PolymarketAPIProvider,
+        geoblockStateProvider: PolymarketGeoblockStateProvider,
+        balanceProvider: PolymarketBalanceProvider,
+        accountFundsInteractor: PolymarketAccountFundsInteractor?,
+        coordinator: PolymarketMainRoutable
+    ) {
         self.apiProvider = apiProvider
+        self.geoblockStateProvider = geoblockStateProvider
+        search = PolymarketSearchViewModel(apiProvider: apiProvider)
+        self.balanceProvider = balanceProvider
+        self.accountFundsInteractor = accountFundsInteractor
         self.coordinator = coordinator
+        search.coordinator = self
 
+        bindSearch()
+        bindBalance()
+        bindGeoblockState()
+        startBalanceRefresh()
         load()
+    }
+
+    deinit {
+        balanceRefreshTask?.cancel()
+        accountFundsPreparationTask?.cancel()
+        awaitingFundsTask?.cancel()
+    }
+
+    private func bindSearch() {
+        $searchQuery
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, query in viewModel.search.query = query }
+            .store(in: &searchBag)
+
+        $isSearchFieldActive
+            .filter { $0 }
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in viewModel.isSearching = true }
+            .store(in: &searchBag)
+    }
+
+    private func bindGeoblockState() {
+        geoblockStateProvider
+            .statePublisher
+            .map { $0 == .blocked }
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, isRestricted in
+                viewModel.isRegionRestricted = isRestricted
+            }
+            .store(in: &bag)
+    }
+
+    private func startBalanceRefresh() {
+        balanceRefreshTask = Task { @MainActor [weak self] in
+            await self?.balanceProvider.refresh()
+
+            while !Task.isCancelled {
+                let interval = self?.isAwaitingFunds == true
+                    ? Constants.awaitingFundsBalanceRefreshInterval
+                    : Constants.balanceRefreshInterval
+
+                try? await Task.sleep(for: .seconds(interval))
+
+                guard !Task.isCancelled, let self else { return }
+
+                await balanceProvider.refresh()
+            }
+        }
+    }
+
+    private func bindBalance() {
+        balanceSubscription = balanceProvider
+            .balancePublisher
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, formatted in
+                viewModel.balance = viewModel.makeBalanceState(from: formatted)
+            }
+    }
+
+    private func prepareAccountFunds() {
+        guard accountFundsInteractor != nil else {
+            addFundsState = .unavailable
+            return
+        }
+
+        accountFundsPreparationTask?.cancel()
+
+        if addFundsState != .available {
+            addFundsState = .loading
+        }
+
+        accountFundsPreparationTask = runTask(in: self) { @MainActor viewModel in
+            guard let interactor = viewModel.accountFundsInteractor else { return }
+
+            let state = await interactor.prepare()
+
+            guard !Task.isCancelled else { return }
+
+            viewModel.addFundsState = AddFundsState(state)
+        }
     }
 
     // MARK: - Actions
@@ -54,27 +181,20 @@ final class PolymarketMainViewModel: ObservableObject {
         resetEvents()
         loadingState = .loading
 
+        prepareAccountFunds()
+
         loadingTask = runTask(in: self) { @MainActor viewModel in
-            do {
-                let categories = try await viewModel.apiProvider.categories(locale: viewModel.locale)
-                try Task.checkCancellation()
-
-                // Without categories there is no feed to show, so this is an error rather than an empty state
-                guard let firstCategoryID = categories.first?.id else {
-                    viewModel.loadingState = .error
-                    return
-                }
-
-                let page = try await viewModel.apiProvider.events(request: .init(category: firstCategoryID, cursor: nil))
-                try Task.checkCancellation()
-
-                viewModel.categories = categories
-                viewModel.selectedCategoryID = firstCategoryID
-                viewModel.apply(page: page)
-            } catch {
-                viewModel.handleFetchFailure(error)
-            }
+            await viewModel.loadCategories()
         }
+    }
+
+    func retry() {
+        guard !categories.isEmpty else {
+            load()
+            return
+        }
+
+        fetchEvents()
     }
 
     func select(categoryID: Int?) {
@@ -92,11 +212,61 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     func loadMore() {
+        guard hasNext, loadingState != .paginationLoading else { return }
+
         fetchEvents(more: true)
     }
 
     func dismiss() {
         coordinator?.dismiss()
+    }
+
+    @MainActor
+    func openHowItWorks() {
+        coordinator?.openHowItWorks()
+    }
+
+    func startAwaitingFunds() {
+        awaitingFundsTask?.cancel()
+        isAwaitingFunds = true
+
+        balanceRefreshTask?.cancel()
+        startBalanceRefresh()
+
+        awaitingFundsTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(Constants.awaitingFundsDuration))
+
+            guard !Task.isCancelled else { return }
+
+            self?.isAwaitingFunds = false
+        }
+    }
+
+    func onAddFundsTap() {
+        guard !isRegionRestricted else {
+            coordinator?.openRegionWarning()
+            return
+        }
+
+        switch addFundsState {
+        case .available:
+            coordinator?.openAddFunds()
+        case .loading:
+            break
+        case .unavailable:
+            alert = AlertBuilder.makeOkGotItAlert(message: Localization.predictionAddFundsErrorDescription)
+        }
+    }
+
+    func exitSearch() {
+        isSearching = false
+        isSearchFieldActive = false
+        searchQuery = ""
+        search.reset()
+    }
+
+    func openEventDetails(eventID: String) {
+        coordinator?.openEventDetails(eventID: eventID, category: selectedCategory)
     }
 
     func updatePinnedState(tabsMinY: CGFloat, navBarHeight: CGFloat) {
@@ -107,6 +277,46 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     // MARK: - Private
+
+    @MainActor
+    private func loadCategories() async {
+        do {
+            let categories = try await apiProvider.categories(locale: locale)
+            try Task.checkCancellation()
+
+            guard let firstCategoryID = categories.first?.id else {
+                loadingState = .error
+                return
+            }
+
+            let page = try await apiProvider.events(request: .init(category: firstCategoryID, limit: Constants.pageSize, cursor: nil))
+            try Task.checkCancellation()
+
+            self.categories = categories
+            selectedCategoryID = firstCategoryID
+            apply(page: page)
+        } catch {
+            handleFetchFailure(error)
+        }
+    }
+
+    @MainActor
+    private func reloadSelectedCategory() async {
+        let categoryID = selectedCategoryID
+
+        do {
+            let page = try await apiProvider.events(request: .init(category: categoryID, limit: Constants.pageSize, cursor: nil))
+            try Task.checkCancellation()
+
+            guard categoryID == selectedCategoryID else { return }
+
+            cache[categoryID] = nil
+            resetEvents()
+            apply(page: page)
+        } catch {
+            handleFetchFailure(error)
+        }
+    }
 
     private func fetchEvents(more: Bool = false) {
         loadingTask?.cancel()
@@ -122,7 +332,9 @@ final class PolymarketMainViewModel: ObservableObject {
 
         loadingTask = runTask(in: self) { @MainActor viewModel in
             do {
-                let page = try await viewModel.apiProvider.events(request: .init(category: categoryID, cursor: requestCursor))
+                let page = try await viewModel.apiProvider.events(
+                    request: .init(category: categoryID, limit: Constants.pageSize, cursor: requestCursor)
+                )
                 try Task.checkCancellation()
 
                 viewModel.apply(page: page)
@@ -133,9 +345,15 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     private func apply(page: PolymarketEventsPage) {
-        append(events: page.events)
+        let added = append(events: page.events)
+
         cursor = page.cursor
         hasNext = page.hasNext
+
+        guard added > 0 || !page.hasNext else {
+            fetchEvents(more: true)
+            return
+        }
 
         loadingState = events.isEmpty ? .noResults : (page.hasNext ? .loaded : .allDataLoaded)
     }
@@ -143,16 +361,43 @@ final class PolymarketMainViewModel: ObservableObject {
     private func handleFetchFailure(_ error: Error) {
         guard !error.isCancellationError else { return }
 
+        if !events.isEmpty, Self.isStaleCursorFailure(error) {
+            cursor = nil
+        }
+
         loadingState = events.isEmpty ? .error : .paginationError
     }
 
-    private func append(events newEvents: [PolymarketEvent]) {
-        events.append(contentsOf: newEvents)
-        eventCards.append(contentsOf: newEvents.map(makeCard))
+    private static func isStaleCursorFailure(_ error: Error) -> Bool {
+        guard case .http(let statusCode, _) = error as? PolymarketAPIError else { return false }
+
+        return statusCode == Constants.staleCursorStatusCode
+    }
+
+    @discardableResult
+    private func append(events newEvents: [PolymarketEvent]) -> Int {
+        var known = Set(events.map(\.id))
+        let fresh = newEvents.filter { known.insert($0.id).inserted }
+
+        events.append(contentsOf: fresh)
+        eventCards.append(contentsOf: fresh.map(makeCard))
+
+        return fresh.count
+    }
+
+    private var selectedCategory: PolymarketCategory? {
+        categories.first { $0.id == selectedCategoryID }
     }
 
     private func makeCard(for event: PolymarketEvent) -> PolymarketEventCard.Model {
-        .make(event: event, category: nil, isInActivePredicts: false, onSelectOutcome: { _, _ in })
+        .make(
+            event: event,
+            category: nil,
+            isInActivePredicts: false,
+            onSelectOutcome: { [weak self] _, _ in
+                self?.openEventDetails(eventID: event.id)
+            }
+        )
     }
 
     private func resetEvents() {
@@ -162,8 +407,6 @@ final class PolymarketMainViewModel: ObservableObject {
         hasNext = false
     }
 
-    /// The cache keeps data only: a restored category has no request behind it, so a transient
-    /// `.paginationLoading` or `.paginationError` must not come back with it.
     private func snapshot() -> CategoryState {
         CategoryState(events: events, cursor: cursor, hasNext: hasNext)
     }
@@ -178,6 +421,28 @@ final class PolymarketMainViewModel: ObservableObject {
 
     private var locale: String? {
         Locale.current.language.languageCode?.identifier
+    }
+}
+
+private extension PolymarketMainViewModel {
+    func makeBalanceState(from formatted: FormattedTokenBalanceType) -> LoadableBalanceView.State {
+        AttributedBalanceFormatter.decimalColored(
+            balanceStateBuilder.build(type: steady(formatted)),
+            integerPart: .init(
+                font: TangemFontStyle(DesignSystem.Font.displayMediumToken),
+                color: DesignSystem.Color.textPrimary
+            ),
+            fractionalPart: .init(
+                font: TangemFontStyle(DesignSystem.Font.headingMediumToken),
+                color: DesignSystem.Color.textPrimary
+            )
+        )
+    }
+
+    func steady(_ formatted: FormattedTokenBalanceType) -> FormattedTokenBalanceType {
+        guard case .loading(.cache(let cached)) = formatted else { return formatted }
+
+        return .loaded(cached.balance)
     }
 }
 
@@ -198,5 +463,59 @@ private extension PolymarketMainViewModel {
         let events: [PolymarketEvent]
         let cursor: String?
         let hasNext: Bool
+    }
+
+    enum Constants {
+        static let pageSize = 20
+        static let staleCursorStatusCode = 502
+
+        static let balanceRefreshInterval: TimeInterval = 30
+        static let awaitingFundsDuration: TimeInterval = 30
+        static let awaitingFundsBalanceRefreshInterval: TimeInterval = 5
+    }
+}
+
+// MARK: - Refresh
+
+extension PolymarketMainViewModel {
+    @MainActor
+    func refresh() async {
+        prepareAccountFunds()
+        geoblockStateProvider.refresh()
+        loadingTask?.cancel()
+
+        await balanceProvider.refresh()
+
+        if categories.isEmpty {
+            await loadCategories()
+        } else {
+            await reloadSelectedCategory()
+        }
+    }
+}
+
+// MARK: - Add funds
+
+extension PolymarketMainViewModel {
+    enum AddFundsState: Equatable {
+        case loading
+        case available
+        case unavailable
+
+        init(_ state: PolymarketAccountFundsInteractor.State) {
+            switch state {
+            case .loading: self = .loading
+            case .ready(let readiness): self = readiness.depositTarget == nil ? .unavailable : .available
+            case .unavailable: self = .unavailable
+            }
+        }
+    }
+}
+
+// MARK: - PolymarketSearchRoutable protocol conformance
+
+extension PolymarketMainViewModel: PolymarketSearchRoutable {
+    func openEventDetailsFromSearch(eventID: String) {
+        coordinator?.openEventDetails(eventID: eventID, category: nil)
     }
 }

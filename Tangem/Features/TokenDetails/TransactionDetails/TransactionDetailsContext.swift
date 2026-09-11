@@ -6,7 +6,9 @@
 //
 
 import Foundation
+import BlockchainSdk
 import TangemAccounts
+import TangemAssets
 import TangemUI
 
 struct TransactionDetailsContext {
@@ -25,6 +27,34 @@ struct TransactionDetailsContext {
         self.userWalletInfo = userWalletInfo
         self.isAccountsMode = isAccountsMode
         tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
+    }
+
+    var networkIconAsset: ImageType {
+        NetworkImageProvider().provide(by: walletModel.tokenItem.blockchain, filled: true)
+    }
+
+    func tokenIconInfo(forContract contract: String) -> TokenIconInfo? {
+        let blockchain = walletModel.tokenItem.blockchain
+        let comparator = AddressComparator()
+
+        guard let walletModels = walletModel.account?.walletModelsManager.walletModels else {
+            return nil
+        }
+
+        let matching: (any WalletModel)? = walletModels.first { model in
+            guard let contractAddress: String = model.tokenItem.contractAddress else {
+                return false
+            }
+
+            return model.tokenItem.blockchain.networkId == blockchain.networkId
+                && comparator.addressesMatch(contractAddress, contract, blockchain: blockchain)
+        }
+
+        guard let matching else {
+            return nil
+        }
+
+        return TokenIconInfoBuilder().build(from: matching.tokenItem, isCustom: matching.isCustom)
     }
 
     var tokenSymbol: String {
