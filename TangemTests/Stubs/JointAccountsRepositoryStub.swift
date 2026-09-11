@@ -16,6 +16,7 @@ import TangemFoundation
 final class JointAccountsRepositoryStub: JointAccountsRepository {
     private let jointAccountsSubject: CurrentValueSubject<[StoredJointAccount], Never>
     private let invitesSubject = CurrentValueSubject<[StoredJointAccountInvites], Never>([])
+    private let pendingOperationsSubject = CurrentValueSubject<[StoredJointAccountPendingOperations], Never>([])
     private let loadCallsCount = OSAllocatedUnfairLock(initialState: 0)
 
     var loadJointAccountsFromRemoteCallsCount: Int {
@@ -41,6 +42,10 @@ final class JointAccountsRepositoryStub: JointAccountsRepository {
 
     var jointAccountsInvitesPublisher: AnyPublisher<[StoredJointAccountInvites], Never> {
         invitesSubject.eraseToAnyPublisher()
+    }
+
+    var jointAccountsPendingOperationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> {
+        pendingOperationsSubject.eraseToAnyPublisher()
     }
 
     func initialize() {}
