@@ -27,6 +27,7 @@ public enum PolymarketOnboardingError: Error {
     case signing(PolymarketSigningError)
     case wallet(PolymarketWalletError)
     case addressMismatch
+    case regionBlocked
     case depositWalletDerivation
     case walletIdTaken
     case credentials
@@ -45,7 +46,7 @@ public extension PolymarketOnboardingError {
 
     var isRetryable: Bool {
         switch self {
-        case .walletIdTaken, .addressMismatch, .depositWalletDerivation:
+        case .walletIdTaken, .addressMismatch, .regionBlocked, .depositWalletDerivation:
             false
         case .derivation(let error):
             switch error {

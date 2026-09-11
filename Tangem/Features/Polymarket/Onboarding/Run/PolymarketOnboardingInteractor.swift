@@ -19,6 +19,7 @@ final class CommonPolymarketOnboardingInteractor {
     private let ownerAddressProvider: PolymarketOwnerAddressProviding
     private let signer: PolymarketOnboardingSigning
     private let credentialsRepository: PolymarketCredentialsRepository
+    private let geoblockService: PolymarketGeoblockService
     private let walletService: PolymarketDepositWalletService
     private let relayerService: PolymarketRelayerService
     private let clobService: PolymarketCLOBService
@@ -29,6 +30,7 @@ final class CommonPolymarketOnboardingInteractor {
         ownerAddressProvider: PolymarketOwnerAddressProviding,
         signer: PolymarketOnboardingSigning,
         credentialsRepository: PolymarketCredentialsRepository,
+        geoblockService: PolymarketGeoblockService,
         walletService: PolymarketDepositWalletService,
         relayerService: PolymarketRelayerService,
         clobService: PolymarketCLOBService,
@@ -38,6 +40,7 @@ final class CommonPolymarketOnboardingInteractor {
         self.ownerAddressProvider = ownerAddressProvider
         self.signer = signer
         self.credentialsRepository = credentialsRepository
+        self.geoblockService = geoblockService
         self.walletService = walletService
         self.relayerService = relayerService
         self.clobService = clobService
@@ -63,6 +66,23 @@ extension CommonPolymarketOnboardingInteractor: PolymarketOnboardingInteractor {
 // MARK: - The run
 
 private extension CommonPolymarketOnboardingInteractor {
+    func ensureRegionAllows(status: PolymarketDepositWalletStatus) async throws {
+        guard status.owesApprovals else { return }
+
+        do {
+            let geoblock = try await geoblockService.geoblock()
+
+            guard !geoblock.isBlocked else { throw PolymarketOnboardingError.regionBlocked }
+        } catch let error as PolymarketOnboardingError {
+            throw error
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            PolymarketLogger.error("The region could not be read, refusing to onboard", error: error)
+            throw PolymarketOnboardingError.regionBlocked
+        }
+    }
+
     func onboard(reporting continuation: PolymarketOnboardingContinuation) async {
         do {
             continuation.yield(.deriving)
@@ -96,6 +116,8 @@ private extension CommonPolymarketOnboardingInteractor {
                 )
                 return
             }
+
+            try await ensureRegionAllows(status: status)
 
             continuation.yield(.awaitingSignature)
 
@@ -248,7 +270,16 @@ private extension CommonPolymarketOnboardingInteractor {
 
         if status.owesApprovals {
             if !status.isDeployComplete {
-                switch try await poller.poll(until: .deployed, from: status, reporting: continuation) {
+                let outcome: PolymarketDepositWalletPoller.Outcome
+
+                do {
+                    outcome = try await poller.poll(until: .deployed, from: status, reporting: continuation)
+                } catch PolymarketOnboardingError.deploymentFailed {
+                    status = try await deploy(addresses: addresses, isRetry: true, reporting: continuation)
+                    outcome = try await poller.poll(until: .deployed, from: status, reporting: continuation)
+                }
+
+                switch outcome {
                 case .reached(let deployed):
                     status = deployed
                 case .ceiling(let reported):
@@ -273,6 +304,7 @@ private extension CommonPolymarketOnboardingInteractor {
 
     func deploy(
         addresses: Addresses,
+        isRetry: Bool = false,
         reporting continuation: PolymarketOnboardingContinuation
     ) async throws -> PolymarketDepositWalletStatus {
         let status: PolymarketDepositWalletStatus
@@ -293,7 +325,9 @@ private extension CommonPolymarketOnboardingInteractor {
         }
 
         guard status != .deploymentFailed else {
-            throw PolymarketOnboardingError.deploymentFailed
+            guard !isRetry else { throw PolymarketOnboardingError.deploymentFailed }
+
+            return try await deploy(addresses: addresses, isRetry: true, reporting: continuation)
         }
 
         continuation.yield(.working(status))

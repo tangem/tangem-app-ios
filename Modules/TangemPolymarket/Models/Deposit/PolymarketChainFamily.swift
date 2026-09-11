@@ -31,12 +31,6 @@ public extension PolymarketChainFamily {
 
 // MARK: - Constants
 
-/// The bridge response carries no address family, and its own documentation states the mapping by chain
-/// name rather than by the id the response actually returns, so the ids below are transcribed from a live
-/// `GET /supported-assets` and matched against that table by hand. Both sources drift and disagree, so an
-/// unlisted id resolves to no family rather than to EVM.
-/// https://docs.polymarket.com/trading/bridge/supported-assets
-/// https://docs.polymarket.com/trading/bridge/deposit
 private extension PolymarketChainFamily {
     enum Constants {
         static let solanaChainId = "1151111081099710"
