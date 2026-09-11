@@ -19,6 +19,7 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
 
     private let category: PolymarketCategory?
     private let apiProvider: PolymarketAPIProvider
+    private let geoblockStateProvider: PolymarketGeoblockStateProvider?
     private weak var coordinator: PolymarketEventDetailsRoutable?
 
     private var loadingTask: Task<Void, Never>?
@@ -28,11 +29,13 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
         eventID: String,
         category: PolymarketCategory?,
         apiProvider: PolymarketAPIProvider,
+        geoblockStateProvider: PolymarketGeoblockStateProvider?,
         coordinator: PolymarketEventDetailsRoutable
     ) {
         self.eventID = eventID
         self.category = category
         self.apiProvider = apiProvider
+        self.geoblockStateProvider = geoblockStateProvider
         self.coordinator = coordinator
 
         load()
@@ -120,7 +123,18 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
     }
 
     private func makeContent(from event: PolymarketEvent) -> PolymarketEventDetailsContent {
-        .make(event: event, category: category) { _, _ in }
+        .make(event: event, category: category) { [weak self] market, outcome in
+            self?.selectOutcome(market: market, outcome: outcome, eventTitle: event.title)
+        }
+    }
+
+    private func selectOutcome(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {
+        guard geoblockStateProvider?.state != .blocked else {
+            coordinator?.openRegionWarning()
+            return
+        }
+
+        coordinator?.openOrder(market: market, outcome: outcome, eventTitle: eventTitle)
     }
 }
 

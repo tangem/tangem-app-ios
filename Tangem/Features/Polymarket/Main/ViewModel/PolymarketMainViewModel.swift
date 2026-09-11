@@ -364,8 +364,8 @@ final class PolymarketMainViewModel: ObservableObject {
             event: event,
             category: nil,
             isInActivePredicts: false,
-            onSelectOutcome: { [weak self] market, outcome in
-                self?.coordinator?.openOrder(market: market, outcome: outcome, eventTitle: event.title)
+            onSelectOutcome: { [weak self] _, _ in
+                self?.openEventDetails(eventID: event.id)
             }
         )
     }

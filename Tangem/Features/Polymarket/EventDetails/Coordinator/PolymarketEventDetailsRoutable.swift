@@ -10,4 +10,6 @@ import TangemPolymarket
 
 protocol PolymarketEventDetailsRoutable: AnyObject {
     func dismissEventDetails()
+    func openOrder(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String)
+    func openRegionWarning()
 }
