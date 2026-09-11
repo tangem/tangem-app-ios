@@ -73,7 +73,6 @@ struct PolymarketQuoteFailureClockTests {
 
 // MARK: - Fixtures
 
-/// `#expect` captures the expression it is given, so a mutating call cannot be written inside it.
 private final class FailureClock {
     private var clock: PolymarketQuoteFailureClock
 

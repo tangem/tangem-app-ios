@@ -79,9 +79,23 @@ struct PolymarketMainView: View {
             settings: .init(backgroundColor: .clear, horizontalPadding: Constants.horizontalPadding, height: Constants.navBarSettingsHeight),
             titleView: { titleView },
             leftButtons: { NavigationBarButton.back { viewModel.dismiss() } },
-            rightButtons: { NavigationBarButton.details {} }
+            rightButtons: { overflowMenu }
         )
         .environment(\.isRedesign, true)
+    }
+
+    private var overflowMenu: some View {
+        Menu {
+            SwiftUI.Button(action: viewModel.openHowItWorks) {
+                Label(
+                    title: { Text("How it works") },
+                    icon: { DesignSystem.Icons.Info.regular20.image.renderingMode(.template) }
+                )
+            }
+        } label: {
+            NavigationBarButton.details {}
+                .allowsHitTesting(false)
+        }
     }
 
     private var titleView: some View {

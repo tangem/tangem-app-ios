@@ -157,6 +157,15 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
         dismissAction(())
     }
 
+    @MainActor
+    func openHowItWorks() {
+        tangemStoriesPresenter.present(
+            story: .polymarketOnboarding(.initialWithoutImages),
+            analyticsSource: .predictions,
+            presentCompletion: {}
+        )
+    }
+
     func openEventDetails(eventID: String, category: PolymarketCategory?) {
         destination = .eventDetails(PolymarketEventDetailsViewModel(
             eventID: eventID,
