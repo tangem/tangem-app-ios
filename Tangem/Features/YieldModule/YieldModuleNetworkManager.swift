@@ -21,6 +21,7 @@ protocol YieldModuleNetworkManager {
 
     func fetchYieldTokenInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleTokenInfo
     func fetchChartData(tokenContractAddress: String, chainId: Int) async throws -> YieldChartData
+    func fetchAprHistory(tokenContractAddress: String, chainId: Int, days: Int) async throws -> [YieldIncentiveAprPoint]
     func activate(tokenContractAddress: String, walletAddress: String, chainId: Int, userWalletId: String) async throws
     func deactivate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws
     func sendTransactionEvent(txHash: String, operation: YieldModuleOperation, userAddress: String?) async
@@ -132,6 +133,34 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
         )
     }
 
+    func fetchAprHistory(tokenContractAddress: String, chainId: Int, days: Int) async throws -> [YieldIncentiveAprPoint] {
+        let history = try await yieldModuleAPIService.getAprHistory(
+            chainId: chainId,
+            tokenAddress: tokenContractAddress,
+            days: days
+        )
+
+        // Points arrive in ascending date order and are plotted as is; unparseable dates are dropped.
+        return history.points.compactMap { point in
+            Self.aprHistoryDateFormatter.date(from: point.date).map {
+                YieldIncentiveAprPoint(
+                    date: $0,
+                    baseApy: point.baseApy / 100,
+                    rewardsApr: point.rewardsApr / 100,
+                    totalApyEst: point.totalApyEst / 100
+                )
+            }
+        }
+    }
+
+    private static let aprHistoryDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(identifier: "UTC")
+        return formatter
+    }()
+
     func activate(tokenContractAddress: String, walletAddress: String, chainId: Int, userWalletId: String) async throws {
         try await yieldModuleAPIService.activate(
             tokenContractAddress: tokenContractAddress,
@@ -216,7 +245,9 @@ private extension CommonYieldModuleNetworkManager {
         let includeIncentive = FeatureProvider.isAvailable(.merklIncentives)
 
         do {
-            let response = try await fetchMarketsInfo(chainIDs: chainIDs, includeIncentive: includeIncentive)
+            let response = includeIncentive
+                ? try await yieldModuleAPIService.getIncentiveYieldMarkets(chainIDs: chainIDs)
+                : try await yieldModuleAPIService.getYieldMarkets(chainIDs: chainIDs)
 
             let markets = response.tokens.map {
                 YieldModuleMarketInfo(dto: $0, includeIncentive: includeIncentive)
@@ -224,28 +255,15 @@ private extension CommonYieldModuleNetworkManager {
 
             return (markets, response)
         } catch {
+            AppLogger.error("Failed to load yield markets. Falling back to the cached markets.", error: error)
+
             guard let cachedMarkets = yieldMarketsRepository.markets() else {
                 return ([], nil)
             }
 
-            let markets = cachedMarkets.markets.map {
-                YieldModuleMarketInfo(from: $0, includeIncentive: includeIncentive)
-            }
+            let markets = cachedMarkets.markets.map(YieldModuleMarketInfo.init(from:))
 
             return (markets, nil)
-        }
-    }
-
-    func fetchMarketsInfo(chainIDs: [String], includeIncentive: Bool) async throws -> YieldModuleDTO.Response.MarketsInfo {
-        guard includeIncentive else {
-            return try await yieldModuleAPIService.getYieldMarkets(chainIDs: chainIDs)
-        }
-
-        do {
-            return try await yieldModuleAPIService.getIncentiveYieldMarkets(chainIDs: chainIDs)
-        } catch {
-            // The incentives endpoint must never degrade base Yield Mode — fall back to the legacy markets.
-            return try await yieldModuleAPIService.getYieldMarkets(chainIDs: chainIDs)
         }
     }
 
@@ -257,10 +275,7 @@ private extension CommonYieldModuleNetworkManager {
                 isActive: $0.isActive,
                 chainId: $0.chainId,
                 maxFeeNative: $0.maxFeeNative,
-                maxFeeUSD: $0.maxFeeUSD,
-                hasActiveCampaign: $0.hasActiveCampaign,
-                rewardsApr: $0.rewardsApr,
-                totalApyEst: $0.totalApyEst
+                maxFeeUSD: $0.maxFeeUSD
             )
         }
         yieldMarketsRepository.store(

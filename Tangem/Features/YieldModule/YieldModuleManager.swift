@@ -34,6 +34,7 @@ protocol YieldModuleManager {
 
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo
     func fetchChartData() async throws -> YieldChartData
+    func fetchAprHistory(days: Int) async throws -> [YieldIncentiveAprPoint]
 
     func sendActivationState()
     func sendTransactionSendEvent(sourceAddress: String, transactionHash: String)
@@ -377,6 +378,10 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         try await yieldModuleNetworkManager.fetchChartData(tokenContractAddress: token.contractAddress, chainId: chainId)
     }
 
+    func fetchAprHistory(days: Int) async throws -> [YieldIncentiveAprPoint] {
+        try await yieldModuleNetworkManager.fetchAprHistory(tokenContractAddress: token.contractAddress, chainId: chainId, days: days)
+    }
+
     func sendActivationState() {
         sendActivationStateCancellable = Task {
             switch state?.state {
@@ -605,7 +610,7 @@ private extension CommonYieldModuleManager {
         }
 
         let cachedStateInfo = YieldModuleManagerStateInfo(
-            marketInfo: .init(from: cachedMarket, includeIncentive: FeatureProvider.isAvailable(.merklIncentives)),
+            marketInfo: .init(from: cachedMarket),
             state: .loading(cachedState: cachedState)
         )
         return statePublisher
