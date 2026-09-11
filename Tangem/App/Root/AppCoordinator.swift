@@ -38,6 +38,7 @@ class AppCoordinator: CoordinatorObject {
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.appLockController) private var appLockController: AppLockController
     @Injected(\.overlayContentContainer) private var overlayContentContainer: OverlayContentContainer
+    @Injected(\.welcomeV2EntryReasonProvider) private var welcomeV2EntryReasonProvider: WelcomeV2EntryReasonProviding
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.servicesManager) private var servicesManager: ServicesManager
     @Injected(\.mailComposePresenter) private var mailComposePresenter: MailComposePresenter
@@ -68,6 +69,8 @@ class AppCoordinator: CoordinatorObject {
     }
 
     func start(with options: AppCoordinator.Options = .default) {
+        welcomeV2EntryReasonProvider.startObserving()
+
         let startupProcessor = StartupProcessor()
         let startupOption = startupProcessor.getStartupOption()
 

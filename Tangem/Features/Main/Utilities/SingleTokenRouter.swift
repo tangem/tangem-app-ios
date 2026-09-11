@@ -130,6 +130,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
             isUnderMarketCapLimit: nil,
             stakingOpportunities: nil,
             networks: nil,
+            restrictedForCountry: nil
         )
 
         coordinator?.openMarketsTokenDetails(tokenModel: model)

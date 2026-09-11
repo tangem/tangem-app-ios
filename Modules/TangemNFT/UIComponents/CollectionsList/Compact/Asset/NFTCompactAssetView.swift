@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct NFTCompactAssetView: View {
     var viewModel: NFTCompactAssetViewModel
@@ -24,6 +25,7 @@ struct NFTCompactAssetView: View {
                 makeContent(from: viewData)
             }
             .buttonStyle(.defaultScaled)
+            .accessibilityIdentifier(NFTAccessibilityIdentifiers.assetCell(name: viewData.name))
         }
     }
 

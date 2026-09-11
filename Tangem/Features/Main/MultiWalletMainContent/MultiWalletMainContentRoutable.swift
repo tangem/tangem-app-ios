@@ -36,4 +36,6 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
         userWalletModel: UserWalletModel
     )
     func openGetTangemPay(availableSelection: TangemPayWalletSelectionType)
+    func openPolymarket(userWalletModel: UserWalletModel)
+    func openJointAccountMembers(jointAccount: any JointAccountModel)
 }

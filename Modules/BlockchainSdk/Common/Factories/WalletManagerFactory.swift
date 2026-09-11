@@ -31,32 +31,8 @@ public class WalletManagerFactory {
         self.apiList = apiList
     }
 
-    public func makeWalletManager(blockchain: Blockchain, publicKey: Wallet.PublicKey) throws -> WalletManager {
-        let walletFactory = WalletFactory(blockchain: blockchain)
-        let wallet = try walletFactory.makeWallet(publicKey: publicKey)
-        return try makeWalletManager(wallet: wallet)
-    }
-
-    /// Only for Tangem Twin Cards
-    /// - Parameters:
-    ///   - walletPublicKey: First public key
-    ///   - pairKey: Pair public key
-    public func makeTwinWalletManager(walletPublicKey: Data, pairKey: Data, isTestnet: Bool) throws -> WalletManager {
-        let blockchain: Blockchain = .bitcoin(testnet: isTestnet)
-        let publicKey = Wallet.PublicKey(seedKey: walletPublicKey, derivationType: .none)
-        let walletFactory = WalletFactory(blockchain: blockchain)
-        let wallet = try walletFactory.makeWallet(publicKey: publicKey, pairPublicKey: pairKey)
-        return try makeWalletManager(wallet: wallet, pairPublicKey: pairKey)
-    }
-}
-
-// MARK: - Private Implementation
-
-private extension WalletManagerFactory {
-    func makeWalletManager(
-        wallet: Wallet,
-        pairPublicKey: Data? = nil
-    ) throws -> WalletManager {
+    /// For a wallet put together by `WalletFactory` or, when it lives somewhere no key derives, by the caller itself.
+    public func makeWalletManager(wallet: Wallet) throws -> WalletManager {
         let blockchain = wallet.blockchain
 
         let networkInput = NetworkProviderAssembly.Input(
@@ -68,52 +44,6 @@ private extension WalletManagerFactory {
 
         let input = WalletManagerAssemblyInput(
             wallet: wallet,
-            pairPublicKey: pairPublicKey,
-            blockchainSdkDependencies: dependencies,
-            networkInput: networkInput
-        )
-
-        return try blockchain.assembly.make(with: input)
-    }
-}
-
-// MARK: - Stub Implementation
-
-public extension WalletManagerFactory {
-    /// Use this method only Test and Debug [Addresses, Fees, etc.]
-    /// - Parameters:
-    ///   - blockchain: Card native blockchain will be used
-    ///   - dummyPublicKey: Wallet public key or dummy input
-    ///   - dummyAddress: Dummy input addresses
-    /// - Returns: WalletManager model
-    func makeStubWalletManager(
-        blockchain: Blockchain,
-        dummyPublicKey: Data,
-        dummyAddress: String
-    ) throws -> WalletManager {
-        let publicKey = Wallet.PublicKey(seedKey: dummyPublicKey, derivationType: .none)
-        let address: Address
-
-        if dummyAddress.isEmpty {
-            let service = AddressServiceFactory(blockchain: blockchain).makeAddressService()
-            address = try service.makeAddress(for: publicKey, with: .default)
-        } else {
-            address = PlainAddress(value: dummyAddress, type: .default)
-        }
-
-        let addressesProvider = CommonAddressesProvider(defaultAddress: address)
-        let wallet = Wallet(blockchain: blockchain, publicKey: publicKey, addressesProvider: addressesProvider)
-
-        let networkInput = NetworkProviderAssembly.Input(
-            blockchain: blockchain,
-            keysConfig: blockchainSdkKeysConfig,
-            apiInfo: apiList[blockchain.networkId] ?? [],
-            tangemProviderConfig: tangemProviderConfiguration
-        )
-
-        let input = WalletManagerAssemblyInput(
-            wallet: wallet,
-            pairPublicKey: nil,
             blockchainSdkDependencies: dependencies,
             networkInput: networkInput
         )
