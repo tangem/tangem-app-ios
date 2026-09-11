@@ -15,4 +15,10 @@ public protocol PolymarketBridgeService {
         forDepositWallet depositWalletAddress: String,
         builderCode: String
     ) async throws -> PolymarketBridgeAddresses
+
+    func withdrawAddresses(
+        forDepositWallet depositWalletAddress: String,
+        route: PolymarketWithdrawRoute,
+        builderCode: String
+    ) async throws -> PolymarketBridgeAddresses
 }

@@ -9,6 +9,8 @@
 import Foundation
 
 public struct PolymarketBFFEnvironment {
+    static let walletIdHeader = "wallet-id"
+
     public let baseURL: URL
     public let headers: [String: String]
 

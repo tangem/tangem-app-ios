@@ -17,19 +17,21 @@ struct PolymarketBridgeTarget: Moya.TargetType {
     enum Target {
         case supportedAssets
         case fundingAddresses(PolymarketDTO.DepositRequest, builderCode: String)
+        case withdrawAddresses(PolymarketDTO.BridgeWithdrawRequest, builderCode: String)
     }
 
     var path: String {
         switch target {
         case .supportedAssets: "supported-assets"
         case .fundingAddresses: "deposit"
+        case .withdrawAddresses: "withdraw"
         }
     }
 
     var method: Moya.Method {
         switch target {
         case .supportedAssets: .get
-        case .fundingAddresses: .post
+        case .fundingAddresses, .withdrawAddresses: .post
         }
     }
 
@@ -39,6 +41,8 @@ struct PolymarketBridgeTarget: Moya.TargetType {
             return .requestPlain
         case .fundingAddresses(let request, _):
             return .requestJSONEncodable(request)
+        case .withdrawAddresses(let request, _):
+            return .requestJSONEncodable(request)
         }
     }
 
@@ -46,7 +50,7 @@ struct PolymarketBridgeTarget: Moya.TargetType {
         switch target {
         case .supportedAssets:
             return nil
-        case .fundingAddresses(_, let builderCode):
+        case .fundingAddresses(_, let builderCode), .withdrawAddresses(_, let builderCode):
             return [Constants.builderCodeHeader: builderCode]
         }
     }
