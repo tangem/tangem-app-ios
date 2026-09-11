@@ -62,42 +62,44 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
             userWalletInfo: userWalletModel.userWalletInfo,
             walletModel: walletModel
         )
-        let availabilityAlertBuilder = TokenActionAvailabilityAlertBuilder()
 
         switch option {
         case .buy:
-            if let unavailableAlert = availabilityAlertBuilder.alert(for: availabilityProvider.buyAvailablity) {
-                alertPresenter.present(alert: unavailableAlert)
-                return
-            }
-
-            Analytics.log(.addFundsButtonBuy)
-            Task { @MainActor in
-                coordinator?.addFundsRequestBuy(walletModel: walletModel, userWalletModel: userWalletModel)
-            }
+            TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                presenter: alertPresenter,
+                buyStatus: availabilityProvider.buyAvailablity,
+                warning: availabilityProvider.availabilityWarningType,
+                action: { [weak self] in
+                    guard let self else { return }
+                    Analytics.log(.addFundsButtonBuy)
+                    Task { @MainActor in
+                        self.coordinator?.addFundsRequestBuy(walletModel: self.walletModel, userWalletModel: self.userWalletModel)
+                    }
+                }
+            )
         case .swap:
             Analytics.log(.addFundsButtonSwap)
             Task { @MainActor in
                 coordinator?.addFundsRequestSwap(walletModel: walletModel, userWalletModel: userWalletModel)
             }
         case .receive:
-            if let unavailableAlert = availabilityAlertBuilder.alert(
-                for: availabilityProvider.receiveAvailability,
-                blockchain: walletModel.tokenItem.blockchain
-            ) {
-                alertPresenter.present(alert: unavailableAlert)
-                return
-            }
-
-            Analytics.log(.addFundsButtonReceive)
-            let receiveViewModel = AvailabilityReceiveFlowFactory(
-                flow: .crypto,
-                tokenItem: walletModel.tokenItem,
-                addressTypesProvider: walletModel
-            ).makeAvailabilityReceiveFlow()
-            Task { @MainActor in
-                coordinator?.addFundsRequestReceive(viewModel: receiveViewModel)
-            }
+            TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                presenter: alertPresenter,
+                receiveStatus: availabilityProvider.receiveAvailability,
+                warning: availabilityProvider.availabilityWarningType,
+                action: { [weak self] in
+                    guard let self else { return }
+                    Analytics.log(.addFundsButtonReceive)
+                    let receiveViewModel = AvailabilityReceiveFlowFactory(
+                        flow: .crypto,
+                        tokenItem: walletModel.tokenItem,
+                        addressTypesProvider: walletModel
+                    ).makeAvailabilityReceiveFlow()
+                    Task { @MainActor in
+                        self.coordinator?.addFundsRequestReceive(viewModel: receiveViewModel)
+                    }
+                }
+            )
         }
     }
 

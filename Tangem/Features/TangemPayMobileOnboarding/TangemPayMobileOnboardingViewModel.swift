@@ -50,7 +50,14 @@ final class TangemPayMobileOnboardingViewModel: ObservableObject {
         runTask(in: self) { viewModel in
             do {
                 let initializer = MobileWalletInitializer()
-                let walletInfo = try await initializer.initializeWallet(mnemonic: nil, passphrase: nil)
+                let walletInfo = try await initializer.initializeWallet(
+                    parameters: WalletInitializerParameters(
+                        mnemonic: nil,
+                        passphrase: nil,
+                        hasMnemonicBackup: false,
+                        hasICloudBackup: false
+                    )
+                )
 
                 Task.detached {
                     let userWalletConfig = MobileUserWalletConfig(mobileWalletInfo: walletInfo)

@@ -7,9 +7,12 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 public protocol NotificationBannerContainerItem: Identifiable {
     var bannerType: NotificationBanner.BannerType { get }
+    var variant: MessageBannerVariant? { get }
+    var ring: NotificationBanner.Ring? { get }
     var priority: NotificationBanner.Priority { get }
     /// Overrides the default `bannerType.isStackable` decision for this specific item; `nil` keeps the default.
     var stackableOverride: Bool? { get }
@@ -17,6 +20,8 @@ public protocol NotificationBannerContainerItem: Identifiable {
 }
 
 public extension NotificationBannerContainerItem {
+    var variant: MessageBannerVariant? { nil }
+    var ring: NotificationBanner.Ring? { nil }
     var accessibilityIdentifier: String? { nil }
     var priority: NotificationBanner.Priority { .mid }
     var stackableOverride: Bool? { nil }
@@ -43,6 +48,14 @@ public struct NotificationBannerContainer<Item: NotificationBannerContainerItem>
         item.stackableOverride ?? item.bannerType.isStackable
     }
 
+    private func underlayCornerRadius(for item: Item) -> CGFloat {
+        if case .buttons = item.bannerType.bannerAction {
+            return MessageBannerMetrics.cornerRadiusWithButtons
+        }
+
+        return MessageBannerMetrics.cornerRadius
+    }
+
     private func sortedByPriority(_ items: [Item]) -> [Item] {
         items
             .enumerated()
@@ -65,8 +78,10 @@ public struct NotificationBannerContainer<Item: NotificationBannerContainerItem>
         } else {
             LazyVStack(spacing: SizeUnit.x2.value) {
                 ForEach(nonStackableItems) { item in
-                    NotificationBanner(
+                    NotificationMessageBanner(
                         bannerType: item.bannerType,
+                        variant: item.variant,
+                        ring: item.ring,
                         accessibilityIdentifier: item.accessibilityIdentifier
                     )
                 }
@@ -82,14 +97,27 @@ public struct NotificationBannerContainer<Item: NotificationBannerContainerItem>
     private func collection(for items: [Item]) -> some View {
         switch stackingType {
         case .carousel:
-            NotificationBannerCarousel(items: items)
-                .hasClipShape(false)
+            NotificationBannerCarousel(items: items) { item in
+                NotificationMessageBanner(
+                    bannerType: item.bannerType,
+                    variant: item.variant,
+                    ring: item.ring,
+                    accessibilityIdentifier: item.accessibilityIdentifier
+                )
+            }
+            .hasClipShape(false)
 
         case .stack:
-            NotificationBannerStack(items: items) { item in
-                NotificationBanner(
+            NotificationBannerStack(items: items) { item, isTop in
+                NotificationMessageBanner(
                     bannerType: item.bannerType,
+                    variant: item.variant,
+                    ring: isTop ? item.ring : NotificationBanner.Ring.off,
                     accessibilityIdentifier: item.accessibilityIdentifier
+                )
+                .background(
+                    DesignSystem.Color.bgSecondary,
+                    in: RoundedRectangle(cornerRadius: underlayCornerRadius(for: item), style: .continuous)
                 )
                 .transition(
                     .asymmetric(

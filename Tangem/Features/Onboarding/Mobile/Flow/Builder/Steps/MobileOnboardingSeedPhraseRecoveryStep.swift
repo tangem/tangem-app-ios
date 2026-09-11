@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemFoundation
+import TangemMobileWalletSdk
 
 final class MobileOnboardingSeedPhraseRecoveryStep: MobileOnboardingFlowStep {
     private let viewModel: MobileOnboardingSeedPhraseRecoveryViewModel
@@ -15,11 +16,13 @@ final class MobileOnboardingSeedPhraseRecoveryStep: MobileOnboardingFlowStep {
     init(
         userWalletModel: UserWalletModel,
         source: MobileOnboardingFlowSource,
+        context: MobileWalletContext,
         delegate: MobileOnboardingSeedPhraseRecoveryDelegate
     ) {
         viewModel = MobileOnboardingSeedPhraseRecoveryViewModel(
             userWalletModel: userWalletModel,
             source: source,
+            context: context,
             delegate: delegate
         )
     }

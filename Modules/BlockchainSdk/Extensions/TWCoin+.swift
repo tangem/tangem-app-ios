@@ -151,6 +151,8 @@ extension CoinType {
              .arbitrumNova,
              .plasma,
              .adi,
+             .electroneum,
+             .arc,
              .seiEvm:
             // Blockchains that are not in WalletCore yet
             return nil

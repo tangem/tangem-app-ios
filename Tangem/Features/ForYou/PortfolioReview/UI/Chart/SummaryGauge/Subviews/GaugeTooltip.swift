@@ -23,7 +23,7 @@ struct GaugeTooltip: View {
                 .lineLimit(1)
 
             HStack(spacing: 0) {
-                Text(value)
+                SensitiveText(value)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
                     .lineLimit(1)
 

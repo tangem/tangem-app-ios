@@ -288,12 +288,22 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
     }
 
     private func userDidTapSuggestedDestination(_ suggestedDestination: SendDestinationSuggested) {
-        if let userWalletInfo = suggestedDestination.userWalletInfo,
-           let alert = UserWalletBackupStatusHelper().alert(for: userWalletInfo) {
-            alertPresenter.present(alert: alert)
-            return
-        }
+        // A suggested destination may be the user's own wallet, i.e. tapping it is a top-up,
+        // so the incomplete backup warning applies.
+        let warning: TokenActionAvailabilityProvider.TokenActionAvailabilityWarningType? = suggestedDestination
+            .userWalletInfo
+            .flatMap { $0.backupState.isValid ? nil : .incompleteBackup($0) }
 
+        TokenActionAvailabilityAlertPresenter.presentOrProceed(
+            presenter: alertPresenter,
+            warning: warning,
+            action: { [weak self] in
+                self?.proceedWithSuggestedDestination(suggestedDestination)
+            }
+        )
+    }
+
+    private func proceedWithSuggestedDestination(_ suggestedDestination: SendDestinationSuggested) {
         FeedbackGenerator.success()
 
         analyticsLogger.setDestinationAnalyticsProvider(suggestedDestination.accountModelAnalyticsProvider)

@@ -21,7 +21,6 @@ struct MobileBackupTypesView: View {
             .background(Colors.Background.secondary.ignoresSafeArea())
             .navigationTitle(viewModel.navTitle)
             .onFirstAppear(perform: viewModel.onFirstAppear)
-            .alert(item: $viewModel.alert) { $0.alert }
     }
 }
 
@@ -31,79 +30,39 @@ private extension MobileBackupTypesView {
     var content: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 20) {
-                ForEach(viewModel.sections) {
-                    section(model: $0)
+                ForEach(Array(viewModel.sections.enumerated()), id: \.offset) { _, section in
+                    sectionView(section)
                 }
             }
             .padding(.top, 16)
         }
     }
 
-    func section(model: ViewModel.Section) -> some View {
+    func sectionView(_ section: ViewModel.Section) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            model.title.map {
+            section.title.map {
                 Text($0)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                     .padding(.leading, 14)
             }
 
             VStack(spacing: 8) {
-                ForEach(model.items) {
-                    sectionItem(model: $0)
+                ForEach(Array(section.items.enumerated()), id: \.offset) { _, item in
+                    sectionItemView(item)
                 }
             }
         }
     }
 
-    func sectionItem(model: ViewModel.SectionItem) -> some View {
-        SwiftUI.Button(action: model.action) {
-            HStack(spacing: 4) {
-                sectionInfoItem(model: model)
-
-                if model.isEnabled {
-                    Assets.chevronRightWithOffset24.image
-                        .renderingMode(.template)
-                        .resizable()
-                        .foregroundStyle(Colors.Text.tertiary)
-                        .frame(width: 24, height: 24)
-                }
-            }
-            .padding(14)
-            .background(Colors.Background.primary)
-            .cornerRadius(14, corners: .allCorners)
-        }
-        .buttonStyle(.plain)
-        .disabled(!model.isEnabled)
-    }
-
-    func sectionInfoItem(model: ViewModel.SectionItem) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            WrappingHStack(
-                alignment: .leading,
-                horizontalSpacing: 8,
-                verticalSpacing: 4
-            ) {
-                sectionInfo(title: model.title, badge: model.badge)
-            }
-
-            Text(model.description)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                .multilineTextAlignment(.leading)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-
-    func sectionInfo(title: String, badge: BadgeView.Item?) -> some View {
-        Group {
-            Text(title)
-                .style(Fonts.Bold.body, color: Colors.Text.primary1)
-                .multilineTextAlignment(.leading)
-                .fixedSize(horizontal: false, vertical: true)
-
-            badge.map {
-                BadgeView(item: $0)
-            }
+    @ViewBuilder
+    func sectionItemView(_ item: ViewModel.SectionItem) -> some View {
+        switch item {
+        case .seedPhrase(let viewModel):
+            MobileBackupSeedPhraseTypeView(viewModel: viewModel)
+        case .iCloud(let viewModel):
+            MobileBackupICloudTypeView(viewModel: viewModel)
+        case .upgrade(let viewModel):
+            MobileBackupUpgradeTypeView(viewModel: viewModel)
         }
     }
 }

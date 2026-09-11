@@ -216,7 +216,13 @@ extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {
     }
 
     func openMobileRemoveWalletNotification(userWalletModel: UserWalletModel) {
-        let viewModel = MobileRemoveWalletNotificationViewModel(userWalletModel: userWalletModel, coordinator: self)
+        let removeManager = CommonMobileRemoveWalletManager(userWalletModel: userWalletModel)
+
+        let viewModel = MobileRemoveWalletNotificationViewModel(
+            userWalletModel: userWalletModel,
+            removeManager: removeManager,
+            coordinator: self
+        )
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
@@ -295,19 +301,8 @@ extension UserWalletSettingsCoordinator: AddAccountTypeSelectorRoutable {
 extension UserWalletSettingsCoordinator: UserSettingsAccountsRoutable {
     func addNewAccount(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
         accountFormViewModel = AccountFormViewModel(
-            accountModelsManager: accountModelsManager,
-            // Mikhail Andreev - in future we will support multiple types of accounts and their creation process
-            // will vary
-            flowType: .create(.crypto),
-            closeAction: { [weak self] result, createdAccount in
-                guard let self else {
-                    return
-                }
-
-                rootViewModel?.accountsViewModel?.handleAccountOperationResult(result)
-                rootViewModel?.accountsViewModel?.handleCreatedAccount(createdAccount)
-                accountFormViewModel = nil
-            }
+            flowType: .create(creator: CryptoAccountFormViewCreator(accountModelsManager: accountModelsManager)),
+            coordinator: self
         )
     }
 
@@ -382,12 +377,30 @@ extension UserWalletSettingsCoordinator: UserSettingsAccountsRoutable {
     }
 }
 
+// MARK: - AccountFormViewModelRoutable
+
+extension UserWalletSettingsCoordinator: AccountFormViewModelRoutable {
+    func closeAccountForm(outcome: AccountFormOutcome) {
+        if case .completed(.crypto(let result, let createdAccount)) = outcome {
+            rootViewModel?.accountsViewModel?.handleAccountOperationResult(result)
+            rootViewModel?.accountsViewModel?.handleCreatedAccount(createdAccount)
+        }
+
+        accountFormViewModel = nil
+    }
+}
+
 // MARK: - MobileBackupNeededRoutable
 
 extension UserWalletSettingsCoordinator: MobileBackupNeededRoutable {
     func openMobileOnboardingFromMobileBackupNeeded(input: MobileOnboardingInput, onBackupFinished: @escaping () -> Void) {
         dismissMobileBackupNeeded()
         openOnboardingModal(options: .mobileInput(input), onSuccess: onBackupFinished)
+    }
+
+    func openMobileBackupTypesFromMobileBackupNeeded(userWalletModel: UserWalletModel) {
+        dismissMobileBackupNeeded()
+        openMobileBackupTypes(userWalletModel: userWalletModel)
     }
 
     func dismissMobileBackupNeeded() {
@@ -398,14 +411,22 @@ extension UserWalletSettingsCoordinator: MobileBackupNeededRoutable {
 // MARK: - MobileRemoveWalletNotificationRoutable
 
 extension UserWalletSettingsCoordinator: MobileRemoveWalletNotificationRoutable {
-    func openMobileRemoveWallet(userWalletId: UserWalletId) {
+    func openMobileRemoveWallet(removeManager: MobileRemoveWalletManager) {
         dismissMobileRemoveWalletNotification()
-        mobileRemoveWalletViewModel = MobileRemoveWalletViewModel(userWalletId: userWalletId, delegate: self)
+        mobileRemoveWalletViewModel = MobileRemoveWalletViewModel(
+            removeManager: removeManager,
+            delegate: self
+        )
     }
 
     func openMobileOnboardingFromRemoveWalletNotification(input: MobileOnboardingInput) {
         dismissMobileRemoveWalletNotification()
         openOnboardingModal(options: .mobileInput(input))
+    }
+
+    func openMobileBackupTypesFromRemoveWalletNotification(userWalletModel: UserWalletModel) {
+        dismissMobileRemoveWalletNotification()
+        openMobileBackupTypes(userWalletModel: userWalletModel)
     }
 
     func dismissMobileRemoveWalletNotification() {

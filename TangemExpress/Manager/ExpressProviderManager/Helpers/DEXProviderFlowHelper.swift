@@ -88,6 +88,10 @@ extension DEXProviderFlowHelper {
         request: ExpressManagerSwappingPairRequest,
         quote: ExpressQuote
     ) async -> RestrictionCheckResult {
+        if quote.isRestricted {
+            return .terminalState(.restriction(.regionRestricted, quote: quote))
+        }
+
         do {
             let sourceBalance = try pair.source.balanceProvider.getBalance()
             let isNotEnoughBalanceForSwapping = sourceAmount > sourceBalance
@@ -177,36 +181,20 @@ extension DEXProviderFlowHelper {
                 quoteId: quote.quoteId
             )
 
-            let data = try await expressAPIProvider.exchangeData(item: dataItem)
+            var data = try await expressAPIProvider.exchangeData(item: dataItem)
             try Task.checkCancellation()
 
-            let yieldModuleData = try await makeYieldModuleDEXSwapDataIfNeeded(data: data, quote: quote)
+            data = try await makeYieldModuleTransactionDataIfNeeded(data: data, quote: quote)
 
             return try await proceed(
                 sourceAmount: sourceAmount,
                 request: request,
                 quote: quote,
-                data: yieldModuleData
+                data: data
             )
         } catch {
             return mapError(error, quote: quote, amountType: request.amountType)
         }
-    }
-
-    func makeYieldModuleDEXSwapDataIfNeeded(data: ExpressTransactionData, quote: ExpressQuote) async throws -> ExpressTransactionData {
-        guard isYieldModuleDEXSwap else {
-            return data
-        }
-
-        guard let spender = quote.allowanceContract else {
-            throw ExpressProviderError.yieldModuleSwapUnavailable(.spenderNotFound)
-        }
-
-        guard let yieldModuleTransactionHelper else {
-            return data
-        }
-
-        return try await yieldModuleTransactionHelper.yieldModuleDEXSwapData(data: data, provider: provider, spender: spender)
     }
 
     func proceed(
@@ -264,7 +252,8 @@ extension DEXProviderFlowHelper {
             expectAmount: data.toAmount,
             allowanceContract: quote.allowanceContract,
             quoteId: quote.quoteId,
-            txType: quote.txType
+            txType: quote.txType,
+            isRestricted: quote.isRestricted
         )
 
         return .dexPreview(.init(provider: provider, data: data, fee: fee, quote: quoteData))
@@ -292,6 +281,22 @@ extension DEXProviderFlowHelper {
     }
 }
 
+// MARK: - Yield module data
+
+private extension DEXProviderFlowHelper {
+    func makeYieldModuleTransactionDataIfNeeded(data: ExpressTransactionData, quote: ExpressQuote) async throws -> ExpressTransactionData {
+        guard isYieldModuleDEXSwap, let yieldModuleTransactionHelper else {
+            return data
+        }
+
+        return try await yieldModuleTransactionHelper.yieldModuleTransactionData(
+            data: data,
+            provider: provider,
+            spender: quote.allowanceContract
+        )
+    }
+}
+
 // MARK: - Approve & swap flow
 
 extension DEXProviderFlowHelper {
@@ -312,16 +317,16 @@ extension DEXProviderFlowHelper {
                 quoteId: quote.quoteId
             )
 
-            let data = try await expressAPIProvider.exchangeData(item: dataItem)
+            var data = try await expressAPIProvider.exchangeData(item: dataItem)
             try Task.checkCancellation()
 
-            let yieldModuleData = try await makeYieldModuleDEXSwapDataIfNeeded(data: data, quote: quote)
+            data = try await makeYieldModuleTransactionDataIfNeeded(data: data, quote: quote)
 
             return try await proceedWithApprove(
                 sourceAmount: sourceAmount,
                 request: request,
                 quote: quote,
-                data: yieldModuleData,
+                data: data,
                 approveData: approveData
             )
         } catch {
@@ -377,7 +382,8 @@ extension DEXProviderFlowHelper {
             expectAmount: data.toAmount,
             allowanceContract: quote.allowanceContract,
             quoteId: quote.quoteId,
-            txType: quote.txType
+            txType: quote.txType,
+            isRestricted: quote.isRestricted
         )
 
         let approveFlowData = ExpressProviderManagerState.DEXWithApprovePreview.DEXWithApproveFlowApproveData(

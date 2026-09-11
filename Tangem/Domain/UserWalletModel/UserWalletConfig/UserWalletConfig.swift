@@ -126,7 +126,7 @@ extension UserWalletConfig {
 
     var walletHasBackup: Bool {
         productType == .mobileWallet
-            ? !hasFeature(.mnemonicBackup)
+            ? MobileBackupStatusUtil.hasBackup(config: self)
             : !hasFeature(.backup)
     }
 

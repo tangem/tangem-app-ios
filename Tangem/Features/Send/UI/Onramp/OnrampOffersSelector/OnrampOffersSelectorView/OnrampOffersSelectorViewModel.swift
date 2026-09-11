@@ -26,6 +26,17 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
         }
     }
 
+    /// Driven by the whole list, not by the selected item, so the notice also shows on the payment-method screen.
+    var restrictedNotificationInput: NotificationViewInput? {
+        let hasRestrictedProviders = providersList.flatMap(\.providers).contains(where: \.isRestricted)
+
+        guard hasRestrictedProviders else {
+            return nil
+        }
+
+        return NotificationsFactory().buildNotificationInput(for: OnrampNotificationEvent.providersRestricted)
+    }
+
     @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
     @Published private var providersList: ProvidersList = []
     @Published private var selectedProviderItem: ProviderItem?

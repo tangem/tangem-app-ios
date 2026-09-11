@@ -32,7 +32,7 @@ final class PrivateInfoStorageManager {
         walletID: UserWalletId,
     ) throws {
         var aesEncryptionKey = try CryptoUtils.generateRandomBytes(count: Constants.aesKeySize)
-        defer { secureErase(data: &aesEncryptionKey) }
+        defer { aesEncryptionKey.secureErase() }
 
         try privateInfoStorage.storePrivateInfoData(privateInfoData, for: walletID, aesEncryptionKey: aesEncryptionKey)
 
@@ -46,7 +46,7 @@ final class PrivateInfoStorageManager {
 
     func validate(auth: AuthenticationUnlockData, for walletID: UserWalletId) throws -> MobileWalletContext {
         var aesEncryptionKey = try getEncryptionKey(for: walletID, auth: auth)
-        defer { secureErase(data: &aesEncryptionKey) }
+        defer { aesEncryptionKey.secureErase() }
 
         return MobileWalletContext(walletID: walletID, authentication: auth)
     }
@@ -57,7 +57,7 @@ final class PrivateInfoStorageManager {
 
     func getPrivateInfoData(context: MobileWalletContext) throws -> Data {
         var aesEncryptionKey = try getEncryptionKey(for: context.walletID, auth: context.authentication)
-        defer { secureErase(data: &aesEncryptionKey) }
+        defer { aesEncryptionKey.secureErase() }
 
         return try privateInfoStorage.getPrivateInfoData(for: context.walletID, aesEncryptionKey: aesEncryptionKey)
     }
@@ -68,7 +68,7 @@ final class PrivateInfoStorageManager {
         context: MobileWalletContext
     ) throws {
         var aesEncryptionKey = try getEncryptionKey(for: context.walletID, auth: context.authentication)
-        defer { secureErase(data: &aesEncryptionKey) }
+        defer { aesEncryptionKey.secureErase() }
 
         try encryptedSecureStorage.storeData(
             aesEncryptionKey,
@@ -96,7 +96,7 @@ final class PrivateInfoStorageManager {
         context: MobileWalletContext
     ) throws {
         var aesEncryptionKey = try getEncryptionKey(for: context.walletID, auth: context.authentication)
-        defer { secureErase(data: &aesEncryptionKey) }
+        defer { aesEncryptionKey.secureErase() }
 
         try encryptedBiometricsStorage.storeData(
             aesEncryptionKey,

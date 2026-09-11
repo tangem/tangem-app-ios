@@ -7,32 +7,15 @@
 //
 
 import SwiftUI
-import TangemAssets
 import TangemFoundation
-import TangemUI
-import TangemUIUtils
 
 enum SummaryGaugeChart {
-    private static let palette: [Color] = [
-        DesignSystem.Color.borderBrand,
-        DesignSystem.Color.borderAccentViolet,
-        DesignSystem.Color.borderAccentRed,
-        DesignSystem.Color.borderAccentGreen,
-    ]
-
-    private static let maxSegments = 4
-
+    /// Assets arrive ranked and coloured, so the ones carrying a colour are exactly the ones the donut draws.
     static func segments(for assets: [SummaryGaugeAsset]) -> [GaugeSegment] {
-        let topAssets = assets.sorted { $0.fiatValue > $1.fiatValue }.prefix(maxSegments)
-
-        return topAssets.enumerated().map { index, asset in
-            GaugeSegment(
-                id: asset.id,
-                name: asset.name,
-                // Double is fine here — the value only drives the donut's proportional geometry, not a shown amount.
-                value: asset.fiatValue.doubleValue,
-                color: palette[index % palette.count]
-            )
+        assets.compactMap { asset in
+            asset.segmentColor.map { color in
+                GaugeSegment(id: asset.id, name: asset.name, value: asset.fiatValue.doubleValue, color: color)
+            }
         }
     }
 }

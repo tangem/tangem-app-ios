@@ -49,6 +49,28 @@ final class StakeModelTests: LeakTrackingTestSuite {
         #expect(ready.amount == 10)
     }
 
+    /// [REDACTED_INFO]: tapping Send right after the last keystroke must not stake the previous amount.
+    @Test("An amount changed right before Send is the one that reaches the manager")
+    func amountChangedRightBeforeSendIsStaked() async throws {
+        let manager = StakingManagerMock(estimateFeeResult: .success(1))
+        manager.transactionResult = .success(StakingTransactionAction(amount: 0, transactions: []))
+        let model = makeModel(stakingManager: manager) {
+            EthereumP2PStakingFlowProvider(
+                action: StakingAction(amount: 7, targetType: .target(.stub()), type: .unstake),
+                stages: $0
+            )
+        }
+
+        model.sourceAmountDidChanged(amount: SendAmount(type: .typical(crypto: 10, fiat: nil)))
+        _ = try await awaitReady(model)
+
+        // The recalculation for the new amount is still in flight when Send is tapped.
+        model.sourceAmountDidChanged(amount: SendAmount(type: .typical(crypto: 4, fiat: nil)))
+        _ = try await model.performAction()
+
+        #expect(manager.sentActions.last?.amount == 4)
+    }
+
     @Test("selectedFee reflects the resolved fee")
     func selectedFeeReflectsState() async throws {
         let model = makeModel(stakingManager: StakingManagerMock(estimateFeeResult: .success(3))) {

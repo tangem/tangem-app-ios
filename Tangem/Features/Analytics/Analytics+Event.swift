@@ -62,6 +62,12 @@ extension Analytics {
         case accessCodeEntered = "[Onboarding / Backup] Access Code Entered"
         case accessCodeReEntered = "[Onboarding / Backup] Access Code Re-entered"
         case backupFinished = "[Onboarding / Backup] Backup Finished"
+        case importWalletRequest = "[Onboarding / Backup] Import Wallet Request"
+        case selectCloudBackupScreen = "[Onboarding / Backup] Select Cloud Backup Screen"
+        case enterCloudBackupPasswordScreen = "[Onboarding / Backup] Enter Cloud Backup Password Screen"
+        case importCompletedScreenOpened = "[Onboarding / Backup] Import Completed Screen Opened"
+        case importCloudBackupError = "[Onboarding / Backup] Import Cloud Backup Error"
+        case wrongCloudBackupPassword = "[Onboarding / Backup] Wrong Cloud Backup Password"
         case backupResetCardNotification = "[Onboarding / Backup] Reset Card Notification"
         case backupSeedPhraseInfo = "[Onboarding / Backup] Seed Phrase Info"
         case backupSeedCheckingScreenOpened = "[Onboarding / Backup] Seed Checking Screen Opened"
@@ -261,6 +267,17 @@ extension Analytics {
         case walletSettingsArchivedAccountsScreenOpened = "[Settings / Wallet Settings] Archived Accounts Screen Opened"
         case walletSettingsButtonRecoverAccount = "[Settings / Wallet Settings] Button - Recover Account"
         case walletSettingsWalletUpgraded = "[Settings / Wallet Settings] Wallet Upgraded"
+        case walletSettingsCloudBackupDeleted = "[Settings / Wallet Settings] Cloud Backup Deleted"
+        case walletSettingsCloudBackupDeletionError = "[Settings / Wallet Settings] Cloud Backup Deletion Error"
+        case walletSettingsCloudBackupDetailsScreen = "[Settings / Wallet Settings] Cloud Backup Details Screen"
+        case walletSettingsCloudBackupDeletionRequest = "[Settings / Wallet Settings] Cloud Backup Deletion Request"
+        case walletSettingsSetCloudPasswordScreen = "[Settings / Wallet Settings] Set Cloud Password Screen"
+        case walletSettingsConfirmCloudPasswordScreen = "[Settings / Wallet Settings] Confirm Cloud Password Screen"
+        case walletSettingsCloudBackupCreationError = "[Settings / Wallet Settings] Cloud Backup Creation Error"
+        case walletSettingsCloudBackupScreenClosed = "[Settings / Wallet Settings] Cloud Backup Screen Closed"
+        case walletSettingsForgetWalletRequest = "[Settings / Wallet Settings] Forget Wallet Request"
+        case walletSettingsForgetWalletScreen = "[Settings / Wallet Settings] Forget Wallet Screen"
+        case walletSettingsWalletForgotten = "[Settings / Wallet Settings] Wallet Forgotten"
 
         // MARK: - Account Settings
 
@@ -838,6 +855,24 @@ extension Analytics {
         case visaVATopupDetailsErrorShowed = "[Visa VA Topup] Details Error Showed"
         case visaVATopupShareDetailsButtonClicked = "[Visa VA Topup] Share Details Button Clicked"
         case visaVATopupCopyFieldClicked = "[Visa VA Topup] Copy Field Clicked"
+
+        // Cashback
+
+        case visaCashbackBannerShowed = "[Visa Cashback] Cashback Banner Showed"
+        case visaCashbackButtonInSettingsShowed = "[Visa Cashback] Cashback Button In Settings Showed"
+        case visaCashbackDeactivationBannerShowed = "[Visa Cashback] Cashback Deactivation Banner Showed"
+        case visaCashbackBannerErrorStateShowed = "[Visa Cashback] Cashback Banner Error State Showed"
+        case visaCashbackButtonErrorStateShowed = "[Visa Cashback] Cashback Button Error State Showed"
+        case visaCashbackBannerClicked = "[Visa Cashback] Cashback Banner Clicked"
+        case visaCashbackButtonInSettingsClicked = "[Visa Cashback] Cashback Button In Settings Clicked"
+        case visaCashbackDeactivationBannerGotItClicked = "[Visa Cashback] Cashback Deactivation Banner Got It Clicked"
+        case visaCashbackDetailsScreenOpened = "[Visa Cashback] Cashback Details Screen Opened"
+        case visaCashbackConditionsTileClicked = "[Visa Cashback] Cashback Conditions Tile Clicked"
+        case visaCashbackAccrualsTileClicked = "[Visa Cashback] Cashback Accruals Tile Clicked"
+        case visaCashbackTermsDocClicked = "[Visa Cashback] Cashback Terms Doc Clicked"
+        case visaCashbackUpcomingAccrualBannerShowed = "[Visa Cashback] Cashback Upcoming Accrual Banner Showed"
+        case visaCashbackNegativeBannerShowed = "[Visa Cashback] Cashback Negative Banner Showed"
+        case visaCashbackLoadingErrorShowed = "[Visa Cashback] Cashback Loading Error Showed"
 
         // MARK: - NFT
 

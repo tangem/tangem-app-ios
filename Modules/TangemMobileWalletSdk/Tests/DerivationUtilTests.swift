@@ -7,11 +7,30 @@
 
 import Testing
 import Foundation
+import TrezorCrypto
 @testable import TangemMobileWalletSdk
 @testable @preconcurrency import TangemSdk
 @testable import TangemFoundation
 
 let entropy = Data(hexString: "E269A10D56F58A93611FB45EB11959C2")
+
+/// A Cyrillic word as typed and as NFKD writes it: the precomposed U+0451 splits into U+0435 + U+0308.
+let precomposedPassphrase = "\u{451}\u{43B}\u{43A}\u{430}"
+let decomposedPassphrase = "\u{435}\u{308}\u{43B}\u{43A}\u{430}"
+
+/// Passphrases that NFKD rewrites, plus the already normalized form of the first one.
+let nonASCIIPassphrases = [
+    precomposedPassphrase,
+    decomposedPassphrase,
+    // Latin "cafe" ending with a precomposed U+00E9.
+    "caf\u{E9}",
+    // Hangul syllables decompose into jamo.
+    "\u{BC14}\u{B78C}",
+    // Kana with a dakuten: U+304C splits into U+304B + U+3099.
+    "\u{304C}\u{304C}",
+    // Fullwidth latin maps onto ASCII.
+    "\u{FF34}\u{FF21}\u{FF2E}",
+]
 
 struct DerivationUtilTests {
     @Test(
@@ -38,10 +57,10 @@ struct DerivationUtilTests {
         arguments: [
             EllipticCurve.secp256k1,
             EllipticCurve.ed25519_slip0010,
-        ]
+        ],
+        ["test-passphrase"] + nonASCIIPassphrases
     )
-    func compareMasterKeysWithTangemSDKWithPassphrase(curve: EllipticCurve) throws {
-        let passphrase = "test-passphrase"
+    func compareMasterKeysWithTangemSDKWithPassphrase(curve: EllipticCurve, passphrase: String) throws {
         let pubKeyFromMobileWallet = try DerivationUtil.deriveKeys(
             entropy: entropy,
             passphrase: passphrase,
@@ -54,6 +73,47 @@ struct DerivationUtilTests {
 
         #expect(pubKeyFromMobileWallet.publicKey == pubKeyFromMobileWalletTangemSdk.publicKey)
         #expect(pubKeyFromMobileWallet.chainCode == pubKeyFromMobileWalletTangemSdk.chainCode)
+    }
+
+    /// Cardano goes through Icarus, which takes the passphrase bytes as typed on both sides.
+    /// TangemSdk derives no public key for an Icarus extended key, so the master secret itself is compared.
+    @Test(arguments: ["test-passphrase"] + nonASCIIPassphrases)
+    func compareCardanoMasterKeysWithTangemSDKWithPassphrase(passphrase: String) throws {
+        let node = try HDNodeUtil.makeHDNode(entropy: entropy, passphrase: passphrase, curve: .ed25519)
+
+        let privateKeyFromMobileWallet = withUnsafeBytes(of: node.private_key) { Data($0) }
+            + withUnsafeBytes(of: node.private_key_extension) { Data($0) }
+        let chainCodeFromMobileWallet = withUnsafeBytes(of: node.chain_code) { Data($0) }
+
+        let mnemonic = try Mnemonic(entropyData: entropy)
+        let privateKeyFromTangemSdk = try AnyMasterKeyFactory(mnemonic: mnemonic, passphrase: passphrase)
+            .makeMasterKey(for: .ed25519)
+
+        #expect(privateKeyFromMobileWallet == privateKeyFromTangemSdk.privateKey)
+        #expect(chainCodeFromMobileWallet == privateKeyFromTangemSdk.chainCode)
+    }
+
+    @Test(
+        arguments: [
+            EllipticCurve.secp256k1,
+            EllipticCurve.ed25519_slip0010,
+        ]
+    )
+    func bip39PassphraseFormsShareTheSameKeys(curve: EllipticCurve) throws {
+        let fromPrecomposed = try DerivationUtil.deriveKeys(entropy: entropy, passphrase: precomposedPassphrase, derivationPath: nil, curve: curve)
+        let fromDecomposed = try DerivationUtil.deriveKeys(entropy: entropy, passphrase: decomposedPassphrase, derivationPath: nil, curve: curve)
+
+        #expect(fromPrecomposed.publicKey == fromDecomposed.publicKey)
+        #expect(fromPrecomposed.chainCode == fromDecomposed.chainCode)
+    }
+
+    /// Icarus takes the passphrase bytes as typed, so its keys must stay sensitive to the normalization form.
+    @Test
+    func cardanoPassphraseFormsGiveDifferentKeys() throws {
+        let fromPrecomposed = try DerivationUtil.deriveKeys(entropy: entropy, passphrase: precomposedPassphrase, derivationPath: nil, curve: .ed25519)
+        let fromDecomposed = try DerivationUtil.deriveKeys(entropy: entropy, passphrase: decomposedPassphrase, derivationPath: nil, curve: .ed25519)
+
+        #expect(fromPrecomposed.publicKey != fromDecomposed.publicKey)
     }
 
     @Test

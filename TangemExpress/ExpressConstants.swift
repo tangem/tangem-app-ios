@@ -26,7 +26,6 @@ public enum ExpressConstants {
 
     public static let yieldModuleDEXProviderIds: Set<ExpressProvider.Id> = [
         "1inch",
-        "li-fi",
         "okx-cross-chain",
         "okx-on-chain",
     ]

@@ -134,15 +134,6 @@ struct GaslessBridgeFeeSupportTests {
 
     // MARK: - What the rule must not touch
 
-    @Test("the toggle off keeps the previous behaviour", arguments: SwapInput.allCases)
-    func toggleOffKeepsGaslessProviderSupported(input: SwapInput) {
-        let sut = makeGaslessProvider(isBridgeFeeRestrictionEnabled: false)
-
-        sut.setup(input: input.make(bridgeFee: bridgeFee))
-
-        #expect(sut.state.isSupported)
-    }
-
     /// Paying the fee with the coin is exactly how a bridge fee is meant to be paid.
     @Test("a coin-paid fee provider is unaffected by a bridge fee", arguments: SwapInput.allCases)
     func coinPaidFeeProviderIsUnaffected(input: SwapInput) {
@@ -235,20 +226,11 @@ private extension GaslessBridgeFeeSupportTests {
 
     var gaslessFeeTokenItem: TokenItem { .token(gaslessFeeToken, .init(.ethereum(testnet: false), derivationPath: nil)) }
 
-    func makeGaslessProvider(
-        feeTokenBalance: Decimal = 25,
-        isBridgeFeeRestrictionEnabled: Bool = true
-    ) -> CommonTokenFeeProvider {
-        makeGaslessProvider(
-            balanceProvider: MutableTokenBalanceProviderMock(balance: feeTokenBalance),
-            isBridgeFeeRestrictionEnabled: isBridgeFeeRestrictionEnabled
-        )
+    func makeGaslessProvider(feeTokenBalance: Decimal = 25) -> CommonTokenFeeProvider {
+        makeGaslessProvider(balanceProvider: MutableTokenBalanceProviderMock(balance: feeTokenBalance))
     }
 
-    func makeGaslessProvider(
-        balanceProvider: MutableTokenBalanceProviderMock,
-        isBridgeFeeRestrictionEnabled: Bool = true
-    ) -> CommonTokenFeeProvider {
+    func makeGaslessProvider(balanceProvider: MutableTokenBalanceProviderMock) -> CommonTokenFeeProvider {
         let loader = CommonGaslessTokenFeeLoader(
             tokenItem: gaslessFeeTokenItem,
             feeToken: gaslessFeeToken,
@@ -256,29 +238,23 @@ private extension GaslessBridgeFeeSupportTests {
             yieldFeeContext: nil
         )
 
-        let provider = CommonTokenFeeProvider(
+        return CommonTokenFeeProvider(
             feeTokenItem: gaslessFeeTokenItem,
             tokenFeeLoader: loader,
             customFeeProvider: nil,
             feeTokenItemBalanceProvider: balanceProvider,
             supportingOptions: .all
         )
-        provider.isBridgeFeeRestrictionEnabled = isBridgeFeeRestrictionEnabled
-
-        return provider
     }
 
-    func makeCoinProvider(isBridgeFeeRestrictionEnabled: Bool = true) -> CommonTokenFeeProvider {
-        let provider = CommonTokenFeeProvider(
+    func makeCoinProvider() -> CommonTokenFeeProvider {
+        CommonTokenFeeProvider(
             feeTokenItem: coinFeeTokenItem,
             tokenFeeLoader: EthereumTokenFeeLoaderStub(),
             customFeeProvider: nil,
             feeTokenItemBalanceProvider: MutableTokenBalanceProviderMock(balance: 1),
             supportingOptions: .all
         )
-        provider.isBridgeFeeRestrictionEnabled = isBridgeFeeRestrictionEnabled
-
-        return provider
     }
 
     func expectNotSupported(_ provider: CommonTokenFeeProvider, sourceLocation: SourceLocation = #_sourceLocation) {

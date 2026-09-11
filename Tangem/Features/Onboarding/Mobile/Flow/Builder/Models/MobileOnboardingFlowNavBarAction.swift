@@ -16,7 +16,7 @@ enum MobileOnboardingFlowNavBarAction {
     typealias Handler = () -> Void
 
     case back(handler: Handler)
-    case close(handler: Handler)
+    case close(style: CloseStyle = .text, handler: Handler)
     case skip(handler: Handler)
 
     @ViewBuilder
@@ -25,8 +25,8 @@ enum MobileOnboardingFlowNavBarAction {
         case .back(let handler):
             NavigationBarButton.back(action: handler)
                 .redesigned()
-        case .close(let handler):
-            CloseTextButton(action: handler)
+        case .close(let style, let handler):
+            makeCloseAction(style: style, handler: handler)
                 .padding(.leading, 16)
         case .skip(let handler):
             SwiftUI.Button(action: handler) {
@@ -37,5 +37,30 @@ enum MobileOnboardingFlowNavBarAction {
             .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.accessCodeSkipButton)
             .padding(.trailing, 16)
         }
+    }
+
+    @ViewBuilder
+    private func makeCloseAction(style: CloseStyle, handler: @escaping Handler) -> some View {
+        switch style {
+        case .text:
+            CloseTextButton(action: handler)
+        case .button:
+            TangemUI.Button(
+                icon: DesignSystem.Icons.Cross.regular20,
+                accessibilityLabel: nil,
+                action: handler
+            )
+            .styleType(.material(.glass))
+            .size(.x11)
+        }
+    }
+}
+
+// MARK: - Types
+
+extension MobileOnboardingFlowNavBarAction {
+    enum CloseStyle {
+        case text
+        case button
     }
 }

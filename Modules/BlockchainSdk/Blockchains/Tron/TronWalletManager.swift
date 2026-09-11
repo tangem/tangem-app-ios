@@ -13,6 +13,7 @@ import TangemSdk
 class TronWalletManager: BaseWalletManager, WalletManager {
     var networkService: TronNetworkService!
     var txBuilder: TronTransactionBuilder!
+    private(set) var isAccountActivated = false
 
     var currentHost: String {
         networkService.host
@@ -23,12 +24,17 @@ class TronWalletManager: BaseWalletManager, WalletManager {
 
     func updateWalletManager(address: String) async throws {
         do {
-            let accountInfo = try await networkService.accountInfo(
-                for: address,
-                tokens: cardTokens,
-                transactionIDs: wallet.pendingTransactions.map { $0.hash }
-            ).async()
+            let (accountInfo, accountExists) = try await Publishers.Zip(
+                networkService.accountInfo(
+                    for: address,
+                    tokens: cardTokens,
+                    transactionIDs: wallet.pendingTransactions.map { $0.hash }
+                ),
+                networkService.accountExists(address: address)
+            )
+            .async()
 
+            isAccountActivated = accountExists
             updateWallet(accountInfo)
         } catch {
             wallet.clearAmounts()
@@ -270,6 +276,8 @@ class TronWalletManager: BaseWalletManager, WalletManager {
 
 extension TronWalletManager: ThenProcessable {}
 
+extension TronWalletManager: TronAccountActivationStateProvider {}
+
 // MARK: - TronGaslessTransactionsBuilder
 
 extension TronWalletManager: TronGaslessTransactionsBuilder {
@@ -423,8 +431,7 @@ private extension TronWalletManager {
 
 extension TronWalletManager: WithdrawalNotificationProvider {
     func withdrawalNotification(amount: Amount, fee: Fee) -> WithdrawalNotification? {
-        // We have to show the notification only when send the token
-        guard amount.type.isToken else {
+        guard amount.type.isToken, !fee.amount.type.isToken else {
             return nil
         }
 

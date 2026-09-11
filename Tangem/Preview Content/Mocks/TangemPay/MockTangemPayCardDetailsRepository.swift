@@ -56,6 +56,7 @@ final class MockTangemPayCardDetailsRepository: TangemPayCardDetailsRepository {
 
         return TangemPayCardDetailsData(
             number: "4242 4242 4242 \(lastFourDigits)",
+            cardholderName: "JOHNNY SILVERHAND",
             expirationDate: "12/28",
             cvc: "123",
             isPinSet: false

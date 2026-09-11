@@ -24,4 +24,5 @@ public enum TangemPayDistributionChannel: String {
     case banner = "BANNER"
     case details = "DETAILS"
     case visaVirtualAccount = "VISA_VIRTUAL_ACCOUNT"
+    case bankOfframp = "BANK_OFFRAMP"
 }

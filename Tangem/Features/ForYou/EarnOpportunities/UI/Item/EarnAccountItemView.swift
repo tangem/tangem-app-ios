@@ -49,9 +49,9 @@ private extension EarnAccountItemView {
 
     var collapsedHeader: some View {
         Row(
-            subtitle: item.account.tokensCountText,
-            value: item.account.rewardText
+            subtitle: item.account.tokensCountText
         )
+        .valueAccessory { RewardText(amount: item.account.rewardAmount) }
         // Name goes through a slot, not the `title` string, so it keeps its matched-geometry morph.
         .titleAccessory { name(font: DesignSystem.Font.bodyMediumToken) }
         .start { icon(settings: .redesignDefaultSized) }

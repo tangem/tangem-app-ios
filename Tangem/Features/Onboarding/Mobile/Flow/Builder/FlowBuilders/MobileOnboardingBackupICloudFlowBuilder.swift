@@ -1,0 +1,181 @@
+//
+//  MobileOnboardingBackupICloudFlowBuilder.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import TangemLocalization
+
+final class MobileOnboardingBackupICloudFlowBuilder: MobileOnboardingFlowBuilder {
+    private var isAccessCodeNeeded: Bool {
+        userWalletModel.config.userWalletAccessCodeStatus == .none
+    }
+
+    private var analyticsContextParams: Analytics.ContextParams {
+        .custom(userWalletModel.analyticsContextData)
+    }
+
+    private var savedCredential: WebCredentialUtil.SavedCredential?
+
+    private let userWalletModel: UserWalletModel
+    private let source: MobileOnboardingFlowSource
+    private weak var coordinator: MobileOnboardingFlowRoutable?
+
+    init(
+        userWalletModel: UserWalletModel,
+        source: MobileOnboardingFlowSource,
+        coordinator: MobileOnboardingFlowRoutable
+    ) {
+        self.userWalletModel = userWalletModel
+        self.source = source
+        self.coordinator = coordinator
+        super.init(hasProgressBar: false)
+    }
+
+    override func setupFlow() {
+        append(step: makeBackupStep())
+
+        if isAccessCodeNeeded {
+            append(step: makeContinueStep())
+            setupAccessCodeFlow()
+            append(step: makeDoneStep())
+        } else {
+            append(step: makeCompletedStep())
+        }
+    }
+}
+
+// MARK: - Flows
+
+private extension MobileOnboardingBackupICloudFlowBuilder {
+    func setupAccessCodeFlow() {
+        let accessCodeStep = MobileOnboardingAccessCodeStep(
+            mode: .create(canSkip: true),
+            source: source,
+            delegate: self
+        )
+        append(step: accessCodeStep)
+    }
+}
+
+// MARK: - Steps
+
+private extension MobileOnboardingBackupICloudFlowBuilder {
+    func makeBackupStep() -> MobileOnboardingFlowStep {
+        MobileOnboardingICloudBackupStep(
+            userWalletModel: userWalletModel,
+            delegate: self
+        )
+    }
+
+    func makeContinueStep() -> MobileOnboardingFlowStep {
+        MobileOnboardingSuccessStep(
+            type: .cloudBackupCompleted,
+            navigationTitle: Localization.hwCloudBackupRestoreNavtitleV2(MobileBackupConstants.iCloudServiceName),
+            onAppear: {},
+            onComplete: { [weak self] in
+                self?.openNext()
+            }
+        )
+    }
+
+    func makeCompletedStep() -> MobileOnboardingFlowStep {
+        MobileOnboardingSuccessStep(
+            type: .cloudBackupCompleted,
+            navigationTitle: Localization.hwCloudBackupRestoreNavtitleV2(MobileBackupConstants.iCloudServiceName),
+            onAppear: {},
+            onComplete: weakify(self, forFunction: MobileOnboardingBackupICloudFlowBuilder.completeOnboarding)
+        )
+    }
+
+    func makeDoneStep() -> MobileOnboardingFlowStep {
+        MobileOnboardingSuccessStep(
+            type: .walletReady,
+            navigationTitle: Localization.commonDone,
+            onAppear: weakify(self, forFunction: MobileOnboardingBackupICloudFlowBuilder.openConfetti),
+            onComplete: weakify(self, forFunction: MobileOnboardingBackupICloudFlowBuilder.completeOnboarding)
+        )
+    }
+}
+
+// MARK: - Navigation
+
+private extension MobileOnboardingBackupICloudFlowBuilder {
+    func openNext() {
+        next()
+    }
+
+    func openConfetti() {
+        coordinator?.openConfetti()
+    }
+
+    func completeOnboarding() {
+        coordinator?.completeOnboarding()
+        saveCredentialIfNeeded()
+    }
+
+    func closeOnboarding() {
+        coordinator?.closeOnboarding()
+    }
+}
+
+// MARK: - Private methods
+
+private extension MobileOnboardingBackupICloudFlowBuilder {
+    func saveCredentialIfNeeded() {
+        if let savedCredential {
+            coordinator?.saveBackup(credential: savedCredential)
+            self.savedCredential = nil
+        }
+    }
+}
+
+// MARK: - MobileOnboardingICloudBackupDelegate
+
+extension MobileOnboardingBackupICloudFlowBuilder: MobileOnboardingICloudBackupDelegate {
+    func onICloudBackupComplete(savedCredential: WebCredentialUtil.SavedCredential?) {
+        self.savedCredential = savedCredential
+        logBackupCompletedScreenOpenedAnalytics()
+        openNext()
+    }
+
+    func onICloudUnavailable() {
+        coordinator?.openBackupStorageUnavailable()
+    }
+
+    func onICloudBackupClose() {
+        closeOnboarding()
+    }
+}
+
+// MARK: - MobileOnboardingAccessCodeDelegate
+
+extension MobileOnboardingBackupICloudFlowBuilder: MobileOnboardingAccessCodeDelegate {
+    func getUserWalletModel() -> UserWalletModel? {
+        userWalletModel
+    }
+
+    func didCompleteAccessCode() {
+        openNext()
+    }
+
+    func onAccessCodeClose() {}
+}
+
+// MARK: - Analytics
+
+private extension MobileOnboardingBackupICloudFlowBuilder {
+    func logBackupCompletedScreenOpenedAnalytics() {
+        var params = source.analyticsParams
+        params[.backupType] = .backupTypeCloud
+
+        Analytics.log(
+            .walletSettingsBackupCompleteScreen,
+            params: params,
+            contextParams: analyticsContextParams
+        )
+    }
+}

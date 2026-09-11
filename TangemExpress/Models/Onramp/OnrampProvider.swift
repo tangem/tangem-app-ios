@@ -164,6 +164,14 @@ extension OnrampProvider: OnrampProviderManager {
         }
     }
 
+    public var isRestricted: Bool {
+        quote?.isRestricted ?? false
+    }
+
+    public var isExecutable: Bool {
+        isSuccessfullyLoaded && !isRestricted
+    }
+
     public var quote: OnrampQuote? {
         switch state {
         case .loaded(let quote): quote

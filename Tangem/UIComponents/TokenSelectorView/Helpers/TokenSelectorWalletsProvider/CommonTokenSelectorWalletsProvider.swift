@@ -93,6 +93,9 @@ private extension CommonTokenSelectorWalletsProvider {
                         tangemPayAccountModel: tangemPayAccountModel
                     ),
                 ]
+
+            case .polymarket:
+                []
             }
         }
 

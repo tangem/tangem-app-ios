@@ -12,13 +12,13 @@ struct TransactionDetailsProviderInfo {
     let name: String
     /// Provider-type label (e.g. CEX / DEX / DEX/Bridge). `nil` for providers whose type isn't shown (e.g. onramp).
     let type: String?
-    let onTap: (() -> Void)?
+    let action: TransactionDetailsViewModel.ViewAction?
 
     var infoRow: TransactionDetailsInfoSectionViewData.Row {
         .init(
             id: "provider",
             title: Localization.expressProvider,
-            content: .link(.init(text: name, secondaryText: type, handler: onTap))
+            content: .link(.init(text: name, secondaryText: type, action: action))
         )
     }
 }

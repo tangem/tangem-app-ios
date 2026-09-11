@@ -65,7 +65,7 @@ private extension PortfolioReviewChartCardView {
         switch chart {
         case .loaded(_, let assetCount, let topHoldingPercent):
             VStack(alignment: .leading, spacing: 0) {
-                Text(Localization.commonAssetsCount(assetCount))
+                Text(Localization.topAssetsCount(assetCount))
                     .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textSecondary)
 
                 Text(Localization.marketChartTopHolding(topHoldingPercent))

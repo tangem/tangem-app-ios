@@ -15,6 +15,35 @@ enum MockedError: Error {
     case genericError
 }
 
+func makeSdk() -> CommonMobileWalletSdk {
+    let secureStorage = MockedSecureStorage()
+    let secureEnclaveService = MockedSecureEnclaveService()
+    let biometricsSecureEnclaveService = MockedBiometricsSecureEnclaveService()
+    let biometricsStorage = MockedBiometricsStorage()
+
+    let encryptedSecureStorage = EncryptedSecureStorage(
+        secureStorage: secureStorage,
+        secureEnclaveService: secureEnclaveService
+    )
+
+    return CommonMobileWalletSdk(
+        privateInfoStorageManager: PrivateInfoStorageManager(
+            privateInfoStorage: PrivateInfoStorage(
+                secureStorage: secureStorage,
+                secureEnclaveService: secureEnclaveService
+            ),
+            encryptedSecureStorage: encryptedSecureStorage,
+            encryptedBiometricsStorage: EncryptedBiometricsStorage(
+                biometricsStorage: biometricsStorage,
+                secureEnclaveBiometricsService: biometricsSecureEnclaveService
+            )
+        ),
+        publicInfoStorageManager: PublicInfoStorageManager(
+            encryptedSecureStorage: encryptedSecureStorage
+        )
+    )
+}
+
 final class MockedSecureStorage: MobileWalletSecureStorage {
     private var storage: [String: Data] = [:]
 

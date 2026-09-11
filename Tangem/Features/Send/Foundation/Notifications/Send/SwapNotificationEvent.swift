@@ -27,12 +27,9 @@ enum SwapNotificationEvent: Hashable {
     case tooSmallAmountToSwap(minimumAmountText: String)
     case tooBigAmountToSwap(maximumAmountText: String)
     case unsupportedPair(analyticsParams: [Analytics.ParameterKey: String])
+    case regionRestricted
     case feeWillBeSubtractFromSendingAmount(cryptoAmountFormatted: String, fiatAmountFormatted: String)
     case notEnoughReceivedAmountForReserve(amountFormatted: String)
-
-    /// The destination (receive) wallet is card-linked and must not be topped up.
-    /// Mirrors the main-screen backup-error notification.
-    case incompleteBackup
 
     // Generic notifications is received from BSDK
     case withdrawalNotificationEvent(WithdrawalNotificationEvent)
@@ -77,6 +74,8 @@ extension SwapNotificationEvent: NotificationEvent {
             return .string(Localization.warningExpressTooMaximumAmountTitle(maximumAmountText))
         case .unsupportedPair:
             return .string(Localization.warningExpressUnsupportedPairTitle)
+        case .regionRestricted:
+            return .string(Localization.expressSwapRestrictionsTitle)
         case .verificationRequired:
             return .string(Localization.expressExchangeNotificationVerificationTitle)
         case .cexOperationFailed:
@@ -89,8 +88,6 @@ extension SwapNotificationEvent: NotificationEvent {
             return .string(Localization.sendNotificationTransactionDelayTitle)
         case .notEnoughReceivedAmountForReserve(let amountFormatted):
             return .string(Localization.warningExpressNotificationInvalidReserveAmountTitle(amountFormatted))
-        case .incompleteBackup:
-            return .string(Localization.warningIncompleteBackupNotificationTitle)
         case .withdrawalNotificationEvent(let event):
             return event.title
         case .validationErrorEvent(let event):
@@ -132,10 +129,10 @@ extension SwapNotificationEvent: NotificationEvent {
             return Localization.warningExpressWrongAmountDescription
         case .notEnoughReceivedAmountForReserve:
             return Localization.sendNotificationInvalidReserveAmountText
-        case .incompleteBackup:
-            return Localization.warningIncompleteBackupNotificationMessage
         case .unsupportedPair:
             return Localization.warningExpressUnsupportedPairDescription
+        case .regionRestricted:
+            return Localization.expressSwapRestrictionsText
         case .verificationRequired:
             return Localization.expressExchangeNotificationVerificationText
         case .cexOperationFailed:
@@ -201,7 +198,7 @@ extension SwapNotificationEvent: NotificationEvent {
             return event.colorScheme
         case .validationErrorEvent(let event):
             return event.colorScheme
-        case .incompleteBackup:
+        case .regionRestricted:
             return .critical
         }
     }
@@ -233,7 +230,7 @@ extension SwapNotificationEvent: NotificationEvent {
              .notEnoughReceivedAmountForReserve,
              .notEnoughBalanceForSwapping:
             return .init(iconType: .image(Assets.redCircleWarning))
-        case .incompleteBackup:
+        case .regionRestricted:
             return .init(
                 iconType: .image(Assets.DesignSystem.attention),
                 renderingMode: .template,
@@ -276,7 +273,7 @@ extension SwapNotificationEvent: NotificationEvent {
             return .critical
         case .refreshRequired,
              .cexOperationFailed,
-             .incompleteBackup:
+             .regionRestricted:
             return .critical
         case .withdrawalNotificationEvent(let event):
             return event.severity
@@ -301,8 +298,6 @@ extension SwapNotificationEvent: NotificationEvent {
             return .init(.openCurrency)
         case .permissionNeeded:
             return .init(.givePermission)
-        case .incompleteBackup:
-            return .init(.backupErrorSupport)
         default:
             return nil
         }
@@ -319,7 +314,7 @@ extension SwapNotificationEvent: NotificationEvent {
 
     var removingOnFullLoadingState: Bool {
         switch self {
-        case .unsupportedPair, .refreshRequired, .verificationRequired, .cexOperationFailed, .refunded, .longTimeAverageDuration, .incompleteBackup:
+        case .unsupportedPair, .refreshRequired, .verificationRequired, .cexOperationFailed, .refunded, .longTimeAverageDuration, .regionRestricted:
             return false
         case .permissionNeeded,
              .hasPendingTransaction,

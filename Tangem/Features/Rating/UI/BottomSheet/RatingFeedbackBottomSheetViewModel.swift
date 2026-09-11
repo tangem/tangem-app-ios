@@ -13,13 +13,14 @@ import TangemLocalization
 @MainActor
 final class RatingFeedbackBottomSheetViewModel: ObservableObject, FloatingSheetContentViewModel {
     typealias Rating = RatingModel.Rating
-    typealias OnSubmit = (Rating, String?) async throws -> Void
+    typealias OnSubmit = @MainActor (Rating, String?) async throws -> Void
+    typealias OnDismiss = @MainActor () -> Void
 
     // MARK: - Properties
 
     private let rating: Rating
     private let onSubmit: OnSubmit
-    private let onDismiss: () -> Void
+    private let onDismiss: OnDismiss
 
     private var isDismissed = false
 
@@ -32,7 +33,7 @@ final class RatingFeedbackBottomSheetViewModel: ObservableObject, FloatingSheetC
 
     // MARK: - Init
 
-    init(rating: Rating, onSubmit: @escaping OnSubmit, onDismiss: @escaping () -> Void) {
+    init(rating: Rating, onSubmit: @escaping OnSubmit, onDismiss: @escaping OnDismiss) {
         self.rating = rating
         self.onSubmit = onSubmit
         self.onDismiss = onDismiss

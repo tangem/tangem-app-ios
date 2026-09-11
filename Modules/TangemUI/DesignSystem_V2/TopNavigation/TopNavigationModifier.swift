@@ -50,12 +50,8 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
     }
 
     func body(content: Content) -> some View {
-        if #available(iOS 26.0, *) {
-            navigation(content)
-        } else {
-            navigation(content)
-                .backportTranslucentNavigationBar()
-        }
+        navigation(content)
+            .translucentNavigationBar()
     }
 
     private func navigation(_ content: Content) -> some View {
@@ -153,7 +149,7 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
     private func chromeButton(_ action: TopNavigation.Action) -> some View {
         barHosted {
             if #available(iOS 26.0, *) {
-                TopNavigationNativeBarButton(action: action)
+                TopNavigationBarButton(action: action)
             } else {
                 TopNavigationCircleButton(action: action)
             }

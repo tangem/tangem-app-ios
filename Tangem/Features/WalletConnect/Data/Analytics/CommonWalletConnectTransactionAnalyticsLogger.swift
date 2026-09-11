@@ -67,7 +67,7 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
             .walletConnectDAppUrl: transactionData.dAppData.domain.absoluteString,
             .blockchain: transactionData.blockchain.displayName,
             .errorCode: "\(error.universalErrorCode)",
-            .errorDescription: error.localizedDescription,
+            .error: error.localizedDescription,
         ]
 
         if let accountParams = transactionData.account?.analyticsParameters(with: SingleAccountAnalyticsBuilder()) {

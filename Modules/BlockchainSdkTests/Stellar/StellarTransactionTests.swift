@@ -31,7 +31,7 @@ final class StellarTransactionTests {
 
         let txBuilder = StellarTransactionBuilder(walletPublicKey: addressPubKey, isTestnet: false)
         let sequence: Int64 = 247738386557698163
-        txBuilder.specificTxTime = 1753718404.5987458
+        txBuilder.specificTxTime = 1753718404
 
         let token = Token(
             name: "Blend",
@@ -155,7 +155,7 @@ final class StellarTransactionTests {
 
     private func makeTxBuilder() -> StellarTransactionBuilder {
         let txBuilder = StellarTransactionBuilder(walletPublicKey: walletPubkey, isTestnet: false)
-        txBuilder.specificTxTime = 1614848128.2697558
+        txBuilder.specificTxTime = 1614848128
         return txBuilder
     }
 }

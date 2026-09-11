@@ -25,6 +25,16 @@ extension DeeplinkNavigationAction {
         var tokenId: String?
         var networkId: String?
         var userWalletId: String?
+        var swapFromTokenId: String?
+        var swapFromNetworkId: String?
+        var swapToTokenId: String?
+        var swapToNetworkId: String?
+        var swapFromUserWalletId: String?
+        var swapToUserWalletId: String?
+        var swapFromUserAccountId: String?
+        var swapToUserAccountId: String?
+        var swapFromAmount: String?
+        var swapProviderId: String?
         var derivationPath: String?
         var transactionId: String?
         var promoCode: String?
@@ -39,6 +49,7 @@ extension DeeplinkNavigationAction {
         var interval: String?
         var earnType: String?
         var surveyToken: String?
+        var tangemPayScreen: String?
 
         static let empty = Params()
 

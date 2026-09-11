@@ -203,8 +203,8 @@ extension MainCoordinator: MainRoutable {
                 onDismiss: { [weak self] in self?.safariHandle = nil },
                 onSuccess: { [weak self] _ in self?.safariHandle = nil }
             )
-        case .tangemPayMain(let customerWalletId):
-            openTangemPayMainFromDeeplink(customerWalletId: customerWalletId)
+        case .tangemPayMain(let customerWalletId, let incomingAction):
+            openTangemPayMainFromDeeplink(customerWalletId: customerWalletId, incomingAction: incomingAction)
         case .yield(let walletModel, let userWalletModel):
             openYieldFromDeeplink(walletModel: walletModel, userWalletModel: userWalletModel)
         case .tangemPayTransactionDetails(let payload):
@@ -379,6 +379,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
                 keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
                 walletModelsManager: account.walletModelsManager,
                 userTokensManager: account.userTokensManager,
+                addressBookManager: userWalletModel.addressBookManager,
                 walletModel: walletModel
             )
         )
@@ -477,7 +478,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     func openTangemPayMainView(
         userWalletInfo: UserWalletInfo,
         tangemPayAccount: TangemPayAccount,
-        userWalletModel: any UserWalletModel
+        userWalletModel: any UserWalletModel,
+        incomingAction: TangemPayIncomingActions?
     ) {
         mainBottomSheetUIManager.hide()
 
@@ -495,7 +497,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             with: .init(
                 userWalletInfo: userWalletInfo,
                 tangemPayAccount: tangemPayAccount,
-                userWalletModel: userWalletModel
+                userWalletModel: userWalletModel,
+                incomingAction: incomingAction
             )
         )
         tangemPayMainCoordinator = coordinator
@@ -542,12 +545,13 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             self?.openTangemPayMainView(
                 userWalletInfo: userWalletModel.userWalletInfo,
                 tangemPayAccount: tangemPayAccount,
-                userWalletModel: userWalletModel
+                userWalletModel: userWalletModel,
+                incomingAction: nil
             )
         }
     }
 
-    private func openTangemPayMainFromDeeplink(customerWalletId: String) {
+    private func openTangemPayMainFromDeeplink(customerWalletId: String, incomingAction: TangemPayIncomingActions?) {
         guard !RTCUtil.isRootedDevice else {
             incomingActionManager.discardIncomingAction()
             return
@@ -558,24 +562,13 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             return
         }
 
-        let accountModel = userWalletModel.accountModelsManager.tangemPayAccountModel
-
-        if let tangemPayAccount = accountModel?.state?.tangemPayAccount {
-            openTangemPayMainView(
-                userWalletInfo: userWalletModel.userWalletInfo,
-                tangemPayAccount: tangemPayAccount,
-                userWalletModel: userWalletModel
-            )
-            return
-        }
-
-        guard let accountModel else {
+        guard let accountModel = userWalletModel.accountModelsManager.tangemPayAccountModel else {
             incomingActionManager.discardIncomingAction()
             return
         }
 
         tangemPayMainDeeplinkSubscription = accountModel.statePublisher
-            .compactMap(\.tangemPayAccount)
+            .filter { $0.tangemPayAccount != nil || $0.tariffPlanSelector != nil }
             .first()
             .timeout(.seconds(Constants.tangemPayMainDeeplinkTimeout), scheduler: DispatchQueue.main)
             .receiveOnMain()
@@ -583,12 +576,20 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
                 receiveCompletion: { [weak self] _ in
                     self?.tangemPayMainDeeplinkSubscription = nil
                 },
-                receiveValue: { [weak self] tangemPayAccount in
-                    self?.openTangemPayMainView(
-                        userWalletInfo: userWalletModel.userWalletInfo,
-                        tangemPayAccount: tangemPayAccount,
-                        userWalletModel: userWalletModel
-                    )
+                receiveValue: { [weak self] state in
+                    if let tangemPayAccount = state.tangemPayAccount {
+                        self?.openTangemPayMainView(
+                            userWalletInfo: userWalletModel.userWalletInfo,
+                            tangemPayAccount: tangemPayAccount,
+                            userWalletModel: userWalletModel,
+                            incomingAction: incomingAction
+                        )
+                    } else if let tariffPlanSelector = state.tariffPlanSelector {
+                        self?.openTangemPaySelectPlan(
+                            tariffPlanSelector: tariffPlanSelector,
+                            userWalletModel: userWalletModel
+                        )
+                    }
                 }
             )
     }
@@ -1032,9 +1033,7 @@ extension MainCoordinator: WCTransactionRoutable {
 
 extension MainCoordinator: MobileFinishActivationNeededRoutable {
     func dismissMobileFinishActivationNeeded() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+        floatingSheetPresenter.removeActiveSheet()
     }
 
     func openMobileBackup(userWalletModel: UserWalletModel) {
@@ -1053,14 +1052,13 @@ extension MainCoordinator: MobileFinishActivationNeededRoutable {
         mobileBackupTypesCoordinator = coordinator
     }
 
-    func openMobileBackupOnboarding(userWalletModel: UserWalletModel) {
-        Task { @MainActor in
-            let backupInput = MobileOnboardingInput(flow: .walletActivate(
-                userWalletModel: userWalletModel,
-                source: .main(action: .backup)
-            ))
-            openOnboardingModal(with: .mobileInput(backupInput))
-        }
+    func openMobileBackupOnboarding(userWalletModel: UserWalletModel, context: MobileWalletContext) {
+        let backupInput = MobileOnboardingInput(flow: .walletActivate(
+            userWalletModel: userWalletModel,
+            source: .main(action: .backup),
+            context: context
+        ))
+        openOnboardingModal(with: .mobileInput(backupInput))
     }
 }
 

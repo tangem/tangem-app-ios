@@ -163,11 +163,9 @@ private extension SwapActionButtonViewModel {
     func openSwap() {
         let userWalletInfo = userWalletModel.userWalletInfo
 
-        // Opening the swap flow only picks a source to spend; topping up a card-linked wallet is
-        // blocked later, when its token is chosen as the swap destination.
         let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
 
-        let bestEffort = MainSwapPairResolver.makeBestEffortSourceToken(from: walletModels, userWalletInfo: userWalletInfo)
+        let bestEffort = MainSwapSourceResolver.makeBestEffortSourceToken(from: walletModels, userWalletInfo: userWalletInfo)
         let fallback = walletModels.first.map { walletModel in
             CommonSendSwapableTokenFactory(
                 userWalletInfo: userWalletInfo,
@@ -180,12 +178,12 @@ private extension SwapActionButtonViewModel {
             return
         }
 
-        let resolver = MainSwapPairResolver(
+        let resolver = MainSwapSourceResolver(
             userWalletModel: userWalletModel,
             swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletInfo)
         )
 
-        coordinator?.openSwap(predefinedParameters: .deferredPairResolution(source: sourceToken, resolver: resolver))
+        coordinator?.openSwap(predefinedParameters: .from(sourceToken, pair: .deferred(sourceResolver: resolver)))
     }
 
     func showScheduledAlert(with message: String) {

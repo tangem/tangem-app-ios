@@ -20,8 +20,7 @@ extension RatingModel.Transaction {
     init?(from transaction: PendingTransaction) {
         guard case .swap = transaction.type else { return nil }
 
-        // Prefer externalTxId when available; otherwise fall back to expressTransactionId (e.g., DEX swaps)
-        transactionId = transaction.externalTxId ?? transaction.expressTransactionId
+        transactionId = transaction.expressTransactionId
         providerName = transaction.provider.name
         txUrl = transaction.externalTxURL
     }

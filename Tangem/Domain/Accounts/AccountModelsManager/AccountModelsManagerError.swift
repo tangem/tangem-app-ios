@@ -9,6 +9,7 @@
 import Foundation
 
 enum AccountModelsManagerError: Error {
+    case addingJointAccountNotSupported
     case addingCryptoAccountsNotSupported
     case cannotFetchArchivedCryptoAccounts
 }

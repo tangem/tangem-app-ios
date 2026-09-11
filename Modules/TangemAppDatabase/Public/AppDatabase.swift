@@ -10,7 +10,8 @@ import Foundation
 import GRDB
 import TangemFoundation
 
-public final class AppDatabase {
+/// - Note: Uses an internal lock to protect the internal state; therefore `@unchecked Sendable` is intentional.
+public final class AppDatabase: @unchecked Sendable {
     /// - Note: Inherits `DatabaseReader` too.
     public typealias DatabaseHandle = DatabaseWriter
 
@@ -18,7 +19,7 @@ public final class AppDatabase {
 
     public var databaseHandle: DatabaseHandle {
         get throws {
-            return try protectedDatabaseHandle { handle in
+            return try _databaseHandle { handle in
                 if let existingHandle = handle {
                     return existingHandle
                 }
@@ -31,13 +32,13 @@ public final class AppDatabase {
         }
     }
 
+    private let _databaseHandle: OSAllocatedUnfairLock<DatabaseHandle?>
     private let databaseHandleFactory: DatabaseHandleFactory
-    private let protectedDatabaseHandle: OSAllocatedUnfairLock<DatabaseHandle?>
 
     @available(iOS, deprecated: 100000.0, message: "For unit tests and DI only, use `@Injected(\\.appDatabase)` instead")
     public init(databaseHandleFactory: @escaping DatabaseHandleFactory) {
+        _databaseHandle = OSAllocatedUnfairLock(initialState: nil)
         self.databaseHandleFactory = databaseHandleFactory
-        protectedDatabaseHandle = OSAllocatedUnfairLock(initialState: nil)
     }
 
     // MARK: - Helpers

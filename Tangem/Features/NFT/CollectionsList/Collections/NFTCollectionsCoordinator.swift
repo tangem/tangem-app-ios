@@ -145,14 +145,15 @@ extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
             return
         }
 
-        // Receiving an NFT credits the wallet, so it must be blocked on a card-linked wallet,
-        // mirroring the regular token receive/onramp gating.
-        if let backupAlert = UserWalletBackupStatusHelper().alert(for: input.userWalletModel.userWalletInfo) {
-            alertPresenter.present(alert: backupAlert)
-            return
-        }
-
-        openAccountSelector(options: options, navigationInput: input)
+        // Receiving an NFT credits the wallet, so the incomplete backup warning applies.
+        let userWalletInfo = input.userWalletModel.userWalletInfo
+        TokenActionAvailabilityAlertPresenter.presentOrProceed(
+            presenter: alertPresenter,
+            warning: userWalletInfo.backupState.isValid ? nil : .incompleteBackup(userWalletInfo),
+            action: { [weak self] in
+                self?.openAccountSelector(options: options, navigationInput: input)
+            }
+        )
     }
 
     func openAssetDetails(for asset: NFTAsset, in collection: NFTCollection, navigationContext: NFTNavigationContext?) {

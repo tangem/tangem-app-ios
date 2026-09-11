@@ -26,13 +26,7 @@ struct TangemPayConfirmPlanView: View {
             .toolbar { toolbar }
             .alert(item: $viewModel.alert) { $0.alert }
             .onAppear(perform: viewModel.onAppear)
-            .modifyView { view in
-                if #unavailable(iOS 26.0) {
-                    view.backportTranslucentNavigationBar()
-                } else {
-                    view
-                }
-            }
+            .translucentNavigationBar()
     }
 
     private var content: some View {

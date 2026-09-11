@@ -15,51 +15,51 @@ import TangemPay
 struct VisaCustomerInfoResponseSanitizedTests {
     // MARK: - Sensitive card fields are wiped
 
-    @Test("card.token is stripped")
+    @Test("cards[].token is stripped")
     func cardToken_isWiped() throws {
         let response = try VisaCustomerInfoResponseFixture.fullyPopulated(cardToken: "secret-network-token")
 
         let sanitized = response.sanitizedForDiskCache()
 
-        #expect(sanitized.card?.token == "")
+        #expect(sanitized.cards.first?.token == "")
     }
 
-    @Test("card.embossName is stripped")
+    @Test("cards[].embossName is stripped")
     func cardEmbossName_isWiped() throws {
         let response = try VisaCustomerInfoResponseFixture.fullyPopulated(cardEmbossName: "JOHN DOE")
 
         let sanitized = response.sanitizedForDiskCache()
 
-        #expect(sanitized.card?.embossName == "")
+        #expect(sanitized.cards.first?.embossName == "")
     }
 
-    @Test("card.expirationMonth is stripped")
+    @Test("cards[].expirationMonth is stripped")
     func cardExpirationMonth_isWiped() throws {
         let response = try VisaCustomerInfoResponseFixture.fullyPopulated(cardExpirationMonth: "11")
 
         let sanitized = response.sanitizedForDiskCache()
 
-        #expect(sanitized.card?.expirationMonth == "")
+        #expect(sanitized.cards.first?.expirationMonth == "")
     }
 
-    @Test("card.expirationYear is stripped")
+    @Test("cards[].expirationYear is stripped")
     func cardExpirationYear_isWiped() throws {
         let response = try VisaCustomerInfoResponseFixture.fullyPopulated(cardExpirationYear: "2031")
 
         let sanitized = response.sanitizedForDiskCache()
 
-        #expect(sanitized.card?.expirationYear == "")
+        #expect(sanitized.cards.first?.expirationYear == "")
     }
 
-    @Test("card.isPinSet is preserved")
+    @Test("cards[].isPinSet is preserved")
     func cardIsPinSet_isPreserved() throws {
         let response = try VisaCustomerInfoResponseFixture.fullyPopulated(cardIsPinSet: true)
         // sanity check: fixture really populates isPinSet=true
-        #expect(response.card?.isPinSet == true)
+        #expect(response.cards.first?.isPinSet == true)
 
         let sanitized = response.sanitizedForDiskCache()
 
-        #expect(sanitized.card?.isPinSet == true)
+        #expect(sanitized.cards.first?.isPinSet == true)
     }
 
     @Test("kyc payload is dropped entirely")
@@ -75,31 +75,31 @@ struct VisaCustomerInfoResponseSanitizedTests {
 
     // MARK: - Display-relevant card fields are preserved
 
-    @Test("card.cardNumberEnd is preserved (needed for '*5123' subtitle)")
+    @Test("cards[].cardNumberEnd is preserved (needed for '*5123' subtitle)")
     func cardNumberEnd_isPreserved() throws {
         let response = try VisaCustomerInfoResponseFixture.fullyPopulated()
 
         let sanitized = response.sanitizedForDiskCache()
 
-        #expect(sanitized.card?.cardNumberEnd == response.card?.cardNumberEnd)
+        #expect(sanitized.cards.first?.cardNumberEnd == response.cards.first?.cardNumberEnd)
     }
 
-    @Test("card.cardType is preserved")
+    @Test("cards[].cardType is preserved")
     func cardType_isPreserved() throws {
         let response = try VisaCustomerInfoResponseFixture.fullyPopulated()
 
         let sanitized = response.sanitizedForDiskCache()
 
-        #expect(sanitized.card?.cardType == response.card?.cardType)
+        #expect(sanitized.cards.first?.cardType == response.cards.first?.cardType)
     }
 
-    @Test("card.cardStatus is preserved (needed for freezing state)")
+    @Test("cards[].cardStatus is preserved (needed for freezing state)")
     func cardStatus_isPreserved() throws {
         let response = try VisaCustomerInfoResponseFixture.fullyPopulated()
 
         let sanitized = response.sanitizedForDiskCache()
 
-        #expect(sanitized.card?.cardStatus == response.card?.cardStatus)
+        #expect(sanitized.cards.first?.cardStatus == response.cards.first?.cardStatus)
     }
 
     // MARK: - Top-level non-sensitive fields are preserved
@@ -131,16 +131,17 @@ struct VisaCustomerInfoResponseSanitizedTests {
         #expect(sanitized.createdAt == response.createdAt)
     }
 
-    @Test("productInstance is preserved (needed to reconstruct TangemPayAccount)")
-    func productInstance_isPreserved() throws {
+    @Test("productInstances are preserved (needed to reconstruct TangemPayAccount)")
+    func productInstances_arePreserved() throws {
         let response = try VisaCustomerInfoResponseFixture.fullyPopulated()
 
         let sanitized = response.sanitizedForDiskCache()
 
-        #expect(sanitized.productInstance?.id == response.productInstance?.id)
-        #expect(sanitized.productInstance?.cardId == response.productInstance?.cardId)
-        #expect(sanitized.productInstance?.status == response.productInstance?.status)
-        #expect(sanitized.productInstance?.displayName == response.productInstance?.displayName)
+        #expect(sanitized.productInstances.count == response.productInstances.count)
+        #expect(sanitized.productInstances.first?.id == response.productInstances.first?.id)
+        #expect(sanitized.productInstances.first?.cardId == response.productInstances.first?.cardId)
+        #expect(sanitized.productInstances.first?.status == response.productInstances.first?.status)
+        #expect(sanitized.productInstances.first?.displayName == response.productInstances.first?.displayName)
     }
 
     @Test("paymentAccount is preserved (public blockchain addresses)")
@@ -165,13 +166,13 @@ struct VisaCustomerInfoResponseSanitizedTests {
 
     // MARK: - Edge cases
 
-    @Test("nil card stays nil after sanitization")
-    func nilCard_staysNil() throws {
+    @Test("empty cards stay empty after sanitization")
+    func emptyCards_stayEmpty() throws {
         let response = try VisaCustomerInfoResponseFixture.minimal()
 
         let sanitized = response.sanitizedForDiskCache()
 
-        #expect(sanitized.card == nil)
+        #expect(sanitized.cards.isEmpty)
     }
 
     @Test("encoded sanitized JSON does not contain the original card token")

@@ -21,7 +21,14 @@ class MobileWalletAddressesTests {
     func testAddresses() async throws {
         let mnemonic = try Mnemonic(with: "tiny escape drive pupil flavor endless love walk gadget match filter luxury")
 
-        let walletInfo = try await MobileWalletInitializer().initializeWallet(mnemonic: mnemonic, passphrase: nil)
+        let walletInfo = try await MobileWalletInitializer().initializeWallet(
+            parameters: WalletInitializerParameters(
+                mnemonic: mnemonic,
+                passphrase: nil,
+                hasMnemonicBackup: true,
+                hasICloudBackup: false
+            )
+        )
 
         // Delete the wallet to clean up the keychain
         try? CommonMobileWalletSdk().delete(walletIDs: [userWalletId])

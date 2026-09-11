@@ -15,7 +15,7 @@ final class TangemPayTokenBalanceProvider {
     private let tokenItem: TokenItem
     private let tokenBalancesRepository: TokenBalancesRepository
     private let balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>
-    private let keyPath: KeyPath<TangemPayBalance, Decimal>
+    private let value: (TangemPayBalance) -> Decimal
     private let cachesBalance: Bool
 
     private let walletModelId: WalletModelId
@@ -27,13 +27,13 @@ final class TangemPayTokenBalanceProvider {
         tokenItem: TokenItem,
         tokenBalancesRepository: TokenBalancesRepository,
         balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>,
-        keyPath: KeyPath<TangemPayBalance, Decimal>,
+        value: @escaping (TangemPayBalance) -> Decimal,
         cachesBalance: Bool
     ) {
         self.tokenItem = tokenItem
         self.tokenBalancesRepository = tokenBalancesRepository
         self.balanceSubject = balanceSubject
-        self.keyPath = keyPath
+        self.value = value
         self.cachesBalance = cachesBalance
 
         walletModelId = .init(tokenItem: tokenItem)
@@ -54,9 +54,8 @@ extension TangemPayTokenBalanceProvider: TokenBalanceProvider {
 
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
         balanceSubject
-            .withWeakCaptureOf(self)
-            .map { provider, balance in
-                provider.mapToTokenBalanceType(balance: balance)
+            .map { [self] balance in
+                mapToTokenBalanceType(balance: balance)
             }
             .eraseToAnyPublisher()
     }
@@ -67,9 +66,8 @@ extension TangemPayTokenBalanceProvider: TokenBalanceProvider {
 
     var formattedBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> {
         balanceTypePublisher
-            .withWeakCaptureOf(self)
-            .map { provider, balanceType in
-                provider.mapToFormattedTokenBalanceType(type: balanceType)
+            .map { [self] balanceType in
+                mapToFormattedTokenBalanceType(type: balanceType)
             }
             .eraseToAnyPublisher()
     }
@@ -80,10 +78,10 @@ extension TangemPayTokenBalanceProvider: TokenBalanceProvider {
 private extension TangemPayTokenBalanceProvider {
     func bind(to balanceSubject: some Subject<LoadingResult<TangemPayBalance, Error>?, Never>) {
         statePublisherSubscription = balanceSubject
-            .compactMap { [keyPath] state -> Decimal? in
+            .compactMap { [value] state -> Decimal? in
                 switch state {
                 case .success(let balance):
-                    return balance[keyPath: keyPath]
+                    return value(balance)
                 case .none,
                      .loading,
                      .failure:
@@ -118,8 +116,7 @@ private extension TangemPayTokenBalanceProvider {
         case .failure:
             return .failure(cached)
         case .success(let balance):
-            let targetBalance = balance[keyPath: keyPath]
-            return .loaded(targetBalance)
+            return .loaded(value(balance))
         }
     }
 

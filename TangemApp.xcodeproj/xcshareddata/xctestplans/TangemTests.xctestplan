@@ -15,11 +15,6 @@
         "containerPath" : "container:TangemApp.xcodeproj",
         "identifier" : "5D3F77C124BF56D800E8695B",
         "name" : "Tangem"
-      },
-      {
-        "containerPath" : "container:TangemApp.xcodeproj",
-        "identifier" : "B68E1F642CBC44050043E598",
-        "name" : "BlockchainSdk"
       }
     ]
   },
@@ -34,9 +29,6 @@
     },
     {
       "parallelizable" : false,
-      "skippedTests" : [
-        "TangemExpressTests"
-      ],
       "target" : {
         "containerPath" : "container:TangemApp.xcodeproj",
         "identifier" : "EF9E299B2B4F0C8C00418559",
@@ -45,9 +37,6 @@
     },
     {
       "parallelizable" : false,
-      "skippedTests" : [
-        "TangemVisaTests"
-      ],
       "target" : {
         "containerPath" : "container:TangemApp.xcodeproj",
         "identifier" : "B099337D2B5517E600240CDB",
@@ -56,21 +45,10 @@
     },
     {
       "parallelizable" : false,
-      "skippedTests" : [
-        "TangemStakingTests"
-      ],
       "target" : {
         "containerPath" : "container:TangemApp.xcodeproj",
         "identifier" : "EFEE23902BFF62D60099917E",
         "name" : "TangemStakingTests"
-      }
-    },
-    {
-      "parallelizable" : false,
-      "target" : {
-        "containerPath" : "container:TangemApp.xcodeproj",
-        "identifier" : "B68E1F6B2CBC44060043E598",
-        "name" : "BlockchainSdkTests"
       }
     }
   ],

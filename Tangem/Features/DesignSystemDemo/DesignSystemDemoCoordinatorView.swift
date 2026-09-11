@@ -53,9 +53,6 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemMainActionButtonDemoViewModel) {
                 TangemMainActionButtonDemoView(viewModel: $0)
             }
-            .navigation(item: $coordinator.notificationBannerDemoViewModel) {
-                NotificationBannerDemoView(viewModel: $0)
-            }
             .navigation(item: $coordinator.tangemSegmentedPickerDemoViewModel) {
                 TangemSegmentedPickerDemo(viewModel: $0)
             }
@@ -104,6 +101,12 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             }
             .navigation(item: $coordinator.tokenIconV2DemoViewModel) {
                 TokenIconV2DemoView(viewModel: $0)
+            }
+            .navigation(item: $coordinator.tokenRowV2DemoViewModel) {
+                TokenRowV2DemoView(viewModel: $0)
+            }
+            .navigation(item: $coordinator.tokenRowMarketDemoViewModel) {
+                TokenRowMarketDemoView(viewModel: $0)
             }
             .navigation(item: $coordinator.utilGraphDemoViewModel) {
                 UtilGraphDemoView(viewModel: $0)
@@ -187,6 +190,8 @@ struct DesignSystemDemoView: View {
             DemoItem(title: "GlowRing", open: viewModel.openGlowRingDemo),
             DemoItem(title: "Fade", open: viewModel.openTangemFadeDemo),
             DemoItem(title: "TokenIconV2", open: viewModel.openTokenIconV2Demo),
+            DemoItem(title: "TokenRow", open: viewModel.openTokenRowV2Demo),
+            DemoItem(title: "TokenRowMarket", open: viewModel.openTokenRowMarketDemo),
             DemoItem(title: "UtilGraph", open: viewModel.openUtilGraphDemo),
             DemoItem(title: "UtilPriceChange", open: viewModel.openUtilPriceChangeDemo),
             DemoItem(title: "UtilBalance", open: viewModel.openUtilBalanceDemo),
@@ -206,7 +211,6 @@ struct DesignSystemDemoView: View {
             DemoItem(title: "TangemTabs", open: viewModel.openTangemTabsDemo),
             DemoItem(title: "TangemSearchField", open: viewModel.openTangemSearchFieldDemo),
             DemoItem(title: "MainActionButton", open: viewModel.openTangemMainActionButtonDemo),
-            DemoItem(title: "NotificationBanner", open: viewModel.openNotificationBannerDemo),
             DemoItem(title: "TangemDropDown", open: viewModel.openTangemDropDownDemo),
             DemoItem(title: "TangemTokenRow", open: viewModel.openTangemTokenRowDemo),
             DemoItem(title: "TangemSnackbar", open: viewModel.openTangemSnackbarDemo),

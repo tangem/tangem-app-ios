@@ -188,8 +188,8 @@ extension NFTSendWalletModelProxy: WalletModel {
         await mainTokenWalletModel.updateTransactionHistory()
     }
 
-    func updateAfterSendingTransaction() {
-        mainTokenWalletModel.updateAfterSendingTransaction()
+    func updateAfterSendingTransaction(silent: Bool) {
+        mainTokenWalletModel.updateAfterSendingTransaction(silent: silent)
     }
 
     var feeTokenItemBalanceProvider: any TokenBalanceProvider {
@@ -304,6 +304,10 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     var tronTransactionDataBuilder: TronTransactionDataBuilder? {
         mainTokenWalletModel.tronTransactionDataBuilder
+    }
+
+    var tronAccountActivationStateProvider: TronAccountActivationStateProvider? {
+        mainTokenWalletModel.tronAccountActivationStateProvider
     }
 
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? {

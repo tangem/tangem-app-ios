@@ -22,7 +22,7 @@ struct StakingTargetRewardRateFormatter {
     }
 
     func percent(rewardRate: Decimal) -> String {
-        percentFormatter.format(rewardRate, option: .staking)
+        percentFormatter.format(rewardRate, option: .earn)
     }
 
     func format(target: StakingTargetInfo, type: TitleType) -> String {

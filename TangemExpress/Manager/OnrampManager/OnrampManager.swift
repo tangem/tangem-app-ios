@@ -58,6 +58,7 @@ public enum OnrampManagerError: LocalizedError {
     case providersIsEmpty
     case suggestedProviderNotFound
     case quoteIdNotFound
+    case providerIsRestricted
 
     public var errorDescription: String? {
         switch self {
@@ -65,6 +66,7 @@ public enum OnrampManagerError: LocalizedError {
         case .providersIsEmpty: "Providers is empty"
         case .suggestedProviderNotFound: "Suggested provider not found"
         case .quoteIdNotFound: "Quote ID not found for native payment"
+        case .providerIsRestricted: "Provider is restricted in the user's region"
         }
     }
 }

@@ -38,9 +38,7 @@ private extension ExpressOnrampTransactionsTable {
                 table.column(Columns.payOutHash, .text)
                 table.column("fromCurrency", .text).notNull()
                 table.column("fromAmount", .text).notNull()
-                // Collation is used to make the contract address case-insensitive.
-                // This matches the current `BlockchainSdk.Token` equality implementation.
-                table.column(Columns.toContract, .text).notNull().collate(.nocase)
+                table.column(Columns.toContract, .text).notNull()
                 table.column(Columns.toNetwork, .text).notNull()
                 table.column("toAmount", .text)
                 table.column("toDecimals", .integer).notNull()

@@ -25,7 +25,7 @@ struct SolanaStakingFlowProvider: GenericStakingFlowProvider {
 
         if !action.type.isEnter, let failure = await preflightValidator?.validate() {
             try Task.checkCancellation()
-            return .failure(.transaction(failure.validationError, fee: failure.estimatedFee))
+            return .failure(.transaction(failure.validationError, fee: failure.estimatedFee, spendsAmount: false))
         }
 
         try Task.checkCancellation()

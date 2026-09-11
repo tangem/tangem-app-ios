@@ -65,11 +65,7 @@ extension AddressBooksCoordinator {
 
 extension AddressBooksCoordinator: AddressBooksRoutable {
     func openAddContact(addressBookWallet: AddressBookWallet) {
-        openContactManagement(options: .add(addressBookWallet: addressBookWallet, prefilledEntries: []))
-    }
-
-    func openEditContact(contact: AddressBookContact, addressBookWallet: AddressBookWallet) {
-        openContactManagement(options: .edit(contact: contact, addressBookWallet: addressBookWallet))
+        openAddContact(addressBookWallet: addressBookWallet, prefilledEntries: [])
     }
 
     func openChooseAddress(contact: AddressBookContact, output: ChooseAddressOutput) {
@@ -93,16 +89,6 @@ extension AddressBooksCoordinator: ChooseAddressRoutable {
     }
 }
 
-// MARK: - Private
+// MARK: - AddressBookContactNavigating
 
-private extension AddressBooksCoordinator {
-    func openContactManagement(options: AddressBookContactManagementCoordinator.Options) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.contactManagementCoordinator = nil
-        }
-
-        let coordinator = AddressBookContactManagementCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        coordinator.start(with: options)
-        contactManagementCoordinator = coordinator
-    }
-}
+extension AddressBooksCoordinator: AddressBookContactNavigating {}

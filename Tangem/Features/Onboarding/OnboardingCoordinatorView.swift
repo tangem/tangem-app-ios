@@ -47,5 +47,8 @@ struct OnboardingCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.modalWebViewModel) {
                 WebViewContainer(viewModel: $0)
             }
+            .floatingSheetContent(for: MobileBackupStorageUnavailableViewModel.self) {
+                MobileBackupStorageUnavailableView(viewModel: $0)
+            }
     }
 }

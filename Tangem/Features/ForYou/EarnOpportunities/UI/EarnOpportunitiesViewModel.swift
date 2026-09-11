@@ -37,7 +37,7 @@ final class EarnOpportunitiesViewModel: ObservableObject {
 
     private weak var router: EarnOpportunitiesRoutable?
 
-    private var expandedIds: Set<String> = []
+    private var collapsedIds: Set<String> = []
     // Tap routing needs the domain models the mapper output drops. Keyed by a wallet-qualified holding row id.
     private var holdingContexts: [String: HoldingContext] = [:]
     private var bag: Set<AnyCancellable> = []
@@ -76,8 +76,8 @@ final class EarnOpportunitiesViewModel: ObservableObject {
             return
         }
 
-        expandedIds.formSymmetricDifference([id])
-        state = state.expanding(expandedIds)
+        collapsedIds.formSymmetricDifference([id])
+        state = state.collapsing(collapsedIds)
     }
 
     @MainActor
@@ -172,7 +172,7 @@ private extension EarnOpportunitiesViewModel {
                 // Contexts refresh on every emission — an equal-looking state can still carry new model instances.
                 viewModel.holdingContexts = output.contexts
 
-                let newState = output.state.expanding(viewModel.expandedIds)
+                let newState = output.state.collapsing(viewModel.collapsedIds)
                 if viewModel.state != newState {
                     viewModel.state = newState
                 }
@@ -407,12 +407,12 @@ private extension EarnOpportunitiesViewModel {
 // MARK: - Expansion
 
 private extension EarnOpportunitiesViewModel.ViewState {
-    func expanding(_ expandedIds: Set<String>) -> Self {
+    func collapsing(_ collapsedIds: Set<String>) -> Self {
         guard case .content(let content) = self, case .accounts(let accounts) = content.list else {
             return self
         }
 
-        let updated = accounts.map { $0.updating(isExpanded: expandedIds.contains($0.id)) }
+        let updated = accounts.map { $0.updating(isExpanded: !collapsedIds.contains($0.id)) }
         return .content(.init(subtitle: content.subtitle, list: .accounts(updated)))
     }
 }

@@ -34,8 +34,10 @@ struct TokenDetailsView: View {
 
                 marketingBanner
 
-                ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
-                    PendingExpressTransactionView(info: transactionInfo)
+                if viewModel.showsPendingExpressTransactionsBlock {
+                    ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
+                        PendingExpressTransactionView(info: transactionInfo)
+                    }
                 }
 
                 PendingTransactionsListView(
@@ -168,24 +170,36 @@ struct TokenDetailsView: View {
         }
 
         if !viewModel.dotsMenuItems.isEmpty {
-            Menu(
-                content: {
+            switch viewModel.presentSource {
+            case .navigation:
+                Menu {
                     menuItems
-                },
-                label: {
-                    NavigationBarButton.details(action: {})
-                        .redesigned()
-                        .allowsHitTesting(false)
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .font(.title2)
                 }
-            )
+            case .markets:
+                Menu(
+                    content: {
+                        menuItems
+                    },
+                    label: {
+                        NavigationBarButton.details(action: {})
+                            .redesigned()
+                            .allowsHitTesting(false)
+                    }
+                )
+            }
         }
     }
 
     private var redesignNotificationBanners: some View {
         VStack(spacing: .unit(.x2)) {
             ForEach(viewModel.notifications) { notification in
-                NotificationBanner(
+                NotificationMessageBanner(
                     bannerType: notification.bannerType,
+                    variant: notification.variant,
+                    ring: notification.ring,
                     accessibilityIdentifier: notification.accessibilityIdentifier
                 )
             }
@@ -254,40 +268,16 @@ private extension TokenDetailsView {
                 case .markets: makeMarketsNavigation(content: content)
                 }
             }
-            .modifyView { view in
-                if #unavailable(iOS 26.0) {
-                    view.backportTranslucentNavigationBar()
-                } else {
-                    view
-                }
-            }
+            .translucentNavigationBar()
         }
 
         private func makeCommonNavigation(content: Content) -> some View {
             content
                 .toolbar {
                     ToolbarItem(placement: .principal) { principalContent }
-                    trailingToolbarItem
+                    ToolbarItem(placement: .topBarTrailing) { trailingContent }
                 }
                 .navigationBarTitleDisplayMode(.inline)
-        }
-
-        /// [REDACTED_INFO]: works around an iOS 26 bug. If you open the ⋯ menu and go back to Main very quickly,
-        /// the menu button's glass gets pulled into the back animation and leaves a stray rectangle over
-        /// Main's toolbar buttons. There is no way to close a SwiftUI Menu from code to avoid this, so we turn
-        /// off the system glass on this item and give the ⋯ its own glass through the custom
-        /// `NavigationBarButton` label in `redesignTrailingToolbarButton` instead.
-        ///
-        /// Turning off the system glass is not something we want to do normally — it drops the nice built-in
-        /// animation. Only do it when a system bug leaves no other option, like here.
-        @ToolbarContentBuilder
-        private var trailingToolbarItem: some ToolbarContent {
-            if #available(iOS 26.0, *) {
-                ToolbarItem(placement: .topBarTrailing) { trailingContent }
-                    .sharedBackgroundVisibility(.hidden)
-            } else {
-                ToolbarItem(placement: .topBarTrailing) { trailingContent }
-            }
         }
 
         private func makeMarketsNavigation(content: Content) -> some View {
@@ -334,10 +324,7 @@ private extension TokenDetailsView {
         cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
         expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
     )
-    let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
-        walletModelUpdater: walletModel,
-        poller: exchangeStatusPoller
-    )
+    let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(poller: exchangeStatusPoller)
     let onrampExpressAPIProvider = cachingExpressAPIProviderFactory.provider(for: userWalletModel.userWalletId.stringValue, refcode: userWalletModel.refcodeProvider?.getRefcode())
     let onrampStatusPoller = OnrampStatusPoller(
         userWalletId: userWalletModel.userWalletId,
@@ -370,6 +357,7 @@ private extension TokenDetailsView {
             walletModel: walletModel,
             notificationManager: notifManager,
             userTokensManager: cryptoAccountModel.userTokensManager,
+            addressBookManager: userWalletModel.addressBookManager,
             pendingExpressTransactionsManager: pendingTxsManager,
             expressStatusPollingHelper: expressStatusPollingHelper,
             xpubGenerator: nil,

@@ -34,12 +34,6 @@ struct SurveySparrowKeys: Decodable {
 }
 
 extension SurveySparrowKeys {
-    var isSwapRatingConfigured: Bool {
-        !token.isEmpty && swapRating != nil
-    }
-}
-
-extension SurveySparrowKeys {
     // MARK: - Swap rating
 
     struct SwapRating: Decodable {

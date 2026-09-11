@@ -387,7 +387,7 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
         case .send where isSwap:
             var params: [Analytics.ParameterKey: String] = [
                 .screen: screen.rawValue,
-                .swapErrorDescription: errorDescription,
+                .errorDescription: errorDescription,
             ]
             if let sourceTokenItem {
                 params[.sendToken] = sourceTokenItem.currencySymbol
@@ -941,7 +941,7 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
         Analytics.log(event: .sendErrorTransactionRejected, params: [
             .token: tokenItem.currencySymbol,
             .errorCode: "\(error.universalErrorCode)",
-            .errorDescription: error.localizedDescription,
+            .error: error.localizedDescription,
             .blockchain: tokenItem.blockchain.displayName,
             .selectedHost: error.formattedLastRetryHost ?? "",
         ])

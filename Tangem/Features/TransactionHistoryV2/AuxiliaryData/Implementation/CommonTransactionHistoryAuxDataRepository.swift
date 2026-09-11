@@ -21,7 +21,7 @@ actor CommonTransactionHistoryAuxDataRepository {
     private var cache = Cache()
 
     /// Lock-protected cache for nonisolated synchronous access.
-    private nonisolated let syncCache = OSAllocatedUnfairLock(initialState: Cache())
+    private let syncCache = OSAllocatedUnfairLock(initialState: Cache())
 
     private var subscribers = AsyncStream<Void>.MulticastSubscribers<UUID>()
 
@@ -295,7 +295,7 @@ actor CommonTransactionHistoryAuxDataRepository {
 
     private func startCryptoCurrenciesLoadingDebounce() {
         cryptoCurrenciesDebounceTask?.cancel()
-        // Bare `Task` is used here intentionally to avoid capturing `self` for the duration of the debounce delay
+        // Bare `Task` is used here intentionally to avoid capturing `self` strongly for the duration of the debounce delay
         cryptoCurrenciesDebounceTask = Task { [weak self] in
             try? await Task.sleep(for: Constants.debounce)
 
@@ -464,7 +464,7 @@ actor CommonTransactionHistoryAuxDataRepository {
 
 extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRepository {
     nonisolated var didLoadAuxData: AsyncStream<Void> {
-        return .multicast(
+        .multicast(
             with: self,
             onSubscribe: { repository, id, continuation in
                 repository.subscribers.subscribe(id: id, continuation: continuation)

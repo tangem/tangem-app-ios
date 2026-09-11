@@ -79,6 +79,8 @@ public struct AddressServiceFactory {
              .arbitrumNova,
              .plasma,
              .adi,
+             .electroneum,
+             .arc,
              .seiEvm:
             return EVMAddressService()
         case .rsk:

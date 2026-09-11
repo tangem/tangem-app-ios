@@ -17,4 +17,6 @@ enum AccountModel {
     case smart(any SmartAccountModel)
 
     case tangemPay(any TangemPayAccountModel)
+
+    case polymarket(any PolymarketAccountModel)
 }

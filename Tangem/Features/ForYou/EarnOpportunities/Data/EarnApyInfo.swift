@@ -12,6 +12,8 @@ import Foundation
 struct EarnApyInfo: Equatable {
     let isActive: Bool
     let apy: Decimal
+    /// APR or APY — the row label must not promise compounding the product does not do.
+    let rateType: RateType
     let product: Product
 
     /// Reserved for the upcoming tap-routing.

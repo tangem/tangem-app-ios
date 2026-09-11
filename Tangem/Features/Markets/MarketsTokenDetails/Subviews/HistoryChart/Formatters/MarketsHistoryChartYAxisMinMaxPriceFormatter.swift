@@ -17,10 +17,14 @@ final class MarketsHistoryChartYAxisMinMaxPriceFormatter {
 
 extension MarketsHistoryChartYAxisMinMaxPriceFormatter: AxisValueFormatter {
     func stringForValue(_ value: Double, axis: DGCharts.AxisBase?) -> String {
-        guard let axis, value == axis.axisMinimum || value == axis.axisMaximum else {
-            return ""
+        guard let axis else { return "" }
+
+        if axis.matchesAxisMaximum(value) {
+            return priceFormatter.formatPrice(Decimal(axis.axisMaximum))
+        } else if axis.matchesAxisMinimum(value) {
+            return priceFormatter.formatPrice(Decimal(axis.axisMinimum))
         }
 
-        return priceFormatter.formatPrice(Decimal(value))
+        return ""
     }
 }

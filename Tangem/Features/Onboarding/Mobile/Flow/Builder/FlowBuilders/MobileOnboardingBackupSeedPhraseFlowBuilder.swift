@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemLocalization
+import TangemMobileWalletSdk
 
 class MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingFlowBuilder {
     private var analyticsContextParams: Analytics.ContextParams {
@@ -16,15 +17,18 @@ class MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingFlowBuilder {
 
     private let userWalletModel: UserWalletModel
     private let source: MobileOnboardingFlowSource
+    private let context: MobileWalletContext
     private(set) weak var coordinator: MobileOnboardingFlowRoutable?
 
     init(
         userWalletModel: UserWalletModel,
         source: MobileOnboardingFlowSource,
+        context: MobileWalletContext,
         coordinator: MobileOnboardingFlowRoutable
     ) {
         self.userWalletModel = userWalletModel
         self.source = source
+        self.context = context
         self.coordinator = coordinator
         super.init(hasProgressBar: false)
     }
@@ -40,6 +44,7 @@ class MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingFlowBuilder {
         let seedPhraseRecoveryStep = MobileOnboardingSeedPhraseRecoveryStep(
             userWalletModel: userWalletModel,
             source: source,
+            context: context,
             delegate: self
         )
         append(step: seedPhraseRecoveryStep)
@@ -47,6 +52,7 @@ class MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingFlowBuilder {
         let seedPhraseValidationStep = MobileOnboardingSeedPhraseValidationStep(
             userWalletModel: userWalletModel,
             source: source,
+            context: context,
             delegate: self
         )
         append(step: seedPhraseValidationStep)
@@ -68,7 +74,7 @@ class MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingFlowBuilder {
 private extension MobileOnboardingBackupSeedPhraseFlowBuilder {
     func makeContinueStep() -> Step {
         let step = MobileOnboardingSuccessStep(
-            type: .seedPhaseBackupContinue,
+            type: .backupContinue,
             navigationTitle: Localization.commonBackup,
             onAppear: { [weak self] in
                 self?.logBackupCompletedScreenOpenedAnalytics()
@@ -81,7 +87,7 @@ private extension MobileOnboardingBackupSeedPhraseFlowBuilder {
     func makeDoneStep() -> Step {
         let successType: MobileOnboardingSuccessViewModel.SuccessType
         if case .walletSettings(let action) = source, action == .accessCode {
-            successType = .seedPhaseBackupContinue
+            successType = .backupContinue
         } else {
             successType = .seedPhaseBackupFinish
         }
@@ -166,17 +172,27 @@ extension MobileOnboardingBackupSeedPhraseFlowBuilder {
     }
 
     func logSeedPhraseValidatedAnalytics() {
+        var params: [Analytics.ParameterKey: String] = [.cardsCount: String(0)]
+        if FeatureProvider.isAvailable(.mobileWalletBackup) {
+            params[.backupType] = Analytics.ParameterValue.backupTypeManual.rawValue
+        }
+
         Analytics.log(
             event: .backupFinished,
-            params: [.cardsCount: String(0)],
+            params: params,
             contextParams: analyticsContextParams
         )
     }
 
     func logBackupCompletedScreenOpenedAnalytics() {
+        var params = source.analyticsParams
+        if FeatureProvider.isAvailable(.mobileWalletBackup) {
+            params[.backupType] = .backupTypeManual
+        }
+
         Analytics.log(
             .walletSettingsBackupCompleteScreen,
-            params: source.analyticsParams,
+            params: params,
             contextParams: analyticsContextParams
         )
     }

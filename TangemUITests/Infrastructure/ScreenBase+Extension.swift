@@ -219,6 +219,23 @@ extension ScreenBase {
         }
     }
 
+    /// Reaches an off-screen button inside a presented UIAlertController action sheet — e.g. the debug
+    /// mock-card scanner, which lists every `CardMock` case and no longer fits on one screen. XCUITest
+    /// can't scroll a UIAlertController via coordinate drags on `app`; swiping the sheet element itself
+    /// scrolls its action list. Re-checks hittability after each swipe and stops as soon as the target
+    /// is reachable.
+    func scrollActionSheetToElement(_ element: XCUIElement, maxSwipes: Int = 15) {
+        guard !element.isHittable else { return }
+
+        let sheet = app.sheets.firstMatch
+        let scrollable: XCUIElement = sheet.waitForExistence(timeout: .conditional) ? sheet : app
+
+        for _ in 0 ..< maxSwipes {
+            scrollable.swipeUp()
+            if element.isHittable { return }
+        }
+    }
+
     func pressAndDragDown(element: XCUIElement) {
         let startCoordinate = element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
         let endCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 1.0))

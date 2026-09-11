@@ -69,6 +69,7 @@ struct SolanaEd25519Tests {
         }
     }
 
+    @Test
     func testTokenTransactionSize() async throws {
         let type: Amount.AmountType = .token(
             value: .init(

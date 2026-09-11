@@ -12,6 +12,7 @@ import Foundation
 
 struct KeysManagerStub: KeysManager {
     let appsFlyer: AppsFlyerConfig = .stub
+    var authServiceKey: String = ""
     let surveySparrow: SurveySparrowKeys = .stub
     let moonPayKeys: MoonPayKeys = .stub
     let mercuryoWidgetId: String = ""
@@ -30,6 +31,7 @@ struct KeysManagerStub: KeysManager {
     let tangemApiKeyDev: String = ""
     let tangemApiKeyStage: String = ""
     let amplitudeApiKey: String = ""
+    let otlpApiKey: String = ""
     let appsFlyerConfig: AppsFlyerConfig = .stub
     let yieldModuleApiKey: String = "stub"
     let yieldModuleApiKeyDev: String = "stub"
@@ -97,6 +99,7 @@ extension BlockchainSdkKeysConfig {
         quickNodePlasmaCredentials: .init(apiKey: "", subdomain: ""),
         quickNodeMonadCredentials: .init(apiKey: "", subdomain: ""),
         quickNodeRobinhoodCredentials: .init(apiKey: "", subdomain: ""),
+        quickNodeArcCredentials: .init(apiKey: "", subdomain: ""),
         bittensorDwellirKey: "",
         dwellirApiKey: "",
         bittensorOnfinalityKey: "",

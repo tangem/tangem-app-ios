@@ -30,4 +30,14 @@ extension TangemPayTransactionDetailsDisplayModel {
         let title: String
         let value: String
     }
+
+    struct CashbackRow: Equatable {
+        let value: Value
+        let subvalue: String?
+
+        enum Value: Equatable {
+            case amount(String)
+            case text(String)
+        }
+    }
 }

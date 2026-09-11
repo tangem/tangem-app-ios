@@ -46,8 +46,9 @@ final class StakingModel {
     private let validationHandler: StakingValidationHandler?
 
     private var timerTask: Task<Void, Error>?
-    private var estimatedFeeTask: Task<Void, Never>?
+    private let estimatedFeeTask = OSAllocatedUnfairLock(initialState: Task<Void, Never>?.none)
     private var accountInitializationFee: Fee?
+    private var bag: Set<AnyCancellable> = []
 
     private var transactionValidator: SendTransactionValidator { sendSourceToken.transactionValidator }
     private var allowanceService: AllowanceService? { sendSourceToken.allowanceService }
@@ -70,6 +71,8 @@ final class StakingModel {
         self.accountInitializationService = accountInitializationService
         self.minimalBalanceProvider = minimalBalanceProvider
         self.validationHandler = validationHandler
+
+        bind()
     }
 }
 
@@ -84,7 +87,25 @@ extension StakingModel: StakingModelStateProvider {
 // MARK: - Bind
 
 private extension StakingModel {
-    func updateState() {
+    func bind() {
+        _amount
+            .dropFirst()
+            .withWeakCaptureOf(self)
+            .sink { model, _ in model.updateState(debounced: true) }
+            .store(in: &bag)
+    }
+
+    func updateState(debounced: Bool = false) {
+        // Cancelled ahead of the guards: a recalculation left flying lands as a `.readyToStake` built from
+        // the old amount. Cancelled outside the lock too: `Task.cancel()` runs the task's cancellation
+        // handlers inline, and one of them touching this state would deadlock on the held lock.
+        let supersededEstimate = estimatedFeeTask.withLock { task -> Task<Void, Never>? in
+            defer { task = nil }
+            return task
+        }
+
+        supersededEstimate?.cancel()
+
         guard let currentAmount = _amount.value?.crypto,
               let target = _selectedTarget.value.value else {
             return
@@ -93,24 +114,36 @@ private extension StakingModel {
         // temp hack to prevent error on max amount staking after account initialization
         let amount = currentAmount - (accountInitializationFee?.amount.value ?? .zero)
 
-        estimatedFeeTask?.cancel()
-
         guard sendSourceToken.canCoverStakingFee else {
             update(state: .networkError(StakingPreflightError.insufficientFundsForFee))
             return
         }
 
-        estimatedFeeTask = runTask(in: self) { model in
+        update(state: .loading)
+
+        let task = runTask(in: self) { model in
             do {
-                model.update(state: .loading)
+                if debounced {
+                    // The amount arrives keystroke by keystroke, and a cancelled sleep never reaches the network.
+                    try await Task.sleep(for: .seconds(1))
+                }
+
                 let newState = try await model.state(amount: amount, target: target, approvePolicy: model._approvePolicy.value)
+                try Task.checkCancellation()
                 model.update(state: newState)
             } catch _ as CancellationError {
                 // Do nothing
             } catch {
+                // A cancelled network request surfaces as a plain error, not a `CancellationError`.
+                guard !Task.isCancelled else {
+                    return
+                }
+
                 model.update(state: .networkError(error))
             }
         }
+
+        estimatedFeeTask.withLock { $0 = task }
     }
 
     func state(amount: Decimal, target: StakingTargetInfo, approvePolicy: ApprovePolicy) async throws -> StakingModel.State {
@@ -321,6 +354,10 @@ private extension StakingModel {
 
 private extension StakingModel {
     private func send() async throws -> TransactionDispatcherResult {
+        await awaitSettled { estimatedFeeTask.withLock { $0 } }
+        // The wait outlives cancellation of this send, so a superseded one stops before the dispatcher.
+        try Task.checkCancellation()
+
         guard case .readyToStake(let readyToStake) = _state.value else {
             throw StakingModelError.readyToStakeNotFound
         }

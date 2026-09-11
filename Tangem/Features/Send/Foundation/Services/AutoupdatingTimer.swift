@@ -8,7 +8,11 @@
 
 private let AutoupdateTimerLogger = AppLogger.tag("AutoupdateTimer")
 
-final class AutoupdatingTimer {
+protocol AutoupdatingTimerSetup: AnyObject {
+    func setup(refresh: (() -> Void)?)
+}
+
+final class AutoupdatingTimer: AutoupdatingTimerSetup {
     private var refreshDataTask: Task<Void, Error>?
     private var refreshAction: (() -> Void)?
     private var isPaused: Bool = true

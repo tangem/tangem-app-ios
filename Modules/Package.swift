@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.3
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import Foundation
@@ -36,7 +36,7 @@ let package = Package(
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.9.0")),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMajor(from: "1.9.0")),
         .package(url: "https://github.com/groue/GRDB.swift.git", .upToNextMajor(from: "7.1.1")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "5.1.3"),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "5.1.5"),
         // When a Swift macro target (`TangemMacro`) is used in the same package (`TangemModules`) in which it is defined,
         // and that package contains a test target (`BlockchainSdkTests`) that uses macros from that macro target,
         // this causes linker to incorrectly link the macros target plugin (build for macOS) into the iOS test binary,
@@ -44,8 +44,11 @@ let package = Package(
         // The workaround for this issue is to place the Swift macros target (`TangemMacro`) in a separate local package (`TangemMacro`).
         .package(path: "../TangemMacro"),
         .package(path: "../TangemFirebaseDynamicShim"),
+        .package(path: "../TangemTestKit"),
         .package(url: "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git", .upToNextMajor(from: "1.44.0")),
         .package(url: "https://github.com/TimOliver/BlurUIKit.git", .upToNextMajor(from: "1.4.0")),
+        .package(url: "git@github.com:tangem-developments/opentelemetry-swift.git", exact: "2.5.0-tangem2"),
+        .package(url: "https://github.com/open-telemetry/opentelemetry-swift-core.git", .upToNextMajor(from: "2.5.1")),
         // BSDK only dependencies:
         // AnyCodable
         .package(url: "git@github.com:tangem-developments/SwiftBinanceChain.git", exact: "0.0.18"),
@@ -146,6 +149,13 @@ var serviceModules: [PackageDescription.Target] {
             ]
         ),
         .tangemTarget(
+            name: "TangemBackendAuthentication",
+            dependencies: [
+                "TangemFoundation",
+            ],
+            swiftSettings: .swift6StrictSettings
+        ),
+        .tangemTarget(
             name: "TangemFoundation",
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -162,6 +172,19 @@ var serviceModules: [PackageDescription.Target] {
             dependencies: [
                 "ZIPFoundation",
                 "TangemFoundation",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTarget(
+            name: "TangemMobileWalletBackup",
+            dependencies: [
+                .product(name: "Sodium", package: "swift-sodium"),
+                "TangemFoundation",
+                "TangemLogger",
+                "TangemMobileWalletSdk",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -186,6 +209,21 @@ var serviceModules: [PackageDescription.Target] {
             dependencies: [
                 "Moya",
                 "Alamofire",
+                "TangemFoundation",
+                "TangemLogger",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTarget(
+            name: "TangemOpenTelemetry",
+            dependencies: [
+                .product(name: "OpenTelemetryApi", package: "opentelemetry-swift-core"),
+                .product(name: "OpenTelemetrySdk", package: "opentelemetry-swift-core"),
+                .product(name: "OpenTelemetryProtocolExporterHTTP", package: "opentelemetry-swift"),
+                .product(name: "PersistenceExporter", package: "opentelemetry-swift"),
                 "TangemFoundation",
                 "TangemLogger",
             ],
@@ -267,8 +305,12 @@ var featureModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemPolymarket",
             dependencies: [
+                .product(name: "TangemSdk", package: "tangem-sdk-ios"),
+                "BlockchainSdk",
+                "CryptoSwift",
                 "Moya",
                 "TangemFoundation",
+                "TangemMacro",
                 "TangemNetworkUtils",
             ],
             swiftSettings: [
@@ -370,6 +412,19 @@ var unitTestsModules: [PackageDescription.Target] {
             ]
         ),
         .tangemTestTarget(
+            name: "TangemOpenTelemetryTests",
+            dependencies: [
+                "TangemOpenTelemetry",
+                "TangemFoundation",
+                .product(name: "OpenTelemetryApi", package: "opentelemetry-swift-core"),
+                .product(name: "OpenTelemetrySdk", package: "opentelemetry-swift-core"),
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTestTarget(
             name: "TangemAnalyticsTests",
             dependencies: [
                 "TangemAnalytics",
@@ -378,6 +433,27 @@ var unitTestsModules: [PackageDescription.Target] {
                 // [REDACTED_TODO_COMMENT]
                 .swiftLanguageMode(.v5),
             ]
+        ),
+        .tangemTestTarget(
+            name: "TangemAppDatabaseTests",
+            dependencies: [
+                "TangemAppDatabase",
+                "TangemFoundation",
+                .product(name: "GRDB", package: "GRDB.swift"),
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTestTarget(
+            name: "TangemBackendAuthenticationTests",
+            dependencies: [
+                "TangemBackendAuthentication",
+                "TangemFoundation",
+                .product(name: "TangemTestKit", package: "TangemTestKit"),
+            ],
+            swiftSettings: .swift6StrictSettings
         ),
         .tangemTestTarget(
             name: "TangemFoundationTests",
@@ -393,6 +469,14 @@ var unitTestsModules: [PackageDescription.Target] {
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
                 .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTestTarget(
+            name: "TangemMobileWalletBackupTests",
+            dependencies: [
+                "TangemFoundation",
+                "TangemMobileWalletBackup",
+                "TangemMobileWalletSdk",
             ]
         ),
         .tangemTestTarget(
@@ -533,6 +617,19 @@ private extension Array where Element == PackageDescription.Target {
     func asDependencies() -> [PackageDescription.Target.Dependency] {
         return map { .target(name: $0.name) }
     }
+}
+
+private extension [PackageDescription.SwiftSetting] {
+    // [REDACTED_TODO_COMMENT]
+    static let swift6StrictSettings: [PackageDescription.SwiftSetting] = [
+        .swiftLanguageMode(.v6),
+        .enableUpcomingFeature("ExistentialAny"),
+        .enableUpcomingFeature("InferIsolatedConformances"),
+        .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+        .enableUpcomingFeature("InternalImportsByDefault"),
+        .enableExperimentalFeature("AccessLevelOnImport"),
+    ]
 }
 
 // MARK: - Conditional complication flags

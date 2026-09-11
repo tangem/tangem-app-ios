@@ -34,7 +34,6 @@ final class TransferModel {
     var informationRelevanceService: InformationRelevanceService!
 
     weak var router: TransferModelRoutable?
-    weak var alertPresenter: SendViewAlertPresenter?
 
     // MARK: - Private injections
 
@@ -45,8 +44,9 @@ final class TransferModel {
     private let sendAlertBuilder: SendAlertBuilder
 
     private let balanceConverter = BalanceConverter()
-    private var updateTransactionTask: Task<Void, Never>?
+    private let transactionBuild = OSAllocatedUnfairLock(initialState: TransactionBuild())
     private var transactionInputsSubscription: AnyCancellable?
+    private var feeUpdateTask: Task<Void, Never>?
 
     // MARK: - Public interface
 
@@ -74,6 +74,7 @@ final class TransferModel {
     }
 
     deinit {
+        feeUpdateTask?.cancel()
         AppLogger.debug("TransferModel deinit")
     }
 }
@@ -81,6 +82,8 @@ final class TransferModel {
 // MARK: - Validation
 
 private extension TransferModel {
+    static let maximumGaslessQuoteResolutionAttempts = 3
+
     private func bind() {
         setupCustomFeeProvidersIfNeeded()
 
@@ -103,6 +106,22 @@ private extension TransferModel {
         }
     }
 
+    private func currentTransactionInputs() -> TransactionInputs? {
+        guard let amountValue = _amount.value?.crypto,
+              let destination = _destination.value?.value.transactionAddress else {
+            return nil
+        }
+
+        let fee = _sourceToken.tokenFeeProvidersManager.selectedTokenFee.value
+
+        return TransactionInputs(
+            amount: amountValue,
+            destination: destination,
+            extraId: _destinationAdditionalField.value.extraId,
+            fee: fee.value
+        )
+    }
+
     func setupCustomFeeProvidersIfNeeded() {
         _sourceToken.tokenFeeProvidersManager.tokenFeeProviders
             .compactMap { ($0 as? FeeSelectorCustomFeeDataProviding)?.customFeeProvider as? SendCustomFeeService }
@@ -115,8 +134,17 @@ private extension TransferModel {
         additionalField: SendDestinationAdditionalField,
         fee: LoadingResult<BSDKFee, any Error>
     ) {
-        updateTransactionTask?.cancel()
-        updateTransactionTask = runTask(in: self) { manager in
+        let inputs = TransactionInputs(
+            amount: amountValue,
+            destination: destination,
+            extraId: additionalField.extraId,
+            fee: fee.value
+        )
+
+        // Invalidated before the first `await`: a send arriving mid-rebuild must not take the previous result.
+        transactionBuild.withLock { $0.invalidate() }?.cancel()
+
+        let task = runTask(in: self) { manager in
             do {
                 let validationResult = try await manager.validateTransaction(
                     amountValue: amountValue,
@@ -125,13 +153,94 @@ private extension TransferModel {
                     fee: fee
                 )
                 try Task.checkCancellation()
-                manager._transaction.send(validationResult)
+
+                manager.update(transaction: validationResult, builtFrom: inputs)
             } catch is CancellationError {
                 // Expected when inputs change and this validation is superseded; ignore so a cancelled
                 // validation doesn't overwrite newer transaction state with a spurious failure.
             } catch {
-                manager._transaction.send(.failure(error))
+                // A cancelled network request surfaces as a plain error, not a `CancellationError`.
+                guard !Task.isCancelled else {
+                    return
+                }
+
+                manager.update(transaction: .failed(error), builtFrom: inputs)
             }
+        }
+
+        transactionBuild.withLock { $0.task = task }
+    }
+
+    func updateFees(amountValue: Decimal, destination: String) {
+        feeUpdateTask?.cancel()
+        feeUpdateTask = runTask(in: self) { model in
+            let feeProvidersManager = model._sourceToken.tokenFeeProvidersManager
+            var estimationAmount = model.gaslessTransactionAmount(
+                enteredAmount: amountValue,
+                fee: feeProvidersManager.selectedTokenFee.value.value
+            ) ?? amountValue
+
+            for _ in 0 ..< Self.maximumGaslessQuoteResolutionAttempts {
+                feeProvidersManager.update(input: .common(amount: estimationAmount, destination: destination))
+                await feeProvidersManager.updateFees().value
+
+                guard !Task.isCancelled,
+                      model._amount.value?.crypto == amountValue,
+                      model._destination.value?.value.transactionAddress == destination,
+                      let fee = feeProvidersManager.selectedTokenFee.value.value,
+                      let parameters = fee.parameters as? TronGaslessFeeParameters,
+                      let feeToken = fee.amount.type.token,
+                      let transactionAmountValue = model.gaslessTransactionAmount(
+                          enteredAmount: amountValue,
+                          fee: fee
+                      ) else {
+                    return
+                }
+
+                let transactionAmount = model.makeAmount(decimal: transactionAmountValue)
+                guard !parameters.request.matches(
+                    amount: transactionAmount,
+                    destinationAddress: destination,
+                    feeToken: feeToken
+                ) else {
+                    return
+                }
+
+                estimationAmount = transactionAmountValue
+            }
+        }
+    }
+
+    func gaslessTransactionAmount(enteredAmount: Decimal, fee: BSDKFee?) -> Decimal? {
+        guard let fee,
+              fee.parameters is TronGaslessFeeParameters else {
+            return nil
+        }
+
+        let amount = makeAmount(decimal: enteredAmount)
+        guard feeIncludedCalculator.shouldIncludeFee(fee, into: amount) else {
+            return enteredAmount
+        }
+
+        return enteredAmount - fee.amount.value
+    }
+
+    private func update(transaction: ValidatedTransaction?, builtFrom inputs: TransactionInputs) {
+        // Nothing was built while the fee loads, so the inputs stay unset and a send reports it as
+        // outdated information rather than a missing transaction.
+        guard let transaction else {
+            _transaction.send(nil)
+            return
+        }
+
+        transactionBuild.withLock { $0.inputs = inputs }
+
+        switch transaction {
+        case .built(let transaction, let isFeeIncluded):
+            _isFeeIncluded.send(isFeeIncluded)
+            _transaction.send(.success(transaction))
+        case .failed(let error):
+            _transaction.send(.failure(error))
         }
     }
 
@@ -140,21 +249,19 @@ private extension TransferModel {
         destination: String,
         additionalField: SendDestinationAdditionalField,
         fee: LoadingResult<BSDKFee, any Error>
-    ) async throws -> Result<BSDKTransaction, Error>? {
+    ) async throws -> ValidatedTransaction? {
         switch fee {
         case .loading:
             return .none
         case .success(let fee):
-            let transaction = try await makeTransaction(
+            return try await makeTransaction(
                 amountValue: amountValue,
                 destination: destination,
                 additionalField: additionalField,
                 fee: fee
             )
-
-            return .success(transaction)
         case .failure(let error):
-            return .failure(error)
+            return .failed(error)
         }
     }
 
@@ -163,10 +270,9 @@ private extension TransferModel {
         destination: String,
         additionalField: SendDestinationAdditionalField,
         fee: Fee
-    ) async throws -> BSDKTransaction {
+    ) async throws -> ValidatedTransaction {
         var amount = makeAmount(decimal: amountValue)
         let includeFee = feeIncludedCalculator.shouldIncludeFee(fee, into: amount)
-        _isFeeIncluded.send(includeFee)
 
         if includeFee {
             amount = makeAmount(decimal: amount.value - fee.amount.value)
@@ -185,7 +291,7 @@ private extension TransferModel {
             params: transactionsParams
         )
 
-        return transaction
+        return .built(transaction, isFeeIncluded: includeFee)
     }
 
     private func makeAmount(decimal: Decimal) -> Amount {
@@ -232,7 +338,15 @@ private extension TransferModel {
 
     private func simpleSend() async throws -> TransactionDispatcherResult {
         // Await async network validation
-        _ = await updateTransactionTask?.value
+        await awaitSettled { transactionBuild.withLock { $0.task } }
+        // The wait outlives cancellation of this send, so a superseded one stops before the dispatcher.
+        try Task.checkCancellation()
+
+        // Don't rely on the awaited build being the newest one: dispatch only what the screen still shows.
+        let builtInputs = transactionBuild.withLock { $0.inputs }
+        guard builtInputs != nil, builtInputs == currentTransactionInputs() else {
+            throw TransactionDispatcherResult.Error.informationRelevanceServiceError
+        }
 
         guard let transaction = _transaction.value?.value else {
             throw TransactionDispatcherResult.Error.transactionNotFound
@@ -278,7 +392,7 @@ private extension TransferModel {
     private func addTokenFromTransactionIfNeeded(_ transaction: BSDKTransaction) {
         switch transaction.amount.type.token {
         case .some(let token) where token.metadata.kind == .fungible:
-            try? TokenAdder.addToken(defaultAddress: transaction.destinationAddress, token: token)
+            try? TokenAdder.addToken(token, to: transaction.destinationAddress, in: _sourceToken.tokenItem.blockchain)
         default:
             break // NFTs should never be shown in the token list
         }
@@ -370,8 +484,7 @@ extension TransferModel: SendFeeUpdater {
             return
         }
 
-        _sourceToken.tokenFeeProvidersManager.update(input: .common(amount: amount, destination: destination))
-        _sourceToken.tokenFeeProvidersManager.updateFees()
+        updateFees(amountValue: amount, destination: destination)
     }
 }
 
@@ -384,6 +497,29 @@ extension TransferModel: SendFeeInput {
 
     var selectedFeePublisher: AnyPublisher<TokenFee, Never> {
         _sourceToken.tokenFeeProvidersManager.selectedTokenFeePublisher
+    }
+
+    var isSelectedFeeActual: Bool {
+        guard let fee = selectedFee?.value.value else {
+            return false
+        }
+
+        guard let parameters = fee.parameters as? TronGaslessFeeParameters else {
+            return true
+        }
+
+        guard let amountValue = _amount.value?.crypto,
+              let destination = _destination.value?.value.transactionAddress,
+              let feeToken = fee.amount.type.token,
+              let transactionAmountValue = gaslessTransactionAmount(enteredAmount: amountValue, fee: fee) else {
+            return false
+        }
+
+        return parameters.request.matches(
+            amount: makeAmount(decimal: transactionAmountValue),
+            destinationAddress: destination,
+            feeToken: feeToken
+        )
     }
 
     var supportFeeSelection: Bool {
@@ -624,6 +760,36 @@ extension TransferModel: CustomFeeServiceInput {
 // MARK: - Models
 
 extension TransferModel {
+    /// `SendDestinationAdditionalField` isn't `Equatable` — it carries an existential `TransactionParams` —
+    /// so it's projected to its `extraId`.
+    struct TransactionInputs: Equatable {
+        let amount: Decimal
+        let destination: String
+        let extraId: String?
+        let fee: BSDKFee?
+    }
+
+    enum ValidatedTransaction {
+        case built(BSDKTransaction, isFeeIncluded: Bool)
+        case failed(Error)
+    }
+
+    /// The rebuild in flight and the inputs the settled build came from — `nil` while one is running. A build
+    /// that failed records its inputs too, so a send reports the failure instead of outdated information.
+    struct TransactionBuild {
+        var task: Task<Void, Never>?
+        var inputs: TransactionInputs?
+
+        /// Hands the superseded rebuild back instead of cancelling it here: `Task.cancel()` runs the task's
+        /// cancellation handlers inline, and one of them touching this state would deadlock on the lock the
+        /// caller is holding.
+        mutating func invalidate() -> Task<Void, Never>? {
+            inputs = nil
+            defer { task = nil }
+            return task
+        }
+    }
+
     struct PredefinedValues {
         let destination: SendDestination?
         let tag: SendDestinationAdditionalField

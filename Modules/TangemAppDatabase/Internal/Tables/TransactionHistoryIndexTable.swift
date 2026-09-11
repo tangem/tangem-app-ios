@@ -31,18 +31,24 @@ private extension TransactionHistoryIndexTable {
                 table.primaryKey([
                     Columns.entityType,
                     Columns.entityID,
-                    Columns.ownerAddress,
+                    Columns.address,
+                    Columns.network,
+                    Columns.contract,
                 ])
                 table.column(Columns.entityType, .text).notNull()
                 table.column(Columns.entityID, .text).notNull()
-                table.column(Columns.ownerAddress, .text).notNull()
+                table.column(Columns.address, .text).notNull()
+                table.column(Columns.network, .text).notNull()
+                table.column(Columns.contract, .text).notNull()
                 table.column(Columns.dateTime, .datetime).notNull()
             }
 
             try database.create(
                 indexOn: tableName,
                 columns: [
-                    Columns.ownerAddress,
+                    Columns.address,
+                    Columns.network,
+                    Columns.contract,
                     Columns.dateTime,
                     Columns.entityID,
                 ]
@@ -58,7 +64,9 @@ private extension TransactionHistoryIndexTable {
     enum Columns {
         static let entityType = "entityType"
         static let entityID = "entityID"
-        static let ownerAddress = "ownerAddress"
+        static let address = "address"
+        static let network = "network"
+        static let contract = "contract"
         static let dateTime = "dateTime"
     }
 }

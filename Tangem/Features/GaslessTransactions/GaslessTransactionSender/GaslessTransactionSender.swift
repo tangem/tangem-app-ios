@@ -44,8 +44,11 @@ final class GaslessTransactionSender {
 
         let transactionHash: String
         switch buildTransaction {
-        case .single(let transaction):
-            transactionHash = try await gaslessTransactionsNetworkManager.sendGaslessTransaction(transaction)
+        case .single(let transaction, let executorVersion):
+            transactionHash = try await gaslessTransactionsNetworkManager.sendGaslessTransaction(
+                transaction,
+                executorVersion: executorVersion
+            )
         case .batch(let transaction):
             transactionHash = try await gaslessTransactionsNetworkManager.sendGaslessBatchTransaction(transaction)
         }
@@ -84,7 +87,7 @@ extension GaslessTransactionSender: GaslessMultipleTransactionSending {
             throw GaslessTransactionSenderError.noFeeRecipientAddress
         }
 
-        let gaslessTransactions = try await gaslessTransactionBuilder.buildGaslessTransactions(
+        let (gaslessTransactions, executorVersion) = try await gaslessTransactionBuilder.buildGaslessTransactions(
             bsdkTransactions: transactions, feeRecipientAddress: feeRecipientAddress
         )
 
@@ -96,7 +99,10 @@ extension GaslessTransactionSender: GaslessMultipleTransactionSending {
                 try await waitForSmartContractNonce(requiredNonce)
             }
 
-            let transactionHash = try await gaslessTransactionsNetworkManager.sendGaslessTransaction(gaslessTransaction)
+            let transactionHash = try await gaslessTransactionsNetworkManager.sendGaslessTransaction(
+                gaslessTransaction,
+                executorVersion: executorVersion
+            )
 
             walletModel.pendingTransactionRecordAdder?.addPendingTransaction(transactions[index], hash: transactionHash)
 

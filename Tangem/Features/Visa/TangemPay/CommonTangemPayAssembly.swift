@@ -28,12 +28,14 @@ final class CommonTangemPayAssembly: TangemPayAssembly {
     func makeTransactionDispatcher(
         withdrawTransactionService: TangemPayWithdrawTransactionService,
         signerFactory: TangemSignerFactory,
-        walletPublicKey: Wallet.PublicKey?
+        walletPublicKey: Wallet.PublicKey?,
+        withdrawEligibility: TangemPayWithdrawEligibility
     ) -> TransactionDispatcher {
         TangemPayTransactionDispatcher(
             withdrawTransactionService: withdrawTransactionService,
             signerFactory: signerFactory,
-            walletPublicKey: walletPublicKey
+            walletPublicKey: walletPublicKey,
+            withdrawEligibility: withdrawEligibility
         )
     }
 }

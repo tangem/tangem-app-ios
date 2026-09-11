@@ -12,6 +12,8 @@ import TangemUIUtils
 
 struct TransactionDetailsOperationIconView: View {
     let data: TransactionViewIconViewData
+    let titleStyle: TransactionDetailsHeaderViewData.TitleStyle
+    let glyphOverride: ImageType?
     let containerSize: CGFloat
     let glyphSize: CGFloat
 
@@ -19,7 +21,7 @@ struct TransactionDetailsOperationIconView: View {
         ZStack {
             Circle().fill(backgroundColor)
 
-            data.icon
+            glyph
                 .renderingMode(.template)
                 .resizable()
                 .scaledToFit()
@@ -29,19 +31,27 @@ struct TransactionDetailsOperationIconView: View {
         .frame(size: CGSize(bothDimensions: containerSize))
     }
 
+    private var glyph: Image {
+        glyphOverride?.image ?? data.icon
+    }
+
     private var backgroundColor: Color {
-        switch data.status {
-        case .failed, .undefined: DesignSystem.Color.bgStatusErrorSubtle
-        case .inProgress: DesignSystem.Color.bgStatusInfoSubtle
-        case .confirmed: DesignSystem.Color.bgOpaqueSecondary
+        switch titleStyle {
+        case .active: DesignSystem.Color.bgStatusInfoSubtle
+        case .attention: DesignSystem.Color.bgStatusWarningSubtle
+        case .neutral: DesignSystem.Color.bgOpaqueSecondary
+        case .failed: DesignSystem.Color.bgStatusErrorSubtle
+        case .expired: DesignSystem.Color.bgOpaqueSecondary
         }
     }
 
     private var glyphColor: Color {
-        switch data.status {
-        case .failed, .undefined: DesignSystem.Color.iconStatusError
-        case .inProgress: DesignSystem.Color.iconStatusInfo
-        case .confirmed: DesignSystem.Color.iconPrimary
+        switch titleStyle {
+        case .active: DesignSystem.Color.iconStatusInfo
+        case .attention: DesignSystem.Color.iconStatusWarning
+        case .neutral: DesignSystem.Color.iconPrimary
+        case .failed: DesignSystem.Color.iconStatusError
+        case .expired: DesignSystem.Color.iconTertiary
         }
     }
 }
@@ -56,19 +66,23 @@ struct TransactionDetailsOperationIconView: View {
         ("Stake", .stake, true),
         ("Approve", .approve, true),
     ]
-    let statuses: [(String, TransactionViewModel.Status)] = [
-        ("confirmed", .confirmed),
-        ("inProgress", .inProgress),
+    let styles: [(String, TransactionDetailsHeaderViewData.TitleStyle)] = [
+        ("active", .active),
+        ("attention", .attention),
+        ("neutral", .neutral),
         ("failed", .failed),
+        ("expired", .expired),
     ]
 
     return VStack(alignment: .leading, spacing: 16) {
-        ForEach(statuses, id: \.0) { statusName, status in
-            Text(statusName).style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+        ForEach(styles, id: \.0) { styleName, style in
+            Text(styleName).style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             HStack(spacing: 16) {
                 ForEach(types, id: \.0) { _, type, isOutgoing in
                     TransactionDetailsOperationIconView(
-                        data: .init(type: type, status: status, isOutgoing: isOutgoing),
+                        data: .init(type: type, status: .inProgress, isOutgoing: isOutgoing),
+                        titleStyle: style,
+                        glyphOverride: nil,
                         containerSize: 36,
                         glyphSize: 18
                     )
@@ -79,6 +93,8 @@ struct TransactionDetailsOperationIconView: View {
         Text("badge size (24)").style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
         TransactionDetailsOperationIconView(
             data: .init(type: .transfer, status: .confirmed, isOutgoing: false),
+            titleStyle: .neutral,
+            glyphOverride: nil,
             containerSize: 24,
             glyphSize: 12
         )
