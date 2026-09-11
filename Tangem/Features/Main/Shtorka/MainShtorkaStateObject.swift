@@ -15,13 +15,21 @@ final class MainShtorkaStateObject: ObservableObject {
     @Injected(\.mainBottomSheetUIManager) private var bottomSheetUIManager: MainBottomSheetUIManager
 
     @Published var isPresented = false
-    @Published var size: ShtorkaSize = .collapsed
+    @Published var size: ShtorkaSize = .collapsed {
+        didSet {
+            if size != .full {
+                scrollState.reset()
+            }
+        }
+    }
+
     @Published private(set) var detents = ShtorkaDetents()
     var expansionProgressPublisher: AnyPublisher<CGFloat, Never> {
         heights.expansionProgressPublisher
     }
 
     private let heights = FeedDetentHeights()
+    private let scrollState = FeedScrollState()
     private var bag = Set<AnyCancellable>()
 
     init() {
@@ -36,6 +44,18 @@ final class MainShtorkaStateObject: ObservableObject {
 
     func expand() {
         size = .full
+    }
+
+    // MARK: - Tab scroll positions
+
+    func report(scrollOffset: CGFloat, tabID: String) {
+        scrollState.report(offset: scrollOffset, tabID: tabID)
+    }
+
+    func scrollAnchor(forTab id: String, viewportHeight: CGFloat) -> UnitPoint? {
+        scrollState.select(tabID: id, headerHeight: heights.widgetsHeight + FeedConstants.widgetsToTabsSpacing)
+
+        return scrollState.restorationAnchor(tabID: id, viewportHeight: viewportHeight)
     }
 
     // MARK: - Detent heights

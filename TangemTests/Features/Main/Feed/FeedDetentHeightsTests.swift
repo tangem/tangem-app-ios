@@ -13,6 +13,37 @@ import Testing
 
 @Suite("FeedDetentHeights")
 struct FeedDetentHeightsTests {
+    @Test("Cold start does not place an unmeasured medium below collapsed")
+    func coldStartUsesDefaultMedium() {
+        let sut = FeedDetentHeights()
+        sut.report(safeArea: EdgeInsets(top: 62, leading: 0, bottom: 34, trailing: 0))
+        sut.report(widgets: 0)
+        sut.report(tabChips: 0)
+
+        #expect(sut.detents.medium == ShtorkaDetents().medium)
+
+        sut.report(widgets: 180)
+        sut.report(tabChips: 36)
+
+        #expect(sut.detents.medium == .height(290))
+    }
+
+    @Test("Transient zero measurements keep the last measured detents")
+    func zeroMeasurementsPreserveDetents() {
+        let sut = FeedDetentHeights()
+        sut.report(safeArea: EdgeInsets(top: 62, leading: 0, bottom: 34, trailing: 0))
+        sut.report(searchBar: 76)
+        sut.report(widgets: 180)
+        sut.report(tabChips: 36)
+        let measured = sut.detents
+
+        sut.report(searchBar: 0)
+        sut.report(widgets: 0)
+        sut.report(tabChips: 0)
+
+        #expect(sut.detents == measured)
+    }
+
     @Test("Collapsed detent follows the search bar")
     func collapsedFollowsSearchBar() {
         let sut = FeedDetentHeights()
@@ -22,7 +53,7 @@ struct FeedDetentHeightsTests {
 
         sut.report(searchBar: 82)
 
-        #expect(detents.last?.collapsed == .height(82))
+        #expect(detents.last?.collapsed == .height(82 + FeedConstants.searchContentInset + FeedConstants.collapsedBottomInset))
     }
 
     @Test("Medium detent sums the measured blocks")
@@ -36,8 +67,8 @@ struct FeedDetentHeightsTests {
         sut.report(widgets: 180)
         sut.report(tabChips: 40)
 
-        // 70 + 12 + 180 + (20 + 40) + 20
-        #expect(detents.last?.medium == .height(342))
+        // Search block, widgets, tab spacing, tabs, and bottom inset.
+        #expect(detents.last?.medium == .height(338))
     }
 
     @Test("Chips spacing is dropped while the chips are not measured")
@@ -50,7 +81,6 @@ struct FeedDetentHeightsTests {
         sut.report(searchBar: 70)
         sut.report(widgets: 180)
 
-        // 70 + 12 + 180 + 20
         #expect(detents.last?.medium == .height(282))
     }
 
@@ -65,7 +95,6 @@ struct FeedDetentHeightsTests {
         sut.report(widgets: 180)
         sut.report(safeArea: EdgeInsets(top: 59, leading: 0, bottom: 34, trailing: 0))
 
-        // 70 + 12 + 180 + 20 - 34
         #expect(detents.last?.medium == .height(248))
     }
 
@@ -89,6 +118,7 @@ struct FeedDetentHeightsTests {
     func dragFramesLeaveDetentsAlone() {
         let sut = FeedDetentHeights()
         sut.report(searchBar: 70)
+        sut.report(safeArea: EdgeInsets(top: 62, leading: 0, bottom: 34, trailing: 0))
 
         var count = 0
         let cancellable = sut.detentsPublisher.sink { _ in count += 1 }
@@ -97,6 +127,8 @@ struct FeedDetentHeightsTests {
         sut.report(sheetHeight: 200)
         sut.report(sheetHeight: 400)
         sut.report(sheetHeight: 700)
+        sut.report(sheetHeight: 324)
+        sut.report(sheetHeight: 76)
 
         #expect(count == 1)
     }
@@ -106,9 +138,9 @@ struct FeedDetentHeightsTests {
         let sut = makeMeasuredHeights()
         sut.report(sheetHeight: 1000)
         #expect(sut.expansionProgress == 1)
-        sut.report(sheetHeight: 592)
+        sut.report(sheetHeight: 576)
         #expect(sut.expansionProgress == 0.5)
-        sut.report(sheetHeight: 232)
+        sut.report(sheetHeight: 216)
         #expect(sut.expansionProgress == 0)
         sut.report(sheetHeight: 100)
         #expect(sut.expansionProgress == 0)
@@ -117,22 +149,22 @@ struct FeedDetentHeightsTests {
     @Test("First expansion and reversing an unfinished drag use the same range")
     func firstExpansionDoesNotCalibrateItself() {
         let sut = makeMeasuredHeights()
-        sut.report(sheetHeight: 412)
+        sut.report(sheetHeight: 396)
         #expect(sut.expansionProgress == 0.25)
-        sut.report(sheetHeight: 592)
+        sut.report(sheetHeight: 576)
         #expect(sut.expansionProgress == 0.5)
-        sut.report(sheetHeight: 412)
+        sut.report(sheetHeight: 396)
         #expect(sut.expansionProgress == 0.25)
     }
 
     @Test("Window resizing invalidates the full-height range immediately")
     func windowResizeRecalculatesProgress() {
         let sut = makeMeasuredHeights()
-        sut.report(sheetHeight: 592)
+        sut.report(sheetHeight: 576)
         #expect(sut.expansionProgress == 0.5)
-        sut.report(window: 632)
+        sut.report(window: 616)
         #expect(sut.expansionProgress == 1)
-        sut.report(window: 1032)
+        sut.report(window: 1016)
         #expect(sut.expansionProgress == 0.5)
     }
 
@@ -140,17 +172,17 @@ struct FeedDetentHeightsTests {
     func physicalHeightCountsBottomInsetOnce() {
         let sut = makeMeasuredHeights()
         sut.report(safeArea: EdgeInsets(top: 60, leading: 0, bottom: 40, trailing: 0))
-        sut.report(window: 1092)
-        sut.report(sheetHeight: 232)
+        sut.report(window: 1076)
+        sut.report(sheetHeight: 216)
         #expect(sut.expansionProgress == 0)
-        sut.report(sheetHeight: 592)
+        sut.report(sheetHeight: 576)
         #expect(sut.expansionProgress == 0.5)
     }
 
     @Test("A changed medium height updates the existing surface progress")
     func contentMeasurementUpdatesProgress() {
         let sut = makeMeasuredHeights()
-        sut.report(sheetHeight: 592)
+        sut.report(sheetHeight: 576)
         #expect(sut.expansionProgress == 0.5)
         sut.report(widgets: 460)
         #expect(sut.expansionProgress == 0)
@@ -193,9 +225,9 @@ struct FeedDetentHeightsTests {
 
     private func makeMeasuredHeights() -> FeedDetentHeights {
         let sut = FeedDetentHeights()
-        sut.report(searchBar: 100)
+        sut.report(searchBar: 84)
         sut.report(widgets: 100)
-        sut.report(window: 1032)
+        sut.report(window: 1016)
         return sut
     }
 }
