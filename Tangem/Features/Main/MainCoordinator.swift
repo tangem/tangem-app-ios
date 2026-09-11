@@ -668,12 +668,9 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     }
 
     func openJointAccountMembers(jointAccount: any JointAccountModel) {
-        mainBottomSheetUIManager.hide()
-
         let coordinator = JointAccountManagementCoordinator(
             dismissAction: { [weak self] in
                 self?.jointAccountManagementCoordinator = nil
-                self?.mainBottomSheetUIManager.show()
             },
             popToRootAction: popToRootAction
         )

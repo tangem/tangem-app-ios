@@ -11,7 +11,7 @@ import BigInt
 
 /// The transaction a Safe's owners sign together — the exact fields the contract hashes, so nothing here may be
 /// reshaped once a signature has been made over it.
-public struct SafeTransaction: Hashable {
+public struct SafeTransaction: Hashable, Codable {
     public let to: String
     public let value: BigUInt
     public let data: Data

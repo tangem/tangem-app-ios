@@ -24,12 +24,17 @@ protocol JointAccountsRepository {
     /// the invites it was handed are written then and never again.
     var jointAccountsInvitesPublisher: AnyPublisher<[StoredJointAccountInvites], Never> { get }
 
+    /// - Note: Kept apart from the accounts as well: an operation moves on its own occasions — a co-signer answers,
+    /// the relayer executes — and none of them is a change to the account it belongs to.
+    var jointAccountsPendingOperationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> { get }
+
     /// Asks for the list once, so that what is stored is the backend's answer rather than the last thing this wallet
     /// happened to write.
     func initialize()
 
-    /// - Note: Replaces the stored list with what the endpoint answers. The invites are stored apart from it and are
-    /// left alone, since the endpoint hands them out once and never reports them again.
+    /// - Note: Replaces the stored list, and the unfinished operations riding inside it, with what the endpoint
+    /// answers. The invites are stored apart from both and are left alone, since the endpoint hands them out once and
+    /// never reports them again.
     func loadJointAccountsFromRemote() async throws
 
     /// Derives the key the account is signed with, has the backend create it and stores what it reports back — the
