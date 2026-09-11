@@ -14,6 +14,7 @@ enum MarketsWidgetType: String, Identifiable, CaseIterable {
     case news
     case earn
     case pulse
+    case realAssets
 
     var id: String {
         rawValue
@@ -29,6 +30,8 @@ enum MarketsWidgetType: String, Identifiable, CaseIterable {
             return Localization.marketsEarnCommonTitle
         case .pulse:
             return Localization.marketsPulseCommonTitle
+        case .realAssets:
+            return Localization.marketsRealAssetsTitle
         }
     }
 }

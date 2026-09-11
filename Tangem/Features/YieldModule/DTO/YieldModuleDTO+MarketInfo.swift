@@ -28,5 +28,10 @@ extension YieldModuleDTO.Response {
         let chain: String
         @FlexibleDecimal var maxFeeNative: Decimal?
         @FlexibleDecimal var maxFeeUSD: Decimal?
+        // Merkl campaign overlay; absent on the legacy `/yield/markets` responses.
+        // `grossRewardsApr` is deliberately not decoded — the app must never show or use it.
+        let hasActiveCampaign: Bool?
+        let rewardsApr: Decimal?
+        let totalApyEst: Decimal?
     }
 }
