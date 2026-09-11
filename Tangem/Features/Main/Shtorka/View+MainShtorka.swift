@@ -37,10 +37,13 @@ private struct MainShtorkaViewModifier: ViewModifier {
             // sheet moves its own insets during transitions. On the main screen the values are the window's.
             .background {
                 Color.clear
-                    .readGeometry { geometry in
-                        let insets = geometry.safeAreaInsets
+                    .onGeometryChange(for: EdgeInsets.self, of: { $0.safeAreaInsets }) { insets in
                         stateObject.report(safeArea: insets)
-                        stateObject.report(window: geometry.size.height + insets.top + insets.bottom)
+                    }
+                    .onGeometryChange(for: CGFloat.self, of: {
+                        $0.size.height + $0.safeAreaInsets.top + $0.safeAreaInsets.bottom
+                    }) { height in
+                        stateObject.report(window: height)
                     }
                     .ignoresSafeArea(.keyboard, edges: .bottom)
             }
