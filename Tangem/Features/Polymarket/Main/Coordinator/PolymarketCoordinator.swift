@@ -39,6 +39,7 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
         }
     }
 
+    @Published var orderCoordinator: PolymarketOrderCoordinator?
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator?
 
     private let onboardingFactory = PolymarketOnboardingFactory()
@@ -161,6 +162,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
             eventID: eventID,
             category: category,
             apiProvider: PolymarketAPIProviderFactory().makeProvider(),
+            geoblockStateProvider: geoblockStateProvider,
             coordinator: self
         ))
     }
@@ -176,7 +178,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
 
         let coordinator = PolymarketOrderCoordinator(
             dismissAction: { [weak self] in
-                self?.destination = nil
+                self?.orderCoordinator = nil
             }
         )
 
@@ -189,7 +191,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
             placementService: PolymarketOrderPlacementFactory().makeService(for: userWalletModel)
         ))
 
-        destination = .order(coordinator)
+        orderCoordinator = coordinator
     }
 
     func openRegionWarning() {
@@ -337,6 +339,5 @@ extension PolymarketCoordinator {
 extension PolymarketCoordinator {
     enum Destination {
         case eventDetails(PolymarketEventDetailsViewModel)
-        case order(PolymarketOrderCoordinator)
     }
 }
