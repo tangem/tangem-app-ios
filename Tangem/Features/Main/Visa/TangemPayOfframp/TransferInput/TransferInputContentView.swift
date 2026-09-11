@@ -34,11 +34,7 @@ struct TransferInputContentView: View {
         }
         .scrollIndicators(.hidden)
         .scrollBounceBehavior(.basedOnSize)
-        .safeAreaInset(edge: .bottom) {
-            continueButton
-                .padding(.vertical, 8)
-                .padding(.horizontal, 16)
-        }
+        .offrampBottomBar { continueButton }
     }
 }
 
