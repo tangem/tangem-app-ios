@@ -22,7 +22,6 @@ extension PolymarketMapper {
         if let raw, !raw.isEmpty {
             return PolymarketDisplayMode(apiValue: raw)
         }
-        // The BFF derives displayMode from negRisk; fall back to the same rule if it's absent.
         return isNegRisk ? .groupedOutcomes : .plainMarkets
     }
 

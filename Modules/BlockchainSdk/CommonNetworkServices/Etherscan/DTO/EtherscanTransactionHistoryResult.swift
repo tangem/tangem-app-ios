@@ -24,6 +24,8 @@ struct EtherscanTransactionHistoryResult {
         let gasPrice: String
         let gasUsed: String
         let hash: String
+        /// Raw calldata of the call
+        let input: String?
         let isError: String?
         let timeStamp: String
         let to: String
@@ -72,6 +74,7 @@ extension EtherscanTransactionHistoryResult.Transaction: Decodable {
         case gasPrice
         case gasUsed
         case hash
+        case input
         case isError
         case timeStamp
         case to
@@ -90,6 +93,7 @@ extension EtherscanTransactionHistoryResult.Transaction: Decodable {
         gasPrice = try container.decode(String.self, forKey: CodingKeys.gasPrice)
         gasUsed = try container.decode(String.self, forKey: CodingKeys.gasUsed)
         hash = try container.decode(String.self, forKey: CodingKeys.hash)
+        input = try container.decodeIfPresent(String.self, forKey: CodingKeys.input)
         isError = try container.decodeIfPresent(String.self, forKey: CodingKeys.isError)
         timeStamp = try container.decode(String.self, forKey: CodingKeys.timeStamp)
         to = try container.decode(String.self, forKey: CodingKeys.to)

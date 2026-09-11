@@ -213,6 +213,10 @@ extension TransactionDisplayModel {
             return .text(yieldText)
         }
 
+        if case .claimRewards = transactionType {
+            return .text(Localization.transactionHistoryEarnedFromStake)
+        }
+
         if let owner = subtitleOwner {
             return .owner(direction: isOutgoing ? .outgoing : .incoming, owner: owner)
         }

@@ -261,6 +261,51 @@ extension EthereumWalletManager: EthereumNetworkProvider {
             .eraseToAnyPublisher()
     }
 
+    /// - Returns: `nil` when there is no code at the address: the Safe is not deployed in this network yet, and its
+    /// first operation is what deploys it, at nonce zero.
+    func getSafeNonce(for address: String) -> AnyPublisher<Int?, Error> {
+        addressConverter.convertToETHAddressPublisher(address)
+            .withWeakCaptureOf(self)
+            .flatMap { walletManager, convertedAddress -> AnyPublisher<String, Error> in
+                let nonceRequest = SafeNonceRequest(contractAddress: convertedAddress)
+                return walletManager.networkService.ethCall(request: nonceRequest)
+            }
+            .tryMap { nonceResponse -> Int? in
+                guard SafeContractResponseDecoder.hasCode(nonceResponse) else {
+                    return nil
+                }
+
+                return try SafeContractResponseDecoder.nonce(from: nonceResponse)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func getSafeOwners(for address: String) -> AnyPublisher<[String], Error> {
+        addressConverter.convertToETHAddressPublisher(address)
+            .withWeakCaptureOf(self)
+            .flatMap { walletManager, convertedAddress -> AnyPublisher<String, Error> in
+                let ownersRequest = SafeGetOwnersRequest(contractAddress: convertedAddress)
+                return walletManager.networkService.ethCall(request: ownersRequest)
+            }
+            .tryMap { ownersResponse in
+                try SafeContractResponseDecoder.owners(from: ownersResponse)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func getSafeThreshold(for address: String) -> AnyPublisher<Int, Error> {
+        addressConverter.convertToETHAddressPublisher(address)
+            .withWeakCaptureOf(self)
+            .flatMap { walletManager, convertedAddress -> AnyPublisher<String, Error> in
+                let thresholdRequest = SafeGetThresholdRequest(contractAddress: convertedAddress)
+                return walletManager.networkService.ethCall(request: thresholdRequest)
+            }
+            .tryMap { thresholdResponse in
+                try SafeContractResponseDecoder.threshold(from: thresholdResponse)
+            }
+            .eraseToAnyPublisher()
+    }
+
     func getAllowance(owner: String, spender: String, contractAddress: String) -> AnyPublisher<Decimal, Error> {
         getAllowanceRaw(owner: owner, spender: spender, contractAddress: contractAddress)
             .tryMap { response in
