@@ -1,5 +1,5 @@
 //
-//  PersonalDetailsFieldView.swift
+//  OfframpFormFieldView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,10 +10,10 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
-struct PersonalDetailsFieldView: View {
-    @Binding var field: PersonalDetailsField
+struct OfframpFormFieldView: View {
+    @Binding var field: OfframpFormField
 
-    let focused: FocusState<PersonalDetailsField.ID?>.Binding
+    let focused: FocusState<OfframpFormField.ID?>.Binding
 
     private var isFieldFocused: Bool {
         focused.wrappedValue == field.id
@@ -35,7 +35,7 @@ struct PersonalDetailsFieldView: View {
 
 // MARK: - Subviews
 
-private extension PersonalDetailsFieldView {
+private extension OfframpFormFieldView {
     var input: some View {
         VStack(alignment: .leading, spacing: Constants.labelToValueSpacing) {
             label
@@ -95,7 +95,7 @@ private extension PersonalDetailsFieldView {
 
 // MARK: - Constants
 
-private extension PersonalDetailsFieldView {
+private extension OfframpFormFieldView {
     enum Constants {
         static let verticalPadding: CGFloat = 12
         static let inputToErrorSpacing: CGFloat = 8
@@ -111,7 +111,7 @@ private extension PersonalDetailsFieldView {
 
 @available(iOS 17.0, *)
 #Preview {
-    @Previewable @State var field = PersonalDetailsField(
+    @Previewable @State var field = OfframpFormField(
         id: .accountNumber,
         title: "Account number",
         placeholder: "0000000000",
@@ -119,8 +119,8 @@ private extension PersonalDetailsFieldView {
         error: nil
     )
 
-    PersonalDetailsFieldView(
+    OfframpFormFieldView(
         field: $field,
-        focused: FocusState<PersonalDetailsField.ID?>().projectedValue
+        focused: FocusState<OfframpFormField.ID?>().projectedValue
     )
 }

@@ -1,5 +1,5 @@
 //
-//  PersonalDetailsValidator.swift
+//  OfframpFormValidator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,11 +9,11 @@
 import Foundation
 import TangemFoundation
 
-enum PersonalDetailsValidator {
+enum OfframpFormValidator {
     static func error(
-        for id: PersonalDetailsField.ID,
+        for id: OfframpFormField.ID,
         in text: String
-    ) -> PersonalDetailsField.Error? {
+    ) -> OfframpFormField.Error? {
         let value = text.trimmed()
 
         guard !value.isEmpty else {
@@ -27,16 +27,16 @@ enum PersonalDetailsValidator {
         case .routingNumber:
             return matches(value, Constants.routingNumberPattern) ? nil : .routingNumber
 
-        case .postalCode:
+        case .postalCode, .bankPostalCode:
             return matches(value, Constants.postalCodePattern) ? nil : .invalidFormat
 
-        case .countryCode, .region:
+        case .countryCode, .region, .bankRegion:
             return matches(value, Constants.twoLetterCodePattern) ? nil : .invalidFormat
 
-        case .firstName, .lastName, .businessName:
+        case .firstName, .lastName, .businessName, .bankName:
             return textError(in: value, lengthLimit: Constants.nameLengthLimit)
 
-        case .city, .line1, .line2:
+        case .city, .line1, .line2, .bankCity, .bankLine1:
             return textError(in: value, lengthLimit: Constants.addressLengthLimit)
         }
     }
@@ -44,7 +44,7 @@ enum PersonalDetailsValidator {
 
 // MARK: - Rules
 
-private extension PersonalDetailsValidator {
+private extension OfframpFormValidator {
     enum Constants {
         static let accountNumberPattern = "^[0-9]{4,17}$"
         static let routingNumberPattern = "^[0-9]{9}$"
@@ -58,7 +58,7 @@ private extension PersonalDetailsValidator {
         value.range(of: pattern, options: .regularExpression) != nil
     }
 
-    static func textError(in value: String, lengthLimit: Int) -> PersonalDetailsField.Error? {
+    static func textError(in value: String, lengthLimit: Int) -> OfframpFormField.Error? {
         guard value.count <= lengthLimit else {
             return .invalidFormat
         }
