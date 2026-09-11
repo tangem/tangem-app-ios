@@ -26,10 +26,10 @@ enum FeedTabKind {
 
     var icon: ImageType {
         switch self {
-        case .crypto: DesignSystem.Icons.ChartLineVertical.regular20
+        case .crypto: DesignSystem.Icons.CoinToken.regular20
         case .realAssets: DesignSystem.Icons.Government.regular20
         case .earn: DesignSystem.Icons.CoinsStackArrowUp.regular20
-        case .predictions: DesignSystem.Icons.Gauge.regular20
+        case .predictions: DesignSystem.Icons.MagicBall.regular20
         }
     }
 }
