@@ -23,19 +23,4 @@ extension PolymarketDTO {
         let depositWalletAddress: String
         let walletId: String
     }
-
-    struct ApprovalsRequest: Encodable {
-        let ownerAddress: String
-        let depositWalletAddress: String
-        let nonce: String
-        let deadline: String
-        let calls: [ApprovalCall]
-        let signature: String
-    }
-
-    struct ApprovalCall: Encodable {
-        let target: String
-        let value: String
-        let data: String
-    }
 }

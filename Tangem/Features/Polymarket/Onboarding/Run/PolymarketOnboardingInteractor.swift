@@ -212,7 +212,7 @@ private extension CommonPolymarketOnboardingInteractor {
             throw PolymarketOnboardingError.unknown
         }
 
-        let approvals = PolymarketApprovalsBatch.Unsigned(
+        let approvals = PolymarketRelayedBatch.Unsigned(
             depositWalletAddress: addresses.depositWallet,
             nonce: nonce,
             deadline: makeDeadline(),

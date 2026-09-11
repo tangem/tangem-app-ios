@@ -17,7 +17,7 @@ import TangemPolymarket
 struct PolymarketSwapParametersFactoryTests {
     private static let fundingAddress = "0xC8C0C4575EBdd47fF173ba56962e9827440dabfa"
 
-    private static let fundingTarget = PolymarketAddFundsInteractor.FundingTarget(
+    private static let depositTarget = PolymarketAccountFundsInteractor.DepositTarget(
         asset: PolymarketSupportedAsset(
             chainId: "137",
             chainName: "Polygon",
@@ -35,7 +35,7 @@ struct PolymarketSwapParametersFactoryTests {
 
     @Test("The receive side is addressed to the funding address the bridge issued")
     func receiveTokenCarriesFundingAddress() throws {
-        let parameters = makeSUT().make(fundingTarget: Self.fundingTarget)
+        let parameters = makeSUT().make(depositTarget: Self.depositTarget)
         let receive = try #require(receiveToken(from: parameters))
 
         #expect(receive.destination?.destination.transactionAddress == Self.fundingAddress)
@@ -45,7 +45,7 @@ struct PolymarketSwapParametersFactoryTests {
 
     @Test("The receive side is the token the bridge accepts, not the pUSD the account holds")
     func receiveTokenIsUSDCOnPolygon() throws {
-        let parameters = makeSUT().make(fundingTarget: Self.fundingTarget)
+        let parameters = makeSUT().make(depositTarget: Self.depositTarget)
         let receive = try #require(receiveToken(from: parameters))
 
         #expect(receive.tokenItem == PolymarketUtilities.usdcTokenItem)
@@ -53,7 +53,7 @@ struct PolymarketSwapParametersFactoryTests {
 
     @Test("Neither side of the pair can be swapped away from the deposit")
     func pairIsLocked() throws {
-        let parameters = makeSUT().make(fundingTarget: Self.fundingTarget)
+        let parameters = makeSUT().make(depositTarget: Self.depositTarget)
         let config = try #require(configuration(from: parameters))
 
         #expect(config.isPairReversalEnabled == false)
@@ -62,14 +62,14 @@ struct PolymarketSwapParametersFactoryTests {
 
     @Test("The source side is preselected by the shared funding rules instead of being left empty")
     func sourceIsPreselected() throws {
-        let parameters = makeSUT().make(fundingTarget: Self.fundingTarget)
+        let parameters = makeSUT().make(depositTarget: Self.depositTarget)
 
         #expect(sourceResolver(from: parameters) is PolymarketDepositSourceResolver)
     }
 
     @Test("Whatever source the user picks, the destination stays the deposit token")
     func destinationResolverIgnoresSource() throws {
-        let parameters = makeSUT().make(fundingTarget: Self.fundingTarget)
+        let parameters = makeSUT().make(depositTarget: Self.depositTarget)
         let config = try #require(configuration(from: parameters))
         let receive = try #require(receiveToken(from: parameters))
         let resolver = try #require(config.receiveTokenSelection.destinationResolver)

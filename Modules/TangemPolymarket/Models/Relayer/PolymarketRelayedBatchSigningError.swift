@@ -1,5 +1,5 @@
 //
-//  PolymarketApprovalsSigningError.swift
+//  PolymarketRelayedBatchSigningError.swift
 //  TangemPolymarket
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum PolymarketApprovalsSigningError: Error, Equatable {
+public enum PolymarketRelayedBatchSigningError: Error, Equatable {
     case invalidDepositWalletAddress
     case invalidNonce
     case invalidDeadline
