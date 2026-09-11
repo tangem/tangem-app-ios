@@ -63,6 +63,25 @@ extension CommonPolymarketBridgeService: PolymarketBridgeService {
 
         return mapper.mapBridgeAddresses(response)
     }
+
+    func withdrawAddresses(
+        forDepositWallet depositWalletAddress: String,
+        route: PolymarketWithdrawRoute,
+        builderCode: String
+    ) async throws -> PolymarketBridgeAddresses {
+        let payload = PolymarketDTO.BridgeWithdrawRequest(
+            address: depositWalletAddress,
+            toChainId: route.destinationChainId,
+            toTokenAddress: route.destinationTokenAddress,
+            recipientAddr: route.recipientAddress
+        )
+
+        let response: PolymarketDTO.FundingAddressesResponse = try await request(
+            .withdrawAddresses(payload, builderCode: builderCode)
+        )
+
+        return mapper.mapBridgeAddresses(response)
+    }
 }
 
 // MARK: - Private implementation
