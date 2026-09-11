@@ -49,6 +49,18 @@ extension CommonYieldModuleAPIService: YieldModuleAPIService {
         return enveloped.result
     }
 
+    func getAprHistory(
+        chainId: Int,
+        tokenAddress: String,
+        days: Int
+    ) async throws -> YieldModuleDTO.Response.AprHistory {
+        let enveloped: YieldModuleDTO.Enveloped<YieldModuleDTO.Response.AprHistory> = try await request(
+            for: .aprHistory(chainId: chainId, tokenAddress: tokenAddress, days: days),
+            decoder: decoder
+        )
+        return enveloped.result
+    }
+
     func getTokenPositionInfo(
         tokenContractAddress: String,
         chainId: Int
