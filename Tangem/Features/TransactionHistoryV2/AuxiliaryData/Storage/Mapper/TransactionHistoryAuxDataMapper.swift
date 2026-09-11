@@ -10,6 +10,7 @@ import Foundation
 import BlockchainSdk
 import TangemExpress
 import TangemFoundation
+import TangemStaking
 import TangemAppDatabase
 
 /// Maps transaction history auxiliary data between domain entities and their database records.
@@ -146,6 +147,25 @@ enum TransactionHistoryAuxDataMapper {
                 isEvm: tokenItem.blockchain.isEvm
             ),
             decimalCount: tokenItem.decimalCount,
+            updatedAt: updatedAt
+        )
+    }
+
+    // MARK: Staking targets
+
+    static func mapToStakingTargetSummary(_ record: StakingTargetRecord) throws -> StakingTargetSummary {
+        guard let network = StakingNetworkType(rawValue: record.networkID) else {
+            throw "Unknown/unsupported staking network with network id: \(record.networkID)"
+        }
+
+        return StakingTargetSummary(network: network, address: record.address, name: record.name)
+    }
+
+    static func mapToStakingTargetRecord(_ target: StakingTargetSummary, updatedAt: Date) -> StakingTargetRecord {
+        return StakingTargetRecord(
+            networkID: target.network.rawValue,
+            address: TransactionHistoryAddressNormalizer.normalize(target.address, networkID: target.network.rawValue),
+            name: target.name,
             updatedAt: updatedAt
         )
     }

@@ -238,7 +238,7 @@ class CommonWalletModel {
     // MARK: - Timer
 
     private func startUpdatingTimer(silent: Bool) {
-        Task { [weak self] in
+        runTask { [weak self] in
             AppLogger.info(self, "⏰ Starting updating timer")
             try await Task.sleep(for: .seconds(10))
 
@@ -438,10 +438,6 @@ extension CommonWalletModel: WalletModelUpdater {
     }
 
     private func updateV2TransactionHistory(updateToken: some Hashable) async {
-        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
-            return
-        }
-
         await transactionHistoryUpdater.updateHistoryIfNeeded(
             featuresPublisher: featureManager.featuresPublisher,
             updateToken: updateToken
@@ -604,23 +600,6 @@ extension CommonWalletModel: WalletModelHelpers {
     }
 }
 
-// MARK: - WalletModelFeesProvider
-
-extension CommonWalletModel: WalletModelFeesProvider {
-    var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder {
-        TokenFeeLoaderBuilder(
-            tokenItem: tokenItem,
-            sourceAddress: defaultAddressString,
-            dependenciesProvider: self,
-            isDemo: isDemo
-        )
-    }
-
-    var customFeeProviderBuilder: CustomFeeProviderBuilder {
-        CustomFeeProviderBuilder(tokenItem: tokenItem, feeTokenItem: feeTokenItem, walletManager: walletManager)
-    }
-}
-
 // MARK: - Dependencies
 
 extension CommonWalletModel: WalletModelDependenciesProvider {
@@ -692,6 +671,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
         walletManager as? EthereumTransactionDataBuilder
     }
 
+    var safeWalletManagerOperationsService: SafeWalletManagerOperationsService? {
+        walletManager as? SafeWalletManagerOperationsService
+    }
+
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? {
         walletManager as? WithdrawalNotificationProvider
     }
@@ -725,6 +708,8 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
         WalletModelTransactionHistoryPublisherFactory.makeTransactionHistoryPublisher(
             transactionHistoryPublisher: transactionHistoryState(),
             featuresPublisher: featureManager.featuresPublisher,
+            walletModelId: id,
+            walletPublisher: walletManager.walletPublisher,
             tokenItem: tokenItem,
             feeTokenItem: feeTokenItem
         )

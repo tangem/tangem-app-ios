@@ -16,6 +16,8 @@ enum TransactionHistoryIndexTable: AppDatabaseTable {
         switch version {
         case .v1:
             try V1.register(in: database)
+        case .v2:
+            break // The table is unchanged in this version of the schema
         }
     }
 }

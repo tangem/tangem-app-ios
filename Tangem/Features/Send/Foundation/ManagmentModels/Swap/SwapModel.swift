@@ -857,8 +857,12 @@ extension SwapModel {
         case .incompleteBackup:
             // Ignored here — the incomplete backup is confirmed when the user taps the `Swap` button.
             return nil
-        case .notEnoughReceivedAmount(let minAmount):
-            return .notEnoughReceivedAmount(minAmount: minAmount, tokenSymbol: destination.tokenItem.currencySymbol)
+        case .notEnoughReceivedAmount(let minAmount, let reason):
+            return .notEnoughReceivedAmount(
+                minAmount: minAmount,
+                tokenSymbol: destination.tokenItem.currencySymbol,
+                reason: reason
+            )
         }
     }
 
@@ -2232,7 +2236,7 @@ extension SwapModel {
         case notEnoughAmountForFee(isFeeCurrency: Bool)
         case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool)
         case validationError(error: ValidationError)
-        case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String)
+        case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String, reason: NotEnoughReceivedAmountReason)
         case regionRestricted
     }
 

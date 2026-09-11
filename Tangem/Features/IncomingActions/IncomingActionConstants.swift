@@ -24,6 +24,7 @@ enum IncomingActionConstants {
     ]
 
     static let newsPath = "/news"
+    static let jointAccountInvitePath = "/joint-account/join"
     static let universalLinkScheme = "tangem://"
     static let ndefPath = "ndef"
     static let onrampPath = "/onramp"
@@ -90,6 +91,9 @@ enum IncomingActionConstants {
         case earn
         case survey
         case campaigns
+        /// Joint account invite link: `https://tangem.com/joint-account/join/{inviteId}` or
+        /// `tangem://joint-account-invite?id={inviteId}`.
+        case jointAccountInvite = "joint-account-invite"
     }
 
     enum DeeplinkType: String {

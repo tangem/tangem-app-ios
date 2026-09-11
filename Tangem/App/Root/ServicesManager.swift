@@ -65,6 +65,7 @@ final class CommonServicesManager {
     private let customerIOWrapper: CustomerIOWrapper
 
     private var _initialized: Bool = false
+    private var isFirstLaunch = false
 
     init() {
         stakingPendingHashesSender = StakingDependenciesFactory().makePendingHashesSender()
@@ -142,6 +143,13 @@ final class CommonServicesManager {
             UITestsStorageCleaner.clearWalletData()
         }
 
+        // Stands in for the AppsFlyer callback, which never fires on internal/debug builds
+        if arguments.firstIndex(of: "-uitest-tangempay-mobile-onboarding") != nil {
+            TangemPayMobileOnboardingService().markOnboardingNeeded()
+        } else {
+            TangemPayMobileOnboardingService().markOnboardingShown()
+        }
+
         // Feature toggle overrides — reset previous overrides for deterministic UI test runs
         FeatureStorage.instance.availableFeatures = [:]
         applyFeatureToggleOverrides(from: arguments)
@@ -204,11 +212,7 @@ extension CommonServicesManager: ServicesManager {
         TangemPayMocksConfigurator().initialize()
 
         recordStartAppUsageDate()
-        let initialLaunches = recordAppLaunch()
-
-        if initialLaunches == 0 {
-            KeychainCleaner.cleanAllData()
-        }
+        isFirstLaunch = recordAppLaunch() == 0
 
         AmplitudeWrapper.shared.configure()
         openTelemetryWrapper.configure()
@@ -218,6 +222,7 @@ extension CommonServicesManager: ServicesManager {
 
         configureBlockchainSdkExceptionHandler()
 
+        BackendAuthenticationRegistrar.configure()
         silentPushHandlersStorage.initialize()
 
         sellService.initialize()
@@ -252,6 +257,14 @@ extension CommonServicesManager: ServicesManager {
         }
 
         await userWalletRepository.initialize()
+
+        if isFirstLaunch {
+            await KeychainCleaner.cleanAllData()
+        }
+
+        Task {
+            await BackendAuthenticationRegistrar.registerDevice()
+        }
 
         _initialized = true
     }

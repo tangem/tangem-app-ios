@@ -10,10 +10,9 @@ import TangemUI
 struct TangemPayOrderCardInfoRow: Identifiable {
     let id: ID
     let title: String
-    var value: String
+    var value: String?
     var subvalue: String?
     var badge: Badge?
-    var isValueStruckThrough = false
     var isDimmed = false
 
     enum ID {

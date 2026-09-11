@@ -118,7 +118,7 @@ private extension YieldDeeplinkRouter {
             return true
         }
 
-        if case .notActive = state.state, let apy = state.marketInfo?.apy {
+        if case .notActive = state.state, let apy = state.marketInfo?.effectiveApy {
             openYieldPromoAction(apy, flowFactory)
             return true
         }
