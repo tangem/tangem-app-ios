@@ -41,7 +41,7 @@ struct YieldAPYBoostBannerNotificationEvent: NotificationEvent, Hashable {
     var severity: NotificationView.Severity { .info }
     var isDismissable: Bool { true }
 
-    var bannerKind: NotificationBannerKind? { .promo(.magic) }
+    var bannerKind: NotificationBannerKind? { .promo }
 
     var buttonAction: NotificationButtonAction? {
         .init(.openYieldBoostPromo(buttonTitle: Localization.yieldApyBoostBannerButtonTitle))

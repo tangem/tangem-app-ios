@@ -32,9 +32,11 @@ class CommonWalletModelsManager {
     /// An update is tracked only once per lifecycle of this manager.
     private var shouldTrackWalletModelsUpdate = true
 
-    /// On a cold start, `updateAll(silent:)` is always called shortly after the initial wallet models are created,
+    /// On a cold start, `updateAll(silent:)` is called shortly after the initial wallet models are created,
     /// so the very first update triggered by `updateWalletModels(with:)` would be a duplicate and is skipped.
-    private var shouldSkipUpdateOnInitialWalletModelsCreation = true
+    /// It stops being a duplicate once `updateAll(silent:)` arrives before the models exist: it then updates
+    /// nothing, and their creation is the only remaining chance to load them.
+    private let shouldSkipUpdateOnInitialWalletModelsCreation = OSAllocatedUnfairLock(initialState: true)
 
     init(
         walletManagersRepository: WalletManagersRepository,
@@ -79,7 +81,8 @@ class CommonWalletModelsManager {
                 _walletModels.send([]) // Emit initial list
             }
 
-            shouldSkipUpdateOnInitialWalletModelsCreation = false // Allow subsequent updates when derivations are obtained
+            // Allow subsequent updates when derivations are obtained
+            shouldSkipUpdateOnInitialWalletModelsCreation.withLock { $0 = false }
 
             return
         }
@@ -109,11 +112,12 @@ class CommonWalletModelsManager {
 
         if walletModelsToAdd.isNotEmpty {
             // Refresh only newly added wallet models. On a cold start, all wallet models are considered newly added.
-            // Also on a cold start, `updateAll(silent:)` is always called shortly after these wallet models are created,
-            // so the very first update triggered by this function would be a duplicate and therefore is skipped.
-            if shouldSkipUpdateOnInitialWalletModelsCreation {
-                shouldSkipUpdateOnInitialWalletModelsCreation = false
-            } else {
+            let shouldSkipUpdate = shouldSkipUpdateOnInitialWalletModelsCreation.withLock { shouldSkip in
+                defer { shouldSkip = false }
+                return shouldSkip
+            }
+
+            if !shouldSkipUpdate {
                 runTask(in: self) { manager in
                     await Self.updateAllInternal(
                         silent: false,
@@ -208,7 +212,14 @@ extension CommonWalletModelsManager: WalletModelsManager {
     }
 
     func updateAll(silent: Bool) async {
-        await Self.updateAllInternal(silent: silent, walletModels: walletModels, shouldTrackUpdate: &shouldTrackWalletModelsUpdate)
+        let walletModelsSnapshot = walletModels
+
+        // An update that runs before the wallet models exist covers nothing, so their creation must refresh them.
+        if walletModelsSnapshot.isEmpty {
+            shouldSkipUpdateOnInitialWalletModelsCreation.withLock { $0 = false }
+        }
+
+        await Self.updateAllInternal(silent: silent, walletModels: walletModelsSnapshot, shouldTrackUpdate: &shouldTrackWalletModelsUpdate)
     }
 }
 

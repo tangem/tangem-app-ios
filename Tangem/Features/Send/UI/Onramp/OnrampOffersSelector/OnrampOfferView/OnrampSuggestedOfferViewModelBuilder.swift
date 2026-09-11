@@ -16,6 +16,10 @@ struct OnrampSuggestedOfferViewModelBuilder {
     private let processingTimeFormatter: OnrampProviderProcessingTimeFormatter = .init()
 
     func mapToRecentOnrampOfferViewModelTitle(provider: OnrampProvider) -> OnrampOfferViewModel.Title {
+        guard !provider.isRestricted else {
+            return .text(Localization.onrampTitleYouGet)
+        }
+
         switch (provider.globalAttractiveType, provider.processingTimeType) {
         case (.best, _): return .great
         case (.great, _): return .great
@@ -27,11 +31,15 @@ struct OnrampSuggestedOfferViewModelBuilder {
     func mapToRecommendedOnrampOfferViewModelTitle(
         suggestedOfferType: OnrampSummaryInteractorSuggestedOfferItem
     ) -> OnrampOfferViewModel.Title {
+        guard !suggestedOfferType.provider.isRestricted else {
+            return .text(Localization.onrampTitleYouGet)
+        }
+
         switch suggestedOfferType {
-        case .great: .great
-        case .fastest: .fastest
-        case .nativeApplePay(let provider): mapToNativeApplePayTitle(provider: provider)
-        case .recent, .plain: .text(Localization.onrampTitleYouGet)
+        case .great: return .great
+        case .fastest: return .fastest
+        case .nativeApplePay(let provider): return mapToNativeApplePayTitle(provider: provider)
+        case .recent, .plain: return .text(Localization.onrampTitleYouGet)
         }
     }
 
@@ -57,7 +65,7 @@ struct OnrampSuggestedOfferViewModelBuilder {
 
         let amount = OnrampOfferViewModel.Amount(
             formatted: formattedAmount,
-            badge: .none,
+            badge: provider.isRestricted ? .restricted : .none,
             infoAction: infoAction
         )
 
@@ -72,7 +80,7 @@ struct OnrampSuggestedOfferViewModelBuilder {
             title: title,
             amount: amount,
             provider: offerProvider,
-            isAvailable: provider.isSuccessfullyLoaded,
+            isAvailable: provider.isExecutable,
             buyAction: buyAction,
             legalNotice: legalNotice,
             linkedBanner: linkedBanner

@@ -17,6 +17,11 @@ import UIKit
 // MARK: - Color helpers (used by generated code)
 
 extension SwiftUI.Color {
+    @available(iOS, deprecated: 10000, message: "Use the `.foregroundStyle(_ style:)` view modifier; this accessor exists only for UIKit sinks with no view-modifier path.")
+    public var uiColor: UIColor {
+        UIColor(self)
+    }
+
     init(hex8: UInt32) {
         let a = Double((hex8 >> 24) & 0xFF) / 255.0
         let r = Double((hex8 >> 16) & 0xFF) / 255.0

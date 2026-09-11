@@ -158,9 +158,7 @@ struct CustomTextField: UIViewRepresentable {
         textField.setContentHuggingPriority(.required, for: .vertical)
         textField.clearButtonMode = clearButtonMode
 
-        // Security hardening settings
-        let configurator = UITextInputSecurityHardeningConfigurator(isSecured: isSecured)
-        configurator.configure(textField)
+        setup(textField: textField, isSecured: isSecured)
 
         if let autocapitalizationType {
             textField.autocapitalizationType = autocapitalizationType
@@ -238,6 +236,8 @@ struct CustomTextField: UIViewRepresentable {
     func updateUIView(_ uiView: UITextField, context: UIViewRepresentableContext<CustomTextField>) {
         uiView.text = text
         uiView.textColor = textColor
+        uiView.font = font
+        setup(textField: uiView, isSecured: isSecured)
         context.coordinator.decimalCount = decimalCount
         context.coordinator.isEnabled = isEnabled
 
@@ -250,6 +250,12 @@ struct CustomTextField: UIViewRepresentable {
                 uiView.becomeFirstResponder()
             }
         }
+    }
+
+    /// Security hardening settings
+    private func setup(textField: UITextField, isSecured: Bool) {
+        let configurator = UITextInputSecurityHardeningConfigurator(isSecured: isSecured)
+        configurator.configure(textField)
     }
 }
 

@@ -10,6 +10,7 @@ import class UIKit.UIImage
 import BlockchainSdk
 import TangemAccounts
 import TangemFoundation
+import TangemUI
 
 struct SubtitleOwnerResolver {
     private static let blockiesImageCache = NSCacheWrapper<String, UIImage>()
@@ -23,6 +24,10 @@ struct SubtitleOwnerResolver {
             return nil
         }
 
+        return resolve(address: address, blockchain: blockchain)
+    }
+
+    func resolve(address: String, blockchain: Blockchain) -> TransactionViewModel.SubtitleOwner? {
         guard let match = try? WalletModelFinder.findMainWalletModel(
             address: address,
             networkId: blockchain.networkId,
@@ -38,7 +43,11 @@ struct SubtitleOwnerResolver {
         let walletName = match.userWalletModel.name
 
         guard isAccountsMode, let account = match.walletModel.account else {
-            return .wallet(name: walletName)
+            return .wallet(
+                name: walletName,
+                imageProvider: match.userWalletModel.walletImageProvider,
+                thumbnailType: match.userWalletModel.config.walletThumbnailType
+            )
         }
 
         let iconViewData = AccountModelUtils.UI.iconViewData(
@@ -52,8 +61,7 @@ struct SubtitleOwnerResolver {
 
         return .accountInOtherWallet(
             accountName: account.name,
-            accountIcon: iconViewData,
-            walletName: walletName
+            accountIcon: iconViewData
         )
     }
 

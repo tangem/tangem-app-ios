@@ -6,9 +6,9 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-@preconcurrency import Combine
 import Foundation
 import Testing
+import Combine
 @testable import TangemFoundation
 
 @Suite("Publisher.async() tests")

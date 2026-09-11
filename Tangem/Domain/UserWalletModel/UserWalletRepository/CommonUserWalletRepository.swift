@@ -64,6 +64,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private let userWalletDataStorage = UserWalletDataStorage()
     private let userWalletEncryptionKeyStorage = UserWalletEncryptionKeyStorage()
     private let supportChatTokenStorage = SupportChatTokenStorage()
+    private let polymarketCredentialsRepository = CommonPolymarketCredentialsRepository()
     private let mobileWalletSdk = CommonMobileWalletSdk()
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
     private var bag: Set<AnyCancellable> = .init()
@@ -203,6 +204,8 @@ final class CommonUserWalletRepository: UserWalletRepository {
                 Log.error("Failed to delete mobile sdk data: \(error.localizedDescription)")
             }
 
+            userWalletIds.forEach { polymarketCredentialsRepository.delete(userWalletId: $0) }
+
             let otherUserWallets = models.filter { $0.userWalletId != selectedUserWalletId }
 
             if let selectedModel {
@@ -248,6 +251,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
             try? visaRefreshTokenRepository.deleteToken(visaRefreshTokenId: .cardId($0))
         }
         try? tangemPayAuthorizationTokensRepository.deleteTokens(customerWalletId: userWalletId.stringValue)
+        polymarketCredentialsRepository.delete(userWalletId: userWalletId)
 
         let removedModels = models.filter { $0.userWalletId == userWalletId }
         models.removeAll { $0.userWalletId == userWalletId }

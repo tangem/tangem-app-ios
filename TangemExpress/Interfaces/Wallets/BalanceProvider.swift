@@ -8,7 +8,7 @@
 
 import Foundation
 
-public typealias ExpressBalanceProvider = TangemExpress.BalanceProvider
+public typealias ExpressBalanceProvider = BalanceProvider
 
 public protocol BalanceProvider {
     func getBalance() throws -> Decimal

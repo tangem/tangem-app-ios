@@ -23,6 +23,10 @@ extension CommonKeysManager: KeysManager {
         keys.appsFlyer
     }
 
+    var authServiceKey: String {
+        keys.authServiceKey
+    }
+
     var surveySparrow: SurveySparrowKeys {
         keys.surveySparrow
     }
@@ -63,6 +67,7 @@ extension CommonKeysManager: KeysManager {
             quickNodePlasmaCredentials: .init(apiKey: keys.quiknodePlasmaApiKey, subdomain: keys.quiknodePlasmaSubdomain),
             quickNodeMonadCredentials: .init(apiKey: keys.quiknodeMonadApiKey, subdomain: keys.quiknodeMonadSubdomain),
             quickNodeRobinhoodCredentials: .init(apiKey: keys.quiknodeRobinhoodApiKey, subdomain: keys.quiknodeRobinhoodSubdomain),
+            quickNodeArcCredentials: .init(apiKey: keys.quiknodeArcApiKey, subdomain: keys.quiknodeArcSubdomain),
             bittensorDwellirKey: keys.bittensorDwellirKey,
             dwellirApiKey: keys.dwellirApiKey,
             bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
@@ -85,6 +90,10 @@ extension CommonKeysManager: KeysManager {
         default:
             return keys.amplitudeApiKeyDev
         }
+    }
+
+    var otlpApiKey: String {
+        keys.otplApiKey
     }
 
     var appsFlyerConfig: AppsFlyerConfig {
@@ -166,6 +175,7 @@ extension CommonKeysManager: KeysManager {
 
 extension CommonKeysManager {
     struct Keys: Decodable {
+        let authServiceKey: String
         let moonPayApiKey: String
         let moonPayApiSecretKey: String
         let mercuryoWidgetId: String
@@ -184,6 +194,8 @@ extension CommonKeysManager {
         let surveySparrow: SurveySparrowKeys
         let amplitudeApiKey: String
         let amplitudeApiKeyDev: String
+        // The property name mirrors the key spelling in tangem-app-config.
+        let otplApiKey: String
         let tronGridApiKey: String
         let hederaArkhiaKey: String
         let quiknodeApiKey: String
@@ -200,6 +212,8 @@ extension CommonKeysManager {
         let quiknodeMonadSubdomain: String
         let quiknodeRobinhoodApiKey: String
         let quiknodeRobinhoodSubdomain: String
+        let quiknodeArcApiKey: String
+        let quiknodeArcSubdomain: String
         let etherscanApiKey: String
         let koinosProApiKey: String
         let tangemComAuthorization: String?

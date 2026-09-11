@@ -12,6 +12,7 @@ import TangemLocalization
 enum OnrampNotificationEvent: Hashable {
     case refreshRequired(title: String, message: String)
     case tokenNotSupported(tokenName: String)
+    case providersRestricted
 }
 
 extension OnrampNotificationEvent: NotificationEvent {
@@ -21,6 +22,8 @@ extension OnrampNotificationEvent: NotificationEvent {
             return .string(title)
         case .tokenNotSupported(let tokenName):
             return .string(Localization.onrampTokenIsNotSupportedBannerTitle(tokenName))
+        case .providersRestricted:
+            return .string(Localization.expressOnrampRestrictionsTitle)
         }
     }
 
@@ -30,6 +33,8 @@ extension OnrampNotificationEvent: NotificationEvent {
             return message
         case .tokenNotSupported:
             return Localization.onrampTokenIsNotSupportedBannerSubtitle
+        case .providersRestricted:
+            return Localization.expressOnrampRestrictionsText
         }
     }
 
@@ -37,14 +42,14 @@ extension OnrampNotificationEvent: NotificationEvent {
         switch self {
         case .refreshRequired:
             return .action
-        case .tokenNotSupported:
+        case .tokenNotSupported, .providersRestricted:
             return .secondary
         }
     }
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .refreshRequired, .tokenNotSupported:
+        case .refreshRequired, .tokenNotSupported, .providersRestricted:
             return .init(iconType: .image(Assets.attention))
         }
     }
@@ -53,7 +58,7 @@ extension OnrampNotificationEvent: NotificationEvent {
         switch self {
         case .refreshRequired:
             return .critical
-        case .tokenNotSupported:
+        case .tokenNotSupported, .providersRestricted:
             return .warning
         }
     }
@@ -62,7 +67,7 @@ extension OnrampNotificationEvent: NotificationEvent {
         switch self {
         case .refreshRequired:
             return .init(.refresh, withLoader: true)
-        case .tokenNotSupported:
+        case .tokenNotSupported, .providersRestricted:
             return nil
         }
     }

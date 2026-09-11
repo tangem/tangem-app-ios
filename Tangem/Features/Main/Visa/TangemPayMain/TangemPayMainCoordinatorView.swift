@@ -44,6 +44,15 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)
             }
+            .floatingSheetContent(for: TangemPayChooseNetworkSheetViewModel.self) {
+                TangemPayChooseNetworkSheetView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayReceiveSheetViewModel.self) {
+                TangemPayReceiveSheetView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayOtherNetworksSheetViewModel.self) {
+                TangemPayOtherNetworksSheetView(viewModel: $0)
+            }
             .floatingSheetContent(for: TangemPayNoDepositAddressSheetViewModel.self) {
                 TangemPayNoDepositAddressSheetView(viewModel: $0)
             }
@@ -101,6 +110,9 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
+            .sheet(item: $coordinator.offrampCoordinator) {
+                TangemPayOfframpCoordinatorView(coordinator: $0)
+            }
             .sheet(item: $coordinator.addToApplePayGuideViewModel) {
                 TangemPayAddToAppPayGuideView(viewModel: $0)
             }
@@ -122,6 +134,17 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             }
             .fullScreenCover(item: $coordinator.virtualAccountSuccessViewModel) {
                 TangemPayVirtualAccountSuccessView(viewModel: $0)
+            }
+            .fullScreenCover(item: $coordinator.cashbackDetailViewModel) {
+                TangemPayCashbackDetailView(viewModel: $0)
+            }
+            .fullScreenCover(item: $coordinator.orderCardCoordinator) {
+                TangemPayOrderCardCoordinatorView(coordinator: $0)
+            }
+            .fullScreenCover(item: $coordinator.activateCardViewModel) { viewModel in
+                NavigationStack {
+                    TangemPayActivateCardView(viewModel: viewModel)
+                }
             }
     }
 }

@@ -12,41 +12,36 @@ public struct VisaCustomerInfoResponse: Codable {
     public let id: String
     public let state: CustomerState
     public let createdAt: Date
-    /// Legacy single-card field. Restored alongside `productInstances` so the legacy flow can read it directly.
-    public let productInstance: ProductInstance?
     public let productInstances: [ProductInstance]
     public let paymentAccount: PaymentAccount?
     public let kyc: KYCInfo?
-    /// Legacy single-card field. Restored alongside `cards` so the legacy flow can read it directly.
-    public let card: Card?
     public let cards: [Card]
     public let depositAddress: String?
     public let customerTariffPlan: CustomerTariffPlan?
+    public let profile: Profile?
 
     public init(
         id: String,
         state: CustomerState,
         createdAt: Date,
-        productInstance: ProductInstance? = nil,
         productInstances: [ProductInstance],
         paymentAccount: PaymentAccount?,
         kyc: KYCInfo?,
-        card: Card? = nil,
         cards: [Card],
         depositAddress: String?,
-        customerTariffPlan: CustomerTariffPlan? = nil
+        customerTariffPlan: CustomerTariffPlan? = nil,
+        profile: Profile? = nil
     ) {
         self.id = id
         self.state = state
         self.createdAt = createdAt
-        self.productInstance = productInstance
         self.productInstances = productInstances
         self.paymentAccount = paymentAccount
         self.kyc = kyc
-        self.card = card
         self.cards = cards
         self.depositAddress = depositAddress
         self.customerTariffPlan = customerTariffPlan
+        self.profile = profile
     }
 
     public init(from decoder: Decoder) throws {
@@ -54,15 +49,13 @@ public struct VisaCustomerInfoResponse: Codable {
         id = try container.decode(String.self, forKey: .id)
         state = try container.decode(CustomerState.self, forKey: .state)
         createdAt = try container.decode(Date.self, forKey: .createdAt)
-        productInstance = try container.decodeIfPresent(ProductInstance.self, forKey: .productInstance)
-        // Tolerate legacy-shaped responses that omit the arrays entirely.
         productInstances = try container.decodeIfPresent([ProductInstance].self, forKey: .productInstances) ?? []
         paymentAccount = try container.decodeIfPresent(PaymentAccount.self, forKey: .paymentAccount)
         kyc = try container.decodeIfPresent(KYCInfo.self, forKey: .kyc)
-        card = try container.decodeIfPresent(Card.self, forKey: .card)
         cards = try container.decodeIfPresent([Card].self, forKey: .cards) ?? []
         depositAddress = try container.decodeIfPresent(String.self, forKey: .depositAddress)
         customerTariffPlan = try container.decodeIfPresent(CustomerTariffPlan.self, forKey: .customerTariffPlan)
+        profile = try container.decodeIfPresent(Profile.self, forKey: .profile)
     }
 }
 
@@ -161,6 +154,13 @@ public extension VisaCustomerInfoResponse {
         public let id: String
         public let customerWalletAddress: String
         public let address: String?
+    }
+
+    struct Profile: Codable {
+        public let country: String?
+        public let email: String?
+        /// Format hint like `+1 ###-###-####`, not a number — the BFF exposes no phone value.
+        public let phoneMask: String?
     }
 
     struct KYCInfo: Codable, Identifiable, Equatable {
@@ -346,6 +346,7 @@ public extension VisaCustomerInfoResponse {
                 case thumbnail = "THUMBNAIL"
                 case banner = "BANNER"
                 case background = "BACKGROUND"
+                case activation = "ACTIVATION"
                 case undefined = "UNDEFINED"
 
                 public init(from decoder: Decoder) throws {

@@ -22,7 +22,7 @@ extension CommonXPUBKeyGenerator: XPUBKeyGenerator {
     func derivationIsNeeded() -> Bool {
         do {
             let xpubPaths = try xpubDerivationPaths()
-            let masterKey = try masterKey()
+            let masterKey = try keysRepository.masterKey(curve: tokenItem.blockchain.curve)
 
             let hasNotChild = masterKey.derivedKeys[xpubPaths.child] == nil
             let hasNotParent = masterKey.derivedKeys[xpubPaths.parent] == nil
@@ -39,7 +39,7 @@ extension CommonXPUBKeyGenerator: XPUBKeyGenerator {
             return xpubKey
         }
 
-        let masterKey = try masterKey()
+        let masterKey = try keysRepository.masterKey(curve: tokenItem.blockchain.curve)
         let paths = try xpubDerivationPaths()
 
         guard let masterKeyPublicKey = masterKey.publicKey else {
@@ -64,7 +64,7 @@ extension CommonXPUBKeyGenerator: XPUBKeyGenerator {
 
 private extension CommonXPUBKeyGenerator {
     func xpubKey() throws -> Wallet.PublicKey.XPUBKey? {
-        let masterKey = try masterKey()
+        let masterKey = try keysRepository.masterKey(curve: tokenItem.blockchain.curve)
         let xpubPaths = try xpubDerivationPaths()
 
         guard let child = masterKey.derivedKeys[xpubPaths.child],
@@ -85,17 +85,6 @@ private extension CommonXPUBKeyGenerator {
         }
 
         return try XPUBUtils.xpubDerivationPaths(for: derivationPath)
-    }
-
-    func masterKey() throws -> KeyInfo {
-        // Use the last key for the selected curve because there may be multiple `KeyInfo`
-        // entries with the same curve. The XPUB public key factories use `reduce(into:)`
-        // and keep the last `KeyInfo` for a given curve, so `last(where:)` matches that behavior.
-        guard let masterKey = keysRepository.keys.last(where: { $0.curve == tokenItem.blockchain.curve }) else {
-            throw Error.masterKeyNotFound
-        }
-
-        return masterKey
     }
 }
 

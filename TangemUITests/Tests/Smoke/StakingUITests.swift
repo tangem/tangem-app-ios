@@ -61,4 +61,36 @@ final class StakingUITests: BaseTestCase {
             .tapToken(token)
             .waitForStakingInfo()
     }
+
+    func testStakingMoreScreens_FromStakedToken() {
+        setAllureId(3550)
+
+        let tokenValue = "1"
+
+        let stakedScenario = ScenarioConfig(
+            name: "staking_eth_pol_balances",
+            initialState: "Staked"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            stakingApiType: .mock,
+            scenarios: [stakedScenario]
+        )
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken(token)
+            .tapNativeStakingBlock()
+            .validate()
+            .validateValues()
+            .assertYourStakesTitle()
+            .assertActiveStakeDisplayed()
+            .proceedToSendScreen()
+            .waitForDisplay()
+            .enterStakingAmount(tokenValue)
+            .goToSummary()
+            .waitForDisplay()
+            .waitForAmountValue(tokenValue)
+    }
 }

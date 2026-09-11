@@ -112,6 +112,50 @@ struct TangemPayTransactionDetailsRedesignedMapper {
         )
     }
 
+    func map(cashback: TangemPayTransactionCashback?) -> TangemPayTransactionDetailsViewModel.CashbackRowState {
+        guard let cashback else {
+            return .loaded(.init(value: .text(Localization.tangemPayTransactionDetailsCashbackNone), subvalue: nil))
+        }
+
+        switch cashback {
+        case .earned(let amount, let currency, let capTrimmed):
+            let subvalue: String? = if amount < 0 {
+                Localization.tangemPayTransactionDetailsCashbackRefund
+            } else if capTrimmed {
+                Localization.tangemPayTransactionDetailsCashbackCapReached
+            } else {
+                nil
+            }
+
+            return .loaded(
+                .init(
+                    value: .amount(format(amount: amount, currencyCode: currency, prefix: amount > 0 ? .plusSign : .empty)),
+                    subvalue: subvalue
+                )
+            )
+
+        case .excluded(let reason):
+            return .loaded(
+                .init(
+                    value: .text(Localization.tangemPayTransactionDetailsCashbackNone),
+                    subvalue: reason.map(Self.description)
+                )
+            )
+
+        case .awaitingCalculation:
+            return .awaitingCalculation
+        }
+    }
+
+    private static func description(for reason: TangemPayTransactionCashback.ExclusionReason) -> String {
+        switch reason {
+        case .merchantCountry: Localization.tangemPayTransactionDetailsCashbackRegionExcluded
+        case .mcc: Localization.tangemPayTransactionDetailsCashbackMccExcluded
+        case .monthlyCap: Localization.tangemPayTransactionDetailsCashbackCapReached
+        case .belowMin: Localization.tangemPayTransactionDetailsCashbackBelowMin
+        }
+    }
+
     private func status(
         for status: TangemPaySpendDisplayInput.Status,
         declinedReason: String?
@@ -156,8 +200,8 @@ extension TangemPayTransactionRecord {
     func redesignedDisplayModel(
         using mapper: TangemPayTransactionDetailsRedesignedMapper
     ) -> TangemPayTransactionDetailsDisplayModel {
-        switch record {
-        case .spend(let spend): mapper.map(spend: spend.displayInput)
+        switch record.displayRecord {
+        case .merchant(let merchant): mapper.map(spend: merchant.displayInput)
         case .collateral(let collateral): mapper.map(collateral: collateral.displayInput)
         case .payment(let payment): mapper.map(payment: payment.displayInput)
         case .fee(let fee): mapper.map(fee: fee.displayInput)
@@ -172,13 +216,32 @@ extension TangemPayPushPayload {
         using mapper: TangemPayTransactionDetailsRedesignedMapper
     ) -> TangemPayTransactionDetailsDisplayModel? {
         switch body {
-        case .transactionSpend(let spend), .declinedTopUp(let spend):
+        case .transactionSpend(let spend),
+             .transactionSpendRefund(let spend),
+             .declinedTopUp(let spend),
+             .declinedReason1(let spend),
+             .declinedReason2(let spend),
+             .declinedReason3(let spend),
+             .declinedReason4(let spend),
+             .declinedReason5(let spend),
+             .declinedReason6(let spend),
+             .declinedReason7(let spend),
+             .declinedReason8(let spend),
+             .declinedReason9(let spend),
+             .declinedReason10(let spend),
+             .declinedReason11(let spend),
+             .declinedReason12(let spend),
+             .declinedReason13(let spend),
+             .declinedReason14(let spend),
+             .declinedReason15(let spend),
+             .declinedReason16(let spend),
+             .declinedReason17(let spend):
             mapper.map(spend: spend.displayInput)
         case .collateralWithdraw(let collateral):
             mapper.map(collateral: collateral.displayInput(isOutgoing: true))
         case .collateralDeposit(let collateral):
             mapper.map(collateral: collateral.displayInput(isOutgoing: false))
-        case .cardReady:
+        case .cardReady, .thresholdTopUp:
             nil
         }
     }

@@ -6,7 +6,6 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import XCTest
 import Foundation
 import WalletCore
 import TangemSdk
@@ -15,6 +14,8 @@ import TangemFoundation
 @testable import BlockchainSdk
 
 struct VeChainTransactionTests {
+    private static let feeAccuracy: Decimal = 0.000_000_1
+
     private let blockchain: BlockchainSdk.Blockchain = .veChain(testnet: true)
 
     private let token = Token(
@@ -274,9 +275,10 @@ struct VeChainTransactionTests {
         let input = VeChainFeeCalculator.Input(gasPriceCoefficient: gasPriceCoefficient, clauses: [clause])
         let fee = feeCalculator.fee(for: input, amountType: .token(value: token), vmGas: 0)
 
-        XCTAssertEqual(fee.amount.value, expectedValue, accuracy: 0.000_000_1)
+        #expect(abs(fee.amount.value - expectedValue) <= Self.feeAccuracy)
     }
 
+    @Test
     func testFeeForTokenTransfers() throws {
         let expectedValues = [
             Decimal(stringValue: "0.53952"),
@@ -304,6 +306,6 @@ struct VeChainTransactionTests {
         let input = VeChainFeeCalculator.Input(gasPriceCoefficient: gasPriceCoefficient, clauses: [clause])
         let fee = feeCalculator.fee(for: input, amountType: .token(value: token), vmGas: 15000)
 
-        XCTAssertEqual(fee.amount.value, expectedValue, accuracy: 0.000_000_1)
+        #expect(abs(fee.amount.value - expectedValue) <= Self.feeAccuracy)
     }
 }

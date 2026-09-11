@@ -11,5 +11,4 @@ protocol SwapRoutable {
         swapTokenSelectorViewModelBuilder: SwapTokenSelectorViewModelBuilder,
         direction: SwapTokenSelectorViewModel.SwapDirection
     )
-    func openBackupErrorSupport(userWalletInfo: UserWalletInfo)
 }

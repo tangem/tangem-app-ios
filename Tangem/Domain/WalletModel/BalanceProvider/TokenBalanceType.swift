@@ -52,10 +52,20 @@ extension TokenBalanceType {
         }
     }
 
-    /// Unknown balances (`.empty`, or `.loading`/`.failure` without a cached value) are not treated as zero.
-    var isZeroBalance: Bool {
-        guard let value else { return false }
-        return value <= 0
+    var mayHaveFunds: Bool {
+        guard let value = spendableValue else { return true }
+        return value > 0
+    }
+
+    /// `value`, except that an unfunded account counts as zero.
+    /// Chains with account-creation reserves (XRP, Stellar, Aptos, …) report `noAccount`
+    /// instead of `.loaded(0)`; spend-vs-balance checks should see `0` there, not an unknown balance.
+    var spendableValue: Decimal? {
+        if case .empty(.noAccount) = self {
+            return 0
+        }
+
+        return value
     }
 }
 

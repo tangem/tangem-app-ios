@@ -43,6 +43,10 @@ extension Bool: DefaultValueProvider {
     public static var defaultValue: Bool { false }
 }
 
+extension Array: DefaultValueProvider {
+    public static var defaultValue: [Element] { [] }
+}
+
 public extension KeyedDecodingContainer {
     func decode<T: Codable & DefaultValueProvider>(_ type: DefaultIfMissing<T>.Type, forKey key: Key) throws -> DefaultIfMissing<T> {
         return try decodeIfPresent(type, forKey: key) ?? DefaultIfMissing(nil)

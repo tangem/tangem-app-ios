@@ -10,7 +10,6 @@ import Combine
 import UIKit
 import TangemFoundation
 import TangemLocalization
-import TangemMobileWalletSdk
 import TangemUIUtils
 import TangemSdk
 
@@ -28,7 +27,7 @@ final class MobileOnboardingSeedPhraseImportViewModel: ObservableObject {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    private lazy var mobileSdk: MobileWalletSdk = CommonMobileWalletSdk()
+    private let creationUtil = MobileCreationUtil()
 
     private let analyticsContextParams: Analytics.ContextParams = .custom(.mobileWallet)
 
@@ -78,23 +77,12 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
 
         runTask(in: self) { viewModel in
             do {
-                let initializer = MobileWalletInitializer()
-
-                let walletInfo = try await initializer.initializeWallet(mnemonic: mnemonic, passphrase: passphrase)
-
-                let userWalletConfig = MobileUserWalletConfig(mobileWalletInfo: walletInfo)
-                let userWalletId = UserWalletId(config: userWalletConfig)
-
-                guard !viewModel.userWalletRepository.models.contains(where: { $0.userWalletId == userWalletId }) else {
-                    throw UserWalletRepositoryError.duplicateWalletAdded
-                }
-
-                guard let userWalletModel = CommonUserWalletModelFactory().makeModel(
-                    walletInfo: .mobileWallet(walletInfo),
-                    keys: .mobileWallet(keys: walletInfo.keys),
-                ) else {
-                    throw UserWalletRepositoryError.cantUnlockWallet
-                }
+                let userWalletModel = try await viewModel.creationUtil.makeImportedModel(
+                    mnemonic: mnemonic,
+                    passphrase: passphrase,
+                    hasMnemonicBackup: true,
+                    hasICloudBackup: false
+                )
 
                 AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWalletModel.userWalletId)
 

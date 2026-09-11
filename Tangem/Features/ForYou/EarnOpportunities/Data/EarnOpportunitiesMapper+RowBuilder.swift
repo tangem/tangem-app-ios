@@ -27,10 +27,10 @@ extension EarnOpportunitiesMapper {
                     glyph: AccountModelUtils.UI.iconAsset(from: account.icon.name),
                     name: account.name,
                     tokensCountText: Localization.commonTokensCount(account.holdings.count),
-                    rewardText: plusPerYear(reward)
+                    rewardAmount: balanceFormatter.formatFiatBalance(reward)
                 ),
                 tokens: account.holdings.map(makeTokenRow),
-                isExpanded: false
+                isExpanded: true
             )
         }
 
@@ -40,8 +40,8 @@ extension EarnOpportunitiesMapper {
                 tokenIconInfo: holding.tokenIconInfo,
                 name: holding.currencyName,
                 network: Localization.walletNetworkGroupTitle(holding.networkName),
-                rewardText: rewardText(for: holding),
-                apyText: percentFormatter.format(holding.apyInfo.apy, option: .staking)
+                rewardAmount: rewardAmount(for: holding),
+                apyText: holding.apyInfo.rateType.earnBadgeText(percentText: percentFormatter.format(holding.apyInfo.apy, option: .interval))
             )
         }
 
@@ -67,11 +67,11 @@ extension EarnOpportunitiesMapper {
 
         // MARK: - Subtitles
 
-        /// "Max potential rewards {+$X/year}".
+        /// "Max potential rewards {$X/year}".
         func makeRewardsSubtitle(totalReward: Decimal) -> EarnRewardSubtitle {
             chipSubtitle(
                 template: Localization.forYouEarnOpportunitiesTokensRewards,
-                chip: Localization.forYouEarnPerYear(balanceFormatter.formatFiatBalance(totalReward))
+                chip: .fiat(balanceFormatter.formatFiatBalance(totalReward))
             )
         }
 
@@ -84,7 +84,7 @@ extension EarnOpportunitiesMapper {
 
             return chipSubtitle(
                 template: Localization.forYouEarnOpportunitiesNoAvailableTokens,
-                chip: best.rateText
+                chip: .rate(best.rateText)
             )
         }
 
@@ -102,17 +102,13 @@ private extension EarnOpportunitiesMapper.RowBuilder {
         static let chipMarker = "\u{FFFC}"
     }
 
-    func plusPerYear(_ reward: Decimal) -> String {
-        "\(AppConstants.plusSign) \(Localization.forYouEarnPerYear(balanceFormatter.formatFiatBalance(reward)))"
-    }
-
-    /// No fiat rate → dash instead of "+$0/year".
-    func rewardText(for holding: EarnOpportunitiesMapper.HoldingCandidate) -> String {
+    /// No fiat rate → `nil` (the row renders it as a dash) instead of "+$0/year".
+    func rewardAmount(for holding: EarnOpportunitiesMapper.HoldingCandidate) -> String? {
         guard holding.fiatBalance != nil else {
-            return BalanceFormatter.defaultEmptyBalanceString
+            return nil
         }
 
-        return plusPerYear(holding.potentialReward)
+        return balanceFormatter.formatFiatBalance(holding.potentialReward)
     }
 
     func productText(for earnType: EarnType) -> String {
@@ -123,7 +119,7 @@ private extension EarnOpportunitiesMapper.RowBuilder {
     }
 
     /// Splits the localized template around its placeholder for chip rendering.
-    func chipSubtitle(template: (String) -> String, chip: String?) -> EarnRewardSubtitle {
+    func chipSubtitle(template: (String) -> String, chip: EarnRewardSubtitle.Chip?) -> EarnRewardSubtitle {
         let parts = template(Constants.chipMarker).components(separatedBy: Constants.chipMarker)
         let prefix = parts.first?.trimmed() ?? ""
         let suffix = parts.dropFirst().first?.trimmed()

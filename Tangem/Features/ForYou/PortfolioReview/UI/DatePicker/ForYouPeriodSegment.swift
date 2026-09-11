@@ -18,14 +18,13 @@ extension ForYouPeriodSegment: TangemSegmentedPickerTextProvider {
 }
 
 extension ForYouPeriodSegment {
-    // [REDACTED_TODO_COMMENT]
     static let all: [ForYouPeriodSegment] = [
-        ForYouPeriodSegment(id: "day", title: "Day"),
-        ForYouPeriodSegment(id: "week", title: "Week"),
-        ForYouPeriodSegment(id: "month", title: "Month"),
+        ForYouPeriodSegment(id: "day", title: TokenSummaryPeriod.day.title),
+        ForYouPeriodSegment(id: "week", title: TokenSummaryPeriod.week.title),
+        ForYouPeriodSegment(id: "month", title: TokenSummaryPeriod.month.title),
     ]
 
-    static let initial = ForYouPeriodSegment(id: "day", title: "Day")
+    static let initial = ForYouPeriodSegment(id: "day", title: TokenSummaryPeriod.day.title)
 }
 
 extension ForYouPeriodSegment {

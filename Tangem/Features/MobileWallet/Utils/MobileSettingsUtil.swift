@@ -28,7 +28,7 @@ final class MobileSettingsUtil {
     }
 
     private var isBackupNeeded: Bool {
-        userWalletConfig.hasFeature(.mnemonicBackup) && userWalletConfig.hasFeature(.iCloudBackup)
+        backupStatusUtil.isBackupNeeded
     }
 
     private var userWalletConfig: UserWalletConfig {
@@ -37,10 +37,12 @@ final class MobileSettingsUtil {
 
     private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
+    private let backupStatusUtil: MobileBackupStatusUtil
     private let userWalletModel: UserWalletModel
 
     init(userWalletModel: UserWalletModel) {
         self.userWalletModel = userWalletModel
+        backupStatusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
     }
 }
 

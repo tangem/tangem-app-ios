@@ -10,7 +10,6 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
-import TangemFoundation
 
 struct TransactionDetailsInfoSectionViewData: Equatable {
     let rows: [Row]
@@ -31,13 +30,14 @@ struct TransactionDetailsInfoSectionViewData: Equatable {
             let text: String
             /// Optional trailing detail (e.g. the CEX/DEX provider type)
             let secondaryText: String?
-            @IgnoredEquatable var handler: (() -> Void)?
+            let action: TransactionDetailsViewModel.ViewAction?
         }
     }
 }
 
 struct TransactionDetailsInfoSectionView: View {
     let data: TransactionDetailsInfoSectionViewData
+    let onAction: (TransactionDetailsViewModel.ViewAction) -> Void
 
     var body: some View {
         VStack(spacing: .zero) {
@@ -61,7 +61,9 @@ struct TransactionDetailsInfoSectionView: View {
                 .valueAccessory { linkValue(link) }
                 .contentLead(.end)
                 .showDivider(showsDivider)
-                .ifLet(link.handler) { view, handler in view.onTap(handler) }
+                .ifLet(link.action) { view, action in
+                    view.onTap { onAction(action) }
+                }
         }
     }
 
@@ -80,7 +82,7 @@ struct TransactionDetailsInfoSectionView: View {
                     .fixedSize(horizontal: true, vertical: false)
             }
 
-            if link.handler != nil {
+            if link.action != nil {
                 DesignSystem.Icons.ArrowTopRight.regular20.image
                     .renderingMode(.template)
                     .resizable()
@@ -95,11 +97,14 @@ struct TransactionDetailsInfoSectionView: View {
 // MARK: - Previews
 
 #Preview("Info section") {
-    TransactionDetailsInfoSectionView(data: .init(rows: [
-        .init(id: "provider", title: "Provider", content: .link(.init(text: "Mercuryo", secondaryText: "DEX", handler: {}))),
-        .init(id: "rate", title: "Rate", content: .text("1,00 POL ≈ 0,07703936 USDT")),
-        .init(id: "networkFee", title: "Network fee", content: .text("0.00056 ETH")),
-    ]))
+    TransactionDetailsInfoSectionView(
+        data: .init(rows: [
+            .init(id: "provider", title: "Provider", content: .link(.init(text: "Mercuryo", secondaryText: "DEX", action: .close))),
+            .init(id: "rate", title: "Rate", content: .text("1,00 POL ≈ 0,07703936 USDT")),
+            .init(id: "networkFee", title: "Network fee", content: .text("0.00056 ETH")),
+        ]),
+        onAction: { _ in }
+    )
     .padding(16)
     .background(DesignSystem.Color.bgSecondary)
 }

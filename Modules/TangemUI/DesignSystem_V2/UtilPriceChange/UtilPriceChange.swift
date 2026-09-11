@@ -13,6 +13,7 @@ import TangemUIUtils
 public struct UtilPriceChange: View, Setupable {
     private let value: String
     private let direction: Direction
+    private var isUpdating: Bool = false
     private var accessibilityIdentifier: String?
     private var accessibilityLabel: String?
 
@@ -31,6 +32,8 @@ public struct UtilPriceChange: View, Setupable {
                 .style(DesignSystem.Font.captionMediumToken, color: direction.textColor)
                 .lineLimit(1)
         }
+        .tangemShimmer()
+        .environment(\.isShimmerActive, isUpdating)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel)
         .accessibilityIdentifier(accessibilityIdentifier)
@@ -49,6 +52,10 @@ public struct UtilPriceChange: View, Setupable {
 // MARK: - Setupable
 
 public extension UtilPriceChange {
+    func updating(_ isUpdating: Bool = true) -> Self {
+        map { $0.isUpdating = isUpdating }
+    }
+
     func accessibilityIdentifier(_ accessibilityIdentifier: String) -> Self {
         map { $0.accessibilityIdentifier = accessibilityIdentifier }
     }
