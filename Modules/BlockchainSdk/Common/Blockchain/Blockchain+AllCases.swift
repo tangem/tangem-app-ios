@@ -112,6 +112,8 @@ public extension Blockchain {
         case .arbitrumNova: break
         case .plasma: break
         case .adi: break
+        case .electroneum: break
+        case .arc: break
             // READ BELOW:
             //
             // Did you get a compilation error here? If so, add your new blockchain to the array below
@@ -216,6 +218,8 @@ public extension Blockchain {
             .arbitrumNova,
             .plasma(testnet: false),
             .adi(testnet: false),
+            .electroneum(testnet: false),
+            .arc(testnet: false),
         ]
     }
 }

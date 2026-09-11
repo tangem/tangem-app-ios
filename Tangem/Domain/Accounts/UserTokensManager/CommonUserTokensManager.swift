@@ -132,8 +132,16 @@ final class CommonUserTokensManager {
         updater.append(enrichedItems)
     }
 
-    private func removeInternal(_ tokenItems: [TokenItem], using updater: UserTokensRepositoryBatchUpdater) {
-        for tokenItem in tokenItems where canRemove(tokenItem) {
+    private func removeInternal(
+        _ tokenItems: [TokenItem],
+        pendingToAddItems: [TokenItem],
+        using updater: UserTokensRepositoryBatchUpdater
+    ) throws {
+        for tokenItem in tokenItems {
+            guard canRemove(tokenItem, pendingToAddItems: pendingToAddItems, pendingToRemoveItems: tokenItems) else {
+                throw Error.failedToDeleteNetworkHasTokens(tokenItem: tokenItem)
+            }
+
             updater.remove(tokenItem)
         }
     }
@@ -427,8 +435,14 @@ extension CommonUserTokensManager: UserTokensManager {
     func remove(_ tokenItem: TokenItem) {
         let tokenItem = withBlockchainNetwork(tokenItem)
 
-        userTokensRepository.performBatchUpdates { updater in
-            removeInternal([tokenItem], using: updater)
+        // `remove(_:)` is a non-throwing protocol req - therefore we catch and log any errors here
+        // Callers are expected to check `canRemove` beforehand
+        do {
+            try userTokensRepository.performBatchUpdates { updater in
+                try removeInternal([tokenItem], pendingToAddItems: [], using: updater)
+            }
+        } catch {
+            AccountsLogger.error("Failed to remove token item:", error: error)
         }
     }
 
@@ -463,7 +477,7 @@ extension CommonUserTokensManager: UserTokensManager {
         let itemsToAdd = itemsToAdd.map { withBlockchainNetwork($0) }
 
         try userTokensRepository.performBatchUpdates { updater in
-            removeInternal(itemsToRemove, using: updater)
+            try removeInternal(itemsToRemove, pendingToAddItems: itemsToAdd, using: updater)
             try addInternal(itemsToAdd, using: updater)
         }
 
@@ -616,6 +630,7 @@ extension CommonUserTokensManager {
         case accountDerivationNodeMismatch(expected: UInt32, actual: UInt32, tokenName: String)
         case failedSupportedLongHashesTokens(blockchainDisplayName: String)
         case failedSupportedCurve(blockchainDisplayName: String)
+        case failedToDeleteNetworkHasTokens(tokenItem: TokenItem)
 
         var errorDescription: String? {
             switch self {
@@ -623,6 +638,12 @@ extension CommonUserTokensManager {
                 return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
             case .failedSupportedCurve(let blockchainDisplayName):
                 return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
+            case .failedToDeleteNetworkHasTokens(let tokenItem):
+                return Localization.tokenDetailsUnableHideAlertMessage(
+                    tokenItem.name,
+                    tokenItem.currencySymbol,
+                    tokenItem.blockchain.displayName
+                )
             case .addressNotFound,
                  .derivationNotSupported,
                  .derivationPathNotFound,

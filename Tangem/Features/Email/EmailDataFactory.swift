@@ -35,7 +35,8 @@ struct EmailDataFactory {
 
     func makeEmailData(for mobileWallet: MobileWalletInfo) -> [EmailCollectedData] {
         [
-            EmailCollectedData(type: .mobileWallet(.hasBackup), data: "\(mobileWallet.hasMnemonicBackup || mobileWallet.hasICloudBackup)"),
+            EmailCollectedData(type: .mobileWallet(.hasSeedPhraseBackup), data: "\(mobileWallet.hasMnemonicBackup)"),
+            EmailCollectedData(type: .mobileWallet(.hasICloudBackup), data: "\(mobileWallet.hasICloudBackup)"),
             EmailCollectedData(type: .mobileWallet(.hasAccessCode), data: "\(mobileWallet.accessCodeStatus.hasAccessCode)"),
         ]
     }

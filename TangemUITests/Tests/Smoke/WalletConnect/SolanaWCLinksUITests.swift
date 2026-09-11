@@ -22,9 +22,10 @@ final class SolanaWCLinksUITests: BaseTestCase {
             name: "user_tokens_api",
             initialState: "Solana"
         )
-        setupWireMockScenarios([userTokensScenario])
-        app.launchEnvironment = ["UITEST": "1"]
-        app.launch()
+        launchApp(
+            tangemApiType: .mock,
+            scenarios: [userTokensScenario]
+        )
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
@@ -38,7 +39,7 @@ final class SolanaWCLinksUITests: BaseTestCase {
         app.activate()
 
         WelcomeBackScreen(app)
-            .selectWalletByName("Wallet 2")
+            .selectSavedWallet()
         CreateWalletSelectorScreen(app)
             .selectWalletFromList(name: .wallet2)
 

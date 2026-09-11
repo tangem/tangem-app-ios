@@ -20,7 +20,7 @@ struct OnrampProviderItemViewModel: Hashable, Identifiable {
 
     var isAvailable: Bool {
         switch amountType {
-        case .available: true
+        case .available(let amount): amount.badge != .restricted
         case .availableFrom, .availableUpTo: false
         }
     }

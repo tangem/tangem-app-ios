@@ -14,5 +14,5 @@ protocol ReceivingRestrictionsProvider {
 
 enum ReceivedRestriction {
     case notEnoughReceivedAmount(minAmount: Decimal)
-    case incompleteBackup
+    case incompleteBackup(UserWalletInfo)
 }

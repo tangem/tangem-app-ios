@@ -23,6 +23,10 @@ public enum OnboardingAccessibilityIdentifiers {
     public static let mobileCreateWalletImportButton = "onboardingMobileCreateWalletImportButton"
     public static let mobileCreateWalletCreateButton = "onboardingMobileCreateWalletCreateButton"
 
+    // Mobile import wallet
+    public static let mobileImportWalletRecoveryPhraseButton = "onboardingMobileImportWalletRecoveryPhraseButton"
+    public static let mobileImportWalletICloudBackupButton = "onboardingMobileImportWalletICloudBackupButton"
+
     /// Create wallet selector
     public static let mobileWalletButton = "onboardingMobileWalletButton"
 

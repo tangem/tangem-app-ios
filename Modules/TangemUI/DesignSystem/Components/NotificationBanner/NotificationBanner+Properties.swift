@@ -9,62 +9,43 @@
 import SwiftUI
 import TangemAssets
 
+public enum NotificationBanner {}
+
 public extension NotificationBanner {
     enum BannerType: Equatable, Sendable {
         case status(Content, BannerAction = .buttons(.none), CloseAction? = nil)
         case critical(Content, BannerAction, CloseAction? = nil)
         case warning(Content, BannerAction, CloseAction? = nil)
-        case promo(Content, BannerAction, CloseAction?, Effect, BannerTextAlignment = .center)
-        case survey(TextOnly, BannerAction, CloseAction?)
-        case informational(TextOnly, BannerAction, CloseAction?, BannerTextAlignment = .center)
+        case promo(Content, BannerAction, CloseAction?, BannerTextAlignment = .center)
+        case survey(Content, BannerAction, CloseAction?)
+        case informational(Content, BannerAction, CloseAction?, BannerTextAlignment = .center)
 
         var content: Content {
             switch self {
-            case .status(let c, _, _), .critical(let c, _, _), .warning(let c, _, _), .promo(let c, _, _, _, _): c
-            case .survey(let text, _, _), .informational(let text, _, _, _): .text(text)
+            case .status(let c, _, _), .critical(let c, _, _), .warning(let c, _, _),
+                 .promo(let c, _, _, _), .survey(let c, _, _), .informational(let c, _, _, _): c
             }
         }
 
         var bannerAction: BannerAction {
             switch self {
             case .status(_, let a, _), .critical(_, let a, _), .warning(_, let a, _),
-                 .promo(_, let a, _, _, _), .survey(_, let a, _), .informational(_, let a, _, _): a
+                 .promo(_, let a, _, _), .survey(_, let a, _), .informational(_, let a, _, _): a
             }
         }
 
         var closeAction: CloseAction? {
             switch self {
             case .status(_, _, let a), .critical(_, _, let a), .warning(_, _, let a),
-                 .promo(_, _, let a, _, _), .survey(_, _, let a), .informational(_, _, let a, _): a
+                 .promo(_, _, let a, _), .survey(_, _, let a), .informational(_, _, let a, _): a
             }
         }
 
         var textAlignment: BannerTextAlignment {
             switch self {
             case .status, .critical, .warning, .survey: .center
-            case .promo(_, _, _, _, let alignment), .informational(_, _, _, let alignment): alignment
+            case .promo(_, _, _, let alignment), .informational(_, _, _, let alignment): alignment
             }
-        }
-
-        var effect: Effect {
-            switch self {
-            case .status, .survey, .informational: .none
-            case .critical, .warning: .bannerWarning
-            case .promo(_, _, _, let effect, _): effect
-            }
-        }
-
-        var borderColor: Color {
-            switch self {
-            case .status, .survey, .informational:
-                return .Tangem.Border.Neutral.banner.opacity(0.15)
-            case .critical, .warning, .promo:
-                return .clear
-            }
-        }
-
-        var isClosable: Bool {
-            closeAction != nil
         }
 
         var isStackable: Bool {
@@ -128,14 +109,7 @@ public extension NotificationBanner {
     }
 
     struct Icon: Equatable, Sendable {
-        public enum Alignment: Equatable, Sendable {
-            case top
-            case center
-            case bottom
-        }
-
         public let imageType: ImageType
-        public let alignment: Alignment
         public let renderingMode: Image.TemplateRenderingMode?
         public let color: Color?
         /// Overrides the horizontal icon side; `nil` keeps the `BannerType` default (leading for promo, trailing otherwise).
@@ -145,7 +119,6 @@ public extension NotificationBanner {
 
         public init(
             imageType: ImageType,
-            alignment: Alignment = .top,
             width: SizeUnit = .x7,
             height: SizeUnit = .x7,
             renderingMode: Image.TemplateRenderingMode? = nil,
@@ -156,7 +129,6 @@ public extension NotificationBanner {
             self.renderingMode = renderingMode
             self.color = color
             self.isLeading = isLeading
-            self.alignment = alignment
             self.width = width
             self.height = height
         }
@@ -174,30 +146,17 @@ public extension NotificationBanner {
 
     struct LoadableIcon: Equatable, Sendable {
         public let url: URL
-        public let alignment: Alignment
         public let width: SizeUnit
         public let height: SizeUnit
 
         public init(
             url: URL,
-            alignment: Alignment = .topLeading,
             width: SizeUnit = .x6,
             height: SizeUnit = .x6
         ) {
             self.url = url
-            self.alignment = alignment
             self.width = width
             self.height = height
-        }
-    }
-}
-
-extension NotificationBanner.Icon.Alignment {
-    var verticalAlignment: SwiftUI.VerticalAlignment {
-        switch self {
-        case .top: .top
-        case .center: .center
-        case .bottom: .bottom
         }
     }
 }
@@ -235,7 +194,13 @@ public extension NotificationBanner {
 }
 
 public extension NotificationBanner {
-    typealias Effect = GlowBorderEffect
+    enum Ring: Equatable, Sendable {
+        case off
+        case magic
+        case warning
+        case error
+        case info
+    }
 }
 
 public extension NotificationBanner {

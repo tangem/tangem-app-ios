@@ -44,6 +44,11 @@ public class ProviderItem: Identifiable {
         providers.first(where: { $0.isShowable && $0.isSelectable })
     }
 
+    /// Provider which can be showed, selected and is not restricted in the user's region
+    public func maxPriorityUnrestrictedProvider() -> OnrampProvider? {
+        providers.first(where: { $0.isShowable && $0.isSelectable && !$0.isRestricted })
+    }
+
     /// Provider which can be showed and selected
     public func preferredProvider(providerId: String) -> OnrampProvider? {
         providers.first(where: { $0.provider.id == providerId && $0.isShowable && $0.isSelectable })

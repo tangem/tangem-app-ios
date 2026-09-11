@@ -27,7 +27,11 @@ protocol NotificationEvent: Identifiable {
     /// Determine if analytics event should be sent only once and tracked by service
     var isOneShotAnalyticsEvent: Bool { get }
 
+    /// Semantic banner type from the design table: drives ordering and stacking, not the palette.
     var bannerKind: NotificationBannerKind? { get }
+    /// Overrides the background the kind would imply, for events the redesign paints differently.
+    var bannerVariant: MessageBannerVariant? { get }
+    var bannerRing: NotificationBanner.Ring? { get }
 
     /// Redesign-only copy/icon, force-mapped by the redesign banner mapper. Legacy `NotificationView` ignores it.
     var redesignedBannerContent: RedesignedBannerContent? { get }
@@ -148,6 +152,8 @@ extension NotificationEvent {
     }
 
     var bannerKind: NotificationBannerKind? { nil }
+    var bannerVariant: MessageBannerVariant? { nil }
+    var bannerRing: NotificationBanner.Ring? { nil }
 
     var redesignedBannerContent: RedesignedBannerContent? { nil }
 

@@ -32,10 +32,11 @@ final class CampaignTokenSelectorViewModel: ObservableObject, Identifiable {
         self.onSelect = onSelect
         self.onClose = onClose
 
+        let isEligible = EligibleTokenMatcher.make(from: eligibleTokens)
         tokenSelectorViewModel = TokenSelectorViewModel.common(
-            walletsProvider: EligibleTokensWalletsProvider(
+            walletsProvider: FilteredTokenSelectorWalletsProvider(
                 base: .standardAccountsOnly(),
-                isEligible: EligibleTokenMatcher.make(from: eligibleTokens)
+                isIncluded: { isEligible($0.tokenItem) }
             ),
             availabilityProvider: AvailableTokenSelectorItemAvailabilityProvider(),
             initiallyExpandedAccount: initiallyExpandedAccount

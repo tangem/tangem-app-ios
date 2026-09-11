@@ -26,6 +26,7 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
     @Published private(set) var closeCardRow: DefaultRowViewModel?
     @Published private(set) var dailyLimitState: TangemPayDailyLimitState?
+    @Published private(set) var plasticCard: TangemPayPlasticCardStub?
     @Published private(set) var isIssuing: Bool = false
     @Published private(set) var isReissuing: Bool = false
     @Published private(set) var isClosing: Bool = false
@@ -118,6 +119,7 @@ extension TangemPayCardManagementViewModel {
             case issued(TangemPayCardDetailsViewModel)
             case issuing
             case ghost
+            case plastic
         }
     }
 }
@@ -182,6 +184,16 @@ private extension TangemPayCardManagementViewModel {
             .removeDuplicates()
             .receiveOnMain()
             .assign(to: \.isIssuing, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        Publishers.CombineLatest(tangemPayAccount.cardEntriesPublisher, $selectedCardId)
+            .map { entries, id -> TangemPayPlasticCardStub? in
+                guard let id else { return nil }
+                return entries.first(where: { $0.id == id })?.plasticCard
+            }
+            .removeDuplicates()
+            .receiveOnMain()
+            .assign(to: \.plasticCard, on: self, ownership: .weak)
             .store(in: &bag)
 
         bindSelectedCard(
@@ -360,6 +372,12 @@ private extension TangemPayCardManagementViewModel {
                     id: entry.id,
                     productInstanceId: entry.productInstanceId,
                     content: entry.isGhost ? .ghost : .issuing
+                )
+            case .plastic:
+                return CardDetailsItem(
+                    id: entry.id,
+                    productInstanceId: entry.productInstanceId,
+                    content: .plastic
                 )
             }
         }
@@ -559,6 +577,10 @@ extension TangemPayCardManagementViewModel {
         freezingState.isFreezingUnfreezingInProgress
     }
 
+    var isPlasticCardDelivering: Bool {
+        plasticCard?.stage == .delivering
+    }
+
     func onDetailsButton() {
         currentRedesignedDetailsViewModel?.toggleVisibility()
     }
@@ -577,6 +599,16 @@ extension TangemPayCardManagementViewModel {
 
     func onReplaceButton() {
         onReplaceCard()
+    }
+
+    func onActivatePlasticCardButton() {
+        guard let plasticCard else { return }
+
+        coordinator?.openPlasticCardActivation(card: plasticCard)
+    }
+
+    func onContactSupportButton() {
+        coordinator?.openSupport()
     }
 
     private var currentRedesignedDetailsViewModel: TangemPayCardDetailsViewModel? {

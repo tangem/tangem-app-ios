@@ -19,13 +19,13 @@ struct OnrampSummaryInteractorSuggestedOffersTests {
             providerId: "provider-apple-pay",
             paymentMethodId: "apple-pay",
             amount: 100,
-            state: .loaded(OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: "q1"))
+            state: .loaded(OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: "q1", isRestricted: false))
         )
         let cardWithBetterRate = OnrampTestFixtures.makeProvider(
             providerId: "provider-card",
             paymentMethodId: "card",
             amount: 100,
-            state: .loaded(OnrampQuote(expectedAmount: 200, nativePaymentAvailable: false, quoteId: "q2"))
+            state: .loaded(OnrampQuote(expectedAmount: 200, nativePaymentAvailable: false, quoteId: "q2", isRestricted: false))
         )
 
         let list = makeProvidersList([nativeApplePay, cardWithBetterRate])
@@ -47,13 +47,13 @@ struct OnrampSummaryInteractorSuggestedOffersTests {
             providerId: "provider-native",
             paymentMethodId: "apple-pay",
             amount: 100,
-            state: .loaded(OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: "q1"))
+            state: .loaded(OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: "q1", isRestricted: false))
         )
         let widgetApplePay = OnrampTestFixtures.makeProvider(
             providerId: "provider-widget",
             paymentMethodId: "apple-pay",
             amount: 100,
-            state: .loaded(OnrampQuote(expectedAmount: 200, nativePaymentAvailable: false, quoteId: "q2"))
+            state: .loaded(OnrampQuote(expectedAmount: 200, nativePaymentAvailable: false, quoteId: "q2", isRestricted: false))
         )
 
         let list = makeProvidersList([nativeApplePay, widgetApplePay])
@@ -75,13 +75,13 @@ struct OnrampSummaryInteractorSuggestedOffersTests {
             providerId: "provider-card",
             paymentMethodId: "card",
             amount: 100,
-            state: .loaded(OnrampQuote(expectedAmount: 200, nativePaymentAvailable: false, quoteId: "q1"))
+            state: .loaded(OnrampQuote(expectedAmount: 200, nativePaymentAvailable: false, quoteId: "q1", isRestricted: false))
         )
         let sepa = OnrampTestFixtures.makeProvider(
             providerId: "provider-sepa",
             paymentMethodId: "sepa",
             amount: 100,
-            state: .loaded(OnrampQuote(expectedAmount: 150, nativePaymentAvailable: false, quoteId: "q2"))
+            state: .loaded(OnrampQuote(expectedAmount: 150, nativePaymentAvailable: false, quoteId: "q2", isRestricted: false))
         )
 
         let list = makeProvidersList([card, sepa])
@@ -102,13 +102,13 @@ struct OnrampSummaryInteractorSuggestedOffersTests {
             providerId: "provider-apple-pay",
             paymentMethodId: "apple-pay",
             amount: 100,
-            state: .loaded(OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: "q1"))
+            state: .loaded(OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: "q1", isRestricted: false))
         )
         let other = OnrampTestFixtures.makeProvider(
             providerId: "provider-card",
             paymentMethodId: "card",
             amount: 100,
-            state: .loaded(OnrampQuote(expectedAmount: 50, nativePaymentAvailable: false, quoteId: "q2"))
+            state: .loaded(OnrampQuote(expectedAmount: 50, nativePaymentAvailable: false, quoteId: "q2", isRestricted: false))
         )
 
         let list = makeProvidersList([nativeApplePay, other])
@@ -137,13 +137,13 @@ struct OnrampSummaryInteractorSuggestedOffersTests {
             providerId: "provider-native",
             paymentMethodId: "apple-pay",
             amount: 100,
-            state: .loaded(OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: "q1"))
+            state: .loaded(OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: "q1", isRestricted: false))
         )
         let widgetApplePay = OnrampTestFixtures.makeProvider(
             providerId: "provider-widget",
             paymentMethodId: "apple-pay",
             amount: 100,
-            state: .loaded(OnrampQuote(expectedAmount: 200, nativePaymentAvailable: false, quoteId: "q2"))
+            state: .loaded(OnrampQuote(expectedAmount: 200, nativePaymentAvailable: false, quoteId: "q2", isRestricted: false))
         )
 
         let list = makeProvidersList([nativeApplePay, widgetApplePay])
@@ -165,7 +165,7 @@ struct OnrampSummaryInteractorSuggestedOffersTests {
             providerId: "provider-apple-pay",
             paymentMethodId: "apple-pay",
             amount: 100,
-            state: .loaded(OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: "q1"))
+            state: .loaded(OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: "q1", isRestricted: false))
         )
 
         // Second provider keeps `updateAttractiveTypes` from returning early (it requires >1 providers)
@@ -173,7 +173,7 @@ struct OnrampSummaryInteractorSuggestedOffersTests {
             providerId: "provider-card",
             paymentMethodId: "card",
             amount: 100,
-            state: .loaded(OnrampQuote(expectedAmount: 50, nativePaymentAvailable: false, quoteId: "q2"))
+            state: .loaded(OnrampQuote(expectedAmount: 50, nativePaymentAvailable: false, quoteId: "q2", isRestricted: false))
         )
 
         let list = makeProvidersList([onlyProvider, other])

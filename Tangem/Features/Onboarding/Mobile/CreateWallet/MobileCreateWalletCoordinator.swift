@@ -14,6 +14,10 @@ class MobileCreateWalletCoordinator: CoordinatorObject {
 
     @Published private(set) var rootViewModel: MobileCreateWalletViewModel?
 
+    // MARK: - Floating sheets
+
+    @Published private(set) var importWalletViewModel: MobileImportWalletViewModel?
+
     // MARK: - Dependencies
 
     @Injected(\.safariManager) private var safariManager: SafariManager
@@ -38,6 +42,10 @@ class MobileCreateWalletCoordinator: CoordinatorObject {
 // MARK: - MobileCreateWalletRoutable
 
 extension MobileCreateWalletCoordinator: MobileCreateWalletRoutable {
+    func openImportWallet() {
+        importWalletViewModel = MobileImportWalletViewModel(coordinator: self)
+    }
+
     func openOnboarding(options: OnboardingCoordinator.Options) {
         openOnboarding(inputOptions: options)
     }
@@ -56,6 +64,14 @@ extension MobileCreateWalletCoordinator: MobileCreateWalletRoutable {
 extension MobileCreateWalletCoordinator: MobileCreateWalletDelegate {
     func onCreateWallet(userWalletModel: UserWalletModel) {
         openMain(userWalletModel: userWalletModel)
+    }
+}
+
+// MARK: - MobileImportWalletRoutable
+
+extension MobileCreateWalletCoordinator: MobileImportWalletRoutable {
+    func closeImportWallet() {
+        importWalletViewModel = nil
     }
 }
 

@@ -10,21 +10,27 @@ import Foundation
 import TangemFoundation
 
 enum PortfolioReviewAggregator {
-    /// Ranks the wallet's holdings into the top-N assets shown individually plus an "Other" bucket.
+    /// Addressless assets are set aside: the "Other" row states a fiat sum and would read as a confirmed $0.
     static func aggregate(
         _ holdings: [TokenHolding],
-        topHoldingsCount: Int = 4
-    ) -> (topHoldings: [Group], other: [Group]) {
-        holdings.filter(\.hasBalance)
-            .groupedByAsset()
+        topHoldingsCount: Int = 10
+    ) -> (topHoldings: [Group], other: [Group], addressless: [Group]) {
+        let groups = holdings.filter(\.hasBalance).groupedByAsset()
+        let addressless = groups.filter { $0.availability == .noAddress }
+        let (topHoldings, other) = groups
+            .filter { $0.availability != .noAddress }
             .rankedByFiat()
             .splitTop(max: topHoldingsCount)
+
+        return (topHoldings, other, addressless)
     }
 
-    /// Unfiltered grouping for the empty / all-zero state: up to `count` assets from the first holdings, no
-    /// "Other" bucket — so a wallet with only zero-balance tokens still lists them.
+    /// Unfiltered grouping for the empty / all-zero state; the `count` cap spares addressless holdings.
     static func aggregateEmpty(_ holdings: [TokenHolding], count: Int = 5) -> [Group] {
-        Array(holdings.prefix(count)).groupedByAsset()
+        let addressless = holdings.filter { $0.availability == .noAddress }
+        let addressed = holdings.filter { $0.availability != .noAddress }
+
+        return (Array(addressed.prefix(count)) + addressless).groupedByAsset()
     }
 }
 

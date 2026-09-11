@@ -64,6 +64,13 @@ extension StakingDetailsCoordinator {
     struct Options {
         let sendInput: SendInput
         let manager: StakingManager
+        let dismissesOnSameTokenFeeCurrency: Bool
+
+        init(sendInput: SendInput, manager: StakingManager, dismissesOnSameTokenFeeCurrency: Bool = false) {
+            self.sendInput = sendInput
+            self.manager = manager
+            self.dismissesOnSameTokenFeeCurrency = dismissesOnSameTokenFeeCurrency
+        }
     }
 }
 
@@ -101,8 +108,9 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
     func openMultipleRewards() {
         guard let options else { return }
 
-        let coordinator = MultipleRewardsCoordinator(dismissAction: { [weak self] _ in
+        let coordinator = MultipleRewardsCoordinator(dismissAction: { [weak self] option in
             self?.multipleRewardsCoordinator = nil
+            self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
         })
 
         coordinator.start(with: options)
@@ -161,6 +169,21 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
         let tokenSymbol = options?.sendInput.walletModel.tokenItem.currencySymbol ?? ""
         Analytics.log(event: .stakingLinkWhatIsStaking, params: [.token: tokenSymbol])
         safariManager.openURL(TangemBlogUrlBuilder().url(post: .whatIsStaking))
+    }
+}
+
+// MARK: - FeeCurrencyNavigating
+
+extension StakingDetailsCoordinator {
+    func openFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
+        let isStakedToken = walletModel.tokenItem == options?.sendInput.walletModel.tokenItem
+
+        guard isStakedToken, options?.dismissesOnSameTokenFeeCurrency == true else {
+            pushFeeCurrencyTokenDetails(for: walletModel, userWalletModel: userWalletModel)
+            return
+        }
+
+        dismiss()
     }
 }
 

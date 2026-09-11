@@ -10,6 +10,7 @@ import Foundation
 import TangemLocalization
 import Combine
 import TangemStaking
+import enum BlockchainSdk.ValidationError
 
 protocol StakingNotificationManagerInput {
     var stakingManagerStatePublisher: AnyPublisher<StakingManagerState, Never> { get }
@@ -115,15 +116,10 @@ private extension CommonStakingNotificationManager {
             hideErrorNotifications()
         case .validationError(let validationError, _):
             hideApproveInProgressNotification()
-            let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem)
-            let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
             if case .remainingAmountIsLessThanRentExemption = validationError {
                 hideAmountRelatedNotifications()
             }
-            if case .insufficientBalanceForFee = validationErrorEvent {
-                analyticsLogger.logNoticeNotEnoughFee()
-            }
-            show(error: .validationErrorEvent(validationErrorEvent))
+            showValidationError(validationError, validatesFeeOnly: false)
         case .networkError(let error):
             hideApproveInProgressNotification()
             showNetworkError(error, supportsReduceAmount: true)
@@ -161,18 +157,11 @@ private extension CommonStakingNotificationManager {
         case (.loading, _):
             hideErrorNotifications()
         case (.validationError(let validationError, _), _):
-            let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem)
-            let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
-
             if case .remainingAmountIsLessThanRentExemption = validationError {
                 hideActionInfoNotifications()
             }
 
-            if case .insufficientBalanceForFee = validationErrorEvent {
-                analyticsLogger.logNoticeNotEnoughFee()
-            }
-
-            show(error: .validationErrorEvent(validationErrorEvent))
+            showValidationError(validationError, validatesFeeOnly: true)
         case (.networkError(let error), _):
             showNetworkError(error)
         }
@@ -200,10 +189,8 @@ private extension CommonStakingNotificationManager {
         case .networkError(let error):
             showNetworkError(error)
         case .validationError(let validationError, _):
-            let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem)
-            let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
-
-            show(error: .validationErrorEvent(validationErrorEvent))
+            // RestakingModel validates a zero amount even for its stake-typed Cardano "stake more" action.
+            showValidationError(validationError, validatesFeeOnly: true)
         case .stakingValidationError(.minAmountRequirementError(let minAmount, let action)):
             show(
                 error: .amountRequirementError(
@@ -221,7 +208,7 @@ private extension CommonStakingNotificationManager {
 // MARK: - V2 (StakeFlowState)
 
 private extension CommonStakingNotificationManager {
-    func update(state: StakeFlowState, action: StakingAction, yield: StakingYieldInfo, stakedBalance: Decimal) {
+    func update(state: StakeFlowState, action: StakingAction, yield: StakingYieldInfo, stakedBalance: Decimal, enterSpendsAmount: Bool) {
         switch state {
         case .loading:
             hideErrorNotifications()
@@ -240,17 +227,12 @@ private extension CommonStakingNotificationManager {
         case .ready(let ready):
             showReadyNotifications(action: action, yield: yield, stakedBalance: stakedBalance, ready: ready)
             hideErrorNotifications()
-        case .failure(.transaction(let validationError, _)):
+        case .failure(.transaction(let validationError, _, let spendsAmount)):
             hideApproveInProgressNotification()
-            let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem)
-            let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
             if case .remainingAmountIsLessThanRentExemption = validationError {
                 hideAmountRelatedNotifications()
             }
-            if case .insufficientBalanceForFee = validationErrorEvent {
-                analyticsLogger.logNoticeNotEnoughFee()
-            }
-            show(error: .validationErrorEvent(validationErrorEvent))
+            showValidationError(validationError, validatesFeeOnly: !spendsAmount)
         case .failure(.staking(let stakingError)):
             if case .minAmountRequirementError(let minAmount, let actionType) = stakingError {
                 show(error: .amountRequirementError(
@@ -261,7 +243,8 @@ private extension CommonStakingNotificationManager {
             }
         case .failure(.network(let error)):
             hideApproveInProgressNotification()
-            showNetworkError(error, supportsReduceAmount: action.type.isEnter)
+            // Network failures carry no validated amount, so fee-only derives from the flow shape.
+            showNetworkError(error, supportsReduceAmount: action.type.isEnter && enterSpendsAmount)
         }
     }
 
@@ -343,17 +326,47 @@ private extension CommonStakingNotificationManager {
 
         case StakeKitHTTPError.insufficientGasReserve,
              StakingPreflightError.insufficientFundsForFee:
-            analyticsLogger.logNoticeNotEnoughFee()
-            show(error: .insufficientFundsForFee(
-                transactionAmountTypeName: tokenItem.currencySymbol,
-                networkName: tokenItem.blockchain.displayName,
-                feeAmountTypeName: feeTokenItem.currencySymbol,
-                feeAmountTypeCurrencySymbol: feeTokenItem.currencySymbol
-            ))
+            showInsufficientFundsForFee()
 
         default:
             show(error: .networkUnreachable)
         }
+    }
+
+    func showValidationError(_ validationError: ValidationError, validatesFeeOnly: Bool) {
+        // A fee-only validation spends nothing but the fee, so its coin fee-coverage failure gets
+        // the actionable top-up banner instead of the mapper's generic "insufficient balance".
+        if validatesFeeOnly, case .feeExceedsBalance(_, _, isFeeCurrency: true) = validationError {
+            showInsufficientFundsForFee()
+            return
+        }
+
+        let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem)
+        let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
+
+        if case .insufficientBalanceForFee = validationErrorEvent {
+            analyticsLogger.logNoticeNotEnoughFee()
+        }
+
+        show(error: .validationErrorEvent(validationErrorEvent))
+    }
+
+    func showInsufficientFundsForFee() {
+        analyticsLogger.logNoticeNotEnoughFee()
+        show(error: .insufficientFundsForFee(
+            configuration: .init(
+                isFeeCurrency: tokenItem == feeTokenItem,
+                transactionAmountTypeName: tokenItem.currencySymbol,
+                networkName: tokenItem.blockchain.displayName,
+                feeAmountTypeName: feeTokenItem.name,
+                feeAmountTypeCurrencySymbol: feeTokenItem.currencySymbol,
+                feeTokenIconInfo: TokenIconInfoBuilder().build(
+                    for: feeTokenItem.amountType,
+                    in: feeTokenItem.blockchain,
+                    isCustom: false
+                )
+            )
+        ))
     }
 
     func showCommonUnstakingNotifications(
@@ -600,7 +613,8 @@ extension CommonStakingNotificationManager: StakingNotificationManager {
                 state: state.0,
                 action: provider.stakingAction,
                 yield: state.1,
-                stakedBalance: provider.stakedBalance
+                stakedBalance: provider.stakedBalance,
+                enterSpendsAmount: provider.enterSpendsAmount
             )
         }
     }

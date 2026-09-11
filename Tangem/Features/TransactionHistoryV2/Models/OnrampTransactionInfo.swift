@@ -9,7 +9,7 @@
 import TangemExpress
 
 struct OnrampTransactionInfo: Hashable {
-    let onrampTransaction: OnrampTransaction
+    let transaction: OnrampTransaction
 
     /// - Note: Nullable since can be fetched asynchronously.
     /// - Note: Can't use `OnrampProvider` instead since it includes heavy `OnrampProviderManager` for no reason.

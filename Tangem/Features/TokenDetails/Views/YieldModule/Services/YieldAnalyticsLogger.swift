@@ -174,7 +174,7 @@ final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
             params: [
                 .action: action.rawValue,
                 .errorCode: String(error.universalErrorCode),
-                .errorDescription: error.localizedDescription,
+                .error: error.localizedDescription,
             ],
             contextParams: .userWallet(userWalletId)
         )

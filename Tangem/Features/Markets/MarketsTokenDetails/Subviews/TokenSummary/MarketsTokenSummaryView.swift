@@ -17,48 +17,37 @@ struct MarketsTokenSummaryView: View {
 
     var body: some View {
         Group {
-            if viewModel.isTappable {
+            switch viewModel.state {
+            case .loading:
+                MarketsTokenSummaryPlaceholderView()
+
+            case .loaded(let score):
                 SwiftUI.Button(action: viewModel.cardTapped) {
-                    card
+                    card(score: score)
                 }
                 .buttonStyle(.plain)
-            } else {
-                card
+
+            case .unavailable:
+                EmptyView()
             }
         }
         .task { await viewModel.loadIndicators() }
     }
 
-    @ViewBuilder
-    private var card: some View {
-        switch viewModel.state {
-        case .loading:
-            MarketsTokenSummaryPlaceholderView()
+    private func card(score: TokenSummaryScore) -> some View {
+        VStack(alignment: .leading, spacing: CardLayout.trackSpacing) {
+            VStack(alignment: .leading, spacing: CardLayout.titleSpacing) {
+                Text(Localization.tokenSummaryTitle)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
-        case .loaded(let gaugeState):
-            VStack(alignment: .leading, spacing: CardLayout.trackSpacing) {
-                header(for: gaugeState)
-
-                TokenSummaryTrackView(score: gaugeState.score, showsTicks: false)
-            }
-            .cardBackground()
-        }
-    }
-
-    private func header(for gaugeState: TokenSummaryGaugeState) -> some View {
-        VStack(alignment: .leading, spacing: CardLayout.titleSpacing) {
-            Text(Localization.tokenSummaryTitle)
-                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-
-            if let score = gaugeState.score {
                 Text(score.outlook.title)
                     .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
-            } else if let message = gaugeState.unavailabilityMessage {
-                Text(message)
-                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textSecondary)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            TokenSummaryTrackView(score: score)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .cardBackground()
     }
 }
 
@@ -104,8 +93,6 @@ private extension View {
 #Preview {
     VStack(spacing: 16) {
         previewCard(.score)
-        previewCard(.outlookUnavailable)
-        previewCard(.dataUnavailable)
         previewCard(.pending)
     }
     .padding(16)
@@ -113,6 +100,7 @@ private extension View {
     .background(DesignSystem.Color.bgPrimary)
 }
 
+@MainActor
 private func previewCard(_ readings: PreviewIndicatorsProvider.Readings) -> some View {
     MarketsTokenSummaryView(
         viewModel: .init(symbol: "BTC", indicatorsProvider: PreviewIndicatorsProvider(readings: readings), onTap: {})
@@ -122,8 +110,6 @@ private func previewCard(_ readings: PreviewIndicatorsProvider.Readings) -> some
 private struct PreviewIndicatorsProvider: TokenSummaryIndicatorsProvider {
     enum Readings {
         case score
-        case outlookUnavailable
-        case dataUnavailable
         case pending
     }
 
@@ -139,12 +125,6 @@ private struct PreviewIndicatorsProvider: TokenSummaryIndicatorsProvider {
                 .init(kind: .macd, timeframe: .day, title: "MACD", value: Decimal(string: "145.67"), signal: .positive, updatedAt: nil),
                 .init(kind: .maCross, timeframe: .day, title: "MA Cross", value: 50, signal: .positive, updatedAt: nil),
             ]
-
-        case .outlookUnavailable:
-            return [.init(kind: .rsi, timeframe: .day, title: "RSI", value: nil, signal: .unavailable, updatedAt: nil)]
-
-        case .dataUnavailable:
-            return []
 
         case .pending:
             try await Task.sleep(for: .seconds(600))

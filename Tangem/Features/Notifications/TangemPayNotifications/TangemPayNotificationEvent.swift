@@ -89,6 +89,21 @@ extension TangemPayNotificationEvent: NotificationEvent {
         return .critical
     }
 
+    var bannerKind: NotificationBannerKind? {
+        return .status
+    }
+
+    var bannerRing: NotificationBanner.Ring? {
+        switch self {
+        case .sessionExpired:
+            return .magic
+        case .unavailable:
+            return .warning
+        case .tangemPayIsNowBeta:
+            return nil
+        }
+    }
+
     var isDismissable: Bool {
         return false
     }

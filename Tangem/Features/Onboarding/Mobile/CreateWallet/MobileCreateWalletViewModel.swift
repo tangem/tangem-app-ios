@@ -77,7 +77,14 @@ extension MobileCreateWalletViewModel {
             do {
                 let initializer = MobileWalletInitializer()
 
-                let walletInfo = try await initializer.initializeWallet(mnemonic: nil, passphrase: nil)
+                let walletInfo = try await initializer.initializeWallet(
+                    parameters: WalletInitializerParameters(
+                        mnemonic: nil,
+                        passphrase: nil,
+                        hasMnemonicBackup: false,
+                        hasICloudBackup: false
+                    )
+                )
 
                 Task.detached {
                     let userWalletConfig = MobileUserWalletConfig(mobileWalletInfo: walletInfo)
@@ -125,7 +132,11 @@ extension MobileCreateWalletViewModel {
             return
         }
         runTask(in: self) { viewModel in
-            await viewModel.openImportWallet()
+            if FeatureProvider.isAvailable(.mobileWalletBackup) {
+                await viewModel.openImportWallet()
+            } else {
+                await viewModel.openImportWalletWithRecoveryPhrase()
+            }
         }
     }
 
@@ -141,6 +152,10 @@ extension MobileCreateWalletViewModel {
 @MainActor
 private extension MobileCreateWalletViewModel {
     func openImportWallet() {
+        coordinator?.openImportWallet()
+    }
+
+    func openImportWalletWithRecoveryPhrase() {
         let source = MobileOnboardingFlowSource.importWallet
         let input = MobileOnboardingInput(
             flow: .walletImport(source: source),

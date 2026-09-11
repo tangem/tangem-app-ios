@@ -18,6 +18,7 @@ public struct TokenIconV2: View {
     private let size: Size
 
     private var indicatorColorValue: Color?
+    private var geometryEffectValue: GeometryEffectPropertiesModel?
     private var isGrayscale: Bool = false
     private var accessibilityIdentifierValue: String?
     private var accessibilityLabelValue: String?
@@ -124,6 +125,7 @@ public struct TokenIconV2: View {
 
     private func composedArtwork<Artwork: View>(showsOverlays: Bool, @ViewBuilder _ artwork: () -> Artwork) -> some View {
         artwork()
+            .matchedGeometryEffect(geometryEffectValue)
             .frame(size: CGSize(bothDimensions: metrics.container))
             .clipShape(.circle)
             .modifier(IconCutouts(
@@ -195,7 +197,7 @@ private extension TokenIconV2 {
     }
 
     var clampedScale: CGFloat {
-        min(max(scale, Constants.minDynamicTypeMultiplier), Constants.maxDynamicTypeMultiplier)
+        TokenIconV2.clampedScale(scale)
     }
 
     var metrics: Metrics {
@@ -218,6 +220,10 @@ extension TokenIconV2: Setupable {
         map { $0.indicatorColorValue = color }
     }
 
+    public func geometryEffect(_ effect: GeometryEffectPropertiesModel?) -> Self {
+        map { $0.geometryEffectValue = effect }
+    }
+
     public func grayscale(_ isGrayscale: Bool) -> Self {
         map { $0.isGrayscale = isGrayscale }
     }
@@ -230,6 +236,10 @@ extension TokenIconV2 {
         static let grayscaleOpacity: CGFloat = 0.4
         static let minDynamicTypeMultiplier: CGFloat = 1
         static let maxDynamicTypeMultiplier: CGFloat = 1.5
+    }
+
+    static func clampedScale(_ scale: CGFloat) -> CGFloat {
+        min(max(scale, Constants.minDynamicTypeMultiplier), Constants.maxDynamicTypeMultiplier)
     }
 }
 

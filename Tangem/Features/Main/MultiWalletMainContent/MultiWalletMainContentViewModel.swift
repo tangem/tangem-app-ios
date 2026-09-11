@@ -95,6 +95,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
     private weak var coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable & TokensManagementFlowRoutable)?
     private let tokenItemPromoProvider: TokenItemPromoProvider
+    private let expressBalanceUpdater: any ExpressTransactionBalanceUpdater = CommonExpressTransactionBalanceUpdater()
+
+    private lazy var authUtil = MobileAuthUtil(
+        userWalletId: userWalletModel.userWalletId,
+        config: userWalletModel.config,
+        biometricsProvider: CommonUserWalletBiometricsProvider()
+    )
 
     private var derivator: TokenEntriesDerivator?
 
@@ -179,6 +186,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         )
 
         yieldApyBoostBannerNotificationManager.refreshFromCache()
+
+        expressBalanceUpdater.updateUnfinishedDestinationBalances(userWalletId: userWalletModel.userWalletId)
     }
 
     func onWillDisappear() {
@@ -673,12 +682,36 @@ extension MultiWalletMainContentViewModel {
     private func openMobileFinishActivation() {
         Analytics.log(.mainButtonFinalizeActivation)
 
-        let isBackupNeeded = userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
+        let isBackupNeeded = MobileBackupStatusUtil(userWalletModel: userWalletModel).isBackupNeeded
         if isBackupNeeded {
             coordinator?.openMobileBackup(userWalletModel: userWalletModel)
         } else {
-            coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+            runTask(in: self) { viewModel in
+                await viewModel.openMobileBackupOnboarding()
+            }
         }
+    }
+
+    private func openMobileBackupOnboarding() async {
+        switch await unlock() {
+        case .successful(let context):
+            await openMobileOnboarding(context: context)
+        case .failed(let error):
+            AppLogger.error("Unlock failed:", error: error)
+            await showUnlockingErrorAlert(error)
+        case .canceled:
+            break
+        }
+    }
+
+    @MainActor
+    private func openMobileOnboarding(context: MobileWalletContext) {
+        coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel, context: context)
+    }
+
+    @MainActor
+    private func showUnlockingErrorAlert(_ error: Error) {
+        self.error = error.alertBinder
     }
 
     private func openHardwareBackupTypes() {
@@ -716,7 +749,8 @@ extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
         coordinator?.openTangemPayMainView(
             userWalletInfo: userWalletModel.userWalletInfo,
             tangemPayAccount: tangemPayAccount,
-            userWalletModel: userWalletModel
+            userWalletModel: userWalletModel,
+            incomingAction: nil
         )
     }
 
@@ -853,37 +887,42 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
         }
 
         let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
-        let availabilityAlertBuilder = TokenActionAvailabilityAlertBuilder()
 
         switch action {
         case .buy:
-            if let unavailableAlert = availabilityAlertBuilder.alert(for: availabilityProvider.buyAvailablity) {
-                error = unavailableAlert
-                return
-            }
-
-            tokenRouter.openOnramp(walletModel: walletModel)
+            TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                handler: &error,
+                buyStatus: availabilityProvider.buyAvailablity,
+                warning: availabilityProvider.availabilityWarningType,
+                action: { [weak self] in
+                    self?.tokenRouter.openOnramp(walletModel: walletModel)
+                }
+            )
         case .send:
             tokenRouter.openSend(walletModel: walletModel)
         case .receive:
-            if let unavailableAlert = availabilityAlertBuilder.alert(for: availabilityProvider.receiveAvailability, blockchain: walletModel.tokenItem.blockchain) {
-                error = unavailableAlert
-                return
-            }
-
-            tokenRouter.openReceive(walletModel: walletModel)
+            TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                handler: &error,
+                receiveStatus: availabilityProvider.receiveAvailability,
+                warning: availabilityProvider.availabilityWarningType,
+                action: { [weak self] in
+                    self?.tokenRouter.openReceive(walletModel: walletModel)
+                }
+            )
         case .sell:
             openSell(for: walletModel)
         case .copyAddress:
-            // Copying the receive address is the first step of topping up, so it must be blocked on a card-linked wallet.
-            if let unavailableAlert = availabilityAlertBuilder.alert(for: availabilityProvider.receiveAvailability, blockchain: walletModel.tokenItem.blockchain) {
-                error = unavailableAlert
-                return
-            }
-
-            logContextTap(action: action, for: tokenItemViewModel)
-            UIPasteboard.general.string = walletModel.defaultAddressString
-            delegate?.displayAddressCopiedToast()
+            // Unlike Receive / Buy, copying an address isn't a top-up on its own, so the incomplete backup warning doesn't apply.
+            TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                handler: &error,
+                receiveStatus: availabilityProvider.receiveAvailability,
+                action: { [weak self] in
+                    guard let self else { return }
+                    logContextTap(action: action, for: tokenItemViewModel)
+                    UIPasteboard.general.string = walletModel.defaultAddressString
+                    delegate?.displayAddressCopiedToast()
+                }
+            )
         case .exchange:
             guard let parameters = SwapPredefinedParametersHelper().makeParameters(
                 walletModel: walletModel,
@@ -941,6 +980,37 @@ private extension MultiWalletMainContentViewModel {
             userWalletModel: userWalletModel,
             swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
         )
+    }
+}
+
+// MARK: - Mobile wallet unlocking
+
+private extension MultiWalletMainContentViewModel {
+    func unlock() async -> UnlockResult {
+        do {
+            let result = try await authUtil.unlock()
+
+            switch result {
+            case .successful(let context):
+                return .successful(context: context)
+
+            case .canceled:
+                return .canceled
+
+            case .userWalletNeedsToDelete:
+                assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
+                return .canceled
+            }
+
+        } catch {
+            return .failed(error: error)
+        }
+    }
+
+    enum UnlockResult {
+        case successful(context: MobileWalletContext)
+        case canceled
+        case failed(error: Error)
     }
 }
 

@@ -12,10 +12,16 @@ struct CommonTokenFeeProvidersManagerProvider {
 
     let walletModel: any WalletModel
     let supportingOptions: TokenFeeProviderSupportingOptions
+    private let isFeatureAvailable: (Feature) -> Bool
 
-    init(walletModel: any WalletModel, supportingOptions: TokenFeeProviderSupportingOptions = .all) {
+    init(
+        walletModel: any WalletModel,
+        supportingOptions: TokenFeeProviderSupportingOptions = .all,
+        isFeatureAvailable: @escaping (Feature) -> Bool = FeatureProvider.isAvailable
+    ) {
         self.walletModel = walletModel
         self.supportingOptions = supportingOptions
+        self.isFeatureAvailable = isFeatureAvailable
     }
 }
 
@@ -40,13 +46,41 @@ extension CommonTokenFeeProvidersManagerProvider: TokenFeeProvidersManagerProvid
     }
 }
 
-// MARK: - Private
+// MARK: - Prepare initial token
 
-private extension CommonTokenFeeProvidersManagerProvider {
+extension CommonTokenFeeProvidersManagerProvider {
+    func availableGaslessTokenAddresses() -> [String] {
+        if case .tron(testnet: false) = walletModel.tokenItem.blockchain {
+            guard isFeatureAvailable(.tronGasless),
+                  walletModel.tronAccountActivationStateProvider?.isAccountActivated == true,
+                  let contractAddress = walletModel.tokenItem.contractAddress else {
+                return []
+            }
+
+            // Tron gasless supports only for the same token being sent.
+            return gaslessTransactionsNetworkManager.availableTronFeeTokens
+                .filter { $0.address == contractAddress }
+                .map(\.address)
+        }
+
+        return gaslessTransactionsNetworkManager.availableFeeTokens
+            .filter { $0.chainId == walletModel.tokenItem.blockchain.chainId }
+            .map(\.tokenAddress)
+    }
+
     func prepareInitialTokenFeeProvider(main: any TokenFeeProvider, all: [any TokenFeeProvider]) -> any TokenFeeProvider {
         // Early exit when we have only main provider
         guard all.hasMultipleFeeProviders else {
             return main
+        }
+
+        // Tron: prefer gasless when the available fee token has a positive balance.
+        // Gasless fees are lower than TRX in most cases.
+        // Temporary solution until we implement multi-token gas estimation.
+        if case .tron(testnet: false) = walletModel.tokenItem.blockchain {
+            return all.first(where: {
+                $0.feeTokenItem != main.feeTokenItem && ($0.balanceFeeTokenState.loaded ?? 0) > 0
+            }) ?? main
         }
 
         // If main(coin) fee provider has zero balance then try to find gasless
@@ -64,7 +98,11 @@ private extension CommonTokenFeeProvidersManagerProvider {
         // Fallback to coin. In case we don't have any gasless providers.
         return main
     }
+}
 
+// MARK: - Private
+
+private extension CommonTokenFeeProvidersManagerProvider {
     func makeMainTokenFeeProvider() -> any TokenFeeProvider {
         let tokenFeeLoader = walletModel.tokenFeeLoaderBuilder.makeMainTokenFeeLoader()
         let customFeeProvider = walletModel.customFeeProviderBuilder.makeCustomFeeProvider()
@@ -80,19 +118,7 @@ private extension CommonTokenFeeProvidersManagerProvider {
     }
 
     func makeGaslessTokenFeeProviders() -> [any TokenFeeProvider] {
-        let availableTokenAddresses: [String] = {
-            if case .tron(testnet: false) = walletModel.tokenItem.blockchain {
-                guard FeatureProvider.isAvailable(.tronGasless) else {
-                    return []
-                }
-
-                return gaslessTransactionsNetworkManager.availableTronFeeTokens.map(\.address)
-            }
-
-            return gaslessTransactionsNetworkManager.availableFeeTokens
-                .filter { $0.chainId == walletModel.tokenItem.blockchain.chainId }
-                .map(\.tokenAddress)
-        }()
+        let availableTokenAddresses = availableGaslessTokenAddresses()
 
         guard !availableTokenAddresses.isEmpty else {
             return []
