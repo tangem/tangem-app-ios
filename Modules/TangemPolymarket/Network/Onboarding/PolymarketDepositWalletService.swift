@@ -20,5 +20,5 @@ public protocol PolymarketDepositWalletService {
         walletId: String
     ) async throws(PolymarketWalletError) -> PolymarketDepositWalletStatus
 
-    func submitApprovals(_ batch: PolymarketApprovalsBatch) async throws(PolymarketWalletError) -> PolymarketDepositWalletStatus
+    func submitApprovals(_ batch: PolymarketRelayedBatch) async throws(PolymarketWalletError) -> PolymarketDepositWalletStatus
 }

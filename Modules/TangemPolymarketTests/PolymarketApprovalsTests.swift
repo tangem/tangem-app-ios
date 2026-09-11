@@ -70,7 +70,7 @@ struct PolymarketApprovalsTests {
         Vector(nonce: "7", digest: "6dc8f8c5a4cc89a1291aa95210ac97c2ea8b5604c14c3b74e3c086d937eac79d"),
     ])
     func digestMatchesTheVector(vector: Vector) throws {
-        let digest = try PolymarketApprovalsSigning.digest(
+        let digest = try PolymarketRelayedBatchSigning.digest(
             for: .init(
                 depositWalletAddress: Self.depositWallet,
                 nonce: vector.nonce,
@@ -94,7 +94,7 @@ struct PolymarketApprovalsTests {
     @Test("The deposit wallet is part of the digest, both as the domain and as the message")
     func theDepositWalletIsPartOfTheDigest() throws {
         let digest = try Self.makeDigest(calls: PolymarketApprovalCalls.make())
-        let other = try PolymarketApprovalsSigning.digest(
+        let other = try PolymarketRelayedBatchSigning.digest(
             for: .init(
                 depositWalletAddress: "0x0491eb219E3D2d05aEF0C35D1079c0a55b19bd2B",
                 nonce: "0",
@@ -109,7 +109,7 @@ struct PolymarketApprovalsTests {
     @Test("The deadline is part of the digest")
     func theDeadlineIsPartOfTheDigest() throws {
         let digest = try Self.makeDigest(calls: PolymarketApprovalCalls.make())
-        let other = try PolymarketApprovalsSigning.digest(
+        let other = try PolymarketRelayedBatchSigning.digest(
             for: .init(
                 depositWalletAddress: Self.depositWallet,
                 nonce: "0",
@@ -123,8 +123,8 @@ struct PolymarketApprovalsTests {
 
     @Test("A nonce that is not a number is rejected instead of silently signed", arguments: ["", "seven", "7.5", "-7", "0x7"])
     func malformedNonceIsRejected(nonce: String) {
-        #expect(throws: PolymarketApprovalsSigningError.invalidNonce) {
-            try PolymarketApprovalsSigning.digest(
+        #expect(throws: PolymarketRelayedBatchSigningError.invalidNonce) {
+            try PolymarketRelayedBatchSigning.digest(
                 for: .init(
                     depositWalletAddress: Self.depositWallet,
                     nonce: nonce,
@@ -137,8 +137,8 @@ struct PolymarketApprovalsTests {
 
     @Test("A deadline that is not a number is rejected instead of silently signed")
     func malformedDeadlineIsRejected() {
-        #expect(throws: PolymarketApprovalsSigningError.invalidDeadline) {
-            try PolymarketApprovalsSigning.digest(
+        #expect(throws: PolymarketRelayedBatchSigningError.invalidDeadline) {
+            try PolymarketRelayedBatchSigning.digest(
                 for: .init(
                     depositWalletAddress: Self.depositWallet,
                     nonce: "0",
@@ -155,8 +155,8 @@ struct PolymarketApprovalsTests {
         String(repeating: "9", count: 78),
     ])
     func nonceAndDeadlineBeyondUint256AreRejected(value: String) {
-        #expect(throws: PolymarketApprovalsSigningError.invalidNonce) {
-            try PolymarketApprovalsSigning.digest(
+        #expect(throws: PolymarketRelayedBatchSigningError.invalidNonce) {
+            try PolymarketRelayedBatchSigning.digest(
                 for: .init(
                     depositWalletAddress: Self.depositWallet,
                     nonce: value,
@@ -166,8 +166,8 @@ struct PolymarketApprovalsTests {
             )
         }
 
-        #expect(throws: PolymarketApprovalsSigningError.invalidDeadline) {
-            try PolymarketApprovalsSigning.digest(
+        #expect(throws: PolymarketRelayedBatchSigningError.invalidDeadline) {
+            try PolymarketRelayedBatchSigning.digest(
                 for: .init(
                     depositWalletAddress: Self.depositWallet,
                     nonce: "0",
@@ -180,7 +180,7 @@ struct PolymarketApprovalsTests {
 
     @Test("The largest value uint256 can hold is still signed", arguments: [Self.maxUint256, "0" + Self.maxUint256])
     func theUpperBoundIsAccepted(value: String) throws {
-        let digest = try PolymarketApprovalsSigning.digest(
+        let digest = try PolymarketRelayedBatchSigning.digest(
             for: .init(
                 depositWalletAddress: Self.depositWallet,
                 nonce: value,
@@ -200,8 +200,8 @@ struct PolymarketApprovalsTests {
         "0xfAeA0f08159fcF2f573fE24E9E989B0d48f7651Z",
     ])
     func malformedDepositWalletIsRejected(address: String) {
-        #expect(throws: PolymarketApprovalsSigningError.invalidDepositWalletAddress) {
-            try PolymarketApprovalsSigning.digest(
+        #expect(throws: PolymarketRelayedBatchSigningError.invalidDepositWalletAddress) {
+            try PolymarketRelayedBatchSigning.digest(
                 for: .init(
                     depositWalletAddress: address,
                     nonce: "0",
@@ -223,8 +223,8 @@ extension PolymarketApprovalsTests {
 }
 
 private extension PolymarketApprovalsTests {
-    static func makeDigest(calls: [PolymarketApprovalsBatch.Call]) throws -> Data {
-        try PolymarketApprovalsSigning.digest(
+    static func makeDigest(calls: [PolymarketRelayedBatch.Call]) throws -> Data {
+        try PolymarketRelayedBatchSigning.digest(
             for: .init(
                 depositWalletAddress: depositWallet,
                 nonce: "0",
