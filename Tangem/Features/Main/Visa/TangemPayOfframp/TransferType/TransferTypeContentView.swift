@@ -30,11 +30,7 @@ struct TransferTypeContentView: View {
         }
         .scrollIndicators(.hidden)
         .scrollBounceBehavior(.basedOnSize)
-        .safeAreaInset(edge: .bottom) {
-            continueButton
-                .padding(.vertical, Constants.buttonVerticalPadding)
-                .padding(.horizontal, Constants.horizontalPadding)
-        }
+        .offrampBottomBar { continueButton }
     }
 }
 
@@ -97,7 +93,6 @@ private extension TransferTypeContentView {
         static let topPadding: CGFloat = 12
         static let horizontalPadding: CGFloat = 16
         static let bottomPadding: CGFloat = 8
-        static let buttonVerticalPadding: CGFloat = 8
         static let cardCornerRadius: CGFloat = 24
     }
 }
