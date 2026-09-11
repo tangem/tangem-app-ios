@@ -9,12 +9,6 @@
 import Foundation
 import TangemExpress
 
-/// Picks the "From" token for a Polymarket deposit, in priority order:
-/// 1. A transferable token in the currency the bridge accepts — the richest by fiat, else the
-///    first in UI order. Keeps the operation a plain transfer, so Express swap support is not
-///    required.
-/// 2. Otherwise a swap-available token — the richest by fiat, else the first in UI order.
-/// 3. Otherwise `nil`, leaving the source unselected for the user to pick manually.
 final class PolymarketDepositSourceResolver {
     private let userWalletInfo: UserWalletInfo
     private let walletModelsProvider: MainScreenUIOrderedWalletModelsProvider
@@ -51,8 +45,6 @@ extension PolymarketDepositSourceResolver {
         depositCurrency: ExpressWalletCurrency,
         availabilityChecker: FundingSourceAvailabilityChecker
     ) -> (any WalletModel)? {
-        // The bridge's own currency makes the pair a plain transfer, which needs no Express
-        // support — only the send gates apply, the swap availability bar is for the swap fallback.
         let matching = walletModels.filter {
             $0.tokenItem.expressCurrency == depositCurrency
                 && availabilityChecker.isTransferAvailable(walletModel: $0)

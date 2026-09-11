@@ -22,16 +22,16 @@ final class PolymarketDepositWalletServiceStub: PolymarketDepositWalletService {
     private(set) var submittedBatches: [PolymarketApprovalsBatch] = []
 
     private var stateResults: [Result<PolymarketDepositWallet, PolymarketWalletError>]
-    private let deployResult: Result<PolymarketDepositWalletStatus, PolymarketWalletError>
+    private var deployResults: [Result<PolymarketDepositWalletStatus, PolymarketWalletError>]
     private let approvalsResult: Result<PolymarketDepositWalletStatus, PolymarketWalletError>
 
     init(
         stateResults: [Result<PolymarketDepositWallet, PolymarketWalletError>] = [],
-        deployResult: Result<PolymarketDepositWalletStatus, PolymarketWalletError> = .success(.deploymentInProgress),
+        deployResults: [Result<PolymarketDepositWalletStatus, PolymarketWalletError>] = [.success(.deploymentInProgress)],
         approvalsResult: Result<PolymarketDepositWalletStatus, PolymarketWalletError> = .success(.approvalsInProgress)
     ) {
         self.stateResults = stateResults
-        self.deployResult = deployResult
+        self.deployResults = deployResults
         self.approvalsResult = approvalsResult
     }
 
@@ -71,9 +71,12 @@ final class PolymarketDepositWalletServiceStub: PolymarketDepositWalletService {
     ) async throws(PolymarketWalletError) -> PolymarketDepositWalletStatus {
         deployCalls += 1
 
-        switch deployResult {
+        let result = deployResults.count > 1 ? deployResults.removeFirst() : deployResults.first
+
+        switch result {
         case .success(let status): return status
         case .failure(let error): throw error
+        case .none: return .deploymentInProgress
         }
     }
 
@@ -468,6 +471,22 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
 }
 
 // MARK: - Geoblock
+
+final class PolymarketGeoblockServiceStub: PolymarketGeoblockService {
+    private let result: Result<PolymarketGeoblock, Error>
+
+    init(isBlocked: Bool = false) {
+        result = .success(PolymarketGeoblock(isBlocked: isBlocked, country: nil, region: nil))
+    }
+
+    init(error: Error) {
+        result = .failure(error)
+    }
+
+    func geoblock() async throws -> PolymarketGeoblock {
+        try result.get()
+    }
+}
 
 final class PolymarketGeoblockStateProviderStub: PolymarketGeoblockStateProvider {
     let state: PolymarketGeoblockState
