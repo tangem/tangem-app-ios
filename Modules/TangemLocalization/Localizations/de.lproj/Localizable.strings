@@ -639,6 +639,13 @@
 "fee_selector_choose_token_description" = "Wähle aus, mit welchem Token Du die Netzgebühr bezahlen möchtest. %@";
 "fee_selector_choose_token_title" = "Token auswählen";
 "feed_market_and_news" = "Markt & Nachrichten";
+"feed_promo_earn_active_description" = "Earn up to %1$@ APY on your %2$@";
+"feed_promo_earn_description" = "Put your crypto to work and earn up to %1$@ APY";
+"feed_promo_earn_title" = "Start earning";
+"feed_promo_referral_description" = "Earn %1$@ per friend";
+"feed_promo_referral_title" = "Invite friends to Tangem";
+"feed_promo_tangem_pay_description" = "Get cashback on everyday spending";
+"feed_promo_tangem_pay_title" = "Pay with crypto";
 "feed_search_recent_clear" = "Löschen";
 "feed_search_recent_title" = "Aktuell";
 "feed_search_show_all_user_assets" = "Alle anzeigen";
@@ -934,6 +941,7 @@
 "joint_account_join_load_failed" = "Die Einladungsseite konnte nicht geladen werden. Tippen Sie hier, um sie neu zu laden.";
 "joint_account_join_subtitle_value" = "%1$@ Mitglieder von %2$@";
 "joint_account_join_subtitle" = "Dies ist ein Gemeinschaftskonto. Jede Transaktion von diesem Konto erfordert eine Überweisung. %1$@ zu unterschreiben";
+"joint_account_join_success_message" = "Account added";
 "joint_account_join_title" = "Sie wurden eingeladen zu %1$@";
 "joint_account_join_to_account_btn_text" = "Jetzt anmelden";
 "joint_account_members_progress" = "%1$@ von %2$@ Mitglieder";
@@ -1440,6 +1448,14 @@
 "prediction_onboarding_reconnect_subtitle" = "Ihr Einzahlungskonto, Ihr Guthaben und Ihre offenen Positionen sind sicher. Das Gerät muss lediglich erneut gekoppelt werden – tippen Sie einmal auf Ihre Karte, um den Zugriff wiederherzustellen.";
 "prediction_onboarding_reconnect_title" = "Verbinden Sie Ihr Polymarket-Konto erneut.";
 "prediction_onboarding_start_button" = "Mit den Vorhersagen beginnen";
+"prediction_onboarding_story_first_subtitle" = "An Event (like the FIFA World Cup) holds Markets — the possible outcomes (France to win, Brazil to win…). Each outcome has a price in cents, and that price is the crowd's odds: 65¢ ≈ a 65%% chance.";
+"prediction_onboarding_story_first_title" = "How to read a prediction";
+"prediction_onboarding_story_fourth_subtitle" = "Open predictions appear right on your main screen. Even after an event settles, Tangem keeps the position there so you can tap to acknowledge your win or loss — nothing clears without you seeing it.";
+"prediction_onboarding_story_fourth_title" = "Track it from your home screen";
+"prediction_onboarding_story_second_subtitle" = "Every share is a token tied to one outcome. When the event settles, winning shares are worth $1 each and losing shares $0. Your profit is the gap between what you paid and that final value.";
+"prediction_onboarding_story_second_title" = "Win = $1, lose = $0";
+"prediction_onboarding_story_third_subtitle" = "During live events, prices move by the second. Tangem lets you set how much price movement you'll accept (slippage), so your order still goes through when the odds shift fast.";
+"prediction_onboarding_story_third_title" = "Built for live markets";
 "prediction_onboarding_subtitle" = "Prognostizieren Sie reale Ereignisse – von Politik und Sport bis hin zu Krypto, Kultur und mehr – direkt mit Tangem. Sie kaufen Anteile an dem Ergebnis, an das Sie glauben. Liegen Sie richtig, erhalten Sie eine Auszahlung. Sie können Ihre Position jederzeit schließen, solange das Ergebnis noch nicht feststeht.";
 "prediction_onboarding_title" = "Eröffnen Sie Ihr Polymarket-Konto.";
 "prediction_place_at_least" = "Zumindest %@";
