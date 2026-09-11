@@ -157,7 +157,7 @@ private struct TangemPayAccountTile: View {
     }
 
     private var currencyText: some View {
-        SensitiveText(TangemPayUtilities.usdcTokenItem.currencySymbol)
+        SensitiveText(TangemPayUtilities.fiatItem.currencyCode)
             .style(TangemRowConstants.Style.Subtitle.font, color: TangemRowConstants.Style.Subtitle.color)
     }
 

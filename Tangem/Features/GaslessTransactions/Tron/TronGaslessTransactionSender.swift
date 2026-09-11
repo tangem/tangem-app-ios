@@ -31,7 +31,11 @@ final class TronGaslessTransactionSender {
             throw TransactionDispatcherResult.Error.actionNotSupported
         }
 
-        let quote = try resolveQuote(transaction: transaction, feeToken: feeToken)
+        let quote = try resolveQuote(
+            fee: transaction.fee,
+            transaction: transaction,
+            feeToken: feeToken
+        )
         try validateBalance(transaction: transaction, quote: quote, feeToken: feeToken)
 
         let compensationTransaction = try makeCompensationTransaction(
@@ -81,9 +85,14 @@ final class TronGaslessTransactionSender {
 // MARK: - Private
 
 private extension TronGaslessTransactionSender {
-    func resolveQuote(transaction: BSDKTransaction, feeToken: BSDKToken) throws -> TronGaslessFeeParameters {
-        guard let parameters = transaction.fee.parameters as? TronGaslessFeeParameters,
-              parameters.expiresAt > Date().addingTimeInterval(TronGaslessFeeParameters.expirationBuffer) else {
+    func resolveQuote(
+        fee: BSDKFee,
+        transaction: BSDKTransaction,
+        feeToken: BSDKToken
+    ) throws -> TronGaslessFeeParameters {
+        guard let parameters = fee.parameters as? TronGaslessFeeParameters,
+              parameters.expiresAt > Date().addingTimeInterval(TronGaslessFeeParameters.expirationBuffer),
+              parameters.request.matches(transaction: transaction, feeToken: feeToken) else {
             throw TransactionDispatcherResult.Error.informationRelevanceServiceError
         }
 

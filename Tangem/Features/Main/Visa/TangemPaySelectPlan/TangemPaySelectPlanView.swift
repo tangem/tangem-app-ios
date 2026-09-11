@@ -31,13 +31,7 @@ struct TangemPaySelectPlanView: View {
             .alert(item: $viewModel.alert) { $0.alert }
             .onAppear(perform: viewModel.onAppear)
             .task { await viewModel.loadTransitions() }
-            .modifyView { view in
-                if #unavailable(iOS 26.0) {
-                    view.backportTranslucentNavigationBar()
-                } else {
-                    view
-                }
-            }
+            .translucentNavigationBar()
     }
 
     @ViewBuilder
@@ -171,6 +165,10 @@ struct TangemPaySelectPlanView: View {
                 }
             }
         }
+        .environment(\.openURL, OpenURLAction { url in
+            viewModel.openURL(url)
+            return .handled
+        })
     }
 
     @ToolbarContentBuilder

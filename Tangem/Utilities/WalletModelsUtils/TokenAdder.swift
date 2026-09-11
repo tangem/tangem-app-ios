@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 enum TokenAdder {
     static func addToken(tokenItem: TokenItem) throws {
@@ -21,8 +22,12 @@ enum TokenAdder {
         try userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem])
     }
 
-    static func addToken(defaultAddress: String, token: BSDKToken) throws {
-        let walletModelResult = try WalletModelFinder.findMainWalletModel(defaultAddress: defaultAddress)
+    static func addToken(_ token: BSDKToken, to address: String, in blockchain: Blockchain) throws {
+        let walletModelResult = try WalletModelFinder.findMainWalletModel(
+            address: address,
+            networkId: blockchain.networkId,
+            isTestnet: blockchain.isTestnet
+        )
         let userTokensManager = try userTokensManager(walletModelResult: walletModelResult)
 
         let targetBlockchainNetwork = walletModelResult.walletModel.tokenItem.blockchainNetwork

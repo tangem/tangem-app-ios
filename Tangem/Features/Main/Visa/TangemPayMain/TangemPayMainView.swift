@@ -61,13 +61,7 @@ struct TangemPayMainView: View {
         .alert(item: $viewModel.alert) { $0.alert }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { redesignedToolbar }
-        .modifyView { view in
-            if #unavailable(iOS 26.0) {
-                view.backportTranslucentNavigationBar()
-            } else {
-                view
-            }
-        }
+        .translucentNavigationBar()
         .redesigned()
     }
 
@@ -79,35 +73,49 @@ struct TangemPayMainView: View {
         VStack(spacing: 28) {
             redesignedHeader
 
-            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
+            VStack(spacing: 8) {
+                PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
 
-            if !viewModel.notificationBannerItems.isEmpty {
-                NotificationBannerContainer(
-                    items: viewModel.notificationBannerItems,
-                    stackingType: .carousel
-                )
-            }
+                if !viewModel.notificationBannerItems.isEmpty {
+                    NotificationBannerContainer(
+                        items: viewModel.notificationBannerItems,
+                        stackingType: .carousel
+                    )
+                }
 
-            if let contactSupportButton = viewModel.contactSupportMessageBannerButton {
-                failedToIssueCardBanner(contactSupportButton: contactSupportButton)
-            }
+                if viewModel.shouldDisplayAddToApplePayGuide {
+                    redesignedAddToApplePayBanner
+                }
 
-            if viewModel.shouldDisplayAddToApplePayGuide {
-                redesignedAddToApplePayBanner
-            }
+                if let contactSupportButton = viewModel.contactSupportMessageBannerButton {
+                    failedToIssueCardBanner(contactSupportButton: contactSupportButton)
+                }
 
-            if viewModel.hasIssuingEntry, !viewModel.isAwaitingDeposit {
-                TangemPayIssuingCardBannerRedesigned()
-            }
+                if viewModel.hasIssuingEntry, !viewModel.isAwaitingDeposit {
+                    TangemPayIssuingCardBannerRedesigned()
+                }
 
-            if let fee = viewModel.awaitingDepositInfo?.fee {
-                awaitingDepositTopUpBanner(fee: fee)
-                    .onAppear(perform: viewModel.onTopupBannerAppear)
-            }
+                if let banner = viewModel.systemDowngradeBanner {
+                    MessageBanner(title: banner.title, description: banner.subtitle)
+                        .variant(.error)
+                        .glowRing(.error)
+                        .slotEnd {
+                            DesignSystem.Icons.Error.filled20.image
+                                .renderingMode(.template)
+                                .foregroundStyle(DesignSystem.Color.iconPrimary)
+                        }
+                        .primaryButton(
+                            .init(title: Localization.tangempayCardDetailsAddFunds, action: viewModel.addFunds)
+                        )
+                        .onAppear(perform: viewModel.onSystemDowngradeBannerAppear)
+                }
 
-            if let bannerType = viewModel.systemDowngradeBanner {
-                NotificationBanner(bannerType: bannerType, accessibilityIdentifier: nil)
-                    .onAppear(perform: viewModel.onSystemDowngradeBannerAppear)
+                if let fee = viewModel.awaitingDepositInfo?.fee {
+                    awaitingDepositTopUpBanner(fee: fee)
+                        .onAppear(perform: viewModel.onTopupBannerAppear)
+                }
+
+                cashbackSection
             }
         }
         .padding(.bottom, 8)
@@ -170,7 +178,6 @@ struct TangemPayMainView: View {
                 .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
         }
         .primaryButton(viewModel.awaitingDepositAddFundsButton)
-        .showGlowRing(false)
     }
 
     private func failedToIssueCardBanner(contactSupportButton: MessageBannerButton) -> some View {
@@ -185,7 +192,6 @@ struct TangemPayMainView: View {
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
         }
         .primaryButton(contactSupportButton)
-        .showGlowRing(false)
     }
 
     private var inactiveBadge: some View {
@@ -232,7 +238,7 @@ struct TangemPayMainView: View {
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountCardButton(cardId: card.cardId))
             .disabled(viewModel.isStale)
             .opacity(viewModel.isStale ? 0.6 : 1)
-        case .issuing:
+        case .issuing, .plastic:
             SwiftUI.Button {
                 viewModel.openCardManagement(entry: entry)
             } label: {
@@ -256,7 +262,7 @@ struct TangemPayMainView: View {
                     .font(token: DesignSystem.Font.subheadingMediumToken)
                     .foregroundStyle(DesignSystem.Color.textPrimary)
 
-                Text(Localization.tangempayUsdcOnPolygonNetwork)
+                Text(viewModel.toolbarSubtitle)
                     .font(token: DesignSystem.Font.captionMediumToken)
                     .foregroundStyle(DesignSystem.Color.textTertiary)
             }
@@ -286,6 +292,28 @@ struct TangemPayMainView: View {
 
                 Divider()
 
+                if let cashbackMenuState = viewModel.cashbackMenuState {
+                    SwiftUI.Button(
+                        role: cashbackMenuState.isMenuActionDestructive ? .destructive : nil,
+                        action: viewModel.onCashbackMenuItemTap
+                    ) {
+                        Text(cashbackMenuState.menuTitle)
+
+                        if let menuSubtitle = cashbackMenuState.menuSubtitle {
+                            Text(menuSubtitle)
+                        }
+
+                        cashbackMenuState.menuIcon.image
+                            .renderingMode(.template)
+                    }
+                    .menuActionDismissBehavior(.disabled)
+                    .disabled(cashbackMenuState.isReloading)
+                    .onAppear(perform: viewModel.logCashbackMenuItemImpression)
+                    .onChange(of: viewModel.cashbackMenuItemImpression) { _ in
+                        viewModel.logCashbackMenuItemImpression()
+                    }
+                }
+
                 if viewModel.isVisaBenefitsAvailable {
                     SwiftUI.Button(action: viewModel.visaBenefits) {
                         Label {
@@ -299,6 +327,7 @@ struct TangemPayMainView: View {
                 SwiftUI.Button(action: viewModel.termsAndLimits) {
                     Label(Localization.tangemPayTermsLimits, systemImage: "text.page")
                 }
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.termsAndLimitsMenuItem)
 
                 SwiftUI.Button(action: viewModel.contactSupport) {
                     Label(Localization.tangempayPaySupport, systemImage: "text.bubble")
@@ -316,5 +345,33 @@ struct TangemPayMainView: View {
             }
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.moreActionsButton)
         }
+    }
+
+    @ViewBuilder
+    private var cashbackSection: some View {
+        if let cashbackBannerState = viewModel.cashbackBannerState {
+            TangemPayCashbackBanner(state: cashbackBannerState, action: viewModel.onCashbackBannerTap)
+                .onAppear(perform: viewModel.logCashbackBannerImpression)
+                .onChange(of: viewModel.cashbackBannerImpression) { _ in
+                    viewModel.logCashbackBannerImpression()
+                }
+        } else if let gotItButton = viewModel.cashbackBlockedBanner {
+            cashbackBlockedBanner(gotItButton: gotItButton)
+                .onAppear(perform: viewModel.onCashbackBlockedBannerAppear)
+        }
+    }
+
+    private func cashbackBlockedBanner(gotItButton: MessageBannerButton) -> some View {
+        MessageBanner(
+            title: Localization.tangempayCashbackDeactivatedTitle,
+            description: Localization.tangempayCashbackDeactivatedDescription
+        )
+        .glowRing(.error)
+        .slotEnd {
+            DesignSystem.Icons.Error.regular20.image
+                .renderingMode(.template)
+                .foregroundStyle(DesignSystem.Color.iconPrimary)
+        }
+        .secondaryButton(gotItButton)
     }
 }

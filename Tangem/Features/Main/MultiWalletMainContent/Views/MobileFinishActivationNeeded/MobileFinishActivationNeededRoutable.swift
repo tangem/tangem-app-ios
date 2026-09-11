@@ -7,9 +7,11 @@
 //
 
 import Foundation
+import TangemMobileWalletSdk
 
+@MainActor
 protocol MobileFinishActivationNeededRoutable: AnyObject {
     func dismissMobileFinishActivationNeeded()
     func openMobileBackup(userWalletModel: UserWalletModel)
-    func openMobileBackupOnboarding(userWalletModel: UserWalletModel)
+    func openMobileBackupOnboarding(userWalletModel: UserWalletModel, context: MobileWalletContext)
 }

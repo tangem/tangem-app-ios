@@ -51,11 +51,14 @@ final class TangemPayBuilder {
         signerFactory: signerFactory
     )
 
-    private lazy var transactionDispatcher = tangemPayAssembly.makeTransactionDispatcher(
-        withdrawTransactionService: withdrawTransactionService,
-        signerFactory: signerFactory,
-        walletPublicKey: TangemPayUtilities.getKey(from: keysRepository)
-    )
+    private lazy var transactionDispatcherFactory: (TangemPayWithdrawEligibility) -> TransactionDispatcher = { [tangemPayAssembly, withdrawTransactionService, signerFactory, walletPublicKey = TangemPayUtilities.getKey(from: keysRepository)] withdrawEligibility in
+        tangemPayAssembly.makeTransactionDispatcher(
+            withdrawTransactionService: withdrawTransactionService,
+            signerFactory: signerFactory,
+            walletPublicKey: walletPublicKey,
+            withdrawEligibility: withdrawEligibility
+        )
+    }
 
     private lazy var withdrawAvailabilityProvider = TangemPayWithdrawAvailabilityProvider(
         withdrawTransactionService: withdrawTransactionService,
@@ -94,6 +97,7 @@ final class TangemPayBuilder {
             paeraCustomerFlagRepository: AppSettings.shared,
             cachedStateStorage: AppSettings.shared,
             customerInfoCacheStorage: AppSettings.shared,
+            cashbackCacheStorage: AppSettings.shared,
             tangemPayAccountBuilder: self
         )
     }
@@ -111,12 +115,13 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
             customerService: customerService,
             balancesService: balancesService,
             withdrawTransactionService: withdrawTransactionService,
-            transactionDispatcher: transactionDispatcher,
+            transactionDispatcherFactory: transactionDispatcherFactory,
             withdrawAvailabilityProvider: withdrawAvailabilityProvider,
             orderStatusPollingService: orderStatusPollingService,
             mainHeaderBalanceProvider: mainHeaderBalanceProvider,
             orderResolver: orderResolver,
             feeRepository: feeRepository,
+            cashbackCacheStorage: AppSettings.shared,
             account: account,
             accountRemover: accountRemover
         )

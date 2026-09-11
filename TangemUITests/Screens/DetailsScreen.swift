@@ -55,10 +55,10 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
     }
 
     @discardableResult
-    func tapAddNewWallet() -> Self {
+    func tapAddNewWallet() -> AddWalletTypeSelectorScreen {
         XCTContext.runActivity(named: "Add new wallet") { _ in
             addNewWallet.waitAndTap()
-            return self
+            return AddWalletTypeSelectorScreen(app)
         }
     }
 

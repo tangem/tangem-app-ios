@@ -209,6 +209,10 @@ struct NetworkImageProvider: NFTChainIconProvider {
             filled ? Tokens.plasmaFill : Tokens.plasma
         case .adi:
             filled ? Tokens.adiFill : Tokens.adi
+        case .electroneum:
+            filled ? Tokens.electroneumFill : Tokens.electroneum
+        case .arc:
+            filled ? Tokens.arcFill : Tokens.arc
         case .seiEvm:
             filled ? Tokens.seiFill : Tokens.sei
         }

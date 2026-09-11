@@ -273,4 +273,17 @@ private final class MockTangemApiService: TangemApiService {
     func getUserAccounts(userWalletId: String) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) { fatalError("unused") }
     func saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) { fatalError("unused") }
     func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts { fatalError("unused") }
+    func getJointAccounts(walletId: String) async throws -> JointAccountsDTO.List.Response { fatalError("unused") }
+    func createJointAccount(
+        walletId: String, body: JointAccountsDTO.Create.Request
+    ) async throws -> JointAccountsDTO.Create.Response { fatalError("unused") }
+    func getJointAccountInvite(
+        walletId: String, inviteId: String
+    ) async throws -> JointAccountsDTO.InvitePreview.Response { fatalError("unused") }
+    func joinJointAccount(
+        walletId: String, body: JointAccountsDTO.Join.Request
+    ) async throws -> JointAccountsDTO.Join.Response { fatalError("unused") }
+    func activateJointAccount(
+        walletId: String, body: JointAccountsDTO.Activate.Request
+    ) async throws -> JointAccountsDTO.Activate.Response { fatalError("unused") }
 }

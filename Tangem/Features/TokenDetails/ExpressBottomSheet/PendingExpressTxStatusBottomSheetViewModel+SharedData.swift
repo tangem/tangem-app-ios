@@ -7,36 +7,30 @@
 //
 
 import Foundation
-import TangemLocalization
 
 extension PendingExpressTxStatusBottomSheetViewModel {
     func buildShareText() -> String {
-        var lines: [String] = ["tangem", ""]
-
+        let operation: ExpressShareTextBuilder.Operation
         switch pendingTransaction.type {
         case .swap(let source, let destination):
-            lines.append("\(Localization.commonSend) \(sourceAmountText)")
-            if let fromAddress = source.address {
-                lines.append("\(Localization.commonFrom): \(fromAddress)")
-            }
-            lines.append("")
-            lines.append("\(Localization.commonReceive) \(destinationAmountText)")
-            if let toAddress = destination.address {
-                lines.append("\(Localization.commonTo): \(toAddress)")
-            }
+            operation = .swap(
+                send: sourceAmountText,
+                from: source.address,
+                receive: destinationAmountText,
+                to: destination.address
+            )
 
         case .onramp(_, _, let destination):
-            lines.append("\(Localization.commonBuy) \(destinationAmountText)")
-            if let toAddress = destination.address {
-                lines.append("\(Localization.commonTo): \(toAddress)")
-            }
+            operation = .onramp(buy: destinationAmountText, to: destination.address)
         }
 
-        lines.append("")
         let providerInfo = "\(pendingTransaction.provider.name) \(pendingTransaction.provider.type.rawValue.uppercased())"
-        lines.append(Localization.expressByProviderPlaceholder(providerInfo))
-        lines.append(Localization.expressTransactionId(pendingTransaction.externalTxId ?? pendingTransaction.expressTransactionId))
 
-        return lines.joined(separator: "\n")
+        return ExpressShareTextBuilder.build(
+            operation: operation,
+            providerInfo: providerInfo,
+            transactionId: pendingTransaction.externalTxId ?? pendingTransaction.expressTransactionId,
+            onChainHash: nil
+        )
     }
 }

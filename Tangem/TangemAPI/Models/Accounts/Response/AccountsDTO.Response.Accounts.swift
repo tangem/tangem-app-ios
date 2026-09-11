@@ -22,6 +22,8 @@ extension AccountsDTO.Response {
             let sort: AccountsDTO.SortType?
             let totalAccounts: Int
             let totalArchivedAccounts: Int
+            let totalCryptoAccounts: Int?
+            let totalJointAccounts: Int?
         }
 
         struct Token: Codable, Hashable {
@@ -42,6 +44,8 @@ extension AccountsDTO.Response {
             let icon: String
             let iconColor: String
             let derivation: Int
+            /// Which kind of account this is: `crypto` or `joint`.
+            let type: String?
             let tokens: [Token]
         }
 

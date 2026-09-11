@@ -12,6 +12,7 @@ extension Analytics {
         case amplitude
         case crashlytics
         case appsFlyer
+        case openTelemetry
 
         var logBadge: String {
             switch self {
@@ -19,6 +20,7 @@ extension Analytics {
             case .amplitude: return "AM"
             case .crashlytics: return "CL"
             case .appsFlyer: return "AF"
+            case .openTelemetry: return "OT"
             }
         }
     }
@@ -26,5 +28,5 @@ extension Analytics {
 
 extension Array where Element == Analytics.AnalyticsSystem {
     static let all = Element.allCases
-    static let defaultSystems: [Analytics.AnalyticsSystem] = [.firebase, .amplitude, .crashlytics]
+    static let defaultSystems: [Analytics.AnalyticsSystem] = [.firebase, .amplitude, .crashlytics, .openTelemetry]
 }

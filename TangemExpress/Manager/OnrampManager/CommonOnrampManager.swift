@@ -79,6 +79,8 @@ extension CommonOnrampManager: OnrampManager {
     }
 
     public func loadRedirectData(provider: OnrampProvider, redirectSettings: OnrampRedirectSettings) async throws -> OnrampRedirectData {
+        try assertNotRestricted(provider: provider)
+
         do {
             let item = try provider.makeOnrampQuotesRequestItem()
             let requestItem = OnrampRedirectDataRequestItem(quotesItem: item, redirectSettings: redirectSettings)
@@ -116,6 +118,8 @@ extension CommonOnrampManager: OnrampManager {
     }
 
     public func loadNativePaymentData(provider: OnrampProvider, redirectSettings: OnrampRedirectSettings, applePayResult: OnrampApplePayResult) async throws -> OnrampDataResult {
+        try assertNotRestricted(provider: provider)
+
         do {
             guard let quoteId = provider.quote?.quoteId else {
                 throw OnrampManagerError.quoteIdNotFound
@@ -144,6 +148,14 @@ extension CommonOnrampManager: OnrampManager {
 // MARK: - Private
 
 private extension CommonOnrampManager {
+    /// The buy buttons are already disabled, but a provider can turn restricted between the tap and the request.
+    func assertNotRestricted(provider: OnrampProvider) throws {
+        guard !provider.isRestricted else {
+            OnrampLogger.info(self, "The provider \(provider) is restricted in the user's region. Skip the request")
+            throw OnrampManagerError.providerIsRestricted
+        }
+    }
+
     func updateQuotesInEachManager(providers: ProvidersList, amount: OnrampUpdatingAmount) async throws {
         if providers.isEmpty {
             throw OnrampManagerError.providersIsEmpty
@@ -181,12 +193,13 @@ private extension CommonOnrampManager {
 
             if let providerItem = providers.select(for: paymentMethodType) {
                 if let providerId = preferredValues.providerId,
-                   let maxPriorityProvider = providerItem.preferredProvider(providerId: providerId) {
+                   let preferredProvider = providerItem.preferredProvider(providerId: providerId),
+                   !preferredProvider.isRestricted {
                     OnrampLogger.info(self, "The selected preferred provider is \(preferredValues)")
-                    return maxPriorityProvider
+                    return preferredProvider
                 }
 
-                if let maxPriorityProvider = providerItem.maxPriorityProvider() {
+                if let maxPriorityProvider = providerItem.maxPriorityUnrestrictedProvider() {
                     OnrampLogger.info(self, "The selected max priority provider for preferred paymentMethodType is \(maxPriorityProvider)")
                     return maxPriorityProvider
                 }
@@ -196,13 +209,13 @@ private extension CommonOnrampManager {
         for provider in providers {
             OnrampLogger.info(self, "Providers for paymentMethod: \(provider.paymentMethod.name) was sorted to order: \(provider.providers)")
 
-            if let maxPriorityProvider = provider.maxPriorityProvider() {
+            if let maxPriorityProvider = provider.maxPriorityUnrestrictedProvider() {
                 OnrampLogger.info(self, "The selected max priority provider is \(maxPriorityProvider)")
                 return maxPriorityProvider
             }
         }
 
-        OnrampLogger.info(self, "We couldn't find any provider without error")
+        OnrampLogger.info(self, "We couldn't find any provider without error or region restriction")
         OnrampLogger.info(self, "Start the second search to find any provider to show user")
 
         for provider in providers {

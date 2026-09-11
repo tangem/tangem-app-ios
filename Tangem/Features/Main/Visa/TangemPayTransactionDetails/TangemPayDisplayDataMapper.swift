@@ -224,9 +224,9 @@ struct TangemPayFeeDisplayInput {
 
 extension TangemPayTransactionRecord {
     func displayData(using mapper: TangemPayDisplayDataMapper) -> TangemPayTransactionDetailsViewModel.DisplayData {
-        switch record {
-        case .spend(let spend):
-            return mapper.map(spend: spend.displayInput)
+        switch record.displayRecord {
+        case .merchant(let merchant):
+            return mapper.map(spend: merchant.displayInput)
         case .collateral(let collateral):
             return mapper.map(collateral: collateral.displayInput)
         case .payment(let payment):
@@ -237,7 +237,7 @@ extension TangemPayTransactionRecord {
     }
 }
 
-extension TangemPayTransactionHistoryResponse.Spend {
+extension TangemPayMerchantRecord {
     var displayInput: TangemPaySpendDisplayInput {
         .init(
             transactionDate: transactionDate,
@@ -245,7 +245,7 @@ extension TangemPayTransactionHistoryResponse.Spend {
             enrichedMerchantName: enrichedMerchantName,
             enrichedMerchantIcon: enrichedMerchantIcon,
             amount: amount,
-            authorizedAmount: authorizedAmount ?? amount,
+            authorizedAmount: authorizedAmount,
             currency: currency,
             localAmount: localAmount,
             localCurrency: localCurrency,
@@ -281,7 +281,7 @@ private extension TangemPaySpendDisplayInput.Status {
         self = switch status {
         case .completed: .completed
         case .declined: .declined
-        case .pending: .pending
+        case .pending, .undefined: .pending
         case .reversed: .reversed
         }
     }
@@ -292,13 +292,32 @@ private extension TangemPaySpendDisplayInput.Status {
 extension TangemPayPushPayload {
     func displayData(using mapper: TangemPayDisplayDataMapper) -> TangemPayTransactionDetailsViewModel.DisplayData? {
         switch body {
-        case .transactionSpend(let spend), .declinedTopUp(let spend):
+        case .transactionSpend(let spend),
+             .transactionSpendRefund(let spend),
+             .declinedTopUp(let spend),
+             .declinedReason1(let spend),
+             .declinedReason2(let spend),
+             .declinedReason3(let spend),
+             .declinedReason4(let spend),
+             .declinedReason5(let spend),
+             .declinedReason6(let spend),
+             .declinedReason7(let spend),
+             .declinedReason8(let spend),
+             .declinedReason9(let spend),
+             .declinedReason10(let spend),
+             .declinedReason11(let spend),
+             .declinedReason12(let spend),
+             .declinedReason13(let spend),
+             .declinedReason14(let spend),
+             .declinedReason15(let spend),
+             .declinedReason16(let spend),
+             .declinedReason17(let spend):
             return mapper.map(spend: spend.displayInput)
         case .collateralWithdraw(let collateral):
             return mapper.map(collateral: collateral.displayInput(isOutgoing: true))
         case .collateralDeposit(let collateral):
             return mapper.map(collateral: collateral.displayInput(isOutgoing: false))
-        case .cardReady:
+        case .cardReady, .thresholdTopUp:
             return nil
         }
     }

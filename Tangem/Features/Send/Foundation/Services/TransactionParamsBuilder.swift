@@ -140,6 +140,8 @@ struct TransactionParamsBuilder {
              .arbitrumNova,
              .plasma,
              .adi,
+             .electroneum,
+             .arc,
              .seiEvm:
             throw TransactionParamsBuilderError.extraIdNotSupported
         }

@@ -14,6 +14,7 @@ import TangemFirebaseDynamicShim
 
 class Analytics {
     @Injected(\.analyticsContext) private static var analyticsContext: AnalyticsSessionContext
+    @Injected(\.openTelemetryWrapper) private static var openTelemetryWrapper: OpenTelemetryWrapper
 
     private static let firebaseLoggingQueue = DispatchQueue(
         label: "com.tangem.Analytics.firebaseLoggingQueue",
@@ -118,7 +119,7 @@ class Analytics {
 
         switch error {
         case is WCTransactionSignError:
-            params[.errorDescription] = error.localizedDescription
+            params[.error] = error.localizedDescription
             let nsError = NSError(
                 domain: "WalletConnect Error",
                 code: 0,
@@ -196,6 +197,8 @@ class Analytics {
 
         params.merge(contextParams.analyticsParams.dictionaryParams, uniquingKeysWith: { old, _ in old })
 
+        var reachedSystems: [Analytics.AnalyticsSystem] = []
+
         for system in analyticsSystems {
             switch system {
             case .firebase:
@@ -207,13 +210,19 @@ class Analytics {
                 AmplitudeWrapper.shared.track(eventType: event, eventProperties: params)
             case .appsFlyer:
                 AppsFlyerWrapper.shared.log(event: event, params: params)
+            case .openTelemetry:
+                guard openTelemetryWrapper.track(eventType: event, eventProperties: params) else {
+                    continue
+                }
             }
+
+            reachedSystems.append(system)
         }
 
         let printableParams: [String: String] = params.reduce(into: [:]) { $0[$1.key] = String(describing: $1.value) }
         if let data = try? JSONSerialization.data(withJSONObject: printableParams, options: .sortedKeys),
            let paramsString = String(data: data, encoding: .utf8)?.replacingOccurrences(of: ",\"", with: ", \"") {
-            let systemsString = analyticsSystems.map { $0.logBadge }.joined(separator: ",")
+            let systemsString = reachedSystems.map { $0.logBadge }.joined(separator: ",")
             let logMessage = "Analytics event: \(event). Systems: \(systemsString). Params: \(paramsString)"
             AnalyticsLogger.info(logMessage)
         }

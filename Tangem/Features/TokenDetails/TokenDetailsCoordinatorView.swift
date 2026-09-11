@@ -48,13 +48,14 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
-
-        NavHolder()
             .sheet(item: $coordinator.yieldModuleActiveCoordinator) {
                 YieldModuleActiveCoordinatorView(coordinator: $0)
             }
             .sheet(item: $coordinator.pendingExpressTxStatusBottomSheetViewModel) { viewModel in
                 PendingExpressTxStatusBottomSheetView(viewModel: viewModel)
+            }
+            .sheet(item: $coordinator.dynamicAddressesEnterViewModel) {
+                DynamicAddressesEnterView(viewModel: $0)
             }
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)
@@ -74,8 +75,6 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: StakingRegionUnavailableSheetViewModel.self) {
                 StakingRegionUnavailableSheetView(viewModel: $0)
             }
-            .sheet(item: $coordinator.dynamicAddressesEnterViewModel) {
-                DynamicAddressesEnterView(viewModel: $0)
-            }
+            .addressBookContactManagementSheet($coordinator.contactManagementCoordinator)
     }
 }

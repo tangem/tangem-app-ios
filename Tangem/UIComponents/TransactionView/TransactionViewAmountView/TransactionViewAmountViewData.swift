@@ -40,17 +40,21 @@ struct TransactionViewAmountViewData: Hashable {
 
     var formattedAmount: String? {
         switch type {
-        case .yieldSend where isFromYieldContract:
+        case .yieldSend where isFromYieldContract,
+             .yieldEnter, .yieldWithdraw, .yieldTopup,
+             .vote, .withdraw:
             return nil
-        case .yieldWithdrawCoin, .yieldEnterCoin, .yieldReactivate, .yieldDeploy, .yieldSend, .yieldInit, .gaslessTransactionFee:
-            return amount
-        case .yieldEnter, .yieldWithdraw, .yieldTopup:
-            return nil
-        case .vote, .withdraw:
-            return nil
-        case .transfer,
+        case .yieldSend,
+             .yieldWithdrawCoin,
+             .yieldEnterCoin,
+             .yieldReactivate,
+             .yieldDeploy,
+             .yieldInit,
+             .gaslessTransactionFee,
+             .transfer,
              .gaslessTransfer,
              .swap,
+             .onramp,
              .operation,
              .unknownOperation,
              .stake,

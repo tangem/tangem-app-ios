@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemNetworkUtils
+import enum BlockchainSdk.GaslessExecutorVersion
 
 protocol GaslessTransactionsNetworkManager {
     typealias FeeToken = GaslessTransactionsDTO.Response.FeeToken
@@ -29,7 +30,7 @@ protocol GaslessTransactionsNetworkManager {
     var currentHost: String { get }
 
     func updateAvailableTokens()
-    func sendGaslessTransaction(_ transaction: GaslessTransaction) async throws -> String
+    func sendGaslessTransaction(_ transaction: GaslessTransaction, executorVersion: GaslessExecutorVersion) async throws -> String
     func sendGaslessBatchTransaction(_ transaction: GaslessBatchTransaction) async throws -> String
     func estimateTronGaslessTransaction(_ request: TronEstimateRequest) async throws -> TronEstimateResponse
     func submitTronGaslessTransaction(_ request: TronSubmitRequest) async throws -> TronSubmitResponse
@@ -121,8 +122,8 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
         updateAvailableTronFeeTokens()
     }
 
-    func sendGaslessTransaction(_ transaction: GaslessTransaction) async throws -> String {
-        try await apiService.sendGaslessTransaction(transaction)
+    func sendGaslessTransaction(_ transaction: GaslessTransaction, executorVersion: GaslessExecutorVersion) async throws -> String {
+        try await apiService.sendGaslessTransaction(transaction, executorVersion: executorVersion)
     }
 
     func sendGaslessBatchTransaction(_ transaction: GaslessBatchTransaction) async throws -> String {
@@ -209,6 +210,7 @@ private struct GaslessTransactionsNetworkManagerKey: InjectionKey {
             additionalPlugins: [
                 DeviceInfoPlugin(),
                 GaslessTransactionsAuthorizationPlugin(),
+                TimeoutIntervalPlugin(),
             ]
         )
 

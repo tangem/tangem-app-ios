@@ -39,10 +39,10 @@ private extension ForYouAddFundsTokenSelectorView {
     var header: some View {
         ZStack {
             VStack(spacing: 0) {
-                Text(Localization.commonAddFunds)
+                Text(viewModel.title)
                     .style(Font.Tangem.Heading17.semibold, color: DesignSystem.Color.textPrimary)
 
-                Text(Localization.commonChooseToken)
+                Text(viewModel.subtitle)
                     .style(Font.Tangem.Body15.regular, color: DesignSystem.Color.textSecondary)
             }
             .frame(maxWidth: .infinity)

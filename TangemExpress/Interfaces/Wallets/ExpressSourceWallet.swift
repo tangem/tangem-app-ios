@@ -28,14 +28,13 @@ public protocol YieldModuleTransactionHelper {
     var yieldContractAddress: String? { get }
 
     func prepareForYieldModuleDEXSwap(provider: ExpressProvider) async throws
-    func yieldModuleDEXSwapData(data: ExpressTransactionData, provider: ExpressProvider, spender: String) async throws -> ExpressTransactionData
+    func yieldModuleTransactionData(data: ExpressTransactionData, provider: ExpressProvider, spender: String?) async throws -> ExpressTransactionData
 }
 
 public enum SupportedProvidersFilter {
     public static let swap: SupportedProvidersFilter = .byTypes(ExpressConstants.swapProviderTypes)
     public static let onramp: SupportedProvidersFilter = .byTypes([.onramp])
     public static let cex: SupportedProvidersFilter = .byTypes([.cex])
-    public static let yieldModuleDEXSwap: SupportedProvidersFilter = .yieldProviders(YieldProvidersFilter())
 
     case byTypes([ExpressProviderType])
     case yieldProviders(YieldProvidersFilter)
@@ -53,8 +52,9 @@ public enum SupportedProvidersFilter {
     }
 }
 
-/// Tokens in Yield mode are limited to all CEX providers and allow-listed DEX providers.
-/// As such tokens require extra logic for support of new DEX providers (like Moonpay).
+/// Legacy path of the `yieldDexTransferDetection` feature toggle. Until the app could tell
+/// a transfer from a swap, tokens in Yield mode were limited to all CEX providers and
+/// allow-listed DEX providers known to always return a real swap.
 public struct YieldProvidersFilter {
     private let allowedDEXProviderIds: Set<ExpressProvider.Id>
 
