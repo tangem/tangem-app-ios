@@ -44,7 +44,7 @@ struct PolymarketOnboardingSignerTests {
         let context = try Context()
 
         let signatures = try await context.sut.sign(approvals: Self.approvals)
-        let expected = try PolymarketApprovalsSigning.digest(for: Self.approvals)
+        let expected = try PolymarketRelayedBatchSigning.digest(for: Self.approvals)
 
         #expect(context.signer.requestedHashes.last == expected)
         #expect(signatures.approvals.nonce == Self.approvals.nonce)
@@ -62,7 +62,7 @@ struct PolymarketOnboardingSignerTests {
             ownerAddress: try #require(headers["POLY_ADDRESS"]),
             timestamp: try #require(headers["POLY_TIMESTAMP"])
         )
-        let batchDigest = try PolymarketApprovalsSigning.digest(for: Self.approvals)
+        let batchDigest = try PolymarketRelayedBatchSigning.digest(for: Self.approvals)
 
         #expect(headers["POLY_SIGNATURE"] == context.signer.signature(over: authDigest))
         #expect(signatures.approvals.signature == context.signer.signature(over: batchDigest))
@@ -96,7 +96,7 @@ struct PolymarketOnboardingSignerTests {
 // MARK: - Fixtures
 
 private extension PolymarketOnboardingSignerTests {
-    static let approvals = PolymarketApprovalsBatch.Unsigned(
+    static let approvals = PolymarketRelayedBatch.Unsigned(
         depositWalletAddress: "0xfAeA0f08159fcF2f573fE24E9E989B0d48f7651B",
         nonce: "7",
         deadline: "1735690200",

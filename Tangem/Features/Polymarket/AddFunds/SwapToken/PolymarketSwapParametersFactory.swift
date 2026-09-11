@@ -14,11 +14,11 @@ struct PolymarketSwapParametersFactory {
     let walletModelsProvider: MainScreenUIOrderedWalletModelsProvider
     let accountModel: any PolymarketAccountModel
 
-    func make(fundingTarget: PolymarketAddFundsInteractor.FundingTarget) -> PredefinedSwapParameters {
+    func make(depositTarget: PolymarketAccountFundsInteractor.DepositTarget) -> PredefinedSwapParameters {
         let receiveToken = PolymarketDepositReceiveTokenFactory(
             userWalletInfo: userWalletInfo,
             accountModel: accountModel,
-            fundingTarget: fundingTarget
+            depositTarget: depositTarget
         )
         .makeReceiveToken()
 

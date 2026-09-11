@@ -10,15 +10,15 @@ import Foundation
 
 public protocol PolymarketOnboardingSigning {
     func sign(
-        approvals: PolymarketApprovalsBatch.Unsigned
+        approvals: PolymarketRelayedBatch.Unsigned
     ) async throws(PolymarketSigningError) -> PolymarketOnboardingSignatures
 }
 
 public struct PolymarketOnboardingSignatures {
     public let authHeaders: PolymarketCLOBAuthHeaders
-    public let approvals: PolymarketApprovalsBatch
+    public let approvals: PolymarketRelayedBatch
 
-    public init(authHeaders: PolymarketCLOBAuthHeaders, approvals: PolymarketApprovalsBatch) {
+    public init(authHeaders: PolymarketCLOBAuthHeaders, approvals: PolymarketRelayedBatch) {
         self.authHeaders = authHeaders
         self.approvals = approvals
     }

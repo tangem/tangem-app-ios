@@ -14,7 +14,7 @@ import TangemPolymarket
 struct PolymarketDepositReceiveTokenFactory {
     let userWalletInfo: UserWalletInfo
     let accountModel: any PolymarketAccountModel
-    let fundingTarget: PolymarketAddFundsInteractor.FundingTarget
+    let depositTarget: PolymarketAccountFundsInteractor.DepositTarget
 
     func makeReceiveToken() -> SendSwapableToken {
         let tokenItem = PolymarketUtilities.usdcTokenItem
@@ -27,13 +27,13 @@ struct PolymarketDepositReceiveTokenFactory {
             header: TokenHeaderProvider(userWalletName: userWalletInfo.name, account: accountModel).makeHeader(),
             feeTokenItem: tokenItem,
             isCustom: false,
-            defaultAddressString: fundingTarget.fundingAddress,
+            defaultAddressString: depositTarget.fundingAddress,
             availableBalanceProvider: balanceProvider,
             fiatAvailableBalanceProvider: accountModel.fiatTotalTokenBalanceProvider,
             allowanceService: nil,
             withdrawalNotificationProvider: nil,
             scaledUIAmountMultiplierResolver: nil,
-            emailDataCollectorBuilder: PolymarketDepositEmailDataCollectorBuilder(),
+            emailDataCollectorBuilder: PolymarketAccountEmailDataCollectorBuilder(),
             transactionDispatcherProvider: PolymarketDepositTransactionDispatcherProvider(),
             accountModelAnalyticsProvider: nil,
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config),
@@ -41,12 +41,12 @@ struct PolymarketDepositReceiveTokenFactory {
             isTangemPayAccount: false,
             tokenItem: tokenItem,
             fiatItem: makeFiatItem(),
-            address: fundingTarget.fundingAddress,
+            address: depositTarget.fundingAddress,
             extraId: nil,
             transactionHistoryEnricherFactory: { nil }
         )
 
-        let feeProvidersManagerProvider = PolymarketDepositTokenFeeProvidersManagerProvider(
+        let feeProvidersManagerProvider = PolymarketAccountTokenFeeProvidersManagerProvider(
             feeTokenItem: tokenItem,
             feeTokenItemBalanceProvider: balanceProvider
         )
@@ -54,11 +54,11 @@ struct PolymarketDepositReceiveTokenFactory {
         return CommonSendSwapableToken(
             sourceToken: sourceToken,
             isExemptFee: true,
-            swapAvailabilityProvider: PolymarketDepositSwapAvailabilityProvider(),
-            sendingRestrictionsProvider: PolymarketDepositSendingRestrictionsProvider(),
+            swapAvailabilityProvider: PolymarketAccountSwapAvailabilityProvider(),
+            sendingRestrictionsProvider: PolymarketAccountSendingRestrictionsProvider(),
             receivingRestrictionsProvider: PolymarketDepositReceivingRestrictionsProvider(
                 userWalletInfo: userWalletInfo,
-                minimumDepositUSD: fundingTarget.asset.minimumDepositUSD,
+                minimumDepositUSD: depositTarget.asset.minimumDepositUSD,
                 tokenItem: tokenItem
             ),
             tokenFeeProvidersManagerProvider: feeProvidersManagerProvider,
@@ -71,7 +71,7 @@ struct PolymarketDepositReceiveTokenFactory {
                 feeBalanceProvider: balanceProvider
             ),
             analyticsLogger: CommonExpressAnalyticsLogger(tokenItem: tokenItem),
-            providerTransactionValidator: PolymarketDepositExpressProviderTransactionValidator(),
+            providerTransactionValidator: PolymarketAccountExpressProviderTransactionValidator(),
             operationType: .swap,
             supportedProvidersFilter: .swap,
             presentation: makePresentation(tokenItem: tokenItem)
