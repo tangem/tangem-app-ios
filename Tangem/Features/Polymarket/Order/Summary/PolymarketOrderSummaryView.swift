@@ -31,6 +31,7 @@ struct PolymarketOrderSummaryView: View {
             content
         }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+        .toolbar(.hidden, for: .navigationBar)
         .safeAreaInset(edge: .bottom, spacing: .zero) { footer }
         .onWillAppear { viewModel.handleViewAction(.appeared) }
         .bindAlert($viewModel.alert)

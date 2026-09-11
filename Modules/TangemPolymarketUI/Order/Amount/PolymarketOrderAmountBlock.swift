@@ -41,7 +41,7 @@ public struct PolymarketOrderAmountBlock<Field: View>: View {
     private var amount: some View {
         VStack(spacing: Constants.captionSpacing) {
             Text(Localization.predictionPlaceYouWillPay)
-                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textTertiary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textTertiary)
 
             field()
         }
@@ -56,8 +56,8 @@ public struct PolymarketOrderAmountBlock<Field: View>: View {
 
 private enum Constants {
     static let cornerRadius: CGFloat = 24
-    static let captionSpacing: CGFloat = 8
+    static let captionSpacing: CGFloat = 12
     static let horizontalPadding: CGFloat = 16
-    static let topPadding: CGFloat = 20
-    static let bottomPadding: CGFloat = 24
+    static let topPadding: CGFloat = 32
+    static let bottomPadding: CGFloat = 32
 }

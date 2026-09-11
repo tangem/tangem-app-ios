@@ -70,8 +70,6 @@ private enum PolymarketDepositFixtures {
         """#.utf8
     )
 
-    /// Shaped after a live `POST /deposit` response — the addresses arrive wrapped in `address`.
-    /// The values are placeholders: a real bridge address exposes its owner's deposit history publicly.
     static let fundingAddresses = Data(
         #"""
         {

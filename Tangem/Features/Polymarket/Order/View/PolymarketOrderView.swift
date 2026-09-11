@@ -26,7 +26,7 @@ struct PolymarketOrderView: View {
         VStack(spacing: 0) {
             PolymarketTopBar(
                 title: Localization.predictionPlaceTitle,
-                onBack: { viewModel.handleViewAction(.backTapped) }
+                onClose: { viewModel.handleViewAction(.closeTapped) }
             )
             .padding(.top, Constants.topBarTopPadding)
 
