@@ -33,20 +33,23 @@ struct TransactionDetailsView: View {
                 TransactionDetailsHeaderView(data: header, onAction: viewModel.handleViewAction)
             }
 
-            TransactionDetailsBlocksView(
-                blocks: viewModel.blocks,
-                spacing: blocksSpacing,
-                onAction: viewModel.handleViewAction
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 4)
-            .padding(.bottom, 16)
+            ScrollView {
+                TransactionDetailsBlocksView(
+                    blocks: viewModel.blocks,
+                    spacing: blocksSpacing,
+                    onAction: viewModel.handleViewAction
+                )
+                .padding(.horizontal, 16)
+                .padding(.top, 4)
+                .padding(.bottom, 16)
+            }
+            .scrollIndicators(.hidden)
+            .scrollBounceBehavior(.basedOnSize)
         }
         .background(DesignSystem.Color.bgSecondary)
         .floatingSheetConfiguration { config in
             config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
             config.backgroundInteractionBehavior = .tapToDismiss
-            config.verticalSwipeBehavior = .init(target: .sheet, threshold: 100)
             config.sheetFrameUpdateAnimation = .contentFrameUpdate
         }
     }
@@ -158,6 +161,11 @@ private extension AnyTransition {
 
 #Preview("Approve") {
     TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.approve())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Approve unlimited") {
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.approveUnlimited())
         .background(DesignSystem.Color.bgPrimary)
 }
 

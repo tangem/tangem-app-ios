@@ -42,9 +42,9 @@ struct TangemPayCurrentPlanInfoBanner: View {
                     action: button.action
                 )
                 .size(.x8)
-                .styleType(.secondary)
+                .styleType(.secondary(.default))
                 .horizontalLayout(.infinity)
-                .isLoading(button.isLoading)
+                .loading(.spinner(if: button.isLoading))
             }
         }
         .padding(.horizontal, 14)

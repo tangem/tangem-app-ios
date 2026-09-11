@@ -53,7 +53,26 @@ final class SendSwapProviderSelectorScreen: ScreenBase<SendSwapProviderSelectorE
         return self
     }
 
+    @discardableResult
+    func assertFilterDisplayed(_ type: String) -> Self {
+        XCTContext.runActivity(named: "Assert '\(type)' provider type filter is displayed") { _ in
+            let chip = app.buttons[SendAccessibilityIdentifiers.swapProviderTypeFilterChip(type)].firstMatch
+            waitAndAssertTrue(chip, "'\(type)' provider type filter chip should exist")
+        }
+        return self
+    }
+
     // MARK: - Selection
+
+    @discardableResult
+    func selectFilter(_ type: String) -> Self {
+        XCTContext.runActivity(named: "Select '\(type)' provider type filter") { _ in
+            let chip = app.buttons[SendAccessibilityIdentifiers.swapProviderTypeFilterChip(type)].firstMatch
+            waitAndAssertTrue(chip, "'\(type)' provider type filter chip should exist")
+            chip.waitAndTap()
+        }
+        return self
+    }
 
     func selectNonBestProvider() -> (providerName: String, screen: SendSummaryScreen) {
         XCTContext.runActivity(named: "Select a provider that does not have 'Best rate' badge") { _ in
@@ -88,6 +107,16 @@ final class SendSwapProviderSelectorScreen: ScreenBase<SendSwapProviderSelectorE
             row.tap()
         }
         return SendSummaryScreen(app)
+    }
+
+    @discardableResult
+    func selectProviderReturningToSwap(name: String) -> SwapScreen {
+        XCTContext.runActivity(named: "Select provider: \(name)") { _ in
+            let row = app.buttons[SendAccessibilityIdentifiers.swapProviderSelectorRow(name: name)].firstMatch
+            waitAndAssertTrue(row, "Provider row '\(name)' should exist")
+            row.tap()
+        }
+        return SwapScreen(app)
     }
 
     @discardableResult

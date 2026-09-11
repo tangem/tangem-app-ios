@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemFoundation
 import TangemLocalization
 import TangemUI
 
@@ -21,9 +22,11 @@ struct JointAccountInviteMembersView: View {
             GroupedScrollView(contentType: .plain(alignment: .leading, spacing: 24)) {
                 titleView
 
-                creatorSection
+                takenSlotsSection
 
-                otherMembersSection
+                if viewModel.content.freeSlots.isNotEmpty {
+                    freeSlotsSection
+                }
             }
         }
         .topNavigation(leading: .none, actions: .one(detailsAction), onClose: viewModel.onCloseTap)
@@ -47,19 +50,21 @@ struct JointAccountInviteMembersView: View {
         JointAccountHeaderTitle(
             title: Localization.jointAccountInviteMembersTitle,
             subtitle: Localization.jointAccountInviteMembersSubtitle(
-                viewModel.joinedMembersCount,
-                viewModel.totalMembersCount
+                viewModel.content.joinedMembersCount,
+                viewModel.content.totalMembersCount
             )
         )
         .padding(.top, 12)
         .padding(.horizontal, 8)
     }
 
-    private var creatorSection: some View {
+    private var takenSlotsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             safetyBanner
 
-            creatorView
+            ForEach(viewModel.content.members) { member in
+                joinedMemberView(member)
+            }
         }
     }
 
@@ -82,34 +87,42 @@ struct JointAccountInviteMembersView: View {
         .onTap(viewModel.onSafetyBannerTap)
     }
 
-    private var creatorView: some View {
+    private func joinedMemberView(_ member: JointAccountInviteMembersViewModel.MemberViewData) -> some View {
         JointAccountMemberRow(
-            avatar: .member(viewModel.creatorIconViewData),
-            title: viewModel.creatorName,
-            subtitle: Localization.jointAccountInviteMembersCreator,
-            accessory: .info(action: viewModel.onCreatorInfoTap)
+            avatar: .member(member.icon),
+            title: member.name,
+            subtitle: member.role,
+            accessory: .info(action: { viewModel.onMemberInfoTap(memberIndex: member.memberIndex) })
         )
     }
 
-    private var otherMembersSection: some View {
+    private var freeSlotsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(Localization.jointAccountInviteMembersOtherMembers)
                 .font(token: DesignSystem.Font.captionMediumToken)
                 .foregroundStyle(DesignSystem.Color.textSecondary)
                 .padding(.horizontal, 8)
 
-            ForEach(0 ..< viewModel.invitableSlotsCount, id: \.self) { _ in
-                invitableSlotView
+            ForEach(viewModel.content.freeSlots) { freeSlot in
+                freeSlotView(freeSlot)
             }
         }
     }
 
-    private var invitableSlotView: some View {
+    private func freeSlotView(_ freeSlot: JointAccountInviteMembersViewModel.FreeSlotViewData) -> some View {
         JointAccountMemberRow(
             avatar: .emptySlot,
             title: Localization.jointAccountInviteMembersNewMember,
             subtitle: Localization.jointAccountInviteMembersNotInvited,
-            accessory: .invite(action: viewModel.onInviteTap)
+            accessory: accessory(for: freeSlot)
         )
+    }
+
+    private func accessory(for freeSlot: JointAccountInviteMembersViewModel.FreeSlotViewData) -> JointAccountMemberRow.Accessory {
+        guard let inviteURL = freeSlot.inviteURL else {
+            return .empty
+        }
+
+        return .invite(action: { viewModel.onInviteTap(inviteURL: inviteURL) })
     }
 }

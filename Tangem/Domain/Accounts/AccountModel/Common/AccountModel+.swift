@@ -15,7 +15,9 @@ extension AccountModel {
         switch self {
         case .standard(let cryptoAccounts):
             return cryptoAccounts.cryptoAccount(with: identifier)
-        case .tangemPay, .polymarket:
+        case .joint(let jointAccounts):
+            return jointAccounts.jointAccount(with: identifier)
+        case .tangemPay, .polymarket, .collectibles:
             return nil
         }
     }
@@ -34,6 +36,14 @@ extension CryptoAccounts {
     }
 }
 
+extension JointAccounts {
+    func jointAccount(with identifier: some Hashable) -> (any JointAccountModel)? {
+        let identifier = identifier.toAnyHashable()
+
+        return first { $0.id.toAnyHashable() == identifier }
+    }
+}
+
 extension Array where Element == AccountModel {
     func firstStandard() -> AccountModel? {
         first { account in
@@ -42,16 +52,6 @@ extension Array where Element == AccountModel {
             }
 
             return false
-        }
-    }
-
-    func cryptoAccounts() -> [CryptoAccounts] {
-        compactMap { account in
-            if case .standard(let cryptoAccounts) = account {
-                return cryptoAccounts
-            }
-
-            return nil
         }
     }
 
@@ -68,15 +68,9 @@ extension Array where Element == AccountModel {
                 return count + 1
             case .standard(.multiple(let cryptoAccountModels)):
                 return count + cryptoAccountModels.count
-            case .tangemPay, .polymarket:
+            case .joint, .tangemPay, .polymarket, .collectibles:
                 return count
             }
         }
-    }
-}
-
-extension Array where Element == CryptoAccounts {
-    var hasMultipleAccounts: Bool {
-        contains { $0.isMultiple }
     }
 }
