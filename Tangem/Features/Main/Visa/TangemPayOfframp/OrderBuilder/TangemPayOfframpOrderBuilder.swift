@@ -131,7 +131,7 @@ private extension TangemPayOfframpOrderBuilder {
             beneficiary: Self.makeBeneficiary(from: personalDetails.name),
             beneficiaryAddress: .init(
                 line1: personalDetails.line1,
-                line2: nil,
+                line2: personalDetails.line2,
                 city: personalDetails.city,
                 region: personalDetails.region,
                 postalCode: personalDetails.postalCode,
