@@ -11,8 +11,8 @@ import TangemFoundation
 
 @MainActor
 final class PersonalDetailsViewModel: ObservableObject {
-    @Published var fields: [PersonalDetailsField]
-    @Published private(set) var focusedFieldID: PersonalDetailsField.ID?
+    @Published var fields: [OfframpFormField]
+    @Published private(set) var focusedFieldID: OfframpFormField.ID?
 
     let title: String
     let stepSubtitle: String?
@@ -36,8 +36,8 @@ final class PersonalDetailsViewModel: ObservableObject {
         fields = Self.makeFields(isBusiness: isBusiness, details: orderBuilder.personalDetails)
     }
 
-    var contentState: PersonalDetailsContentView.StateModel {
-        PersonalDetailsContentView.StateModel(
+    var contentState: OfframpFormContentView.StateModel {
+        OfframpFormContentView.StateModel(
             isContinueEnabled: isContinueEnabled,
             hasFieldBefore: fieldBefore(focusedFieldID) != nil,
             hasFieldAfter: fieldAfter(focusedFieldID) != nil
@@ -48,7 +48,7 @@ final class PersonalDetailsViewModel: ObservableObject {
         fields.allSatisfy { $0.currentError == nil }
     }
 
-    func focusedFieldDidChange(to id: PersonalDetailsField.ID?) {
+    func focusedFieldDidChange(to id: OfframpFormField.ID?) {
         defer { focusedFieldID = id }
 
         guard let blurredFieldID = focusedFieldID, blurredFieldID != id else { return }
@@ -56,13 +56,13 @@ final class PersonalDetailsViewModel: ObservableObject {
         updateField(blurredFieldID) { $0.error = $0.currentError }
     }
 
-    func fieldDidChange(_ id: PersonalDetailsField.ID) {
+    func fieldDidChange(_ id: OfframpFormField.ID) {
         guard field(id)?.error != nil else { return }
 
         updateField(id) { $0.error = nil }
     }
 
-    func fieldBefore(_ id: PersonalDetailsField.ID?) -> PersonalDetailsField.ID? {
+    func fieldBefore(_ id: OfframpFormField.ID?) -> OfframpFormField.ID? {
         guard let id, let index = fields.firstIndex(where: { $0.id == id }), index > 0 else {
             return nil
         }
@@ -70,7 +70,7 @@ final class PersonalDetailsViewModel: ObservableObject {
         return fields[index - 1].id
     }
 
-    func fieldAfter(_ id: PersonalDetailsField.ID?) -> PersonalDetailsField.ID? {
+    func fieldAfter(_ id: OfframpFormField.ID?) -> OfframpFormField.ID? {
         guard let id, let index = fields.firstIndex(where: { $0.id == id }), fields.indices.contains(index + 1) else {
             return nil
         }
@@ -93,17 +93,17 @@ final class PersonalDetailsViewModel: ObservableObject {
 // MARK: - Fields
 
 private extension PersonalDetailsViewModel {
-    func field(_ id: PersonalDetailsField.ID) -> PersonalDetailsField? {
+    func field(_ id: OfframpFormField.ID) -> OfframpFormField? {
         fields.first { $0.id == id }
     }
 
-    func updateField(_ id: PersonalDetailsField.ID, transform: (inout PersonalDetailsField) -> Void) {
+    func updateField(_ id: OfframpFormField.ID, transform: (inout OfframpFormField) -> Void) {
         guard let index = fields.firstIndex(where: { $0.id == id }) else { return }
 
         transform(&fields[index])
     }
 
-    func text(for id: PersonalDetailsField.ID) -> String {
+    func text(for id: OfframpFormField.ID) -> String {
         field(id)?.text.trimmed() ?? ""
     }
 
@@ -132,7 +132,7 @@ private extension PersonalDetailsViewModel {
     static func makeFields(
         isBusiness: Bool,
         details: TangemPayOfframpPersonalDetails?
-    ) -> [PersonalDetailsField] {
+    ) -> [OfframpFormField] {
         let fields = accountFields() + nameFields(isBusiness: isBusiness) + addressFields()
 
         guard let details else {
@@ -149,14 +149,14 @@ private extension PersonalDetailsViewModel {
     }
 
     // [REDACTED_TODO_COMMENT]
-    static func accountFields() -> [PersonalDetailsField] {
+    static func accountFields() -> [OfframpFormField] {
         [
-            PersonalDetailsField(
+            OfframpFormField(
                 id: .accountNumber,
                 title: "Account number",
                 placeholder: "000000000000"
             ),
-            PersonalDetailsField(
+            OfframpFormField(
                 id: .routingNumber,
                 title: "Routing number",
                 placeholder: "000000000000"
@@ -165,10 +165,10 @@ private extension PersonalDetailsViewModel {
     }
 
     // [REDACTED_TODO_COMMENT]
-    static func nameFields(isBusiness: Bool) -> [PersonalDetailsField] {
+    static func nameFields(isBusiness: Bool) -> [OfframpFormField] {
         if isBusiness {
             return [
-                PersonalDetailsField(
+                OfframpFormField(
                     id: .businessName,
                     title: "Business name",
                     placeholder: "Eg., Dunder Mifflin LLC"
@@ -177,12 +177,12 @@ private extension PersonalDetailsViewModel {
         }
 
         return [
-            PersonalDetailsField(
+            OfframpFormField(
                 id: .firstName,
                 title: "First name",
                 placeholder: "John"
             ),
-            PersonalDetailsField(
+            OfframpFormField(
                 id: .lastName,
                 title: "Last name",
                 placeholder: "Doe"
@@ -191,34 +191,34 @@ private extension PersonalDetailsViewModel {
     }
 
     // [REDACTED_TODO_COMMENT]
-    static func addressFields() -> [PersonalDetailsField] {
+    static func addressFields() -> [OfframpFormField] {
         [
-            PersonalDetailsField(
+            OfframpFormField(
                 id: .countryCode,
                 title: "Country",
                 placeholder: "Not selected"
             ),
-            PersonalDetailsField(
+            OfframpFormField(
                 id: .region,
                 title: "Region / state",
                 placeholder: "Not selected"
             ),
-            PersonalDetailsField(
+            OfframpFormField(
                 id: .city,
                 title: "City",
                 placeholder: "Eg., Night City"
             ),
-            PersonalDetailsField(
+            OfframpFormField(
                 id: .line1,
                 title: "Address line 1",
                 placeholder: "Eg., Ebunike st., Apt. 32"
             ),
-            PersonalDetailsField(
+            OfframpFormField(
                 id: .line2,
                 title: "Address line 2",
                 placeholder: "Eg., Ebunike st., Apt. 32"
             ),
-            PersonalDetailsField(
+            OfframpFormField(
                 id: .postalCode,
                 title: "Postal code",
                 placeholder: "0000"
@@ -228,8 +228,8 @@ private extension PersonalDetailsViewModel {
 
     static func restoredValues(
         from details: TangemPayOfframpPersonalDetails
-    ) -> [PersonalDetailsField.ID: String] {
-        var values: [PersonalDetailsField.ID: String] = [
+    ) -> [OfframpFormField.ID: String] {
+        var values: [OfframpFormField.ID: String] = [
             .accountNumber: details.accountNumber,
             .routingNumber: details.routingNumber,
             .countryCode: details.countryCode,
