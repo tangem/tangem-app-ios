@@ -117,18 +117,3 @@ struct TangemPayAddFundsSourceResolverTests {
         #expect(chosen == nil)
     }
 }
-
-// MARK: - Stubs
-
-private struct FundingSourceAvailabilityCheckerStub: FundingSourceAvailabilityChecker {
-    var transferAvailable: Set<WalletModelId> = []
-    var swapAvailable: Set<WalletModelId> = []
-
-    func isTransferAvailable(walletModel: any WalletModel) -> Bool {
-        transferAvailable.contains(walletModel.id)
-    }
-
-    func isSwapAvailable(walletModel: any WalletModel) -> Bool {
-        swapAvailable.contains(walletModel.id)
-    }
-}

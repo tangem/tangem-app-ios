@@ -24,28 +24,83 @@ extension SolanaTransactionHistoryMapper: TransactionHistoryMapper {
         walletAddress: String,
         amountType: Amount.AmountType
     ) throws -> [TransactionRecord] {
-        response.compactMap { transaction in
+        // Only `delegate` names the validator, so the delegations are collected up front and the other
+        // staking operations look theirs up by stake account (see `mapStakeOperation`).
+        let validators = validatorsByStakeAccount(in: response)
+
+        return response.compactMap { transaction in
             mapToTransactionRecord(
                 transaction: transaction,
                 walletAddress: walletAddress,
-                amountType: amountType
+                amountType: amountType,
+                validatorsByStakeAccount: validators
             )
         }
     }
 }
 
 private extension SolanaTransactionHistoryMapper {
+    func validatorsByStakeAccount(in response: [SolanaTransactionHistoryDTO.TransactionDetails]) -> [String: String] {
+        var validators: [String: String] = [:]
+        var splits: [(source: String, new: String)] = []
+
+        for transaction in response {
+            for instruction in allInstructions(in: transaction) {
+                guard let parsed = instruction.parsed, let info = parsed.info, let stakeAccount = info.stakeAccount else {
+                    continue
+                }
+
+                switch parsed.type {
+                case Constants.stakeDelegateType:
+                    if let voteAccount = info.voteAccount {
+                        validators[stakeAccount] = voteAccount
+                    }
+                case Constants.stakeSplitType:
+                    if let newAccount = info.newSplitAccount {
+                        splits.append((source: stakeAccount, new: newAccount))
+                    }
+                default:
+                    break
+                }
+            }
+        }
+
+        // A split stake account inherits its source's delegation instead of being delegated again, and splits
+        // can chain, so the inheritance is propagated until it stops adding anything.
+        for _ in 0 ..< splits.count {
+            var didResolve = false
+
+            for split in splits where validators[split.new] == nil {
+                if let validator = validators[split.source] {
+                    validators[split.new] = validator
+                    didResolve = true
+                }
+            }
+
+            guard didResolve else {
+                break
+            }
+        }
+
+        return validators
+    }
+
     func mapToTransactionRecord(
         transaction: SolanaTransactionHistoryDTO.TransactionDetails,
         walletAddress: String,
-        amountType: Amount.AmountType
+        amountType: Amount.AmountType,
+        validatorsByStakeAccount: [String: String]
     ) -> TransactionRecord? {
         guard let hash = transaction.transaction.signatures.first else {
             return nil
         }
 
         let instructions = allInstructions(in: transaction)
-        let kind = classifyTransaction(transaction: transaction, instructions: instructions)
+        let kind = classifyTransaction(
+            transaction: transaction,
+            instructions: instructions,
+            validatorsByStakeAccount: validatorsByStakeAccount
+        )
 
         let amountDelta: Decimal
         let sourceAddress: String
@@ -178,7 +233,8 @@ private extension SolanaTransactionHistoryMapper {
 
     func classifyTransaction(
         transaction: SolanaTransactionHistoryDTO.TransactionDetails,
-        instructions: [SolanaTransactionHistoryDTO.Instruction]
+        instructions: [SolanaTransactionHistoryDTO.Instruction],
+        validatorsByStakeAccount: [String: String]
     ) -> TransactionKind {
         let onlyTransferPrograms = instructions.allSatisfy { instruction in
             let programId = instruction.programId
@@ -212,7 +268,7 @@ private extension SolanaTransactionHistoryMapper {
         }
 
         if !stakeInstructions.isEmpty {
-            return mapStakeOperation(stakeInstructions)
+            return mapStakeOperation(stakeInstructions, validatorsByStakeAccount: validatorsByStakeAccount)
         }
 
         let hasTransferShape =
@@ -234,9 +290,23 @@ private extension SolanaTransactionHistoryMapper {
         return .otherOperation
     }
 
-    func mapStakeOperation(_ instructions: [SolanaTransactionHistoryDTO.Instruction]) -> TransactionKind {
+    func mapStakeOperation(
+        _ instructions: [SolanaTransactionHistoryDTO.Instruction],
+        validatorsByStakeAccount: [String: String]
+    ) -> TransactionKind {
+        // `deactivate` and `withdraw` carry no validator at all — not in `parsed.info`, not in the account keys —
+        // so it is taken from the delegation of the same stake account, which `validatorsByStakeAccount` only
+        // collects within the page being mapped. A delegation older than the page its stake is unstaked in
+        // therefore yields `nil`, and widening the window across pages would not help: the walk goes newest-first,
+        // so the unstake is mapped before its delegation is ever fetched. Resolving that properly means matching
+        // the stake account (`source.address` on all three operations) against the already stored history,
+        // above this layer.
+        func validator(for instruction: SolanaTransactionHistoryDTO.Instruction) -> String? {
+            instruction.parsed?.info?.stakeAccount.flatMap { validatorsByStakeAccount[$0] }
+        }
+
         if let instruction = instructions.first(where: { $0.parsed?.type == Constants.stakeDeactivateType }) {
-            return .stakeOperation(stakingType: .unstake, target: nil, instruction: instruction)
+            return .stakeOperation(stakingType: .unstake, target: validator(for: instruction), instruction: instruction)
         }
 
         if let instruction = instructions.first(where: { $0.parsed?.type == Constants.stakeDelegateType }) {
@@ -248,10 +318,14 @@ private extension SolanaTransactionHistoryMapper {
         }
 
         if let instruction = instructions.first(where: { $0.parsed?.type == Constants.withdrawType }) {
-            return .stakeOperation(stakingType: .withdraw, target: nil, instruction: instruction)
+            return .stakeOperation(stakingType: .withdraw, target: validator(for: instruction), instruction: instruction)
         }
 
-        return .stakeOperation(stakingType: .stake, target: nil, instruction: instructions.first)
+        return .stakeOperation(
+            stakingType: .stake,
+            target: instructions.first.flatMap(validator(for:)),
+            instruction: instructions.first
+        )
     }
 
     func solDelta(
@@ -441,6 +515,7 @@ private extension SolanaTransactionHistoryMapper {
         static let transferType = "transfer"
         static let transferCheckedType = "transferChecked"
         static let stakeDelegateType = "delegate"
+        static let stakeSplitType = "split"
         static let stakeDeactivateType = "deactivate"
         static let withdrawType = "withdraw"
     }

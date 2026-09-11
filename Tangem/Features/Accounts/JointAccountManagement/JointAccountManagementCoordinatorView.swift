@@ -14,11 +14,16 @@ struct JointAccountManagementCoordinatorView: View {
     var body: some View {
         NavigationStack(path: $coordinator.path) {
             ZStack {
-                if let rootViewModel = coordinator.rootViewModel {
-                    JointAccountOnboardingView(viewModel: rootViewModel)
+                switch coordinator.root {
+                case .onboarding(let viewModel, _):
+                    JointAccountOnboardingView(viewModel: viewModel)
+                case .inviteMembers(let viewModel):
+                    JointAccountInviteMembersView(viewModel: viewModel)
+                case nil:
+                    EmptyView()
                 }
             }
-            // Attached outside of the `if let` so that the destination is registered before any step gets pushed
+            // Attached outside of the root switch so that the destination is registered before any step gets pushed
             .navigationDestination(for: JointAccountManagementCoordinator.Step.self) { destination(for: $0) }
         }
     }

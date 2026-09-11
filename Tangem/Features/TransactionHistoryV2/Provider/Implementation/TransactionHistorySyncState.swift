@@ -23,7 +23,7 @@ extension TransactionHistorySyncState {
 
     // [REDACTED_TODO_COMMENT]
     enum IdleReason: Sendable, Hashable {
-        case waitingForInitial
+        case neverSynced
         case ready
         case noHistory
     }
