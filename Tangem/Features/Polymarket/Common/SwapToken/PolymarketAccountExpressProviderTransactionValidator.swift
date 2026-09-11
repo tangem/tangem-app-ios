@@ -1,5 +1,5 @@
 //
-//  PolymarketDepositExpressProviderTransactionValidator.swift
+//  PolymarketAccountExpressProviderTransactionValidator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import TangemExpress
 
-struct PolymarketDepositExpressProviderTransactionValidator: ExpressProviderTransactionValidator {
+struct PolymarketAccountExpressProviderTransactionValidator: ExpressProviderTransactionValidator {
     func validateTransactionSize(data: String) -> Bool {
         true
     }

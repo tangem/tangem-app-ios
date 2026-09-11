@@ -49,7 +49,7 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
         )
         let tokenFeeProvidersManager = tokenFeeProvidersManagerProvider.makeTokenFeeProvidersManager()
 
-        let transactionCreator = TangemPayTransactionCreator(
+        let transactionCreator = AccountTransactionCreator(
             sourceAddress: defaultAddressString,
             transactionValidator: transactionValidator
         )

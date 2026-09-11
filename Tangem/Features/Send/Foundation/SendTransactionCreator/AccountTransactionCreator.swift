@@ -1,5 +1,5 @@
 //
-//  TangemPayTransactionCreator.swift
+//  AccountTransactionCreator.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import BlockchainSdk
 
-struct TangemPayTransactionCreator: SendTransactionCreator {
+struct AccountTransactionCreator: SendTransactionCreator {
     let sourceAddress: String
     let transactionValidator: any SendTransactionValidator
 
