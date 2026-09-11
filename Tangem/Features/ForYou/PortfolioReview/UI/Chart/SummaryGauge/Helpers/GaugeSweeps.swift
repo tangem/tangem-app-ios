@@ -17,12 +17,11 @@ enum GaugeSweeps {
     static func visualSweepAngles(
         weights: [CGFloat],
         minFraction: CGFloat = Constants.minVisualSweepFraction,
-        minRemainderFraction: CGFloat = Constants.minRemainderFraction,
-        capDeg: CGFloat = 0
+        minRemainderFraction: CGFloat = Constants.minRemainderFraction
     ) -> [CGFloat] {
         let base = weights.map { min(max($0, 0), 1) * Constants.fullCircleDeg }
         let activeIndices = base.indices.filter { base[$0] > 0 }
-        guard let lastActive = activeIndices.last else {
+        guard !activeIndices.isEmpty else {
             return Array(repeating: 0, count: weights.count)
         }
         let n = activeIndices.count
@@ -34,20 +33,10 @@ enum GaugeSweeps {
             : Constants.fullCircleDeg
         let cappedFilledSum = min(filledSum, maxBudget)
         // Never demand more than an equal share when the ring can't fit every floor.
-        let baseFloor = min(minFraction * Constants.fullCircleDeg, maxBudget / CGFloat(n))
-        // Compensation for the LAST segment only — on a full ring it's lapped over by a round cap at both
-        // seams, so it loses ~capDeg of visible width. The loss shrinks with the unfilled track gap.
-        let gap = Constants.fullCircleDeg - cappedFilledSum
-        let comp = max(capDeg * Constants.lastSegmentCapCompFactor - gap, 0)
-        let floorOf: (Int) -> CGFloat = { index in
-            index == lastActive
-                ? min(baseFloor + comp, maxBudget / CGFloat(n))
-                : baseFloor
-        }
+        let floor = min(minFraction * Constants.fullCircleDeg, maxBudget / CGFloat(n))
 
         // Preserve the filled sweep when the floors fit; otherwise grow just enough to satisfy them.
-        let floorsSum = activeIndices.reduce(CGFloat.zero) { $0 + floorOf($1) }
-        let budget = min(max(cappedFilledSum, floorsSum), maxBudget)
+        let budget = min(max(cappedFilledSum, floor * CGFloat(n)), maxBudget)
 
         var result = Array(repeating: CGFloat.zero, count: weights.count)
         var pinned = Set<Int>()
@@ -57,17 +46,16 @@ enum GaugeSweeps {
         while true {
             let freeIndices = activeIndices.filter { !pinned.contains($0) }
             guard !freeIndices.isEmpty else {
-                pinned.forEach { result[$0] = floorOf($0) }
+                pinned.forEach { result[$0] = floor }
                 break
             }
-            let pinnedSum = pinned.reduce(CGFloat.zero) { $0 + floorOf($1) }
-            let freeBudget = budget - pinnedSum
+            let freeBudget = budget - floor * CGFloat(pinned.count)
             let freeBaseSum = freeIndices.reduce(CGFloat.zero) { $0 + base[$1] }
             freeIndices.forEach { result[$0] = freeBaseSum > 0 ? freeBudget * base[$0] / freeBaseSum : 0 }
 
-            let newlyBelow = freeIndices.filter { result[$0] < floorOf($0) }
+            let newlyBelow = freeIndices.filter { result[$0] < floor }
             guard !newlyBelow.isEmpty else {
-                pinned.forEach { result[$0] = floorOf($0) }
+                pinned.forEach { result[$0] = floor }
                 break
             }
             pinned.formUnion(newlyBelow)
@@ -75,12 +63,16 @@ enum GaugeSweeps {
         return result
     }
 
-    /// Exact extra sweep (degrees) the last slice needs on a full ring to read the same visible width as a
-    /// middle slice. A round cap bulges past its arc's angular end by one cap radius (`strokeWidth / 2`);
-    /// the last slice has both seams capped over, so it needs `2 × capAngle` back.
-    static func lastSegmentOverlapDeg(strokeWidth: CGFloat, arcDiameter: CGFloat) -> CGFloat {
+    /// How far a round cap bulges past its body, in degrees: the cap radius is half the stroke, so on the
+    /// centerline it covers `strokeWidth / arcDiameter` radians.
+    ///
+    /// A body is covered at its start by the predecessor's cap and extended past its end by its own, so what
+    /// the eye reads as a slice sits one cap ahead of its sweep. Everything that has to line up with the
+    /// drawn ring rather than with the raw angles — the hit test, the tooltip anchor — shifts by this much.
+    static func capOverlapDeg(strokeWidth: CGFloat, arcDiameter: CGFloat) -> CGFloat {
         guard arcDiameter > 0 else { return 0 }
-        return 2 * (strokeWidth / arcDiameter) * 180 / .pi
+
+        return (strokeWidth / arcDiameter) * 180 / .pi
     }
 }
 
@@ -93,7 +85,5 @@ extension GaugeSweeps {
         static let minRemainderFraction: CGFloat = 0.1
         static let remainderEpsilon: CGFloat = 1e-9
         static let fullCircleDeg: CGFloat = 360
-        /// Share of the round-cap width the last segment is compensated for at its lapped-over seams.
-        static let lastSegmentCapCompFactor: CGFloat = 0.75
     }
 }
