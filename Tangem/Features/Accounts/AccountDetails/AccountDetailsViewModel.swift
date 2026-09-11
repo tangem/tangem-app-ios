@@ -247,5 +247,10 @@ private extension AccountDetailsViewModel {
         func resolve(accountModel: any PolymarketAccountModel) -> Task<Void, Never> {
             Task {}
         }
+
+        /// Collectibles does not support archiving
+        func resolve(accountModel: any CollectiblesAccountModel) -> Task<Void, Never> {
+            Task {}
+        }
     }
 }

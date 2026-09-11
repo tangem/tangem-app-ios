@@ -9,7 +9,7 @@
 import Foundation
 
 // [REDACTED_TODO_COMMENT]
-// schema), placement→id resolution, `.once` visibility, `activeFrom/activeTo` scheduling.
+// schema), placement→id resolution, `.once` visibility.
 public protocol StoriesRepository {
     func story(id: StoryID) async throws -> StoryV2
     func invalidate(id: StoryID) async

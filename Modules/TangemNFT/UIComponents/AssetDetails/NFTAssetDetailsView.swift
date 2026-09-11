@@ -12,6 +12,7 @@ import TangemUI
 import TangemUIUtils
 import TangemLocalization
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 public struct NFTAssetDetailsView: View {
     @ObservedObject private var viewModel: NFTAssetDetailsViewModel
@@ -85,17 +86,21 @@ public struct NFTAssetDetailsView: View {
     }
 
     private func sendButton(shouldShowShadow: Bool) -> some View {
-        MainButton(title: Localization.commonSend, action: viewModel.onSendButtonTap)
-            .padding(.bottom, Constants.mainButtonBottomPadding)
-            .if(shouldShowShadow) { view in
-                view.background(
-                    ListFooterOverlayShadowView()
-                )
-            }
-            .readGeometry(inCoordinateSpace: coordinateSpace) { value in
-                buttonHeight = value.frame.height
-                buttonMinY = value.frame.minY
-            }
+        MainButton(
+            title: Localization.commonSend,
+            accessibilityIdentifier: NFTAccessibilityIdentifiers.assetDetailsSendButton,
+            action: viewModel.onSendButtonTap
+        )
+        .padding(.bottom, Constants.mainButtonBottomPadding)
+        .if(shouldShowShadow) { view in
+            view.background(
+                ListFooterOverlayShadowView()
+            )
+        }
+        .readGeometry(inCoordinateSpace: coordinateSpace) { value in
+            buttonHeight = value.frame.height
+            buttonMinY = value.frame.minY
+        }
     }
 
     private var coordinateSpace: CoordinateSpace {
