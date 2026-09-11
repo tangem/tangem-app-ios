@@ -17,6 +17,8 @@ struct RemoteJointAccount: Equatable {
     let status: JointAccountStatus
     /// Only the slots that are taken, in the order they were taken, the creator first.
     let members: [StoredJointAccount.Member]
+    /// The unfinished operations, at most one per network.
+    let operations: [JointAccountOperation]
 }
 
 // MARK: - CustomStringConvertible protocol conformance
@@ -31,6 +33,7 @@ extension RemoteJointAccount: CustomStringConvertible {
             "threshold": threshold,
             "status": status,
             "Taken slots count": members.count,
+            "Operations count": operations.count,
         ])
     }
 }
