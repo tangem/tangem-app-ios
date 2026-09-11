@@ -100,6 +100,9 @@ class CommonWalletModel {
 
         id = WalletModelId(tokenItem: tokenItem)
 
+        // Must precede `bind()`: its subscriptions reach the lazy properties from other threads.
+        initializeLazyProperties()
+
         bind()
     }
 
@@ -112,7 +115,9 @@ class CommonWalletModel {
         account = cryptoAccount
     }
 
-    func initializeLazyProperties() {
+    private func initializeLazyProperties() {
+        // First, because every provider below captures `self` and could reach it.
+        _ = _rate
         _ = feeTokenItemBalanceProvider
         _ = availableBalanceProvider
         _ = stakingBalanceProvider
@@ -121,7 +126,6 @@ class CommonWalletModel {
         _ = fiatStakingBalanceProvider
         _ = fiatTotalTokenBalanceProvider
         _ = _yieldModuleManager
-        _ = _rate
     }
 
     private func bind() {
@@ -233,13 +237,13 @@ class CommonWalletModel {
 
     // MARK: - Timer
 
-    private func startUpdatingTimer() {
+    private func startUpdatingTimer(silent: Bool) {
         Task { [weak self] in
             AppLogger.info(self, "⏰ Starting updating timer")
             try await Task.sleep(for: .seconds(10))
 
             self?.walletManager.setNeedsUpdate()
-            await self?.update(silent: false, options: .full)
+            await self?.update(silent: silent, options: .full)
         }
     }
 }
@@ -416,10 +420,10 @@ extension CommonWalletModel: WalletModelUpdater {
         logger.info(self, "Update with token '\(updateToken)' finished with state '\(walletManager.state)'")
     }
 
-    func updateAfterSendingTransaction() {
+    func updateAfterSendingTransaction(silent: Bool) {
         // Force update transactions history to take a new pending transaction from the local storage
         transactionHistoryUpdateTrigger.send(())
-        startUpdatingTimer()
+        startUpdatingTimer(silent: silent)
     }
 
     func updateTransactionHistory() async {
@@ -666,6 +670,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
 
     var tronTransactionDataBuilder: TronTransactionDataBuilder? {
         walletManager as? TronTransactionDataBuilder
+    }
+
+    var tronAccountActivationStateProvider: TronAccountActivationStateProvider? {
+        walletManager as? TronAccountActivationStateProvider
     }
 
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? {

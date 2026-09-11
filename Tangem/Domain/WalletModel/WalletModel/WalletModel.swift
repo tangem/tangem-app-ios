@@ -113,7 +113,7 @@ protocol WalletModelUpdater {
     ) async
 
     func updateTransactionHistory() async
-    func updateAfterSendingTransaction()
+    func updateAfterSendingTransaction(silent: Bool)
 }
 
 extension WalletModelUpdater {
@@ -127,6 +127,10 @@ extension WalletModelUpdater {
     /// Overload for callers that share an `updateToken` but don't need the batched staking endpoint.
     func update(silent: Bool, options: WalletModelUpdateOptions, updateToken: some Hashable) async {
         await update(silent: silent, options: options, updateToken: updateToken, stakingUpdateSource: .single)
+    }
+
+    func updateAfterSendingTransaction() {
+        updateAfterSendingTransaction(silent: false)
     }
 
     /// Overload for the `Fire-and-forget` style call.
@@ -211,6 +215,7 @@ protocol WalletModelDependenciesProvider {
     var tronTransactionFeeProvider: TronTransactionFeeProvider? { get }
     var tronAllowanceProvider: TronAllowanceProvider? { get }
     var tronTransactionDataBuilder: TronTransactionDataBuilder? { get }
+    var tronAccountActivationStateProvider: TronAccountActivationStateProvider? { get }
 
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { get }
     var ethereumNetworkProvider: EthereumNetworkProvider? { get }

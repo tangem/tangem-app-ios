@@ -37,13 +37,13 @@ extension MarketsTokenDetailsView {
                     MarketsTokenSummaryPlaceholderView()
                 }
 
+                news
+
                 metrics
 
                 insights
 
                 listedOnExchanges
-
-                news
 
                 securityScore
 
@@ -171,7 +171,7 @@ extension MarketsTokenDetailsView {
                 MarketsCarouselNewsSkeletonView()
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, 16)
+            .padding(.vertical, 24)
         }
 
         // MARK: - Security score

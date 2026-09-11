@@ -69,6 +69,11 @@ extension CommonExpressProviderManager: ExpressProviderManager {
     func sendData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
         let state = _state { $0 }
 
+        if state.quote?.isRestricted == true {
+            ExpressLogger.info(self, "The quote is restricted in the user's region. Refuse to send")
+            throw ExpressProviderError.transactionDataNotFound
+        }
+
         switch state {
         case .cexPreview:
             let data = try await cexHelper.sendData(currentState: state, request: request)

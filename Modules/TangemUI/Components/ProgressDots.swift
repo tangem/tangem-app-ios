@@ -11,6 +11,7 @@ import TangemAssets
 
 public struct ProgressDots: View {
     private let style: Style
+    private let color: Color
 
     @ScaledMetric private var circleSizeSide: CGFloat
 
@@ -18,8 +19,9 @@ public struct ProgressDots: View {
     @State private var animation2: Bool = false
     @State private var animation3: Bool = false
 
-    public init(style: Style) {
+    public init(style: Style, color: Color = Color.Tangem.Graphic.Status.accent) {
         self.style = style
+        self.color = color
         _circleSizeSide = ScaledMetric(wrappedValue: style.size)
     }
 
@@ -56,7 +58,7 @@ public struct ProgressDots: View {
 
     private func circle(animated: Bool) -> some View {
         Circle()
-            .fill(Color.Tangem.Graphic.Status.accent)
+            .fill(color)
             .frame(width: circleSizeSide, height: circleSizeSide)
             .scaleEffect(animated ? 0.75 : 1)
             .opacity(animated ? 0.25 : 1)
