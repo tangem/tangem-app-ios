@@ -11,11 +11,8 @@ import TangemAssets
 
 /// The donut's colours, shared with the token rows so a row's dot and its slice can't drift apart.
 enum PortfolioReviewSegmentPalette {
-    /// The bucket's dot on its row: a plain neutral marker, never one of the ranked shades.
-    static let otherIndicatorColor = DesignSystem.Color.borderAccentNeutral
-
-    /// The bucket's arc keeps the ring's own grey, so it reads as the plate it replaces.
-    static let otherArcColor = DesignSystem.Color.borderPrimary
+    /// The bucket's arc and its row dot: a plain neutral marker, never one of the ranked shades.
+    static let otherColor = DesignSystem.Color.borderAccentNeutral
 
     /// Each ranked id takes the slice of its rank; the palette has to cover the whole top, ids past it get none.
     static func slices(forRanked ids: [String]) -> [String: Slice] {

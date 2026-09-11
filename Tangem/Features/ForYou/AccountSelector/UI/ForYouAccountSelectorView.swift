@@ -70,7 +70,7 @@ private extension ForYouAccountSelectorView {
 
     var applyFooter: some View {
         MainButton(
-            title: Localization.commonApplySelected,
+            title: Localization.commonApply,
             style: .secondary,
             isDisabled: !viewModel.canApply,
             action: viewModel.apply
