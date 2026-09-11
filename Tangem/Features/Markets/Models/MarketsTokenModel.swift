@@ -22,6 +22,7 @@ struct MarketsTokenModel: Identifiable, Codable, Hashable {
     let isUnderMarketCapLimit: Bool?
     let stakingOpportunities: [StakingOpportunity]?
     let networks: [NetworkModel]?
+    let restrictedForCountry: Bool?
 
     struct StakingOpportunity: Codable, Hashable {
         let id: UInt64

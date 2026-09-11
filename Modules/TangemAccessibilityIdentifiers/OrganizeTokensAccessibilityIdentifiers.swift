@@ -9,6 +9,7 @@
 import Foundation
 
 public enum OrganizeTokensAccessibilityIdentifiers {
+    public static let organizeTokensTitle = "organizeTokensTitle"
     public static let tokensList = "tokensList"
     public static let sortByBalanceButton = "byBalanceSortButton"
     public static let groupButton = "groupButton"

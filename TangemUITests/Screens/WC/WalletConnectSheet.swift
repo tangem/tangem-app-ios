@@ -61,6 +61,14 @@ final class WalletConnectSheet: ScreenBase<WalletConnectConnectionScreenElement>
         }
     }
 
+    @discardableResult
+    func tapAccountRow() -> AccountSelectorSheet {
+        XCTContext.runActivity(named: "Open the account selector from the WalletConnect connection sheet") { _ in
+            walletLabel.waitAndTap()
+            return AccountSelectorSheet(app)
+        }
+    }
+
     func rejectConnection() {
         _ = XCTContext.runActivity(named: "Reject WalletConnect connection") { _ in
             cancelButton.waitAndTap()

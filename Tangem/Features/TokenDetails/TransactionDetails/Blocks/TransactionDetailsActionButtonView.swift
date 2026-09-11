@@ -40,7 +40,7 @@ struct TransactionDetailsActionButtonView: View {
     private var styleType: TangemUI.Button.StyleType {
         switch data.style {
         case .default: .default
-        case .secondary: .secondary
+        case .secondary: .secondary(.default)
         }
     }
 }

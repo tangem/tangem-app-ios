@@ -167,6 +167,86 @@ struct SmartContractMethodTests {
         #expect(data.hex() == expectedData.joined().lowercased())
     }
 
+    @Test("Decodes the arguments of an approve call")
+    func approveERC20TokenMethodDecoding() throws {
+        // give
+        let calldata = Data(hex: [
+            "095ea7b3",
+            "0000000000000000000000001231deb6f5749ef6ce6943a275a1d3e7486f4eae",
+            "0000000000000000000000000000000000000000000000000000000001ab3f00",
+        ].joined())
+
+        // when
+        let method = ApproveERC20TokenMethod(calldata: calldata)
+
+        // then
+        #expect(method?.spender == "0x1231deb6f5749ef6ce6943a275a1d3e7486f4eae")
+        #expect(method?.amount == BigUInt("28000000"))
+        #expect(method?.isUnlimited == false)
+    }
+
+    @Test("Decoding an encoded approve returns the original arguments")
+    func approveERC20TokenMethodDecodingRoundTrip() throws {
+        // give
+        let spender = "0x1111111254eeb25477b68fb85ed929f73a960582"
+        let amount = BigUInt("123456789012345678901234567890")
+
+        // when
+        let encoded = ApproveERC20TokenMethod(spender: spender, amount: amount).data
+        let decoded = ApproveERC20TokenMethod(calldata: encoded)
+
+        // then
+        #expect(decoded?.spender == spender)
+        #expect(decoded?.amount == amount)
+    }
+
+    @Test("Recognizes the uint256 maximum as an unlimited allowance")
+    func approveERC20TokenMethodDecodingUnlimited() throws {
+        // give
+        let calldata = Data(hex: [
+            "095ea7b3",
+            "0000000000000000000000001231deb6f5749ef6ce6943a275a1d3e7486f4eae",
+            "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        ].joined())
+
+        // when
+        let method = ApproveERC20TokenMethod(calldata: calldata)
+
+        // then
+        #expect(method?.isUnlimited == true)
+        #expect(method?.amount == BigUInt.maxUInt256)
+    }
+
+    @Test("Decodes an approve revoking an allowance")
+    func approveERC20TokenMethodDecodingZeroAmount() throws {
+        // give
+        let spender = "0x90e4d59c8583e37426b37d1d7394b6008a987c67"
+
+        // when
+        let encoded = ApproveERC20TokenMethod(spender: spender, amount: .zero).data
+        let decoded = ApproveERC20TokenMethod(calldata: encoded)
+
+        // then
+        #expect(decoded?.amount == .zero)
+        #expect(decoded?.isUnlimited == false)
+    }
+
+    @Test("Rejects calldata that is not a well-formed approve call", arguments: [
+        // A transfer carries the same argument shape, so only the method id tells them apart.
+        ["a9059cbb", "00000000000000000000000090e4d59c8583e37426b37d1d7394b6008a987c67", "00000000000000000000000000000000000000000000000000000000000f4240"],
+        [],
+        ["095ea7b3"],
+        // Amount slot one byte short.
+        ["095ea7b3", "00000000000000000000000090e4d59c8583e37426b37d1d7394b6008a987c67", "00000000000000000000000000000000000000000000000000000000000f42"],
+        // Extra slot after the arguments.
+        ["095ea7b3", "00000000000000000000000090e4d59c8583e37426b37d1d7394b6008a987c67", "00000000000000000000000000000000000000000000000000000000000f4240", "0000000000000000000000000000000000000000000000000000000000000001"],
+        // Non-zero padding in the spender slot.
+        ["095ea7b3", "00000000000000000000002290e4d59c8583e37426b37d1d7394b6008a987c67", "00000000000000000000000000000000000000000000000000000000000f4240"],
+    ])
+    func approveERC20TokenMethodDecodingRejection(hex: [String]) throws {
+        #expect(ApproveERC20TokenMethod(calldata: Data(hex: hex.joined())) == nil)
+    }
+
     @Test
     func allowanceERC20TokenMethod() throws {
         // give

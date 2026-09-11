@@ -27,10 +27,10 @@ final class TangemPayOnboardingScreen: Screen {
     }
 
     @discardableResult
-    func tapGetCard() -> Self {
+    func tapGetCard() -> MainScreen {
         XCTContext.runActivity(named: "Tap Get card button") { _ in
             getCardButton.waitAndTap()
-            return self
+            return MainScreen(app)
         }
     }
 }

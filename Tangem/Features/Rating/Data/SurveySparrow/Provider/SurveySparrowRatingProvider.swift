@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import TangemFoundation
 @preconcurrency import TangemNetworkUtils
 
 final class SurveySparrowRatingProvider: RatingProvider {
@@ -80,7 +81,11 @@ private extension SurveySparrowRatingProvider {
     // MARK: - URL
 
     static func makeURL(domain: String) -> URL? {
-        URL(string: "https://\(domain)")
+        guard !AppEnvironment.current.isProduction, FeatureStorage.instance.tangemAPIType == .mock else {
+            return URL(string: "https://\(domain)")
+        }
+
+        return URL(string: "\(WireMockEnvironment.baseURL)/survey-sparrow")
     }
 
     // MARK: - Network
