@@ -19,7 +19,7 @@ import TangemSdk
 final class PolymarketDepositWalletServiceStub: PolymarketDepositWalletService {
     private(set) var requestedKeys: [(ownerAddress: String?, walletId: String)] = []
     private(set) var deployCalls = 0
-    private(set) var submittedBatches: [PolymarketApprovalsBatch] = []
+    private(set) var submittedBatches: [PolymarketRelayedBatch] = []
 
     private var stateResults: [Result<PolymarketDepositWallet, PolymarketWalletError>]
     private var deployResults: [Result<PolymarketDepositWalletStatus, PolymarketWalletError>]
@@ -80,7 +80,7 @@ final class PolymarketDepositWalletServiceStub: PolymarketDepositWalletService {
         }
     }
 
-    func submitApprovals(_ batch: PolymarketApprovalsBatch) async throws(PolymarketWalletError) -> PolymarketDepositWalletStatus {
+    func submitApprovals(_ batch: PolymarketRelayedBatch) async throws(PolymarketWalletError) -> PolymarketDepositWalletStatus {
         submittedBatches.append(batch)
 
         switch approvalsResult {
@@ -241,7 +241,7 @@ final class PolymarketOnboardingSignerSpy: PolymarketOnboardingSigning {
     }
 
     func sign(
-        approvals: PolymarketApprovalsBatch.Unsigned
+        approvals: PolymarketRelayedBatch.Unsigned
     ) async throws(PolymarketSigningError) -> PolymarketOnboardingSignatures {
         signCalls += 1
 
