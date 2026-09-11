@@ -94,7 +94,10 @@ private extension CommonTokenSelectorWalletsProvider {
                     ),
                 ]
 
-            case .polymarket:
+            case .joint, .polymarket:
+                []
+
+            case .collectibles:
                 []
             }
         }

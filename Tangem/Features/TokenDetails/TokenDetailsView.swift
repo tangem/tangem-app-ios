@@ -48,7 +48,6 @@ struct TokenDetailsView: View {
                 TransactionsListViewRedesigned(
                     state: viewModel.transactionHistoryState,
                     exploreAction: viewModel.openExplorer,
-                    exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
                     openTransactionDetailsAction: viewModel.openTransactionDetails,
                     reloadButtonAction: viewModel.onButtonReloadHistory,
                     isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
@@ -82,6 +81,7 @@ struct TokenDetailsView: View {
         }
         .ignoresSafeArea(.keyboard)
         .alert(item: $viewModel.alert) { $0.alert }
+        .confirmationDialog(viewModel: $viewModel.exploreConfirmationDialog)
         .coordinateSpace(name: CoordinateSpaceName.scrollView)
         .modifier(NavigationModifier(
             presentSource: viewModel.presentSource,
@@ -163,17 +163,11 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     private var redesignTrailingToolbarButton: some View {
-        let menuItems = ForEach(viewModel.dotsMenuItems) { menuItem in
-            SwiftUI.Button(menuItem.type.title, role: menuItem.type.role, action: menuItem.action)
-                .frame(width: .unit(.x11), height: .unit(.x11))
-                .accessibilityIdentifier(menuItem.type.accessibilityIdentifier)
-        }
-
-        if !viewModel.dotsMenuItems.isEmpty {
+        if !viewModel.dotsMenuSections.isEmpty {
             switch viewModel.presentSource {
             case .navigation:
                 Menu {
-                    menuItems
+                    dotsMenuContent
                 } label: {
                     Image(systemName: "ellipsis")
                         .font(.title2)
@@ -181,7 +175,7 @@ struct TokenDetailsView: View {
             case .markets:
                 Menu(
                     content: {
-                        menuItems
+                        dotsMenuContent
                     },
                     label: {
                         NavigationBarButton.details(action: {})
@@ -189,6 +183,22 @@ struct TokenDetailsView: View {
                             .allowsHitTesting(false)
                     }
                 )
+            }
+        }
+    }
+
+    private var dotsMenuContent: some View {
+        ForEach(viewModel.dotsMenuSections) { section in
+            Section {
+                ForEach(section.items) { menuItem in
+                    SwiftUI.Button(role: menuItem.type.role, action: menuItem.action) {
+                        Label(
+                            title: { Text(menuItem.type.title) },
+                            icon: { menuItem.type.icon.image.renderingMode(.template) }
+                        )
+                    }
+                    .accessibilityIdentifier(menuItem.type.accessibilityIdentifier)
+                }
             }
         }
     }
@@ -300,9 +310,8 @@ private extension TokenDetailsView {
 
 #Preview {
     let userWalletModel = FakeUserWalletModel.wallet3Cards
-    let cryptoAccountModel = userWalletModel
-        .accountModelsManager
-        .cryptoAccountModels[0]
+    let cryptoAccountModel = AccountCryptoModelsAggregator
+        .cryptoAccountModels(from: userWalletModel.accountModelsManager)[0]
 
     let walletModel = cryptoAccountModel
         .walletModelsManager
