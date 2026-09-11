@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUIUtils
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 public struct TangemNFTEntrypointRow: View {
     @ObservedObject var viewModel: NFTEntrypointViewModel
@@ -44,6 +45,7 @@ public struct TangemNFTEntrypointRow: View {
             .cornerRadiusContinuous(.unit(.x5))
         }
         .buttonStyle(.defaultScaled)
+        .accessibilityIdentifier(NFTAccessibilityIdentifiers.mainEntrypointRow)
         .onAppear(perform: viewModel.onViewAppear)
     }
 

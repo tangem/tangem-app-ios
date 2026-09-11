@@ -114,6 +114,9 @@ struct DefaultIncomingLinkParserTests {
             urlString = "tangem://\(rawValue)?entry=some-entry&id=some-id"
         case .payApp:
             urlString = "https://tangem.com/\(rawValue)?id=some-id"
+        case .jointAccountInvite:
+            // The invite id is the whole point of the link, so a host without one is turned away by the validator
+            urlString = "tangem://\(rawValue)?id=some-invite-id"
         case .news:
             // `.news` deeplinks are owned exclusively by `NewsIncomingLinkParser`.
             // `DefaultIncomingLinkParser` intentionally rejects `tangem://news` to prevent

@@ -1,0 +1,45 @@
+//
+//  TransferAndCEXTransactionDispatcherProvider.swift
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import TangemStaking
+
+struct TransferAndCEXTransactionDispatcherProvider {
+    let transactionDispatcher: any TransactionDispatcher
+}
+
+// MARK: - TransactionDispatcherProvider
+
+extension TransferAndCEXTransactionDispatcherProvider: TransactionDispatcherProvider {
+    func makeTransferTransactionDispatcher() -> TransactionDispatcher {
+        transactionDispatcher
+    }
+
+    func makeApproveTransactionDispatcher() -> TransactionDispatcher {
+        UnsupportedTransactionDispatcher()
+    }
+
+    func makeDEXTransactionDispatcher() -> TransactionDispatcher {
+        UnsupportedTransactionDispatcher()
+    }
+
+    func makeApproveAndDEXTransactionDispatcher() -> TransactionDispatcher {
+        UnsupportedTransactionDispatcher()
+    }
+
+    func makeCEXTransactionDispatcher() -> TransactionDispatcher {
+        transactionDispatcher
+    }
+
+    func makeStakingTransactionDispatcher(analyticsLogger: any StakingAnalyticsLogger) -> TransactionDispatcher {
+        UnsupportedTransactionDispatcher()
+    }
+
+    func makeYieldModuleTransactionDispatcher() -> TransactionDispatcher {
+        UnsupportedTransactionDispatcher()
+    }
+}

@@ -54,6 +54,7 @@ struct MainCoordinatorView: CoordinatorView {
         .overlay {
             marketsTooltipView
         }
+        .mainShtorka(coordinator: coordinator.feedCoordinator)
     }
 
     private var links: some View {
@@ -91,39 +92,45 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.manageTokensCoordinator) {
                 ManageTokensCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.polymarketCoordinator) {
+                PolymarketCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .fullScreenCover(
+            .shtorkaCompatibleFullScreenCover(
                 item: $coordinator.tangemPayOnboardingCoordinator
             ) {
                 TangemPayOnboardingCoordinatorView(coordinator: $0)
             }
-            .fullScreenCover(item: $coordinator.mainQRScanFlowCoordinator) {
+            .shtorkaCompatibleFullScreenCover(item: $coordinator.mainQRScanFlowCoordinator) {
                 MainQRScanFlowCoordinatorView(coordinator: $0)
             }
-            .sheet(item: $coordinator.sendCoordinator) {
+            .shtorkaCompatibleFullScreenCover(item: $coordinator.jointAccountManagementCoordinator) {
+                JointAccountManagementCoordinatorView(coordinator: $0)
+            }
+            .shtorkaCompatibleSheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
-            .sheet(item: $coordinator.modalOnboardingCoordinator) {
+            .shtorkaCompatibleSheet(item: $coordinator.modalOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
                     .presentation(modal: true, onDismissalAttempt: $0.onDismissalAttempt, onDismissed: nil)
                     .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
-            .sheet(item: $coordinator.visaTransactionDetailsViewModel) {
+            .shtorkaCompatibleSheet(item: $coordinator.visaTransactionDetailsViewModel) {
                 VisaTransactionDetailsView(viewModel: $0)
             }
-            .sheet(item: $coordinator.actionButtonsBuyCoordinator) {
+            .shtorkaCompatibleSheet(item: $coordinator.actionButtonsBuyCoordinator) {
                 ActionButtonsBuyCoordinatorView(coordinator: $0)
             }
-            .sheet(item: $coordinator.actionButtonsSellCoordinator) {
+            .shtorkaCompatibleSheet(item: $coordinator.actionButtonsSellCoordinator) {
                 ActionButtonsSellCoordinatorView(coordinator: $0)
             }
-            .sheet(item: $coordinator.yieldModuleActiveCoordinator) {
+            .shtorkaCompatibleSheet(item: $coordinator.yieldModuleActiveCoordinator) {
                 YieldModuleActiveCoordinatorView(coordinator: $0)
             }
             .floatingSheetContent(for: MobileFinishActivationNeededViewModel.self) {
@@ -155,7 +162,7 @@ struct MainCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .sheet(item: $coordinator.pendingExpressTxStatusBottomSheetViewModel) { viewModel in
+            .shtorkaCompatibleSheet(item: $coordinator.pendingExpressTxStatusBottomSheetViewModel) { viewModel in
                 PendingExpressTxStatusBottomSheetView(viewModel: viewModel)
             }
 

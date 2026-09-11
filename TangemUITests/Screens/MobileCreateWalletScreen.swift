@@ -23,6 +23,15 @@ final class MobileCreateWalletScreen: ScreenBase<MobileCreateWalletScreenElement
     }
 
     @discardableResult
+    func tapCreateButton() -> MainScreen {
+        XCTContext.runActivity(named: "Tap Create button") { _ in
+            waitAndAssertTrue(createButton, "Create button should be displayed")
+            createButton.waitAndTap()
+            return MainScreen(app)
+        }
+    }
+
+    @discardableResult
     func waitForScreen() -> Self {
         XCTContext.runActivity(named: "Wait for Mobile Create Wallet screen") { _ in
             waitAndAssertTrue(importButton, "Import button should be displayed")

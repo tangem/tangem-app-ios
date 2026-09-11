@@ -16,8 +16,6 @@ enum PolymarketApprovalContracts {
     static let ctfCollateralAdapter = "0xAdA100Db00Ca00073811820692005400218FcE1f"
     static let negRiskCtfCollateralAdapter = "0xadA2005600Dec949baf300f4C6120000bDB6eAab"
 
-    /// Named after the BFF contract. Polymarket's own docs list the first one under Combos, as the
-    /// `Exchange` proxy, and do not list the second at all — rename here only together with the contract.
     static let exchangeV3 = "0xe3333700cA9d93003F00f0F71f8515005F6c00Aa"
     static let routerV3 = "0x12121212006e4CD160D18e3f00711DA5c3372600"
 }

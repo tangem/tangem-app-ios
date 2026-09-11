@@ -155,7 +155,7 @@ private enum LeadingBadgeMapper {
     }
 
     static func mapRewards(marketInfo: YieldModuleMarketInfo, state: YieldModuleManagerState) -> LeadingBadge? {
-        let formattedRewardValue = PercentFormatter().format(marketInfo.apy, option: .yield)
+        let formattedRewardValue = PercentFormatter().format(marketInfo.effectiveApy, option: .yield)
 
         let actualState: YieldModuleManagerState = switch state {
         case .failedToLoad(_, .some(let cachedState)):

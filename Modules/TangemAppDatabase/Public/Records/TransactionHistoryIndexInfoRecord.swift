@@ -30,10 +30,9 @@ public struct TransactionHistoryIndexInfoRecord {
 // MARK: - Fetching helpers
 
 public extension TransactionHistoryIndexInfoRecord {
-    /// - Note: `address` and `contractAddress` are stored normalized, so the caller must normalize them before filtering.
-    static func query(address: String, network: String, contractAddress: String) -> QueryInterfaceRequest<Self> {
+    static func query(addresses: [String], network: String, contractAddress: String) -> QueryInterfaceRequest<Self> {
         TransactionHistoryIndexRecord
-            .filter { $0.address == address && $0.network == network && $0.contract == contractAddress }
+            .filter { addresses.contains($0.address) && $0.network == network && $0.contract == contractAddress }
             .order { [$0.dateTime.desc, $0.entityID.desc] }
             .including(optional: TransactionHistoryIndexRecord
                 .expressEntity

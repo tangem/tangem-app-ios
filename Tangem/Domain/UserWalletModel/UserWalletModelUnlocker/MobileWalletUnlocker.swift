@@ -10,7 +10,7 @@ import Foundation
 import TangemFoundation
 import TangemMobileWalletSdk
 
-class MobileWalletUnlocker: UserWalletModelUnlocker {
+final class MobileWalletUnlocker: UserWalletModelUnlocker {
     let canUnlockAutomatically: Bool
     let canShowUnlockUIAutomatically: Bool
     let analyticsSignInType: Analytics.SignInType
@@ -32,6 +32,12 @@ class MobileWalletUnlocker: UserWalletModelUnlocker {
         do {
             if canUnlockAutomatically {
                 let context = try mobileWalletSdk.validate(auth: .none, for: userWalletId)
+                BackendAuthenticationRegistrar.registerUnlockedMobileWallet(
+                    id: userWalletId,
+                    context: context,
+                    mobileWalletSDK: mobileWalletSdk
+                )
+
                 return try makeSuccessResult(context: context)
             } else {
                 return try await unlockWithFallback()
@@ -78,11 +84,26 @@ private extension MobileWalletUnlocker {
     func map(result: MobileUnlockUtil.Result) throws -> UserWalletModelUnlockerResult {
         switch result {
         case .accessCode(let context):
+            BackendAuthenticationRegistrar.registerUnlockedMobileWallet(
+                id: userWalletId,
+                context: context,
+                mobileWalletSDK: mobileWalletSdk
+            )
             return try makeSuccessResult(context: context)
-        case .biometrics(let context):
-            return .biometrics(context)
+
+        case .biometrics(let laContext):
+            if let context = try? mobileWalletSdk.validate(auth: .biometrics(context: laContext), for: userWalletId) {
+                BackendAuthenticationRegistrar.registerUnlockedMobileWallet(
+                    id: userWalletId,
+                    context: context,
+                    mobileWalletSDK: mobileWalletSdk
+                )
+            }
+            return .biometrics(laContext)
+
         case .canceled:
             return .error(CancellationError())
+
         case .userWalletNeedsToDelete:
             return .userWalletNeedsToDelete
         }
