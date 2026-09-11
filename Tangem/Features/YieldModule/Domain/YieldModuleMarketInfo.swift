@@ -18,7 +18,6 @@ struct YieldModuleMarketInfo: Codable, Equatable {
     let maxFeeUSD: Decimal?
     let incentive: YieldModuleMarketIncentive?
 
-    /// The APY to display: the campaign-boosted total when a Merkl campaign is active, the base APY otherwise.
     /// The total comes from the backend as is — the app never sums APY components locally.
     var effectiveApy: Decimal {
         incentive?.totalApyEst ?? apy
@@ -26,9 +25,9 @@ struct YieldModuleMarketInfo: Codable, Equatable {
 }
 
 /// Merkl campaign overlay of an active market, in the same fraction form as `apy`.
-/// `rewardsApr` is net of the Tangem service fee.
+/// `rewardsApr` is net of the Tangem service fee; surfaces that show the reward component hide it when `nil`.
 struct YieldModuleMarketIncentive: Codable, Equatable {
-    let rewardsApr: Decimal
+    let rewardsApr: Decimal?
     let totalApyEst: Decimal
 }
 
@@ -47,7 +46,7 @@ extension YieldModuleMarketInfo {
         )
     }
 
-    init(from cached: CachedYieldModuleMarket, includeIncentive: Bool) {
+    init(from cached: CachedYieldModuleMarket) {
         self.init(
             tokenContractAddress: cached.tokenContractAddress,
             apy: cached.apy / 100,
@@ -55,9 +54,7 @@ extension YieldModuleMarketInfo {
             chainId: cached.chainId,
             maxFeeNative: cached.maxFeeNative,
             maxFeeUSD: cached.maxFeeUSD,
-            incentive: includeIncentive
-                ? Self.makeIncentive(hasActiveCampaign: cached.hasActiveCampaign, rewardsApr: cached.rewardsApr, totalApyEst: cached.totalApyEst)
-                : nil
+            incentive: nil
         )
     }
 
@@ -66,12 +63,13 @@ extension YieldModuleMarketInfo {
         rewardsApr: Decimal?,
         totalApyEst: Decimal?
     ) -> YieldModuleMarketIncentive? {
-        guard hasActiveCampaign == true, let rewardsApr, let totalApyEst else {
+        // A missing `rewardsApr` must not kill the whole overlay — only the reward-component surfaces need it.
+        guard hasActiveCampaign == true, let totalApyEst else {
             return nil
         }
 
         return YieldModuleMarketIncentive(
-            rewardsApr: rewardsApr / 100,
+            rewardsApr: rewardsApr.map { $0 / 100 },
             totalApyEst: totalApyEst / 100
         )
     }
