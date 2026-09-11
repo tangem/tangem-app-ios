@@ -1,5 +1,5 @@
 //
-//  PersonalDetailsKeyboardToolbar.swift
+//  OfframpFormKeyboardToolbar.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
-struct PersonalDetailsKeyboardToolbar: View {
+struct OfframpFormKeyboardToolbar: View {
     let hasFieldBefore: Bool
     let hasFieldAfter: Bool
     let action: (Action) -> Void
@@ -30,13 +30,13 @@ struct PersonalDetailsKeyboardToolbar: View {
 
 // MARK: - Metrics
 
-extension PersonalDetailsKeyboardToolbar {
+extension OfframpFormKeyboardToolbar {
     static let height: CGFloat = Constants.controlHeight + Constants.groupPadding * 2
 }
 
 // MARK: - Controls
 
-private extension PersonalDetailsKeyboardToolbar {
+private extension OfframpFormKeyboardToolbar {
     var navigationGroup: some View {
         HStack(spacing: 4) {
             // [REDACTED_TODO_COMMENT]
@@ -86,7 +86,7 @@ private extension PersonalDetailsKeyboardToolbar {
 
 // MARK: - Constants
 
-private extension PersonalDetailsKeyboardToolbar {
+private extension OfframpFormKeyboardToolbar {
     enum Constants {
         static let horizontalPadding: CGFloat = 16
         static let groupPadding: CGFloat = 4
@@ -96,7 +96,7 @@ private extension PersonalDetailsKeyboardToolbar {
 
 // MARK: - Action
 
-extension PersonalDetailsKeyboardToolbar {
+extension OfframpFormKeyboardToolbar {
     enum Action {
         case focusPrevious
         case focusNext
@@ -108,19 +108,19 @@ extension PersonalDetailsKeyboardToolbar {
 
 #Preview {
     VStack(spacing: 24) {
-        PersonalDetailsKeyboardToolbar(
+        OfframpFormKeyboardToolbar(
             hasFieldBefore: false,
             hasFieldAfter: true,
             action: { _ in }
         )
 
-        PersonalDetailsKeyboardToolbar(
+        OfframpFormKeyboardToolbar(
             hasFieldBefore: true,
             hasFieldAfter: true,
             action: { _ in }
         )
 
-        PersonalDetailsKeyboardToolbar(
+        OfframpFormKeyboardToolbar(
             hasFieldBefore: true,
             hasFieldAfter: false,
             action: { _ in }
