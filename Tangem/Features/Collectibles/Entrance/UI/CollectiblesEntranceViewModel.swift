@@ -11,34 +11,25 @@ import Foundation
 final class CollectiblesEntranceViewModel: ObservableObject {
     // MARK: - Properties
 
-    private let accountStatusProvider: any CollectiblesAccountStatusProvider
     private let userWalletModelsProvider: () -> [UserWalletModel]
     private let floatingSheetPresenter: FloatingSheetPresenter
-
-    private(set) var openingTask: Task<Void, Never>?
 
     // MARK: - Init
 
     init(
-        accountStatusProvider: any CollectiblesAccountStatusProvider = CollectiblesAccountStatusMockProvider(),
         userWalletModelsProvider: @escaping () -> [UserWalletModel],
         floatingSheetPresenter: FloatingSheetPresenter = InjectedValues[\.floatingSheetPresenter]
     ) {
-        self.accountStatusProvider = accountStatusProvider
         self.userWalletModelsProvider = userWalletModelsProvider
         self.floatingSheetPresenter = floatingSheetPresenter
     }
 
-    deinit {
-        openingTask?.cancel()
-    }
-
     // MARK: - Methods
 
+    /// The open sheet swallows background taps itself, and the destination resolves within the tap,
+    /// so a repeat tap has nothing left to guard against.
+    @MainActor
     func openCollectibles(onOpen: @MainActor @escaping (CollectiblesCoordinator.Options) -> Void) {
-        // The open sheet swallows background taps itself, so the task is the only thing worth guarding against.
-        guard openingTask == nil else { return }
-
         let userWalletModels = userWalletModelsProvider()
 
         guard let firstUserWalletModel = userWalletModels.first else { return }
@@ -55,51 +46,38 @@ final class CollectiblesEntranceViewModel: ObservableObject {
 // MARK: - Private logic
 
 private extension CollectiblesEntranceViewModel {
+    @MainActor
     func presentWalletSelector(
         with userWalletModels: [UserWalletModel],
         onOpen: @MainActor @escaping (CollectiblesCoordinator.Options) -> Void
     ) {
-        Task { @MainActor [weak self, floatingSheetPresenter] in
-            let accountSelectorViewModel = AccountSelectorViewModel(
-                userWalletModels: userWalletModels,
-                preferredDisplayMode: .wallets
-            ) { selectedCell in
-                floatingSheetPresenter.removeActiveSheet()
+        let accountSelectorViewModel = AccountSelectorViewModel(
+            userWalletModels: userWalletModels,
+            preferredDisplayMode: .wallets
+        ) { [weak self, floatingSheetPresenter] selectedCell in
+            floatingSheetPresenter.removeActiveSheet()
+            // The selector types its callback without isolation, so the hop belongs to its API, not to this flow
+            Task { @MainActor in
                 self?.resolveDestination(for: selectedCell.userWalletModel, onOpen: onOpen)
             }
-
-            floatingSheetPresenter.enqueue(
-                sheet: CollectiblesWalletSelectorViewModel(
-                    accountSelectorViewModel: accountSelectorViewModel,
-                    close: floatingSheetPresenter.removeActiveSheet
-                )
-            )
         }
+
+        floatingSheetPresenter.enqueue(
+            sheet: CollectiblesWalletSelectorViewModel(
+                accountSelectorViewModel: accountSelectorViewModel,
+                close: floatingSheetPresenter.removeActiveSheet
+            )
+        )
     }
 
-    // [REDACTED_TODO_COMMENT]
+    /// The account list answers this outright — no chain read, nothing to fail, between the tap and the screen.
+    @MainActor
     func resolveDestination(
         for userWalletModel: UserWalletModel,
-        onOpen: @MainActor @escaping (CollectiblesCoordinator.Options) -> Void
+        onOpen: @MainActor (CollectiblesCoordinator.Options) -> Void
     ) {
-        guard openingTask == nil else { return }
+        let hasCollectiblesAccount = CollectiblesAccountAggregator.collectiblesAccountModel(from: userWalletModel.accountModelsManager) != nil
 
-        openingTask = Task { @MainActor [weak self, accountStatusProvider] in
-            defer { self?.openingTask = nil }
-
-            do {
-                let accountStatus = try await accountStatusProvider.load()
-
-                switch accountStatus {
-                case .exists:
-                    onOpen(.init(destination: .main))
-                case .missing:
-                    onOpen(.init(destination: .welcome))
-                }
-            } catch is CancellationError {
-            } catch {
-                AppLogger.error("Collectibles account status loading failed", error: error)
-            }
-        }
+        onOpen(.init(destination: hasCollectiblesAccount ? .main : .welcome))
     }
 }

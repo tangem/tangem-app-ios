@@ -24,6 +24,10 @@ enum MultiWalletMainContentUpdater {
                 await PolymarketAccountAggregator.polymarketAccountModel(from: userWalletModel.accountModelsManager)?.refreshState()
             }
 
+            outerGroup.addTask {
+                await CollectiblesAccountAggregator.collectiblesAccountModel(from: userWalletModel.accountModelsManager)?.refreshState()
+            }
+
             await outerGroup.waitForAll()
         }
     }
