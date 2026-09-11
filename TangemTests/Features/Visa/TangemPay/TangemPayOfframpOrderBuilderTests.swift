@@ -223,13 +223,15 @@ private extension TangemPayOfframpOrderBuilderTests {
     }
 
     func makePersonalDetails(
-        name: TangemPayOfframpPersonalDetails.Name = .individual(firstName: "John", lastName: "Doe")
+        name: TangemPayOfframpPersonalDetails.Name = .individual(firstName: "John", lastName: "Doe"),
+        line2: String? = nil
     ) -> TangemPayOfframpPersonalDetails {
         TangemPayOfframpPersonalDetails(
             name: name,
             accountNumber: "1234567890",
             routingNumber: "021000021",
             line1: "123 Main St",
+            line2: line2,
             city: "New York",
             region: "NY",
             postalCode: "10001",
