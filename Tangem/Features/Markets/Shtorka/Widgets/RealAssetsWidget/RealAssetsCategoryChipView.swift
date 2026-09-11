@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -15,7 +16,9 @@ struct RealAssetsCategoryChipView: View {
     let title: String
     let style: Style
     let onTap: () -> Void
-    let onClear: () -> Void
+    var onClear: () -> Void = {}
+
+    @Environment(\.isEnabled) private var isEnabled
 
     @ScaledMetric private var iconSize: CGFloat = 16
     @ScaledMetric private var height: CGFloat = 36
@@ -30,6 +33,7 @@ struct RealAssetsCategoryChipView: View {
 
                     if case .expandable = style {
                         icon(DesignSystem.Icons.ChevronDown.regular16)
+                            .accessibilityHidden(true)
                     }
                 }
                 .padding(.leading, 12)
@@ -47,9 +51,11 @@ struct RealAssetsCategoryChipView: View {
                         .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(Text(Localization.commonReset))
             }
         }
         .background(backgroundColor, in: .capsule)
+        .opacity(isEnabled ? 1 : Constants.disabledOpacity)
     }
 
     private func icon(_ imageType: ImageType) -> some View {
@@ -76,6 +82,10 @@ struct RealAssetsCategoryChipView: View {
 }
 
 extension RealAssetsCategoryChipView {
+    enum Constants {
+        static let disabledOpacity: CGFloat = 0.4
+    }
+
     enum Style {
         case expandable
         case selected
