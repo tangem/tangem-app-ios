@@ -165,9 +165,11 @@ private extension MultipleAddressTransactionHistoryService {
 private extension MultipleAddressTransactionHistoryService {
     actor TransactionRecordsStorage {
         private(set) var records: [TransactionRecord] = []
+        private var recordIDToIndex: [TransactionRecord.ID: Int] = [:]
 
         func clear() {
             records.removeAll()
+            recordIDToIndex.removeAll()
         }
 
         /// Merges `newRecords` into the existing collection. For records sharing `(hash, index)`
@@ -175,7 +177,7 @@ private extension MultipleAddressTransactionHistoryService {
         ///
         /// - Returns: The hashes of records that were zipped with existing entries (for caller-side logging).
         func merge(_ newRecords: [TransactionRecord]) -> [String] {
-            records.appendMerging(newRecords)
+            records.appendMerging(newRecords, recordIDToIndex: &recordIDToIndex)
         }
     }
 }
