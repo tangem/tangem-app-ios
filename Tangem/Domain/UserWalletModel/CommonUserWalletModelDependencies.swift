@@ -190,6 +190,7 @@ private extension CommonUserWalletModelDependencies {
             derivationInteractorFactory: jointAccountDerivationInteractorFactory,
             persistentStorage: CommonJointAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue),
             invitesPersistentStorage: CommonJointAccountsInvitesPersistentStorage(storageIdentifier: userWalletId.stringValue),
+            pendingOperationsPersistentStorage: CommonJointAccountsPendingOperationsPersistentStorage(storageIdentifier: userWalletId.stringValue),
             isJointAccountsAvailable: FeatureProvider.isAvailable(.jointAccounts)
         )
 
