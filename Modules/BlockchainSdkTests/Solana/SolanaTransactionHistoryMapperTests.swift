@@ -388,6 +388,67 @@ struct SolanaTransactionHistoryMapperTests {
     }
 
     @Test
+    func mapSplitStakeOperationWithValidatorAddress() throws {
+        let mapper = SolanaTransactionHistoryMapper(blockchain: blockchain)
+        let validatorAddress = "Validator11111111111111111111111111111111111"
+        let details = try decode(
+            SolanaTransactionHistoryDTO.TransactionDetails.self,
+            from: """
+            {
+              "blockTime": 1771579635,
+              "meta": {
+                "err": null,
+                "fee": 25000,
+                "innerInstructions": [],
+                "postBalances": [36523606, 20000000],
+                "preBalances": [56548606, 0],
+                "postTokenBalances": [],
+                "preTokenBalances": [],
+                "rewards": []
+              },
+              "transaction": {
+                "message": {
+                  "accountKeys": [
+                    { "pubkey": "\(walletAddress)" },
+                    { "pubkey": "\(destinationAddress)" }
+                  ],
+                  "instructions": [
+                    {
+                      "parsed": {
+                        "info": {
+                          "stakeAccount": "\(destinationAddress)"
+                        },
+                        "type": "split"
+                      },
+                      "program": "stake",
+                      "programId": "Stake11111111111111111111111111111111111111"
+                    },
+                    {
+                      "parsed": {
+                        "info": {
+                          "stakeAccount": "\(destinationAddress)",
+                          "stakeAuthority": "\(walletAddress)",
+                          "voteAccount": "\(validatorAddress)"
+                        },
+                        "type": "delegate"
+                      },
+                      "program": "stake"
+                    }
+                  ]
+                },
+                "signatures": ["hash_split"]
+              }
+            }
+            """
+        )
+
+        let records = try mapper.mapToTransactionRecords([details], walletAddress: walletAddress, amountType: .coin)
+
+        #expect(records.count == 1)
+        #expect(records[0].type == .staking(type: .stake, target: validatorAddress))
+    }
+
+    @Test
     func mapStakeOperationAsWithdraw() throws {
         let mapper = SolanaTransactionHistoryMapper(blockchain: blockchain)
         let stakeAccountAddress = "StakeAccount11111111111111111111111111111111"

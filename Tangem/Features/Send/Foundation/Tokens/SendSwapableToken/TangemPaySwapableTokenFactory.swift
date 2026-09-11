@@ -8,6 +8,7 @@
 
 import BlockchainSdk
 import TangemExpress
+import TangemPay
 
 /// Maybe put in init `TangemPayAccount` ?
 struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
@@ -21,6 +22,9 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
     let transactionDispatcher: any TransactionDispatcher
     let transactionValidator: any SendTransactionValidator
     let operationType: ExpressOperationType
+    /// Abstract receive-side presentation when this token is used as the swap destination
+    /// (Add funds flow). Left `nil` when the token is used as the source (Withdraw flow).
+    var receiveTokenPresentation: SendReceiveTokenPresentation? = nil
 
     func makeSwapableToken() -> SendSwapableToken {
         let sourceTokenFactory = TangemPaySourceTokenFactory(
@@ -76,7 +80,51 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
             operationType: operationType,
 
             // TangemPay is limited to CEX providers — every operation type collapses to a CEX-style filter.
-            supportedProvidersFilter: .cex
+            supportedProvidersFilter: .cex,
+            presentation: receiveTokenPresentation
         )
+    }
+}
+
+extension TangemPaySwapableTokenFactory {
+    init(
+        userWalletInfo: UserWalletInfo,
+        tangemPayAccount: TangemPayAccount,
+        account: (any TangemPayAccountModel)?,
+        accountToken: TangemPayAccountToken,
+        operationType: ExpressOperationType,
+        receiveTokenPresentation: SendReceiveTokenPresentation?
+    ) {
+        let balancesProvider = tangemPayAccount.balancesProvider
+        let availableBalanceProvider = balancesProvider.availableBalanceProvider(for: accountToken)
+        let fiatAvailableBalanceProvider = balancesProvider.fiatAvailableBalanceProvider(for: accountToken)
+
+        self.init(
+            userWalletInfo: userWalletInfo,
+            account: account,
+            tokenItem: accountToken.tokenItem,
+            feeTokenItem: accountToken.tokenItem,
+            defaultAddressString: accountToken.depositAddress,
+            availableBalanceProvider: availableBalanceProvider,
+            fiatAvailableBalanceProvider: fiatAvailableBalanceProvider,
+            transactionDispatcher: tangemPayAccount.makeTransactionDispatcher(withdrawEligibility: accountToken.withdrawEligibility),
+            transactionValidator: TangemPaySendTransactionValidator(
+                availableBalanceProvider: availableBalanceProvider
+            ),
+            operationType: operationType,
+            receiveTokenPresentation: receiveTokenPresentation
+        )
+    }
+}
+
+extension SendReceiveTokenPresentation {
+    /// The payment account is always presented in USD, independent of the wallet's selected
+    /// fiat currency.
+    static var tangemPayAccount: SendReceiveTokenPresentation? {
+        guard FeatureProvider.isAvailable(.tangemPayAddFundsWithdrawRework) else {
+            return nil
+        }
+
+        return SendReceiveTokenPresentation(currencySymbol: TangemPayUtilities.fiatItem.currencyCode)
     }
 }

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemPay
@@ -120,6 +121,10 @@ final class TangemPaySelectPlanViewModel: ObservableObject {
         coordinator?.openComparePlans(tariffPlans: tariffPlans)
     }
 
+    func openURL(_ url: URL) {
+        coordinator?.openURL(url)
+    }
+
     func close() {
         coordinator?.closeSelectPlanFlow()
     }
@@ -166,7 +171,34 @@ private extension TangemPaySelectPlanViewModel {
         items
             .filter { $0.type == .onboardingRelated }
             .sorted { $0.order < $1.order }
-            .map { Point(title: $0.title, subtitle: $0.body) }
+            .map { Point(title: makeTitle($0.title), subtitle: makeSubtitle($0.body)) }
+    }
+
+    static func makeTitle(_ title: String) -> AttributedString {
+        makeMarkdown(title, linkColor: DesignSystem.Color.textPrimary)
+    }
+
+    static func makeSubtitle(_ body: String?) -> AttributedString? {
+        guard let body, !body.isEmpty else {
+            return nil
+        }
+
+        return makeMarkdown(body, linkColor: DesignSystem.Color.textSecondary)
+    }
+
+    static func makeMarkdown(_ string: String, linkColor: Color) -> AttributedString {
+        let options = AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
+
+        guard var attributed = try? AttributedString(markdown: string, options: options) else {
+            return AttributedString(string)
+        }
+
+        for run in attributed.runs where run.link != nil {
+            attributed[run.range].underlineStyle = Text.LineStyle.single
+            attributed[run.range].foregroundColor = linkColor
+        }
+
+        return attributed
     }
 }
 
@@ -189,8 +221,8 @@ extension TangemPaySelectPlanViewModel {
 
     struct Point: Identifiable {
         let id = UUID()
-        let title: String
-        var subtitle: String?
+        let title: AttributedString
+        var subtitle: AttributedString?
     }
 }
 
@@ -200,4 +232,5 @@ protocol TangemPaySelectPlanRoutable: AnyObject {
     func closeSelectPlanFlow()
     func planDidActivate()
     func openComparePlans(tariffPlans: [VisaCustomerInfoResponse.TariffPlan])
+    func openURL(_ url: URL)
 }

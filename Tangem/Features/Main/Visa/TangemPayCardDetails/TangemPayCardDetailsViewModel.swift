@@ -63,13 +63,6 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: \.isReissuing, on: self, ownership: .weak)
             .store(in: &bag)
-
-        NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
-            .withWeakCaptureOf(self)
-            .sink { viewModel, _ in
-                viewModel.cardDetailsExposureTask?.cancel()
-            }
-            .store(in: &bag)
     }
 
     func cardNameTapped() {
@@ -79,6 +72,10 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
     func copyNumber() {
         Analytics.log(.visaScreenCopyCardNumberClicked, contextParams: .userWallet(userWalletId))
         copyAction(copiedTextKeyPath: \.number, toastMessage: "Number copied")
+    }
+
+    func copyCardholderName() {
+        copyAction(copiedTextKeyPath: \.cardholderName, toastMessage: "Cardholder name copied", removingFormatting: false)
     }
 
     func copyExpirationDate() {
@@ -112,11 +109,22 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
         isFlipped = state.isFlipped
     }
 
-    private func copyAction(copiedTextKeyPath: KeyPath<TangemPayCardDetailsData, String>, toastMessage: String) {
+    private func copyAction(
+        copiedTextKeyPath: KeyPath<TangemPayCardDetailsData, String>,
+        toastMessage: String,
+        removingFormatting: Bool = true
+    ) {
         guard let cardDetailsData = state.details else { return }
-        UIPasteboard.general.string = cardDetailsData[keyPath: copiedTextKeyPath]
-            .replacingOccurrences(of: " ", with: "")
-            .replacingOccurrences(of: "/", with: "")
+
+        let copiedText = cardDetailsData[keyPath: copiedTextKeyPath]
+
+        if removingFormatting {
+            UIPasteboard.general.string = copiedText
+                .replacingOccurrences(of: " ", with: "")
+                .replacingOccurrences(of: "/", with: "")
+        } else {
+            UIPasteboard.general.string = copiedText
+        }
 
         Toast(view: SuccessToast(text: toastMessage))
             .present(
@@ -155,6 +163,6 @@ extension TangemPayCardDetailsViewModel {
 
 private extension TangemPayCardDetailsViewModel {
     enum Constants {
-        static let cardDetailsVisibilityPeriodInSeconds: TimeInterval = 30
+        static let cardDetailsVisibilityPeriodInSeconds: TimeInterval = 40
     }
 }

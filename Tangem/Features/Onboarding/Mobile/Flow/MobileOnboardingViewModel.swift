@@ -36,7 +36,7 @@ final class MobileOnboardingViewModel: ObservableObject {
 extension MobileOnboardingViewModel {
     func onDismissalAttempt() {
         switch input.flow {
-        case .walletActivate(let userWalletModel, _):
+        case .walletActivate(let userWalletModel, _, _):
             if isBackupNeeded(for: userWalletModel) {
                 alert = makeBackupNeedsAlert()
                 return
@@ -53,13 +53,16 @@ extension MobileOnboardingViewModel {
                 return
             }
 
-        case .seedPhraseBackup(let userWalletModel, _):
+        case .seedPhraseBackup(let userWalletModel, _, _):
             if isBackupNeeded(for: userWalletModel) {
                 alert = makeBackupNeedsAlert()
                 return
             }
 
-        default:
+        case .iCloudBackup:
+            alert = makeICloudBackupDismissAlert()
+
+        case .walletImport, .seedPhraseReveal, .iCloudBackupImport:
             break
         }
     }
@@ -71,9 +74,17 @@ private extension MobileOnboardingViewModel {
     func makeFlowBuilder() -> MobileOnboardingFlowBuilder {
         switch input.flow {
         case .walletImport(let source):
-            MobileOnboardingImportWalletFlowBuilder(source: source, coordinator: self)
-        case .walletActivate(let userWalletModel, let source):
-            MobileOnboardingActivateWalletFlowBuilder(userWalletModel: userWalletModel, source: source, coordinator: self)
+            MobileOnboardingImportWalletFlowBuilder(
+                source: source,
+                coordinator: self
+            )
+        case .walletActivate(let userWalletModel, let source, let context):
+            MobileOnboardingActivateWalletFlowBuilder(
+                userWalletModel: userWalletModel,
+                source: source,
+                context: context,
+                coordinator: self
+            )
         case .accessCode(let userWalletModel, let source, let context):
             MobileOnboardingAccessCodeFlowBuilder(
                 userWalletModel: userWalletModel,
@@ -81,10 +92,30 @@ private extension MobileOnboardingViewModel {
                 context: context,
                 coordinator: self
             )
-        case .seedPhraseBackup(let userWalletModel, let source):
-            MobileOnboardingBackupSeedPhraseFlowBuilder(userWalletModel: userWalletModel, source: source, coordinator: self)
+        case .seedPhraseBackup(let userWalletModel, let source, let context):
+            MobileOnboardingBackupSeedPhraseFlowBuilder(
+                userWalletModel: userWalletModel,
+                source: source,
+                context: context,
+                coordinator: self
+            )
         case .seedPhraseReveal(let context):
-            MobileOnboardingRevealSeedPhraseFlowBuilder(context: context, coordinator: self)
+            MobileOnboardingRevealSeedPhraseFlowBuilder(
+                context: context,
+                coordinator: self
+            )
+        case .iCloudBackup(let userWalletModel, let source):
+            MobileOnboardingBackupICloudFlowBuilder(
+                userWalletModel: userWalletModel,
+                source: source,
+                coordinator: self
+            )
+        case .iCloudBackupImport(let backups, let source):
+            MobileOnboardingImportICloudBackupFlowBuilder(
+                backups: backups,
+                source: source,
+                coordinator: self
+            )
         }
     }
 }
@@ -93,7 +124,7 @@ private extension MobileOnboardingViewModel {
 
 private extension MobileOnboardingViewModel {
     func isBackupNeeded(for userWalletModel: UserWalletModel) -> Bool {
-        userWalletModel.config.hasFeature(.mnemonicBackup)
+        MobileBackupStatusUtil(userWalletModel: userWalletModel).isBackupNeeded
     }
 
     func isAccessCodeNeeded(for userWalletModel: UserWalletModel) -> Bool {
@@ -144,6 +175,18 @@ private extension MobileOnboardingViewModel {
         )
     }
 
+    func makeICloudBackupDismissAlert() -> AlertBinder {
+        AlertBuilder.makeAlert(
+            title: Localization.hwCloudBackupCancelSetupTitle,
+            message: Localization.hwCloudBackupCancelSetupDescription(MobileBackupConstants.iCloudServiceName),
+            primaryButton: .cancel(Text(Localization.hwCloudBackupCancelSetupContinue)),
+            secondaryButton: .destructive(
+                Text(Localization.hwCloudBackupCancelSetupCancel),
+                action: weakify(self, forFunction: MobileOnboardingViewModel.onBackupCreationAlertClose)
+            )
+        )
+    }
+
     func onAccessCodeNeedsAlertSkip(userWalletModel: UserWalletModel) {
         userWalletModel.update(type: .accessCodeDidSkip)
         closeOnboarding()
@@ -176,10 +219,29 @@ extension MobileOnboardingViewModel: MobileOnboardingFlowRoutable {
     }
 
     func completeOnboarding() {
-        coordinator?.mobileOnboardingDidComplete()
+        runTask { [coordinator] in
+            await coordinator?.mobileOnboardingDidComplete()
+        }
     }
 
     func closeOnboarding() {
         coordinator?.closeOnboarding()
+    }
+
+    func saveBackup(credential: WebCredentialUtil.SavedCredential) {
+        runTask {
+            do {
+                try await WebCredentialUtil.save(credential)
+            } catch {
+                AppLogger.error("Failed to save web credential", error: error)
+            }
+        }
+    }
+
+    func openBackupStorageUnavailable() {
+        let input = MobileBackupStorageUnavailableInput(mode: .info)
+        runTask { [coordinator] in
+            await coordinator?.openMobileBackupStorageUnavailable(input: input)
+        }
     }
 }

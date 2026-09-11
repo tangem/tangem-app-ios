@@ -10,22 +10,14 @@ import SwiftUI
 import TangemAssets
 
 struct TokenSummaryTrackView: View {
-    /// The ticks are the tallest element, so they set the row height whether or not they are drawn.
-    static let height: CGFloat = Constants.tickSize.height
+    /// The row keeps a fixed height so the Markets summary card and its skeleton, which is sized off this value,
+    /// stay aligned.
+    static let height: CGFloat = 16
 
     let score: TokenSummaryScore?
-    let showsTicks: Bool
-
-    init(score: TokenSummaryScore?, showsTicks: Bool = true) {
-        self.score = score
-        self.showsTicks = showsTicks
-    }
 
     var body: some View {
         GeometryReader { proxy in
-            let width = proxy.size.width
-            let midY = proxy.size.height / 2
-
             ZStack(alignment: .leading) {
                 Capsule()
                     .fill(trackFill)
@@ -33,35 +25,15 @@ struct TokenSummaryTrackView: View {
                     .frame(maxHeight: .infinity, alignment: .center)
 
                 if let score {
-                    if showsTicks {
-                        ticks(for: score, width: width, midY: midY)
-                    }
-
                     thumb
-                        .position(x: centerX(forPosition: score.normalizedPosition, width: width), y: midY)
+                        .position(
+                            x: centerX(forPosition: score.normalizedPosition, width: proxy.size.width),
+                            y: proxy.size.height / 2
+                        )
                 }
             }
         }
         .frame(height: Self.height)
-    }
-
-    @ViewBuilder
-    private func ticks(for score: TokenSummaryScore, width: CGFloat, midY: CGFloat) -> some View {
-        if score.tickCount > 1 {
-            ForEach(0 ..< score.tickCount, id: \.self) { index in
-                tick
-                    .position(
-                        x: centerX(forPosition: Double(index) / Double(score.tickCount - 1), width: width),
-                        y: midY
-                    )
-            }
-        }
-    }
-
-    private var tick: some View {
-        Capsule()
-            .fill(DesignSystem.Color.iconPrimary)
-            .frame(width: Constants.tickSize.width, height: Constants.tickSize.height)
     }
 
     private var thumb: some View {
@@ -100,7 +72,6 @@ private extension TokenSummaryTrackView {
     enum Constants {
         static let trackHeight: CGFloat = 6
         static let thumbSize: CGFloat = 10
-        static let tickSize = CGSize(width: 1, height: 16)
     }
 }
 
@@ -110,7 +81,6 @@ private extension TokenSummaryTrackView {
     VStack(spacing: 32) {
         TokenSummaryTrackView(score: TokenSummaryScore(value: 4, count: 5))
         TokenSummaryTrackView(score: TokenSummaryScore(value: -3, count: 5))
-        TokenSummaryTrackView(score: TokenSummaryScore(value: 4, count: 5), showsTicks: false)
         TokenSummaryTrackView(score: nil)
     }
     .padding(24)

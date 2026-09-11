@@ -23,6 +23,7 @@ final class QRCodeReceiveAssetsViewModel: ObservableObject, Identifiable {
 
     private let tokenItem: TokenItem
     private let flow: ReceiveFlow
+    private let headerOverride: String?
 
     private let analyticsLogger: QRCodeReceiveAssetsAnalyticsLogger
     private weak var coordinator: QRCodeReceiveAssetsRoutable?
@@ -33,12 +34,14 @@ final class QRCodeReceiveAssetsViewModel: ObservableObject, Identifiable {
         flow: ReceiveFlow,
         tokenItem: TokenItem,
         addressInfo: ReceiveAddressInfo,
+        headerOverride: String? = nil,
         analyticsLogger: QRCodeReceiveAssetsAnalyticsLogger,
         coordinator: QRCodeReceiveAssetsRoutable?
     ) {
         self.tokenItem = tokenItem
         self.addressInfo = addressInfo
         self.flow = flow
+        self.headerOverride = headerOverride
         self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
 
@@ -48,6 +51,10 @@ final class QRCodeReceiveAssetsViewModel: ObservableObject, Identifiable {
     }
 
     func headerForAddress(with info: ReceiveAddressInfo) -> String {
+        if let headerOverride {
+            return headerOverride
+        }
+
         let name: String = tokenItem.name
 
         return switch flow {

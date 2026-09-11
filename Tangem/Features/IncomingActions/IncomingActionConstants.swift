@@ -39,6 +39,16 @@ enum IncomingActionConstants {
         static let tokenId = "token_id"
         static let networkId = "network_id"
         static let userWalletId = "user_wallet_id"
+        static let swapFromTokenId = "from_token_id"
+        static let swapFromNetworkId = "from_network_id"
+        static let swapToTokenId = "to_token_id"
+        static let swapToNetworkId = "to_network_id"
+        static let swapFromUserWalletId = "from_user_wallet_id"
+        static let swapToUserWalletId = "to_user_wallet_id"
+        static let swapFromUserAccountId = "from_user_account_id"
+        static let swapToUserAccountId = "to_user_account_id"
+        static let swapFromAmount = "from_amount"
+        static let swapProviderId = "provider_id"
         static let walletId = "wallet_id"
         static let derivationPath = "derivation_path"
         static let transactionId = "transaction_id"
@@ -54,6 +64,7 @@ enum IncomingActionConstants {
         static let interval = "interval"
         static let earnType = "earn_type"
         static let surveyToken = "token"
+        static let tangemPayScreen = "screen"
     }
 
     enum DeeplinkDestination: String, CaseIterable {
@@ -71,6 +82,7 @@ enum IncomingActionConstants {
         case onboardVisa = "onboard-visa"
         case promo
         case payApp = "pay-app"
+        case tangemPayAccount = "pay-account"
         case news
         /// Universal link to a specific article: `https://tangem.com/news/{category}/{id}-{slug}`.
         /// Not resolvable from a `tangem://` host — produced only by `NewsIncomingLinkParser`.

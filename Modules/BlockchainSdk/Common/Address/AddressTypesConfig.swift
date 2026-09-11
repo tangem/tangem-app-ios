@@ -118,6 +118,8 @@ struct AddressTypesConfig {
              .arbitrumNova,
              .plasma,
              .adi,
+             .electroneum,
+             .arc,
              .seiEvm:
             return [.default]
         }

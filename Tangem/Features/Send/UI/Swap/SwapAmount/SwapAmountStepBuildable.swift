@@ -46,6 +46,8 @@ enum SwapAmountStepBuilder {
 
     struct Types {
         let initialTokenItem: TokenItem
+        var isPairReversalEnabled: Bool = true
+        var isReceiveTokenSelectionEnabled: Bool = true
     }
 
     struct Dependencies {
@@ -80,6 +82,8 @@ enum SwapAmountStepBuilder {
 
         let viewModel = SwapAmountViewModel(
             initialTokenItem: types.initialTokenItem,
+            isPairReversalEnabled: types.isPairReversalEnabled,
+            isReceiveTokenSelectionEnabled: types.isReceiveTokenSelectionEnabled,
             interactor: interactor,
             stateProvider: io.stateProvider,
             sourceTokenInput: io.sourceIO.input,

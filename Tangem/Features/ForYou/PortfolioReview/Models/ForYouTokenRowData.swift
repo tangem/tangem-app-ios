@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import struct SwiftUI.Color
 import TangemUI
 
 /// Content of a single token row (asset aggregate, per-network child, or the "Other" bucket).
@@ -18,6 +19,7 @@ struct ForYouTokenRowData: Identifiable, Equatable {
     /// Carries a network glyph only for per-network child rows.
     let tokenIconInfo: TokenIconInfo?
     let sentiment: Sentiment?
+    let indicatorColor: Color?
     let subtitle: Subtitle
     let end: End
     let isLoading: Bool
@@ -32,8 +34,8 @@ struct ForYouTokenRowData: Identifiable, Equatable {
 
     /// Trailing content of a row.
     enum End: Equatable {
-        /// Resolved balance: the fiat total, its portfolio share, and how current the value is.
-        case values(fiat: String, percent: String, freshness: Freshness)
+        /// Resolved balance; `nil` fiat (loading / no rate) renders as an unmasked dash.
+        case values(fiat: String?, percent: String, freshness: Freshness)
         /// Couldn't resolve — a warning label rendered in place of the share; fiat shows as a dash.
         case unavailable(label: String)
     }
@@ -44,7 +46,7 @@ struct ForYouTokenRowData: Identifiable, Equatable {
         case fresh
         /// Being refreshed; the last known value is shown and shimmers.
         case refreshing
-        /// Couldn't be refreshed; the cached value is shown, and the expanded header marks it with an error icon.
+        /// Couldn't be refreshed; the cached value is shown and marked with a sync-error icon.
         case outdated
     }
 
@@ -63,10 +65,9 @@ struct ForYouTokenRowData: Identifiable, Equatable {
         }
     }
 
-    /// A plain phrase (aggregate / "Other" rows) or a "network · amount" pair rendered with a
-    /// vector dot separator (per-network rows).
+    /// Plain phrase (aggregate / "Other" rows) or a "network · amount" pair; `nil` amount renders as an unmasked dash.
     enum Subtitle: Equatable {
         case text(String)
-        case dotted(String, String)
+        case dotted(String, String?)
     }
 }

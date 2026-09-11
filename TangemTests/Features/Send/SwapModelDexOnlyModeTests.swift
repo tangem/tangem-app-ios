@@ -227,7 +227,7 @@ private extension SwapModelDexOnlyModeTests {
     func makeEnvironment(restriction: SwapBalanceRestriction) -> Environment {
         let expressManager = ConfigurableExpressManagerStub()
         let balanceRestrictionChecker = BalanceRestrictionCheckerStub(result: restriction)
-        let sourceToken = SwapableTokenStub()
+        let sourceToken = DexOnlySwapableTokenStub()
 
         let swapModel = SwapModel(
             sourceToken: sourceToken,
@@ -299,7 +299,7 @@ private extension SwapModelDexOnlyModeTests {
             slippage: nil
         )
 
-        let quote = ExpressQuote(fromAmount: 10, expectAmount: expectAmount, allowanceContract: nil, quoteId: nil, txType: nil)
+        let quote = ExpressQuote(fromAmount: 10, expectAmount: expectAmount, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false)
 
         let context = ExpressProviderFlowContext(
             provider: provider,
@@ -308,7 +308,7 @@ private extension SwapModelDexOnlyModeTests {
             expressFeeProvider: ExpressFeeProviderDummy(),
             expressAPIProvider: ExpressAPIProviderStub(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags()
+            featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: false)
         )
 
         return ExpressAvailableProvider(
@@ -368,23 +368,7 @@ private actor ConfigurableExpressManagerStub: ExpressManager {
     }
 }
 
-private final class ExpressProviderManagerStub: ExpressProviderManager {
-    private let state: ExpressProviderManagerState
-
-    init(state: ExpressProviderManagerState) {
-        self.state = state
-    }
-
-    func getState() -> ExpressProviderManagerState { state }
-    func reset() {}
-    func update(request: ExpressManagerSwappingPairRequest) async {}
-
-    func sendData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
-        fatalError("Not used in tests")
-    }
-}
-
-private final class SwapableTokenStub: SendSwapableToken {
+private final class DexOnlySwapableTokenStub: SendSwapableToken {
     private let inner = SendSourceTokenStub()
 
     // MARK: - SendSourceToken proxy
@@ -423,39 +407,9 @@ private final class SwapableTokenStub: SendSwapableToken {
     var tokenFeeProvidersManager: any TokenFeeProvidersManager { fatalError("Unused in tests") }
     var transactionValidator: any SendTransactionValidator { fatalError("Unused in tests") }
     var transactionCreator: any SendTransactionCreator { fatalError("Unused in tests") }
-    var balanceProvider: any TangemExpress.BalanceProvider { fatalError("Unused in tests") }
-    var analyticsLogger: any TangemExpress.AnalyticsLogger { fatalError("Unused in tests") }
+    var balanceProvider: any BalanceProvider { fatalError("Unused in tests") }
+    var analyticsLogger: any AnalyticsLogger { fatalError("Unused in tests") }
     var providerTransactionValidator: any ExpressProviderTransactionValidator { fatalError("Unused in tests") }
-}
-
-private struct ExpressWalletDummy: ExpressSourceWallet {
-    var walletInfo: ExpressWalletInfo { ExpressWalletInfo(id: "stub", refcode: nil) }
-    var currency: ExpressWalletCurrency { fatalError("Not used in tests") }
-    var coinCurrency: ExpressWalletCurrency { fatalError("Not used in tests") }
-    var address: String? { nil }
-    var extraId: String? { nil }
-
-    var allowanceProvider: AllowanceProvider? { nil }
-    var yieldModuleTransactionHelper: YieldModuleTransactionHelper? { nil }
-    var balanceProvider: BalanceProvider { fatalError("Not used in tests") }
-    var analyticsLogger: AnalyticsLogger { fatalError("Not used in tests") }
-    var providerTransactionValidator: ExpressProviderTransactionValidator { fatalError("Not used in tests") }
-    var operationType: ExpressOperationType { fatalError("Not used in tests") }
-    var supportedProvidersFilter: SupportedProvidersFilter { fatalError("Not used in tests") }
-    var expressFeeProviderFactory: ExpressFeeProviderFactory { fatalError("Not used in tests") }
-}
-
-private struct ExpressFeeProviderDummy: ExpressFeeProvider {
-    var supportsGasBasedFeeEstimate: Bool { fatalError("Not used in tests") }
-
-    func feeCurrency() -> ExpressWalletCurrency { fatalError("Not used in tests") }
-    func feeCurrencyBalance() throws -> Decimal { fatalError("Not used in tests") }
-    func estimatedFee(amount: Decimal) async throws -> BSDKFee { fatalError("Not used in tests") }
-    func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee { fatalError("Not used in tests") }
-    func transactionFee(approveData: BSDKApproveTransactionData) async throws -> BSDKFee { fatalError("Not used in tests") }
-    func transactionFee(data: ExpressTransactionDataType) async throws -> BSDKFee { fatalError("Not used in tests") }
-    func transactionFee(data: ExpressTransactionDataType, allowanceOverride: AllowanceOverride, approveData: BSDKApproveTransactionData) async throws -> ApproveWithSwapFee { fatalError("Not used in tests") }
-    func revokeAndApproveTransactionFee(revokeData: BSDKApproveTransactionData) async throws -> RevokeAndApproveFee { fatalError("Not used in tests") }
 }
 
 private final class SwapPairUpdateHandlerDummy: SwapPairUpdateHandler {

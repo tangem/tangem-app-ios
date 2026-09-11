@@ -301,7 +301,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
         apyTrend = .loading
 
         if let apy = try? await yieldManagerInteractor.getApy() {
-            apyState = .loaded(text: PercentFormatter().format(apy, option: .staking))
+            apyState = .loaded(text: PercentFormatter().format(apy, option: .earn))
             apyTrend = .increased
         } else {
             apyTrend = .none

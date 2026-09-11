@@ -33,5 +33,8 @@ protocol TangemPayCardManagementRoutable: AnyObject {
 
     func openChangeDailyLimit(card: TangemPayCard)
 
+    func openPlasticCardActivation(card: TangemPayPlasticCardStub)
+    func openSupport()
+
     func popToCardListScreen()
 }

@@ -22,7 +22,9 @@ actor CommonAccountModelsManager {
     private nonisolated let cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
     private nonisolated let tangemPayAccountGlobalStateProvider: TangemPayAccountGlobalStateProvider
     private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
+    private nonisolated let jointAccountsRepository: JointAccountsRepository
     private nonisolated let tangemPayManager: TangemPayManager
+
     private let archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider
     private let dependenciesFactory: CryptoAccountDependenciesFactory
 
@@ -42,6 +44,7 @@ actor CommonAccountModelsManager {
     init(
         userWalletId: UserWalletId,
         cryptoAccountsRepository: CryptoAccountsRepository,
+        jointAccountsRepository: JointAccountsRepository,
         tangemPayManager: TangemPayManager,
         archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
         dependenciesFactory: CryptoAccountDependenciesFactory,
@@ -49,6 +52,7 @@ actor CommonAccountModelsManager {
     ) {
         self.userWalletId = userWalletId
         self.cryptoAccountsRepository = cryptoAccountsRepository
+        self.jointAccountsRepository = jointAccountsRepository
         self.tangemPayManager = tangemPayManager
         self.archivedCryptoAccountsProvider = archivedCryptoAccountsProvider
         self.dependenciesFactory = dependenciesFactory
@@ -74,6 +78,7 @@ actor CommonAccountModelsManager {
 
     private nonisolated func initialize(forUserWalletWithId userWalletId: UserWalletId) {
         cryptoAccountsRepository.initialize(forUserWalletWithId: userWalletId)
+        jointAccountsRepository.initialize()
     }
 
     private func makeCryptoAccountModels(from storedCryptoAccounts: [StoredCryptoAccount]) -> [any CryptoAccountModel] {
@@ -336,7 +341,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
     nonisolated var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> {
         cryptoAccountsRepository
             .auxiliaryDataPublisher
-            .map(\.totalAccountsCount)
+            .map(\.totalCryptoAccountsCount)
             .eraseToAnyPublisher()
     }
 
@@ -355,6 +360,45 @@ extension CommonAccountModelsManager: AccountModelsManager {
             throw .unknownError(AccountModelsManagerError.addingCryptoAccountsNotSupported)
         }
 
+        let remoteState = try await validatedRemoteState(forNewAccountNamed: name)
+
+        let newAccountConfig = CryptoAccountPersistentConfig(
+            derivationIndex: remoteState.nextCryptoDerivationIndex,
+            name: name,
+            icon: icon
+        )
+
+        do {
+            let distributionResult = try await cryptoAccountsRepository.addNewCryptoAccount(withConfig: newAccountConfig, remoteState: remoteState)
+            return mapDistributionResult(distributionResult)
+        } catch {
+            AccountsLogger.error("Failed to add new crypto account for user wallet \(userWalletId)", error: error)
+            throw .unknownError(error)
+        }
+    }
+
+    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) {
+        guard canAddCryptoAccounts else {
+            throw .unknownError(AccountModelsManagerError.addingJointAccountNotSupported)
+        }
+
+        let remoteState = try await validatedRemoteState(forNewAccountNamed: context.name)
+
+        guard let nextDerivationIndex = remoteState.nextJointDerivationIndex else {
+            throw .unknownError(AccountModelsManagerError.addingJointAccountNotSupported)
+        }
+
+        do {
+            let config = JointAccountCreationConfig(creationContext: context, derivationIndex: nextDerivationIndex)
+            try await jointAccountsRepository.addNewJointAccount(withConfig: config)
+        } catch {
+            AccountsLogger.error("Failed to add new joint account for user wallet \(userWalletId)", error: error)
+            throw .unknownError(error)
+        }
+    }
+
+    /// The remote state every account is created against, fetched and checked the same way for either kind of account.
+    private func validatedRemoteState(forNewAccountNamed name: String) async throws(AccountEditError) -> CryptoAccountsRemoteState {
         let remoteState: CryptoAccountsRemoteState
 
         do {
@@ -376,19 +420,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
             throw .unknownError(error)
         }
 
-        let newAccountConfig = CryptoAccountPersistentConfig(
-            derivationIndex: remoteState.nextDerivationIndex,
-            name: name,
-            icon: icon
-        )
-
-        do {
-            let distributionResult = try await cryptoAccountsRepository.addNewCryptoAccount(withConfig: newAccountConfig, remoteState: remoteState)
-            return mapDistributionResult(distributionResult)
-        } catch {
-            AccountsLogger.error("Failed to add new crypto account for user wallet \(userWalletId)", error: error)
-            throw .unknownError(error)
-        }
+        return remoteState
     }
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
@@ -510,7 +542,7 @@ extension CommonAccountModelsManager: DisposableEntity {
                 cryptoAccountModel.dispose()
             case .standard(.multiple(let cryptoAccountModels)):
                 cryptoAccountModels.forEach { $0.dispose() }
-            case .tangemPay:
+            case .tangemPay, .polymarket:
                 break
             }
         }

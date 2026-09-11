@@ -125,7 +125,7 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
     }
 
     func feeCurrencyBalance() throws -> Decimal {
-        guard let balance = selectedFeeProvider.balanceFeeTokenState.value else {
+        guard let balance = selectedFeeProvider.balanceFeeTokenState.spendableValue else {
             throw ExpressBalanceProviderError.balanceNotFound
         }
 
@@ -176,7 +176,7 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
         switch (data, blockchain) {
         case (.cex(let data), _):
             update(
-                input: .common(amount: data.fromAmount, destination: data.destinationAddress)
+                input: .cex(amount: data.fromAmount, destination: data.destinationAddress)
             )
 
             await updateFees().value

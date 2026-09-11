@@ -15,16 +15,19 @@ import TangemLocalization
 struct OwnWalletTransferTitleTests {
     @Test("Transfer to an own wallet is titled Transferred regardless of direction")
     func ownWalletTransferIsTransferred() {
-        #expect(title(owner: .wallet(name: "My Wallet"), isOutgoing: true, status: .confirmed) == Localization.commonTransferred)
-        #expect(title(owner: .wallet(name: "My Wallet"), isOutgoing: false, status: .confirmed) == Localization.commonTransferred)
+        #expect(title(owner: .wallet(name: "My Wallet", imageProvider: nil, thumbnailType: nil), isOutgoing: true, status: .confirmed) == Localization.commonTransferred)
+        #expect(title(owner: .wallet(name: "My Wallet", imageProvider: nil, thumbnailType: nil), isOutgoing: false, status: .confirmed) == Localization.commonTransferred)
     }
 
     @Test("Own-wallet transfer follows status for in-progress and failed")
     func ownWalletTransferStatuses() {
-        #expect(title(owner: .wallet(name: "My Wallet"), isOutgoing: true, status: .inProgress) == Localization.commonTransfer)
         #expect(
-            title(owner: .wallet(name: "My Wallet"), isOutgoing: true, status: .failed)
-                == Localization.commonActionFailed(Localization.commonTransfer)
+            title(owner: .wallet(name: "My Wallet", imageProvider: nil, thumbnailType: nil), isOutgoing: true, status: .inProgress)
+                == Localization.transactionHistoryStatusTransferring
+        )
+        #expect(
+            title(owner: .wallet(name: "My Wallet", imageProvider: nil, thumbnailType: nil), isOutgoing: true, status: .failed)
+                == Localization.transactionHistoryStatusTransferFailed
         )
     }
 
@@ -50,7 +53,8 @@ struct OwnWalletTransferTitleTests {
             legacyName: "Transfer",
             amount: "1",
             addressDestination: nil,
-            subtitleOwner: owner
+            subtitleOwner: owner,
+            expressSubtitle: nil
         ).title
     }
 }

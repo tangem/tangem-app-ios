@@ -20,8 +20,6 @@ final class CommonTokenFeeProvider {
     let feeTokenItemBalanceProvider: TokenBalanceProvider
     let supportingOptions: TokenFeeProviderSupportingOptions
 
-    var isBridgeFeeRestrictionEnabled = FeatureProvider.isAvailable(.gaslessBridgeFeeRestriction)
-
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
 
@@ -212,7 +210,11 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         case .common(let amount, let destination):
             return try await updateFees(amount: amount, destination: destination)
 
-        case .cex(let amount):
+        case .cex(let amount, let destination):
+            if let destination {
+                return try await updateFees(amount: amount, destination: destination)
+            }
+
             return try await updateFees(amount: amount)
 
         case .dex(.ethereumEstimate(let estimatedGasLimit, let otherNativeFee)):
@@ -288,6 +290,8 @@ private extension CommonTokenFeeProvider {
         switch input {
         case .none:
             updateState(state: .unavailable(.inputDataNotSet))
+        case .cex where tokenFeeLoader is CommonTronGaslessTokenFeeLoader:
+            updateState(state: .unavailable(.notSupported))
         case .common, .cex:
             // Always available. Do nothing
             break
@@ -334,7 +338,7 @@ private extension CommonTokenFeeProvider {
     /// The withdrawal restores the balance verdict rather than a plain `.idle`: for an unchanged
     /// zero balance the balance publisher never re-emits, so nothing else would bring it back
     func updateBridgeFeeSupportingState(input: TokenFeeProviderInputData?) {
-        guard isBridgeFeeRestrictionEnabled, tokenFeeLoader is CommonGaslessTokenFeeLoader else {
+        guard tokenFeeLoader is CommonGaslessTokenFeeLoader else {
             return
         }
 
