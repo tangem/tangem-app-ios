@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemSdk
 
 protocol KeysRepository: AnyObject, KeysProvider {
     func update(derivations: DerivationResult)
@@ -18,6 +19,32 @@ protocol KeysRepository: AnyObject, KeysProvider {
 protocol KeysProvider {
     var keys: [KeyInfo] { get }
     var keysPublisher: AnyPublisher<[KeyInfo], Never> { get }
+}
+
+extension KeysProvider {
+    func masterKey(curve: EllipticCurve) throws -> KeyInfo {
+        // Use the last key for the selected curve because there may be multiple `KeyInfo`
+        // entries with the same curve. The XPUB public key factories use `reduce(into:)`
+        // and keep the last `KeyInfo` for a given curve, so `last(where:)` matches that behavior.
+        guard let masterKey = keys.last(where: { $0.curve == curve }) else {
+            throw KeysProviderError.masterKeyNotFound
+        }
+
+        return masterKey
+    }
+
+    /// The master key's own public key, which is what deriving from it is keyed by.
+    func masterKeyPublicKey(curve: EllipticCurve) throws -> Data {
+        guard let publicKey = try masterKey(curve: curve).publicKey else {
+            throw KeysProviderError.masterKeyNotFound
+        }
+
+        return publicKey
+    }
+}
+
+enum KeysProviderError: String, LocalizedError {
+    case masterKeyNotFound
 }
 
 final class CommonKeysRepository {

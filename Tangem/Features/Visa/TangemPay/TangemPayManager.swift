@@ -71,6 +71,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     private let paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository
     private let cachedStateStorage: TangemPayCachedStateStorage
     private let customerInfoCacheStorage: TangemPayCustomerInfoCacheStorage
+    private let cashbackCacheStorage: TangemPayCashbackCacheStorage
     private let tangemPayAccountBuilder: TangemPayAccountBuilder
 
     private let stateSubject = CurrentValueSubject<TangemPayLocalState?, Never>(nil)
@@ -90,6 +91,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository,
         cachedStateStorage: TangemPayCachedStateStorage,
         customerInfoCacheStorage: TangemPayCustomerInfoCacheStorage,
+        cashbackCacheStorage: TangemPayCashbackCacheStorage,
         tangemPayAccountBuilder: TangemPayAccountBuilder
     ) {
         self.userWalletId = userWalletId
@@ -104,6 +106,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         self.paeraCustomerFlagRepository = paeraCustomerFlagRepository
         self.cachedStateStorage = cachedStateStorage
         self.customerInfoCacheStorage = customerInfoCacheStorage
+        self.cashbackCacheStorage = cashbackCacheStorage
         self.tangemPayAccountBuilder = tangemPayAccountBuilder
 
         bind()
@@ -171,6 +174,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
                 paeraCustomerFlagRepository.setIsPaeraCustomer(false, for: customerWalletId)
                 paeraCustomerFlagRepository.setShouldShowGetBanner(false)
                 customerInfoCacheStorage.clearCachedCustomerInfo(customerWalletId: customerWalletId)
+                cashbackCacheStorage.clearCachedCashbackSummary(customerWalletId: customerWalletId)
                 stateSubject.value = nil
                 onFinish(true)
             } catch {
@@ -221,7 +225,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         let weakReferenceHolder = TangemPayManagerWeakReferenceHolder(tangemPayManager: self)
 
         switch enrollmentState {
-        case .enrolled(let customerInfo, _):
+        case .enrolled(let customerInfo):
             let account = makePaymentAccount(customerInfo: customerInfo)
             customerInfoCacheStorage.saveCachedCustomerInfo(
                 customerInfo,
@@ -230,7 +234,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
             stateSubject.value = .tangemPayAccount(account)
             Analytics.log(.visaOnboardingVisaKYCPassedAndOrderCreated, analyticsSystems: .all, contextParams: .userWallet(userWalletId))
 
-        case .cardDeactivated(let customerInfo, _):
+        case .cardDeactivated(let customerInfo):
             let account = makePaymentAccount(customerInfo: customerInfo)
             stateSubject.value = .cardDeactivated(account)
 
@@ -330,9 +334,22 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
                     await account.loadCustomerInfo()
                     await account.loadOffers()
                     await account.resumeActiveIssueOrderPolling()
+                    await self?.loadCashbackSummary(for: account)
                 }
             }
             .store(in: &bag)
+    }
+
+    private func loadCashbackSummary(for account: TangemPayAccount) async {
+        guard FeatureProvider.isAvailable(.tangemPayCashback), !account.isDeactivated else {
+            return
+        }
+
+        do {
+            try await account.loadCashbackSummary()
+        } catch {
+            VisaLogger.error("Failed to load TangemPay cashback summary", error: error)
+        }
     }
 
     private func bind() {

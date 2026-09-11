@@ -91,6 +91,7 @@ extension ExpressDTO {
                 let maxToAmount: String?
                 let nativePaymentAvailable: Bool?
                 let quoteId: String?
+                let isRestricted: Bool?
             }
         }
 

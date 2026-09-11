@@ -51,7 +51,8 @@ extension EditCryptoAccountConditionsValidator: CryptoAccountConditionsValidator
             .filter { $0.derivationIndex != derivationIndex }
 
         return CryptoAccountsRemoteState(
-            nextDerivationIndex: remoteState.nextDerivationIndex,
+            nextCryptoDerivationIndex: remoteState.nextCryptoDerivationIndex,
+            nextJointDerivationIndex: remoteState.nextJointDerivationIndex,
             accounts: accounts
         )
     }

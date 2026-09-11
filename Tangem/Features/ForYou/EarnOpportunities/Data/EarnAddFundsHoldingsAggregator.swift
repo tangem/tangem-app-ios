@@ -18,34 +18,26 @@ enum EarnAddFundsHoldingsAggregator {
 
     /// Every holding of the given coin on the given network, across all unlocked wallets/accounts.
     static func aggregate(currencyId: String, networkId: String, in models: [any UserWalletModel]) -> [Holding] {
-        models.filter { !$0.isUserWalletLocked }.flatMap {
-            holdings(inWallet: $0, currencyId: currencyId, networkId: networkId)
-        }
+        aggregate(in: models) { $0.matches(currencyId: currencyId, networkId: networkId) }
+    }
+
+    /// Every holding of the given coin across all its networks, across all unlocked wallets/accounts.
+    static func aggregate(currencyId: String, in models: [any UserWalletModel]) -> [Holding] {
+        aggregate(in: models) { $0.currencyId == currencyId }
     }
 }
 
 private extension EarnAddFundsHoldingsAggregator {
     // MARK: - Private logic
 
-    /// Matching holdings across every account of one wallet.
-    static func holdings(inWallet wallet: any UserWalletModel, currencyId: String, networkId: String) -> [Holding] {
-        wallet.accountModelsManager.cryptoAccountModels.flatMap {
-            holdings(inAccount: $0, wallet: wallet, currencyId: currencyId, networkId: networkId)
-        }
-    }
-
-    /// Matching holdings within one account.
-    static func holdings(
-        inAccount account: any CryptoAccountModel,
-        wallet: any UserWalletModel,
-        currencyId: String,
-        networkId: String
-    ) -> [Holding] {
-        account.walletModelsManager.walletModels.filter {
-            $0.tokenItem.matches(currencyId: currencyId, networkId: networkId)
-        }
-        .map {
-            Holding(walletModel: $0, userWalletModel: wallet, account: account)
+    /// Every holding matching the predicate, across every account of all unlocked wallets.
+    static func aggregate(in models: [any UserWalletModel], matching predicate: (TokenItem) -> Bool) -> [Holding] {
+        models.filter { !$0.isUserWalletLocked }.flatMap { wallet in
+            wallet.accountModelsManager.cryptoAccountModels.flatMap { account in
+                account.walletModelsManager.walletModels
+                    .filter { predicate($0.tokenItem) }
+                    .map { Holding(walletModel: $0, userWalletModel: wallet, account: account) }
+            }
         }
     }
 }

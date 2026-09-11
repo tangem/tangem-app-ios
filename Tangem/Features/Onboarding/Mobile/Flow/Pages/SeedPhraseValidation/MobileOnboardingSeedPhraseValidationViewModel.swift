@@ -29,12 +29,13 @@ final class MobileOnboardingSeedPhraseValidationViewModel: ObservableObject {
     init(
         userWalletModel: UserWalletModel,
         source: MobileOnboardingFlowSource,
+        context: MobileWalletContext,
         delegate: MobileOnboardingSeedPhraseValidationDelegate
     ) {
         self.userWalletModel = userWalletModel
         self.source = source
         self.delegate = delegate
-        setup()
+        setup(with: context)
     }
 }
 
@@ -57,10 +58,9 @@ extension MobileOnboardingSeedPhraseValidationViewModel {
 // MARK: - Private methods
 
 private extension MobileOnboardingSeedPhraseValidationViewModel {
-    func setup() {
+    func setup(with context: MobileWalletContext) {
         runTask(in: self) { viewModel in
             do {
-                let context = try viewModel.mobileWalletSdk.validate(auth: .none, for: viewModel.userWalletModel.userWalletId)
                 let mnemonic = try viewModel.mobileWalletSdk.exportMnemonic(context: context)
 
                 await runOnMain {

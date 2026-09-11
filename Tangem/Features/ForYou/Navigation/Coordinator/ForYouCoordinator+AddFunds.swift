@@ -50,6 +50,7 @@ private extension ForYouCoordinator {
                 keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
                 walletModelsManager: accountModel.walletModelsManager,
                 userTokensManager: accountModel.userTokensManager,
+                addressBookManager: userWalletModel.addressBookManager,
                 walletModel: walletModel,
                 presentSource: .markets
             )

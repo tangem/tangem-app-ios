@@ -12,12 +12,17 @@ import Foundation
 @testable import Tangem
 
 final class ExpressAPIProviderStub: ExpressAPIProvider {
-    func assets(currencies: Set<ExpressWalletCurrency>) async throws -> [ExpressAsset] { [] }
+    var assetsHandler: (Set<ExpressWalletCurrency>) async throws -> [ExpressAsset] = { _ in [] }
+
+    func assets(currencies: Set<ExpressWalletCurrency>) async throws -> [ExpressAsset] {
+        try await assetsHandler(currencies)
+    }
+
     func pairs(from: Set<ExpressWalletCurrency>, to: Set<ExpressWalletCurrency>) async throws -> [ExpressPair] { [] }
     func providers(branches: [ExpressBranch]) async throws -> [ExpressProvider] { [] }
 
     func exchangeQuote(item: ExpressSwappableQuoteItem) async throws -> ExpressQuote {
-        ExpressQuote(fromAmount: .zero, expectAmount: .zero, allowanceContract: nil, quoteId: nil, txType: nil)
+        ExpressQuote(fromAmount: .zero, expectAmount: .zero, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false)
     }
 
     func exchangeData(item: ExpressSwappableDataItem) async throws -> ExpressTransactionData {
@@ -59,7 +64,7 @@ final class ExpressAPIProviderStub: ExpressAPIProvider {
     func onrampPairs(from: OnrampFiatCurrency, to: [ExpressWalletCurrency], country: OnrampCountry) async throws -> [OnrampPair] { [] }
 
     func onrampQuote(item: OnrampQuotesRequestItem) async throws -> OnrampQuote {
-        OnrampQuote(expectedAmount: .zero, nativePaymentAvailable: false, quoteId: nil)
+        OnrampQuote(expectedAmount: .zero, nativePaymentAvailable: false, quoteId: nil, isRestricted: false)
     }
 
     func onrampData(item: OnrampRedirectDataRequestItem) async throws -> OnrampRedirectData {

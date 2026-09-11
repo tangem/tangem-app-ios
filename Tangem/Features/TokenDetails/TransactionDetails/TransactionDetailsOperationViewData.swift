@@ -56,7 +56,7 @@ enum TransactionOperationStatusMapper {
         case .exchange(let info):
             return viewStatus(for: stage(for: info.transaction.status))
         case .onramp(let info):
-            return viewStatus(for: stage(for: info.onrampTransaction.status))
+            return viewStatus(for: stage(for: info.transaction.status))
         case nil:
             switch record.status {
             case .confirmed:

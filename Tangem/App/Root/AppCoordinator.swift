@@ -143,9 +143,15 @@ class AppCoordinator: CoordinatorObject {
             }
         }
 
-        let welcomeCoordinator = WelcomeCoordinator(dismissAction: dismissAction)
-        welcomeCoordinator.start(with: .init())
-        setState(.welcome(welcomeCoordinator))
+        if FeatureProvider.isAvailable(.welcomeScreenV2) {
+            let welcomeV2Coordinator = WelcomeV2Coordinator(dismissAction: dismissAction)
+            welcomeV2Coordinator.start(with: .init())
+            setState(.welcomeV2(welcomeV2Coordinator))
+        } else {
+            let welcomeCoordinator = WelcomeCoordinator(dismissAction: dismissAction)
+            welcomeCoordinator.start(with: .init())
+            setState(.welcome(welcomeCoordinator))
+        }
     }
 
     private func setupAuth(unlockOnAppear: Bool) {
@@ -311,6 +317,7 @@ extension AppCoordinator {
 extension AppCoordinator {
     enum ViewState: Equatable {
         case welcome(WelcomeCoordinator)
+        case welcomeV2(WelcomeV2Coordinator)
         case uncompleteBackup(UncompletedBackupCoordinator)
         case auth(AuthCoordinator)
         case main(MainCoordinator)
@@ -322,7 +329,7 @@ extension AppCoordinator {
 
         var shouldAddLockView: Bool {
             switch self {
-            case .auth, .welcome, .launch, .jailbreakWarning, .forceUpdate:
+            case .auth, .welcome, .welcomeV2, .launch, .jailbreakWarning, .forceUpdate:
                 return false
             case .lock, .main, .onboarding, .uncompleteBackup:
                 return true
@@ -331,7 +338,16 @@ extension AppCoordinator {
 
         static func == (lhs: AppCoordinator.ViewState, rhs: AppCoordinator.ViewState) -> Bool {
             switch (lhs, rhs) {
-            case (.welcome, .welcome), (.uncompleteBackup, .uncompleteBackup), (.auth, .auth), (.main, .main), (.jailbreakWarning, .jailbreakWarning), (.forceUpdate, .forceUpdate):
+            case (.welcome, .welcome),
+                 (.welcomeV2, .welcomeV2),
+                 (.uncompleteBackup, .uncompleteBackup),
+                 (.auth, .auth),
+                 (.main, .main),
+                 (.onboarding, .onboarding),
+                 (.lock, .lock),
+                 (.launch, .launch),
+                 (.jailbreakWarning, .jailbreakWarning),
+                 (.forceUpdate, .forceUpdate):
                 return true
             default:
                 return false

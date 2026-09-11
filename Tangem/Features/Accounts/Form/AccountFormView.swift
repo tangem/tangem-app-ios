@@ -201,9 +201,8 @@ extension AccountFormView {
 @available(iOS 17.0, *)
 #Preview {
     @Previewable @ObservedObject var viewModel = AccountFormViewModel(
-        accountModelsManager: AccountModelsManagerMock(),
-        flowType: .create(.crypto),
-        closeAction: { _, _ in }
+        flowType: .create(creator: CryptoAccountFormViewCreator(accountModelsManager: AccountModelsManagerMock())),
+        coordinator: nil
     )
 
     Color.clear

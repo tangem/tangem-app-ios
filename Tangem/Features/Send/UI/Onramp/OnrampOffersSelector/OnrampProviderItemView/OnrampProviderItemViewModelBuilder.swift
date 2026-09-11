@@ -17,7 +17,7 @@ struct OnrampProviderItemViewModelBuilder {
     private let processingTimeFormatter: OnrampProviderProcessingTimeFormatter = .init()
 
     func mapToOnrampProviderItemViewModel(providerItem: ProviderItem, tapAction: @escaping () -> Void) -> OnrampProviderItemViewModel {
-        let provider = providerItem.maxPriorityProvider()
+        let provider = providerItem.maxPriorityUnrestrictedProvider() ?? providerItem.maxPriorityProvider()
         let allProviders = providerItem.selectableProviders()
 
         let amountType: OnrampProviderItemViewModel.AmountType = {

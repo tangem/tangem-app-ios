@@ -1,0 +1,462 @@
+//
+//  CryptoAccountsNetworkMapper.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import struct TangemSdk.DerivationPath
+
+/// Re-uses some logic from `UserTokenListConverter`.
+final class CryptoAccountsNetworkMapper {
+    typealias RemoteIdentifierBuilder = (StoredCryptoAccount) -> String
+
+    weak var externalParametersProvider: UserTokenListExternalParametersProvider?
+
+    private let supportedBlockchains: SupportedBlockchainsSet
+    private let remoteIdentifierBuilder: RemoteIdentifierBuilder
+
+    init(
+        supportedBlockchains: SupportedBlockchainsSet,
+        remoteIdentifierBuilder: @escaping RemoteIdentifierBuilder
+    ) {
+        self.supportedBlockchains = supportedBlockchains
+        self.remoteIdentifierBuilder = remoteIdentifierBuilder
+    }
+
+    // MARK: - Stored to Remote
+
+    func map(request: [StoredCryptoAccount]) -> (accounts: AccountsDTO.Request.Accounts, userTokens: AccountsDTO.Request.UserTokens) {
+        let walletModelAddresses = mapTokenListAddresses()
+        var tokens: [AccountsDTO.Request.Token] = []
+
+        let accounts = request
+            .map { account in
+                let accountIdentifier = remoteIdentifierBuilder(account)
+                let accountTokens = map(
+                    tokens: account.tokens,
+                    walletModelAddresses: walletModelAddresses,
+                    forAccountWithIdentifier: accountIdentifier
+                )
+                tokens += accountTokens
+
+                return AccountsDTO.Request.Accounts.Account(
+                    id: accountIdentifier,
+                    name: account.name,
+                    icon: account.icon.iconName,
+                    iconColor: account.icon.iconColor,
+                    derivation: account.derivationIndex
+                )
+            }
+
+        // Currently, we assume that all accounts share the same grouping option
+        let group = mapGroupType(groupingOption: request.first?.grouping)
+
+        // Currently, we assume that all accounts share the same sorting option
+        let sort = mapSortType(sortingOption: request.first?.sorting)
+
+        // Ensuring tokens uniqueness based on API requirements
+        let uniqueTokens = tokens.unique(by: \.uniqueKey)
+
+        validateTokensUniqueness(tokens, uniqueTokensCount: uniqueTokens.count)
+
+        let userTokens = AccountsDTO.Request.UserTokens(
+            tokens: uniqueTokens,
+            group: group,
+            sort: sort,
+            version: Constants.apiVersion
+        )
+
+        let userAccounts = AccountsDTO.Request.Accounts(accounts: accounts)
+
+        return (userAccounts, userTokens)
+    }
+
+    private func map(
+        tokens: [StoredCryptoAccount.Token],
+        walletModelAddresses: [WalletModelId: [String]]?,
+        forAccountWithIdentifier accountIdentifier: String
+    ) -> [AccountsDTO.Request.Token] {
+        return tokens
+            .map { storedToken in
+                let tokenIdentifier = mapTokenId(token: storedToken)
+                let networkIdentifier = mapTokenNetworkId(token: storedToken)
+                let name = mapTokenName(token: storedToken)
+                let derivationPath = mapTokenDerivationPath(token: storedToken)
+                let addresses = storedToken.walletModelId.flatMap { walletModelAddresses?[$0] }
+                let dynamicAddressesEnabled = mapDynamicAddressesEnabled(token: storedToken)
+
+                return AccountsDTO.Request.Token(
+                    id: tokenIdentifier,
+                    accountId: accountIdentifier,
+                    networkId: networkIdentifier,
+                    name: name,
+                    symbol: storedToken.symbol,
+                    decimals: storedToken.decimalCount,
+                    derivationPath: derivationPath,
+                    contractAddress: storedToken.contractAddress,
+                    addresses: addresses,
+                    dynamicAddressesEnabled: dynamicAddressesEnabled
+                )
+            }
+    }
+
+    private func mapTokenName(token: StoredCryptoAccount.Token) -> String {
+        if token.isToken {
+            return token.name
+        }
+
+        switch token.blockchainNetwork {
+        case .known(let blockchainNetwork):
+            return blockchainNetwork.blockchain.coinDisplayName
+        case .unknown:
+            // No `Blockchain` instance available here since this is an unknown blockchain;
+            // round-trip the existing server-provided name as-is and unchanged
+            return token.name
+        }
+    }
+
+    private func mapTokenId(token: StoredCryptoAccount.Token) -> String? {
+        if token.isToken {
+            return token.id
+        }
+
+        switch token.blockchainNetwork {
+        case .known(let blockchainNetwork):
+            return blockchainNetwork.blockchain.coinId
+        case .unknown:
+            // No `Blockchain` instance available here since this is an unknown blockchain;
+            // round-trip the existing server-provided id as-is and unchanged
+            return token.id
+        }
+    }
+
+    private func mapTokenNetworkId(token: StoredCryptoAccount.Token) -> String {
+        switch token.blockchainNetwork {
+        case .known(let blockchainNetwork):
+            return blockchainNetwork.blockchain.networkId
+        case .unknown(let networkId, _):
+            return networkId
+        }
+    }
+
+    private func mapTokenDerivationPath(token: StoredCryptoAccount.Token) -> String? {
+        switch token.blockchainNetwork {
+        case .known(let blockchainNetwork):
+            // Should math the `Codable` implementation of `TangemSdk.DerivationPath`
+            return blockchainNetwork.derivationPath?.rawPath
+        case .unknown(_, let rawDerivationPath):
+            return rawDerivationPath
+        }
+    }
+
+    private func mapDynamicAddressesEnabled(token: StoredCryptoAccount.Token) -> Bool? {
+        switch token.blockchainNetwork {
+        case .known(let blockchainNetwork) where blockchainNetwork.blockchain.isDynamicAddressesSupported:
+            return blockchainNetwork.settings == .dynamicAddresses
+        case .known, .unknown:
+            return nil
+        }
+    }
+
+    private func mapGroupType(
+        groupingOption: StoredCryptoAccount.Grouping?
+    ) -> AccountsDTO.GroupType {
+        guard let groupingOption else {
+            AccountsLogger.warning("Mapping absent grouping option to a default 'none' group type")
+            return .none
+        }
+
+        switch groupingOption {
+        case .none:
+            return .none
+        case .byBlockchainNetwork:
+            return .network
+        }
+    }
+
+    private func mapSortType(
+        sortingOption: StoredCryptoAccount.Sorting?
+    ) -> AccountsDTO.SortType {
+        guard let sortingOption else {
+            AccountsLogger.warning("Mapping absent sorting option to a default 'manual' sort type")
+            return .manual
+        }
+
+        switch sortingOption {
+        case .manual:
+            return .manual
+        case .byBalance:
+            return .balance
+        }
+    }
+
+    private func mapTokenListAddresses() -> [WalletModelId: [String]]? {
+        guard let externalParametersProvider else {
+            let message = "Programmer error: '\(self)' is not configured with 'UserTokenListExternalParametersProvider' instance before using"
+            AccountsLogger.error(error: message)
+            assertionFailure(message)
+            return nil
+        }
+
+        return externalParametersProvider.provideTokenListAddresses()
+    }
+
+    // MARK: - Remote to Stored
+
+    func map(response: AccountsDTO.Response.Accounts) -> RemoteCryptoAccountsInfo {
+        let grouping = mapGroupingOption(groupType: response.wallet.group)
+        let sorting = mapSortingOption(sortType: response.wallet.sort)
+
+        let accounts = response.accounts.map { accountDTO in
+            let icon = StoredCryptoAccount.Icon(
+                iconName: accountDTO.icon,
+                iconColor: accountDTO.iconColor
+            )
+            let tokens = map(tokens: accountDTO.tokens)
+            let type = mapAccountType(from: accountDTO)
+
+            return StoredCryptoAccount(
+                derivationIndex: accountDTO.derivation,
+                name: accountDTO.name,
+                icon: icon,
+                tokens: tokens,
+                grouping: grouping,
+                sorting: sorting,
+                type: type
+            )
+        }
+
+        let legacyTokens = map(tokens: response.unassignedTokens)
+        let counters = mapCounters(from: response.wallet)
+
+        return RemoteCryptoAccountsInfo(
+            counters: counters,
+            accounts: accounts,
+            legacyTokens: legacyTokens,
+            legacyGrouping: grouping,
+            legacySorting: sorting
+        )
+    }
+
+    private func map(tokens: [AccountsDTO.Response.Accounts.Token]) -> [StoredCryptoAccount.Token] {
+        var addedTokens: [StoredCryptoAccount.Token.BlockchainNetworkContainer: Set<String>] = [:]
+
+        return tokens
+            .compactMap { token in
+                guard let blockchainNetworkContainer = try? mapBlockchainNetworkContainer(token: token) else {
+                    AccountsLogger.warning(
+                        String(
+                            format: "Unable to map token '%@' due to invalid derivation path: '%@'",
+                            String(describing: token.id),
+                            String(describing: token.derivationPath)
+                        )
+                    )
+                    return nil
+                }
+
+                let token = StoredCryptoAccount.Token(
+                    id: token.id,
+                    name: token.name,
+                    symbol: token.symbol,
+                    decimalCount: token.decimals,
+                    blockchainNetwork: blockchainNetworkContainer,
+                    contractAddress: token.contractAddress
+                )
+
+                guard let contractAddress = token.contractAddress else {
+                    return token
+                }
+
+                // Additional uniqueness check for remote tokens (replicates old behavior)
+                // Comparison logic here must match the implementation of `Equatable` for `BlockchainSdk.Token`
+                if addedTokens[blockchainNetworkContainer, default: []].insert(contractAddress.lowercased()).inserted {
+                    return token
+                }
+
+                // Duplicate token detected, discarding the duplicate
+                AccountsLogger.warning(
+                    String(
+                        format: "Duplicate token detected, discarding the duplicate with contract address: '%@'",
+                        contractAddress
+                    )
+                )
+                return nil
+            }
+            .unique() // Additional uniqueness check for remote tokens (replicates old behavior)
+    }
+
+    /// - Returns: Nil when the endpoint says nothing about the kind, or says something this version cannot place:
+    /// a record only ever claims a kind it was told or created with.
+    private func mapAccountType(from account: AccountsDTO.Response.Accounts.Account) -> AccountType? {
+        guard let rawType = account.type else {
+            return nil
+        }
+
+        guard let type = AccountType(rawValue: rawType) else {
+            AccountsLogger.warning("Leaving an account of unknown type '\(rawType)' without one")
+            return nil
+        }
+
+        return type
+    }
+
+    private func mapCounters(from wallet: AccountsDTO.Response.Accounts.Wallet) -> RemoteCryptoAccountsInfo.Counters {
+        // An answer from before the endpoint counted the types apart has only the whole total, which every account it
+        // counted was a crypto one of. The joint counter has nothing to stand in for it, hence no count over a wrong one
+        return RemoteCryptoAccountsInfo.Counters(
+            archived: wallet.totalArchivedAccounts,
+            crypto: wallet.totalCryptoAccounts ?? wallet.totalAccounts,
+            joint: wallet.totalJointAccounts
+        )
+    }
+
+    /// - Throws: `HDWalletError` if the derivation path is invalid.
+    private func mapBlockchainNetworkContainer(
+        token: AccountsDTO.Response.Accounts.Token
+    ) throws -> StoredCryptoAccount.Token.BlockchainNetworkContainer {
+        // Unknown blockchain
+        guard let blockchain = supportedBlockchains[token.networkId] else {
+            return .unknown(networkId: token.networkId, rawDerivationPath: token.derivationPath)
+        }
+
+        // Known blockchain, but w/o tokens support
+        if !blockchain.canHandleTokens, token.contractAddress != nil {
+            return .unknown(networkId: token.networkId, rawDerivationPath: token.derivationPath)
+        }
+
+        // Mapping must fail here if the derivation path does exist but invalid
+        let derivationPath = try token.derivationPath.map(DerivationPath.init(rawPath:))
+        let settings: BlockchainSettings? = token.dynamicAddressesEnabled == true ? .dynamicAddresses : nil
+        let blockchainNetwork = StoredCryptoAccount.Token.StoredBlockchainNetwork(
+            blockchain: blockchain,
+            derivationPath: derivationPath,
+            settings: settings
+        )
+
+        return .known(blockchainNetwork: blockchainNetwork)
+    }
+
+    private func mapGroupingOption(
+        groupType: AccountsDTO.GroupType?
+    ) -> StoredCryptoAccount.Grouping {
+        guard let groupType else {
+            // Fallback value for newly activated wallets (created by the very first PUT /accounts request)
+            return CryptoAccountPersistentConfig.TokenListAppearance.default.grouping
+        }
+
+        switch groupType {
+        case .none:
+            return .none
+        case .network:
+            return .byBlockchainNetwork
+        }
+    }
+
+    private func mapSortingOption(
+        sortType: AccountsDTO.SortType?
+    ) -> StoredCryptoAccount.Sorting {
+        guard let sortType else {
+            // Fallback value for newly activated wallets (created by the very first PUT /accounts request)
+            return CryptoAccountPersistentConfig.TokenListAppearance.default.sorting
+        }
+
+        switch sortType {
+        case .manual:
+            return .manual
+        case .balance:
+            return .byBalance
+        }
+    }
+
+    // MARK: - Archived
+
+    func map(response: AccountsDTO.Response.ArchivedAccounts) -> [ArchivedCryptoAccountInfo] {
+        return response.archivedAccounts.compactMap { archivedAccountDTO in
+            let accountId = ArchivedCryptoAccountInfo.AccountId(rawValue: archivedAccountDTO.id)
+            let rawName = archivedAccountDTO.icon
+            let rawColor = archivedAccountDTO.iconColor
+
+            guard let icon = AccountModel.CompositeIcon(rawName: rawName, rawColor: rawColor) else {
+                AccountsLogger.warning(
+                    String(
+                        format: "Unable to map icon: '%@', '%@' for archived account with identifier: '%@'",
+                        rawName,
+                        rawColor,
+                        accountId.rawValue
+                    )
+                )
+                return nil
+            }
+
+            guard let name = archivedAccountDTO.name else {
+                // Main account (the only account type w/o name) cannot be archived by definition
+                AccountsLogger.warning(
+                    String(
+                        format: "Unable to map name: '%@' for archived account with identifier: '%@'",
+                        String(describing: archivedAccountDTO.name),
+                        accountId.rawValue
+                    )
+                )
+                return nil
+            }
+
+            return ArchivedCryptoAccountInfo(
+                accountId: accountId,
+                name: name,
+                icon: icon,
+                tokensCount: archivedAccountDTO.totalTokens,
+                networksCount: archivedAccountDTO.totalNetworks,
+                derivationIndex: archivedAccountDTO.derivation
+            )
+        }
+    }
+
+    // MARK: - Helpers
+
+    private func validateTokensUniqueness(_ tokens: [AccountsDTO.Request.Token], uniqueTokensCount: Int) {
+        guard tokens.count != uniqueTokensCount else {
+            // Fast path: all tokens are unique
+            return
+        }
+
+        let duplicateTokens = tokens
+            .grouped(by: \.uniqueKey)
+            .filter { $0.value.count > 1 }
+            .flatMap { $0.value }
+
+        let message = "Inconsistency detected: duplicate tokens '\(duplicateTokens)' found during mapping to remote DTO, discarding duplicates"
+        AccountsLogger.warning(message)
+        assertionFailure(message)
+    }
+}
+
+// MARK: - Constants
+
+private extension CryptoAccountsNetworkMapper {
+    enum Constants {
+        static var apiVersion: Int { 1 }
+    }
+}
+
+// MARK: - Convenience extensions
+
+private extension AccountsDTO.Request.Token {
+    private struct UniqueKey: Hashable {
+        let networkId: String
+        let contractAddress: String?
+        let derivationPath: String?
+    }
+
+    /// A synthetic unique key for token uniqueness checks. The API strictly requires that the list of tokens does not
+    /// contain duplicates based on the combination of `networkId`, `contractAddress`, and `derivationPath` fields.
+    var uniqueKey: some Hashable {
+        UniqueKey(
+            networkId: networkId,
+            contractAddress: contractAddress,
+            derivationPath: derivationPath
+        )
+    }
+}

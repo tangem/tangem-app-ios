@@ -128,7 +128,6 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 isCustom: isMainCoinCustom
             )
 
-            mainCoinModel.initializeLazyProperties()
             models.append(mainCoinModel)
         }
 
@@ -168,7 +167,6 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     tokenBalancesRepository: tokenBalancesRepository,
                     isCustom: isTokenCustom
                 )
-                tokenModel.initializeLazyProperties()
                 models.append(tokenModel)
             }
         }

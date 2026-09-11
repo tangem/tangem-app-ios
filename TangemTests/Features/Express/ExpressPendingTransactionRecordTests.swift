@@ -64,6 +64,87 @@ struct ExpressPendingTransactionRecordTests {
     }
 }
 
+@Suite("ExpressPendingTransactionRecord decoding")
+struct ExpressPendingTransactionRecordDecodingTests {
+    /// A record stored before the token item started carrying its own blockchain network.
+    private let legacyRecord = """
+    {
+      "sourceTokenTxInfo": {
+        "isCustom": false,
+        "amountString": "0.1234132",
+        "tokenItem": {
+          "blockchain": {
+            "_0": {
+              "testnet": false,
+              "key": "tezos",
+              "curve": "ed25519_slip0010"
+            }
+          }
+        },
+        "blockchainNetwork": {
+          "blockchain": {
+            "curve": "ed25519_slip0010",
+            "testnet": false,
+            "key": "tezos"
+          },
+          "derivationPath": "m/44'/0"
+        }
+      },
+      "transactionType": "swap",
+      "provider": {
+        "type": "cex",
+        "id": "asdfadf",
+        "name": "asdfadf"
+      },
+      "feeString": "afadf",
+      "date": 729430967.809831,
+      "transactionHash": "afasdf",
+      "transactionStatus": "confirming",
+      "expressTransactionId": "Adfasdfasd",
+      "userWalletId": "adfadfasdf",
+      "isHidden": false,
+      "externalTxId": "adfadf",
+      "destinationTokenTxInfo": {
+        "amountString": "0.1234132",
+        "blockchainNetwork": {
+          "derivationPath": "m/44'/0",
+          "blockchain": {
+            "key": "ethereum",
+            "testnet": false,
+            "curve": "secp256k1"
+          }
+        },
+        "isCustom": false,
+        "tokenItem": {
+          "token": {
+            "_1": {
+              "curve": "secp256k1",
+              "testnet": false,
+              "key": "ethereum"
+            },
+            "_0": {
+              "name": "Name",
+              "contractAddress": "ox124123412341234",
+              "decimalCount": 18,
+              "symbol": "SYM"
+            }
+          }
+        }
+      }
+    }
+    """
+
+    @Test("A legacy record keeps its networks and derivation paths after migration")
+    func legacyRecordMigration() throws {
+        let decoded = try JSONDecoder().decode(ExpressPendingTransactionRecord.self, from: Data(legacyRecord.utf8))
+
+        #expect(decoded.sourceTokenTxInfo.tokenItem.blockchainNetwork.blockchain.networkId == "tezos")
+        #expect(decoded.destinationTokenTxInfo.tokenItem.blockchainNetwork.blockchain.networkId == "ethereum")
+        #expect(decoded.sourceTokenTxInfo.tokenItem.blockchainNetwork.derivationPath?.rawPath == "m/44'/0")
+        #expect(decoded.destinationTokenTxInfo.tokenItem.blockchainNetwork.derivationPath?.rawPath == "m/44'/0")
+    }
+}
+
 // MARK: - Fixtures
 
 private extension ExpressPendingTransactionRecordTests {

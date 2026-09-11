@@ -17,6 +17,7 @@ import Testing
 
 private enum TestData {
     static let destinationTag: UInt32 = 12886911
+    static let replacedDestinationTag: UInt32 = 42424242
     static let destinationAddress = "rBndy89HdamJ3UHNekAS6ALjW9WoCE2W5s"
 }
 
@@ -63,6 +64,83 @@ struct TransferModelDestinationTagTests {
         let dispatched = try #require(harness.recorder.dispatchedTransactions.last)
         #expect((dispatched.params as? XRPTransactionParams)?.destinationTag == TestData.destinationTag)
     }
+
+    /// [REDACTED_INFO]: a build superseded by a newer one must leave no trace — neither the transaction it was
+    /// building nor the fee-included flag it computed on the way.
+    @Test("A superseded build neither dispatches nor publishes its fee-included flag", .timeLimit(.minutes(1)))
+    func supersededBuildLeavesNoTrace() async throws {
+        // Only the superseded build would report an included fee, so the flag tells whether it leaked.
+        let feeIncludedCalculator = SequencedFeeIncludedCalculatorStub(results: [false, true, false])
+        let harness = Harness(feeIncludedCalculator: feeIncludedCalculator)
+        let model = harness.makeModel()
+        let feeIncludedRecorder = FeeIncludedRecorder(model)
+
+        _ = try #require(await harness.awaitFirstBuiltTransaction(model))
+
+        // The user enters a tag; its build is held mid-flight and then superseded by a second one.
+        model.destinationAdditionalParametersDidChanged(harness.filledTagField())
+        await harness.creator.waitUntilFirstTaggedBuildIsInFlight()
+        #expect(feeIncludedRecorder.values.contains(true) == false)
+
+        model.destinationAdditionalParametersDidChanged(harness.filledTagField(value: TestData.replacedDestinationTag))
+        await harness.creator.releaseHeldBuild()
+
+        let result = try await model.performAction()
+        #expect(result.hash.isEmpty == false)
+
+        let dispatched = try #require(harness.recorder.dispatchedTransactions.last)
+        #expect((dispatched.params as? XRPTransactionParams)?.destinationTag == TestData.replacedDestinationTag)
+        #expect(feeIncludedRecorder.values.contains(true) == false)
+    }
+
+    /// [REDACTED_INFO]: the fee behind the built transaction went back to loading, so the built inputs no longer
+    /// describe the screen. Nothing may be dispatched — the flow reports outdated information instead.
+    @Test("A send is refused when the built transaction no longer matches the selected fee", .timeLimit(.minutes(1)))
+    func sendIsRefusedWhenBuiltInputsAreStale() async throws {
+        let harness = Harness()
+        let model = harness.makeModel()
+
+        _ = try #require(await harness.awaitFirstBuiltTransaction(model))
+
+        // A reloading fee never reaches the rebuild — it is filtered out of the inputs — so the transaction
+        // stays the one built from the previous fee.
+        harness.feeProvider.set(selectedTokenFee: harness.loadingTokenFee())
+
+        await #expect(throws: TransactionDispatcherResult.Error.self) {
+            try await model.performAction()
+        }
+        #expect(harness.recorder.dispatchedTransactions.isEmpty)
+    }
+}
+
+// MARK: - Fee included recorder
+
+private final class FeeIncludedRecorder {
+    private let state = OSAllocatedUnfairLock(initialState: [Bool]())
+    private var bag: AnyCancellable?
+
+    init(_ model: TransferModel) {
+        bag = model.isFeeIncludedPublisher.sink { [state] value in
+            state.withLock { $0.append(value) }
+        }
+    }
+
+    var values: [Bool] { state.withLock { $0 } }
+}
+
+private final class SequencedFeeIncludedCalculatorStub: FeeIncludedCalculator {
+    private let state: OSAllocatedUnfairLock<(results: [Bool], index: Int)>
+
+    init(results: [Bool]) {
+        state = OSAllocatedUnfairLock(initialState: (results: results, index: 0))
+    }
+
+    func shouldIncludeFee(_ fee: Fee, into amount: Amount) -> Bool {
+        state.withLock { state in
+            defer { state.index += 1 }
+            return state.results.indices.contains(state.index) ? state.results[state.index] : false
+        }
+    }
 }
 
 // MARK: - Harness
@@ -71,17 +149,23 @@ private extension TransferModelDestinationTagTests {
     final class Harness {
         let recorder = TransactionRecorder()
         let creator: ControlledSendTransactionCreator
+        let feeProvider: ControllableTokenFeeProviderStub
 
         private let blockchain: Blockchain = .xrp(curve: .secp256k1)
+        private let tokenItem: TokenItem
         private let sourceToken: RecordingTransferableTokenStub
+        private let feeIncludedCalculator: FeeIncludedCalculator
 
-        init() {
+        init(feeIncludedCalculator: FeeIncludedCalculator = FeeIncludedCalculatorStub()) {
+            self.feeIncludedCalculator = feeIncludedCalculator
             creator = ControlledSendTransactionCreator(sourceAddress: "rnWc1KoZY62gK7h8N8mdXfV3fWWEyzTJZG")
 
             let tokenItem = TokenItem.blockchain(.init(blockchain, derivationPath: nil))
+            self.tokenItem = tokenItem
             let fee = Fee(Amount(with: blockchain, type: .coin, value: Decimal(string: "0.00001")!))
             let tokenFee = TokenFee(option: .market, tokenItem: tokenItem, value: .success(fee))
             let feeProvider = ControllableTokenFeeProviderStub(feeTokenItem: tokenItem, selectedTokenFee: tokenFee)
+            self.feeProvider = feeProvider
 
             sourceToken = RecordingTransferableTokenStub(
                 blockchain: blockchain,
@@ -96,7 +180,7 @@ private extension TransferModelDestinationTagTests {
                 userWalletId: UserWalletId(value: Data([0x01])),
                 userToken: sourceToken,
                 transactionSigner: TangemSignerStub(),
-                feeIncludedCalculator: FeeIncludedCalculatorStub(),
+                feeIncludedCalculator: feeIncludedCalculator,
                 analyticsLogger: SendManagementModelAnalyticsLoggerStub(),
                 sendAlertBuilder: CommonSendAlertBuilder(),
                 predefinedValues: .init(
@@ -109,11 +193,15 @@ private extension TransferModelDestinationTagTests {
             return model
         }
 
-        func filledTagField() -> SendDestinationAdditionalField {
+        func loadingTokenFee() -> TokenFee {
+            TokenFee(option: .market, tokenItem: tokenItem, value: .loading)
+        }
+
+        func filledTagField(value: UInt32 = TestData.destinationTag) -> SendDestinationAdditionalField {
             .filled(
                 type: .destinationTag,
-                value: String(TestData.destinationTag),
-                params: XRPTransactionParams(destinationTag: TestData.destinationTag)
+                value: String(value),
+                params: XRPTransactionParams(destinationTag: value)
             )
         }
 
@@ -199,65 +287,6 @@ private actor ControlledSendTransactionCreator: SendTransactionCreator {
         heldContinuation?.resume()
         heldContinuation = nil
     }
-}
-
-// MARK: - Recording dispatcher
-
-private final class TransactionRecorder: @unchecked Sendable {
-    private let state = OSAllocatedUnfairLock(initialState: [BSDKTransaction]())
-
-    var dispatchedTransactions: [BSDKTransaction] { state.withLock { $0 } }
-
-    func record(_ transaction: BSDKTransaction) {
-        state.withLock { $0.append(transaction) }
-    }
-}
-
-private struct RecordingTransactionDispatcher: TransactionDispatcher {
-    let recorder: TransactionRecorder
-    let hasNFCInteraction = false
-
-    func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
-        if case .transfer(let bsdkTransaction) = transaction {
-            recorder.record(bsdkTransaction)
-        }
-
-        return TransactionDispatcherResult(hash: "hash", url: nil, signerType: "test", currentHost: "test")
-    }
-}
-
-private struct RecordingTransactionDispatcherProvider: TransactionDispatcherProvider {
-    let recorder: TransactionRecorder
-
-    func makeTransferTransactionDispatcher() -> TransactionDispatcher { RecordingTransactionDispatcher(recorder: recorder) }
-    func makeApproveTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
-    func makeDEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
-    func makeApproveAndDEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
-    func makeCEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
-    func makeStakingTransactionDispatcher(analyticsLogger: any StakingAnalyticsLogger) -> TransactionDispatcher { TransactionDispatcherStub() }
-    func makeYieldModuleTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
-}
-
-// MARK: - Misc stubs
-
-private final class InformationRelevanceServiceStub: InformationRelevanceService {
-    var isActual: Bool { true }
-    func informationDidUpdated() {}
-    func updateInformation() -> AnyPublisher<InformationRelevanceServiceUpdateResult, Error> {
-        Just(.ok).setFailureType(to: Error.self).eraseToAnyPublisher()
-    }
-}
-
-private struct SendManagementModelAnalyticsLoggerStub: SendManagementModelAnalyticsLogger {
-    func logTransactionRejected(error: SendTxError) {}
-    func logTransactionSent(
-        amount: SendAmount?,
-        additionalField: SendDestinationAdditionalField?,
-        fee: FeeOption,
-        signerType: String,
-        currentProviderHost: String,
-        tokenFee: TokenFee?
-    ) {}
 }
 
 // MARK: - SendTransferableToken stub

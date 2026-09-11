@@ -28,8 +28,9 @@ struct GetTangemPayBannerNotificationEvent: NotificationEvent, Hashable {
 
     var icon: NotificationView.MessageIcon {
         .init(
-            iconType: .image(Assets.Visa.cardBanner),
-            size: CGSize(width: 52, height: 44)
+            iconType: .image(Assets.Visa.promo),
+            isLeading: false,
+            size: CGSize(width: 40, height: 40)
         )
     }
 

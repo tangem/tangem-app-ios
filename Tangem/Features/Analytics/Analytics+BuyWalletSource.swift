@@ -15,7 +15,6 @@ extension Analytics {
         case addWallet
         case hardwareWallet
         case settings
-        case backup
         case upgrade
 
         var parameterValue: Analytics.ParameterValue {
@@ -25,7 +24,6 @@ extension Analytics {
             case .addWallet: .addNewWallet
             case .hardwareWallet: .hardwareWallet
             case .settings: .settings
-            case .backup: .backup
             case .upgrade: .upgrade
             }
         }

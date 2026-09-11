@@ -97,6 +97,7 @@ extension ExpressDTO {
                 let quoteId: String?
                 let expiredAt: Date?
                 let txType: String?
+                let isRestricted: Bool?
             }
         }
 

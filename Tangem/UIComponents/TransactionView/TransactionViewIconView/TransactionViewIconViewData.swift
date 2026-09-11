@@ -19,7 +19,11 @@ struct TransactionViewIconViewData: Hashable {
         switch type {
         case .approve, .yieldDeploy:
             return Assets.approve.image
-        case .transfer, .swap, .operation, .unknownOperation, .tangemPay(.transfer), .yieldTopup, .yieldSend, .gaslessTransactionFee, .gaslessTransfer:
+        case .swap:
+            return DesignSystem.Icons.ArrowSwapHorizontal.regular20.image
+        case .onramp:
+            return DesignSystem.Icons.Card.regular20.image
+        case .transfer, .operation, .unknownOperation, .tangemPay(.transfer), .yieldTopup, .yieldSend, .gaslessTransactionFee, .gaslessTransfer:
             return isOutgoing ? Assets.arrowUpMini.image : Assets.arrowDownMini.image
         case .stake, .vote, .restake:
             return Assets.TokenItemContextMenu.menuStaking.image

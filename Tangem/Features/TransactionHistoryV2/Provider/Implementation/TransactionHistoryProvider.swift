@@ -24,6 +24,7 @@ final actor TransactionHistoryProvider {
         key.address
     }
 
+    /// - Note: Uses `address` under the hood, which is a constant and therefore safe to use in async context, hence `nonisolated`.
     private nonisolated var maskedAddress: String {
         address.prefix(Constants.maskedAddressPrefixSuffixLength) + "••••" + address.suffix(Constants.maskedAddressPrefixSuffixLength)
     }
@@ -319,17 +320,13 @@ extension TransactionHistoryProvider: WalletModelTransactionHistoryEnriching {
             currentToken: tokenItem,
             feeTokenItem: feeTokenItem
         )
-        let currency = tokenItem.expressCurrency.asCurrency
-
         // [REDACTED_TODO_COMMENT]
         return originalTransactionHistoryPublisher
             .combineLatest(
-                Publishers.stream { [repository] in
-                    repository.exchangeHistoryUpdates(for: currency)
-                },
-                Publishers.stream { [repository] in
-                    repository.onrampHistoryUpdates(for: currency)
-                },
+                Publishers
+                    .stream { [repository] in
+                        repository.historyUpdates(for: tokenItem.expressCurrency.asCurrency)
+                    },
                 Publishers
                     .stream { [auxDataRepository] in
                         auxDataRepository.didLoadAuxData
@@ -337,7 +334,19 @@ extension TransactionHistoryProvider: WalletModelTransactionHistoryEnriching {
                     .prepend(()) // Emit an initial value in case the aux data is already cached and no updates are coming
             )
             .receive(on: mappingQueue)
-            .map { transactionHistoryState, exchangeTransactions, onrampTransactions, _ in
+            .map { transactionHistoryState, historyUpdates, _ in
+                // [REDACTED_TODO_COMMENT]
+                var exchangeTransactions: [ExchangeTransaction] = []
+                var onrampTransactions: [OnrampTransaction] = []
+                for historyUpdate in historyUpdates {
+                    switch historyUpdate {
+                    case .exchange(let transactionInfo):
+                        exchangeTransactions.append(transactionInfo.transaction)
+                    case .onramp(let transactionInfo):
+                        onrampTransactions.append(transactionInfo.transaction)
+                    }
+                }
+
                 switch transactionHistoryState {
                 case .loaded(let bsdkTransactions):
                     let mergedTransactions = Self.merge(

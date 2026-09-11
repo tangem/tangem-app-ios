@@ -15,6 +15,7 @@ import TangemStories
 import TangemFoundation
 import TangemAppDatabase
 import TangemFirebaseDynamicShim
+import TangemNetworkUtils
 
 private struct ServicesManagerKey: InjectionKey {
     static var currentValue: ServicesManager = CommonServicesManager()
@@ -43,6 +44,7 @@ final class CommonServicesManager {
     @Injected(\.userWalletPushNotificationsService) private var userWalletPushNotificationsService: UserWalletPushNotificationsService
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.wcService) private var wcService: any WCService
+    @Injected(\.openTelemetryWrapper) private var openTelemetryWrapper: OpenTelemetryWrapper
     @Injected(\.eTagStorage) private var eTagStorage: ETagStorage
     @Injected(\.experimentService) private var experimentService: ExperimentService
     @Injected(\.expandableAccountItemStateStorageProvider) private var stateStorageProvider: ExpandableAccountItemStateStorageProvider
@@ -142,19 +144,41 @@ final class CommonServicesManager {
 
         // Feature toggle overrides — reset previous overrides for deterministic UI test runs
         FeatureStorage.instance.availableFeatures = [:]
+        applyFeatureToggleOverrides(from: arguments)
 
-        for feature in Feature.allCases {
-            let onFlag = "-uitest-feature-\(feature.rawValue)-on"
-            let offFlag = "-uitest-feature-\(feature.rawValue)-off"
-
-            if arguments.contains(onFlag) {
-                FeatureStorage.instance.availableFeatures[feature] = .on
-            } else if arguments.contains(offFlag) {
-                FeatureStorage.instance.availableFeatures[feature] = .off
-            }
-        }
+        persistEnvironmentForSystemLaunch()
 
         UIView.setAnimationsEnabled(false)
+    }
+
+    /// A deeplink cold start is launched by the system, so it receives none of the XCTest arguments and would fall
+    /// back to production. Rewriting each value moves it from the volatile argument domain of this process into the
+    /// persistent one, keeping the next launch on the same backends. The `UITEST` flag is deliberately left out:
+    /// `configureForUITests` wipes wallet data, which would destroy the wallet the deeplink is supposed to open.
+    private func persistEnvironmentForSystemLaunch() {
+        let storage = FeatureStorage.instance
+        storage.tangemAPIType = storage.tangemAPIType
+        storage.visaAPIType = storage.visaAPIType
+        storage.stakeKitAPIType = storage.stakeKitAPIType
+        storage.yieldModuleAPIType = storage.yieldModuleAPIType
+        storage.apiExpress = storage.apiExpress
+
+        if let wireMockBaseURL = ProcessInfo.processInfo.environment[WireMockEnvironment.baseURLKey] {
+            UserDefaults.standard.set(wireMockBaseURL, forKey: WireMockEnvironment.baseURLKey)
+        }
+    }
+
+    /// Applies `-uitest-feature-<name>-on` / `-off` launch arguments to `FeatureStorage`, matching `<name>`
+    /// against `Feature.name` exactly (what Allure/CI passes, e.g. `TWI-1259_tron_gasless`); a name that
+    /// matches nothing is ignored — toggle names follow a strict documented format, so a miss means a
+    /// mistyped name, not something to guess at.
+    private func applyFeatureToggleOverrides(from arguments: [String]) {
+        for feature in Feature.allCases {
+            for state in [FeatureState.off, .on]
+                where arguments.contains("-uitest-feature-\(feature.name)-\(state.rawValue)") {
+                FeatureStorage.instance.availableFeatures[feature] = state
+            }
+        }
     }
 }
 
@@ -187,6 +211,7 @@ extension CommonServicesManager: ServicesManager {
         }
 
         AmplitudeWrapper.shared.configure()
+        openTelemetryWrapper.configure()
         experimentService.configure()
         AppsFlyerWrapper.shared.configure(delegate: delegate)
         customerIOWrapper.configure()

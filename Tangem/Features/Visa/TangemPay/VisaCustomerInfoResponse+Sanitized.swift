@@ -14,14 +14,13 @@ extension VisaCustomerInfoResponse {
             id: id,
             state: state,
             createdAt: createdAt,
-            productInstance: productInstance,
             productInstances: productInstances,
             paymentAccount: paymentAccount,
             kyc: nil,
-            card: card?.sanitizedForDiskCache(),
             cards: cards.map { $0.sanitizedForDiskCache() },
             depositAddress: depositAddress,
-            customerTariffPlan: customerTariffPlan
+            customerTariffPlan: customerTariffPlan,
+            profile: nil
         )
     }
 }

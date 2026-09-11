@@ -178,25 +178,25 @@ private extension PortfolioReviewViewModel {
             .share(replay: 1)
             .eraseToAnyPublisher()
 
-        let walletModelsPublisher = selectedAccounts
-            .map(Self.walletModelsPublisher)
+        let tokenItemsPublisher = selectedAccounts
+            .map(Self.tokenItemsPublisher)
             .switchToLatest()
             .share(replay: 1)
             .eraseToAnyPublisher()
 
         return Publishers.CombineLatest3(
-            walletModelsPublisher,
+            tokenItemsPublisher,
             totalBalancePublisher(for: selectedAccounts),
             AppSettings.shared.$selectedCurrencyCode
         )
         .combineLatest(
-            indicatorsPublisher(for: walletModelsPublisher),
+            indicatorsPublisher(for: tokenItemsPublisher),
             $selectedPeriod.map(\.timeframe).removeDuplicates()
         )
         .map { [mapper] base, indicators, timeframe in
-            let (walletModels, totalBalance, _) = base
+            let (tokenItems, totalBalance, _) = base
             let mapped = mapper.map(
-                walletModels: walletModels,
+                tokenItems: tokenItems,
                 totalBalance: totalBalance,
                 indicators: indicators,
                 timeframe: timeframe
@@ -205,7 +205,8 @@ private extension PortfolioReviewViewModel {
                 state: mapped.state,
                 isOutdatedData: PortfolioReviewOutdatedDataResolver.isOutdated(
                     totalBalance,
-                    displayedItems: mapped.displayedTokenItems
+                    displayedItems: mapped.displayedTokenItems,
+                    chart: mapped.state.chart
                 )
             )
         }
@@ -230,14 +231,21 @@ private extension PortfolioReviewViewModel {
             .eraseToAnyPublisher()
     }
 
-    /// Wallet models of the given accounts; no accounts → `[]` (`combineLatest` of nothing never emits).
-    static func walletModelsPublisher(for accounts: [any CryptoAccountModel]) -> AnyPublisher<[any WalletModel], Never> {
+    /// Going by the stored list, not the wallet models, is what keeps not-yet-derived tokens on screen.
+    static func tokenItemsPublisher(for accounts: [any CryptoAccountModel]) -> AnyPublisher<[TokenItemType], Never> {
         guard !accounts.isEmpty else {
             return Just([]).eraseToAnyPublisher()
         }
 
         return accounts
-            .map(\.walletModelsManager.walletModelsPublisher)
+            .map { account in
+                account.walletModelsManager.walletModelsPublisher
+                    .combineLatest(account.userTokensManager.userTokensPublisher)
+                    .map { walletModels, userTokens in
+                        PortfolioReviewTokenItemsResolver.resolve(userTokens: userTokens, walletModels: walletModels)
+                    }
+                    .eraseToAnyPublisher()
+            }
             .combineLatest()
             .map { $0.flattened() }
             .eraseToAnyPublisher()
@@ -245,11 +253,11 @@ private extension PortfolioReviewViewModel {
 
     /// Refetches only when the symbol set changes; starts empty so the pipeline isn't gated on it.
     func indicatorsPublisher(
-        for walletModelsPublisher: AnyPublisher<[any WalletModel], Never>
+        for tokenItemsPublisher: AnyPublisher<[TokenItemType], Never>
     ) -> AnyPublisher<[String: [TokenSummaryIndicator]], Never> {
-        walletModelsPublisher
-            .map { walletModels in
-                Set(walletModels.map { $0.tokenItem.currencySymbol.uppercased() })
+        tokenItemsPublisher
+            .map { tokenItems in
+                Set(tokenItems.map { $0.tokenItem.currencySymbol.uppercased() })
             }
             .removeDuplicates()
             .map { [indicatorsProvider] symbols in
@@ -273,6 +281,15 @@ private extension PortfolioReviewViewModel {
         // A scope change can drop the selected segment — clear it so the tooltip doesn't resurrect later.
         if let selectedID = selectedChartSegmentID, !newState.containsChartSegment(selectedID) {
             selectedChartSegmentID = nil
+        }
+    }
+}
+
+private extension TokenItemType {
+    var tokenItem: TokenItem {
+        switch self {
+        case .default(let walletModel): walletModel.tokenItem
+        case .withoutDerivation(let tokenItem): tokenItem
         }
     }
 }

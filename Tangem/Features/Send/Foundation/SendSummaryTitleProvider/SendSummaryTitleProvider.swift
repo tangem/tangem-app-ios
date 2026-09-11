@@ -62,6 +62,12 @@ struct SwapSummaryTitleProvider: SendSummaryTitleProvider {
     }
 }
 
+// MARK: - Fixed title
+
+struct FixedSendSummaryTitleProvider: SendSummaryTitleProvider {
+    let title: String
+}
+
 // MARK: - Staking
 
 struct StakingSendSummaryTitleProvider: SendSummaryTitleProvider {
