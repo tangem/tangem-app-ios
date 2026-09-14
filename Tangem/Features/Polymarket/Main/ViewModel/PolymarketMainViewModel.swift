@@ -29,6 +29,7 @@ final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var isRegionRestricted = false
     @Published private(set) var isAwaitingFunds = false
     @Published private(set) var addFundsState: AddFundsState = .loading
+    @Published private(set) var positionsState: PositionsState = .loading
     @Published private(set) var isSearching = false
     @Published var isSearchFieldActive = false
     @Published var searchQuery = ""
@@ -49,6 +50,7 @@ final class PolymarketMainViewModel: ObservableObject {
     private let geoblockStateProvider: PolymarketGeoblockStateProvider
     private let balanceProvider: PolymarketBalanceProvider
     private let accountFundsInteractor: PolymarketAccountFundsInteractor?
+    private let positionsService: PolymarketPositionsService?
     private weak var coordinator: PolymarketMainRoutable?
 
     private let balanceStateBuilder = LoadableBalanceViewStateBuilder()
@@ -65,12 +67,14 @@ final class PolymarketMainViewModel: ObservableObject {
     private var hasNext = false
     private var cache: [Int?: CategoryState] = [:]
     private var loadingTask: Task<Void, Never>?
+    private var positionsTask: Task<Void, Never>?
 
     init(
         apiProvider: PolymarketAPIProvider,
         geoblockStateProvider: PolymarketGeoblockStateProvider,
         balanceProvider: PolymarketBalanceProvider,
         accountFundsInteractor: PolymarketAccountFundsInteractor?,
+        positionsService: PolymarketPositionsService?,
         coordinator: PolymarketMainRoutable
     ) {
         self.apiProvider = apiProvider
@@ -78,6 +82,7 @@ final class PolymarketMainViewModel: ObservableObject {
         search = PolymarketSearchViewModel(apiProvider: apiProvider)
         self.balanceProvider = balanceProvider
         self.accountFundsInteractor = accountFundsInteractor
+        self.positionsService = positionsService
         self.coordinator = coordinator
         search.coordinator = self
 
@@ -86,6 +91,7 @@ final class PolymarketMainViewModel: ObservableObject {
         bindGeoblockState()
         startBalanceRefresh()
         load()
+        loadPositions()
     }
 
     deinit {
@@ -169,6 +175,37 @@ final class PolymarketMainViewModel: ObservableObject {
             guard !Task.isCancelled else { return }
 
             viewModel.addFundsState = AddFundsState(state)
+        }
+    }
+
+    // MARK: - Positions
+
+    func loadPositions() {
+        guard let positionsService else {
+            positionsState = .loaded([])
+            return
+        }
+
+        positionsTask?.cancel()
+
+        if case .loaded = positionsState {} else {
+            positionsState = .loading
+        }
+
+        positionsTask = runTask(in: self) { @MainActor viewModel in
+            do {
+                let positions = try await positionsService.activePositions(limit: Constants.positionsLimit)
+                try Task.checkCancellation()
+
+                viewModel.positionsState = .loaded(
+                    positions.prefix(Constants.positionsShown).map(PolymarketPositionRow.Model.make(position:))
+                )
+            } catch {
+                guard !error.isCancellationError else { return }
+
+                PolymarketLogger.error("Failed to load the open positions", error: error)
+                viewModel.positionsState = .failed
+            }
         }
     }
 
@@ -447,6 +484,14 @@ private extension PolymarketMainViewModel {
 }
 
 extension PolymarketMainViewModel {
+    enum PositionsState: Equatable {
+        case loading
+        case loaded([PolymarketPositionRow.Model])
+        case failed
+    }
+}
+
+extension PolymarketMainViewModel {
     enum LoadingState: Equatable {
         case loading
         case error
@@ -472,6 +517,8 @@ private extension PolymarketMainViewModel {
         static let balanceRefreshInterval: TimeInterval = 30
         static let awaitingFundsDuration: TimeInterval = 30
         static let awaitingFundsBalanceRefreshInterval: TimeInterval = 5
+        static let positionsLimit = 10
+        static let positionsShown = 3
     }
 }
 
@@ -485,6 +532,7 @@ extension PolymarketMainViewModel {
         loadingTask?.cancel()
 
         await balanceProvider.refresh()
+        loadPositions()
 
         if categories.isEmpty {
             await loadCategories()
