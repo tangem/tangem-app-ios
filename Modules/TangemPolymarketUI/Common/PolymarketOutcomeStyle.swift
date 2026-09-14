@@ -20,6 +20,14 @@ public extension PolymarketOutcomeStyle {
     init(outcomeIndex: Int) {
         self = outcomeIndex == 0 ? .affirmative : .negative
     }
+
+    init(binaryOutcomeName: String) {
+        self = binaryOutcomeName.lowercased() == Constants.negativeOutcome ? .negative : .affirmative
+    }
+
+    private enum Constants {
+        static let negativeOutcome = "no"
+    }
 }
 
 // MARK: - Colors
