@@ -133,7 +133,7 @@ private extension CommonDeeplinkPresenterV2 {
         case .jointAccountInvite(let inviteId):
             return constructJointAccountInviteView(inviteId: inviteId)
 
-        case .externalLink, .tangemPayMain, .tangemPayTransactionDetails, .yield:
+        case .externalLink, .tangemPayMain, .tangemPayTransactionDetails, .yield, .tangemPayCustomCard:
             return nil
         }
     }
@@ -147,7 +147,7 @@ private extension CommonDeeplinkPresenterV2 {
              .swap, .referral,
              .staking, .yield, .marketsTokenDetails, .tokenExchanges, .externalLink,
              .markets, .tangemPayMain, .tangemPayTransactionDetails, .newsDetails,
-             .newsList, .earn:
+             .newsList, .earn, .tangemPayCustomCard:
             return .sheet
         }
     }
@@ -163,7 +163,7 @@ private extension CommonDeeplinkPresenterV2 {
              .swap, .referral,
              .staking, .yield, .marketsTokenDetails, .tokenExchanges, .externalLink,
              .markets, .onboardVisa, .tangemPayMain, .tangemPayTransactionDetails,
-             .newsDetails, .newsList, .earn, .jointAccountInvite:
+             .newsDetails, .newsList, .earn, .jointAccountInvite, .tangemPayCustomCard:
             return true
         }
     }

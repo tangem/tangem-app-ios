@@ -94,6 +94,9 @@ enum IncomingActionConstants {
         /// Joint account invite link: `https://tangem.com/joint-account/join/{inviteId}` or
         /// `tangem://joint-account-invite?id={inviteId}`.
         case jointAccountInvite = "joint-account-invite"
+        /// Tangem Pay co-brand campaign. Produced only by `TangemPayCampaignLinkParser` from an
+        /// AppsFlyer link whose `deep_link_value` starts with `tpay_for_`.
+        case payCustomCard = "pay-custom-card"
     }
 
     enum DeeplinkType: String {

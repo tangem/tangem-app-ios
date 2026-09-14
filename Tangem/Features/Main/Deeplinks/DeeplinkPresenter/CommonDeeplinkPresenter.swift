@@ -138,7 +138,7 @@ private extension CommonDeeplinkPresenter {
         case .jointAccountInvite(let inviteId):
             return constructJointAccountInviteViewController(inviteId: inviteId)
 
-        case .externalLink, .tangemPayMain, .tangemPayTransactionDetails, .yield:
+        case .externalLink, .tangemPayMain, .tangemPayTransactionDetails, .yield, .tangemPayCustomCard:
             return nil
         }
     }

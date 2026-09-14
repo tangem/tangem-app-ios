@@ -76,6 +76,11 @@ struct DefaultIncomingLinkParser {
         guard destination != .news else {
             return nil
         }
+        // `.payCustomCard` is produced only by `TangemPayCampaignLinkParser`, which also stores the
+        // pending key — a bare host would skip that and never reach the Welcome flow.
+        guard destination != .payCustomCard else {
+            return nil
+        }
         return destination
     }
 
