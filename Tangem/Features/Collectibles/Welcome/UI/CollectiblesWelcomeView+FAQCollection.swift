@@ -42,15 +42,19 @@ private extension FAQCollection {
         static let content: [Self] = [
             .init(
                 question: "What happens when I tap my card?",
+                answer: "A one-time action: your card signs once to deploy a self-custodial spending account on Solana. That account only ever holds USDC for buying packs, which is what makes opening tapless. The cards you open are sent straight to your cold wallet, and selling or withdrawing always needs your card"
+            ),
+            .init(
+                question: "What am I actually buying?",
                 answer: "A sealed pack containing one graded physical collectible card, held 1:1 in an insured physical vault and redeemable for delivery at any time. Every card inside a machine is transparently visible in the app and the draw odds are published up front"
             ),
             .init(
                 question: "What are the risks?",
-                answer: "Collectible values change and can fall. Some cards in a pack pool can be worth less than the pack price — never nothing, but less than you paid. Only spend what you're comfortable spending on collectibles. This is not financial advice"
+                answer: "Collectible values change and can fall. Some cards in a pack pool can be worth less than the pack price — never nothing, but less than you paid. Only spend what you're comfortable spending on collectibles"
             ),
             .init(
                 question: "Who provides the service?",
-                answer: "Collector Crypt provides the card inventory, the packs, the physical vault, the instant offers and the shipping, under its own terms. Tangem provides a passive interface for accessing that service and for signing — it never holds your cards, your funds or your keys"
+                answer: "Collector Crypt provides the card inventory, the packs, the physical vault, the instant optional sell offers and the shipping, under its own terms. Tangem provides a passive interface for accessing that service and for signing — it never holds your cards, your funds or your keys"
             ),
             .init(
                 question: "Is it available where I live?",

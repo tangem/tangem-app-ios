@@ -90,7 +90,7 @@ private extension CollectiblesStoriesView {
             .horizontalLayout(.infinity)
             .size(.x12)
             .padding(.horizontal, 16)
-            .padding(.bottom, 8)
+            .padding(.vertical, 8)
     }
 }
 
@@ -114,7 +114,7 @@ extension CollectiblesStoriesView {
             ),
             .init(
                 title: "There's always a buyer",
-                subtitle: "Get 85–93% of your card's insured value. Accept for USDC in Collectibles, or tap to withdraw to your cold wallet",
+                subtitle: "Get 85–93% of your card's insured value within 72 hours. Accept the offer for USDC, or tap to withdraw the card to your cold wallet instead",
                 buttonTitle: "Next"
             ),
             .init(

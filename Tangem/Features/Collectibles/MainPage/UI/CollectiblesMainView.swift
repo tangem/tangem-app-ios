@@ -44,17 +44,32 @@ struct CollectiblesMainView: View {
         }
         .animation(.default, value: viewModel.showsSearchBar)
         .task(viewModel.observe)
-        // [REDACTED_TODO_COMMENT]
-        .topNavigation(
-            title: "Packs account",
-            subtitle: viewModel.showsBalanceInNavigationBar ? viewModel.accountBalanceText : nil,
-            leading: .custom(.back(action: onBack))
-        )
+        .safeAreaInset(edge: .top, spacing: 0) { navigationBar }
     }
 }
 
 private extension CollectiblesMainView {
     // MARK: - View properties
+
+    var navigationBar: some View {
+        NavigationHeader(
+            leadingContent: NavigationBarButton.back(action: onBack).redesigned,
+            principalContent: {
+                VStack(spacing: 2) {
+                    // [REDACTED_TODO_COMMENT]
+                    Text("Packs account")
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+
+                    if viewModel.showsBalanceInNavigationBar, let balance = viewModel.accountBalanceText {
+                        Text(balance)
+                            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    }
+                }
+                .animation(.default, value: viewModel.showsBalanceInNavigationBar)
+            },
+            trailingContent: EmptyView.init
+        )
+    }
 
     var catalogueScroll: some View {
         ScrollView(showsIndicators: false) {
