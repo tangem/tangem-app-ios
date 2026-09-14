@@ -34,3 +34,15 @@ public struct PolymarketProblemDetail: Decodable, Hashable, Sendable {
     public let detail: String?
     public let instance: String?
 }
+
+// MARK: - Retrying
+
+public extension PolymarketAPIError {
+    var isTransient: Bool {
+        switch self {
+        case .http(let statusCode, _): (500 ... 599).contains(statusCode)
+        case .connection(let underlying): !(underlying is DecodingError)
+        case .decoding: false
+        }
+    }
+}
