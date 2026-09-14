@@ -122,7 +122,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .jointAccounts: return .unspecified
         case .ethPolLocalStakingValidation: return .unspecified
         case .yieldDexTransferDetection: return .unspecified
-        case .tangemPayCashback: return .unspecified
+        case .tangemPayCashback: return .version("6.3.1")
         case .swapChooseTokenWholeAreaTap: return .version("6.3")
         case .welcomeScreenV2: return .unspecified
         case .tangemPayPlastic: return .unspecified
