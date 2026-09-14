@@ -118,6 +118,18 @@ private extension CommonSwapNotificationManager {
         return inputs
     }
 
+    func mapHighNetworkFeeEvent(selectedFee: TokenFee?) -> [SwapNotificationEvent] {
+        guard highNetworkFeeWarningCalculator.shouldShowWarning(for: selectedFee) else {
+            return []
+        }
+
+        return [.highNetworkFee]
+    }
+}
+
+// MARK: - Providers state mapping
+
+extension CommonSwapNotificationManager {
     func mapToEvents(
         source: LoadingResult<SendSourceToken, any Error>,
         receive: LoadingResult<SendReceiveToken, any Error>,
@@ -154,15 +166,11 @@ private extension CommonSwapNotificationManager {
             return []
         }
     }
+}
 
-    func mapHighNetworkFeeEvent(selectedFee: TokenFee?) -> [SwapNotificationEvent] {
-        guard highNetworkFeeWarningCalculator.shouldShowWarning(for: selectedFee) else {
-            return []
-        }
+// MARK: - Loaded state mapping
 
-        return [.highNetworkFee]
-    }
-
+private extension CommonSwapNotificationManager {
     func mapLoadedStateEvents(
         source: SendSourceToken,
         receive: SendReceiveToken,
@@ -243,6 +251,9 @@ private extension CommonSwapNotificationManager {
 
         case .restriction(.regionRestricted, _):
             return [.regionRestricted]
+
+        case .restriction(.trustlineRequired, _):
+            return [.trustlineRequired]
 
         case .permissionRequired:
             return [
