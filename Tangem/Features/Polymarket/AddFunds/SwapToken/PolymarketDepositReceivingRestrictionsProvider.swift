@@ -22,7 +22,9 @@ struct PolymarketDepositReceivingRestrictionsProvider: ReceivingRestrictionsProv
         self.tokenItem = tokenItem
     }
 
-    func restriction(expectAmount: Decimal) -> ReceivedRestriction? {
+    var isRestrictionKnown: Bool { true }
+
+    func restriction(expectAmount: Decimal) async throws -> ReceivedRestriction? {
         if expectAmount > 0, let minimum = minimumReceiveAmount(), expectAmount < minimum {
             return .notEnoughReceivedAmount(minAmount: minimum, reason: .receivingMinimum)
         }

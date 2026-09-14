@@ -100,8 +100,8 @@ private extension UnstakingModel {
 
         estimatedFeeTask?.cancel()
 
-        guard sendSourceToken.canCoverStakingFee else {
-            update(state: .networkError(StakingPreflightError.insufficientFundsForFee))
+        if let preflightError = sendSourceToken.stakingFeePreflightError {
+            update(state: .networkError(preflightError))
             return
         }
 

@@ -9,12 +9,21 @@
 import Foundation
 
 protocol ReceivingRestrictionsProvider {
-    func restriction(expectAmount: Decimal) -> ReceivedRestriction?
+    var isRestrictionKnown: Bool { get }
+
+    func restriction(expectAmount: Decimal) async throws -> ReceivedRestriction?
+}
+
+enum ReceivingRestrictionsError: String, LocalizedError {
+    case restrictionsDataUnavailable
+
+    var errorDescription: String? { rawValue }
 }
 
 enum ReceivedRestriction {
     case notEnoughReceivedAmount(minAmount: Decimal, reason: NotEnoughReceivedAmountReason)
     case incompleteBackup(UserWalletInfo)
+    case requiresTrustline
 }
 
 enum NotEnoughReceivedAmountReason {

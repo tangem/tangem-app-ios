@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemFoundation
+
 /// Uses for connect `TransferModel` -> `SendViewModel(Base)`
 protocol TransferModelRoutable: AnyObject {
     func openNetworkCurrency()
@@ -21,6 +23,7 @@ protocol SendWithSwapModelRoutable: TransferModelRoutable {
 /// Uses for connect `SwapModel` -> `SendViewModel(Base)`
 protocol SwapModelRoutable: TransferModelRoutable {
     func performSwapAction()
+    func openTokenDetails(userWalletId: UserWalletId, tokenItem: TokenItem)
 }
 
 /// Uses for connect `StakingModel` -> `SendViewModel(Base)`

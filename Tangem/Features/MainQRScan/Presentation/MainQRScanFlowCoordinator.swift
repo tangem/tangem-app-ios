@@ -13,7 +13,7 @@ import TangemAccounts
 import TangemUIUtils
 
 final class MainQRScanFlowCoordinator: CoordinatorObject {
-    let dismissAction: Action<Void>
+    let dismissAction: Action<DismissOptions?>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Dependencies
@@ -44,7 +44,7 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
     private let alertFactory = MainQRScanAlertFactory()
 
     required init(
-        dismissAction: @escaping Action<Void>,
+        dismissAction: @escaping Action<DismissOptions?>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.dismissAction = dismissAction
@@ -65,7 +65,7 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
             guard let self else { return }
             guard let scannedCode else {
                 closeScanner()
-                self.dismissAction(())
+                self.dismissAction(nil)
                 return
             }
 
@@ -144,7 +144,7 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
         viewModel.loadDAppProposal()
         closeScanner()
         floatingSheetPresenter.enqueue(sheet: viewModel)
-        dismissAction(())
+        dismissAction(nil)
     }
 
     @MainActor
@@ -222,12 +222,14 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
             dismissAction: { [weak self] options in
                 self?.sendCoordinator = nil
 
-                if case .openSwap(let option) = options {
+                switch options {
+                case .openSwap(let option):
                     self?.openManualSwap(option: option)
-                    return
+                case .openFeeCurrency(let option):
+                    self?.dismissAction(.openFeeCurrency(option))
+                case .closeButtonTap, .none:
+                    self?.dismissAction(nil)
                 }
-
-                self?.dismissAction(())
             },
             popToRootAction: popToRootAction
         )
@@ -239,7 +241,7 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
 
     private func openManualSwap(option: SwapNavigatingDismissOption) {
         guard let options = option.makeSwapFlowOptions(source: .qrScan) else {
-            dismissAction(())
+            dismissAction(nil)
             return
         }
 
@@ -247,9 +249,15 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
             guard let self else { return }
 
             let coordinator = SendCoordinator(
-                dismissAction: { [weak self] _ in
+                dismissAction: { [weak self] options in
                     self?.sendCoordinator = nil
-                    self?.dismissAction(())
+
+                    if case .openFeeCurrency(let option) = options {
+                        self?.dismissAction(.openFeeCurrency(option))
+                        return
+                    }
+
+                    self?.dismissAction(nil)
                 },
                 popToRootAction: popToRootAction
             )
@@ -520,6 +528,10 @@ private extension MainQRScanFlowCoordinator {
 extension MainQRScanFlowCoordinator {
     struct Options {}
 
+    enum DismissOptions {
+        case openFeeCurrency(FeeCurrencyNavigatingDismissOption)
+    }
+
     enum ViewState: Identifiable {
         case scanner
         case tokenSelector
@@ -565,6 +577,6 @@ extension MainQRScanFlowCoordinator: MainQRScanTokenSelectorRoutable {
 
     func closeTokenSelector() {
         tokenSelectorViewModel = nil
-        dismissAction(())
+        dismissAction(nil)
     }
 }
