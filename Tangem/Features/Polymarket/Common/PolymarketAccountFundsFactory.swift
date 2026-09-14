@@ -20,9 +20,7 @@ struct PolymarketAccountFundsFactory {
             store: InjectedValues[\.polymarketBuilderCodeStore]
         )
 
-        let bridgeService = services.makeBridgeService(
-            supportedAssetsStore: InjectedValues[\.polymarketSupportedAssetsStore]
-        )
+        let bridgeService = services.makeBridgeService()
 
         return PolymarketAccountFundsInteractor(
             bridgeService: bridgeService,

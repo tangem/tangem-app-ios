@@ -19,6 +19,7 @@ import TangemUIUtils
 
 final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+    @Injected(\.floatingSheetPresentingStateProvider) private var sheetStateProvider: FloatingSheetPresentingStateProvider
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     private let presenceStore: PolymarketAccountPresenceStore = AppSettings.shared
@@ -50,6 +51,7 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
     private var accountFundsInteractor: PolymarketAccountFundsInteractor?
     private weak var regionWarning: PolymarketRegionRestrictionViewModel?
     private weak var addFundsSheet: PolymarketAddFundsSheetViewModel?
+    private var sheetDismissSubscription: AnyCancellable?
     private var hasDispatchedDeposit = false
 
     // MARK: - Init
@@ -65,6 +67,8 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
     func start(with options: Options) {
         userWalletModel = options.userWalletModel
 
+        subscribeToSheetDismiss()
+
         Task { @MainActor in
             openEntry(for: options.userWalletModel)
         }
@@ -74,6 +78,21 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
 // MARK: - Entry
 
 private extension PolymarketCoordinator {
+    /// A sheet dismissed by tapping the dimmed background never reaches the coordinator, and the view it
+    /// was rendered in outlives the dismissal, so every reference guarding a reopen has to be released by
+    /// what is on screen rather than by what is still in memory.
+    func subscribeToSheetDismiss() {
+        sheetDismissSubscription = sheetStateProvider
+            .hasPresentedSheetPublisher
+            .filter { !$0 }
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { coordinator, _ in
+                coordinator.addFundsSheet = nil
+                coordinator.regionWarning = nil
+            }
+    }
+
     @MainActor
     func openEntry(for userWalletModel: any UserWalletModel) {
         let state = PolymarketAccountAggregator.polymarketAccountModel(from: userWalletModel.accountModelsManager)?.state
