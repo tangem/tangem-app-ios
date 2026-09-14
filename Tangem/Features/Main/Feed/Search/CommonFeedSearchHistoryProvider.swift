@@ -38,13 +38,13 @@ final class CommonFeedSearchHistoryProvider: FeedSearchHistoryProvider {
         }
 
         update { history in
-            Self.prepend(query, to: &history.queries, replacing: { $0 == query })
+            Self.prepend(query, to: &history.queries, capacity: Constants.queriesCapacity, replacing: { $0 == query })
         }
     }
 
     func save(token: MarketsTokenModel) {
         update { history in
-            Self.prepend(token, to: &history.tokens, replacing: { $0.id == token.id })
+            Self.prepend(token, to: &history.tokens, capacity: Constants.tokensCapacity, replacing: { $0.id == token.id })
         }
     }
 
@@ -75,10 +75,14 @@ private extension CommonFeedSearchHistoryProvider {
     }
 
     func loadStoredHistory() {
-        guard let stored = storage.load() else {
+        guard var stored = storage.load() else {
             return
         }
 
+        let needsTrimming = stored.queries.count > Constants.queriesCapacity || stored.tokens.count > Constants.tokensCapacity
+        stored.queries = Array(stored.queries.prefix(Constants.queriesCapacity))
+        stored.tokens = Array(stored.tokens.prefix(Constants.tokensCapacity))
+        if needsTrimming { persistSubject.send(stored) }
         storedHistory = stored
         historySubject.send(makeHistory(from: stored))
     }
@@ -103,10 +107,10 @@ private extension CommonFeedSearchHistoryProvider {
         )
     }
 
-    static func prepend<T>(_ element: T, to list: inout [T], replacing isSame: (T) -> Bool) {
+    static func prepend<T>(_ element: T, to list: inout [T], capacity: Int, replacing isSame: (T) -> Bool) {
         list.removeAll(where: isSame)
         list.insert(element, at: 0)
-        list = Array(list.prefix(Constants.capacity))
+        list = Array(list.prefix(capacity))
     }
 }
 
@@ -114,7 +118,8 @@ private extension CommonFeedSearchHistoryProvider {
 
 private extension CommonFeedSearchHistoryProvider {
     enum Constants {
-        static let capacity = 10
+        static let tokensCapacity = 10
+        static let queriesCapacity = 5
         static let persistDebounce: DispatchQueue.SchedulerTimeType.Stride = .milliseconds(500)
     }
 }

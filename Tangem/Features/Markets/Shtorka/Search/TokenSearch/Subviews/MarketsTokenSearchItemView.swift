@@ -72,7 +72,7 @@ private extension MarketsTokenSearchItemView {
     func loadingView() -> some View {
         VStack(spacing: tokensSpacing) {
             ForEach(0 ..< 3) { _ in
-                TangemTwoLineRowSkeletonView()
+                TokenRowMarket(.shimmer)
                     .roundedBackground(
                         with: DesignSystem.Color.bgSecondary,
                         padding: .zero,

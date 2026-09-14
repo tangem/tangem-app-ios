@@ -109,7 +109,7 @@ private extension FeedSearchViewModel {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, history in
-                viewModel.history = history.displayed
+                viewModel.history = history
                 viewModel.refreshRecentState()
             }
             .store(in: &bag)
@@ -141,21 +141,5 @@ private extension FeedSearchViewModel {
         }
 
         tabsViewModel.setSearching(isSearching)
-    }
-}
-
-// MARK: - History
-
-private extension FeedSearchHistory {
-    var displayed: FeedSearchHistory {
-        FeedSearchHistory(tokens: tokens, queries: Array(queries.prefix(FeedSearchViewModel.Constants.displayedQueriesCount)))
-    }
-}
-
-// MARK: - Constants
-
-private extension FeedSearchViewModel {
-    enum Constants {
-        static let displayedQueriesCount = 3
     }
 }
