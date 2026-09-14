@@ -9,14 +9,20 @@
 import protocol TangemUI.FloatingSheetContentViewModel
 
 final class JointAccountActivationConfirmationViewModel: FloatingSheetContentViewModel {
+    /// What activating the account takes, carried through so the sheet hands it back on confirmation.
+    private let onConfirm: () -> Void
     private weak var coordinator: JointAccountActivationConfirmationRoutable?
 
-    init(coordinator: JointAccountActivationConfirmationRoutable?) {
+    init(
+        onConfirm: @escaping () -> Void,
+        coordinator: JointAccountActivationConfirmationRoutable?
+    ) {
+        self.onConfirm = onConfirm
         self.coordinator = coordinator
     }
 
     func onActivateTap() {
-        coordinator?.confirmActivation()
+        coordinator?.confirmActivation(onConfirm)
     }
 
     func onCancelTap() {

@@ -12,6 +12,9 @@ import TangemFoundation
 /// One of the wallet's own accounts as far as its name, its icon and its tokens go — what it adds is the members it is
 /// shared with and the rules they operate it by.
 protocol JointAccountModel: CryptoAccountModel where Editor: JointAccountModelEditor {
+    /// Where this wallet's slot of the account derives its keys, which is what the wallet has to be asked to sign at.
+    var derivationIdentity: CryptoAccountDerivationIdentity { get }
+
     var policy: JointAccountPolicy { get }
 
     /// How far the account has come: waiting on its members, or activated and ready to be operated.
@@ -80,5 +83,27 @@ extension JointAccountModel {
     /// members they invited.
     var canInviteMembers: Bool {
         freeSlotsCount > 0 && invites.isNotEmpty
+    }
+
+    /// The address the backend says the composition resolves to, before anything has confirmed it.
+    /// - Warning: Announced, not verified — pass it through `JointAccountSafeAddressVerifier` before acting on it.
+    var announcedSafeAddress: String? {
+        switch status {
+        case .confirming(let safeAddress): safeAddress
+        case .pending, .active, .cancelled, .unknown: nil
+        }
+    }
+
+    /// Activating is the creator's alone and only makes sense once every slot is taken, which is the stage the
+    /// account reports.
+    /// - Note: The address the stage is supposed to name is not part of this: an answer that omits it is the
+    /// backend's problem to explain when the button is pressed, not a reason to hide the button and leave the
+    /// creator with a screen that offers nothing.
+    var canActivate: Bool {
+        guard case .confirming = status else {
+            return false
+        }
+
+        return invites.isNotEmpty
     }
 }

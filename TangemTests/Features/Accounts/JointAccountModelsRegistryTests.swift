@@ -35,14 +35,14 @@ struct JointAccountModelsRegistryTests {
 
         let second = await sut.jointAccountModels(
             from: [entry],
-            with: [Self.storedJointAccount(status: .confirming, memberNames: ["Alice", "Bob"])],
+            with: [Self.storedJointAccount(status: .confirming(safeAddress: Self.safeAddress), memberNames: ["Alice", "Bob"])],
             invites: [],
             delegate: delegate
         )
 
         #expect(second.count == 1)
         #expect(second.first === model)
-        #expect(model.status == .confirming)
+        #expect(model.status == .confirming(safeAddress: Self.safeAddress))
         #expect(model.members.map(\.name) == ["Alice", "Bob"])
         #expect(didChangeCount.withLock { $0 } == 1)
         withExtendedLifetime(subscription) {}
@@ -68,6 +68,7 @@ struct JointAccountModelsRegistryTests {
 // MARK: - Helpers
 
 private extension JointAccountModelsRegistryTests {
+    static let safeAddress = "0x8f3a1C5E7B9D0246A8C0E2B4D6F8A0C2E4B6c21b"
     static let userWalletId = UserWalletId(value: Data(repeating: 0xAB, count: 32))
     static let derivationIdentity = CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint)
 

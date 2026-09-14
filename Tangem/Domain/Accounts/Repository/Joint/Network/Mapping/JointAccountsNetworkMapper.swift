@@ -123,7 +123,9 @@ private extension JointAccountsNetworkMapper {
         case .pending:
             return .pending
         case .confirming:
-            return .confirming
+            // Taken as it comes: an answer that names the stage without the address is the one account's problem,
+            // and refusing it here would cost the whole list its refresh
+            return .confirming(safeAddress: dto.safeAddress)
         case .active:
             guard let safeAddress = dto.safeAddress else {
                 throw JointAccountsNetworkMapperError.activeAccountWithoutAddress
