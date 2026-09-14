@@ -11,7 +11,7 @@ import TangemSdk
 import TangemFoundation
 import BlockchainSdk
 
-/// The dependencies of the wallet's own accounts; the joint ones have `JointCryptoAccountDependenciesFactory`.
+/// The dependencies of the wallet's own accounts; the joint ones have `CommonJointAccountDependenciesFactory`.
 struct CommonCryptoAccountDependenciesFactory {
     let userWalletId: UserWalletId
     /// A single instance per user wallet

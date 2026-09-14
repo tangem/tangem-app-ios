@@ -13,35 +13,40 @@ import TangemFoundation
 /// - Note: Everything a joint account shares with the wallet's own accounts is delegated to the crypto account it is
 /// built on, so the two kinds cannot drift apart as that one gains behaviour.
 final class CommonJointAccountModel {
-    /// Built here rather than held, so that the index it is made of stays this account's own business.
-    var derivationIdentity: CryptoAccountDerivationIdentity {
-        CryptoAccountDerivationIdentity(derivationIndex: derivationIndex, type: .joint)
-    }
-
     let policy: JointAccountPolicy
 
     private(set) var status: JointAccountStatus
     private(set) var members: [JointAccountMember]
     private(set) var invites: [JointAccountInvite]
 
-    private let derivationIndex: Int
+    private let derivationIdentity: CryptoAccountDerivationIdentity
     private let cryptoAccount: any CryptoAccountModel
+    private let operationsService: any JointAccountOperationsService
+    private let pendingOperationsProvider: any JointAccountPendingOperationsProvider
+    private weak var delegate: (any JointAccountModelDelegate)?
+
     private let didChangeSubject = PassthroughSubject<Void, Never>()
 
     init(
         cryptoAccount: any CryptoAccountModel,
-        derivationIndex: Int,
+        derivationIdentity: CryptoAccountDerivationIdentity,
         policy: JointAccountPolicy,
         status: JointAccountStatus,
+        operationsService: any JointAccountOperationsService,
+        pendingOperationsProvider: any JointAccountPendingOperationsProvider,
         members: [JointAccountMember],
-        invites: [JointAccountInvite]
+        invites: [JointAccountInvite],
+        delegate: any JointAccountModelDelegate
     ) {
         self.cryptoAccount = cryptoAccount
-        self.derivationIndex = derivationIndex
+        self.derivationIdentity = derivationIdentity
         self.policy = policy
         self.status = status
+        self.operationsService = operationsService
+        self.pendingOperationsProvider = pendingOperationsProvider
         self.members = members
         self.invites = invites
+        self.delegate = delegate
     }
 }
 
@@ -133,6 +138,73 @@ extension CommonJointAccountModel: JointAccountModel {
 
     func archive() async throws(AccountArchivationError) {
         try await cryptoAccount.archive()
+    }
+
+    func activate() async throws(AccountEditError) {
+        guard let delegate else {
+            let error = JointAccountModelError.activationUnavailable
+            JointAccountsLogger.error("The joint account has nothing left to activate it", error: error)
+            throw .unknownError(error)
+        }
+
+        let config = try makeActivationConfig()
+        try await delegate.activateJointAccount(with: config)
+    }
+}
+
+// MARK: - Private
+
+private extension CommonJointAccountModel {
+    /// Everything the activation is signed over, checked before the wallet is asked for anything: a composition that
+    /// does not resolve to the announced address is not the account it claims to be, and there is nothing worth signing.
+    func makeActivationConfig() throws(AccountEditError) -> JointAccountActivationConfig {
+        let creator = members.first(where: { $0.role == .creator })
+
+        // Announced, not verified: the address is the backend's word until the composition is checked against it
+        guard case .confirming(.some(let announcedSafeAddress)) = status, let creator else {
+            throw .unknownError(JointAccountModelError.notReadyForActivation)
+        }
+
+        let safeAddress: String
+
+        do {
+            safeAddress = try JointAccountSafeAddressVerifier.confirm(
+                announcedAddress: announcedSafeAddress,
+                owners: members.map(\.address),
+                threshold: policy.signersCount
+            )
+        } catch {
+            JointAccountsLogger.error("The joint account does not resolve to the address it was given", error: error)
+            throw .unknownError(error)
+        }
+
+        return JointAccountActivationConfig(
+            // The identifier the backend minted the account with is the one the app works out for itself — the same
+            // hash, in the same upper case, which is what every match on it relies on already
+            cryptoAccountId: id.rawValue.hexString,
+            signedConfig: JointAccountSignedConfig(
+                name: name,
+                icon: icon.name.rawValue,
+                iconColor: icon.color.rawValue,
+                membersCount: policy.membersCount,
+                threshold: policy.signersCount
+            ),
+            safeAddress: safeAddress,
+            creatorAddress: creator.address,
+            derivationIndex: derivationIdentity.derivationIndex
+        )
+    }
+}
+
+// MARK: - JointAccountOperationsServicesProviding protocol conformance
+
+extension CommonJointAccountModel: JointAccountOperationsServicesProviding {
+    var jointAccountOperationsService: any JointAccountOperationsService {
+        operationsService
+    }
+
+    var jointAccountPendingOperationsProvider: any JointAccountPendingOperationsProvider {
+        pendingOperationsProvider
     }
 }
 

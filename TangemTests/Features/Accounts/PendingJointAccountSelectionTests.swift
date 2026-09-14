@@ -14,10 +14,14 @@ import Testing
 
 @Suite("Tests for picking the joint accounts the main screen shows a plate for")
 struct PendingJointAccountSelectionTests {
+    /// Kept by the suite because the models hold it weakly, and a new one is made per test the way every stored
+    /// property of a suite is.
+    private let delegate = JointAccountModelDelegateMock()
+
     @Test("Only the joint accounts that are waiting are picked out of the account list")
     func aggregatorPicksTheWaitingJointAccountsOnly() {
-        let waiting = Self.makeJointAccount(status: .pending, membersCount: 3, takenSlotsCount: 1)
-        let working = Self.makeJointAccount(status: .active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"), membersCount: 3, takenSlotsCount: 3)
+        let waiting = makeJointAccount(status: .pending, membersCount: 3, takenSlotsCount: 1)
+        let working = makeJointAccount(status: .active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"), membersCount: 3, takenSlotsCount: 3)
         let standard = CryptoAccountModelMock(isMainAccount: true, onArchive: { _ in })
 
         let accountModels: [AccountModel] = [.standard(.single(standard)), .joint([waiting, working])]
@@ -29,8 +33,8 @@ struct PendingJointAccountSelectionTests {
 
     @Test("Every joint account is reported when the status is not what is being asked about")
     func aggregatorReportsEveryJointAccount() {
-        let waiting = Self.makeJointAccount(status: .pending, membersCount: 3, takenSlotsCount: 1)
-        let working = Self.makeJointAccount(status: .active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"), membersCount: 3, takenSlotsCount: 3)
+        let waiting = makeJointAccount(status: .pending, membersCount: 3, takenSlotsCount: 1)
+        let working = makeJointAccount(status: .active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"), membersCount: 3, takenSlotsCount: 3)
         let standard = CryptoAccountModelMock(isMainAccount: true, onArchive: { _ in })
 
         let accountModels: [AccountModel] = [.standard(.single(standard)), .joint([waiting, working])]
@@ -55,16 +59,18 @@ struct PendingJointAccountSelectionTests {
 // MARK: - Helpers
 
 private extension PendingJointAccountSelectionTests {
-    static func makeJointAccount(
+    func makeJointAccount(
         status: JointAccountStatus,
         membersCount: Int,
         takenSlotsCount: Int
     ) -> any JointAccountModel {
         CommonJointAccountModel(
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
-            derivationIndex: 1,
+            derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
             policy: JointAccountPolicy(membersCount: membersCount, signersCount: 2),
             status: status,
+            operationsService: JointAccountOperationsServiceMock(),
+            pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             members: (0 ..< takenSlotsCount).map { index in
                 JointAccountMember(
                     name: "Member \(index)",
@@ -72,7 +78,8 @@ private extension PendingJointAccountSelectionTests {
                     role: index == 0 ? .creator : .member(inviteId: "invite-\(index)")
                 )
             },
-            invites: (0 ..< max(0, membersCount - takenSlotsCount)).map { JointAccountInvite(id: "invite-\($0)") }
+            invites: (0 ..< max(0, membersCount - takenSlotsCount)).map { JointAccountInvite(id: "invite-\($0)") },
+            delegate: delegate
         )
     }
 }

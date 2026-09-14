@@ -467,10 +467,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                             return
                         }
 
-                        viewModel.coordinator?.openJointAccountMembers(
-                            jointAccount: pendingJointAccount,
-                            accountModelsManager: viewModel.userWalletModel.accountModelsManager
-                        )
+                        viewModel.coordinator?.openJointAccountMembers(jointAccount: pendingJointAccount)
                     }
                 }
             }

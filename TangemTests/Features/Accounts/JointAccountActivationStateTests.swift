@@ -14,6 +14,10 @@ import Testing
 
 @Suite("Tests for a joint account before it is activated")
 struct JointAccountActivationStateTests {
+    /// Kept by the suite because the models hold it weakly, and a new one is made per test the way every stored
+    /// property of a suite is.
+    private let delegate = JointAccountModelDelegateMock()
+
     @Test(
         "An account is still being put together until every slot is taken and the creator has activated it",
         arguments: [
@@ -24,14 +28,14 @@ struct JointAccountActivationStateTests {
         ]
     )
     func awaitingActivationFollowsTheStatus(status: JointAccountStatus, isAwaitingActivation: Bool) {
-        let account = Self.makeJointAccount(status: status, membersCount: 3, takenSlotsCount: 1, invitesCount: 2)
+        let account = makeJointAccount(status: status, membersCount: 3, takenSlotsCount: 1, invitesCount: 2)
 
         #expect(account.isAwaitingActivation == isAwaitingActivation)
     }
 
     @Test("A status this version has never heard of leaves the account looking like one that works")
     func unfamiliarStatusIsNotAwaitingActivation() {
-        let account = Self.makeJointAccount(
+        let account = makeJointAccount(
             status: .unknown,
             membersCount: 3,
             takenSlotsCount: 1,
@@ -43,11 +47,11 @@ struct JointAccountActivationStateTests {
 
     @Test("Inviting takes both a slot to fill and an invite to fill it with")
     func invitingTakesAFreeSlotAndAnInvite() {
-        let creator = Self.makeJointAccount(status: .pending, membersCount: 3, takenSlotsCount: 1, invitesCount: 2)
+        let creator = makeJointAccount(status: .pending, membersCount: 3, takenSlotsCount: 1, invitesCount: 2)
         // A member was never handed invites of their own, so they have no one to bring in
-        let member = Self.makeJointAccount(status: .pending, membersCount: 3, takenSlotsCount: 1, invitesCount: 0)
+        let member = makeJointAccount(status: .pending, membersCount: 3, takenSlotsCount: 1, invitesCount: 0)
         // The creator of a full composition still holds the invites it was created with, but nothing to spend them on
-        let full = Self.makeJointAccount(status: .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"), membersCount: 3, takenSlotsCount: 3, invitesCount: 2)
+        let full = makeJointAccount(status: .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"), membersCount: 3, takenSlotsCount: 3, invitesCount: 2)
 
         #expect(creator.canInviteMembers)
         #expect(!member.canInviteMembers)
@@ -56,20 +60,20 @@ struct JointAccountActivationStateTests {
 
     @Test("Activating is offered to the creator of a full composition and to no one else")
     func activatingTakesTheStageAndTheCreator() {
-        let creator = Self.makeJointAccount(
+        let creator = makeJointAccount(
             status: .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"),
             membersCount: 3,
             takenSlotsCount: 3,
             invitesCount: 2
         )
         // A member holds no invites, which is what tells them apart from the creator
-        let member = Self.makeJointAccount(
+        let member = makeJointAccount(
             status: .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"),
             membersCount: 3,
             takenSlotsCount: 3,
             invitesCount: 0
         )
-        let stillFilling = Self.makeJointAccount(status: .pending, membersCount: 3, takenSlotsCount: 1, invitesCount: 2)
+        let stillFilling = makeJointAccount(status: .pending, membersCount: 3, takenSlotsCount: 1, invitesCount: 2)
 
         #expect(creator.canActivate)
         #expect(!member.canActivate)
@@ -80,7 +84,7 @@ struct JointAccountActivationStateTests {
     /// leave the creator with nothing and no reason why.
     @Test("An announced address the answer left out does not take the activate button with it")
     func activatingIsOfferedWithoutAnAnnouncedAddress() {
-        let account = Self.makeJointAccount(
+        let account = makeJointAccount(
             status: .confirming(safeAddress: nil),
             membersCount: 3,
             takenSlotsCount: 3,
@@ -88,12 +92,11 @@ struct JointAccountActivationStateTests {
         )
 
         #expect(account.canActivate)
-        #expect(account.announcedSafeAddress == nil)
     }
 
     @Test("More members than the count says leaves no free slots rather than a negative number of them")
     func freeSlotsNeverGoNegative() {
-        let account = Self.makeJointAccount(status: .pending, membersCount: 2, takenSlotsCount: 3, invitesCount: 1)
+        let account = makeJointAccount(status: .pending, membersCount: 2, takenSlotsCount: 3, invitesCount: 1)
 
         #expect(account.freeSlotsCount == 0)
         #expect(!account.canInviteMembers)
@@ -103,7 +106,7 @@ struct JointAccountActivationStateTests {
 // MARK: - Helpers
 
 private extension JointAccountActivationStateTests {
-    static func makeJointAccount(
+    func makeJointAccount(
         status: JointAccountStatus,
         membersCount: Int,
         takenSlotsCount: Int,
@@ -111,9 +114,11 @@ private extension JointAccountActivationStateTests {
     ) -> any JointAccountModel {
         CommonJointAccountModel(
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
-            derivationIndex: 1,
+            derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
             policy: JointAccountPolicy(membersCount: membersCount, signersCount: 2),
             status: status,
+            operationsService: JointAccountOperationsServiceMock(),
+            pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             members: (0 ..< takenSlotsCount).map { index in
                 JointAccountMember(
                     name: "Member \(index)",
@@ -121,7 +126,8 @@ private extension JointAccountActivationStateTests {
                     role: index == 0 ? .creator : .member(inviteId: "invite-\(index)")
                 )
             },
-            invites: (0 ..< invitesCount).map { JointAccountInvite(id: "invite-\($0)") }
+            invites: (0 ..< invitesCount).map { JointAccountInvite(id: "invite-\($0)") },
+            delegate: delegate
         )
     }
 }
