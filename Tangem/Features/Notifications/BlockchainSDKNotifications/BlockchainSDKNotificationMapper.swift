@@ -28,12 +28,12 @@ struct BlockchainSDKNotificationMapper {
             return .invalidNumber
         case .amountExceedsBalance, .totalExceedsBalance:
             return .insufficientBalance
-        case .feeExceedsBalance(_, _, let isFeeCurrency) where isFeeCurrency:
+        case .feeExceedsBalance(_, _, let isFeeCurrency, _) where isFeeCurrency:
             // If the fee more than the fee/coin balance and we try to send feeCurrency e.g. coin
             // We have to show just `insufficientBalance` without `openFeeCurrency` button
             return .insufficientBalance
-        case .feeExceedsBalance(let fee, let blockchain, _):
-            return makeInsufficientBalanceForFeeEvent(feeAmountType: fee.amount.type, blockchain: blockchain)
+        case .feeExceedsBalance(let fee, let blockchain, _, let feeCurrencyBalance):
+            return makeInsufficientBalanceForFeeEvent(feeAmountType: fee.amount.type, blockchain: blockchain, feeCurrencyBalance: feeCurrencyBalance)
         case .dustAmount(let minimumAmount), .dustChange(let minimumAmount):
             let amountText = "\(minimumAmount.value) \(tokenItemSymbol)"
             return .dustRestriction(minimumAmountFormatted: amountText, minimumChangeFormatted: amountText)
@@ -72,19 +72,31 @@ struct BlockchainSDKNotificationMapper {
         }
     }
 
-    func mapToInsufficientBalanceForFeeEvent() -> ValidationErrorEvent {
+    func mapToInsufficientBalanceForFeeEvent(feeCurrencyBalance: Decimal) -> ValidationErrorEvent {
         guard tokenItem.isToken else {
             return .insufficientBalance
         }
 
-        return makeInsufficientBalanceForFeeEvent(feeAmountType: .coin, blockchain: tokenItem.blockchain)
+        return makeInsufficientBalanceForFeeEvent(
+            feeAmountType: .coin,
+            blockchain: tokenItem.blockchain,
+            feeCurrencyBalance: feeCurrencyBalance
+        )
     }
 
-    func mapToInsufficientGaslessFeeEvent() -> ValidationErrorEvent {
-        makeInsufficientBalanceForFeeEvent(feeAmountType: tokenItem.amountType, blockchain: tokenItem.blockchain)
+    func mapToInsufficientGaslessFeeEvent(feeCurrencyBalance: Decimal) -> ValidationErrorEvent {
+        makeInsufficientBalanceForFeeEvent(
+            feeAmountType: tokenItem.amountType,
+            blockchain: tokenItem.blockchain,
+            feeCurrencyBalance: feeCurrencyBalance
+        )
     }
 
-    private func makeInsufficientBalanceForFeeEvent(feeAmountType: Amount.AmountType, blockchain: Blockchain) -> ValidationErrorEvent {
+    private func makeInsufficientBalanceForFeeEvent(
+        feeAmountType: Amount.AmountType,
+        blockchain: Blockchain,
+        feeCurrencyBalance: Decimal
+    ) -> ValidationErrorEvent {
         let feeAmountTypeName: String = switch feeAmountType {
         case .token(let token): token.name
         default: blockchain.coinDisplayName
@@ -103,7 +115,8 @@ struct BlockchainSDKNotificationMapper {
                 networkName: tokenItem.networkName,
                 currencyButtonTitle: nil,
                 // We set true here because we have to show "Go to \(coin)" button
-                isFeeCurrencyPurchaseAllowed: true
+                isFeeCurrencyPurchaseAllowed: true,
+                feeCurrencyBalance: feeCurrencyBalance
             )
         )
     }

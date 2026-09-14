@@ -121,8 +121,8 @@ private extension StakeModel {
 
         supersededEstimate?.cancel()
 
-        guard sendSourceToken.canCoverStakingFee else {
-            update(state: .failure(.network(StakingPreflightError.insufficientFundsForFee)))
+        if let preflightError = sendSourceToken.stakingFeePreflightError {
+            update(state: .failure(.network(preflightError)))
             return
         }
 
