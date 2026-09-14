@@ -38,10 +38,6 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/card/close"
         case .setPin(let cardId, _, _, _), .getPin(let cardId, _):
             "customer/card/\(cardId)/pin"
-        case .getTransactionHistoryLegacy:
-            "customer/transactions"
-        case .getTransactionLegacy(let transactionId):
-            "customer/transactions/\(transactionId)"
         case .getTransactionHistory:
             "transactions"
         case .getTransaction(let transactionId):
@@ -107,8 +103,6 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getProductInstanceOffers,
              .getTariffPlanTransitions,
              .getBalance,
-             .getTransactionHistoryLegacy,
-             .getTransactionLegacy,
              .getTransactionHistory,
              .getTransaction,
              .getPin,
@@ -163,7 +157,6 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getBankCredentials,
              .getBankAccounts,
              .getBankOfframpOptions,
-             .getTransactionLegacy,
              .getTransaction,
              .getCashbackSummary,
              .getCashbackPromotions,
@@ -205,7 +198,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
             let requestParams = ["groups": groups.map(\.rawValue).joined(separator: ",")]
             return .requestParameters(parameters: requestParams, encoding: URLEncoding.default)
 
-        case .getTransactionHistoryLegacy(let limit, let cursor), .getTransactionHistory(let limit, let cursor):
+        case .getTransactionHistory(let limit, let cursor):
             var requestParams = [
                 "limit": "\(limit)",
             ]
@@ -297,8 +290,6 @@ extension CustomerInfoManagementAPITarget {
         case freeze(cardId: String)
         case unfreeze(cardId: String)
 
-        case getTransactionHistoryLegacy(limit: Int, cursor: String?)
-        case getTransactionLegacy(transactionId: String)
         case getTransactionHistory(limit: Int, cursor: String?)
         case getTransaction(transactionId: String)
 

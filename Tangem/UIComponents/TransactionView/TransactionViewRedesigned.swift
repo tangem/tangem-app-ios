@@ -166,7 +166,7 @@ struct TransactionViewRedesigned: View {
 
     private var secondaryTrailingView: some View {
         HStack(spacing: 4) {
-            if FeatureProvider.isAvailable(.tangemPayCashback), let cashback = viewModel.cashback {
+            if let cashback = viewModel.cashback {
                 TransactionCashbackBadge(cashback: cashback)
             }
 

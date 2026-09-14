@@ -15,17 +15,14 @@ struct WalletModelTokenFeeProvidersManagerProvider {
     private let walletModel: any WalletModel
     private let tokenFeeLoaderProvider: any TokenFeeLoaderProvider
     private let supportingOptions: TokenFeeProviderSupportingOptions
-    private let isFeatureAvailable: (Feature) -> Bool
 
     init(
         walletModel: any WalletModel,
-        supportingOptions: TokenFeeProviderSupportingOptions = .all,
-        isFeatureAvailable: @escaping (Feature) -> Bool = FeatureProvider.isAvailable
+        supportingOptions: TokenFeeProviderSupportingOptions = .all
     ) {
         self.walletModel = walletModel
         tokenFeeLoaderProvider = WalletModelTokenFeeLoaderProvider(walletModel: walletModel)
         self.supportingOptions = supportingOptions
-        self.isFeatureAvailable = isFeatureAvailable
     }
 }
 
@@ -55,8 +52,7 @@ extension WalletModelTokenFeeProvidersManagerProvider: TokenFeeProvidersManagerP
 extension WalletModelTokenFeeProvidersManagerProvider {
     func availableGaslessTokenAddresses() -> [String] {
         if case .tron(testnet: false) = walletModel.tokenItem.blockchain {
-            guard isFeatureAvailable(.tronGasless),
-                  walletModel.tronAccountActivationStateProvider?.isAccountActivated == true,
+            guard walletModel.tronAccountActivationStateProvider?.isAccountActivated == true,
                   let contractAddress = walletModel.tokenItem.contractAddress else {
                 return []
             }
@@ -132,8 +128,7 @@ private extension WalletModelTokenFeeProvidersManagerProvider {
 
         let sourceTokenChainId = walletModel.tokenItem.blockchain.chainId
 
-        // Wallet models eligible for gasless fees: same chain as the source token, token address is supported,
-        // and active Yield Mode is included only for the dedicated gasless-yield flow.
+        // Wallet models eligible for gasless fees: same chain as the source token and a supported token address.
         let gaslessFeeWalletModels: [any WalletModel] = currentAccountWalletModels.compactMap { model in
             // On EVM the service returns fee-token addresses lowercased while the wallet stores them in
             // EIP-55 checksum form, so compare case-insensitively. TRON base58 addresses are case-sensitive
@@ -144,9 +139,6 @@ private extension WalletModelTokenFeeProvidersManagerProvider {
                 model.tokenItem.blockchain.chainId == sourceTokenChainId
             else { return nil }
 
-            if model.yieldModuleManager?.state?.state.isEffectivelyActive == true {
-                guard FeatureProvider.isAvailable(.gaslessYieldFee) else { return nil }
-            }
             return model
         }
 
@@ -188,8 +180,7 @@ private extension WalletModelTokenFeeProvidersManagerProvider {
         feeWalletModel: any WalletModel,
         feeTokenItemBalanceProvider: TokenBalanceProvider
     ) -> GaslessYieldFeeContext? {
-        guard FeatureProvider.isAvailable(.gaslessYieldFee),
-              let activeInfo = feeWalletModel.yieldModuleManager?.state?.state.activeInfo else {
+        guard let activeInfo = feeWalletModel.yieldModuleManager?.state?.state.activeInfo else {
             return nil
         }
 

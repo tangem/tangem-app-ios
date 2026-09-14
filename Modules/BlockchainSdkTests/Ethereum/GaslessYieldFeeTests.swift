@@ -315,8 +315,7 @@ private final class StubEthereumWalletManager: EthereumWalletManager {
             addressConverter: addressConverter,
             txBuilder: txBuilder,
             networkService: networkService,
-            pendingTransactionsManager: pendingTransactionsManager,
-            isGaslessYieldEnabled: true
+            pendingTransactionsManager: pendingTransactionsManager
         )
     }
 

@@ -9,8 +9,8 @@
 import TangemExpress
 import TangemFoundation
 
-/// Applies the total-balance restriction to the swap flow: hides providers entirely (legacy)
-/// or narrows them to DEX-only for an unfunded hot wallet.
+/// Applies the total-balance restriction to the swap flow: narrows the providers to DEX-only
+/// for an unfunded hot wallet.
 final class SwapBalanceRestrictionHandler {
     private let checker: SwapBalanceRestrictionFeatureChecker
     /// Written across a non-isolated async hop and read from the main actor, so it needs a lock
@@ -25,21 +25,14 @@ final class SwapBalanceRestrictionHandler {
     }
 
     /// Resolves the restriction and refreshes the DEX-only mode.
-    /// `true` means the legacy behavior: no sign of providers in the UI.
-    func shouldHideProviders(for token: SendSourceToken) async throws -> Bool {
+    func refreshDexOnlyProvidersMode(for token: SendSourceToken) async throws {
         switch try await checker.swapTotalBalanceRestriction(for: token) {
         case .none:
             setDexOnlyProvidersMode(false)
-            return false
-
-        case .hideProviders:
-            setDexOnlyProvidersMode(false)
-            return true
 
         case .dexProvidersOnly:
             // Quotes still load; the state is narrowed in `dexOnlyAdjustedState`
             setDexOnlyProvidersMode(true)
-            return false
         }
     }
 

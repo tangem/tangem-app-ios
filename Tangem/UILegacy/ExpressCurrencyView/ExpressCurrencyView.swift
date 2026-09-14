@@ -258,7 +258,7 @@ struct ChooseTokenPillView: View {
 
     @ViewBuilder
     private var emphasisOverlay: some View {
-        if reduceMotion || !FeatureProvider.isAvailable(.chooseTokenPulseAnimation) {
+        if reduceMotion {
             EmptyView()
         } else {
             TimelineView(.animation) { context in

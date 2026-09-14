@@ -44,14 +44,12 @@ struct SwapTokenSelectorViewModelBuilder {
         let isSourceSelection = if case .toDestination = direction { true } else { false }
         let walletsProvider = isSourceSelection ? sourceWalletsProvider : receiveWalletsProvider
         let suppressesMarketsTokens = isSourceSelection ? !allowsSourceMarketsTokens : !allowsReceiveMarketsTokens
-        let showsBalanceFilter = isSourceSelection && FeatureProvider.isAvailable(.swapHideZeroBalanceSource)
-
         let tokenSelectorViewModel = TokenSelectorViewModel.swap(
             walletsProvider: walletsProvider ?? .common(),
             initialSelectedItem: direction.tokenItem,
             initiallyExpandedAccount: initiallyExpandedAccount,
             preferredWalletId: preferredWalletId,
-            showsBalanceFilter: showsBalanceFilter
+            showsBalanceFilter: isSourceSelection
         )
 
         return SwapTokenSelectorViewModel(

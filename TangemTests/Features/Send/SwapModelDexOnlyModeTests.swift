@@ -16,27 +16,6 @@ import Testing
 
 @Suite("SwapModel DEX-only providers mode", .timeLimit(.minutes(1)))
 struct SwapModelDexOnlyModeTests {
-    @Test("Legacy restriction hides providers and never reaches the express manager")
-    func hideProvidersKeepsLegacyEmptyState() async throws {
-        let environment = makeEnvironment(restriction: .hideProviders)
-        await environment.expressManager.configure(state: .swap(
-            selected: makeProvider(id: "dex", type: .dex, expectAmount: 90),
-            providers: makeProviders()
-        ))
-
-        let state = try await updateAmountAndWaitForLoadedState(environment: environment)
-
-        guard case .loaded(.swap(.none, let providers), .restriction(.notEnoughBalanceForSwapping, quote: .none)) = state else {
-            Issue.record("Expected the legacy empty restriction state, got \(state)")
-            return
-        }
-
-        #expect(providers.isEmpty)
-        #expect(environment.swapModel.expressProviders.isEmpty)
-        #expect(!environment.swapModel.isDexOnlyProvidersMode)
-        #expect(await environment.expressManager.updateAmountCallsCount == 0)
-    }
-
     @Test("DEX-only mode keeps the restriction state with a quote and exposes only DEX providers")
     func dexOnlyModeExposesOnlyDexProviders() async throws {
         let environment = makeEnvironment(restriction: .dexProvidersOnly)
@@ -339,7 +318,6 @@ private final class BalanceRestrictionCheckerStub: SwapBalanceRestrictionFeature
 
 private actor ConfigurableExpressManagerStub: ExpressManager {
     private var state: ExpressManagerState = .idle
-    private(set) var updateAmountCallsCount = 0
     private var amountType: ExpressAmountType?
 
     func configure(state: ExpressManagerState) {
@@ -353,7 +331,6 @@ private actor ConfigurableExpressManagerStub: ExpressManager {
 
     func update(amountType: ExpressAmountType?) async throws -> ExpressManagerState {
         self.amountType = amountType
-        updateAmountCallsCount += 1
         return state
     }
 
