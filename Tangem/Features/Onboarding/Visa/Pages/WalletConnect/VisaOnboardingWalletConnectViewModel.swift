@@ -63,7 +63,7 @@ class VisaOnboardingWalletConnectViewModel: ObservableObject {
     }
 
     private func proceedOnboardingIfPossible() {
-        runTask(in: self, isDetached: false) { viewModel in
+        runTask(in: self) { viewModel in
             do {
                 if try await viewModel.delegate?.canProceedOnboarding() ?? false {
                     await viewModel.proceedOnboarding()
