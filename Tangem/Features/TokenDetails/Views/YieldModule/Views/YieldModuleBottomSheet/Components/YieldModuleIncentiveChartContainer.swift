@@ -18,7 +18,7 @@ struct YieldModuleIncentiveChartContainer: View {
     private let percentFormatter = PercentFormatter()
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 20) {
             switch state {
             case .loading:
                 header(averageApy: nil, isLoading: true)
@@ -38,35 +38,41 @@ struct YieldModuleIncentiveChartContainer: View {
                 placeholderView(text: Localization.yieldModuleChartLoadingError) { await retry() }
             }
         }
-        .defaultRoundedBackground(with: Colors.Background.action)
     }
 
     private func header(averageApy: Double?, isLoading: Bool) -> some View {
-        HStack(alignment: .top) {
+        HStack(alignment: .top, spacing: 8) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(Localization.yieldModuleEarnSheetCurrentApyTitle)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
                 HStack(spacing: 6) {
                     Triangle()
-                        .fill(Colors.Icon.accent)
+                        .fill(DesignSystem.Color.textBrand)
                         .frame(width: 12, height: 10)
 
                     Text(currentApyFormatted)
-                        .style(Fonts.Bold.title2, color: Colors.Text.accent)
+                        .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textBrand)
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
-            Spacer()
-
-            VStack(alignment: .trailing, spacing: 4) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(Localization.yieldModuleIncentiveChartAverageApy)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
-                Text(formattedAverage(averageApy))
-                    .style(Fonts.Bold.title2, color: Colors.Text.secondary)
-                    .skeletonable(isShown: isLoading)
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(DesignSystem.Color.iconSecondary)
+                        .frame(width: 4, height: 4)
+
+                    Text(formattedAverage(averageApy))
+                        .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textSecondary)
+                        .skeletonable(isShown: isLoading)
+                }
             }
+            .padding(.leading, 16)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
