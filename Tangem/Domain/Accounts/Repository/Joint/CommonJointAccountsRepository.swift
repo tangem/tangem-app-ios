@@ -19,6 +19,7 @@ final class CommonJointAccountsRepository {
     private let derivationInteractorFactory: JointAccountDerivationInteractorFactory
     private let persistentStorage: JointAccountsPersistentStorage
     private let invitesPersistentStorage: JointAccountsInvitesPersistentStorage
+    private let pendingOperationsPersistentStorage: JointAccountsPendingOperationsPersistentStorage
     private let isJointAccountsAvailable: Bool
 
     /// - Note: The contract offers no caching, so the list is asked for often and every asker gets the answer of the
@@ -47,12 +48,37 @@ final class CommonJointAccountsRepository {
         .share(replay: 1)
         .eraseToAnyPublisher()
 
+    /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
+    private lazy var invitesStorageDidUpdatePublisher: AnyPublisher<[StoredJointAccountInvites], Never> = invitesPersistentStorage
+        .didUpdatePublisher
+        .prepend(()) // An initial value to trigger loading from storage
+        .receive(on: DispatchQueue.global(qos: .userInitiated))
+        .withWeakCaptureOf(self)
+        .map { repository, _ in repository.invitesPersistentStorage.getList() }
+        .removeDuplicates()
+        .receiveOnMain()
+        .share(replay: 1)
+        .eraseToAnyPublisher()
+
+    /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
+    private lazy var pendingOperationsStorageDidUpdatePublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> = pendingOperationsPersistentStorage
+        .didUpdatePublisher
+        .prepend(()) // An initial value to trigger loading from storage
+        .receive(on: DispatchQueue.global(qos: .userInitiated))
+        .withWeakCaptureOf(self)
+        .map { repository, _ in repository.pendingOperationsPersistentStorage.getList() }
+        .removeDuplicates()
+        .receiveOnMain()
+        .share(replay: 1)
+        .eraseToAnyPublisher()
+
     init(
         userWalletId: UserWalletId,
         networkService: JointAccountsNetworkService,
         derivationInteractorFactory: JointAccountDerivationInteractorFactory,
         persistentStorage: JointAccountsPersistentStorage,
         invitesPersistentStorage: JointAccountsInvitesPersistentStorage,
+        pendingOperationsPersistentStorage: JointAccountsPendingOperationsPersistentStorage,
         isJointAccountsAvailable: Bool
     ) {
         self.userWalletId = userWalletId
@@ -60,18 +86,33 @@ final class CommonJointAccountsRepository {
         self.derivationInteractorFactory = derivationInteractorFactory
         self.persistentStorage = persistentStorage
         self.invitesPersistentStorage = invitesPersistentStorage
+        self.pendingOperationsPersistentStorage = pendingOperationsPersistentStorage
         self.isJointAccountsAvailable = isJointAccountsAvailable
         // Eager initialization of these lazy properties to ensure that there are no race conditions
         _ = loadJointAccountsDebouncer
         _ = storageDidUpdatePublisher
+        _ = invitesStorageDidUpdatePublisher
+        _ = pendingOperationsStorageDidUpdatePublisher
     }
 }
 
 // MARK: - JointAccountsRepository protocol conformance
 
 extension CommonJointAccountsRepository: JointAccountsRepository {
+    var jointAccounts: [StoredJointAccount] {
+        persistentStorage.getList()
+    }
+
     var jointAccountsPublisher: AnyPublisher<[StoredJointAccount], Never> {
         storageDidUpdatePublisher
+    }
+
+    var jointAccountsInvitesPublisher: AnyPublisher<[StoredJointAccountInvites], Never> {
+        invitesStorageDidUpdatePublisher
+    }
+
+    var jointAccountsPendingOperationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> {
+        pendingOperationsStorageDidUpdatePublisher
     }
 
     func initialize() {
@@ -89,7 +130,7 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
     }
 
     func loadJointAccountsFromRemote() async throws {
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+        try await withCheckedThrowingContinuation { continuation in
             loadJointAccountsDebouncer.debounce(withCompletion: { result in
                 continuation.resume(with: result)
             })
@@ -120,6 +161,63 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
         // by every list read, so a failure here costs a record that comes back on its own rather than one that cannot
         try invitesPersistentStorage.save(creationResult.invites, forCryptoAccountId: creationResult.account.cryptoAccountId)
         try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: creationResult.account))
+    }
+
+    func joinJointAccount(withConfig config: JointAccountJoinConfig) async throws {
+        guard isJointAccountsAvailable else {
+            throw InternalError.featureUnavailable
+        }
+
+        let payloadBuilder = JointAccountJoinPayloadBuilder(
+            userWalletId: userWalletId,
+            inviteId: config.inviteId,
+            config: config.signedConfig,
+            memberName: config.memberName
+        )
+        let interactor = derivationInteractorFactory.makeInteractor()
+
+        let result = try await interactor.deriveAndSign(
+            derivationIndex: config.derivationIndex,
+            payloadBuilder: payloadBuilder
+        )
+
+        let blob = JointAccountJoinBlob(payload: result.payload, signature: result.signature)
+
+        let account = try await networkService.joinJointAccount(blob: blob)
+
+        // No invites come back here: they belong to the creator, and this wallet has just spent the one it was given
+        try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: account))
+    }
+
+    func activateJointAccount(withConfig config: JointAccountActivationConfig) async throws {
+        guard isJointAccountsAvailable else {
+            throw InternalError.featureUnavailable
+        }
+
+        let payloadBuilder = JointAccountActivationPayloadBuilder(
+            userWalletId: userWalletId,
+            cryptoAccountId: config.cryptoAccountId,
+            config: config.signedConfig,
+            safeAddress: config.safeAddress
+        )
+        let interactor = derivationInteractorFactory.makeInteractor()
+
+        let result = try await interactor.deriveAndSign(
+            derivationIndex: config.derivationIndex,
+            payloadBuilder: payloadBuilder
+        )
+
+        // Which wallet was tapped is only known once it has been: a wallet other than the creator's would be turned
+        // away by the endpoint anyway, and stopping here says why instead of reporting a bare refusal
+        guard result.derivedKey.address.caseInsensitiveCompare(config.creatorAddress) == .orderedSame else {
+            throw InternalError.notCreatorWallet
+        }
+
+        let blob = JointAccountActivationBlob(payload: result.payload, signature: result.signature)
+
+        let account = try await networkService.activateJointAccount(blob: blob)
+
+        try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: account))
     }
 }
 
@@ -163,7 +261,10 @@ private extension CommonJointAccountsRepository {
 
         // The invites are not the endpoint's to report, so a read leaves them where they are and says nothing of them
         let accounts = remoteJointAccounts.map(StoredJointAccount.init(remote:))
+        let pendingOperations = remoteJointAccounts.compactMap(StoredJointAccountPendingOperations.init(remote:))
 
+        // The operations go first, so that an account arriving in the list finds what is in flight for it already there
+        try pendingOperationsPersistentStorage.replace(with: pendingOperations)
         try persistentStorage.replace(with: accounts)
     }
 }
@@ -175,6 +276,9 @@ extension CommonJointAccountsRepository {
         /// Creating an account is asked for by a screen the feature toggle is supposed to keep out of reach, so this
         /// is a programming error rather than something a user can arrive at.
         case featureUnavailable
+        /// The wallet that was tapped holds a slot of the account, but not the creator's, and only the creator
+        /// activates.
+        case notCreatorWallet
     }
 }
 

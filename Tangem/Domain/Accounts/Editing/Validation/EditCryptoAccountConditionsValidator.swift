@@ -10,7 +10,7 @@ import Foundation
 
 struct EditCryptoAccountConditionsValidator {
     let newAccountName: String?
-    let derivationIndex: Int
+    let derivationIdentity: CryptoAccountDerivationIdentity
     let remoteState: CryptoAccountsRemoteState
 }
 
@@ -38,17 +38,17 @@ extension EditCryptoAccountConditionsValidator: CryptoAccountConditionsValidator
     }
 
     private func validateMissingAccountName() throws(ValidationError) {
-        if !AccountModelUtils.isMainAccount(derivationIndex) {
+        if !AccountModelUtils.isMainAccount(derivationIdentity) {
             // For non-main accounts, the name is always required
             throw .missingAccountName
         }
     }
 
     private func makeRemoteState() -> CryptoAccountsRemoteState {
-        // Exclude the account being edited from the remote state to avoid false positives in name uniqueness check
+        // Exclude the account being edited from the remote state to avoid false positives in name uniqueness check.
         let accounts = remoteState
             .accounts
-            .filter { $0.derivationIndex != derivationIndex }
+            .filter { $0.derivationIdentity != derivationIdentity }
 
         return CryptoAccountsRemoteState(
             nextCryptoDerivationIndex: remoteState.nextCryptoDerivationIndex,

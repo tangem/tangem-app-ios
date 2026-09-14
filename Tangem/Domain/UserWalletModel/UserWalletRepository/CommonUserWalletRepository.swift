@@ -10,6 +10,7 @@ import Foundation
 import LocalAuthentication
 import Combine
 import CryptoKit
+import TangemPolymarket
 import TangemSdk
 import TangemVisa
 import TangemLocalization
@@ -65,8 +66,10 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private let userWalletEncryptionKeyStorage = UserWalletEncryptionKeyStorage()
     private let supportChatTokenStorage = SupportChatTokenStorage()
     private let polymarketCredentialsRepository = CommonPolymarketCredentialsRepository()
+    private let polymarketAccountPresenceStore: PolymarketAccountPresenceStore = AppSettings.shared
     private let mobileWalletSdk = CommonMobileWalletSdk()
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
+    private let collectiblesHotDelegateWalletStore: any CollectiblesHotDelegateWalletStore = CommonCollectiblesHotDelegateWalletStore()
     private var bag: Set<AnyCancellable> = .init()
 
     deinit {
@@ -204,7 +207,14 @@ final class CommonUserWalletRepository: UserWalletRepository {
                 Log.error("Failed to delete mobile sdk data: \(error.localizedDescription)")
             }
 
-            userWalletIds.forEach { polymarketCredentialsRepository.delete(userWalletId: $0) }
+            userWalletIds.forEach {
+                polymarketCredentialsRepository.delete(userWalletId: $0)
+                polymarketAccountPresenceStore.delete(userWalletId: $0)
+            }
+
+            modelsToDelete.forEach {
+                try? collectiblesHotDelegateWalletStore.deleteKey(for: $0)
+            }
 
             let otherUserWallets = models.filter { $0.userWalletId != selectedUserWalletId }
 
@@ -252,12 +262,18 @@ final class CommonUserWalletRepository: UserWalletRepository {
         }
         try? tangemPayAuthorizationTokensRepository.deleteTokens(customerWalletId: userWalletId.stringValue)
         polymarketCredentialsRepository.delete(userWalletId: userWalletId)
+        polymarketAccountPresenceStore.delete(userWalletId: userWalletId)
+        try? collectiblesHotDelegateWalletStore.deleteKey(for: userWalletId)
 
         let removedModels = models.filter { $0.userWalletId == userWalletId }
         models.removeAll { $0.userWalletId == userWalletId }
         userWalletDataStorage.delete(userWalletId: userWalletId, updatedWallets: models.compactMap { $0.serializePublic() })
 
         try? mobileWalletSdk.delete(walletIDs: [userWalletId])
+
+        if let removedUserWallet = removedModels.first {
+            BackendAuthenticationRegistrar.unregisterMobileWalletIfNeeded(removedUserWallet)
+        }
 
         sendEvent(.deleted(userWalletIds: [userWalletId], isRepositoryEmpty: models.isEmpty))
 

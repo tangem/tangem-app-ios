@@ -60,7 +60,7 @@ private extension TokenDetailsYieldStateFactory {
         case .active(let supplyInfo, _):
             return makeActiveYieldState(
                 info: supplyInfo,
-                apy: info.marketInfo?.apy,
+                apy: info.marketInfo?.effectiveApy,
                 factory: factory
             )
 
@@ -100,7 +100,7 @@ private extension TokenDetailsYieldStateFactory {
             return .unavailable
         }
 
-        let apy = marketInfo.apy
+        let apy = marketInfo.effectiveApy
         let formattedApy = formattedApy(apy)
 
         let title = "\(Localization.commonYieldMode)"

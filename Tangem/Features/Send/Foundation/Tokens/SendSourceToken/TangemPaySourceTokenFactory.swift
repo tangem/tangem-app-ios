@@ -33,7 +33,7 @@ struct TangemPaySourceTokenFactory {
             fractionDigits: 2
         )
 
-        let transactionDispatcherProvider = TangemPayTransactionDispatcherProvider(
+        let transactionDispatcherProvider = TransferAndCEXTransactionDispatcherProvider(
             transactionDispatcher: transactionDispatcher
         )
 

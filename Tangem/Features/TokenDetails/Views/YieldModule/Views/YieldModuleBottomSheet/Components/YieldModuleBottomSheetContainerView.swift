@@ -25,6 +25,8 @@ struct YieldModuleBottomSheetContainerView<
 
     private let contentTopPadding: CGFloat
     private let buttonTopPadding: CGFloat
+    private let headerBackgroundColor: Color
+    private let footerBackgroundColor: Color
 
     // MARK: - UI
 
@@ -45,7 +47,9 @@ struct YieldModuleBottomSheetContainerView<
         @ViewBuilder subtitleFooter: () -> SubtitleFooter = { EmptyView() },
         @ViewBuilder content: () -> BodyContent = { EmptyView() },
         contentTopPadding: CGFloat = 24,
-        buttonTopPadding: CGFloat = 16
+        buttonTopPadding: CGFloat = 16,
+        headerBackgroundColor: Color = Colors.Background.tertiary,
+        footerBackgroundColor: Color = Colors.Background.primary
     ) {
         self.header = header()
         self.topContent = topContent()
@@ -57,6 +61,8 @@ struct YieldModuleBottomSheetContainerView<
         self.contentTopPadding = contentTopPadding
         self.button = button
         self.buttonTopPadding = buttonTopPadding
+        self.headerBackgroundColor = headerBackgroundColor
+        self.footerBackgroundColor = footerBackgroundColor
     }
 
     // MARK: - View Body
@@ -87,14 +93,14 @@ struct YieldModuleBottomSheetContainerView<
             header
                 .padding(.top, 8)
                 .padding(.horizontal, 16)
-                .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+                .background(headerBackgroundColor.edgesIgnoringSafeArea(.all))
         }
         .safeAreaInset(edge: .bottom) {
             button
                 .padding(.top, buttonTopPadding)
                 .padding(.horizontal, 16)
                 .padding(.bottom, 18)
-                .background(ListFooterOverlayShadowView())
+                .background(ListFooterOverlayShadowView(color: footerBackgroundColor))
         }
         .scrollBounceBehavior(.basedOnSize)
     }

@@ -74,10 +74,48 @@ struct OpenTelemetryMetricsServiceTests {
             serviceName: "tangem-ios",
             serviceVersion: "6.0",
             environment: "production",
+            osName: "ios",
+            osVersion: "18.0",
+            language: "en",
+            countryCode: "us",
             session: makeSession()
         )
 
         #expect(configuration.metricsURL.absoluteString == "https://otlp.example.com/v1/metrics")
+    }
+
+    /// The resource is the only place a metric could pick up a user identifier, so its attribute set
+    /// is pinned: app coordinates, the OS, the app language and the coarse country, nothing else.
+    @Test
+    func resourceCarriesTheSharedDimensionsAndNothingElse() {
+        let pipeline = makePipeline()
+        defer { _ = pipeline.provider.shutdown() }
+
+        let attributes = pipeline.resource.attributes
+
+        #expect(
+            Set(attributes.keys) == [
+                "service.name",
+                "service.version",
+                "deployment.environment.name",
+                "os.name",
+                "os.version",
+                "language",
+                "country_code",
+            ]
+        )
+        #expect(attributes["language"] == .string("de"))
+        #expect(attributes["country_code"] == .string("de"))
+    }
+
+    @Test
+    func unresolvedLanguageOrCountryStaysOutOfTheResource() {
+        let pipeline = makePipeline(language: nil, countryCode: nil)
+        defer { _ = pipeline.provider.shutdown() }
+
+        let attributes = pipeline.resource.attributes
+
+        #expect(Set(attributes.keys) == ["service.name", "service.version", "deployment.environment.name", "os.name", "os.version"])
     }
 }
 
@@ -92,13 +130,17 @@ private extension OpenTelemetryMetricsServiceTests {
 
     /// The spool directory is unique per pipeline: tests would otherwise share the real caches
     /// location with each other and with leftovers of earlier runs.
-    func makePipeline() -> CommonOpenTelemetryMetricsService.Pipeline {
+    func makePipeline(language: String? = "de", countryCode: String? = "de") -> CommonOpenTelemetryMetricsService.Pipeline {
         let configuration = OTLPConfiguration(
             baseURL: URL(string: "https://otlp.example.com")!,
             apiKey: "test-key",
             serviceName: "tangem-ios",
             serviceVersion: "6.0",
             environment: "production",
+            osName: "ios",
+            osVersion: "18.0",
+            language: language,
+            countryCode: countryCode,
             session: makeSession()
         )
 

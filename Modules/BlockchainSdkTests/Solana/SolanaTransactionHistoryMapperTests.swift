@@ -502,6 +502,112 @@ struct SolanaTransactionHistoryMapperTests {
         #expect(records[0].destination == .single(.init(address: .user(walletAddress), amount: 0.02)))
     }
 
+    @Test
+    func unstakeRecoversValidatorFromTheDelegationInTheSameResponse() throws {
+        let mapper = SolanaTransactionHistoryMapper(blockchain: blockchain)
+        let validatorAddress = "Validator11111111111111111111111111111111111"
+        let stakeAccountAddress = "StakeAccount11111111111111111111111111111111"
+
+        let deactivate = try stakeTransaction(
+            hash: "hash_deactivate",
+            type: "deactivate",
+            info: """
+            { "stakeAccount": "\(stakeAccountAddress)" }
+            """
+        )
+        let delegate = try stakeTransaction(
+            hash: "hash_delegate",
+            type: "delegate",
+            info: """
+            { "stakeAccount": "\(stakeAccountAddress)", "voteAccount": "\(validatorAddress)" }
+            """
+        )
+
+        let records = try mapper.mapToTransactionRecords([deactivate, delegate], walletAddress: walletAddress, amountType: .coin)
+
+        #expect(records.count == 2)
+        #expect(records[0].type == .staking(type: .unstake, target: validatorAddress))
+        #expect(records[1].type == .staking(type: .stake, target: validatorAddress))
+    }
+
+    @Test
+    func unstakeOfASplitStakeInheritsTheValidatorOfTheAccountItWasSplitFrom() throws {
+        let mapper = SolanaTransactionHistoryMapper(blockchain: blockchain)
+        let validatorAddress = "Validator11111111111111111111111111111111111"
+        let delegatedAccount = "StakeAccount11111111111111111111111111111111"
+        let splitAccount = "SplitAccount11111111111111111111111111111111"
+
+        let delegate = try stakeTransaction(
+            hash: "hash_delegate",
+            type: "delegate",
+            info: """
+            { "stakeAccount": "\(delegatedAccount)", "voteAccount": "\(validatorAddress)" }
+            """
+        )
+        // Partial unstaking splits the delegated stake and deactivates the new account, which Solana never
+        // delegates again — it inherits the source's validator.
+        let split = try stakeTransaction(
+            hash: "hash_split",
+            type: "split",
+            info: """
+            { "stakeAccount": "\(delegatedAccount)", "newSplitAccount": "\(splitAccount)" }
+            """
+        )
+        let deactivate = try stakeTransaction(
+            hash: "hash_deactivate",
+            type: "deactivate",
+            info: """
+            { "stakeAccount": "\(splitAccount)" }
+            """
+        )
+
+        let records = try mapper.mapToTransactionRecords(
+            [deactivate, split, delegate],
+            walletAddress: walletAddress,
+            amountType: .coin
+        )
+
+        #expect(records.count == 3)
+        #expect(records[0].type == .staking(type: .unstake, target: validatorAddress))
+    }
+
+    private func stakeTransaction(hash: String, type: String, info: String) throws -> SolanaTransactionHistoryDTO.TransactionDetails {
+        try decode(
+            SolanaTransactionHistoryDTO.TransactionDetails.self,
+            from: """
+            {
+              "blockTime": 1771579735,
+              "meta": {
+                "err": null,
+                "fee": 5000,
+                "innerInstructions": [],
+                "postBalances": [30000000, 0],
+                "preBalances": [50000000, 0],
+                "postTokenBalances": [],
+                "preTokenBalances": [],
+                "rewards": []
+              },
+              "transaction": {
+                "message": {
+                  "accountKeys": [
+                    { "pubkey": "\(walletAddress)" },
+                    { "pubkey": "StakeAccount11111111111111111111111111111111" }
+                  ],
+                  "instructions": [
+                    {
+                      "parsed": { "info": \(info), "type": "\(type)" },
+                      "program": "stake",
+                      "programId": "Stake11111111111111111111111111111111111111"
+                    }
+                  ]
+                },
+                "signatures": ["\(hash)"]
+              }
+            }
+            """
+        )
+    }
+
     private func decode<T: Decodable>(_ type: T.Type, from json: String) throws -> T {
         let decoder = JSONDecoder()
         return try decoder.decode(type, from: Data(json.utf8))

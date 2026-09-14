@@ -112,7 +112,7 @@ class CommonEthereumTransactionBuilder: EthereumTransactionBuilder {
             throw EthereumTransactionBuilderError.feeParametersNotFound
         }
 
-        let input = EthereumSigningInput.with { input in
+        let input = try EthereumSigningInput.with { input in
             input.chainID = BigUInt(chainId).serialize()
             input.nonce = BigUInt(nonce).serialize()
             input.toAddress = destination
@@ -142,6 +142,9 @@ class CommonEthereumTransactionBuilder: EthereumTransactionBuilder {
                 input.gasLimit = gaslessParameters.gasLimit.serialize()
                 input.maxFeePerGas = gaslessParameters.maxFeePerGas.serialize()
                 input.maxInclusionFeePerGas = gaslessParameters.priorityFee.serialize()
+            case .safe:
+                // A Safe operation is signed as typed data and executed by its relayer, never as this account's own transaction
+                throw EthereumTransactionBuilderError.feeParametersInvalid
             }
         }
 
