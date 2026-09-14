@@ -19,15 +19,6 @@ struct PolymarketCoordinatorView: CoordinatorView {
             .toolbar(.hidden, for: .navigationBar)
             .background(FeedPopGestureEnabler())
             .navigationLinks(links)
-            .floatingSheetContent(for: PolymarketRegionRestrictionViewModel.self) { viewModel in
-                PolymarketRegionRestrictionView(viewModel: viewModel)
-            }
-            .floatingSheetContent(for: PolymarketAddFundsSheetViewModel.self) { viewModel in
-                PolymarketAddFundsSheetView(viewModel: viewModel)
-            }
-            .floatingSheetContent(for: ReceiveMainViewModel.self) { viewModel in
-                ReceiveMainView(viewModel: viewModel)
-            }
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
