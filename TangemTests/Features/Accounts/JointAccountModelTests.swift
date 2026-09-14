@@ -12,6 +12,10 @@ import Testing
 
 @Suite("Tests for what a joint account says about its own slots")
 struct JointAccountModelTests {
+    /// Kept by the suite because the models hold it weakly, and a new one is made per test the way every stored
+    /// property of a suite is.
+    private let delegate = JointAccountModelDelegateMock()
+
     // MARK: - Unused invites
 
     @Test("Every invite is unused while nobody has walked in with one")
@@ -76,11 +80,14 @@ struct JointAccountModelTests {
     ) -> any JointAccountModel {
         CommonJointAccountModel(
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
-            derivationIndex: 1,
+            derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
             policy: JointAccountPolicy(membersCount: membersCount, signersCount: 2),
             status: .pending,
+            operationsService: JointAccountOperationsServiceMock(),
+            pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             members: members,
-            invites: inviteIds.map(JointAccountInvite.init(id:))
+            invites: inviteIds.map(JointAccountInvite.init(id:)),
+            delegate: delegate
         )
     }
 }

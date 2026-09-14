@@ -14,6 +14,10 @@ import TangemLocalization
 @Suite("Tests for the rows the joint account composition is shown by")
 @MainActor
 struct JointAccountInviteMembersViewModelTests {
+    /// Kept by the suite because the accounts hold it weakly, and a new one is made per test the way every stored
+    /// property of a suite is.
+    private let delegate = JointAccountModelDelegateMock()
+
     @Test("Everyone who has taken a slot has a row of their own")
     func everyMemberIsShown() {
         let viewModel = makeViewModel(
@@ -86,16 +90,18 @@ struct JointAccountInviteMembersViewModelTests {
     ) -> JointAccountInviteMembersViewModel {
         let jointAccount = CommonJointAccountModel(
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
-            derivationIndex: 1,
+            derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
             policy: JointAccountPolicy(membersCount: membersCount, signersCount: 2),
             status: .pending,
+            operationsService: JointAccountOperationsServiceMock(),
+            pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             members: members,
-            invites: inviteIds.map(JointAccountInvite.init(id:))
+            invites: inviteIds.map(JointAccountInvite.init(id:)),
+            delegate: delegate
         )
 
         return JointAccountInviteMembersViewModel(
             jointAccount: jointAccount,
-            accountModelsManager: AccountModelsManagerMock(),
             coordinator: nil
         )
     }
