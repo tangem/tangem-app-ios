@@ -90,7 +90,8 @@ class Analytics {
         params: [ParameterKey: String],
         analyticsSystems: [Analytics.AnalyticsSystem] = .defaultSystems,
         contextParams: Analytics.ContextParams = .default,
-        limit: Analytics.EventLimit = .unlimited
+        limit: Analytics.EventLimit = .unlimited,
+        otelParamOverrides: [ParameterKey: String] = [:]
     ) {
         assert(event.canBeLoggedDirectly)
 
@@ -99,7 +100,8 @@ class Analytics {
             params: params,
             analyticsSystems: analyticsSystems,
             contextParams: contextParams,
-            limit: limit
+            limit: limit,
+            otelParamOverrides: otelParamOverrides
         )
     }
 
@@ -165,7 +167,8 @@ class Analytics {
         params: [ParameterKey: String] = [:],
         analyticsSystems: [Analytics.AnalyticsSystem] = .defaultSystems,
         contextParams: Analytics.ContextParams,
-        limit: Analytics.EventLimit = .unlimited
+        limit: Analytics.EventLimit = .unlimited,
+        otelParamOverrides: [ParameterKey: String] = [:]
     ) {
         if AppEnvironment.current.isXcodePreview {
             return
@@ -179,7 +182,8 @@ class Analytics {
             event.rawValue,
             params: params.dictionaryParams,
             contextParams: contextParams,
-            analyticsSystems: analyticsSystems
+            analyticsSystems: analyticsSystems,
+            otelParamOverrides: otelParamOverrides
         )
     }
 
@@ -187,7 +191,8 @@ class Analytics {
         _ event: String,
         params: [String: Any] = [:],
         contextParams: Analytics.ContextParams,
-        analyticsSystems: [Analytics.AnalyticsSystem]
+        analyticsSystems: [Analytics.AnalyticsSystem],
+        otelParamOverrides: [ParameterKey: String] = [:]
     ) {
         if AppEnvironment.current.isXcodePreview {
             return
@@ -211,7 +216,13 @@ class Analytics {
             case .appsFlyer:
                 AppsFlyerWrapper.shared.log(event: event, params: params)
             case .openTelemetry:
-                guard openTelemetryWrapper.track(eventType: event, eventProperties: params) else {
+                let isTracked = openTelemetryWrapper.track(
+                    eventType: event,
+                    eventProperties: params,
+                    propertyOverrides: otelParamOverrides
+                )
+
+                guard isTracked else {
                     continue
                 }
             }
