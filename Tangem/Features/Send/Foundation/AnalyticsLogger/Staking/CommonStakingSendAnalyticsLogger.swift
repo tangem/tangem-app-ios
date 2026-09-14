@@ -55,7 +55,7 @@ extension CommonStakingSendAnalyticsLogger: SendApproveAnalyticsLogger {
             .permissionType: permissionType.rawValue,
             .walletForm: signerType,
             .selectedHost: currentProviderHost,
-        ], analyticsSystems: .all)
+        ], analyticsSystems: .all, otelParamOverrides: Analytics.otelCustomTokenOverrides(token: tokenItem))
     }
 }
 
@@ -323,7 +323,7 @@ extension CommonStakingSendAnalyticsLogger: StakingManagementModelAnalyticsLogge
             .feeType: fee.analyticsValue.rawValue,
             .walletForm: signerType,
             .selectedHost: currentProviderHost,
-        ], analyticsSystems: .all)
+        ], analyticsSystems: .all, otelParamOverrides: Analytics.otelCustomTokenOverrides(token: tokenItem))
 
         switch amount?.type {
         case .none:

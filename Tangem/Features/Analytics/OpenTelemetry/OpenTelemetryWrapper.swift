@@ -6,16 +6,22 @@
 //
 
 import Foundation
+import UIKit
 import TangemFoundation
 import TangemNetworkUtils
 import TangemOpenTelemetry
 
 protocol OpenTelemetryWrapper: AnyObject {
     func configure()
-    func track(eventType: String, eventProperties: [String: Any]?) -> Bool
+    func track(
+        eventType: String,
+        eventProperties: [String: Any]?,
+        propertyOverrides: [Analytics.ParameterKey: String]
+    ) -> Bool
 }
 
 final class CommonOpenTelemetryWrapper: OpenTelemetryWrapper {
+    @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
     @Injected(\.keysManager) private var keysManager: KeysManager
     @Injected(\.openTelemetryMetricsService) private var metricsService: OpenTelemetryMetricsService
 
@@ -32,39 +38,83 @@ final class CommonOpenTelemetryWrapper: OpenTelemetryWrapper {
             serviceName: Constants.serviceName,
             serviceVersion: InfoDictionaryUtils.version.value() ?? Constants.unknownVersion,
             environment: AppEnvironment.current.rawValue.lowercased(),
+            osName: UIDevice.current.systemName.lowercased(),
+            osVersion: UIDevice.current.systemVersion,
+            language: Self.appLanguageCode,
+            countryCode: Self.countryCode(geoEligibilityService.regionCode),
             session: TangemTrustEvaluatorUtil.makeSession()
         )
 
         metricsService.start(configuration: configuration)
     }
 
-    func track(eventType: String, eventProperties: [String: Any]?) -> Bool {
+    func track(
+        eventType: String,
+        eventProperties: [String: Any]?,
+        propertyOverrides: [Analytics.ParameterKey: String]
+    ) -> Bool {
         guard
             metricsService.isStarted,
-            let mapping = OpenTelemetryEventMapping.all[eventType]
+            let event = Analytics.Event(rawValue: eventType),
+            let metric = Self.metric(for: event, properties: eventProperties, overrides: propertyOverrides)
         else {
             return false
         }
 
-        let attributes = attributes(from: eventProperties, mapping: mapping)
-
-        return metricsService.increment(mapping.metricName, by: 1, attributes: attributes)
+        return metricsService.increment(metric.name, by: 1, attributes: metric.attributes)
     }
 
-    /// Anything outside the mapping's allowlist is dropped — every attribute combination is a separate
-    /// series in the metrics storage, so the set must stay a reviewed list.
-    private func attributes(from properties: [String: Any]?, mapping: OpenTelemetryEventMapping) -> [String: String] {
-        var attributes = OpenTelemetryContextAttributes.all
-
-        guard let properties else { return attributes }
-
-        for (propertyKey, attributeName) in mapping.allowedProperties {
-            guard let value = properties[propertyKey] else { continue }
-
-            attributes[attributeName] = value as? String ?? String(describing: value)
+    /// Anything outside the mapping's allowlist is dropped.
+    static func metric(
+        for event: Analytics.Event,
+        properties: [String: Any]?,
+        overrides: [Analytics.ParameterKey: String] = [:]
+    ) -> Metric? {
+        guard
+            let mapping = OpenTelemetryEventMapping.all[event],
+            let coordinates = OpenTelemetryNameConverter.coordinates(for: event)
+        else {
+            return nil
         }
 
-        return attributes
+        var attributes = [Constants.categoryAttribute: coordinates.category]
+
+        for propertyKey in mapping.allowedProperties {
+            let attributeName = OpenTelemetryNameConverter.attributeName(for: propertyKey)
+
+            guard let value = properties?[propertyKey.rawValue] else { continue }
+
+            let exported = overrides[propertyKey] ?? value
+
+            attributes[attributeName] = exported as? String ?? String(describing: exported)
+        }
+
+        return Metric(name: coordinates.metricName, attributes: attributes)
+    }
+
+    /// Waiting for the GeoIP lookup would cost the events recorded meanwhile, so the pipeline starts
+    /// with whatever is known — usually the device region. That region is not always a country: a
+    /// device set to Spanish (Latin America) reports `419`, the UN M.49 code for the macro-region, so
+    /// only an ISO 3166-1 alpha-2 code passes.
+    private static func countryCode(_ rawValue: String?) -> String? {
+        guard let code = rawValue?.lowercased(), code.count == 2 else {
+            return nil
+        }
+
+        return code.allSatisfy { $0.isASCII && $0.isLowercase } ? code : nil
+    }
+
+    private static var appLanguageCode: String? {
+        Locale(identifier: Locale.appLanguageCode).language.languageCode?.identifier(.alpha2)
+    }
+}
+
+// MARK: - Metric
+
+extension CommonOpenTelemetryWrapper {
+    struct Metric: Equatable {
+        let name: String
+        let attributes: [String: String]
     }
 }
 
@@ -88,5 +138,6 @@ private extension CommonOpenTelemetryWrapper {
         static let baseURL = URL(string: "https://otlp.services.tangem.org")!
         static let serviceName = "tangem-ios"
         static let unknownVersion = "unknown"
+        static let categoryAttribute = "category"
     }
 }
