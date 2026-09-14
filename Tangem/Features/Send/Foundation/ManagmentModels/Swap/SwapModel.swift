@@ -1016,7 +1016,7 @@ extension SwapModel {
         let source = try _sourceToken.value.get()
         let receive = try receiveToken.get()
 
-        let result = try await {
+        let result = try await withPausedAutoupdating {
             switch _providersState.value {
             case .loaded(_, .permissionRequired):
                 assertionFailure("Should called sendApproveTransaction()")
@@ -1099,16 +1099,31 @@ extension SwapModel {
             default:
                 throw SwapModel.SwapModelError.transactionDataNotFound
             }
-        }()
+        }
 
         _transactionTime.send(.now)
         _transactionURL.send(result.url)
 
-        // The swap is done: stop refreshing quotes. Cancelling the in-flight update prevents a
-        // refresh started just before sending from landing and overwriting the finish screen.
+        return result
+    }
+
+    /// Pressing swap fixes the rate, so quotes stop refreshing for the dispatch: a tick landing while
+    /// the transaction is signed drops the fee providers the finish screen and analytics read.
+    private func withPausedAutoupdating<T>(_ body: () async throws -> T) async throws -> T {
         stopAutoupdating()
 
-        return result
+        do {
+            return try await body()
+        } catch {
+            switch _providersState.value {
+            // A tick that slipped in right before the stop left the state loading with its update cancelled,
+            // so only a fresh one can bring the quote back.
+            case .loading: reloadRates()
+            case let state: updateAutoupdatingTimer(state: state)
+            }
+
+            throw error
+        }
     }
 
     private func sendDEX(
