@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 protocol DynamicAddressesAnalyticsLogger {
     func logDynamicAddressesScreenOpened()
     func logButtonEnableDynamicAddresses()
@@ -14,6 +16,6 @@ protocol DynamicAddressesAnalyticsLogger {
     func logDynamicAddressesDisabled()
     func logDynamicAddressesNoticeUnavailable()
     func logDynamicAddressesErrorUnavailable()
-    func logTokenNoticeNotEnoughFee()
+    func logTokenNoticeNotEnoughFee(feeCurrencyBalance: Decimal)
     func logDynamicAddressesNoticeFundsFound()
 }
