@@ -189,6 +189,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.needsTangemPayMobileOnboarding)
     var needsTangemPayMobileOnboarding: Bool = false
 
+    @AppStorageCompat(StorageType.pendingTangemPayCampaignKey)
+    var pendingTangemPayCampaignKey: String? = nil
+
     @AppStorageCompat(StorageType.geoIpRegionCode)
     var geoIpRegionCode: String? = nil
 

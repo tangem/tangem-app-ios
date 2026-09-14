@@ -19,6 +19,22 @@ public struct TangemPayPlaceOrderRequest: Encodable {
         )
     }
 
+    /// Co-brand campaign card issue. `type` and `specificationName` come from the campaign's entry in
+    /// `customer/offers?deeplink_value=`; `deeplinkValue` is what tells the issuer which art to stamp.
+    public init(
+        type: String,
+        customerWalletAddress: String,
+        specificationName: String,
+        deeplinkValue: String
+    ) {
+        data = Data(
+            type: type,
+            specificationName: specificationName,
+            customerWalletAddress: customerWalletAddress,
+            deeplinkValue: deeplinkValue
+        )
+    }
+
     /// Virtual Account issue order (`ACCOUNT_ISSUE_VIRTUAL_RAIN`). The VA is bound to the card's
     /// existing collateral contract, so nothing is derived on the client and no `wallet_address` is
     /// sent: `depositAddress` is the card's existing collateral (deposit) address.
@@ -311,6 +327,7 @@ public extension TangemPayPlaceOrderRequest {
         public let tokenContractAddress: String?
         public let bankAccountId: String?
         public let bankAccount: BankAccount?
+        public let deeplinkValue: String?
 
         enum CodingKeys: String, CodingKey {
             case type
@@ -329,6 +346,7 @@ public extension TangemPayPlaceOrderRequest {
             case tokenContractAddress = "token_contract_address"
             case bankAccountId = "bank_account_id"
             case bankAccount = "bank_account"
+            case deeplinkValue = "deeplink_value"
         }
 
         init(
@@ -347,7 +365,8 @@ public extension TangemPayPlaceOrderRequest {
             amountInCents: Int? = nil,
             tokenContractAddress: String? = nil,
             bankAccountId: String? = nil,
-            bankAccount: BankAccount? = nil
+            bankAccount: BankAccount? = nil,
+            deeplinkValue: String? = nil
         ) {
             self.type = type
             self.specificationName = specificationName
@@ -365,6 +384,7 @@ public extension TangemPayPlaceOrderRequest {
             self.tokenContractAddress = tokenContractAddress
             self.bankAccountId = bankAccountId
             self.bankAccount = bankAccount
+            self.deeplinkValue = deeplinkValue
         }
     }
 }

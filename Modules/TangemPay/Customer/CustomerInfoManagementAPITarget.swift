@@ -154,7 +154,6 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getKYCAccessToken,
              .getOrder,
              .cancelOrder,
-             .getCustomerOffers,
              .getProductInstanceOffers,
              .getTariffPlanTransitions,
              .cancelTariffPlanPendingTransition,
@@ -172,6 +171,13 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getCashbackTransactionDetails,
              .getEligibility:
             return .requestPlain
+
+        case .getCustomerOffers(let deeplinkValue):
+            guard let deeplinkValue else {
+                return .requestPlain
+            }
+            let requestData = TangemPayCustomerOffersRequest(deeplinkValue: deeplinkValue)
+            return .requestParameters(requestData)
 
         case .getCashbackHistory(let months):
             guard let months else {
@@ -255,12 +261,12 @@ struct CustomerInfoManagementAPITarget: TargetType {
             ["X-Session-Id": "\(sessionId)"]
         case .placeOrder(_, let idempotencyKey):
             ["Idempotency-Key": idempotencyKey]
-        case .getCustomerInfo, .getTariffPlanTransitions, .getCustomerOffers, .getProductInstanceOffers:
-            [
-                TangemPayNetworkingConstants.Header.Key.xDeviceScale: TangemPayNetworkingConstants.Header.Value.deviceScale,
-                TangemPayNetworkingConstants.Header.Key.acceptLanguage: Locale.appLanguageCode,
-            ]
-        case .getCashbackPromotions, .getCashbackAccrualsDocs:
+        case .getCustomerInfo,
+             .getTariffPlanTransitions,
+             .getCustomerOffers,
+             .getProductInstanceOffers,
+             .getCashbackPromotions,
+             .getCashbackAccrualsDocs:
             [TangemPayNetworkingConstants.Header.Key.acceptLanguage: Locale.appLanguageCode]
         default:
             nil
@@ -303,7 +309,7 @@ extension CustomerInfoManagementAPITarget {
         case cancelOrder(orderId: String)
         case findOrders(orderTypes: [String], orderStatuses: [TangemPayOrderResponse.Status])
 
-        case getCustomerOffers
+        case getCustomerOffers(deeplinkValue: String?)
         case getProductInstanceOffers(productInstanceId: String)
 
         case getTariffPlanTransitions
