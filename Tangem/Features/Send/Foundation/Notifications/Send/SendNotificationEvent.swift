@@ -172,6 +172,7 @@ extension SendNotificationEvent: NotificationEvent {
                 return [
                     .token: configuration.amountCurrencySymbol,
                     .blockchain: configuration.amountCurrencyBlockchainName,
+                    .balance: Analytics.ParameterValue.balanceState(for: configuration.feeCurrencyBalance).rawValue,
                 ]
 
             default:
