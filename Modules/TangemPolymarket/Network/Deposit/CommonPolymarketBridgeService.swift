@@ -14,19 +14,13 @@ import TangemNetworkUtils
 final class CommonPolymarketBridgeService {
     private let provider: TangemProvider<PolymarketBridgeTarget>
     private let baseURL: URL
-    private let supportedAssetsStore: PolymarketSupportedAssetsStore
 
     private let decoder = JSONDecoder()
     private let mapper = PolymarketMapper()
 
-    init(
-        provider: TangemProvider<PolymarketBridgeTarget>,
-        baseURL: URL,
-        supportedAssetsStore: PolymarketSupportedAssetsStore
-    ) {
+    init(provider: TangemProvider<PolymarketBridgeTarget>, baseURL: URL) {
         self.provider = provider
         self.baseURL = baseURL
-        self.supportedAssetsStore = supportedAssetsStore
     }
 }
 
@@ -34,21 +28,9 @@ final class CommonPolymarketBridgeService {
 
 extension CommonPolymarketBridgeService: PolymarketBridgeService {
     func supportedAssets() async throws -> [PolymarketSupportedAsset] {
-        if let cached = supportedAssetsStore.cachedAssets() {
-            return cached
-        }
-
         let response: PolymarketDTO.SupportedAssetsResponse = try await request(.supportedAssets)
-        let assets = mapper.mapSupportedAssets(response)
 
-        guard !assets.isEmpty else {
-            PolymarketLogger.warning("The bridge returned no assets this build can address, not caching the empty answer")
-            return assets
-        }
-
-        supportedAssetsStore.store(assets)
-
-        return assets
+        return mapper.mapSupportedAssets(response)
     }
 
     func fundingAddresses(
