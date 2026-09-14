@@ -271,7 +271,7 @@ private extension UserWalletRepositoryEvent {
     }
 }
 
-private extension UserWalletModel {
+extension UserWalletModel {
     var supportsTangemPay: Bool {
         !isUserWalletLocked && config.hasFeature(.tangemPay)
     }

@@ -57,7 +57,7 @@ public protocol CustomerInfoManagementService: AnyObject {
         statuses: [TangemPayOrderResponse.Status]
     ) async throws(TangemPayAPIServiceError) -> [TangemPayOrderResponse]
 
-    func getCustomerOffers() async throws(TangemPayAPIServiceError) -> TangemPayCustomerOffersResponse
+    func getCustomerOffers(deeplinkValue: String?) async throws(TangemPayAPIServiceError) -> TangemPayCustomerOffersResponse
 
     func getProductInstanceOffers(
         productInstanceId: String
@@ -242,8 +242,8 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
         try await request(for: .findOrders(orderTypes: types, orderStatuses: statuses))
     }
 
-    public func getCustomerOffers() async throws(TangemPayAPIServiceError) -> TangemPayCustomerOffersResponse {
-        try await request(for: .getCustomerOffers)
+    public func getCustomerOffers(deeplinkValue: String?) async throws(TangemPayAPIServiceError) -> TangemPayCustomerOffersResponse {
+        try await request(for: .getCustomerOffers(deeplinkValue: deeplinkValue))
     }
 
     public func getProductInstanceOffers(

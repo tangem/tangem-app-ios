@@ -54,6 +54,37 @@ struct TangemPayPlaceOrderRequestTests {
         #expect(Set(data.keys) == ["type", "specification_name", "customer_wallet_address"])
     }
 
+    @Test("Campaign card issue order body carries deeplink_value alongside the legacy fields")
+    func campaignCardIssueOrder_encodesDeeplinkValue() throws {
+        let deeplinkValue = "tpay_for_harvard123"
+
+        let json = try encodeToDictionary(
+            .init(
+                type: "CARD_ISSUE_VIRTUAL_RAIN",
+                customerWalletAddress: "0xWALLET",
+                specificationName: "SP_000004",
+                deeplinkValue: deeplinkValue
+            )
+        )
+
+        #expect(Set(json.keys) == ["data"])
+
+        let data = try #require(json["data"] as? [String: Any])
+        #expect(data["type"] as? String == "CARD_ISSUE_VIRTUAL_RAIN")
+        #expect(data["specification_name"] as? String == "SP_000004")
+        #expect(data["customer_wallet_address"] as? String == "0xWALLET")
+        #expect(data["deeplink_value"] as? String == deeplinkValue)
+
+        #expect(
+            Set(data.keys) == [
+                "type",
+                "specification_name",
+                "customer_wallet_address",
+                "deeplink_value",
+            ]
+        )
+    }
+
     @Test("Bank off-ramp Mode A body carries bank_account_id and nothing else")
     func bankOfframpModeA_encodesExactBody() throws {
         let json = try encodeToDictionary(
