@@ -13,8 +13,13 @@ struct YieldModulePromoCoordinatorView: CoordinatorView {
 
     var body: some View {
         ZStack {
-            if let viewModel = coordinator.rootViewModel {
+            switch coordinator.root {
+            case .legacy(let viewModel):
                 YieldModulePromoView(viewModel: viewModel)
+            case .v2(let viewModel):
+                YieldModulePromoV2View(viewModel: viewModel)
+            case .none:
+                EmptyView()
             }
         }
     }
