@@ -12,10 +12,13 @@ struct CryptoFeedView: View {
     @ObservedObject var viewModel: CryptoFeedViewModel
 
     var body: some View {
-        LazyVStack(spacing: Constants.sectionSpacing) {
-            PromotionNotificationsView(viewModel: viewModel.promoBanner)
-                .padding(.horizontal, Constants.horizontalPadding)
-
+        VStack(spacing: Constants.sectionSpacing) {
+            PromotionNotificationsView(
+                viewModel: viewModel.promoBanner,
+                paginationSpacing: 0,
+                paginationMinHeight: Constants.paginationMinHeight
+            )
+            .padding(.horizontal, Constants.horizontalPadding)
             MarketCapView(viewModel: viewModel.marketCap)
             PulseView(viewModel: viewModel.pulse)
         }
@@ -26,7 +29,8 @@ struct CryptoFeedView: View {
 
 private extension CryptoFeedView {
     enum Constants {
-        static let sectionSpacing: CGFloat = 20
         static let horizontalPadding: CGFloat = 16
+        static let paginationMinHeight: CGFloat = 32
+        static let sectionSpacing: CGFloat = 36
     }
 }
