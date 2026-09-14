@@ -18,16 +18,15 @@ struct TransferInputContentView: View {
     let state: State
     let action: (Action) -> Void
 
+    @FocusState private var isAmountFocused: Bool
+
     var body: some View {
         ScrollView {
             VStack(spacing: Constants.sectionSpacing) {
                 amountCard
 
                 railRow
-
-                errorBanner
             }
-            .animation(.easeInOut, value: state.isErrorBannerVisible)
             .padding(.top, 12)
             .padding(.horizontal, Constants.horizontalPadding)
             .padding(.bottom, Constants.bottomPadding)
@@ -83,6 +82,11 @@ private extension TransferInputContentView {
                     placeholderColor: DesignSystem.Color.textTertiary
                 ))
                 .alignment(.center)
+                .focused($isAmountFocused)
+                .task {
+                    try? await Task.sleep(for: .seconds(Constants.amountFocusDelay))
+                    isAmountFocused = true
+                }
 
             Text(state.amountErrorMessage ?? "")
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusError)
@@ -99,11 +103,7 @@ private extension TransferInputContentView {
 private extension TransferInputContentView {
     @ViewBuilder
     var tokenRow: some View {
-        switch state.tokenRow {
-        case .loading:
-            skeletonRow
-
-        case .token(let token):
+        if let token = state.token {
             SwiftUI.Button {
                 action(.tokenTap)
             } label: {
@@ -118,29 +118,7 @@ private extension TransferInputContentView {
                         }
                     }
             }
-
-        case .unavailable:
-            EmptyView()
         }
-    }
-
-    var skeletonRow: some View {
-        HStack(spacing: Constants.accessorySpacing) {
-            Shimmer()
-                .frame(size: CGSize(bothDimensions: Constants.skeletonIconSide))
-                .clipShape(.circle)
-
-            VStack(alignment: .leading, spacing: Constants.skeletonLineSpacing) {
-                Shimmer()
-                    .variant(.text(style: .body, alignment: .leading))
-
-                Shimmer()
-                    .variant(.text(style: .caption, alignment: .leading))
-            }
-
-            Spacer(minLength: .zero)
-        }
-        .padding(Constants.cardHorizontalPadding)
     }
 
     var maxButton: some View {
@@ -201,18 +179,6 @@ private extension TransferInputContentView {
     }
 }
 
-// MARK: - Error banner
-
-private extension TransferInputContentView {
-    @ViewBuilder
-    var errorBanner: some View {
-        if state.isErrorBannerVisible {
-            TransferInputErrorBanner(action: { action(.retryTap) })
-                .transition(.opacity)
-        }
-    }
-}
-
 // MARK: - Continue
 
 private extension TransferInputContentView {
@@ -242,9 +208,8 @@ private extension TransferInputContentView {
         static let cardHorizontalPadding: CGFloat = 16
         static let cardVerticalPadding: CGFloat = 16
         static let cardCornerRadius: CGFloat = 24
-        static let skeletonIconSide: CGFloat = 40
-        static let skeletonLineSpacing: CGFloat = 4
         static let railIconSide: CGFloat = 20
+        static let amountFocusDelay: TimeInterval = 0.5
     }
 }
 
@@ -252,19 +217,10 @@ private extension TransferInputContentView {
 
 extension TransferInputContentView {
     struct State {
-        let tokenRow: TokenRow
+        let token: TransferInputTokenItem?
         let rail: TransferInputRailItem?
         let amountErrorMessage: String?
-        let isErrorBannerVisible: Bool
         let isContinueEnabled: Bool
-    }
-}
-
-extension TransferInputContentView.State {
-    enum TokenRow {
-        case loading
-        case token(TransferInputTokenItem)
-        case unavailable
     }
 }
 
@@ -275,7 +231,6 @@ extension TransferInputContentView {
         case tokenTap
         case railTap
         case maxTap
-        case retryTap
         case continueTap
     }
 }
@@ -300,17 +255,15 @@ private enum TransferInputPreview {
     }
 
     static func state(
-        tokenRow: TransferInputContentView.State.TokenRow = .token(TransferInputTokenItem.previewList[0]),
+        token: TransferInputTokenItem? = TransferInputTokenItem.previewList[0],
         rail: TransferInputRailItem? = TransferInputRailItem.previewList.first,
         amountErrorMessage: String? = nil,
-        isErrorBannerVisible: Bool = false,
         isContinueEnabled: Bool = false
     ) -> TransferInputContentView.State {
         TransferInputContentView.State(
-            tokenRow: tokenRow,
+            token: token,
             rail: rail,
             amountErrorMessage: amountErrorMessage,
-            isErrorBannerVisible: isErrorBannerVisible,
             isContinueEnabled: isContinueEnabled
         )
     }
@@ -328,24 +281,6 @@ private enum TransferInputPreview {
     TransferInputPreview.make(
         amount: Decimal(string: "0.5"),
         state: TransferInputPreview.state(amountErrorMessage: "Please set amount from $1 to $10,000")
-    )
-}
-
-#Preview("Loading") {
-    TransferInputPreview.make(
-        amount: nil,
-        state: TransferInputPreview.state(tokenRow: .loading)
-    )
-}
-
-#Preview("Options failed") {
-    TransferInputPreview.make(
-        amount: nil,
-        state: TransferInputPreview.state(
-            tokenRow: .unavailable,
-            rail: nil,
-            isErrorBannerVisible: true
-        )
     )
 }
 #endif

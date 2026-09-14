@@ -65,18 +65,29 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
                 )
             }
 
-        case .personalDetails:
+        case .personalDetails(let mode):
             if let orderBuilder = coordinator.orderBuilder {
                 PersonalDetailsFactory.makeView(
                     orderBuilder: orderBuilder,
-                    output: { [weak coordinator] in coordinator?.handle($0) }
+                    output: { [weak coordinator] in coordinator?.handle($0, mode: mode) }
                 )
             }
 
-        case .bankDetails:
+        case .bankDetails(let mode):
             if let orderBuilder = coordinator.orderBuilder {
                 BankDetailsFactory.makeView(
                     orderBuilder: orderBuilder,
+                    output: { [weak coordinator] in coordinator?.handle($0, mode: mode) }
+                )
+            }
+
+        case .transferConfirmation:
+            if let orderBuilder = coordinator.orderBuilder, let optionsStore = coordinator.optionsStore {
+                TransferConfirmationFactory.makeView(
+                    orderBuilder: orderBuilder,
+                    optionsStore: optionsStore,
+                    savedRecipient: coordinator.activeSavedRecipient,
+                    hasNFCInteraction: coordinator.hasNFCInteraction,
                     output: { [weak coordinator] in coordinator?.handle($0) }
                 )
             }
