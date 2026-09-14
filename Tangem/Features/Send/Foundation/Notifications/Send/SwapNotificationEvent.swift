@@ -30,6 +30,7 @@ enum SwapNotificationEvent: Hashable {
     case regionRestricted
     case feeWillBeSubtractFromSendingAmount(cryptoAmountFormatted: String, fiatAmountFormatted: String)
     case notEnoughReceivedAmountForReserve(amountFormatted: String)
+    case trustlineRequired
 
     // Generic notifications is received from BSDK
     case withdrawalNotificationEvent(WithdrawalNotificationEvent)
@@ -88,6 +89,8 @@ extension SwapNotificationEvent: NotificationEvent {
             return .string(Localization.sendNotificationTransactionDelayTitle)
         case .notEnoughReceivedAmountForReserve(let amountFormatted):
             return .string(Localization.warningExpressNotificationInvalidReserveAmountTitle(amountFormatted))
+        case .trustlineRequired:
+            return .string(Localization.warningTokenTrustlineTitle)
         case .withdrawalNotificationEvent(let event):
             return event.title
         case .validationErrorEvent(let event):
@@ -129,6 +132,8 @@ extension SwapNotificationEvent: NotificationEvent {
             return Localization.warningExpressWrongAmountDescription
         case .notEnoughReceivedAmountForReserve:
             return Localization.sendNotificationInvalidReserveAmountText
+        case .trustlineRequired:
+            return Localization.warningReceiveBlockedTokenTrustlineRequiredMessage
         case .unsupportedPair:
             return Localization.warningExpressUnsupportedPairDescription
         case .regionRestricted:
@@ -181,7 +186,8 @@ extension SwapNotificationEvent: NotificationEvent {
              .notEnoughBalanceForSwapping,
              .highPriceImpactWarning(.negligible, _), // Filtered out in SwapNotificationManager, kept for exhaustiveness
              .highPriceImpactWarning(.warningLoss, _),
-             .highNetworkFee:
+             .highNetworkFee,
+             .trustlineRequired:
             return .secondary
         case .highPriceImpactWarning(.highLossLowAmount, _), .highPriceImpactWarning(.highLossHighAmount, _):
             return .action
@@ -215,7 +221,8 @@ extension SwapNotificationEvent: NotificationEvent {
              .longTimeAverageDuration,
              .highPriceImpactWarning(.negligible, _), // Filtered out in SwapNotificationManager, kept for exhaustiveness
              .highPriceImpactWarning(.warningLoss, _),
-             .highNetworkFee:
+             .highNetworkFee,
+             .trustlineRequired:
             return .init(iconType: .image(Assets.attention))
         case .highPriceImpactWarning(.highLossLowAmount, _), .highPriceImpactWarning(.highLossHighAmount, _):
             return .init(iconType: .image(Assets.redCircleWarning))
@@ -266,7 +273,8 @@ extension SwapNotificationEvent: NotificationEvent {
              .customFeeWarning,
              .highPriceImpactWarning(.negligible, _), // Filtered out in SwapNotificationManager, kept for exhaustiveness
              .highPriceImpactWarning(.warningLoss, _),
-             .highNetworkFee:
+             .highNetworkFee,
+             .trustlineRequired:
             return .warning
         case .highPriceImpactWarning(.highLossLowAmount, _),
              .highPriceImpactWarning(.highLossHighAmount, _):
@@ -298,6 +306,8 @@ extension SwapNotificationEvent: NotificationEvent {
             return .init(.openCurrency)
         case .permissionNeeded:
             return .init(.givePermission)
+        case .trustlineRequired:
+            return .init(.addTokenTrustline)
         default:
             return nil
         }
@@ -314,7 +324,7 @@ extension SwapNotificationEvent: NotificationEvent {
 
     var removingOnFullLoadingState: Bool {
         switch self {
-        case .unsupportedPair, .refreshRequired, .verificationRequired, .cexOperationFailed, .refunded, .longTimeAverageDuration, .regionRestricted:
+        case .unsupportedPair, .refreshRequired, .verificationRequired, .cexOperationFailed, .refunded, .longTimeAverageDuration, .regionRestricted, .trustlineRequired:
             return false
         case .permissionNeeded,
              .hasPendingTransaction,
