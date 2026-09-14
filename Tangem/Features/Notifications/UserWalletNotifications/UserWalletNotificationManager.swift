@@ -539,6 +539,8 @@ extension UserWalletNotificationManager: NotificationManager {
             case .numberOfSignedHashesIncorrect:
                 recordUserWalletHashesCountValidation()
             case .rateApp:
+                showAppRateNotification = false
+                shownAppRateNotificationId = nil
                 rateAppController.dismissAppRate()
             case .mobileUpgrade:
                 mobileUpgradeBannerManager.shouldClose()

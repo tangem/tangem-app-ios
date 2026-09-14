@@ -81,7 +81,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         )
 
         let rateAppController = CommonRateAppController(
-            rateAppService: RateAppService(),
             userWalletModel: model,
             coordinator: coordinator
         )
