@@ -16,7 +16,7 @@ struct CollectiblesAPITarget: Moya.TargetType {
 
     enum Target {
         case categories
-        case machines(CollectiblesMachinesRequest)
+        case machines(CollectiblesDTO.MachinesRequest)
         case machine(externalID: String)
     }
 
@@ -41,20 +41,7 @@ struct CollectiblesAPITarget: Moya.TargetType {
             return .requestPlain
 
         case .machines(let request):
-            var parameters: [String: Any] = [:]
-            if let categoryID = request.categoryID {
-                parameters["categoryId"] = categoryID
-            }
-            if let search = request.search {
-                parameters["search"] = search
-            }
-            if let limit = request.limit {
-                parameters["limit"] = limit
-            }
-            if let cursor = request.cursor {
-                parameters["cursor"] = cursor
-            }
-            return parameters.isEmpty ? .requestPlain : .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+            return .requestParameters(request, encoding: URLEncoding.queryString)
         }
     }
 

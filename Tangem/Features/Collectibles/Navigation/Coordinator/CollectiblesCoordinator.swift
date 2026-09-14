@@ -7,9 +7,12 @@
 //
 
 import Combine
+import Foundation
 
 final class CollectiblesCoordinator: CoordinatorObject {
     // MARK: - Properties
+
+    @Injected(\.safariManager) private var safariManager: SafariManager
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
@@ -39,6 +42,10 @@ final class CollectiblesCoordinator: CoordinatorObject {
             }
         }
     }
+
+    func closeMachine() {
+        machineViewModel = nil
+    }
 }
 
 // MARK: - Routables
@@ -46,6 +53,10 @@ final class CollectiblesCoordinator: CoordinatorObject {
 extension CollectiblesCoordinator: CollectiblesWelcomeRoutable {
     func openStories() {
         state = .stories(CollectiblesStoriesViewModel(routable: self))
+    }
+
+    func openLegalTerms(url: URL) {
+        safariManager.openURL(url)
     }
 }
 
