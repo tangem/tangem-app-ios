@@ -35,6 +35,13 @@ struct WelcomeCoordinatorView: CoordinatorView {
             }
 
             ZStack { // for transition animation
+                if let tangemPayCampaignCoordinator = coordinator.tangemPayCampaignCoordinator {
+                    TangemPayCampaignCoordinatorView(coordinator: tangemPayCampaignCoordinator)
+                        .transition(.opacity)
+                }
+            }
+
+            ZStack { // for transition animation
                 if let onboardingCoordinator = coordinator.welcomeOnboardingCoordinator {
                     WelcomeOnboardingCoordinatorView(coordinator: onboardingCoordinator)
                         .transition(.opacity)

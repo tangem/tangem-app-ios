@@ -62,6 +62,20 @@ final class WelcomeProcessor {
                 processor.setDeepLink(.tangemPay)
             }
             .store(in: &bag)
+
+        if FeatureProvider.isAvailable(.tangemPayCustomCards) {
+            AppSettings.shared.$pendingTangemPayCampaignKey
+                .compactMap { $0 }
+                .combineLatest(isIdle)
+                .filter { _, isIdle in isIdle }
+                .first()
+                .receiveOnMain()
+                .withWeakCaptureOf(self)
+                .sink { processor, input in
+                    processor.setDeepLink(.tangemPayCampaign(campaignKey: input.0))
+                }
+                .store(in: &bag)
+        }
     }
 
     /// The first deep link wins — they're mutually exclusive, so a later one shouldn't override the shown one.
@@ -84,6 +98,7 @@ extension WelcomeProcessor {
 
         enum DeepLink: Equatable {
             case tangemPay
+            case tangemPayCampaign(campaignKey: String)
             case promo
         }
     }
@@ -103,6 +118,9 @@ extension WelcomeProcessor.State {
         case .tangemPayMobile:
             welcomeOnboarding = nil
             deepLink = .tangemPay
+        case .tangemPayCampaign(let campaignKey):
+            welcomeOnboarding = nil
+            deepLink = .tangemPayCampaign(campaignKey: campaignKey)
         case .none:
             welcomeOnboarding = nil
             deepLink = nil
