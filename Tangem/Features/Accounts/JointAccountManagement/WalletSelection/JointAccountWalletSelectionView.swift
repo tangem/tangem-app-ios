@@ -51,7 +51,7 @@ private extension JointAccountWalletSelectionView {
             accessibilityLabel: Localization.commonCancel,
             action: viewModel.close
         )
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .size(.x12)
         .horizontalLayout(.infinity)
         .padding(.horizontal, Constants.buttonHorizontalPadding)

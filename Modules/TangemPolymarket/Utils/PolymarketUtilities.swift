@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemSdk
 
 public enum PolymarketUtilities {}
@@ -14,5 +15,5 @@ public enum PolymarketUtilities {}
 public extension PolymarketUtilities {
     static let mandatoryCurve: EllipticCurve = .secp256k1
 
-    static let derivationPath = try! DerivationPath(rawPath: "m/44'/60'/999997'/0/0")
+    static let derivationPath = try! DerivationPath(rawPath: FeatureDerivationPaths.polymarket)
 }

@@ -64,7 +64,6 @@ final class AddressBooksViewModel: ObservableObject {
         bindAddressBooks()
         bindSearchDebounce()
         bind()
-        loadAllAddressBooks()
     }
 
     func onFirstAppear() {
@@ -149,18 +148,6 @@ private extension AddressBooksViewModel {
         Task {
             await TaskGroup.executeKeepingOrder(items: books, action: { book in
                 await book.addressBookManager.load()
-            })
-        }
-    }
-
-    func loadAllAddressBooks() {
-        let managers = userWalletRepository.models
-            .filter { !$0.isUserWalletLocked }
-            .map(\.addressBookManager)
-
-        Task {
-            await TaskGroup.executeKeepingOrder(items: managers, action: { manager in
-                await manager.load()
             })
         }
     }

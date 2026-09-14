@@ -718,9 +718,22 @@ private final class PendingAccountModelsManagerStub: AccountModelsManager {
     var accountModels: [AccountModel] { [] }
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { Empty(completeImmediately: false).eraseToAnyPublisher() }
     var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> { Empty().eraseToAnyPublisher() }
+    var totalJointAccountsCountPublisher: AnyPublisher<Int, Never> { Empty().eraseToAnyPublisher() }
 
-    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountOperationResult { .none }
-    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) {}
+    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountCreationResult {
+        AccountCreationResult(operationResult: .none, derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 0, type: .crypto))
+    }
+
+    func addJointAccount(context: JointAccountCreationContextType) async throws(AccountEditError) -> AccountCreationResult {
+        AccountCreationResult(operationResult: .none, derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 0, type: .joint))
+    }
+
+    func joinJointAccount(context: JointAccountJoinContext) async throws(AccountEditError) -> AccountCreationResult {
+        AccountCreationResult(operationResult: .none, derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 0, type: .joint))
+    }
+
+    func activateJointAccount(_ jointAccount: any JointAccountModel) async {}
+
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] { [] }
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult { .none }
     func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {}

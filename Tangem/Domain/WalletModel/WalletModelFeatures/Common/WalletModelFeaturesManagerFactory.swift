@@ -13,7 +13,7 @@ struct WalletModelFeaturesManagerFactory {
     let userWalletId: UserWalletId
     let userWalletConfig: UserWalletConfig
     let dynamicAddressesManagerProvider: DynamicAddressesManagerProvider
-    let transactionHistoryProviderRegistry: TransactionHistoryProviderRegistry
+    let transactionHistoryProviderResolver: TransactionHistoryProviderResolver
 
     func makeWalletModelFeaturesManager(
         tokenItem: TokenItem,
@@ -33,10 +33,8 @@ struct WalletModelFeaturesManagerFactory {
         )
 
         let transactionHistoryFeatureManager = WalletModelTransactionHistoryFeatureManager(
-            // [REDACTED_TODO_COMMENT]
-            key: TransactionHistoryProviderKey(address: walletManager.wallet.address, tokenItem: tokenItem),
-            tokenItem: tokenItem,
-            registry: transactionHistoryProviderRegistry
+            providerResolver: transactionHistoryProviderResolver,
+            tokenItem: tokenItem
         )
 
         return CommonWalletModelFeaturesManager(

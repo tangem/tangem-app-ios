@@ -8,6 +8,7 @@
 
 import CryptoSwift
 import Foundation
+import TangemFoundation
 import TangemSdk
 
 public enum TangemPayUtilities {}
@@ -18,7 +19,7 @@ public extension TangemPayUtilities {
     }
 
     static var derivationPath: DerivationPath {
-        try! DerivationPath(rawPath: "m/44'/60'/999999'/0/0")
+        try! DerivationPath(rawPath: FeatureDerivationPaths.tangemPay)
     }
 
     static func prepareForSign(challengeResponse: TangemPayGetChallengeResponse) throws -> SignRequestData {

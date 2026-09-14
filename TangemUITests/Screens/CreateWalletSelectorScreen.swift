@@ -38,26 +38,12 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
 
     @discardableResult
     func selectWalletFromList(name: CardMockAccessibilityIdentifiers) -> Self {
-        // Find the mock wallet button in the alert
-        let walletButton = app.buttons[name.rawValue].firstMatch
-
-        guard walletButton.waitForExistence(timeout: .robustUIUpdate) else {
-            let availableButtons = app.buttons.allElementsBoundByIndex.map { $0.identifier }
-            XCTFail(
-                "Mock wallet button '\(name.rawValue)' not found in alert. Available buttons: \(availableButtons)"
-            )
+        XCTContext.runActivity(named: "Select mock wallet '\(name.rawValue)' from the list") { _ in
+            let walletButton = app.buttons[name.rawValue].firstMatch
+            scrollActionSheetToElement(walletButton)
+            walletButton.waitAndTap()
             return self
         }
-
-        scrollActionSheetToElement(walletButton)
-
-        guard walletButton.waitForState(state: .hittable) else {
-            XCTFail("Mock wallet button '\(name.rawValue)' exists but is not hittable")
-            return self
-        }
-
-        walletButton.tap()
-        return self
     }
 
     func openScanMenu() -> Self {

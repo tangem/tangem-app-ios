@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 import TangemMobileWalletBackup
 
 struct WelcomeV2ImportWalletFactory {
@@ -20,8 +21,8 @@ struct WelcomeV2ImportWalletFactory {
     func make(callbacks: Callbacks) -> WelcomeV2ImportSheetViewModel {
         WelcomeV2ImportSheetViewModel(
             input: .init(
-                title: "Import existing wallet",
-                subtitle: "Continue using a wallet you already own by importing or restoring",
+                title: Localization.hwImportExistingWallet,
+                subtitle: Localization.hwImportExistingWalletDescription,
                 onRecoveryPhrase: callbacks.onRecoveryPhrase,
                 onICloudBackup: callbacks.onICloudBackup,
                 onBack: callbacks.onBack,

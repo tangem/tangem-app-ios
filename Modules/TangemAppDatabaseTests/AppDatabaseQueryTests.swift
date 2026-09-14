@@ -39,7 +39,7 @@ struct AppDatabaseQueryTests {
         let historyIndex = AppDatabaseFixtures.makeHistoryIndexRecord(
             entityType: TransactionHistoryIndexRecord.Values.EntityType.expressExchange,
             entityID: transaction.id,
-            address: transaction.ownerAddress,
+            address: transaction.payOutAddress,
             network: toCurrency.networkID,
             contract: toCurrency.contractAddress,
             dateTime: Date(timeIntervalSince1970: 1_752_000_000.125)
@@ -55,7 +55,7 @@ struct AppDatabaseQueryTests {
 
         let fetchedInfos = try databaseQueue.read { database in
             try TransactionHistoryIndexInfoRecord
-                .query(address: historyIndex.address, network: historyIndex.network, contractAddress: historyIndex.contract)
+                .query(addresses: [historyIndex.address], network: historyIndex.network, contractAddress: historyIndex.contract)
                 .fetchAll(database)
         }
 
@@ -109,7 +109,7 @@ struct AppDatabaseQueryTests {
 
         let fetchedInfos = try databaseQueue.read { database in
             try TransactionHistoryIndexInfoRecord
-                .query(address: historyIndex.address, network: historyIndex.network, contractAddress: historyIndex.contract)
+                .query(addresses: [historyIndex.address], network: historyIndex.network, contractAddress: historyIndex.contract)
                 .fetchAll(database)
         }
 
@@ -182,7 +182,7 @@ struct AppDatabaseQueryTests {
 
         let fetchedInfos = try databaseQueue.read { database in
             try TransactionHistoryIndexInfoRecord
-                .query(address: matchingIndex.address, network: matchingIndex.network, contractAddress: matchingIndex.contract)
+                .query(addresses: [matchingIndex.address], network: matchingIndex.network, contractAddress: matchingIndex.contract)
                 .fetchAll(database)
         }
 
@@ -228,7 +228,7 @@ struct AppDatabaseQueryTests {
 
         let fetchedInfos = try databaseQueue.read { database in
             try TransactionHistoryIndexInfoRecord
-                .query(address: olderIndex.address, network: olderIndex.network, contractAddress: olderIndex.contract)
+                .query(addresses: [olderIndex.address], network: olderIndex.network, contractAddress: olderIndex.contract)
                 .fetchAll(database)
         }
 
@@ -265,7 +265,7 @@ struct AppDatabaseQueryTests {
 
         let fetchedInfos = try databaseQueue.read { database in
             try TransactionHistoryIndexInfoRecord
-                .query(address: historyIndex.address, network: historyIndex.network, contractAddress: historyIndex.contract)
+                .query(addresses: [historyIndex.address], network: historyIndex.network, contractAddress: historyIndex.contract)
                 .fetchAll(database)
         }
 
@@ -282,9 +282,9 @@ struct AppDatabaseQueryTests {
     func syncMetadataFilterByOwnerAndEndpointTypeReturnsSingleRow() throws {
         let databaseQueue = try AppDatabaseTestFactory.makeMigratedDatabaseQueue()
 
-        let matchingRecord = AppDatabaseFixtures.makeFullSyncMetadataRecord(ownerAddress: "0xOwner", endpointType: "exchange")
-        let otherEndpointRecord = AppDatabaseFixtures.makeMinimalSyncMetadataRecord(ownerAddress: "0xOwner", endpointType: "onramp")
-        let otherOwnerRecord = AppDatabaseFixtures.makeMinimalSyncMetadataRecord(ownerAddress: "0xOther", endpointType: "exchange")
+        let matchingRecord = AppDatabaseFixtures.makeFullSyncMetadataRecord(userWalletID: "0xOwner", endpointType: "exchange")
+        let otherEndpointRecord = AppDatabaseFixtures.makeMinimalSyncMetadataRecord(userWalletID: "0xOwner", endpointType: "onramp")
+        let otherOwnerRecord = AppDatabaseFixtures.makeMinimalSyncMetadataRecord(userWalletID: "0xOther", endpointType: "exchange")
 
         try databaseQueue.write { database in
             try matchingRecord.insert(database)
@@ -294,7 +294,7 @@ struct AppDatabaseQueryTests {
 
         let fetchedRecords = try databaseQueue.read { database in
             try ExpressSyncMetadataRecord
-                .filter(ownerAddress: matchingRecord.ownerAddress, endpointType: matchingRecord.endpointType)
+                .filter(userWalletID: matchingRecord.userWalletID, endpointType: matchingRecord.endpointType)
                 .fetchAll(database)
         }
 
@@ -306,9 +306,9 @@ struct AppDatabaseQueryTests {
     func syncMetadataFilterByOwnerReturnsAllEndpointTypeRows() throws {
         let databaseQueue = try AppDatabaseTestFactory.makeMigratedDatabaseQueue()
 
-        let exchangeRecord = AppDatabaseFixtures.makeFullSyncMetadataRecord(ownerAddress: "0xOwner", endpointType: "exchange")
-        let onrampRecord = AppDatabaseFixtures.makeMinimalSyncMetadataRecord(ownerAddress: "0xOwner", endpointType: "onramp")
-        let otherOwnerRecord = AppDatabaseFixtures.makeMinimalSyncMetadataRecord(ownerAddress: "0xOther", endpointType: "exchange")
+        let exchangeRecord = AppDatabaseFixtures.makeFullSyncMetadataRecord(userWalletID: "0xOwner", endpointType: "exchange")
+        let onrampRecord = AppDatabaseFixtures.makeMinimalSyncMetadataRecord(userWalletID: "0xOwner", endpointType: "onramp")
+        let otherOwnerRecord = AppDatabaseFixtures.makeMinimalSyncMetadataRecord(userWalletID: "0xOther", endpointType: "exchange")
 
         try databaseQueue.write { database in
             try exchangeRecord.insert(database)
@@ -318,7 +318,7 @@ struct AppDatabaseQueryTests {
 
         let fetchedEndpointTypes = try databaseQueue.read { database in
             try ExpressSyncMetadataRecord
-                .filter(ownerAddress: exchangeRecord.ownerAddress)
+                .filter(userWalletID: exchangeRecord.userWalletID)
                 .fetchAll(database)
                 .map(\.endpointType)
                 .sorted()

@@ -12,10 +12,12 @@ extension Analytics {
         case tokenListContextMenu = "Long Tap"
         case token = "Token"
         case markets = "Markets"
+        case predictions = "Predictions"
     }
 
     enum StoryType: String {
         case swap = "Swap"
         case yieldFirstActivationAPYBoost = "Yield First Activation APY Boost"
+        case polymarketOnboarding = "Polymarket Onboarding"
     }
 }

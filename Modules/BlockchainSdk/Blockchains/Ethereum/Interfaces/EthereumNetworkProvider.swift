@@ -28,6 +28,11 @@ public protocol EthereumNetworkProvider {
     func getTxCount(_ address: String) -> AnyPublisher<Int, Error>
     func getPendingTxCount(_ address: String) -> AnyPublisher<Int, Error>
     func getSmartContractNonce(for address: String) -> AnyPublisher<Int, Error>
+
+    /// - Returns: `nil` when there is no code at the address — a Safe not deployed in this network yet.
+    func getSafeNonce(for address: String) -> AnyPublisher<Int?, Error>
+    func getSafeOwners(for address: String) -> AnyPublisher<[String], Error>
+    func getSafeThreshold(for address: String) -> AnyPublisher<Int, Error>
 }
 
 // MARK: - Default-arg call ergonomics

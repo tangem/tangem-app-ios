@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import protocol Alamofire.RequestInterceptor
 import Moya
 
 public class TangemProvider<Target: TargetType>: MoyaProvider<Target> {
@@ -14,10 +15,15 @@ public class TangemProvider<Target: TargetType>: MoyaProvider<Target> {
     public init(
         stubClosure: @escaping StubClosure = MoyaProvider.neverStub,
         plugins: [PluginType] = [],
-        sessionConfiguration: URLSessionConfiguration = .defaultConfiguration
+        sessionConfiguration: URLSessionConfiguration = .defaultConfiguration,
+        requestInterceptor: (any Alamofire.RequestInterceptor)? = nil
     ) {
         let serverTrustManager = TangemTrustEvaluatorServerTrustManager()
-        let session = Session(configuration: sessionConfiguration, serverTrustManager: serverTrustManager)
+        let session = Session(
+            configuration: sessionConfiguration,
+            interceptor: requestInterceptor,
+            serverTrustManager: serverTrustManager
+        )
 
         super.init(stubClosure: stubClosure, session: session, plugins: plugins)
     }
@@ -28,11 +34,13 @@ public class TangemProvider<Target: TargetType>: MoyaProvider<Target> {
 public extension TangemProvider {
     convenience init(
         configuration: TangemProviderConfiguration,
-        additionalPlugins: [PluginType] = []
+        additionalPlugins: [PluginType] = [],
+        requestInterceptor: (any Alamofire.RequestInterceptor)? = nil
     ) {
         self.init(
             plugins: configuration.plugins + additionalPlugins,
-            sessionConfiguration: configuration.urlSessionConfiguration
+            sessionConfiguration: configuration.urlSessionConfiguration,
+            requestInterceptor: requestInterceptor
         )
     }
 }

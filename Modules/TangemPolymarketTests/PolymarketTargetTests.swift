@@ -32,6 +32,10 @@ struct PolymarketTargetTests {
 
     private enum TestError: Error { case notRequestParameters }
 
+    private var quoteBody: PolymarketDTO.OrderQuoteRequestBody {
+        PolymarketDTO.OrderQuoteRequestBody(marketId: "m1", assetId: "a1", side: "BUY", amount: "10", slippage: "0.25")
+    }
+
     @Test("Paths")
     func paths() {
         #expect(target(.categories(locale: nil)).path == "api/predictions/v1/categories")
@@ -40,12 +44,18 @@ struct PolymarketTargetTests {
         #expect(target(.search(.init(query: "q"))).path == "api/predictions/v1/search")
         #expect(target(.series).path == "api/predictions/v1/series")
         #expect(target(.seriesEvents(seriesId: "s1")).path == "api/predictions/v1/series/s1/events")
+        #expect(target(.orderQuote(quoteBody)).path == "api/predictions/v1/orders/quote")
     }
 
-    @Test("Every target is a GET")
+    @Test("Discovery reads over GET, the quote is posted")
     func method() {
-        #expect(target(.series).method == .get)
+        #expect(target(.categories(locale: nil)).method == .get)
         #expect(target(.events(.init())).method == .get)
+        #expect(target(.event(id: "abc")).method == .get)
+        #expect(target(.search(.init(query: "q"))).method == .get)
+        #expect(target(.series).method == .get)
+        #expect(target(.seriesEvents(seriesId: "s1")).method == .get)
+        #expect(target(.orderQuote(quoteBody)).method == .post)
     }
 
     @Test("categories: locale omitted when nil, sent when present")

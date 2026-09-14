@@ -13,24 +13,25 @@ import Foundation
 /// Main accounts are skipped and return an empty dictionary.
 final class PairedAccountAnalyticsBuilder: AccountsAnalyticsBuilder {
     private let role: Role
-    private var derivationIndex: Int?
+    private var derivationIdentity: CryptoAccountDerivationIdentity?
 
     init(role: Role) {
         self.role = role
     }
 
     @discardableResult
-    func setDerivationIndex(_ index: Int) -> Self {
-        derivationIndex = index
+    func setDerivationIdentity(_ identity: CryptoAccountDerivationIdentity) -> Self {
+        derivationIdentity = identity
         return self
     }
 
     func build() -> [Analytics.ParameterKey: String] {
-        guard let derivationIndex else {
+        guard let derivationIdentity else {
             return [:]
         }
 
-        return [role.analyticsKey: "\(derivationIndex)"]
+        // The parameter has always been numeric, and both kinds of account report the bare index they are numbered by
+        return [role.analyticsKey: "\(derivationIdentity.derivationIndex)"]
     }
 }
 

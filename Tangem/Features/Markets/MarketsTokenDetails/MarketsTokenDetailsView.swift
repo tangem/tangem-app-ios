@@ -187,7 +187,6 @@ struct MarketsTokenDetailsView: View {
                     })
 
                 content
-                    .hidden(viewModel.allDataLoadFailed)
                     .transition(.opacity)
             }
             .padding(.top, Constants.scrollViewContentTopInset)
@@ -329,6 +328,7 @@ private extension AnyTransition {
         isUnderMarketCapLimit: false,
         stakingOpportunities: nil,
         networks: nil,
+        restrictedForCountry: nil
     )
 
     return MarketsTokenDetailsView(viewModel: .init(

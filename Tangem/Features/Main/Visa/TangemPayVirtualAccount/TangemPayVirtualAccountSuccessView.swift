@@ -9,6 +9,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct TangemPayVirtualAccountSuccessView: View {
     @ObservedObject var viewModel: TangemPayVirtualAccountSuccessViewModel
@@ -19,7 +20,9 @@ struct TangemPayVirtualAccountSuccessView: View {
                 icon: DesignSystem.Icons.Success.regular20,
                 title: Localization.tangempayBankTransferSuccessTitle,
                 subtitle: Localization.tangempayBankTransferSuccessSubtitle,
-                buttonTitle: Localization.commonClose
+                buttonTitle: Localization.commonClose,
+                titleAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.virtualAccountSuccessTitle,
+                buttonAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.virtualAccountSuccessCloseButton
             ),
             action: viewModel.close
         )

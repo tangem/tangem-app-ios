@@ -11,6 +11,7 @@ import TangemUI
 import TangemAssets
 import TangemAccounts
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct TokenSelectorExpandableAccountSectionView: View {
     @ObservedObject var expandableViewModel: TokenSelectorExpandableAccountItemViewModel
@@ -42,6 +43,7 @@ struct TokenSelectorExpandableAccountSectionView: View {
                     tokensCountGeometryEffect: effects.tokensCount,
                     balanceGeometryEffect: effects.balance
                 )
+                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.tokenSelectorAccountHeader(name: expandableViewModel.name))
             },
             expandedView: {
                 expandedContent
@@ -57,6 +59,7 @@ struct TokenSelectorExpandableAccountSectionView: View {
                     tokensCountGeometryEffect: effects.tokensCount,
                     balanceGeometryEffect: effects.balance
                 )
+                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.tokenSelectorAccountHeader(name: expandableViewModel.name))
             },
             onExpandedChange: expandableViewModel.onExpandedChange
         )

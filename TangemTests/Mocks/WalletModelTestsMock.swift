@@ -148,11 +148,6 @@ final class WalletModelTestsMock: WalletModel {
 
     func updateRentWarning() -> AnyPublisher<String?, Never> { .just(output: nil) }
 
-    // MARK: - WalletModelFeesProvider
-
-    var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder { fatalError() }
-    var customFeeProviderBuilder: CustomFeeProviderBuilder { fatalError() }
-
     // MARK: - TransactionHistoryFetcher
 
     var canFetchHistory: Bool { false }
@@ -216,6 +211,7 @@ final class WalletModelTestsMock: WalletModel {
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { nil }
     var ethereumNetworkProvider: EthereumNetworkProvider? { nil }
     var ethereumTransactionSigner: EthereumTransactionSigner? { nil }
+    var safeWalletManagerOperationsService: SafeWalletManagerOperationsService? { nil }
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? { nil }
     var accountInitializationService: BlockchainAccountInitializationService? { nil }
     var minimalBalanceProvider: MinimalBalanceProvider? { nil }
