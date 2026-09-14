@@ -188,6 +188,37 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
         // No invites come back here: they belong to the creator, and this wallet has just spent the one it was given
         try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: account))
     }
+
+    func activateJointAccount(withConfig config: JointAccountActivationConfig) async throws {
+        guard isJointAccountsAvailable else {
+            throw InternalError.featureUnavailable
+        }
+
+        let payloadBuilder = JointAccountActivationPayloadBuilder(
+            userWalletId: userWalletId,
+            cryptoAccountId: config.cryptoAccountId,
+            config: config.signedConfig,
+            safeAddress: config.safeAddress
+        )
+        let interactor = derivationInteractorFactory.makeInteractor()
+
+        let result = try await interactor.deriveAndSign(
+            derivationIndex: config.derivationIndex,
+            payloadBuilder: payloadBuilder
+        )
+
+        // Which wallet was tapped is only known once it has been: a wallet other than the creator's would be turned
+        // away by the endpoint anyway, and stopping here says why instead of reporting a bare refusal
+        guard result.derivedKey.address.caseInsensitiveCompare(config.creatorAddress) == .orderedSame else {
+            throw InternalError.notCreatorWallet
+        }
+
+        let blob = JointAccountActivationBlob(payload: result.payload, signature: result.signature)
+
+        let account = try await networkService.activateJointAccount(blob: blob)
+
+        try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: account))
+    }
 }
 
 // MARK: - Private
@@ -245,6 +276,9 @@ extension CommonJointAccountsRepository {
         /// Creating an account is asked for by a screen the feature toggle is supposed to keep out of reach, so this
         /// is a programming error rather than something a user can arrive at.
         case featureUnavailable
+        /// The wallet that was tapped holds a slot of the account, but not the creator's, and only the creator
+        /// activates.
+        case notCreatorWallet
     }
 }
 

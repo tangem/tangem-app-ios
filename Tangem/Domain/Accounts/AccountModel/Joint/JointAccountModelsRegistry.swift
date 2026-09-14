@@ -128,6 +128,7 @@ actor JointAccountModelsRegistry {
 
                 let jointAccount = CommonJointAccountModel(
                     cryptoAccount: cryptoAccount,
+                    derivationIndex: storedCryptoAccount.derivationIdentity.derivationIndex,
                     policy: JointAccountPolicy(
                         membersCount: storedJointAccount.membersCount,
                         signersCount: storedJointAccount.threshold
