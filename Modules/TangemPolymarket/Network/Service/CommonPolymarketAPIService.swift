@@ -53,6 +53,10 @@ extension CommonPolymarketAPIService: PolymarketAPIService {
     func orderQuote(body: PolymarketDTO.OrderQuoteRequestBody) async throws -> PolymarketDTO.OrderQuoteResponse {
         try await request(.orderQuote(body))
     }
+
+    func positions(request positionsRequest: PolymarketPositionsRequest) async throws -> PolymarketDTO.PositionsResponse {
+        try await request(.positions(positionsRequest))
+    }
 }
 
 // MARK: - Private
