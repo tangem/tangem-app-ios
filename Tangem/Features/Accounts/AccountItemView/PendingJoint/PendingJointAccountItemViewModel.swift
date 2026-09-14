@@ -22,14 +22,14 @@ final class PendingJointAccountItemViewModel: Identifiable, ObservableObject {
 
     @Published private(set) var name: String
     @Published private(set) var iconData: AccountIconView.ViewData
+    /// Stated outright rather than awaited from the balance provider, which would leave the plate shimmering over a
+    /// balance that cannot exist yet.
+    @Published private(set) var balance: String
 
     /// Fixed for the plate's lifetime: unlike the name and the icon, which the account model edits in place, the joint
     /// config is immutable — a status moving on or a member joining arrives as a new model, and so as a new plate.
     let status: String
     let isInviteActionVisible: Bool
-    /// Stated outright rather than awaited from the balance provider, which would leave the plate shimmering over a
-    /// balance that cannot exist yet.
-    let balance: String
     let priceChange: PriceChangeView.State
 
     // MARK: - Private properties
@@ -48,7 +48,7 @@ final class PendingJointAccountItemViewModel: Identifiable, ObservableObject {
         name = jointAccount.name
         iconData = AccountModelUtils.UI.iconViewData(accountModel: jointAccount)
         status = Self.status(for: jointAccount)
-        balance = BalanceFormatter().formatFiatBalance(.zero)
+        balance = BalanceFormatter().formatFiatBalance(.zero, currencyCode: AppSettings.shared.selectedCurrencyCode)
         priceChange = PriceChangeUtility().convertToPriceChangeState(changePercent: .zero)
         isInviteActionVisible = jointAccount.canInviteMembers
 
@@ -72,6 +72,12 @@ final class PendingJointAccountItemViewModel: Identifiable, ObservableObject {
                 viewModel.onAccountModelDidChange()
             }
             .store(in: &bag)
+
+        AppSettings.shared.$selectedCurrencyCode
+            .removeDuplicates()
+            .receiveOnMain()
+            .map { BalanceFormatter().formatFiatBalance(.zero, currencyCode: $0) }
+            .assign(to: &$balance)
     }
 
     private func onAccountModelDidChange() {
