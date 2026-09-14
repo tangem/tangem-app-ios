@@ -89,7 +89,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
         case .mobileWalletMultiCreation: return .unspecified
-        case .stakingFlowV2: return .unspecified
+        case .stakingFlowV2: return .version("6.4")
         case .priceAlertsSubscription: return .unspecified
         case .backup4cards: return .unspecified
         case .backendAuthentication: return .unspecified
@@ -98,16 +98,16 @@ enum Feature: String, Hashable, CaseIterable {
         case .jointAccounts: return .unspecified
         case .ethPolLocalStakingValidation: return .unspecified
         case .yieldDexTransferDetection: return .unspecified
-        case .welcomeScreenV2: return .unspecified
+        case .welcomeScreenV2: return .version("6.4")
         case .nativeMarketsShtorka: return .unspecified
-        case .tangemPayPlastic: return .unspecified
+        case .tangemPayPlastic: return .version("6.4")
         case .collectibles: return .unspecified
-        case .openTelemetryMetrics: return .unspecified
-        case .expressGeoRestrictions: return .unspecified
+        case .openTelemetryMetrics: return .version("6.4")
+        case .expressGeoRestrictions: return .version("6.4")
         case .mobileSocialLogin: return .unspecified
         case .tangemPayOfframp: return .version("6.4")
         case .realAssets: return .unspecified
-        case .storiesV2: return .unspecified
+        case .storiesV2: return .version("6.4")
         case .hardwareUpgradeStories: return .unspecified
         case .jointAccountsGaslessTokenFee: return .unspecified
         case .merklIncentives: return .unspecified
