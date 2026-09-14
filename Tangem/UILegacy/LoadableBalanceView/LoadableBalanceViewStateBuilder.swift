@@ -59,10 +59,7 @@ struct LoadableBalanceViewStateBuilder {
         }
     }
 
-    func buildTotalBalance(
-        state: TotalBalanceState,
-        currencyCode: String = AppSettings.shared.selectedCurrencyCode
-    ) -> LoadableBalanceView.State {
+    func buildTotalBalance(state: TotalBalanceState, currencyCode: String) -> LoadableBalanceView.State {
         switch state {
         case .empty:
             return .empty
