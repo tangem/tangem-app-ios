@@ -203,7 +203,8 @@ private extension TransactionHistoryMapperGroupingTests {
             currencySymbol: "ETH",
             addressesProvider: StubTransactionHistoryAddressesProvider(walletAddresses: ["0xSource"]),
             showSign: true,
-            isToken: false
+            isToken: false,
+            stakingNetwork: .ethereum
         )
     }
 

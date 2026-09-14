@@ -32,6 +32,10 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         .just(output: accountModels.count)
     }
 
+    var totalJointAccountsCountPublisher: AnyPublisher<Int, Never> {
+        .just(output: 0)
+    }
+
     var accountModels: [AccountModel] {
         []
     }
@@ -40,11 +44,19 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         AnyPublisher.just(output: accountModels)
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountOperationResult {
+    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountCreationResult {
         throw .unknownError(NSError.dummy)
     }
 
-    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) {
+    func addJointAccount(context: JointAccountCreationContextType) async throws(AccountEditError) -> AccountCreationResult {
+        throw .unknownError(NSError.dummy)
+    }
+
+    func joinJointAccount(context: JointAccountJoinContext) async throws(AccountEditError) -> AccountCreationResult {
+        throw .unknownError(NSError.dummy)
+    }
+
+    func activateJointAccount(_ jointAccount: any JointAccountModel) async throws(AccountEditError) {
         throw .unknownError(NSError.dummy)
     }
 

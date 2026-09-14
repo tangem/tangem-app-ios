@@ -33,12 +33,32 @@ struct YieldModuleStartView: View {
             header: { makeHeader(viewState: viewModel.viewState) },
             topContent: { topContent },
             subtitleFooter: { subtitleFooter },
-            content: { mainContent }
+            content: { mainContent },
+            headerBackgroundColor: sheetBackgroundColor,
+            footerBackgroundColor: footerBackgroundColor
         )
         .transition(.content)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = Colors.Background.tertiary
+            configuration.sheetBackgroundColor = sheetBackgroundColor
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
+        }
+    }
+
+    private var sheetBackgroundColor: Color {
+        switch viewModel.viewState {
+        case .incentiveRateInfo:
+            DesignSystem.Color.bgPrimary
+        case .rateInfo, .startEarning, .feePolicy:
+            Colors.Background.tertiary
+        }
+    }
+
+    private var footerBackgroundColor: Color {
+        switch viewModel.viewState {
+        case .incentiveRateInfo:
+            DesignSystem.Color.bgPrimary
+        case .rateInfo, .startEarning, .feePolicy:
+            Colors.Background.primary
         }
     }
 
@@ -46,6 +66,8 @@ struct YieldModuleStartView: View {
         switch viewModel.viewState {
         case .rateInfo:
             Localization.yieldModuleRateInfoSheetTitle
+        case .incentiveRateInfo:
+            nil
         case .startEarning:
             Localization.yieldModuleStartEarning
         case .feePolicy:
@@ -57,6 +79,8 @@ struct YieldModuleStartView: View {
         switch viewModel.viewState {
         case .rateInfo:
             Localization.yieldModuleRateInfoSheetDescription
+        case .incentiveRateInfo:
+            nil
         case .startEarning:
             Localization.yieldModuleStartEarningSheetDescription(viewModel.walletModel.tokenItem.currencySymbol)
         case .feePolicy:
@@ -69,7 +93,7 @@ struct YieldModuleStartView: View {
         switch viewModel.viewState {
         case .rateInfo:
             rateInfoSubtitleFooter
-        case .feePolicy, .startEarning:
+        case .incentiveRateInfo, .feePolicy, .startEarning:
             EmptyView()
         }
     }
@@ -89,7 +113,7 @@ struct YieldModuleStartView: View {
     @ViewBuilder
     private var mainButton: some View {
         switch viewModel.viewState {
-        case .rateInfo, .feePolicy:
+        case .rateInfo, .incentiveRateInfo, .feePolicy:
             MainButton(settings: .init(
                 title: Localization.commonGotIt,
                 style: .secondary,
@@ -129,7 +153,7 @@ struct YieldModuleStartView: View {
     @ViewBuilder
     private var topContent: some View {
         switch viewModel.viewState {
-        case .rateInfo, .feePolicy:
+        case .rateInfo, .incentiveRateInfo, .feePolicy:
             EmptyView()
         case .startEarning:
             LendingPairIcon(tokenId: viewModel.walletModel.tokenItem.id, iconsSize: IconViewSizeSettings.tokenDetails.iconSize)
@@ -156,7 +180,9 @@ struct YieldModuleStartView: View {
     private var mainContent: some View {
         switch viewModel.viewState {
         case .rateInfo:
-            YieldModuleRateInfoChartContainer(state: viewModel.chartState)
+            YieldModuleRateInfoChartContainer(state: legacyChartContainerState)
+        case .incentiveRateInfo:
+            incentiveRateInfoView
         case .startEarning:
             startEarningView
         case .feePolicy:
@@ -169,11 +195,67 @@ struct YieldModuleStartView: View {
         }
     }
 
+    private var incentiveRateInfoView: some View {
+        VStack(spacing: 16) {
+            TangemSegmentedPicker(
+                data: YieldIncentiveChartPeriod.allCases,
+                selection: $viewModel.incentivePeriod
+            )
+            .style(.flexible)
+            .showSeparators(false)
+
+            YieldModuleIncentiveChartContainer(
+                state: incentiveChartContainerState,
+                currentApyFormatted: viewModel.currentIncentiveApyFormatted
+            )
+
+            if viewModel.marketIncentive != nil {
+                incentiveFooter
+                    .padding(.top, 12)
+            }
+        }
+    }
+
+    private var legacyChartContainerState: YieldChartContainerState {
+        switch viewModel.rateInfoContent {
+        case .legacy(let data):
+            .loaded(data)
+        case .error:
+            .error(action: { viewModel.retryRateInfoChart() })
+        case .loading, .incentive, .unavailable:
+            .loading
+        }
+    }
+
+    private var incentiveChartContainerState: YieldModuleIncentiveChartContainer.State {
+        switch viewModel.rateInfoContent {
+        case .incentive(let data):
+            .loaded(data)
+        case .unavailable:
+            .unavailable
+        case .error:
+            .error(action: { viewModel.retryRateInfoChart() })
+        case .loading, .legacy:
+            .loading
+        }
+    }
+
+    private var incentiveFooter: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(Localization.yieldModuleIncentiveChartPoweredByTitle)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+
+            Text(Localization.yieldModuleIncentiveChartPoweredByDescription)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
     private var ctaButtonAction: () -> Void {
         switch viewModel.viewState {
         case .startEarning:
             viewModel.onStartEarnTap
-        case .rateInfo:
+        case .rateInfo, .incentiveRateInfo:
             viewModel.onCloseTap
         case .feePolicy:
             viewModel.onBackAction
@@ -206,6 +288,13 @@ private extension YieldModuleStartView {
             BottomSheetHeaderView(title: "", leading: { NavigationBarButton.back(action: viewModel.onBackAction) })
         case .startEarning, .rateInfo:
             BottomSheetHeaderView(title: "", trailing: { NavigationBarButton.close(action: viewModel.onCloseTap) })
+        case .incentiveRateInfo:
+            BottomSheetHeaderView(
+                title: Localization.yieldModuleIncentiveChartSheetTitle,
+                trailing: { NavigationBarButton.close(action: viewModel.onCloseTap) }
+            )
+            .titleFont(DesignSystem.Font.bodyMediumToken.font)
+            .verticalPadding(4)
         }
     }
 }
