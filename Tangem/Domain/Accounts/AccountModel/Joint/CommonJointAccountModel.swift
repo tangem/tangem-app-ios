@@ -13,23 +13,31 @@ import TangemFoundation
 /// - Note: Everything a joint account shares with the wallet's own accounts is delegated to the crypto account it is
 /// built on, so the two kinds cannot drift apart as that one gains behaviour.
 final class CommonJointAccountModel {
+    /// Built here rather than held, so that the index it is made of stays this account's own business.
+    var derivationIdentity: CryptoAccountDerivationIdentity {
+        CryptoAccountDerivationIdentity(derivationIndex: derivationIndex, type: .joint)
+    }
+
     let policy: JointAccountPolicy
 
     private(set) var status: JointAccountStatus
     private(set) var members: [JointAccountMember]
     private(set) var invites: [JointAccountInvite]
 
+    private let derivationIndex: Int
     private let cryptoAccount: any CryptoAccountModel
     private let didChangeSubject = PassthroughSubject<Void, Never>()
 
     init(
         cryptoAccount: any CryptoAccountModel,
+        derivationIndex: Int,
         policy: JointAccountPolicy,
         status: JointAccountStatus,
         members: [JointAccountMember],
         invites: [JointAccountInvite]
     ) {
         self.cryptoAccount = cryptoAccount
+        self.derivationIndex = derivationIndex
         self.policy = policy
         self.status = status
         self.members = members

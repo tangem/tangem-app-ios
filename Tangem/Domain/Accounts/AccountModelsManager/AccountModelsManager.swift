@@ -37,6 +37,11 @@ protocol AccountModelsManager: AccountModelsReordering, DisposableEntity {
     /// Joins an account someone else created, taking up the slot the invite was issued for.
     func joinJointAccount(context: JointAccountJoinContext) async throws(AccountEditError) -> AccountCreationResult
 
+    /// Confirms the composition of a joint account and puts it to work, which the creator alone can do.
+    /// - Note: Verifies for itself that the composition resolves to the address the backend announced before signing
+    /// anything — see `JointAccountSafeAddressVerifier`.
+    func activateJointAccount(_ jointAccount: any JointAccountModel) async throws(AccountEditError)
+
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo]
 
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult

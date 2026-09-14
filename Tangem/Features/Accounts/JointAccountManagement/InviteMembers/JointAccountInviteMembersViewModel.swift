@@ -10,20 +10,26 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 final class JointAccountInviteMembersViewModel: ObservableObject {
     @Published private(set) var content: Content
+    @Published private(set) var isActivating = false
+    @Published var alert: AlertBinder?
 
     private let jointAccount: any JointAccountModel
+    private let accountModelsManager: any AccountModelsManager
     private weak var coordinator: JointAccountInviteMembersRoutable?
 
     private var bag = Set<AnyCancellable>()
 
     init(
         jointAccount: any JointAccountModel,
+        accountModelsManager: any AccountModelsManager,
         coordinator: JointAccountInviteMembersRoutable?
     ) {
         self.jointAccount = jointAccount
+        self.accountModelsManager = accountModelsManager
         self.coordinator = coordinator
 
         content = Self.makeContent(of: jointAccount)
@@ -48,6 +54,19 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
         coordinator?.openMemberDetails(member: member)
     }
 
+    @MainActor
+    func onActivateTap() {
+        // Raised here rather than inside the task, which reaches the main actor a hop later — by then a second tap
+        // would have passed this check and asked for a second card session
+        guard !isActivating else {
+            return
+        }
+
+        coordinator?.openActivationConfirmation { [weak self] in
+            self?.activate()
+        }
+    }
+
     func onArchiveTap() {
         // [REDACTED_TODO_COMMENT]
     }
@@ -60,6 +79,34 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
 // MARK: - Private
 
 private extension JointAccountInviteMembersViewModel {
+    @MainActor
+    func activate() {
+        isActivating = true
+
+        runTask(in: self) { viewModel in
+            await viewModel.performActivation()
+        }
+    }
+
+    @MainActor
+    func performActivation() async {
+        defer { isActivating = false }
+
+        do throws(AccountEditError) {
+            try await accountModelsManager.activateJointAccount(jointAccount)
+        } catch .unknownError(let underlying) where underlying.isCancellationError {
+            // The card session was dismissed; the screen stays as it was, with nothing to report
+            return
+        } catch {
+            alert = AccountEditErrorAlertBuilder.makeAlert(for: error)
+            return
+        }
+
+        // The screen exists to gather the members, and they are gathered — the account is a working one from here on
+        // [REDACTED_TODO_COMMENT]
+        coordinator?.closeInviteMembers()
+    }
+
     /// A slot is taken on the account this screen was opened with rather than on a model of its own, so the rows are
     /// worked out anew whenever it says it has changed.
     func bind() {
@@ -76,7 +123,8 @@ private extension JointAccountInviteMembersViewModel {
     static func makeContent(of jointAccount: any JointAccountModel) -> Content {
         Content(
             members: makeMembers(of: jointAccount),
-            freeSlots: makeFreeSlots(of: jointAccount)
+            freeSlots: makeFreeSlots(of: jointAccount),
+            isActivationAvailable: jointAccount.canActivate
         )
     }
 
@@ -144,6 +192,8 @@ extension JointAccountInviteMembersViewModel {
         /// The taken slots, in the order they were taken, the creator first.
         let members: [MemberViewData]
         let freeSlots: [FreeSlotViewData]
+        /// Only the creator activates, and only once every slot is taken.
+        let isActivationAvailable: Bool
 
         var joinedMembersCount: Int { members.count }
         var totalMembersCount: Int { members.count + freeSlots.count }

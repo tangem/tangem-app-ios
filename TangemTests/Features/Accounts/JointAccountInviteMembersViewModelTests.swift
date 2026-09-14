@@ -86,12 +86,17 @@ struct JointAccountInviteMembersViewModelTests {
     ) -> JointAccountInviteMembersViewModel {
         let jointAccount = CommonJointAccountModel(
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
+            derivationIndex: 1,
             policy: JointAccountPolicy(membersCount: membersCount, signersCount: 2),
             status: .pending,
             members: members,
             invites: inviteIds.map(JointAccountInvite.init(id:))
         )
 
-        return JointAccountInviteMembersViewModel(jointAccount: jointAccount, coordinator: nil)
+        return JointAccountInviteMembersViewModel(
+            jointAccount: jointAccount,
+            accountModelsManager: AccountModelsManagerMock(),
+            coordinator: nil
+        )
     }
 }

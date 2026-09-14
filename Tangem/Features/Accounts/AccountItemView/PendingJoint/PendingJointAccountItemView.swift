@@ -147,6 +147,7 @@ private func previewJointAccount(
 ) -> any JointAccountModel {
     CommonJointAccountModel(
         cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
+        derivationIndex: 1,
         policy: JointAccountPolicy(membersCount: membersCount, signersCount: 2),
         status: status,
         members: (0 ..< takenSlotsCount).map { index in
@@ -176,7 +177,7 @@ private func previewJointAccount(
 
             PendingJointAccountItemView(
                 viewModel: PendingJointAccountItemViewModel(
-                    jointAccount: previewJointAccount(status: .confirming, membersCount: 3, takenSlotsCount: 3),
+                    jointAccount: previewJointAccount(status: .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"), membersCount: 3, takenSlotsCount: 3),
                     onTap: {}
                 )
             )
