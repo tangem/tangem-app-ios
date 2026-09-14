@@ -387,7 +387,6 @@ var featureModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemCollectibles",
             dependencies: [
-                "TangemFoundation",
                 .product(name: "SolanaSwift", package: "Solana.Swift"),
             ],
             swiftSettings: .swift6StrictSettings
