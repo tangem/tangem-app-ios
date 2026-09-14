@@ -46,10 +46,10 @@ enum BackendAuthenticationRegistrar {
         let registerDevice = BackendAuthenticationAssembly.registerDevice
 
         do {
-            try await registerDevice()
-            AppLogger.info("Device registration succeeded")
+            let sessionTokens = try await registerDevice()
+            BackendAuthLogger.info(sessionTokens == nil ? "Device already registered" : "Device registration succeeded")
         } catch {
-            AppLogger.error("Device registration failed", error: error)
+            BackendAuthLogger.error("Device registration failed", error: error)
         }
     }
 
@@ -100,9 +100,9 @@ enum BackendAuthenticationRegistrar {
         Task {
             do {
                 try await BackendAuthenticationAssembly.registerUserWallet(id: id, signer: signer)
-                AppLogger.info("User wallet registration succeeded")
+                BackendAuthLogger.info("Registered user wallet \(id.stringValue)")
             } catch {
-                AppLogger.error("User wallet registration failed", error: error)
+                BackendAuthLogger.error("Failed to register user wallet \(id.stringValue)", error: error)
             }
         }
     }
@@ -115,12 +115,14 @@ enum BackendAuthenticationRegistrar {
             return
         }
 
+        let id = userWalletModel.userWalletId
+
         Task {
             do {
-                try await BackendAuthenticationAssembly.unregisterUserWallet(id: userWalletModel.userWalletId)
-                AppLogger.info("User wallet unregistration succeeded")
+                try await BackendAuthenticationAssembly.unregisterUserWallet(id: id)
+                BackendAuthLogger.info("Unregistered user wallet \(id.stringValue)")
             } catch {
-                AppLogger.error("User wallet unregistration failed", error: error)
+                BackendAuthLogger.error("Failed to unregister user wallet \(id.stringValue)", error: error)
             }
         }
     }
