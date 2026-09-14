@@ -41,13 +41,18 @@ final class PolymarketAccountFundsInteractor {
 extension PolymarketAccountFundsInteractor {
     @discardableResult
     func prepare() async -> State {
+        async let bridgeAssets = acceptedAssets()
+
         do {
-            let builderCode = try await configurationService.builderCode()
-            let depositWalletAddress = try await verifiedDepositWalletAddress()
+            async let builderCode = configurationService.builderCode()
+            async let verifiedAddress = verifiedDepositWalletAddress()
+
+            let depositWalletAddress = try await verifiedAddress
 
             let depositTarget = await depositTarget(
                 forDepositWallet: depositWalletAddress,
-                builderCode: builderCode
+                builderCode: try await builderCode,
+                assets: await bridgeAssets
             )
 
             return store(.ready(Readiness(
@@ -74,15 +79,30 @@ private extension PolymarketAccountFundsInteractor {
         return state
     }
 
-    func depositTarget(forDepositWallet depositWalletAddress: String, builderCode: String) async -> DepositTarget? {
+    func acceptedAssets() async -> [PolymarketSupportedAsset]? {
         do {
-            let assets = try await bridgeService.supportedAssets()
+            return try await bridgeService.supportedAssets()
+        } catch {
+            PolymarketLogger.error("Failed to read the assets the bridge accepts", error: error)
+            return nil
+        }
+    }
 
-            guard let asset = PolymarketUtilities.usdcOnPolygon(in: assets) else {
-                PolymarketLogger.warning("A deposit is unavailable: the bridge does not currently accept USDC on Polygon")
-                return nil
-            }
+    func depositTarget(
+        forDepositWallet depositWalletAddress: String,
+        builderCode: String,
+        assets: [PolymarketSupportedAsset]?
+    ) async -> DepositTarget? {
+        guard let assets else {
+            return nil
+        }
 
+        guard let asset = PolymarketUtilities.usdcOnPolygon(in: assets) else {
+            PolymarketLogger.warning("A deposit is unavailable: the bridge does not currently accept USDC on Polygon")
+            return nil
+        }
+
+        do {
             let addresses = try await bridgeService.fundingAddresses(
                 forDepositWallet: depositWalletAddress,
                 builderCode: builderCode
