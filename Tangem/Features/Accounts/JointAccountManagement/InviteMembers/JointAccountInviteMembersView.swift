@@ -19,17 +19,38 @@ struct JointAccountInviteMembersView: View {
         ZStack {
             DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
-            GroupedScrollView(contentType: .plain(alignment: .leading, spacing: 24)) {
-                titleView
+            VStack(spacing: .zero) {
+                GroupedScrollView(contentType: .plain(alignment: .leading, spacing: 24)) {
+                    titleView
 
-                takenSlotsSection
+                    takenSlotsSection
 
-                if viewModel.content.freeSlots.isNotEmpty {
-                    freeSlotsSection
+                    if viewModel.content.freeSlots.isNotEmpty {
+                        freeSlotsSection
+                    }
+                }
+
+                if viewModel.content.isActivationAvailable {
+                    activateButton
                 }
             }
         }
         .topNavigation(leading: .none, actions: .one(detailsAction), onClose: viewModel.onCloseTap)
+        .alert(item: $viewModel.alert, content: { $0.alert })
+    }
+
+    private var activateButton: some View {
+        TangemUI.Button(
+            label: Localization.jointAccountActivationAccountButtonTitle,
+            accessibilityLabel: Localization.jointAccountActivationAccountButtonTitle,
+            action: viewModel.onActivateTap
+        )
+        .styleType(.default)
+        .size(.x12)
+        .horizontalLayout(.infinity)
+        .loading(.spinner(if: viewModel.isActivating))
+        .padding(.horizontal, Constants.activateButtonHorizontalPadding)
+        .padding(.vertical, Constants.activateButtonVerticalPadding)
     }
 
     private var detailsAction: TopNavigation.Action {
@@ -124,5 +145,14 @@ struct JointAccountInviteMembersView: View {
         }
 
         return .invite(action: { viewModel.onInviteTap(inviteURL: inviteURL) })
+    }
+}
+
+// MARK: - Constants
+
+private extension JointAccountInviteMembersView {
+    enum Constants {
+        static let activateButtonHorizontalPadding: CGFloat = 16
+        static let activateButtonVerticalPadding: CGFloat = 12
     }
 }

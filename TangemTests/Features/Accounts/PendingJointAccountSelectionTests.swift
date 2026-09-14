@@ -62,6 +62,7 @@ private extension PendingJointAccountSelectionTests {
     ) -> any JointAccountModel {
         CommonJointAccountModel(
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
+            derivationIndex: 1,
             policy: JointAccountPolicy(membersCount: membersCount, signersCount: 2),
             status: status,
             members: (0 ..< takenSlotsCount).map { index in

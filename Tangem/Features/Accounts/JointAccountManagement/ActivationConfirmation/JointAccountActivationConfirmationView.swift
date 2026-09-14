@@ -84,7 +84,7 @@ private extension JointAccountActivationConfirmationView {
 
 #Preview {
     JointAccountActivationConfirmationView(
-        viewModel: JointAccountActivationConfirmationViewModel(coordinator: nil)
+        viewModel: JointAccountActivationConfirmationViewModel(onConfirm: {}, coordinator: nil)
     )
     .frame(maxHeight: .infinity, alignment: .bottom)
     .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())

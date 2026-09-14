@@ -142,6 +142,8 @@ extension AccountModelsManagerMock: AccountModelsManager {
         )
     }
 
+    func activateJointAccount(_ jointAccount: any JointAccountModel) async {}
+
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
         try? await Task.sleep(for: .seconds(2)) // simulate network call
         try? Task.checkCancellation()
