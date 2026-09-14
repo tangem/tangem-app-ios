@@ -33,12 +33,32 @@ struct YieldModuleStartView: View {
             header: { makeHeader(viewState: viewModel.viewState) },
             topContent: { topContent },
             subtitleFooter: { subtitleFooter },
-            content: { mainContent }
+            content: { mainContent },
+            headerBackgroundColor: sheetBackgroundColor,
+            footerBackgroundColor: footerBackgroundColor
         )
         .transition(.content)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = Colors.Background.tertiary
+            configuration.sheetBackgroundColor = sheetBackgroundColor
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
+        }
+    }
+
+    private var sheetBackgroundColor: Color {
+        switch viewModel.viewState {
+        case .incentiveRateInfo:
+            DesignSystem.Color.bgPrimary
+        case .rateInfo, .startEarning, .feePolicy:
+            Colors.Background.tertiary
+        }
+    }
+
+    private var footerBackgroundColor: Color {
+        switch viewModel.viewState {
+        case .incentiveRateInfo:
+            DesignSystem.Color.bgPrimary
+        case .rateInfo, .startEarning, .feePolicy:
+            Colors.Background.primary
         }
     }
 
@@ -47,7 +67,7 @@ struct YieldModuleStartView: View {
         case .rateInfo:
             Localization.yieldModuleRateInfoSheetTitle
         case .incentiveRateInfo:
-            Localization.yieldModuleIncentiveChartSheetTitle
+            nil
         case .startEarning:
             Localization.yieldModuleStartEarning
         case .feePolicy:
@@ -191,6 +211,7 @@ struct YieldModuleStartView: View {
 
             if viewModel.marketIncentive != nil {
                 incentiveFooter
+                    .padding(.top, 12)
             }
         }
     }
@@ -222,10 +243,10 @@ struct YieldModuleStartView: View {
     private var incentiveFooter: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(Localization.yieldModuleIncentiveChartPoweredByTitle)
-                .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
             Text(Localization.yieldModuleIncentiveChartPoweredByDescription)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -265,8 +286,15 @@ private extension YieldModuleStartView {
         switch viewState {
         case .feePolicy:
             BottomSheetHeaderView(title: "", leading: { NavigationBarButton.back(action: viewModel.onBackAction) })
-        case .startEarning, .rateInfo, .incentiveRateInfo:
+        case .startEarning, .rateInfo:
             BottomSheetHeaderView(title: "", trailing: { NavigationBarButton.close(action: viewModel.onCloseTap) })
+        case .incentiveRateInfo:
+            BottomSheetHeaderView(
+                title: Localization.yieldModuleIncentiveChartSheetTitle,
+                trailing: { NavigationBarButton.close(action: viewModel.onCloseTap) }
+            )
+            .titleFont(DesignSystem.Font.bodyMediumToken.font)
+            .verticalPadding(4)
         }
     }
 }
