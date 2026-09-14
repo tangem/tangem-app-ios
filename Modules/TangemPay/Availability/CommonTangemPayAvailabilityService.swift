@@ -40,6 +40,10 @@ extension CommonTangemPayAvailabilityService: TangemPayAvailabilityService {
         try await request(for: .validateDeeplink(deeplinkString: deeplinkString))
     }
 
+    func getCampaignImages(deeplinkValue: String) async throws -> TangemPayImagesResponse {
+        try await request(for: .getImages(deeplinkValue: deeplinkValue))
+    }
+
     func getIsPaeraCustomer(customerWalletId: String) async throws -> TangemPayIsPaeraCustomerResponse {
         try await request(for: .isPaeraCustomer(customerWalletId: customerWalletId))
     }
