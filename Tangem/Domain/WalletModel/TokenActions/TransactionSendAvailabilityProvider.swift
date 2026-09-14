@@ -75,7 +75,8 @@ struct TransactionSendAvailabilityProvider {
                 feeTokenIconInfo: tokenIconInfo,
                 networkName: walletModel.tokenItem.networkName,
                 currencyButtonTitle: walletModel.tokenItem.blockchain.feeDisplayName,
-                isFeeCurrencyPurchaseAllowed: availabilityProvider.isBuyAvailable
+                isFeeCurrencyPurchaseAllowed: availabilityProvider.isBuyAvailable,
+                feeCurrencyBalance: walletModel.getFeeCurrencyBalance()
             )
         } catch {
             AppLogger.error(error: "FeeWalletModel didn't found")
@@ -109,6 +110,7 @@ enum SendingRestrictions: Hashable {
         let networkName: String
         let currencyButtonTitle: String?
         let isFeeCurrencyPurchaseAllowed: Bool
+        let feeCurrencyBalance: Decimal
     }
 }
 
