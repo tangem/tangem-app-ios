@@ -379,11 +379,13 @@ struct ExpressProviderFormatterRateSubtitleTests {
 // MARK: - Stubs
 
 private struct StubGeoEligibilityService: GeoEligibilityService {
+    var regionCode: String? { nil }
     var isUK: Bool { false }
     var isApplePayAllowed: Bool { true }
 
     func initialize() {}
     func waitForGeoIpRegionIfNeeded() async {}
+    func fetchGeoIpRegionCode() async -> String? { nil }
 }
 
 private final class StubExpressProviderManager: ExpressProviderManager {

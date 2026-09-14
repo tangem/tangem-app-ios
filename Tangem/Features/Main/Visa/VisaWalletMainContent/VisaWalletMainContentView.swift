@@ -43,7 +43,7 @@ struct VisaWalletMainContentView: View {
         .bottomSheet(item: $viewModel.balancesAndLimitsViewModel, backgroundColor: Colors.Background.tertiary) { model in
             VisaBalancesLimitsBottomSheetView(viewModel: model)
         }
-        .bindAlert($viewModel.alert)
+        .shtorkaCompatibleBindAlert($viewModel.alert)
     }
 
     @ViewBuilder

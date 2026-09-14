@@ -122,7 +122,8 @@ private extension TransactionHistoryMapperDustFilterTests {
             currencySymbol: "ETH",
             addressesProvider: StubTransactionHistoryAddressesProvider(walletAddresses: [Self.ownAddress]),
             showSign: true,
-            isToken: false
+            isToken: false,
+            stakingNetwork: .ethereum
         )
     }
 
