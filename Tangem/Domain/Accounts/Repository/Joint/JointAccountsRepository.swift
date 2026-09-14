@@ -44,4 +44,9 @@ protocol JointAccountsRepository {
     /// Takes up a free slot of an existing account, signing the config the creator settled on.
     /// - Note: The invite is spent by the endpoint, so a second call with the same one is turned away.
     func joinJointAccount(withConfig config: JointAccountJoinConfig) async throws
+
+    /// Confirms the composition an account ended up with, which is what hands it its address and puts it to work.
+    /// - Note: The creator's to do, and only once every slot is taken. Repeating it on an account that is active
+    /// already succeeds, so a lost answer costs a repeat and no more.
+    func activateJointAccount(withConfig config: JointAccountActivationConfig) async throws
 }
