@@ -8,11 +8,13 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct WithdrawHubContentView: View {
     let isWithinPortfolioLoading: Bool
     let recentTokens: WithdrawHubSectionState<WithdrawHubRecentTokenItem>
     let recentAccounts: WithdrawHubSectionState<WithdrawHubRecentAccountItem>
+    let bankTransferState: WithdrawHubViewModel.BankTransferState
     let onAction: (WithdrawHubViewModel.ViewAction) -> Void
 
     var body: some View {
@@ -69,17 +71,18 @@ private extension WithdrawHubContentView {
                             )
                         )
                     }
+                    .transition(.content)
                 }
             }
         )
+        .animation(.contentUpdate, value: recentTokens.contentID)
     }
 
     var accountsSection: some View {
         WithdrawHubSectionView(
             // [REDACTED_TODO_COMMENT]
             title: "Bank transfer",
-            // [REDACTED_TODO_COMMENT]
-            subtitle: "Send to another bank using ACH or FedWire",
+            subtitle: accountsSubtitle,
             staticContent: {
                 VStack(spacing: 8) {
                     WithdrawHubCompactActionTileView(
@@ -118,17 +121,31 @@ private extension WithdrawHubContentView {
                             )
                         )
                     }
+                    .transition(.content)
 
                     WithdrawHubActionTileView(data: .seeAll(action: { onAction(.seeAllTap) }))
+                        .transition(.content)
                 }
             }
         )
+        .disabled(!bankTransferState.isEnabled)
+        .animation(.contentUpdate, value: recentAccounts.contentID)
+    }
+
+    var accountsSubtitle: String {
+        switch bankTransferState {
+        case .loading, .available:
+            Constants.accountsSubtitle
+        case .unavailable:
+            Constants.accountsUnavailableSubtitle
+        }
     }
 
     var skeletonTiles: some View {
         ForEach(0 ..< Constants.skeletonTileCount, id: \.self) { _ in
             WithdrawHubActionTileView.Skeleton()
         }
+        .transition(.content)
     }
 
     var placeholderTile: some View {
@@ -139,7 +156,21 @@ private extension WithdrawHubContentView {
                 title: "Your recent transfers will be here"
             )
         )
+        .transition(.content)
     }
+}
+
+// MARK: - Animations and Transitions
+
+private extension Animation {
+    static let contentUpdate = Animation.curve(.easeInOutRefined, duration: 0.3)
+}
+
+private extension AnyTransition {
+    static let content = AnyTransition.asymmetric(
+        insertion: .opacity.animation(.curve(.easeInOutRefined, duration: 0.2).delay(0.15)),
+        removal: .opacity.animation(.curve(.easeInOutRefined, duration: 0.15))
+    )
 }
 
 // MARK: - Constants
@@ -147,6 +178,11 @@ private extension WithdrawHubContentView {
 private extension WithdrawHubContentView {
     enum Constants {
         static let skeletonTileCount = 3
+
+        // [REDACTED_TODO_COMMENT]
+        static let accountsSubtitle = "Send to another bank using ACH or FedWire"
+        // [REDACTED_TODO_COMMENT]
+        static let accountsUnavailableSubtitle = "Available only for USDC on Polygon, Base, Arbitrum"
     }
 }
 
@@ -158,6 +194,7 @@ private extension WithdrawHubContentView {
         isWithinPortfolioLoading: false,
         recentTokens: .loading,
         recentAccounts: .loading,
+        bankTransferState: .loading,
         onAction: { _ in }
     )
     .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
@@ -168,6 +205,7 @@ private extension WithdrawHubContentView {
         isWithinPortfolioLoading: false,
         recentTokens: .loaded([]),
         recentAccounts: .loaded([]),
+        bankTransferState: .available,
         onAction: { _ in }
     )
     .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
@@ -178,6 +216,18 @@ private extension WithdrawHubContentView {
         isWithinPortfolioLoading: false,
         recentTokens: .loaded([.preview]),
         recentAccounts: .loaded([.preview]),
+        bankTransferState: .available,
+        onAction: { _ in }
+    )
+    .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
+}
+
+#Preview("Bank transfer unavailable") {
+    WithdrawHubContentView(
+        isWithinPortfolioLoading: false,
+        recentTokens: .loaded([.preview]),
+        recentAccounts: .loaded([.preview]),
+        bankTransferState: .unavailable,
         onAction: { _ in }
     )
     .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
