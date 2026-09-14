@@ -11,14 +11,16 @@ import TangemAssets
 import TangemUI
 
 struct CryptoSearchResultsView: View {
-    let results: [CryptoSearchResult]
-    let onSelect: (CryptoSearchResult) -> Void
-    let onAppear: (CryptoSearchResult) -> Void
+    let rows: [MarketTokenItemViewModel]
+    let onAppear: (MarketTokenItemViewModel) -> Void
+    let onDisappear: (MarketTokenItemViewModel) -> Void
 
     var body: some View {
         LazyVStack(spacing: 0) {
-            ForEach(results) { result in
-                row(for: result)
+            ForEach(rows, id: \.tokenId) { row in
+                MarketTokenRowView(viewModel: row)
+                    .onAppear { onAppear(row) }
+                    .onDisappear { onDisappear(row) }
             }
         }
         .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: 0, radius: Constants.cornerRadius)
@@ -26,30 +28,11 @@ struct CryptoSearchResultsView: View {
     }
 }
 
-// MARK: - Subviews
-
-private extension CryptoSearchResultsView {
-    func row(for result: CryptoSearchResult) -> some View {
-        Row(title: result.name, subtitle: result.symbol, value: result.price, subvalue: result.change)
-            .start { TokenIconV2(tokenIconInfo: result.icon, size: Constants.iconSize) }
-            .contentLead(.end)
-            .overrideTextColors(RowOverrideTextColors(subvalue: changeColor(for: result)))
-            .showDivider(result.id != results.last?.id)
-            .onTap { onSelect(result) }
-            .onAppear { onAppear(result) }
-    }
-
-    func changeColor(for result: CryptoSearchResult) -> Color {
-        result.isPositive ? DesignSystem.Color.textAccentBlue : DesignSystem.Color.textAccentRed
-    }
-}
-
 // MARK: - Constants
 
 private extension CryptoSearchResultsView {
     enum Constants {
-        static let iconSize = TokenIconV2.Size.size40
-        static let cornerRadius: CGFloat = 20
+        static let cornerRadius: CGFloat = 24
         static let horizontalPadding: CGFloat = 16
     }
 }
