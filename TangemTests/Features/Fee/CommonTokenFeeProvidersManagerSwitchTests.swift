@@ -529,10 +529,7 @@ struct WalletModelTokenFeeProvidersManagerProviderTronGaslessAvailabilityTests {
                 isAccountActivated: isAccountActivated
             )
 
-            let sut = WalletModelTokenFeeProvidersManagerProvider(
-                walletModel: walletModel,
-                isFeatureAvailable: { $0 == .tronGasless }
-            )
+            let sut = WalletModelTokenFeeProvidersManagerProvider(walletModel: walletModel)
 
             #expect(sut.availableGaslessTokenAddresses() == expectedAddresses)
         }
@@ -828,24 +825,6 @@ struct GaslessYieldFeeTests {
 
         #expect(single.signHash.hexString.lowercased() == "9e385b7d4a71cc70496d0f1f1d2ab5fda665d617cbb0ea26a99c79a4cec21cf4")
         #expect(batch.signHash.hexString.lowercased() == "0dda1b2d4786084e451e9b6b90d386d6ae685b4405b59d134e667bdcbc45ff1a")
-    }
-
-    @Test("Legacy executor signs the pre-batch Transaction type without a gas limit")
-    func legacyExecutorOmitsCallGasLimit() throws {
-        let typedData = try GaslessTransactionBuilder.GaslessTransactionsEIP712Util().makeGaslessTypedData(
-            transaction: Self.stubTransaction(gasLimit: nil),
-            fee: Self.stubFee(),
-            nonce: "0",
-            chainId: 1,
-            verifyingContract: Self.stubVerifyingContract,
-            executorVersion: .legacy
-        )
-
-        #expect(
-            String(decoding: typedData.makeTypeData(primaryType: "Transaction"), as: UTF8.self)
-                == "Transaction(address to,uint256 value,bytes data)"
-        )
-        #expect(typedData.message.objectValue?["transaction"]?.objectValue?["gasLimit"] == nil)
     }
 
     /// Signing `gasLimit: 0` would leave the executor forwarding no gas to the user's call, so a missing

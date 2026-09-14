@@ -654,10 +654,6 @@ private extension MarketsTokenDetailsViewModel {
     }
 
     func makeTokenSummaryCardViewModel() {
-        guard FeatureProvider.isAvailable(.forYou) else {
-            return
-        }
-
         MainActor.assumeIsolated {
             let cardViewModel = MarketsTokenSummaryViewModel(symbol: tokenInfo.symbol) { [weak self] in
                 Task { @MainActor in

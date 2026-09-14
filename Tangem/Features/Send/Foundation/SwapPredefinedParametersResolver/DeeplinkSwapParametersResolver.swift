@@ -16,10 +16,6 @@ struct DeeplinkSwapParametersResolver {
         accountModelsManager: some AccountModelsManager,
         userWalletInfo: UserWalletInfo
     ) -> PredefinedSwapParameters? {
-        guard FeatureProvider.isAvailable(.swapDeeplinkParameters) else {
-            return nil
-        }
-
         guard let selection = selectPair(
             params: params,
             accountModelsManager: accountModelsManager,

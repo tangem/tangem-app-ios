@@ -169,15 +169,9 @@ extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {
         notificationSettingsCoordinator = coordinator
     }
 
-    func openMobileBackupNeeded(
-        userWalletModel: UserWalletModel,
-        source: MobileOnboardingFlowSource,
-        onBackupFinished: @escaping () -> Void
-    ) {
+    func openMobileBackupNeeded(userWalletModel: UserWalletModel) {
         let viewModel = MobileBackupNeededViewModel(
             userWalletModel: userWalletModel,
-            source: source,
-            onBackupFinished: onBackupFinished,
             coordinator: self
         )
 
@@ -395,11 +389,6 @@ extension UserWalletSettingsCoordinator: AccountFormViewModelRoutable {
 // MARK: - MobileBackupNeededRoutable
 
 extension UserWalletSettingsCoordinator: MobileBackupNeededRoutable {
-    func openMobileOnboardingFromMobileBackupNeeded(input: MobileOnboardingInput, onBackupFinished: @escaping () -> Void) {
-        dismissMobileBackupNeeded()
-        openOnboardingModal(options: .mobileInput(input), onSuccess: onBackupFinished)
-    }
-
     func openMobileBackupTypesFromMobileBackupNeeded(userWalletModel: UserWalletModel) {
         dismissMobileBackupNeeded()
         openMobileBackupTypes(userWalletModel: userWalletModel)
@@ -514,12 +503,9 @@ private extension UserWalletSettingsCoordinator {
         manageTokensCoordinator = coordinator
     }
 
-    func openOnboardingModal(options: OnboardingCoordinator.Options, onSuccess: (() -> Void)? = nil) {
-        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] result in
+    func openOnboardingModal(options: OnboardingCoordinator.Options) {
+        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] _ in
             self?.modalOnboardingCoordinator = nil
-            if result.isSuccessful {
-                onSuccess?()
-            }
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)

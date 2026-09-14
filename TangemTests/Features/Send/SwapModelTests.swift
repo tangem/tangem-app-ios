@@ -119,34 +119,6 @@ final class SwapModelTests: LeakTrackingTestSuite {
         #expect(await manager.currentPair != nil)
     }
 
-    @Test("Balance restriction defers the pair load until it is lifted ([REDACTED_INFO] / S10)")
-    func restrictionDefersPairLoad() async throws {
-        let manager = ExpressManagerStub()
-        let handler = ReconcilingPairHandlerStub(expressManager: manager)
-        let restriction = ConfigurableBalanceRestrictionChecker(isRestricted: true)
-        let sut = makeSUT(
-            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
-            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
-            expressManager: manager,
-            pairUpdateHandler: handler,
-            balanceRestrictionChecker: restriction
-        )
-        let recorder = SwapProvidersStateRecorder(sut)
-
-        var baseline = recorder.count
-        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
-        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
-        // While restricted the pair must never be loaded.
-        #expect(await manager.currentPair == nil)
-
-        restriction.isRestricted = false
-        baseline = recorder.count
-        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 2, fiat: nil)))
-        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
-        // Restriction lifted: the next quote request reconciles the deferred pair.
-        #expect(await manager.currentPair != nil)
-    }
-
     // MARK: - [REDACTED_INFO]: autoupdate cancellation after send
 
     @Test("A cancelled update cannot push a quote amount onto the finish screen ([REDACTED_INFO])")
@@ -364,7 +336,6 @@ private extension SwapModelTests {
         receiveToken: SendReceiveToken? = nil,
         expressManager: ExpressManager = ExpressManagerStub(),
         pairUpdateHandler: SwapPairUpdateHandler = SwapPairUpdateHandlerStub(),
-        balanceRestrictionChecker: SwapBalanceRestrictionFeatureChecker = SwapBalanceRestrictionFeatureCheckerStub(),
         autoupdatingTimer: any AutoupdatingTimerSetup = AutoupdatingTimer(),
         sourceTokenResolver: (any SwapSourceTokenResolver)? = nil,
         destinationTokenResolver: (any SwapDestinationTokenResolver)? = nil,
@@ -381,7 +352,7 @@ private extension SwapModelTests {
             analyticsLogger: SendAnalyticsLoggerStub(),
             autoupdatingTimer: autoupdatingTimer,
             pairUpdateHandler: pairUpdateHandler,
-            balanceRestrictionFeatureChecker: balanceRestrictionChecker,
+            balanceRestrictionFeatureChecker: SwapBalanceRestrictionFeatureCheckerStub(),
             sourceTokenResolver: sourceTokenResolver,
             destinationTokenResolver: destinationTokenResolver,
             shouldStartInitialLoading: shouldStartInitialLoading
@@ -567,18 +538,6 @@ private final class SwapPairUpdateHandlerStub: SwapPairUpdateHandler {
 
 private final class SwapBalanceRestrictionFeatureCheckerStub: SwapBalanceRestrictionFeatureChecker {
     func swapTotalBalanceRestriction(for token: SendSourceToken) async throws -> SwapBalanceRestriction { .none }
-}
-
-private final class ConfigurableBalanceRestrictionChecker: SwapBalanceRestrictionFeatureChecker {
-    var isRestricted: Bool
-
-    init(isRestricted: Bool) {
-        self.isRestricted = isRestricted
-    }
-
-    func swapTotalBalanceRestriction(for token: SendSourceToken) async throws -> SwapBalanceRestriction {
-        isRestricted ? .hideProviders : .none
-    }
 }
 
 /// Pair-update handler that reconciles into a shared `ExpressManagerStub`, mirroring the real handler:

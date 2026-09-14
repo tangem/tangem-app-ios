@@ -133,11 +133,7 @@ extension MobileCreateWalletViewModel {
             return
         }
         runTask(in: self) { viewModel in
-            if FeatureProvider.isAvailable(.mobileWalletBackup) {
-                await viewModel.openImportWallet()
-            } else {
-                await viewModel.openImportWalletWithRecoveryPhrase()
-            }
+            await viewModel.openImportWallet()
         }
     }
 
@@ -154,16 +150,6 @@ extension MobileCreateWalletViewModel {
 private extension MobileCreateWalletViewModel {
     func openImportWallet() {
         coordinator?.openImportWallet()
-    }
-
-    func openImportWalletWithRecoveryPhrase() {
-        let source = MobileOnboardingFlowSource.importWallet
-        let input = MobileOnboardingInput(
-            flow: .walletImport(source: source),
-            shouldLogOnboardingStartedAnalytics: false
-        )
-        let options = OnboardingCoordinator.Options.mobileInput(input)
-        coordinator?.openOnboarding(options: options)
     }
 
     func close() {

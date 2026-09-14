@@ -18,10 +18,6 @@ import TangemPay
 import TangemVisa
 
 final class TangemPayMainViewModel: ObservableObject {
-    private var cashbackEnabled: Bool {
-        FeatureProvider.isAvailable(.tangemPayCashback)
-    }
-
     lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject { [weak self] in
         guard let self else { return }
 
@@ -117,9 +113,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     var toolbarSubtitle: String {
-        FeatureProvider.isAvailable(.tangemPayMultichain)
-            ? Localization.tangempayMultinetwork
-            : Localization.tangempayUsdcOnPolygonNetwork
+        Localization.tangempayMultinetwork
     }
 
     var actionButtonsDisabled: Bool {
@@ -593,7 +587,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @MainActor
     func openCashback() async {
-        guard cashbackEnabled, !isDeactivated else {
+        guard !isDeactivated else {
             return
         }
 
@@ -978,24 +972,22 @@ private extension TangemPayMainViewModel {
             .receiveOnMain()
             .assign(to: &$awaitingDepositInfo)
 
-        if cashbackEnabled {
-            tangemPayAccount.cashbackPublisher
-                .receiveOnMain()
-                .assign(to: &$cashback)
-
-            let customerWalletId = userWalletInfo.id.stringValue
-
-            Publishers.CombineLatest(
-                tangemPayAccount.cashbackPublisher,
-                AppSettings.shared.$tangemPayCashbackBlockedBannerDismissedForCustomerWalletId
-            )
-            .map { cashback, dismissedByCustomerWalletId in
-                cashback == .blocked && !dismissedByCustomerWalletId[customerWalletId, default: false]
-            }
-            .removeDuplicates()
+        tangemPayAccount.cashbackPublisher
             .receiveOnMain()
-            .assign(to: &$isCashbackBlocked)
+            .assign(to: &$cashback)
+
+        let customerWalletId = userWalletInfo.id.stringValue
+
+        Publishers.CombineLatest(
+            tangemPayAccount.cashbackPublisher,
+            AppSettings.shared.$tangemPayCashbackBlockedBannerDismissedForCustomerWalletId
+        )
+        .map { cashback, dismissedByCustomerWalletId in
+            cashback == .blocked && !dismissedByCustomerWalletId[customerWalletId, default: false]
         }
+        .removeDuplicates()
+        .receiveOnMain()
+        .assign(to: &$isCashbackBlocked)
     }
 
     func bindInlineNotifications() {
@@ -1036,7 +1028,6 @@ private extension TangemPayMainViewModel {
 
     @MainActor
     func loadCashbackSummaryIfAvailable() async {
-        guard cashbackEnabled else { return }
         guard !isDeactivated else { return }
 
         isCashbackLoading = true

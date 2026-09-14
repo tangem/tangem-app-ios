@@ -63,8 +63,7 @@ extension TangemPayCustomerInfoManagementServiceBuilder {
     init() {
         self = TangemPayCustomerInfoManagementServiceBuilder(
             apiType: FeatureStorage.instance.visaAPIType,
-            bffStaticToken: TangemPayUtilities.getBFFStaticToken(),
-            useNewTransactionsEndpoint: FeatureProvider.isAvailable(.tangemPayCashback)
+            bffStaticToken: TangemPayUtilities.getBFFStaticToken()
         )
     }
 }

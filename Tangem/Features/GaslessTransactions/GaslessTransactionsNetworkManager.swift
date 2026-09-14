@@ -169,11 +169,6 @@ private extension CommonGaslessTransactionsNetworkManager {
     func updateAvailableTronFeeTokens() {
         fetchTronFeeTokensTask?.cancel()
 
-        guard FeatureProvider.isAvailable(.tronGasless) else {
-            availableTronFeeTokensSubject.send([])
-            return
-        }
-
         let fetchTronFeeTokensTask = Task {
             do {
                 let availableTokens = try await apiService.getAvailableTronTokens()
