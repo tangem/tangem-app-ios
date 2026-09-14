@@ -41,7 +41,7 @@ private extension PolymarketPositionDetailsView.Model {
             question: "Will Uzbekistan win the 2026 FIFA World Cup?",
             outcomeTitle: "Yes",
             outcomeStyle: PolymarketOutcomeStyle(outcomeIndex: 0),
-            payoutText: "Payout if wins $4,400.02"
+            payoutAmount: "$4,400.02"
         ),
         market: .init(
             id: "preview",
@@ -76,7 +76,7 @@ private extension PolymarketPositionDetailsView.Model {
             question: "Will France not win the 2026 FIFA World Cup?",
             outcomeTitle: "No",
             outcomeStyle: PolymarketOutcomeStyle(outcomeIndex: 1),
-            payoutText: nil
+            payoutAmount: nil
         ),
         market: .init(
             id: "preview",

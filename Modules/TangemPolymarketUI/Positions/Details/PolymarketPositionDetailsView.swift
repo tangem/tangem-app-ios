@@ -22,11 +22,13 @@ public struct PolymarketPositionDetailsView: View {
     public var body: some View {
         VStack(spacing: 0) {
             PolymarketTopBar(onClose: onClose)
+                .padding(.top, Constants.topBarTopPadding)
 
             content
         }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .safeAreaInset(edge: .bottom, spacing: .zero) { footer }
+        .toolbar(.hidden, for: .navigationBar)
     }
 
     private var content: some View {
@@ -126,6 +128,7 @@ public extension PolymarketPositionDetailsView {
 
 private extension PolymarketPositionDetailsView {
     enum Constants {
+        static let topBarTopPadding: CGFloat = 8
         static let horizontalPadding: CGFloat = 16
         static let blockSpacing: CGFloat = 12
         static let groupSpacing: CGFloat = 8
