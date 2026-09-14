@@ -25,7 +25,7 @@ struct YieldIncentiveChart: View {
             ForEach(bars) { bar in
                 BarMark(x: .value("Index", bar.index), y: .value("Base APY", bar.baseApy))
                     .cornerRadius(2)
-                    .foregroundStyle(Colors.Icon.accent)
+                    .foregroundStyle(DesignSystem.Color.bgBrand)
 
                 if bar.rewardsApr > 0 {
                     BarMark(
@@ -34,7 +34,7 @@ struct YieldIncentiveChart: View {
                         yEnd: .value("Total APY", bar.baseApy + Constants.rewardsCapGap + bar.rewardsApr)
                     )
                     .cornerRadius(2)
-                    .foregroundStyle(Colors.Icon.accent.opacity(Constants.rewardsCapOpacity))
+                    .foregroundStyle(DesignSystem.Color.bgStatusInfoSubtle)
                 }
             }
 
@@ -79,7 +79,9 @@ struct YieldIncentiveChart: View {
             }
         }
         .chartYScale(domain: 0.0 ... yDomainMax)
-        .frame(height: Constants.height)
+        .chartPlotStyle { plot in
+            plot.frame(height: Constants.plotHeight)
+        }
     }
 
     // MARK: - Private Implementation
@@ -154,12 +156,12 @@ private extension YieldIncentiveChart {
 
 private extension YieldIncentiveChart {
     enum Constants {
-        static let height: CGFloat = 110
+        /// The design sizes the plot area itself, with the axis labels laid out around it.
+        static let plotHeight: CGFloat = 128
         static let minYDomainMax: Double = 0.12
         static let yTickCount = 4
         /// Keeps the reward cap visually detached from the base segment.
         static let rewardsCapGap: Double = 0.0015
-        static let rewardsCapOpacity: Double = 0.3
         static let skeletonBarsCount = 32
         static let skeletonTicks = [0, 7, 14, 21, 27]
         static let skeletonLabels = Array(repeating: "Aaa", count: 5)
