@@ -9,6 +9,17 @@
 import SwiftUI
 import TangemAssets
 
+/// An optional button rendered above the pinned one, in the secondary style.
+public struct StatusScreenSecondaryAction {
+    let title: String
+    let action: () -> Void
+
+    public init(title: String, action: @escaping () -> Void) {
+        self.title = title
+        self.action = action
+    }
+}
+
 public enum StatusScreenAppearance: Sendable, Hashable, CaseIterable {
     case neutral
     case success
