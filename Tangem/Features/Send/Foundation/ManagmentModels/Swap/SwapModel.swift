@@ -685,10 +685,11 @@ extension SwapModel {
             return .notEnoughBalanceForSwapping
 
         case .feeCurrencyHasZeroBalance(let isFeeCurrency):
-            return .notEnoughAmountForFee(isFeeCurrency: isFeeCurrency)
+            // Raised only once the fee-currency balance failed the "greater than zero" check
+            return .notEnoughAmountForFee(isFeeCurrency: isFeeCurrency, feeCurrencyBalance: .zero)
 
-        case .feeCurrencyInsufficientBalanceForTxValue(let fee, let isFeeCurrency):
-            return .notEnoughAmountForTxValue(fee, isFeeCurrency: isFeeCurrency)
+        case .feeCurrencyInsufficientBalanceForTxValue(let fee, let isFeeCurrency, let feeCurrencyBalance):
+            return .notEnoughAmountForTxValue(fee, isFeeCurrency: isFeeCurrency, feeCurrencyBalance: feeCurrencyBalance)
 
         case .regionRestricted:
             return .regionRestricted
@@ -845,8 +846,8 @@ extension SwapModel {
         switch error {
         case ValidationError.totalExceedsBalance, ValidationError.amountExceedsBalance:
             return .notEnoughBalanceForSwapping
-        case ValidationError.feeExceedsBalance(_, _, let isFeeCurrency):
-            return .notEnoughAmountForFee(isFeeCurrency: isFeeCurrency)
+        case ValidationError.feeExceedsBalance(_, _, let isFeeCurrency, let feeCurrencyBalance):
+            return .notEnoughAmountForFee(isFeeCurrency: isFeeCurrency, feeCurrencyBalance: feeCurrencyBalance)
         case let error as ValidationError:
             return .validationError(error: error)
         case let error:
@@ -1020,7 +1021,7 @@ extension SwapModel {
         let source = try _sourceToken.value.get()
         let receive = try receiveToken.get()
 
-        let result = try await {
+        let result = try await withPausedAutoupdating {
             switch _providersState.value {
             case .loaded(_, .permissionRequired):
                 assertionFailure("Should called sendApproveTransaction()")
@@ -1103,16 +1104,31 @@ extension SwapModel {
             default:
                 throw SwapModel.SwapModelError.transactionDataNotFound
             }
-        }()
+        }
 
         _transactionTime.send(.now)
         _transactionURL.send(result.url)
 
-        // The swap is done: stop refreshing quotes. Cancelling the in-flight update prevents a
-        // refresh started just before sending from landing and overwriting the finish screen.
+        return result
+    }
+
+    /// Pressing swap fixes the rate, so quotes stop refreshing for the dispatch: a tick landing while
+    /// the transaction is signed drops the fee providers the finish screen and analytics read.
+    private func withPausedAutoupdating<T>(_ body: () async throws -> T) async throws -> T {
         stopAutoupdating()
 
-        return result
+        do {
+            return try await body()
+        } catch {
+            switch _providersState.value {
+            // A tick that slipped in right before the stop left the state loading with its update cancelled,
+            // so only a fresh one can bring the quote back.
+            case .loading: reloadRates()
+            case let state: updateAutoupdatingTimer(state: state)
+            }
+
+            throw error
+        }
     }
 
     private func sendDEX(
@@ -2272,8 +2288,8 @@ extension SwapModel {
         case hasPendingTransaction
         case hasPendingApproveTransaction
         case notEnoughBalanceForSwapping
-        case notEnoughAmountForFee(isFeeCurrency: Bool)
-        case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool)
+        case notEnoughAmountForFee(isFeeCurrency: Bool, feeCurrencyBalance: Decimal)
+        case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool, feeCurrencyBalance: Decimal)
         case validationError(error: ValidationError)
         case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String, reason: NotEnoughReceivedAmountReason)
         case regionRestricted
