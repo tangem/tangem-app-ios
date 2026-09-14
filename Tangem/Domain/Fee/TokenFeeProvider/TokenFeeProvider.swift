@@ -69,8 +69,8 @@ enum TokenFeeProviderError: LocalizedError {
     case providerUnavailable
     case unsupportedByProvider
     case feeNotFound
-    case notEnoughBalanceForFee
-    case notEnoughGaslessFeeBalance
+    case notEnoughBalanceForFee(feeCurrencyBalance: Decimal)
+    case notEnoughGaslessFeeBalance(feeCurrencyBalance: Decimal)
 
     var errorDescription: String? {
         switch self {
