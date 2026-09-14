@@ -10,15 +10,18 @@ public struct TangemPayEnrollmentStateFetcher {
     public let customerWalletId: String
     public let availabilityService: TangemPayAvailabilityService
     public let customerService: CustomerInfoManagementService
+    public let isCustomCardsEnabled: Bool
 
     public init(
         customerWalletId: String,
         availabilityService: TangemPayAvailabilityService,
-        customerService: CustomerInfoManagementService
+        customerService: CustomerInfoManagementService,
+        isCustomCardsEnabled: Bool
     ) {
         self.customerWalletId = customerWalletId
         self.availabilityService = availabilityService
         self.customerService = customerService
+        self.isCustomCardsEnabled = isCustomCardsEnabled
     }
 
     public func getEnrollmentState() async throws(TangemPayAPIServiceError) -> (state: TangemPayEnrollmentState, customerId: String) {
@@ -51,12 +54,18 @@ public struct TangemPayEnrollmentStateFetcher {
             return (.enrolled(customerInfo: customerInfo), customerId)
         }
 
-        let activeTransitionOrders = try await customerService.findOrders(
-            types: TangemPayOrderType.tariffPlanTransitionFamily,
+        // A campaign card is ordered before KYC, so that order — not a plan transition — is what stands in
+        // for the plan the user was never asked to pick.
+        let orderTypes = isCustomCardsEnabled
+            ? TangemPayOrderType.tariffPlanTransitionFamily + TangemPayOrderType.cardIssueFamily
+            : TangemPayOrderType.tariffPlanTransitionFamily
+
+        let activeOrders = try await customerService.findOrders(
+            types: orderTypes,
             statuses: [.new, .processing]
         )
 
-        if !activeTransitionOrders.isEmpty {
+        if !activeOrders.isEmpty {
             return (.enrolled(customerInfo: customerInfo), customerId)
         }
 
