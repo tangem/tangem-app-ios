@@ -9,16 +9,27 @@
 public import struct TangemFoundation.UserWalletId
 
 public struct RegisterUserWalletUseCase: Sendable {
+    private let obtainNonce: ObtainUserWalletRegistrationNonceUseCase
     private let prepare: PrepareUserWalletRegistrationUseCase
     private let submit: SubmitUserWalletRegistrationUseCase
 
-    init(prepare: PrepareUserWalletRegistrationUseCase, submit: SubmitUserWalletRegistrationUseCase) {
+    init(
+        obtainNonce: ObtainUserWalletRegistrationNonceUseCase,
+        prepare: PrepareUserWalletRegistrationUseCase,
+        submit: SubmitUserWalletRegistrationUseCase
+    ) {
+        self.obtainNonce = obtainNonce
         self.prepare = prepare
         self.submit = submit
     }
 
     public func callAsFunction(id: UserWalletId, signer: some UserWalletRegistrationSigner) async throws(RegisterUserWalletError) {
-        guard let registrationRequest = try await prepareRegistrationRequest(id: id, signer: signer) else {
+        guard let nonce = try await obtainNonce(for: id) else {
+            // [REDACTED_TODO_COMMENT]
+            return
+        }
+
+        guard let registrationRequest = try await prepareRegistrationRequest(id: id, nonce: nonce, signer: signer) else {
             // [REDACTED_TODO_COMMENT]
             return
         }
@@ -26,12 +37,21 @@ public struct RegisterUserWalletUseCase: Sendable {
         try await submit(registrationRequest)
     }
 
+    private func obtainNonce(for id: UserWalletId) async throws(RegisterUserWalletError) -> UserWalletRegistrationNonce? {
+        do {
+            return try await obtainNonce(id: id)
+        } catch {
+            throw RegisterUserWalletError.obtainNonceFailed(error)
+        }
+    }
+
     private func prepareRegistrationRequest(
         id: UserWalletId,
+        nonce: UserWalletRegistrationNonce,
         signer: some UserWalletRegistrationSigner
     ) async throws(RegisterUserWalletError) -> UserWalletRegistrationRequest? {
         do {
-            return try await prepare(id: id, signer: signer)
+            return try await prepare(id: id, nonce: nonce, signer: signer)
         } catch {
             throw RegisterUserWalletError.prepareFailed(error)
         }

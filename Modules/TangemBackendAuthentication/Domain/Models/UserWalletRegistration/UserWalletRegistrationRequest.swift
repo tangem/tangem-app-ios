@@ -13,7 +13,7 @@ import struct TangemFoundation.UserWalletId
 /// produced by ``PrepareUserWalletRegistrationUseCase`` and consumed by ``SubmitUserWalletRegistrationUseCase``.
 public struct UserWalletRegistrationRequest: Sendable {
     let id: UserWalletId
-    let attestation: UserWalletAttestation
+    let walletAttestation: UserWalletAttestation
     let decryptedNonce: String
     let appAttestationToken: Data?
     let metadata: DeviceMetadata

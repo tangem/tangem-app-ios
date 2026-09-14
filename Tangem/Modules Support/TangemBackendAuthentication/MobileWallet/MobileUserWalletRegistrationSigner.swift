@@ -85,11 +85,11 @@ struct MobileUserWalletRegistrationSigner: UserWalletRegistrationSigner {
             throw UserWalletRegistrationSignerError.keyDerivationFailed(underlying: error)
         }
 
-        guard let secp256k1Key = mobileWallet.wallets.first(where: { $0.curve == .secp256k1 }) else {
-            throw UserWalletRegistrationSignerError.walletKeyUnavailable
+        do {
+            return try UserWalletRegistrationKeyUtils.walletPublicKeyToRegister(in: mobileWallet.wallets)
+        } catch {
+            throw UserWalletRegistrationSignerError.walletKeyUnavailable(underlying: error)
         }
-
-        return secp256k1Key.publicKey
     }
 }
 

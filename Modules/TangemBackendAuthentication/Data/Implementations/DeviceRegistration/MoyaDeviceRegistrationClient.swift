@@ -10,6 +10,7 @@ import Foundation
 import enum Moya.MoyaError
 import class Moya.MoyaProvider
 import class Moya.Response
+import TangemFoundation
 
 struct MoyaDeviceRegistrationClient: DeviceRegistrationClient {
     private let provider: MoyaProvider<BackendAuthenticationTarget>
@@ -21,7 +22,7 @@ struct MoyaDeviceRegistrationClient: DeviceRegistrationClient {
         self.baseURL = baseURL
 
         decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .customISO8601
     }
 
     func requestCipheredNonce(devicePublicKey: DevicePublicKey) async throws(DeviceRegistrationClientError) -> String {

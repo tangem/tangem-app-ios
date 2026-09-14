@@ -1004,5 +1004,9 @@ extension Analytics {
         case forYouEarnTokenOpened = "[For You] Earn Token Opened"
         case forYouExploreAllTokens = "[For You] Explore All Tokens"
         case forYouIndicatorInfo = "[For You] Indicator Info"
+
+        // MARK: - Backend Authentication
+
+        case userWalletRegistrationUnexpectedCurve = "[Backend Auth] Unexpected Wallet Curve"
     }
 }
