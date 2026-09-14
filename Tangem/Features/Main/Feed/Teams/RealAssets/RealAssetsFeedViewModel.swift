@@ -15,10 +15,13 @@ final class RealAssetsFeedViewModel: ObservableObject {
 
     @Injected(\.marketsCategoriesProvider) private var categoriesProvider: MarketsCategoriesProvider
 
+    let promoBanner: PromotionNotificationsViewModel
+
     private let router: any RealAssetsFeedRoutable
     private var sheetSize: ShtorkaSize = .collapsed
 
-    init(router: any RealAssetsFeedRoutable) {
+    init(promotionNotificationsManager: PromotionNotificationsManager, router: any RealAssetsFeedRoutable) {
+        promoBanner = PromotionNotificationsViewModel(promotionNotificationsManager: promotionNotificationsManager)
         self.router = router
     }
 

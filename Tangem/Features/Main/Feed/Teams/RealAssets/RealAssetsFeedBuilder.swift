@@ -9,7 +9,12 @@ import Combine
 
 struct RealAssetsFeedBuilder: FeedTabBuilder {
     func makeTab(context: FeedContext) -> FeedTab {
-        .realAssets(RealAssetsFeedViewModel(router: RealAssetsFeedRouter(context: context)))
+        .realAssets(
+            RealAssetsFeedViewModel(
+                promotionNotificationsManager: NewsPromotionNotificationsManager(placement: .realAssets),
+                router: RealAssetsFeedRouter(context: context)
+            )
+        )
     }
 
     func makeSearchTab(
