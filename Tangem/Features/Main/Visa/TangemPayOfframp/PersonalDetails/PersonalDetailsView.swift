@@ -32,6 +32,7 @@ struct PersonalDetailsView: View {
             onClose: viewModel.onCloseTap
         )
         .onChange(of: focusedField, perform: viewModel.focusedFieldDidChange(to:))
+        .onAppear(perform: viewModel.refresh)
     }
 }
 

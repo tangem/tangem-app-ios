@@ -46,6 +46,10 @@ final class BankDetailsViewModel: ObservableObject {
         fields.allSatisfy { $0.currentError == nil }
     }
 
+    func refresh() {
+        fields = Self.makeFields(details: orderBuilder.bankDetails)
+    }
+
     func focusedFieldDidChange(to id: OfframpFormField.ID?) {
         defer { focusedFieldID = id }
 

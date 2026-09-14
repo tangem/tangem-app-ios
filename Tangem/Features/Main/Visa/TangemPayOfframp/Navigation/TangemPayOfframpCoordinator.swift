@@ -8,6 +8,7 @@
 
 import Combine
 import TangemFoundation
+import TangemPay
 import TangemUI
 
 final class TangemPayOfframpCoordinator: CoordinatorObject {
@@ -28,10 +29,11 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
     // MARK: - Shared state
 
     private(set) var recentRecipientsStore: TangemPayRecentRecipientsStore?
+    private(set) var optionsStore: TangemPayOfframpOptionsStore?
     private(set) var orderBuilder: TangemPayOfframpOrderBuilder?
+    private(set) var hasNFCInteraction = false
     @Published private(set) var transferInputViewModel: TransferInputViewModel?
 
-    private var tangemPayAccount: TangemPayAccount?
     private var bag: Set<AnyCancellable> = []
 
     required init(
@@ -43,7 +45,7 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        tangemPayAccount = options.tangemPayAccount
+        hasNFCInteraction = options.hasNFCInteraction
 
         let recentRecipientsStore = TangemPayRecentRecipientsStore(
             repository: CommonTangemPayBankAccountsRepository(
@@ -54,12 +56,23 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
         )
         self.recentRecipientsStore = recentRecipientsStore
 
+        let optionsStore = TangemPayOfframpOptionsStore(
+            optionsRepository: CommonTangemPayOfframpOptionsRepository(
+                customerService: options.tangemPayAccount.customerService
+            ),
+            accountTokensProvider: { [tangemPayAccount = options.tangemPayAccount] in
+                await Self.accountTokens(for: tangemPayAccount)
+            }
+        )
+        self.optionsStore = optionsStore
+
         rootViewModel = WithdrawHubViewModel(
             withdrawFlowResolver: TangemPayWithdrawFlowResolver(
                 fundingFlowBuilder: options.fundingFlowBuilder,
                 withdrawAvailabilityProvider: options.tangemPayAccount.withdrawAvailabilityProvider
             ),
             recentRecipientsStore: recentRecipientsStore,
+            optionsStore: optionsStore,
             output: { [weak self] in
                 self?.handle($0)
             }
@@ -69,7 +82,7 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
     }
 
     func startWizard(recipient: TangemPayOfframpRecipient) {
-        guard let tangemPayAccount else { return }
+        guard let optionsStore else { return }
 
         let orderBuilder = TangemPayOfframpOrderBuilder(recipient: recipient)
         self.orderBuilder = orderBuilder
@@ -81,7 +94,7 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
 
             transferInputViewModel = TransferInputFactory.makeViewModel(
                 orderBuilder: orderBuilder,
-                tangemPayAccount: tangemPayAccount,
+                optionsStore: optionsStore,
                 recipient: recipient,
                 savedRecipientName: savedRecipientName,
                 output: { [weak self] in
@@ -100,6 +113,7 @@ extension TangemPayOfframpCoordinator {
     struct Options {
         let tangemPayAccount: TangemPayAccount
         let fundingFlowBuilder: TangemPayFundingFlowBuilder
+        let hasNFCInteraction: Bool
     }
 
     typealias DismissOptions = FeeCurrencyNavigatingDismissOption
@@ -113,8 +127,27 @@ extension TangemPayOfframpCoordinator {
         case transferInput
         case transferType
         case accountType
-        case personalDetails
-        case bankDetails
+        case personalDetails(Mode)
+        case bankDetails(Mode)
+        case transferConfirmation
+    }
+
+    enum Mode: Hashable {
+        case wizard
+        case edit
+    }
+}
+
+// MARK: - Account tokens
+
+private extension TangemPayOfframpCoordinator {
+    @MainActor
+    static func accountTokens(for account: TangemPayAccount) async -> [TangemPayAccountToken] {
+        if account.networks.isEmpty {
+            await account.loadBalance()
+        }
+
+        return TangemPayAccountTokensResolver().resolve(networks: account.networks)
     }
 }
 
@@ -135,12 +168,22 @@ private extension TangemPayOfframpCoordinator {
     }
 
     func savedRecipientName(for recipient: TangemPayOfframpRecipient) -> String? {
+        savedRecipient(for: recipient)
+            .map { TangemPayRecipientNameFormatter.name(for: $0, style: .full) }
+    }
+
+    func savedRecipient(for recipient: TangemPayOfframpRecipient) -> TangemPayBankAccountResponse? {
         guard case .saved(let bankAccountId) = recipient else { return nil }
 
-        return recentRecipientsStore?
-            .recipients
-            .first { $0.id == bankAccountId }
-            .map { TangemPayRecipientNameFormatter.name(for: $0, style: .full) }
+        return recentRecipientsStore?.recipients.first { $0.id == bankAccountId }
+    }
+}
+
+// MARK: - Active recipient
+
+extension TangemPayOfframpCoordinator {
+    var activeSavedRecipient: TangemPayBankAccountResponse? {
+        orderBuilder.flatMap { savedRecipient(for: $0.recipient) }
     }
 }
 
@@ -150,7 +193,11 @@ private extension TangemPayOfframpCoordinator {
     func handle(_ output: TransferInputViewModel.Output) {
         switch output {
         case .continueWizard:
-            continueAfterTransferInput()
+            if path.contains(.transferConfirmation) {
+                popToConfirmation()
+            } else {
+                continueAfterTransferInput()
+            }
 
         case .close:
             dismiss(with: nil)
@@ -174,28 +221,47 @@ extension TangemPayOfframpCoordinator {
     func handle(_ output: AccountTypeViewModel.Output) {
         switch output {
         case .continueWizard:
-            path.append(.personalDetails)
+            path.append(.personalDetails(.wizard))
 
         case .close:
             dismiss(with: nil)
         }
     }
 
-    func handle(_ output: PersonalDetailsViewModel.Output) {
+    func handle(_ output: PersonalDetailsViewModel.Output, mode: Mode) {
         switch output {
         case .continueWizard:
-            path.append(.bankDetails)
+            switch mode {
+            case .wizard:
+                path.append(.bankDetails(.wizard))
+            case .edit:
+                popToConfirmation()
+            }
 
         case .close:
             dismiss(with: nil)
         }
     }
 
-    func handle(_ output: BankDetailsViewModel.Output) {
+    func handle(_ output: BankDetailsViewModel.Output, mode: Mode) {
         switch output {
         case .continueWizard:
-            // [REDACTED_TODO_COMMENT]
-            break
+            switch mode {
+            case .wizard:
+                path.append(.transferConfirmation)
+            case .edit:
+                popToConfirmation()
+            }
+
+        case .close:
+            dismiss(with: nil)
+        }
+    }
+
+    func handle(_ output: TransferConfirmationViewModel.Output) {
+        switch output {
+        case .edit(let target):
+            path.append(route(for: target))
 
         case .close:
             dismiss(with: nil)
@@ -217,8 +283,21 @@ private extension TangemPayOfframpCoordinator {
             path.append(.accountType)
 
         case .saved:
-            // [REDACTED_TODO_COMMENT]
-            break
+            path.append(.transferConfirmation)
+        }
+    }
+
+    func popToConfirmation() {
+        guard let index = path.lastIndex(of: .transferConfirmation) else { return }
+
+        path.removeSubrange((index + 1)...)
+    }
+
+    func route(for target: TransferConfirmationEditTarget) -> Route {
+        switch target {
+        case .amount: .transferInput
+        case .personalDetails: .personalDetails(.edit)
+        case .bankDetails: .bankDetails(.edit)
         }
     }
 }
