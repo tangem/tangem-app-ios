@@ -159,11 +159,16 @@ private extension PolymarketCoordinator {
         self.balanceProvider = balanceProvider
         self.accountFundsInteractor = accountFundsInteractor
 
+        let apiProvider = PolymarketAPIProviderFactory().makeProvider()
+
         viewState = .main(PolymarketMainViewModel(
-            apiProvider: PolymarketAPIProviderFactory().makeProvider(),
+            apiProvider: apiProvider,
             geoblockStateProvider: geoblockStateProvider,
             balanceProvider: balanceProvider,
             accountFundsInteractor: accountFundsInteractor,
+            positionsService: userWalletModel.map {
+                PolymarketPositionsFactory().makeService(for: $0, apiProvider: apiProvider)
+            },
             coordinator: self
         ))
     }
