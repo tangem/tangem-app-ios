@@ -45,7 +45,7 @@ private extension PolymarketPositionHeader.Model {
         question: "Will Uzbekistan win the 2026 FIFA World Cup?",
         outcomeTitle: "Yes",
         outcomeStyle: PolymarketOutcomeStyle(outcomeIndex: 0),
-        payoutText: "Payout if wins $4,400.02"
+        payoutAmount: "$4,400.02"
     )
 
     static let losing = PolymarketPositionHeader.Model(
@@ -56,7 +56,7 @@ private extension PolymarketPositionHeader.Model {
         question: "Will France not win the 2026 FIFA World Cup?",
         outcomeTitle: "No",
         outcomeStyle: PolymarketOutcomeStyle(outcomeIndex: 1),
-        payoutText: nil
+        payoutAmount: nil
     )
 
     static let settled = PolymarketPositionHeader.Model(
@@ -67,6 +67,6 @@ private extension PolymarketPositionHeader.Model {
         question: "Will the German Super League NRW T10 match between Westfalen Royals and SC Krefeld end in a draw?",
         outcomeTitle: "No",
         outcomeStyle: PolymarketOutcomeStyle(outcomeIndex: 1),
-        payoutText: "Payout if wins $1,000.00"
+        payoutAmount: "$1,000.00"
     )
 }

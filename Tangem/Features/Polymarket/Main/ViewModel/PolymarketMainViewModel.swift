@@ -68,6 +68,7 @@ final class PolymarketMainViewModel: ObservableObject {
     private var cache: [Int?: CategoryState] = [:]
     private var loadingTask: Task<Void, Never>?
     private var positionsTask: Task<Void, Never>?
+    private var openPositions: [PolymarketPosition] = []
 
     init(
         apiProvider: PolymarketAPIProvider,
@@ -194,18 +195,32 @@ final class PolymarketMainViewModel: ObservableObject {
 
         positionsTask = runTask(in: self) { @MainActor viewModel in
             do {
-                let positions = try await positionsService.activePositions(limit: Constants.positionsLimit)
+                let positions = try await Self.activePositions(service: positionsService)
                 try Task.checkCancellation()
 
-                viewModel.positionsState = .loaded(
-                    positions.prefix(Constants.positionsShown).map(PolymarketPositionRow.Model.make(position:))
-                )
+                viewModel.openPositions = Array(positions.prefix(Constants.positionsShown))
+                viewModel.positionsState = .loaded(viewModel.openPositions.map(PolymarketPositionRow.Model.make(position:)))
             } catch {
                 guard !error.isCancellationError else { return }
 
                 PolymarketLogger.error("Failed to load the open positions", error: error)
+
+                if case .loaded = viewModel.positionsState { return }
+
                 viewModel.positionsState = .failed
             }
+        }
+    }
+
+    private static func activePositions(service: PolymarketPositionsService) async throws -> [PolymarketPosition] {
+        do {
+            return try await service.activePositions(limit: Constants.positionsLimit)
+        } catch {
+            guard (error as? PolymarketAPIError)?.isTransient == true else { throw error }
+
+            try await Task.sleep(for: .seconds(Constants.positionsRetryDelay))
+
+            return try await service.activePositions(limit: Constants.positionsLimit)
         }
     }
 
@@ -519,6 +534,17 @@ private extension PolymarketMainViewModel {
         static let awaitingFundsBalanceRefreshInterval: TimeInterval = 5
         static let positionsLimit = 10
         static let positionsShown = 3
+        static let positionsRetryDelay: TimeInterval = 1
+    }
+}
+
+// MARK: - Positions
+
+extension PolymarketMainViewModel {
+    func openPosition(id: String) {
+        guard let position = openPositions.first(where: { $0.id == id }) else { return }
+
+        coordinator?.openPositionDetails(position: position)
     }
 }
 
