@@ -181,7 +181,7 @@ struct PolymarketMainView: View {
             positionsBlock {
                 VStack(spacing: Constants.positionsRowSpacing) {
                     ForEach(models) { model in
-                        PolymarketPositionRow(model: model)
+                        PolymarketPositionRow(model: model) { viewModel.openPosition(id: model.id) }
                     }
 
                     seeAllPositionsButton

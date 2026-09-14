@@ -114,4 +114,8 @@ public extension PolymarketAmountBadge {
     static func toWin(state: State) -> PolymarketAmountBadge {
         PolymarketAmountBadge(state: state, appearance: .info, label: Localization.predictionPlaceToWin)
     }
+
+    static func payout(state: State) -> PolymarketAmountBadge {
+        PolymarketAmountBadge(state: state, appearance: .info, label: Localization.predictionPositionsPayout)
+    }
 }

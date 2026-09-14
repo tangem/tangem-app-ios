@@ -17,6 +17,10 @@ enum PolymarketOrderResultFormatter {
         resolutionDateFormatter.string(from: date)
     }
 
+    static func resolutionDay(_ date: Date) -> String {
+        resolutionDayFormatter.string(from: date)
+    }
+
     private static let placedAtFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .long
@@ -31,6 +35,14 @@ enum PolymarketOrderResultFormatter {
         formatter.timeZone = Constants.exchangeTimeZone
         return formatter
     }()
+
+    private static let resolutionDayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        formatter.timeZone = Constants.calendarDayTimeZone
+        return formatter
+    }()
 }
 
 // MARK: - Constants
@@ -38,5 +50,6 @@ enum PolymarketOrderResultFormatter {
 private extension PolymarketOrderResultFormatter {
     enum Constants {
         static let exchangeTimeZone = TimeZone(identifier: "America/New_York")
+        static let calendarDayTimeZone = TimeZone(identifier: "GMT")
     }
 }

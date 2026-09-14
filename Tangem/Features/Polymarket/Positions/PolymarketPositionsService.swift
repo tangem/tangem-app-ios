@@ -44,17 +44,26 @@ extension CommonPolymarketPositionsService: PolymarketPositionsService {
 
         let depositWalletAddress = try PolymarketDepositWalletDeriver.derive(ownerAddress: ownerAddress)
 
-        let page = try await apiProvider.positions(
-            request: PolymarketPositionsRequest(
-                depositWalletAddress: depositWalletAddress,
-                walletId: userWalletId.stringValue,
-                limit: limit
-            )
-        )
+        var collected: [PolymarketPosition] = []
+        var offset = 0
 
-        return page.positions
-            .filter { $0.settlement == nil }
-            .sorted(by: endsSooner)
+        for _ in 0 ..< Constants.activePageScans {
+            let page = try await apiProvider.positions(
+                request: PolymarketPositionsRequest(
+                    depositWalletAddress: depositWalletAddress,
+                    walletId: userWalletId.stringValue,
+                    limit: limit,
+                    offset: offset
+                )
+            )
+
+            collected += page.positions.filter { $0.settlement == nil }
+            offset += page.positions.count
+
+            guard collected.count < limit, page.hasNext, !page.positions.isEmpty else { break }
+        }
+
+        return Array(collected.sorted(by: endsSooner).prefix(limit))
     }
 }
 
@@ -67,5 +76,13 @@ private extension CommonPolymarketPositionsService {
         case (.some, .none): true
         case (.none, .some), (.none, .none): false
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension CommonPolymarketPositionsService {
+    enum Constants {
+        static let activePageScans = 3
     }
 }

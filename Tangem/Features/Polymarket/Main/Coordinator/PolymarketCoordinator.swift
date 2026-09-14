@@ -40,6 +40,7 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
         }
     }
 
+    @Published var positionHint: PolymarketPositionHintSheetView.Model?
     @Published var orderCoordinator: PolymarketOrderCoordinator?
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator?
 
@@ -198,6 +199,19 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
             geoblockStateProvider: geoblockStateProvider,
             coordinator: self
         ))
+    }
+
+    func openPositionDetails(position: PolymarketPosition) {
+        destination = .positionDetails(.make(
+            position: position,
+            onClosePosition: { [weak self] in self?.dismissPositionDetails() },
+            onBuy: { [weak self] in self?.dismissPositionDetails() },
+            onHint: { [weak self] hint in self?.positionHint = hint }
+        ))
+    }
+
+    private func dismissPositionDetails() {
+        destination = nil
     }
 
     func openOrder(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {
@@ -371,5 +385,6 @@ extension PolymarketCoordinator {
 extension PolymarketCoordinator {
     enum Destination {
         case eventDetails(PolymarketEventDetailsViewModel)
+        case positionDetails(PolymarketPositionDetailsView.Model)
     }
 }
