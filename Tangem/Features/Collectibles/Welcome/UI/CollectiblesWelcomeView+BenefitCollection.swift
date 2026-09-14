@@ -46,8 +46,8 @@ private extension BenefitCollection {
             ),
             .init(
                 icon: DesignSystem.Icons.ShieldCheckmark.regular24,
-                title: "Your keys, funds and cards",
-                subtitle: "Only your card moves them out"
+                title: "Cards go to your cold wallet",
+                subtitle: "Only your card can move them"
             ),
             .init(
                 icon: DesignSystem.Icons.ShieldCheckmark.regular24,
@@ -56,8 +56,8 @@ private extension BenefitCollection {
             ),
             .init(
                 icon: DesignSystem.Icons.Wallet.regular24,
-                title: "Instant offers",
-                subtitle: "85–90% of insured value, in USDC"
+                title: "Instant optional sell offers",
+                subtitle: "85–93% of insured value, in USDC"
             ),
         ]
     }

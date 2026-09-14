@@ -37,7 +37,7 @@ extension CollectiblesAPIService: CollectiblesPacksProvider {
     func load(loreID: String?, query: String, cursor: String?) async throws -> CollectiblesPacksPage {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        let machinesRequest = CollectiblesMachinesRequest(
+        let machinesRequest = CollectiblesDTO.MachinesRequest(
             categoryID: loreID,
             search: trimmedQuery.isEmpty ? nil : trimmedQuery,
             limit: Constants.pageLimit,

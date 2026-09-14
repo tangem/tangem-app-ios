@@ -16,19 +16,23 @@ extension CollectiblesWelcomeView {
     struct Footer: View {
         let isLoading: Bool
         let onCreateAccountTap: () -> Void
+        let onTermsTap: (URL) -> Void
 
         var body: some View {
             VStack(spacing: 12) {
-                Text(Self.legalTermsText)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                    .multilineTextAlignment(.center)
+                legalTerms
 
                 createAccountButton
             }
             .padding(.horizontal, 16)
-            .padding(.top, Metrics.topPadding)
-            .padding(.bottom, 12)
-            .background { background.ignoresSafeArea(edges: .bottom) }
+            .padding(.vertical, 8)
+            .background {
+                Fade(position: .bottom)
+                    .variant(.hard)
+                    .blurred()
+                    .padding(.top, -Metrics.fadeOverhang)
+                    .ignoresSafeArea(edges: .bottom)
+            }
         }
     }
 }
@@ -36,9 +40,20 @@ extension CollectiblesWelcomeView {
 // MARK: - Footer + Content
 
 private extension Footer {
+    var legalTerms: some View {
+        Text(Self.legalTermsText)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+            .multilineTextAlignment(.center)
+            .tint(DesignSystem.Color.textPrimary)
+            .environment(\.openURL, OpenURLAction { url in
+                onTermsTap(url)
+                return .handled
+            })
+    }
+
     var createAccountButton: some View {
         // [REDACTED_TODO_COMMENT]
-        TangemUI.Button(label: "Create Collectibles account", accessibilityLabel: nil, action: onCreateAccountTap)
+        TangemUI.Button(label: "Create Packs account", accessibilityLabel: nil, action: onCreateAccountTap)
             .iconEnd(DesignSystem.Icons.LogoTangem.regular24)
             .styleType(.default)
             .horizontalLayout(.infinity)
@@ -46,42 +61,38 @@ private extension Footer {
             .loading(.spinner(if: isLoading))
     }
 
-    var background: some View {
-        DesignSystem.Color.bgPrimary
-            .overlay(alignment: .top) {
-                LinearGradient(
-                    colors: [.clear, DesignSystem.Color.bgPrimary],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: Metrics.fadeHeight)
-                .alignmentGuide(.top) { $0[.bottom] }
-            }
-    }
-
     // [REDACTED_TODO_COMMENT]
     static let legalTermsText: AttributedString = {
         let collectorCryptTerms = "Collector Crypt T&Cs"
         let tangemTerms = "Tangem T&Cs"
+        let privacyNotice = "Privacy Notice"
 
-        var text = AttributedString("By creating a Collectibles account you agree with \(collectorCryptTerms) and \(tangemTerms)")
+        var text = AttributedString(
+            "By continuing, you confirm that you have read and agree to the \(collectorCryptTerms), \(tangemTerms) and \(privacyNotice)"
+        )
 
-        for terms in [collectorCryptTerms, tangemTerms] {
-            if let range = text.range(of: terms) {
-                text[range].foregroundColor = DesignSystem.Color.textPrimary
-            }
-        }
+        highlight(collectorCryptTerms, in: &text)
+        highlight(tangemTerms, linkingTo: AppConstants.tosURL, in: &text)
+        highlight(privacyNotice, linkingTo: AppConstants.privacyPolicyURL, in: &text)
 
         return text
     }()
+
+    static func highlight(_ title: String, linkingTo url: URL? = nil, in text: inout AttributedString) {
+        guard let range = text.range(of: title) else {
+            return
+        }
+
+        text[range].foregroundColor = DesignSystem.Color.textPrimary
+        text[range].link = url
+    }
 }
 
 // MARK: - Metrics
 
 private extension Footer {
     enum Metrics {
-        static let topPadding: CGFloat = 8
-        static let fadeHeight: CGFloat = 56
+        static let fadeOverhang: CGFloat = 16
     }
 }
 
@@ -91,6 +102,6 @@ private extension Footer {
     ZStack(alignment: .bottom) {
         DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
-        Footer(isLoading: false, onCreateAccountTap: {})
+        Footer(isLoading: false, onCreateAccountTap: {}, onTermsTap: { _ in })
     }
 }

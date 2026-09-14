@@ -7,6 +7,9 @@
 //
 
 import Combine
+import Foundation
+import TangemLocalization
+import TangemUIUtils
 
 final class CollectiblesWelcomeViewModel: ObservableObject {
     // MARK: - Properties
@@ -16,6 +19,7 @@ final class CollectiblesWelcomeViewModel: ObservableObject {
     // MARK: - Publishers
 
     @Published private(set) var isOpeningStories = false
+    @Published var alert: AlertBinder?
 
     // MARK: - Init
 
@@ -26,7 +30,7 @@ final class CollectiblesWelcomeViewModel: ObservableObject {
     // MARK: - Methods
 
     // [REDACTED_TODO_COMMENT]
-    // for now the CTA plays a loader and runs the intro stories.
+    // `creationFailureAlert` on failure; for now the CTA plays a loader and runs the intro stories.
     func onCreateAccountTap() {
         guard !isOpeningStories else { return }
 
@@ -35,7 +39,26 @@ final class CollectiblesWelcomeViewModel: ObservableObject {
         Task { @MainActor [weak self] in
             try await Task.sleep(for: .seconds(1.5))
 
-            self?.routable?.openStories()
+            guard let self else { return }
+
+            isOpeningStories = false
+            routable?.openStories()
         }
     }
+
+    func onLegalTermsTap(url: URL) {
+        Task { @MainActor [weak self] in
+            self?.routable?.openLegalTerms(url: url)
+        }
+    }
+}
+
+// MARK: - Alerts
+
+private extension CollectiblesWelcomeViewModel {
+    // [REDACTED_TODO_COMMENT]
+    static let creationFailureAlert = AlertBinder(
+        title: Localization.commonSomethingWentWrong,
+        message: "We couldn't create Packs account. Please try again later."
+    )
 }
