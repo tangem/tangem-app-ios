@@ -116,7 +116,26 @@ extension MainCoordinator {
 
             case .jointAccountInvite:
                 return routeJointAccountInviteAction(params: navigationAction.params)
+
+            case .payCustomCard:
+                return routePayCustomCardAction(params: navigationAction.params)
             }
+        }
+
+        private func routePayCustomCardAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            let campaignService = TangemPayCampaignService()
+
+            guard FeatureProvider.isAvailable(.tangemPayCustomCards),
+                  let campaignKey = params.campaignId?.nilIfEmpty ?? campaignService.pendingCampaignKey,
+                  let coordinator
+            else {
+                incomingActionManager.discardIncomingAction()
+                campaignService.clearPending()
+                return false
+            }
+
+            coordinator.openDeepLink(.tangemPayCustomCard(campaignKey: campaignKey))
+            return true
         }
 
         private func routeJointAccountInviteAction(params: DeeplinkNavigationAction.Params) -> Bool {

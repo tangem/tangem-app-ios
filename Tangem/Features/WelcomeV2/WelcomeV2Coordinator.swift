@@ -55,6 +55,7 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     @Published var welcomeStoryViewModel: WelcomeStoryPresentationViewModel?
     @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
     @Published var tangemPayMobileOnboardingCoordinator: TangemPayMobileOnboardingCoordinator?
+    @Published var tangemPayCampaignCoordinator: TangemPayCampaignCoordinator?
 
     private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
 
@@ -119,6 +120,8 @@ final class WelcomeV2Coordinator: CoordinatorObject {
         switch state.deepLink {
         case .tangemPay:
             showTangemPayMobileOnboarding()
+        case .tangemPayCampaign(let campaignKey):
+            showTangemPayCampaign(campaignKey: campaignKey)
         case .promo:
             presentCreateWallet()
         case .none:
@@ -142,6 +145,33 @@ final class WelcomeV2Coordinator: CoordinatorObject {
         tangemPayMobileOnboardingCoordinator = coordinator
     }
 
+    private func showTangemPayCampaign(campaignKey: String) {
+        guard tangemPayCampaignCoordinator == nil else { return }
+
+        // Both the stored key and the action that carries it have to be consumed at presentation.
+        // Leaving either behind makes `MainCoordinator` open the campaign again on every launch.
+        TangemPayCampaignService().clearPending()
+        incomingActionManager.discardIncomingAction { action in
+            guard case .navigation(let navigationAction) = action else { return false }
+            return navigationAction.destination == .payCustomCard
+        }
+
+        let dismissAction: Action<TangemPayCampaignCoordinator.OutputOptions> = { [weak self] options in
+            guard let self else { return }
+
+            switch options {
+            case .close:
+                tangemPayCampaignCoordinator = nil
+            case .finished(let userWalletModel), .finishedWithPlanSelection(let userWalletModel):
+                openMain(with: userWalletModel)
+            }
+        }
+
+        let coordinator = TangemPayCampaignCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: .init(campaignKey: campaignKey))
+        tangemPayCampaignCoordinator = coordinator
+    }
+
     private func resetChildCoordinators() {
         cardScanTask?.cancel()
         cardScanTask = nil
@@ -151,6 +181,7 @@ final class WelcomeV2Coordinator: CoordinatorObject {
         sheetTransitionTask = nil
         importOnboardingCoordinator = nil
         tangemPayMobileOnboardingCoordinator = nil
+        tangemPayCampaignCoordinator = nil
         welcomeStoryViewModel = nil
     }
 }
