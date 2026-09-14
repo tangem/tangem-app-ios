@@ -128,6 +128,15 @@ extension NotificationEvent {
             }
         } else if self is GetTangemPayBannerNotificationEvent {
             return TangemPayAccessibilityIdentifiers.getTangemPayBanner
+        } else if let tangemPayEvent = self as? TangemPayNotificationEvent {
+            switch tangemPayEvent {
+            case .sessionExpired:
+                return TangemPayAccessibilityIdentifiers.sessionExpiredNotification
+            case .unavailable:
+                return TangemPayAccessibilityIdentifiers.serviceUnavailableNotification
+            case .tangemPayIsNowBeta:
+                return nil
+            }
         }
         return nil
     }

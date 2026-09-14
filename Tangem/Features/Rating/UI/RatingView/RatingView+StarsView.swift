@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 extension RatingView {
     struct StarsView: View {
@@ -38,8 +39,10 @@ extension RatingView {
                     image
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier(RatingAccessibilityIdentifiers.star(rating.rawValue))
             } else {
                 image
+                    .accessibilityIdentifier(RatingAccessibilityIdentifiers.star(rating.rawValue))
             }
         }
 

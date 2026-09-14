@@ -972,6 +972,25 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     }
 
     @discardableResult
+    func verifySuggestedAccountVisible(_ accountName: String) -> Self {
+        XCTContext.runActivity(named: "Verify account '\(accountName)' is listed in the suggested wallets block") { _ in
+            waitAndAssertTrue(suggestedAccount(accountName), "Account '\(accountName)' should be listed in the suggested wallets block")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifySuggestedAccountNotVisible(_ accountName: String) -> Self {
+        XCTContext.runActivity(named: "Verify account '\(accountName)' is not listed in the suggested wallets block") { _ in
+            XCTAssertFalse(
+                suggestedAccount(accountName).waitForExistence(timeout: .conditional),
+                "Account '\(accountName)' should not be listed in the suggested wallets block"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func waitForMyWalletsBlockDisplayed() -> Self {
         XCTContext.runActivity(named: "Validate 'My Wallets' block is displayed") { _ in
             waitAndAssertTrue(myWalletsBlock, "'My Wallets' block should be displayed")
@@ -1299,6 +1318,10 @@ final class SendScreen: ScreenBase<SendScreenElement> {
             clear()
         }
         XCTFail("Amount field was '\(field.getValue())', expected digits '\(digits)' after \(maxAttempts) attempts")
+    }
+
+    private func suggestedAccount(_ accountName: String) -> XCUIElement {
+        app.staticTexts[SendAccessibilityIdentifiers.suggestedDestinationWalletAccount(name: accountName)].firstMatch
     }
 }
 

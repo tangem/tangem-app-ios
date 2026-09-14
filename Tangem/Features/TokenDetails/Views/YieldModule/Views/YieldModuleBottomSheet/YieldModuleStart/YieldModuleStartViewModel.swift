@@ -74,7 +74,20 @@ final class YieldModuleStartViewModel: ObservableObject {
     private(set) var feePolicyFooter: String?
 
     @Published
-    private(set) var chartState: YieldChartContainerState = .loading
+    private(set) var rateInfoContent: RateInfoChartContent = .loading
+
+    @Published
+    var incentivePeriod: YieldIncentiveChartPeriod = .week {
+        didSet {
+            guard incentivePeriod != oldValue else { return }
+            fetchRateInfoChart()
+        }
+    }
+
+    /// Fixed at init: every entry point already has the market loaded, so the campaign copy never changes mid-flight.
+    let marketIncentive: YieldModuleMarketIncentive?
+
+    private let currentApy: Decimal?
 
     @Published
     private(set) var isProcessingStartRequest: Bool = false
@@ -86,17 +99,22 @@ final class YieldModuleStartViewModel: ObservableObject {
     private let yieldManagerInteractor: YieldManagerInteractor
     private let notificationManager: YieldModuleNotificationManager
     private let logger: YieldAnalyticsLogger
+    private let percentFormatter = PercentFormatter()
     private lazy var feeConverter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
 
     // MARK: - Properties
 
     private(set) var maximumFee: Decimal = 0
 
+    private var rateInfoChartTask: Task<Void, Never>?
+
     // MARK: - Init
 
     init(
         walletModel: any WalletModel,
         viewState: ViewState,
+        marketIncentive: YieldModuleMarketIncentive?,
+        currentApy: Decimal?,
         coordinator: YieldModulePromoCoordinator?,
         yieldManagerInteractor: YieldManagerInteractor,
         logger: YieldAnalyticsLogger,
@@ -104,6 +122,8 @@ final class YieldModuleStartViewModel: ObservableObject {
         confirmTransactionPolicy: ConfirmTransactionPolicy
     ) {
         self.viewState = viewState
+        self.marketIncentive = marketIncentive
+        self.currentApy = currentApy
         self.walletModel = walletModel
         self.coordinator = coordinator
         self.yieldManagerInteractor = yieldManagerInteractor
@@ -161,26 +181,40 @@ final class YieldModuleStartViewModel: ObservableObject {
         previousState.map { viewState = $0 }
     }
 
+    var currentIncentiveApyFormatted: String {
+        currentApy.map { percentFormatter.format($0, option: .earn) } ?? AppConstants.emDashSign
+    }
+
+    func retryRateInfoChart() {
+        fetchRateInfoChart()
+    }
+
     // MARK: - Public Implementation
 
-    private func fetchChartData() {
-        Task { @MainActor [weak self] in
-            self?.chartState = .loading
+    private func fetchRateInfoChart() {
+        rateInfoChartTask?.cancel()
+        rateInfoChartTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            rateInfoContent = .loading
 
             do {
-                let chartData = try await self?.yieldManagerInteractor.getChartData()
-
-                if let chartData {
-                    self?.chartState = .loaded(chartData)
+                if case .incentiveRateInfo = viewState {
+                    let period = incentivePeriod
+                    let data = try await yieldManagerInteractor.getIncentiveChartData(period: period)
+                    // The awaited call may outlive a period switch; only the still-selected period may write.
+                    guard !Task.isCancelled, period == incentivePeriod else { return }
+                    rateInfoContent = data.baseApyData.isEmpty ? .unavailable : .incentive(data)
                 } else {
-                    self?.chartState = .error(action: { [weak self] in
-                        self?.fetchChartData()
-                    })
+                    let data = try await yieldManagerInteractor.getChartData()
+                    guard !Task.isCancelled else { return }
+                    rateInfoContent = .legacy(data)
                 }
+            } catch let error where error.isCancellationError {
+                // A newer fetch owns the content.
             } catch {
-                self?.chartState = .error(action: { [weak self] in
-                    self?.fetchChartData()
-                })
+                guard !Task.isCancelled else { return }
+                rateInfoContent = .error
             }
         }
     }
@@ -231,8 +265,8 @@ final class YieldModuleStartViewModel: ObservableObject {
 
     private func fetchData(for state: ViewState) {
         switch state {
-        case .rateInfo:
-            fetchChartData()
+        case .rateInfo, .incentiveRateInfo:
+            fetchRateInfoChart()
         case .startEarning:
             fetchFees()
         case .feePolicy:
@@ -332,11 +366,24 @@ final class YieldModuleStartViewModel: ObservableObject {
     }
 }
 
+// MARK: - Rate-info chart content
+
+extension YieldModuleStartViewModel {
+    enum RateInfoChartContent: Equatable {
+        case loading
+        case legacy(YieldChartData)
+        case incentive(YieldIncentiveChartData)
+        case unavailable
+        case error
+    }
+}
+
 // MARK: - View State
 
 extension YieldModuleStartViewModel {
     enum ViewState: Identifiable, Equatable {
         case rateInfo
+        case incentiveRateInfo
         case feePolicy
         case startEarning
 
@@ -346,6 +393,8 @@ extension YieldModuleStartViewModel {
             switch self {
             case .rateInfo:
                 "rateInfo"
+            case .incentiveRateInfo:
+                "incentiveRateInfo"
             case .feePolicy:
                 "feePolicy"
             case .startEarning:
