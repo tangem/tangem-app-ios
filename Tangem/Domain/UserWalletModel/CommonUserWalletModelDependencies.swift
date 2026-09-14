@@ -248,7 +248,7 @@ private extension CommonUserWalletModelDependencies {
             walletModelsFactoryProvider: walletModelsFactoryProvider
         )
 
-        let jointAccountDependenciesFactory = JointCryptoAccountDependenciesFactory(
+        let jointAccountDependenciesFactory = CommonJointAccountDependenciesFactory(
             userWalletId: userWalletId,
             derivationManager: derivationManager,
             keysRepository: keysRepository,
