@@ -28,7 +28,7 @@ final class CommonOpenTelemetryWrapper: OpenTelemetryWrapper {
     fileprivate init() {}
 
     func configure() {
-        guard FeatureProvider.isAvailable(.openTelemetryMetrics), !AppEnvironment.current.isDebug else {
+        guard FeatureProvider.isAvailable(.openTelemetryMetrics) else {
             return
         }
 
@@ -61,7 +61,25 @@ final class CommonOpenTelemetryWrapper: OpenTelemetryWrapper {
             return false
         }
 
+        logIfNeeded(metric)
+
         return metricsService.increment(metric.name, by: 1, attributes: metric.attributes)
+    }
+
+    /// The mirrored metric has no UI and its delivery is a five-minute batch, so this line is the only
+    /// way to tell on a device that an event turned into the metric it was supposed to. Internal builds
+    /// log too — that is what QA runs, and `.info` reaches the exportable log file there.
+    private func logIfNeeded(_ metric: Metric) {
+        guard AppEnvironment.current.isInternalOrDebug else {
+            return
+        }
+
+        let attributes = metric.attributes
+            .sorted { $0.key < $1.key }
+            .map { "\($0.key): \($0.value)" }
+            .joined(separator: ", ")
+
+        AnalyticsLogger.info("OpenTelemetry metric: \(metric.name). Attributes: {\(attributes)}")
     }
 
     /// Anything outside the mapping's allowlist is dropped.
