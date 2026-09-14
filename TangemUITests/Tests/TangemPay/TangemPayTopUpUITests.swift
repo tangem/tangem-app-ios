@@ -28,7 +28,7 @@ final class TangemPayTopUpUITests: BaseTestCase {
             .waitForScreen()
             .tapSwap()
             .validateSwapScreenDisplayed()
-            .chooseTokenFromEmptySelector("Bitcoin")
+            .chooseSourceToken("Bitcoin")
             .enterFromAmount("0.001")
             .confirmSwap()
 

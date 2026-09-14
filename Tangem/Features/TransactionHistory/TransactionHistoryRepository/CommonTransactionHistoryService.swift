@@ -116,7 +116,7 @@ private extension CommonTransactionHistoryService {
     }
 
     func addToStorage(records: [TransactionRecord]) async {
-        await storage.append(records)
+        await storage.merge(records)
     }
 }
 
@@ -125,13 +125,15 @@ private extension CommonTransactionHistoryService {
 private extension CommonTransactionHistoryService {
     actor TransactionRecordsStorage {
         private(set) var records: [TransactionRecord] = []
+        private var recordIDToIndex: [TransactionRecord.ID: Int] = [:]
 
         func clear() {
             records.removeAll()
+            recordIDToIndex.removeAll()
         }
 
-        func append(_ newRecords: [TransactionRecord]) {
-            records += newRecords
+        func merge(_ newRecords: [TransactionRecord]) {
+            records.appendMerging(newRecords, recordIDToIndex: &recordIDToIndex)
         }
     }
 }

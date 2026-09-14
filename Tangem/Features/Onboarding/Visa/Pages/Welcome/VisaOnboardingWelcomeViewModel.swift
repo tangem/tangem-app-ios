@@ -73,7 +73,7 @@ class VisaOnboardingWelcomeViewModel: ObservableObject {
 
     private func continueActivation() {
         isLoading = true
-        runTask(in: self, isDetached: false) { viewModel in
+        runTask(in: self) { viewModel in
             do {
                 try await viewModel.delegate?.continueActivation()
             } catch {

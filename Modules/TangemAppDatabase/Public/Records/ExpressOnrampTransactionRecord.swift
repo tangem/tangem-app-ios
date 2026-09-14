@@ -11,7 +11,6 @@ import GRDB
 
 public struct ExpressOnrampTransactionRecord {
     public let id: String
-    public let ownerAddress: String
     public let providerID: String
     public let payOutAddress: String
     public let status: String
@@ -37,7 +36,6 @@ public struct ExpressOnrampTransactionRecord {
 
     public init(
         id: String,
-        ownerAddress: String,
         providerID: String,
         payOutAddress: String,
         status: String,
@@ -58,7 +56,6 @@ public struct ExpressOnrampTransactionRecord {
         updatedAt: Date
     ) {
         self.id = id
-        self.ownerAddress = ownerAddress
         self.providerID = providerID
         self.payOutAddress = payOutAddress
         self.status = status

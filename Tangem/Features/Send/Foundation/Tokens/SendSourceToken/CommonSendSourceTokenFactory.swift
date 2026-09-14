@@ -75,13 +75,7 @@ struct CommonSendSourceTokenFactory {
             fiatItem: fiatItem,
             address: walletModel.defaultAddressString,
             extraId: nil,
-            transactionHistoryEnricherFactory: { [weak walletModel] in
-                try? await walletModel?
-                    .featuresPublisher
-                    .first()
-                    .async()
-                    .transactionHistoryProvider
-            }
+            transactionHistoryEnricherFactory: TransactionHistoryEnricherFactory.make(for: walletModel)
         )
     }
 }
