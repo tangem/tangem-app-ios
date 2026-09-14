@@ -78,7 +78,8 @@ struct SwapAvailabilityProviderStub: SwapAvailabilityProvider {
 }
 
 private struct NoReceivingRestrictionsStub: ReceivingRestrictionsProvider {
-    func restriction(expectAmount: Decimal) -> ReceivedRestriction? { nil }
+    var isRestrictionKnown: Bool { true }
+    func restriction(expectAmount: Decimal) async throws -> ReceivedRestriction? { nil }
 }
 
 private struct SendingRestrictionsProviderStub: SendingRestrictionsProvider {
