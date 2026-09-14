@@ -7,10 +7,5 @@
 //
 
 public enum PrepareUserWalletRegistrationError: Error {
-    case deviceRegistrationFailure(RegisterDeviceError)
-    case deviceKeyFailure(DeviceKeyManagerError)
-    case clientFailure(UserWalletRegistrationClientError)
-    case nonceDecryptionFailure(NonceDecryptorError)
-    case invalidDecryptedNonceEncoding
     case signerFailure(UserWalletRegistrationSignerError)
 }
