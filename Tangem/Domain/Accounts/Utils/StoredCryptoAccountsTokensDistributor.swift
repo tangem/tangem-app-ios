@@ -28,8 +28,9 @@ enum StoredCryptoAccountsTokensDistributor {
     ) -> DistributionResult {
         // First loop (required) - building the list of existing accounts, keyed by their derivation indexes
         var distributionTargets: [DerivationIndex: DistributionTarget] = storedCryptoAccounts
+            .filter(\.isRedistributable)
             .reduce(into: [:]) { partialResult, account in
-                partialResult[account.derivationIndex] = DistributionTarget(accountName: account.name, tokens: [])
+                partialResult[account.derivationIdentity.derivationIndex] = DistributionTarget(accountName: account.name, tokens: [])
             }
 
         let hasAdditionalTokens = additionalTokens.isNotEmpty
@@ -39,7 +40,7 @@ enum StoredCryptoAccountsTokensDistributor {
         var cachedHelpers: Cache = [:]
 
         // Second loop (required) - removing tokens that belong to other existing accounts
-        for (index, account) in storedCryptoAccounts.enumerated() {
+        for (index, account) in storedCryptoAccounts.enumerated() where account.isRedistributable {
             var updatedAccountTokens: [StoredCryptoAccount.Token] = []
 
             for token in account.tokens {
@@ -54,7 +55,7 @@ enum StoredCryptoAccountsTokensDistributor {
                     continue
                 }
 
-                if tokenAccountDerivationIndex != account.derivationIndex, distributionTargets[tokenAccountDerivationIndex] != nil {
+                if tokenAccountDerivationIndex != account.derivationIdentity.derivationIndex, distributionTargets[tokenAccountDerivationIndex] != nil {
                     // This token belongs to another existing account, and there exists an account with such derivation index,
                     // moving this token to that account
                     distributionTargets[tokenAccountDerivationIndex]?.tokens.append(token)
@@ -81,8 +82,8 @@ enum StoredCryptoAccountsTokensDistributor {
         }
 
         // Third loop (optional) - appending the tokens that were removed in the second loop to their respective accounts
-        for (index, account) in storedCryptoAccounts.enumerated() {
-            guard let target = distributionTargets[account.derivationIndex] else {
+        for (index, account) in storedCryptoAccounts.enumerated() where account.isRedistributable {
+            guard let target = distributionTargets[account.derivationIdentity.derivationIndex] else {
                 continue
             }
 
@@ -150,16 +151,17 @@ enum StoredCryptoAccountsTokensDistributor {
 
         // Find Main account first (needed for consistent record tracking)
         // This is an array index, not a derivation index
-        let mainAccountIndex = storedCryptoAccounts.firstIndex { AccountModelUtils.isMainAccount($0.derivationIndex) }
-        let mainAccountDerivationIndex = mainAccountIndex.map { storedCryptoAccounts[$0].derivationIndex }
+        let mainAccountIndex = storedCryptoAccounts.firstIndex { AccountModelUtils.isMainAccount($0.derivationIdentity) }
+        let mainAccountDerivationIndex = mainAccountIndex.map { storedCryptoAccounts[$0].derivationIdentity.derivationIndex }
 
         // These tokens go to the `Main` account because there are no accounts with their derivation indexes
         var remainingTokens: [StoredCryptoAccount.Token] = []
 
         // First loop (required) - building the list of existing accounts, keyed by their derivation indexes
         var distributionTargets: [DerivationIndex: DistributionTarget] = storedCryptoAccounts
+            .filter(\.isRedistributable)
             .reduce(into: [:]) { partialResult, account in
-                partialResult[account.derivationIndex] = DistributionTarget(accountName: account.name, tokens: [])
+                partialResult[account.derivationIdentity.derivationIndex] = DistributionTarget(accountName: account.name, tokens: [])
             }
 
         // Second loop (required) - processing additional tokens
@@ -200,8 +202,8 @@ enum StoredCryptoAccountsTokensDistributor {
         }
 
         // Third loop (optional) - appending the tokens that were prepared in the second loop to their respective accounts
-        for (index, account) in storedCryptoAccounts.enumerated() {
-            guard let target = distributionTargets[account.derivationIndex] else {
+        for (index, account) in storedCryptoAccounts.enumerated() where account.isRedistributable {
+            guard let target = distributionTargets[account.derivationIdentity.derivationIndex] else {
                 continue
             }
 
@@ -261,7 +263,16 @@ enum StoredCryptoAccountsTokensDistributor {
         if let derivationPath = blockchainNetwork.derivationPath {
             do {
                 let tokenAccountDerivationNode = try helper.extractAccountDerivationNode(from: derivationPath)
-                return Int(tokenAccountDerivationNode.rawIndex)
+                let tokenAccountDerivationIndex = Int(tokenAccountDerivationNode.rawIndex)
+
+                // A joint account's path is read by the scheme of the wallet's own accounts as naming the account of
+                // that very number, since the two keep their number at the same node on the EVM networks. Such a token
+                // belongs to no account of ours, and is left wherever it is rather than filed by a number it never named
+                guard derivationPath != JointAccountKeyPath.derivationPath(forAccountAtIndex: tokenAccountDerivationIndex) else {
+                    return nil
+                }
+
+                return tokenAccountDerivationIndex
             } catch {
                 // Ugly and explicit switch here due to https://github.com/swiftlang/swift/issues/74555 ([REDACTED_INFO])
                 switch error {
@@ -316,5 +327,15 @@ private extension StoredCryptoAccountsTokensDistributor {
     enum AddResult {
         case none
         case redistributionHappened(records: [RedistributionRecord])
+    }
+}
+
+// MARK: - Convenience extensions
+
+private extension StoredCryptoAccount {
+    /// A joint account's token list is derived at the account's own path and synced by the backend between the
+    /// members, so nothing is redistributed on its behalf — neither out of it nor into it.
+    var isRedistributable: Bool {
+        derivationIdentity.type == .crypto
     }
 }

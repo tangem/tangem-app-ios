@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-class PreparePrimaryCardTask: CardSessionRunnable {
+final class PreparePrimaryCardTask: CardSessionRunnable {
     var shouldAskForAccessCode: Bool { false }
 
     /// Wraps `CreateMasterSecretCommand`, whose `.alreadyCreated` pre-check reads `card.masterSecret`.
@@ -21,6 +21,7 @@ class PreparePrimaryCardTask: CardSessionRunnable {
     private let shouldReset: Bool
     private let mnemonic: Mnemonic?
     private let passphrase: String?
+    private let userWalletRegistrar = CardUserWalletRegistrar()
 
     private var primaryCard: PrimaryCard?
 
@@ -33,6 +34,13 @@ class PreparePrimaryCardTask: CardSessionRunnable {
 
     deinit {
         AppLogger.debug("PreparePrimaryCardTask deinit")
+    }
+
+    func prepare(_ session: CardSession, completion: @escaping CompletionResult<Void>) {
+        // Obtaining the nonce before the NFC session opens, so the NFC session remains responsive
+        userWalletRegistrar.obtainNonce {
+            completion(.success(()))
+        }
     }
 
     func run(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
@@ -168,8 +176,9 @@ class PreparePrimaryCardTask: CardSessionRunnable {
         }
 
         guard card.firmwareVersion >= .backupAvailable, card.settings.isBackupAllowed else {
-            completion(.success(.init(card: card, primaryCard: nil)))
-            return
+            let response = PreparePrimaryCardTaskResponse(card: card, primaryCard: nil)
+
+            return completeWithUserWalletRegistrationIfNeeded(in: session, response: response, completion)
         }
 
         let command = StartPrimaryCardLinkingCommand()
@@ -207,7 +216,18 @@ class PreparePrimaryCardTask: CardSessionRunnable {
         }
 
         let response = PreparePrimaryCardTaskResponse(card: card, primaryCard: primaryCard)
-        completion(.success(response))
+
+        completeWithUserWalletRegistrationIfNeeded(in: session, response: response, completion)
+    }
+
+    private func completeWithUserWalletRegistrationIfNeeded(
+        in session: CardSession,
+        response: PreparePrimaryCardTaskResponse,
+        _ completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>
+    ) {
+        userWalletRegistrar.registerIfNeeded(in: session) {
+            completion(.success(response))
+        }
     }
 }
 

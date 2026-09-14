@@ -8,6 +8,8 @@
 
 import Foundation
 import Security
+import TangemBackendAuthentication
+import TangemPolymarket
 import TangemSdk
 import TangemMobileWalletSdk
 
@@ -18,7 +20,7 @@ import TangemMobileWalletSdk
 /// Biometry-protected items are absent from that enumeration, so `BlindKeychainCleaner` wipes them by
 /// class. It runs last: its sweep also takes the Secure Enclave keys the owners need.
 enum KeychainCleaner {
-    static func cleanAllData() {
+    static func cleanAllData() async {
         TangemSdkSecureStorageCleaner().clean()
 
         let genericPasswordAccounts = allGenericPasswordAccounts()
@@ -35,12 +37,17 @@ enum KeychainCleaner {
         SupportChatTokenStorage().clean()
         CommonVisaRefreshTokenRepository().clean(genericPasswordAccounts: genericPasswordAccounts)
         CommonTangemPayAuthorizationTokensRepository().clean(genericPasswordAccounts: genericPasswordAccounts)
+        CommonPolymarketCredentialsRepository().clean(genericPasswordAccounts: genericPasswordAccounts)
         CommonMobileAccessCodeStorageManager().clean(
             genericPasswordAccounts: genericPasswordAccounts,
             secureEnclaveKeyTags: secureEnclaveKeyTags
         )
 
         BlindKeychainCleaner().clean()
+
+        if FeatureProvider.isAvailable(.backendAuthentication) {
+            await BackendAuthenticationAssembly.storageCleaner.clean()
+        }
     }
 
     private static func allGenericPasswordAccounts() -> [String] {

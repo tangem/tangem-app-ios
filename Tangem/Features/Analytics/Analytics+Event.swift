@@ -28,6 +28,13 @@ extension Analytics {
         case introductionProcessButtonAddExistingWallet = "[Introduction Process] Button - Add Existing Wallet"
         case introductionProcessOpened = "[Introduction Process] Introduction Process Screen Opened"
         case introductionProcessLearn = "[Introduction Process] Button - Learn"
+        case introductionProcessButtonIHaveWallet = "[Introduction Process] Button - I Have Wallet"
+        case introductionProcessButtonHardwareWallet = "[Introduction Process] Button - Hardware Wallet"
+        case introductionProcessButtonSignInWithCard = "[Introduction Process] Button - Sign In With Card"
+        case introductionProcessSheetDismissed = "[Introduction Process] Sheet Dismissed"
+        case introductionProcessLegalOpened = "[Introduction Process] Legal Opened"
+        case introductionProcessScanCancelled = "[Introduction Process] Scan Cancelled"
+        case introductionProcessWelcomeMediaError = "[Introduction Process] Welcome Media Error"
 
         case promoBuy = "[Promo Screen] Button - Buy"
         case promoSuccessOpened = "[Promo Screen] Success Screen Opened"
@@ -715,6 +722,7 @@ extension Analytics {
 
         case storiesSwapStory = "[Stories] Swap Story"
         case storiesYieldPromoStory = "[Stories] Yield Promo Story"
+        case storiesPolymarketOnboardingStory = "[Stories] Polymarket Onboarding Story"
         case storiesError = "[Stories] Error"
 
         // MARK: - Tangem API Service
@@ -820,6 +828,28 @@ extension Analytics {
         case visaCloseCardClicked = "[Visa Card Management] Visa Close Card Clicked"
         case visaCloseCardConfirmationPopupOpened = "[Visa Card Management] Visa Close Card Confirmation Popup Opened"
         case visaCloseCardConfirmed = "[Visa Card Management] Visa Close Card Confirmed"
+
+        // Plastic
+
+        case visaPlasticCardTypeSelectionScreenOpened = "[Visa Plastic] Card Type Selection Screen Opened"
+        case visaPlasticVirtualSelectClicked = "[Visa Plastic] Virtual Select Clicked"
+        case visaPlasticPlasticSelectClicked = "[Visa Plastic] Plastic Select Clicked"
+        case visaPlasticVirtualTypeClicked = "[Visa Plastic] Virtual Type Clicked"
+        case visaPlasticPlasticTypeClicked = "[Visa Plastic] Plastic Type Clicked"
+        case visaPlasticCardTypeSwiped = "[Visa Plastic] Card Type Swiped"
+        case visaPlasticDeliveryCostNotEnoughMoneyShowed = "[Visa Plastic] Delivery Cost Not Enough Money Showed"
+        case visaPlasticAddressScreenOpened = "[Visa Plastic] Address Screen Opened"
+        case visaPlasticOrderCardClicked = "[Visa Plastic] Order Card Clicked"
+        case visaPlasticCardOrderedSuccessScreenShowed = "[Visa Plastic] Card Ordered Success Screen Showed"
+        case visaPlasticCardInTransitBannerShowed = "[Visa Plastic] Card In Transit Banner Showed"
+        case visaPlasticActivateCardBannerButtonClicked = "[Visa Plastic] Activate Card Banner Button Clicked"
+        case visaPlasticCardInTransitDetailsShowed = "[Visa Plastic] Card In Transit Details Showed"
+        case visaPlasticActivateCardManagementButtonClicked = "[Visa Plastic] Activate Card Management Button Clicked"
+        case visaPlasticCardActivationScreenOpened = "[Visa Plastic] Card Activation Screen Opened"
+        case visaPlasticCardLast4DigitsEntered = "[Visa Plastic] Card Last 4 Digits Entered"
+        case visaPlasticActivationContinueClicked = "[Visa Plastic] Activation Continue Clicked"
+        case visaPlasticLast4DigitsValidationErrorShowed = "[Visa Plastic] Last 4 Digits Validation Error Showed"
+        case visaPlasticCardActivationSuccess = "[Visa Plastic] Card Activation Success"
 
         // Tiers
 
@@ -974,5 +1004,9 @@ extension Analytics {
         case forYouEarnTokenOpened = "[For You] Earn Token Opened"
         case forYouExploreAllTokens = "[For You] Explore All Tokens"
         case forYouIndicatorInfo = "[For You] Indicator Info"
+
+        // MARK: - Backend Authentication
+
+        case userWalletRegistrationUnexpectedCurve = "[Backend Auth] Unexpected Wallet Curve"
     }
 }

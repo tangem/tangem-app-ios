@@ -25,6 +25,7 @@ struct TangemPayTransactionStatusView: View {
                     Text(reason)
                         .style(DesignSystem.Font.captionMediumToken, color: model.style.contentColor)
                         .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsStatusReason)
                 }
             }
             .infinityFrame(axis: .horizontal, alignment: .leading)
@@ -35,6 +36,7 @@ struct TangemPayTransactionStatusView: View {
                     .resizable()
                     .frame(width: 20, height: 20)
                     .foregroundStyle(model.style.iconColor)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsStatusIcon)
             }
         }
         .padding(.leading, 16)

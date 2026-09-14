@@ -43,6 +43,10 @@ public enum MarketsAccessibilityIdentifiers {
         return "marketsListTokenItem_\(uniqueId)"
     }
 
+    public static func marketsFeaturedAssetItem(uniqueId: String) -> String {
+        "marketsFeaturedAssetItem_\(uniqueId)"
+    }
+
     public static let marketsSortButton = "marketsSortButton"
 
     public static func marketsSortOption(_ orderType: String) -> String {
@@ -74,5 +78,35 @@ public enum MarketsAccessibilityIdentifiers {
     /// Format: `marketsPortfolioTokenItem_<tokenName>`
     public static func marketsPortfolioTokenItem(tokenName: String) -> String {
         "marketsPortfolioTokenItem_\(tokenName)"
+    }
+
+    // MARK: - Real Assets Filter
+
+    public static func marketsRealAssetsFilterCategoryOption(_ categoryCode: String) -> String {
+        "marketsRealAssetsFilterCategoryOption_\(categoryCode)"
+    }
+
+    public static func marketsRealAssetsFilterSectorChip(_ sectorCode: String) -> String {
+        "marketsRealAssetsFilterSectorChip_\(sectorCode)"
+    }
+
+    public static let marketsRealAssetsFilterResetButton = "marketsRealAssetsFilterResetButton"
+    public static let marketsRealAssetsFilterApplyButton = "marketsRealAssetsFilterApplyButton"
+    public static let marketsRealAssetsFilterCloseButton = "marketsRealAssetsFilterCloseButton"
+
+    // MARK: - Pulse Tag Filter
+
+    public static let marketsPulseTagChip = "marketsPulseTagChip"
+    public static let marketsPulseTagFilterSearchField = "marketsPulseTagFilterSearchField"
+    public static let marketsPulseTagFilterResetButton = "marketsPulseTagFilterResetButton"
+    public static let marketsPulseTagFilterApplyButton = "marketsPulseTagFilterApplyButton"
+    public static let marketsPulseTagFilterCloseButton = "marketsPulseTagFilterCloseButton"
+
+    public static func marketsPulseTagFilterFeaturedChip(_ tagId: String) -> String {
+        "marketsPulseTagFilterFeaturedChip_\(tagId)"
+    }
+
+    public static func marketsPulseTagFilterCategoryOption(_ tagId: String) -> String {
+        "marketsPulseTagFilterCategoryOption_\(tagId)"
     }
 }

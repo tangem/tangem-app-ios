@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 extension RatingView {
     struct CardView: View {
@@ -34,6 +35,8 @@ extension RatingView {
             .frame(maxWidth: .infinity)
             .background(Colors.Background.action)
             .cornerRadius(14)
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier(RatingAccessibilityIdentifiers.block)
         }
     }
 }

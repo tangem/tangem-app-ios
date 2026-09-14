@@ -64,6 +64,8 @@ extension AccountModelUtils {
             case .tangemPay:
                 return Assets.Visa.accountAvatar
             case .polymarket:
+                return Assets.Polymarket.accountAvatar
+            case .collectibles:
                 // [REDACTED_TODO_COMMENT]
                 return Assets.Accounts.user
             }

@@ -251,12 +251,7 @@ struct SupportedBlockchains {
     }
 
     private func ed25519Curve(for version: Version) -> EllipticCurve {
-        switch version {
-        case .v1:
-            return .ed25519
-        case .v2:
-            return .ed25519_slip0010
-        }
+        version.ed25519Curve
     }
 }
 
@@ -267,5 +262,17 @@ extension SupportedBlockchains {
 
         /// Wallet 2.0
         case v2
+    }
+}
+
+extension SupportedBlockchains.Version {
+    /// Which ed25519 flavor the wallet signs with: the firmware of a legacy card predates slip0010.
+    var ed25519Curve: EllipticCurve {
+        switch self {
+        case .v1:
+            return .ed25519
+        case .v2:
+            return .ed25519_slip0010
+        }
     }
 }

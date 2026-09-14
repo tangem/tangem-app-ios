@@ -14,13 +14,83 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
 
     var body: some View {
         ZStack {
-            NavigationStack {
-                if let rootViewModel = coordinator.rootViewModel {
-                    WithdrawHubView(viewModel: rootViewModel)
+            NavigationStack(path: $coordinator.path) {
+                ZStack {
+                    if let rootViewModel = coordinator.rootViewModel {
+                        WithdrawHubView(viewModel: rootViewModel)
+                    }
                 }
+                .navigationDestination(
+                    for: TangemPayOfframpCoordinator.Route.self,
+                    destination: destination
+                )
             }
 
             sheets
+        }
+    }
+
+    @ViewBuilder
+    private func destination(_ route: TangemPayOfframpCoordinator.Route) -> some View {
+        switch route {
+        case .recentRecipients:
+            if let store = coordinator.recentRecipientsStore {
+                let viewModel = RecentRecipientsViewModel(
+                    recentRecipientsStore: store,
+                    output: { [weak coordinator] bankAccountId in
+                        coordinator?.startWizard(recipient: .saved(bankAccountId: bankAccountId))
+                    }
+                )
+                RecentRecipientsView(viewModel: viewModel)
+            }
+
+        case .transferInput:
+            if let viewModel = coordinator.transferInputViewModel {
+                TransferInputView(viewModel: viewModel)
+            }
+
+        case .transferType:
+            if let orderBuilder = coordinator.orderBuilder {
+                TransferTypeFactory.makeView(
+                    orderBuilder: orderBuilder,
+                    output: { [weak coordinator] in coordinator?.handle($0) }
+                )
+            }
+
+        case .accountType:
+            if let orderBuilder = coordinator.orderBuilder {
+                AccountTypeFactory.makeView(
+                    orderBuilder: orderBuilder,
+                    output: { [weak coordinator] in coordinator?.handle($0) }
+                )
+            }
+
+        case .personalDetails(let mode):
+            if let orderBuilder = coordinator.orderBuilder {
+                PersonalDetailsFactory.makeView(
+                    orderBuilder: orderBuilder,
+                    output: { [weak coordinator] in coordinator?.handle($0, mode: mode) }
+                )
+            }
+
+        case .bankDetails(let mode):
+            if let orderBuilder = coordinator.orderBuilder {
+                BankDetailsFactory.makeView(
+                    orderBuilder: orderBuilder,
+                    output: { [weak coordinator] in coordinator?.handle($0, mode: mode) }
+                )
+            }
+
+        case .transferConfirmation:
+            if let orderBuilder = coordinator.orderBuilder, let optionsStore = coordinator.optionsStore {
+                TransferConfirmationFactory.makeView(
+                    orderBuilder: orderBuilder,
+                    optionsStore: optionsStore,
+                    savedRecipient: coordinator.activeSavedRecipient,
+                    hasNFCInteraction: coordinator.hasNFCInteraction,
+                    output: { [weak coordinator] in coordinator?.handle($0) }
+                )
+            }
         }
     }
 
