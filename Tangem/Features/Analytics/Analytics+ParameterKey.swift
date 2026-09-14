@@ -220,5 +220,13 @@ extension Analytics {
         // MARK: - For You
 
         case info = "Info"
+
+        // MARK: - Welcome V2
+
+        case sheet = "Sheet"
+        case dismissReason = "Dismiss Reason"
+        case document = "Document"
+        case entryReason = "Entry Reason"
+        case stage = "Stage"
     }
 }

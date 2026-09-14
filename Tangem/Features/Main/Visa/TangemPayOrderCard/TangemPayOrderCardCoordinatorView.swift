@@ -16,6 +16,9 @@ struct TangemPayOrderCardCoordinatorView: CoordinatorView {
             if let viewModel = coordinator.orderCardTypeViewModel {
                 TangemPayOrderCardTypeView(viewModel: viewModel)
                     .navigationLinks(links)
+            } else if let viewModel = coordinator.orderCardDataViewModel {
+                TangemPayOrderCardDataView(viewModel: viewModel)
+                    .navigationLinks(successLinks)
             }
         }
     }

@@ -213,7 +213,7 @@ private extension TokenSelectorViewModelsMapper {
                 ?? ExpandableAccountItemStateStorageStub(isExpanded: false)
 
             let filteredBalancePublisher = rawItemsPublisher
-                .flatMapLatest { items -> AnyPublisher<LoadableBalanceView.State, Never> in
+                .flatMapLatest { items -> AnyPublisher<TotalBalanceState, Never> in
                     guard !items.isEmpty else {
                         return Just(.empty).eraseToAnyPublisher()
                     }
@@ -224,12 +224,11 @@ private extension TokenSelectorViewModelsMapper {
                                 .map { TokenBalanceTypesCombiner.Balance(item: item.tokenItem, balance: $0) }
                         }
                         .combineLatest()
-                        .map { balances in
-                            let state = TokenBalanceTypesCombiner().mapToTotalBalance(balances: balances)
-                            return LoadableBalanceViewStateBuilder().buildTotalBalance(state: state)
-                        }
+                        .map { TokenBalanceTypesCombiner().mapToTotalBalance(balances: $0) }
                         .eraseToAnyPublisher()
                 }
+                .withAppCurrencyCode()
+                .map { LoadableBalanceViewStateBuilder().buildTotalBalance(state: $0, currencyCode: $1) }
                 .eraseToAnyPublisher()
 
             // [REDACTED_TODO_COMMENT]

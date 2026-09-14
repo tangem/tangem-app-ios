@@ -95,7 +95,7 @@ private struct MainTopNavigationModifier<Balance: View>: ViewModifier {
                 action: scanQRCodeAction
             ),
             TopNavigation.Action(
-                icon: DesignSystem.Icons.DotsHorizontal.regular24,
+                icon: DesignSystem.Icons.DotsHorizontal.regular20,
                 accessibilityLabel: Localization.voiceOverOpenCardDetails,
                 accessibilityIdentifier: MainAccessibilityIdentifiers.detailsButton,
                 action: detailsAction
