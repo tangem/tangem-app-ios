@@ -21,13 +21,15 @@ final class CollectiblesAPITargetTests {
     }
 
     @Test("machines: empty request sends no query")
-    func machinesEmptyParameters() {
-        #expect(isRequestPlain(makeTarget(.machines(.init())).task))
+    func machinesEmptyParameters() throws {
+        let parameters = try queryParameters(makeTarget(.machines(.init())).task)
+
+        #expect(parameters.isEmpty)
     }
 
     @Test("machines: only non-nil fields become query items")
     func machinesPartialParameters() throws {
-        let request = CollectiblesMachinesRequest(categoryID: "cat-1", limit: 20)
+        let request = CollectiblesDTO.MachinesRequest(categoryID: "cat-1", limit: 20)
 
         let parameters = try queryParameters(makeTarget(.machines(request)).task)
 
@@ -39,7 +41,7 @@ final class CollectiblesAPITargetTests {
 
     @Test("machines: full request sends all four query items")
     func machinesFullParameters() throws {
-        let request = CollectiblesMachinesRequest(categoryID: "cat-1", search: "pikachu", limit: 20, cursor: "next")
+        let request = CollectiblesDTO.MachinesRequest(categoryID: "cat-1", search: "pikachu", limit: 20, cursor: "next")
 
         let parameters = try queryParameters(makeTarget(.machines(request)).task)
 
@@ -56,11 +58,6 @@ final class CollectiblesAPITargetTests {
 private extension CollectiblesAPITargetTests {
     func makeTarget(_ target: CollectiblesAPITarget.Target) -> CollectiblesAPITarget {
         CollectiblesAPITarget(baseURL: URL(string: "https://example.com")!, target: target)
-    }
-
-    func isRequestPlain(_ task: Moya.Task) -> Bool {
-        if case .requestPlain = task { return true }
-        return false
     }
 
     func queryParameters(_ task: Moya.Task) throws -> [String: Any] {
