@@ -39,6 +39,10 @@ public extension StatusScreen {
     func appearance(_ appearance: StatusScreenAppearance) -> Self {
         map { $0.appearance = appearance }
     }
+
+    func secondaryAction(title: String, action: @escaping () -> Void) -> Self {
+        map { $0.secondaryAction = StatusScreenSecondaryAction(title: title, action: action) }
+    }
 }
 
 // MARK: - Slot Transforms
@@ -51,6 +55,7 @@ public extension StatusScreen {
             actionTitle: actionTitle,
             action: action,
             appearance: appearance,
+            secondaryAction: secondaryAction,
             assetSlot: content(),
             headerAccessory: headerAccessoryContent,
             details: detailsContent
@@ -64,6 +69,7 @@ public extension StatusScreen {
             actionTitle: actionTitle,
             action: action,
             appearance: appearance,
+            secondaryAction: secondaryAction,
             assetSlot: assetSlotContent,
             headerAccessory: content(),
             details: detailsContent
@@ -77,6 +83,7 @@ public extension StatusScreen {
             actionTitle: actionTitle,
             action: action,
             appearance: appearance,
+            secondaryAction: secondaryAction,
             assetSlot: assetSlotContent,
             headerAccessory: headerAccessoryContent,
             details: content()

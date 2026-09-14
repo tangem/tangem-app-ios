@@ -20,9 +20,10 @@ import UIKit
 ///
 /// Use ``appearance(_:)`` to pick one of the five variants (neutral / success / error /
 /// warning / info) — it drives the background tint, the glow ring palette, and the
-/// default icon. The screen always ends with a single action button pinned over the
-/// bottom fade — pass its title and action in the initializer. Slots accept arbitrary
-/// SwiftUI content via the ViewBuilder modifiers: ``assetSlot(_:)`` replaces the default
+/// default icon. The screen always ends with an action button pinned over the bottom
+/// fade — pass its title and action in the initializer, and add
+/// ``secondaryAction(title:action:)`` for a secondary button above it. Slots accept
+/// arbitrary SwiftUI content via the ViewBuilder modifiers: ``assetSlot(_:)`` replaces the default
 /// ``StatusIcon``, ``headerAccessory(_:)`` sits under the texts (a `Badge` in the
 /// reference design), and ``details(_:)`` is the place for `Row`-based key-value content.
 ///
@@ -51,6 +52,7 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
     let detailsContent: Details
 
     var appearance: StatusScreenAppearance = .neutral
+    var secondaryAction: StatusScreenSecondaryAction?
 
     init(
         title: String,
@@ -58,6 +60,7 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
         actionTitle: String,
         action: @escaping () -> Void,
         appearance: StatusScreenAppearance = .neutral,
+        secondaryAction: StatusScreenSecondaryAction? = nil,
         assetSlot: AssetSlot,
         headerAccessory: HeaderAccessory,
         details: Details
@@ -67,6 +70,7 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
         self.actionTitle = actionTitle
         self.action = action
         self.appearance = appearance
+        self.secondaryAction = secondaryAction
         assetSlotContent = assetSlot
         headerAccessoryContent = headerAccessory
         detailsContent = details
@@ -173,21 +177,34 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
     // MARK: - Footer
 
     private var footer: some View {
-        Button(label: actionTitle, accessibilityLabel: actionTitle, action: action)
-            .size(.x12)
-            .styleType(.default)
-            .horizontalLayout(.infinity)
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, Metrics.footerHorizontalPadding)
-            .padding(.top, layout.footerTopPadding)
-            .padding(.bottom, layout.footerBottomPadding)
-            .background {
-                Fade(position: .bottom)
-                    .ignoresSafeArea(edges: .bottom)
+        VStack(spacing: Metrics.footerButtonSpacing) {
+            if let secondaryAction {
+                Button(
+                    label: secondaryAction.title,
+                    accessibilityLabel: secondaryAction.title,
+                    action: secondaryAction.action
+                )
+                .size(.x12)
+                .styleType(.secondary(.default))
+                .horizontalLayout(.infinity)
             }
-            .opacity(entrance.isFooterFadedIn ? 1 : 0)
-            .offset(y: entrance.isFooterSettled ? 0 : Metrics.footerEntranceOffset)
-            .onGeometryChange(for: CGFloat.self, of: { $0.size.height }, action: { footerHeight = $0 })
+
+            Button(label: actionTitle, accessibilityLabel: actionTitle, action: action)
+                .size(.x12)
+                .styleType(.default)
+                .horizontalLayout(.infinity)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, Metrics.footerHorizontalPadding)
+        .padding(.top, layout.footerTopPadding)
+        .padding(.bottom, layout.footerBottomPadding)
+        .background {
+            Fade(position: .bottom)
+                .ignoresSafeArea(edges: .bottom)
+        }
+        .opacity(entrance.isFooterFadedIn ? 1 : 0)
+        .offset(y: entrance.isFooterSettled ? 0 : Metrics.footerEntranceOffset)
+        .onGeometryChange(for: CGFloat.self, of: { $0.size.height }, action: { footerHeight = $0 })
     }
 
     // MARK: - Background
@@ -378,6 +395,7 @@ private enum StatusScreenMetrics {
     static let detailsHorizontalPadding: CGFloat = 16
 
     static let footerHorizontalPadding: CGFloat = 16
+    static let footerButtonSpacing: CGFloat = 8
     /// Figma's content area runs 820 pt up front and squeezes when the footer arrives.
     /// The footer overlaps the content by a fixed fade strip, so the squeeze is the
     /// measured footer height minus that overlap (60 pt for the single-button footer,
