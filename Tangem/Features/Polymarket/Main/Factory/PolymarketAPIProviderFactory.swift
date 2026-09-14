@@ -7,33 +7,20 @@
 //
 
 import Foundation
-import TangemFoundation
 import TangemNetworkUtils
 import TangemPolymarket
 
 struct PolymarketAPIProviderFactory {
-    func makeProvider() -> PolymarketAPIProvider {
-        CommonPolymarketAPIProvider(
-            baseURL: baseURL(),
+    func makeProvider(
+        builderCodeStore: PolymarketBuilderCodeStore = InjectedValues[\.polymarketBuilderCodeStore]
+    ) -> PolymarketAPIProvider {
+        let environment = PolymarketBFFEnvironment.current()
+
+        return CommonPolymarketAPIProvider(
+            baseURL: environment.baseURL,
             networkConfiguration: TangemProviderConfiguration(logOptions: .verbose),
-            headers: makeHeaders()
+            headers: environment.headers.map { APIHeaderKeyInfo(headerName: $0.key, headerValue: $0.value) },
+            builderCodeStore: builderCodeStore
         )
-    }
-
-    private func baseURL() -> URL {
-        let apiBaseURL = AppEnvironment.current.apiBaseUrl
-        var components = URLComponents(url: apiBaseURL, resolvingAgainstBaseURL: false)
-        components?.path = ""
-        return components?.url ?? apiBaseURL
-    }
-
-    private func makeHeaders() -> [APIHeaderKeyInfo] {
-        var headers = DeviceInfo().asHeaders().map { APIHeaderKeyInfo(headerName: $0.key, headerValue: $0.value) }
-
-        if let apiKeyHeader = TangemAPIKeyProvider().getApiKeyHeader() {
-            headers.append(APIHeaderKeyInfo(headerName: apiKeyHeader.name, headerValue: apiKeyHeader.value))
-        }
-
-        return headers
     }
 }

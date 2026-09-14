@@ -72,7 +72,8 @@ final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
                 .selectedHost: result.currentHost,
             ],
             analyticsSystems: .all,
-            contextParams: .userWallet(userWalletId)
+            contextParams: .userWallet(userWalletId),
+            otelParamOverrides: Analytics.otelCustomTokenOverrides(token: tokenItem, feeToken: feeTokenItem)
         )
     }
 

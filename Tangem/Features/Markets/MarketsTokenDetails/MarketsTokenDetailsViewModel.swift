@@ -99,6 +99,8 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     var descriptionCanBeShowed: Bool { !geoEligibilityService.isUK }
 
+    var isRestrictedForCountry: Bool { tokenInfo.restrictedForCountry ?? false }
+
     let presentationStyle: MarketsTokenDetailsPresentationStyle
 
     private var priceInfo: MarketsTokenDetailsPriceInfoHelper.PriceInfo? {

@@ -81,6 +81,10 @@ public extension Fee {
             )
         case .gasless:
             return self
+        case .safe(let safe):
+            let target = BigUInt(100) + byPercents
+            let new = safe.gasPrice * target / BigUInt(100)
+            newParameters = safe.changingGasPrice(to: new)
         }
 
         let feeValue = newParameters.calculateFee(decimalValue: decimalValue)

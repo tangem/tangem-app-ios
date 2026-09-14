@@ -28,6 +28,7 @@ import Foundation
 /// `108` - MoyaError `ThirdParty+UniversalError`
 /// `109` - Onramp `Onramp+UniversalError`
 /// `110` - MobileWallet `MobileWallet+UniversalError`
+/// `111` - SocialAuthentication `SocialAuthError`
 public protocol UniversalError: LocalizedError {
     var errorCode: Int { get }
 }
