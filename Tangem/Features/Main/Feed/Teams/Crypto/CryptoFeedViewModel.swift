@@ -24,7 +24,6 @@ final class CryptoFeedViewModel: ObservableObject {
     }
 
     func feedSheetSizeDidChange(to size: ShtorkaSize) {
-        promoBanner.onScreenVisibilityChange(isVisible: size != .collapsed)
         pulse.feedSheetSizeDidChange(to: size)
     }
 }

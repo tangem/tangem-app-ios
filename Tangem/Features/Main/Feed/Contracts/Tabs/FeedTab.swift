@@ -28,6 +28,15 @@ enum FeedTab: Identifiable {
         }
     }
 
+    var promoBanner: PromotionNotificationsViewModel? {
+        switch self {
+        case .crypto(let viewModel): viewModel.promoBanner
+        case .realAssets(let viewModel): viewModel.promoBanner
+        case .earn(let viewModel): viewModel.promoBanner
+        case .predictions: nil
+        }
+    }
+
     func feedSheetSizeDidChange(to size: ShtorkaSize) {
         switch self {
         case .crypto(let viewModel): viewModel.feedSheetSizeDidChange(to: size)

@@ -9,7 +9,12 @@ import Combine
 
 struct EarnFeedBuilder: FeedTabBuilder {
     func makeTab(context: FeedContext) -> FeedTab {
-        .earn(EarnFeedViewModel(router: EarnFeedRouter(context: context)))
+        .earn(
+            EarnFeedViewModel(
+                promotionNotificationsManager: NewsPromotionNotificationsManager(placement: .earn),
+                router: EarnFeedRouter(context: context)
+            )
+        )
     }
 
     func makeSearchTab(

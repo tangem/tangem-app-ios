@@ -14,6 +14,8 @@ final class FeedTabsViewModel: ObservableObject {
 
     let tabs: [FeedTab]
 
+    private var sheetSize: ShtorkaSize = .collapsed
+
     init(tabs: [FeedTab]) {
         self.tabs = tabs
 
@@ -26,9 +28,21 @@ final class FeedTabsViewModel: ObservableObject {
         }
 
         selectedTab = tab
+        updatePromoBannersVisibility()
     }
 
     func sheetSizeDidChange(to size: ShtorkaSize) {
+        sheetSize = size
         tabs.forEach { $0.feedSheetSizeDidChange(to: size) }
+        updatePromoBannersVisibility()
+    }
+
+    /// Only the selected tab is rendered, so every other tab's banner has to be reported as hidden — otherwise it
+    /// logs itself as shown while the user never sees it, and stays silent when they finally switch to that tab.
+    private func updatePromoBannersVisibility() {
+        for tab in tabs {
+            let isVisible = tab.id == selectedTab.id && sheetSize != .collapsed
+            tab.promoBanner?.onScreenVisibilityChange(isVisible: isVisible)
+        }
     }
 }
