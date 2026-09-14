@@ -16,6 +16,7 @@ struct SwapFlowConfiguration {
     let receiveTokenSelection: ReceiveTokenSelection
     /// Overrides the swap summary navigation title.
     let summaryTitle: String?
+    var offeredReceiveTokens: [TokenItem] = []
 
     static let `default` = SwapFlowConfiguration(
         isPairReversalEnabled: true,

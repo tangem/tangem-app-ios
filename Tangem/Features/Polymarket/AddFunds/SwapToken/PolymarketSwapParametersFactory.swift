@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemLocalization
+import TangemPolymarket
 
 struct PolymarketSwapParametersFactory {
     let userWalletInfo: UserWalletInfo
@@ -41,5 +42,58 @@ struct PolymarketSwapParametersFactory {
                 summaryTitle: Localization.commonAddFunds
             )
         )
+    }
+
+    func make(withdrawingFrom source: PolymarketWithdrawSource, receiveToken: SendReceiveToken?) -> PredefinedSwapParameters {
+        let sourceToken = PolymarketWithdrawSwapableTokenFactory(userWalletInfo: userWalletInfo, source: source)
+            .makeSwapableToken()
+
+        return .from(
+            sourceToken,
+            pair: .fixed(receiveOrUserSelection: receiveToken),
+            configuration: SwapFlowConfiguration(
+                isPairReversalEnabled: false,
+                sourceTokenSelection: .restricted(
+                    walletsProvider: PolymarketWithdrawSourceWalletsProvider(
+                        userWalletInfo: userWalletInfo,
+                        source: source
+                    ),
+                    // A markets token can never be the prediction account.
+                    allowsMarketsTokens: false
+                ),
+                receiveTokenSelection: .selectable(
+                    .restricted(
+                        walletsProvider: FilteredTokenSelectorWalletsProvider(
+                            base: .standardAccountsOnly(),
+                            isIncluded: { $0.tokenItem.expressCurrency == PolymarketUtilities.usdcTokenItem.expressCurrency }
+                        ),
+                        allowsMarketsTokens: false
+                    )
+                ),
+                summaryTitle: Localization.predictionMainWithdraw,
+                offeredReceiveTokens: [walletUSDCTokenItem].compactMap { $0 }
+            )
+        )
+    }
+}
+
+// MARK: - Private implementation
+
+private extension PolymarketSwapParametersFactory {
+    var walletUSDCTokenItem: TokenItem? {
+        let usdc = PolymarketUtilities.usdcTokenItem
+
+        guard let id = usdc.id else {
+            return nil
+        }
+
+        let network = NetworkModel(
+            networkId: PolymarketUtilities.blockchain.networkId,
+            contractAddress: PolymarketUtilities.usdcContractAddress,
+            decimalCount: usdc.decimalCount
+        )
+
+        return TokenItemMapper(supportedBlockchains: userWalletInfo.config.supportedBlockchains)
+            .mapToTokenItem(id: id, name: usdc.name, symbol: usdc.currencySymbol, network: network)
     }
 }

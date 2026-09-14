@@ -336,11 +336,14 @@ struct PolymarketMainView: View {
             .disabled(viewModel.addFundsState != .available)
             .accessibilityIdentifier(PolymarketAccessibilityIdentifiers.addFundsButton)
 
-            // [REDACTED_TODO_COMMENT]
-            TangemMainActionButton(title: "Withdraw", icon: Assets.DesignSystem.arrowUp) {
-                // [REDACTED_TODO_COMMENT]
-            }
-            .disabled(true)
+            TangemMainActionButton(
+                title: Localization.predictionMainWithdraw,
+                icon: Assets.DesignSystem.arrowUp,
+                action: viewModel.onWithdrawTap,
+                reasonTapWhenDisabled: viewModel.onWithdrawTap
+            )
+            .disabled(!viewModel.withdrawState.isAvailable)
+            .accessibilityIdentifier(PolymarketAccessibilityIdentifiers.withdrawButton)
         }
     }
 

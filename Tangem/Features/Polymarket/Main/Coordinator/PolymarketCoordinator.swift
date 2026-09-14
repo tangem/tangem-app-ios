@@ -33,10 +33,16 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
     @Published var destination: Destination?
     @Published var sendCoordinator: SendCoordinator? {
         didSet {
-            guard sendCoordinator == nil, hasDispatchedDeposit else { return }
+            guard sendCoordinator == nil, let operation = dispatchedOperation else { return }
 
-            hasDispatchedDeposit = false
-            startAwaitingFunds()
+            dispatchedOperation = nil
+
+            switch operation {
+            case .deposit:
+                startAwaitingFunds()
+            case .withdrawal:
+                startAwaitingWithdrawal()
+            }
         }
     }
 
@@ -50,10 +56,11 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
 
     private var userWalletModel: (any UserWalletModel)?
     private var accountFundsInteractor: PolymarketAccountFundsInteractor?
+    private var withdrawContext: PolymarketWithdrawContext?
     private weak var regionWarning: PolymarketRegionRestrictionViewModel?
     private weak var addFundsSheet: PolymarketAddFundsSheetViewModel?
     private var sheetDismissSubscription: AnyCancellable?
-    private var hasDispatchedDeposit = false
+    private var dispatchedOperation: FundingOperation?
 
     // MARK: - Init
 
@@ -159,6 +166,7 @@ private extension PolymarketCoordinator {
         self.geoblockStateProvider = geoblockStateProvider
         self.balanceProvider = balanceProvider
         self.accountFundsInteractor = accountFundsInteractor
+        withdrawContext = userWalletModel.map { PolymarketWithdrawFactory().makeContext(for: $0) }
 
         let apiProvider = PolymarketAPIProviderFactory().makeProvider()
 
@@ -234,7 +242,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
             outcome: outcome,
             eventTitle: eventTitle,
             geoblockStateProvider: geoblockStateProvider,
-            balancePublisher: balanceProvider.collateralPublisher,
+            balancePublisher: balanceProvider.collateralBalancePublisher.map(\.value).eraseToAnyPublisher(),
             placementService: PolymarketOrderPlacementFactory().makeService(for: userWalletModel)
         ))
 
@@ -295,6 +303,62 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
+
+    func openWithdraw() {
+        guard let userWalletModel else {
+            PolymarketLogger.error("Withdraw was tapped without a wallet", error: CoordinatorError.missingUserWalletModel)
+            return
+        }
+
+        guard let accountModel = PolymarketAccountAggregator.polymarketAccountModel(from: userWalletModel.accountModelsManager) else {
+            PolymarketLogger.error(
+                "Withdraw was tapped without a Polymarket account",
+                error: CoordinatorError.missingPolymarketAccountModel
+            )
+            return
+        }
+
+        guard let depositWalletAddress = accountFundsInteractor?.state.depositWalletAddress else {
+            PolymarketLogger.error(
+                "Withdraw was tapped before the deposit wallet was verified",
+                error: CoordinatorError.missingVerifiedDepositWallet
+            )
+            return
+        }
+
+        guard let withdrawContext else {
+            PolymarketLogger.error(
+                "Withdraw was tapped before the feed built its context",
+                error: CoordinatorError.missingWithdrawContext
+            )
+            return
+        }
+
+        let source = withdrawContext.makeSource(
+            accountModel: accountModel,
+            depositWalletAddress: depositWalletAddress,
+            minimumUSD: accountFundsInteractor?.state.depositTarget?.asset.minimumDepositUSD
+        )
+
+        let walletModelsProvider = MainScreenUIOrderedWalletModelsProvider(userWalletModel: userWalletModel)
+
+        runTask(in: self) { coordinator in
+            let receiveToken = await PolymarketWithdrawDestinationResolver(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModelsProvider: walletModelsProvider
+            )
+            .resolve()
+
+            let parameters = PolymarketSwapParametersFactory(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModelsProvider: walletModelsProvider,
+                accountModel: accountModel
+            )
+            .make(withdrawingFrom: source, receiveToken: receiveToken)
+
+            await runOnMain { coordinator.openSwap(parameters: parameters, operation: .withdrawal) }
+        }
+    }
 }
 
 // MARK: - PolymarketAddFundsSheetRoutable protocol conformance
@@ -316,7 +380,7 @@ extension PolymarketCoordinator: PolymarketAddFundsSheetRoutable {
 
             addFundsSheet = nil
             floatingSheetPresenter.removeActiveSheet()
-            openSwap(parameters: parameters)
+            openSwap(parameters: parameters, operation: .deposit)
         }
     }
 
@@ -331,14 +395,14 @@ extension PolymarketCoordinator: PolymarketAddFundsSheetRoutable {
 // MARK: - Swap
 
 private extension PolymarketCoordinator {
-    func openSwap(parameters: PredefinedSwapParameters) {
+    func openSwap(parameters: PredefinedSwapParameters, operation: FundingOperation) {
         let coordinator = makeSendCoordinator()
 
         coordinator.start(
             with: .init(
                 type: .swap(parameters),
                 source: .main,
-                onTransactionDispatched: { [weak self] in self?.hasDispatchedDeposit = true }
+                onTransactionDispatched: { [weak self] in self?.dispatchedOperation = operation }
             )
         )
 
@@ -350,6 +414,12 @@ private extension PolymarketCoordinator {
 
         viewModel.startAwaitingFunds()
     }
+
+    func startAwaitingWithdrawal() {
+        guard case .main(let viewModel) = viewState else { return }
+
+        viewModel.startAwaitingWithdrawal()
+    }
 }
 
 // MARK: - PolymarketEventDetailsRoutable protocol conformance
@@ -360,12 +430,23 @@ extension PolymarketCoordinator: PolymarketEventDetailsRoutable {
     }
 }
 
+// MARK: - Funding operations
+
+extension PolymarketCoordinator {
+    enum FundingOperation {
+        case deposit
+        case withdrawal
+    }
+}
+
 // MARK: - Errors
 
 extension PolymarketCoordinator {
     enum CoordinatorError: Error {
         case missingUserWalletModel
         case missingAccountFundsInteractor
+        case missingVerifiedDepositWallet
+        case missingWithdrawContext
         case missingOrderProviders
         case missingPolymarketAccountModel
     }

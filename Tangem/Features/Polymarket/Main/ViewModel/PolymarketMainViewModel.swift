@@ -28,7 +28,8 @@ final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var balance: LoadableBalanceView.State = .loading(cached: .none)
     @Published private(set) var isRegionRestricted = false
     @Published private(set) var isAwaitingFunds = false
-    @Published private(set) var addFundsState: AddFundsState = .loading
+    @Published private(set) var addFundsState: ActionState = .loading
+    @Published private(set) var withdrawState: WithdrawState = .loading
     @Published private(set) var positionsState: PositionsState = .loading
     @Published private(set) var isSearching = false
     @Published var isSearchFieldActive = false
@@ -53,12 +54,18 @@ final class PolymarketMainViewModel: ObservableObject {
     private let positionsService: PolymarketPositionsService?
     private weak var coordinator: PolymarketMainRoutable?
 
+    private static let balanceFormatter = BalanceFormatter()
+
     private let balanceStateBuilder = LoadableBalanceViewStateBuilder()
+
+    private var accountFundsReadiness: PolymarketAccountFundsInteractor.State = .loading
+    private var collateralBalance: TokenBalanceType = .loading(.none)
+    private var isTrackingBalanceChange = false
 
     private var balanceSubscription: AnyCancellable?
     private var balanceRefreshTask: Task<Void, Never>?
     private var accountFundsPreparationTask: Task<Void, Never>?
-    private var awaitingFundsTask: Task<Void, Never>?
+    private var balanceChangeTrackingTask: Task<Void, Never>?
     private var searchBag: Set<AnyCancellable> = []
     private var bag: Set<AnyCancellable> = []
 
@@ -98,7 +105,7 @@ final class PolymarketMainViewModel: ObservableObject {
     deinit {
         balanceRefreshTask?.cancel()
         accountFundsPreparationTask?.cancel()
-        awaitingFundsTask?.cancel()
+        balanceChangeTrackingTask?.cancel()
     }
 
     private func bindSearch() {
@@ -133,8 +140,8 @@ final class PolymarketMainViewModel: ObservableObject {
             await self?.balanceProvider.refresh()
 
             while !Task.isCancelled {
-                let interval = self?.isAwaitingFunds == true
-                    ? Constants.awaitingFundsBalanceRefreshInterval
+                let interval = self?.isTrackingBalanceChange == true
+                    ? Constants.trackedBalanceRefreshInterval
                     : Constants.balanceRefreshInterval
 
                 try? await Task.sleep(for: .seconds(interval))
@@ -154,19 +161,26 @@ final class PolymarketMainViewModel: ObservableObject {
             .sink { viewModel, formatted in
                 viewModel.balance = viewModel.makeBalanceState(from: formatted)
             }
+
+        balanceProvider
+            .collateralBalancePublisher
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, balance in
+                viewModel.collateralBalance = balance
+                viewModel.refreshActionStates()
+            }
+            .store(in: &bag)
     }
 
     private func prepareAccountFunds() {
         guard accountFundsInteractor != nil else {
-            addFundsState = .unavailable
+            apply(.unavailable)
             return
         }
 
         accountFundsPreparationTask?.cancel()
-
-        if addFundsState != .available {
-            addFundsState = .loading
-        }
 
         accountFundsPreparationTask = runTask(in: self) { @MainActor viewModel in
             guard let interactor = viewModel.accountFundsInteractor else { return }
@@ -175,8 +189,61 @@ final class PolymarketMainViewModel: ObservableObject {
 
             guard !Task.isCancelled else { return }
 
-            viewModel.addFundsState = AddFundsState(state)
+            viewModel.apply(state)
         }
+    }
+
+    private func apply(_ readiness: PolymarketAccountFundsInteractor.State) {
+        accountFundsReadiness = readiness
+        refreshActionStates()
+    }
+
+    private func refreshActionStates() {
+        switch accountFundsReadiness {
+        case .loading:
+            addFundsState = .loading
+            withdrawState = .loading
+
+        case .ready(let readiness):
+            addFundsState = readiness.depositTarget == nil ? .unavailable : .available
+            withdrawState = withdrawStateForPreparedAccount(readiness)
+
+        case .unavailable:
+            addFundsState = .unavailable
+            withdrawState = .unavailable(.accountUnavailable)
+        }
+    }
+
+    private func withdrawStateForPreparedAccount(_ readiness: PolymarketAccountFundsInteractor.Readiness) -> WithdrawState {
+        let minimum = PolymarketMinimumAmount(usd: readiness.depositTarget?.asset.minimumDepositUSD).inToken()
+
+        switch collateralBalance {
+        case .loaded(let balance):
+            return withdrawState(forBalance: balance, minimum: minimum)
+        case .loading(.some(let cached)), .failure(.some(let cached)):
+            return withdrawState(forBalance: cached.balance, minimum: minimum)
+        case .loading:
+            return .loading
+        case .empty, .failure:
+            return .unavailable(.balanceUnavailable)
+        }
+    }
+
+    private func withdrawState(forBalance balance: Decimal, minimum: Decimal?) -> WithdrawState {
+        guard balance > 0 else {
+            return .unavailable(.emptyBalance)
+        }
+
+        guard let minimum, balance < minimum else {
+            return .available
+        }
+
+        let formatted = Self.balanceFormatter.formatCryptoBalance(
+            minimum,
+            currencyCode: PolymarketUtilities.usdcTokenItem.currencySymbol
+        )
+
+        return .unavailable(.tooSmallBalance(minimumFormatted: formatted))
     }
 
     // MARK: - Positions
@@ -279,17 +346,27 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     func startAwaitingFunds() {
-        awaitingFundsTask?.cancel()
         isAwaitingFunds = true
+        startTrackingBalanceChange()
+    }
+
+    func startAwaitingWithdrawal() {
+        startTrackingBalanceChange()
+    }
+
+    private func startTrackingBalanceChange() {
+        balanceChangeTrackingTask?.cancel()
+        isTrackingBalanceChange = true
 
         balanceRefreshTask?.cancel()
         startBalanceRefresh()
 
-        awaitingFundsTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .seconds(Constants.awaitingFundsDuration))
+        balanceChangeTrackingTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(Constants.balanceChangeTrackingDuration))
 
             guard !Task.isCancelled else { return }
 
+            self?.isTrackingBalanceChange = false
             self?.isAwaitingFunds = false
         }
     }
@@ -307,6 +384,36 @@ final class PolymarketMainViewModel: ObservableObject {
             break
         case .unavailable:
             alert = AlertBuilder.makeOkGotItAlert(message: Localization.predictionAddFundsErrorDescription)
+        }
+    }
+
+    func onWithdrawTap() {
+        guard !isRegionRestricted else {
+            coordinator?.openRegionWarning()
+            return
+        }
+
+        switch withdrawState {
+        case .available:
+            coordinator?.openWithdraw()
+        case .loading:
+            break
+        case .unavailable(let reason):
+            alert = AlertBuilder.makeOkGotItAlert(message: message(for: reason))
+        }
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    private func message(for reason: WithdrawUnavailability) -> String {
+        switch reason {
+        case .emptyBalance:
+            Localization.tokenButtonUnavailabilityReasonEmptyBalanceSend
+        case .tooSmallBalance(let minimumFormatted):
+            Localization.transferMinAmountError(minimumFormatted)
+        case .balanceUnavailable:
+            "Couldn't read your Polymarket balance. Refresh or re-enter this screen."
+        case .accountUnavailable:
+            "Couldn't reach your Polymarket account. Refresh or re-enter this screen."
         }
     }
 
@@ -530,8 +637,8 @@ private extension PolymarketMainViewModel {
         static let staleCursorStatusCode = 502
 
         static let balanceRefreshInterval: TimeInterval = 30
-        static let awaitingFundsDuration: TimeInterval = 30
-        static let awaitingFundsBalanceRefreshInterval: TimeInterval = 5
+        static let balanceChangeTrackingDuration: TimeInterval = 30
+        static let trackedBalanceRefreshInterval: TimeInterval = 5
         static let positionsLimit = 10
         static let positionsShown = 3
         static let positionsRetryDelay: TimeInterval = 1
@@ -568,21 +675,28 @@ extension PolymarketMainViewModel {
     }
 }
 
-// MARK: - Add funds
+// MARK: - Action states
 
 extension PolymarketMainViewModel {
-    enum AddFundsState: Equatable {
+    enum ActionState: Equatable {
         case loading
         case available
         case unavailable
+    }
 
-        init(_ state: PolymarketAccountFundsInteractor.State) {
-            switch state {
-            case .loading: self = .loading
-            case .ready(let readiness): self = readiness.depositTarget == nil ? .unavailable : .available
-            case .unavailable: self = .unavailable
-            }
-        }
+    enum WithdrawState: Equatable {
+        case loading
+        case available
+        case unavailable(WithdrawUnavailability)
+
+        var isAvailable: Bool { self == .available }
+    }
+
+    enum WithdrawUnavailability: Equatable {
+        case emptyBalance
+        case tooSmallBalance(minimumFormatted: String)
+        case balanceUnavailable
+        case accountUnavailable
     }
 }
 

@@ -16,6 +16,7 @@ struct SwapTokenSelectorViewModelBuilder {
     var receiveWalletsProvider: (any TokenSelectorWalletsProvider)?
     var allowsSourceMarketsTokens: Bool = true
     var allowsReceiveMarketsTokens: Bool = true
+    var offeredReceiveTokens: [TokenItem] = []
 
     func makeSwapTokenSelectorViewModel(
         direction: SwapTokenSelectorViewModel.SwapDirection,
@@ -52,10 +53,18 @@ struct SwapTokenSelectorViewModelBuilder {
             showsBalanceFilter: isSourceSelection
         )
 
+        let offeredTokensViewModel = !isSourceSelection && !offeredReceiveTokens.isEmpty
+            ? SwapOfferedTokensViewModel(
+                tokenItems: offeredReceiveTokens,
+                additionCoordinator: marketsTokenAdditionRouter
+            )
+            : nil
+
         return SwapTokenSelectorViewModel(
             swapDirection: direction,
             tokenSelectorViewModel: tokenSelectorViewModel,
             marketsTokensViewModel: suppressesMarketsTokens ? nil : marketsTokensViewModel,
+            offeredTokensViewModel: offeredTokensViewModel,
             output: output,
             tokenSelectorCoordinator: router,
             marketsTokenAdditionCoordinator: marketsTokenAdditionRouter
