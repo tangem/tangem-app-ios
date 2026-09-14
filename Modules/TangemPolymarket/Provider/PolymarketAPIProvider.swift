@@ -20,6 +20,8 @@ public protocol PolymarketAPIProvider {
     func seriesEvents(seriesId: String) async throws -> PolymarketSeriesEvents
 
     func orderQuote(request: PolymarketOrderQuoteRequest) async throws -> PolymarketOrderQuote
+
+    func positions(request: PolymarketPositionsRequest) async throws -> PolymarketPositionsPage
 }
 
 public extension PolymarketAPIProvider {
