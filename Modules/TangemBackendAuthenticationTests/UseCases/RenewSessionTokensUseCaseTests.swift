@@ -577,7 +577,7 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
 
 extension RenewSessionTokensUseCaseTests {
     private func makeSUT(
-        registerDevice: @escaping RenewSessionTokensUseCase.RegisterDevice = { nil },
+        registerDevice: @escaping RegisterDevice = { nil },
         appAttestService: some AppAttestService = StubAppAttestService(),
         sessionAuthenticationClient: some SessionAuthenticationClient = SpySessionAuthenticationClient(),
         sessionTokensRepository: some SessionTokensRepository = SpySessionTokensRepository(),

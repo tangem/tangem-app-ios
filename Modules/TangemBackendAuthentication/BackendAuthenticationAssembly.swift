@@ -17,6 +17,9 @@ private import struct TangemFoundation.DeviceInfo
 public enum BackendAuthenticationAssembly {
     public static let registerDevice: RegisterDeviceUseCase = Self.makeRegisterDeviceUseCase()
 
+    public static let obtainUserWalletRegistrationNonce: ObtainUserWalletRegistrationNonceUseCase =
+        Self.makeObtainUserWalletRegistrationNonceUseCase()
+
     public static let prepareUserWalletRegistration: PrepareUserWalletRegistrationUseCase =
         Self.makePrepareUserWalletRegistrationUseCase()
 
@@ -147,14 +150,20 @@ extension BackendAuthenticationAssembly {
         )
     }
 
-    private static func makePrepareUserWalletRegistrationUseCase() -> PrepareUserWalletRegistrationUseCase {
-        PrepareUserWalletRegistrationUseCase(
+    private static func makeObtainUserWalletRegistrationNonceUseCase() -> ObtainUserWalletRegistrationNonceUseCase {
+        ObtainUserWalletRegistrationNonceUseCase(
             registerDevice: registerDevice.callAsFunction,
             appAttestService: appAttestService,
             registrationClient: userWalletRegistrationClient,
             registrationStatusRepository: userWalletRegistrationStatusRepository,
             deviceKeyManager: deviceKeyManager,
-            nonceDecryptor: nonceDecryptor,
+            nonceDecryptor: nonceDecryptor
+        )
+    }
+
+    private static func makePrepareUserWalletRegistrationUseCase() -> PrepareUserWalletRegistrationUseCase {
+        PrepareUserWalletRegistrationUseCase(
+            registrationStatusRepository: userWalletRegistrationStatusRepository,
             deviceMetadataProvider: DeviceMetadata.default
         )
     }
@@ -169,6 +178,7 @@ extension BackendAuthenticationAssembly {
 
     private static func makeRegisterUserWalletUseCase() -> RegisterUserWalletUseCase {
         RegisterUserWalletUseCase(
+            obtainNonce: makeObtainUserWalletRegistrationNonceUseCase(),
             prepare: makePrepareUserWalletRegistrationUseCase(),
             submit: makeSubmitUserWalletRegistrationUseCase()
         )
