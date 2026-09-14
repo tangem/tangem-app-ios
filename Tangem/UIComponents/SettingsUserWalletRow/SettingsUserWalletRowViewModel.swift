@@ -90,9 +90,13 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
 
         totalBalancePublisher
+            .withAppCurrencyCode()
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
-            .sink { $0.setupBalanceState(state: $1) }
+            .sink { viewModel, input in
+                let (state, currencyCode) = input
+                viewModel.setupBalanceState(state: state, currencyCode: currencyCode)
+            }
             .store(in: &bag)
     }
 
@@ -100,12 +104,12 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
         loadImage()
     }
 
-    private func setupBalanceState(state: TotalBalanceState) {
+    private func setupBalanceState(state: TotalBalanceState, currencyCode: String) {
         guard !isUserWalletLocked else {
             balanceState = .loaded(text: Localization.commonLocked)
             return
         }
 
-        balanceState = LoadableBalanceViewStateBuilder().buildTotalBalance(state: state)
+        balanceState = LoadableBalanceViewStateBuilder().buildTotalBalance(state: state, currencyCode: currencyCode)
     }
 }
