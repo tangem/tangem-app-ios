@@ -44,6 +44,8 @@ public struct PolymarketPositionHeader: View {
         HStack(spacing: Constants.changeSpacing) {
             model.changeType.imageType.image
                 .renderingMode(.template)
+                .resizable()
+                .frame(width: Constants.changeIconSide, height: Constants.changeIconSide)
                 .foregroundStyle(model.changeType.iconColor)
 
             Text(model.changeText)
@@ -56,11 +58,8 @@ public struct PolymarketPositionHeader: View {
         HStack(spacing: Constants.badgeSpacing) {
             PolymarketOutcomePill(title: model.outcomeTitle, style: model.outcomeStyle)
 
-            if let payoutText = model.payoutText {
-                Badge(label: payoutText, accessibilityLabel: nil)
-                    .size(.x6)
-                    .variant(.tinted)
-                    .appearance(.warning)
+            if let payoutAmount = model.payoutAmount {
+                PolymarketAmountBadge.payout(state: .value(payoutAmount))
             }
         }
         .padding(.top, Constants.badgeTopSpacing)
@@ -78,7 +77,7 @@ public extension PolymarketPositionHeader {
         public let question: String
         public let outcomeTitle: String
         public let outcomeStyle: PolymarketOutcomeStyle
-        public let payoutText: String?
+        public let payoutAmount: String?
 
         public init(
             iconURL: URL?,
@@ -88,7 +87,7 @@ public extension PolymarketPositionHeader {
             question: String,
             outcomeTitle: String,
             outcomeStyle: PolymarketOutcomeStyle,
-            payoutText: String?
+            payoutAmount: String?
         ) {
             self.iconURL = iconURL
             self.changeText = changeText
@@ -97,7 +96,7 @@ public extension PolymarketPositionHeader {
             self.question = question
             self.outcomeTitle = outcomeTitle
             self.outcomeStyle = outcomeStyle
-            self.payoutText = payoutText
+            self.payoutAmount = payoutAmount
         }
     }
 }
@@ -109,7 +108,8 @@ private extension PolymarketPositionHeader {
         static let iconSide: CGFloat = 72
         static let iconSpacing: CGFloat = 24
         static let textSpacing: CGFloat = 4
-        static let changeSpacing: CGFloat = 4
+        static let changeSpacing: CGFloat = 2
+        static let changeIconSide: CGFloat = 12
         static let badgeSpacing: CGFloat = 4
         static let badgeTopSpacing: CGFloat = 4
         static let padding: CGFloat = 24

@@ -14,9 +14,11 @@ import TangemUIUtils
 
 public struct PolymarketPositionRow: View {
     private let model: Model
+    private let onTap: (() -> Void)?
 
-    public init(model: Model) {
+    public init(model: Model, onTap: (() -> Void)? = nil) {
         self.model = model
+        self.onTap = onTap
     }
 
     public var body: some View {
@@ -25,14 +27,25 @@ public struct PolymarketPositionRow: View {
     }
 
     private var card: some View {
-        TangemUI.Row(title: model.question)
+        row
+            .frame(maxWidth: .infinity)
+            .background(DesignSystem.Color.bgSecondary)
+            .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
+    }
+
+    @ViewBuilder
+    private var row: some View {
+        let row = TangemUI.Row(title: model.question)
             .titleLineLimit(Constants.titleLineLimit)
             .verticalAlignment(.center)
             .end { PolymarketAvatarView(url: model.imageURL) }
             .extraBottom { footer }
-            .frame(maxWidth: .infinity)
-            .background(DesignSystem.Color.bgSecondary)
-            .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
+
+        if let onTap {
+            row.onTap(onTap)
+        } else {
+            row
+        }
     }
 
     private var footer: some View {
