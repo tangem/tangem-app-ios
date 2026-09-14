@@ -236,6 +236,7 @@ private final class StubOnrampAmountInput: OnrampAmountInput {
 
 private struct StubGeoEligibilityService: GeoEligibilityService {
     let isApplePayAllowed: Bool
+    var regionCode: String? { nil }
     var isUK: Bool { false }
 
     func initialize() {}
