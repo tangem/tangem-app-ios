@@ -19,16 +19,12 @@ class EthereumWalletManager: BaseWalletManager, WalletManager, EthereumTransacti
     let addressConverter: EthereumAddressConverter
     let yieldSupplyService: YieldSupplyService?
     let pendingTransactionsManager: EthereumPendingTransactionsManager
-    let isGaslessYieldEnabled: Bool
 
     private var bag = Set<AnyCancellable>()
 
     var currentHost: String { networkService.host }
 
-    /// The batch-capable executor deployment ships behind the gasless yield feature toggle.
-    var gaslessExecutorVersion: GaslessExecutorVersion {
-        isGaslessYieldEnabled ? .batchCapable : .legacy
-    }
+    var gaslessExecutorVersion: GaslessExecutorVersion { .batchCapable }
 
     init(
         wallet: Wallet,
@@ -36,15 +32,13 @@ class EthereumWalletManager: BaseWalletManager, WalletManager, EthereumTransacti
         txBuilder: EthereumTransactionBuilder,
         networkService: EthereumNetworkService,
         yieldSupplyService: YieldSupplyService? = nil,
-        pendingTransactionsManager: EthereumPendingTransactionsManager,
-        isGaslessYieldEnabled: Bool
+        pendingTransactionsManager: EthereumPendingTransactionsManager
     ) {
         self.txBuilder = txBuilder
         self.networkService = networkService
         self.addressConverter = addressConverter
         self.yieldSupplyService = yieldSupplyService
         self.pendingTransactionsManager = pendingTransactionsManager
-        self.isGaslessYieldEnabled = isGaslessYieldEnabled
 
         super.init(wallet: wallet)
 

@@ -19,7 +19,6 @@ final class TransactionHistoryFactoryProvider {
     lazy var factory: TransactionHistoryProviderFactory = .init(
         keysConfig: keysManager.blockchainSdkKeysConfig,
         tangemProviderConfig: .ephemeralConfiguration,
-        apiList: apiListProvider.apiList,
-        isXrpTransactionHistoryEnabled: FeatureProvider.isAvailable(.xrplTransactionHistory)
+        apiList: apiListProvider.apiList
     )
 }

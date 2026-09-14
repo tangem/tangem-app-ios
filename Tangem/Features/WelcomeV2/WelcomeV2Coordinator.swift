@@ -300,15 +300,6 @@ private extension WelcomeV2Coordinator {
             return
         }
 
-        guard FeatureProvider.isAvailable(.mobileWalletBackup) else {
-            analytics.logImportWalletRequest(hasCloudBackup: false)
-            dismissSheet { coordinator in
-                let input = MobileOnboardingInput(flow: .walletImport(source: .importWallet))
-                coordinator.presentImportOnboarding(options: .mobileInput(input))
-            }
-            return
-        }
-
         presentImportWallet()
     }
 

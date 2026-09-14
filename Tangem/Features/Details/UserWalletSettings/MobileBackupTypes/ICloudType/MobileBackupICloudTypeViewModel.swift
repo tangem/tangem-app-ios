@@ -10,12 +10,9 @@ import Combine
 import SwiftUI
 import TangemFoundation
 import TangemMobileWalletBackup
-import TangemUIUtils
 import TangemLocalization
 
 final class MobileBackupICloudTypeViewModel: ObservableObject {
-    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
-
     @Published private(set) var state: State?
 
     let title = Localization.hwCloudBackupRestoreNavtitleV2(MobileBackupConstants.iCloudServiceName)
@@ -45,12 +42,8 @@ final class MobileBackupICloudTypeViewModel: ObservableObject {
 private extension MobileBackupICloudTypeViewModel {
     func setup() {
         runTask(in: self) { viewModel in
-            if FeatureProvider.isAvailable(.mobileWalletBackup) {
-                viewModel.bind()
-                await viewModel.calculateState()
-            } else {
-                await viewModel.setupUnavailableState()
-            }
+            viewModel.bind()
+            await viewModel.calculateState()
         }
     }
 
@@ -175,13 +168,6 @@ private extension MobileBackupICloudTypeViewModel {
         await setup(state: .incomplete(item))
     }
 
-    func setupUnavailableState() async {
-        let item = UnavailableItem(action: { [weak self] in
-            self?.onUnavailableTap()
-        })
-        await setup(state: .unavailable(item))
-    }
-
     func setupRequirementState(reason: RequirementReason) async {
         let item = RequirementItem(
             badge: .actionRequired,
@@ -204,34 +190,9 @@ private extension MobileBackupICloudTypeViewModel {
         }
     }
 
-    func onUnavailableTap() {
-        logTapAnalytics()
-        runTask(in: self) { viewModel in
-            await viewModel.showUnavailableAlert()
-        }
-    }
-
     @MainActor
     func setup(state: State) {
         self.state = state
-    }
-}
-
-// MARK: - Alerts
-
-@MainActor
-private extension MobileBackupICloudTypeViewModel {
-    func showUnavailableAlert() {
-        let alert = AlertBuilder.makeAlert(
-            title: Localization.hwBackupIcloudAlertTitle,
-            message: Localization.hwBackupIcloudAlertMessage,
-            primaryButton: .default(Text(Localization.commonOk))
-        )
-        showAlert(alert)
-    }
-
-    func showAlert(_ alert: AlertBinder) {
-        alertPresenter.present(alert: alert)
     }
 }
 
@@ -318,7 +279,6 @@ extension MobileBackupICloudTypeViewModel {
         case done(DoneItem)
         case incomplete(IncompleteItem)
         case requirement(RequirementItem)
-        case unavailable(UnavailableItem)
     }
 
     enum RequirementReason {
@@ -338,10 +298,6 @@ extension MobileBackupICloudTypeViewModel {
 
     struct RequirementItem {
         let badge: BadgeView.Item
-        let action: () -> Void
-    }
-
-    struct UnavailableItem {
         let action: () -> Void
     }
 }
