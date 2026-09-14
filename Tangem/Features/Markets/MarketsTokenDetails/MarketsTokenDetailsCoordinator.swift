@@ -61,6 +61,8 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
 
     private var isDeeplinkMode: Bool = false
 
+    private var isRestrictedForCountry: Bool = false
+
     var isMarketsSheetFlow: Bool {
         presentationStyle == .marketsSheet
     }
@@ -78,6 +80,7 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     func start(with options: Options) {
         presentationStyle = options.style
         isDeeplinkMode = options.isDeeplinkMode
+        isRestrictedForCountry = options.info.restrictedForCountry ?? false
         rootViewModel = .init(
             tokenInfo: options.info,
             presentationStyle: options.style,
@@ -276,7 +279,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
         }
 
         func openPromoYield() {
-            if let apy = yieldModuleManager.state?.marketInfo?.apy {
+            if let apy = yieldModuleManager.state?.marketInfo?.effectiveApy {
                 openYieldModulePromoView(apy: apy, factory: factory)
                 logger.logEarningApyClicked(state: .disabled)
             }
@@ -435,7 +438,8 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
                     mode: .stack,
                     primaryAction: .goToToken,
                     walletModel: input.walletModel,
-                    userWalletModel: userWalletModel
+                    userWalletModel: userWalletModel,
+                    isRestrictedForCountry: isRestrictedForCountry
                 ),
                 coordinator: self
             )
@@ -648,6 +652,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
                 primaryAction: primaryAction,
                 walletModel: walletModel,
                 userWalletModel: userWalletModel,
+                isRestrictedForCountry: isRestrictedForCountry,
                 onBack: onBack
             ),
             coordinator: self

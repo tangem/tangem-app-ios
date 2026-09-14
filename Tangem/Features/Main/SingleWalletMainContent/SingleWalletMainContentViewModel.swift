@@ -46,8 +46,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     private let contextActionTokenRouter: SingleTokenRoutable
     private weak var addFundsRoutable: (any ActionButtonsBuyFlowRoutable)?
 
-    private let isPageSelectedSubject = PassthroughSubject<Bool, Never>()
-
     private var bag: Set<AnyCancellable> = []
 
     private weak var delegate: SingleWalletMainContentDelegate?
@@ -241,10 +239,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             .removeDuplicates()
             .assign(to: &$notificationBannerItems)
 
-        rateAppController.bind(
-            isPageSelectedPublisher: isPageSelectedSubject,
-            notificationsPublisher: $notificationInputs
-        )
+        rateAppController.bind(notificationsPublisher: $notificationInputs)
 
         bindWalletPromoBanner()
     }
@@ -280,18 +275,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     private func openAddFunds() {
         let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
         addFundsRoutable?.openBuy(userWalletModels: userWalletModels, preferredWalletId: ActionButtonsBuyPreselection.userWalletId(for: userWalletModel))
-    }
-}
-
-// MARK: - MainViewPage protocol conformance
-
-extension SingleWalletMainContentViewModel: MainViewPage {
-    func onPageAppear() {
-        isPageSelectedSubject.send(true)
-    }
-
-    func onPageDisappear() {
-        isPageSelectedSubject.send(false)
     }
 }
 

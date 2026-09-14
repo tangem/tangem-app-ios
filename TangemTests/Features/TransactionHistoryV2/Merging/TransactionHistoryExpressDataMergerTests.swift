@@ -679,7 +679,7 @@ struct TransactionHistoryExpressDataMergerTests {
         #expect(record(in: output, hash: "0xLate")?.isEnriched == false)
     }
 
-    @Test("Send heuristic: the sender must be the deal's from-address")
+    @Test("Send heuristic: the sender must be one of the wallet's addresses")
     func sendHeuristicRequiresSenderIsOwner() throws {
         let token = ExpressMergeTestDataFactory.ethereumToken
         let merger = ExpressMergeTestDataFactory.makeMerger(
@@ -767,8 +767,8 @@ struct TransactionHistoryExpressDataMergerTests {
         #expect(!(try #require(output.first).isEnriched))
     }
 
-    @Test("Send heuristic: a nil from-address falls back to the owner address for the sender check")
-    func sendHeuristicFallsBackToOwnerAddressWhenFromAddressNil() throws {
+    @Test("Send heuristic: a nil from-address doesn't affect the sender check")
+    func sendHeuristicIgnoresNilFromAddressForSenderCheck() throws {
         let token = ExpressMergeTestDataFactory.ethereumToken
         let merger = ExpressMergeTestDataFactory.makeMerger(
             currentToken: token,
@@ -790,7 +790,7 @@ struct TransactionHistoryExpressDataMergerTests {
         let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
             txId: "exchange-tx",
             status: .finished,
-            fromAddress: nil, // no explicit sender -> falls back to the owner address
+            fromAddress: nil, // the sender check reads the wallet addresses either way
             payInAddress: "0xPayIn",
             payInHash: nil,
             payOutAddress: "0xPayOut",
@@ -1034,8 +1034,8 @@ struct TransactionHistoryExpressDataMergerTests {
         #expect(!(try #require(output.first).isEnriched))
     }
 
-    @Test("Receive heuristic: a nil from-address falls back to the owner address when excluding self-transfers")
-    func receiveHeuristicExcludesSelfTransferViaOwnerAddressFallback() throws {
+    @Test("Receive heuristic: a nil from-address doesn't affect the self-transfer check")
+    func receiveHeuristicExcludesSelfTransferRegardlessOfFromAddress() throws {
         let token = ExpressMergeTestDataFactory.ethereumToken
         let merger = ExpressMergeTestDataFactory.makeMerger(
             currentToken: token,
@@ -1057,7 +1057,7 @@ struct TransactionHistoryExpressDataMergerTests {
         let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
             txId: "exchange-tx",
             status: .finished,
-            fromAddress: nil, // falls back to the owner address for the self-transfer check
+            fromAddress: nil, // the self-transfer check reads the wallet addresses either way
             payInAddress: "0xPayIn",
             payInHash: nil,
             payOutAddress: "0xPayOut",
@@ -1931,6 +1931,194 @@ struct TransactionHistoryExpressDataMergerTests {
         let output = merger.merge(bsdkTransactions: [indexOne, indexZero], exchangeTransactions: [], onrampTransactions: [])
 
         #expect(output.map(\.index) == [0, 1])
+    }
+
+    // MARK: - Multi-address wallets and normalized currencies
+
+    @Test("Send heuristic (UTXO): matches a transfer spent from a derived address the deal never recorded")
+    func sendHeuristicMatchesSpendFromDerivedAddress() throws {
+        let token = ExpressMergeTestDataFactory.bitcoinToken
+        // Express records the wallet's default address, which on chains with dynamic addresses is the first
+        // unused one and therefore never an input of the transaction that funded the deal.
+        let defaultAddress = "bc1qDefault"
+        let derivedAddress = "bc1qDerived"
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            walletAddresses: [defaultAddress, derivedAddress],
+            feeTokenItem: token
+        )
+
+        let onChain = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xSend",
+            isOutgoing: true,
+            sources: [derivedAddress],
+            destinations: [("bc1qPayIn", 1)],
+            date: ExpressMergeTestDataFactory.baseDate,
+            index: 0,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: token
+        )
+        let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "exchange-tx",
+            status: .waiting,
+            fromAddress: defaultAddress,
+            payInAddress: "bc1qPayIn",
+            payInHash: nil,
+            payOutAddress: "0xPayOut",
+            payOutHash: nil,
+            fromCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            fromAmount: 1,
+            fromActualAmount: nil,
+            toCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            toAmount: 1,
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+
+        let output = merger.merge(bsdkTransactions: [onChain], exchangeTransactions: [exchange], onrampTransactions: [])
+
+        // A miss would leave the on-chain record unenriched and add a synthetic one next to it
+        #expect(output.count == 1)
+        #expect(try #require(output.first).isEnriched)
+    }
+
+    @Test("Receive heuristic: a self-transfer is excluded even when the deal's from-address is on another network")
+    func receiveHeuristicExcludesSelfTransferWithForeignFromAddress() throws {
+        let token = ExpressMergeTestDataFactory.ethereumToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
+            feeTokenItem: token
+        )
+
+        // The pay-out leg is on the current network while the from-address belongs to the source one,
+        // so it can never equal any of this transaction's inputs
+        let onChain = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xReceive",
+            isOutgoing: false,
+            sources: [ExpressMergeTestDataFactory.ownerAddress],
+            destinations: [(ExpressMergeTestDataFactory.ownerAddress, 1)],
+            date: ExpressMergeTestDataFactory.baseDate,
+            index: 0,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: token
+        )
+        let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "exchange-tx",
+            status: .waiting,
+            fromAddress: "bc1qSourceNetwork",
+            payInAddress: "0xPayIn",
+            payInHash: nil,
+            payOutAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payOutHash: nil,
+            fromCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            fromAmount: 1,
+            fromActualAmount: nil,
+            toCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            toAmount: 1,
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+
+        let output = merger.merge(bsdkTransactions: [onChain], exchangeTransactions: [exchange], onrampTransactions: [])
+
+        #expect(!(try #require(record(in: output, hash: "0xReceive")).isEnriched))
+    }
+
+    @Test("Send heuristic: a checksummed contract address still matches the stored lower-cased one")
+    func sendHeuristicMatchesChecksummedContractAddress() throws {
+        let token = ExpressMergeTestDataFactory.ethereumUSDTToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
+            feeTokenItem: ExpressMergeTestDataFactory.ethereumToken
+        )
+
+        let onChain = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xSend",
+            isOutgoing: true,
+            sources: [ExpressMergeTestDataFactory.ownerAddress],
+            destinations: [("0xPayIn", 1)],
+            date: ExpressMergeTestDataFactory.baseDate,
+            index: 0,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: ExpressMergeTestDataFactory.ethereumToken
+        )
+        let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "exchange-tx",
+            status: .waiting,
+            fromAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payInAddress: "0xPayIn",
+            payInHash: nil,
+            payOutAddress: "0xPayOut",
+            payOutHash: nil,
+            fromCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            fromAmount: 1,
+            fromActualAmount: nil,
+            toCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            toAmount: 1,
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+
+        let output = merger.merge(bsdkTransactions: [onChain], exchangeTransactions: [exchange], onrampTransactions: [])
+
+        #expect(output.count == 1)
+        #expect(try #require(output.first).isEnriched)
+    }
+
+    @Test("Receive heuristic: a checksummed contract address still matches the stored lower-cased one")
+    func receiveHeuristicMatchesChecksummedContractAddress() throws {
+        let token = ExpressMergeTestDataFactory.ethereumUSDTToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
+            feeTokenItem: ExpressMergeTestDataFactory.ethereumToken
+        )
+
+        let onChain = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xReceive",
+            isOutgoing: false,
+            sources: ["0xCounterparty"],
+            destinations: [(ExpressMergeTestDataFactory.ownerAddress, 1)],
+            date: ExpressMergeTestDataFactory.baseDate,
+            index: 0,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: ExpressMergeTestDataFactory.ethereumToken
+        )
+        let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "exchange-tx",
+            status: .waiting,
+            fromAddress: "0xSender",
+            payInAddress: "0xPayIn",
+            payInHash: nil,
+            payOutAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payOutHash: nil,
+            fromCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            fromAmount: 1,
+            fromActualAmount: nil,
+            toCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            toAmount: 1,
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+
+        let output = merger.merge(bsdkTransactions: [onChain], exchangeTransactions: [exchange], onrampTransactions: [])
+
+        #expect(output.count == 1)
+        #expect(try #require(output.first).isEnriched)
     }
 
     // MARK: - Helpers

@@ -13,6 +13,8 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     /// Every Tangem Pay row shares this accessibility identifier key, see `TransactionViewModel.TransactionType`.
     private static let tangemPayKey = "tangemPay"
     private static let historyScrollAttempts = 12
+    private static let issuingCardTitle = "Issuing a new digital card"
+    private static let issuingCardDescription = "Usually takes up to 5 minutes. In rare cases, up to 48 hours."
 
     private lazy var historyStateIcon = app.images[TxHistoryAccessibilityIdentifiers.statusStateIcon].firstMatch
     private lazy var historyErrorMessage = app.staticTexts
@@ -24,6 +26,12 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     private lazy var paymentAccountCardButton = app.buttons
         .matching(NSPredicate(format: "identifier BEGINSWITH %@", TangemPayAccessibilityIdentifiers.paymentAccountCardButtonPrefix))
         .firstMatch
+    private lazy var toolbarTitle = staticText(.toolbarTitle)
+    private lazy var toolbarSubtitle = staticText(.toolbarSubtitle)
+    private lazy var addCardButton = button(.addCardButton)
+    private lazy var emptyHistoryMessage = app.staticTexts
+        .matching(NSPredicate(format: "label CONTAINS %@", "You don't have any transactions yet"))
+        .firstMatch
     private lazy var balanceText = staticText(.paymentAccountBalance)
     private lazy var addFundsButton = button(.addFundsButton)
     private lazy var withdrawButton = button(.withdrawButton)
@@ -32,6 +40,9 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     private lazy var backButton = app.navigationBars.buttons.element(boundBy: 0)
     private lazy var applePayGuideBanner = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.addToApplePayGuideBanner].firstMatch
     private lazy var applePayGuideBannerCloseButton = app.buttons[TangemPayAccessibilityIdentifiers.addToApplePayGuideBannerCloseButton].firstMatch
+    /// Type-agnostic: the banner is a plain container, not guaranteed to surface as a specific element type.
+    private lazy var issuingCardBanner = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.issuingCardBanner].firstMatch
+    private lazy var issuingCardButton = button(.issuingCardButton)
 
     @discardableResult
     func waitForScreen() -> Self {
@@ -50,6 +61,49 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
+    func tapAddCard() -> TangemPayIssueAdditionalCardSheet {
+        XCTContext.runActivity(named: "Tap add card button to issue an additional card") { _ in
+            addCardButton.waitAndTap()
+            return TangemPayIssueAdditionalCardSheet(app)
+        }
+    }
+
+    @discardableResult
+    func tapIssuingCard() -> TangemPayCardDetailsScreen {
+        XCTContext.runActivity(named: "Tap the card being issued to open its screen") { _ in
+            issuingCardButton.waitAndTap()
+            return TangemPayCardDetailsScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyIssuingCardBanner() -> Self {
+        XCTContext.runActivity(named: "Verify 'Issuing a new digital card' banner is displayed") { _ in
+            waitAndAssertTrue(issuingCardBanner, timeout: .networkRequest, "Issuing card banner should be displayed")
+            waitAndAssertTrue(
+                app.staticTexts[Self.issuingCardTitle].firstMatch,
+                "Issuing card banner title should be displayed"
+            )
+            waitAndAssertTrue(
+                app.staticTexts[Self.issuingCardDescription].firstMatch,
+                "Issuing card banner description should be displayed"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitForIssuingCardBannerHidden() -> Self {
+        XCTContext.runActivity(named: "Wait for 'Issuing a new digital card' banner to disappear") { _ in
+            XCTAssertTrue(
+                issuingCardBanner.waitForNonExistence(timeout: .networkRequest),
+                "Issuing card banner should disappear once the card is issued"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func waitForBalanceLoaded() -> Self {
         XCTContext.runActivity(named: "Wait for balance to load") { _ in
             waitAndAssertTrue(balanceText, timeout: .networkRequest, "Balance text should be displayed")
@@ -61,6 +115,57 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
         XCTContext.runActivity(named: "Read current balance") { _ in
             waitAndAssertTrue(balanceText, timeout: .networkRequest, "Balance text should be displayed")
             return balanceText.label
+        }
+    }
+
+    @discardableResult
+    func verifyHeader(title expectedTitle: String, subtitle expectedSubtitle: String) -> Self {
+        XCTContext.runActivity(named: "Verify header '\(expectedTitle)' and subtitle '\(expectedSubtitle)'") { _ in
+            waitAndAssertTrue(toolbarTitle, "Payment account title should be displayed")
+            XCTAssertEqual(toolbarTitle.label, expectedTitle, "Title should be '\(expectedTitle)'")
+
+            waitAndAssertTrue(toolbarSubtitle, "Payment account subtitle should be displayed")
+            XCTAssertEqual(toolbarSubtitle.label, expectedSubtitle, "Subtitle should be '\(expectedSubtitle)'")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyBalanceFormat() -> Self {
+        XCTContext.runActivity(named: "Verify balance is a dollar amount with two decimals") { _ in
+            waitAndAssertTrue(balanceText, timeout: .networkRequest, "Balance text should be displayed")
+            XCTAssertTrue(
+                balanceText.label.range(of: #"^\$\d[\d,]*\.\d{2}$"#, options: .regularExpression) != nil,
+                "Balance should be formatted as $X.XX. Actual: '\(balanceText.label)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyActionButtonsVisible() -> Self {
+        XCTContext.runActivity(named: "Verify Add funds and Withdraw buttons are displayed") { _ in
+            waitAndAssertTrue(addFundsButton, "Add funds button should be displayed")
+            waitAndAssertTrue(withdrawButton, "Withdraw button should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyCardsRowVisible() -> Self {
+        XCTContext.runActivity(named: "Verify card and add card buttons are displayed") { _ in
+            waitAndAssertTrue(paymentAccountCardButton, "Payment account card button should be displayed")
+            waitAndAssertTrue(addCardButton, "Add card button should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyEmptyTransactionsState() -> Self {
+        XCTContext.runActivity(named: "Verify empty transaction history state") { _ in
+            waitAndAssertTrue(emptyHistoryMessage, timeout: .networkRequest, "Empty history message should be displayed")
+            waitAndAssertTrue(historyStateIcon, "Empty history icon should be displayed")
+            return self
         }
     }
 
@@ -114,10 +219,10 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
-    func tapWithdraw() -> TangemPayWithdrawNoteSheet {
+    func tapWithdraw() -> SwapScreen {
         XCTContext.runActivity(named: "Tap Withdraw button") { _ in
             withdrawButton.waitAndTap()
-            return TangemPayWithdrawNoteSheet(app)
+            return SwapScreen(app)
         }
     }
 
@@ -126,6 +231,26 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
         XCTContext.runActivity(named: "Verify Withdraw button is disabled") { _ in
             waitAndAssertTrue(withdrawButton, "Withdraw button should be displayed")
             withdrawButton.waitForState(state: .disabled)
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyCardDisabled() -> Self {
+        XCTContext.runActivity(named: "Verify card is not tappable") { _ in
+            waitAndAssertTrue(paymentAccountCardButton, "Payment account card button should be displayed")
+            paymentAccountCardButton.waitForState(state: .disabled)
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyStaleState(cachedBalance: String) -> Self {
+        XCTContext.runActivity(named: "Verify Payment account is in stale state with cached balance '\(cachedBalance)'") { _ in
+            verifyBalanceContains(cachedBalance)
+            verifyWithdrawDisabled()
+            verifyAddFundsDisabled()
+            verifyCardDisabled()
             return self
         }
     }
@@ -324,6 +449,10 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
 
 enum TangemPayMainScreenElement: String, UIElement {
     case paymentAccountBalance
+    case toolbarTitle
+    case toolbarSubtitle
+    case addCardButton
+    case issuingCardButton
     case addFundsButton
     case withdrawButton
     case moreActionsButton
@@ -333,6 +462,14 @@ enum TangemPayMainScreenElement: String, UIElement {
         switch self {
         case .paymentAccountBalance:
             TangemPayAccessibilityIdentifiers.paymentAccountBalance
+        case .toolbarTitle:
+            TangemPayAccessibilityIdentifiers.paymentAccountToolbarTitle
+        case .toolbarSubtitle:
+            TangemPayAccessibilityIdentifiers.paymentAccountToolbarSubtitle
+        case .addCardButton:
+            TangemPayAccessibilityIdentifiers.paymentAccountAddCardButton
+        case .issuingCardButton:
+            TangemPayAccessibilityIdentifiers.paymentAccountIssuingCardButton
         case .addFundsButton:
             TangemPayAccessibilityIdentifiers.addFundsButton
         case .withdrawButton:

@@ -43,6 +43,7 @@ class BaseTestCase: XCTestCase {
         scenarios: [ScenarioConfig] = [],
         mockCardBatchIdOverride: String? = nil,
         mockCardFirmwareOverride: String? = nil,
+        extraLaunchArguments: [String] = [],
         extraLaunchEnvironment: [String: String] = [:]
     ) {
         var arguments: [String] = []
@@ -85,6 +86,8 @@ class BaseTestCase: XCTestCase {
         for (key, isEnabled) in resolvedFeatureToggles {
             arguments.append("-uitest-feature-\(key)-\(isEnabled ? "on" : "off")")
         }
+
+        arguments.append(contentsOf: extraLaunchArguments)
 
         // Pin locale/language so currency, number and date assertions don't depend on the simulator region.
         arguments.append(contentsOf: ["-AppleLocale", "en_US", "-AppleLanguages", "(en)"])
@@ -198,6 +201,24 @@ class BaseTestCase: XCTestCase {
         )
 
         return importHotWallet(accessCode: accessCode)
+    }
+
+    /// Restarts the app keeping wallets and storage, so caches written before the restart stay readable.
+    @discardableResult
+    func relaunchKeepingState(
+        eligibilityState: String = "PaeraCustomer",
+        scenarios: [ScenarioConfig] = []
+    ) -> MainScreen {
+        XCTContext.runActivity(named: "Restart the app keeping wallets and settings") { _ in
+            app.terminate()
+            launchApp(
+                tangemApiType: .mock,
+                visaApiType: .mock,
+                keepWallets: true,
+                scenarios: [ScenarioConfig(name: "tangem_pay_eligibility", initialState: eligibilityState)] + scenarios
+            )
+            return MainScreen(app)
+        }
     }
 
     // MARK: - Alert Handling

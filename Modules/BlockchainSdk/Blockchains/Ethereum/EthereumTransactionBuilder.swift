@@ -28,6 +28,7 @@ protocol EthereumTransactionBuilder {
 
 enum EthereumTransactionBuilderError: LocalizedError, Equatable {
     case feeParametersNotFound
+    case feeParametersInvalid
     case transactionParamsNotFound
     case invalidSignatureCount
     case invalidAmount
@@ -44,6 +45,8 @@ enum EthereumTransactionBuilderError: LocalizedError, Equatable {
         switch self {
         case .feeParametersNotFound:
             return "feeParametersNotFound"
+        case .feeParametersInvalid:
+            return "feeParametersInvalid"
         case .transactionParamsNotFound:
             return "transactionParamsNotFound"
         case .invalidAmount:
