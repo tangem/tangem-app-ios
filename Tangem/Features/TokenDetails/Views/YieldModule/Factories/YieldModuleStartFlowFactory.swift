@@ -54,6 +54,10 @@ final class YieldStartFlowFactory {
         makeViewModel(viewState: .rateInfo, coordinator: nil)
     }
 
+    func makeIncentiveRateInfoViewModel() -> YieldModuleStartViewModel {
+        makeViewModel(viewState: .incentiveRateInfo, coordinator: nil)
+    }
+
     // MARK: - Private Implementation
 
     private func makeViewModel(
