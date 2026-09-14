@@ -14,25 +14,28 @@ import TangemUIUtils
 struct CollectiblesWelcomeView: View {
     @ObservedObject var viewModel: CollectiblesWelcomeViewModel
 
-    let onClose: () -> Void
-
-    @State private var imagePlaceholderSize: CGSize = .zero
+    let onBack: () -> Void
 
     var body: some View {
-        ZStack(alignment: .topTrailing) {
+        ZStack(alignment: .topLeading) {
             DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
             scrollableContent
                 .ignoresSafeArea(edges: .top)
 
-            NavigationBarButton.close(action: onClose)
-                .padding(.top, Metrics.closeTopPadding)
-                .padding(.trailing, Metrics.closeTrailingPadding)
+            NavigationBarButton.back(action: onBack)
+                .padding(.top, Metrics.backTopPadding)
+                .padding(.leading, Metrics.backLeadingPadding)
         }
         .safeAreaInset(edge: .bottom) {
-            Footer(isLoading: viewModel.isOpeningStories, onCreateAccountTap: viewModel.onCreateAccountTap)
+            Footer(
+                isLoading: viewModel.isOpeningStories,
+                onCreateAccountTap: viewModel.onCreateAccountTap,
+                onTermsTap: viewModel.onLegalTermsTap(url:)
+            )
         }
         .environment(\.isRedesign, true)
+        .alert(item: $viewModel.alert, content: \.alert)
     }
 }
 
@@ -41,23 +44,41 @@ private extension CollectiblesWelcomeView {
 
     var scrollableContent: some View {
         ScrollView(showsIndicators: false) {
-            ZStack(alignment: .top) {
-                imagePlaceholder
-                    .readGeometry(\.frame.size, bindTo: $imagePlaceholderSize)
+            VStack(spacing: 0) {
+                hero
 
-                VStack(spacing: 0) {
-                    FixedSpacer(height: max(0, imagePlaceholderSize.height - Metrics.imageContentOverlap))
-
-                    content
-                }
+                content
             }
         }
+        .coordinateSpace(name: Constants.scrollSpace)
     }
 
-    /// Reserves the hero image slot until the final asset lands.
-    var imagePlaceholder: some View {
-        Color.clear
-            .aspectRatio(Metrics.imageAspectRatio, contentMode: .fit)
+    var hero: some View {
+        GeometryReader { proxy in
+            let overscroll = max(0, proxy.frame(in: .named(Constants.scrollSpace)).minY)
+            let height = proxy.size.width / Metrics.imageAspectRatio
+
+            Assets.Collectibles.welcomeBackground.image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: proxy.size.width, height: height + overscroll)
+                .clipped()
+                .overlay { heroTint }
+                .offset(y: -overscroll)
+        }
+        .aspectRatio(Metrics.heroSlotAspectRatio, contentMode: .fit)
+    }
+
+    var heroTint: some View {
+        LinearGradient(
+            stops: [
+                .init(color: DesignSystem.Color.bgPrimary.opacity(0), location: Metrics.heroTintStart),
+                .init(color: DesignSystem.Color.bgPrimary, location: Metrics.heroTintEnd),
+                .init(color: DesignSystem.Color.bgPrimary, location: 1),
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
     }
 
     var content: some View {
@@ -71,19 +92,28 @@ private extension CollectiblesWelcomeView {
                 .padding(.top, Metrics.faqTopPadding)
         }
         .padding(.horizontal, Metrics.contentHorizontalPadding)
+        .padding(.top, Metrics.contentTopPadding)
         .padding(.bottom, Metrics.contentBottomPadding)
     }
 
     var titleBlock: some View {
         VStack(alignment: .leading, spacing: 8) {
             // [REDACTED_TODO_COMMENT]
-            Text("Open Collectibles account")
+            Text("Create your Tangem Packs account")
                 .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
 
             // [REDACTED_TODO_COMMENT]
-            Text("Buy sealed packs of real graded collectible cards — Pokémon, One Piece, sports. Whatever you open is yours: keep it in the insured physical vault, take the instant offer, have the slab shipped to you, or send it to a friend as a gift")
+            Text("Buy packs containing physical authentic graded collectible cards – Pokémon, One Piece and Sports. Each pack opening reveals a card allocated to you. Keep eligible cards in insured vaults, request delivery, send a card as a gift, or explore available sale options")
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension CollectiblesWelcomeView {
+    enum Constants {
+        static let scrollSpace = "collectibles_welcome_scroll"
     }
 }
 
@@ -91,14 +121,19 @@ private extension CollectiblesWelcomeView {
 
 private extension CollectiblesWelcomeView {
     enum Metrics {
-        static let closeTopPadding: CGFloat = 8
-        static let closeTrailingPadding: CGFloat = 16
+        static let backTopPadding: CGFloat = 8
+        static let backLeadingPadding: CGFloat = 16
 
-        static let imageContentOverlap: CGFloat = 128
-        /// The mockup's hero image proportions (405×608).
-        static let imageAspectRatio: CGFloat = 405.0 / 608.0
+        /// The mockup's hero image (402×608); its bitmap is placed 405 wide and cropped to the frame.
+        static let imageAspectRatio: CGFloat = 402.0 / 608.0
+        /// The mockup starts the content at 495 of the image's 608: the slot ends there and the image overflows it.
+        static let heroSlotAspectRatio: CGFloat = 402.0 / 495.0
+        /// The mockup's tint runs from 380 of the image's 608 and is opaque by its bottom edge.
+        static let heroTintStart: CGFloat = 380.0 / 608.0
+        static let heroTintEnd: CGFloat = 600.0 / 608.0
 
         static let contentHorizontalPadding: CGFloat = 24
+        static let contentTopPadding: CGFloat = 12
         static let contentBottomPadding: CGFloat = 24
 
         static let benefitsTopPadding: CGFloat = 36
@@ -109,5 +144,5 @@ private extension CollectiblesWelcomeView {
 // MARK: - Previews
 
 #Preview {
-    CollectiblesWelcomeView(viewModel: CollectiblesWelcomeViewModel(routable: nil), onClose: {})
+    CollectiblesWelcomeView(viewModel: CollectiblesWelcomeViewModel(routable: nil), onBack: {})
 }
