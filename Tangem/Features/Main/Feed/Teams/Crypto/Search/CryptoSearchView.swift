@@ -19,8 +19,9 @@ struct CryptoSearchView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Constants.sectionSpacing) {
                     if let portfolio = viewModel.portfolio {
-                        section(title: Localization.marketsSearchPortfolioHeader) {
-                            MarketsPortfolioTokenSearchView(viewModel: portfolio)
+                        section(title: Localization.marketsCommonMyPortfolio) {
+                            CryptoSearchPortfolioView(viewModel: portfolio)
+                                .padding(.horizontal, Constants.horizontalPadding)
                         }
                     }
 
@@ -48,12 +49,12 @@ private extension CryptoSearchView {
         case .loading:
             FeedSearchSkeletonView()
 
-        case .results(let results, let hasTokensUnderCap):
+        case .results(let rows, let hasTokensUnderCap):
             section(title: Localization.marketsCommonTitle) {
                 CryptoSearchResultsView(
-                    results: results,
-                    onSelect: viewModel.onSelectResult,
-                    onAppear: viewModel.onResultAppear
+                    rows: rows,
+                    onAppear: viewModel.onResultAppear,
+                    onDisappear: viewModel.onResultDisappear
                 )
 
                 if hasTokensUnderCap {
@@ -74,7 +75,7 @@ private extension CryptoSearchView {
     func section(title: String, @ViewBuilder content: () -> some View) -> some View {
         VStack(alignment: .leading, spacing: Constants.sectionHeaderSpacing) {
             Text(title)
-                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textTertiary)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
                 .padding(.horizontal, Constants.horizontalPadding)
 
             content()
@@ -106,9 +107,9 @@ private extension CryptoSearchView {
 private extension CryptoSearchView {
     enum Constants {
         static let contentID = "cryptoSearchContent"
-        static let contentVerticalInset: CGFloat = 8
-        static let sectionSpacing: CGFloat = 20
-        static let sectionHeaderSpacing: CGFloat = 8
+        static let contentVerticalInset: CGFloat = 16
+        static let sectionSpacing: CGFloat = 24
+        static let sectionHeaderSpacing: CGFloat = 16
         static let horizontalPadding: CGFloat = 16
         static let errorVerticalInset: CGFloat = 24
         static let noticeSpacing: CGFloat = 8

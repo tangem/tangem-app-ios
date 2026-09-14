@@ -31,11 +31,11 @@ struct FeedSearchSkeletonView: View {
 
 private extension FeedSearchSkeletonView {
     enum Constants {
-        static let rowCount = 5
-        static let pillWidth: CGFloat = 96
-        static let pillHeight: CGFloat = 20
-        static let headerSpacing: CGFloat = 12
-        static let cornerRadius: CGFloat = 20
+        static let rowCount = 4
+        static let pillWidth: CGFloat = 122
+        static let pillHeight: CGFloat = 16
+        static let headerSpacing: CGFloat = 16
+        static let cornerRadius: CGFloat = 24
         static let horizontalPadding: CGFloat = 16
     }
 }

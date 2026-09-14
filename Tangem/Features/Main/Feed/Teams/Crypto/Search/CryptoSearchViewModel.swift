@@ -12,7 +12,7 @@ import TangemFoundation
 
 final class CryptoSearchViewModel: ObservableObject {
     @Published private(set) var query: String = ""
-    @Published private(set) var portfolio: MarketsPortfolioTokenSearchViewModel?
+    @Published private(set) var portfolio: MarketsPortfolioTokenListViewModel?
     @Published private(set) var markets: MarketsState = .loading
 
     private let history: FeedSearchHistoryProvider
@@ -20,9 +20,10 @@ final class CryptoSearchViewModel: ObservableObject {
     private let router: any CryptoFeedRoutable
 
     private let walletModelsAggregator: WalletModelsAggregator = CommonWalletModelsAggregator()
-    private let priceFormatter = MarketsTokenPriceFormatter()
-    private let percentFormatter = PercentFormatter()
-    private let iconURLBuilder = IconURLBuilder()
+    private let rowsProvider = MarketTokenRowsProvider(filterProvider: MarketsListDataFilterProvider(initialIntervalType: .day))
+
+    private var rowViewModels: [String: MarketTokenItemViewModel] = [:]
+    private var visibleResultIDs: Set<String> = []
 
     private var tokens: [MarketsTokenModel] = []
     private var isVisible = false
@@ -51,16 +52,25 @@ final class CryptoSearchViewModel: ObservableObject {
     func setVisible(_ isVisible: Bool) {
         self.isVisible = isVisible
         loadMarketsIfNeeded()
+
+        if isVisible {
+            rowsProvider.resumeQuotes()
+            rowsProvider.requestCharts()
+        } else {
+            rowsProvider.suspendQuotes()
+        }
     }
 
-    func onSelectResult(_ result: CryptoSearchResult) {
-        history.save(token: result.model)
-        history.save(query: query)
-        router.openToken(result.model)
+    func onResultDisappear(_ row: MarketTokenItemViewModel) {
+        visibleResultIDs.remove(row.tokenId)
+        rowsProvider.setVisibleTokenIDs(visibleResultIDs)
     }
 
-    func onResultAppear(_ result: CryptoSearchResult) {
-        guard case .results(let results, _) = markets, result.id == results.last?.id, loadedQuery == query else {
+    func onResultAppear(_ row: MarketTokenItemViewModel) {
+        visibleResultIDs.insert(row.tokenId)
+        rowsProvider.setVisibleTokenIDs(visibleResultIDs)
+
+        guard case .results(let rows, _) = markets, row.tokenId == rows.last?.tokenId, loadedQuery == query else {
             return
         }
 
@@ -82,6 +92,15 @@ final class CryptoSearchViewModel: ObservableObject {
 
 private extension CryptoSearchViewModel {
     func bind(to query: AnyPublisher<String, Never>) {
+        rowsProvider
+            .currencyDidChangePublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.reloadForCurrencyChange()
+            }
+            .store(in: &bag)
+
         let trimmedQuery = query
             .map { $0.trimmed() }
             .removeDuplicates()
@@ -133,8 +152,10 @@ private extension CryptoSearchViewModel {
         self.query = query
         showsTokensUnderCap = false
         requestedQuery = nil
-
         guard query.isNotEmpty else {
+            rowViewModels.removeAll()
+            visibleResultIDs.removeAll()
+            rowsProvider.setVisibleTokenIDs([])
             loadedQuery = nil
             tokens = []
             markets = .loading
@@ -162,7 +183,7 @@ private extension CryptoSearchViewModel {
 // MARK: - Portfolio
 
 private extension CryptoSearchViewModel {
-    func makePortfolio(query: String, walletModels: [any WalletModel]) -> MarketsPortfolioTokenSearchViewModel? {
+    func makePortfolio(query: String, walletModels: [any WalletModel]) -> MarketsPortfolioTokenListViewModel? {
         guard query.isNotEmpty else {
             return nil
         }
@@ -176,19 +197,14 @@ private extension CryptoSearchViewModel {
             return nil
         }
 
-        return MarketsPortfolioTokenSearchViewModel(
+        let portfolio = MarketsPortfolioTokenListViewModel(
             walletModels: matches,
-            onSingleToken: { [weak self] walletModel in
+            dismissesOnSelect: false,
+            onSelect: { [weak self] walletModel in
                 self?.router.openPortfolioToken(walletModel)
-            },
-            onMultipleToken: { [weak self] walletModels in
-                if walletModels.count == 1, let walletModel = walletModels.first {
-                    self?.router.openPortfolioToken(walletModel)
-                } else {
-                    self?.router.choosePortfolioToken(from: walletModels)
-                }
             }
         )
+        return portfolio.sections.isEmpty ? nil : portfolio
     }
 }
 
@@ -210,6 +226,11 @@ private extension CryptoSearchViewModel {
 
         case .loaded(let tokens):
             self.tokens = tokens
+            let ids = Set(tokens.map(\.id))
+            rowViewModels = rowViewModels.filter { ids.contains($0.key) }
+            visibleResultIDs.formIntersection(ids)
+            rowsProvider.updateQuotes(for: tokens)
+            rowsProvider.setVisibleTokenIDs(visibleResultIDs)
             markets = makeResultsState()
 
         case .empty:
@@ -225,22 +246,40 @@ private extension CryptoSearchViewModel {
     func makeResultsState() -> MarketsState {
         let visible = showsTokensUnderCap ? tokens : tokens.filter { !($0.isUnderMarketCapLimit ?? false) }
 
-        return .results(visible.map(makeResult(from:)), hasTokensUnderCap: visible.count != tokens.count)
+        return .results(visible.map(makeRow(for:)), hasTokensUnderCap: visible.count != tokens.count)
     }
 
-    func makeResult(from model: MarketsTokenModel) -> CryptoSearchResult {
-        let change = model.priceChangePercentage[MarketsPriceIntervalType.day.marketsListId] as? Decimal ?? 0
+    /// Prices and market caps come from the search response in the selected currency, so the whole query
+    /// has to be asked again rather than reformatted from the snapshot taken in the previous one.
+    func reloadForCurrencyChange() {
+        rowViewModels.removeAll()
 
-        return CryptoSearchResult(
-            id: model.id,
-            name: model.name,
-            symbol: model.symbol.uppercased(),
-            price: priceFormatter.formatPrice(model.currentPrice),
-            change: percentFormatter.format(change / 100, option: .priceChange),
-            isPositive: change >= 0,
-            icon: .remote(name: model.name, imageURL: iconURLBuilder.tokenIconURL(id: model.id)),
-            model: model
-        )
+        guard let loadedQuery else {
+            return
+        }
+
+        self.loadedQuery = nil
+        requestedQuery = loadedQuery
+        loadMarketsIfNeeded()
+    }
+
+    func makeRow(for model: MarketsTokenModel) -> MarketTokenItemViewModel {
+        if let row = rowViewModels[model.id] {
+            row.updateRestriction(from: model)
+            return row
+        }
+
+        let row = rowsProvider.makeRowViewModel(for: model) { [weak self] in
+            guard let self else { return }
+
+            let model = tokens.first { $0.id == model.id } ?? model
+            history.save(token: model)
+            history.save(query: query)
+            router.openToken(model)
+        }
+
+        rowViewModels[model.id] = row
+        return row
     }
 }
 
@@ -249,7 +288,7 @@ private extension CryptoSearchViewModel {
 extension CryptoSearchViewModel {
     enum MarketsState {
         case loading
-        case results([CryptoSearchResult], hasTokensUnderCap: Bool)
+        case results([MarketTokenItemViewModel], hasTokensUnderCap: Bool)
         case empty
         case failed
     }

@@ -88,7 +88,7 @@ struct PulseMarketWidgetView: View {
     private var loadingSkeletons: some View {
         VStack(spacing: .zero) {
             ForEach(0 ..< 5, id: \.self) { _ in
-                TangemTwoLineRowSkeletonView()
+                TokenRowMarket(.shimmer)
             }
         }
     }

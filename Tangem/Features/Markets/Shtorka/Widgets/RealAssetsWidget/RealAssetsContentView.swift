@@ -143,7 +143,7 @@ struct RealAssetsContentView: View {
 
                 if viewModel.tokenListLoadingState == .loading {
                     ForEach(0 ..< Layout.skeletonRowsCount, id: \.self) { _ in
-                        TangemTwoLineRowSkeletonView()
+                        TokenRowMarket(.shimmer)
                     }
                 }
             }
