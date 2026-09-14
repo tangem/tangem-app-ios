@@ -10,8 +10,6 @@ import Foundation
 import TangemFoundation
 
 struct PolymarketDepositReceivingRestrictionsProvider: ReceivingRestrictionsProvider {
-    @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
-
     private let userWalletInfo: UserWalletInfo
     private let minimumDepositUSD: Decimal
     private let tokenItem: TokenItem
@@ -41,10 +39,6 @@ struct PolymarketDepositReceivingRestrictionsProvider: ReceivingRestrictionsProv
 
 private extension PolymarketDepositReceivingRestrictionsProvider {
     func minimumReceiveAmount() -> Decimal? {
-        guard let priceUsd = quotesRepository.quote(for: tokenItem)?.priceUsd, priceUsd > 0 else {
-            return nil
-        }
-
-        return (minimumDepositUSD / priceUsd).rounded(scale: tokenItem.decimalCount, roundingMode: .up)
+        PolymarketMinimumAmount(usd: minimumDepositUSD, tokenItem: tokenItem).inToken()
     }
 }
