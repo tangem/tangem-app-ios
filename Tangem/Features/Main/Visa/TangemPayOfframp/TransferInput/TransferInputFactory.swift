@@ -12,19 +12,14 @@ enum TransferInputFactory {
     @MainActor
     static func makeViewModel(
         orderBuilder: TangemPayOfframpOrderBuilder,
-        tangemPayAccount: TangemPayAccount,
+        optionsStore: TangemPayOfframpOptionsStore,
         recipient: TangemPayOfframpRecipient,
         savedRecipientName: String?,
         output: @escaping (TransferInputViewModel.Output) -> Void
     ) -> TransferInputViewModel {
         TransferInputViewModel(
             orderBuilder: orderBuilder,
-            optionsRepository: CommonTangemPayOfframpOptionsRepository(
-                customerService: tangemPayAccount.customerService
-            ),
-            accountTokensProvider: {
-                await accountTokens(for: tangemPayAccount)
-            },
+            optionsStore: optionsStore,
             title: title(recipient: recipient, savedRecipientName: savedRecipientName),
             stepSubtitle: TangemPayOfframpWizardStep.amount.subtitle(for: recipient),
             output: output
@@ -44,19 +39,6 @@ private extension TransferInputFactory {
         case .newBusiness:
             Constants.businessTitle
         }
-    }
-}
-
-// MARK: - Tokens
-
-private extension TransferInputFactory {
-    @MainActor
-    static func accountTokens(for account: TangemPayAccount) async -> [TangemPayAccountToken] {
-        if account.networks.isEmpty {
-            await account.loadBalance()
-        }
-
-        return TangemPayAccountTokensResolver().resolve(networks: account.networks)
     }
 }
 

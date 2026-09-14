@@ -326,7 +326,8 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         )
         coordinator.start(with: .init(
             tangemPayAccount: options.tangemPayAccount,
-            fundingFlowBuilder: Self.makeFundingFlowBuilder(options: options)
+            fundingFlowBuilder: Self.makeFundingFlowBuilder(options: options),
+            hasNFCInteraction: options.userWalletModel.config.hasFeature(.nfcInteraction)
         ))
         offrampCoordinator = coordinator
     }

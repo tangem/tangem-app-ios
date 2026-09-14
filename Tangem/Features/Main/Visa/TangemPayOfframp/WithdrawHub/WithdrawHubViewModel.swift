@@ -20,9 +20,11 @@ final class WithdrawHubViewModel: ObservableObject {
     // [REDACTED_TODO_COMMENT]
     @Published private(set) var recentTokens: WithdrawHubSectionState<WithdrawHubRecentTokenItem> = .loaded([])
     @Published private(set) var recentAccounts: WithdrawHubSectionState<WithdrawHubRecentAccountItem> = .loading
+    @Published private(set) var bankTransferState: BankTransferState = .loading
 
     private let withdrawFlowResolver: TangemPayWithdrawFlowResolver
     private let recentRecipientsStore: TangemPayRecentRecipientsStore
+    private let optionsStore: TangemPayOfframpOptionsStore
     private let output: (Output) -> Void
 
     private var withinPortfolioTask: Task<Void, Error>?
@@ -30,14 +32,17 @@ final class WithdrawHubViewModel: ObservableObject {
     init(
         withdrawFlowResolver: TangemPayWithdrawFlowResolver,
         recentRecipientsStore: TangemPayRecentRecipientsStore,
+        optionsStore: TangemPayOfframpOptionsStore,
         output: @escaping (Output) -> Void
     ) {
         self.withdrawFlowResolver = withdrawFlowResolver
         self.recentRecipientsStore = recentRecipientsStore
+        self.optionsStore = optionsStore
         self.output = output
 
         bind()
         recentRecipientsStore.load()
+        optionsStore.load()
     }
 
     func onCloseTap() {
@@ -127,6 +132,19 @@ final class WithdrawHubViewModel: ObservableObject {
                 }
             }
             .assign(to: &$recentAccounts)
+
+        optionsStore
+            .statePublisher
+            .receiveOnMain()
+            .map { state -> BankTransferState in
+                switch state {
+                case .loading:
+                    .loading
+                case .loaded(let options):
+                    options.hasAvailableTokens && options.rails.isNotEmpty ? .available : .unavailable
+                }
+            }
+            .assign(to: &$bankTransferState)
     }
 
     private static func makeRecentAccountItem(
@@ -155,6 +173,20 @@ final class WithdrawHubViewModel: ObservableObject {
 
         case .restricted(let restriction):
             alert = TokenActionAvailabilityAlertBuilder().alert(for: restriction)
+        }
+    }
+}
+
+// MARK: - BankTransferState
+
+extension WithdrawHubViewModel {
+    enum BankTransferState {
+        case loading
+        case available
+        case unavailable
+
+        var isEnabled: Bool {
+            self == .available
         }
     }
 }
