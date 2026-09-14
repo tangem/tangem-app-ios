@@ -13,6 +13,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemExpress
 import TangemStaking
+import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemUI
@@ -25,7 +26,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
     @Published private(set) var quickTopUpBannerViewModel: QuickTopUpBannerViewModel?
-    @Published var dotsMenuItems: [DotsMenuItem] = []
+    @Published var dotsMenuSections: [DotsMenuSection] = []
 
     @Published private(set) var isZeroBalance = true
     @Published private(set) var marketPriceViewModel: TokenDetailsMarketPriceViewModel?
@@ -450,7 +451,7 @@ private extension TokenDetailsViewModel {
         }
 
         setupQuickTopUpBanner()
-        dotsMenuItems = makeDotsMenuItems()
+        dotsMenuSections = makeDotsMenuSections()
         marketPriceViewModel = makeMarketPriceViewModel()
         marketingBannerManager.setup(
             bannersPublisher: marketingCampaignsRepository.bannersPublisher(for: walletModel.tokenItem, kind: .tokenDetails)
@@ -488,7 +489,7 @@ private extension TokenDetailsViewModel {
         )
     }
 
-    private func makeDotsMenuItems() -> [DotsMenuItem] {
+    private func makeDotsMenuSections() -> [DotsMenuSection] {
         var items: [DotsMenuItem] = []
 
         if let xpubGenerator {
@@ -511,13 +512,25 @@ private extension TokenDetailsViewModel {
             })
         }
 
+        if FeatureProvider.isAvailable(.transactionHistoryV2) {
+            items.append(DotsMenuItem(type: .explore) { [weak self] in
+                self?.openExplorer()
+            })
+        }
+
+        var destructiveItems: [DotsMenuItem] = []
+
         if userWalletInfo.config.hasFeature(.multiCurrency) {
-            items.append(DotsMenuItem(type: .hideToken) { [weak self] in
+            destructiveItems.append(DotsMenuItem(type: .hideToken) { [weak self] in
                 self?.hideTokenButtonAction()
             })
         }
 
-        return items
+        return [
+            DotsMenuSection(id: "actions", items: items),
+            DotsMenuSection(id: "destructive", items: destructiveItems),
+        ]
+        .filter { $0.items.isNotEmpty }
     }
 
     private func bind() {
@@ -915,6 +928,11 @@ extension TokenDetailsViewModel {
 }
 
 extension TokenDetailsViewModel {
+    struct DotsMenuSection: Identifiable {
+        let id: String
+        let items: [DotsMenuItem]
+    }
+
     struct DotsMenuItem: Identifiable {
         var id: String { type.rawValue }
 
@@ -924,11 +942,12 @@ extension TokenDetailsViewModel {
         enum MenuType: String {
             case generateXPUB
             case dynamicAddresses
+            case explore
             case hideToken
 
             var role: ButtonRole? {
                 switch self {
-                case .generateXPUB, .dynamicAddresses: .none
+                case .generateXPUB, .dynamicAddresses, .explore: .none
                 case .hideToken: .destructive
                 }
             }
@@ -937,13 +956,23 @@ extension TokenDetailsViewModel {
                 switch self {
                 case .generateXPUB: Localization.tokenDetailsGenerateXpub
                 case .dynamicAddresses: Localization.dynamicAddresses
+                case .explore: Localization.commonExplore
                 case .hideToken: Localization.tokenDetailsHideToken
+                }
+            }
+
+            var icon: ImageType {
+                switch self {
+                case .generateXPUB: DesignSystem.Icons.Document.regular24
+                case .dynamicAddresses: DesignSystem.Icons.ArrowSplitTop.regular24
+                case .explore: DesignSystem.Icons.Globe.regular24
+                case .hideToken: DesignSystem.Icons.EyeCross.regular24
                 }
             }
 
             var accessibilityIdentifier: String? {
                 switch self {
-                case .generateXPUB, .dynamicAddresses: .none
+                case .generateXPUB, .dynamicAddresses, .explore: .none
                 case .hideToken: TokenAccessibilityIdentifiers.hideTokenButton
                 }
             }

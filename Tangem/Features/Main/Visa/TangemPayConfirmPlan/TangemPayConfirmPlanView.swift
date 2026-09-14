@@ -95,7 +95,7 @@ struct TangemPayConfirmPlanView: View {
                 action: viewModel.cancel
             )
             .size(.x12)
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .horizontalLayout(.infinity)
             .disabled(viewModel.isProcessing)
 
@@ -107,7 +107,7 @@ struct TangemPayConfirmPlanView: View {
             .size(.x12)
             .styleType(.default)
             .horizontalLayout(.infinity)
-            .isLoading(viewModel.isProcessing)
+            .loading(.spinner(if: viewModel.isProcessing))
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)

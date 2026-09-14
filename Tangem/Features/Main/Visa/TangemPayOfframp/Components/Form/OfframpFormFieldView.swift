@@ -1,0 +1,126 @@
+//
+//  OfframpFormFieldView.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import SwiftUI
+import TangemAssets
+import TangemUI
+
+struct OfframpFormFieldView: View {
+    @Binding var field: OfframpFormField
+
+    let focused: FocusState<OfframpFormField.ID?>.Binding
+
+    private var isFieldFocused: Bool {
+        focused.wrappedValue == field.id
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Constants.inputToErrorSpacing) {
+            input
+
+            if let error = field.error {
+                Text(error.message)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusError)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+    }
+}
+
+// MARK: - Subviews
+
+private extension OfframpFormFieldView {
+    var input: some View {
+        VStack(alignment: .leading, spacing: Constants.labelToValueSpacing) {
+            label
+
+            textField
+        }
+        .padding(.vertical, Constants.verticalPadding)
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(dividerColor)
+                .frame(height: Constants.dividerHeight)
+        }
+    }
+
+    var label: some View {
+        Text(field.title)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+    }
+
+    var textField: some View {
+        HStack(spacing: .zero) {
+            TextField("", text: $field.text, prompt: Text(field.placeholder))
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                .focused(focused, equals: field.id)
+                .keyboardType(field.id.keyboardType)
+                .textContentType(field.id.textContentType)
+                .textInputAutocapitalization(field.id.autocapitalization)
+                .autocorrectionDisabled()
+                .tint(DesignSystem.Color.textPrimary)
+
+            Spacer(minLength: Constants.clearButtonSpacing)
+
+            if !field.text.isEmpty, isFieldFocused {
+                SwiftUI.Button {
+                    field.text = ""
+                } label: {
+                    Assets.clear.image
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: Constants.clearIconSize, height: Constants.clearIconSize)
+                        .foregroundStyle(DesignSystem.Color.iconTertiary)
+                }
+            }
+        }
+        .frame(height: Constants.valueHeight)
+    }
+
+    var dividerColor: Color {
+        if isFieldFocused {
+            return DesignSystem.Color.borderBrand
+        }
+
+        return field.error == nil ? DesignSystem.Color.borderTertiary : DesignSystem.Color.borderStatusError
+    }
+}
+
+// MARK: - Constants
+
+private extension OfframpFormFieldView {
+    enum Constants {
+        static let verticalPadding: CGFloat = 12
+        static let inputToErrorSpacing: CGFloat = 8
+        static let labelToValueSpacing: CGFloat = 2
+        static let valueHeight: CGFloat = 24
+        static let dividerHeight: CGFloat = 1
+        static let clearButtonSpacing: CGFloat = 12
+        static let clearIconSize: CGFloat = 24
+    }
+}
+
+// MARK: - Previews
+
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @State var field = OfframpFormField(
+        id: .accountNumber,
+        title: "Account number",
+        placeholder: "0000000000",
+        text: "00",
+        error: nil
+    )
+
+    OfframpFormFieldView(
+        field: $field,
+        focused: FocusState<OfframpFormField.ID?>().projectedValue
+    )
+}

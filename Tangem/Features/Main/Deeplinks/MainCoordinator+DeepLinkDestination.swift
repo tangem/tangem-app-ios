@@ -31,6 +31,7 @@ extension MainCoordinator {
         case newsList(initialCategoryId: Int?)
         case promo(code: String, refcode: String?, campaign: String?)
         case earn(earnType: EarnFilterType?, networkId: String?)
+        case jointAccountInvite(inviteId: String)
     }
 }
 
@@ -80,6 +81,8 @@ extension MainCoordinator.DeepLinkDestination: Identifiable {
             return "\(rawCaseValue)_\(code)_\(refcode ?? "_")_\(campaign ?? "_")"
         case .earn(let earnType, let networkId):
             return "\(rawCaseValue)_\(earnType?.rawValue ?? "all")_\(networkId ?? "any")"
+        case .jointAccountInvite(let inviteId):
+            return "\(rawCaseValue)_\(inviteId)"
         }
     }
 }

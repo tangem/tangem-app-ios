@@ -21,6 +21,8 @@ struct PolymarketTarget: Moya.TargetType {
         case search(PolymarketSearchRequest)
         case series
         case seriesEvents(seriesId: String)
+        case orderQuote(PolymarketDTO.OrderQuoteRequestBody)
+        case positions(PolymarketPositionsRequest)
     }
 
     var path: String {
@@ -37,11 +39,20 @@ struct PolymarketTarget: Moya.TargetType {
             return "api/predictions/v1/series"
         case .seriesEvents(let seriesId):
             return "api/predictions/v1/series/\(seriesId)/events"
+        case .orderQuote:
+            return "api/predictions/v1/orders/quote"
+        case .positions:
+            return "api/predictions/v1/positions"
         }
     }
 
     var method: Moya.Method {
-        .get
+        switch target {
+        case .categories, .events, .event, .search, .series, .seriesEvents, .positions:
+            return .get
+        case .orderQuote:
+            return .post
+        }
     }
 
     var task: Moya.Task {
@@ -93,12 +104,39 @@ struct PolymarketTarget: Moya.TargetType {
 
         case .seriesEvents:
             return .requestPlain
+
+        case .orderQuote(let body):
+            return .requestJSONEncodable(body)
+
+        case .positions(let request):
+            return .requestParameters(
+                parameters: [
+                    "depositWalletAddress": request.depositWalletAddress,
+                    "sort": request.sort.rawValue,
+                    "ascending": request.ascending,
+                    "limit": request.limit,
+                    "offset": request.offset,
+                ],
+                encoding: URLEncoding(boolEncoding: .literal)
+            )
         }
     }
 
     var headers: [String: String]? {
-        // `api-key` is injected by the caller via `NetworkHeadersPlugin`; nothing target-specific here.
-        nil
+        switch target {
+        case .positions(let request):
+            return [Constants.walletIdHeader: request.walletId]
+        case .categories, .events, .event, .search, .series, .seriesEvents, .orderQuote:
+            return nil
+        }
+    }
+}
+
+// MARK: - Constants
+
+private extension PolymarketTarget {
+    enum Constants {
+        static let walletIdHeader = "wallet-id"
     }
 }
 

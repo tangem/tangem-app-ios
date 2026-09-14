@@ -195,8 +195,8 @@ extension TwinConfig: UserWalletConfig {
         }
     }
 
-    func makeAnyWalletManagerFactory() -> AnyWalletManagerFactory {
-        TwinWalletManagerFactory(pairPublicKey: twinData.pairPublicKey)
+    func makeAnyWalletFactory() -> AnyWalletFactory {
+        TwinWalletFactory(pairPublicKey: twinData.pairPublicKey)
     }
 
     func makeOnboardingStepsBuilder(
