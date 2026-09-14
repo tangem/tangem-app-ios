@@ -8,13 +8,11 @@
 enum FeedDestination: Hashable, Identifiable {
     case token(MarketsTokenDetailsCoordinator)
     case portfolioToken(TokenDetailsCoordinator)
-    case portfolioTokenList(MarketsPortfolioTokenListViewModel)
 
     var id: ObjectIdentifier {
         switch self {
         case .token(let coordinator): ObjectIdentifier(coordinator)
         case .portfolioToken(let coordinator): ObjectIdentifier(coordinator)
-        case .portfolioTokenList(let viewModel): ObjectIdentifier(viewModel)
         }
     }
 

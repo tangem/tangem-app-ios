@@ -20,8 +20,6 @@ struct FeedDestinationView: View {
             TokenDetailsCoordinatorView(coordinator: coordinator)
                 .background(FeedPopGestureEnabler())
                 .toolbar(.hidden, for: .navigationBar)
-        case .portfolioTokenList(let viewModel):
-            MarketsPortfolioTokenListView(viewModel: viewModel)
         }
     }
 }
