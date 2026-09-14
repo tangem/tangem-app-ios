@@ -48,6 +48,10 @@ final class PersonalDetailsViewModel: ObservableObject {
         fields.allSatisfy { $0.currentError == nil }
     }
 
+    func refresh() {
+        fields = Self.makeFields(isBusiness: isBusiness, details: orderBuilder.personalDetails)
+    }
+
     func focusedFieldDidChange(to id: OfframpFormField.ID?) {
         defer { focusedFieldID = id }
 
