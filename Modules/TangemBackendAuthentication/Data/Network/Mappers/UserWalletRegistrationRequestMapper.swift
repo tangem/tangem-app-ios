@@ -14,11 +14,11 @@ enum UserWalletRegistrationRequestMapper {
         RegisterWalletDTO.Request(
             nonce: domainRequest.decryptedNonce,
             walletId: domainRequest.id.value.base64EncodedString(),
-            walletSignature: domainRequest.attestation.walletSignature.value.base64EncodedString(),
-            walletSignatureSalt: domainRequest.attestation.walletSignature.salt.base64EncodedString(),
-            cardSignature: domainRequest.attestation.cardSignature?.value.base64EncodedString(),
-            cardSignatureSalt: domainRequest.attestation.cardSignature?.salt.base64EncodedString(),
-            walletStatus: domainRequest.attestation.origin.flatMap(mapStatus),
+            walletSignature: domainRequest.walletAttestation.walletSignature.value.base64EncodedString(),
+            walletSignatureSalt: domainRequest.walletAttestation.walletSignature.salt.base64EncodedString(),
+            cardSignature: domainRequest.walletAttestation.cardSignature?.value.base64EncodedString(),
+            cardSignatureSalt: domainRequest.walletAttestation.cardSignature?.salt.base64EncodedString(),
+            walletStatus: domainRequest.walletAttestation.origin.flatMap(mapStatus),
             attestationToken: domainRequest.appAttestationToken?.base64EncodedString(),
             metadata: DeviceMetadataMapper.mapToDTO(domainRequest.metadata)
         )

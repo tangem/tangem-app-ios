@@ -962,7 +962,7 @@ extension SwapModel {
         switch restriction {
         case .incompleteBackup(let userWalletInfo):
             // Leaving for support drops the current attempt: `SendViewModel` ignores the cancellation silently.
-            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            try await withCheckedThrowingContinuation { continuation in
                 TokenActionAvailabilityAlertPresenter.presentOrProceed(
                     presenter: alertPresenter,
                     warning: .incompleteBackup(userWalletInfo),

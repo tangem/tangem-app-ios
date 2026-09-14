@@ -130,7 +130,7 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
     }
 
     func loadJointAccountsFromRemote() async throws {
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+        try await withCheckedThrowingContinuation { continuation in
             loadJointAccountsDebouncer.debounce(withCompletion: { result in
                 continuation.resume(with: result)
             })

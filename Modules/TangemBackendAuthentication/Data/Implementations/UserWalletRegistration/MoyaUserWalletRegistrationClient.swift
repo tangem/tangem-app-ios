@@ -10,7 +10,7 @@ import Foundation
 import enum Moya.MoyaError
 import class Moya.MoyaProvider
 import class Moya.Response
-import struct TangemFoundation.UserWalletId
+import TangemFoundation
 
 struct MoyaUserWalletRegistrationClient: UserWalletRegistrationClient {
     private let provider: MoyaProvider<UserWalletTarget>
@@ -24,7 +24,7 @@ struct MoyaUserWalletRegistrationClient: UserWalletRegistrationClient {
         self.baseURL = baseURL
 
         decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .customISO8601
     }
 
     func requestCipheredNonce(devicePublicKey: DevicePublicKey) async throws(UserWalletRegistrationClientError) -> String {
