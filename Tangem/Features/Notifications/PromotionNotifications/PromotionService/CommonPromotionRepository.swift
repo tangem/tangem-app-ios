@@ -121,15 +121,22 @@ private extension CommonPromotionRepository {
         return runTask(in: self) { repository in
             PromotionsLogger.info("Start loading promotions for user wallet: \"\(redactedUserWalletId)\"")
 
-            async let mainPromotions = repository.loadPromotions(for: walletIdString, placement: .main)
-            async let newsPromotions = repository.loadPromotions(for: walletIdString, placement: .news)
-            async let paymentAccountPromotions = repository.loadPromotions(for: walletIdString, placement: .paymentAccountMain)
+            let promotions: PromotionList = await withTaskGroup(of: (PromotionPlacement, [Promotion]).self) { group in
+                for placement in Self.placementsToLoad {
+                    group.addTask {
+                        let promotions = await repository.loadPromotions(for: walletIdString, placement: placement)
+                        return (placement, promotions)
+                    }
+                }
 
-            let promotions: PromotionList = await [
-                .main: mainPromotions,
-                .news: newsPromotions,
-                .paymentAccountMain: paymentAccountPromotions,
-            ]
+                var loaded = PromotionList()
+                for await (placement, placementPromotions) in group {
+                    loaded[placement] = placementPromotions
+                }
+
+                return loaded
+            }
+
             PromotionsLogger.info("Finished loading promotions for user wallet: \"\(redactedUserWalletId)\". Promotions \(promotions.mapValues { $0.map(\.id) })")
 
             repository.store(promotions: promotions, for: userWalletId, token: token)
@@ -157,6 +164,23 @@ private extension CommonPromotionRepository {
                 promotionsSubject.send(snapshot)
             }
         }
+    }
+
+    /// A feed placement costs a request only once its tab can appear at all.
+    static var placementsToLoad: [PromotionPlacement] {
+        var placements: [PromotionPlacement] = [.main, .news, .paymentAccountMain]
+
+        guard FeatureProvider.isAvailable(.nativeMarketsShtorka) else {
+            return placements
+        }
+
+        placements.append(contentsOf: [.crypto, .earn])
+
+        if FeatureProvider.isAvailable(.realAssets) {
+            placements.append(.realAssets)
+        }
+
+        return placements
     }
 
     func loadPromotions(for userWalletId: String, placement: PromotionPlacement) async -> [Promotion] {

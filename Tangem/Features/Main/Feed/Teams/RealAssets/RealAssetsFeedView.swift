@@ -15,9 +15,13 @@ struct RealAssetsFeedView: View {
     @ObservedObject var viewModel: RealAssetsFeedViewModel
 
     var body: some View {
-        content
-            .padding(.horizontal, Constants.horizontalPadding)
-            .onAppear(perform: viewModel.onViewAppear)
+        VStack(spacing: Constants.sectionSpacing) {
+            PromotionNotificationsView(viewModel: viewModel.promoBanner)
+
+            content
+        }
+        .padding(.horizontal, Constants.horizontalPadding)
+        .onAppear(perform: viewModel.onViewAppear)
     }
 
     @ViewBuilder
@@ -43,6 +47,7 @@ struct RealAssetsFeedView: View {
 
 private extension RealAssetsFeedView {
     enum Constants {
+        static let sectionSpacing: CGFloat = 20
         static let horizontalPadding: CGFloat = 16
         static let listCornerRadius: CGFloat = 24
         static let skeletonRowsCount = 5
