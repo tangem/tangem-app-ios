@@ -21,6 +21,7 @@ public class IncomingActionParser {
         OnrampIncomingActionURLParser(),
         NewsIncomingLinkParser(),
         JointAccountInviteLinkParser(),
+        TangemPayCampaignLinkParser(),
         TangemPayOnboardingLinkParser(),
         DefaultIncomingLinkParser(),
     ]

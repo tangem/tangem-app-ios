@@ -32,6 +32,7 @@ extension MainCoordinator {
         case promo(code: String, refcode: String?, campaign: String?)
         case earn(earnType: EarnFilterType?, networkId: String?)
         case jointAccountInvite(inviteId: String)
+        case tangemPayCustomCard(campaignKey: String)
     }
 }
 
@@ -83,6 +84,8 @@ extension MainCoordinator.DeepLinkDestination: Identifiable {
             return "\(rawCaseValue)_\(earnType?.rawValue ?? "all")_\(networkId ?? "any")"
         case .jointAccountInvite(let inviteId):
             return "\(rawCaseValue)_\(inviteId)"
+        case .tangemPayCustomCard(let campaignKey):
+            return "\(rawCaseValue)_\(campaignKey)"
         }
     }
 }
