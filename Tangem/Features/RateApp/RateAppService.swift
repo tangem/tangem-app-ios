@@ -8,9 +8,26 @@
 
 import Foundation
 import Combine
+import CombineExt
+import TangemFoundation
 
+/// Decides only whether this user may be asked at all; whether a given main screen page renders
+/// the prompt is up to `CommonRateAppController`.
 final class RateAppService {
-    var rateAppAction: AnyPublisher<RateAppAction, Never> { rateAppActionSubject.eraseToAnyPublisher() }
+    var isEligiblePublisher: AnyPublisher<Bool, Never> {
+        Publishers
+            .MergeMany([
+                $userRespondedToLastRequestedReview.mapToVoid().eraseToAnyPublisher(),
+                $userDismissedLastRequestedReviewDate.mapToVoid().eraseToAnyPublisher(),
+                $userDismissedLastRequestedReviewLaunchCount.mapToVoid().eraseToAnyPublisher(),
+                $positiveBalanceAppearanceDate.mapToVoid().eraseToAnyPublisher(),
+                $positiveBalanceAppearanceLaunchCount.mapToVoid().eraseToAnyPublisher(),
+            ])
+            .withWeakCaptureOf(self)
+            .map { service, _ in service.isEligible }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
 
     @AppStorageCompat(StorageKeys.didAttemptMigrationFromLegacyRateApp)
     private var didAttemptMigrationFromLegacyRateApp: Bool = false
@@ -42,7 +59,31 @@ final class RateAppService {
             : Constants.normalReviewRequestNumberOfLaunchesInterval
     }
 
-    private let rateAppActionSubject = PassthroughSubject<RateAppAction, Never>()
+    private var isEligible: Bool {
+        if userRespondedToLastRequestedReview {
+            return false
+        }
+
+        if positiveBalanceAppearanceDate == nil {
+            return false
+        }
+
+        guard
+            let date = (userDismissedLastRequestedReviewDate ?? positiveBalanceAppearanceDate),
+            abs(date.timeIntervalSinceNow) >= Constants.reviewRequestTimeInterval
+        else {
+            return false
+        }
+
+        guard
+            let launchCount = (userDismissedLastRequestedReviewLaunchCount ?? positiveBalanceAppearanceLaunchCount),
+            currentLaunchCount - launchCount >= requiredNumberOfLaunches
+        else {
+            return false
+        }
+
+        return true
+    }
 
     init() {
         migrateFromLegacyRateAppIfNeeded()
@@ -60,68 +101,13 @@ final class RateAppService {
         positiveBalanceAppearanceLaunchCount = currentLaunchCount
     }
 
-    func requestRateAppIfAvailable(with request: RateAppRequest) {
-        var shouldRequestRateApp = false
-
-        defer {
-            if shouldRequestRateApp {
-                requestRateApp()
-            } else {
-                dismissAppRate()
-            }
-        }
-
-        if userRespondedToLastRequestedReview {
-            return
-        }
-
-        if request.isLocked {
-            return
-        }
-
-        guard request.isSelected else {
-            return
-        }
-
-        guard request.isBalanceLoaded else {
-            return
-        }
-
-        if positiveBalanceAppearanceDate == nil {
-            return
-        }
-
-        guard
-            let date = (userDismissedLastRequestedReviewDate ?? positiveBalanceAppearanceDate),
-            abs(date.timeIntervalSinceNow) >= Constants.reviewRequestTimeInterval
-        else {
-            return
-        }
-
-        guard
-            let launchCount = (userDismissedLastRequestedReviewLaunchCount ?? positiveBalanceAppearanceLaunchCount),
-            currentLaunchCount - launchCount >= requiredNumberOfLaunches
-        else {
-            return
-        }
-
-        if request.displayedNotifications.contains(where: { Constants.forbiddenSeverityLevels.contains($0.severity) }) {
-            return
-        }
-
-        shouldRequestRateApp = true
-    }
-
     func respondToRateAppDialog(with response: RateAppResponse) {
         sendAnalyticsEvent(for: response)
 
         switch response {
-        case .positive:
+        case .positive,
+             .negative:
             userRespondedToLastRequestedReview = true
-            rateAppActionSubject.send(.openAppStoreReview)
-        case .negative:
-            userRespondedToLastRequestedReview = true
-            rateAppActionSubject.send(.openFeedbackMailWithEmailType(emailType: .negativeRateAppFeedback))
         case .dismissed:
             userDismissedLastRequestedReviewDate = Date()
             userDismissedLastRequestedReviewLaunchCount = currentLaunchCount
@@ -141,19 +127,6 @@ final class RateAppService {
         }
 
         Analytics.log(.mainNoticeRateTheApp, params: [.result: parameterValue])
-    }
-
-    private func requestRateApp() {
-        userDismissedLastRequestedReviewDate = nil
-        userDismissedLastRequestedReviewLaunchCount = nil
-        rateAppActionSubject.send(.requestAppRate)
-    }
-
-    private func dismissAppRate() {
-        // We don't have to update neither `userDismissedLastRequestedReviewDate` nor
-        // `userDismissedLastRequestedReviewLaunchCount` here because the logic in this method is driven
-        // by the app rate service itself (in `requestRateAppIfAvailable(with:)` method), not by the user interactions
-        rateAppActionSubject.send(.dismissAppRate)
     }
 
     private func migrateFromLegacyRateAppIfNeeded() {
@@ -198,18 +171,24 @@ private extension RateAppService {
 
 private extension RateAppService {
     enum Constants {
-        // MARK: - Constants that control the behavior of the rate app sheet itself
-
         /// The user interacted with the review prompt.
         static let normalReviewRequestNumberOfLaunchesInterval = 3
         /// The user dismissed the review prompt w/o interaction.
         static let dismissedReviewRequestNumberOfLaunchesInterval = 20
         /// Three days.
         static let reviewRequestTimeInterval: TimeInterval = 3600 * 24 * 3
+    }
+}
 
-        static let forbiddenSeverityLevels: Set<NotificationView.Severity> = [
-            .warning,
-            .critical,
-        ]
+// MARK: - DI
+
+private struct RateAppServiceInjectionKey: InjectionKey {
+    static var currentValue = RateAppService()
+}
+
+extension InjectedValues {
+    var rateAppService: RateAppService {
+        get { Self[RateAppServiceInjectionKey.self] }
+        set { Self[RateAppServiceInjectionKey.self] = newValue }
     }
 }
