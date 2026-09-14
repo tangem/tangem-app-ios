@@ -13,10 +13,14 @@ import TangemMacro
 enum AccountModel {
     case standard(CryptoAccounts)
 
+    case joint(JointAccounts)
+
     @available(*, unavailable, message: "This account type is not implemented yet")
     case smart(any SmartAccountModel)
 
     case tangemPay(any TangemPayAccountModel)
 
     case polymarket(any PolymarketAccountModel)
+
+    case collectibles(any CollectiblesAccountModel)
 }

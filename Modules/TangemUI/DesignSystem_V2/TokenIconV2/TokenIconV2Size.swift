@@ -40,7 +40,8 @@ extension TokenIconV2.Size {
                 networkOverhang: 1,
                 cutoutGap: 1,
                 indicatorDiameter: 6,
-                indicatorInset: 3
+                indicatorInset: 3,
+                artworkCornerRadius: 8
             )
         case .size44:
             TokenIconV2.Metrics(
@@ -49,7 +50,8 @@ extension TokenIconV2.Size {
                 networkOverhang: 2,
                 cutoutGap: 1,
                 indicatorDiameter: 6,
-                indicatorInset: 4
+                indicatorInset: 4,
+                artworkCornerRadius: 8
             )
         case .size56:
             TokenIconV2.Metrics(
@@ -58,7 +60,8 @@ extension TokenIconV2.Size {
                 networkOverhang: 4,
                 cutoutGap: 1,
                 indicatorDiameter: 6,
-                indicatorInset: 5
+                indicatorInset: 5,
+                artworkCornerRadius: 8
             )
         case .size72:
             TokenIconV2.Metrics(
@@ -67,7 +70,8 @@ extension TokenIconV2.Size {
                 networkOverhang: 4,
                 cutoutGap: 1,
                 indicatorDiameter: 8,
-                indicatorInset: 6
+                indicatorInset: 6,
+                artworkCornerRadius: 8
             )
         }
     }
@@ -81,6 +85,7 @@ extension TokenIconV2 {
         let cutoutGap: CGFloat
         let indicatorDiameter: CGFloat
         let indicatorInset: CGFloat
+        let artworkCornerRadius: CGFloat
 
         var cutoutDiameter: CGFloat {
             networkDiameter + 2 * cutoutGap
@@ -97,7 +102,8 @@ extension TokenIconV2 {
                 networkOverhang: networkOverhang * factor,
                 cutoutGap: cutoutGap * factor,
                 indicatorDiameter: indicatorDiameter * factor,
-                indicatorInset: indicatorInset * factor
+                indicatorInset: indicatorInset * factor,
+                artworkCornerRadius: artworkCornerRadius * factor
             )
         }
     }

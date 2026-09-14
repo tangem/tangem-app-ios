@@ -30,7 +30,8 @@ final class AccountForNFTCollectionsProvider {
             .accountModelsPublisher
             .withWeakCaptureOf(self)
             .sink { viewModel, accountModels in
-                if let cryptoAccounts = accountModels.cryptoAccounts().first {
+                // NFT collections are those of the wallet's own accounts; a joint account keeps its own
+                if case .standard(let cryptoAccounts) = accountModels.firstStandard() {
                     viewModel.cryptoAccounts = cryptoAccounts
                     // Invalidate cache when accounts change
                     viewModel.addressToAccountMap = nil

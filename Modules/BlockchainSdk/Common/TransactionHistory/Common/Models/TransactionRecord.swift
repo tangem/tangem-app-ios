@@ -98,6 +98,28 @@ public extension TransactionRecord {
         /// Contains human-readable contract method name (like `swap`).
         case contractMethodName(name: String?)
         case staking(type: StakingTransactionType, target: String?)
+        case approve(Approve)
+
+        public struct Approve: Hashable {
+            public let spender: String
+            public let symbol: String?
+            public let allowance: Allowance
+
+            public init(spender: String, symbol: String?, allowance: Allowance) {
+                self.spender = spender
+                self.symbol = symbol
+                self.allowance = allowance
+            }
+
+            public enum Allowance: Hashable {
+                /// The uint256 maximum — the spender may move the whole balance until the approval is revoked.
+                case unlimited
+                /// A zero allowance, which is how ERC-20 expresses taking a previously granted permission away.
+                case revoked
+                /// The granted amount, already scaled by the token's decimals.
+                case limited(Decimal)
+            }
+        }
 
         public enum StakingTransactionType {
             case stake

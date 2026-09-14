@@ -135,8 +135,12 @@ struct CommonUserTokensManagerRemoveTests {
             name: try #require(AccountModel.CompositeIcon.Name.allCases.randomElement()),
             color: try #require(AccountModel.CompositeIcon.Color.allCases.randomElement())
         )
-        let config = CryptoAccountPersistentConfig(
+        let derivationIdentity = CryptoAccountDerivationIdentity(
             derivationIndex: mainAccountDerivationIndex,
+            type: .crypto
+        )
+        let config = CryptoAccountPersistentConfig(
+            derivationIdentity: derivationIdentity,
             name: .empty,
             icon: icon
         )
@@ -146,8 +150,8 @@ struct CommonUserTokensManagerRemoveTests {
             tokens: storedTokens
         )
         let repository = UserTokensRepositoryStub(cryptoAccount: account)
-        let derivationInfo = CommonUserTokensManager.DerivationInfo(
-            derivationIndex: mainAccountDerivationIndex,
+        let derivationPathBuilder = AccountDerivationPathBuilderFactory.makeBuilder(
+            forAccountWith: derivationIdentity,
             derivationStyle: derivationStyle
         )
         let userWalletId = UserWalletId(value: .randomData(count: 32))
@@ -155,7 +159,7 @@ struct CommonUserTokensManagerRemoveTests {
         return CommonUserTokensManager(
             userWalletId: userWalletId,
             userTokensRepository: repository,
-            derivationInfo: derivationInfo,
+            derivationPathBuilder: derivationPathBuilder,
             existingCurves: EllipticCurve.allCases,
             persistentBlockchains: [],
             shouldLoadExpressAvailability: false,

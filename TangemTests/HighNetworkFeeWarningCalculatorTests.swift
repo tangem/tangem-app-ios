@@ -142,7 +142,7 @@ private extension HighNetworkFeeWarningCalculatorTests {
 
 // MARK: - Mock
 
-private final class MockTokenQuotesRepository: TokenQuotesRepository, TokenQuotesRepositoryUpdater {
+final class MockTokenQuotesRepository: TokenQuotesRepository, TokenQuotesRepositoryUpdater {
     var quotes: Quotes
     var quotesPublisher: AnyPublisher<Quotes, Never> {
         Just(quotes).eraseToAnyPublisher()

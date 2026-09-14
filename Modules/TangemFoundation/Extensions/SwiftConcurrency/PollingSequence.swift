@@ -10,13 +10,24 @@ import Foundation
 
 public struct PollingSequence<T>: AsyncSequence {
     public typealias Request = () async throws -> T
+    public typealias Interval = () async -> TimeInterval
 
-    private let interval: TimeInterval
+    private let interval: Interval
     private let request: Request
     private let delayProvider: PollDelayProvider
 
     public init(
         interval: TimeInterval,
+        request: @escaping Request,
+        delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
+    ) {
+        self.init(interval: { interval }, request: request, delayProvider: delayProvider)
+    }
+
+    /// The interval is asked for before every wait, so a caller can poll faster while whatever it watches
+    /// is moving and slow down once it settles.
+    public init(
+        interval: @escaping Interval,
         request: @escaping Request,
         delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
@@ -32,14 +43,14 @@ public struct PollingSequence<T>: AsyncSequence {
 
 public extension PollingSequence {
     actor Iterator: AsyncIteratorProtocol {
-        private let interval: TimeInterval
+        private let interval: Interval
         private let request: Request
         private let delayProvider: PollDelayProvider
 
         private var isFirst = true
         private var isCancelled = false
 
-        init(interval: TimeInterval, request: @escaping Request, delayProvider: PollDelayProvider) {
+        init(interval: @escaping Interval, request: @escaping Request, delayProvider: PollDelayProvider) {
             self.interval = interval
             self.request = request
             self.delayProvider = delayProvider
@@ -54,7 +65,7 @@ public extension PollingSequence {
             if isFirst {
                 isFirst = false
             } else {
-                try? await delayProvider.wait(for: interval)
+                try? await delayProvider.wait(for: await interval())
 
                 if Task.isCancelled || isCancelled {
                     isCancelled = true

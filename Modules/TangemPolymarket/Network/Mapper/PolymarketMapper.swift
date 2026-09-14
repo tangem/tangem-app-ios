@@ -22,7 +22,6 @@ extension PolymarketMapper {
         if let raw, !raw.isEmpty {
             return PolymarketDisplayMode(apiValue: raw)
         }
-        // The BFF derives displayMode from negRisk; fall back to the same rule if it's absent.
         return isNegRisk ? .groupedOutcomes : .plainMarkets
     }
 
@@ -33,7 +32,9 @@ extension PolymarketMapper {
 
     func date(from string: String?) -> Date? {
         guard let string, !string.isEmpty else { return nil }
-        return Self.isoFormatter.date(from: string) ?? Self.isoFractionalFormatter.date(from: string)
+        return Self.isoFormatter.date(from: string)
+            ?? Self.isoFractionalFormatter.date(from: string)
+            ?? Self.isoDayFormatter.date(from: string)
     }
 }
 
@@ -49,6 +50,12 @@ private extension PolymarketMapper {
     static let isoFractionalFormatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+
+    static let isoDayFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withFullDate]
         return formatter
     }()
 }

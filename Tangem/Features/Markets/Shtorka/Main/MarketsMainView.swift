@@ -232,10 +232,10 @@ struct MarketsMainView: View {
                             .padding(.bottom, Layout.Widgets.verticalContentSpacing)
                         }
 
-                        if FeatureProvider.isAvailable(.gachaMachine) {
+                        if FeatureProvider.isAvailable(.collectibles) {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 8) {
-                                    GachaEntranceCardView.make(onOpenRequested: viewModel.openGacha)
+                                    CollectiblesEntranceCardView.make(onOpenRequested: viewModel.openCollectibles)
                                 }
                                 .padding(.horizontal, 16)
                             }
@@ -286,6 +286,8 @@ struct MarketsMainView: View {
             NewsWidgetView(viewModel: viewModel)
         case .earn(let viewModel):
             EarnWidgetView(viewModel: viewModel)
+        case .realAssets(let viewModel):
+            RealAssetsWidgetView(viewModel: viewModel)
         }
     }
 }

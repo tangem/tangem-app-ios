@@ -107,15 +107,13 @@ final class TangemPayWithdrawUITests: BaseTestCase {
             ScenarioConfig(name: "bitcoin_utxo", initialState: "Started"),
             ScenarioConfig(name: "express_api_assets", initialState: "BitcoinExchangeEnabled"),
             ScenarioConfig(name: "exchange_status_provider", initialState: "Changelly"),
-            ScenarioConfig(name: "tangem_pay_balance_update", initialState: "InitialBalance"),
+            ScenarioConfig(name: "tangem_pay_balance_update", initialState: "InitialBalanceMultinetwork"),
             ScenarioConfig(name: "tangem_pay_transaction_history", initialState: "InitialEmpty"),
         ])
         .openTangemPay()
         .waitForScreen()
         .verifyBalanceContains("$10.00")
         .tapWithdraw()
-        .waitForScreen()
-        .tapGotIt()
         .validateSwapScreenDisplayed()
     }
 

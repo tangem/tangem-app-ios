@@ -7,10 +7,12 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
+import TangemPolymarketUI
 import TangemUI
+import TangemLocalization
 import TangemUIUtils
-import TangemPolymarket
 
 struct PolymarketMainView: View {
     @ObservedObject var viewModel: PolymarketMainViewModel
@@ -23,8 +25,16 @@ struct PolymarketMainView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             topBar
+
+            if viewModel.isSearching {
+                PolymarketSearchView(viewModel: viewModel.search)
+                    .background(DesignSystem.Color.bgPrimary)
+                    .ignoresSafeArea(.keyboard, edges: .bottom)
+            }
         }
+        .safeAreaInset(edge: .bottom, spacing: 0) { searchField }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+        .bindAlert($viewModel.alert)
     }
 
     // MARK: - Top bar
@@ -47,6 +57,21 @@ struct PolymarketMainView: View {
         }
     }
 
+    // MARK: - Search
+
+    private var searchField: some View {
+        Search(
+            text: $viewModel.searchQuery,
+            isActive: $viewModel.isSearchFieldActive,
+            clearAction: { viewModel.searchQuery = "" },
+            cancelAction: viewModel.exitSearch
+        )
+        .placeholder(Localization.commonSearch)
+        .submitLabel(.search)
+        .padding(.horizontal, Constants.horizontalPadding)
+        .padding(.vertical, Constants.searchFieldVerticalPadding)
+    }
+
     // MARK: - Navbar
 
     private var navigationBar: some View {
@@ -54,18 +79,31 @@ struct PolymarketMainView: View {
             settings: .init(backgroundColor: .clear, horizontalPadding: Constants.horizontalPadding, height: Constants.navBarSettingsHeight),
             titleView: { titleView },
             leftButtons: { NavigationBarButton.back { viewModel.dismiss() } },
-            rightButtons: { NavigationBarButton.details {} }
+            rightButtons: { overflowMenu }
         )
         .environment(\.isRedesign, true)
     }
 
+    private var overflowMenu: some View {
+        Menu {
+            SwiftUI.Button(action: viewModel.openHowItWorks) {
+                Label(
+                    title: { Text("How it works") },
+                    icon: { DesignSystem.Icons.Info.regular20.image.renderingMode(.template) }
+                )
+            }
+        } label: {
+            NavigationBarButton.details {}
+                .allowsHitTesting(false)
+        }
+    }
+
     private var titleView: some View {
         VStack(spacing: 2) {
-            // [REDACTED_TODO_COMMENT]
-            Text("Predictions")
+            Text(Localization.predictionMainTitle)
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
-            Text("USDC on Polygon network")
+            Text(Localization.predictionMainSubtitle)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
         }
     }
@@ -101,28 +139,176 @@ struct PolymarketMainView: View {
 
     // MARK: - Balance
 
-    // [REDACTED_TODO_COMMENT]
     private var header: some View {
-        VStack(spacing: Constants.headerSpacing) {
+        VStack(spacing: 0) {
             balanceBlock
 
+            if viewModel.isRegionRestricted {
+                regionRestrictionBanner
+                    .padding(.top, Constants.bannerTopSpacing)
+            }
+
+            if viewModel.isAwaitingFunds {
+                PolymarketOrderNotificationsView(notifications: [.awaitingFunds])
+                    .padding(.horizontal, Constants.horizontalPadding)
+                    .padding(.top, Constants.bannerTopSpacing)
+            }
+
+            positionsSection
+                .padding(.top, Constants.positionsTopSpacing)
+
             exploreEventsTitle
+                .padding(.top, Constants.headerSpacing)
         }
         .padding(.top, Constants.headerTopPadding)
     }
 
-    private var balanceBlock: some View {
-        VStack(spacing: Constants.balanceSpacing) {
-            balanceSelector
+    // MARK: - My Predictions
+
+    @ViewBuilder
+    private var positionsSection: some View {
+        switch viewModel.positionsState {
+        case .loading:
+            positionsBlock { PolymarketPositionsSkeletonView(rowCount: Constants.positionsSkeletonRowCount) }
+        case .failed:
+            positionsBlock {
+                PolymarketEmptyMessageView(
+                    message: Localization.predictionPositionsLoadError,
+                    onRetry: viewModel.loadPositions
+                )
+            }
+        case .loaded(let models) where !models.isEmpty:
+            positionsBlock {
+                VStack(spacing: Constants.positionsRowSpacing) {
+                    ForEach(models) { model in
+                        PolymarketPositionRow(model: model)
+                    }
+
+                    seeAllPositionsButton
+                }
+            }
+        case .loaded:
+            EmptyView()
+        }
+    }
+
+    private func positionsBlock(@ViewBuilder content: () -> some View) -> some View {
+        VStack(spacing: Constants.positionsSpacing) {
+            positionsHeader
+
+            content()
+        }
+        .padding(.horizontal, Constants.horizontalPadding)
+    }
+
+    private var positionsHeader: some View {
+        HStack(spacing: Constants.positionsSpacing) {
+            Text(Localization.predictionPositionsMainTitle)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             // [REDACTED_TODO_COMMENT]
-            Text("$0.00")
-                .style(DesignSystem.Font.displayMediumToken, color: DesignSystem.Color.textPrimary)
+            Badge(label: Localization.predictionPositionsFinished, accessibilityLabel: nil)
+                .size(.x9)
+                .slotEnd(DesignSystem.Icons.ChevronRight.regular16)
+        }
+    }
 
-            actionButtons
-                .padding(.top, Constants.actionButtonsTopPadding)
+    private var seeAllPositionsButton: some View {
+        // [REDACTED_TODO_COMMENT]
+        TangemUI.Button(label: Localization.predictionPositionsViewAllActive, accessibilityLabel: nil, action: {})
+            .size(.x9)
+            .styleType(.secondary(.default))
+            .disabled(true)
+    }
+
+    private var regionRestrictionBanner: some View {
+        MessageBanner(
+            title: AttributedString(Localization.predictionRegionRestrictionsTitle),
+            description: AttributedString(Localization.predictionRegionRestrictionsSubtitle)
+        )
+        .variant(.warning)
+        .glowRing(.warning)
+        .slotEnd { bannerInfoIcon }
+        .padding(.horizontal, Constants.horizontalPadding)
+    }
+
+    private var bannerInfoIcon: some View {
+        DesignSystem.Icons.Info.regular20.image
+            .renderingMode(.template)
+            .resizable()
+            .frame(size: .init(bothDimensions: Constants.bannerIconSide))
+            .foregroundStyle(DesignSystem.Color.iconPrimary)
+            .accessibilityHidden(true)
+    }
+
+    @ViewBuilder
+    private var balanceBlock: some View {
+        if isBalanceLoading {
+            balanceBlockSkeleton
+        } else {
+            VStack(spacing: Constants.balanceSpacing) {
+                balanceSelector
+
+                balanceAmount
+
+                actionButtons
+                    .padding(.top, Constants.actionButtonsTopPadding)
+            }
+            .frame(maxWidth: .infinity)
+        }
+    }
+
+    private var isBalanceLoading: Bool {
+        if case .loading(.none) = viewModel.balance {
+            return true
+        }
+
+        return false
+    }
+
+    private var balanceBlockSkeleton: some View {
+        VStack(spacing: Constants.balanceSpacing) {
+            skeleton(width: Constants.skeletonSelectorWidth, height: Constants.skeletonSelectorHeight)
+
+            skeleton(
+                width: Constants.skeletonAmountWidth,
+                height: Constants.skeletonAmountHeight,
+                cornerRadius: Constants.skeletonAmountHeight / 2
+            )
+            .padding(.vertical, Constants.balanceSpacing)
+
+            HStack(spacing: Constants.actionButtonsSpacing) {
+                ForEach(0 ..< Constants.skeletonActionCount, id: \.self) { _ in
+                    VStack(spacing: Constants.skeletonActionSpacing) {
+                        skeleton(
+                            width: TangemMainActionButton.Size.buttonSide,
+                            height: TangemMainActionButton.Size.buttonSide,
+                            cornerRadius: TangemMainActionButton.Size.buttonSide / 2
+                        )
+
+                        skeleton(width: Constants.skeletonActionTitleWidth, height: Constants.skeletonSelectorHeight)
+                    }
+                }
+            }
+            .padding(.top, Constants.actionButtonsTopPadding)
         }
         .frame(maxWidth: .infinity)
+    }
+
+    private func skeleton(width: CGFloat, height: CGFloat, cornerRadius: CGFloat? = nil) -> some View {
+        Shimmer()
+            .frame(width: width, height: height)
+            .clipShape(.rect(cornerRadius: cornerRadius ?? height / 2, style: .continuous))
+    }
+
+    private var balanceAmount: some View {
+        LoadableBalanceView(
+            state: viewModel.balance,
+            style: .init(font: DesignSystem.Font.displayMediumToken, textColor: DesignSystem.Color.textPrimary),
+            loader: .init(size: Constants.balanceLoaderSize)
+        )
+        .padding(.trailing, Constants.balanceAmountTrailingPadding)
     }
 
     private var balanceSelector: some View {
@@ -141,12 +327,20 @@ struct PolymarketMainView: View {
 
     private var actionButtons: some View {
         HStack(spacing: Constants.actionButtonsSpacing) {
-            // [REDACTED_TODO_COMMENT]
-            TangemMainActionButton(title: "Add funds", icon: Assets.DesignSystem.arrowDown) {}
+            TangemMainActionButton(
+                title: Localization.commonAddFunds,
+                icon: Assets.DesignSystem.arrowDown,
+                action: viewModel.onAddFundsTap,
+                reasonTapWhenDisabled: viewModel.onAddFundsTap
+            )
+            .disabled(viewModel.addFundsState != .available)
+            .accessibilityIdentifier(PolymarketAccessibilityIdentifiers.addFundsButton)
 
             // [REDACTED_TODO_COMMENT]
-            TangemMainActionButton(title: "Withdraw", icon: Assets.DesignSystem.arrowUp) {}
-                .disabled(true)
+            TangemMainActionButton(title: "Withdraw", icon: Assets.DesignSystem.arrowUp) {
+                // [REDACTED_TODO_COMMENT]
+            }
+            .disabled(true)
         }
     }
 
@@ -175,6 +369,7 @@ struct PolymarketMainView: View {
             .padding(.top, navBarHeight)
         }
         .coordinateSpace(name: Constants.scrollSpace)
+        .refreshable { await viewModel.refresh() }
     }
 
     @ViewBuilder
@@ -195,18 +390,18 @@ struct PolymarketMainView: View {
     private var eventCards: some View {
         ForEach(viewModel.eventCards, id: \.id) { model in
             PolymarketEventCard(model: model)
+                .contentShape(.rect)
+                .onTapGesture { viewModel.openEventDetails(eventID: model.id) }
                 .padding(.horizontal, Constants.horizontalPadding)
         }
     }
 
     private var failedState: some View {
-        // [REDACTED_TODO_COMMENT]
-        PolymarketEmptyMessageView(message: "Failed to load events.\nTap to reload", onRetry: viewModel.load)
+        PolymarketEmptyMessageView(message: Localization.predictionMainEventsLoadError, onRetry: viewModel.retry)
     }
 
     private var noResultsState: some View {
-        // [REDACTED_TODO_COMMENT]
-        Text("No available data")
+        Text(Localization.predictionMainEmptyEvents)
             .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
             .frame(maxWidth: .infinity, minHeight: Constants.eventsPlaceholderMinHeight)
     }
@@ -225,8 +420,6 @@ struct PolymarketMainView: View {
         }
     }
 
-    /// Only the settled state carries the trigger: while a page is in flight the loader below takes its place,
-    /// so `onAppear` cannot fire a second request.
     private var paginationTrigger: some View {
         paginationLoader
             .onAppear { viewModel.loadMore() }
@@ -251,14 +444,31 @@ extension PolymarketMainView {
 
         static let contentSpacing: CGFloat = 12
         static let horizontalPadding: CGFloat = 16
+        static let searchFieldVerticalPadding: CGFloat = 12
         static let navBarTopPadding: CGFloat = 8
         static let navBarSettingsHeight: CGFloat = 56
         static let tabsVerticalPadding: CGFloat = 8
         static let paginationVerticalPadding: CGFloat = 20
 
+        static let positionsSpacing: CGFloat = 16
+        static let positionsRowSpacing: CGFloat = 8
+        static let positionsTopSpacing: CGFloat = 24
+        static let positionsSkeletonRowCount = 3
         static let headerTopPadding: CGFloat = 24
         static let headerSpacing: CGFloat = 40
+        static let bannerTopSpacing: CGFloat = 24
+        static let bannerIconSide: CGFloat = 20
         static let balanceSpacing: CGFloat = 4
+        static let balanceAmountTrailingPadding: CGFloat = 4
+        static let balanceLoaderSize = CGSize(width: 160, height: 40)
+
+        static let skeletonSelectorWidth: CGFloat = 150
+        static let skeletonSelectorHeight: CGFloat = 12
+        static let skeletonAmountWidth: CGFloat = 170
+        static let skeletonAmountHeight: CGFloat = 44
+        static let skeletonActionCount = 2
+        static let skeletonActionSpacing: CGFloat = 8
+        static let skeletonActionTitleWidth: CGFloat = 64
         static let balanceSelectorSpacing: CGFloat = 4
         static let selectorIconSize: CGFloat = 20
         static let actionButtonsSpacing: CGFloat = 24

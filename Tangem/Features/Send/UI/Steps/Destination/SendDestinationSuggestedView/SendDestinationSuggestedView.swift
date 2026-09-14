@@ -48,6 +48,7 @@ struct SendDestinationSuggestedView: View {
 
                         Text(account.name)
                             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                            .accessibilityIdentifier(SendAccessibilityIdentifiers.suggestedDestinationWalletAccount(name: account.name))
                     }
                 }
             }

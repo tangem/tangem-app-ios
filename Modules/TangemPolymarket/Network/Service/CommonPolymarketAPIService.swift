@@ -49,6 +49,14 @@ extension CommonPolymarketAPIService: PolymarketAPIService {
     func seriesEvents(seriesId: String) async throws -> PolymarketDTO.SeriesEventsResponse {
         try await request(.seriesEvents(seriesId: seriesId))
     }
+
+    func orderQuote(body: PolymarketDTO.OrderQuoteRequestBody) async throws -> PolymarketDTO.OrderQuoteResponse {
+        try await request(.orderQuote(body))
+    }
+
+    func positions(request positionsRequest: PolymarketPositionsRequest) async throws -> PolymarketDTO.PositionsResponse {
+        try await request(.positions(positionsRequest))
+    }
 }
 
 // MARK: - Private
@@ -76,7 +84,6 @@ private extension CommonPolymarketAPIService {
 extension CommonPolymarketAPIService {
     static func mapMoyaError(_ error: MoyaError, decoder: JSONDecoder) -> PolymarketAPIError {
         guard let response = error.response else {
-            // Forward the underlying transport error so cancellation / network codes stay inspectable.
             return .connection(underlying: error.underlyingError ?? error)
         }
 

@@ -52,15 +52,6 @@ final class SendFinishScreen: ScreenBase<SendFinishScreenElement> {
     }
 
     @discardableResult
-    func waitForBrowserOpened() -> Self {
-        XCTContext.runActivity(named: "Verify in-app browser is opened") { _ in
-            let webView = app.webViews.firstMatch
-            waitAndAssertTrue(webView, "Web view should appear after tapping Explore")
-            return self
-        }
-    }
-
-    @discardableResult
     func dismissBrowser() -> Self {
         XCTContext.runActivity(named: "Dismiss in-app browser") { _ in
             app.otherElements["TopBrowserBar"].buttons["Close"].waitAndTap()
@@ -89,6 +80,10 @@ final class SendFinishScreen: ScreenBase<SendFinishScreenElement> {
         XCTContext.runActivity(named: "Tap Close and return to staking details") { _ in
             waitAndAssertTrue(closeButton, "Close button should exist")
             closeButton.waitAndTap()
+            XCTAssertTrue(
+                headerTitle.waitForNonExistence(timeout: .robustUIUpdate),
+                "Send finish screen should be dismissed before returning to staking details"
+            )
             return StakingDetailsScreen(app)
         }
     }

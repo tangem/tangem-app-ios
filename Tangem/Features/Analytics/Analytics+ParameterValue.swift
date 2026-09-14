@@ -354,6 +354,26 @@ extension Analytics {
         case cex = "CEX"
         case dex = "DEX"
 
+        // MARK: - Welcome V2
+
+        // The Create Wallet sheet reuses `.create` (= "Create Wallet") from the Mobile Wallet block.
+
+        case welcomeV2IHaveWallet = "I Have Wallet"
+        case welcomeV2ImportExisting = "Import Existing"
+
+        case welcomeV2DismissCloseButton = "Close Button"
+        case welcomeV2DismissBackButton = "Back Button"
+        case welcomeV2Dismissed = "Dismissed"
+
+        case welcomeV2DocumentTerms = "Terms Of Service"
+        case welcomeV2DocumentPrivacy = "Privacy Policy"
+
+        case welcomeV2MediaStageLoad = "Load"
+
+        case welcomeV2EntryFirstLaunch = "First Launch"
+        case welcomeV2EntryNoWallets = "No Wallets"
+        case welcomeV2EntryLastWalletForgotten = "Last Wallet Forgotten"
+
         // MARK: - Common
 
         static func toggleState(for boolean: Bool) -> ParameterValue {

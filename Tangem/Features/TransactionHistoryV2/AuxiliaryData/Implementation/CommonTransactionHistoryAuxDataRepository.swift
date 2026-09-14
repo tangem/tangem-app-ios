@@ -10,10 +10,12 @@ import Foundation
 import BlockchainSdk
 import TangemExpress
 import TangemFoundation
+import TangemStaking
 
 actor CommonTransactionHistoryAuxDataRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.stakingYieldInfoProvider) private var stakingYieldInfoProvider: StakingYieldInfoProvider
 
     private var cacheState: CacheState = .empty
 
@@ -22,6 +24,9 @@ actor CommonTransactionHistoryAuxDataRepository {
 
     /// Lock-protected cache for nonisolated synchronous access.
     private let syncCache = OSAllocatedUnfairLock(initialState: Cache())
+
+    /// Lock-protected flag to ensure that we only subscribe to the staking flow once.
+    private let isObservingStakingTargets = OSAllocatedUnfairLock(initialState: false)
 
     private var subscribers = AsyncStream<Void>.MulticastSubscribers<UUID>()
 
@@ -109,6 +114,14 @@ actor CommonTransactionHistoryAuxDataRepository {
             try await storage.saveCryptoCurrencies(tokenItems)
         } catch {
             TransactionHistoryLogger.error(error: "Failed to persist crypto currencies: \(error)")
+        }
+    }
+
+    private func persistStakingTargets(_ targets: [StakingTargetSummary]) async {
+        do {
+            try await storage.saveStakingTargets(targets)
+        } catch {
+            TransactionHistoryLogger.error(error: "Failed to persist staking targets: \(error)")
         }
     }
 
@@ -385,6 +398,55 @@ actor CommonTransactionHistoryAuxDataRepository {
         }
     }
 
+    // MARK: - Staking targets
+
+    private nonisolated func observeStakingTargetsIfNeeded() {
+        let shouldObserve = isObservingStakingTargets { isObserving in
+            guard !isObserving else {
+                return false
+            }
+
+            isObserving = true
+
+            return true
+        }
+
+        guard shouldObserve else {
+            return
+        }
+
+        runTask(in: self) { repository in
+            await repository.observeStakingTargets()
+        }
+    }
+
+    private func observeStakingTargets() async {
+        await loadCacheFromStorageIfNeeded()
+
+        for await targets in stakingYieldInfoProvider.stakingTargets {
+            await storeStakingTargets(targets)
+        }
+    }
+
+    private func storeStakingTargets(_ targets: [StakingTargetSummary]) async {
+        var newTargets: [StakingTargetSummary] = []
+
+        for target in targets.map(\.normalized) {
+            if cache.stakingTargets[target.id] != target {
+                cache.stakingTargets[target.id] = target
+                newTargets.append(target)
+            }
+        }
+
+        guard newTargets.isNotEmpty else {
+            return
+        }
+
+        mirrorToSyncCache()
+        subscribers.yield()
+        await persistStakingTargets(newTargets)
+    }
+
     // MARK: - Factory methods
 
     private func makeExpressAPIProvider() -> ExpressAPIProvider? {
@@ -423,6 +485,11 @@ actor CommonTransactionHistoryAuxDataRepository {
             .cryptoCurrencies()
             .map(\.value) // [REDACTED_TODO_COMMENT]
             .keyedLast { Self.makeCryptoCurrencyCacheKey(networkId: $0.networkId, contractAddress: $0.contractAddress) }
+
+        cache.stakingTargets = try await storage
+            .stakingTargets()
+            .map(\.value)
+            .keyedLast(by: \.id)
 
         return cache
     }
@@ -557,9 +624,17 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
 
         return cache.cryptoCurrency(for: key)
     }
+
+    // MARK: Staking targets
+
+    nonisolated func stakingTarget(forAddress address: String, network: StakingNetworkType) -> StakingTargetSummary? {
+        observeStakingTargetsIfNeeded() // Triggered on read here because we want a lazy observation of the staking flow
+
+        return syncCache { $0.stakingTarget(for: address, network: network) }
+    }
 }
 
-// MARK: - TransactionHistoryAuxDataRepository protocol conformance
+// MARK: - CustomStringConvertible protocol conformance
 
 extension CommonTransactionHistoryAuxDataRepository: CustomStringConvertible {
     nonisolated var description: String {
@@ -580,6 +655,8 @@ private extension CommonTransactionHistoryAuxDataRepository {
         /// Crypto currencies resolved offline from the user's wallet models. Kept in memory only — never persisted.
         var locallyResolvedCryptoCurrencies: [String: TokenItem] = [:]
 
+        var stakingTargets: [StakingTargetSummary.ID: StakingTargetSummary] = [:]
+
         func providers(for branch: ExpressBranch) -> [ExpressProvider.Id: ExpressProvider] {
             switch branch {
             case .swap:
@@ -592,6 +669,10 @@ private extension CommonTransactionHistoryAuxDataRepository {
         func cryptoCurrency(for key: String) -> TokenItem? {
             // Remote info takes precedence over local info, since the remote info is more likely to be up-to-date
             return remotelyResolvedCryptoCurrencies[key] ?? locallyResolvedCryptoCurrencies[key]
+        }
+
+        func stakingTarget(for address: String, network: StakingNetworkType) -> StakingTargetSummary? {
+            return stakingTargets[StakingTargetSummary.ID(network: network, address: address)]
         }
     }
 

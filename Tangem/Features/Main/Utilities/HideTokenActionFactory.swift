@@ -22,9 +22,8 @@ struct HideTokenActionFactory {
     }
 
     private func getUserTokensManager(for tokenItem: TokenItem) throws(Error) -> UserTokensManager {
-        guard let cryptoAccountModel = userWalletModel
-            .accountModelsManager
-            .cryptoAccountModels
+        guard let cryptoAccountModel = AccountCryptoModelsAggregator
+            .cryptoAccountModels(from: userWalletModel.accountModelsManager)
             .first(where: { $0.userTokensManager.contains(tokenItem, derivationInsensitive: false) })
         else {
             throw Error.unableToFindCryptoAccount(tokenItem.name)

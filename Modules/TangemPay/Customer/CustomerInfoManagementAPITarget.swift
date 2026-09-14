@@ -58,8 +58,14 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "order/\(orderId)/cancel"
         case .getCustomerOffers:
             "customer/offers"
+        case .getProductInstanceOffers(let productInstanceId):
+            "product-instances/\(productInstanceId)/offers"
         case .getBankCredentials(let productInstanceId):
             "account/bank-credentials/\(productInstanceId)"
+        case .getBankAccounts:
+            "account/bank-accounts"
+        case .getBankOfframpOptions:
+            "account/bank-offramp/options"
         case .getTariffPlanTransitions:
             "customer/tariff-plan/transitions"
         case .requestTariffPlanPendingTransition:
@@ -98,6 +104,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getOrder,
              .findOrders,
              .getCustomerOffers,
+             .getProductInstanceOffers,
              .getTariffPlanTransitions,
              .getBalance,
              .getTransactionHistoryLegacy,
@@ -113,6 +120,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getCashbackAccrualsDocs,
              .getCashbackTransactionDetails,
              .getBankCredentials,
+             .getBankAccounts,
+             .getBankOfframpOptions,
              .getEligibility:
             .get
 
@@ -146,12 +155,15 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getOrder,
              .cancelOrder,
              .getCustomerOffers,
+             .getProductInstanceOffers,
              .getTariffPlanTransitions,
              .cancelTariffPlanPendingTransition,
              .getBalance,
              .getPin,
              .getFee,
              .getBankCredentials,
+             .getBankAccounts,
+             .getBankOfframpOptions,
              .getTransactionLegacy,
              .getTransaction,
              .getCashbackSummary,
@@ -243,7 +255,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
             ["X-Session-Id": "\(sessionId)"]
         case .placeOrder(_, let idempotencyKey):
             ["Idempotency-Key": idempotencyKey]
-        case .getCustomerInfo, .getTariffPlanTransitions:
+        case .getCustomerInfo, .getTariffPlanTransitions, .getCustomerOffers, .getProductInstanceOffers:
             [
                 TangemPayNetworkingConstants.Header.Key.xDeviceScale: TangemPayNetworkingConstants.Header.Value.deviceScale,
                 TangemPayNetworkingConstants.Header.Key.acceptLanguage: Locale.appLanguageCode,
@@ -292,6 +304,7 @@ extension CustomerInfoManagementAPITarget {
         case findOrders(orderTypes: [String], orderStatuses: [TangemPayOrderResponse.Status])
 
         case getCustomerOffers
+        case getProductInstanceOffers(productInstanceId: String)
 
         case getTariffPlanTransitions
         case requestTariffPlanPendingTransition(pendingTariffPlanId: String)
@@ -302,6 +315,8 @@ extension CustomerInfoManagementAPITarget {
         case reissueCard(cardId: String)
 
         case getBankCredentials(productInstanceId: String)
+        case getBankAccounts
+        case getBankOfframpOptions
 
         case getEligibility
         case getCashbackSummary

@@ -28,8 +28,8 @@ enum OneAndOnlyAccountFinder {
             cryptoAccountModels.singleElement
         case .standard(.single(let model)):
             model
-        case .tangemPay, .polymarket:
-            // Currently it's impossible to have a TangemPay or Polymarket account without having any other account
+        case .joint, .tangemPay, .polymarket, .collectibles:
+            // Currently it's impossible to have a joint, TangemPay, Polymarket or Collectibles account without having any other account
             nil
         }
 

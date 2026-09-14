@@ -88,8 +88,14 @@ extension CommonTokenQuotesRepository: TokenQuotesRepositoryUpdater {
     func saveQuotes(_ quotes: [TokenQuote]) {
         updateQuotes { current in
             var didChange = false
-            for quote in quotes where current[quote.currencyId] != quote {
-                current[quote.currencyId] = quote
+            for quote in quotes {
+                let merged = quote.inheritingPriceUsd(from: current[quote.currencyId])
+
+                guard current[quote.currencyId] != merged else {
+                    continue
+                }
+
+                current[quote.currencyId] = merged
                 didChange = true
             }
             return didChange

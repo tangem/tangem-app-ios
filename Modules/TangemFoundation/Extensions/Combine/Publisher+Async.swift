@@ -63,6 +63,6 @@ public extension Publisher {
 
 // MARK: - Auxiliary types
 
-public enum AsyncError: Error {
+enum AsyncError: Error {
     case valueWasNotEmittedBeforeCompletion
 }

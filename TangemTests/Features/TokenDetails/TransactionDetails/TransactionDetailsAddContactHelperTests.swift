@@ -231,7 +231,7 @@ struct TransactionDetailsAddContactHelperTests {
 
         return [
             .contract("0xContract"),
-            .staking(validator: "0xValidator"),
+            .staking(target: TransactionViewModel.StakingTarget(address: "0xValidator", resolvedName: nil)),
             .custom(message: "Tangem Pay"),
             .multiple([]),
         ]

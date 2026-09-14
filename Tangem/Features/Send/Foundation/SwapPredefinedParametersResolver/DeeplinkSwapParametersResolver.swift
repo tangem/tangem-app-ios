@@ -13,7 +13,7 @@ import TangemFoundation
 struct DeeplinkSwapParametersResolver {
     func resolve(
         params: DeeplinkNavigationAction.Params,
-        accountModelsManager: any AccountModelsManager,
+        accountModelsManager: some AccountModelsManager,
         userWalletInfo: UserWalletInfo
     ) -> PredefinedSwapParameters? {
         guard FeatureProvider.isAvailable(.swapDeeplinkParameters) else {
@@ -67,7 +67,7 @@ private extension DeeplinkSwapParametersResolver {
     /// chosen candidates back to their wallet models. Balances are read synchronously from cache.
     func selectPair(
         params: DeeplinkNavigationAction.Params,
-        accountModelsManager: any AccountModelsManager,
+        accountModelsManager: some AccountModelsManager,
         userWalletInfo: UserWalletInfo
     ) -> SelectedPair? {
         let walletModels = AccountWalletModelsAggregator.walletModels(from: accountModelsManager)
@@ -79,7 +79,7 @@ private extension DeeplinkSwapParametersResolver {
                 // Lowercased to match against the deeplink's already-lowercased token/network ids.
                 tokenId: walletModel.tokenItem.id?.lowercased(),
                 networkId: walletModel.tokenItem.blockchain.networkId.lowercased(),
-                accountDerivationIndex: walletModel.account?.id.toPersistentIdentifier() as? Int,
+                accountId: Self.accountIdentifier(of: walletModel.account),
                 fiatBalance: walletModel.fiatAvailableBalanceProvider.balanceType.value ?? 0,
                 isSwappable: expressAvailabilityProvider.swapState(for: walletModel.tokenItem) == .available
             )
@@ -89,7 +89,7 @@ private extension DeeplinkSwapParametersResolver {
             candidates: candidates,
             params: params,
             targetUserWalletId: userWalletInfo.id.stringValue,
-            existingAccounts: existingAccounts(in: accountModelsManager, userWalletId: userWalletInfo.id)
+            existingAccountIds: existingAccountIds(in: accountModelsManager)
         ) else {
             return nil
         }
@@ -101,23 +101,17 @@ private extension DeeplinkSwapParametersResolver {
         )
     }
 
-    /// Maps each crypto account's backend identifier (`AccountId.rawValue.hexString`) to its derivation index,
-    /// for both consistency validation and pinning a side to the deeplink-specified account.
-    func existingAccounts(in accountModelsManager: any AccountModelsManager, userWalletId: UserWalletId) -> [String: Int] {
-        let pairs = accountModelsManager.cryptoAccountModels.compactMap { account -> (String, Int)? in
-            guard let derivationIndex = account.id.toPersistentIdentifier() as? Int else {
-                return nil
-            }
+    /// The backend identifiers of the accounts the wallet has, which is what a deeplink names an account by.
+    func existingAccountIds(in accountModelsManager: some AccountModelsManager) -> Set<String> {
+        AccountCryptoModelsAggregator
+            .cryptoAccountModels(from: accountModelsManager)
+            .compactMap { Self.accountIdentifier(of: $0) }
+            .toSet()
+    }
 
-            let accountId = CommonCryptoAccountModel.AccountId(
-                userWalletId: userWalletId,
-                derivationIndex: derivationIndex
-            ).rawValue.hexString.lowercased()
-
-            return (accountId, derivationIndex)
-        }
-
-        return Dictionary(pairs, uniquingKeysWith: { first, _ in first })
+    /// - Note: Lowercased to match against the deeplink's already-lowercased identifiers.
+    static func accountIdentifier(of account: (any CryptoAccountModel)?) -> String? {
+        account?.id.rawValue.hexString.lowercased()
     }
 }
 
@@ -129,7 +123,7 @@ extension DeeplinkSwapParametersResolver {
         let index: Int
         let tokenId: String?
         let networkId: String
-        let accountDerivationIndex: Int?
+        let accountId: String?
         let fiatBalance: Decimal
         let isSwappable: Bool
     }
@@ -140,7 +134,7 @@ extension DeeplinkSwapParametersResolver {
         candidates: [Candidate],
         params: DeeplinkNavigationAction.Params,
         targetUserWalletId: String,
-        existingAccounts: [String: Int]
+        existingAccountIds: Set<String>
     ) -> (source: Candidate, destination: Candidate?, appliesExtras: Bool)? {
         let fromRequested = isSideRequested(
             tokenId: params.swapFromTokenId,
@@ -160,15 +154,16 @@ extension DeeplinkSwapParametersResolver {
             return nil
         }
 
-        let fromRequiredAccount = params.swapFromUserAccountId.flatMap { existingAccounts[$0] }
-        let toRequiredAccount = params.swapToUserAccountId.flatMap { existingAccounts[$0] }
+        // An account the wallet doesn't have narrows nothing — otherwise it would filter out the very tokens the link asks for.
+        let fromRequiredAccountId = params.swapFromUserAccountId.flatMap { existingAccountIds.contains($0) ? $0 : nil }
+        let toRequiredAccountId = params.swapToUserAccountId.flatMap { existingAccountIds.contains($0) ? $0 : nil }
 
         let source = fromRequested
-            ? mostFundedMatch(in: candidates, tokenId: params.swapFromTokenId, networkId: params.swapFromNetworkId, requiredAccountDerivationIndex: fromRequiredAccount, preferredAccountDerivationIndex: nil)
+            ? mostFundedMatch(in: candidates, tokenId: params.swapFromTokenId, networkId: params.swapFromNetworkId, requiredAccountId: fromRequiredAccountId, preferredAccountId: nil)
             : nil
 
         let destination = toRequested
-            ? mostFundedMatch(in: candidates, tokenId: params.swapToTokenId, networkId: params.swapToNetworkId, requiredAccountDerivationIndex: toRequiredAccount, preferredAccountDerivationIndex: source?.accountDerivationIndex)
+            ? mostFundedMatch(in: candidates, tokenId: params.swapToTokenId, networkId: params.swapToNetworkId, requiredAccountId: toRequiredAccountId, preferredAccountId: source?.accountId)
             : nil
 
         if fromRequested, toRequested, source == nil, destination == nil {
@@ -213,15 +208,15 @@ private extension DeeplinkSwapParametersResolver {
         return true
     }
 
-    /// Most-funded swap-eligible matching token. `requiredAccountDerivationIndex` (a valid deeplink `user_account_id`) hard-limits
-    /// selection to that account. `preferredAccountDerivationIndex` (TO relative to the resolved FROM) is a soft
+    /// Most-funded swap-eligible matching token. `requiredAccountId` (a valid deeplink `user_account_id`) hard-limits
+    /// selection to that account. `preferredAccountId` (TO relative to the resolved FROM) is a soft
     /// preference — a match inside that account wins over more-funded matches elsewhere.
     static func mostFundedMatch(
         in candidates: [Candidate],
         tokenId: String?,
         networkId: String?,
-        requiredAccountDerivationIndex: Int?,
-        preferredAccountDerivationIndex: Int?
+        requiredAccountId: String?,
+        preferredAccountId: String?
     ) -> Candidate? {
         guard let tokenId, let networkId else {
             return nil
@@ -229,12 +224,12 @@ private extension DeeplinkSwapParametersResolver {
 
         var matching = candidates.filter { $0.tokenId == tokenId && $0.networkId == networkId && $0.isSwappable }
 
-        if let requiredAccountDerivationIndex {
-            matching = matching.filter { $0.accountDerivationIndex == requiredAccountDerivationIndex }
+        if let requiredAccountId {
+            matching = matching.filter { $0.accountId == requiredAccountId }
         }
 
-        if let preferredAccountDerivationIndex {
-            let sameAccount = matching.filter { $0.accountDerivationIndex == preferredAccountDerivationIndex }
+        if let preferredAccountId {
+            let sameAccount = matching.filter { $0.accountId == preferredAccountId }
             if let match = sameAccount.max(by: { $0.fiatBalance < $1.fiatBalance }) {
                 return match
             }

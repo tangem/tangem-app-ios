@@ -182,6 +182,15 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     }
 
     @discardableResult
+    func tapPendingExpressTransaction() -> ExpressStatusBottomSheetScreen {
+        XCTContext.runActivity(named: "Tap pending express transaction to open its status sheet") { _ in
+            waitAndAssertTrue(pendingExpressTransaction, "Pending express transaction should be displayed")
+            pendingExpressTransaction.waitAndTap()
+        }
+        return ExpressStatusBottomSheetScreen(app)
+    }
+
+    @discardableResult
     func goBackToMain() -> MainScreen {
         XCTContext.runActivity(named: "Go back to main screen") { _ in
             app.navigationBars.buttons["Back"].waitAndTap()
@@ -293,6 +302,33 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
                 transferButton.waitForExistence(timeout: .conditional),
                 "Transfer entry should not be visible when sending is unavailable"
             )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyCustomTokenIndicatorExists() -> Self {
+        XCTContext.runActivity(named: "Verify custom token indicator exists on token details") { _ in
+            // Gate on a details-only element first so the assertion runs on the details screen and can't be
+            // satisfied by a custom indicator from the main token list during/after navigation.
+            waitAndAssertTrue(tokenNameLabel, "Token details screen should be loaded")
+
+            let indicators = app.descendants(matching: .any)
+                .matching(NSPredicate(format: "identifier BEGINSWITH %@", MainAccessibilityIdentifiers.tokenCustomIndicatorPrefix))
+            // Require an on-screen match instead of `.firstMatch`, which could resolve to an off-screen indicator.
+            let appElement = app
+            let onScreen = NSPredicate { _, _ in
+                indicators.allElementsBoundByIndex.contains { element in
+                    let frame = element.frame
+                    return !frame.isNull && !frame.isInfinite && frame.width > 0
+                        && appElement.frame.contains(CGPoint(x: frame.midX, y: frame.midY))
+                }
+            }
+            let result = XCTWaiter().wait(
+                for: [XCTNSPredicateExpectation(predicate: onScreen, object: nil)],
+                timeout: .robustUIUpdate
+            )
+            XCTAssertEqual(result, .completed, "Custom token indicator should be displayed on token details screen")
             return self
         }
     }

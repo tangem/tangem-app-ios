@@ -519,7 +519,7 @@ extension TokenActionAvailabilityProvider {
 extension TokenActionAvailabilityProvider {
     var yieldAPY: Decimal? {
         guard let yieldModuleState = walletModel.yieldModuleManager?.state,
-              let apy = yieldModuleState.marketInfo?.apy else {
+              let apy = yieldModuleState.marketInfo?.effectiveApy else {
             return nil
         }
 
