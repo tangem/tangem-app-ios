@@ -41,7 +41,7 @@ extension MobileBackupStatusUtil {
     }
 
     static func hasICloudBackup(config: UserWalletConfig) -> Bool {
-        FeatureProvider.isAvailable(.mobileWalletBackup) && !config.hasFeature(.iCloudBackup)
+        !config.hasFeature(.iCloudBackup)
     }
 
     static func hasBackup(config: UserWalletConfig) -> Bool {

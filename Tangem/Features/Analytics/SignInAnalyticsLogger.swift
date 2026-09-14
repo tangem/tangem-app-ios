@@ -45,7 +45,7 @@ struct SignInAnalyticsLogger {
             .walletHasBackup: Analytics.ParameterValue.affirmativeOrNegative(for: userWalletModel.config.walletHasBackup).rawValue,
         ]
 
-        if FeatureProvider.isAvailable(.mobileWalletBackup), isMobileProductType {
+        if isMobileProductType {
             let backupParams = MobileBackupStatusUtil.completedBackupsAnalyticsParams(config: userWalletModel.config)
             params.enrich(with: backupParams)
         }
