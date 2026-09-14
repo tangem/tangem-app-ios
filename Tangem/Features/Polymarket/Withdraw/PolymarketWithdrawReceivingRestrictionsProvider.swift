@@ -9,7 +9,9 @@
 import Foundation
 
 struct PolymarketWithdrawReceivingRestrictionsProvider: ReceivingRestrictionsProvider {
-    func restriction(expectAmount: Decimal) -> ReceivedRestriction? {
+    var isRestrictionKnown: Bool { true }
+
+    func restriction(expectAmount: Decimal) async throws -> ReceivedRestriction? {
         nil
     }
 }
