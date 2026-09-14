@@ -30,12 +30,6 @@ extension PolymarketWithdrawTransactionDispatcher: TransactionDispatcher {
                 destination: transaction.destinationAddress
             )
 
-        case .cex(let data, _):
-            return try await withdraw(
-                amount: data.txValue,
-                destination: data.destinationAddress
-            )
-
         default:
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
