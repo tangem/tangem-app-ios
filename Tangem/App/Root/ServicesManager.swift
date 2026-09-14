@@ -215,7 +215,6 @@ extension CommonServicesManager: ServicesManager {
         isFirstLaunch = recordAppLaunch() == 0
 
         AmplitudeWrapper.shared.configure()
-        openTelemetryWrapper.configure()
         experimentService.configure()
         AppsFlyerWrapper.shared.configure(delegate: delegate)
         customerIOWrapper.configure()
@@ -234,6 +233,8 @@ extension CommonServicesManager: ServicesManager {
         storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
         storyDataPrefetchService.prefetchStoryIfNeeded(.yieldFirstActivationAPYBoostStory)
         geoEligibilityService.initialize()
+        // The OTel resource carries the country, and it is fixed once the pipeline starts
+        openTelemetryWrapper.configure()
         wcService.initialize()
         eTagStorage.initialize()
         mobileAccessCodeCleaner.initialize()

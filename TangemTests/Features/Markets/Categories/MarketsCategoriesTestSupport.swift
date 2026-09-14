@@ -91,7 +91,7 @@ final class InMemoryPersistentStorage: PersistentStorageProtocol {
 }
 
 final class MarketsStubGeoEligibilityService: GeoEligibilityService {
-    private let regionCode: String?
+    let regionCode: String?
 
     init(geoIpRegionCode: String?) {
         regionCode = geoIpRegionCode

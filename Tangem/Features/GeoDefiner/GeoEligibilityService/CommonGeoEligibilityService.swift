@@ -33,7 +33,7 @@ class CommonGeoEligibilityService: GeoEligibilityService {
         return regionCode
     }
 
-    private var regionCode: String? {
+    var regionCode: String? {
         geoDefiner.geoIpRegionCode ?? geoDefiner.phoneRegionCode
     }
 
