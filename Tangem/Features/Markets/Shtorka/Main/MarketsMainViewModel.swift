@@ -68,7 +68,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     private var isBottomSheetExpanded: Bool = false
 
     private lazy var promotionNotificationsViewModel: PromotionNotificationsViewModel = {
-        let manager = NewsPromotionNotificationsManager()
+        let manager = NewsPromotionNotificationsManager(placement: .news)
         return PromotionNotificationsViewModel(promotionNotificationsManager: manager)
     }()
 
