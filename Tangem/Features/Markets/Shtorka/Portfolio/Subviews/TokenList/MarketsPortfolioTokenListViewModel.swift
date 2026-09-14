@@ -42,7 +42,7 @@ final class MarketsPortfolioTokenListViewModel: ObservableObject {
         barTitle: String = Localization.marketsPortfolioBlockTitle,
         barSubtitle: String? = nil,
         onSelect: @escaping (any WalletModel) -> Void,
-        coordinator: MarketsPortfolioTokenListRoutable
+        coordinator: MarketsPortfolioTokenListRoutable? = nil
     ) {
         self.barTitle = barTitle
         self.barSubtitle = barSubtitle

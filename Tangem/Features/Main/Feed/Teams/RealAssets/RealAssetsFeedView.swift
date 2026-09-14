@@ -36,7 +36,7 @@ struct RealAssetsFeedView: View {
     private var skeleton: some View {
         VStack(spacing: .zero) {
             ForEach(0 ..< Constants.skeletonRowsCount, id: \.self) { _ in
-                TangemTwoLineRowSkeletonView()
+                TokenRowMarket(.shimmer)
             }
         }
         .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: .zero, radius: Constants.listCornerRadius)

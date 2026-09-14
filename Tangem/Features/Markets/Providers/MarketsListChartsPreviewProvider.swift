@@ -32,6 +32,13 @@ final class MarketsListChartsHistoryProvider {
 
     // MARK: - Implementation
 
+    /// Curves are priced in the selected currency, so a currency change makes the whole cache stale.
+    @MainActor
+    func reset() {
+        items = [:]
+        lock { requestedItemsDictionary.removeAll() }
+    }
+
     func fetch(for coinIds: [String], with interval: MarketsPriceIntervalType) {
         if coinIds.isEmpty {
             return

@@ -30,21 +30,11 @@ final class CommonPulseDataProvider: PulseDataProvider {
     private let tokensSubject = CurrentValueSubject<[MarketsTokenModel], Never>([])
     private let failedSubject = CurrentValueSubject<Bool, Never>(false)
     private let isLoadingSubject = CurrentValueSubject<Bool, Never>(true)
-    private let chartsRequestSubject = PassthroughSubject<Void, Never>()
 
     private let listProvider = MarketsListDataProvider()
     private let filterProvider = MarketsListDataFilterProvider()
-    private let chartsProvider = MarketsListChartsHistoryProvider()
-    private let quotesScheduler = MarketsQuotesUpdatesScheduler()
-    private let quotesUpdateHelper: MarketsQuotesUpdateHelper = CommonMarketsQuotesUpdateHelper()
+    private lazy var rowsProvider = MarketTokenRowsProvider(filterProvider: filterProvider)
 
-    private var marketCapFormatter = MarketCapFormatter(
-        divisorsList: AmountNotationSuffixFormatter.Divisor.defaultList,
-        baseCurrencyCode: AppSettings.shared.selectedCurrencyCode,
-        notationFormatter: DefaultAmountNotationFormatter()
-    )
-
-    private var visibleTokenIDs: Set<String> = []
     private var isReloading = false
     private var bag = Set<AnyCancellable>()
 
@@ -53,13 +43,7 @@ final class CommonPulseDataProvider: PulseDataProvider {
     }
 
     func makeRowViewModel(for token: MarketsTokenModel, onTap: @escaping () -> Void) -> MarketTokenItemViewModel {
-        MarketTokenItemViewModel(
-            tokenModel: token,
-            marketCapFormatter: marketCapFormatter,
-            chartsProvider: chartsProvider,
-            filterProvider: filterProvider,
-            onTapAction: onTap
-        )
+        rowsProvider.makeRowViewModel(for: token, onTap: onTap)
     }
 
     func load(interval: PulseInterval, category: PulseCategory, tag: PulseTagSelection?, isCategoryUserInitiated: Bool) {
@@ -78,30 +62,22 @@ final class CommonPulseDataProvider: PulseDataProvider {
     }
 
     func setVisibleTokenIDs(_ ids: Set<String>) {
-        let hidden = visibleTokenIDs.subtracting(ids)
-
-        if hidden.isNotEmpty {
-            quotesScheduler.stopUpdatingQuotes(for: hidden)
-        }
-
-        visibleTokenIDs = ids
-        quotesScheduler.scheduleQuotesUpdate(for: ids)
-        chartsRequestSubject.send()
+        rowsProvider.setVisibleTokenIDs(ids)
     }
 
     func suspendQuotes() {
-        quotesScheduler.cancelUpdates()
+        rowsProvider.suspendQuotes()
     }
 
     func resumeQuotes() {
-        quotesScheduler.resumeUpdates()
+        rowsProvider.resumeQuotes()
     }
 
     private func reload() {
         isReloading = true
         listProvider.reset()
         listProvider.fetch(.empty, with: filterProvider.currentFilterValue)
-        chartsRequestSubject.send()
+        rowsProvider.requestCharts()
     }
 
     /// The `$items` sink swallows the empty list `reset()` produces while a reload is in flight, so when the
@@ -123,10 +99,7 @@ final class CommonPulseDataProvider: PulseDataProvider {
                 }
 
                 provider.isReloading = false
-                provider.quotesUpdateHelper.updateQuotes(
-                    marketsTokens: items,
-                    for: AppSettings.shared.selectedCurrencyCode
-                )
+                provider.rowsProvider.updateQuotes(for: items)
                 provider.tokensSubject.send(items)
             }
             .store(in: &bag)
@@ -158,42 +131,17 @@ final class CommonPulseDataProvider: PulseDataProvider {
             }
             .store(in: &bag)
 
-        AppSettings.shared
-            .$selectedCurrencyCode
-            .dropFirst()
-            .removeDuplicates()
-            .receiveOnMain()
+        rowsProvider
+            .currencyDidChangePublisher
             .withWeakCaptureOf(self)
-            .sink { provider, currencyCode in
-                provider.marketCapFormatter = MarketCapFormatter(
-                    divisorsList: AmountNotationSuffixFormatter.Divisor.defaultList,
-                    baseCurrencyCode: currencyCode,
-                    notationFormatter: DefaultAmountNotationFormatter()
-                )
+            .sink { provider, _ in
                 provider.reload()
             }
             .store(in: &bag)
-
-        chartsRequestSubject
-            .debounce(for: Constants.chartsRequestDebounce, scheduler: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .sink { provider, _ in
-                provider.chartsProvider.fetch(
-                    for: Array(provider.visibleTokenIDs),
-                    with: provider.filterProvider.currentFilterValue.interval
-                )
-            }
-            .store(in: &bag)
     }
 }
 
-// MARK: - Constants
-
-private extension CommonPulseDataProvider {
-    enum Constants {
-        static let chartsRequestDebounce: DispatchQueue.SchedulerTimeType.Stride = 0.3
-    }
-}
+// MARK: - Markets mapping
 
 private extension PulseInterval {
     var marketsInterval: MarketsPriceIntervalType {
