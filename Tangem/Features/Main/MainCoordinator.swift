@@ -830,14 +830,14 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         polymarketCoordinator = coordinator
     }
 
-    func openJointAccountMembers(jointAccount: any JointAccountModel, accountModelsManager: any AccountModelsManager) {
+    func openJointAccountMembers(jointAccount: any JointAccountModel) {
         let coordinator = JointAccountManagementCoordinator(
             dismissAction: { [weak self] in
                 self?.jointAccountManagementCoordinator = nil
             },
             popToRootAction: popToRootAction
         )
-        coordinator.start(with: .members(jointAccount: jointAccount, accountModelsManager: accountModelsManager))
+        coordinator.start(with: .members(jointAccount: jointAccount))
         jointAccountManagementCoordinator = coordinator
     }
 }

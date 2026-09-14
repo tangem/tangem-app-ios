@@ -18,18 +18,15 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
     private let jointAccount: any JointAccountModel
-    private let accountModelsManager: any AccountModelsManager
     private weak var coordinator: JointAccountInviteMembersRoutable?
 
     private var bag = Set<AnyCancellable>()
 
     init(
         jointAccount: any JointAccountModel,
-        accountModelsManager: any AccountModelsManager,
         coordinator: JointAccountInviteMembersRoutable?
     ) {
         self.jointAccount = jointAccount
-        self.accountModelsManager = accountModelsManager
         self.coordinator = coordinator
 
         content = Self.makeContent(of: jointAccount)
@@ -97,7 +94,7 @@ private extension JointAccountInviteMembersViewModel {
         defer { isActivating = false }
 
         do throws(AccountEditError) {
-            try await accountModelsManager.activateJointAccount(jointAccount)
+            try await jointAccount.activate()
         } catch .unknownError(let underlying) where underlying.isCancellationError {
             // The card session was dismissed; the screen stays as it was, with nothing to report
             return

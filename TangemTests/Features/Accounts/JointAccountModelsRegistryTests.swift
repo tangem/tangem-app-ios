@@ -20,7 +20,7 @@ struct JointAccountModelsRegistryTests {
     @Test("A record moving on reaches the model that was handed out, rather than a fresh one nobody holds yet")
     func recordChangesReachTheModelHandedOut() async throws {
         let sut = Self.makeSUT()
-        let delegate = CommonCryptoAccountModelDelegateStub()
+        let delegate = JointAccountModelDelegateMock()
         let entry = Self.storedCryptoAccount()
 
         let first = await sut.jointAccountModels(
@@ -50,14 +50,15 @@ struct JointAccountModelsRegistryTests {
 
     @Test("An entry whose record has not arrived yet builds nothing, its dependencies included")
     func entryWithoutRecordBuildsNothing() async {
-        let dependenciesFactory = CryptoAccountDependenciesFactoryStub()
+        let dependenciesFactory = JointAccountDependenciesFactoryStub()
         let sut = Self.makeSUT(dependenciesFactory: dependenciesFactory)
+        let delegate = JointAccountModelDelegateMock()
 
         let models = await sut.jointAccountModels(
             from: [Self.storedCryptoAccount()],
             with: [],
             invites: [],
-            delegate: CommonCryptoAccountModelDelegateStub()
+            delegate: delegate
         )
 
         #expect(models.isEmpty)
@@ -73,7 +74,7 @@ private extension JointAccountModelsRegistryTests {
     static let derivationIdentity = CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint)
 
     static func makeSUT(
-        dependenciesFactory: CryptoAccountDependenciesFactory = CryptoAccountDependenciesFactoryStub()
+        dependenciesFactory: JointAccountDependenciesFactory = JointAccountDependenciesFactoryStub()
     ) -> JointAccountModelsRegistry {
         JointAccountModelsRegistry(userWalletId: userWalletId, dependenciesFactory: dependenciesFactory)
     }
@@ -110,7 +111,7 @@ private extension JointAccountModelsRegistryTests {
 
 // MARK: - Test doubles
 
-private final class CryptoAccountDependenciesFactoryStub: CryptoAccountDependenciesFactory {
+private final class JointAccountDependenciesFactoryStub: JointAccountDependenciesFactory {
     private let callsCount = OSAllocatedUnfairLock(initialState: 0)
 
     var makeDependenciesCallsCount: Int {
@@ -119,27 +120,20 @@ private final class CryptoAccountDependenciesFactoryStub: CryptoAccountDependenc
 
     func makeDependencies(
         forAccountWithDerivationIdentity derivationIdentity: CryptoAccountDerivationIdentity
-    ) -> CryptoAccountDependencies {
+    ) -> JointAccountDependencies {
         callsCount.withLock { $0 += 1 }
 
-        return CryptoAccountDependencies(
+        return JointAccountDependencies(
             userTokensManager: UserTokensManagerMock(),
             walletModelsManager: WalletModelsManagerMock(),
             walletModelsFactoryInput: WalletModelsFactoryInputStub(),
-            derivationManager: nil
+            derivationManager: nil,
+            operationsService: JointAccountOperationsServiceMock(),
+            pendingOperationsProvider: JointAccountPendingOperationsProviderMock()
         )
     }
 }
 
 private struct WalletModelsFactoryInputStub: WalletModelsFactoryInput {
     func setCryptoAccount(_ cryptoAccount: any CryptoAccountModel) {}
-}
-
-private final class CommonCryptoAccountModelDelegateStub: CommonCryptoAccountModelDelegate {
-    func commonCryptoAccountModel(
-        _ model: CommonCryptoAccountModel,
-        wantsToUpdateWith config: CryptoAccountPersistentConfig
-    ) async throws(AccountEditError) {}
-
-    func commonCryptoAccountModelWantsToArchive(_ model: CommonCryptoAccountModel) async throws(AccountArchivationError) {}
 }
