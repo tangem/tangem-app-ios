@@ -340,9 +340,7 @@ private extension SwapModel {
                     return input.update(providersState: trustlineProvidersState, builtFrom: revision)
                 }
 
-                if let restrictionProvidersState = try await input.hasSwapBalanceRestrictionProvidersState() {
-                    return input.update(providersState: restrictionProvidersState, builtFrom: revision)
-                }
+                try await input.refreshDexOnlyProvidersMode()
 
                 if let type = await loadingType(input.expressManager) {
                     input.update(providersState: .loading(type))
@@ -389,17 +387,12 @@ private extension SwapModel {
         _providersState.send(providersState)
     }
 
-    private func hasSwapBalanceRestrictionProvidersState() async throws -> ProvidersState? {
+    private func refreshDexOnlyProvidersMode() async throws {
         guard let sourceToken = sourceToken.value else {
-            return nil
+            return
         }
 
-        guard try await balanceRestrictionHandler.shouldHideProviders(for: sourceToken) else {
-            return nil
-        }
-
-        // For this kind of restriction we don't show any sign of providers.
-        return legacyBalanceRestrictionProvidersState()
+        try await balanceRestrictionHandler.refreshDexOnlyProvidersMode(for: sourceToken)
     }
 
     private func destinationTrustlineRestrictedProvidersState() async throws -> ProvidersState? {
