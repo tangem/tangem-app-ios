@@ -404,68 +404,6 @@ extension CommonAccountModelsManager: AccountModelsManager {
         )
     }
 
-    func activateJointAccount(_ jointAccount: any JointAccountModel) async throws(AccountEditError) {
-        guard let announcedSafeAddress = jointAccount.announcedSafeAddress else {
-            throw .unknownError(AccountModelsManagerError.jointAccountNotReadyForActivation)
-        }
-
-        guard let creator = jointAccount.creator else {
-            throw .unknownError(AccountModelsManagerError.jointAccountNotReadyForActivation)
-        }
-
-        let safeAddress: String
-
-        do {
-            // The composition is checked against the address before the wallet is asked for anything: a mismatch
-            // means the account is not the one it claims to be, and there is nothing here worth signing
-            safeAddress = try JointAccountSafeAddressVerifier.confirm(
-                announcedAddress: announcedSafeAddress,
-                owners: jointAccount.members.map(\.address),
-                threshold: jointAccount.policy.signersCount
-            )
-        } catch {
-            AccountsLogger.error("The joint account does not resolve to the address it was given", error: error)
-            throw .unknownError(error)
-        }
-
-        let config = JointAccountActivationConfig(
-            // The identifier the backend minted the account with is the one the app works out for itself — the same
-            // hash, in the same upper case, which is what every match on it relies on already
-            cryptoAccountId: jointAccount.id.rawValue.hexString,
-            signedConfig: JointAccountSignedConfig(
-                name: jointAccount.name,
-                icon: jointAccount.icon.name.rawValue,
-                iconColor: jointAccount.icon.color.rawValue,
-                membersCount: jointAccount.policy.membersCount,
-                threshold: jointAccount.policy.signersCount
-            ),
-            safeAddress: safeAddress,
-            creatorAddress: creator.address,
-            derivationIndex: jointAccount.derivationIdentity.derivationIndex
-        )
-
-        do {
-            try await jointAccountsRepository.activateJointAccount(withConfig: config)
-        } catch {
-            AccountsLogger.error("Failed to activate a joint account of user wallet \(userWalletId)", error: error)
-            throw .unknownError(error)
-        }
-
-        // The account has an address now, and the wallet models built for it are the ones holding the old one
-        await refreshCryptoAccounts()
-    }
-
-    /// Reads the wallet's own accounts again, which is how the entry the backend adds for a joint one is picked up.
-    /// - Note: A failure is logged rather than reported: the joint account exists by then, and telling the user
-    /// otherwise would have them make a second one and strand the invites of the first.
-    private func refreshCryptoAccounts() async {
-        do {
-            try await cryptoAccountsRepository.loadCryptoAccountsFromRemote()
-        } catch {
-            AccountsLogger.error("Failed to refresh the accounts of user wallet \(userWalletId)", error: error)
-        }
-    }
-
     func joinJointAccount(context: JointAccountJoinContext) async throws(AccountEditError) -> AccountCreationResult {
         guard canAddCryptoAccounts else {
             throw .unknownError(AccountModelsManagerError.addingJointAccountNotSupported)
@@ -507,34 +445,6 @@ extension CommonAccountModelsManager: AccountModelsManager {
             AccountsLogger.error("Failed to join a joint account for user wallet \(userWalletId)", error: error)
             throw .unknownError(error)
         }
-    }
-
-    /// The remote state every account is made against, whichever kind it is.
-    private func fetchRemoteState() async throws(AccountEditError) -> CryptoAccountsRemoteState {
-        do {
-            return try await cryptoAccountsRepository.getRemoteState()
-        } catch {
-            AccountsLogger.error("Failed to fetch remote state for user wallet \(userWalletId)", error: error)
-            throw .unknownError(error)
-        }
-    }
-
-    /// The remote state an account this wallet names is created against, checked against the name it is given.
-    private func validatedRemoteState(forNewAccountNamed name: String) async throws(AccountEditError) -> CryptoAccountsRemoteState {
-        let remoteState = try await fetchRemoteState()
-        let validator = makeConditionsValidator(for: .new(newAccountName: name, remoteState: remoteState))
-
-        do {
-            try await validator.validate()
-        } catch let error as AccountEditError {
-            AccountsLogger.error("A new account for user wallet \(userWalletId) failed to fulfill the conditions", error: error)
-            throw error
-        } catch {
-            AccountsLogger.error("A new account for user wallet \(userWalletId) failed to fulfill the conditions", error: error)
-            throw .unknownError(error)
-        }
-
-        return remoteState
     }
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
@@ -680,6 +590,22 @@ extension CommonAccountModelsManager: CommonCryptoAccountModelDelegate {
     }
 }
 
+// MARK: - JointAccountModelDelegate protocol conformance
+
+extension CommonAccountModelsManager: JointAccountModelDelegate {
+    func activateJointAccount(with config: JointAccountActivationConfig) async throws(AccountEditError) {
+        do {
+            try await jointAccountsRepository.activateJointAccount(withConfig: config)
+        } catch {
+            AccountsLogger.error("Failed to activate a joint account of user wallet \(userWalletId)", error: error)
+            throw .unknownError(error)
+        }
+
+        // The account has an address now, and the wallet models built for it are the ones holding the old one
+        await refreshCryptoAccounts()
+    }
+}
+
 // MARK: - AccountModelsReordering protocol conformance
 
 extension CommonAccountModelsManager: AccountModelsReordering {
@@ -713,6 +639,49 @@ extension CommonAccountModelsManager: DisposableEntity {
             case .tangemPay, .polymarket, .collectibles:
                 break
             }
+        }
+    }
+}
+
+// MARK: - Private
+
+private extension CommonAccountModelsManager {
+    /// The remote state every account is made against, whichever kind it is.
+    func fetchRemoteState() async throws(AccountEditError) -> CryptoAccountsRemoteState {
+        do {
+            return try await cryptoAccountsRepository.getRemoteState()
+        } catch {
+            AccountsLogger.error("Failed to fetch remote state for user wallet \(userWalletId)", error: error)
+            throw .unknownError(error)
+        }
+    }
+
+    /// The remote state an account this wallet names is created against, checked against the name it is given.
+    func validatedRemoteState(forNewAccountNamed name: String) async throws(AccountEditError) -> CryptoAccountsRemoteState {
+        let remoteState = try await fetchRemoteState()
+        let validator = makeConditionsValidator(for: .new(newAccountName: name, remoteState: remoteState))
+
+        do {
+            try await validator.validate()
+        } catch let error as AccountEditError {
+            AccountsLogger.error("A new account for user wallet \(userWalletId) failed to fulfill the conditions", error: error)
+            throw error
+        } catch {
+            AccountsLogger.error("A new account for user wallet \(userWalletId) failed to fulfill the conditions", error: error)
+            throw .unknownError(error)
+        }
+
+        return remoteState
+    }
+
+    /// Reads the wallet's own accounts again, which is how the entry the backend adds for a joint one is picked up.
+    /// - Note: A failure is logged rather than reported: the joint account exists by then, and telling the user
+    /// otherwise would have them make a second one and strand the invites of the first.
+    func refreshCryptoAccounts() async {
+        do {
+            try await cryptoAccountsRepository.loadCryptoAccountsFromRemote()
+        } catch {
+            AccountsLogger.error("Failed to refresh the accounts of user wallet \(userWalletId)", error: error)
         }
     }
 }
