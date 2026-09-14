@@ -14,9 +14,10 @@ import TangemUI
 
 struct PulseView: View {
     @ObservedObject var viewModel: PulseViewModel
+    @ScaledMetric(relativeTo: .subheadline) private var controlHeight: CGFloat = 36
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             header
                 .padding(.horizontal, Constants.horizontalPadding)
 
@@ -100,7 +101,7 @@ struct PulseView: View {
 
     private var categoriesRow: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
+            HStack(spacing: 4) {
                 ForEach(viewModel.categories, id: \.self) { category in
                     SwiftUI.Button {
                         viewModel.onSelectCategory(category)
@@ -118,14 +119,14 @@ struct PulseView: View {
         Text(title)
             .style(
                 DesignSystem.Font.subheadingMediumToken,
-                color: isSelected ? DesignSystem.Color.textPrimary : DesignSystem.Color.textTertiary
+                color: isSelected ? DesignSystem.Color.textPrimary : DesignSystem.Color.textSecondary
             )
             .lineLimit(1)
             .padding(.horizontal, 12)
-            .frame(height: 32)
+            .frame(minHeight: controlHeight)
             .background {
                 if isSelected {
-                    Capsule().fill(DesignSystem.Color.bgTertiary)
+                    Capsule().fill(DesignSystem.Color.bgOpaqueSecondary)
                 }
             }
     }
