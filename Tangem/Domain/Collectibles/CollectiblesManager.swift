@@ -18,7 +18,7 @@ final class CollectiblesManager {
 
     private let coldOwnerProvider: any CollectiblesColdOwnerProvider
     private let vaultReader: any CollectiblesVaultReader
-    private let hotDelegateSigner: CollectiblesHotDelegateSigner
+    private let hotDelegateSigner: any CollectiblesHotDelegateSigner
 
     private let nameSubject: CurrentValueSubject<String, Never>
     private let stateSubject = CurrentValueSubject<CollectiblesState, Never>(.unresolved)
@@ -29,7 +29,7 @@ final class CollectiblesManager {
         name: String,
         coldOwnerProvider: any CollectiblesColdOwnerProvider,
         vaultReader: any CollectiblesVaultReader,
-        hotDelegateSigner: CollectiblesHotDelegateSigner
+        hotDelegateSigner: any CollectiblesHotDelegateSigner
     ) {
         self.id = id
         nameSubject = CurrentValueSubject(name)
