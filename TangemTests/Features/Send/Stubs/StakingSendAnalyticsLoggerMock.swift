@@ -13,14 +13,16 @@ import TangemStaking
 
 final class StakingSendAnalyticsLoggerMock: StakingSendAnalyticsLogger {
     private(set) var noticeNotEnoughFeeCalls = 0
+    private(set) var noticeNotEnoughFeeBalances: [Decimal?] = []
 
     // MARK: - StakingSendAnalyticsLogger
 
     func setup(stakingTargetsInput: StakingTargetsInput) {}
     func logNoticeUninitializedAddress() {}
 
-    func logNoticeNotEnoughFee() {
+    func logNoticeNotEnoughFee(feeCurrencyBalance: Decimal?) {
         noticeNotEnoughFeeCalls += 1
+        noticeNotEnoughFeeBalances.append(feeCurrencyBalance)
     }
 
     func logErrorSumLimit(errorMessage: String) {}
