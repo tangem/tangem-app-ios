@@ -21,6 +21,8 @@ public final class EnrichStoryUseCase {
             return await enrichStoryData(data, storyId: .swap, wrap: TangemStory.swap)
         case .yieldFirstActivationAPYBoost(let data):
             return await enrichStoryData(data, storyId: .yieldFirstActivationAPYBoost, wrap: TangemStory.yieldFirstActivationAPYBoost)
+        case .polymarketOnboarding(let data):
+            return await enrichStoryData(data, storyId: .polymarketOnboarding, wrap: TangemStory.polymarketOnboarding)
         }
     }
 

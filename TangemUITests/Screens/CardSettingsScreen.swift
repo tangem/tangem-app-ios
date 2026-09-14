@@ -15,6 +15,9 @@ final class CardSettingsScreen: ScreenBase<CardSettingsScreenElement> {
     private lazy var deviceSettingsButton = button(.deviceSettings)
     private lazy var addAccountButton = button(.addAccount)
     private lazy var renameWalletRow = anyElement(.renameWalletRow)
+    private lazy var nftToggle = switchElement(.nftToggle)
+    private lazy var forgetWalletButton = app.buttons["Forget wallet"].firstMatch
+    private lazy var forgetConfirmationButton = app.buttons["Forget"].firstMatch
 
     func openReferralProgram() -> ReferralScreen {
         XCTContext.runActivity(named: "Open referral program screen") { _ in
@@ -134,6 +137,16 @@ final class CardSettingsScreen: ScreenBase<CardSettingsScreenElement> {
         }
     }
 
+    @discardableResult
+    func forgetWallet() -> DetailsScreen {
+        XCTContext.runActivity(named: "Forget wallet and confirm deletion") { _ in
+            scrollToElement(forgetWalletButton)
+            forgetWalletButton.waitAndTap()
+            forgetConfirmationButton.waitAndTap()
+            return DetailsScreen(app)
+        }
+    }
+
     // MARK: - Account Management
 
     func tapAddAccount() -> AccountFormScreen {
@@ -172,6 +185,29 @@ final class CardSettingsScreen: ScreenBase<CardSettingsScreenElement> {
         }
     }
 
+    @discardableResult
+    func enableNFT() -> Self {
+        XCTContext.runActivity(named: "Enable NFT in wallet settings") { _ in
+            scrollToElement(nftToggle)
+            waitAndAssertTrue(nftToggle, "NFT toggle should exist")
+
+            if nftToggle.value as? String != "1" {
+                nftToggle.waitAndTap()
+            }
+
+            let expectation = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "value == %@", "1"),
+                object: nftToggle
+            )
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .conditional),
+                .completed,
+                "NFT toggle should be on"
+            )
+            return self
+        }
+    }
+
     private func anyElement(_ element: CardSettingsScreenElement) -> XCUIElement {
         app.descendants(matching: .any)
             .matching(identifier: element.accessibilityIdentifier)
@@ -184,6 +220,7 @@ enum CardSettingsScreenElement: String, UIElement {
     case deviceSettings
     case addAccount
     case renameWalletRow
+    case nftToggle
 
     var accessibilityIdentifier: String {
         switch self {
@@ -195,6 +232,8 @@ enum CardSettingsScreenElement: String, UIElement {
             return AccountsAccessibilityIdentifiers.walletSettingsAddAccountButton
         case .renameWalletRow:
             return WalletSettingsAccessibilityIdentifiers.renameWalletRow
+        case .nftToggle:
+            return WalletSettingsAccessibilityIdentifiers.nftToggle
         }
     }
 }

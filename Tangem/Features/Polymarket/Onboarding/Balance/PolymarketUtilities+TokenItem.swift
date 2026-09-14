@@ -11,8 +11,6 @@ import BlockchainSdk
 import TangemPolymarket
 
 extension PolymarketUtilities {
-    /// `id` is what prices it, not what it is: the collateral is its own contract, pegged to USDC, so the USDC
-    /// quote is the rate that converts it into the selected fiat currency.
     static var collateralTokenItem: TokenItem {
         TokenItem.token(
             Token(
@@ -25,5 +23,44 @@ extension PolymarketUtilities {
             ),
             BlockchainNetwork(blockchain, derivationPath: derivationPath)
         )
+    }
+
+    static let usdcContractAddress = "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
+
+    static var usdcTokenItem: TokenItem {
+        TokenItem.token(
+            Token(
+                name: "USDC",
+                symbol: "USDC",
+                contractAddress: usdcContractAddress,
+                decimalCount: Constants.usdcDecimalCount,
+                id: "usd-coin",
+                metadata: .fungibleTokenMetadata
+            ),
+            BlockchainNetwork(blockchain, derivationPath: derivationPath)
+        )
+    }
+}
+
+// MARK: - Bridge asset lookup
+
+extension PolymarketUtilities {
+    static func usdcOnPolygon(in assets: [PolymarketSupportedAsset]) -> PolymarketSupportedAsset? {
+        guard let polygonChainId = blockchain.chainId.map(String.init) else {
+            return nil
+        }
+
+        return assets.first { asset in
+            asset.chainId == polygonChainId
+                && asset.token.address.caseInsensitiveCompare(usdcContractAddress) == .orderedSame
+        }
+    }
+}
+
+// MARK: - Constants
+
+private extension PolymarketUtilities {
+    enum Constants {
+        static let usdcDecimalCount = 6
     }
 }

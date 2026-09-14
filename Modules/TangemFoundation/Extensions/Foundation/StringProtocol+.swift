@@ -21,6 +21,9 @@ public extension StringProtocol {
     /// EN DASH, Unicode U+2013.
     static var enDashSign: Self { "–" }
 
+    /// BULLET, Unicode U+2022.
+    static var bulletSign: Self { "•" }
+
     /// EM DASH, Unicode U+2014.
     static var emDashSign: Self { "—" }
 

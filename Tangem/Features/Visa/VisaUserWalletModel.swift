@@ -392,7 +392,7 @@ extension VisaUserWalletModel {
     }
 
     private func saveNewAuthorizationTokens(_ tokens: VisaAuthorizationTokens) {
-        runTask(in: self, isDetached: false) { walletModel in
+        runTask(in: self) { walletModel in
             try await walletModel.setupTokensHandler(with: tokens)
             await walletModel.setupPaymentAccountInteractorAsync()
         }
