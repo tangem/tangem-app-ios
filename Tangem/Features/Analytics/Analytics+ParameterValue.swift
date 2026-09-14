@@ -380,6 +380,10 @@ extension Analytics {
             return boolean ? .enabled : .disabled
         }
 
+        static func balanceState(for balance: Decimal) -> ParameterValue {
+            return balance > 0 ? .full : .empty
+        }
+
         static func feeAssetType(isGasless: Bool) -> ParameterValue {
             return isGasless ? .token : .coin
         }
