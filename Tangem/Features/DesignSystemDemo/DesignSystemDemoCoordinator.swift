@@ -36,6 +36,7 @@ protocol DesignSystemDemoRoutable: AnyObject {
     func openSegmentedControlDemo()
     func openTangemTopNavigationDemo()
     func openTangemFadeDemo()
+    func openFilterGroupDemo()
     func openTangemMessageBubbleDemo()
     func openTokenIconV2Demo()
     func openTokenRowV2Demo()
@@ -78,6 +79,7 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var segmentedControlDemoViewModel: SegmentedControlDemoViewModel?
     @Published var tangemTopNavigationDemoViewModel: TangemTopNavigationDemoViewModel?
     @Published var tangemFadeDemoViewModel: TangemFadeDemoViewModel?
+    @Published var filterGroupDemoViewModel: FilterGroupDemoViewModel?
     @Published var tangemMessageBubbleDemoViewModel: TangemMessageBubbleDemoViewModel?
     @Published var tokenIconV2DemoViewModel: TokenIconV2DemoViewModel?
     @Published var tokenRowV2DemoViewModel: TokenRowV2DemoViewModel?
@@ -207,6 +209,10 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
 
     func openTangemFadeDemo() {
         tangemFadeDemoViewModel = .init()
+    }
+
+    func openFilterGroupDemo() {
+        filterGroupDemoViewModel = .init()
     }
 
     func openTangemMessageBubbleDemo() {
