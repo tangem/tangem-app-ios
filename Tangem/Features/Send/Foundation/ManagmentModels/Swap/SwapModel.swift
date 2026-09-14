@@ -685,10 +685,11 @@ extension SwapModel {
             return .notEnoughBalanceForSwapping
 
         case .feeCurrencyHasZeroBalance(let isFeeCurrency):
-            return .notEnoughAmountForFee(isFeeCurrency: isFeeCurrency)
+            // Raised only once the fee-currency balance failed the "greater than zero" check
+            return .notEnoughAmountForFee(isFeeCurrency: isFeeCurrency, feeCurrencyBalance: .zero)
 
-        case .feeCurrencyInsufficientBalanceForTxValue(let fee, let isFeeCurrency):
-            return .notEnoughAmountForTxValue(fee, isFeeCurrency: isFeeCurrency)
+        case .feeCurrencyInsufficientBalanceForTxValue(let fee, let isFeeCurrency, let feeCurrencyBalance):
+            return .notEnoughAmountForTxValue(fee, isFeeCurrency: isFeeCurrency, feeCurrencyBalance: feeCurrencyBalance)
 
         case .regionRestricted:
             return .regionRestricted
@@ -845,8 +846,8 @@ extension SwapModel {
         switch error {
         case ValidationError.totalExceedsBalance, ValidationError.amountExceedsBalance:
             return .notEnoughBalanceForSwapping
-        case ValidationError.feeExceedsBalance(_, _, let isFeeCurrency):
-            return .notEnoughAmountForFee(isFeeCurrency: isFeeCurrency)
+        case ValidationError.feeExceedsBalance(_, _, let isFeeCurrency, let feeCurrencyBalance):
+            return .notEnoughAmountForFee(isFeeCurrency: isFeeCurrency, feeCurrencyBalance: feeCurrencyBalance)
         case let error as ValidationError:
             return .validationError(error: error)
         case let error:
@@ -2283,8 +2284,8 @@ extension SwapModel {
         case hasPendingTransaction
         case hasPendingApproveTransaction
         case notEnoughBalanceForSwapping
-        case notEnoughAmountForFee(isFeeCurrency: Bool)
-        case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool)
+        case notEnoughAmountForFee(isFeeCurrency: Bool, feeCurrencyBalance: Decimal)
+        case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool, feeCurrencyBalance: Decimal)
         case validationError(error: ValidationError)
         case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String)
         case regionRestricted

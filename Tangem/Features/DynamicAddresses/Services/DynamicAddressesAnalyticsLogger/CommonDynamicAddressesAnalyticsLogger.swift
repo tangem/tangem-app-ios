@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import BlockchainSdk
 
 final class CommonDynamicAddressesAnalyticsLogger: DynamicAddressesAnalyticsLogger {
@@ -44,12 +45,13 @@ final class CommonDynamicAddressesAnalyticsLogger: DynamicAddressesAnalyticsLogg
         Analytics.log(event: .dynamicAddressesErrorUnavailable, params: baseParams)
     }
 
-    func logTokenNoticeNotEnoughFee() {
+    func logTokenNoticeNotEnoughFee(feeCurrencyBalance: Decimal) {
         guard !hasLoggedNotEnoughFeeNotice else { return }
         hasLoggedNotEnoughFeeNotice = true
 
         var params = baseParams
         params[.source] = Analytics.ParameterValue.dynamicAddressesSourceDynamicAddresses.rawValue
+        params[.balance] = Analytics.ParameterValue.balanceState(for: feeCurrencyBalance).rawValue
         Analytics.log(event: .tokenNoticeNotEnoughFee, params: params)
     }
 
