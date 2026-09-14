@@ -11,6 +11,7 @@ import Foundation
 
 struct PolymarketWithdrawTransactionValidator: SendTransactionValidator {
     let availableBalanceProvider: any TokenBalanceProvider
+    let minimum: PolymarketMinimumAmount
 
     func validate(amount: Amount) throws {
         guard let balance = availableBalanceProvider.balanceType.value else {
@@ -21,13 +22,8 @@ struct PolymarketWithdrawTransactionValidator: SendTransactionValidator {
             throw ValidationError.amountExceedsBalance
         }
 
-        // Polymarket documents no withdrawal minimum, yet its quote endpoint refuses amounts under
-        // roughly 0.1 pUSD, so the floor stays conservative until the delivered one is confirmed.
-        // [REDACTED_TODO_COMMENT]
-        guard amount.value >= Constants.minimumAmount else {
-            throw ValidationError.minimumRestrictAmount(
-                amount: Amount(with: amount, value: Constants.minimumAmount)
-            )
+        if let minimumAmount = minimum.inToken(), amount.value < minimumAmount {
+            throw ValidationError.minimumRestrictAmount(amount: Amount(with: amount, value: minimumAmount))
         }
     }
 
@@ -37,13 +33,5 @@ struct PolymarketWithdrawTransactionValidator: SendTransactionValidator {
 
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
         try validate(amount: amount)
-    }
-}
-
-// MARK: - Constants
-
-private extension PolymarketWithdrawTransactionValidator {
-    enum Constants {
-        static let minimumAmount: Decimal = 1
     }
 }
