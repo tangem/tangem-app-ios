@@ -1,5 +1,5 @@
 //
-//  JointCryptoAccountDependenciesFactory.swift
+//  CommonJointAccountDependenciesFactory.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,10 @@ import TangemSdk
 import TangemFoundation
 import BlockchainSdk
 
-struct JointCryptoAccountDependenciesFactory {
+/// The dependencies of the wallet's joint accounts; its own ones have `CommonCryptoAccountDependenciesFactory`.
+/// - Note: The two factories repeat the assembly of the managers on purpose; what they build it out of is what tells
+/// the kinds apart.
+struct CommonJointAccountDependenciesFactory {
     let userWalletId: UserWalletId
     /// A single instance per user wallet
     let derivationManager: DerivationManager?
@@ -27,15 +30,15 @@ struct JointCryptoAccountDependenciesFactory {
     let walletModelsFactoryProvider: WalletModelsFactoryProvider
 }
 
-// MARK: - CryptoAccountDependenciesFactory protocol conformance
+// MARK: - JointAccountDependenciesFactory protocol conformance
 
-extension JointCryptoAccountDependenciesFactory: CryptoAccountDependenciesFactory {
+extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory {
     func makeDependencies(
         forAccountWithDerivationIdentity derivationIdentity: CryptoAccountDerivationIdentity
-    ) -> CryptoAccountDependencies {
+    ) -> JointAccountDependencies {
         assert(
             derivationIdentity.type == .joint,
-            "JointCryptoAccountDependenciesFactory is supposed to be used only for joint account dependencies"
+            "CommonJointAccountDependenciesFactory is supposed to be used only for joint account dependencies"
         )
 
         let derivationPathBuilder = JointAccountDerivationPathBuilder(derivationIndex: derivationIdentity.derivationIndex)
@@ -103,11 +106,13 @@ extension JointCryptoAccountDependenciesFactory: CryptoAccountDependenciesFactor
         userTokensManager.derivationManager = accountSpecificDerivationManager
         userTokensManager.walletModelsManager = walletModelsManager
 
-        return CryptoAccountDependencies(
+        return JointAccountDependencies(
             userTokensManager: userTokensManager,
             walletModelsManager: walletModelsManager,
             walletModelsFactoryInput: wrappedWalletModelsFactory,
             derivationManager: accountSpecificDerivationManager,
+            operationsService: CommonJointAccountOperationsService(),
+            pendingOperationsProvider: CommonJointAccountPendingOperationsProvider()
         )
     }
 }

@@ -21,11 +21,11 @@ actor JointAccountModelsRegistry {
     }
 
     private let userWalletId: UserWalletId
-    private let dependenciesFactory: CryptoAccountDependenciesFactory
+    private let dependenciesFactory: JointAccountDependenciesFactory
     private let executor: any SerialExecutor
     private var cache: Cache = [:]
 
-    init(userWalletId: UserWalletId, dependenciesFactory: CryptoAccountDependenciesFactory) {
+    init(userWalletId: UserWalletId, dependenciesFactory: JointAccountDependenciesFactory) {
         self.userWalletId = userWalletId
         self.dependenciesFactory = dependenciesFactory
         executor = SerialDispatchQueueExecutor(label: "JointAccountModelsRegistry_\(userWalletId.stringValue)")
@@ -37,8 +37,13 @@ actor JointAccountModelsRegistry {
         from storedCryptoAccounts: [StoredCryptoAccount],
         with storedJointAccounts: [StoredJointAccount],
         invites storedInvites: [StoredJointAccountInvites],
-        delegate: CommonCryptoAccountModelDelegate
+        delegate: any JointAccountModelDelegate
     ) -> [any JointAccountModel] {
+        assert(
+            storedCryptoAccounts.allSatisfy { $0.derivationIdentity.type == .joint },
+            "JointAccountModelsRegistry is supposed to be given the joint entries of the account list only"
+        )
+
         // Keyed case-insensitively, like every other match on this identifier
         let storedJointAccountsKeyedByCryptoAccountIds = storedJointAccounts.keyedFirst { $0.cryptoAccountId.lowercased() }
         let invitesKeyedByCryptoAccountIds = storedInvites.keyedFirst { $0.cryptoAccountId.lowercased() }
@@ -126,16 +131,21 @@ actor JointAccountModelsRegistry {
                 // Uses `walletModelsFactory` internally, therefore must be initialized after setting the account in `walletModelsFactoryInput`
                 dependencies.walletModelsManager.initialize()
 
+                let policy = JointAccountPolicy(
+                    membersCount: storedJointAccount.membersCount,
+                    signersCount: storedJointAccount.threshold
+                )
+
                 let jointAccount = CommonJointAccountModel(
                     cryptoAccount: cryptoAccount,
-                    derivationIndex: storedCryptoAccount.derivationIdentity.derivationIndex,
-                    policy: JointAccountPolicy(
-                        membersCount: storedJointAccount.membersCount,
-                        signersCount: storedJointAccount.threshold
-                    ),
+                    derivationIdentity: storedCryptoAccount.derivationIdentity,
+                    policy: policy,
                     status: storedJointAccount.status,
+                    operationsService: dependencies.operationsService,
+                    pendingOperationsProvider: dependencies.pendingOperationsProvider,
                     members: members,
-                    invites: invites
+                    invites: invites,
+                    delegate: delegate
                 )
                 // Updating `cache` within this `compactMap` loop to reduce the number of iterations
                 cache[accountId] = jointAccount
