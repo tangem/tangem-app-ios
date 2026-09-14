@@ -22,6 +22,7 @@ struct PolymarketTarget: Moya.TargetType {
         case series
         case seriesEvents(seriesId: String)
         case orderQuote(PolymarketDTO.OrderQuoteRequestBody)
+        case positions(PolymarketPositionsRequest)
     }
 
     var path: String {
@@ -40,12 +41,14 @@ struct PolymarketTarget: Moya.TargetType {
             return "api/predictions/v1/series/\(seriesId)/events"
         case .orderQuote:
             return "api/predictions/v1/orders/quote"
+        case .positions:
+            return "api/predictions/v1/positions"
         }
     }
 
     var method: Moya.Method {
         switch target {
-        case .categories, .events, .event, .search, .series, .seriesEvents:
+        case .categories, .events, .event, .search, .series, .seriesEvents, .positions:
             return .get
         case .orderQuote:
             return .post
@@ -104,11 +107,36 @@ struct PolymarketTarget: Moya.TargetType {
 
         case .orderQuote(let body):
             return .requestJSONEncodable(body)
+
+        case .positions(let request):
+            return .requestParameters(
+                parameters: [
+                    "depositWalletAddress": request.depositWalletAddress,
+                    "sort": request.sort.rawValue,
+                    "ascending": request.ascending,
+                    "limit": request.limit,
+                    "offset": request.offset,
+                ],
+                encoding: URLEncoding(boolEncoding: .literal)
+            )
         }
     }
 
     var headers: [String: String]? {
-        nil
+        switch target {
+        case .positions(let request):
+            return [Constants.walletIdHeader: request.walletId]
+        case .categories, .events, .event, .search, .series, .seriesEvents, .orderQuote:
+            return nil
+        }
+    }
+}
+
+// MARK: - Constants
+
+private extension PolymarketTarget {
+    enum Constants {
+        static let walletIdHeader = "wallet-id"
     }
 }
 

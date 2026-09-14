@@ -73,6 +73,11 @@ extension CommonPolymarketAPIProvider: PolymarketAPIProvider {
 
         return quote
     }
+
+    public func positions(request: PolymarketPositionsRequest) async throws -> PolymarketPositionsPage {
+        let response = try await service.positions(request: request)
+        return try mapper.mapPositions(response)
+    }
 }
 
 // MARK: - Private implementation
