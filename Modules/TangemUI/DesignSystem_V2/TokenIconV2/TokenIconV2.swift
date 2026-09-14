@@ -93,7 +93,13 @@ public struct TokenIconV2: View {
     // MARK: - Composition
 
     private func loadedArtwork(url: URL) -> some View {
-        composedArtwork(showsOverlays: isLoaded) {
+        // Remote artwork follows no single shape convention: most logos are circular with transparent
+        // corners, but a quarter of them are full-bleed opaque squares whose glyph a circular mask
+        // slices (TRON, OKB, Stellar). Android and the DS mask helper use the same rounded rect.
+        composedArtwork(
+            showsOverlays: isLoaded,
+            clipShape: .rect(cornerRadius: metrics.artworkCornerRadius, style: .continuous)
+        ) {
             KFImage(url)
                 .appendProcessor(ContrastBackgroundImageProcessor(backgroundColor: IconViewDefaults.lowContrastBackgroundColor))
                 .cancelOnDisappear(true)
@@ -110,8 +116,9 @@ public struct TokenIconV2: View {
 
     /// Custom-token identity artwork: the derived color as background, marked with the custom glyph.
     /// It's a resolved icon (not a placeholder), so it always carries the badge and indicator.
+    /// Drawn here rather than downloaded, so it takes the circular shape the design system asks for.
     private func customArtwork(color: Color) -> some View {
-        composedArtwork(showsOverlays: true) {
+        composedArtwork(showsOverlays: true, clipShape: .circle) {
             color.overlay {
                 DesignSystem.Icons.tokenCustom.image
                     .renderingMode(.template)
@@ -123,11 +130,15 @@ public struct TokenIconV2: View {
         }
     }
 
-    private func composedArtwork<Artwork: View>(showsOverlays: Bool, @ViewBuilder _ artwork: () -> Artwork) -> some View {
+    private func composedArtwork<Artwork: View>(
+        showsOverlays: Bool,
+        clipShape: some Shape,
+        @ViewBuilder _ artwork: () -> Artwork
+    ) -> some View {
         artwork()
             .matchedGeometryEffect(geometryEffectValue)
             .frame(size: CGSize(bothDimensions: metrics.container))
-            .clipShape(.circle)
+            .clipShape(clipShape)
             .modifier(IconCutouts(
                 metrics: metrics,
                 cutsNetworkHole: hasNetworkBadge && showsOverlays,
