@@ -110,8 +110,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private var canManageTokens: Bool { userWalletModel.config.hasFeature(.multiCurrency) }
 
-    private let isPageSelectedSubject = PassthroughSubject<Bool, Never>()
-
     @MainActor
     private var isUpdating = false
 
@@ -367,7 +365,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: &$notificationBannerItems)
 
         rateAppController.bind(
-            isPageSelectedPublisher: isPageSelectedSubject,
             notificationsPublisher1: $notificationInputs,
             notificationsPublisher2: $tokensNotificationInputs
         )
@@ -891,18 +888,6 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
         default:
             assertionFailure("This event shouldn't have tap action on main screen. Event: \(event)")
         }
-    }
-}
-
-// MARK: - MainViewPage protocol conformance
-
-extension MultiWalletMainContentViewModel: MainViewPage {
-    func onPageAppear() {
-        isPageSelectedSubject.send(true)
-    }
-
-    func onPageDisappear() {
-        isPageSelectedSubject.send(false)
     }
 }
 
