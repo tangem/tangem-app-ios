@@ -466,7 +466,14 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .map { viewModel, pendingJointAccounts in
                 pendingJointAccounts.map { pendingJointAccount in
                     PendingJointAccountItemViewModel(jointAccount: pendingJointAccount) { [weak viewModel] in
-                        viewModel?.coordinator?.openJointAccountMembers(jointAccount: pendingJointAccount)
+                        guard let viewModel else {
+                            return
+                        }
+
+                        viewModel.coordinator?.openJointAccountMembers(
+                            jointAccount: pendingJointAccount,
+                            accountModelsManager: viewModel.userWalletModel.accountModelsManager
+                        )
                     }
                 }
             }

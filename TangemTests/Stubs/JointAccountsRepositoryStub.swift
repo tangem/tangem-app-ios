@@ -61,4 +61,8 @@ final class JointAccountsRepositoryStub: JointAccountsRepository {
     func joinJointAccount(withConfig config: JointAccountJoinConfig) async throws {
         throw "Not called by these tests"
     }
+
+    func activateJointAccount(withConfig config: JointAccountActivationConfig) async throws {
+        throw "Not called by these tests"
+    }
 }

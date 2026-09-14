@@ -16,7 +16,12 @@ enum JointAccountStatus: Equatable, Codable {
     /// No address until every slot is taken.
     case pending
     /// Every slot taken and the address computed; the members check it and the creator activates.
-    case confirming
+    /// - Note: Carries the address the backend says the composition resolves to, which is what activating confirms.
+    /// Announced rather than settled: nothing is deployed at it yet, and it is only worth acting on once the app has
+    /// worked out the same address itself — see `JointAccountSafeAddressVerifier`.
+    /// - Note: Optional, though the contract has the address by this stage: an answer that omits it costs the one
+    /// account its activation, which is where it is missed, rather than the whole list its refresh.
+    case confirming(safeAddress: String?)
     /// Operated already — activation is what hands the account the address, so an active account always carries one.
     case active(safeAddress: String)
     /// Named by the contract as a place to grow into; nothing puts an account here yet.
