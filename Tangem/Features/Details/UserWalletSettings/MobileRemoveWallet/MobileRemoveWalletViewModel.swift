@@ -35,9 +35,7 @@ final class MobileRemoveWalletViewModel: ObservableObject {
         self.delegate = delegate
         bind()
 
-        if FeatureProvider.isAvailable(.mobileWalletBackup) {
-            logScreenOpenedAnalytics()
-        }
+        logScreenOpenedAnalytics()
     }
 }
 
