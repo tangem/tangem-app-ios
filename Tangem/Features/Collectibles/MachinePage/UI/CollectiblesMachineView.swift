@@ -14,6 +14,8 @@ import TangemUIUtils
 struct CollectiblesMachineView: View {
     @ObservedObject var viewModel: CollectiblesMachineViewModel
 
+    let onBack: () -> Void
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
@@ -33,12 +35,23 @@ struct CollectiblesMachineView: View {
             }
         }
         .on(willAppear: viewModel.load, willDisappear: viewModel.stopPolling)
-        .topNavigation(title: viewModel.title)
+        .safeAreaInset(edge: .top, spacing: 0) { navigationBar }
     }
 }
 
 private extension CollectiblesMachineView {
     // MARK: - View properties
+
+    var navigationBar: some View {
+        NavigationHeader(
+            leadingContent: NavigationBarButton.back(action: onBack).redesigned,
+            principalContent: {
+                Text(viewModel.title)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+            },
+            trailingContent: EmptyView.init
+        )
+    }
 
     var artwork: some View {
         CollectiblesPackCard.Artwork(url: viewModel.artworkURL, packSize: Metrics.packSize)
@@ -258,7 +271,8 @@ private struct PreviewMachineProvider: CollectiblesMachineProvider {
                     artworkURL: nil
                 ),
                 provider: PreviewMachineProvider()
-            )
+            ),
+            onBack: {}
         )
     }
 }
