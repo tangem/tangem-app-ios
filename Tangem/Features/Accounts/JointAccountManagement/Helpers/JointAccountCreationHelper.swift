@@ -52,7 +52,9 @@ final class JointAccountCreationHelper {
         state.withLock { $0.creatorName = creatorName }
     }
 
-    func createAccount() async throws(AccountEditError) {
+    /// - Returns: The model of the account just created, which the steps that follow are about rather than about
+    /// creating anything.
+    func createAccount() async throws(AccountEditError) -> any JointAccountModel {
         guard let context = collectedContext() else {
             let message = "A joint account is asked for before every step of the flow contributed its part"
             AccountsLogger.warning(message)
@@ -61,19 +63,34 @@ final class JointAccountCreationHelper {
             throw .unknownError(Error.incompleteCreationContext)
         }
 
-        try await accountModelsManager.addJointAccount(context: context)
+        let creationResult = try await accountModelsManager.addJointAccount(context: .creation(context))
+
+        let jointAccountModel = await AccountModelsManagerAccountCreationHelper(accountModelsManager: accountModelsManager)
+            .createdJointAccountModel(with: creationResult.derivationIdentity)
+
+        guard let jointAccount = jointAccountModel else {
+            throw .unknownError(Error.createdAccountNotFound)
+        }
+
+        return jointAccount
     }
 }
 
 // MARK: - Error
 
 extension JointAccountCreationHelper {
+    /// - Note: Reported to the caller wrapped in `AccountEditError.unknownError`, so these read for whoever opens
+    /// the log rather than for the user, whose alert is built from the wrapping error.
     enum Error: String, LocalizedError {
         case incompleteCreationContext
+        /// - Note: The account itself is created by [REDACTED_AUTHOR]
+        /// follow are about.
+        case createdAccountNotFound
 
         var errorDescription: String? {
             switch self {
             case .incompleteCreationContext: "A step of the creation flow has not contributed its part."
+            case .createdAccountNotFound: "The account was created, but has not shown up in the account list in time."
             }
         }
     }

@@ -15,4 +15,6 @@ public enum WalletSettingsAccessibilityIdentifiers {
     }
 
     public static let renameWalletRow = "walletSettingsRenameRow"
+
+    public static let nftToggle = "walletSettingsNFTToggle"
 }

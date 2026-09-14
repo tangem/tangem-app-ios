@@ -254,8 +254,8 @@ extension LegacyConfig: UserWalletConfig {
         }
     }
 
-    func makeAnyWalletManagerFactory() -> AnyWalletManagerFactory {
-        return SimpleWalletManagerFactory()
+    func makeAnyWalletFactory() -> AnyWalletFactory {
+        return SimpleWalletFactory()
     }
 }
 
