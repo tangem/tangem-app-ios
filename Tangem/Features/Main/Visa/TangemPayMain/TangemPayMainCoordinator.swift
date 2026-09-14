@@ -133,7 +133,7 @@ extension TangemPayMainCoordinator {
                 await openVirtualAccountBankDetails()
 
             case .selectPlan:
-                break
+                openSelectPlan()
             }
         }
     }
