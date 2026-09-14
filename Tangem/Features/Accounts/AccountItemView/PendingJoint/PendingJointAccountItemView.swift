@@ -140,6 +140,9 @@ private extension PendingJointAccountItemView {
 
 // MARK: - Previews
 
+/// Outlives the accounts of the previews below, which hold it weakly.
+private let previewJointAccountDelegate = JointAccountModelDelegateMock()
+
 private func previewJointAccount(
     status: JointAccountStatus,
     membersCount: Int,
@@ -147,9 +150,11 @@ private func previewJointAccount(
 ) -> any JointAccountModel {
     CommonJointAccountModel(
         cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
-        derivationIndex: 1,
+        derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
         policy: JointAccountPolicy(membersCount: membersCount, signersCount: 2),
         status: status,
+        operationsService: JointAccountOperationsServiceMock(),
+        pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
         members: (0 ..< takenSlotsCount).map { index in
             JointAccountMember(
                 name: "Member \(index)",
@@ -157,7 +162,8 @@ private func previewJointAccount(
                 role: index == 0 ? .creator : .member(inviteId: "invite-\(index)")
             )
         },
-        invites: (0 ..< max(0, membersCount - takenSlotsCount)).map { JointAccountInvite(id: "invite-\($0)") }
+        invites: (0 ..< max(0, membersCount - takenSlotsCount)).map { JointAccountInvite(id: "invite-\($0)") },
+        delegate: previewJointAccountDelegate
     )
 }
 

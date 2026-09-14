@@ -38,12 +38,11 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
         case .creation(let creationOptions):
             root = .onboarding(JointAccountOnboardingViewModel(coordinator: self), creationOptions)
 
-        case .members(let jointAccount, let accountModelsManager):
+        case .members(let jointAccount):
             // The account already exists, so the flow opens where the creation flow ends up
             root = .inviteMembers(
                 JointAccountInviteMembersViewModel(
                     jointAccount: jointAccount,
-                    accountModelsManager: accountModelsManager,
                     coordinator: self
                 )
             )
@@ -56,7 +55,7 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
 extension JointAccountManagementCoordinator {
     enum Options {
         case creation(CreationOptions)
-        case members(jointAccount: any JointAccountModel, accountModelsManager: any AccountModelsManager)
+        case members(jointAccount: any JointAccountModel)
     }
 
     struct CreationOptions {
@@ -182,14 +181,8 @@ extension JointAccountManagementCoordinator: JointAccountMemberNameRoutable {
 
 extension JointAccountManagementCoordinator: JointAccountCreationMemberNameRoutable {
     func openInviteMembers(jointAccount: any JointAccountModel) {
-        guard case .onboarding(_, let creationOptions) = root else {
-            JointAccountsLogger.warning("The invite members step is reached outside the joint account creation flow")
-            return
-        }
-
         let viewModel = JointAccountInviteMembersViewModel(
             jointAccount: jointAccount,
-            accountModelsManager: creationOptions.accountModelsManager,
             coordinator: self
         )
 
