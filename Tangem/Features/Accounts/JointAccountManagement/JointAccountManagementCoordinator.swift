@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import SwiftUI
 
 final class JointAccountManagementCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
@@ -223,8 +224,17 @@ extension JointAccountManagementCoordinator: JointAccountInviteMembersRoutable {
         }
     }
 
-    func openMemberDetails(member: JointAccountMember) {
-        // [REDACTED_TODO_COMMENT]
+    func openMemberDetails(name: String, address: String, accentColor: Color) {
+        let viewModel = JointAccountMemberDetailsViewModel(
+            name: name,
+            address: address,
+            accentColor: accentColor,
+            coordinator: self
+        )
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     func openActivationConfirmation(onConfirm: @escaping () -> Void) {
@@ -247,6 +257,16 @@ extension JointAccountManagementCoordinator: JointAccountActivationConfirmationR
     }
 
     func cancelActivation() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - JointAccountMemberDetailsRoutable
+
+extension JointAccountManagementCoordinator: JointAccountMemberDetailsRoutable {
+    func closeMemberDetails() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }

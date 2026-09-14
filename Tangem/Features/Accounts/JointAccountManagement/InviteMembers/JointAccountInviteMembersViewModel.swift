@@ -51,7 +51,11 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
             return
         }
 
-        coordinator?.openMemberDetails(member: member)
+        coordinator?.openMemberDetails(
+            name: member.name,
+            address: member.address,
+            accentColor: CompositeIconColorPalette.color(for: Self.iconColor(at: memberIndex))
+        )
     }
 
     @MainActor
