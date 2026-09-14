@@ -48,9 +48,17 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
                         .transition(.opacity)
                 }
             }
+
+            ZStack {
+                if let tangemPayCampaignCoordinator = coordinator.tangemPayCampaignCoordinator {
+                    TangemPayCampaignCoordinatorView(coordinator: tangemPayCampaignCoordinator)
+                        .transition(.opacity)
+                }
+            }
         }
         .animation(.easeInOut(duration: 0.35), value: coordinator.welcomeStoryViewModel != nil)
         .animation(.easeInOut(duration: 0.35), value: coordinator.tangemPayMobileOnboardingCoordinator != nil)
+        .animation(.easeInOut(duration: 0.35), value: coordinator.tangemPayCampaignCoordinator != nil)
         .overlay(sheets)
         .confirmationDialog(viewModel: $coordinator.scanTroubleshootingDialog)
         .fullScreenCover(item: $coordinator.legalWebViewModel) { webViewModel in

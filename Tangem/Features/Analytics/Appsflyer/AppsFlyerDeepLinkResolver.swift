@@ -21,6 +21,9 @@ struct AppsFlyerDeepLinkResolver {
             TangemPayMobileOnboardingService().markOnboardingNeeded()
             return
         default:
+            if let campaignKey = TangemPayCampaignService.campaignKey(fromDeepLinkValue: deepLinkValue) {
+                TangemPayCampaignService().markPending(campaignKey: campaignKey)
+            }
             return
         }
     }

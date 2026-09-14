@@ -93,6 +93,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     private var safariHandle: SafariHandle?
     private var deeplinkDestinationSubscription: AnyCancellable?
     private var tangemPayMainDeeplinkSubscription: AnyCancellable?
+    private var tangemPayCampaignPendingKeySubscription: AnyCancellable?
     private var tangemPayMainDismissSubscription: AnyCancellable?
     private var yieldDeeplinkRouter: YieldDeeplinkRouter?
     required init(
@@ -200,10 +201,12 @@ extension MainCoordinator {
 extension MainCoordinator: MainRoutable {
     func beginHandlingIncomingActions() {
         navigationActionHandler.becomeIncomingActionsResponder()
+        observePendingTangemPayCampaign()
     }
 
     func resignHandlingIncomingActions() {
         navigationActionHandler.resignIncomingActionsResponder()
+        tangemPayCampaignPendingKeySubscription = nil
     }
 
     func openDeepLink(_ deepLink: DeepLinkDestination) {
@@ -225,6 +228,8 @@ extension MainCoordinator: MainRoutable {
             openYieldFromDeeplink(walletModel: walletModel, userWalletModel: userWalletModel)
         case .tangemPayTransactionDetails(let payload):
             openTangemPayTransactionDetailsFromPush(payload: payload)
+        case .tangemPayCustomCard(let campaignKey):
+            openTangemPayCampaignFromDeeplink(campaignKey: campaignKey)
         case .expressTransactionStatus,
              .tokenDetails,
              .buy,
@@ -570,6 +575,159 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
                 incomingAction: nil
             )
         }
+    }
+
+    /// A deferred AppsFlyer link resolves after launch, and on a relaunch with a wallet already present the
+    /// app never builds `WelcomeProcessor` — so the stored key has no other route onto the screen here.
+    private func observePendingTangemPayCampaign() {
+        guard FeatureProvider.isAvailable(.tangemPayCustomCards) else {
+            return
+        }
+
+        let keyChanges: AnyPublisher<Void, Never> = AppSettings.shared
+            .$pendingTangemPayCampaignKey
+            .mapToVoid()
+            .receiveOnMain()
+            .eraseToAnyPublisher()
+
+        // Slots change in `willSet`, with UIKit still animating the dismissal — presenting into that
+        // makes SwiftUI drop the cover, so this branch waits the animation out.
+        let slotChanges: AnyPublisher<Void, Never> = presentationSlotChanges
+            .delay(for: .seconds(Constants.tangemPayCampaignPresentationDelay), scheduler: DispatchQueue.main)
+            .eraseToAnyPublisher()
+
+        // The stored key replays on subscribe, and a slot change re-checks a key some modal was covering.
+        // Both it and `isPresentingOverMain` are read at delivery — the key may already be consumed by then.
+        tangemPayCampaignPendingKeySubscription = Publishers
+            .Merge(keyChanges, slotChanges)
+            .sink { [weak self] _ in
+                guard let self,
+                      !isPresentingOverMain,
+                      let campaignKey = TangemPayCampaignService().pendingCampaignKey else {
+                    return
+                }
+
+                openDeepLink(.tangemPayCustomCard(campaignKey: campaignKey))
+            }
+    }
+
+    private func openTangemPayCampaignFromDeeplink(campaignKey: String) {
+        guard !RTCUtil.isRootedDevice else {
+            consumePendingTangemPayCampaign()
+            return
+        }
+
+        // Already on screen, so the link has been honoured — drop it rather than leaving it to fire again.
+        guard tangemPayCampaignCoordinator == nil else {
+            consumePendingTangemPayCampaign()
+            return
+        }
+
+        // The campaign replaces the Payment account screen rather than stacking on top of it, so pop that
+        // push first and let the navigation animation finish before the cover goes up.
+        guard tangemPayMainCoordinator == nil else {
+            tangemPayMainCoordinator = nil
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.tangemPayCampaignPresentationDelay) { [weak self] in
+                self?.presentTangemPayCampaign(campaignKey: campaignKey)
+            }
+            return
+        }
+
+        presentTangemPayCampaign(campaignKey: campaignKey)
+    }
+
+    /// The key and the action are consumed here rather than when the link is routed, so a link that
+    /// cannot be presented yet survives and is replayed the next time Main becomes the responder.
+    private func consumePendingTangemPayCampaign() {
+        TangemPayCampaignService().clearPending()
+        incomingActionManager.discardIncomingAction { action in
+            guard case .navigation(let navigationAction) = action else { return false }
+            return navigationAction.destination == .payCustomCard
+        }
+    }
+
+    /// The campaign cover shares a host with every other modal in `MainCoordinatorView`, and SwiftUI drops
+    /// the second presentation rather than queueing it — leaving a coordinator no view will ever clear.
+    private var isPresentingOverMain: Bool {
+        tangemPayOnboardingCoordinator != nil
+            || mainQRScanFlowCoordinator != nil
+            || jointAccountManagementCoordinator != nil
+            || sendCoordinator != nil
+            || modalOnboardingCoordinator != nil
+            || visaTransactionDetailsViewModel != nil
+            || actionButtonsBuyCoordinator != nil
+            || actionButtonsSellCoordinator != nil
+            || yieldModuleActiveCoordinator != nil
+            || pendingExpressTxStatusBottomSheetViewModel != nil
+    }
+
+    /// Changes to the slots `isPresentingOverMain` reads, so a campaign that a modal was covering gets
+    /// another chance once it goes away. Only changes matter, hence `dropFirst`.
+    private var presentationSlotChanges: AnyPublisher<Void, Never> {
+        let slots: [AnyPublisher<Void, Never>] = [
+            $tangemPayOnboardingCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
+            $mainQRScanFlowCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
+            $jointAccountManagementCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
+            $sendCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
+            $modalOnboardingCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
+            $visaTransactionDetailsViewModel.dropFirst().mapToVoid().eraseToAnyPublisher(),
+            $actionButtonsBuyCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
+            $actionButtonsSellCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
+            $yieldModuleActiveCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
+            $pendingExpressTxStatusBottomSheetViewModel.dropFirst().mapToVoid().eraseToAnyPublisher(),
+        ]
+
+        return Publishers.MergeMany(slots).eraseToAnyPublisher()
+    }
+
+    private func presentTangemPayCampaign(campaignKey: String) {
+        guard tangemPayCampaignCoordinator == nil else { return }
+
+        // Leaving the key unconsumed lets the pending-key subscription retry once the blocking screen goes.
+        guard !isPresentingOverMain else { return }
+
+        consumePendingTangemPayCampaign()
+        mainBottomSheetUIManager.hide()
+
+        let dismissAction: Action<TangemPayCampaignCoordinator.OutputOptions> = { [weak self] options in
+            self?.tangemPayCampaignCoordinator = nil
+
+            switch options {
+            case .close:
+                break
+            case .finished(let userWalletModel):
+                self?.openTangemPayMainAfterCampaign(userWalletModel: userWalletModel, incomingAction: nil)
+            case .finishedWithPlanSelection(let userWalletModel):
+                self?.openTangemPayMainAfterCampaign(userWalletModel: userWalletModel, incomingAction: .selectPlan)
+            }
+        }
+
+        let coordinator = TangemPayCampaignCoordinator(
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(campaignKey: campaignKey))
+        tangemPayCampaignCoordinator = coordinator
+    }
+
+    private func openTangemPayMainAfterCampaign(
+        userWalletModel: any UserWalletModel,
+        incomingAction: TangemPayIncomingActions?
+    ) {
+        guard let tangemPayAccount = TangemPayAccountAggregator
+            .tangemPayAccountModel(from: userWalletModel.accountModelsManager)?
+            .state?
+            .tangemPayAccount
+        else {
+            return
+        }
+
+        openTangemPayMainView(
+            userWalletInfo: userWalletModel.userWalletInfo,
+            tangemPayAccount: tangemPayAccount,
+            userWalletModel: userWalletModel,
+            incomingAction: incomingAction
+        )
     }
 
     private func openTangemPayMainFromDeeplink(customerWalletId: String, incomingAction: TangemPayIncomingActions?) {
@@ -1003,6 +1161,7 @@ extension MainCoordinator {
         static let tooltipAnimationDelay: Double = 1.5
         static let tangemPayMainDeeplinkTimeout: TimeInterval = 10
         static let tangemPayPlanActivationNavigationDelay: TimeInterval = 0.6
+        static let tangemPayCampaignPresentationDelay: TimeInterval = 0.35
     }
 }
 
