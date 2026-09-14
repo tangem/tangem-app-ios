@@ -40,6 +40,10 @@ final class PolymarketOrderPreviewAPIProvider: PolymarketAPIProvider {
     func seriesEvents(seriesId: String) async throws -> PolymarketSeriesEvents {
         throw CancellationError()
     }
+
+    func positions(request: PolymarketPositionsRequest) async throws -> PolymarketPositionsPage {
+        PolymarketPositionsPage(positions: [], hasNext: false)
+    }
 }
 
 // MARK: - Geoblock
