@@ -14,10 +14,7 @@ import TangemAppDatabase
 enum TransactionHistoryRecordsMapper {
     // MARK: Domain to record: Express exchange transactions
 
-    static func mapToExpressExchangeTransactionRecord(
-        _ transaction: ExchangeTransaction,
-        ownerAddress: String
-    ) -> ExpressExchangeTransactionRecord {
+    static func mapToExpressExchangeTransactionRecord(_ transaction: ExchangeTransaction) -> ExpressExchangeTransactionRecord {
         let fromCurrency = transaction.from.currency
         let toCurrency = transaction.to.currency
         let refundCurrency = transaction.refund?.currency
@@ -27,7 +24,6 @@ enum TransactionHistoryRecordsMapper {
 
         return ExpressExchangeTransactionRecord(
             id: transaction.txId,
-            ownerAddress: ownerAddress,
             providerID: transaction.providerId,
             // The funds are sent on the `from` network, so both the sender and the payin addresses belong to it
             // (therefore we use `fromNetwork` for both here).
@@ -115,16 +111,12 @@ enum TransactionHistoryRecordsMapper {
 
     // MARK: Domain to record: Express onramp transactions
 
-    static func mapToExpressOnrampTransactionRecord(
-        _ transaction: OnrampTransaction,
-        ownerAddress: String
-    ) -> ExpressOnrampTransactionRecord {
+    static func mapToExpressOnrampTransactionRecord(_ transaction: OnrampTransaction) -> ExpressOnrampTransactionRecord {
         let toCurrency = transaction.to.currency
         let toNetwork = toCurrency.network
 
         return ExpressOnrampTransactionRecord(
             id: transaction.txId,
-            ownerAddress: ownerAddress,
             providerID: transaction.providerId,
             payOutAddress: TransactionHistoryAddressNormalizer.normalize(transaction.payOut.address, networkID: toNetwork),
             status: transaction.status.rawValue,

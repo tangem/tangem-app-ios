@@ -40,6 +40,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
     @Injected(\.walletAssetsDiscoveryProgressProvider) private var walletAssetsDiscoveryProgressProvider: WalletAssetsDiscoveryProgressProvider
     @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
     @Injected(\.promotionCampaignsRepository) private var promotionCampaignsRepository: PromotionCampaignsRepository
+    @Injected(\.cryptoAccountsGlobalStateProvider) private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
 
     weak var coordinator: MainContentRoutable?
 
@@ -80,7 +81,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         )
 
         let rateAppController = CommonRateAppController(
-            rateAppService: RateAppService(),
             userWalletModel: model,
             coordinator: coordinator
         )
@@ -196,21 +196,14 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let expressFactory = ExpressStatusTrackingFactory(
             userWalletInfo: model.userWalletInfo,
             tokenItem: dependencies.walletModel.tokenItem,
-            transactionHistoryEnricherFactory: { [weak walletModel = dependencies.walletModel] in
-                try? await walletModel?
-                    .featuresPublisher
-                    .first()
-                    .async()
-                    .transactionHistoryProvider
-            }
+            transactionHistoryEnricherFactory: TransactionHistoryEnricherFactory.make(for: dependencies.walletModel)
         )
 
         let expressStatusTracking = expressFactory.makeExpressStatusTracking()
 
         let accountModel: (any CryptoAccountModel)? = {
-            let cryptoAccounts = model.accountModelsManager.accountModels.cryptoAccounts()
-            guard cryptoAccounts.hasMultipleAccounts else { return nil }
-            return model.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount)
+            guard cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple else { return nil }
+            return AccountCryptoModelsAggregator.cryptoAccountModels(from: model.accountModelsManager).first(where: \.isMainAccount)
         }()
 
         let viewModel = SingleWalletMainContentViewModel(
@@ -321,7 +314,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
     private func makeSingleWalletDependencies(
         userWalletModel: UserWalletModel
     ) -> (walletModel: any WalletModel, walletModelsManager: WalletModelsManager)? {
-        guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount) else {
+        guard let mainAccount = AccountCryptoModelsAggregator.cryptoAccountModels(from: userWalletModel.accountModelsManager).first(where: \.isMainAccount) else {
             return nil
         }
         let walletModelsManager: WalletModelsManager = mainAccount.walletModelsManager

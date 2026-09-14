@@ -15,4 +15,5 @@ struct WelcomeV2ActionSheetItem: Identifiable {
     let title: String
     let subtitle: String?
     let action: () -> Void
+    var isLoading: Bool = false
 }

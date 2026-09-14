@@ -16,6 +16,10 @@ final class CommonTangemPayCardDetailsRepository: TangemPayCardDetailsRepository
         card.cardNumberEnd
     }
 
+    var isPhysical: Bool {
+        card.isPhysical
+    }
+
     var cardImageURL: URL? {
         card.mainImageURL
     }
