@@ -12,16 +12,18 @@ import SwiftUI
 // [REDACTED_TODO_COMMENT]
 final class MarketCapViewModel: ObservableObject {
     let totalMarketCap = "$ 2.44 T"
+    let totalMarketCapChange = "1.18%"
+    // [REDACTED_TODO_COMMENT]
     let metrics: [Metric] = [
-        Metric(title: "Fear & greed", status: "Extreme Fear", appearance: .warning, value: "13", progress: 0.15),
-        Metric(title: "Altcoin index", status: "Altcoin Growth", appearance: .positive, value: "56", progress: 0.55),
+        Metric(title: "Fear & greed", status: "Extreme Fear", appearance: .negative, value: "13", progress: 0.13),
+        Metric(title: "Altcoin index", status: "Altcoin Growth", appearance: .positive, value: "56", progress: 0.56),
     ]
 }
 
 extension MarketCapViewModel {
     struct Metric: Identifiable {
         enum Appearance {
-            case warning
+            case negative
             case positive
         }
 
