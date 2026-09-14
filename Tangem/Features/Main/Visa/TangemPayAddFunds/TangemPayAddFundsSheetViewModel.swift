@@ -44,7 +44,7 @@ final class TangemPayAddFundsSheetViewModel: ObservableObject, FloatingSheetCont
 
         case .receive:
             Analytics.log(.visaScreenButtonVisaReceive, analyticsSystems: .all, contextParams: .userWallet(userWalletInfo.id))
-            if FeatureProvider.isAvailable(.tangemPayMultichain), !TangemPayNetworkRowResolver.resolve(networks).isEmpty {
+            if !TangemPayNetworkRowResolver.resolve(networks).isEmpty {
                 openChooseNetworkSheet()
             } else {
                 openReceiveSheet()

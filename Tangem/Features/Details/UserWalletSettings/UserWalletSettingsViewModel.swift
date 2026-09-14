@@ -480,17 +480,13 @@ private extension UserWalletSettingsViewModel {
     }
 
     func openMobileBackupNeeded() {
-        coordinator?.openMobileBackupNeeded(
-            userWalletModel: userWalletModel,
-            source: .walletSettings(action: .accessCode),
-            onBackupFinished: weakify(self, forFunction: UserWalletSettingsViewModel.mobileAccessCodeAction)
-        )
+        coordinator?.openMobileBackupNeeded(userWalletModel: userWalletModel)
     }
 
     func openMobileAccessCodeOnboarding(context: MobileWalletContext) {
         let flow = MobileOnboardingFlow.accessCode(
             userWalletModel: userWalletModel,
-            source: .walletSettings(action: .none),
+            source: .walletSettings,
             context: context
         )
         let input = MobileOnboardingInput(flow: flow)
@@ -599,11 +595,9 @@ private extension UserWalletSettingsViewModel {
             .action: action,
         ]
 
-        if FeatureProvider.isAvailable(.mobileWalletBackup) {
-            let statusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
-            params[.backupCloud] = statusUtil.hasICloudBackup ? .done : .incomplete
-            params[.backupManual] = .affirmativeOrNegative(for: statusUtil.hasMnemonicBackup)
-        }
+        let statusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
+        params[.backupCloud] = statusUtil.hasICloudBackup ? .done : .incomplete
+        params[.backupManual] = .affirmativeOrNegative(for: statusUtil.hasMnemonicBackup)
 
         Analytics.log(
             .walletSettingsNoticeBackupFirst,

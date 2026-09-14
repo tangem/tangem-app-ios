@@ -395,7 +395,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     }
 
     private func loadCashbackSummary(for account: TangemPayAccount) async {
-        guard FeatureProvider.isAvailable(.tangemPayCashback), !account.isDeactivated else {
+        guard !account.isDeactivated else {
             return
         }
 

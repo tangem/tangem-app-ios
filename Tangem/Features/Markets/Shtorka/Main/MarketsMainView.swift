@@ -214,14 +214,12 @@ struct MarketsMainView: View {
                         Color.clear
                             .frame(height: overlayHeight)
 
-                        if FeatureProvider.isAvailable(.forYou) {
-                            SwiftUI.Button(action: viewModel.onForYouBannerTap) {
-                                ForYouEntranceBannerView()
-                            }
-                            .buttonStyle(.plain)
-                            .padding(.horizontal, 16)
-                            .padding(.bottom, Layout.Widgets.verticalContentSpacing)
+                        SwiftUI.Button(action: viewModel.onForYouBannerTap) {
+                            ForYouEntranceBannerView()
                         }
+                        .buttonStyle(.plain)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, Layout.Widgets.verticalContentSpacing)
 
                         if FeatureProvider.isAvailable(.polymarket) {
                             SwiftUI.Button(action: viewModel.onPolymarketEntranceTap) {
