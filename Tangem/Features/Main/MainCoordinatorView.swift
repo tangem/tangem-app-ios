@@ -105,6 +105,9 @@ struct MainCoordinatorView: CoordinatorView {
             ) {
                 TangemPayOnboardingCoordinatorView(coordinator: $0)
             }
+            .shtorkaCompatibleFullScreenCover(item: $coordinator.tangemPayCampaignCoordinator) {
+                TangemPayCampaignCoordinatorView(coordinator: $0)
+            }
             .shtorkaCompatibleFullScreenCover(item: $coordinator.mainQRScanFlowCoordinator) {
                 MainQRScanFlowCoordinatorView(coordinator: $0)
             }
