@@ -19,6 +19,7 @@ struct WithdrawHubView: View {
             isWithinPortfolioLoading: viewModel.isWithinPortfolioLoading,
             recentTokens: viewModel.recentTokens,
             recentAccounts: viewModel.recentAccounts,
+            bankTransferState: viewModel.bankTransferState,
             onAction: viewModel.handleViewAction
         )
         .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
