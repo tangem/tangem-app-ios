@@ -7,6 +7,7 @@
 //
 
 public enum RegisterUserWalletError: Error {
+    case obtainNonceFailed(ObtainUserWalletRegistrationNonceError)
     case prepareFailed(PrepareUserWalletRegistrationError)
     case submitFailed(SubmitUserWalletRegistrationError)
 }

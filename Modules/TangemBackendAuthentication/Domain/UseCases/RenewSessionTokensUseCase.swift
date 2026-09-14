@@ -10,8 +10,6 @@ import struct Foundation.Data
 import struct Foundation.Date
 
 actor RenewSessionTokensUseCase {
-    typealias RegisterDevice = @Sendable () async throws(RegisterDeviceError) -> SessionTokens?
-
     private let registerDevice: RegisterDevice
     private let appAttestService: any AppAttestService
     private let sessionAuthenticationClient: any SessionAuthenticationClient
