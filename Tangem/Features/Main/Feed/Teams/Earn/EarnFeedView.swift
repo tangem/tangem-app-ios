@@ -14,8 +14,13 @@ struct EarnFeedView: View {
     @ObservedObject var viewModel: EarnFeedViewModel
 
     var body: some View {
-        content
-            .onAppear(perform: viewModel.onViewAppear)
+        VStack(spacing: Constants.sectionSpacing) {
+            PromotionNotificationsView(viewModel: viewModel.promoBanner)
+                .padding(.horizontal, Constants.horizontalPadding)
+
+            content
+        }
+        .onAppear(perform: viewModel.onViewAppear)
     }
 
     @ViewBuilder
@@ -42,6 +47,7 @@ struct EarnFeedView: View {
 
 private extension EarnFeedView {
     enum Constants {
+        static let sectionSpacing: CGFloat = 20
         static let horizontalPadding: CGFloat = 16
         static let listCornerRadius: CGFloat = 24
         static let skeletonRowsCount = 5

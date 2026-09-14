@@ -13,7 +13,7 @@ struct CryptoFeedBuilder: FeedTabBuilder {
         .crypto(
             CryptoFeedViewModel(
                 pulseDataProvider: CommonPulseDataProvider(),
-                promotionNotificationsManager: NewsPromotionNotificationsManager(),
+                promotionNotificationsManager: NewsPromotionNotificationsManager(placement: .crypto),
                 router: CryptoFeedRouter(context: context)
             )
         )

@@ -15,11 +15,14 @@ final class EarnFeedViewModel: ObservableObject {
     @Injected(\.earnDataFilterProvider) private var filterProvider: EarnDataFilterProvider
     @Injected(\.earnAnalyticsProvider) private var analyticsProvider: EarnAnalyticsProvider
 
+    let promoBanner: PromotionNotificationsViewModel
+
     private var dataProvider: EarnDataProvider?
 
     private let router: any EarnFeedRoutable
 
-    init(router: any EarnFeedRoutable) {
+    init(promotionNotificationsManager: PromotionNotificationsManager, router: any EarnFeedRoutable) {
+        promoBanner = PromotionNotificationsViewModel(promotionNotificationsManager: promotionNotificationsManager)
         self.router = router
     }
 
