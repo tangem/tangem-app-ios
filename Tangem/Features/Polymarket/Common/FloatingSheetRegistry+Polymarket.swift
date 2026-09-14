@@ -7,6 +7,7 @@
 //
 
 import TangemLocalization
+import TangemPolymarketUI
 import TangemUI
 
 extension FloatingSheetRegistry {
@@ -25,6 +26,18 @@ extension FloatingSheetRegistry {
             .floatingSheetConfiguration { configuration in
                 configuration.backgroundInteractionBehavior = .tapToDismiss
             }
+        }
+
+        register(PolymarketRegionRestrictionViewModel.self) { viewModel in
+            PolymarketRegionRestrictionView(viewModel: viewModel)
+        }
+
+        register(PolymarketAddFundsSheetViewModel.self) { viewModel in
+            PolymarketAddFundsSheetView(viewModel: viewModel)
+        }
+
+        register(ReceiveMainViewModel.self) { viewModel in
+            ReceiveMainView(viewModel: viewModel)
         }
     }
 }
