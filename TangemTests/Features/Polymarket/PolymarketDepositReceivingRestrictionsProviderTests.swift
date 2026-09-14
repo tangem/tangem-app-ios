@@ -52,20 +52,22 @@ struct PolymarketDepositReceivingRestrictionsProviderTests {
         #expect(try await sut.restriction(expectAmount: expected) == nil)
     }
 
-    @Test("A zero price is treated as no price, not as an infinite threshold")
-    func zeroPriceDoesNotBlock() async throws {
+    @Test("A zero price falls back to dollar parity instead of dropping the threshold")
+    func zeroPriceFallsBackToDollarParity() async throws {
         let (sut, teardown) = makeSUT(priceUsd: 0)
         defer { teardown() }
 
-        #expect(try await sut.restriction(expectAmount: 0.0001) == nil)
+        #expect(minAmount(try await sut.restriction(expectAmount: 0.0001)) == Self.minimumDepositUSD)
+        #expect(try await sut.restriction(expectAmount: Self.minimumDepositUSD) == nil)
     }
 
-    @Test("An unpriced token is let through, since blocking on a guess is worse than a held deposit")
-    func missingPriceDoesNotBlock() async throws {
+    @Test("An unpriced deposit asset falls back to dollar parity, since it is a dollar stablecoin")
+    func missingPriceFallsBackToDollarParity() async throws {
         let (sut, teardown) = makeSUT(priceUsd: nil)
         defer { teardown() }
 
-        #expect(try await sut.restriction(expectAmount: 0.0001) == nil)
+        #expect(minAmount(try await sut.restriction(expectAmount: 0.0001)) == Self.minimumDepositUSD)
+        #expect(try await sut.restriction(expectAmount: Self.minimumDepositUSD) == nil)
     }
 
     @Test("The zero-amount backup probe is answered with the backup, not with the threshold")

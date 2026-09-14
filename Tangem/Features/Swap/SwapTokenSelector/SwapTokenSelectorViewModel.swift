@@ -22,6 +22,7 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
 
     let tokenSelectorViewModel: TokenSelectorViewModel
     let marketsTokensViewModel: SwapMarketsTokensViewModel?
+    let offeredTokensViewModel: SwapOfferedTokensViewModel?
 
     // MARK: - Dependencies
 
@@ -44,6 +45,7 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
         swapDirection: SwapDirection,
         tokenSelectorViewModel: TokenSelectorViewModel,
         marketsTokensViewModel: SwapMarketsTokensViewModel?,
+        offeredTokensViewModel: SwapOfferedTokensViewModel?,
         output: SwapTokenSelectorOutput?,
         tokenSelectorCoordinator: SwapTokenSelectorRoutable,
         marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable
@@ -51,6 +53,7 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
         self.swapDirection = swapDirection
         self.tokenSelectorViewModel = tokenSelectorViewModel
         self.marketsTokensViewModel = marketsTokensViewModel
+        self.offeredTokensViewModel = offeredTokensViewModel
         self.output = output
         self.tokenSelectorCoordinator = tokenSelectorCoordinator
         self.marketsTokenAdditionCoordinator = marketsTokenAdditionCoordinator
@@ -59,6 +62,7 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
         tokenSelectorViewModel.setup(with: self)
 
         marketsTokensViewModel?.setup(searchTextPublisher: tokenSelectorViewModel.$searchText)
+        offeredTokensViewModel?.setup(displayedWalletIdPublisher: tokenSelectorViewModel.$selectedChipId)
         marketsTokensViewModel?.setup(selectionHandler: self)
     }
 
