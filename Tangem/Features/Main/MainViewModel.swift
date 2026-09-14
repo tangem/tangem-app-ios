@@ -456,7 +456,7 @@ final class MainViewModel: ObservableObject {
             params[.walletType] = Analytics.ParameterValue.seedState(for: hasSeedPhrase).rawValue
             params[.walletHasBackup] = Analytics.ParameterValue.affirmativeOrNegative(for: userWalletModel.config.walletHasBackup).rawValue
 
-            if FeatureProvider.isAvailable(.mobileWalletBackup), isMobileProductType {
+            if isMobileProductType {
                 let backupParams = MobileBackupStatusUtil.completedBackupsAnalyticsParams(config: userWalletModel.config)
                 params.enrich(with: backupParams)
             }

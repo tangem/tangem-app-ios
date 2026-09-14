@@ -122,11 +122,7 @@ extension SendReceiveTokenPresentation {
     /// The payment account is always presented in USD, independent of the wallet's selected
     /// fiat currency.
     static var tangemPayAccount: SendReceiveTokenPresentation? {
-        guard FeatureProvider.isAvailable(.tangemPayAddFundsWithdrawRework) else {
-            return nil
-        }
-
-        return SendReceiveTokenPresentation(
+        SendReceiveTokenPresentation(
             currencySymbol: TangemPayUtilities.fiatItem.currencyCode,
             icon: Assets.Visa.tokenAvatar
         )
