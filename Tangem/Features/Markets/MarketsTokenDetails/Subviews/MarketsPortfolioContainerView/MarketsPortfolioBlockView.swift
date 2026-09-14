@@ -95,7 +95,7 @@ private struct MarketsPortfolioBlockContentView: View {
         )
         .iconStart(DesignSystem.Icons.ArrowDown.regular20)
         .size(.x9)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addFundsButton)
     }
 
@@ -106,7 +106,7 @@ private struct MarketsPortfolioBlockContentView: View {
             action: onExpandTap
         )
         .size(.x9)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
     }
 }
 

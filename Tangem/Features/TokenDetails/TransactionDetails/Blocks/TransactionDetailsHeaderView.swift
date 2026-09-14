@@ -30,7 +30,12 @@ struct TransactionDetailsHeaderViewData: Equatable {
     let date: String
     let operationIcon: TransactionViewIconViewData
     let iconGlyph: ImageType?
-    let menuActions: [MenuAction]
+    let menuSections: [MenuSection]
+
+    struct MenuSection: Identifiable, Equatable {
+        let id: String
+        let actions: [MenuAction]
+    }
 
     struct MenuAction: Identifiable, Equatable {
         let id: String
@@ -72,7 +77,7 @@ struct TransactionDetailsHeaderView: View {
             Spacer(minLength: 8)
 
             HStack(spacing: 8) {
-                if !data.menuActions.isEmpty {
+                if !data.menuSections.isEmpty {
                     menuButton
                 }
 
@@ -101,15 +106,19 @@ struct TransactionDetailsHeaderView: View {
 
     private var menuButton: some View {
         Menu {
-            ForEach(data.menuActions) { menuAction in
-                Button(action: { onAction(menuAction.action) }) {
-                    if let icon = menuAction.icon {
-                        Label(
-                            title: { Text(menuAction.title) },
-                            icon: { icon.image.renderingMode(.template) }
-                        )
-                    } else {
-                        Text(menuAction.title)
+            ForEach(data.menuSections) { section in
+                Section {
+                    ForEach(section.actions) { menuAction in
+                        Button(action: { onAction(menuAction.action) }) {
+                            if let icon = menuAction.icon {
+                                Label(
+                                    title: { Text(menuAction.title) },
+                                    icon: { icon.image.renderingMode(.template) }
+                                )
+                            } else {
+                                Text(menuAction.title)
+                            }
+                        }
                     }
                 }
             }
@@ -131,25 +140,30 @@ struct TransactionDetailsHeaderView: View {
 // MARK: - Previews
 
 #Preview("Header states") {
-    let menu: [TransactionDetailsHeaderViewData.MenuAction] = [
-        // [REDACTED_TODO_COMMENT]
-        .init(id: "explore", title: "Explore", icon: Assets.Glyphs.explore, action: .close),
+    let menu: [TransactionDetailsHeaderViewData.MenuSection] = [
+        .init(id: "address", actions: [
+            .init(id: "copyAddress", title: "Copy address", icon: DesignSystem.Icons.Copy.regular24, action: .close),
+            .init(id: "addContact", title: "Add contact", icon: DesignSystem.Icons.UserPlus.regular24, action: .close),
+        ]),
+        .init(id: "transaction", actions: [
+            .init(id: "explore", title: "Explore", icon: DesignSystem.Icons.Globe.regular24, action: .close),
+        ]),
     ]
 
     return VStack(spacing: 32) {
         // In progress — brand (blue) title, with menu.
         TransactionDetailsHeaderView(
-            data: .init(title: "Receiving", titleStyle: .active, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .inProgress, isOutgoing: false), iconGlyph: nil, menuActions: menu),
+            data: .init(title: "Receiving", titleStyle: .active, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .inProgress, isOutgoing: false), iconGlyph: nil, menuSections: menu),
             onAction: { _ in }
         )
         // Confirmed — primary title, with menu.
         TransactionDetailsHeaderView(
-            data: .init(title: "Received", titleStyle: .neutral, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .confirmed, isOutgoing: false), iconGlyph: nil, menuActions: menu),
+            data: .init(title: "Received", titleStyle: .neutral, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .confirmed, isOutgoing: false), iconGlyph: nil, menuSections: menu),
             onAction: { _ in }
         )
         // Failed — red title, no menu (close only).
         TransactionDetailsHeaderView(
-            data: .init(title: "Send failed", titleStyle: .failed, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .failed, isOutgoing: true), iconGlyph: nil, menuActions: []),
+            data: .init(title: "Send failed", titleStyle: .failed, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .failed, isOutgoing: true), iconGlyph: nil, menuSections: []),
             onAction: { _ in }
         )
     }

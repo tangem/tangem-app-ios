@@ -7,6 +7,7 @@
 //
 
 import BlockchainSdk
+import TangemAssets
 import TangemExpress
 import TangemPay
 
@@ -48,7 +49,7 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
         )
         let tokenFeeProvidersManager = tokenFeeProvidersManagerProvider.makeTokenFeeProvidersManager()
 
-        let transactionCreator = TangemPayTransactionCreator(
+        let transactionCreator = AccountTransactionCreator(
             sourceAddress: defaultAddressString,
             transactionValidator: transactionValidator
         )
@@ -125,6 +126,9 @@ extension SendReceiveTokenPresentation {
             return nil
         }
 
-        return SendReceiveTokenPresentation(currencySymbol: TangemPayUtilities.fiatItem.currencyCode)
+        return SendReceiveTokenPresentation(
+            currencySymbol: TangemPayUtilities.fiatItem.currencyCode,
+            icon: Assets.Visa.tokenAvatar
+        )
     }
 }

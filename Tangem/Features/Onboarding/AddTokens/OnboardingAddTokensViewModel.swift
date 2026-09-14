@@ -86,8 +86,8 @@ class OnboardingAddTokensViewModel: ObservableObject {
     }
 
     private func bindMainAccount(input: Input) {
-        input.accountModelsManager
-            .cryptoAccountModelsPublisher
+        AccountCryptoModelsAggregator
+            .cryptoAccountModelsPublisher(from: input.accountModelsManager)
             .compactMap { $0.first(where: { $0.isMainAccount }) }
             .first()
             .receive(on: DispatchQueue.main)

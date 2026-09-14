@@ -19,6 +19,7 @@ Basketball / 16, 20, 24, 28 / Regular
 Bell Cross / 20, 24, 28 / Regular
 Bell / 20, 24, 28 / Regular
 Binoculars / 16, 20, 24, 28, 32 / Regular
+Calculator / 16, 20, 24 / Regular
 Calendar / 16, 20, 24, 28 / Regular
 Card Plus / 20, 24, 28, 32 / Regular
 Card / 12, 16, 20, 24 / Regular
@@ -66,6 +67,8 @@ Headphones Support / 12, 16, 20, 24 / Regular
 Heart Broken / 16, 20, 24, 28, 32 / Regular
 Heart / 16, 20, 24, 28, 32 / Filled & Regular
 Info / 16, 20, 24, 28, 32 / Regular
+Keyboard Down / 16, 20, 24 / Regular
+Keyboard Up / 16, 20, 24 / Regular
 Lightning / 20, 24, 28 / Regular
 Loading Spinner / 12, 16, 20, 24, 28, 32 / Regular
 Logo Tangem / 16, 20, 24 / Regular
@@ -100,8 +103,8 @@ Trash Bin / 12, 16, 20, 24, 28 / Regular
 Triangle Down / 12, 16, 20, 24, 28, 32 / Regular
 Triangle Up / 12, 16, 20, 24, 28, 32 / Regular
 User Plus / 16, 20, 24, 28 / Regular
-User / 16, 20, 24, 28 / Regular
-Users / 16, 20, 24, 28 / Regular
+User / 16, 20, 24, 28 / Filled & Regular
+Users / 16, 20, 24, 28 / Filled & Regular
 Wallet Checkmark / 16, 20, 24, 28 / Regular
 Wallet / 16, 20, 24, 28 / Regular
 Warning / 16, 20, 24, 28 / Filled & Regular

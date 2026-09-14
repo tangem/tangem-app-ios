@@ -76,6 +76,23 @@ final class CommonYieldModuleFlowFactory {
         )
     }
 
+    private func makeYieldPromoV2ViewModel(
+        apy: Decimal,
+        coordinator: YieldModulePromoCoordinator
+    ) -> YieldModulePromoV2ViewModel {
+        let interactor = makeInteractor()
+        let startFlowFactory = makeStartFlowFactory(coordinator: coordinator, interactor: interactor)
+
+        return YieldModulePromoV2ViewModel(
+            walletModel: walletModel,
+            apy: apy,
+            marketIncentive: yieldModuleManager.state?.marketInfo?.incentive,
+            coordinator: coordinator,
+            startFlowFactory: startFlowFactory,
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
+        )
+    }
+
     private func makeYieldModuleActiveViewModel(coordinator: YieldModuleActiveCoordinator) -> YieldModuleActiveViewModel {
         let interactor = makeInteractor()
 
@@ -163,10 +180,16 @@ extension CommonYieldModuleFlowFactory: YieldModuleFlowFactory {
         dismissAction: @escaping Action<YieldModulePromoCoordinator.DismissOptions?>
     ) -> YieldModulePromoCoordinator {
         let coordinator = YieldModulePromoCoordinator(dismissAction: dismissAction)
-        let viewModel = makeYieldPromoViewModel(apy: apy, isApyBoostPromo: isApyBoostPromo, coordinator: coordinator)
-        let options = YieldModulePromoCoordinator.Options(viewModel: viewModel)
 
-        coordinator.start(with: options)
+        // The boost promo keeps the legacy screen: the boost takes precedence over a campaign pre-supply.
+        let root: YieldModulePromoCoordinator.Root
+        if FeatureProvider.isAvailable(.merklIncentives), !isApyBoostPromo {
+            root = .v2(makeYieldPromoV2ViewModel(apy: apy, coordinator: coordinator))
+        } else {
+            root = .legacy(makeYieldPromoViewModel(apy: apy, isApyBoostPromo: isApyBoostPromo, coordinator: coordinator))
+        }
+
+        coordinator.start(with: YieldModulePromoCoordinator.Options(root: root))
         return coordinator
     }
 
