@@ -11,7 +11,9 @@ import Foundation
 struct TangemPayReceivingRestrictionsProvider: ReceivingRestrictionsProvider {
     let userWalletInfo: UserWalletInfo
 
-    func restriction(expectAmount: Decimal) -> ReceivedRestriction? {
+    var isRestrictionKnown: Bool { true }
+
+    func restriction(expectAmount: Decimal) async throws -> ReceivedRestriction? {
         // Not a hard restriction: topping up a wallet with an incomplete backup is confirmed at the `Swap` tap.
         if !userWalletInfo.backupState.isValid {
             return .incompleteBackup(userWalletInfo)
