@@ -606,6 +606,51 @@ extension CommonAccountModelsManager: AccountModelsManager {
             return
         }
 
+        await launchKYCAndWait()
+    }
+
+    func acceptTangemPayCampaignOffer(
+        authorizingInteractor: any TangemPayAuthorizing,
+        campaignKey: String
+    ) async throws(TangemPayCampaignOfferError) {
+        do {
+            try await tangemPayManager.authorizeWithCustomerWallet(
+                authorizingInteractor: authorizingInteractor,
+                showSyncInProgress: false
+            )
+        } catch {
+            throw .authorization(error)
+        }
+
+        // `planSelectNeeded` means KYC is already done but no plan was ever picked — the campaign order
+        // resolves that state just as it pre-empts it for a brand new customer.
+        let stateAfterAuthorization = tangemPayManager.state
+
+        switch stateAfterAuthorization {
+        case .kycRequired, .planSelectNeeded:
+            do {
+                try await tangemPayManager.placeCampaignCardIssueOrder(campaignKey: campaignKey)
+            } catch {
+                throw .order(error)
+            }
+        case .tangemPayAccount, .cardDeactivated, .failedToIssueCard:
+            throw .accountAlreadyExists
+        case .kycDeclined, .unavailable, .syncNeeded, .syncInProgress, .loading, .none:
+            AccountsLogger.error(
+                "No campaign order to place for \(userWalletId), state \(String(describing: stateAfterAuthorization))",
+                error: TangemPayCampaignOfferError.unexpectedState
+            )
+            throw .unexpectedState
+        }
+
+        guard case .kycRequired = tangemPayManager.state else {
+            return
+        }
+
+        await launchKYCAndWait()
+    }
+
+    private func launchKYCAndWait() async {
         await withCheckedContinuation { continuation in
             runTask { [self] in
                 do {

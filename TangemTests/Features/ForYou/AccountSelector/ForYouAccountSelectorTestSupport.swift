@@ -104,6 +104,7 @@ final class ForYouAccountsManagerStub: AccountModelsManager {
     }
 
     func acceptTangemPayOffer(authorizingInteractor: TangemPayAuthorizing) async {}
+    func acceptTangemPayCampaignOffer(authorizingInteractor: TangemPayAuthorizing, campaignKey: String) async {}
     func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {}
     func dispose() {}
 }

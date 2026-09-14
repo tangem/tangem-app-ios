@@ -47,4 +47,19 @@ protocol AccountModelsManager: AccountModelsReordering, DisposableEntity {
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult
 
     func acceptTangemPayOffer(authorizingInteractor: TangemPayAuthorizing) async throws(TangemPayAuthorizationError)
+
+    /// Same as `acceptTangemPayOffer`, but the campaign's card issue order is placed before KYC so that the
+    /// tariff plan selection screen never appears.
+    func acceptTangemPayCampaignOffer(
+        authorizingInteractor: TangemPayAuthorizing,
+        campaignKey: String
+    ) async throws(TangemPayCampaignOfferError)
+}
+
+enum TangemPayCampaignOfferError: Error {
+    case authorization(TangemPayAuthorizationError)
+    case order(TangemPayCampaignOrderError)
+    /// Authorization revealed a Payment account the local state had hidden. Recoverable: resolve again.
+    case accountAlreadyExists
+    case unexpectedState
 }
