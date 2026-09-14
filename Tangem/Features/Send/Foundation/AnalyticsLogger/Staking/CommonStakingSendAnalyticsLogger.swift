@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import TangemStaking
 import BlockchainSdk
 
@@ -152,13 +153,14 @@ extension CommonStakingSendAnalyticsLogger: StakingSendAnalyticsLogger {
         self.stakingTargetsInput = stakingTargetsInput
     }
 
-    func logNoticeNotEnoughFee() {
-        Analytics.log(
-            event: .stakingNoticeNotEnoughFee, params: [
-                .blockchain: tokenItem.blockchain.displayName,
-                .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
-            ]
-        )
+    func logNoticeNotEnoughFee(feeCurrencyBalance: Decimal?) {
+        var params: [Analytics.ParameterKey: String] = [
+            .blockchain: tokenItem.blockchain.displayName,
+            .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
+        ]
+        params[.balance] = feeCurrencyBalance.map { Analytics.ParameterValue.balanceState(for: $0).rawValue }
+
+        Analytics.log(event: .stakingNoticeNotEnoughFee, params: params)
     }
 
     func logErrorSumLimit(errorMessage: String) {

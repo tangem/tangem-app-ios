@@ -10,6 +10,7 @@ import Combine
 import Foundation
 import TangemFoundation
 import TangemMacro
+import enum BlockchainSdk.ETHError
 
 let FeeLogger = AppLogger.tag("TokenFeeProvider")
 
@@ -417,17 +418,24 @@ private extension CommonTokenFeeProvider {
 
     func mapToLoadableTokenFee(state: TokenFeeProviderState, selectedFeeOption: FeeOption) -> TokenFee {
         let loadableTokenFeeState: LoadingResult<BSDKFee, any Error> = {
+            let feeCurrencyBalance = feeTokenItemBalanceProvider.balanceType.value ?? 0
+
             switch state {
             case .idle, .loading:
                 return .loading
             case .unavailable(.notSupported):
                 return .failure(TokenFeeProviderError.unsupportedByProvider)
             case .unavailable(.noTokenBalance) where feeTokenItem.isBlockchain:
-                return .failure(TokenFeeProviderError.notEnoughBalanceForFee)
+                return .failure(TokenFeeProviderError.notEnoughBalanceForFee(feeCurrencyBalance: feeCurrencyBalance))
             case .unavailable(.notEnoughFeeBalance), .unavailable(.noTokenBalance):
-                return .failure(TokenFeeProviderError.notEnoughGaslessFeeBalance)
+                return .failure(TokenFeeProviderError.notEnoughGaslessFeeBalance(feeCurrencyBalance: feeCurrencyBalance))
             case .unavailable:
                 return .failure(TokenFeeProviderError.providerUnavailable)
+            // An EVM node rejects the gas estimate this way when the account cannot cover the fee
+            case .error(ETHError.gasRequiredExceedsAllowance) where feeTokenItem.isBlockchain:
+                return .failure(TokenFeeProviderError.notEnoughBalanceForFee(feeCurrencyBalance: feeCurrencyBalance))
+            case .error(ETHError.gasRequiredExceedsAllowance):
+                return .failure(TokenFeeProviderError.notEnoughGaslessFeeBalance(feeCurrencyBalance: feeCurrencyBalance))
             case .error(let error):
                 return .failure(error)
             case .available(let fees):

@@ -319,14 +319,17 @@ private extension CommonStakingNotificationManager {
         switch error {
         case StakeKitHTTPError.insufficientGasReserve
             where supportsReduceAmount && tokenItem == feeTokenItem:
-            analyticsLogger.logNoticeNotEnoughFee()
+            // StakeKit reports the shortage without the balance it was judged against
+            analyticsLogger.logNoticeNotEnoughFee(feeCurrencyBalance: nil)
             show(error: .insufficientFundsForFeeReduceAmount(
                 feeAmountTypeName: feeTokenItem.currencySymbol
             ))
 
-        case StakeKitHTTPError.insufficientGasReserve,
-             StakingPreflightError.insufficientFundsForFee:
-            showInsufficientFundsForFee()
+        case StakeKitHTTPError.insufficientGasReserve:
+            showInsufficientFundsForFee(feeCurrencyBalance: nil)
+
+        case StakingPreflightError.insufficientFundsForFee(let feeCurrencyBalance):
+            showInsufficientFundsForFee(feeCurrencyBalance: feeCurrencyBalance)
 
         default:
             show(error: .networkUnreachable)
@@ -336,23 +339,23 @@ private extension CommonStakingNotificationManager {
     func showValidationError(_ validationError: ValidationError, validatesFeeOnly: Bool) {
         // A fee-only validation spends nothing but the fee, so its coin fee-coverage failure gets
         // the actionable top-up banner instead of the mapper's generic "insufficient balance".
-        if validatesFeeOnly, case .feeExceedsBalance(_, _, isFeeCurrency: true) = validationError {
-            showInsufficientFundsForFee()
+        if validatesFeeOnly, case .feeExceedsBalance(_, _, isFeeCurrency: true, let feeCurrencyBalance) = validationError {
+            showInsufficientFundsForFee(feeCurrencyBalance: feeCurrencyBalance)
             return
         }
 
         let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem)
         let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
 
-        if case .insufficientBalanceForFee = validationErrorEvent {
-            analyticsLogger.logNoticeNotEnoughFee()
+        if case .insufficientBalanceForFee(let configuration) = validationErrorEvent {
+            analyticsLogger.logNoticeNotEnoughFee(feeCurrencyBalance: configuration.feeCurrencyBalance)
         }
 
         show(error: .validationErrorEvent(validationErrorEvent))
     }
 
-    func showInsufficientFundsForFee() {
-        analyticsLogger.logNoticeNotEnoughFee()
+    func showInsufficientFundsForFee(feeCurrencyBalance: Decimal?) {
+        analyticsLogger.logNoticeNotEnoughFee(feeCurrencyBalance: feeCurrencyBalance)
         show(error: .insufficientFundsForFee(
             configuration: .init(
                 isFeeCurrency: tokenItem == feeTokenItem,

@@ -206,7 +206,7 @@ extension DEXProviderFlowHelper {
         let coinBalance = try pair.source.balanceProvider.getCoinBalance()
 
         if data.txValue > coinBalance {
-            let estimateFee = try await estimateFee(sourceAmount: sourceAmount, data: data)
+            let estimateFee = try await estimateFee(sourceAmount: sourceAmount, data: data, coinBalance: coinBalance)
             return .restriction(estimateFee, quote: quote)
         }
 
@@ -221,7 +221,7 @@ extension DEXProviderFlowHelper {
         }
     }
 
-    func estimateFee(sourceAmount: Decimal, data: ExpressTransactionData) async throws -> ExpressRestriction {
+    func estimateFee(sourceAmount: Decimal, data: ExpressTransactionData, coinBalance: Decimal) async throws -> ExpressRestriction {
         let otherNativeFee = data.otherNativeFee ?? 0
 
         if let estimatedGasLimit = data.estimatedGasLimit, expressFeeProvider.supportsGasBasedFeeEstimate {
@@ -231,7 +231,11 @@ extension DEXProviderFlowHelper {
             )
 
             let isFeeCurrency = expressFeeProvider.isFeeCurrency(source: pair.source.currency)
-            return .feeCurrencyInsufficientBalanceForTxValue(estimateFee.amount.value, isFeeCurrency: isFeeCurrency)
+            return .feeCurrencyInsufficientBalanceForTxValue(
+                estimateFee.amount.value,
+                isFeeCurrency: isFeeCurrency,
+                feeCurrencyBalance: coinBalance
+            )
         }
 
         let estimatedAmount = sourceAmount + otherNativeFee
@@ -344,7 +348,7 @@ extension DEXProviderFlowHelper {
         let coinBalance = try pair.source.balanceProvider.getCoinBalance()
 
         if data.txValue > coinBalance {
-            let estimateFee = try await estimateFee(sourceAmount: sourceAmount, data: data)
+            let estimateFee = try await estimateFee(sourceAmount: sourceAmount, data: data, coinBalance: coinBalance)
             return .restriction(estimateFee, quote: quote)
         }
 
