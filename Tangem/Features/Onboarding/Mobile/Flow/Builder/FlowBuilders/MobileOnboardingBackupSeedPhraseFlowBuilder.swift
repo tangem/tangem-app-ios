@@ -85,15 +85,8 @@ private extension MobileOnboardingBackupSeedPhraseFlowBuilder {
     }
 
     func makeDoneStep() -> Step {
-        let successType: MobileOnboardingSuccessViewModel.SuccessType
-        if case .walletSettings(let action) = source, action == .accessCode {
-            successType = .backupContinue
-        } else {
-            successType = .seedPhaseBackupFinish
-        }
-
         let step = MobileOnboardingSuccessStep(
-            type: successType,
+            type: .seedPhaseBackupFinish,
             navigationTitle: Localization.commonBackup,
             onAppear: { [weak self] in
                 self?.logBackupCompletedScreenOpenedAnalytics()
@@ -172,10 +165,10 @@ extension MobileOnboardingBackupSeedPhraseFlowBuilder {
     }
 
     func logSeedPhraseValidatedAnalytics() {
-        var params: [Analytics.ParameterKey: String] = [.cardsCount: String(0)]
-        if FeatureProvider.isAvailable(.mobileWalletBackup) {
-            params[.backupType] = Analytics.ParameterValue.backupTypeManual.rawValue
-        }
+        let params: [Analytics.ParameterKey: String] = [
+            .cardsCount: String(0),
+            .backupType: Analytics.ParameterValue.backupTypeManual.rawValue,
+        ]
 
         Analytics.log(
             event: .backupFinished,
@@ -186,9 +179,7 @@ extension MobileOnboardingBackupSeedPhraseFlowBuilder {
 
     func logBackupCompletedScreenOpenedAnalytics() {
         var params = source.analyticsParams
-        if FeatureProvider.isAvailable(.mobileWalletBackup) {
-            params[.backupType] = .backupTypeManual
-        }
+        params[.backupType] = .backupTypeManual
 
         Analytics.log(
             .walletSettingsBackupCompleteScreen,
