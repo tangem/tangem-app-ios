@@ -123,6 +123,10 @@ final class DesignSystemDemoViewModel: ObservableObject {
         coordinator?.openTangemFadeDemo()
     }
 
+    func openFilterGroupDemo() {
+        coordinator?.openFilterGroupDemo()
+    }
+
     func openTangemMessageBubbleDemo() {
         coordinator?.openTangemMessageBubbleDemo()
     }
