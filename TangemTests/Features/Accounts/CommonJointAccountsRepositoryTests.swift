@@ -43,14 +43,14 @@ struct CommonJointAccountsRepositoryTests {
         let storage = JointAccountsPersistentStorageStub(accounts: [Self.storedAccount(status: .pending)])
         let invitesStorage = JointAccountsInvitesPersistentStorageStub(invites: invites, forCryptoAccountId: Self.accountId)
         let networkService = JointAccountsNetworkServiceStub(jointAccounts: [
-            Self.remoteAccount(status: .confirming, memberNames: ["Alice", "Bob"]),
+            Self.remoteAccount(status: .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"), memberNames: ["Alice", "Bob"]),
         ])
         let sut = Self.makeSUT(networkService: networkService, storage: storage, invitesStorage: invitesStorage)
 
         try await sut.loadJointAccountsFromRemote()
 
         #expect(invitesStorage.getInvites(forCryptoAccountId: Self.accountId) == invites)
-        #expect(storage.accounts.first?.status == .confirming)
+        #expect(storage.accounts.first?.status == .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"))
     }
 
     @Test("An account gone from the answer leaves its invites behind, since nothing can hand them out again")

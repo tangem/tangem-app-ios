@@ -37,9 +37,15 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
         case .creation(let creationOptions):
             root = .onboarding(JointAccountOnboardingViewModel(coordinator: self), creationOptions)
 
-        case .members(let jointAccount):
+        case .members(let jointAccount, let accountModelsManager):
             // The account already exists, so the flow opens where the creation flow ends up
-            root = .inviteMembers(JointAccountInviteMembersViewModel(jointAccount: jointAccount, coordinator: self))
+            root = .inviteMembers(
+                JointAccountInviteMembersViewModel(
+                    jointAccount: jointAccount,
+                    accountModelsManager: accountModelsManager,
+                    coordinator: self
+                )
+            )
         }
     }
 }
@@ -49,7 +55,7 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
 extension JointAccountManagementCoordinator {
     enum Options {
         case creation(CreationOptions)
-        case members(jointAccount: any JointAccountModel)
+        case members(jointAccount: any JointAccountModel, accountModelsManager: any AccountModelsManager)
     }
 
     struct CreationOptions {
@@ -175,7 +181,16 @@ extension JointAccountManagementCoordinator: JointAccountMemberNameRoutable {
 
 extension JointAccountManagementCoordinator: JointAccountCreationMemberNameRoutable {
     func openInviteMembers(jointAccount: any JointAccountModel) {
-        let viewModel = JointAccountInviteMembersViewModel(jointAccount: jointAccount, coordinator: self)
+        guard case .onboarding(_, let creationOptions) = root else {
+            JointAccountsLogger.warning("The invite members step is reached outside the joint account creation flow")
+            return
+        }
+
+        let viewModel = JointAccountInviteMembersViewModel(
+            jointAccount: jointAccount,
+            accountModelsManager: creationOptions.accountModelsManager,
+            coordinator: self
+        )
 
         path.append(.inviteMembers(viewModel: viewModel))
     }
@@ -210,5 +225,30 @@ extension JointAccountManagementCoordinator: JointAccountInviteMembersRoutable {
 
     func openMemberDetails(member: JointAccountMember) {
         // [REDACTED_TODO_COMMENT]
+    }
+
+    func openActivationConfirmation(onConfirm: @escaping () -> Void) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(
+                sheet: JointAccountActivationConfirmationViewModel(onConfirm: onConfirm, coordinator: self)
+            )
+        }
+    }
+}
+
+// MARK: - JointAccountActivationConfirmationRoutable
+
+extension JointAccountManagementCoordinator: JointAccountActivationConfirmationRoutable {
+    func confirmActivation(_ activate: @escaping () -> Void) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            activate()
+        }
+    }
+
+    func cancelActivation() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }

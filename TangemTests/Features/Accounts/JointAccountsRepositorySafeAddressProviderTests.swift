@@ -19,7 +19,11 @@ import TangemFoundation
 struct JointAccountsRepositorySafeAddressProviderTests {
     @Test("There is no address until the account is activated, and then it reaches the subscribers once")
     func addressAppearsWithActivation() {
-        let repository = JointAccountsRepositoryStub(jointAccounts: [Self.storedAccount(status: .confirming)])
+        // The address is announced at this stage already, and reading it off the record before activation is exactly
+        // what the provider must not do
+        let repository = JointAccountsRepositoryStub(jointAccounts: [
+            Self.storedAccount(status: .confirming(safeAddress: Self.safeAddress)),
+        ])
         let sut = Self.makeSUT(repository: repository)
         var emitted: [String?] = []
         let subscription = sut.safeAddressPublisher.sink { emitted.append($0) }

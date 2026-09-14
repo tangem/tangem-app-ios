@@ -13,4 +13,7 @@ protocol JointAccountInviteMembersRoutable: AnyObject {
     func shareInvite(url: URL)
     func openInviteSafety()
     func openMemberDetails(member: JointAccountMember)
+    /// - Parameter onConfirm: Run when the sheet is confirmed, since activating needs what the screen holds rather
+    /// than what the flow does.
+    func openActivationConfirmation(onConfirm: @escaping () -> Void)
 }

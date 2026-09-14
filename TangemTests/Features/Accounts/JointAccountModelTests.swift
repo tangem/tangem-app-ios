@@ -76,6 +76,7 @@ struct JointAccountModelTests {
     ) -> any JointAccountModel {
         CommonJointAccountModel(
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
+            derivationIndex: 1,
             policy: JointAccountPolicy(membersCount: membersCount, signersCount: 2),
             status: .pending,
             members: members,
