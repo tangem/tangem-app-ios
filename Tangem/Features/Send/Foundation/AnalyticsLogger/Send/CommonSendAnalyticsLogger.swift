@@ -348,7 +348,11 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
                 params[.sendToken] = sourceTokenItem.currencySymbol
                 params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
             }
-            Analytics.log(event: .sendSwapErrorInsufficientBalance, params: params)
+            Analytics.log(
+                event: .sendSwapErrorInsufficientBalance,
+                params: params,
+                otelParamOverrides: Analytics.otelCustomTokenOverrides(sendToken: sourceTokenItem)
+            )
         default:
             break
         }
@@ -661,7 +665,7 @@ extension CommonSendAnalyticsLogger: SendApproveAnalyticsLogger {
             .permissionType: permissionType.rawValue,
             .walletForm: signerType,
             .selectedHost: currentProviderHost,
-        ], analyticsSystems: .all)
+        ], analyticsSystems: .all, otelParamOverrides: Analytics.otelCustomTokenOverrides(token: tokenItem))
     }
 }
 
@@ -727,7 +731,15 @@ extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
             analyticsParameters[.feeAssetType] = Analytics.ParameterValue.feeAssetType(isGasless: isGasless).rawValue
         }
 
-        Analytics.log(event: .transactionSent, params: analyticsParameters, analyticsSystems: .all)
+        Analytics.log(
+            event: .transactionSent,
+            params: analyticsParameters,
+            analyticsSystems: .all,
+            otelParamOverrides: Analytics.otelCustomTokenOverrides(
+                token: sourceTokenItem,
+                feeToken: sendFeeInput?.selectedFee?.tokenItem
+            )
+        )
     }
 }
 
@@ -985,7 +997,12 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             params[.feeAssetType] = Analytics.ParameterValue.feeAssetType(isGasless: isGasless).rawValue
         }
 
-        Analytics.log(event: .transactionSent, params: params, analyticsSystems: .all)
+        Analytics.log(
+            event: .transactionSent,
+            params: params,
+            analyticsSystems: .all,
+            otelParamOverrides: Analytics.otelCustomTokenOverrides(token: tokenItem, feeToken: tokenFee?.tokenItem)
+        )
 
         switch amount?.type {
         case .none: break
