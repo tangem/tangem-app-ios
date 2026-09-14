@@ -247,8 +247,8 @@ private extension CommonSwapNotificationManager {
              .restriction(.notEnoughAmountForTxValue(_, _, let feeCurrencyBalance), _):
             return [makeNotEnoughFeeForTokenTxEvent(tokenItem: source.tokenItem, feeCurrencyBalance: feeCurrencyBalance)]
 
-        case .restriction(.notEnoughReceivedAmount(let minAmount, let tokenSymbol), _):
-            return [.notEnoughReceivedAmountForReserve(amountFormatted: "\(minAmount.formatted()) \(tokenSymbol)")]
+        case .restriction(.notEnoughReceivedAmount(let minAmount, let tokenSymbol, let reason), _):
+            return [.notEnoughReceivedAmount(amountFormatted: "\(minAmount.formatted()) \(tokenSymbol)", reason: reason)]
 
         case .restriction(.regionRestricted, _):
             return [.regionRestricted]

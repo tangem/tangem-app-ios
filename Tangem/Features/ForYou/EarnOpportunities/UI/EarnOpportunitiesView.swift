@@ -150,7 +150,7 @@ private extension EarnOpportunitiesView {
             action: viewModel.exploreAllTokensTapped
         )
         .size(.x9)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .horizontalLayout(.infinity)
     }
 }

@@ -77,7 +77,7 @@ extension TangemPayAddFundsSheetViewModel {
             options: .init(
                 tokenItem: TangemPayUtilities.usdcTokenItem,
                 flow: .crypto,
-                addressTypesProvider: TangemPayReceiveAddressTypesProvider(
+                addressTypesProvider: SingleAddressReceiveAddressTypesProvider(
                     address: address,
                     colorScheme: .whiteBlack
                 )

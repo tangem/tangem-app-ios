@@ -10,6 +10,14 @@ import Foundation
 import TangemSdk
 
 enum TwinCardsUtils {
+    static func isTwinCard(_ card: Card) -> Bool {
+        series(for: card) != nil
+    }
+
+    static func series(for card: Card) -> TwinCardSeries? {
+        TwinCardSeries.series(for: card.cardId)
+    }
+
     static func isCidValid(_ cid: String) -> Bool {
         calculateLuhnRemainder(cid) == 0
     }

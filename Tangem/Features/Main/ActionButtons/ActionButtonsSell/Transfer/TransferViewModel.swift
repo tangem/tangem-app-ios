@@ -25,6 +25,7 @@ final class TransferViewModel: ObservableObject {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
+    @Injected(\.cryptoAccountsGlobalStateProvider) private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
 
     private let walletModel: any WalletModel
     private let userWalletInfo: UserWalletInfo
@@ -125,11 +126,8 @@ private extension TransferViewModel {
 
     func makeBadge() -> AddFundsTokenInfoView.Badge? {
         let unlockedWallets = userWalletRepository.models.filter { !$0.isUserWalletLocked }
-        let hasMultipleAccounts = unlockedWallets.contains {
-            $0.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
-        }
 
-        if hasMultipleAccounts {
+        if cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple {
             let accountBadge = makeAccountBadge()
             return .account(accountBadge)
         }

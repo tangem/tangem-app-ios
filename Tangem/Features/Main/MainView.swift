@@ -29,8 +29,8 @@ struct MainView: View {
             userWalletPageBuilders: viewModel.pages,
             selectedCardIndex: $viewModel.selectedCardIndex,
             onSelectedCardChanged: viewModel.onPageChange,
-            pullToRefreshAction: viewModel.pullToRefresh,
-            isPullToRefreshRunning: viewModel.isPullToRefreshRunning,
+            pullToRefreshAction: viewModel.pullToRefresh(userWalletID:),
+            refreshingUserWalletIDs: viewModel.refreshingUserWalletIDs,
             scanQRCodeAction: viewModel.openQRScan,
             detailsAction: viewModel.openDetails
         )
