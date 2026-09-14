@@ -139,7 +139,6 @@ struct PolymarketMainView: View {
 
     // MARK: - Balance
 
-    // [REDACTED_TODO_COMMENT]
     private var header: some View {
         VStack(spacing: 0) {
             balanceBlock
@@ -155,10 +154,72 @@ struct PolymarketMainView: View {
                     .padding(.top, Constants.bannerTopSpacing)
             }
 
+            positionsSection
+                .padding(.top, Constants.positionsTopSpacing)
+
             exploreEventsTitle
                 .padding(.top, Constants.headerSpacing)
         }
         .padding(.top, Constants.headerTopPadding)
+    }
+
+    // MARK: - My Predictions
+
+    @ViewBuilder
+    private var positionsSection: some View {
+        switch viewModel.positionsState {
+        case .loading:
+            positionsBlock { PolymarketPositionsSkeletonView(rowCount: Constants.positionsSkeletonRowCount) }
+        case .failed:
+            positionsBlock {
+                PolymarketEmptyMessageView(
+                    message: Localization.predictionPositionsLoadError,
+                    onRetry: viewModel.loadPositions
+                )
+            }
+        case .loaded(let models) where !models.isEmpty:
+            positionsBlock {
+                VStack(spacing: Constants.positionsRowSpacing) {
+                    ForEach(models) { model in
+                        PolymarketPositionRow(model: model)
+                    }
+
+                    seeAllPositionsButton
+                }
+            }
+        case .loaded:
+            EmptyView()
+        }
+    }
+
+    private func positionsBlock(@ViewBuilder content: () -> some View) -> some View {
+        VStack(spacing: Constants.positionsSpacing) {
+            positionsHeader
+
+            content()
+        }
+        .padding(.horizontal, Constants.horizontalPadding)
+    }
+
+    private var positionsHeader: some View {
+        HStack(spacing: Constants.positionsSpacing) {
+            Text(Localization.predictionPositionsMainTitle)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            // [REDACTED_TODO_COMMENT]
+            Badge(label: Localization.predictionPositionsFinished, accessibilityLabel: nil)
+                .size(.x9)
+                .slotEnd(DesignSystem.Icons.ChevronRight.regular16)
+        }
+    }
+
+    private var seeAllPositionsButton: some View {
+        // [REDACTED_TODO_COMMENT]
+        TangemUI.Button(label: Localization.predictionPositionsViewAllActive, accessibilityLabel: nil, action: {})
+            .size(.x9)
+            .styleType(.secondary(.default))
+            .disabled(true)
     }
 
     private var regionRestrictionBanner: some View {
@@ -389,6 +450,10 @@ extension PolymarketMainView {
         static let tabsVerticalPadding: CGFloat = 8
         static let paginationVerticalPadding: CGFloat = 20
 
+        static let positionsSpacing: CGFloat = 16
+        static let positionsRowSpacing: CGFloat = 8
+        static let positionsTopSpacing: CGFloat = 24
+        static let positionsSkeletonRowCount = 3
         static let headerTopPadding: CGFloat = 24
         static let headerSpacing: CGFloat = 40
         static let bannerTopSpacing: CGFloat = 24

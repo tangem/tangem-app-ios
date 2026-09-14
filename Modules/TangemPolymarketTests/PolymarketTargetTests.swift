@@ -32,6 +32,17 @@ struct PolymarketTargetTests {
 
     private enum TestError: Error { case notRequestParameters }
 
+    private var positionsRequest: PolymarketPositionsRequest {
+        PolymarketPositionsRequest(
+            depositWalletAddress: "0xdead",
+            walletId: "w1",
+            sort: .cashPnl,
+            ascending: false,
+            limit: 30,
+            offset: 60
+        )
+    }
+
     private var quoteBody: PolymarketDTO.OrderQuoteRequestBody {
         PolymarketDTO.OrderQuoteRequestBody(marketId: "m1", assetId: "a1", side: "BUY", amount: "10", slippage: "0.25")
     }
@@ -45,6 +56,7 @@ struct PolymarketTargetTests {
         #expect(target(.series).path == "api/predictions/v1/series")
         #expect(target(.seriesEvents(seriesId: "s1")).path == "api/predictions/v1/series/s1/events")
         #expect(target(.orderQuote(quoteBody)).path == "api/predictions/v1/orders/quote")
+        #expect(target(.positions(positionsRequest)).path == "api/predictions/v1/positions")
     }
 
     @Test("Discovery reads over GET, the quote is posted")
@@ -56,6 +68,7 @@ struct PolymarketTargetTests {
         #expect(target(.series).method == .get)
         #expect(target(.seriesEvents(seriesId: "s1")).method == .get)
         #expect(target(.orderQuote(quoteBody)).method == .post)
+        #expect(target(.positions(positionsRequest)).method == .get)
     }
 
     @Test("categories: locale omitted when nil, sent when present")
@@ -92,8 +105,22 @@ struct PolymarketTargetTests {
         #expect(full["page"] as? Int == 2)
     }
 
-    @Test("No target-specific headers")
+    @Test("Only positions carry a target-specific header")
     func headers() {
         #expect(target(.series).headers == nil)
+        #expect(target(.orderQuote(quoteBody)).headers == nil)
+        #expect(target(.positions(positionsRequest)).headers == ["wallet-id": "w1"])
+    }
+
+    @Test("positions: the whole page window goes into the query")
+    func positionsParameters() throws {
+        let parameters = try queryParameters(target(.positions(positionsRequest)).task)
+
+        #expect(parameters["depositWalletAddress"] as? String == "0xdead")
+        #expect(parameters["sort"] as? String == "cashPnl")
+        #expect(parameters["ascending"] as? Bool == false)
+        #expect(parameters["limit"] as? Int == 30)
+        #expect(parameters["offset"] as? Int == 60)
+        #expect(parameters.count == 5)
     }
 }
