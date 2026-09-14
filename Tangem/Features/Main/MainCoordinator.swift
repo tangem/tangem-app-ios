@@ -65,6 +65,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var tangemPayMainCoordinator: TangemPayMainCoordinator?
     @Published var tangemPaySelectPlanCoordinator: TangemPaySelectPlanCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
+    @Published var tangemPayCampaignCoordinator: TangemPayCampaignCoordinator?
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
     @Published var mainQRScanFlowCoordinator: MainQRScanFlowCoordinator?
 
