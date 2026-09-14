@@ -39,7 +39,7 @@ struct JointAccountsNetworkMapperTests {
         let accounts = try mapper.mapToJointAccounts(from: response)
 
         #expect(accounts.count == 1)
-        #expect(accounts.first?.status == .confirming)
+        #expect(accounts.first?.status == .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"))
         #expect(accounts.first?.members.map(\.name) == ["Alice", "Bob"])
         #expect(accounts.first?.members.map(\.role) == [.creator, .member])
         #expect(accounts.first?.members.map(\.inviteId) == [nil, "F0E1D2C3A4B5C6D7"])
@@ -56,7 +56,6 @@ struct JointAccountsNetworkMapperTests {
         "A status the contract names is read as that status",
         arguments: [
             ("pending", JointAccountStatus.pending),
-            ("confirming", .confirming),
             ("cancelled", .cancelled),
         ]
     )
@@ -85,6 +84,25 @@ struct JointAccountsNetworkMapperTests {
         }
     }
 
+    @Test("An account awaiting activation is read with the address it is about to be activated at")
+    func confirmingStatusCarriesTheAddress() throws {
+        let json = Constants.accountsJSON(status: "confirming", safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b")
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(json)
+
+        let statuses = try mapper.mapToJointAccounts(from: response).map(\.status)
+
+        #expect(statuses == [.confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b")])
+    }
+
+    /// Unlike an activated account, which is unusable without the address it is operated at, this one is merely
+    /// unactivatable — and refusing it would cost every other account in the answer its refresh.
+    @Test("An account awaiting activation without an address is read all the same, with nothing to activate at")
+    func confirmingStatusWithoutAddressIsRead() throws {
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(Constants.accountsJSON(status: "confirming"))
+
+        #expect(try mapper.mapToJointAccounts(from: response).map(\.status) == [.confirming(safeAddress: nil)])
+    }
+
     @Test("A status this version has never heard of costs nothing but itself")
     func unfamiliarStatusIsRead() throws {
         let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(Constants.accountsJSON(status: "settling"))
@@ -101,11 +119,29 @@ struct JointAccountsNetworkMapperTests {
 
     @Test("A stored status survives a round trip, whether this version knows it or not")
     func statusRoundTripsThroughStorage() throws {
-        for status in [JointAccountStatus.pending, .confirming, .active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"), .cancelled, .unknown] {
+        let statuses: [JointAccountStatus] = [
+            .pending,
+            .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"),
+            .confirming(safeAddress: nil),
+            .active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"),
+            .cancelled,
+            .unknown,
+        ]
+
+        for status in statuses {
             let encoded = try JSONEncoder().encode(status)
 
             #expect(try JSONDecoder().decode(JointAccountStatus.self, from: encoded) == status)
         }
+    }
+
+    /// The stage carried no address at all before activation was built, so a record written by such a build names
+    /// the case and nothing else — and still has to read back rather than take its account down with it.
+    @Test("A stage stored before it carried an address is read as one that names none")
+    func statusStoredWithoutPayloadIsRead() throws {
+        let stored = Data(#"{"confirming":{}}"#.utf8)
+
+        #expect(try JSONDecoder().decode(JointAccountStatus.self, from: stored) == .confirming(safeAddress: nil))
     }
 
     @Test("An unfinished operation rides inside its account through the listing")
