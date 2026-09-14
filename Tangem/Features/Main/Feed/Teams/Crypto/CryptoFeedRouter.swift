@@ -12,7 +12,6 @@ protocol CryptoFeedRoutable: AnyObject {
     func openToken(_ token: MarketsTokenModel)
     func openPulseTagFilter(with input: PulseTagFilterInput)
     func openPortfolioToken(_ walletModel: any WalletModel)
-    func choosePortfolioToken(from walletModels: [any WalletModel])
 }
 
 final class CryptoFeedRouter {
@@ -20,7 +19,6 @@ final class CryptoFeedRouter {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     private weak var navigation: (any FeedNavigation)?
-    private weak var portfolioTokenList: MarketsPortfolioTokenListViewModel?
     private weak var tagFilter: PulseTagFilterBottomSheetViewModel?
 
     private let popToRootAction: Action<PopToRootOptions>
@@ -88,32 +86,5 @@ extension CryptoFeedRouter: CryptoFeedRoutable {
             )
         )
         navigation?.push(.portfolioToken(coordinator))
-    }
-
-    func choosePortfolioToken(from walletModels: [any WalletModel]) {
-        guard portfolioTokenList == nil else {
-            return
-        }
-
-        let viewModel = MarketsPortfolioTokenListViewModel(
-            walletModels: walletModels,
-            onSelect: { [weak self] walletModel in self?.openPortfolioToken(walletModel) },
-            coordinator: self
-        )
-
-        portfolioTokenList = viewModel
-        navigation?.present(.portfolioTokenList(viewModel))
-    }
-}
-
-// MARK: - MarketsPortfolioTokenListRoutable
-
-extension CryptoFeedRouter: MarketsPortfolioTokenListRoutable {
-    func closePortfolioTokenList() {
-        guard let portfolioTokenList else {
-            return
-        }
-
-        navigation?.dismiss(id: ObjectIdentifier(portfolioTokenList))
     }
 }
