@@ -112,19 +112,6 @@ public extension TabNavigation {
     }
 }
 
-// MARK: - Scroll clipping
-
-private struct DisableScrollClipIfAvailable: ViewModifier {
-    @ViewBuilder
-    func body(content: Content) -> some View {
-        if #available(iOS 17.0, *) {
-            content.scrollClipDisabled()
-        } else {
-            content
-        }
-    }
-}
-
 // MARK: - Constants
 
 private enum Constants {
