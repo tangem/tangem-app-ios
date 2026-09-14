@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemPolymarketUI
 import TangemUI
 import TangemUIUtils
@@ -42,6 +43,14 @@ struct PolymarketCoordinatorView: CoordinatorView {
                 switch destination {
                 case .eventDetails(let viewModel):
                     PolymarketEventDetailsView(viewModel: viewModel)
+                case .positionDetails(let model):
+                    PolymarketPositionDetailsView(model: model) { coordinator.destination = nil }
+                        .background(FeedPopGestureEnabler())
+                        .sheet(item: $coordinator.positionHint) { hint in
+                            PolymarketPositionHintSheetView(model: hint)
+                                .presentationDetents(idealHeight: Constants.positionHintSheetHeight)
+                                .presentationBackground(DesignSystem.Color.bgPrimary)
+                        }
                 }
             }
             .navigation(item: $coordinator.orderCoordinator) { coordinator in
@@ -50,5 +59,13 @@ struct PolymarketCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tokenDetailsCoordinator) { coordinator in
                 TokenDetailsCoordinatorView(coordinator: coordinator)
             }
+    }
+}
+
+// MARK: - Constants
+
+private extension PolymarketCoordinatorView {
+    enum Constants {
+        static let positionHintSheetHeight: CGFloat = 180
     }
 }
