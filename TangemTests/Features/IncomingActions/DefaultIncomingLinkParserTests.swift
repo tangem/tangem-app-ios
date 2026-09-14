@@ -131,6 +131,10 @@ struct DefaultIncomingLinkParserTests {
             urlString = "tangem://\(rawValue)?token=ntt-abc123"
         case .campaigns:
             urlString = "tangem://\(rawValue)?campaignId=some-id"
+        case .payCustomCard:
+            // `.payCustomCard` is owned exclusively by `TangemPayCampaignLinkParser`, which reads the
+            // AppsFlyer payload rather than the host, so `tangem://pay-custom-card` resolves to nothing.
+            return
         default:
             urlString = "tangem://\(rawValue)?type=income_transaction"
         }

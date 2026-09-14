@@ -177,6 +177,9 @@ extension CommonDeepLinkValidator: DeeplinkValidator {
 
         case .jointAccountInvite:
             return hasEnoughJointAccountInviteParams(params: params)
+
+        case .payCustomCard:
+            return areParamsValid(params, keys: \.campaignId)
         }
     }
 }
