@@ -228,5 +228,10 @@ extension Analytics {
         case document = "Document"
         case entryReason = "Entry Reason"
         case stage = "Stage"
+
+        // MARK: - Markets sections
+
+        case section = "Section"
+        case category = "Category"
     }
 }
