@@ -9,15 +9,11 @@
 import Foundation
 
 public protocol PolymarketDepositWalletService {
-    func depositWalletState(
-        ownerAddress: String?,
-        walletId: String
-    ) async throws(PolymarketWalletError) -> PolymarketDepositWallet
+    func depositWalletState(ownerAddress: String?) async throws(PolymarketWalletError) -> PolymarketDepositWallet
 
     func deployWallet(
         ownerAddress: String,
-        depositWalletAddress: String,
-        walletId: String
+        depositWalletAddress: String
     ) async throws(PolymarketWalletError) -> PolymarketDepositWalletStatus
 
     func submitApprovals(_ batch: PolymarketRelayedBatch) async throws(PolymarketWalletError) -> PolymarketDepositWalletStatus

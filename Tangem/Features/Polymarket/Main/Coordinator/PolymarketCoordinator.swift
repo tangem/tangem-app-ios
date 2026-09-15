@@ -156,28 +156,32 @@ extension PolymarketCoordinator: PolymarketWelcomeRoutable {
 
 private extension PolymarketCoordinator {
     func showMain() {
+        guard let userWalletModel else {
+            PolymarketLogger.error("The feed was opened without a wallet", error: CoordinatorError.missingUserWalletModel)
+            dismiss()
+            return
+        }
+
         let geoblockStateProvider = CommonPolymarketGeoblockStateProvider(
             geoblockService: PolymarketOnboardingServicesFactory.makeDefault().makeGeoblockService()
         )
 
         let balanceProvider = CommonPolymarketBalanceProvider(userWalletModel: userWalletModel)
-        let accountFundsInteractor = userWalletModel.map { PolymarketAccountFundsFactory().makeInteractor(for: $0) }
+        let accountFundsInteractor = PolymarketAccountFundsFactory().makeInteractor(for: userWalletModel)
 
         self.geoblockStateProvider = geoblockStateProvider
         self.balanceProvider = balanceProvider
         self.accountFundsInteractor = accountFundsInteractor
-        withdrawContext = userWalletModel.map { PolymarketWithdrawFactory().makeContext(for: $0) }
+        withdrawContext = PolymarketWithdrawFactory().makeContext(for: userWalletModel)
 
-        let apiProvider = PolymarketAPIProviderFactory().makeProvider()
+        let apiProvider = PolymarketAPIProviderFactory().makeProvider(walletId: userWalletModel.userWalletId.stringValue)
 
         viewState = .main(PolymarketMainViewModel(
             apiProvider: apiProvider,
             geoblockStateProvider: geoblockStateProvider,
             balanceProvider: balanceProvider,
             accountFundsInteractor: accountFundsInteractor,
-            positionsService: userWalletModel.map {
-                PolymarketPositionsFactory().makeService(for: $0, apiProvider: apiProvider)
-            },
+            positionsService: PolymarketPositionsFactory().makeService(for: userWalletModel, apiProvider: apiProvider),
             coordinator: self
         ))
     }
@@ -200,10 +204,15 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
     }
 
     func openEventDetails(eventID: String, category: PolymarketCategory?) {
+        guard let userWalletModel else {
+            PolymarketLogger.error("An event was tapped without a wallet", error: CoordinatorError.missingUserWalletModel)
+            return
+        }
+
         destination = .eventDetails(PolymarketEventDetailsViewModel(
             eventID: eventID,
             category: category,
-            apiProvider: PolymarketAPIProviderFactory().makeProvider(),
+            apiProvider: PolymarketAPIProviderFactory().makeProvider(walletId: userWalletModel.userWalletId.stringValue),
             geoblockStateProvider: geoblockStateProvider,
             coordinator: self
         ))
@@ -241,6 +250,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
             market: market,
             outcome: outcome,
             eventTitle: eventTitle,
+            walletId: userWalletModel.userWalletId.stringValue,
             geoblockStateProvider: geoblockStateProvider,
             balancePublisher: balanceProvider.collateralBalancePublisher.map(\.value).eraseToAnyPublisher(),
             placementService: PolymarketOrderPlacementFactory().makeService(for: userWalletModel)
