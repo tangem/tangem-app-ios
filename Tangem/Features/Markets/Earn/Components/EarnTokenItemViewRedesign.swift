@@ -87,7 +87,7 @@ private extension EarnTokenItemViewRedesign {
                 .foregroundStyle(DesignSystem.Color.iconSecondary)
                 .frame(width: earnImageSide, height: earnImageSide)
 
-            Text(viewModel.earnType.rawValue)
+            Text(viewModel.earnType.title)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
         }
