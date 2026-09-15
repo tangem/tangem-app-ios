@@ -72,15 +72,14 @@ private struct DepositWalletServiceStub: PolymarketDepositWalletService {
     var status: PolymarketDepositWalletStatus = .readyToTrade
     var stateError: PolymarketWalletError?
 
-    func depositWalletState(ownerAddress: String?, walletId: String) async throws(PolymarketWalletError) -> PolymarketDepositWallet {
+    func depositWalletState(ownerAddress: String?) async throws(PolymarketWalletError) -> PolymarketDepositWallet {
         if let stateError { throw stateError }
         return PolymarketDepositWallet(address: storedAddress, status: status)
     }
 
     func deployWallet(
         ownerAddress: String,
-        depositWalletAddress: String,
-        walletId: String
+        depositWalletAddress: String
     ) async throws(PolymarketWalletError) -> PolymarketDepositWalletStatus {
         .readyToTrade
     }
@@ -178,8 +177,7 @@ private func makeInteractor(
         bridgeService: bridge,
         configurationService: configuration,
         walletService: walletService,
-        ownerAddressProvider: ownerAddressProvider,
-        walletId: "wallet-id"
+        ownerAddressProvider: ownerAddressProvider
     )
 }
 

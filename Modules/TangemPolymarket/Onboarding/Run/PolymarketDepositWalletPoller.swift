@@ -12,7 +12,6 @@ import TangemFoundation
 public struct PolymarketDepositWalletPoller {
     private let walletService: PolymarketDepositWalletService
     private let ownerAddress: String
-    private let walletId: String
     private let depositWalletAddress: String
     private let interval: TimeInterval
     private let delayProvider: PollDelayProvider
@@ -20,14 +19,12 @@ public struct PolymarketDepositWalletPoller {
     public init(
         walletService: PolymarketDepositWalletService,
         ownerAddress: String,
-        walletId: String,
         depositWalletAddress: String,
         interval: TimeInterval,
         delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
         self.walletService = walletService
         self.ownerAddress = ownerAddress
-        self.walletId = walletId
         self.depositWalletAddress = depositWalletAddress
         self.interval = interval
         self.delayProvider = delayProvider
@@ -109,8 +106,8 @@ private extension PolymarketDepositWalletPoller {
     func makeSequence() -> PollingSequence<PolymarketDepositWallet> {
         PollingSequence(
             interval: interval,
-            request: { [walletService, ownerAddress, walletId] in
-                try await walletService.depositWalletState(ownerAddress: ownerAddress, walletId: walletId)
+            request: { [walletService, ownerAddress] in
+                try await walletService.depositWalletState(ownerAddress: ownerAddress)
             },
             delayProvider: delayProvider
         )

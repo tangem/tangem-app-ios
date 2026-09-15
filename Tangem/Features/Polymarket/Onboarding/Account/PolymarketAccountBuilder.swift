@@ -32,7 +32,7 @@ struct PolymarketAccountBuilder {
 
         return CommonPolymarketAccountModel(
             userWalletId: userWalletId,
-            walletService: services.makeWalletService(),
+            walletService: services.makeWalletService(walletId: userWalletId.stringValue),
             clobService: services.makeCLOBService(),
             credentialsRepository: CommonPolymarketCredentialsRepository(),
             ownerAddressProvider: CommonPolymarketOwnerAddressProvider(

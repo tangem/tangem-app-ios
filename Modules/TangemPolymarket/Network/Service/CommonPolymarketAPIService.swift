@@ -14,12 +14,14 @@ import TangemNetworkUtils
 final class CommonPolymarketAPIService {
     private let provider: TangemProvider<PolymarketTarget>
     private let baseURL: URL
+    private let walletId: String
 
     private let decoder = JSONDecoder()
 
-    init(provider: TangemProvider<PolymarketTarget>, baseURL: URL) {
+    init(provider: TangemProvider<PolymarketTarget>, baseURL: URL, walletId: String) {
         self.provider = provider
         self.baseURL = baseURL
+        self.walletId = walletId
     }
 }
 
@@ -63,7 +65,7 @@ extension CommonPolymarketAPIService: PolymarketAPIService {
 
 private extension CommonPolymarketAPIService {
     func request<T: Decodable>(_ target: PolymarketTarget.Target) async throws -> T {
-        let request = PolymarketTarget(baseURL: baseURL, target: target)
+        let request = PolymarketTarget(baseURL: baseURL, walletId: walletId, target: target)
 
         do {
             let response = try await provider.requestPublisher(request).async()
