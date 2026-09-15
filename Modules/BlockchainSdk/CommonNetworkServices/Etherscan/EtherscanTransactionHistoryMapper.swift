@@ -107,13 +107,17 @@ final class EtherscanTransactionHistoryMapper {
 
     private func mapToAPIError(_ result: EtherscanTransactionHistoryResult) -> EtherscanAPIError {
         switch result.result {
-        case .description(let description) where description.lowercased().starts(with: Constants.maxRateLimitReachedResultPrefix):
+        case .description(let description) where description.caseInsensitiveContains(Constants.rateLimitReachedResultMarker):
             return .maxRateLimitReached
         case .transactions(let transactions) where transactions.isEmpty:
             // There is no `totalPageCount` or similar field in the Etherscan transaction history API,
             // so we determine the end of the transaction history by receiving an empty response
             return .endOfTransactionHistoryReached
-        default:
+        case .description,
+             .transactions:
+            BSDKLogger.error(
+                error: "Unrecognized Etherscan API failure. Status: \(result.status), message: \(result.message ?? "nil"), result: \(result.result.description ?? "no description")"
+            )
             return .unknown
         }
     }
@@ -218,7 +222,7 @@ extension EtherscanTransactionHistoryMapper: TransactionHistoryMapper {
             let index = transactionIndicesCounter[transaction.hash, default: 0]
             transactionIndicesCounter[transaction.hash] = index + 1
 
-            let isFromYieldContract = aaveTokens?.contains(transaction.from.lowercased()) ?? false
+            let isFromYieldContract = aaveTokens?.contains { $0.caseInsensitiveEquals(to: transaction.from) } ?? false
 
             return TransactionRecord(
                 hash: transaction.hash,
@@ -246,7 +250,7 @@ extension EtherscanTransactionHistoryMapper: TransactionHistoryMapper {
 
 private extension EtherscanTransactionHistoryMapper {
     enum Constants {
-        static let maxRateLimitReachedResultPrefix = "max rate limit reached"
+        static let rateLimitReachedResultMarker = "rate limit reached"
         /// Method names in the API look like `swap(address executor,tuple desc,bytes permit,bytes data)`,
         /// so we have to remove all method signatures (parameters, types, etc).
         static let methodNameSeparator = "("
