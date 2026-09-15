@@ -83,10 +83,19 @@ extension VisaWalletModel: WalletModelBalancesProvider {
     }
 
     func makeTotalTokenBalanceProvider() -> TokenBalanceProvider {
-        TotalTokenBalanceProvider(
+        guard FeatureProvider.isAvailable(.totalTokenBalanceV2) else {
+            return TotalTokenBalanceProvider(
+                tokenItem: tokenItem,
+                availableBalanceProvider: availableBalanceProvider,
+                stakingBalanceProvider: stakingBalanceProvider
+            )
+        }
+
+        // Visa has no staking — nothing replaces the legacy .loaded(0) stub
+        return CompositeTotalTokenBalanceProvider(
             tokenItem: tokenItem,
-            availableBalanceProvider: availableBalanceProvider,
-            stakingBalanceProvider: stakingBalanceProvider
+            base: availableBalanceProvider,
+            compositors: []
         )
     }
 
