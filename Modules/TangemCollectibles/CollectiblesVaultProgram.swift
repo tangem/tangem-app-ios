@@ -119,6 +119,47 @@ public struct CollectiblesVaultProgram {
         )
     }
 
+    // MARK: - Instructions
+
+    /// The program's account order: vault, cold owner (read-only signer), payer (writable signer), system
+    /// program. When the cold owner pays for itself the two signer slots collapse into one account whose
+    /// flags merge, which is exactly what the message compiler produces.
+    public func initVaultInstruction(
+        coldOwner: Data,
+        payer: Data,
+        hotDelegate: Data,
+        perSpinCap: UInt64,
+        dailyCap: UInt64
+    ) throws -> CollectiblesInstruction {
+        guard
+            coldOwner.count == PublicKey.LENGTH, let coldOwnerKey = PublicKey(data: coldOwner),
+            payer.count == PublicKey.LENGTH, let payerKey = PublicKey(data: payer)
+        else {
+            throw ProgramError.invalidPublicKey
+        }
+
+        let data = try Self.initVaultInstructionData(
+            hotDelegate: hotDelegate,
+            perSpinCap: perSpinCap,
+            dailyCap: dailyCap
+        )
+
+        // Anchor's account-creation instructions require the System Program in the account list — a
+        // different program from `programId` above, which is the vault program this instruction targets.
+        let systemProgramAddress = PublicKey.programId.base58EncodedString
+
+        return CollectiblesInstruction(
+            programId: programId.base58EncodedString,
+            accounts: [
+                .init(address: try vaultPDA(coldOwner: coldOwnerKey).base58EncodedString, isSigner: false, isWritable: true),
+                .init(address: coldOwnerKey.base58EncodedString, isSigner: true, isWritable: false),
+                .init(address: payerKey.base58EncodedString, isSigner: true, isWritable: true),
+                .init(address: systemProgramAddress, isSigner: false, isWritable: false),
+            ],
+            data: data
+        )
+    }
+
     // MARK: - Instruction data
 
     static func openPackInstructionData(amount: UInt64, memo: String) -> Data {

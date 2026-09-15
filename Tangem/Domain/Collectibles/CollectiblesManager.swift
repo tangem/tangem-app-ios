@@ -39,6 +39,10 @@ final class CollectiblesManager {
         self.vaultReader = vaultReader
         self.hotDelegateSigner = hotDelegateSigner
         self.transactionSender = transactionSender
+
+        runTask { [weak self] in
+            await self?.refreshState()
+        }
     }
 }
 
@@ -77,8 +81,12 @@ extension CollectiblesManager: CollectiblesAccountModel {
 
 extension CollectiblesManager {
     func refreshState() async {
-        // A read that failed says nothing about the vault, so the last resolved state stands
-        try? await sharedRefreshTask().value
+        do {
+            try await sharedRefreshTask().value
+        } catch {
+            // A read that failed says nothing about the vault, so the last resolved state stands
+            CollectiblesLogger.error("State resolve failed, keeping the last known state", error: error)
+        }
     }
 }
 
@@ -176,6 +184,8 @@ private extension CollectiblesManager {
     }
 
     func resolveAndPublishState() async throws {
+        CollectiblesLogger.debug("State resolve started, current: \(stateSubject.value.logDescription)")
+
         guard let coldOwner = coldOwnerProvider.coldOwnerKey()?.blockchainKey else {
             update(state: .coldOwnerNotDerived)
             return
@@ -201,10 +211,28 @@ private extension CollectiblesManager {
     func update(state: CollectiblesState) {
         // Every emission re-triggers the accounts pipeline's CombineLatest — don't re-publish sameness
         guard state != stateSubject.value else {
+            CollectiblesLogger.debug("State resolve finished, unchanged: \(state.logDescription)")
             return
         }
 
+        CollectiblesLogger.debug("State resolved: \(state.logDescription), was: \(stateSubject.value.logDescription)")
         stateSubject.send(state)
+    }
+}
+
+// MARK: - Log description
+
+private extension CollectiblesState {
+    /// Debug-only: the vault address and the remaining daily budget are per-user spend data, so they stay
+    /// out of the production log file rather than being written at a level the sanitizer lets through.
+    var logDescription: String {
+        switch self {
+        case .unresolved: "unresolved"
+        case .notOnboarded: "notOnboarded"
+        case .coldOwnerNotDerived: "coldOwnerNotDerived"
+        case .rekeyRequired(let vault): "rekeyRequired(vault: \(vault.vaultAddress))"
+        case .ready(let vault): "ready(vault: \(vault.vaultAddress), remainingToday: \(vault.remainingToday(now: Date())))"
+        }
     }
 }
 

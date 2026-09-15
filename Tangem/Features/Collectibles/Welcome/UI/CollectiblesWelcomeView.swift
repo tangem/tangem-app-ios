@@ -29,7 +29,7 @@ struct CollectiblesWelcomeView: View {
         }
         .safeAreaInset(edge: .bottom) {
             Footer(
-                isLoading: viewModel.isOpeningStories,
+                isLoading: viewModel.isOnboarding,
                 onCreateAccountTap: viewModel.onCreateAccountTap,
                 onTermsTap: viewModel.onLegalTermsTap(url:)
             )
