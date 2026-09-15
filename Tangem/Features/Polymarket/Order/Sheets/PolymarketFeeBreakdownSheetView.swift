@@ -30,7 +30,7 @@ struct PolymarketFeeBreakdownSheetView: View {
         }
         .frame(maxWidth: .infinity)
         .background(DesignSystem.Color.bgSecondary.ignoresSafeArea())
-        .presentationDetents([.height(Constants.compactHeight), .large])
+        .presentationDetents([.height(Constants.compactHeight)])
         .presentationDragIndicator(.visible)
     }
 

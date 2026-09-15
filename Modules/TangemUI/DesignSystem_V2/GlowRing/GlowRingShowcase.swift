@@ -74,7 +74,7 @@ private extension GlowRingShowcase {
     var size: GlowRingSize {
         switch sizeOption {
         case .card: .card(cornerRadius: cornerRadius)
-        case .fullscreen: .fullscreen
+        case .fullscreen: .fullscreen(cornerRadius: nil)
         }
     }
 

@@ -95,19 +95,21 @@ private struct ShtorkaBackgroundModifier: ViewModifier {
         } else {
             filled(content)
                 .presentationBackground(.ultraThinMaterial)
-                .presentationCornerRadius(Constants.legacyCornerRadius)
+                .presentationCornerRadius(Constants.cornerRadius)
         }
     }
 
     private func filled(_ content: Content) -> some View {
-        content.background {
-            ShtorkaSurface(
-                tintsMaterial: true,
-                opacity: size == .full ? 1 : 0,
-                expansionProgress: expansionProgress
-            )
-            .ignoresSafeArea()
-        }
+        content
+            .containerCornerRadius(Constants.cornerRadius)
+            .background {
+                ShtorkaSurface(
+                    tintsMaterial: true,
+                    opacity: size == .full ? 1 : 0,
+                    expansionProgress: expansionProgress
+                )
+                .ignoresSafeArea()
+            }
     }
 }
 
@@ -115,6 +117,6 @@ private struct ShtorkaBackgroundModifier: ViewModifier {
 
 private extension ShtorkaBackgroundModifier {
     enum Constants {
-        static let legacyCornerRadius: CGFloat = 40
+        static let cornerRadius: CGFloat = 40
     }
 }

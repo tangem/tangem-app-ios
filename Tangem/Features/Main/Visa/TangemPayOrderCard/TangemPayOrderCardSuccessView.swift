@@ -88,7 +88,7 @@ struct TangemPayOrderCardSuccessView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(DesignSystem.Color.bgPrimary)
-        .glowRing(.success, size: .fullscreen)
+        .glowRing(.success, size: .fullscreen(cornerRadius: nil))
         .ignoresSafeArea()
     }
 }
