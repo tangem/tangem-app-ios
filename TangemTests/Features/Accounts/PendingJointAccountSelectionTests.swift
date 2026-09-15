@@ -20,8 +20,8 @@ struct PendingJointAccountSelectionTests {
 
     @Test("Only the joint accounts that are waiting are picked out of the account list")
     func aggregatorPicksTheWaitingJointAccountsOnly() {
-        let waiting = makeJointAccount(status: .pending, membersCount: 3, takenSlotsCount: 1)
-        let working = makeJointAccount(status: .active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"), membersCount: 3, takenSlotsCount: 3)
+        let waiting = makeJointAccount(status: .pending)
+        let working = makeJointAccount(status: .active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"))
         let standard = CryptoAccountModelMock(isMainAccount: true, onArchive: { _ in })
 
         let accountModels: [AccountModel] = [.standard(.single(standard)), .joint([waiting, working])]
@@ -33,8 +33,8 @@ struct PendingJointAccountSelectionTests {
 
     @Test("Every joint account is reported when the status is not what is being asked about")
     func aggregatorReportsEveryJointAccount() {
-        let waiting = makeJointAccount(status: .pending, membersCount: 3, takenSlotsCount: 1)
-        let working = makeJointAccount(status: .active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"), membersCount: 3, takenSlotsCount: 3)
+        let waiting = makeJointAccount(status: .pending)
+        let working = makeJointAccount(status: .active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"))
         let standard = CryptoAccountModelMock(isMainAccount: true, onArchive: { _ in })
 
         let accountModels: [AccountModel] = [.standard(.single(standard)), .joint([waiting, working])]
@@ -59,26 +59,15 @@ struct PendingJointAccountSelectionTests {
 // MARK: - Helpers
 
 private extension PendingJointAccountSelectionTests {
-    func makeJointAccount(
-        status: JointAccountStatus,
-        membersCount: Int,
-        takenSlotsCount: Int
-    ) -> any JointAccountModel {
+    func makeJointAccount(status: JointAccountStatus) -> any JointAccountModel {
         CommonJointAccountModel(
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
             derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
-            policy: JointAccountPolicy(membersCount: membersCount, signersCount: 2),
-            status: status,
+            accountPolicy: JointAccountPolicy(membersCount: 3, signersCount: 2),
+            accountStatus: status,
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
-            members: (0 ..< takenSlotsCount).map { index in
-                JointAccountMember(
-                    name: "Member \(index)",
-                    address: "0x0000000000000000000000000000000000000000",
-                    role: index == 0 ? .creator : .member(inviteId: "invite-\(index)")
-                )
-            },
-            invites: (0 ..< max(0, membersCount - takenSlotsCount)).map { JointAccountInvite(id: "invite-\($0)") },
+            membersService: JointAccountMembersServiceMock(),
             delegate: delegate
         )
     }

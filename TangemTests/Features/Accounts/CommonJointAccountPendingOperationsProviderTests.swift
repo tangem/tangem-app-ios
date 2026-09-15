@@ -205,12 +205,13 @@ private extension CommonJointAccountPendingOperationsProviderTests {
         CommonJointAccountModel(
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
             derivationIdentity: Self.derivationIdentity,
-            policy: JointAccountPolicy(membersCount: 2, signersCount: 2),
-            status: .active(safeAddress: Self.safeAddress),
+            accountPolicy: JointAccountPolicy(membersCount: 2, signersCount: 2),
+            accountStatus: .active(safeAddress: Self.safeAddress),
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
-            members: [JointAccountMember(name: "Isaac", address: Self.creatorAddress, role: .creator)],
-            invites: [],
+            membersService: JointAccountMembersServiceMock(
+                slots: [.member(JointAccountMember(name: "Isaac", address: Self.creatorAddress, role: .creator))]
+            ),
             delegate: delegate
         )
     }
