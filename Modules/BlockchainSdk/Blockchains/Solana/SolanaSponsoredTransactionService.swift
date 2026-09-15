@@ -46,6 +46,39 @@ public final class SolanaSponsoredTransactionService {
             throw Self.sendError(from: error)
         }
     }
+
+    /// Assembles, signs and broadcasts a transaction the fee payer pays for itself — the devnet testing
+    /// path until the sponsor endpoint exists. The payer must hold enough SOL for the fee and any rent
+    /// the instructions allocate.
+    public func sendSelfPaid(
+        instructions: [SolanaRawInstruction],
+        feePayer: Wallet.PublicKey,
+        signer: TransactionSigner
+    ) async throws -> String {
+        guard let feePayerKey = PublicKey(data: feePayer.blockchainKey) else {
+            throw BlockchainSdkError.failedToConvertPublicKey
+        }
+
+        let convertedInstructions = try instructions.map { try $0.transactionInstruction() }
+
+        let blockhashFetchedAt = Date()
+        let blockhash = try await networkService.getLatestBlockhash()
+
+        let transaction = SolanaSwift.Transaction.empty(feePayer: feePayerKey, recentBlockhash: blockhash)
+        for instruction in convertedInstructions {
+            _ = transaction.add(instruction)
+        }
+
+        let solanaSigner = SolanaTransactionSigner(transactionSigner: signer, walletPublicKey: feePayer)
+        try await transaction.sign(signers: [solanaSigner], queue: DispatchQueue.global())
+
+        let serializedTransaction = try transaction.serialize().get()
+
+        return try await broadcast(
+            base64SerializedTransaction: serializedTransaction.base64EncodedString(),
+            startSendingTimestamp: blockhashFetchedAt
+        )
+    }
 }
 
 /// An on-chain account as `getAccountInfo` returns it, before any layout is imposed.
@@ -53,6 +86,51 @@ public struct SolanaRawAccount: Sendable {
     /// Base58 id of the program that owns the account.
     public let owner: String
     public let data: Data
+}
+
+/// A program instruction in plain values, for callers that must not link SolanaSwift themselves.
+public struct SolanaRawInstruction: Sendable {
+    public struct AccountMeta: Sendable {
+        public let address: String
+        public let isSigner: Bool
+        public let isWritable: Bool
+
+        public init(address: String, isSigner: Bool, isWritable: Bool) {
+            self.address = address
+            self.isSigner = isSigner
+            self.isWritable = isWritable
+        }
+    }
+
+    /// Base58 program id.
+    public let programId: String
+
+    /// In the exact order the program declares.
+    public let accounts: [AccountMeta]
+
+    public let data: Data
+
+    public init(programId: String, accounts: [AccountMeta], data: Data) {
+        self.programId = programId
+        self.accounts = accounts
+        self.data = data
+    }
+
+    fileprivate func transactionInstruction() throws -> TransactionInstruction {
+        guard let programIdKey = PublicKey(string: programId) else {
+            throw BlockchainSdkError.failedToConvertPublicKey
+        }
+
+        let keys = try accounts.map { meta -> SolanaSwift.Account.Meta in
+            guard let key = PublicKey(string: meta.address) else {
+                throw BlockchainSdkError.failedToConvertPublicKey
+            }
+
+            return .init(publicKey: key, isSigner: meta.isSigner, isWritable: meta.isWritable)
+        }
+
+        return TransactionInstruction(keys: keys, programId: programIdKey, data: [UInt8](data))
+    }
 }
 
 /// Keeps every byte of the account data for the caller to parse.

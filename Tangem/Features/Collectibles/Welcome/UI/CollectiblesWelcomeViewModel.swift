@@ -15,34 +15,42 @@ final class CollectiblesWelcomeViewModel: ObservableObject {
     // MARK: - Properties
 
     private weak var routable: (any CollectiblesWelcomeRoutable)?
+    private let onboarder: (any CollectiblesOnboarder)?
 
     // MARK: - Publishers
 
-    @Published private(set) var isOpeningStories = false
+    @Published private(set) var isOnboarding = false
     @Published var alert: AlertBinder?
 
     // MARK: - Init
 
-    init(routable: (any CollectiblesWelcomeRoutable)?) {
+    init(routable: (any CollectiblesWelcomeRoutable)?, onboarder: (any CollectiblesOnboarder)? = nil) {
         self.routable = routable
+        self.onboarder = onboarder
     }
 
     // MARK: - Methods
 
-    // [REDACTED_TODO_COMMENT]
-    // `creationFailureAlert` on failure; for now the CTA plays a loader and runs the intro stories.
     func onCreateAccountTap() {
-        guard !isOpeningStories else { return }
+        guard !isOnboarding else { return }
 
-        isOpeningStories = true
+        guard let onboarder else {
+            alert = Self.creationFailureAlert
+            return
+        }
+
+        isOnboarding = true
 
         Task { @MainActor [weak self] in
-            try await Task.sleep(for: .seconds(1.5))
-
-            guard let self else { return }
-
-            isOpeningStories = false
-            routable?.openStories()
+            do {
+                try await onboarder.onboard()
+                self?.isOnboarding = false
+                self?.routable?.openStories()
+            } catch {
+                CollectiblesLogger.error("Onboarding failed", error: error)
+                self?.isOnboarding = false
+                self?.alert = Self.creationFailureAlert
+            }
         }
     }
 

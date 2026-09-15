@@ -38,6 +38,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     // [REDACTED_INFO]
     @Published private(set) var tangemPayAccountViewModel: TangemPayAccountViewModel?
     @Published private(set) var polymarketAccountViewModel: AccountRowButtonViewModel?
+    @Published private(set) var collectiblesAccountViewModel: AccountRowButtonViewModel?
 
     @Published private(set) var pendingJointAccountViewModels: [PendingJointAccountItemViewModel] = []
     @Published private(set) var pendingJointAccountsOperationsViewData: [JointAccountOperationPlate.ViewData] = []
@@ -373,6 +374,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         nftFeatureLifecycleHandler.startObserving()
 
         bindPolymarketAccountRow()
+        bindCollectiblesAccountRow()
         bindPendingJointAccountPlates()
         bindPendingJointAccountOperationPlates()
     }
@@ -456,6 +458,25 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             }
             .receiveOnMain()
             .assign(to: &$polymarketAccountViewModel)
+    }
+
+    private func bindCollectiblesAccountRow() {
+        CollectiblesAccountAggregator
+            .collectiblesAccountModelPublisher(from: userWalletModel.accountModelsManager)
+            .withWeakCaptureOf(self)
+            .map { viewModel, accountModel -> AccountRowButtonViewModel? in
+                accountModel.map { accountModel in
+                    AccountRowButtonViewModel(accountModel: accountModel) { [weak viewModel] in
+                        guard let viewModel else { return }
+
+                        viewModel.coordinator?.openCollectibles(
+                            with: .init(destination: .main, userWalletModel: viewModel.userWalletModel)
+                        )
+                    }
+                }
+            }
+            .receiveOnMain()
+            .assign(to: &$collectiblesAccountViewModel)
     }
 
     private func bindPendingJointAccountPlates() {
