@@ -106,13 +106,20 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
         userTokensManager.derivationManager = accountSpecificDerivationManager
         userTokensManager.walletModelsManager = walletModelsManager
 
+        let pendingOperationsProvider = CommonJointAccountPendingOperationsProvider(
+            userWalletId: userWalletId,
+            derivationIdentity: derivationIdentity,
+            jointAccountsRepository: jointAccountsRepository,
+            walletModelsManager: walletModelsManager
+        )
+
         return JointAccountDependencies(
             userTokensManager: userTokensManager,
             walletModelsManager: walletModelsManager,
             walletModelsFactoryInput: wrappedWalletModelsFactory,
             derivationManager: accountSpecificDerivationManager,
             operationsService: CommonJointAccountOperationsService(),
-            pendingOperationsProvider: CommonJointAccountPendingOperationsProvider()
+            pendingOperationsProvider: pendingOperationsProvider
         )
     }
 }

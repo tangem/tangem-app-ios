@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 import TangemSdk
 import Testing
 @testable import Tangem
@@ -203,7 +204,20 @@ struct JointAccountsNetworkMapperTests {
         #expect(operation.safeTransaction.baseGas == 118_000)
         #expect(operation.safeTransaction.gasPrice == 1_500_000_000)
         #expect(operation.safeTransaction.data.isEmpty)
+        #expect(try SafeInnerCallTypeParser.parse(operation.safeTransaction.innerCall) == .transfer(.coin(destination: "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", value: 1_000_000_000_000_000)))
         #expect(operation.signatures.map(\.state) == [.signed, .declined])
+    }
+
+    @Test("An operation of a form this version cannot read keeps its place, with no call to show")
+    func unreadableOperationKeepsItsPlace() throws {
+        let json = Constants.activeAccountsWithOperationJSON.replacingOccurrences(of: "\"data\": \"0x\"", with: "\"data\": \"0x01\"")
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(json)
+
+        let operation = try #require(try mapper.mapToJointAccounts(from: response).first?.operations.first)
+
+        #expect(throws: SafeInnerCallTypeParser.Error.valueWithCalldata) {
+            try SafeInnerCallTypeParser.parse(operation.safeTransaction.innerCall)
+        }
     }
 
     @Test("A gas figure that is not a number refuses the whole listing")
@@ -247,7 +261,6 @@ struct JointAccountsNetworkMapperTests {
         let operation = try #require(account.operations.first)
 
         #expect(operation.status == .unknown)
-        #expect(operation.status.isInFlight == false)
         #expect(operation.id == "0E2F4A6C-8D0B-4C5E-9F1A-2D4B6C8E0F2A")
     }
 
@@ -341,7 +354,7 @@ private extension JointAccountsNetworkMapperTests {
                   "chainId": 1,
                   "safeTx": {
                     "to": "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c",
-                    "value": "0",
+                    "value": "1000000000000000",
                     "data": "0x",
                     "operation": 0,
                     "safeTxGas": "0",

@@ -127,10 +127,6 @@ actor JointAccountModelsRegistry {
                     delegate: delegate
                 )
 
-                dependencies.walletModelsFactoryInput.setCryptoAccount(cryptoAccount)
-                // Uses `walletModelsFactory` internally, therefore must be initialized after setting the account in `walletModelsFactoryInput`
-                dependencies.walletModelsManager.initialize()
-
                 let policy = JointAccountPolicy(
                     membersCount: storedJointAccount.membersCount,
                     signersCount: storedJointAccount.threshold
@@ -147,6 +143,12 @@ actor JointAccountModelsRegistry {
                     invites: invites,
                     delegate: delegate
                 )
+
+                // The wallets are handed the joint account rather than the crypto half it wraps, so that whoever holds
+                // a wallet can reach the account's operations
+                dependencies.walletModelsFactoryInput.setCryptoAccount(jointAccount)
+                // Uses `walletModelsFactory` internally, therefore must be initialized after setting the account in `walletModelsFactoryInput`
+                dependencies.walletModelsManager.initialize()
                 // Updating `cache` within this `compactMap` loop to reduce the number of iterations
                 cache[accountId] = jointAccount
 
