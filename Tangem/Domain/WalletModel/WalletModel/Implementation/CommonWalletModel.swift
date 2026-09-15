@@ -490,10 +490,20 @@ extension CommonWalletModel: WalletModelBalancesProvider {
     }
 
     func makeTotalTokenBalanceProvider() -> TokenBalanceProvider {
-        TotalTokenBalanceProvider(
+        guard FeatureProvider.isAvailable(.totalTokenBalanceV2) else {
+            return TotalTokenBalanceProvider(
+                tokenItem: tokenItem,
+                availableBalanceProvider: availableBalanceProvider,
+                stakingBalanceProvider: stakingBalanceProvider
+            )
+        }
+
+        return CompositeTotalTokenBalanceProvider(
             tokenItem: tokenItem,
-            availableBalanceProvider: availableBalanceProvider,
-            stakingBalanceProvider: stakingBalanceProvider
+            base: availableBalanceProvider,
+            compositors: [
+                StakingTokenBalanceCompositor.make(balanceProvider: stakingBalanceProvider, tokenItem: tokenItem),
+            ]
         )
     }
 

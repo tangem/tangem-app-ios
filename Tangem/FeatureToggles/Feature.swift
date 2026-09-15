@@ -31,6 +31,7 @@ enum Feature: String, Hashable, CaseIterable {
     case tangemPayPlastic
     case collectibles
     case openTelemetryMetrics
+    case totalTokenBalanceV2
     case expressGeoRestrictions
     case mobileSocialLogin
     case tangemPayOfframp
@@ -68,6 +69,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayPlastic: return "TWI-1157_tangem_pay_plastic"
         case .collectibles: return "TWI-1640_gacha_machine"
         case .openTelemetryMetrics: return "TWI-1627_opentelemetry_metrics_mirroring"
+        case .totalTokenBalanceV2: return "[REDACTED_INFO]_total_token_balance_v2"
         case .expressGeoRestrictions: return "[REDACTED_INFO]_express_geo_restrictions"
         case .mobileSocialLogin: return "[REDACTED_INFO]_mobile_social_login"
         case .tangemPayOfframp: return "TWI-1632_tangem_pay_offramp"
@@ -105,6 +107,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayPlastic: return .version("6.4")
         case .collectibles: return .unspecified
         case .openTelemetryMetrics: return .version("6.4")
+        case .totalTokenBalanceV2: return .unspecified
         case .expressGeoRestrictions: return .version("6.4")
         case .mobileSocialLogin: return .unspecified
         case .tangemPayOfframp: return .version("6.4")
