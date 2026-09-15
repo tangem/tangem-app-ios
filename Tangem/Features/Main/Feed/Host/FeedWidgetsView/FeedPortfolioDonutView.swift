@@ -12,15 +12,25 @@ import TangemAssets
 struct FeedPortfolioDonutView: View {
     var body: some View {
         ZStack {
-            ForEach(Array(Constants.arcs.enumerated()), id: \.offset) { _, arc in
-                Circle()
-                    .inset(by: Constants.lineWidth / 2)
-                    .trim(from: arc.start / 360, to: arc.end / 360)
-                    .stroke(arc.color, style: StrokeStyle(lineWidth: Constants.lineWidth, lineCap: .round))
+            ring.stroke(DesignSystem.Color.paletteOpaqueBaseBlack20, lineWidth: Constants.lineWidth)
+            ring.stroke(DesignSystem.Color.paletteOpaqueBaseWhite20, lineWidth: Constants.lineWidth)
+
+            ForEach(Constants.arcs.indices, id: \.self) { index in
+                ring
+                    .trim(from: 0, to: Constants.arcs[index].sweep / 360)
+                    .stroke(Constants.arcs[index].color, style: StrokeStyle(lineWidth: Constants.lineWidth, lineCap: .round))
                     .rotationEffect(.degrees(-90))
             }
         }
-        .frame(size: Constants.size)
+        .frame(size: CGSize(bothDimensions: Constants.side))
+    }
+}
+
+// MARK: - Subviews
+
+private extension FeedPortfolioDonutView {
+    var ring: some InsettableShape {
+        Circle().inset(by: (Constants.side - Constants.ringDiameter) / 2)
     }
 }
 
@@ -28,27 +38,14 @@ struct FeedPortfolioDonutView: View {
 
 private extension FeedPortfolioDonutView {
     enum Constants {
-        static let size = CGSize(bothDimensions: 20)
-        static let lineWidth: CGFloat = 5
-        static let gapDegrees: CGFloat = 18
-        static let segments: [(color: Color, sweepDegrees: CGFloat)] = [
-            (DesignSystem.Color.iconAccentBlue, 150),
-            (DesignSystem.Color.iconAccentRed, 40),
-            (DesignSystem.Color.iconAccentGreen, 40),
-            (DesignSystem.Color.iconAccentOrange, 40),
+        static let side: CGFloat = 24
+        static let ringDiameter: CGFloat = 20.16
+        static let lineWidth: CGFloat = 5.84
+        static let arcs: [(color: Color, sweep: CGFloat)] = [
+            (DesignSystem.Color.iconAccentGreen, 280.8),
+            (DesignSystem.Color.iconAccentRed, 251.78),
+            (DesignSystem.Color.iconAccentViolet, 201.17),
+            (DesignSystem.Color.iconBrand, 152.86),
         ]
-
-        static let arcs: [(color: Color, start: CGFloat, end: CGFloat)] = {
-            let radius = (size.width - lineWidth) / 2
-            let capDegrees = asin(lineWidth / 2 / radius) * 180 / .pi
-            var cursor: CGFloat = 0
-
-            return segments.map { segment in
-                let start = cursor + capDegrees
-                let end = max(cursor + segment.sweepDegrees - capDegrees, start + 0.5)
-                cursor += segment.sweepDegrees + gapDegrees
-                return (segment.color, start, end)
-            }
-        }()
     }
 }
