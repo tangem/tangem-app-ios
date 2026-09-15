@@ -32,10 +32,7 @@ final class SendViaSwapUITests: BaseTestCase {
 
         // Import hot wallet via seed phrase
         let mainScreen = CreateWalletSelectorScreen(app)
-            .skipStories()
-            .startWithMobileWallet()
-            .tapImportButton()
-            .tapRecoveryPhrase()
+            .importMobileWallet()
             .enterSeedPhrase(TestSeedPhrases.hotWallet)
             .tapImportButton()
             .tapContinue()
@@ -260,10 +257,7 @@ final class SendViaSwapUITests: BaseTestCase {
 
         // Import hot wallet via seed phrase
         let mainScreen = CreateWalletSelectorScreen(app)
-            .skipStories()
-            .startWithMobileWallet()
-            .tapImportButton()
-            .tapRecoveryPhrase()
+            .importMobileWallet()
             .enterSeedPhrase(TestSeedPhrases.hotWallet)
             .tapImportButton()
             .tapContinue()
@@ -320,10 +314,7 @@ final class SendViaSwapUITests: BaseTestCase {
 
         // Import hot wallet via seed phrase
         let mainScreen = CreateWalletSelectorScreen(app)
-            .skipStories()
-            .startWithMobileWallet()
-            .tapImportButton()
-            .tapRecoveryPhrase()
+            .importMobileWallet()
             .enterSeedPhrase(TestSeedPhrases.hotWallet)
             .tapImportButton()
             .tapContinue()
@@ -396,10 +387,7 @@ final class SendViaSwapUITests: BaseTestCase {
         )
 
         let mainScreen = CreateWalletSelectorScreen(app)
-            .skipStories()
-            .startWithMobileWallet()
-            .tapImportButton()
-            .tapRecoveryPhrase()
+            .importMobileWallet()
             .enterSeedPhrase(TestSeedPhrases.hotWallet)
             .tapImportButton()
             .tapContinue()

@@ -20,9 +20,7 @@ final class TangemPayHotWalletOnboardingUITests: BaseTestCase {
         )
 
         let mainScreen = CreateWalletSelectorScreen(app)
-            .skipStories()
-            .startWithMobileWallet()
-            .tapCreateButton()
+            .createMobileWallet()
             .skipPushNotificationsSetup()
             .verifyGetTangemPayBannerExists()
 
