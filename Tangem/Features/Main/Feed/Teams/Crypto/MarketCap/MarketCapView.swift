@@ -10,83 +10,99 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 struct MarketCapView: View {
     @ObservedObject var viewModel: MarketCapViewModel
 
-    @ScaledMetric private var indicatorSide: CGFloat = Constants.indicatorSide
-    @ScaledMetric private var trackHeight: CGFloat = Constants.trackHeight
-    @ScaledMetric private var trackContainerHeight: CGFloat = Constants.trackContainerHeight
+    @ScaledMetric private var infoIconSide: CGFloat = Constants.infoIconSide
 
     var body: some View {
+        Group {
+            switch viewModel.state {
+            case .loading:
+                content(MarketCapViewModel.Content.placeholder, isLoading: true)
+            case .empty:
+                EmptyView()
+            case .content(let content):
+                self.content(content, isLoading: false)
+            }
+        }
+        .onAppear(perform: viewModel.onViewAppear)
+    }
+
+    private func content(_ content: MarketCapViewModel.Content, isLoading: Bool) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 0) {
-                // [REDACTED_TODO_COMMENT]
-                Text("Total market cap")
+                Text(Localization.marketCryptoTotalMarketCapTitle)
                     .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textSecondary)
 
-                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text(viewModel.totalMarketCap)
-                        .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+                HStack(spacing: 8) {
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text(content.totalMarketCap)
+                            .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+                            .skeletonable(isShown: isLoading, size: Constants.capSkeletonSize)
 
-                    UtilPriceChange(value: viewModel.totalMarketCapChange, direction: .positive)
+                        PriceChangeView(state: content.priceChange, useRedesignColors: true)
+                    }
+
+                    if !isLoading {
+                        infoButton
+                    }
                 }
             }
 
             HStack(spacing: 11) {
-                ForEach(viewModel.metrics) { metric($0) }
+                ForEach(content.metrics) { metric($0, isLoading: isLoading) }
             }
         }
         .padding(.horizontal, 16)
     }
 
-    private func metric(_ metric: MarketCapViewModel.Metric) -> some View {
+    private var infoButton: some View {
+        SwiftUI.Button(action: viewModel.onInfoTap) {
+            DesignSystem.Icons.Info.regular16.image
+                .renderingMode(.template)
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
+                .frame(size: CGSize(bothDimensions: infoIconSide))
+                .expandingHitArea(by: Constants.infoHitAreaInset)
+        }
+        .accessibilityLabel(Localization.commonLearnMore)
+    }
+
+    private func metric(_ metric: MarketCapViewModel.Metric, isLoading: Bool) -> some View {
+        SwiftUI.Button {
+            viewModel.onMetricTap(metric)
+        } label: {
+            metricContent(metric, isLoading: isLoading)
+        }
+        .buttonStyle(.plain)
+        .disabled(isLoading)
+    }
+
+    private func metricContent(_ metric: MarketCapViewModel.Metric, isLoading: Bool) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 0) {
                 Text(metric.title)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
                 Text(metric.status)
-                    .style(DesignSystem.Font.captionMediumToken, color: color(for: metric.appearance))
+                    .style(DesignSystem.Font.captionMediumToken, color: metric.appearance.textColor)
+                    .skeletonable(isShown: isLoading, size: Constants.statusSkeletonSize)
             }
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(metric.value)
                     .style(Font.Tangem.Heading22.semibold, color: DesignSystem.Color.textPrimary)
+                    .skeletonable(isShown: isLoading, size: Constants.valueSkeletonSize)
 
-                GeometryReader { proxy in
-                    ZStack(alignment: .leading) {
-                        Capsule()
-                            .fill(
-                                LinearGradient(
-                                    stops: Constants.gradientStops,
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .frame(height: trackHeight)
-
-                        Circle()
-                            .fill(DesignSystem.Color.iconPrimary)
-                            .frame(size: CGSize(bothDimensions: indicatorSide))
-                            .shadow(color: .black.opacity(0.25), radius: 2)
-                            .offset(x: (proxy.size.width - indicatorSide) * min(max(metric.progress, 0), 1))
-                    }
-                    .frame(height: trackContainerHeight)
-                }
-                .frame(height: trackContainerHeight)
+                MarketIndexScaleView(progress: isLoading ? 0 : metric.progress, size: .small)
+                    .opacity(isLoading ? 0 : 1)
             }
         }
         .padding(Constants.cardPadding)
         .frame(maxWidth: .infinity, minHeight: Constants.cardMinHeight, alignment: .leading)
         .background(DesignSystem.Color.bgSecondary, in: RoundedRectangle(cornerRadius: Constants.cardCornerRadius, style: .circular))
-    }
-
-    private func color(for appearance: MarketCapViewModel.Metric.Appearance) -> Color {
-        switch appearance {
-        case .negative: DesignSystem.Color.textStatusError
-        case .positive: DesignSystem.Color.textAccentGreen
-        }
     }
 }
 
@@ -94,18 +110,13 @@ struct MarketCapView: View {
 
 private extension MarketCapView {
     enum Constants {
-        static let indicatorSide: CGFloat = 8
-        static let trackHeight: CGFloat = 4
-        static let trackContainerHeight: CGFloat = 12
+        static let infoIconSide: CGFloat = 16
+        static let infoHitAreaInset: CGFloat = 14
         static let cardPadding: CGFloat = 16
         static let cardMinHeight: CGFloat = 118
         static let cardCornerRadius: CGFloat = 24
-        static let gradientStops: [Gradient.Stop] = [
-            .init(color: DesignSystem.Color.paletteRed50, location: 0),
-            .init(color: DesignSystem.Color.paletteRed50, location: 0.207912),
-            .init(color: DesignSystem.Color.paletteYellow50, location: 0.406773),
-            .init(color: DesignSystem.Color.paletteGreen50, location: 0.656092),
-            .init(color: DesignSystem.Color.paletteBlue50, location: 1),
-        ]
+        static let capSkeletonSize = CGSize(width: 96, height: 22)
+        static let statusSkeletonSize = CGSize(width: 64, height: 14)
+        static let valueSkeletonSize = CGSize(width: 32, height: 22)
     }
 }
