@@ -17,10 +17,17 @@ struct EarnDetailViewRedesign: View {
 
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
 
+    @Environment(\.mainShtorkaSize) private var sheetSize
+
     @ScaledMetric private var contentSpacing: CGFloat = 16
 
     var body: some View {
         content
+            .if(sheetSize.isFeedSheet) { view in
+                view
+                    .toolbar(.hidden, for: .navigationBar)
+                    .navigationBarBackButtonHidden()
+            }
             .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
                 viewModel?.onOverlayContentProgressChange(progress)
             }
