@@ -30,10 +30,12 @@ private extension CollectiblesCoordinatorView {
                 switch state {
                 case .welcome(let viewModel):
                     CollectiblesWelcomeView(viewModel: viewModel, onBack: coordinator.dismiss)
-                case .stories(let viewModel):
-                    CollectiblesStoriesView(viewModel: viewModel)
-                case .main(let viewModel):
-                    CollectiblesMainView(viewModel: viewModel, onBack: coordinator.dismiss)
+                case .main(let viewModel, let actionsMenuViewModel):
+                    CollectiblesMainView(
+                        viewModel: viewModel,
+                        actionsMenuViewModel: actionsMenuViewModel,
+                        onBack: coordinator.dismiss
+                    )
                 }
             }
             .transition(.opacity.animation(.easeIn))
