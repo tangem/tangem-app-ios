@@ -13,5 +13,9 @@ extension FloatingSheetRegistry {
         register(PulseTagFilterBottomSheetViewModel.self) { viewModel in
             PulseTagFilterBottomSheetView(viewModel: viewModel)
         }
+
+        register(MarketCapInfoBottomSheetViewModel.self) { viewModel in
+            MarketCapInfoBottomSheetView(viewModel: viewModel)
+        }
     }
 }
