@@ -36,7 +36,7 @@ final class CollectiblesCoordinator: CoordinatorObject {
     func start(with options: Options) {
         switch options.destination {
         case .welcome:
-            state = .welcome(CollectiblesWelcomeViewModel(routable: self))
+            state = .welcome(CollectiblesWelcomeViewModel(routable: self, onboarder: makeOnboarder(options: options)))
         case .main:
             Task { @MainActor [weak self] in self?.openMain() }
         }
@@ -52,6 +52,10 @@ final class CollectiblesCoordinator: CoordinatorObject {
 
     func closeMachine() {
         machineViewModel = nil
+    }
+
+    private func makeOnboarder(options: Options) -> any CollectiblesOnboarder {
+        CommonCollectiblesOnboarder(userWalletModel: options.userWalletModel)
     }
 }
 
@@ -89,6 +93,12 @@ extension CollectiblesCoordinator: CollectiblesMainRoutable {
 extension CollectiblesCoordinator {
     struct Options {
         let destination: Destination
+        let userWalletModel: any UserWalletModel
+
+        init(destination: Destination, userWalletModel: any UserWalletModel) {
+            self.destination = destination
+            self.userWalletModel = userWalletModel
+        }
 
         enum Destination {
             case welcome
