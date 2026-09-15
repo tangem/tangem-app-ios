@@ -50,12 +50,7 @@ extension JointAccountsNetworkMapper {
         }
 
         let status = try mapStatus(from: dto)
-        var operations = try dto.operations?.map(mapToOperation(from:)) ?? []
-
-        // [REDACTED_TODO_COMMENT]
-        if case .active = status, operations.isEmpty {
-            operations.append(makeMockOperation(initiator: members.first?.address))
-        }
+        let operations = try dto.operations?.map(mapToOperation(from:)) ?? []
 
         return RemoteJointAccount(
             cryptoAccountId: dto.cryptoAccountId,
@@ -174,36 +169,6 @@ private extension JointAccountsNetworkMapper {
         }
 
         return value
-    }
-}
-
-// MARK: - Mock operation
-
-private extension JointAccountsNetworkMapper {
-    /// A stand-in for what the listing will report once the backend has operations to report, so that the storage,
-    /// the polling and the screens can be exercised before then.
-    func makeMockOperation(initiator: String?) -> JointAccountOperation {
-        let initiator = initiator ?? "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf"
-
-        return JointAccountOperation(
-            id: "MOCK-0E2F4A6C-8D0B-4C5E-9F1A-2D4B6C8E0F2A",
-            chainId: 1,
-            safeTransaction: SafeTransaction(
-                to: "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c",
-                value: BigUInt(10).power(15),
-                data: Data(),
-                operation: 0,
-                safeTxGas: 23_520,
-                baseGas: 110_000,
-                gasPrice: 1_500_000_000,
-                gasToken: "0x0000000000000000000000000000000000000000",
-                refundReceiver: "0x0000000000000000000000000000000000000000",
-                nonce: 0
-            ),
-            status: .awaitingSignatures,
-            initiator: initiator,
-            signatures: [JointAccountOperation.Signature(address: initiator, state: .signed, at: "2026-09-09T10:00:00Z")]
-        )
     }
 }
 

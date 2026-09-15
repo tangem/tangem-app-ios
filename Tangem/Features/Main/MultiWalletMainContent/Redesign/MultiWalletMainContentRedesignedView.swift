@@ -24,6 +24,8 @@ struct MultiWalletMainContentRedesignedView: View {
 
             notificationBanners
 
+            pendingJointAccountsOperations
+
             VStack(spacing: 8) {
                 if let tangemPayAccountViewModel = viewModel.tangemPayAccountViewModel {
                     TangemPayAccountViewRedesigned(viewModel: tangemPayAccountViewModel)
@@ -60,6 +62,14 @@ struct MultiWalletMainContentRedesignedView: View {
             items: viewModel.notificationBannerItems,
             stackingType: .carousel
         )
+    }
+
+    // MARK: - Pending joint account operations
+
+    private var pendingJointAccountsOperations: some View {
+        ForEach(viewModel.pendingJointAccountsOperationsViewData) { viewData in
+            JointAccountOperationPlate(viewData: viewData)
+        }
     }
 
     // MARK: - Polymarket account
