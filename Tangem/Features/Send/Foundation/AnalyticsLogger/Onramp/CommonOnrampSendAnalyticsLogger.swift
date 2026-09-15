@@ -177,6 +177,13 @@ extension CommonOnrampSendAnalyticsLogger: SendOnrampOffersAnalyticsLogger {
     func logOnrampButtonAllOffers() {
         Analytics.log(.onrampButtonAllOffers)
     }
+
+    func logOnrampNoticeGeoRestriction(providerNames: [String]) {
+        Analytics.log(event: .onrampNoticeGeoRestriction, params: [
+            .token: tokenItem.currencySymbol,
+            .provider: providerNames.joined(separator: ", "),
+        ])
+    }
 }
 
 // MARK: - SendOnrampProvidersAnalyticsLogger

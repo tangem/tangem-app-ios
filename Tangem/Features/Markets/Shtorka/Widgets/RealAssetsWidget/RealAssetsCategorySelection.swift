@@ -28,4 +28,8 @@ struct RealAssetsCategorySelection: Hashable {
 
         return MarketsCategoryLocalizer.title(for: category)
     }
+
+    var analyticsValue: String {
+        sector?.code ?? category.code
+    }
 }

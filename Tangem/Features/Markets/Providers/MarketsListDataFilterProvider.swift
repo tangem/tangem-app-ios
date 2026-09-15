@@ -15,17 +15,20 @@ class MarketsListDataFilterProvider {
     private var _intervalTypeValue: CurrentValueSubject<MarketsPriceIntervalType, Never>
     private var _orderTypeValue: CurrentValueSubject<MarketsListOrderType, Never>
     private var _categorySelectionValue: CurrentValueSubject<CategorySelection?, Never> = .init(nil)
+    private let analyticsSection: Analytics.MarketsSection?
 
     // MARK: - Initialization
 
     init(
         initialOrderType: MarketsListOrderType? = nil,
         initialIntervalType: MarketsPriceIntervalType? = nil,
-        supportedOrderTypes: [MarketsListOrderType] = MarketsListOrderType.allCases
+        supportedOrderTypes: [MarketsListOrderType] = MarketsListOrderType.allCases,
+        analyticsSection: Analytics.MarketsSection? = nil
     ) {
         _intervalTypeValue = .init(initialIntervalType ?? .day)
         _orderTypeValue = .init(initialOrderType ?? .rating)
         self.supportedOrderTypes = supportedOrderTypes
+        self.analyticsSection = analyticsSection
     }
 
     // MARK: - Public Properties
@@ -96,13 +99,16 @@ class MarketsListDataFilterProvider {
     }
 
     private func sendAnalytics() {
-        Analytics.log(
-            event: .marketsTokensSort,
-            params: [
-                .type: _orderTypeValue.value.analyticsValue.capitalizingFirstLetter(),
-                .period: _intervalTypeValue.value.rawValue,
-            ]
-        )
+        var params: [Analytics.ParameterKey: String] = [
+            .type: _orderTypeValue.value.analyticsValue.capitalizingFirstLetter(),
+            .period: _intervalTypeValue.value.rawValue,
+        ]
+
+        if let analyticsSection {
+            params[.section] = analyticsSection.rawValue
+        }
+
+        Analytics.log(event: .marketsTokensSort, params: params)
     }
 }
 

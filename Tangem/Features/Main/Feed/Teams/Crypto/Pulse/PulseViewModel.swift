@@ -79,6 +79,14 @@ final class PulseViewModel: ObservableObject {
         let input = PulseTagFilterInput(
             selectedTagID: selectedTag?.id,
             onApply: { [weak self] selection in
+                Analytics.log(
+                    event: .marketsSelectCategory,
+                    params: [
+                        .section: Analytics.MarketsSection.crypto.rawValue,
+                        .category: selection?.id ?? Constants.allTagsAnalyticsValue,
+                    ]
+                )
+
                 self?.select(tag: selection)
             }
         )
@@ -187,5 +195,14 @@ final class PulseViewModel: ObservableObject {
             tag: selectedTag,
             isCategoryUserInitiated: isCategoryUserInitiated
         )
+    }
+}
+
+// MARK: - Constants
+
+private extension PulseViewModel {
+    enum Constants {
+        /// Applying an empty filter is a category choice too — the whole market, the counterpart of the Real assets umbrella.
+        static let allTagsAnalyticsValue = "all"
     }
 }

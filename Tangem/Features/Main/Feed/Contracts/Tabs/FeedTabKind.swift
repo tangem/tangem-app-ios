@@ -32,4 +32,14 @@ enum FeedTabKind {
         case .predictions: DesignSystem.Icons.MagicBall.regular20
         }
     }
+
+    /// No section for Predictions yet.
+    var analyticsSection: Analytics.MarketsSection? {
+        switch self {
+        case .crypto: .crypto
+        case .realAssets: .assets
+        case .earn: .earn
+        case .predictions: nil
+        }
+    }
 }

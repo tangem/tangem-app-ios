@@ -39,6 +39,7 @@ final class RealAssetsFeedViewModel: ObservableObject {
             categoriesProvider: categoriesProvider,
             widgetsUpdateHandler: nil,
             quotesRepositoryUpdateHelper: CommonMarketsQuotesUpdateHelper(),
+            analyticsSection: .assets,
             coordinator: self
         )
 

@@ -32,7 +32,7 @@ final class CommonPulseDataProvider: PulseDataProvider {
     private let isLoadingSubject = CurrentValueSubject<Bool, Never>(true)
 
     private let listProvider = MarketsListDataProvider()
-    private let filterProvider = MarketsListDataFilterProvider()
+    private let filterProvider = MarketsListDataFilterProvider(analyticsSection: .crypto)
     private lazy var rowsProvider = MarketTokenRowsProvider(filterProvider: filterProvider)
 
     private var isReloading = false

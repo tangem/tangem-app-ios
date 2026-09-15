@@ -45,8 +45,9 @@ final class RealAssetsWidgetViewModel: ObservableObject {
     private let categoriesProvider: MarketsCategoriesProvider
     private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler?
     private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
+    private let analyticsSection: Analytics.MarketsSection?
 
-    private let filterProvider = MarketsListDataFilterProvider(supportedOrderTypes: Constants.supportedOrderTypes)
+    private let filterProvider: MarketsListDataFilterProvider
     private let dataProvider = MarketsListDataProvider()
     private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
@@ -65,13 +66,20 @@ final class RealAssetsWidgetViewModel: ObservableObject {
         categoriesProvider: MarketsCategoriesProvider,
         widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler?,
         quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
+        analyticsSection: Analytics.MarketsSection?,
         coordinator: RealAssetsWidgetRoutable?
     ) {
         self.widgetType = widgetType
         self.categoriesProvider = categoriesProvider
         self.widgetsUpdateHandler = widgetsUpdateHandler
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
+        self.analyticsSection = analyticsSection
         self.coordinator = coordinator
+
+        filterProvider = MarketsListDataFilterProvider(
+            supportedOrderTypes: Constants.supportedOrderTypes,
+            analyticsSection: analyticsSection
+        )
 
         marketCapFormatter = .init(
             divisorsList: AmountNotationSuffixFormatter.Divisor.defaultList,
@@ -117,7 +125,10 @@ final class RealAssetsWidgetViewModel: ObservableObject {
             selection: categorySelection,
             defaultSelection: defaultSelection,
             onApply: { [weak self] selection in
-                self?.select(selection)
+                guard let self else { return }
+
+                Analytics.log(event: .marketsSelectCategory, params: analyticsParams(for: selection))
+                select(selection)
             }
         )
 
@@ -205,7 +216,13 @@ private extension RealAssetsWidgetViewModel {
     }
 
     func select(_ selection: RealAssetsCategorySelection) {
+        guard categorySelection != selection else { return }
+
         categorySelection = selection
+
+        if selection.category.restricted {
+            Analytics.log(event: .marketsNotificationRegionNotSupported, params: analyticsParams(for: selection))
+        }
 
         filterProvider.didSelectCategory(
             MarketsListDataFilterProvider.CategorySelection(
@@ -214,6 +231,16 @@ private extension RealAssetsWidgetViewModel {
                 country: categoriesSnapshot?.country
             )
         )
+    }
+
+    func analyticsParams(for selection: RealAssetsCategorySelection) -> [Analytics.ParameterKey: String] {
+        var params: [Analytics.ParameterKey: String] = [.category: selection.analyticsValue]
+
+        if let analyticsSection {
+            params[.section] = analyticsSection.rawValue
+        }
+
+        return params
     }
 }
 
