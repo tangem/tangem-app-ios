@@ -12,8 +12,7 @@ struct CollectiblesMachine {
     let name: String
     let artworkURL: URL?
     let price: Decimal
-    /// The partner serves the count as an arbitrary string (e.g. "1"), not a number.
-    let cardsPerPack: String?
+    let cardsPerPack: Int?
     let buybackRate: Decimal
     /// Average card value in dollars; drifts in near-real time as the stock changes.
     let expectedValue: Decimal

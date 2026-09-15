@@ -15,6 +15,7 @@ import TangemUIUtils
 struct CollectiblesMainView: View {
     @ObservedObject var viewModel: CollectiblesMainViewModel
 
+    let actionsMenuViewModel: CollectiblesActionsMenuViewModel
     let onBack: () -> Void
 
     @State private var scrollHeight: CGFloat = 0
@@ -52,23 +53,38 @@ private extension CollectiblesMainView {
     // MARK: - View properties
 
     var navigationBar: some View {
-        NavigationHeader(
-            leadingContent: NavigationBarButton.back(action: onBack).redesigned,
-            principalContent: {
-                VStack(spacing: 2) {
-                    // [REDACTED_TODO_COMMENT]
-                    Text("Packs account")
-                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-
-                    if viewModel.showsBalanceInNavigationBar, let balance = viewModel.accountBalanceText {
-                        Text(balance)
-                            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                    }
-                }
-                .animation(.default, value: viewModel.showsBalanceInNavigationBar)
-            },
-            trailingContent: EmptyView.init
+        NavigationBar(
+            settings: .init(
+                backgroundColor: .clear,
+                horizontalPadding: Metrics.navigationBarHorizontalPadding,
+                height: Metrics.navigationBarHeight
+            ),
+            titleView: { navigationBarTitle },
+            leftButtons: { NavigationBarButton.back(action: onBack) },
+            rightButtons: { ActionsMenu(viewModel: actionsMenuViewModel) }
         )
+        .padding(.top, Metrics.navigationBarTopPadding)
+        .environment(\.isRedesign, true)
+        .background {
+            Fade(position: .top)
+                .blurred()
+                .backgroundColor(DesignSystem.Color.bgPrimary)
+                .ignoresSafeArea(edges: .top)
+        }
+    }
+
+    var navigationBarTitle: some View {
+        VStack(spacing: 2) {
+            // [REDACTED_TODO_COMMENT]
+            Text("Packs account")
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+
+            if viewModel.showsBalanceInNavigationBar, let balance = viewModel.accountBalanceText {
+                Text(balance)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+            }
+        }
+        .animation(.default, value: viewModel.showsBalanceInNavigationBar)
     }
 
     var catalogueScroll: some View {
@@ -191,6 +207,10 @@ private extension CollectiblesMainView {
 
 private extension CollectiblesMainView {
     enum Metrics {
+        static let navigationBarHorizontalPadding: CGFloat = 16
+        static let navigationBarTopPadding: CGFloat = 8
+        static let navigationBarHeight: CGFloat = 56
+
         static let tabsTopPadding: CGFloat = 40
         static let pinnedTabsTopPadding: CGFloat = 8
         static let pinnedTabsBottomPadding: CGFloat = 8
@@ -240,6 +260,7 @@ private struct PreviewCatalogueProvider: CollectiblesLoresProvider, Collectibles
     NavigationStack {
         CollectiblesMainView(
             viewModel: CollectiblesMainViewModel(routable: nil, catalogueProvider: PreviewCatalogueProvider()),
+            actionsMenuViewModel: CollectiblesActionsMenuViewModel(routable: nil),
             onBack: {}
         )
     }

@@ -42,8 +42,8 @@ struct CollectiblesMachineMapperTests {
         #expect(chip.detailText == "\(Self.dollarText(250))+")
     }
 
-    @Test("Pluralizes the cards count", arguments: [("1", "1 card"), ("3", "3 cards")])
-    func pluralizesCardsCount(count: String, expected: String) {
+    @Test("Pluralizes the cards count", arguments: [(1, "1 card"), (3, "3 cards")])
+    func pluralizesCardsCount(count: Int, expected: String) {
         let details = SUT.map(Self.machine(cardsPerPack: count))
 
         #expect(details.cardsCountText == expected)
@@ -109,7 +109,7 @@ private extension CollectiblesMachineMapperTests {
     }
 
     static func machine(
-        cardsPerPack: String? = "1",
+        cardsPerPack: Int? = 1,
         expectedValue: Decimal = Decimal(string: "53.95")!,
         tiers: [CollectiblesMachine.TierStats]? = nil
     ) -> CollectiblesMachine {

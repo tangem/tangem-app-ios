@@ -80,8 +80,8 @@ private extension CollectiblesMachineViewModel.Mapper {
     }
 
     // [REDACTED_TODO_COMMENT]
-    static func makeCardsCountText(_ count: String) -> String {
-        count == "1" ? "1 card" : "\(count) cards"
+    static func makeCardsCountText(_ count: Int) -> String {
+        count == 1 ? "1 card" : "\(count) cards"
     }
 
     // [REDACTED_TODO_COMMENT]

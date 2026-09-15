@@ -18,35 +18,41 @@ struct CollectiblesAPITarget: Moya.TargetType {
         case categories
         case machines(CollectiblesDTO.MachinesRequest)
         case machine(externalID: String)
+        case generateTx(CollectiblesDTO.GenerateTxRequest, userWalletID: String)
+        case submitTx(CollectiblesDTO.SubmitTxRequest, userWalletID: String)
     }
 
     var path: String {
         switch target {
-        case .categories:
-            return "api/v1/machine/categories"
-        case .machines:
-            return "api/v1/machine/machines"
-        case .machine(let externalID):
-            return "api/v1/machine/\(externalID)"
+        case .categories: "api/v1/machine/categories"
+        case .machines: "api/v1/machine/machines"
+        case .machine(let externalID): "api/v1/machine/\(externalID)"
+        case .generateTx: "api/v1/collectible/generateTx"
+        case .submitTx: "api/v1/collectible/submitTx"
         }
     }
 
     var method: Moya.Method {
-        .get
+        switch target {
+        case .categories, .machines, .machine: .get
+        case .generateTx, .submitTx: .post
+        }
     }
 
     var task: Moya.Task {
         switch target {
-        case .categories, .machine:
-            return .requestPlain
-
-        case .machines(let request):
-            return .requestParameters(request, encoding: URLEncoding.queryString)
+        case .categories, .machine: .requestPlain
+        case .machines(let request): .requestParameters(request, encoding: URLEncoding.queryString)
+        case .generateTx(let request, _): .requestJSONEncodable(request)
+        case .submitTx(let request, _): .requestJSONEncodable(request)
         }
     }
 
     var headers: [String: String]? {
-        nil
+        switch target {
+        case .categories, .machines, .machine: nil
+        case .generateTx(_, let userWalletID), .submitTx(_, let userWalletID): ["user-id": userWalletID]
+        }
     }
 }
 

@@ -7,6 +7,6 @@
 //
 
 @MainActor
-protocol CollectiblesMainRoutable: AnyObject {
+protocol CollectiblesMainRoutable: CollectiblesActionsMenuRoutable {
     func openMachine(for pack: CollectiblesPack)
 }

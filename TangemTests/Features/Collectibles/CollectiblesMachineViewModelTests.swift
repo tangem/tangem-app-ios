@@ -182,7 +182,7 @@ private extension CollectiblesMachineViewModelTests {
             name: name,
             artworkURL: nil,
             price: price,
-            cardsPerPack: "1",
+            cardsPerPack: 1,
             buybackRate: Decimal(string: "0.85")!,
             expectedValue: Decimal(string: "53.95")!,
             tiers: [

@@ -7,7 +7,10 @@
 //
 
 import Foundation
+import class Alamofire.Interceptor
+import protocol Alamofire.RequestInterceptor
 import Moya
+import TangemBackendAuthentication
 import TangemNetworkUtils
 
 struct CollectiblesAPIService {
@@ -17,7 +20,13 @@ struct CollectiblesAPIService {
     private let baseURL: URL = .init(string: "https://collectibles.tests-d.com/")!
     private let decoder = JSONDecoder()
 
-    init(provider: Provider = TangemProvider(configuration: .collectibles, additionalPlugins: [DeviceInfoPlugin()])) {
+    init(
+        provider: Provider = TangemProvider(
+            configuration: .collectibles,
+            additionalPlugins: [DeviceInfoPlugin()],
+            requestInterceptor: Self.authenticationInterceptor
+        )
+    ) {
         self.provider = provider
     }
 }
@@ -63,6 +72,19 @@ extension CollectiblesAPIService: CollectiblesMachineProvider {
     }
 }
 
+// MARK: - Pack opening
+
+extension CollectiblesAPIService {
+    // [REDACTED_TODO_COMMENT]
+    func generatePackTransaction(_ request: CollectiblesDTO.GenerateTxRequest, userWalletID: String) async throws -> CollectiblesDTO.GenerateTxResponse {
+        try await self.request(.generateTx(request, userWalletID: userWalletID))
+    }
+
+    func submitPackTransaction(_ request: CollectiblesDTO.SubmitTxRequest, userWalletID: String) async throws -> CollectiblesDTO.SubmitTxResponse {
+        try await self.request(.submitTx(request, userWalletID: userWalletID))
+    }
+}
+
 // MARK: - Networking
 
 private extension CollectiblesAPIService {
@@ -82,6 +104,21 @@ private extension CollectiblesAPIService {
         } catch {
             throw Error.connection(underlying: error)
         }
+    }
+}
+
+// MARK: - Authentication
+
+private extension CollectiblesAPIService {
+    static var authenticationInterceptor: (any RequestInterceptor)? {
+        guard FeatureProvider.isAvailable(.backendAuthentication) else {
+            return nil
+        }
+
+        return Interceptor(
+            adapter: BackendAuthenticationAssembly.requestAdapter,
+            retrier: BackendAuthenticationAssembly.requestRetrier
+        )
     }
 }
 
