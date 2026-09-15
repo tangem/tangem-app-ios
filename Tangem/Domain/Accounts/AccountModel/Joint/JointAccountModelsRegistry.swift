@@ -10,8 +10,9 @@ import Foundation
 import TangemFoundation
 
 /// Builds a model per joint account out of the two halves it is kept in, the account list's entry (name, icon, tokens)
-/// and the repository's record (status, members, invites), and keeps it across the reads of either, so that a status
-/// moving on or a member joining reaches whoever holds the model. The joint counterpart of `CryptoAccountModelsRegistry`.
+/// and the repository's record (its status), and keeps it across the reads of either, so that a status moving on
+/// reaches whoever holds the model. A member joining reaches them too, through the members service the model follows.
+/// The joint counterpart of `CryptoAccountModelsRegistry`.
 actor JointAccountModelsRegistry {
     private typealias AccountId = CryptoAccountModelId
     private typealias Cache = [AccountId: CommonJointAccountModel]
@@ -36,7 +37,6 @@ actor JointAccountModelsRegistry {
     func jointAccountModels(
         from storedCryptoAccounts: [StoredCryptoAccount],
         with storedJointAccounts: [StoredJointAccount],
-        invites storedInvites: [StoredJointAccountInvites],
         delegate: any JointAccountModelDelegate
     ) -> [any JointAccountModel] {
         assert(
@@ -46,7 +46,6 @@ actor JointAccountModelsRegistry {
 
         // Keyed case-insensitively, like every other match on this identifier
         let storedJointAccountsKeyedByCryptoAccountIds = storedJointAccounts.keyedFirst { $0.cryptoAccountId.lowercased() }
-        let invitesKeyedByCryptoAccountIds = storedInvites.keyedFirst { $0.cryptoAccountId.lowercased() }
 
         let currentAccountIds = cache.keys.toSet()
         var storedCryptoAccountsKeyedByAccountIds: [AccountId: StoredCryptoAccount] = [:]
@@ -94,9 +93,6 @@ actor JointAccountModelsRegistry {
                     return nil
                 }
 
-                let invites = invitesKeyedByCryptoAccountIds[identifier]?.invites ?? []
-                let members = storedJointAccount.members.map(member(from:))
-
                 // Early exit if the account is already created and cached
                 if let cachedAccount = cache[accountId] {
                     // Update cached account properties in case they were changed remotely
@@ -104,8 +100,6 @@ actor JointAccountModelsRegistry {
                         storedCryptoAccount.name.map(editor.setName)
                         editor.setIcon(accountIcon)
                         editor.setStatus(storedJointAccount.status)
-                        editor.setMembers(members)
-                        editor.setInvites(invites)
                     }
                 }
 
@@ -135,12 +129,11 @@ actor JointAccountModelsRegistry {
                 let jointAccount = CommonJointAccountModel(
                     cryptoAccount: cryptoAccount,
                     derivationIdentity: storedCryptoAccount.derivationIdentity,
-                    policy: policy,
-                    status: storedJointAccount.status,
+                    accountPolicy: policy,
+                    accountStatus: storedJointAccount.status,
                     operationsService: dependencies.operationsService,
                     pendingOperationsProvider: dependencies.pendingOperationsProvider,
-                    members: members,
-                    invites: invites,
+                    membersService: dependencies.membersService,
                     delegate: delegate
                 )
 
@@ -162,14 +155,5 @@ actor JointAccountModelsRegistry {
         }
 
         return newJointAccounts
-    }
-
-    private func member(from stored: StoredJointAccount.Member) -> JointAccountMember {
-        let role: JointAccountMember.Role = switch stored.role {
-        case .creator: .creator
-        case .member: .member(inviteId: stored.inviteId)
-        }
-
-        return JointAccountMember(name: stored.name, address: stored.address, role: role)
     }
 }

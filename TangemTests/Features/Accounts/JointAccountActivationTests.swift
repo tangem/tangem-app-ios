@@ -152,12 +152,11 @@ private extension JointAccountActivationTests {
         CommonJointAccountModel(
             cryptoAccount: cryptoAccount,
             derivationIdentity: Constants.derivationIdentity,
-            policy: JointAccountPolicy(membersCount: Constants.owners.count, signersCount: threshold),
-            status: status,
+            accountPolicy: JointAccountPolicy(membersCount: Constants.owners.count, signersCount: threshold),
+            accountStatus: status,
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
-            members: members,
-            invites: [JointAccountInvite(id: "invite-0")],
+            membersService: JointAccountMembersServiceMock(slots: members.map(JointAccountSlot.member)),
             delegate: delegate ?? self.delegate
         )
     }

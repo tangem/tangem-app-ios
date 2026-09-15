@@ -43,7 +43,7 @@ extension JointAccountsDTO.Response {
         /// Reported by every answer; nil for a stage this version has never heard of — see `init(from:)`.
         let status: Status?
         let members: [Member]
-        /// Only ever answers creating the account — see `JointAccountInvite`.
+        /// Only ever answers creating the account — see `StoredJointAccountInvite`.
         let invites: [Invite]?
         /// The unfinished operations, at most one per network.
         let operations: [Operation]?

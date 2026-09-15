@@ -143,6 +143,8 @@ private extension PendingJointAccountItemView {
 /// Outlives the accounts of the previews below, which hold it weakly.
 private let previewJointAccountDelegate = JointAccountModelDelegateMock()
 
+private let previewInviteURL = URL(string: "https://tangem.com/joint-account/join/preview")
+
 private func previewJointAccount(
     status: JointAccountStatus,
     membersCount: Int,
@@ -151,18 +153,25 @@ private func previewJointAccount(
     CommonJointAccountModel(
         cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
         derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
-        policy: JointAccountPolicy(membersCount: membersCount, signersCount: 2),
-        status: status,
+        accountPolicy: JointAccountPolicy(membersCount: membersCount, signersCount: 2),
+        accountStatus: status,
         operationsService: JointAccountOperationsServiceMock(),
         pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
-        members: (0 ..< takenSlotsCount).map { index in
-            JointAccountMember(
-                name: "Member \(index)",
-                address: "0x0000000000000000000000000000000000000000",
-                role: index == 0 ? .creator : .member(inviteId: "invite-\(index)")
-            )
-        },
-        invites: (0 ..< max(0, membersCount - takenSlotsCount)).map { JointAccountInvite(id: "invite-\($0)") },
+        membersService: JointAccountMembersServiceMock(
+            slots: (0 ..< max(membersCount, takenSlotsCount)).map { index -> JointAccountSlot in
+                guard index < takenSlotsCount else {
+                    return .empty(invite: previewInviteURL.map { JointAccountInvite(id: "invite-\(index)", url: $0) })
+                }
+
+                return .member(
+                    JointAccountMember(
+                        name: "Member \(index)",
+                        address: "0x0000000000000000000000000000000000000000",
+                        role: index == 0 ? .creator : .member(inviteId: nil)
+                    )
+                )
+            }
+        ),
         delegate: previewJointAccountDelegate
     )
 }

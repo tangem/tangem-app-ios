@@ -22,7 +22,7 @@ struct JointAccountOperationPlateViewDataBuilder {
         let amount = pendingOperation.amount?.value
 
         // The initiator is one of the members; a member the account no longer lists is named by their address
-        let initiatorName = account?.members
+        let initiatorName = account?.jointAccountMembersService.slots.members
             .first { $0.address.caseInsensitiveEquals(to: operation.initiator) }?
             .name ?? AddressFormatter(address: operation.initiator).truncated()
 

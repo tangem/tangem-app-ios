@@ -29,6 +29,17 @@ struct JointAccountMember: Equatable {
 
 // MARK: - Convenience
 
+extension JointAccountMember {
+    init(stored: StoredJointAccount.Member) {
+        let role: Role = switch stored.role {
+        case .creator: .creator
+        case .member: .member(inviteId: stored.inviteId)
+        }
+
+        self.init(name: stored.name, address: stored.address, role: role)
+    }
+}
+
 extension JointAccountMember.Role {
     var inviteId: String? {
         switch self {

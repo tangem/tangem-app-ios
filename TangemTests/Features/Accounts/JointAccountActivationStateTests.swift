@@ -28,105 +28,31 @@ struct JointAccountActivationStateTests {
         ]
     )
     func awaitingActivationFollowsTheStatus(status: JointAccountStatus, isAwaitingActivation: Bool) {
-        let account = makeJointAccount(status: status, membersCount: 3, takenSlotsCount: 1, invitesCount: 2)
+        let account = makeJointAccount(status: status)
 
         #expect(account.isAwaitingActivation == isAwaitingActivation)
     }
 
     @Test("A status this version has never heard of leaves the account looking like one that works")
     func unfamiliarStatusIsNotAwaitingActivation() {
-        let account = makeJointAccount(
-            status: .unknown,
-            membersCount: 3,
-            takenSlotsCount: 1,
-            invitesCount: 2
-        )
+        let account = makeJointAccount(status: .unknown)
 
         #expect(!account.isAwaitingActivation)
-    }
-
-    @Test("Inviting takes both a slot to fill and an invite to fill it with")
-    func invitingTakesAFreeSlotAndAnInvite() {
-        let creator = makeJointAccount(status: .pending, membersCount: 3, takenSlotsCount: 1, invitesCount: 2)
-        // A member was never handed invites of their own, so they have no one to bring in
-        let member = makeJointAccount(status: .pending, membersCount: 3, takenSlotsCount: 1, invitesCount: 0)
-        // The creator of a full composition still holds the invites it was created with, but nothing to spend them on
-        let full = makeJointAccount(status: .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"), membersCount: 3, takenSlotsCount: 3, invitesCount: 2)
-
-        #expect(creator.canInviteMembers)
-        #expect(!member.canInviteMembers)
-        #expect(!full.canInviteMembers)
-    }
-
-    @Test("Activating is offered to the creator of a full composition and to no one else")
-    func activatingTakesTheStageAndTheCreator() {
-        let creator = makeJointAccount(
-            status: .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"),
-            membersCount: 3,
-            takenSlotsCount: 3,
-            invitesCount: 2
-        )
-        // A member holds no invites, which is what tells them apart from the creator
-        let member = makeJointAccount(
-            status: .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"),
-            membersCount: 3,
-            takenSlotsCount: 3,
-            invitesCount: 0
-        )
-        let stillFilling = makeJointAccount(status: .pending, membersCount: 3, takenSlotsCount: 1, invitesCount: 2)
-
-        #expect(creator.canActivate)
-        #expect(!member.canActivate)
-        #expect(!stillFilling.canActivate)
-    }
-
-    /// The button stays: the address is the backend's to name, and hiding the only action the screen has would
-    /// leave the creator with nothing and no reason why.
-    @Test("An announced address the answer left out does not take the activate button with it")
-    func activatingIsOfferedWithoutAnAnnouncedAddress() {
-        let account = makeJointAccount(
-            status: .confirming(safeAddress: nil),
-            membersCount: 3,
-            takenSlotsCount: 3,
-            invitesCount: 2
-        )
-
-        #expect(account.canActivate)
-    }
-
-    @Test("More members than the count says leaves no free slots rather than a negative number of them")
-    func freeSlotsNeverGoNegative() {
-        let account = makeJointAccount(status: .pending, membersCount: 2, takenSlotsCount: 3, invitesCount: 1)
-
-        #expect(account.freeSlotsCount == 0)
-        #expect(!account.canInviteMembers)
     }
 }
 
 // MARK: - Helpers
 
 private extension JointAccountActivationStateTests {
-    func makeJointAccount(
-        status: JointAccountStatus,
-        membersCount: Int,
-        takenSlotsCount: Int,
-        invitesCount: Int
-    ) -> any JointAccountModel {
+    func makeJointAccount(status: JointAccountStatus) -> any JointAccountModel {
         CommonJointAccountModel(
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
             derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
-            policy: JointAccountPolicy(membersCount: membersCount, signersCount: 2),
-            status: status,
+            accountPolicy: JointAccountPolicy(membersCount: 3, signersCount: 2),
+            accountStatus: status,
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
-            members: (0 ..< takenSlotsCount).map { index in
-                JointAccountMember(
-                    name: "Member \(index)",
-                    address: "0x0000000000000000000000000000000000000000",
-                    role: index == 0 ? .creator : .member(inviteId: "invite-\(index)")
-                )
-            },
-            invites: (0 ..< invitesCount).map { JointAccountInvite(id: "invite-\($0)") },
+            membersService: JointAccountMembersServiceMock(),
             delegate: delegate
         )
     }

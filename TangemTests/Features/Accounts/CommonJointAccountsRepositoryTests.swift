@@ -39,7 +39,7 @@ struct CommonJointAccountsRepositoryTests {
 
     @Test("Invites are kept apart from the accounts, so a read has nothing to say about them")
     func invitesSurviveARead() async throws {
-        let invites = [JointAccountInvite(id: "A1B2C3"), JointAccountInvite(id: "D4E5F6")]
+        let invites = [StoredJointAccountInvite(id: "A1B2C3"), StoredJointAccountInvite(id: "D4E5F6")]
         let storage = JointAccountsPersistentStorageStub(accounts: [Self.storedAccount(status: .pending)])
         let invitesStorage = JointAccountsInvitesPersistentStorageStub(invites: invites, forCryptoAccountId: Self.accountId)
         let networkService = JointAccountsNetworkServiceStub(jointAccounts: [
@@ -55,7 +55,7 @@ struct CommonJointAccountsRepositoryTests {
 
     @Test("An account gone from the answer leaves its invites behind, since nothing can hand them out again")
     func invitesOutliveTheAccountVanishingFromTheAnswer() async throws {
-        let invites = [JointAccountInvite(id: "A1B2C3")]
+        let invites = [StoredJointAccountInvite(id: "A1B2C3")]
         let storage = JointAccountsPersistentStorageStub(accounts: [Self.storedAccount()])
         let invitesStorage = JointAccountsInvitesPersistentStorageStub(invites: invites, forCryptoAccountId: Self.accountId)
         let networkService = JointAccountsNetworkServiceStub(jointAccounts: [])
@@ -365,17 +365,17 @@ private final class JointAccountsInvitesPersistentStorageStub: JointAccountsInvi
         records
     }
 
-    convenience init(invites: [JointAccountInvite], forCryptoAccountId cryptoAccountId: String) {
+    convenience init(invites: [StoredJointAccountInvite], forCryptoAccountId cryptoAccountId: String) {
         self.init(records: [StoredJointAccountInvites(cryptoAccountId: cryptoAccountId, invites: invites)])
     }
 
-    func getInvites(forCryptoAccountId cryptoAccountId: String) -> [JointAccountInvite]? {
+    func getInvites(forCryptoAccountId cryptoAccountId: String) -> [StoredJointAccountInvite]? {
         recordsLock.withLock { records in
             records.first { $0.cryptoAccountId.caseInsensitiveEquals(to: cryptoAccountId) }?.invites
         }
     }
 
-    func save(_ invites: [JointAccountInvite], forCryptoAccountId cryptoAccountId: String) throws {
+    func save(_ invites: [StoredJointAccountInvite], forCryptoAccountId cryptoAccountId: String) throws {
         recordsLock.withLock { records in
             let record = StoredJointAccountInvites(cryptoAccountId: cryptoAccountId, invites: invites)
 

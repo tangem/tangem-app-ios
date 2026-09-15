@@ -107,6 +107,10 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
         storageDidUpdatePublisher
     }
 
+    var jointAccountsInvites: [StoredJointAccountInvites] {
+        invitesPersistentStorage.getList()
+    }
+
     var jointAccountsInvitesPublisher: AnyPublisher<[StoredJointAccountInvites], Never> {
         invitesStorageDidUpdatePublisher
     }
