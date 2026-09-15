@@ -54,6 +54,10 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
     private weak var input: OnrampProvidersInput?
     private weak var output: OnrampSummaryOutput?
 
+    @Published private var isVisible = false
+    private var didLogGeoRestrictionNotice = false
+    private var bag = Set<AnyCancellable>()
+
     init(
         tokenItem: TokenItem,
         analyticsLogger: SendOnrampOffersAnalyticsLogger,
@@ -81,9 +85,12 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
             analyticsLogger.logOnrampPaymentMethodScreenOpened()
             shouldOnrampPaymentMethodScreenOpenedLogged = false
         }
+
+        isVisible = true
     }
 
     func onDisappear() {
+        isVisible = false
         selectedProviderItem = nil
     }
 
@@ -112,12 +119,43 @@ private extension OnrampOffersSelectorViewModel {
             .receiveOnMain()
             .assign(to: &$providersList)
 
+        $providersList
+            .combineLatest($isVisible)
+            .filter { _, isVisible in isVisible }
+            .withWeakCaptureOf(self)
+            .sink { viewModel, args in
+                viewModel.logGeoRestrictionNoticeIfNeeded(in: args.0)
+            }
+            .store(in: &bag)
+
         standaloneBannersPublisher
             .map { $0.nilIfEmpty }
             .assign(to: &$standaloneMarketingBanners)
 
         linkedBannersPublisher
             .assign(to: &$linkedBanners)
+    }
+
+    /// The notice is counted once per flow, the way the other notice events are.
+    /// A provider appears once per payment method it supports, so the names are reduced to a set.
+    func logGeoRestrictionNoticeIfNeeded(in providers: ProvidersList) {
+        guard !didLogGeoRestrictionNotice else {
+            return
+        }
+
+        let providerNames = providers
+            .flatMap(\.providers)
+            .filter(\.isRestricted)
+            .map(\.provider.name)
+            .toSet()
+            .sorted()
+
+        guard providerNames.isNotEmpty else {
+            return
+        }
+
+        didLogGeoRestrictionNotice = true
+        analyticsLogger.logOnrampNoticeGeoRestriction(providerNames: providerNames)
     }
 
     func mapToOnrampPaymentMethodRowViewData(providers: ProvidersList) -> [OnrampProviderItemViewModel] {
