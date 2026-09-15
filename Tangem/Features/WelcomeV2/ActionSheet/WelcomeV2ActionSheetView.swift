@@ -9,6 +9,8 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct WelcomeV2ActionSheetView: View {
     @ObservedObject var viewModel: WelcomeV2ActionSheetViewModel
@@ -78,6 +80,17 @@ struct WelcomeV2ActionSheetView: View {
             .onTap(item.action)
             .background(DesignSystem.Color.bgOpaquePrimary)
             .cornerRadiusContinuous(14)
+            .accessibilityIdentifier(rowAccessibilityIdentifier(for: item))
+    }
+
+    /// Item ids come from `WelcomeV2CreateWalletActionFactory` and `WelcomeV2ExistingWalletActionFactory`.
+    private func rowAccessibilityIdentifier(for item: WelcomeV2ActionSheetItem) -> String? {
+        switch item.id {
+        case "hardware": WelcomeV2AccessibilityIdentifiers.actionSheetHardwareRow
+        case "mobile": WelcomeV2AccessibilityIdentifiers.actionSheetMobileRow
+        case "import": WelcomeV2AccessibilityIdentifiers.actionSheetImportRow
+        default: nil
+        }
     }
 }
 

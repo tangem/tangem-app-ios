@@ -80,9 +80,11 @@ class BaseTestCase: XCTestCase {
             arguments.append("-uitest-keep-wallets")
         }
 
-        // Per-test overrides first, then run-wide CI/Allure overrides (UITEST_FEATURE_TOGGLES) win.
+        // Defaults first, then per-test overrides, then run-wide CI/Allure ones (UITEST_FEATURE_TOGGLES) win.
         // Keys are Feature names (e.g. TWI-1259_tron_gasless); the app skips unknown ones.
-        let resolvedFeatureToggles = featureToggles.merging(FeatureToggleUITestsOverridesProvider.runOverrides) { _, runOverride in runOverride }
+        let resolvedFeatureToggles = Constants.defaultFeatureToggles
+            .merging(featureToggles) { _, perTest in perTest }
+            .merging(FeatureToggleUITestsOverridesProvider.runOverrides) { _, runOverride in runOverride }
         for (key, isEnabled) in resolvedFeatureToggles {
             arguments.append("-uitest-feature-\(key)-\(isEnabled ? "on" : "off")")
         }
@@ -168,10 +170,7 @@ class BaseTestCase: XCTestCase {
     @discardableResult
     func importHotWallet(accessCode: String? = nil) -> MainScreen {
         let accessCodeScreen = CreateWalletSelectorScreen(app)
-            .skipStories()
-            .startWithMobileWallet()
-            .tapImportButton()
-            .tapRecoveryPhrase()
+            .importMobileWallet()
             .enterSeedPhrase(TestSeedPhrases.hotWallet)
             .tapImportButton()
             .tapContinue()
@@ -245,6 +244,13 @@ class BaseTestCase: XCTestCase {
 
             alert.buttons[buttonTitle].waitAndTap()
         }
+    }
+}
+
+private extension BaseTestCase {
+    enum Constants {
+        /// The OpenTelemetry exporter has no UI-test stub and would reach the production endpoint on every launch.
+        static let defaultFeatureToggles = ["TWI-1627_opentelemetry_metrics_mirroring": false]
     }
 }
 
