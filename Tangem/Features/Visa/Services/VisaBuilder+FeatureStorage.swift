@@ -78,6 +78,15 @@ extension TangemPayAvailabilityServiceBuilder {
     }
 }
 
+extension TangemPayGeoServiceBuilder {
+    init() {
+        self = TangemPayGeoServiceBuilder(
+            apiType: FeatureStorage.instance.visaAPIType,
+            bffStaticToken: TangemPayUtilities.getBFFStaticToken()
+        )
+    }
+}
+
 extension TangemPayAuthorizationServiceBuilder {
     @Injected(\.tangemPayAuthorizationTokensRepository)
     private static var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
