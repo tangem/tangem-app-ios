@@ -65,7 +65,13 @@ struct PolymarketSwapParametersFactory {
                     .restricted(
                         walletsProvider: FilteredTokenSelectorWalletsProvider(
                             base: .standardAccountsOnly(),
-                            isIncluded: { $0.tokenItem.expressCurrency == PolymarketUtilities.usdcTokenItem.expressCurrency }
+                            isIncluded: { item in
+                                guard case .crypto = item.kind else {
+                                    return false
+                                }
+
+                                return item.tokenItem.expressCurrency == PolymarketUtilities.usdcTokenItem.expressCurrency
+                            }
                         ),
                         allowsMarketsTokens: false
                     )
