@@ -16,7 +16,7 @@ public enum PolymarketOnboardingProgress {
     case deriving
     case awaitingSignature
     case working(PolymarketDepositWalletStatus)
-    case ready
+    case ready(isNewAccount: Bool)
     case handedOff(PolymarketDepositWalletStatus)
     case failed(PolymarketOnboardingError)
 }

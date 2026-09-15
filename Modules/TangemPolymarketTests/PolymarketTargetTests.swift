@@ -43,6 +43,24 @@ struct PolymarketTargetTests {
         )
     }
 
+    private var closedPositionsRequest: PolymarketClosedPositionsRequest {
+        PolymarketClosedPositionsRequest(
+            depositWalletAddress: "0xdead",
+            sort: .realizedPnl,
+            ascending: true,
+            limit: 30,
+            offset: 60
+        )
+    }
+
+    private var positionOutcomeRequest: PolymarketPositionOutcomeRequest {
+        PolymarketPositionOutcomeRequest(
+            depositWalletAddress: "0xdead",
+            conditionId: "0x1",
+            assetId: "a1"
+        )
+    }
+
     private var quoteBody: PolymarketDTO.OrderQuoteRequestBody {
         PolymarketDTO.OrderQuoteRequestBody(marketId: "m1", assetId: "a1", side: "BUY", amount: "10", slippage: "0.25")
     }
@@ -57,6 +75,8 @@ struct PolymarketTargetTests {
         #expect(target(.seriesEvents(seriesId: "s1")).path == "api/predictions/v1/series/s1/events")
         #expect(target(.orderQuote(quoteBody)).path == "api/predictions/v1/orders/quote")
         #expect(target(.positions(positionsRequest)).path == "api/predictions/v1/positions")
+        #expect(target(.closedPositions(closedPositionsRequest)).path == "api/predictions/v1/positions/closed")
+        #expect(target(.positionOutcome(positionOutcomeRequest)).path == "api/predictions/v1/positions/outcome")
     }
 
     @Test("Discovery reads over GET, the quote is posted")
@@ -69,6 +89,8 @@ struct PolymarketTargetTests {
         #expect(target(.seriesEvents(seriesId: "s1")).method == .get)
         #expect(target(.orderQuote(quoteBody)).method == .post)
         #expect(target(.positions(positionsRequest)).method == .get)
+        #expect(target(.closedPositions(closedPositionsRequest)).method == .get)
+        #expect(target(.positionOutcome(positionOutcomeRequest)).method == .get)
     }
 
     @Test("categories: locale omitted when nil, sent when present")
@@ -117,6 +139,8 @@ struct PolymarketTargetTests {
         #expect(target(.seriesEvents(seriesId: "s1")).headers == expected)
         #expect(target(.orderQuote(quoteBody)).headers == expected)
         #expect(target(.positions(positionsRequest)).headers == expected)
+        #expect(target(.closedPositions(closedPositionsRequest)).headers == expected)
+        #expect(target(.positionOutcome(positionOutcomeRequest)).headers == expected)
     }
 
     @Test("positions: the whole page window goes into the query")
@@ -129,5 +153,27 @@ struct PolymarketTargetTests {
         #expect(parameters["limit"] as? Int == 30)
         #expect(parameters["offset"] as? Int == 60)
         #expect(parameters.count == 5)
+    }
+
+    @Test("closed positions: the whole page window goes into the query")
+    func closedPositionsParameters() throws {
+        let parameters = try queryParameters(target(.closedPositions(closedPositionsRequest)).task)
+
+        #expect(parameters["depositWalletAddress"] as? String == "0xdead")
+        #expect(parameters["sort"] as? String == "realizedPnl")
+        #expect(parameters["ascending"] as? Bool == true)
+        #expect(parameters["limit"] as? Int == 30)
+        #expect(parameters["offset"] as? Int == 60)
+        #expect(parameters.count == 5)
+    }
+
+    @Test("position outcome: the market and the outcome identify the row")
+    func positionOutcomeParameters() throws {
+        let parameters = try queryParameters(target(.positionOutcome(positionOutcomeRequest)).task)
+
+        #expect(parameters["depositWalletAddress"] as? String == "0xdead")
+        #expect(parameters["conditionId"] as? String == "0x1")
+        #expect(parameters["assetId"] as? String == "a1")
+        #expect(parameters.count == 3)
     }
 }
