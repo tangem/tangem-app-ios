@@ -38,6 +38,10 @@ struct MultiWalletMainContentRedesignedView: View {
                 if let polymarketAccountViewModel = viewModel.polymarketAccountViewModel {
                     polymarketAccount(viewModel: polymarketAccountViewModel)
                 }
+
+                if let collectiblesAccountViewModel = viewModel.collectiblesAccountViewModel {
+                    collectiblesAccount(viewModel: collectiblesAccountViewModel)
+                }
             }
 
             if let nftEntrypointViewModel = viewModel.nftEntrypointViewModel {
@@ -80,6 +84,17 @@ struct MultiWalletMainContentRedesignedView: View {
         }
         .padding(MultiWalletMainContentConstants.polymarketAccountPadding)
         .background(MultiWalletMainContentConstants.tokenListBackgroundColor)
+        .cornerRadiusContinuous(MultiWalletMainContentConstants.cornerRadius)
+    }
+
+    // MARK: - Collectibles account
+
+    private func collectiblesAccount(viewModel: AccountRowButtonViewModel) -> some View {
+        AccountRowButtonView(viewModel: viewModel) {
+            EmptyView()
+        }
+        .padding(MultiWalletMainContentConstants.collectiblesAccountPadding)
+        .background(Color.Tangem.Surface.level2)
         .cornerRadiusContinuous(MultiWalletMainContentConstants.cornerRadius)
     }
 
@@ -281,4 +296,5 @@ private enum MultiWalletMainContentConstants {
     static let tokenListBackgroundColor = DesignSystem.Color.bgSecondary
 
     static let polymarketAccountPadding: CGFloat = 16
+    static let collectiblesAccountPadding: CGFloat = 16
 }

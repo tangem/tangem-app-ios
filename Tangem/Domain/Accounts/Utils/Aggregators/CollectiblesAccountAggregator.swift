@@ -26,4 +26,14 @@ enum CollectiblesAccountAggregator {
     static func collectiblesAccountModel(from accountModelsManager: AccountModelsManager) -> (any CollectiblesAccountModel)? {
         collectiblesAccountModel(from: accountModelsManager.accountModels)
     }
+
+    static func collectiblesAccountModelPublisher(
+        from accountModelsManager: AccountModelsManager
+    ) -> AnyPublisher<(any CollectiblesAccountModel)?, Never> {
+        accountModelsManager
+            .accountModelsPublisher
+            .map(collectiblesAccountModel(from:))
+            .removeDuplicates { $0?.id == $1?.id }
+            .eraseToAnyPublisher()
+    }
 }

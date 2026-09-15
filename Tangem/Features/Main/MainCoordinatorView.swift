@@ -95,6 +95,9 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.polymarketCoordinator) {
                 PolymarketCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.collectiblesCoordinator) {
+                CollectiblesCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
