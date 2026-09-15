@@ -20,15 +20,17 @@ struct MarketsNavigationBarTitle: View {
     let price: String?
 
     let state: State
+    let spacing: CGFloat
 
-    init(tokenName: String, price: String?, state: State) {
+    init(tokenName: String, price: String?, state: State, spacing: CGFloat = 0) {
         self.tokenName = tokenName
         self.price = price
         self.state = state
+        self.spacing = spacing
     }
 
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: spacing) {
             Text(tokenName)
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
