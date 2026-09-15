@@ -50,6 +50,14 @@ public enum CommonUIAccessibilityIdentifiers {
         "commonUITokenSelectorAccountHeader_\(name)"
     }
 
+    /// Balance filter dropdown chip inside a token selector
+    public static let tokenSelectorBalanceFilterChip = "commonUITokenSelectorBalanceFilterChip"
+
+    /// Balance filter dropdown option, keyed by a stable option key (not localized display text)
+    public static func tokenSelectorBalanceFilterOption(_ key: String) -> String {
+        "commonUITokenSelectorBalanceFilterOption_\(key)"
+    }
+
     /// Account selector
     public static func accountSelectorCell(name: String) -> String {
         "commonUIAccountSelectorCell_\(name)"

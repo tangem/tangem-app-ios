@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -177,6 +178,15 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
                 Spacer(minLength: 8)
 
                 TangemDropDown(singleSelection: $viewModel.balanceFilter, in: TokenSelectorBalanceFilter.allCases)
+                    .accessibilityIdentifier(factory: { (filter: TokenSelectorBalanceFilter) in
+                        switch filter {
+                        case .all:
+                            CommonUIAccessibilityIdentifiers.tokenSelectorBalanceFilterOption("all")
+                        case .hideZero:
+                            CommonUIAccessibilityIdentifiers.tokenSelectorBalanceFilterOption("hideZero")
+                        }
+                    })
+                    .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.tokenSelectorBalanceFilterChip)
                     .fixedSize()
                     .id(viewModel.balanceFilter)
             }
