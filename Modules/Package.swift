@@ -295,7 +295,7 @@ var serviceModules: [PackageDescription.Target] {
             publicHeadersPath: "include",
             cSettings: [
                 .unsafeFlags(["-Wno-shorten-64-to-32"]),
-            ],
+            ]
         ),
     ]
 }
@@ -362,6 +362,13 @@ var featureModules: [PackageDescription.Target] {
                 // [REDACTED_TODO_COMMENT]
                 .swiftLanguageMode(.v5),
             ]
+        ),
+        .tangemTarget(
+            name: "TangemMCP",
+            dependencies: [
+                "TangemFoundation",
+            ],
+            swiftSettings: .swift6StrictSettings
         ),
         .tangemTarget(
             name: "TangemNFT",
@@ -511,6 +518,14 @@ var unitTestsModules: [PackageDescription.Target] {
                 // [REDACTED_TODO_COMMENT]
                 .swiftLanguageMode(.v5),
             ]
+        ),
+        .tangemTestTarget(
+            name: "TangemMCPTests",
+            dependencies: [
+                "TangemMCP",
+                "TangemTestKit",
+            ],
+            swiftSettings: .swift6StrictSettings
         ),
         .tangemTestTarget(
             name: "TangemMobileWalletBackupTests",
