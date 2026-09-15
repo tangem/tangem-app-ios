@@ -162,18 +162,14 @@ actor CommonAccountModelsManager {
     /// list does not change when it does, so its own storage is what has to bring the list round again.
     private nonisolated func makeJointAccountModelsPublisher() -> AnyPublisher<[AccountModel], Never> {
         return makeStoredCryptoAccountsPublisher(ofType: .joint)
-            .combineLatest(
-                jointAccountsRepository.jointAccountsPublisher,
-                jointAccountsRepository.jointAccountsInvitesPublisher
-            )
+            .combineLatest(jointAccountsRepository.jointAccountsPublisher)
             .withWeakCaptureOf(self)
             .asyncMap { manager, input in
-                let (storedCryptoAccounts, storedJointAccounts, storedInvites) = input
+                let (storedCryptoAccounts, storedJointAccounts) = input
 
                 return await manager.jointAccountModelsRegistry.jointAccountModels(
                     from: storedCryptoAccounts,
                     with: storedJointAccounts,
-                    invites: storedInvites,
                     delegate: manager
                 )
             }
