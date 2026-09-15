@@ -26,6 +26,9 @@ struct WelcomeStoryPresentationViewModelFactory {
     enum StoryConstants {
         static let storyID = "welcome_onboarding"
         static let placement = "onboarding"
+        /// Playback follows the real media length; this is the contract value the story reports,
+        /// so it has to be re-checked against the bundled clips whenever they are replaced.
+        static let slideDurationMs = 7000
     }
 
     func make(
@@ -70,10 +73,10 @@ struct WelcomeStoryPresentationViewModelFactory {
     }
 
     private let slideCopy: [SlideCopy] = [
-        SlideCopy(title: Localization.introductionStoriesOneTitle, subtitle: Localization.introductionStoriesOneSubtitle, durationMs: 10000),
-        SlideCopy(title: Localization.introductionStoriesTwoTitle, subtitle: Localization.introductionStoriesTwoSubtitle, durationMs: 10000),
-        SlideCopy(title: Localization.introductionStoriesThreeTitle, subtitle: Localization.introductionStoriesThreeSubtitle, durationMs: 10000),
-        SlideCopy(title: Localization.introductionStoriesFourTitle, subtitle: Localization.introductionStoriesFourSubtitle, durationMs: 25000),
+        SlideCopy(title: Localization.introductionStoriesOneTitle, subtitle: Localization.introductionStoriesOneSubtitle),
+        SlideCopy(title: Localization.introductionStoriesTwoTitle, subtitle: Localization.introductionStoriesTwoSubtitle),
+        SlideCopy(title: Localization.introductionStoriesThreeTitle, subtitle: Localization.introductionStoriesThreeSubtitle),
+        SlideCopy(title: Localization.introductionStoriesFourTitle, subtitle: Localization.introductionStoriesFourSubtitle),
     ]
 
     private func makeSlides(urls: [URL]) -> [SlideV2] {
@@ -85,7 +88,7 @@ struct WelcomeStoryPresentationViewModelFactory {
                 order: order,
                 title: copy.title,
                 subtitle: copy.subtitle,
-                asset: AssetV2(type: .video, contentMode: .cover, durationMs: copy.durationMs, url: url)
+                asset: AssetV2(type: .video, contentMode: .cover, durationMs: StoryConstants.slideDurationMs, url: url)
             )
         }
     }
@@ -93,6 +96,5 @@ struct WelcomeStoryPresentationViewModelFactory {
     private struct SlideCopy {
         let title: String
         let subtitle: String
-        let durationMs: Int
     }
 }
