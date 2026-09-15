@@ -46,7 +46,7 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
                 market: options.market,
                 outcome: options.outcome,
                 eventTitle: options.eventTitle,
-                apiProvider: PolymarketAPIProviderFactory().makeProvider(),
+                apiProvider: PolymarketAPIProviderFactory().makeProvider(walletId: options.walletId),
                 geoblockStateProvider: options.geoblockStateProvider,
                 balancePublisher: options.balancePublisher
             )
@@ -152,6 +152,7 @@ extension PolymarketOrderCoordinator {
         let market: PolymarketMarket
         let outcome: PolymarketOutcome
         let eventTitle: String
+        let walletId: String
         let geoblockStateProvider: PolymarketGeoblockStateProvider
         let balancePublisher: AnyPublisher<Decimal?, Never>
         let placementService: PolymarketOrderPlacementService

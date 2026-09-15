@@ -11,12 +11,15 @@ import Moya
 import TangemNetworkUtils
 
 struct PolymarketDepositWalletTarget: Moya.TargetType {
-    let baseURL: URL
+    let environment: PolymarketBFFEnvironment
+    let walletId: String
     let target: Target
-    let headers: [String: String]?
+
+    var baseURL: URL { environment.baseURL }
+    var headers: [String: String]? { environment.requestHeaders(walletId: walletId) }
 
     enum Target {
-        case walletState(ownerAddress: String?, walletId: String)
+        case walletState(ownerAddress: String?)
         case deploy(PolymarketDTO.DeployRequest)
         case approvals(PolymarketDTO.RelayedBatchRequest)
     }
@@ -41,7 +44,7 @@ struct PolymarketDepositWalletTarget: Moya.TargetType {
 
     var task: Moya.Task {
         switch target {
-        case .walletState(let ownerAddress, let walletId):
+        case .walletState(let ownerAddress):
             let parameters = ownerAddress.map { ["ownerAddress": $0] } ?? ["walletId": walletId]
 
             return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)

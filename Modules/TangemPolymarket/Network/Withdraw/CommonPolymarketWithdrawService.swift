@@ -52,14 +52,7 @@ extension CommonPolymarketWithdrawService: PolymarketWithdrawService {
 
 private extension CommonPolymarketWithdrawService {
     func request<T: Decodable>(_ target: PolymarketWithdrawTarget.Target) async throws(PolymarketWithdrawError) -> T {
-        let environment = environment()
-
-        let request = PolymarketWithdrawTarget(
-            baseURL: environment.baseURL,
-            environmentHeaders: environment.headers,
-            walletId: walletId,
-            target: target
-        )
+        let request = PolymarketWithdrawTarget(environment: environment(), walletId: walletId, target: target)
 
         do {
             let response = try await provider.requestPublisher(request).async()
