@@ -18,4 +18,9 @@ enum CollectiblesChainEnvironment {
 
     /// The RPC cluster only; key derivation pins its own blockchain in `CollectiblesAccountKeyPath`.
     static let blockchain: Blockchain = .solana(curve: .ed25519, testnet: true)
+
+    // [REDACTED_TODO_COMMENT]
+    /// Spending caps in base USDC units (6 decimals) a fresh vault is initialized with.
+    static let initialPerSpinCap: UInt64 = 300_000_000
+    static let initialDailyCap: UInt64 = 1_000_000_000
 }

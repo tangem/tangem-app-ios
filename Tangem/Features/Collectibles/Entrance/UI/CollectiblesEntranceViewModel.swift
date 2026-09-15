@@ -78,6 +78,6 @@ private extension CollectiblesEntranceViewModel {
     ) {
         let hasCollectiblesAccount = CollectiblesAccountAggregator.collectiblesAccountModel(from: userWalletModel.accountModelsManager) != nil
 
-        onOpen(.init(destination: hasCollectiblesAccount ? .main : .welcome))
+        onOpen(.init(destination: hasCollectiblesAccount ? .main : .welcome, userWalletModel: userWalletModel))
     }
 }
