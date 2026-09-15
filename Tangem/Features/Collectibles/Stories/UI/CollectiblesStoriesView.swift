@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemStories
 import TangemUI
 import TangemUIUtils
 
@@ -150,5 +151,10 @@ private extension CollectiblesStoriesView {
 // MARK: - Previews
 
 #Preview {
-    CollectiblesStoriesView(viewModel: CollectiblesStoriesViewModel(routable: nil))
+    CollectiblesStoriesView(
+        viewModel: CollectiblesStoriesViewModel(
+            slides: CollectiblesStoriesView.Slide.content,
+            engine: { StoryPlayerViewModel(story: $0, onFinished: { _, _ in }) }
+        )
+    )
 }
