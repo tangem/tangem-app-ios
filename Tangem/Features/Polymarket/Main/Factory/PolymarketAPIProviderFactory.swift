@@ -12,6 +12,7 @@ import TangemPolymarket
 
 struct PolymarketAPIProviderFactory {
     func makeProvider(
+        walletId: String,
         builderCodeStore: PolymarketBuilderCodeStore = InjectedValues[\.polymarketBuilderCodeStore]
     ) -> PolymarketAPIProvider {
         let environment = PolymarketBFFEnvironment.current()
@@ -20,6 +21,7 @@ struct PolymarketAPIProviderFactory {
             baseURL: environment.baseURL,
             networkConfiguration: TangemProviderConfiguration(logOptions: .verbose),
             headers: environment.headers.map { APIHeaderKeyInfo(headerName: $0.key, headerValue: $0.value) },
+            walletId: walletId,
             builderCodeStore: builderCodeStore
         )
     }

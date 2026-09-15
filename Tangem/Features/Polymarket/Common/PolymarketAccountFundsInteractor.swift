@@ -17,7 +17,6 @@ final class PolymarketAccountFundsInteractor {
     private let configurationService: PolymarketConfigurationService
     private let walletService: PolymarketDepositWalletService
     private let ownerAddressProvider: PolymarketOwnerAddressProviding
-    private let walletId: String
 
     private let storedState = OSAllocatedUnfairLock(initialState: State.loading)
 
@@ -25,14 +24,12 @@ final class PolymarketAccountFundsInteractor {
         bridgeService: PolymarketBridgeService,
         configurationService: PolymarketConfigurationService,
         walletService: PolymarketDepositWalletService,
-        ownerAddressProvider: PolymarketOwnerAddressProviding,
-        walletId: String
+        ownerAddressProvider: PolymarketOwnerAddressProviding
     ) {
         self.bridgeService = bridgeService
         self.configurationService = configurationService
         self.walletService = walletService
         self.ownerAddressProvider = ownerAddressProvider
-        self.walletId = walletId
     }
 }
 
@@ -123,8 +120,7 @@ private extension PolymarketAccountFundsInteractor {
     func verifiedDepositWalletAddress() async throws -> String {
         let resolver = PolymarketDepositWalletResolver(
             walletService: walletService,
-            ownerAddressProvider: ownerAddressProvider,
-            walletId: walletId
+            ownerAddressProvider: ownerAddressProvider
         )
 
         return try await resolver.resolve().depositWallet

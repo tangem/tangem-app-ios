@@ -145,8 +145,7 @@ struct CommonPolymarketAccountModelTests {
 
         await sut.refreshState()
 
-        #expect(service.requestedKeys.map(\.ownerAddress) == [nil])
-        #expect(service.requestedKeys.map(\.walletId) == [Self.userWalletId.stringValue])
+        #expect(service.requestedOwnerAddresses == [nil])
     }
 
     @Test("A remembered account is served from local facts alone, without asking the backend")
@@ -163,7 +162,7 @@ struct CommonPolymarketAccountModelTests {
 
         await sut.refreshState()
 
-        #expect(service.requestedKeys.isEmpty)
+        #expect(service.requestedOwnerAddresses.isEmpty)
         #expect(sut.state == .active)
         #expect(balance.updates.first?.isLoading == true)
 
@@ -186,7 +185,7 @@ struct CommonPolymarketAccountModelTests {
 
         await sut.refreshState()
 
-        #expect(service.requestedKeys.isEmpty)
+        #expect(service.requestedOwnerAddresses.isEmpty)
         #expect(sut.state == .syncNeeded)
         #expect(balance.unavailableCalls == 1)
     }
@@ -213,7 +212,7 @@ struct CommonPolymarketAccountModelTests {
         await sut.refreshState()
         await sut.refreshState()
 
-        #expect(service.requestedKeys.count == 1)
+        #expect(service.requestedOwnerAddresses.count == 1)
         #expect(sut.state == .syncNeeded)
     }
 

@@ -17,7 +17,7 @@ import TangemSdk
 // MARK: - Wallet service
 
 final class PolymarketDepositWalletServiceStub: PolymarketDepositWalletService {
-    private(set) var requestedKeys: [(ownerAddress: String?, walletId: String)] = []
+    private(set) var requestedOwnerAddresses: [String?] = []
     private(set) var deployCalls = 0
     private(set) var submittedBatches: [PolymarketRelayedBatch] = []
 
@@ -46,11 +46,8 @@ final class PolymarketDepositWalletServiceStub: PolymarketDepositWalletService {
         self.init(stateResults: [.failure(stateError)])
     }
 
-    func depositWalletState(
-        ownerAddress: String?,
-        walletId: String
-    ) async throws(PolymarketWalletError) -> PolymarketDepositWallet {
-        requestedKeys.append((ownerAddress: ownerAddress, walletId: walletId))
+    func depositWalletState(ownerAddress: String?) async throws(PolymarketWalletError) -> PolymarketDepositWallet {
+        requestedOwnerAddresses.append(ownerAddress)
 
         let result = stateResults.count > 1 ? stateResults.removeFirst() : stateResults.first
 
@@ -66,8 +63,7 @@ final class PolymarketDepositWalletServiceStub: PolymarketDepositWalletService {
 
     func deployWallet(
         ownerAddress: String,
-        depositWalletAddress: String,
-        walletId: String
+        depositWalletAddress: String
     ) async throws(PolymarketWalletError) -> PolymarketDepositWalletStatus {
         deployCalls += 1
 

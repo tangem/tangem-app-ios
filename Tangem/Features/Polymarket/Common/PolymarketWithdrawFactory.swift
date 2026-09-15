@@ -27,9 +27,8 @@ struct PolymarketWithdrawFactory {
             relayerService: services.makeRelayerService(),
             withdrawService: services.makeWithdrawService(walletId: walletId),
             depositWalletResolver: PolymarketDepositWalletResolver(
-                walletService: services.makeWalletService(),
-                ownerAddressProvider: PolymarketOnboardingFactory().makeOwnerAddressProvider(for: userWalletModel),
-                walletId: walletId
+                walletService: services.makeWalletService(walletId: walletId),
+                ownerAddressProvider: PolymarketOnboardingFactory().makeOwnerAddressProvider(for: userWalletModel)
             ),
             signer: PolymarketWithdrawSigner(keysRepository: userWalletModel.keysRepository, signer: signer)
         )

@@ -10,7 +10,6 @@ import Foundation
 
 public struct PolymarketPositionsRequest: Hashable, Sendable {
     public let depositWalletAddress: String
-    public let walletId: String
     public let sort: Sort
     public let ascending: Bool
     public let limit: Int
@@ -18,14 +17,12 @@ public struct PolymarketPositionsRequest: Hashable, Sendable {
 
     public init(
         depositWalletAddress: String,
-        walletId: String,
         sort: Sort = .endDate,
         ascending: Bool = true,
         limit: Int = 10,
         offset: Int = 0
     ) {
         self.depositWalletAddress = depositWalletAddress
-        self.walletId = walletId
         self.sort = sort
         self.ascending = ascending
         self.limit = limit

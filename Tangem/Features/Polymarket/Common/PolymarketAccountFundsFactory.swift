@@ -25,9 +25,8 @@ struct PolymarketAccountFundsFactory {
         return PolymarketAccountFundsInteractor(
             bridgeService: bridgeService,
             configurationService: configurationService,
-            walletService: services.makeWalletService(),
-            ownerAddressProvider: PolymarketOnboardingFactory().makeOwnerAddressProvider(for: userWalletModel),
-            walletId: walletId
+            walletService: services.makeWalletService(walletId: walletId),
+            ownerAddressProvider: PolymarketOnboardingFactory().makeOwnerAddressProvider(for: userWalletModel)
         )
     }
 }
