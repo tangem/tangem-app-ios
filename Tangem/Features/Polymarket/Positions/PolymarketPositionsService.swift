@@ -19,16 +19,13 @@ enum PolymarketPositionsError: Error {
 }
 
 struct CommonPolymarketPositionsService {
-    private let userWalletId: UserWalletId
     private let ownerAddressProvider: PolymarketOwnerAddressProviding
     private let apiProvider: PolymarketAPIProvider
 
     init(
-        userWalletId: UserWalletId,
         ownerAddressProvider: PolymarketOwnerAddressProviding,
         apiProvider: PolymarketAPIProvider
     ) {
-        self.userWalletId = userWalletId
         self.ownerAddressProvider = ownerAddressProvider
         self.apiProvider = apiProvider
     }
@@ -51,7 +48,6 @@ extension CommonPolymarketPositionsService: PolymarketPositionsService {
             let page = try await apiProvider.positions(
                 request: PolymarketPositionsRequest(
                     depositWalletAddress: depositWalletAddress,
-                    walletId: userWalletId.stringValue,
                     limit: limit,
                     offset: offset
                 )

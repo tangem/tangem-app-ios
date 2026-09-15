@@ -101,7 +101,7 @@ struct PolymarketOnboardingInteractorTests {
         #expect(progress.last?.failure?.isDeploymentFailed == true)
         #expect(service.deployCalls == 2)
         #expect(service.submittedBatches.isEmpty)
-        #expect(service.requestedKeys.count == 1)
+        #expect(service.requestedOwnerAddresses.count == 1)
     }
 
     @Test("A wallet id bound to another owner is never worth retrying")
