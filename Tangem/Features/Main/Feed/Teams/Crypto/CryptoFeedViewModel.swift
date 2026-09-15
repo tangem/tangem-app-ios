@@ -11,7 +11,7 @@ import TangemUI
 
 final class CryptoFeedViewModel: ObservableObject {
     let promoBanner: PromotionNotificationsViewModel
-    let marketCap = MarketCapViewModel()
+    let marketCap: MarketCapViewModel
     let pulse: PulseViewModel
 
     init(
@@ -20,10 +20,12 @@ final class CryptoFeedViewModel: ObservableObject {
         router: any CryptoFeedRoutable
     ) {
         promoBanner = PromotionNotificationsViewModel(promotionNotificationsManager: promotionNotificationsManager)
+        marketCap = MarketCapViewModel(router: router)
         pulse = PulseViewModel(dataProvider: pulseDataProvider, router: router)
     }
 
     func feedSheetSizeDidChange(to size: ShtorkaSize) {
+        marketCap.feedSheetSizeDidChange(to: size)
         pulse.feedSheetSizeDidChange(to: size)
     }
 }
