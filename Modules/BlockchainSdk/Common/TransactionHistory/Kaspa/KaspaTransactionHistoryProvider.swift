@@ -73,10 +73,6 @@ final class KaspaTransactionHistoryProvider: TransactionHistoryProvider {
             .filterSuccessfulStatusAndRedirectCodes()
             .map([KaspaTransactionHistoryResponse.Transaction].self, using: decoder)
             .eraseError()
-            .handleEvents(receiveOutput: { [weak self] transactions in
-                self?.page = TransactionHistoryIndexPage(number: requestPage)
-                self?.hasReachedEnd = transactions.count < limit
-            })
             .withWeakCaptureOf(self)
             .tryMap { historyProvider, result in
                 let transactionRecords = try historyProvider
@@ -88,6 +84,8 @@ final class KaspaTransactionHistoryProvider: TransactionHistoryProvider {
                             record: record
                         )
                     }
+                historyProvider.page = TransactionHistoryIndexPage(number: requestPage)
+                historyProvider.hasReachedEnd = result.count < limit
                 return TransactionHistory.Response(records: transactionRecords)
             }
             .eraseToAnyPublisher()

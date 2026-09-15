@@ -73,10 +73,6 @@ final class XRPTransactionHistoryProvider: TransactionHistoryProvider {
                 limit: request.limit,
                 marker: marker
             )
-            .handleEvents(receiveOutput: { [weak self] response in
-                self?.marker = response.marker
-                self?.hasReachedEnd = response.marker == nil
-            })
             .tryMap { [weak self] response -> TransactionHistory.Response in
                 guard let self else {
                     throw BlockchainSdkError.empty
@@ -97,6 +93,9 @@ final class XRPTransactionHistoryProvider: TransactionHistoryProvider {
                         record: record
                     )
                 }
+
+                marker = response.marker
+                hasReachedEnd = response.marker == nil
 
                 return .init(records: records)
             }
