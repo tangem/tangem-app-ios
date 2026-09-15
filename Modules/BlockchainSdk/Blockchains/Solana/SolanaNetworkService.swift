@@ -285,6 +285,21 @@ public final class SolanaNetworkService: MultiNetworkProvider {
         try await solanaSdk.api.getLatestBlockhash()
     }
 
+    /// `nil` means no account exists at the address.
+    func rawAccountInfo(address: String) async throws -> SolanaRawAccount? {
+        do {
+            let info = try await solanaSdk.api.getAccountInfo(account: address, decodedTo: SolanaRawAccountData.self).async()
+
+            guard let account = info.data.value else {
+                throw BlockchainSdkError.failedToParseNetworkResponse()
+            }
+
+            return SolanaRawAccount(owner: info.owner, data: account.data)
+        } catch SolanaError.nullValue {
+            return nil
+        }
+    }
+
     func getSlot() async throws -> UInt64 {
         try await solanaSdk.api.getSlot()
     }
