@@ -32,7 +32,7 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
         self.jointAccount = jointAccount
         self.coordinator = coordinator
 
-        content = Self.makeContent(of: jointAccount)
+        content = Self.makeContent(of: jointAccount, slots: jointAccount.jointAccountMembersService.slots)
 
         bind()
     }
@@ -45,16 +45,13 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
         coordinator?.openInviteSafety()
     }
 
-    func onMemberInfoTap(memberIndex: Int) {
-        guard let member = jointAccount.members[safe: memberIndex] else {
-            JointAccountsLogger.warning("The tapped row of the joint account holds no member to tell about")
-            return
-        }
-
+    /// - Note: Everything the details are opened with comes off the row that was tapped, so a composition that has
+    /// moved on since it was drawn cannot put another member behind it.
+    func onMemberInfoTap(_ viewData: MemberViewData) {
         coordinator?.openMemberDetails(
-            name: member.name,
-            address: member.address,
-            accentColor: CompositeIconColorPalette.color(for: Self.iconColor(at: memberIndex))
+            name: viewData.name,
+            address: viewData.member.address,
+            accentColor: viewData.icon.color
         )
     }
 
@@ -120,7 +117,7 @@ private extension JointAccountInviteMembersViewModel {
             return
         }
 
-        // The screen exists to gather the members, and they are gathered — the account is a working one from here on
+        // The members are gathered, which is all this screen was for
         // [REDACTED_TODO_COMMENT]
         coordinator?.closeInviteMembers()
     }
@@ -143,66 +140,66 @@ private extension JointAccountInviteMembersViewModel {
             .present(layout: .top(padding: Constants.toastTopPadding), type: .temporary(interval: Constants.toastInterval))
     }
 
-    /// A slot is taken on the account this screen was opened with rather than on a model of its own, so the rows are
-    /// worked out anew whenever it says it has changed.
+    /// Rebuilt whole rather than patched: every row is worked out from the slots, and a slot is taken on the account
+    /// rather than on a model of this screen's own.
+    /// - Note: The composition is followed apart from the account, whose own changes say nothing of who joined. It is
+    /// a stream of state, so its rows are drawn from what it hands out rather than read back off the service.
     func bind() {
-        jointAccount
-            .didChangePublisher
+        Publishers
+            .CombineLatest(
+                // Prepended because the account reports changes rather than state: without a value of its own the
+                // combination would wait for one, and the composition would not be drawn until the account moved
+                jointAccount.didChangePublisher.prepend(()),
+                jointAccount.jointAccountMembersService.slotsPublisher
+            )
+            .map { _, slots in slots }
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { viewModel, _ in
-                viewModel.content = Self.makeContent(of: viewModel.jointAccount)
+            .sink { viewModel, slots in
+                viewModel.content = Self.makeContent(of: viewModel.jointAccount, slots: slots)
             }
             .store(in: &bag)
     }
 
-    static func makeContent(of jointAccount: any JointAccountModel) -> Content {
-        Content(
-            members: makeMembers(of: jointAccount),
-            freeSlots: makeFreeSlots(of: jointAccount),
-            isActivationAvailable: jointAccount.canActivate,
-            canArchive: jointAccount.invites.isNotEmpty
-        )
-    }
+    /// - Note: An account the store no longer holds has no slots, and the screen says so rather than keeping rows
+    /// whose invite links and activate button no longer lead anywhere.
+    static func makeContent(of jointAccount: any JointAccountModel, slots: [JointAccountSlot]) -> Content {
+        let isCreatorDevice = jointAccount.jointAccountMembersService.isCreatorDevice
 
-    static func makeMembers(of jointAccount: any JointAccountModel) -> [MemberViewData] {
-        jointAccount.members.enumerated().map { index, member in
-            MemberViewData(
-                id: member.address,
+        let members = slots.enumerated().compactMap { index, slot -> MemberViewData? in
+            guard case .member(let member) = slot else {
+                return nil
+            }
+
+            return MemberViewData(
+                member: member,
                 // [REDACTED_TODO_COMMENT]
                 icon: AddressBookContactNameIconViewData(
                     letter: member.name.prefix(1).uppercased(),
                     color: CompositeIconColorPalette.color(for: iconColor(at: index))
                 ),
-                name: member.name,
-                role: role(of: member, isCreatorDevice: jointAccount.invites.isNotEmpty),
-                memberIndex: index
+                role: role(of: member, isCreatorDevice: isCreatorDevice)
             )
         }
-    }
 
-    /// - Note: Every free slot is worth a row, whether or not this wallet holds the invite that opens it.
-    static func makeFreeSlots(of jointAccount: any JointAccountModel) -> [FreeSlotViewData] {
-        let linkBuilder = JointAccountInviteLinkBuilder()
-        let inviteURLs = jointAccount.unusedInvites.compactMap { invite -> URL? in
-            guard let url = linkBuilder.buildURL(invite: invite) else {
-                // Says nothing of the invite itself: a log is the last place the account's access secret belongs
-                JointAccountsLogger.warning("An invite of the joint account cannot be written as a link")
+        // Taken off the slots rather than off the invites: a slot this wallet holds no invite for is a row all the
+        // same, and the count the screen reports is the account's rather than this wallet's share of it
+        let freeSlots = slots.enumerated().compactMap { index, slot -> FreeSlotViewData? in
+            guard case .empty(let invite) = slot else {
                 return nil
             }
 
-            return url
+            return FreeSlotViewData(id: index, invite: invite)
         }
 
-        return (0 ..< jointAccount.freeSlotsCount).map { slotIndex in
-            FreeSlotViewData(
-                id: slotIndex,
-                inviteURL: inviteURLs[safe: slotIndex]
-            )
-        }
+        return Content(
+            members: members,
+            freeSlots: freeSlots,
+            isActivationAvailable: jointAccount.canActivate,
+            canArchive: isCreatorDevice
+        )
     }
 
-    /// - Note: Told apart by holding an invite, which is the creator's alone — the endpoint names no wallet as this one.
     static func role(of member: JointAccountMember, isCreatorDevice: Bool) -> String {
         switch member.role {
         case .creator where isCreatorDevice:
@@ -229,10 +226,8 @@ extension JointAccountInviteMembersViewModel {
         /// The taken slots, in the order they were taken, the creator first.
         let members: [MemberViewData]
         let freeSlots: [FreeSlotViewData]
-        /// Only the creator activates, and only once every slot is taken.
         let isActivationAvailable: Bool
-        /// Offered on the creator's device alone — told apart by holding an invite, which the endpoint hands out
-        /// once and to the creator only.
+        /// Offered on the creator's device alone — see `JointAccountMembersService.isCreatorDevice`.
         let canArchive: Bool
 
         var joinedMembersCount: Int { members.count }
@@ -241,17 +236,19 @@ extension JointAccountInviteMembersViewModel {
 
     struct MemberViewData: Identifiable {
         /// The member's address, which is what tells two members of one name apart.
-        let id: String
+        var id: String { member.address }
+        var name: String { member.name }
+
+        let member: JointAccountMember
         let icon: AddressBookContactNameIconViewData
-        let name: String
         let role: String
-        let memberIndex: Int
     }
 
     struct FreeSlotViewData: Identifiable {
+        /// The slot's place in the composition, which is what tells two free slots apart.
         let id: Int
-        /// Nil for a slot this wallet holds no invite for: they are handed out once, and to the creator alone.
-        let inviteURL: URL?
+        /// Nil for a slot this wallet holds no invite for.
+        let invite: JointAccountInvite?
     }
 }
 

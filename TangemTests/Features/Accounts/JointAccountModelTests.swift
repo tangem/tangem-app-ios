@@ -10,83 +10,48 @@ import Foundation
 import Testing
 @testable import Tangem
 
-@Suite("Tests for what a joint account says about its own slots")
+@Suite("Tests for what a joint account model says about itself")
 struct JointAccountModelTests {
     /// Kept by the suite because the models hold it weakly, and a new one is made per test the way every stored
     /// property of a suite is.
     private let delegate = JointAccountModelDelegateMock()
 
-    // MARK: - Unused invites
+    @Test("Activating is offered to the creator of a full composition and to no one else")
+    func activatingTakesTheStageAndTheCreator() {
+        let creator = makeSUT(status: .confirming(safeAddress: Self.safeAddress), isCreatorDevice: true)
+        // A member holds no invites, which is what tells them apart from the creator
+        let member = makeSUT(status: .confirming(safeAddress: Self.safeAddress), isCreatorDevice: false)
+        let stillFilling = makeSUT(status: .pending, isCreatorDevice: true)
 
-    @Test("Every invite is unused while nobody has walked in with one")
-    func allInvitesAreUnusedWithoutMembers() {
-        let account = makeAccount(
-            membersCount: 3,
-            members: [creator],
-            inviteIds: ["AA", "BB"]
-        )
-
-        #expect(account.unusedInvites.map(\.id) == ["AA", "BB"])
+        #expect(creator.canActivate)
+        #expect(!member.canActivate)
+        #expect(!stillFilling.canActivate)
     }
 
-    @Test("The invite a member walked in with is no longer handed out")
-    func takenInviteIsLeftOut() {
-        let account = makeAccount(
-            membersCount: 3,
-            members: [creator, member(inviteId: "AA")],
-            inviteIds: ["AA", "BB"]
-        )
+    /// The button stays: the address is the backend's to name, and hiding the only action the screen has would leave
+    /// the creator with nothing and no reason why.
+    @Test("An announced address the answer left out does not take the activate button with it")
+    func activatingIsOfferedWithoutAnAnnouncedAddress() {
+        let sut = makeSUT(status: .confirming(safeAddress: nil), isCreatorDevice: true)
 
-        #expect(account.unusedInvites.map(\.id) == ["BB"])
+        #expect(sut.canActivate)
     }
+}
 
-    @Test("An invite is matched to its member regardless of how either is cased")
-    func takenInviteIsMatchedCaseInsensitively() {
-        let account = makeAccount(
-            membersCount: 3,
-            members: [creator, member(inviteId: "aa")],
-            inviteIds: ["AA", "BB"]
-        )
+// MARK: - Helpers
 
-        #expect(account.unusedInvites.map(\.id) == ["BB"])
-    }
+private extension JointAccountModelTests {
+    static let safeAddress = "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"
 
-    @Test("A slot left free with no invite to open it is not offered")
-    func freeSlotWithoutAnInviteIsNotOffered() {
-        let account = makeAccount(
-            membersCount: 3,
-            members: [creator],
-            inviteIds: []
-        )
-
-        #expect(account.freeSlotsCount == 2)
-        #expect(account.unusedInvites.isEmpty)
-    }
-
-    // MARK: - Helpers
-
-    private var creator: JointAccountMember {
-        JointAccountMember(name: "Isaac", address: "0xcreator", role: .creator)
-    }
-
-    private func member(inviteId: String) -> JointAccountMember {
-        JointAccountMember(name: "Member", address: "0xmember", role: .member(inviteId: inviteId))
-    }
-
-    private func makeAccount(
-        membersCount: Int,
-        members: [JointAccountMember],
-        inviteIds: [String]
-    ) -> any JointAccountModel {
+    func makeSUT(status: JointAccountStatus, isCreatorDevice: Bool) -> CommonJointAccountModel {
         CommonJointAccountModel(
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
             derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
-            policy: JointAccountPolicy(membersCount: membersCount, signersCount: 2),
-            status: .pending,
+            accountPolicy: JointAccountPolicy(membersCount: 3, signersCount: 2),
+            accountStatus: status,
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
-            members: members,
-            invites: inviteIds.map(JointAccountInvite.init(id:)),
+            membersService: JointAccountMembersServiceMock(isCreatorDevice: isCreatorDevice),
             delegate: delegate
         )
     }
