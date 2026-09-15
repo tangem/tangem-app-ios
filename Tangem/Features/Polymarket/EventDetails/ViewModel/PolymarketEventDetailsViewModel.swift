@@ -20,6 +20,7 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
     private let category: PolymarketCategory?
     private let apiProvider: PolymarketAPIProvider
     private let geoblockStateProvider: PolymarketGeoblockStateProvider?
+    private let onOrderPlaced: @MainActor (Task<Void, Never>?) -> Void
     private weak var coordinator: PolymarketEventDetailsRoutable?
 
     private var loadingTask: Task<Void, Never>?
@@ -30,12 +31,14 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
         category: PolymarketCategory?,
         apiProvider: PolymarketAPIProvider,
         geoblockStateProvider: PolymarketGeoblockStateProvider?,
+        onOrderPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void,
         coordinator: PolymarketEventDetailsRoutable
     ) {
         self.eventID = eventID
         self.category = category
         self.apiProvider = apiProvider
         self.geoblockStateProvider = geoblockStateProvider
+        self.onOrderPlaced = onOrderPlaced
         self.coordinator = coordinator
 
         load()
@@ -127,7 +130,12 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
             return
         }
 
-        coordinator?.openOrder(market: market, outcome: outcome, eventTitle: eventTitle)
+        coordinator?.openOrder(
+            market: market,
+            outcome: outcome,
+            eventTitle: eventTitle,
+            onPlaced: onOrderPlaced
+        )
     }
 }
 

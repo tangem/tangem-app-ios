@@ -18,6 +18,8 @@ extension PolymarketDTO {
         let image: String?
         let icon: String?
 
+        let conditionId: String?
+
         let status: String?
         let negRisk: Bool?
         let acceptingOrders: Bool?

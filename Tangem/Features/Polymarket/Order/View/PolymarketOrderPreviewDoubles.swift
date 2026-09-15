@@ -42,7 +42,15 @@ final class PolymarketOrderPreviewAPIProvider: PolymarketAPIProvider {
     }
 
     func positions(request: PolymarketPositionsRequest) async throws -> PolymarketPositionsPage {
-        PolymarketPositionsPage(positions: [], hasNext: false)
+        PolymarketPositionsPage(positions: [], receivedCount: 0, hasNext: false)
+    }
+
+    func closedPositions(request: PolymarketClosedPositionsRequest) async throws -> PolymarketClosedPositionsPage {
+        PolymarketClosedPositionsPage(positions: [], receivedCount: 0, hasNext: false)
+    }
+
+    func positionOutcome(request: PolymarketPositionOutcomeRequest) async throws -> PolymarketPosition? {
+        nil
     }
 }
 
