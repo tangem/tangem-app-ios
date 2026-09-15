@@ -25,7 +25,7 @@ final class CollectiblesDTODecodingTests {
         #expect(machine.price == Decimal(string: "49.99"))
         #expect(machine.fee == 2)
         #expect(machine.feeAmount == 1)
-        #expect(machine.contains == "5")
+        #expect(machine.contains == 5)
         #expect(machine.instantBuybackPercent == 80)
         #expect(machine.lowThreshold == 10)
         #expect(machine.odds.common == 70)
@@ -127,7 +127,7 @@ private extension CollectiblesDTODecodingTests {
     }
 
     func makeMachineJSON(
-        contains: String = "\"5\"",
+        contains: String = "5",
         image: String = "\"https://example.com/pack.png\"",
         odds: String = #"{ "common": 70, "uncommon": 20, "rare": 8, "epic": 2 }"#
     ) -> String {

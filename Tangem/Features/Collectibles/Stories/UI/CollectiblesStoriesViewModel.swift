@@ -16,8 +16,6 @@ final class CollectiblesStoriesViewModel: ObservableObject {
     private let slides: [CollectiblesStoriesView.Slide]
     private let engine: any CollectiblesStoriesEngine
 
-    private weak var routable: (any CollectiblesStoriesRoutable)?
-
     private var isOnLastSlide: Bool {
         currentSlideIndex == slides.count - 1
     }
@@ -34,17 +32,16 @@ final class CollectiblesStoriesViewModel: ObservableObject {
 
     @Published private(set) var currentSlideIndex = 0
     @Published private(set) var currentSlideProgress: CGFloat = 0
+    @Published private(set) var isFinished = false
 
     // MARK: - Init
 
     init(
         slides: [CollectiblesStoriesView.Slide],
-        engine: @MainActor (StoryV2) -> any CollectiblesStoriesEngine,
-        routable: (any CollectiblesStoriesRoutable)?
+        engine: @MainActor (StoryV2) -> any CollectiblesStoriesEngine
     ) {
         self.slides = slides
         self.engine = engine(.localCollectiblesOnboarding(slides: slides))
-        self.routable = routable
     }
 
     // MARK: - Methods
@@ -83,7 +80,7 @@ final class CollectiblesStoriesViewModel: ObservableObject {
 
     func onContinueTap() {
         guard !isOnLastSlide else {
-            routable?.openMain()
+            isFinished = true
             return
         }
 
@@ -91,17 +88,7 @@ final class CollectiblesStoriesViewModel: ObservableObject {
     }
 
     func onCloseTap() {
-        routable?.openMain()
-    }
-}
-
-extension CollectiblesStoriesViewModel {
-    convenience init(routable: (any CollectiblesStoriesRoutable)?) {
-        self.init(
-            slides: CollectiblesStoriesView.Slide.content,
-            engine: { StoryPlayerViewModel(story: $0, onFinished: { _, _ in }) },
-            routable: routable
-        )
+        isFinished = true
     }
 }
 
