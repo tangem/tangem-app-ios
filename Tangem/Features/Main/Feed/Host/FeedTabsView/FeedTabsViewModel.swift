@@ -28,6 +28,11 @@ final class FeedTabsViewModel: ObservableObject {
         }
 
         selectedTab = tab
+
+        if let section = tab.kind.analyticsSection {
+            Analytics.log(event: .marketsEnterSection, params: [.section: section.rawValue])
+        }
+
         updatePromoBannersVisibility()
     }
 
