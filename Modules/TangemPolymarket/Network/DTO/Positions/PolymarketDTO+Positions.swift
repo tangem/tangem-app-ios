@@ -14,6 +14,26 @@ extension PolymarketDTO {
         let hasNext: Bool?
     }
 
+    struct ClosedPositionsResponse: Decodable {
+        let positions: [ClosedPosition]
+        let hasNext: Bool?
+    }
+
+    struct ClosedPosition: Decodable {
+        let conditionId: String
+        let assetId: String
+        let title: String?
+        let slug: String?
+        let icon: String?
+        let closedAt: String?
+        let outcome: String?
+        let avgPrice: String?
+        let curPrice: String?
+        let totalBought: String?
+        let realizedPnl: String?
+        let status: String?
+    }
+
     struct Position: Decodable {
         let conditionId: String
         let assetId: String
@@ -40,5 +60,13 @@ extension PolymarketDTO {
         let live: Bool?
         let resolutionStatus: String?
         let status: String?
+    }
+}
+
+// MARK: - One open position
+
+extension PolymarketDTO {
+    struct PositionOutcomeResponse: Decodable {
+        let position: Position?
     }
 }

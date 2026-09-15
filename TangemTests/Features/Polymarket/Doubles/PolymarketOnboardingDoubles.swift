@@ -468,6 +468,14 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
     func positions(request: PolymarketPositionsRequest) async throws -> PolymarketPositionsPage {
         throw PolymarketDepositWalletServiceStub.StubError()
     }
+
+    func closedPositions(request: PolymarketClosedPositionsRequest) async throws -> PolymarketClosedPositionsPage {
+        throw PolymarketDepositWalletServiceStub.StubError()
+    }
+
+    func positionOutcome(request: PolymarketPositionOutcomeRequest) async throws -> PolymarketPosition? {
+        throw PolymarketDepositWalletServiceStub.StubError()
+    }
 }
 
 // MARK: - Geoblock

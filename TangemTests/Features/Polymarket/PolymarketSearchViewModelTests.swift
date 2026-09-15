@@ -233,6 +233,7 @@ private extension PolymarketSearchViewModelTests {
     static func market(id: String, outcomes: [PolymarketOutcome]) -> PolymarketMarket {
         PolymarketMarket(
             id: id,
+            conditionId: nil,
             title: id,
             groupItemTitle: nil,
             imageURL: nil,

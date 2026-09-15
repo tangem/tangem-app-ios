@@ -24,6 +24,8 @@ struct PolymarketTarget: Moya.TargetType {
         case seriesEvents(seriesId: String)
         case orderQuote(PolymarketDTO.OrderQuoteRequestBody)
         case positions(PolymarketPositionsRequest)
+        case closedPositions(PolymarketClosedPositionsRequest)
+        case positionOutcome(PolymarketPositionOutcomeRequest)
     }
 
     var path: String {
@@ -44,12 +46,16 @@ struct PolymarketTarget: Moya.TargetType {
             return "api/predictions/v1/orders/quote"
         case .positions:
             return "api/predictions/v1/positions"
+        case .closedPositions:
+            return "api/predictions/v1/positions/closed"
+        case .positionOutcome:
+            return "api/predictions/v1/positions/outcome"
         }
     }
 
     var method: Moya.Method {
         switch target {
-        case .categories, .events, .event, .search, .series, .seriesEvents, .positions:
+        case .categories, .events, .event, .search, .series, .seriesEvents, .positions, .closedPositions, .positionOutcome:
             return .get
         case .orderQuote:
             return .post
@@ -119,6 +125,28 @@ struct PolymarketTarget: Moya.TargetType {
                     "offset": request.offset,
                 ],
                 encoding: URLEncoding(boolEncoding: .literal)
+            )
+
+        case .closedPositions(let request):
+            return .requestParameters(
+                parameters: [
+                    "depositWalletAddress": request.depositWalletAddress,
+                    "sort": request.sort.rawValue,
+                    "ascending": request.ascending,
+                    "limit": request.limit,
+                    "offset": request.offset,
+                ],
+                encoding: URLEncoding(boolEncoding: .literal)
+            )
+
+        case .positionOutcome(let request):
+            return .requestParameters(
+                parameters: [
+                    "depositWalletAddress": request.depositWalletAddress,
+                    "conditionId": request.conditionId,
+                    "assetId": request.assetId,
+                ],
+                encoding: URLEncoding.queryString
             )
         }
     }

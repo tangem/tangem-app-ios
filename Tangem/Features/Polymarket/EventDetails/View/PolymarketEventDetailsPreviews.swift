@@ -89,6 +89,7 @@ private extension PolymarketMarket {
     static func stub(id: String, title: String, probability: Decimal, status: PolymarketEventStatus = .active) -> PolymarketMarket {
         PolymarketMarket(
             id: id,
+            conditionId: nil,
             title: "Will \(title) win the 2026 FIFA World Cup?",
             groupItemTitle: title,
             imageURL: nil,

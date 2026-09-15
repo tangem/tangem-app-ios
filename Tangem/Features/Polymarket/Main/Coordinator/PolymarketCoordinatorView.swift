@@ -41,31 +41,19 @@ struct PolymarketCoordinatorView: CoordinatorView {
         NavHolder()
             .navigation(item: $coordinator.destination) { destination in
                 switch destination {
-                case .eventDetails(let viewModel):
-                    PolymarketEventDetailsView(viewModel: viewModel)
-                case .positionDetails(let model):
-                    PolymarketPositionDetailsView(model: model) { coordinator.destination = nil }
+                case .eventDetails(let coordinator):
+                    PolymarketEventDetailsCoordinatorView(coordinator: coordinator)
+                case .positionDetails(let viewModel):
+                    PolymarketPositionDetailsScreen(viewModel: viewModel)
                         .background(FeedPopGestureEnabler())
-                        .sheet(item: $coordinator.positionHint) { hint in
-                            PolymarketPositionHintSheetView(model: hint)
-                                .presentationDetents(idealHeight: Constants.positionHintSheetHeight)
-                                .presentationBackground(DesignSystem.Color.bgPrimary)
-                        }
+                case .myPositions(let coordinator):
+                    PolymarketMyPositionsCoordinatorView(coordinator: coordinator)
+                case .order(let coordinator):
+                    PolymarketOrderCoordinatorView(coordinator: coordinator)
                 }
-            }
-            .navigation(item: $coordinator.orderCoordinator) { coordinator in
-                PolymarketOrderCoordinatorView(coordinator: coordinator)
             }
             .navigation(item: $coordinator.tokenDetailsCoordinator) { coordinator in
                 TokenDetailsCoordinatorView(coordinator: coordinator)
             }
-    }
-}
-
-// MARK: - Constants
-
-private extension PolymarketCoordinatorView {
-    enum Constants {
-        static let positionHintSheetHeight: CGFloat = 180
     }
 }

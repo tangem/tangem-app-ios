@@ -35,6 +35,7 @@ extension PolymarketMapper {
     func mapMarket(_ dto: PolymarketDTO.Market) -> PolymarketMarket {
         PolymarketMarket(
             id: dto.id,
+            conditionId: dto.conditionId,
             title: dto.question,
             groupItemTitle: dto.groupItemTitle,
             imageURL: url(from: dto.image),

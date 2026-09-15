@@ -10,6 +10,7 @@ import Foundation
 
 public struct PolymarketMarket: Hashable, Sendable {
     public let id: String
+    public let conditionId: String?
 
     public let title: String
 
@@ -35,6 +36,7 @@ public struct PolymarketMarket: Hashable, Sendable {
 
     public init(
         id: String,
+        conditionId: String?,
         title: String,
         groupItemTitle: String?,
         imageURL: URL?,
@@ -51,6 +53,7 @@ public struct PolymarketMarket: Hashable, Sendable {
         outcomes: [PolymarketOutcome]
     ) {
         self.id = id
+        self.conditionId = conditionId
         self.title = title
         self.groupItemTitle = groupItemTitle
         self.imageURL = imageURL

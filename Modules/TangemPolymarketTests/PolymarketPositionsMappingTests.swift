@@ -45,15 +45,21 @@ struct PolymarketPositionsMappingTests {
         #expect(endDate == Date(timeIntervalSince1970: 1_798_675_200))
     }
 
-    @Test("A money string that cannot be read is refused instead of passing for zero")
-    func unreadableAmountIsRefused() throws {
+    @Test("A row with a money string that cannot be read is dropped, and still counted")
+    func rowThatCannotBeReadIsCounted() throws {
         let json = Data("""
-        { "positions": [{ "conditionId": "0x1", "assetId": "2", "currentValue": "twelve" }] }
+        {
+          "positions": [
+            { "conditionId": "0x1", "assetId": "2", "currentValue": "twelve" },
+            { "conditionId": "0x3", "assetId": "4" }
+          ]
+        }
         """.utf8)
 
-        #expect(throws: PolymarketAPIError.self) {
-            try mapPage(json)
-        }
+        let page = try mapPage(json)
+
+        #expect(page.positions.map(\.id) == ["0x3/4"])
+        #expect(page.receivedCount == 2)
     }
 
     @Test("The side held is carried by its name, whatever the market calls it")
@@ -98,6 +104,52 @@ struct PolymarketPositionsMappingTests {
         #expect(try !mapPage(Self.degradedJSON).hasNext)
     }
 
+    @Test("A closed page decodes into the domain model with its money read as decimals")
+    func closedPageMapping() throws {
+        let page = try mapClosedPage(Self.closedPageJSON)
+        let position = try #require(page.positions.first)
+
+        #expect(page.hasNext)
+        #expect(page.receivedCount == 1)
+        #expect(position.conditionId == "0xe131e7ab")
+        #expect(position.assetId == "14029358")
+        #expect(position.outcome == "Yes")
+        #expect(position.avgPrice == Decimal(string: "0.3911"))
+        #expect(position.curPrice == Decimal(string: "0.295"))
+        #expect(position.totalBought == Decimal(string: "15.5128"))
+        #expect(position.realizedPnl == Decimal(string: "-2.363"))
+        #expect(position.status == .closed)
+    }
+
+    @Test("An ending this build does not know keeps the row, marked unknown")
+    func closedStatusFallsBackToUnknown() throws {
+        let json = Data("""
+        { "positions": [{ "conditionId": "0x1", "assetId": "2", "status": "SOMETHING_NEW" }] }
+        """.utf8)
+
+        let position = try #require(mapClosedPage(json).positions.first)
+
+        #expect(position.status == .unknown)
+    }
+
+    @Test("A closed row whose money cannot be read is dropped, and the page still says how many arrived")
+    func closedRowThatCannotBeReadIsCounted() throws {
+        let json = Data("""
+        {
+          "positions": [
+            { "conditionId": "0x1", "assetId": "2", "realizedPnl": "not a number" },
+            { "conditionId": "0x3", "assetId": "4" }
+          ]
+        }
+        """.utf8)
+
+        let page = try mapClosedPage(json)
+
+        #expect(page.positions.count == 1)
+        #expect(page.receivedCount == 2)
+        #expect(page.positions.first?.conditionId == "0x3")
+    }
+
     @Test("Both parts of the identity are separated, so neighbouring pairs cannot collide")
     func identityIsSeparated() throws {
         let position = try #require(mapPage(Self.pageJSON).positions.first)
@@ -113,6 +165,10 @@ private extension PolymarketPositionsMappingTests {
         try mapper.mapPositions(decoder.decode(PolymarketDTO.PositionsResponse.self, from: json))
     }
 
+    func mapClosedPage(_ json: Data) throws -> PolymarketClosedPositionsPage {
+        try mapper.mapClosedPositions(decoder.decode(PolymarketDTO.ClosedPositionsResponse.self, from: json))
+    }
+
     func position(outcome: String) throws -> PolymarketPosition {
         let json = Data("""
         { "positions": [{ "conditionId": "0x1", "assetId": "2", "outcome": \(outcome) }] }
@@ -125,6 +181,27 @@ private extension PolymarketPositionsMappingTests {
 // MARK: - Fixtures
 
 private extension PolymarketPositionsMappingTests {
+    static let closedPageJSON = Data("""
+    {
+      "positions": [{
+        "conditionId": "0xe131e7ab",
+        "assetId": "14029358",
+        "title": "Israel x Lebanon diplomatic meeting by September 15, 2026?",
+        "slug": "israel-x-lebanon",
+        "icon": "https://example.com/icon.jpg",
+        "endDate": "2026-09-16",
+        "closedAt": "2026-09-12T23:49:48Z",
+        "outcome": "Yes",
+        "avgPrice": "0.3911",
+        "curPrice": "0.295",
+        "totalBought": "15.5128",
+        "realizedPnl": "-2.363",
+        "status": "CLOSED"
+      }],
+      "hasNext": true
+    }
+    """.utf8)
+
     static let pageJSON = Data("""
     {
       "positions": [{

@@ -8,18 +8,21 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 import TangemPolymarket
 
 final class PolymarketOrderCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
 
-    let dismissAction: Action<Void>
+    let dismissAction: Action<DismissPayload?>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Root ViewModels
 
     @Published private(set) var viewModel: PolymarketOrderViewModel?
+
+    private var model: PolymarketOrderModel?
 
     // MARK: - Child ViewModels
 
@@ -27,11 +30,13 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
     @Published var sheet: Sheet?
 
     private var placementService: PolymarketOrderPlacementService?
+    private var indexingTask: Task<Void, Never>?
+    private var hasPlacedOrder = false
 
     // MARK: - Init
 
     required init(
-        dismissAction: @escaping Action<Void>,
+        dismissAction: @escaping Action<DismissPayload?>,
         popToRootAction: @escaping Action<PopToRootOptions> = { _ in }
     ) {
         self.dismissAction = dismissAction
@@ -48,9 +53,11 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
                 eventTitle: options.eventTitle,
                 apiProvider: PolymarketAPIProviderFactory().makeProvider(walletId: options.walletId),
                 geoblockStateProvider: options.geoblockStateProvider,
+                positionsService: options.positionsService,
                 balancePublisher: options.balancePublisher
             )
 
+            self.model = model
             viewModel = PolymarketOrderViewModel(model: model, coordinator: self)
         }
     }
@@ -60,7 +67,7 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
 
 extension PolymarketOrderCoordinator: PolymarketOrderRoutable {
     func closeOrder() {
-        dismiss()
+        dismiss(with: hasPlacedOrder ? DismissPayload(indexing: indexingTask) : nil)
     }
 
     func openSlippageSelector(percent: Decimal, onConfirm: @escaping (Decimal) -> Void) {
@@ -111,7 +118,14 @@ extension PolymarketOrderCoordinator: PolymarketOrderSummaryRoutable {
         sheet = .feeBreakdown(PolymarketFeeBreakdownSheetViewModel(model: model))
     }
 
+    @MainActor
     func openResult(state: PolymarketOrderResultViewModel.State, content: PolymarketOrderResultViewModel.Content) {
+        hasPlacedOrder = state != .noFill
+
+        if hasPlacedOrder {
+            indexingTask = model?.awaitIndexing()
+        }
+
         destination = .result(PolymarketOrderResultViewModel(state: state, content: content, coordinator: self))
     }
 }
@@ -148,6 +162,10 @@ extension PolymarketOrderCoordinator {
 // MARK: - Options
 
 extension PolymarketOrderCoordinator {
+    struct DismissPayload {
+        let indexing: Task<Void, Never>?
+    }
+
     struct Options {
         let market: PolymarketMarket
         let outcome: PolymarketOutcome
@@ -156,5 +174,6 @@ extension PolymarketOrderCoordinator {
         let geoblockStateProvider: PolymarketGeoblockStateProvider
         let balancePublisher: AnyPublisher<Decimal?, Never>
         let placementService: PolymarketOrderPlacementService
+        let positionsService: PolymarketPositionsService?
     }
 }

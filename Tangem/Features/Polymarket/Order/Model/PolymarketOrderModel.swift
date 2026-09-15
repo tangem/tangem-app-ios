@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import UIKit
 import TangemFoundation
 import TangemPolymarket
 
@@ -29,12 +30,14 @@ final class PolymarketOrderModel: ObservableObject {
 
     private let apiProvider: PolymarketAPIProvider
     private let geoblockStateProvider: PolymarketGeoblockStateProvider
+    private let positionsService: PolymarketPositionsService?
     private let balancePublisher: AnyPublisher<Decimal?, Never>
     private let delayProvider: PollDelayProvider
 
     // MARK: - Private state
 
     private var quoteTask: Task<Void, Never>?
+    private var heldSharesTask: Task<Decimal?, Never>?
     private var visibleScreens = 0
     private var failureClock = PolymarketQuoteFailureClock(gracePeriod: Constants.failureGracePeriod)
     private var bag: Set<AnyCancellable> = []
@@ -47,6 +50,7 @@ final class PolymarketOrderModel: ObservableObject {
         eventTitle: String,
         apiProvider: PolymarketAPIProvider,
         geoblockStateProvider: PolymarketGeoblockStateProvider,
+        positionsService: PolymarketPositionsService? = nil,
         balancePublisher: AnyPublisher<Decimal?, Never>,
         delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
@@ -55,14 +59,44 @@ final class PolymarketOrderModel: ObservableObject {
         self.eventTitle = eventTitle
         self.apiProvider = apiProvider
         self.geoblockStateProvider = geoblockStateProvider
+        self.positionsService = positionsService
         self.balancePublisher = balancePublisher
         self.delayProvider = delayProvider
 
         bind()
+        readHeldShares()
     }
 
     deinit {
         quoteTask?.cancel()
+        heldSharesTask?.cancel()
+    }
+
+    func awaitIndexing() -> Task<Void, Never>? {
+        guard let positionsService, let conditionId = market.conditionId else { return nil }
+
+        let heldSharesTask = heldSharesTask
+        let assetId = outcome.assetId
+
+        return Task {
+            var heldShares: Decimal?
+
+            if let heldSharesTask {
+                heldShares = await heldSharesTask.value
+            }
+
+            do {
+                _ = try await positionsService.awaitPosition(
+                    conditionId: conditionId,
+                    assetId: assetId,
+                    changedFrom: heldShares
+                )
+            } catch {
+                guard !error.isCancellationError else { return }
+
+                PolymarketLogger.error("Failed to wait for the position the order created", error: error)
+            }
+        }
     }
 
     // MARK: - View actions
@@ -160,6 +194,26 @@ private extension PolymarketOrderModel {
                 model.state.geoblock = geoblock
             }
             .store(in: &bag)
+
+        NotificationCenter.default
+            .publisher(for: UIApplication.didEnterBackgroundNotification)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { model, _ in
+                model.suspendQuoteLoop()
+            }
+            .store(in: &bag)
+
+        NotificationCenter.default
+            .publisher(for: UIApplication.willEnterForegroundNotification)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { model, _ in
+                guard model.visibleScreens > 0 else { return }
+
+                model.restartQuoteLoop(debounced: false)
+            }
+            .store(in: &bag)
     }
 }
 
@@ -199,6 +253,45 @@ private extension PolymarketOrderModel {
         guard let quote = state.quote.quote, quote.notional > 0 else { return 0 }
 
         return quote.fees.total / quote.notional
+    }
+}
+
+// MARK: - The position the order changes
+
+private extension PolymarketOrderModel {
+    func readHeldShares() {
+        guard let positionsService, let conditionId = market.conditionId else { return }
+
+        let assetId = outcome.assetId
+
+        heldSharesTask = Task {
+            do {
+                return try await Self.heldPosition(
+                    service: positionsService,
+                    conditionId: conditionId,
+                    assetId: assetId
+                )?.size
+            } catch {
+                guard !error.isCancellationError else { return nil }
+
+                PolymarketLogger.error("Failed to read the position the order will change", error: error)
+                return nil
+            }
+        }
+    }
+
+    static func heldPosition(
+        service: PolymarketPositionsService,
+        conditionId: String,
+        assetId: String
+    ) async throws -> PolymarketPosition? {
+        do {
+            return try await service.position(conditionId: conditionId, assetId: assetId)
+        } catch {
+            guard (error as? PolymarketAPIError)?.isTransient == true else { throw error }
+
+            return try await service.position(conditionId: conditionId, assetId: assetId)
+        }
     }
 }
 

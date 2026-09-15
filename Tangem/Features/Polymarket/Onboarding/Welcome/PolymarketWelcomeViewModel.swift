@@ -76,11 +76,11 @@ private extension PolymarketWelcomeViewModel {
             runState = .awaitingSignature
         case .working:
             runState = .working
-        case .ready:
+        case .ready(let isNewAccount):
             guard let coordinator else { return }
 
             presentAccountCreatedToast()
-            coordinator.onboardingDidFinish()
+            coordinator.onboardingDidFinish(isNewAccount: isNewAccount)
         case .handedOff:
             break
         case .failed(let error):
