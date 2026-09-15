@@ -16,10 +16,20 @@ final class FeedCoordinator: CoordinatorObject {
     let popToRootAction: Action<PopToRootOptions>
 
     @Published private(set) var rootViewModel: FeedViewModel?
-    @Published var path: [FeedDestination] = []
+    @Published var path: [FeedDestination] = [] {
+        didSet {
+            shtorkaStateObject.setNavigationActive(path.isNotEmpty)
+        }
+    }
+
     @Published var presented: FeedDestination?
 
     let shtorkaStateObject = MainShtorkaStateObject()
+
+    /// The feed's own views get the sheet narrowed down to what they may do with it, its view model to what it
+    /// has to follow.
+    var shtorkaReporting: any MainShtorkaReporting { shtorkaStateObject }
+    var shtorkaActions: any MainShtorkaViewActionProvider { shtorkaStateObject }
 
     private var bag = Set<AnyCancellable>()
 
@@ -30,7 +40,7 @@ final class FeedCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         let context = FeedContext(navigation: self, popToRootAction: popToRootAction)
-        rootViewModel = FeedViewModelFactory().makeViewModel(context: context)
+        rootViewModel = FeedViewModelFactory().makeViewModel(context: context, shtorkaActions: shtorkaActions)
 
         bind()
     }

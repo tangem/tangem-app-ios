@@ -12,10 +12,11 @@ import TangemUIUtils
 
 struct FeedTabsView: View {
     @ObservedObject var viewModel: FeedTabsViewModel
-    @ObservedObject var shtorkaStateObject: MainShtorkaStateObject
+    let shtorkaActions: any MainShtorkaViewActionProvider
 
     @Binding var areChipsPinned: Bool
     let onTabChange: (String) -> Void
+    let onChipsHeightChange: (CGFloat) -> Void
 
     @State private var chipsHeight: CGFloat = 0
 
@@ -78,7 +79,7 @@ struct FeedTabsView: View {
                 .hidden()
                 .readGeometry(\.size.height) { height in
                     chipsHeight = height
-                    shtorkaStateObject.report(tabChips: height)
+                    onChipsHeightChange(height)
                 }
                 .allowsHitTesting(false)
                 .accessibilityHidden(true)
@@ -97,7 +98,7 @@ struct FeedTabsView: View {
             get: { viewModel.selectedTab },
             set: { tab in
                 viewModel.onSelectTab(tab)
-                shtorkaStateObject.expand()
+                shtorkaActions.expand()
             }
         )
     }

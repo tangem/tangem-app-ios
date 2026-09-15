@@ -13,7 +13,11 @@ import TangemUIUtils
 struct FeedView: View {
     @ObservedObject var viewModel: FeedViewModel
     @ObservedObject var searchViewModel: FeedSearchViewModel
-    @ObservedObject var shtorkaStateObject: MainShtorkaStateObject
+
+    let shtorkaReporting: any MainShtorkaReporting
+    let shtorkaActions: any MainShtorkaViewActionProvider
+
+    @Environment(\.mainShtorkaSize) private var sheetSize
 
     @State private var isContentUnderSearchBar = false
     @State private var areChipsPinned = false
@@ -22,10 +26,9 @@ struct FeedView: View {
         content
             .ignoresSafeArea(edges: .bottom)
             .toolbar(.hidden, for: .navigationBar)
-            .onChange(of: shtorkaStateObject.size, perform: viewModel.sheetSizeDidChange)
             .onChange(of: searchViewModel.isActive) { isActive in
                 if isActive {
-                    shtorkaStateObject.expand()
+                    shtorkaActions.expand()
                 }
             }
     }
@@ -51,10 +54,10 @@ struct FeedView: View {
     private var searchBar: some View {
         FeedSearchBarView(
             viewModel: viewModel.searchBarViewModel,
-            shtorkaStateObject: shtorkaStateObject,
             isActive: searchViewModel.isActive,
             onFocus: searchViewModel.open,
-            onCancel: searchViewModel.reset
+            onCancel: searchViewModel.reset,
+            onHeightChange: { shtorkaReporting.report(searchBar: $0) }
         )
     }
 
@@ -64,13 +67,14 @@ struct FeedView: View {
                 ScrollView {
                     VStack(spacing: FeedConstants.widgetsToTabsSpacing) {
                         FeedWidgetsView(viewModel: viewModel.widgetsViewModel)
-                            .readGeometry(\.size.height) { shtorkaStateObject.report(widgets: $0) }
+                            .readGeometry(\.size.height) { shtorkaReporting.report(widgets: $0) }
 
                         FeedTabsView(
                             viewModel: viewModel.tabsViewModel,
-                            shtorkaStateObject: shtorkaStateObject,
+                            shtorkaActions: shtorkaActions,
                             areChipsPinned: $areChipsPinned,
-                            onTabChange: { restoreScroll(tabID: $0, viewportHeight: viewport.size.height - FeedConstants.searchContentInset, with: proxy) }
+                            onTabChange: { restoreScroll(tabID: $0, viewportHeight: viewport.size.height - FeedConstants.searchContentInset, with: proxy) },
+                            onChipsHeightChange: { shtorkaReporting.report(tabChips: $0) }
                         )
                         .frame(minHeight: max(0, viewport.size.height - FeedConstants.searchContentInset), alignment: .top)
                     }
@@ -80,7 +84,7 @@ struct FeedView: View {
                             .id(FeedConstants.contentAnchorID)
                     }
                     .onGeometryChange(for: CGFloat.self, of: { -$0.frame(in: .named(FeedConstants.scrollCoordinateSpace)).minY }) { offset in
-                        shtorkaStateObject.report(scrollOffset: offset, tabID: viewModel.tabsViewModel.selectedTab.id)
+                        shtorkaReporting.report(scrollOffset: offset, tabID: viewModel.tabsViewModel.selectedTab.id)
 
                         let isUnderSearchBar = offset > 0
                         if isUnderSearchBar != isContentUnderSearchBar {
@@ -102,8 +106,10 @@ struct FeedView: View {
                     }
                 }
                 // An edge-attached collapsed sheet is taller than the search bar by this inset; keep the widgets out of it.
-                .padding(.top, shtorkaStateObject.size == .collapsed ? FeedConstants.collapsedBottomInset : 0)
-                .onChange(of: shtorkaStateObject.size) { size in
+                .padding(.top, sheetSize.isCollapsedFeedSheet ? FeedConstants.collapsedBottomInset : 0)
+                .onChange(of: sheetSize) { size in
+                    guard let size else { return }
+
                     resetScroll(at: size, with: proxy)
                 }
             }
@@ -122,7 +128,7 @@ struct FeedView: View {
     }
 
     private func restoreScroll(tabID: String, viewportHeight: CGFloat, with proxy: ScrollViewProxy) {
-        guard let anchor = shtorkaStateObject.scrollAnchor(forTab: tabID, viewportHeight: viewportHeight) else {
+        guard let anchor = shtorkaReporting.scrollAnchor(forTab: tabID, viewportHeight: viewportHeight) else {
             return
         }
 

@@ -14,6 +14,8 @@ import TangemUIUtils
 struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: MarketsTokenDetailsCoordinator
 
+    @Environment(\.mainShtorkaSize) private var sheetSize
+
     var body: some View {
         switch coordinator.presentationStyle {
         case .marketsSheet, .navigationStack, .addFundsSheet:
@@ -124,7 +126,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
         NavHolder()
             .navigation(item: $coordinator.newsRelatedTokenDetailsCoordinator) { tokenCoordinator in
                 MarketsTokenDetailsCoordinatorView(coordinator: tokenCoordinator)
-                    .if(tokenCoordinator.isMarketsSheetFlow) { view in
+                    .if(tokenCoordinator.isMarketsSheetFlow && !sheetSize.isFeedSheet) { view in
                         view.ignoresSafeArea(.container, edges: .top)
                     }
             }

@@ -7,6 +7,7 @@
 //
 
 import Combine
+import TangemFoundation
 import TangemUI
 
 final class FeedViewModel: ObservableObject {
@@ -17,16 +18,38 @@ final class FeedViewModel: ObservableObject {
 
     private var isSheetOpened = false
 
+    private var bag = Set<AnyCancellable>()
+
     init(
         searchBarViewModel: FeedSearchBarViewModel,
         searchViewModel: FeedSearchViewModel,
         tabsViewModel: FeedTabsViewModel,
-        widgetsViewModel: FeedWidgetsViewModel
+        widgetsViewModel: FeedWidgetsViewModel,
+        shtorkaActions: any MainShtorkaViewActionProvider
     ) {
         self.searchBarViewModel = searchBarViewModel
         self.searchViewModel = searchViewModel
         self.tabsViewModel = tabsViewModel
         self.widgetsViewModel = widgetsViewModel
+
+        bind(to: shtorkaActions)
+    }
+}
+
+// MARK: - Private
+
+private extension FeedViewModel {
+    func bind(to shtorkaActions: any MainShtorkaViewActionProvider) {
+        shtorkaActions
+            .sizePublisher
+            // The size the feed opens with is already what it renders; only a change asks it for anything.
+            .dropFirst()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, size in
+                viewModel.sheetSizeDidChange(to: size)
+            }
+            .store(in: &bag)
     }
 
     func sheetSizeDidChange(to size: ShtorkaSize) {
