@@ -40,6 +40,7 @@ enum Feature: String, Hashable, CaseIterable {
     case jointAccountsGaslessTokenFee
     case merklIncentives
     case tangemPayCustomCards
+    case mcp
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -76,6 +77,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .jointAccountsGaslessTokenFee: return "[REDACTED_INFO]_joint_accounts_gasless_token_fee"
         case .merklIncentives: return "TWI-1520_merkl_incentives"
         case .tangemPayCustomCards: return "TWI-1727_tangem_pay_custom_cards"
+        case .mcp: return "TWI-1721_mcp"
         }
     }
 
@@ -112,6 +114,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .jointAccountsGaslessTokenFee: return .unspecified
         case .merklIncentives: return .unspecified
         case .tangemPayCustomCards: return .unspecified
+        case .mcp: return .unspecified
         }
     }
 }
