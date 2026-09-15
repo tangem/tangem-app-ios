@@ -77,7 +77,17 @@ extension CommonPolymarketAPIProvider: PolymarketAPIProvider {
 
     public func positions(request: PolymarketPositionsRequest) async throws -> PolymarketPositionsPage {
         let response = try await service.positions(request: request)
-        return try mapper.mapPositions(response)
+        return mapper.mapPositions(response)
+    }
+
+    public func closedPositions(request: PolymarketClosedPositionsRequest) async throws -> PolymarketClosedPositionsPage {
+        let response = try await service.closedPositions(request: request)
+        return mapper.mapClosedPositions(response)
+    }
+
+    public func positionOutcome(request: PolymarketPositionOutcomeRequest) async throws -> PolymarketPosition? {
+        let response = try await service.positionOutcome(request: request)
+        return try mapper.mapPositionOutcome(response)
     }
 }
 
