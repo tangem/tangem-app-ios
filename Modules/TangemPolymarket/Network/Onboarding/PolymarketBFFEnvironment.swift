@@ -18,4 +18,8 @@ public struct PolymarketBFFEnvironment {
         self.baseURL = baseURL
         self.headers = headers
     }
+
+    func requestHeaders(walletId: String) -> [String: String] {
+        headers.merging([Self.walletIdHeader: walletId]) { _, walletId in walletId }
+    }
 }

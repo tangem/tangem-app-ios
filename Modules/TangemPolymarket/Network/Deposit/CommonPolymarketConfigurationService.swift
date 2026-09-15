@@ -60,11 +60,7 @@ private extension CommonPolymarketConfigurationService {
     func requestConfiguration(
         in environment: PolymarketBFFEnvironment
     ) async throws -> PolymarketDTO.ConfigurationResponse {
-        let target = PolymarketConfigurationTarget(
-            baseURL: environment.baseURL,
-            environmentHeaders: environment.headers,
-            walletId: walletId
-        )
+        let target = PolymarketConfigurationTarget(environment: environment, walletId: walletId)
 
         do {
             let response = try await provider.requestPublisher(target).async()

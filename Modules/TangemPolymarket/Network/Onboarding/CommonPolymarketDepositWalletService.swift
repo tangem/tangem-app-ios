@@ -14,25 +14,26 @@ import TangemNetworkUtils
 final class CommonPolymarketDepositWalletService {
     private let provider: TangemProvider<PolymarketDepositWalletTarget>
     private let environment: () -> PolymarketBFFEnvironment
+    private let walletId: String
 
     private let decoder = JSONDecoder()
 
-    init(provider: TangemProvider<PolymarketDepositWalletTarget>, environment: @escaping () -> PolymarketBFFEnvironment) {
+    init(
+        provider: TangemProvider<PolymarketDepositWalletTarget>,
+        environment: @escaping () -> PolymarketBFFEnvironment,
+        walletId: String
+    ) {
         self.provider = provider
         self.environment = environment
+        self.walletId = walletId
     }
 }
 
 // MARK: - PolymarketDepositWalletService protocol conformance
 
 extension CommonPolymarketDepositWalletService: PolymarketDepositWalletService {
-    func depositWalletState(
-        ownerAddress: String?,
-        walletId: String
-    ) async throws(PolymarketWalletError) -> PolymarketDepositWallet {
-        let response: PolymarketDTO.WalletStatusResponse = try await request(
-            .walletState(ownerAddress: ownerAddress, walletId: walletId)
-        )
+    func depositWalletState(ownerAddress: String?) async throws(PolymarketWalletError) -> PolymarketDepositWallet {
+        let response: PolymarketDTO.WalletStatusResponse = try await request(.walletState(ownerAddress: ownerAddress))
 
         return PolymarketDepositWallet(
             address: response.depositWalletAddress,
@@ -42,8 +43,7 @@ extension CommonPolymarketDepositWalletService: PolymarketDepositWalletService {
 
     func deployWallet(
         ownerAddress: String,
-        depositWalletAddress: String,
-        walletId: String
+        depositWalletAddress: String
     ) async throws(PolymarketWalletError) -> PolymarketDepositWalletStatus {
         let payload = PolymarketDTO.DeployRequest(
             ownerAddress: ownerAddress,
@@ -67,8 +67,7 @@ extension CommonPolymarketDepositWalletService: PolymarketDepositWalletService {
 
 private extension CommonPolymarketDepositWalletService {
     func request<T: Decodable>(_ target: PolymarketDepositWalletTarget.Target) async throws(PolymarketWalletError) -> T {
-        let environment = environment()
-        let request = PolymarketDepositWalletTarget(baseURL: environment.baseURL, target: target, headers: environment.headers)
+        let request = PolymarketDepositWalletTarget(environment: environment(), walletId: walletId, target: target)
 
         do {
             let response = try await provider.requestPublisher(request).async()
