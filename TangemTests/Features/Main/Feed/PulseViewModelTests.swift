@@ -126,6 +126,7 @@ private final class StubCryptoFeedRoutable: CryptoFeedRoutable {
 
     func openToken(_ token: MarketsTokenModel) {}
     func openPulseTagFilter(with input: PulseTagFilterInput) { tagFilterInputs.append(input) }
+    func openMarketCapInfo(subject: MarketCapInfoSubject) {}
     func openPortfolioToken(_ walletModel: any WalletModel) {}
     func choosePortfolioToken(from walletModels: [any WalletModel]) {}
 }
