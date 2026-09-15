@@ -11,6 +11,24 @@ import SwiftUI
 import TangemFoundation
 import TangemUI
 
+/// The sizes the feed measures for the sheet and the scroll anchor it asks back. Only the top of the feed reports:
+/// the views below it hand their measurements up instead of knowing about the sheet.
+protocol MainShtorkaReporting: AnyObject {
+    func report(searchBar height: CGFloat)
+    func report(widgets height: CGFloat)
+    func report(tabChips height: CGFloat)
+    func report(scrollOffset: CGFloat, tabID: String)
+    func scrollAnchor(forTab id: String, viewportHeight: CGFloat) -> UnitPoint?
+}
+
+/// What a view inside the sheet may do with it: follow the size it settles on and open it. The presentation state
+/// stays out of reach.
+protocol MainShtorkaViewActionProvider: AnyObject {
+    var sizePublisher: AnyPublisher<ShtorkaSize, Never> { get }
+
+    func expand()
+}
+
 final class MainShtorkaStateObject: ObservableObject {
     @Injected(\.mainBottomSheetUIManager) private var bottomSheetUIManager: MainBottomSheetUIManager
 
@@ -23,7 +41,18 @@ final class MainShtorkaStateObject: ObservableObject {
         }
     }
 
-    @Published private(set) var detents = ShtorkaDetents()
+    @Published private(set) var isContentCollapsed = true
+
+    @Published private var feedDetents = ShtorkaDetents()
+    @Published private var isNavigationActive = false
+
+    var detents: ShtorkaDetents {
+        guard isNavigationActive else { return feedDetents }
+
+        // The detent set deduplicates collapsed, and its reverse mapping still resolves to collapsed.
+        return ShtorkaDetents(collapsed: feedDetents.collapsed, medium: feedDetents.collapsed, full: feedDetents.full)
+    }
+
     var expansionProgressPublisher: AnyPublisher<CGFloat, Never> {
         heights.expansionProgressPublisher
     }
@@ -33,7 +62,8 @@ final class MainShtorkaStateObject: ObservableObject {
     private var bag = Set<AnyCancellable>()
 
     init() {
-        heights.detentsPublisher.assign(to: &$detents)
+        heights.detentsPublisher.assign(to: &$feedDetents)
+        heights.$isContentCollapsed.assign(to: &$isContentCollapsed)
 
         bind()
     }
@@ -44,6 +74,13 @@ final class MainShtorkaStateObject: ObservableObject {
 
     func expand() {
         size = .full
+    }
+
+    func setNavigationActive(_ isActive: Bool) {
+        if isActive {
+            expand()
+        }
+        isNavigationActive = isActive
     }
 
     // MARK: - Tab scroll positions
@@ -123,5 +160,17 @@ private extension MainShtorkaStateObject {
         }
 
         heights.report(sheetHeight: .zero)
+    }
+}
+
+// MARK: - MainShtorkaReporting
+
+extension MainShtorkaStateObject: MainShtorkaReporting {}
+
+// MARK: - MainShtorkaViewActionProvider
+
+extension MainShtorkaStateObject: MainShtorkaViewActionProvider {
+    var sizePublisher: AnyPublisher<ShtorkaSize, Never> {
+        $size.removeDuplicates().eraseToAnyPublisher()
     }
 }

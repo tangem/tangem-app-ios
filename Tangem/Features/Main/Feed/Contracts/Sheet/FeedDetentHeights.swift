@@ -24,6 +24,8 @@ final class FeedDetentHeights: ObservableObject {
     /// Kept out of `detents`: the sheet height arrives on every drag frame, and a detent set mutated mid-drag makes the sheet jump.
     @Published private(set) var expansionProgress: CGFloat = 0
 
+    @Published private(set) var isContentCollapsed = true
+
     private var searchBarHeight = FeedDetentHeights.initialSearchBarHeight
     private(set) var widgetsHeight: CGFloat = .zero
     private var tabChipsHeight: CGFloat = .zero
@@ -70,6 +72,7 @@ final class FeedDetentHeights: ObservableObject {
 
     func report(sheetHeight height: CGFloat) {
         sheetHeight = height.roundedToDeviceScale()
+        updateContentVisibility()
 
         expansionProgress = makeExpansionProgress()
     }
@@ -110,7 +113,15 @@ private extension FeedDetentHeights {
         return clamp(value, min: 0, max: 1)
     }
 
+    func updateContentVisibility() {
+        let isCollapsed = sheetHeight <= collapsed + 1
+        if isCollapsed != isContentCollapsed {
+            isContentCollapsed = isCollapsed
+        }
+    }
+
     func syncDetents() {
+        updateContentVisibility()
         expansionProgress = makeExpansionProgress()
         // A collapsed floating sheet sits above the home indicator; an edge-attached one extends through the safe area.
         let collapsedSafeArea = FeedConstants.usesFloatingSheet ? 0 : safeArea.bottom
