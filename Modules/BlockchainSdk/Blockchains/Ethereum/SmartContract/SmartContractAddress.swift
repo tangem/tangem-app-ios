@@ -10,7 +10,7 @@ import Foundation
 import TangemFoundation
 
 /// Validation wrapper around raw `String` arguments, passed as addresses to smart contract calls.
-public struct SmartContractAddress: Equatable {
+public struct SmartContractAddress: Hashable {
     private let address: String
 
     public init(_ address: String) throws {

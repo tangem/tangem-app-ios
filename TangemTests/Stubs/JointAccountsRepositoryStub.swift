@@ -16,20 +16,26 @@ import TangemFoundation
 final class JointAccountsRepositoryStub: JointAccountsRepository {
     private let jointAccountsSubject: CurrentValueSubject<[StoredJointAccount], Never>
     private let invitesSubject = CurrentValueSubject<[StoredJointAccountInvites], Never>([])
-    private let pendingOperationsSubject = CurrentValueSubject<[StoredJointAccountPendingOperations], Never>([])
+    private let pendingOperationsSubject: CurrentValueSubject<[StoredJointAccountPendingOperations], Never>
     private let loadCallsCount = OSAllocatedUnfairLock(initialState: 0)
 
     var loadJointAccountsFromRemoteCallsCount: Int {
         loadCallsCount.withLock { $0 }
     }
 
-    init(jointAccounts: [StoredJointAccount] = []) {
+    init(jointAccounts: [StoredJointAccount] = [], pendingOperations: [StoredJointAccountPendingOperations] = []) {
         jointAccountsSubject = CurrentValueSubject(jointAccounts)
+        pendingOperationsSubject = CurrentValueSubject(pendingOperations)
     }
 
     /// What the backend would have stored on a read.
     func store(_ jointAccounts: [StoredJointAccount]) {
         jointAccountsSubject.send(jointAccounts)
+    }
+
+    /// The unfinished operations the listing would have brought.
+    func store(pendingOperations: [StoredJointAccountPendingOperations]) {
+        pendingOperationsSubject.send(pendingOperations)
     }
 
     var jointAccounts: [StoredJointAccount] {

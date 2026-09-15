@@ -65,6 +65,38 @@ public struct SafeTransaction: Hashable, Codable {
     }
 }
 
+// MARK: - Convenience
+
+public extension SafeTransaction {
+    /// What the account pays for the network at most: the whole gas allowance at the price the members signed, in the
+    /// smallest unit of `gasToken`. The Safe settles the executor's actual spend, which is never more.
+    var fee: BigUInt {
+        (safeTxGas + baseGas) * gasPrice
+    }
+
+    /// The call the Safe executes, apart from the gas terms and the nonce it was signed with.
+    /// - Throws: `Error.unsupportedOperation` for anything but a CALL.
+    var innerCall: SafeInnerCall {
+        get throws {
+            guard operation == Constants.callOperation else {
+                throw Error.unsupportedOperation
+            }
+
+            return SafeInnerCall(to: to, value: value, data: data)
+        }
+    }
+}
+
+// MARK: - Auxiliary types
+
+public extension SafeTransaction {
+    enum Error: Swift.Error, Equatable {
+        /// A delegatecall runs the code at `to` inside the Safe instead of calling it, so the fields say nothing about
+        /// what the transaction does — reading it as a call would describe it as something it is not.
+        case unsupportedOperation
+    }
+}
+
 // MARK: - Constants
 
 private extension SafeTransaction {
