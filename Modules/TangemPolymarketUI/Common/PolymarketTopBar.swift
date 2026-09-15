@@ -12,15 +12,22 @@ import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
-public struct PolymarketTopBar: View {
+public struct PolymarketTopBar<Trailing: View>: View {
     private let title: String?
     private let onBack: (() -> Void)?
     private let onClose: (() -> Void)?
+    private let trailing: Trailing
 
-    public init(title: String? = nil, onBack: (() -> Void)? = nil, onClose: (() -> Void)? = nil) {
+    public init(
+        title: String? = nil,
+        onBack: (() -> Void)? = nil,
+        onClose: (() -> Void)? = nil,
+        @ViewBuilder trailing: () -> Trailing
+    ) {
         self.title = title
         self.onBack = onBack
         self.onClose = onClose
+        self.trailing = trailing()
     }
 
     public var body: some View {
@@ -44,6 +51,8 @@ public struct PolymarketTopBar: View {
                     NavigationBarButton.close(action: onClose)
                         .accessibilityLabel(Localization.commonClose)
                 }
+
+                trailing
             }
         }
         .padding(.horizontal, Constants.horizontalPadding)
@@ -51,12 +60,18 @@ public struct PolymarketTopBar: View {
     }
 }
 
+// MARK: - Trailing-less shorthand
+
+public extension PolymarketTopBar where Trailing == EmptyView {
+    init(title: String? = nil, onBack: (() -> Void)? = nil, onClose: (() -> Void)? = nil) {
+        self.init(title: title, onBack: onBack, onClose: onClose, trailing: { EmptyView() })
+    }
+}
+
 // MARK: - Constants
 
-private extension PolymarketTopBar {
-    enum Constants {
-        static let horizontalPadding: CGFloat = 16
-        static let height: CGFloat = 44
-        static let titleInset: CGFloat = 56
-    }
+private enum Constants {
+    static let horizontalPadding: CGFloat = 16
+    static let height: CGFloat = 44
+    static let titleInset: CGFloat = 56
 }

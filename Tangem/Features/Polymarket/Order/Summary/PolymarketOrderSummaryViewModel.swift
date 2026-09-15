@@ -69,8 +69,10 @@ final class PolymarketOrderSummaryViewModel: ObservableObject {
 
     func handleViewAction(_ action: ViewAction) {
         switch action {
-        case .appeared, .disappeared:
-            break
+        case .appeared:
+            model.handleViewAction(.screenAppeared)
+        case .disappeared:
+            model.handleViewAction(.screenDisappeared)
         case .backTapped:
             guard !isPlacing else { return }
 

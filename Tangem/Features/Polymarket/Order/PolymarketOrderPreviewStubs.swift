@@ -28,6 +28,7 @@ extension PolymarketOrderModel {
 extension PolymarketMarket {
     static let preview = PolymarketMarket(
         id: "preview",
+        conditionId: "0xpreview",
         title: "Will Uzbekistan win the 2026 FIFA World Cup?",
         groupItemTitle: nil,
         imageURL: nil,
