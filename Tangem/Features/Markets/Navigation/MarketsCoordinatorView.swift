@@ -19,6 +19,7 @@ struct MarketsCoordinatorView: CoordinatorView {
                 if let mainMarketsViewModel = coordinator.marketsMainViewModel {
                     MarketsMainView(viewModel: mainMarketsViewModel)
                         .navigationLinks(links)
+                        .containerCornerRadius(MarketsNavigationMetrics.pushedScreenCornerRadius)
                 }
 
                 sheets
