@@ -12,6 +12,7 @@ extension HederaNetworkResult {
     struct ContractInfo: Decodable {
         /// Network entity ID in the format of `shard.realm.num`.
         let contractId: String?
+        let evmAddress: String?
     }
 
     struct ContractCallResult: Decodable {
