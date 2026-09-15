@@ -652,13 +652,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Найбільший актив</string>
+        <string>%li найбільший актив</string>
         <key>few</key>
         <string>%li найбільші активи</string>
         <key>many</key>
         <string>%li найбільших активів</string>
         <key>other</key>
-        <string>Top %li assets</string>
+        <string>%li найбільших активів</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
