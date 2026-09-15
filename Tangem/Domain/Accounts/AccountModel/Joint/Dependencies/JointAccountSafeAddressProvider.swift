@@ -30,12 +30,7 @@ struct JointAccountsRepositorySafeAddressProvider {
     }
 
     private func safeAddress(in storedJointAccounts: [StoredJointAccount]) -> String? {
-        // Case-insensitive, like every other match on this identifier
-        let storedJointAccount = storedJointAccounts.first {
-            $0.cryptoAccountId.caseInsensitiveEquals(to: cryptoAccountId)
-        }
-
-        guard case .active(let safeAddress) = storedJointAccount?.status else {
+        guard case .active(let safeAddress) = storedJointAccounts.first(by: cryptoAccountId)?.status else {
             return nil
         }
 
