@@ -27,7 +27,7 @@ enum SwapNotificationEvent: Hashable {
     case tooSmallAmountToSwap(minimumAmountText: String)
     case tooBigAmountToSwap(maximumAmountText: String)
     case unsupportedPair(analyticsParams: [Analytics.ParameterKey: String])
-    case regionRestricted
+    case regionRestricted(analyticsParams: [Analytics.ParameterKey: String])
     case feeWillBeSubtractFromSendingAmount(cryptoAmountFormatted: String, fiatAmountFormatted: String)
     case notEnoughReceivedAmount(amountFormatted: String, reason: NotEnoughReceivedAmountReason)
     case trustlineRequired
@@ -370,6 +370,8 @@ extension SwapNotificationEvent {
             .swapNoticeNotEnoughFunds
         case .unsupportedPair:
             .swapNoticeUnavailableToSwapPair
+        case .regionRestricted:
+            .swapNoticeGeoRestriction
         case .longTimeAverageDuration:
             // Sending from in place PendingExpressTxStatusBottomSheetViewModel.swift
             nil
@@ -391,6 +393,8 @@ extension SwapNotificationEvent {
         case .notEnoughFeeForTokenTx(_, _, _, let params):
             params
         case .notEnoughBalanceForSwapping(let params):
+            params
+        case .regionRestricted(let params):
             params
         default:
             [:]
