@@ -13,16 +13,16 @@ import TangemFoundation
 /// - Note: Everything a joint account shares with the wallet's own accounts is delegated to the crypto account it is
 /// built on, so the two kinds cannot drift apart as that one gains behaviour.
 final class CommonJointAccountModel {
-    let policy: JointAccountPolicy
-
-    private(set) var status: JointAccountStatus
-    private(set) var members: [JointAccountMember]
-    private(set) var invites: [JointAccountInvite]
+    private var accountStatus: JointAccountStatus {
+        didSet { didChangeSubject.send() }
+    }
 
     private let derivationIdentity: CryptoAccountDerivationIdentity
+    private let accountPolicy: JointAccountPolicy
     private let cryptoAccount: any CryptoAccountModel
     private let operationsService: any JointAccountOperationsService
     private let pendingOperationsProvider: any JointAccountPendingOperationsProvider
+    private let membersService: any JointAccountMembersService
     private weak var delegate: (any JointAccountModelDelegate)?
 
     private let didChangeSubject = PassthroughSubject<Void, Never>()
@@ -30,22 +30,20 @@ final class CommonJointAccountModel {
     init(
         cryptoAccount: any CryptoAccountModel,
         derivationIdentity: CryptoAccountDerivationIdentity,
-        policy: JointAccountPolicy,
-        status: JointAccountStatus,
+        accountPolicy: JointAccountPolicy,
+        accountStatus: JointAccountStatus,
         operationsService: any JointAccountOperationsService,
         pendingOperationsProvider: any JointAccountPendingOperationsProvider,
-        members: [JointAccountMember],
-        invites: [JointAccountInvite],
+        membersService: any JointAccountMembersService,
         delegate: any JointAccountModelDelegate
     ) {
         self.cryptoAccount = cryptoAccount
         self.derivationIdentity = derivationIdentity
-        self.policy = policy
-        self.status = status
+        self.accountPolicy = accountPolicy
+        self.accountStatus = accountStatus
         self.operationsService = operationsService
         self.pendingOperationsProvider = pendingOperationsProvider
-        self.members = members
-        self.invites = invites
+        self.membersService = membersService
         self.delegate = delegate
     }
 }
@@ -63,19 +61,9 @@ extension CommonJointAccountModel {
             jointAccountModelEditor.icon.map(cryptoAccountModelEditor.setIcon)
         }
 
-        let status = jointAccountModelEditor.status ?? status
-        let members = jointAccountModelEditor.members ?? members
-        let invites = jointAccountModelEditor.invites ?? invites
-        let hasChanges = self.status != status || self.members != members || self.invites != invites
-
-        guard hasChanges else {
-            return self
+        if let newStatus = jointAccountModelEditor.status, accountStatus != newStatus {
+            accountStatus = newStatus
         }
-
-        self.status = status
-        self.members = members
-        self.invites = invites
-        didChangeSubject.send()
 
         return self
     }
@@ -92,6 +80,37 @@ extension CommonJointAccountModel: Identifiable {
 // MARK: - JointAccountModel protocol conformance
 
 extension CommonJointAccountModel: JointAccountModel {
+    var policy: JointAccountPolicy {
+        accountPolicy
+    }
+
+    var status: JointAccountStatus {
+        accountStatus
+    }
+
+    var canActivate: Bool {
+        guard case .confirming = accountStatus else {
+            return false
+        }
+
+        return membersService.isCreatorDevice
+    }
+
+    func activate() async throws(AccountEditError) {
+        guard let delegate else {
+            let error = JointAccountModelError.activationUnavailable
+            JointAccountsLogger.error("The joint account has nothing left to activate it", error: error)
+            throw .unknownError(error)
+        }
+
+        let config = try makeActivationConfig()
+        try await delegate.activateJointAccount(with: config)
+    }
+}
+
+// MARK: - CryptoAccountModel protocol conformance
+
+extension CommonJointAccountModel: CryptoAccountModel {
     var name: String {
         cryptoAccount.name
     }
@@ -139,29 +158,23 @@ extension CommonJointAccountModel: JointAccountModel {
     func archive() async throws(AccountArchivationError) {
         try await cryptoAccount.archive()
     }
-
-    func activate() async throws(AccountEditError) {
-        guard let delegate else {
-            let error = JointAccountModelError.activationUnavailable
-            JointAccountsLogger.error("The joint account has nothing left to activate it", error: error)
-            throw .unknownError(error)
-        }
-
-        let config = try makeActivationConfig()
-        try await delegate.activateJointAccount(with: config)
-    }
 }
 
 // MARK: - Private
 
 private extension CommonJointAccountModel {
-    /// Everything the activation is signed over, checked before the wallet is asked for anything: a composition that
-    /// does not resolve to the announced address is not the account it claims to be, and there is nothing worth signing.
+    /// Checked before the wallet is asked for anything: a composition that does not resolve to the announced address
+    /// is not the account it claims to be, and there is nothing worth signing.
     func makeActivationConfig() throws(AccountEditError) -> JointAccountActivationConfig {
-        let creator = members.first(where: { $0.role == .creator })
+        // Announced, not verified: the address is the backend's word until the composition is checked against it.
+        // Read before the composition is, so that an account that cannot be activated costs nothing to turn away
+        guard case .confirming(.some(let announcedSafeAddress)) = status else {
+            throw .unknownError(JointAccountModelError.notReadyForActivation)
+        }
 
-        // Announced, not verified: the address is the backend's word until the composition is checked against it
-        guard case .confirming(.some(let announcedSafeAddress)) = status, let creator else {
+        let members = membersService.slots.compactMap(\.member)
+
+        guard let creator = members.first(where: { $0.role == .creator }) else {
             throw .unknownError(JointAccountModelError.notReadyForActivation)
         }
 
@@ -171,7 +184,7 @@ private extension CommonJointAccountModel {
             safeAddress = try JointAccountSafeAddressVerifier.confirm(
                 announcedAddress: announcedSafeAddress,
                 owners: members.map(\.address),
-                threshold: policy.signersCount
+                threshold: accountPolicy.signersCount
             )
         } catch {
             JointAccountsLogger.error("The joint account does not resolve to the address it was given", error: error)
@@ -179,15 +192,14 @@ private extension CommonJointAccountModel {
         }
 
         return JointAccountActivationConfig(
-            // The identifier the backend minted the account with is the one the app works out for itself — the same
-            // hash, in the same upper case, which is what every match on it relies on already
+            // The identifier the backend minted the account with is the one the app works out for itself, case included
             cryptoAccountId: id.rawValue.hexString,
             signedConfig: JointAccountSignedConfig(
                 name: name,
                 icon: icon.name.rawValue,
                 iconColor: icon.color.rawValue,
-                membersCount: policy.membersCount,
-                threshold: policy.signersCount
+                membersCount: accountPolicy.membersCount,
+                threshold: accountPolicy.signersCount
             ),
             safeAddress: safeAddress,
             creatorAddress: creator.address,
@@ -205,6 +217,14 @@ extension CommonJointAccountModel: JointAccountOperationsServicesProviding {
 
     var jointAccountPendingOperationsProvider: any JointAccountPendingOperationsProvider {
         pendingOperationsProvider
+    }
+}
+
+// MARK: - JointAccountMembersServiceProviding protocol conformance
+
+extension CommonJointAccountModel: JointAccountMembersServiceProviding {
+    var jointAccountMembersService: any JointAccountMembersService {
+        membersService
     }
 }
 
@@ -232,17 +252,11 @@ extension CommonJointAccountModel: DisposableEntity {
 
 extension CommonJointAccountModel: CustomStringConvertible {
     var description: String {
-        objectDescription(
-            self,
-            userInfo: [
-                "cryptoAccount": cryptoAccount,
-                "membersCount": policy.membersCount,
-                "signersCount": policy.signersCount,
-                "status": status,
-                "Taken slots count": members.count,
-                "Invites count": invites.count,
-            ]
-        )
+        objectDescription(self, userInfo: [
+            "cryptoAccount": cryptoAccount,
+            "accountPolicy": accountPolicy,
+            "status": status,
+        ])
     }
 }
 
@@ -254,8 +268,6 @@ extension CommonJointAccountModel {
         var name: String?
         var icon: AccountModel.CompositeIcon?
         var status: JointAccountStatus?
-        var members: [JointAccountMember]?
-        var invites: [JointAccountInvite]?
 
         func setName(_ name: String) {
             self.name = name
@@ -267,14 +279,6 @@ extension CommonJointAccountModel {
 
         func setStatus(_ status: JointAccountStatus) {
             self.status = status
-        }
-
-        func setMembers(_ members: [JointAccountMember]) {
-            self.members = members
-        }
-
-        func setInvites(_ invites: [JointAccountInvite]) {
-            self.invites = invites
         }
     }
 }

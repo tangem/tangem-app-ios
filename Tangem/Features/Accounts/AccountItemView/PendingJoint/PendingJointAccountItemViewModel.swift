@@ -25,11 +25,9 @@ final class PendingJointAccountItemViewModel: Identifiable, ObservableObject {
     /// Stated outright rather than awaited from the balance provider, which would leave the plate shimmering over a
     /// balance that cannot exist yet.
     @Published private(set) var balance: String
+    @Published private(set) var status: String
+    @Published private(set) var isInviteActionVisible: Bool
 
-    /// Fixed for the plate's lifetime: unlike the name and the icon, which the account model edits in place, the joint
-    /// config is immutable — a status moving on or a member joining arrives as a new model, and so as a new plate.
-    let status: String
-    let isInviteActionVisible: Bool
     let priceChange: PriceChangeView.State
 
     // MARK: - Private properties
@@ -45,12 +43,15 @@ final class PendingJointAccountItemViewModel: Identifiable, ObservableObject {
         self.jointAccount = jointAccount
         self.onTap = onTap
 
+        let slots = jointAccount.jointAccountMembersService.slots
+
         name = jointAccount.name
         iconData = AccountModelUtils.UI.iconViewData(accountModel: jointAccount)
-        status = Self.status(for: jointAccount)
+        status = Self.status(of: jointAccount.status, slots: slots)
         balance = BalanceFormatter().formatFiatBalance(.zero, currencyCode: AppSettings.shared.selectedCurrencyCode)
         priceChange = PriceChangeUtility().convertToPriceChangeState(changePercent: .zero)
-        isInviteActionVisible = jointAccount.canInviteMembers
+        // Inviting takes both a slot to fill and an invite to fill it with
+        isInviteActionVisible = slots.contains { $0.invite != nil }
 
         bind()
     }
@@ -64,14 +65,21 @@ final class PendingJointAccountItemViewModel: Identifiable, ObservableObject {
     // MARK: - Private methods
 
     private func bind() {
-        jointAccount
-            .didChangePublisher
-            .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, _ in
-                viewModel.onAccountModelDidChange()
-            }
-            .store(in: &bag)
+        // The composition is followed apart from the account, whose own changes say nothing of who joined, and the
+        // rows are counted off what it hands out rather than read back off the service
+        Publishers.CombineLatest(
+            // Prepended because the account reports changes rather than state: without a value of its own the
+            // combination would wait for one, and the plate would not be counted until the account moved
+            jointAccount.didChangePublisher.prepend(()),
+            jointAccount.jointAccountMembersService.slotsPublisher
+        )
+        .map { $1 }
+        .receiveOnMain()
+        .withWeakCaptureOf(self)
+        .sink { viewModel, slots in
+            viewModel.onAccountModelDidChange(slots: slots)
+        }
+        .store(in: &bag)
 
         AppSettings.shared.$selectedCurrencyCode
             .removeDuplicates()
@@ -80,27 +88,23 @@ final class PendingJointAccountItemViewModel: Identifiable, ObservableObject {
             .assign(to: &$balance)
     }
 
-    private func onAccountModelDidChange() {
+    private func onAccountModelDidChange(slots: [JointAccountSlot]) {
         name = jointAccount.name
         iconData = AccountModelUtils.UI.iconViewData(accountModel: jointAccount)
+        status = Self.status(of: jointAccount.status, slots: slots)
+        isInviteActionVisible = slots.contains { $0.invite != nil }
     }
 
-    private static func status(for jointAccount: any JointAccountModel) -> String {
-        switch jointAccount.status {
+    private static func status(of status: JointAccountStatus, slots: [JointAccountSlot]) -> String {
+        switch status {
         case .confirming:
             return Localization.jointAccountWaitingActivation
         case .pending:
-            return Localization.jointAccountMembersProgress(
-                jointAccount.members.count,
-                jointAccount.policy.membersCount
-            )
+            return Localization.jointAccountMembersProgress(slots.members.count, slots.count)
         case .active, .cancelled, .unknown:
             assertionFailure("The plate is only shown for a joint account that is still being put together")
 
-            return Localization.jointAccountMembersProgress(
-                jointAccount.members.count,
-                jointAccount.policy.membersCount
-            )
+            return Localization.jointAccountMembersProgress(slots.members.count, slots.count)
         }
     }
 }

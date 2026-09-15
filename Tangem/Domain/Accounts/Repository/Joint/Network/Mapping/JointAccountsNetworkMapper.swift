@@ -28,7 +28,7 @@ extension JointAccountsNetworkMapper {
 
 extension JointAccountsNetworkMapper {
     func mapToCreationResult(from response: JointAccountsDTO.Response.JointAccount) throws -> JointAccountCreationResult {
-        let invites = (response.invites ?? []).map { JointAccountInvite(id: $0.id) }
+        let invites = (response.invites ?? []).map { StoredJointAccountInvite(id: $0.id) }
         let freeSlotsCount = max(0, response.membersCount - response.members.count)
 
         if invites.count != freeSlotsCount {
