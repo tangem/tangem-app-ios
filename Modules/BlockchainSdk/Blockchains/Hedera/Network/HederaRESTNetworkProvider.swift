@@ -59,6 +59,10 @@ struct HederaRESTNetworkProvider {
         return requestPublisher(for: .getTokenDetails(tokenAddress: tokenAddress))
     }
 
+    func getTokenType(tokenAddress: String) -> some Publisher<HederaNetworkResult.TokenDetails, Error> {
+        return requestPublisher(for: .getTokenDetails(tokenAddress: tokenAddress))
+    }
+
     func invokeContract(
         from: String?,
         to: String,
