@@ -10,20 +10,13 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenElement> {
-    private lazy var scanButton = button(.scanButton)
-    private lazy var getStartedButton = button(.getStartedButton)
-    private lazy var startWithMobileWalletButton = button(.startWithMobileWalletButton)
-
-    private func tapGetStarted() {
-        getStartedButton.waitForStableFrame()
-        getStartedButton.waitAndTap()
-    }
+    private lazy var createWalletButton = button(.createWalletButton)
+    private lazy var existingWalletButton = button(.existingWalletButton)
 
     @discardableResult
     func scanMockWallet(name: CardMockAccessibilityIdentifiers) -> MainScreen {
         XCTContext.runActivity(named: "Scan Mock Wallet: \(name)") { _ in
-            tapGetStarted()
-            scanButton.waitAndTap()
+            openScanMenu()
 
             selectWalletFromList(name: name)
 
@@ -46,16 +39,11 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
         }
     }
 
+    @discardableResult
     func openScanMenu() -> Self {
         XCTContext.runActivity(named: "Open scan alert") { _ in
-            scanButton.waitAndTap()
-            return self
-        }
-    }
-
-    func skipStories() -> Self {
-        XCTContext.runActivity(named: "Skip stories screen") { _ in
-            tapGetStarted()
+            tapExistingWallet()
+            tapActionSheetRow(.hardwareRow)
             return self
         }
     }
@@ -69,11 +57,39 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
     }
 
     @discardableResult
-    func startWithMobileWallet() -> MobileCreateWalletScreen {
-        XCTContext.runActivity(named: "Open mobile wallet creation") { _ in
-            startWithMobileWalletButton.waitAndTap()
-            return MobileCreateWalletScreen(app)
+    func importMobileWallet() -> SeedPhraseImportScreen {
+        XCTContext.runActivity(named: "Import mobile wallet via recovery phrase") { _ in
+            tapExistingWallet()
+            tapActionSheetRow(.importRow)
+            return WelcomeV2ImportSheetScreen(app).tapRecoveryPhrase()
         }
+    }
+
+    @discardableResult
+    func createMobileWallet() -> MainScreen {
+        XCTContext.runActivity(named: "Create mobile wallet") { _ in
+            createWalletButton.waitForStableFrame()
+            createWalletButton.waitAndTap()
+            tapActionSheetRow(.mobileRow)
+            return MainScreen(app)
+        }
+    }
+
+    private func tapExistingWallet() {
+        existingWalletButton.waitForStableFrame()
+        existingWalletButton.waitAndTap()
+    }
+
+    /// The sheet rows collapse their children into a single element, so neither the type nor the first match is guaranteed.
+    private func tapActionSheetRow(_ element: CreateWalletSelectorScreenElement) {
+        let rows = app.descendants(matching: .any).matching(identifier: element.accessibilityIdentifier)
+
+        guard let row = rows.firstHittableElement() else {
+            XCTFail("Action sheet row \(element.accessibilityIdentifier) should be hittable")
+            return
+        }
+
+        row.tap()
     }
 
     private func handleTwinOnboarding() -> MainScreen {
@@ -93,18 +109,24 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
 }
 
 enum CreateWalletSelectorScreenElement: String, UIElement {
-    case scanButton
-    case getStartedButton
-    case startWithMobileWalletButton
+    case createWalletButton
+    case existingWalletButton
+    case hardwareRow
+    case mobileRow
+    case importRow
 
     var accessibilityIdentifier: String {
         switch self {
-        case .scanButton:
-            StoriesAccessibilityIdentifiers.scanButton
-        case .getStartedButton:
-            StoriesAccessibilityIdentifiers.getStartedButton
-        case .startWithMobileWalletButton:
-            OnboardingAccessibilityIdentifiers.mobileWalletButton
+        case .createWalletButton:
+            WelcomeV2AccessibilityIdentifiers.createWalletButton
+        case .existingWalletButton:
+            WelcomeV2AccessibilityIdentifiers.existingWalletButton
+        case .hardwareRow:
+            WelcomeV2AccessibilityIdentifiers.actionSheetHardwareRow
+        case .mobileRow:
+            WelcomeV2AccessibilityIdentifiers.actionSheetMobileRow
+        case .importRow:
+            WelcomeV2AccessibilityIdentifiers.actionSheetImportRow
         }
     }
 }
