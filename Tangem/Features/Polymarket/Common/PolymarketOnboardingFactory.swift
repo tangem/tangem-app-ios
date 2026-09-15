@@ -11,6 +11,24 @@ import TangemPolymarket
 
 struct PolymarketOnboardingFactory {
     private let services = PolymarketOnboardingServicesFactory.makeDefault()
+    private let presenceStore: PolymarketAccountPresenceStore = AppSettings.shared
+
+    func makeWelcomeViewModel(
+        for userWalletModel: any UserWalletModel,
+        coordinator: PolymarketWelcomeRoutable
+    ) -> PolymarketWelcomeViewModel {
+        PolymarketWelcomeViewModel(
+            interactor: makeInteractor(for: userWalletModel),
+            hasExistingAccount: hasExistingAccount(for: userWalletModel),
+            coordinator: coordinator
+        )
+    }
+
+    private func hasExistingAccount(for userWalletModel: any UserWalletModel) -> Bool {
+        let state = PolymarketAccountAggregator.polymarketAccountModel(from: userWalletModel.accountModelsManager)?.state
+
+        return state == .syncNeeded || presenceStore.hasAccount(userWalletId: userWalletModel.userWalletId)
+    }
 
     func makeInteractor(for userWalletModel: any UserWalletModel) -> PolymarketOnboardingInteractor {
         CommonPolymarketOnboardingInteractor(

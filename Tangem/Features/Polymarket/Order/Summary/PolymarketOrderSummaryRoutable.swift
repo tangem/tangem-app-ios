@@ -18,5 +18,6 @@ protocol PolymarketOrderSummaryRoutable: AnyObject {
     @MainActor
     func openFeeBreakdown(model: PolymarketOrderModel)
 
+    @MainActor
     func openResult(state: PolymarketOrderResultViewModel.State, content: PolymarketOrderResultViewModel.Content)
 }

@@ -169,13 +169,6 @@ extension PolymarketOrderResultViewModel.State {
             return
         }
 
-        switch filled {
-        case quotedShares:
-            self = .placed
-        case ..<quotedShares:
-            self = .partiallyPlaced
-        default:
-            self = .stillProcessing
-        }
+        self = filled < quotedShares ? .partiallyPlaced : .placed
     }
 }
