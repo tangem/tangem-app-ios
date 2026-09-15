@@ -54,7 +54,10 @@ struct PolymarketOrderView: View {
         GroupedScrollView(contentType: .plain(spacing: Constants.blockSpacing)) {
             PolymarketOrderMarketRow(model: viewModel.marketRow)
 
-            PolymarketOrderAmountBlock(payment: viewModel.payment) {
+            PolymarketOrderAmountBlock(
+                payment: viewModel.payment,
+                onAddFunds: { viewModel.handleViewAction(.addFundsTapped) }
+            ) {
                 VStack(spacing: Constants.captionSpacing) {
                     amountField
 
@@ -73,11 +76,16 @@ struct PolymarketOrderView: View {
             )
             .background(DesignSystem.Color.bgSecondary)
             .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
+
+            if viewModel.isAwaitingFunds {
+                PolymarketOrderNotificationsView(notifications: [.awaitingFunds])
+            }
         }
         .horizontalPadding(Constants.horizontalPadding)
         .padding(.top, Constants.contentTopPadding)
         .scrollDismissesKeyboard(.interactively)
         .animation(.easeInOut(duration: Constants.notificationsAnimationDuration), value: viewModel.notifications)
+        .animation(.easeInOut(duration: Constants.notificationsAnimationDuration), value: viewModel.isAwaitingFunds)
     }
 
     @ViewBuilder
