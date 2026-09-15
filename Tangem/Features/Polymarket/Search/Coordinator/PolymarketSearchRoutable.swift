@@ -7,7 +7,10 @@
 //
 
 import Foundation
+import TangemPolymarket
 
 protocol PolymarketSearchRoutable: AnyObject {
     func openEventDetailsFromSearch(eventID: String)
+
+    func openOrderFromSearch(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String)
 }
