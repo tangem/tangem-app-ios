@@ -15,7 +15,7 @@ import TangemFoundation
 /// only counted, since there is no backend to read from.
 final class JointAccountsRepositoryStub: JointAccountsRepository {
     private let jointAccountsSubject: CurrentValueSubject<[StoredJointAccount], Never>
-    private let invitesSubject = CurrentValueSubject<[StoredJointAccountInvites], Never>([])
+    private let invitesSubject: CurrentValueSubject<[StoredJointAccountInvites], Never>
     private let pendingOperationsSubject: CurrentValueSubject<[StoredJointAccountPendingOperations], Never>
     private let loadCallsCount = OSAllocatedUnfairLock(initialState: 0)
 
@@ -23,8 +23,13 @@ final class JointAccountsRepositoryStub: JointAccountsRepository {
         loadCallsCount.withLock { $0 }
     }
 
-    init(jointAccounts: [StoredJointAccount] = [], pendingOperations: [StoredJointAccountPendingOperations] = []) {
+    init(
+        jointAccounts: [StoredJointAccount] = [],
+        invites: [StoredJointAccountInvites] = [],
+        pendingOperations: [StoredJointAccountPendingOperations] = []
+    ) {
         jointAccountsSubject = CurrentValueSubject(jointAccounts)
+        invitesSubject = CurrentValueSubject(invites)
         pendingOperationsSubject = CurrentValueSubject(pendingOperations)
     }
 
@@ -44,6 +49,10 @@ final class JointAccountsRepositoryStub: JointAccountsRepository {
 
     var jointAccountsPublisher: AnyPublisher<[StoredJointAccount], Never> {
         jointAccountsSubject.eraseToAnyPublisher()
+    }
+
+    var jointAccountsInvites: [StoredJointAccountInvites] {
+        invitesSubject.value
     }
 
     var jointAccountsInvitesPublisher: AnyPublisher<[StoredJointAccountInvites], Never> {

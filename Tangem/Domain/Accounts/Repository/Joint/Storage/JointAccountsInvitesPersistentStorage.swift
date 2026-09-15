@@ -22,8 +22,8 @@ protocol JointAccountsInvitesPersistentStorage {
     /// with no free slots — that one has an empty list of its own.
     /// - Warning: May block the calling thread while the underlying storage is read from disk.
     /// Avoid calling from the main thread directly.
-    func getInvites(forCryptoAccountId cryptoAccountId: String) -> [JointAccountInvite]?
+    func getInvites(forCryptoAccountId cryptoAccountId: String) -> [StoredJointAccountInvite]?
 
     /// - Warning: The invites of an account are written as a whole, since they are handed out as a whole.
-    func save(_ invites: [JointAccountInvite], forCryptoAccountId cryptoAccountId: String) throws
+    func save(_ invites: [StoredJointAccountInvite], forCryptoAccountId cryptoAccountId: String) throws
 }

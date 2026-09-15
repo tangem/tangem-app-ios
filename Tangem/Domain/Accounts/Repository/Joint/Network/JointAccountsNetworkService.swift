@@ -40,6 +40,6 @@ protocol JointAccountsNetworkService {
 
 struct JointAccountCreationResult {
     let account: RemoteJointAccount
-    /// One per slot the creator left free, which is the only time they are ever handed out — see `JointAccountInvite`.
-    let invites: [JointAccountInvite]
+    /// One per slot the creator left free, which is the only time they are ever handed out — see `StoredJointAccountInvite`.
+    let invites: [StoredJointAccountInvite]
 }
