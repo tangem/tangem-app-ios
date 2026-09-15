@@ -391,6 +391,7 @@ extension Analytics {
 
         case swapTokenSelected = "[Swap] Token Selected"
         case swapNoticeUnavailableToSwapPair = "[Swap] Notice - Unavailable To Swap Pair"
+        case swapNoticeGeoRestriction = "[Swap] Notice - Geo Restriction"
         case swapPreselectedTokenChanged = "[Swap] Pre-selected token changed"
         case swapFilterProvider = "[Swap] Filter provider"
         case swapFastAmountInput = "[Swap] Fast amount input"
@@ -578,6 +579,9 @@ extension Analytics {
         case marketsEarnScreenOpened = "[Markets] Earn Screen Opened"
         case marketsTokenSearch = "[Markets] Token Search"
         case marketsTokenSearchedClicked = "[Markets] Token Searched Clicked"
+        case marketsEnterSection = "[Markets] Enter Section"
+        case marketsSelectCategory = "[Markets] Select Category"
+        case marketsNotificationRegionNotSupported = "[Markets] Notification - Region Not Supported"
 
         // MARK: - Earn
 
@@ -670,6 +674,7 @@ extension Analytics {
         case onrampBuyingInProgressScreenOpened = "[Onramp] Buying In Progress Screen Opened"
         case onrampNoticeKYC = "[Onramp] Notice - KYC"
         case onrampNoticeBuyNotSupported = "[Onramp] Notice - Buy Not Supported"
+        case onrampNoticeGeoRestriction = "[Onramp] Notice - Geo Restriction"
         case onrampOnrampStatusOpened = "[Onramp] Onramp Status Opened"
         case onrampButtonGoToProvider = "[Onramp] Button - Go To Provider"
         case onrampOnrampStatus = "[Onramp] Onramp Status"

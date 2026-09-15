@@ -349,6 +349,8 @@ private extension MarketsMainViewModel {
                 categoriesProvider: categoriesProvider,
                 widgetsUpdateHandler: widgetsUpdateHandler,
                 quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+                // The old shtorka shows this as a shelf on a screen that has no sections at all
+                analyticsSection: nil,
                 coordinator: coordinator
             )
             if !isBottomSheetExpanded {
