@@ -100,9 +100,6 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
                 }
                 .switchToLatest()
                 .withWeakCaptureOf(historyProvider)
-                .handleEvents(receiveOutput: { historyProvider, _ in
-                    historyProvider.page = TransactionHistoryIndexPage(number: requestedPageNumber)
-                })
                 .tryMap { historyProvider, result in
                     let transactionRecords = try historyProvider
                         .mapper
@@ -113,6 +110,7 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
                                 record: record
                             )
                         }
+                    historyProvider.page = TransactionHistoryIndexPage(number: requestedPageNumber)
                     return TransactionHistory.Response(records: transactionRecords)
                 }
                 .tryCatch { [weak historyProvider] error in
@@ -158,6 +156,7 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
                 }
                 .eraseToAnyPublisher()
         case .endOfTransactionHistoryReached:
+            page = TransactionHistoryIndexPage(number: requestedPageNumber)
             hasReachedEnd = true
             return .justWithError(output: TransactionHistory.Response(records: []))
         case .unknown, .maxRateLimitReached:

@@ -69,22 +69,19 @@ final class SolanaTransactionHistoryProvider: TransactionHistoryProvider {
 
         return resolveQueryAddress(walletAddress: address, amountType: request.amountType)
             .withWeakCaptureOf(self)
-            .flatMap { provider, queryAddress -> AnyPublisher<[SolanaTransactionHistoryDTO.TransactionDetails], Error> in
+            .flatMap { provider, queryAddress -> AnyPublisher<FetchedTransactions, Error> in
                 guard let queryAddress else {
-                    provider.hasReachedEnd = true
-                    provider.paginationToken = nil
-                    return .justWithError(output: [])
+                    return .justWithError(output: FetchedTransactions(details: [], paginationToken: nil))
                 }
 
-                return provider.fetchTransactions(
-                    address: queryAddress,
-                    limit: request.limit
-                )
+                return provider
+                    .fetchTransactions(address: queryAddress, limit: request.limit)
+                    .eraseToAnyPublisher()
             }
             .withWeakCaptureOf(self)
-            .tryMap { provider, transactions -> TransactionHistory.Response in
+            .tryMap { provider, fetchedTransactions -> TransactionHistory.Response in
                 let records = try provider.mapper.mapToTransactionRecords(
-                    transactions,
+                    fetchedTransactions.details,
                     walletAddress: address,
                     amountType: request.amountType
                 )
@@ -92,6 +89,9 @@ final class SolanaTransactionHistoryProvider: TransactionHistoryProvider {
                 // Ignore Solana 0 amount txs filtering.
                 // As Solana has different balance changes calculations that doesn't include fee/gas.
                 // We need to show all of them.
+
+                provider.paginationToken = fetchedTransactions.paginationToken
+                provider.hasReachedEnd = fetchedTransactions.paginationToken == nil
 
                 return .init(records: records)
             }
@@ -132,7 +132,7 @@ private extension SolanaTransactionHistoryProvider {
     func fetchTransactions(
         address: String,
         limit: Int
-    ) -> AnyPublisher<[SolanaTransactionHistoryDTO.TransactionDetails], Error> {
+    ) -> some Publisher<FetchedTransactions, Error> {
         let target = SolanaTransactionHistoryTarget(
             configuration: configuration,
             request: .getTransactionsForAddress(
@@ -145,17 +145,19 @@ private extension SolanaTransactionHistoryProvider {
         return networkProvider.requestPublisher(target)
             .filterSuccessfulStatusAndRedirectCodes()
             .map(JSONRPC.Response<SolanaTransactionHistoryDTO.TransactionsForAddress, JSONRPC.APIError>.self)
-            .tryMap { [weak self] response -> [SolanaTransactionHistoryDTO.TransactionDetails] in
-                guard let self else {
-                    throw BlockchainSdkError.empty
-                }
-
+            .tryMap { response -> FetchedTransactions in
                 let result = try response.result.get()
-                paginationToken = result.paginationToken
-                hasReachedEnd = result.paginationToken == nil
 
-                return result.data
+                return FetchedTransactions(details: result.data, paginationToken: result.paginationToken)
             }
-            .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension SolanaTransactionHistoryProvider {
+    struct FetchedTransactions {
+        let details: [SolanaTransactionHistoryDTO.TransactionDetails]
+        let paginationToken: String?
     }
 }
