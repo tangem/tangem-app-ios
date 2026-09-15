@@ -13,11 +13,10 @@ import TangemUIUtils
 
 struct FeedSearchBarView: View {
     @ObservedObject var viewModel: FeedSearchBarViewModel
-    @ObservedObject var shtorkaStateObject: MainShtorkaStateObject
-
     let isActive: Bool
     let onFocus: () -> Void
     let onCancel: () -> Void
+    let onHeightChange: (CGFloat) -> Void
 
     @State private var isFocused = false
 
@@ -47,7 +46,7 @@ struct FeedSearchBarView: View {
             return
         }
 
-        shtorkaStateObject.report(searchBar: height)
+        onHeightChange(height)
     }
 }
 

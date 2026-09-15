@@ -61,6 +61,10 @@ private struct MainShtorkaViewModifier: ViewModifier {
                             }
                             .ignoresSafeArea(.keyboard, edges: .bottom)
                     }
+                    // The one place the sheet's state crosses into the screens it pushes: the state object stays
+                    // in the feed, and a screen opened outside the sheet keeps the defaults.
+                    .environment(\.mainShtorkaSize, stateObject.size)
+                    .environment(\.mainShtorkaContentIsCollapsed, stateObject.isContentCollapsed)
             }
     }
 }
