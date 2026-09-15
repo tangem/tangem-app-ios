@@ -77,6 +77,30 @@ struct MultiNetworkProviderTests {
     }
 
     @Test
+    func allProvidersPublisherRequestsEveryHostAndCollectsResults() async throws {
+        let provider = MultiNetworkProviderStub(hosts: ["a.example", "b.example", "c.example"])
+
+        let results = try await provider.allProvidersPublisher { node -> AnyPublisher<String, Error> in
+            provider.requestedHosts.append(node.host)
+
+            if node.host == "b.example" {
+                return Fail(error: TestError()).eraseToAnyPublisher()
+            }
+
+            return Just(node.host).setFailureType(to: Error.self).eraseToAnyPublisher()
+        }
+        .async()
+
+        #expect(provider.requestedHosts == ["a.example", "b.example", "c.example"])
+        try #require(results.count == 3)
+        #expect(try results[0].get() == "a.example")
+        #expect(throws: TestError.self) {
+            try results[1].get()
+        }
+        #expect(try results[2].get() == "c.example")
+    }
+
+    @Test
     func executionRevertedDetectionMatchesBareAndWrappedErrors() {
         let revert = JSONRPC.APIError(code: 3, message: "execution reverted")
         let invalidOpcodeRevert = JSONRPC.APIError(code: -32000, message: "invalid opcode: INVALID")
@@ -111,6 +135,8 @@ struct MultiNetworkProviderTests {
         #expect(!service.shouldStopSwitching(error: MoyaError.statusCode(Response(statusCode: 429, data: Data()))))
     }
 }
+
+private struct TestError: Error {}
 
 private final class MultiNetworkProviderStub: MultiNetworkProvider {
     final class NodeStub: HostProvider {
