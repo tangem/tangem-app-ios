@@ -83,6 +83,7 @@ private extension PolymarketEventCardModelTests {
     func makeMarket(id: String = "market", outcomes: [PolymarketOutcome]) -> PolymarketMarket {
         PolymarketMarket(
             id: id,
+            conditionId: nil,
             title: id,
             groupItemTitle: id,
             imageURL: nil,

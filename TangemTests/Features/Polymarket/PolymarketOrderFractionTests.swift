@@ -106,6 +106,7 @@ private extension PolymarketOutcome {
 private extension PolymarketMarket {
     static let fixture = PolymarketMarket(
         id: "market",
+        conditionId: nil,
         title: "Will Uzbekistan win the 2026 FIFA World Cup?",
         groupItemTitle: nil,
         imageURL: nil,

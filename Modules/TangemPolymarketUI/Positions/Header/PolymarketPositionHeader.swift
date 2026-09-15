@@ -45,6 +45,7 @@ public struct PolymarketPositionHeader: View {
             model.changeType.imageType.image
                 .renderingMode(.template)
                 .resizable()
+                .aspectRatio(contentMode: .fit)
                 .frame(width: Constants.changeIconSide, height: Constants.changeIconSide)
                 .foregroundStyle(model.changeType.iconColor)
 
@@ -60,6 +61,14 @@ public struct PolymarketPositionHeader: View {
 
             if let payoutAmount = model.payoutAmount {
                 PolymarketAmountBadge.payout(state: .value(payoutAmount))
+            }
+
+            if let status = model.status {
+                Badge(label: status.text, accessibilityLabel: nil)
+                    .size(.x6)
+                    .variant(status.variant)
+                    .appearance(status.appearance)
+                    .slotStart(status.icon)
             }
         }
         .padding(.top, Constants.badgeTopSpacing)
@@ -78,6 +87,7 @@ public extension PolymarketPositionHeader {
         public let outcomeTitle: String
         public let outcomeStyle: PolymarketOutcomeStyle
         public let payoutAmount: String?
+        public let status: PolymarketPositionRow.Status?
 
         public init(
             iconURL: URL?,
@@ -87,7 +97,8 @@ public extension PolymarketPositionHeader {
             question: String,
             outcomeTitle: String,
             outcomeStyle: PolymarketOutcomeStyle,
-            payoutAmount: String?
+            payoutAmount: String?,
+            status: PolymarketPositionRow.Status? = nil
         ) {
             self.iconURL = iconURL
             self.changeText = changeText
@@ -97,6 +108,7 @@ public extension PolymarketPositionHeader {
             self.outcomeTitle = outcomeTitle
             self.outcomeStyle = outcomeStyle
             self.payoutAmount = payoutAmount
+            self.status = status
         }
     }
 }

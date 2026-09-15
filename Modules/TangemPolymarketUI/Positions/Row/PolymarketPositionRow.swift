@@ -53,12 +53,12 @@ public struct PolymarketPositionRow: View {
             PolymarketOutcomeBubble(title: model.outcomeTitle, style: model.outcomeStyle)
 
             PriceChangeView(
-                state: .loaded(changeType: model.changeType, text: model.changeText),
+                state: .loaded(changeType: model.change.type, text: model.change.text),
                 showIconForNeutral: false,
                 useRedesignColors: true
             )
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(model.changeType.accessibilitySign + model.changeText)
+            .accessibilityLabel(model.change.type.accessibilitySign + model.change.text)
 
             Spacer(minLength: Constants.spacing)
 
@@ -74,10 +74,12 @@ public struct PolymarketPositionRow: View {
             Text(text)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
                 .lineLimit(1)
-        case .settled(let text):
-            Badge(label: text, accessibilityLabel: nil)
+        case .status(let status):
+            Badge(label: status.text, accessibilityLabel: nil)
                 .size(.x6)
-                .variant(.solid)
+                .variant(status.variant)
+                .appearance(status.appearance)
+                .slotStart(status.icon)
         }
     }
 }
@@ -91,8 +93,7 @@ public extension PolymarketPositionRow {
         public let imageURL: URL?
         public let outcomeTitle: String
         public let outcomeStyle: PolymarketOutcomeStyle
-        public let changeText: String
-        public let changeType: PriceChangeView.ChangeType
+        public let change: Change
         public let trailing: Trailing
         public let glowRing: GlowRingAppearance?
 
@@ -102,8 +103,7 @@ public extension PolymarketPositionRow {
             imageURL: URL?,
             outcomeTitle: String,
             outcomeStyle: PolymarketOutcomeStyle,
-            changeText: String,
-            changeType: PriceChangeView.ChangeType,
+            change: Change,
             trailing: Trailing,
             glowRing: GlowRingAppearance?
         ) {
@@ -112,16 +112,39 @@ public extension PolymarketPositionRow {
             self.imageURL = imageURL
             self.outcomeTitle = outcomeTitle
             self.outcomeStyle = outcomeStyle
-            self.changeText = changeText
-            self.changeType = changeType
+            self.change = change
             self.trailing = trailing
             self.glowRing = glowRing
         }
     }
 
+    struct Change: Hashable {
+        public let text: String
+        public let type: PriceChangeView.ChangeType
+
+        public init(text: String, type: PriceChangeView.ChangeType) {
+            self.text = text
+            self.type = type
+        }
+    }
+
     enum Trailing: Hashable {
         case value(String)
-        case settled(String)
+        case status(Status)
+    }
+
+    struct Status: Hashable {
+        public let text: String
+        public let variant: BadgeVariant
+        public let appearance: BadgeAppearance
+        public let icon: ImageType?
+
+        public init(text: String, variant: BadgeVariant, appearance: BadgeAppearance, icon: ImageType?) {
+            self.text = text
+            self.variant = variant
+            self.appearance = appearance
+            self.icon = icon
+        }
     }
 }
 

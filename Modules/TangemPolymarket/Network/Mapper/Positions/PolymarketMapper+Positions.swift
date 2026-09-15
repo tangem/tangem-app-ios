@@ -10,11 +10,55 @@ import Foundation
 import TangemFoundation
 
 extension PolymarketMapper {
-    func mapPositions(_ response: PolymarketDTO.PositionsResponse) throws -> PolymarketPositionsPage {
+    func mapPositions(_ response: PolymarketDTO.PositionsResponse) -> PolymarketPositionsPage {
         PolymarketPositionsPage(
-            positions: try response.positions.map(mapPosition),
+            positions: response.positions.compactMap { dto in
+                do {
+                    return try mapPosition(dto)
+                } catch {
+                    PolymarketLogger.error("Dropped a position that could not be read", error: error)
+                    return nil
+                }
+            },
+            receivedCount: response.positions.count,
             hasNext: response.hasNext ?? false
         )
+    }
+
+    func mapClosedPositions(_ response: PolymarketDTO.ClosedPositionsResponse) -> PolymarketClosedPositionsPage {
+        PolymarketClosedPositionsPage(
+            positions: response.positions.compactMap { dto in
+                do {
+                    return try mapClosedPosition(dto)
+                } catch {
+                    PolymarketLogger.error("Dropped a closed position that could not be read", error: error)
+                    return nil
+                }
+            },
+            receivedCount: response.positions.count,
+            hasNext: response.hasNext ?? false
+        )
+    }
+
+    func mapClosedPosition(_ dto: PolymarketDTO.ClosedPosition) throws -> PolymarketClosedPosition {
+        try PolymarketClosedPosition(
+            conditionId: dto.conditionId,
+            assetId: dto.assetId,
+            title: dto.title ?? "",
+            slug: dto.slug,
+            iconURL: url(from: dto.icon),
+            closedAt: date(from: dto.closedAt),
+            outcome: dto.outcome ?? "",
+            avgPrice: decimal(dto.avgPrice, field: "avgPrice"),
+            curPrice: decimal(dto.curPrice, field: "curPrice"),
+            totalBought: decimal(dto.totalBought, field: "totalBought"),
+            realizedPnl: decimal(dto.realizedPnl, field: "realizedPnl"),
+            status: closedStatus(from: dto.status)
+        )
+    }
+
+    func mapPositionOutcome(_ response: PolymarketDTO.PositionOutcomeResponse) throws -> PolymarketPosition? {
+        try response.position.map(mapPosition)
     }
 
     func mapPosition(_ dto: PolymarketDTO.Position) throws -> PolymarketPosition {
@@ -61,6 +105,14 @@ private extension PolymarketMapper {
         }
 
         return value
+    }
+
+    func closedStatus(from raw: String?) -> PolymarketClosedPositionStatus {
+        guard let raw, let status = PolymarketClosedPositionStatus(rawValue: raw) else {
+            return .unknown
+        }
+
+        return status
     }
 
     func resolutionStatus(from raw: String?) -> PolymarketResolutionStatus {

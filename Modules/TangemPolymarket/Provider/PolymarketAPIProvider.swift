@@ -22,6 +22,10 @@ public protocol PolymarketAPIProvider {
     func orderQuote(request: PolymarketOrderQuoteRequest) async throws -> PolymarketOrderQuote
 
     func positions(request: PolymarketPositionsRequest) async throws -> PolymarketPositionsPage
+
+    func closedPositions(request: PolymarketClosedPositionsRequest) async throws -> PolymarketClosedPositionsPage
+
+    func positionOutcome(request: PolymarketPositionOutcomeRequest) async throws -> PolymarketPosition?
 }
 
 public extension PolymarketAPIProvider {
