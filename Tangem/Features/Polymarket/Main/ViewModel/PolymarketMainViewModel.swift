@@ -62,6 +62,7 @@ final class PolymarketMainViewModel: ObservableObject {
     private let balanceProvider: PolymarketBalanceProvider
     private let accountFundsInteractor: PolymarketAccountFundsInteractor?
     private let positionsService: PolymarketPositionsService?
+    private let fundsArrivalTracker: PolymarketFundsArrivalTracker
     private weak var coordinator: PolymarketMainRoutable?
 
     private static let balanceFormatter = BalanceFormatter()
@@ -70,12 +71,10 @@ final class PolymarketMainViewModel: ObservableObject {
 
     private var accountFundsReadiness: PolymarketAccountFundsInteractor.State = .loading
     private var collateralBalance: TokenBalanceType = .loading(.none)
-    private var isTrackingBalanceChange = false
 
     private var balanceSubscription: AnyCancellable?
     private var balanceRefreshTask: Task<Void, Never>?
     private var accountFundsPreparationTask: Task<Void, Never>?
-    private var balanceChangeTrackingTask: Task<Void, Never>?
     private var searchBag: Set<AnyCancellable> = []
     private var bag: Set<AnyCancellable> = []
 
@@ -94,6 +93,7 @@ final class PolymarketMainViewModel: ObservableObject {
         balanceProvider: PolymarketBalanceProvider,
         accountFundsInteractor: PolymarketAccountFundsInteractor?,
         positionsService: PolymarketPositionsService?,
+        fundsArrivalTracker: PolymarketFundsArrivalTracker,
         coordinator: PolymarketMainRoutable
     ) {
         self.apiProvider = apiProvider
@@ -102,12 +102,14 @@ final class PolymarketMainViewModel: ObservableObject {
         self.balanceProvider = balanceProvider
         self.accountFundsInteractor = accountFundsInteractor
         self.positionsService = positionsService
+        self.fundsArrivalTracker = fundsArrivalTracker
         self.coordinator = coordinator
         search.coordinator = self
 
         bindSearch()
         bindBalance()
         bindGeoblockState()
+        bindFundsArrival()
         startBalanceRefresh()
         load()
         loadPositions()
@@ -117,7 +119,6 @@ final class PolymarketMainViewModel: ObservableObject {
         orderTask?.cancel()
         balanceRefreshTask?.cancel()
         accountFundsPreparationTask?.cancel()
-        balanceChangeTrackingTask?.cancel()
     }
 
     private func bindSearch() {
@@ -132,6 +133,27 @@ final class PolymarketMainViewModel: ObservableObject {
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in viewModel.isSearching = true }
             .store(in: &searchBag)
+    }
+
+    private func bindFundsArrival() {
+        fundsArrivalTracker
+            .$isAwaitingFunds
+            .receiveOnMain()
+            .assign(to: &$isAwaitingFunds)
+
+        // The loop reads the interval once per iteration, so a window opening mid-sleep goes unnoticed
+        // until that sleep ends.
+        fundsArrivalTracker
+            .$isBalanceChangeExpected
+            .removeDuplicates()
+            .filter { $0 }
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.balanceRefreshTask?.cancel()
+                viewModel.startBalanceRefresh()
+            }
+            .store(in: &bag)
     }
 
     private func bindGeoblockState() {
@@ -152,8 +174,8 @@ final class PolymarketMainViewModel: ObservableObject {
             await self?.balanceProvider.refresh()
 
             while !Task.isCancelled {
-                let interval = self?.isTrackingBalanceChange == true
-                    ? Constants.trackedBalanceRefreshInterval
+                let interval = self?.fundsArrivalTracker.isBalanceChangeExpected == true
+                    ? Constants.expectedChangeBalanceRefreshInterval
                     : Constants.balanceRefreshInterval
 
                 try? await Task.sleep(for: .seconds(interval))
@@ -412,32 +434,6 @@ final class PolymarketMainViewModel: ObservableObject {
     @MainActor
     func openMyPositions(tab: PolymarketPositionsTab) {
         coordinator?.openMyPositions(tab: tab)
-    }
-
-    func startAwaitingFunds() {
-        isAwaitingFunds = true
-        startTrackingBalanceChange()
-    }
-
-    func startAwaitingWithdrawal() {
-        startTrackingBalanceChange()
-    }
-
-    private func startTrackingBalanceChange() {
-        balanceChangeTrackingTask?.cancel()
-        isTrackingBalanceChange = true
-
-        balanceRefreshTask?.cancel()
-        startBalanceRefresh()
-
-        balanceChangeTrackingTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .seconds(Constants.balanceChangeTrackingDuration))
-
-            guard !Task.isCancelled else { return }
-
-            self?.isTrackingBalanceChange = false
-            self?.isAwaitingFunds = false
-        }
     }
 
     func onAddFundsTap() {
@@ -724,8 +720,7 @@ private extension PolymarketMainViewModel {
         static let staleCursorStatusCode = 502
 
         static let balanceRefreshInterval: TimeInterval = 30
-        static let balanceChangeTrackingDuration: TimeInterval = 30
-        static let trackedBalanceRefreshInterval: TimeInterval = 5
+        static let expectedChangeBalanceRefreshInterval: TimeInterval = 5
         static let positionsLimit = 10
         static let positionsShown = 3
         static let positionsRetryDelay: TimeInterval = 1

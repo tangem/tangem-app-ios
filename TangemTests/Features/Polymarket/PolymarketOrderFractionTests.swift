@@ -80,7 +80,8 @@ private extension PolymarketOrderFractionTests {
             eventTitle: "Fixture event",
             apiProvider: PolymarketAPIProviderStub(quoteResult: quote),
             geoblockStateProvider: PolymarketGeoblockStateProviderStub(),
-            balancePublisher: .just(output: balance)
+            balancePublisher: .just(output: balance),
+            isAwaitingFundsPublisher: .just(output: false)
         )
 
         try await settle { model.state.balance != nil }
