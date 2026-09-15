@@ -22,6 +22,7 @@ final class PolymarketOrderViewModel: ObservableObject {
     @Published private(set) var amountCaption: AmountCaption?
     @Published private(set) var amountFractions: [PolymarketAmountFraction] = []
     @Published private(set) var notifications: [PolymarketOrderNotification] = []
+    @Published private(set) var isAwaitingFunds = false
     @Published private(set) var isNextEnabled = false
 
     // MARK: - Content
@@ -62,6 +63,8 @@ final class PolymarketOrderViewModel: ObservableObject {
             coordinator?.closeOrder()
         case .nextTapped:
             coordinator?.openSummary(model: model)
+        case .addFundsTapped:
+            coordinator?.openAddFunds()
         case .slippageTapped:
             openSlippageSelector()
         case .fractionTapped(let fraction):
@@ -80,6 +83,7 @@ extension PolymarketOrderViewModel {
         case disappeared
         case closeTapped
         case nextTapped
+        case addFundsTapped
         case slippageTapped
         case fractionTapped(PolymarketAmountFraction)
         case quoteRetryTapped
@@ -119,6 +123,7 @@ private extension PolymarketOrderViewModel {
         amountCaption = Self.makeAmountCaption(gate.amountCaption)
         amountFractions = Self.makeAmountFractions(balance: state.balance)
         notifications = gate.notifications
+        isAwaitingFunds = state.isAwaitingFunds
         isNextEnabled = gate.isPrimaryButtonEnabled
     }
 }
