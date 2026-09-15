@@ -21,10 +21,10 @@ public struct PolymarketOnboardingServicesFactory {
         self.environment = environment
     }
 
-    public func makeWalletService() -> PolymarketDepositWalletService {
+    public func makeWalletService(walletId: String) -> PolymarketDepositWalletService {
         let provider = TangemProvider<PolymarketDepositWalletTarget>(configuration: networkConfiguration)
 
-        return CommonPolymarketDepositWalletService(provider: provider, environment: environment)
+        return CommonPolymarketDepositWalletService(provider: provider, environment: environment, walletId: walletId)
     }
 
     public func makeGeoblockService() -> PolymarketGeoblockService {

@@ -17,22 +17,24 @@ import TangemFoundation
 struct PolymarketConfigurationTargetTests {
     private let baseURL = URL(string: "https://api.tangem.org")!
 
+    private func target(headers: [String: String] = [:], walletId: String = "abc") -> PolymarketConfigurationTarget {
+        PolymarketConfigurationTarget(
+            environment: PolymarketBFFEnvironment(baseURL: baseURL, headers: headers),
+            walletId: walletId
+        )
+    }
+
     @Test("Path and method")
     func pathAndMethod() {
-        let target = PolymarketConfigurationTarget(baseURL: baseURL, environmentHeaders: [:], walletId: "abc")
-
-        #expect(target.path == "api/predictions/v1/configuration")
-        #expect(target.method == .get)
+        #expect(target().baseURL == baseURL)
+        #expect(target().path == "api/predictions/v1/configuration")
+        #expect(target().method == .get)
     }
 
     @Test("The wallet id travels as a header, and the environment's own headers survive alongside it")
     func walletIdHeaderIsAddedToEnvironmentHeaders() {
         let walletId = String(repeating: "a", count: 64)
-        let target = PolymarketConfigurationTarget(
-            baseURL: baseURL,
-            environmentHeaders: ["api-key": "secret", "version": "6.4"],
-            walletId: walletId
-        )
+        let target = target(headers: ["api-key": "secret", "version": "6.4"], walletId: walletId)
 
         #expect(target.headers?["wallet-id"] == walletId)
         #expect(target.headers?["api-key"] == "secret")
@@ -41,7 +43,7 @@ struct PolymarketConfigurationTargetTests {
 
     @Test("The configuration read takes no parameters")
     func requestIsPlain() {
-        guard case .requestPlain = PolymarketConfigurationTarget(baseURL: baseURL, environmentHeaders: [:], walletId: "abc").task else {
+        guard case .requestPlain = target().task else {
             Issue.record("The configuration read must be a plain request")
             return
         }

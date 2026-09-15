@@ -11,10 +11,12 @@ import Moya
 import TangemNetworkUtils
 
 struct PolymarketWithdrawTarget: Moya.TargetType {
-    let baseURL: URL
-    let environmentHeaders: [String: String]
+    let environment: PolymarketBFFEnvironment
     let walletId: String
     let target: Target
+
+    var baseURL: URL { environment.baseURL }
+    var headers: [String: String]? { environment.requestHeaders(walletId: walletId) }
 
     enum Target {
         case submit(PolymarketDTO.RelayedBatchRequest)
@@ -40,12 +42,6 @@ struct PolymarketWithdrawTarget: Moya.TargetType {
         case .submit(let request): .requestJSONEncodable(request)
         case .record: .requestPlain
         }
-    }
-
-    var headers: [String: String]? {
-        var headers = environmentHeaders
-        headers[PolymarketBFFEnvironment.walletIdHeader] = walletId
-        return headers
     }
 }
 
