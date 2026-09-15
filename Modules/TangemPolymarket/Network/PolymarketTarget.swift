@@ -12,6 +12,7 @@ import TangemNetworkUtils
 
 struct PolymarketTarget: Moya.TargetType {
     let baseURL: URL
+    let walletId: String
     let target: Target
 
     enum Target {
@@ -123,20 +124,7 @@ struct PolymarketTarget: Moya.TargetType {
     }
 
     var headers: [String: String]? {
-        switch target {
-        case .positions(let request):
-            return [Constants.walletIdHeader: request.walletId]
-        case .categories, .events, .event, .search, .series, .seriesEvents, .orderQuote:
-            return nil
-        }
-    }
-}
-
-// MARK: - Constants
-
-private extension PolymarketTarget {
-    enum Constants {
-        static let walletIdHeader = "wallet-id"
+        [PolymarketBFFEnvironment.walletIdHeader: walletId]
     }
 }
 
