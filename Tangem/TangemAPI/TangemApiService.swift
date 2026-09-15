@@ -32,6 +32,7 @@ protocol TangemApiService: AnyObject {
 
     func loadCoinsCategories(requestModel: MarketsDTO.Categories.Request) async throws -> MarketsDTO.Categories.Response
     func loadCoinsGeckoCategories(requestModel: MarketsDTO.GeckoCategories.Request) async throws -> MarketsDTO.GeckoCategories.Response
+    func loadMarketIndicators(requestModel: MarketsDTO.MarketIndicators.Request) async throws -> MarketsDTO.MarketIndicators.Response
 
     func loadTokenMarketsDetails(requestModel: MarketsDTO.Coins.Request) async throws -> MarketsDTO.Coins.Response
 
