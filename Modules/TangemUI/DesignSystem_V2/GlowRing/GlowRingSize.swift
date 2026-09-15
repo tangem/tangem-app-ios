@@ -10,11 +10,11 @@ import SwiftUI
 import UIKit
 
 /// Figma `Size` prop: `card` hugs a rounded container and takes its radius from the caller;
-/// `fullscreen` hugs the device bezel with a thicker, softer layer stack and resolves its own
-/// radius from the screen.
+/// `fullscreen` hugs the device bezel with a thicker, softer layer stack and falls back to the
+/// screen's radius when the caller does not know the container's own.
 public enum GlowRingSize: Sendable, Hashable {
     case card(cornerRadius: CGFloat = 24)
-    case fullscreen
+    case fullscreen(cornerRadius: CGFloat?)
 }
 
 extension GlowRingSize {
@@ -23,7 +23,7 @@ extension GlowRingSize {
     var cornerRadius: CGFloat {
         switch self {
         case .card(let cornerRadius): cornerRadius
-        case .fullscreen: Self.screenRadius
+        case .fullscreen(let cornerRadius): cornerRadius ?? Self.screenRadius
         }
     }
 

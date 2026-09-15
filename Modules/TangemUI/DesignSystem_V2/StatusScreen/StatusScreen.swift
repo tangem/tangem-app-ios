@@ -81,6 +81,7 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
     @State private var entrance = EntranceState()
     @State private var footerHeight: CGFloat = 0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.containerCornerRadius) private var containerCornerRadius
 
     /// The content reserves a strip for the footer mid-entrance (measured footer height
     /// minus the fade overlap — see `StatusScreenMetrics`), reproducing the Figma
@@ -229,7 +230,7 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
         .background(DesignSystem.Color.bgPrimary)
         .glowRing(
             appearance.glowRingAppearance,
-            size: .fullscreen,
+            size: .fullscreen(cornerRadius: containerCornerRadius),
             isVisible: entrance.isGlowRingVisible
         )
         .ignoresSafeArea()
