@@ -10,12 +10,15 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 final class JointAccountInviteMembersViewModel: ObservableObject {
     @Published private(set) var content: Content
     @Published private(set) var isActivating = false
     @Published var alert: AlertBinder?
+    @Published private(set) var isArchiving = false
+    @Published var isArchiveConfirmationPresented = false
 
     private let jointAccount: any JointAccountModel
     private weak var coordinator: JointAccountInviteMembersRoutable?
@@ -69,7 +72,21 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
     }
 
     func onArchiveTap() {
-        // [REDACTED_TODO_COMMENT]
+        isArchiveConfirmationPresented = true
+    }
+
+    @MainActor
+    func onArchiveConfirmTap() {
+        // Raised here rather than inside the task, which reaches the main actor a hop later
+        guard !isArchiving else {
+            return
+        }
+
+        isArchiving = true
+
+        runTask(in: self) { viewModel in
+            await viewModel.performArchiving()
+        }
     }
 
     func onCloseTap() {
@@ -108,6 +125,24 @@ private extension JointAccountInviteMembersViewModel {
         coordinator?.closeInviteMembers()
     }
 
+    @MainActor
+    func performArchiving() async {
+        defer { isArchiving = false }
+
+        do throws(AccountArchivationError) {
+            try await jointAccount.archive()
+        } catch {
+            alert = AccountArchivationErrorAlertBuilder.makeAlert(for: error)
+            JointAccountsLogger.error("Failed to archive the joint account", error: error)
+            return
+        }
+
+        coordinator?.closeInviteMembers()
+
+        Toast(view: SuccessToast(text: Localization.accountArchiveSuccessMessage))
+            .present(layout: .top(padding: Constants.toastTopPadding), type: .temporary(interval: Constants.toastInterval))
+    }
+
     /// A slot is taken on the account this screen was opened with rather than on a model of its own, so the rows are
     /// worked out anew whenever it says it has changed.
     func bind() {
@@ -125,7 +160,8 @@ private extension JointAccountInviteMembersViewModel {
         Content(
             members: makeMembers(of: jointAccount),
             freeSlots: makeFreeSlots(of: jointAccount),
-            isActivationAvailable: jointAccount.canActivate
+            isActivationAvailable: jointAccount.canActivate,
+            canArchive: jointAccount.invites.isNotEmpty
         )
     }
 
@@ -195,6 +231,9 @@ extension JointAccountInviteMembersViewModel {
         let freeSlots: [FreeSlotViewData]
         /// Only the creator activates, and only once every slot is taken.
         let isActivationAvailable: Bool
+        /// Offered on the creator's device alone — told apart by holding an invite, which the endpoint hands out
+        /// once and to the creator only.
+        let canArchive: Bool
 
         var joinedMembersCount: Int { members.count }
         var totalMembersCount: Int { members.count + freeSlots.count }
@@ -213,5 +252,14 @@ extension JointAccountInviteMembersViewModel {
         let id: Int
         /// Nil for a slot this wallet holds no invite for: they are handed out once, and to the creator alone.
         let inviteURL: URL?
+    }
+}
+
+// MARK: - Constants
+
+private extension JointAccountInviteMembersViewModel {
+    enum Constants {
+        static let toastTopPadding: CGFloat = 24
+        static let toastInterval: TimeInterval = 4
     }
 }

@@ -174,27 +174,7 @@ final class AccountDetailsViewModel: ObservableObject {
             .error: String(describing: error),
         ])
 
-        let title: String
-        let message: String
-        let buttonText: String
-
-        switch error {
-        case .participatesInReferralProgram:
-            title = Localization.accountCouldNotArchiveReferralProgramTitle
-            message = Localization.accountCouldNotArchiveReferralProgramMessage
-            buttonText = Localization.commonGotIt
-
-        case .unknownError:
-            title = Localization.commonSomethingWentWrong
-            message = Localization.accountGenericErrorDialogMessage
-            buttonText = Localization.commonOk
-        }
-
-        alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
-            title: title,
-            message: message,
-            buttonText: buttonText
-        )
+        alert = AccountArchivationErrorAlertBuilder.makeAlert(for: error)
 
         AccountsLogger.error("Failed to archive account", error: error)
     }
