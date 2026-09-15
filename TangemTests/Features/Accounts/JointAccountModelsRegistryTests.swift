@@ -26,7 +26,6 @@ struct JointAccountModelsRegistryTests {
         let first = await sut.jointAccountModels(
             from: [entry],
             with: [Self.storedJointAccount(status: .pending, memberNames: ["Alice"])],
-            invites: [],
             delegate: delegate
         )
         let model = try #require(first.first)
@@ -36,14 +35,12 @@ struct JointAccountModelsRegistryTests {
         let second = await sut.jointAccountModels(
             from: [entry],
             with: [Self.storedJointAccount(status: .confirming(safeAddress: Self.safeAddress), memberNames: ["Alice", "Bob"])],
-            invites: [],
             delegate: delegate
         )
 
         #expect(second.count == 1)
         #expect(second.first === model)
         #expect(model.status == .confirming(safeAddress: Self.safeAddress))
-        #expect(model.members.map(\.name) == ["Alice", "Bob"])
         #expect(didChangeCount.withLock { $0 } == 1)
         withExtendedLifetime(subscription) {}
     }
@@ -57,7 +54,6 @@ struct JointAccountModelsRegistryTests {
         let models = await sut.jointAccountModels(
             from: [Self.storedCryptoAccount()],
             with: [],
-            invites: [],
             delegate: delegate
         )
 
@@ -129,7 +125,8 @@ private final class JointAccountDependenciesFactoryStub: JointAccountDependencie
             walletModelsFactoryInput: WalletModelsFactoryInputStub(),
             derivationManager: nil,
             operationsService: JointAccountOperationsServiceMock(),
-            pendingOperationsProvider: JointAccountPendingOperationsProviderMock()
+            pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
+            membersService: JointAccountMembersServiceMock()
         )
     }
 }

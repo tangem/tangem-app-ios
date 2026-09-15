@@ -131,7 +131,7 @@ struct JointAccountInviteMembersView: View {
             avatar: .member(member.icon),
             title: member.name,
             subtitle: member.role,
-            accessory: .info(action: { viewModel.onMemberInfoTap(memberIndex: member.memberIndex) })
+            accessory: .info(action: { viewModel.onMemberInfoTap(member) })
         )
     }
 
@@ -158,7 +158,7 @@ struct JointAccountInviteMembersView: View {
     }
 
     private func accessory(for freeSlot: JointAccountInviteMembersViewModel.FreeSlotViewData) -> JointAccountMemberRow.Accessory {
-        guard let inviteURL = freeSlot.inviteURL else {
+        guard let inviteURL = freeSlot.invite?.url else {
             return .empty
         }
 
