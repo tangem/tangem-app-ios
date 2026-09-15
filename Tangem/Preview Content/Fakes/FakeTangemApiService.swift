@@ -30,6 +30,7 @@ final class FakeTangemApiService: TangemApiService {
     var loadCoinsHandler: ((CoinsList.Request) async throws -> CoinsList.Response)?
     var loadCoinsCategoriesHandler: ((MarketsDTO.Categories.Request) async throws -> MarketsDTO.Categories.Response)?
     var loadCoinsGeckoCategoriesHandler: ((MarketsDTO.GeckoCategories.Request) async throws -> MarketsDTO.GeckoCategories.Response)?
+    var loadMarketIndicatorsHandler: ((MarketsDTO.MarketIndicators.Request) async throws -> MarketsDTO.MarketIndicators.Response)?
 
     // MARK: - Campaigns Handlers (Tests/Previews)
 
@@ -183,6 +184,14 @@ final class FakeTangemApiService: TangemApiService {
     func loadCoinsGeckoCategories(requestModel: MarketsDTO.GeckoCategories.Request) async throws -> MarketsDTO.GeckoCategories.Response {
         if let loadCoinsGeckoCategoriesHandler {
             return try await loadCoinsGeckoCategoriesHandler(requestModel)
+        }
+
+        throw "Not implemented"
+    }
+
+    func loadMarketIndicators(requestModel: MarketsDTO.MarketIndicators.Request) async throws -> MarketsDTO.MarketIndicators.Response {
+        if let loadMarketIndicatorsHandler {
+            return try await loadMarketIndicatorsHandler(requestModel)
         }
 
         throw "Not implemented"

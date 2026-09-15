@@ -11,6 +11,7 @@ import TangemUI
 protocol CryptoFeedRoutable: AnyObject {
     func openToken(_ token: MarketsTokenModel)
     func openPulseTagFilter(with input: PulseTagFilterInput)
+    func openMarketCapInfo(subject: MarketCapInfoSubject)
     func openPortfolioToken(_ walletModel: any WalletModel)
 }
 
@@ -20,6 +21,7 @@ final class CryptoFeedRouter {
 
     private weak var navigation: (any FeedNavigation)?
     private weak var tagFilter: PulseTagFilterBottomSheetViewModel?
+    private weak var marketCapInfo: MarketCapInfoBottomSheetViewModel?
 
     private let popToRootAction: Action<PopToRootOptions>
 
@@ -57,6 +59,25 @@ extension CryptoFeedRouter: CryptoFeedRoutable {
             )
 
             tagFilter = viewModel
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openMarketCapInfo(subject: MarketCapInfoSubject) {
+        Task { @MainActor [weak self] in
+            guard let self, marketCapInfo == nil else {
+                return
+            }
+
+            let viewModel = MarketCapInfoBottomSheetViewModel(
+                subject: subject,
+                closeAction: { [weak self] in
+                    self?.marketCapInfo = nil
+                    self?.floatingSheetPresenter.removeActiveSheet()
+                }
+            )
+
+            marketCapInfo = viewModel
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
