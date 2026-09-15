@@ -14,18 +14,19 @@ import SolanaSwift
 /// data, PDA derivations and on-chain account parsing. Only what the app consumes today is public;
 /// the rest widens member by member as the onboarding ceremony and the RPC vault reader land.
 public struct CollectiblesVaultProgram {
-    enum ProgramError: Error {
+    public enum ProgramError: Error {
         case invalidProgramId
         case invalidPublicKey
         case invalidAccountData
         case invalidCaps
+        case impossibleVaultAccount
     }
 
-    static let devnetProgramId = "29agFEruMu2jedVwnDgKPuq7ejmTiB7sEqzdhufQQS9u"
+    public static let devnetProgramId = "29agFEruMu2jedVwnDgKPuq7ejmTiB7sEqzdhufQQS9u"
 
     let programId: PublicKey
 
-    init(programId: String) throws {
+    public init(programId: String) throws {
         guard let programId = PublicKey(string: programId), programId.data.count == PublicKey.LENGTH else {
             throw ProgramError.invalidProgramId
         }
@@ -51,7 +52,7 @@ public struct CollectiblesVaultProgram {
     }
 
     /// Base58 address of the vault PDA for a cold owner's raw 32-byte public key.
-    func vaultAddress(coldOwner: Data) throws -> String {
+    public func vaultAddress(coldOwner: Data) throws -> String {
         // SolanaSwift's `PublicKey(data:)` accepts anything up to 32 bytes, so a
         // truncated key would silently derive a PDA for the wrong owner
         guard coldOwner.count == PublicKey.LENGTH, let coldOwner = PublicKey(data: coldOwner) else {
@@ -81,6 +82,41 @@ public struct CollectiblesVaultProgram {
             tokenMintAddress: mint,
             tokenProgramId: .tokenProgramId
         ).get()
+    }
+
+    // MARK: - Vault account classification
+
+    /// Classifies the account fetched from the cold owner's vault PDA per the `CollectiblesVaultReader`
+    /// contract: `nil` for "no vault" — which includes a data-less foreign account, the stray transfer
+    /// `init_vault` handles — and a throw for data that should parse but does not.
+    public func vaultInfo(coldOwner: Data, accountOwner: String, accountData: Data) throws -> CollectiblesVaultInfo? {
+        let vaultAddress = try vaultAddress(coldOwner: coldOwner)
+
+        guard accountOwner == programId.base58EncodedString else {
+            // Allocating data at the PDA takes the PDA's signature, which only the program has —
+            // a data-bearing account under another owner can only be a lying RPC
+            guard accountData.isEmpty else {
+                throw ProgramError.impossibleVaultAccount
+            }
+
+            return nil
+        }
+
+        let vault = try Vault(data: accountData)
+
+        // The PDA is a pure function of the cold owner; a different one inside is a wrong or forged account
+        guard vault.coldOwner == coldOwner else {
+            throw ProgramError.impossibleVaultAccount
+        }
+
+        return CollectiblesVaultInfo(
+            vaultAddress: vaultAddress,
+            hotDelegate: vault.hotDelegate,
+            perSpinCap: vault.perSpinCap,
+            dailyCap: vault.dailyCap,
+            spentToday: vault.spentToday,
+            dayIndex: vault.dayIndex
+        )
     }
 
     // MARK: - Instruction data
