@@ -15,7 +15,6 @@ final class FeedbackUITests: BaseTestCase {
         launchApp()
 
         CreateWalletSelectorScreen(app)
-            .skipStories()
             .openScanMenu()
             .cancelScan()
             .openScanMenu()
