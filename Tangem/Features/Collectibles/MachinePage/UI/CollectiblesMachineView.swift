@@ -43,14 +43,27 @@ private extension CollectiblesMachineView {
     // MARK: - View properties
 
     var navigationBar: some View {
-        NavigationHeader(
-            leadingContent: NavigationBarButton.back(action: onBack).redesigned,
-            principalContent: {
+        NavigationBar(
+            settings: .init(
+                backgroundColor: .clear,
+                horizontalPadding: Metrics.horizontalPadding,
+                height: Metrics.navigationBarHeight
+            ),
+            titleView: {
                 Text(viewModel.title)
                     .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
             },
-            trailingContent: EmptyView.init
+            leftButtons: { NavigationBarButton.back(action: onBack) },
+            rightButtons: EmptyView.init
         )
+        .padding(.top, Metrics.navigationBarTopPadding)
+        .environment(\.isRedesign, true)
+        .background {
+            Fade(position: .top)
+                .blurred()
+                .backgroundColor(DesignSystem.Color.bgPrimary)
+                .ignoresSafeArea(edges: .top)
+        }
     }
 
     var artwork: some View {
@@ -211,6 +224,9 @@ private extension View {
 
 extension CollectiblesMachineView {
     enum Metrics {
+        static let navigationBarTopPadding: CGFloat = 8
+        static let navigationBarHeight: CGFloat = 56
+
         static let packSize = CGSize(width: 204, height: 294)
         static let artworkTopPadding: CGFloat = 48
         static let contentTopPadding: CGFloat = 48
@@ -244,7 +260,7 @@ private struct PreviewMachineProvider: CollectiblesMachineProvider {
             name: "Elite pack",
             artworkURL: nil,
             price: 50,
-            cardsPerPack: "1",
+            cardsPerPack: 1,
             buybackRate: 0.85,
             expectedValue: 53.95,
             tiers: [
