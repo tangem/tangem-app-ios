@@ -11,6 +11,7 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct WelcomeV2View: View {
     @ObservedObject var viewModel: WelcomeV2ViewModel
@@ -89,6 +90,7 @@ struct WelcomeV2View: View {
             .styleType(.default)
             .horizontalLayout(.infinity)
             .size(.x14)
+            .accessibilityIdentifier(WelcomeV2AccessibilityIdentifiers.createWalletButton)
 
             TangemUI.Button(
                 label: Localization.introductionButtonIHaveAWallet,
@@ -98,6 +100,7 @@ struct WelcomeV2View: View {
             .styleType(.secondary(.default))
             .horizontalLayout(.infinity)
             .size(.x14)
+            .accessibilityIdentifier(WelcomeV2AccessibilityIdentifiers.existingWalletButton)
 
             footer
                 .padding(.horizontal, 24)
