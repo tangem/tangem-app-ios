@@ -251,7 +251,13 @@ private extension CommonSwapNotificationManager {
             return [.notEnoughReceivedAmount(amountFormatted: "\(minAmount.formatted()) \(tokenSymbol)", reason: reason)]
 
         case .restriction(.regionRestricted, _):
-            return [.regionRestricted]
+            let noticeAnalyticsParams: [Analytics.ParameterKey: String] = [
+                .sendToken: source.tokenItem.currencySymbol,
+                .sendBlockchain: source.tokenItem.blockchain.displayName,
+                .receiveToken: receive.tokenItem.currencySymbol,
+                .receiveBlockchain: receive.tokenItem.blockchain.displayName,
+            ]
+            return [.regionRestricted(analyticsParams: noticeAnalyticsParams)]
 
         case .restriction(.trustlineRequired, _):
             return [.trustlineRequired]

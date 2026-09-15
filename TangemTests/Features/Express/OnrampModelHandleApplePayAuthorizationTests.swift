@@ -598,6 +598,7 @@ private final class NoOpOnrampSendAnalyticsLogger: OnrampSendAnalyticsLogger {
     func logOnrampFastestMethodClicked(provider: OnrampProvider) {}
     func logOnrampBestRateClicked(provider: OnrampProvider) {}
     func logOnrampButtonAllOffers() {}
+    func logOnrampNoticeGeoRestriction(providerNames: [String]) {}
 
     // SendOnrampProvidersAnalyticsLogger
     func logOnrampProvidersScreenOpened() {}
