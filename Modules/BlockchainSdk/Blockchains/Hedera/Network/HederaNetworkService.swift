@@ -72,17 +72,47 @@ final class HederaNetworkService {
         }
     }
 
-    func getContractId(evmAddress: String) -> some Publisher<String, Error> {
+    func getContractInfo(address: String) -> some Publisher<HederaContractInfo, Error> {
         return providerPublisher { provider in
-            provider.getContract(idOrAliasOrEvmAddress: evmAddress)
+            provider.getContract(idOrAliasOrEvmAddress: address)
                 .eraseToAnyPublisher()
         }
-        .tryMap { contractInfo in
-            guard let contractId = contractInfo.contractId else {
-                throw HederaError.contractCallResultNotFound
-            }
+        .map { contractInfo in
+            HederaContractInfo(
+                contractId: contractInfo.contractId,
+                evmAddress: contractInfo.evmAddress
+            )
+        }
+    }
 
-            return contractId
+    func getContractId(evmAddress: String) -> some Publisher<String, Error> {
+        return getContractInfo(address: evmAddress)
+            .tryMap { contractInfo in
+                guard let contractId = contractInfo.contractId else {
+                    throw HederaError.contractCallResultNotFound
+                }
+
+                return contractId
+            }
+    }
+
+    func getTokenType(tokenAddress: String) -> some Publisher<HederaTokenType, Error> {
+        return providerPublisher { provider in
+            provider.getTokenType(tokenAddress: tokenAddress)
+                .map { _ in HederaTokenType.hts }
+                .tryCatch { error -> AnyPublisher<HederaTokenType, Error> in
+                    guard let apiError = error as? HederaNetworkResult.APIError else {
+                        throw error
+                    }
+
+                    let isTokenNotFound = apiError._status.messages.contains { $0.message == "Not found" }
+                    guard isTokenNotFound else {
+                        throw error
+                    }
+
+                    return .justWithError(output: .erc20)
+                }
+                .eraseToAnyPublisher()
         }
     }
 
@@ -264,7 +294,7 @@ final class HederaNetworkService {
         destinationAddress: String,
         tokenContractAddress: String,
         amount: Amount
-    ) -> some Publisher<(gasLimit: UInt64, recipientEVMAddress: String), Error> {
+    ) -> some Publisher<UInt64, Error> {
         let converter = HederaTokenContractAddressConverter()
 
         return getAccountInfo(address: destinationAddress)
@@ -275,7 +305,7 @@ final class HederaNetworkService {
 
                 return recipientEVMAddress
             }
-            .tryMap { recipientEVMAddress -> (encodedData: String, sourceEVMAddress: String, recipientEVMAddress: String) in
+            .tryMap { recipientEVMAddress -> (encodedData: String, sourceEVMAddress: String) in
                 guard let amountValue = amount.bigUIntValue else {
                     throw HederaError.contractCallResultIsInvalid
                 }
@@ -285,11 +315,11 @@ final class HederaNetworkService {
                     destination: recipientEVMAddress.removeHexPrefix(),
                     amount: amountValue
                 )
-                return (method.encodedData, sourceEVMAddress, recipientEVMAddress)
+                return (method.encodedData, sourceEVMAddress)
             }
             .withWeakCaptureOf(self)
             .flatMap { service, payload in
-                let (encodedData, sourceEVMAddress, recipientEVMAddress) = payload
+                let (encodedData, sourceEVMAddress) = payload
                 return service.providerPublisher { provider in
                     provider.invokeContract(
                         from: sourceEVMAddress,
@@ -299,15 +329,13 @@ final class HederaNetworkService {
                     )
                     .eraseToAnyPublisher()
                 }
-                .map { ($0, recipientEVMAddress) }
             }
-            .tryMap { contractCallResult, recipientEVMAddress in
+            .tryMap { contractCallResult in
                 guard let result = contractCallResult.result else {
                     throw HederaError.contractCallResultNotFound
                 }
 
-                let gasLimit = try Self.parseHexUInt64(result)
-                return (gasLimit: gasLimit, recipientEVMAddress: recipientEVMAddress)
+                return try Self.parseHexUInt64(result)
             }
     }
 
