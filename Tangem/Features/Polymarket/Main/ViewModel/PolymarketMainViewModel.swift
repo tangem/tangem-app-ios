@@ -31,6 +31,8 @@ final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var addFundsState: ActionState = .loading
     @Published private(set) var withdrawState: WithdrawState = .loading
     @Published private(set) var positionsState: PositionsState = .loading
+    @Published private(set) var hasFinishedPositions = false
+    @Published private(set) var hasMorePositions = false
     @Published private(set) var isSearching = false
     @Published var isSearchFieldActive = false
     @Published var searchQuery = ""
@@ -39,6 +41,14 @@ final class PolymarketMainViewModel: ObservableObject {
     let search: PolymarketSearchViewModel
 
     private(set) var categoryTabs: [PolymarketCategoryTab] = []
+
+    var showsPositions: Bool {
+        switch positionsState {
+        case .loading: false
+        case .failed: true
+        case .loaded(let models): !models.isEmpty || hasFinishedPositions || hasMorePositions
+        }
+    }
 
     var selectedCategoryTab: Binding<PolymarketCategoryTab> {
         Binding(
@@ -75,6 +85,7 @@ final class PolymarketMainViewModel: ObservableObject {
     private var cache: [Int?: CategoryState] = [:]
     private var loadingTask: Task<Void, Never>?
     private var positionsTask: Task<Void, Never>?
+    private var orderTask: Task<Void, Never>?
     private var openPositions: [PolymarketPosition] = []
 
     init(
@@ -103,6 +114,7 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     deinit {
+        orderTask?.cancel()
         balanceRefreshTask?.cancel()
         accountFundsPreparationTask?.cancel()
         balanceChangeTrackingTask?.cancel()
@@ -262,11 +274,29 @@ final class PolymarketMainViewModel: ObservableObject {
 
         positionsTask = runTask(in: self) { @MainActor viewModel in
             do {
-                let positions = try await Self.activePositions(service: positionsService)
+                async let finished = Self.probeFinishedPositions(service: positionsService)
+                let page = try await Self.activePositions(service: positionsService)
                 try Task.checkCancellation()
 
-                viewModel.openPositions = Array(positions.prefix(Constants.positionsShown))
-                viewModel.positionsState = .loaded(viewModel.openPositions.map(PolymarketPositionRow.Model.make(position:)))
+                viewModel.openPositions = Array(page.positions.prefix(Constants.positionsShown))
+                viewModel.hasMorePositions = page.hasNext || page.receivedCount > viewModel.openPositions.count
+
+                let probed = await finished
+
+                try Task.checkCancellation()
+
+                if let probed {
+                    viewModel.hasFinishedPositions = probed
+                } else if viewModel.openPositions.isEmpty, !viewModel.hasFinishedPositions {
+                    viewModel.positionsState = .failed
+                    return
+                }
+
+                withAnimation(.easeInOut(duration: Constants.listAnimationDuration)) {
+                    viewModel.positionsState = .loaded(
+                        viewModel.openPositions.map(PolymarketPositionRow.Model.make(position:))
+                    )
+                }
             } catch {
                 guard !error.isCancellationError else { return }
 
@@ -279,7 +309,41 @@ final class PolymarketMainViewModel: ObservableObject {
         }
     }
 
-    private static func activePositions(service: PolymarketPositionsService) async throws -> [PolymarketPosition] {
+    private static func probeFinishedPositions(service: PolymarketPositionsService) async -> Bool? {
+        do {
+            return try await closedPositionsExist(service: service)
+        } catch {
+            guard !error.isCancellationError else { return nil }
+
+            PolymarketLogger.error("Failed to probe the closed positions", error: error)
+            return nil
+        }
+    }
+
+    private static func closedPositionsExist(service: PolymarketPositionsService) async throws -> Bool {
+        do {
+            return try await closedPositionsPage(service: service).receivedCount > 0
+        } catch {
+            guard (error as? PolymarketAPIError)?.isTransient == true else { throw error }
+
+            try await Task.sleep(for: .seconds(Constants.positionsRetryDelay))
+
+            return try await closedPositionsPage(service: service).receivedCount > 0
+        }
+    }
+
+    private static func closedPositionsPage(
+        service: PolymarketPositionsService
+    ) async throws -> PolymarketClosedPositionsPage {
+        try await service.closedPositions(
+            sort: .closedAt,
+            ascending: false,
+            limit: Constants.finishedProbeLimit,
+            offset: 0
+        )
+    }
+
+    private static func activePositions(service: PolymarketPositionsService) async throws -> PolymarketPositionsPage {
         do {
             return try await service.activePositions(limit: Constants.positionsLimit)
         } catch {
@@ -343,6 +407,11 @@ final class PolymarketMainViewModel: ObservableObject {
     @MainActor
     func openHowItWorks() {
         coordinator?.openHowItWorks()
+    }
+
+    @MainActor
+    func openMyPositions(tab: PolymarketPositionsTab) {
+        coordinator?.openMyPositions(tab: tab)
     }
 
     func startAwaitingFunds() {
@@ -425,7 +494,11 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     func openEventDetails(eventID: String) {
-        coordinator?.openEventDetails(eventID: eventID, category: selectedCategory)
+        coordinator?.openEventDetails(
+            eventID: eventID,
+            category: selectedCategory,
+            onOrderPlaced: { [weak self] indexing in self?.orderPlaced(awaiting: indexing) }
+        )
     }
 
     func updatePinnedState(tabsMinY: CGFloat, navBarHeight: CGFloat) {
@@ -550,7 +623,12 @@ final class PolymarketMainViewModel: ObservableObject {
             return
         }
 
-        coordinator?.openOrder(market: market, outcome: outcome, eventTitle: eventTitle)
+        coordinator?.openOrder(
+            market: market,
+            outcome: outcome,
+            eventTitle: eventTitle,
+            onPlaced: { [weak self] indexing in self?.orderPlaced(awaiting: indexing) }
+        )
     }
 
     private var selectedCategory: PolymarketCategory? {
@@ -651,6 +729,8 @@ private extension PolymarketMainViewModel {
         static let positionsLimit = 10
         static let positionsShown = 3
         static let positionsRetryDelay: TimeInterval = 1
+        static let finishedProbeLimit = 1
+        static let listAnimationDuration: TimeInterval = 0.25
     }
 }
 
@@ -664,9 +744,34 @@ extension PolymarketMainViewModel {
     }
 }
 
+// MARK: - Orders
+
+private extension PolymarketMainViewModel {
+    func orderPlaced(awaiting indexing: Task<Void, Never>?) {
+        orderTask?.cancel()
+
+        orderTask = runTask(in: self) { @MainActor viewModel in
+            await viewModel.refreshBalance()
+            await indexing?.value
+            await viewModel.refreshAccount()
+        }
+    }
+}
+
 // MARK: - Refresh
 
 extension PolymarketMainViewModel {
+    @MainActor
+    func refreshBalance() async {
+        await balanceProvider.refresh()
+    }
+
+    @MainActor
+    func refreshAccount() async {
+        await refreshBalance()
+        loadPositions()
+    }
+
     @MainActor
     func refresh() async {
         prepareAccountFunds()
@@ -713,7 +818,11 @@ extension PolymarketMainViewModel {
 
 extension PolymarketMainViewModel: PolymarketSearchRoutable {
     func openEventDetailsFromSearch(eventID: String) {
-        coordinator?.openEventDetails(eventID: eventID, category: nil)
+        coordinator?.openEventDetails(
+            eventID: eventID,
+            category: nil,
+            onOrderPlaced: { [weak self] indexing in self?.orderPlaced(awaiting: indexing) }
+        )
     }
 
     func openOrderFromSearch(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {

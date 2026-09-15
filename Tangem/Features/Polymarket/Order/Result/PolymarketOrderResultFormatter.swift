@@ -21,10 +21,21 @@ enum PolymarketOrderResultFormatter {
         resolutionDayFormatter.string(from: date)
     }
 
+    static func closedAt(_ date: Date) -> String {
+        closedAtFormatter.string(from: date)
+    }
+
     private static let placedAtFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .long
         formatter.timeStyle = .short
+        return formatter
+    }()
+
+    private static let closedAtFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
         return formatter
     }()
 

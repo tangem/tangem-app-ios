@@ -87,6 +87,7 @@ private extension PolymarketEventDetailsContentTests {
     ) -> PolymarketMarket {
         PolymarketMarket(
             id: id,
+            conditionId: nil,
             title: id,
             groupItemTitle: nil,
             imageURL: nil,

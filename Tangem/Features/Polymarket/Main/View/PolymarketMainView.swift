@@ -79,23 +79,9 @@ struct PolymarketMainView: View {
             settings: .init(backgroundColor: .clear, horizontalPadding: Constants.horizontalPadding, height: Constants.navBarSettingsHeight),
             titleView: { titleView },
             leftButtons: { NavigationBarButton.back { viewModel.dismiss() } },
-            rightButtons: { overflowMenu }
+            rightButtons: { PolymarketOverflowMenu(onHowItWorks: viewModel.openHowItWorks) }
         )
         .environment(\.isRedesign, true)
-    }
-
-    private var overflowMenu: some View {
-        Menu {
-            SwiftUI.Button(action: viewModel.openHowItWorks) {
-                Label(
-                    title: { Text("How it works") },
-                    icon: { DesignSystem.Icons.Info.regular20.image.renderingMode(.template) }
-                )
-            }
-        } label: {
-            NavigationBarButton.details {}
-                .allowsHitTesting(false)
-        }
     }
 
     private var titleView: some View {
@@ -154,8 +140,10 @@ struct PolymarketMainView: View {
                     .padding(.top, Constants.bannerTopSpacing)
             }
 
-            positionsSection
-                .padding(.top, Constants.positionsTopSpacing)
+            if viewModel.showsPositions {
+                positionsSection
+                    .padding(.top, Constants.positionsTopSpacing)
+            }
 
             exploreEventsTitle
                 .padding(.top, Constants.headerSpacing)
@@ -169,7 +157,7 @@ struct PolymarketMainView: View {
     private var positionsSection: some View {
         switch viewModel.positionsState {
         case .loading:
-            positionsBlock { PolymarketPositionsSkeletonView(rowCount: Constants.positionsSkeletonRowCount) }
+            EmptyView()
         case .failed:
             positionsBlock {
                 PolymarketEmptyMessageView(
@@ -184,11 +172,21 @@ struct PolymarketMainView: View {
                         PolymarketPositionRow(model: model) { viewModel.openPosition(id: model.id) }
                     }
 
-                    seeAllPositionsButton
+                    if viewModel.hasMorePositions {
+                        seeAllPositionsButton
+                    }
                 }
             }
         case .loaded:
-            EmptyView()
+            positionsBlock {
+                VStack(spacing: Constants.positionsRowSpacing) {
+                    PolymarketNoActivePositionsView()
+
+                    if viewModel.hasMorePositions {
+                        seeAllPositionsButton
+                    }
+                }
+            }
         }
     }
 
@@ -207,19 +205,26 @@ struct PolymarketMainView: View {
                 .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            // [REDACTED_TODO_COMMENT]
-            Badge(label: Localization.predictionPositionsFinished, accessibilityLabel: nil)
-                .size(.x9)
-                .slotEnd(DesignSystem.Icons.ChevronRight.regular16)
+            if viewModel.hasFinishedPositions {
+                SwiftUI.Button { viewModel.openMyPositions(tab: .finished) } label: {
+                    Badge(label: Localization.predictionPositionsFinished, accessibilityLabel: nil)
+                        .size(.x9)
+                        .slotEnd(DesignSystem.Icons.ChevronRight.regular16)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Localization.predictionPositionsFinished)
+            }
         }
     }
 
     private var seeAllPositionsButton: some View {
-        // [REDACTED_TODO_COMMENT]
-        TangemUI.Button(label: Localization.predictionPositionsViewAllActive, accessibilityLabel: nil, action: {})
-            .size(.x9)
-            .styleType(.secondary(.default))
-            .disabled(true)
+        TangemUI.Button(
+            label: Localization.predictionPositionsViewAllActive,
+            accessibilityLabel: nil,
+            action: { viewModel.openMyPositions(tab: .active) }
+        )
+        .size(.x9)
+        .styleType(.secondary(.default))
     }
 
     private var regionRestrictionBanner: some View {
@@ -456,7 +461,6 @@ extension PolymarketMainView {
         static let positionsSpacing: CGFloat = 16
         static let positionsRowSpacing: CGFloat = 8
         static let positionsTopSpacing: CGFloat = 24
-        static let positionsSkeletonRowCount = 3
         static let headerTopPadding: CGFloat = 24
         static let headerSpacing: CGFloat = 40
         static let bannerTopSpacing: CGFloat = 24

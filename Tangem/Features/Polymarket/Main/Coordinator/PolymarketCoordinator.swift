@@ -22,7 +22,6 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
     @Injected(\.floatingSheetPresentingStateProvider) private var sheetStateProvider: FloatingSheetPresentingStateProvider
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
-    private let presenceStore: PolymarketAccountPresenceStore = AppSettings.shared
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
@@ -31,6 +30,7 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
 
     @Published private(set) var viewState: ViewState?
     @Published var destination: Destination?
+    @Published var tokenDetailsCoordinator: TokenDetailsCoordinator?
     @Published var sendCoordinator: SendCoordinator? {
         didSet {
             guard sendCoordinator == nil, let operation = dispatchedOperation else { return }
@@ -46,11 +46,6 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
         }
     }
 
-    @Published var positionHint: PolymarketPositionHintSheetView.Model?
-    @Published var orderCoordinator: PolymarketOrderCoordinator?
-    @Published var tokenDetailsCoordinator: TokenDetailsCoordinator?
-
-    private let onboardingFactory = PolymarketOnboardingFactory()
     private var geoblockStateProvider: PolymarketGeoblockStateProvider?
     private var balanceProvider: PolymarketBalanceProvider?
 
@@ -106,23 +101,11 @@ private extension PolymarketCoordinator {
         let state = PolymarketAccountAggregator.polymarketAccountModel(from: userWalletModel.accountModelsManager)?.state
 
         guard state == .active else {
-            openWelcome(for: userWalletModel, hasExistingAccount: hasExistingAccount(state, for: userWalletModel))
+            viewState = .welcome(PolymarketOnboardingFactory().makeWelcomeViewModel(for: userWalletModel, coordinator: self))
             return
         }
 
         showMain()
-    }
-
-    func hasExistingAccount(_ state: PolymarketAccountState?, for userWalletModel: any UserWalletModel) -> Bool {
-        state == .syncNeeded || presenceStore.hasAccount(userWalletId: userWalletModel.userWalletId)
-    }
-
-    func openWelcome(for userWalletModel: any UserWalletModel, hasExistingAccount: Bool) {
-        viewState = .welcome(PolymarketWelcomeViewModel(
-            interactor: onboardingFactory.makeInteractor(for: userWalletModel),
-            hasExistingAccount: hasExistingAccount,
-            coordinator: self
-        ))
     }
 }
 
@@ -137,8 +120,13 @@ extension PolymarketCoordinator {
 // MARK: - PolymarketWelcomeRoutable protocol conformance
 
 extension PolymarketCoordinator: PolymarketWelcomeRoutable {
-    func onboardingDidFinish() {
+    func onboardingDidFinish(isNewAccount: Bool) {
         Task { @MainActor in
+            guard isNewAccount else {
+                showMain()
+                return
+            }
+
             tangemStoriesPresenter.present(
                 story: .polymarketOnboarding(.initialWithoutImages),
                 analyticsSource: .predictions,
@@ -174,16 +162,22 @@ private extension PolymarketCoordinator {
         self.accountFundsInteractor = accountFundsInteractor
         withdrawContext = PolymarketWithdrawFactory().makeContext(for: userWalletModel)
 
-        let apiProvider = PolymarketAPIProviderFactory().makeProvider(walletId: userWalletModel.userWalletId.stringValue)
-
         viewState = .main(PolymarketMainViewModel(
-            apiProvider: apiProvider,
+            apiProvider: makeAPIProvider(for: userWalletModel),
             geoblockStateProvider: geoblockStateProvider,
             balanceProvider: balanceProvider,
             accountFundsInteractor: accountFundsInteractor,
-            positionsService: PolymarketPositionsFactory().makeService(for: userWalletModel, apiProvider: apiProvider),
+            positionsService: makePositionsService(for: userWalletModel),
             coordinator: self
         ))
+    }
+
+    func makeAPIProvider(for userWalletModel: any UserWalletModel) -> PolymarketAPIProvider {
+        PolymarketAPIProviderFactory().makeProvider(walletId: userWalletModel.userWalletId.stringValue)
+    }
+
+    func makePositionsService(for userWalletModel: any UserWalletModel) -> PolymarketPositionsService {
+        PolymarketPositionsFactory().makeService(for: userWalletModel, apiProvider: makeAPIProvider(for: userWalletModel))
     }
 }
 
@@ -203,60 +197,70 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
         )
     }
 
-    func openEventDetails(eventID: String, category: PolymarketCategory?) {
+    func openEventDetails(
+        eventID: String,
+        category: PolymarketCategory?,
+        onOrderPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void
+    ) {
         guard let userWalletModel else {
             PolymarketLogger.error("An event was tapped without a wallet", error: CoordinatorError.missingUserWalletModel)
             return
         }
 
-        destination = .eventDetails(PolymarketEventDetailsViewModel(
-            eventID: eventID,
-            category: category,
-            apiProvider: PolymarketAPIProviderFactory().makeProvider(walletId: userWalletModel.userWalletId.stringValue),
-            geoblockStateProvider: geoblockStateProvider,
-            coordinator: self
-        ))
-    }
-
-    func openPositionDetails(position: PolymarketPosition) {
-        destination = .positionDetails(.make(
-            position: position,
-            onClosePosition: { [weak self] in self?.dismissPositionDetails() },
-            onBuy: { [weak self] in self?.dismissPositionDetails() },
-            onHint: { [weak self] hint in self?.positionHint = hint }
-        ))
-    }
-
-    private func dismissPositionDetails() {
-        destination = nil
-    }
-
-    func openOrder(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {
-        guard let geoblockStateProvider, let balanceProvider, let userWalletModel else {
-            PolymarketLogger.error(
-                "An outcome was tapped before the feed built its providers",
-                error: CoordinatorError.missingOrderProviders
-            )
-            return
-        }
-
-        let coordinator = PolymarketOrderCoordinator(
-            dismissAction: { [weak self] in
-                self?.orderCoordinator = nil
-            }
+        let coordinator = PolymarketEventDetailsCoordinator(
+            dismissAction: { [weak self] in self?.destination = nil }
         )
 
         coordinator.start(with: .init(
+            eventID: eventID,
+            category: category,
+            apiProvider: makeAPIProvider(for: userWalletModel),
+            geoblockStateProvider: geoblockStateProvider,
+            onOrderPlaced: onOrderPlaced,
+            onRegionWarning: { [weak self] in self?.openRegionWarning() },
+            orderBuilder: self
+        ))
+
+        destination = .eventDetails(coordinator)
+    }
+
+    func openPositionDetails(position: PolymarketPosition) {
+        destination = .positionDetails(PolymarketPositionDetailsViewModel(position: position, coordinator: self))
+    }
+
+    func openOrder(
+        market: PolymarketMarket,
+        outcome: PolymarketOutcome,
+        eventTitle: String,
+        onPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void
+    ) {
+        guard let coordinator = makeOrderCoordinator(
             market: market,
             outcome: outcome,
             eventTitle: eventTitle,
-            walletId: userWalletModel.userWalletId.stringValue,
-            geoblockStateProvider: geoblockStateProvider,
-            balancePublisher: balanceProvider.collateralBalancePublisher.map(\.value).eraseToAnyPublisher(),
-            placementService: PolymarketOrderPlacementFactory().makeService(for: userWalletModel)
-        ))
+            onPlaced: onPlaced,
+            onClose: { [weak self] in self?.destination = nil }
+        ) else {
+            return
+        }
 
-        orderCoordinator = coordinator
+        destination = .order(coordinator)
+    }
+
+    @MainActor
+    func openMyPositions(tab: PolymarketPositionsTab) {
+        guard let userWalletModel else {
+            PolymarketLogger.error("The positions were opened without a wallet", error: CoordinatorError.missingUserWalletModel)
+            return
+        }
+
+        let coordinator = PolymarketMyPositionsCoordinator(
+            dismissAction: { [weak self] in self?.destination = nil }
+        )
+
+        coordinator.start(with: .init(tab: tab, positionsService: makePositionsService(for: userWalletModel)))
+
+        destination = .myPositions(coordinator)
     }
 
     func openRegionWarning() {
@@ -432,10 +436,55 @@ private extension PolymarketCoordinator {
     }
 }
 
-// MARK: - PolymarketEventDetailsRoutable protocol conformance
+// MARK: - PolymarketOrderFlowBuilder protocol conformance
 
-extension PolymarketCoordinator: PolymarketEventDetailsRoutable {
-    func dismissEventDetails() {
+extension PolymarketCoordinator: PolymarketOrderFlowBuilder {
+    func makeOrderCoordinator(
+        market: PolymarketMarket,
+        outcome: PolymarketOutcome,
+        eventTitle: String,
+        onPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void,
+        onClose: @escaping () -> Void
+    ) -> PolymarketOrderCoordinator? {
+        guard let geoblockStateProvider, let balanceProvider, let userWalletModel else {
+            PolymarketLogger.error(
+                "An outcome was tapped before the feed built its providers",
+                error: CoordinatorError.missingOrderProviders
+            )
+            return nil
+        }
+
+        let coordinator = PolymarketOrderCoordinator(
+            dismissAction: { payload in
+                onClose()
+
+                guard let payload else { return }
+
+                Task { @MainActor in
+                    onPlaced(payload.indexing)
+                }
+            }
+        )
+
+        coordinator.start(with: .init(
+            market: market,
+            outcome: outcome,
+            eventTitle: eventTitle,
+            walletId: userWalletModel.userWalletId.stringValue,
+            geoblockStateProvider: geoblockStateProvider,
+            balancePublisher: balanceProvider.collateralBalancePublisher.map(\.value).eraseToAnyPublisher(),
+            placementService: PolymarketOrderPlacementFactory().makeService(for: userWalletModel),
+            positionsService: makePositionsService(for: userWalletModel)
+        ))
+
+        return coordinator
+    }
+}
+
+// MARK: - PolymarketPositionDetailsRoutable protocol conformance
+
+extension PolymarketCoordinator: PolymarketPositionDetailsRoutable {
+    func closePositionDetails() {
         destination = nil
     }
 }
@@ -475,7 +524,9 @@ extension PolymarketCoordinator {
 
 extension PolymarketCoordinator {
     enum Destination {
-        case eventDetails(PolymarketEventDetailsViewModel)
-        case positionDetails(PolymarketPositionDetailsView.Model)
+        case eventDetails(PolymarketEventDetailsCoordinator)
+        case positionDetails(PolymarketPositionDetailsViewModel)
+        case myPositions(PolymarketMyPositionsCoordinator)
+        case order(PolymarketOrderCoordinator)
     }
 }

@@ -112,6 +112,7 @@ private extension CommonPolymarketOnboardingInteractor {
                     status: status,
                     credentials: credentials,
                     poller: poller,
+                    isNewAccount: status != .readyToTrade,
                     reporting: continuation
                 )
                 return
@@ -294,6 +295,7 @@ private extension CommonPolymarketOnboardingInteractor {
             status: status,
             credentials: credentials,
             poller: poller,
+            isNewAccount: initial != .readyToTrade,
             reporting: continuation
         )
     }
@@ -356,6 +358,7 @@ private extension CommonPolymarketOnboardingInteractor {
         status: PolymarketDepositWalletStatus,
         credentials: PolymarketL2Credentials,
         poller: PolymarketDepositWalletPoller,
+        isNewAccount: Bool,
         reporting continuation: PolymarketOnboardingContinuation
     ) async throws {
         if status != .readyToTrade {
@@ -370,7 +373,7 @@ private extension CommonPolymarketOnboardingInteractor {
 
         await primeBalanceCache(credentials: credentials, ownerAddress: addresses.owner)
 
-        continuation.yield(.ready)
+        continuation.yield(.ready(isNewAccount: isNewAccount))
     }
 }
 

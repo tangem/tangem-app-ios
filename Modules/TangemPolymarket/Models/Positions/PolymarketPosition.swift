@@ -114,10 +114,12 @@ public enum PolymarketPositionSettlement: String, Hashable, Sendable {
 
 public struct PolymarketPositionsPage: Hashable, Sendable {
     public let positions: [PolymarketPosition]
+    public let receivedCount: Int
     public let hasNext: Bool
 
-    public init(positions: [PolymarketPosition], hasNext: Bool) {
+    public init(positions: [PolymarketPosition], receivedCount: Int, hasNext: Bool) {
         self.positions = positions
+        self.receivedCount = receivedCount
         self.hasNext = hasNext
     }
 }

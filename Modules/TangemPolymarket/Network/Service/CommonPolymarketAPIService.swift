@@ -59,6 +59,14 @@ extension CommonPolymarketAPIService: PolymarketAPIService {
     func positions(request positionsRequest: PolymarketPositionsRequest) async throws -> PolymarketDTO.PositionsResponse {
         try await request(.positions(positionsRequest))
     }
+
+    func closedPositions(request closedRequest: PolymarketClosedPositionsRequest) async throws -> PolymarketDTO.ClosedPositionsResponse {
+        try await request(.closedPositions(closedRequest))
+    }
+
+    func positionOutcome(request outcomeRequest: PolymarketPositionOutcomeRequest) async throws -> PolymarketDTO.PositionOutcomeResponse {
+        try await request(.positionOutcome(outcomeRequest))
+    }
 }
 
 // MARK: - Private
