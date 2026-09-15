@@ -22,6 +22,7 @@ final class WalletModelTestsMock: WalletModel {
     private let _isEmpty: Bool
     private let _fiatAvailableBalance: Decimal
     private let _account: (any CryptoAccountModel)?
+    private let _safeWalletManagerOperationsService: (any SafeWalletManagerOperationsService)?
     private let _addresses: [Address]
 
     var transactionCreatorMock: TransactionCreator?
@@ -45,6 +46,7 @@ final class WalletModelTestsMock: WalletModel {
         _isEmpty = false
         _fiatAvailableBalance = 0
         _account = nil
+        _safeWalletManagerOperationsService = nil
         _addresses = [PlainAddress(value: "mock", type: .default)]
     }
 
@@ -57,6 +59,7 @@ final class WalletModelTestsMock: WalletModel {
         _isEmpty = false
         _fiatAvailableBalance = 0
         _account = nil
+        _safeWalletManagerOperationsService = nil
         _addresses = [PlainAddress(value: "mock", type: .default)]
     }
 
@@ -66,8 +69,10 @@ final class WalletModelTestsMock: WalletModel {
         fiatBalance: Decimal = 0,
         fiatBalanceProvider: TokenBalanceProvider? = nil,
         account: (any CryptoAccountModel)? = nil,
-        addresses: [Address] = [PlainAddress(value: "mock", type: .default)]
+        addresses: [Address] = [PlainAddress(value: "mock", type: .default)],
+        safeWalletManagerOperationsService: (any SafeWalletManagerOperationsService)? = nil
     ) {
+        _safeWalletManagerOperationsService = safeWalletManagerOperationsService
         _tokenItem = tokenItem
         _id = WalletModelId(tokenItem: tokenItem)
         _isEmpty = isEmpty
@@ -211,7 +216,7 @@ final class WalletModelTestsMock: WalletModel {
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { nil }
     var ethereumNetworkProvider: EthereumNetworkProvider? { nil }
     var ethereumTransactionSigner: EthereumTransactionSigner? { nil }
-    var safeWalletManagerOperationsService: SafeWalletManagerOperationsService? { nil }
+    var safeWalletManagerOperationsService: SafeWalletManagerOperationsService? { _safeWalletManagerOperationsService }
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? { nil }
     var accountInitializationService: BlockchainAccountInitializationService? { nil }
     var minimalBalanceProvider: MinimalBalanceProvider? { nil }

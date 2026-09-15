@@ -40,6 +40,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published private(set) var polymarketAccountViewModel: AccountRowButtonViewModel?
 
     @Published private(set) var pendingJointAccountViewModels: [PendingJointAccountItemViewModel] = []
+    @Published private(set) var pendingJointAccountsOperationsViewData: [JointAccountOperationPlate.ViewData] = []
 
     @Published private(set) var isScannerBusy = false
     @Published var error: AlertBinder? = nil
@@ -373,6 +374,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         bindPolymarketAccountRow()
         bindPendingJointAccountPlates()
+        bindPendingJointAccountOperationPlates()
     }
 
     private func setupTangemPayIfNeeded() {
@@ -473,6 +475,35 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             }
             .receiveOnMain()
             .assign(to: &$pendingJointAccountViewModels)
+    }
+
+    private func bindPendingJointAccountOperationPlates() {
+        userWalletModel
+            .accountModelsManager
+            .accountModelsPublisher
+            .map(JointAccountCryptoModelsAggregator.jointAccountModels(from:))
+            .flatMapLatest { jointAccounts -> AnyPublisher<[JointAccountPendingOperation], Never> in
+                guard jointAccounts.isNotEmpty else {
+                    return Just([]).eraseToAnyPublisher()
+                }
+
+                return jointAccounts
+                    .map { $0.jointAccountPendingOperationsProvider.pendingOperationsPublisher }
+                    .combineLatest()
+                    .map { $0.flattened() }
+                    .eraseToAnyPublisher()
+            }
+            .map { pendingOperations in
+                let builder = JointAccountOperationPlateViewDataBuilder()
+
+                return pendingOperations.map { pendingOperation in
+                    builder.build(pendingOperation: pendingOperation) {
+                        // [REDACTED_TODO_COMMENT]
+                    }
+                }
+            }
+            .receiveOnMain()
+            .assign(to: &$pendingJointAccountsOperationsViewData)
     }
 
     /// - Note: This method throws an opaque error if the NFT Entrypoint view model is already created and there is no need to update it.

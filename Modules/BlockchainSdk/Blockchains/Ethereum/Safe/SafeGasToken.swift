@@ -13,13 +13,15 @@ import TangemFoundation
 /// What the Safe refunds the relayer in. The coin is priced straight from the network; a token needs the rate to turn
 /// the network's price per gas into the token's smallest units per gas.
 public enum SafeGasToken: Hashable {
+    public static let coinGasTokenRawValue = "0x0000000000000000000000000000000000000000"
+
     case coin(Blockchain)
     case token(Token, blockchain: Blockchain, nativeToTokenRate: Decimal)
 
     /// The `gasToken` field of a `SafeTx`; the coin is `address(0)`.
     public var address: String {
         switch self {
-        case .coin: "0x0000000000000000000000000000000000000000"
+        case .coin: SafeGasToken.coinGasTokenRawValue
         case .token(let token, _, _): token.contractAddress
         }
     }
