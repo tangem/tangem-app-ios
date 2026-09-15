@@ -30,6 +30,7 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
     @Published var sheet: Sheet?
 
     private var placementService: PolymarketOrderPlacementService?
+    private var addFundsAction: (() -> Void)?
     private var indexingTask: Task<Void, Never>?
     private var hasPlacedOrder = false
 
@@ -45,6 +46,7 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         placementService = options.placementService
+        addFundsAction = options.onAddFunds
 
         Task { @MainActor in
             let model = PolymarketOrderModel(
@@ -54,7 +56,8 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
                 apiProvider: PolymarketAPIProviderFactory().makeProvider(walletId: options.walletId),
                 geoblockStateProvider: options.geoblockStateProvider,
                 positionsService: options.positionsService,
-                balancePublisher: options.balancePublisher
+                balancePublisher: options.balancePublisher,
+                isAwaitingFundsPublisher: options.isAwaitingFundsPublisher
             )
 
             self.model = model
@@ -68,6 +71,10 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
 extension PolymarketOrderCoordinator: PolymarketOrderRoutable {
     func closeOrder() {
         dismiss(with: hasPlacedOrder ? DismissPayload(indexing: indexingTask) : nil)
+    }
+
+    func openAddFunds() {
+        addFundsAction?()
     }
 
     func openSlippageSelector(percent: Decimal, onConfirm: @escaping (Decimal) -> Void) {
@@ -175,5 +182,7 @@ extension PolymarketOrderCoordinator {
         let balancePublisher: AnyPublisher<Decimal?, Never>
         let placementService: PolymarketOrderPlacementService
         let positionsService: PolymarketPositionsService?
+        let isAwaitingFundsPublisher: AnyPublisher<Bool, Never>
+        let onAddFunds: () -> Void
     }
 }
