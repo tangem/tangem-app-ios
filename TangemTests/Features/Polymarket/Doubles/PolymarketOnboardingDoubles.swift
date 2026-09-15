@@ -506,8 +506,13 @@ final class PolymarketGeoblockStateProviderStub: PolymarketGeoblockStateProvider
 
 final class PolymarketSearchRoutableSpy: PolymarketSearchRoutable {
     private(set) var openedEventIDs: [String] = []
+    private(set) var openedOutcomes: [(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String)] = []
 
     func openEventDetailsFromSearch(eventID: String) {
         openedEventIDs.append(eventID)
+    }
+
+    func openOrderFromSearch(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {
+        openedOutcomes.append((market, outcome, eventTitle))
     }
 }

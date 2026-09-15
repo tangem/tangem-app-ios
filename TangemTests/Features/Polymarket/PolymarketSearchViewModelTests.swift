@@ -171,6 +171,27 @@ struct PolymarketSearchViewModelTests {
 
         #expect(coordinator.openedEventIDs == ["a"])
     }
+
+    @Test("Choosing an outcome on a result opens the order, not the event")
+    func choosingOutcomeOpensOrder() async throws {
+        let outcome = PolymarketOutcome(assetId: "yes", title: "Yes", probability: 0.42)
+        let market = Self.market(id: "m1", outcomes: [outcome])
+        let event = Self.event(id: "a", markets: [market])
+        let provider = PolymarketAPIProviderStub(searchResults: [.success(Self.page(events: [event], hasNext: false))])
+        let coordinator = PolymarketSearchRoutableSpy()
+        let sut = Self.makeSUT(provider: provider, coordinator: coordinator)
+
+        sut.query = "uzbekistan"
+        try await Self.settle(sut) { $0.state == .allDataLoaded }
+
+        let selected = try #require(sut.eventCards.first?.rows.first?.outcomes.first)
+        selected.onSelect()
+
+        #expect(coordinator.openedEventIDs.isEmpty)
+        #expect(coordinator.openedOutcomes.map(\.market.id) == ["m1"])
+        #expect(coordinator.openedOutcomes.map(\.outcome.assetId) == ["yes"])
+        #expect(coordinator.openedOutcomes.map(\.eventTitle) == ["a"])
+    }
 }
 
 // MARK: - Fixtures
@@ -209,7 +230,27 @@ private extension PolymarketSearchViewModelTests {
         PolymarketSearchResult(events: events, page: nil, total: events.count, hasNext: hasNext)
     }
 
-    static func event(id: String) -> PolymarketEvent {
+    static func market(id: String, outcomes: [PolymarketOutcome]) -> PolymarketMarket {
+        PolymarketMarket(
+            id: id,
+            title: id,
+            groupItemTitle: nil,
+            imageURL: nil,
+            iconURL: nil,
+            status: .active,
+            isNegRisk: false,
+            isAcceptingOrders: true,
+            startDate: nil,
+            endDate: nil,
+            volume: nil,
+            volume24h: nil,
+            liquidity: nil,
+            orderIndex: 0,
+            outcomes: outcomes
+        )
+    }
+
+    static func event(id: String, markets: [PolymarketMarket] = []) -> PolymarketEvent {
         PolymarketEvent(
             id: id,
             slug: id,
@@ -225,10 +266,10 @@ private extension PolymarketSearchViewModelTests {
             volume: nil,
             volume24h: nil,
             liquidity: nil,
-            totalMarketsCount: 0,
+            totalMarketsCount: markets.count,
             isNegRisk: false,
             displayMode: .plainMarkets,
-            markets: []
+            markets: markets
         )
     }
 

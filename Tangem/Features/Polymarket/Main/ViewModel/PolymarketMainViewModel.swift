@@ -544,6 +544,15 @@ final class PolymarketMainViewModel: ObservableObject {
         return fresh.count
     }
 
+    private func selectOutcome(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {
+        guard !isRegionRestricted else {
+            coordinator?.openRegionWarning()
+            return
+        }
+
+        coordinator?.openOrder(market: market, outcome: outcome, eventTitle: eventTitle)
+    }
+
     private var selectedCategory: PolymarketCategory? {
         categories.first { $0.id == selectedCategoryID }
     }
@@ -553,8 +562,8 @@ final class PolymarketMainViewModel: ObservableObject {
             event: event,
             category: nil,
             isInActivePredicts: false,
-            onSelectOutcome: { [weak self] _, _ in
-                self?.openEventDetails(eventID: event.id)
+            onSelectOutcome: { [weak self] market, outcome in
+                self?.selectOutcome(market: market, outcome: outcome, eventTitle: event.title)
             }
         )
     }
@@ -705,5 +714,10 @@ extension PolymarketMainViewModel {
 extension PolymarketMainViewModel: PolymarketSearchRoutable {
     func openEventDetailsFromSearch(eventID: String) {
         coordinator?.openEventDetails(eventID: eventID, category: nil)
+    }
+
+    func openOrderFromSearch(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {
+        exitSearch()
+        selectOutcome(market: market, outcome: outcome, eventTitle: eventTitle)
     }
 }

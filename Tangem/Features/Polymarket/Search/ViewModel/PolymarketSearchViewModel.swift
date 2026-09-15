@@ -156,7 +156,9 @@ private extension PolymarketSearchViewModel {
             event: event,
             category: nil,
             isInActivePredicts: false,
-            onSelectOutcome: { [weak self] _, _ in self?.openEventDetails(eventID: event.id) }
+            onSelectOutcome: { [weak self] market, outcome in
+                self?.coordinator?.openOrderFromSearch(market: market, outcome: outcome, eventTitle: event.title)
+            }
         )
     }
 }
