@@ -13,6 +13,8 @@ final class CollectiblesCoordinator: CoordinatorObject {
     // MARK: - Properties
 
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
+    @Injected(\.overlayViewPresenter) var overlayViewPresenter: any OverlayViewPresenter
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
@@ -36,11 +38,16 @@ final class CollectiblesCoordinator: CoordinatorObject {
         case .welcome:
             state = .welcome(CollectiblesWelcomeViewModel(routable: self))
         case .main:
-            Task { @MainActor [weak self] in
-                guard let self else { return }
-                state = .main(CollectiblesMainViewModel(routable: self))
-            }
+            Task { @MainActor [weak self] in self?.openMain() }
         }
+    }
+
+    @MainActor
+    func openMain() {
+        state = .main(
+            CollectiblesMainViewModel(routable: self),
+            actionsMenu: CollectiblesActionsMenuViewModel(routable: self)
+        )
     }
 
     func closeMachine() {
@@ -51,21 +58,8 @@ final class CollectiblesCoordinator: CoordinatorObject {
 // MARK: - Routables
 
 extension CollectiblesCoordinator: CollectiblesWelcomeRoutable {
-    func openStories() {
-        state = .stories(CollectiblesStoriesViewModel(routable: self))
-    }
-
     func openLegalTerms(url: URL) {
         safariManager.openURL(url)
-    }
-}
-
-extension CollectiblesCoordinator: CollectiblesStoriesRoutable {
-    func openMain() {
-        Task { @MainActor [weak self] in
-            guard let self else { return }
-            state = .main(CollectiblesMainViewModel(routable: self))
-        }
     }
 }
 
@@ -74,6 +68,19 @@ extension CollectiblesCoordinator: CollectiblesMainRoutable {
         guard machineViewModel == nil else { return }
 
         machineViewModel = CollectiblesMachineViewModel(pack: pack)
+    }
+
+    func openSupport() {
+        let logsComposer = LogsComposer(infoProvider: BaseDataCollector())
+        let mailViewModel = MailViewModel(
+            logsComposer: logsComposer,
+            recipient: EmailConfig.default.recipient,
+            emailType: .appFeedback(subject: EmailConfig.default.subject)
+        )
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
     }
 }
 
@@ -91,7 +98,6 @@ extension CollectiblesCoordinator {
 
     enum ViewState {
         case welcome(CollectiblesWelcomeViewModel)
-        case stories(CollectiblesStoriesViewModel)
-        case main(CollectiblesMainViewModel)
+        case main(CollectiblesMainViewModel, actionsMenu: CollectiblesActionsMenuViewModel)
     }
 }

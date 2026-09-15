@@ -95,7 +95,7 @@ struct CollectiblesAPIServiceTests {
 
         #expect(machine.name == "PKMN 50")
         #expect(machine.price == 50)
-        #expect(machine.cardsPerPack == "1")
+        #expect(machine.cardsPerPack == 1)
         #expect(machine.buybackRate == Decimal(string: "0.85"))
         #expect(machine.expectedValue == Decimal(string: "54.5"))
 
@@ -121,6 +121,50 @@ struct CollectiblesAPIServiceTests {
         #expect(common.tier == .common)
         #expect(common.valueRange == nil)
         #expect(common.odds == Decimal(string: "0.8"))
+    }
+
+    // MARK: - Pack opening
+
+    @Test("generateTx: posts the body with the user-id header and decodes the unsigned transaction")
+    func generatesTransaction() async throws {
+        CollectiblesStubURLProtocol.responses = [Data(#"{"id":"tx-1","txData":"AAEC"}"#.utf8)]
+
+        let request = CollectiblesDTO.GenerateTxRequest(fromAddress: "owner", collectibleType: "pokemon_50", toAddress: "cold")
+        let response = try await makeSUT().generatePackTransaction(request, userWalletID: "wallet-1")
+
+        #expect(response.id == "tx-1")
+        #expect(response.txData == "AAEC")
+
+        let sent = try #require(CollectiblesStubURLProtocol.requests.first)
+        let sentPath = try #require(sent.url?.path)
+        #expect(sent.httpMethod == "POST")
+        #expect(sentPath.hasSuffix("api/v1/collectible/generateTx"))
+        #expect(sent.value(forHTTPHeaderField: "user-id") == "wallet-1")
+
+        let body = try Self.jsonBody(CollectiblesStubURLProtocol.bodies.first)
+        #expect(body["fromAddress"] as? String == "owner")
+        #expect(body["collectibleType"] as? String == "pokemon_50")
+        #expect(body["toAddress"] as? String == "cold")
+        #expect(body["turboMode"] == nil)
+    }
+
+    @Test("submitTx: posts the signed transaction with the user-id header and decodes the id")
+    func submitsTransaction() async throws {
+        CollectiblesStubURLProtocol.responses = [Data(#"{"id":"tx-1"}"#.utf8)]
+
+        let response = try await makeSUT().submitPackTransaction(.init(signedTxData: "c2lnbmVk"), userWalletID: "wallet-1")
+
+        #expect(response.id == "tx-1")
+
+        let sent = try #require(CollectiblesStubURLProtocol.requests.first)
+        let sentPath = try #require(sent.url?.path)
+        #expect(sent.httpMethod == "POST")
+        #expect(sentPath.hasSuffix("api/v1/collectible/submitTx"))
+        #expect(sent.value(forHTTPHeaderField: "user-id") == "wallet-1")
+
+        let body = try Self.jsonBody(CollectiblesStubURLProtocol.bodies.first)
+        #expect(body["signedTxData"] as? String == "c2lnbmVk")
+        #expect(body.count == 1)
     }
 
     // MARK: - Headers
@@ -190,6 +234,15 @@ private extension CollectiblesAPIServiceTests {
             .value
     }
 
+    static func jsonBody(_ data: Data?) throws -> [String: Any] {
+        guard let data, let body = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw TestError.notJSONBody
+        }
+        return body
+    }
+
+    enum TestError: Error { case notJSONBody }
+
     static func machinesPage(machines: [String], hasNext: Bool, cursor: String? = nil) -> Data {
         let cursorJSON = cursor.map { #""\#($0)""# } ?? "null"
         return Data(#"{"machines":[\#(machines.joined(separator: ","))],"hasNext":\#(hasNext),"cursor":\#(cursorJSON)}"#.utf8)
@@ -205,7 +258,7 @@ private extension CollectiblesAPIServiceTests {
         "odds":{"common":80,"rare":4,"epic":1,"legendary":null},
         "tierRanges":{"common":\#(commonRange),"rare":{"start":110,"end":250},"epic":{"start":250,"end":5001},"legendary":null},
         "stock":{"common":214,"rare":383,"epic":200,"legendary":null},
-        "expectedValue":54.5,"image":"https://example.com/pack.png","categoryId":"pokemon","contains":"1",
+        "expectedValue":54.5,"image":"https://example.com/pack.png","categoryId":"pokemon","contains":1,
         "fee":200,"feeAmount":100,"createdAt":"2026-08-25T08:21:07.518119Z","updatedAt":"2026-09-07T04:34:30.860676Z"}
         """#
     }
@@ -219,6 +272,7 @@ private final class CollectiblesStubURLProtocol: URLProtocol {
         var statusCode = 200
         var failure: (any Error)?
         var requests: [URLRequest] = []
+        var bodies: [Data] = []
     }
 
     private static let state = OSAllocatedUnfairLock(uncheckedState: State())
@@ -242,6 +296,10 @@ private final class CollectiblesStubURLProtocol: URLProtocol {
         state { $0.requests }
     }
 
+    static var bodies: [Data] {
+        state { $0.bodies }
+    }
+
     static func reset() {
         state { $0 = State() }
     }
@@ -255,8 +313,10 @@ private final class CollectiblesStubURLProtocol: URLProtocol {
     }
 
     override func startLoading() {
+        let body = Self.body(of: request)
         let (data, statusCode, failure) = Self.state { state -> (Data, Int, (any Error)?) in
             state.requests.append(request)
+            state.bodies.append(body)
             let data = state.responses.isEmpty ? Data() : state.responses.removeFirst()
             return (data, state.statusCode, state.failure)
         }
@@ -274,4 +334,29 @@ private final class CollectiblesStubURLProtocol: URLProtocol {
     }
 
     override func stopLoading() {}
+
+    private static func body(of request: URLRequest) -> Data {
+        if let body = request.httpBody {
+            return body
+        }
+
+        guard let stream = request.httpBodyStream else {
+            return Data()
+        }
+
+        stream.open()
+        defer { stream.close() }
+
+        var body = Data()
+        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: 1024)
+        defer { buffer.deallocate() }
+
+        while stream.hasBytesAvailable {
+            let count = stream.read(buffer, maxLength: 1024)
+            guard count > 0 else { break }
+            body.append(buffer, count: count)
+        }
+
+        return body
+    }
 }

@@ -18,7 +18,7 @@ extension CollectiblesDTO {
         let price: Decimal
         let fee: Decimal
         let feeAmount: Decimal
-        let contains: String?
+        let contains: Int?
         let instantBuybackPercent: Int
         let lowThreshold: Int
         /// Drop chance per rarity tier, in percent.
@@ -45,7 +45,6 @@ extension CollectiblesDTO.Machine {
     }
 
     struct TierRange: Decodable {
-        let start: Int
-        let end: Int
+        let start, end: Int
     }
 }
