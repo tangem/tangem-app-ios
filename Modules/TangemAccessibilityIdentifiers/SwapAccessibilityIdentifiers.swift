@@ -40,4 +40,8 @@ public enum SwapAccessibilityIdentifiers {
     /// Amount fraction chips above keyboard (25%, 50%, 75%, Max)
     public static func amountFraction(_ suffix: String) -> String { "swapAmountFraction_\(suffix)" }
     public static let keyboardDismissButton = "swapKeyboardDismissButton"
+
+    /// Token selector's balance-filter "filtered out" empty state
+    public static let tokenSelectorFilteredOutEmptyMessage = "swapTokenSelectorFilteredOutEmptyMessage"
+    public static let tokenSelectorSeeAllButton = "swapTokenSelectorSeeAllButton"
 }
