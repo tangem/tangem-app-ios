@@ -32,6 +32,7 @@ final class PolymarketOrderModel: ObservableObject {
     private let geoblockStateProvider: PolymarketGeoblockStateProvider
     private let positionsService: PolymarketPositionsService?
     private let balancePublisher: AnyPublisher<Decimal?, Never>
+    private let isAwaitingFundsPublisher: AnyPublisher<Bool, Never>
     private let delayProvider: PollDelayProvider
 
     // MARK: - Private state
@@ -52,6 +53,7 @@ final class PolymarketOrderModel: ObservableObject {
         geoblockStateProvider: PolymarketGeoblockStateProvider,
         positionsService: PolymarketPositionsService? = nil,
         balancePublisher: AnyPublisher<Decimal?, Never>,
+        isAwaitingFundsPublisher: AnyPublisher<Bool, Never>,
         delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
         self.market = market
@@ -61,6 +63,7 @@ final class PolymarketOrderModel: ObservableObject {
         self.geoblockStateProvider = geoblockStateProvider
         self.positionsService = positionsService
         self.balancePublisher = balancePublisher
+        self.isAwaitingFundsPublisher = isAwaitingFundsPublisher
         self.delayProvider = delayProvider
 
         bind()
@@ -136,6 +139,7 @@ extension PolymarketOrderModel {
         var balance: Decimal?
         var slippagePercent: Decimal = PolymarketSlippage.defaultPercent
         var geoblock: PolymarketGeoblockState = .unknown
+        var isAwaitingFunds = false
 
         var isBelowMinAmount: Bool {
             guard let enteredAmount, let minAmount else { return false }
@@ -182,6 +186,18 @@ private extension PolymarketOrderModel {
             .withWeakCaptureOf(self)
             .sink { model, balance in
                 model.state.balance = balance
+            }
+            .store(in: &bag)
+
+        isAwaitingFundsPublisher
+            // A banner raised before this screen opened belongs to the screen behind it, so only a
+            // deposit made from here is announced.
+            .dropFirst()
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { model, isAwaitingFunds in
+                model.state.isAwaitingFunds = isAwaitingFunds
             }
             .store(in: &bag)
 

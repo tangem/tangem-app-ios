@@ -46,6 +46,7 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
         }
     }
 
+    private var fundsArrivalTracker: PolymarketFundsArrivalTracker?
     private var geoblockStateProvider: PolymarketGeoblockStateProvider?
     private var balanceProvider: PolymarketBalanceProvider?
 
@@ -156,10 +157,14 @@ private extension PolymarketCoordinator {
 
         let balanceProvider = CommonPolymarketBalanceProvider(userWalletModel: userWalletModel)
         let accountFundsInteractor = PolymarketAccountFundsFactory().makeInteractor(for: userWalletModel)
+        let fundsArrivalTracker = PolymarketFundsArrivalTracker(
+            balancePublisher: balanceProvider.collateralBalancePublisher.map(\.value).eraseToAnyPublisher()
+        )
 
         self.geoblockStateProvider = geoblockStateProvider
         self.balanceProvider = balanceProvider
         self.accountFundsInteractor = accountFundsInteractor
+        self.fundsArrivalTracker = fundsArrivalTracker
         withdrawContext = PolymarketWithdrawFactory().makeContext(for: userWalletModel)
 
         viewState = .main(PolymarketMainViewModel(
@@ -168,6 +173,7 @@ private extension PolymarketCoordinator {
             balanceProvider: balanceProvider,
             accountFundsInteractor: accountFundsInteractor,
             positionsService: makePositionsService(for: userWalletModel),
+            fundsArrivalTracker: fundsArrivalTracker,
             coordinator: self
         ))
     }
@@ -281,6 +287,11 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
     func openAddFunds() {
         Task { @MainActor [weak self] in
             guard let self, addFundsSheet == nil else { return }
+
+            guard geoblockStateProvider?.state != .blocked else {
+                openRegionWarning()
+                return
+            }
 
             guard let userWalletModel else {
                 PolymarketLogger.error("Add funds was tapped without a wallet", error: CoordinatorError.missingUserWalletModel)
@@ -424,15 +435,11 @@ private extension PolymarketCoordinator {
     }
 
     func startAwaitingFunds() {
-        guard case .main(let viewModel) = viewState else { return }
-
-        viewModel.startAwaitingFunds()
+        fundsArrivalTracker?.startAwaitingFunds()
     }
 
     func startAwaitingWithdrawal() {
-        guard case .main(let viewModel) = viewState else { return }
-
-        viewModel.startAwaitingWithdrawal()
+        fundsArrivalTracker?.startAwaitingWithdrawal()
     }
 }
 
@@ -446,7 +453,7 @@ extension PolymarketCoordinator: PolymarketOrderFlowBuilder {
         onPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void,
         onClose: @escaping () -> Void
     ) -> PolymarketOrderCoordinator? {
-        guard let geoblockStateProvider, let balanceProvider, let userWalletModel else {
+        guard let geoblockStateProvider, let balanceProvider, let userWalletModel, let fundsArrivalTracker else {
             PolymarketLogger.error(
                 "An outcome was tapped before the feed built its providers",
                 error: CoordinatorError.missingOrderProviders
@@ -474,7 +481,9 @@ extension PolymarketCoordinator: PolymarketOrderFlowBuilder {
             geoblockStateProvider: geoblockStateProvider,
             balancePublisher: balanceProvider.collateralBalancePublisher.map(\.value).eraseToAnyPublisher(),
             placementService: PolymarketOrderPlacementFactory().makeService(for: userWalletModel),
-            positionsService: makePositionsService(for: userWalletModel)
+            positionsService: makePositionsService(for: userWalletModel),
+            isAwaitingFundsPublisher: fundsArrivalTracker.$isAwaitingFunds.eraseToAnyPublisher(),
+            onAddFunds: { [weak self] in self?.openAddFunds() }
         ))
 
         return coordinator

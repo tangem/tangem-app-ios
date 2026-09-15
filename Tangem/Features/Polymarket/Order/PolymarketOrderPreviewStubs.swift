@@ -20,7 +20,8 @@ extension PolymarketOrderModel {
             eventTitle: "2026 FIFA World Cup winner",
             apiProvider: PolymarketOrderPreviewAPIProvider(),
             geoblockStateProvider: PolymarketOrderPreviewGeoblockStateProvider(),
-            balancePublisher: .just(output: Decimal(30000))
+            balancePublisher: .just(output: Decimal(30000)),
+            isAwaitingFundsPublisher: .just(output: false)
         )
     }
 }
