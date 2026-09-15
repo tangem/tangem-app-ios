@@ -7,7 +7,9 @@
 //
 
 import Foundation
+import Combine
 import Testing
+import TangemFoundation
 import TangemLocalization
 @testable import Tangem
 
@@ -34,7 +36,7 @@ struct JointAccountInviteMembersViewModelTests {
     @Test("The wallet holding the invites is the creator's, and its own row says so")
     func creatorRowNamesThisWallet() {
         let creatorSide = makeViewModel(membersCount: 2, members: [creator], inviteIds: ["AA"])
-        let memberSide = makeViewModel(membersCount: 2, members: [creator], inviteIds: [])
+        let memberSide = makeViewModel(membersCount: 2, members: [creator], inviteIds: nil)
 
         #expect(creatorSide.content.members.first?.role.contains(Localization.jointAccountMembersRoleYou) == true)
         #expect(memberSide.content.members.first?.role == Localization.jointAccountInviteMembersCreator)
@@ -57,7 +59,7 @@ struct JointAccountInviteMembersViewModelTests {
         let viewModel = makeViewModel(membersCount: 4, members: [creator], inviteIds: ["AA", "BB", "CC"])
 
         #expect(
-            viewModel.content.freeSlots.map { $0.inviteURL?.absoluteString } == [
+            viewModel.content.freeSlots.map { $0.invite?.url.absoluteString } == [
                 "https://tangem.com/joint-account/join/AA",
                 "https://tangem.com/joint-account/join/BB",
                 "https://tangem.com/joint-account/join/CC",
@@ -67,10 +69,48 @@ struct JointAccountInviteMembersViewModelTests {
 
     @Test("A slot this wallet holds no invite for is shown all the same, with nothing to invite anybody by")
     func freeSlotWithoutAnInviteIsStillShown() {
-        let viewModel = makeViewModel(membersCount: 3, members: [creator], inviteIds: [])
+        let viewModel = makeViewModel(membersCount: 3, members: [creator], inviteIds: nil)
 
         #expect(viewModel.content.freeSlots.count == 2)
-        #expect(viewModel.content.freeSlots.allSatisfy { $0.inviteURL == nil })
+        #expect(viewModel.content.freeSlots.allSatisfy { $0.invite?.url == nil })
+        // The count the screen reports is the account's own, rather than this wallet's share of it
+        #expect(viewModel.content.totalMembersCount == 3)
+    }
+
+    /// The rows follow the composition itself rather than the account, whose own changes say nothing of who joined.
+    /// - Note: Time-limited because the wait below has no bound of its own: a screen that stops following the
+    /// composition would hang the whole test run rather than report itself.
+    @Test("A member who joins while the screen is open gets a row without the account changing", .timeLimit(.minutes(1)))
+    func joiningMemberIsShownAsTheCompositionMovesOn() async throws {
+        let repository = JointAccountsRepositoryStub(
+            jointAccounts: [JointAccountCompositionFixture.storedAccount(status: .pending, membersCount: 2, members: [creator])],
+            invites: [
+                StoredJointAccountInvites(
+                    cryptoAccountId: JointAccountCompositionFixture.caseFlippedCryptoAccountId,
+                    invites: [StoredJointAccountInvite(id: "AA")]
+                ),
+            ]
+        )
+        let viewModel = makeViewModel(
+            membersCount: 2,
+            membersService: JointAccountCompositionFixture.makeMembersService(repository: repository)
+        )
+
+        repository.store([
+            JointAccountCompositionFixture.storedAccount(
+                status: .pending,
+                membersCount: 2,
+                members: [creator, member(name: "Bob", inviteId: "AA")]
+            ),
+        ])
+
+        let content = try await viewModel.$content.first { $0.members.count == 2 }.async()
+
+        #expect(content.members.map(\.name) == ["Isaac", "Bob"])
+        #expect(content.freeSlots.isEmpty)
+        // The view model holds the subscription the awaited value comes through, and nothing below uses it — without
+        // this ARC may release it mid-await, leaving the test to wait on a publisher nobody feeds
+        withExtendedLifetime(viewModel) {}
     }
 
     // MARK: - Helpers
@@ -83,20 +123,34 @@ struct JointAccountInviteMembersViewModelTests {
         JointAccountMember(name: name, address: "0x\(name)", role: .member(inviteId: inviteId))
     }
 
+    /// - Parameter inviteIds: Nil on a wallet that was handed no invites at all, which is anyone's but the creator's.
     private func makeViewModel(
         membersCount: Int,
         members: [JointAccountMember],
-        inviteIds: [String]
+        inviteIds: [String]?
+    ) -> JointAccountInviteMembersViewModel {
+        makeViewModel(
+            membersCount: membersCount,
+            membersService: JointAccountCompositionFixture.makeMembersService(
+                membersCount: membersCount,
+                members: members,
+                inviteIds: inviteIds
+            )
+        )
+    }
+
+    private func makeViewModel(
+        membersCount: Int,
+        membersService: any JointAccountMembersService
     ) -> JointAccountInviteMembersViewModel {
         let jointAccount = CommonJointAccountModel(
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
-            derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
-            policy: JointAccountPolicy(membersCount: membersCount, signersCount: 2),
-            status: .pending,
+            derivationIdentity: JointAccountCompositionFixture.derivationIdentity,
+            accountPolicy: JointAccountPolicy(membersCount: membersCount, signersCount: 2),
+            accountStatus: .pending,
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
-            members: members,
-            invites: inviteIds.map(JointAccountInvite.init(id:)),
+            membersService: membersService,
             delegate: delegate
         )
 

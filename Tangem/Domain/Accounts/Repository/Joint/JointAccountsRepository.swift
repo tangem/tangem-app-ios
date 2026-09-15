@@ -20,6 +20,9 @@ protocol JointAccountsRepository {
     /// while the list is being read anew.
     var jointAccountsPublisher: AnyPublisher<[StoredJointAccount], Never> { get }
 
+    /// What is stored at this moment — the synchronous counterpart of `jointAccountsInvitesPublisher`.
+    var jointAccountsInvites: [StoredJointAccountInvites] { get }
+
     /// - Note: Kept apart from the accounts because it changes on its own occasions — an account is created once, and
     /// the invites it was handed are written then and never again.
     var jointAccountsInvitesPublisher: AnyPublisher<[StoredJointAccountInvites], Never> { get }
