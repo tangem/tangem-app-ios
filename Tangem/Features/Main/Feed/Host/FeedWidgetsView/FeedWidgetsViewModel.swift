@@ -11,6 +11,10 @@ import Combine
 final class FeedWidgetsViewModel: ObservableObject {
     let columns: [FeedWidgetColumn]
 
+    var stretchesProductCard: Bool {
+        columns.filter(\.isProductCard).count == 1
+    }
+
     init(widgets: [FeedWidget]) {
         columns = FeedWidgetColumn.columns(packing: widgets)
     }
