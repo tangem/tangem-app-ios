@@ -11,14 +11,14 @@ import TangemAssets
 import TangemUI
 
 struct EarnTokenTileSkeletonView: View {
-    @ScaledMetric private var tileWidth: CGFloat = 150
+    @ScaledMetric private var tileWidth: CGFloat = 154
 
     var body: some View {
         VStack(alignment: .leading, spacing: .zero) {
             Shimmer()
                 .variant(.custom(width: 40, height: 40))
 
-            FixedSpacer(height: 24)
+            FixedSpacer(height: 22)
 
             Shimmer()
                 .variant(.custom(width: 95, height: 20))
@@ -26,12 +26,14 @@ struct EarnTokenTileSkeletonView: View {
             FixedSpacer(height: 4)
 
             Shimmer()
-                .variant(.custom(width: 50, height: 16))
+                .variant(.custom(width: 120, height: 16))
         }
         .frame(width: tileWidth, alignment: .topLeading)
         .padding(.bottom, 4)
         .defaultRoundedBackground(
-            with: DesignSystem.Color.bgSecondary,
+            with: DesignSystem.Color.bgOpaquePrimary,
+            verticalPadding: 12,
+            horizontalPadding: 12,
             cornerRadius: 24
         )
         .allowsHitTesting(false)
