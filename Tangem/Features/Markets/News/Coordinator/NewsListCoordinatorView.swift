@@ -13,6 +13,8 @@ import TangemUIUtils
 struct NewsListCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: NewsListCoordinator
 
+    @Environment(\.mainShtorkaSize) private var sheetSize
+
     var body: some View {
         ZStack {
             if let viewModel = coordinator.rootViewModel {
@@ -35,7 +37,9 @@ struct NewsListCoordinatorView: CoordinatorView {
         NavHolder()
             .navigation(item: tokenDetailsBinding) { tokenCoordinator in
                 MarketsTokenDetailsCoordinatorView(coordinator: tokenCoordinator)
-                    .ignoresSafeArea(.container, edges: .top)
+                    .if(!sheetSize.isFeedSheet) { view in
+                        view.ignoresSafeArea(.container, edges: .top)
+                    }
             }
     }
 
