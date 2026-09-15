@@ -28,14 +28,18 @@ struct EarnContentView: View {
 // MARK: - Subviews
 
 private extension EarnContentView {
+    @ViewBuilder
     var mostlyUsedSection: some View {
-        VStack(spacing: sectionSpacing) {
-            EarnDetailHeaderView(headerTitle: Localization.earnMostlyUsed)
+        if viewModel.isMostlyUsedSectionVisible {
+            VStack(spacing: sectionSpacing) {
+                EarnDetailHeaderView(headerTitle: Localization.commonFeatured)
 
-            EarnMostlyUsedView(
-                viewModels: viewModel.mostlyUsedViewModels,
-                onFourthItemAppeared: viewModel.onMostlyUsedScrolledToFourthItem
-            )
+                EarnMostlyUsedView(
+                    viewModels: viewModel.mostlyUsedViewModels,
+                    retryAction: viewModel.onMostlyUsedRetry,
+                    onFourthItemAppeared: viewModel.onMostlyUsedScrolledToFourthItem
+                )
+            }
         }
     }
 
