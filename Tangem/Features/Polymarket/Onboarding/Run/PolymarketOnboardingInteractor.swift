@@ -147,7 +147,6 @@ private extension CommonPolymarketOnboardingInteractor {
         PolymarketDepositWalletPoller(
             walletService: walletService,
             ownerAddress: addresses.owner,
-            walletId: userWalletId.stringValue,
             depositWalletAddress: addresses.depositWallet,
             interval: pollInterval
         )
@@ -187,10 +186,7 @@ private extension CommonPolymarketOnboardingInteractor {
 private extension CommonPolymarketOnboardingInteractor {
     func readDepositWallet(ownerAddress: String) async throws -> PolymarketDepositWallet {
         do {
-            return try await walletService.depositWalletState(
-                ownerAddress: ownerAddress,
-                walletId: userWalletId.stringValue
-            )
+            return try await walletService.depositWalletState(ownerAddress: ownerAddress)
         } catch {
             throw PolymarketOnboardingError.wallet(error)
         }
@@ -312,8 +308,7 @@ private extension CommonPolymarketOnboardingInteractor {
         do {
             status = try await walletService.deployWallet(
                 ownerAddress: addresses.owner,
-                depositWalletAddress: addresses.depositWallet,
-                walletId: userWalletId.stringValue
+                depositWalletAddress: addresses.depositWallet
             )
         } catch {
             guard !error.isConflict else {

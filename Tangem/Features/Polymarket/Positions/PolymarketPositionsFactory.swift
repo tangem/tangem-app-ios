@@ -15,7 +15,6 @@ struct PolymarketPositionsFactory {
         apiProvider: PolymarketAPIProvider
     ) -> PolymarketPositionsService {
         CommonPolymarketPositionsService(
-            userWalletId: userWalletModel.userWalletId,
             ownerAddressProvider: PolymarketOnboardingFactory().makeOwnerAddressProvider(for: userWalletModel),
             apiProvider: apiProvider
         )

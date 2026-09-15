@@ -13,9 +13,10 @@ import Moya
 @Suite("PolymarketTarget")
 struct PolymarketTargetTests {
     private let baseURL = URL(string: "https://gateway.tangem.com")!
+    private let walletId = "w1"
 
     private func target(_ target: PolymarketTarget.Target) -> PolymarketTarget {
-        PolymarketTarget(baseURL: baseURL, target: target)
+        PolymarketTarget(baseURL: baseURL, walletId: walletId, target: target)
     }
 
     private func isRequestPlain(_ task: Moya.Task) -> Bool {
@@ -35,7 +36,6 @@ struct PolymarketTargetTests {
     private var positionsRequest: PolymarketPositionsRequest {
         PolymarketPositionsRequest(
             depositWalletAddress: "0xdead",
-            walletId: "w1",
             sort: .cashPnl,
             ascending: false,
             limit: 30,
@@ -105,11 +105,18 @@ struct PolymarketTargetTests {
         #expect(full["page"] as? Int == 2)
     }
 
-    @Test("Only positions carry a target-specific header")
+    @Test("Every read carries the wallet id, not just the ones tied to an account")
     func headers() {
-        #expect(target(.series).headers == nil)
-        #expect(target(.orderQuote(quoteBody)).headers == nil)
-        #expect(target(.positions(positionsRequest)).headers == ["wallet-id": "w1"])
+        let expected = ["wallet-id": walletId]
+
+        #expect(target(.categories(locale: nil)).headers == expected)
+        #expect(target(.events(.init())).headers == expected)
+        #expect(target(.event(id: "abc")).headers == expected)
+        #expect(target(.search(.init(query: "q"))).headers == expected)
+        #expect(target(.series).headers == expected)
+        #expect(target(.seriesEvents(seriesId: "s1")).headers == expected)
+        #expect(target(.orderQuote(quoteBody)).headers == expected)
+        #expect(target(.positions(positionsRequest)).headers == expected)
     }
 
     @Test("positions: the whole page window goes into the query")

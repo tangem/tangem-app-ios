@@ -22,7 +22,7 @@ struct PolymarketOnboardingFactory {
             ),
             credentialsRepository: CommonPolymarketCredentialsRepository(),
             geoblockService: services.makeGeoblockService(),
-            walletService: services.makeWalletService(),
+            walletService: services.makeWalletService(walletId: userWalletModel.userWalletId.stringValue),
             relayerService: services.makeRelayerService(),
             clobService: services.makeCLOBService()
         )

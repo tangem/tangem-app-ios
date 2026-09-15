@@ -12,7 +12,6 @@ import TangemPolymarket
 struct PolymarketDepositWalletResolver {
     let walletService: PolymarketDepositWalletService
     let ownerAddressProvider: PolymarketOwnerAddressProviding
-    let walletId: String
 
     func resolve() async throws -> PolymarketDepositWalletAddresses {
         guard let ownerAddress = ownerAddressProvider.getOwnerAddress() else {
@@ -20,7 +19,7 @@ struct PolymarketDepositWalletResolver {
         }
 
         let derived = try PolymarketDepositWalletDeriver.derive(ownerAddress: ownerAddress)
-        let stored = try await walletService.depositWalletState(ownerAddress: ownerAddress, walletId: walletId)
+        let stored = try await walletService.depositWalletState(ownerAddress: ownerAddress)
 
         try stored.ensureMatches(derived: derived)
 

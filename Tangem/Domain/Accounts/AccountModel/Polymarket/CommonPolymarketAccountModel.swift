@@ -99,10 +99,7 @@ private extension CommonPolymarketAccountModel {
         }
 
         do {
-            let depositWallet = try await walletService.depositWalletState(
-                ownerAddress: ownerAddress,
-                walletId: userWalletId.stringValue
-            )
+            let depositWallet = try await walletService.depositWalletState(ownerAddress: ownerAddress)
 
             if depositWallet.status == .readyToTrade {
                 presenceStore.markAccountExists(for: userWalletId)
