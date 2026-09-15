@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-enum FeedWidgetColumn: Identifiable {
+enum FeedWidgetColumn: Identifiable, Equatable {
     case pair(top: FeedWidget, bottom: FeedWidget)
     case single(FeedWidget)
 
@@ -14,6 +14,13 @@ enum FeedWidgetColumn: Identifiable {
         switch self {
         case .pair(let top, let bottom): "\(top.id)-\(bottom.id)"
         case .single(let widget): widget.id
+        }
+    }
+
+    var isProductCard: Bool {
+        switch self {
+        case .single(let widget) where widget.span == .wide: true
+        case .single, .pair: false
         }
     }
 }

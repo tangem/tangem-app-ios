@@ -9,7 +9,7 @@
 import TangemMacro
 
 @RawCaseName
-enum FeedWidget: Identifiable {
+enum FeedWidget: Identifiable, Equatable {
     enum Span {
         case compact
         case wide
@@ -17,15 +17,16 @@ enum FeedWidget: Identifiable {
 
     case forYou
     case addAccount
-    case startEarning
+    case startEarning(FeedEarnWidgetState)
     case tangemPay
+    case referFriend(reward: String)
 
     var id: String { rawCaseValue }
 
     var span: Span {
         switch self {
         case .forYou, .addAccount: .compact
-        case .startEarning, .tangemPay: .wide
+        case .startEarning, .tangemPay, .referFriend: .wide
         }
     }
 }
