@@ -162,11 +162,21 @@ public struct TokenRowMarket: View, Setupable {
             .accessibilityIdentifier(identifiers?.price)
     }
 
+    @ViewBuilder
     private func graphCurve(graph: [Double]?, priceChange: TokenRowPriceChange?) -> some View {
-        UtilGraph(values: graph ?? [])
+        let curve = UtilGraph(values: graph ?? [])
             .direction(graphDirection(for: priceChange))
             .isLoading(graph == nil)
             .frame(width: graphWidth, height: graphHeight)
+
+        if let graphIdentifier = identifiers?.graph {
+            // The curve hides itself from accessibility, so it needs an element of its own to carry the identifier.
+            curve
+                .accessibilityElement()
+                .accessibilityIdentifier(graphIdentifier)
+        } else {
+            curve
+        }
     }
 
     private func graphDirection(for priceChange: TokenRowPriceChange?) -> UtilGraph.Direction {
@@ -213,6 +223,7 @@ public extension TokenRowMarket {
         public let capitalisation: String?
         public let rank: String?
         public let icon: String?
+        public let graph: String?
 
         public init(
             name: String? = nil,
@@ -221,7 +232,8 @@ public extension TokenRowMarket {
             priceChange: String? = nil,
             capitalisation: String? = nil,
             rank: String? = nil,
-            icon: String? = nil
+            icon: String? = nil,
+            graph: String? = nil
         ) {
             self.name = name
             self.ticker = ticker
@@ -230,6 +242,7 @@ public extension TokenRowMarket {
             self.capitalisation = capitalisation
             self.rank = rank
             self.icon = icon
+            self.graph = graph
         }
     }
 

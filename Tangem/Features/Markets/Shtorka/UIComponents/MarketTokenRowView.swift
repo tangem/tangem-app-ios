@@ -37,7 +37,8 @@ struct MarketTokenRowView: View {
                 priceChange: MarketsAccessibilityIdentifiers.marketsListTokenPriceChange,
                 capitalisation: MarketsAccessibilityIdentifiers.marketsListTokenMarketCap,
                 rank: MarketsAccessibilityIdentifiers.marketsListTokenRating,
-                icon: MarketsAccessibilityIdentifiers.marketsListTokenIcon
+                icon: MarketsAccessibilityIdentifiers.marketsListTokenIcon,
+                graph: MarketsAccessibilityIdentifiers.marketsListTokenChart
             )
         )
         .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenItem(uniqueId: viewModel.name))

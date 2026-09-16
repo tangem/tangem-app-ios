@@ -14,6 +14,8 @@ final class ReceiveQRCodeSheet: ScreenBase<ReceiveQRCodeSheetElement> {
     private lazy var qrCodeImage = image(.qrCodeImage)
     private lazy var addressHeader = staticText(.addressHeader)
     private lazy var addressText = button(.addressText)
+    private lazy var copyButton = button(.copyButton)
+    private lazy var shareButton = button(.shareButton)
 
     @discardableResult
     func waitForDisplay() -> Self {
@@ -53,6 +55,30 @@ final class ReceiveQRCodeSheet: ScreenBase<ReceiveQRCodeSheetElement> {
         }
     }
 
+    @discardableResult
+    func verifyDisplayedAddress(_ expected: String) -> Self {
+        XCTContext.runActivity(named: "Verify the QR sheet shows address '\(expected)'") { _ in
+            XCTAssertEqual(readDisplayedAddress(), expected, "QR sheet should show the expected address")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyCopyAndShareButtonsDisplayed() -> Self {
+        XCTContext.runActivity(named: "Verify Copy and Share buttons are displayed") { _ in
+            waitAndAssertTrue(copyButton, "Copy button should be displayed")
+            waitAndAssertTrue(shareButton, "Share button should be displayed")
+            return self
+        }
+    }
+
+    func tapShare() -> ShareSheet {
+        XCTContext.runActivity(named: "Tap Share button on QR code sheet") { _ in
+            shareButton.waitAndTap()
+            return ShareSheet(app)
+        }
+    }
+
     func tapBack() -> ReceiveTemplatesSheet {
         tapBackButton(to: ReceiveTemplatesSheet.self)
     }
@@ -62,6 +88,8 @@ enum ReceiveQRCodeSheetElement: String, UIElement {
     case qrCodeImage
     case addressHeader
     case addressText
+    case copyButton
+    case shareButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -71,6 +99,10 @@ enum ReceiveQRCodeSheetElement: String, UIElement {
             return QRCodeAccessibilityIdentifiers.addressHeader
         case .addressText:
             return QRCodeAccessibilityIdentifiers.addressText
+        case .copyButton:
+            return QRCodeAccessibilityIdentifiers.copyButton
+        case .shareButton:
+            return QRCodeAccessibilityIdentifiers.shareButton
         }
     }
 }
