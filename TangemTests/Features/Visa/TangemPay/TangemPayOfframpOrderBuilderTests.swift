@@ -108,9 +108,64 @@ struct TangemPayOfframpOrderBuilderTests {
 
         let bankAddress = try #require(details["bank_address"] as? [String: Any])
         #expect(bankAddress["line1"] as? String == "270 Park Ave")
+        #expect(bankAddress["region"] as? String == "NY")
         #expect(bankAddress["postal_code"] as? String == "10017")
         #expect(bankAddress["country_code"] as? String == "US")
         #expect(bankAddress["line2"] == nil)
+    }
+
+    @Test("A selected region is sent as its two-letter code, without the country prefix")
+    func selectedRegion_stripsCountryPrefix() throws {
+        let builder = makeBuilder(recipient: .newBusiness)
+        builder.set(rail: .ach)
+        builder.set(
+            personalDetails: makePersonalDetails(
+                region: TangemPayGeoRegion(code: "US-CA", name: "California", suggested: false),
+                regionText: "California"
+            )
+        )
+        builder.set(bankDetails: makeBankDetails())
+
+        let data = try dataObject(from: builder.buildOrderRequest())
+        let details = try #require(
+            (data["bank_account"] as? [String: Any])?["details"] as? [String: Any]
+        )
+        let beneficiaryAddress = try #require(details["beneficiary_address"] as? [String: Any])
+
+        #expect(beneficiaryAddress["region"] as? String == "CA")
+    }
+
+    @Test("A country without region selection sends the typed region text and its own country code")
+    func unselectedRegion_sendsTypedText() throws {
+        let builder = makeBuilder(recipient: .newBusiness)
+        builder.set(rail: .ach)
+        builder.set(
+            personalDetails: makePersonalDetails(
+                country: TangemPayGeoCountry(
+                    code: "DE",
+                    name: "Germany",
+                    flagUrl: nil,
+                    suggested: false,
+                    hasRegions: false
+                ),
+                region: nil,
+                regionText: "Bavaria"
+            )
+        )
+        builder.set(bankDetails: makeBankDetails())
+
+        let data = try dataObject(from: builder.buildOrderRequest())
+        let details = try #require(
+            (data["bank_account"] as? [String: Any])?["details"] as? [String: Any]
+        )
+
+        let beneficiaryAddress = try #require(details["beneficiary_address"] as? [String: Any])
+        #expect(beneficiaryAddress["region"] as? String == "Bavaria")
+        #expect(beneficiaryAddress["country_code"] as? String == "DE")
+
+        let bankAddress = try #require(details["bank_address"] as? [String: Any])
+        #expect(bankAddress["region"] as? String == "NY")
+        #expect(bankAddress["country_code"] as? String == "US")
     }
 
     @Test(
@@ -196,6 +251,16 @@ struct TangemPayOfframpOrderBuilderTests {
 private extension TangemPayOfframpOrderBuilderTests {
     enum Constants {
         static let tokenContractAddress = "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
+
+        static let country = TangemPayGeoCountry(
+            code: "US",
+            name: "United States of America",
+            flagUrl: nil,
+            suggested: true,
+            hasRegions: true
+        )
+
+        static let region = TangemPayGeoRegion(code: "US-NY", name: "New York", suggested: false)
     }
 
     func dataObject(from request: TangemPayPlaceOrderRequest) throws -> [String: Any] {
@@ -224,7 +289,10 @@ private extension TangemPayOfframpOrderBuilderTests {
 
     func makePersonalDetails(
         name: TangemPayOfframpPersonalDetails.Name = .individual(firstName: "John", lastName: "Doe"),
-        line2: String? = nil
+        line2: String? = nil,
+        country: TangemPayGeoCountry = Constants.country,
+        region: TangemPayGeoRegion? = Constants.region,
+        regionText: String = "New York"
     ) -> TangemPayOfframpPersonalDetails {
         TangemPayOfframpPersonalDetails(
             name: name,
@@ -233,9 +301,10 @@ private extension TangemPayOfframpOrderBuilderTests {
             line1: "123 Main St",
             line2: line2,
             city: "New York",
-            region: "NY",
-            postalCode: "10001",
-            countryCode: "US"
+            country: country,
+            region: region,
+            regionText: regionText,
+            postalCode: "10001"
         )
     }
 
@@ -244,7 +313,7 @@ private extension TangemPayOfframpOrderBuilderTests {
             name: "Chase Bank",
             line1: "270 Park Ave",
             city: "New York",
-            region: "NY",
+            region: Constants.region,
             postalCode: "10017"
         )
     }
