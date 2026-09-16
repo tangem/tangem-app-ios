@@ -10,9 +10,11 @@ import Foundation
 import BlockchainSdk
 
 struct JointAccountOperationsServiceMock: JointAccountOperationsService {
-    func createOperation(transaction: BSDKTransaction, in walletModel: any WalletModel) async throws {}
+    func createOperation(transaction: BSDKTransaction, in wallet: JointAccountWallet) async throws -> JointAccountOperation {
+        throw CancellationError()
+    }
 
-    func signOperation(operation: JointAccountPendingOperation) async throws {}
+    func signOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet) async throws {}
 
-    func rejectOperation(operation: JointAccountPendingOperation) async throws {}
+    func rejectOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet) async throws {}
 }

@@ -82,4 +82,55 @@ extension CommonJointAccountsPendingOperationsPersistentStorage: JointAccountsPe
             try unsafeSave(records)
         }
     }
+
+    func appendNewOrUpdateExisting(_ operation: JointAccountOperation, forCryptoAccountId cryptoAccountId: String) throws {
+        try edit(operationsForCryptoAccountId: cryptoAccountId) { operations in
+            // Updated in place, so that the order the listing reported survives an answer to one of them
+            if let index = operations.firstIndex(where: { $0.id == operation.id }) {
+                operations[index] = operation
+            } else {
+                operations.append(operation)
+            }
+        }
+    }
+
+    func remove(operationWithId operationId: String, forCryptoAccountId cryptoAccountId: String) throws {
+        try edit(operationsForCryptoAccountId: cryptoAccountId) { operations in
+            operations.removeAll { $0.id == operationId }
+        }
+    }
+}
+
+// MARK: - Private
+
+private extension CommonJointAccountsPendingOperationsPersistentStorage {
+    /// - Note: An account left with no operations keeps no record, the way a listing reporting none writes none.
+    func edit(operationsForCryptoAccountId cryptoAccountId: String, _ edit: (inout [JointAccountOperation]) -> Void) throws {
+        try workingQueue.sync(flags: .barrier) {
+            let currentRecords = unsafeFetch()
+            let index = currentRecords.firstIndex(by: cryptoAccountId)
+
+            var operations = index.map { currentRecords[$0].operations } ?? []
+            edit(&operations)
+
+            var editedRecords = currentRecords
+
+            switch (index, operations.isEmpty) {
+            case (let index?, true):
+                editedRecords.remove(at: index)
+            case (let index?, false):
+                editedRecords[index] = StoredJointAccountPendingOperations(cryptoAccountId: cryptoAccountId, operations: operations)
+            case (nil, true):
+                return
+            case (nil, false):
+                editedRecords.append(StoredJointAccountPendingOperations(cryptoAccountId: cryptoAccountId, operations: operations))
+            }
+
+            guard editedRecords != currentRecords else {
+                return
+            }
+
+            try unsafeSave(editedRecords)
+        }
+    }
 }
