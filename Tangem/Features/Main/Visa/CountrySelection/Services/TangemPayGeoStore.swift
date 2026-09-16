@@ -36,7 +36,7 @@ final class TangemPayGeoStore {
     }
 
     func loadCountries() {
-        guard countriesTask == nil else { return }
+        guard countriesTask == nil || countriesSubject.value.isFailure else { return }
 
         reloadCountries()
     }
@@ -59,7 +59,9 @@ final class TangemPayGeoStore {
     }
 
     func loadRegions(countryCode: String) {
-        guard regionsTasks[countryCode] == nil else { return }
+        let isFailed = regionsSubject.value[countryCode]?.isFailure ?? false
+
+        guard regionsTasks[countryCode] == nil || isFailed else { return }
 
         reloadRegions(countryCode: countryCode)
     }

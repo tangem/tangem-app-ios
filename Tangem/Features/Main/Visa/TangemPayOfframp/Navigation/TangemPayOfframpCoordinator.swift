@@ -7,6 +7,7 @@
 //
 
 import Combine
+import SwiftUI
 import TangemFoundation
 import TangemPay
 import TangemUI
@@ -30,9 +31,19 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
 
     private(set) var recentRecipientsStore: TangemPayRecentRecipientsStore?
     private(set) var optionsStore: TangemPayOfframpOptionsStore?
+    private(set) var geoStore: TangemPayGeoStore?
     private(set) var orderBuilder: TangemPayOfframpOrderBuilder?
     private(set) var hasNFCInteraction = false
     @Published private(set) var transferInputViewModel: TransferInputViewModel?
+
+    // MARK: - Geo selection
+
+    @Published var isCountrySelectionPresented = false
+    @Published var isRegionSelectionPresented = false
+
+    private var countrySelectionCompletion: ((TangemPayGeoCountry) -> Void)?
+    private var regionSelectionCompletion: ((TangemPayGeoRegion) -> Void)?
+    private var regionSelectionCountryCode: String?
 
     private var bag: Set<AnyCancellable> = []
 
@@ -65,6 +76,8 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
             }
         )
         self.optionsStore = optionsStore
+
+        geoStore = TangemPayGeoStore(repository: CommonTangemPayGeoRepository())
 
         rootViewModel = WithdrawHubViewModel(
             withdrawFlowResolver: TangemPayWithdrawFlowResolver(
@@ -138,6 +151,18 @@ extension TangemPayOfframpCoordinator {
     }
 }
 
+// MARK: - Route traits
+
+extension TangemPayOfframpCoordinator.Route {
+    var isPersonalDetails: Bool {
+        if case .personalDetails = self {
+            return true
+        }
+
+        return false
+    }
+}
+
 // MARK: - Account tokens
 
 private extension TangemPayOfframpCoordinator {
@@ -163,6 +188,16 @@ private extension TangemPayOfframpCoordinator {
             .sink { coordinator, _ in
                 coordinator.orderBuilder = nil
                 coordinator.transferInputViewModel = nil
+            }
+            .store(in: &bag)
+
+        $path
+            .map { $0.contains(where: \.isPersonalDetails) }
+            .removeDuplicates()
+            .filter { $0 }
+            .withWeakCaptureOf(self)
+            .sink { coordinator, _ in
+                coordinator.geoStore?.loadCountries()
             }
             .store(in: &bag)
     }
@@ -230,6 +265,12 @@ extension TangemPayOfframpCoordinator {
 
     func handle(_ output: PersonalDetailsViewModel.Output, mode: Mode) {
         switch output {
+        case .selectCountry(let completion):
+            presentCountrySelection(completion: completion)
+
+        case .selectRegion(let countryCode, let completion):
+            presentRegionSelection(countryCode: countryCode, completion: completion)
+
         case .continueWizard:
             switch mode {
             case .wizard:
@@ -245,6 +286,9 @@ extension TangemPayOfframpCoordinator {
 
     func handle(_ output: BankDetailsViewModel.Output, mode: Mode) {
         switch output {
+        case .selectRegion(let countryCode, let completion):
+            presentRegionSelection(countryCode: countryCode, completion: completion)
+
         case .continueWizard:
             switch mode {
             case .wizard:
@@ -299,6 +343,88 @@ private extension TangemPayOfframpCoordinator {
         case .personalDetails: .personalDetails(.edit)
         case .bankDetails: .bankDetails(.edit)
         }
+    }
+}
+
+// MARK: - Geo selection
+
+extension TangemPayOfframpCoordinator {
+    @MainActor
+    @ViewBuilder
+    func makeCountrySelectionView() -> some View {
+        if let geoStore {
+            CountrySelectionFactory.makeView(
+                store: geoStore,
+                // [REDACTED_TODO_COMMENT]
+                configuration: GeoSelectionConfiguration(
+                    title: "Country",
+                    suggestedSectionTitle: nil,
+                    allSectionTitle: nil,
+                    showsSuggestedSection: false,
+                    showsBackButton: false
+                ),
+                output: { [weak self] in self?.handle($0) }
+            )
+        }
+    }
+
+    @MainActor
+    @ViewBuilder
+    func makeRegionSelectionView() -> some View {
+        if let geoStore, let regionSelectionCountryCode {
+            RegionSelectionFactory.makeView(
+                store: geoStore,
+                countryCode: regionSelectionCountryCode,
+                // [REDACTED_TODO_COMMENT]
+                configuration: GeoSelectionConfiguration(
+                    title: "Region",
+                    suggestedSectionTitle: nil,
+                    allSectionTitle: nil,
+                    showsSuggestedSection: false,
+                    showsBackButton: false
+                ),
+                output: { [weak self] in self?.handle($0) }
+            )
+        }
+    }
+}
+
+private extension TangemPayOfframpCoordinator {
+    func presentCountrySelection(completion: @escaping (TangemPayGeoCountry) -> Void) {
+        countrySelectionCompletion = completion
+        isCountrySelectionPresented = true
+    }
+
+    func presentRegionSelection(countryCode: String, completion: @escaping (TangemPayGeoRegion) -> Void) {
+        regionSelectionCountryCode = countryCode
+        regionSelectionCompletion = completion
+        isRegionSelectionPresented = true
+    }
+
+    func handle(_ output: CountrySelectionViewModel.Output) {
+        switch output {
+        case .selected(let country):
+            countrySelectionCompletion?(country)
+
+        case .closed:
+            break
+        }
+
+        countrySelectionCompletion = nil
+        isCountrySelectionPresented = false
+    }
+
+    func handle(_ output: RegionSelectionViewModel.Output) {
+        switch output {
+        case .selected(let region):
+            regionSelectionCompletion?(region)
+
+        case .closed:
+            break
+        }
+
+        regionSelectionCompletion = nil
+        isRegionSelectionPresented = false
     }
 }
 
