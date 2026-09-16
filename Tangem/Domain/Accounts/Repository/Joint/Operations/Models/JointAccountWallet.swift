@@ -9,62 +9,88 @@
 import Foundation
 import BlockchainSdk
 
-/// The wallet an operation is made through: the account it belongs to, the token it moves, the manager that reads the
-/// Safe in that network and shapes the inner call, and the key the account signs with there.
-/// - Note: Built by `JointAccountWalletBuilder` alone, off a single wallet model, so the token, the Safe and
-/// the key cannot describe different wallets.
+/// The wallet an operation of a joint account is made through, and what can be done with it.
+/// - Note: Built by `JointAccountWalletBuilder` alone, off a single wallet model, so the token, the Safe and the key
+/// cannot describe different wallets.
 struct JointAccountWallet {
-    let tokenItem: TokenItem
-    let walletPublicKey: Wallet.PublicKey
+    var tokenItem: TokenItem {
+        walletModel.tokenItem
+    }
 
-    /// - Note: Weak because what hands out these operations is the account's own, and an operation that outlived the
-    /// account it belongs to is nothing to act on.
-    private(set) weak var account: (any JointAccountModel)?
-    /// - Note: Weak for the same reason: the manager is the wallet model's, and an operation waiting in a list is not
-    /// what should keep a wallet's manager alive.
-    private(set) weak var safeOperationsService: (any SafeWalletManagerOperationsService)?
+    var publicKey: Wallet.PublicKey {
+        walletModel.publicKey
+    }
 
-    fileprivate init(
-        tokenItem: TokenItem,
-        walletPublicKey: Wallet.PublicKey,
-        account: any JointAccountModel,
-        safeOperationsService: any SafeWalletManagerOperationsService
-    ) {
-        self.tokenItem = tokenItem
-        self.walletPublicKey = walletPublicKey
-        self.account = account
-        self.safeOperationsService = safeOperationsService
+    var safeWalletManagerOperationsService: (any SafeWalletManagerOperationsService)? {
+        walletModel.safeWalletManagerOperationsService
+    }
+
+    var account: (any JointAccountModel)? {
+        walletModel.account as? any JointAccountModel
+    }
+
+    private let walletModel: any WalletModel
+
+    fileprivate init(walletModel: any WalletModel) {
+        self.walletModel = walletModel
+    }
+}
+
+// MARK: - Operations
+
+extension JointAccountWallet {
+    /// Registers the transfer as an operation of the account, with this member's signature already counted.
+    func createOperation(transaction: BSDKTransaction) async throws -> JointAccountOperation {
+        try await operationsService.createOperation(transaction: transaction, in: self)
+    }
+
+    /// Counts this member's signature towards the threshold.
+    func sign(_ operation: JointAccountOperation) async throws {
+        try await operationsService.signOperation(operation, in: self)
+    }
+
+    /// Declines the operation, which the initiator's own answer ends outright.
+    func reject(_ operation: JointAccountOperation) async throws {
+        try await operationsService.rejectOperation(operation, in: self)
+    }
+
+    /// Taken from the account rather than kept, so that a wallet handed out long ago acts through the account as it
+    /// stands now.
+    private var operationsService: JointAccountOperationsService {
+        get throws {
+            guard let account else {
+                throw JointOperationError.accountUnavailable
+            }
+
+            return account.jointAccountOperationsService
+        }
     }
 }
 
 // MARK: - Equatable protocol conformance
 
 extension JointAccountWallet: Equatable {
+    /// By the wallet it stands for, which is what an operation is made through.
     static func == (lhs: JointAccountWallet, rhs: JointAccountWallet) -> Bool {
-        lhs.tokenItem == rhs.tokenItem
+        lhs.walletModel.id == rhs.walletModel.id
     }
 }
 
 // MARK: - Builder
 
 struct JointAccountWalletBuilder {
-    /// - Throws: `Error.notJointAccount` for a wallet of one of the wallet's own accounts, `Error.safeUnavailable` for
-    /// one whose network has no Safe to operate.
+    /// - Throws: `Error.notJointAccount` for a wallet of one of the wallet's own accounts, `Error.safeUnavailable`
+    /// for one whose network has no Safe — an operation through either is one nobody could act on.
     func build(walletModel: any WalletModel) throws(Error) -> JointAccountWallet {
-        guard let account = walletModel.account as? any JointAccountModel else {
+        guard walletModel.account is any JointAccountModel else {
             throw .notJointAccount
         }
 
-        guard let safeOperationsService = walletModel.safeWalletManagerOperationsService else {
+        guard walletModel.safeWalletManagerOperationsService != nil else {
             throw .safeUnavailable
         }
 
-        return JointAccountWallet(
-            tokenItem: walletModel.tokenItem,
-            walletPublicKey: walletModel.publicKey,
-            account: account,
-            safeOperationsService: safeOperationsService
-        )
+        return JointAccountWallet(walletModel: walletModel)
     }
 }
 

@@ -22,6 +22,37 @@ extension JointAccountsNetworkMapper {
             signature: blob.signature.hexString.addHexPrefix()
         )
     }
+
+    func mapToRequest(from request: JointAccountOperationRequest) throws -> JointAccountsDTO.Request.CreateOperation {
+        try JointAccountsDTO.Request.CreateOperation(
+            safeAddress: request.safeAddress,
+            chainId: request.chainId,
+            safeTx: mapToSafeTx(from: request.safeTransaction),
+            deadline: nil,
+            signature: request.signature.hexString.addHexPrefix()
+        )
+    }
+
+    func mapToRequest(from signature: Data) -> JointAccountsDTO.Request.SignOperation {
+        JointAccountsDTO.Request.SignOperation(signature: signature.hexString.addHexPrefix())
+    }
+
+    /// The transaction worded as the contract speaks it: `uint256` values as decimal strings, the calldata as lowercase
+    /// hex. The rejection payload is signed over this very wording, so it is written here and nowhere else.
+    func mapToSafeTx(from safeTransaction: SafeTransaction) throws -> JointAccountsDTO.SafeTx {
+        try JointAccountsDTO.SafeTx(
+            to: safeTransaction.to,
+            value: safeTransaction.value.description,
+            data: safeTransaction.data.hexString.lowercased().addHexPrefix(),
+            operation: operation(safeTransaction.operation),
+            safeTxGas: safeTransaction.safeTxGas.description,
+            baseGas: safeTransaction.baseGas.description,
+            gasPrice: safeTransaction.gasPrice.description,
+            gasToken: safeTransaction.gasToken,
+            refundReceiver: safeTransaction.refundReceiver,
+            nonce: String(safeTransaction.nonce)
+        )
+    }
 }
 
 // MARK: - Responses
@@ -70,7 +101,7 @@ extension JointAccountsNetworkMapper {
     }
 
     func mapToOperation(from dto: JointAccountsDTO.Response.Operation) throws -> JointAccountOperation {
-        let signatures = dto.signatures.map(mapToSignature(from:))
+        let signatures = dto.votes?.map(mapToSignature(from:)) ?? []
         let safeTransaction = try mapToSafeTransaction(from: dto.safeTx)
         let status = mapStatus(from: dto.status)
 
@@ -84,8 +115,8 @@ extension JointAccountsNetworkMapper {
         )
     }
 
-    func mapToSignature(from dto: JointAccountsDTO.Response.Operation.Signature) -> JointAccountOperation.Signature {
-        JointAccountOperation.Signature(address: dto.address, state: mapSignatureState(from: dto.state), at: dto.at)
+    func mapToSignature(from dto: JointAccountsDTO.Response.Operation.Vote) -> JointAccountOperation.Signature {
+        JointAccountOperation.Signature(address: dto.address, state: mapSignatureState(from: dto.vote), at: dto.votedAt)
     }
 
     func mapToSafeTransaction(from dto: JointAccountsDTO.SafeTx) throws -> SafeTransaction {
@@ -94,18 +125,19 @@ extension JointAccountsNetworkMapper {
         let baseGas = try bigUInt(dto.baseGas, field: "baseGas")
         let gasPrice = try bigUInt(dto.gasPrice, field: "gasPrice")
         let data = try callData(dto.data, field: "data")
+        let nonce = try int(dto.nonce, field: "nonce")
 
         return SafeTransaction(
             to: dto.to,
             value: value,
             data: data,
-            operation: dto.operation,
+            operation: dto.operation.rawValue,
             safeTxGas: safeTxGas,
             baseGas: baseGas,
             gasPrice: gasPrice,
             gasToken: dto.gasToken,
             refundReceiver: dto.refundReceiver,
-            nonce: dto.nonce
+            nonce: nonce
         )
     }
 }
@@ -144,10 +176,9 @@ private extension JointAccountsNetworkMapper {
         }
     }
 
-    func mapSignatureState(from state: JointAccountsDTO.Response.Operation.Signature.State?) -> JointAccountOperation.Signature.State {
-        switch state {
-        case .signed: .signed
-        case .declined: .declined
+    func mapSignatureState(from answer: JointAccountsDTO.Response.Operation.Vote.Answer?) -> JointAccountOperation.Signature.State {
+        switch answer {
+        case .approve: .signed
         case .none: .unknown
         }
     }
@@ -170,6 +201,25 @@ private extension JointAccountsNetworkMapper {
 
         return value
     }
+
+    /// - Note: Every figure the contract speaks in is a `uint256`, so a negative one is as malformed as a word: it
+    /// would reach the EIP-712 digest, where a `uint256` below zero is not an error but a trap.
+    func int(_ string: String, field: String) throws -> Int {
+        guard let value = Int(string), value >= 0 else {
+            throw JointAccountsNetworkMapperError.malformedOperation(field: field)
+        }
+
+        return value
+    }
+
+    /// The Safe transaction keeps the kind as the contract's number; the endpoint is only told the two it knows.
+    func operation(_ value: Int) throws -> JointAccountsDTO.SafeTx.Operation {
+        guard let operation = JointAccountsDTO.SafeTx.Operation(rawValue: value) else {
+            throw JointAccountsNetworkMapperError.malformedOperation(field: "operation")
+        }
+
+        return operation
+    }
 }
 
 // MARK: - Error
@@ -178,7 +228,7 @@ enum JointAccountsNetworkMapperError: Error, Equatable {
     /// An activated account is operated at its address, so an answer naming the one without the other names
     /// nothing the app could show or spend from.
     case activeAccountWithoutAddress
-    /// A gas or value figure of an operation that is not a base-10 integer cannot be hashed, so the operation could
-    /// be neither signed nor shown.
+    /// A figure of an operation that is not a base-10 integer cannot be hashed, so the operation could be neither
+    /// signed nor shown.
     case malformedOperation(field: String)
 }

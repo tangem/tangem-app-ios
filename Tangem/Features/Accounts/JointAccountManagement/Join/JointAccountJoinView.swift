@@ -239,6 +239,18 @@ private struct JointAccountsNetworkServicePreviewStub: JointAccountsNetworkServi
     func activateJointAccount(blob: JointAccountActivationBlob) async throws -> RemoteJointAccount {
         throw CancellationError()
     }
+
+    func createOperation(_ request: JointAccountOperationRequest) async throws -> JointAccountOperation {
+        throw CancellationError()
+    }
+
+    func signOperation(id: String, signature: Data) async throws -> JointAccountOperation {
+        throw CancellationError()
+    }
+
+    func rejectOperation(id: String, blob: JointAccountOperationRejectionBlob) async throws -> JointAccountOperation? {
+        throw CancellationError()
+    }
 }
 
 #Preview {
