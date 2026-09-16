@@ -11,24 +11,41 @@ import TangemAssets
 import TangemUI
 
 extension View {
-    func offrampBottomBar(@ViewBuilder content: () -> some View) -> some View {
-        modifier(OfframpBottomBarViewModifier(barContent: content()))
+    func offrampBottomBar(
+        pinnedBehindKeyboard: Bool = false,
+        @ViewBuilder content: () -> some View
+    ) -> some View {
+        modifier(
+            OfframpBottomBarViewModifier(
+                pinnedBehindKeyboard: pinnedBehindKeyboard,
+                barContent: content()
+            )
+        )
     }
 }
 
 struct OfframpBottomBarViewModifier<BarContent: View>: ViewModifier {
+    let pinnedBehindKeyboard: Bool
     let barContent: BarContent
+
+    @State private var keyboardHeight: CGFloat = .zero
 
     @ViewBuilder
     func body(content: Content) -> some View {
         if #available(iOS 26.0, *) {
-            content.safeAreaBar(edge: .bottom, spacing: .zero) { bar }
+            content
+                .safeAreaBar(edge: .bottom, spacing: .zero) { pinnedBar { bar } }
+                .keyboardHeight(bindTo: $keyboardHeight)
         } else {
-            content.safeAreaInset(edge: .bottom, spacing: .zero) {
-                bar.background(alignment: .bottom) {
-                    BottomFadeWithBlur(backgroundColor: DesignSystem.Color.bgPrimary)
+            content
+                .safeAreaInset(edge: .bottom, spacing: .zero) {
+                    pinnedBar {
+                        bar.background(alignment: .bottom) {
+                            BottomFadeWithBlur(backgroundColor: DesignSystem.Color.bgPrimary)
+                        }
+                    }
                 }
-            }
+                .keyboardHeight(bindTo: $keyboardHeight)
         }
     }
 
@@ -36,6 +53,16 @@ struct OfframpBottomBarViewModifier<BarContent: View>: ViewModifier {
         barContent
             .padding(.vertical, OfframpBottomBarMetrics.verticalPadding)
             .padding(.horizontal, OfframpBottomBarMetrics.horizontalPadding)
+    }
+
+    private func pinnedBar(@ViewBuilder content: () -> some View) -> some View {
+        content()
+            .offset(y: keyboardOffset)
+            .animation(.keyboard, value: keyboardOffset)
+    }
+
+    private var keyboardOffset: CGFloat {
+        pinnedBehindKeyboard ? keyboardHeight : .zero
     }
 }
 

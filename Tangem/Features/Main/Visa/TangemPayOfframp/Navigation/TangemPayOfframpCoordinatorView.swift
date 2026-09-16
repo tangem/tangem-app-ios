@@ -66,9 +66,10 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
             }
 
         case .personalDetails(let mode):
-            if let orderBuilder = coordinator.orderBuilder {
+            if let orderBuilder = coordinator.orderBuilder, let store = coordinator.recentRecipientsStore {
                 PersonalDetailsFactory.makeView(
                     orderBuilder: orderBuilder,
+                    recentRecipientsStore: store,
                     output: { [weak coordinator] in coordinator?.handle($0, mode: mode) }
                 )
             }

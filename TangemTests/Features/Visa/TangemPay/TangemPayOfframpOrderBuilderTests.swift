@@ -238,11 +238,62 @@ struct TangemPayOfframpOrderBuilderTests {
         #expect(builder.personalDetails == nil)
         #expect(builder.bankDetails == nil)
         #expect(builder.isThirdParty == nil)
+        #expect(builder.accountType == nil)
 
         let data = try dataObject(from: builder.buildOrderRequest())
 
         #expect(data["bank_account_id"] as? String == "pa-2")
         #expect(data["bank_account"] == nil)
+    }
+
+    @Test("Picking a saved account keeps the amount, token and rail entered before")
+    func selectSaved_keepsTransferInput() throws {
+        let builder = makeBuilder(recipient: .newIndividual)
+        builder.set(amount: Decimal(string: "18.02")!)
+        builder.set(rail: .wire)
+        builder.set(isThirdParty: false)
+
+        builder.selectSaved(bankAccountId: "pa-3")
+
+        #expect(builder.recipient == .saved(bankAccountId: "pa-3"))
+        #expect(builder.amount == Decimal(string: "18.02")!)
+        #expect(builder.rail == .wire)
+
+        let data = try dataObject(from: builder.buildOrderRequest())
+
+        #expect(data["amount_in_cents"] as? Int == 1802)
+        #expect(data["chain_id"] as? Int == 137)
+        #expect(data["token_contract_address"] as? String == Constants.tokenContractAddress)
+    }
+
+    @Test("Picking a saved account in the business flow drops the business third party flag")
+    func selectSaved_dropsBusinessThirdParty() throws {
+        let builder = makeBuilder(recipient: .newBusiness)
+        builder.set(rail: .ach)
+        builder.set(personalDetails: makePersonalDetails(name: .business(name: "Acme Inc")))
+        builder.set(bankDetails: makeBankDetails())
+
+        builder.selectSaved(bankAccountId: "pa-4")
+
+        #expect(builder.isThirdParty == nil)
+
+        let data = try dataObject(from: builder.buildOrderRequest())
+
+        #expect(data["bank_account_id"] as? String == "pa-4")
+        #expect(data["bank_account"] == nil)
+    }
+
+    @Test("Picking another saved account replaces the previous one")
+    func selectSaved_replacesPreviousSavedAccount() throws {
+        let builder = makeBuilder(recipient: .saved(bankAccountId: "pa-1"))
+
+        builder.selectSaved(bankAccountId: "pa-5")
+
+        #expect(builder.recipient == .saved(bankAccountId: "pa-5"))
+
+        let data = try dataObject(from: builder.buildOrderRequest())
+
+        #expect(data["bank_account_id"] as? String == "pa-5")
     }
 }
 

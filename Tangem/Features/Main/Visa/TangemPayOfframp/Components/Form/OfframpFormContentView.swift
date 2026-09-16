@@ -10,21 +10,20 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
-import TangemUIUtils
 
 struct OfframpFormContentView: View {
     @Binding var fields: [OfframpFormField]
 
     let focused: FocusState<OfframpFormField.ID?>.Binding
     let state: StateModel
+    var suggestions: Suggestions?
     let action: (Action) -> Void
 
     @State private var keyboardHeight: CGFloat = .zero
-    @State private var bottomSafeAreaInset: CGFloat = .zero
 
     var body: some View {
         form
-            .offrampBottomBar { continueButton }
+            .offrampBottomBar(pinnedBehindKeyboard: true) { continueButton }
             .keyboardToolbar {
                 OfframpFormKeyboardToolbar(
                     hasFieldBefore: state.hasFieldBefore,
@@ -32,9 +31,7 @@ struct OfframpFormContentView: View {
                     action: handle
                 )
             }
-            .ignoresSafeArea(.keyboard)
             .keyboardHeight(bindTo: $keyboardHeight)
-            .readGeometry(\.safeAreaInsets.bottom, bindTo: $bottomSafeAreaInset)
     }
 }
 
@@ -42,48 +39,79 @@ struct OfframpFormContentView: View {
 
 private extension OfframpFormContentView {
     var form: some View {
-        ScrollViewReader { proxy in
-            ScrollView {
+        ScrollView {
+            VStack(spacing: .zero) {
+                fieldRows(fields[..<suggestionsSplitIndex])
+
                 VStack(spacing: .zero) {
-                    ForEach($fields) { $field in
-                        OfframpFormFieldView(field: $field, focused: focused)
-                            .id(field.id)
-                            .onChange(of: field.text) { _ in
-                                action(.fieldChanged(field.id))
-                            }
+                    fieldRows(fields[suggestionsSplitIndex...])
+                }
+                .opacity(isShowingSuggestions ? .zero : 1)
+                .allowsHitTesting(!isShowingSuggestions)
+                .accessibilityHidden(isShowingSuggestions)
+                .overlay(alignment: .top) {
+                    if isShowingSuggestions, let suggestions {
+                        OfframpAccountSuggestionsView(
+                            suggestions: suggestions.items,
+                            onSelect: suggestions.onSelect
+                        )
+                        .transition(.opacity)
                     }
                 }
-                .padding(.horizontal, Constants.horizontalPadding)
-                .padding(.top, Constants.topPadding)
             }
-            .scrollIndicators(.hidden)
-            .scrollDismissesKeyboard(.interactively)
-            .safeAreaInset(edge: .bottom, spacing: .zero) {
-                Color.clear.frame(height: bottomClearance)
-            }
-            .onChange(of: focused.wrappedValue) { id in
-                scroll(to: id, using: proxy)
-            }
-            .onChange(of: bottomClearance) { _ in
-                scroll(to: focused.wrappedValue, using: proxy)
-            }
+            .animation(.suggestions, value: isShowingSuggestions)
+            .padding(.horizontal, Constants.horizontalPadding)
+            .padding(.top, Constants.topPadding)
+        }
+        .scrollIndicators(.hidden)
+        .scrollDismissesKeyboard(.interactively)
+        .safeAreaInset(edge: .bottom, spacing: .zero) {
+            Color.clear.frame(height: focusedFieldClearance)
+        }
+        .animation(.keyboard, value: focusedFieldClearance)
+    }
+
+    func fieldRows(_ rows: ArraySlice<OfframpFormField>) -> some View {
+        ForEach(rows) { field in
+            OfframpFormFieldView(field: binding(for: field), focused: focused)
+                .onChange(of: field.text) { _ in
+                    action(.fieldChanged(field.id))
+                }
         }
     }
 
-    var bottomClearance: CGFloat {
+    func binding(for field: OfframpFormField) -> Binding<OfframpFormField> {
+        Binding(
+            get: { fields.first { $0.id == field.id } ?? field },
+            set: { updated in
+                guard let index = fields.firstIndex(where: { $0.id == field.id }) else { return }
+
+                fields[index] = updated
+            }
+        )
+    }
+
+    var isShowingSuggestions: Bool {
+        suggestions.map { !$0.items.isEmpty } ?? false
+    }
+
+    var suggestionsSplitIndex: Int {
+        guard
+            let fieldID = suggestions?.fieldID,
+            let index = fields.firstIndex(where: { $0.id == fieldID })
+        else {
+            return fields.endIndex
+        }
+
+        return fields.index(after: index)
+    }
+
+    var focusedFieldClearance: CGFloat {
         guard keyboardHeight > .zero else {
-            return Constants.focusedFieldClearance
+            return .zero
         }
 
-        return max(.zero, keyboardHeight - bottomSafeAreaInset) + OfframpFormKeyboardToolbar.height
-    }
-
-    func scroll(to id: OfframpFormField.ID?, using proxy: ScrollViewProxy) {
-        guard let id else { return }
-
-        withAnimation(.easeInOut) {
-            proxy.scrollTo(id, anchor: .center)
-        }
+        return OfframpFormKeyboardToolbar.height + Constants.focusedFieldMargin
     }
 
     var continueButton: some View {
@@ -110,13 +138,19 @@ private extension OfframpFormContentView {
     }
 }
 
+// MARK: - Animations
+
+private extension Animation {
+    static let suggestions = Animation.curve(.easeInOutRefined, duration: 0.2)
+}
+
 // MARK: - Constants
 
 private extension OfframpFormContentView {
     enum Constants {
         static let horizontalPadding: CGFloat = 24
         static let topPadding: CGFloat = 12
-        static let focusedFieldClearance: CGFloat = 16
+        static let focusedFieldMargin: CGFloat = 16
     }
 }
 
@@ -127,6 +161,16 @@ extension OfframpFormContentView {
         let isContinueEnabled: Bool
         let hasFieldBefore: Bool
         let hasFieldAfter: Bool
+    }
+}
+
+// MARK: - Suggestions
+
+extension OfframpFormContentView {
+    struct Suggestions {
+        let fieldID: OfframpFormField.ID
+        let items: [OfframpAccountSuggestion]
+        let onSelect: (String) -> Void
     }
 }
 
@@ -145,7 +189,7 @@ extension OfframpFormContentView {
 // MARK: - Previews
 
 @available(iOS 17.0, *)
-#Preview {
+#Preview("Bank Details") {
     @Previewable @State var fields: [OfframpFormField] = [
         OfframpFormField(id: .bankName, title: "Bank name", placeholder: "Eg., Goldman Sachs"),
         OfframpFormField(id: .bankRegion, title: "Bank region / state", placeholder: "Not selected"),
@@ -164,6 +208,51 @@ extension OfframpFormContentView {
             hasFieldBefore: focused != nil && focused != fields.first?.id,
             hasFieldAfter: focused != nil && focused != fields.last?.id
         ),
+        action: { _ in }
+    )
+    .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+}
+
+@available(iOS 17.0, *)
+#Preview("Suggestions") {
+    @Previewable @State var fields: [OfframpFormField] = [
+        OfframpFormField(id: .accountNumber, title: "Account number", placeholder: "000000000000", text: "082"),
+        OfframpFormField(id: .routingNumber, title: "Routing number", placeholder: "000000000000"),
+        OfframpFormField(id: .firstName, title: "First name", placeholder: "John"),
+        OfframpFormField(id: .lastName, title: "Last name", placeholder: "Doe"),
+        OfframpFormField(id: .city, title: "City", placeholder: "Eg., Night City"),
+    ]
+
+    @Previewable @FocusState var focused: OfframpFormField.ID?
+
+    let suggestions = OfframpFormContentView.Suggestions(
+        fieldID: .accountNumber,
+        items: [
+            OfframpAccountSuggestion(
+                id: "hanako",
+                matchedPrefix: "082",
+                accountNumberSuffix: "5200008214",
+                name: "Hanako A."
+            ),
+            OfframpAccountSuggestion(
+                id: "saburo",
+                matchedPrefix: "082",
+                accountNumberSuffix: "5200008215",
+                name: "Saburo A."
+            ),
+        ],
+        onSelect: { _ in }
+    )
+
+    OfframpFormContentView(
+        fields: $fields,
+        focused: $focused,
+        state: OfframpFormContentView.StateModel(
+            isContinueEnabled: false,
+            hasFieldBefore: false,
+            hasFieldAfter: true
+        ),
+        suggestions: suggestions,
         action: { _ in }
     )
     .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
