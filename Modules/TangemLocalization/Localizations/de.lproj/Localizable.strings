@@ -279,6 +279,7 @@
 "common_crypto_account" = "Krypto-Konto";
 "common_custom" = "Eigen";
 "common_day" = "Tag";
+"common_decline" = "Decline";
 "common_delete" = "Entfernen";
 "common_disable" = "Deaktivieren";
 "common_disabled" = "Deaktiviert";
@@ -453,6 +454,7 @@
 "common_with" = "mit";
 "common_withdrawing" = "Überweisen";
 "common_yes" = "Ja";
+"common_yield_mode_inline" = "Yield mode";
 "common_yield_mode" = "Ertragsmodus";
 "contract_address_copied_message" = "Vertragsadresse kopiert!";
 "currency_subtitle_expanded" = "Verfügbare Netzwerke";
@@ -992,9 +994,13 @@
 "joint_operation_completed_subtitle" = "It has already been executed or cancelled by another participant";
 "joint_operation_completed_title" = "Operation completed";
 "joint_operation_created_at" = "Erstellt am %@";
+"joint_operation_decline_alert_message" = "Other members will see your decision. You won't be able to sign it later.";
+"joint_operation_decline_alert_title" = "Decline this transaction?";
 "joint_operation_declined_at" = "Abgelehnt bei %@";
 "joint_operation_declined_footer" = "Sie haben abgelehnt. Andere können weiterhin %1$@ unter %2$@";
 "joint_operation_declined" = "Abgelehnt";
+"joint_operation_delete_alert_message" = "The transaction can't reach the required signatures without you. It will be rejected for all members.";
+"joint_operation_delete_alert_title" = "Delete this transaction?";
 "joint_operation_malicious_subtitle" = "This transaction was flagged as malicious. Signing is blocked";
 "joint_operation_malicious_title" = "Dangerous transaction";
 "joint_operation_signatures_progress" = "Unterschriften %1$@ von %2$@";
@@ -1522,6 +1528,7 @@
 "prediction_place_to_win" = "So gewinnt man: %@";
 "prediction_place_you_vote" = "Sie stimmen ab";
 "prediction_place_you_will_pay" = "Sie werden bezahlen";
+"prediction_position_result_balance_note" = "Funds will be added to your balance";
 "prediction_positions_active" = "Aktiv";
 "prediction_positions_closed" = "Geschlossen";
 "prediction_positions_closure_date" = "Anmeldeschluss";

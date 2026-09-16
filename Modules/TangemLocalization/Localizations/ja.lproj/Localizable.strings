@@ -279,6 +279,7 @@
 "common_crypto_account" = "Crypto account";
 "common_custom" = "設定";
 "common_day" = "日";
+"common_decline" = "Decline";
 "common_delete" = "削除";
 "common_disable" = "無効にする";
 "common_disabled" = "無効";
@@ -453,6 +454,7 @@
 "common_with" = "で";
 "common_withdrawing" = "引き出し中";
 "common_yes" = "はい";
+"common_yield_mode_inline" = "Yield mode";
 "common_yield_mode" = "利息モード";
 "contract_address_copied_message" = "コントラクトアドレスをコピーしました!";
 "currency_subtitle_expanded" = "利用可能なネットワーク";
@@ -992,9 +994,13 @@
 "joint_operation_completed_subtitle" = "It has already been executed or cancelled by another participant";
 "joint_operation_completed_title" = "Operation completed";
 "joint_operation_created_at" = "Created at %@";
+"joint_operation_decline_alert_message" = "Other members will see your decision. You won't be able to sign it later.";
+"joint_operation_decline_alert_title" = "Decline this transaction?";
 "joint_operation_declined_at" = "Declined at %@";
 "joint_operation_declined_footer" = "You declined. Others can still reach %1$@ of %2$@";
 "joint_operation_declined" = "Declined";
+"joint_operation_delete_alert_message" = "The transaction can't reach the required signatures without you. It will be rejected for all members.";
+"joint_operation_delete_alert_title" = "Delete this transaction?";
 "joint_operation_malicious_subtitle" = "This transaction was flagged as malicious. Signing is blocked";
 "joint_operation_malicious_title" = "Dangerous transaction";
 "joint_operation_signatures_progress" = "Signatures %1$@ of %2$@";
@@ -1522,6 +1528,7 @@
 "prediction_place_to_win" = "To Win: %@";
 "prediction_place_you_vote" = "You vote";
 "prediction_place_you_will_pay" = "You will pay";
+"prediction_position_result_balance_note" = "Funds will be added to your balance";
 "prediction_positions_active" = "Active";
 "prediction_positions_closed" = "Closed";
 "prediction_positions_closure_date" = "Closure Date";
