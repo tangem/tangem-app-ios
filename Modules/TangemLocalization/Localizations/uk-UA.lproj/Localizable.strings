@@ -643,8 +643,11 @@
 "fee_selector_choose_token_title" = "Обрати токен";
 "feed_market_and_news" = "Ринок та Новини";
 "feed_promo_earn_active_description" = "Отримуйте до %1$@ APY на %2$@";
+"feed_promo_earn_active_title" = "Put more to work";
 "feed_promo_earn_description" = "Змусьте криптовалюту працювати й отримуйте до %1$@ APY";
 "feed_promo_earn_title" = "Почніть заробляти";
+"feed_promo_load_error_action" = "Tap to reload";
+"feed_promo_load_error_title" = "Suggestions didn't load";
 "feed_promo_referral_description" = "Отримуйте %1$@ за кожного друга";
 "feed_promo_referral_title" = "Запрошуйте друзів до Tangem";
 "feed_promo_tangem_pay_description" = "Отримуйте кешбек за щоденні покупки";
