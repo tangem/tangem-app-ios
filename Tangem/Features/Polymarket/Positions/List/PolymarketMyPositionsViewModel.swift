@@ -44,6 +44,7 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
     private var offset = 0
     private var hasNext = false
     private var loadingTask: Task<Void, Never>?
+    private var orderTask: Task<Void, Never>?
 
     init(
         tab: PolymarketPositionsTab,
@@ -55,6 +56,18 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
 
         reload()
+    }
+
+    func orderPlaced(awaiting indexing: Task<Void, Never>?) {
+        orderTask?.cancel()
+
+        orderTask = runTask(in: self) { viewModel in
+            await indexing?.value
+
+            guard !Task.isCancelled else { return }
+
+            viewModel.reload()
+        }
     }
 
     func reload() {
@@ -170,7 +183,11 @@ private extension PolymarketMyPositionsViewModel {
         guard let row = loaded.first(where: { $0.id == id }) else { return }
 
         switch row {
-        case .open(let position): coordinator?.openPositionDetails(position: position)
+        case .open(let position):
+            coordinator?.openPositionDetails(
+                position: position,
+                onOrderPlaced: { [weak self] indexing in self?.orderPlaced(awaiting: indexing) }
+            )
         case .closed(let position): finishedPosition = .make(closedPosition: position)
         }
     }
