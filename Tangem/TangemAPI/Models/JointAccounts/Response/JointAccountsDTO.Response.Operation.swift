@@ -14,20 +14,21 @@ extension JointAccountsDTO.Response {
     struct Operation {
         /// A member's answer; only the members that have answered are listed. The ones yet to answer are worked out
         /// from the account's members, matched by address case-insensitively.
-        struct Signature {
+        struct Vote {
             /// The names matched here are the wire contract. What the answers mean is
             /// `JointAccountOperation.Signature.State`'s to say.
-            enum State: String {
-                case signed
-                case declined
+            /// - Note: The declining answer is not named yet: this version has only ever seen approvals, and a name it
+            /// does not know costs the answer alone — see `init(from:)`.
+            enum Answer: String {
+                case approve
             }
 
             let address: String
             /// Nil for an answer this version has never heard of — see `init(from:)`.
-            let state: State?
+            let vote: Answer?
             /// ISO 8601. Left as it arrived: the shared decoder insists on fractional seconds, which the contract's
             /// examples do without.
-            let at: String
+            let votedAt: String
         }
 
         /// The names matched here are the wire contract. What the stages mean is `JointAccountOperationStatus`'s
@@ -50,7 +51,7 @@ extension JointAccountsDTO.Response {
         let initiator: String
         /// Unix time; swaps expire, plain transfers carry none.
         let deadline: Int?
-        let signatures: [Signature]
+        let votes: [Vote]?
     }
 }
 
@@ -64,7 +65,7 @@ extension JointAccountsDTO.Response.Operation: Decodable {
         case status
         case initiator
         case deadline
-        case signatures
+        case votes
     }
 
     init(from decoder: Decoder) throws {
@@ -78,22 +79,22 @@ extension JointAccountsDTO.Response.Operation: Decodable {
         status = try Status(rawValue: container.decode(String.self, forKey: .status))
         initiator = try container.decode(String.self, forKey: .initiator)
         deadline = try container.decodeIfPresent(Int.self, forKey: .deadline)
-        signatures = try container.decode([Signature].self, forKey: .signatures)
+        votes = try container.decodeIfPresent([Vote].self, forKey: .votes)
     }
 }
 
-extension JointAccountsDTO.Response.Operation.Signature: Decodable {
+extension JointAccountsDTO.Response.Operation.Vote: Decodable {
     private enum CodingKeys: String, CodingKey {
         case address
-        case state
-        case at
+        case vote
+        case votedAt
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         address = try container.decode(String.self, forKey: .address)
-        state = try State(rawValue: container.decode(String.self, forKey: .state))
-        at = try container.decode(String.self, forKey: .at)
+        vote = try Answer(rawValue: container.decode(String.self, forKey: .vote))
+        votedAt = try container.decode(String.self, forKey: .votedAt)
     }
 }

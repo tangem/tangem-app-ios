@@ -32,6 +32,20 @@ struct TransactionDispatcherResultMapper {
         )
     }
 
+    /// A joint account's operation is no transaction yet: it has no hash and no explorer page until the relayer
+    /// executes it, so the id the backend minted stands where the hash goes, and the host is the backend's.
+    func mapResult(_ operation: JointAccountOperation, signer: TangemSignerType?) -> TransactionDispatcherResult {
+        let signerType = signer?.analyticsParameterValue ?? Analytics.ParameterValue.unknown
+        let currentHost = HostAnalyticsFormatterUtil().formattedHost(from: AppEnvironment.current.apiBaseUrl.absoluteString)
+
+        return TransactionDispatcherResult(
+            hash: operation.id,
+            url: nil,
+            signerType: signerType.rawValue,
+            currentHost: currentHost
+        )
+    }
+
     func mapResult(
         _ record: PolymarketWithdrawRecord,
         host: String,

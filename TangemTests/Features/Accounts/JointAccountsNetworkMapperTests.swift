@@ -156,9 +156,9 @@ struct JointAccountsNetworkMapperTests {
         #expect(operation.status == .awaitingSignatures)
         #expect(operation.initiator == "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf")
         #expect(operation.deadline == nil)
-        #expect(operation.safeTx.nonce == 7)
-        #expect(operation.safeTx.operation == 0)
-        #expect(operation.signatures.map(\.state) == [.signed, .declined])
+        #expect(operation.safeTx.nonce == "7")
+        #expect(operation.safeTx.operation == .call)
+        #expect(operation.votes?.map(\.vote) == [.approve, .approve])
     }
 
     @Test("A listing without operations reads the way it did before the endpoint learnt to report them")
@@ -205,7 +205,7 @@ struct JointAccountsNetworkMapperTests {
         #expect(operation.safeTransaction.gasPrice == 1_500_000_000)
         #expect(operation.safeTransaction.data.isEmpty)
         #expect(try SafeInnerCallTypeParser.parse(operation.safeTransaction.innerCall) == .transfer(.coin(destination: "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", value: 1_000_000_000_000_000)))
-        #expect(operation.signatures.map(\.state) == [.signed, .declined])
+        #expect(operation.signatures.map(\.state) == [.signed, .signed])
     }
 
     @Test("An operation of a form this version cannot read keeps its place, with no call to show")
@@ -220,12 +220,19 @@ struct JointAccountsNetworkMapperTests {
         }
     }
 
-    @Test("A gas figure that is not a number refuses the whole listing")
-    func malformedOperationIsRefused() throws {
-        let json = Constants.activeAccountsWithOperationJSON.replacingOccurrences(of: "\"baseGas\": \"118000\"", with: "\"baseGas\": \"lots\"")
+    @Test(
+        "A figure that is not a number refuses the whole listing, the small ones like the big ones",
+        arguments: [
+            ("\"baseGas\": \"118000\"", "\"baseGas\": \"lots\"", "baseGas"),
+            ("\"nonce\": \"7\"", "\"nonce\": \"seven\"", "nonce"),
+            ("\"nonce\": \"7\"", "\"nonce\": \"-1\"", "nonce"),
+        ]
+    )
+    func malformedOperationIsRefused(original: String, malformed: String, field: String) throws {
+        let json = Constants.activeAccountsWithOperationJSON.replacingOccurrences(of: original, with: malformed)
         let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(json)
 
-        #expect(throws: JointAccountsNetworkMapperError.malformedOperation(field: "baseGas")) {
+        #expect(throws: JointAccountsNetworkMapperError.malformedOperation(field: field)) {
             try mapper.mapToJointAccounts(from: response)
         }
     }
@@ -266,7 +273,10 @@ struct JointAccountsNetworkMapperTests {
 
     @Test("A member's answer this version has never heard of costs that answer and nothing else")
     func unknownSignatureStateIsRead() throws {
-        let json = Constants.activeAccountsWithOperationJSON.replacingOccurrences(of: "\"state\": \"declined\"", with: "\"state\": \"revoked\"")
+        let json = Constants.activeAccountsWithOperationJSON.replacingOccurrences(
+            of: "\"address\": \"0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c\", \"vote\": \"approve\"",
+            with: "\"address\": \"0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c\", \"vote\": \"revoked\""
+        )
         let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(json)
 
         let account = try #require(try mapper.mapToJointAccounts(from: response).first)
@@ -284,11 +294,101 @@ struct JointAccountsNetworkMapperTests {
             #expect(try JSONDecoder().decode([JointAccountOperationStatus].self, from: encoded) == [status])
         }
     }
+
+    @Test("A kind of call the contract does not number refuses the whole listing")
+    func unknownOperationKindIsRefused() {
+        let json = Constants.activeAccountsWithOperationJSON.replacingOccurrences(of: "\"operation\": 0", with: "\"operation\": 2")
+
+        #expect(throws: DecodingError.self) {
+            let _: JointAccountsDTO.Response.JointAccounts = try Self.decode(json)
+        }
+    }
+
+    @Test("A Safe transaction is written as the decimal strings the contract speaks in, the calldata lowercase")
+    func safeTransactionIsWrittenTheWayTheContractSpeaks() throws {
+        let dto = try mapper.mapToSafeTx(from: Self.makeSafeTransaction(data: Data([0xA9, 0x05, 0x9C, 0xBB])))
+
+        #expect(dto.to == "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c")
+        #expect(dto.value == "1000000000000000000")
+        #expect(dto.data == "0xa9059cbb")
+        #expect(dto.operation == .call)
+        #expect(dto.safeTxGas == "23520")
+        #expect(dto.baseGas == "100000")
+        #expect(dto.gasPrice == "1575000000")
+        #expect(dto.gasToken == "0x0000000000000000000000000000000000000000")
+        #expect(dto.refundReceiver == "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf")
+        #expect(dto.nonce == "7")
+    }
+
+    @Test("A plain transfer carries its empty calldata as a bare prefix, not as nothing")
+    func emptyCalldataIsWrittenAsPrefix() throws {
+        #expect(try mapper.mapToSafeTx(from: Self.makeSafeTransaction()).data == "0x")
+    }
+
+    @Test("A kind of call the contract does not number is refused rather than sent as a number")
+    func unknownOperationKindIsNotWritten() {
+        let safeTransaction = SafeTransaction(
+            to: "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c",
+            value: 0,
+            data: Data(),
+            operation: 2,
+            safeTxGas: 0,
+            baseGas: 0,
+            gasPrice: 0,
+            gasToken: "0x0000000000000000000000000000000000000000",
+            refundReceiver: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
+            nonce: 0
+        )
+
+        #expect(throws: JointAccountsNetworkMapperError.malformedOperation(field: "operation")) {
+            try mapper.mapToSafeTx(from: safeTransaction)
+        }
+    }
+
+    @Test("Creating an operation names the Safe the signature's domain is built over")
+    func createOperationRequestIsWritten() throws {
+        let request = JointAccountOperationRequest(
+            safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b",
+            chainId: 1,
+            safeTransaction: Self.makeSafeTransaction(),
+            signature: Data([0x01, 0xAB, 0xFF])
+        )
+
+        let dto = try mapper.mapToRequest(from: request)
+
+        #expect(dto.safeAddress == "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b")
+        #expect(dto.chainId == 1)
+        #expect(dto.safeTx.nonce == "7")
+        #expect(dto.deadline == nil)
+        #expect(dto.signature == "0x01ABFF")
+    }
+
+    @Test("Signing an operation sends the answer alone, since the endpoint holds the transaction it is over")
+    func signOperationRequestIsWritten() {
+        let dto = mapper.mapToRequest(from: Data([0x01, 0xAB, 0xFF]))
+
+        #expect(dto.signature == "0x01ABFF")
+    }
 }
 
 // MARK: - Helpers
 
 private extension JointAccountsNetworkMapperTests {
+    static func makeSafeTransaction(data: Data = Data()) -> SafeTransaction {
+        SafeTransaction(
+            to: "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c",
+            value: 1_000_000_000_000_000_000,
+            data: data,
+            operation: 0,
+            safeTxGas: 23520,
+            baseGas: 100_000,
+            gasPrice: 1_575_000_000,
+            gasToken: "0x0000000000000000000000000000000000000000",
+            refundReceiver: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
+            nonce: 7
+        )
+    }
+
     /// Mirrors the decoder `CommonTangemApiService` reads these endpoints with: the joint accounts contract speaks
     /// camelCase, which the snake-case strategy leaves alone for want of an underscore to split on.
     static func decode<T: Decodable>(_ json: String) throws -> T {
@@ -362,14 +462,14 @@ private extension JointAccountsNetworkMapperTests {
                     "gasPrice": "1500000000",
                     "gasToken": "0x0000000000000000000000000000000000000000",
                     "refundReceiver": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
-                    "nonce": 7
+                    "nonce": "7"
                   },
                   "status": "awaiting_signatures",
                   "initiator": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
                   "deadline": null,
-                  "signatures": [
-                    { "address": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", "state": "signed", "at": "2026-09-02T10:15:00Z" },
-                    { "address": "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", "state": "declined", "at": "2026-09-02T10:19:00Z" }
+                  "votes": [
+                    { "address": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", "vote": "approve", "votedAt": "2026-09-02T10:15:00Z" },
+                    { "address": "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", "vote": "approve", "votedAt": "2026-09-02T10:19:00Z" }
                   ]
                 }
               ]

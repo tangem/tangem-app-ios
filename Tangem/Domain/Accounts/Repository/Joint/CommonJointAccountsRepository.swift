@@ -223,6 +223,39 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
 
         try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: account))
     }
+
+    func createOperation(_ request: JointAccountOperationRequest, forCryptoAccountId cryptoAccountId: String) async throws -> JointAccountOperation {
+        guard isJointAccountsAvailable else {
+            throw InternalError.featureUnavailable
+        }
+
+        let operation = try await networkService.createOperation(request)
+        try pendingOperationsPersistentStorage.appendNewOrUpdateExisting(operation, forCryptoAccountId: cryptoAccountId)
+
+        return operation
+    }
+
+    func signOperation(id: String, signature: Data, forCryptoAccountId cryptoAccountId: String) async throws {
+        guard isJointAccountsAvailable else {
+            throw InternalError.featureUnavailable
+        }
+
+        let operation = try await networkService.signOperation(id: id, signature: signature)
+        try pendingOperationsPersistentStorage.appendNewOrUpdateExisting(operation, forCryptoAccountId: cryptoAccountId)
+    }
+
+    func rejectOperation(id: String, blob: JointAccountOperationRejectionBlob, forCryptoAccountId cryptoAccountId: String) async throws {
+        guard isJointAccountsAvailable else {
+            throw InternalError.featureUnavailable
+        }
+
+        guard let operation = try await networkService.rejectOperation(id: id, blob: blob) else {
+            try pendingOperationsPersistentStorage.remove(operationWithId: id, forCryptoAccountId: cryptoAccountId)
+            return
+        }
+
+        try pendingOperationsPersistentStorage.appendNewOrUpdateExisting(operation, forCryptoAccountId: cryptoAccountId)
+    }
 }
 
 // MARK: - Private

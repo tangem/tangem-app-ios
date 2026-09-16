@@ -21,9 +21,9 @@ final class CommonJointAccountPendingOperationsProvider {
     private let derivationIdentity: CryptoAccountDerivationIdentity
     private let jointAccountsRepository: JointAccountsRepository
     private let walletModelsManager: WalletModelsManager
-    private let walletBuilder = JointAccountWalletBuilder()
 
     private let accountId: CryptoAccountModelId
+    private let walletBuilder = JointAccountWalletBuilder()
 
     init(
         userWalletId: UserWalletId,
@@ -43,10 +43,7 @@ final class CommonJointAccountPendingOperationsProvider {
         in records: [StoredJointAccountPendingOperations],
         walletModels: [any WalletModel]
     ) -> [JointAccountPendingOperation] {
-        let cryptoAccountId = accountId.rawValue.hexString
-        let operations = records
-            .filter { $0.cryptoAccountId.caseInsensitiveEquals(to: cryptoAccountId) }
-            .flatMap { $0.operations }
+        let operations = records.first(by: accountId.rawValue.hexString)?.operations ?? []
 
         return operations.compactMap {
             mapToJointAccountPendingOperation(operation: $0, walletModels: walletModels)

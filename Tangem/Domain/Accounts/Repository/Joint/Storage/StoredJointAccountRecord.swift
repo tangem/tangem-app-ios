@@ -18,6 +18,8 @@ extension StoredJointAccount: StoredJointAccountRecord {}
 
 extension StoredJointAccountInvites: StoredJointAccountRecord {}
 
+extension StoredJointAccountPendingOperations: StoredJointAccountRecord {}
+
 extension Collection where Element: StoredJointAccountRecord {
     /// - Note: Matched without regard to case, which is the one rule every reader of these records shares: the
     /// endpoint spells the identifier its own way and the app spells it another.

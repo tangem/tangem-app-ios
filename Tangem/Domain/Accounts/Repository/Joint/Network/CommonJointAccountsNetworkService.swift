@@ -68,4 +68,33 @@ extension CommonJointAccountsNetworkService: JointAccountsNetworkService {
 
         return try mapper.mapToJointAccount(from: response)
     }
+
+    func createOperation(_ request: JointAccountOperationRequest) async throws -> JointAccountOperation {
+        let response = try await tangemApiService.createJointAccountOperation(
+            walletId: userWalletId.stringValue,
+            body: mapper.mapToRequest(from: request)
+        )
+
+        return try mapper.mapToOperation(from: response)
+    }
+
+    func signOperation(id: String, signature: Data) async throws -> JointAccountOperation {
+        let response = try await tangemApiService.signJointAccountOperation(
+            walletId: userWalletId.stringValue,
+            operationId: id,
+            body: mapper.mapToRequest(from: signature)
+        )
+
+        return try mapper.mapToOperation(from: response)
+    }
+
+    func rejectOperation(id: String, blob: JointAccountOperationRejectionBlob) async throws -> JointAccountOperation? {
+        let response = try await tangemApiService.rejectJointAccountOperation(
+            walletId: userWalletId.stringValue,
+            operationId: id,
+            body: mapper.mapToRequest(from: blob)
+        )
+
+        return try response.map(mapper.mapToOperation(from:))
+    }
 }

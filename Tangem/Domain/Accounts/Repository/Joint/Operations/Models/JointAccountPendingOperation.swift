@@ -10,23 +10,45 @@ import Foundation
 import BlockchainSdk
 import TangemFoundation
 
-/// An unfinished operation of the account, with the wallet it is made through.
+/// An unfinished operation of the account, with the wallet it is made through: what a screen shows of it, and what
+/// this member can do about it.
 struct JointAccountPendingOperation: Equatable {
+    var tokenItem: TokenItem { wallet.tokenItem }
+    var amount: Amount? { operationAmount() }
+    var fee: Amount? { operationFee() }
+    var destination: String { innerCallType.destination }
+
     let wallet: JointAccountWallet
     let operation: JointAccountOperation
     let innerCallType: SafeInnerCallType
+
+    init(wallet: JointAccountWallet, operation: JointAccountOperation, innerCallType: SafeInnerCallType) {
+        self.wallet = wallet
+        self.operation = operation
+        self.innerCallType = innerCallType
+    }
 }
 
-// MARK: - Convenience
+// MARK: - Actions
 
 extension JointAccountPendingOperation {
-    var tokenItem: TokenItem {
-        wallet.tokenItem
+    /// Counts this member's signature towards the threshold.
+    func sign() async throws {
+        try await wallet.sign(operation)
     }
 
-    /// What the transfer moves, in the units the token is quoted in; an amount too large to state as a `Decimal` has
-    /// none to show rather than one that understates it.
-    var amount: Amount? {
+    /// Declines the operation, which the initiator's own answer ends outright.
+    func reject() async throws {
+        try await wallet.reject(operation)
+    }
+}
+
+// MARK: - Private
+
+private extension JointAccountPendingOperation {
+    /// - Returns: `nil` for an amount too large to state as a `Decimal`, which is better shown as unknown than
+    /// understated.
+    func operationAmount() -> Amount? {
         guard let value = innerCallType.value.decimal else {
             return nil
         }
@@ -34,13 +56,8 @@ extension JointAccountPendingOperation {
         return Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: value / tokenItem.decimalValue)
     }
 
-    var destination: String {
-        innerCallType.destination
-    }
-
-    /// What the account pays for the network at most, in the coin; a fee in a token is not expected yet, so it has no
-    /// amount to show.
-    var fee: Amount? {
+    /// - Returns: `nil` for a fee in a token, which this version does not quote and so cannot word.
+    func operationFee() -> Amount? {
         let safeTransaction = operation.safeTransaction
 
         guard let value = safeTransaction.fee.decimal else {
@@ -51,10 +68,8 @@ extension JointAccountPendingOperation {
             return Amount(with: tokenItem.blockchain, value: value / tokenItem.blockchain.decimalValue)
         }
 
-        // This version quotes no fee in a token, so an operation paying one was made elsewhere; its fee is left unshown
-        // rather than misstated in the coin
         assertionFailure("A joint account operation paying its fee in a token is not supported yet")
-        JointAccountsLogger.warning("An unfinished operation of a joint account pays its fee in a token, which this version cannot show")
+        JointAccountsLogger.warning("An unfinished operation of a joint account pays its fee in a token")
         return nil
     }
 }

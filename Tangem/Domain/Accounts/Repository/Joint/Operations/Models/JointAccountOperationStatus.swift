@@ -18,4 +18,14 @@ enum JointAccountOperationStatus: String, Hashable, Codable {
     /// One the endpoint learnt to report after this version shipped, costing the operation alone rather than the
     /// whole answer — the backend goes on adding to the set.
     case unknown
+
+    /// Whether the operation still holds its network's slot.
+    /// - Note: A stage this version does not know is not counted as holding it: the one the contract already names —
+    /// `expired` — is a stage an operation is done at.
+    var isInFlight: Bool {
+        switch self {
+        case .awaitingSignatures, .pending: true
+        case .executed, .failed, .unknown: false
+        }
+    }
 }

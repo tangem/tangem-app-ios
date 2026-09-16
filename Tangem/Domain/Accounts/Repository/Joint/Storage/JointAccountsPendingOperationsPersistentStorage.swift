@@ -21,4 +21,9 @@ protocol JointAccountsPendingOperationsPersistentStorage {
     /// - Note: Every account's operations at once, the way the listing reports them: an account gone from the
     /// listing, or one with nothing in flight any more, is gone from here too.
     func replace(with records: [StoredJointAccountPendingOperations]) throws
+
+    func appendNewOrUpdateExisting(_ operation: JointAccountOperation, forCryptoAccountId cryptoAccountId: String) throws
+
+    /// - Note: An account left with no operations keeps no record, the way a listing reporting none writes none.
+    func remove(operationWithId operationId: String, forCryptoAccountId cryptoAccountId: String) throws
 }
