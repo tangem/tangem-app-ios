@@ -643,8 +643,11 @@
 "fee_selector_choose_token_title" = "Token auswählen";
 "feed_market_and_news" = "Markt & Nachrichten";
 "feed_promo_earn_active_description" = "Verdienen Sie bis zu %1$@ APY auf Ihren %2$@";
+"feed_promo_earn_active_title" = "Put more to work";
 "feed_promo_earn_description" = "Setzen Sie Ihre Kryptowährung ein und verdienen Sie bis zu %1$@ APY";
 "feed_promo_earn_title" = "Jetzt Geld verdienen";
+"feed_promo_load_error_action" = "Tap to reload";
+"feed_promo_load_error_title" = "Suggestions didn't load";
 "feed_promo_referral_description" = "Verdienen %1$@ pro Freund";
 "feed_promo_referral_title" = "Lade Freunde zu Tangem ein";
 "feed_promo_tangem_pay_description" = "Erhalten Sie Cashback auf Ihre täglichen Ausgaben";
