@@ -75,6 +75,7 @@ public struct PolymarketPositionDetailsView: View {
                 .styleType(styleType)
                 .size(.x12)
                 .horizontalLayout(.infinity)
+                .loading(.spinner(if: action.isLoading))
                 .disabled(!action.isEnabled)
         }
     }
@@ -114,11 +115,13 @@ public extension PolymarketPositionDetailsView {
     struct Action {
         public let title: String
         public let isEnabled: Bool
+        public let isLoading: Bool
         public let perform: () -> Void
 
-        public init(title: String, isEnabled: Bool, perform: @escaping () -> Void) {
+        public init(title: String, isEnabled: Bool, isLoading: Bool = false, perform: @escaping () -> Void) {
             self.title = title
             self.isEnabled = isEnabled
+            self.isLoading = isLoading
             self.perform = perform
         }
     }
