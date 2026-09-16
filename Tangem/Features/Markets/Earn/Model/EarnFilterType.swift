@@ -28,6 +28,22 @@ enum EarnFilterType: String, CaseIterable, Encodable, CustomStringConvertible, I
         }
     }
 
+    var optionTitle: String {
+        switch self {
+        case .all: return Localization.commonAll
+        case .staking: return Localization.commonStaking
+        case .yield: return Localization.commonYieldMode
+        }
+    }
+
+    var optionSubtitle: String {
+        switch self {
+        case .all: return Localization.earnFilterAllTypesText
+        case .staking: return Localization.earnFilterStakingTypeText
+        case .yield: return Localization.earnFilterYieldTypeText
+        }
+    }
+
     var apiValue: EarnDTO.List.EarnType? {
         switch self {
         case .all: return nil
