@@ -18,7 +18,8 @@ extension PolymarketPositionDetailsView.Model {
         position: PolymarketPosition,
         onClosePosition: @escaping () -> Void,
         onBuy: @escaping () -> Void,
-        onHint: @escaping (PolymarketPositionHintSheetView.Model) -> Void
+        onHint: @escaping (PolymarketPositionHintSheetView.Model) -> Void,
+        isOrderLoading: Bool
     ) -> Self {
         Self(
             header: header(position: position),
@@ -28,7 +29,12 @@ extension PolymarketPositionDetailsView.Model {
             notice: notice(position: position),
             // [REDACTED_TODO_COMMENT]
             secondaryAction: action(title: Localization.commonClose, isEnabled: false, perform: onClosePosition),
-            primaryAction: action(title: Localization.commonBuy, isEnabled: false, perform: onBuy)
+            primaryAction: action(
+                title: Localization.commonBuy,
+                isEnabled: canTrade(position) && !isOrderLoading,
+                isLoading: isOrderLoading,
+                perform: onBuy
+            )
         )
     }
 }
@@ -116,12 +122,17 @@ private extension PolymarketPositionDetailsView.Model {
         }
     }
 
+    static func canTrade(_ position: PolymarketPosition) -> Bool {
+        position.isAcceptingOrders && position.marketId != nil && position.eventId != nil
+    }
+
     static func action(
         title: String,
         isEnabled: Bool,
+        isLoading: Bool = false,
         perform: @escaping () -> Void
     ) -> PolymarketPositionDetailsView.Action {
-        PolymarketPositionDetailsView.Action(title: title, isEnabled: isEnabled, perform: perform)
+        PolymarketPositionDetailsView.Action(title: title, isEnabled: isEnabled, isLoading: isLoading, perform: perform)
     }
 }
 

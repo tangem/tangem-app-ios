@@ -25,6 +25,12 @@ final class PolymarketMyPositionsCoordinator: CoordinatorObject {
 
     @Published var destination: Destination?
 
+    private var apiProvider: PolymarketAPIProvider?
+    private var geoblockStateProvider: PolymarketGeoblockStateProvider?
+    private var onRegionWarning: (() -> Void)?
+    private var onOrderPlaced: (@MainActor (Task<Void, Never>?) -> Void)?
+    private weak var orderBuilder: PolymarketOrderFlowBuilder?
+
     // MARK: - Init
 
     required init(
@@ -36,6 +42,12 @@ final class PolymarketMyPositionsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        apiProvider = options.apiProvider
+        geoblockStateProvider = options.geoblockStateProvider
+        onRegionWarning = options.onRegionWarning
+        onOrderPlaced = options.onOrderPlaced
+        orderBuilder = options.orderBuilder
+
         Task { @MainActor in
             rootViewModel = PolymarketMyPositionsViewModel(
                 tab: options.tab,
@@ -52,10 +64,16 @@ extension PolymarketMyPositionsCoordinator {
     struct Options {
         let tab: PolymarketPositionsTab
         let positionsService: PolymarketPositionsService
+        let apiProvider: PolymarketAPIProvider
+        let geoblockStateProvider: PolymarketGeoblockStateProvider?
+        let onRegionWarning: () -> Void
+        let onOrderPlaced: @MainActor (Task<Void, Never>?) -> Void
+        let orderBuilder: PolymarketOrderFlowBuilder
     }
 
     enum Destination {
         case positionDetails(PolymarketPositionDetailsViewModel)
+        case order(PolymarketOrderCoordinator)
     }
 }
 
@@ -75,8 +93,19 @@ extension PolymarketMyPositionsCoordinator: PolymarketMyPositionsRoutable {
         )
     }
 
-    func openPositionDetails(position: PolymarketPosition) {
-        destination = .positionDetails(PolymarketPositionDetailsViewModel(position: position, coordinator: self))
+    func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void) {
+        guard let apiProvider else { return }
+
+        destination = .positionDetails(PolymarketPositionDetailsViewModel(
+            position: position,
+            apiProvider: apiProvider,
+            geoblockStateProvider: geoblockStateProvider,
+            onOrderPlaced: { [weak self] indexing in
+                onOrderPlaced(indexing)
+                self?.onOrderPlaced?(indexing)
+            },
+            coordinator: self
+        ))
     }
 }
 
@@ -85,5 +114,28 @@ extension PolymarketMyPositionsCoordinator: PolymarketMyPositionsRoutable {
 extension PolymarketMyPositionsCoordinator: PolymarketPositionDetailsRoutable {
     func closePositionDetails() {
         destination = nil
+    }
+
+    func openRegionWarning() {
+        onRegionWarning?()
+    }
+
+    func openOrder(
+        market: PolymarketMarket,
+        outcome: PolymarketOutcome,
+        eventTitle: String,
+        onPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void
+    ) {
+        guard let coordinator = orderBuilder?.makeOrderCoordinator(
+            market: market,
+            outcome: outcome,
+            eventTitle: eventTitle,
+            onPlaced: onPlaced,
+            onClose: { [weak self] in self?.destination = nil }
+        ) else {
+            return
+        }
+
+        destination = .order(coordinator)
     }
 }

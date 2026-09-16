@@ -15,5 +15,5 @@ protocol PolymarketMyPositionsRoutable: AnyObject {
     @MainActor
     func openHowItWorks()
 
-    func openPositionDetails(position: PolymarketPosition)
+    func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void)
 }

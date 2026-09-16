@@ -230,8 +230,19 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
         destination = .eventDetails(coordinator)
     }
 
-    func openPositionDetails(position: PolymarketPosition) {
-        destination = .positionDetails(PolymarketPositionDetailsViewModel(position: position, coordinator: self))
+    func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void) {
+        guard let userWalletModel else {
+            PolymarketLogger.error("A position was tapped without a wallet", error: CoordinatorError.missingUserWalletModel)
+            return
+        }
+
+        destination = .positionDetails(PolymarketPositionDetailsViewModel(
+            position: position,
+            apiProvider: makeAPIProvider(for: userWalletModel),
+            geoblockStateProvider: geoblockStateProvider,
+            onOrderPlaced: onOrderPlaced,
+            coordinator: self
+        ))
     }
 
     func openOrder(
@@ -254,7 +265,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
     }
 
     @MainActor
-    func openMyPositions(tab: PolymarketPositionsTab) {
+    func openMyPositions(tab: PolymarketPositionsTab, onOrderPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void) {
         guard let userWalletModel else {
             PolymarketLogger.error("The positions were opened without a wallet", error: CoordinatorError.missingUserWalletModel)
             return
@@ -264,7 +275,15 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
             dismissAction: { [weak self] in self?.destination = nil }
         )
 
-        coordinator.start(with: .init(tab: tab, positionsService: makePositionsService(for: userWalletModel)))
+        coordinator.start(with: .init(
+            tab: tab,
+            positionsService: makePositionsService(for: userWalletModel),
+            apiProvider: makeAPIProvider(for: userWalletModel),
+            geoblockStateProvider: geoblockStateProvider,
+            onRegionWarning: { [weak self] in self?.openRegionWarning() },
+            onOrderPlaced: onOrderPlaced,
+            orderBuilder: self
+        ))
 
         destination = .myPositions(coordinator)
     }
