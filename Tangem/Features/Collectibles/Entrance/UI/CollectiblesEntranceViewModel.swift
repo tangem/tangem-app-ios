@@ -29,17 +29,31 @@ final class CollectiblesEntranceViewModel: ObservableObject {
     /// The open sheet swallows background taps itself, and the destination resolves within the tap,
     /// so a repeat tap has nothing left to guard against.
     @MainActor
-    func openCollectibles(onOpen: @MainActor @escaping (CollectiblesCoordinator.Options) -> Void) {
+    func openCollectibles(
+        isRegionRestricted: Bool,
+        onRestricted: @MainActor @escaping () -> Void,
+        onOpen: @MainActor @escaping (CollectiblesCoordinator.Options) -> Void
+    ) {
         let userWalletModels = userWalletModelsProvider()
 
         guard let firstUserWalletModel = userWalletModels.first else { return }
 
         guard userWalletModels.count > 1 else {
-            resolveDestination(for: firstUserWalletModel, onOpen: onOpen)
+            resolveDestination(
+                for: firstUserWalletModel,
+                isRegionRestricted: isRegionRestricted,
+                onRestricted: onRestricted,
+                onOpen: onOpen
+            )
             return
         }
 
-        presentWalletSelector(with: userWalletModels, onOpen: onOpen)
+        presentWalletSelector(
+            with: userWalletModels,
+            isRegionRestricted: isRegionRestricted,
+            onRestricted: onRestricted,
+            onOpen: onOpen
+        )
     }
 }
 
@@ -49,6 +63,8 @@ private extension CollectiblesEntranceViewModel {
     @MainActor
     func presentWalletSelector(
         with userWalletModels: [UserWalletModel],
+        isRegionRestricted: Bool,
+        onRestricted: @MainActor @escaping () -> Void,
         onOpen: @MainActor @escaping (CollectiblesCoordinator.Options) -> Void
     ) {
         let accountSelectorViewModel = AccountSelectorViewModel(
@@ -58,7 +74,12 @@ private extension CollectiblesEntranceViewModel {
             floatingSheetPresenter.removeActiveSheet()
             // The selector types its callback without isolation, so the hop belongs to its API, not to this flow
             Task { @MainActor in
-                self?.resolveDestination(for: selectedCell.userWalletModel, onOpen: onOpen)
+                self?.resolveDestination(
+                    for: selectedCell.userWalletModel,
+                    isRegionRestricted: isRegionRestricted,
+                    onRestricted: onRestricted,
+                    onOpen: onOpen
+                )
             }
         }
 
@@ -74,10 +95,37 @@ private extension CollectiblesEntranceViewModel {
     @MainActor
     func resolveDestination(
         for userWalletModel: UserWalletModel,
+        isRegionRestricted: Bool,
+        onRestricted: @MainActor () -> Void,
         onOpen: @MainActor (CollectiblesCoordinator.Options) -> Void
     ) {
         let hasCollectiblesAccount = CollectiblesAccountAggregator.collectiblesAccountModel(from: userWalletModel.accountModelsManager) != nil
 
-        onOpen(.init(destination: hasCollectiblesAccount ? .main : .welcome, userWalletModel: userWalletModel))
+        switch Destination(hasAccount: hasCollectiblesAccount, isRestricted: isRegionRestricted) {
+        case .welcome:
+            onOpen(.init(destination: .welcome, userWalletModel: userWalletModel))
+        case .main:
+            onOpen(.init(destination: .main, userWalletModel: userWalletModel))
+        case .regionRestrictions:
+            onRestricted()
+        }
+    }
+}
+
+// MARK: - Destination
+
+extension CollectiblesEntranceViewModel {
+    enum Destination: Equatable {
+        case welcome
+        case main
+        case regionRestrictions
+
+        init(hasAccount: Bool, isRestricted: Bool) {
+            switch (hasAccount, isRestricted) {
+            case (true, _): self = .main
+            case (false, true): self = .regionRestrictions
+            case (false, false): self = .welcome
+            }
+        }
     }
 }
