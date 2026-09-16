@@ -15,8 +15,12 @@ struct EarnFeedView: View {
 
     var body: some View {
         VStack(spacing: Constants.sectionSpacing) {
-            PromotionNotificationsView(viewModel: viewModel.promoBanner)
-                .padding(.horizontal, Constants.horizontalPadding)
+            PromotionNotificationsView(
+                viewModel: viewModel.promoBanner,
+                paginationSpacing: Constants.paginationSpacing,
+                paginationMinHeight: Constants.paginationMinHeight
+            )
+            .padding(.horizontal, Constants.horizontalPadding)
 
             content
         }
@@ -49,6 +53,8 @@ private extension EarnFeedView {
     enum Constants {
         static let sectionSpacing: CGFloat = 20
         static let horizontalPadding: CGFloat = 16
+        static let paginationSpacing: CGFloat = 0
+        static let paginationMinHeight: CGFloat = 32
         static let listCornerRadius: CGFloat = 24
         static let skeletonRowsCount = 5
     }

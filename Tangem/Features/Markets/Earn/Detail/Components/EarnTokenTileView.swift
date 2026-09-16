@@ -14,6 +14,8 @@ import TangemUIUtils
 struct EarnTokenTileView: View {
     let viewModel: EarnTokenItemViewModel
 
+    @ScaledMetric private var tileWidth: CGFloat = RedesignLayout.tileWidth
+
     var body: some View {
         redesignedContent
     }
@@ -51,7 +53,7 @@ struct EarnTokenTileView: View {
                         .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 }
             }
-            .frame(width: RedesignLayout.tileWidth, alignment: .topLeading)
+            .frame(width: tileWidth, alignment: .topLeading)
             .padding(.bottom, 4)
             .defaultRoundedBackground(
                 with: DesignSystem.Color.bgOpaquePrimary,
