@@ -25,6 +25,9 @@ struct CollectiblesEntranceCardView: View {
     @ScaledMetric private var plusIconSize: CGFloat = 16
     @ScaledMetric private var plusBadgeSize: CGFloat = 24
 
+    @State private var isRegionRestricted = false
+    @State private var isRegionRestrictionsRequested = false
+
     init(
         userWalletModelsProvider: @autoclosure @escaping () -> [UserWalletModel],
         onOpenRequested: @MainActor @escaping (CollectiblesCoordinator.Options) -> Void
@@ -34,14 +37,28 @@ struct CollectiblesEntranceCardView: View {
     }
 
     var body: some View {
-        SwiftUI.Button(action: { viewModel.openCollectibles(onOpen: onOpenRequested) }) {
+        SwiftUI.Button(action: openCollectibles) {
             content
         }
         .buttonStyle(.plain)
+        .collectiblesRegionRestrictionsSheet(
+            isRestricted: $isRegionRestricted,
+            isRequested: $isRegionRestrictionsRequested
+        )
     }
 }
 
 private extension CollectiblesEntranceCardView {
+    // MARK: - Actions
+
+    func openCollectibles() {
+        viewModel.openCollectibles(
+            isRegionRestricted: isRegionRestricted,
+            onRestricted: { isRegionRestrictionsRequested = true },
+            onOpen: onOpenRequested
+        )
+    }
+
     // MARK: - View properties
 
     var content: some View {
