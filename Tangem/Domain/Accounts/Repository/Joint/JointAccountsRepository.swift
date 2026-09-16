@@ -52,4 +52,16 @@ protocol JointAccountsRepository {
     /// - Note: The creator's to do, and only once every slot is taken. Repeating it on an account that is active
     /// already succeeds, so a lost answer costs a repeat and no more.
     func activateJointAccount(withConfig config: JointAccountActivationConfig) async throws
+
+    /// Registers the operation a member signed and stores it among the account's.
+    /// - Returns: The operation as the endpoint registered it, with that signature already counted.
+    func createOperation(_ request: JointAccountOperationRequest, forCryptoAccountId cryptoAccountId: String) async throws -> JointAccountOperation
+
+    /// Counts a member's signature towards the threshold and stores the operation as the endpoint now reports it.
+    func signOperation(id: String, signature: Data, forCryptoAccountId cryptoAccountId: String) async throws
+
+    /// Declines the operation on a member's behalf.
+    /// - Note: An answer carrying nothing is the endpoint saying the operation is gone, so it is dropped rather than
+    /// stored.
+    func rejectOperation(id: String, blob: JointAccountOperationRejectionBlob, forCryptoAccountId cryptoAccountId: String) async throws
 }
