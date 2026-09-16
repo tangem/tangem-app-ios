@@ -36,6 +36,20 @@ protocol JointAccountsNetworkService {
     /// or when what is being confirmed differs from what the account holds.
     /// - Note: Activating an account that is active already succeeds, so a lost answer costs a repeat and no more.
     func activateJointAccount(blob: JointAccountActivationBlob) async throws -> RemoteJointAccount
+
+    // MARK: - Operations
+
+    /// - Returns: The operation with the initiator's signature already counted; in `pending` right away when the
+    /// account's threshold is 1.
+    /// - Throws: `.conflict` while the network already carries an unfinished operation of this account.
+    func createOperation(_ request: JointAccountOperationRequest) async throws -> JointAccountOperation
+
+    /// - Returns: The operation with this member's signature counted in; reaching the threshold hands it to the relayer.
+    func signOperation(id: String, signature: Data) async throws -> JointAccountOperation
+
+    /// - Returns: The operation with its progress recounted, or nil when this very call deleted it — the initiator's
+    /// reject always does, a co-signer's once the threshold becomes unreachable.
+    func rejectOperation(id: String, blob: JointAccountOperationRejectionBlob) async throws -> JointAccountOperation?
 }
 
 struct JointAccountCreationResult {

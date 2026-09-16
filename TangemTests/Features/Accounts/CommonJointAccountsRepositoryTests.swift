@@ -335,6 +335,18 @@ private final class JointAccountsNetworkServiceStub: JointAccountsNetworkService
     func activateJointAccount(blob: JointAccountActivationBlob) async throws -> RemoteJointAccount {
         throw "Not called by these tests"
     }
+
+    func createOperation(_ request: JointAccountOperationRequest) async throws -> JointAccountOperation {
+        throw "Not called by these tests"
+    }
+
+    func signOperation(id: String, signature: Data) async throws -> JointAccountOperation {
+        throw "Not called by these tests"
+    }
+
+    func rejectOperation(id: String, blob: JointAccountOperationRejectionBlob) async throws -> JointAccountOperation? {
+        throw "Not called by these tests"
+    }
 }
 
 private extension JointAccountsNetworkServiceStub {
@@ -451,5 +463,13 @@ private final class JointAccountsPendingOperationsPersistentStorageStub: JointAc
     func replace(with records: [StoredJointAccountPendingOperations]) throws {
         recordsLock.withLock { $0 = records }
         didUpdateSubject.send()
+    }
+
+    func appendNewOrUpdateExisting(_ operation: JointAccountOperation, forCryptoAccountId cryptoAccountId: String) throws {
+        throw "Not called by these tests"
+    }
+
+    func remove(operationWithId operationId: String, forCryptoAccountId cryptoAccountId: String) throws {
+        throw "Not called by these tests"
     }
 }
