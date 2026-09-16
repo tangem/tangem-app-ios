@@ -73,6 +73,7 @@ final class PolymarketMainViewModel: ObservableObject {
     private var collateralBalance: TokenBalanceType = .loading(.none)
 
     private var balanceSubscription: AnyCancellable?
+    private var cachedBalance: FormattedTokenBalanceType.Cached?
     private var balanceRefreshTask: Task<Void, Never>?
     private var accountFundsPreparationTask: Task<Void, Never>?
     private var searchBag: Set<AnyCancellable> = []
@@ -109,6 +110,7 @@ final class PolymarketMainViewModel: ObservableObject {
         bindSearch()
         bindBalance()
         bindGeoblockState()
+        bindApplicationState()
         bindFundsArrival()
         startBalanceRefresh()
         load()
@@ -169,7 +171,35 @@ final class PolymarketMainViewModel: ObservableObject {
             .store(in: &bag)
     }
 
+    private func bindApplicationState() {
+        NotificationCenter.default
+            .publisher(for: UIApplication.didEnterBackgroundNotification)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.stopBalanceRefresh()
+            }
+            .store(in: &bag)
+
+        NotificationCenter.default
+            // Not didBecomeActive: an NFC session moves the app through that state on its own
+            .publisher(for: UIApplication.willEnterForegroundNotification)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.startBalanceRefresh()
+            }
+            .store(in: &bag)
+    }
+
+    private func stopBalanceRefresh() {
+        balanceRefreshTask?.cancel()
+        balanceRefreshTask = nil
+    }
+
     private func startBalanceRefresh() {
+        balanceRefreshTask?.cancel()
+
         balanceRefreshTask = Task { @MainActor [weak self] in
             await self?.balanceProvider.refresh()
 
@@ -193,6 +223,7 @@ final class PolymarketMainViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, formatted in
+                viewModel.recordBalance(formatted)
                 viewModel.balance = viewModel.makeBalanceState(from: formatted)
             }
 
@@ -667,9 +698,20 @@ final class PolymarketMainViewModel: ObservableObject {
 }
 
 private extension PolymarketMainViewModel {
+    func recordBalance(_ formatted: FormattedTokenBalanceType) {
+        switch formatted {
+        case .loaded(let balance):
+            cachedBalance = .init(balance: balance, date: Date())
+        case .loading(.cache(let cache)), .failure(.cache(let cache)):
+            cachedBalance = cache
+        case .loading(.empty), .failure(.empty):
+            break
+        }
+    }
+
     func makeBalanceState(from formatted: FormattedTokenBalanceType) -> LoadableBalanceView.State {
         AttributedBalanceFormatter.decimalColored(
-            balanceStateBuilder.build(type: steady(formatted)),
+            balanceStateBuilder.build(type: steady(withCachedFallback(formatted))),
             integerPart: .init(
                 font: TangemFontStyle(DesignSystem.Font.displayMediumToken),
                 color: DesignSystem.Color.textPrimary
@@ -679,6 +721,12 @@ private extension PolymarketMainViewModel {
                 color: DesignSystem.Color.textPrimary
             )
         )
+    }
+
+    func withCachedFallback(_ formatted: FormattedTokenBalanceType) -> FormattedTokenBalanceType {
+        guard case .failure(.empty) = formatted, let cachedBalance else { return formatted }
+
+        return .failure(.cache(cachedBalance))
     }
 
     func steady(_ formatted: FormattedTokenBalanceType) -> FormattedTokenBalanceType {
