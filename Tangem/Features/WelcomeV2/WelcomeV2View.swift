@@ -70,12 +70,25 @@ struct WelcomeV2View: View {
         }
     }
 
+    /// Every scene is laid out at once so the block keeps the height of the tallest one
+    /// and the buttons below it don't jump while the texts fade.
     private var titleBlock: some View {
+        ZStack(alignment: .topLeading) {
+            ForEach(WelcomeV2Scene.allCases) { scene in
+                sceneText(scene)
+                    .opacity(viewModel.scene == scene ? 1 : 0)
+                    .accessibilityHidden(viewModel.scene != scene)
+            }
+        }
+        .animation(.easeInOut(duration: Constants.sceneFadeDuration), value: viewModel.scene)
+    }
+
+    private func sceneText(_ scene: WelcomeV2Scene) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(Localization.introductionTitle)
+            Text(scene.title)
                 .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textStaticDarkPrimary)
 
-            Text(Localization.introductionSubtitle)
+            Text(scene.subtitle)
                 .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textStaticDarkSecondary)
         }
     }
@@ -145,6 +158,15 @@ struct WelcomeV2View: View {
         }
 
         return string
+    }
+}
+
+// MARK: - Constants
+
+private extension WelcomeV2View {
+    enum Constants {
+        /// Fits the pause between two episodes, so a scene is fully gone before the next one appears.
+        static let sceneFadeDuration: TimeInterval = 0.3
     }
 }
 
