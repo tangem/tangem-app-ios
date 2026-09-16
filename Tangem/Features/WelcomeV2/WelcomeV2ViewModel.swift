@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 
 final class WelcomeV2ViewModel: ObservableObject {
@@ -14,6 +15,9 @@ final class WelcomeV2ViewModel: ObservableObject {
 
     @Injected(\.welcomeV2AnalyticsProvider)
     private var analytics: WelcomeV2AnalyticsProvider
+
+    /// `nil` while the background hands one episode over to the next and no text belongs on screen.
+    @Published private(set) var scene: WelcomeV2Scene?
 
     let videoBackground: WelcomeV2VideoBackgroundViewModel
 
@@ -25,6 +29,8 @@ final class WelcomeV2ViewModel: ObservableObject {
     ) {
         self.coordinator = coordinator
         videoBackground = WelcomeV2VideoBackgroundViewModel(videoProvider: videoProvider)
+
+        bind()
     }
 
     func onFirstAppear() {
@@ -49,5 +55,12 @@ final class WelcomeV2ViewModel: ObservableObject {
             : .welcomeV2DocumentPrivacy
         analytics.logLegalOpened(document: document)
         coordinator?.openLegal(url: url)
+    }
+
+    private func bind() {
+        videoBackground.playbackTime
+            .map(WelcomeV2Scene.scene(at:))
+            .removeDuplicates()
+            .assign(to: &$scene)
     }
 }
