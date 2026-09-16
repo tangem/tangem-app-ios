@@ -94,7 +94,7 @@ public struct PolymarketPosition: Hashable, Sendable, Identifiable {
 
 // MARK: - Statuses
 
-public enum PolymarketResolutionStatus: String, Hashable, Sendable {
+public enum PolymarketResolutionStatus: String, Hashable, Sendable, CaseIterable {
     case open = "OPEN"
     case pendingResolution = "PENDING_RESOLUTION"
     case proposed = "PROPOSED"
@@ -103,7 +103,7 @@ public enum PolymarketResolutionStatus: String, Hashable, Sendable {
     case unknown = "UNKNOWN"
 }
 
-public enum PolymarketPositionSettlement: String, Hashable, Sendable {
+public enum PolymarketPositionSettlement: String, Hashable, Sendable, CaseIterable {
     case won = "WON"
     case lost = "LOST"
     case split = "SPLIT"
