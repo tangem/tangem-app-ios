@@ -31,6 +31,7 @@ struct RegionSelectionView: View {
             .textInputAutocapitalization(.never)
             .topNavigation(
                 title: viewModel.configuration.title,
+                leading: viewModel.configuration.leadingPolicy,
                 onClose: viewModel.onClose
             )
         }

@@ -8,10 +8,11 @@
 
 import Combine
 import TangemFoundation
+import TangemPay
 
 @MainActor
 final class BankDetailsViewModel: ObservableObject {
-    @Published var fields: [OfframpFormField]
+    @Published var fields: [OfframpFormField] = []
     @Published private(set) var focusedFieldID: OfframpFormField.ID?
 
     let title: String
@@ -19,6 +20,8 @@ final class BankDetailsViewModel: ObservableObject {
 
     private let orderBuilder: TangemPayOfframpOrderBuilder
     private let output: (Output) -> Void
+
+    private var region: TangemPayGeoRegion?
 
     init(
         orderBuilder: TangemPayOfframpOrderBuilder,
@@ -31,7 +34,7 @@ final class BankDetailsViewModel: ObservableObject {
         self.stepSubtitle = stepSubtitle
         self.output = output
 
-        fields = Self.makeFields(details: orderBuilder.bankDetails)
+        refresh()
     }
 
     var contentState: OfframpFormContentView.StateModel {
@@ -47,7 +50,9 @@ final class BankDetailsViewModel: ObservableObject {
     }
 
     func refresh() {
-        fields = Self.makeFields(details: orderBuilder.bankDetails)
+        let details = orderBuilder.bankDetails
+        region = details?.region
+        fields = makeFields(details: details)
     }
 
     func focusedFieldDidChange(to id: OfframpFormField.ID?) {
@@ -65,25 +70,25 @@ final class BankDetailsViewModel: ObservableObject {
     }
 
     func fieldBefore(_ id: OfframpFormField.ID?) -> OfframpFormField.ID? {
-        guard let id, let index = fields.firstIndex(where: { $0.id == id }), index > 0 else {
+        guard let id, let index = fields.firstIndex(where: { $0.id == id }) else {
             return nil
         }
 
-        return fields[index - 1].id
+        return fields[..<index].last { !$0.isSelectable }?.id
     }
 
     func fieldAfter(_ id: OfframpFormField.ID?) -> OfframpFormField.ID? {
-        guard let id, let index = fields.firstIndex(where: { $0.id == id }), fields.indices.contains(index + 1) else {
+        guard let id, let index = fields.firstIndex(where: { $0.id == id }) else {
             return nil
         }
 
-        return fields[index + 1].id
+        return fields[(index + 1)...].first { !$0.isSelectable }?.id
     }
 
     func submit() {
-        guard isContinueEnabled else { return }
+        guard isContinueEnabled, let region else { return }
 
-        orderBuilder.set(bankDetails: makeBankDetails())
+        orderBuilder.set(bankDetails: makeBankDetails(region: region))
         output(.continueWizard)
     }
 
@@ -109,19 +114,21 @@ private extension BankDetailsViewModel {
         field(id)?.text.trimmed() ?? ""
     }
 
-    func makeBankDetails() -> TangemPayOfframpBankDetails {
+    func makeBankDetails(region: TangemPayGeoRegion) -> TangemPayOfframpBankDetails {
         TangemPayOfframpBankDetails(
             name: text(for: .bankName),
             line1: text(for: .bankLine1),
             city: text(for: .bankCity),
-            region: text(for: .bankRegion).uppercased(),
+            region: region,
             postalCode: text(for: .bankPostalCode)
         )
     }
 
     // [REDACTED_TODO_COMMENT]
-    static func makeFields(details: TangemPayOfframpBankDetails?) -> [OfframpFormField] {
-        let fields = [
+    func makeFields(details: TangemPayOfframpBankDetails?) -> [OfframpFormField] {
+        let values = details.map(Self.restoredValues(from:)) ?? [:]
+
+        return [
             OfframpFormField(
                 id: .bankName,
                 title: "Bank name",
@@ -130,7 +137,8 @@ private extension BankDetailsViewModel {
             OfframpFormField(
                 id: .bankRegion,
                 title: "Bank region / state",
-                placeholder: "Not selected"
+                placeholder: "Not selected",
+                onSelect: { [weak self] in self?.selectRegion() }
             ),
             OfframpFormField(
                 id: .bankCity,
@@ -148,14 +156,7 @@ private extension BankDetailsViewModel {
                 placeholder: "0000"
             ),
         ]
-
-        guard let details else {
-            return fields
-        }
-
-        let values = restoredValues(from: details)
-
-        return fields.map { field in
+        .map { field in
             var field = field
             field.text = values[field.id] ?? ""
             return field
@@ -167,7 +168,7 @@ private extension BankDetailsViewModel {
     ) -> [OfframpFormField.ID: String] {
         [
             .bankName: details.name,
-            .bankRegion: details.region,
+            .bankRegion: details.region.name,
             .bankCity: details.city,
             .bankLine1: details.line1,
             .bankPostalCode: details.postalCode,
@@ -175,10 +176,28 @@ private extension BankDetailsViewModel {
     }
 }
 
+// MARK: - Geo selection
+
+private extension BankDetailsViewModel {
+    func selectRegion() {
+        output(
+            .selectRegion(countryCode: TangemPayOfframpOrderBuilder.bankCountryCode) { [weak self] selected in
+                self?.region = selected
+
+                self?.updateField(.bankRegion) {
+                    $0.text = selected.name
+                    $0.error = nil
+                }
+            }
+        )
+    }
+}
+
 // MARK: - Output
 
 extension BankDetailsViewModel {
     enum Output {
+        case selectRegion(countryCode: String, (TangemPayGeoRegion) -> Void)
         case continueWizard
         case close
     }

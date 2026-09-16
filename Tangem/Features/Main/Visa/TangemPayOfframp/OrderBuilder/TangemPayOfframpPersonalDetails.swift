@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemPay
+
 struct TangemPayOfframpPersonalDetails: Equatable {
     let name: Name
     let accountNumber: String
@@ -13,9 +15,10 @@ struct TangemPayOfframpPersonalDetails: Equatable {
     let line1: String
     let line2: String?
     let city: String
-    let region: String
+    let country: TangemPayGeoCountry
+    let region: TangemPayGeoRegion?
+    let regionText: String
     let postalCode: String
-    let countryCode: String
 }
 
 // MARK: - Name

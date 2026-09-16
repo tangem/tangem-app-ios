@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemPay
 import TangemUI
 import TangemUIUtils
 
@@ -278,6 +279,16 @@ extension TransferConfirmationContentView {
 
 #if DEBUG
 private enum TransferConfirmationPreview {
+    static let country = TangemPayGeoCountry(
+        code: "US",
+        name: "United States of America",
+        flagUrl: nil,
+        suggested: true,
+        hasRegions: true
+    )
+
+    static let region = TangemPayGeoRegion(code: "US-NC", name: "North Carolina", suggested: false)
+
     static let personalDetails = TangemPayOfframpPersonalDetails(
         name: .individual(firstName: "Saburo", lastName: "Arasaka"),
         accountNumber: "0000000000",
@@ -285,16 +296,17 @@ private enum TransferConfirmationPreview {
         line1: "Ebunike st., Apt. 32",
         line2: nil,
         city: "Night City",
-        region: "NC",
-        postalCode: "10001",
-        countryCode: "NUSA"
+        country: country,
+        region: region,
+        regionText: region.name,
+        postalCode: "10001"
     )
 
     static let bankDetails = TangemPayOfframpBankDetails(
         name: "Arasaka Bank",
         line1: "270 Corpo Plaza",
         city: "Night City",
-        region: "NC",
+        region: region,
         postalCode: "10017"
     )
 
@@ -333,9 +345,10 @@ private enum TransferConfirmationPreview {
                     line1: "Ebunike st., Apt. 32",
                     line2: "Building C",
                     city: "Night City",
-                    region: "NC",
-                    postalCode: "10001",
-                    countryCode: "NUSA"
+                    country: TransferConfirmationPreview.country,
+                    region: TransferConfirmationPreview.region,
+                    regionText: TransferConfirmationPreview.region.name,
+                    postalCode: "10001"
                 ),
                 bankDetails: TransferConfirmationPreview.bankDetails
             )

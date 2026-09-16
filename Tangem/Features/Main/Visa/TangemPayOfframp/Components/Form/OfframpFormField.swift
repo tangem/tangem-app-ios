@@ -11,9 +11,10 @@ import SwiftUI
 struct OfframpFormField: Identifiable {
     let id: ID
     let title: String
-    let placeholder: String
+    var placeholder: String
     var text = ""
     var error: Error?
+    var onSelect: (() -> Void)?
 
     enum ID: Hashable {
         case accountNumber
@@ -59,6 +60,10 @@ extension OfframpFormField {
         id.isOptional
     }
 
+    var isSelectable: Bool {
+        onSelect != nil
+    }
+
     var currentError: Error? {
         OfframpFormValidator.error(for: id, in: text)
     }
@@ -97,10 +102,8 @@ extension OfframpFormField.ID {
 
     var autocapitalization: TextInputAutocapitalization {
         switch self {
-        case .countryCode, .region, .bankRegion:
-            .characters
-
-        case .firstName, .lastName, .businessName, .city, .line1, .line2,
+        case .countryCode, .region, .bankRegion,
+             .firstName, .lastName, .businessName, .city, .line1, .line2,
              .bankName, .bankCity, .bankLine1:
             .words
 

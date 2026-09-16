@@ -11,6 +11,8 @@ import TangemFoundation
 import TangemPay
 
 final class TangemPayOfframpOrderBuilder {
+    static let bankCountryCode = "US"
+
     private(set) var recipient: TangemPayOfframpRecipient
     private(set) var amount: Decimal?
     private(set) var token: TangemPayOfframpTokenSelection?
@@ -133,18 +135,20 @@ private extension TangemPayOfframpOrderBuilder {
                 line1: personalDetails.line1,
                 line2: personalDetails.line2,
                 city: personalDetails.city,
-                region: personalDetails.region,
+                region: personalDetails.region.map {
+                    Self.requestRegionCode($0, countryCode: personalDetails.country.code)
+                } ?? personalDetails.regionText,
                 postalCode: personalDetails.postalCode,
-                countryCode: personalDetails.countryCode
+                countryCode: personalDetails.country.code
             ),
             bankName: bankDetails.name,
             bankAddress: .init(
                 line1: bankDetails.line1,
                 line2: nil,
                 city: bankDetails.city,
-                region: bankDetails.region,
+                region: Self.requestRegionCode(bankDetails.region, countryCode: Self.bankCountryCode),
                 postalCode: bankDetails.postalCode,
-                countryCode: Constants.bankCountryCode
+                countryCode: Self.bankCountryCode
             ),
             accountNumber: personalDetails.accountNumber,
             routingNumber: personalDetails.routingNumber,
@@ -157,6 +161,16 @@ private extension TangemPayOfframpOrderBuilder {
             tokenContractAddress: token.tokenContractAddress,
             bankAccount: .init(displayName: nil, details: details)
         )
+    }
+
+    static func requestRegionCode(_ region: TangemPayGeoRegion, countryCode: String) -> String {
+        let prefix = countryCode + "-"
+
+        guard region.code.hasPrefix(prefix) else {
+            return region.code
+        }
+
+        return String(region.code.dropFirst(prefix.count))
     }
 
     static func makeBeneficiary(
@@ -190,7 +204,6 @@ extension TangemPayOfframpOrderBuilder {
 private extension TangemPayOfframpOrderBuilder {
     enum Constants {
         static let currency = "USD"
-        static let bankCountryCode = "US"
         static let businessThirdParty = true
     }
 }
