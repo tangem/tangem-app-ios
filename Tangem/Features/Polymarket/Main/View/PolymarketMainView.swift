@@ -27,9 +27,10 @@ struct PolymarketMainView: View {
             topBar
 
             if viewModel.isSearching {
+                DesignSystem.Color.bgPrimary
+                    .ignoresSafeArea()
+
                 PolymarketSearchView(viewModel: viewModel.search)
-                    .background(DesignSystem.Color.bgPrimary)
-                    .ignoresSafeArea(.keyboard, edges: .bottom)
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) { searchField }
