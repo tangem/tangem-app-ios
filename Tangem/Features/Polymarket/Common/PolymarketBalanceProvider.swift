@@ -8,6 +8,8 @@
 
 import Foundation
 import Combine
+import TangemFoundation
+import TangemPolymarket
 
 protocol PolymarketBalanceProvider {
     var balancePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { get }
@@ -17,32 +19,90 @@ protocol PolymarketBalanceProvider {
     func refresh() async
 }
 
-struct CommonPolymarketBalanceProvider: PolymarketBalanceProvider {
-    private let accountModel: (any PolymarketAccountModel)?
+final class CommonPolymarketBalanceProvider: PolymarketBalanceProvider {
+    private let accountModelsManager: (any AccountModelsManager)?
+    private let latestAccountModel: OSAllocatedUnfairLock<(any PolymarketAccountModel)?> = .init(uncheckedState: nil)
+
+    private var accountModelSubscription: AnyCancellable?
 
     init(userWalletModel: (any UserWalletModel)?) {
-        accountModel = userWalletModel
-            .map(\.accountModelsManager)
-            .flatMap(PolymarketAccountAggregator.polymarketAccountModel(from:))
+        accountModelsManager = userWalletModel?.accountModelsManager
+
+        accountModelSubscription = accountModelPublisher
+            .withWeakCaptureOf(self)
+            .sink { provider, accountModel in
+                provider.latestAccountModel.withLockUnchecked { $0 = accountModel }
+            }
     }
 
     var balancePublisher: AnyPublisher<FormattedTokenBalanceType, Never> {
-        guard let accountModel else {
-            return .just(output: .failure(.empty(BalanceFormatter.defaultEmptyBalanceString)))
-        }
+        accountModelPublisher
+            .map { accountModel -> AnyPublisher<FormattedTokenBalanceType, Never> in
+                guard let accountModel else {
+                    return .just(output: .failure(.empty(BalanceFormatter.defaultEmptyBalanceString)))
+                }
 
-        return accountModel.fiatTotalTokenBalanceProvider.formattedBalanceTypePublisher
+                return accountModel.fiatTotalTokenBalanceProvider.balanceTypePublisher
+                    .map(CommonPolymarketBalanceProvider.makeFormattedBalance(from:))
+                    .eraseToAnyPublisher()
+            }
+            .switchToLatest()
+            .eraseToAnyPublisher()
     }
 
     var collateralBalancePublisher: AnyPublisher<TokenBalanceType, Never> {
-        guard let accountModel else {
-            return .just(output: .empty(.noData))
-        }
+        accountModelPublisher
+            .map { accountModel -> AnyPublisher<TokenBalanceType, Never> in
+                guard let accountModel else {
+                    return .just(output: .empty(.noData))
+                }
 
-        return accountModel.collateralTokenBalanceProvider.balanceTypePublisher
+                return accountModel.collateralTokenBalanceProvider.balanceTypePublisher
+            }
+            .switchToLatest()
+            .eraseToAnyPublisher()
     }
 
     func refresh() async {
-        await accountModel?.refreshState()
+        guard let accountModel = latestAccountModel.withLockUnchecked({ $0 }) else {
+            PolymarketLogger.error(
+                "The balance was refreshed without a Polymarket account",
+                error: BalanceProviderError.missingPolymarketAccountModel
+            )
+            return
+        }
+
+        await accountModel.refreshState()
+    }
+}
+
+// MARK: - Errors
+
+extension CommonPolymarketBalanceProvider {
+    enum BalanceProviderError: Error {
+        case missingPolymarketAccountModel
+    }
+}
+
+// MARK: - Private implementation
+
+private extension CommonPolymarketBalanceProvider {
+    var accountModelPublisher: AnyPublisher<(any PolymarketAccountModel)?, Never> {
+        guard let accountModelsManager else {
+            return .just(output: nil)
+        }
+
+        return PolymarketAccountAggregator.polymarketAccountModelPublisher(from: accountModelsManager)
+    }
+
+    static func makeFormattedBalance(from balanceType: TokenBalanceType) -> FormattedTokenBalanceType {
+        switch balanceType {
+        case .empty:
+            return .failure(.empty(BalanceFormatter.defaultEmptyBalanceString))
+        case .loading, .failure, .loaded:
+            let builder = FormattedTokenBalanceTypeBuilder(format: { BalanceFormatter().formatFiatBalance($0) })
+
+            return builder.mapToFormattedTokenBalanceType(type: balanceType)
+        }
     }
 }
