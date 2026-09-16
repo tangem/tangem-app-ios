@@ -36,7 +36,21 @@ struct OfframpFormFieldView: View {
 // MARK: - Subviews
 
 private extension OfframpFormFieldView {
+    @ViewBuilder
     var input: some View {
+        if let onSelect = field.onSelect {
+            inputContent
+                .contentShape(.rect)
+                .onTapGesture {
+                    focused.wrappedValue = nil
+                    onSelect()
+                }
+        } else {
+            inputContent
+        }
+    }
+
+    var inputContent: some View {
         VStack(alignment: .leading, spacing: Constants.labelToValueSpacing) {
             label
 
@@ -65,10 +79,16 @@ private extension OfframpFormFieldView {
                 .textInputAutocapitalization(field.id.autocapitalization)
                 .autocorrectionDisabled()
                 .tint(DesignSystem.Color.textPrimary)
+                .disabled(field.isSelectable)
+                .allowsHitTesting(!field.isSelectable)
 
             Spacer(minLength: Constants.clearButtonSpacing)
 
-            if !field.text.isEmpty, isFieldFocused {
+            if field.isSelectable {
+                DesignSystem.Icons.ChevronDown.regular20.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+            } else if !field.text.isEmpty, isFieldFocused {
                 SwiftUI.Button {
                     field.text = ""
                 } label: {
