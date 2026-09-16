@@ -90,7 +90,7 @@ private extension CountrySelectionViewModel {
         let query = searchText.trimmed()
 
         let filtered = countries
-            .filter { query.isEmpty || $0.name.caseInsensitiveContains(query) }
+            .filter { query.isEmpty || matches($0, query: query) }
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
 
         let suggested = configuration.showsSuggestedSection ? filtered.first(where: \.suggested) : nil
@@ -99,6 +99,10 @@ private extension CountrySelectionViewModel {
             suggested: suggested.map(makeItem(from:)),
             all: filtered.map(makeItem(from:))
         )
+    }
+
+    static func matches(_ country: TangemPayGeoCountry, query: String) -> Bool {
+        country.name.caseInsensitiveContains(query) || country.code.caseInsensitiveHasPrefix(query)
     }
 
     static func makeItem(from country: TangemPayGeoCountry) -> GeoSelectionItem {
