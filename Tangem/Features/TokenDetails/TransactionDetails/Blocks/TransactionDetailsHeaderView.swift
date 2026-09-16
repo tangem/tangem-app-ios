@@ -25,9 +25,17 @@ struct TransactionDetailsHeaderViewData: Equatable {
         case expired
     }
 
+    /// How the line under the title reads. A sent transaction states when it happened, which is a neutral fact;
+    /// an operation still waiting on its co-signers states that instead, and the colour is what carries it.
+    enum SubtitleStyle: Equatable {
+        case secondary
+        case warning
+    }
+
     let title: String
     let titleStyle: TitleStyle
     let date: String
+    let subtitleStyle: SubtitleStyle
     let operationIcon: TransactionViewIconViewData
     let iconGlyph: ImageType?
     let menuSections: [MenuSection]
@@ -70,7 +78,7 @@ struct TransactionDetailsHeaderView: View {
                     .animation(.easeInOut(duration: 0.3), value: data.title)
 
                 Text(data.date)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .style(DesignSystem.Font.captionMediumToken, color: subtitleColor)
                     .lineLimit(1)
             }
 
@@ -101,6 +109,13 @@ struct TransactionDetailsHeaderView: View {
         case .neutral: DesignSystem.Color.textPrimary
         case .failed: DesignSystem.Color.textStatusError
         case .expired: DesignSystem.Color.textTertiary
+        }
+    }
+
+    private var subtitleColor: Color {
+        switch data.subtitleStyle {
+        case .secondary: DesignSystem.Color.textSecondary
+        case .warning: DesignSystem.Color.textStatusWarning
         }
     }
 
@@ -153,17 +168,17 @@ struct TransactionDetailsHeaderView: View {
     return VStack(spacing: 32) {
         // In progress — brand (blue) title, with menu.
         TransactionDetailsHeaderView(
-            data: .init(title: "Receiving", titleStyle: .active, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .inProgress, isOutgoing: false), iconGlyph: nil, menuSections: menu),
+            data: .init(title: "Receiving", titleStyle: .active, date: "Jan 20 2026, 9:24 PM", subtitleStyle: .secondary, operationIcon: .init(type: .transfer, status: .inProgress, isOutgoing: false), iconGlyph: nil, menuSections: menu),
             onAction: { _ in }
         )
         // Confirmed — primary title, with menu.
         TransactionDetailsHeaderView(
-            data: .init(title: "Received", titleStyle: .neutral, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .confirmed, isOutgoing: false), iconGlyph: nil, menuSections: menu),
+            data: .init(title: "Received", titleStyle: .neutral, date: "Jan 20 2026, 9:24 PM", subtitleStyle: .secondary, operationIcon: .init(type: .transfer, status: .confirmed, isOutgoing: false), iconGlyph: nil, menuSections: menu),
             onAction: { _ in }
         )
         // Failed — red title, no menu (close only).
         TransactionDetailsHeaderView(
-            data: .init(title: "Send failed", titleStyle: .failed, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .failed, isOutgoing: true), iconGlyph: nil, menuSections: []),
+            data: .init(title: "Send failed", titleStyle: .failed, date: "Jan 20 2026, 9:24 PM", subtitleStyle: .secondary, operationIcon: .init(type: .transfer, status: .failed, isOutgoing: true), iconGlyph: nil, menuSections: []),
             onAction: { _ in }
         )
     }
