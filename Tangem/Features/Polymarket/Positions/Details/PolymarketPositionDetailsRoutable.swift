@@ -7,7 +7,17 @@
 //
 
 import Foundation
+import TangemPolymarket
 
 protocol PolymarketPositionDetailsRoutable: AnyObject {
     func closePositionDetails()
+
+    func openRegionWarning()
+
+    func openOrder(
+        market: PolymarketMarket,
+        outcome: PolymarketOutcome,
+        eventTitle: String,
+        onPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void
+    )
 }

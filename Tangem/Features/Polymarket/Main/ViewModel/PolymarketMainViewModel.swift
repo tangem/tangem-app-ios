@@ -464,7 +464,10 @@ final class PolymarketMainViewModel: ObservableObject {
 
     @MainActor
     func openMyPositions(tab: PolymarketPositionsTab) {
-        coordinator?.openMyPositions(tab: tab)
+        coordinator?.openMyPositions(
+            tab: tab,
+            onOrderPlaced: { [weak self] indexing in self?.orderPlaced(awaiting: indexing) }
+        )
     }
 
     func onAddFundsTap() {
@@ -783,7 +786,10 @@ extension PolymarketMainViewModel {
     func openPosition(id: String) {
         guard let position = openPositions.first(where: { $0.id == id }) else { return }
 
-        coordinator?.openPositionDetails(position: position)
+        coordinator?.openPositionDetails(
+            position: position,
+            onOrderPlaced: { [weak self] indexing in self?.orderPlaced(awaiting: indexing) }
+        )
     }
 }
 
@@ -796,6 +802,9 @@ private extension PolymarketMainViewModel {
         orderTask = runTask(in: self) { @MainActor viewModel in
             await viewModel.refreshBalance()
             await indexing?.value
+
+            guard !Task.isCancelled else { return }
+
             await viewModel.refreshAccount()
         }
     }
