@@ -643,8 +643,11 @@
 "fee_selector_choose_token_title" = "Elija token";
 "feed_market_and_news" = "Mercado y noticias";
 "feed_promo_earn_active_description" = "Consigue hasta un %1$@ de APY en tu %2$@";
+"feed_promo_earn_active_title" = "Put more to work";
 "feed_promo_earn_description" = "Pon tus criptos a trabajar y gana hasta un %1$@ APY";
 "feed_promo_earn_title" = "Empieza a ganar";
+"feed_promo_load_error_action" = "Tap to reload";
+"feed_promo_load_error_title" = "Suggestions didn't load";
 "feed_promo_referral_description" = "Ganar %1$@ por amigo";
 "feed_promo_referral_title" = "Invita a tus amigos a Tangem";
 "feed_promo_tangem_pay_description" = "Obtén reembolsos en tus gastos diarios";
