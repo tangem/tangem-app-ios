@@ -15,6 +15,9 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     private static let historyScrollAttempts = 12
     private static let issuingCardTitle = "Issuing a new digital card"
     private static let issuingCardDescription = "Usually takes up to 5 minutes. In rare cases, up to 48 hours."
+    private static let accountClosedTitle = "Your account has been closed"
+    private static let removeAccountAlertTitle = "Remove account?"
+    private static let removeAccountAlertButton = "Remove account"
 
     private lazy var historyStateIcon = app.images[TxHistoryAccessibilityIdentifiers.statusStateIcon].firstMatch
     private lazy var historyErrorMessage = app.staticTexts
@@ -37,6 +40,11 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     private lazy var withdrawButton = button(.withdrawButton)
     private lazy var moreActionsButton = button(.moreActionsButton)
     private lazy var termsAndFeesMenuItem = button(.termsAndLimitsMenuItem)
+    private lazy var removeAccountMenuItem = button(.removeAccountMenuItem)
+    /// Type-agnostic: the banner is a plain container, not guaranteed to surface as a specific element type.
+    private lazy var cardDeactivatedBanner = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.cardDeactivatedNotification].firstMatch
+    /// The banner stamps its identifier onto the elements inside it, so its button carries the same one.
+    private lazy var removeAccountBannerButton = notificationBannerButton(TangemPayAccessibilityIdentifiers.cardDeactivatedNotification)
     private lazy var backButton = app.navigationBars.buttons.element(boundBy: 0)
     private lazy var applePayGuideBanner = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.addToApplePayGuideBanner].firstMatch
     private lazy var applePayGuideBannerCloseButton = app.buttons[TangemPayAccessibilityIdentifiers.addToApplePayGuideBannerCloseButton].firstMatch
@@ -206,6 +214,54 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
         XCTContext.runActivity(named: "Tap Withdraw button expecting service unavailable sheet") { _ in
             withdrawButton.waitAndTap()
             return TangemPayNoDepositAddressSheet(app)
+        }
+    }
+
+    @discardableResult
+    func verifyAccountClosedBanner() -> Self {
+        XCTContext.runActivity(named: "Verify account closed banner is displayed") { _ in
+            waitAndAssertTrue(cardDeactivatedBanner, "Account closed banner should be displayed")
+            // The banner may combine its texts into a single element, so any matching descendant is accepted.
+            let predicate = NSPredicate(format: "label CONTAINS[c] %@", Self.accountClosedTitle)
+            waitAndAssertTrue(
+                app.descendants(matching: .any).matching(predicate).firstMatch,
+                "Banner should read '\(Self.accountClosedTitle)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapRemoveAccountOnBanner() -> Self {
+        XCTContext.runActivity(named: "Tap Remove account on the account closed banner") { _ in
+            removeAccountBannerButton.waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
+    func openRemoveAccountFromMoreActions() -> Self {
+        XCTContext.runActivity(named: "Tap Remove account in more actions menu") { _ in
+            moreActionsButton.waitAndTap()
+            removeAccountMenuItem.waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyRemoveAccountAlert() -> Self {
+        XCTContext.runActivity(named: "Verify remove account confirmation alert") { _ in
+            let alert = app.alerts[Self.removeAccountAlertTitle].firstMatch
+            waitAndAssertTrue(alert, "Remove account confirmation alert should be displayed")
+            waitAndAssertTrue(alert.buttons[Self.removeAccountAlertButton].firstMatch, "Alert should offer to remove the account")
+            return self
+        }
+    }
+
+    func confirmRemoveAccount() -> MainScreen {
+        XCTContext.runActivity(named: "Confirm account removal") { _ in
+            app.alerts[Self.removeAccountAlertTitle].buttons[Self.removeAccountAlertButton].firstMatch.waitAndTap()
+            return MainScreen(app)
         }
     }
 
@@ -457,6 +513,7 @@ enum TangemPayMainScreenElement: String, UIElement {
     case withdrawButton
     case moreActionsButton
     case termsAndLimitsMenuItem
+    case removeAccountMenuItem
 
     var accessibilityIdentifier: String {
         switch self {
@@ -478,6 +535,8 @@ enum TangemPayMainScreenElement: String, UIElement {
             TangemPayAccessibilityIdentifiers.moreActionsButton
         case .termsAndLimitsMenuItem:
             TangemPayAccessibilityIdentifiers.termsAndLimitsMenuItem
+        case .removeAccountMenuItem:
+            TangemPayAccessibilityIdentifiers.removeAccountMenuItem
         }
     }
 }
