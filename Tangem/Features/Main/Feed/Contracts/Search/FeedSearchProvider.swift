@@ -18,6 +18,11 @@ protocol FeedSearchProvider<Item> {
     func reset()
 }
 
+extension FeedSearchProvider {
+    /// Pagination is opt-in: a provider that keeps the whole result set in memory has nothing to load.
+    func loadMore() {}
+}
+
 enum FeedSearchProviderState<Item> {
     case loading
     case loaded([Item])
