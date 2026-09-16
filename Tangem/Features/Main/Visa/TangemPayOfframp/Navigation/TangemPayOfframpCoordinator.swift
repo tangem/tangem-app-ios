@@ -77,7 +77,10 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
         )
         self.optionsStore = optionsStore
 
-        geoStore = TangemPayGeoStore(repository: CommonTangemPayGeoRepository())
+        // [REDACTED_TODO_COMMENT]
+        // let repository = CommonTangemPayGeoRepository()
+        let repository = MockTangemPayGeoRepository()
+        geoStore = TangemPayGeoStore(repository: repository)
 
         rootViewModel = WithdrawHubViewModel(
             withdrawFlowResolver: TangemPayWithdrawFlowResolver(
@@ -271,6 +274,9 @@ extension TangemPayOfframpCoordinator {
         case .selectRegion(let countryCode, let completion):
             presentRegionSelection(countryCode: countryCode, completion: completion)
 
+        case .savedRecipientSelected:
+            restartOnSavedRecipient()
+
         case .continueWizard:
             switch mode {
             case .wizard:
@@ -327,6 +333,32 @@ private extension TangemPayOfframpCoordinator {
             path.append(.accountType)
 
         case .saved:
+            path.append(.transferConfirmation)
+        }
+    }
+
+    func restartOnSavedRecipient() {
+        Task { @MainActor [weak self] in
+            guard
+                let self,
+                let orderBuilder,
+                let optionsStore,
+                let index = path.lastIndex(of: .transferInput)
+            else {
+                return
+            }
+
+            transferInputViewModel = TransferInputFactory.makeViewModel(
+                orderBuilder: orderBuilder,
+                optionsStore: optionsStore,
+                recipient: orderBuilder.recipient,
+                savedRecipientName: savedRecipientName(for: orderBuilder.recipient),
+                output: { [weak self] in
+                    self?.handle($0)
+                }
+            )
+
+            path.removeSubrange((index + 1)...)
             path.append(.transferConfirmation)
         }
     }
