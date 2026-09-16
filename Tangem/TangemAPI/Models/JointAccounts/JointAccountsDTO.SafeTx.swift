@@ -16,8 +16,8 @@ extension JointAccountsDTO {
         let to: String
         let value: String
         let data: String
-        /// Only `0` (CALL); a DELEGATECALL is turned away by the endpoint.
-        let operation: Int
+        /// Only `.call`; a `.delegateCall` is turned away by the endpoint.
+        let operation: Operation
         let safeTxGas: String
         /// Includes deploying the Safe when the network does not have it yet.
         let baseGas: String
@@ -28,6 +28,14 @@ extension JointAccountsDTO {
         let refundReceiver: String
         /// The Safe's on-chain nonce in the network the operation belongs to, which is what makes two unfinished
         /// operations in one network mutually exclusive.
-        let nonce: Int
+        let nonce: String
+    }
+}
+
+extension JointAccountsDTO.SafeTx {
+    /// The two ways a Safe executes a transaction, numbered as the contract numbers them.
+    enum Operation: Int, Codable {
+        case call = 0
+        case delegateCall = 1
     }
 }
