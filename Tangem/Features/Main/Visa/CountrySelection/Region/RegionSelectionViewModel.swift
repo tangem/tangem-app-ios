@@ -95,7 +95,7 @@ private extension RegionSelectionViewModel {
         let query = searchText.trimmed()
 
         let filtered = regions
-            .filter { query.isEmpty || $0.name.caseInsensitiveContains(query) }
+            .filter { query.isEmpty || matches($0, query: query) }
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
 
         let suggested = configuration.showsSuggestedSection ? filtered.first(where: \.suggested) : nil
@@ -104,6 +104,14 @@ private extension RegionSelectionViewModel {
             suggested: suggested.map(makeItem(from:)),
             all: filtered.map(makeItem(from:))
         )
+    }
+
+    static func matches(_ region: TangemPayGeoRegion, query: String) -> Bool {
+        region.name.caseInsensitiveContains(query) || subdivisionCode(of: region).caseInsensitiveHasPrefix(query)
+    }
+
+    static func subdivisionCode(of region: TangemPayGeoRegion) -> Substring {
+        region.code.split(separator: "-").last ?? region.code[...]
     }
 
     static func makeItem(from region: TangemPayGeoRegion) -> GeoSelectionItem {
