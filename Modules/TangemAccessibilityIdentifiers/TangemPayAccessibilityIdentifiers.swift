@@ -24,6 +24,7 @@ public enum TangemPayAccessibilityIdentifiers {
 
     public static let sessionExpiredNotification = "\(prefix)SessionExpiredNotification"
     public static let serviceUnavailableNotification = "\(prefix)ServiceUnavailableNotification"
+    public static let cardDeactivatedNotification = "\(prefix)CardDeactivatedNotification"
 
     // MARK: - Onboarding (offer) screen
 
@@ -51,6 +52,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let withdrawButton = "\(prefix)WithdrawButton"
     public static let moreActionsButton = "\(prefix)MoreActionsButton"
     public static let termsAndLimitsMenuItem = "\(prefix)TermsAndLimitsMenuItem"
+    public static let removeAccountMenuItem = "\(prefix)RemoveAccountMenuItem"
 
     // MARK: - Add funds flow
 
