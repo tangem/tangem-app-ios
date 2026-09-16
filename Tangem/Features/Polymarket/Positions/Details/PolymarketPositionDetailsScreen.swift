@@ -17,6 +17,8 @@ struct PolymarketPositionDetailsScreen: View {
 
     var body: some View {
         PolymarketPositionDetailsView(model: viewModel.model) { viewModel.onCloseTap() }
+            .onWillDisappear { viewModel.onDisappear() }
+            .alert(item: $viewModel.alert) { $0.alert }
             .sheet(item: $viewModel.hint) { hint in
                 PolymarketPositionHintSheetView(model: hint)
                     .presentationDetents(idealHeight: Constants.hintSheetHeight)
