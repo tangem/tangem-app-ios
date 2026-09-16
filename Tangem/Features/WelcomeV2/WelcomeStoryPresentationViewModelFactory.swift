@@ -13,6 +13,8 @@ import TangemStories
 
 @MainActor
 struct WelcomeStoryPresentationViewModelFactory {
+    @Injected(\.storiesAnalyticsProvider) private var analyticsProvider: any StoriesAnalyticsProvider
+
     /// Screen keys the welcome coordinator routes story exits by.
     enum ScreenKey {
         static let hardwareWallet = "hardware_wallet"
@@ -50,7 +52,12 @@ struct WelcomeStoryPresentationViewModelFactory {
             origin: .bundled
         )
 
-        let player = StoryPlayerViewModel(story: story, onFinished: onFinished)
+        let player = StoryPlayerViewModel(
+            story: story,
+            source: .onboarding,
+            analytics: analyticsProvider,
+            onFinished: onFinished
+        )
         return WelcomeStoryPresentationViewModel(player: player)
     }
 

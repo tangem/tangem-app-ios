@@ -13,6 +13,10 @@ extension Analytics {
         case token = "Token"
         case markets = "Markets"
         case predictions = "Predictions"
+        case walletSettings = "Wallet Settings"
+        case tangemPay = "Tangem Pay"
+        case onboarding = "Onboarding"
+        case collectibles = "Collectibles"
     }
 
     enum StoryType: String {

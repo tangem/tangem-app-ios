@@ -121,6 +121,25 @@ extension Analytics {
 
         case walletForm = "WalletForm"
         case reason = "Reason"
+        case storyId = "Story Id"
+        case slideId = "Slide Id"
+        case slideIndex = "Slide Index"
+        case slidesTotal = "Slides Total"
+        /// Distinct slides seen in one session. Kept apart from `watched`, which V1 stories already
+        /// send as a page index — one wire name cannot carry both a position and a count.
+        case slidesWatched = "Slides Watched"
+        case assetType = "Asset Type"
+        case assetDurationMs = "Asset Duration Ms"
+        case watchedMs = "Watched Ms"
+        case slideCompleted = "Slide Completed"
+        case storyCompleted = "Story Completed"
+        case advanceReason = "Advance Reason"
+        case loopsWatched = "Loops Watched"
+        case contentOrigin = "Content Origin"
+        case exitReason = "Exit Reason"
+        case actionId = "Action Id"
+        case actionTargetType = "Action Target Type"
+        case actionDestination = "Action Destination"
         case residence = "Residence"
         case paymentMethod = "Payment Method"
 
