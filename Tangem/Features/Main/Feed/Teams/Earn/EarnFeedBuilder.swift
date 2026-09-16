@@ -22,6 +22,6 @@ struct EarnFeedBuilder: FeedTabBuilder {
         history: FeedSearchHistoryProvider,
         context: FeedContext
     ) -> FeedSearchTab {
-        .earn
+        .earn(EarnSearchViewModel(query: query, history: history, router: EarnFeedRouter(context: context)))
     }
 }
