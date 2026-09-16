@@ -18,7 +18,6 @@ struct EarnFilterHeaderView: View {
     let onNetworksTap: () -> Void
     let onTypesTap: () -> Void
 
-    @ScaledMetric private var horizontalPadding: CGFloat = 16
     @ScaledMetric private var filtersSpacing: CGFloat = 8
 
     var body: some View {
@@ -41,7 +40,7 @@ struct EarnFilterHeaderView: View {
                 action: onTypesTap
             )
         }
-        .padding(.horizontal, horizontalPadding)
+        .padding(.horizontal, Layout.horizontalPadding)
     }
 
     private func filterChip(
@@ -51,6 +50,14 @@ struct EarnFilterHeaderView: View {
     ) -> some View {
         RealAssetsCategoryChipView(title: title, style: .expandable, onTap: action)
             .disabled(!isEnabled)
+    }
+}
+
+// MARK: - Layout
+
+private extension EarnFilterHeaderView {
+    enum Layout {
+        static let horizontalPadding: CGFloat = 16.0
     }
 }
 

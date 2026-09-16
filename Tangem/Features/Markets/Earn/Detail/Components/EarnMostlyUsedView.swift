@@ -21,7 +21,7 @@ struct EarnMostlyUsedView: View {
     var body: some View {
         contentView
             .scrollIndicators(.hidden)
-            .frame(height: Layout.height)
+            .frame(minHeight: Layout.height)
     }
 
     @ViewBuilder
