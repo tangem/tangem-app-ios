@@ -95,7 +95,8 @@ final class StoriesV2DemoViewModel: ObservableObject, Identifiable {
     }
 
     private func present(story: StoryV2) {
-        let player = StoryPlayerViewModel(story: story) { [weak self] _, _ in
+        // No provider is attached on this dev screen, so the source never reaches analytics.
+        let player = StoryPlayerViewModel(story: story, source: .main) { [weak self] _, _ in
             self?.closePlayer()
         }
         presentedStory = PresentedStory(player: player)
