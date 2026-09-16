@@ -13,8 +13,10 @@ import TangemUIUtils
 struct EarnContentView: View {
     @ObservedObject var viewModel: EarnDetailViewModel
 
-    @ScaledMetric private var sectionsSpacing: CGFloat = 40
-    @ScaledMetric private var sectionSpacing: CGFloat = 12
+    @ScaledMetric private var sectionsSpacing: CGFloat = 48
+    @ScaledMetric private var featuredHeaderSpacing: CGFloat = 16
+    @ScaledMetric private var listHeaderSpacing: CGFloat = 12
+    @ScaledMetric private var filtersSpacing: CGFloat = 16
 
     var body: some View {
         VStack(spacing: sectionsSpacing) {
@@ -31,7 +33,7 @@ private extension EarnContentView {
     @ViewBuilder
     var mostlyUsedSection: some View {
         if viewModel.isMostlyUsedSectionVisible {
-            VStack(spacing: sectionSpacing) {
+            VStack(spacing: featuredHeaderSpacing) {
                 EarnDetailHeaderView(headerTitle: Localization.commonFeatured)
 
                 EarnMostlyUsedView(
@@ -44,8 +46,9 @@ private extension EarnContentView {
     }
 
     var bestOpportunitiesSection: some View {
-        VStack(spacing: sectionSpacing) {
-            EarnDetailHeaderView(headerTitle: Localization.earnBestOpportunities)
+        VStack(spacing: .zero) {
+            EarnDetailHeaderView(headerTitle: Localization.earnAssets)
+                .padding(.bottom, listHeaderSpacing)
 
             EarnFilterHeaderView(
                 isNetworksFilterEnabled: viewModel.isFilterInteractionEnabled,
@@ -56,6 +59,7 @@ private extension EarnContentView {
                 onNetworksTap: { viewModel.handleViewAction(.networksFilterTap) },
                 onTypesTap: { viewModel.handleViewAction(.typesFilterTap) }
             )
+            .padding(.bottom, filtersSpacing)
 
             EarnBestOpportunitiesListView(
                 loadingState: viewModel.listLoadingState,
