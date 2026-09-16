@@ -19,13 +19,22 @@ public final class StoryPlayerViewModel: ObservableObject {
     /// Window of prepared slides in slide order; the view keeps them all mounted.
     @Published public private(set) var preparedSlides: [SlidePlayerViewModel] = []
 
+    private let source: StorySource
+    private let analytics: (any StoriesAnalyticsProvider)?
+    private let clock: any ProgressClock
     private let onFinished: (_ exitReason: StoryExitReason, _ action: StoryActionV2?) -> Void
 
     /// Prepared slides kept around the active one: [i-1, i, i+1].
     private var window: [Int: SlidePlayerViewModel] = [:]
 
     private var hasStarted = false
-    private var firstLoopDone = false
+    private var hasFinished = false
+    /// Keyed by position rather than the backend-controlled slide id, so duplicate ids can't drop
+    /// events.
+    private var viewedSlideIndices: Set<Int> = []
+    /// Whether the slide on screen still owes a Slide Viewed.
+    private var isFreshView = true
+    private var loopsWatched = 0
     private var pauseReasons: Set<PauseReason> = []
     private var visibleViews = 0
     private var lifecycleObservers: [NSObjectProtocol] = []
@@ -33,14 +42,20 @@ public final class StoryPlayerViewModel: ObservableObject {
 
     public init(
         story: StoryV2,
+        source: StorySource,
+        analytics: (any StoriesAnalyticsProvider)? = nil,
+        clock: any ProgressClock = RealProgressClock(),
         onFinished: @escaping (_ exitReason: StoryExitReason, _ action: StoryActionV2?) -> Void
     ) {
         precondition(!story.slides.isEmpty, "StoryPlayerViewModel requires a story with at least one slide")
         self.story = story
+        self.source = source
+        self.analytics = analytics
+        self.clock = clock
         self.onFinished = onFinished
         effectiveEndBehavior = story.effectiveEndBehavior
 
-        let first = SlidePlayerViewModel(slide: story.slides[0])
+        let first = SlidePlayerViewModel(slide: story.slides[0], clock: clock)
         window[0] = first
         current = first
         preparedSlides = [first]
@@ -74,19 +89,32 @@ public final class StoryPlayerViewModel: ObservableObject {
     public func start() {
         guard !hasStarted else { return }
         hasStarted = true
-        activate(index: 0)
+        analytics?.logStoryOpened(
+            storyId: story.id,
+            slidesTotal: story.slides.count,
+            source: source,
+            origin: story.origin
+        )
+        activate(index: 0, cause: .auto)
     }
 
     // MARK: - Controls
 
     public func tapForward() {
-        advanceOrFinish()
+        advance(reason: .tapForward)
     }
 
     public func tapBackward() {
+        guard !hasFinished else { return }
+        reportSlideViewed(advanceReason: .tapBack)
+
         if currentIndex > 0 {
-            activate(index: currentIndex - 1)
+            activate(index: currentIndex - 1, cause: .tapBack)
         } else {
+            // Restarting the first slide is a new view too, haptics included: an earlier
+            // unattended loop wrap may have muted them.
+            isFreshView = true
+            current.hapticsEnabled = true
             current.restart()
             applyPauseState()
         }
@@ -141,13 +169,18 @@ public final class StoryPlayerViewModel: ObservableObject {
 
     // MARK: - Navigation
 
-    private func activate(index: Int) {
+    private func activate(index: Int, cause: StoryAdvanceReason) {
+        // Stepping onto a slide by hand is a new view even if it was already reported; arriving
+        // there through an unattended loop wrap is not.
+        isFreshView = cause == .tapForward || cause == .tapBack || !viewedSlideIndices.contains(index)
+
         currentIndex = index
         refreshWindow(around: index)
 
         let vm = window[index] ?? makePrepared(at: index)
-        vm.hapticsEnabled = !firstLoopDone
-        vm.onCompleted = { [weak self] in self?.advanceOrFinish() }
+        // Haptics follow the same rule as Slide Viewed: silent on an unattended repeat.
+        vm.hapticsEnabled = isFreshView
+        vm.onCompleted = { [weak self] in self?.advance(reason: .auto) }
         current = vm
 
         // A completed slide can be re-activated in place (single-slide loop: refreshWindow never
@@ -190,33 +223,79 @@ public final class StoryPlayerViewModel: ObservableObject {
 
     @discardableResult
     private func makePrepared(at index: Int) -> SlidePlayerViewModel {
-        let vm = SlidePlayerViewModel(slide: story.slides[index])
+        let vm = SlidePlayerViewModel(slide: story.slides[index], clock: clock)
         vm.prepare()
         window[index] = vm
         return vm
     }
 
-    private func advanceOrFinish() {
-        if currentIndex < story.slides.count - 1 {
-            activate(index: currentIndex + 1)
-        } else {
-            handleEndReached()
-        }
-    }
+    private func advance(reason: StoryAdvanceReason) {
+        guard !hasFinished else { return }
 
-    private func handleEndReached() {
+        guard currentIndex == story.slides.count - 1 else {
+            reportSlideViewed(advanceReason: reason)
+            activate(index: currentIndex + 1, cause: reason)
+            return
+        }
+
         switch effectiveEndBehavior {
         case .finish:
+            reportSlideViewed(advanceReason: reason)
             finalize(exitReason: .completed, action: story.actions.first)
         case .loop:
-            firstLoopDone = true
-            activate(index: 0)
+            // Only an unattended wrap is a full cycle: tapping past the last slide reaches the
+            // start without ever finishing it, so it stays a manual advance and leaves both the
+            // loop count and Story Completed alone.
+            let isFullCycle = reason == .auto
+            let wrapReason: StoryAdvanceReason = isFullCycle ? .loopRestart : reason
+
+            reportSlideViewed(advanceReason: wrapReason)
+
+            if isFullCycle {
+                loopsWatched += 1
+            }
+
+            activate(index: 0, cause: wrapReason)
         }
     }
 
     private func finalize(exitReason: StoryExitReason, action: StoryActionV2?) {
+        // The hosting view stays hit-testable through its dismiss animation — without the latch
+        // a second tap would emit a duplicate Story Closed and re-run the exit routing.
+        guard !hasFinished else { return }
+        hasFinished = true
+        reportSlideViewed(advanceReason: .storyClosed)
+        analytics?.logStoryClosed(
+            storyId: story.id,
+            slidesTotal: story.slides.count,
+            watched: viewedSlideIndices.count,
+            loopsWatched: loopsWatched,
+            completed: loopsWatched > 0 || exitReason == .completed,
+            exitReason: exitReason,
+            action: action,
+            source: source
+        )
         teardownWindow()
         onFinished(exitReason, action)
+    }
+
+    private func reportSlideViewed(advanceReason: StoryAdvanceReason) {
+        guard isFreshView else { return }
+        isFreshView = false
+        viewedSlideIndices.insert(currentIndex)
+
+        let slide = current.slide
+        analytics?.logSlideViewed(
+            storyId: story.id,
+            slideId: slide.id,
+            slideIndex: currentIndex + 1,
+            assetType: slide.asset.type,
+            assetDurationMs: slide.asset.durationMs,
+            watchedMs: current.watchedMs,
+            completed: current.didComplete,
+            advanceReason: advanceReason,
+            source: source
+        )
     }
 
     private func teardownWindow() {
