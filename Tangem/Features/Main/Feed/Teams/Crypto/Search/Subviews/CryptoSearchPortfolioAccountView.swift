@@ -11,14 +11,16 @@ import TangemAccounts
 import TangemUI
 
 struct CryptoSearchPortfolioAccountView: View {
+    let walletID: AnyHashable
     let account: MarketsPortfolioTokenListViewModel.AccountSection
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
 
-            ForEach(Array(account.tokenRows.enumerated()), id: \.offset) { _, row in
+            ForEach(account.tokenRows) { row in
                 CryptoSearchPortfolioTokenRow(viewModel: row.model, onTap: row.onTap)
+                    .feedZoomSource(zoomSource(for: row), cornerRadius: Constants.cornerRadius)
             }
         }
         .background(DesignSystem.Color.bgSecondary, in: RoundedRectangle(cornerRadius: Constants.cornerRadius))
@@ -34,6 +36,10 @@ struct CryptoSearchPortfolioAccountView: View {
         .padding(.horizontal, Constants.horizontalPadding)
         .padding(.top, Constants.horizontalPadding)
         .padding(.bottom, Constants.headerBottomPadding)
+    }
+
+    private func zoomSource(for row: MarketsPortfolioTokenListViewModel.TokenRow) -> FeedZoomSource {
+        .portfolioToken(walletID: walletID, accountID: account.id, tokenID: row.id)
     }
 }
 

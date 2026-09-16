@@ -233,7 +233,7 @@ private extension MarketsPortfolioTokenListViewModel {
             onSelect(walletModel)
         }
 
-        return TokenRow(model: model, onTap: onTap)
+        return TokenRow(id: walletModel.id, model: model, onTap: onTap)
     }
 
     func makeNoAddressTokenRow(tokenItem: TokenItem) -> TokenRow {
@@ -249,7 +249,7 @@ private extension MarketsPortfolioTokenListViewModel {
             )
         )
 
-        return TokenRow(model: model, onTap: nil)
+        return TokenRow(id: WalletModelId(tokenItem: tokenItem), model: model, onTap: nil)
     }
 }
 
@@ -281,7 +281,8 @@ extension MarketsPortfolioTokenListViewModel {
         var tokenRows: [TokenRow]
     }
 
-    struct TokenRow {
+    struct TokenRow: Identifiable {
+        let id: WalletModelId
         let model: MarketsPortfolioTokenListRowViewModel
         let onTap: (() -> Void)?
     }

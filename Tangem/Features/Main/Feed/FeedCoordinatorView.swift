@@ -13,6 +13,7 @@ struct FeedCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: FeedCoordinator
 
     @Environment(\.mainShtorkaSize) private var sheetSize
+    @Namespace private var zoomNamespace
 
     var body: some View {
         ZStack {
@@ -32,6 +33,8 @@ struct FeedCoordinatorView: CoordinatorView {
                         coordinator.shtorkaActions.expand()
                     }
                 })
+                .environment(\.feedZoomNamespace, zoomNamespace)
+                .fullScreenCover(item: $coordinator.cover) { FeedCoverView(cover: $0, namespace: zoomNamespace) }
             }
 
             NavHolder()
