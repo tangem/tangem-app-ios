@@ -9,11 +9,10 @@
 import Foundation
 
 extension JointAccountsDTO.Request {
-    /// The whole transaction travels again rather than being referenced: the endpoint verifies the signature against
-    /// what arrived and only then checks it matches what it holds.
+    /// The operation is named by the id in the path and the transaction is the endpoint's to look up, so the body
+    /// carries nothing but the answer — a body repeating the transaction is refused.
     struct SignOperation: Encodable {
-        let safeTx: JointAccountsDTO.SafeTx
-        /// EIP-712 over `safeTx`, like the one that created the operation.
+        /// EIP-712 over the operation's Safe transaction, like the one that created it.
         let signature: String
     }
 }

@@ -9,15 +9,31 @@
 import Foundation
 import BlockchainSdk
 
-/// Stands in for the wallet manager of a network with a Safe: what the tests it serves check is which manager an
-/// operation ends up with, not what it answers.
+/// Stands in for the wallet manager of a network with a Safe. Answers only what the test hands it, so a call the
+/// test did not expect fails rather than passes for something.
 final class SafeWalletManagerOperationsServiceTestsMock: SafeWalletManagerOperationsService {
+    private let state: SafeContractState?
+    private let innerCall: SafeInnerCall?
+
+    init(state: SafeContractState? = nil, innerCall: SafeInnerCall? = nil) {
+        self.state = state
+        self.innerCall = innerCall
+    }
+
     func getSafeState() async throws -> SafeContractState {
-        throw MockError.notStubbed
+        guard let state else {
+            throw MockError.notStubbed
+        }
+
+        return state
     }
 
     func makeSafeInnerTransferCall(amount: Amount, destination: String) throws -> SafeInnerCall {
-        throw MockError.notStubbed
+        guard let innerCall else {
+            throw MockError.notStubbed
+        }
+
+        return innerCall
     }
 
     func getSafeOperationFee(innerCall: SafeInnerCall, parameters: SafeOperationParameters) async throws -> Fee {
