@@ -21,7 +21,7 @@ enum TransferConfirmationSectionsBuilder {
         let bank: [Entry] = bankDetails.map { details in
             [
                 Entry(.bankName, details.name),
-                Entry(.bankRegion, details.region),
+                Entry(.bankRegion, details.region.name),
                 Entry(.bankCity, details.city),
                 Entry(.bankLine1, details.line1),
                 Entry(.bankPostalCode, details.postalCode),
@@ -34,8 +34,8 @@ enum TransferConfirmationSectionsBuilder {
                 Entry(.routingNumber, personalDetails.routingNumber),
             ],
             beneficiary: nameEntries(for: personalDetails.name) + [
-                Entry(.countryCode, personalDetails.countryCode),
-                Entry(.region, personalDetails.region),
+                Entry(.countryCode, personalDetails.country.name),
+                Entry(.region, personalDetails.region?.name ?? personalDetails.regionText),
                 Entry(.city, personalDetails.city),
                 Entry(.line1, personalDetails.line1),
                 Entry(.line2, personalDetails.line2),

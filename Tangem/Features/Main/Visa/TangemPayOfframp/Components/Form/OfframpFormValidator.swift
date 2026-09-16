@@ -30,13 +30,13 @@ enum OfframpFormValidator {
         case .postalCode, .bankPostalCode:
             return matches(value, Constants.postalCodePattern) ? nil : .invalidFormat
 
-        case .countryCode, .region, .bankRegion:
-            return matches(value, Constants.twoLetterCodePattern) ? nil : .invalidFormat
+        case .countryCode:
+            return nil
 
         case .firstName, .lastName, .businessName, .bankName:
             return textError(in: value, lengthLimit: Constants.nameLengthLimit)
 
-        case .city, .line1, .line2, .bankCity, .bankLine1:
+        case .region, .bankRegion, .city, .line1, .line2, .bankCity, .bankLine1:
             return textError(in: value, lengthLimit: Constants.addressLengthLimit)
         }
     }
@@ -49,7 +49,6 @@ private extension OfframpFormValidator {
         static let accountNumberPattern = "^[0-9]{4,17}$"
         static let routingNumberPattern = "^[0-9]{9}$"
         static let postalCodePattern = "^[0-9]{5}(-[0-9]{4})?$"
-        static let twoLetterCodePattern = "^[A-Za-z]{2}$"
         static let nameLengthLimit = 255
         static let addressLengthLimit = 100
     }
