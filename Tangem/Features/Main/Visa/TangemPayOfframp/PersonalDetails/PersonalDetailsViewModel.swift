@@ -14,24 +14,31 @@ import TangemPay
 final class PersonalDetailsViewModel: ObservableObject {
     @Published var fields: [OfframpFormField] = []
     @Published private(set) var focusedFieldID: OfframpFormField.ID?
+    @Published private(set) var suggestions: [OfframpAccountSuggestion] = []
 
     let title: String
     let stepSubtitle: String?
 
     private let orderBuilder: TangemPayOfframpOrderBuilder
+    private let recentRecipientsStore: TangemPayRecentRecipientsStore
     private let isBusiness: Bool
     private let output: (Output) -> Void
 
     private var country: TangemPayGeoCountry?
     private var region: TangemPayGeoRegion?
+    private var recipients: [TangemPayBankAccountResponse] = []
+
+    private var bag: Set<AnyCancellable> = []
 
     init(
         orderBuilder: TangemPayOfframpOrderBuilder,
+        recentRecipientsStore: TangemPayRecentRecipientsStore,
         title: String,
         stepSubtitle: String?,
         output: @escaping (Output) -> Void
     ) {
         self.orderBuilder = orderBuilder
+        self.recentRecipientsStore = recentRecipientsStore
         self.title = title
         self.stepSubtitle = stepSubtitle
         self.output = output
@@ -39,6 +46,7 @@ final class PersonalDetailsViewModel: ObservableObject {
         isBusiness = orderBuilder.recipient == .newBusiness
 
         refresh()
+        bind()
     }
 
     var contentState: OfframpFormContentView.StateModel {
@@ -61,14 +69,19 @@ final class PersonalDetailsViewModel: ObservableObject {
     }
 
     func focusedFieldDidChange(to id: OfframpFormField.ID?) {
-        defer { focusedFieldID = id }
+        if let blurredFieldID = focusedFieldID, blurredFieldID != id {
+            updateField(blurredFieldID) { $0.error = $0.currentError }
+        }
 
-        guard let blurredFieldID = focusedFieldID, blurredFieldID != id else { return }
-
-        updateField(blurredFieldID) { $0.error = $0.currentError }
+        focusedFieldID = id
+        updateSuggestions()
     }
 
     func fieldDidChange(_ id: OfframpFormField.ID) {
+        if id == .accountNumber {
+            updateSuggestions()
+        }
+
         guard field(id)?.error != nil else { return }
 
         updateField(id) { $0.error = nil }
@@ -97,8 +110,65 @@ final class PersonalDetailsViewModel: ObservableObject {
         output(.continueWizard)
     }
 
+    func onSuggestionTap(id: String) {
+        recentRecipientsStore.recordSelection(id: id)
+        orderBuilder.selectSaved(bankAccountId: id)
+        output(.savedRecipientSelected)
+    }
+
     func onCloseTap() {
         output(.close)
+    }
+}
+
+// MARK: - Suggestions
+
+private extension PersonalDetailsViewModel {
+    func bind() {
+        recentRecipientsStore
+            .recipientsPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, recipients in
+                viewModel.recipients = recipients
+                viewModel.updateSuggestions()
+            }
+            .store(in: &bag)
+    }
+
+    func updateSuggestions() {
+        guard focusedFieldID == .accountNumber else {
+            suggestions = []
+            return
+        }
+
+        let prefix = text(for: .accountNumber)
+
+        guard !prefix.isEmpty else {
+            suggestions = []
+            return
+        }
+
+        suggestions = Self.makeSuggestions(from: recipients, prefix: prefix)
+    }
+
+    static func makeSuggestions(
+        from recipients: [TangemPayBankAccountResponse],
+        prefix: String
+    ) -> [OfframpAccountSuggestion] {
+        recipients
+            .filter { $0.details.accountNumber.hasPrefix(prefix) }
+            .map { bankAccount in
+                let accountNumber = bankAccount.details.accountNumber
+
+                return OfframpAccountSuggestion(
+                    id: bankAccount.id,
+                    matchedPrefix: String(accountNumber.prefix(prefix.count)),
+                    accountNumberSuffix: String(accountNumber.dropFirst(prefix.count)),
+                    name: TangemPayRecipientNameFormatter.name(for: bankAccount, style: .abbreviated)
+                )
+            }
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 }
 
@@ -330,6 +400,7 @@ extension PersonalDetailsViewModel {
     enum Output {
         case selectCountry((TangemPayGeoCountry) -> Void)
         case selectRegion(countryCode: String, (TangemPayGeoRegion) -> Void)
+        case savedRecipientSelected
         case continueWizard
         case close
     }
