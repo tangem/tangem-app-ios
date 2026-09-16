@@ -285,6 +285,10 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
             openRefundToken()
         case .addContact(let address):
             addContact(address: address)
+        case .openSigners, .signOperation:
+            // A sent transaction has no signatures left to collect — these reach the joint account sheet instead,
+            // which draws the same blocks over an operation that has not been sent yet
+            break
         #if INTERNAL || DEBUG
         case .debug:
             openDebug()
@@ -418,6 +422,11 @@ extension TransactionDetailsViewModel {
         case openRefundToken
         case addContact(address: String)
         case close
+        /// Opens the list of who has answered a joint account operation. Meaningless for a sent transaction, which
+        /// has no signers to show — only the joint sheet ever sends it.
+        case openSigners
+        /// Adds this member's signature to a joint account operation. Sent by the joint sheet alone.
+        case signOperation
         #if INTERNAL || DEBUG
         case debug
         #endif
