@@ -10,5 +10,6 @@ protocol FeedNavigation: AnyObject {
     func pop()
 
     func present(_ destination: FeedDestination)
-    func dismiss(id: FeedDestination.ID)
+    func presentFullScreen(_ destination: FeedDestination, zoomingFrom source: FeedZoomSource)
+    func dismissPresented()
 }

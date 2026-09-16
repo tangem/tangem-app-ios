@@ -23,6 +23,7 @@ final class FeedCoordinator: CoordinatorObject {
     }
 
     @Published var presented: FeedDestination?
+    @Published var cover: FeedCover?
 
     let shtorkaStateObject = MainShtorkaStateObject()
 
@@ -56,8 +57,7 @@ extension FeedCoordinator {
 
 extension FeedCoordinator: FeedNavigation {
     func push(_ destination: FeedDestination) {
-        // Resign before the push, otherwise UIKit restores the search field as first responder on the way back.
-        UIApplication.shared.endEditing()
+        endEditing()
         path.append(destination)
     }
 
@@ -66,15 +66,27 @@ extension FeedCoordinator: FeedNavigation {
     }
 
     func present(_ destination: FeedDestination) {
+        endEditing()
         presented = destination
     }
 
-    func dismiss(id: FeedDestination.ID) {
-        guard presented?.id == id else {
+    func presentFullScreen(_ destination: FeedDestination, zoomingFrom source: FeedZoomSource) {
+        guard cover == nil else {
             return
         }
 
+        endEditing()
+        cover = FeedCover(destination: destination, zoomSource: source)
+    }
+
+    func dismissPresented() {
         presented = nil
+        cover = nil
+    }
+
+    /// Resign before leaving the feed, otherwise UIKit restores the search field as first responder on the way back.
+    private func endEditing() {
+        UIApplication.shared.endEditing()
     }
 }
 
@@ -95,13 +107,14 @@ private extension FeedCoordinator {
     /// Routes outlive a collapse — the collapsed sheet still shows the screen the user left open — but not the sheet
     /// itself: once it is gone, the screens it held go with it instead of living on until the main screen is rebuilt.
     func dropRoutes() {
-        guard path.isNotEmpty || presented != nil else {
+        guard path.isNotEmpty || presented != nil || cover != nil else {
             return
         }
 
         withTransaction(.withoutAnimations()) {
             path.removeAll()
             presented = nil
+            cover = nil
         }
     }
 }

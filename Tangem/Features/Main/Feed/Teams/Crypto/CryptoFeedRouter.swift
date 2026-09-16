@@ -91,7 +91,7 @@ extension CryptoFeedRouter: CryptoFeedRoutable {
         }
 
         let coordinator = TokenDetailsCoordinator(
-            dismissAction: { [weak self] _ in self?.navigation?.pop() },
+            dismissAction: { [weak self] _ in self?.navigation?.dismissPresented() },
             popToRootAction: popToRootAction
         )
 
@@ -106,6 +106,9 @@ extension CryptoFeedRouter: CryptoFeedRoutable {
                 presentSource: .markets
             )
         )
-        navigation?.push(.portfolioToken(coordinator))
+        navigation?.presentFullScreen(
+            .portfolioToken(coordinator),
+            zoomingFrom: .portfolioToken(walletID: walletModel.userWalletId, accountID: accountModel.id, tokenID: walletModel.id)
+        )
     }
 }

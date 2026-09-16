@@ -17,7 +17,7 @@ struct CryptoSearchPortfolioWalletView: View {
             header
 
             ForEach(wallet.accounts, id: \.id) { account in
-                CryptoSearchPortfolioAccountView(account: account)
+                CryptoSearchPortfolioAccountView(walletID: wallet.id, account: account)
             }
         }
     }
