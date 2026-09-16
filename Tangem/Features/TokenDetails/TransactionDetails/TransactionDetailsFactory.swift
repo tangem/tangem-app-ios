@@ -780,6 +780,7 @@ enum TransactionDetailsFactory {
             title: title.text,
             titleStyle: title.style,
             date: dateText,
+            subtitleStyle: .secondary,
             operationIcon: TransactionViewIconViewData(type: transaction.transactionType, status: status, isOutgoing: transaction.isOutgoing),
             iconGlyph: headerIconGlyph(for: record),
             menuSections: TransactionDetailsMenuFactory.menuSections(
