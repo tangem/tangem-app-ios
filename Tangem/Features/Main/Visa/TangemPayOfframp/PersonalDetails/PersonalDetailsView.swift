@@ -23,6 +23,11 @@ struct PersonalDetailsView: View {
             fields: $viewModel.fields,
             focused: $focusedField,
             state: viewModel.contentState,
+            suggestions: OfframpFormContentView.Suggestions(
+                fieldID: .accountNumber,
+                items: viewModel.suggestions,
+                onSelect: viewModel.onSuggestionTap(id:)
+            ),
             action: handle
         )
         .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
