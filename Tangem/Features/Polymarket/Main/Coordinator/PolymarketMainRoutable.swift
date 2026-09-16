@@ -15,7 +15,7 @@ protocol PolymarketMainRoutable: AnyObject {
     func openRegionWarning()
 
     @MainActor
-    func openMyPositions(tab: PolymarketPositionsTab)
+    func openMyPositions(tab: PolymarketPositionsTab, onOrderPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void)
 
     func openAddFunds()
 
@@ -30,7 +30,7 @@ protocol PolymarketMainRoutable: AnyObject {
         onOrderPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void
     )
 
-    func openPositionDetails(position: PolymarketPosition)
+    func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void)
 
     func openOrder(
         market: PolymarketMarket,
