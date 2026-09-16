@@ -742,6 +742,19 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func verifyTangemPayTileNotVisible() -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile is not displayed on main screen") { _ in
+            // The tile is absent from the start here, so the main screen has to be rendered before asserting.
+            waitAndAssertTrue(tokensList, "Main screen should be displayed")
+            XCTAssertTrue(
+                tangemPayTile.waitForNonExistence(timeout: .conditional),
+                "Tangem Pay tile should not be displayed after the account is removed"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func verifyTangemPayTileHasNoBalance() -> Self {
         XCTContext.runActivity(named: "Verify Tangem Pay tile shows no balance") { _ in
             scrollToElement(tangemPayTile)

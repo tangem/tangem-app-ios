@@ -368,6 +368,7 @@ struct TangemPayMainView: View {
                     SwiftUI.Button(role: .destructive, action: viewModel.promptRemoveAccount) {
                         Label(Localization.tangempayRemoveAccount, systemImage: "trash")
                     }
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.removeAccountMenuItem)
                 }
             } label: {
                 Image(systemName: "ellipsis")
