@@ -8,10 +8,11 @@
 
 import Combine
 import TangemFoundation
+import TangemPay
 
 @MainActor
 final class PersonalDetailsViewModel: ObservableObject {
-    @Published var fields: [OfframpFormField]
+    @Published var fields: [OfframpFormField] = []
     @Published private(set) var focusedFieldID: OfframpFormField.ID?
 
     let title: String
@@ -20,6 +21,9 @@ final class PersonalDetailsViewModel: ObservableObject {
     private let orderBuilder: TangemPayOfframpOrderBuilder
     private let isBusiness: Bool
     private let output: (Output) -> Void
+
+    private var country: TangemPayGeoCountry?
+    private var region: TangemPayGeoRegion?
 
     init(
         orderBuilder: TangemPayOfframpOrderBuilder,
@@ -33,7 +37,8 @@ final class PersonalDetailsViewModel: ObservableObject {
         self.output = output
 
         isBusiness = orderBuilder.recipient == .newBusiness
-        fields = Self.makeFields(isBusiness: isBusiness, details: orderBuilder.personalDetails)
+
+        refresh()
     }
 
     var contentState: OfframpFormContentView.StateModel {
@@ -49,7 +54,10 @@ final class PersonalDetailsViewModel: ObservableObject {
     }
 
     func refresh() {
-        fields = Self.makeFields(isBusiness: isBusiness, details: orderBuilder.personalDetails)
+        let details = orderBuilder.personalDetails
+        country = details?.country
+        region = details?.region
+        fields = makeFields(details: details)
     }
 
     func focusedFieldDidChange(to id: OfframpFormField.ID?) {
@@ -67,25 +75,25 @@ final class PersonalDetailsViewModel: ObservableObject {
     }
 
     func fieldBefore(_ id: OfframpFormField.ID?) -> OfframpFormField.ID? {
-        guard let id, let index = fields.firstIndex(where: { $0.id == id }), index > 0 else {
+        guard let id, let index = fields.firstIndex(where: { $0.id == id }) else {
             return nil
         }
 
-        return fields[index - 1].id
+        return fields[..<index].last { !$0.isSelectable }?.id
     }
 
     func fieldAfter(_ id: OfframpFormField.ID?) -> OfframpFormField.ID? {
-        guard let id, let index = fields.firstIndex(where: { $0.id == id }), fields.indices.contains(index + 1) else {
+        guard let id, let index = fields.firstIndex(where: { $0.id == id }) else {
             return nil
         }
 
-        return fields[index + 1].id
+        return fields[(index + 1)...].first { !$0.isSelectable }?.id
     }
 
     func submit() {
-        guard isContinueEnabled else { return }
+        guard isContinueEnabled, let country else { return }
 
-        orderBuilder.set(personalDetails: makePersonalDetails())
+        orderBuilder.set(personalDetails: makePersonalDetails(country: country))
         output(.continueWizard)
     }
 
@@ -111,7 +119,7 @@ private extension PersonalDetailsViewModel {
         field(id)?.text.trimmed() ?? ""
     }
 
-    func makePersonalDetails() -> TangemPayOfframpPersonalDetails {
+    func makePersonalDetails(country: TangemPayGeoCountry) -> TangemPayOfframpPersonalDetails {
         TangemPayOfframpPersonalDetails(
             name: makeName(),
             accountNumber: text(for: .accountNumber),
@@ -119,9 +127,10 @@ private extension PersonalDetailsViewModel {
             line1: text(for: .line1),
             line2: text(for: .line2).nilIfEmpty,
             city: text(for: .city),
-            region: text(for: .region).uppercased(),
-            postalCode: text(for: .postalCode),
-            countryCode: text(for: .countryCode).uppercased()
+            country: country,
+            region: region,
+            regionText: text(for: .region),
+            postalCode: text(for: .postalCode)
         )
     }
 
@@ -133,23 +142,15 @@ private extension PersonalDetailsViewModel {
         return .individual(firstName: text(for: .firstName), lastName: text(for: .lastName))
     }
 
-    static func makeFields(
-        isBusiness: Bool,
-        details: TangemPayOfframpPersonalDetails?
-    ) -> [OfframpFormField] {
-        let fields = accountFields() + nameFields(isBusiness: isBusiness) + addressFields()
+    func makeFields(details: TangemPayOfframpPersonalDetails?) -> [OfframpFormField] {
+        let values = details.map(Self.restoredValues(from:)) ?? [:]
 
-        guard let details else {
-            return fields
-        }
-
-        let values = restoredValues(from: details)
-
-        return fields.map { field in
-            var field = field
-            field.text = values[field.id] ?? ""
-            return field
-        }
+        return (Self.accountFields() + Self.nameFields(isBusiness: isBusiness) + addressFields())
+            .map { field in
+                var field = field
+                field.text = values[field.id] ?? ""
+                return field
+            }
     }
 
     // [REDACTED_TODO_COMMENT]
@@ -195,17 +196,19 @@ private extension PersonalDetailsViewModel {
     }
 
     // [REDACTED_TODO_COMMENT]
-    static func addressFields() -> [OfframpFormField] {
+    func addressFields() -> [OfframpFormField] {
         [
             OfframpFormField(
                 id: .countryCode,
                 title: "Country",
-                placeholder: "Not selected"
+                placeholder: "Not selected",
+                onSelect: { [weak self] in self?.selectCountry() }
             ),
             OfframpFormField(
                 id: .region,
                 title: "Region / state",
-                placeholder: "Not selected"
+                placeholder: regionPlaceholder,
+                onSelect: isRegionSelectable ? { [weak self] in self?.selectRegion() } : nil
             ),
             OfframpFormField(
                 id: .city,
@@ -236,8 +239,8 @@ private extension PersonalDetailsViewModel {
         var values: [OfframpFormField.ID: String] = [
             .accountNumber: details.accountNumber,
             .routingNumber: details.routingNumber,
-            .countryCode: details.countryCode,
-            .region: details.region,
+            .countryCode: details.country.name,
+            .region: details.region?.name ?? details.regionText,
             .city: details.city,
             .line1: details.line1,
             .line2: details.line2 ?? "",
@@ -257,10 +260,76 @@ private extension PersonalDetailsViewModel {
     }
 }
 
+// MARK: - Geo selection
+
+private extension PersonalDetailsViewModel {
+    var isRegionSelectable: Bool {
+        country?.code == Constants.regionSelectionCountryCode
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    var regionPlaceholder: String {
+        isRegionSelectable ? "Not selected" : "Eg., Bavaria"
+    }
+
+    func selectCountry() {
+        output(.selectCountry { [weak self] in self?.apply(country: $0) })
+    }
+
+    func selectRegion() {
+        guard let country else { return }
+
+        output(.selectRegion(countryCode: country.code) { [weak self] in self?.apply(region: $0) })
+    }
+
+    func apply(country selected: TangemPayGeoCountry) {
+        let didChange = country?.code != selected.code
+        country = selected
+
+        updateField(.countryCode) {
+            $0.text = selected.name
+            $0.error = nil
+        }
+
+        guard didChange else { return }
+
+        region = nil
+
+        let onSelect: (() -> Void)? = isRegionSelectable ? { [weak self] in self?.selectRegion() } : nil
+        let placeholder = regionPlaceholder
+
+        updateField(.region) {
+            $0.text = ""
+            $0.error = nil
+            $0.placeholder = placeholder
+            $0.onSelect = onSelect
+        }
+    }
+
+    func apply(region selected: TangemPayGeoRegion) {
+        region = selected
+
+        updateField(.region) {
+            $0.text = selected.name
+            $0.error = nil
+        }
+    }
+}
+
+// MARK: - Constants
+
+private extension PersonalDetailsViewModel {
+    enum Constants {
+        static let regionSelectionCountryCode = "US"
+    }
+}
+
 // MARK: - Output
 
 extension PersonalDetailsViewModel {
     enum Output {
+        case selectCountry((TangemPayGeoCountry) -> Void)
+        case selectRegion(countryCode: String, (TangemPayGeoRegion) -> Void)
         case continueWizard
         case close
     }

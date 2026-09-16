@@ -109,5 +109,11 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
+            .sheet(isPresented: $coordinator.isCountrySelectionPresented) {
+                coordinator.makeCountrySelectionView()
+            }
+            .sheet(isPresented: $coordinator.isRegionSelectionPresented) {
+                coordinator.makeRegionSelectionView()
+            }
     }
 }
