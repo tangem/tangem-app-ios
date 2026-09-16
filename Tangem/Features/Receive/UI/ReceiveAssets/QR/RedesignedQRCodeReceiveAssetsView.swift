@@ -104,6 +104,7 @@ struct RedesignedQRCodeReceiveAssetsView: View {
             .size(.x12)
             .styleType(.secondary(.default))
             .horizontalLayout(.infinity)
+            .accessibilityIdentifier(QRCodeAccessibilityIdentifiers.copyButton)
 
             TangemUI.Button(
                 label: Localization.commonShare,
@@ -114,6 +115,7 @@ struct RedesignedQRCodeReceiveAssetsView: View {
             .size(.x12)
             .styleType(.secondary(.default))
             .horizontalLayout(.infinity)
+            .accessibilityIdentifier(QRCodeAccessibilityIdentifiers.shareButton)
         }
     }
 }

@@ -11,6 +11,7 @@ import Foundation
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct RedesignedSelectorReceiveAssetsAddressPageItemView: View {
     @ObservedObject private(set) var viewModel: SelectorReceiveAssetsAddressPageItemViewModel
@@ -71,6 +72,7 @@ struct RedesignedSelectorReceiveAssetsAddressPageItemView: View {
             .iconStart(DesignSystem.Icons.Copy.regular24)
             .size(.x12)
             .styleType(.secondary(.default))
+            .accessibilityIdentifier(ReceiveAccessibilityIdentifiers.copyButton)
 
             TangemUI.Button(
                 label: Localization.commonShare,
@@ -80,6 +82,7 @@ struct RedesignedSelectorReceiveAssetsAddressPageItemView: View {
             .iconStart(DesignSystem.Icons.ShareIos.regular24)
             .size(.x12)
             .styleType(.secondary(.default))
+            .accessibilityIdentifier(ReceiveAccessibilityIdentifiers.shareButton)
         }
         .disabled(viewModel.isLoading)
     }
