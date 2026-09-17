@@ -98,7 +98,7 @@ private extension TangemPayCampaignResolver {
     }
 
     var campaignDeeplinkString: String {
-        "\(IncomingActionConstants.universalLinkScheme)marketing/\(campaignKey)"
+        "\(IncomingActionConstants.appScheme)marketing/\(campaignKey)"
     }
 }
 

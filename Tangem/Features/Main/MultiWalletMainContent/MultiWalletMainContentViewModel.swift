@@ -865,7 +865,7 @@ extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
             userWalletInfo: userWalletModel.userWalletInfo,
             tangemPayAccount: tangemPayAccount,
             userWalletModel: userWalletModel,
-            incomingAction: nil
+            openingAction: nil
         )
     }
 
