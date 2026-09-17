@@ -16,7 +16,7 @@ protocol RatingProvider: Sendable {
 private struct RatingProviderKey: InjectionKey {
     static var currentValue: RatingProvider = {
         let keys = InjectedValues[\.keysManager].surveySparrow
-        return SurveySparrowRatingProvider(keys: keys)
+        return RatingProviderCacheDecorator(decoratee: SurveySparrowRatingProvider(keys: keys))
     }()
 }
 

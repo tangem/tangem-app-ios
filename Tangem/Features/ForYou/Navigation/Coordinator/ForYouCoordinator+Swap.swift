@@ -138,20 +138,26 @@ private extension ForYouCoordinator {
 
     @MainActor
     func presentSwap(parameters: PredefinedSwapParameters) {
-        let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] _ in
-            self?.sendCoordinator = nil
-        }
-
         tangemStoriesPresenter.present(
             story: .swap(.initialWithoutImages),
             analyticsSource: .markets,
             presentCompletion: { [weak self] in
                 guard let self else { return }
-                let coordinator = SendCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+                let coordinator = makeSendCoordinator()
                 coordinator.start(with: .init(type: .swap(parameters), source: .markets))
                 sendCoordinator = coordinator
             }
         )
+    }
+}
+
+// MARK: - SendFeeCurrencyNavigating
+
+extension ForYouCoordinator: SendFeeCurrencyNavigating {
+    /// The portfolio destination is the same token details screen the protocol pushes.
+    var tokenDetailsCoordinator: TokenDetailsCoordinator? {
+        get { portfolioTokenDetailsCoordinator }
+        set { portfolioTokenDetailsCoordinator = newValue }
     }
 }
 
