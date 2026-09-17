@@ -58,11 +58,11 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
         reload()
     }
 
-    func orderPlaced(awaiting indexing: Task<Void, Never>?) {
+    func orderPlaced(awaiting indexing: PolymarketOrderIndexing?) {
         orderTask?.cancel()
 
         orderTask = runTask(in: self) { viewModel in
-            await indexing?.value
+            _ = await indexing?.value
 
             guard !Task.isCancelled else { return }
 

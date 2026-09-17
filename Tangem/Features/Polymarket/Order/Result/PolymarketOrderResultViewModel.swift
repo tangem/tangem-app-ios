@@ -7,12 +7,16 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemLocalization
 import TangemPolymarket
 import TangemPolymarketUI
 import TangemUI
 
-final class PolymarketOrderResultViewModel: Identifiable {
+final class PolymarketOrderResultViewModel: ObservableObject, Identifiable {
+    @Published private(set) var position: PolymarketPosition?
+    @Published private(set) var isAwaitingPosition = false
+
     let state: State
 
     let title: String
@@ -21,10 +25,21 @@ final class PolymarketOrderResultViewModel: Identifiable {
     let glyph: StatusIcon.Glyph
     let details: PolymarketOrderResultDetailsView.Model?
 
+    private let side: PolymarketOrderSide
+    private let indexing: PolymarketOrderIndexing?
     private weak var coordinator: PolymarketOrderResultRoutable?
 
-    init(state: State, content: Content, coordinator: PolymarketOrderResultRoutable?) {
+    private var positionTask: Task<Void, Never>?
+
+    init(
+        state: State,
+        content: Content,
+        indexing: PolymarketOrderIndexing? = nil,
+        coordinator: PolymarketOrderResultRoutable?
+    ) {
         self.state = state
+        side = content.side
+        self.indexing = indexing
         self.coordinator = coordinator
 
         title = Self.makeTitle(state: state, content: content)
@@ -32,6 +47,38 @@ final class PolymarketOrderResultViewModel: Identifiable {
         appearance = state.appearance
         glyph = state.glyph
         details = Self.makeDetails(state: state, content: content)
+
+        awaitPosition()
+    }
+
+    deinit {
+        positionTask?.cancel()
+    }
+
+    var actionTitle: String {
+        canViewPosition ? Constants.viewPositionTitle : Localization.predictionPlaceResultToMain
+    }
+
+    var secondaryActionTitle: String? {
+        canViewPosition ? Localization.predictionPlaceResultToMain : nil
+    }
+
+    var action: ViewAction {
+        canViewPosition ? .viewPositionTapped : .toMainTapped
+    }
+
+    var isActionDisabled: Bool {
+        canViewPosition && position == nil
+    }
+
+    private var isPositionExpected: Bool {
+        side == .buy && indexing != nil && (state == .placed || state == .partiallyPlaced)
+    }
+
+    /// The wait gives up after a few seconds and can come back empty — a network drop right after the
+    /// order is enough. The screen then offers the way out it always has instead of a dead button.
+    private var canViewPosition: Bool {
+        isPositionExpected && (isAwaitingPosition || position != nil)
     }
 
     // MARK: - View actions
@@ -40,6 +87,10 @@ final class PolymarketOrderResultViewModel: Identifiable {
         switch action {
         case .toMainTapped:
             coordinator?.closeOrder()
+        case .viewPositionTapped:
+            guard let position else { return }
+
+            coordinator?.openPosition(position)
         }
     }
 }
@@ -61,10 +112,28 @@ extension PolymarketOrderResultViewModel {
         let filledAmount: Decimal?
         let tokensBought: Decimal?
         let resolutionDate: Date?
+        let side: PolymarketOrderSide
+        let feeText: String?
     }
 
     enum ViewAction {
         case toMainTapped
+        case viewPositionTapped
+    }
+}
+
+// MARK: - The position the order created
+
+private extension PolymarketOrderResultViewModel {
+    func awaitPosition() {
+        guard isPositionExpected, let indexing else { return }
+
+        isAwaitingPosition = true
+
+        positionTask = runTask(in: self) { @MainActor viewModel in
+            viewModel.position = await indexing.value
+            viewModel.isAwaitingPosition = false
+        }
     }
 }
 
@@ -97,18 +166,18 @@ private extension PolymarketOrderResultViewModel {
         case .placed:
             let amount = content.filledAmount ?? content.orderedAmount
             return [
-                Localization.predictionPlaceResultSuccessTitle,
+                content.side == .sell ? Constants.soldTitle : Localization.predictionPlaceResultSuccessTitle,
                 PolymarketOrderFormatter.enteredAmount(amount),
             ].joined(separator: "\n")
         case .partiallyPlaced:
             let filled = PolymarketOrderFormatter.enteredAmount(content.filledAmount)
             let ordered = PolymarketOrderFormatter.enteredAmount(content.orderedAmount)
             return [
-                Localization.predictionPlaceResultPartialTitle,
+                content.side == .sell ? Constants.partiallySoldTitle : Localization.predictionPlaceResultPartialTitle,
                 Localization.predictionPlaceResultPartialAmount(filled, ordered),
             ].joined(separator: "\n")
         case .noFill:
-            return Localization.predictionPlaceResultNoFillTitle
+            return content.side == .sell ? Constants.noLiquidityTitle : Localization.predictionPlaceResultNoFillTitle
         case .stillProcessing:
             return Localization.predictionPlaceDelayedTimeoutTitle
         }
@@ -130,7 +199,13 @@ private extension PolymarketOrderResultViewModel {
             banner: makeBanner(state: state),
             market: content.market,
             tokensBoughtText: makeTokensBoughtText(state: state, content: content),
-            resolutionDateText: content.resolutionDate.map(PolymarketOrderResultFormatter.resolutionDate)
+            resolutionDateText: content.resolutionDate.map(PolymarketOrderResultFormatter.resolutionDate),
+            tokensTitle: content.side == .sell
+                ? Constants.tokensSoldTitle
+                : Localization.predictionPlaceResultTokensBought,
+            fee: (state == .placed ? content.feeText : nil).map {
+                .init(currencyCode: PolymarketUtilities.collateralTokenItem.currencySymbol, valueText: $0)
+            }
         )
     }
 
@@ -163,12 +238,39 @@ private extension PolymarketOrderResultViewModel {
 // MARK: - Reading the exchange's answer
 
 extension PolymarketOrderResultViewModel.State {
-    init(placement: PolymarketOrderPlacement, quotedShares: Decimal) {
-        guard placement.isMatched, let filled = placement.takingAmount, filled > 0 else {
+    init(placement: PolymarketOrderPlacement, quotedShares: Decimal, side: PolymarketOrderSide) {
+        guard placement.isMatched, let taking = placement.takingAmount, taking > 0 else {
             self = .stillProcessing
             return
         }
 
+        let filled: Decimal
+
+        switch side {
+        case .buy:
+            filled = taking
+        case .sell:
+            guard let making = placement.makingAmount else {
+                self = .stillProcessing
+                return
+            }
+
+            filled = making
+        }
+
         self = filled < quotedShares ? .partiallyPlaced : .placed
+    }
+}
+
+// MARK: - Constants
+
+private extension PolymarketOrderResultViewModel {
+    // [REDACTED_TODO_COMMENT]
+    enum Constants {
+        static let viewPositionTitle = "View position"
+        static let soldTitle = "Sold"
+        static let partiallySoldTitle = "Partially Sold"
+        static let noLiquidityTitle = "No liquidity for selling"
+        static let tokensSoldTitle = "Tokens sold"
     }
 }

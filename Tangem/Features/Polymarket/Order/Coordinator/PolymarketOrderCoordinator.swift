@@ -31,7 +31,7 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
 
     private var placementService: PolymarketOrderPlacementService?
     private var addFundsAction: (() -> Void)?
-    private var indexingTask: Task<Void, Never>?
+    private var indexingTask: PolymarketOrderIndexing?
     private var hasPlacedOrder = false
 
     // MARK: - Init
@@ -53,10 +53,10 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
                 market: options.market,
                 outcome: options.outcome,
                 eventTitle: options.eventTitle,
+                intent: options.intent,
                 apiProvider: PolymarketAPIProviderFactory().makeProvider(walletId: options.walletId),
                 geoblockStateProvider: options.geoblockStateProvider,
                 positionsService: options.positionsService,
-                balancePublisher: options.balancePublisher,
                 isAwaitingFundsPublisher: options.isAwaitingFundsPublisher
             )
 
@@ -70,11 +70,15 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
 
 extension PolymarketOrderCoordinator: PolymarketOrderRoutable {
     func closeOrder() {
-        dismiss(with: hasPlacedOrder ? DismissPayload(indexing: indexingTask) : nil)
+        dismiss(with: hasPlacedOrder ? DismissPayload(indexing: indexingTask, position: nil) : nil)
     }
 
     func openAddFunds() {
         addFundsAction?()
+    }
+
+    func openPosition(_ position: PolymarketPosition) {
+        dismiss(with: DismissPayload(indexing: indexingTask, position: position))
     }
 
     func openSlippageSelector(percent: Decimal, onConfirm: @escaping (Decimal) -> Void) {
@@ -133,7 +137,12 @@ extension PolymarketOrderCoordinator: PolymarketOrderSummaryRoutable {
             indexingTask = model?.awaitIndexing()
         }
 
-        destination = .result(PolymarketOrderResultViewModel(state: state, content: content, coordinator: self))
+        destination = .result(PolymarketOrderResultViewModel(
+            state: state,
+            content: content,
+            indexing: indexingTask,
+            coordinator: self
+        ))
     }
 }
 
@@ -170,7 +179,8 @@ extension PolymarketOrderCoordinator {
 
 extension PolymarketOrderCoordinator {
     struct DismissPayload {
-        let indexing: Task<Void, Never>?
+        let indexing: PolymarketOrderIndexing?
+        let position: PolymarketPosition?
     }
 
     struct Options {
@@ -178,8 +188,8 @@ extension PolymarketOrderCoordinator {
         let outcome: PolymarketOutcome
         let eventTitle: String
         let walletId: String
+        let intent: PolymarketOrderIntent
         let geoblockStateProvider: PolymarketGeoblockStateProvider
-        let balancePublisher: AnyPublisher<Decimal?, Never>
         let placementService: PolymarketOrderPlacementService
         let positionsService: PolymarketPositionsService?
         let isAwaitingFundsPublisher: AnyPublisher<Bool, Never>

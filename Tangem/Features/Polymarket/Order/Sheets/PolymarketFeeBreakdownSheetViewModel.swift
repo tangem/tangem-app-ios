@@ -15,6 +15,7 @@ import TangemPolymarket
 final class PolymarketFeeBreakdownSheetViewModel: ObservableObject, Identifiable {
     // MARK: - View state
 
+    @Published private(set) var orderTitle: String
     @Published private(set) var orderCaption: String
     @Published private(set) var orderValue: String
     @Published private(set) var polymarketFee: String
@@ -33,8 +34,9 @@ final class PolymarketFeeBreakdownSheetViewModel: ObservableObject, Identifiable
     init(model: PolymarketOrderModel) {
         self.model = model
 
-        let content = Content(state: model.state) ?? .placeholder
+        let content = Content(state: model.state, intent: model.intent) ?? .placeholder(intent: model.intent)
 
+        orderTitle = content.orderTitle
         orderCaption = content.orderCaption
         orderValue = content.orderValue
         polymarketFee = content.polymarketFee
@@ -61,11 +63,11 @@ private extension PolymarketFeeBreakdownSheetViewModel {
     }
 
     func update(with state: PolymarketOrderModel.State) {
-        guard let content = Content(state: state) else {
-            isRefreshing = state.quote.isAwaited
+        guard let content = Content(state: state, intent: model.intent) else {
+            isRefreshing = state.quote.isAwaitingQuote
 
             if !isRefreshing {
-                apply(.placeholder)
+                apply(.placeholder(intent: model.intent))
             }
 
             return
@@ -76,6 +78,7 @@ private extension PolymarketFeeBreakdownSheetViewModel {
     }
 
     func apply(_ content: Content) {
+        orderTitle = content.orderTitle
         orderCaption = content.orderCaption
         orderValue = content.orderValue
         polymarketFee = content.polymarketFee
@@ -84,28 +87,18 @@ private extension PolymarketFeeBreakdownSheetViewModel {
     }
 }
 
-// MARK: - Quote state
-
-private extension PolymarketOrderQuoteState {
-    var isAwaited: Bool {
-        switch self {
-        case .empty, .loading: true
-        case .content, .unavailable, .failed: false
-        }
-    }
-}
-
 // MARK: - Content
 
 private extension PolymarketFeeBreakdownSheetViewModel {
     struct Content {
+        let orderTitle: String
         let orderCaption: String
         let orderValue: String
         let polymarketFee: String
         let tangemBuilderFee: String
         let total: String
 
-        init?(state: PolymarketOrderModel.State) {
+        init?(state: PolymarketOrderModel.State, intent: PolymarketOrderIntent) {
             guard let quote = state.quote.quote else { return nil }
 
             let shares = PolymarketOrderFormatter.shares(quote.shares)
@@ -113,20 +106,37 @@ private extension PolymarketFeeBreakdownSheetViewModel {
             let slippage = PolymarketSlippageFormatter.percentText(state.slippagePercent)
 
             // [REDACTED_TODO_COMMENT]
-            orderCaption = "Buying \(shares) shares at \(price) each. Final shares count (and corresponding pUSD amount executed) may vary within your \(slippage) slippage limit, depending on what this market can match."
+            orderTitle = Self.title(for: intent)
+            orderCaption = "\(Self.verb(for: intent)) \(shares) shares at \(price) each. Final shares count (and corresponding pUSD amount executed) may vary within your \(slippage) slippage limit, depending on what this market can match."
             orderValue = PolymarketOrderFormatter.money(quote.notional)
             polymarketFee = PolymarketOrderFormatter.money(quote.fees.market)
             tangemBuilderFee = PolymarketOrderFormatter.money(quote.fees.builder)
             total = PolymarketOrderFormatter.money(quote.total)
         }
 
+        static func title(for intent: PolymarketOrderIntent) -> String {
+            switch intent {
+            case .buy: "Prediction order"
+            case .sell: "Close position"
+            }
+        }
+
+        static func verb(for intent: PolymarketOrderIntent) -> String {
+            switch intent {
+            case .buy: "Buying"
+            case .sell: "Selling"
+            }
+        }
+
         private init(
+            orderTitle: String,
             orderCaption: String,
             orderValue: String,
             polymarketFee: String,
             tangemBuilderFee: String,
             total: String
         ) {
+            self.orderTitle = orderTitle
             self.orderCaption = orderCaption
             self.orderValue = orderValue
             self.polymarketFee = polymarketFee
@@ -134,12 +144,15 @@ private extension PolymarketFeeBreakdownSheetViewModel {
             self.total = total
         }
 
-        static let placeholder = Content(
-            orderCaption: "",
-            orderValue: BalanceFormatter.defaultEmptyBalanceString,
-            polymarketFee: BalanceFormatter.defaultEmptyBalanceString,
-            tangemBuilderFee: BalanceFormatter.defaultEmptyBalanceString,
-            total: BalanceFormatter.defaultEmptyBalanceString
-        )
+        static func placeholder(intent: PolymarketOrderIntent) -> Content {
+            Content(
+                orderTitle: title(for: intent),
+                orderCaption: "",
+                orderValue: BalanceFormatter.defaultEmptyBalanceString,
+                polymarketFee: BalanceFormatter.defaultEmptyBalanceString,
+                tangemBuilderFee: BalanceFormatter.defaultEmptyBalanceString,
+                total: BalanceFormatter.defaultEmptyBalanceString
+            )
+        }
     }
 }

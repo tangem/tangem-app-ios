@@ -78,9 +78,9 @@ private extension PolymarketOrderFractionTests {
             market: .fixture,
             outcome: .fixture,
             eventTitle: "Fixture event",
+            intent: .buy(balance: .just(output: balance)),
             apiProvider: PolymarketAPIProviderStub(quoteResult: quote),
             geoblockStateProvider: PolymarketGeoblockStateProviderStub(),
-            balancePublisher: .just(output: balance),
             isAwaitingFundsPublisher: .just(output: false)
         )
 

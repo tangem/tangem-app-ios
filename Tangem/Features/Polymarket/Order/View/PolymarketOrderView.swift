@@ -25,7 +25,8 @@ struct PolymarketOrderView: View {
     var body: some View {
         VStack(spacing: 0) {
             PolymarketTopBar(
-                title: Localization.predictionPlaceTitle,
+                title: viewModel.screenTitle,
+                onBack: viewModel.showsBack ? { viewModel.handleViewAction(.closeTapped) } : nil,
                 onClose: { viewModel.handleViewAction(.closeTapped) }
             )
             .padding(.top, Constants.topBarTopPadding)
@@ -55,13 +56,22 @@ struct PolymarketOrderView: View {
             PolymarketOrderMarketRow(model: viewModel.marketRow)
 
             PolymarketOrderAmountBlock(
+                title: viewModel.amountTitle,
                 payment: viewModel.payment,
-                onAddFunds: { viewModel.handleViewAction(.addFundsTapped) }
+                onAddFunds: viewModel.isAddFundsAvailable ? { viewModel.handleViewAction(.addFundsTapped) } : nil
             ) {
                 VStack(spacing: Constants.captionSpacing) {
-                    amountField
+                    if viewModel.isAmountEditable {
+                        amountField
+                    } else {
+                        proceedsAmount
+                    }
 
                     amountCaption
+                }
+            } footer: {
+                if !viewModel.isAmountEditable {
+                    sellControls
                 }
             }
 
@@ -88,8 +98,16 @@ struct PolymarketOrderView: View {
         .animation(.easeInOut(duration: Constants.notificationsAnimationDuration), value: viewModel.isAwaitingFunds)
     }
 
-    @ViewBuilder
     private var amountCaption: some View {
+        captionContent
+            .id(viewModel.amountCaption)
+            .transition(.opacity)
+            .frame(minHeight: viewModel.isAmountEditable ? 0 : Constants.captionMinHeight)
+            .animation(.curve(.easeInOutRefined, duration: Constants.captionAnimationDuration), value: viewModel.amountCaption)
+    }
+
+    @ViewBuilder
+    private var captionContent: some View {
         switch viewModel.amountCaption {
         case .toWin(let text):
             PolymarketAmountBadge.toWin(state: .value(text))
@@ -98,13 +116,13 @@ struct PolymarketOrderView: View {
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusError)
                 .multilineTextAlignment(.center)
         case nil:
-            EmptyView()
+            Color.clear
         }
     }
 
     private var amountField: some View {
         SendDecimalNumberTextField(viewModel: viewModel.fieldViewModel)
-            .prefixSuffixOptions(Constants.prefixSuffixOptions)
+            .prefixSuffixOptions(viewModel.amountPrefixSuffixOptions)
             .appearance(.init(
                 font: DesignSystem.Font.displayMediumToken.font,
                 textColor: DesignSystem.Color.textPrimary,
@@ -112,6 +130,86 @@ struct PolymarketOrderView: View {
             ))
             .alignment(.center)
             .focused($isAmountFocused)
+    }
+
+    private var proceedsAmount: some View {
+        VStack(spacing: Constants.captionSpacing) {
+            proceedsValue
+
+            if let sellingText = viewModel.sellingText {
+                Text(sellingText)
+                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .contentTransition(.numericText())
+                    .animation(.contentFrameUpdate, value: sellingText)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var proceedsValue: some View {
+        if viewModel.isProceedsLoading {
+            Shimmer()
+                .frame(width: Constants.proceedsSkeletonWidth, height: Constants.proceedsSkeletonHeight)
+                .clipShape(Capsule())
+                .frame(height: Constants.proceedsLineHeight)
+        } else {
+            Text(viewModel.proceedsText)
+                .style(DesignSystem.Font.displayMediumToken, color: DesignSystem.Color.textPrimary)
+                .lineLimit(1)
+                .contentTransition(.numericText())
+                .opacity(viewModel.isProceedsStale ? Constants.staleOpacity : 1)
+                .animation(.curve(.easeInOutRefined, duration: Constants.staleAnimationDuration), value: viewModel.isProceedsStale)
+                .animation(.contentFrameUpdate, value: viewModel.proceedsText)
+        }
+    }
+
+    private var sellControls: some View {
+        HStack(spacing: Constants.sellControlsSpacing) {
+            ForEach(viewModel.amountFractions, id: \.self) { fraction in
+                sellControl(minWidth: Constants.chipMinWidth) {
+                    Text(fraction.title)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                        .lineLimit(1)
+                } action: {
+                    viewModel.handleViewAction(.fractionTapped(fraction))
+                }
+                .frame(maxWidth: .infinity)
+            }
+
+            stepButton(DesignSystem.Icons.SignMinus.regular20, step: -1)
+
+            stepButton(DesignSystem.Icons.SignPlus.regular20, step: 1)
+        }
+        .padding(.horizontal, Constants.horizontalPadding)
+        .padding(.bottom, Constants.sellControlsBottomPadding)
+    }
+
+    private func stepButton(_ icon: ImageType, step: Int) -> some View {
+        sellControl(minWidth: Constants.controlSide) {
+            icon.image
+                .renderingMode(.template)
+                .resizable()
+                .frame(width: Constants.stepIconSide, height: Constants.stepIconSide)
+                .foregroundStyle(DesignSystem.Color.iconPrimary)
+        } action: {
+            viewModel.handleViewAction(.stepTapped(step))
+        }
+        .frame(width: Constants.controlSide)
+    }
+
+    private func sellControl(
+        minWidth: CGFloat,
+        @ViewBuilder label: () -> some View,
+        action: @escaping () -> Void
+    ) -> some View {
+        SwiftUI.Button(action: action) {
+            label()
+                .frame(minWidth: minWidth, minHeight: Constants.controlSide)
+                .background(DesignSystem.Color.bgOpaquePrimary, in: Capsule())
+                .contentShape(.capsule)
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Keyboard bar
@@ -130,8 +228,8 @@ struct PolymarketOrderView: View {
 
     private var nextButton: some View {
         TangemUI.Button(
-            label: Localization.commonNext,
-            accessibilityLabel: Localization.commonNext,
+            label: viewModel.nextButtonTitle,
+            accessibilityLabel: viewModel.nextButtonTitle,
             action: { viewModel.handleViewAction(.nextTapped) }
         )
         .styleType(.default)
@@ -144,12 +242,30 @@ struct PolymarketOrderView: View {
     }
 }
 
+// MARK: - Animations
+
+private extension Animation {
+    static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
+}
+
 // MARK: - Constants
 
 private extension PolymarketOrderView {
     enum Constants {
         static let topBarTopPadding: CGFloat = 8
         static let horizontalPadding: CGFloat = 16
+        static let sellControlsSpacing: CGFloat = 4
+        static let chipMinWidth: CGFloat = 56
+        static let controlSide: CGFloat = 36
+        static let stepIconSide: CGFloat = 20
+        static let proceedsSkeletonWidth: CGFloat = 140
+        static let proceedsSkeletonHeight: CGFloat = 44
+        static let proceedsLineHeight: CGFloat = 52
+        static let staleOpacity: CGFloat = 0.4
+        static let captionMinHeight: CGFloat = 24
+        static let captionAnimationDuration: TimeInterval = 0.2
+        static let staleAnimationDuration: TimeInterval = 0.2
+        static let sellControlsBottomPadding: CGFloat = 8
         static let contentTopPadding: CGFloat = 16
         static let blockSpacing: CGFloat = 8
         static let captionSpacing: CGFloat = 8
@@ -157,8 +273,5 @@ private extension PolymarketOrderView {
         static let buttonBottomPadding: CGFloat = 12
         static let notificationsAnimationDuration: TimeInterval = 0.3
         static let cornerRadius: CGFloat = 24
-
-        static let prefixSuffixOptions = SendDecimalNumberTextField.PrefixSuffixOptions
-            .prefix(text: AppConstants.usdSign, hasSpace: true)
     }
 }
