@@ -22,6 +22,9 @@ final class CommonJointAccountsRepository {
     private let pendingOperationsPersistentStorage: JointAccountsPendingOperationsPersistentStorage
     private let isJointAccountsAvailable: Bool
 
+    private lazy var autoupdater = JointAccountsRepositoryAutoupdater(innerRepository: self, isJointAccountsAvailable: isJointAccountsAvailable)
+    private var loadAccountsSubscription: AnyCancellable?
+
     /// - Note: The contract offers no caching, so the list is asked for often and every asker gets the answer of the
     /// one request that actually goes out.
     private lazy var loadJointAccountsDebouncer = Debouncer<LoadResult>(interval: Constants.debounceInterval) { [weak self] completion in
@@ -33,8 +36,6 @@ final class CommonJointAccountsRepository {
 
         loadJointAccountsFromServer(completion)
     }
-
-    private var loadAccountsSubscription: AnyCancellable?
 
     /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
     private lazy var storageDidUpdatePublisher: AnyPublisher<[StoredJointAccount], Never> = persistentStorage
@@ -88,11 +89,14 @@ final class CommonJointAccountsRepository {
         self.invitesPersistentStorage = invitesPersistentStorage
         self.pendingOperationsPersistentStorage = pendingOperationsPersistentStorage
         self.isJointAccountsAvailable = isJointAccountsAvailable
+
         // Eager initialization of these lazy properties to ensure that there are no race conditions
         _ = loadJointAccountsDebouncer
         _ = storageDidUpdatePublisher
         _ = invitesStorageDidUpdatePublisher
         _ = pendingOperationsStorageDidUpdatePublisher
+
+        _ = autoupdater
     }
 }
 
@@ -324,5 +328,60 @@ extension CommonJointAccountsRepository {
 private extension CommonJointAccountsRepository {
     enum Constants {
         static let debounceInterval = 0.3
+        /// The listing is the only place an operation's progress shows up, so it is re-read this often while one is in flight.
+        static let operationsPollingInterval: Duration = .seconds(60)
+    }
+}
+
+extension CommonJointAccountsRepository {
+    final class JointAccountsRepositoryAutoupdater {
+        private weak var innerRepository: CommonJointAccountsRepository?
+        private let pollingProcessor = RepeatedTaskProcessor(duration: Constants.operationsPollingInterval)
+
+        private var pendingOperationsSubscription: Task<Void, Never>?
+
+        init(innerRepository: CommonJointAccountsRepository, isJointAccountsAvailable: Bool) {
+            self.innerRepository = innerRepository
+
+            if isJointAccountsAvailable {
+                bind(innerRepository: innerRepository)
+            }
+        }
+
+        deinit {
+            pendingOperationsSubscription?.cancel()
+        }
+
+        /// One task reads the publisher in order, so a stop cannot overtake the start it follows.
+        private func bind(innerRepository: CommonJointAccountsRepository) {
+            let publisher = innerRepository.jointAccountsPendingOperationsPublisher
+
+            pendingOperationsSubscription = Task { [weak self] in
+                for await accounts in await publisher.values {
+                    await self?.updatePolling(accounts: accounts)
+                }
+            }
+        }
+
+        /// - Note: The stage an operation names is not asked about: an account keeps a record only while the listing
+        /// carries an operation for it, and the listing dropping one is what ends it.
+        private func updatePolling(accounts: [StoredJointAccountPendingOperations]) async {
+            if accounts.isEmpty {
+                await stopPolling()
+            } else {
+                await startPolling()
+            }
+        }
+
+        private func startPolling() async {
+            // The failure is logged by the load itself, and the next run is the retry
+            await pollingProcessor.start { [weak innerRepository] in
+                try? await innerRepository?.loadJointAccountsFromRemote()
+            }
+        }
+
+        private func stopPolling() async {
+            await pollingProcessor.cancel()
+        }
     }
 }
