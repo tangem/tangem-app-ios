@@ -114,8 +114,8 @@ private extension StakingModel {
         // temp hack to prevent error on max amount staking after account initialization
         let amount = currentAmount - (accountInitializationFee?.amount.value ?? .zero)
 
-        guard sendSourceToken.canCoverStakingFee else {
-            update(state: .networkError(StakingPreflightError.insufficientFundsForFee))
+        if let preflightError = sendSourceToken.stakingFeePreflightError {
+            update(state: .networkError(preflightError))
             return
         }
 

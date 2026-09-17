@@ -223,7 +223,8 @@ private extension NotificationBannerCatalogView {
             ),
             networkName: "Ethereum",
             currencyButtonTitle: purchaseAllowed ? nil : "POL",
-            isFeeCurrencyPurchaseAllowed: purchaseAllowed
+            isFeeCurrencyPurchaseAllowed: purchaseAllowed,
+            feeCurrencyBalance: .zero
         )
     }
 }
