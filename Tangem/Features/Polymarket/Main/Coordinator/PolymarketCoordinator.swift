@@ -30,29 +30,33 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
 
     @Published private(set) var viewState: ViewState?
     @Published var destination: Destination?
-    @Published var tokenDetailsCoordinator: TokenDetailsCoordinator?
-    @Published var sendCoordinator: SendCoordinator? {
+    @Published var sheet: Sheet? {
         didSet {
-            guard sendCoordinator == nil, let operation = dispatchedOperation else { return }
+            guard sheet == nil else { return }
 
-            dispatchedOperation = nil
-
-            switch operation {
-            case .deposit:
-                startAwaitingFunds()
-            case .withdrawal:
-                startAwaitingWithdrawal()
-            }
+            startAwaitingDispatchedOperation()
         }
     }
 
-    private var fundsArrivalTracker: PolymarketFundsArrivalTracker?
-    private var geoblockStateProvider: PolymarketGeoblockStateProvider?
-    private var balanceProvider: PolymarketBalanceProvider?
+    var tokenDetailsCoordinator: TokenDetailsCoordinator? {
+        get {
+            guard case .tokenDetails(let coordinator) = destination else { return nil }
 
-    private var userWalletModel: (any UserWalletModel)?
-    private var accountFundsInteractor: PolymarketAccountFundsInteractor?
-    private var withdrawContext: PolymarketWithdrawContext?
+            return coordinator
+        }
+        set { destination = newValue.map { .tokenDetails($0) } }
+    }
+
+    var sendCoordinator: SendCoordinator? {
+        get {
+            guard case .send(let coordinator) = sheet else { return nil }
+
+            return coordinator
+        }
+        set { sheet = newValue.map { .send($0) } }
+    }
+
+    private var options: Options?
     private weak var regionWarning: PolymarketRegionRestrictionViewModel?
     private weak var addFundsSheet: PolymarketAddFundsSheetViewModel?
     private var sheetDismissSubscription: AnyCancellable?
@@ -69,7 +73,7 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
     }
 
     func start(with options: Options) {
-        userWalletModel = options.userWalletModel
+        self.options = options
 
         subscribeToSheetDismiss()
 
@@ -106,7 +110,7 @@ private extension PolymarketCoordinator {
             return
         }
 
-        showMain()
+        showMain(for: userWalletModel)
     }
 }
 
@@ -123,15 +127,17 @@ extension PolymarketCoordinator {
 extension PolymarketCoordinator: PolymarketWelcomeRoutable {
     func onboardingDidFinish(isNewAccount: Bool) {
         Task { @MainActor in
+            guard let userWalletModel = options?.userWalletModel else { return }
+
             guard isNewAccount else {
-                showMain()
+                showMain(for: userWalletModel)
                 return
             }
 
             tangemStoriesPresenter.present(
                 story: .polymarketOnboarding(.initialWithoutImages),
                 analyticsSource: .predictions,
-                presentCompletion: { [weak self] in self?.showMain() }
+                presentCompletion: { [weak self] in self?.showMain(for: userWalletModel) }
             )
         }
     }
@@ -144,62 +150,21 @@ extension PolymarketCoordinator: PolymarketWelcomeRoutable {
 // MARK: - The main screen
 
 private extension PolymarketCoordinator {
-    func showMain() {
-        guard let userWalletModel else {
-            PolymarketLogger.error("The feed was opened without a wallet", error: CoordinatorError.missingUserWalletModel)
-            dismiss()
-            return
-        }
+    func showMain(for userWalletModel: any UserWalletModel) {
+        let dependencies = PolymarketMainDependenciesFactory().make(for: userWalletModel)
 
-        let geoblockStateProvider = CommonPolymarketGeoblockStateProvider(
-            geoblockService: PolymarketOnboardingServicesFactory.makeDefault().makeGeoblockService()
+        viewState = .main(
+            viewModel: dependencies.makeMainViewModel(routable: self),
+            destinationFactory: PolymarketDestinationFactory(
+                dependencies: dependencies,
+                onAddFunds: { [weak self] in self?.openAddFunds() }
+            ),
+            fundingFlow: PolymarketFundingFlow(dependencies: dependencies)
         )
-
-        let balanceProvider = CommonPolymarketBalanceProvider(userWalletModel: userWalletModel)
-        let accountFundsInteractor = PolymarketAccountFundsFactory().makeInteractor(for: userWalletModel)
-        let fundsArrivalTracker = PolymarketFundsArrivalTracker(
-            balancePublisher: balanceProvider.collateralBalancePublisher.map(\.value).eraseToAnyPublisher()
-        )
-
-        self.geoblockStateProvider = geoblockStateProvider
-        self.balanceProvider = balanceProvider
-        self.accountFundsInteractor = accountFundsInteractor
-        self.fundsArrivalTracker = fundsArrivalTracker
-        withdrawContext = PolymarketWithdrawFactory().makeContext(for: userWalletModel)
-
-        viewState = .main(PolymarketMainViewModel(
-            apiProvider: makeAPIProvider(for: userWalletModel),
-            geoblockStateProvider: geoblockStateProvider,
-            balanceProvider: balanceProvider,
-            accountFundsInteractor: accountFundsInteractor,
-            positionsService: makePositionsService(for: userWalletModel),
-            fundsArrivalTracker: fundsArrivalTracker,
-            coordinator: self
-        ))
-    }
-
-    func makeIntent(
-        for request: PolymarketOrderRequest,
-        balanceProvider: PolymarketBalanceProvider
-    ) -> PolymarketOrderIntent {
-        switch request {
-        case .buy:
-            .buy(balance: balanceProvider.collateralBalancePublisher.map(\.value).eraseToAnyPublisher())
-        case .sell(let shares):
-            .sell(shares: shares)
-        }
-    }
-
-    func makeAPIProvider(for userWalletModel: any UserWalletModel) -> PolymarketAPIProvider {
-        PolymarketAPIProviderFactory().makeProvider(walletId: userWalletModel.userWalletId.stringValue)
-    }
-
-    func makePositionsService(for userWalletModel: any UserWalletModel) -> PolymarketPositionsService {
-        PolymarketPositionsFactory().makeService(for: userWalletModel, apiProvider: makeAPIProvider(for: userWalletModel))
     }
 }
 
-// MARK: - PolymarketMainRoutable protocol conformance
+// MARK: - PolymarketMainRoutable
 
 extension PolymarketCoordinator: PolymarketMainRoutable {
     func dismiss() {
@@ -217,55 +182,34 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
     func openEventDetails(
         eventID: String,
         category: PolymarketCategory?,
-        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void
+        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
     ) {
-        guard let userWalletModel else {
-            PolymarketLogger.error("An event was tapped without a wallet", error: CoordinatorError.missingUserWalletModel)
-            return
-        }
+        guard case .main(_, let destinationFactory, _) = viewState else { return }
 
-        let coordinator = PolymarketEventDetailsCoordinator(
-            dismissAction: { [weak self] in self?.destination = nil }
-        )
-
-        coordinator.start(with: .init(
+        destination = .eventDetails(destinationFactory.makeEventDetails(
             eventID: eventID,
             category: category,
-            apiProvider: makeAPIProvider(for: userWalletModel),
-            geoblockStateProvider: geoblockStateProvider,
             onOrderPlaced: onOrderPlaced,
             onRegionWarning: { [weak self] in self?.openRegionWarning() },
             onOpenPosition: { [weak self] position in
                 self?.openPositionDetails(position: position, onOrderPlaced: onOrderPlaced)
             },
-            orderBuilder: self
+            onClose: { [weak self] in self?.popToMain() }
         ))
-
-        destination = .eventDetails(coordinator)
     }
 
-    func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void) {
-        guard let userWalletModel else {
-            PolymarketLogger.error("A position was tapped without a wallet", error: CoordinatorError.missingUserWalletModel)
-            return
-        }
+    func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void) {
+        guard case .main(_, let destinationFactory, _) = viewState else { return }
 
-        destination = .positionDetails(PolymarketPositionDetailsViewModel(
+        destination = .positionDetails(destinationFactory.makePositionDetails(
             position: position,
-            apiProvider: makeAPIProvider(for: userWalletModel),
-            geoblockStateProvider: geoblockStateProvider,
             onOrderPlaced: onOrderPlaced,
-            coordinator: self
+            onRegionWarning: { [weak self] in self?.openRegionWarning() },
+            onOpenPosition: { [weak self] position in
+                self?.openPositionDetails(position: position, onOrderPlaced: onOrderPlaced)
+            },
+            onClose: { [weak self] in self?.popToMain() }
         ))
-    }
-
-    func openOrder(
-        market: PolymarketMarket,
-        outcome: PolymarketOutcome,
-        eventTitle: String,
-        onPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void
-    ) {
-        openOrder(market: market, outcome: outcome, eventTitle: eventTitle, request: .buy, onPlaced: onPlaced)
     }
 
     func openOrder(
@@ -273,9 +217,11 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
         outcome: PolymarketOutcome,
         eventTitle: String,
         request: PolymarketOrderRequest,
-        onPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void
+        onPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
     ) {
-        guard let coordinator = makeOrderCoordinator(
+        guard case .main(_, let destinationFactory, _) = viewState else { return }
+
+        destination = .order(destinationFactory.makeOrderCoordinator(
             market: market,
             outcome: outcome,
             eventTitle: eventTitle,
@@ -284,36 +230,25 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
             onOpenPosition: { [weak self] position in
                 self?.openPositionDetails(position: position, onOrderPlaced: onPlaced)
             },
-            onClose: { [weak self] in self?.destination = nil }
-        ) else {
-            return
-        }
-
-        destination = .order(coordinator)
+            onClose: { [weak self] in self?.popToMain() }
+        ))
     }
 
     @MainActor
-    func openMyPositions(tab: PolymarketPositionsTab, onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void) {
-        guard let userWalletModel else {
-            PolymarketLogger.error("The positions were opened without a wallet", error: CoordinatorError.missingUserWalletModel)
-            return
-        }
+    func openMyPositions(
+        tab: PolymarketPositionsTab,
+        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
+    ) {
+        guard case .main(_, let destinationFactory, _) = viewState else { return }
 
-        let coordinator = PolymarketMyPositionsCoordinator(
-            dismissAction: { [weak self] in self?.destination = nil }
+        destination = .myPositions(
+            destinationFactory.makeMyPositions(
+                tab: tab,
+                onOrderPlaced: onOrderPlaced,
+                onRegionWarning: { [weak self] in self?.openRegionWarning() },
+                onClose: { [weak self] in self?.popToMain() }
+            )
         )
-
-        coordinator.start(with: .init(
-            tab: tab,
-            positionsService: makePositionsService(for: userWalletModel),
-            apiProvider: makeAPIProvider(for: userWalletModel),
-            geoblockStateProvider: geoblockStateProvider,
-            onRegionWarning: { [weak self] in self?.openRegionWarning() },
-            onOrderPlaced: onOrderPlaced,
-            orderBuilder: self
-        ))
-
-        destination = .myPositions(coordinator)
     }
 
     func openRegionWarning() {
@@ -333,107 +268,41 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
 
     func openAddFunds() {
         Task { @MainActor [weak self] in
-            guard let self, addFundsSheet == nil else { return }
+            guard let self, addFundsSheet == nil, case .main(_, _, let fundingFlow) = viewState else { return }
 
-            guard geoblockStateProvider?.state != .blocked else {
+            guard !fundingFlow.isRegionBlocked else {
                 openRegionWarning()
                 return
             }
 
-            guard let userWalletModel else {
-                PolymarketLogger.error("Add funds was tapped without a wallet", error: CoordinatorError.missingUserWalletModel)
-                return
+            do {
+                let viewModel = try fundingFlow.makeAddFundsSheet(routable: self)
+
+                addFundsSheet = viewModel
+                floatingSheetPresenter.enqueue(sheet: viewModel)
+            } catch {
+                PolymarketLogger.error("Add funds is not available", error: error)
             }
-
-            guard let accountFundsInteractor else {
-                PolymarketLogger.error(
-                    "Add funds was tapped before the feed built its interactor",
-                    error: CoordinatorError.missingAccountFundsInteractor
-                )
-                return
-            }
-
-            guard let accountModel = PolymarketAccountAggregator.polymarketAccountModel(from: userWalletModel.accountModelsManager) else {
-                PolymarketLogger.error(
-                    "Add funds was tapped without a Polymarket account",
-                    error: CoordinatorError.missingPolymarketAccountModel
-                )
-                return
-            }
-
-            let viewModel = PolymarketAddFundsSheetViewModel(
-                interactor: accountFundsInteractor,
-                swapParametersFactory: PolymarketSwapParametersFactory(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    walletModelsProvider: MainScreenUIOrderedWalletModelsProvider(userWalletModel: userWalletModel),
-                    accountModel: accountModel
-                ),
-                coordinator: self
-            )
-
-            addFundsSheet = viewModel
-            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
     func openWithdraw() {
-        guard let userWalletModel else {
-            PolymarketLogger.error("Withdraw was tapped without a wallet", error: CoordinatorError.missingUserWalletModel)
-            return
-        }
-
-        guard let accountModel = PolymarketAccountAggregator.polymarketAccountModel(from: userWalletModel.accountModelsManager) else {
-            PolymarketLogger.error(
-                "Withdraw was tapped without a Polymarket account",
-                error: CoordinatorError.missingPolymarketAccountModel
-            )
-            return
-        }
-
-        guard let depositWalletAddress = accountFundsInteractor?.state.depositWalletAddress else {
-            PolymarketLogger.error(
-                "Withdraw was tapped before the deposit wallet was verified",
-                error: CoordinatorError.missingVerifiedDepositWallet
-            )
-            return
-        }
-
-        guard let withdrawContext else {
-            PolymarketLogger.error(
-                "Withdraw was tapped before the feed built its context",
-                error: CoordinatorError.missingWithdrawContext
-            )
-            return
-        }
-
-        let source = withdrawContext.makeSource(
-            accountModel: accountModel,
-            depositWalletAddress: depositWalletAddress,
-            minimumUSD: accountFundsInteractor?.state.depositTarget?.asset.minimumDepositUSD
-        )
-
-        let walletModelsProvider = MainScreenUIOrderedWalletModelsProvider(userWalletModel: userWalletModel)
+        guard case .main(_, _, let fundingFlow) = viewState else { return }
 
         runTask(in: self) { coordinator in
-            let receiveToken = await PolymarketWithdrawDestinationResolver(
-                userWalletInfo: userWalletModel.userWalletInfo,
-                walletModelsProvider: walletModelsProvider
-            )
-            .resolve()
+            do {
+                let source = try fundingFlow.makeWithdrawSource()
+                let parameters = try await fundingFlow.makeWithdrawParameters(from: source)
 
-            let parameters = PolymarketSwapParametersFactory(
-                userWalletInfo: userWalletModel.userWalletInfo,
-                walletModelsProvider: walletModelsProvider,
-                accountModel: accountModel
-            )
-            .make(withdrawingFrom: source, receiveToken: receiveToken)
-
-            await runOnMain { coordinator.openSwap(parameters: parameters, operation: .withdrawal) }
+                await runOnMain { coordinator.openSwap(parameters: parameters, operation: .withdrawal) }
+            } catch {
+                PolymarketLogger.error("Withdraw is not available", error: error)
+            }
         }
     }
 }
 
-// MARK: - PolymarketAddFundsSheetRoutable protocol conformance
+// MARK: - PolymarketAddFundsSheetRoutable
 
 extension PolymarketCoordinator: PolymarketAddFundsSheetRoutable {
     func openReceiveSheet(viewModel: ReceiveMainViewModel) {
@@ -481,75 +350,43 @@ private extension PolymarketCoordinator {
         sendCoordinator = coordinator
     }
 
-    func startAwaitingFunds() {
-        fundsArrivalTracker?.startAwaitingFunds()
-    }
+    func startAwaitingDispatchedOperation() {
+        guard let operation = dispatchedOperation, case .main(_, _, let fundingFlow) = viewState else { return }
 
-    func startAwaitingWithdrawal() {
-        fundsArrivalTracker?.startAwaitingWithdrawal()
+        dispatchedOperation = nil
+
+        switch operation {
+        case .deposit:
+            fundingFlow.awaitDeposit()
+        case .withdrawal:
+            fundingFlow.awaitWithdrawal()
+        }
     }
 }
 
-// MARK: - PolymarketOrderFlowBuilder protocol conformance
+// MARK: - FeeCurrencyNavigating
 
-extension PolymarketCoordinator: PolymarketOrderFlowBuilder {
-    func makeOrderCoordinator(
-        market: PolymarketMarket,
-        outcome: PolymarketOutcome,
-        eventTitle: String,
-        request: PolymarketOrderRequest,
-        onPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void,
-        onOpenPosition: @escaping (PolymarketPosition) -> Void,
-        onClose: @escaping () -> Void
-    ) -> PolymarketOrderCoordinator? {
-        guard let geoblockStateProvider, let balanceProvider, let userWalletModel, let fundsArrivalTracker else {
-            PolymarketLogger.error(
-                "An outcome was tapped before the feed built its providers",
-                error: CoordinatorError.missingOrderProviders
-            )
-            return nil
+extension PolymarketCoordinator {
+    /// The fee currency is reachable from an order, and one push slot cannot hold both. Going back to
+    /// the main screen first states that, instead of swapping the order out from under the back button.
+    func openFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
+        guard destination != nil else {
+            pushFeeCurrencyTokenDetails(for: walletModel, userWalletModel: userWalletModel)
+            return
         }
 
-        let coordinator = PolymarketOrderCoordinator(
-            dismissAction: { payload in
-                guard let payload else {
-                    onClose()
-                    return
-                }
+        popToMain()
 
-                if let position = payload.position {
-                    onOpenPosition(position)
-                } else {
-                    onClose()
-                }
-
-                Task { @MainActor in
-                    onPlaced(payload.indexing)
-                }
-            }
-        )
-
-        coordinator.start(with: .init(
-            market: market,
-            outcome: outcome,
-            eventTitle: eventTitle,
-            walletId: userWalletModel.userWalletId.stringValue,
-            intent: makeIntent(for: request, balanceProvider: balanceProvider),
-            geoblockStateProvider: geoblockStateProvider,
-            placementService: PolymarketOrderPlacementFactory().makeService(for: userWalletModel),
-            positionsService: makePositionsService(for: userWalletModel),
-            isAwaitingFundsPublisher: fundsArrivalTracker.$isAwaitingFunds.eraseToAnyPublisher(),
-            onAddFunds: { [weak self] in self?.openAddFunds() }
-        ))
-
-        return coordinator
+        Task { @MainActor [weak self] in
+            self?.pushFeeCurrencyTokenDetails(for: walletModel, userWalletModel: userWalletModel)
+        }
     }
 }
 
-// MARK: - PolymarketPositionDetailsRoutable protocol conformance
+// MARK: - Navigation
 
-extension PolymarketCoordinator: PolymarketPositionDetailsRoutable {
-    func closePositionDetails() {
+extension PolymarketCoordinator {
+    func popToMain() {
         destination = nil
     }
 }
@@ -563,25 +400,16 @@ extension PolymarketCoordinator {
     }
 }
 
-// MARK: - Errors
-
-extension PolymarketCoordinator {
-    enum CoordinatorError: Error {
-        case missingUserWalletModel
-        case missingAccountFundsInteractor
-        case missingVerifiedDepositWallet
-        case missingWithdrawContext
-        case missingOrderProviders
-        case missingPolymarketAccountModel
-    }
-}
-
 // MARK: - View state
 
 extension PolymarketCoordinator {
     enum ViewState {
         case welcome(PolymarketWelcomeViewModel)
-        case main(PolymarketMainViewModel)
+        case main(
+            viewModel: PolymarketMainViewModel,
+            destinationFactory: PolymarketDestinationFactory,
+            fundingFlow: PolymarketFundingFlow
+        )
     }
 }
 
@@ -590,8 +418,19 @@ extension PolymarketCoordinator {
 extension PolymarketCoordinator {
     enum Destination {
         case eventDetails(PolymarketEventDetailsCoordinator)
-        case positionDetails(PolymarketPositionDetailsViewModel)
+        case positionDetails(PolymarketPositionDetailsCoordinator)
         case myPositions(PolymarketMyPositionsCoordinator)
         case order(PolymarketOrderCoordinator)
+        case tokenDetails(TokenDetailsCoordinator)
+    }
+
+    enum Sheet: Identifiable {
+        case send(SendCoordinator)
+
+        var id: String {
+            switch self {
+            case .send: "send"
+            }
+        }
     }
 }

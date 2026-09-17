@@ -21,6 +21,7 @@ extension PolymarketOrderModel {
             intent: .buy(balance: .just(output: Decimal(30000))),
             apiProvider: PolymarketOrderPreviewAPIProvider(),
             geoblockStateProvider: PolymarketOrderPreviewGeoblockStateProvider(),
+            positionsService: nil,
             isAwaitingFundsPublisher: .just(output: false)
         )
     }
