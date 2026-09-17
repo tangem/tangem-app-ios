@@ -39,5 +39,9 @@ extension FloatingSheetRegistry {
         register(JointAccountSignersViewModel.self) {
             JointAccountSignersView(viewModel: $0)
         }
+
+        register(JointAccountSupportedNetworksViewModel.self) {
+            JointAccountSupportedNetworksView(viewModel: $0)
+        }
     }
 }
