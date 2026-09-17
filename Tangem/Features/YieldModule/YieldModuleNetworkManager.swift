@@ -22,6 +22,7 @@ protocol YieldModuleNetworkManager {
     func fetchYieldTokenInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleTokenInfo
     func fetchChartData(tokenContractAddress: String, chainId: Int) async throws -> YieldChartData
     func fetchAprHistory(tokenContractAddress: String, chainId: Int, days: Int) async throws -> [YieldIncentiveAprPoint]
+    func fetchIncentives(chainId: Int, userAddress: String) async throws -> YieldIncentivesRewardsSummary?
     func activate(tokenContractAddress: String, walletAddress: String, chainId: Int, userWalletId: String) async throws
     func deactivate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws
     func sendTransactionEvent(txHash: String, operation: YieldModuleOperation, userAddress: String?) async
@@ -151,6 +152,12 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
                 )
             }
         }
+    }
+
+    func fetchIncentives(chainId: Int, userAddress: String) async throws -> YieldIncentivesRewardsSummary? {
+        let incentives = try await yieldModuleAPIService.getIncentives(chainId: chainId, userAddress: userAddress)
+
+        return incentives.flatMap(YieldIncentivesRewardsSummary.init(dto:))
     }
 
     private static let aprHistoryDateFormatter: DateFormatter = {
