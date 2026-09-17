@@ -17,6 +17,11 @@ struct JointAccountWallet {
         walletModel.tokenItem
     }
 
+    /// Whether the token was added by hand, which is what says its logo has to be drawn rather than loaded.
+    var isCustom: Bool {
+        walletModel.isCustom
+    }
+
     var publicKey: Wallet.PublicKey {
         walletModel.publicKey
     }
