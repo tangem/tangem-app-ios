@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -36,8 +37,7 @@ private extension CollectiblesMachineView.Footer {
 
     var expectedValueBlock: some View {
         VStack(alignment: .trailing, spacing: Metrics.expectedValueSpacing) {
-            // [REDACTED_TODO_COMMENT]
-            Text("Expected value")
+            Text(Localization.collectiblesMachineExpectedValue)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
             if let expectedValueText {
