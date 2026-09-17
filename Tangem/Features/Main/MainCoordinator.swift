@@ -32,11 +32,8 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
     private let coordinatorFactory: MainCoordinatorChildFactory
-    private let navigationActionHandler: MainNavigationActionHandler
-    private let deeplinkPresenter: DeeplinkPresenter
 
     // MARK: - Root view model
 
@@ -70,8 +67,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
     @Published var mainQRScanFlowCoordinator: MainQRScanFlowCoordinator?
 
-    private var campaignCoordinator: CampaignCoordinator?
-
     private(set) var feedCoordinator: FeedCoordinator?
 
     // MARK: - Child view models
@@ -89,26 +84,23 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
 
     // MARK: - Deeplink
 
-    private var deeplinkDestination = PassthroughSubject<DeepLinkDestination, Never>()
+    private let mainScreenDeeplinkResponder = MainScreenDeeplinkResponder()
+    private var pendingIncomingAction: IncomingAction?
 
     private var safariHandle: SafariHandle?
-    private var deeplinkDestinationSubscription: AnyCancellable?
-    private var tangemPayMainDeeplinkSubscription: AnyCancellable?
     private var tangemPayCampaignPendingKeySubscription: AnyCancellable?
     private var tangemPayMainDismissSubscription: AnyCancellable?
-    private var yieldDeeplinkRouter: YieldDeeplinkRouter?
+
     required init(
         coordinatorFactory: MainCoordinatorChildFactory,
-        navigationActionHandler: MainNavigationActionHandler,
-        deeplinkPresenter: DeeplinkPresenter,
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.coordinatorFactory = coordinatorFactory
-        self.navigationActionHandler = navigationActionHandler
-        self.deeplinkPresenter = deeplinkPresenter
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
+
+        mainScreenDeeplinkResponder.coordinator = self
     }
 
     func start(with options: Options) {
@@ -131,7 +123,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
         )
 
         setupFeedCoordinator()
-        bind()
     }
 
     // MARK: - Private Implementation
@@ -144,17 +135,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
         let coordinator = FeedCoordinator(popToRootAction: popToRootAction)
         coordinator.start(with: .init(host: self))
         feedCoordinator = coordinator
-    }
-
-    private func bind() {
-        deeplinkDestinationSubscription = deeplinkDestination
-            .compactMap { $0 }
-            .receiveOnMain()
-            .sink { [weak self] deepLink in
-                MainActor.assumeIsolated {
-                    self?.deeplinkPresenter.present(deepLink: deepLink)
-                }
-            }
     }
 
     // MARK: - Tooltip Interaction
@@ -200,73 +180,22 @@ extension MainCoordinator {
 // MARK: - MainRoutable protocol conformance
 
 extension MainCoordinator: MainRoutable {
-    func beginHandlingIncomingActions() {
-        navigationActionHandler.becomeIncomingActionsResponder()
+    func mainScreenDidAppear() {
+        let incomingAction = pendingIncomingAction
+        pendingIncomingAction = nil
+        mainScreenDeeplinkResponder.mainScreenDidAppear(delivering: incomingAction)
         observePendingTangemPayCampaign()
     }
 
-    func resignHandlingIncomingActions() {
-        navigationActionHandler.resignIncomingActionsResponder()
-        tangemPayCampaignPendingKeySubscription = nil
-    }
-
-    func openDeepLink(_ deepLink: DeepLinkDestination) {
-        switch deepLink {
-        case .externalLink(let url):
-            if safariHandle?.isMatching(startingURL: url) == true {
-                return
-            }
-
-            safariHandle = safariManager.openURL(
-                url,
-                configuration: .init(),
-                onDismiss: { [weak self] in self?.safariHandle = nil },
-                onSuccess: { [weak self] _ in self?.safariHandle = nil }
-            )
-        case .tangemPayMain(let customerWalletId, let incomingAction):
-            openTangemPayMainFromDeeplink(customerWalletId: customerWalletId, incomingAction: incomingAction)
-        case .yield(let walletModel, let userWalletModel):
-            openYieldFromDeeplink(walletModel: walletModel, userWalletModel: userWalletModel)
-        case .tangemPayTransactionDetails(let payload):
-            openTangemPayTransactionDetailsFromPush(payload: payload)
-        case .tangemPayCustomCard(let campaignKey):
-            openTangemPayCampaignFromDeeplink(campaignKey: campaignKey)
-        case .expressTransactionStatus,
-             .tokenDetails,
-             .buy,
-             .sell,
-             .swap,
-             .referral,
-             .staking,
-             .marketsTokenDetails,
-             .markets,
-             .onboardVisa,
-             .newsDetails,
-             .promo,
-             .tokenExchanges,
-             .newsList,
-             .earn,
-             .jointAccountInvite:
-            deeplinkDestination.send(deepLink)
-        }
-    }
-
-    func openCampaignIfNeeded(campaignId: String?) -> Bool {
-        guard campaignCoordinator == nil else {
-            return false
+    /// The link that arrived before there was a session: shown once the main screen is up, or right away if it
+    /// already is.
+    func showWhenAppeared(_ action: IncomingAction) {
+        guard mainViewModel?.isRootVisible == true else {
+            pendingIncomingAction = action
+            return
         }
 
-        campaignCoordinator = CampaignFlowFactory().makeCampaignCoordinator(
-            campaignId: campaignId,
-            dismissAction: { [weak self] _ in
-                self?.campaignCoordinator = nil
-            },
-            popToRootAction: { [weak self] options in
-                self?.campaignCoordinator = nil
-                self?.popToRoot(with: options)
-            }
-        )
-        return true
+        mainScreenDeeplinkResponder.mainScreenDidAppear(delivering: action)
     }
 
     func openDetails() {
@@ -359,12 +288,16 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     }
 
     func openGetTangemPay(availableSelection: TangemPayWalletSelectionType) {
+        openGetTangemPay(source: .other, availableSelection: availableSelection)
+    }
+
+    func openGetTangemPay(source: TangemPayOnboardingSource, availableSelection: TangemPayWalletSelectionType) {
         let dismissAction: Action<TangemPayOnboardingCoordinator.DismissOptions?> = { [weak self] _ in
             self?.tangemPayOnboardingCoordinator = nil
         }
 
         let coordinator = TangemPayOnboardingCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: .init(source: .other, availableSelection: availableSelection))
+        coordinator.start(with: .init(source: source, availableSelection: availableSelection))
         tangemPayOnboardingCoordinator = coordinator
     }
 
@@ -387,6 +320,14 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     }
 
     func openTokenDetails(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
+        openTokenDetails(for: walletModel, userWalletModel: userWalletModel, pendingTransactionDetails: nil)
+    }
+
+    func openTokenDetails(
+        for walletModel: any WalletModel,
+        userWalletModel: UserWalletModel,
+        pendingTransactionDetails: PendingTransactionDetails?
+    ) {
         mainBottomSheetUIManager.hide()
 
         let coordinator = coordinatorFactory.makeTokenDetailsCoordinator(dismissAction: { [weak self] in
@@ -407,7 +348,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
                 walletModelsManager: account.walletModelsManager,
                 userTokensManager: account.userTokensManager,
                 addressBookManager: userWalletModel.addressBookManager,
-                walletModel: walletModel
+                walletModel: walletModel,
+                pendingTransactionDetails: pendingTransactionDetails
             )
         )
 
@@ -506,7 +448,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         userWalletInfo: UserWalletInfo,
         tangemPayAccount: TangemPayAccount,
         userWalletModel: any UserWalletModel,
-        incomingAction: TangemPayIncomingActions?
+        openingAction: TangemPayOpeningAction?
     ) {
         mainBottomSheetUIManager.hide()
 
@@ -525,7 +467,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
                 userWalletInfo: userWalletInfo,
                 tangemPayAccount: tangemPayAccount,
                 userWalletModel: userWalletModel,
-                incomingAction: incomingAction
+                openingAction: openingAction
             )
         )
         tangemPayMainCoordinator = coordinator
@@ -573,7 +515,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
                 userWalletInfo: userWalletModel.userWalletInfo,
                 tangemPayAccount: tangemPayAccount,
                 userWalletModel: userWalletModel,
-                incomingAction: nil
+                openingAction: nil
             )
         }
     }
@@ -598,29 +540,31 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             .eraseToAnyPublisher()
 
         // The stored key replays on subscribe, and a slot change re-checks a key some modal was covering.
-        // Both it and `isPresentingOverMain` are read at delivery — the key may already be consumed by then.
+        // Whether the main screen is the top is read at delivery, as is the key — by then some other route
+        // may have spent it, and the main screen may have a child of its own over it.
         tangemPayCampaignPendingKeySubscription = Publishers
             .Merge(keyChanges, slotChanges)
             .sink { [weak self] _ in
                 guard let self,
+                      isRootVisible,
                       !isPresentingOverMain,
                       let campaignKey = TangemPayCampaignService().pendingCampaignKey else {
                     return
                 }
 
-                openDeepLink(.tangemPayCustomCard(campaignKey: campaignKey))
+                openTangemPayCampaign(campaignKey: campaignKey)
             }
     }
 
-    private func openTangemPayCampaignFromDeeplink(campaignKey: String) {
+    func openTangemPayCampaign(campaignKey: String) {
         guard !RTCUtil.isRootedDevice else {
-            consumePendingTangemPayCampaign()
+            TangemPayCampaignService().clearPending()
             return
         }
 
         // Already on screen, so the link has been honoured — drop it rather than leaving it to fire again.
         guard tangemPayCampaignCoordinator == nil else {
-            consumePendingTangemPayCampaign()
+            TangemPayCampaignService().clearPending()
             return
         }
 
@@ -635,16 +579,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
 
         presentTangemPayCampaign(campaignKey: campaignKey)
-    }
-
-    /// The key and the action are consumed here rather than when the link is routed, so a link that
-    /// cannot be presented yet survives and is replayed the next time Main becomes the responder.
-    private func consumePendingTangemPayCampaign() {
-        TangemPayCampaignService().clearPending()
-        incomingActionManager.discardIncomingAction { action in
-            guard case .navigation(let navigationAction) = action else { return false }
-            return navigationAction.destination == .payCustomCard
-        }
     }
 
     /// The campaign cover shares a host with every other modal in `MainCoordinatorView`, and SwiftUI drops
@@ -687,7 +621,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         // Leaving the key unconsumed lets the pending-key subscription retry once the blocking screen goes.
         guard !isPresentingOverMain else { return }
 
-        consumePendingTangemPayCampaign()
+        TangemPayCampaignService().clearPending()
         mainBottomSheetUIManager.hide()
 
         let dismissAction: Action<TangemPayCampaignCoordinator.OutputOptions> = { [weak self] options in
@@ -697,9 +631,9 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             case .close:
                 break
             case .finished(let userWalletModel):
-                self?.openTangemPayMainAfterCampaign(userWalletModel: userWalletModel, incomingAction: nil)
+                self?.openTangemPayMainAfterCampaign(userWalletModel: userWalletModel, openingAction: nil)
             case .finishedWithPlanSelection(let userWalletModel):
-                self?.openTangemPayMainAfterCampaign(userWalletModel: userWalletModel, incomingAction: .selectPlan)
+                self?.openTangemPayMainAfterCampaign(userWalletModel: userWalletModel, openingAction: .selectPlan)
             }
         }
 
@@ -713,7 +647,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
     private func openTangemPayMainAfterCampaign(
         userWalletModel: any UserWalletModel,
-        incomingAction: TangemPayIncomingActions?
+        openingAction: TangemPayOpeningAction?
     ) {
         guard let tangemPayAccount = TangemPayAccountAggregator
             .tangemPayAccountModel(from: userWalletModel.accountModelsManager)?
@@ -727,94 +661,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             userWalletInfo: userWalletModel.userWalletInfo,
             tangemPayAccount: tangemPayAccount,
             userWalletModel: userWalletModel,
-            incomingAction: incomingAction
+            openingAction: openingAction
         )
-    }
-
-    private func openTangemPayMainFromDeeplink(customerWalletId: String, incomingAction: TangemPayIncomingActions?) {
-        guard !RTCUtil.isRootedDevice else {
-            incomingActionManager.discardIncomingAction()
-            return
-        }
-
-        guard let userWalletModel = findUserWalletModel(byCustomerWalletId: customerWalletId) else {
-            incomingActionManager.discardIncomingAction()
-            return
-        }
-
-        guard let accountModel = TangemPayAccountAggregator.tangemPayAccountModel(from: userWalletModel.accountModelsManager) else {
-            incomingActionManager.discardIncomingAction()
-            return
-        }
-
-        tangemPayMainDeeplinkSubscription = accountModel.statePublisher
-            .filter { $0.tangemPayAccount != nil || $0.tariffPlanSelector != nil }
-            .first()
-            .timeout(.seconds(Constants.tangemPayMainDeeplinkTimeout), scheduler: DispatchQueue.main)
-            .receiveOnMain()
-            .sink(
-                receiveCompletion: { [weak self] _ in
-                    self?.tangemPayMainDeeplinkSubscription = nil
-                },
-                receiveValue: { [weak self] state in
-                    if let tangemPayAccount = state.tangemPayAccount {
-                        self?.openTangemPayMainView(
-                            userWalletInfo: userWalletModel.userWalletInfo,
-                            tangemPayAccount: tangemPayAccount,
-                            userWalletModel: userWalletModel,
-                            incomingAction: incomingAction
-                        )
-                    } else if let tariffPlanSelector = state.tariffPlanSelector {
-                        self?.openTangemPaySelectPlan(
-                            tariffPlanSelector: tariffPlanSelector,
-                            userWalletModel: userWalletModel
-                        )
-                    }
-                }
-            )
-    }
-
-    private func openTangemPayTransactionDetailsFromPush(payload: TangemPayPushPayload) {
-        guard let userWalletModel = findUserWalletModel(byCustomerWalletId: payload.customerWalletId),
-              let displayData = payload.displayData(using: TangemPayDisplayDataMapper())
-        else {
-            incomingActionManager.discardIncomingAction()
-            return
-        }
-
-        let viewModel = TangemPayTransactionDetailsViewModel(
-            displayData: displayData,
-            origin: .push(payload),
-            userWalletId: userWalletModel.userWalletId,
-            customerId: payload.customerId,
-            coordinator: self
-        )
-
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
-    }
-
-    private func findUserWalletModel(byCustomerWalletId customerWalletId: String) -> (any UserWalletModel)? {
-        userWalletRepository.models.first { $0.userWalletId.stringValue == customerWalletId }
-    }
-
-    private func openYieldFromDeeplink(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
-        yieldDeeplinkRouter = YieldDeeplinkRouter(
-            discardIncomingAction: { [weak self] in
-                self?.incomingActionManager.discardIncomingAction()
-            },
-            openYieldPromoAction: { [weak self] apy, flowFactory in
-                self?.openYieldModulePromoView(apy: apy, factory: flowFactory)
-            },
-            openYieldActiveAction: { [weak self] flowFactory in
-                self?.openYieldModuleActiveInfo(factory: flowFactory)
-            },
-            onFinish: { [weak self] in
-                self?.yieldDeeplinkRouter = nil
-            }
-        )
-        yieldDeeplinkRouter?.handle(walletModel: walletModel, userWalletModel: userWalletModel)
     }
 
     func openPolymarket(userWalletModel: UserWalletModel) {
@@ -873,30 +721,6 @@ extension MainCoordinator: JointAccountOperationDetailsRoutable {
     func closeOperationDetails() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
-        }
-    }
-}
-
-// MARK: - TangemPayTransactionDetailsRoutable
-
-extension MainCoordinator: TangemPayTransactionDetailsRoutable {
-    func transactionDetailsDidRequestClose() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
-    }
-
-    func transactionDetailsDidRequestDispute(dataCollector: EmailDataCollector, subject: VisaEmailSubject) {
-        let logsComposer = LogsComposer(infoProvider: dataCollector, includeSystemLogs: false)
-        let mailViewModel = MailViewModel(
-            logsComposer: logsComposer,
-            recipient: EmailConfig.visaDefault(subject: subject).recipient,
-            emailType: .visaFeedback(subject: subject)
-        )
-
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-            mailPresenter.present(viewModel: mailViewModel)
         }
     }
 }
@@ -1194,7 +1018,6 @@ extension MainCoordinator {
         static let tooltipAnimationDuration: Double = 0.3
         static let tooltipTemporaryHideDuration: Double = 0.1
         static let tooltipAnimationDelay: Double = 1.5
-        static let tangemPayMainDeeplinkTimeout: TimeInterval = 10
         static let tangemPayPlanActivationNavigationDelay: TimeInterval = 0.6
         static let tangemPayCampaignPresentationDelay: TimeInterval = 0.35
     }

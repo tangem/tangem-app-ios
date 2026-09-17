@@ -6,12 +6,19 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import SwiftUI
 
 @MainActor
 protocol OverlayViewPresenter: AnyObject {
     func present(_ view: OverlayView)
     func dismiss()
+    func dismissAll()
+}
+
+protocol OverlayViewPresentingStateProvider: AnyObject {
+    var isPresenting: Bool { get }
+    var isPresentingPublisher: AnyPublisher<Bool, Never> { get }
 }
 
 struct OverlayView: Identifiable {

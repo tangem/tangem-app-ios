@@ -13,7 +13,7 @@ import TangemFoundation
 /// Silent-push subscriber that refreshes portfolio data for transactional pushes.
 ///
 /// When the user *taps* a transactional push, `CommonIncomingActionManager` builds a `tangem://token`
-/// deeplink and `TokenDeeplinkHandler` both navigates and refreshes balances. A *silent* push arriving
+/// deeplink, and resolving it into a screen refreshes balances along the way. A *silent* push arriving
 /// while the app is active has no user intent to navigate, so this handler only mirrors the refresh part:
 /// it locates the wallet model from the payload and triggers an update. If the token isn't in the local
 /// portfolio yet (e.g. added on another device), it syncs the token list first — the same recovery the
