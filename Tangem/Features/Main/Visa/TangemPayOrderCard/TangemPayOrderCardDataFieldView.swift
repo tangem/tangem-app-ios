@@ -15,17 +15,24 @@ struct TangemPayOrderCardDataFieldView: View {
     @Binding var focusedField: TangemPayOrderCardDataField.ID?
 
     let nextFieldID: TangemPayOrderCardDataField.ID?
+    let reservesErrorSpace: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: Constants.inputToErrorSpacing) {
             input
 
-            if let error = field.error {
-                Text(error.message)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusError)
-                    .lineLimit(1)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
+            errorLabel
+        }
+    }
+
+    @ViewBuilder
+    private var errorLabel: some View {
+        if field.error != nil || reservesErrorSpace {
+            Text(field.error?.message ?? " ")
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusError)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .opacity(field.error == nil ? 0 : 1)
         }
     }
 
