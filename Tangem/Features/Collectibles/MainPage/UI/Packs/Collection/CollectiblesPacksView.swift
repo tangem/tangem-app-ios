@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -75,16 +76,12 @@ private extension CollectiblesPacksView {
 // MARK: - Copy
 
 private extension CollectiblesPacksView {
-    // [REDACTED_TODO_COMMENT]
     func emptyMessage(hasQuery: Bool) -> String {
-        hasQuery
-            ? "No results. Try to change your wording\nor explore from the list"
-            : "There are no packs here yet"
+        hasQuery ? Localization.collectiblesMainSearchEmpty : Localization.collectiblesMainPacksEmpty
     }
 
-    // [REDACTED_TODO_COMMENT]
     func failedMessage(hasQuery: Bool) -> String {
-        hasQuery ? "Failed to load cards list.\nTap to reload" : "Failed to load packs.\nTap to reload"
+        hasQuery ? Localization.collectiblesMainSearchLoadError : Localization.collectiblesMainPacksLoadError
     }
 }
 

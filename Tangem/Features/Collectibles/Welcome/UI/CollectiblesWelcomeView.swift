@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -98,12 +99,10 @@ private extension CollectiblesWelcomeView {
 
     var titleBlock: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // [REDACTED_TODO_COMMENT]
-            Text("Create your Tangem Packs account")
+            Text(Localization.collectiblesWelcomeTitle)
                 .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
 
-            // [REDACTED_TODO_COMMENT]
-            Text("Buy packs containing physical authentic graded collectible cards – Pokémon, One Piece and Sports. Each pack opening reveals a card allocated to you. Keep eligible cards in insured vaults, request delivery, send a card as a gift, or explore available sale options")
+            Text(Localization.collectiblesWelcomeDescription)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
         }
     }

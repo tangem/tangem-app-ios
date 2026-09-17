@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -38,27 +39,26 @@ private extension FAQCollection {
     struct Item {
         let question, answer: String
 
-        // [REDACTED_TODO_COMMENT]
         static let content: [Self] = [
             .init(
-                question: "What happens when I tap my card?",
-                answer: "A one-time action: your card signs once to deploy a self-custodial spending account on Solana. That account only ever holds USDC for buying packs, which is what makes opening tapless. The cards you open are sent straight to your cold wallet, and selling or withdrawing always needs your card"
+                question: Localization.collectiblesWelcomeFaqTapQuestion,
+                answer: Localization.collectiblesWelcomeFaqTapAnswer
             ),
             .init(
-                question: "What am I actually buying?",
-                answer: "A sealed pack containing one graded physical collectible card, held 1:1 in an insured physical vault and redeemable for delivery at any time. Every card inside a machine is transparently visible in the app and the draw odds are published up front"
+                question: Localization.collectiblesWelcomeFaqBuyingQuestion,
+                answer: Localization.collectiblesWelcomeFaqBuyingAnswer
             ),
             .init(
-                question: "What are the risks?",
-                answer: "Collectible values change and can fall. Some cards in a pack pool can be worth less than the pack price — never nothing, but less than you paid. Only spend what you're comfortable spending on collectibles"
+                question: Localization.collectiblesWelcomeFaqRisksQuestion,
+                answer: Localization.collectiblesWelcomeFaqRisksAnswer
             ),
             .init(
-                question: "Who provides the service?",
-                answer: "Collector Crypt provides the card inventory, the packs, the physical vault, the instant optional sell offers and the shipping, under its own terms. Tangem provides a passive interface for accessing that service and for signing — it never holds your cards, your funds or your keys"
+                question: Localization.collectiblesWelcomeFaqProviderQuestion,
+                answer: Localization.collectiblesWelcomeFaqProviderAnswer
             ),
             .init(
-                question: "Is it available where I live?",
-                answer: "Availability varies by region and some countries are restricted. Age limits may apply. You're responsible for following the laws and regulations of your own jurisdiction"
+                question: Localization.collectiblesWelcomeFaqAvailabilityQuestion,
+                answer: Localization.collectiblesWelcomeFaqAvailabilityAnswer
             ),
         ]
     }
