@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 extension CollectiblesPacksViewModel {
     enum Mapper {
@@ -35,7 +36,6 @@ private extension CollectiblesPacksViewModel.Mapper {
     }
 
     static func makeBuybackText(rate: Decimal) -> String {
-        // [REDACTED_TODO_COMMENT]
-        "Buyback \(percentFormatter.format(rate, option: .collectibles))"
+        Localization.collectiblesMainPackBuybackBadge(percentFormatter.format(rate, option: .collectibles))
     }
 }
