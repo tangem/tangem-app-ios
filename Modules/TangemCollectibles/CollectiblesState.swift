@@ -26,6 +26,17 @@ public enum CollectiblesState: Hashable, Sendable {
     case ready(CollectiblesVaultInfo)
 }
 
+public extension CollectiblesState {
+    /// Whether a vault exists on chain. The model is built for every wallet the feature is enabled for, so
+    /// only the state answers this. `rekeyRequired` counts — the vault is there, it just names another key.
+    var isAccountVisible: Bool {
+        switch self {
+        case .ready, .rekeyRequired: true
+        case .unresolved, .notOnboarded, .coldOwnerNotDerived: false
+        }
+    }
+}
+
 /// Domain representation of the on-chain `Vault` account (legacy buyback fields omitted).
 public struct CollectiblesVaultInfo: Hashable, Sendable {
     /// Base58 address of the vault PDA.
