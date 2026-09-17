@@ -1,5 +1,5 @@
 //
-//  CollectiblesWalletSelectorView.swift
+//  WalletSelectorSheetView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,10 +11,10 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 
-struct CollectiblesWalletSelectorView: View {
-    private let viewModel: CollectiblesWalletSelectorViewModel
+struct WalletSelectorSheetView: View {
+    private let viewModel: WalletSelectorSheetViewModel
 
-    init(viewModel: CollectiblesWalletSelectorViewModel) {
+    init(viewModel: WalletSelectorSheetViewModel) {
         self.viewModel = viewModel
     }
 
@@ -36,7 +36,7 @@ struct CollectiblesWalletSelectorView: View {
 
 // MARK: - Content
 
-private extension CollectiblesWalletSelectorView {
+private extension WalletSelectorSheetView {
     // MARK: - View properties
 
     var content: some View {
@@ -63,7 +63,7 @@ private extension CollectiblesWalletSelectorView {
 
 // MARK: - Metrics
 
-private extension CollectiblesWalletSelectorView {
+private extension WalletSelectorSheetView {
     enum Metrics {
         static let buttonHorizontalPadding: CGFloat = 16
         static let buttonBottomPadding: CGFloat = 12

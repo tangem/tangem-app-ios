@@ -53,9 +53,18 @@ struct FeedWidgetsView: View {
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
-    @ViewBuilder
     private func view(for widget: FeedWidget, productWidth: CGFloat) -> some View {
+        Button {
+            viewModel.select(widget)
+        } label: {
+            content(for: widget, productWidth: productWidth)
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private func content(for widget: FeedWidget, productWidth: CGFloat) -> some View {
         switch widget {
         case .forYou:
             smallWidget(title: Localization.forYouTitle) {

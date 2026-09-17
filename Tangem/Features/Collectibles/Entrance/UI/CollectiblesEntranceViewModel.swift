@@ -84,7 +84,7 @@ private extension CollectiblesEntranceViewModel {
         }
 
         floatingSheetPresenter.enqueue(
-            sheet: CollectiblesWalletSelectorViewModel(
+            sheet: WalletSelectorSheetViewModel(
                 accountSelectorViewModel: accountSelectorViewModel,
                 close: floatingSheetPresenter.removeActiveSheet
             )
