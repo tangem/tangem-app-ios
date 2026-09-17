@@ -7,4 +7,5 @@
 
 protocol TangemPayOrderCardFlowRoutable: AnyObject {
     func orderCardFlowDidSelectVirtual()
+    func orderCardFlowDidComplete()
 }

@@ -19,13 +19,24 @@ struct TangemPayOrderCardTypeView: View {
 
     var body: some View {
         content
-            .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
+            .background { background }
             .safeAreaInset(edge: .bottom, spacing: 0) { footer }
             .topNavigation(
                 title: Localization.tangempayOrderTypeTitle,
                 leading: .none,
                 onClose: viewModel.close
             )
+    }
+
+    private var background: some View {
+        DesignSystem.Color.bgPrimary
+            .overlay(alignment: .top) {
+                (viewModel.isBasicTariff ? Assets.Visa.orderCardBgBasic : Assets.Visa.orderCardBgPlus)
+                    .image
+                    .resizable()
+                    .scaledToFit()
+            }
+            .ignoresSafeArea()
     }
 
     private var content: some View {
