@@ -20,6 +20,8 @@ protocol YieldModuleManager {
     var tokenId: String { get }
     var versionChecker: YieldModuleVersionChecker? { get }
     var swapExecutionRegistryProvider: YieldModuleSwapExecutionRegistryProvider? { get }
+    /// `nil` when the Merkl incentives feature is off.
+    var incentivesManager: YieldIncentivesManager? { get }
 
     func enterFee() async throws -> YieldTransactionFee
     func enter(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String]
@@ -55,6 +57,7 @@ final class CommonYieldModuleManager {
 
     let blockchain: Blockchain
     let tokenId: String
+    let incentivesManager: YieldIncentivesManager?
 
     private let walletAddress: String
     private let token: Token
@@ -144,6 +147,10 @@ final class CommonYieldModuleManager {
             yieldSupplyContractAddresses: yieldSupplyContractAddresses,
             tokenBalanceProvider: tokenBalanceProvider
         )
+
+        incentivesManager = FeatureProvider.isAvailable(.merklIncentives)
+            ? InjectedValues[\.yieldIncentivesManagerProvider].manager(chainId: chainId, userAddress: walletAddress)
+            : nil
 
         bind()
         checkPromoAvailability()
