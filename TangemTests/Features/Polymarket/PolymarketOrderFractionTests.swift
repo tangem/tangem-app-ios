@@ -81,6 +81,7 @@ private extension PolymarketOrderFractionTests {
             intent: .buy(balance: .just(output: balance)),
             apiProvider: PolymarketAPIProviderStub(quoteResult: quote),
             geoblockStateProvider: PolymarketGeoblockStateProviderStub(),
+            positionsService: nil,
             isAwaitingFundsPublisher: .just(output: false)
         )
 
