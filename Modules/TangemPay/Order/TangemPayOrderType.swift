@@ -35,6 +35,12 @@ public extension TangemPayOrderType {
         cardIssuePlasticRain.rawValue,
     ]
 
+    static let cardReissuePlasticFamily: [String] = [
+        cardReissuePlasticRain.rawValue,
+    ]
+
+    static let plasticDeliveringFamily: [String] = cardIssuePlasticFamily + cardReissuePlasticFamily
+
     static let cardActivationPlasticFamily: [String] = [
         cardActivationPlasticRain.rawValue,
     ]
