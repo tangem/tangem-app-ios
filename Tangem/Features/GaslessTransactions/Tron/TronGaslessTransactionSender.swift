@@ -146,8 +146,9 @@ private extension TronGaslessTransactionSender {
         }
 
         let compensation = try makeAmount(rawValue: quote.compensationAmountRaw, token: feeToken)
-        guard transaction.amount.value + compensation.value <= walletModel.availableBalanceProvider.balanceType.value ?? 0 else {
-            throw TokenFeeProviderError.notEnoughGaslessFeeBalance
+        let feeCurrencyBalance = walletModel.availableBalanceProvider.balanceType.value ?? 0
+        guard transaction.amount.value + compensation.value <= feeCurrencyBalance else {
+            throw TokenFeeProviderError.notEnoughGaslessFeeBalance(feeCurrencyBalance: feeCurrencyBalance)
         }
     }
 
