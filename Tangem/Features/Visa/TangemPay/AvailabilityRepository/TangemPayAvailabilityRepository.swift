@@ -48,6 +48,9 @@ protocol TangemPayAvailabilityRepository {
     func tangemPayBannerEntrypointEligibleWalletSelectionPublisher(
         for customerWalletId: String
     ) -> AnyPublisher<TangemPayWalletSelectionType?, Never>
+    func tangemPayFeedCardEntrypointEligibleWalletSelectionPublisher(
+        for customerWalletId: String
+    ) -> AnyPublisher<TangemPayWalletSelectionType?, Never>
     func userDidCloseGetTangemPayBanner()
     func requestEligibleDistributionChannels() async -> [TangemPayDistributionChannel]
 }
