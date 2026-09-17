@@ -77,7 +77,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private let balanceFormatter = BalanceFormatter()
     private let marketingBannerManager: MarketingBannerManager
     private let notificationBannerMapper: MultiWalletNotificationBannerMapper
-    private let deeplinkHandler: PromotionDeeplinkHandler
+    private let deeplinkHandler: TokenScreenDeeplinkResponder
     private var bag = Set<AnyCancellable>()
 
     private lazy var yieldStateFactory = TokenDetailsYieldStateFactory(
@@ -100,7 +100,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         coordinator: any TokenDetailsRoutable,
         tokenRouter: SingleTokenRoutable,
         pendingTransactionDetails: PendingTransactionDetails?,
-        deeplinkHandler: PromotionDeeplinkHandler,
+        deeplinkHandler: TokenScreenDeeplinkResponder,
         marketingBannerManager: MarketingBannerManager = MarketingBannerManager(),
         notificationBannerMapper: MultiWalletNotificationBannerMapper = MultiWalletNotificationBannerMapper(),
         presentSource: TokenDetailsPresentSource
@@ -174,11 +174,11 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     func onAppear() {
         logScreenOpenedAnalytics()
-        deeplinkHandler.becomeIncomingActionsResponder()
+        deeplinkHandler.beginHandlingIncomingActions()
     }
 
     func onDisappear() {
-        deeplinkHandler.resignIncomingActionsResponder()
+        deeplinkHandler.endHandlingIncomingActions()
     }
 
     func onFirstAppear() {

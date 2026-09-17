@@ -12,12 +12,12 @@ import TangemFoundation
 /// or `nil` when nothing usable can be preselected.
 struct DeeplinkSwapParametersResolver {
     func resolve(
-        params: DeeplinkNavigationAction.Params,
+        deeplink: SwapDeeplink,
         accountModelsManager: some AccountModelsManager,
         userWalletInfo: UserWalletInfo
     ) -> PredefinedSwapParameters? {
         guard let selection = selectPair(
-            params: params,
+            deeplink: deeplink,
             accountModelsManager: accountModelsManager,
             userWalletInfo: userWalletInfo
         ) else {
@@ -28,19 +28,19 @@ struct DeeplinkSwapParametersResolver {
             fromWalletModel: selection.source,
             toWalletModel: selection.destination,
             userWalletInfo: userWalletInfo,
-            extras: makeExtras(params: params, isApplicable: selection.appliesExtras)
+            extras: makeExtras(deeplink: deeplink, isApplicable: selection.appliesExtras)
         )
     }
 
     /// `from_amount` / `provider_id` are honored only for a fully-specified held pair — both sides requested
     /// and matched. With a best-effort source or a manual TO the pair is ambiguous, so they're dropped.
-    private func makeExtras(params: DeeplinkNavigationAction.Params, isApplicable: Bool) -> PredefinedSwapParameters.Extras? {
+    private func makeExtras(deeplink: SwapDeeplink, isApplicable: Bool) -> PredefinedSwapParameters.Extras? {
         guard isApplicable else {
             return nil
         }
 
-        let sourceAmount = Decimal(stringValue: params.swapFromAmount).flatMap { $0 > 0 ? $0 : nil }
-        let providerId = params.swapProviderId?.nilIfEmpty
+        let sourceAmount = Decimal(stringValue: deeplink.fromAmount).flatMap { $0 > 0 ? $0 : nil }
+        let providerId = deeplink.providerId?.nilIfEmpty
 
         guard sourceAmount != nil || providerId != nil else {
             return nil
@@ -62,7 +62,7 @@ private extension DeeplinkSwapParametersResolver {
     /// Builds lightweight candidates from the current wallet's models, runs the pure selection, then maps the
     /// chosen candidates back to their wallet models. Balances are read synchronously from cache.
     func selectPair(
-        params: DeeplinkNavigationAction.Params,
+        deeplink: SwapDeeplink,
         accountModelsManager: some AccountModelsManager,
         userWalletInfo: UserWalletInfo
     ) -> SelectedPair? {
@@ -83,7 +83,7 @@ private extension DeeplinkSwapParametersResolver {
 
         guard let selection = Self.selectCandidates(
             candidates: candidates,
-            params: params,
+            deeplink: deeplink,
             targetUserWalletId: userWalletInfo.id.stringValue,
             existingAccountIds: existingAccountIds(in: accountModelsManager)
         ) else {
@@ -128,21 +128,21 @@ extension DeeplinkSwapParametersResolver {
     /// `true` only for a fully-specified held pair (both sides requested and matched), gating amount/provider.
     static func selectCandidates(
         candidates: [Candidate],
-        params: DeeplinkNavigationAction.Params,
+        deeplink: SwapDeeplink,
         targetUserWalletId: String,
         existingAccountIds: Set<String>
     ) -> (source: Candidate, destination: Candidate?, appliesExtras: Bool)? {
         let fromRequested = isSideRequested(
-            tokenId: params.swapFromTokenId,
-            networkId: params.swapFromNetworkId,
-            userWalletId: params.swapFromUserWalletId,
+            tokenId: deeplink.fromTokenId,
+            networkId: deeplink.fromNetworkId,
+            userWalletId: deeplink.fromUserWalletId,
             targetUserWalletId: targetUserWalletId
         )
 
         let toRequested = isSideRequested(
-            tokenId: params.swapToTokenId,
-            networkId: params.swapToNetworkId,
-            userWalletId: params.swapToUserWalletId,
+            tokenId: deeplink.toTokenId,
+            networkId: deeplink.toNetworkId,
+            userWalletId: deeplink.toUserWalletId,
             targetUserWalletId: targetUserWalletId
         )
 
@@ -151,15 +151,15 @@ extension DeeplinkSwapParametersResolver {
         }
 
         // An account the wallet doesn't have narrows nothing — otherwise it would filter out the very tokens the link asks for.
-        let fromRequiredAccountId = params.swapFromUserAccountId.flatMap { existingAccountIds.contains($0) ? $0 : nil }
-        let toRequiredAccountId = params.swapToUserAccountId.flatMap { existingAccountIds.contains($0) ? $0 : nil }
+        let fromRequiredAccountId = deeplink.fromUserAccountId.flatMap { existingAccountIds.contains($0) ? $0 : nil }
+        let toRequiredAccountId = deeplink.toUserAccountId.flatMap { existingAccountIds.contains($0) ? $0 : nil }
 
         let source = fromRequested
-            ? mostFundedMatch(in: candidates, tokenId: params.swapFromTokenId, networkId: params.swapFromNetworkId, requiredAccountId: fromRequiredAccountId, preferredAccountId: nil)
+            ? mostFundedMatch(in: candidates, tokenId: deeplink.fromTokenId, networkId: deeplink.fromNetworkId, requiredAccountId: fromRequiredAccountId, preferredAccountId: nil)
             : nil
 
         let destination = toRequested
-            ? mostFundedMatch(in: candidates, tokenId: params.swapToTokenId, networkId: params.swapToNetworkId, requiredAccountId: toRequiredAccountId, preferredAccountId: source?.accountId)
+            ? mostFundedMatch(in: candidates, tokenId: deeplink.toTokenId, networkId: deeplink.toNetworkId, requiredAccountId: toRequiredAccountId, preferredAccountId: source?.accountId)
             : nil
 
         if fromRequested, toRequested, source == nil, destination == nil {

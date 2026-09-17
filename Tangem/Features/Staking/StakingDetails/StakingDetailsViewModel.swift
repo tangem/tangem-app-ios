@@ -55,7 +55,7 @@ final class StakingDetailsViewModel: ObservableObject {
     private let stakingManager: StakingManager
     private weak var coordinator: StakingDetailsRoutable?
 
-    private let deeplinkHandler: PromotionDeeplinkHandler
+    private let deeplinkHandler: TokenScreenDeeplinkResponder
     private let marketingBannerManager = MarketingBannerManager()
 
     private lazy var balanceFormatter = BalanceFormatter()
@@ -70,7 +70,7 @@ final class StakingDetailsViewModel: ObservableObject {
         tokenBalanceProvider: TokenBalanceProvider,
         stakingManager: StakingManager,
         coordinator: StakingDetailsRoutable,
-        deeplinkHandler: PromotionDeeplinkHandler
+        deeplinkHandler: TokenScreenDeeplinkResponder
     ) {
         self.tokenItem = tokenItem
         self.tokenBalanceProvider = tokenBalanceProvider
@@ -111,7 +111,7 @@ final class StakingDetailsViewModel: ObservableObject {
     func onAppear() {
         runTask(in: self) { await $0.refresh() }
 
-        deeplinkHandler.becomeIncomingActionsResponder()
+        deeplinkHandler.beginHandlingIncomingActions()
         marketingCampaignsRepository.loadCampaigns(for: .staking)
 
         let balances = stakingManager.balances.flatMap { String($0.count) } ?? String(0)
@@ -126,7 +126,7 @@ final class StakingDetailsViewModel: ObservableObject {
     }
 
     func onDisappear() {
-        deeplinkHandler.resignIncomingActionsResponder()
+        deeplinkHandler.endHandlingIncomingActions()
     }
 }
 

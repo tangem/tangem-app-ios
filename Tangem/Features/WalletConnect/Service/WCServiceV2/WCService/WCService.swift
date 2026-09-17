@@ -10,7 +10,9 @@ import Combine
 import ReownWalletKit
 import enum BlockchainSdk.Blockchain
 
-protocol WCService {
+/// Answers a WalletConnect link with a connection sheet, which belongs to a wallet session — so the app
+/// keeps it in the responder chain for exactly as long as one is on screen.
+protocol WCService: IncomingActionResponder {
     var transactionRequestPublisher: AnyPublisher<Result<WCHandleTransactionData, any Error>, Never> { get }
 
     func initialize()
