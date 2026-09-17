@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -81,8 +82,7 @@ private extension CollectiblesMachineView {
         case .failed:
             CollectiblesEmptyMessage(
                 icon: DesignSystem.Icons.ArrowRefresh.regular20,
-                // [REDACTED_TODO_COMMENT]
-                message: "Failed to load pack details.\nTap to reload",
+                message: Localization.collectiblesMachineLoadError,
                 onRetry: viewModel.retry
             )
             .frame(minHeight: Metrics.failedMessageMinHeight)
@@ -91,14 +91,12 @@ private extension CollectiblesMachineView {
 
     func sections(_ details: CollectiblesMachineViewModel.Details) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            // [REDACTED_TODO_COMMENT]
-            sectionHeader("Pack value and odds")
+            sectionHeader(Localization.collectiblesMachineValueAndOddsSection)
 
             tierGrid(details.tiers)
                 .padding(.vertical, Metrics.chipsContainerVerticalPadding)
 
-            // [REDACTED_TODO_COMMENT]
-            sectionHeader("Pack details")
+            sectionHeader(Localization.collectiblesMachineDetailsSection)
                 .padding(.top, Metrics.sectionsGap)
 
             detailChips(details)
@@ -150,12 +148,10 @@ private extension CollectiblesMachineView {
     func detailChips(_ details: CollectiblesMachineViewModel.Details) -> some View {
         LazyVGrid(columns: Metrics.chipColumns, alignment: .leading, spacing: Metrics.chipSpacing) {
             if let cardsCountText = details.cardsCountText {
-                // [REDACTED_TODO_COMMENT]
-                detailChip(label: "Pack contains", value: cardsCountText)
+                detailChip(label: Localization.collectiblesMachineDetailContains, value: cardsCountText)
             }
 
-            // [REDACTED_TODO_COMMENT]
-            detailChip(label: "Instant buyback", value: details.buybackText)
+            detailChip(label: Localization.collectiblesMachineDetailInstantBuyback, value: details.buybackText)
         }
     }
 
@@ -173,7 +169,6 @@ private extension CollectiblesMachineView {
     }
 
     var poweredBy: some View {
-        // [REDACTED_TODO_COMMENT]
         Text(Self.poweredByText)
             .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
     }
@@ -198,8 +193,8 @@ private extension CollectiblesMachineView {
     }
 
     static let poweredByText: AttributedString = {
-        let partner = "Collector Crypt"
-        var text = AttributedString("Powered by \(partner)")
+        let partner = Constants.partnerName
+        var text = AttributedString(Localization.collectiblesMachinePoweredBy(partner))
 
         if let range = text.range(of: partner) {
             text[range].foregroundColor = DesignSystem.Color.textPrimary
@@ -207,6 +202,14 @@ private extension CollectiblesMachineView {
 
         return text
     }()
+}
+
+// MARK: - Constants
+
+private extension CollectiblesMachineView {
+    enum Constants {
+        static let partnerName = "Collector Crypt"
+    }
 }
 
 // MARK: - Chip decoration

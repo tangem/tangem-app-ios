@@ -63,12 +63,10 @@ private extension CollectiblesRegionRestrictionsView {
 
     var texts: some View {
         VStack(spacing: Metrics.textsSpacing) {
-            // [REDACTED_TODO_COMMENT]
-            Text("Region restrictions")
+            Text(Localization.collectiblesRegionRestrictionsTitle)
                 .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
 
-            // [REDACTED_TODO_COMMENT]
-            Text("Tangem Packs are not supported in your region, you can still view events")
+            Text(Localization.collectiblesRegionRestrictionsSubtitle)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
         }
         .multilineTextAlignment(.center)

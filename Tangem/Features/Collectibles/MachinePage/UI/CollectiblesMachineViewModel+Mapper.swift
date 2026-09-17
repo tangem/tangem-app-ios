@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 extension CollectiblesMachineViewModel {
     enum Mapper {
@@ -39,9 +40,15 @@ private extension CollectiblesMachineViewModel.Mapper {
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
     static func makeTierTitle(_ tier: CollectiblesMachine.Tier) -> String {
-        tier.rawValue.capitalized
+        switch tier {
+        case .common: Localization.collectiblesMachineTierCommon
+        case .uncommon: Localization.collectiblesMachineTierUncommon
+        case .rare: Localization.collectiblesMachineTierRare
+        case .epic: Localization.collectiblesMachineTierEpic
+        // [REDACTED_TODO_COMMENT]
+        case .legendary: tier.rawValue.capitalized
+        }
     }
 
     static func makeTierDetailText(_ stats: CollectiblesMachine.TierStats, isTopTier: Bool) -> String? {
@@ -79,14 +86,12 @@ private extension CollectiblesMachineViewModel.Mapper {
         balanceFormatter.formatFiatBalance(value, currencyCode: AppConstants.usdCurrencyCode)
     }
 
-    // [REDACTED_TODO_COMMENT]
     static func makeCardsCountText(_ count: Int) -> String {
-        count == 1 ? "1 card" : "\(count) cards"
+        Localization.collectiblesAccountCollectionCardsCount(count)
     }
 
-    // [REDACTED_TODO_COMMENT]
     static func makeBuybackText(rate: Decimal) -> String {
-        "\(percentFormatter.format(rate, option: .collectibles)) of value"
+        Localization.collectiblesMachineBuybackValue(percentFormatter.format(rate, option: .collectibles))
     }
 
     enum Constants {
