@@ -227,7 +227,7 @@ extension AppOverlaysManager {
             viewModel: state.storiesHostViewModel,
             storyViews: state.storiesHostViewModel.storyViewModels.map { storyViewModel in
                 let pageViews = Self.makeStoryPages(for: state.activeStory, using: state.storiesHostViewModel, imageCache: imageCache)
-                    .map(StoryPageContainerView.init)
+                    .map { StoryPageContainerView(content: $0, ignoresBottomSafeArea: state.activeStory.runsArtToTheBottomEdge) }
 
                 return StoryView(viewModel: storyViewModel, pageViews: pageViews)
             }

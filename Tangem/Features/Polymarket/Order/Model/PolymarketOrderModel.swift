@@ -24,14 +24,14 @@ final class PolymarketOrderModel: ObservableObject {
     let outcome: PolymarketOutcome
     let eventTitle: String
 
-    let amountField = DecimalNumberTextFieldViewModel(maximumFractionDigits: PolymarketCollateral.decimalCount)
+    let intent: PolymarketOrderIntent
+    let amountField: DecimalNumberTextFieldViewModel
 
     // MARK: - Dependencies
 
     private let apiProvider: PolymarketAPIProvider
     private let geoblockStateProvider: PolymarketGeoblockStateProvider
     private let positionsService: PolymarketPositionsService?
-    private let balancePublisher: AnyPublisher<Decimal?, Never>
     private let isAwaitingFundsPublisher: AnyPublisher<Bool, Never>
     private let delayProvider: PollDelayProvider
 
@@ -49,22 +49,24 @@ final class PolymarketOrderModel: ObservableObject {
         market: PolymarketMarket,
         outcome: PolymarketOutcome,
         eventTitle: String,
+        intent: PolymarketOrderIntent,
         apiProvider: PolymarketAPIProvider,
         geoblockStateProvider: PolymarketGeoblockStateProvider,
         positionsService: PolymarketPositionsService? = nil,
-        balancePublisher: AnyPublisher<Decimal?, Never>,
         isAwaitingFundsPublisher: AnyPublisher<Bool, Never>,
         delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
         self.market = market
         self.outcome = outcome
         self.eventTitle = eventTitle
+        self.intent = intent
         self.apiProvider = apiProvider
         self.geoblockStateProvider = geoblockStateProvider
         self.positionsService = positionsService
-        self.balancePublisher = balancePublisher
         self.isAwaitingFundsPublisher = isAwaitingFundsPublisher
         self.delayProvider = delayProvider
+
+        amountField = DecimalNumberTextFieldViewModel(maximumFractionDigits: intent.fractionDigits)
 
         bind()
         readHeldShares()
@@ -75,7 +77,7 @@ final class PolymarketOrderModel: ObservableObject {
         heldSharesTask?.cancel()
     }
 
-    func awaitIndexing() -> Task<Void, Never>? {
+    func awaitIndexing() -> PolymarketOrderIndexing? {
         guard let positionsService, let conditionId = market.conditionId else { return nil }
 
         let heldSharesTask = heldSharesTask
@@ -89,15 +91,16 @@ final class PolymarketOrderModel: ObservableObject {
             }
 
             do {
-                _ = try await positionsService.awaitPosition(
+                return try await positionsService.awaitPosition(
                     conditionId: conditionId,
                     assetId: assetId,
                     changedFrom: heldShares
                 )
             } catch {
-                guard !error.isCancellationError else { return }
+                guard !error.isCancellationError else { return nil }
 
                 PolymarketLogger.error("Failed to wait for the position the order created", error: error)
+                return nil
             }
         }
     }
@@ -131,6 +134,33 @@ final class PolymarketOrderModel: ObservableObject {
 // MARK: - State
 
 extension PolymarketOrderModel {
+    func preselectWholePositionIfNeeded() {
+        guard case .sell = intent, state.enteredAmount == nil, let balance = state.balance, balance > 0 else {
+            return
+        }
+
+        apply(fraction: .max)
+    }
+
+    func step(by step: Int) {
+        guard let balance = state.balance else { return }
+
+        let current = state.enteredAmount ?? 0
+        let capped = min(max(current + Decimal(step), 0), balance)
+        let stepped = capped == balance
+            ? balance
+            : capped.rounded(scale: intent.fractionDigits, roundingMode: .down)
+
+        amountField.update(value: stepped)
+
+        let quotable = stepped >= Constants.minQuotableAmount ? stepped : nil
+
+        guard quotable != state.enteredAmount else { return }
+
+        state.enteredAmount = quotable
+        restartQuoteLoop(debounced: false)
+    }
+
     struct State: Equatable {
         var quote: PolymarketOrderQuoteState = .empty
         var quoteReceivedAt: Date?
@@ -180,12 +210,13 @@ private extension PolymarketOrderModel {
 
             .store(in: &bag)
 
-        balancePublisher
+        intent.availablePublisher
             .removeDuplicates()
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { model, balance in
                 model.state.balance = balance
+                model.preselectWholePositionIfNeeded()
             }
             .store(in: &bag)
 
@@ -259,10 +290,15 @@ private extension PolymarketOrderModel {
     }
 
     func spendable(fraction: PolymarketAmountFraction, of balance: Decimal) -> Decimal {
-        let amount = balance * fraction.multiplier
-        let spendable = fraction == .max ? amount / (1 + feeRate) : amount
+        guard fraction == .max else {
+            return (balance * fraction.multiplier).rounded(scale: intent.fractionDigits, roundingMode: .down)
+        }
 
-        return spendable.rounded(scale: PolymarketCollateral.decimalCount, roundingMode: .down)
+        guard intent.deductsFeeFromMax else {
+            return balance
+        }
+
+        return (balance / (1 + feeRate)).rounded(scale: intent.fractionDigits, roundingMode: .down)
     }
 
     var feeRate: Decimal {
@@ -280,13 +316,17 @@ private extension PolymarketOrderModel {
 
         let assetId = outcome.assetId
 
-        heldSharesTask = Task {
+        heldSharesTask = Task { [weak self] in
             do {
-                return try await Self.heldPosition(
+                let size = try await Self.heldPosition(
                     service: positionsService,
                     conditionId: conditionId,
                     assetId: assetId
                 )?.size
+
+                self?.applyHeldShares(size)
+
+                return size
             } catch {
                 guard !error.isCancellationError else { return nil }
 
@@ -294,6 +334,15 @@ private extension PolymarketOrderModel {
                 return nil
             }
         }
+    }
+
+    /// The sell ceiling opens on the size the list had, which can be minutes old — the fresh read
+    /// replaces it as soon as it lands, and only re-fills the field if the user has not typed yet.
+    func applyHeldShares(_ size: Decimal?) {
+        guard case .sell = intent, let size, size != state.balance else { return }
+
+        state.balance = size
+        preselectWholePositionIfNeeded()
     }
 
     static func heldPosition(
@@ -358,7 +407,7 @@ private extension PolymarketOrderModel {
         let request = PolymarketOrderQuoteRequest(
             marketId: market.id,
             assetId: outcome.assetId,
-            side: .buy,
+            side: intent.side,
             amount: amount,
             slippagePercent: state.slippagePercent
         )
@@ -368,7 +417,7 @@ private extension PolymarketOrderModel {
             guard !Task.isCancelled else { return }
 
             failureClock.reset()
-            state.minAmount = minAmount(from: quote)
+            state.minAmount = intent.minAmount(from: quote)
             state.quote = PolymarketOrderQuoteState(quote: quote)
             state.quoteReceivedAt = Date()
 
@@ -387,16 +436,6 @@ private extension PolymarketOrderModel {
         guard failureClock.shouldSurfaceFailure(hasQuote: state.quote.quote != nil) else { return }
 
         state.quote = .failed(PolymarketOrderQuoteFailure(error: error))
-    }
-
-    func minAmount(from quote: PolymarketOrderQuote) -> Decimal? {
-        let shareFloor = quote.minOrderSize * quote.worstCasePrice
-
-        guard let amountFloor = quote.minOrderAmount else {
-            return shareFloor > 0 ? shareFloor : nil
-        }
-
-        return max(shareFloor, amountFloor)
     }
 }
 

@@ -15,9 +15,11 @@ import TangemPolymarketUI
 @MainActor
 @Suite("Polymarket order gate")
 struct PolymarketOrderGateTests {
+    static let buyIntent = PolymarketOrderIntent.buy(balance: .just(output: nil))
+
     @Test("A quote the exchange can fill lets the flow move on")
     func placeableQuoteOpensTheButton() {
-        let gate = PolymarketOrderGate(state: .stub(quote: .stub(status: .full)))
+        let gate = PolymarketOrderGate(state: .stub(quote: .stub(status: .full)), intent: Self.buyIntent)
 
         #expect(gate.isPrimaryButtonEnabled)
         #expect(gate.notifications.isEmpty)
@@ -25,7 +27,7 @@ struct PolymarketOrderGateTests {
 
     @Test("A partial fill warns without standing in the way")
     func partialQuoteWarnsButPasses() {
-        let gate = PolymarketOrderGate(state: .stub(quote: .stub(status: .partial)))
+        let gate = PolymarketOrderGate(state: .stub(quote: .stub(status: .partial)), intent: Self.buyIntent)
 
         #expect(gate.isPrimaryButtonEnabled)
         #expect(gate.notifications == [.partialFill])
@@ -44,7 +46,7 @@ struct PolymarketOrderGateTests {
             minAmount: floor
         )
 
-        let gate = PolymarketOrderGate(state: state)
+        let gate = PolymarketOrderGate(state: state, intent: Self.buyIntent)
 
         #expect(!gate.isPrimaryButtonEnabled)
         #expect(gate.amountCaption == .belowMinAmount(floor))
@@ -52,7 +54,7 @@ struct PolymarketOrderGateTests {
 
     @Test("Until the floor is known the banner carries the refusal instead of the caption")
     func belowTheFloorWithoutAKnownMinimumBanners() {
-        let gate = PolymarketOrderGate(state: .stub(quote: .stub(status: .belowMinOrderSize)))
+        let gate = PolymarketOrderGate(state: .stub(quote: .stub(status: .belowMinOrderSize)), intent: Self.buyIntent)
 
         #expect(!gate.isPrimaryButtonEnabled)
         #expect(gate.notifications == [.belowMinOrder])
@@ -60,7 +62,7 @@ struct PolymarketOrderGateTests {
 
     @Test("A market that stopped taking orders blocks the flow")
     func closedMarketBlocks() {
-        let gate = PolymarketOrderGate(state: .stub(quoteState: .unavailable(.marketClosed)))
+        let gate = PolymarketOrderGate(state: .stub(quoteState: .unavailable(.marketClosed)), intent: Self.buyIntent)
 
         #expect(!gate.isPrimaryButtonEnabled)
         #expect(gate.notifications == [.marketClosed])
@@ -68,7 +70,7 @@ struct PolymarketOrderGateTests {
 
     @Test("An empty book blocks the flow and says why")
     func emptyBookBlocks() {
-        let gate = PolymarketOrderGate(state: .stub(quoteState: .unavailable(.insufficientLiquidity)))
+        let gate = PolymarketOrderGate(state: .stub(quoteState: .unavailable(.insufficientLiquidity)), intent: Self.buyIntent)
 
         #expect(!gate.isPrimaryButtonEnabled)
         #expect(gate.notifications == [.noLiquidity])
@@ -76,7 +78,7 @@ struct PolymarketOrderGateTests {
 
     @Test("A status this build cannot read is offered as a retry, not as a verdict")
     func undefinedStatusBlocks() {
-        let gate = PolymarketOrderGate(state: .stub(quoteState: .unavailable(.undefined)))
+        let gate = PolymarketOrderGate(state: .stub(quoteState: .unavailable(.undefined)), intent: Self.buyIntent)
 
         #expect(!gate.isPrimaryButtonEnabled)
         #expect(gate.notifications == [.quoteUnavailable])
@@ -84,7 +86,7 @@ struct PolymarketOrderGateTests {
 
     @Test("A quote that never arrived offers a retry and holds the button")
     func failedQuoteBlocks() {
-        let gate = PolymarketOrderGate(state: .stub(quoteState: .failed(.network)))
+        let gate = PolymarketOrderGate(state: .stub(quoteState: .failed(.network)), intent: Self.buyIntent)
 
         #expect(!gate.isPrimaryButtonEnabled)
         #expect(gate.notifications == [.quoteUnavailable])
@@ -92,7 +94,7 @@ struct PolymarketOrderGateTests {
 
     @Test("Waiting for the first quote is not a reason to warn, only to wait")
     func loadingIsSilent() {
-        let gate = PolymarketOrderGate(state: .stub(quoteState: .loading))
+        let gate = PolymarketOrderGate(state: .stub(quoteState: .loading), intent: Self.buyIntent)
 
         #expect(!gate.isPrimaryButtonEnabled)
         #expect(gate.notifications.isEmpty)
@@ -101,7 +103,7 @@ struct PolymarketOrderGateTests {
 
     @Test("A bet larger than the balance is refused before the fees are even counted")
     func balanceShortfallBlocks() {
-        let gate = PolymarketOrderGate(state: .stub(quote: .stub(status: .full), enteredAmount: 200, balance: 100))
+        let gate = PolymarketOrderGate(state: .stub(quote: .stub(status: .full), enteredAmount: 200, balance: 100), intent: Self.buyIntent)
 
         #expect(!gate.isPrimaryButtonEnabled)
         #expect(gate.amountCaption == .notEnoughForBet)
@@ -110,15 +112,91 @@ struct PolymarketOrderGateTests {
     @Test("A bet the balance covers but the fees do not is refused too")
     func feeShortfallBlocks() {
         let quote = PolymarketOrderQuote.stub(status: .full, total: Decimal(string: "100.5")!)
-        let gate = PolymarketOrderGate(state: .stub(quote: quote, enteredAmount: 100, balance: 100))
+        let gate = PolymarketOrderGate(state: .stub(quote: quote, enteredAmount: 100, balance: 100), intent: Self.buyIntent)
 
         #expect(!gate.isPrimaryButtonEnabled)
         #expect(gate.amountCaption == .notEnoughForFees)
     }
 
+    // MARK: - Selling
+
+    @Test("Selling more shares than the position holds is refused")
+    func sellOverTheHeldSizeBlocks() {
+        let state = PolymarketOrderModel.State.stub(quote: .stub(status: .full), enteredAmount: 1001, balance: 1000)
+        let gate = PolymarketOrderGate(state: state, intent: .sell(shares: 1000))
+
+        #expect(!gate.isPrimaryButtonEnabled)
+        #expect(gate.amountCaption == .notEnoughForBet)
+    }
+
+    @Test("Selling the whole position is allowed")
+    func sellOfTheWholePositionPasses() {
+        let state = PolymarketOrderModel.State.stub(quote: .stub(status: .full), enteredAmount: 1000, balance: 1000)
+        let gate = PolymarketOrderGate(state: state, intent: .sell(shares: 1000))
+
+        #expect(gate.isPrimaryButtonEnabled)
+        #expect(gate.amountCaption == nil)
+    }
+
+    @Test("A sell is measured in shares, so the collateral the fees need never enters the comparison")
+    func sellIgnoresTheFeeShortfall() {
+        let quote = PolymarketOrderQuote.stub(status: .full, total: 5000)
+        let state = PolymarketOrderModel.State.stub(quote: quote, enteredAmount: 1000, balance: 1000)
+        let gate = PolymarketOrderGate(state: state, intent: .sell(shares: 1000))
+
+        #expect(gate.isPrimaryButtonEnabled)
+        #expect(gate.amountCaption != .notEnoughForFees)
+    }
+
+    @Test("A sell says nothing about winnings — the proceeds live on the confirmation")
+    func sellHasNoWinCaption() {
+        let state = PolymarketOrderModel.State.stub(quote: .stub(status: .full), enteredAmount: 10, balance: 1000)
+        let gate = PolymarketOrderGate(state: state, intent: .sell(shares: 1000))
+
+        #expect(gate.amountCaption == nil)
+    }
+
+    // MARK: - The floor each side answers to
+
+    @Test("Buying floors at the dearer of the share minimum and the taker minimum")
+    func buyFloorTakesTheLargerOfTheTwo() {
+        let quote = PolymarketOrderQuote.stub(status: .full, minOrderSize: 5, minOrderAmount: 1)
+
+        #expect(Self.buyIntent.minAmount(from: quote) == Decimal(string: "3.675")!)
+    }
+
+    @Test("Buying floors at the taker minimum when the shares are cheap enough to fall under it")
+    func buyFloorFallsBackToTheTakerMinimum() {
+        let quote = PolymarketOrderQuote.stub(status: .full, worstCasePrice: Decimal(string: "0.1")!, minOrderSize: 5, minOrderAmount: 1)
+
+        #expect(Self.buyIntent.minAmount(from: quote) == 1)
+    }
+
+    @Test("Buying without a taker minimum floors at the share minimum alone")
+    func buyFloorWithoutATakerMinimum() {
+        let quote = PolymarketOrderQuote.stub(status: .full, minOrderSize: 5, minOrderAmount: nil)
+
+        #expect(Self.buyIntent.minAmount(from: quote) == Decimal(string: "3.675")!)
+    }
+
+    @Test("Selling floors at the share minimum, untouched by any price")
+    func sellFloorIsTheShareMinimum() {
+        let quote = PolymarketOrderQuote.stub(status: .full, minOrderSize: 5, minOrderAmount: 1)
+
+        #expect(PolymarketOrderIntent.sell(shares: 1000).minAmount(from: quote) == 5)
+    }
+
+    @Test("A side with no floor to state reports none")
+    func noFloorIsReportedAsNone() {
+        let quote = PolymarketOrderQuote.stub(status: .full, minOrderSize: 0, minOrderAmount: nil)
+
+        #expect(Self.buyIntent.minAmount(from: quote) == nil)
+        #expect(PolymarketOrderIntent.sell(shares: 1000).minAmount(from: quote) == nil)
+    }
+
     @Test("A restricted region stops the order however good the quote is")
     func blockedRegionStops() {
-        let gate = PolymarketOrderGate(state: .stub(quote: .stub(status: .full), geoblock: .blocked))
+        let gate = PolymarketOrderGate(state: .stub(quote: .stub(status: .full), geoblock: .blocked), intent: Self.buyIntent)
 
         #expect(!gate.isPrimaryButtonEnabled)
         #expect(gate.notifications == [.regionRestricted])
@@ -126,7 +204,7 @@ struct PolymarketOrderGateTests {
 
     @Test("An unresolved region is not treated as permission")
     func unknownRegionStops() {
-        let gate = PolymarketOrderGate(state: .stub(quote: .stub(status: .full), geoblock: .unknown))
+        let gate = PolymarketOrderGate(state: .stub(quote: .stub(status: .full), geoblock: .unknown), intent: Self.buyIntent)
 
         #expect(!gate.isPrimaryButtonEnabled)
     }
@@ -134,7 +212,7 @@ struct PolymarketOrderGateTests {
     @Test("The caption states what the bet wins once nothing else is wrong")
     func captionShowsTheWin() {
         let quote = PolymarketOrderQuote.stub(status: .full, shares: 138, expectedExecutionAmount: 140)
-        let gate = PolymarketOrderGate(state: .stub(quote: quote))
+        let gate = PolymarketOrderGate(state: .stub(quote: quote), intent: Self.buyIntent)
 
         #expect(gate.amountCaption == .toWin(expected: 140, guaranteed: 138))
     }
@@ -183,6 +261,9 @@ extension PolymarketOrderQuote {
         shares: Decimal = 138,
         expectedExecutionAmount: Decimal = 140,
         total: Decimal = Decimal(string: "100.5")!,
+        worstCasePrice: Decimal = Decimal(string: "0.735")!,
+        minOrderSize: Decimal = 5,
+        minOrderAmount: Decimal? = 1,
         isLive: Bool = false
     ) -> PolymarketOrderQuote {
         PolymarketOrderQuote(
@@ -192,7 +273,7 @@ extension PolymarketOrderQuote {
             notional: 100,
             expectedExecutionAmount: expectedExecutionAmount,
             averagePrice: Decimal(string: "0.72")!,
-            worstCasePrice: Decimal(string: "0.735")!,
+            worstCasePrice: worstCasePrice,
             fees: PolymarketOrderFees(
                 market: Decimal(string: "0.3")!,
                 builder: Decimal(string: "0.2")!,
@@ -200,8 +281,8 @@ extension PolymarketOrderQuote {
             ),
             total: total,
             builderCode: "0x00000000000000000000000000000000000000000000000000000000000000aa",
-            minOrderSize: 5,
-            minOrderAmount: 1,
+            minOrderSize: minOrderSize,
+            minOrderAmount: minOrderAmount,
             tickSize: Decimal(string: "0.001")!,
             isLive: isLive
         )

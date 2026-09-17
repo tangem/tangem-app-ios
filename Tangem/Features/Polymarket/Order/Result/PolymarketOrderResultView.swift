@@ -13,7 +13,7 @@ import TangemPolymarketUI
 import TangemUI
 
 struct PolymarketOrderResultView: View {
-    let viewModel: PolymarketOrderResultViewModel
+    @ObservedObject var viewModel: PolymarketOrderResultViewModel
 
     var body: some View {
         content
@@ -30,14 +30,21 @@ struct PolymarketOrderResultView: View {
     }
 
     private var screen: StatusScreen<StatusIcon, EmptyView, EmptyView> {
-        StatusScreen(
+        let screen = StatusScreen(
             title: viewModel.title,
             description: viewModel.description,
-            actionTitle: Localization.predictionPlaceResultToMain,
-            action: { viewModel.handleViewAction(.toMainTapped) }
+            actionTitle: viewModel.actionTitle,
+            action: { viewModel.handleViewAction(viewModel.action) }
         )
         .appearance(viewModel.appearance)
+        .actionLoading(viewModel.isAwaitingPosition)
+        .actionDisabled(viewModel.isActionDisabled)
+        .footerAxis(.horizontal)
         .assetSlot { StatusIcon(viewModel.glyph) }
+
+        guard let secondaryActionTitle = viewModel.secondaryActionTitle else { return screen }
+
+        return screen.secondaryAction(title: secondaryActionTitle) { viewModel.handleViewAction(.toMainTapped) }
     }
 }
 
@@ -72,7 +79,9 @@ private extension PolymarketOrderResultViewModel {
                 orderedAmount: 4000,
                 filledAmount: 2000,
                 tokensBought: 500,
-                resolutionDate: Date().addingTimeInterval(60 * 60 * 24 * 365)
+                resolutionDate: Date().addingTimeInterval(60 * 60 * 24 * 365),
+                side: .buy,
+                feeText: "$1.40"
             ),
             coordinator: nil
         )

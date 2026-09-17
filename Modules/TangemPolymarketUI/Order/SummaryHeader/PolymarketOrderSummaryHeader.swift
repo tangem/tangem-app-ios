@@ -62,7 +62,11 @@ public struct PolymarketOrderSummaryHeader: View {
                     .minimumScaleFactor(Constants.amountMinScale)
 
                 if let toWin = model.toWin {
-                    PolymarketAmountBadge.toWin(state: toWin)
+                    if model.isProceeds {
+                        PolymarketAmountBadge.willReceive(state: toWin)
+                    } else {
+                        PolymarketAmountBadge.toWin(state: toWin)
+                    }
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)

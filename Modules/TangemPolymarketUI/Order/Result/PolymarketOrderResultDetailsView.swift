@@ -52,12 +52,17 @@ public struct PolymarketOrderResultDetailsView: View {
 
     private func rows(tokensBoughtText: String) -> some View {
         VStack(spacing: 0) {
-            TangemUI.Row(title: Localization.predictionPlaceResultTokensBought, value: tokensBoughtText)
+            TangemUI.Row(title: model.tokensTitle, value: tokensBoughtText)
                 .titleAccessory { PolymarketHintIcon(asset: DesignSystem.Icons.Info.regular16) }
                 .showDivider(model.resolutionDateText != nil)
 
             if let resolutionDateText = model.resolutionDateText {
                 TangemUI.Row(title: Localization.predictionDetailsResolutionDate, value: resolutionDateText)
+                    .showDivider(model.fee != nil)
+            }
+
+            if let fee = model.fee {
+                PolymarketOrderFeeRow(currencyCode: fee.currencyCode, valueText: fee.valueText)
             }
         }
         .background(DesignSystem.Color.bgSecondary)
@@ -73,17 +78,33 @@ public extension PolymarketOrderResultDetailsView {
         public let market: PolymarketOrderMarketRow.Model
         public let tokensBoughtText: String?
         public let resolutionDateText: String?
+        public let tokensTitle: String
+        public let fee: Fee?
 
         public init(
             banner: Banner?,
             market: PolymarketOrderMarketRow.Model,
             tokensBoughtText: String?,
-            resolutionDateText: String?
+            resolutionDateText: String?,
+            tokensTitle: String = Localization.predictionPlaceResultTokensBought,
+            fee: Fee? = nil
         ) {
             self.banner = banner
             self.market = market
             self.tokensBoughtText = tokensBoughtText
             self.resolutionDateText = resolutionDateText
+            self.tokensTitle = tokensTitle
+            self.fee = fee
+        }
+    }
+
+    struct Fee {
+        public let currencyCode: String
+        public let valueText: String
+
+        public init(currencyCode: String, valueText: String) {
+            self.currencyCode = currencyCode
+            self.valueText = valueText
         }
     }
 
