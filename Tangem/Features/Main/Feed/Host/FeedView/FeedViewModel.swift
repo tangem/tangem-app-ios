@@ -58,6 +58,7 @@ private extension FeedViewModel {
             isSheetOpened = false
         case .medium, .full:
             logScreenOpenedIfNeeded()
+            widgetsViewModel.refresh()
         }
 
         tabsViewModel.sheetSizeDidChange(to: size)

@@ -11,6 +11,9 @@ enum FeedWidgetsRegistry {
         [
             ForYouWidgetProvider(router: router),
             AddAccountWidgetProvider(router: router),
+            TangemPayWidgetProvider(router: router),
+            EarnWidgetProvider(router: router),
+            ReferralWidgetProvider(router: router),
         ]
     }
 }

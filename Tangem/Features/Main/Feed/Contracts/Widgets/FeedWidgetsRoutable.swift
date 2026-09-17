@@ -7,6 +7,9 @@
 //
 
 protocol FeedWidgetsRoutable: AnyObject {
+    func openEarn()
+    func openTangemPay(_ entry: FeedTangemPayEntry)
+    func openReferral(wallet: UserWalletModel)
     func openForYou()
     func openAddAccount(candidates: [FeedAccountCandidate])
 }

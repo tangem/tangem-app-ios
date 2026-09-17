@@ -15,6 +15,11 @@ struct FeedDestinationView: View {
 
     var body: some View {
         switch destination {
+        case .referral(let coordinator):
+            NavigationStack {
+                ReferralCoordinatorView(coordinator: coordinator)
+                    .withCloseButton(placement: .topBarTrailing, style: .icon, action: coordinator.dismiss)
+            }
         case .forYou(let coordinator):
             ForYouCoordinatorView(coordinator: coordinator)
                 .background(FeedPopGestureEnabler())

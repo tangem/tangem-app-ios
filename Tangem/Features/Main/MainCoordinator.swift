@@ -1150,4 +1150,17 @@ private extension MainCoordinator {
 
 // MARK: - FeedHostRoutable
 
-extension MainCoordinator: FeedHostRoutable {}
+extension MainCoordinator: FeedHostRoutable {
+    func openTangemPay(entry: FeedTangemPayEntry) {
+        switch entry {
+        case .offer(let availableSelection):
+            openGetTangemPay(availableSelection: availableSelection)
+        case .kycRequired(let tangemPayKYCInteractor):
+            openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
+        case .kycDeclined(let tangemPayKYCInteractor):
+            openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
+        case .selectPlan(let tariffPlanSelector, let userWalletModel):
+            openTangemPaySelectPlan(tariffPlanSelector: tariffPlanSelector, userWalletModel: userWalletModel)
+        }
+    }
+}

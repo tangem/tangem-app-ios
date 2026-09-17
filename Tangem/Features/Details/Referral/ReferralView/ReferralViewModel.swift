@@ -20,6 +20,7 @@ import struct TangemUIUtils.AlertBinder
 
 final class ReferralViewModel: ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.referralProgramInfoRepository) private var referralProgramInfoRepository: ReferralProgramInfoRepository
 
     @MainActor
     @Published var isProcessingRequest: Bool = false
@@ -143,6 +144,7 @@ final class ReferralViewModel: ObservableObject {
                 )
 
                 await MainActor.run { self.referralProgramInfo = referralProgramInfo }
+                referralProgramInfoRepository.store(referralProgramInfo, for: UserWalletId(value: userWalletId))
                 await updateViewState(accountModel: accountModel)
 
                 Analytics.log(.referralParticipateSuccessful)
@@ -193,10 +195,7 @@ final class ReferralViewModel: ObservableObject {
     @MainActor
     private func loadReferralInfo() async -> ReferralProgramInfo? {
         do {
-            return try await tangemApiService.loadReferralProgramInfo(
-                for: userWalletId.hexString,
-                expectedAwardsLimit: ReferralConstants.expectedAwardsFetchLimit
-            )
+            return try await referralProgramInfoRepository.loadInfo(for: UserWalletId(value: userWalletId))
         } catch {
             let referralError = ReferralError(error)
             let message = Localization.referralErrorFailedToLoadInfoWithReason(referralError.errorCode)

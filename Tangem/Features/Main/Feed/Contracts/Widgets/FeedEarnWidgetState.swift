@@ -16,7 +16,7 @@ struct FeedEarnWidgetState: Equatable {
     let tokenSymbol: String?
 
     var caption: String {
-        Localization.feedPromoEarnTitle
+        tokenSymbol == nil ? Localization.feedPromoEarnTitle : Localization.feedPromoEarnActiveTitle
     }
 
     var message: String {
