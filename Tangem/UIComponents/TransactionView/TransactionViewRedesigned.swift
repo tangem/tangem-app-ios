@@ -21,6 +21,9 @@ struct TransactionViewRedesigned: View {
     @ScaledMetric private var glyphSize: CGFloat = 20
     @ScaledMetric private var iconBorderWidth: CGFloat = 1
     @ScaledMetric private var warningIconSize: CGFloat = 16
+    @ScaledMetric private var pendingIndicatorSide: CGFloat = 16
+    @ScaledMetric private var pendingIndicatorGlyphSize: CGFloat = 12
+    @ScaledMetric private var pendingIndicatorBorderWidth: CGFloat = 2
 
     private var display: TransactionDisplayModel { viewModel.display }
 
@@ -90,7 +93,29 @@ struct TransactionViewRedesigned: View {
             iconContent
         }
         .frame(width: iconContainerSide, height: iconContainerSide)
+        .overlay(alignment: .bottomTrailing) {
+            if viewModel.isPendingSignature {
+                pendingSignatureIndicator
+            }
+        }
         .accessibilityIdentifier(statusAccessibilityIdentifier)
+    }
+
+    private var pendingSignatureIndicator: some View {
+        Circle()
+            .fill(DesignSystem.Color.bgStatusWarningSubtle)
+            .overlay {
+                DesignSystem.Icons.Clock.regular12.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: pendingIndicatorGlyphSize, height: pendingIndicatorGlyphSize)
+                    .foregroundStyle(DesignSystem.Color.iconStatusWarning)
+            }
+            .overlay {
+                Circle().strokeBorder(DesignSystem.Color.bgPrimary, lineWidth: pendingIndicatorBorderWidth)
+            }
+            .frame(width: pendingIndicatorSide, height: pendingIndicatorSide)
     }
 
     @ViewBuilder
@@ -124,7 +149,11 @@ struct TransactionViewRedesigned: View {
                 .lineLimit(1)
                 .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionItem(key: transactionKey))
 
-            if viewModel.inProgress {
+            if viewModel.isPendingSignature {
+                Badge(label: Localization.transactionHistoryPending, accessibilityLabel: nil)
+                    .size(.x4)
+                    .appearance(.warning)
+            } else if viewModel.inProgress {
                 ProgressDots(style: .small)
             }
         }
@@ -411,6 +440,23 @@ private extension TransactionViewRedesigned {
                 status: .confirmed,
                 isFromYieldContract: false,
                 cashback: TransactionViewModel.Cashback(formattedAmount: "−$5.00", style: .confirmed)
+            )
+        )
+
+        TransactionViewRedesigned(
+            viewModel: TransactionViewModel(
+                hash: UUID().uuidString,
+                index: 0,
+                interactionAddress: .user("33BdfS...ga2B"),
+                timeFormatted: "10:45",
+                amount: "−0.3212 ETH",
+                value: "−0.3212",
+                currencyCode: "ETH",
+                isOutgoing: true,
+                transactionType: .transfer,
+                status: .inProgress,
+                isFromYieldContract: false,
+                isPendingSignature: true
             )
         )
     }
