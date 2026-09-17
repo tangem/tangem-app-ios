@@ -38,12 +38,15 @@ struct PulseMarketWidgetView: View {
                 filterSkeletons
             }
 
-            list
-                .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: .zero, radius: 24)
-                .id(listStateID)
-                .transition(.opacity)
+            // The states overlap while fading so they dissolve in place instead of pushing each other
+            ZStack(alignment: .topLeading) {
+                list
+                    .id(listStateID)
+                    .transition(.content)
+            }
+            .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: .zero, radius: 24)
         }
-        .animation(.easeInOut(duration: 0.3), value: listStateID)
+        .animation(.contentFrameUpdate, value: listStateID)
     }
 
     private var header: some View {
@@ -87,7 +90,7 @@ struct PulseMarketWidgetView: View {
 
     private var loadingSkeletons: some View {
         VStack(spacing: .zero) {
-            ForEach(0 ..< 5, id: \.self) { _ in
+            ForEach(0 ..< viewModel.itemsOnListWidget, id: \.self) { _ in
                 TokenRowMarket(.shimmer)
             }
         }
@@ -96,17 +99,9 @@ struct PulseMarketWidgetView: View {
     private var filterSkeletons: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                SkeletonView()
-                    .frame(width: 113, height: 36)
-                    .clipShape(.capsule)
-
-                SkeletonView()
-                    .frame(width: 113, height: 36)
-                    .clipShape(.capsule)
-
-                SkeletonView()
-                    .frame(width: 200, height: 36)
-                    .clipShape(.capsule)
+                chipSkeleton(width: 113)
+                chipSkeleton(width: 113)
+                chipSkeleton(width: 200)
             }
             .padding(.horizontal, 16)
         }
@@ -114,4 +109,30 @@ struct PulseMarketWidgetView: View {
         .padding(.horizontal, -16)
         .allowsHitTesting(false)
     }
+
+    /// The chips themselves keep a fixed height, so the placeholder is pinned rather than left to scale.
+    private func chipSkeleton(width: CGFloat) -> some View {
+        Shimmer()
+            .variant(.custom(cornerRadius: Constants.chipCornerRadius))
+            .frame(width: width, height: Constants.chipHeight)
+    }
+}
+
+// MARK: - Constants
+
+private extension PulseMarketWidgetView {
+    enum Constants {
+        static let chipHeight: CGFloat = 36
+        static let chipCornerRadius: CGFloat = 24
+    }
+}
+
+// MARK: - Content transition
+
+private extension Animation {
+    static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.3)
+}
+
+private extension AnyTransition {
+    static let content = AnyTransition.opacity.animation(.curve(.easeInOutRefined, duration: 0.3))
 }
