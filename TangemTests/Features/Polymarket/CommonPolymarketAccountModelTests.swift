@@ -171,7 +171,7 @@ struct CommonPolymarketAccountModelTests {
             return
         }
 
-        #expect(value == 7.5)
+        #expect(value.available == 7.5)
     }
 
     @Test("A remembered account without credentials still shows up, only without a balance")
@@ -234,7 +234,7 @@ struct CommonPolymarketAccountModelTests {
             return
         }
 
-        #expect(value == 12.34)
+        #expect(value.available == 12.34)
     }
 
     @Test("A cancelled balance load does not leave the row loading forever")
@@ -253,10 +253,100 @@ struct CommonPolymarketAccountModelTests {
     }
 }
 
+// MARK: - Positions value
+
+extension CommonPolymarketAccountModelTests {
+    @Test("A full round reads the positions, and the total holds both parts")
+    func fullRoundReadsPositions() async {
+        let positions = PolymarketPositionsValueServiceStub(result: .success(7))
+        let (sut, balance) = makeActiveSUT(available: 10, positionsValueService: positions)
+
+        await sut.refreshState(scope: .full)
+
+        #expect(positions.calls == 1)
+        #expect(balance.lastLoadedBalance?.available == 10)
+        #expect(balance.lastLoadedBalance?.total == 17)
+    }
+
+    @Test("A round that only wants the available balance keeps the total but leaves the positions request alone")
+    func availableOnlyRoundSkipsThePositionsRequest() async {
+        let positions = PolymarketPositionsValueServiceStub(result: .success(7))
+        let (sut, balance) = makeActiveSUT(available: 10, positionsValueService: positions)
+
+        await sut.refreshState(scope: .full)
+        await sut.refreshState(scope: .availableOnly)
+
+        #expect(positions.calls == 1)
+        #expect(balance.lastLoadedBalance?.total == 17)
+        #expect(balance.lastLoadedBalance?.freshTotal == nil)
+    }
+
+    @Test("A refresh that asks for nothing in particular leaves the positions alone")
+    func aPlainRefreshDoesNotReadPositions() async {
+        let positions = PolymarketPositionsValueServiceStub(result: .success(7))
+        let (sut, balance) = makeActiveSUT(available: 10, positionsValueService: positions)
+
+        await sut.refreshState()
+
+        #expect(positions.calls == 0)
+        #expect(balance.lastLoadedBalance?.available == 10)
+    }
+
+    @Test("Skipping the positions before anything is known leaves the total unknown instead of pretending there are no bets")
+    func availableOnlyRoundWithoutAnythingKnownLeavesTheTotalUnknown() async {
+        let positions = PolymarketPositionsValueServiceStub(result: .success(7))
+        let (sut, balance) = makeActiveSUT(available: 10, positionsValueService: positions)
+
+        await sut.refreshState(scope: .availableOnly)
+
+        #expect(positions.calls == 0)
+        #expect(balance.lastLoadedBalance?.available == 10)
+        #expect(balance.lastLoadedBalance?.total == nil)
+    }
+
+    @Test("A failed positions request leaves the available balance untouched")
+    func failedPositionsRequestLeavesTheAvailableBalanceAlone() async {
+        let positions = PolymarketPositionsValueServiceStub(result: .failure(PolymarketPositionsValueServiceStub.StubError()))
+        let (sut, balance) = makeActiveSUT(available: 10, positionsValueService: positions)
+
+        await sut.refreshState(scope: .full)
+
+        #expect(balance.lastLoadedBalance?.available == 10)
+        #expect(balance.lastLoadedBalance?.total == nil)
+        #expect(balance.updates.contains { $0.isFailed } == false)
+    }
+
+    @Test("Positions that failed stop being carried over, so a later skipped round does not resurrect them")
+    func failedPositionsAreNotReusedLater() async {
+        let positions = PolymarketPositionsValueServiceStub(result: .success(7))
+        let (sut, balance) = makeActiveSUT(available: 10, positionsValueService: positions)
+
+        await sut.refreshState(scope: .full)
+        positions.result = .failure(PolymarketPositionsValueServiceStub.StubError())
+        await sut.refreshState(scope: .full)
+        await sut.refreshState(scope: .availableOnly)
+
+        #expect(positions.calls == 2)
+        #expect(balance.lastLoadedBalance?.total == nil)
+    }
+}
+
 // MARK: - Fixtures
 
 private extension CommonPolymarketAccountModelTests {
     static let userWalletId = UserWalletId(value: Data([0x01, 0x02, 0x03]))
+
+    func makeActiveSUT(
+        available: Decimal,
+        positionsValueService: PolymarketPositionsValueService
+    ) -> (CommonPolymarketAccountModel, PolymarketBalanceServiceSpy) {
+        makeSUT(
+            walletService: PolymarketDepositWalletServiceStub(status: .readyToTrade),
+            credentialsRepository: PolymarketCredentialsRepositoryStub(stored: PolymarketCredentialsRepositoryStub.credentials),
+            clobService: PolymarketCLOBServiceStub(balanceResult: .success(available)),
+            positionsValueService: positionsValueService
+        )
+    }
 
     func makeSUT(
         status: PolymarketDepositWalletStatus,
@@ -286,6 +376,7 @@ private extension CommonPolymarketAccountModelTests {
         walletService: PolymarketDepositWalletService,
         credentialsRepository: PolymarketCredentialsRepository,
         clobService: PolymarketCLOBService = PolymarketCLOBServiceStub(),
+        positionsValueService: PolymarketPositionsValueService = PolymarketPositionsValueServiceStub(),
         ownerAddress: String? = PolymarketOwnerAddressProviderStub.ownerAddress,
         knownAccount: Bool = false
     ) -> (CommonPolymarketAccountModel, PolymarketBalanceServiceSpy) {
@@ -295,6 +386,7 @@ private extension CommonPolymarketAccountModelTests {
             userWalletId: Self.userWalletId,
             walletService: walletService,
             clobService: clobService,
+            positionsValueService: positionsValueService,
             credentialsRepository: credentialsRepository,
             ownerAddressProvider: PolymarketOwnerAddressProviderStub(derived: ownerAddress),
             balanceService: balance,
@@ -302,5 +394,20 @@ private extension CommonPolymarketAccountModelTests {
         )
 
         return (sut, balance)
+    }
+}
+
+private extension PolymarketBalanceServiceSpy {
+    var lastLoadedBalance: PolymarketBalance? {
+        updates
+            .reversed()
+            .compactMap { state -> PolymarketBalance? in
+                guard case .loaded(let balance) = state else {
+                    return nil
+                }
+
+                return balance
+            }
+            .first
     }
 }

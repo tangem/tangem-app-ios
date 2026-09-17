@@ -315,20 +315,32 @@ struct PolymarketMainView: View {
             loader: .init(size: Constants.balanceLoaderSize)
         )
         .padding(.trailing, Constants.balanceAmountTrailingPadding)
+        .id(viewModel.balanceMode)
+        .transition(.opacity)
     }
 
     private var balanceSelector: some View {
-        HStack(spacing: Constants.balanceSelectorSpacing) {
-            // [REDACTED_TODO_COMMENT]
-            Text("Total Balance")
-                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
+        SwiftUI.Button {
+            withAnimation(.easeInOut(duration: Constants.balanceModeAnimationDuration)) {
+                viewModel.onBalanceModeTap()
+            }
+        } label: {
+            HStack(spacing: Constants.balanceSelectorSpacing) {
+                // [REDACTED_TODO_COMMENT]
+                Text(viewModel.balanceMode == .total ? "Total Balance" : "Available Balance")
+                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
+                    .id(viewModel.balanceMode)
+                    .transition(.opacity)
 
-            Assets.DesignSystem.chevronDown.image
-                .renderingMode(.template)
-                .resizable()
-                .frame(width: Constants.selectorIconSize, height: Constants.selectorIconSize)
-                .foregroundStyle(DesignSystem.Color.iconSecondary)
+                DesignSystem.Icons.ChevronDoubleVertical.regular16.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .frame(size: .init(bothDimensions: Constants.selectorIconSize))
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+            }
         }
+        .buttonStyle(.plain)
+        .disabled(!viewModel.canSwitchBalanceMode)
     }
 
     private var actionButtons: some View {
@@ -478,7 +490,8 @@ extension PolymarketMainView {
         static let skeletonActionSpacing: CGFloat = 8
         static let skeletonActionTitleWidth: CGFloat = 64
         static let balanceSelectorSpacing: CGFloat = 4
-        static let selectorIconSize: CGFloat = 20
+        static let selectorIconSize: CGFloat = 16
+        static let balanceModeAnimationDuration: TimeInterval = 0.2
         static let actionButtonsSpacing: CGFloat = 24
         static let actionButtonsTopPadding: CGFloat = 20
 
