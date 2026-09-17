@@ -1055,6 +1055,8 @@ private extension TangemPayMainCoordinator {
             .first { $0.type == .main }
             .flatMap { URL(string: $0.url) }
 
+        let isBasicTariff = tangemPayAccount.customerTariffPlan?.tariffPlan.type == TangemPayAccount.basicTariffPlanType
+
         let profile = tangemPayAccount.profile
 
         let coordinator = TangemPayOrderCardCoordinator(
@@ -1066,6 +1068,7 @@ private extension TangemPayMainCoordinator {
         coordinator.start(with: .init(
             purpose: purpose,
             tariffPlanCardImageURL: tariffPlanCardImageURL,
+            isBasicTariff: isBasicTariff,
             nameOnCard: nameOnCard,
             countryName: Self.localizedCountryName(profile?.country),
             email: profile?.email,
@@ -1116,6 +1119,11 @@ extension TangemPayMainCoordinator: TangemPayDailyLimitRoutable {
 extension TangemPayMainCoordinator: TangemPayOrderCardFlowRoutable {
     func orderCardFlowDidSelectVirtual() {
         rootViewModel?.orderCardTypeDidSelectVirtual()
+    }
+
+    func orderCardFlowDidComplete() {
+        cardManagementViewModel?.selectDeliveringPlasticCard()
+        orderCardCoordinator = nil
     }
 }
 
