@@ -320,6 +320,21 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
         return self
     }
 
+    /// Checks any matching field regardless of hittability, unlike `editableFromAmountField()`.
+    @discardableResult
+    func waitForFromAmountDisplayedValue(_ value: String, timeout: TimeInterval = .robustUIUpdate) -> Self {
+        XCTContext.runActivity(named: "Validate any from amount field displays value '\(value)'") { _ in
+            let matches = app.textFields.matching(identifier: SwapAccessibilityIdentifiers.fromAmountTextField)
+            let predicate = NSPredicate { _, _ in
+                matches.allElementsBoundByIndex.contains { $0.getValue() == value }
+            }
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
+            let result = XCTWaiter().wait(for: [expectation], timeout: timeout)
+            XCTAssertEqual(result, .completed, "From amount field should display value '\(value)'")
+        }
+        return self
+    }
+
     @discardableResult
     func clearFromAmount() -> Self {
         XCTContext.runActivity(named: "Clear from amount text field") { _ in
@@ -446,6 +461,15 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     func waitForNotificationNotShown() -> Self {
         XCTContext.runActivity(named: "Wait for notification banner to disappear from swap screen") { _ in
             XCTAssertTrue(notificationTitle.waitForNonExistence(timeout: .robustUIUpdate), "Notification title should not exist on swap screen")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForRetryButtonDisplayed() -> Self {
+        XCTContext.runActivity(named: "Wait for retry button to be displayed on swap screen") { _ in
+            let retryButton = swapContainer.buttons[CommonUIAccessibilityIdentifiers.notificationButton]
+            waitAndAssertTrue(retryButton, "Retry button should be displayed on swap screen")
         }
         return self
     }
