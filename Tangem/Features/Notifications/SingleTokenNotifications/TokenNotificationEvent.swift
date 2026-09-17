@@ -369,6 +369,7 @@ extension TokenNotificationEvent {
             return [
                 .token: configuration.amountCurrencySymbol,
                 .blockchain: configuration.amountCurrencyBlockchainName,
+                .balance: Analytics.ParameterValue.balanceState(for: configuration.feeCurrencyBalance).rawValue,
             ]
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction(let revealTransaction), _):
             return [.token: revealTransaction.currencySymbol, .blockchain: revealTransaction.blockchainName]
