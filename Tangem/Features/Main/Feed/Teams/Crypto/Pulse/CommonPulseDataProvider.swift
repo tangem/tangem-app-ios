@@ -35,7 +35,8 @@ final class CommonPulseDataProvider: PulseDataProvider {
     private let filterProvider = MarketsListDataFilterProvider(analyticsSection: .crypto)
     private lazy var rowsProvider = MarketTokenRowsProvider(filterProvider: filterProvider)
 
-    private var isReloading = false
+    /// `MarketsListDataProvider` publishes `$items` from its fetch task, so the flag is read there and written from the caller's thread.
+    private let isReloading = OSAllocatedUnfairLock(initialState: false)
     private var bag = Set<AnyCancellable>()
 
     init() {
@@ -74,7 +75,14 @@ final class CommonPulseDataProvider: PulseDataProvider {
     }
 
     private func reload() {
-        isReloading = true
+        isReloading.withLock { $0 = true }
+
+        // Loading and the cleared failure go first: clearing the tokens on their own is a state that renders
+        // the no-results text, and on a retry the stale failure would outlive the tap.
+        isLoadingSubject.send(true)
+        failedSubject.send(false)
+        tokensSubject.send([])
+
         listProvider.reset()
         listProvider.fetch(.empty, with: filterProvider.currentFilterValue)
         rowsProvider.requestCharts()
@@ -83,9 +91,13 @@ final class CommonPulseDataProvider: PulseDataProvider {
     /// The `$items` sink swallows the empty list `reset()` produces while a reload is in flight, so when the
     /// reload ends without a page (empty result or failure) the previous filter's list has to be cleared from here.
     private func finishReloadWithoutItems() {
-        guard isReloading else { return }
+        let wasReloading = isReloading.withLock { reloading -> Bool in
+            defer { reloading = false }
+            return reloading
+        }
 
-        isReloading = false
+        guard wasReloading else { return }
+
         tokensSubject.send([])
     }
 
@@ -94,11 +106,19 @@ final class CommonPulseDataProvider: PulseDataProvider {
             .$items
             .withWeakCaptureOf(self)
             .sink { provider, items in
-                guard !items.isEmpty || !provider.isReloading else {
+                let swallowsReset = provider.isReloading.withLock { reloading -> Bool in
+                    guard items.isEmpty, reloading else {
+                        reloading = false
+                        return false
+                    }
+
+                    return true
+                }
+
+                guard !swallowsReset else {
                     return
                 }
 
-                provider.isReloading = false
                 provider.rowsProvider.updateQuotes(for: items)
                 provider.tokensSubject.send(items)
             }

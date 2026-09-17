@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAccessibilityIdentifiers
 import TangemAssets
+import TangemFoundation
 import TangemLocalization
 import TangemUI
 
@@ -23,39 +24,53 @@ struct PulseView: View {
 
             categoriesRow
 
-            tokensContent
-                .background(DesignSystem.Color.bgSecondary, in: RoundedRectangle(cornerRadius: 24))
-                .padding(.horizontal, Constants.horizontalPadding)
+            // The states overlap while fading so they dissolve in place instead of pushing each other
+            ZStack(alignment: .topLeading) {
+                tokensContent
+                    .id(viewModel.contentState)
+                    .transition(.content)
+            }
+            .background(DesignSystem.Color.bgSecondary, in: RoundedRectangle(cornerRadius: 24))
+            .padding(.horizontal, Constants.horizontalPadding)
         }
         .onAppear(perform: viewModel.onViewAppear)
         .frame(maxWidth: .infinity, alignment: .leading)
         .animation(.easeInOut(duration: 0.3), value: viewModel.selectedTag)
+        .animation(.contentFrameUpdate, value: viewModel.contentState)
     }
 
     @ViewBuilder
     private var tokensContent: some View {
-        if viewModel.isFailed, viewModel.tokens.isEmpty {
+        switch viewModel.contentState {
+        case .failure:
             TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.onRetry)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, Constants.errorVerticalPadding)
-        } else if viewModel.tokens.isEmpty, viewModel.isLoading {
-            LazyVStack(spacing: 0) {
-                ForEach(0 ..< Constants.skeletonRowCount, id: \.self) { _ in
-                    TokenRowMarket(.shimmer)
-                }
-            }
-        } else if viewModel.tokens.isEmpty {
+
+        case .skeletons:
+            loadingSkeletons
+
+        case .empty:
             Text(Localization.marketsSearchTokenNoResultTitle)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textTertiary)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, Constants.errorVerticalPadding)
-        } else {
+
+        case .rows:
             LazyVStack(spacing: 0) {
                 ForEach(viewModel.tokens) { token in
                     MarketTokenRowView(viewModel: token)
                         .onAppear { viewModel.onTokenAppear(token) }
                         .onDisappear { viewModel.onTokenDisappear(token) }
                 }
+            }
+        }
+    }
+
+    private var loadingSkeletons: some View {
+        LazyVStack(spacing: 0) {
+            ForEach(0 ..< Constants.skeletonRowCount, id: \.self) { _ in
+                TokenRowMarket(.shimmer)
             }
         }
     }
@@ -103,16 +118,25 @@ struct PulseView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 4) {
                 ForEach(viewModel.categories, id: \.self) { category in
-                    SwiftUI.Button {
-                        viewModel.onSelectCategory(category)
-                    } label: {
-                        chip(category.title, isSelected: category == viewModel.selectedCategory)
-                    }
-                    .buttonStyle(.plain)
+                    categoryChip(category)
                 }
             }
             .padding(.horizontal, Constants.horizontalPadding)
         }
+    }
+
+    private func categoryChip(_ category: PulseCategory) -> some View {
+        let isSelected = category == viewModel.selectedCategory
+
+        return SwiftUI.Button {
+            guard !isSelected else { return }
+
+            FeedbackGenerator.selection()
+            viewModel.onSelectCategory(category)
+        } label: {
+            chip(category.title, isSelected: isSelected)
+        }
+        .buttonStyle(.plain)
     }
 
     private func chip(_ title: String, isSelected: Bool) -> some View {
@@ -149,4 +173,14 @@ private extension PulseView {
         static let skeletonRowCount = 20
         static let errorVerticalPadding: CGFloat = 24
     }
+}
+
+// MARK: - Content transition
+
+private extension Animation {
+    static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.3)
+}
+
+private extension AnyTransition {
+    static let content = AnyTransition.opacity.animation(.curve(.easeInOutRefined, duration: 0.3))
 }
