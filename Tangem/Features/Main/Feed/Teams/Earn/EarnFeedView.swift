@@ -42,7 +42,6 @@ struct EarnFeedView: View {
                 TangemTwoLineRowSkeletonView()
             }
         }
-        .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: .zero, radius: Constants.listCornerRadius)
         .padding(.horizontal, Constants.horizontalPadding)
     }
 }
