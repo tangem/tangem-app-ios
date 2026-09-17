@@ -52,7 +52,7 @@ final class PolymarketOrderModel: ObservableObject {
         intent: PolymarketOrderIntent,
         apiProvider: PolymarketAPIProvider,
         geoblockStateProvider: PolymarketGeoblockStateProvider,
-        positionsService: PolymarketPositionsService? = nil,
+        positionsService: PolymarketPositionsService?,
         isAwaitingFundsPublisher: AnyPublisher<Bool, Never>,
         delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
@@ -77,13 +77,15 @@ final class PolymarketOrderModel: ObservableObject {
         heldSharesTask?.cancel()
     }
 
-    func awaitIndexing() -> PolymarketOrderIndexing? {
-        guard let positionsService, let conditionId = market.conditionId else { return nil }
-
+    func awaitIndexing() -> PolymarketOrderIndexing {
+        let positionsService = positionsService
+        let conditionId = market.conditionId
         let heldSharesTask = heldSharesTask
         let assetId = outcome.assetId
 
         return Task {
+            guard let positionsService, let conditionId else { return nil }
+
             var heldShares: Decimal?
 
             if let heldSharesTask {
