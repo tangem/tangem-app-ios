@@ -15,6 +15,7 @@ import Testing
 /// instead.
 @Suite(
     "Tests for how a campaign link is read",
+    .serialized,
     .enabled(if: FeatureProvider.isAvailable(.tangemPayCustomCards))
 )
 struct TangemPayCampaignLinkParserTests {
@@ -25,43 +26,45 @@ struct TangemPayCampaignLinkParserTests {
     func campaignLinkIsParsed() throws {
         let url = try #require(URL(string: "https://tangem.com/marketing?deep_link_value=\(campaignKey)"))
 
-        let previousPendingKey = AppSettings.shared.pendingTangemPayCampaignKey
-        defer { AppSettings.shared.pendingTangemPayCampaignKey = previousPendingKey }
-
         #expect(TangemPayCampaignLinkParser.matches(url))
-
-        guard case .navigation(let deeplink) = parser.parse(url) else {
-            Issue.record("Expected navigation action")
-            return
-        }
-
-        #expect(deeplink.destination == .payCustomCard)
-        #expect(deeplink.params.campaignId == campaignKey)
-        #expect(deeplink.deeplinkString == url.absoluteString)
-        #expect(AppSettings.shared.pendingTangemPayCampaignKey == campaignKey)
+        #expect(parser.parse(url) == .navigation(.payCustomCard(PayCustomCardDeeplink(campaignKey: campaignKey))))
     }
 
-    @Test("Another AppsFlyer deep link is not a campaign link")
-    func unprefixedValueIsRejected() throws {
-        let url = try #require(URL(string: "https://tangem.com/marketing?deep_link_value=tpay_mobileonboard"))
+    /// The value is the whole of what the link says, so it has to arrive on a domain of ours — the app's own
+    /// scheme is registered for anyone to call.
+    @Test(
+        "The same value written into a link from anywhere else names no campaign",
+        arguments: [
+            "https://evil.example.com/marketing?deep_link_value=tpay_for_harvard123",
+            "tangem://marketing?deep_link_value=tpay_for_harvard123",
+        ]
+    )
+    func foreignLinksAreRejected(link: String) throws {
+        let url = try #require(URL(string: link))
+
+        #expect(TangemPayCampaignLinkParser.campaignKey(url) == nil)
+        #expect(parser.parse(url) == nil)
+    }
+
+    @Test(
+        "A link that names no campaign is not a campaign link",
+        arguments: [
+            // Another AppsFlyer deep link: onboarding, which has a parser of its own.
+            "https://tangem.com/marketing?deep_link_value=tpay_mobileonboard",
+            // The bare prefix names no campaign.
+            "https://tangem.com/marketing?deep_link_value=tpay_for_",
+            "https://tangem.com/marketing",
+            // The key is carried on to the backend and back into a link, so it is held to the shape every
+            // identifier a link of ours carries has.
+            "https://tangem.com/marketing?deep_link_value=tpay_for_harvard%20123",
+            "https://tangem.com/marketing?deep_link_value=tpay_for_../harvard",
+        ]
+    )
+    func otherLinksAreRejected(link: String) throws {
+        let url = try #require(URL(string: link))
 
         #expect(TangemPayCampaignLinkParser.campaignKey(url) == nil)
         #expect(!TangemPayCampaignLinkParser.matches(url))
-    }
-
-    @Test("The bare prefix names no campaign")
-    func barePrefixIsRejected() throws {
-        let url = try #require(URL(string: "https://tangem.com/marketing?deep_link_value=tpay_for_"))
-
-        #expect(TangemPayCampaignLinkParser.campaignKey(url) == nil)
-        #expect(!TangemPayCampaignLinkParser.matches(url))
-    }
-
-    @Test("A link without deep_link_value is not a campaign link")
-    func missingValueIsRejected() throws {
-        let url = try #require(URL(string: "https://tangem.com/marketing"))
-
-        #expect(TangemPayCampaignLinkParser.campaignKey(url) == nil)
-        #expect(!TangemPayCampaignLinkParser.matches(url))
+        #expect(parser.parse(url) == nil)
     }
 }

@@ -8,7 +8,9 @@
 import Foundation
 
 struct TangemPayCampaignService {
-    /// The whole `deep_link_value` is the campaign key the BFF expects, prefix included.
+    /// The whole `deep_link_value` is the campaign key the BFF expects, prefix included. It is carried on to the
+    /// backend and back into a link, so it is held to the shape every identifier a link of ours carries has —
+    /// whichever way it arrived, the AppsFlyer SDK's callback or a link of ours.
     static func campaignKey(fromDeepLinkValue value: String) -> String? {
         guard FeatureProvider.isAvailable(.tangemPayCustomCards),
               value.hasPrefix(Constants.deepLinkValuePrefix),
@@ -16,7 +18,7 @@ struct TangemPayCampaignService {
             return nil
         }
 
-        return value
+        return DeeplinkRules.identifier(value)
     }
 
     var pendingCampaignKey: String? {
