@@ -13,7 +13,6 @@ extension PolymarketDTO {
         let address: String
         let toChainId: String
         let toTokenAddress: String
-        /// The bridge spells the recipient `recipientAddr` here and `recipientAddress` on `quote`.
         let recipientAddr: String
     }
 

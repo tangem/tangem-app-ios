@@ -1,5 +1,5 @@
 //
-//  PolymarketWithdrawSigner.swift
+//  PolymarketBatchSigner.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,14 +11,14 @@ import BlockchainSdk
 import TangemFoundation
 import TangemPolymarket
 
-struct PolymarketWithdrawSigner {
+struct PolymarketBatchSigner {
     let keysRepository: KeysRepository
     let signer: TangemSigner
 }
 
-// MARK: - PolymarketWithdrawSigning protocol conformance
+// MARK: - PolymarketBatchSigning protocol conformance
 
-extension PolymarketWithdrawSigner: PolymarketWithdrawSigning {
+extension PolymarketBatchSigner: PolymarketBatchSigning {
     func sign(
         _ batch: PolymarketRelayedBatch.Unsigned,
         as ownerAddress: String
@@ -36,12 +36,12 @@ extension PolymarketWithdrawSigner: PolymarketWithdrawSigning {
 
 // MARK: - Private implementation
 
-private extension PolymarketWithdrawSigner {
+private extension PolymarketBatchSigner {
     func makeDigest(for batch: PolymarketRelayedBatch.Unsigned) throws(PolymarketSigningError) -> Data {
         do {
             return try PolymarketRelayedBatchSigning.digest(for: batch)
         } catch {
-            PolymarketLogger.error("Failed to build the withdraw batch digest", error: error)
+            PolymarketLogger.error("Failed to build the relayed batch digest", error: error)
             throw .unknown
         }
     }
@@ -52,7 +52,7 @@ private extension PolymarketWithdrawSigner {
 
             return try signature.unmarshal().hexString.lowercased().addHexPrefix()
         } catch {
-            PolymarketLogger.error("Failed to sign the withdraw batch", error: error)
+            PolymarketLogger.error("Failed to sign the relayed batch", error: error)
             throw PolymarketSigningError(signingFailure: error)
         }
     }

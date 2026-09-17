@@ -8,8 +8,6 @@
 
 import Foundation
 
-/// What the exchange knows about an order after it was accepted. A market that delays its trading
-/// answers the placement with nothing but an id, and this is the only way to learn how it ended.
 public struct PolymarketOrderRecord: Hashable, Sendable {
     public let status: PolymarketOrderRecordStatus
     public let originalSize: Decimal
@@ -48,7 +46,6 @@ extension PolymarketOrderRecordStatus: Decodable {
 // MARK: - Convenience extensions
 
 public extension PolymarketOrderRecord {
-    /// The exchange reports sizes in the collateral's base units.
     var matchedShares: Decimal {
         matchedSize / pow(10, PolymarketCollateral.decimalCount)
     }
