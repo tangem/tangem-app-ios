@@ -29,10 +29,8 @@ struct PolymarketMyPositionsCoordinatorView: CoordinatorView {
         NavHolder()
             .navigation(item: $coordinator.destination) { destination in
                 switch destination {
-                case .positionDetails(let viewModel):
-                    PolymarketPositionDetailsScreen(viewModel: viewModel)
-                case .order(let coordinator):
-                    PolymarketOrderCoordinatorView(coordinator: coordinator)
+                case .positionDetails(let coordinator):
+                    PolymarketPositionDetailsCoordinatorView(coordinator: coordinator)
                 }
             }
     }

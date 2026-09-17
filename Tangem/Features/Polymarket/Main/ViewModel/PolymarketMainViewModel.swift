@@ -524,11 +524,7 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     func openEventDetails(eventID: String) {
-        coordinator?.openEventDetails(
-            eventID: eventID,
-            category: selectedCategory,
-            onOrderPlaced: { [weak self] indexing in self?.orderPlaced(awaiting: indexing) }
-        )
+        openEventDetails(eventID: eventID, category: selectedCategory)
     }
 
     func updatePinnedState(tabsMinY: CGFloat, navBarHeight: CGFloat) {
@@ -647,6 +643,14 @@ final class PolymarketMainViewModel: ObservableObject {
         return fresh.count
     }
 
+    private func openEventDetails(eventID: String, category: PolymarketCategory?) {
+        coordinator?.openEventDetails(
+            eventID: eventID,
+            category: category,
+            onOrderPlaced: { [weak self] indexing in self?.orderPlaced(awaiting: indexing) }
+        )
+    }
+
     private func selectOutcome(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {
         guard !isRegionRestricted else {
             coordinator?.openRegionWarning()
@@ -657,6 +661,7 @@ final class PolymarketMainViewModel: ObservableObject {
             market: market,
             outcome: outcome,
             eventTitle: eventTitle,
+            request: .buy,
             onPlaced: { [weak self] indexing in self?.orderPlaced(awaiting: indexing) }
         )
     }
@@ -796,12 +801,12 @@ extension PolymarketMainViewModel {
 // MARK: - Orders
 
 private extension PolymarketMainViewModel {
-    func orderPlaced(awaiting indexing: PolymarketOrderIndexing?) {
+    func orderPlaced(awaiting indexing: PolymarketOrderIndexing) {
         orderTask?.cancel()
 
         orderTask = runTask(in: self) { @MainActor viewModel in
             await viewModel.refreshBalance()
-            _ = await indexing?.value
+            _ = await indexing.value
 
             guard !Task.isCancelled else { return }
 
@@ -870,11 +875,7 @@ extension PolymarketMainViewModel {
 
 extension PolymarketMainViewModel: PolymarketSearchRoutable {
     func openEventDetailsFromSearch(eventID: String) {
-        coordinator?.openEventDetails(
-            eventID: eventID,
-            category: nil,
-            onOrderPlaced: { [weak self] indexing in self?.orderPlaced(awaiting: indexing) }
-        )
+        openEventDetails(eventID: eventID, category: nil)
     }
 
     func openOrderFromSearch(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {

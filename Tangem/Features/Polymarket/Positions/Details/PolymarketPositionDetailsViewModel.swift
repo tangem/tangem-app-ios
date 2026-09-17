@@ -31,8 +31,8 @@ final class PolymarketPositionDetailsViewModel: ObservableObject, Identifiable {
 
     private let position: PolymarketPosition
     private let apiProvider: PolymarketAPIProvider
-    private let geoblockStateProvider: PolymarketGeoblockStateProvider?
-    private let onOrderPlaced: @MainActor (PolymarketOrderIndexing?) -> Void
+    private let geoblockStateProvider: PolymarketGeoblockStateProvider
+    private let onOrderPlaced: @MainActor (PolymarketOrderIndexing) -> Void
     private weak var coordinator: PolymarketPositionDetailsRoutable?
 
     private var orderTask: Task<Void, Never>?
@@ -40,8 +40,8 @@ final class PolymarketPositionDetailsViewModel: ObservableObject, Identifiable {
     init(
         position: PolymarketPosition,
         apiProvider: PolymarketAPIProvider,
-        geoblockStateProvider: PolymarketGeoblockStateProvider?,
-        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void,
+        geoblockStateProvider: PolymarketGeoblockStateProvider,
+        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
         coordinator: PolymarketPositionDetailsRoutable
     ) {
         self.position = position
@@ -68,7 +68,7 @@ private extension PolymarketPositionDetailsViewModel {
     func onOrderTap(_ request: PolymarketOrderRequest) {
         guard orderTask == nil else { return }
 
-        guard geoblockStateProvider?.state != .blocked else {
+        guard geoblockStateProvider.state != .blocked else {
             coordinator?.openRegionWarning()
             return
         }

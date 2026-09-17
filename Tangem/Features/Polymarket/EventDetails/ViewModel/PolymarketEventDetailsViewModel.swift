@@ -19,8 +19,8 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
 
     private let category: PolymarketCategory?
     private let apiProvider: PolymarketAPIProvider
-    private let geoblockStateProvider: PolymarketGeoblockStateProvider?
-    private let onOrderPlaced: @MainActor (PolymarketOrderIndexing?) -> Void
+    private let geoblockStateProvider: PolymarketGeoblockStateProvider
+    private let onOrderPlaced: @MainActor (PolymarketOrderIndexing) -> Void
     private weak var coordinator: PolymarketEventDetailsRoutable?
 
     private var loadingTask: Task<Void, Never>?
@@ -30,8 +30,8 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
         eventID: String,
         category: PolymarketCategory?,
         apiProvider: PolymarketAPIProvider,
-        geoblockStateProvider: PolymarketGeoblockStateProvider?,
-        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void,
+        geoblockStateProvider: PolymarketGeoblockStateProvider,
+        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
         coordinator: PolymarketEventDetailsRoutable
     ) {
         self.eventID = eventID
@@ -125,7 +125,7 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
     }
 
     private func selectOutcome(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {
-        guard geoblockStateProvider?.state != .blocked else {
+        guard geoblockStateProvider.state != .blocked else {
             coordinator?.openRegionWarning()
             return
         }
@@ -134,6 +134,7 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
             market: market,
             outcome: outcome,
             eventTitle: eventTitle,
+            request: .buy,
             onPlaced: onOrderPlaced
         )
     }
