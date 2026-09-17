@@ -53,6 +53,9 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
 
     var appearance: StatusScreenAppearance = .neutral
     var secondaryAction: StatusScreenSecondaryAction?
+    var isActionLoading = false
+    var isActionDisabled = false
+    var footerAxis: StatusScreenFooterAxis = .vertical
 
     init(
         title: String,
@@ -178,7 +181,7 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
     // MARK: - Footer
 
     private var footer: some View {
-        VStack(spacing: Metrics.footerButtonSpacing) {
+        AxisStack(axis: footerAxis, spacing: Metrics.footerButtonSpacing) {
             if let secondaryAction {
                 Button(
                     label: secondaryAction.title,
@@ -194,6 +197,8 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
                 .size(.x12)
                 .styleType(.default)
                 .horizontalLayout(.infinity)
+                .loading(.spinner(if: isActionLoading))
+                .disabled(isActionDisabled)
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, Metrics.footerHorizontalPadding)
@@ -264,6 +269,26 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
         withAnimation(Animations.footerSlotReserve) { entrance.isFooterSlotReserved = true }
         withAnimation(Animations.footerFade) { entrance.isFooterFadedIn = true }
         withAnimation(Animations.footerSettle) { entrance.isFooterSettled = true }
+    }
+}
+
+// MARK: - Footer axis
+
+public enum StatusScreenFooterAxis: Sendable, Hashable {
+    case vertical
+    case horizontal
+}
+
+private struct AxisStack<Content: View>: View {
+    let axis: StatusScreenFooterAxis
+    let spacing: CGFloat
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        switch axis {
+        case .vertical: VStack(spacing: spacing) { content }
+        case .horizontal: HStack(spacing: spacing) { content }
+        }
     }
 }
 

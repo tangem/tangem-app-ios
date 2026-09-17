@@ -15,7 +15,7 @@ protocol PolymarketMainRoutable: AnyObject {
     func openRegionWarning()
 
     @MainActor
-    func openMyPositions(tab: PolymarketPositionsTab, onOrderPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void)
+    func openMyPositions(tab: PolymarketPositionsTab, onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void)
 
     func openAddFunds()
 
@@ -27,15 +27,15 @@ protocol PolymarketMainRoutable: AnyObject {
     func openEventDetails(
         eventID: String,
         category: PolymarketCategory?,
-        onOrderPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void
+        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void
     )
 
-    func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void)
+    func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void)
 
     func openOrder(
         market: PolymarketMarket,
         outcome: PolymarketOutcome,
         eventTitle: String,
-        onPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void
+        onPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void
     )
 }

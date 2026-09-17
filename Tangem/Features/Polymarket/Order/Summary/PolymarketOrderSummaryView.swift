@@ -23,10 +23,11 @@ struct PolymarketOrderSummaryView: View {
     var body: some View {
         VStack(spacing: 0) {
             PolymarketTopBar(
-                title: Localization.predictionPlaceSummaryTitle,
+                title: viewModel.screenTitle,
                 onBack: { viewModel.handleViewAction(.backTapped) },
                 onClose: { viewModel.handleViewAction(.closeTapped) }
             )
+            .padding(.top, Constants.topBarTopPadding)
 
             content
         }
@@ -82,8 +83,8 @@ struct PolymarketOrderSummaryView: View {
 
     private var placeButton: some View {
         TangemUI.Button(
-            label: Localization.predictionPlaceButton,
-            accessibilityLabel: Localization.predictionPlaceButton,
+            label: viewModel.primaryActionTitle,
+            accessibilityLabel: viewModel.primaryActionTitle,
             action: { viewModel.handleViewAction(.placeTapped) }
         )
         .iconEnd(DesignSystem.Icons.LogoTangem.regular24)
@@ -99,6 +100,7 @@ struct PolymarketOrderSummaryView: View {
 
 private extension PolymarketOrderSummaryView {
     enum Constants {
+        static let topBarTopPadding: CGFloat = 8
         static let horizontalPadding: CGFloat = 16
         static let contentTopPadding: CGFloat = 16
         static let blockSpacing: CGFloat = 8
