@@ -9,8 +9,8 @@
 import Foundation
 import TangemFoundation
 
-/// Local identity — a wallet holds at most one collectibles account. Becomes the record's own identity
-/// once the backend serves one.
+/// One collectibles account per wallet, so the wallet is the identity — and stays it once the backend serves
+/// a record, since swapping in a backend id would move the persistence key.
 struct CollectiblesAccountId: Hashable {
     let userWalletId: UserWalletId
 }

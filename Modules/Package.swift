@@ -63,7 +63,7 @@ let package = Package(
         .package(url: "https://github.com/outfoxx/PotentCodables.git", .upToNextMajor(from: "3.2.0")),
         .package(url: "https://github.com/tesseract-one/ScaleCodec.swift", .upToNextMajor(from: "0.3.1")),
         .package(url: "https://github.com/GigaBitcoin/secp256k1.swift.git", from: "0.12.0"),
-        .package(url: "git@github.com:tangem-developments/Solana.Swift.git", exact: "1.2.0-tangem20"),
+        .package(url: "git@github.com:tangem-developments/Solana.Swift.git", exact: "1.2.0-tangem21"),
         .package(url: "git@github.com:tangem-developments/stellar-ios-mac-sdk.git", exact: "3.1.0-tangem1"),
         .package(url: "https://github.com/valpackett/SwiftCBOR.git", .upToNextMajor(from: "0.6.0")),
         .package(url: "git@github.com:tangem-developments/swift-protobuf-binaries.git", exact: "1.29.0-tangem1"),

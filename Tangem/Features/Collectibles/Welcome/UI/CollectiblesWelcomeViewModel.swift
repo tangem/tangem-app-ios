@@ -47,7 +47,10 @@ final class CollectiblesWelcomeViewModel: ObservableObject {
                 self?.isOnboarding = false
                 self?.routable?.openStories()
             } catch {
-                CollectiblesLogger.error("Onboarding failed", error: error)
+                // [REDACTED_TODO_COMMENT]
+                // reaches the production log without the base58 account keys its `logs` payload
+                // carries alongside it
+                CollectiblesLogger.debug("Onboarding failed: \(error)")
                 self?.isOnboarding = false
                 self?.alert = Self.creationFailureAlert
             }
