@@ -518,8 +518,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 let builder = JointAccountOperationPlateViewDataBuilder()
 
                 return pendingOperations.map { pendingOperation in
-                    builder.build(pendingOperation: pendingOperation) {
-                        // [REDACTED_TODO_COMMENT]
+                    builder.build(pendingOperation: pendingOperation) { [weak self] in
+                        self?.coordinator?.openJointAccountOperationDetails(pendingOperation: pendingOperation)
                     }
                 }
             }
