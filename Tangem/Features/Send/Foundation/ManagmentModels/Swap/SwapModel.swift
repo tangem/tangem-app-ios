@@ -717,11 +717,7 @@ extension SwapModel {
         let amount = makeAmount(value: dexPreview.quote.fromAmount, tokenItem: source.tokenItem)
         let quote = try await map(provider: provider.provider, quote: dexPreview.quote)
 
-        let isPsbtDexSwap = source.tokenItem.blockchain.isPsbtDexSwapSupported
-
-        let restriction = try await isPsbtDexSwap
-            ? validate(amount: amount)
-            : validate(amount: amount, fee: fee, quote: quote)
+        let restriction = try await validate(amount: amount, fee: fee, quote: quote, builtBy: .provider)
 
         if let restriction {
             return .restriction(restriction, quote: quote)
@@ -793,14 +789,19 @@ extension SwapModel {
         }
     }
 
-    func validate(amount: Amount, fee: Fee, quote: Quote) async throws -> RestrictionType? {
+    func validate(
+        amount: Amount,
+        fee: Fee,
+        quote: Quote,
+        builtBy: SendTransactionBuilder = .wallet
+    ) async throws -> RestrictionType? {
         if let restriction = try await validateExpectations(quote: quote) {
             return restriction
         }
 
         do {
             let source = try _sourceToken.value.get()
-            try source.transactionValidator.validate(amount: amount, fee: fee)
+            try source.transactionValidator.validate(amount: amount, fee: fee, builtBy: builtBy)
             // All good
             return nil
         } catch {
