@@ -59,11 +59,11 @@ extension TangemPayOrderCardDataField {
             return nil
         }
 
-        let value = text.trimmed()
-
-        guard !value.isEmpty else {
+        guard !isEffectivelyEmpty else {
             return isOptional ? nil : .required
         }
+
+        let value = text.trimmed()
 
         switch id {
         case .phone:
@@ -79,6 +79,13 @@ extension TangemPayOrderCardDataField {
 private extension TangemPayOrderCardDataField {
     enum Constants {
         static let e164DigitBounds = 7 ... 15
+    }
+
+    var isEffectivelyEmpty: Bool {
+        if id == .phone, let inputMask {
+            return inputMask.digitCount(in: text) == 0
+        }
+        return text.trimmed().isEmpty
     }
 
     func phoneError(in value: String) -> Error? {
