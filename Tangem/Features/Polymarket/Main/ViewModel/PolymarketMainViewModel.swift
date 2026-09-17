@@ -90,6 +90,7 @@ final class PolymarketMainViewModel: ObservableObject {
     private var loadingTask: Task<Void, Never>?
     private var positionsTask: Task<Void, Never>?
     private var orderTask: Task<Void, Never>?
+    private var claimTask: Task<Void, Never>?
     private var openPositions: [PolymarketPosition] = []
 
     init(
@@ -123,6 +124,7 @@ final class PolymarketMainViewModel: ObservableObject {
 
     deinit {
         orderTask?.cancel()
+        claimTask?.cancel()
         balanceRefreshTask?.cancel()
         accountFundsPreparationTask?.cancel()
     }
@@ -147,8 +149,6 @@ final class PolymarketMainViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: &$isAwaitingFunds)
 
-        // The loop reads the interval once per iteration, so a window opening mid-sleep goes unnoticed
-        // until that sleep ends.
         fundsArrivalTracker
             .$isBalanceChangeExpected
             .removeDuplicates()
@@ -186,7 +186,6 @@ final class PolymarketMainViewModel: ObservableObject {
             .store(in: &bag)
 
         NotificationCenter.default
-            // Not didBecomeActive: an NFC session moves the app through that state on its own
             .publisher(for: UIApplication.willEnterForegroundNotification)
             .receiveOnMain()
             .withWeakCaptureOf(self)
@@ -483,7 +482,8 @@ final class PolymarketMainViewModel: ObservableObject {
     func openMyPositions(tab: PolymarketPositionsTab) {
         coordinator?.openMyPositions(
             tab: tab,
-            onOrderPlaced: { [weak self] indexing in self?.orderPlaced(awaiting: indexing) }
+            onOrderPlaced: { [weak self] indexing in self?.orderPlaced(awaiting: indexing) },
+            onClaimed: { [weak self] in self?.claimed() }
         )
     }
 
@@ -853,6 +853,18 @@ extension PolymarketMainViewModel {
             position: position,
             onOrderPlaced: { [weak self] indexing in self?.orderPlaced(awaiting: indexing) }
         )
+    }
+}
+
+// MARK: - Claims
+
+private extension PolymarketMainViewModel {
+    func claimed() {
+        claimTask?.cancel()
+
+        claimTask = runTask(in: self) { @MainActor viewModel in
+            await viewModel.refreshAccount()
+        }
     }
 }
 
