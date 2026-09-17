@@ -380,6 +380,17 @@ extension CommonUserWalletModel: JointAccountDerivationInteractorProvider {
     }
 }
 
+extension CommonUserWalletModel: CollectiblesColdKeyInteractorProvider {
+    var collectiblesColdKeyInteractor: CollectiblesColdKeyInteractor {
+        CommonCollectiblesColdKeyInteractor(
+            config: config,
+            keysRepository: keysRepository,
+            keysDeriving: keysDerivingInteractor,
+            signer: signer
+        )
+    }
+}
+
 // MARK: - TotalBalanceProvider
 
 extension CommonUserWalletModel: TotalBalanceProvider {

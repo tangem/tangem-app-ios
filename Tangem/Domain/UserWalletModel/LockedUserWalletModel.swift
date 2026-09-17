@@ -123,6 +123,10 @@ final class LockedUserWalletModel: UserWalletModel {
         UnavailableJointAccountDerivationInteractor()
     }
 
+    var collectiblesColdKeyInteractor: CollectiblesColdKeyInteractor {
+        UnavailableCollectiblesColdKeyInteractor()
+    }
+
     var name: String { userWallet.name }
     let backupInput: OnboardingInput? = nil
     var userWallet: StoredUserWallet
