@@ -39,7 +39,7 @@ extension PolymarketMapper {
     func mapPlaceOrder(_ response: PolymarketDTO.PlaceOrderResponse) -> PolymarketOrderPlacement {
         PolymarketOrderPlacement(
             orderId: response.orderID,
-            status: response.status,
+            status: PolymarketOrderPlacementStatus(rawValue: response.status),
             makingAmount: response.makingAmount.flatMap { Decimal(stringValue: $0) },
             takingAmount: response.takingAmount.flatMap { Decimal(stringValue: $0) },
             transactionHashes: response.transactionsHashes ?? []
@@ -53,5 +53,32 @@ private extension PolymarketMapper {
     enum Constants {
         static let noExpiration = "0"
         static let fillAndKill = "FAK"
+    }
+}
+
+// MARK: - Reading an order back
+
+extension PolymarketMapper {
+    func mapOrderRecord(_ response: PolymarketDTO.OrderRecordResponse) throws -> PolymarketOrderRecord {
+        try PolymarketOrderRecord(
+            status: response.status,
+            originalSize: size(response.originalSize, field: "original_size"),
+            matchedSize: size(response.sizeMatched, field: "size_matched"),
+            price: size(response.price, field: "price")
+        )
+    }
+}
+
+// MARK: - Private implementation
+
+private extension PolymarketMapper {
+    func size(_ raw: String?, field: String) throws -> Decimal {
+        guard let raw else { return 0 }
+
+        guard let value = Decimal(stringValue: raw) else {
+            throw PolymarketAPIError.decoding(field: field, value: raw)
+        }
+
+        return value
     }
 }

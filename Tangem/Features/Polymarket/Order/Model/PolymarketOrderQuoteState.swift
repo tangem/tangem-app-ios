@@ -16,6 +16,13 @@ enum PolymarketOrderQuoteState: Equatable {
     case unavailable(PolymarketQuoteUnavailability)
     case failed(PolymarketOrderQuoteFailure)
 
+    var isAwaitingQuote: Bool {
+        switch self {
+        case .empty, .loading: true
+        case .content, .unavailable, .failed: false
+        }
+    }
+
     var quote: PolymarketOrderQuote? {
         if case .content(let quote) = self { return quote }
 
