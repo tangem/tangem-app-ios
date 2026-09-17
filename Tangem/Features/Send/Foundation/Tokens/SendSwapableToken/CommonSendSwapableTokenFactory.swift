@@ -41,9 +41,10 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
             supportingOptions: .all
         ).makeTokenFeeProvidersManager()
 
-        let transactionValidator = BSDKTransactionValidator(
+        let transactionValidator = SendTransactionValidatorFactory(
+            blockchain: walletModel.tokenItem.blockchain,
             transactionValidator: walletModel.transactionValidator
-        )
+        ).makeValidator()
 
         let transactionCreator = BSDKTransactionCreator(
             transactionCreator: walletModel.transactionCreator
