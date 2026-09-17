@@ -7,6 +7,7 @@
 //
 
 import Combine
+import Foundation
 import TangemFoundation
 import TangemLocalization
 import TangemUI
@@ -20,6 +21,10 @@ final class PulseViewModel: ObservableObject {
     @Published private(set) var isLoading = true
 
     let intervals = PulseInterval.allCases
+
+    var contentState: ContentState {
+        ContentState(isEmpty: tokens.isEmpty, isLoading: isLoading, isFailed: isFailed)
+    }
 
     var categories: [PulseCategory] {
         selectedTag == nil ? PulseCategory.allCases : PulseCategory.supportedWithTag
@@ -35,6 +40,8 @@ final class PulseViewModel: ObservableObject {
     private var visibleTokenIDs: Set<String> = []
     private var isLoaded = false
     private var bag = Set<AnyCancellable>()
+
+    private let skeletonFloor = LoadingStateFloor()
 
     init(dataProvider: PulseDataProvider, router: any CryptoFeedRoutable) {
         self.dataProvider = dataProvider
@@ -135,32 +142,39 @@ final class PulseViewModel: ObservableObject {
     }
 
     private func bind() {
-        dataProvider
-            .tokensPublisher
+        Publishers
+            .CombineLatest3(
+                dataProvider.tokensPublisher,
+                dataProvider.isLoadingPublisher,
+                dataProvider.failedPublisher
+            )
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { viewModel, tokens in
-                viewModel.tokens = viewModel.makeRows(for: tokens)
+            .sink { viewModel, state in
+                let (tokens, isLoading, isFailed) = state
+                viewModel.apply(tokens: tokens, isLoading: isLoading, isFailed: isFailed)
             }
             .store(in: &bag)
+    }
 
-        dataProvider
-            .failedPublisher
-            .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, isFailed in
-                viewModel.isFailed = isFailed
-            }
-            .store(in: &bag)
+    private func apply(tokens: [MarketsTokenModel], isLoading: Bool, isFailed: Bool) {
+        let incomingState = ContentState(isEmpty: tokens.isEmpty, isLoading: isLoading, isFailed: isFailed)
 
-        dataProvider
-            .isLoadingPublisher
-            .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, isLoading in
-                viewModel.isLoading = isLoading
-            }
-            .store(in: &bag)
+        guard incomingState != .skeletons else {
+            skeletonFloor.startIfNeeded()
+            commit(tokens: tokens, isLoading: isLoading, isFailed: isFailed)
+            return
+        }
+
+        skeletonFloor.release { [weak self] in
+            self?.commit(tokens: tokens, isLoading: isLoading, isFailed: isFailed)
+        }
+    }
+
+    private func commit(tokens: [MarketsTokenModel], isLoading: Bool, isFailed: Bool) {
+        self.tokens = makeRows(for: tokens)
+        self.isLoading = isLoading
+        self.isFailed = isFailed
     }
 
     private func makeRows(for tokens: [MarketsTokenModel]) -> [MarketTokenItemViewModel] {
@@ -182,7 +196,8 @@ final class PulseViewModel: ObservableObject {
     }
 
     private func loadIfNeeded() {
-        guard !isLoaded || isFailed else { return }
+        // Only a failure the user actually sees is worth a reload — a failed page append keeps the list and its scroll position
+        guard !isLoaded || contentState == .failure else { return }
 
         isLoaded = true
         load()
@@ -195,6 +210,27 @@ final class PulseViewModel: ObservableObject {
             tag: selectedTag,
             isCategoryUserInitiated: isCategoryUserInitiated
         )
+    }
+}
+
+// MARK: - ContentState
+
+extension PulseViewModel {
+    enum ContentState: Hashable {
+        case failure
+        case skeletons
+        case empty
+        case rows
+
+        init(isEmpty: Bool, isLoading: Bool, isFailed: Bool) {
+            switch (isEmpty, isLoading, isFailed) {
+            // A failure outranks loading, so a failed empty list is never "still in skeletons"
+            case (true, _, true): self = .failure
+            case (true, true, false): self = .skeletons
+            case (true, false, false): self = .empty
+            case (false, _, _): self = .rows
+            }
+        }
     }
 }
 
