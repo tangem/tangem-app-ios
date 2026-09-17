@@ -12,6 +12,7 @@ import TangemFoundation
 
 final class MobileFinishActivationManager {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
     private var hasPositiveBalanceSubject = PassthroughSubject<Bool, Never>()
     private var isMainAppearedSubject = CurrentValueSubject<Bool?, Never>(nil)
@@ -25,8 +26,19 @@ final class MobileFinishActivationManager {
 
     private var observation: Observation?
     private var activationSubscription: AnyCancellable?
+    private var incomingActionsSubscription: AnyCancellable?
 
     fileprivate init() {}
+
+    /// Listens for the deeplinks that take the user into a flow on the main screen, so the activation sheet
+    /// doesn't cut in on one. Started at launch: a link the app was opened by arrives before the main screen.
+    func initialize() {
+        incomingActionsSubscription = incomingActionManager.incomingActionsPublisher
+            .withWeakCaptureOf(self)
+            .sink { manager, action in
+                manager.onIncoming(action: action)
+            }
+    }
 
     func observeUserWallet(
         id userWalletId: UserWalletId,
@@ -60,17 +72,22 @@ final class MobileFinishActivationManager {
         isMainAppearedSubject.send(isAppeared)
     }
 
-    func onIncoming(action: IncomingAction) {
-        guard case .navigation(let deepLinkAction) = action else {
-            return
-        }
+    private func onIncoming(action: IncomingAction) {
+        switch action {
+        case .navigation(let deepLinkAction):
+            let hasMainDeepLink = switch deepLinkAction {
+            case .markets, .buy, .sell, .swap, .referral: true
+            default: false
+            }
 
-        let hasMainDeepLink = switch deepLinkAction.destination {
-        case .markets, .buy, .sell, .swap, .referral: true
-        default: false
-        }
+            hasMainDeepLinkSubject.send(hasMainDeepLink)
 
-        hasMainDeepLinkSubject.send(hasMainDeepLink)
+        case .externalLink:
+            hasMainDeepLinkSubject.send(false)
+
+        case .walletConnect, .start, .dismissSafari:
+            break
+        }
     }
 
     private func bind(with walletModelsPublisher: AnyPublisher<[any WalletModel], Never>) {

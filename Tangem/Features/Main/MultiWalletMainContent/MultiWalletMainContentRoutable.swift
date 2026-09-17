@@ -29,7 +29,7 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
         userWalletInfo: UserWalletInfo,
         tangemPayAccount: TangemPayAccount,
         userWalletModel: UserWalletModel,
-        incomingAction: TangemPayIncomingActions?
+        openingAction: TangemPayOpeningAction?
     )
     func openTangemPaySelectPlan(
         tariffPlanSelector: any TangemPayTariffPlanSelector,

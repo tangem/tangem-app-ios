@@ -88,7 +88,7 @@ private extension AppMetadata.Redirect {
     static let tangem: AppMetadata.Redirect = {
         do {
             return try AppMetadata.Redirect(
-                native: IncomingActionConstants.universalLinkScheme,
+                native: IncomingActionConstants.appScheme,
                 universal: IncomingActionConstants.tangemDomain,
                 linkMode: false
             )

@@ -41,6 +41,10 @@ final class MainViewModel: ObservableObject {
 
     private var shouldDelayBottomSheetVisibility = true
     private var isLoggingOut = false
+
+    /// The root of the main screen is what the user sees: set by the view controller's appearance, cleared by
+    /// the view's disappearance, which a push brings and a sheet doesn't.
+    private(set) var isRootVisible = false
     private var didLogMainScreenOpenedAnalytics = false
 
     private var refreshTasks: [UserWalletId: Task<Void, Never>] = [:]
@@ -122,10 +126,9 @@ final class MainViewModel: ObservableObject {
 
     /// Handles `SwiftUI.View.onDisappear(perform:)`.
     func onViewDisappear() {
+        isRootVisible = false
         didLogMainScreenOpenedAnalytics = false
         mainScreenOpenedAnalyticsSubscription = nil
-
-        coordinator?.resignHandlingIncomingActions()
     }
 
     /// Handles `UIKit.UIViewController.viewDidAppear(_:)`.
@@ -134,6 +137,8 @@ final class MainViewModel: ObservableObject {
         guard !isLoggingOut else {
             return
         }
+
+        isRootVisible = true
 
         let uiManager = mainBottomSheetUIManager
         // On a `cold start` (e.g., after launching the app or after coming back from the background in a `locked` state:
@@ -148,8 +153,10 @@ final class MainViewModel: ObservableObject {
             uiManager.show()
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.coordinator?.beginHandlingIncomingActions()
+        // A push into the stack while the screen is still fading in from the auth screen is lost, so the
+        // deeplink handoff waits the fade out.
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.deeplinkHandoffDelay) { [weak self] in
+            self?.coordinator?.mainScreenDidAppear()
         }
     }
 
@@ -590,5 +597,6 @@ private extension MainViewModel {
         /// Keeps the Markets bottom sheet hidden until the launch (splash) screen has fully faded out,
         /// plus a small buffer to absorb rendering jitter, so the two never overlap on a cold start.
         static let bottomSheetVisibilityColdStartDelay = AppConstants.launchScreenDismissalDuration + 0.2
+        static let deeplinkHandoffDelay: TimeInterval = 0.5
     }
 }

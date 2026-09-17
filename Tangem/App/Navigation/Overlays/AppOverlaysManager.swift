@@ -23,6 +23,7 @@ final class AppOverlaysManager {
     @Injected(\.appOverlaysDependencies.alertPresenterViewModel) private var alertPresenterViewModel: AlertPresenterViewModel
     @Injected(\.appOverlaysDependencies.floatingSheetViewModel) private var floatingSheetViewModel: FloatingSheetViewModel
     @Injected(\.appOverlaysDependencies.overlayShareActivitiesViewModel) private var shareActivitiesViewModel: ShareActivitiesViewModel
+    @Injected(\.appOverlaysDependencies.overlayViewPresenterViewModel) private var overlayViewPresenterViewModel: OverlayViewPresenterViewModel
 
     private var overlayWindow: UIWindow?
     private var storiesViewController: UIViewController?
@@ -60,6 +61,7 @@ final class AppOverlaysManager {
     func forceDismiss() {
         floatingSheetViewModel.removeAllSheets()
         floatingSheetViewModel.pauseSheetsDisplaying()
+        overlayViewPresenterViewModel.dismissAll()
 
         tangemStoriesViewModel.forceDismiss()
     }

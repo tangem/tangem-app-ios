@@ -22,6 +22,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var lockWindow: UIWindow?
 
     private lazy var sheetRegistry = FloatingSheetRegistry()
+    private let incomingActionRecorder = IncomingActionRecorder()
     private lazy var appOverlaysManager = AppOverlaysManager(sheetRegistry: sheetRegistry)
 
     private var appCoordinator: AppCoordinator?
@@ -34,11 +35,15 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         let userActivities = connectionOptions.userActivities
 
+        // Before the links the app was launched by are read: what answers a link is put in place by the app
+        // coordinator, and a link read earlier than that would find nobody to keep it for the main screen.
+        incomingActionRecorder.start()
+        startApp(scene: scene, appCoordinatorOptions: .default)
+
         if !handleUrlContexts(connectionOptions.urlContexts) {
             handleActivities(userActivities)
         }
 
-        startApp(scene: scene, appCoordinatorOptions: .default)
         appOverlaysManager.setup(with: scene)
 
         handleAppsFlyerActivities(userActivities)
@@ -50,21 +55,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func sceneWillEnterForeground(_ scene: UIScene) {
-        appLockController.sceneWillEnterForeground()
-
-        guard appCoordinator?.viewState?.shouldAddLockView ?? false else {
-            hideLockView()
-            return
-        }
-
-        if appLockController.isLocked {
-            mainBottomSheetUIManager.hide(shouldUpdateFooterSnapshot: false)
-            appOverlaysManager.forceDismiss()
-            startApp(scene: scene, appCoordinatorOptions: .locked)
-            hideLockView()
-        } else {
-            hideLockView()
-        }
+        lockIfNeeded(scene: scene)
+        hideLockView()
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
@@ -124,6 +116,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         sheetRegistry.registerPriceAlertsFloatingSheets()
         sheetRegistry.registerTokenSummaryFloatingSheets()
         sheetRegistry.registerPolymarketFloatingSheets()
+        sheetRegistry.registerCampaignFloatingSheets()
+        sheetRegistry.registerTangemPayTransactionDetailsFloatingSheets()
 
         let appCoordinator = AppCoordinator()
         let appCoordinatorView = AppCoordinatorView(coordinator: appCoordinator).environment(\.floatingSheetRegistry, sheetRegistry)
@@ -164,13 +158,36 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     /// Hot handle deeplinks `https://tangem.com, https://app.tangem.com`
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+        lockIfNeeded(scene: scene)
         handleActivities([userActivity])
         handleAppsFlyerActivities([userActivity])
     }
 
     /// Hot handle universal links  with `tangem://` scheme
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        lockIfNeeded(scene: scene)
         handleUrlContexts(URLContexts)
+    }
+
+    /// Locks the app that has been in the background long enough, replacing the session with the locked
+    /// coordinator. Called on the way to the foreground and when a link arrives: a link that brings the app
+    /// back is delivered before the foreground transition, and a session about to be locked must not answer
+    /// it — the coordinator that waits for the unlock must, so that it can show the link once unlocked.
+    /// A coordinator already at the lock is kept, along with whatever link it holds.
+    private func lockIfNeeded(scene: UIScene) {
+        appLockController.sceneWillEnterForeground()
+
+        guard let viewState = appCoordinator?.viewState, viewState.shouldAddLockView, appLockController.isLocked else {
+            return
+        }
+
+        if case .lock = viewState {
+            return
+        }
+
+        mainBottomSheetUIManager.hide(shouldUpdateFooterSnapshot: false)
+        appOverlaysManager.forceDismiss()
+        startApp(scene: scene, appCoordinatorOptions: .locked)
     }
 
     @discardableResult

@@ -41,9 +41,6 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     @Injected(\.mailComposePresenter)
     private var mailPresenter: MailComposePresenter
 
-    @Injected(\.incomingActionManager)
-    private var incomingActionManager: IncomingActionManaging
-
     var dismissAction: Action<OutputOptions>
     var popToRootAction: Action<PopToRootOptions>
 
@@ -148,13 +145,9 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     private func showTangemPayCampaign(campaignKey: String) {
         guard tangemPayCampaignCoordinator == nil else { return }
 
-        // Both the stored key and the action that carries it have to be consumed at presentation.
-        // Leaving either behind makes `MainCoordinator` open the campaign again on every launch.
+        // The stored key is what carries the campaign from one launch to the next, so showing it spends
+        // the key — left behind, it would make `MainCoordinator` open the campaign again every launch.
         TangemPayCampaignService().clearPending()
-        incomingActionManager.discardIncomingAction { action in
-            guard case .navigation(let navigationAction) = action else { return false }
-            return navigationAction.destination == .payCustomCard
-        }
 
         let dismissAction: Action<TangemPayCampaignCoordinator.OutputOptions> = { [weak self] options in
             guard let self else { return }
@@ -362,16 +355,13 @@ private extension WelcomeV2Coordinator {
         switch result {
         case .error(let error) where error.isCancellationError:
             analytics.logScanCancelled()
-            incomingActionManager.discardIncomingAction()
 
         case .error(let error):
             analytics.logScanError(error)
-            incomingActionManager.discardIncomingAction()
             alertPresenter.present(alert: error.alertBinder)
 
         case .scanTroubleshooting:
             analytics.logScanTroubleshooting()
-            incomingActionManager.discardIncomingAction()
             presentScanTroubleshootingDialog()
 
         case .onboarding(let input, _):

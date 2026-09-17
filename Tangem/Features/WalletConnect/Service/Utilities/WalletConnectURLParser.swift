@@ -47,7 +47,7 @@ public struct WalletConnectURLParser {
 }
 
 extension WalletConnectURLParser: IncomingActionURLParser {
-    public func parse(_ url: URL) throws -> IncomingAction? {
+    func parse(_ url: URL) throws -> IncomingAction? {
         if let uri = try parse(url: url) {
             return .walletConnect(uri)
         }

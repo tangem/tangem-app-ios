@@ -11,7 +11,6 @@ protocol ReferralService {
     var campaign: String? { get }
     var hasNoReferral: Bool { get }
 
-    func saveReferralIfNeeded(refcode: String, campaign: String?)
     func saveAndBindIfNeeded(refcode: String, campaign: String?)
     func retryBindingIfNeeded()
 }

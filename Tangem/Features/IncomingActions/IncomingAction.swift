@@ -8,22 +8,11 @@
 
 import Foundation
 
-public enum IncomingAction: Equatable {
+enum IncomingAction: Equatable {
     case walletConnect(WalletConnectRequestURI)
     case start // Run scan or request biometrics
     case dismissSafari(URL)
-    case referralProgram
+    /// A tangem.com page to open in the in-app browser.
+    case externalLink(URL)
     case navigation(DeeplinkNavigationAction)
-    case tangemPayPush(TangemPayPushPayload)
-}
-
-public extension IncomingAction {
-    var isPromoDeeplink: Bool {
-        switch self {
-        case .navigation(let action) where action.destination == .promo:
-            true
-        default:
-            false
-        }
-    }
 }

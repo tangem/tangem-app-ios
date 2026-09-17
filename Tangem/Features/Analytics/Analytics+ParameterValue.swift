@@ -73,6 +73,7 @@ extension Analytics {
         case qr = "QR"
         case manually = "Manually"
         case stories = "Stories"
+        case deeplink = "Deeplink"
         case buy = "Buy"
         case sell = "Sell"
         case swap = "Swap"

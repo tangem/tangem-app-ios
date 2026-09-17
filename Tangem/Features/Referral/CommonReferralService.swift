@@ -17,13 +17,24 @@ final class CommonReferralService {
     }
 
     private func bind(refcode: String, campaign: String?) {
-        AnalyticsLogger.info("Start binding for refcode: \(refcode)")
         AppSettings.shared.hasReferralBindingRequest = true
+
+        let walletIds = userWalletRepository.models.map { $0.userWalletId.stringValue }
+
+        // A referral that arrives before there is a wallet stays owed: a wallet created from here carries it in
+        // its creation request (`WalletCreationContextBuilder.enrichReferral`), a wallet that already exists
+        // is bound to it when the wallets are known — on the promo screen or on the next launch.
+        guard !walletIds.isEmpty else {
+            AnalyticsLogger.info("Refcode \(refcode) is owed a binding once there is a wallet")
+            return
+        }
+
+        AnalyticsLogger.info("Start binding for refcode: \(refcode)")
 
         runTask(in: self, isDetached: true) { service in
             do {
                 let request = ReferralDTO.Request(
-                    walletIds: service.userWalletRepository.models.map { $0.userWalletId.stringValue },
+                    walletIds: walletIds,
                     referralCode: refcode,
                     utmCampaign: campaign
                 )
@@ -52,28 +63,18 @@ final class CommonReferralService {
 }
 
 extension CommonReferralService: ReferralService {
+    /// Normalized on read: builds before the AppsFlyer parameter validation could persist a blank or a
+    /// literal `"null"` refcode, which would otherwise pass as an existing referral and block every new one.
     var refcode: String? {
-        AppSettings.shared.referralRefcode
+        ReferralParam.normalized(AppSettings.shared.referralRefcode)
     }
 
     var campaign: String? {
-        AppSettings.shared.referralCampaign
+        ReferralParam.normalized(AppSettings.shared.referralCampaign)
     }
 
     var hasNoReferral: Bool {
-        if let refcode {
-            return refcode.isEmpty
-        }
-
-        return true
-    }
-
-    func saveReferralIfNeeded(refcode: String, campaign: String?) {
-        guard hasNoReferral else {
-            return
-        }
-
-        saveReferral(refcode: refcode, campaign: campaign)
+        refcode == nil
     }
 
     func retryBindingIfNeeded() {
@@ -85,7 +86,10 @@ extension CommonReferralService: ReferralService {
     }
 
     func saveAndBindIfNeeded(refcode: String, campaign: String?) {
-        if AppSettings.shared.hasReferralBindingRequest {
+        // A binding is owed for a referral that was stored, and normalization leaves a blank or a `"null"`
+        // one from an older build as no referral at all — there is nothing to retry, and the arriving
+        // refcode would be dropped on the way out.
+        if AppSettings.shared.hasReferralBindingRequest, !hasNoReferral {
             retryBinding()
             return
         }

@@ -33,7 +33,6 @@ final class CreateWalletSelectorViewModel: ObservableObject {
     lazy var mobileWalletItem: MobileWalletItem = makeMobileWalletItem()
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
@@ -116,15 +115,12 @@ private extension CreateWalletSelectorViewModel {
 
             switch result {
             case .error(let error) where error.isCancellationError:
-                viewModel.incomingActionManager.discardIncomingAction()
-
                 await runOnMain {
                     viewModel.isScanning = false
                 }
 
             case .error(let error):
                 viewModel.logScanCardAnalytics(error: error)
-                viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
                     viewModel.isScanning = false
@@ -133,7 +129,6 @@ private extension CreateWalletSelectorViewModel {
 
             case .onboarding(let input, _):
                 viewModel.logScanCardOnboardingAnalytics(cardInput: input.cardInput)
-                viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
                     viewModel.isScanning = false
@@ -142,7 +137,6 @@ private extension CreateWalletSelectorViewModel {
 
             case .scanTroubleshooting:
                 viewModel.logScanCardTroubleshootingAnalytics()
-                viewModel.incomingActionManager.discardIncomingAction()
 
                 await MainActor.run {
                     viewModel.isScanning = false
@@ -167,8 +161,6 @@ private extension CreateWalletSelectorViewModel {
                         throw UserWalletRepositoryError.cantUnlockWallet
                     }
                 } catch {
-                    viewModel.incomingActionManager.discardIncomingAction()
-
                     await runOnMain {
                         viewModel.isScanning = false
                         viewModel.alert = error.alertBinder
