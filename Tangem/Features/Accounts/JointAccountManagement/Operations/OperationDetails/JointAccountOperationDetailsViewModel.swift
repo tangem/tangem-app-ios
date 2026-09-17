@@ -93,10 +93,6 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         switch action {
         case .close:
             coordinator?.closeOperationDetails()
-        case .openSigners:
-            coordinator?.openSigners()
-        case .signOperation:
-            coordinator?.signOperation()
         default:
             break
         }
