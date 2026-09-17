@@ -39,6 +39,8 @@ struct TransactionViewModel: Hashable, Identifiable {
 
     let cashback: Cashback?
 
+    let isPendingSignature: Bool
+
     var inProgress: Bool {
         status == .inProgress
     }
@@ -142,7 +144,8 @@ struct TransactionViewModel: Hashable, Identifiable {
         expressSubtitle: TransactionDisplayModel.ExpressSubtitle? = nil,
         cardName: String? = nil,
         warning: Warning? = nil,
-        cashback: Cashback? = nil
+        cashback: Cashback? = nil,
+        isPendingSignature: Bool = false
     ) {
         id = ViewModelId(id: TransactionRecord.ID(hash: hash, index: index), statusRawValue: status.rawValue)
         icon = TransactionViewIconViewData(type: transactionType, status: status, isOutgoing: isOutgoing)
@@ -166,6 +169,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         self.cardName = cardName
         self.warning = warning
         self.cashback = cashback
+        self.isPendingSignature = isPendingSignature
 
         display = TransactionDisplayModel.make(
             transactionType: transactionType,
