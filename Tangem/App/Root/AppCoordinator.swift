@@ -43,6 +43,8 @@ class AppCoordinator: CoordinatorObject {
     @Injected(\.servicesManager) private var servicesManager: ServicesManager
     @Injected(\.mailComposePresenter) private var mailComposePresenter: MailComposePresenter
 
+    private let deeplinkResponders = AppSessionDeeplinkResponders()
+
     // MARK: - Child coordinators
 
     /// Published property, used by UI. `SwiftUI.Binding` API requires it to be writable,
@@ -62,6 +64,7 @@ class AppCoordinator: CoordinatorObject {
 
     init() {
         bind()
+        deeplinkResponders.start()
     }
 
     deinit {
@@ -275,6 +278,23 @@ class AppCoordinator: CoordinatorObject {
     private func setState(_ newViewState: AppCoordinator.ViewState) {
         DispatchQueue.main.async {
             self.viewState = newViewState
+            self.updateDeeplinkSession(for: newViewState)
+        }
+    }
+
+    /// The wallet session lasts exactly as long as the main screen is the app's state.
+    private func updateDeeplinkSession(for viewState: ViewState) {
+        guard case .main(let coordinator) = viewState else {
+            deeplinkResponders.endSession()
+            return
+        }
+
+        deeplinkResponders.beginSession()
+
+        // Taken the moment the door closes, so nothing can arrive in between and be kept by nobody.
+        if let action = deeplinkResponders.takeWaitingAction() {
+            AppLogger.info("Waiting incoming action handed to the main screen: \(action)")
+            coordinator.showWhenAppeared(action)
         }
     }
 
@@ -378,21 +398,12 @@ extension AppCoordinator {
     }
 
     func openMain(with userWalletModel: UserWalletModel) {
-        let coordinatorFactory = CommonMainCoordinatorChildFactory()
-        let navigationActionHandler = MainCoordinator.MainNavigationActionHandler()
-        let deeplinkPresenter: DeeplinkPresenter = FeatureProvider.isAvailable(.deeplinkPresentationWay)
-            ? CommonDeeplinkPresenterV2(coordinatorFactory: coordinatorFactory)
-            : CommonDeeplinkPresenter(coordinatorFactory: coordinatorFactory)
-
         let coordinator = MainCoordinator(
-            coordinatorFactory: coordinatorFactory,
-            navigationActionHandler: navigationActionHandler,
-            deeplinkPresenter: deeplinkPresenter,
+            coordinatorFactory: CommonMainCoordinatorChildFactory(),
             dismissAction: { _ in },
             popToRootAction: popToRootAction
         )
 
-        navigationActionHandler.coordinator = coordinator
         let options = MainCoordinator.Options(userWalletModel: userWalletModel)
         coordinator.start(with: options)
 
