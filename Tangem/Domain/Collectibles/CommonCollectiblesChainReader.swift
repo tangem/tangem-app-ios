@@ -1,5 +1,5 @@
 //
-//  CommonCollectiblesVaultReader.swift
+//  CommonCollectiblesChainReader.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemCollectibles
 
-final class CommonCollectiblesVaultReader {
+final class CommonCollectiblesChainReader {
     private let serviceProvider: CollectiblesChainServiceProvider
 
     init(serviceProvider: CollectiblesChainServiceProvider = CollectiblesChainServiceProvider()) {
@@ -19,7 +19,7 @@ final class CommonCollectiblesVaultReader {
 
 // MARK: - CollectiblesVaultReader protocol conformance
 
-extension CommonCollectiblesVaultReader: CollectiblesVaultReader {
+extension CommonCollectiblesChainReader: CollectiblesVaultReader {
     func vaultInfo(coldOwner: Data) async throws -> CollectiblesVaultInfo? {
         let program = try CollectiblesVaultProgram(programId: CollectiblesChainEnvironment.programId)
         let vaultAddress = try program.vaultAddress(coldOwner: coldOwner)
@@ -32,8 +32,31 @@ extension CommonCollectiblesVaultReader: CollectiblesVaultReader {
             return try program.vaultInfo(coldOwner: coldOwner, accountOwner: account.owner, accountData: account.data)
         } catch {
             // The refresh swallows what it gets back, so a rejected account is only visible from here
-            AppLogger.error("Collectibles vault account rejected", error: error)
+            CollectiblesLogger.error("Vault account rejected", error: error)
             throw error
         }
+    }
+}
+
+// MARK: - CollectiblesConfigReader protocol conformance
+
+extension CommonCollectiblesChainReader: CollectiblesConfigReader {
+    func configInfo() async throws -> CollectiblesConfigInfo {
+        let program = try CollectiblesVaultProgram(programId: CollectiblesChainEnvironment.programId)
+        let configAddress = try program.configAddress()
+
+        guard let account = try await serviceProvider.service().account(address: configAddress) else {
+            throw ReadError.configMissing
+        }
+
+        return try program.configInfo(accountOwner: account.owner, accountData: account.data)
+    }
+}
+
+// MARK: - Private implementation
+
+private extension CommonCollectiblesChainReader {
+    enum ReadError: Error {
+        case configMissing
     }
 }

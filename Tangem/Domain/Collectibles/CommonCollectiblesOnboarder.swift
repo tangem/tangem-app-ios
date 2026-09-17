@@ -35,7 +35,7 @@ final class CommonCollectiblesOnboarder {
             keysRepository: userWalletModel.keysRepository,
             config: userWalletModel.config
         )
-        self.vaultReader = vaultReader ?? CommonCollectiblesVaultReader(serviceProvider: serviceProvider)
+        self.vaultReader = vaultReader ?? CommonCollectiblesChainReader(serviceProvider: serviceProvider)
         self.hotDelegateSigner = hotDelegateSigner ?? CommonCollectiblesHotDelegateSigner(userWalletId: userWalletModel.userWalletId)
     }
 }
