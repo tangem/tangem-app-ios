@@ -47,30 +47,31 @@ public final class SolanaSponsoredTransactionService {
         }
     }
 
-    /// Assembles, signs and broadcasts a transaction the fee payer pays for itself — the devnet testing
-    /// path until the sponsor endpoint exists. The payer must hold enough SOL for the fee and any rent
-    /// the instructions allocate.
+    /// The devnet testing path until the sponsor endpoint exists: the payer must hold enough SOL for the fee
+    /// and any rent the instructions allocate. Single signer only.
     public func sendSelfPaid(
         instructions: [SolanaRawInstruction],
-        feePayer: Wallet.PublicKey,
-        signer: TransactionSigner
+        feePayer: Data,
+        sign: (Data) async throws -> Data
     ) async throws -> String {
-        guard let feePayerKey = PublicKey(data: feePayer.blockchainKey) else {
+        guard let feePayerKey = PublicKey(data: feePayer), feePayer.count == PublicKey.LENGTH else {
             throw BlockchainSdkError.failedToConvertPublicKey
         }
-
-        let convertedInstructions = try instructions.map { try $0.transactionInstruction() }
 
         let blockhashFetchedAt = Date()
         let blockhash = try await networkService.getLatestBlockhash()
 
         let transaction = SolanaSwift.Transaction.empty(feePayer: feePayerKey, recentBlockhash: blockhash)
-        for instruction in convertedInstructions {
-            _ = transaction.add(instruction)
+        for instruction in instructions {
+            _ = transaction.add(try instruction.transactionInstruction())
         }
 
-        let solanaSigner = SolanaTransactionSigner(transactionSigner: signer, walletPublicKey: feePayer)
-        try await transaction.sign(signers: [solanaSigner], queue: DispatchQueue.global())
+        // Compiling is a pure function of the instructions, the payer and the blockhash, so the bytes handed
+        // out here are the same ones `serialize` signs off on — nothing may touch the transaction in between
+        let message = try transaction.serializeMessage().get()
+        let signature = try await sign(message)
+
+        try transaction.addSignature(.init(signature: signature, publicKey: feePayerKey)).get()
 
         let serializedTransaction = try transaction.serialize().get()
 
