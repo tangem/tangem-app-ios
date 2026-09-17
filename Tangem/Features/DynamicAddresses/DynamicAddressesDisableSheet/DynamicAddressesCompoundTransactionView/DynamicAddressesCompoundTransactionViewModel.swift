@@ -143,16 +143,13 @@ final class DynamicAddressesCompoundTransactionViewModel: ObservableObject {
     }
 
     private func logNotEnoughFeeNotice(notifications: [NotificationViewInput]) {
-        let hasInsufficientFeeNotification = notifications.contains { input in
+        notifications.forEach { input in
             switch input.settings.event {
-            case SendNotificationEvent.validationErrorEvent(.insufficientBalanceForFee(_)):
-                return true
+            case SendNotificationEvent.validationErrorEvent(.insufficientBalanceForFee(let configuration)):
+                analyticsLogger.logTokenNoticeNotEnoughFee(feeCurrencyBalance: configuration.feeCurrencyBalance)
             default:
-                return false
+                break
             }
         }
-
-        guard hasInsufficientFeeNotification else { return }
-        analyticsLogger.logTokenNoticeNotEnoughFee()
     }
 }

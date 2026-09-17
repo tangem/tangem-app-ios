@@ -65,6 +65,41 @@ final class PendingExpressTxStatusBottomSheetViewModelRatingTests: LeakTrackingT
         }
     }
 
+    @Test("No rating while the swap is still running", arguments: [
+        PendingExpressTransactionStatus.created, .awaitingDeposit, .awaitingHash, .confirming, .buying, .exchanging, .sendingToUser,
+        .verificationRequired, .paused, .unknown, .failed, .refunding,
+    ])
+    func noRatingWhileRunning(status: PendingExpressTransactionStatus) async {
+        await withInjectedDependencies {
+            let (sut, _) = makeSUT(externalTxId: anyExternalID, status: status)
+
+            #expect(sut.ratingViewModel == nil)
+        }
+    }
+
+    @Test("Rating appears once the swap reaches a final status", arguments: [
+        PendingExpressTransactionStatus.finished, .refunded, .expired, .txFailed,
+    ])
+    func ratingAppearsOnFinalStatus(status: PendingExpressTransactionStatus) async {
+        await withInjectedDependencies {
+            let (sut, _) = makeSUT(externalTxId: anyExternalID, status: status)
+
+            #expect(sut.ratingViewModel != nil)
+        }
+    }
+
+    @Test("Rating appears when a running swap finishes while the sheet is open")
+    func ratingAppearsWhenSwapFinishes() async throws {
+        try await withInjectedDependencies {
+            let (sut, subject) = makeSUT(externalTxId: anyExternalID, status: .exchanging)
+            #expect(sut.ratingViewModel == nil)
+
+            await sendUpdate(to: subject, externalTxId: anyExternalID, status: .finished)
+
+            _ = try #require(sut.ratingViewModel)
+        }
+    }
+
     @Test("ratingViewModel is available immediately for DEX transactions")
     func ratingViewModelAvailableImmediatelyForDex() async throws {
         try await withInjectedDependencies {
@@ -149,9 +184,10 @@ private extension PendingExpressTxStatusBottomSheetViewModelRatingTests {
 
     func sendUpdate(
         to subject: CurrentValueSubject<[PendingTransaction], Never>,
-        externalTxId: String
+        externalTxId: String,
+        status: PendingExpressTransactionStatus = .finished
     ) async {
-        subject.send([makePendingTransaction(externalTxId: externalTxId)])
+        subject.send([makePendingTransaction(externalTxId: externalTxId, status: status)])
         await drainMainQueue()
     }
 
@@ -167,9 +203,10 @@ private extension PendingExpressTxStatusBottomSheetViewModelRatingTests {
 
     func makeSUT(
         expressTransactionId: String = "express_tx_1",
-        externalTxId: String? = nil
+        externalTxId: String? = nil,
+        status: PendingExpressTransactionStatus = .finished
     ) -> (sut: SUT, subject: CurrentValueSubject<[PendingTransaction], Never>) {
-        let tx = makePendingTransaction(expressTransactionId: expressTransactionId, externalTxId: externalTxId)
+        let tx = makePendingTransaction(expressTransactionId: expressTransactionId, externalTxId: externalTxId, status: status)
         let subject = CurrentValueSubject<[PendingTransaction], Never>([tx])
         let manager = PendingExpressTransactionsManagerStub(subject: subject)
 
@@ -190,7 +227,8 @@ private extension PendingExpressTxStatusBottomSheetViewModelRatingTests {
 
     func makePendingTransaction(
         expressTransactionId: String = "express_tx_1",
-        externalTxId: String? = nil
+        externalTxId: String? = nil,
+        status: PendingExpressTransactionStatus = .finished
     ) -> PendingTransaction {
         let tokenItem = makeTokenItem()
         let tokenTxInfo = ExpressPendingTransactionRecord.TokenTxInfo(
@@ -215,9 +253,9 @@ private extension PendingExpressTxStatusBottomSheetViewModelRatingTests {
             externalTxURL: externalTxId.map { "https://example.com/tx/\($0)" },
             provider: provider,
             date: Date(),
-            transactionStatus: .awaitingDeposit,
+            transactionStatus: status,
             refundedTokenItem: nil,
-            statuses: [.awaitingDeposit],
+            statuses: [status],
             averageDuration: nil,
             createdAt: nil
         )
