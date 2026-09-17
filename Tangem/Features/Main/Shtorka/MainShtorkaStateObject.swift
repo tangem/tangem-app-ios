@@ -18,7 +18,7 @@ protocol MainShtorkaReporting: AnyObject {
     func report(widgets height: CGFloat)
     func report(tabChips height: CGFloat)
     func report(scrollOffset: CGFloat, tabID: String)
-    func scrollAnchor(forTab id: String, viewportHeight: CGFloat) -> UnitPoint?
+    func scrollTarget(forTab id: String, viewportHeight: CGFloat, pinTabs: Bool, chipsPinned: Bool) -> FeedScrollTarget?
 }
 
 /// What a view inside the sheet may do with it: follow the size it settles on and open it. The presentation state
@@ -89,10 +89,25 @@ final class MainShtorkaStateObject: ObservableObject {
         scrollState.report(offset: scrollOffset, tabID: tabID)
     }
 
-    func scrollAnchor(forTab id: String, viewportHeight: CGFloat) -> UnitPoint? {
-        scrollState.select(tabID: id, headerHeight: heights.widgetsHeight + FeedConstants.widgetsToTabsSpacing)
+    func scrollTarget(forTab id: String, viewportHeight: CGFloat, pinTabs: Bool, chipsPinned: Bool) -> FeedScrollTarget? {
+        let headerHeight = heights.widgetsHeight + FeedConstants.widgetsToTabsSpacing
+        let previousOffset = scrollState.offset
+        scrollState.select(tabID: id, headerHeight: headerHeight)
 
-        return scrollState.restorationAnchor(tabID: id, viewportHeight: viewportHeight)
+        if pinTabs {
+            scrollState.pinTabs(headerHeight: headerHeight)
+        }
+
+        guard let anchor = scrollState.restorationAnchor(tabID: id, viewportHeight: viewportHeight),
+              scrollState.offset != previousOffset else {
+            return nil
+        }
+
+        if chipsPinned {
+            return .jump(anchor: anchor, shift: scrollState.offset - previousOffset)
+        }
+
+        return .scroll(anchor: anchor)
     }
 
     // MARK: - Detent heights
