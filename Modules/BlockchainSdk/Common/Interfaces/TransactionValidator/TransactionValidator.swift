@@ -77,7 +77,12 @@ public extension TransactionValidator {
         }
 
         guard feeBalance >= fee.amount else {
-            throw ValidationError.feeExceedsBalance(fee, blockchain: wallet.blockchain, isFeeCurrency: isFeeCurrency)
+            throw ValidationError.feeExceedsBalance(
+                fee,
+                blockchain: wallet.blockchain,
+                isFeeCurrency: isFeeCurrency,
+                feeCurrencyBalance: feeBalance.value
+            )
         }
     }
 

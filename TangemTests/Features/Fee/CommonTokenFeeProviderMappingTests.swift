@@ -95,8 +95,8 @@ struct CommonTokenFeeProviderMappingTests {
         #expect(isUnsupportedByProvider(sut.selectedTokenFee.value))
     }
 
-    @Test("EVM gas-estimation rejection passes through unchanged for the notification layer to route")
-    func gasRequiredExceedsAllowancePassesThrough() async {
+    @Test("EVM gas-estimation rejection → notEnoughBalanceForFee carrying the balance the node judged against")
+    func gasRequiredExceedsAllowanceMapsToNotEnoughBalanceForFee() async {
         // Partial native-coin balance (> 0, so no .noTokenBalance); gas estimation is rejected by the node.
         let loader = ThrowingFeeLoaderMock(error: ETHError.gasRequiredExceedsAllowance)
         let sut = makeProvider(feeTokenItem: nativeCoinFeeToken, balance: 0.0001, loader: loader)
@@ -105,10 +105,12 @@ struct CommonTokenFeeProviderMappingTests {
         await sut.updateFees().value
 
         guard case .failure(let error) = sut.selectedTokenFee.value,
-              case ETHError.gasRequiredExceedsAllowance = error else {
-            Issue.record("Expected ETHError.gasRequiredExceedsAllowance to pass through, got \(sut.selectedTokenFee.value)")
+              case TokenFeeProviderError.notEnoughBalanceForFee(let feeCurrencyBalance) = error else {
+            Issue.record("Expected TokenFeeProviderError.notEnoughBalanceForFee, got \(sut.selectedTokenFee.value)")
             return
         }
+
+        #expect(feeCurrencyBalance == 0.0001)
     }
 
     // MARK: - Matchers
