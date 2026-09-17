@@ -796,12 +796,12 @@ extension PolymarketMainViewModel {
 // MARK: - Orders
 
 private extension PolymarketMainViewModel {
-    func orderPlaced(awaiting indexing: Task<Void, Never>?) {
+    func orderPlaced(awaiting indexing: PolymarketOrderIndexing?) {
         orderTask?.cancel()
 
         orderTask = runTask(in: self) { @MainActor viewModel in
             await viewModel.refreshBalance()
-            await indexing?.value
+            _ = await indexing?.value
 
             guard !Task.isCancelled else { return }
 

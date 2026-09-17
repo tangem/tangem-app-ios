@@ -105,6 +105,7 @@ private extension CommonPolymarketOnboardingInteractor {
             }
 
             let credentials = credentialsRepository.load(userWalletId: userWalletId)
+            let isNewAccount = status != .readyToTrade
 
             if !status.owesApprovals, let credentials {
                 try await finish(
@@ -112,7 +113,7 @@ private extension CommonPolymarketOnboardingInteractor {
                     status: status,
                     credentials: credentials,
                     poller: poller,
-                    isNewAccount: status != .readyToTrade,
+                    isNewAccount: isNewAccount,
                     reporting: continuation
                 )
                 return
@@ -130,6 +131,7 @@ private extension CommonPolymarketOnboardingInteractor {
                 storedCredentials: credentials,
                 signatures: signatures,
                 poller: poller,
+                isNewAccount: isNewAccount,
                 reporting: continuation
             )
         } catch let error as PolymarketOnboardingError {
@@ -249,6 +251,7 @@ private extension CommonPolymarketOnboardingInteractor {
         storedCredentials: PolymarketL2Credentials?,
         signatures: PolymarketOnboardingSignatures,
         poller: PolymarketDepositWalletPoller,
+        isNewAccount: Bool,
         reporting continuation: PolymarketOnboardingContinuation
     ) async throws {
         var status = initial
@@ -295,7 +298,7 @@ private extension CommonPolymarketOnboardingInteractor {
             status: status,
             credentials: credentials,
             poller: poller,
-            isNewAccount: initial != .readyToTrade,
+            isNewAccount: isNewAccount,
             reporting: continuation
         )
     }

@@ -178,6 +178,18 @@ private extension PolymarketCoordinator {
         ))
     }
 
+    func makeIntent(
+        for request: PolymarketOrderRequest,
+        balanceProvider: PolymarketBalanceProvider
+    ) -> PolymarketOrderIntent {
+        switch request {
+        case .buy:
+            .buy(balance: balanceProvider.collateralBalancePublisher.map(\.value).eraseToAnyPublisher())
+        case .sell(let shares):
+            .sell(shares: shares)
+        }
+    }
+
     func makeAPIProvider(for userWalletModel: any UserWalletModel) -> PolymarketAPIProvider {
         PolymarketAPIProviderFactory().makeProvider(walletId: userWalletModel.userWalletId.stringValue)
     }
@@ -196,17 +208,16 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
 
     @MainActor
     func openHowItWorks() {
-        tangemStoriesPresenter.present(
+        tangemStoriesPresenter.presentOnDemand(
             story: .polymarketOnboarding(.initialWithoutImages),
-            analyticsSource: .predictions,
-            presentCompletion: {}
+            analyticsSource: .predictions
         )
     }
 
     func openEventDetails(
         eventID: String,
         category: PolymarketCategory?,
-        onOrderPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void
+        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void
     ) {
         guard let userWalletModel else {
             PolymarketLogger.error("An event was tapped without a wallet", error: CoordinatorError.missingUserWalletModel)
@@ -224,13 +235,16 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
             geoblockStateProvider: geoblockStateProvider,
             onOrderPlaced: onOrderPlaced,
             onRegionWarning: { [weak self] in self?.openRegionWarning() },
+            onOpenPosition: { [weak self] position in
+                self?.openPositionDetails(position: position, onOrderPlaced: onOrderPlaced)
+            },
             orderBuilder: self
         ))
 
         destination = .eventDetails(coordinator)
     }
 
-    func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void) {
+    func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void) {
         guard let userWalletModel else {
             PolymarketLogger.error("A position was tapped without a wallet", error: CoordinatorError.missingUserWalletModel)
             return
@@ -249,13 +263,27 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
         market: PolymarketMarket,
         outcome: PolymarketOutcome,
         eventTitle: String,
-        onPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void
+        onPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void
+    ) {
+        openOrder(market: market, outcome: outcome, eventTitle: eventTitle, request: .buy, onPlaced: onPlaced)
+    }
+
+    func openOrder(
+        market: PolymarketMarket,
+        outcome: PolymarketOutcome,
+        eventTitle: String,
+        request: PolymarketOrderRequest,
+        onPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void
     ) {
         guard let coordinator = makeOrderCoordinator(
             market: market,
             outcome: outcome,
             eventTitle: eventTitle,
+            request: request,
             onPlaced: onPlaced,
+            onOpenPosition: { [weak self] position in
+                self?.openPositionDetails(position: position, onOrderPlaced: onPlaced)
+            },
             onClose: { [weak self] in self?.destination = nil }
         ) else {
             return
@@ -265,7 +293,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
     }
 
     @MainActor
-    func openMyPositions(tab: PolymarketPositionsTab, onOrderPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void) {
+    func openMyPositions(tab: PolymarketPositionsTab, onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void) {
         guard let userWalletModel else {
             PolymarketLogger.error("The positions were opened without a wallet", error: CoordinatorError.missingUserWalletModel)
             return
@@ -469,7 +497,9 @@ extension PolymarketCoordinator: PolymarketOrderFlowBuilder {
         market: PolymarketMarket,
         outcome: PolymarketOutcome,
         eventTitle: String,
-        onPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void,
+        request: PolymarketOrderRequest,
+        onPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void,
+        onOpenPosition: @escaping (PolymarketPosition) -> Void,
         onClose: @escaping () -> Void
     ) -> PolymarketOrderCoordinator? {
         guard let geoblockStateProvider, let balanceProvider, let userWalletModel, let fundsArrivalTracker else {
@@ -482,9 +512,16 @@ extension PolymarketCoordinator: PolymarketOrderFlowBuilder {
 
         let coordinator = PolymarketOrderCoordinator(
             dismissAction: { payload in
-                onClose()
+                guard let payload else {
+                    onClose()
+                    return
+                }
 
-                guard let payload else { return }
+                if let position = payload.position {
+                    onOpenPosition(position)
+                } else {
+                    onClose()
+                }
 
                 Task { @MainActor in
                     onPlaced(payload.indexing)
@@ -497,8 +534,8 @@ extension PolymarketCoordinator: PolymarketOrderFlowBuilder {
             outcome: outcome,
             eventTitle: eventTitle,
             walletId: userWalletModel.userWalletId.stringValue,
+            intent: makeIntent(for: request, balanceProvider: balanceProvider),
             geoblockStateProvider: geoblockStateProvider,
-            balancePublisher: balanceProvider.collateralBalancePublisher.map(\.value).eraseToAnyPublisher(),
             placementService: PolymarketOrderPlacementFactory().makeService(for: userWalletModel),
             positionsService: makePositionsService(for: userWalletModel),
             isAwaitingFundsPublisher: fundsArrivalTracker.$isAwaitingFunds.eraseToAnyPublisher(),

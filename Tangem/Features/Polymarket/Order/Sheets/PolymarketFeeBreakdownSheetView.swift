@@ -30,7 +30,7 @@ struct PolymarketFeeBreakdownSheetView: View {
         }
         .frame(maxWidth: .infinity)
         .background(DesignSystem.Color.bgSecondary.ignoresSafeArea())
-        .presentationDetents([.height(Constants.compactHeight)])
+        .presentationDetents([.height(Constants.compactHeight), .large])
         .presentationDragIndicator(.visible)
     }
 
@@ -63,7 +63,7 @@ struct PolymarketFeeBreakdownSheetView: View {
 
     private var orderRow: some View {
         TangemUI.Row(
-            title: Constants.orderTitle,
+            title: viewModel.orderTitle,
             subtitle: viewModel.orderCaption,
             value: viewModel.orderValue
         )
@@ -92,7 +92,6 @@ private extension PolymarketFeeBreakdownSheetView {
         static let compactHeight: CGFloat = 360
 
         // [REDACTED_TODO_COMMENT]
-        static let orderTitle = "Prediction order"
         static let polymarketFeeTitle = "Polymarket Fee"
         static let tangemBuilderFeeTitle = "Tangem Builder Fee"
         static let totalTitle = "Total"
