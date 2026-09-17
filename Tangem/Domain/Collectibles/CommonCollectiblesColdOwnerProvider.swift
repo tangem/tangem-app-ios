@@ -12,6 +12,9 @@ import TangemSdk
 
 /// The vault is addressed off this key, so it must be the account's own derivation — the main account's key
 /// would address a different vault and put spendable funds behind the same signature.
+///
+/// Holding the config is safe here although it is replaceable: the curve follows the wallet's generation,
+/// and no live wallet crosses generations — the upgrade that swaps the config is v3 on both sides.
 final class CommonCollectiblesColdOwnerProvider {
     private let keysRepository: KeysRepository
     private let config: UserWalletConfig

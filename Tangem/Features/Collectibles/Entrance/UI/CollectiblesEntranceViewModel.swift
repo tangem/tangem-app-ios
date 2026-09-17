@@ -14,6 +14,9 @@ final class CollectiblesEntranceViewModel: ObservableObject {
     private let userWalletModelsProvider: () -> [UserWalletModel]
     private let floatingSheetPresenter: FloatingSheetPresenter
 
+    @MainActor
+    private var isResolvingDestination = false
+
     // MARK: - Init
 
     init(
@@ -26,8 +29,6 @@ final class CollectiblesEntranceViewModel: ObservableObject {
 
     // MARK: - Methods
 
-    /// The open sheet swallows background taps itself, and the destination resolves within the tap,
-    /// so a repeat tap has nothing left to guard against.
     @MainActor
     func openCollectibles(
         isRegionRestricted: Bool,
@@ -39,12 +40,14 @@ final class CollectiblesEntranceViewModel: ObservableObject {
         guard let firstUserWalletModel = userWalletModels.first else { return }
 
         guard userWalletModels.count > 1 else {
-            resolveDestination(
-                for: firstUserWalletModel,
-                isRegionRestricted: isRegionRestricted,
-                onRestricted: onRestricted,
-                onOpen: onOpen
-            )
+            Task { @MainActor [weak self] in
+                await self?.resolveDestination(
+                    for: firstUserWalletModel,
+                    isRegionRestricted: isRegionRestricted,
+                    onRestricted: onRestricted,
+                    onOpen: onOpen
+                )
+            }
             return
         }
 
@@ -74,7 +77,7 @@ private extension CollectiblesEntranceViewModel {
             floatingSheetPresenter.removeActiveSheet()
             // The selector types its callback without isolation, so the hop belongs to its API, not to this flow
             Task { @MainActor in
-                self?.resolveDestination(
+                await self?.resolveDestination(
                     for: selectedCell.userWalletModel,
                     isRegionRestricted: isRegionRestricted,
                     onRestricted: onRestricted,
@@ -91,15 +94,31 @@ private extension CollectiblesEntranceViewModel {
         )
     }
 
-    /// The account list answers this outright — no chain read, nothing to fail, between the tap and the screen.
+    /// Unresolved means unknown, not "no account": in a restricted region the two answers differ.
+    ///
+    /// The wait spans a tap, so taps that arrive during it are dropped rather than each opening a screen.
     @MainActor
     func resolveDestination(
         for userWalletModel: UserWalletModel,
         isRegionRestricted: Bool,
         onRestricted: @MainActor () -> Void,
         onOpen: @MainActor (CollectiblesCoordinator.Options) -> Void
-    ) {
-        let hasCollectiblesAccount = CollectiblesAccountAggregator.collectiblesAccountModel(from: userWalletModel.accountModelsManager) != nil
+    ) async {
+        guard !isResolvingDestination else {
+            return
+        }
+
+        isResolvingDestination = true
+        defer { isResolvingDestination = false }
+
+        let accountModel = CollectiblesAccountAggregator
+            .collectiblesAccountModel(from: userWalletModel.accountModelsManager)
+
+        if accountModel?.state == .unresolved {
+            await accountModel?.refreshState()
+        }
+
+        let hasCollectiblesAccount = accountModel?.state.isAccountVisible ?? false
 
         switch Destination(hasAccount: hasCollectiblesAccount, isRestricted: isRegionRestricted) {
         case .welcome:
