@@ -45,7 +45,6 @@ extension FeedWidgetColumn {
                 columns.append(.single(widget))
 
             case (.wide, .some(let lone)):
-                assertionFailure("Compact widget \(lone.id) has no pair before wide widget \(widget.id)")
                 columns.append(.single(lone))
                 columns.append(.single(widget))
                 pendingCompact = nil
