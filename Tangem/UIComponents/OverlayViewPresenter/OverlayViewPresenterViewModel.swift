@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import SwiftUI
 
@@ -30,6 +31,29 @@ extension OverlayViewPresenterViewModel: OverlayViewPresenter {
 
     func dismiss() {
         hideTopView()
+    }
+
+    func dismissAll() {
+        guard !presentationStack.isEmpty else {
+            return
+        }
+
+        withoutAnimations { presentationStack.removeAll() }
+    }
+}
+
+// MARK: - OverlayViewPresentingStateProvider
+
+extension OverlayViewPresenterViewModel: OverlayViewPresentingStateProvider {
+    var isPresenting: Bool {
+        !presentationStack.isEmpty
+    }
+
+    var isPresentingPublisher: AnyPublisher<Bool, Never> {
+        $presentationStack
+            .map { !$0.isEmpty }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 }
 

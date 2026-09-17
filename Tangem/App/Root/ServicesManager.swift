@@ -51,6 +51,7 @@ final class CommonServicesManager {
     @Injected(\.tokenSelectorStateStorage) private var tokenSelectorStateStorage: TokenSelectorStateStorage
     @Injected(\.gaslessTransactionsNetworkManager) private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
     @Injected(\.referralService) private var referralService: ReferralService
+    @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
     @Injected(\.mobileUpgradeBannerStorageManager) private var mobileUpgradeBannerStorageManager: MobileUpgradeBannerStorageManager
     @Injected(\.stakingTargetAmountLimitProvider) private var stakingTargetAmountLimitProvider: CommonStakingTargetAmountLimitProvider
     @Injected(\.silentPushHandlersStorage) private var silentPushHandlersStorage: SilentPushHandlersStorage
@@ -242,8 +243,8 @@ extension CommonServicesManager: ServicesManager {
         tokenSelectorStateStorage.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
         gaslessTransactionsNetworkManager.initialize()
-        referralService.retryBindingIfNeeded()
         mobileUpgradeBannerStorageManager.initialize()
+        mobileFinishActivationManager.initialize()
         stakingTargetAmountLimitProvider.initialize()
         walletCardsBackupReportService.initialize()
         // Refresh the cached app-versions DTO once per session. Applied on the next launch.
@@ -258,6 +259,9 @@ extension CommonServicesManager: ServicesManager {
         }
 
         await userWalletRepository.initialize()
+
+        // A referral saved before there was a wallet is bound now that the wallets are known.
+        referralService.retryBindingIfNeeded()
 
         if isFirstLaunch {
             await KeychainCleaner.cleanAllData()

@@ -31,6 +31,7 @@ protocol MainShtorkaViewActionProvider: AnyObject {
 
 final class MainShtorkaStateObject: ObservableObject {
     @Injected(\.mainBottomSheetUIManager) private var bottomSheetUIManager: MainBottomSheetUIManager
+    @Injected(\.overlayViewPresentingStateProvider) private var overlayPresentingStateProvider: any OverlayViewPresentingStateProvider
 
     @Published var isPresented = false
     @Published var size: ShtorkaSize = .collapsed {
@@ -141,13 +142,27 @@ final class MainShtorkaStateObject: ObservableObject {
 
 private extension MainShtorkaStateObject {
     func bind() {
+        // The sheet and a screen shown over the whole app are both presented from the root, which presents one
+        // thing at a time: the sheet steps aside while the overlay is up, the way it does for a push.
         bottomSheetUIManager
             .isShownPublisher
+            .combineLatest(overlayPresentingStateProvider.isPresentingPublisher)
+            .map { isShown, isOverlayPresenting in isShown && !isOverlayPresenting }
             .removeDuplicates()
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { stateObject, isShown in
                 isShown ? stateObject.present() : stateObject.hide()
+            }
+            .store(in: &bag)
+
+        $size
+            .map { $0 != .collapsed }
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { stateObject, isExpanded in
+                stateObject.bottomSheetUIManager.setExpanded(isExpanded)
             }
             .store(in: &bag)
     }
