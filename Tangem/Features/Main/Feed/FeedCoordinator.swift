@@ -34,7 +34,6 @@ final class FeedCoordinator: CoordinatorObject {
     var shtorkaReporting: any MainShtorkaReporting { shtorkaStateObject }
     var shtorkaActions: any MainShtorkaViewActionProvider { shtorkaStateObject }
 
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
@@ -133,6 +132,40 @@ extension FeedCoordinator: FeedWidgetsRoutable {
         push(.forYou(coordinator))
     }
 
+    func openEarn() {
+        guard let tabs = rootViewModel?.tabsViewModel,
+              let tab = tabs.tabs.first(where: { $0.kind == .earn }) else { return }
+
+        rootViewModel?.searchViewModel.reset()
+        tabs.onSelectTab(tab)
+        shtorkaStateObject.expand()
+    }
+
+    func openTangemPay(_ entry: FeedTangemPayEntry) {
+        host?.openTangemPay(entry: entry)
+    }
+
+    func openReferral(wallet: UserWalletModel) {
+        guard presented == nil else { return }
+
+        let coordinator = ReferralCoordinator(
+            dismissAction: { [weak self] _ in
+                guard let self, case .referral = presented else { return }
+
+                dismissPresented()
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(input: .init(
+            userWalletId: wallet.userWalletId.value,
+            supportedBlockchains: wallet.config.supportedBlockchains,
+            accountModelsManager: wallet.accountModelsManager,
+            tokenIconInfoBuilder: TokenIconInfoBuilder(),
+            userWalletModel: wallet
+        )))
+        present(.referral(coordinator))
+    }
+
     func openAddAccount(candidates: [FeedAccountCandidate]) {
         Task { @MainActor [weak self] in
             guard let self, presented == nil, presentedWidgetSheet == nil, let candidate = candidates.first else { return }
@@ -142,23 +175,11 @@ extension FeedCoordinator: FeedWidgetsRoutable {
                 return
             }
 
-            let selector = AccountSelectorViewModel(
-                userWalletModels: candidates.map(\.wallet),
-                preferredDisplayMode: .wallets
-            ) { [weak self] selection in
-                Task { @MainActor [weak self] in
-                    guard let self,
-                          let candidate = candidates.first(where: { $0.wallet.userWalletId == selection.userWalletModel.userWalletId }) else { return }
+            presentWalletSelector(wallets: candidates.map(\.wallet)) { [weak self] wallet in
+                guard let candidate = candidates.first(where: { $0.wallet.userWalletId == wallet.userWalletId }) else { return }
 
-                    dismissWidgetSheet()
-                    openAccountCreation(for: candidate)
-                }
+                self?.openAccountCreation(for: candidate)
             }
-            let viewModel = WalletSelectorSheetViewModel(
-                accountSelectorViewModel: selector,
-                close: { [weak self] in self?.dismissWidgetSheet() }
-            )
-            enqueueWidgetSheet(viewModel)
         }
     }
 }
@@ -239,6 +260,25 @@ private extension FeedCoordinator {
             accountModelsManager: wallet.accountModelsManager,
             userWalletConfig: wallet.config,
             coordinator: self
+        )
+        enqueueWidgetSheet(viewModel)
+    }
+
+    func presentWalletSelector(wallets: [UserWalletModel], onSelect: @escaping @MainActor (UserWalletModel) -> Void) {
+        let selector = AccountSelectorViewModel(
+            userWalletModels: wallets,
+            preferredDisplayMode: .wallets
+        ) { [weak self] selection in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+
+                dismissWidgetSheet()
+                onSelect(selection.userWalletModel)
+            }
+        }
+        let viewModel = WalletSelectorSheetViewModel(
+            accountSelectorViewModel: selector,
+            close: { [weak self] in self?.dismissWidgetSheet() }
         )
         enqueueWidgetSheet(viewModel)
     }
