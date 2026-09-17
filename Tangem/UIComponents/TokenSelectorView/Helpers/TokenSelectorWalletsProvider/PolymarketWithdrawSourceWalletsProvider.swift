@@ -8,8 +8,6 @@
 
 import Combine
 
-/// The withdraw source selector: the prediction account and nothing else. The account holds one token, so
-/// the row set never changes, while its balance stays live through the account's own balance provider.
 struct PolymarketWithdrawSourceWalletsProvider: TokenSelectorWalletsProvider {
     let userWalletInfo: UserWalletInfo
     let source: PolymarketWithdrawSource

@@ -1,5 +1,5 @@
 //
-//  PolymarketWithdrawSigning.swift
+//  PolymarketBatchSigning.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemPolymarket
 
-protocol PolymarketWithdrawSigning {
+protocol PolymarketBatchSigning {
     func sign(
         _ batch: PolymarketRelayedBatch.Unsigned,
         as ownerAddress: String
