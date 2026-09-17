@@ -9,7 +9,11 @@
 struct FeedViewModelFactory {
     private let tabBuilders = FeedTabsRegistry.makeBuilders()
 
-    func makeViewModel(context: FeedContext, shtorkaActions: any MainShtorkaViewActionProvider) -> FeedViewModel {
+    func makeViewModel(
+        context: FeedContext,
+        shtorkaActions: any MainShtorkaViewActionProvider,
+        widgetsRouter: FeedWidgetsRoutable
+    ) -> FeedViewModel {
         let searchBarViewModel = FeedSearchBarViewModel()
         let historyProvider = CommonFeedSearchHistoryProvider(storage: CommonFeedSearchHistoryStorage())
 
@@ -31,7 +35,7 @@ struct FeedViewModelFactory {
                 router: FeedSearchRouter(context: context)
             ),
             tabsViewModel: FeedTabsViewModel(tabs: tabs),
-            widgetsViewModel: FeedWidgetsViewModel(widgets: FeedWidgetsFactory.makeWidgets()),
+            widgetsViewModel: FeedWidgetsViewModel(providers: FeedWidgetsRegistry.makeProviders(router: widgetsRouter)),
             shtorkaActions: shtorkaActions
         )
     }

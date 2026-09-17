@@ -38,7 +38,31 @@ struct FeedCoordinatorView: CoordinatorView {
             }
 
             NavHolder()
-                .sheet(item: $coordinator.presented) { FeedDestinationView(destination: $0) }
+                .sheet(item: presentation(fullScreen: false), onDismiss: coordinator.accountFormDidDismiss) {
+                    FeedDestinationView(destination: $0)
+                }
+                .fullScreenCover(item: presentation(fullScreen: true)) {
+                    FeedDestinationView(destination: $0)
+                }
+                .floatingSheetContent(for: AddAccountTypeSelectorViewModel.self) {
+                    AddAccountTypeSelectorView(viewModel: $0)
+                }
         }
+    }
+
+    private func presentation(fullScreen: Bool) -> Binding<FeedDestination?> {
+        Binding(
+            get: {
+                guard let destination = coordinator.presented,
+                      destination.isFullScreenPresentation == fullScreen else { return nil }
+                return destination
+            },
+            set: { destination in
+                guard destination == nil, let current = coordinator.presented,
+                      current.isFullScreenPresentation == fullScreen else { return }
+
+                coordinator.dismissPresented()
+            }
+        )
     }
 }
