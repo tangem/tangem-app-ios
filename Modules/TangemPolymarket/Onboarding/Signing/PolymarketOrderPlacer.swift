@@ -14,6 +14,12 @@ public protocol PolymarketOrderDigestSigning {
 
 public protocol PolymarketOrderPlacing {
     func place(_ options: PolymarketOrderPlacer.Options) async throws -> PolymarketOrderPlacement
+
+    func order(
+        id: String,
+        credentials: PolymarketL2Credentials,
+        ownerAddress: String
+    ) async throws -> PolymarketOrderRecord
 }
 
 public struct PolymarketOrderPlacer {
@@ -69,6 +75,14 @@ extension PolymarketOrderPlacer: PolymarketOrderPlacing {
             credentials: options.credentials,
             ownerAddress: options.ownerAddress
         )
+    }
+
+    public func order(
+        id: String,
+        credentials: PolymarketL2Credentials,
+        ownerAddress: String
+    ) async throws -> PolymarketOrderRecord {
+        try await clobService.order(id: id, credentials: credentials, ownerAddress: ownerAddress)
     }
 }
 

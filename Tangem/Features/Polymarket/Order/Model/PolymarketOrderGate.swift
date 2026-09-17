@@ -15,14 +15,18 @@ struct PolymarketOrderGate {
     let amountCaption: AmountCaption?
     let isPrimaryButtonEnabled: Bool
 
-    init(state: PolymarketOrderModel.State) {
-        let required = state.quote.quote?.total ?? state.enteredAmount
+    init(state: PolymarketOrderModel.State, intent: PolymarketOrderIntent) {
+        let required = switch intent {
+        case .buy: state.quote.quote?.total ?? state.enteredAmount
+        case .sell: state.enteredAmount
+        }
+
         let hasSufficientBalance = required.map { required in
             state.balance.map { $0 >= required } ?? false
         } ?? false
 
         notifications = Self.notifications(state: state)
-        amountCaption = Self.amountCaption(state: state, required: required)
+        amountCaption = Self.amountCaption(state: state, intent: intent, required: required)
 
         isPrimaryButtonEnabled = notifications.allSatisfy { !$0.isBlocking }
             && state.quote.quote?.status.isPlaceable == true
@@ -78,23 +82,30 @@ private extension PolymarketOrderGate {
         return notifications
     }
 
-    static func amountCaption(state: PolymarketOrderModel.State, required: Decimal?) -> AmountCaption? {
+    static func amountCaption(
+        state: PolymarketOrderModel.State,
+        intent: PolymarketOrderIntent,
+        required: Decimal?
+    ) -> AmountCaption? {
         if state.isBelowMinAmount, let minAmount = state.minAmount {
             return .belowMinAmount(minAmount)
         }
 
-        if let balance = state.balance, let entered = state.enteredAmount {
-            if entered > balance {
-                return .notEnoughForBet
-            }
+        if let balance = state.balance, let entered = state.enteredAmount, entered > balance {
+            return .notEnoughForBet
+        }
 
-            if let required, required > balance {
-                return .notEnoughForFees
-            }
+        if case .buy = intent, let balance = state.balance, let required, required > balance {
+            return .notEnoughForFees
         }
 
         guard let quote = state.quote.quote else { return nil }
 
-        return .toWin(expected: quote.expectedExecutionAmount, guaranteed: quote.shares)
+        switch intent {
+        case .buy:
+            return .toWin(expected: quote.expectedExecutionAmount, guaranteed: quote.shares)
+        case .sell:
+            return nil
+        }
     }
 }
