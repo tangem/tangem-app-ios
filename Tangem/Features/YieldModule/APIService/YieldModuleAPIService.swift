@@ -16,6 +16,11 @@ protocol YieldModuleAPIService {
     func getIncentiveYieldMarkets(
         chainIDs: [String]?
     ) async throws -> YieldModuleDTO.Response.MarketsInfo
+    /// `nil` when the chain is not supported or not configured for incentives, which the contract reports as HTTP 400.
+    func getIncentives(
+        chainId: Int,
+        userAddress: String
+    ) async throws -> YieldModuleDTO.Response.IncentivesInfo?
     /// Incentivised-yield history, ascending by date (`days` is capped at 90 by the contract).
     func getAprHistory(
         chainId: Int,

@@ -352,6 +352,7 @@ private final class YieldModuleManagerStub: YieldModuleManager {
     var tokenId: String { "" }
     var versionChecker: YieldModuleVersionChecker? { nil }
     var swapExecutionRegistryProvider: YieldModuleSwapExecutionRegistryProvider? { nil }
+    var incentivesManager: YieldIncentivesManager? { nil }
 
     func enterFee() async throws -> YieldTransactionFee { fatalError() }
     func enter(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String] { fatalError() }
