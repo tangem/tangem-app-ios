@@ -31,6 +31,8 @@ struct PolymarketMyPositionsCoordinatorView: CoordinatorView {
                 switch destination {
                 case .positionDetails(let coordinator):
                     PolymarketPositionDetailsCoordinatorView(coordinator: coordinator)
+                case .redeem(let viewModel):
+                    PolymarketRedeemView(viewModel: viewModel)
                 }
             }
     }

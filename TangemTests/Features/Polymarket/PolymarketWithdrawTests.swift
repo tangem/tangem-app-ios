@@ -20,7 +20,6 @@ import TangemSdk
 
 @Suite("Polymarket withdraw calldata")
 struct PolymarketWithdrawCallTests {
-    /// The packed transfer is what the deposit wallet will execute, so its layout is checked byte by byte.
     @Test("A transfer is packed exactly as the bridge documents it")
     func packsTheDocumentedTransfer() throws {
         let call = try PolymarketWithdrawCall.transfer(to: bridgeAddress, amountBaseUnits: 12_500_000)
@@ -32,7 +31,6 @@ struct PolymarketWithdrawCallTests {
             + String(repeating: "0", count: 58) + "bebc20")
     }
 
-    /// Decoding is what the service uses to confirm it signed what it meant to sign.
     @Test("The packed bytes read back as the transfer they were built from")
     func readsBackWhatItPacked() throws {
         let call = try PolymarketWithdrawCall.transfer(to: bridgeAddress, amountBaseUnits: 12_500_000)
@@ -42,7 +40,6 @@ struct PolymarketWithdrawCallTests {
         #expect(try decoded.recipient == SmartContractAddress(bridgeAddress.lowercased()))
     }
 
-    /// The bridge answers in mixed case while the decoded bytes are lowercase, and the check must survive that.
     @Test("The bridge answers in EIP-55, and its own answer must pass the self-check")
     func acceptsTheChecksummedAddressTheBridgeReturns() throws {
         let call = try PolymarketWithdrawCall.transfer(to: bridgeAddress, amountBaseUnits: 12_500_000)
@@ -51,7 +48,6 @@ struct PolymarketWithdrawCallTests {
         #expect(PolymarketWithdrawCall.carries(call, transferOf: 12_500_000, to: bridgeAddress.lowercased()))
     }
 
-    /// An encoder that wrote another amount must not pass its own check.
     @Test("A transfer of another amount is not the transfer that was meant")
     func rejectsAnotherAmount() throws {
         let call = try PolymarketWithdrawCall.transfer(to: bridgeAddress, amountBaseUnits: 12_500_000)
@@ -59,7 +55,6 @@ struct PolymarketWithdrawCallTests {
         #expect(!PolymarketWithdrawCall.carries(call, transferOf: 12_500_001, to: bridgeAddress))
     }
 
-    /// Neither must an encoder that wrote another recipient.
     @Test("A transfer to another address is not the transfer that was meant")
     func rejectsAnotherRecipient() throws {
         let call = try PolymarketWithdrawCall.transfer(to: bridgeAddress, amountBaseUnits: 12_500_000)
@@ -67,7 +62,6 @@ struct PolymarketWithdrawCallTests {
         #expect(!PolymarketWithdrawCall.carries(call, transferOf: 12_500_000, to: otherAddress))
     }
 
-    /// Only pUSD moves out of the deposit wallet, so a call on any other contract does not decode at all.
     @Test("A call on another contract is not a pUSD transfer, whatever its bytes say")
     func rejectsAnotherTarget() throws {
         let call = try PolymarketWithdrawCall.transfer(to: bridgeAddress, amountBaseUnits: 12_500_000)
@@ -81,7 +75,6 @@ struct PolymarketWithdrawCallTests {
 
 @Suite("Polymarket withdrawal")
 struct PolymarketWithdrawTransactionServiceTests {
-    /// The envelope the card signs must describe exactly the withdrawal the user asked for.
     @Test("The signed batch carries one pUSD transfer of the entered amount to the bridge address")
     func submitsTheTransferTheUserAskedFor() async throws {
         let context = try Context()
@@ -98,7 +91,6 @@ struct PolymarketWithdrawTransactionServiceTests {
         #expect(PolymarketWithdrawCall.carries(call, transferOf: 12_500_000, to: bridgeAddress))
     }
 
-    /// The backend refuses anything past twenty minutes, and a deadline in the past is a lost signature.
     @Test("The deadline is ten minutes out, well inside the twenty the backend accepts")
     func deadlineIsInTheNearFuture() async throws {
         let context = try Context()
@@ -114,7 +106,6 @@ struct PolymarketWithdrawTransactionServiceTests {
         #expect(deadline <= after + 600)
     }
 
-    /// Rounding up would sign for more than the account holds and fail after the card was tapped.
     @Test("A fraction below the token's precision is dropped, never rounded up past the balance")
     func roundsTheAmountDown() async throws {
         let context = try Context()
@@ -127,7 +118,6 @@ struct PolymarketWithdrawTransactionServiceTests {
         #expect(decoded.amountBaseUnits == 1_234_567)
     }
 
-    /// The destination comes from the list the bridge serves, so a delisting stops the withdrawal.
     @Test("The destination is the asset the bridge lists, not a constant compiled in")
     func takesTheDestinationFromTheBridgeListing() async throws {
         let context = try Context(assets: [])
@@ -140,7 +130,6 @@ struct PolymarketWithdrawTransactionServiceTests {
         }
     }
 
-    /// The owner address in the envelope is the one the backend verified, not one derived a second time.
     @Test("The envelope carries the owner address the deposit wallet was resolved for")
     func carriesTheResolvedOwnerAddress() async throws {
         let context = try Context(ownerAddress: foreignOwnerAddress)
@@ -152,7 +141,6 @@ struct PolymarketWithdrawTransactionServiceTests {
         #expect(batch.ownerAddress == foreignOwnerAddress)
     }
 
-    /// A submission that got no answer may never have arrived, and resending the same batch cannot double-spend.
     @Test("A submission that never answered is resent as the very same batch")
     func resendsTheSameBatchAfterAnUnfinishedSubmission() async throws {
         let context = try Context(submitResults: [.failure(.other(.connection(underlying: StubError()))), nil])
@@ -163,7 +151,6 @@ struct PolymarketWithdrawTransactionServiceTests {
         #expect(context.withdrawService.submitted.first == context.withdrawService.submitted.last)
     }
 
-    /// An answered request has nothing to gain from a resend, even when the answer could not be read.
     @Test("An answer that arrived unreadable is not resent")
     func doesNotResendAnUnreadableAnswer() async throws {
         let context = try Context(submitResults: [.failure(.other(.decoding(field: "record", value: "{}")))])
@@ -176,7 +163,6 @@ struct PolymarketWithdrawTransactionServiceTests {
         }
     }
 
-    /// A conflict names a withdrawal that already exists, so sending the batch again would only repeat it.
     @Test("A refused nonce is a different withdrawal, so it is never resent")
     func doesNotResendARefusedNonce() async throws {
         let context = try Context(submitResults: [.failure(.conflict(detail: nil))])
@@ -189,7 +175,6 @@ struct PolymarketWithdrawTransactionServiceTests {
         }
     }
 
-    /// The bridge is told where the money must end up, and that is the address the user chose.
     @Test("The address the user is withdrawing to is the address the bridge is told to deliver to")
     func asksTheBridgeToDeliverToTheUsersAddress() async throws {
         let context = try Context()
@@ -203,7 +188,6 @@ struct PolymarketWithdrawTransactionServiceTests {
         #expect(route.destinationTokenAddress == PolymarketSupportedAsset.usdcOnPolygon.token.address)
     }
 
-    /// Without the builder code Polymarket does not attribute the withdrawal to Tangem.
     @Test("The builder code reaches the bridge, so the withdrawal is attributed to us")
     func attributesTheWithdrawalToTheBuilderCode() async throws {
         let context = try Context()
@@ -213,7 +197,6 @@ struct PolymarketWithdrawTransactionServiceTests {
         #expect(context.bridge.receivedBuilderCodes == [ConfigurationServiceStub.code])
     }
 
-    /// A settled transfer carries the hash the finish screen links to.
     @Test("A confirmed first leg is reported as confirmed")
     func reportsAConfirmedFirstLeg() async throws {
         let context = try Context(states: [.init(transactionId: transactionId, state: .confirmed, transactionHash: "0x7ae1")])
@@ -224,7 +207,6 @@ struct PolymarketWithdrawTransactionServiceTests {
         #expect(record.transactionHash == "0x7ae1")
     }
 
-    /// Running out of patience is not the same as failing: the transfer was accepted and the backend follows it.
     @Test("A first leg still in flight is handed back as it is, never as a failure")
     func doesNotReportAnUnsettledFirstLegAsAFailure() async throws {
         let context = try Context(states: [.init(transactionId: transactionId, state: .inProgress, transactionHash: nil)])
@@ -234,7 +216,6 @@ struct PolymarketWithdrawTransactionServiceTests {
         #expect(record.state == .inProgress)
     }
 
-    /// The hash appears before the transfer settles, and giving up on the wait must not throw it away.
     @Test("A hash learned while polling survives a wait that ran out")
     func keepsTheHashLearnedWhilePolling() async throws {
         let context = try Context(states: [
@@ -248,7 +229,6 @@ struct PolymarketWithdrawTransactionServiceTests {
         #expect(record.transactionHash == "0x99")
     }
 
-    /// A failed transfer never executed, so it is reported rather than presented as a success.
     @Test("A failed transfer is reported, since it never executed and may be signed again")
     func reportsAFailedTransfer() async throws {
         let context = try Context(states: [.init(transactionId: transactionId, state: .failed, transactionHash: nil)])
@@ -261,7 +241,6 @@ struct PolymarketWithdrawTransactionServiceTests {
         }
     }
 
-    /// Cancelling the card sheet is not a failure, and the send flow has its own path for it.
     @Test("A cancelled card tap leaves the flow as a cancellation")
     func reportsACancelledCardTapAsCancellation() async throws {
         let context = try Context(signing: CancellingSignerStub())
@@ -273,7 +252,6 @@ struct PolymarketWithdrawTransactionServiceTests {
         #expect(context.withdrawService.submitted.isEmpty)
     }
 
-    /// An amount that rounds to nothing would sign a transfer of zero and burn a nonce for it.
     @Test("An amount below the token's precision is refused before anything is signed")
     func refusesAnAmountBelowTheTokensPrecision() async throws {
         let context = try Context()
@@ -287,7 +265,6 @@ struct PolymarketWithdrawTransactionServiceTests {
         }
     }
 
-    /// The transfer is addressed to whatever the bridge hands out, so an answer without one is a dead end.
     @Test("A bridge answer without an EVM address stops the withdrawal instead of signing a transfer to nowhere")
     func refusesAWithdrawalWithoutABridgeAddress() async throws {
         let context = try Context(withdrawAddresses: PolymarketBridgeAddresses(addresses: [:]))
@@ -300,7 +277,6 @@ struct PolymarketWithdrawTransactionServiceTests {
         }
     }
 
-    /// Both withdrawals would read the same nonce, so the second batch could only ever be a repeat.
     @Test("A withdrawal started while another is in flight is refused rather than signed alongside it")
     func refusesASecondWithdrawalWhileOneIsInFlight() async throws {
         let configurationService = ReentrantConfigurationServiceStub()
@@ -328,7 +304,6 @@ struct PolymarketWithdrawTransactionServiceTests {
         #expect(context.withdrawService.submitted.count == 1)
     }
 
-    /// The steps before the submission answer in types of their own, and none of them may reach the user raw.
     @Test("A failure with no description of its own still arrives as a readable error")
     func mapsAnUnrecognisedFailureToAReadableError() async throws {
         let context = try Context(configurationService: FailingConfigurationServiceStub())
@@ -346,7 +321,6 @@ struct PolymarketWithdrawTransactionServiceTests {
 
 @Suite("Polymarket withdraw pair")
 struct PolymarketWithdrawSwapParametersTests {
-    /// The prediction account holds one token and the flow spends it; nothing else may take its place.
     @Test("The source is the prediction account, and markets cannot add another one")
     func sourceIsThePredictionAccountAlone() throws {
         let configuration = try makeConfiguration()
@@ -360,7 +334,6 @@ struct PolymarketWithdrawSwapParametersTests {
         #expect(allowsMarketsTokens == false)
     }
 
-    /// The user picks where the money lands, but only from what the wallet already holds.
     @Test("The destination stays selectable while markets search is off")
     func destinationIsSelectableWithoutMarkets() throws {
         let configuration = try makeConfiguration()
@@ -369,8 +342,6 @@ struct PolymarketWithdrawSwapParametersTests {
         #expect(configuration.receiveTokenSelection.allowsMarketsTokens == false)
     }
 
-    /// The bridge delivers USDC on Polygon and nothing else, so every other token is filtered out of the
-    /// list — a neighbouring stablecoin and the same token on another chain included.
     @Test("Only USDC on Polygon passes the destination filter")
     func destinationFilterAdmitsOnlyUSDCOnPolygon() throws {
         let filter = try #require(makeConfiguration().receiveTokenSelection.walletsProvider as? FilteredTokenSelectorWalletsProvider)
@@ -380,8 +351,6 @@ struct PolymarketWithdrawSwapParametersTests {
         #expect(!filter.isIncluded(CampaignsFixtures.makeTokenSelectorItem(tokenItem: CampaignsFixtures.usdcOnEthereum)))
     }
 
-    /// The prediction account holds the very same USDC contract, so currency alone cannot tell the two
-    /// apart — withdrawing into it would move the money nowhere.
     @Test("A row that is not a plain crypto account never passes the destination filter, whatever it holds")
     func destinationFilterRejectsNonCryptoAccounts() throws {
         let filter = try #require(makeConfiguration().receiveTokenSelection.walletsProvider as? FilteredTokenSelectorWalletsProvider)
@@ -390,25 +359,20 @@ struct PolymarketWithdrawSwapParametersTests {
         #expect(!filter.isIncluded(predictionAccountRow))
     }
 
-    /// A wallet without the token is offered to add it, and the offer must be the wallet's own USDC.
     @Test("The single token the flow offers to add is USDC on Polygon, held by the wallet and not by the account")
     func offersTheWalletsOwnUSDCOnPolygon() throws {
         let configuration = try makeConfiguration()
         let offered = try #require(configuration.offeredReceiveTokens.singleElement)
 
         #expect(offered.expressCurrency == PolymarketUtilities.usdcTokenItem.expressCurrency)
-        // The account's own USDC lives on the Polymarket derivation path, and withdrawing into it would
-        // move the money nowhere.
         #expect(offered != PolymarketUtilities.usdcTokenItem)
     }
 
-    /// Reversing the pair would turn a withdrawal into a deposit behind the user's back.
     @Test("Neither side of the pair can be swapped for the other")
     func pairCannotBeReversed() throws {
         #expect(try makeConfiguration().isPairReversalEnabled == false)
     }
 
-    /// The destination is resolved before the screen opens, and the flow must not ask for it a second time.
     @Test("A destination resolved in advance is carried into the flow as the fixed receive side")
     func carriesTheResolvedDestination() throws {
         let receiveToken = SwapableTokenStub(tokenItem: PolymarketUtilities.usdcTokenItem)
@@ -422,7 +386,6 @@ struct PolymarketWithdrawSwapParametersTests {
         #expect(receive.tokenItem == receiveToken.tokenItem)
     }
 
-    /// A wallet that holds no USDC on Polygon has nothing to prefill, and the user picks the destination.
     @Test("Without a destination of its own the flow leaves the receive side to the user")
     func fallsBackToUserSelection() throws {
         let parameters = try makeSUT().make(withdrawingFrom: makeSource(), receiveToken: nil)
@@ -438,7 +401,6 @@ struct PolymarketWithdrawSwapParametersTests {
 
 @Suite("Polymarket withdraw dispatcher")
 struct PolymarketWithdrawTransactionDispatcherTests {
-    /// The amount and the address the user confirmed are what the withdrawal is built from.
     @Test("A transfer is withdrawn for the amount and to the address it carries")
     func withdrawsTheTransferItWasGiven() async throws {
         let withdrawing = WithdrawingSpy()
@@ -450,8 +412,6 @@ struct PolymarketWithdrawTransactionDispatcherTests {
         #expect(result.hash == transactionId)
     }
 
-    /// A provider swap pays into the provider's own address, and a refund would land on the deposit wallet,
-    /// which this app has no way to spend from.
     @Test("A provider swap is refused, since the only thing that may leave the account is the transfer")
     func refusesAProviderSwap() async throws {
         let withdrawing = WithdrawingSpy()
@@ -469,7 +429,6 @@ struct PolymarketWithdrawTransactionDispatcherTests {
 
 @Suite("Polymarket withdraw wire mapping")
 struct PolymarketWithdrawWireTests {
-    /// Every documented status has its own meaning to the flow, and they must not collapse into one.
     @Test("Every status the backend documents maps to its own case", arguments: [
         (400, "badRequest"), (401, "unauthorized"), (403, "foreignDepositWallet"),
         (404, "notFound"), (409, "conflict"), (422, "relayerRejected"), (502, "upstreamUnavailable"),
@@ -480,13 +439,11 @@ struct PolymarketWithdrawWireTests {
         #expect(String(describing: error).hasPrefix(expected))
     }
 
-    /// An unknown status must stay unknown rather than borrow the meaning of a documented one.
     @Test("An undocumented status is not mistaken for a documented one")
     func keepsAnUndocumentedStatusApart() {
         #expect(PolymarketWithdrawError(apiError: .http(statusCode: 418, problemDetail: nil)).isOther)
     }
 
-    /// Polling stops on a terminal state, so a state this build cannot read must not look terminal.
     @Test("A state this build does not know is not mistaken for a terminal one")
     func doesNotSettleOnAnUnknownState() throws {
         struct Response: Decodable {
@@ -506,7 +463,6 @@ struct PolymarketWithdrawWireTests {
 
 // MARK: - Fixtures
 
-/// EIP-55 mixed case, exactly as the live bridge answers.
 private let bridgeAddress = "0xB5b65CC112CA7D5D02581F42D73Ec0DE71A28293"
 private let otherAddress = "0x2222222222222222222222222222222222222222"
 private let recipientAddress = "0x3333333333333333333333333333333333333333"
@@ -551,7 +507,7 @@ private extension PolymarketWithdrawTransactionServiceTests {
                 .init(transactionId: transactionId, state: .confirmed, transactionHash: "0x7ae1"),
             ],
             configurationService: PolymarketConfigurationService = ConfigurationServiceStub(),
-            signing: (any PolymarketWithdrawSigning)? = nil
+            signing: (any PolymarketBatchSigning)? = nil
         ) throws {
             let cardSigner = try PolymarketCardSignerStub()
             let keysRepository = KeysRepositoryTestsMock(keys: [
@@ -579,8 +535,8 @@ private extension PolymarketWithdrawTransactionServiceTests {
                 throw StubError()
             }
 
-            let resolvedSigner: any PolymarketWithdrawSigning = signing
-                ?? PolymarketWithdrawSigner(keysRepository: keysRepository, signer: cardSigner)
+            let resolvedSigner: any PolymarketBatchSigning = signing
+                ?? PolymarketBatchSigner(keysRepository: keysRepository, signer: cardSigner)
 
             let depositWallet = try PolymarketDepositWalletDeriver.derive(ownerAddress: resolvedOwner)
             let withdrawService = WithdrawServiceSpy(submitResults: submitResults, states: states)
@@ -639,7 +595,6 @@ private extension PolymarketWithdrawSwapParametersTests {
         )
     }
 
-    /// The service is never called here: the pair is built long before anything is signed.
     func makeTransactionService() -> PolymarketWithdrawTransactionService {
         PolymarketWithdrawTransactionService(
             bridgeService: BridgeServiceSpy(assets: [.usdcOnPolygon]),
@@ -840,7 +795,7 @@ private final class FailingConfigurationServiceStub: PolymarketConfigurationServ
     }
 }
 
-private struct CancellingSignerStub: PolymarketWithdrawSigning {
+private struct CancellingSignerStub: PolymarketBatchSigning {
     func sign(
         _ batch: PolymarketRelayedBatch.Unsigned,
         as ownerAddress: String

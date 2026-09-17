@@ -15,7 +15,11 @@ protocol PolymarketMainRoutable: AnyObject {
     func openRegionWarning()
 
     @MainActor
-    func openMyPositions(tab: PolymarketPositionsTab, onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void)
+    func openMyPositions(
+        tab: PolymarketPositionsTab,
+        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
+        onClaimed: @escaping () -> Void
+    )
 
     func openAddFunds()
 

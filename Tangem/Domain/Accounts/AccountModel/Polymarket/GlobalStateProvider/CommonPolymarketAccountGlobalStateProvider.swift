@@ -29,8 +29,6 @@ extension CommonPolymarketAccountGlobalStateProvider: PolymarketAccountGlobalSta
     }
 
     func register<T, U>(_ manager: T, forIdentifier identifier: U) where T: AccountModelsManager, U: Hashable {
-        // The account model is published for every wallet as soon as the feature toggle is on, so
-        // presence in the list says nothing — only a visible state means the wallet really has one.
         let subscription = PolymarketAccountAggregator
             .polymarketAccountModelPublisher(from: manager)
             .flatMapLatest { accountModel -> AnyPublisher<Bool, Never> in

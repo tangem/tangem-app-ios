@@ -87,9 +87,6 @@ extension CommonPolymarketOrderPlacementService: PolymarketOrderPlacementService
 // MARK: - Orders a delayed market has not filled yet
 
 private extension CommonPolymarketOrderPlacementService {
-    /// A market that delays its trading accepts the order and fills nothing, so the fill has to be read
-    /// back. Running out of patience is not a refusal — the order may still be live, and the screen that
-    /// says so is the one an ambiguous outcome already leads to.
     func settled(
         orderId: String,
         side: PolymarketOrderSide,

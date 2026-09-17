@@ -19,7 +19,7 @@ actor PolymarketWithdrawTransactionService {
     private let relayerService: PolymarketRelayerService
     private let withdrawService: PolymarketWithdrawService
     private let depositWalletResolver: PolymarketDepositWalletResolver
-    private let signer: PolymarketWithdrawSigning
+    private let signer: PolymarketBatchSigning
     private let pollDelayProvider: PollDelayProvider
 
     private var isWithdrawInProgress = false
@@ -30,7 +30,7 @@ actor PolymarketWithdrawTransactionService {
         relayerService: PolymarketRelayerService,
         withdrawService: PolymarketWithdrawService,
         depositWalletResolver: PolymarketDepositWalletResolver,
-        signer: PolymarketWithdrawSigning,
+        signer: PolymarketBatchSigning,
         pollDelayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
         self.bridgeService = bridgeService
@@ -58,11 +58,7 @@ extension PolymarketWithdrawTransactionService: PolymarketWithdrawing {
 // MARK: - Private implementation
 
 private extension PolymarketWithdrawTransactionService {
-    /// The steps before the submission report their failures in types of their own, none of which carries
-    /// a sentence, so anything unrecognised would reach the alert as the name of its enum case.
     func presentable(_ error: Swift.Error) -> Swift.Error {
-        // Every call in the chain reports a cancelled task as its own failure, which the send flow would
-        // otherwise show as a refused withdrawal.
         if Task.isCancelled {
             return CancellationError()
         }
@@ -168,8 +164,6 @@ private extension PolymarketWithdrawTransactionService {
         return amountBaseUnits
     }
 
-    /// Reads the encoded call back and compares it with the arguments it was built from. This catches an
-    /// encoder that broke, nothing more: the address is whatever the bridge handed us a moment earlier.
     func makeCall(to bridgeAddress: String, amountBaseUnits: BigUInt) throws -> PolymarketRelayedBatch.Call {
         let call = try PolymarketWithdrawCall.transfer(to: bridgeAddress, amountBaseUnits: amountBaseUnits)
 
@@ -192,8 +186,6 @@ private extension PolymarketWithdrawTransactionService {
                 throw error
             }
 
-            // The backend keys a submission on the deposit wallet and the nonce, so the resend either
-            // arrives for the first time or answers with the record the lost attempt already created.
             PolymarketLogger.warning("The withdrawal submission got no answer, resending the same batch")
 
             return try await withdrawService.submit(batch)
@@ -221,8 +213,6 @@ private extension PolymarketWithdrawTransactionService {
             }
 
             guard polled.state.isTerminal else {
-                // The relayer attaches the hash before the transfer settles, and giving up on the wait is
-                // no reason to give up on what the wait already learned.
                 latest = polled
                 continue
             }
@@ -258,8 +248,6 @@ extension PolymarketWithdrawTransactionService {
 
         var errorDescription: String? {
             switch self {
-            // None of these tells the user anything they can act on beyond trying again, so the
-            // case belongs in the log and not in the alert.
             case .withdrawInProgress, .amountNotRepresentable, .calldataMismatch, .notSigned, .preparationFailed:
                 Localization.sendWithSwapSomethingWentWrong
             // [REDACTED_TODO_COMMENT]

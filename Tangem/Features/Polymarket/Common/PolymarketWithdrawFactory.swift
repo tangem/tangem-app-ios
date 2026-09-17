@@ -12,8 +12,6 @@ import TangemPolymarket
 struct PolymarketWithdrawFactory {
     private let services = PolymarketOnboardingServicesFactory.makeDefault()
 
-    /// Built once for the screen, not per tap: the signer that signs the batch has to be the same one the
-    /// result is attributed to.
     func makeContext(for userWalletModel: any UserWalletModel) -> PolymarketWithdrawContext {
         let walletId = userWalletModel.userWalletId.stringValue
         let signer = userWalletModel.signer
@@ -30,7 +28,7 @@ struct PolymarketWithdrawFactory {
                 walletService: services.makeWalletService(walletId: walletId),
                 ownerAddressProvider: PolymarketOnboardingFactory().makeOwnerAddressProvider(for: userWalletModel)
             ),
-            signer: PolymarketWithdrawSigner(keysRepository: userWalletModel.keysRepository, signer: signer)
+            signer: PolymarketBatchSigner(keysRepository: userWalletModel.keysRepository, signer: signer)
         )
 
         return PolymarketWithdrawContext(transactionService: transactionService, signer: signer)

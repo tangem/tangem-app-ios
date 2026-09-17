@@ -36,7 +36,7 @@ struct PolymarketTargetTests {
     private var positionsRequest: PolymarketPositionsRequest {
         PolymarketPositionsRequest(
             depositWalletAddress: "0xdead",
-            sort: .cashPnl,
+            sort: .initialValue,
             ascending: false,
             limit: 30,
             offset: 60
@@ -148,7 +148,7 @@ struct PolymarketTargetTests {
         let parameters = try queryParameters(target(.positions(positionsRequest)).task)
 
         #expect(parameters["depositWalletAddress"] as? String == "0xdead")
-        #expect(parameters["sort"] as? String == "cashPnl")
+        #expect(parameters["sort"] as? String == "initialValue")
         #expect(parameters["ascending"] as? Bool == false)
         #expect(parameters["limit"] as? Int == 30)
         #expect(parameters["offset"] as? Int == 60)

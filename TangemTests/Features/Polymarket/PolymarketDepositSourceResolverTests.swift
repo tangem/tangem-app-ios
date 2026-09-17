@@ -37,8 +37,6 @@ struct PolymarketDepositSourceResolverTests {
 
     @Test("A funded deposit-currency token without a fiat quote still wins over the swap fallback")
     func matchingWithoutQuoteStaysTransfer() {
-        // The transfer gate already guarantees a positive crypto balance —
-        // a missing quote only hides it from the fiat comparison.
         let matching = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 0)
         let swapFallback = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 500)
 

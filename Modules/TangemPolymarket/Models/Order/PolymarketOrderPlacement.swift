@@ -45,8 +45,6 @@ public extension PolymarketOrderPlacement {
 
 // MARK: - Status
 
-/// A market that delays its trading answers `delayed` and fills nothing yet — the order has to be read
-/// back by its id to learn how it ended.
 public enum PolymarketOrderPlacementStatus: Hashable, Sendable {
     case matched
     case delayed
@@ -81,10 +79,6 @@ public extension PolymarketOrderPlacementError {
 // MARK: - A delayed order, once it settled
 
 public extension PolymarketOrderPlacement {
-    /// The exchange answers a delayed order with nothing but an id and reports the fill only when the
-    /// order is read back, in shares and a price rather than in the two leg amounts. Both legs are
-    /// restated here so every screen downstream reads a settled delayed order the way it reads a
-    /// matched one.
     static func settled(_ record: PolymarketOrderRecord, orderId: String, side: PolymarketOrderSide) -> Self {
         let shares = record.matchedShares
         let money = record.executedAmount

@@ -16,7 +16,6 @@ final class PolymarketEventCardModelTests: XCTestCase {
     // MARK: - Affirmative outcome
 
     func testAffirmativeOutcomeResolvedByOrderNotByLabel() {
-        // Upstream labels are not always "Yes"/"No", so position decides — matching Android.
         let market = makeMarket(outcomes: [
             makeOutcome(id: "over", title: "Over", probability: 0.64),
             makeOutcome(id: "under", title: "Under", probability: 0.36),
@@ -35,7 +34,6 @@ final class PolymarketEventCardModelTests: XCTestCase {
     }
 
     func testEveryOutcomeAfterTheFirstIsNegative() {
-        // A three-way market must not leave the tail unstyled.
         let market = makeMarket(outcomes: [
             makeOutcome(id: "yes", title: "Yes", probability: 0.5),
             makeOutcome(id: "draw", title: "Draw", probability: 0.3),
@@ -51,7 +49,6 @@ final class PolymarketEventCardModelTests: XCTestCase {
     // MARK: - Row cap and chip
 
     func testRowsCappedAndChipCountedFromRenderedRows() {
-        // A full six-market list must still render two rows and count the remainder into the chip.
         let markets = (0 ..< 6).map { makeMarket(id: "m\($0)", outcomes: [makeOutcome(id: "y\($0)", title: "Yes", probability: 0.5)]) }
         let event = makeEvent(totalMarketsCount: 6, markets: markets)
 
@@ -62,7 +59,6 @@ final class PolymarketEventCardModelTests: XCTestCase {
     }
 
     func testPartialMarketListStaysMultiMarket() {
-        // Only one of six markets loaded — still multi-market, chip counts the rest.
         let event = makeEvent(totalMarketsCount: 6, markets: [makeMarket(outcomes: [makeOutcome(id: "y", title: "Yes", probability: 0.5)])])
 
         let model = PolymarketEventCard.Model.make(event: event, category: nil, isInActivePredicts: false, onSelectOutcome: { _, _ in })

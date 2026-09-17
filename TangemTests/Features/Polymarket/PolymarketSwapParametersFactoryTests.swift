@@ -39,7 +39,6 @@ struct PolymarketSwapParametersFactoryTests {
         let receive = try #require(receiveToken(from: parameters))
 
         #expect(receive.destination?.destination.transactionAddress == Self.fundingAddress)
-        // An EVM bridge address carries no memo; a stray one would be signed into the transfer.
         #expect(receive.destination?.destinationTag == nil)
     }
 

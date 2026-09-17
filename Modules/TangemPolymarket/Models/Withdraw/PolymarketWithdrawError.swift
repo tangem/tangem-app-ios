@@ -24,8 +24,8 @@ public enum PolymarketWithdrawError: Error {
 
 // MARK: - Mapping
 
-public extension PolymarketWithdrawError {
-    init(apiError: PolymarketAPIError) {
+extension PolymarketWithdrawError: PolymarketRelayedError {
+    public init(apiError: PolymarketAPIError) {
         guard case .http(let statusCode, let problemDetail) = apiError else {
             self = .other(apiError)
             return

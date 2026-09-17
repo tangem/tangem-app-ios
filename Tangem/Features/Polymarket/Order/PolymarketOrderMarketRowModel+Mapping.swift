@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemFoundation
+import TangemLocalization
 import TangemPolymarket
 import TangemPolymarketUI
 
@@ -23,6 +24,20 @@ extension PolymarketOrderMarketRow.Model {
             outcomeStyle: PolymarketOutcomeStyle(
                 outcomeIndex: market.outcomes.firstIndex { $0.assetId == outcome.assetId } ?? 0
             )
+        )
+    }
+}
+
+// MARK: - From a position
+
+extension PolymarketOrderMarketRow.Model {
+    static func make(position: PolymarketPosition) -> Self {
+        Self(
+            question: position.question ?? Localization.predictionPositionsUnavailable,
+            imageURL: position.iconURL,
+            outcomeTitle: position.outcome,
+            outcomePriceText: PolymarketPriceFormatter.centsText(position.curPrice),
+            outcomeStyle: PolymarketOutcomeStyle(binaryOutcomeName: position.outcome)
         )
     }
 }

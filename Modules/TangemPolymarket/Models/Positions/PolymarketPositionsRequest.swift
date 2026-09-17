@@ -35,12 +35,8 @@ public struct PolymarketPositionsRequest: Hashable, Sendable {
 public extension PolymarketPositionsRequest {
     enum Sort: String, Hashable, Sendable {
         case endDate
-        case currentValue
         case initialValue
         case size
-        case cashPnl
-        case percentPnl
-        case curPrice
         case avgPrice
         case title
     }

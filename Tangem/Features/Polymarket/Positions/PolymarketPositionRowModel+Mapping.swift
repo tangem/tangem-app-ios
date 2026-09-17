@@ -18,7 +18,7 @@ extension PolymarketPositionRow.Model {
     static func make(position: PolymarketPosition) -> Self {
         Self(
             id: position.id,
-            question: question(position: position),
+            question: position.question ?? Localization.predictionPositionsUnavailable,
             imageURL: position.iconURL,
             outcomeTitle: position.outcome,
             outcomeStyle: PolymarketOutcomeStyle(binaryOutcomeName: position.outcome),
@@ -36,12 +36,6 @@ extension PolymarketPositionRow.Model {
 
 private extension PolymarketPositionRow.Model {
     static let percentFormatter = PercentFormatter()
-
-    static func question(position: PolymarketPosition) -> String {
-        position.title.nilIfEmpty
-            ?? position.eventTitle?.nilIfEmpty
-            ?? Localization.predictionPositionsUnavailable
-    }
 
     static func changeText(position: PolymarketPosition) -> String {
         let amount = PolymarketOrderFormatter.money(abs(position.cashPnl))
@@ -67,7 +61,7 @@ private extension PolymarketPositionRow.Model {
         position: PolymarketPosition
     ) -> PolymarketPositionRow.Status {
         let amount = PolymarketOrderFormatter.money(position.currentValue)
-        let lost = PolymarketOrderFormatter.money(abs(position.realizedPnl + position.cashPnl))
+        let lost = PolymarketOrderFormatter.money(abs(position.lifetimePnl))
 
         switch settlement {
         case .won:
@@ -116,7 +110,7 @@ private extension PolymarketPositionRow.Model {
     static func glowRing(position: PolymarketPosition) -> GlowRingAppearance? {
         guard position.settlement != nil else { return nil }
 
-        return position.realizedPnl + position.cashPnl < 0 ? .error : .info
+        return position.lifetimePnl < 0 ? .error : .info
     }
 }
 

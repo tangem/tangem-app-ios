@@ -179,19 +179,6 @@ private extension PolymarketMyPositionsViewModel {
         rows = loaded.filter(filter.accepts).map(\.rowModel)
     }
 
-    func openPosition(id: String) {
-        guard let row = loaded.first(where: { $0.id == id }) else { return }
-
-        switch row {
-        case .open(let position):
-            coordinator?.openPositionDetails(
-                position: position,
-                onOrderPlaced: { [weak self] indexing in self?.orderPlaced(awaiting: indexing) }
-            )
-        case .closed(let position): finishedPosition = .make(closedPosition: position)
-        }
-    }
-
     var canChangeFilter: Bool {
         switch loadingState {
         case .loaded, .allDataLoaded, .empty, .paginationError: true
@@ -214,6 +201,25 @@ private extension PolymarketMyPositionsViewModel {
             loadingState = .loaded
         } else {
             loadingState = rows.isEmpty ? .empty : .allDataLoaded
+        }
+    }
+}
+
+// MARK: - Opening a row
+
+extension PolymarketMyPositionsViewModel {
+    func openPosition(id: String) {
+        guard let row = loaded.first(where: { $0.id == id }) else { return }
+
+        switch row {
+        case .open(let position) where position.settlement?.isResolved == true:
+            coordinator?.openRedeem(position: position, onClaimed: { [weak self] in self?.reload() })
+        case .open(let position):
+            coordinator?.openPositionDetails(
+                position: position,
+                onOrderPlaced: { [weak self] indexing in self?.orderPlaced(awaiting: indexing) }
+            )
+        case .closed(let position): finishedPosition = .make(closedPosition: position)
         }
     }
 }

@@ -29,7 +29,7 @@ struct PolymarketOrderGate {
         amountCaption = Self.amountCaption(state: state, intent: intent, required: required)
 
         isPrimaryButtonEnabled = notifications.allSatisfy { !$0.isBlocking }
-            && state.quote.quote?.status.isPlaceable == true
+            && Self.isQuotePlaceable(state: state)
             && !state.isBelowMinAmount
             && hasSufficientBalance
             && state.geoblock == .allowed
@@ -50,6 +50,12 @@ extension PolymarketOrderGate {
 // MARK: - Private implementation
 
 private extension PolymarketOrderGate {
+    static func isQuotePlaceable(state: PolymarketOrderModel.State) -> Bool {
+        guard let status = state.quote.quote?.status else { return false }
+
+        return status == .belowMinOrderAmount || status.isPlaceable
+    }
+
     static func notifications(state: PolymarketOrderModel.State) -> [PolymarketOrderNotification] {
         var notifications: [PolymarketOrderNotification] = []
 
@@ -57,11 +63,11 @@ private extension PolymarketOrderGate {
         case .content(let quote):
             switch quote.status {
             case .partial: notifications.append(.partialFill)
-            case .belowMinOrderSize, .belowMinOrderAmount:
+            case .belowMinOrderSize:
                 if !state.isBelowMinAmount {
                     notifications.append(.belowMinOrder)
                 }
-            case .full, .insufficientLiquidity, .marketClosed, .undefined: break
+            case .full, .belowMinOrderAmount, .insufficientLiquidity, .marketClosed, .undefined: break
             }
         case .unavailable(let unavailability):
             switch unavailability {

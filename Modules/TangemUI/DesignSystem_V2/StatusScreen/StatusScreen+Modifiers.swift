@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemUIUtils
 
 // MARK: - Entry point
@@ -54,6 +55,14 @@ public extension StatusScreen {
 
     func footerAxis(_ axis: StatusScreenFooterAxis) -> Self {
         map { $0.footerAxis = axis }
+    }
+
+    func footerCaption(_ caption: String?) -> Self {
+        map { $0.footerCaption = caption }
+    }
+
+    func actionIcon(_ icon: ImageType?) -> Self {
+        map { $0.actionIcon = icon }
     }
 }
 
@@ -106,6 +115,8 @@ private extension StatusScreen {
         screen.map {
             $0.appearance = appearance
             $0.secondaryAction = secondaryAction
+            $0.footerCaption = footerCaption
+            $0.actionIcon = actionIcon
             $0.isActionLoading = isActionLoading
             $0.isActionDisabled = isActionDisabled
             $0.footerAxis = footerAxis

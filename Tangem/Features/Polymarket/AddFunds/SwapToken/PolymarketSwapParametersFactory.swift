@@ -58,7 +58,6 @@ struct PolymarketSwapParametersFactory {
                         userWalletInfo: userWalletInfo,
                         source: source
                     ),
-                    // A markets token can never be the prediction account.
                     allowsMarketsTokens: false
                 ),
                 receiveTokenSelection: .selectable(
