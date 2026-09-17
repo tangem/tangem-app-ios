@@ -63,6 +63,8 @@ struct FeedView: View {
     private var feedScroll: some View {
         GeometryReader { viewport in
             ScrollViewReader { proxy in
+                let visibleHeight = max(0, viewport.size.height - FeedConstants.searchContentInset)
+
                 ScrollView {
                     VStack(spacing: FeedConstants.widgetsToTabsSpacing) {
                         FeedWidgetsView(viewModel: viewModel.widgetsViewModel)
@@ -72,10 +74,11 @@ struct FeedView: View {
                             viewModel: viewModel.tabsViewModel,
                             shtorkaActions: shtorkaActions,
                             areChipsPinned: $areChipsPinned,
-                            onTabChange: { restoreScroll(tabID: $0, viewportHeight: viewport.size.height - FeedConstants.searchContentInset, with: proxy) },
+                            scrollProxy: proxy,
+                            scrollTarget: { shtorkaReporting.scrollTarget(forTab: $0, viewportHeight: visibleHeight, pinTabs: $1, chipsPinned: $2) },
                             onChipsHeightChange: { shtorkaReporting.report(tabChips: $0) }
                         )
-                        .frame(minHeight: max(0, viewport.size.height - FeedConstants.searchContentInset), alignment: .top)
+                        .frame(minHeight: visibleHeight, alignment: .top)
                     }
                     .background(alignment: .top) {
                         Color.clear
@@ -124,14 +127,6 @@ struct FeedView: View {
             proxy.scrollTo(FeedConstants.contentAnchorID, anchor: .top)
             proxy.scrollTo(FeedConstants.widgetsAnchorID, anchor: .leading)
         }
-    }
-
-    private func restoreScroll(tabID: String, viewportHeight: CGFloat, with proxy: ScrollViewProxy) {
-        guard let anchor = shtorkaReporting.scrollAnchor(forTab: tabID, viewportHeight: viewportHeight) else {
-            return
-        }
-
-        proxy.scrollTo(FeedConstants.contentAnchorID, anchor: anchor)
     }
 }
 
