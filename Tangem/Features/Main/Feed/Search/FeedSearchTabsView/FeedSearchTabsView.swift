@@ -7,20 +7,42 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct FeedSearchTabsView: View {
     @ObservedObject var viewModel: FeedSearchTabsViewModel
 
-    var body: some View {
-        VStack(spacing: Constants.tabsSpacing) {
-            TabNavigation(data: viewModel.tabs, selection: tabSelection)
-                .variant(.material)
-                .scrollable()
-                .hapticFeedback()
+    @State private var tabsHeight: CGFloat = 0
 
-            tabContent
-        }
+    var body: some View {
+        tabContent
+            .safeAreaInset(edge: .top, spacing: 0) {
+                Color.clear
+                    .frame(height: tabsHeight)
+                    .allowsHitTesting(false)
+            }
+            .overlay(alignment: .top) { tabsRow }
+    }
+
+    private var tabsRow: some View {
+        TabNavigation(data: viewModel.tabs, selection: tabSelection)
+            .variant(.material)
+            .scrollable()
+            .hapticFeedback()
+            .padding(.top, FeedConstants.searchContentInset)
+            .padding(.bottom, Constants.tabsSpacing)
+            .background(alignment: .top) { tabsFade }
+            .readGeometry(\.size.height, bindTo: $tabsHeight)
+    }
+
+    private var tabsFade: some View {
+        Fade(position: .top)
+            .variant(.hard)
+            .frame(height: Constants.fadeHeight)
+            .frame(height: tabsHeight + Constants.fadeBottomOverlap, alignment: .bottom)
+            .clipped()
     }
 
     @ViewBuilder
@@ -49,5 +71,7 @@ struct FeedSearchTabsView: View {
 private extension FeedSearchTabsView {
     enum Constants {
         static let tabsSpacing: CGFloat = 12
+        static let fadeHeight: CGFloat = 96
+        static let fadeBottomOverlap: CGFloat = 9
     }
 }

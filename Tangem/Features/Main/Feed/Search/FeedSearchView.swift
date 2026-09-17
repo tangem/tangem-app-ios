@@ -37,6 +37,7 @@ private extension FeedSearchView {
                 }
             }
             .scrollIndicators(.hidden)
+            .padding(.top, FeedConstants.searchContentInset)
 
         case .tabs:
             FeedSearchTabsView(viewModel: viewModel.tabsViewModel)
