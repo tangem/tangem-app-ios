@@ -9,6 +9,8 @@
 import Foundation
 
 final class AccountDetailsCoordinator: CoordinatorObject {
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+
     // MARK: - Navigation actions
 
     let dismissAction: Action<Void>
@@ -74,6 +76,12 @@ extension AccountDetailsCoordinator: CryptoAccountDetailsRoutable {
         options.account.resolve(using: EditAccountResolver(coordinator: self))
     }
 
+    func openSupportedNetworks() {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: JointAccountSupportedNetworksViewModel(coordinator: self))
+        }
+    }
+
     func manageTokens() {
         guard let options else { return }
 
@@ -82,6 +90,14 @@ extension AccountDetailsCoordinator: CryptoAccountDetailsRoutable {
 }
 
 // MARK: - AccountFormViewModelRoutable
+
+extension AccountDetailsCoordinator: JointAccountSupportedNetworksRoutable {
+    func closeSupportedNetworks() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
 
 extension AccountDetailsCoordinator: AccountFormViewModelRoutable {
     /// The editing flow neither redistributes tokens nor creates accounts, so there is nothing to act on in the outcome.
