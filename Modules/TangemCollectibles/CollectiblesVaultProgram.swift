@@ -24,6 +24,9 @@ public struct CollectiblesVaultProgram {
 
     public static let devnetProgramId = "29agFEruMu2jedVwnDgKPuq7ejmTiB7sEqzdhufQQS9u"
 
+    /// `CreateIdempotent` in the associated token program; `0` is the plain `Create`.
+    static let createIdempotentInstructionTag: UInt8 = 1
+
     let programId: PublicKey
 
     public init(programId: String) throws {
@@ -47,8 +50,23 @@ public struct CollectiblesVaultProgram {
     // MARK: - Addresses
 
     /// Base58 address of the program's singleton config PDA.
-    func configAddress() throws -> String {
+    public func configAddress() throws -> String {
         try configPDA().base58EncodedString
+    }
+
+    /// Base58 address of the token account the vault receives USDC on — the collectibles account's
+    /// own address, derived rather than stored.
+    public func vaultUsdcAddress(coldOwner: Data, usdcMint: Data) throws -> String {
+        guard
+            coldOwner.count == PublicKey.LENGTH, let coldOwnerKey = PublicKey(data: coldOwner),
+            usdcMint.count == PublicKey.LENGTH, let mintKey = PublicKey(data: usdcMint)
+        else {
+            throw ProgramError.invalidPublicKey
+        }
+
+        let vault = try vaultPDA(coldOwner: coldOwnerKey)
+
+        return try Self.associatedTokenAddress(owner: vault, mint: mintKey).base58EncodedString
     }
 
     /// Base58 address of the vault PDA for a cold owner's raw 32-byte public key.
@@ -82,6 +100,25 @@ public struct CollectiblesVaultProgram {
             tokenMintAddress: mint,
             tokenProgramId: .tokenProgramId
         ).get()
+    }
+
+    // MARK: - Config account
+
+    /// Reads the program's singleton config. Unlike a missing vault, which means the wallet was never
+    /// onboarded, a missing or foreign config means the program is not where we think it is — so this
+    /// throws rather than answering `nil`.
+    ///
+    /// - Note: Never cache what this returns. The admin edits the config in place with `update_config`,
+    ///   and a stale copy shows up on chain as `2012` — a constraint error naming an account we passed,
+    ///   which reads as anything but "you are out of date".
+    public func configInfo(accountOwner: String, accountData: Data) throws -> CollectiblesConfigInfo {
+        guard accountOwner == programId.base58EncodedString else {
+            throw ProgramError.invalidAccountData
+        }
+
+        let config = try Config(data: accountData)
+
+        return CollectiblesConfigInfo(usdcMint: config.usdcMint)
     }
 
     // MARK: - Vault account classification
@@ -160,6 +197,67 @@ public struct CollectiblesVaultProgram {
         )
     }
 
+    /// Creates the vault's USDC token account, or does nothing if it is already there. Belongs to the
+    /// associated token program, not this one, so it can be bundled with `init_vault` — the vault owns
+    /// the account but does not authorise its creation, and the payer's signature is the only one asked
+    /// for, which is also what makes an off-curve owner legal.
+    ///
+    /// - Note: The idempotent variant. The plain one, which every SDK builder emits, fails on an account
+    ///   that already exists and would take the whole transaction with it.
+    public func createVaultUsdcInstruction(payer: Data, coldOwner: Data, usdcMint: Data) throws -> CollectiblesInstruction {
+        guard
+            payer.count == PublicKey.LENGTH, let payerKey = PublicKey(data: payer),
+            coldOwner.count == PublicKey.LENGTH, let coldOwnerKey = PublicKey(data: coldOwner),
+            usdcMint.count == PublicKey.LENGTH, let mintKey = PublicKey(data: usdcMint)
+        else {
+            throw ProgramError.invalidPublicKey
+        }
+
+        let vault = try vaultPDA(coldOwner: coldOwnerKey)
+        let vaultUsdc = try Self.associatedTokenAddress(owner: vault, mint: mintKey)
+
+        return CollectiblesInstruction(
+            programId: PublicKey.splAssociatedTokenAccountProgramId.base58EncodedString,
+            accounts: [
+                .init(address: payerKey.base58EncodedString, isSigner: true, isWritable: true),
+                .init(address: vaultUsdc.base58EncodedString, isSigner: false, isWritable: true),
+                .init(address: vault.base58EncodedString, isSigner: false, isWritable: false),
+                .init(address: mintKey.base58EncodedString, isSigner: false, isWritable: false),
+                .init(address: PublicKey.programId.base58EncodedString, isSigner: false, isWritable: false),
+                .init(address: PublicKey.tokenProgramId.base58EncodedString, isSigner: false, isWritable: false),
+            ],
+            data: Data([Self.createIdempotentInstructionTag])
+        )
+    }
+
+    /// Accounts: vault, cold owner (read-only signer). No payer — nothing is allocated here,
+    /// and the fee payer is a transaction-level slot, not an instruction account.
+    public func updateVaultInstruction(
+        coldOwner: Data,
+        hotDelegate: Data?,
+        perSpinCap: UInt64?,
+        dailyCap: UInt64?
+    ) throws -> CollectiblesInstruction {
+        guard coldOwner.count == PublicKey.LENGTH, let coldOwnerKey = PublicKey(data: coldOwner) else {
+            throw ProgramError.invalidPublicKey
+        }
+
+        let data = try Self.updateVaultInstructionData(
+            hotDelegate: hotDelegate,
+            perSpinCap: perSpinCap,
+            dailyCap: dailyCap
+        )
+
+        return CollectiblesInstruction(
+            programId: programId.base58EncodedString,
+            accounts: [
+                .init(address: try vaultPDA(coldOwner: coldOwnerKey).base58EncodedString, isSigner: false, isWritable: true),
+                .init(address: coldOwnerKey.base58EncodedString, isSigner: true, isWritable: false),
+            ],
+            data: data
+        )
+    }
+
     // MARK: - Instruction data
 
     static func openPackInstructionData(amount: UInt64, memo: String) -> Data {
@@ -197,9 +295,7 @@ public struct CollectiblesVaultProgram {
             throw ProgramError.invalidPublicKey
         }
 
-        if let perSpinCap, let dailyCap {
-            try validateCaps(perSpinCap: perSpinCap, dailyCap: dailyCap)
-        }
+        try validateCaps(perSpinCap: perSpinCap, dailyCap: dailyCap)
 
         var data = instructionDiscriminator("update_vault")
         data.appendBorshOption(hotDelegate)
@@ -210,8 +306,14 @@ public struct CollectiblesVaultProgram {
     }
 
     /// The program's `0 < per_spin_cap <= daily_cap` rule (error `6004`), checked before the card tap.
-    private static func validateCaps(perSpinCap: UInt64, dailyCap: UInt64) throws {
-        guard perSpinCap > 0, perSpinCap <= dailyCap else {
+    /// A `nil` cap keeps the stored value, which the pair check can't see — but a zero fails on its own,
+    /// since `per_spin_cap` must be positive and a stored one never is zero.
+    private static func validateCaps(perSpinCap: UInt64?, dailyCap: UInt64?) throws {
+        if perSpinCap == 0 || dailyCap == 0 {
+            throw ProgramError.invalidCaps
+        }
+
+        if let perSpinCap, let dailyCap, perSpinCap > dailyCap {
             throw ProgramError.invalidCaps
         }
     }
@@ -226,7 +328,8 @@ extension CollectiblesVaultProgram {
         let collectiblesWallet: Data
         let collectiblesUsdcAccount: Data
         let feeUsdcAccount: Data
-        let feeBps: UInt16
+        let minFeeBps: UInt16
+        let maxFeeBps: UInt16
         let paused: Bool
         let allowBuybackDelegation: Bool
         let bump: UInt8
@@ -246,19 +349,20 @@ extension CollectiblesVaultProgram {
 }
 
 extension CollectiblesVaultProgram.Config {
-    /// Fixed 174-byte layout — every field has a stable offset.
+    /// 176-byte layout with fixed offsets; the length check is a lower bound, not an exact size.
     /// Byte 171 is a legacy `_reserved` filler that can legitimately hold garbage.
     init(data: Data) throws {
         let reader = CollectiblesAccountReader(data: data)
         try reader.requireDiscriminator(CollectiblesVaultProgram.accountDiscriminator("Config"))
-        try reader.requireCount(174)
+        try reader.requireCount(176)
 
         admin = try reader.bytes(at: 8, count: 32)
         usdcMint = try reader.bytes(at: 40, count: 32)
         collectiblesWallet = try reader.bytes(at: 72, count: 32)
         collectiblesUsdcAccount = try reader.bytes(at: 104, count: 32)
         feeUsdcAccount = try reader.bytes(at: 136, count: 32)
-        feeBps = try reader.uint16LE(at: 168)
+        minFeeBps = try reader.uint16LE(at: 168)
+        maxFeeBps = try reader.uint16LE(at: 174)
         paused = try reader.bool(at: 170)
         allowBuybackDelegation = try reader.bool(at: 172)
         bump = try reader.byte(at: 173)
@@ -304,28 +408,9 @@ extension CollectiblesVaultProgram.Vault {
 // MARK: - Spending math
 
 public extension CollectiblesVaultProgram {
-    /// Limit checks mirror the program exactly: fee in 128-bit intermediate math,
-    /// lazy UTC day bucket, clamp-to-zero remainder.
+    /// Limit checks mirror the program exactly: lazy UTC day bucket, clamp-to-zero remainder.
     enum SpendingMath {
-        private static let bpsScale: UInt64 = 10_000
         private static let secondsPerDay: TimeInterval = 86_400
-
-        /// `floor(amount * feeBps / 10_000)` with a 128-bit intermediate product. A `feeBps` beyond the
-        /// 10_000 scale would overflow the 64-bit quotient, so it saturates and `fitsCaps` rejects.
-        static func fee(amount: UInt64, feeBps: UInt16) -> UInt64 {
-            let product = amount.multipliedFullWidth(by: UInt64(feeBps))
-            guard product.high < bpsScale else {
-                return .max
-            }
-
-            return bpsScale.dividingFullWidth((high: product.high, low: product.low)).quotient
-        }
-
-        /// The value the program checks against both caps; `nil` when `amount + fee` overflows `u64`.
-        static func total(amount: UInt64, feeBps: UInt16) -> UInt64? {
-            let (result, overflow) = amount.addingReportingOverflow(fee(amount: amount, feeBps: feeBps))
-            return overflow ? nil : result
-        }
 
         /// A day bucket strictly behind `now` means the full budget. A bucket at or ahead of `now` means the
         /// device clock lags the cluster, so `spent_today` still counts — granting the full budget would pass
@@ -343,8 +428,11 @@ public extension CollectiblesVaultProgram {
             remainingToday(dailyCap: vault.dailyCap, spentToday: vault.spentToday, dayIndex: vault.dayIndex, now: now)
         }
 
-        static func fitsCaps(amount: UInt64, vault: Vault, feeBps: UInt16, now: Date) -> Bool {
-            guard let total = total(amount: amount, feeBps: feeBps) else {
+        /// - Parameter feeAmount: the backend's `fee_amount` — the program checks the caps against `amount + fee_amount`.
+        static func fitsCaps(amount: UInt64, feeAmount: UInt64, vault: Vault, now: Date) -> Bool {
+            let (total, overflow) = amount.addingReportingOverflow(feeAmount)
+
+            guard !overflow else {
                 return false
             }
 
