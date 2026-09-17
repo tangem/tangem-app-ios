@@ -29,7 +29,8 @@ final class TangemPayAccount {
             cards: cardsSubject.value,
             pendingProductInstances: customerInfoSubject.value.cardProductInstances.filter { $0.cardId == nil },
             activeIssueOrders: activeIssueOrdersSubject.value,
-            activatingProductInstanceIds: activatingProductInstanceIdsSubject.value
+            activatingProductInstanceIds: activatingProductInstanceIdsSubject.value,
+            hiddenSourceProductInstanceIds: Set(reissueSourceProductInstanceIdByOrderId.values)
         )
     }
 
@@ -38,16 +39,24 @@ final class TangemPayAccount {
             Publishers.CombineLatest4(cardsSubject, customerInfoSubject, activeIssueOrdersSubject, anyCardReissuingPublisher),
             activatingProductInstanceIdsSubject
         )
-        .map { bffState, activatingProductInstanceIds in
+        .map { [weak self] bffState, activatingProductInstanceIds in
             let (cards, info, orders, _) = bffState
+            let hiddenSourceProductInstanceIds = Set((self?.reissueSourceProductInstanceIdByOrderId ?? [:]).values)
             return TangemPayCardEntry.build(
                 cards: cards,
                 pendingProductInstances: info.cardProductInstances.filter { $0.cardId == nil },
                 activeIssueOrders: orders,
-                activatingProductInstanceIds: activatingProductInstanceIds
+                activatingProductInstanceIds: activatingProductInstanceIds,
+                hiddenSourceProductInstanceIds: hiddenSourceProductInstanceIds
             )
         }
         .eraseToAnyPublisher()
+    }
+
+    var isPlasticDeliveryInProgress: Bool {
+        !reissueSourceProductInstanceIdByOrderId.isEmpty
+            || cardsSubject.value.contains(where: \.isAwaitingActivation)
+            || activeIssueOrdersSubject.value.contains { TangemPayOrderType.plasticDeliveringFamily.contains($0.type) }
     }
 
     var offersPublisher: AnyPublisher<[TangemPayCustomerOffer], Never> {
@@ -233,6 +242,8 @@ final class TangemPayAccount {
     private let firstCardIssueFailedSubject = PassthroughSubject<Void, Never>()
 
     private var placedVirtualAccountOrderId: String?
+
+    private var reissueSourceProductInstanceIdByOrderId: [String: String] = [:]
 
     private var pendingTransitionCancellation: TransitionCancellationType?
 
@@ -475,6 +486,8 @@ extension TangemPayAccount {
         )
         let order = try await orderResolver.placeOrder(request: request, idempotencyKey: idempotencyKey)
 
+        reissueSourceProductInstanceIdByOrderId[order.id] = sourceProductInstanceId
+        activeIssueOrderEventsSubject.send(.upsert(order))
         runTask { [weak self] in
             await self?.loadCustomerInfo()
         }
@@ -483,20 +496,53 @@ extension TangemPayAccount {
     }
 
     private func startPlasticReissueTracking(orderId: String) {
-        let reloadCustomerInfo: () -> Void = { [weak self] in
-            runTask { await self?.loadCustomerInfo() }
-        }
-
         plasticReissueOrderPollingService.startOrderStatusPolling(
             orderId: orderId,
             interval: Constants.cardIssuePollInterval,
-            onCompleted: reloadCustomerInfo,
-            onCanceled: reloadCustomerInfo,
-            onFailed: { error in
+            onCompleted: { [weak self] in
+                runTask {
+                    await self?.absorbCompletedIssueOrder(orderId: orderId)
+                }
+            },
+            onCanceled: { [weak self] in
+                self?.dropReissueOrder(orderId: orderId)
+            },
+            onFailed: { [weak self] error in
                 VisaLogger.error("Failed to poll plastic card reissue order status", error: error)
-                reloadCustomerInfo()
+                self?.dropReissueOrder(orderId: orderId)
+            },
+            onProgress: { [weak self] order in
+                self?.activeIssueOrderEventsSubject.send(.update(order))
             }
         )
+    }
+
+    private func dropReissueOrder(orderId: String) {
+        reissueSourceProductInstanceIdByOrderId[orderId] = nil
+        activeIssueOrderEventsSubject.send(.remove(id: orderId))
+        runTask { [weak self] in
+            await self?.loadCustomerInfo()
+        }
+    }
+
+    private func pruneReissueSourceTracking(liveCards: [TangemPayCard]) {
+        guard !reissueSourceProductInstanceIdByOrderId.isEmpty else { return }
+        let livePIs = Set(liveCards.map(\.productInstance.id))
+        reissueSourceProductInstanceIdByOrderId = reissueSourceProductInstanceIdByOrderId.filter { livePIs.contains($0.value) }
+    }
+
+    private func dropStaleReissueTracking(bffActiveOrders: [TangemPayOrderResponse]) {
+        guard !reissueSourceProductInstanceIdByOrderId.isEmpty,
+              !cardsSubject.value.contains(where: \.isAwaitingActivation) else {
+            return
+        }
+
+        let activeReissueOrderIds = Set(
+            bffActiveOrders
+                .filter { TangemPayOrderType.cardReissuePlasticFamily.contains($0.type) }
+                .map(\.id)
+        )
+        reissueSourceProductInstanceIdByOrderId = reissueSourceProductInstanceIdByOrderId.filter { activeReissueOrderIds.contains($0.key) }
     }
 
     private func refreshActivatingProductInstanceIds(cards: [TangemPayCard]) async {
@@ -632,20 +678,23 @@ extension TangemPayAccount {
             guard let self else { return }
 
             let localOrdersBeforeFetch = activeIssueOrdersSubject.value
-            let trackableTypes = TangemPayOrderType.cardIssueFamily
+            let sharedTrackableTypes = TangemPayOrderType.cardIssueFamily
                 + TangemPayOrderType.cardIssuePlasticFamily
                 + TangemPayOrderType.tariffPlanTransitionFamily
+            let reissueTrackableTypes = TangemPayOrderType.cardReissuePlasticFamily
 
             let bffActiveOrders: [TangemPayOrderResponse]
             do {
                 bffActiveOrders = try await customerService.findOrders(
-                    types: trackableTypes,
+                    types: sharedTrackableTypes + reissueTrackableTypes,
                     statuses: [.new, .processing]
                 )
             } catch {
                 VisaLogger.error("Failed to restore in-flight issue-order polling", error: error)
                 return
             }
+
+            dropStaleReissueTracking(bffActiveOrders: bffActiveOrders)
 
             let bffOrderIds = Set(bffActiveOrders.map(\.id))
             let staleIds = localOrdersBeforeFetch.map(\.id).filter { !bffOrderIds.contains($0) }
@@ -654,9 +703,17 @@ extension TangemPayAccount {
                 orderStatusPollingService.cancel()
             }
 
-            guard let order = bffActiveOrders.mostRecentByUpdatedAt else { return }
-            activeIssueOrderEventsSubject.send(.upsert(order))
-            startCardIssueTracking(orderId: order.id)
+            if let order = bffActiveOrders.filter({ sharedTrackableTypes.contains($0.type) }).mostRecentByUpdatedAt {
+                activeIssueOrderEventsSubject.send(.upsert(order))
+                startCardIssueTracking(orderId: order.id)
+            }
+
+            if let order = bffActiveOrders.filter({ reissueTrackableTypes.contains($0.type) }).mostRecentByUpdatedAt {
+                activeIssueOrderEventsSubject.send(.upsert(order))
+                startPlasticReissueTracking(orderId: order.id)
+            } else {
+                plasticReissueOrderPollingService.cancel()
+            }
         }
     }
 
@@ -884,6 +941,7 @@ private extension TangemPayAccount {
         do throws(TangemPayAPIServiceError) {
             let customerInfo = try await customerService.loadCustomerInfo()
             let updatedCards = rebuildingCards(from: customerInfo, existing: cardsSubject.value)
+            pruneReissueSourceTracking(liveCards: updatedCards)
             activeIssueOrderEventsSubject.send(.pruneAgainst(customerInfo: customerInfo))
             cardsSubject.send(updatedCards)
             customerInfoSubject.send(customerInfo)
@@ -961,6 +1019,7 @@ private extension TangemPayAccount {
                         customerInfo.productInstances.compactMap { $0.cardId != nil ? $0.id : nil }
                     )
                     return current.filter { order in
+                        if TangemPayOrderType.plasticDeliveringFamily.contains(order.type) { return true }
                         if let targetPlanId = order.targetTariffPlanId, targetPlanId == customerInfo.customerTariffPlan?.tariffPlan.id {
                             return false
                         }
@@ -992,7 +1051,28 @@ private extension TangemPayAccount {
     }
 
     func absorbCompletedIssueOrder(orderId: String) async {
-        await loadCustomerInfo()
+        let completedOrder = activeIssueOrdersSubject.value.first { $0.id == orderId }
+        let isPlasticDelivery = completedOrder.map { TangemPayOrderType.plasticDeliveringFamily.contains($0.type) } ?? false
+
+        if isPlasticDelivery {
+            var deliveredCardArrived = false
+            for attempt in 0 ..< Constants.plasticDeliveryCardArrivalMaxAttempts {
+                await loadCustomerInfo()
+                if cardsSubject.value.contains(where: \.isAwaitingActivation) {
+                    deliveredCardArrived = true
+                    break
+                }
+                if attempt < Constants.plasticDeliveryCardArrivalMaxAttempts - 1 {
+                    try? await Task.sleep(for: .seconds(Constants.cardIssuePollInterval))
+                }
+            }
+            if !deliveredCardArrived {
+                reissueSourceProductInstanceIdByOrderId[orderId] = nil
+            }
+        } else {
+            await loadCustomerInfo()
+        }
+
         activeIssueOrderEventsSubject.send(.remove(id: orderId))
         await loadOffers()
         cardIssueCompletedSubject.send(())
@@ -1106,5 +1186,6 @@ private extension TangemPayAccount {
     enum Constants {
         static let cardIssuePollInterval: TimeInterval = 5
         static let virtualAccountOrderPollInterval: TimeInterval = 5
+        static let plasticDeliveryCardArrivalMaxAttempts = 12
     }
 }
