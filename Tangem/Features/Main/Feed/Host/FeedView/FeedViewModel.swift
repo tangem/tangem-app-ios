@@ -56,11 +56,7 @@ private extension FeedViewModel {
         switch size {
         case .collapsed:
             isSheetOpened = false
-            searchViewModel.reset()
-        case .medium:
-            logScreenOpenedIfNeeded()
-            searchViewModel.close()
-        case .full:
+        case .medium, .full:
             logScreenOpenedIfNeeded()
         }
 
