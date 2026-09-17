@@ -156,6 +156,47 @@ struct PolymarketOrderGateTests {
         #expect(gate.amountCaption == nil)
     }
 
+    @Test("A sell refused only for the taker's dollar floor is still a sell the exchange can fill")
+    func sellIgnoresTheOrderAmountFloor() {
+        let state = PolymarketOrderModel.State.stub(quote: .stub(status: .belowMinOrderAmount), enteredAmount: 10, balance: 1000)
+        let gate = PolymarketOrderGate(state: state, intent: .sell(shares: 1000))
+
+        #expect(gate.isPrimaryButtonEnabled)
+        #expect(gate.notifications.isEmpty)
+    }
+
+    @Test("A sell under the share minimum is still refused")
+    func sellHonoursTheShareFloor() {
+        let state = PolymarketOrderModel.State.stub(quote: .stub(status: .belowMinOrderSize), enteredAmount: 1, balance: 1000)
+        let gate = PolymarketOrderGate(state: state, intent: .sell(shares: 1000))
+
+        #expect(!gate.isPrimaryButtonEnabled)
+        #expect(gate.notifications == [.belowMinOrder])
+    }
+
+    @Test("The backend's dollar-floor verdict is not a refusal on either side")
+    func theOrderAmountFloorVerdictIsIgnored() {
+        let gate = PolymarketOrderGate(state: .stub(quote: .stub(status: .belowMinOrderAmount)), intent: Self.buyIntent)
+
+        #expect(gate.isPrimaryButtonEnabled)
+        #expect(gate.notifications.isEmpty)
+    }
+
+    @Test("A buy the client itself puts under the floor is still refused")
+    func buyUnderTheComputedFloorIsRefused() {
+        let floor = Decimal(string: "4.5")!
+        let state = PolymarketOrderModel.State.stub(
+            quote: .stub(status: .belowMinOrderAmount),
+            enteredAmount: Decimal(string: "0.5")!,
+            minAmount: floor
+        )
+
+        let gate = PolymarketOrderGate(state: state, intent: Self.buyIntent)
+
+        #expect(!gate.isPrimaryButtonEnabled)
+        #expect(gate.amountCaption == .belowMinAmount(floor))
+    }
+
     // MARK: - The floor each side answers to
 
     @Test("Buying floors at the dearer of the share minimum and the taker minimum")

@@ -9,9 +9,6 @@
 import Foundation
 import Combine
 
-/// The account keeps its balance in pUSD, while the withdraw flow names that balance USDC, because that
-/// is what the bridge delivers and what the swap routes on. The numbers stay the account's own; only the
-/// symbol follows the token the flow shows.
 struct PolymarketWithdrawBalanceProvider {
     let base: any TokenBalanceProvider
     let tokenItem: TokenItem

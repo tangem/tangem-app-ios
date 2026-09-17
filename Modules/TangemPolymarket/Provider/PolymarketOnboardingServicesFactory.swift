@@ -71,6 +71,12 @@ public struct PolymarketOnboardingServicesFactory {
         return CommonPolymarketWithdrawService(provider: provider, environment: environment, walletId: walletId)
     }
 
+    public func makeRedeemService(walletId: String) -> PolymarketRedeemService {
+        let provider = TangemProvider<PolymarketRedeemTarget>(configuration: networkConfiguration)
+
+        return CommonPolymarketRedeemService(provider: provider, environment: environment, walletId: walletId)
+    }
+
     public func makeBridgeService() -> PolymarketBridgeService {
         let provider = TangemProvider<PolymarketBridgeTarget>(configuration: networkConfiguration)
 

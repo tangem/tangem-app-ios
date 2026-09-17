@@ -223,8 +223,6 @@ private extension PolymarketOrderModel {
             .store(in: &bag)
 
         isAwaitingFundsPublisher
-            // A banner raised before this screen opened belongs to the screen behind it, so only a
-            // deposit made from here is announced.
             .dropFirst()
             .removeDuplicates()
             .receiveOnMain()
@@ -338,8 +336,6 @@ private extension PolymarketOrderModel {
         }
     }
 
-    /// The sell ceiling opens on the size the list had, which can be minutes old — the fresh read
-    /// replaces it as soon as it lands, and only re-fills the field if the user has not typed yet.
     func applyHeldShares(_ size: Decimal?) {
         guard case .sell = intent, let size, size != state.balance else { return }
 

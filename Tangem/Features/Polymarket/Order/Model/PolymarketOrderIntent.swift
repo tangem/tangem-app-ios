@@ -23,8 +23,6 @@ extension PolymarketOrderIntent {
         }
     }
 
-    /// Shares and collateral are both scaled to six decimals on the wire, so the field follows the
-    /// exchange rather than the side.
     var fractionDigits: Int {
         PolymarketCollateral.decimalCount
     }

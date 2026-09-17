@@ -86,9 +86,6 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
 // MARK: - Entry
 
 private extension PolymarketCoordinator {
-    /// A sheet dismissed by tapping the dimmed background never reaches the coordinator, and the view it
-    /// was rendered in outlives the dismissal, so every reference guarding a reopen has to be released by
-    /// what is on screen rather than by what is still in memory.
     func subscribeToSheetDismiss() {
         sheetDismissSubscription = sheetStateProvider
             .hasPresentedSheetPublisher
@@ -237,7 +234,8 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
     @MainActor
     func openMyPositions(
         tab: PolymarketPositionsTab,
-        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
+        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
+        onClaimed: @escaping () -> Void
     ) {
         guard case .main(_, let destinationFactory, _) = viewState else { return }
 
@@ -245,6 +243,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
             destinationFactory.makeMyPositions(
                 tab: tab,
                 onOrderPlaced: onOrderPlaced,
+                onClaimed: onClaimed,
                 onRegionWarning: { [weak self] in self?.openRegionWarning() },
                 onClose: { [weak self] in self?.popToMain() }
             )
@@ -367,8 +366,6 @@ private extension PolymarketCoordinator {
 // MARK: - FeeCurrencyNavigating
 
 extension PolymarketCoordinator {
-    /// The fee currency is reachable from an order, and one push slot cannot hold both. Going back to
-    /// the main screen first states that, instead of swapping the order out from under the back button.
     func openFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
         guard destination != nil else {
             pushFeeCurrencyTokenDetails(for: walletModel, userWalletModel: userWalletModel)
