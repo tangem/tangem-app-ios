@@ -121,7 +121,12 @@ private extension SolanaTransactionHistoryProvider {
             .filterSuccessfulStatusAndRedirectCodes()
             .map(JSONRPC.Response<SolanaTransactionHistoryDTO.TokenAccountsByOwner, JSONRPC.APIError>.self)
             .tryMap { [weak self] response in
-                let tokenAccountAddress = try response.result.get().value.first?.pubkey
+                let accounts = try response.result.get().value
+                let tokenAccountAddress = SolanaTokenAccountSelector.preferredAccountAddress(
+                    from: accounts.map(\.pubkey),
+                    mint: token.contractAddress,
+                    ownerAccountId: walletAddress
+                )
                 self?.tokenAccountAddress = tokenAccountAddress
                 self?.tokenAccountAddressMint = token.contractAddress
                 return tokenAccountAddress
