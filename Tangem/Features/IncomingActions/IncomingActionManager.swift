@@ -6,33 +6,34 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 
 typealias IncomingActionManager = IncomingActionHandler & IncomingActionManaging
 
-public protocol IncomingActionHandler {
+protocol IncomingActionHandler {
+    /// Whether someone took the link. A caller that has nothing else to do with the link may ignore the answer.
+    @discardableResult
     func handleIncomingURL(_ url: URL) -> Bool
     func handleIntent(_ intent: String) -> Bool
 }
 
 /// Object's interface for encapsulating logic of deeplink handling
-public protocol IncomingActionManaging: AnyObject {
-    func checkForPendingActions()
+protocol IncomingActionManaging: AnyObject {
+    /// Every action as it arrives, before the chain is asked — for whoever needs to know a link came in
+    /// regardless of what, if anything, shows it.
+    var incomingActionsPublisher: AnyPublisher<IncomingAction, Never> { get }
+
     func becomeFirstResponder(_ responder: IncomingActionResponder)
     func resignFirstResponder(_ responder: IncomingActionResponder)
-    func discardIncomingAction()
-    func discardIncomingAction(if shouldDiscard: (IncomingAction) -> Bool)
+    /// Hands an action to the chain as if it had just arrived: whoever can show it now does.
+    func deliver(_ action: IncomingAction)
 }
 
-public protocol IncomingActionResponder: AnyObject {
+protocol IncomingActionResponder: AnyObject {
     /// Asks responder to handle route. If it returns `true`, previous responders are not called.
     /// If it returns `false`, previous responder is called to handle route.
     func didReceiveIncomingAction(_ action: IncomingAction) -> Bool
-}
-
-protocol IncomingActionRoutingHandler: IncomingActionResponder {
-    func becomeIncomingActionsResponder()
-    func resignIncomingActionsResponder()
 }
 
 // MARK: - Dependencies
