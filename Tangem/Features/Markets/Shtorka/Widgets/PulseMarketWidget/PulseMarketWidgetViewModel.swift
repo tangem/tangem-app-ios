@@ -34,6 +34,10 @@ final class PulseMarketWidgetViewModel: ObservableObject {
         !isFirstLoading && !isSearchActive
     }
 
+    var itemsOnListWidget: Int {
+        Constants.itemsOnListWidget
+    }
+
     var availabilityToSelectionOrderType: [MarketsListOrderType] {
         var ordered: [MarketsListOrderType] = [.trending, .gainers, .losers, .buyers]
         if includesMarketCapFilter {
@@ -59,6 +63,8 @@ final class PulseMarketWidgetViewModel: ObservableObject {
 
     private var marketCapFormatter: MarketCapFormatter
     private var bag = Set<AnyCancellable>()
+
+    private let skeletonFloor = LoadingStateFloor()
 
     // MARK: - Init
 
@@ -191,8 +197,7 @@ private extension PulseMarketWidgetViewModel {
         $filterSelectedId
             .dropFirst()
             .removeDuplicates()
-            // Wait a few milliseconds for smoother performance
-            .debounce(for: 0.3, scheduler: DispatchQueue.main)
+            .receiveOnMain()
             .compactMap { [weak self] id -> MarketsListOrderType? in
                 guard let self, let id else { return nil }
                 return availabilityToSelectionOrderType.first(where: { $0.rawValue == id })
@@ -291,16 +296,12 @@ private extension PulseMarketWidgetViewModel {
             .sink { viewModel, state in
                 switch state {
                 case .loaded:
-                    viewModel.mapReadyForDisplay()
-                    viewModel.clearIsFirstLoadingFlag()
-                    viewModel.updateHeaderLoadingState()
+                    viewModel.displayLoadedStateRespectingSkeletonFloor()
                 case .initialLoading:
-                    viewModel.tokenViewModelsState = .loading
-                    viewModel.updateHeaderLoadingState()
+                    viewModel.showSkeletons()
                 case .reloading(let widgetTypes):
                     if widgetTypes.contains(viewModel.widgetType) {
-                        viewModel.tokenViewModelsState = .loading
-                        viewModel.updateHeaderLoadingState()
+                        viewModel.showSkeletons()
                     }
                 case .allFailed:
                     return
@@ -323,6 +324,25 @@ private extension PulseMarketWidgetViewModel {
                 self?.onTokenTapAction(with: tokenItemModel)
             }
         )
+    }
+
+    // MARK: - Skeleton Floor
+
+    func showSkeletons() {
+        skeletonFloor.start()
+
+        tokenViewModelsState = .loading
+        updateHeaderLoadingState()
+    }
+
+    func displayLoadedStateRespectingSkeletonFloor() {
+        skeletonFloor.release { [weak self] in
+            guard let self else { return }
+
+            mapReadyForDisplay()
+            clearIsFirstLoadingFlag()
+            updateHeaderLoadingState()
+        }
     }
 
     // MARK: - Map Widget States
@@ -362,7 +382,8 @@ private extension PulseMarketWidgetViewModel {
     func updateHeaderLoadingState() {
         switch tokenViewModelsState {
         case .loading:
-            headerLoadingState = isFirstLoading ? .first : .retry
+            // Unlike the other widgets this one reloads on every chip tap, and hiding See all for each of those reads as a glitch
+            headerLoadingState = isFirstLoading ? .first : .loaded
         case .success:
             headerLoadingState = .loaded
         case .failure:
