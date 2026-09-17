@@ -20,6 +20,7 @@ struct MainCoordinatorView: CoordinatorView {
     @Environment(\.requestReview) private var requestReview
 
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
+    @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
 
     var body: some View {
         NavigationStack {
@@ -38,6 +39,8 @@ struct MainCoordinatorView: CoordinatorView {
                 sheets
             }
             .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak coordinator] state in
+                mainBottomSheetUIManager.setExpanded(!state.isCollapsed)
+
                 if !state.isCollapsed {
                     coordinator?.dismissMarketsTooltip()
                 } else {
@@ -157,14 +160,8 @@ struct MainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayKYCDeclinedPopupViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
-            .floatingSheetContent(for: TangemPayTransactionDetailsViewModel.self) {
-                TangemPayTransactionDetailsView(viewModel: $0)
-            }
             .floatingSheetContent(for: PushNotificationsMainViewModel.self) {
                 PushNotificationsMainView(viewModel: $0)
-            }
-            .floatingSheetContent(for: CampaignViewModel.self) {
-                CampaignView(viewModel: $0)
             }
 
         NavHolder()

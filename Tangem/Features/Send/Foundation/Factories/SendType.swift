@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemNFT
 import TangemStaking
 import TangemExpress
@@ -91,6 +92,16 @@ enum PredefinedSwapParameters {
         init(sourceAmount: Decimal? = nil, providerId: ExpressProvider.Id? = nil) {
             self.sourceAmount = sourceAmount
             self.providerId = providerId
+        }
+    }
+}
+
+extension PredefinedSwapParameters {
+    /// The wallet the swap opens for.
+    var userWalletId: UserWalletId {
+        switch self {
+        case .from(let source, _, _, _): source.userWalletInfo.id
+        case .to(let receive, _, _): receive.userWalletInfo.id
         }
     }
 }

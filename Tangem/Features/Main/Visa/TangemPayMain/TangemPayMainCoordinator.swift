@@ -70,7 +70,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
             coordinator: self
         )
 
-        handleIncomingAction()
+        handleOpeningAction()
     }
 
     private static func makeFundingFlowBuilder(options: Options) -> TangemPayFundingFlowBuilder {
@@ -89,7 +89,7 @@ extension TangemPayMainCoordinator {
         let userWalletInfo: UserWalletInfo
         let tangemPayAccount: TangemPayAccount
         let userWalletModel: any UserWalletModel
-        let incomingAction: TangemPayIncomingActions?
+        let openingAction: TangemPayOpeningAction?
     }
 
     typealias DismissOptions = FeeCurrencyNavigatingDismissOption
@@ -98,15 +98,15 @@ extension TangemPayMainCoordinator {
 // MARK: - Private
 
 extension TangemPayMainCoordinator {
-    private func handleIncomingAction() {
-        guard let incomingAction = options?.incomingAction else {
+    private func handleOpeningAction() {
+        guard let openingAction = options?.openingAction else {
             return
         }
 
         Task { @MainActor in
             try? await Task.sleep(for: .seconds(0.5))
 
-            switch incomingAction {
+            switch openingAction {
             case .addFunds:
                 rootViewModel?.addFunds()
 

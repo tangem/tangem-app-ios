@@ -9,22 +9,29 @@ import AppsFlyerLib
 
 struct AppsFlyerDeepLinkResolver {
     func resolveDeeplink(_ deepLink: DeepLink) {
-        guard let deepLinkValue = deepLink.getValue(forKey: AppsFlyerDeepLinkKeys.value) else {
-            AppsflyerLogger.info("Could not extract deep_link_value")
-            return
-        }
+        resolve(clickEvent: deepLink.clickEvent)
+    }
 
-        switch deepLinkValue {
+    func resolve(clickEvent: [AnyHashable: Any]) {
+        let params = AppsFlyerDeepLinkParams(clickEvent: clickEvent)
+
+        // A scenario link may carry a referral code as well, so the params are stored for any deep_link_value.
+        // Navigation below, and the promo gate inside the handler, stay bound to the known deep link values.
+        AppsFlyerDeepReferralHandler().handle(params)
+
+        switch params.value {
         case AppsflyerDeepLinkType.referral:
-            return AppsFlyerDeepReferralHandler().handle(deepLink)
+            break
         case AppsflyerDeepLinkType.tangemPayMobileOnboarding:
             TangemPayMobileOnboardingService().markOnboardingNeeded()
-            return
         default:
-            if let campaignKey = TangemPayCampaignService.campaignKey(fromDeepLinkValue: deepLinkValue) {
-                TangemPayCampaignService().markPending(campaignKey: campaignKey)
+            guard let deepLinkValue = params.value,
+                  let campaignKey = TangemPayCampaignService.campaignKey(fromDeepLinkValue: deepLinkValue) else {
+                AppsflyerLogger.info("No navigation for deep_link_value: \(params.value ?? "nil")")
+                return
             }
-            return
+
+            TangemPayCampaignService().markPending(campaignKey: campaignKey)
         }
     }
 }
@@ -33,17 +40,5 @@ extension AppsFlyerDeepLinkResolver {
     enum AppsflyerDeepLinkType {
         static let referral = "referral"
         static let tangemPayMobileOnboarding = "tpay_mobileonboard"
-    }
-}
-
-// MARK: DeepLink+
-
-extension DeepLink {
-    func getValue(forKey: String) -> String? {
-        guard clickEvent.keys.contains(forKey) else {
-            return nil
-        }
-
-        return clickEvent[forKey] as? String
     }
 }

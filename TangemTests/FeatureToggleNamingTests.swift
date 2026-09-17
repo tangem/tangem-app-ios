@@ -31,7 +31,6 @@ struct FeatureToggleNamingTests {
         .exchangeOnlyWithinSingleAddress,
         .walletConnectBitcoin,
         .usdtRevokeGaslessFee,
-        .deeplinkPresentationWay,
         .transactionHistoryV2,
         .mobileWalletMultiCreation,
     ]

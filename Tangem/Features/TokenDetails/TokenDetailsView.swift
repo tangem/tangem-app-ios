@@ -376,7 +376,7 @@ private extension TokenDetailsView {
                 coordinator: coordinator
             ),
             pendingTransactionDetails: nil,
-            deeplinkHandler: PromotionDeeplinkHandler(
+            deeplinkHandler: TokenScreenDeeplinkResponder(
                 coordinator: coordinator,
                 walletModel: walletModel,
                 userWalletInfo: userWalletModel.userWalletInfo

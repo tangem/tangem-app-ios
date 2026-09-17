@@ -12,11 +12,13 @@ extension Analytics {
     enum SupportChatSource {
         case settings
         case swap
+        case deeplink
 
         var parameterValue: Analytics.ParameterValue {
             switch self {
             case .settings: .settings
             case .swap: .swap
+            case .deeplink: .deeplink
             }
         }
     }

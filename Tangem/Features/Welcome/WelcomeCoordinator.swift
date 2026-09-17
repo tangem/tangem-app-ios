@@ -20,7 +20,6 @@ final class WelcomeCoordinator: CoordinatorObject {
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
-    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
     private var mailPresenterLifecycleSubject = PassthroughSubject<Bool, Never>()
 
@@ -182,13 +181,9 @@ final class WelcomeCoordinator: CoordinatorObject {
     private func showTangemPayCampaign(campaignKey: String) {
         guard tangemPayCampaignCoordinator == nil else { return }
 
-        // Both the stored key and the action that carries it have to be consumed at presentation.
-        // Leaving either behind makes `MainCoordinator` open the campaign again on every launch.
+        // The stored key is what carries the campaign from one launch to the next, so showing it spends
+        // the key — left behind, it would make `MainCoordinator` open the campaign again every launch.
         TangemPayCampaignService().clearPending()
-        incomingActionManager.discardIncomingAction { action in
-            guard case .navigation(let navigationAction) = action else { return false }
-            return navigationAction.destination == .payCustomCard
-        }
 
         let dismissAction: Action<TangemPayCampaignCoordinator.OutputOptions> = { [weak self] options in
             guard let self else { return }
