@@ -6,8 +6,9 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Combine
 import Foundation
+import Combine
+import TangemLocalization
 
 @MainActor
 final class CollectiblesMachineViewModel: ObservableObject {
@@ -118,8 +119,7 @@ private extension CollectiblesMachineViewModel {
             currencyCode: Constants.paymentCurrencyCode,
             formattingOptions: .collectiblesDollars
         )
-        // [REDACTED_TODO_COMMENT]
-        return "Open for \(amount)"
+        return Localization.collectiblesMachineOpenButton(amount)
     }
 
     func startPolling() {

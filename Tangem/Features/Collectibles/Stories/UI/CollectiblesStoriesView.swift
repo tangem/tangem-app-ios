@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemStories
 import TangemUI
 import TangemUIUtils
@@ -101,32 +102,31 @@ extension CollectiblesStoriesView {
     struct Slide {
         let title, subtitle, buttonTitle: String
 
-        // [REDACTED_TODO_COMMENT]
         static let content: [Self] = [
             .init(
-                title: "Digital packs.\nPhysical collectibles.",
-                subtitle: "Every card is professionally graded, so authenticity is guaranteed — and each one is backed 1:1 by the physical slab in an insured physical vault",
-                buttonTitle: "Next"
+                title: Localization.collectiblesStoriesGradedTitle,
+                subtitle: Localization.collectiblesStoriesGradedSubtitle,
+                buttonTitle: Localization.commonNext
             ),
             .init(
-                title: "High security, tapless design",
-                subtitle: "One tap sets up your Solana smart contract, owned by your cold wallet. Collect tapless; every withdrawal still requires your card",
-                buttonTitle: "Next"
+                title: Localization.collectiblesStoriesSecurityTitle,
+                subtitle: Localization.collectiblesStoriesSecuritySubtitle,
+                buttonTitle: Localization.commonNext
             ),
             .init(
-                title: "There's always a buyer",
-                subtitle: "Get 85–93% of your card's insured value within 72 hours. Accept the offer for USDC, or tap to withdraw the card to your cold wallet instead",
-                buttonTitle: "Next"
+                title: Localization.collectiblesStoriesBuyerTitle,
+                subtitle: Localization.collectiblesStoriesBuyerSubtitle,
+                buttonTitle: Localization.commonNext
             ),
             .init(
-                title: "Nothing behind the curtain",
-                subtitle: "Browse every card before you buy and watch live openings from the blockchain, with each collector's wallet and card value. All in-app",
-                buttonTitle: "Next"
+                title: Localization.collectiblesStoriesTransparencyTitle,
+                subtitle: Localization.collectiblesStoriesTransparencySubtitle,
+                buttonTitle: Localization.commonNext
             ),
             .init(
-                title: "The card is yours, either way",
-                subtitle: "Leave it in the physical vault, have it delivered to your address, or send it to a friend as a gift — the slab is redeemable whenever you want it",
-                buttonTitle: "Browse packs"
+                title: Localization.collectiblesStoriesOwnershipTitle,
+                subtitle: Localization.collectiblesStoriesOwnershipSubtitle,
+                buttonTitle: Localization.collectiblesStoriesBrowsePacksButton
             ),
         ]
     }

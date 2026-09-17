@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 
 private typealias Footer = CollectiblesWelcomeView.Footer
@@ -52,8 +53,7 @@ private extension Footer {
     }
 
     var createAccountButton: some View {
-        // [REDACTED_TODO_COMMENT]
-        TangemUI.Button(label: "Create Packs account", accessibilityLabel: nil, action: onCreateAccountTap)
+        TangemUI.Button(label: Localization.collectiblesWelcomeCreateAccountButton, accessibilityLabel: nil, action: onCreateAccountTap)
             .iconEnd(DesignSystem.Icons.LogoTangem.regular24)
             .styleType(.default)
             .horizontalLayout(.infinity)
@@ -61,14 +61,14 @@ private extension Footer {
             .loading(.spinner(if: isLoading))
     }
 
-    // [REDACTED_TODO_COMMENT]
+    /// Collector Crypt stays unlinked until the partner supplies its terms URL.
     static let legalTermsText: AttributedString = {
-        let collectorCryptTerms = "Collector Crypt T&Cs"
-        let tangemTerms = "Tangem T&Cs"
-        let privacyNotice = "Privacy Notice"
+        let collectorCryptTerms = Localization.collectiblesWelcomeLegalCollectorCryptTerms
+        let tangemTerms = Localization.collectiblesWelcomeLegalTangemTerms
+        let privacyNotice = Localization.collectiblesWelcomeLegalPrivacyNotice
 
         var text = AttributedString(
-            "By continuing, you confirm that you have read and agree to the \(collectorCryptTerms), \(tangemTerms) and \(privacyNotice)"
+            Localization.collectiblesWelcomeLegalDisclaimer(collectorCryptTerms, tangemTerms, privacyNotice)
         )
 
         highlight(collectorCryptTerms, in: &text)
