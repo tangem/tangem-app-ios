@@ -14,6 +14,50 @@ import TangemPolymarket
 @MainActor
 @Suite("Polymarket my positions")
 struct PolymarketMyPositionsViewModelTests {
+    // MARK: - Where a tapped row leads
+
+    @Test("A resolved settlement opens the claim screen", arguments: [PolymarketPositionSettlement.won, .lost, .split])
+    func resolvedSettlementOpensRedeem(settlement: PolymarketPositionSettlement) async throws {
+        let service = PolymarketPositionsServiceStub(openPages: [Self.openPage(count: 1, hasNext: false, settlement: settlement)])
+        let routable = MyPositionsRoutableSpy()
+        let sut = PolymarketMyPositionsViewModel(tab: .active, positionsService: service, coordinator: routable)
+
+        try await settle { sut.loadingState == .allDataLoaded }
+
+        sut.openPosition(id: try #require(sut.rows.first).id)
+
+        #expect(routable.redeemed.count == 1)
+        #expect(routable.detailed.isEmpty)
+    }
+
+    @Test("An unreadable settlement keeps opening the details")
+    func unknownSettlementOpensDetails() async throws {
+        let service = PolymarketPositionsServiceStub(openPages: [Self.openPage(count: 1, hasNext: false, settlement: .unknown)])
+        let routable = MyPositionsRoutableSpy()
+        let sut = PolymarketMyPositionsViewModel(tab: .active, positionsService: service, coordinator: routable)
+
+        try await settle { sut.loadingState == .allDataLoaded }
+
+        sut.openPosition(id: try #require(sut.rows.first).id)
+
+        #expect(routable.redeemed.isEmpty)
+        #expect(routable.detailed.count == 1)
+    }
+
+    @Test("A position still running opens the details")
+    func unsettledPositionOpensDetails() async throws {
+        let service = PolymarketPositionsServiceStub(openPages: [Self.openPage(count: 1, hasNext: false)])
+        let routable = MyPositionsRoutableSpy()
+        let sut = PolymarketMyPositionsViewModel(tab: .active, positionsService: service, coordinator: routable)
+
+        try await settle { sut.loadingState == .allDataLoaded }
+
+        sut.openPosition(id: try #require(sut.rows.first).id)
+
+        #expect(routable.redeemed.isEmpty)
+        #expect(routable.detailed.count == 1)
+    }
+
     @Test("The first page is asked for from the start of the list")
     func firstPageStartsAtZero() async throws {
         let service = PolymarketPositionsServiceStub(openPages: [Self.openPage(count: 3, hasNext: false)])
@@ -319,5 +363,41 @@ private final class PolymarketPositionsServiceStub: PolymarketPositionsService, 
         }
 
         return try page.get()
+    }
+}
+
+// MARK: - Doubles
+
+private final class MyPositionsRoutableSpy: PolymarketMyPositionsRoutable {
+    private struct Opened {
+        var redeemed: [PolymarketPosition] = []
+        var detailed: [PolymarketPosition] = []
+    }
+
+    private let opened = OSAllocatedUnfairLock(initialState: Opened())
+
+    var redeemed: [PolymarketPosition] {
+        opened.withLock { $0.redeemed }
+    }
+
+    var detailed: [PolymarketPosition] {
+        opened.withLock { $0.detailed }
+    }
+
+    func closeMyPositions() {}
+
+    @MainActor
+    func openHowItWorks() {}
+
+    func openPositionDetails(
+        position: PolymarketPosition,
+        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
+    ) {
+        opened.withLock { $0.detailed.append(position) }
+    }
+
+    @MainActor
+    func openRedeem(position: PolymarketPosition, onClaimed: @escaping () -> Void) {
+        opened.withLock { $0.redeemed.append(position) }
     }
 }

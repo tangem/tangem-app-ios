@@ -68,6 +68,7 @@ final class PolymarketDestinationFactory {
     func makeMyPositions(
         tab: PolymarketPositionsTab,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
+        onClaimed: @escaping () -> Void,
         onRegionWarning: @escaping () -> Void,
         onClose: @escaping Action<Void>
     ) -> PolymarketMyPositionsCoordinator {
@@ -78,8 +79,10 @@ final class PolymarketDestinationFactory {
             positionsService: dependencies.positionsService,
             apiProvider: dependencies.apiProvider,
             geoblockStateProvider: dependencies.geoblockStateProvider,
+            redeemService: dependencies.redeemService,
             onRegionWarning: onRegionWarning,
             onOrderPlaced: onOrderPlaced,
+            onClaimed: onClaimed,
             orderBuilder: self
         ))
 

@@ -47,7 +47,6 @@ struct PolymarketDepositReceivingRestrictionsProviderTests {
 
     @Test("A threshold that does not divide evenly is rounded up, never below the bridge's own minimum")
     func unevenThresholdRoundsUp() async throws {
-        // $2 at $3 apiece is 0.6666…; rounded down the app would enforce less than the bridge does.
         let expected = try #require(Decimal(string: "0.666667"))
 
         try await withProvider(priceUsd: 3) { sut in
@@ -111,8 +110,6 @@ private extension PolymarketDepositReceivingRestrictionsProviderTests {
         return minAmount
     }
 
-    /// The whole swap-restriction-restore sequence holds `InjectedDependenciesIsolation`, so parallel
-    /// suites reading the quotes repository cannot observe the mock.
     func withProvider(
         priceUsd: Decimal?,
         backupState: UserWalletBackupState = .valid,

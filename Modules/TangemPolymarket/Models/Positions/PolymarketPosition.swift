@@ -108,6 +108,13 @@ public enum PolymarketPositionSettlement: String, Hashable, Sendable, CaseIterab
     case lost = "LOST"
     case split = "SPLIT"
     case unknown = "UNKNOWN"
+
+    public var isResolved: Bool {
+        switch self {
+        case .won, .lost, .split: true
+        case .unknown: false
+        }
+    }
 }
 
 // MARK: - Page
@@ -121,5 +128,17 @@ public struct PolymarketPositionsPage: Hashable, Sendable {
         self.positions = positions
         self.receivedCount = receivedCount
         self.hasNext = hasNext
+    }
+}
+
+// MARK: - Presentation
+
+public extension PolymarketPosition {
+    var question: String? {
+        title.nilIfEmpty ?? eventTitle?.nilIfEmpty
+    }
+
+    var lifetimePnl: Decimal {
+        realizedPnl + cashPnl
     }
 }

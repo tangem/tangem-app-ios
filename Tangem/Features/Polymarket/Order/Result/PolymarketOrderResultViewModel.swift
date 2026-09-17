@@ -75,8 +75,6 @@ final class PolymarketOrderResultViewModel: ObservableObject, Identifiable {
         side == .buy && indexing != nil && (state == .placed || state == .partiallyPlaced)
     }
 
-    /// The wait gives up after a few seconds and can come back empty — a network drop right after the
-    /// order is enough. The screen then offers the way out it always has instead of a dead button.
     private var canViewPosition: Bool {
         isPositionExpected && (isAwaitingPosition || position != nil)
     }

@@ -52,20 +52,11 @@ extension CommonPolymarketWithdrawService: PolymarketWithdrawService {
 
 private extension CommonPolymarketWithdrawService {
     func request<T: Decodable>(_ target: PolymarketWithdrawTarget.Target) async throws(PolymarketWithdrawError) -> T {
-        let request = PolymarketWithdrawTarget(environment: environment(), walletId: walletId, target: target)
-
-        do {
-            let response = try await provider.requestPublisher(request).async()
-            let filtered = try response.filterSuccessfulStatusAndRedirectCodes()
-            return try decoder.decode(T.self, from: filtered.data)
-        } catch is CancellationError {
-            throw PolymarketWithdrawError.cancelled
-        } catch let error as MoyaError {
-            throw PolymarketWithdrawError(apiError: CommonPolymarketAPIService.mapMoyaError(error, decoder: decoder))
-        } catch let error as DecodingError {
-            throw PolymarketWithdrawError(apiError: .decoding(field: String(describing: T.self), value: "\(error)"))
-        } catch {
-            throw PolymarketWithdrawError(apiError: .connection(underlying: error))
-        }
+        try await PolymarketRelayedRequest.perform(
+            PolymarketWithdrawTarget(environment: environment(), walletId: walletId, target: target),
+            provider: provider,
+            decoder: decoder,
+            failure: PolymarketWithdrawError.self
+        )
     }
 }
