@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import TangemStaking
 import BlockchainSdk
 
@@ -20,7 +21,8 @@ protocol StakingSendAnalyticsLogger: StakeModelAnalyticsLogger,
     SendApproveAnalyticsLogger {
     func setup(stakingTargetsInput: StakingTargetsInput)
     func logNoticeUninitializedAddress()
-    func logNoticeNotEnoughFee()
+    /// - Parameter feeCurrencyBalance: `nil` when the shortage was reported without the balance it was judged against.
+    func logNoticeNotEnoughFee(feeCurrencyBalance: Decimal?)
     func logErrorSumLimit(errorMessage: String)
 }
 

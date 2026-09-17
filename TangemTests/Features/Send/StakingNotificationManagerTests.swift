@@ -149,6 +149,8 @@ final class StakingNotificationManagerTests: LeakTrackingTestSuite {
         #expect(title(of: topUpEvent) == Localization.warningBlockedFundsForFeeTitle)
         #expect(!containsInsufficientBalance(events))
         #expect(analyticsLogger.noticeNotEnoughFeeCalls == 1)
+        // The balance the validator compared the fee against, not a guess.
+        #expect(analyticsLogger.noticeNotEnoughFeeBalances == [0.0001])
     }
 
     @Test("V2 exit fee-coverage failure shows the fee top-up banner with the Go-to-coin button")
@@ -167,6 +169,7 @@ final class StakingNotificationManagerTests: LeakTrackingTestSuite {
         #expect(title(of: topUpEvent) == Localization.warningBlockedFundsForFeeTitle)
         #expect(!containsInsufficientBalance(events))
         #expect(analyticsLogger.noticeNotEnoughFeeCalls == 1)
+        #expect(analyticsLogger.noticeNotEnoughFeeBalances == [0.0001])
     }
 
     @Test("Token-staked fee-coverage failure keeps the mapped insufficient-fee banner")
@@ -244,7 +247,7 @@ final class StakingNotificationManagerTests: LeakTrackingTestSuite {
         )
         let (manager, stateSubject) = makeSUT(tokenItem: tokenItem, feeTokenItem: coinItem)
 
-        stateSubject.send(.networkError(StakingPreflightError.insufficientFundsForFee))
+        stateSubject.send(.networkError(StakingPreflightError.insufficientFundsForFee(feeCurrencyBalance: .zero)))
 
         let events = stakingEvents(manager)
         let topUpEvent = try #require(events.first { $0.isInsufficientFundsForFee })
@@ -373,7 +376,8 @@ private extension StakingNotificationManagerTests {
         .feeExceedsBalance(
             Fee(.init(with: blockchain, value: 0.000205)),
             blockchain: blockchain,
-            isFeeCurrency: isFeeCurrency
+            isFeeCurrency: isFeeCurrency,
+            feeCurrencyBalance: 0.0001
         )
     }
 

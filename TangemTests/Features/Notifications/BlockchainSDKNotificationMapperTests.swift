@@ -24,7 +24,7 @@ struct BlockchainSDKNotificationMapperTests {
     func tokenSendBuildsInsufficientBalanceForFee() throws {
         let mapper = BlockchainSDKNotificationMapper(tokenItem: usdtTokenItem)
 
-        let event = mapper.mapToInsufficientBalanceForFeeEvent()
+        let event = mapper.mapToInsufficientBalanceForFeeEvent(feeCurrencyBalance: .zero)
 
         guard case .insufficientBalanceForFee(let configuration) = event else {
             Issue.record("Expected .insufficientBalanceForFee, got \(event)")
@@ -46,7 +46,7 @@ struct BlockchainSDKNotificationMapperTests {
     func coinSendDegradesToInsufficientBalance() {
         let mapper = BlockchainSDKNotificationMapper(tokenItem: ethTokenItem)
 
-        let event = mapper.mapToInsufficientBalanceForFeeEvent()
+        let event = mapper.mapToInsufficientBalanceForFeeEvent(feeCurrencyBalance: .zero)
 
         guard case .insufficientBalance = event else {
             Issue.record("Expected .insufficientBalance for a coin send, got \(event)")
@@ -58,7 +58,7 @@ struct BlockchainSDKNotificationMapperTests {
     func gaslessBuildsInsufficientBalanceForFeeInToken() throws {
         let mapper = BlockchainSDKNotificationMapper(tokenItem: usdtTokenItem)
 
-        let event = mapper.mapToInsufficientGaslessFeeEvent()
+        let event = mapper.mapToInsufficientGaslessFeeEvent(feeCurrencyBalance: 1)
 
         guard case .insufficientBalanceForFee(let configuration) = event else {
             Issue.record("Expected .insufficientBalanceForFee, got \(event)")
@@ -69,5 +69,40 @@ struct BlockchainSDKNotificationMapperTests {
         #expect(configuration.feeAmountTypeName == usdtTokenItem.name)
         #expect(configuration.feeAmountTypeCurrencySymbol == usdtTokenItem.currencySymbol)
         #expect(configuration.transactionAmountTypeName == usdtTokenItem.name)
+    }
+
+    @Test("Fee-currency balance behind the shortage is carried into the configuration")
+    func feeCurrencyBalanceIsCarriedIntoConfiguration() throws {
+        let mapper = BlockchainSDKNotificationMapper(tokenItem: usdtTokenItem)
+
+        let event = mapper.mapToInsufficientBalanceForFeeEvent(feeCurrencyBalance: 0.0042)
+
+        guard case .insufficientBalanceForFee(let configuration) = event else {
+            Issue.record("Expected .insufficientBalanceForFee, got \(event)")
+            return
+        }
+
+        #expect(configuration.feeCurrencyBalance == 0.0042)
+    }
+
+    @Test("feeExceedsBalance carries the balance the validator compared the fee against")
+    func feeExceedsBalanceCarriesComparedBalance() throws {
+        let mapper = BlockchainSDKNotificationMapper(tokenItem: usdtTokenItem)
+        let blockchain = usdtTokenItem.blockchain
+        let validationError = ValidationError.feeExceedsBalance(
+            Fee(.init(with: blockchain, value: 0.002)),
+            blockchain: blockchain,
+            isFeeCurrency: false,
+            feeCurrencyBalance: 0.0015
+        )
+
+        let event = mapper.mapToValidationErrorEvent(validationError)
+
+        guard case .insufficientBalanceForFee(let configuration) = event else {
+            Issue.record("Expected .insufficientBalanceForFee, got \(event)")
+            return
+        }
+
+        #expect(configuration.feeCurrencyBalance == 0.0015)
     }
 }

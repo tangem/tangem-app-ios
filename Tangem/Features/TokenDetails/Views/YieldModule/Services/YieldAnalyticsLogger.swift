@@ -32,7 +32,7 @@ protocol YieldAnalyticsLogger {
     func logEarningFundsEarned()
     func logEarningFundsWithdrawed()
     func logEarningEarnedFundsInfoOpened()
-    func logEarningNoticeNotEnoughFeeShown()
+    func logEarningNoticeNotEnoughFeeShown(feeCurrencyBalance: Decimal)
     func logEarningNoticeApproveNeededShown()
     func logEarningButtonGiveApprove()
     func logEarningNoticeHighNetworkFeeShown()
@@ -152,8 +152,11 @@ final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
         Analytics.log(event: .earningEarnedFundsInfo, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
     }
 
-    func logEarningNoticeNotEnoughFeeShown() {
-        Analytics.log(event: .earningNoticeNotEnoughFee, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
+    func logEarningNoticeNotEnoughFeeShown(feeCurrencyBalance: Decimal) {
+        var params = tokenBlockchainParams()
+        params[.balance] = Analytics.ParameterValue.balanceState(for: feeCurrencyBalance).rawValue
+
+        Analytics.log(event: .earningNoticeNotEnoughFee, params: params, contextParams: .userWallet(userWalletId))
     }
 
     func logEarningNoticeApproveNeededShown() {
