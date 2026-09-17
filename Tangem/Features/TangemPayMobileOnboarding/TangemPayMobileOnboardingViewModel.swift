@@ -88,7 +88,7 @@ final class TangemPayMobileOnboardingViewModel: ObservableObject {
                     authorizingInteractor: newUserWalletModel.tangemPayAuthorizingInteractor
                 )
 
-                viewModel.coordinator?.openMain(userWalletModel: newUserWalletModel)
+                await viewModel.didCreateWallet(newUserWalletModel)
             } catch {
                 AppLogger.error("Failed to create wallet", error: error)
                 await viewModel.didFailToCreateWallet()
@@ -107,6 +107,11 @@ final class TangemPayMobileOnboardingViewModel: ObservableObject {
 
 @MainActor
 private extension TangemPayMobileOnboardingViewModel {
+    func didCreateWallet(_ userWalletModel: UserWalletModel) {
+        isCreating = false
+        coordinator?.openMain(userWalletModel: userWalletModel)
+    }
+
     func didFailToCreateWallet() {
         isCreating = false
 
