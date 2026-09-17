@@ -79,7 +79,7 @@ extension ForYouCoordinator: AddFundsRoutable {
             walletModel: walletModel
         ).makeTransferableToken()
 
-        let coordinator = SendCoordinator(dismissAction: { [weak self] _ in self?.sendCoordinator = nil })
+        let coordinator = makeSendCoordinator()
         coordinator.start(with: .init(type: .onramp(sourceToken, parameters: .none), source: .markets))
         sendCoordinator = coordinator
     }
