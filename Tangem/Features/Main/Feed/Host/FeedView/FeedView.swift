@@ -26,11 +26,6 @@ struct FeedView: View {
         content
             .ignoresSafeArea(edges: .bottom)
             .toolbar(.hidden, for: .navigationBar)
-            .onChange(of: searchViewModel.isActive) { isActive in
-                if isActive {
-                    shtorkaActions.expand()
-                }
-            }
     }
 
     private var content: some View {
@@ -54,7 +49,10 @@ struct FeedView: View {
         FeedSearchBarView(
             viewModel: viewModel.searchBarViewModel,
             isActive: searchViewModel.isActive,
-            onFocus: searchViewModel.open,
+            onFocus: {
+                searchViewModel.open()
+                shtorkaActions.expand()
+            },
             onCancel: searchViewModel.reset,
             onHeightChange: { shtorkaReporting.report(searchBar: $0) }
         )

@@ -18,6 +18,8 @@ struct FeedSearchBarView: View {
     let onCancel: () -> Void
     let onHeightChange: (CGFloat) -> Void
 
+    @Environment(\.mainShtorkaSize) private var sheetSize
+
     @State private var isFocused = false
 
     var body: some View {
@@ -30,6 +32,11 @@ struct FeedSearchBarView: View {
             .readGeometry(\.size.height, onChange: { reportSearchBar(height: $0) })
             .onChange(of: isActive) { isActive in
                 if !isActive {
+                    isFocused = false
+                }
+            }
+            .onChange(of: sheetSize) { size in
+                if let size, size != .full {
                     isFocused = false
                 }
             }
