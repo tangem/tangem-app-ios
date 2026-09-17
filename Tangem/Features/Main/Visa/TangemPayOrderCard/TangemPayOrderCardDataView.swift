@@ -15,6 +15,7 @@ struct TangemPayOrderCardDataView: View {
     @ObservedObject var viewModel: TangemPayOrderCardDataViewModel
 
     @State private var focusedField: TangemPayOrderCardDataField.ID?
+    @State private var previousFocusedField: TangemPayOrderCardDataField.ID?
 
     var body: some View {
         content
@@ -31,25 +32,31 @@ struct TangemPayOrderCardDataView: View {
     }
 
     private var content: some View {
-        ScrollView {
-            VStack(spacing: Constants.sectionSpacing) {
-                ForEach($viewModel.sections) { $section in
-                    VStack(spacing: 0) {
-                        ForEach($section.fields) { $field in
-                            fieldView($field)
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(spacing: Constants.sectionSpacing) {
+                    ForEach($viewModel.sections) { $section in
+                        VStack(spacing: 0) {
+                            ForEach($section.fields) { $field in
+                                fieldView($field)
+                            }
                         }
                     }
                 }
+                .padding(.horizontal, Constants.horizontalPadding)
+                .padding(.top, Constants.topPadding)
             }
-            .padding(.horizontal, Constants.horizontalPadding)
-            .padding(.top, Constants.topPadding)
-        }
-        .scrollIndicators(.hidden)
-        .scrollDismissesKeyboard(.interactively)
-        // Shrinks what counts as visible, so bringing a focused field into view stops short of the footer
-        // and leaves the field's divider on screen instead of under the fade.
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            Color.clear.frame(height: Constants.focusedFieldClearance)
+            .scrollIndicators(.hidden)
+            .scrollDismissesKeyboard(.interactively)
+            // Shrinks what counts as visible, so bringing a focused field into view stops short of the footer
+            // and leaves the field's divider on screen instead of under the fade.
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                Color.clear.frame(height: Constants.focusedFieldClearance)
+            }
+            .onChange(of: focusedField) { newValue in
+                revealLastFieldErrorIfNeeded(leftField: previousFocusedField, using: proxy)
+                previousFocusedField = newValue
+            }
         }
     }
 
@@ -58,15 +65,31 @@ struct TangemPayOrderCardDataView: View {
         viewModel.placeOrder()
     }
 
+    private func revealLastFieldErrorIfNeeded(leftField: TangemPayOrderCardDataField.ID?, using proxy: ScrollViewProxy) {
+        guard let leftField, viewModel.isLastField(leftField), let lastFieldID = viewModel.lastFieldID else {
+            return
+        }
+
+        DispatchQueue.main.async { [viewModel] in
+            guard viewModel.lastFieldHasError else { return }
+
+            withAnimation(.easeInOut) {
+                proxy.scrollTo(lastFieldID, anchor: .bottom)
+            }
+        }
+    }
+
     private func fieldView(_ field: Binding<TangemPayOrderCardDataField>) -> some View {
         TangemPayOrderCardDataFieldView(
             field: field,
             focusedField: $focusedField,
-            nextFieldID: viewModel.fieldAfter(field.wrappedValue.id)
+            nextFieldID: viewModel.fieldAfter(field.wrappedValue.id),
+            reservesErrorSpace: viewModel.isLastField(field.wrappedValue.id)
         )
         .onChange(of: field.wrappedValue.text) { _ in
             viewModel.fieldDidChange(field.wrappedValue.id)
         }
+        .id(field.wrappedValue.id)
     }
 
     private var footer: some View {

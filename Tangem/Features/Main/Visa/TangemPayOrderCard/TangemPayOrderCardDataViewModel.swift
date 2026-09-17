@@ -67,7 +67,7 @@ final class TangemPayOrderCardDataViewModel: ObservableObject, Identifiable {
     }
 
     func fieldDidChange(_ id: TangemPayOrderCardDataField.ID) {
-        guard field(id)?.error != nil else { return }
+        guard focusedFieldID == id, field(id)?.error != nil else { return }
 
         updateField(id) { $0.error = nil }
     }
@@ -104,6 +104,18 @@ final class TangemPayOrderCardDataViewModel: ObservableObject, Identifiable {
         }
 
         return editable[index + 1]
+    }
+
+    var lastFieldID: TangemPayOrderCardDataField.ID? {
+        sections.last?.fields.last?.id
+    }
+
+    var lastFieldHasError: Bool {
+        sections.last?.fields.last?.error != nil
+    }
+
+    func isLastField(_ id: TangemPayOrderCardDataField.ID) -> Bool {
+        lastFieldID == id
     }
 
     func back() {
@@ -340,7 +352,6 @@ private extension TangemPayOrderCardDataViewModel {
             TangemPayOrderCardDataField(
                 id: .postalCode,
                 title: Localization.tangempayOrderDataPostalCode,
-                keyboardType: .numbersAndPunctuation,
                 textContentType: .postalCode
             ),
             TangemPayOrderCardDataField(
