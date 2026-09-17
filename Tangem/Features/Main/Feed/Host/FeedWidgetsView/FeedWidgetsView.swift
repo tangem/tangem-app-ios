@@ -61,7 +61,6 @@ struct FeedWidgetsView: View {
             smallWidget(title: Localization.forYouTitle) {
                 FeedPortfolioDonutView()
             }
-            .glowRing(size: .card(cornerRadius: Constants.cornerRadius))
 
         case .addAccount:
             smallWidget(title: Localization.accountFormCreateButton) {
@@ -140,7 +139,7 @@ private extension FeedWidgetsView {
         .padding(.top, Constants.padding)
         .padding(.bottom, Constants.compactBottomPadding)
         .frame(width: compactCardWidth, height: compactCardHeight, alignment: .leading)
-        .background(DesignSystem.Color.bgSecondary, in: RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
+        .background(DesignSystem.Color.bgOpaquePrimary, in: RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
     }
 
     func iconSize(for appearance: ProductAppearance) -> CGSize {
@@ -207,7 +206,7 @@ private extension FeedWidgetsView {
         .padding(Constants.padding)
         .frame(width: width, height: columnHeight, alignment: .leading)
         .background {
-            DesignSystem.Color.bgSecondary
+            DesignSystem.Color.bgOpaquePrimary
                 .overlay { FeedProductGlowView(color: appearance.iconColor) }
                 .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
         }

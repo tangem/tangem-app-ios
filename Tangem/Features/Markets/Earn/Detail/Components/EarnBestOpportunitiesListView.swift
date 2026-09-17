@@ -21,19 +21,8 @@ struct EarnBestOpportunitiesListView: View {
     let hasActiveFilters: Bool
     let clearFilterAction: (() -> Void)?
 
-    private var backgroundColor: Color {
-        DesignSystem.Color.bgSecondary
-    }
-
     var body: some View {
         rootView
-            .defaultRoundedBackground(
-                with: backgroundColor,
-                verticalPadding: Layout.innerContentPadding,
-                horizontalPadding: Layout.innerContentPadding,
-                cornerRadius: 24
-            )
-            .padding(.horizontal, Layout.horizontalPadding)
     }
 
     @ViewBuilder
