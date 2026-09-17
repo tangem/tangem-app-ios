@@ -48,6 +48,8 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     /// Pending express transaction
     private lazy var pendingExpressTransaction = button(.pendingExpressTransaction)
 
+    private lazy var marketingBanner = button(.marketingBanner)
+
     func hideToken(name: String) -> MainScreen {
         moreButton.tap()
         hideTokenButton.waitAndTap()
@@ -333,6 +335,29 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         }
     }
 
+    // MARK: - Marketing Banner Methods
+
+    @discardableResult
+    func verifyMarketingBannerDisplayed(text: String) -> Self {
+        XCTContext.runActivity(named: "Verify marketing banner with text '\(text)' is displayed") { _ in
+            waitAndAssertTrue(marketingBanner, timeout: .networkRequest, "Marketing banner should be displayed")
+            XCTAssertTrue(
+                marketingBanner.label.contains(text),
+                "Marketing banner should contain '\(text)' but was '\(marketingBanner.label)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapMarketingBanner() -> SwapStoriesScreen {
+        XCTContext.runActivity(named: "Tap marketing banner") { _ in
+            waitAndAssertTrue(marketingBanner, "Marketing banner should exist")
+            marketingBanner.waitAndTap()
+            return SwapStoriesScreen(app)
+        }
+    }
+
     // MARK: - Notification Validation Methods
 
     @discardableResult
@@ -509,6 +534,7 @@ enum TokenScreenElement: String, UIElement {
     case addFundsButton
     case transferButton
     case pendingExpressTransaction
+    case marketingBanner
 
     var accessibilityIdentifier: String {
         switch self {
@@ -554,6 +580,9 @@ enum TokenScreenElement: String, UIElement {
             return ActionButtonsAccessibilityIdentifiers.transferButton
         case .pendingExpressTransaction:
             return TokenAccessibilityIdentifiers.pendingExpressTransaction
+        case .marketingBanner:
+            // Campaign id fixed by the `TokenDetailsSwapBanner` mock scenario state.
+            return MarketingBannerAccessibilityIdentifiers.standaloneBanner(id: 9001)
         }
     }
 }
