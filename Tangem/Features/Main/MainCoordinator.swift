@@ -142,7 +142,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
         }
 
         let coordinator = FeedCoordinator(popToRootAction: popToRootAction)
-        coordinator.start(with: .init())
+        coordinator.start(with: .init(host: self))
         feedCoordinator = coordinator
     }
 
@@ -1303,3 +1303,7 @@ private extension MainCoordinator {
         }
     }
 }
+
+// MARK: - FeedHostRoutable
+
+extension MainCoordinator: FeedHostRoutable {}

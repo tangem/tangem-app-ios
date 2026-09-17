@@ -1,5 +1,5 @@
 //
-//  CollectiblesWalletSelectorViewModel.swift
+//  WalletSelectorSheetViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import TangemUI
 
-final class CollectiblesWalletSelectorViewModel: FloatingSheetContentViewModel {
+final class WalletSelectorSheetViewModel: FloatingSheetContentViewModel {
     let accountSelectorViewModel: AccountSelectorViewModel
     let close: () -> Void
 

@@ -9,6 +9,8 @@
 import Combine
 import SwiftUI
 import TangemFoundation
+import TangemLocalization
+import TangemUI
 import TangemUIUtils
 
 final class FeedCoordinator: CoordinatorObject {
@@ -32,6 +34,15 @@ final class FeedCoordinator: CoordinatorObject {
     var shtorkaReporting: any MainShtorkaReporting { shtorkaStateObject }
     var shtorkaActions: any MainShtorkaViewActionProvider { shtorkaStateObject }
 
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
+
+    private weak var host: FeedHostRoutable?
+    private var earnRouter: EarnFeedRouter?
+    private weak var presentedWidgetSheet: AnyObject?
+    private weak var accountCreationWallet: UserWalletModel?
+    private var accountFormCompletion: (() -> Void)?
     private var bag = Set<AnyCancellable>()
 
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
@@ -40,17 +51,31 @@ final class FeedCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        host = options.host
         let context = FeedContext(navigation: self, popToRootAction: popToRootAction)
-        rootViewModel = FeedViewModelFactory().makeViewModel(context: context, shtorkaActions: shtorkaActions)
+        earnRouter = EarnFeedRouter(context: context)
+        rootViewModel = FeedViewModelFactory().makeViewModel(
+            context: context,
+            shtorkaActions: shtorkaActions,
+            widgetsRouter: self
+        )
 
         bind()
+    }
+
+    func accountFormDidDismiss() {
+        let completion = accountFormCompletion
+        accountFormCompletion = nil
+        completion?()
     }
 }
 
 // MARK: - Options
 
 extension FeedCoordinator {
-    struct Options {}
+    struct Options {
+        let host: FeedHostRoutable
+    }
 }
 
 // MARK: - FeedNavigation
@@ -90,7 +115,146 @@ extension FeedCoordinator: FeedNavigation {
     }
 }
 
-// MARK: - Sheet lifetime
+// MARK: - FeedWidgetsRoutable
+
+extension FeedCoordinator: FeedWidgetsRoutable {
+    func openForYou() {
+        guard path.isEmpty else { return }
+
+        shtorkaStateObject.expand()
+        let coordinator = ForYouCoordinator(
+            dismissAction: { [weak self] _ in self?.pop() },
+            popToRootAction: popToRootAction,
+            routeOnTokenResolvedAction: { [weak self] resolution, source in
+                self?.earnRouter?.routeOnTokenResolved(resolution, source: source)
+            }
+        )
+        coordinator.start(with: .init())
+        push(.forYou(coordinator))
+    }
+
+    func openAddAccount(candidates: [FeedAccountCandidate]) {
+        Task { @MainActor [weak self] in
+            guard let self, presented == nil, presentedWidgetSheet == nil, let candidate = candidates.first else { return }
+
+            if candidates.count == 1 {
+                openAccountCreation(for: candidate)
+                return
+            }
+
+            let selector = AccountSelectorViewModel(
+                userWalletModels: candidates.map(\.wallet),
+                preferredDisplayMode: .wallets
+            ) { [weak self] selection in
+                Task { @MainActor [weak self] in
+                    guard let self,
+                          let candidate = candidates.first(where: { $0.wallet.userWalletId == selection.userWalletModel.userWalletId }) else { return }
+
+                    dismissWidgetSheet()
+                    openAccountCreation(for: candidate)
+                }
+            }
+            let viewModel = WalletSelectorSheetViewModel(
+                accountSelectorViewModel: selector,
+                close: { [weak self] in self?.dismissWidgetSheet() }
+            )
+            enqueueWidgetSheet(viewModel)
+        }
+    }
+}
+
+// MARK: - AddAccountTypeSelectorRoutable
+
+extension FeedCoordinator: AddAccountTypeSelectorRoutable {
+    func openCryptoAccountForm(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
+        Task { @MainActor in
+            dismissWidgetSheet()
+            guard presented == nil else { return }
+
+            let viewModel = AccountFormViewModel(
+                flowType: .create(creator: CryptoAccountFormViewCreator(accountModelsManager: accountModelsManager)),
+                coordinator: self
+            )
+            present(.accountForm(viewModel))
+        }
+    }
+
+    func openJointAccountManagement(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
+        Task { @MainActor in
+            dismissWidgetSheet()
+            guard presented == nil else { return }
+
+            let coordinator = JointAccountManagementCoordinator(
+                dismissAction: { [weak self] _ in
+                    guard let self, case .jointAccount = presented else { return }
+
+                    dismissPresented()
+                },
+                popToRootAction: popToRootAction
+            )
+            coordinator.start(with: .creation(.init(accountModelsManager: accountModelsManager, userWalletConfig: userWalletConfig)))
+            present(.jointAccount(coordinator))
+        }
+    }
+
+    func dismissAddAccountTypeSelector() {
+        Task { @MainActor in dismissWidgetSheet() }
+    }
+}
+
+// MARK: - AccountFormViewModelRoutable
+
+extension FeedCoordinator: AccountFormViewModelRoutable {
+    func closeAccountForm(outcome: AccountFormOutcome) {
+        guard case .accountForm = presented else { return }
+
+        if case .completed(.crypto(let result, let createdAccount)) = outcome {
+            accountFormCompletion = makeAccountFormCompletion(
+                result: result,
+                createdAccount: createdAccount,
+                wallet: accountCreationWallet
+            )
+        }
+        accountCreationWallet = nil
+        dismissPresented()
+    }
+}
+
+// MARK: - Widget sheets
+
+@MainActor
+private extension FeedCoordinator {
+    func openAccountCreation(for candidate: FeedAccountCandidate) {
+        guard presented == nil, candidate.availability.isAvailable else { return }
+
+        let wallet = candidate.wallet
+        accountCreationWallet = wallet
+
+        guard candidate.availability.joint else {
+            openCryptoAccountForm(accountModelsManager: wallet.accountModelsManager, userWalletConfig: wallet.config)
+            return
+        }
+
+        let viewModel = AddAccountTypeSelectorViewModel(
+            accountModelsManager: wallet.accountModelsManager,
+            userWalletConfig: wallet.config,
+            coordinator: self
+        )
+        enqueueWidgetSheet(viewModel)
+    }
+
+    func enqueueWidgetSheet(_ sheet: some FloatingSheetContentViewModel & AnyObject) {
+        presentedWidgetSheet = sheet
+        floatingSheetPresenter.enqueue(sheet: sheet)
+    }
+
+    func dismissWidgetSheet() {
+        presentedWidgetSheet = nil
+        floatingSheetPresenter.removeActiveSheet()
+    }
+}
+
+// MARK: - Private
 
 private extension FeedCoordinator {
     func bind() {
@@ -115,6 +279,34 @@ private extension FeedCoordinator {
             path.removeAll()
             presented = nil
             cover = nil
+        }
+    }
+
+    func makeAccountFormCompletion(
+        result: AccountOperationResult,
+        createdAccount: (any CryptoAccountModel)?,
+        wallet: UserWalletModel?
+    ) -> () -> Void {
+        let openManageTokens: () -> Void = { [weak self] in
+            guard let self, let createdAccount, let wallet else { return }
+
+            host?.openManageTokens(for: createdAccount, in: wallet)
+        }
+
+        guard let names = result.redistributedAccountNames else {
+            return openManageTokens
+        }
+
+        return { [weak self] in
+            self?.alertPresenter.present(alert: AlertBuilder.makeAlertWithDefaultPrimaryButton(
+                title: Localization.accountsMigrationAlertTitle,
+                message: Localization.accountsMigrationAlertMessage(
+                    names.source,
+                    names.target
+                ),
+                buttonText: Localization.commonGotIt,
+                buttonAction: openManageTokens
+            ))
         }
     }
 }
