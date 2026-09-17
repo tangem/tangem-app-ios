@@ -105,6 +105,27 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
         .eraseToAnyPublisher()
     }
 
+    func tangemPayFeedCardEntrypointEligibleWalletSelectionPublisher(
+        for customerWalletId: String
+    ) -> AnyPublisher<TangemPayWalletSelectionType?, Never> {
+        Publishers
+            .CombineLatest(
+                tangemPayEligibleWalletSelectionPublisher(for: .banner),
+                currentWalletModelsContainPaeraCustomers
+            )
+            .map { walletSelection, currentWalletModelsContainPaeraCustomers in
+                guard let walletSelection,
+                      walletSelection.userWalletModelsIds.contains(customerWalletId),
+                      !currentWalletModelsContainPaeraCustomers
+                else {
+                    return nil
+                }
+
+                return walletSelection
+            }
+            .eraseToAnyPublisher()
+    }
+
     func userDidCloseGetTangemPayBanner() {
         AppSettings.shared.tangemPayShouldShowGetBanner = false
     }
