@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -105,11 +106,9 @@ private extension CollectiblesEntranceCardView {
 
     var titleAndDescription: some View {
         VStack(alignment: .leading, spacing: Metrics.textSpacing) {
-            // [REDACTED_TODO_COMMENT]
-            Text("Explore collections").style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+            Text(Localization.collectiblesEntranceCardTitle).style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
-            // [REDACTED_TODO_COMMENT]
-            Text("Open packs of graded collectible cards")
+            Text(Localization.collectiblesEntranceCardSubtitle)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
         }
     }

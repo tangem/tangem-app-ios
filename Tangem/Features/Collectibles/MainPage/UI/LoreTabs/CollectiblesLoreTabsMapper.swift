@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 enum CollectiblesLoreTabsMapper {
     static let allTab = CollectiblesLoreTabsView.LoreTab(kind: .all, title: Constants.allTabTitle, counter: nil)
@@ -36,7 +37,6 @@ enum CollectiblesLoreTabsMapper {
 
 private extension CollectiblesLoreTabsMapper {
     enum Constants {
-        // [REDACTED_TODO_COMMENT]
-        static let allTabTitle = "All cards"
+        static let allTabTitle = Localization.collectiblesMainAllCardsTab
     }
 }

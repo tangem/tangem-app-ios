@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -61,18 +62,18 @@ private extension CollectiblesAccountView {
     var actionButtons: some View {
         HStack(spacing: 0) {
             // [REDACTED_TODO_COMMENT]
-            TangemMainActionButton(title: "Add funds", icon: Assets.DesignSystem.arrowDown) {}
+            TangemMainActionButton(title: Localization.commonAddFunds, icon: Assets.DesignSystem.arrowDown) {}
                 .frame(width: Metrics.actionButtonWidth)
 
             // [REDACTED_TODO_COMMENT]
-            TangemMainActionButton(title: "Withdrawal", icon: Assets.DesignSystem.arrowUp) {}
+            TangemMainActionButton(title: Localization.collectiblesAccountWithdraw, icon: Assets.DesignSystem.arrowUp) {}
                 .frame(width: Metrics.actionButtonWidth)
         }
     }
 
     func collectionRow(_ summary: Summary) -> some View {
         // [REDACTED_TODO_COMMENT]
-        Row(title: summary.collectionCountText, subtitle: "My collection")
+        Row(title: summary.collectionCountText, subtitle: Localization.collectiblesAccountCollectionRowSubtitle)
             .lineOrder(.secondaryFirst)
             .start { collectionIcon }
             .end { disclosureIcon }

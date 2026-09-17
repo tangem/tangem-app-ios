@@ -64,9 +64,8 @@ final class CollectiblesWelcomeViewModel: ObservableObject {
 // MARK: - Alerts
 
 private extension CollectiblesWelcomeViewModel {
-    // [REDACTED_TODO_COMMENT]
     static let creationFailureAlert = AlertBinder(
         title: Localization.commonSomethingWentWrong,
-        message: "We couldn't create Packs account. Please try again later."
+        message: Localization.collectiblesWelcomeCreationFailedMessage
     )
 }

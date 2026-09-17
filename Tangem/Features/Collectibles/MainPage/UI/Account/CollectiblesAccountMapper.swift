@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 enum CollectiblesAccountMapper {
     private static let balanceFormatter = BalanceFormatter()
@@ -21,8 +22,7 @@ enum CollectiblesAccountMapper {
                 summary.cryptoBalance,
                 currencyCode: summary.cryptoCurrencyCode
             ),
-            // [REDACTED_TODO_COMMENT]
-            collectionCountText: "\(summary.collectionCardsCount) cards"
+            collectionCountText: Localization.collectiblesAccountCollectionCardsCount(summary.collectionCardsCount)
         )
     }
 }

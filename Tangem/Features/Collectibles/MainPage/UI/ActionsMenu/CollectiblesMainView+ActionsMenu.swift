@@ -32,16 +32,14 @@ private extension ActionsMenu {
     var items: some View {
         SwiftUI.Button(action: viewModel.onHowItWorksTap) {
             Label(
-                // [REDACTED_TODO_COMMENT]
-                title: { Text("How it works") },
+                title: { Text(Localization.collectiblesMainMenuHowItWorks) },
                 icon: { DesignSystem.Icons.Info.regular20.image.renderingMode(.template) }
             )
         }
 
         SwiftUI.Button(action: viewModel.onSupportTap) {
             Label(
-                // [REDACTED_TODO_COMMENT]
-                title: { Text("Get assistance") },
+                title: { Text(Localization.collectiblesMainMenuGetAssistance) },
                 icon: { DesignSystem.Icons.Mail.regular20.image.renderingMode(.template) }
             )
         }

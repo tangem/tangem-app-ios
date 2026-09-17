@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUIUtils
 
 private typealias BenefitCollection = CollectiblesWelcomeView.BenefitCollection
@@ -37,27 +38,26 @@ private extension BenefitCollection {
         let title: String
         let subtitle: String
 
-        // [REDACTED_TODO_COMMENT]
         static let content: [Self] = [
             .init(
                 icon: DesignSystem.Icons.Lightning.regular24,
-                title: "Tapless pack opening",
-                subtitle: "No card scan needed to open"
+                title: Localization.collectiblesWelcomeBenefitTaplessTitle,
+                subtitle: Localization.collectiblesWelcomeBenefitTaplessSubtitle
             ),
             .init(
                 icon: DesignSystem.Icons.ShieldCheckmark.regular24,
-                title: "Cards go to your cold wallet",
-                subtitle: "Only your card can move them"
+                title: Localization.collectiblesWelcomeBenefitColdWalletTitle,
+                subtitle: Localization.collectiblesWelcomeBenefitColdWalletSubtitle
             ),
             .init(
                 icon: DesignSystem.Icons.ShieldCheckmark.regular24,
-                title: "Transparency",
-                subtitle: "Every card in the machine, plus recent openings"
+                title: Localization.collectiblesWelcomeBenefitTransparencyTitle,
+                subtitle: Localization.collectiblesWelcomeBenefitTransparencySubtitle
             ),
             .init(
                 icon: DesignSystem.Icons.Wallet.regular24,
-                title: "Instant optional sell offers",
-                subtitle: "85–93% of insured value, in USDC"
+                title: Localization.collectiblesWelcomeBenefitSellOffersTitle,
+                subtitle: Localization.collectiblesWelcomeBenefitSellOffersSubtitle
             ),
         ]
     }

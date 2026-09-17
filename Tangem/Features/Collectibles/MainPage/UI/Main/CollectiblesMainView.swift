@@ -75,8 +75,7 @@ private extension CollectiblesMainView {
 
     var navigationBarTitle: some View {
         VStack(spacing: 2) {
-            // [REDACTED_TODO_COMMENT]
-            Text("Packs account")
+            Text(Localization.collectiblesMainTitle)
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
             if viewModel.showsBalanceInNavigationBar, let balance = viewModel.accountBalanceText {
