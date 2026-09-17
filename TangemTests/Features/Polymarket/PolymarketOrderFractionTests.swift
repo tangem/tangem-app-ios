@@ -37,7 +37,6 @@ struct PolymarketOrderFractionTests {
 
     @Test("Max leaves room for the fee the exchange adds on top")
     func maxLeavesRoomForTheFee() async throws {
-        // The quote reports half a point of fee: 0.5 charged on a notional of 100.
         let model = try await makeModel(balance: 201, quote: .stub(status: .full))
 
         model.handleViewAction(.screenAppeared)

@@ -148,9 +148,7 @@ private extension PolymarketPositionDetailsView.Model {
     static let percentFormatter = PercentFormatter()
 
     static func question(position: PolymarketPosition) -> String {
-        position.title.nilIfEmpty
-            ?? position.eventTitle?.nilIfEmpty
-            ?? Localization.predictionPositionsUnavailable
+        position.question ?? Localization.predictionPositionsUnavailable
     }
 
     static func marketTitle(position: PolymarketPosition) -> String {

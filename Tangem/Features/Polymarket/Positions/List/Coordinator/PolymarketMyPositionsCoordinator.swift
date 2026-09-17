@@ -27,8 +27,10 @@ final class PolymarketMyPositionsCoordinator: CoordinatorObject {
 
     private var apiProvider: PolymarketAPIProvider?
     private var geoblockStateProvider: PolymarketGeoblockStateProvider?
+    private var redeemService: PolymarketRedeeming?
     private var onRegionWarning: (() -> Void)?
     private var onOrderPlaced: (@MainActor (PolymarketOrderIndexing) -> Void)?
+    private var onClaimed: (() -> Void)?
     private weak var orderBuilder: PolymarketOrderFlowBuilder?
 
     // MARK: - Init
@@ -44,8 +46,10 @@ final class PolymarketMyPositionsCoordinator: CoordinatorObject {
     func start(with options: Options) {
         apiProvider = options.apiProvider
         geoblockStateProvider = options.geoblockStateProvider
+        redeemService = options.redeemService
         onRegionWarning = options.onRegionWarning
         onOrderPlaced = options.onOrderPlaced
+        onClaimed = options.onClaimed
         orderBuilder = options.orderBuilder
 
         Task { @MainActor in
@@ -66,13 +70,16 @@ extension PolymarketMyPositionsCoordinator {
         let positionsService: PolymarketPositionsService
         let apiProvider: PolymarketAPIProvider
         let geoblockStateProvider: PolymarketGeoblockStateProvider
+        let redeemService: PolymarketRedeeming
         let onRegionWarning: () -> Void
         let onOrderPlaced: @MainActor (PolymarketOrderIndexing) -> Void
+        let onClaimed: () -> Void
         let orderBuilder: PolymarketOrderFlowBuilder
     }
 
     enum Destination {
         case positionDetails(PolymarketPositionDetailsCoordinator)
+        case redeem(PolymarketRedeemViewModel)
     }
 }
 
@@ -89,6 +96,25 @@ extension PolymarketMyPositionsCoordinator: PolymarketMyPositionsRoutable {
             story: .polymarketOnboarding(.initialWithoutImages),
             analyticsSource: .predictions
         )
+    }
+
+    @MainActor
+    func openRedeem(position: PolymarketPosition, onClaimed: @escaping () -> Void) {
+        guard let redeemService else { return }
+
+        guard let viewModel = PolymarketRedeemViewModel(
+            position: position,
+            redeemService: redeemService,
+            onClaimed: { [weak self] in
+                onClaimed()
+                self?.onClaimed?()
+            },
+            coordinator: self
+        ) else {
+            return
+        }
+
+        destination = .redeem(viewModel)
     }
 
     func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void) {
@@ -114,6 +140,14 @@ extension PolymarketMyPositionsCoordinator: PolymarketMyPositionsRoutable {
         ))
 
         destination = .positionDetails(coordinator)
+    }
+}
+
+// MARK: - PolymarketRedeemRoutable protocol conformance
+
+extension PolymarketMyPositionsCoordinator: PolymarketRedeemRoutable {
+    func closeRedeem() {
+        popToPositions()
     }
 }
 

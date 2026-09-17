@@ -61,7 +61,6 @@ private extension PolymarketFundsArrivalTracker {
 
     func observeBalance() {
         balanceSubscription = balancePublisher
-            // A balance that has not loaded yet is not a baseline, and its arrival is not a change.
             .compactMap { $0 }
             .removeDuplicates()
             .dropFirst()
