@@ -53,6 +53,8 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
 
     var appearance: StatusScreenAppearance = .neutral
     var secondaryAction: StatusScreenSecondaryAction?
+    var footerCaption: String?
+    var actionIcon: ImageType?
     var isActionLoading = false
     var isActionDisabled = false
     var footerAxis: StatusScreenFooterAxis = .vertical
@@ -181,6 +183,30 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
     // MARK: - Footer
 
     private var footer: some View {
+        VStack(spacing: Metrics.footerCaptionSpacing) {
+            if let footerCaption {
+                Text(footerCaption)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+            }
+
+            buttons
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, Metrics.footerHorizontalPadding)
+        .padding(.top, layout.footerTopPadding)
+        .padding(.bottom, layout.footerBottomPadding)
+        .background {
+            Fade(position: .bottom)
+                .ignoresSafeArea(edges: .bottom)
+        }
+        .opacity(entrance.isFooterFadedIn ? 1 : 0)
+        .offset(y: entrance.isFooterSettled ? 0 : Metrics.footerEntranceOffset)
+        .onGeometryChange(for: CGFloat.self, of: { $0.size.height }, action: { footerHeight = $0 })
+    }
+
+    private var buttons: some View {
         AxisStack(axis: footerAxis, spacing: Metrics.footerButtonSpacing) {
             if let secondaryAction {
                 Button(
@@ -194,23 +220,13 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
             }
 
             Button(label: actionTitle, accessibilityLabel: actionTitle, action: action)
+                .iconEnd(actionIcon)
                 .size(.x12)
                 .styleType(.default)
                 .horizontalLayout(.infinity)
                 .loading(.spinner(if: isActionLoading))
                 .disabled(isActionDisabled)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, Metrics.footerHorizontalPadding)
-        .padding(.top, layout.footerTopPadding)
-        .padding(.bottom, layout.footerBottomPadding)
-        .background {
-            Fade(position: .bottom)
-                .ignoresSafeArea(edges: .bottom)
-        }
-        .opacity(entrance.isFooterFadedIn ? 1 : 0)
-        .offset(y: entrance.isFooterSettled ? 0 : Metrics.footerEntranceOffset)
-        .onGeometryChange(for: CGFloat.self, of: { $0.size.height }, action: { footerHeight = $0 })
     }
 
     // MARK: - Background
@@ -422,6 +438,7 @@ private enum StatusScreenMetrics {
 
     static let footerHorizontalPadding: CGFloat = 16
     static let footerButtonSpacing: CGFloat = 8
+    static let footerCaptionSpacing: CGFloat = 12
     /// Figma's content area runs 820 pt up front and squeezes when the footer arrives.
     /// The footer overlaps the content by a fixed fade strip, so the squeeze is the
     /// measured footer height minus that overlap (60 pt for the single-button footer,

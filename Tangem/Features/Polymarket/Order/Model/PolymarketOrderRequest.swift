@@ -23,7 +23,4 @@ enum PolymarketOrderRequest {
 
 // MARK: - Indexing
 
-/// Polymarket indexes a fill a moment after the order goes through, so the screens that react to a
-/// placed order wait on this rather than on the order itself. It resolves to `nil` when the position
-/// never showed up.
 typealias PolymarketOrderIndexing = Task<PolymarketPosition?, Never>

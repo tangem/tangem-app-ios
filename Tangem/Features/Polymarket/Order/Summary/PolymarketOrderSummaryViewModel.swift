@@ -183,8 +183,6 @@ private extension PolymarketOrderSummaryViewModel {
         )
     }
 
-    /// Only the amount screen keeps a quote loop running, so a confirmation left standing until its
-    /// quote went stale has nowhere to refresh from — the way back is the screen that quotes.
     // [REDACTED_TODO_COMMENT]
     func reportStaleQuote() {
         resume()
@@ -222,8 +220,6 @@ private extension PolymarketOrderSummaryViewModel {
         }
     }
 
-    /// The result reports the exchange's own leg amounts, which carry no fee, so what the order asked
-    /// for has to be stated on the same base — `total` would differ from it by the fees alone.
     func orderedMoney(quote: PolymarketOrderQuote?) -> Decimal? {
         switch model.intent {
         case .buy: model.state.enteredAmount
@@ -334,8 +330,6 @@ private extension PolymarketOrderSummaryViewModel {
         guard let quote = state.quote.quote else { return nil }
 
         switch intent {
-        // `total` is the only field already net of the expected fees, and a sell promises what lands on
-        // the balance. A buy's badge is not a payout at all — it is what the bet wins.
         case .buy: return .value(PolymarketOrderFormatter.money(quote.expectedExecutionAmount))
         case .sell: return .value(PolymarketOrderFormatter.money(quote.total))
         }
