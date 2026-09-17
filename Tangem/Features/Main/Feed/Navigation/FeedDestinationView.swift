@@ -2,16 +2,29 @@
 //  FeedDestinationView.swift
 //  Tangem
 //
+//  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
+import TangemUI
+import TangemUIUtils
 
 struct FeedDestinationView: View {
     let destination: FeedDestination
 
     var body: some View {
         switch destination {
+        case .forYou(let coordinator):
+            ForYouCoordinatorView(coordinator: coordinator)
+                .background(FeedPopGestureEnabler())
+                .toolbar(.hidden, for: .navigationBar)
+        case .accountForm(let viewModel):
+            NavigationStack { AccountFormView(viewModel: viewModel) }
+                .presentation(onDismissalAttempt: viewModel.onClose)
+                .presentationCornerRadius(Constants.accountFormCornerRadius)
+        case .jointAccount(let coordinator):
+            JointAccountManagementCoordinatorView(coordinator: coordinator)
         case .token(let coordinator):
             MarketsTokenDetailsCoordinatorView(coordinator: coordinator)
                 .background(FeedPopGestureEnabler())
@@ -21,5 +34,13 @@ struct FeedDestinationView: View {
                 .background(FeedPopGestureEnabler())
                 .toolbar(.hidden, for: .navigationBar)
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension FeedDestinationView {
+    enum Constants {
+        static let accountFormCornerRadius: CGFloat = 24
     }
 }
