@@ -7,7 +7,10 @@
 //
 
 import Foundation
+import TangemPolymarket
 
 protocol PolymarketOrderResultRoutable: AnyObject {
     func closeOrder()
+
+    func openPosition(_ position: PolymarketPosition)
 }

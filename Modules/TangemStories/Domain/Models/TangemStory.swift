@@ -23,6 +23,15 @@ public enum TangemStory: Identifiable {
         }
     }
 
+    /// Only the artwork that is drawn to the very bottom of the page needs the home-indicator strip;
+    /// the rest keep their captions above it.
+    public var runsArtToTheBottomEdge: Bool {
+        switch self {
+        case .polymarketOnboarding: true
+        case .swap, .yieldFirstActivationAPYBoost: false
+        }
+    }
+
     public var pagesCount: Int {
         pages.count
     }

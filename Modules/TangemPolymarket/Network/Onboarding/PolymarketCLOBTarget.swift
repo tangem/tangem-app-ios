@@ -21,6 +21,7 @@ struct PolymarketCLOBTarget: Moya.TargetType {
         case updateBalanceAllowance
         case balanceAllowance
         case placeOrder(body: Data)
+        case order(id: String)
     }
 
     var path: String {
@@ -34,19 +35,20 @@ struct PolymarketCLOBTarget: Moya.TargetType {
         case .updateBalanceAllowance: "/balance-allowance/update"
         case .balanceAllowance: "/balance-allowance"
         case .placeOrder: "/order"
+        case .order(let id): "/data/order/\(id)"
         }
     }
 
     var method: Moya.Method {
         switch target {
         case .createCredentials, .placeOrder: .post
-        case .deriveCredentials, .updateBalanceAllowance, .balanceAllowance: .get
+        case .deriveCredentials, .updateBalanceAllowance, .balanceAllowance, .order: .get
         }
     }
 
     var task: Moya.Task {
         switch target {
-        case .createCredentials, .deriveCredentials:
+        case .createCredentials, .deriveCredentials, .order:
             return .requestPlain
         case .placeOrder(let body):
             return .requestData(body)
@@ -65,7 +67,7 @@ struct PolymarketCLOBTarget: Moya.TargetType {
         switch target {
         case .placeOrder:
             return authHeaders.merging(Constants.jsonHeaders) { current, _ in current }
-        case .createCredentials, .deriveCredentials, .updateBalanceAllowance, .balanceAllowance:
+        case .createCredentials, .deriveCredentials, .updateBalanceAllowance, .balanceAllowance, .order:
             return authHeaders
         }
     }

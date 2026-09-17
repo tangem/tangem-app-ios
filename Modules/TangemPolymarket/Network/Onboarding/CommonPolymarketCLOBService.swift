@@ -92,6 +92,26 @@ extension CommonPolymarketCLOBService: PolymarketCLOBService {
 
         return mapper.mapPlaceOrder(dto)
     }
+
+    func order(
+        id: String,
+        credentials: PolymarketL2Credentials,
+        ownerAddress: String
+    ) async throws -> PolymarketOrderRecord {
+        let signedTarget = PolymarketCLOBTarget(baseURL: baseURL, target: .order(id: id), authHeaders: [:])
+
+        let authHeaders = try PolymarketL2Auth.headers(
+            credentials: credentials,
+            ownerAddress: ownerAddress,
+            timestamp: String(Int(Date().timeIntervalSince1970)),
+            method: signedTarget.method.rawValue,
+            requestPath: signedTarget.signedPath
+        )
+
+        let dto: PolymarketDTO.OrderRecordResponse = try await request(.order(id: id), authHeaders: authHeaders.values)
+
+        return try mapper.mapOrderRecord(dto)
+    }
 }
 
 // MARK: - Order placement errors

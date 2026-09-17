@@ -11,28 +11,38 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 
-public struct PolymarketOrderAmountBlock<Field: View>: View {
-    private let payment: PolymarketOrderPaymentRow.Model
+public struct PolymarketOrderAmountBlock<Field: View, Footer: View>: View {
+    private let title: String
+    private let payment: PolymarketOrderPaymentRow.Model?
     private let onAddFunds: (() -> Void)?
-    private let field: () -> Field
+    private let field: Field
+    private let footer: Footer
 
     public init(
-        payment: PolymarketOrderPaymentRow.Model,
+        title: String = Localization.predictionPlaceYouWillPay,
+        payment: PolymarketOrderPaymentRow.Model?,
         onAddFunds: (() -> Void)? = nil,
-        @ViewBuilder field: @escaping () -> Field
+        @ViewBuilder field: () -> Field,
+        @ViewBuilder footer: () -> Footer = { EmptyView() }
     ) {
+        self.title = title
         self.payment = payment
         self.onAddFunds = onAddFunds
-        self.field = field
+        self.field = field()
+        self.footer = footer()
     }
 
     public var body: some View {
         VStack(spacing: 0) {
             amount
 
-            Separator(color: DesignSystem.Color.borderPrimary)
+            footer
 
-            PolymarketOrderPaymentRow(model: payment, onAddFunds: onAddFunds)
+            if let payment {
+                Separator(color: DesignSystem.Color.borderPrimary)
+
+                PolymarketOrderPaymentRow(model: payment, onAddFunds: onAddFunds)
+            }
         }
         .background(DesignSystem.Color.bgSecondary)
         .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
@@ -40,10 +50,10 @@ public struct PolymarketOrderAmountBlock<Field: View>: View {
 
     private var amount: some View {
         VStack(spacing: Constants.captionSpacing) {
-            Text(Localization.predictionPlaceYouWillPay)
+            Text(title)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textTertiary)
 
-            field()
+            field
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, Constants.horizontalPadding)
