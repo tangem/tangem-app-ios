@@ -27,6 +27,7 @@ struct PolymarketMyPositionsView: View {
                 onBack: { viewModel.handleViewAction(.closeTapped) },
                 trailing: { PolymarketOverflowMenu { viewModel.handleViewAction(.howItWorksTapped) } }
             )
+            .padding(.top, Constants.topBarTopPadding)
 
             content
         }
@@ -155,6 +156,7 @@ struct PolymarketMyPositionsView: View {
 
 private extension PolymarketMyPositionsView {
     enum Constants {
+        static let topBarTopPadding: CGFloat = 8
         static let finishedPositionSheetHeight: CGFloat = 420
         static let horizontalPadding: CGFloat = 16
         static let contentTopPadding: CGFloat = 8

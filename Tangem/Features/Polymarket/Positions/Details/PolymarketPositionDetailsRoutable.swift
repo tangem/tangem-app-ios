@@ -18,6 +18,7 @@ protocol PolymarketPositionDetailsRoutable: AnyObject {
         market: PolymarketMarket,
         outcome: PolymarketOutcome,
         eventTitle: String,
-        onPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void
+        request: PolymarketOrderRequest,
+        onPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void
     )
 }

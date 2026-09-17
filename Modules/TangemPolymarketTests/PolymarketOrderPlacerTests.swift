@@ -110,6 +110,14 @@ private final class StubCLOBService: PolymarketCLOBService, @unchecked Sendable 
         fatalError("Not reachable from the placer")
     }
 
+    func order(
+        id: String,
+        credentials: PolymarketL2Credentials,
+        ownerAddress: String
+    ) async throws -> PolymarketOrderRecord {
+        fatalError("Not reachable from this test")
+    }
+
     func placeOrder(
         _ signedOrder: PolymarketSignedOrder,
         credentials: PolymarketL2Credentials,
@@ -119,7 +127,7 @@ private final class StubCLOBService: PolymarketCLOBService, @unchecked Sendable 
 
         return PolymarketOrderPlacement(
             orderId: "0xf1503cb4",
-            status: "matched",
+            status: .matched,
             makingAmount: 72,
             takingAmount: Decimal(string: "97.95918")!,
             transactionHashes: []
