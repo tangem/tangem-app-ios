@@ -19,20 +19,26 @@ extension PolymarketPositionDetailsView.Model {
         onClosePosition: @escaping () -> Void,
         onBuy: @escaping () -> Void,
         onHint: @escaping (PolymarketPositionHintSheetView.Model) -> Void,
-        isOrderLoading: Bool
+        loadingSide: PolymarketOrderSide?
     ) -> Self {
-        Self(
+        let isOrderLoading = loadingSide != nil
+
+        return Self(
             header: header(position: position),
             market: market(position: position),
             stats: stats(position: position, onHint: onHint),
             rows: rows(position: position),
             notice: notice(position: position),
-            // [REDACTED_TODO_COMMENT]
-            secondaryAction: action(title: Localization.commonClose, isEnabled: false, perform: onClosePosition),
+            secondaryAction: action(
+                title: Localization.commonClose,
+                isEnabled: canTrade(position) && !isOrderLoading,
+                isLoading: loadingSide == .sell,
+                perform: onClosePosition
+            ),
             primaryAction: action(
                 title: Localization.commonBuy,
                 isEnabled: canTrade(position) && !isOrderLoading,
-                isLoading: isOrderLoading,
+                isLoading: loadingSide == .buy,
                 perform: onBuy
             )
         )

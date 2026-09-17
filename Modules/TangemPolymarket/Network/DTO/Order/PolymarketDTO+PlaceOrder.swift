@@ -33,6 +33,20 @@ extension PolymarketDTO {
         }
     }
 
+    struct OrderRecordResponse: Decodable {
+        let status: PolymarketOrderRecordStatus
+        let originalSize: String?
+        let sizeMatched: String?
+        let price: String?
+
+        enum CodingKeys: String, CodingKey {
+            case status
+            case originalSize = "original_size"
+            case sizeMatched = "size_matched"
+            case price
+        }
+    }
+
     struct PlaceOrderResponse: Decodable {
         let success: Bool
         let orderID: String?

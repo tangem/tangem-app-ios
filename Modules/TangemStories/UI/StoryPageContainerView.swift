@@ -12,8 +12,11 @@ public struct StoryPageContainerView: View {
     private let content: AnyView
     private let screenBounds = UIScreen.main.bounds
 
-    public init(content: any View) {
+    private let ignoresBottomSafeArea: Bool
+
+    public init(content: any View, ignoresBottomSafeArea: Bool = false) {
         self.content = AnyView(content)
+        self.ignoresBottomSafeArea = ignoresBottomSafeArea
     }
 
     public var body: some View {
@@ -21,5 +24,6 @@ public struct StoryPageContainerView: View {
             .frame(maxWidth: screenBounds.width, maxHeight: screenBounds.height)
             .clipShape(RoundedRectangle(cornerRadius: 4))
             .contentShape(Rectangle())
+            .ignoresSafeArea(edges: ignoresBottomSafeArea ? .bottom : [])
     }
 }

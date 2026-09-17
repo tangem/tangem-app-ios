@@ -54,7 +54,7 @@ final class PolymarketOrderSummaryViewModel: ObservableObject {
         self.coordinator = coordinator
 
         marketRow = .make(market: model.market, outcome: model.outcome, eventTitle: model.eventTitle)
-        header = Self.makeHeader(state: model.state)
+        header = Self.makeHeader(state: model.state, intent: model.intent)
         feeText = Self.makeFeeText(state: model.state)
         slippageText = PolymarketSlippageFormatter.rowText(model.state.slippagePercent)
 
@@ -69,10 +69,8 @@ final class PolymarketOrderSummaryViewModel: ObservableObject {
 
     func handleViewAction(_ action: ViewAction) {
         switch action {
-        case .appeared:
-            model.handleViewAction(.screenAppeared)
-        case .disappeared:
-            model.handleViewAction(.screenDisappeared)
+        case .appeared, .disappeared:
+            break
         case .backTapped:
             guard !isPlacing else { return }
 
@@ -116,7 +114,7 @@ private extension PolymarketOrderSummaryViewModel {
 
         guard let receivedAt = model.state.quoteReceivedAt,
               Date().timeIntervalSince(receivedAt) <= Constants.maxQuoteAge else {
-            reportFailure()
+            reportStaleQuote()
             return
         }
 
@@ -141,9 +139,13 @@ private extension PolymarketOrderSummaryViewModel {
                     return
                 }
 
-                finish(with: .init(placement: placement, quotedShares: quote.shares), placement: placement)
+                finish(
+                    with: .init(placement: placement, quotedShares: quote.shares, side: model.intent.side),
+                    placement: placement,
+                    quote: quote
+                )
             } catch let error as PolymarketOrderPlacementError {
-                handle(error)
+                handle(error, quote: quote)
             } catch is CancellationError {
                 resume()
             } catch {
@@ -153,14 +155,14 @@ private extension PolymarketOrderSummaryViewModel {
         }
     }
 
-    func handle(_ error: PolymarketOrderPlacementError) {
+    func handle(_ error: PolymarketOrderPlacementError, quote: PolymarketOrderQuote) {
         switch error {
         case .noLiquidity:
             PolymarketLogger.error("The book had nothing to match the order", error: error)
-            finish(with: .noFill, placement: nil)
+            finish(with: .noFill, placement: nil, quote: quote)
         case _ where error.isAmbiguous:
             PolymarketLogger.error("The order was sent and its outcome is unknown", error: error)
-            finish(with: .stillProcessing, placement: nil)
+            finish(with: .stillProcessing, placement: nil, quote: quote)
         case _ where error.isUserCancellation:
             resume()
         default:
@@ -181,24 +183,67 @@ private extension PolymarketOrderSummaryViewModel {
         )
     }
 
+    /// Only the amount screen keeps a quote loop running, so a confirmation left standing until its
+    /// quote went stale has nowhere to refresh from — the way back is the screen that quotes.
+    // [REDACTED_TODO_COMMENT]
+    func reportStaleQuote() {
+        resume()
+        alert = AlertBuilder.makeOkGotItAlert(
+            message: "The price moved on while you were deciding. Check the amount and confirm again.",
+            okAction: { [weak self] in self?.coordinator?.closeSummary() }
+        )
+    }
+
     func resume() {
         isPlacing = false
     }
 
     @MainActor
-    func finish(with state: PolymarketOrderResultViewModel.State, placement: PolymarketOrderPlacement?) {
+    func finish(
+        with state: PolymarketOrderResultViewModel.State,
+        placement: PolymarketOrderPlacement?,
+        quote: PolymarketOrderQuote?
+    ) {
         isPlacing = false
-        coordinator?.openResult(state: state, content: makeResultContent(placement: placement))
+        coordinator?.openResult(state: state, content: makeResultContent(placement: placement, quote: quote))
     }
 
-    func makeResultContent(placement: PolymarketOrderPlacement?) -> PolymarketOrderResultViewModel.Content {
+    func filledMoney(_ placement: PolymarketOrderPlacement?) -> Decimal? {
+        switch model.intent.side {
+        case .buy: placement?.makingAmount
+        case .sell: placement?.takingAmount
+        }
+    }
+
+    func filledShares(_ placement: PolymarketOrderPlacement?) -> Decimal? {
+        switch model.intent.side {
+        case .buy: placement?.takingAmount
+        case .sell: placement?.makingAmount
+        }
+    }
+
+    /// The result reports the exchange's own leg amounts, which carry no fee, so what the order asked
+    /// for has to be stated on the same base — `total` would differ from it by the fees alone.
+    func orderedMoney(quote: PolymarketOrderQuote?) -> Decimal? {
+        switch model.intent {
+        case .buy: model.state.enteredAmount
+        case .sell: quote?.expectedExecutionAmount
+        }
+    }
+
+    func makeResultContent(
+        placement: PolymarketOrderPlacement?,
+        quote: PolymarketOrderQuote?
+    ) -> PolymarketOrderResultViewModel.Content {
         .init(
             market: marketRow,
             placedAt: Date(),
-            orderedAmount: model.state.enteredAmount,
-            filledAmount: placement?.makingAmount,
-            tokensBought: placement?.takingAmount,
-            resolutionDate: model.market.endDate
+            orderedAmount: orderedMoney(quote: quote),
+            filledAmount: filledMoney(placement),
+            tokensBought: filledShares(placement),
+            resolutionDate: model.market.endDate,
+            side: model.intent.side,
+            feeText: PolymarketOrderFormatter.money(quote?.fees.total)
         )
     }
 }
@@ -229,9 +274,9 @@ private extension PolymarketOrderSummaryViewModel {
     }
 
     func update(with state: PolymarketOrderModel.State) {
-        let gate = PolymarketOrderGate(state: state)
+        let gate = PolymarketOrderGate(state: state, intent: model.intent)
 
-        header = Self.makeHeader(state: state)
+        header = Self.makeHeader(state: state, intent: model.intent)
         feeText = Self.makeFeeText(state: state)
         slippageText = PolymarketSlippageFormatter.rowText(state.slippagePercent)
         notifications = gate.notifications
@@ -240,21 +285,60 @@ private extension PolymarketOrderSummaryViewModel {
     }
 }
 
+// MARK: - Copy
+
+extension PolymarketOrderSummaryViewModel {
+    // [REDACTED_TODO_COMMENT]
+    var screenTitle: String {
+        switch model.intent {
+        case .buy: Localization.predictionPlaceSummaryTitle
+        case .sell: "Close position"
+        }
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    var primaryActionTitle: String {
+        switch model.intent {
+        case .buy: Localization.predictionPlaceButton
+        case .sell: "Close position"
+        }
+    }
+}
+
 // MARK: - Mapping
 
 private extension PolymarketOrderSummaryViewModel {
-    static func makeHeader(state: PolymarketOrderModel.State) -> PolymarketOrderSummaryHeader.Model {
-        .make(
-            amountText: PolymarketOrderFormatter.enteredAmount(state.enteredAmount),
-            balanceText: Localization.commonBalance(PolymarketOrderFormatter.collateralBalance(state.balance)),
-            toWin: makeToWin(state: state)
+    // [REDACTED_TODO_COMMENT]
+    static func makeHeader(
+        state: PolymarketOrderModel.State,
+        intent: PolymarketOrderIntent
+    ) -> PolymarketOrderSummaryHeader.Model {
+        let isSell = intent.side == .sell
+
+        return .make(
+            amountText: isSell
+                ? PolymarketOrderFormatter.shares(state.enteredAmount) + " shares"
+                : PolymarketOrderFormatter.enteredAmount(state.enteredAmount),
+            balanceText: isSell
+                ? Localization.commonBalance(PolymarketOrderFormatter.shares(state.balance) + " shares")
+                : Localization.commonBalance(PolymarketOrderFormatter.collateralBalance(state.balance)),
+            toWin: makeToWin(state: state, intent: intent),
+            isProceeds: isSell
         )
     }
 
-    static func makeToWin(state: PolymarketOrderModel.State) -> PolymarketAmountBadge.State? {
+    static func makeToWin(
+        state: PolymarketOrderModel.State,
+        intent: PolymarketOrderIntent
+    ) -> PolymarketAmountBadge.State? {
         guard let quote = state.quote.quote else { return nil }
 
-        return .value(PolymarketOrderFormatter.money(quote.expectedExecutionAmount))
+        switch intent {
+        // `total` is the only field already net of the expected fees, and a sell promises what lands on
+        // the balance. A buy's badge is not a payout at all — it is what the bet wins.
+        case .buy: return .value(PolymarketOrderFormatter.money(quote.expectedExecutionAmount))
+        case .sell: return .value(PolymarketOrderFormatter.money(quote.total))
+        }
     }
 
     static func makeFeeText(state: PolymarketOrderModel.State) -> String {

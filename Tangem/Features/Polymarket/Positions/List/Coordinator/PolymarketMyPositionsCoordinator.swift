@@ -28,7 +28,7 @@ final class PolymarketMyPositionsCoordinator: CoordinatorObject {
     private var apiProvider: PolymarketAPIProvider?
     private var geoblockStateProvider: PolymarketGeoblockStateProvider?
     private var onRegionWarning: (() -> Void)?
-    private var onOrderPlaced: (@MainActor (Task<Void, Never>?) -> Void)?
+    private var onOrderPlaced: (@MainActor (PolymarketOrderIndexing?) -> Void)?
     private weak var orderBuilder: PolymarketOrderFlowBuilder?
 
     // MARK: - Init
@@ -67,7 +67,7 @@ extension PolymarketMyPositionsCoordinator {
         let apiProvider: PolymarketAPIProvider
         let geoblockStateProvider: PolymarketGeoblockStateProvider?
         let onRegionWarning: () -> Void
-        let onOrderPlaced: @MainActor (Task<Void, Never>?) -> Void
+        let onOrderPlaced: @MainActor (PolymarketOrderIndexing?) -> Void
         let orderBuilder: PolymarketOrderFlowBuilder
     }
 
@@ -86,14 +86,13 @@ extension PolymarketMyPositionsCoordinator: PolymarketMyPositionsRoutable {
 
     @MainActor
     func openHowItWorks() {
-        tangemStoriesPresenter.present(
+        tangemStoriesPresenter.presentOnDemand(
             story: .polymarketOnboarding(.initialWithoutImages),
-            analyticsSource: .predictions,
-            presentCompletion: {}
+            analyticsSource: .predictions
         )
     }
 
-    func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void) {
+    func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void) {
         guard let apiProvider else { return }
 
         destination = .positionDetails(PolymarketPositionDetailsViewModel(
@@ -124,13 +123,16 @@ extension PolymarketMyPositionsCoordinator: PolymarketPositionDetailsRoutable {
         market: PolymarketMarket,
         outcome: PolymarketOutcome,
         eventTitle: String,
-        onPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void
+        request: PolymarketOrderRequest,
+        onPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void
     ) {
         guard let coordinator = orderBuilder?.makeOrderCoordinator(
             market: market,
             outcome: outcome,
             eventTitle: eventTitle,
+            request: request,
             onPlaced: onPlaced,
+            onOpenPosition: { [weak self] position in self?.openPositionDetails(position: position, onOrderPlaced: onPlaced) },
             onClose: { [weak self] in self?.destination = nil }
         ) else {
             return

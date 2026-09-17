@@ -160,6 +160,14 @@ final class PolymarketOwnerAddressProviderStub: PolymarketOwnerAddressProviding 
 final class PolymarketCLOBServiceStub: PolymarketCLOBService {
     struct StubError: Error {}
 
+    func order(
+        id: String,
+        credentials: PolymarketL2Credentials,
+        ownerAddress: String
+    ) async throws -> PolymarketOrderRecord {
+        fatalError("Not reachable from this test")
+    }
+
     private(set) var balanceCalls = 0
 
     private let balanceResult: Result<Decimal, Error>

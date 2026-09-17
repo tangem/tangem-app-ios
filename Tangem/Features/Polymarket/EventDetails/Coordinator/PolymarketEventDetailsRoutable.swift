@@ -15,7 +15,7 @@ protocol PolymarketEventDetailsRoutable: AnyObject {
         market: PolymarketMarket,
         outcome: PolymarketOutcome,
         eventTitle: String,
-        onPlaced: @escaping @MainActor (Task<Void, Never>?) -> Void
+        onPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void
     )
     func openRegionWarning()
 }

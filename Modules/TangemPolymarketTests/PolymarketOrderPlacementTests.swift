@@ -135,7 +135,7 @@ struct PolymarketPlaceOrderWireFormatTests {
 
         #expect(dto.success)
         #expect(placement.orderId == "0xf1503cb4")
-        #expect(placement.status == "matched")
+        #expect(placement.status == .matched)
         #expect(placement.makingAmount == Decimal(string: "0.999999"))
         #expect(placement.takingAmount == Decimal(string: "7.692306"))
         #expect(placement.transactionHashes == ["0x7365a3d2"])
