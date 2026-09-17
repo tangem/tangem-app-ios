@@ -257,7 +257,8 @@ final class YieldModuleStartViewModel: ObservableObject {
                 .withFeeState(.loaded(text: fiatFee))
                 .withLinkActive(true)
 
-            let isFeeHigh = feeValue > walletModel.getFeeCurrencyBalance()
+            let feeCurrencyBalance = walletModel.getFeeCurrencyBalance()
+            let isFeeHigh = feeValue > feeCurrencyBalance
 
             if case .ethereum = walletModel.tokenItem.blockchain, isGasPriceHigh, !isFeeHigh {
                 logger.logEarningNoticeHighNetworkFeeShown()
@@ -265,7 +266,7 @@ final class YieldModuleStartViewModel: ObservableObject {
             }
 
             if isFeeHigh {
-                logger.logEarningNoticeNotEnoughFeeShown()
+                logger.logEarningNoticeNotEnoughFeeShown(feeCurrencyBalance: feeCurrencyBalance)
                 networkFeeNotification = createNotEnoughFeeNotification(walletModel: walletModel)
             }
 

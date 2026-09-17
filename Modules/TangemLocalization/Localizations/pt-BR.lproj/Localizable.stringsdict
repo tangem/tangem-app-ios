@@ -520,9 +520,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li business day</string>
+        <string>dia útil</string>
         <key>other</key>
-        <string>%li business days</string>
+        <string>dias úteis</string>
       </dict>
     </dict>
     <key>top_assets_count</key>
