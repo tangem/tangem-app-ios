@@ -40,6 +40,7 @@ final class TangemPayOrderCardCoordinator: CoordinatorObject {
                 virtualOffer: options.tangemPayAccount.additionalCardIssueOffer,
                 plasticOffer: options.tangemPayAccount.plasticCardIssueOffer,
                 tariffPlanCardImageURL: options.tariffPlanCardImageURL,
+                isBasicTariff: options.isBasicTariff,
                 availableBalancePublisher: options.availableBalancePublisher,
                 countryName: options.countryName,
                 selectedCardType: options.selectedCardType,
@@ -57,6 +58,7 @@ extension TangemPayOrderCardCoordinator {
     struct Options {
         let purpose: TangemPayOrderCardPurpose
         let tariffPlanCardImageURL: URL?
+        let isBasicTariff: Bool
         let nameOnCard: String?
         let countryName: String?
         let email: String?
@@ -136,6 +138,6 @@ extension TangemPayOrderCardCoordinator: TangemPayOrderCardDataRoutable {
 
 extension TangemPayOrderCardCoordinator: TangemPayOrderCardSuccessRoutable {
     func orderCardSuccessDidTapShowCard() {
-        dismiss()
+        options?.parentCoordinator?.orderCardFlowDidComplete()
     }
 }

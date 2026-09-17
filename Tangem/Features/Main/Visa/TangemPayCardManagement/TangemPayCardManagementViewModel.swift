@@ -91,6 +91,14 @@ final class TangemPayCardManagementViewModel: ObservableObject {
         }
     }
 
+    func selectDeliveringPlasticCard() {
+        guard let entry = tangemPayAccount.cardEntries.first(where: { $0.plasticCard?.isDelivering == true }) else {
+            return
+        }
+
+        selectedCardId = entry.id
+    }
+
     func openChangeDailyLimit() {
         guard case .details(let details) = contentState, case .loaded = details.dailyLimitState else { return }
         guard let card = currentCard else { return }
@@ -370,13 +378,25 @@ private extension TangemPayCardManagementViewModel {
     func applyEntries(_ entries: [TangemPayCardEntry]) {
         let selectedIndex = cardDetailsItems.firstIndex { $0.id == selectedCardId }
 
-        // When the selected card is gone (e.g. its close order completed), fall back to the card
-        // before it so we stay in card management instead of leaving the screen.
-        let resolution = selectionAnchor?.resolveSelection(in: entries) ?? fallbackResolution(selectedIndex: selectedIndex, in: entries)
+        let resolution = selectionAnchor?.resolveSelection(in: entries)
 
         rebuildCardDetailsItems(entries: entries)
 
-        guard let resolution else {
+        if let resolution {
+            selectionAnchor = resolution.newAnchor
+            if resolution.entry.id != selectedCardId {
+                selectedCardId = resolution.entry.id
+            }
+            return
+        }
+
+        if selectionAnchor?.isPlastic == true, tangemPayAccount.isPlasticDeliveryInProgress {
+            return
+        }
+
+        // When the selected card is gone (e.g. its close order completed), fall back to the card
+        // before it so we stay in card management instead of leaving the screen.
+        guard let fallback = fallbackResolution(selectedIndex: selectedIndex, in: entries) else {
             if selectionAnchor != nil {
                 coordinator?.popToCardListScreen()
                 selectionAnchor = nil
@@ -385,9 +405,9 @@ private extension TangemPayCardManagementViewModel {
             return
         }
 
-        selectionAnchor = resolution.newAnchor
-        if resolution.entry.id != selectedCardId {
-            selectedCardId = resolution.entry.id
+        selectionAnchor = fallback.newAnchor
+        if fallback.entry.id != selectedCardId {
+            selectedCardId = fallback.entry.id
         }
     }
 

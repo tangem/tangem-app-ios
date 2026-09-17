@@ -15,6 +15,7 @@ final class TangemPayOrderCardTypeViewModel: ObservableObject, Identifiable {
     @Published private var availableBalance: Decimal?
 
     let cardTypes: [TangemPayOrderCardType]
+    let isBasicTariff: Bool
 
     var isSelectEnabled: Bool {
         switch selectedCardType {
@@ -48,6 +49,7 @@ final class TangemPayOrderCardTypeViewModel: ObservableObject, Identifiable {
         virtualOffer: TangemPayCustomerOffer?,
         plasticOffer: TangemPayCustomerOffer?,
         tariffPlanCardImageURL: URL?,
+        isBasicTariff: Bool,
         availableBalancePublisher: some Publisher<Decimal?, Never>,
         countryName: String?,
         selectedCardType: TangemPayOrderCardType?,
@@ -56,11 +58,12 @@ final class TangemPayOrderCardTypeViewModel: ObservableObject, Identifiable {
         let cardTypes = TangemPayOrderCardType.allCases.filter { type in
             switch type {
             case .virtual: virtualOffer?.fee != nil
-            case .plastic: FeatureProvider.isAvailable(.tangemPayPlastic) && plasticOffer != nil
+            case .plastic: FeatureProvider.isAvailable(.tangemPayPlastic)
             }
         }
 
         self.cardTypes = cardTypes
+        self.isBasicTariff = isBasicTariff
         self.virtualOffer = virtualOffer
         self.plasticOffer = plasticOffer
         self.tariffPlanCardImageURL = tariffPlanCardImageURL

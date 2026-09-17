@@ -41,6 +41,10 @@ enum TangemPayCardEntry: Identifiable {
             if case .awaitingActivation(let card, _) = self { card } else { nil }
         }
 
+        var isDelivering: Bool {
+            if case .delivering = self { true } else { false }
+        }
+
         static func == (lhs: Self, rhs: Self) -> Bool {
             lhs.id == rhs.id && lhs.stage == rhs.stage && lhs.productInstanceId == rhs.productInstanceId
         }
@@ -127,7 +131,8 @@ extension TangemPayCardEntry {
         cards: [TangemPayCard],
         pendingProductInstances: [VisaCustomerInfoResponse.ProductInstance],
         activeIssueOrders: [TangemPayOrderResponse],
-        activatingProductInstanceIds: Set<String>
+        activatingProductInstanceIds: Set<String>,
+        hiddenSourceProductInstanceIds: Set<String>
     ) -> [TangemPayCardEntry] {
         let isPlasticEnabled = FeatureProvider.isAvailable(.tangemPayPlastic)
 
@@ -135,6 +140,7 @@ extension TangemPayCardEntry {
         entries.reserveCapacity(cards.count + pendingProductInstances.count + activeIssueOrders.count)
 
         for card in cards {
+            if hiddenSourceProductInstanceIds.contains(card.productInstance.id) { continue }
             if isPlasticEnabled, card.isAwaitingActivation {
                 entries.append(.plastic(.awaitingActivation(
                     card: card,
@@ -152,12 +158,13 @@ extension TangemPayCardEntry {
         }
         // A plastic order carries no `product_instance_id` to match its card by, and only one runs at a time.
         let hasDeliveredPlasticCard = cards.contains(where: \.isAwaitingActivation)
+        let plasticDeliveringOrderTypes = TangemPayOrderType.plasticDeliveringFamily
         for order in activeIssueOrders.sorted(by: { $0.id < $1.id }) {
             if let pid = order.data?.productInstanceId,
                pendingPIIds.contains(pid) || cardPIIds.contains(pid) {
                 continue
             }
-            guard isPlasticEnabled, order.type == TangemPayOrderType.cardIssuePlasticRain.rawValue else {
+            guard isPlasticEnabled, plasticDeliveringOrderTypes.contains(order.type) else {
                 entries.append(.issuing(.order(order)))
                 continue
             }
