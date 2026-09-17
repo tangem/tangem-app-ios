@@ -29,7 +29,7 @@ struct PolymarketDepositReceiveTokenFactory {
             isCustom: false,
             defaultAddressString: depositTarget.fundingAddress,
             availableBalanceProvider: balanceProvider,
-            fiatAvailableBalanceProvider: accountModel.fiatTotalTokenBalanceProvider,
+            fiatAvailableBalanceProvider: accountModel.fiatAvailableBalanceProvider,
             allowanceService: nil,
             withdrawalNotificationProvider: nil,
             scaledUIAmountMultiplierResolver: nil,

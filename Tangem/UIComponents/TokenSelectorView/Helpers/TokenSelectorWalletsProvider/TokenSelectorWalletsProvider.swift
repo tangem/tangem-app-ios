@@ -91,7 +91,7 @@ struct TokenSelectorItem: Hashable, Identifiable {
                 ? tangemPayAccount.balancesProvider.fiatTotalTokenBalanceProvider
                 : tangemPayAccount.balancesProvider.fiatAvailableBalanceProvider(for: accountToken)
         case .polymarket(let source):
-            source.accountModel.fiatTotalTokenBalanceProvider
+            source.accountModel.fiatAvailableBalanceProvider
         }
     }
 
