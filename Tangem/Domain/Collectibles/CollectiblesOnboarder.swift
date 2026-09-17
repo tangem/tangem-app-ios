@@ -8,8 +8,9 @@
 
 import Foundation
 
-/// Creates the collectibles account end to end: derives the cold key and deploys the vault on chain.
-/// Idempotent — a vault that already exists on chain is a no-op.
+/// Brings the collectibles account to its working state end to end: the cold key, the hot delegate, the
+/// vault, the account it receives USDC on, and the delegate the vault names. Idempotent — whatever is
+/// already in place is left alone, so this is also the retry after an interrupted run.
 protocol CollectiblesOnboarder: AnyObject {
     func onboard() async throws
 }

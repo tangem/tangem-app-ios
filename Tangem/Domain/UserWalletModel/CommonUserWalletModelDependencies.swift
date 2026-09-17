@@ -35,6 +35,7 @@ struct CommonUserWalletModelDependencies {
         let keysDerivingInteractorFactory = KeysDerivingInteractorFactory()
         let tangemSignerFactory = TangemSignerFactory()
         let jointAccountDerivationInteractorFactory = JointAccountDerivationInteractorFactory()
+        let collectiblesColdKeyInteractorFactory = CollectiblesColdKeyInteractorFactory()
 
         let derivationManager = Self.makeDerivationManager(
             keysRepository: keysRepository,
@@ -57,6 +58,15 @@ struct CommonUserWalletModelDependencies {
             )
         )
 
+        let collectiblesAccountProvider = CollectiblesAccountProvider(
+            builder: CollectiblesAccountBuilder(
+                userWalletId: userWalletId,
+                config: config,
+                keysRepository: keysRepository,
+                coldKeyInteractorFactory: collectiblesColdKeyInteractorFactory
+            )
+        )
+
         let accountModelsManagerDependencies = Self.makeAccountModelsManagerDependencies(
             userWalletId: userWalletId,
             config: config,
@@ -74,7 +84,7 @@ struct CommonUserWalletModelDependencies {
             jointAccountsRepository: accountModelsManagerDependencies.jointAccountsRepository,
             tangemSignerFactory: tangemSignerFactory,
             tangemPayManager: tangemPayManager,
-            accountModelsProvider: polymarketAccountProvider,
+            accountModelsProvider: CompositeAccountModelsProvider([polymarketAccountProvider, collectiblesAccountProvider]),
             cryptoAccountsNetworkMapper: accountModelsManagerDependencies.networkMapper,
             archivedCryptoAccountsProvider: accountModelsManagerDependencies.archivedCryptoAccountsProvider,
             derivationManager: derivationManager,
@@ -117,7 +127,8 @@ struct CommonUserWalletModelDependencies {
             cryptoAccountsRepository: accountModelsManagerDependencies.cryptoAccountsRepository,
             keysDerivingInteractorFactory: keysDerivingInteractorFactory,
             tangemSignerFactory: tangemSignerFactory,
-            jointAccountDerivationInteractorFactory: jointAccountDerivationInteractorFactory
+            jointAccountDerivationInteractorFactory: jointAccountDerivationInteractorFactory,
+            collectiblesColdKeyInteractorFactory: collectiblesColdKeyInteractorFactory
         )
     }
 
@@ -128,6 +139,7 @@ struct CommonUserWalletModelDependencies {
         userWalletModelConfigurableDependencies.keysDerivingInteractorFactory.configure(with: model)
         userWalletModelConfigurableDependencies.tangemSignerFactory.configure(with: model)
         userWalletModelConfigurableDependencies.jointAccountDerivationInteractorFactory.configure(with: model)
+        userWalletModelConfigurableDependencies.collectiblesColdKeyInteractorFactory.configure(with: model)
     }
 }
 
@@ -379,6 +391,7 @@ private extension CommonUserWalletModelDependencies {
         let keysDerivingInteractorFactory: KeysDerivingInteractorFactory
         let tangemSignerFactory: TangemSignerFactory
         let jointAccountDerivationInteractorFactory: JointAccountDerivationInteractorFactory
+        let collectiblesColdKeyInteractorFactory: CollectiblesColdKeyInteractorFactory
     }
 
     /// Represents dependencies related to crypto accounts models that are required for `AccountModelsManager` initialization,

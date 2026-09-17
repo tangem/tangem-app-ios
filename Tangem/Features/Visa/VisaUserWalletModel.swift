@@ -563,6 +563,10 @@ extension VisaUserWalletModel: UserWalletModel {
         userWalletModel.jointAccountDerivationInteractor
     }
 
+    var collectiblesColdKeyInteractor: CollectiblesColdKeyInteractor {
+        userWalletModel.collectiblesColdKeyInteractor
+    }
+
     var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
         userWalletModel.tangemPayAuthorizingInteractor
     }
