@@ -75,6 +75,10 @@ final class AccountDetailsViewModel: ObservableObject {
         actions.contains(.manageTokens)
     }
 
+    var isSupportedNetworksHintVisible: Bool {
+        account is any JointAccountModel
+    }
+
     // MARK: - Methods
 
     func onFirstAppear() {
@@ -111,6 +115,10 @@ final class AccountDetailsViewModel: ObservableObject {
     func openEditAccount() {
         Analytics.log(.accountSettingsButtonEdit)
         coordinator?.editAccount()
+    }
+
+    func openSupportedNetworks() {
+        coordinator?.openSupportedNetworks()
     }
 
     func openManageTokens() {
