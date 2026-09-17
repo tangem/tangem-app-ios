@@ -42,7 +42,7 @@ struct PolymarketWithdrawSwapableTokenFactory: SendSwapableTokenFactory {
             isCustom: false,
             defaultAddressString: source.depositWalletAddress,
             availableBalanceProvider: balanceProvider,
-            fiatAvailableBalanceProvider: accountModel.fiatTotalTokenBalanceProvider,
+            fiatAvailableBalanceProvider: accountModel.fiatAvailableBalanceProvider,
             allowanceService: nil,
             withdrawalNotificationProvider: nil,
             scaledUIAmountMultiplierResolver: nil,

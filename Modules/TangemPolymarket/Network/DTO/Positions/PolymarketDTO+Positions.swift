@@ -70,3 +70,12 @@ extension PolymarketDTO {
         let position: Position?
     }
 }
+
+// MARK: - Total value of open positions
+
+extension PolymarketDTO {
+    struct PositionsValueResponse: Decodable {
+        let user: String?
+        let value: Decimal
+    }
+}

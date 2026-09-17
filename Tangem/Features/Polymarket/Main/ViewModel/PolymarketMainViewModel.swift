@@ -26,6 +26,8 @@ final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var loadingState: LoadingState = .loading
     @Published private(set) var isTabsPinned = false
     @Published private(set) var balance: LoadableBalanceView.State = .loading(cached: .none)
+    @Published private(set) var balanceMode: BalanceMode = .available
+    @Published private(set) var canSwitchBalanceMode = false
     @Published private(set) var isRegionRestricted = false
     @Published private(set) var isAwaitingFunds = false
     @Published private(set) var addFundsState: ActionState = .loading
@@ -74,6 +76,8 @@ final class PolymarketMainViewModel: ObservableObject {
 
     private var balanceSubscription: AnyCancellable?
     private var cachedBalance: FormattedTokenBalanceType.Cached?
+    private var availableBalance: FormattedTokenBalanceType?
+    private var totalBalance: FormattedTokenBalanceType?
     private var balanceRefreshTask: Task<Void, Never>?
     private var accountFundsPreparationTask: Task<Void, Never>?
     private var searchBag: Set<AnyCancellable> = []
@@ -201,7 +205,7 @@ final class PolymarketMainViewModel: ObservableObject {
         balanceRefreshTask?.cancel()
 
         balanceRefreshTask = Task { @MainActor [weak self] in
-            await self?.balanceProvider.refresh()
+            await self?.balanceProvider.refresh(scope: .full)
 
             while !Task.isCancelled {
                 let interval = self?.fundsArrivalTracker.isBalanceChangeExpected == true
@@ -212,7 +216,9 @@ final class PolymarketMainViewModel: ObservableObject {
 
                 guard !Task.isCancelled, let self else { return }
 
-                await balanceProvider.refresh()
+                let scope: PolymarketBalanceRefreshScope = fundsArrivalTracker.isBalanceChangeExpected ? .availableOnly : .full
+
+                await balanceProvider.refresh(scope: scope)
             }
         }
     }
@@ -224,8 +230,19 @@ final class PolymarketMainViewModel: ObservableObject {
             .withWeakCaptureOf(self)
             .sink { viewModel, formatted in
                 viewModel.recordBalance(formatted)
-                viewModel.balance = viewModel.makeBalanceState(from: formatted)
+                viewModel.availableBalance = formatted
+                viewModel.updateBalance()
             }
+
+        balanceProvider
+            .totalBalancePublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, formatted in
+                viewModel.totalBalance = formatted
+                viewModel.updateBalance()
+            }
+            .store(in: &bag)
 
         balanceProvider
             .collateralBalancePublisher
@@ -470,6 +487,13 @@ final class PolymarketMainViewModel: ObservableObject {
         )
     }
 
+    func onBalanceModeTap() {
+        guard canSwitchBalanceMode else { return }
+
+        balanceMode = balanceMode == .total ? .available : .total
+        updateBalance()
+    }
+
     func onAddFundsTap() {
         guard !isRegionRestricted else {
             coordinator?.openRegionWarning()
@@ -706,6 +730,33 @@ final class PolymarketMainViewModel: ObservableObject {
 }
 
 private extension PolymarketMainViewModel {
+    func updateBalance() {
+        canSwitchBalanceMode = totalBalance.map(hasValue) ?? false
+
+        if !canSwitchBalanceMode {
+            balanceMode = .available
+        }
+
+        switch balanceMode {
+        case .available:
+            guard let availableBalance else { return }
+
+            balance = makeBalanceState(from: withCachedFallback(availableBalance))
+
+        case .total:
+            guard let totalBalance else { return }
+
+            balance = makeBalanceState(from: totalBalance)
+        }
+    }
+
+    func hasValue(_ formatted: FormattedTokenBalanceType) -> Bool {
+        switch formatted {
+        case .loaded: true
+        case .loading(let cached), .failure(let cached): cached.isCache
+        }
+    }
+
     func recordBalance(_ formatted: FormattedTokenBalanceType) {
         switch formatted {
         case .loaded(let balance):
@@ -719,7 +770,7 @@ private extension PolymarketMainViewModel {
 
     func makeBalanceState(from formatted: FormattedTokenBalanceType) -> LoadableBalanceView.State {
         AttributedBalanceFormatter.decimalColored(
-            balanceStateBuilder.build(type: steady(withCachedFallback(formatted))),
+            balanceStateBuilder.build(type: steady(formatted)),
             integerPart: .init(
                 font: TangemFontStyle(DesignSystem.Font.displayMediumToken),
                 color: DesignSystem.Color.textPrimary
@@ -741,6 +792,13 @@ private extension PolymarketMainViewModel {
         guard case .loading(.cache(let cached)) = formatted else { return formatted }
 
         return .loaded(cached.balance)
+    }
+}
+
+extension PolymarketMainViewModel {
+    enum BalanceMode {
+        case available
+        case total
     }
 }
 
@@ -820,7 +878,7 @@ private extension PolymarketMainViewModel {
 extension PolymarketMainViewModel {
     @MainActor
     func refreshBalance() async {
-        await balanceProvider.refresh()
+        await balanceProvider.refresh(scope: .full)
     }
 
     @MainActor
@@ -835,7 +893,7 @@ extension PolymarketMainViewModel {
         geoblockStateProvider.refresh()
         loadingTask?.cancel()
 
-        await balanceProvider.refresh()
+        await balanceProvider.refresh(scope: .full)
         loadPositions()
 
         if categories.isEmpty {

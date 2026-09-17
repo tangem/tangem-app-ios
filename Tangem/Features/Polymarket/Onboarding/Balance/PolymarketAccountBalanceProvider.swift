@@ -1,5 +1,5 @@
 //
-//  PolymarketCollateralBalanceProvider.swift
+//  PolymarketAccountBalanceProvider.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,13 @@ import Foundation
 import Combine
 import TangemFoundation
 
-final class PolymarketCollateralBalanceProvider {
+final class PolymarketAccountBalanceProvider {
+    enum Kind {
+        case available
+        case total
+    }
+
+    private let kind: Kind
     private let tokenItem: TokenItem
     private let tokenBalancesRepository: TokenBalancesRepository
     private let balanceSubject: CurrentValueSubject<PolymarketBalanceState?, Never>
@@ -21,10 +27,12 @@ final class PolymarketCollateralBalanceProvider {
     private var balanceSubscription: AnyCancellable?
 
     init(
+        kind: Kind,
         tokenItem: TokenItem,
         tokenBalancesRepository: TokenBalancesRepository,
         balanceSubject: CurrentValueSubject<PolymarketBalanceState?, Never>
     ) {
+        self.kind = kind
         self.tokenItem = tokenItem
         self.tokenBalancesRepository = tokenBalancesRepository
         self.balanceSubject = balanceSubject
@@ -37,7 +45,7 @@ final class PolymarketCollateralBalanceProvider {
 
 // MARK: - TokenBalanceProvider protocol conformance
 
-extension PolymarketCollateralBalanceProvider: TokenBalanceProvider {
+extension PolymarketAccountBalanceProvider: TokenBalanceProvider {
     var balanceType: TokenBalanceType {
         mapToTokenBalanceType(balance: balanceSubject.value)
     }
@@ -65,14 +73,39 @@ extension PolymarketCollateralBalanceProvider: TokenBalanceProvider {
     }
 }
 
+// MARK: - Kind
+
+extension PolymarketAccountBalanceProvider.Kind {
+    var cachedBalanceType: CachedBalanceType {
+        switch self {
+        case .available: .available
+        case .total: .total
+        }
+    }
+
+    func amount(from balance: PolymarketBalance) -> Decimal? {
+        switch self {
+        case .available: balance.available
+        case .total: balance.total
+        }
+    }
+
+    func rememberableAmount(from balance: PolymarketBalance) -> Decimal? {
+        switch self {
+        case .available: balance.available
+        case .total: balance.freshTotal
+        }
+    }
+}
+
 // MARK: - Private implementation
 
-private extension PolymarketCollateralBalanceProvider {
+private extension PolymarketAccountBalanceProvider {
     func bind() {
         balanceSubscription = balanceSubject
-            .compactMap { state -> Decimal? in
+            .compactMap { [kind] state -> Decimal? in
                 switch state {
-                case .loaded(let balance): balance
+                case .loaded(let balance): kind.rememberableAmount(from: balance)
                 case .none, .loading, .failed, .unavailable: nil
                 }
             }
@@ -87,13 +120,13 @@ private extension PolymarketCollateralBalanceProvider {
         tokenBalancesRepository.store(
             balance: CachedBalance(balance: balance, date: .now),
             for: walletModelId,
-            type: .available
+            type: kind.cachedBalanceType
         )
     }
 
     func cachedBalance() -> TokenBalanceType.Cached? {
         tokenBalancesRepository
-            .balance(walletModelId: walletModelId, type: .available)
+            .balance(walletModelId: walletModelId, type: kind.cachedBalanceType)
             .map { .init(balance: $0.balance, date: $0.date) }
     }
 
@@ -106,7 +139,7 @@ private extension PolymarketCollateralBalanceProvider {
         case .unavailable:
             .empty(.custom)
         case .loaded(let balance):
-            .loaded(balance)
+            kind.amount(from: balance).map { .loaded($0) } ?? .failure(cachedBalance())
         }
     }
 

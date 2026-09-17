@@ -267,6 +267,26 @@ final class PolymarketOnboardingSignerSpy: PolymarketOnboardingSigning {
     }
 }
 
+// MARK: - Positions value
+
+final class PolymarketPositionsValueServiceStub: PolymarketPositionsValueService {
+    struct StubError: Error {}
+
+    private(set) var calls = 0
+
+    var result: Result<Decimal, Error>
+
+    init(result: Result<Decimal, Error> = .success(0)) {
+        self.result = result
+    }
+
+    func positionsValue(depositWalletAddress: String) async throws -> Decimal {
+        calls += 1
+
+        return try result.get()
+    }
+}
+
 // MARK: - Balance
 
 final class PolymarketBalanceServiceSpy: PolymarketBalanceService {
@@ -280,6 +300,7 @@ final class PolymarketBalanceServiceSpy: PolymarketBalanceService {
         updates.filter { $0.isUnavailable }.count
     }
 
+    var fiatAvailableBalanceProvider: TokenBalanceProvider { balanceProvider }
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider { balanceProvider }
     var collateralTokenBalanceProvider: TokenBalanceProvider { balanceProvider }
 
@@ -312,7 +333,7 @@ private struct PolymarketBalanceStateBalanceProvider: TokenBalanceProvider {
 
     private static func balanceType(from state: PolymarketBalanceState?) -> TokenBalanceType {
         switch state {
-        case .loaded(let value): .loaded(value)
+        case .loaded(let balance): .loaded(balance.available)
         case .loading: .loading(.none)
         case .failed: .failure(.none)
         case .unavailable, .none: .empty(.noData)
@@ -335,9 +356,11 @@ final class PolymarketAccountModelStub: PolymarketAccountModel {
 
     var collateralTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
 
+    var fiatAvailableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
+
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
 
-    func refreshState() async {}
+    func refreshState(scope: PolymarketBalanceRefreshScope) async {}
 }
 
 // MARK: - Account presence

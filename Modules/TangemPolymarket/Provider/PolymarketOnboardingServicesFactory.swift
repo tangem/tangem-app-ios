@@ -45,6 +45,12 @@ public struct PolymarketOnboardingServicesFactory {
         return CommonPolymarketCLOBService(provider: provider, baseURL: PolymarketHost.clob)
     }
 
+    public func makePositionsValueService() -> PolymarketPositionsValueService {
+        let provider = TangemProvider<PolymarketPositionsValueTarget>(configuration: networkConfiguration)
+
+        return CommonPolymarketPositionsValueService(provider: provider, baseURL: PolymarketHost.dataAPI)
+    }
+
     public func makeConfigurationService(
         walletId: String,
         store: PolymarketBuilderCodeStore

@@ -14,9 +14,11 @@ import TangemPolymarket
 protocol PolymarketBalanceProvider {
     var balancePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { get }
 
+    var totalBalancePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { get }
+
     var collateralBalancePublisher: AnyPublisher<TokenBalanceType, Never> { get }
 
-    func refresh() async
+    func refresh(scope: PolymarketBalanceRefreshScope) async
 }
 
 final class CommonPolymarketBalanceProvider: PolymarketBalanceProvider {
@@ -36,6 +38,21 @@ final class CommonPolymarketBalanceProvider: PolymarketBalanceProvider {
     }
 
     var balancePublisher: AnyPublisher<FormattedTokenBalanceType, Never> {
+        accountModelPublisher
+            .map { accountModel -> AnyPublisher<FormattedTokenBalanceType, Never> in
+                guard let accountModel else {
+                    return .just(output: .failure(.empty(BalanceFormatter.defaultEmptyBalanceString)))
+                }
+
+                return accountModel.fiatAvailableBalanceProvider.balanceTypePublisher
+                    .map(CommonPolymarketBalanceProvider.makeFormattedBalance(from:))
+                    .eraseToAnyPublisher()
+            }
+            .switchToLatest()
+            .eraseToAnyPublisher()
+    }
+
+    var totalBalancePublisher: AnyPublisher<FormattedTokenBalanceType, Never> {
         accountModelPublisher
             .map { accountModel -> AnyPublisher<FormattedTokenBalanceType, Never> in
                 guard let accountModel else {
@@ -63,7 +80,7 @@ final class CommonPolymarketBalanceProvider: PolymarketBalanceProvider {
             .eraseToAnyPublisher()
     }
 
-    func refresh() async {
+    func refresh(scope: PolymarketBalanceRefreshScope) async {
         guard let accountModel = latestAccountModel.withLockUnchecked({ $0 }) else {
             PolymarketLogger.error(
                 "The balance was refreshed without a Polymarket account",
@@ -72,7 +89,7 @@ final class CommonPolymarketBalanceProvider: PolymarketBalanceProvider {
             return
         }
 
-        await accountModel.refreshState()
+        await accountModel.refreshState(scope: scope)
     }
 }
 

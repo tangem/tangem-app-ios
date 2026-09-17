@@ -14,15 +14,25 @@ protocol PolymarketAccountModel: BaseAccountModel where Icon == AccountModel.Sta
     var state: PolymarketAccountState? { get }
     var statePublisher: AnyPublisher<PolymarketAccountState?, Never> { get }
 
+    var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider { get }
     var collateralTokenBalanceProvider: TokenBalanceProvider { get }
 
-    func refreshState() async
+    func refreshState(scope: PolymarketBalanceRefreshScope) async
+}
+
+enum PolymarketBalanceRefreshScope {
+    case full
+    case availableOnly
 }
 
 // MARK: - Default implementations
 
 extension PolymarketAccountModel {
+    func refreshState() async {
+        await refreshState(scope: .availableOnly)
+    }
+
     var name: String {
         Localization.predictionAccountTitle
     }
