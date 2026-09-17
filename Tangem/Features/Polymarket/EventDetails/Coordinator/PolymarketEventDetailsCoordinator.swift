@@ -59,8 +59,8 @@ extension PolymarketEventDetailsCoordinator {
         let eventID: String
         let category: PolymarketCategory?
         let apiProvider: PolymarketAPIProvider
-        let geoblockStateProvider: PolymarketGeoblockStateProvider?
-        let onOrderPlaced: @MainActor (PolymarketOrderIndexing?) -> Void
+        let geoblockStateProvider: PolymarketGeoblockStateProvider
+        let onOrderPlaced: @MainActor (PolymarketOrderIndexing) -> Void
         let onRegionWarning: () -> Void
         let onOpenPosition: (PolymarketPosition) -> Void
         let orderBuilder: PolymarketOrderFlowBuilder
@@ -68,6 +68,14 @@ extension PolymarketEventDetailsCoordinator {
 
     enum Destination {
         case order(PolymarketOrderCoordinator)
+    }
+}
+
+// MARK: - Navigation
+
+extension PolymarketEventDetailsCoordinator {
+    func popToEventDetails() {
+        destination = nil
     }
 }
 
@@ -86,16 +94,17 @@ extension PolymarketEventDetailsCoordinator: PolymarketEventDetailsRoutable {
         market: PolymarketMarket,
         outcome: PolymarketOutcome,
         eventTitle: String,
-        onPlaced: @escaping @MainActor (PolymarketOrderIndexing?) -> Void
+        request: PolymarketOrderRequest,
+        onPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
     ) {
         guard let coordinator = orderBuilder?.makeOrderCoordinator(
             market: market,
             outcome: outcome,
             eventTitle: eventTitle,
-            request: .buy,
+            request: request,
             onPlaced: onPlaced,
             onOpenPosition: { [weak self] position in self?.onOpenPosition?(position) },
-            onClose: { [weak self] in self?.destination = nil }
+            onClose: { [weak self] in self?.popToEventDetails() }
         ) else {
             return
         }
