@@ -40,7 +40,6 @@ struct FeedView: View {
             ZStack {
                 if searchViewModel.isActive {
                     FeedSearchView(viewModel: searchViewModel)
-                        .padding(.top, FeedConstants.searchContentInset)
                 } else {
                     feedScroll
                 }

@@ -17,7 +17,7 @@ struct EarnTokenItemViewRedesign: View {
     @ScaledMetric private var tokenImageSide: CGFloat = 40
     @ScaledMetric private var earnImageSide: CGFloat = 16
     @ScaledMetric private var textHorizontalSpacing: CGFloat = 4
-    @ScaledMetric private var horizontalPadding: CGFloat = 12
+    @ScaledMetric private var horizontalPadding: CGFloat = 16
     @ScaledMetric private var verticalPadding: CGFloat = 12
 
     var body: some View {
