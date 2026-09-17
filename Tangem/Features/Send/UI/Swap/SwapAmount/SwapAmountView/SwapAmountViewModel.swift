@@ -233,8 +233,8 @@ private extension SwapAmountViewModel {
         switch providersState {
         case .loaded(_, .restriction(.notEnoughBalanceForSwapping, quote: _)):
             sourceExpressCurrencyViewModel.update(errorState: .insufficientFunds)
-        case .loaded(_, .restriction(.notEnoughAmountForTxValue(_, let isFeeCurrency), _)) where isFeeCurrency,
-             .loaded(_, .restriction(.notEnoughAmountForFee(let isFeeCurrency), _)) where isFeeCurrency:
+        case .loaded(_, .restriction(.notEnoughAmountForTxValue(_, let isFeeCurrency, _), _)) where isFeeCurrency,
+             .loaded(_, .restriction(.notEnoughAmountForFee(let isFeeCurrency, _), _)) where isFeeCurrency:
             sourceExpressCurrencyViewModel.update(errorState: .insufficientFunds)
         case .loaded(_, .restriction(.validationError(.minimumRestrictAmount(let minimumAmount)), _)):
             let errorText = Localization.transferMinAmountError(minimumAmount.string())

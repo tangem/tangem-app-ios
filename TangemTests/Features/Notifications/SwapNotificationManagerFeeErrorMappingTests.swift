@@ -24,27 +24,32 @@ struct SwapNotificationManagerFeeErrorMappingTests {
     @Test("No native coin for the fee → the native-coin insufficient-fee notification")
     func notEnoughBalanceForFeeMapsToNotEnoughFeeForTokenTx() throws {
         let sut = CommonSwapNotificationManager()
+        let error = TokenFeeProviderError.notEnoughBalanceForFee(feeCurrencyBalance: .zero)
 
-        let event = try #require(sut.mapToFeeErrorEvent(occurredError: TokenFeeProviderError.notEnoughBalanceForFee, tokenItem: tokenItem))
+        let event = try #require(sut.mapToFeeErrorEvent(occurredError: error, tokenItem: tokenItem))
 
-        guard case .notEnoughFeeForTokenTx(_, let mainTokenSymbol, _, _) = event else {
+        guard case .notEnoughFeeForTokenTx(_, let mainTokenSymbol, _, let analyticsParams) = event else {
             Issue.record("Expected .notEnoughFeeForTokenTx, got \(event)")
             return
         }
 
         #expect(mainTokenSymbol == tokenItem.blockchain.currencySymbol)
+        #expect(analyticsParams[.balance] == Analytics.ParameterValue.empty.rawValue)
     }
 
     @Test("Gasless token balance below threshold → the token-denominated insufficient-fee notification")
     func notEnoughGaslessFeeBalanceMapsToValidationErrorEvent() throws {
         let sut = CommonSwapNotificationManager()
+        let error = TokenFeeProviderError.notEnoughGaslessFeeBalance(feeCurrencyBalance: 1)
 
-        let event = try #require(sut.mapToFeeErrorEvent(occurredError: TokenFeeProviderError.notEnoughGaslessFeeBalance, tokenItem: tokenItem))
+        let event = try #require(sut.mapToFeeErrorEvent(occurredError: error, tokenItem: tokenItem))
 
-        guard case .validationErrorEvent = event else {
-            Issue.record("Expected .validationErrorEvent, got \(event)")
+        guard case .validationErrorEvent(.insufficientBalanceForFee(let configuration)) = event else {
+            Issue.record("Expected .validationErrorEvent(.insufficientBalanceForFee), got \(event)")
             return
         }
+
+        #expect(configuration.feeCurrencyBalance == 1)
     }
 
     @Test("Unrelated fee-provider errors fall through to the generic error notification")

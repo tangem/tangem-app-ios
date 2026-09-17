@@ -478,7 +478,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>%li资产\n%li资产</string>
+        <string>头部%li资产\n头部%li资产</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
