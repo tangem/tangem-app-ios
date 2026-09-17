@@ -25,13 +25,14 @@ struct RealAssetsContentView: View {
             }
 
             filters
+                .padding(.horizontal, Layout.contentHorizontalPadding)
 
             if viewModel.isRegionRestrictionBannerVisible {
                 regionRestrictionBanner
+                    .padding(.horizontal, Layout.contentHorizontalPadding)
             }
 
             list
-                .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: .zero, radius: Layout.listCornerRadius)
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.tokenListLoadingState)
         .animation(.easeInOut(duration: 0.3), value: viewModel.categorySelection)
@@ -153,6 +154,7 @@ struct RealAssetsContentView: View {
 
 private extension RealAssetsContentView {
     enum Layout {
+        static let contentHorizontalPadding: CGFloat = 16
         static let contentSpacing: CGFloat = 12
         static let listCornerRadius: CGFloat = 24
         static let stateVerticalPadding: CGFloat = 64

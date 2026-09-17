@@ -30,8 +30,6 @@ struct PulseView: View {
                     .id(viewModel.contentState)
                     .transition(.content)
             }
-            .background(DesignSystem.Color.bgSecondary, in: RoundedRectangle(cornerRadius: 24))
-            .padding(.horizontal, Constants.horizontalPadding)
         }
         .onAppear(perform: viewModel.onViewAppear)
         .frame(maxWidth: .infinity, alignment: .leading)

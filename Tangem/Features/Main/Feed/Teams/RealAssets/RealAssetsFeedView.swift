@@ -17,10 +17,10 @@ struct RealAssetsFeedView: View {
     var body: some View {
         VStack(spacing: Constants.sectionSpacing) {
             PromotionNotificationsView(viewModel: viewModel.promoBanner)
+                .padding(.horizontal, Constants.horizontalPadding)
 
             content
         }
-        .padding(.horizontal, Constants.horizontalPadding)
         .onAppear(perform: viewModel.onViewAppear)
     }
 
@@ -39,7 +39,6 @@ struct RealAssetsFeedView: View {
                 TokenRowMarket(.shimmer)
             }
         }
-        .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: .zero, radius: Constants.listCornerRadius)
     }
 }
 
