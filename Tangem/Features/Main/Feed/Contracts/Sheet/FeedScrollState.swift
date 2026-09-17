@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TangemFoundation
 
 final class FeedScrollState {
     private(set) var tabID: String?
@@ -22,6 +23,10 @@ final class FeedScrollState {
 
         pendingOffset = offsets[tabID] ?? min(offset, max(0, headerHeight))
         self.tabID = tabID
+    }
+
+    func pinTabs(headerHeight: CGFloat) {
+        pendingOffset = clamp(pendingOffset ?? offset, min: max(0, headerHeight), max: .infinity)
     }
 
     func report(offset: CGFloat, tabID: String) {
@@ -48,4 +53,9 @@ final class FeedScrollState {
         pendingOffset = nil
         if let tabID { offsets[tabID] = 0 }
     }
+}
+
+enum FeedScrollTarget {
+    case jump(anchor: UnitPoint, shift: CGFloat)
+    case scroll(anchor: UnitPoint)
 }
