@@ -854,6 +854,27 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         coordinator.start(with: .members(jointAccount: jointAccount))
         jointAccountManagementCoordinator = coordinator
     }
+
+    func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation) {
+        let viewModel = JointAccountOperationDetailsViewModelBuilder().build(
+            pendingOperation: pendingOperation,
+            coordinator: self
+        )
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+}
+
+// MARK: - JointAccountOperationDetailsRoutable
+
+extension MainCoordinator: JointAccountOperationDetailsRoutable {
+    func closeOperationDetails() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
 }
 
 // MARK: - TangemPayTransactionDetailsRoutable
