@@ -20,8 +20,11 @@ struct PolymarketCoordinatorView: CoordinatorView {
             .toolbar(.hidden, for: .navigationBar)
             .background(FeedPopGestureEnabler())
             .navigationLinks(links)
-            .sheet(item: $coordinator.sendCoordinator) {
-                SendCoordinatorView(coordinator: $0)
+            .sheet(item: $coordinator.sheet) { sheet in
+                switch sheet {
+                case .send(let coordinator):
+                    SendCoordinatorView(coordinator: coordinator)
+                }
             }
     }
 
@@ -30,7 +33,7 @@ struct PolymarketCoordinatorView: CoordinatorView {
         switch coordinator.viewState {
         case .welcome(let viewModel):
             PolymarketWelcomeView(viewModel: viewModel)
-        case .main(let viewModel):
+        case .main(let viewModel, _, _):
             PolymarketMainView(viewModel: viewModel)
         case nil:
             EmptyView()
@@ -43,17 +46,15 @@ struct PolymarketCoordinatorView: CoordinatorView {
                 switch destination {
                 case .eventDetails(let coordinator):
                     PolymarketEventDetailsCoordinatorView(coordinator: coordinator)
-                case .positionDetails(let viewModel):
-                    PolymarketPositionDetailsScreen(viewModel: viewModel)
-                        .background(FeedPopGestureEnabler())
+                case .positionDetails(let coordinator):
+                    PolymarketPositionDetailsCoordinatorView(coordinator: coordinator)
                 case .myPositions(let coordinator):
                     PolymarketMyPositionsCoordinatorView(coordinator: coordinator)
                 case .order(let coordinator):
                     PolymarketOrderCoordinatorView(coordinator: coordinator)
+                case .tokenDetails(let coordinator):
+                    TokenDetailsCoordinatorView(coordinator: coordinator)
                 }
-            }
-            .navigation(item: $coordinator.tokenDetailsCoordinator) { coordinator in
-                TokenDetailsCoordinatorView(coordinator: coordinator)
             }
     }
 }
