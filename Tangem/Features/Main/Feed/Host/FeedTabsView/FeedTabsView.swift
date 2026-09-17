@@ -15,17 +15,31 @@ struct FeedTabsView: View {
     let shtorkaActions: any MainShtorkaViewActionProvider
 
     @Binding var areChipsPinned: Bool
-    let onTabChange: (String) -> Void
+    let scrollProxy: ScrollViewProxy
+    let scrollTarget: (_ tabID: String, _ pinTabs: Bool, _ chipsPinned: Bool) -> FeedScrollTarget?
     let onChipsHeightChange: (CGFloat) -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.layoutDirection) private var layoutDirection
+
     @State private var chipsHeight: CGFloat = 0
+    @State private var contentWidth: CGFloat = 0
+    @State private var slideGeneration = 0
 
     var body: some View {
         LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
             Section {
-                tabContent
-                    .id(viewModel.selectedTab.id)
-                    .padding(.bottom, Constants.tabContentBottomInset)
+                ZStack(alignment: .top) {
+                    ForEach(viewModel.pages) { page in
+                        tabContent(for: page.tab)
+                            .padding(.top, page.topInset)
+                            .clipped()
+                            .lockedGeometry()
+                            .offset(x: page.offset * slideWidth)
+                    }
+                }
+                .onGeometryChange(for: CGFloat.self, of: \.size.width) { contentWidth = $0 }
+                .padding(.bottom, Constants.tabContentBottomInset)
             } header: {
                 if viewModel.tabs.count > 1 {
                     tabChips
@@ -41,8 +55,8 @@ struct FeedTabsView: View {
                 }
             }
         }
-        .onAppear { onTabChange(viewModel.selectedTab.id) }
-        .onChange(of: viewModel.selectedTab.id, perform: onTabChange)
+        .onAppear { move(to: scrollTarget(for: viewModel.selectedTab, pinTabs: false)) }
+        .onChange(of: viewModel.selectedTab.id) { _ in show(viewModel.selectedTab) }
         .overlay(alignment: .top) { chipsMeasurer }
     }
 
@@ -57,8 +71,8 @@ struct FeedTabsView: View {
     }
 
     @ViewBuilder
-    private var tabContent: some View {
-        switch viewModel.selectedTab {
+    private func tabContent(for tab: FeedTab) -> some View {
+        switch tab {
         case .crypto(let viewModel):
             CryptoFeedView(viewModel: viewModel)
         case .realAssets(let viewModel):
@@ -97,10 +111,63 @@ struct FeedTabsView: View {
         Binding(
             get: { viewModel.selectedTab },
             set: { tab in
+                let isAlreadySelected = tab.id == viewModel.selectedTab.id
                 viewModel.onSelectTab(tab)
                 shtorkaActions.expand()
+                if isAlreadySelected {
+                    move(to: viewModel.startSlide(to: tab, target: scrollTarget(for: tab, pinTabs: true)))
+                }
             }
         )
+    }
+
+    // MARK: - Switching
+
+    private var slideWidth: CGFloat {
+        layoutDirection == .leftToRight ? contentWidth : -contentWidth
+    }
+
+    private func show(_ tab: FeedTab) {
+        let target = scrollTarget(for: tab, pinTabs: true)
+
+        guard #available(iOS 17.0, *), !reduceMotion else {
+            move(to: viewModel.showInstantly(tab, target: target))
+            return
+        }
+
+        move(to: viewModel.startSlide(to: tab, target: target))
+        slideGeneration += 1
+        let generation = slideGeneration
+
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(Constants.slideDelay))
+            guard generation == slideGeneration else { return }
+
+            withAnimation(Constants.slideAnimation) {
+                viewModel.slide()
+            } completion: {
+                guard generation == slideGeneration else { return }
+
+                move(to: viewModel.settleSlide())
+            }
+        }
+    }
+
+    private func scrollTarget(for tab: FeedTab, pinTabs: Bool) -> FeedScrollTarget? {
+        scrollTarget(tab.id, pinTabs, areChipsPinned)
+    }
+
+    private func move(to target: FeedScrollTarget?) {
+        switch target {
+        case .jump(let anchor, _):
+            scrollProxy.scrollTo(FeedConstants.contentAnchorID, anchor: anchor)
+        case .scroll(let anchor):
+            withAnimation(reduceMotion ? nil : .easeInOut(duration: Constants.pinDuration)) {
+                scrollProxy.scrollTo(FeedConstants.contentAnchorID, anchor: anchor)
+            }
+        case nil:
+            break
+        }
     }
 }
 
@@ -111,5 +178,21 @@ private extension FeedTabsView {
         static let tabContentBottomInset: CGFloat = 20
         static let fadeHeight: CGFloat = 96
         static let fadeBottomOverlap: CGFloat = 9
+        static let pinDuration: TimeInterval = 0.3
+        static let slideDelay = 50
+        static let slideAnimation: Animation = .interpolatingSpring(mass: 1, stiffness: 400, damping: 40)
+    }
+}
+
+// MARK: - Geometry
+
+private extension View {
+    @ViewBuilder
+    func lockedGeometry() -> some View {
+        if #available(iOS 17.0, *) {
+            geometryGroup()
+        } else {
+            self
+        }
     }
 }
