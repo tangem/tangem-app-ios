@@ -64,6 +64,10 @@ public extension StatusScreen {
     func actionIcon(_ icon: ImageType?) -> Self {
         map { $0.actionIcon = icon }
     }
+
+    func footerHidden(_ isHidden: Bool = true) -> Self {
+        map { $0.isFooterHidden = isHidden }
+    }
 }
 
 // MARK: - Slot Transforms
@@ -120,6 +124,7 @@ private extension StatusScreen {
             $0.isActionLoading = isActionLoading
             $0.isActionDisabled = isActionDisabled
             $0.footerAxis = footerAxis
+            $0.isFooterHidden = isFooterHidden
         }
     }
 }
