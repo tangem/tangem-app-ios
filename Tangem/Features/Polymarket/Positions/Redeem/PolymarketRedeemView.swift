@@ -29,9 +29,21 @@ struct PolymarketRedeemView: View {
         .actionLoading(viewModel.isClaiming)
         .footerCaption(viewModel.footerCaption)
         .details { details }
+        .overlay(alignment: .topTrailing) { closeButton }
         .toolbar(.hidden, for: .navigationBar)
         .alert(item: $viewModel.alert) { $0.alert }
         .onDisappear { viewModel.handleViewAction(.disappeared) }
+    }
+
+    private var closeButton: some View {
+        TangemUI.Button(
+            icon: DesignSystem.Icons.Cross.regular20,
+            accessibilityLabel: Localization.commonClose,
+            action: { viewModel.handleViewAction(.closeTapped) }
+        )
+        .size(.x11)
+        .styleType(.material(.glass))
+        .padding(Constants.closeButtonPadding)
     }
 
     private var details: some View {
@@ -71,5 +83,6 @@ struct PolymarketRedeemView: View {
 private extension PolymarketRedeemView {
     enum Constants {
         static let blockSpacing: CGFloat = 8
+        static let closeButtonPadding: CGFloat = 16
     }
 }

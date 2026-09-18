@@ -22,6 +22,7 @@ struct PolymarketCLOBTarget: Moya.TargetType {
         case balanceAllowance
         case placeOrder(body: Data)
         case order(id: String)
+        case price(tokenId: String, side: PolymarketOrderSide)
     }
 
     var path: String {
@@ -36,13 +37,14 @@ struct PolymarketCLOBTarget: Moya.TargetType {
         case .balanceAllowance: "/balance-allowance"
         case .placeOrder: "/order"
         case .order(let id): "/data/order/\(id)"
+        case .price: "/price"
         }
     }
 
     var method: Moya.Method {
         switch target {
         case .createCredentials, .placeOrder: .post
-        case .deriveCredentials, .updateBalanceAllowance, .balanceAllowance, .order: .get
+        case .deriveCredentials, .updateBalanceAllowance, .balanceAllowance, .order, .price: .get
         }
     }
 
@@ -52,6 +54,11 @@ struct PolymarketCLOBTarget: Moya.TargetType {
             return .requestPlain
         case .placeOrder(let body):
             return .requestData(body)
+        case .price(let tokenId, let side):
+            return .requestParameters(
+                parameters: [Constants.tokenIdKey: tokenId, Constants.sideKey: side.rawValue],
+                encoding: URLEncoding.queryString
+            )
         case .updateBalanceAllowance, .balanceAllowance:
             return .requestParameters(
                 parameters: [
@@ -67,7 +74,7 @@ struct PolymarketCLOBTarget: Moya.TargetType {
         switch target {
         case .placeOrder:
             return authHeaders.merging(Constants.jsonHeaders) { current, _ in current }
-        case .createCredentials, .deriveCredentials, .updateBalanceAllowance, .balanceAllowance, .order:
+        case .createCredentials, .deriveCredentials, .updateBalanceAllowance, .balanceAllowance, .order, .price:
             return authHeaders
         }
     }
@@ -76,6 +83,8 @@ struct PolymarketCLOBTarget: Moya.TargetType {
 private extension PolymarketCLOBTarget {
     enum Constants {
         static let assetTypeKey = "asset_type"
+        static let tokenIdKey = "token_id"
+        static let sideKey = "side"
         static let signatureTypeKey = "signature_type"
         static let collateralAssetType = "COLLATERAL"
 

@@ -24,6 +24,9 @@ protocol PolymarketMainRoutable: AnyObject {
     func openAddFunds()
 
     @MainActor
+    func openRedeem(position: PolymarketPosition, onClaimed: @escaping () -> Void)
+
+    @MainActor
     func openHowItWorks()
 
     func openWithdraw()

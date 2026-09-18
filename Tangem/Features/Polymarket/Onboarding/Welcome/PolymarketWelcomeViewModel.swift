@@ -17,6 +17,7 @@ import TangemUIUtils
 
 final class PolymarketWelcomeViewModel: ObservableObject {
     @Published private(set) var runState: RunState = .idle
+    @Published private(set) var reportedStatus: PolymarketDepositWalletStatus?
     @Published var alert: AlertBinder?
 
     let copy: PolymarketWelcomeCopy
@@ -74,15 +75,17 @@ private extension PolymarketWelcomeViewModel {
             runState = .deriving
         case .awaitingSignature:
             runState = .awaitingSignature
-        case .working:
+        case .working(let status):
             runState = .working
+            reportedStatus = status
         case .ready(let isNewAccount):
             guard let coordinator else { return }
 
             presentAccountCreatedToast()
             coordinator.onboardingDidFinish(isNewAccount: isNewAccount)
-        case .handedOff:
-            break
+        case .handedOff(let status):
+            reportedStatus = status
+            presentStillWorkingAlert()
         case .failed(let error):
             handle(error)
         }
@@ -109,6 +112,15 @@ private extension PolymarketWelcomeViewModel {
         // [REDACTED_TODO_COMMENT]
         Toast(view: SuccessToast(text: "Prediction account is ready"))
             .present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    @MainActor
+    func presentStillWorkingAlert() {
+        runState = .idle
+        alert = AlertBuilder.makeOkGotItAlert(
+            message: "Setting up your prediction account is taking longer than usual. It keeps running — come back in a few minutes."
+        )
     }
 
     @MainActor

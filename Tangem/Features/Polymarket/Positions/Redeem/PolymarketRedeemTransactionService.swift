@@ -110,6 +110,10 @@ private extension PolymarketRedeemTransactionService {
 
         for await result in polling.prefix(Constants.pollingAttempts) {
             guard let polled = result.value else {
+                if case .failure(PolymarketRedeemError.notFound) = result {
+                    throw PolymarketRedeemError.notFound
+                }
+
                 PolymarketLogger.warning("A claim status request went unanswered, still waiting")
                 continue
             }
@@ -215,6 +219,6 @@ private extension PolymarketRedeemTransactionService {
     enum Constants {
         static let deadlineOffset = 600
         static let pollingInterval: TimeInterval = 3
-        static let pollingAttempts = 20
+        static let pollingAttempts = 80
     }
 }

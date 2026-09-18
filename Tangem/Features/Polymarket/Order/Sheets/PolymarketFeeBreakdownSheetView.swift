@@ -41,6 +41,7 @@ struct PolymarketFeeBreakdownSheetView: View {
             .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
             .lineLimit(1)
             .frame(height: Constants.toolbarHeight)
+            .padding(.top, Constants.titleTopPadding)
             .padding(.bottom, Constants.toolbarBottomPadding)
     }
 
@@ -87,6 +88,7 @@ struct PolymarketFeeBreakdownSheetView: View {
 private extension PolymarketFeeBreakdownSheetView {
     enum Constants {
         static let toolbarHeight: CGFloat = 44
+        static let titleTopPadding: CGFloat = 16
         static let toolbarBottomPadding: CGFloat = 16
         static let rowsTopPadding: CGFloat = 12
         static let compactHeight: CGFloat = 360

@@ -89,6 +89,7 @@ final class PolymarketMainViewModel: ObservableObject {
     private var cache: [Int?: CategoryState] = [:]
     private var loadingTask: Task<Void, Never>?
     private var positionsTask: Task<Void, Never>?
+    private var contentRefreshTask: Task<Void, Never>?
     private var orderTask: Task<Void, Never>?
     private var claimTask: Task<Void, Never>?
     private var openPositions: [PolymarketPosition] = []
@@ -118,6 +119,7 @@ final class PolymarketMainViewModel: ObservableObject {
         bindApplicationState()
         bindFundsArrival()
         startBalanceRefresh()
+        startContentRefresh()
         load()
         loadPositions()
     }
@@ -171,6 +173,10 @@ final class PolymarketMainViewModel: ObservableObject {
             .withWeakCaptureOf(self)
             .sink { viewModel, isRestricted in
                 viewModel.isRegionRestricted = isRestricted
+
+                if isRestricted {
+                    viewModel.coordinator?.openRegionWarning()
+                }
             }
             .store(in: &bag)
     }
@@ -182,6 +188,7 @@ final class PolymarketMainViewModel: ObservableObject {
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
                 viewModel.stopBalanceRefresh()
+                viewModel.stopContentRefresh()
             }
             .store(in: &bag)
 
@@ -191,8 +198,29 @@ final class PolymarketMainViewModel: ObservableObject {
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
                 viewModel.startBalanceRefresh()
+                viewModel.startContentRefresh()
             }
             .store(in: &bag)
+    }
+
+    private func stopContentRefresh() {
+        contentRefreshTask?.cancel()
+        contentRefreshTask = nil
+    }
+
+    private func startContentRefresh() {
+        contentRefreshTask?.cancel()
+
+        contentRefreshTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(Constants.contentRefreshInterval))
+
+                guard !Task.isCancelled, let self else { return }
+
+                loadPositions()
+                await refreshVisibleEvents()
+            }
+        }
     }
 
     private func stopBalanceRefresh() {
@@ -412,6 +440,20 @@ final class PolymarketMainViewModel: ObservableObject {
         )
     }
 
+    private func events(category: Int?, cursor: String?) async throws -> PolymarketEventsPage {
+        let request = PolymarketEventsRequest(category: category, limit: Constants.pageSize, cursor: cursor)
+
+        do {
+            return try await apiProvider.events(request: request)
+        } catch {
+            guard !error.isCancellationError else { throw error }
+
+            try await Task.sleep(for: .seconds(Constants.silentRetryDelay))
+
+            return try await apiProvider.events(request: request)
+        }
+    }
+
     private static func activePositions(service: PolymarketPositionsService) async throws -> PolymarketPositionsPage {
         do {
             return try await service.activePositions(limit: Constants.positionsLimit)
@@ -571,11 +613,12 @@ final class PolymarketMainViewModel: ObservableObject {
                 return
             }
 
-            let page = try await apiProvider.events(request: .init(category: firstCategoryID, limit: Constants.pageSize, cursor: nil))
-            try Task.checkCancellation()
-
             self.categories = categories
             selectedCategoryID = firstCategoryID
+
+            let page = try await events(category: firstCategoryID, cursor: nil)
+            try Task.checkCancellation()
+
             apply(page: page)
         } catch {
             handleFetchFailure(error)
@@ -583,11 +626,39 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     @MainActor
+    private func refreshVisibleEvents() async {
+        guard !events.isEmpty else { return }
+
+        let categoryID = selectedCategoryID
+
+        do {
+            let page = try await events(category: categoryID, cursor: nil)
+            try Task.checkCancellation()
+
+            guard categoryID == selectedCategoryID else { return }
+
+            replaceVisibleEvents(with: page.events)
+        } catch {
+            guard !error.isCancellationError else { return }
+
+            PolymarketLogger.error("Failed to refresh the events feed", error: error)
+        }
+    }
+
+    @MainActor
+    private func replaceVisibleEvents(with refreshed: [PolymarketEvent]) {
+        let byID = Dictionary(refreshed.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+
+        events = events.map { byID[$0.id] ?? $0 }
+        eventCards = events.map(makeCard)
+    }
+
+    @MainActor
     private func reloadSelectedCategory() async {
         let categoryID = selectedCategoryID
 
         do {
-            let page = try await apiProvider.events(request: .init(category: categoryID, limit: Constants.pageSize, cursor: nil))
+            let page = try await events(category: categoryID, cursor: nil)
             try Task.checkCancellation()
 
             guard categoryID == selectedCategoryID else { return }
@@ -614,9 +685,7 @@ final class PolymarketMainViewModel: ObservableObject {
 
         loadingTask = runTask(in: self) { @MainActor viewModel in
             do {
-                let page = try await viewModel.apiProvider.events(
-                    request: .init(category: categoryID, limit: Constants.pageSize, cursor: requestCursor)
-                )
+                let page = try await viewModel.events(category: categoryID, cursor: requestCursor)
                 try Task.checkCancellation()
 
                 viewModel.apply(page: page)
@@ -835,9 +904,11 @@ private extension PolymarketMainViewModel {
 
         static let balanceRefreshInterval: TimeInterval = 30
         static let expectedChangeBalanceRefreshInterval: TimeInterval = 5
+        static let contentRefreshInterval: TimeInterval = 20
         static let positionsLimit = 10
         static let positionsShown = 3
         static let positionsRetryDelay: TimeInterval = 1
+        static let silentRetryDelay: TimeInterval = 2
         static let finishedProbeLimit = 1
         static let listAnimationDuration: TimeInterval = 0.25
     }
@@ -848,6 +919,13 @@ private extension PolymarketMainViewModel {
 extension PolymarketMainViewModel {
     func openPosition(id: String) {
         guard let position = openPositions.first(where: { $0.id == id }) else { return }
+
+        guard !position.isRedeemable, position.settlement?.isResolved != true else {
+            Task { @MainActor in
+                coordinator?.openRedeem(position: position, onClaimed: { [weak self] in self?.claimed() })
+            }
+            return
+        }
 
         coordinator?.openPositionDetails(
             position: position,
@@ -945,6 +1023,7 @@ extension PolymarketMainViewModel {
 
 extension PolymarketMainViewModel: PolymarketSearchRoutable {
     func openEventDetailsFromSearch(eventID: String) {
+        isSearchFieldActive = false
         openEventDetails(eventID: eventID, category: nil)
     }
 

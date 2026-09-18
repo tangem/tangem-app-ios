@@ -89,7 +89,7 @@ final class CommonPolymarketBalanceProvider: PolymarketBalanceProvider {
             return
         }
 
-        await accountModel.refreshState(scope: scope)
+        await accountModel.refreshBalance(scope: scope)
     }
 }
 

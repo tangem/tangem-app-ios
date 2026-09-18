@@ -19,6 +19,7 @@ public struct PolymarketClosedPosition: Hashable, Sendable, Identifiable {
     public let closedAt: Date?
 
     public let outcome: String
+    public let outcomeIndex: Int?
 
     public let avgPrice: Decimal
     public let curPrice: Decimal
@@ -37,6 +38,7 @@ public struct PolymarketClosedPosition: Hashable, Sendable, Identifiable {
         iconURL: URL?,
         closedAt: Date?,
         outcome: String,
+        outcomeIndex: Int?,
         avgPrice: Decimal,
         curPrice: Decimal,
         totalBought: Decimal,
@@ -50,6 +52,7 @@ public struct PolymarketClosedPosition: Hashable, Sendable, Identifiable {
         self.iconURL = iconURL
         self.closedAt = closedAt
         self.outcome = outcome
+        self.outcomeIndex = outcomeIndex
         self.avgPrice = avgPrice
         self.curPrice = curPrice
         self.totalBought = totalBought
