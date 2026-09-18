@@ -12,6 +12,7 @@ import TangemMacro
 /// - Note: Read off the wire by `JointAccountsNetworkMapper`, which is where the endpoint's names are matched and an
 /// activated account is refused without its address; a stored record keeps whole cases, payloads included.
 @RawCaseName
+@CaseFlagable
 enum JointAccountStatus: Equatable, Codable {
     /// No address until every slot is taken.
     case pending
