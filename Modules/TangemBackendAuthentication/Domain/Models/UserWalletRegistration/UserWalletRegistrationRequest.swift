@@ -10,8 +10,8 @@ import struct Foundation.Data
 import struct TangemFoundation.UserWalletId
 
 /// The fully assembled, signed payload for `POST /mobile/wallet/register`,
-/// produced by ``PrepareUserWalletRegistrationUseCase`` and consumed by ``SubmitUserWalletRegistrationUseCase``.
-public struct UserWalletRegistrationRequest: Sendable {
+/// produced by ``AttestUserWalletUseCase`` and consumed by ``SubmitUserWalletRegistrationUseCase``.
+public struct UserWalletRegistrationRequest: Equatable, Sendable {
     let id: UserWalletId
     let walletAttestation: UserWalletAttestation
     let decryptedNonce: String
