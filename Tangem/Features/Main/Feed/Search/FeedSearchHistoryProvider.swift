@@ -12,7 +12,6 @@ protocol FeedSearchHistoryProvider {
     var historyPublisher: AnyPublisher<FeedSearchHistory, Never> { get }
 
     func save(query: String)
-    func save(token: MarketsTokenModel)
     func remove(_ query: FeedRecentQuery)
     func clear()
 }

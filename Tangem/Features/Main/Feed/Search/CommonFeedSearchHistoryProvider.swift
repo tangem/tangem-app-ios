@@ -18,7 +18,6 @@ final class CommonFeedSearchHistoryProvider: FeedSearchHistoryProvider {
     private let storage: FeedSearchHistoryStorage
     private let historySubject = CurrentValueSubject<FeedSearchHistory, Never>(.empty)
     private let persistSubject = PassthroughSubject<StoredFeedSearchHistory, Never>()
-    private let iconURLBuilder = IconURLBuilder()
 
     private var storedHistory: StoredFeedSearchHistory = .empty
     private var bag = Set<AnyCancellable>()
@@ -39,12 +38,6 @@ final class CommonFeedSearchHistoryProvider: FeedSearchHistoryProvider {
 
         update { history in
             Self.prepend(query, to: &history.queries, capacity: Constants.queriesCapacity, replacing: { $0 == query })
-        }
-    }
-
-    func save(token: MarketsTokenModel) {
-        update { history in
-            Self.prepend(token, to: &history.tokens, capacity: Constants.tokensCapacity, replacing: { $0.id == token.id })
         }
     }
 
@@ -79,9 +72,8 @@ private extension CommonFeedSearchHistoryProvider {
             return
         }
 
-        let needsTrimming = stored.queries.count > Constants.queriesCapacity || stored.tokens.count > Constants.tokensCapacity
+        let needsTrimming = stored.queries.count > Constants.queriesCapacity
         stored.queries = Array(stored.queries.prefix(Constants.queriesCapacity))
-        stored.tokens = Array(stored.tokens.prefix(Constants.tokensCapacity))
         if needsTrimming { persistSubject.send(stored) }
         storedHistory = stored
         historySubject.send(makeHistory(from: stored))
@@ -94,17 +86,7 @@ private extension CommonFeedSearchHistoryProvider {
     }
 
     func makeHistory(from stored: StoredFeedSearchHistory) -> FeedSearchHistory {
-        FeedSearchHistory(
-            tokens: stored.tokens.map { token in
-                FeedRecentToken(
-                    id: token.id,
-                    caption: token.name,
-                    icon: .remote(name: token.name, imageURL: iconURLBuilder.tokenIconURL(id: token.id)),
-                    model: token
-                )
-            },
-            queries: stored.queries.map(FeedRecentQuery.init)
-        )
+        FeedSearchHistory(queries: stored.queries.map(FeedRecentQuery.init))
     }
 
     static func prepend<T>(_ element: T, to list: inout [T], capacity: Int, replacing isSame: (T) -> Bool) {
@@ -118,8 +100,7 @@ private extension CommonFeedSearchHistoryProvider {
 
 private extension CommonFeedSearchHistoryProvider {
     enum Constants {
-        static let tokensCapacity = 10
-        static let queriesCapacity = 5
+        static let queriesCapacity = 3
         static let persistDebounce: DispatchQueue.SchedulerTimeType.Stride = .milliseconds(500)
     }
 }
