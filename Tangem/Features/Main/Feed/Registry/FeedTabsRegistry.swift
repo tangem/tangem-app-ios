@@ -15,7 +15,6 @@ enum FeedTabsRegistry {
         }
 
         builders.append(EarnFeedBuilder())
-        builders.append(PredictionsFeedBuilder())
 
         return builders
     }
