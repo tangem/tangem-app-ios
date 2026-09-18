@@ -49,6 +49,7 @@ struct TangemPayCampaignCardArtView: View {
                 failure
             } else {
                 KFImage(url)
+                    .forceRefresh(reloadCount > 0)
                     .placeholder { placeholder }
                     .onFailure { _ in didFail = true }
                     .resizable()
@@ -85,10 +86,10 @@ struct TangemPayCampaignCardArtView: View {
                 } label: {
                     DesignSystem.Icons.ArrowRefresh.regular20.image
                         .renderingMode(.template)
-                        .foregroundStyle(DesignSystem.Color.iconInverse)
+                        .foregroundStyle(DesignSystem.Color.iconPrimary)
                         .frame(size: CGSize(bothDimensions: Constants.retryIconSide))
                         .padding(Constants.retryIconPadding)
-                        .background(DesignSystem.Color.bgInverse, in: .circle)
+                        .background(DesignSystem.Color.bgOpaquePrimary, in: .circle)
                 }
                 .accessibilityLabel(Localization.commonReload)
             }

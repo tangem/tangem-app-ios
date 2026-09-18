@@ -30,13 +30,19 @@ struct TangemPayCampaignLinkParserTests {
         #expect(parser.parse(url) == .navigation(.payCustomCard(PayCustomCardDeeplink(campaignKey: campaignKey))))
     }
 
-    /// The value is the whole of what the link says, so it has to arrive on a domain of ours — the app's own
-    /// scheme is registered for anyone to call.
+    @Test("On internal and debug builds the app's own scheme names the campaign too")
+    func appSchemeCampaignLinkIsParsedOnInternalBuilds() throws {
+        let url = try #require(URL(string: "tangem://marketing?deep_link_value=\(campaignKey)"))
+
+        #expect(TangemPayCampaignLinkParser.matches(url))
+        #expect(parser.parse(url) == .navigation(.payCustomCard(PayCustomCardDeeplink(campaignKey: campaignKey))))
+    }
+
     @Test(
-        "The same value written into a link from anywhere else names no campaign",
+        "The same value from an untrusted source names no campaign",
         arguments: [
             "https://evil.example.com/marketing?deep_link_value=tpay_for_harvard123",
-            "tangem://marketing?deep_link_value=tpay_for_harvard123",
+            "tangem://not-marketing?deep_link_value=tpay_for_harvard123",
         ]
     )
     func foreignLinksAreRejected(link: String) throws {

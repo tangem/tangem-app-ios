@@ -37,13 +37,24 @@ struct TangemPayCampaignIssueCardView: View {
                 .padding(.horizontal, Constants.rowsHorizontalPadding)
                 .padding(.bottom, Constants.rowsToFooterGap)
         }
-        .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
+        .background { background }
         .safeAreaInset(edge: .bottom, spacing: 0) { footer }
         .topNavigation(
             title: Localization.tangempayCampaignIssueCardTitle,
             leading: .none,
             onClose: viewModel.close
         )
+    }
+
+    private var background: some View {
+        DesignSystem.Color.bgPrimary
+            .overlay(alignment: .top) {
+                (issueCard.isBasicTariff ? Assets.Visa.orderCardBgBasic : Assets.Visa.orderCardBgPlus)
+                    .image
+                    .resizable()
+                    .scaledToFit()
+            }
+            .ignoresSafeArea()
     }
 
     private var virtualBadge: some View {

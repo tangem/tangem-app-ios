@@ -29,4 +29,8 @@ struct TangemPayCampaignIssueCard {
     let userWalletModel: UserWalletModel
     let tangemPayAccount: TangemPayAccount
     let fee: TangemPayCustomerOffer.Fee?
+
+    var isBasicTariff: Bool {
+        tangemPayAccount.customerTariffPlan?.tariffPlan.type == TangemPayAccount.basicTariffPlanType
+    }
 }
