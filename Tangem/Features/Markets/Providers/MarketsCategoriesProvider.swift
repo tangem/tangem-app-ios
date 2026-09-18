@@ -22,4 +22,9 @@ struct MarketsCategoriesSnapshot: Equatable {
     var featuredCategory: MarketsDTO.Categories.Category? {
         categories.first { $0.code == MarketsCategoryCode.featuredAssets }
     }
+
+    /// The category every other one is a part of: what tells real assets from the rest of the market.
+    var umbrellaCategory: MarketsDTO.Categories.Category? {
+        selectableCategories.first { $0.code == MarketsCategoryCode.realWorldAssets }
+    }
 }
