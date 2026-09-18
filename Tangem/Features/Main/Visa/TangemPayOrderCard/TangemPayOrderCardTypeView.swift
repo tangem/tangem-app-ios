@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -159,6 +160,7 @@ struct TangemPayOrderCardTypeView: View {
         .background(alignment: .bottom) {
             BottomFadeWithBlur(backgroundColor: DesignSystem.Color.bgPrimary)
         }
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.orderCardTypeSelectButton)
     }
 }
 
