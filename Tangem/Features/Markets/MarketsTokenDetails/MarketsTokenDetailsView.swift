@@ -22,6 +22,8 @@ struct MarketsTokenDetailsView: View {
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
 
     @State private var headerHeight: CGFloat = .zero
+    @State private var headerLeadingWidth: CGFloat = .zero
+    @State private var headerTrailingWidth: CGFloat = .zero
     @State private var isListContentObscured = false
 
     @StateObject private var scrollOffsetHandler = ScrollViewOffsetHandler.marketTokenDetails(
@@ -114,22 +116,45 @@ struct MarketsTokenDetailsView: View {
         if sheetSize.isCollapsedFeedSheet {
             HStack(spacing: 0) {
                 redesignedBackButton
+                    .readGeometry(\.size.width, bindTo: $headerLeadingWidth)
                 Spacer(minLength: 8)
                 redesignedTrailingButtons
+                    .readGeometry(\.size.width, bindTo: $headerTrailingWidth)
             }
             .overlay(alignment: .center) {
-                navigationBarTitle
+                sheetNavigationBarTitle
             }
             .padding(.horizontal, 16)
             .padding(.top, 16)
             .padding(.bottom, 12)
         } else {
             NavigationHeader(
-                leadingContent: { redesignedBackButton },
-                principalContent: { navigationBarTitle },
-                trailingContent: { redesignedTrailingButtons }
+                leadingContent: {
+                    redesignedBackButton
+                        .readGeometry(\.size.width, bindTo: $headerLeadingWidth)
+                },
+                principalContent: {
+                    sheetNavigationBarTitle
+                },
+                trailingContent: {
+                    redesignedTrailingButtons
+                        .readGeometry(\.size.width, bindTo: $headerTrailingWidth)
+                }
             )
         }
+    }
+
+    private var sheetNavigationBarTitle: some View {
+        ViewThatFits(in: .horizontal) {
+            // Keep short names centered; let overflowing names use all the space between the buttons.
+            navigationBarTitle
+                .padding(.horizontal, max(headerLeadingWidth, headerTrailingWidth) + Constants.titleToButtonSpacing)
+
+            navigationBarTitle
+                .padding(.leading, headerLeadingWidth + Constants.titleToButtonSpacing)
+                .padding(.trailing, headerTrailingWidth + Constants.titleToButtonSpacing)
+        }
+        .allowsHitTesting(false)
     }
 
     private var navigationBar: some View {
@@ -155,7 +180,7 @@ struct MarketsTokenDetailsView: View {
 
     @ViewBuilder
     private var redesignedTrailingButtons: some View {
-        HStack(spacing: sheetSize.isFeedSheet ? SizeUnit.x2.value : 12) {
+        HStack(spacing: sheetSize.isFeedSheet ? 8 : 12) {
             if let priceAlertBellViewModel = viewModel.priceAlertBellViewModel {
                 PriceAlertBellView(viewModel: priceAlertBellViewModel)
             }
@@ -213,7 +238,8 @@ struct MarketsTokenDetailsView: View {
             tokenName: viewModel.tokenName,
             price: viewModel.price,
             state: navigationBarTitleState,
-            spacing: sheetSize.isCollapsedFeedSheet ? SizeUnit.x1.value : 0
+            spacing: sheetSize.isCollapsedFeedSheet ? 4 : 0,
+            fadesOverflow: sheetSize.isFeedSheet
         )
     }
 
@@ -359,6 +385,7 @@ struct MarketsTokenDetailsView: View {
 
 private extension MarketsTokenDetailsView {
     enum Constants {
+        static let titleToButtonSpacing = 8.0
         static let chartHeight = 200.0
         static let scrollViewContentTopInset = 14.0
         static let scrollViewVerticalPadding = 16.0
