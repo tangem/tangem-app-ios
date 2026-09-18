@@ -23,6 +23,7 @@ struct JointAccountOperationDetailsView: View {
             blocks: viewModel.blocks,
             onAction: viewModel.handleViewAction
         )
+        .alert(item: $viewModel.alert) { $0.alert }
     }
 }
 
@@ -59,7 +60,8 @@ private extension JointAccountOperationDetailsViewModel {
             requiredSignaturesCount: 3,
             membersCount: 5,
             answer: answer,
-            coordinator: nil
+            coordinator: nil,
+            sign: {}
         )
     }
 }

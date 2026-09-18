@@ -35,8 +35,11 @@ struct JointAccountOperationDetailsViewModelBuilder {
             collectedSignaturesCount: operation.signatures.filter { $0.state == .signed }.count,
             requiredSignaturesCount: account?.policy.signersCount ?? 0,
             membersCount: account?.jointAccountMembersService.slots.members.count ?? 0,
+            // [REDACTED_TODO_COMMENT]
+            // [REDACTED_INFO]
             answer: .awaiting,
-            coordinator: coordinator
+            coordinator: coordinator,
+            sign: { try await pendingOperation.sign() }
         )
     }
 }
