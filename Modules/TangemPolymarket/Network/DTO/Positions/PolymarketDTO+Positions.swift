@@ -27,6 +27,7 @@ extension PolymarketDTO {
         let icon: String?
         let closedAt: String?
         let outcome: String?
+        let outcomeIndex: Int?
         let avgPrice: String?
         let curPrice: String?
         let totalBought: String?
@@ -45,6 +46,7 @@ extension PolymarketDTO {
         let icon: String?
         let endDate: String?
         let outcome: String?
+        let outcomeIndex: Int?
         let size: String?
         let avgPrice: String?
         let curPrice: String?

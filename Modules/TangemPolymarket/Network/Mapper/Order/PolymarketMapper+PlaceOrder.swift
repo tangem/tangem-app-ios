@@ -69,6 +69,14 @@ extension PolymarketMapper {
     }
 }
 
+// MARK: - Reading the book's price
+
+extension PolymarketMapper {
+    func mapPrice(_ response: PolymarketDTO.PriceResponse) throws -> Decimal {
+        try size(response.price, field: "price")
+    }
+}
+
 // MARK: - Private implementation
 
 private extension PolymarketMapper {

@@ -348,6 +348,31 @@ private extension CommonPolymarketAccountModelTests {
         )
     }
 
+    @Test("Refreshing the balance never asks the backend for the account's status")
+    func balanceRefreshLeavesTheStatusAlone() async {
+        let wallet = PolymarketDepositWalletServiceStub(status: .readyToTrade)
+        let (sut, _) = makeSUT(walletService: wallet, credentialsRepository: PolymarketCredentialsRepositoryStub(stored: PolymarketCredentialsRepositoryStub.credentials))
+
+        await sut.refreshState()
+        let afterStateRefresh = wallet.requestedOwnerAddresses.count
+
+        await sut.refreshBalance(scope: .full)
+
+        #expect(wallet.requestedOwnerAddresses.count == afterStateRefresh)
+    }
+
+    @Test("An account nobody has read yet is read once, so its balance has a state to load against")
+    func balanceRefreshReadsAnUnknownAccountOnce() async {
+        let wallet = PolymarketDepositWalletServiceStub(status: .readyToTrade)
+        let (sut, balance) = makeSUT(walletService: wallet, credentialsRepository: PolymarketCredentialsRepositoryStub(stored: PolymarketCredentialsRepositoryStub.credentials))
+
+        await sut.refreshBalance(scope: .full)
+
+        #expect(wallet.requestedOwnerAddresses.count == 1)
+        #expect(sut.state?.isActive == true)
+        #expect(balance.unavailableCalls == 0)
+    }
+
     func makeSUT(
         status: PolymarketDepositWalletStatus,
         credentials: PolymarketL2Credentials? = nil,

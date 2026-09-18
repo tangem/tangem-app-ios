@@ -14,11 +14,12 @@ import Testing
 struct PolymarketQuoteFailureClockTests {
     private let start = Date(timeIntervalSince1970: 1_787_300_000)
 
-    @Test("With nothing on screen to keep, the very first failure is shown at once")
-    func failureWithoutAQuoteSurfacesImmediately() {
+    @Test("A first failure with nothing on screen is retried quietly before it is shown")
+    func failureWithoutAQuoteWaitsToo() {
         let clock = FailureClock(gracePeriod: 30)
 
-        #expect(clock.surfaces(hasQuote: false, at: start))
+        #expect(!clock.surfaces(hasQuote: false, at: start))
+        #expect(clock.surfaces(hasQuote: false, at: start.addingTimeInterval(30)))
     }
 
     @Test("A quote already on screen buys the network the grace period")

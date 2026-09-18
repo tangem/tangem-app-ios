@@ -42,6 +42,7 @@ public extension PolymarketMarketCard {
         public let title: String
         public let priceText: String
         public let style: PolymarketOutcomeStyle
+        public let isEnabled: Bool
         public let onSelect: () -> Void
 
         public init(
@@ -49,12 +50,14 @@ public extension PolymarketMarketCard {
             title: String,
             priceText: String,
             style: PolymarketOutcomeStyle,
+            isEnabled: Bool = true,
             onSelect: @escaping () -> Void
         ) {
             self.id = id
             self.title = title
             self.priceText = priceText
             self.style = style
+            self.isEnabled = isEnabled
             self.onSelect = onSelect
         }
     }

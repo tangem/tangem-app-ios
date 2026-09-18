@@ -21,10 +21,10 @@ extension PolymarketPositionRow.Model {
             question: position.question ?? Localization.predictionPositionsUnavailable,
             imageURL: position.iconURL,
             outcomeTitle: position.outcome,
-            outcomeStyle: PolymarketOutcomeStyle(binaryOutcomeName: position.outcome),
+            outcomeStyle: PolymarketOutcomeStyle(outcomeIndex: position.outcomeIndex, name: position.outcome),
             change: PolymarketPositionRow.Change(
                 text: changeText(position: position),
-                type: PriceChangeView.ChangeType(from: position.cashPnl)
+                type: PriceChangeView.ChangeType(from: PolymarketOrderFormatter.displayedMoney(position.cashPnl))
             ),
             trailing: trailing(position: position),
             glowRing: glowRing(position: position)
@@ -38,7 +38,7 @@ private extension PolymarketPositionRow.Model {
     static let percentFormatter = PercentFormatter()
 
     static func changeText(position: PolymarketPosition) -> String {
-        let amount = PolymarketOrderFormatter.money(abs(position.cashPnl))
+        let amount = PolymarketOrderFormatter.money(abs(PolymarketOrderFormatter.displayedMoney(position.cashPnl)))
         let percent = percentFormatter.format(position.pnlRatio, option: .priceChange)
 
         return "\(amount) (\(percent))"
@@ -123,10 +123,10 @@ extension PolymarketPositionRow.Model {
             question: closedPosition.title.nilIfEmpty ?? Localization.predictionPositionsUnavailable,
             imageURL: closedPosition.iconURL,
             outcomeTitle: closedPosition.outcome,
-            outcomeStyle: PolymarketOutcomeStyle(binaryOutcomeName: closedPosition.outcome),
+            outcomeStyle: PolymarketOutcomeStyle(outcomeIndex: closedPosition.outcomeIndex, name: closedPosition.outcome),
             change: PolymarketPositionRow.Change(
                 text: changeText(closedPosition: closedPosition),
-                type: PriceChangeView.ChangeType(from: closedPosition.realizedPnl)
+                type: PriceChangeView.ChangeType(from: PolymarketOrderFormatter.displayedMoney(closedPosition.realizedPnl))
             ),
             trailing: .status(status(for: closedPosition)),
             glowRing: nil
@@ -134,21 +134,23 @@ extension PolymarketPositionRow.Model {
     }
 
     static func changeText(closedPosition: PolymarketClosedPosition) -> String {
-        let amount = PolymarketOrderFormatter.money(abs(closedPosition.realizedPnl))
+        let amount = PolymarketOrderFormatter.money(abs(PolymarketOrderFormatter.displayedMoney(closedPosition.realizedPnl)))
 
-        guard closedPosition.totalBought > 0 else { return amount }
+        guard let costBasis = costBasis(closedPosition: closedPosition) else { return amount }
 
-        let percent = percentFormatter.format(
-            closedPosition.realizedPnl / closedPosition.totalBought,
-            option: .priceChange
-        )
+        let percent = percentFormatter.format(closedPosition.realizedPnl / costBasis, option: .priceChange)
 
         return "\(amount) (\(percent))"
     }
 
+    static func costBasis(closedPosition: PolymarketClosedPosition) -> Decimal? {
+        let costBasis = closedPosition.totalBought * closedPosition.avgPrice
+
+        return costBasis > 0 ? costBasis : nil
+    }
+
     static func status(for closedPosition: PolymarketClosedPosition) -> PolymarketPositionRow.Status {
-        let amount = PolymarketOrderFormatter.money(closedPosition.totalBought + closedPosition.realizedPnl)
-        let lost = PolymarketOrderFormatter.money(abs(closedPosition.realizedPnl))
+        let amount = PolymarketOrderFormatter.money(abs(closedPosition.realizedPnl))
 
         switch closedPosition.status {
         case .won:
@@ -160,7 +162,7 @@ extension PolymarketPositionRow.Model {
             )
         case .lost:
             return PolymarketPositionRow.Status(
-                text: Localization.predictionPositionsResultAmount(Localization.predictionPositionsLost, lost),
+                text: Localization.predictionPositionsResultAmount(Localization.predictionPositionsLost, amount),
                 variant: .tinted,
                 appearance: .error,
                 icon: DesignSystem.Icons.HeartBroken.regular16

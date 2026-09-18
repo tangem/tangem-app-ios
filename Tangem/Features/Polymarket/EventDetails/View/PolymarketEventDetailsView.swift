@@ -161,6 +161,8 @@ struct PolymarketEventDetailsView: View {
             if let volumeText = content.volumeText {
                 labelledValue(Localization.predictionEventTotalVolume, value: volumeText)
             }
+
+            volumeChange(content.volumeChange)
         }
     }
 
@@ -178,6 +180,19 @@ struct PolymarketEventDetailsView: View {
             .variant(.solid)
             .appearance(.success)
             .slotStart(DesignSystem.Icons.Dot.filled12)
+    }
+
+    private func volumeChange(_ change: PolymarketEventDetailsContent.VolumeChange) -> some View {
+        HStack(spacing: Constants.metaValueSpacing) {
+            Text(Localization.predictionDetails24hChange)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+
+            PriceChangeView(
+                state: .loaded(changeType: change.type, text: change.text),
+                showIconForNeutral: false,
+                useRedesignColors: true
+            )
+        }
     }
 
     private func labelledValue(_ label: String, value: String) -> some View {
@@ -200,14 +215,14 @@ struct PolymarketEventDetailsView: View {
                 PolymarketMarketCard(model: model)
             }
 
-            if content.closedMarkets.isNotEmpty {
+            if content.showsClosedMarketsToggle {
                 closedMarketsToggle(count: content.closedMarkets.count)
                     .padding(.top, Constants.closedMarketsTopPadding)
+            }
 
-                if viewModel.isClosedMarketsExpanded {
-                    ForEach(content.closedMarkets) { model in
-                        PolymarketMarketCard(model: model)
-                    }
+            if !content.showsClosedMarketsToggle || viewModel.isClosedMarketsExpanded {
+                ForEach(content.closedMarkets) { model in
+                    PolymarketMarketCard(model: model)
                 }
             }
         }

@@ -13,14 +13,19 @@ import TangemPolymarket
 import TangemPolymarketUI
 
 extension PolymarketOrderMarketRow.Model {
-    static func make(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) -> Self {
-        let ownTitle = market.groupItemTitle ?? market.title
+    static func make(
+        market: PolymarketMarket,
+        outcome: PolymarketOutcome,
+        eventTitle: String,
+        averagePrice: Decimal? = nil
+    ) -> Self {
+        let ownTitle = market.title.nilIfEmpty ?? market.groupItemTitle?.nilIfEmpty
 
         return Self(
-            question: ownTitle.isEmpty ? eventTitle : ownTitle,
+            question: ownTitle ?? eventTitle,
             imageURL: market.imageURL ?? market.iconURL,
             outcomeTitle: outcome.title,
-            outcomePriceText: PolymarketPriceFormatter.centsText(outcome.probability),
+            outcomePriceText: PolymarketPriceFormatter.centsText(averagePrice ?? outcome.probability),
             outcomeStyle: PolymarketOutcomeStyle(
                 outcomeIndex: market.outcomes.firstIndex { $0.assetId == outcome.assetId } ?? 0
             )
@@ -37,7 +42,7 @@ extension PolymarketOrderMarketRow.Model {
             imageURL: position.iconURL,
             outcomeTitle: position.outcome,
             outcomePriceText: PolymarketPriceFormatter.centsText(position.curPrice),
-            outcomeStyle: PolymarketOutcomeStyle(binaryOutcomeName: position.outcome)
+            outcomeStyle: PolymarketOutcomeStyle(outcomeIndex: position.outcomeIndex, name: position.outcome)
         )
     }
 }

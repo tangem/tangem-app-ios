@@ -26,6 +26,20 @@ enum PolymarketOrderFormatter {
         formatter.formatDecimal(value, formattingOptions: .shares)
     }
 
+    static func displayedMoney(_ value: Decimal) -> Decimal {
+        value.rounded(scale: Constants.moneyScale, roundingMode: .plain)
+    }
+
+    static func signedMoney(_ value: Decimal) -> String {
+        let displayed = displayedMoney(value)
+
+        guard displayed != 0 else { return money(0) }
+
+        let sign = displayed < 0 ? String.minusSign : String.plusSign
+
+        return "\(sign) \(money(abs(displayed)))"
+    }
+
     private static let formatter = BalanceFormatter()
 }
 
@@ -34,6 +48,7 @@ enum PolymarketOrderFormatter {
 private extension PolymarketOrderFormatter {
     enum Constants {
         static let currencyCode = "USD"
+        static let moneyScale = 2
     }
 }
 
