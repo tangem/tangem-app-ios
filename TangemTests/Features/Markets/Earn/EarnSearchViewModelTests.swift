@@ -122,7 +122,6 @@ private final class HistoryProviderStub: FeedSearchHistoryProvider {
     }
 
     func save(query: String) {}
-    func save(token: MarketsTokenModel) {}
     func remove(_ query: FeedRecentQuery) {}
     func clear() {}
 }
