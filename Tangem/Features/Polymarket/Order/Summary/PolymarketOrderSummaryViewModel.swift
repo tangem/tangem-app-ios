@@ -30,7 +30,7 @@ final class PolymarketOrderSummaryViewModel: ObservableObject {
 
     // MARK: - Content
 
-    let marketRow: PolymarketOrderMarketRow.Model
+    @Published private(set) var marketRow: PolymarketOrderMarketRow.Model
     let currencyCode = PolymarketUtilities.collateralTokenItem.currencySymbol
 
     // MARK: - Dependencies
@@ -227,6 +227,14 @@ private extension PolymarketOrderSummaryViewModel {
         }
     }
 
+    func executionPrice(_ placement: PolymarketOrderPlacement?) -> Decimal? {
+        guard let money = filledMoney(placement), let shares = filledShares(placement), shares > 0 else {
+            return nil
+        }
+
+        return money / shares
+    }
+
     func makeResultContent(
         placement: PolymarketOrderPlacement?,
         quote: PolymarketOrderQuote?
@@ -238,6 +246,7 @@ private extension PolymarketOrderSummaryViewModel {
             filledAmount: filledMoney(placement),
             tokensBought: filledShares(placement),
             resolutionDate: model.market.endDate,
+            executionPrice: executionPrice(placement),
             side: model.intent.side,
             feeText: PolymarketOrderFormatter.money(quote?.fees.total)
         )
@@ -274,6 +283,15 @@ private extension PolymarketOrderSummaryViewModel {
 
         header = Self.makeHeader(state: state, intent: model.intent)
         feeText = Self.makeFeeText(state: state)
+
+        if let quote = state.quote.quote {
+            marketRow = .make(
+                market: model.market,
+                outcome: model.outcome,
+                eventTitle: model.eventTitle,
+                averagePrice: quote.averagePrice
+            )
+        }
         slippageText = PolymarketSlippageFormatter.rowText(state.slippagePercent)
         notifications = gate.notifications
         isPlaceEnabled = gate.isPrimaryButtonEnabled
@@ -284,19 +302,17 @@ private extension PolymarketOrderSummaryViewModel {
 // MARK: - Copy
 
 extension PolymarketOrderSummaryViewModel {
-    // [REDACTED_TODO_COMMENT]
     var screenTitle: String {
         switch model.intent {
         case .buy: Localization.predictionPlaceSummaryTitle
-        case .sell: "Close position"
+        case .sell: Localization.predictionCloseTitle
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
     var primaryActionTitle: String {
         switch model.intent {
         case .buy: Localization.predictionPlaceButton
-        case .sell: "Close position"
+        case .sell: Localization.predictionCloseButton
         }
     }
 }
@@ -330,8 +346,7 @@ private extension PolymarketOrderSummaryViewModel {
         guard let quote = state.quote.quote else { return nil }
 
         switch intent {
-        case .buy: return .value(PolymarketOrderFormatter.money(quote.expectedExecutionAmount))
-        case .sell: return .value(PolymarketOrderFormatter.money(quote.total))
+        case .buy, .sell: return .value(PolymarketOrderFormatter.money(quote.expectedExecutionAmount))
         }
     }
 

@@ -17,8 +17,7 @@ extension PolymarketFinishedPositionSheetView.Model {
     static func make(closedPosition: PolymarketClosedPosition) -> Self {
         Self(
             id: closedPosition.id,
-            // [REDACTED_TODO_COMMENT]
-            title: "Finished position",
+            title: Localization.predictionPositionsFinishedTitle,
             header: header(closedPosition: closedPosition),
             rows: rows(closedPosition: closedPosition)
         )
@@ -33,10 +32,10 @@ private extension PolymarketFinishedPositionSheetView.Model {
             iconURL: closedPosition.iconURL,
             changeText: PolymarketPositionRow.Model.changeText(closedPosition: closedPosition),
             changeType: PriceChangeView.ChangeType(from: closedPosition.realizedPnl),
-            valueText: PolymarketOrderFormatter.money(closedPosition.totalBought + closedPosition.realizedPnl),
+            valueText: PolymarketOrderFormatter.money(abs(closedPosition.realizedPnl)),
             question: closedPosition.title.nilIfEmpty ?? Localization.predictionPositionsUnavailable,
             outcomeTitle: closedPosition.outcome,
-            outcomeStyle: PolymarketOutcomeStyle(binaryOutcomeName: closedPosition.outcome),
+            outcomeStyle: PolymarketOutcomeStyle(outcomeIndex: closedPosition.outcomeIndex, name: closedPosition.outcome),
             payoutAmount: nil,
             status: PolymarketPositionRow.Model.status(for: closedPosition)
         )
@@ -44,13 +43,14 @@ private extension PolymarketFinishedPositionSheetView.Model {
 
     static func rows(closedPosition: PolymarketClosedPosition) -> [PolymarketDetailsRowsBlock.Row] {
         var rows: [PolymarketDetailsRowsBlock.Row] = [
-            // [REDACTED_TODO_COMMENT]
-            .init(title: "Outcome", value: closedPosition.outcome),
+            .init(title: Localization.predictionPositionsOutcome, value: closedPosition.outcome),
         ]
 
         if let closedAt = closedPosition.closedAt {
-            // [REDACTED_TODO_COMMENT]
-            rows.append(.init(title: "Closure Date", value: PolymarketOrderResultFormatter.closedAt(closedAt)))
+            rows.append(.init(
+                title: Localization.predictionPositionsClosureDate,
+                value: PolymarketOrderResultFormatter.closedAt(closedAt)
+            ))
         }
 
         return rows

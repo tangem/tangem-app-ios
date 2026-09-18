@@ -21,12 +21,18 @@ public extension PolymarketOutcomeStyle {
         self = outcomeIndex == 0 ? .affirmative : .negative
     }
 
-    init(binaryOutcomeName: String) {
-        self = binaryOutcomeName.lowercased() == Constants.negativeOutcome ? .negative : .affirmative
+    /// The positions endpoints may omit the index, leaving only the label Polymarket prints.
+    init(outcomeIndex: Int?, name: String) {
+        guard let outcomeIndex else {
+            self = Constants.negativeOutcomes.contains(name.lowercased()) ? .negative : .affirmative
+            return
+        }
+
+        self.init(outcomeIndex: outcomeIndex)
     }
 
     private enum Constants {
-        static let negativeOutcome = "no"
+        static let negativeOutcomes: Set<String> = ["no", "under"]
     }
 }
 

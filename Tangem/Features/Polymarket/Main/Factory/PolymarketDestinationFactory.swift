@@ -13,10 +13,20 @@ import TangemPolymarket
 final class PolymarketDestinationFactory {
     private let dependencies: PolymarketMainDependencies
     private let onAddFunds: () -> Void
+    private let onReturnToMain: () -> Void
 
-    init(dependencies: PolymarketMainDependencies, onAddFunds: @escaping () -> Void) {
+    init(
+        dependencies: PolymarketMainDependencies,
+        onAddFunds: @escaping () -> Void,
+        onReturnToMain: @escaping () -> Void
+    ) {
         self.dependencies = dependencies
         self.onAddFunds = onAddFunds
+        self.onReturnToMain = onReturnToMain
+    }
+
+    func returnToMain() {
+        onReturnToMain()
     }
 
     func makeEventDetails(
@@ -103,7 +113,7 @@ extension PolymarketDestinationFactory: PolymarketOrderFlowBuilder {
         onClose: @escaping () -> Void
     ) -> PolymarketOrderCoordinator {
         let coordinator = PolymarketOrderCoordinator(
-            dismissAction: { payload in
+            dismissAction: { [weak self] payload in
                 guard let payload else {
                     onClose()
                     return
@@ -111,6 +121,8 @@ extension PolymarketDestinationFactory: PolymarketOrderFlowBuilder {
 
                 if let position = payload.position {
                     onOpenPosition(position)
+                } else if payload.returnsToMain {
+                    self?.onReturnToMain()
                 } else {
                     onClose()
                 }
@@ -130,6 +142,7 @@ extension PolymarketDestinationFactory: PolymarketOrderFlowBuilder {
             geoblockStateProvider: dependencies.geoblockStateProvider,
             placementService: dependencies.placementService,
             positionsService: dependencies.positionsService,
+            clobService: dependencies.clobService,
             isAwaitingFundsPublisher: dependencies.fundsArrivalTracker.$isAwaitingFunds.eraseToAnyPublisher(),
             onAddFunds: onAddFunds
         ))

@@ -44,10 +44,7 @@ public struct PolymarketOrderFeeRow: View {
                 .lineLimit(1)
 
             if onTap != nil {
-                PolymarketHintIcon(
-                    asset: DesignSystem.Icons.ChevronDoubleVertical.regular20,
-                    side: PolymarketHintIcon.Constants.selectSide
-                )
+                PolymarketHintIcon(asset: DesignSystem.Icons.Info.regular16)
             }
         }
     }

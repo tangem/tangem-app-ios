@@ -12,9 +12,6 @@ import TangemPolymarket
 protocol PolymarketMyPositionsRoutable: AnyObject {
     func closeMyPositions()
 
-    @MainActor
-    func openHowItWorks()
-
     func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void)
 
     @MainActor

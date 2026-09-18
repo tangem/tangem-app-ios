@@ -19,4 +19,14 @@ protocol PolymarketOrderFlowBuilder: AnyObject {
         onOpenPosition: @escaping (PolymarketPosition) -> Void,
         onClose: @escaping () -> Void
     ) -> PolymarketOrderCoordinator
+
+    func makePositionDetails(
+        position: PolymarketPosition,
+        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
+        onRegionWarning: @escaping () -> Void,
+        onOpenPosition: @escaping (PolymarketPosition) -> Void,
+        onClose: @escaping Action<Void>
+    ) -> PolymarketPositionDetailsCoordinator
+
+    func returnToMain()
 }

@@ -26,6 +26,7 @@ struct PolymarketMainDependenciesFactory {
             accountFundsInteractor: PolymarketAccountFundsFactory().makeInteractor(for: userWalletModel),
             positionsService: PolymarketPositionsFactory().makeService(for: userWalletModel, apiProvider: apiProvider),
             placementService: PolymarketOrderPlacementFactory().makeService(for: userWalletModel),
+            clobService: PolymarketOnboardingServicesFactory.makeDefault().makeCLOBService(),
             redeemService: PolymarketRedeemFactory().makeService(for: userWalletModel),
             withdrawContext: PolymarketWithdrawFactory().makeContext(for: userWalletModel),
             fundsArrivalTracker: PolymarketFundsArrivalTracker(
@@ -45,6 +46,7 @@ struct PolymarketMainDependencies {
     let accountFundsInteractor: PolymarketAccountFundsInteractor
     let positionsService: PolymarketPositionsService
     let placementService: PolymarketOrderPlacementService
+    let clobService: PolymarketCLOBService
     let redeemService: PolymarketRedeeming
     let withdrawContext: PolymarketWithdrawContext
     let fundsArrivalTracker: PolymarketFundsArrivalTracker

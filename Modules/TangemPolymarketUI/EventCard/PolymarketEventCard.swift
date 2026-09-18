@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -170,8 +171,9 @@ private extension PolymarketEventCard {
     enum Constants {
         static let cornerRadius: CGFloat = 24
 
+        static let volumePrefix = Localization.predictionEventTotalVolume
+
         // [REDACTED_TODO_COMMENT]
-        static let volumePrefix = "Total volume:"
         static let activePredictsLabel = "In your active predicts"
 
         static func outcomesLabel(_ count: Int) -> String {

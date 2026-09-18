@@ -31,13 +31,13 @@ struct MultiWalletMainContentRedesignedView: View {
                     TangemPayAccountViewRedesigned(viewModel: tangemPayAccountViewModel)
                 }
 
-                pendingJointAccounts
-
-                listContent
-
                 if let polymarketAccountViewModel = viewModel.polymarketAccountViewModel {
                     polymarketAccount(viewModel: polymarketAccountViewModel)
                 }
+
+                pendingJointAccounts
+
+                listContent
 
                 if let collectiblesAccountViewModel = viewModel.collectiblesAccountViewModel {
                     collectiblesAccount(viewModel: collectiblesAccountViewModel)

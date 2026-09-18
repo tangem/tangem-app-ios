@@ -12,8 +12,6 @@ import TangemPolymarket
 import TangemStories
 
 final class PolymarketMyPositionsCoordinator: CoordinatorObject {
-    @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
-
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -91,18 +89,10 @@ extension PolymarketMyPositionsCoordinator: PolymarketMyPositionsRoutable {
     }
 
     @MainActor
-    func openHowItWorks() {
-        tangemStoriesPresenter.presentOnDemand(
-            story: .polymarketOnboarding(.initialWithoutImages),
-            analyticsSource: .predictions
-        )
-    }
-
-    @MainActor
     func openRedeem(position: PolymarketPosition, onClaimed: @escaping () -> Void) {
         guard let redeemService else { return }
 
-        guard let viewModel = PolymarketRedeemViewModel(
+        destination = .redeem(PolymarketRedeemViewModel(
             position: position,
             redeemService: redeemService,
             onClaimed: { [weak self] in
@@ -110,11 +100,7 @@ extension PolymarketMyPositionsCoordinator: PolymarketMyPositionsRoutable {
                 self?.onClaimed?()
             },
             coordinator: self
-        ) else {
-            return
-        }
-
-        destination = .redeem(viewModel)
+        ))
     }
 
     func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void) {
