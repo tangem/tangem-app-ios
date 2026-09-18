@@ -237,11 +237,12 @@
 "collectibles_machine_tier_uncommon" = "Uncommon";
 "collectibles_machine_value_and_odds_section" = "Pack value and odds";
 "collectibles_main_all_cards_tab" = "All cards";
+"collectibles_main_all_packs_tab" = "All packs";
 "collectibles_main_menu_get_assistance" = "Get assistance";
 "collectibles_main_menu_how_it_works" = "How it works";
 "collectibles_main_pack_buyback_badge" = "Buyback %@";
 "collectibles_main_packs_empty" = "There are no packs here yet";
-"collectibles_main_packs_load_error" = "Failed to load packs.\nTap to reload";
+"collectibles_main_packs_load_error" = "Failed to load packs. Tap to reload";
 "collectibles_main_search_empty" = "No results. Try to change your wording\nor explore from the list";
 "collectibles_main_search_load_error" = "Failed to load cards list.\nTap to reload";
 "collectibles_main_title" = "Packs account";
