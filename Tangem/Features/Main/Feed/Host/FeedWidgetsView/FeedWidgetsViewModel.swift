@@ -36,7 +36,16 @@ final class FeedWidgetsViewModel: ObservableObject {
             return
         }
 
-        providers[index].select()
+        switch widget.loadingState {
+        case .loading:
+            return
+
+        case .failure:
+            providers[index].refresh()
+
+        case .success:
+            providers[index].select()
+        }
     }
 }
 

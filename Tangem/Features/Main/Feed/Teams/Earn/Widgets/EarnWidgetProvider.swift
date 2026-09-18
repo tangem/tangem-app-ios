@@ -14,7 +14,7 @@ import TangemFoundation
 final class EarnWidgetProvider {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    private let stateSubject = CurrentValueSubject<FeedEarnWidgetState?, Never>(nil)
+    private let resultSubject = CurrentValueSubject<LoadingResult<FeedEarnWidgetState, FeedWidget.LoadError>, Never>(.loading)
     private let earnProvider: MarketsWidgetEarnProvider = CommonMarketsWidgetEarnService(ethereumP2PFilter: CommonEarnEthereumP2PFilter())
     private let apyResolver = EarnApyResolver()
     private weak var router: FeedWidgetsRoutable?
@@ -38,13 +38,13 @@ final class EarnWidgetProvider {
 
 extension EarnWidgetProvider: FeedWidgetProvider {
     var widgetPublisher: AnyPublisher<FeedWidget?, Never> {
-        stateSubject
-            .map { $0.map(FeedWidget.startEarning) }
+        resultSubject
+            .map { FeedWidget.startEarning($0) }
             .eraseToAnyPublisher()
     }
 
     func refresh() {
-        guard !hasRequestedFeatured || earnProvider.earnResult.isFailure else {
+        guard !hasRequestedFeatured || resultSubject.value.isFailure else {
             return
         }
 
@@ -149,10 +149,18 @@ private extension EarnWidgetProvider {
             nil
         }
 
-        guard stateSubject.value != state else {
+        let result: LoadingResult<FeedEarnWidgetState, FeedWidget.LoadError> = if let state {
+            .success(state)
+        } else if earnProvider.earnResult.isLoading {
+            .loading
+        } else {
+            .failure(FeedWidget.LoadError())
+        }
+
+        guard resultSubject.value != result else {
             return
         }
 
-        stateSubject.send(state)
+        resultSubject.send(result)
     }
 }
