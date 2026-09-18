@@ -14,6 +14,19 @@ struct TransactionViewIconViewData: Hashable {
     let type: TransactionViewModel.TransactionType
     let status: TransactionViewModel.Status
     let isOutgoing: Bool
+    let isFromYieldContract: Bool
+
+    init(
+        type: TransactionViewModel.TransactionType,
+        status: TransactionViewModel.Status,
+        isOutgoing: Bool,
+        isFromYieldContract: Bool = false
+    ) {
+        self.type = type
+        self.status = status
+        self.isOutgoing = isOutgoing
+        self.isFromYieldContract = isFromYieldContract
+    }
 
     var icon: Image {
         switch type {
@@ -36,6 +49,23 @@ struct TransactionViewIconViewData: Hashable {
         case .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin,
              .yieldDeploy, .yieldInit, .yieldReactivate:
             return DesignSystem.Icons.ChartLineVertical.regular20.image
+        }
+    }
+
+    /// Supply and Withdraw carry the arrow the design asks for, which is the opposite of the on-chain
+    /// direction `icon` derives from — and `icon` is still what the legacy row draws.
+    var redesignedIcon: Image {
+        switch type {
+        case .yieldTopup:
+            return Assets.arrowDownMini.image
+        case .yieldSend where isFromYieldContract:
+            return Assets.arrowUpMini.image
+        case .yieldSend, .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin,
+             .yieldInit, .yieldDeploy, .yieldReactivate,
+             .transfer, .swap, .onramp, .stake, .unstake, .vote, .restake, .withdraw,
+             .claimRewards, .approve, .operation, .unknownOperation,
+             .gaslessTransactionFee, .gaslessTransfer, .tangemPay:
+            return icon
         }
     }
 

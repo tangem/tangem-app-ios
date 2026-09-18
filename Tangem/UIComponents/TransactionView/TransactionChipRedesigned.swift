@@ -64,7 +64,7 @@ struct TransactionChipRedesigned: View {
         case .failed, .undefined:
             iconImage(DesignSystem.Icons.Cross.regular16.image)
         case .confirmed where isOperationGlyphVisible:
-            iconImage(viewModel.icon.icon)
+            iconImage(viewModel.icon.redesignedIcon)
         case .confirmed:
             EmptyView()
         }
@@ -84,9 +84,21 @@ struct TransactionChipRedesigned: View {
     }
 
     private var titleView: some View {
-        Text(display.title)
+        Text(attributedTitle)
             .style(DesignSystem.Font.captionMediumToken, color: titleColor)
             .lineLimit(1)
+    }
+
+    private var attributedTitle: AttributedString {
+        switch display.title {
+        case .plain(let text):
+            return AttributedString(text)
+        case .emphasizedSuffix(let prefix, let emphasized):
+            var emphasizedPart = AttributedString(emphasized)
+            emphasizedPart.foregroundColor = DesignSystem.Color.textPrimary
+
+            return AttributedString(prefix) + emphasizedPart
+        }
     }
 
     private func amountWithCurrency(_ value: String) -> String {
@@ -101,7 +113,7 @@ struct TransactionChipRedesigned: View {
         case .owner(let direction, let owner) where isCounterpartyVisible:
             TransactionSubtitleView(direction: direction, owner: owner, isAddressEmphasized: true)
 
-        case .owner, .text, .express, .none:
+        case .owner, .text, .express, .provider, .none:
             EmptyView()
         }
     }
