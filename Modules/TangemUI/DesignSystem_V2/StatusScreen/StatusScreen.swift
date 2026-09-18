@@ -58,6 +58,7 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
     var isActionLoading = false
     var isActionDisabled = false
     var footerAxis: StatusScreenFooterAxis = .vertical
+    var isFooterHidden = false
 
     init(
         title: String,
@@ -100,12 +101,20 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
         }
         .padding(.bottom, contentBottomInset)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(alignment: .bottom) { footer }
+        .overlay(alignment: .bottom) {
+            if !isFooterHidden {
+                footer
+            }
+        }
         .background { background }
         .onAppear(perform: startEntrance)
     }
 
     private var contentBottomInset: CGFloat {
+        guard !isFooterHidden else {
+            return Metrics.contentFooterBaseInset
+        }
+
         let reserve = footerHeight > 0
             ? footerHeight - Metrics.footerContentOverlap
             : Metrics.contentFooterFallbackReserve
