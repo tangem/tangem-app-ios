@@ -87,7 +87,8 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
     @State private var entrance = EntranceState()
     @State private var footerHeight: CGFloat = 0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.containerCornerRadius) private var containerCornerRadius
+    @State private var probedCornerRadius: CGFloat?
+    @Environment(\.containerCornerRadius) private var announcedCornerRadius
 
     /// The content reserves a strip for the footer mid-entrance (measured footer height
     /// minus the fade overlap — see `StatusScreenMetrics`), reproducing the Figma
@@ -107,6 +108,7 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
             }
         }
         .background { background }
+        .background { ContainerCornerRadiusReader { probedCornerRadius = $0 } }
         .onAppear(perform: startEntrance)
     }
 
@@ -260,7 +262,7 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
         .background(DesignSystem.Color.bgPrimary)
         .glowRing(
             appearance.glowRingAppearance,
-            size: .fullscreen(cornerRadius: containerCornerRadius),
+            size: .fullscreen(cornerRadius: probedCornerRadius ?? announcedCornerRadius),
             isVisible: entrance.isGlowRingVisible
         )
         .ignoresSafeArea()
@@ -468,4 +470,67 @@ private enum StatusScreenMetrics {
     static let assetSlotEntranceOffset: CGFloat = 36
     static let textsEntranceOffset: CGFloat = -18
     static let footerEntranceOffset: CGFloat = 90
+}
+
+// MARK: - Container corner radius
+
+private extension CACornerMask {
+    static let allCorners: CACornerMask = [
+        .layerMinXMinYCorner,
+        .layerMaxXMinYCorner,
+        .layerMinXMaxYCorner,
+        .layerMaxXMaxYCorner,
+    ]
+}
+
+private struct ContainerCornerRadiusReader: UIViewRepresentable {
+    let onChange: (CGFloat?) -> Void
+
+    func makeUIView(context: Context) -> ProbeView {
+        ProbeView(onChange: onChange)
+    }
+
+    func updateUIView(_ uiView: ProbeView, context: Context) {}
+}
+
+private extension ContainerCornerRadiusReader {
+    final class ProbeView: UIView {
+        private let onChange: (CGFloat?) -> Void
+        private var reported: CGFloat??
+
+        init(onChange: @escaping (CGFloat?) -> Void) {
+            self.onChange = onChange
+            super.init(frame: .zero)
+            isUserInteractionEnabled = false
+        }
+
+        @available(*, unavailable)
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            report()
+        }
+
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            report()
+        }
+
+        private func report() {
+            let radius = sequence(first: self, next: \.superview)
+                .first { $0.layer.cornerRadius > 0 && $0.layer.maskedCorners == .allCorners }?
+                .layer.cornerRadius
+
+            guard reported != .some(radius) else { return }
+
+            reported = .some(radius)
+
+            DispatchQueue.main.async { [onChange] in
+                onChange(radius)
+            }
+        }
+    }
 }

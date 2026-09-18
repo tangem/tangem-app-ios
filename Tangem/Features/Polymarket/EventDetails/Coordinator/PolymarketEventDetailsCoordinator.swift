@@ -68,12 +68,30 @@ extension PolymarketEventDetailsCoordinator {
 
     enum Destination {
         case order(PolymarketOrderCoordinator)
+        case positionDetails(PolymarketPositionDetailsCoordinator)
     }
 }
 
 // MARK: - Navigation
 
 extension PolymarketEventDetailsCoordinator {
+    func pushPositionDetails(
+        _ position: PolymarketPosition,
+        onPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
+    ) {
+        guard let coordinator = orderBuilder?.makePositionDetails(
+            position: position,
+            onOrderPlaced: onPlaced,
+            onRegionWarning: { [weak self] in self?.onRegionWarning?() },
+            onOpenPosition: { [weak self] position in self?.pushPositionDetails(position, onPlaced: onPlaced) },
+            onClose: { [weak self] in self?.popToEventDetails() }
+        ) else {
+            return
+        }
+
+        destination = .positionDetails(coordinator)
+    }
+
     func popToEventDetails() {
         destination = nil
     }
@@ -103,7 +121,7 @@ extension PolymarketEventDetailsCoordinator: PolymarketEventDetailsRoutable {
             eventTitle: eventTitle,
             request: request,
             onPlaced: onPlaced,
-            onOpenPosition: { [weak self] position in self?.onOpenPosition?(position) },
+            onOpenPosition: { [weak self] position in self?.pushPositionDetails(position, onPlaced: onPlaced) },
             onClose: { [weak self] in self?.popToEventDetails() }
         ) else {
             return

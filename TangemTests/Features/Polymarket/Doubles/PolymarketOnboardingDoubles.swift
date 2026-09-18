@@ -184,6 +184,10 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
         self.createResult = createResult
     }
 
+    func price(tokenId: String, side: PolymarketOrderSide) async throws -> Decimal {
+        0
+    }
+
     func createCredentials(authHeaders: PolymarketCLOBAuthHeaders) async throws -> PolymarketL2Credentials {
         try createResult.get()
     }
@@ -361,6 +365,8 @@ final class PolymarketAccountModelStub: PolymarketAccountModel {
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
 
     func refreshState(scope: PolymarketBalanceRefreshScope) async {}
+
+    func refreshBalance(scope: PolymarketBalanceRefreshScope) async {}
 }
 
 // MARK: - Account presence

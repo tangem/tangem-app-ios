@@ -22,6 +22,7 @@ extension PolymarketOrderModel {
             apiProvider: PolymarketOrderPreviewAPIProvider(),
             geoblockStateProvider: PolymarketOrderPreviewGeoblockStateProvider(),
             positionsService: nil,
+            clobService: PolymarketOnboardingServicesFactory.makeDefault().makeCLOBService(),
             isAwaitingFundsPublisher: .just(output: false)
         )
     }
