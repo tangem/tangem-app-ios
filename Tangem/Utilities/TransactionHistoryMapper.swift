@@ -374,6 +374,8 @@ private extension TransactionHistoryMapper {
     struct FormattedAmount {
         let legacy: String
         let redesigned: String
+        /// `legacy` with the ticker after the number regardless of locale.
+        let withCurrencyCode: String
     }
 
     struct PreparedRecord {
@@ -411,13 +413,14 @@ private extension TransactionHistoryMapper {
             interactionAddress: interaction,
             timeFormatted: timeFormatted,
             amount: formattedAmount.legacy,
+            amountWithCurrencyCode: formattedAmount.withCurrencyCode,
             value: formattedAmount.redesigned,
             currencyCode: amountSymbol(for: record),
             isOutgoing: record.isOutgoing,
             transactionType: prepared.transactionType,
             status: status(from: record),
             isFromYieldContract: record.isFromYieldContract,
-            subtitleOwner: expressSubtitle == nil ? subtitleOwnerResolver?.resolve(for: interaction) : nil,
+            subtitleOwner: expressSubtitle == nil ? subtitleOwnerResolver?.resolve(for: subtitleInteraction(from: record, fallback: interaction)) : nil,
             expressSubtitle: expressSubtitle,
             warning: expressWarning(from: record)
         )
@@ -425,6 +428,19 @@ private extension TransactionHistoryMapper {
 
     func transferAmount(from record: TransactionRecord) -> FormattedAmount {
         getFormattedAmount(for: prepare(record))
+    }
+
+    /// An approve is sent to the contract of the token it grants, so `interactionAddress` — which the legacy
+    /// row prints — names that contract. The redesigned chip names the spender instead.
+    func subtitleInteraction(
+        from record: TransactionRecord,
+        fallback: TransactionViewModel.InteractionAddressType
+    ) -> TransactionViewModel.InteractionAddressType {
+        guard case .approve(let approve) = record.type else {
+            return fallback
+        }
+
+        return .contract(approve.spender)
     }
 
     func interactionAddress(
@@ -601,15 +617,28 @@ private extension TransactionHistoryMapper {
     }
 
     func formatted(amount: Decimal, isOutgoing: Bool, isFailed: Bool) -> FormattedAmount {
-        let magnitude = balanceFormatter.formatDecimal(amount)
-        let magnitudeWithCurrency = balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
-
         let sign = showSign && !amount.isZero ? (isOutgoing ? AppConstants.minusSign : AppConstants.plusSign) : ""
-        let redesignedSign = isFailed ? "" : sign
+
+        return makeFormattedAmount(
+            amount,
+            symbol: currencySymbol,
+            sign: sign,
+            redesignedSign: isFailed ? "" : sign
+        )
+    }
+
+    func makeFormattedAmount(
+        _ amount: Decimal,
+        symbol: String,
+        sign: String = "",
+        redesignedSign: String? = nil
+    ) -> FormattedAmount {
+        let magnitude = balanceFormatter.formatDecimal(amount)
 
         return FormattedAmount(
-            legacy: sign + magnitudeWithCurrency,
-            redesigned: redesignedSign + magnitude
+            legacy: sign + balanceFormatter.formatCryptoBalance(amount, currencyCode: symbol),
+            redesigned: (redesignedSign ?? sign) + magnitude,
+            withCurrencyCode: (redesignedSign ?? sign) + (symbol.isEmpty ? magnitude : magnitude + " " + symbol)
         )
     }
 }
@@ -682,37 +711,42 @@ private extension TransactionHistoryMapper {
         if case .onramp(let info) = record.expressExtraInfo {
             let isEstimated = info.transaction.to.actualAmount == nil || status(from: record) == .inProgress
             let prefix = isEstimated ? "\(AppConstants.tildeSign) " : ""
-            return FormattedAmount(
-                legacy: prefix + balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
-                redesigned: prefix + balanceFormatter.formatDecimal(amount)
-            )
+            return makeFormattedAmount(amount, symbol: currencySymbol, sign: prefix)
         }
 
         switch prepared.transactionType {
         case .stake, .unstake, .restake, .vote, .withdraw:
-            return FormattedAmount(
-                legacy: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
-                redesigned: balanceFormatter.formatDecimal(amount)
-            )
+            return makeFormattedAmount(amount, symbol: currencySymbol)
         case .approve:
-            return approveAmount(for: record) ?? FormattedAmount(
-                legacy: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
-                redesigned: balanceFormatter.formatDecimal(amount)
-            )
-        case .yieldEnter, .yieldTopup, .yieldWithdraw:
-            return FormattedAmount(
-                legacy: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
-                redesigned: balanceFormatter.formatDecimal(amount)
+            return approveAmount(for: record) ?? makeFormattedAmount(amount, symbol: currencySymbol)
+        case .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin:
+            return makeFormattedAmount(amount, symbol: currencySymbol)
+        // Supply and Withdraw take their sign from the operation rather than the on-chain direction, which
+        // runs the other way: the funds leave the wallet on Supply and come back on Withdraw.
+        case .yieldTopup:
+            return makeFormattedAmount(
+                amount,
+                symbol: currencySymbol,
+                redesignedSign: yieldSign(AppConstants.plusSign, amount: amount, record: record)
             )
         // Kept as a separate case so the `where` guard clearly applies only to `.yieldSend`.
         case .yieldSend where record.isFromYieldContract:
-            return FormattedAmount(
-                legacy: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
-                redesigned: balanceFormatter.formatDecimal(amount)
+            return makeFormattedAmount(
+                amount,
+                symbol: currencySymbol,
+                redesignedSign: yieldSign(AppConstants.minusSign, amount: amount, record: record)
             )
         default:
             return formatted(amount: amount, isOutgoing: record.isOutgoing, isFailed: record.status == .failed)
         }
+    }
+
+    func yieldSign(_ sign: String, amount: Decimal, record: TransactionRecord) -> String {
+        guard showSign, !amount.isZero, record.status != .failed else {
+            return ""
+        }
+
+        return sign
     }
 
     func approveAmount(for record: TransactionRecord) -> FormattedAmount? {
@@ -722,19 +756,17 @@ private extension TransactionHistoryMapper {
 
         switch approve.allowance {
         case .revoked:
-            return FormattedAmount(
-                legacy: balanceFormatter.formatCryptoBalance(.zero, currencyCode: amountSymbol(for: record)),
-                redesigned: balanceFormatter.formatDecimal(.zero)
-            )
+            return makeFormattedAmount(.zero, symbol: amountSymbol(for: record))
         case .unlimited:
             let legacy = approve.symbol.map(Localization.transactionHistoryUnlimitedAmount) ?? Localization.transactionHistoryUnlimited
 
-            return FormattedAmount(legacy: legacy, redesigned: Localization.transactionHistoryUnlimited)
-        case .limited(let value):
             return FormattedAmount(
-                legacy: balanceFormatter.formatCryptoBalance(value, currencyCode: amountSymbol(for: record)),
-                redesigned: balanceFormatter.formatDecimal(value)
+                legacy: legacy,
+                redesigned: Localization.transactionHistoryUnlimited,
+                withCurrencyCode: legacy
             )
+        case .limited(let value):
+            return makeFormattedAmount(value, symbol: amountSymbol(for: record))
         }
     }
 
