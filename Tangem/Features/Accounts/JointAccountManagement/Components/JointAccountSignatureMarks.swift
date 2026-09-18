@@ -20,16 +20,17 @@ import TangemUI
 ///   question this answers is who is left — and that is asked of the roster.
 struct JointAccountSignatureMarks: View {
     /// Includes the initiator's own signature, so an operation that exists never shows an empty row.
-    let collectedCount: Int
-    let membersCount: Int
+    let signedMembersCount: Int
+    /// Every member of the account, not the threshold the operation needs — see the note above.
+    let totalMembersCount: Int
 
     @ScaledMetric private var markSide: CGFloat = Constants.markSide
     @ScaledMetric private var markOverlap: CGFloat = Constants.markOverlap
     @ScaledMetric private var cutoutGap: CGFloat = Constants.cutoutGap
     @ScaledMetric private var checkmarkSide: CGFloat = Constants.checkmarkSide
 
-    private var total: Int { min(max(membersCount, 1), Constants.maximumMarks) }
-    private var collected: Int { min(max(collectedCount, 0), total) }
+    private var total: Int { min(max(totalMembersCount, 1), Constants.maximumMarks) }
+    private var collected: Int { min(max(signedMembersCount, 0), total) }
 
     var body: some View {
         HStack(spacing: -markOverlap) {
@@ -110,7 +111,7 @@ private extension JointAccountSignatureMarks {
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .frame(width: 60, alignment: .leading)
 
-                JointAccountSignatureMarks(collectedCount: collected, membersCount: 5)
+                JointAccountSignatureMarks(signedMembersCount: collected, totalMembersCount: 5)
             }
         }
     }
@@ -126,7 +127,7 @@ private extension JointAccountSignatureMarks {
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .frame(width: 60, alignment: .leading)
 
-                JointAccountSignatureMarks(collectedCount: 1, membersCount: members)
+                JointAccountSignatureMarks(signedMembersCount: 1, totalMembersCount: members)
             }
         }
     }
