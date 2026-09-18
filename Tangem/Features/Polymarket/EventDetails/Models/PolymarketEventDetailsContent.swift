@@ -10,6 +10,7 @@ import Foundation
 import TangemFoundation
 import TangemPolymarket
 import TangemPolymarketUI
+import TangemUI
 
 struct PolymarketEventDetailsContent {
     let iconURL: URL?
@@ -17,6 +18,7 @@ struct PolymarketEventDetailsContent {
     let isLive: Bool
     let categoryName: String?
     let volumeText: String?
+    let volumeChange: VolumeChange
     let activeMarkets: [PolymarketMarketCard.Model]
     let closedMarkets: [PolymarketMarketCard.Model]
     let description: String?
@@ -27,8 +29,17 @@ struct PolymarketEventDetailsContent {
         isLive || categoryName != nil || volumeText != nil
     }
 
+    struct VolumeChange {
+        let text: String
+        let type: PriceChangeView.ChangeType
+    }
+
     var hasInfoRows: Bool {
         resolutionDateText != nil || marketOpenedDateText != nil
+    }
+
+    var showsClosedMarketsToggle: Bool {
+        activeMarkets.isNotEmpty && closedMarkets.isNotEmpty
     }
 }
 
@@ -48,16 +59,17 @@ extension PolymarketEventDetailsContent {
             isLive: event.isLive,
             categoryName: category?.label,
             volumeText: event.volume.map(MappingConstants.volumeFormatter.formatMarketCap),
+            volumeChange: volumeChange(event: event),
             activeMarkets: ordered.filter(\.isTradable).map { market in
                 makeCard(
                     market: market,
                     event: event,
-                    showsOutcomes: market.isAcceptingOrders,
+                    areOutcomesEnabled: market.isAcceptingOrders,
                     onSelectOutcome: onSelectOutcome
                 )
             },
             closedMarkets: ordered.filter { !$0.isTradable }.map { market in
-                makeCard(market: market, event: event, showsOutcomes: false, onSelectOutcome: onSelectOutcome)
+                makeCard(market: market, event: event, areOutcomesEnabled: false, onSelectOutcome: onSelectOutcome)
             },
             description: event.description?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty,
             resolutionDateText: event.endDate.map(MappingConstants.dateFormatter.string),
@@ -68,15 +80,33 @@ extension PolymarketEventDetailsContent {
     private static func makeCard(
         market: PolymarketMarket,
         event: PolymarketEvent,
-        showsOutcomes: Bool = true,
+        areOutcomesEnabled: Bool = true,
         onSelectOutcome: @escaping (PolymarketMarket, PolymarketOutcome) -> Void
     ) -> PolymarketMarketCard.Model {
         .make(
             market: market,
             title: title(for: market, in: event),
             fallbackImageURL: event.iconURL ?? event.imageURL,
-            showsOutcomes: showsOutcomes,
+            areOutcomesEnabled: areOutcomesEnabled,
             onSelectOutcome: { onSelectOutcome(market, $0) }
+        )
+    }
+
+    private static func volumeChange(event: PolymarketEvent) -> VolumeChange {
+        guard
+            let volume = event.volume,
+            let volume24h = event.volume24h,
+            case let previous = volume - volume24h,
+            previous > 0
+        else {
+            return VolumeChange(text: BalanceFormatter.defaultEmptyBalanceString, type: .neutral)
+        }
+
+        let ratio = volume24h / previous
+
+        return VolumeChange(
+            text: MappingConstants.percentFormatter.format(ratio, option: .priceChange),
+            type: PriceChangeView.ChangeType(from: ratio)
         )
     }
 
@@ -117,6 +147,7 @@ private extension PolymarketMarket {
 
 private extension PolymarketEventDetailsContent {
     enum MappingConstants {
+        static let percentFormatter = PercentFormatter()
         static let volumeFormatter = MarketCapFormatter(
             divisorsList: AmountNotationSuffixFormatter.Divisor.defaultList,
             baseCurrencyCode: AppConstants.usdCurrencyCode,

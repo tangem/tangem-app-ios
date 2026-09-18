@@ -28,6 +28,7 @@ public enum PolymarketOnboardingError: Error {
     case wallet(PolymarketWalletError)
     case addressMismatch
     case regionBlocked
+    case regionUnknown
     case depositWalletDerivation
     case walletIdTaken
     case credentials
@@ -48,6 +49,8 @@ public extension PolymarketOnboardingError {
         switch self {
         case .walletIdTaken, .addressMismatch, .regionBlocked, .depositWalletDerivation:
             false
+        case .regionUnknown:
+            true
         case .derivation(let error):
             switch error {
             case .missingWallet, .derivationUnsupported, .addressCreationFailed: false

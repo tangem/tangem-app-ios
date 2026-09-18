@@ -49,6 +49,36 @@ struct PolymarketOrderFractionTests {
         #expect(model.state.enteredAmount == 200)
     }
 
+    @Test("A share of a position is cut to whole tokens")
+    func sellFractionIsCutToWholeTokens() async throws {
+        let held = Decimal(string: "23.8")!
+        let model = try await makeModel(balance: held, intent: .sell(shares: held))
+
+        model.handleViewAction(.fractionSelected(.half))
+
+        #expect(model.state.enteredAmount == 11)
+    }
+
+    @Test("Max on a position offers everything it holds, fraction of a token included")
+    func sellMaxIsTheWholeHolding() async throws {
+        let held = Decimal(string: "23.8")!
+        let model = try await makeModel(balance: held, intent: .sell(shares: held))
+
+        model.handleViewAction(.fractionSelected(.max))
+
+        #expect(model.state.enteredAmount == held)
+    }
+
+    @Test("A position smaller than a token is sold whole")
+    func sellMaxOfATinyPositionIsExact() async throws {
+        let held = Decimal(string: "0.4")!
+        let model = try await makeModel(balance: held, intent: .sell(shares: held))
+
+        model.handleViewAction(.fractionSelected(.max))
+
+        #expect(model.state.enteredAmount == held)
+    }
+
     @Test("Without a quote to read the fee from, Max still offers the whole balance")
     func maxWithoutAQuoteIsTheWholeBalance() async throws {
         let model = try await makeModel(balance: 200)
@@ -72,15 +102,20 @@ struct PolymarketOrderFractionTests {
 // MARK: - Fixtures
 
 private extension PolymarketOrderFractionTests {
-    func makeModel(balance: Decimal, quote: PolymarketOrderQuote? = nil) async throws -> PolymarketOrderModel {
+    func makeModel(
+        balance: Decimal,
+        quote: PolymarketOrderQuote? = nil,
+        intent: PolymarketOrderIntent? = nil
+    ) async throws -> PolymarketOrderModel {
         let model = PolymarketOrderModel(
             market: .fixture,
             outcome: .fixture,
             eventTitle: "Fixture event",
-            intent: .buy(balance: .just(output: balance)),
+            intent: intent ?? .buy(balance: .just(output: balance)),
             apiProvider: PolymarketAPIProviderStub(quoteResult: quote),
             geoblockStateProvider: PolymarketGeoblockStateProviderStub(),
             positionsService: nil,
+            clobService: PolymarketCLOBServiceStub(),
             isAwaitingFundsPublisher: .just(output: false)
         )
 

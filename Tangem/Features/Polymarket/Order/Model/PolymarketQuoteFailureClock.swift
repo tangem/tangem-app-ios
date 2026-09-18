@@ -21,7 +21,7 @@ struct PolymarketQuoteFailureClock {
         let firstFailure = firstFailureDate ?? now
         firstFailureDate = firstFailure
 
-        return !hasQuote || now.timeIntervalSince(firstFailure) >= gracePeriod
+        return now.timeIntervalSince(firstFailure) >= gracePeriod
     }
 
     mutating func reset() {

@@ -25,11 +25,11 @@ struct PolymarketOrderGate {
             state.balance.map { $0 >= required } ?? false
         } ?? false
 
-        notifications = Self.notifications(state: state)
+        notifications = Self.notifications(state: state, intent: intent)
         amountCaption = Self.amountCaption(state: state, intent: intent, required: required)
 
         isPrimaryButtonEnabled = notifications.allSatisfy { !$0.isBlocking }
-            && Self.isQuotePlaceable(state: state)
+            && Self.isQuotePlaceable(state: state, intent: intent)
             && !state.isBelowMinAmount
             && hasSufficientBalance
             && state.geoblock == .allowed
@@ -44,19 +44,24 @@ extension PolymarketOrderGate {
         case belowMinAmount(Decimal)
         case notEnoughForBet
         case notEnoughForFees
+        case notEnoughLiquidity
     }
 }
 
 // MARK: - Private implementation
 
 private extension PolymarketOrderGate {
-    static func isQuotePlaceable(state: PolymarketOrderModel.State) -> Bool {
+    static func isQuotePlaceable(state: PolymarketOrderModel.State, intent: PolymarketOrderIntent) -> Bool {
         guard let status = state.quote.quote?.status else { return false }
+
+        if case .sell = intent, status == .belowMinOrderSize {
+            return true
+        }
 
         return status == .belowMinOrderAmount || status.isPlaceable
     }
 
-    static func notifications(state: PolymarketOrderModel.State) -> [PolymarketOrderNotification] {
+    static func notifications(state: PolymarketOrderModel.State, intent: PolymarketOrderIntent) -> [PolymarketOrderNotification] {
         var notifications: [PolymarketOrderNotification] = []
 
         switch state.quote {
@@ -64,14 +69,17 @@ private extension PolymarketOrderGate {
             switch quote.status {
             case .partial: notifications.append(.partialFill)
             case .belowMinOrderSize:
-                if !state.isBelowMinAmount {
+                if case .buy = intent, !state.isBelowMinAmount {
                     notifications.append(.belowMinOrder)
                 }
             case .full, .belowMinOrderAmount, .insufficientLiquidity, .marketClosed, .undefined: break
             }
         case .unavailable(let unavailability):
             switch unavailability {
-            case .insufficientLiquidity: notifications.append(.noLiquidity)
+            case .insufficientLiquidity:
+                if case .buy = intent {
+                    notifications.append(.noLiquidity)
+                }
             case .marketClosed: notifications.append(.marketClosed)
             case .undefined: notifications.append(.quoteUnavailable)
             }
@@ -93,6 +101,10 @@ private extension PolymarketOrderGate {
         intent: PolymarketOrderIntent,
         required: Decimal?
     ) -> AmountCaption? {
+        if case .sell = intent, case .unavailable(.insufficientLiquidity) = state.quote {
+            return .notEnoughLiquidity
+        }
+
         if state.isBelowMinAmount, let minAmount = state.minAmount {
             return .belowMinAmount(minAmount)
         }

@@ -86,6 +86,19 @@ extension CommonPolymarketAccountModel: PolymarketAccountModel {
 
         await runRound(scope: scope)
     }
+
+    func refreshBalance(scope: PolymarketBalanceRefreshScope) async {
+        await refreshProcessor.execute { [weak self] in
+            guard let self else { return }
+
+            guard stateSubject.value?.isActive == true else {
+                await loadState(scope: scope)
+                return
+            }
+
+            await loadBalanceIfPossible(ownerAddress: ownerAddressProvider.getOwnerAddress(), scope: scope)
+        }
+    }
 }
 
 // MARK: - Private implementation
