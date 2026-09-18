@@ -22,6 +22,6 @@ struct RealAssetsFeedBuilder: FeedTabBuilder {
         history: FeedSearchHistoryProvider,
         context: FeedContext
     ) -> FeedSearchTab {
-        .realAssets
+        .realAssets(RealAssetsSearchViewModel(query: query, history: history, router: RealAssetsFeedRouter(context: context)))
     }
 }
