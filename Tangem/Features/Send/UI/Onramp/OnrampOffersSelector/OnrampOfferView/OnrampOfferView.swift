@@ -20,7 +20,6 @@ struct OnrampOfferView: View {
             cardContent
                 .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 12, horizontalPadding: 14)
                 .environment(\.colorScheme, resolvedColorScheme)
-                .opacity(viewModel.isAvailable ? 1 : 0.6)
                 .zIndex(1)
 
             if let linkedBanner = viewModel.linkedBanner {
@@ -181,6 +180,7 @@ struct OnrampOfferView: View {
                 .frame(width: 66, height: 32)
                 .clipShape(Capsule())
                 .disabled(!viewModel.isAvailable)
+                .opacity(viewModel.isAvailable ? 1 : 0.4)
         }
     }
 
