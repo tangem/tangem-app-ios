@@ -9,18 +9,18 @@
 public import struct TangemFoundation.UserWalletId
 
 public struct RegisterUserWalletUseCase: Sendable {
-    private let obtainNonce: ObtainUserWalletRegistrationNonceUseCase
-    private let prepare: PrepareUserWalletRegistrationUseCase
-    private let submit: SubmitUserWalletRegistrationUseCase
+    private let obtainNonce: ObtainUserWalletRegistrationNonce
+    private let attestUserWallet: AttestUserWallet
+    private let submitRegistration: SubmitUserWalletRegistration
 
     init(
-        obtainNonce: ObtainUserWalletRegistrationNonceUseCase,
-        prepare: PrepareUserWalletRegistrationUseCase,
-        submit: SubmitUserWalletRegistrationUseCase
+        obtainNonce: @escaping ObtainUserWalletRegistrationNonce,
+        attestUserWallet: @escaping AttestUserWallet,
+        submitRegistration: @escaping SubmitUserWalletRegistration
     ) {
         self.obtainNonce = obtainNonce
-        self.prepare = prepare
-        self.submit = submit
+        self.attestUserWallet = attestUserWallet
+        self.submitRegistration = submitRegistration
     }
 
     public func callAsFunction(id: UserWalletId, signer: some UserWalletRegistrationSigner) async throws(RegisterUserWalletError) {
@@ -29,39 +29,39 @@ public struct RegisterUserWalletUseCase: Sendable {
             return
         }
 
-        guard let registrationRequest = try await prepareRegistrationRequest(id: id, nonce: nonce, signer: signer) else {
+        guard let registrationRequest = try await attestUserWallet(withID: id, nonce: nonce, signer: signer) else {
             // [REDACTED_TODO_COMMENT]
             return
         }
 
-        try await submit(registrationRequest)
+        try await submitRegistration(request: registrationRequest)
     }
 
     private func obtainNonce(for id: UserWalletId) async throws(RegisterUserWalletError) -> UserWalletRegistrationNonce? {
         do {
-            return try await obtainNonce(id: id)
+            return try await obtainNonce(id)
         } catch {
-            throw RegisterUserWalletError.obtainNonceFailed(error)
+            throw RegisterUserWalletError.obtainNonceFailure(error)
         }
     }
 
-    private func prepareRegistrationRequest(
-        id: UserWalletId,
+    private func attestUserWallet(
+        withID id: UserWalletId,
         nonce: UserWalletRegistrationNonce,
         signer: some UserWalletRegistrationSigner
     ) async throws(RegisterUserWalletError) -> UserWalletRegistrationRequest? {
         do {
-            return try await prepare(id: id, nonce: nonce, signer: signer)
+            return try await attestUserWallet(id, nonce, signer)
         } catch {
-            throw RegisterUserWalletError.prepareFailed(error)
+            throw RegisterUserWalletError.attestUserWalletFailure(error)
         }
     }
 
-    private func submit(_ registrationRequest: UserWalletRegistrationRequest) async throws(RegisterUserWalletError) {
+    private func submitRegistration(request: UserWalletRegistrationRequest) async throws(RegisterUserWalletError) {
         do {
-            try await submit(request: registrationRequest)
+            try await submitRegistration(request)
         } catch {
-            throw RegisterUserWalletError.submitFailed(error)
+            throw RegisterUserWalletError.submitFailure(error)
         }
     }
 }

@@ -10,19 +10,16 @@ import Foundation
 import enum Moya.MoyaError
 import class Moya.MoyaProvider
 import class Moya.Response
-import TangemFoundation
 
 struct MoyaDeviceRegistrationClient: DeviceRegistrationClient {
     private let provider: MoyaProvider<BackendAuthenticationTarget>
     private let baseURL: URL
     private let decoder: JSONDecoder
 
-    init(provider: MoyaProvider<BackendAuthenticationTarget>, baseURL: URL) {
+    init(provider: MoyaProvider<BackendAuthenticationTarget>, baseURL: URL, decoder: JSONDecoder) {
         self.provider = provider
         self.baseURL = baseURL
-
-        decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .customISO8601
+        self.decoder = decoder
     }
 
     func requestCipheredNonce(devicePublicKey: DevicePublicKey) async throws(DeviceRegistrationClientError) -> String {
@@ -39,21 +36,15 @@ struct MoyaDeviceRegistrationClient: DeviceRegistrationClient {
         }
     }
 
-    func register(
-        devicePublicKey: DevicePublicKey,
-        decryptedNonce: String,
-        metadata: DeviceMetadata,
-        signature: DeviceSignature,
-        attestationToken: Data?
-    ) async throws(DeviceRegistrationClientError) -> SessionTokens {
+    func register(request: DeviceRegistrationRequest) async throws(DeviceRegistrationClientError) -> SessionTokens {
         let requestBody = RegisterDeviceDTO.Request(
             payload: RegisterDeviceDTO.Request.Payload(
-                devicePublicKey: devicePublicKey.derRepresentation.base64EncodedString(),
-                nonce: decryptedNonce,
-                attestationToken: attestationToken?.base64EncodedString(),
-                metadata: DeviceMetadataMapper.mapToDTO(metadata)
+                devicePublicKey: request.devicePublicKey.derRepresentation.base64EncodedString(),
+                nonce: request.decryptedNonce,
+                attestationToken: request.appAttestationToken?.base64EncodedString(),
+                metadata: DeviceMetadataMapper.mapToDTO(request.metadata)
             ),
-            signature: signature.derRepresentation.base64EncodedString()
+            signature: request.signature.derRepresentation.base64EncodedString()
         )
         let target = BackendAuthenticationTarget(registerDevice: requestBody, baseURL: baseURL)
 

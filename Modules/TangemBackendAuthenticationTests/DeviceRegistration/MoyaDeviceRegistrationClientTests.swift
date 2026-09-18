@@ -65,13 +65,7 @@ struct MoyaDeviceRegistrationClientTests {
             responseBody: TokensResponseFixture.valid(accessToken: expectedAccessToken, refreshToken: expectedRefreshToken)
         )
 
-        let sessionTokens = try await sut.register(
-            devicePublicKey: .fake,
-            decryptedNonce: "decrypted-nonce",
-            metadata: .fake,
-            signature: .fake,
-            attestationToken: nil
-        )
+        let sessionTokens = try await sut.register(request: DeviceRegistrationRequest.fake)
 
         #expect(sessionTokens.accessToken.jwt == expectedAccessToken)
         #expect(sessionTokens.refreshToken?.jwt == expectedRefreshToken)
@@ -86,13 +80,7 @@ struct MoyaDeviceRegistrationClientTests {
         )
 
         let error = try await #require(throws: DeviceRegistrationClientError.self) {
-            _ = try await sut.register(
-                devicePublicKey: .fake,
-                decryptedNonce: "decrypted-nonce",
-                metadata: .fake,
-                signature: .fake,
-                attestationToken: nil
-            )
+            _ = try await sut.register(request: DeviceRegistrationRequest.fake)
         }
 
         guard case .registerFailed = error else {
@@ -107,13 +95,7 @@ struct MoyaDeviceRegistrationClientTests {
         let sut = try Self.makeSUT(statusCode: alreadyRegisteredStatusCode)
 
         let error = try await #require(throws: DeviceRegistrationClientError.self) {
-            _ = try await sut.register(
-                devicePublicKey: .fake,
-                decryptedNonce: "decrypted-nonce",
-                metadata: .fake,
-                signature: .fake,
-                attestationToken: nil
-            )
+            _ = try await sut.register(request: DeviceRegistrationRequest.fake)
         }
 
         guard case .alreadyRegistered = error else {
@@ -127,13 +109,7 @@ struct MoyaDeviceRegistrationClientTests {
         let sut = try Self.makeSUT(statusCode: errorStatusCode)
 
         let error = try await #require(throws: DeviceRegistrationClientError.self) {
-            _ = try await sut.register(
-                devicePublicKey: .fake,
-                decryptedNonce: "decrypted-nonce",
-                metadata: .fake,
-                signature: .fake,
-                attestationToken: nil
-            )
+            _ = try await sut.register(request: DeviceRegistrationRequest.fake)
         }
 
         guard case .registerFailed = error else {
@@ -160,7 +136,10 @@ extension MoyaDeviceRegistrationClientTests {
 
         let anyBaseURL = try #require(URL(string: "https://example.com"), sourceLocation: sourceLocation)
 
-        return MoyaDeviceRegistrationClient(provider: provider, baseURL: anyBaseURL)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .customISO8601
+
+        return MoyaDeviceRegistrationClient(provider: provider, baseURL: anyBaseURL, decoder: decoder)
     }
 }
 
@@ -170,5 +149,19 @@ extension MoyaDeviceRegistrationClientTests {
     private enum StatusCodes {
         static let success = [200, 201, 202, 203, 204, 205, 206, 207, 208, 226]
         static let error = [400, 401, 403, 404, 500, 501, 512]
+    }
+}
+
+private extension DeviceRegistrationRequest {
+    static var fake: DeviceRegistrationRequest {
+        get throws {
+            try DeviceRegistrationRequest(
+                devicePublicKey: DevicePublicKey.fake,
+                decryptedNonce: "decrypted-nonce",
+                metadata: DeviceMetadata.fake,
+                signature: DeviceSignature.fake,
+                appAttestationToken: nil
+            )
+        }
     }
 }

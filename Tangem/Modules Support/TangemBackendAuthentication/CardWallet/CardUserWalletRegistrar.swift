@@ -57,7 +57,7 @@ actor CardUserWalletRegistrar {
 
                 if let nonce {
                     // No request means the user wallet is already registered
-                    if let request = try await BackendAuthenticationAssembly.prepareUserWalletRegistration(
+                    if let request = try await BackendAuthenticationAssembly.attestUserWallet(
                         id: userWalletId,
                         nonce: nonce,
                         signer: signer
@@ -70,7 +70,7 @@ actor CardUserWalletRegistrar {
                     BackendAuthLogger.warning("Skipped user wallet registration, no nonce yet (card \(card.cardId))")
                 }
             } catch {
-                BackendAuthLogger.error("Failed to prepare user wallet registration (card \(card.cardId))", error: error)
+                BackendAuthLogger.error("Failed to attest user wallet (card \(card.cardId))", error: error)
             }
 
             completion()

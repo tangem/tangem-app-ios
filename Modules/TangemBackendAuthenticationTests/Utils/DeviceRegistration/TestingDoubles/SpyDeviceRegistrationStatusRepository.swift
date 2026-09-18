@@ -10,7 +10,7 @@ private import os.lock
 @testable import TangemBackendAuthentication
 
 final class SpyDeviceRegistrationStatusRepository: DeviceRegistrationStatusRepository {
-    private let state: OSAllocatedUnfairLock<State>
+    private let state = OSAllocatedUnfairLock(initialState: State())
 
     var retrieveResult: Bool {
         get { state.withLock(\.retrieveResult) }
@@ -21,15 +21,9 @@ final class SpyDeviceRegistrationStatusRepository: DeviceRegistrationStatusRepos
         state.withLock(\.receivedMessages)
     }
 
-    init(retrieveResult: Bool = false) {
-        state = OSAllocatedUnfairLock(initialState: State(retrieveResult: retrieveResult))
-    }
-
     func retrieve() -> Bool {
-        state.withLock {
-            $0.receivedMessages.append(.retrieve)
-            return $0.retrieveResult
-        }
+        state.withLock { $0.receivedMessages.append(.retrieve) }
+        return retrieveResult
     }
 
     func persist(isRegistered: Bool) {
@@ -44,7 +38,7 @@ extension SpyDeviceRegistrationStatusRepository {
     }
 
     private struct State {
+        var retrieveResult: Bool = false
         var receivedMessages: [Message] = []
-        var retrieveResult: Bool
     }
 }
