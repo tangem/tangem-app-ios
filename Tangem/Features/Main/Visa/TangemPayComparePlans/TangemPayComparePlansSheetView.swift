@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 
@@ -45,6 +46,7 @@ struct TangemPayComparePlansSheetView: View {
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 8)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.comparePlansSection(section.title))
 
             VStack(spacing: 0) {
                 ForEach(Array(section.rows.enumerated()), id: \.element.id) { index, row in
@@ -53,6 +55,7 @@ struct TangemPayComparePlansSheetView: View {
                         .valueLineLimit(nil)
                         .overrideTextColors(.init(title: DesignSystem.Color.textSecondary))
                         .showDivider(index < section.rows.count - 1)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.comparePlansRow(row.planName))
                 }
             }
             .background(DesignSystem.Color.bgSecondary)

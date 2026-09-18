@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Kingfisher
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -48,6 +49,7 @@ struct TangemPaySelectPlanView: View {
         ScrollView {
             VStack(spacing: 0) {
                 carousel
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.selectPlanCarousel)
                     .padding(.top, 8)
                     .padding(.bottom, 88)
                     .onChange(of: viewModel.selectedPlanID) { _ in viewModel.onPlanSwiped() }
@@ -66,6 +68,7 @@ struct TangemPaySelectPlanView: View {
                     Text(viewModel.selectedPlan?.name ?? "")
                         .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.selectPlanName)
 
                     pointsList
                 }
@@ -192,6 +195,7 @@ struct TangemPaySelectPlanView: View {
             .styleType(.secondary(.default))
             .horizontalLayout(.infinity)
             .disabled(viewModel.isPlacingOrder)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.selectPlanCompareButton)
 
             TangemUI.Button(
                 label: AttributedString(Localization.tangempaySelectPlanBtnSelect),
@@ -202,6 +206,7 @@ struct TangemPaySelectPlanView: View {
             .styleType(.default)
             .horizontalLayout(.infinity)
             .loading(.spinner(if: viewModel.isPlacingOrder))
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.selectPlanSelectButton)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
