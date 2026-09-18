@@ -14,7 +14,7 @@ public import struct Foundation.Data
 /// Two independent claims, verified separately by the backend:
 /// - `walletSignature` proves possession of the wallet's own private key.
 /// - `cardSignature` additionally proves the key lives on a genuine, registered Tangem card.
-public struct UserWalletAttestation: Sendable {
+public struct UserWalletAttestation: Equatable, Sendable {
     /// Proves possession of the wallet's own private key — signs `sha256(nonce ‖ salt)`.
     /// Always present, for both mobile and card-backed wallets.
     public let walletSignature: Signature
@@ -49,7 +49,7 @@ public struct UserWalletAttestation: Sendable {
 public extension UserWalletAttestation {
     /// A secp256k1 RSV signature (65 bytes: `R ‖ S ‖ V`) paired with the salt mixed into the hash it signs,
     /// as produced by `AttestWalletKeyTask`.
-    struct Signature: Sendable {
+    struct Signature: Equatable, Sendable {
         /// The RSV signature bytes themselves.
         public let value: Data
 
@@ -64,7 +64,7 @@ public extension UserWalletAttestation {
     }
 
     /// How the user wallet's key came to exist on the card.
-    enum Origin: Sendable {
+    enum Origin: Equatable, Sendable {
         /// The key pair was generated directly in the card's Secure Element.
         case generatedOnCard
 

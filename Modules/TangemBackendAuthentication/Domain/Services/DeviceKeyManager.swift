@@ -96,7 +96,9 @@ actor DeviceKeyManager {
             return privateKey
 
         case .failure(let error):
-            generateOrLoadPrivateKeyTask = nil
+            if generateOrLoadPrivateKeyTask == task {
+                generateOrLoadPrivateKeyTask = nil
+            }
             throw DeviceKeyManagerError.privateKeyUnavailable(error)
         }
     }

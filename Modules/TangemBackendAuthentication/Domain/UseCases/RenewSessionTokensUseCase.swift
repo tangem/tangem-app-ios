@@ -67,27 +67,40 @@ actor RenewSessionTokensUseCase {
     private func renew() async throws(RenewSessionTokensError) -> SessionTokens {
         let renewedTokens: SessionTokens
 
-        if let cachedTokens = try await retrieveCachedTokens(),
-           let refreshToken = cachedTokens.refreshToken,
-           isNotExpired(refreshToken),
-           let freshTokensAfterRefresh = try? await sessionAuthenticationClient.refresh(
-               refreshToken: refreshToken.jwt,
-               accessToken: cachedTokens.accessToken.jwt
-           ) {
-            renewedTokens = freshTokensAfterRefresh
+        if let tokensAfterRefresh = try await refreshExistingSession() {
+            renewedTokens = tokensAfterRefresh
         } else {
-            do {
-                renewedTokens = try await authenticate()
-            } catch RenewSessionTokensError.clientFailure(.deviceRegistrationMissing) {
-                renewedTokens = try await recoverFromMissingDeviceRegistration()
-            } catch RenewSessionTokensError.clientFailure(.authenticationRejected) {
-                await deleteSessionTokens()
-                throw RenewSessionTokensError.clientFailure(.authenticationRejected)
-            }
+            renewedTokens = try await authenticateNewSession()
         }
 
         try await persist(sessionTokens: renewedTokens)
         return renewedTokens
+    }
+
+    private func refreshExistingSession() async throws(RenewSessionTokensError) -> SessionTokens? {
+        guard
+            let cachedTokens = try await retrieveCachedTokens(),
+            let refreshToken = cachedTokens.refreshToken,
+            isNotExpired(refreshToken)
+        else {
+            return nil
+        }
+
+        return try? await sessionAuthenticationClient.refresh(
+            refreshToken: refreshToken.jwt,
+            accessToken: cachedTokens.accessToken.jwt
+        )
+    }
+
+    private func authenticateNewSession() async throws(RenewSessionTokensError) -> SessionTokens {
+        do {
+            return try await authenticate()
+        } catch RenewSessionTokensError.clientFailure(.deviceRegistrationMissing) {
+            return try await recoverFromMissingDeviceRegistration()
+        } catch RenewSessionTokensError.clientFailure(.authenticationRejected) {
+            await deleteSessionTokens()
+            throw RenewSessionTokensError.clientFailure(.authenticationRejected)
+        }
     }
 
     private func isNotExpired(_ refreshToken: SessionTokens.Token) -> Bool {

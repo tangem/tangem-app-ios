@@ -6,6 +6,10 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+typealias SubmitUserWalletRegistration = @Sendable (
+    _ request: UserWalletRegistrationRequest
+) async throws(SubmitUserWalletRegistrationError) -> Void
+
 public struct SubmitUserWalletRegistrationUseCase: Sendable {
     private let registrationClient: any UserWalletRegistrationClient
     private let registrationStatusRepository: any UserWalletRegistrationStatusRepository

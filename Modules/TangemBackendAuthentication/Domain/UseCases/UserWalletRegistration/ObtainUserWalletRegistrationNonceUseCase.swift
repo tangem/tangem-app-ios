@@ -9,6 +9,10 @@
 private import struct Foundation.Data
 public import TangemFoundation
 
+typealias ObtainUserWalletRegistrationNonce = @Sendable (
+    _ id: UserWalletId
+) async throws(ObtainUserWalletRegistrationNonceError) -> UserWalletRegistrationNonce?
+
 public struct ObtainUserWalletRegistrationNonceUseCase: Sendable {
     private let registerDevice: RegisterDevice
 
@@ -52,12 +56,12 @@ public struct ObtainUserWalletRegistrationNonceUseCase: Sendable {
         let decryptedNonce = String(decoding: decryptedNonceBytes, as: UTF8.self)
         let nonceBytesToSign = try decodeNonceForSigning(decryptedNonce)
 
-        let attestationToken = await generateAttestationToken(for: decryptedNonceBytes)
+        let appAttestationToken = await generateAppAttestationToken(for: decryptedNonceBytes)
 
         return UserWalletRegistrationNonce(
             value: decryptedNonce,
             bytesToSign: nonceBytesToSign,
-            appAttestationToken: attestationToken
+            appAttestationToken: appAttestationToken
         )
     }
 
@@ -104,7 +108,7 @@ public struct ObtainUserWalletRegistrationNonceUseCase: Sendable {
         return nonceBytesToSign
     }
 
-    private func generateAttestationToken(for decryptedNonceBytes: Data) async -> Data? {
+    private func generateAppAttestationToken(for decryptedNonceBytes: Data) async -> Data? {
         do {
             return try await appAttestService.generateAttestationToken(for: decryptedNonceBytes)
         } catch {

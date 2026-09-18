@@ -11,11 +11,11 @@ import class Foundation.UserDefaults
 struct UserDefaultsDeviceRegistrationStatusRepository: DeviceRegistrationStatusRepository {
     private static let key = "com.tangem.backendAuthentication.isDeviceRegistered"
 
-    /// UserDefaults is documented as thread-safe, but Swift can't verify that of arbitrary subclasses.
-    /// Safe here as long as callers only ever pass the base class, not a subclass.
-    private nonisolated(unsafe) let userDefaults: UserDefaults
+    private let userDefaults: UserDefaults
 
     init(userDefaults: UserDefaults = UserDefaults.standard) {
+        assert(type(of: userDefaults) == UserDefaults.self, "Expected a non-subclassed UserDefaults instance.")
+
         self.userDefaults = userDefaults
     }
 
