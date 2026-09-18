@@ -7,6 +7,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemFoundation
 import TangemLocalization
@@ -42,6 +43,10 @@ final class TangemPayStayOnPlusSheetViewModel: TangemPayPopupViewModel {
             isLoading: isLoading,
             action: confirm
         )
+    }
+
+    var primaryButtonAccessibilityIdentifier: String? {
+        TangemPayAccessibilityIdentifiers.stayOnPlusConfirmButton
     }
 
     var secondaryButton: MainButton.Settings? {

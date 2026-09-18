@@ -147,6 +147,7 @@ public enum TangemPayAccessibilityIdentifiers {
     // MARK: - Additional card issue
 
     public static let issueAdditionalCardSheetConfirmButton = "\(prefix)IssueAdditionalCardSheetConfirmButton"
+    public static let orderCardTypeSelectButton = "\(prefix)OrderCardTypeSelectButton"
     public static let paymentAccountIssuingCardButton = "\(prefix)PaymentAccountIssuingCardButton"
     public static let issuingCardBanner = "\(prefix)IssuingCardBanner"
     public static let cardIssuingMessage = "\(prefix)CardIssuingMessage"
@@ -187,6 +188,46 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let pinSuccessTitle = "\(prefix)PinSuccessTitle"
     public static let pinSuccessDescription = "\(prefix)PinSuccessDescription"
     public static let pinDoneButton = "\(prefix)PinDoneButton"
+
+    // MARK: - Tariff plans
+
+    public static let currentPlanMenuItem = "\(prefix)CurrentPlanMenuItem"
+    public static let paymentAccountInactiveBadge = "\(prefix)PaymentAccountInactiveBadge"
+    public static let awaitingDepositBanner = "\(prefix)AwaitingDepositBanner"
+
+    public static let currentPlanName = "\(prefix)CurrentPlanName"
+    public static let currentPlanChangeButton = "\(prefix)CurrentPlanChangeButton"
+    public static let currentPlanAwaitingDepositBanner = "\(prefix)CurrentPlanAwaitingDepositBanner"
+    public static let currentPlanDowngradeBanner = "\(prefix)CurrentPlanDowngradeBanner"
+    public static let currentPlanFeeChargedBanner = "\(prefix)CurrentPlanFeeChargedBanner"
+
+    public static let selectPlanName = "\(prefix)SelectPlanName"
+    public static let selectPlanCarousel = "\(prefix)SelectPlanCarousel"
+    public static let selectPlanSelectButton = "\(prefix)SelectPlanSelectButton"
+    public static let selectPlanCompareButton = "\(prefix)SelectPlanCompareButton"
+
+    public static let confirmPlanTitle = "\(prefix)ConfirmPlanTitle"
+    public static let confirmPlanPrimaryButton = "\(prefix)ConfirmPlanPrimaryButton"
+
+    public static let cardsLimitReachedConfirmButton = "\(prefix)CardsLimitReachedConfirmButton"
+    public static let maximumCardsIssuedConfirmButton = "\(prefix)MaximumCardsIssuedConfirmButton"
+    public static let stayOnPlusConfirmButton = "\(prefix)StayOnPlusConfirmButton"
+
+    public static func currentPlanSection(_ title: String) -> String {
+        "\(prefix)CurrentPlanSection_\(title)"
+    }
+
+    public static func currentPlanRow(_ title: String) -> String {
+        "\(prefix)CurrentPlanRow_\(title)"
+    }
+
+    public static func comparePlansSection(_ title: String) -> String {
+        "\(prefix)ComparePlansSection_\(title)"
+    }
+
+    public static func comparePlansRow(_ planName: String) -> String {
+        "\(prefix)ComparePlansRow_\(planName)"
+    }
 }
 
 public extension TangemPayAccessibilityIdentifiers {

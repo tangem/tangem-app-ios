@@ -183,6 +183,7 @@ struct TangemPayMainView: View {
                 .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
         }
         .primaryButton(viewModel.awaitingDepositAddFundsButton)
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.awaitingDepositBanner)
     }
 
     private func cardDeliveryBanner(state: TangemPayMainViewModel.CardDeliveryBannerState) -> some View {
@@ -222,6 +223,7 @@ struct TangemPayMainView: View {
             .variant(.tinted)
             .appearance(.warning)
             .slotStart(DesignSystem.Icons.Info.regular16)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountInactiveBadge)
     }
 
     private var redesignedCardsRow: some View {
@@ -320,6 +322,7 @@ struct TangemPayMainView: View {
                             .renderingMode(.template)
                     }
                 }
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.currentPlanMenuItem)
 
                 Divider()
 
