@@ -9,7 +9,7 @@
 import struct Foundation.Data
 
 /// Everything obtained from the backend before a user wallet can be attested.
-public struct UserWalletRegistrationNonce: Sendable {
+public struct UserWalletRegistrationNonce: Equatable, Sendable {
     /// The decrypted nonce, as it goes into the registration request.
     let value: String
     /// The decrypted nonce decoded from base64URL — the bytes a ``UserWalletRegistrationSigner`` signs.
