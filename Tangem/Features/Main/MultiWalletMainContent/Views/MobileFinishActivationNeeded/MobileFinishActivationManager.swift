@@ -74,13 +74,10 @@ final class MobileFinishActivationManager {
 
     private func onIncoming(action: IncomingAction) {
         switch action {
-        case .navigation(let deepLinkAction):
-            let hasMainDeepLink = switch deepLinkAction {
-            case .markets, .buy, .sell, .swap, .referral: true
-            default: false
-            }
-
-            hasMainDeepLinkSubject.send(hasMainDeepLink)
+        // Every link that names a destination is shown by someone — on the main screen or over it — so there
+        // is nothing left for the sheet to cut into. It no longer matters which destination it is.
+        case .navigation:
+            hasMainDeepLinkSubject.send(true)
 
         case .externalLink:
             hasMainDeepLinkSubject.send(false)
