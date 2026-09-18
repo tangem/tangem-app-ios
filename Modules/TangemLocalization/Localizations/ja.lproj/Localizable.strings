@@ -218,6 +218,7 @@
 "cardano_insufficient_balance_to_send_token_description" = "%1$@ 取引を行うには、いくらかのADAを入金し、ネットワーク手数料と最小ADA (5ADAを推奨) をカバーする必要があります。";
 "cardano_insufficient_balance_to_send_token_title" = "トークンを送るために必要なADAが不足しています。";
 "cardano_max_amount_has_token_description" = "カルダノブロックチェーン上にトークンを持っているため、いくらかのADA残高を維持する必要があります。";
+"collectibles_account_collection_empty" = "No cards";
 "collectibles_account_collection_row_subtitle" = "My collection";
 "collectibles_account_withdraw" = "Withdrawal";
 "collectibles_entrance_card_subtitle" = "Open packs of graded collectible cards";

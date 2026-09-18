@@ -218,6 +218,7 @@
 "cardano_insufficient_balance_to_send_token_description" = "Para realizar una %1$@ transacción, deba depositar algo de ADA para cubrir la tarifa de red y el valor mínimo de ADA (se recomiendan 5 ADA)";
 "cardano_insufficient_balance_to_send_token_title" = "ADA insuficiente para la transferencia de tokens";
 "cardano_max_amount_has_token_description" = "Deba mantener algo de ADA porque tiene algunos tokens en la blockchain de Cardano";
+"collectibles_account_collection_empty" = "No cards";
 "collectibles_account_collection_row_subtitle" = "My collection";
 "collectibles_account_withdraw" = "Withdrawal";
 "collectibles_entrance_card_subtitle" = "Open packs of graded collectible cards";

@@ -61,9 +61,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li card</string>
+        <string>%li cartão</string>
         <key>other</key>
-        <string>%li cards</string>
+        <string>%li cartões</string>
       </dict>
     </dict>
     <key>common_assets_count</key>
