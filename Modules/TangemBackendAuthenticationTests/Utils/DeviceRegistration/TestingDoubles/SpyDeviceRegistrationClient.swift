@@ -11,7 +11,7 @@ private import os.lock
 @testable import TangemBackendAuthentication
 
 final class SpyDeviceRegistrationClient: DeviceRegistrationClient {
-    private let state: OSAllocatedUnfairLock<State>
+    private let state = OSAllocatedUnfairLock(initialState: State())
 
     var requestCipheredNonceResult: Result<String, DeviceRegistrationClientError> {
         get { state.withLock(\.requestCipheredNonceResult) }
@@ -27,44 +27,30 @@ final class SpyDeviceRegistrationClient: DeviceRegistrationClient {
         state.withLock(\.receivedMessages)
     }
 
-    init(
-        requestCipheredNonceResult: Result<String, DeviceRegistrationClientError> = .success("ciphered-nonce"),
-        registerResult: Result<SessionTokens, DeviceRegistrationClientError> = .failure(.alreadyRegistered)
-    ) {
-        state = OSAllocatedUnfairLock(
-            initialState: State(
-                requestCipheredNonceResult: requestCipheredNonceResult,
-                registerResult: registerResult
-            )
-        )
-    }
-
     func requestCipheredNonce(devicePublicKey: DevicePublicKey) throws(DeviceRegistrationClientError) -> String {
         state.withLock { $0.receivedMessages.append(.requestCipheredNonce) }
-        return try state.withLock(\.requestCipheredNonceResult).get()
+        return try requestCipheredNonceResult.get()
     }
 
-    func register(
-        devicePublicKey: DevicePublicKey,
-        decryptedNonce: String,
-        metadata: DeviceMetadata,
-        signature: DeviceSignature,
-        attestationToken: Data?
-    ) throws(DeviceRegistrationClientError) -> SessionTokens {
-        state.withLock { $0.receivedMessages.append(.register(attestationToken)) }
-        return try state.withLock(\.registerResult).get()
+    func register(request: DeviceRegistrationRequest) throws(DeviceRegistrationClientError) -> SessionTokens {
+        state.withLock { $0.receivedMessages.append(.register(request)) }
+        return try registerResult.get()
     }
 }
 
 extension SpyDeviceRegistrationClient {
     enum Message: Equatable {
         case requestCipheredNonce
-        case register(Data?)
+        case register(DeviceRegistrationRequest)
     }
 
     private struct State {
+        var requestCipheredNonceResult = Result<String, DeviceRegistrationClientError>.failure(
+            .requestNonceFailed(underlying: AnyTestError())
+        )
+        var registerResult = Result<SessionTokens, DeviceRegistrationClientError>.failure(
+            .registerFailed(underlying: AnyTestError())
+        )
         var receivedMessages: [Message] = []
-        var requestCipheredNonceResult: Result<String, DeviceRegistrationClientError>
-        var registerResult: Result<SessionTokens, DeviceRegistrationClientError>
     }
 }

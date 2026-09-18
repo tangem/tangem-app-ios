@@ -25,14 +25,19 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
             userWalletIDs: []
         )
 
-        let expectedSessionTokens = SessionTokens.stub
+        let expectedSessionTokens = SessionTokens.fake
 
-        let authenticationClient = SpySessionAuthenticationClient(refreshResult: .success(expectedSessionTokens))
-        let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(cachedSessionTokens))
+        let authenticationClient = SpySessionAuthenticationClient()
+        authenticationClient.refreshResult = Result.success(expectedSessionTokens)
+
+        let tokensRepository = SpySessionTokensRepository()
+        tokensRepository.retrieveResult = Result.success(cachedSessionTokens)
+        tokensRepository.persistResult = Result.success(())
 
         let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
+            devicePrivateKeyRepository: .successStub,
             dateProvider: dateNow
         )
 
@@ -45,22 +50,41 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
 
     @Test
     func renewSessionTokensFallsBackToAuthenticateWhenNoCachedTokens() async throws {
-        let expectedAttestationToken = StubAppAttestService.stubbedAttestationToken
-        let expectedSessionTokens = SessionTokens.stub
+        let appAttestService = SpyAppAttestService()
+        let expectedAttestationToken = Data("some attestation token".utf8)
+        appAttestService.generateAttestationTokenResult = Result.success(expectedAttestationToken)
 
-        let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .success(expectedSessionTokens))
-        let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(nil))
+        let authenticationClient = SpySessionAuthenticationClient()
+        let expectedCipheredNonce = "some ciphered nonce"
+        let expectedSessionTokens = SessionTokens.fake
+        authenticationClient.requestCipheredNonceResult = Result.success(expectedCipheredNonce)
+        authenticationClient.authenticateResult = Result.success(expectedSessionTokens)
+
+        let tokensRepository = SpySessionTokensRepository()
+        tokensRepository.retrieveResult = Result.success(nil)
+        tokensRepository.persistResult = Result.success(())
+
+        let nonceDecryptor = SpyNonceDecryptor()
+        let expectedDecryptedNonceBytes = Data("some decrypted nonce".utf8)
+        nonceDecryptor.decryptResult = Result.success(expectedDecryptedNonceBytes)
 
         let sut = makeSUT(
+            appAttestService: appAttestService,
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
-            dateProvider: Date.now
+            devicePrivateKeyRepository: .successStub,
+            nonceDecryptor: nonceDecryptor
         )
 
         let actualSessionTokens = try await sut()
 
         #expect(actualSessionTokens == expectedSessionTokens)
-        #expect(authenticationClient.receivedMessages == [.requestCipheredNonce, .authenticate(expectedAttestationToken)])
+        #expect(authenticationClient.receivedMessages == [
+            .requestCipheredNonce,
+            .authenticate(expectedAttestationToken),
+        ])
+        #expect(nonceDecryptor.receivedMessages == [.decrypt(expectedCipheredNonce)])
+        #expect(appAttestService.receivedMessages == [.generateAttestationToken(expectedDecryptedNonceBytes)])
         #expect(tokensRepository.receivedMessages == [.retrieve, .persist(expectedSessionTokens)])
     }
 
@@ -75,23 +99,28 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
             userWalletIDs: []
         )
 
-        let expectedAttestationToken = StubAppAttestService.stubbedAttestationToken
-        let expectedSessionTokens = SessionTokens.stub
+        let expectedSessionTokens = SessionTokens.fake
 
-        let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .success(expectedSessionTokens))
-        let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(expiredCachedSessionTokens))
+        let authenticationClient = SpySessionAuthenticationClient()
+        authenticationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
+        authenticationClient.authenticateResult = Result.success(expectedSessionTokens)
+
+        let tokensRepository = SpySessionTokensRepository()
+        tokensRepository.retrieveResult = Result.success(expiredCachedSessionTokens)
+        tokensRepository.persistResult = Result.success(())
 
         let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
+            devicePrivateKeyRepository: .successStub,
+            nonceDecryptor: .successStub,
             dateProvider: dateNow
         )
 
         let actualSessionTokens = try await sut()
 
         #expect(actualSessionTokens == expectedSessionTokens)
-        #expect(authenticationClient.receivedMessages == [.requestCipheredNonce, .authenticate(expectedAttestationToken)])
-        #expect(tokensRepository.receivedMessages == [.retrieve, .persist(expectedSessionTokens)])
+        #expect(authenticationClient.receivedMessages == [.requestCipheredNonce, .authenticate(nil)])
     }
 
     @Test
@@ -102,35 +131,73 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
             userWalletIDs: []
         )
 
-        let expectedAttestationToken = StubAppAttestService.stubbedAttestationToken
-        let expectedSessionTokens = SessionTokens.stub
+        let expectedSessionTokens = SessionTokens.fake
 
-        let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .success(expectedSessionTokens))
-        let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(cachedSessionTokensWithoutRefreshToken))
+        let authenticationClient = SpySessionAuthenticationClient()
+        authenticationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
+        authenticationClient.authenticateResult = Result.success(expectedSessionTokens)
+
+        let tokensRepository = SpySessionTokensRepository()
+        tokensRepository.retrieveResult = Result.success(cachedSessionTokensWithoutRefreshToken)
+        tokensRepository.persistResult = Result.success(())
 
         let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
-            dateProvider: Date.now
+            devicePrivateKeyRepository: .successStub,
+            nonceDecryptor: .successStub
         )
 
         let actualSessionTokens = try await sut()
 
         #expect(actualSessionTokens == expectedSessionTokens)
-        #expect(authenticationClient.receivedMessages == [.requestCipheredNonce, .authenticate(expectedAttestationToken)])
-        #expect(tokensRepository.receivedMessages == [.retrieve, .persist(expectedSessionTokens)])
+        #expect(authenticationClient.receivedMessages == [.requestCipheredNonce, .authenticate(nil)])
+    }
+
+    @Test
+    func renewSessionTokensFallsBackToAuthenticateWhenRefreshCallFails() async throws {
+        let dateNow = Date.now
+        let twentyMinutesAfter = dateNow.addingTimeInterval(60 * 20)
+
+        let cachedSessionTokens = SessionTokens(
+            accessToken: SessionTokens.Token(jwt: "stale-access-jwt", expiresAt: dateNow),
+            refreshToken: SessionTokens.Token(jwt: "valid-refresh-jwt", expiresAt: twentyMinutesAfter),
+            userWalletIDs: []
+        )
+
+        let expectedSessionTokens = SessionTokens.fake
+
+        let authenticationClient = SpySessionAuthenticationClient()
+        authenticationClient.refreshResult = Result.failure(.refreshFailed(underlying: AnyTestError()))
+        authenticationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
+        authenticationClient.authenticateResult = Result.success(expectedSessionTokens)
+
+        let tokensRepository = SpySessionTokensRepository()
+        tokensRepository.retrieveResult = Result.success(cachedSessionTokens)
+        tokensRepository.persistResult = Result.success(())
+
+        let sut = makeSUT(
+            sessionAuthenticationClient: authenticationClient,
+            sessionTokensRepository: tokensRepository,
+            devicePrivateKeyRepository: .successStub,
+            nonceDecryptor: .successStub,
+            dateProvider: dateNow
+        )
+
+        let actualSessionTokens = try await sut()
+
+        #expect(actualSessionTokens == expectedSessionTokens)
+        #expect(authenticationClient.receivedMessages == [.refresh, .requestCipheredNonce, .authenticate(nil)])
     }
 
     @Test
     func renewSessionTokensPropagatesRepositoryFailureWhenRetrieveFails() async throws {
         let authenticationClient = SpySessionAuthenticationClient()
-        let tokensRepository = SpySessionTokensRepository(retrieveResult: .failure(.decodingFailed))
 
-        let sut = makeSUT(
-            sessionAuthenticationClient: authenticationClient,
-            sessionTokensRepository: tokensRepository,
-            dateProvider: Date.now
-        )
+        let tokensRepository = SpySessionTokensRepository()
+        tokensRepository.retrieveResult = Result.failure(.decodingFailed)
+
+        let sut = makeSUT(sessionAuthenticationClient: authenticationClient, sessionTokensRepository: tokensRepository)
 
         let actualError = try await #require(throws: RenewSessionTokensError.self) {
             _ = try await sut()
@@ -146,49 +213,20 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
     }
 
     @Test
-    func renewSessionTokensFallsBackToAuthenticateWhenRefreshCallFails() async throws {
-        let dateNow = Date.now
-        let twentyMinutesAfter = dateNow.addingTimeInterval(60 * 20)
-
-        let cachedSessionTokens = SessionTokens(
-            accessToken: SessionTokens.Token(jwt: "stale-access-jwt", expiresAt: dateNow),
-            refreshToken: SessionTokens.Token(jwt: "valid-refresh-jwt", expiresAt: twentyMinutesAfter),
-            userWalletIDs: []
-        )
-
-        let expectedAttestationToken = StubAppAttestService.stubbedAttestationToken
-        let freshSessionTokensAfterAuthentication = SessionTokens.stub
-        let expectedSessionTokens = freshSessionTokensAfterAuthentication
-
-        let authenticationClient = SpySessionAuthenticationClient(
-            authenticateResult: .success(freshSessionTokensAfterAuthentication),
-            refreshResult: .failure(.refreshFailed(underlying: AnyTestError()))
-        )
-        let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(cachedSessionTokens))
-
-        let sut = makeSUT(
-            sessionAuthenticationClient: authenticationClient,
-            sessionTokensRepository: tokensRepository,
-            dateProvider: dateNow
-        )
-
-        let actualSessionTokens = try await sut()
-
-        #expect(actualSessionTokens == expectedSessionTokens)
-        #expect(authenticationClient.receivedMessages == [.refresh, .requestCipheredNonce, .authenticate(expectedAttestationToken)])
-        #expect(tokensRepository.receivedMessages == [.retrieve, .persist(expectedSessionTokens)])
-    }
-
-    @Test
     func renewSessionTokensDeletesSessionTokensWhenAuthenticationRejected() async throws {
-        let expectedAttestationToken = StubAppAttestService.stubbedAttestationToken
-        let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .failure(.authenticationRejected))
-        let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(nil))
+        let authenticationClient = SpySessionAuthenticationClient()
+        authenticationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
+        authenticationClient.authenticateResult = Result.failure(.authenticationRejected)
+
+        let tokensRepository = SpySessionTokensRepository()
+        tokensRepository.retrieveResult = Result.success(nil)
+        tokensRepository.deleteResult = Result.success(())
 
         let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
-            dateProvider: Date.now
+            devicePrivateKeyRepository: .successStub,
+            nonceDecryptor: .successStub
         )
 
         let actualError = try await #require(throws: RenewSessionTokensError.self) {
@@ -200,22 +238,24 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
             return
         }
 
-        #expect(authenticationClient.receivedMessages == [.requestCipheredNonce, .authenticate(expectedAttestationToken)])
         #expect(tokensRepository.receivedMessages == [.retrieve, .delete])
     }
 
     @Test
     func renewSessionTokensPropagatesAuthenticationRejectedEvenWhenDeleteFails() async throws {
-        let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .failure(.authenticationRejected))
-        let tokensRepository = SpySessionTokensRepository(
-            retrieveResult: .success(nil),
-            deleteResult: .failure(.keychainFailure(.deleteFailed(status: -1)))
-        )
+        let authenticationClient = SpySessionAuthenticationClient()
+        authenticationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
+        authenticationClient.authenticateResult = Result.failure(.authenticationRejected)
+
+        let tokensRepository = SpySessionTokensRepository()
+        tokensRepository.retrieveResult = Result.success(nil)
+        tokensRepository.deleteResult = Result.failure(.keychainFailure(.deleteFailed(status: -1)))
 
         let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
-            dateProvider: Date.now
+            devicePrivateKeyRepository: .successStub,
+            nonceDecryptor: .successStub
         )
 
         let actualError = try await #require(throws: RenewSessionTokensError.self) {
@@ -232,22 +272,24 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
 
     @Test
     func renewSessionTokensDoesNotDeleteSessionTokensOnOtherAuthenticationFailures() async throws {
-        let authenticationClient = SpySessionAuthenticationClient(
-            requestCipheredNonceResult: .failure(.requestNonceFailed(underlying: AnyTestError()))
-        )
-        let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(nil))
+        let authenticationClient = SpySessionAuthenticationClient()
+        let expectedUnderlyingError = AnyTestError()
+        authenticationClient.requestCipheredNonceResult = Result.failure(.requestNonceFailed(underlying: expectedUnderlyingError))
+
+        let tokensRepository = SpySessionTokensRepository()
+        tokensRepository.retrieveResult = Result.success(nil)
 
         let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
-            dateProvider: Date.now
+            devicePrivateKeyRepository: .successStub
         )
 
         let actualError = try await #require(throws: RenewSessionTokensError.self) {
             _ = try await sut()
         }
 
-        guard case .clientFailure(.requestNonceFailed) = actualError else {
+        guard case .clientFailure(.requestNonceFailed(underlying: expectedUnderlyingError)) = actualError else {
             Issue.record("Expected .clientFailure(.requestNonceFailed), got \(actualError)")
             return
         }
@@ -258,66 +300,78 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
 
     @Test
     func renewSessionTokensReusesTokensFromRegistrationOnDeviceRegistrationMissingError() async throws {
-        let expectedAttestationToken = StubAppAttestService.stubbedAttestationToken
-        let tokensFromRegistration = SessionTokens.stub
+        let tokensFromRegistration = SessionTokens.fake
 
-        let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .failure(.deviceRegistrationMissing))
-        let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(nil))
+        let authenticationClient = SpySessionAuthenticationClient()
+        authenticationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
+        authenticationClient.authenticateResult = Result.failure(.deviceRegistrationMissing)
+
+        let tokensRepository = SpySessionTokensRepository()
+        tokensRepository.retrieveResult = Result.success(nil)
+        tokensRepository.persistResult = Result.success(())
 
         let sut = makeSUT(
             registerDevice: { tokensFromRegistration },
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
-            dateProvider: Date.now
+            devicePrivateKeyRepository: .successStub,
+            nonceDecryptor: .successStub
         )
 
         let actualSessionTokens = try await sut()
 
         #expect(actualSessionTokens == tokensFromRegistration)
-        #expect(authenticationClient.receivedMessages == [.requestCipheredNonce, .authenticate(expectedAttestationToken)])
+        #expect(authenticationClient.receivedMessages == [.requestCipheredNonce, .authenticate(nil)])
         #expect(tokensRepository.receivedMessages == [.retrieve, .persist(tokensFromRegistration)])
     }
 
     @Test
     func renewSessionTokensRetriesAuthenticateOnceWhenDeviceAlreadyRegistered() async throws {
-        let expectedAttestationToken = StubAppAttestService.stubbedAttestationToken
-        let expectedSessionTokens = SessionTokens.stub
+        let expectedSessionTokens = SessionTokens.fake
 
-        let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .failure(.deviceRegistrationMissing))
-        let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(nil))
+        let authenticationClient = SpySessionAuthenticationClient()
+        authenticationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
+        authenticationClient.authenticateResult = Result.failure(.deviceRegistrationMissing)
+
+        let tokensRepository = SpySessionTokensRepository()
+        tokensRepository.retrieveResult = Result.success(nil)
+        tokensRepository.persistResult = Result.success(())
 
         let sut = makeSUT(
             registerDevice: {
-                authenticationClient.setAuthenticateResult(.success(expectedSessionTokens))
+                authenticationClient.authenticateResult = Result.success(expectedSessionTokens)
                 return nil
             },
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
-            dateProvider: Date.now
+            devicePrivateKeyRepository: .successStub,
+            nonceDecryptor: .successStub
         )
 
         let actualSessionTokens = try await sut()
 
         #expect(actualSessionTokens == expectedSessionTokens)
         #expect(authenticationClient.receivedMessages == [
-            .requestCipheredNonce, .authenticate(expectedAttestationToken),
-            .requestCipheredNonce, .authenticate(expectedAttestationToken),
+            .requestCipheredNonce, .authenticate(nil),
+            .requestCipheredNonce, .authenticate(nil),
         ])
         #expect(tokensRepository.receivedMessages == [.retrieve, .persist(expectedSessionTokens)])
     }
 
     @Test
     func renewSessionTokensPropagatesSecondAuthenticationFailureWithNoFurtherRecovery() async throws {
-        let expectedAttestationToken = StubAppAttestService.stubbedAttestationToken
+        let authenticationClient = SpySessionAuthenticationClient()
+        authenticationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
+        authenticationClient.authenticateResult = Result.failure(.deviceRegistrationMissing)
 
-        let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .failure(.deviceRegistrationMissing))
-        let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(nil))
+        let tokensRepository = SpySessionTokensRepository()
+        tokensRepository.retrieveResult = Result.success(nil)
 
         let sut = makeSUT(
-            registerDevice: { nil },
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
-            dateProvider: Date.now
+            devicePrivateKeyRepository: .successStub,
+            nonceDecryptor: .successStub
         )
 
         let actualError = try await #require(throws: RenewSessionTokensError.self) {
@@ -330,16 +384,20 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
         }
 
         #expect(authenticationClient.receivedMessages == [
-            .requestCipheredNonce, .authenticate(expectedAttestationToken),
-            .requestCipheredNonce, .authenticate(expectedAttestationToken),
+            .requestCipheredNonce, .authenticate(nil),
+            .requestCipheredNonce, .authenticate(nil),
         ])
         #expect(tokensRepository.receivedMessages == [.retrieve])
     }
 
     @Test
     func renewSessionTokensPropagatesRegistrationFailure() async throws {
-        let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .failure(.deviceRegistrationMissing))
-        let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(nil))
+        let authenticationClient = SpySessionAuthenticationClient()
+        authenticationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
+        authenticationClient.authenticateResult = Result.failure(.deviceRegistrationMissing)
+
+        let tokensRepository = SpySessionTokensRepository()
+        tokensRepository.retrieveResult = Result.success(nil)
 
         let sut = makeSUT(
             registerDevice: { () throws(RegisterDeviceError) -> SessionTokens? in
@@ -347,7 +405,8 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
             },
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
-            dateProvider: Date.now
+            devicePrivateKeyRepository: .successStub,
+            nonceDecryptor: .successStub
         )
 
         let actualError = try await #require(throws: RenewSessionTokensError.self) {
@@ -364,16 +423,16 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
 
     @Test
     func renewSessionTokensSucceedsEvenWhenAttestationFails() async throws {
-        let expectedSessionTokens = SessionTokens.stub
-
-        let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .success(expectedSessionTokens))
-        let appAttestService = StubAppAttestService(result: .failure(AppAttestServiceError()))
+        let authenticationClient = SpySessionAuthenticationClient()
+        let expectedSessionTokens = SessionTokens.fake
+        authenticationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
+        authenticationClient.authenticateResult = Result.success(expectedSessionTokens)
 
         let sut = makeSUT(
-            appAttestService: appAttestService,
             sessionAuthenticationClient: authenticationClient,
-            sessionTokensRepository: SpySessionTokensRepository(retrieveResult: .success(nil)),
-            dateProvider: Date.now
+            sessionTokensRepository: .successStub,
+            devicePrivateKeyRepository: .successStub,
+            nonceDecryptor: .successStub
         )
 
         let actualSessionTokens = try await sut()
@@ -384,16 +443,20 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
 
     @Test
     func renewSessionTokensPassesAttestationTokenWhenAvailable() async throws {
+        let appAttestService = SpyAppAttestService()
         let expectedAttestationToken = Data([0xAA, 0xBB])
+        appAttestService.generateAttestationTokenResult = Result.success(expectedAttestationToken)
 
-        let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .success(.stub))
-        let appAttestService = StubAppAttestService(result: .success(expectedAttestationToken))
+        let authenticationClient = SpySessionAuthenticationClient()
+        authenticationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
+        authenticationClient.authenticateResult = Result.success(SessionTokens.fake)
 
         let sut = makeSUT(
             appAttestService: appAttestService,
             sessionAuthenticationClient: authenticationClient,
-            sessionTokensRepository: SpySessionTokensRepository(retrieveResult: .success(nil)),
-            dateProvider: Date.now
+            sessionTokensRepository: .successStub,
+            devicePrivateKeyRepository: .successStub,
+            nonceDecryptor: .successStub
         )
 
         _ = try await sut()
@@ -403,21 +466,28 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
 
     @Test
     func renewSessionTokensThrowsDeviceKeyFailureWhenPrivateKeyUnavailable() async throws {
-        let devicePrivateKeyRepository = StubDevicePrivateKeyRepository(
-            result: .failure(.keyGenerationFailed(underlying: AnyTestError()))
-        )
+        let devicePrivateKeyRepository = SpyDevicePrivateKeyRepository()
+        let expectedUnderlyingError = AnyTestError()
+        devicePrivateKeyRepository.retrieveResult = Result.failure(.keyGenerationFailed(underlying: expectedUnderlyingError))
 
         let sut = makeSUT(
-            sessionTokensRepository: SpySessionTokensRepository(retrieveResult: .success(nil)),
-            devicePrivateKeyRepository: devicePrivateKeyRepository,
-            dateProvider: Date.now
+            sessionTokensRepository: .successStub,
+            devicePrivateKeyRepository: devicePrivateKeyRepository
         )
 
         let actualError = try await #require(throws: RenewSessionTokensError.self) {
             _ = try await sut()
         }
 
-        guard case .deviceKeyFailure = actualError else {
+        guard
+            case RenewSessionTokensError.deviceKeyFailure(
+                DeviceKeyManagerError.privateKeyUnavailable(
+                    DevicePrivateKeyRepositoryError.keyGenerationFailed(underlying: let underlying)
+                )
+            ) = actualError,
+            let underlyingAnyTestError = underlying as? AnyTestError,
+            underlyingAnyTestError == expectedUnderlyingError
+        else {
             Issue.record("Expected .deviceKeyFailure, got \(actualError)")
             return
         }
@@ -425,10 +495,14 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
 
     @Test
     func renewSessionTokensThrowsNonceDecryptionFailureWhenDecryptFails() async throws {
+        let nonceDecryptor = SpyNonceDecryptor()
+        nonceDecryptor.decryptResult = Result.failure(.invalidCipheredNonceEncoding)
+
         let sut = makeSUT(
-            sessionTokensRepository: SpySessionTokensRepository(retrieveResult: .success(nil)),
-            nonceDecryptor: StubNonceDecryptor(result: .failure(.invalidCipheredNonceEncoding)),
-            dateProvider: Date.now
+            sessionAuthenticationClient: .successStub,
+            sessionTokensRepository: .successStub,
+            devicePrivateKeyRepository: .successStub,
+            nonceDecryptor: nonceDecryptor
         )
 
         let actualError = try await #require(throws: RenewSessionTokensError.self) {
@@ -443,15 +517,30 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
 
     @Test
     func renewSessionTokensThrowsRepositoryFailureWhenPersistFails() async throws {
-        let tokensRepository = SpySessionTokensRepository(
-            retrieveResult: .success(nil),
-            persistResult: .failure(.encodingFailed)
-        )
+        let appAttestService = SpyAppAttestService()
+        let expectedAttestationToken = Data("some attestation token".utf8)
+        appAttestService.generateAttestationTokenResult = Result.success(expectedAttestationToken)
+
+        let authenticationClient = SpySessionAuthenticationClient()
+        let expectedCipheredNonce = "some ciphered nonce"
+        let expectedSessionTokens = SessionTokens.fake
+        authenticationClient.requestCipheredNonceResult = Result.success(expectedCipheredNonce)
+        authenticationClient.authenticateResult = Result.success(expectedSessionTokens)
+
+        let tokensRepository = SpySessionTokensRepository()
+        tokensRepository.retrieveResult = Result.success(nil)
+        tokensRepository.persistResult = Result.failure(.encodingFailed)
+
+        let nonceDecryptor = SpyNonceDecryptor()
+        let expectedDecryptedNonceBytes = Data("some decrypted nonce".utf8)
+        nonceDecryptor.decryptResult = Result.success(expectedDecryptedNonceBytes)
 
         let sut = makeSUT(
-            sessionAuthenticationClient: SpySessionAuthenticationClient(authenticateResult: .success(.stub)),
+            appAttestService: appAttestService,
+            sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
-            dateProvider: Date.now
+            devicePrivateKeyRepository: .successStub,
+            nonceDecryptor: nonceDecryptor
         )
 
         let actualError = try await #require(throws: RenewSessionTokensError.self) {
@@ -463,19 +552,28 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
             return
         }
 
-        #expect(tokensRepository.receivedMessages == [.retrieve, .persist(.stub)])
+        #expect(authenticationClient.receivedMessages == [
+            .requestCipheredNonce,
+            .authenticate(expectedAttestationToken),
+        ])
+        #expect(nonceDecryptor.receivedMessages == [.decrypt(expectedCipheredNonce)])
+        #expect(appAttestService.receivedMessages == [.generateAttestationToken(expectedDecryptedNonceBytes)])
+        #expect(tokensRepository.receivedMessages == [.retrieve, .persist(expectedSessionTokens)])
     }
 
     @Test
     func renewSessionTokensCoalescesConcurrentCalls() async throws {
-        let expectedAttestationToken = StubAppAttestService.stubbedAttestationToken
-        let expectedSessionTokens = SessionTokens.stub
+        let expectedSessionTokens = SessionTokens.fake
 
-        let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .success(expectedSessionTokens))
+        let authenticationClient = SpySessionAuthenticationClient()
+        authenticationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
+        authenticationClient.authenticateResult = Result.success(expectedSessionTokens)
+
         let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
-            sessionTokensRepository: SpySessionTokensRepository(retrieveResult: .success(nil)),
-            dateProvider: Date.now
+            sessionTokensRepository: .successStub,
+            devicePrivateKeyRepository: .successStub,
+            nonceDecryptor: .successStub
         )
 
         async let firstSessionTokens = sut()
@@ -491,7 +589,7 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
         #expect(actualFirstSessionTokens == expectedSessionTokens)
         #expect(actualSecondSessionTokens == expectedSessionTokens)
         #expect(actualThirdSessionTokens == expectedSessionTokens)
-        #expect(authenticationClient.receivedMessages == [.requestCipheredNonce, .authenticate(expectedAttestationToken)])
+        #expect(authenticationClient.receivedMessages == [.requestCipheredNonce, .authenticate(nil)])
     }
 
     @Test
@@ -510,38 +608,42 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
             userWalletIDs: []
         )
 
-        let expectedAttestationToken = StubAppAttestService.stubbedAttestationToken
+        let authenticationClient = SpySessionAuthenticationClient()
+        authenticationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
+        authenticationClient.authenticateResult = Result.success(firstFreshSessionTokens)
 
-        let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .success(firstFreshSessionTokens))
         let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
-            sessionTokensRepository: SpySessionTokensRepository(retrieveResult: .success(nil)),
+            sessionTokensRepository: .successStub,
+            devicePrivateKeyRepository: .successStub,
+            nonceDecryptor: .successStub,
             dateProvider: dateNow
         )
 
         let actualFirstSessionTokens = try await sut()
 
-        authenticationClient.setAuthenticateResult(.success(secondFreshSessionTokens))
+        authenticationClient.authenticateResult = Result.success(secondFreshSessionTokens)
         let actualSecondSessionTokens = try await sut()
 
         #expect(actualFirstSessionTokens == firstFreshSessionTokens)
         #expect(actualSecondSessionTokens == secondFreshSessionTokens)
         #expect(authenticationClient.receivedMessages == [
-            .requestCipheredNonce, .authenticate(expectedAttestationToken),
-            .requestCipheredNonce, .authenticate(expectedAttestationToken),
+            .requestCipheredNonce, .authenticate(nil),
+            .requestCipheredNonce, .authenticate(nil),
         ])
     }
 
     @Test
     func renewSessionTokensCoalescesConcurrentFailures() async throws {
-        let expectedAttestationToken = StubAppAttestService.stubbedAttestationToken
-
-        let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .failure(.authenticationRejected))
+        let authenticationClient = SpySessionAuthenticationClient()
+        authenticationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
+        authenticationClient.authenticateResult = Result.failure(.authenticationRejected)
 
         let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
-            sessionTokensRepository: SpySessionTokensRepository(retrieveResult: .success(nil)),
-            dateProvider: Date.now
+            sessionTokensRepository: .successStub,
+            devicePrivateKeyRepository: .successStub,
+            nonceDecryptor: .successStub
         )
 
         async let firstResult = Self.attemptRenewal(with: sut)
@@ -557,18 +659,17 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
             }
         }
 
-        #expect(authenticationClient.receivedMessages == [.requestCipheredNonce, .authenticate(expectedAttestationToken)])
+        #expect(authenticationClient.receivedMessages == [.requestCipheredNonce, .authenticate(nil)])
 
-        let freshSessionTokensAfterAuthentication = SessionTokens.stub
-        let expectedSessionTokens = freshSessionTokensAfterAuthentication
-        authenticationClient.setAuthenticateResult(.success(freshSessionTokensAfterAuthentication))
+        let freshSessionTokensAfterAuthentication = SessionTokens.fake
+        authenticationClient.authenticateResult = Result.success(freshSessionTokensAfterAuthentication)
 
         let actualSessionTokens = try await sut()
 
-        #expect(actualSessionTokens == expectedSessionTokens)
+        #expect(actualSessionTokens == freshSessionTokensAfterAuthentication)
         #expect(authenticationClient.receivedMessages == [
-            .requestCipheredNonce, .authenticate(expectedAttestationToken),
-            .requestCipheredNonce, .authenticate(expectedAttestationToken),
+            .requestCipheredNonce, .authenticate(nil),
+            .requestCipheredNonce, .authenticate(nil),
         ])
     }
 }
@@ -578,12 +679,12 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
 extension RenewSessionTokensUseCaseTests {
     private func makeSUT(
         registerDevice: @escaping RegisterDevice = { nil },
-        appAttestService: some AppAttestService = StubAppAttestService(),
+        appAttestService: some AppAttestService = SpyAppAttestService(),
         sessionAuthenticationClient: some SessionAuthenticationClient = SpySessionAuthenticationClient(),
         sessionTokensRepository: some SessionTokensRepository = SpySessionTokensRepository(),
-        devicePrivateKeyRepository: some DevicePrivateKeyRepository = FakeDevicePrivateKeyRepository(),
-        nonceDecryptor: some NonceDecryptor = StubNonceDecryptor(),
-        dateProvider: @escaping @autoclosure @Sendable () -> Date,
+        devicePrivateKeyRepository: some DevicePrivateKeyRepository = SpyDevicePrivateKeyRepository(),
+        nonceDecryptor: some NonceDecryptor = SpyNonceDecryptor(),
+        dateProvider: @escaping @autoclosure @Sendable () -> Date = Date.now,
         sourceLocation: SourceLocation = #_sourceLocation
     ) -> RenewSessionTokensUseCase {
         trackForMemoryLeaks(
@@ -608,14 +709,4 @@ extension RenewSessionTokensUseCaseTests {
             return .failure(error)
         }
     }
-}
-
-// MARK: - Fixtures
-
-private extension SessionTokens {
-    static let stub = SessionTokens(
-        accessToken: Token(jwt: "access-jwt", expiresAt: Date.fake),
-        refreshToken: Token(jwt: "refresh-jwt", expiresAt: Date.fake),
-        userWalletIDs: []
-    )
 }

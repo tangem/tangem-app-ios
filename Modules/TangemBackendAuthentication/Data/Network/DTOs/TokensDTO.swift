@@ -14,8 +14,10 @@ import struct Foundation.Date
 /// `POST api/authentication/v1/mobile/authenticate`
 /// `POST api/authentication/v1/mobile/token/refresh`
 enum TokensDTO {
-    /// - Important: Date is in ISO-8601 format but with fractional seconds (9 digits, i.e. nanoseconds),
-    /// e.g. `2021-03-23T15:30:00.454138590Z`.
+    /// - Important: Dates are expected to be in ISO-8601 format, optionally with fractional seconds (0, 3, 6, or 9 digits).
+    /// For example:
+    /// - `2021-03-23T15:30:00Z`
+    /// - `2021-03-23T15:30:00.454138Z`
     struct Response: Decodable {
         let accessToken: String
         let accessTokenExpiresAt: Date
