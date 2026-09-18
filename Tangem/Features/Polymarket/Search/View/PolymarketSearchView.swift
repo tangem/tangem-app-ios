@@ -70,7 +70,7 @@ struct PolymarketSearchView: View {
             .padding(.vertical, Constants.contentVerticalPadding)
         }
         .scrollBounceBehavior(.basedOnSize)
-        .scrollDismissesKeyboard(.automatic)
+        .scrollDismissesKeyboard(.immediately)
     }
 
     private var resultsTitle: some View {

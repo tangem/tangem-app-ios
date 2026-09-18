@@ -29,6 +29,8 @@ public protocol PolymarketCLOBService {
         ownerAddress: String
     ) async throws -> PolymarketOrderPlacement
 
+    func price(tokenId: String, side: PolymarketOrderSide) async throws -> Decimal
+
     func order(
         id: String,
         credentials: PolymarketL2Credentials,

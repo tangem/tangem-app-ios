@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import SwiftUI
+import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemPolymarket
@@ -22,6 +24,7 @@ final class PolymarketOrderResultViewModel: ObservableObject, Identifiable {
     let title: String
     let description: String?
     let appearance: StatusScreenAppearance
+    let glyphTint: Color?
     let glyph: StatusIcon.Glyph
     let details: PolymarketOrderResultDetailsView.Model?
 
@@ -46,6 +49,7 @@ final class PolymarketOrderResultViewModel: ObservableObject, Identifiable {
         description = Self.makeDescription(state: state, content: content)
         appearance = state.appearance
         glyph = state.glyph
+        glyphTint = state.glyphTint
         details = Self.makeDetails(state: state, content: content)
 
         awaitPosition()
@@ -84,7 +88,7 @@ final class PolymarketOrderResultViewModel: ObservableObject, Identifiable {
     func handleViewAction(_ action: ViewAction) {
         switch action {
         case .toMainTapped:
-            coordinator?.closeOrder()
+            coordinator?.returnToMain()
         case .viewPositionTapped:
             guard let position else { return }
 
@@ -110,6 +114,7 @@ extension PolymarketOrderResultViewModel {
         let filledAmount: Decimal?
         let tokensBought: Decimal?
         let resolutionDate: Date?
+        let executionPrice: Decimal?
         let side: PolymarketOrderSide
         let feeText: String?
     }
@@ -154,6 +159,13 @@ private extension PolymarketOrderResultViewModel.State {
         case .stillProcessing: .info
         }
     }
+
+    var glyphTint: Color? {
+        switch self {
+        case .partiallyPlaced: DesignSystem.Color.iconStatusWarning
+        case .placed, .noFill, .stillProcessing: nil
+        }
+    }
 }
 
 // MARK: - Mapping
@@ -162,11 +174,11 @@ private extension PolymarketOrderResultViewModel {
     static func makeTitle(state: State, content: Content) -> String {
         switch state {
         case .placed:
-            let amount = content.filledAmount ?? content.orderedAmount
-            return [
-                content.side == .sell ? Constants.soldTitle : Localization.predictionPlaceResultSuccessTitle,
-                PolymarketOrderFormatter.enteredAmount(amount),
-            ].joined(separator: "\n")
+            let amount = PolymarketOrderFormatter.enteredAmount(content.filledAmount ?? content.orderedAmount)
+
+            return content.side == .sell
+                ? Localization.predictionCloseResultSoldTitle(amount)
+                : Localization.predictionPlaceResultPlacedTitle(amount)
         case .partiallyPlaced:
             let filled = PolymarketOrderFormatter.enteredAmount(content.filledAmount)
             let ordered = PolymarketOrderFormatter.enteredAmount(content.orderedAmount)
@@ -197,6 +209,7 @@ private extension PolymarketOrderResultViewModel {
             banner: makeBanner(state: state),
             market: content.market,
             tokensBoughtText: makeTokensBoughtText(state: state, content: content),
+            executionPriceText: content.executionPrice.map(PolymarketPriceFormatter.centsText),
             resolutionDateText: content.resolutionDate.map(PolymarketOrderResultFormatter.resolutionDate),
             tokensTitle: content.side == .sell
                 ? Constants.tokensSoldTitle
@@ -263,12 +276,11 @@ extension PolymarketOrderResultViewModel.State {
 // MARK: - Constants
 
 private extension PolymarketOrderResultViewModel {
-    // [REDACTED_TODO_COMMENT]
     enum Constants {
+        // [REDACTED_TODO_COMMENT]
         static let viewPositionTitle = "View position"
-        static let soldTitle = "Sold"
-        static let partiallySoldTitle = "Partially Sold"
-        static let noLiquidityTitle = "No liquidity for selling"
-        static let tokensSoldTitle = "Tokens sold"
+        static let partiallySoldTitle = Localization.predictionCloseResultPartiallySoldTitle
+        static let noLiquidityTitle = Localization.predictionCloseResultNoFillTitle
+        static let tokensSoldTitle = Localization.predictionCloseResultTokensSold
     }
 }

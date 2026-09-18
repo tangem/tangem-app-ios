@@ -24,8 +24,7 @@ struct PolymarketMyPositionsView: View {
         VStack(spacing: 0) {
             PolymarketTopBar(
                 title: Localization.predictionPositionsTitle,
-                onBack: { viewModel.handleViewAction(.closeTapped) },
-                trailing: { PolymarketOverflowMenu { viewModel.handleViewAction(.howItWorksTapped) } }
+                onBack: { viewModel.handleViewAction(.closeTapped) }
             )
             .padding(.top, Constants.topBarTopPadding)
 

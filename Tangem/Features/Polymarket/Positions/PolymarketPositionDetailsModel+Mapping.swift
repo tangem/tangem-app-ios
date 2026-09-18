@@ -52,11 +52,11 @@ private extension PolymarketPositionDetailsView.Model {
         PolymarketPositionHeader.Model(
             iconURL: position.iconURL,
             changeText: changeText(position: position),
-            changeType: PriceChangeView.ChangeType(from: position.cashPnl),
+            changeType: PriceChangeView.ChangeType(from: displayedMoney(position.cashPnl)),
             valueText: money(position.currentValue),
             question: question(position: position),
             outcomeTitle: position.outcome,
-            outcomeStyle: PolymarketOutcomeStyle(binaryOutcomeName: position.outcome),
+            outcomeStyle: PolymarketOutcomeStyle(outcomeIndex: position.outcomeIndex, name: position.outcome),
             payoutAmount: payoutAmount(position: position)
         )
     }
@@ -91,14 +91,14 @@ private extension PolymarketPositionDetailsView.Model {
                 id: Constants.unrealizedTileID,
                 caption: Localization.predictionPositionsUnrealizedPnl,
                 value: signedMoney(position.cashPnl),
-                tone: PolymarketValueTone(position.cashPnl),
+                tone: PolymarketValueTone(displayedMoney(position.cashPnl)),
                 onHintTap: { onHint(.unrealizedPnl) }
             ),
             .init(
                 id: Constants.realizedTileID,
                 caption: Localization.predictionPositionsRealizedPnl,
                 value: signedMoney(position.realizedPnl),
-                tone: PolymarketValueTone(position.realizedPnl),
+                tone: PolymarketValueTone(displayedMoney(position.realizedPnl)),
                 onHintTap: { onHint(.realizedPnl) }
             ),
         ]
@@ -129,7 +129,10 @@ private extension PolymarketPositionDetailsView.Model {
     }
 
     static func canTrade(_ position: PolymarketPosition) -> Bool {
-        position.isAcceptingOrders && position.marketId != nil && position.eventId != nil
+        position.resolutionStatus == .open
+            && position.isAcceptingOrders
+            && position.marketId != nil
+            && position.eventId != nil
     }
 
     static func action(
@@ -159,7 +162,7 @@ private extension PolymarketPositionDetailsView.Model {
 
     static func changeText(position: PolymarketPosition) -> String {
         let percent = percentFormatter.format(position.pnlRatio, option: .priceChange)
-        let amount = money(abs(position.cashPnl))
+        let amount = money(abs(displayedMoney(position.cashPnl)))
 
         return "\(percent) (\(amount))"
     }
@@ -182,7 +185,8 @@ private extension PolymarketPositionDetailsView.Model {
         case .open: Localization.predictionPositionsOpen
         case .pendingResolution, .proposed: Localization.predictionPositionsPending
         case .disputed: Localization.predictionPositionsDisputed
-        case .resolved, .unknown: settlementText(position: position)
+        case .resolved: settlementText(position: position)
+        case .unknown: Localization.predictionPositionsPending
         }
     }
 
@@ -200,11 +204,11 @@ private extension PolymarketPositionDetailsView.Model {
     }
 
     static func signedMoney(_ value: Decimal) -> String {
-        guard value != 0 else { return money(value) }
+        PolymarketOrderFormatter.signedMoney(value)
+    }
 
-        let sign = value < 0 ? String.minusSign : String.plusSign
-
-        return "\(sign) \(money(abs(value)))"
+    static func displayedMoney(_ value: Decimal) -> Decimal {
+        PolymarketOrderFormatter.displayedMoney(value)
     }
 
     static func shares(_ value: Decimal) -> String {

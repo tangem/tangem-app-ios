@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemLocalization
 import TangemPolymarket
 
 @MainActor
@@ -116,8 +117,9 @@ private extension PolymarketFeeBreakdownSheetViewModel {
 
         static func title(for intent: PolymarketOrderIntent) -> String {
             switch intent {
+            // [REDACTED_TODO_COMMENT]
             case .buy: "Prediction order"
-            case .sell: "Close position"
+            case .sell: Localization.predictionCloseTitle
             }
         }
 

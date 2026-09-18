@@ -326,8 +326,9 @@ struct PolymarketMainView: View {
             }
         } label: {
             HStack(spacing: Constants.balanceSelectorSpacing) {
-                // [REDACTED_TODO_COMMENT]
-                Text(viewModel.balanceMode == .total ? "Total Balance" : "Available Balance")
+                Text(viewModel.balanceMode == .total
+                    ? Localization.predictionMainTotalBalance
+                    : Localization.tokenDetailsBalanceAvailable)
                     .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                     .id(viewModel.balanceMode)
                     .transition(.opacity)
@@ -366,8 +367,7 @@ struct PolymarketMainView: View {
     }
 
     private var exploreEventsTitle: some View {
-        // [REDACTED_TODO_COMMENT]
-        Text("Explore Events")
+        Text(Localization.predictionMainExploreEvents)
             .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, Constants.horizontalPadding)

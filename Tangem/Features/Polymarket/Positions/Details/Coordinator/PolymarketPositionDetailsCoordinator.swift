@@ -100,7 +100,7 @@ extension PolymarketPositionDetailsCoordinator: PolymarketPositionDetailsRoutabl
             eventTitle: eventTitle,
             request: request,
             onPlaced: onPlaced,
-            onOpenPosition: { [weak self] position in self?.onOpenPosition?(position) },
+            onOpenPosition: { [weak self] _ in self?.popToPositionDetails() },
             onClose: { [weak self] in self?.popToPositionDetails() }
         ) else {
             return

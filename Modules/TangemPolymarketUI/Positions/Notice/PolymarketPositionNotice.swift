@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -39,21 +40,17 @@ public enum PolymarketPositionNotice: Hashable, Sendable, CaseIterable {
     case pendingResolution
     case disputed
 
-    // [REDACTED_TODO_COMMENT]
     var title: String {
         switch self {
-        case .pendingResolution: "Awaiting final result"
-        case .disputed: "Under dispute"
+        case .pendingResolution: Localization.predictionPositionsPendingTitle
+        case .disputed: Localization.predictionPositionsDisputedTitle
         }
     }
 
     var message: String {
         switch self {
-        case .pendingResolution:
-            "Market closed. It is in a short Polymarket review window. Your position should resolve soon."
-        case .disputed:
-            "The result has been challenged by participants and is under Polymarket review. "
-                + "Your position settles automatically once it's final."
+        case .pendingResolution: Localization.predictionPositionsPendingDescription
+        case .disputed: Localization.predictionPositionsDisputedDescription
         }
     }
 }

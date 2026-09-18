@@ -16,24 +16,25 @@ extension PolymarketMarketCard.Model {
         title: String? = nil,
         fallbackImageURL: URL? = nil,
         predictedText: String? = nil,
-        showsOutcomes: Bool = true,
+        areOutcomesEnabled: Bool = true,
         onSelectOutcome: @escaping (PolymarketOutcome) -> Void
     ) -> Self {
         Self(
             id: market.id,
             title: title ?? market.groupItemTitle ?? market.title,
-            volumeText: market.volume.map(volumeFormatter.formatMarketCap),
+            volumeText: market.volume.map(volumeFormatter.formatMarketCap) ?? BalanceFormatter.defaultEmptyBalanceString,
             imageURL: market.imageURL ?? market.iconURL ?? fallbackImageURL,
             predictedText: predictedText,
-            outcomes: showsOutcomes ? market.outcomes.enumerated().map { index, outcome in
+            outcomes: market.outcomes.enumerated().map { index, outcome in
                 PolymarketMarketCard.Outcome(
                     id: outcome.assetId,
                     title: outcome.title,
                     priceText: PolymarketPriceFormatter.centsText(outcome.probability),
                     style: PolymarketOutcomeStyle(outcomeIndex: index),
+                    isEnabled: areOutcomesEnabled,
                     onSelect: { onSelectOutcome(outcome) }
                 )
-            } : []
+            }
         )
     }
 
