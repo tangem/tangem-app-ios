@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Kingfisher
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -40,6 +41,7 @@ struct TangemPayConfirmPlanView: View {
                 Text(viewModel.title)
                     .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.confirmPlanTitle)
 
                 pointsList
             }
@@ -108,6 +110,7 @@ struct TangemPayConfirmPlanView: View {
             .styleType(.default)
             .horizontalLayout(.infinity)
             .loading(.spinner(if: viewModel.isProcessing))
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.confirmPlanPrimaryButton)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
