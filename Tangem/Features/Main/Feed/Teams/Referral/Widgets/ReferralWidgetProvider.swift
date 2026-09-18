@@ -14,11 +14,13 @@ final class ReferralWidgetProvider {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.referralProgramInfoRepository) private var referralProgramInfoRepository: ReferralProgramInfoRepository
 
-    private let rewardSubject = CurrentValueSubject<String?, Never>(nil)
+    private let widgetSubject = CurrentValueSubject<FeedWidget?, Never>(nil)
     private weak var router: FeedWidgetsRoutable?
 
     private var wallet: UserWalletModel?
+    private var info: ReferralProgramInfo?
     private var requestedWalletIds: Set<UserWalletId> = []
+    private var failedWalletIds: Set<UserWalletId> = []
     private var hasRefreshed = false
     private var bag = Set<AnyCancellable>()
     private var walletBag = Set<AnyCancellable>()
@@ -34,9 +36,7 @@ final class ReferralWidgetProvider {
 
 extension ReferralWidgetProvider: FeedWidgetProvider {
     var widgetPublisher: AnyPublisher<FeedWidget?, Never> {
-        rewardSubject
-            .map { $0.map { FeedWidget.referFriend(reward: $0) } }
-            .eraseToAnyPublisher()
+        widgetSubject.eraseToAnyPublisher()
     }
 
     func refresh() {
@@ -46,11 +46,18 @@ extension ReferralWidgetProvider: FeedWidgetProvider {
             return
         }
 
+        failedWalletIds.remove(walletId)
+        resolveWidget()
+
         runTask(in: self) { provider in
             do {
                 _ = try await provider.referralProgramInfoRepository.loadInfo(for: walletId)
             } catch {
-                await runOnMain { provider.requestedWalletIds.remove(walletId) }
+                await runOnMain {
+                    provider.requestedWalletIds.remove(walletId)
+                    provider.failedWalletIds.insert(walletId)
+                    provider.resolveWidget()
+                }
             }
         }
     }
@@ -78,21 +85,39 @@ private extension ReferralWidgetProvider {
         self.wallet = wallet.flatMap { $0.config.hasFeature(.referralProgram) ? $0 : nil }
 
         guard let wallet = self.wallet else {
-            rewardSubject.send(nil)
+            info = nil
+            resolveWidget()
             return
         }
 
         referralProgramInfoRepository.infoPublisher(for: wallet.userWalletId)
-            .map { Self.makeReward(info: $0, config: wallet.config) }
-            .removeDuplicates()
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { provider, reward in provider.rewardSubject.send(reward) }
+            .sink { provider, info in
+                provider.info = info
+                provider.resolveWidget()
+            }
             .store(in: &walletBag)
 
         if hasRefreshed {
             refresh()
         }
+    }
+
+    func resolveWidget() {
+        let widget: FeedWidget? = if let wallet, let reward = Self.makeReward(info: info, config: wallet.config) {
+            .referFriend(reward: .success(reward))
+        } else if let wallet, info == nil {
+            .referFriend(reward: failedWalletIds.contains(wallet.userWalletId) ? .failure(FeedWidget.LoadError()) : .loading)
+        } else {
+            nil
+        }
+
+        guard widgetSubject.value != widget else {
+            return
+        }
+
+        widgetSubject.send(widget)
     }
 
     static func makeReward(info: ReferralProgramInfo?, config: UserWalletConfig) -> String? {
