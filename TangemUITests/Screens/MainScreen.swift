@@ -642,9 +642,16 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func openTangemPay() -> TangemPayMainScreen {
         XCTContext.runActivity(named: "Open Tangem Pay from main screen") { _ in
-            scrollToElement(tangemPayTile)
-            tangemPayTile.waitAndTap()
+            tapTangemPayTile()
             return TangemPayMainScreen(app)
+        }
+    }
+
+    @discardableResult
+    func openTangemPaySelectPlan() -> TangemPaySelectPlanScreen {
+        XCTContext.runActivity(named: "Open Tangem Pay plan selection from main screen") { _ in
+            tapTangemPayTile()
+            return TangemPaySelectPlanScreen(app)
         }
     }
 
@@ -1310,6 +1317,11 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             }
 
         return !networkHeaders.isEmpty
+    }
+
+    private func tapTangemPayTile() {
+        scrollToElement(tangemPayTile)
+        tangemPayTile.waitAndTap()
     }
 }
 
