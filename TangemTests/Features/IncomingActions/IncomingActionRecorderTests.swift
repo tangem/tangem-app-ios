@@ -53,6 +53,23 @@ struct IncomingActionRecorderTests {
         }
     }
 
+    @Test("What a link leaves behind is written by the time the chain is asked")
+    func savesTheReferralBeforeTheChainIsAsked() async {
+        await withReferralService { _ in
+            let recorder = IncomingActionRecorder()
+            recorder.start()
+
+            let manager = InjectedValues[\.incomingActionManager]
+            let responder = ReferralReadingResponder()
+            manager.becomeFirstResponder(responder)
+            defer { manager.resignFirstResponder(responder) }
+
+            handler.handleIncomingURL(Deeplink.promoWithReferral)
+
+            #expect(responder.refcodeWhenAsked == "friend")
+        }
+    }
+
     @Test("A link that isn't a promo one is of no interest")
     func ignoresEverythingElse() async {
         await withReferralService { service in
@@ -96,5 +113,20 @@ private extension IncomingActionRecorderTests {
         static let promoWithReferral = URL(string: "tangem://promo?promo_code=BTC2026&ref=friend&campaign=spring")!
         static let markets = URL(string: "tangem://markets")!
         static let campaign = URL(string: "https://tangem.com/marketing?deep_link_value=tpay_for_harvard123")!
+    }
+}
+
+// MARK: - Spies
+
+/// What a link has left behind, as seen from inside the chain — where a destination may be gated on it.
+@MainActor
+private final class ReferralReadingResponder: IncomingActionResponder {
+    private(set) var refcodeWhenAsked: String?
+
+    nonisolated func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
+        MainActor.assumeIsolated {
+            refcodeWhenAsked = InjectedValues[\.referralService].refcode
+            return true
+        }
     }
 }
