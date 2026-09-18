@@ -134,7 +134,7 @@ struct TransactionViewRedesigned: View {
     }
 
     private var glyphImage: some View {
-        viewModel.icon.icon
+        viewModel.icon.redesignedIcon
             .renderingMode(.template)
             .resizable()
             .scaledToFit()
@@ -144,7 +144,7 @@ struct TransactionViewRedesigned: View {
 
     private var nameView: some View {
         HStack(spacing: .unit(.x2)) {
-            Text(display.title)
+            Text(display.title.fullText)
                 .style(Font.Tangem.Body16.medium, color: nameColor)
                 .lineLimit(1)
                 .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionItem(key: transactionKey))
@@ -187,6 +187,12 @@ struct TransactionViewRedesigned: View {
 
         case .express(let model):
             TransactionExpressSubtitleView(model: model)
+
+        case .provider(let direction):
+            TransactionProviderSubtitleView(
+                direction: direction,
+                accessibilityIdentifier: TxHistoryAccessibilityIdentifiers.transactionSubtitle(key: transactionKey)
+            )
 
         case .none:
             EmptyView()
