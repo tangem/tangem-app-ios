@@ -16,7 +16,6 @@ protocol CryptoFeedRoutable: AnyObject {
 }
 
 final class CryptoFeedRouter {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     private weak var navigation: (any FeedNavigation)?
@@ -24,10 +23,12 @@ final class CryptoFeedRouter {
     private weak var marketCapInfo: MarketCapInfoBottomSheetViewModel?
 
     private let popToRootAction: Action<PopToRootOptions>
+    private let portfolioTokenRouter: FeedPortfolioTokenRouter
 
     init(context: FeedContext) {
         navigation = context.navigation
         popToRootAction = context.popToRootAction
+        portfolioTokenRouter = FeedPortfolioTokenRouter(context: context)
     }
 }
 
@@ -83,32 +84,6 @@ extension CryptoFeedRouter: CryptoFeedRoutable {
     }
 
     func openPortfolioToken(_ walletModel: any WalletModel) {
-        guard
-            let userWalletModel = userWalletRepository.models[walletModel.userWalletId],
-            let accountModel = walletModel.account
-        else {
-            return
-        }
-
-        let coordinator = TokenDetailsCoordinator(
-            dismissAction: { [weak self] _ in self?.navigation?.dismissPresented() },
-            popToRootAction: popToRootAction
-        )
-
-        coordinator.start(
-            with: .init(
-                userWalletInfo: userWalletModel.userWalletInfo,
-                keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
-                walletModelsManager: accountModel.walletModelsManager,
-                userTokensManager: accountModel.userTokensManager,
-                addressBookManager: userWalletModel.addressBookManager,
-                walletModel: walletModel,
-                presentSource: .markets
-            )
-        )
-        navigation?.presentFullScreen(
-            .portfolioToken(coordinator),
-            zoomingFrom: .portfolioToken(walletID: walletModel.userWalletId, accountID: accountModel.id, tokenID: walletModel.id)
-        )
+        portfolioTokenRouter.open(walletModel)
     }
 }
