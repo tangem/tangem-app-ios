@@ -218,6 +218,7 @@
 "cardano_insufficient_balance_to_send_token_description" = "要进行 %1$@ 交易，您必须存入一些 ADA 以支付网络费用和最低 ADA 值（建议存入 5 ADA）。";
 "cardano_insufficient_balance_to_send_token_title" = "ADA不足以进行代币转移";
 "cardano_max_amount_has_token_description" = "您必须持有一定数量的 ADA，因为您在 Cardano 区块链上有一些代币。";
+"collectibles_account_collection_empty" = "No cards";
 "collectibles_account_collection_row_subtitle" = "My collection";
 "collectibles_account_withdraw" = "Withdrawal";
 "collectibles_entrance_card_subtitle" = "Open packs of graded collectible cards";
