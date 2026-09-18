@@ -218,6 +218,7 @@
 "cardano_insufficient_balance_to_send_token_description" = "Щоб здійснити транзакцію %1$@, внесіть певну суму ADA для покриття мережевої комісії та мінімальне значення ADA (рекомендовано 5 ADA)";
 "cardano_insufficient_balance_to_send_token_title" = "Недостатньо ADA для транзакції";
 "cardano_max_amount_has_token_description" = "Ви повинні утримувати деяку кількість ADA, оскільки у вас на балансі є токени в мережі Cardano";
+"collectibles_account_collection_empty" = "No cards";
 "collectibles_account_collection_row_subtitle" = "My collection";
 "collectibles_account_withdraw" = "Withdrawal";
 "collectibles_entrance_card_subtitle" = "Open packs of graded collectible cards";
