@@ -24,9 +24,6 @@ public struct CollectiblesVaultProgram {
 
     public static let devnetProgramId = "29agFEruMu2jedVwnDgKPuq7ejmTiB7sEqzdhufQQS9u"
 
-    /// `CreateIdempotent` in the associated token program; `0` is the plain `Create`.
-    static let createIdempotentInstructionTag: UInt8 = 1
-
     let programId: PublicKey
 
     public init(programId: String) throws {
@@ -156,6 +153,34 @@ public struct CollectiblesVaultProgram {
         )
     }
 
+    // MARK: - Vault USDC account
+
+    public func vaultUsdcBalance(
+        coldOwner: Data,
+        usdcMint: Data,
+        accountOwner: String,
+        accountData: Data
+    ) throws -> UInt64 {
+        guard
+            coldOwner.count == PublicKey.LENGTH, let coldOwnerKey = PublicKey(data: coldOwner),
+            accountOwner == PublicKey.tokenProgramId.base58EncodedString
+        else {
+            throw ProgramError.invalidAccountData
+        }
+
+        let reader = CollectiblesAccountReader(data: accountData)
+        try reader.requireCount(Constants.tokenAccountLength)
+
+        guard
+            try reader.bytes(at: 0, count: PublicKey.LENGTH) == usdcMint,
+            try reader.bytes(at: 32, count: PublicKey.LENGTH) == vaultPDA(coldOwner: coldOwnerKey).data
+        else {
+            throw ProgramError.invalidAccountData
+        }
+
+        return try reader.uint64LE(at: 64)
+    }
+
     // MARK: - Instructions
 
     /// The program's account order: vault, cold owner (read-only signer), payer (writable signer), system
@@ -226,7 +251,7 @@ public struct CollectiblesVaultProgram {
                 .init(address: PublicKey.programId.base58EncodedString, isSigner: false, isWritable: false),
                 .init(address: PublicKey.tokenProgramId.base58EncodedString, isSigner: false, isWritable: false),
             ],
-            data: Data([Self.createIdempotentInstructionTag])
+            data: Data([Constants.createIdempotentInstructionTag])
         )
     }
 
@@ -410,13 +435,11 @@ extension CollectiblesVaultProgram.Vault {
 public extension CollectiblesVaultProgram {
     /// Limit checks mirror the program exactly: lazy UTC day bucket, clamp-to-zero remainder.
     enum SpendingMath {
-        private static let secondsPerDay: TimeInterval = 86_400
-
         /// A day bucket strictly behind `now` means the full budget. A bucket at or ahead of `now` means the
         /// device clock lags the cluster, so `spent_today` still counts — granting the full budget would pass
         /// a spin the program rejects. Clamps to zero: `spent_today` can legally exceed a cap lowered mid-day.
         public static func remainingToday(dailyCap: UInt64, spentToday: UInt64, dayIndex: Int64, now: Date) -> UInt64 {
-            let today = Int64((now.timeIntervalSince1970 / secondsPerDay).rounded(.down))
+            let today = Int64((now.timeIntervalSince1970 / Constants.secondsPerDay).rounded(.down))
             if dayIndex < today {
                 return dailyCap
             }
@@ -438,6 +461,22 @@ public extension CollectiblesVaultProgram {
 
             return total <= vault.perSpinCap && total <= remainingToday(vault: vault, now: now)
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension CollectiblesVaultProgram {
+    enum Constants {
+        /// `CreateIdempotent` in the associated token program; `0` is the plain `Create`.
+        static let createIdempotentInstructionTag: UInt8 = 1
+        static let tokenAccountLength = 165
+    }
+}
+
+private extension CollectiblesVaultProgram.SpendingMath {
+    enum Constants {
+        static let secondsPerDay: TimeInterval = 86_400
     }
 }
 
