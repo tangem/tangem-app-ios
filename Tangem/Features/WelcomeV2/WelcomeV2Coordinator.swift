@@ -165,17 +165,15 @@ final class WelcomeV2Coordinator: CoordinatorObject {
         tangemPayCampaignCoordinator = coordinator
     }
 
-    private func resetChildCoordinators() {
+    /// The child screens are deliberately left mounted here: tearing them down runs their own pop and fade,
+    /// which flashes the welcome screen back in while the root is already cross-fading away from it.
+    private func cancelPendingTasks() {
         cardScanTask?.cancel()
         cardScanTask = nil
         createMobileWalletTask?.cancel()
         createMobileWalletTask = nil
         sheetTransitionTask?.cancel()
         sheetTransitionTask = nil
-        importOnboardingCoordinator = nil
-        tangemPayMobileOnboardingCoordinator = nil
-        tangemPayCampaignCoordinator = nil
-        welcomeStoryViewModel = nil
     }
 }
 
@@ -233,12 +231,12 @@ extension WelcomeV2Coordinator: WelcomeV2Routable {
     }
 
     func openMain(with userWalletModel: UserWalletModel) {
-        resetChildCoordinators()
+        cancelPendingTasks()
         dismiss(with: .main(userWalletModel))
     }
 
     func openOnboarding(with input: OnboardingInput) {
-        resetChildCoordinators()
+        cancelPendingTasks()
         dismiss(with: .onboarding(input))
     }
 }
@@ -601,8 +599,7 @@ private extension WelcomeV2Coordinator {
 
             switch outputOptions {
             case .main(let userWalletModel):
-                importOnboardingCoordinator = nil
-                dismiss(with: .main(userWalletModel))
+                openMain(with: userWalletModel)
             case .dismiss:
                 importOnboardingCoordinator = nil
             }
