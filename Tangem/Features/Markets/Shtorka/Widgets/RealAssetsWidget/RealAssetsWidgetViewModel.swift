@@ -142,9 +142,7 @@ final class RealAssetsWidgetViewModel: ObservableObject {
             return
         }
 
-        let umbrella = categoriesSnapshot.selectableCategories.first { $0.code == MarketsCategoryCode.realWorldAssets }
-
-        if let umbrella {
+        if let umbrella = categoriesSnapshot.umbrellaCategory {
             select(RealAssetsCategorySelection(category: umbrella))
         } else if let defaultSelection = defaultSelection(from: categoriesSnapshot) {
             select(defaultSelection)
