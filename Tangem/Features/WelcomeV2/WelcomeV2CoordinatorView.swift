@@ -12,6 +12,8 @@ import TangemUI
 struct WelcomeV2CoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: WelcomeV2Coordinator
 
+    @Environment(\.colorScheme) private var systemColorScheme
+
     var body: some View {
         NavigationStack {
             content
@@ -52,6 +54,7 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
             ZStack {
                 if let tangemPayCampaignCoordinator = coordinator.tangemPayCampaignCoordinator {
                     TangemPayCampaignCoordinatorView(coordinator: tangemPayCampaignCoordinator)
+                        .environment(\.colorScheme, systemColorScheme)
                         .transition(.opacity)
                 }
             }
