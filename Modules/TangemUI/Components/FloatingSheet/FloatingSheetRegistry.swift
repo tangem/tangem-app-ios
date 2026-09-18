@@ -44,8 +44,10 @@ public final class FloatingSheetRegistry {
 
 // MARK: - SwiftUI.EnvironmentValues entry
 
+private let defaultRegistry = FloatingSheetRegistry()
+
 public extension EnvironmentValues {
-    @Entry var floatingSheetRegistry = FloatingSheetRegistry()
+    @Entry var floatingSheetRegistry = defaultRegistry
 }
 
 private extension Dictionary where Key == ObjectIdentifier {
