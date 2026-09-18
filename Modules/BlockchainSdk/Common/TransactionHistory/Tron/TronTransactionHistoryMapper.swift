@@ -131,19 +131,6 @@ final class TronTransactionHistoryMapper {
         return Decimal(stringValue: transaction.fees)
     }
 
-    private func shouldInclude(_ transactionInfo: TransactionInfo, for amountType: Amount.AmountType) -> Bool {
-        guard case .coin = amountType else {
-            return true
-        }
-
-        // Outgoing transfers are always kept: they are user-initiated, even when the amount is dust.
-        if transactionInfo.isOutgoing {
-            return true
-        }
-
-        return transactionInfo.source.amount >= Constants.minimumCoinTransactionAmount
-    }
-
     /// Extracts the transaction info for a `token` transfer.
     private func extractTransactionInfos(
         from tokenTransfers: [BlockBookAddressResponse.TokenTransfer],
@@ -433,7 +420,7 @@ extension TronTransactionHistoryMapper: TransactionHistoryMapper {
                         destinationAddress: destinationAddress,
                         walletAddress: walletAddress,
                         votes: votes
-                    ), shouldInclude(transactionInfo, for: amountType) {
+                    ) {
                         partialResult += mapToTransactionRecords(
                             transaction: transaction,
                             transactionInfos: [transactionInfo],
@@ -577,7 +564,6 @@ private extension TronTransactionHistoryMapper {
 
     enum Constants {
         static let tronPayloadType = "tron"
-        static let minimumCoinTransactionAmount: Decimal = 0.001
         static let excludedContractTypes: Set<TronContractType> = [
             TronContractType.accountCreateContractType,
             TronContractType.delegateResourceContractType,
