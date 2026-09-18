@@ -23,7 +23,7 @@ struct FeedSearchBarView: View {
     @State private var isFocused = false
 
     var body: some View {
-        Search(text: $viewModel.query, isActive: $isFocused, cancelAction: onCancel, onFocusChanged: focusDidChange)
+        Search(text: queryBinding, isActive: $isFocused, cancelAction: onCancel, onFocusChanged: focusDidChange)
             .placeholder(Localization.marketsSearchTitlePlaceholder)
             .onSubmit(viewModel.submit)
             .infinityFrame(axis: .horizontal)
@@ -40,6 +40,13 @@ struct FeedSearchBarView: View {
                     isFocused = false
                 }
             }
+    }
+
+    private var queryBinding: Binding<String> {
+        Binding(
+            get: { isActive ? viewModel.query : "" },
+            set: { viewModel.query = $0 }
+        )
     }
 
     private func focusDidChange(_ isFocused: Bool) {

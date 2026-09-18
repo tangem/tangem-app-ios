@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
+
 struct FeedViewModelFactory {
     private let tabBuilders = FeedTabsRegistry.makeBuilders()
 
@@ -32,7 +34,12 @@ struct FeedViewModelFactory {
                 searchBarViewModel: searchBarViewModel,
                 tabsViewModel: FeedSearchTabsViewModel(tabs: searchTabs),
                 historyProvider: historyProvider,
-                router: FeedSearchRouter(context: context)
+                marketViewModel: CryptoSearchViewModel(
+                    query: Just("").eraseToAnyPublisher(),
+                    searchesOnEmptyQuery: true,
+                    history: historyProvider,
+                    router: CryptoFeedRouter(context: context)
+                )
             ),
             tabsViewModel: FeedTabsViewModel(tabs: tabs),
             widgetsViewModel: FeedWidgetsViewModel(providers: FeedWidgetsRegistry.makeProviders(router: widgetsRouter)),

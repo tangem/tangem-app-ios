@@ -8,7 +8,6 @@
 
 struct StoredFeedSearchHistory: Codable {
     var queries: [String]
-    var tokens: [MarketsTokenModel]
 
-    static let empty = StoredFeedSearchHistory(queries: [], tokens: [])
+    static let empty = StoredFeedSearchHistory(queries: [])
 }

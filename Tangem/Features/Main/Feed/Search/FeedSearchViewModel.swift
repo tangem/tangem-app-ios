@@ -11,14 +11,14 @@ import Foundation
 import TangemFoundation
 
 final class FeedSearchViewModel: ObservableObject {
-    @Published private(set) var state: FeedSearchState = .recent(.empty)
+    @Published private(set) var state: FeedSearchState = .suggestions(.empty)
     @Published private(set) var isActive = false
 
     let searchBarViewModel: FeedSearchBarViewModel
     let tabsViewModel: FeedSearchTabsViewModel
+    let marketViewModel: CryptoSearchViewModel
 
     private let historyProvider: FeedSearchHistoryProvider
-    private let router: any FeedSearchRoutable
 
     private var history: FeedSearchHistory = .empty
     private var bag = Set<AnyCancellable>()
@@ -27,12 +27,12 @@ final class FeedSearchViewModel: ObservableObject {
         searchBarViewModel: FeedSearchBarViewModel,
         tabsViewModel: FeedSearchTabsViewModel,
         historyProvider: FeedSearchHistoryProvider,
-        router: any FeedSearchRoutable
+        marketViewModel: CryptoSearchViewModel
     ) {
         self.searchBarViewModel = searchBarViewModel
         self.tabsViewModel = tabsViewModel
         self.historyProvider = historyProvider
-        self.router = router
+        self.marketViewModel = marketViewModel
 
         bind()
     }
@@ -46,8 +46,9 @@ final class FeedSearchViewModel: ObservableObject {
             return
         }
 
+        searchBarViewModel.query = ""
         isActive = true
-        syncTabs()
+        syncVisibility()
     }
 
     func close() {
@@ -56,17 +57,12 @@ final class FeedSearchViewModel: ObservableObject {
         }
 
         isActive = false
-        syncTabs()
+        syncVisibility()
     }
 
     func reset() {
+        // Keep the outgoing results stable during their exit animation; the next search starts with a blank query.
         close()
-
-        searchBarViewModel.query = ""
-    }
-
-    func onSelectRecentToken(_ token: FeedRecentToken) {
-        router.openToken(token.model)
     }
 
     func onSelectRecentQuery(_ query: FeedRecentQuery) {
@@ -75,10 +71,6 @@ final class FeedSearchViewModel: ObservableObject {
 
     func onRemoveRecentQuery(_ query: FeedRecentQuery) {
         historyProvider.remove(query)
-    }
-
-    func onClearRecent() {
-        historyProvider.clear()
     }
 }
 
@@ -110,7 +102,7 @@ private extension FeedSearchViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, history in
                 viewModel.history = history
-                viewModel.refreshRecentState()
+                viewModel.refreshSuggestionsState()
             }
             .store(in: &bag)
     }
@@ -120,26 +112,27 @@ private extension FeedSearchViewModel {
 
 private extension FeedSearchViewModel {
     func onQueryBlankChange(_ isBlank: Bool) {
-        state = isBlank ? .recent(history) : .tabs
-        syncTabs()
+        state = isBlank ? .suggestions(history) : .tabs
+        syncVisibility()
     }
 
-    func refreshRecentState() {
-        guard case .recent = state else {
+    func refreshSuggestionsState() {
+        guard case .suggestions = state else {
             return
         }
 
-        state = .recent(history)
+        state = .suggestions(history)
     }
 
-    func syncTabs() {
+    func syncVisibility() {
         let isSearching: Bool
 
         switch state {
         case .tabs: isSearching = isActive
-        case .recent: isSearching = false
+        case .suggestions: isSearching = false
         }
 
         tabsViewModel.setSearching(isSearching)
+        marketViewModel.setVisible(isActive && !isSearching)
     }
 }

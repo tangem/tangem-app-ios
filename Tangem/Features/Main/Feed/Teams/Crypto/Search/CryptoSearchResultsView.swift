@@ -15,6 +15,8 @@ struct CryptoSearchResultsView: View {
     let onAppear: (MarketTokenItemViewModel) -> Void
     let onDisappear: (MarketTokenItemViewModel) -> Void
 
+    var showsBackground = true
+
     var body: some View {
         LazyVStack(spacing: 0) {
             ForEach(rows, id: \.tokenId) { row in
@@ -23,8 +25,8 @@ struct CryptoSearchResultsView: View {
                     .onDisappear { onDisappear(row) }
             }
         }
-        .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: 0, radius: Constants.cornerRadius)
-        .padding(.horizontal, Constants.horizontalPadding)
+        .roundedBackground(with: showsBackground ? DesignSystem.Color.bgSecondary : .clear, padding: 0, radius: Constants.cornerRadius)
+        .padding(.horizontal, showsBackground ? Constants.horizontalPadding : 0)
     }
 }
 

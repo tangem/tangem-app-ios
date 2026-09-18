@@ -7,6 +7,6 @@
 //
 
 enum FeedSearchState {
-    case recent(FeedSearchHistory)
+    case suggestions(FeedSearchHistory)
     case tabs
 }

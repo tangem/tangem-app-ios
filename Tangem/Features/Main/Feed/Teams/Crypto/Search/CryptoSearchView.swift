@@ -11,13 +11,27 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 
-struct CryptoSearchView: View {
+struct CryptoSearchView<Header: View>: View {
     @ObservedObject var viewModel: CryptoSearchViewModel
+
+    private let showsResultBackground: Bool
+    private let header: Header
+
+    init(
+        viewModel: CryptoSearchViewModel,
+        showsResultBackground: Bool = true,
+        @ViewBuilder header: () -> Header = { EmptyView() }
+    ) {
+        self.viewModel = viewModel
+        self.showsResultBackground = showsResultBackground
+        self.header = header()
+    }
 
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: Constants.sectionSpacing) {
+                    header
                     if let portfolio = viewModel.portfolio {
                         section(title: Localization.marketsCommonMyPortfolio) {
                             CryptoSearchPortfolioView(viewModel: portfolio)
@@ -54,7 +68,8 @@ private extension CryptoSearchView {
                 CryptoSearchResultsView(
                     rows: rows,
                     onAppear: viewModel.onResultAppear,
-                    onDisappear: viewModel.onResultDisappear
+                    onDisappear: viewModel.onResultDisappear,
+                    showsBackground: showsResultBackground
                 )
 
                 if hasTokensUnderCap {
@@ -104,16 +119,14 @@ private extension CryptoSearchView {
 
 // MARK: - Constants
 
-private extension CryptoSearchView {
-    enum Constants {
-        static let contentID = "cryptoSearchContent"
-        static let contentVerticalInset: CGFloat = 16
-        static let sectionSpacing: CGFloat = 24
-        static let sectionHeaderSpacing: CGFloat = 16
-        static let horizontalPadding: CGFloat = 16
-        static let errorVerticalInset: CGFloat = 24
-        static let noticeSpacing: CGFloat = 8
-        static let noticeTopInset: CGFloat = 24
-        static let noticeHorizontalInset: CGFloat = 24
-    }
+private enum Constants {
+    static let contentID = "cryptoSearchContent"
+    static let contentVerticalInset: CGFloat = 16
+    static let sectionSpacing: CGFloat = 24
+    static let sectionHeaderSpacing: CGFloat = 16
+    static let horizontalPadding: CGFloat = 16
+    static let errorVerticalInset: CGFloat = 24
+    static let noticeSpacing: CGFloat = 8
+    static let noticeTopInset: CGFloat = 24
+    static let noticeHorizontalInset: CGFloat = 24
 }
