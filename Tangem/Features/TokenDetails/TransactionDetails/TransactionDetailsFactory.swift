@@ -93,7 +93,13 @@ enum TransactionDetailsFactory {
             // Only the two operations that move the balance in or out of the protocol get the paired layout;
             // the rest are a plain single-asset amount, which the generic block already renders.
             guard let stage = yieldStage(for: transaction.transactionType) else {
-                return .generic(genericOperationContent(for: transaction, record: record, context: context, counterpartyLabel: nil))
+                return .generic(genericOperationContent(
+                    for: transaction,
+                    record: record,
+                    context: context,
+                    counterpartyLabel: nil,
+                    amountText: transaction.amount.amountWithCurrencyCode
+                ))
             }
 
             return .yield(yieldContent(for: transaction, stage: stage, record: record, context: context))
@@ -154,12 +160,13 @@ enum TransactionDetailsFactory {
         isFailed: Bool,
         caption: String?,
         fiatText: String?,
-        icon: TransactionDetailsTokensViewData.Single.Icon
+        icon: TransactionDetailsTokensViewData.Single.Icon,
+        amountText: String? = nil
     ) -> TransactionDetailsTokensViewData {
         TransactionDetailsTokensViewData(
             icon: icon,
             caption: caption,
-            amountText: transaction.amount.amount,
+            amountText: amountText ?? transaction.amount.amount,
             fiatText: fiatText,
             isAmountStrikethrough: isFailed
         )
@@ -173,7 +180,8 @@ enum TransactionDetailsFactory {
         for transaction: TransactionViewModel,
         record: TransactionRecord,
         context: TransactionDetailsContext,
-        counterpartyLabel: String?
+        counterpartyLabel: String?,
+        amountText: String? = nil
     ) -> TransactionDetailsGenericOperationViewData {
         .init(
             tokens: tokensBlock(
@@ -181,7 +189,8 @@ enum TransactionDetailsFactory {
                 isFailed: isFailed(record: record),
                 caption: nil,
                 fiatText: nil,
-                icon: .token(context.tokenIconInfo)
+                icon: .token(context.tokenIconInfo),
+                amountText: amountText
             ),
             // On-chain operations don't get a live status banner (that's an Express-only transition)
             statusBanner: nil,
@@ -247,7 +256,7 @@ enum TransactionDetailsFactory {
 
         return .init(
             kind: .failed,
-            title: transaction.display.title,
+            title: transaction.display.title.fullText,
             subtitle: Localization.commonSomethingWentWrong
         )
     }
@@ -336,7 +345,7 @@ enum TransactionDetailsFactory {
             tokens: TransactionDetailsYieldTokensViewData(
                 provider: stage.provider,
                 tokenIconInfo: context.tokenIconInfo,
-                amountText: transaction.amount.amount,
+                amountText: transaction.amount.amountWithCurrencyCode,
                 caption: stage.caption
             ),
             statusBanner: nil,
@@ -781,7 +790,12 @@ enum TransactionDetailsFactory {
             titleStyle: title.style,
             date: dateText,
             subtitleStyle: .secondary,
-            operationIcon: TransactionViewIconViewData(type: transaction.transactionType, status: status, isOutgoing: transaction.isOutgoing),
+            operationIcon: TransactionViewIconViewData(
+                type: transaction.transactionType,
+                status: status,
+                isOutgoing: transaction.isOutgoing,
+                isFromYieldContract: transaction.isFromYieldContract
+            ),
             iconGlyph: headerIconGlyph(for: record),
             menuSections: TransactionDetailsMenuFactory.menuSections(
                 for: record,
@@ -820,7 +834,7 @@ enum TransactionDetailsFactory {
                 legacyName: transaction.name,
                 subtitleOwner: transaction.subtitleOwner
             )
-            return (text, onChainTitleStyle(for: status))
+            return (text.fullText, onChainTitleStyle(for: status))
         }
     }
 
