@@ -1,5 +1,5 @@
 //
-//  PolymarketAccountBalanceView.swift
+//  AccountRowTrailingBalanceView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
-struct PolymarketAccountBalanceView: View {
+struct AccountRowTrailingBalanceView: View {
     @ObservedObject var viewModel: AccountRowButtonViewModel
 
     @ScaledMetric private var loaderWidth: CGFloat = Constants.loaderSize.width
@@ -29,7 +29,7 @@ struct PolymarketAccountBalanceView: View {
 
 // MARK: - Constants
 
-private extension PolymarketAccountBalanceView {
+private extension AccountRowTrailingBalanceView {
     enum Constants {
         static let loaderSize = CGSize(width: 70, height: 16)
     }

@@ -80,7 +80,7 @@ struct MultiWalletMainContentRedesignedView: View {
 
     private func polymarketAccount(viewModel: AccountRowButtonViewModel) -> some View {
         AccountRowButtonView(viewModel: viewModel) {
-            PolymarketAccountBalanceView(viewModel: viewModel)
+            AccountRowTrailingBalanceView(viewModel: viewModel)
         }
         .padding(MultiWalletMainContentConstants.polymarketAccountPadding)
         .background(MultiWalletMainContentConstants.tokenListBackgroundColor)
@@ -91,7 +91,7 @@ struct MultiWalletMainContentRedesignedView: View {
 
     private func collectiblesAccount(viewModel: AccountRowButtonViewModel) -> some View {
         AccountRowButtonView(viewModel: viewModel) {
-            EmptyView()
+            AccountRowTrailingBalanceView(viewModel: viewModel)
         }
         .padding(MultiWalletMainContentConstants.collectiblesAccountPadding)
         .background(Color.Tangem.Surface.level2)
