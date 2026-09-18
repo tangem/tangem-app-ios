@@ -13,7 +13,7 @@ enum TokensResponseFixture {
             "accessToken": "\(accessToken)",
             "accessTokenExpiresAt": "2026-01-01T00:00:00Z",
             "refreshToken": "\(refreshToken)",
-            "refreshTokenExpiresAt": "2026-02-01T00:00:00Z",
+            "refreshTokenExpiresAt": "2026-02-01T00:00:00.454138590Z",
             "walletIds": []
         }
         """

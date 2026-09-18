@@ -7,12 +7,13 @@
 //
 
 public import struct Foundation.Data
+public import class Foundation.JSONDecoder
 public import struct Foundation.URL
 private import os.lock
 public import protocol Alamofire.RequestAdapter
 public import protocol Alamofire.RequestRetrier
 public import class Moya.MoyaProvider
-private import struct TangemFoundation.DeviceInfo
+private import TangemFoundation
 
 public enum BackendAuthenticationAssembly {
     public static let registerDevice: RegisterDeviceUseCase = Self.makeRegisterDeviceUseCase()
@@ -20,8 +21,8 @@ public enum BackendAuthenticationAssembly {
     public static let obtainUserWalletRegistrationNonce: ObtainUserWalletRegistrationNonceUseCase =
         Self.makeObtainUserWalletRegistrationNonceUseCase()
 
-    public static let prepareUserWalletRegistration: PrepareUserWalletRegistrationUseCase =
-        Self.makePrepareUserWalletRegistrationUseCase()
+    public static let attestUserWallet: AttestUserWalletUseCase =
+        Self.makeAttestUserWalletUseCase()
 
     public static let submitUserWalletRegistration: SubmitUserWalletRegistrationUseCase =
         Self.makeSubmitUserWalletRegistrationUseCase()
@@ -94,10 +95,17 @@ extension BackendAuthenticationAssembly {
 
     private static let userWalletRegistrationStatusRepository = UserDefaultsUserWalletRegistrationStatusRepository()
 
+    private static let jsonDecoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .customISO8601
+        return decoder
+    }()
+
     private static let userWalletRegistrationClient = MoyaUserWalletRegistrationClient(
         provider: Self.configuration.userWalletProvider(),
         nonceProvider: Self.configuration.provider,
-        baseURL: Self.configuration.baseURL
+        baseURL: Self.configuration.baseURL,
+        decoder: Self.jsonDecoder
     )
 
     private static let deviceKeyManager = DeviceKeyManager(privateKeyRepository: Self.devicePrivateKeyRepository)
@@ -107,9 +115,10 @@ extension BackendAuthenticationAssembly {
 
     private static let renewSessionTokensUseCase: RenewSessionTokensUseCase = {
         let sessionAuthenticationClient = MoyaSessionAuthenticationClient(
+            dPoPProofGenerator: Self.dPoPProofGenerator,
             provider: Self.configuration.provider,
             baseURL: Self.configuration.baseURL,
-            dPoPProofGenerator: Self.dPoPProofGenerator
+            decoder: Self.jsonDecoder
         )
 
         return RenewSessionTokensUseCase(
@@ -136,7 +145,8 @@ extension BackendAuthenticationAssembly {
     private static func makeRegisterDeviceUseCase() -> RegisterDeviceUseCase {
         let deviceRegistrationClient = MoyaDeviceRegistrationClient(
             provider: Self.configuration.provider,
-            baseURL: Self.configuration.baseURL
+            baseURL: Self.configuration.baseURL,
+            decoder: Self.jsonDecoder
         )
 
         return RegisterDeviceUseCase(
@@ -161,8 +171,8 @@ extension BackendAuthenticationAssembly {
         )
     }
 
-    private static func makePrepareUserWalletRegistrationUseCase() -> PrepareUserWalletRegistrationUseCase {
-        PrepareUserWalletRegistrationUseCase(
+    private static func makeAttestUserWalletUseCase() -> AttestUserWalletUseCase {
+        AttestUserWalletUseCase(
             registrationStatusRepository: userWalletRegistrationStatusRepository,
             deviceMetadataProvider: DeviceMetadata.default
         )
@@ -178,9 +188,11 @@ extension BackendAuthenticationAssembly {
 
     private static func makeRegisterUserWalletUseCase() -> RegisterUserWalletUseCase {
         RegisterUserWalletUseCase(
-            obtainNonce: makeObtainUserWalletRegistrationNonceUseCase(),
-            prepare: makePrepareUserWalletRegistrationUseCase(),
-            submit: makeSubmitUserWalletRegistrationUseCase()
+            obtainNonce: obtainUserWalletRegistrationNonce.callAsFunction,
+            attestUserWallet: { id, nonce, signer async throws(AttestUserWalletError) in
+                try await Self.attestUserWallet(id: id, nonce: nonce, signer: signer)
+            },
+            submitRegistration: submitUserWalletRegistration.callAsFunction
         )
     }
 

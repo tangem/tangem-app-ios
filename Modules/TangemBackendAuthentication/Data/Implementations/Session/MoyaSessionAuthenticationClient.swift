@@ -10,21 +10,23 @@ import Foundation
 import enum Moya.MoyaError
 import class Moya.MoyaProvider
 import class Moya.Response
-import TangemFoundation
 
 struct MoyaSessionAuthenticationClient: SessionAuthenticationClient {
+    private let dPoPProofGenerator: DPoPProofGenerator
     private let provider: MoyaProvider<BackendAuthenticationTarget>
     private let baseURL: URL
-    private let dPoPProofGenerator: DPoPProofGenerator
     private let decoder: JSONDecoder
 
-    init(provider: MoyaProvider<BackendAuthenticationTarget>, baseURL: URL, dPoPProofGenerator: DPoPProofGenerator) {
+    init(
+        dPoPProofGenerator: DPoPProofGenerator,
+        provider: MoyaProvider<BackendAuthenticationTarget>,
+        baseURL: URL,
+        decoder: JSONDecoder
+    ) {
+        self.dPoPProofGenerator = dPoPProofGenerator
         self.provider = provider
         self.baseURL = baseURL
-        self.dPoPProofGenerator = dPoPProofGenerator
-
-        decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .customISO8601
+        self.decoder = decoder
     }
 
     func requestCipheredNonce(devicePublicKey: DevicePublicKey) async throws(SessionAuthenticationClientError) -> String {

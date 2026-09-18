@@ -245,10 +245,18 @@ extension MoyaSessionAuthenticationClientTests {
         let anyBaseURL = try #require(URL(string: "https://example.com"), sourceLocation: sourceLocation)
 
         let dPoPProofGenerator = DPoPProofGenerator(
-            deviceKeyManager: DeviceKeyManager(privateKeyRepository: FakeDevicePrivateKeyRepository())
+            deviceKeyManager: DeviceKeyManager(privateKeyRepository: .successStub)
         )
 
-        return MoyaSessionAuthenticationClient(provider: provider, baseURL: anyBaseURL, dPoPProofGenerator: dPoPProofGenerator)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .customISO8601
+
+        return MoyaSessionAuthenticationClient(
+            dPoPProofGenerator: dPoPProofGenerator,
+            provider: provider,
+            baseURL: anyBaseURL,
+            decoder: decoder
+        )
     }
 }
 

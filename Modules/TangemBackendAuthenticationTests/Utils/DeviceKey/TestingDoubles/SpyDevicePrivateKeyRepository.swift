@@ -6,13 +6,12 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-private import CryptoKit
-private import Foundation
+import Foundation
 private import os.lock
 @testable import TangemBackendAuthentication
 
 final class SpyDevicePrivateKeyRepository: DevicePrivateKeyRepository {
-    private let state: OSAllocatedUnfairLock<State>
+    private let state = OSAllocatedUnfairLock(initialState: State())
 
     var retrieveResult: Result<StubDevicePrivateKey, DevicePrivateKeyRepositoryError> {
         get { state.withLock(\.retrieveResult) }
@@ -28,26 +27,6 @@ final class SpyDevicePrivateKeyRepository: DevicePrivateKeyRepository {
         state.withLock(\.receivedMessages)
     }
 
-    init() {
-        let retrieveResult: Result<StubDevicePrivateKey, DevicePrivateKeyRepositoryError>
-
-        do {
-            retrieveResult = Result.success(
-                try StubDevicePrivateKey(publicKeyResult: .success(.fake), signResult: .success(.fake))
-            )
-        } catch {
-            retrieveResult = Result.failure(.keyGenerationFailed(underlying: error))
-        }
-
-        state = OSAllocatedUnfairLock(
-            initialState: State(
-                receivedMessages: [],
-                retrieveResult: retrieveResult,
-                deleteResult: .success(())
-            )
-        )
-    }
-
     func retrieve() throws(DevicePrivateKeyRepositoryError) -> StubDevicePrivateKey {
         state.withLock { $0.receivedMessages.append(.retrieve) }
         return try state.withLock(\.retrieveResult).get()
@@ -59,6 +38,14 @@ final class SpyDevicePrivateKeyRepository: DevicePrivateKeyRepository {
     }
 }
 
+extension DevicePrivateKeyRepository where Self == SpyDevicePrivateKeyRepository {
+    static var successStub: some DevicePrivateKeyRepository {
+        let stub = SpyDevicePrivateKeyRepository()
+        stub.retrieveResult = Result.success(StubDevicePrivateKey())
+        return stub
+    }
+}
+
 extension SpyDevicePrivateKeyRepository {
     enum Message: Equatable {
         case retrieve
@@ -66,8 +53,10 @@ extension SpyDevicePrivateKeyRepository {
     }
 
     private struct State {
+        var retrieveResult = Result<StubDevicePrivateKey, DevicePrivateKeyRepositoryError>.failure(
+            .keychainFailure(.retrieveFailed(status: -1))
+        )
+        var deleteResult = Result<Void, DevicePrivateKeyRepositoryError>.failure(.keychainFailure(.deleteFailed(status: -1)))
         var receivedMessages: [Message] = []
-        var retrieveResult: Result<StubDevicePrivateKey, DevicePrivateKeyRepositoryError>
-        var deleteResult: Result<Void, DevicePrivateKeyRepositoryError>
     }
 }
