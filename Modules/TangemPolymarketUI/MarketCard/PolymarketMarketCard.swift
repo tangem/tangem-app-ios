@@ -45,7 +45,8 @@ public struct PolymarketMarketCard: View {
                 if let model {
                     Text(model.title)
                         .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-                        .lineLimit(1)
+                        .lineLimit(Constants.titleLineLimit)
+                        .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 } else {
                     Shimmer().variant(.text(style: .body))
@@ -94,6 +95,8 @@ public struct PolymarketMarketCard: View {
                         label(for: outcome)
                     }
                     .buttonStyle(.plain)
+                    .disabled(!outcome.isEnabled)
+                    .opacity(outcome.isEnabled ? 1 : Constants.disabledOutcomeOpacity)
                     .accessibilityLabel("\(outcome.title) \(outcome.priceText)")
                 }
             } else {
@@ -137,6 +140,8 @@ public struct PolymarketMarketCard: View {
 private extension PolymarketMarketCard {
     enum Constants {
         static let labelSpacing: CGFloat = 4
+        static let titleLineLimit = 2
+        static let disabledOutcomeOpacity: CGFloat = 0.4
         static let labelHorizontalPadding: CGFloat = 8
         static let priceSeparator = String.bulletSign + " "
         static let metaSpacing: CGFloat = 4

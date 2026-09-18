@@ -23,6 +23,7 @@ public struct PolymarketPositionHintSheetView: View {
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                 .lineLimit(1)
                 .frame(height: Constants.toolbarHeight)
+                .padding(.top, Constants.titleTopPadding)
 
             Text(model.message)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
@@ -57,6 +58,7 @@ public extension PolymarketPositionHintSheetView {
 private extension PolymarketPositionHintSheetView {
     enum Constants {
         static let toolbarHeight: CGFloat = 44
+        static let titleTopPadding: CGFloat = 16
         static let horizontalPadding: CGFloat = 16
         static let messageTopPadding: CGFloat = 16
         static let messageBottomPadding: CGFloat = 32

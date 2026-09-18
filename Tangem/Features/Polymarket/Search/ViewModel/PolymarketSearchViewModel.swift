@@ -28,6 +28,7 @@ final class PolymarketSearchViewModel: ObservableObject {
     private var hasNext = false
 
     private var searchTask: Task<Void, Never>?
+    private var refreshTask: Task<Void, Never>?
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -38,6 +39,11 @@ final class PolymarketSearchViewModel: ObservableObject {
         self.debounceInterval = debounceInterval
 
         bind()
+        startRefreshing()
+    }
+
+    deinit {
+        refreshTask?.cancel()
     }
 }
 
@@ -99,7 +105,7 @@ private extension PolymarketSearchViewModel {
 // MARK: - Search
 
 private extension PolymarketSearchViewModel {
-    func search(query: String, more: Bool = false) {
+    func search(query: String, more: Bool = false, emptyPages: Int = 0) {
         searchTask?.cancel()
 
         if !more {
@@ -118,14 +124,59 @@ private extension PolymarketSearchViewModel {
                 )
                 try Task.checkCancellation()
 
-                viewModel.apply(result: result, requestedPage: requestedPage)
+                viewModel.apply(result: result, requestedPage: requestedPage, emptyPages: emptyPages)
             } catch {
                 viewModel.handleFailure(error)
             }
         }
     }
 
-    func apply(result: PolymarketSearchResult, requestedPage: Int) {
+    func startRefreshing() {
+        refreshTask?.cancel()
+
+        refreshTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(Constants.refreshInterval))
+
+                guard !Task.isCancelled, let self else { return }
+
+                refreshVisibleResults()
+            }
+        }
+    }
+
+    func refreshVisibleResults() {
+        guard events.isNotEmpty, !activeQuery.isEmpty, state != .loading, state != .paginationLoading else { return }
+
+        let query = activeQuery
+
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            do {
+                let result = try await apiProvider.search(
+                    request: PolymarketSearchRequest(query: query, limit: Constants.pageSize, page: Constants.firstPage)
+                )
+
+                guard query == activeQuery else { return }
+
+                replaceVisibleResults(with: result.events)
+            } catch {
+                guard !error.isCancellationError else { return }
+
+                PolymarketLogger.error("Failed to refresh the search results", error: error)
+            }
+        }
+    }
+
+    func replaceVisibleResults(with refreshed: [PolymarketEvent]) {
+        let byID = Dictionary(refreshed.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+
+        events = events.map { byID[$0.id] ?? $0 }
+        eventCards = events.map(makeCard)
+    }
+
+    func apply(result: PolymarketSearchResult, requestedPage: Int, emptyPages: Int) {
         page = result.page ?? requestedPage
         hasNext = result.hasNext
 
@@ -134,6 +185,11 @@ private extension PolymarketSearchViewModel {
 
         events.append(contentsOf: fresh)
         eventCards.append(contentsOf: fresh.map(makeCard))
+
+        guard fresh.isNotEmpty || !hasNext || emptyPages >= Constants.maxEmptyPages else {
+            search(query: activeQuery, more: true, emptyPages: emptyPages + 1)
+            return
+        }
 
         state = events.isEmpty ? .noResults : (hasNext ? .loaded : .allDataLoaded)
     }
@@ -185,6 +241,8 @@ private extension PolymarketSearchViewModel {
         static let debounceMilliseconds = 500
         static let minQueryLength = 3
         static let pageSize = 20
+        static let refreshInterval: TimeInterval = 20
+        static let maxEmptyPages = 3
         static let firstPage = 1
     }
 }

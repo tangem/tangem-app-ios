@@ -29,6 +29,14 @@ struct PolymarketOrderResultView: View {
         }
     }
 
+    private var statusIcon: StatusIcon {
+        let icon = StatusIcon(viewModel.glyph)
+
+        guard let tint = viewModel.glyphTint else { return icon }
+
+        return icon.tint(tint)
+    }
+
     private var screen: StatusScreen<StatusIcon, EmptyView, EmptyView> {
         let screen = StatusScreen(
             title: viewModel.title,
@@ -40,7 +48,7 @@ struct PolymarketOrderResultView: View {
         .actionLoading(viewModel.isAwaitingPosition)
         .actionDisabled(viewModel.isActionDisabled)
         .footerAxis(.horizontal)
-        .assetSlot { StatusIcon(viewModel.glyph) }
+        .assetSlot { statusIcon }
 
         guard let secondaryActionTitle = viewModel.secondaryActionTitle else { return screen }
 
@@ -80,6 +88,7 @@ private extension PolymarketOrderResultViewModel {
                 filledAmount: 2000,
                 tokensBought: 500,
                 resolutionDate: Date().addingTimeInterval(60 * 60 * 24 * 365),
+                executionPrice: Decimal(string: "0.42"),
                 side: .buy,
                 feeText: "$1.40"
             ),

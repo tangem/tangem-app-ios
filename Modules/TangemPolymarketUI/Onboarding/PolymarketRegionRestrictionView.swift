@@ -105,5 +105,5 @@ private extension PolymarketRegionRestrictionView {
 // MARK: - Previews
 
 #Preview {
-    PolymarketRegionRestrictionView(viewModel: PolymarketRegionRestrictionViewModel(onClose: {}))
+    PolymarketRegionRestrictionView(viewModel: .regionRestriction(onClose: {}))
 }
