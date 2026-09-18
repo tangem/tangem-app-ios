@@ -21,6 +21,8 @@ final class TangemPayMultipleCardsUITests: BaseTestCase {
             .waitForScreen()
             .verifyBalanceContains("$10.00")
             .tapAddCard()
+            .waitForScreen()
+            .selectVirtual()
             .waitForSheet()
             .verifyContent(feeValue: "$1.00")
             .verifyIssueCardEnabled()
@@ -36,6 +38,8 @@ final class TangemPayMultipleCardsUITests: BaseTestCase {
             .waitForScreen()
             .verifyBalanceContains("$0.00")
             .tapAddCard()
+            .waitForScreen()
+            .selectVirtual()
             .waitForSheet()
             .verifyContent(feeValue: "$1.00")
             .verifyUnableToCoverFee()
@@ -54,6 +58,8 @@ final class TangemPayMultipleCardsUITests: BaseTestCase {
             .waitForScreen()
             .verifyBalanceContains("$0.50")
             .tapAddCard()
+            .waitForScreen()
+            .selectVirtual()
             .waitForSheet()
             .verifyContent(feeValue: "$1.00")
             .verifyUnableToCoverFee()
@@ -80,6 +86,8 @@ final class TangemPayMultipleCardsUITests: BaseTestCase {
 
         paymentAccount
             .tapAddCard()
+            .waitForScreen()
+            .selectVirtual()
             .waitForSheet()
             .verifyContent(feeValue: "$1.00")
             .tapIssueCard()
@@ -111,6 +119,8 @@ final class TangemPayMultipleCardsUITests: BaseTestCase {
             .waitForScreen()
             .verifyBalanceContains("$10.00")
             .tapAddCard()
+            .waitForScreen()
+            .selectVirtual()
             .waitForSheet()
             .tapIssueCard()
             .verifyIssuingCardBanner()
@@ -148,6 +158,8 @@ final class TangemPayMultipleCardsUITests: BaseTestCase {
 
         paymentAccount
             .tapAddCard()
+            .waitForScreen()
+            .selectVirtual()
             .waitForSheet()
             .tapIssueCard()
             .verifyIssuingCardBanner()

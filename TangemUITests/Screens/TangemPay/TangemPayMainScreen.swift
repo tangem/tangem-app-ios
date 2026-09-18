@@ -51,6 +51,9 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     /// Type-agnostic: the banner is a plain container, not guaranteed to surface as a specific element type.
     private lazy var issuingCardBanner = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.issuingCardBanner].firstMatch
     private lazy var issuingCardButton = button(.issuingCardButton)
+    private lazy var currentPlanMenuItem = button(.currentPlanMenuItem)
+    /// Type-agnostic: the badge is a plain container, not guaranteed to surface as a specific element type.
+    private lazy var inactiveBadge = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.paymentAccountInactiveBadge].firstMatch
 
     @discardableResult
     func waitForScreen() -> Self {
@@ -69,10 +72,10 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
-    func tapAddCard() -> TangemPayIssueAdditionalCardSheet {
+    func tapAddCard() -> TangemPayOrderCardTypeScreen {
         XCTContext.runActivity(named: "Tap add card button to issue an additional card") { _ in
             addCardButton.waitAndTap()
-            return TangemPayIssueAdditionalCardSheet(app)
+            return TangemPayOrderCardTypeScreen(app)
         }
     }
 
@@ -271,6 +274,84 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
             moreActionsButton.waitAndTap()
             termsAndFeesMenuItem.waitAndTap()
             return TangemPayTermsAndFeesSheet(app)
+        }
+    }
+
+    @discardableResult
+    func openMoreActionsMenu() -> Self {
+        XCTContext.runActivity(named: "Open the more actions menu") { _ in
+            moreActionsButton.waitAndTap()
+            return self
+        }
+    }
+
+    /// The menu item renders the plan name as a subtitle, which SwiftUI keeps out of the accessibility
+    /// label, so the plan name itself is asserted on the Current plan screen.
+    @discardableResult
+    func verifyCurrentPlanMenuItem() -> Self {
+        XCTContext.runActivity(named: "Verify the Current plan menu item is displayed") { _ in
+            waitAndAssertTrue(currentPlanMenuItem, timeout: .networkRequest, "Current plan menu item should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapCurrentPlanMenuItem() -> TangemPayCurrentPlanScreen {
+        XCTContext.runActivity(named: "Open Current plan from the more actions menu") { _ in
+            currentPlanMenuItem.waitAndTap()
+            return TangemPayCurrentPlanScreen(app)
+        }
+    }
+
+    @discardableResult
+    func openCurrentPlan() -> TangemPayCurrentPlanScreen {
+        openMoreActionsMenu().tapCurrentPlanMenuItem()
+    }
+
+    @discardableResult
+    func verifyInactiveBadge() -> Self {
+        XCTContext.runActivity(named: "Verify the Inactive badge is displayed") { _ in
+            waitAndAssertTrue(inactiveBadge, timeout: .networkRequest, "Inactive badge should be displayed while the plan fee is awaited")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyAwaitingDepositBanner(contains text: String) -> Self {
+        XCTContext.runActivity(named: "Verify the top-up banner contains '\(text)'") { _ in
+            let bannerText = app.staticTexts
+                .matching(NSPredicate(format: "identifier == %@ AND label CONTAINS[c] %@", TangemPayAccessibilityIdentifiers.awaitingDepositBanner, text))
+                .firstMatch
+            waitAndAssertTrue(bannerText, timeout: .networkRequest, "Top-up banner should contain '\(text)'")
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitForAwaitingDepositBannerHidden() -> Self {
+        XCTContext.runActivity(named: "Wait for the top-up banner to disappear") { _ in
+            let bannerText = app.staticTexts[TangemPayAccessibilityIdentifiers.awaitingDepositBanner].firstMatch
+            XCTAssertTrue(
+                bannerText.waitForNonExistence(timeout: .networkRequest),
+                "Top-up banner should disappear once the transition is cancelled"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapAddCardExpectingCardsLimit() -> TangemPayCardsLimitReachedSheet {
+        XCTContext.runActivity(named: "Tap add card and expect the cards limit sheet") { _ in
+            addCardButton.waitAndTap()
+            return TangemPayCardsLimitReachedSheet(app)
+        }
+    }
+
+    @discardableResult
+    func tapAddCardExpectingMaximumCards() -> TangemPayMaximumCardsIssuedSheet {
+        XCTContext.runActivity(named: "Tap add card and expect the maximum cards sheet") { _ in
+            addCardButton.waitAndTap()
+            return TangemPayMaximumCardsIssuedSheet(app)
         }
     }
 
@@ -514,6 +595,7 @@ enum TangemPayMainScreenElement: String, UIElement {
     case moreActionsButton
     case termsAndLimitsMenuItem
     case removeAccountMenuItem
+    case currentPlanMenuItem
 
     var accessibilityIdentifier: String {
         switch self {
@@ -537,6 +619,8 @@ enum TangemPayMainScreenElement: String, UIElement {
             TangemPayAccessibilityIdentifiers.termsAndLimitsMenuItem
         case .removeAccountMenuItem:
             TangemPayAccessibilityIdentifiers.removeAccountMenuItem
+        case .currentPlanMenuItem:
+            TangemPayAccessibilityIdentifiers.currentPlanMenuItem
         }
     }
 }
