@@ -7,12 +7,11 @@
 //
 
 struct FeedSearchHistory: Hashable {
-    let tokens: [FeedRecentToken]
     let queries: [FeedRecentQuery]
 
-    static let empty = FeedSearchHistory(tokens: [], queries: [])
+    static let empty = FeedSearchHistory(queries: [])
 
     var isEmpty: Bool {
-        tokens.isEmpty && queries.isEmpty
+        queries.isEmpty
     }
 }
