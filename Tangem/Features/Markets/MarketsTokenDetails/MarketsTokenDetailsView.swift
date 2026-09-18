@@ -43,10 +43,18 @@ struct MarketsTokenDetailsView: View {
             }
             .onAppear(perform: scrollOffsetHandler.onViewAppear)
             .if(sheetSize.isFeedSheet) { view in
-                view
+                let content = view
                     // The screen scrolls its own content instead of dragging the sheet it is pushed in.
                     .presentationContentInteraction(.scrolls)
                     .toolbar(.hidden, for: .navigationBar)
+
+                return Group {
+                    if #available(iOS 18.0, *) {
+                        content.containerBackground(.clear, for: .navigation)
+                    } else {
+                        content
+                    }
+                }
             }
     }
 
@@ -101,12 +109,27 @@ struct MarketsTokenDetailsView: View {
         }
     }
 
+    @ViewBuilder
     private var sheetNavigationBar: some View {
-        NavigationHeader(
-            leadingContent: { redesignedBackButton },
-            principalContent: { navigationBarTitle },
-            trailingContent: { redesignedTrailingButtons }
-        )
+        if sheetSize.isCollapsedFeedSheet {
+            HStack(spacing: 0) {
+                redesignedBackButton
+                Spacer(minLength: 8)
+                redesignedTrailingButtons
+            }
+            .overlay(alignment: .center) {
+                navigationBarTitle
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 16)
+            .padding(.bottom, 12)
+        } else {
+            NavigationHeader(
+                leadingContent: { redesignedBackButton },
+                principalContent: { navigationBarTitle },
+                trailingContent: { redesignedTrailingButtons }
+            )
+        }
     }
 
     private var navigationBar: some View {
