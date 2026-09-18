@@ -30,9 +30,9 @@ struct TransactionDetailsSignaturesView: View {
                     .foregroundStyle(DesignSystem.Color.iconSecondary)
             }
             .end {
-                JointAccountSignatureProgressRing(
-                    collectedCount: data.collectedCount,
-                    requiredCount: data.membersCount
+                JointAccountSignatureMarks(
+                    signedMembersCount: data.collectedCount,
+                    totalMembersCount: data.membersCount
                 )
             }
             .onTap(onTap)
