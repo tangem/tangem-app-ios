@@ -21,7 +21,8 @@ protocol IncomingActionHandler {
 /// Object's interface for encapsulating logic of deeplink handling
 protocol IncomingActionManaging: AnyObject {
     /// Every action as it arrives, before the chain is asked — for whoever needs to know a link came in
-    /// regardless of what, if anything, shows it.
+    /// regardless of what, if anything, shows it. Delivered in the turn it arrived in: a subscriber that
+    /// switches schedulers no longer gets there before the chain, and a destination may be gated on it.
     var incomingActionsPublisher: AnyPublisher<IncomingAction, Never> { get }
 
     func becomeFirstResponder(_ responder: IncomingActionResponder)
