@@ -298,6 +298,19 @@ private extension FeedCoordinator {
 
 private extension FeedCoordinator {
     func bind() {
+        shtorkaActions
+            .sizePublisher
+            .dropFirst()
+            .withWeakCaptureOf(self)
+            .sink { coordinator, size in
+                // Keep search behind a child screen so Back can restore it after the sheet expands.
+                guard size != .full, coordinator.path.isEmpty,
+                      coordinator.presented == nil, coordinator.cover == nil else { return }
+
+                coordinator.rootViewModel?.searchViewModel.reset()
+            }
+            .store(in: &bag)
+
         shtorkaStateObject
             .$isPresented
             .filter { !$0 }
@@ -319,6 +332,7 @@ private extension FeedCoordinator {
             path.removeAll()
             presented = nil
             cover = nil
+            rootViewModel?.searchViewModel.reset()
         }
     }
 

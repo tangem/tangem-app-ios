@@ -23,32 +23,20 @@ private extension FeedSearchView {
     @ViewBuilder
     var content: some View {
         switch viewModel.state {
-        case .recent(let history):
-            ScrollView {
+        case .suggestions(let history):
+            CryptoSearchView(viewModel: viewModel.marketViewModel, showsResultBackground: false) {
                 if !history.isEmpty {
                     FeedSearchRecentView(
-                        history: history,
-                        onSelectToken: viewModel.onSelectRecentToken,
+                        queries: history.queries,
                         onSelectQuery: viewModel.onSelectRecentQuery,
-                        onRemoveQuery: viewModel.onRemoveRecentQuery,
-                        onClear: viewModel.onClearRecent
+                        onRemoveQuery: viewModel.onRemoveRecentQuery
                     )
-                    .padding(.vertical, Constants.contentVerticalInset)
                 }
             }
-            .scrollIndicators(.hidden)
             .padding(.top, FeedConstants.searchContentInset)
 
         case .tabs:
             FeedSearchTabsView(viewModel: viewModel.tabsViewModel)
         }
-    }
-}
-
-// MARK: - Constants
-
-private extension FeedSearchView {
-    enum Constants {
-        static let contentVerticalInset: CGFloat = 8
     }
 }
