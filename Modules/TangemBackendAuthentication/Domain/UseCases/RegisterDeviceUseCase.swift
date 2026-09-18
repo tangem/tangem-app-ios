@@ -8,6 +8,8 @@
 
 import struct Foundation.Data
 
+typealias RegisterDevice = @Sendable () async throws(RegisterDeviceError) -> SessionTokens?
+
 public actor RegisterDeviceUseCase {
     private let appAttestService: any AppAttestService
     private let registrationClient: any DeviceRegistrationClient
@@ -95,13 +97,14 @@ public actor RegisterDeviceUseCase {
             throw RegisterDeviceError.deviceKeyFailure(error)
         }
 
-        let sessionTokens = try await registerDevice(
+        let request = DeviceRegistrationRequest(
             devicePublicKey: devicePublicKey,
             decryptedNonce: decryptedNonce,
+            metadata: deviceMetadata,
             signature: signature,
-            attestationToken: attestationToken,
-            metadata: deviceMetadata
+            appAttestationToken: attestationToken
         )
+        let sessionTokens = try await registerDevice(request: request)
 
         if let sessionTokens {
             try await persist(sessionTokens: sessionTokens)
@@ -144,21 +147,9 @@ public actor RegisterDeviceUseCase {
         }
     }
 
-    private func registerDevice(
-        devicePublicKey: DevicePublicKey,
-        decryptedNonce: String,
-        signature: DeviceSignature,
-        attestationToken: Data?,
-        metadata: DeviceMetadata
-    ) async throws(RegisterDeviceError) -> SessionTokens? {
+    private func registerDevice(request: DeviceRegistrationRequest) async throws(RegisterDeviceError) -> SessionTokens? {
         do {
-            return try await registrationClient.register(
-                devicePublicKey: devicePublicKey,
-                decryptedNonce: decryptedNonce,
-                metadata: metadata,
-                signature: signature,
-                attestationToken: attestationToken
-            )
+            return try await registrationClient.register(request: request)
         } catch DeviceRegistrationClientError.alreadyRegistered {
             return nil
         } catch {

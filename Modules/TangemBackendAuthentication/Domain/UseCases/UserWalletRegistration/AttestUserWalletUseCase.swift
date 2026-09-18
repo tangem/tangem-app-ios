@@ -1,5 +1,5 @@
 //
-//  PrepareUserWalletRegistrationUseCase.swift
+//  AttestUserWalletUseCase.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,9 +8,14 @@
 
 public import TangemFoundation
 
-public struct PrepareUserWalletRegistrationUseCase: Sendable {
-    private let registrationStatusRepository: any UserWalletRegistrationStatusRepository
+typealias AttestUserWallet = @Sendable (
+    _ id: UserWalletId,
+    _ nonce: UserWalletRegistrationNonce,
+    _ signer: any UserWalletRegistrationSigner
+) async throws(AttestUserWalletError) -> UserWalletRegistrationRequest?
 
+public struct AttestUserWalletUseCase: Sendable {
+    private let registrationStatusRepository: any UserWalletRegistrationStatusRepository
     private let deviceMetadataProvider: @Sendable () -> DeviceMetadata
 
     init(
@@ -25,7 +30,8 @@ public struct PrepareUserWalletRegistrationUseCase: Sendable {
         id: UserWalletId,
         nonce: UserWalletRegistrationNonce,
         signer: some UserWalletRegistrationSigner
-    ) async throws(PrepareUserWalletRegistrationError) -> UserWalletRegistrationRequest? {
+    ) async throws(AttestUserWalletError) -> UserWalletRegistrationRequest? {
+        // [REDACTED_TODO_COMMENT]
         let userWalletIsAlreadyRegistered = await registrationStatusRepository.retrieve(id: id)
 
         guard !userWalletIsAlreadyRegistered else {
@@ -46,11 +52,11 @@ public struct PrepareUserWalletRegistrationUseCase: Sendable {
     private func generateUserWalletAttestation(
         signer: some UserWalletRegistrationSigner,
         nonce: UserWalletRegistrationNonce
-    ) async throws(PrepareUserWalletRegistrationError) -> UserWalletAttestation {
+    ) async throws(AttestUserWalletError) -> UserWalletAttestation {
         do {
             return try await signer.attest(decryptedNonceBytes: nonce.bytesToSign)
         } catch {
-            throw PrepareUserWalletRegistrationError.signerFailure(error)
+            throw AttestUserWalletError.signerFailure(error)
         }
     }
 }

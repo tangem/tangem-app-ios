@@ -18,13 +18,16 @@ struct MoyaUserWalletRegistrationClient: UserWalletRegistrationClient {
     private let baseURL: URL
     private let decoder: JSONDecoder
 
-    init(provider: MoyaProvider<UserWalletTarget>, nonceProvider: MoyaProvider<BackendAuthenticationTarget>, baseURL: URL) {
+    init(
+        provider: MoyaProvider<UserWalletTarget>,
+        nonceProvider: MoyaProvider<BackendAuthenticationTarget>,
+        baseURL: URL,
+        decoder: JSONDecoder
+    ) {
         self.provider = provider
         self.nonceProvider = nonceProvider
         self.baseURL = baseURL
-
-        decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .customISO8601
+        self.decoder = decoder
     }
 
     func requestCipheredNonce(devicePublicKey: DevicePublicKey) async throws(UserWalletRegistrationClientError) -> String {

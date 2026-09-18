@@ -16,6 +16,8 @@ actor UserDefaultsUserWalletRegistrationStatusRepository: UserWalletRegistration
     private let userDefaults: UserDefaults
 
     init(userDefaults: UserDefaults = UserDefaults.standard) {
+        assert(type(of: userDefaults) == UserDefaults.self, "Expected a non-subclassed UserDefaults instance.")
+
         self.userDefaults = userDefaults
     }
 
