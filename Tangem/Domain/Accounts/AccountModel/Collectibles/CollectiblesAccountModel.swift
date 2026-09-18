@@ -16,6 +16,7 @@ protocol CollectiblesAccountModel: BaseAccountModel, CollectiblesOnboarder
     where Icon == AccountModel.StandaloneIcon, ID == CollectiblesAccountId {
     var state: CollectiblesState { get }
     var statePublisher: AnyPublisher<CollectiblesState, Never> { get }
+    var fiatTotalTokenBalanceProvider: TokenBalanceProvider { get }
 
     func update(name: String)
     func refreshState() async

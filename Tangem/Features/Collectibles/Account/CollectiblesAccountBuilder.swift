@@ -43,6 +43,10 @@ struct CollectiblesAccountBuilder {
             coldOwnerProvider: CommonCollectiblesColdOwnerProvider(keysRepository: keysRepository, config: config),
             vaultReader: chainReader,
             configReader: chainReader,
+            vaultUsdcReader: chainReader,
+            balanceService: CommonCollectiblesBalanceService(
+                tokenBalancesRepository: CommonTokenBalancesRepository(userWalletId: userWalletId)
+            ),
             hotDelegateSigner: CommonCollectiblesHotDelegateSigner(userWalletId: userWalletId),
             coldKeyInteractorFactory: coldKeyInteractorFactory,
             serviceProvider: serviceProvider

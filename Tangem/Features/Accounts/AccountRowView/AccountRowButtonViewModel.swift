@@ -149,7 +149,17 @@ private extension AccountRowButtonViewModel {
                 .store(in: &viewModel.bag)
         }
 
-        /// The model doesn't expose the vault balance yet; once it does, it becomes the subtitle here
-        func resolve(accountModel: any CollectiblesAccountModel) {}
+        func resolve(accountModel: any CollectiblesAccountModel) {
+            accountModel
+                .fiatTotalTokenBalanceProvider
+                .formattedBalanceTypePublisher
+                .map { LoadableBalanceViewStateBuilder().build(type: $0) }
+                .receiveOnMain()
+                .withWeakCaptureOf(viewModel)
+                .sink { vm, balanceState in
+                    vm.trailingBalanceState = balanceState
+                }
+                .store(in: &viewModel.bag)
+        }
     }
 }
