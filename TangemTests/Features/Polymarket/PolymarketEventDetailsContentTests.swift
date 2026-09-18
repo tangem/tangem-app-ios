@@ -46,7 +46,7 @@ struct PolymarketEventDetailsContentTests {
         #expect(content.activeMarkets.map(\.id) == ["a", "b", "c"])
     }
 
-    @Test("Closed markets are split out and show no outcomes")
+    @Test("Closed markets are split out and their outcomes cannot be tapped")
     func closedMarketsAreSplitOut() {
         let content = Self.makeContent(markets: [
             Self.makeMarket(id: "open", status: .active),
@@ -56,19 +56,21 @@ struct PolymarketEventDetailsContentTests {
 
         #expect(content.activeMarkets.map(\.id) == ["open"])
         #expect(content.closedMarkets.map(\.id) == ["closed", "archived"])
-        #expect(content.closedMarkets.allSatisfy { $0.outcomes.isEmpty })
+        #expect(content.closedMarkets.allSatisfy { $0.outcomes.isNotEmpty })
+        #expect(content.closedMarkets.allSatisfy { $0.outcomes.allSatisfy { !$0.isEnabled } })
     }
 
-    @Test("An open market that stopped taking orders offers no outcome to tap")
-    func aMarketNotTakingOrdersOffersNoOutcome() {
+    @Test("An open market that stopped taking orders shows its outcomes disabled")
+    func aMarketNotTakingOrdersDisablesItsOutcomes() {
         let content = Self.makeContent(markets: [
             Self.makeMarket(id: "taking", isAcceptingOrders: true),
             Self.makeMarket(id: "paused", isAcceptingOrders: false),
         ])
 
         #expect(content.activeMarkets.map(\.id) == ["taking", "paused"])
-        #expect(content.activeMarkets.first { $0.id == "taking" }?.outcomes.isEmpty == false)
-        #expect(content.activeMarkets.first { $0.id == "paused" }?.outcomes.isEmpty == true)
+        #expect(content.activeMarkets.first { $0.id == "taking" }?.outcomes.allSatisfy(\.isEnabled) == true)
+        #expect(content.activeMarkets.first { $0.id == "paused" }?.outcomes.contains { $0.isEnabled } == false)
+        #expect(content.activeMarkets.first { $0.id == "paused" }?.outcomes.isNotEmpty == true)
     }
 }
 

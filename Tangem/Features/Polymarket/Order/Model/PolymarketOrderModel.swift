@@ -32,6 +32,7 @@ final class PolymarketOrderModel: ObservableObject {
     private let apiProvider: PolymarketAPIProvider
     private let geoblockStateProvider: PolymarketGeoblockStateProvider
     private let positionsService: PolymarketPositionsService?
+    private let clobService: PolymarketCLOBService
     private let isAwaitingFundsPublisher: AnyPublisher<Bool, Never>
     private let delayProvider: PollDelayProvider
 
@@ -53,6 +54,7 @@ final class PolymarketOrderModel: ObservableObject {
         apiProvider: PolymarketAPIProvider,
         geoblockStateProvider: PolymarketGeoblockStateProvider,
         positionsService: PolymarketPositionsService?,
+        clobService: PolymarketCLOBService,
         isAwaitingFundsPublisher: AnyPublisher<Bool, Never>,
         delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
@@ -63,6 +65,7 @@ final class PolymarketOrderModel: ObservableObject {
         self.apiProvider = apiProvider
         self.geoblockStateProvider = geoblockStateProvider
         self.positionsService = positionsService
+        self.clobService = clobService
         self.isAwaitingFundsPublisher = isAwaitingFundsPublisher
         self.delayProvider = delayProvider
 
@@ -141,17 +144,18 @@ extension PolymarketOrderModel {
             return
         }
 
-        apply(fraction: .max)
+        select(amount: balance)
     }
 
     func step(by step: Int) {
         guard let balance = state.balance else { return }
 
-        let current = state.enteredAmount ?? 0
-        let capped = min(max(current + Decimal(step), 0), balance)
+        let floor: Decimal = if case .sell = intent { min(Constants.minSellableShares, balance) } else { 0 }
+        let current = state.enteredAmount ?? floor
+        let capped = min(max(current + Decimal(step), floor), balance)
         let stepped = capped == balance
             ? balance
-            : capped.rounded(scale: intent.fractionDigits, roundingMode: .down)
+            : max(capped.rounded(scale: intent.stepFractionDigits, roundingMode: .down), floor)
 
         amountField.update(value: stepped)
 
@@ -172,6 +176,7 @@ extension PolymarketOrderModel {
         var slippagePercent: Decimal = PolymarketSlippage.defaultPercent
         var geoblock: PolymarketGeoblockState = .unknown
         var isAwaitingFunds = false
+        var bookPrice: Decimal?
 
         var isBelowMinAmount: Bool {
             guard let enteredAmount, let minAmount else { return false }
@@ -277,8 +282,10 @@ private extension PolymarketOrderModel {
     func apply(fraction: PolymarketAmountFraction) {
         guard let balance = state.balance, balance > 0 else { return }
 
-        let amount = spendable(fraction: fraction, of: balance)
+        select(amount: spendable(fraction: fraction, of: balance))
+    }
 
+    func select(amount: Decimal) {
         amountField.update(value: amount)
 
         let quotable = amount >= Constants.minQuotableAmount ? amount : nil
@@ -291,7 +298,11 @@ private extension PolymarketOrderModel {
 
     func spendable(fraction: PolymarketAmountFraction, of balance: Decimal) -> Decimal {
         guard fraction == .max else {
-            return (balance * fraction.multiplier).rounded(scale: intent.fractionDigits, roundingMode: .down)
+            let share = (balance * fraction.multiplier).rounded(scale: intent.stepFractionDigits, roundingMode: .down)
+
+            guard case .sell = intent else { return share }
+
+            return max(share, min(Constants.minSellableShares, balance))
         }
 
         guard intent.deductsFeeFromMax else {
@@ -365,8 +376,21 @@ private extension PolymarketOrderModel {
         quoteTask?.cancel()
         state.quote = .empty
 
-        guard visibleScreens > 0, state.enteredAmount != nil, !state.isBelowMinAmount else {
+        guard visibleScreens > 0 else {
             quoteTask = nil
+            return
+        }
+
+        guard state.enteredAmount != nil else {
+            quoteTask = runTask(in: self) { [delayProvider] model in
+                let polling = PollingSequence(
+                    interval: Constants.pollInterval,
+                    request: { await model.requestBookPrice() },
+                    delayProvider: delayProvider
+                )
+
+                for await _ in polling {}
+            }
             return
         }
 
@@ -392,7 +416,21 @@ private extension PolymarketOrderModel {
     }
 
     var pollInterval: TimeInterval {
-        state.quote.isLive ? Constants.livePollInterval : Constants.pollInterval
+        Constants.pollInterval
+    }
+
+    func requestBookPrice() async {
+        do {
+            let price = try await clobService.price(tokenId: outcome.assetId, side: intent.side)
+
+            guard !Task.isCancelled else { return }
+
+            state.bookPrice = price
+        } catch {
+            guard !Task.isCancelled, !error.isCancellationError else { return }
+
+            PolymarketLogger.error("Order book price request failed", error: error)
+        }
     }
 
     func requestQuote() async {
@@ -442,9 +480,9 @@ private extension PolymarketOrderModel {
 private extension PolymarketOrderModel {
     enum Constants {
         static let minQuotableAmount: Decimal = 0.01
+        static let minSellableShares: Decimal = 1
         static let debounce: TimeInterval = 0.5
-        static let livePollInterval: TimeInterval = 3
-        static let pollInterval: TimeInterval = 15
+        static let pollInterval: TimeInterval = 3
         static let failureGracePeriod: TimeInterval = 30
     }
 }

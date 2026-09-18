@@ -89,6 +89,10 @@ private struct FailingDigestSigner: PolymarketOrderDigestSigning {
 }
 
 private final class StubCLOBService: PolymarketCLOBService, @unchecked Sendable {
+    func price(tokenId: String, side: PolymarketOrderSide) async throws -> Decimal {
+        0
+    }
+
     private(set) var placedOrder: PolymarketSignedOrder?
 
     func createCredentials(authHeaders: PolymarketCLOBAuthHeaders) async throws -> PolymarketL2Credentials {

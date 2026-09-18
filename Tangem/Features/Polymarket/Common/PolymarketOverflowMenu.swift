@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 
 struct PolymarketOverflowMenu: View {
@@ -32,6 +33,6 @@ struct PolymarketOverflowMenu: View {
 
 private extension PolymarketOverflowMenu {
     enum Constants {
-        static let howItWorksTitle = "How it works"
+        static let howItWorksTitle = Localization.collectiblesMainMenuHowItWorks
     }
 }

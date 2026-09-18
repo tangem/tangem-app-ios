@@ -29,13 +29,14 @@ final class PolymarketPositionDetailsViewModel: ObservableObject, Identifiable {
         )
     }
 
-    private let position: PolymarketPosition
+    @Published private(set) var position: PolymarketPosition
     private let apiProvider: PolymarketAPIProvider
     private let geoblockStateProvider: PolymarketGeoblockStateProvider
     private let onOrderPlaced: @MainActor (PolymarketOrderIndexing) -> Void
     private weak var coordinator: PolymarketPositionDetailsRoutable?
 
     private var orderTask: Task<Void, Never>?
+    private var refreshTask: Task<Void, Never>?
 
     init(
         position: PolymarketPosition,
@@ -59,6 +60,10 @@ final class PolymarketPositionDetailsViewModel: ObservableObject, Identifiable {
         orderTask?.cancel()
         orderTask = nil
         loadingSide = nil
+    }
+
+    deinit {
+        refreshTask?.cancel()
     }
 }
 
@@ -90,7 +95,10 @@ private extension PolymarketPositionDetailsViewModel {
                     outcome: outcome,
                     eventTitle: eventTitle,
                     request: request,
-                    onPlaced: viewModel.onOrderPlaced
+                    onPlaced: { [weak viewModel] indexing in
+                        viewModel?.onOrderPlaced(indexing)
+                        viewModel?.follow(indexing)
+                    }
                 )
             } catch {
                 guard !error.isCancellationError else { return }
@@ -98,6 +106,23 @@ private extension PolymarketPositionDetailsViewModel {
                 PolymarketLogger.error("Failed to open the order for a held position", error: error)
                 viewModel.alert = AlertBuilder.makeOkGotItAlert(message: Localization.commonUnknownError)
             }
+        }
+    }
+
+    func follow(_ indexing: PolymarketOrderIndexing) {
+        refreshTask?.cancel()
+
+        refreshTask = runTask(in: self) { @MainActor viewModel in
+            let updated = await indexing.value
+
+            guard !Task.isCancelled else { return }
+
+            guard let updated, updated.size > 0 else {
+                viewModel.coordinator?.closePositionDetails()
+                return
+            }
+
+            viewModel.position = updated
         }
     }
 

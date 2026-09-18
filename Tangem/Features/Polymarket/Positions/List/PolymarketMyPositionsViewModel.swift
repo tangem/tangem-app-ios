@@ -45,6 +45,8 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
     private var hasNext = false
     private var loadingTask: Task<Void, Never>?
     private var orderTask: Task<Void, Never>?
+    private var refreshTask: Task<Void, Never>?
+    private var pollingTask: Task<Void, Never>?
 
     init(
         tab: PolymarketPositionsTab,
@@ -56,6 +58,12 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
 
         reload()
+        startRefreshing()
+    }
+
+    deinit {
+        pollingTask?.cancel()
+        refreshTask?.cancel()
     }
 
     func orderPlaced(awaiting indexing: PolymarketOrderIndexing) {
@@ -67,6 +75,27 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
             guard !Task.isCancelled else { return }
 
             viewModel.reload()
+        }
+    }
+
+    func refreshInPlace() {
+        guard loadingState != .loading, loadingState != .paginationLoading else { return }
+
+        let tab = tab
+
+        refreshTask = runTask(in: self) { @MainActor viewModel in
+            do {
+                let page = try await viewModel.page(for: tab, offset: 0)
+                try Task.checkCancellation()
+
+                guard tab == viewModel.tab, !viewModel.loaded.isEmpty else { return }
+
+                viewModel.replaceLoaded(with: page.rows)
+            } catch {
+                guard !error.isCancellationError else { return }
+
+                PolymarketLogger.error("Failed to refresh the positions list", error: error)
+            }
         }
     }
 
@@ -89,8 +118,6 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
         case .closeTapped:
             loadingTask?.cancel()
             coordinator?.closeMyPositions()
-        case .howItWorksTapped:
-            coordinator?.openHowItWorks()
         case .retryTapped:
             reload()
         case .filterSelected(let filter):
@@ -170,13 +197,35 @@ private extension PolymarketMyPositionsViewModel {
 
         loaded.append(contentsOf: fresh)
         offset += page.receivedCount
-        hasNext = page.receivedCount > 0 && (page.hasNext || page.receivedCount == Constants.pageSize)
+        hasNext = page.hasNext || page.receivedCount == Constants.pageSize
 
         applyFilter()
     }
 
     func applyFilter() {
         rows = loaded.filter(filter.accepts).map(\.rowModel)
+    }
+
+    func replaceLoaded(with refreshed: [Row]) {
+        let byID = Dictionary(refreshed.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+
+        loaded = loaded.map { byID[$0.id] ?? $0 }
+
+        applyFilter()
+    }
+
+    func startRefreshing() {
+        pollingTask?.cancel()
+
+        pollingTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(Constants.refreshInterval))
+
+                guard !Task.isCancelled, let self else { return }
+
+                refreshInPlace()
+            }
+        }
     }
 
     var canChangeFilter: Bool {
@@ -212,7 +261,7 @@ extension PolymarketMyPositionsViewModel {
         guard let row = loaded.first(where: { $0.id == id }) else { return }
 
         switch row {
-        case .open(let position) where position.settlement?.isResolved == true:
+        case .open(let position) where position.isRedeemable || position.settlement?.isResolved == true:
             coordinator?.openRedeem(position: position, onClaimed: { [weak self] in self?.reload() })
         case .open(let position):
             coordinator?.openPositionDetails(
@@ -283,7 +332,6 @@ extension PolymarketMyPositionsViewModel {
 
     enum ViewAction {
         case closeTapped
-        case howItWorksTapped
         case retryTapped
         case filterSelected(PolymarketPositionTypeFilter)
         case loadMore
@@ -297,5 +345,6 @@ private extension PolymarketMyPositionsViewModel {
     enum Constants {
         static let pageSize = 20
         static let maxEmptyPages = 3
+        static let refreshInterval: TimeInterval = 20
     }
 }

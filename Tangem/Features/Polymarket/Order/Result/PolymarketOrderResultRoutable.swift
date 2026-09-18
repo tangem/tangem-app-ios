@@ -12,5 +12,7 @@ import TangemPolymarket
 protocol PolymarketOrderResultRoutable: AnyObject {
     func closeOrder()
 
+    func returnToMain()
+
     func openPosition(_ position: PolymarketPosition)
 }

@@ -10,9 +10,11 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemPolymarket
+import TangemPolymarketUI
 
 final class PolymarketOrderCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
 
     let dismissAction: Action<DismissPayload?>
@@ -32,6 +34,7 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
     private var placementService: PolymarketOrderPlacementService?
     private var addFundsAction: (() -> Void)?
     private var indexingTask: PolymarketOrderIndexing?
+    private var isMarketClosedPresented = false
 
     // MARK: - Init
 
@@ -56,6 +59,7 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
                 apiProvider: PolymarketAPIProviderFactory().makeProvider(walletId: options.walletId),
                 geoblockStateProvider: options.geoblockStateProvider,
                 positionsService: options.positionsService,
+                clobService: options.clobService,
                 isAwaitingFundsPublisher: options.isAwaitingFundsPublisher
             )
 
@@ -72,8 +76,26 @@ extension PolymarketOrderCoordinator: PolymarketOrderRoutable {
         dismiss(with: indexingTask.map { DismissPayload(indexing: $0, position: nil) })
     }
 
+    func returnToMain() {
+        dismiss(with: indexingTask.map { DismissPayload(indexing: $0, position: nil, returnsToMain: true) })
+    }
+
     func openAddFunds() {
         addFundsAction?()
+    }
+
+    @MainActor
+    func openMarketClosed() {
+        guard !isMarketClosedPresented else { return }
+
+        isMarketClosedPresented = true
+
+        floatingSheetPresenter.enqueue(sheet: PolymarketRegionRestrictionViewModel.marketClosed(
+            onClose: { [weak self] in
+                self?.floatingSheetPresenter.removeActiveSheet()
+                self?.closeOrder()
+            }
+        ))
     }
 
     func openPosition(_ position: PolymarketPosition) {
@@ -186,6 +208,7 @@ extension PolymarketOrderCoordinator {
     struct DismissPayload {
         let indexing: PolymarketOrderIndexing
         let position: PolymarketPosition?
+        var returnsToMain = false
     }
 
     struct Options {
@@ -197,6 +220,7 @@ extension PolymarketOrderCoordinator {
         let geoblockStateProvider: PolymarketGeoblockStateProvider
         let placementService: PolymarketOrderPlacementService
         let positionsService: PolymarketPositionsService
+        let clobService: PolymarketCLOBService
         let isAwaitingFundsPublisher: AnyPublisher<Bool, Never>
         let onAddFunds: () -> Void
     }

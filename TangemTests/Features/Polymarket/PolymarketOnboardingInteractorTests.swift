@@ -46,8 +46,8 @@ struct PolymarketOnboardingInteractorTests {
         #expect(service.submittedBatches.isEmpty)
     }
 
-    @Test("A region that cannot be read is treated as blocked")
-    func unreadableRegionRefusesToOnboard() async throws {
+    @Test("A region that cannot be read stops the run but can be tried again")
+    func unreadableRegionStopsTheRun() async throws {
         let signer = PolymarketOnboardingSignerSpy()
         let sut = try makeSUT(
             walletService: makeWalletService(statuses: [.notCreated]),
@@ -57,7 +57,8 @@ struct PolymarketOnboardingInteractorTests {
 
         let progress = await sut.collectProgress()
 
-        #expect(progress.last?.failure?.isRegionBlocked == true)
+        #expect(progress.last?.failure?.isRegionUnknown == true)
+        #expect(progress.last?.failure?.isRetryable == true)
         #expect(signer.signCalls == 0)
     }
 
@@ -74,8 +75,8 @@ struct PolymarketOnboardingInteractorTests {
         #expect(progress.last?.isReady == true)
     }
 
-    @Test("A refused deployment is retried once before the user hears about it")
-    func deployFailureIsRetriedSilently() async throws {
+    @Test("A refused deployment ends the run rather than being retried behind the user")
+    func deployFailureEndsTheRun() async throws {
         let service = try makeWalletService(
             statuses: [.notCreated],
             deployResults: [.success(.deploymentFailed), .success(.deployed)]
@@ -84,8 +85,8 @@ struct PolymarketOnboardingInteractorTests {
 
         let progress = await sut.collectProgress()
 
-        #expect(progress.contains { $0.failure?.isDeploymentFailed == true } == false)
-        #expect(service.deployCalls == 2)
+        #expect(progress.last?.failure?.isDeploymentFailed == true)
+        #expect(service.deployCalls == 1)
     }
 
     @Test("A deployment refused twice is reported instead of polled for two minutes")
@@ -99,7 +100,7 @@ struct PolymarketOnboardingInteractorTests {
         let progress = await sut.collectProgress()
 
         #expect(progress.last?.failure?.isDeploymentFailed == true)
-        #expect(service.deployCalls == 2)
+        #expect(service.deployCalls == 1)
         #expect(service.submittedBatches.isEmpty)
         #expect(service.requestedOwnerAddresses.count == 1)
     }

@@ -28,15 +28,13 @@ final class PolymarketRedeemViewModel: ObservableObject, Identifiable {
 
     private var claimTask: Task<Void, Never>?
 
-    init?(
+    init(
         position: PolymarketPosition,
         redeemService: PolymarketRedeeming,
         onClaimed: @escaping () -> Void,
         coordinator: PolymarketRedeemRoutable
     ) {
-        guard let outcome = Outcome(position.settlement) else { return nil }
-
-        self.outcome = outcome
+        outcome = Outcome(position.settlement)
         self.position = position
         self.redeemService = redeemService
         self.onClaimed = onClaimed
@@ -47,6 +45,10 @@ final class PolymarketRedeemViewModel: ObservableObject, Identifiable {
         switch action {
         case .primaryTapped:
             isActionClaim ? claim() : coordinator?.closeRedeem()
+        case .closeTapped:
+            guard !isClaiming else { return }
+
+            coordinator?.closeRedeem()
         case .disappeared:
             claimTask?.cancel()
             claimTask = nil
@@ -59,6 +61,7 @@ final class PolymarketRedeemViewModel: ObservableObject, Identifiable {
 extension PolymarketRedeemViewModel {
     enum ViewAction {
         case primaryTapped
+        case closeTapped
         case disappeared
     }
 }
@@ -69,7 +72,7 @@ extension PolymarketRedeemViewModel {
     var appearance: StatusScreenAppearance {
         switch outcome {
         case .won: .success
-        case .split: .info
+        case .split, .undetermined: .info
         case .lost: .error
         }
     }
@@ -80,6 +83,7 @@ extension PolymarketRedeemViewModel {
         case .won: "You Won \(money(position.currentValue))"
         case .split: "Split \(money(position.currentValue))"
         case .lost: "Loss \(money(lostAmount))"
+        case .undetermined: "Ready to claim \(money(position.currentValue))"
         }
     }
 
@@ -93,15 +97,15 @@ extension PolymarketRedeemViewModel {
     }
 
     var isActionClaim: Bool {
-        outcome.isClaimable && position.isRedeemable
+        position.isRedeemable
     }
 
     // [REDACTED_TODO_COMMENT]
     var footerCaption: String? {
-        guard outcome.isClaimable else { return nil }
+        guard outcome.paysOut else { return nil }
 
         return position.isRedeemable
-            ? "Funds will be added to your balance"
+            ? Localization.predictionPositionResultBalanceNote
             : "The payout is not on chain yet. Check back in a few minutes."
     }
 
@@ -110,13 +114,13 @@ extension PolymarketRedeemViewModel {
     }
 
     var investedText: String? {
-        guard outcome.isClaimable else { return nil }
+        guard outcome.paysOut else { return nil }
 
         return money(position.initialValue)
     }
 
     var profit: Profit? {
-        guard outcome.isClaimable, position.cashPnl != 0 else { return nil }
+        guard outcome.paysOut, position.cashPnl != 0 else { return nil }
 
         return Profit(
             text: "\(signedMoney(position.cashPnl)) (\(percentFormatter.format(position.pnlRatio, option: .priceChange)))",
@@ -159,10 +163,7 @@ private extension PolymarketRedeemViewModel {
             } catch {
                 guard !Task.isCancelled else { return }
 
-                if case PolymarketRedeemTransactionService.Error.claimUnconfirmed = error {
-                    viewModel.onClaimed()
-                }
-
+                viewModel.onClaimed()
                 viewModel.alert = error.alertBinder
             }
         }
@@ -176,20 +177,21 @@ private extension PolymarketRedeemViewModel {
         case won
         case split
         case lost
+        case undetermined
 
-        init?(_ settlement: PolymarketPositionSettlement?) {
+        init(_ settlement: PolymarketPositionSettlement?) {
             switch settlement {
             case .won: self = .won
             case .split: self = .split
             case .lost: self = .lost
-            case .unknown, .none: return nil
+            case .unknown, .none: self = .undetermined
             }
         }
 
-        var isClaimable: Bool {
+        var paysOut: Bool {
             switch self {
             case .won, .split: true
-            case .lost: false
+            case .lost, .undetermined: false
             }
         }
     }

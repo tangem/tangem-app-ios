@@ -79,7 +79,7 @@ private extension CommonPolymarketOnboardingInteractor {
             throw CancellationError()
         } catch {
             PolymarketLogger.error("The region could not be read, refusing to onboard", error: error)
-            throw PolymarketOnboardingError.regionBlocked
+            throw PolymarketOnboardingError.regionUnknown
         }
     }
 
@@ -270,14 +270,7 @@ private extension CommonPolymarketOnboardingInteractor {
 
         if status.owesApprovals {
             if !status.isDeployComplete {
-                let outcome: PolymarketDepositWalletPoller.Outcome
-
-                do {
-                    outcome = try await poller.poll(until: .deployed, from: status, reporting: continuation)
-                } catch PolymarketOnboardingError.deploymentFailed {
-                    status = try await deploy(addresses: addresses, isRetry: true, reporting: continuation)
-                    outcome = try await poller.poll(until: .deployed, from: status, reporting: continuation)
-                }
+                let outcome = try await poller.poll(until: .deployed, from: status, reporting: continuation)
 
                 switch outcome {
                 case .reached(let deployed):
@@ -305,7 +298,6 @@ private extension CommonPolymarketOnboardingInteractor {
 
     func deploy(
         addresses: Addresses,
-        isRetry: Bool = false,
         reporting continuation: PolymarketOnboardingContinuation
     ) async throws -> PolymarketDepositWalletStatus {
         let status: PolymarketDepositWalletStatus
@@ -325,9 +317,7 @@ private extension CommonPolymarketOnboardingInteractor {
         }
 
         guard status != .deploymentFailed else {
-            guard !isRetry else { throw PolymarketOnboardingError.deploymentFailed }
-
-            return try await deploy(addresses: addresses, isRetry: true, reporting: continuation)
+            throw PolymarketOnboardingError.deploymentFailed
         }
 
         continuation.yield(.working(status))

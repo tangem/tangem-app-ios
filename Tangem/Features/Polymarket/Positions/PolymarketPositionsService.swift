@@ -61,7 +61,7 @@ extension CommonPolymarketPositionsService: PolymarketPositionsService {
         for _ in 0 ..< Constants.activePageScans {
             let page = try await openPositions(sort: .endDate, ascending: true, limit: limit, offset: offset)
 
-            collected += page.positions.filter { $0.settlement == nil }
+            collected += page.positions.filter { $0.settlement == nil || $0.isRedeemable }
             received += page.receivedCount
             offset += page.receivedCount
             hasNext = page.hasNext || page.receivedCount == limit

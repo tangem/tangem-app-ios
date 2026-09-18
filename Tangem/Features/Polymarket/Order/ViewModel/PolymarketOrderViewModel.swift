@@ -34,7 +34,7 @@ final class PolymarketOrderViewModel: ObservableObject {
 
     // MARK: - Content
 
-    let marketRow: PolymarketOrderMarketRow.Model
+    @Published private(set) var marketRow: PolymarketOrderMarketRow.Model
     let fieldViewModel: DecimalNumberTextFieldViewModel
 
     // MARK: - Dependencies
@@ -87,27 +87,24 @@ final class PolymarketOrderViewModel: ObservableObject {
 // MARK: - ViewAction
 
 extension PolymarketOrderViewModel {
-    // [REDACTED_TODO_COMMENT]
     var screenTitle: String {
         switch model.intent {
         case .buy: Localization.predictionPlaceTitle
-        case .sell: "Close position"
+        case .sell: Localization.predictionCloseTitle
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
     var amountTitle: String {
         switch model.intent {
         case .buy: Localization.predictionPlaceYouWillPay
-        case .sell: "You will receive"
+        case .sell: Localization.predictionCloseYouWillReceive
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
     var nextButtonTitle: String {
         switch model.intent {
         case .buy: Localization.commonNext
-        case .sell: "Close position"
+        case .sell: Localization.predictionCloseButton
         }
     }
 
@@ -177,25 +174,37 @@ private extension PolymarketOrderViewModel {
         isAwaitingFunds = state.isAwaitingFunds
         isNextEnabled = gate.isPrimaryButtonEnabled
 
+        if let price = state.quote.quote?.averagePrice ?? state.bookPrice {
+            marketRow = .make(
+                market: model.market,
+                outcome: model.outcome,
+                eventTitle: model.eventTitle,
+                averagePrice: price
+            )
+        }
+
         if let quote = state.quote.quote {
-            proceedsText = PolymarketOrderFormatter.money(quote.total)
+            proceedsText = PolymarketOrderFormatter.money(quote.expectedExecutionAmount)
         }
 
         isProceedsStale = state.quote.quote == nil
         sellingText = Self.makeSellingText(state: state, intent: model.intent)
+
+        if gate.notifications.contains(.marketClosed) {
+            coordinator?.openMarketClosed()
+        }
     }
 }
 
 // MARK: - Mapping
 
 private extension PolymarketOrderViewModel {
-    // [REDACTED_TODO_COMMENT]
     static func makeSellingText(state: PolymarketOrderModel.State, intent: PolymarketOrderIntent) -> String? {
         guard case .sell(let held) = intent else { return nil }
 
         let selling = PolymarketOrderFormatter.shares(state.enteredAmount ?? 0)
 
-        return "Selling \(selling) of \(PolymarketOrderFormatter.shares(held)) predict tokens"
+        return Localization.predictionCloseSellingOf(selling, PolymarketOrderFormatter.shares(held))
     }
 
     static func makePayment(balance: Decimal?, intent: PolymarketOrderIntent) -> PolymarketOrderPaymentRow.Model? {
@@ -213,8 +222,8 @@ private extension PolymarketOrderViewModel {
 
     func minAmountText(_ amount: Decimal) -> String {
         switch model.intent {
-        case .buy: PolymarketOrderFormatter.money(amount)
-        case .sell: PolymarketOrderFormatter.shares(amount) + " shares"
+        case .buy: Localization.predictionPlaceMinAmountError(PolymarketOrderFormatter.money(amount))
+        case .sell: Localization.predictionCloseMinSharesError(PolymarketOrderFormatter.shares(amount))
         }
     }
 
@@ -223,11 +232,14 @@ private extension PolymarketOrderViewModel {
         case .toWin(let expected, _):
             .toWin(PolymarketOrderFormatter.money(expected))
         case .belowMinAmount(let amount):
-            .shortfall(Localization.predictionPlaceMinAmountError(minAmountText(amount)))
+            .shortfall(minAmountText(amount))
         case .notEnoughForBet:
             .shortfall(Localization.predictionPlaceInsufficientBalanceBet)
         case .notEnoughForFees:
             .shortfall(Localization.predictionPlaceInsufficientBalanceFees)
+        // [REDACTED_TODO_COMMENT]
+        case .notEnoughLiquidity:
+            .shortfall("Not enough liquidity to sell this amount")
         case nil:
             nil
         }
