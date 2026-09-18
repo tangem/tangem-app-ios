@@ -134,6 +134,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         interactionAddress: InteractionAddressType,
         timeFormatted: String?,
         amount: String,
+        amountWithCurrencyCode: String? = nil,
         value: String,
         currencyCode: String,
         isOutgoing: Bool,
@@ -148,9 +149,15 @@ struct TransactionViewModel: Hashable, Identifiable {
         isPendingSignature: Bool = false
     ) {
         id = ViewModelId(id: TransactionRecord.ID(hash: hash, index: index), statusRawValue: status.rawValue)
-        icon = TransactionViewIconViewData(type: transactionType, status: status, isOutgoing: isOutgoing)
+        icon = TransactionViewIconViewData(
+            type: transactionType,
+            status: status,
+            isOutgoing: isOutgoing,
+            isFromYieldContract: isFromYieldContract
+        )
         self.amount = TransactionViewAmountViewData(
             amount: amount,
+            amountWithCurrencyCode: amountWithCurrencyCode,
             value: value,
             currencyCode: currencyCode,
             type: transactionType,
@@ -177,7 +184,6 @@ struct TransactionViewModel: Hashable, Identifiable {
             isOutgoing: isOutgoing,
             isFromYieldContract: isFromYieldContract,
             legacyName: Self.legacyName(transactionType: transactionType, isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract),
-            amount: amount,
             addressDestination: Self.computeAddressDestination(
                 interactionAddress: interactionAddress,
                 transactionType: transactionType,

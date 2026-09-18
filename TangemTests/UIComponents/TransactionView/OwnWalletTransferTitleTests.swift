@@ -51,10 +51,9 @@ struct OwnWalletTransferTitleTests {
             isOutgoing: isOutgoing,
             isFromYieldContract: false,
             legacyName: "Transfer",
-            amount: "1",
             addressDestination: nil,
             subtitleOwner: owner,
             expressSubtitle: nil
-        ).title
+        ).title.fullText
     }
 }
