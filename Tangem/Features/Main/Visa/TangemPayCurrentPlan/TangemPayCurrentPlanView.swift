@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -40,6 +41,7 @@ struct TangemPayCurrentPlanView: View {
                             action: viewModel.cancelTransition
                         )
                     )
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.currentPlanAwaitingDepositBanner)
                 }
 
                 if let banner = viewModel.downgradeBanner {
@@ -50,10 +52,12 @@ struct TangemPayCurrentPlanView: View {
                             action: viewModel.stayOnPlus
                         )
                     )
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.currentPlanDowngradeBanner)
                 }
 
                 if let feeChargedBannerText = viewModel.feeChargedBannerText {
                     TangemPayCurrentPlanInfoBanner(title: feeChargedBannerText)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.currentPlanFeeChargedBanner)
                 }
 
                 ForEach(viewModel.sections) { section in
@@ -72,6 +76,7 @@ struct TangemPayCurrentPlanView: View {
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 8)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.currentPlanSection(section.title))
 
             VStack(spacing: 0) {
                 ForEach(Array(section.rows.enumerated()), id: \.element.id) { index, row in
@@ -79,6 +84,7 @@ struct TangemPayCurrentPlanView: View {
                         .lineOrder(.secondaryFirst)
                         .titleLineLimit(nil)
                         .showDivider(index < section.rows.count - 1)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.currentPlanRow(row.label))
                 }
             }
             .background(DesignSystem.Color.bgSecondary)
@@ -100,6 +106,7 @@ struct TangemPayCurrentPlanView: View {
             .horizontalLayout(.infinity)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.currentPlanChangeButton)
             .background(alignment: .bottom) {
                 BottomFadeWithBlur(backgroundColor: DesignSystem.Color.bgPrimary)
             }
@@ -115,6 +122,7 @@ struct TangemPayCurrentPlanView: View {
 
                 Text(viewModel.planName)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.currentPlanName)
             }
         }
     }
