@@ -57,6 +57,7 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
     }
 
     private var options: Options?
+    private var redeemService: PolymarketRedeeming?
     private weak var regionWarning: PolymarketRegionRestrictionViewModel?
     private weak var addFundsSheet: PolymarketAddFundsSheetViewModel?
     private var sheetDismissSubscription: AnyCancellable?
@@ -150,11 +151,14 @@ private extension PolymarketCoordinator {
     func showMain(for userWalletModel: any UserWalletModel) {
         let dependencies = PolymarketMainDependenciesFactory().make(for: userWalletModel)
 
+        redeemService = dependencies.redeemService
+
         viewState = .main(
             viewModel: dependencies.makeMainViewModel(routable: self),
             destinationFactory: PolymarketDestinationFactory(
                 dependencies: dependencies,
-                onAddFunds: { [weak self] in self?.openAddFunds() }
+                onAddFunds: { [weak self] in self?.openAddFunds() },
+                onReturnToMain: { [weak self] in self?.popToMain() }
             ),
             fundingFlow: PolymarketFundingFlow(dependencies: dependencies)
         )
@@ -192,6 +196,18 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
                 self?.openPositionDetails(position: position, onOrderPlaced: onOrderPlaced)
             },
             onClose: { [weak self] in self?.popToMain() }
+        ))
+    }
+
+    @MainActor
+    func openRedeem(position: PolymarketPosition, onClaimed: @escaping () -> Void) {
+        guard let redeemService else { return }
+
+        destination = .redeem(PolymarketRedeemViewModel(
+            position: position,
+            redeemService: redeemService,
+            onClaimed: onClaimed,
+            coordinator: self
         ))
     }
 
@@ -256,7 +272,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
         Task { @MainActor [weak self] in
             guard let self else { return }
 
-            let viewModel = PolymarketRegionRestrictionViewModel(
+            let viewModel = PolymarketRegionRestrictionViewModel.regionRestriction(
                 onClose: { [weak self] in self?.floatingSheetPresenter.removeActiveSheet() }
             )
 
@@ -380,6 +396,14 @@ extension PolymarketCoordinator {
     }
 }
 
+// MARK: - PolymarketRedeemRoutable protocol conformance
+
+extension PolymarketCoordinator: PolymarketRedeemRoutable {
+    func closeRedeem() {
+        popToMain()
+    }
+}
+
 // MARK: - Navigation
 
 extension PolymarketCoordinator {
@@ -419,6 +443,7 @@ extension PolymarketCoordinator {
         case myPositions(PolymarketMyPositionsCoordinator)
         case order(PolymarketOrderCoordinator)
         case tokenDetails(TokenDetailsCoordinator)
+        case redeem(PolymarketRedeemViewModel)
     }
 
     enum Sheet: Identifiable {

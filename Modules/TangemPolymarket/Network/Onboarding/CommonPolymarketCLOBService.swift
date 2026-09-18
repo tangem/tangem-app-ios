@@ -93,6 +93,12 @@ extension CommonPolymarketCLOBService: PolymarketCLOBService {
         return mapper.mapPlaceOrder(dto)
     }
 
+    func price(tokenId: String, side: PolymarketOrderSide) async throws -> Decimal {
+        let dto: PolymarketDTO.PriceResponse = try await request(.price(tokenId: tokenId, side: side), authHeaders: [:])
+
+        return try mapper.mapPrice(dto)
+    }
+
     func order(
         id: String,
         credentials: PolymarketL2Credentials,
@@ -122,7 +128,7 @@ extension CommonPolymarketCLOBService {
             return .ambiguous(underlying: error)
         }
 
-        let message = problemDetail?.detail ?? problemDetail?.title
+        let message = problemDetail?.message
 
         guard let message, message.localizedCaseInsensitiveContains(Constants.noMatchMarker) else {
             return .rejected(message: message)

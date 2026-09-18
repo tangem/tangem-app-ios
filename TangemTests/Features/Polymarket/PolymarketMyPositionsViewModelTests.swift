@@ -241,6 +241,7 @@ private extension PolymarketMyPositionsViewModelTests {
                     iconURL: nil,
                     endDate: nil,
                     outcome: "Yes",
+                    outcomeIndex: 0,
                     size: 1,
                     avgPrice: 1,
                     curPrice: 1,
@@ -277,6 +278,7 @@ private extension PolymarketMyPositionsViewModelTests {
                     iconURL: nil,
                     closedAt: nil,
                     outcome: "Yes",
+                    outcomeIndex: 0,
                     avgPrice: 1,
                     curPrice: 1,
                     totalBought: 1,
@@ -385,9 +387,6 @@ private final class MyPositionsRoutableSpy: PolymarketMyPositionsRoutable {
     }
 
     func closeMyPositions() {}
-
-    @MainActor
-    func openHowItWorks() {}
 
     func openPositionDetails(
         position: PolymarketPosition,

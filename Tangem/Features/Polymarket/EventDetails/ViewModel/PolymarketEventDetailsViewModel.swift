@@ -7,8 +7,12 @@
 //
 
 import Foundation
+import SwiftUI
 import TangemFoundation
+import TangemLocalization
 import TangemPolymarket
+import TangemUI
+import TangemUIUtils
 
 final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
     @Published private(set) var state: State = .loading
@@ -25,6 +29,7 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
 
     private var loadingTask: Task<Void, Never>?
     private var pollingTask: Task<Void, Never>?
+    private var hasReportedStaleData = false
 
     init(
         eventID: String,
@@ -58,7 +63,7 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
 
         loadingTask = runTask(in: self) { @MainActor viewModel in
             do {
-                let event = try await viewModel.apiProvider.event(id: viewModel.eventID)
+                let event = try await viewModel.event()
                 viewModel.state = .content(viewModel.makeContent(from: event))
                 viewModel.startPolling()
             } catch {
@@ -109,13 +114,37 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
     @MainActor
     private func refreshContent() async {
         do {
-            let event = try await apiProvider.event(id: eventID)
+            let event = try await event()
             state = .content(makeContent(from: event))
+            hasReportedStaleData = false
         } catch {
             guard !error.isCancellationError else { return }
 
             PolymarketLogger.error("Event \(eventID) refresh failed, keeping the last data", error: error)
+
+            guard !hasReportedStaleData else { return }
+
+            hasReportedStaleData = true
+            presentOutdatedDataToast()
         }
+    }
+
+    private func event() async throws -> PolymarketEvent {
+        do {
+            return try await apiProvider.event(id: eventID)
+        } catch {
+            guard !error.isCancellationError else { throw error }
+
+            try await Task.sleep(for: .seconds(Constants.silentRetryDelay))
+
+            return try await apiProvider.event(id: eventID)
+        }
+    }
+
+    @MainActor
+    private func presentOutdatedDataToast() {
+        Toast(view: WarningToast(text: Localization.predictionMainDataOutdated))
+            .present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
     }
 
     private func makeContent(from event: PolymarketEvent) -> PolymarketEventDetailsContent {
@@ -169,6 +198,8 @@ extension PolymarketEventDetailsViewModel {
 private extension PolymarketEventDetailsViewModel {
     enum Constants {
         static let pollInterval: UInt64 = 10_000_000_000
+        static let silentRetryDelay: TimeInterval = 2
+        static let toastTopPadding: CGFloat = 16
         static let notFoundStatusCode = 404
     }
 }
