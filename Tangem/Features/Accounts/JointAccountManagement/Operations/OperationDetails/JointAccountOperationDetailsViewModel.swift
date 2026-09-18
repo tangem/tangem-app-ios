@@ -9,14 +9,19 @@
 import Foundation
 import UIKit
 import TangemAssets
+import TangemFoundation
 import TangemLocalization
 import TangemUI
+import struct TangemUIUtils.AlertBinder
 
 /// An operation of a joint account laid out as the transaction details it will become once it is sent.
 ///
 /// - Note: Handed an operation already read out of its signed payload. The sheet does no parsing, no digest of its
 ///   own and no signing — that belongs to the domain layer over the Safe support in the SDK.
 final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingSheetContentViewModel {
+    @Published var alert: AlertBinder?
+    @Published private(set) var isSigning = false
+
     let tokenIconInfo: TokenIconInfo
     /// Written out for display, and taken from the payload's own `value` rather than from a field on the response.
     let cryptoAmount: String
@@ -34,9 +39,12 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     /// Everyone on the account. Kept apart from the threshold because the copy needs both: the progress line
     /// counts the answers against the roster, while the footer names the threshold against it.
     let membersCount: Int
-    let answer: Answer
 
+    @Published private(set) var answer: Answer
+
+    private let sign: () async throws -> Void
     private weak var coordinator: JointAccountOperationDetailsRoutable?
+    private var signTask: Task<Void, Never>?
 
     init(
         tokenIconInfo: TokenIconInfo,
@@ -49,8 +57,10 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         requiredSignaturesCount: Int,
         membersCount: Int,
         answer: Answer,
-        coordinator: JointAccountOperationDetailsRoutable?
+        coordinator: JointAccountOperationDetailsRoutable?,
+        sign: @escaping () async throws -> Void
     ) {
+        self.sign = sign
         self.tokenIconInfo = tokenIconInfo
         self.cryptoAmount = cryptoAmount
         self.fiatAmount = fiatAmount
@@ -93,9 +103,53 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         switch action {
         case .close:
             coordinator?.closeOperationDetails()
+        case .signOperation:
+            signOperation()
         default:
             break
         }
+    }
+}
+
+// MARK: - Signing
+
+private extension JointAccountOperationDetailsViewModel {
+    func signOperation() {
+        guard signTask == nil else {
+            return
+        }
+
+        isSigning = true
+        signTask = runTask(in: self) { viewModel in
+            do {
+                try await viewModel.sign()
+                await viewModel.finishSigning(with: nil)
+            } catch {
+                await viewModel.finishSigning(with: error)
+            }
+        }
+    }
+
+    @MainActor
+    func finishSigning(with error: (any Error)?) {
+        isSigning = false
+        signTask = nil
+
+        guard let error else {
+            answer = .signed
+            return
+        }
+
+        guard !error.isCancellationError else {
+            return
+        }
+
+        JointAccountsLogger.error("Failed to sign a joint account operation", error: error)
+        alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
+            title: Localization.commonSomethingWentWrong,
+            message: Localization.accountGenericErrorDialogMessage,
+            buttonText: Localization.commonOk
+        )
     }
 }
 
@@ -163,7 +217,8 @@ private extension JointAccountOperationDetailsViewModel {
                 title: Localization.commonSign,
                 icon: DesignSystem.Icons.LogoTangem.regular20,
                 style: .default,
-                action: .signOperation
+                action: .signOperation,
+                isBusy: isSigning
             )
         )
     }
