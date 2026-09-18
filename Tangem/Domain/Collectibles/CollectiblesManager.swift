@@ -21,6 +21,8 @@ final class CollectiblesManager {
     private let coldOwnerProvider: any CollectiblesColdOwnerProvider
     private let vaultReader: any CollectiblesVaultReader
     private let configReader: any CollectiblesConfigReader
+    private let vaultUsdcReader: any CollectiblesVaultUsdcReader
+    private let balanceService: any CollectiblesBalanceService
     private let hotDelegateSigner: any CollectiblesHotDelegateSigner
     private let coldKeyInteractorFactory: CollectiblesColdKeyInteractorFactory
     private let serviceProvider: CollectiblesChainServiceProvider
@@ -36,6 +38,8 @@ final class CollectiblesManager {
         coldOwnerProvider: any CollectiblesColdOwnerProvider,
         vaultReader: any CollectiblesVaultReader,
         configReader: any CollectiblesConfigReader,
+        vaultUsdcReader: any CollectiblesVaultUsdcReader,
+        balanceService: any CollectiblesBalanceService,
         hotDelegateSigner: any CollectiblesHotDelegateSigner,
         coldKeyInteractorFactory: CollectiblesColdKeyInteractorFactory,
         serviceProvider: CollectiblesChainServiceProvider
@@ -45,6 +49,8 @@ final class CollectiblesManager {
         self.coldOwnerProvider = coldOwnerProvider
         self.vaultReader = vaultReader
         self.configReader = configReader
+        self.vaultUsdcReader = vaultUsdcReader
+        self.balanceService = balanceService
         self.hotDelegateSigner = hotDelegateSigner
         self.coldKeyInteractorFactory = coldKeyInteractorFactory
         self.serviceProvider = serviceProvider
@@ -77,6 +83,10 @@ extension CollectiblesManager: CollectiblesAccountModel {
         stateSubject.eraseToAnyPublisher()
     }
 
+    var fiatTotalTokenBalanceProvider: TokenBalanceProvider {
+        balanceService.fiatTotalTokenBalanceProvider
+    }
+
     func update(name: String) {
         guard name != nameSubject.value else {
             return
@@ -94,7 +104,9 @@ extension CollectiblesManager: CollectiblesAccountModel {
             }
 
             do {
-                update(state: try await resolveState())
+                let state = try await resolveState()
+                update(state: state)
+                await refreshBalance(for: state)
             } catch {
                 // A read that failed says nothing about the vault, so the last resolved state stands
                 CollectiblesLogger.error("State resolve failed, keeping the last known state", error: error)
@@ -120,6 +132,7 @@ extension CollectiblesManager: CollectiblesOnboarder {
 
             switch resolved {
             case .ready:
+                await refreshBalance(for: resolved)
                 return
             case .coldOwnerNotDerived:
                 step = .deriveColdKey
@@ -247,6 +260,25 @@ private extension CollectiblesManager {
         }
 
         return .ready(vault)
+    }
+
+    /// Only a state that names a vault has an account to read: without one there is nowhere for USDC to be,
+    /// which is not the same answer as a balance of zero.
+    func refreshBalance(for state: CollectiblesState) async {
+        guard state.isAccountVisible, let coldOwner = coldOwnerProvider.coldOwnerKey()?.blockchainKey else {
+            balanceService.update(.unavailable)
+            return
+        }
+
+        balanceService.update(.loading)
+
+        do {
+            let balance = try await vaultUsdcReader.usdcBalance(coldOwner: coldOwner)
+            balanceService.update(.loaded(balance))
+        } catch {
+            CollectiblesLogger.error("Vault balance read failed", error: error)
+            balanceService.update(.failed(error))
+        }
     }
 
     func update(state: CollectiblesState) {
