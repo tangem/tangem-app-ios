@@ -63,7 +63,18 @@ private extension TangemPayNetworkContractOrderService {
         chainId: Int,
         onResult: @escaping (Result) -> Void
     ) async {
-        if let activeOrder = await findActiveOrder(chainId: chainId) {
+        let activeOrder: TangemPayOrderResponse?
+
+        do {
+            activeOrder = try await findActiveOrder(chainId: chainId)
+        } catch {
+            // Without a successful lookup we cannot tell whether an order is already in flight;
+            // placing a new one here would risk a duplicate order.
+            onResult(Task.isCancelled ? .canceled : .failed(error))
+            return
+        }
+
+        if let activeOrder {
             startPolling(orderId: activeOrder.id, chainId: chainId, onResult: onResult)
             return
         }
@@ -76,12 +87,17 @@ private extension TangemPayNetworkContractOrderService {
         }
     }
 
-    func findActiveOrder(chainId: Int) async -> TangemPayOrderResponse? {
-        if let order = try? await orderResolver.findActiveNetworkContractOrder(chainId: chainId) {
-            return order
-        }
+    /// `nil` means the lookup succeeded and there is no active order; a failed lookup is rethrown after one retry.
+    func findActiveOrder(chainId: Int) async throws -> TangemPayOrderResponse? {
+        do {
+            return try await orderResolver.findActiveNetworkContractOrder(chainId: chainId)
+        } catch {
+            guard !Task.isCancelled else {
+                throw error
+            }
 
-        return try? await orderResolver.findActiveNetworkContractOrder(chainId: chainId)
+            return try await orderResolver.findActiveNetworkContractOrder(chainId: chainId)
+        }
     }
 
     func placeOrder(chainId: Int) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {
