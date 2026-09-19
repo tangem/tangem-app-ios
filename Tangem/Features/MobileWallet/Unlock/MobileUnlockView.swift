@@ -80,13 +80,10 @@ private extension MobileUnlockView {
     }
 
     func unlockButton(item: ViewModel.UnlockItem) -> some View {
-        SwiftUI.Button(action: item.action) {
-            Text(item.title)
-                .style(Fonts.Bold.callout, color: Colors.Text.primary1)
-                .padding(.vertical, 12)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .background(Colors.Button.secondary)
-                .cornerRadius(14, corners: .allCorners)
-        }
+        MainButton(
+            title: item.title,
+            style: .secondary,
+            action: item.action
+        )
     }
 }

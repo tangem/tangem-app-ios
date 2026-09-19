@@ -114,7 +114,7 @@ private extension WrappedHoldToConfirmButton {
             backgroundColor
             progressBar
         }
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(buttonShape)
     }
 
     var loading: some View {
@@ -122,7 +122,12 @@ private extension WrappedHoldToConfirmButton {
             backgroundColor
             ProgressView().tint(Colors.Text.primary2)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(buttonShape)
+    }
+
+    /// Matches `MainButton`, which this button replaces on hold-to-confirm surfaces: a full capsule (`height / 2`).
+    var buttonShape: some Shape {
+        Capsule(style: .continuous)
     }
 
     var progressBar: some View {
