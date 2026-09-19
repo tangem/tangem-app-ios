@@ -1678,6 +1678,7 @@
 "send_enter_address_field_ens_name" = "Address, ENS or name";
 "send_enter_address_field_ens" = "ENS name or address";
 "send_enter_address_field" = "Enter address";
+"send_error_address_is_token_contract" = "Address is the token contract address";
 "send_error_address_same_as_wallet" = "L'indirizzo corrisponde all'indirizzo del tuo portafoglio";
 "send_error_dust_change" = "L'importo residuo è molto basso";
 "send_error_no_target_account" = "Il conto totale non è stato creato L'importo da inviare deve essere %@ + commissione o maggiore";
