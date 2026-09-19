@@ -79,6 +79,9 @@ struct FeedWidgetsView: View {
 
         case .referFriend(let reward):
             FeedReferralWidgetView(reward: reward)
+
+        case .polymarket:
+            PolymarketWidgetView()
         }
     }
 }
