@@ -8,25 +8,23 @@
 
 import Foundation
 
-extension Array where Element: Hashable {
+/// Set-like membership helpers for arrays that are used as ordered, duplicate-free collections.
+///
+/// Both operations preserve the relative order of the elements that stay in the array. A `Set` round-trip
+/// (`Array(Set(self))`) would shuffle them in a per-process-random order, which is unwanted for arrays
+/// whose order is observable (persisted to `UserDefaults`, published via Combine, or forwarded to
+/// order-sensitive consumers).
+extension Array where Element: Equatable {
+    /// Appends `element` unless an equal element is already present.
     mutating func insert(_ element: Element) {
-        var set = toSet()
-        set.insert(element)
-        self = Array(set)
-    }
-
-    mutating func remove(_ element: Element) {
-        var set = toSet()
-        set.remove(element)
-        self = Array(set)
-    }
-}
-
-extension Swift.Array where Element: Equatable {
-    mutating func appendIfNotContains(_ element: Element) {
-        if !contains(where: { $0 == element }) {
+        if !contains(element) {
             append(element)
         }
+    }
+
+    /// Removes every element equal to `element`, keeping the remaining elements in place.
+    mutating func remove(_ element: Element) {
+        removeAll { $0 == element }
     }
 }
 
