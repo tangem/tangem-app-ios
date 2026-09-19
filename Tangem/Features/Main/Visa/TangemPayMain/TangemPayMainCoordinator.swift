@@ -296,7 +296,7 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             popToRootAction: popToRootAction
         )
         coordinator.start(with: .init(
-            issueFeeText: Self.formatFee(amount: fee.amount, currency: fee.currency),
+            issueFeeText: Self.amountFormatter.format(fee.amount, currencyCode: fee.currency),
             virtualCardImageURL: virtualCardImageURL,
             nameOnCard: tangemPayAccount?.cards.first?.card.embossName,
             countryName: countryName,
@@ -920,7 +920,7 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
                 }
                 let balance = try await card.customerService.getBalance()
 
-                let feeText = Self.formatFee(amount: feeResponse.amount, currency: feeResponse.currency)
+                let feeText = Self.amountFormatter.format(feeResponse.amount, currencyCode: feeResponse.currency)
                 let isInsufficientFunds = balance.fiat.availableBalance < feeResponse.amount
 
                 let viewModel = TangemPayReissueSheetViewModel(
@@ -967,13 +967,7 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
         cardManagementViewModel = nil
     }
 
-    private static func formatFee(amount: Decimal, currency: String) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.locale = Locale(identifier: "en_US")
-        formatter.currencyCode = currency
-        return formatter.string(from: amount as NSDecimalNumber) ?? "\(amount) \(currency)"
-    }
+    private static let amountFormatter = TangemPayFiatAmountFormatter()
 }
 
 // MARK: - TangemPayReissueSheetRoutable

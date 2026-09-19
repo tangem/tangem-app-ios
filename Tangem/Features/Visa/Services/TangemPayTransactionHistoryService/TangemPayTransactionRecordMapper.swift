@@ -15,18 +15,11 @@ import TangemPay
 struct TangemPayTransactionRecordMapper {
     private let transaction: TangemPayTransactionRecord
     private let displayRecord: TangemPayDisplayRecord
+    private let amountFormatter: TangemPayFiatAmountFormatter
 
-    private let amountFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.locale = Locale(identifier: "en_US")
-        formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 2
-        return formatter
-    }()
-
-    init(transaction: TangemPayTransactionRecord) {
+    init(transaction: TangemPayTransactionRecord, amountFormatter: TangemPayFiatAmountFormatter = .init()) {
         self.transaction = transaction
+        self.amountFormatter = amountFormatter
         displayRecord = transaction.record.displayRecord
     }
 
@@ -75,23 +68,20 @@ struct TangemPayTransactionRecordMapper {
     func amount() -> String {
         switch displayRecord {
         case .merchant(let merchant) where merchant.amount == 0:
-            return format(amount: merchant.amount, currencyCode: merchant.currency)
+            return amountFormatter.format(merchant.amount, currencyCode: merchant.currency)
         case .merchant(let merchant):
-            let prefix: String = merchant.amount < 0 ? .plusSign : .empty
-            return format(
-                amount: -(merchant.isDeclined ? merchant.authorizedAmount : merchant.amount),
-                currencyCode: merchant.currency,
-                prefix: prefix
-            )
+            // A charge is shown as money leaving the card; a refund (negative `amount`) as money coming back.
+            // A declined charge shows the amount the merchant tried to authorize.
+            let charged = merchant.isDeclined ? merchant.authorizedAmount : merchant.amount
+            return amountFormatter.formatSigned(-charged, currencyCode: merchant.currency)
         case .collateral(let collateral):
             // In the `collateral.currency` we have `USDC` crypto token
             // But we have to show user just simple `$` currency
-            let prefix: String = collateral.amount > 0 ? .plusSign : .empty
-            return format(amount: collateral.amount, currencyCode: AppConstants.usdCurrencyCode, prefix: prefix)
+            return amountFormatter.formatSigned(collateral.amount, currencyCode: AppConstants.usdCurrencyCode)
         case .payment(let payment):
-            return format(amount: -payment.amount, currencyCode: payment.currency)
+            return amountFormatter.format(-payment.amount, currencyCode: payment.currency)
         case .fee(let fee):
-            return format(amount: -fee.amount, currencyCode: fee.currency)
+            return amountFormatter.format(-fee.amount, currencyCode: fee.currency)
         }
     }
 
@@ -106,10 +96,9 @@ struct TangemPayTransactionRecordMapper {
         }
 
         return TransactionViewModel.Cashback(
-            formattedAmount: format(
-                amount: amount,
-                currencyCode: merchant.cashbackCurrencyCode ?? AppConstants.usdCurrencyCode,
-                prefix: amount > 0 ? .plusSign : .empty
+            formattedAmount: amountFormatter.formatSigned(
+                amount,
+                currencyCode: merchant.cashbackCurrencyCode ?? AppConstants.usdCurrencyCode
             ),
             style: style
         )
@@ -158,12 +147,6 @@ struct TangemPayTransactionRecordMapper {
         case .fee(let fee):
             return fee.description ?? Localization.tangemPayFeeSubtitle
         }
-    }
-
-    private func format(amount: Decimal, currencyCode: String, prefix: String = "") -> String {
-        amountFormatter.currencySymbol = Locale.current.localizedCurrencySymbol(forCurrencyCode: currencyCode.uppercased())
-        let formatted = amountFormatter.format(number: amount)
-        return "\(prefix)\(formatted)"
     }
 }
 
