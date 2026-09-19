@@ -12,4 +12,5 @@ protocol FeedWidgetsRoutable: AnyObject {
     func openReferral(wallet: UserWalletModel)
     func openForYou()
     func openAddAccount(candidates: [FeedAccountCandidate])
+    func openPolymarketMain(wallet: UserWalletModel)
 }

@@ -113,9 +113,9 @@ private extension CommonPolymarketOrderPlacementService {
             switch record.status {
             case .matched:
                 return .settled(record, orderId: orderId, side: side)
-            case .live:
+            case .live, .unknown:
                 continue
-            case .canceled, .canceledMarketResolved, .invalid, .unknown:
+            case .canceled, .canceledMarketResolved, .invalid:
                 throw PolymarketOrderPlacementError.rejected(message: nil)
             }
         }

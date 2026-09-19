@@ -1028,7 +1028,7 @@ extension PolymarketMainViewModel: PolymarketSearchRoutable {
     }
 
     func openOrderFromSearch(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {
-        exitSearch()
+        isSearchFieldActive = false
         selectOutcome(market: market, outcome: outcome, eventTitle: eventTitle)
     }
 }

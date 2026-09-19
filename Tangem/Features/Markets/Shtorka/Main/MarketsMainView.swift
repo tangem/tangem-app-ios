@@ -223,7 +223,7 @@ struct MarketsMainView: View {
 
                         if FeatureProvider.isAvailable(.polymarket) {
                             SwiftUI.Button(action: viewModel.onPolymarketEntranceTap) {
-                                Text("Polymarket")
+                                PolymarketEntranceBannerView()
                             }
                             .buttonStyle(.plain)
                             .padding(.horizontal, 16)

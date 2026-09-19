@@ -104,6 +104,15 @@ extension PolymarketMyPositionsCoordinator: PolymarketMyPositionsRoutable {
     }
 
     func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void) {
+        guard destination == nil else {
+            destination = nil
+
+            Task { @MainActor [weak self] in
+                self?.openPositionDetails(position: position, onOrderPlaced: onOrderPlaced)
+            }
+            return
+        }
+
         guard let apiProvider, let geoblockStateProvider, let orderBuilder else { return }
 
         let coordinator = PolymarketPositionDetailsCoordinator(

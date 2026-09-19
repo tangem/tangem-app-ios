@@ -79,6 +79,15 @@ extension PolymarketEventDetailsCoordinator {
         _ position: PolymarketPosition,
         onPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
     ) {
+        guard destination == nil else {
+            destination = nil
+
+            Task { @MainActor [weak self] in
+                self?.pushPositionDetails(position, onPlaced: onPlaced)
+            }
+            return
+        }
+
         guard let coordinator = orderBuilder?.makePositionDetails(
             position: position,
             onOrderPlaced: onPlaced,
