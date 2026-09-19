@@ -93,7 +93,9 @@ extension PolymarketRedeemViewModel {
 
     // [REDACTED_TODO_COMMENT]
     var actionTitle: String {
-        isActionClaim ? "Claim reward" : "Dismiss"
+        guard isActionClaim else { return "Dismiss" }
+
+        return outcome.paysOut ? "Claim reward" : "Close position"
     }
 
     var isActionClaim: Bool {
@@ -102,7 +104,11 @@ extension PolymarketRedeemViewModel {
 
     // [REDACTED_TODO_COMMENT]
     var footerCaption: String? {
-        guard outcome.paysOut else { return nil }
+        guard outcome.paysOut else {
+            guard isActionClaim else { return nil }
+
+            return "Nothing is paid out. Closing clears the worthless tokens from your balance."
+        }
 
         return position.isRedeemable
             ? Localization.predictionPositionResultBalanceNote
