@@ -3858,6 +3858,8 @@ public enum Localization {
   public static let sendEnterAddressFieldEns = Localization.tr("Localizable", "send_enter_address_field_ens")
   /// Address, ENS or name
   public static let sendEnterAddressFieldEnsName = Localization.tr("Localizable", "send_enter_address_field_ens_name")
+  /// Address is the token contract address
+  public static let sendErrorAddressIsTokenContract = Localization.tr("Localizable", "send_error_address_is_token_contract")
   /// Address is the same as wallet address
   public static let sendErrorAddressSameAsWallet = Localization.tr("Localizable", "send_error_address_same_as_wallet")
   /// Change is too small

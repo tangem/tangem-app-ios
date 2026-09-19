@@ -18,28 +18,44 @@ protocol SendDestinationValidator {
 
 class CommonSendDestinationValidator {
     private let walletAddresses: [String]
+    /// Contract address of the token being sent, if any. Tokens sent to their own contract are lost.
+    private let tokenContractAddress: String?
     private let addressService: AddressService
     private let allowSameAddressTransaction: Bool
     private let blockchain: Blockchain
 
     init(
         walletAddresses: [String],
+        tokenContractAddress: String? = nil,
         addressService: AddressService,
         allowSameAddressTransaction: Bool,
         blockchain: Blockchain
     ) {
         self.walletAddresses = walletAddresses
+        self.tokenContractAddress = tokenContractAddress
         self.addressService = addressService
         self.allowSameAddressTransaction = allowSameAddressTransaction
         self.blockchain = blockchain
     }
 
     private func isOwnAddress(_ address: String) -> Bool {
-        guard let canonicalAddress = EVMAddressUtils.canonicalAddress(address, blockchain: blockchain) else {
-            return walletAddresses.contains(address)
+        walletAddresses.contains { isSameAddress($0, address) }
+    }
+
+    private func isTokenContractAddress(_ address: String) -> Bool {
+        guard let tokenContractAddress else {
+            return false
         }
 
-        return walletAddresses.contains { EVMAddressUtils.canonicalAddress($0, blockchain: blockchain) == canonicalAddress }
+        return isSameAddress(tokenContractAddress, address)
+    }
+
+    private func isSameAddress(_ lhs: String, _ rhs: String) -> Bool {
+        guard let canonicalRhs = EVMAddressUtils.canonicalAddress(rhs, blockchain: blockchain) else {
+            return lhs == rhs
+        }
+
+        return EVMAddressUtils.canonicalAddress(lhs, blockchain: blockchain) == canonicalRhs
     }
 }
 
@@ -53,6 +69,10 @@ extension CommonSendDestinationValidator: SendDestinationValidator {
         let resolvedAddress = addressService.resolveAddress(address)
         if !allowSameAddressTransaction, isOwnAddress(resolvedAddress) {
             throw SendAddressServiceError.sameAsWalletAddress
+        }
+
+        if isTokenContractAddress(resolvedAddress) {
+            throw SendAddressServiceError.tokenContractAddress
         }
 
         if !addressService.validate(address) {
@@ -76,6 +96,7 @@ extension CommonSendDestinationValidator: SendDestinationValidator {
 enum SendAddressServiceError {
     case emptyAddress
     case sameAsWalletAddress
+    case tokenContractAddress
     case invalidAddress
     case additionalFieldRequired
 }
@@ -87,6 +108,8 @@ extension SendAddressServiceError: LocalizedError {
             return Localization.commonError
         case .sameAsWalletAddress:
             return Localization.sendErrorAddressSameAsWallet
+        case .tokenContractAddress:
+            return Localization.sendErrorAddressIsTokenContract
         case .invalidAddress:
             return Localization.sendRecipientAddressError
         case .additionalFieldRequired:
