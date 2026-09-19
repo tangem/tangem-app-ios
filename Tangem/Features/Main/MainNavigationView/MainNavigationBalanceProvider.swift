@@ -45,12 +45,17 @@ final class MainNavigationBalanceProvider {
         }
 
         switch state {
-        case .empty, .failed:
+        case .empty, .failed(.none, _):
             return .empty
 
         case .loading(let cached):
             let formatted = cached.map { formatBalance(balance: $0) }
             return .loading(text: formatted.map { .attributed($0) })
+
+        // Keep showing the last known total after a failed refresh, like the main header does
+        case .failed(.some(let cached), _):
+            let formatted = formatBalance(balance: cached)
+            return .loaded(text: .attributed(formatted))
 
         case .loaded(let balance):
             let formatted = formatBalance(balance: balance)
