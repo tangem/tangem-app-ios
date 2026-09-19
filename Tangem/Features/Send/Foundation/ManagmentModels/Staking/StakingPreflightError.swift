@@ -19,7 +19,10 @@ extension SendStakingableToken {
         let params = StakingBlockchainParams(blockchain: feeTokenItem.blockchain)
         if params.supportsZeroBalanceOperations { return nil }
 
-        let feeCurrencyBalance = tokenFeeProvidersManager.selectedFeeProvider.balanceFeeTokenState.loaded
+        // `spendableValue`, not `loaded`: a cached balance (`.loading`/`.failure` after a refresh hiccup) is still
+        // a balance to judge against, and an unfunded account (`.empty(.noAccount)`) counts as zero.
+        // Mirrors `CommonTokenFeeProvidersManager.feeCurrencyBalance()`.
+        let feeCurrencyBalance = tokenFeeProvidersManager.selectedFeeProvider.balanceFeeTokenState.spendableValue
         if let feeCurrencyBalance, feeCurrencyBalance > .zero { return nil }
 
         return .insufficientFundsForFee(feeCurrencyBalance: feeCurrencyBalance)
