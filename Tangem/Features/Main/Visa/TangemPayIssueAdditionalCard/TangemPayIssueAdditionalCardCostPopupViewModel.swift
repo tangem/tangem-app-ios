@@ -44,7 +44,7 @@ final class TangemPayIssueAdditionalCardCostPopupViewModel: ObservableObject, Fl
     }
 
     var feeText: String {
-        Self.formatCurrency(fee.amount, currencyCode: fee.currency)
+        Self.amountFormatter.format(fee.amount, currencyCode: fee.currency)
     }
 
     var insufficientFundsBannerTitle: String {
@@ -124,13 +124,7 @@ final class TangemPayIssueAdditionalCardCostPopupViewModel: ObservableObject, Fl
 }
 
 private extension TangemPayIssueAdditionalCardCostPopupViewModel {
-    static func formatCurrency(_ amount: Decimal, currencyCode: String) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.locale = Locale(identifier: "en_US")
-        formatter.currencyCode = currencyCode
-        return formatter.string(from: amount as NSDecimalNumber) ?? "\(amount) \(currencyCode)"
-    }
+    static let amountFormatter = TangemPayFiatAmountFormatter()
 
     func confirm() {
         guard !isIssuing else { return }

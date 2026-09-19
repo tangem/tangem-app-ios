@@ -135,14 +135,10 @@ final class TangemPayVirtualAccountInfoSheetViewModel: ObservableObject, Floatin
         coordinator?.openVirtualAccountURL(url)
     }
 
+    private static let amountFormatter = TangemPayFiatAmountFormatter()
+
     private static func format(fee: TangemPayFeeResponse) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.locale = Locale(identifier: "en_US")
-        formatter.currencyCode = fee.currency
-        formatter.minimumFractionDigits = 0
-        formatter.maximumFractionDigits = 2
-        return formatter.string(from: fee.amount as NSDecimalNumber) ?? "\(fee.amount) \(fee.currency)"
+        amountFormatter.format(fee.amount, currencyCode: fee.currency, hidesFractionForWholeAmounts: true)
     }
 }
 
