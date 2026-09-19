@@ -235,7 +235,7 @@ struct CampaignView: View {
             SkeletonView()
                 .frame(height: MainButton.Size.default.height)
                 .frame(maxWidth: .infinity)
-                .clipShape(RoundedRectangle(cornerRadius: MainButton.Style.primary.cornerRadius(for: .default)))
+                .clipShape(Capsule(style: .continuous))
         }
     }
 }
