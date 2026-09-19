@@ -919,7 +919,8 @@ extension MainCoordinator: ActionButtonsSellFlowRoutable {
                 self?.actionButtonsSellCoordinator = nil
                 guard let model else { return }
 
-                let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: model.walletModel)
+                // The selected token may belong to another unlocked wallet than the one that opened the sheet
+                let input = SendInput(userWalletInfo: model.userWalletInfo, walletModel: model.walletModel)
                 self?.openSendToSell(input: input, sellParameters: model.sellParameters)
             }
         )

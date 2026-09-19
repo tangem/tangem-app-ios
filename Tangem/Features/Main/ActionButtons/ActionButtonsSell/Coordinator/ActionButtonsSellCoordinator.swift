@@ -106,7 +106,7 @@ extension ActionButtonsSellCoordinator: TransferRoutable {
         }
 
         openSellCrypto(at: url) { [weak self] response in
-            self?.makeSendToSellModel(from: response, and: walletModel)
+            self?.makeSendToSellModel(from: response, walletModel: walletModel, userWalletInfo: userWalletInfo)
         }
     }
 
@@ -177,7 +177,11 @@ private extension ActionButtonsSellCoordinator {
         )
     }
 
-    func makeSendToSellModel(from response: String, and walletModel: any WalletModel) -> ActionButtonsSendToSellModel? {
+    func makeSendToSellModel(
+        from response: String,
+        walletModel: any WalletModel,
+        userWalletInfo: UserWalletInfo
+    ) -> ActionButtonsSendToSellModel? {
         let sellUtility = SellCryptoUtility(
             tokenItem: walletModel.tokenItem,
             address: walletModel.defaultAddressString
@@ -193,6 +197,6 @@ private extension ActionButtonsSellCoordinator {
             tag: sellCryptoRequest.tag
         )
 
-        return .init(sellParameters: sellParameters, walletModel: walletModel)
+        return .init(sellParameters: sellParameters, userWalletInfo: userWalletInfo, walletModel: walletModel)
     }
 }
