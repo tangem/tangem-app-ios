@@ -96,6 +96,34 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
         #expect(sut.selectedFeeProvider.feeTokenItem == usdtTokenItem)
     }
 
+    @Test("Switches to idle provider when the cached balance is insufficient")
+    func feeExceedsCachedBalance_idleAvailable_switchesToIdle() async {
+        // A refresh in flight (or a failed one) still carries the last known balance; coverage is judged
+        // against it exactly like against a freshly loaded value (spendableFeeCurrencyBalance).
+        let eth = ControllableTokenFeeProviderStub(
+            feeTokenItem: ethTokenItem,
+            state: .available([.market: makeFee(0.001)]),
+            balance: .loading(.init(balance: 0.0001, date: Date())),
+            selectedTokenFee: makeSuccessTokenFee(0.001, tokenItem: ethTokenItem)
+        )
+        let usdt = ControllableTokenFeeProviderStub(
+            feeTokenItem: usdtTokenItem,
+            state: .idle,
+            balance: .loaded(100),
+            selectedTokenFee: TokenFee(option: .market, tokenItem: usdtTokenItem, value: .loading)
+        )
+
+        let sut = CommonTokenFeeProvidersManager(
+            feeProviders: [eth, usdt],
+            initialSelectedProvider: eth,
+            ownerAddress: nil
+        )
+
+        await sut.updateFees().value
+
+        #expect(sut.selectedFeeProvider.feeTokenItem == usdtTokenItem)
+    }
+
     // MARK: - Scenario D: fallback to initial when no idle and initial is supported
 
     @Test("Falls back to initial when no idle and initial is supported")
@@ -316,10 +344,11 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
         #expect(sut.selectedFeeProvider.feeTokenItem == ethTokenItem)
     }
 
-    @Test("No-op when balance is not .loaded (e.g. .empty/.loading/.failure)")
-    func balanceNotLoaded_earlyReturn_noSwitch() async {
-        // Current ETH is .available with a fee, but balance is still loading → balance.loaded == nil.
-        // Switch would otherwise want to swap to idle USDT — but bails out at the first guard.
+    @Test("No-op when no balance is known (e.g. .empty(.noData)/.loading(nil)/.failure(nil))")
+    func balanceUnknown_earlyReturn_noSwitch() async {
+        // Current ETH is .available with a fee, but the balance is still loading with nothing cached
+        // → spendableFeeCurrencyBalance == nil. Switch would otherwise want to swap to idle USDT — but bails
+        // out at the first guard.
         let eth = ControllableTokenFeeProviderStub(
             feeTokenItem: ethTokenItem,
             state: .available([.market: makeFee(0.001)]),
@@ -394,6 +423,12 @@ struct CommonTokenFeeProvidersManagerProviderInitialSelectionTests {
         ),
         .init(.tron(testnet: false), derivationPath: nil)
     )
+    private let ethTokenItem: TokenItem = .blockchain(.init(.ethereum(testnet: false), derivationPath: nil))
+    private let usdtTokenItem: TokenItem = .token(
+        .init(name: "USDT", symbol: "USDT", contractAddress: "0xUSDT", decimalCount: 6),
+        .init(.ethereum(testnet: false), derivationPath: nil)
+    )
+
     @Test("Tron selects gasless token when both fee currencies have balance")
     func tronWithNativeAndGaslessBalances_selectsGasless() {
         let native = makeProvider(tokenItem: tronNativeTokenItem, balance: 10)
@@ -443,16 +478,42 @@ struct CommonTokenFeeProvidersManagerProviderInitialSelectionTests {
         #expect(selected.feeTokenItem == tronNativeTokenItem)
     }
 
-    private func makeSUT() -> CommonTokenFeeProvidersManagerProvider {
+    @Test("EVM prefers the sent gasless token when the coin balance is a cached zero")
+    func evmWithCachedZeroCoinBalance_selectsGasless() {
+        // The coin balance failed to refresh but the last known value is zero: that is still a zero balance
+        // to judge against (spendableFeeCurrencyBalance), so the funded gasless token is preferred.
+        let native = makeProvider(tokenItem: ethTokenItem, balance: .failure(.init(balance: 0, date: Date())))
+        let gasless = makeProvider(tokenItem: usdtTokenItem, balance: .loaded(100))
+
+        let selected = makeSUT(tokenItem: usdtTokenItem).prepareInitialTokenFeeProvider(main: native, all: [native, gasless])
+
+        #expect(selected.feeTokenItem == usdtTokenItem)
+    }
+
+    @Test("EVM keeps the coin when its balance is unknown")
+    func evmWithUnknownCoinBalance_selectsNative() {
+        let native = makeProvider(tokenItem: ethTokenItem, balance: .loading(nil))
+        let gasless = makeProvider(tokenItem: usdtTokenItem, balance: .loaded(100))
+
+        let selected = makeSUT(tokenItem: usdtTokenItem).prepareInitialTokenFeeProvider(main: native, all: [native, gasless])
+
+        #expect(selected.feeTokenItem == ethTokenItem)
+    }
+
+    private func makeSUT(tokenItem: TokenItem? = nil) -> CommonTokenFeeProvidersManagerProvider {
         CommonTokenFeeProvidersManagerProvider(
-            walletModel: WalletModelTestsMock(tokenItem: tronTokenItem, isEmpty: false)
+            walletModel: WalletModelTestsMock(tokenItem: tokenItem ?? tronTokenItem, isEmpty: false)
         )
     }
 
     private func makeProvider(tokenItem: TokenItem, balance: Decimal) -> ControllableTokenFeeProviderStub {
+        makeProvider(tokenItem: tokenItem, balance: .loaded(balance))
+    }
+
+    private func makeProvider(tokenItem: TokenItem, balance: TokenBalanceType) -> ControllableTokenFeeProviderStub {
         ControllableTokenFeeProviderStub(
             feeTokenItem: tokenItem,
-            balance: .loaded(balance),
+            balance: balance,
             selectedTokenFee: TokenFee(option: .market, tokenItem: tokenItem, value: .loading)
         )
     }
