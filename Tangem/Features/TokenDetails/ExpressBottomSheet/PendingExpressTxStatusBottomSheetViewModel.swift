@@ -31,8 +31,10 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     let sourceTokenIconInfo: TokenIconInfo
     let destinationTokenIconInfo: TokenIconInfo
     let sourceAmountText: String
-    let destinationAmountText: String
 
+    /// Onramp providers report the bought amount only once the purchase settles, so it is refreshed from later
+    /// `pendingTransaction` updates rather than fixed at `init`.
+    @Published private(set) var destinationAmountText: String
     @Published private(set) var pendingTransaction: PendingTransaction
 
     @Published var providerRowViewModel: ProviderRowViewModel
@@ -95,11 +97,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
             sheetTitle = Localization.commonTransactionStatus
             statusViewTitle = Localization.commonTransactionStatus
             sourceAmountText = balanceFormatter.formatFiatBalance(sourceAmount, currencyCode: sourceCurrencySymbol)
-            if destination.amount > 0 {
-                destinationAmountText = balanceFormatter.formatCryptoBalance(destination.amount, currencyCode: destination.tokenItem.currencySymbol)
-            } else {
-                destinationAmountText = destination.tokenItem.currencySymbol
-            }
+            destinationAmountText = Self.onrampDestinationAmountText(for: destination, balanceFormatter: balanceFormatter)
             sourceTokenIconInfo = iconBuilder.build(from: sourceCurrencySymbol)
             destinationTokenIconInfo = iconBuilder.build(from: destination.tokenItem, isCustom: destination.isCustom)
         }
@@ -200,12 +198,45 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
             loadRatesIfNeeded(stateKeyPath: \.destinationFiatAmountTextState, for: destination, on: self)
         case .onramp(_, _, let destination):
             sourceFiatAmountTextState = .noData
-            if destination.amount > 0 {
-                loadRatesIfNeeded(stateKeyPath: \.destinationFiatAmountTextState, for: destination, on: self)
-            } else {
-                destinationFiatAmountTextState = .noData
-            }
+            loadOnrampDestinationFiatRate(for: destination)
         }
+    }
+
+    private func loadOnrampDestinationFiatRate(for destination: ExpressPendingTransactionRecord.TokenTxInfo) {
+        if destination.amount > 0 {
+            loadRatesIfNeeded(stateKeyPath: \.destinationFiatAmountTextState, for: destination, on: self)
+        } else {
+            destinationFiatAmountTextState = .noData
+        }
+    }
+
+    /// Onramp records are created before the provider knows the bought amount; `PendingOnrampTransactionFactory`
+    /// fills it in from status updates, so the header amount and its fiat value follow `pendingTransaction`.
+    private func updateOnrampDestinationAmountIfNeeded(with pendingTransaction: PendingTransaction) {
+        guard case .onramp(_, _, let destination) = pendingTransaction.type else {
+            return
+        }
+
+        let amountText = Self.onrampDestinationAmountText(for: destination, balanceFormatter: balanceFormatter)
+
+        guard amountText != destinationAmountText else {
+            return
+        }
+
+        destinationAmountText = amountText
+        destinationFiatAmountTextState = .loading
+        loadOnrampDestinationFiatRate(for: destination)
+    }
+
+    private static func onrampDestinationAmountText(
+        for destination: ExpressPendingTransactionRecord.TokenTxInfo,
+        balanceFormatter: BalanceFormatter
+    ) -> String {
+        guard destination.amount > 0 else {
+            return destination.tokenItem.currencySymbol
+        }
+
+        return balanceFormatter.formatCryptoBalance(destination.amount, currencyCode: destination.tokenItem.currencySymbol)
     }
 
     private func loadRatesIfNeeded(
@@ -248,6 +279,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
                 }
 
                 viewModel.pendingTransaction = pendingTx
+                viewModel.updateOnrampDestinationAmountIfNeeded(with: pendingTx)
                 viewModel.setupRatingViewModel()
 
                 if pendingTx.transactionStatus.isCanBeHideAutomatically, pendingTx.refundedTokenItem == nil {
