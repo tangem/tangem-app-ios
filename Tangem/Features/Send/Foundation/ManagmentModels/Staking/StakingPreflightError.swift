@@ -19,7 +19,7 @@ extension SendStakingableToken {
         let params = StakingBlockchainParams(blockchain: feeTokenItem.blockchain)
         if params.supportsZeroBalanceOperations { return nil }
 
-        let feeCurrencyBalance = tokenFeeProvidersManager.selectedFeeProvider.balanceFeeTokenState.loaded
+        let feeCurrencyBalance = tokenFeeProvidersManager.selectedFeeProvider.spendableFeeCurrencyBalance
         if let feeCurrencyBalance, feeCurrencyBalance > .zero { return nil }
 
         return .insufficientFundsForFee(feeCurrencyBalance: feeCurrencyBalance)

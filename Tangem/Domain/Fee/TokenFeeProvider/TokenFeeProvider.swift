@@ -36,6 +36,16 @@ protocol TokenFeeProvider {
 // MARK: - TokenFeeProvider+
 
 extension TokenFeeProvider {
+    /// The fee-currency balance to judge fee / spend coverage against.
+    ///
+    /// A cached balance (`.loading(cached:)` / `.failure(cached:)`) still counts, and an unfunded account
+    /// (`.empty(.noAccount)`) counts as zero; `nil` means no balance is known at all.
+    /// Every "can the fee currency cover X" check should read this rather than `balanceFeeTokenState.loaded`
+    /// (which drops cached values) or `.value` (which reports an unfunded account as unknown).
+    var spendableFeeCurrencyBalance: Decimal? {
+        balanceFeeTokenState.spendableValue
+    }
+
     var fees: [TokenFee] {
         state.loadedFees.map { key, value in
             TokenFee(option: key, tokenItem: feeTokenItem, value: .success(value))
