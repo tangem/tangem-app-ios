@@ -212,6 +212,13 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
     }
 
     func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void) {
+        guard destination == nil else {
+            replaceDestination { [weak self] in
+                self?.openPositionDetails(position: position, onOrderPlaced: onOrderPlaced)
+            }
+            return
+        }
+
         guard case .main(_, let destinationFactory, _) = viewState else { return }
 
         destination = .positionDetails(destinationFactory.makePositionDetails(
@@ -407,6 +414,14 @@ extension PolymarketCoordinator: PolymarketRedeemRoutable {
 // MARK: - Navigation
 
 extension PolymarketCoordinator {
+    func replaceDestination(with push: @escaping () -> Void) {
+        destination = nil
+
+        Task { @MainActor in
+            push()
+        }
+    }
+
     func popToMain() {
         destination = nil
     }

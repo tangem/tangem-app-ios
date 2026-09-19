@@ -117,6 +117,20 @@ extension FeedCoordinator: FeedNavigation {
 // MARK: - FeedWidgetsRoutable
 
 extension FeedCoordinator: FeedWidgetsRoutable {
+    func openPolymarketMain(wallet: UserWalletModel) {
+        guard path.isEmpty else { return }
+
+        shtorkaStateObject.expand()
+
+        let coordinator = PolymarketCoordinator(
+            dismissAction: { [weak self] in self?.pop() },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(userWalletModel: wallet))
+
+        push(.polymarket(coordinator))
+    }
+
     func openForYou() {
         guard path.isEmpty else { return }
 
