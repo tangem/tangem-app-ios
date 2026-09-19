@@ -12,12 +12,12 @@ import Testing
 
 @Suite("Polymarket order record")
 struct PolymarketOrderRecordTests {
-    @Test("Base units read back as shares, priced to the cent")
+    @Test("Sizes read back as the shares they already are, priced to the cent")
     func readsSizesBackInHumanUnits() {
         let record = PolymarketOrderRecord(
             status: .matched,
-            originalSize: 10_000_000,
-            matchedSize: 7_000_000,
+            originalSize: 10,
+            matchedSize: 7,
             price: Decimal(string: "0.208")!
         )
 
@@ -33,8 +33,47 @@ struct PolymarketOrderRecordTests {
         #expect(record.isFullyMatched)
     }
 
+    @Test("A filled order reports the money that actually left the account")
+    func aFilledOrderReportsTheMoneySpent() {
+        let record = PolymarketOrderRecord(
+            status: .matched,
+            originalSize: Decimal(string: "13.1578")!,
+            matchedSize: Decimal(string: "13.888889")!,
+            price: Decimal(string: "0.38")!
+        )
+
+        #expect(record.matchedShares == Decimal(string: "13.888889")!)
+        #expect(record.executedAmount == Decimal(string: "5.28")!)
+        #expect(record.isFullyMatched)
+    }
+
     @Test("A status this build does not know is not mistaken for a match")
     func unknownStatusIsNotAMatch() {
         #expect(PolymarketOrderRecordStatus(rawValue: "ORDER_STATUS_SOMETHING_NEW") == nil)
+    }
+
+    @Test(
+        "The exchange's bare status names decode to the same cases as the contract's prefixed ones",
+        arguments: [
+            ("MATCHED", PolymarketOrderRecordStatus.matched),
+            ("ORDER_STATUS_MATCHED", .matched),
+            ("LIVE", .live),
+            ("ORDER_STATUS_LIVE", .live),
+            ("CANCELED", .canceled),
+            ("CANCELED_MARKET_RESOLVED", .canceledMarketResolved),
+            ("INVALID", .invalid),
+        ]
+    )
+    func bareStatusNamesDecode(raw: String, expected: PolymarketOrderRecordStatus) throws {
+        let decoded = try JSONDecoder().decode(PolymarketOrderRecordStatus.self, from: Data("\"\(raw)\"".utf8))
+
+        #expect(decoded == expected)
+    }
+
+    @Test("A status neither spelling explains is unknown, not a verdict")
+    func anUnreadableStatusDecodesAsUnknown() throws {
+        let decoded = try JSONDecoder().decode(PolymarketOrderRecordStatus.self, from: Data("\"SOMETHING_NEW\"".utf8))
+
+        #expect(decoded == .unknown)
     }
 }
