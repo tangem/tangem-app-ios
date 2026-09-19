@@ -34,12 +34,20 @@ public enum PolymarketOrderRecordStatus: String, Hashable, Sendable {
     case unknown
 }
 
+private extension PolymarketOrderRecordStatus {
+    enum Constants {
+        static let prefix = "ORDER_STATUS_"
+    }
+}
+
 // MARK: - Decodable protocol conformance
 
 extension PolymarketOrderRecordStatus: Decodable {
     public init(from decoder: any Decoder) throws {
         let rawValue = try decoder.singleValueContainer().decode(String.self)
-        self = PolymarketOrderRecordStatus(rawValue: rawValue) ?? .unknown
+        self = PolymarketOrderRecordStatus(rawValue: rawValue)
+            ?? PolymarketOrderRecordStatus(rawValue: Constants.prefix + rawValue)
+            ?? .unknown
     }
 }
 
@@ -47,7 +55,7 @@ extension PolymarketOrderRecordStatus: Decodable {
 
 public extension PolymarketOrderRecord {
     var matchedShares: Decimal {
-        matchedSize / pow(10, PolymarketCollateral.decimalCount)
+        matchedSize
     }
 
     var executedAmount: Decimal {
