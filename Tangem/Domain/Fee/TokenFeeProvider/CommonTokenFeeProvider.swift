@@ -192,7 +192,7 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
             // Convert gaslessMinAmount from smallest token units to decimal value to match the balance scale
             let threshold = gaslessMinAmount / feeTokenItem.decimalValue
 
-            if let balance = feeTokenItemBalanceProvider.balanceType.value, balance < threshold {
+            if let balance = spendableFeeCurrencyBalance, balance < threshold {
                 updateState(state: .unavailable(.notEnoughFeeBalance))
             } else {
                 updateState(state: .error(TokenFeeLoaderError.executionReverted))
@@ -271,7 +271,7 @@ private extension CommonTokenFeeProvider {
         feeTokenItemBalanceStateCancellable = feeTokenItemBalanceProvider
             .balanceTypePublisher
             .withWeakCaptureOf(self)
-            .map { feeProvider, balanceType in feeProvider.hasFeeCurrency(balance: balanceType.value ?? 0) }
+            .map { feeProvider, balanceType in feeProvider.hasFeeCurrency(balance: balanceType.spendableValue ?? 0) }
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { feeProvider, hasFeeCurrency in
@@ -347,7 +347,7 @@ private extension CommonTokenFeeProvider {
         case (true, _):
             updateState(state: .unavailable(.notSupported))
         case (false, .unavailable(.notSupported)):
-            let balance = feeTokenItemBalanceProvider.balanceType.value ?? 0
+            let balance = spendableFeeCurrencyBalance ?? 0
             updateState(state: hasFeeCurrency(balance: balance) ? .idle : .unavailable(.noTokenBalance))
         case (false, _):
             break
@@ -418,7 +418,7 @@ private extension CommonTokenFeeProvider {
 
     func mapToLoadableTokenFee(state: TokenFeeProviderState, selectedFeeOption: FeeOption) -> TokenFee {
         let loadableTokenFeeState: LoadingResult<BSDKFee, any Error> = {
-            let feeCurrencyBalance = feeTokenItemBalanceProvider.balanceType.value ?? 0
+            let feeCurrencyBalance = spendableFeeCurrencyBalance ?? 0
 
             switch state {
             case .idle, .loading:

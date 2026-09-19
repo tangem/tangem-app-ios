@@ -79,19 +79,19 @@ extension CommonTokenFeeProvidersManagerProvider {
         // Temporary solution until we implement multi-token gas estimation.
         if case .tron(testnet: false) = walletModel.tokenItem.blockchain {
             return all.first(where: {
-                $0.feeTokenItem != main.feeTokenItem && ($0.balanceFeeTokenState.loaded ?? 0) > 0
+                $0.feeTokenItem != main.feeTokenItem && ($0.spendableFeeCurrencyBalance ?? 0) > 0
             }) ?? main
         }
 
         // If main(coin) fee provider has zero balance then try to find gasless
-        guard main.balanceFeeTokenState.loaded == .zero else {
+        guard main.spendableFeeCurrencyBalance == .zero else {
             return main
         }
 
         // If we have same TokenFeeProvider as sending token.
         // It means we have positive balance on this token.
         // Then use it
-        if let gaslessProvider = all[walletModel.tokenItem], (gaslessProvider.balanceFeeTokenState.loaded ?? 0) > 0 {
+        if let gaslessProvider = all[walletModel.tokenItem], (gaslessProvider.spendableFeeCurrencyBalance ?? 0) > 0 {
             return gaslessProvider
         }
 

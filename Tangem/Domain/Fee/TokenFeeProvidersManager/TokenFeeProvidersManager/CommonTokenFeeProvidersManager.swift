@@ -125,7 +125,7 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
     }
 
     func feeCurrencyBalance() throws -> Decimal {
-        guard let balance = selectedFeeProvider.balanceFeeTokenState.spendableValue else {
+        guard let balance = selectedFeeProvider.spendableFeeCurrencyBalance else {
             throw ExpressBalanceProviderError.balanceNotFound
         }
 
@@ -301,8 +301,10 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
 
 private extension CommonTokenFeeProvidersManager {
     func switchToProviderWithEnoughBalanceIfNeeded() async {
+        // A cached balance is enough to judge coverage: a stale-low balance only leads to another provider being
+        // tried, whose own fee load decides whether it can actually pay.
         guard let feeAmount = selectedFeeProvider.selectedTokenFee.value.value?.amount.value,
-              let balance = selectedFeeProvider.balanceFeeTokenState.loaded else {
+              let balance = selectedFeeProvider.spendableFeeCurrencyBalance else {
             return
         }
 
