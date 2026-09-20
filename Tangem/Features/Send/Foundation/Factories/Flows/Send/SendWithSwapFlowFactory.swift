@@ -30,6 +30,8 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     )
     private lazy var predefinedTransferValues = mapToPredefinedValues(parameters: predefinedSendParameters)
     private lazy var predefinedInitialStep = mapToInitialStep(parameters: predefinedSendParameters)
+    /// One instance for both steps: the destination step scans and feeds address/memo, the amount step listens for `amount`.
+    private lazy var sendQRCodeService = makeSendQRCodeService()
 
     lazy var transferModel = makeTransferModel(
         analyticsLogger: analyticsLogger,
@@ -283,7 +285,8 @@ extension SendWithSwapFlowFactory: SendAmountStepBuildable {
             amountModifier: .none,
             notificationService: notificationManager as? SendAmountNotificationService,
             analyticsLogger: analyticsLogger,
-            providerRateTypesPublisher: sendWithSwapModel.providerRateTypesPublisher
+            providerRateTypesPublisher: sendWithSwapModel.providerRateTypesPublisher,
+            sendQRCodeService: sendQRCodeService
         )
     }
 }
@@ -305,7 +308,7 @@ extension SendWithSwapFlowFactory: SendDestinationStepBuildable {
 
     var destinationDependencies: SendDestinationStepBuilder.Dependencies {
         SendDestinationStepBuilder.Dependencies(
-            sendQRCodeService: makeSendQRCodeService(),
+            sendQRCodeService: sendQRCodeService,
             analyticsLogger: analyticsLogger,
             destinationInteractorDependenciesProvider: SendDestinationInteractorDependenciesProvider(
                 sourceToken: sourceToken,
