@@ -60,6 +60,9 @@ extension MultipleAddressTransactionHistoryService: TransactionHistoryService {
         cancellable = nil
         transactionHistoryProviders.forEach { _, provider in provider.reset() }
         await cleanStorage()
+        // Cancelling an in-flight request (above) never delivers a completion, so without this the state would stay
+        // `.loading` forever and every following `fetch` would bail out on `isLoading`.
+        _state.send(.initial)
         AppLogger.info(self, "was reset")
     }
 
@@ -82,6 +85,8 @@ private extension MultipleAddressTransactionHistoryService {
     func fetch(result: @escaping (Result<Void, Never>) -> Void) {
         if _state.value.isLoading {
             AppLogger.info(self, "already is loading")
+            // The `Future` must always be resolved, otherwise `update().async()` in the wallet model never returns.
+            result(.success(()))
             return
         }
 
@@ -114,6 +119,11 @@ private extension MultipleAddressTransactionHistoryService {
         cancellable = Publishers
             .MergeMany(publishers)
             .collect()
+            .handleEvents(receiveCancel: { [weak self] in
+                // Resolves conflicting requests for tracking history from different consumers so as not to lose output from the update process
+                AppLogger.info(self, "canceled")
+                result(.success(()))
+            })
             .withWeakCaptureOf(self)
             .asyncMap { service, responses in
                 for response in responses {
