@@ -129,8 +129,12 @@ extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor
     }
 
     var isAddAddressEnabledPublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest3(_address, _selectedNetworks, _addressError)
-            .map { address, networks, error in !address.isEmpty && !networks.isEmpty && error == nil }
+        // An invalid memo / destination tag resets `_additionalField` to `.notSupported`, so saving while the
+        // additional-field error is shown would silently store the entry without the memo.
+        Publishers.CombineLatest4(_address, _selectedNetworks, _addressError, _addressAdditionalFieldError)
+            .map { address, networks, addressError, additionalFieldError in
+                !address.isEmpty && !networks.isEmpty && addressError == nil && additionalFieldError == nil
+            }
             .eraseToAnyPublisher()
     }
 
