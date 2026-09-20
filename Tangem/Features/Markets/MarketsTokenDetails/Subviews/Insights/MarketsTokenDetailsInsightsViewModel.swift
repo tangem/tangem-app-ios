@@ -49,12 +49,12 @@ class MarketsTokenDetailsInsightsViewModel: ObservableObject {
     }()
 
     private let tokenSymbol: String
-    private let insights: MarketsTokenDetailsInsights
+    private var insights: MarketsTokenDetailsInsights
     private let notationFormatter: DefaultAmountNotationFormatter
-    private let insightsPublisher: any Publisher<MarketsTokenDetailsInsights?, Never>
+    private let insightsPublisher: AnyPublisher<MarketsTokenDetailsInsights?, Never>
 
     private weak var infoRouter: MarketsTokenDetailsBottomSheetRouter?
-    private var intervalInsights: [MarketsPriceIntervalType: [MarketsTokenDetailsInsightsRecordInfo]] = [:]
+    @Published private var intervalInsights: [MarketsPriceIntervalType: [MarketsTokenDetailsInsightsRecordInfo]] = [:]
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -67,7 +67,7 @@ class MarketsTokenDetailsInsightsViewModel: ObservableObject {
         self.tokenSymbol = tokenSymbol
         self.insights = insights
         self.notationFormatter = notationFormatter
-        self.insightsPublisher = insightsPublisher
+        self.insightsPublisher = insightsPublisher.eraseToAnyPublisher()
         self.infoRouter = infoRouter
 
         setupInsights()
@@ -146,6 +146,19 @@ class MarketsTokenDetailsInsightsViewModel: ObservableObject {
                     forCurrencyCode: newCurrencyCode,
                     formattingOptions: .defaultFiatFormattingOptions
                 )
+                viewModel.setupInsights()
+            }
+            .store(in: &bag)
+
+        // The parent reloads token details (and therefore the insights, quoted in the new currency) on every
+        // currency change and on pull-to-refresh. Without this subscription the block kept the numbers it was
+        // created with, so a currency switch only swapped the symbol in front of the old values.
+        insightsPublisher
+            .compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, insights in
+                viewModel.insights = insights
                 viewModel.setupInsights()
             }
             .store(in: &bag)
