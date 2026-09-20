@@ -525,6 +525,17 @@ private extension TokenDetailsViewModel {
             .map { $0.nilIfEmpty }
             .assign(to: &$standaloneMarketingBanners)
 
+        // `marketPriceViewModel` is built once in `prepareSelf`; keep its price and change in step with the
+        // quote (first quote arriving after the screen opened, app currency change) without touching the mini chart.
+        Publishers.CombineLatest($rateFormatted, $priceChangeState)
+            .removeDuplicates { $0 == $1 }
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, quote in
+                viewModel.updateMarketPrice(rateFormatted: quote.0, priceChangeState: quote.1)
+            }
+            .store(in: &bag)
+
         walletModel.yieldModuleManager?.statePublisher
             .compactMap { $0 }
             .filter { !$0.state.isLoading }
@@ -749,6 +760,16 @@ private extension TokenDetailsViewModel {
 
     private func makeFormattedRewardPercent(yieldInfo: StakingYieldInfo) -> String {
         PercentFormatter().format(yieldInfo.rewardRateValues.max, option: .earn)
+    }
+
+    private func updateMarketPrice(rateFormatted: String, priceChangeState: PriceChangeView.State) {
+        guard var viewModel = marketPriceViewModel else {
+            return
+        }
+
+        viewModel.subtitle = rateFormatted
+        viewModel.priceChange = priceChangeState
+        marketPriceViewModel = viewModel
     }
 
     @MainActor
