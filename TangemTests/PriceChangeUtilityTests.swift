@@ -169,4 +169,11 @@ class PriceChangeUtilityTests: XCTestCase {
         }
         XCTAssertEqual(changeType, .negative)
     }
+
+    func testZeroPreviousPriceReturnsNoData() throws {
+        let currentPrice = try #require(Decimal(stringValue: "50.0"))
+        // Division by zero would yield NaN and render as "NaN %".
+        let state = utility.calculatePriceChangeStateBetween(currentPrice: currentPrice, previousPrice: 0)
+        XCTAssertEqual(state, .noData)
+    }
 }
