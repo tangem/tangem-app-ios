@@ -150,7 +150,8 @@ extension KaspaTransactionHistoryMapper: TransactionHistoryMapper {
                 index: 0,
                 source: source,
                 destination: destination,
-                fee: Fee(Amount(with: blockchain, value: Decimal(fee))),
+                // `calculateFee` works in sompi (like `extractTransactionAmount`); convert to KAS for the record.
+                fee: Fee(Amount(with: blockchain, value: Decimal(fee) / blockchain.decimalValue)),
                 status: transactionStatus,
                 isOutgoing: isOutgoing,
                 type: .transfer,
