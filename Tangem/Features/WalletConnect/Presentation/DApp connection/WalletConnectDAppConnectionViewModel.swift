@@ -218,16 +218,11 @@ extension WalletConnectDAppConnectionViewModel {
                     selectedUserWallet = walletModel.domainModel
 
                 case .account(let accountModel):
+                    // The selector item already carries the wallet that owns the account. Looking the wallet up by
+                    // comparing against each wallet's *first* crypto account (the previous approach) failed for every
+                    // non-first account, leaving `selectedUserWallet` pointing at the wrong wallet.
                     selectedAccount = accountModel.domainModel
-
-                    selectedUserWallet = userWallets.first {
-                        $0.accountModelsManager.accountModels.contains {
-                            guard let cryptoAccount = WCAccountFinder.firstAvailableCryptoAccountModel(from: $0) else {
-                                return false
-                            }
-                            return cryptoAccount.id == accountModel.domainModel.id
-                        }
-                    } ?? selectedUserWallet
+                    selectedUserWallet = accountModel.userWalletModel
                 }
 
                 openConnectionRequest()
