@@ -49,7 +49,10 @@ class CommonSendAmountInteractorSaver: SendAmountInteractorSaver {
     }
 
     func cancelChanges() {
-        updater?.externalUpdate(amount: captureAmount?.main)
+        // `main` is crypto or fiat depending on the calculation type at capture time, while `externalUpdate(amount:)`
+        // interprets its argument under the *current* type. If the user toggled crypto/fiat before cancelling,
+        // the captured number would be re-read in the wrong unit, so restore from the unit-safe crypto value.
+        updater?.externalUpdate(cryptoAmount: captureAmount?.crypto)
         sourceTokenAmountOutput?.sourceAmountDidChanged(amount: captureAmount)
 
         if captureToken?.tokenItem != receiveTokenInput?.receiveToken.value?.tokenItem {
