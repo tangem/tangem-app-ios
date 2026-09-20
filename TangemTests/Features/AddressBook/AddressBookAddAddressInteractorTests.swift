@@ -9,6 +9,7 @@ import Combine
 import Foundation
 import Testing
 import BlockchainSdk
+import TangemFoundation
 @testable import Tangem
 
 @Suite("CommonAddressBookAddAddressInteractor — save availability")
