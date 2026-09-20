@@ -29,11 +29,20 @@ extension SolanaExternalLinkProvider: ExternalLinkProvider {
     }
 
     func url(address: String, contractAddress: String?) -> URL? {
-        var urlString = baseUrl + "account/" + address + cluster
-        if let contractAddress {
-            urlString += "?&token_address=" + contractAddress + "#transfers"
+        guard let contractAddress else {
+            return URL(string: baseUrl + "account/" + address + cluster)
         }
-        return URL(string: urlString)
+
+        // `cluster` already starts the query on testnet, so the token filter has to be appended with `&`, not `?`.
+        var components = URLComponents(string: baseUrl + "account/" + address)
+        var queryItems: [URLQueryItem] = []
+        if isTestnet {
+            queryItems.append(URLQueryItem(name: "cluster", value: "testnet"))
+        }
+        queryItems.append(URLQueryItem(name: "token_address", value: contractAddress))
+        components?.queryItems = queryItems
+        components?.fragment = "transfers"
+        return components?.url
     }
 }
 
