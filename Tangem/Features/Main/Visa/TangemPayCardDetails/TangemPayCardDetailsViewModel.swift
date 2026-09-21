@@ -10,6 +10,7 @@ import Combine
 import SwiftUI
 import Foundation
 import UIKit
+import UniformTypeIdentifiers
 import TangemLocalization
 import TangemUI
 import TangemFoundation
@@ -118,13 +119,19 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
 
         let copiedText = cardDetailsData[keyPath: copiedTextKeyPath]
 
-        if removingFormatting {
-            UIPasteboard.general.string = copiedText
-                .replacingOccurrences(of: " ", with: "")
-                .replacingOccurrences(of: "/", with: "")
-        } else {
-            UIPasteboard.general.string = copiedText
-        }
+        let textToCopy = removingFormatting
+            ? copiedText.replacingOccurrences(of: " ", with: "").replacingOccurrences(of: "/", with: "")
+            : copiedText
+
+        // Card data must not linger in the system clipboard or sync to the user's other devices via Universal
+        // Clipboard: expire it shortly (matching the on-screen reveal timeout) and keep it local-only.
+        UIPasteboard.general.setItems(
+            [[UTType.utf8PlainText.identifier: textToCopy]],
+            options: [
+                .expirationDate: Date().addingTimeInterval(Constants.clipboardExpiration),
+                .localOnly: true,
+            ]
+        )
 
         Toast(view: SuccessToast(text: toastMessage))
             .present(
@@ -163,6 +170,7 @@ extension TangemPayCardDetailsViewModel {
 
 private extension TangemPayCardDetailsViewModel {
     enum Constants {
+        static let clipboardExpiration: TimeInterval = 60
         static let cardDetailsVisibilityPeriodInSeconds: TimeInterval = 40
     }
 }
