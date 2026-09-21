@@ -133,6 +133,7 @@ final class CommonAddressBookManager {
             walletId: walletId,
             name: contact.name,
             appearance: AddressBookContactAppearance(rawColor: contact.iconColor),
+            createdAt: contact.createdAt,
             entries: entries
         )
     }
