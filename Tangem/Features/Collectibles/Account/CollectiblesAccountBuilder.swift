@@ -47,7 +47,7 @@ struct CollectiblesAccountBuilder {
             balanceService: CommonCollectiblesBalanceService(
                 tokenBalancesRepository: CommonTokenBalancesRepository(userWalletId: userWalletId)
             ),
-            hotDelegateSigner: CommonCollectiblesHotDelegateSigner(userWalletId: userWalletId),
+            sessionKeySigner: CommonCollectiblesSessionKeySigner(userWalletId: userWalletId),
             coldKeyInteractorFactory: coldKeyInteractorFactory,
             serviceProvider: serviceProvider
         )
