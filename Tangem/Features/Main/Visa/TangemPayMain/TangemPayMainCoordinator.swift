@@ -332,6 +332,13 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         offrampCoordinator = coordinator
     }
 
+    func openTangemPayWithdrawNoteSheet() {
+        Task { @MainActor in
+            let viewModel = TangemPayWithdrawNoteSheetViewModel(coordinator: self)
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openTangemWithdrawInProgressSheet() {
         Task { @MainActor in
             let viewModel = TangemPayWithdrawInProgressSheetViewModel(coordinator: self)
@@ -435,11 +442,11 @@ extension TangemPayMainCoordinator: TangemPayWithdrawNoteSheetRoutable {
         }
     }
 
-    func openWithdrawal(parameters: PredefinedSwapParameters) {
+    func withdrawNoteSheetDidConfirm() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
             try? await Task.sleep(for: .seconds(0.2))
-            openSwap(parameters: parameters)
+            openTangemPayOfframp()
         }
     }
 }
