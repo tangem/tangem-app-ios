@@ -51,6 +51,11 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
                     )
             }
 
+        case .swap:
+            if let sendCoordinator = coordinator.sendCoordinator {
+                SendCoordinatorView(coordinator: sendCoordinator, presentation: .pushed)
+            }
+
         case .transferInput:
             if let viewModel = coordinator.transferInputViewModel {
                 TransferInputView(viewModel: viewModel)
@@ -108,17 +113,11 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .floatingSheetContent(for: TangemPayWithdrawNoteSheetViewModel.self) {
-                TangemPayPopupView(viewModel: $0)
-            }
             .floatingSheetContent(for: TangemPayWithdrawInProgressSheetViewModel.self) {
                 TangemPayWithdrawInProgressSheetView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayNoDepositAddressSheetViewModel.self) {
                 TangemPayNoDepositAddressSheetView(viewModel: $0)
-            }
-            .sheet(item: $coordinator.sendCoordinator) {
-                SendCoordinatorView(coordinator: $0)
             }
             .sheet(isPresented: $coordinator.isGeoSelectionPresented, onDismiss: coordinator.onGeoSelectionDismiss) {
                 coordinator.makeGeoSelectionView()

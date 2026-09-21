@@ -163,6 +163,7 @@ extension TangemPayOfframpCoordinator {
 extension TangemPayOfframpCoordinator {
     enum Route: Hashable {
         case recentRecipients
+        case swap
         case transferInput
         case transferType
         case accountType
@@ -215,6 +216,16 @@ private extension TangemPayOfframpCoordinator {
                 coordinator.orderBuilder = nil
                 coordinator.sendUseCase = nil
                 coordinator.transferInputViewModel = nil
+            }
+            .store(in: &bag)
+
+        $path
+            .map { $0.contains(.swap) }
+            .removeDuplicates()
+            .filter { !$0 }
+            .withWeakCaptureOf(self)
+            .sink { coordinator, _ in
+                coordinator.sendCoordinator = nil
             }
             .store(in: &bag)
 
@@ -522,14 +533,8 @@ private extension TangemPayOfframpCoordinator {
 private extension TangemPayOfframpCoordinator {
     func handle(_ output: WithdrawHubViewModel.Output) {
         switch output {
-        case .withdrawNote(let parameters):
-            Task { @MainActor in
-                let viewModel = TangemPayWithdrawNoteSheetViewModel(
-                    parameters: parameters,
-                    coordinator: self
-                )
-                floatingSheetPresenter.enqueue(sheet: viewModel)
-            }
+        case .withdraw(let parameters):
+            openSwap(parameters: parameters)
 
         case .withdrawInProgress:
             Task { @MainActor in
@@ -556,11 +561,9 @@ private extension TangemPayOfframpCoordinator {
 
     func openSwap(parameters: PredefinedSwapParameters) {
         let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] options in
-            self?.sendCoordinator = nil
-
             switch options {
             case .none, .closeButtonTap, .openSwap:
-                break
+                self?.dismiss(with: nil)
             case .openFeeCurrency(let feeCurrency):
                 self?.dismiss(with: feeCurrency)
             }
@@ -573,24 +576,7 @@ private extension TangemPayOfframpCoordinator {
 
         coordinator.start(with: .init(type: .swap(parameters), source: .main))
         sendCoordinator = coordinator
-    }
-}
-
-// MARK: - TangemPayWithdrawNoteSheetRoutable
-
-extension TangemPayOfframpCoordinator: TangemPayWithdrawNoteSheetRoutable {
-    func closeWithdrawNoteSheetPopup() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
-    }
-
-    func openWithdrawal(parameters: PredefinedSwapParameters) {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-            try? await Task.sleep(for: .seconds(0.2))
-            openSwap(parameters: parameters)
-        }
+        path.append(.swap)
     }
 }
 

@@ -83,6 +83,7 @@ private extension WithdrawHubContentView {
             // [REDACTED_TODO_COMMENT]
             title: "Bank transfer",
             subtitle: accountsSubtitle,
+            subtitleColor: accountsSubtitleColor,
             staticContent: {
                 VStack(spacing: 8) {
                     WithdrawHubCompactActionTileView(
@@ -138,6 +139,15 @@ private extension WithdrawHubContentView {
             Constants.accountsSubtitle
         case .unavailable:
             Constants.accountsUnavailableSubtitle
+        }
+    }
+
+    var accountsSubtitleColor: Color {
+        switch bankTransferState {
+        case .loading, .available:
+            DesignSystem.Color.textSecondary
+        case .unavailable:
+            DesignSystem.Color.textStatusWarning
         }
     }
 
