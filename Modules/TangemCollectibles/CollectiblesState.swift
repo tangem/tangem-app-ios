@@ -19,10 +19,10 @@ public enum CollectiblesState: Hashable, Sendable {
     /// The account's key isn't derived, so the vault PDA can't be computed — on-chain existence is unknown, not absent.
     case coldOwnerNotDerived
 
-    /// A vault exists, but its `hot_delegate` matches no local key (reinstall, new device); exits via an `update_vault` re-key.
+    /// A vault exists, but its `session_key` matches no local key (reinstall, new device); exits via an `update_vault` re-key.
     case rekeyRequired(CollectiblesVaultInfo)
 
-    /// Vault is live and the active local hot key matches `hot_delegate`.
+    /// Vault is live and the active local session key matches `session_key`.
     case ready(CollectiblesVaultInfo)
 }
 
@@ -43,7 +43,7 @@ public struct CollectiblesVaultInfo: Hashable, Sendable {
     public let vaultAddress: String
 
     /// Current on-chain session key (32-byte ed25519 public key).
-    public let hotDelegate: Data
+    public let sessionKey: Data
 
     /// Spending caps in base USDC units (6 decimals); the program checks them against `amount + fee`.
     public let perSpinCap: UInt64
@@ -57,14 +57,14 @@ public struct CollectiblesVaultInfo: Hashable, Sendable {
 
     public init(
         vaultAddress: String,
-        hotDelegate: Data,
+        sessionKey: Data,
         perSpinCap: UInt64,
         dailyCap: UInt64,
         spentToday: UInt64,
         dayIndex: Int64
     ) {
         self.vaultAddress = vaultAddress
-        self.hotDelegate = hotDelegate
+        self.sessionKey = sessionKey
         self.perSpinCap = perSpinCap
         self.dailyCap = dailyCap
         self.spentToday = spentToday
