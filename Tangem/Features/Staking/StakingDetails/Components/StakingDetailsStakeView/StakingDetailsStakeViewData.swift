@@ -23,7 +23,7 @@ struct StakingDetailsStakeViewData: Identifiable {
     let action: (() -> Void)?
     /// Distinguishes rows that render identically (same validator, same amount — e.g. several Solana stake accounts,
     /// or two equal `unstaked` withdrawals); without it their `id`s collide in the list.
-    let accountAddress: String? = nil
+    var accountAddress: String? = nil
 
     var accessibilityIdentifier: String? {
         switch subtitleType {
