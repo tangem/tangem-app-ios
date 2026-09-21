@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemMacro
 import TangemAccounts
 import TangemLocalization
 import TangemPay
@@ -19,8 +20,8 @@ protocol TokenSelectorWalletsProvider {
 // MARK: - Implementations
 
 extension TokenSelectorWalletsProvider where Self == CommonTokenSelectorWalletsProvider {
-    static func common() -> Self { .init() }
-    static func standardAccountsOnly() -> Self { .init(accountModelFilter: \.isStandard) }
+    static func common() -> Self { CommonTokenSelectorWalletsProvider(.init(.crypto, .joint, .tangemPay)) }
+    static func standardAccountsOnly() -> Self { CommonTokenSelectorWalletsProvider(.init(.crypto, .joint)) }
 }
 
 // MARK: - Wallet
@@ -120,6 +121,7 @@ struct TokenSelectorItem: Hashable, Identifiable {
 }
 
 extension TokenSelectorItem {
+    @CaseFlagable
     enum AvailabilityType {
         case available
         case unavailable(reason: TokenSelectorItemViewModel.DisabledReason)
