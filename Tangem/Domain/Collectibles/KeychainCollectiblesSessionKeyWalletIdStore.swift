@@ -1,5 +1,5 @@
 //
-//  KeychainCollectiblesHotDelegateWalletIdStore.swift
+//  KeychainCollectiblesSessionKeyWalletIdStore.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,32 +10,32 @@ import Foundation
 import TangemFoundation
 import TangemSdk
 
-struct KeychainCollectiblesHotDelegateWalletIdStore: CollectiblesHotDelegateWalletIdStore {
+struct KeychainCollectiblesSessionKeyWalletIdStore: CollectiblesSessionKeyWalletIdStore {
     private let secureStorage = SecureStorage()
 
-    func delegateWalletId(for userWalletId: UserWalletId) throws -> UserWalletId? {
+    func sessionKeyWalletId(for userWalletId: UserWalletId) throws -> UserWalletId? {
         try secureStorage.get(account(for: userWalletId)).map(UserWalletId.init(value:))
     }
 
-    func setDelegateWalletId(_ delegateWalletId: UserWalletId?, for userWalletId: UserWalletId) throws {
+    func setSessionKeyWalletId(_ sessionKeyWalletId: UserWalletId?, for userWalletId: UserWalletId) throws {
         let account = account(for: userWalletId)
 
-        guard let delegateWalletId else {
+        guard let sessionKeyWalletId else {
             return try secureStorage.delete(account)
         }
 
-        try secureStorage.store(delegateWalletId.value, forKey: account)
+        try secureStorage.store(sessionKeyWalletId.value, forKey: account)
     }
 }
 
 // MARK: - Private implementation
 
-private extension KeychainCollectiblesHotDelegateWalletIdStore {
+private extension KeychainCollectiblesSessionKeyWalletIdStore {
     func account(for userWalletId: UserWalletId) -> String {
         Constants.accountPrefix + userWalletId.stringValue.lowercased()
     }
 
     enum Constants {
-        static let accountPrefix = "collectibles_hot_delegate_wallet_id_"
+        static let accountPrefix = "collectibles_session_key_wallet_id_"
     }
 }
