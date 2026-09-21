@@ -18,22 +18,20 @@ struct RegionSelectionView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            GeoSelectionContentView(
-                state: viewModel.state,
-                suggestedSectionTitle: viewModel.configuration.suggestedSectionTitle,
-                allSectionTitle: viewModel.configuration.allSectionTitle,
-                hasFlags: false,
-                onItemTap: viewModel.onItemTap(id:)
-            )
-            .tangemSearchable(text: $viewModel.searchText, prompt: Localization.commonSearch)
-            .autocorrectionDisabled()
-            .textInputAutocapitalization(.never)
-            .topNavigation(
-                title: viewModel.configuration.title,
-                leading: viewModel.configuration.leadingPolicy,
-                onClose: viewModel.onClose
-            )
-        }
+        GeoSelectionContentView(
+            state: viewModel.state,
+            highlightedSectionTitle: viewModel.configuration.highlight?.sectionTitle,
+            allSectionTitle: viewModel.configuration.highlight?.allSectionTitle,
+            hasFlags: false,
+            onItemTap: viewModel.onItemTap(id:)
+        )
+        .tangemSearchable(text: $viewModel.searchText, prompt: Localization.commonSearch)
+        .autocorrectionDisabled()
+        .textInputAutocapitalization(.never)
+        .topNavigation(
+            title: viewModel.configuration.title,
+            leading: viewModel.configuration.leadingPolicy,
+            onClose: viewModel.onClose
+        )
     }
 }

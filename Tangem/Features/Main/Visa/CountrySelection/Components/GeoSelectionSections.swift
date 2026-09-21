@@ -7,10 +7,10 @@
 //
 
 struct GeoSelectionSections: Equatable {
-    let suggested: GeoSelectionItem?
+    let highlighted: GeoSelectionItem?
     let all: [GeoSelectionItem]
 
     var isEmpty: Bool {
-        suggested == nil && all.isEmpty
+        highlighted == nil && all.isEmpty
     }
 }
