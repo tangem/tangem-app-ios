@@ -28,6 +28,7 @@ final class StoriesViewModel: ObservableObject {
     private var longTapDetected = false
     private var currentDragLocation: CGPoint?
     private var bag: Set<AnyCancellable> = []
+    private var appearanceBag: Set<AnyCancellable> = []
 
     private let longTapDuration = 0.25
     private let minimumSwipeDistance = 100.0
@@ -85,11 +86,15 @@ final class StoriesViewModel: ObservableObject {
     }
 
     func onAppear() {
+        // Scoped to one appearance: stored in the long-lived bag they accumulated on every appearance and kept
+        // resuming the auto-advance timer on `didBecomeActive` while the stories were off screen.
+        appearanceBag.removeAll()
+
         NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
             .sink { [weak self] _ in
                 self?.pauseTimer()
             }
-            .store(in: &bag)
+            .store(in: &appearanceBag)
 
         NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
             .withWeakCaptureOf(self)
@@ -98,7 +103,7 @@ final class StoriesViewModel: ObservableObject {
                     viewModel.resumeTimer()
                 }
             }
-            .store(in: &bag)
+            .store(in: &appearanceBag)
 
         if shouldStartTimer {
             DispatchQueue.main.async {
@@ -108,6 +113,7 @@ final class StoriesViewModel: ObservableObject {
     }
 
     func onDisappear() {
+        appearanceBag.removeAll()
         pauseTimer()
     }
 
