@@ -42,7 +42,8 @@ struct PolymarketOnboardingFactory {
             geoblockService: services.makeGeoblockService(),
             walletService: services.makeWalletService(walletId: userWalletModel.userWalletId.stringValue),
             relayerService: services.makeRelayerService(),
-            clobService: services.makeCLOBService()
+            clobService: services.makeCLOBService(),
+            serverClock: InjectedValues[\.polymarketServerClock]
         )
     }
 }

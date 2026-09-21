@@ -465,7 +465,7 @@ private extension SwapModel {
             switch restriction {
             case .tooSmallAmountForSwapping, .notEnoughReceivedAmount:
                 analyticsLogger.logSwapErrorMinAmount(screen: screen)
-            case .tooBigAmountForSwapping:
+            case .tooBigAmountForSwapping, .tooMuchReceivedAmount:
                 analyticsLogger.logSwapErrorMaxAmount(screen: screen)
             case .notEnoughBalanceForSwapping, .notEnoughAmountForFee, .notEnoughAmountForTxValue, .validationError:
                 analyticsLogger.logSwapErrorInsufficientBalance(screen: screen)
@@ -882,6 +882,11 @@ extension SwapModel {
                 minAmount: minAmount,
                 tokenSymbol: destination.tokenItem.currencySymbol,
                 reason: reason
+            )
+        case .tooMuchReceivedAmount(let maxAmount):
+            return .tooMuchReceivedAmount(
+                maxAmount: maxAmount,
+                tokenSymbol: destination.tokenItem.currencySymbol
             )
         case .requiresTrustline:
             return .trustlineRequired(destination: destination)
@@ -2285,7 +2290,8 @@ extension SwapModel {
         case notEnoughAmountForFee(isFeeCurrency: Bool, feeCurrencyBalance: Decimal)
         case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool, feeCurrencyBalance: Decimal)
         case validationError(error: ValidationError)
-        case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String, reason: NotEnoughReceivedAmountReason)
+        case notEnoughReceivedAmount(minAmount: ReceivedAmountThreshold, tokenSymbol: String, reason: NotEnoughReceivedAmountReason)
+        case tooMuchReceivedAmount(maxAmount: ReceivedAmountThreshold, tokenSymbol: String)
         case regionRestricted
         case trustlineRequired(destination: any SendSwapableToken)
     }

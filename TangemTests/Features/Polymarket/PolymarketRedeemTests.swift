@@ -121,9 +121,28 @@ struct PolymarketRedeemTransactionServiceTests {
         #expect(service.requestedNegRisk == true)
     }
 
+    @Test("The deadline is measured by the backend's clock, not by a device running half an hour behind")
+    func deadlineFollowsTheBackendClock() async throws {
+        let skew: TimeInterval = 1800
+        let serverClock = PolymarketServerClock()
+        serverClock.record(serverDate: Date().addingTimeInterval(skew))
+
+        let service = RedeemServiceSpy(submit: .confirmed, records: [])
+        let sut = try makeSUT(redeemService: service, serverClock: serverClock)
+
+        let before = Date().timeIntervalSince1970
+        _ = try await sut.claim(conditionId: Self.conditionId, isNegRisk: false)
+
+        let batch = try #require(service.submitted.first)
+        let deadline = try #require(TimeInterval(batch.deadline))
+
+        #expect(abs(deadline - (before + skew + 600)) <= 10)
+    }
+
     private func makeSUT(
         redeemService: RedeemServiceSpy,
-        signer: PolymarketBatchSigning = PassthroughSigner()
+        signer: PolymarketBatchSigning = PassthroughSigner(),
+        serverClock: PolymarketServerClock = PolymarketServerClock()
     ) throws -> PolymarketRedeemTransactionService {
         let ownerAddress = PolymarketOwnerAddressProviderStub.ownerAddress
         let depositWalletAddress = try PolymarketDepositWalletDeriver.derive(ownerAddress: ownerAddress)
@@ -139,6 +158,7 @@ struct PolymarketRedeemTransactionServiceTests {
                 ownerAddressProvider: PolymarketOwnerAddressProviderStub(derived: ownerAddress)
             ),
             signer: signer,
+            serverClock: serverClock,
             pollDelayProvider: InstantPollDelayProvider()
         )
     }

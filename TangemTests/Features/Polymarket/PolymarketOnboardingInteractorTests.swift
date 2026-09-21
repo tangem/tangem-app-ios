@@ -185,6 +185,24 @@ struct PolymarketOnboardingInteractorTests {
         #expect(submitted.calls == PolymarketApprovalCalls.make())
     }
 
+    @Test("The approvals deadline is measured by the backend's clock, not by a device running half an hour behind")
+    func deadlineFollowsTheBackendClock() async throws {
+        let skew: TimeInterval = 1800
+        let serverClock = PolymarketServerClock()
+        serverClock.record(serverDate: Date().addingTimeInterval(skew))
+
+        let service = try makeWalletService(statuses: [.deployed, .readyToTrade])
+        let sut = try makeSUT(walletService: service, serverClock: serverClock)
+
+        let before = Date().timeIntervalSince1970
+        _ = await sut.collectProgress()
+
+        let submitted = try #require(service.submittedBatches.first)
+        let deadline = try #require(TimeInterval(submitted.deadline))
+
+        #expect(abs(deadline - (before + skew + 600)) <= 10)
+    }
+
     @Test("A conflict on approvals is worth retrying, unlike the same code on deploy")
     func conflictOnApprovalsIsRetryable() async throws {
         let service = try makeWalletService(statuses: [.deployed], approvalsResult: .failure(.conflict(detail: nil)))
@@ -318,7 +336,8 @@ private extension PolymarketOnboardingInteractorTests {
         credentialsRepository: PolymarketCredentialsRepository? = nil,
         signer: PolymarketOnboardingSigning = PolymarketOnboardingSignerSpy(),
         geoblockService: PolymarketGeoblockService = PolymarketGeoblockServiceStub(),
-        clobService: PolymarketCLOBService = PolymarketCLOBServiceStub()
+        clobService: PolymarketCLOBService = PolymarketCLOBServiceStub(),
+        serverClock: PolymarketServerClock = PolymarketServerClock()
     ) throws -> CommonPolymarketOnboardingInteractor {
         CommonPolymarketOnboardingInteractor(
             userWalletId: Self.userWalletId,
@@ -329,6 +348,7 @@ private extension PolymarketOnboardingInteractorTests {
             walletService: walletService,
             relayerService: PolymarketRelayerServiceStub(),
             clobService: clobService,
+            serverClock: serverClock,
             pollInterval: 0
         )
     }
