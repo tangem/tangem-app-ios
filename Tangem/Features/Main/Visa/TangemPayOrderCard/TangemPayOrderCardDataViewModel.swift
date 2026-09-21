@@ -226,14 +226,21 @@ private extension TangemPayOrderCardDataViewModel {
             break
         }
 
-        alert = AlertBinder(alert: Alert(
-            title: Text(failure.message),
-            dismissButton: .default(Text(Localization.commonOk)) { [weak self] in
-                guard failure.closesFlow else { return }
+        guard case .unspecified = failure else {
+            alert = AlertBinder(alert: Alert(
+                title: Text(failure.message),
+                dismissButton: .default(Text(Localization.commonOk)) { [weak self] in
+                    guard failure.closesFlow else { return }
 
-                self?.close()
-            }
-        ))
+                    self?.close()
+                }
+            ))
+            return
+        }
+
+        coordinator?.orderCardDataDidFailUnexpectedly(retry: { [weak self] in
+            self?.placeOrder()
+        })
     }
 }
 
