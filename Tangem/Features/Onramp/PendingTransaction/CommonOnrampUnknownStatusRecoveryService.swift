@@ -85,7 +85,11 @@ final class CommonOnrampUnknownStatusRecoveryService {
             return
         }
 
-        for record in records {
+        // Oldest purchase first and every matched history item consumed: two purchases within the match window
+        // used to resolve to the same (newest) transaction, double-tracking one and never recovering the other.
+        var consumedTxIds = Set<String>()
+
+        for record in records.sorted(by: { $0.since < $1.since }) {
             guard !Task.isCancelled else { return }
 
             let match = OnrampHistoryMatcher.findMatch(
@@ -93,10 +97,12 @@ final class CommonOnrampUnknownStatusRecoveryService {
                 since: record.since,
                 toContractAddress: toContractAddress,
                 toNetwork: toNetwork,
-                providerId: record.provider.id
+                providerId: record.provider.id,
+                excludingTxIds: consumedTxIds
             )
 
             if let match {
+                consumedTxIds.insert(match.txId)
                 persistRecovered(historyItem: match, from: record)
                 unknownStatusRepository.untrack(recordId: record.id)
             }
