@@ -96,7 +96,7 @@ struct StoriesDTOMapper {
         )
 
         return SlideV2(
-            id: dto.id,
+            id: String(dto.id),
             order: order,
             title: dto.title,
             subtitle: dto.subtitle ?? "",
@@ -138,7 +138,7 @@ struct StoriesDTOMapper {
     private func mapAction(_ dto: StoriesResponseDTO.ActionDTO, fallbackID: String) -> StoryActionV2? {
         guard let style = ActionStyle(rawValue: dto.style) else { return nil }
         guard let target = mapTarget(dto) else { return nil }
-        return StoryActionV2(id: dto.id ?? fallbackID, label: dto.label, style: style, target: target)
+        return StoryActionV2(id: dto.id.map(String.init) ?? fallbackID, label: dto.label, style: style, target: target)
     }
 
     private func mapTarget(_ dto: StoriesResponseDTO.ActionDTO) -> ActionTarget? {

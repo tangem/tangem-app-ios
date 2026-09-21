@@ -26,7 +26,8 @@ struct StoriesResponseDTO {
     }
 
     struct SlideDTO: Decodable {
-        let id: String
+        /// Numeric on the wire — the backend serves its own database id.
+        let id: Int
         let title: String
         let subtitle: String?
         let assetType: String
@@ -47,7 +48,7 @@ struct StoriesResponseDTO {
 
     /// The target is flattened into per-kind fields; exactly one of them is expected.
     struct ActionDTO: Decodable {
-        let id: String?
+        let id: Int?
         let label: String
         let style: String
         let deeplink: String?

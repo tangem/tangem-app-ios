@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import TangemStories
 import TangemUI
 
 struct StoriesV2DemoView: View {
@@ -32,9 +31,9 @@ struct StoriesV2DemoView: View {
             }
         }
         .navigationTitle("Stories V2 Demo")
-        .fullScreenCover(item: presentedStory) { presented in
-            StoryPlayerView(vm: presented.player)
-        }
+        // The player lives in the overlay window, so this fires on real navigation away rather than
+        // when a story covers the screen.
+        .onDisappear { viewModel.cancel() }
     }
 
     /// Tapping another row cancels the request in flight, so a hung one never locks the screen.
@@ -53,12 +52,5 @@ struct StoriesV2DemoView: View {
                 }
             }
         }
-    }
-
-    private var presentedStory: Binding<StoriesV2DemoViewModel.PresentedStory?> {
-        Binding(
-            get: { viewModel.presentedStory },
-            set: { presented in if presented == nil { viewModel.closePlayer() } }
-        )
     }
 }
