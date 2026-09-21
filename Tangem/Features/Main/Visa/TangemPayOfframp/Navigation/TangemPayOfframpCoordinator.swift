@@ -9,6 +9,7 @@
 import Combine
 import SwiftUI
 import TangemFoundation
+import TangemLocalization
 import TangemPay
 import TangemUI
 
@@ -38,12 +39,10 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
 
     // MARK: - Geo selection
 
-    @Published var isCountrySelectionPresented = false
-    @Published var isRegionSelectionPresented = false
+    @Published var isGeoSelectionPresented = false
 
-    private var countrySelectionCompletion: ((TangemPayGeoCountry) -> Void)?
-    private var regionSelectionCompletion: ((TangemPayGeoRegion) -> Void)?
-    private var regionSelectionCountryCode: String?
+    private var geoSelectionStart: TangemPayOfframpGeoSelectionCoordinatorView.Start?
+    private var geoSelectionCompletion: ((TangemPayOfframpGeoSelectionCoordinatorView.Output) -> Void)?
 
     private var bag: Set<AnyCancellable> = []
 
@@ -268,11 +267,15 @@ extension TangemPayOfframpCoordinator {
 
     func handle(_ output: PersonalDetailsViewModel.Output, mode: Mode) {
         switch output {
-        case .selectCountry(let completion):
-            presentCountrySelection(completion: completion)
+        case .selectCountry(let selectedCountryCode, let selectedRegionCode, let completion):
+            presentCountrySelection(
+                selectedCountryCode: selectedCountryCode,
+                selectedRegionCode: selectedRegionCode,
+                completion: completion
+            )
 
-        case .selectRegion(let countryCode, let completion):
-            presentRegionSelection(countryCode: countryCode, completion: completion)
+        case .selectRegion(let countryCode, let selectedCode, let completion):
+            presentRegionSelection(countryCode: countryCode, selectedCode: selectedCode, completion: completion)
 
         case .savedRecipientSelected:
             restartOnSavedRecipient()
@@ -292,8 +295,8 @@ extension TangemPayOfframpCoordinator {
 
     func handle(_ output: BankDetailsViewModel.Output, mode: Mode) {
         switch output {
-        case .selectRegion(let countryCode, let completion):
-            presentRegionSelection(countryCode: countryCode, completion: completion)
+        case .selectRegion(let countryCode, let selectedCode, let completion):
+            presentRegionSelection(countryCode: countryCode, selectedCode: selectedCode, completion: completion)
 
         case .continueWizard:
             switch mode {
@@ -383,80 +386,79 @@ private extension TangemPayOfframpCoordinator {
 extension TangemPayOfframpCoordinator {
     @MainActor
     @ViewBuilder
-    func makeCountrySelectionView() -> some View {
-        if let geoStore {
-            CountrySelectionFactory.makeView(
+    func makeGeoSelectionView() -> some View {
+        if let geoStore, let geoSelectionStart {
+            TangemPayOfframpGeoSelectionCoordinatorView(
                 store: geoStore,
-                // [REDACTED_TODO_COMMENT]
-                configuration: GeoSelectionConfiguration(
-                    title: "Country",
-                    suggestedSectionTitle: nil,
-                    allSectionTitle: nil,
-                    showsSuggestedSection: false,
-                    showsBackButton: false
-                ),
+                start: geoSelectionStart,
                 output: { [weak self] in self?.handle($0) }
             )
         }
     }
 
-    @MainActor
-    @ViewBuilder
-    func makeRegionSelectionView() -> some View {
-        if let geoStore, let regionSelectionCountryCode {
-            RegionSelectionFactory.makeView(
-                store: geoStore,
-                countryCode: regionSelectionCountryCode,
-                // [REDACTED_TODO_COMMENT]
-                configuration: GeoSelectionConfiguration(
-                    title: "Region",
-                    suggestedSectionTitle: nil,
-                    allSectionTitle: nil,
-                    showsSuggestedSection: false,
-                    showsBackButton: false
-                ),
-                output: { [weak self] in self?.handle($0) }
-            )
-        }
+    func onGeoSelectionDismiss() {
+        geoSelectionStart = nil
+        geoSelectionCompletion = nil
     }
 }
 
 private extension TangemPayOfframpCoordinator {
-    func presentCountrySelection(completion: @escaping (TangemPayGeoCountry) -> Void) {
-        countrySelectionCompletion = completion
-        isCountrySelectionPresented = true
+    func presentGeoSelection(
+        start: TangemPayOfframpGeoSelectionCoordinatorView.Start,
+        completion: @escaping (TangemPayOfframpGeoSelectionCoordinatorView.Output) -> Void
+    ) {
+        geoSelectionStart = start
+        geoSelectionCompletion = completion
+        isGeoSelectionPresented = true
     }
 
-    func presentRegionSelection(countryCode: String, completion: @escaping (TangemPayGeoRegion) -> Void) {
-        regionSelectionCountryCode = countryCode
-        regionSelectionCompletion = completion
-        isRegionSelectionPresented = true
+    func presentCountrySelection(
+        selectedCountryCode: String?,
+        selectedRegionCode: String?,
+        completion: @escaping (TangemPayGeoCountry, TangemPayGeoRegion?) -> Void
+    ) {
+        presentGeoSelection(
+            start: .country(selectedCountryCode: selectedCountryCode, selectedRegionCode: selectedRegionCode)
+        ) { output in
+            switch output {
+            case .country(let country):
+                completion(country, nil)
+
+            case .countryWithRegion(let country, let region):
+                completion(country, region)
+
+            case .region, .closed:
+                break
+            }
+        }
     }
 
-    func handle(_ output: CountrySelectionViewModel.Output) {
+    func presentRegionSelection(
+        countryCode: String,
+        selectedCode: String?,
+        completion: @escaping (TangemPayGeoRegion) -> Void
+    ) {
+        presentGeoSelection(start: .region(countryCode: countryCode, selectedCode: selectedCode)) { output in
+            switch output {
+            case .region(let region):
+                completion(region)
+
+            case .country, .countryWithRegion, .closed:
+                break
+            }
+        }
+    }
+
+    func handle(_ output: TangemPayOfframpGeoSelectionCoordinatorView.Output) {
         switch output {
-        case .selected(let country):
-            countrySelectionCompletion?(country)
+        case .country, .countryWithRegion, .region:
+            geoSelectionCompletion?(output)
 
         case .closed:
             break
         }
 
-        countrySelectionCompletion = nil
-        isCountrySelectionPresented = false
-    }
-
-    func handle(_ output: RegionSelectionViewModel.Output) {
-        switch output {
-        case .selected(let region):
-            regionSelectionCompletion?(region)
-
-        case .closed:
-            break
-        }
-
-        regionSelectionCompletion = nil
-        isRegionSelectionPresented = false
+        isGeoSelectionPresented = false
     }
 }
 
