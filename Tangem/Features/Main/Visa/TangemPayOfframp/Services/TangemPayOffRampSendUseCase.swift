@@ -177,19 +177,19 @@ private extension TangemPayOffRampSendUseCase {
 
     func submitSignature(context: SignatureRetryContext, canRetry: Bool) async throws -> SendResult {
         do {
-            _ = try await orderService.sendSignature(
+            try await orderService.sendSignature(
                 orderId: context.orderId,
                 signature: context.signature,
                 idempotencyKey: context.idempotencyKey
             )
+
+            reset()
+
+            return SendResult(orderId: context.orderId, createdAt: context.createdAt)
         } catch {
             VisaLogger.error("Failed to submit the Tangem Pay off-ramp signature", error: error)
             throw SendError.signatureSubmission(canRetry: canRetry)
         }
-
-        reset()
-
-        return SendResult(orderId: context.orderId, createdAt: context.createdAt)
     }
 
     static func signatureStepError(_ error: any Error) -> SendError {
