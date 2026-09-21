@@ -62,8 +62,7 @@ struct CommonStoriesAnalyticsProvider: StoriesAnalyticsProvider {
             .source: source.parameterValue.rawValue,
         ]
 
-        // A story that simply runs out reports its first action, which nobody pressed, so the
-        // action properties travel only with an exit the button actually caused.
+        // Only an exit the button caused carries the action properties.
         if exitReason == .action, let action {
             params[.actionId] = action.id
             params[.actionTargetType] = action.target.analyticsType.rawValue
