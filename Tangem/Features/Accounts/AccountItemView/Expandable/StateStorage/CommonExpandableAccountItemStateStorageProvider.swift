@@ -59,7 +59,7 @@ final class CommonExpandableAccountItemStateStorageProvider {
             userWalletModelsSubscriptions[userWalletId] = userWalletModel
                 .accountModelsManager
                 .accountModelsPublisher
-                .map { AccountCryptoModelsAggregator.cryptoAccountModels(from: $0) }
+                .map { AccountModelsAggregator(.crypto, .joint).models(from: $0) }
                 .prepend([]) // Triggers initial `pairwise` call
                 .pairwise()
                 .receiveOnMain() // This class is used in the UI layer, so we need to receive updates on the main thread

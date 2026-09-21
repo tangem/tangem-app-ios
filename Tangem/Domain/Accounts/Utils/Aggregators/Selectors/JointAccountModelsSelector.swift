@@ -58,6 +58,10 @@ extension JointAccountModelsSelector {
 }
 
 extension AccountModelsSelector where Self == JointAccountModelsSelector {
+    static var joint: Self {
+        joint(.all)
+    }
+
     static func joint(_ state: JointAccountModelsSelector.JointAccountState) -> Self {
         JointAccountModelsSelector(state: state)
     }

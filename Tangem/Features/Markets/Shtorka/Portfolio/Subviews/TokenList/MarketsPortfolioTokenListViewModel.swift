@@ -191,7 +191,7 @@ private extension MarketsPortfolioTokenListViewModel {
             id: walletModel.userWalletId,
             title: userWalletModel.name,
             thumbnail: userWalletModel.config.walletThumbnailType,
-            walletHasMultipleAccounts: AccountCryptoModelsAggregator.cryptoAccountModels(from: userWalletModel.accountModelsManager).count > 1,
+            walletHasMultipleAccounts: AccountModelsAggregator(.crypto, .joint).models(from: userWalletModel.accountModelsManager).count > 1,
             accounts: [account]
         )
 
@@ -199,7 +199,7 @@ private extension MarketsPortfolioTokenListViewModel {
     }
 
     func resolveAccount(for walletModel: any WalletModel, in userWalletModel: any UserWalletModel) -> (any CryptoAccountModel)? {
-        AccountCryptoModelsAggregator.cryptoAccountModels(from: userWalletModel.accountModelsManager).first { account in
+        AccountModelsAggregator(.crypto, .joint).models(from: userWalletModel.accountModelsManager).first { account in
             account.walletModelsManager.walletModels.contains { $0.id == walletModel.id }
         }
     }

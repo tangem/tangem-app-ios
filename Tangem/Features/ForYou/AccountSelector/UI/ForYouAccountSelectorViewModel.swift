@@ -117,7 +117,7 @@ private extension Array where Element == UserWalletModel {
         onAccountTap: @escaping (ForYouAccountID) -> Void
     ) -> [ForYouAccountSelectorSection] {
         compactMap { wallet in
-            let accounts = AccountCryptoModelsAggregator.cryptoAccountModels(from: wallet.accountModelsManager)
+            let accounts = AccountModelsAggregator(.crypto, .joint).models(from: wallet.accountModelsManager)
 
             guard !accounts.isEmpty else {
                 return nil

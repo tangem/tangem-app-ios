@@ -64,7 +64,7 @@ final class CommonTokenSelectorStateStorage: TokenSelectorStateStorage {
             userWalletModelsSubscriptions[userWalletId] = userWalletModel
                 .accountModelsManager
                 .accountModelsPublisher
-                .map { AccountCryptoModelsAggregator.cryptoAccountModels(from: $0) }
+                .map { AccountModelsAggregator(.crypto, .joint).models(from: $0) }
                 .prepend([])
                 .pairwise()
                 .receiveOnMain()
