@@ -8,6 +8,7 @@
 
 private import struct Foundation.Data
 public import TangemFoundation
+import struct TangemLogger.Logger
 
 typealias ObtainUserWalletRegistrationNonce = @Sendable (
     _ id: UserWalletId
@@ -23,13 +24,16 @@ public struct ObtainUserWalletRegistrationNonceUseCase: Sendable {
     private let deviceKeyManager: DeviceKeyManager
     private let nonceDecryptor: any NonceDecryptor
 
+    private let logger: Logger
+
     init(
         registerDevice: @escaping RegisterDevice,
         appAttestService: some AppAttestService,
         registrationClient: some UserWalletRegistrationClient,
         registrationStatusRepository: some UserWalletRegistrationStatusRepository,
         deviceKeyManager: DeviceKeyManager,
-        nonceDecryptor: some NonceDecryptor
+        nonceDecryptor: some NonceDecryptor,
+        logger: Logger
     ) {
         self.registerDevice = registerDevice
         self.appAttestService = appAttestService
@@ -37,6 +41,7 @@ public struct ObtainUserWalletRegistrationNonceUseCase: Sendable {
         self.registrationStatusRepository = registrationStatusRepository
         self.deviceKeyManager = deviceKeyManager
         self.nonceDecryptor = nonceDecryptor
+        self.logger = logger
     }
 
     // [REDACTED_TODO_COMMENT]
@@ -112,7 +117,7 @@ public struct ObtainUserWalletRegistrationNonceUseCase: Sendable {
         do {
             return try await appAttestService.generateAttestationToken(for: decryptedNonceBytes)
         } catch {
-            // [REDACTED_TODO_COMMENT]
+            logger.error("Failed to generate app attestation token", error: error)
             return nil
         }
     }

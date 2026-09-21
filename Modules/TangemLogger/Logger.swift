@@ -10,7 +10,7 @@ import Foundation
 import OSLog
 import TangemFoundation
 
-public struct Logger {
+public struct Logger: Sendable {
     public typealias Category = OSLogCategory
     public typealias Level = OSLogLevel
 
