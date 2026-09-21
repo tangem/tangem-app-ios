@@ -40,16 +40,24 @@ public final class CommonMobileWalletSdk: MobileWalletSdk {
         self.publicInfoStorageManager = publicInfoStorageManager
     }
 
+    public func walletId(entropy: Data, passphrase: String) throws -> UserWalletId {
+        try PassphraseValidator.validate(passphrase: passphrase)
+
+        return UserWalletId(with: try seedKey(entropy: entropy, passphrase: passphrase))
+    }
+
     public func importWallet(entropy: Data, passphrase: String) throws -> UserWalletId {
         try PassphraseValidator.validate(passphrase: passphrase)
 
-        let masterKeys = try deriveMasterKeys(entropy: entropy, passphrase: passphrase)
-
-        guard let seedKey = masterKeys.first(where: { $0.curve == .secp256k1 })?.publicKey else {
-            throw MobileWalletError.failedToDeriveKey
-        }
-
+        let seedKey = try seedKey(entropy: entropy, passphrase: passphrase)
         let userWalletId = UserWalletId(with: seedKey)
+
+        // `store` overwrites. Re-importing a wallet that is already on the device used to replace its
+        // access-code-protected private-info key with a fresh Secure-Enclave-only one (and the public blob with an
+        // unprotected one), breaking access-code and biometric unlock for the existing wallet.
+        guard !privateInfoStorageManager.hasPrivateInfoData(for: userWalletId) else {
+            throw MobileWalletError.walletAlreadyExists
+        }
 
         try publicInfoStorageManager.storeData(
             UserWalletEncryptionKey(userWalletIdSeed: seedKey).symmetricKey.data,
@@ -307,6 +315,17 @@ public final class CommonMobileWalletSdk: MobileWalletSdk {
 }
 
 private extension CommonMobileWalletSdk {
+    /// The secp256k1 master public key the `UserWalletId` is derived from.
+    func seedKey(entropy: Data, passphrase: String) throws -> Data {
+        let masterKeys = try deriveMasterKeys(entropy: entropy, passphrase: passphrase, curves: [.secp256k1])
+
+        guard let seedKey = masterKeys.first(where: { $0.curve == .secp256k1 })?.publicKey else {
+            throw MobileWalletError.failedToDeriveKey
+        }
+
+        return seedKey
+    }
+
     func deriveMasterKeys(
         entropy: Data,
         passphrase: String,
