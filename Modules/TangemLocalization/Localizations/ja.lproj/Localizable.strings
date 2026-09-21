@@ -235,9 +235,12 @@
 "collectibles_machine_tier_epic" = "Epic";
 "collectibles_machine_tier_rare" = "Rare";
 "collectibles_machine_tier_uncommon" = "Uncommon";
+"collectibles_machine_turbo_mode" = "Turbo mode";
 "collectibles_machine_value_and_odds_section" = "Pack value and odds";
 "collectibles_main_all_cards_tab" = "All cards";
 "collectibles_main_all_packs_tab" = "All packs";
+"collectibles_main_menu_activity_log" = "Activity log";
+"collectibles_main_menu_deliveries" = "Deliveries";
 "collectibles_main_menu_get_assistance" = "Get assistance";
 "collectibles_main_menu_how_it_works" = "How it works";
 "collectibles_main_pack_buyback_badge" = "Buyback %@";
@@ -519,6 +522,7 @@
 "common_warning" = "警告";
 "common_week" = "週";
 "common_with" = "で";
+"common_withdrawal" = "Withdrawal";
 "common_withdrawing" = "引き出し中";
 "common_yes" = "はい";
 "common_yield_mode_inline" = "Yield mode";
@@ -983,7 +987,7 @@
 "joint_account_activation_account_button_title" = "Activate account";
 "joint_account_activation_subtitle" = "Everyone in this account shares one balance. Any member can spend or withdraw the funds at any time — including without your approval";
 "joint_account_activation_title" = "You're activating a shared account";
-"joint_account_coming_soon_description" = "We're working on it. Support is coming in one of the next updates.";
+"joint_account_coming_soon_description" = "This action isn't supported for joint accounts yet. We're working on it.";
 "joint_account_coming_soon_title" = "Coming soon to joint accounts";
 "joint_account_invite_invalid_subtitle" = "Check that you opened the full link, or ask the account owner to send it again";
 "joint_account_invite_invalid_title" = "Invitation link isn't valid";
@@ -1507,6 +1511,11 @@
 "prediction_add_funds_swap_subtitle" = "Use crypto in your Tangem wallet to top up your Polymarket account";
 "prediction_balance_total" = "Total Balance";
 "prediction_balance_withdraw" = "Withdraw";
+"prediction_claim_error_failed" = "The claim did not go through. Nothing left your account, and you can try again.";
+"prediction_claim_error_generic" = "The claim could not be sent. Please try again.";
+"prediction_claim_error_rejected" = "Polymarket refused to relay the claim. Refresh your positions and try again.";
+"prediction_claim_error_unavailable" = "Polymarket is unreachable right now. Try again in a few minutes.";
+"prediction_claim_error_unconfirmed" = "The claim is taking longer than usual. Check your positions before claiming again.";
 "prediction_close_button" = "Close position";
 "prediction_close_min_shares_error" = "At least %@ tokens";
 "prediction_close_result_no_fill_title" = "No liquidity for selling";
@@ -1526,6 +1535,12 @@
 "prediction_details_total_volume" = "Total volume";
 "prediction_event_probability" = "Probability";
 "prediction_event_total_volume" = "Total volume:";
+"prediction_fee_sheet_builder_fee" = "Tangem Builder Fee";
+"prediction_fee_sheet_buy_description" = "Buying %1$@ shares at %2$@¢ each. Final shares count (and corresponding %3$@ amount executed) may vary within your %4$@ slippage limit, depending on what this market can match.";
+"prediction_fee_sheet_order" = "Prediction order";
+"prediction_fee_sheet_polymarket_fee" = "Polymarket Fee";
+"prediction_fee_sheet_sell_description" = "Selling %1$@ shares at %2$@¢ each. Final shares count (and corresponding %3$@ amount executed) may vary within your %4$@ slippage limit, depending on what this market can match.";
+"prediction_fee_sheet_total" = "Total";
 "prediction_main_data_outdated" = "Data may be outdated.";
 "prediction_main_empty_events" = "まだイベントはありません";
 "prediction_main_events_load_error" = "イベントを読み込めませんでした。\nタップして再読み込みしてください。";
@@ -1619,6 +1634,13 @@
 "prediction_place_you_vote" = "You vote";
 "prediction_place_you_will_pay" = "You will pay";
 "prediction_position_result_balance_note" = "Funds will be added to your balance";
+"prediction_position_result_claim_action" = "Claim reward";
+"prediction_position_result_dismiss_action" = "Dismiss";
+"prediction_position_result_loss_title" = "Loss %@";
+"prediction_position_result_payout_pending_note" = "The payout is not on chain yet. Check back in a few minutes.";
+"prediction_position_result_profit" = "Profit";
+"prediction_position_result_split_title" = "Split %@";
+"prediction_position_result_won_title" = "You Won %@";
 "prediction_positions_active" = "Active";
 "prediction_positions_closed" = "Closed";
 "prediction_positions_closure_date" = "Closure Date";
@@ -2612,6 +2634,8 @@
 "tangempay_withdraw_bank_placeholder_country" = "Eg., US";
 "tangempay_withdraw_bank_placeholder_first_name" = "John";
 "tangempay_withdraw_bank_placeholder_last_name" = "Doe";
+"tangempay_withdraw_bank_placeholder_not_selected" = "Not selected";
+"tangempay_withdraw_bank_placeholder_region_name" = "Eg., Bavaria";
 "tangempay_withdraw_bank_placeholder_region" = "Eg., CA";
 "tangempay_withdraw_bank_recipient_business" = "Business";
 "tangempay_withdraw_bank_recipient_info" = "Recipient info";
