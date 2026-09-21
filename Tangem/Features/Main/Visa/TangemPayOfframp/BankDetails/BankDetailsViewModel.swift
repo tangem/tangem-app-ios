@@ -181,7 +181,10 @@ private extension BankDetailsViewModel {
 private extension BankDetailsViewModel {
     func selectRegion() {
         output(
-            .selectRegion(countryCode: TangemPayOfframpOrderBuilder.bankCountryCode) { [weak self] selected in
+            .selectRegion(
+                countryCode: TangemPayOfframpOrderBuilder.bankCountryCode,
+                selectedCode: region?.code
+            ) { [weak self] selected in
                 self?.region = selected
 
                 self?.updateField(.bankRegion) {
@@ -197,7 +200,7 @@ private extension BankDetailsViewModel {
 
 extension BankDetailsViewModel {
     enum Output {
-        case selectRegion(countryCode: String, (TangemPayGeoRegion) -> Void)
+        case selectRegion(countryCode: String, selectedCode: String?, (TangemPayGeoRegion) -> Void)
         case continueWizard
         case close
     }

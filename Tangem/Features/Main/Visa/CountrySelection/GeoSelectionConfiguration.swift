@@ -10,10 +10,31 @@ import TangemUI
 
 struct GeoSelectionConfiguration {
     let title: String
-    let suggestedSectionTitle: String?
-    let allSectionTitle: String?
-    let showsSuggestedSection: Bool
+    let highlight: Highlight?
     let showsBackButton: Bool
+}
+
+// MARK: - Highlight
+
+extension GeoSelectionConfiguration {
+    enum Highlight {
+        case suggested(sectionTitle: String, allSectionTitle: String)
+        case selected(code: String, sectionTitle: String, allSectionTitle: String)
+
+        var sectionTitle: String {
+            switch self {
+            case .suggested(let sectionTitle, _), .selected(_, let sectionTitle, _):
+                sectionTitle
+            }
+        }
+
+        var allSectionTitle: String {
+            switch self {
+            case .suggested(_, let allSectionTitle), .selected(_, _, let allSectionTitle):
+                allSectionTitle
+            }
+        }
+    }
 }
 
 // MARK: - Navigation
