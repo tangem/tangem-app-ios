@@ -68,6 +68,7 @@ final class TangemPayBuilder {
 
     private lazy var withdrawAvailabilityProvider = TangemPayWithdrawAvailabilityProvider(
         withdrawTransactionService: withdrawTransactionService,
+        orderResolver: orderResolver,
         tokenBalanceProvider: balancesService.availableBalanceProvider
     )
 
