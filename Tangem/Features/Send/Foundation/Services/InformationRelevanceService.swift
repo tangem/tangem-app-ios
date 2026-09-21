@@ -23,6 +23,9 @@ class CommonInformationRelevanceService {
 
     private var lastUpdateStartTime = Date()
     private let informationValidityInterval: TimeInterval = 60
+    /// Upper bound for a fee refresh. Without it a fee that never becomes "actual" (e.g. a Tron gasless quote that
+    /// does not converge) kept the returned publisher silent forever and the confirm step loading indefinitely.
+    private let updateTimeout: TimeInterval = 30
     private var bag: Set<AnyCancellable> = []
 
     init(input: SendFeeInput, provider: SendFeeUpdater) {
@@ -98,10 +101,18 @@ extension CommonInformationRelevanceService: InformationRelevanceService {
                 return service.compare(oldFee: oldFee, newFee: newFee)
             }
             .first()
+            .timeout(.seconds(updateTimeout), scheduler: DispatchQueue.main, customError: { UpdateError.timedOut })
             .handleEvents(receiveSubscription: { [weak provider] _ in
                 provider?.updateFees()
             })
             .eraseToAnyPublisher()
+    }
+}
+
+extension CommonInformationRelevanceService {
+    enum UpdateError: Error {
+        /// The fee did not become actual within `updateTimeout`; the caller maps this to the fee-retry alert.
+        case timedOut
     }
 }
 
