@@ -35,7 +35,7 @@ final class CampaignTokenSelectorViewModel: ObservableObject, Identifiable {
         let isEligible = EligibleTokenMatcher.make(from: eligibleTokens)
         tokenSelectorViewModel = TokenSelectorViewModel.common(
             walletsProvider: FilteredTokenSelectorWalletsProvider(
-                base: .standardAccountsOnly(),
+                base: .cryptoJointAccounts(),
                 isIncluded: { isEligible($0.tokenItem) }
             ),
             availabilityProvider: AvailableTokenSelectorItemAvailabilityProvider(),
@@ -111,7 +111,7 @@ private extension CampaignTokenSelectorViewModel {
         }
 
         let mapper = TokenItemMapper(supportedBlockchains: userWalletModel.config.supportedBlockchains)
-        let accounts = AccountCryptoModelsAggregator.cryptoAccountModels(from: userWalletModel.accountModelsManager)
+        let accounts = AccountModelsAggregator(.crypto, .joint).models(from: userWalletModel.accountModelsManager)
 
         eligibleTokenRows = eligibleTokens.compactMap { token in
             guard let tokenId = token.tokenId, let decimals = token.decimals else {

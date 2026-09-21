@@ -56,7 +56,7 @@ struct PolymarketMainDependencies {
     }
 
     var accountModel: (any PolymarketAccountModel)? {
-        PolymarketAccountAggregator.polymarketAccountModel(from: userWalletModel.accountModelsManager)
+        AccountModelsAggregator(.polymarket).model(from: userWalletModel.accountModelsManager)
     }
 
     var walletModelsProvider: MainScreenUIOrderedWalletModelsProvider {
