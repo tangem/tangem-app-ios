@@ -119,6 +119,27 @@ enum TransactionDetailsPreviewFactory {
         ))
     }
 
+    static func yieldDisabled() -> TransactionDetailsViewModel {
+        viewModel(record: onChainRecord(
+            hash: "0xyieldwithdraw",
+            type: .contractMethodName(name: "yieldWithdraw"),
+            isOutgoing: false,
+            source: .init(address: spenderAddress, amount: 2.5),
+            destination: .init(address: .user(walletAddress), amount: 2.5)
+        ), token: .tetherMock)
+    }
+
+    static func yieldDisabledTransferLeg() -> TransactionDetailsViewModel {
+        viewModel(record: onChainRecord(
+            hash: "0xyieldsend",
+            type: .contractMethodName(name: "yieldSend"),
+            isOutgoing: false,
+            source: .init(address: spenderAddress, amount: 2.5),
+            destination: .init(address: .user(walletAddress), amount: 2.5),
+            isFromYieldContract: true
+        ), token: .tetherMock)
+    }
+
     // MARK: - Swap
 
     static func swapInProgress() -> TransactionDetailsViewModel {
@@ -191,14 +212,14 @@ enum TransactionDetailsPreviewFactory {
 private extension TransactionDetailsPreviewFactory {
     static let noopRoutable = NoopTransactionDetailsRoutable()
 
-    static func viewModel(record: TransactionRecord) -> TransactionDetailsViewModel {
+    static func viewModel(record: TransactionRecord, token: Token? = nil) -> TransactionDetailsViewModel {
         guard let userWalletModel = CommonUserWalletModel.mock else {
             preconditionFailure("CommonUserWalletModel.mock is unavailable in previews")
         }
 
         return TransactionDetailsViewModel(
             id: record.id,
-            walletModel: CommonWalletModel.previewWalletModel(history: [record]),
+            walletModel: CommonWalletModel.previewWalletModel(history: [record], token: token),
             userWalletInfo: userWalletModel.userWalletInfo,
             isAccountsMode: false,
             addressBookManager: userWalletModel.addressBookManager,
@@ -240,7 +261,8 @@ private extension TransactionDetailsPreviewFactory {
         source: TransactionRecord.Source,
         destination: TransactionRecord.Destination,
         fee: Decimal = 0.00056,
-        extraInfo: TransactionHistoryExpressExtraInfo? = nil
+        extraInfo: TransactionHistoryExpressExtraInfo? = nil,
+        isFromYieldContract: Bool = false
     ) -> TransactionRecord {
         let record = TransactionRecord(
             hash: hash,
@@ -253,6 +275,7 @@ private extension TransactionDetailsPreviewFactory {
             type: type,
             date: Date(),
             tokenTransfers: [],
+            isFromYieldContract: isFromYieldContract,
             nonce: 0
         )
 
