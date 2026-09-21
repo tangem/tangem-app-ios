@@ -893,6 +893,7 @@ extension TokenDetailsViewModel {
 
         return CommonYieldModuleFlowFactory(
             walletModel: walletModel,
+            userWalletInfo: userWalletInfo,
             yieldModuleManager: manager,
             transactionDispatcher: dispatcher
         )
