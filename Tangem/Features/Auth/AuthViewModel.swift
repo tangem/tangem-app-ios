@@ -337,7 +337,7 @@ private extension AuthViewModel {
                 }
 
             case .scanTroubleshooting:
-                viewModel.logScanCardTroubleshootingAnalytics()
+                // `showScanTroubleshootingDialog` logs the event itself.
                 viewModel.incomingActionManager.discardIncomingAction()
 
                 await MainActor.run {

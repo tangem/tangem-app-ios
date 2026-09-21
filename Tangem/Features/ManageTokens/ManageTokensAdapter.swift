@@ -121,7 +121,7 @@ private extension ManageTokensAdapter {
             .withWeakCaptureOf(self)
             .map { adapter, items -> [ManageTokensListItemViewModel] in
                 // Send analytics event for empty search tokens
-                adapter.sendIfNeededEmptySearchValueAnalyticsEvent()
+                adapter.sendIfNeededEmptySearchValueAnalyticsEvent(items: items)
 
                 let viewModels = items.compactMap(adapter.mapToListItemViewModel(coinModel:))
                 viewModels.forEach { $0.update(expanded: adapter.bindExpanded($0.coinId)) }
@@ -157,6 +157,12 @@ private extension ManageTokensAdapter {
     }
 
     func onSelect(_ selected: Bool, _ tokenItem: TokenItem) {
+        // Reverting a rejected selection (`displayAlertAndUpdateSelection` → `updateSelection`) re-enters here through
+        // the binding with the unchanged state; nothing changed, so there is nothing to log or update.
+        guard isSelected(tokenItem) != selected else {
+            return
+        }
+
         if selected {
             if !hardwareLimitationUtil.canAdd(tokenItem) {
                 displayAlertAndUpdateSelection(
@@ -327,8 +333,11 @@ private extension ManageTokensAdapter {
     }
 
     /// Send analytics event for empty search tokens
-    func sendIfNeededEmptySearchValueAnalyticsEvent() {
-        guard let searchValue = loader.lastSearchTextValue, !searchValue.isEmpty, loader.items.isEmpty else {
+    /// - Parameter items: the value just emitted by `loader.$items`. `@Published` publishes from `willSet`, so
+    ///   `loader.items` still holds the previous (post-reset, empty) list while the first page is being delivered —
+    ///   reading it here reported "not found" for every successful search.
+    func sendIfNeededEmptySearchValueAnalyticsEvent(items: [CoinModel]) {
+        guard let searchValue = loader.lastSearchTextValue, !searchValue.isEmpty, items.isEmpty, !loader.canFetchMore else {
             return
         }
 

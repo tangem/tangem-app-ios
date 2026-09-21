@@ -46,17 +46,17 @@ class SecurityModeViewModel: ObservableObject {
         case .longTap:
             isLoading = true
             securityOptionChangeInteractor.changeSecurityOption(.longTap) { [weak self] result in
-                self?.logSecurityModeChange()
-
                 self?.isLoading = false
 
                 switch result {
                 case .success:
-                    break
+                    self?.logSecurityModeChange()
                 case .failure(let error):
                     if case .userCancelled = error.toTangemSdkError() {
                         return
                     }
+
+                    self?.error = error.alertBinder
                 }
             }
         }
@@ -143,7 +143,10 @@ extension SecurityModeViewModel {
             guard let self = self else { return }
 
             securityOptionChangeInteractor.changeSecurityOption(option) { [weak self] result in
-                self?.logSecurityModeChange()
+                if case .success = result {
+                    self?.logSecurityModeChange()
+                }
+
                 coordinatorCompletion(result)
             }
         }
