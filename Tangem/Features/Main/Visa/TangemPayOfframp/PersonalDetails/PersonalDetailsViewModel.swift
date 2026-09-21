@@ -343,13 +343,32 @@ private extension PersonalDetailsViewModel {
     }
 
     func selectCountry() {
-        output(.selectCountry { [weak self] in self?.apply(country: $0) })
+        output(
+            .selectCountry(
+                selectedCountryCode: country?.code,
+                selectedRegionCode: region?.code
+            ) { [weak self] selectedCountry, selectedRegion in
+                self?.apply(country: selectedCountry, region: selectedRegion)
+            }
+        )
     }
 
     func selectRegion() {
         guard let country else { return }
 
-        output(.selectRegion(countryCode: country.code) { [weak self] in self?.apply(region: $0) })
+        output(
+            .selectRegion(countryCode: country.code, selectedCode: region?.code) { [weak self] in
+                self?.apply(region: $0)
+            }
+        )
+    }
+
+    func apply(country selectedCountry: TangemPayGeoCountry, region selectedRegion: TangemPayGeoRegion?) {
+        apply(country: selectedCountry)
+
+        if let selectedRegion {
+            apply(region: selectedRegion)
+        }
     }
 
     func apply(country selected: TangemPayGeoCountry) {
@@ -398,8 +417,12 @@ private extension PersonalDetailsViewModel {
 
 extension PersonalDetailsViewModel {
     enum Output {
-        case selectCountry((TangemPayGeoCountry) -> Void)
-        case selectRegion(countryCode: String, (TangemPayGeoRegion) -> Void)
+        case selectCountry(
+            selectedCountryCode: String?,
+            selectedRegionCode: String?,
+            (TangemPayGeoCountry, TangemPayGeoRegion?) -> Void
+        )
+        case selectRegion(countryCode: String, selectedCode: String?, (TangemPayGeoRegion) -> Void)
         case savedRecipientSelected
         case continueWizard
         case close

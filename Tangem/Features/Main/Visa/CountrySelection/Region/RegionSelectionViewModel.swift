@@ -98,10 +98,14 @@ private extension RegionSelectionViewModel {
             .filter { query.isEmpty || matches($0, query: query) }
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
 
-        let suggested = configuration.showsSuggestedSection ? filtered.first(where: \.suggested) : nil
+        let highlighted: TangemPayGeoRegion? = switch configuration.highlight {
+        case .none: nil
+        case .suggested: filtered.first(where: \.suggested)
+        case .selected(let code, _, _): filtered.first { $0.code == code }
+        }
 
         return GeoSelectionSections(
-            suggested: suggested.map(makeItem(from:)),
+            highlighted: highlighted.map(makeItem(from:)),
             all: filtered.map(makeItem(from:))
         )
     }
