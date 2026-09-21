@@ -99,9 +99,14 @@ extension MoralisSolanaNetworkService: NFTNetworkService {
 
 private extension MoralisSolanaNetworkService {
     func makeAssetsGroupingKeys(from collection: MoralisSolanaNetworkResult.Collection?) -> AssetsGroupingKey {
-        AssetsGroupingKey(
-            collectionAddress: collection?.collectionAddress,
-            collectionName: collection?.name
+        // Assets without a collection address all end up in the single dummy "No collection" entry
+        // (`NFTDummyCollectionMapper` ignores the name), so the name must not split them into groups that
+        // would then share one `NFTCollection.id`.
+        let collectionAddress = collection?.collectionAddress
+
+        return AssetsGroupingKey(
+            collectionAddress: collectionAddress,
+            collectionName: collectionAddress == nil ? nil : collection?.name
         )
     }
 }
