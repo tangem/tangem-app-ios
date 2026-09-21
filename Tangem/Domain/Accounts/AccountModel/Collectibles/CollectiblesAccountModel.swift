@@ -10,16 +10,21 @@ import Foundation
 import Combine
 import TangemCollectibles
 
+protocol CollectiblesBalanceSource: AnyObject {
+    var fiatTotalTokenBalanceProvider: TokenBalanceProvider { get }
+    var usdcTokenBalanceProvider: TokenBalanceProvider { get }
+
+    func refreshState() async
+}
+
 /// Refines `CollectiblesOnboarder`: the account model owns the vault's state, so it is also what walks that
 /// state to `.ready` — the alternative is a second object deciding the same three questions from its own reads.
-protocol CollectiblesAccountModel: BaseAccountModel, CollectiblesOnboarder
+protocol CollectiblesAccountModel: BaseAccountModel, CollectiblesOnboarder, CollectiblesBalanceSource
     where Icon == AccountModel.StandaloneIcon, ID == CollectiblesAccountId {
     var state: CollectiblesState { get }
     var statePublisher: AnyPublisher<CollectiblesState, Never> { get }
-    var fiatTotalTokenBalanceProvider: TokenBalanceProvider { get }
 
     func update(name: String)
-    func refreshState() async
 }
 
 // MARK: - Default implementations

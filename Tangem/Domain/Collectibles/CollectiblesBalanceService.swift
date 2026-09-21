@@ -13,6 +13,7 @@ import TangemMacro
 
 protocol CollectiblesBalanceService {
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider { get }
+    var usdcTokenBalanceProvider: TokenBalanceProvider { get }
 
     func update(_ state: CollectiblesBalanceState)
 }
@@ -28,6 +29,7 @@ enum CollectiblesBalanceState {
 
 final class CommonCollectiblesBalanceService {
     let fiatTotalTokenBalanceProvider: TokenBalanceProvider
+    let usdcTokenBalanceProvider: TokenBalanceProvider
 
     private let fiatRateProvider: FiatRateProvider
     private let balanceSubject = CurrentValueSubject<CollectiblesBalanceState?, Never>(nil)
@@ -35,16 +37,18 @@ final class CommonCollectiblesBalanceService {
     init(tokenBalancesRepository: TokenBalancesRepository) {
         let tokenItem = CollectiblesChainEnvironment.usdcTokenItem
         let fiatRateProvider = CommonFiatRateProvider(tokenItem: tokenItem)
+        let usdcTokenBalanceProvider = CollectiblesUsdcBalanceProvider(
+            tokenItem: tokenItem,
+            tokenBalancesRepository: tokenBalancesRepository,
+            balanceSubject: balanceSubject
+        )
 
         self.fiatRateProvider = fiatRateProvider
+        self.usdcTokenBalanceProvider = usdcTokenBalanceProvider
 
         fiatTotalTokenBalanceProvider = FiatTokenBalanceProvider(
             input: fiatRateProvider,
-            cryptoBalanceProvider: CollectiblesUsdcBalanceProvider(
-                tokenItem: tokenItem,
-                tokenBalancesRepository: tokenBalancesRepository,
-                balanceSubject: balanceSubject
-            )
+            cryptoBalanceProvider: usdcTokenBalanceProvider
         )
     }
 }
