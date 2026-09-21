@@ -16,6 +16,7 @@ extension PolymarketMapper {
         assets.reserveCapacity(response.supportedAssets.count)
 
         var chainsWithoutFamily = Set<String>()
+        var assetsWithoutMinimum = Set<String>()
 
         for dto in response.supportedAssets {
             guard let family = PolymarketChainFamily(chainId: dto.chainId) else {
@@ -23,13 +24,25 @@ extension PolymarketMapper {
                 continue
             }
 
-            assets.append(makeSupportedAsset(dto, family: family))
+            guard let minCheckoutUSD = dto.minCheckoutUsd else {
+                assetsWithoutMinimum.insert("\(dto.token.symbol) on \(dto.chainName)")
+                continue
+            }
+
+            assets.append(makeSupportedAsset(dto, family: family, minCheckoutUSD: minCheckoutUSD))
         }
 
         if !chainsWithoutFamily.isEmpty {
             PolymarketLogger.warning(
                 "The bridge lists chains this build has no address family for, their assets are unavailable: "
                     + chainsWithoutFamily.sorted().joined(separator: ", ")
+            )
+        }
+
+        if !assetsWithoutMinimum.isEmpty {
+            PolymarketLogger.warning(
+                "The bridge lists assets without a checkout minimum, they are unavailable: "
+                    + assetsWithoutMinimum.sorted().joined(separator: ", ")
             )
         }
 
@@ -55,7 +68,8 @@ extension PolymarketMapper {
 private extension PolymarketMapper {
     func makeSupportedAsset(
         _ dto: PolymarketDTO.SupportedAsset,
-        family: PolymarketChainFamily
+        family: PolymarketChainFamily,
+        minCheckoutUSD: Decimal
     ) -> PolymarketSupportedAsset {
         PolymarketSupportedAsset(
             chainId: dto.chainId,
@@ -67,7 +81,7 @@ private extension PolymarketMapper {
                 address: dto.token.address,
                 decimalCount: dto.token.decimals
             ),
-            minCheckoutUSD: dto.minCheckoutUsd
+            minCheckoutUSD: minCheckoutUSD
         )
     }
 

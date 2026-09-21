@@ -12,7 +12,10 @@ import TangemPolymarket
 extension PolymarketOnboardingServicesFactory {
     static func makeDefault() -> PolymarketOnboardingServicesFactory {
         PolymarketOnboardingServicesFactory(
-            networkConfiguration: TangemProviderConfiguration(logOptions: .verbose),
+            networkConfiguration: TangemProviderConfiguration(
+                logOptions: .verbose,
+                urlSessionConfiguration: .polymarketConfiguration
+            ),
             environment: PolymarketBFFEnvironment.current,
             serverClock: InjectedValues[\.polymarketServerClock]
         )

@@ -66,8 +66,8 @@ struct PolymarketSwapParametersFactoryTests {
         #expect(sourceResolver(from: parameters) is PolymarketDepositSourceResolver)
     }
 
-    @Test("The payment account is kept out of the tokens the deposit can be funded from")
-    func paymentAccountIsNeverADepositSource() throws {
+    @Test("The source list runs through a filter, and an ordinary token survives it")
+    func sourceListIsFilteredAndKeepsOrdinaryTokens() throws {
         let config = try #require(configuration(from: makeSUT().make(depositTarget: Self.depositTarget)))
         let provider = try #require(config.sourceTokenSelection.walletsProvider as? FilteredTokenSelectorWalletsProvider)
 

@@ -1,5 +1,5 @@
 //
-//  PolymarketMinimumAmount.swift
+//  PolymarketUSDAmount.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import TangemFoundation
 import TangemPolymarket
 
-struct PolymarketMinimumAmount {
+struct PolymarketUSDAmount {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
 
     private let usd: Decimal?

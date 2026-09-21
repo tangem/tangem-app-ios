@@ -30,6 +30,7 @@ enum SwapNotificationEvent: Hashable {
     case regionRestricted(analyticsParams: [Analytics.ParameterKey: String])
     case feeWillBeSubtractFromSendingAmount(cryptoAmountFormatted: String, fiatAmountFormatted: String)
     case notEnoughReceivedAmount(amountFormatted: String, reason: NotEnoughReceivedAmountReason)
+    case tooMuchReceivedAmount(amountFormatted: String)
     case trustlineRequired
 
     // Generic notifications is received from BSDK
@@ -89,6 +90,9 @@ extension SwapNotificationEvent: NotificationEvent {
             return .string(Localization.sendNotificationTransactionDelayTitle)
         case .notEnoughReceivedAmount(let amountFormatted, _):
             return .string(Localization.warningExpressNotificationInvalidReserveAmountTitle(amountFormatted))
+        case .tooMuchReceivedAmount(let amountFormatted):
+            // [REDACTED_TODO_COMMENT]
+            return .string("The amount to receive must not exceed \(amountFormatted)")
         case .trustlineRequired:
             return .string(Localization.warningTokenTrustlineTitle)
         case .withdrawalNotificationEvent(let event):
@@ -132,7 +136,7 @@ extension SwapNotificationEvent: NotificationEvent {
             return Localization.warningExpressWrongAmountDescription
         case .notEnoughReceivedAmount(_, .accountReserve):
             return Localization.sendNotificationInvalidReserveAmountText
-        case .notEnoughReceivedAmount(_, .receivingMinimum):
+        case .notEnoughReceivedAmount(_, .receivingMinimum), .tooMuchReceivedAmount:
             return nil
         case .trustlineRequired:
             return Localization.warningReceiveBlockedTokenTrustlineRequiredMessage
@@ -198,6 +202,7 @@ extension SwapNotificationEvent: NotificationEvent {
              .verificationRequired,
              .cexOperationFailed,
              .notEnoughReceivedAmount,
+             .tooMuchReceivedAmount,
              .refunded,
              .longTimeAverageDuration,
              .permissionNeeded:
@@ -237,6 +242,7 @@ extension SwapNotificationEvent: NotificationEvent {
              .tooBigAmountToSwap,
              .cexOperationFailed,
              .notEnoughReceivedAmount,
+             .tooMuchReceivedAmount,
              .notEnoughBalanceForSwapping:
             return .init(iconType: .image(Assets.redCircleWarning))
         case .regionRestricted:
@@ -271,6 +277,7 @@ extension SwapNotificationEvent: NotificationEvent {
              .tooBigAmountToSwap,
              .unsupportedPair,
              .notEnoughReceivedAmount,
+             .tooMuchReceivedAmount,
              .notEnoughBalanceForSwapping,
              .customFeeWarning,
              .highPriceImpactWarning(.negligible, _), // Filtered out in SwapNotificationManager, kept for exhaustiveness
@@ -337,6 +344,7 @@ extension SwapNotificationEvent: NotificationEvent {
              .feeWillBeSubtractFromSendingAmount,
              .customFeeWarning,
              .notEnoughReceivedAmount,
+             .tooMuchReceivedAmount,
              .notEnoughBalanceForSwapping,
              .withdrawalNotificationEvent,
              .validationErrorEvent,

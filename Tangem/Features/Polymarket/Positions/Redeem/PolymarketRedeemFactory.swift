@@ -25,7 +25,8 @@ struct PolymarketRedeemFactory {
             signer: PolymarketBatchSigner(
                 keysRepository: userWalletModel.keysRepository,
                 signer: userWalletModel.signer
-            )
+            ),
+            serverClock: InjectedValues[\.polymarketServerClock]
         )
     }
 }

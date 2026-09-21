@@ -44,7 +44,7 @@ struct SendTransactionValidatorBuilderDefaultTests {
     func polymarketWithdrawValidatorRunsItsOwnBalanceCheck() throws {
         let sut = PolymarketWithdrawTransactionValidator(
             availableBalanceProvider: TokenBalanceProviderStub(),
-            minimum: PolymarketMinimumAmount(usd: nil)
+            minimum: PolymarketUSDAmount(usd: nil)
         )
 
         do {

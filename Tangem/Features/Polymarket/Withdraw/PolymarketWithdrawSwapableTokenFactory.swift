@@ -24,7 +24,7 @@ struct PolymarketWithdrawSwapableTokenFactory: SendSwapableTokenFactory {
 
         let transactionValidator = PolymarketWithdrawTransactionValidator(
             availableBalanceProvider: balanceProvider,
-            minimum: PolymarketMinimumAmount(usd: source.minimumUSD, tokenItem: tokenItem)
+            minimum: PolymarketUSDAmount(usd: source.minimumUSD, tokenItem: tokenItem)
         )
 
         let transactionDispatcherProvider = TransferAndCEXTransactionDispatcherProvider(

@@ -24,7 +24,11 @@ struct PolymarketDepositReceivingRestrictionsProvider: ReceivingRestrictionsProv
 
     func restriction(expectAmount: Decimal) async throws -> ReceivedRestriction? {
         if expectAmount > 0, let minimum = minimumReceiveAmount(), expectAmount < minimum {
-            return .notEnoughReceivedAmount(minAmount: minimum, reason: .receivingMinimum)
+            return .notEnoughReceivedAmount(minAmount: .fiatUSD(minCheckoutUSD), reason: .receivingMinimum)
+        }
+
+        if let maximum = maximumReceiveAmount(), expectAmount >= maximum {
+            return .tooMuchReceivedAmount(maxAmount: .fiatUSD(Constants.maximumDepositUSD))
         }
 
         guard userWalletInfo.backupState.isValid else {
@@ -39,6 +43,15 @@ struct PolymarketDepositReceivingRestrictionsProvider: ReceivingRestrictionsProv
 
 private extension PolymarketDepositReceivingRestrictionsProvider {
     func minimumReceiveAmount() -> Decimal? {
-        PolymarketMinimumAmount(usd: minCheckoutUSD, tokenItem: tokenItem).inToken()
+        PolymarketUSDAmount(usd: minCheckoutUSD, tokenItem: tokenItem).inToken()
+    }
+
+    func maximumReceiveAmount() -> Decimal? {
+        PolymarketUSDAmount(usd: Constants.maximumDepositUSD, tokenItem: tokenItem).inToken()
+    }
+
+    enum Constants {
+        /// The bridge itself only advises splitting a deposit this large; refusing it is our own product rule.
+        static let maximumDepositUSD: Decimal = 50_000
     }
 }

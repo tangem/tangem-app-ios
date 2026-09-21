@@ -11,7 +11,7 @@ import Foundation
 
 struct PolymarketWithdrawTransactionValidator: SendTransactionValidator {
     let availableBalanceProvider: any TokenBalanceProvider
-    let minimum: PolymarketMinimumAmount
+    let minimum: PolymarketUSDAmount
 
     func validate(amount: Amount) throws {
         guard let balance = availableBalanceProvider.balanceType.value else {
