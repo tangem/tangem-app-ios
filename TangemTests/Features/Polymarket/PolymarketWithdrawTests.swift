@@ -106,6 +106,23 @@ struct PolymarketWithdrawTransactionServiceTests {
         #expect(deadline <= after + 600)
     }
 
+    @Test("The deadline is measured by the backend's clock, not by a device running half an hour behind")
+    func deadlineFollowsTheBackendClock() async throws {
+        let skew: TimeInterval = 1800
+        let serverClock = PolymarketServerClock()
+        serverClock.record(serverDate: Date().addingTimeInterval(skew))
+
+        let context = try Context(serverClock: serverClock)
+
+        let before = Date().timeIntervalSince1970
+        _ = try await context.sut.withdraw(amount: 1, to: recipientAddress)
+
+        let batch = try #require(context.withdrawService.submitted.singleElement)
+        let deadline = try #require(TimeInterval(batch.deadline))
+
+        #expect(abs(deadline - (before + skew + 600)) <= 10)
+    }
+
     @Test("A fraction below the token's precision is dropped, never rounded up past the balance")
     func roundsTheAmountDown() async throws {
         let context = try Context()
@@ -507,7 +524,8 @@ private extension PolymarketWithdrawTransactionServiceTests {
                 .init(transactionId: transactionId, state: .confirmed, transactionHash: "0x7ae1"),
             ],
             configurationService: PolymarketConfigurationService = ConfigurationServiceStub(),
-            signing: (any PolymarketBatchSigning)? = nil
+            signing: (any PolymarketBatchSigning)? = nil,
+            serverClock: PolymarketServerClock = PolymarketServerClock()
         ) throws {
             let cardSigner = try PolymarketCardSignerStub()
             let keysRepository = KeysRepositoryTestsMock(keys: [
@@ -560,6 +578,7 @@ private extension PolymarketWithdrawTransactionServiceTests {
                     ownerAddressProvider: PolymarketOwnerAddressProviderStub(derived: resolvedOwner)
                 ),
                 signer: resolvedSigner,
+                serverClock: serverClock,
                 pollDelayProvider: InstantPollDelayProvider()
             )
         }
@@ -608,7 +627,8 @@ private extension PolymarketWithdrawSwapParametersTests {
                 ),
                 ownerAddressProvider: PolymarketOwnerAddressProviderStub(derived: foreignOwnerAddress)
             ),
-            signer: CancellingSignerStub()
+            signer: CancellingSignerStub(),
+            serverClock: PolymarketServerClock()
         )
     }
 }
@@ -699,7 +719,7 @@ private extension PolymarketSupportedAsset {
             address: PolymarketUtilities.usdcContractAddress,
             decimalCount: 6
         ),
-        minimumDepositUSD: 2
+        minCheckoutUSD: 2
     )
 }
 

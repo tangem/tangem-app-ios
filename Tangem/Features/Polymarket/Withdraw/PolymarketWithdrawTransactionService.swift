@@ -20,6 +20,7 @@ actor PolymarketWithdrawTransactionService {
     private let withdrawService: PolymarketWithdrawService
     private let depositWalletResolver: PolymarketDepositWalletResolver
     private let signer: PolymarketBatchSigning
+    private let serverClock: PolymarketServerClock
     private let pollDelayProvider: PollDelayProvider
 
     private var isWithdrawInProgress = false
@@ -31,6 +32,7 @@ actor PolymarketWithdrawTransactionService {
         withdrawService: PolymarketWithdrawService,
         depositWalletResolver: PolymarketDepositWalletResolver,
         signer: PolymarketBatchSigning,
+        serverClock: PolymarketServerClock,
         pollDelayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
         self.bridgeService = bridgeService
@@ -39,6 +41,7 @@ actor PolymarketWithdrawTransactionService {
         self.withdrawService = withdrawService
         self.depositWalletResolver = depositWalletResolver
         self.signer = signer
+        self.serverClock = serverClock
         self.pollDelayProvider = pollDelayProvider
     }
 }
@@ -175,7 +178,7 @@ private extension PolymarketWithdrawTransactionService {
     }
 
     func makeDeadline() -> String {
-        String(Int(Date().timeIntervalSince1970) + Constants.deadlineOffset)
+        String(Int(serverClock.now.timeIntervalSince1970) + Constants.deadlineOffset)
     }
 
     func submit(_ batch: PolymarketRelayedBatch) async throws -> PolymarketWithdrawRecord {

@@ -150,7 +150,7 @@ private extension PolymarketSupportedAsset {
             chainName: "Chain \(chainId)",
             family: .evm,
             token: Token(name: symbol, symbol: symbol, address: address, decimalCount: 6),
-            minimumDepositUSD: minimum
+            minCheckoutUSD: minimum
         )
     }
 
@@ -246,7 +246,7 @@ struct PolymarketAddFundsPreparationTests {
         }
 
         #expect(target.asset == .usdcPolygon)
-        #expect(target.asset.minimumDepositUSD == 2)
+        #expect(target.asset.minCheckoutUSD == 2)
         #expect(target.fundingAddress == fundingAddress)
     }
 
