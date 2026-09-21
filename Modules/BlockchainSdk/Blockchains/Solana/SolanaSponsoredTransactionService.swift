@@ -43,7 +43,7 @@ public final class SolanaSponsoredTransactionService {
                 startSendingTimestamp: startSendingTimestamp
             ).async()
         } catch {
-            throw Self.sendError(from: error)
+            throw SolanaSendError.mapped(from: error)
         }
     }
 
