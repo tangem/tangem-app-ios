@@ -1,5 +1,5 @@
 //
-//  CollectiblesHotDelegateWalletStore.swift
+//  CollectiblesSessionKeyWalletStore.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,8 @@
 import Foundation
 import TangemFoundation
 
-/// Keeps the hot delegate key per real wallet and signs with it; reads never prompt the user.
-protocol CollectiblesHotDelegateWalletStore {
+/// Keeps the session key per wallet and signs with it.
+protocol CollectiblesSessionKeyWalletStore {
     /// Creates a fresh key for the wallet, replacing whatever was held, and returns its public part.
     func generateKey(for userWalletId: UserWalletId) throws -> Data
 
