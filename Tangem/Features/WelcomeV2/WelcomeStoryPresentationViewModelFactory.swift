@@ -56,6 +56,7 @@ struct WelcomeStoryPresentationViewModelFactory {
             story: story,
             source: .onboarding,
             analytics: analyticsProvider,
+            hapticPlayer: CommonStoryHapticPlayer(),
             onFinished: onFinished
         )
         return WelcomeStoryPresentationViewModel(player: player)
@@ -79,11 +80,29 @@ struct WelcomeStoryPresentationViewModelFactory {
         ]
     }
 
+    /// Haptic timings were authored against these exact clips in the onboarding prototype, so
+    /// they have to be re-checked whenever the footage is replaced.
     private let slideCopy: [SlideCopy] = [
-        SlideCopy(title: Localization.introductionStoriesOneTitle, subtitle: Localization.introductionStoriesOneSubtitle),
-        SlideCopy(title: Localization.introductionStoriesTwoTitle, subtitle: Localization.introductionStoriesTwoSubtitle),
-        SlideCopy(title: Localization.introductionStoriesThreeTitle, subtitle: Localization.introductionStoriesThreeSubtitle),
-        SlideCopy(title: Localization.introductionStoriesFourTitle, subtitle: Localization.introductionStoriesFourSubtitle),
+        SlideCopy(
+            title: Localization.introductionStoriesOneTitle,
+            subtitle: Localization.introductionStoriesOneSubtitle,
+            hapticAtMs: [600, 1050, 1450, 1560]
+        ),
+        SlideCopy(
+            title: Localization.introductionStoriesTwoTitle,
+            subtitle: Localization.introductionStoriesTwoSubtitle,
+            hapticAtMs: [4700]
+        ),
+        SlideCopy(
+            title: Localization.introductionStoriesThreeTitle,
+            subtitle: Localization.introductionStoriesThreeSubtitle,
+            hapticAtMs: (0 ..< 12).map { 350 + $0 * 30 }
+        ),
+        SlideCopy(
+            title: Localization.introductionStoriesFourTitle,
+            subtitle: Localization.introductionStoriesFourSubtitle,
+            hapticAtMs: (0 ..< 8).map { 250 + $0 * 30 } + [1500]
+        ),
     ]
 
     private func makeSlides(urls: [URL]) -> [SlideV2] {
@@ -95,7 +114,8 @@ struct WelcomeStoryPresentationViewModelFactory {
                 order: order,
                 title: copy.title,
                 subtitle: copy.subtitle,
-                asset: AssetV2(type: .video, contentMode: .cover, durationMs: StoryConstants.slideDurationMs, url: url)
+                asset: AssetV2(type: .video, contentMode: .cover, durationMs: StoryConstants.slideDurationMs, url: url),
+                hapticAtMs: copy.hapticAtMs
             )
         }
     }
@@ -103,5 +123,6 @@ struct WelcomeStoryPresentationViewModelFactory {
     private struct SlideCopy {
         let title: String
         let subtitle: String
+        let hapticAtMs: [Int]
     }
 }

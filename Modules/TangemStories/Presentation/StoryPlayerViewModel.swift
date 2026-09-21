@@ -22,6 +22,9 @@ public final class StoryPlayerViewModel: ObservableObject {
     private let source: StorySource
     private let analytics: (any StoriesAnalyticsProvider)?
     private let clock: any ProgressClock
+    /// Shared by every slide in the window.
+    private let hapticPlayer: (any StoryHapticPlaying)?
+    private let hasHaptics: Bool
     private let onFinished: (_ exitReason: StoryExitReason, _ action: StoryActionV2?) -> Void
 
     /// Prepared slides kept around the active one: [i-1, i, i+1].
@@ -44,6 +47,7 @@ public final class StoryPlayerViewModel: ObservableObject {
         story: StoryV2,
         source: StorySource,
         analytics: (any StoriesAnalyticsProvider)? = nil,
+        hapticPlayer: (any StoryHapticPlaying)? = nil,
         clock: any ProgressClock = RealProgressClock(),
         onFinished: @escaping (_ exitReason: StoryExitReason, _ action: StoryActionV2?) -> Void
     ) {
@@ -51,11 +55,13 @@ public final class StoryPlayerViewModel: ObservableObject {
         self.story = story
         self.source = source
         self.analytics = analytics
+        self.hapticPlayer = hapticPlayer
+        hasHaptics = story.slides.contains { !$0.hapticAtMs.isEmpty }
         self.clock = clock
         self.onFinished = onFinished
         effectiveEndBehavior = story.effectiveEndBehavior
 
-        let first = SlidePlayerViewModel(slide: story.slides[0], clock: clock)
+        let first = SlidePlayerViewModel(slide: story.slides[0], clock: clock, hapticPlayer: hapticPlayer)
         window[0] = first
         current = first
         preparedSlides = [first]
@@ -75,10 +81,15 @@ public final class StoryPlayerViewModel: ObservableObject {
         let center = NotificationCenter.default
         lifecycleObservers = [
             center.addObserver(forName: UIApplication.willResignActiveNotification, object: nil, queue: .main) { [weak self] _ in
-                MainActor.assumeIsolated { self?.setPaused(true, for: .background) }
+                MainActor.assumeIsolated {
+                    self?.setPaused(true, for: .background)
+                    self?.hapticPlayer?.shutdown()
+                }
             },
             center.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
-                MainActor.assumeIsolated { self?.setPaused(false, for: .background) }
+                MainActor.assumeIsolated {
+                    self?.setPaused(false, for: .background)
+                }
             },
         ]
     }
@@ -111,10 +122,7 @@ public final class StoryPlayerViewModel: ObservableObject {
         if currentIndex > 0 {
             activate(index: currentIndex - 1, cause: .tapBack)
         } else {
-            // Restarting the first slide is a new view too, haptics included: an earlier
-            // unattended loop wrap may have muted them.
             isFreshView = true
-            current.hapticsEnabled = true
             current.restart()
             applyPauseState()
         }
@@ -155,8 +163,16 @@ public final class StoryPlayerViewModel: ObservableObject {
         }
     }
 
+    /// Auto-shutdown is off, so the engine is warmed up only where playback actually resumes —
+    /// a story sitting behind a cover would otherwise keep it powered for nothing.
+    private func prepareHaptics() {
+        guard !hasFinished, hasHaptics else { return }
+        hapticPlayer?.prepare()
+    }
+
     private func applyPauseState() {
         if pauseReasons.isEmpty {
+            prepareHaptics()
             current.resume()
         } else {
             current.pause()
@@ -178,8 +194,6 @@ public final class StoryPlayerViewModel: ObservableObject {
         refreshWindow(around: index)
 
         let vm = window[index] ?? makePrepared(at: index)
-        // Haptics follow the same rule as Slide Viewed: silent on an unattended repeat.
-        vm.hapticsEnabled = isFreshView
         vm.onCompleted = { [weak self] in self?.advance(reason: .auto) }
         current = vm
 
@@ -223,7 +237,7 @@ public final class StoryPlayerViewModel: ObservableObject {
 
     @discardableResult
     private func makePrepared(at index: Int) -> SlidePlayerViewModel {
-        let vm = SlidePlayerViewModel(slide: story.slides[index], clock: clock)
+        let vm = SlidePlayerViewModel(slide: story.slides[index], clock: clock, hapticPlayer: hapticPlayer)
         vm.prepare()
         window[index] = vm
         return vm
@@ -303,6 +317,7 @@ public final class StoryPlayerViewModel: ObservableObject {
             vm.teardown()
         }
         window.removeAll()
+        hapticPlayer?.shutdown()
     }
 }
 
