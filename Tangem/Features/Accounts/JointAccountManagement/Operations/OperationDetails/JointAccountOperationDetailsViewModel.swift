@@ -21,6 +21,7 @@ import struct TangemUIUtils.AlertBinder
 final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingSheetContentViewModel {
     @Published var alert: AlertBinder?
     @Published private(set) var isSigning = false
+    @Published private(set) var viewState: ViewState = .details
 
     let tokenIconInfo: TokenIconInfo
     /// Written out for display, and taken from the payload's own `value` rather than from a field on the response.
@@ -39,6 +40,9 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     /// Everyone on the account. Kept apart from the threshold because the copy needs both: the progress line
     /// counts the answers against the roster, while the footer names the threshold against it.
     let membersCount: Int
+    /// Every member of the account with where they stand on the operation, laid out ahead of the tap that opens
+    /// them: the sheet reads an operation as it was handed over and does not follow it any further.
+    let signers: [JointAccountSignerRow.ViewData]
 
     @Published private(set) var answer: Answer
 
@@ -57,6 +61,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         collectedSignaturesCount: Int,
         requiredSignaturesCount: Int,
         membersCount: Int,
+        signers: [JointAccountSignerRow.ViewData],
         answer: Answer,
         canSign: Bool,
         coordinator: JointAccountOperationDetailsRoutable?,
@@ -64,6 +69,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     ) {
         self.canSign = canSign
         self.sign = sign
+        self.signers = signers
         self.tokenIconInfo = tokenIconInfo
         self.cryptoAmount = cryptoAmount
         self.fiatAmount = fiatAmount
@@ -108,9 +114,37 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
             coordinator?.closeOperationDetails()
         case .signOperation:
             signOperation()
+        case .openSigners:
+            openSigners()
         default:
             break
         }
+    }
+}
+
+// MARK: - Signers
+
+private extension JointAccountOperationDetailsViewModel {
+    func openSigners() {
+        let viewModel = JointAccountSignersViewModel(
+            membersCount: membersCount,
+            signers: signers,
+            coordinator: self
+        )
+
+        viewState = .signers(viewModel)
+    }
+}
+
+// MARK: - JointAccountSignersRoutable
+
+extension JointAccountOperationDetailsViewModel: JointAccountSignersRoutable {
+    func returnToOperationFromSigners() {
+        viewState = .details
+    }
+
+    func closeSigners() {
+        coordinator?.closeOperationDetails()
     }
 }
 
@@ -265,6 +299,13 @@ private extension JointAccountOperationDetailsViewModel {
 // MARK: - Auxiliary types
 
 extension JointAccountOperationDetailsViewModel {
+    /// The sheet swaps its own content instead of stacking a second one, the way the fee selector does: the signers
+    /// belong to the operation being read, not to a screen of their own.
+    enum ViewState {
+        case details
+        case signers(JointAccountSignersViewModel)
+    }
+
     /// What this member has already done about the operation.
     enum Answer {
         case awaiting
