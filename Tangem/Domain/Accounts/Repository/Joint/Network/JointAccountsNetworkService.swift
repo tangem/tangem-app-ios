@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 /// The joint accounts of a single wallet, as the backend keeps them.
 /// - Note: Creating one is the endpoint's business alone: it mints the account's identifier and adds the entry the
@@ -19,10 +20,11 @@ protocol JointAccountsNetworkService {
     /// be looked for among the ones read back rather than created a second time.
     func createJointAccount(blob: JointAccountCreationBlob) async throws -> JointAccountCreationResult
 
-    /// - Returns: Every joint account the wallet takes part in, except the archived ones.
-    /// - Note: Nothing caches this: the composition changes inside other people's wallets, which leaves no trace on
-    /// this one, so the list is worth reading anew whenever it is shown.
-    func getJointAccounts() async throws -> [RemoteJointAccount]
+    /// Every joint account the wallet takes part in, except the archived ones. The composition changes inside other
+    /// people's wallets, which leaves no trace on this one, so the list is asked about often.
+    /// - Returns: `.notModified` when the list is what it was when last read — the endpoint says so by the tag of the
+    /// last answer, which the service keeps and sends back — so that nothing is written over what is stored.
+    func getJointAccounts() async throws -> JointAccountsRemoteState
 
     /// - Throws: `.notFound` when there is no such invite, and `.conflict` when it has been spent or this wallet
     /// already holds a slot of the account it invites to.
@@ -45,11 +47,18 @@ protocol JointAccountsNetworkService {
     func createOperation(_ request: JointAccountOperationRequest) async throws -> JointAccountOperation
 
     /// - Returns: The operation with this member's signature counted in; reaching the threshold hands it to the relayer.
-    func signOperation(id: String, signature: Data) async throws -> JointAccountOperation
+    func signOperation(id: String, safeTransaction: SafeTransaction, signature: Data) async throws -> JointAccountOperation
 
     /// - Returns: The operation with its progress recounted, or nil when this very call deleted it — the initiator's
     /// reject always does, a co-signer's once the threshold becomes unreachable.
-    func rejectOperation(id: String, blob: JointAccountOperationRejectionBlob) async throws -> JointAccountOperation?
+    func rejectOperation(id: String) async throws -> JointAccountOperation?
+}
+
+/// What a read of the list answers with.
+enum JointAccountsRemoteState {
+    /// The list is what it was when it was last read, so nothing came back with the answer.
+    case notModified
+    case changed([RemoteJointAccount])
 }
 
 struct JointAccountCreationResult {
