@@ -93,11 +93,6 @@ final class FeeSelectorFeesViewModel: ObservableObject {
 
     func onAppear() {
         customFeeDataProvider.customFeeProvider?.captureCustomFeeFieldsValue()
-        customFeeDataProvider.customFeeProvider?
-            .customFeeIsValidPublisher
-            .removeDuplicates()
-            .receiveOnMain()
-            .assign(to: &$customFeeManualSaveIsAvailable)
 
         if selectedFeeOption != provider.selectedTokenFeeOption {
             selectedFeeOption = provider.selectedTokenFeeOption
@@ -133,6 +128,13 @@ private extension FeeSelectorFeesViewModel {
             .removeDuplicates()
             .receiveOnMain()
             .assign(to: &$customFeeManualSaveIsRequired)
+
+        // Subscribed once here; doing it in `onAppear` added a new, never-cancelled subscription per appearance.
+        customFeeDataProvider.customFeeProvider?
+            .customFeeIsValidPublisher
+            .removeDuplicates()
+            .receiveOnMain()
+            .assign(to: &$customFeeManualSaveIsAvailable)
     }
 
     func userDidSelect(fee: TokenFee) {
