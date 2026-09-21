@@ -155,10 +155,13 @@ struct JointAccountsNetworkMapperTests {
         #expect(operation.chainId == 1)
         #expect(operation.status == .awaitingSignatures)
         #expect(operation.initiator == "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf")
-        #expect(operation.deadline == nil)
+        #expect(operation.threshold == 2)
+        #expect(operation.createdAt == "2026-09-02T10:15:00Z")
         #expect(operation.safeTx.nonce == "7")
         #expect(operation.safeTx.operation == .call)
-        #expect(operation.votes?.map(\.vote) == [.approve, .approve])
+        #expect(operation.votes?.map(\.vote) == [.approve, .reject])
+        // A refusal is not signed, so it comes back without one
+        #expect(operation.votes?.map(\.signature) == ["0xfeed", nil])
     }
 
     @Test("A listing without operations reads the way it did before the endpoint learnt to report them")
@@ -205,7 +208,7 @@ struct JointAccountsNetworkMapperTests {
         #expect(operation.safeTransaction.gasPrice == 1_500_000_000)
         #expect(operation.safeTransaction.data.isEmpty)
         #expect(try SafeInnerCallTypeParser.parse(operation.safeTransaction.innerCall) == .transfer(.coin(destination: "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", value: 1_000_000_000_000_000)))
-        #expect(operation.signatures.map(\.state) == [.signed, .signed])
+        #expect(operation.signatures.map(\.state) == [.signed, .declined])
     }
 
     @Test("An operation of a form this version cannot read keeps its place, with no call to show")
@@ -274,7 +277,7 @@ struct JointAccountsNetworkMapperTests {
     @Test("A member's answer this version has never heard of costs that answer and nothing else")
     func unknownSignatureStateIsRead() throws {
         let json = Constants.activeAccountsWithOperationJSON.replacingOccurrences(
-            of: "\"address\": \"0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c\", \"vote\": \"approve\"",
+            of: "\"address\": \"0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c\", \"vote\": \"reject\"",
             with: "\"address\": \"0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c\", \"vote\": \"revoked\""
         )
         let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(json)
@@ -288,7 +291,7 @@ struct JointAccountsNetworkMapperTests {
 
     @Test("A stored operation stage survives a round trip, whether this version knows it or not")
     func operationStatusRoundTripsThroughStorage() throws {
-        for status in [JointAccountOperationStatus.awaitingSignatures, .pending, .executed, .failed, .unknown] {
+        for status in [JointAccountOperationStatus.awaitingSignatures, .pending, .executed, .failed, .cancelled, .unknown] {
             let encoded = try JSONEncoder().encode([status])
 
             #expect(try JSONDecoder().decode([JointAccountOperationStatus].self, from: encoded) == [status])
@@ -359,14 +362,17 @@ struct JointAccountsNetworkMapperTests {
         #expect(dto.safeAddress == "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b")
         #expect(dto.chainId == 1)
         #expect(dto.safeTx.nonce == "7")
-        #expect(dto.deadline == nil)
         #expect(dto.signature == "0x01ABFF")
     }
 
-    @Test("Signing an operation sends the answer alone, since the endpoint holds the transaction it is over")
-    func signOperationRequestIsWritten() {
-        let dto = mapper.mapToRequest(from: Data([0x01, 0xAB, 0xFF]))
+    /// The endpoint checks the signature against the body it is sent and the body against the one it holds, so one
+    /// signature is not enough for it.
+    @Test("Signing an operation sends the transaction along with the answer")
+    func signOperationRequestIsWritten() throws {
+        let dto = try mapper.mapToRequest(safeTransaction: Self.makeSafeTransaction(), signature: Data([0x01, 0xAB, 0xFF]))
 
+        #expect(dto.safeTx.nonce == "7")
+        #expect(dto.safeTx.operation == .call)
         #expect(dto.signature == "0x01ABFF")
     }
 }
@@ -466,11 +472,12 @@ private extension JointAccountsNetworkMapperTests {
                   },
                   "status": "awaiting_signatures",
                   "initiator": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
-                  "deadline": null,
+                  "threshold": 2,
                   "votes": [
-                    { "address": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", "vote": "approve", "votedAt": "2026-09-02T10:15:00Z" },
-                    { "address": "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", "vote": "approve", "votedAt": "2026-09-02T10:19:00Z" }
-                  ]
+                    { "address": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", "vote": "approve", "signature": "0xfeed", "votedAt": "2026-09-02T10:15:00Z" },
+                    { "address": "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", "vote": "reject", "signature": null, "votedAt": "2026-09-02T10:19:00Z" }
+                  ],
+                  "createdAt": "2026-09-02T10:15:00Z"
                 }
               ]
             }
