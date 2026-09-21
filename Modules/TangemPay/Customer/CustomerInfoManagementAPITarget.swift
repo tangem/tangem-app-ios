@@ -52,6 +52,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "order/\(orderId)"
         case .cancelOrder(let orderId):
             "order/\(orderId)/cancel"
+        case .sendBankOfframpSignature(let orderId, _, _):
+            "order/\(orderId)/bank-offramp/signature"
         case .getCustomerOffers:
             "customer/offers"
         case .getProductInstanceOffers(let productInstanceId):
@@ -121,6 +123,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
 
         case .placeOrder,
              .cancelOrder,
+             .sendBankOfframpSignature,
              .getCardDetails,
              .freeze,
              .unfreeze,
@@ -230,6 +233,9 @@ struct CustomerInfoManagementAPITarget: TargetType {
         case .placeOrder(let request, _):
             return .requestCustomJSONEncodable(request, encoder: encoder)
 
+        case .sendBankOfframpSignature(_, let request, _):
+            return .requestCustomJSONEncodable(request, encoder: encoder)
+
         case .updateCardDisplayName(_, let displayName):
             let requestData = TangemPayUpdateCardDisplayNameRequest(displayName: displayName)
             return .requestCustomJSONEncodable(requestData, encoder: encoder)
@@ -252,7 +258,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
         switch target {
         case .getPin(_, let sessionId):
             ["X-Session-Id": "\(sessionId)"]
-        case .placeOrder(_, let idempotencyKey):
+        case .placeOrder(_, let idempotencyKey), .sendBankOfframpSignature(_, _, let idempotencyKey):
             ["Idempotency-Key": idempotencyKey]
         case .getCustomerInfo,
              .getTariffPlanTransitions,
@@ -298,6 +304,7 @@ extension CustomerInfoManagementAPITarget {
 
         case getOrder(orderId: String)
         case cancelOrder(orderId: String)
+        case sendBankOfframpSignature(orderId: String, request: TangemPayOfframpSignatureRequest, idempotencyKey: String)
         case findOrders(orderTypes: [String], orderStatuses: [TangemPayOrderResponse.Status])
 
         case getCustomerOffers(deeplinkValue: String?)
