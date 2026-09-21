@@ -8,6 +8,7 @@
 
 import Foundation
 import Testing
+import TangemLogger
 import TangemTestKit
 @testable import TangemBackendAuthentication
 
@@ -695,8 +696,9 @@ extension RenewSessionTokensUseCaseTests {
                 sessionTokensRepository: sessionTokensRepository,
                 deviceKeyManager: DeviceKeyManager(privateKeyRepository: devicePrivateKeyRepository),
                 nonceDecryptor: nonceDecryptor,
-                deviceMetadataProvider: .fake,
-                dateProvider: dateProvider()
+                deviceMetadataProvider: DeviceMetadata.fake,
+                dateProvider: dateProvider(),
+                logger: Logger(category: OSLogCategory(name: "Tests"))
             ),
             sourceLocation: sourceLocation
         )
