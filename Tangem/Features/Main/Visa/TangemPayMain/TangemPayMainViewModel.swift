@@ -636,7 +636,13 @@ final class TangemPayMainViewModel: ObservableObject {
                 if await isOfframpHubAvailable() {
                     guard !Task.isCancelled else { return }
 
-                    coordinator?.openTangemPayOfframp()
+                    do {
+                        try await openOfframpHub()
+                    } catch is CancellationError {
+                        // Do nothing
+                    } catch {
+                        alert = error.alertBinder
+                    }
                     return
                 }
 
@@ -1120,6 +1126,22 @@ private extension TangemPayMainViewModel {
 // MARK: - Navigation
 
 private extension TangemPayMainViewModel {
+    @MainActor
+    func openOfframpHub() async throws {
+        let restriction = try await tangemPayAccount.withdrawAvailabilityProvider.restriction()
+
+        try Task.checkCancellation()
+
+        switch restriction {
+        case .none, .zeroWalletBalance:
+            coordinator?.openTangemPayWithdrawNoteSheet()
+        case .hasPendingWithdrawOrder:
+            coordinator?.openTangemWithdrawInProgressSheet()
+        default:
+            alert = TokenActionAvailabilityAlertBuilder().alert(for: restriction)
+        }
+    }
+
     @MainActor
     func openWithdraw(swapParameters: PredefinedSwapParameters) async throws {
         let restriction = try await tangemPayAccount.withdrawAvailabilityProvider.restriction()
