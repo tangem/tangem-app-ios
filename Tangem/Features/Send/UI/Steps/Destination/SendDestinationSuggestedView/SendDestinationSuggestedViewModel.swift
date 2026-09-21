@@ -36,7 +36,7 @@ class SendDestinationSuggestedViewModel {
         suggestedWallets = wallets.map { wallet in
             Wallet(
                 id: wallet.address,
-                addressIconType: AddressIconProvider.makeViewType(address: wallet.address),
+                addressIconType: AddressIconProvider.makeViewType(address: wallet.address, networkId: nil),
                 wallet: wallet
             ) { [weak self] in
                 self?.tapAction(SendDestinationSuggested(
@@ -52,7 +52,7 @@ class SendDestinationSuggestedViewModel {
         suggestedRecentTransaction = recentTransactions.map { record in
             RecentTransaction(
                 id: record.id,
-                addressIconType: AddressIconProvider.makeViewType(address: record.address),
+                addressIconType: AddressIconProvider.makeViewType(address: record.address, networkId: nil),
                 record: record
             ) { [weak self] in
                 self?.tapAction(SendDestinationSuggested(

@@ -393,12 +393,15 @@ extension TransactionViewModel {
 
     /// Counterparty rendered alongside the direction prefix in the redesigned subtitle.
     /// One of: a named account (inside the current wallet or another of the user's wallets),
-    /// a named wallet (single-account mode), or an unresolved external address that falls back
-    /// to blockies + truncated hex.
+    /// a named wallet (single-account mode), an address book contact, or an unresolved external
+    /// address that falls back to blockies + truncated hex.
     enum SubtitleOwner: Hashable {
         case accountInCurrentWallet(name: String, icon: AccountIconView.ViewData)
         case wallet(name: String, imageProvider: (any WalletImageProviding)?, thumbnailType: ThumbnailWalletViewType?)
         case accountInOtherWallet(accountName: String, accountIcon: AccountIconView.ViewData)
+        /// An external address the user saved in an address book. The address travels along so the
+        /// details sheet can still offer to copy it.
+        case contact(name: String, icon: AddressBookContactNameIconViewData, fullAddress: String)
         /// Pre-rendered blockies are carried alongside the address so the SwiftUI body doesn't
         /// regenerate the blockies image on every recomputation (long lists scroll-allocate).
         case unresolved(short: String, fullAddress: String, blockiesImage: UIImage?)
@@ -406,7 +409,7 @@ extension TransactionViewModel {
         var isOwnWallet: Bool {
             switch self {
             case .accountInCurrentWallet, .wallet, .accountInOtherWallet: true
-            case .unresolved: false
+            case .contact, .unresolved: false
             }
         }
 
@@ -421,6 +424,9 @@ extension TransactionViewModel {
             case .accountInOtherWallet(let lAcc, let lIcon):
                 guard case .accountInOtherWallet(let rAcc, let rIcon) = rhs else { return false }
                 return lAcc == rAcc && lIcon == rIcon
+            case .contact(let lName, let lIcon, let lAddress):
+                guard case .contact(let rName, let rIcon, let rAddress) = rhs else { return false }
+                return lName == rName && lIcon == rIcon && lAddress == rAddress
             case .unresolved(let lShort, let lAddress, _):
                 guard case .unresolved(let rShort, let rAddress, _) = rhs else { return false }
                 return lShort == rShort && lAddress == rAddress
@@ -440,8 +446,12 @@ extension TransactionViewModel {
                 hasher.combine(2)
                 hasher.combine(accountName)
                 hasher.combine(accountIcon)
-            case .unresolved(let short, let fullAddress, _):
+            case .contact(let name, _, let fullAddress):
                 hasher.combine(3)
+                hasher.combine(name)
+                hasher.combine(fullAddress)
+            case .unresolved(let short, let fullAddress, _):
+                hasher.combine(4)
                 hasher.combine(short)
                 hasher.combine(fullAddress)
             }

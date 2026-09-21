@@ -25,6 +25,8 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
     @Injected(\.ratingProvider) private var ratingProvider: RatingProvider
     @Injected(\.transactionHistoryAuxDataRepository) private var auxDataRepository: TransactionHistoryAuxDataRepository
+    @Injected(\.cryptoAccountsGlobalStateProvider)
+    private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
 
     @Published private(set) var header: TransactionDetailsHeaderViewData?
     @Published private(set) var content: Content?
@@ -81,20 +83,14 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
             isToken: walletModel.tokenItem.isToken,
             stakingNetwork: walletModel.tokenItem.stakingTokenItem?.network
         )
-        let resolver = SubtitleOwnerResolver(
-            blockchain: walletModel.tokenItem.blockchain,
-            currentUserWalletId: userWalletInfo.id,
-            isAccountsMode: isAccountsMode
-        )
 
         subscribe(
             id: id,
             transactionHistoryPublisher: walletModel.transactionHistoryPublisher,
-            contactsPublisher: addressBookWallet.addressBookPublisher,
+            contactsPublisher: AddressBookContactsAggregator.contactsPublisher(),
             syncStatePublisher: addressBookWallet.syncStatePublisher,
             context: context,
-            mapper: mapper,
-            resolver: resolver
+            mapper: mapper
         )
     }
 
@@ -167,14 +163,26 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         }
     }
 
+    private var isAccountsMode: Bool {
+        cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
+    }
+
+    private func subtitleOwnerResolver(contacts: [AddressBookContact]) -> SubtitleOwnerResolver {
+        SubtitleOwnerResolver(
+            blockchain: walletModel.tokenItem.blockchain,
+            currentUserWalletId: userWalletId,
+            isAccountsMode: isAccountsMode,
+            contacts: contacts
+        )
+    }
+
     private func subscribe(
         id: TransactionRecord.ID,
         transactionHistoryPublisher: some Publisher<WalletModelTransactionHistoryState, Never>,
         contactsPublisher: some Publisher<[AddressBookContact], Never>,
         syncStatePublisher: some Publisher<AddressBookSyncState, Never>,
         context: TransactionDetailsContext,
-        mapper: TransactionHistoryMapper,
-        resolver: SubtitleOwnerResolver
+        mapper: TransactionHistoryMapper
     ) {
         let recordPublisher = transactionHistoryPublisher
             .compactMap { state -> TransactionRecord? in
@@ -213,7 +221,10 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
             .withWeakCaptureOf(self)
             .map { viewModel, args in
                 let (record, contacts, isAddressBookSynced, _) = args
-                let transaction = mapper.mapTransactionViewModel(record, subtitleOwnerResolver: resolver)
+                let transaction = mapper.mapTransactionViewModel(
+                    record,
+                    subtitleOwnerResolver: viewModel.subtitleOwnerResolver(contacts: contacts)
+                )
 
                 return (
                     record: record,
@@ -373,7 +384,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
     ) -> TransactionDetailsAddContactHelper {
         TransactionDetailsAddContactHelper(
             networkId: AddressBookNetworkID(walletModel.tokenItem.blockchain.networkId),
-            contacts: contacts,
+            contacts: contacts.filter { $0.walletId == userWalletId },
             isAddressBookSynced: isAddressBookSynced,
             transactionType: transaction.transactionType,
             interactionAddress: transaction.interactionAddress
