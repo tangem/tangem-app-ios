@@ -23,7 +23,7 @@ final class CollectiblesManager {
     private let configReader: any CollectiblesConfigReader
     private let vaultUsdcReader: any CollectiblesVaultUsdcReader
     private let balanceService: any CollectiblesBalanceService
-    private let hotDelegateSigner: any CollectiblesHotDelegateSigner
+    private let sessionKeySigner: any CollectiblesSessionKeySigner
     private let coldKeyInteractorFactory: CollectiblesColdKeyInteractorFactory
     private let serviceProvider: CollectiblesChainServiceProvider
 
@@ -40,7 +40,7 @@ final class CollectiblesManager {
         configReader: any CollectiblesConfigReader,
         vaultUsdcReader: any CollectiblesVaultUsdcReader,
         balanceService: any CollectiblesBalanceService,
-        hotDelegateSigner: any CollectiblesHotDelegateSigner,
+        sessionKeySigner: any CollectiblesSessionKeySigner,
         coldKeyInteractorFactory: CollectiblesColdKeyInteractorFactory,
         serviceProvider: CollectiblesChainServiceProvider
     ) {
@@ -51,7 +51,7 @@ final class CollectiblesManager {
         self.configReader = configReader
         self.vaultUsdcReader = vaultUsdcReader
         self.balanceService = balanceService
-        self.hotDelegateSigner = hotDelegateSigner
+        self.sessionKeySigner = sessionKeySigner
         self.coldKeyInteractorFactory = coldKeyInteractorFactory
         self.serviceProvider = serviceProvider
 
@@ -146,7 +146,7 @@ extension CollectiblesManager: CollectiblesOnboarder {
             case .notOnboarded:
                 step = .deployVault
             case .rekeyRequired:
-                step = .pointVaultAtHeldDelegate
+                step = .pointVaultAtHeldSessionKey
             case .unresolved:
                 // `resolveState` answers with a resolved case or throws; this is only ever the value
                 // published before the first resolve finishes
@@ -156,7 +156,7 @@ extension CollectiblesManager: CollectiblesOnboarder {
             // A step can land and still resolve back to the state that asked for it — an RPC that has not
             // caught up with a transaction it already accepted. Repeating it would spend the tap twice.
             guard performedSteps.insert(step).inserted else {
-                guard try await waitForState(toAdvanceFrom: resolved) else {
+                guard try await waitForState(until: { $0 != resolved }) else {
                     throw OnboardingError.stepDidNotAdvance(step)
                 }
 
@@ -168,11 +168,10 @@ extension CollectiblesManager: CollectiblesOnboarder {
     }
 }
 
-// MARK: - Hot-signed operations (no card tap)
+// MARK: - Session-key operations (no card tap)
 
 extension CollectiblesManager {
-    /// Spin: signs sponsor-assembled `open_pack` bytes. Verification precedes signing inside this manager,
-    /// so unverified backend bytes can never reach the key.
+    /// Spin: signs sponsor-assembled `purchase_pack` bytes.
     func openPack(preparedTransaction: Data) async throws {
         // [REDACTED_TODO_COMMENT]
         throw NotImplementedError()
@@ -194,20 +193,46 @@ extension CollectiblesManager {
 // MARK: - Cold-signed operations (one card tap each)
 
 extension CollectiblesManager {
-    /// Replaces `hot_delegate` with a freshly generated key — the compromised-device exit, not the reinstall
+    /// Replaces `session_key` with a freshly generated key — the compromised-device exit, not the reinstall
     /// one. `onboard()` handles a vault naming a key this phone does not hold by pointing the chain at the key
     /// it does; this discards a key that is still on chain, so it needs the pending-then-promote slot and a
     /// deliberate user action. Never invoked automatically: two devices rotating on refresh would fight forever.
-    func rotateHotDelegate() async throws {
+    func rotateSessionKey() async throws {
         // [REDACTED_TODO_COMMENT]
         throw NotImplementedError()
     }
 
-    /// Both caps are always sent together: the program checks `0 < per_spin_cap <= daily_cap` on the
-    /// combined state, so a single-cap change can fail against the stored value of the other.
+    /// Both caps go together: the program checks `0 < per_spin_cap <= daily_cap` on the combined state, so
+    /// changing one can fail against the value stored for the other.
     func updateCaps(perSpinCap: UInt64, dailyCap: UInt64) async throws {
-        // [REDACTED_TODO_COMMENT]
-        throw NotImplementedError()
+        let coldKey = try coldKey()
+
+        let program = try CollectiblesVaultProgram(programId: CollectiblesChainEnvironment.programId)
+
+        let instruction = try program.updateVaultInstruction(
+            coldOwner: coldKey.blockchainKey,
+            sessionKey: nil,
+            perSpinCap: perSpinCap,
+            dailyCap: dailyCap
+        )
+
+        let signature = try await broadcast(coldKey: coldKey, instructions: [instruction])
+        CollectiblesLogger.debug("Caps updated, transaction \(signature ?? Constants.landedEarlier)")
+
+        // Reads are finalized, so a resolve right after the write still answers with the replaced caps
+        let applied = try await waitForState { state in
+            guard let vault = state.vault else {
+                return false
+            }
+
+            return vault.perSpinCap == perSpinCap && vault.dailyCap == dailyCap
+        }
+
+        if !applied {
+            CollectiblesLogger.debug("Caps not visible yet, leaving them to the next refresh")
+        }
+
+        await refreshState()
     }
 
     func withdrawToken(amount: UInt64, destination: String) async throws {
@@ -255,7 +280,7 @@ private extension CollectiblesManager {
         }
 
         // A local key that cannot be read counts as a mismatch: either way this device cannot sign for the vault
-        guard let hotDelegate = try? await hotDelegateSigner.publicKey(), hotDelegate == vault.hotDelegate else {
+        guard let sessionKey = try? await sessionKeySigner.publicKey(), sessionKey == vault.sessionKey else {
             return .rekeyRequired(vault)
         }
 
@@ -299,7 +324,7 @@ private extension CollectiblesManager {
     enum OnboardingStep: Hashable {
         case deriveColdKey
         case deployVault
-        case pointVaultAtHeldDelegate
+        case pointVaultAtHeldSessionKey
     }
 
     func perform(_ step: OnboardingStep) async throws {
@@ -308,8 +333,8 @@ private extension CollectiblesManager {
             try await deriveColdKey()
         case .deployVault:
             try await deployVault()
-        case .pointVaultAtHeldDelegate:
-            try await pointVaultAtHeldDelegate()
+        case .pointVaultAtHeldSessionKey:
+            try await pointVaultAtHeldSessionKey()
         }
     }
 
@@ -323,25 +348,22 @@ private extension CollectiblesManager {
         }
     }
 
-    /// Generates only when there is no key to read — one this device cannot open cannot sign for the vault
-    /// either, and the caller names whatever comes back on chain within the same run. Discarding a key that
-    /// still works is a different act, and `rotateHotDelegate()` owns it.
-    func ensureHotDelegate() async throws -> Data {
-        if let hotDelegate = try await hotDelegateSigner.publicKey() {
-            return hotDelegate
+    /// Generates only when there is none to read; discarding a key that still works belongs to
+    /// `rotateSessionKey()`.
+    func ensureSessionKey() async throws -> Data {
+        if let sessionKey = try await sessionKeySigner.publicKey() {
+            return sessionKey
         }
 
-        return try await hotDelegateSigner.generateKey()
+        return try await sessionKeySigner.generateKey()
     }
 
-    /// The only thing that ever creates the account the vault receives USDC on. One transaction carries both,
-    /// so they either both exist or neither does — Android deploys the same bundle, which is why nothing
-    /// re-checks the pairing. The vault is initialized with the delegate this phone holds, so no rotation
-    /// follows.
+    /// One transaction carries the vault and the account it receives USDC on, so they either both exist or
+    /// neither does.
     func deployVault() async throws {
         let coldKey = try coldKey()
         let coldOwner = coldKey.blockchainKey
-        let hotDelegate = try await ensureHotDelegate()
+        let sessionKey = try await ensureSessionKey()
 
         let program = try CollectiblesVaultProgram(programId: CollectiblesChainEnvironment.programId)
         let usdcMint = try await configReader.configInfo().usdcMint
@@ -355,7 +377,7 @@ private extension CollectiblesManager {
         let initVault = try program.initVaultInstruction(
             coldOwner: coldOwner,
             payer: coldOwner,
-            hotDelegate: hotDelegate,
+            sessionKey: sessionKey,
             perSpinCap: CollectiblesChainEnvironment.initialPerSpinCap,
             dailyCap: CollectiblesChainEnvironment.initialDailyCap
         )
@@ -370,33 +392,33 @@ private extension CollectiblesManager {
         CollectiblesLogger.debug("Vault deployed, transaction \(signature ?? Constants.landedEarlier)")
     }
 
-    /// The reinstall exit: the vault outlives the local delegate, so a vault naming a different key gets
-    /// `update_vault` pointing it back at the key this phone already holds, leaving both caps as the chain
-    /// holds them. Nothing local is generated or discarded — the chain is what moves.
-    func pointVaultAtHeldDelegate() async throws {
+    /// Points a vault that names an unknown session key back at the one this phone holds — the exit from a
+    /// reinstall. Caps stay as the chain holds them.
+    func pointVaultAtHeldSessionKey() async throws {
         let coldKey = try coldKey()
-        let hotDelegate = try await ensureHotDelegate()
+        let sessionKey = try await ensureSessionKey()
 
         let program = try CollectiblesVaultProgram(programId: CollectiblesChainEnvironment.programId)
 
         let instruction = try program.updateVaultInstruction(
             coldOwner: coldKey.blockchainKey,
-            hotDelegate: hotDelegate,
+            sessionKey: sessionKey,
             perSpinCap: nil,
             dailyCap: nil
         )
 
         let signature = try await broadcast(coldKey: coldKey, instructions: [instruction])
-        CollectiblesLogger.debug("Hot delegate rotated, transaction \(signature ?? Constants.landedEarlier)")
+        CollectiblesLogger.debug("Session key rotated, transaction \(signature ?? Constants.landedEarlier)")
     }
 
     /// A node serves the transaction it accepted before it serves the account that transaction created, so the
-    /// read right after a step is as likely to be early as to be the truth. Re-reads until the state moves.
-    func waitForState(toAdvanceFrom state: CollectiblesState) async throws -> Bool {
+    /// read right after a write is as likely to be early as to be the truth. A failed read costs an attempt
+    /// like an early one; only cancellation ends the wait before its answer.
+    func waitForState(until isSatisfied: (CollectiblesState) -> Bool) async throws -> Bool {
         for _ in 0 ..< Constants.stateAdvanceAttempts {
             try await Task.sleep(for: Constants.stateAdvanceInterval)
 
-            if try await resolveState() != state {
+            if let state = try? await resolveState(), isSatisfied(state) {
                 return true
             }
         }
@@ -424,8 +446,14 @@ private extension CollectiblesManager {
             ) { message in
                 try await coldKeyInteractorFactory.makeInteractor().sign(message: message, coldKey: coldKey)
             }
-        } catch SolanaSponsoredTransactionService.SendError.alreadyProcessed {
-            return nil
+        } catch let sendError as SolanaSendError {
+            switch sendError {
+            case .alreadyProcessed:
+                return nil
+            case .programError(let code, let logs):
+                CollectiblesLogger.debug("Program rejected the transaction, code \(code)\n\(logs.joined(separator: "\n"))")
+                throw CollectiblesProgramRejection(rawValue: code) ?? sendError
+            }
         }
     }
 
@@ -457,9 +485,16 @@ private extension CollectiblesManager {
     }
 }
 
-// MARK: - Log description
+// MARK: - State accessors
 
 private extension CollectiblesState {
+    var vault: CollectiblesVaultInfo? {
+        switch self {
+        case .ready(let vault), .rekeyRequired(let vault): vault
+        case .unresolved, .notOnboarded, .coldOwnerNotDerived: nil
+        }
+    }
+
     /// Debug-only: the vault address and the remaining daily budget are per-user spend data, so they stay
     /// out of the production log file rather than being written at a level the sanitizer lets through.
     var logDescription: String {

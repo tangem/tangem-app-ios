@@ -1,5 +1,5 @@
 //
-//  CommonCollectiblesHotDelegateSigner.swift
+//  CommonCollectiblesSessionKeySigner.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,13 +10,13 @@ import Foundation
 import TangemCollectibles
 import TangemFoundation
 
-final class CommonCollectiblesHotDelegateSigner: CollectiblesHotDelegateSigner {
-    private let store: any CollectiblesHotDelegateWalletStore
+final class CommonCollectiblesSessionKeySigner: CollectiblesSessionKeySigner {
+    private let store: any CollectiblesSessionKeyWalletStore
     private let userWalletId: UserWalletId
 
     init(
         userWalletId: UserWalletId,
-        store: any CollectiblesHotDelegateWalletStore = CommonCollectiblesHotDelegateWalletStore()
+        store: any CollectiblesSessionKeyWalletStore = CommonCollectiblesSessionKeyWalletStore()
     ) {
         self.userWalletId = userWalletId
         self.store = store

@@ -21,6 +21,6 @@ enum CollectiblesChainEnvironment {
 
     // [REDACTED_TODO_COMMENT]
     /// Spending caps in base USDC units (6 decimals) a fresh vault is initialized with.
-    static let initialPerSpinCap: UInt64 = 300_000_000
-    static let initialDailyCap: UInt64 = 1_000_000_000
+    static let initialPerSpinCap: UInt64 = 50_000_000_000
+    static let initialDailyCap: UInt64 = 500_000_000_000
 }
