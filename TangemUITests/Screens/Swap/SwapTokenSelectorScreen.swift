@@ -146,6 +146,25 @@ final class SwapTokenSelectorScreen: ScreenBase<SwapTokenSelectorScreenElement> 
         return self
     }
 
+    @discardableResult
+    func verifyTokenCount(_ expected: Int) -> Self {
+        XCTContext.runActivity(named: "Verify the token selector lists \(expected) tokens") { _ in
+            let query = app.buttons.matching(
+                NSPredicate(format: "identifier BEGINSWITH %@", CommonUIAccessibilityIdentifiers.tokenSelectorItemPrefix)
+            )
+            let expectation = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "count == %d", expected),
+                object: query
+            )
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Token selector should list \(expected) tokens, but listed \(query.count)"
+            )
+        }
+        return self
+    }
+
     // MARK: - Balance filter
 
     @discardableResult

@@ -62,6 +62,53 @@ final class TangemPayAddFundsSheet: ScreenBase<TangemPayAddFundsSheetElement> {
             return ReceiveTokenAlertSheet(app)
         }
     }
+
+    @discardableResult
+    func tapReceiveExpectingChooseNetwork() -> TangemPayChooseNetworkSheet {
+        XCTContext.runActivity(named: "Tap Receive option expecting the Choose network sheet") { _ in
+            receiveOptionButton.waitAndTap()
+            return TangemPayChooseNetworkSheet(app)
+        }
+    }
+
+    @discardableResult
+    func verifyOptionsOrder() -> Self {
+        XCTContext.runActivity(named: "Verify Add Funds options are ordered bank transfer, swap, receive") { _ in
+            waitAndAssertTrue(bankTransferOptionButton, "Bank transfer option should be displayed")
+            waitAndAssertTrue(swapOptionButton, "Swap option should be displayed")
+            waitAndAssertTrue(receiveOptionButton, "Receive option should be displayed")
+
+            XCTAssertTrue(
+                bankTransferOptionButton.frame.minY < swapOptionButton.frame.minY,
+                "Bank transfer option should be listed above the Swap option"
+            )
+            XCTAssertTrue(
+                swapOptionButton.frame.minY < receiveOptionButton.frame.minY,
+                "Swap option should be listed above the Receive option"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyOptionLabels(bankTransfer: [String], swap: [String], receive: [String]) -> Self {
+        XCTContext.runActivity(named: "Verify Add Funds option titles and subtitles") { _ in
+            verifyLabel(of: bankTransferOptionButton, contains: bankTransfer, name: "Bank transfer")
+            verifyLabel(of: swapOptionButton, contains: swap, name: "Swap")
+            verifyLabel(of: receiveOptionButton, contains: receive, name: "Receive")
+            return self
+        }
+    }
+
+    private func verifyLabel(of element: XCUIElement, contains texts: [String], name: String) {
+        waitAndAssertTrue(element, "\(name) option should be displayed")
+        for text in texts {
+            XCTAssertTrue(
+                element.label.contains(text),
+                "\(name) option should carry '\(text)'. Actual: '\(element.label)'"
+            )
+        }
+    }
 }
 
 enum TangemPayAddFundsSheetElement: String, UIElement {
