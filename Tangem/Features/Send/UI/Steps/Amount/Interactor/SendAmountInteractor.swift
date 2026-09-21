@@ -221,11 +221,24 @@ class CommonSendAmountInteractor {
         let info = amountModifier?.modifyingMessagePublisher ?? .just(output: nil)
         let notification = notificationService?.notificationMessagePublisher ?? .just(output: nil)
 
-        return Publishers.Merge3(
-            info.removeDuplicates().map { $0.map { .info($0) } },
-            notification.removeDuplicates().map { $0.map { .error($0) } },
-            _error.removeDuplicates().map { $0.map { .error($0) } }
+        // `Merge3` was last-writer-wins: a `nil` from `_error` (an unrelated error clearing) overwrote a still
+        // valid modifier message such as Tron's "rounded down to N". Combine the three and pick by precedence.
+        return Publishers.CombineLatest3(
+            info.removeDuplicates(),
+            notification.removeDuplicates(),
+            _error.removeDuplicates()
         )
+        .map { info, notification, error -> SendAmountViewModel.BottomInfoTextType? in
+            if let error {
+                return .error(error)
+            }
+
+            if let notification {
+                return .error(notification)
+            }
+
+            return info.map { .info($0) }
+        }
         .eraseToAnyPublisher()
     }
 
