@@ -64,7 +64,7 @@ final class SellActionButtonViewModel: ActionButtonViewModel {
             break
         case .idle:
             let tokenSelectorViewModel = TokenSelectorViewModel.common(
-                walletsProvider: .standardAccountsOnly(),
+                walletsProvider: .cryptoJointAccounts(),
                 availabilityProvider: .always(),
                 preferredWalletId: userWalletModel.userWalletId
             )
@@ -74,7 +74,7 @@ final class SellActionButtonViewModel: ActionButtonViewModel {
 
     private func makeTokenSelectorViewModel() -> TokenSelectorViewModel {
         .common(
-            walletsProvider: .standardAccountsOnly(),
+            walletsProvider: .cryptoJointAccounts(),
             availabilityProvider: .sell(),
             preferredWalletId: ActionButtonsBuyPreselection.userWalletId(for: userWalletModel)
         )
@@ -171,7 +171,7 @@ private extension SellActionButtonViewModel {
         guard isOpeningRequired else { return }
 
         let tokenSelectorViewModel = TokenSelectorViewModel.common(
-            walletsProvider: .standardAccountsOnly(),
+            walletsProvider: .cryptoJointAccounts(),
             availabilityProvider: .always(),
             preferredWalletId: userWalletModel.userWalletId
         )

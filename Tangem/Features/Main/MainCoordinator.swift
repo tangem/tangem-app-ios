@@ -520,7 +520,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
     private func openTangemPayMainViewAfterPlanActivation(userWalletModel: any UserWalletModel) {
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.tangemPayPlanActivationNavigationDelay) { [weak self] in
-            guard let tangemPayAccount = TangemPayAccountAggregator.tangemPayAccountModel(from: userWalletModel.accountModelsManager)?.state?.tangemPayAccount else {
+            guard let tangemPayAccount = AccountModelsAggregator(.tangemPay).model(from: userWalletModel.accountModelsManager)?.state?.tangemPayAccount else {
                 return
             }
 
@@ -662,8 +662,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         userWalletModel: any UserWalletModel,
         openingAction: TangemPayOpeningAction?
     ) {
-        guard let tangemPayAccount = TangemPayAccountAggregator
-            .tangemPayAccountModel(from: userWalletModel.accountModelsManager)?
+        guard let tangemPayAccount = AccountModelsAggregator(.tangemPay)
+            .model(from: userWalletModel.accountModelsManager)?
             .state?
             .tangemPayAccount
         else {
