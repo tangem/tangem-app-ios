@@ -81,9 +81,11 @@ public extension String {
     var isValidHex: Bool {
         let regex = try! NSRegularExpression(pattern: "^[0-9a-f]*$", options: .caseInsensitive)
 
-        let found = regex.firstMatch(in: self, options: [], range: NSRange(location: 0, length: count))
+        // `NSRange` is in UTF-16 units; `count` is in Characters, so a combining mark or an emoji made the range
+        // shorter than the string and let the regex accept the hex prefix of a non-hex value.
+        let found = regex.firstMatch(in: self, options: [], range: NSRange(startIndex..., in: self))
 
-        if found == nil || found?.range.location == NSNotFound || count % 2 != 0 {
+        if found == nil || found?.range.location == NSNotFound || utf16.count % 2 != 0 {
             return false
         }
 
