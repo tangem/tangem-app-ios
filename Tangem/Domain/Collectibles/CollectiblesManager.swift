@@ -87,6 +87,10 @@ extension CollectiblesManager: CollectiblesAccountModel {
         balanceService.fiatTotalTokenBalanceProvider
     }
 
+    var usdcTokenBalanceProvider: TokenBalanceProvider {
+        balanceService.usdcTokenBalanceProvider
+    }
+
     func update(name: String) {
         guard name != nameSubject.value else {
             return
@@ -110,6 +114,7 @@ extension CollectiblesManager: CollectiblesAccountModel {
             } catch {
                 // A read that failed says nothing about the vault, so the last resolved state stands
                 CollectiblesLogger.error("State resolve failed, keeping the last known state", error: error)
+                balanceService.update(.failed(error))
             }
         }
     }
