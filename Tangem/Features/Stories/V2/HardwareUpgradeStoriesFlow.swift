@@ -19,6 +19,7 @@ final class HardwareUpgradeStoriesFlow {
     @Injected(\.storiesV2RemoteStore) private var remoteStore: StoriesV2RemoteStore
     @Injected(\.storiesV2AssetPrefetchService) private var assetPrefetchService: StoryAssetPrefetchService
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
 
     private let resolver = HardwareUpgradeStoriesResolver()
 
@@ -62,23 +63,31 @@ final class HardwareUpgradeStoriesFlow {
                     return
                 }
 
+                let safariManager = flow.safariManager
+                let incomingActionHandler = flow.incomingActionHandler
+
                 flow.presenter.present(
                     story: story,
                     source: source,
                     presentCompletion: openHardwareWallet,
-                    onExit: { [safariManager = flow.safariManager] exitReason, action in
-                        // A story that simply runs out reports its first action, which nobody tapped
-                        // — so a link opens only on a real tap. A screen target needs no routing at
-                        // all: the destination is already up behind the player.
-                        guard
-                            exitReason == .action,
-                            case .web(let urlString) = action?.target,
-                            let url = URL(string: urlString)
-                        else {
-                            return
-                        }
+                    onExit: { exitReason, action in
+                        // A screen target needs no routing: the destination is already up behind
+                        // the player. A close target has nothing to open.
+                        guard exitReason == .action, let target = action?.target else { return }
 
-                        safariManager.openURL(url)
+                        switch target {
+                        case .web(let urlString):
+                            if let url = URL(string: urlString) {
+                                safariManager.openURL(url)
+                            }
+                        case .deeplink(let raw):
+                            // The same entry the OS uses, so a story link behaves like a tapped one.
+                            if let url = URL(string: raw) {
+                                incomingActionHandler.handleIncomingURL(url)
+                            }
+                        case .screen, .close:
+                            break
+                        }
                     }
                 )
             } catch is CancellationError {

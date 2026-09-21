@@ -25,6 +25,10 @@ public final class StoryPlayerViewModel: ObservableObject {
     /// Shared by every slide in the window.
     private let hapticPlayer: (any StoryHapticPlaying)?
     private let hasHaptics: Bool
+    /// Set by a host that opens the action's destination over the story: the tap then leaves the
+    /// story mounted, and it is the host that pauses it and ends it through `finish(for:)`.
+    /// A `.close` target is the exception — the player ends the story itself.
+    private let onAction: ((StoryActionV2) -> Void)?
     private let onFinished: (_ exitReason: StoryExitReason, _ action: StoryActionV2?) -> Void
 
     /// Prepared slides kept around the active one: [i-1, i, i+1].
@@ -49,6 +53,7 @@ public final class StoryPlayerViewModel: ObservableObject {
         analytics: (any StoriesAnalyticsProvider)? = nil,
         hapticPlayer: (any StoryHapticPlaying)? = nil,
         clock: any ProgressClock = RealProgressClock(),
+        onAction: ((StoryActionV2) -> Void)? = nil,
         onFinished: @escaping (_ exitReason: StoryExitReason, _ action: StoryActionV2?) -> Void
     ) {
         precondition(!story.slides.isEmpty, "StoryPlayerViewModel requires a story with at least one slide")
@@ -58,6 +63,7 @@ public final class StoryPlayerViewModel: ObservableObject {
         self.hapticPlayer = hapticPlayer
         hasHaptics = story.slides.contains { !$0.hapticAtMs.isEmpty }
         self.clock = clock
+        self.onAction = onAction
         self.onFinished = onFinished
         effectiveEndBehavior = story.effectiveEndBehavior
 
@@ -171,7 +177,9 @@ public final class StoryPlayerViewModel: ObservableObject {
     }
 
     private func applyPauseState() {
-        if pauseReasons.isEmpty {
+        // A finished story is mid-dismissal: a reason lifting afterwards must not restart the frame
+        // it was torn down on.
+        if pauseReasons.isEmpty, !hasFinished {
             prepareHaptics()
             current.resume()
         } else {
@@ -181,7 +189,24 @@ public final class StoryPlayerViewModel: ObservableObject {
 
     public func closeButtonTapped() { finalize(exitReason: .closeButton, action: nil) }
     public func swipeDown() { finalize(exitReason: .swipeDown, action: nil) }
-    public func actionTapped(_ action: StoryActionV2) { finalize(exitReason: .action, action: action) }
+
+    public func actionTapped(_ action: StoryActionV2) {
+        // Closing stays the player's own business even when a host routes the other targets:
+        // a host that forgot this one would leave the button dead.
+        guard let onAction, action.target != .close else {
+            finish(for: action)
+            return
+        }
+
+        guard !hasFinished else { return }
+        onAction(action)
+    }
+
+    /// Story Closed reports the action, so a host handling taps itself calls this once the
+    /// destination has taken the user away.
+    public func finish(for action: StoryActionV2) {
+        finalize(exitReason: .action, action: action)
+    }
 
     // MARK: - Navigation
 
@@ -255,7 +280,7 @@ public final class StoryPlayerViewModel: ObservableObject {
         switch effectiveEndBehavior {
         case .finish:
             reportSlideViewed(advanceReason: reason)
-            finalize(exitReason: .completed, action: story.actions.first)
+            finalize(exitReason: .completed, action: nil)
         case .loop:
             // Only an unattended wrap is a full cycle: tapping past the last slide reaches the
             // start without ever finishing it, so it stays a manual advance and leaves both the
