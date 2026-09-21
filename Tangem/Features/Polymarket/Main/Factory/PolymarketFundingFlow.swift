@@ -44,7 +44,7 @@ struct PolymarketFundingFlow {
         return dependencies.withdrawContext.makeSource(
             accountModel: accountModel,
             depositWalletAddress: depositWalletAddress,
-            minimumUSD: fundsState.depositTarget?.asset.minimumDepositUSD
+            minimumUSD: fundsState.depositTarget?.asset.minCheckoutUSD
         )
     }
 
