@@ -50,6 +50,7 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
+    private let hardwareUpgradeStoriesFlow = HardwareUpgradeStoriesFlow()
     private let isPresentedSubject = CurrentValueSubject<Bool, Never>(false)
     private var accountPendingNavigationSteps: [AccountPendingNavigationStep] = []
     private var accountPendingNavigationStepsProcessingSubscription: AnyCancellable?
@@ -63,6 +64,8 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
     }
 
     deinit {
+        hardwareUpgradeStoriesFlow.cancel()
+
         assert(
             accountPendingNavigationSteps.isEmpty,
             "There are pending navigation steps that were not processed. Update/fix the pending steps display mechanism"
@@ -196,6 +199,13 @@ extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {
 
     @MainActor
     func openHardwareBackupTypes(userWalletModel: UserWalletModel) {
+        hardwareUpgradeStoriesFlow.start(source: .walletSettings) { [weak self] in
+            self?.presentHardwareBackupTypes(userWalletModel: userWalletModel)
+        }
+    }
+
+    @MainActor
+    private func presentHardwareBackupTypes(userWalletModel: UserWalletModel) {
         let dismissAction: Action<HardwareBackupTypesCoordinator.OutputOptions> = { [weak self] options in
             switch options {
             case .main(let userWalletModel):

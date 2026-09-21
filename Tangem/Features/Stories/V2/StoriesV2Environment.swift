@@ -12,12 +12,14 @@ import TangemStories
 private final class StoriesV2Environment {
     let assetPrefetchService: StoryAssetPrefetchService
     let remoteStore: StoriesV2RemoteStore
+    let presenter: CommonStoriesV2Presenter
 
     init() {
         assetPrefetchService = StoryAssetPrefetchService(cache: CommonStoryAssetCache())
         remoteStore = StoriesV2RemoteStore(
             mapper: StoriesDTOMapper(allowedWebHosts: Constants.allowedWebHosts, origin: .remote)
         )
+        presenter = CommonStoriesV2Presenter()
     }
 }
 
@@ -51,5 +53,9 @@ extension InjectedValues {
 
     var storiesV2RemoteStore: StoriesV2RemoteStore {
         storiesV2Environment.remoteStore
+    }
+
+    var storiesV2Presenter: any StoriesV2Presenter {
+        storiesV2Environment.presenter
     }
 }

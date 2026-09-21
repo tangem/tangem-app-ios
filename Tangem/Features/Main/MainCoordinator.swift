@@ -34,6 +34,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let coordinatorFactory: MainCoordinatorChildFactory
+    private let hardwareUpgradeStoriesFlow = HardwareUpgradeStoriesFlow()
 
     // MARK: - Root view model
 
@@ -101,6 +102,10 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
         self.popToRootAction = popToRootAction
 
         mainScreenDeeplinkResponder.coordinator = self
+    }
+
+    deinit {
+        hardwareUpgradeStoriesFlow.cancel()
     }
 
     func start(with options: Options) {
@@ -400,6 +405,14 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     func openHardwareBackupTypes(userWalletModel: UserWalletModel) {
         mainBottomSheetUIManager.hide()
 
+        Task { @MainActor [hardwareUpgradeStoriesFlow] in
+            hardwareUpgradeStoriesFlow.start(source: .main) { [weak self] in
+                self?.presentHardwareBackupTypes(userWalletModel: userWalletModel)
+            }
+        }
+    }
+
+    private func presentHardwareBackupTypes(userWalletModel: UserWalletModel) {
         let dismissAction: Action<HardwareBackupTypesCoordinator.OutputOptions> = { [weak self] options in
             switch options {
             case .main:
