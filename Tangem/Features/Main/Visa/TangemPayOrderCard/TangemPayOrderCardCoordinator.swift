@@ -5,6 +5,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 
 final class TangemPayOrderCardCoordinator: CoordinatorObject {
@@ -33,13 +34,21 @@ final class TangemPayOrderCardCoordinator: CoordinatorObject {
     func start(with options: Options) {
         self.options = options
 
-        orderCardTypeViewModel = TangemPayOrderCardTypeViewModel(
-            issueFeeText: options.issueFeeText,
-            virtualCardImageURL: options.virtualCardImageURL,
-            countryName: options.countryName,
-            selectedCardType: options.selectedCardType ?? .virtual,
-            coordinator: self
-        )
+        switch options.purpose {
+        case .issue:
+            orderCardTypeViewModel = TangemPayOrderCardTypeViewModel(
+                virtualOffer: options.tangemPayAccount.additionalCardIssueOffer,
+                plasticOffer: options.tangemPayAccount.plasticCardIssueOffer,
+                tariffPlanCardImageURL: options.tariffPlanCardImageURL,
+                isBasicTariff: options.isBasicTariff,
+                availableBalancePublisher: options.availableBalancePublisher,
+                countryName: options.countryName,
+                selectedCardType: options.selectedCardType,
+                coordinator: self
+            )
+        case .reissue:
+            orderCardDataViewModel = makeOrderCardDataViewModel(options: options)
+        }
     }
 }
 
@@ -47,14 +56,34 @@ final class TangemPayOrderCardCoordinator: CoordinatorObject {
 
 extension TangemPayOrderCardCoordinator {
     struct Options {
-        let issueFeeText: String
-        let virtualCardImageURL: URL?
+        let purpose: TangemPayOrderCardPurpose
+        let tariffPlanCardImageURL: URL?
+        let isBasicTariff: Bool
         let nameOnCard: String?
         let countryName: String?
         let email: String?
         let phoneMask: String?
+        let deliveryEtaMaxDays: Int?
+        let availableBalancePublisher: AnyPublisher<Decimal?, Never>
         let selectedCardType: TangemPayOrderCardType?
+        let tangemPayAccount: TangemPayAccount
         weak var parentCoordinator: (any TangemPayOrderCardFlowRoutable)?
+    }
+}
+
+// MARK: - View model factory
+
+private extension TangemPayOrderCardCoordinator {
+    func makeOrderCardDataViewModel(options: Options) -> TangemPayOrderCardDataViewModel {
+        TangemPayOrderCardDataViewModel(
+            purpose: options.purpose,
+            nameOnCard: options.nameOnCard,
+            countryName: options.countryName,
+            email: options.email,
+            phoneMask: options.phoneMask,
+            tangemPayAccount: options.tangemPayAccount,
+            coordinator: self
+        )
     }
 }
 
@@ -66,13 +95,9 @@ extension TangemPayOrderCardCoordinator: TangemPayOrderCardTypeRoutable {
     }
 
     func orderCardTypeDidSelectPlastic() {
-        orderCardDataViewModel = TangemPayOrderCardDataViewModel(
-            nameOnCard: options?.nameOnCard,
-            countryName: options?.countryName,
-            email: options?.email,
-            phoneMask: options?.phoneMask,
-            coordinator: self
-        )
+        guard let options else { return }
+
+        orderCardDataViewModel = makeOrderCardDataViewModel(options: options)
     }
 
     func closeOrderCardType() {
@@ -84,20 +109,24 @@ extension TangemPayOrderCardCoordinator: TangemPayOrderCardTypeRoutable {
 
 extension TangemPayOrderCardCoordinator: TangemPayOrderCardDataRoutable {
     func orderCardDataDidPlaceOrder() {
-        // The order completes on a timer, so the form can be gone by the time it lands.
+        // The request outlives the form, which can be dismissed before it lands.
         guard orderCardDataViewModel != nil else { return }
-
-        options?.parentCoordinator?.orderCardFlowDidOrderPlastic(email: options?.email)
 
         orderCardSuccessViewModel = TangemPayOrderCardSuccessViewModel(
             email: options?.email ?? "",
+            deliveryEtaMaxDays: options?.deliveryEtaMaxDays ?? options?.tangemPayAccount.plasticCardIssueOffer?.data?.deliveryEtaMaxDays,
             coordinator: self
         )
     }
 
     func orderCardDataDidGoBack() {
-        orderCardDataViewModel = nil
-        orderCardSuccessViewModel = nil
+        switch options?.purpose {
+        case .issue:
+            orderCardDataViewModel = nil
+            orderCardSuccessViewModel = nil
+        case .reissue, nil:
+            dismiss()
+        }
     }
 
     func closeOrderCardData() {
@@ -109,6 +138,6 @@ extension TangemPayOrderCardCoordinator: TangemPayOrderCardDataRoutable {
 
 extension TangemPayOrderCardCoordinator: TangemPayOrderCardSuccessRoutable {
     func orderCardSuccessDidTapShowCard() {
-        dismiss()
+        options?.parentCoordinator?.orderCardFlowDidComplete()
     }
 }

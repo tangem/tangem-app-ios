@@ -15,8 +15,28 @@ struct TangemPayOrderCardDataFieldView: View {
     @Binding var focusedField: TangemPayOrderCardDataField.ID?
 
     let nextFieldID: TangemPayOrderCardDataField.ID?
+    let reservesErrorSpace: Bool
 
     var body: some View {
+        VStack(alignment: .leading, spacing: Constants.inputToErrorSpacing) {
+            input
+
+            errorLabel
+        }
+    }
+
+    @ViewBuilder
+    private var errorLabel: some View {
+        if field.error != nil || reservesErrorSpace {
+            Text(field.error?.message ?? " ")
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusError)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .opacity(field.error == nil ? 0 : 1)
+        }
+    }
+
+    private var input: some View {
         VStack(alignment: .leading, spacing: Constants.labelToValueSpacing) {
             label
             value
@@ -24,7 +44,7 @@ struct TangemPayOrderCardDataFieldView: View {
         .padding(.vertical, Constants.verticalPadding)
         .overlay(alignment: .bottom) {
             Rectangle()
-                .fill(DesignSystem.Color.borderTertiary)
+                .fill(dividerColor)
                 .frame(height: Constants.dividerHeight)
         }
     }
@@ -53,14 +73,10 @@ struct TangemPayOrderCardDataFieldView: View {
             text: $field.text,
             focusedField: $focusedField,
             field: field,
-            mask: mask,
+            mask: field.inputMask,
             nextFieldID: nextFieldID,
             textColor: valueColor
         )
-    }
-
-    private var mask: TangemPayInputMask? {
-        field.mask.flatMap(TangemPayInputMask.init)
     }
 
     private var labelColor: Color {
@@ -70,11 +86,16 @@ struct TangemPayOrderCardDataFieldView: View {
     private var valueColor: Color {
         field.isEditable ? DesignSystem.Color.textPrimary : DesignSystem.Color.textTertiary
     }
+
+    private var dividerColor: Color {
+        field.error == nil ? DesignSystem.Color.borderTertiary : DesignSystem.Color.borderStatusError
+    }
 }
 
 private extension TangemPayOrderCardDataFieldView {
     enum Constants {
         static let verticalPadding: CGFloat = 12
+        static let inputToErrorSpacing: CGFloat = 8
         static let labelHeight: CGFloat = 16
         static let labelSpacing: CGFloat = 4
         static let labelToValueSpacing: CGFloat = 2
