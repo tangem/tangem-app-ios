@@ -156,6 +156,17 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         }
     }
 
+    func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation) {
+        let viewModel = JointAccountOperationDetailsViewModelBuilder().build(
+            pendingOperation: pendingOperation,
+            coordinator: self
+        )
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openYieldModulePromoView(apy: Decimal, isApyBoostPromo: Bool, factory: YieldModuleFlowFactory) {
         let dismissAction: Action<YieldModulePromoCoordinator.DismissOptions?> = { [weak self] option in
             self?.yieldModulePromoCoordinator = nil
@@ -580,3 +591,13 @@ extension TokenDetailsCoordinator: SendFeeCurrencyNavigating {}
 // MARK: - TokenScreenDeeplinkRoutable
 
 extension TokenDetailsCoordinator: TokenScreenDeeplinkRoutable {}
+
+// MARK: - JointAccountOperationDetailsRoutable
+
+extension TokenDetailsCoordinator: JointAccountOperationDetailsRoutable {
+    func closeOperationDetails() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
