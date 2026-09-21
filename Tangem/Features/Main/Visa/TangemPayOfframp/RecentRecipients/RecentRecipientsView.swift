@@ -21,7 +21,5 @@ struct RecentRecipientsView: View {
         .tangemSearchable(text: $viewModel.searchText, prompt: Localization.commonSearch)
         .autocorrectionDisabled()
         .textInputAutocapitalization(.never)
-        // [REDACTED_TODO_COMMENT]
-        .topNavigation(title: "Bank transfers")
     }
 }

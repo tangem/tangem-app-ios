@@ -206,6 +206,7 @@ final class TangemPayAccount {
 
     let withdrawAvailabilityProvider: TangemPayWithdrawAvailabilityProvider
     let withdrawTransactionService: any TangemPayWithdrawTransactionService
+    let offrampOrderSigner: any TangemPayOfframpOrderSigning
 
     // MARK: - Balances
 
@@ -274,6 +275,7 @@ final class TangemPayAccount {
         withdrawTransactionService: any TangemPayWithdrawTransactionService,
         transactionDispatcherFactory: @escaping (TangemPayWithdrawEligibility) -> TransactionDispatcher,
         withdrawAvailabilityProvider: TangemPayWithdrawAvailabilityProvider,
+        offrampOrderSigner: any TangemPayOfframpOrderSigning,
         orderStatusPollingService: TangemPayOrderStatusPollingService,
         mainHeaderBalanceProvider: MainHeaderBalanceProvider,
         orderResolver: TangemPayOrderResolver,
@@ -289,6 +291,7 @@ final class TangemPayAccount {
         self.withdrawTransactionService = withdrawTransactionService
         self.transactionDispatcherFactory = transactionDispatcherFactory
         self.withdrawAvailabilityProvider = withdrawAvailabilityProvider
+        self.offrampOrderSigner = offrampOrderSigner
         self.orderStatusPollingService = orderStatusPollingService
         self.mainHeaderBalanceProvider = mainHeaderBalanceProvider
         self.orderResolver = orderResolver

@@ -42,6 +42,13 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
                     }
                 )
                 RecentRecipientsView(viewModel: viewModel)
+                    .topNavigation(
+                        // [REDACTED_TODO_COMMENT]
+                        title: "Bank transfers",
+                        onClose: { [weak coordinator] in
+                            coordinator?.dismiss(with: nil)
+                        }
+                    )
             }
 
         case .transferInput:
@@ -83,9 +90,12 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
             }
 
         case .transferConfirmation:
-            if let orderBuilder = coordinator.orderBuilder, let optionsStore = coordinator.optionsStore {
+            if let orderBuilder = coordinator.orderBuilder,
+               let sendUseCase = coordinator.sendUseCase,
+               let optionsStore = coordinator.optionsStore {
                 TransferConfirmationFactory.makeView(
                     orderBuilder: orderBuilder,
+                    sendUseCase: sendUseCase,
                     optionsStore: optionsStore,
                     savedRecipient: coordinator.activeSavedRecipient,
                     hasNFCInteraction: coordinator.hasNFCInteraction,
@@ -112,6 +122,19 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
             }
             .sheet(isPresented: $coordinator.isGeoSelectionPresented, onDismiss: coordinator.onGeoSelectionDismiss) {
                 coordinator.makeGeoSelectionView()
+            }
+            .fullScreenCover(item: $coordinator.successStatusModel) { model in
+                TransferSuccessStatusView(
+                    model: model,
+                    onClose: { [weak coordinator] in coordinator?.dismiss(with: nil) }
+                )
+            }
+            .fullScreenCover(item: $coordinator.failedStatus) { status in
+                TransferFailedStatusView(
+                    model: status.model,
+                    onRetry: status.canRetry ? { [weak coordinator] in coordinator?.retryAfterFailedStatus() } : nil,
+                    onClose: { [weak coordinator] in coordinator?.dismiss(with: nil) }
+                )
             }
     }
 }
