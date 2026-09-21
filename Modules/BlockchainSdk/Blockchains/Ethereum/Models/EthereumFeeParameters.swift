@@ -99,7 +99,7 @@ extension EthereumLegacyFeeParameters: EthereumFeeParameters {
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_INFO]
         // [REDACTED_INFO]
-        let feeValue = feeWEI.decimal ?? Decimal(UInt64(feeWEI))
+        let feeValue = feeWEI.decimalOrClamped
         return feeValue / decimalValue
     }
 
@@ -163,7 +163,7 @@ extension EthereumEIP1559FeeParameters: EthereumFeeParameters {
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_INFO]
         // [REDACTED_INFO]
-        let feeValue = feeWEI.decimal ?? Decimal(UInt64(feeWEI))
+        let feeValue = feeWEI.decimalOrClamped
         return feeValue / decimalValue
     }
 
@@ -296,7 +296,7 @@ extension EthereumGaslessTransactionFeeParameters: EthereumFeeParameters {
     /// - feeInToken = 0.000945 × 1515 = 1.431675 USDC
     public func calculateFee(decimalValue: Decimal) -> Decimal {
         let feeWEI = gasLimit * maxFeePerGas * BigUInt(3) / BigUInt(2)
-        let feeValue = feeWEI.decimal ?? Decimal(UInt64(feeWEI))
+        let feeValue = feeWEI.decimalOrClamped
         let feeInCoin = feeValue / decimalValue
         let feeInToken = feeInCoin * bufferedNativeToFeeTokenRate
         return feeInToken
