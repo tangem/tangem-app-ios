@@ -14,6 +14,7 @@ struct WithdrawHubSectionView<StaticContent, DynamicContent>: View
     where StaticContent: View, DynamicContent: View {
     let title: String
     let subtitle: String
+    let subtitleColor: Color
     let staticContent: () -> StaticContent
     let dynamicContent: () -> DynamicContent
 
@@ -23,11 +24,13 @@ struct WithdrawHubSectionView<StaticContent, DynamicContent>: View
     init(
         title: String,
         subtitle: String,
+        subtitleColor: Color = DesignSystem.Color.textSecondary,
         @ViewBuilder staticContent: @escaping () -> StaticContent,
         @ViewBuilder dynamicContent: @escaping () -> DynamicContent
     ) {
         self.title = title
         self.subtitle = subtitle
+        self.subtitleColor = subtitleColor
         self.staticContent = staticContent
         self.dynamicContent = dynamicContent
     }
@@ -39,7 +42,7 @@ struct WithdrawHubSectionView<StaticContent, DynamicContent>: View
                     .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
 
                 Text(subtitle)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .style(DesignSystem.Font.captionMediumToken, color: subtitleColor)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 12)
