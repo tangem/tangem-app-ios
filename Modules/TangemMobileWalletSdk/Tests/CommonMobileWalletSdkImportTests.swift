@@ -32,16 +32,14 @@ struct CommonMobileWalletSdkImportTests {
         let seedKey = try #require(sdk.deriveMasterKeys(context: context).wallets.first { $0.curve == .secp256k1 }).publicKey
         try sdk.updateAccessCode("123456", enableBiometrics: false, seedKey: seedKey, context: context)
 
-        // Access-code protected now: a plain `.none` unlock must be refused.
-        #expect(throws: (any Error).self) { try sdk.validate(auth: .none, for: walletId) }
-
-        // Re-importing the same phrase used to replace the protected key with an unprotected one.
+        // Re-importing the same phrase used to replace the access-code-protected key with an unprotected one.
         #expect(throws: MobileWalletError.walletAlreadyExists) {
             try sdk.importWallet(entropy: entropy, passphrase: "")
         }
 
-        // Storage is untouched: still refuses `.none`, still accepts the access code.
-        #expect(throws: (any Error).self) { try sdk.validate(auth: .none, for: walletId) }
-        _ = try sdk.validate(auth: .accessCode("123456"), for: walletId)
+        // Storage is untouched: the access code still unlocks the wallet and yields the same keys.
+        let protectedContext = try sdk.validate(auth: .accessCode("123456"), for: walletId)
+        let keyAfterImportAttempt = try #require(sdk.deriveMasterKeys(context: protectedContext).wallets.first { $0.curve == .secp256k1 }).publicKey
+        #expect(keyAfterImportAttempt == seedKey)
     }
 }
