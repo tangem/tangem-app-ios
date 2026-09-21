@@ -56,18 +56,3 @@ enum JointAccountModelError: String, LocalizedError {
         }
     }
 }
-
-// MARK: - Convenience
-
-extension JointAccountModel {
-    /// - Note: A status this version does not know is taken to be one the account works under, since the endpoint goes
-    /// on adding to the set and only these two hold the account back.
-    var isAwaitingActivation: Bool {
-        switch status {
-        case .pending, .confirming:
-            true
-        case .active, .cancelled, .unknown:
-            false
-        }
-    }
-}

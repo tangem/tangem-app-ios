@@ -45,7 +45,7 @@ final class WalletConnectDAppConnectionViewModel: ObservableObject {
         self.dismissFlowAction = dismissFlowAction
 
         // [REDACTED_TODO_COMMENT]
-        selectedAccount = AccountCryptoModelsAggregator.cryptoAccountModels(from: selectedUserWallet.accountModelsManager).first
+        selectedAccount = AccountModelsAggregator(.crypto, .joint).models(from: selectedUserWallet.accountModelsManager).first
         bag = []
 
         setupConnectionRequestViewModel()

@@ -180,7 +180,7 @@ private extension MainScreenDeeplinkResponder {
     /// The payment account, once its state says whether the wallet has one or still has to pick a plan.
     func openTangemPayAccount(of userWalletModel: any UserWalletModel, openingAction: TangemPayOpeningAction?, action: IncomingAction) {
         guard !RTCUtil.isRootedDevice,
-              let accountModel = TangemPayAccountAggregator.tangemPayAccountModel(from: userWalletModel.accountModelsManager)
+              let accountModel = AccountModelsAggregator(.tangemPay).model(from: userWalletModel.accountModelsManager)
         else {
             return
         }

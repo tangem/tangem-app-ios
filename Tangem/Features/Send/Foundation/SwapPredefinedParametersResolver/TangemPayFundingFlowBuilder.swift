@@ -92,7 +92,7 @@ struct TangemPayFundingFlowBuilder {
             // The base provider spans every unlocked wallet, hence the filtering by wallet.
             return .restricted(
                 walletsProvider: FilteredTokenSelectorWalletsProvider(
-                    base: .common(),
+                    base: .cryptoJointTangemPayAccounts(),
                     includesWallet: { [userWalletId = userWalletInfo.id] wallet in
                         wallet.wallet.id == userWalletId
                     },

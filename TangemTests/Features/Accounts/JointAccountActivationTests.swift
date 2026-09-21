@@ -45,7 +45,7 @@ struct JointAccountActivationTests {
         #expect(config.signedConfig.threshold == Constants.threshold)
     }
 
-    /// The button is offered without one — see `JointAccountActivationStateTests` — so pressing it is what has to
+    /// The button is offered without one — see `JointAccountStateTests` — so pressing it is what has to
     /// report that the answer named no address to confirm.
     @Test("An account with no announced address has nothing to activate with")
     func activationWithoutAnAnnouncedAddressIsRefused() async {
