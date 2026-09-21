@@ -11,6 +11,8 @@ struct SendAmountFormatter {
     private let balanceFormatter: BalanceFormatter
     private let decimalNumberFormatter: DecimalNumberFormatter
     private let cryptoValueFormatter: SendCryptoValueFormatter
+    /// Same formatter shape as `cryptoValueFormatter`, but with the fiat currency's fraction digits.
+    private let fiatValueFormatter: SendCryptoValueFormatter
     private let fiatPrefixSuffixOptions: SendDecimalNumberTextField.PrefixSuffixOptions
 
     init(
@@ -27,6 +29,11 @@ struct SendAmountFormatter {
             currencySymbol: tokenItem.currencySymbol,
             trimFractions: false
         )
+        fiatValueFormatter = .init(
+            decimals: fiatItem.fractionDigits,
+            currencySymbol: tokenItem.currencySymbol,
+            trimFractions: false
+        )
         fiatPrefixSuffixOptions = SendDecimalNumberTextField.PrefixSuffixOptionsFactory()
             .makeFiatOptions(fiatCurrencyCode: fiatItem.currencyCode)
     }
@@ -38,7 +45,9 @@ struct SendAmountFormatter {
         case .typical(.some(let crypto), _):
             return cryptoValueFormatter.string(from: crypto, prefixSuffixOptions: .none)
         case .alternative(.some(let fiat), _):
-            return cryptoValueFormatter.string(from: fiat, prefixSuffixOptions: fiatPrefixSuffixOptions)
+            // The fiat value was run through the crypto formatter, i.e. with the token's `decimalCount`:
+            // 0-decimal tokens showed "$12" for $12.34 and 18-decimal tokens allowed 18 fiat fraction digits.
+            return fiatValueFormatter.string(from: fiat, prefixSuffixOptions: fiatPrefixSuffixOptions)
         default:
             return decimalNumberFormatter.mapToString(decimal: .zero)
         }
