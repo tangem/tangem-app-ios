@@ -10,7 +10,7 @@ public import Foundation
 import CryptoKit
 import SolanaSwift
 
-/// Byte-level layer of the `tangem_gacha_vault` Anchor program: discriminators, borsh-encoded instruction
+/// Byte-level layer of the `tangem_gacha_vault` program: discriminators, borsh-encoded instruction
 /// data, PDA derivations and on-chain account parsing. Only what the app consumes today is public;
 /// the rest widens member by member as the onboarding ceremony and the RPC vault reader land.
 public struct CollectiblesVaultProgram {
@@ -34,7 +34,7 @@ public struct CollectiblesVaultProgram {
         self.programId = programId
     }
 
-    // MARK: - Anchor discriminators
+    // MARK: - Discriminators
 
     static func instructionDiscriminator(_ name: String) -> Data {
         Data(SHA256.hash(data: Data(("global:" + name).utf8)).prefix(8))
@@ -115,7 +115,11 @@ public struct CollectiblesVaultProgram {
 
         let config = try Config(data: accountData)
 
-        return CollectiblesConfigInfo(usdcMint: config.usdcMint)
+        return CollectiblesConfigInfo(
+            usdcMint: config.usdcMint,
+            minFeeBps: config.minFeeBps,
+            maxFeeBps: config.maxFeeBps
+        )
     }
 
     // MARK: - Vault account classification
@@ -145,7 +149,7 @@ public struct CollectiblesVaultProgram {
 
         return CollectiblesVaultInfo(
             vaultAddress: vaultAddress,
-            hotDelegate: vault.hotDelegate,
+            sessionKey: vault.sessionKey,
             perSpinCap: vault.perSpinCap,
             dailyCap: vault.dailyCap,
             spentToday: vault.spentToday,
@@ -189,7 +193,7 @@ public struct CollectiblesVaultProgram {
     public func initVaultInstruction(
         coldOwner: Data,
         payer: Data,
-        hotDelegate: Data,
+        sessionKey: Data,
         perSpinCap: UInt64,
         dailyCap: UInt64
     ) throws -> CollectiblesInstruction {
@@ -201,12 +205,12 @@ public struct CollectiblesVaultProgram {
         }
 
         let data = try Self.initVaultInstructionData(
-            hotDelegate: hotDelegate,
+            sessionKey: sessionKey,
             perSpinCap: perSpinCap,
             dailyCap: dailyCap
         )
 
-        // Anchor's account-creation instructions require the System Program in the account list — a
+        // An instruction that allocates an account takes the System Program in its account list — a
         // different program from `programId` above, which is the vault program this instruction targets.
         let systemProgramAddress = PublicKey.programId.base58EncodedString
 
@@ -259,7 +263,7 @@ public struct CollectiblesVaultProgram {
     /// and the fee payer is a transaction-level slot, not an instruction account.
     public func updateVaultInstruction(
         coldOwner: Data,
-        hotDelegate: Data?,
+        sessionKey: Data?,
         perSpinCap: UInt64?,
         dailyCap: UInt64?
     ) throws -> CollectiblesInstruction {
@@ -268,7 +272,7 @@ public struct CollectiblesVaultProgram {
         }
 
         let data = try Self.updateVaultInstructionData(
-            hotDelegate: hotDelegate,
+            sessionKey: sessionKey,
             perSpinCap: perSpinCap,
             dailyCap: dailyCap
         )
@@ -285,45 +289,38 @@ public struct CollectiblesVaultProgram {
 
     // MARK: - Instruction data
 
-    static func openPackInstructionData(amount: UInt64, memo: String) -> Data {
-        var data = instructionDiscriminator("open_pack")
-        data.appendLittleEndian(amount)
-        data.appendBorshString(memo)
-        return data
-    }
-
-    static func initVaultInstructionData(hotDelegate: Data, perSpinCap: UInt64, dailyCap: UInt64) throws -> Data {
-        guard hotDelegate.count == PublicKey.LENGTH else {
+    static func initVaultInstructionData(sessionKey: Data, perSpinCap: UInt64, dailyCap: UInt64) throws -> Data {
+        guard sessionKey.count == PublicKey.LENGTH else {
             throw ProgramError.invalidPublicKey
         }
 
         try validateCaps(perSpinCap: perSpinCap, dailyCap: dailyCap)
 
         var data = instructionDiscriminator("init_vault")
-        data.append(hotDelegate)
+        data.append(sessionKey)
         data.appendLittleEndian(perSpinCap)
         data.appendLittleEndian(dailyCap)
         return data
     }
 
-    /// Rotates the hot delegate and/or the caps; `nil` leaves a field as the chain holds it.
+    /// Rotates the session key and/or the caps; `nil` leaves a field as the chain holds it.
     /// - Warning: The program checks `0 < per_spin_cap <= daily_cap` against the *combined* state, so one cap
     /// alone can fail with `6004` because of the value already stored for the other.
     static func updateVaultInstructionData(
-        hotDelegate: Data?,
+        sessionKey: Data?,
         perSpinCap: UInt64?,
         dailyCap: UInt64?
     ) throws -> Data {
         // Borsh reads a `Pubkey` as fixed 32 bytes — a shorter one shifts every following field
-        // and hands the vault to a delegate nobody holds
-        if let hotDelegate, hotDelegate.count != PublicKey.LENGTH {
+        // and hands the vault to a session key nobody holds
+        if let sessionKey, sessionKey.count != PublicKey.LENGTH {
             throw ProgramError.invalidPublicKey
         }
 
         try validateCaps(perSpinCap: perSpinCap, dailyCap: dailyCap)
 
         var data = instructionDiscriminator("update_vault")
-        data.appendBorshOption(hotDelegate)
+        data.appendBorshOption(sessionKey)
         data.appendBorshOption(perSpinCap)
         data.appendBorshOption(dailyCap)
 
@@ -362,7 +359,7 @@ extension CollectiblesVaultProgram {
 
     struct Vault {
         let coldOwner: Data
-        let hotDelegate: Data
+        let sessionKey: Data
         let perSpinCap: UInt64
         let dailyCap: UInt64
         let spentToday: UInt64
@@ -402,7 +399,7 @@ extension CollectiblesVaultProgram.Vault {
         try reader.requireDiscriminator(CollectiblesVaultProgram.accountDiscriminator("Vault"))
 
         coldOwner = try reader.bytes(at: 8, count: 32)
-        hotDelegate = try reader.bytes(at: 40, count: 32)
+        sessionKey = try reader.bytes(at: 40, count: 32)
         perSpinCap = try reader.uint64LE(at: 72)
         dailyCap = try reader.uint64LE(at: 80)
         spentToday = try reader.uint64LE(at: 88)
@@ -461,6 +458,29 @@ public extension CollectiblesVaultProgram {
 
             return total <= vault.perSpinCap && total <= remainingToday(vault: vault, now: now)
         }
+
+        public static func feeCorridor(amount: UInt64, config: CollectiblesConfigInfo) -> ClosedRange<UInt64> {
+            let lower = feeBound(amount: amount, bps: min(config.minFeeBps, config.maxFeeBps))
+            let upper = feeBound(amount: amount, bps: max(config.minFeeBps, config.maxFeeBps))
+
+            return lower ... upper
+        }
+
+        /// A fee outside the corridor is rejected on chain, so the sponsor's `fee_amount` is worth checking
+        /// before the spin is signed.
+        public static func fitsFeeCorridor(amount: UInt64, feeAmount: UInt64, config: CollectiblesConfigInfo) -> Bool {
+            feeCorridor(amount: amount, config: config).contains(feeAmount)
+        }
+
+        /// `amount * bps / 10_000` without the overflow the intermediate product hits for large amounts.
+        private static func feeBound(amount: UInt64, bps: UInt16) -> UInt64 {
+            let product = amount.multipliedFullWidth(by: UInt64(bps))
+
+            // The divisor exceeds the high half, so the quotient always fits and the trap cannot fire
+            return product.high < Constants.bpsDenominator
+                ? Constants.bpsDenominator.dividingFullWidth(product).quotient
+                : .max
+        }
     }
 }
 
@@ -477,6 +497,7 @@ private extension CollectiblesVaultProgram {
 private extension CollectiblesVaultProgram.SpendingMath {
     enum Constants {
         static let secondsPerDay: TimeInterval = 86_400
+        static let bpsDenominator: UInt64 = 10_000
     }
 }
 
@@ -532,12 +553,6 @@ private struct CollectiblesAccountReader {
 private extension Data {
     mutating func appendLittleEndian(_ value: UInt64) {
         Swift.withUnsafeBytes(of: value.littleEndian) { append(contentsOf: $0) }
-    }
-
-    mutating func appendBorshString(_ string: String) {
-        let utf8 = Data(string.utf8)
-        Swift.withUnsafeBytes(of: UInt32(utf8.count).littleEndian) { append(contentsOf: $0) }
-        append(utf8)
     }
 
     mutating func appendBorshOption(_ value: Data?) {
