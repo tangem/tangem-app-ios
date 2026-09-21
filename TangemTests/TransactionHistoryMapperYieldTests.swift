@@ -250,7 +250,8 @@ private extension TransactionHistoryMapperYieldTests {
         SubtitleOwnerResolver(
             blockchain: .ethereum(testnet: false),
             currentUserWalletId: UserWalletId(value: Data()),
-            isAccountsMode: false
+            isAccountsMode: false,
+            contacts: []
         )
     }
 
