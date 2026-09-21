@@ -306,7 +306,9 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func getJointAccounts(walletId: String) async throws -> JointAccountsDTO.Response.JointAccounts {
+    func getJointAccounts(
+        walletId: String, knownETag: String?
+    ) async throws -> (eTag: String?, accounts: JointAccountsDTO.Response.JointAccounts)? {
         throw "Not implemented"
     }
 
@@ -347,7 +349,7 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func rejectJointAccountOperation(
-        walletId: String, operationId: String, body: JointAccountsDTO.Request.RejectOperation
+        walletId: String, operationId: String
     ) async throws -> JointAccountsDTO.Response.Operation? {
         throw "Not implemented"
     }

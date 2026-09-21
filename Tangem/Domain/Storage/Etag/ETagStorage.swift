@@ -18,6 +18,7 @@ protocol ETagStorage: Initializable {
 enum ETagStorageKey {
     case accounts(walletId: UserWalletId)
     case addressBook(walletId: UserWalletId)
+    case jointAccounts(walletId: UserWalletId)
 }
 
 extension InjectedValues {

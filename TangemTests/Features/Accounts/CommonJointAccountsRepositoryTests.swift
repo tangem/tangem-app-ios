@@ -173,6 +173,18 @@ struct CommonJointAccountsRepositoryTests {
         #expect(storage.accounts.count == 1)
     }
 
+    @Test("A list the endpoint reports unchanged leaves the storage exactly as it was")
+    func anUnchangedListLeavesTheStorageAlone() async throws {
+        let storage = JointAccountsPersistentStorageStub(accounts: [Self.storedAccount()])
+        let networkService = JointAccountsNetworkServiceStub(answersUnchanged: true)
+        let sut = Self.makeSUT(networkService: networkService, storage: storage)
+
+        try await sut.loadJointAccountsFromRemote()
+
+        #expect(networkService.getJointAccountsCallsCount == 1)
+        #expect(storage.accounts.count == 1)
+    }
+
     @Test("A failed read leaves what is stored alone and reports the failure to whoever waited")
     func aFailedReadChangesNothing() async throws {
         let storage = JointAccountsPersistentStorageStub(accounts: [Self.storedAccount()])
@@ -301,14 +313,15 @@ private final class JointAccountsNetworkServiceStub: JointAccountsNetworkService
         state.withLock(\.getJointAccountsCallsCount)
     }
 
-    init(jointAccounts: [RemoteJointAccount] = [], error: Error? = nil) {
+    init(jointAccounts: [RemoteJointAccount] = [], answersUnchanged: Bool = false, error: Error? = nil) {
         state.withLock {
             $0.jointAccounts = jointAccounts
+            $0.answersUnchanged = answersUnchanged
             $0.error = error
         }
     }
 
-    func getJointAccounts() async throws -> [RemoteJointAccount] {
+    func getJointAccounts() async throws -> JointAccountsRemoteState {
         try state.withLock { state in
             state.getJointAccountsCallsCount += 1
 
@@ -316,7 +329,7 @@ private final class JointAccountsNetworkServiceStub: JointAccountsNetworkService
                 throw error
             }
 
-            return state.jointAccounts
+            return state.answersUnchanged ? .notModified : .changed(state.jointAccounts)
         }
     }
 
@@ -340,11 +353,11 @@ private final class JointAccountsNetworkServiceStub: JointAccountsNetworkService
         throw "Not called by these tests"
     }
 
-    func signOperation(id: String, signature: Data) async throws -> JointAccountOperation {
+    func signOperation(id: String, safeTransaction: SafeTransaction, signature: Data) async throws -> JointAccountOperation {
         throw "Not called by these tests"
     }
 
-    func rejectOperation(id: String, blob: JointAccountOperationRejectionBlob) async throws -> JointAccountOperation? {
+    func rejectOperation(id: String) async throws -> JointAccountOperation? {
         throw "Not called by these tests"
     }
 }
@@ -352,6 +365,7 @@ private final class JointAccountsNetworkServiceStub: JointAccountsNetworkService
 private extension JointAccountsNetworkServiceStub {
     struct State {
         var jointAccounts: [RemoteJointAccount] = []
+        var answersUnchanged = false
         var error: Error?
         var getJointAccountsCallsCount = 0
     }

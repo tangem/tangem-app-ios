@@ -17,19 +17,15 @@ struct CommonJointAccountOperationsService {
     private let jointAccountsRepository: JointAccountsRepository
     private let signerFactory: TangemSignerFactory
     private let compositionVerifier: JointAccountCompositionVerifier
-    /// A rejection is signed over the transaction as the endpoint words it, so the domain reaches for the wire form here.
-    private let mapper: JointAccountsNetworkMapper
 
     init(
         jointAccountsRepository: JointAccountsRepository,
         signerFactory: TangemSignerFactory,
-        compositionVerifier: JointAccountCompositionVerifier = JointAccountCompositionVerifier(),
-        mapper: JointAccountsNetworkMapper = JointAccountsNetworkMapper()
+        compositionVerifier: JointAccountCompositionVerifier = JointAccountCompositionVerifier()
     ) {
         self.jointAccountsRepository = jointAccountsRepository
         self.signerFactory = signerFactory
         self.compositionVerifier = compositionVerifier
-        self.mapper = mapper
     }
 }
 
@@ -83,25 +79,19 @@ extension CommonJointAccountOperationsService: JointAccountOperationsService {
 
         try await jointAccountsRepository.signOperation(
             id: operation.id,
+            safeTransaction: operation.safeTransaction,
             signature: signature,
             forCryptoAccountId: account.cryptoAccountId
         )
     }
 
-    /// Signed the way the account requests are — over the canonical payload rather than over the transaction, which
-    /// would read as an approval.
+    /// Neither signed nor given anything to send: cancelling and declining are one and the same call, and which of
+    /// the two it is the endpoint works out from the wallet it was made for.
     func rejectOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet) async throws {
         let account = try activeAccount(of: wallet)
-        let payload = try JointAccountOperationRejectionPayload(
-            operationId: operation.id,
-            safeTx: mapper.mapToSafeTx(from: operation.safeTransaction)
-        )
-        let hash = try JointAccountDerivationUtils.digest(payload: payload)
-        let signature = try await sign(hash: hash, walletPublicKey: wallet.publicKey)
 
         try await jointAccountsRepository.rejectOperation(
             id: operation.id,
-            blob: JointAccountOperationRejectionBlob(payload: payload, signature: signature),
             forCryptoAccountId: account.cryptoAccountId
         )
     }

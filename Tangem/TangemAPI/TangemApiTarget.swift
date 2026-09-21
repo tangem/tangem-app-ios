@@ -200,7 +200,7 @@ struct TangemApiTarget: TargetType {
             return "/wallets/\(userWalletId)/accounts/archived"
 
         // MARK: - Joint accounts
-        case .getJointAccounts(let walletId),
+        case .getJointAccounts(let walletId, _),
              .createJointAccount(let walletId, _):
             return "/wallets/\(walletId)/joint-accounts"
         case .getJointAccountInvite(let walletId, let inviteId):
@@ -213,7 +213,7 @@ struct TangemApiTarget: TargetType {
             return "/wallets/\(walletId)/joint-accounts/operations"
         case .signJointAccountOperation(let walletId, let operationId, _):
             return "/wallets/\(walletId)/joint-accounts/operations/\(operationId)/sign"
-        case .rejectJointAccountOperation(let walletId, let operationId, _):
+        case .rejectJointAccountOperation(let walletId, let operationId):
             return "/wallets/\(walletId)/joint-accounts/operations/\(operationId)/reject"
 
         // MARK: - Address Book
@@ -452,8 +452,10 @@ struct TangemApiTarget: TargetType {
             return .requestJSONEncodable(body)
         case .signJointAccountOperation(_, _, let body):
             return .requestJSONEncodable(body)
-        case .rejectJointAccountOperation(_, _, let body):
-            return .requestJSONEncodable(body)
+        case .rejectJointAccountOperation:
+            // The refusal is not signed and carries nothing: the operation is named by the id in the path, and the
+            // wallet the call is made for says whether the initiator is cancelling or a co-signer is declining
+            return .requestPlain
 
         // MARK: - Address Book
         case .syncAddressBooks(let request):
@@ -501,6 +503,10 @@ struct TangemApiTarget: TargetType {
         case .updateAddressBook(_, let knownETag, _):
             // Optimistic locking: send If-Match only when we already hold an etag (the client never mints one).
             return knownETag.map { [TangemAPIHeaders.ifMatch.rawValue: $0] }
+        case .getJointAccounts(_, let knownETag):
+            // The tag of the last answer, so that an unchanged list comes back as a 304 with no body rather than
+            // being read in full once a minute. Opaque: whatever the endpoint issued is sent back as it was
+            return knownETag.map { [TangemAPIHeaders.ifNoneMatch.rawValue: $0] }
         case .saveUserWalletTokensV2(_, _, let revision):
             // The accounts ETag, the same lock `saveUserAccounts` carries: a joint account's token list is one list
             // for every member, and without it two of them writing it overwrite each other
@@ -551,7 +557,6 @@ struct TangemApiTarget: TargetType {
              .saveWalletCards,
              .getUserAccounts,
              .getArchivedUserAccounts,
-             .getJointAccounts,
              .createJointAccount,
              .getJointAccountInvite,
              .joinJointAccount,
@@ -671,14 +676,14 @@ extension TangemApiTarget {
         case getArchivedUserAccounts(userWalletId: String)
 
         // Joint accounts
-        case getJointAccounts(walletId: String)
+        case getJointAccounts(walletId: String, knownETag: String?)
         case createJointAccount(walletId: String, body: JointAccountsDTO.Request.Create)
         case getJointAccountInvite(walletId: String, inviteId: String)
         case joinJointAccount(walletId: String, body: JointAccountsDTO.Request.Join)
         case activateJointAccount(walletId: String, body: JointAccountsDTO.Request.Activate)
         case createJointAccountOperation(walletId: String, body: JointAccountsDTO.Request.CreateOperation)
         case signJointAccountOperation(walletId: String, operationId: String, body: JointAccountsDTO.Request.SignOperation)
-        case rejectJointAccountOperation(walletId: String, operationId: String, body: JointAccountsDTO.Request.RejectOperation)
+        case rejectJointAccountOperation(walletId: String, operationId: String)
 
         // Address Book
         case syncAddressBooks(_ request: AddressBookDTO.SyncRequest)

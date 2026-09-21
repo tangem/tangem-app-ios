@@ -80,6 +80,7 @@ struct CommonJointAccountOperationsServiceTests {
     @Test("An operation the network has finished with leaves it free", arguments: [
         JointAccountOperationStatus.executed,
         .failed,
+        .cancelled,
     ])
     func createAfterTheOperationBeforeItFinishedIsAllowed(status: JointAccountOperationStatus) async throws {
         let context = try makeContext(
@@ -176,6 +177,7 @@ struct CommonJointAccountOperationsServiceTests {
         #expect(context.repository.signedOperations.count == 1)
         #expect(signed.id == "op_01HZX")
         #expect(signed.cryptoAccountId == context.cryptoAccountId)
+        #expect(signed.safeTransaction.nonce == Constants.nonce)
         #expect(signed.signature.count == 65)
     }
 
@@ -206,7 +208,7 @@ struct CommonJointAccountOperationsServiceTests {
 
     // MARK: - Declining
 
-    @Test("A decline is signed over the operation and the transaction the endpoint holds, not over the transaction alone")
+    @Test("A decline names the operation and the account it belongs to, and carries nothing else")
     func rejectedOperationIsHandedOn() async throws {
         let context = try makeContext()
         let operation = Self.operation(id: "op_01HZX")
@@ -218,13 +220,13 @@ struct CommonJointAccountOperationsServiceTests {
         #expect(context.repository.rejectedOperations.count == 1)
         #expect(rejected.id == "op_01HZX")
         #expect(rejected.cryptoAccountId == context.cryptoAccountId)
-        #expect(rejected.blob.payload.operationId == "op_01HZX")
-        #expect(rejected.blob.payload.safeTx.nonce == "\(Constants.nonce)")
-        #expect(rejected.blob.signature.count == 65)
+        // The card is not asked for anything: the contract has nothing for a refusal to sign
+        #expect(context.signer.signedHashes.isEmpty)
     }
 
-    /// Declining asks the chain for nothing: the answer is about the operation, not about the Safe's state.
-    @Test("A decline is signed without reading the Safe")
+    /// Declining asks the chain for nothing and signs nothing: the answer is about the operation, not about the
+    /// Safe's state, and which of the two refusals it is follows from the wallet it is made for.
+    @Test("A decline is sent without reading the Safe")
     func rejectDoesNotReadTheSafe() async throws {
         let context = try makeContext(state: nil)
 
