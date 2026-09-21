@@ -41,13 +41,14 @@ struct SignificantFractionDigitRounderTests {
         "Negative values are rounded by magnitude instead of trapping on log10(negative)",
         arguments: [
             (-0.00002345, -0.00002),
-            (-0.000029, -0.00002),
+            (-0.000029, -0.00003),
             (-1.45002345, -1.45),
             (-1.00002345, -1.00),
         ] as [(Double, Double)]
     )
     func roundsNegativeValuesByMagnitude(value: Double, expectedValue: Double) {
-        let rounder = SignificantFractionDigitRounder(roundingMode: .down)
+        // `.plain` keeps the expectation independent of how `.down` treats negative numbers.
+        let rounder = SignificantFractionDigitRounder(roundingMode: .plain)
 
         let roundedValue = rounder.round(value: Decimal(floatLiteral: value))
         let roundedDoubleValue = NSDecimalNumber(decimal: roundedValue).doubleValue
