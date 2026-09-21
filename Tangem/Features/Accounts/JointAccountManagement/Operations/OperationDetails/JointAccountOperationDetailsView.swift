@@ -60,6 +60,7 @@ private extension JointAccountOperationDetailsViewModel {
             requiredSignaturesCount: 3,
             membersCount: 5,
             answer: answer,
+            canSign: true,
             coordinator: nil,
             sign: {}
         )
