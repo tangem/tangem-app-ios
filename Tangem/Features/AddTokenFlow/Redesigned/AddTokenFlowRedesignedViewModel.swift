@@ -43,13 +43,14 @@ final class AddTokenFlowRedesignedViewModel: ObservableObject, FloatingSheetCont
         let oneAndOnly = OneAndOnlyAccountFinder.find(in: userWalletModels)
         let eligibleAccounts = AddTokenEligibleAccountsResolver.resolveAll(in: userWalletModels)
 
-        let eligibleAccount: AddTokenEligibleAccountsResolver.EligibleAccount? = if let preferredWalletId {
-            eligibleAccounts.first(where: { userWalletModel, cryptoAccountModel in
+        // A preferred wallet that is not eligible (locked, no supporting account) must not abort the flow:
+        // fall back to the first eligible account instead of failing the initializer ("Something went wrong").
+        let preferredAccount = preferredWalletId.flatMap { preferredWalletId in
+            eligibleAccounts.first(where: { userWalletModel, _ in
                 userWalletModel.userWalletId == preferredWalletId
             })
-        } else {
-            eligibleAccounts.first
         }
+        let eligibleAccount: AddTokenEligibleAccountsResolver.EligibleAccount? = preferredAccount ?? eligibleAccounts.first
 
         let firstEligible = eligibleAccount.map {
             AccountSelectorCellModel.wallet(
