@@ -134,6 +134,21 @@ final class TangemPayMainViewModel: ObservableObject {
         cardEntries.contains { $0.isIssuing }
     }
 
+    var cardDeliveryBannerState: CardDeliveryBannerState? {
+        // Mirrors the issuing banner's own visibility, so this never defers to a hidden banner.
+        guard !(hasIssuingEntry && !isAwaitingDeposit) else {
+            return nil
+        }
+
+        let delivering = cardEntries.compactMap(\.plasticCard).filter { $0.stage == .delivering }
+
+        switch delivering.count {
+        case 0: return nil
+        case 1: return .single(activatableCard: delivering.first?.deliveredCard)
+        default: return .multiple
+        }
+    }
+
     var isAwaitingDeposit: Bool {
         awaitingDepositInfo != nil
     }
@@ -228,6 +243,7 @@ final class TangemPayMainViewModel: ObservableObject {
     /// silently taking the ineligible path.
     private let eligibleChannelsSubject = CurrentValueSubject<[TangemPayDistributionChannel]?, Never>(nil)
     private var nextViewOpeningTask: Task<Void, Error>?
+    private var didLogCardDeliveryBannerImpression = false
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -410,7 +426,25 @@ final class TangemPayMainViewModel: ObservableObject {
     func openCardManagement(entry: TangemPayCardEntry) {
         Analytics.log(.visaScreenCardSettingsClicked, contextParams: .userWallet(userWalletInfo.id))
         Analytics.log(.visaCardIconClicked, contextParams: .userWallet(userWalletInfo.id))
-        coordinator?.openCardManagement(entry: entry)
+        coordinator?.openCardManagement(entry: entry, shouldOpenActivation: false)
+    }
+
+    /// Latched: the banner's own button navigates away, so `onAppear` fires again on the way back.
+    func onCardDeliveryBannerAppear() {
+        guard !didLogCardDeliveryBannerImpression else { return }
+
+        didLogCardDeliveryBannerImpression = true
+        Analytics.log(.visaPlasticCardInTransitBannerShowed, contextParams: .userWallet(userWalletInfo.id))
+    }
+
+    func onActivateCardBannerButton(card: TangemPayCard) {
+        Analytics.log(.visaPlasticActivateCardBannerButtonClicked, contextParams: .userWallet(userWalletInfo.id))
+
+        guard let entry = cardEntries.first(where: { $0.plasticCard?.deliveredCard === card }) else {
+            return
+        }
+
+        coordinator?.openCardManagement(entry: entry, shouldOpenActivation: true)
     }
 
     func showCardIssueFailureAlert() {
@@ -427,8 +461,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func addCard(cardType: TangemPayOrderCardType? = nil) {
-        if let offer = tangemPayAccount.additionalCardIssueOffer, let fee = offer.fee {
-            openAdditionalCardIssue(offer: offer, fee: fee, cardType: cardType)
+        if openCardIssueIfOfferAvailable(cardType: cardType) {
             return
         }
 
@@ -445,17 +478,21 @@ final class TangemPayMainViewModel: ObservableObject {
 
                 await tangemPayAccount.loadOffers()
 
-                if let offer = tangemPayAccount.additionalCardIssueOffer, let fee = offer.fee {
-                    openAdditionalCardIssue(offer: offer, fee: fee, cardType: cardType)
-                } else if await isTariffPlanUpgradeAvailable() {
-                    coordinator?.openCardsLimitReachedSheet()
-                } else {
-                    coordinator?.openMaximumCardsIssuedSheet()
+                if !openCardIssueIfOfferAvailable(cardType: cardType) {
+                    await openCardsLimitSheet()
                 }
 
                 isAddCardLoading = false
             }
         )
+    }
+
+    private func openCardsLimitSheet() async {
+        if await isTariffPlanUpgradeAvailable() {
+            coordinator?.openCardsLimitReachedSheet()
+        } else {
+            coordinator?.openMaximumCardsIssuedSheet()
+        }
     }
 
     private func isTariffPlanUpgradeAvailable() async -> Bool {
@@ -468,13 +505,22 @@ final class TangemPayMainViewModel: ObservableObject {
         }
     }
 
-    private func openAdditionalCardIssue(offer: TangemPayCustomerOffer, fee: TangemPayCustomerOffer.Fee, cardType: TangemPayOrderCardType?) {
+    private func openCardIssueIfOfferAvailable(cardType: TangemPayOrderCardType?) -> Bool {
+        let virtualOffer = tangemPayAccount.additionalCardIssueOffer
+
         guard FeatureProvider.isAvailable(.tangemPayPlastic) else {
-            openIssueAdditionalCardCostPopup(offer: offer, fee: fee)
-            return
+            guard let virtualOffer, let fee = virtualOffer.fee else { return false }
+
+            openIssueAdditionalCardCostPopup(offer: virtualOffer, fee: fee)
+            return true
         }
 
-        coordinator?.openOrderCardType(fee: fee, cardType: cardType)
+        guard virtualOffer?.fee != nil || tangemPayAccount.plasticCardIssueOffer != nil else {
+            return false
+        }
+
+        coordinator?.openOrderCardType(cardType: cardType)
+        return true
     }
 
     func orderCardTypeDidSelectVirtual() {
