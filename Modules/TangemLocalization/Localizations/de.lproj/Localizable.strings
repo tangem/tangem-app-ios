@@ -789,6 +789,7 @@
 "hw_cloud_backup_restore_password_title" = "Passwort eingeben";
 "hw_cloud_backup_restore_use_recovery_phrase" = "Seed-Phrase importieren";
 "hw_cloud_backup_restore_wrong_password" = "Falsches Passwort";
+"hw_cloud_backup_restore_wrong_passphrase" = "Wrong passphrase";
 "hw_cloud_backup_retry" = "Versuchen Sie es erneut";
 "hw_cloud_backup_service_name" = "Google Drive";
 "hw_cloud_backup_set_password_button" = "Passwort festlegen";

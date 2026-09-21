@@ -789,6 +789,7 @@
 "hw_cloud_backup_restore_password_title" = "パスワードを入力";
 "hw_cloud_backup_restore_use_recovery_phrase" = "リカバリーフレーズをインポートする";
 "hw_cloud_backup_restore_wrong_password" = "パスワードが正しくありません";
+"hw_cloud_backup_restore_wrong_passphrase" = "Wrong passphrase";
 "hw_cloud_backup_retry" = "もう一度やり直してください";
 "hw_cloud_backup_service_name" = "Google Drive";
 "hw_cloud_backup_set_password_button" = "パスワードを設定";
