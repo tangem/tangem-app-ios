@@ -93,7 +93,8 @@ class StakingDetailsStakeViewDataBuilder {
             inProgress: inProgress,
             subtitleType: subtitle,
             balance: .init(crypto: balanceCryptoFormatted, fiat: balanceFiatFormatted),
-            action: action
+            action: action,
+            accountAddress: balance.accountAddress
         )
     }
 }
