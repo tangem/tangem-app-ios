@@ -68,7 +68,10 @@ actor DeviceKeyManager {
             return try DeviceSignature(derRepresentation: signature.derRepresentation, rawRepresentation: signature.rawRepresentation)
         } catch {
             assertionFailure(
-                "DeviceSignature is expected to be constructible by CryptoKit's P-256 ECDSASignature correctly. Developer mistake."
+                """
+                DeviceSignature is expected to be constructible by CryptoKit's P-256 ECDSASignature correctly. \
+                Developer mistake. \(error)
+                """
             )
             throw DeviceKeyManagerError.signingFailed(underlying: error)
         }
