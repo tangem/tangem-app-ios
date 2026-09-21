@@ -17,7 +17,7 @@ extension PolymarketDTO {
         let chainId: String
         let chainName: String
         let token: Token
-        let minCheckoutUsd: Decimal
+        let minCheckoutUsd: Decimal?
 
         struct Token: Decodable {
             let name: String

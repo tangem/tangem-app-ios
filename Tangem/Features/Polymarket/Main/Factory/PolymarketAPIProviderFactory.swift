@@ -19,7 +19,10 @@ struct PolymarketAPIProviderFactory {
 
         return CommonPolymarketAPIProvider(
             baseURL: environment.baseURL,
-            networkConfiguration: TangemProviderConfiguration(logOptions: .verbose),
+            networkConfiguration: TangemProviderConfiguration(
+                logOptions: .verbose,
+                urlSessionConfiguration: .polymarketConfiguration
+            ),
             headers: environment.headers.map { APIHeaderKeyInfo(headerName: $0.key, headerValue: $0.value) },
             walletId: walletId,
             builderCodeStore: builderCodeStore

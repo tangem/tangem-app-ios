@@ -70,6 +70,26 @@ private enum PolymarketDepositFixtures {
         """#.utf8
     )
 
+    static let supportedAssetsWithMissingMinimum = Data(
+        #"""
+        {
+          "supportedAssets": [
+            {
+              "chainId": "728126428",
+              "chainName": "Tron",
+              "token": { "name": "Tether USD", "symbol": "USDT", "address": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t", "decimals": 6 }
+            },
+            {
+              "chainId": "137",
+              "chainName": "Polygon",
+              "token": { "name": "USDC", "symbol": "USDC", "address": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", "decimals": 6 },
+              "minCheckoutUsd": 2
+            }
+          ]
+        }
+        """#.utf8
+    )
+
     static let fundingAddresses = Data(
         #"""
         {
@@ -129,6 +149,19 @@ struct PolymarketSupportedAssetsDecodingTests {
         #expect(response.supportedAssets.contains { $0.chainName == "Sui" })
         #expect(!assets.contains { $0.chainName == "Sui" })
         #expect(assets.count == response.supportedAssets.count - 1)
+    }
+
+    @Test("An asset the bridge lists without a checkout minimum is dropped, and the rest of the answer survives")
+    func assetWithoutMinimumIsDropped() throws {
+        let response = try decoder.decode(
+            PolymarketDTO.SupportedAssetsResponse.self,
+            from: PolymarketDepositFixtures.supportedAssetsWithMissingMinimum
+        )
+        let assets = mapper.mapSupportedAssets(response)
+
+        #expect(response.supportedAssets.count == 2)
+        #expect(assets.count == 1)
+        #expect(assets.first?.token.symbol == "USDC")
     }
 
     @Test("Everything the bridge can address survives the mapping, whatever the family")

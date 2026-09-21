@@ -23,6 +23,7 @@ final class CommonPolymarketOnboardingInteractor {
     private let walletService: PolymarketDepositWalletService
     private let relayerService: PolymarketRelayerService
     private let clobService: PolymarketCLOBService
+    private let serverClock: PolymarketServerClock
     private let pollInterval: TimeInterval
 
     init(
@@ -34,6 +35,7 @@ final class CommonPolymarketOnboardingInteractor {
         walletService: PolymarketDepositWalletService,
         relayerService: PolymarketRelayerService,
         clobService: PolymarketCLOBService,
+        serverClock: PolymarketServerClock,
         pollInterval: TimeInterval = PolymarketDepositWalletPoller.Constants.interval
     ) {
         self.userWalletId = userWalletId
@@ -44,6 +46,7 @@ final class CommonPolymarketOnboardingInteractor {
         self.walletService = walletService
         self.relayerService = relayerService
         self.clobService = clobService
+        self.serverClock = serverClock
         self.pollInterval = pollInterval
     }
 }
@@ -238,7 +241,7 @@ private extension CommonPolymarketOnboardingInteractor {
     }
 
     func makeDeadline() -> String {
-        String(Int(Date().timeIntervalSince1970) + Constants.deadlineOffset)
+        String(Int(serverClock.now.timeIntervalSince1970) + Constants.deadlineOffset)
     }
 }
 
