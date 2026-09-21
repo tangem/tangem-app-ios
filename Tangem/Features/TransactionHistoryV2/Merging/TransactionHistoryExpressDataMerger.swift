@@ -72,11 +72,20 @@ struct TransactionHistoryExpressDataMerger {
             )
             var didMatch = false
 
-            // Step 1: Deterministic mapping for send/receive transactions by hashes
-            var matchedBSDKTransactions = bsdkTransactionsGroupedByHash.removeValue(forKey: exchangeTransaction.payIn.hash)
-                ?? bsdkTransactionsGroupedByHash.removeValue(forKey: exchangeTransaction.payOut.hash)
+            // Step 1: Mapping for send/receive transactions by the hashes the deal reports. Finding the
+            // transaction is exact; telling the deal's own records apart from the rest of that transaction
+            // isn't, and is left to `claimLegRecords`
+            var matchedBSDKTransactions = claimLegRecords(
+                forHash: exchangeTransaction.payIn.hash,
+                of: exchangeTransaction,
+                from: &bsdkTransactionsGroupedByHash
+            ) ?? claimLegRecords(
+                forHash: exchangeTransaction.payOut.hash,
+                of: exchangeTransaction,
+                from: &bsdkTransactionsGroupedByHash
+            )
 
-            // Step 2a: Heuristic mapping for send/receive transactions, performed only if no deterministic match was found
+            // Step 2a: Heuristic mapping for send/receive transactions, performed only if no hash match was found
             if matchedBSDKTransactions == nil {
                 let heuristicMatch = heuristicallyMatchingSendBSDKTransaction(
                     for: exchangeTransaction,
@@ -90,7 +99,9 @@ struct TransactionHistoryExpressDataMerger {
                     consumedBSDKTransactionsIds: consumedBSDKTransactionsIds
                 )
 
-                matchedBSDKTransactions = heuristicMatch.flatMap { bsdkTransactionsGroupedByHash.removeValue(forKey: $0.hash) }
+                matchedBSDKTransactions = heuristicMatch.flatMap {
+                    claimLegRecords(forHash: $0.hash, of: exchangeTransaction, from: &bsdkTransactionsGroupedByHash)
+                }
             }
 
             if let matchedBSDKTransactions {
@@ -169,6 +180,115 @@ struct TransactionHistoryExpressDataMerger {
         return sortedRecords(output)
     }
 
+    // MARK: - Leg claiming (Exchange)
+
+    /// One on-chain transaction can carry transfers that belong to no deal at all — the fee transfer of a
+    /// gasless transaction, for one — and, when both legs of a swap live on the same blockchain, its pay-in
+    /// transaction shows up in the history of the token being bought as well. Claiming the whole group by its
+    /// hash would mark all of that as a swap, so what isn't the leg is passed through unenriched, keeping its
+    /// own classification, while the leg that has no on-chain record of its own is covered by a synthetic
+    /// transaction.
+    ///
+    /// Returns `nil` when the group holds no record of the expected leg, which is the same as no match at all.
+    private func claimLegRecords(
+        forHash hash: String?,
+        of exchangeTransaction: ExchangeTransaction,
+        from bsdkTransactionsGroupedByHash: inout [String?: [TransactionRecord]]
+    ) -> [TransactionRecord]? {
+        guard let records = bsdkTransactionsGroupedByHash.removeValue(forKey: hash) else {
+            return nil
+        }
+
+        let (claimedRecords, unclaimedRecords) = legRecords(from: records, of: exchangeTransaction)
+
+        guard let claimedRecords = claimedRecords.nilIfEmpty else {
+            bsdkTransactionsGroupedByHash[hash] = records
+            return nil
+        }
+
+        if let unclaimedRecords = unclaimedRecords.nilIfEmpty {
+            bsdkTransactionsGroupedByHash[hash] = unclaimedRecords
+        }
+
+        return claimedRecords
+    }
+
+    private func legRecords(
+        from records: [TransactionRecord],
+        of exchangeTransaction: ExchangeTransaction
+    ) -> (claimed: [TransactionRecord], unclaimed: [TransactionRecord]) {
+        guard let leg = expressLeg(of: exchangeTransaction) else {
+            return (claimed: records, unclaimed: [])
+        }
+
+        let rule = legRule(for: leg, of: exchangeTransaction)
+        let (sameDirectionRecords, oppositeDirectionRecords) = records.partitioned { $0.isOutgoing == rule.isOutgoing }
+
+        guard rule.targetAmount > 0 else {
+            return (claimed: sameDirectionRecords, unclaimed: oppositeDirectionRecords)
+        }
+
+        let (recordsPayingTheLegAddress, rest) = sameDirectionRecords.partitioned {
+            rule.matches(amount: $0.destinationAmount(to: rule.address, addressConverter: lowerCasedAddressStringIfNeeded))
+        }
+
+        if let claimed = recordsPayingTheLegAddress.nilIfEmpty {
+            return (claimed: claimed, unclaimed: oppositeDirectionRecords + rest)
+        }
+
+        let (recordsTransferringTheAmount, remainder) = sameDirectionRecords.partitioned { rule.matches(amount: $0.destinationAmountValue) }
+
+        if let claimed = recordsTransferringTheAmount.nilIfEmpty {
+            return (claimed: claimed, unclaimed: oppositeDirectionRecords + remainder)
+        }
+
+        // The deal named this hash itself, so its records stay the leg even when none of them carries the
+        // reported amount — a DEX splitting the deal between pools, a partial fill, a rounded amount
+        return (claimed: sameDirectionRecords, unclaimed: oppositeDirectionRecords)
+    }
+
+    private func expressLeg(of exchangeTransaction: ExchangeTransaction) -> ExpressLeg? {
+        switch (
+            exchangeTransaction.from.currency == normalizedCurrentCurrency,
+            exchangeTransaction.to.currency == normalizedCurrentCurrency
+        ) {
+        case (true, false):
+            return .payIn
+        case (false, true):
+            return .payOut
+        case (true, true), (false, false):
+            return nil
+        }
+    }
+
+    private func legRule(for leg: ExpressLeg, of exchangeTransaction: ExchangeTransaction) -> ExpressLegRule {
+        switch leg {
+        case .payIn:
+            return ExpressLegRule(
+                isOutgoing: true,
+                address: exchangeTransaction.payIn.address,
+                targetAmount: exchangeTransaction.from.normalizedAmount,
+                amountTolerance: isUTXO ? Constants.sendHeuristicAmountUTXOTolerance : Constants.sendHeuristicAmountTolerance
+            )
+        case .payOut:
+            return ExpressLegRule(
+                isOutgoing: false,
+                address: exchangeTransaction.payOut.address,
+                targetAmount: exchangeTransaction.to.normalizedAmount,
+                amountTolerance: Constants.receiveHeuristicAmountTolerance
+            )
+        }
+    }
+
+    private func legAmount(of bsdkTransaction: TransactionRecord, rule: ExpressLegRule) -> Decimal {
+        let amountToLeg = bsdkTransaction.destinationAmount(
+            to: rule.address,
+            addressConverter: lowerCasedAddressStringIfNeeded
+        )
+
+        return amountToLeg > 0 ? amountToLeg : bsdkTransaction.destinationAmountValue
+    }
+
     // MARK: - Heuristic matching (Exchange)
 
     func heuristicallyMatchingSendBSDKTransaction(
@@ -182,10 +302,10 @@ struct TransactionHistoryExpressDataMerger {
             return nil
         }
 
-        let targetAmount = exchangeTransaction.from.normalizedAmount
+        let rule = legRule(for: .payIn, of: exchangeTransaction)
 
         // Prevents division by zero
-        guard targetAmount > 0 else {
+        guard rule.targetAmount > 0 else {
             return nil
         }
 
@@ -195,18 +315,17 @@ struct TransactionHistoryExpressDataMerger {
         )
 
         guard let bsdkTransactionsCandidatesByReceiver = bsdkTransactionsGroupedByDestinationAddressString[
-            lowerCasedAddressStringIfNeeded(exchangeTransaction.payIn.address)
+            lowerCasedAddressStringIfNeeded(rule.address)
         ] else {
             return nil
         }
 
-        let amountBound = (isUTXO ? Constants.sendHeuristicAmountUTXOTolerance : Constants.sendHeuristicAmountTolerance) * targetAmount
-
         return bsdkTransactionsCandidatesByReceiver
             .filter { bsdkTransaction in
                 guard
-                    bsdkTransaction.isOutgoing, // Only consider outgoing transactions as potential matches
+                    bsdkTransaction.isOutgoing,
                     !consumedBSDKTransactionsIds.contains(bsdkTransaction.id),
+                    // The sender of the pay-in leg must be the owner
                     isSentByOwner(bsdkTransaction)
                 else {
                     return false
@@ -214,10 +333,10 @@ struct TransactionHistoryExpressDataMerger {
 
                 // Compare against the amount sent to the pay-in (deposit) address specifically (filtering UTXO change output, etc)
                 let amountToPayIn = bsdkTransaction.destinationAmount(
-                    to: exchangeTransaction.payIn.address,
+                    to: rule.address,
                     addressConverter: lowerCasedAddressStringIfNeeded
                 )
-                return abs(amountToPayIn - targetAmount) <= amountBound
+                return rule.matches(amount: amountToPayIn)
             }
             .min(by: \.normalizedDate) // Select the earliest transaction
     }
@@ -236,10 +355,10 @@ struct TransactionHistoryExpressDataMerger {
             return nil
         }
 
-        let targetAmount = exchangeTransaction.to.normalizedAmount
+        let rule = legRule(for: .payOut, of: exchangeTransaction)
 
         // Prevents division by zero
-        guard targetAmount > 0 else {
+        guard rule.targetAmount > 0 else {
             return nil
         }
 
@@ -248,35 +367,55 @@ struct TransactionHistoryExpressDataMerger {
             cache: &bsdkTransactionsGroupedByDestinationAddressString
         )
 
-        guard let bsdkTransactions = bsdkTransactionsGroupedByDestinationAddressString[
-            lowerCasedAddressStringIfNeeded(exchangeTransaction.payOut.address)
-        ] else {
-            return nil
+        let targetDateRange = exchangeTransaction.createdAt ... exchangeTransaction.createdAt.advanced(by: Constants.receiveHeuristicTimeWindow)
+        let addressIndexedCandidates = bsdkTransactionsGroupedByDestinationAddressString[
+            lowerCasedAddressStringIfNeeded(rule.address)
+        ]
+
+        if let addressIndexedCandidates, let match = earliestPayOutLegMatch(
+            among: addressIndexedCandidates,
+            rule: rule,
+            targetDateRange: targetDateRange,
+            consumedBSDKTransactionsIds: consumedBSDKTransactionsIds
+        ) {
+            return match
         }
 
-        let targetDateRange = exchangeTransaction.createdAt ... exchangeTransaction.createdAt.advanced(by: Constants.receiveHeuristicTimeWindow)
-        let amountBound = Constants.receiveHeuristicAmountTolerance * targetAmount
+        // Not every provider reports the counterparty as the destination of a token transfer, which keeps the
+        // pay-out leg out of the address index — while the index may still hold other records that did land on
+        // the pay-out address. All the records are therefore considered when the indexed ones yield nothing,
+        // which is safe for this leg specifically: it arrives at the user's own address, so the address carries
+        // little information here, while the direction, amount, time window and sender checks still hold. The
+        // pay-in leg has no such fallback — there the address is the provider's deposit address and is the only
+        // thing telling a deposit from an ordinary transfer of the same amount.
+        return earliestPayOutLegMatch(
+            among: allBSDKTransactions,
+            rule: rule,
+            targetDateRange: targetDateRange,
+            consumedBSDKTransactionsIds: consumedBSDKTransactionsIds
+        )
+    }
 
-        return bsdkTransactions
+    private func earliestPayOutLegMatch(
+        among candidates: [TransactionRecord],
+        rule: ExpressLegRule,
+        targetDateRange: ClosedRange<Date>,
+        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>
+    ) -> TransactionRecord? {
+        return candidates
             .filter { bsdkTransaction in
                 guard
-                    !bsdkTransaction.isOutgoing, // Only consider incoming transactions as potential matches
+                    !bsdkTransaction.isOutgoing,
                     !consumedBSDKTransactionsIds.contains(bsdkTransaction.id),
                     targetDateRange.contains(bsdkTransaction.normalizedDate),
-                    // Exclude self-transfers (the sender must not be the user)
                     !isSentByOwner(bsdkTransaction)
                 else {
                     return false
                 }
 
-                // Compare against the amount received at the pay-out address specifically (filtering UTXO change output, etc)
-                let amountToPayOut = bsdkTransaction.destinationAmount(
-                    to: exchangeTransaction.payOut.address,
-                    addressConverter: lowerCasedAddressStringIfNeeded
-                )
-                return abs(amountToPayOut - targetAmount) <= amountBound
+                return rule.matches(amount: legAmount(of: bsdkTransaction, rule: rule))
             }
-            .min(by: \.normalizedDate) // Select the earliest transaction
+            .min(by: \.normalizedDate)
     }
 
     func heuristicallyMatchingRefundBSDKTransaction(
@@ -451,6 +590,30 @@ struct TransactionHistoryExpressDataMerger {
     }
 }
 
+// MARK: - Auxiliary types
+
+private extension TransactionHistoryExpressDataMerger {
+    /// The on-chain leg of an exchange transaction: the deposit sent to the provider or the pay-out received from it.
+    enum ExpressLeg {
+        case payIn
+        case payOut
+    }
+
+    /// What makes an on-chain record the given leg of a deal: the direction, the address the amount has to land
+    /// on, the amount itself and how far off it is allowed to be. Shared by the hash-based claiming and by the
+    /// heuristic matchers so both agree on what a leg looks like.
+    struct ExpressLegRule {
+        let isOutgoing: Bool
+        let address: String
+        let targetAmount: Decimal
+        let amountTolerance: Decimal
+
+        func matches(amount: Decimal) -> Bool {
+            abs(amount - targetAmount) <= amountTolerance * targetAmount
+        }
+    }
+}
+
 // MARK: - Constants
 
 private extension TransactionHistoryExpressDataMerger {
@@ -470,6 +633,19 @@ private extension TransactionHistoryExpressDataMerger {
 }
 
 // MARK: - Convenience extensions
+
+private extension Array {
+    func partitioned(by isMatching: (Element) -> Bool) -> (matching: [Element], rest: [Element]) {
+        var matching: [Element] = []
+        var rest: [Element] = []
+
+        for element in self {
+            isMatching(element) ? matching.append(element) : rest.append(element)
+        }
+
+        return (matching, rest)
+    }
+}
 
 private extension TransactionRecord {
     @inline(__always)
