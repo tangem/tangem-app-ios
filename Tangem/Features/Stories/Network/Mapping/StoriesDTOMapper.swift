@@ -31,7 +31,10 @@ struct StoriesDTOMapper {
         guard let endBehavior = EndBehavior(rawValue: dto.endBehavior) else { return nil }
         guard !dto.placements.isEmpty else { return nil }
 
-        let slides = dto.slides.compactMap { mapSlide($0, host: host) }
+        // The player indexes slides positionally; the API defines the sequence through `order`, not array position.
+        let slides = dto.slides
+            .sorted { $0.order < $1.order }
+            .compactMap { mapSlide($0, host: host) }
         guard !slides.isEmpty else { return nil }
 
         return StoryV2(
