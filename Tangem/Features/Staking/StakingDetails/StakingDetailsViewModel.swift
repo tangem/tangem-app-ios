@@ -354,7 +354,7 @@ private extension StakingDetailsViewModel {
 
     func setupStakes(yield: StakingYieldInfo, staking: [StakingBalance]) {
         let staking = staking.map { balance in
-            stakesBuilder.mapToStakingDetailsStakeViewData(yield: yield, balance: balance) { [weak self] in
+            let viewData = stakesBuilder.mapToStakingDetailsStakeViewData(yield: yield, balance: balance) { [weak self] in
                 let tokenCurrencySymbol = self?.tokenItem.currencySymbol ?? ""
 
                 Analytics.log(
@@ -366,15 +366,21 @@ private extension StakingDetailsViewModel {
                 )
                 self?.openFlow(balance: balance, targets: yield.targets)
             }
+
+            return (amount: balance.amount, viewData: viewData)
         }
 
-        stakes = staking.sorted(by: { lhs, rhs in
-            if lhs.priority != rhs.priority {
-                return lhs.priority < rhs.priority
-            }
+        // Sort by the numeric amount: `viewData.balance.crypto` is the formatted string, and comparing strings
+        // puts "9.5 SOL" above "1,000 SOL" (and depends on the locale's grouping separator).
+        stakes = staking
+            .sorted(by: { lhs, rhs in
+                if lhs.viewData.priority != rhs.viewData.priority {
+                    return lhs.viewData.priority < rhs.viewData.priority
+                }
 
-            return lhs.balance.crypto > rhs.balance.crypto
-        })
+                return lhs.amount > rhs.amount
+            })
+            .map(\.viewData)
     }
 
     func openBottomSheet(title: String, description: String) {
