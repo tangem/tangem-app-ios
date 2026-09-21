@@ -34,14 +34,14 @@ struct PolymarketDepositReceivingRestrictionsProviderTests {
         }
     }
 
-    @Test("The threshold is converted into the deposit token, so a pricier asset needs less of it")
-    func thresholdIsConvertedIntoTokenUnits() async throws {
+    @Test("The threshold is compared in the deposit token, so a pricier asset needs less of it")
+    func thresholdIsComparedInTokenUnits() async throws {
         try await withProvider(priceUsd: 50) { sut in
-            let aboveThreshold = try await sut.restriction(expectAmount: 0.1)
-            let belowThreshold = try await sut.restriction(expectAmount: 0.01)
+            let atThreshold = try await sut.restriction(expectAmount: Decimal(4) / 100)
+            let belowThreshold = try await sut.restriction(expectAmount: Decimal(39) / 1000)
 
-            #expect(aboveThreshold == nil)
-            #expect(minAmount(belowThreshold) == Decimal(4) / 100)
+            #expect(atThreshold == nil)
+            #expect(minAmount(belowThreshold) == Self.minCheckoutUSD)
         }
     }
 
@@ -53,7 +53,7 @@ struct PolymarketDepositReceivingRestrictionsProviderTests {
             let belowThreshold = try await sut.restriction(expectAmount: 0.6)
             let atThreshold = try await sut.restriction(expectAmount: expected)
 
-            #expect(minAmount(belowThreshold) == expected)
+            #expect(minAmount(belowThreshold) == Self.minCheckoutUSD)
             #expect(atThreshold == nil)
         }
     }
@@ -98,16 +98,53 @@ struct PolymarketDepositReceivingRestrictionsProviderTests {
             #expect(minAmount(belowThreshold) == Self.minCheckoutUSD)
         }
     }
+
+    @Test("The ceiling is exclusive: exactly fifty thousand is already refused")
+    func theCeilingItselfIsRefused() async throws {
+        try await withProvider(priceUsd: 1) { sut in
+            let atCeiling = try await sut.restriction(expectAmount: Self.maximumDepositUSD)
+            let aboveCeiling = try await sut.restriction(expectAmount: Self.maximumDepositUSD + 1)
+
+            #expect(maxAmount(atCeiling) == Self.maximumDepositUSD)
+            #expect(maxAmount(aboveCeiling) == Self.maximumDepositUSD)
+        }
+    }
+
+    @Test("A deposit just short of the ceiling passes")
+    func justBelowTheCeilingPasses() async throws {
+        try await withProvider(priceUsd: 1) { sut in
+            let belowCeiling = try await sut.restriction(expectAmount: Self.maximumDepositUSD - 1)
+
+            #expect(belowCeiling == nil)
+        }
+    }
+
+    @Test("The ceiling is compared in the deposit token too, so a pricier asset reaches it sooner")
+    func ceilingIsComparedInTokenUnits() async throws {
+        try await withProvider(priceUsd: 50) { sut in
+            let atCeiling = try await sut.restriction(expectAmount: Self.maximumDepositUSD / 50)
+            let belowCeiling = try await sut.restriction(expectAmount: Self.maximumDepositUSD / 50 - 1)
+
+            #expect(maxAmount(atCeiling) == Self.maximumDepositUSD)
+            #expect(belowCeiling == nil)
+        }
+    }
 }
 
 // MARK: - Fixtures
 
 private extension PolymarketDepositReceivingRestrictionsProviderTests {
     static let minCheckoutUSD: Decimal = 2
+    static let maximumDepositUSD: Decimal = 50_000
 
     func minAmount(_ restriction: ReceivedRestriction?) -> Decimal? {
-        guard case .notEnoughReceivedAmount(let minAmount, .receivingMinimum) = restriction else { return nil }
+        guard case .notEnoughReceivedAmount(.fiatUSD(let minAmount), .receivingMinimum) = restriction else { return nil }
         return minAmount
+    }
+
+    func maxAmount(_ restriction: ReceivedRestriction?) -> Decimal? {
+        guard case .tooMuchReceivedAmount(.fiatUSD(let maxAmount)) = restriction else { return nil }
+        return maxAmount
     }
 
     func withProvider(

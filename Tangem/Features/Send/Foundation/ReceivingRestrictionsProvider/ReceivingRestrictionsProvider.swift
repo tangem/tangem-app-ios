@@ -21,9 +21,17 @@ enum ReceivingRestrictionsError: String, LocalizedError {
 }
 
 enum ReceivedRestriction {
-    case notEnoughReceivedAmount(minAmount: Decimal, reason: NotEnoughReceivedAmountReason)
+    case notEnoughReceivedAmount(minAmount: ReceivedAmountThreshold, reason: NotEnoughReceivedAmountReason)
+    case tooMuchReceivedAmount(maxAmount: ReceivedAmountThreshold)
     case incompleteBackup(UserWalletInfo)
     case requiresTrustline
+}
+
+/// A threshold states the currency it is set in: a chain's own reserve is a token amount, while a partner's
+/// limit is a dollar figure that any token can be swapped into.
+enum ReceivedAmountThreshold: Hashable {
+    case token(Decimal)
+    case fiatUSD(Decimal)
 }
 
 enum NotEnoughReceivedAmountReason {

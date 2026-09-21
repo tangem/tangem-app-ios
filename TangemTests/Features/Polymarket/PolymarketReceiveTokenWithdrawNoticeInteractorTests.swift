@@ -13,8 +13,13 @@ import TangemPolymarket
 @testable import Tangem
 
 @Suite("PolymarketReceiveTokenWithdrawNoticeInteractor")
-struct PolymarketReceiveTokenWithdrawNoticeInteractorTests {
+final class PolymarketReceiveTokenWithdrawNoticeInteractorTests {
     private let usdcPolygon = PolymarketUtilities.usdcTokenItem
+    private let suiteName = "polymarket.notice.\(UUID().uuidString)"
+
+    deinit {
+        UserDefaults().removePersistentDomain(forName: suiteName)
+    }
 
     @Test("The notice is offered the first time the deposit address is shown")
     func offersTheNoticeOnce() throws {
@@ -32,8 +37,6 @@ struct PolymarketReceiveTokenWithdrawNoticeInteractorTests {
         #expect(!makeSUT(store: store).shouldShowWithdrawalAlert(for: usdcPolygon))
     }
 
-    /// The bridge takes USDC on Polygon and nothing else today, but the notice is per asset so that a second
-    /// deposit asset would get its own warning rather than inherit a dismissed one.
     @Test("A different asset is warned about on its own")
     func warnsPerAsset() throws {
         let store = try makeStore()
@@ -49,8 +52,8 @@ struct PolymarketReceiveTokenWithdrawNoticeInteractorTests {
 
 private extension PolymarketReceiveTokenWithdrawNoticeInteractorTests {
     func makeStore() throws -> UserDefaults {
-        let store = try #require(UserDefaults(suiteName: "polymarket.notice.\(UUID().uuidString)"))
-        store.removePersistentDomain(forName: store.description)
+        let store = try #require(UserDefaults(suiteName: suiteName))
+        store.removePersistentDomain(forName: suiteName)
 
         return store
     }
