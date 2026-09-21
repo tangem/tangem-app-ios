@@ -74,7 +74,7 @@ private extension PolymarketAddFundsSheetViewModel {
     }
 
     func minimumDepositFormatted(for asset: PolymarketSupportedAsset) -> String {
-        BalanceFormatter().formatFiatBalance(asset.minimumDepositUSD, currencyCode: AppConstants.usdCurrencyCode)
+        BalanceFormatter().formatFiatBalance(asset.minCheckoutUSD, currencyCode: AppConstants.usdCurrencyCode)
     }
 
     func makeReceiveViewModel(depositTarget: PolymarketAccountFundsInteractor.DepositTarget) -> ReceiveMainViewModel {
@@ -86,7 +86,8 @@ private extension PolymarketAddFundsSheetViewModel {
                     address: depositTarget.fundingAddress,
                     colorScheme: .whiteBlack
                 )
-            )
+            ),
+            receiveTokenWithdrawNoticeInteractor: PolymarketReceiveTokenWithdrawNoticeInteractor()
         )
 
         viewModel.start()
