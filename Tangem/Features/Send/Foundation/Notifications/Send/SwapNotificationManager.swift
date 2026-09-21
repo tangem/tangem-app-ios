@@ -247,8 +247,11 @@ private extension CommonSwapNotificationManager {
              .restriction(.notEnoughAmountForTxValue(_, _, let feeCurrencyBalance), _):
             return [makeNotEnoughFeeForTokenTxEvent(tokenItem: source.tokenItem, feeCurrencyBalance: feeCurrencyBalance)]
 
+        case .restriction(.tooMuchReceivedAmount(let maxAmount, let tokenSymbol), _):
+            return [.tooMuchReceivedAmount(amountFormatted: format(maxAmount, tokenSymbol: tokenSymbol))]
+
         case .restriction(.notEnoughReceivedAmount(let minAmount, let tokenSymbol, let reason), _):
-            return [.notEnoughReceivedAmount(amountFormatted: "\(minAmount.formatted()) \(tokenSymbol)", reason: reason)]
+            return [.notEnoughReceivedAmount(amountFormatted: format(minAmount, tokenSymbol: tokenSymbol), reason: reason)]
 
         case .restriction(.regionRestricted, _):
             let noticeAnalyticsParams: [Analytics.ParameterKey: String] = [
@@ -424,6 +427,19 @@ private extension CommonSwapNotificationManager {
              .noTrustlineAtDestination,
              .destinationIsBurnAddress:
             return .validationErrorEvent(event: validationErrorEvent)
+        }
+    }
+}
+
+// MARK: - Threshold formatting
+
+private extension CommonSwapNotificationManager {
+    func format(_ threshold: ReceivedAmountThreshold, tokenSymbol: String) -> String {
+        switch threshold {
+        case .token(let amount):
+            balanceFormatter.formatCryptoBalance(amount, currencyCode: tokenSymbol)
+        case .fiatUSD(let amount):
+            balanceFormatter.formatFiatBalance(amount, currencyCode: AppConstants.usdCurrencyCode)
         }
     }
 }

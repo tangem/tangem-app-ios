@@ -20,8 +20,11 @@ private struct BridgeServiceStub: PolymarketBridgeService {
     var fundingAddressesError: Error?
 
     let receivedBuilderCodes = OSAllocatedUnfairLock(initialState: [String]())
+    let supportedAssetsCallCount = OSAllocatedUnfairLock(initialState: 0)
 
     func supportedAssets() async throws -> [PolymarketSupportedAsset] {
+        supportedAssetsCallCount.withLock { $0 += 1 }
+
         if let assetsError { throw assetsError }
         return assets
     }
@@ -314,6 +317,20 @@ struct PolymarketAddFundsPreparationTests {
 
         #expect(interactor.state == .unavailable)
         #expect(interactor.state.depositWalletAddress == nil)
+    }
+
+    @Test("The bridge is not asked anything until the builder code is in hand, so the listing cannot overtake the configuration")
+    func theBridgeIsSilentUntilTheBuilderCodeArrives() async {
+        let bridge = BridgeServiceStub()
+        let interactor = makeInteractor(
+            bridge: bridge,
+            configuration: ConfigurationServiceSpy(error: StubError.offline)
+        )
+
+        await interactor.prepare()
+
+        #expect(bridge.supportedAssetsCallCount.withLock { $0 } == 0)
+        #expect(bridge.receivedBuilderCodes.withLock { $0 }.isEmpty)
     }
 
     @Test("Preparing the same interactor again recovers the deposit target, so a pull-to-refresh is a real retry")
