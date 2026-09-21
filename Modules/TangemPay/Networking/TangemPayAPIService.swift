@@ -125,6 +125,8 @@ public struct TangemPayAPIError: Error, Decodable {
         public static let cardReissuePlasticNotAvailable = 140135
         public static let cardReissuePlasticInvalidShippingAddress = 140136
         public static let cardReissuePlasticInvalidEmbossName = 140143
+
+        public static let bankOfframpUnsupportedConfiguration = 140141
     }
 }
 

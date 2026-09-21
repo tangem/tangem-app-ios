@@ -25,6 +25,7 @@ struct TransferConfirmationView: View {
         .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
         .topNavigation(
             title: viewModel.title,
+            leading: viewModel.isSending ? .none : .automatic,
             onClose: viewModel.onCloseTap
         )
         .onAppear(perform: viewModel.refresh)

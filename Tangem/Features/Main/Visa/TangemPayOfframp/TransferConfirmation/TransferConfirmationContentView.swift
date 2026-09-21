@@ -32,6 +32,7 @@ struct TransferConfirmationContentView: View {
             .padding(.top, Constants.topPadding)
             .padding(.horizontal, Constants.horizontalPadding)
             .padding(.bottom, Constants.bottomPadding)
+            .disabled(state.isSending)
         }
         .scrollIndicators(.hidden)
         .scrollBounceBehavior(.basedOnSize)
@@ -80,9 +81,9 @@ private extension TransferConfirmationContentView {
     }
 
     var amountBody: some View {
-        HStack(alignment: .center, spacing: Constants.amountToTokenSpacing) {
+        HStack(alignment: .top, spacing: Constants.amountToTokenSpacing) {
             Text(state.amountText)
-                .style(DesignSystem.Font.displayMediumToken, color: DesignSystem.Color.textPrimary)
+                .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
                 .lineLimit(1)
                 .minimumScaleFactor(Constants.amountMinimumScaleFactor)
 
@@ -219,7 +220,8 @@ private extension TransferConfirmationContentView {
         .size(.x12)
         .styleType(.default)
         .horizontalLayout(.infinity)
-        .disabled(!state.isSendEnabled)
+        .loading(.spinner(if: state.isSending))
+        .disabled(!state.isSendEnabled || state.isSending)
     }
 }
 
@@ -263,6 +265,7 @@ extension TransferConfirmationContentView {
         let footerNote: String?
         let sendButtonIcon: ImageType?
         let isSendEnabled: Bool
+        let isSending: Bool
     }
 }
 
@@ -314,7 +317,8 @@ private enum TransferConfirmationPreview {
         sections: [TransferConfirmationSection] = TransferConfirmationSectionsBuilder.sections(
             personalDetails: personalDetails,
             bankDetails: bankDetails
-        )
+        ),
+        isSending: Bool = false
     ) -> TransferConfirmationContentView.State {
         TransferConfirmationContentView.State(
             balanceText: "$2,130.88",
@@ -324,7 +328,8 @@ private enum TransferConfirmationPreview {
             sections: sections,
             footerNote: "You are sending $501 including a ACH fee of $1",
             sendButtonIcon: Assets.tangemIcon,
-            isSendEnabled: true
+            isSendEnabled: true,
+            isSending: isSending
         )
     }
 }

@@ -55,20 +55,43 @@ final class TangemPayRecentRecipientsStore {
     func load() {
         guard loadTask == nil else { return }
 
+        startLoad()
+    }
+
+    func reload() {
+        loadTask?.cancel()
+
+        startLoad()
+    }
+
+    func recordSelection(id: String) {
+        cacheStorage.recordRecipientUsage(id: id, customerWalletId: customerWalletId)
+        recentIdsSubject.send(cacheStorage.recentRecipientIds(customerWalletId: customerWalletId))
+    }
+
+    func recordNewRecipient(id: String) {
+        recordSelection(id: id)
+        reload()
+    }
+
+    private func startLoad() {
         loadTask = Task { @MainActor [weak self, repository] in
             do {
                 let bankAccounts = try await repository.bankAccounts()
                 self?.stateSubject.send(.loaded(bankAccounts))
             } catch {
                 VisaLogger.error("Failed to load Tangem Pay bank accounts", error: error)
-                self?.stateSubject.send(.loaded([]))
+                self?.handleLoadFailure()
             }
         }
     }
 
-    func recordSelection(id: String) {
-        cacheStorage.recordRecipientUsage(id: id, customerWalletId: customerWalletId)
-        recentIdsSubject.send(cacheStorage.recentRecipientIds(customerWalletId: customerWalletId))
+    private func handleLoadFailure() {
+        guard case .loading = stateSubject.value else {
+            return
+        }
+
+        stateSubject.send(.loaded([]))
     }
 }
 
