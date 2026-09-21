@@ -18,6 +18,7 @@ struct SubtitleOwnerResolver {
     let blockchain: Blockchain
     let currentUserWalletId: UserWalletId
     let isAccountsMode: Bool
+    let contacts: [AddressBookContact]
 
     func resolve(for interactionAddress: TransactionViewModel.InteractionAddressType) -> TransactionViewModel.SubtitleOwner? {
         guard let address = counterpartyAddress(from: interactionAddress) else {
@@ -33,11 +34,7 @@ struct SubtitleOwnerResolver {
             networkId: blockchain.networkId,
             isTestnet: blockchain.isTestnet
         ) else {
-            return .unresolved(
-                short: AddressFormatter(address: address).truncated(),
-                fullAddress: address,
-                blockiesImage: Self.blockiesImage(for: address)
-            )
+            return external(address: address, blockchain: blockchain)
         }
 
         let walletName = match.userWalletModel.name
@@ -62,6 +59,24 @@ struct SubtitleOwnerResolver {
         return .accountInOtherWallet(
             accountName: account.name,
             accountIcon: iconViewData
+        )
+    }
+
+    private func external(address: String, blockchain: Blockchain) -> TransactionViewModel.SubtitleOwner {
+        let finder = AddressBookContactFinder(contacts: contacts, walletId: currentUserWalletId)
+
+        if let contact = finder.contact(address: address, networkId: AddressBookNetworkID(blockchain.networkId)) {
+            return .contact(
+                name: contact.name.value,
+                icon: AddressBookContactNameIconViewData(contact: contact),
+                fullAddress: address
+            )
+        }
+
+        return .unresolved(
+            short: AddressFormatter(address: address).truncated(),
+            fullAddress: address,
+            blockiesImage: Self.blockiesImage(for: address)
         )
     }
 

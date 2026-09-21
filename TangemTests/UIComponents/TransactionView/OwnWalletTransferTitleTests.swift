@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftUI
 import Testing
 import TangemLocalization
 @testable import Tangem
@@ -38,6 +39,17 @@ struct OwnWalletTransferTitleTests {
         #expect(title(owner: external, isOutgoing: false, status: .confirmed) == Localization.commonReceived)
         #expect(title(owner: nil, isOutgoing: true, status: .confirmed) == Localization.commonSent)
         #expect(title(owner: nil, isOutgoing: false, status: .confirmed) == Localization.commonReceived)
+    }
+
+    @Test("Transfer to an address book contact stays Send/Received")
+    func addressBookContactTransferStaysDirectional() {
+        let contact = TransactionViewModel.SubtitleOwner.contact(
+            name: "Danielle",
+            icon: AddressBookContactNameIconViewData(letter: "D", color: .blue),
+            fullAddress: "0xABCD"
+        )
+        #expect(title(owner: contact, isOutgoing: true, status: .confirmed) == Localization.commonSent)
+        #expect(title(owner: contact, isOutgoing: false, status: .confirmed) == Localization.commonReceived)
     }
 
     private func title(

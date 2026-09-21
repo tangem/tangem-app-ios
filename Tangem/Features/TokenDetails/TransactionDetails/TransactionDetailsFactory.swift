@@ -629,6 +629,8 @@ enum TransactionDetailsFactory {
             return Localization.commonFromWallet
         case .accountInCurrentWallet, .accountInOtherWallet:
             return Localization.commonFromAccount
+        case .contact:
+            return Localization.addressBookContact
         case .unresolved, .none:
             return Localization.commonFromAddress
         }
@@ -907,6 +909,14 @@ enum TransactionDetailsFactory {
 
         case .wallet(let name, let imageProvider, _):
             return .init(label: label, actor: .wallet(name: name), copyAction: nil, walletImageProvider: imageProvider)
+
+        case .contact(let name, let icon, let fullAddress):
+            return .init(
+                label: label,
+                actor: .contact(name: name, icon),
+                copyAction: .copy(value: fullAddress, toast: Localization.walletNotificationAddressCopied),
+                walletImageProvider: nil
+            )
 
         case .unresolved(let short, let fullAddress, let blockiesImage):
             if let stakingCounterparty = stakingCounterparty(for: transaction, label: label) {
