@@ -26,6 +26,15 @@ public struct TangemPayAPIService<Target: TargetType> {
     }
 
     public func request<T: Decodable>(_ request: Target) async throws(TangemPayAPIServiceError) -> T {
+        let response = try await send(request)
+        return try parseResult(response)
+    }
+
+    public func request(_ request: Target) async throws(TangemPayAPIServiceError) {
+        _ = try await send(request)
+    }
+
+    private func send(_ request: Target) async throws(TangemPayAPIServiceError) -> Response {
         let response: Response
         do {
             response = try await provider.asyncRequest(request)
@@ -39,7 +48,7 @@ public struct TangemPayAPIService<Target: TargetType> {
             throw parseError(response)
         }
 
-        return try parseResult(response)
+        return response
     }
 
     private func parseResult<T: Decodable>(_ response: Response) throws(TangemPayAPIServiceError) -> T {

@@ -19,7 +19,7 @@ public protocol TangemPayOfframpOrderService {
         orderId: String,
         signature: String,
         idempotencyKey: String
-    ) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse
+    ) async throws(TangemPayAPIServiceError)
 
     func cancelOrder(id: String) async throws(TangemPayAPIServiceError) -> TangemPayCancelOrderResponse
 }
@@ -50,7 +50,7 @@ extension CommonTangemPayOfframpOrderService: TangemPayOfframpOrderService {
         orderId: String,
         signature: String,
         idempotencyKey: String
-    ) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {
+    ) async throws(TangemPayAPIServiceError) {
         try await customerService.sendBankOfframpSignature(
             orderId: orderId,
             signature: signature,
