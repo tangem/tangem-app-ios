@@ -89,6 +89,7 @@ private extension YieldModuleDestinationResolver {
 
         return CommonYieldModuleFlowFactory(
             walletModel: walletModel,
+            userWalletInfo: userWalletModel.userWalletInfo,
             yieldModuleManager: manager,
             transactionDispatcher: dispatcher
         )
