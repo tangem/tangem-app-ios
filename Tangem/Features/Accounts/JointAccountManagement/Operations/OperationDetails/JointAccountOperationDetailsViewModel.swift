@@ -42,6 +42,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
 
     @Published private(set) var answer: Answer
 
+    private let canSign: Bool
     private let sign: () async throws -> Void
     private weak var coordinator: JointAccountOperationDetailsRoutable?
     private var signTask: Task<Void, Never>?
@@ -57,9 +58,11 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         requiredSignaturesCount: Int,
         membersCount: Int,
         answer: Answer,
+        canSign: Bool,
         coordinator: JointAccountOperationDetailsRoutable?,
         sign: @escaping () async throws -> Void
     ) {
+        self.canSign = canSign
         self.sign = sign
         self.tokenIconInfo = tokenIconInfo
         self.cryptoAmount = cryptoAmount
@@ -205,28 +208,35 @@ private extension JointAccountOperationDetailsViewModel {
         )
     }
 
-    /// Offered only while this member still has an answer to give; the Tangem mark on it says the signature comes
-    /// from the wallet rather than from a tap.
-    var signBlock: TransactionDetailsBlock? {
-        guard isSignAvailable else {
-            return nil
-        }
-
-        return .action(
+    var signBlock: TransactionDetailsBlock {
+        .action(
             TransactionDetailsActionButtonViewData(
-                title: Localization.commonSign,
-                icon: DesignSystem.Icons.LogoTangem.regular20,
+                title: signTitle,
+                icon: isSignEnabled ? DesignSystem.Icons.LogoTangem.regular20 : nil,
                 style: .default,
                 action: .signOperation,
-                isBusy: isSigning
+                isBusy: isSigning,
+                isEnabled: isSignEnabled
             )
         )
     }
 
-    var isSignAvailable: Bool {
+    var signTitle: String {
         switch answer {
-        case .awaiting: true
-        case .signed, .declined: false
+        case .awaiting: Localization.commonSign
+        case .signed: Localization.jointOperationSigned
+        case .declined: Localization.jointOperationDeclined
+        }
+    }
+
+    var isSignEnabled: Bool {
+        guard canSign else {
+            return false
+        }
+
+        switch answer {
+        case .awaiting: return true
+        case .signed, .declined: return false
         }
     }
 
@@ -234,8 +244,10 @@ private extension JointAccountOperationDetailsViewModel {
     /// them, which is the whole point of a threshold below the member count.
     var footerBlock: TransactionDetailsBlock {
         switch answer {
-        case .awaiting, .signed:
+        case .awaiting:
             .caption(Localization.jointOperationAutoSendsFooter(requiredSignaturesCount, membersCount))
+        case .signed:
+            .caption(Localization.jointOperationSignedFooter(requiredSignaturesCount, membersCount))
         case .declined:
             .caption(Localization.jointOperationDeclinedFooter(requiredSignaturesCount, membersCount))
         }
