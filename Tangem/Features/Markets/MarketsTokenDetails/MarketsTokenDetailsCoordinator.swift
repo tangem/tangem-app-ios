@@ -222,6 +222,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
 
         return CommonYieldModuleFlowFactory(
             walletModel: input.walletModel,
+            userWalletInfo: input.userWalletInfo,
             yieldModuleManager: manager,
             transactionDispatcher: dispatcher
         )
