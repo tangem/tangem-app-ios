@@ -78,6 +78,8 @@ extension CommonNFTNetworkSelectionListDataSource: NFTNetworkSelectionListDataSo
             .filter { !availableNFTChains.contains($0) }
             .map { ($0, makeTokenItem(for: $0)) }
             .filter { nftAvailabilityUtil.isNFTAvailable(for: $0.1) }
+            // `allCases` is a `Set`; without an explicit order the list is shuffled on every launch.
+            .sorted { $0.1.blockchain.displayName < $1.1.blockchain.displayName }
             .map { NFTChainItem(nftChain: $0.0, isCustom: false, underlyingIdentifier: nil) }
 
         return availableNFTChainItems + unavailableNFTChainItems
