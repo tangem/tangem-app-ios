@@ -48,16 +48,16 @@ class CommonTotalBalanceProvider {
 
 private extension CommonTotalBalanceProvider {
     func bind() {
-        let crypto = AccountCryptoModelsAggregator
-            .cryptoAccountModelsPublisher(from: accountModelsManager)
+        let crypto = AccountModelsAggregator(.crypto, .joint)
+            .modelsPublisher(from: accountModelsManager)
             .flatMapLatest { cryptoAccountModels in
                 cryptoAccountModels
                     .map(\.fiatTotalBalanceProvider.totalBalancePublisher)
                     .combineLatest()
             }
 
-        let tangemPay = TangemPayAccountAggregator
-            .tangemPayAccountModelPublisher(from: accountModelsManager)
+        let tangemPay = AccountModelsAggregator(.tangemPay)
+            .modelPublisher(from: accountModelsManager)
             .withWeakCaptureOf(self)
             .flatMapLatest { provider, accountModel -> AnyPublisher<TotalBalanceState, Never> in
                 guard let accountModel else {
@@ -91,8 +91,8 @@ private extension CommonTotalBalanceProvider {
                     .eraseToAnyPublisher()
             }
 
-        let polymarket = PolymarketAccountAggregator
-            .polymarketAccountModelPublisher(from: accountModelsManager)
+        let polymarket = AccountModelsAggregator(.polymarket)
+            .modelPublisher(from: accountModelsManager)
             .compactMap { $0 }
             .withWeakCaptureOf(self)
             .flatMapLatest { provider, accountModel -> AnyPublisher<TotalBalanceState, Never> in

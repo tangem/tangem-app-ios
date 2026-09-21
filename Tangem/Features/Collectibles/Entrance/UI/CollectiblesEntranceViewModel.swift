@@ -111,8 +111,8 @@ private extension CollectiblesEntranceViewModel {
         isResolvingDestination = true
         defer { isResolvingDestination = false }
 
-        let accountModel = CollectiblesAccountAggregator
-            .collectiblesAccountModel(from: userWalletModel.accountModelsManager)
+        let accountModel = AccountModelsAggregator(.collectibles)
+            .model(from: userWalletModel.accountModelsManager)
 
         if accountModel?.state == .unresolved {
             await accountModel?.refreshState()

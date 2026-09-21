@@ -101,7 +101,7 @@ private extension PolymarketCoordinator {
 
     @MainActor
     func openEntry(for userWalletModel: any UserWalletModel) {
-        let state = PolymarketAccountAggregator.polymarketAccountModel(from: userWalletModel.accountModelsManager)?.state
+        let state = AccountModelsAggregator(.polymarket).model(from: userWalletModel.accountModelsManager)?.state
 
         guard state == .active else {
             viewState = .welcome(PolymarketOnboardingFactory().makeWelcomeViewModel(for: userWalletModel, coordinator: self))

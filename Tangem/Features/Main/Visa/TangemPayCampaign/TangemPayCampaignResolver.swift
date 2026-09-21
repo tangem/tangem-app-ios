@@ -62,8 +62,8 @@ private extension TangemPayCampaignResolver {
         let accountModels = userWalletRepository.models
             .filter(\.supportsTangemPay)
             .compactMap { userWalletModel in
-                TangemPayAccountAggregator
-                    .tangemPayAccountModel(from: userWalletModel.accountModelsManager)
+                AccountModelsAggregator(.tangemPay)
+                    .model(from: userWalletModel.accountModelsManager)
                     .map { (userWalletModel, $0) }
             }
 

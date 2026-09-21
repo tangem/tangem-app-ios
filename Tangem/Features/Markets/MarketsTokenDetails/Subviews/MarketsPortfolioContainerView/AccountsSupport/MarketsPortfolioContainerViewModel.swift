@@ -253,7 +253,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
                 .accountModelsManager
                 .accountModelsPublisher
                 .flatMap { accountModels -> AnyPublisher<WalletData, Never> in
-                    let cryptoAccounts = AccountCryptoModelsAggregator.cryptoAccountModels(from: accountModels)
+                    let cryptoAccounts = AccountModelsAggregator(.crypto, .joint).models(from: accountModels)
 
                     let walletModelsPublishers = cryptoAccounts.map(\.walletModelsManager.walletModelsPublisher)
                     let userTokensPublishers = cryptoAccounts.map(\.userTokensManager.userTokensPublisher)
@@ -338,7 +338,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
             var accountsWithTokenItems: [TypeView.AccountWithTokenItemsData] = []
             let userWalletInfo = makeUserWalletInfo(from: walletData)
 
-            for account in AccountCryptoModelsAggregator.cryptoAccountModels(from: walletData.accountModels) {
+            for account in AccountModelsAggregator(.crypto, .joint).models(from: walletData.accountModels) {
                 let viewModels = factory.makeViewModels(
                     coinId: coinId,
                     walletModels: account.walletModelsManager.walletModels,
@@ -438,7 +438,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
                 entries: walletData.flattenedTokenItems
             )
 
-            if underived.isNotEmpty, let account = AccountCryptoModelsAggregator.cryptoAccountModels(from: walletData.accountModels).first {
+            if underived.isNotEmpty, let account = AccountModelsAggregator(.crypto, .joint).models(from: walletData.accountModels).first {
                 collectedUnderivedTokens.append(contentsOf: underived.map { tokenItem in
                     MarketsPortfolioTokenListViewModel.UnderivedToken(
                         userWalletId: walletData.userWalletId,

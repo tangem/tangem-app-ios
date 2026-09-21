@@ -91,6 +91,9 @@ extension AccountModelsAggregator where Selectors == [any AccountModelsSelector<
         userWalletModels.reduce(into: Models()) { $0.append(contentsOf: models(from: $1.accountModelsManager)) }
     }
 
+    /// - Note: What a kind does with a publisher of its own — weeding out a repeated answer, say — is what asking for
+    /// that kind alone gives. Kinds asked for together are read off one answer instead, and a kind that kept quiet
+    /// would be woken by its neighbours regardless.
     func modelsPublisher(from accountModelsManager: AccountModelsManager) -> AnyPublisher<Models, Never> {
         // One pass over one answer rather than a branch per kind: branches of the same source come round one at a
         // time, and until they all had, the answer would carry one kind's new accounts beside another's old ones
