@@ -8,4 +8,5 @@
 protocol TangemPayOrderCardFlowRoutable: AnyObject {
     func orderCardFlowDidSelectVirtual()
     func orderCardFlowDidComplete()
+    func orderCardFlowDidFailUnexpectedly(retry: @escaping () -> Void)
 }

@@ -125,7 +125,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayCashback: return .version("6.3.1")
         case .swapChooseTokenWholeAreaTap: return .version("6.3")
         case .welcomeScreenV2: return .unspecified
-        case .tangemPayPlastic: return .unspecified
+        case .tangemPayPlastic: return .version("6.3.2")
         case .gachaMachine: return .unspecified
         case .openTelemetryMetrics: return .unspecified
         case .expressGeoRestrictions: return .unspecified
