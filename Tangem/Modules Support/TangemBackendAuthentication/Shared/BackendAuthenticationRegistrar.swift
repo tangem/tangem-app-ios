@@ -33,7 +33,8 @@ enum BackendAuthenticationRegistrar {
                         adapter: BackendAuthenticationAssembly.requestAdapter,
                         retrier: BackendAuthenticationAssembly.requestRetrier
                     )
-                )
+                ),
+                logger: BackendAuthLogger
             )
         )
     }
@@ -63,13 +64,25 @@ enum BackendAuthenticationRegistrar {
 
         let mobileWalletSDK = CommonMobileWalletSdk()
 
-        guard let context = try? mobileWalletSDK.validate(auth: .none, for: userWalletModel.userWalletId) else {
-            assertionFailure("Expected a newly created mobile wallet to always be unprotected. Developer mistake.")
+        let context: MobileWalletContext
+
+        do {
+            context = try mobileWalletSDK.validate(auth: .none, for: userWalletModel.userWalletId)
+        } catch {
+            let errorMessage = "Expected a newly created mobile wallet to always be unprotected. Developer mistake."
+            BackendAuthLogger.error(errorMessage, error: error)
+            assertionFailure(errorMessage)
             return
         }
 
-        guard let secp256k1PublicKey = try? userWalletModel.keysRepository.masterKeyPublicKey(curve: .secp256k1) else {
-            assertionFailure("Expected a newly created mobile wallet to always have a secp256k1 key. Developer mistake.")
+        let secp256k1PublicKey: Data
+
+        do {
+            secp256k1PublicKey = try userWalletModel.keysRepository.masterKeyPublicKey(curve: .secp256k1)
+        } catch {
+            let errorMessage = "Expected a newly created mobile wallet to always have a secp256k1 key. Developer mistake."
+            BackendAuthLogger.error(errorMessage, error: error)
+            assertionFailure(errorMessage)
             return
         }
 

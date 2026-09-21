@@ -7,6 +7,7 @@
 //
 
 import struct Foundation.Data
+import struct TangemLogger.Logger
 
 typealias RegisterDevice = @Sendable () async throws(RegisterDeviceError) -> SessionTokens?
 
@@ -20,6 +21,7 @@ public actor RegisterDeviceUseCase {
     private let nonceDecryptor: any NonceDecryptor
 
     private let deviceMetadataProvider: @Sendable () -> DeviceMetadata
+    private let logger: Logger
 
     private var inFlightRegistrationTask: Task<Result<SessionTokens?, RegisterDeviceError>, Never>?
 
@@ -30,7 +32,8 @@ public actor RegisterDeviceUseCase {
         sessionTokensRepository: some SessionTokensRepository,
         deviceKeyManager: DeviceKeyManager,
         nonceDecryptor: some NonceDecryptor,
-        deviceMetadataProvider: @escaping @Sendable @autoclosure () -> DeviceMetadata
+        deviceMetadataProvider: @escaping @Sendable @autoclosure () -> DeviceMetadata,
+        logger: Logger
     ) {
         self.appAttestService = appAttestService
         self.registrationClient = registrationClient
@@ -41,6 +44,7 @@ public actor RegisterDeviceUseCase {
         self.nonceDecryptor = nonceDecryptor
 
         self.deviceMetadataProvider = deviceMetadataProvider
+        self.logger = logger
     }
 
     /// Registers this device with the backend, if it hasn't been already.
@@ -118,7 +122,7 @@ public actor RegisterDeviceUseCase {
         do {
             return try await appAttestService.generateAttestationToken(for: decryptedNonceBytes)
         } catch {
-            // [REDACTED_TODO_COMMENT]
+            logger.error("Failed to generate app attestation token", error: error)
             return nil
         }
     }

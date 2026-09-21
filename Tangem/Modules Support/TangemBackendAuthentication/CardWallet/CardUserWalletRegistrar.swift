@@ -84,8 +84,10 @@ actor CardUserWalletRegistrar {
             try await Task.run(withTimeout: timeout) { await task.value }
         } catch is TaskTimeoutError {
             BackendAuthLogger.warning("Gave up waiting for the user wallet registration nonce after \(timeout)")
-        } catch {
+        } catch is CancellationError {
             // Cancellation of this task should not affect the `getCachedOrMakeNewNonceTask` task, we want it to finish regardless
+        } catch {
+            BackendAuthLogger.error("Failed waiting for the user wallet registration nonce", error: error)
         }
     }
 
