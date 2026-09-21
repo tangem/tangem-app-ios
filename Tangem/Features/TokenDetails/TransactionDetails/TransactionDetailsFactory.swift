@@ -98,7 +98,8 @@ enum TransactionDetailsFactory {
                     record: record,
                     context: context,
                     counterpartyLabel: nil,
-                    amountText: transaction.amount.amountWithCurrencyCode
+                    amountText: transaction.amount.amountWithCurrencyCode,
+                    ignoringDirection: true
                 ))
             }
 
@@ -108,7 +109,13 @@ enum TransactionDetailsFactory {
             return .generic(approveContent(for: transaction, record: record, context: context))
 
         case .approve:
-            return .generic(genericOperationContent(for: transaction, record: record, context: context, counterpartyLabel: Localization.commonAddress))
+            return .generic(genericOperationContent(
+                for: transaction,
+                record: record,
+                context: context,
+                counterpartyLabel: Localization.commonAddress,
+                ignoringDirection: false
+            ))
 
         case .stake, .unstake, .vote, .withdraw, .claimRewards, .restake:
             return .generic(stakingOperationContent(for: transaction, record: record, context: context))
@@ -117,7 +124,13 @@ enum TransactionDetailsFactory {
             return .generic(gaslessFeeContent(for: transaction, record: record, cryptoAmount: cryptoAmount, context: context))
 
         case .operation, .unknownOperation:
-            return .generic(genericOperationContent(for: transaction, record: record, context: context, counterpartyLabel: resolvedStakingTargetLabel(for: transaction)))
+            return .generic(genericOperationContent(
+                for: transaction,
+                record: record,
+                context: context,
+                counterpartyLabel: resolvedStakingTargetLabel(for: transaction),
+                ignoringDirection: false
+            ))
 
         case .transfer, .gaslessTransfer, .swap, .onramp, .tangemPay:
             return .generic(sendReceiveContent(for: transaction, record: record, context: context))
@@ -181,7 +194,8 @@ enum TransactionDetailsFactory {
         record: TransactionRecord,
         context: TransactionDetailsContext,
         counterpartyLabel: String?,
-        amountText: String? = nil
+        amountText: String? = nil,
+        ignoringDirection: Bool
     ) -> TransactionDetailsGenericOperationViewData {
         .init(
             tokens: tokensBlock(
@@ -197,7 +211,7 @@ enum TransactionDetailsFactory {
             // and the "for sending X" block
             principalAmount: nil,
             counterparty: counterpartyLabel.flatMap { counterparty(for: transaction, label: $0) },
-            info: networkFeeInfo(from: record),
+            info: networkFeeInfo(from: record, ignoringDirection: ignoringDirection),
             action: nil
         )
     }
@@ -241,7 +255,7 @@ enum TransactionDetailsFactory {
             statusBanner: isFailed ? nil : highRiskBanner(for: record),
             principalAmount: nil,
             counterparty: nil,
-            info: networkFeeInfo(from: record),
+            info: networkFeeInfo(from: record, ignoringDirection: false),
             action: nil
         )
     }
@@ -271,7 +285,7 @@ enum TransactionDetailsFactory {
             rows.append(.init(id: "validator", title: Localization.stakingValidator, content: .text(validatorText(for: target))))
         }
 
-        if let fee = networkFee(from: record) {
+        if let fee = networkFee(from: record, ignoringDirection: false) {
             rows.append(.init(id: "networkFee", title: Localization.commonNetworkFeeTitle, content: .text(fee)))
         }
 
@@ -349,7 +363,7 @@ enum TransactionDetailsFactory {
                 caption: stage.caption
             ),
             statusBanner: nil,
-            info: networkFeeInfo(from: record),
+            info: networkFeeInfo(from: record, ignoringDirection: true),
             action: nil
         )
     }
@@ -391,7 +405,7 @@ enum TransactionDetailsFactory {
             statusBanner: refund?.banner ?? swapStatusBanner(exchange.status, isLongRunning: isLongRunning),
             provider: provider(info.provider, fallbackId: exchange.providerId, externalURL: exchange.externalTx?.url),
             rate: swapRate(fromAmount: sourceAmount, fromToken: fromToken, toAmount: destinationAmount, toToken: toToken),
-            networkFee: networkFee(from: record),
+            networkFee: networkFee(from: record, ignoringDirection: false),
             action: refund?.action ?? action(for: exchange.status, isLongRunning: isLongRunning, externalURL: exchange.externalTx?.url),
             ratingTransaction: ratingTransaction(for: exchange, providerName: info.provider?.name)
         )
@@ -599,7 +613,7 @@ enum TransactionDetailsFactory {
             statusBanner: nil,
             principalAmount: nil,
             counterparty: counterparty(for: transaction, label: counterpartyLabel(for: transaction)),
-            info: networkFeeInfo(from: record),
+            info: networkFeeInfo(from: record, ignoringDirection: false),
             action: nil
         )
     }
@@ -744,10 +758,11 @@ enum TransactionDetailsFactory {
         return balanceFormatter.formatFiatBalance(fiat)
     }
 
-    /// The fee is shown only for outgoing operations.
-    private static func networkFee(from record: TransactionRecord) -> String? {
+    /// The fee is shown only for outgoing operations, unless the caller knows the wallet paid it even though
+    /// the record reads as incoming. Synthetic Express records never show one either way.
+    private static func networkFee(from record: TransactionRecord, ignoringDirection: Bool) -> String? {
         guard
-            record.isOutgoing,
+            record.isOutgoing || ignoringDirection,
             // Hide network fee for synthetic Express records
             !ExpressSyntheticTxHelper.isSyntheticIdentifier(record.hash)
         else {
@@ -758,8 +773,11 @@ enum TransactionDetailsFactory {
         return "\(balanceFormatter.formatDecimal(amount.value)) \(amount.currencySymbol)"
     }
 
-    private static func networkFeeInfo(from record: TransactionRecord) -> TransactionDetailsInfoSectionViewData? {
-        guard let fee = networkFee(from: record) else {
+    private static func networkFeeInfo(
+        from record: TransactionRecord,
+        ignoringDirection: Bool
+    ) -> TransactionDetailsInfoSectionViewData? {
+        guard let fee = networkFee(from: record, ignoringDirection: ignoringDirection) else {
             return nil
         }
 

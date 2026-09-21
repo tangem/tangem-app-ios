@@ -207,6 +207,16 @@ private extension AnyTransition {
         .background(DesignSystem.Color.bgPrimary)
 }
 
+#Preview("Yield disabled") {
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.yieldDisabled())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Yield disabled transfer leg") {
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.yieldDisabledTransferLeg())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
 #Preview("Other") {
     TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.other())
         .background(DesignSystem.Color.bgPrimary)
