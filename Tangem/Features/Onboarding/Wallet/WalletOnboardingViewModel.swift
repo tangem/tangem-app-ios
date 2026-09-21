@@ -618,7 +618,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     private func createWallet() {
         logAnalytics(.buttonCreateWallet)
 
-        isMainButtonBusy = true
+        // These steps have no main button (`mainButtonSettings == nil`); the visible button is the supplement one,
+        // so its busy flag is what drives the spinner and blocks a second tap during the NFC session.
+        isSupplementButtonBusy = true
 
         createWalletOnPrimaryCard(using: nil, mnemonicPassphrase: nil, walletCreationType: .privateKey)
     }
@@ -651,7 +653,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     }
 
     private func readPrimaryCard() {
-        isMainButtonBusy = true
+        isSupplementButtonBusy = true
 
         stepPublisher = readPrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
@@ -662,7 +664,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                     if case .failure(let error) = completion {
                         AppLogger.error("Failed to read origin card", error: error)
                         Analytics.error(error: error, params: [.action: .readPrimary])
-                        self?.isMainButtonBusy = false
+                        self?.isSupplementButtonBusy = false
                     }
                     self?.stepPublisher = nil
                 },
@@ -747,7 +749,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     }
 
     private func processPrimaryCardScan() {
-        isMainButtonBusy = false
+        isSupplementButtonBusy = false
         goToNextStep()
     }
 
@@ -842,7 +844,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             return
         }
 
-        isMainButtonBusy = true
+        isSupplementButtonBusy = true
 
         let ringUtil = RingUtil()
 
@@ -922,13 +924,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                         Analytics.logScanError(error, source: .backup, contextParams: getContextParams())
                     }
 
-                    isMainButtonBusy = false
+                    isSupplementButtonBusy = false
                 }
                 stepPublisher = nil
             } receiveValue: { [weak self] (_: Void, _: Notification) in
                 self?.updateStep()
                 withAnimation {
-                    self?.isMainButtonBusy = false
+                    self?.isSupplementButtonBusy = false
                 }
             }
     }
@@ -964,7 +966,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     private func resetCard(with cardId: String) {
         logAnalytics(.backupResetCardNotification, params: [.option: .reset])
-        isMainButtonBusy = true
+        isSupplementButtonBusy = true
 
         let interactor = FactorySettingsResettingCardInteractor(with: cardId)
         interactor.resetCard { [weak self] result in
@@ -979,7 +981,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                 break
             }
 
-            self?.isMainButtonBusy = false
+            self?.isSupplementButtonBusy = false
             withExtendedLifetime(interactor) {}
         }
     }
