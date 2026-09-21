@@ -43,7 +43,9 @@ class SendDestinationAdditionalFieldViewModel: ObservableObject, Identifiable {
 
     func didTapPasteButton(string: String) {
         FeedbackGenerator.success()
-        text = string
+        // Same as the address field: clipboard content often carries a trailing newline/space,
+        // which otherwise turns a valid tag into "invalid destination tag".
+        text = string.trimmed()
     }
 
     func didTapClearButton() {
