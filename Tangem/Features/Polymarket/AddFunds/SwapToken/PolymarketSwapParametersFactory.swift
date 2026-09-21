@@ -35,7 +35,7 @@ struct PolymarketSwapParametersFactory {
             sourceResolver: sourceResolver,
             configuration: SwapFlowConfiguration(
                 isPairReversalEnabled: false,
-                sourceTokenSelection: .unrestricted,
+                sourceTokenSelection: .filtered(isIncluded: { !$0.isPayAccount }),
                 receiveTokenSelection: .followsSource(
                     PolymarketDepositDestinationResolver(destination: receiveToken)
                 ),

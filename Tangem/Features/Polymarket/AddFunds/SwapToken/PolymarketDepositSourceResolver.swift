@@ -45,7 +45,9 @@ extension PolymarketDepositSourceResolver {
         depositCurrency: ExpressWalletCurrency,
         availabilityChecker: FundingSourceAvailabilityChecker
     ) -> (any WalletModel)? {
-        let matching = walletModels.filter {
+        let selectable = walletModels.filter { !$0.isJointAccountParticipant }
+
+        let matching = selectable.filter {
             $0.tokenItem.expressCurrency == depositCurrency
                 && availabilityChecker.isTransferAvailable(walletModel: $0)
         }
@@ -54,7 +56,7 @@ extension PolymarketDepositSourceResolver {
             return matchingSource
         }
 
-        let candidates = walletModels.filter { availabilityChecker.isSwapAvailable(walletModel: $0) }
+        let candidates = selectable.filter { availabilityChecker.isSwapAvailable(walletModel: $0) }
         return candidates.mostFiatFundedOrFirst
     }
 }

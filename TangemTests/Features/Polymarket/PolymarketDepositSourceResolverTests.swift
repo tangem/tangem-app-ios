@@ -106,4 +106,72 @@ struct PolymarketDepositSourceResolverTests {
 
         #expect(chosen == nil)
     }
+
+    @Test("A joint account never becomes the transfer source, however much of the deposit currency it holds")
+    func jointAccountNeverBecomesTransferSource() {
+        let joint = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 999, accountType: .joint)
+        let standard = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 1)
+
+        let chosen = PolymarketDepositSourceResolver.chooseSource(
+            from: [joint, standard],
+            depositCurrency: usdcPolygon.expressCurrency,
+            availabilityChecker: FundingSourceAvailabilityCheckerStub(
+                transferAvailable: [joint.id, standard.id],
+                swapAvailable: [joint.id, standard.id]
+            )
+        )
+
+        #expect(chosen === standard)
+    }
+
+    @Test("A joint account never becomes the swap fallback either")
+    func jointAccountNeverBecomesSwapFallback() {
+        let joint = makeWalletModel(tokenItem: ethereum, fiatBalance: 999, accountType: .joint)
+        let standard = makeWalletModel(tokenItem: ethereum, fiatBalance: 1)
+
+        let chosen = PolymarketDepositSourceResolver.chooseSource(
+            from: [joint, standard],
+            depositCurrency: usdcPolygon.expressCurrency,
+            availabilityChecker: FundingSourceAvailabilityCheckerStub(swapAvailable: [joint.id, standard.id])
+        )
+
+        #expect(chosen === standard)
+    }
+
+    @Test("With every funded token sitting in a joint account the source stays unresolved")
+    func jointOnlyWalletResolvesToNil() {
+        let joint = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 999, accountType: .joint)
+
+        let chosen = PolymarketDepositSourceResolver.chooseSource(
+            from: [joint],
+            depositCurrency: usdcPolygon.expressCurrency,
+            availabilityChecker: FundingSourceAvailabilityCheckerStub(
+                transferAvailable: [joint.id],
+                swapAvailable: [joint.id]
+            )
+        )
+
+        #expect(chosen == nil)
+    }
+}
+
+// MARK: - Fixtures
+
+private extension PolymarketDepositSourceResolverTests {
+    func makeWalletModel(
+        tokenItem: TokenItem,
+        fiatBalance: Decimal,
+        accountType: AccountType = .crypto
+    ) -> WalletModelTestsMock {
+        WalletModelTestsMock(
+            tokenItem: tokenItem,
+            isEmpty: false,
+            fiatBalance: fiatBalance,
+            account: CryptoAccountModelMock(
+                isMainAccount: false,
+                accountType: accountType,
+                onArchive: { _ in }
+            )
+        )
+    }
 }

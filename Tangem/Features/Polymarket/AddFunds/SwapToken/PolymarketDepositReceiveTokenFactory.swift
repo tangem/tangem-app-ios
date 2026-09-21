@@ -58,7 +58,7 @@ struct PolymarketDepositReceiveTokenFactory {
             sendingRestrictionsProvider: PolymarketAccountSendingRestrictionsProvider(),
             receivingRestrictionsProvider: PolymarketDepositReceivingRestrictionsProvider(
                 userWalletInfo: userWalletInfo,
-                minimumDepositUSD: depositTarget.asset.minimumDepositUSD,
+                minCheckoutUSD: depositTarget.asset.minCheckoutUSD,
                 tokenItem: tokenItem
             ),
             tokenFeeProvidersManagerProvider: feeProvidersManagerProvider,
