@@ -14,6 +14,7 @@ final class YieldModulePromoV2ViewModel {
     // MARK: - Dependencies
 
     private let walletModel: any WalletModel
+    private let availabilityProvider: TokenActionAvailabilityProvider
     private let startFlowFactory: YieldStartFlowFactory
     private weak var coordinator: YieldModulePromoCoordinator?
     private let logger: YieldAnalyticsLogger
@@ -43,6 +44,7 @@ final class YieldModulePromoV2ViewModel {
 
     init(
         walletModel: any WalletModel,
+        userWalletInfo: UserWalletInfo,
         apy: Decimal,
         marketIncentive: YieldModuleMarketIncentive?,
         coordinator: YieldModulePromoCoordinator?,
@@ -50,6 +52,7 @@ final class YieldModulePromoV2ViewModel {
         logger: YieldAnalyticsLogger
     ) {
         self.walletModel = walletModel
+        availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
         self.apy = apy
         self.marketIncentive = marketIncentive
         self.coordinator = coordinator
@@ -86,6 +89,17 @@ final class YieldModulePromoV2ViewModel {
 
     var title: String {
         Localization.yieldModulePromoScreenTitleV2(apyString)
+    }
+
+    var continueButtonTitle: String {
+        switch availabilityProvider.yieldModuleAvailability {
+        case .available: Localization.commonContinue
+        case .jointAccountsComingSoon: Localization.commonComingSoon
+        }
+    }
+
+    var isContinueButtonDisabled: Bool {
+        !availabilityProvider.isYieldModuleAvailable
     }
 
     func makeTosAndPrivacyString() -> AttributedString {

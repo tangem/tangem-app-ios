@@ -8,13 +8,14 @@
 
 import TangemUIUtils
 
-/// The `receiveStatus` / `buyStatus` alerts stop the action, while the `warning` alert lets the user
+/// The `receiveStatus` / `buyStatus` / `swapStatus` alerts stop the action, while the `warning` alert lets the user
 /// proceed with it right from the alert or leave for support, which runs `cancelAction`.
 enum TokenActionAvailabilityAlertPresenter {
     static func presentOrProceed(
         handler: inout AlertBinder?,
         receiveStatus: TokenActionAvailabilityProvider.ReceiveActionAvailabilityStatus? = nil,
         buyStatus: TokenActionAvailabilityProvider.BuyActionAvailabilityStatus? = nil,
+        swapStatus: TokenActionAvailabilityProvider.SwapActionAvailabilityStatus? = nil,
         warning: TokenActionAvailabilityProvider.TokenActionAvailabilityWarningType? = nil,
         action: @escaping () -> Void,
         cancelAction: (() -> Void)? = nil
@@ -22,6 +23,7 @@ enum TokenActionAvailabilityAlertPresenter {
         if let alert = alert(
             receiveStatus: receiveStatus,
             buyStatus: buyStatus,
+            swapStatus: swapStatus,
             warning: warning,
             action: action,
             cancelAction: cancelAction
@@ -37,6 +39,7 @@ enum TokenActionAvailabilityAlertPresenter {
         presenter: AlertPresenter,
         receiveStatus: TokenActionAvailabilityProvider.ReceiveActionAvailabilityStatus? = nil,
         buyStatus: TokenActionAvailabilityProvider.BuyActionAvailabilityStatus? = nil,
+        swapStatus: TokenActionAvailabilityProvider.SwapActionAvailabilityStatus? = nil,
         warning: TokenActionAvailabilityProvider.TokenActionAvailabilityWarningType? = nil,
         action: @escaping () -> Void,
         cancelAction: (() -> Void)? = nil
@@ -44,6 +47,7 @@ enum TokenActionAvailabilityAlertPresenter {
         if let alert = alert(
             receiveStatus: receiveStatus,
             buyStatus: buyStatus,
+            swapStatus: swapStatus,
             warning: warning,
             action: action,
             cancelAction: cancelAction
@@ -58,6 +62,7 @@ enum TokenActionAvailabilityAlertPresenter {
     private static func alert(
         receiveStatus: TokenActionAvailabilityProvider.ReceiveActionAvailabilityStatus?,
         buyStatus: TokenActionAvailabilityProvider.BuyActionAvailabilityStatus?,
+        swapStatus: TokenActionAvailabilityProvider.SwapActionAvailabilityStatus?,
         warning: TokenActionAvailabilityProvider.TokenActionAvailabilityWarningType?,
         action: @escaping () -> Void,
         cancelAction: (() -> Void)?
@@ -66,10 +71,11 @@ enum TokenActionAvailabilityAlertPresenter {
 
         let receiveAlert = receiveStatus.flatMap { alertBuilder.alert(for: $0) }
         let buyAlert = buyStatus.flatMap { alertBuilder.alert(for: $0) }
+        let swapAlert = swapStatus.flatMap { alertBuilder.alert(for: $0) }
         let warningAlert = warning.flatMap {
             alertBuilder.alert(for: $0, continueAction: action, cancelAction: cancelAction)
         }
 
-        return receiveAlert ?? buyAlert ?? warningAlert
+        return receiveAlert ?? buyAlert ?? swapAlert ?? warningAlert
     }
 }
