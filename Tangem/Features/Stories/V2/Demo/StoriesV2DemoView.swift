@@ -15,10 +15,6 @@ struct StoriesV2DemoView: View {
 
     var body: some View {
         List {
-            Section {
-                row("Sample story (local)", request: .sample)
-            }
-
             if let statusMessage = viewModel.statusMessage {
                 Section {
                     Text(statusMessage)

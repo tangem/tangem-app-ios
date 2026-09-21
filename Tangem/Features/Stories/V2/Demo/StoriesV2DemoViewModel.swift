@@ -10,8 +10,7 @@ import Combine
 import Foundation
 import TangemStories
 
-/// Dev-only preview of the Stories V2 player from the Environment screen; the local sample keeps
-/// it usable while the backend endpoint is not live.
+/// Dev-only preview of the Stories V2 player from the Environment screen.
 @MainActor
 final class StoriesV2DemoViewModel: ObservableObject, Identifiable {
     let id = UUID()
@@ -26,8 +25,6 @@ final class StoriesV2DemoViewModel: ObservableObject, Identifiable {
     /// By identity rather than a Bool: a boolean binding keeps reading "already presented" when
     /// a state change lands in the same update as the assignment, wedging the screen.
     @Published private(set) var presentedStory: PresentedStory?
-
-    private let storyFactory = StoriesV2DemoStoryFactory()
 
     /// Single-flight: the list stays tappable for the seconds a story takes to arrive, and a
     /// late one must not replace an already-presented player.
@@ -47,22 +44,13 @@ final class StoriesV2DemoViewModel: ObservableObject, Identifiable {
             }
 
             do {
-                let stories = try await stories(for: request)
+                let stories = try await remoteStore.stories(slugs: request.slugs)
                 try Task.checkCancellation()
                 await play(stories, requested: request.slugs)
             } catch is CancellationError {
             } catch {
                 statusMessage = "Open failed: \(error)"
             }
-        }
-    }
-
-    private func stories(for request: Request) async throws -> [StoryV2] {
-        switch request {
-        case .sample:
-            return [storyFactory.makeSampleStory()]
-        case .remote, .remoteBatch:
-            return try await remoteStore.stories(slugs: request.slugs)
         }
     }
 
@@ -96,7 +84,11 @@ final class StoriesV2DemoViewModel: ObservableObject, Identifiable {
 
     private func present(story: StoryV2) {
         // No provider is attached on this dev screen, so the source never reaches analytics.
-        let player = StoryPlayerViewModel(story: story, source: .main) { [weak self] _, _ in
+        let player = StoryPlayerViewModel(
+            story: story,
+            source: .main,
+            hapticPlayer: CommonStoryHapticPlayer()
+        ) { [weak self] _, _ in
             self?.closePlayer()
         }
         presentedStory = PresentedStory(player: player)
@@ -107,13 +99,11 @@ final class StoriesV2DemoViewModel: ObservableObject, Identifiable {
 
 extension StoriesV2DemoViewModel {
     enum Request: Hashable {
-        case sample
         case remote(StoriesV2StoryID)
         case remoteBatch
 
         var slugs: [String] {
             switch self {
-            case .sample: [StoriesV2DemoStoryFactory.sampleStoryID]
             case .remote(let id): [id.rawValue]
             case .remoteBatch: StoriesV2StoryID.allCases.map(\.rawValue)
             }
