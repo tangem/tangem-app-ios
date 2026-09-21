@@ -17,8 +17,6 @@ extension JointAccountsDTO.Request {
         let safeAddress: String
         let chainId: Int
         let safeTx: JointAccountsDTO.SafeTx
-        /// Unix time; swaps expire, plain transfers send none.
-        let deadline: Int?
         /// `0x` followed by 130 hex characters.
         let signature: String
     }
