@@ -66,7 +66,9 @@ extension AccountSelectorWalletItem {
         } else {
             .active(.init(
                 id: userWallet.userWalletId.stringValue,
-                tokensCount: Localization.commonTokensCount(cryptoAccountModel.walletModelsManager.walletModels.count),
+                // Same source as every other account row (`AccountSelectorAccountItem`, `ExpandableAccountItemViewModel`,
+                // `AccountRowButtonViewModel`): tokens pending derivation are counted too.
+                tokensCount: Localization.commonTokensCount(cryptoAccountModel.userTokensManager.userTokens.count),
                 formattedBalanceTypePublisher: cryptoAccountModel.fiatTotalBalanceProvider.totalFiatBalancePublisher
             ))
         }
