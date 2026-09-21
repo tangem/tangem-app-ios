@@ -20,6 +20,7 @@ struct TransactionDetailsActionButtonViewData: Equatable {
     let style: Style
     let action: TransactionDetailsViewModel.ViewAction
     var isBusy: Bool = false
+    var isEnabled: Bool = true
 }
 
 struct TransactionDetailsActionButtonView: View {
@@ -37,6 +38,7 @@ struct TransactionDetailsActionButtonView: View {
         .size(.x12)
         .horizontalLayout(.infinity)
         .loading(.spinner(if: data.isBusy))
+        .disabled(!data.isEnabled)
     }
 
     private var styleType: TangemUI.Button.StyleType {
