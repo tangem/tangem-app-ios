@@ -28,15 +28,21 @@ struct TransactionChipRedesigned: View {
         HStack(spacing: .unit(.x1)) {
             leadingIcon
 
-            titleView
-
-            if let amountText {
-                SensitiveText(builder: amountWithCurrency, sensitive: amountText)
-                    .style(DesignSystem.Font.captionMediumToken, color: amountColor)
+            if let failedApproveAmount {
+                SensitiveText(builder: failedApproveTitle, sensitive: failedApproveAmount)
+                    .style(DesignSystem.Font.captionMediumToken, color: titleColor)
                     .lineLimit(1)
-            }
+            } else {
+                titleView
 
-            subtitleView
+                if let amountText {
+                    SensitiveText(builder: amountWithCurrency, sensitive: amountText)
+                        .style(DesignSystem.Font.captionMediumToken, color: amountColor)
+                        .lineLimit(1)
+                }
+
+                subtitleView
+            }
         }
         .padding(.horizontal, .unit(.x3))
         .padding(.vertical, .unit(.x1))
@@ -52,6 +58,25 @@ struct TransactionChipRedesigned: View {
         case .inProgress, .confirmed:
             return viewModel.amount.displayValue?.nilIfEmpty
         }
+    }
+
+    /// A failed approve keeps its allowance, folded into a single `Approving <amount> failed` sentence
+    /// instead of the `<title> <amount>` composition every other state uses.
+    private var failedApproveAmount: String? {
+        guard viewModel.transactionType == .approve else {
+            return nil
+        }
+
+        switch viewModel.icon.status {
+        case .failed, .undefined:
+            return viewModel.amount.displayValue?.nilIfEmpty
+        case .inProgress, .confirmed:
+            return nil
+        }
+    }
+
+    private func failedApproveTitle(_ amount: String) -> String {
+        Localization.commonActionFailed("\(Localization.commonApproving) \(amountWithCurrency(amount))")
     }
 
     @ViewBuilder
