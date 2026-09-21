@@ -16,6 +16,7 @@ struct JointAccountOperationDetailsViewModelBuilder {
     private let balanceFormatter = BalanceFormatter()
     private let balanceConverter = BalanceConverter()
     private let tokenIconInfoBuilder = TokenIconInfoBuilder()
+    private let signersBuilder = JointAccountSignersViewDataBuilder()
     private let signersResolver = JointAccountOperationSignersResolver()
 
     func build(
@@ -36,6 +37,7 @@ struct JointAccountOperationDetailsViewModelBuilder {
             collectedSignaturesCount: operation.signatures.filter { $0.state == .signed }.count,
             requiredSignaturesCount: account?.policy.signersCount ?? 0,
             membersCount: account?.jointAccountMembersService.slots.members.count ?? 0,
+            signers: signersBuilder.build(pendingOperation: pendingOperation),
             answer: answer(of: pendingOperation),
             canSign: signersResolver.canSign(pendingOperation),
             coordinator: coordinator,

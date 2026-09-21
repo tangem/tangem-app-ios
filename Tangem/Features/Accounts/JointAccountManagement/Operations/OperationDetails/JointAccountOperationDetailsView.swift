@@ -18,12 +18,22 @@ struct JointAccountOperationDetailsView: View {
     @ObservedObject var viewModel: JointAccountOperationDetailsViewModel
 
     var body: some View {
-        TransactionDetailsContentView(
-            header: viewModel.header,
-            blocks: viewModel.blocks,
-            onAction: viewModel.handleViewAction
-        )
-        .alert(item: $viewModel.alert) { $0.alert }
+        content
+            .alert(item: $viewModel.alert) { $0.alert }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch viewModel.viewState {
+        case .details:
+            TransactionDetailsContentView(
+                header: viewModel.header,
+                blocks: viewModel.blocks,
+                onAction: viewModel.handleViewAction
+            )
+        case .signers(let signersViewModel):
+            JointAccountSignersView(viewModel: signersViewModel)
+        }
     }
 }
 
@@ -59,6 +69,20 @@ private extension JointAccountOperationDetailsViewModel {
             collectedSignaturesCount: 1,
             requiredSignaturesCount: 3,
             membersCount: 5,
+            signers: [
+                .init(
+                    id: "0x1",
+                    icon: .init(letter: "I", color: CompositeIconColorPalette.color(for: .azure)),
+                    name: "Isaac",
+                    answer: .created(at: "15:34")
+                ),
+                .init(
+                    id: "0x2",
+                    icon: .init(letter: "O", color: CompositeIconColorPalette.color(for: .mexicanPink)),
+                    name: "Olivia",
+                    answer: .waiting
+                ),
+            ],
             answer: answer,
             canSign: true,
             coordinator: nil,

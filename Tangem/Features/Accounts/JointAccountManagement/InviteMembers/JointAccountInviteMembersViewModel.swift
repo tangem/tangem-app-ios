@@ -210,7 +210,11 @@ private extension JointAccountInviteMembersViewModel {
             return Localization.jointAccountMembersRoleJoined
         }
     }
+}
 
+// MARK: - Member appearance
+
+extension JointAccountInviteMembersViewModel {
     /// Taken by the slot rather than by the member, so that two members of one account never share a colour.
     static func iconColor(at index: Int) -> CompositeIconColor {
         let colors = CompositeIconColor.allCases
