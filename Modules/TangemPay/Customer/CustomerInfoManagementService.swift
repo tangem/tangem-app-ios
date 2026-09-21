@@ -29,7 +29,7 @@ public protocol CustomerInfoManagementService: AnyObject {
         orderId: String,
         signature: String,
         idempotencyKey: String
-    ) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse
+    ) async throws(TangemPayAPIServiceError)
 
     @discardableResult
     func updateCardDisplayName(cardId: String, _ displayName: String) async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.ProductInstance
@@ -133,6 +133,18 @@ final class CommonCustomerInfoManagementService {
             )
         )
     }
+
+    private func request(for target: CustomerInfoManagementAPITarget.Target) async throws(TangemPayAPIServiceError) {
+        try await authorizationTokenHandler.prepare()
+
+        try await apiService.request(
+            .init(
+                target: target,
+                apiType: apiType,
+                encoder: encoder
+            )
+        )
+    }
 }
 
 extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
@@ -226,7 +238,7 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
         orderId: String,
         signature: String,
         idempotencyKey: String
-    ) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {
+    ) async throws(TangemPayAPIServiceError) {
         try await request(
             for: .sendBankOfframpSignature(
                 orderId: orderId,
