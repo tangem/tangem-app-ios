@@ -103,7 +103,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .yieldDexTransferDetection: return .unspecified
         case .welcomeScreenV2: return .version("6.4")
         case .nativeMarketsShtorka: return .unspecified
-        case .tangemPayPlastic: return .version("6.4")
+        case .tangemPayPlastic: return .version("6.3.2")
         case .collectibles: return .unspecified
         case .openTelemetryMetrics: return .version("6.4")
         case .totalTokenBalanceV2: return .unspecified
