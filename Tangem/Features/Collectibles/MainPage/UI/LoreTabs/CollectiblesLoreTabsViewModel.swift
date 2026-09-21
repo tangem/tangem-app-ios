@@ -7,6 +7,7 @@
 //
 
 import Combine
+import TangemFoundation
 
 @MainActor
 final class CollectiblesLoreTabsViewModel: ObservableObject {
@@ -14,10 +15,14 @@ final class CollectiblesLoreTabsViewModel: ObservableObject {
 
     private let provider: any CollectiblesLoresProvider
 
+    private var loadTask: Task<Void, Never>?
+
     // MARK: - Publishers
 
     @Published var selectedTab: CollectiblesLoreTabsView.LoreTab = CollectiblesLoreTabsMapper.allTab
     @Published private(set) var state: State = .idle
+    /// Everything the search can reach, whatever the selected tab is showing.
+    @Published private(set) var totalPacksCount = 0
 
     // MARK: - Init
 
@@ -32,8 +37,20 @@ final class CollectiblesLoreTabsViewModel: ObservableObject {
         case .loading, .content, .empty:
             return
         case .idle, .failed:
-            await loadTabs()
+            await refresh()
         }
+    }
+
+    func refresh() async {
+        loadTask?.cancel()
+        state = .loading
+
+        let task = runTask(in: self) { @MainActor viewModel in
+            await viewModel.loadTabs()
+        }
+        loadTask = task
+
+        await task.value
     }
 }
 
@@ -53,11 +70,11 @@ extension CollectiblesLoreTabsViewModel {
 
 private extension CollectiblesLoreTabsViewModel {
     func loadTabs() async {
-        state = .loading
-
         do {
             let catalogue = try await provider.load()
             try Task.checkCancellation()
+
+            totalPacksCount = catalogue.totalPacksCount
 
             guard !catalogue.lores.isEmpty else {
                 state = .empty
@@ -68,8 +85,10 @@ private extension CollectiblesLoreTabsViewModel {
             selectedTab = tabs.first { $0.id == selectedTab.id } ?? CollectiblesLoreTabsMapper.allTab
             state = .content(tabs)
         } catch is CancellationError {
-            state = .idle
+            return
         } catch {
+            guard !Task.isCancelled else { return }
+
             state = .failed
         }
     }

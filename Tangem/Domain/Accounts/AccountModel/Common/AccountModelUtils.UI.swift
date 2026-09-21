@@ -66,8 +66,7 @@ extension AccountModelUtils {
             case .polymarket:
                 return Assets.Polymarket.accountAvatar
             case .collectibles:
-                // [REDACTED_TODO_COMMENT]
-                return Assets.Accounts.user
+                return Assets.Collectibles.accountAvatar
             }
         }
 
