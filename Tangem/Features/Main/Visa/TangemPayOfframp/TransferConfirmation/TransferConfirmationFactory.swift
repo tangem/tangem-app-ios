@@ -14,6 +14,7 @@ enum TransferConfirmationFactory {
     @MainActor
     static func makeView(
         orderBuilder: TangemPayOfframpOrderBuilder,
+        sendUseCase: TangemPayOffRampSendUseCase,
         optionsStore: TangemPayOfframpOptionsStore,
         savedRecipient: TangemPayBankAccountResponse?,
         hasNFCInteraction: Bool,
@@ -24,6 +25,7 @@ enum TransferConfirmationFactory {
         return TransferConfirmationView(
             viewModel: TransferConfirmationViewModel(
                 orderBuilder: orderBuilder,
+                sendUseCase: sendUseCase,
                 tokenItems: options.tokens,
                 railItems: options.rails,
                 savedRecipient: savedRecipient,
