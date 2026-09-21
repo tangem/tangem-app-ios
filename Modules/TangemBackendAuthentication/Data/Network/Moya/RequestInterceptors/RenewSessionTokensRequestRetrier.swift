@@ -8,14 +8,17 @@
 
 private import Foundation
 import Alamofire
+import struct TangemLogger.Logger
 
 /// Retries a request exactly once, after a fresh renewal, on 401 and never a second time on the same request.
 /// A repeat failure right after a fresh token means the session is genuinely dead, not something another attempt would fix.
 struct RenewSessionTokensRequestRetrier: RequestRetrier {
     private let renewSessionTokensUseCase: RenewSessionTokensUseCase
+    private let logger: Logger
 
-    init(renewSessionTokensUseCase: RenewSessionTokensUseCase) {
+    init(renewSessionTokensUseCase: RenewSessionTokensUseCase, logger: Logger) {
         self.renewSessionTokensUseCase = renewSessionTokensUseCase
+        self.logger = logger
     }
 
     func retry(
@@ -47,6 +50,10 @@ struct RenewSessionTokensRequestRetrier: RequestRetrier {
                 _ = try await renewSessionTokensUseCase()
                 completion(.retry)
             } catch {
+                logger.error(
+                    "Failed to renew session tokens. Retry will not be performed. The request is treated as failed.",
+                    error: error
+                )
                 completion(.doNotRetryWithError(error))
             }
         }

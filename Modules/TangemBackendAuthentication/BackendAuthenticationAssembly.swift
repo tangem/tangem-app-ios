@@ -13,6 +13,7 @@ private import os.lock
 public import protocol Alamofire.RequestAdapter
 public import protocol Alamofire.RequestRetrier
 public import class Moya.MoyaProvider
+public import struct TangemLogger.Logger
 private import TangemFoundation
 
 public enum BackendAuthenticationAssembly {
@@ -45,17 +46,20 @@ public extension BackendAuthenticationAssembly {
         let appPrivateKey: String
         let provider: MoyaProvider<BackendAuthenticationTarget>
         let userWalletProvider: @Sendable () -> MoyaProvider<UserWalletTarget>
+        let logger: Logger
 
         public init(
             baseURL: URL,
             appPrivateKey: String,
             provider: MoyaProvider<BackendAuthenticationTarget>,
-            userWalletProvider: @escaping @Sendable @autoclosure () -> MoyaProvider<UserWalletTarget>
+            userWalletProvider: @escaping @Sendable @autoclosure () -> MoyaProvider<UserWalletTarget>,
+            logger: Logger
         ) {
             self.baseURL = baseURL
             self.appPrivateKey = appPrivateKey
             self.provider = provider
             self.userWalletProvider = userWalletProvider
+            self.logger = logger
         }
     }
 
@@ -128,18 +132,21 @@ extension BackendAuthenticationAssembly {
             sessionTokensRepository: Self.sessionTokensRepository,
             deviceKeyManager: Self.deviceKeyManager,
             nonceDecryptor: Self.nonceDecryptor,
-            deviceMetadataProvider: DeviceMetadata.default
+            deviceMetadataProvider: DeviceMetadata.default,
+            logger: Self.configuration.logger
         )
     }()
 
     private static let dPoPRequestAdapter = DPoPRequestAdapter(
         renewSessionTokensUseCase: Self.renewSessionTokensUseCase,
         sessionTokensRepository: Self.sessionTokensRepository,
-        dPoPProofGenerator: Self.dPoPProofGenerator
+        dPoPProofGenerator: Self.dPoPProofGenerator,
+        logger: Self.configuration.logger
     )
 
     private static let renewSessionTokensRequestRetrier = RenewSessionTokensRequestRetrier(
-        renewSessionTokensUseCase: Self.renewSessionTokensUseCase
+        renewSessionTokensUseCase: Self.renewSessionTokensUseCase,
+        logger: Self.configuration.logger
     )
 
     private static func makeRegisterDeviceUseCase() -> RegisterDeviceUseCase {
@@ -156,7 +163,8 @@ extension BackendAuthenticationAssembly {
             sessionTokensRepository: Self.sessionTokensRepository,
             deviceKeyManager: Self.deviceKeyManager,
             nonceDecryptor: Self.nonceDecryptor,
-            deviceMetadataProvider: DeviceMetadata.default
+            deviceMetadataProvider: DeviceMetadata.default,
+            logger: Self.configuration.logger
         )
     }
 
@@ -167,7 +175,8 @@ extension BackendAuthenticationAssembly {
             registrationClient: userWalletRegistrationClient,
             registrationStatusRepository: userWalletRegistrationStatusRepository,
             deviceKeyManager: deviceKeyManager,
-            nonceDecryptor: nonceDecryptor
+            nonceDecryptor: nonceDecryptor,
+            logger: configuration.logger
         )
     }
 
@@ -192,7 +201,8 @@ extension BackendAuthenticationAssembly {
             attestUserWallet: { id, nonce, signer async throws(AttestUserWalletError) in
                 try await Self.attestUserWallet(id: id, nonce: nonce, signer: signer)
             },
-            submitRegistration: submitUserWalletRegistration.callAsFunction
+            submitRegistration: submitUserWalletRegistration.callAsFunction,
+            logger: configuration.logger
         )
     }
 
@@ -207,7 +217,8 @@ extension BackendAuthenticationAssembly {
     private static func makeStorageCleaner() -> BackendAuthenticationStorageCleaner {
         BackendAuthenticationStorageCleaner(
             devicePrivateKeyRepository: devicePrivateKeyRepository,
-            sessionTokensRepository: sessionTokensRepository
+            sessionTokensRepository: sessionTokensRepository,
+            logger: configuration.logger
         )
     }
 }
