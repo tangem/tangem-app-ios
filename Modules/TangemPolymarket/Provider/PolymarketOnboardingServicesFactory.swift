@@ -12,17 +12,27 @@ import TangemNetworkUtils
 public struct PolymarketOnboardingServicesFactory {
     private let networkConfiguration: TangemProviderConfiguration
     private let environment: () -> PolymarketBFFEnvironment
+    private let serverClock: PolymarketServerClock
+
+    private var backendClockPlugins: [PolymarketServerClockPlugin] {
+        [PolymarketServerClockPlugin(serverClock: serverClock)]
+    }
 
     public init(
         networkConfiguration: TangemProviderConfiguration,
-        environment: @escaping () -> PolymarketBFFEnvironment
+        environment: @escaping () -> PolymarketBFFEnvironment,
+        serverClock: PolymarketServerClock
     ) {
         self.networkConfiguration = networkConfiguration
         self.environment = environment
+        self.serverClock = serverClock
     }
 
     public func makeWalletService(walletId: String) -> PolymarketDepositWalletService {
-        let provider = TangemProvider<PolymarketDepositWalletTarget>(configuration: networkConfiguration)
+        let provider = TangemProvider<PolymarketDepositWalletTarget>(
+            configuration: networkConfiguration,
+            additionalPlugins: backendClockPlugins
+        )
 
         return CommonPolymarketDepositWalletService(provider: provider, environment: environment, walletId: walletId)
     }
@@ -55,7 +65,10 @@ public struct PolymarketOnboardingServicesFactory {
         walletId: String,
         store: PolymarketBuilderCodeStore
     ) -> PolymarketConfigurationService {
-        let provider = TangemProvider<PolymarketConfigurationTarget>(configuration: networkConfiguration)
+        let provider = TangemProvider<PolymarketConfigurationTarget>(
+            configuration: networkConfiguration,
+            additionalPlugins: backendClockPlugins
+        )
 
         return CommonPolymarketConfigurationService(
             provider: provider,
@@ -66,7 +79,10 @@ public struct PolymarketOnboardingServicesFactory {
     }
 
     public func makeWithdrawService(walletId: String) -> PolymarketWithdrawService {
-        let provider = TangemProvider<PolymarketWithdrawTarget>(configuration: networkConfiguration)
+        let provider = TangemProvider<PolymarketWithdrawTarget>(
+            configuration: networkConfiguration,
+            additionalPlugins: backendClockPlugins
+        )
 
         return CommonPolymarketWithdrawService(provider: provider, environment: environment, walletId: walletId)
     }

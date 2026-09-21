@@ -13,7 +13,7 @@ public struct PolymarketSupportedAsset: Hashable, Sendable, Identifiable {
     public let chainName: String
     public let family: PolymarketChainFamily
     public let token: Token
-    public let minimumDepositUSD: Decimal
+    public let minCheckoutUSD: Decimal
 
     public var id: ID {
         ID(chainId: chainId, tokenAddress: token.address)
@@ -24,13 +24,13 @@ public struct PolymarketSupportedAsset: Hashable, Sendable, Identifiable {
         chainName: String,
         family: PolymarketChainFamily,
         token: Token,
-        minimumDepositUSD: Decimal
+        minCheckoutUSD: Decimal
     ) {
         self.chainId = chainId
         self.chainName = chainName
         self.family = family
         self.token = token
-        self.minimumDepositUSD = minimumDepositUSD
+        self.minCheckoutUSD = minCheckoutUSD
     }
 }
 

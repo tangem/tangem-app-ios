@@ -14,10 +14,9 @@ struct PolymarketWithdrawDestinationResolver {
     let walletModelsProvider: MainScreenUIOrderedWalletModelsProvider
 
     func resolve() async -> SendReceiveToken? {
-        let currency = PolymarketUtilities.usdcTokenItem.expressCurrency
         let walletModels = (try? await walletModelsProvider.walletModelsPublisher.async()) ?? []
 
-        guard let walletModel = walletModels.first(where: { $0.tokenItem.expressCurrency == currency }) else {
+        guard let walletModel = Self.chooseDestination(from: walletModels) else {
             return nil
         }
 
@@ -27,5 +26,17 @@ struct PolymarketWithdrawDestinationResolver {
             operationType: .swap
         )
         .makeSwapableToken()
+    }
+}
+
+// MARK: - Choosing the destination
+
+extension PolymarketWithdrawDestinationResolver {
+    static func chooseDestination(from walletModels: [any WalletModel]) -> (any WalletModel)? {
+        let currency = PolymarketUtilities.usdcTokenItem.expressCurrency
+
+        return walletModels.first { walletModel in
+            walletModel.tokenItem.expressCurrency == currency && !walletModel.isJointAccountParticipant
+        }
     }
 }

@@ -13,7 +13,8 @@ extension PolymarketOnboardingServicesFactory {
     static func makeDefault() -> PolymarketOnboardingServicesFactory {
         PolymarketOnboardingServicesFactory(
             networkConfiguration: TangemProviderConfiguration(logOptions: .verbose),
-            environment: PolymarketBFFEnvironment.current
+            environment: PolymarketBFFEnvironment.current,
+            serverClock: InjectedValues[\.polymarketServerClock]
         )
     }
 }

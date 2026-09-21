@@ -11,12 +11,12 @@ import TangemFoundation
 
 struct PolymarketDepositReceivingRestrictionsProvider: ReceivingRestrictionsProvider {
     private let userWalletInfo: UserWalletInfo
-    private let minimumDepositUSD: Decimal
+    private let minCheckoutUSD: Decimal
     private let tokenItem: TokenItem
 
-    init(userWalletInfo: UserWalletInfo, minimumDepositUSD: Decimal, tokenItem: TokenItem) {
+    init(userWalletInfo: UserWalletInfo, minCheckoutUSD: Decimal, tokenItem: TokenItem) {
         self.userWalletInfo = userWalletInfo
-        self.minimumDepositUSD = minimumDepositUSD
+        self.minCheckoutUSD = minCheckoutUSD
         self.tokenItem = tokenItem
     }
 
@@ -39,6 +39,6 @@ struct PolymarketDepositReceivingRestrictionsProvider: ReceivingRestrictionsProv
 
 private extension PolymarketDepositReceivingRestrictionsProvider {
     func minimumReceiveAmount() -> Decimal? {
-        PolymarketMinimumAmount(usd: minimumDepositUSD, tokenItem: tokenItem).inToken()
+        PolymarketMinimumAmount(usd: minCheckoutUSD, tokenItem: tokenItem).inToken()
     }
 }

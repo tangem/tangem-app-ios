@@ -19,7 +19,7 @@ struct PolymarketDepositReceivingRestrictionsProviderTests {
         try await withProvider(priceUsd: 1) { sut in
             let belowThreshold = try await sut.restriction(expectAmount: 1.5)
 
-            #expect(minAmount(belowThreshold) == Self.minimumDepositUSD)
+            #expect(minAmount(belowThreshold) == Self.minCheckoutUSD)
         }
     }
 
@@ -62,9 +62,9 @@ struct PolymarketDepositReceivingRestrictionsProviderTests {
     func zeroPriceFallsBackToDollarParity() async throws {
         try await withProvider(priceUsd: 0) { sut in
             let belowThreshold = try await sut.restriction(expectAmount: 0.0001)
-            let atThreshold = try await sut.restriction(expectAmount: Self.minimumDepositUSD)
+            let atThreshold = try await sut.restriction(expectAmount: Self.minCheckoutUSD)
 
-            #expect(minAmount(belowThreshold) == Self.minimumDepositUSD)
+            #expect(minAmount(belowThreshold) == Self.minCheckoutUSD)
             #expect(atThreshold == nil)
         }
     }
@@ -73,9 +73,9 @@ struct PolymarketDepositReceivingRestrictionsProviderTests {
     func missingPriceFallsBackToDollarParity() async throws {
         try await withProvider(priceUsd: nil) { sut in
             let belowThreshold = try await sut.restriction(expectAmount: 0.0001)
-            let atThreshold = try await sut.restriction(expectAmount: Self.minimumDepositUSD)
+            let atThreshold = try await sut.restriction(expectAmount: Self.minCheckoutUSD)
 
-            #expect(minAmount(belowThreshold) == Self.minimumDepositUSD)
+            #expect(minAmount(belowThreshold) == Self.minCheckoutUSD)
             #expect(atThreshold == nil)
         }
     }
@@ -95,7 +95,7 @@ struct PolymarketDepositReceivingRestrictionsProviderTests {
         try await withProvider(priceUsd: 1, backupState: .incompleteBackup) { sut in
             let belowThreshold = try await sut.restriction(expectAmount: 1.5)
 
-            #expect(minAmount(belowThreshold) == Self.minimumDepositUSD)
+            #expect(minAmount(belowThreshold) == Self.minCheckoutUSD)
         }
     }
 }
@@ -103,7 +103,7 @@ struct PolymarketDepositReceivingRestrictionsProviderTests {
 // MARK: - Fixtures
 
 private extension PolymarketDepositReceivingRestrictionsProviderTests {
-    static let minimumDepositUSD: Decimal = 2
+    static let minCheckoutUSD: Decimal = 2
 
     func minAmount(_ restriction: ReceivedRestriction?) -> Decimal? {
         guard case .notEnoughReceivedAmount(let minAmount, .receivingMinimum) = restriction else { return nil }
@@ -130,7 +130,7 @@ private extension PolymarketDepositReceivingRestrictionsProviderTests {
 
             let sut = PolymarketDepositReceivingRestrictionsProvider(
                 userWalletInfo: makeUserWalletInfo(backupState: backupState),
-                minimumDepositUSD: Self.minimumDepositUSD,
+                minCheckoutUSD: Self.minCheckoutUSD,
                 tokenItem: tokenItem
             )
 
