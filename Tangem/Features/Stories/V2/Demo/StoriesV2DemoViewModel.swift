@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import TangemFoundation
 import TangemStories
 
 /// Dev-only preview of the Stories V2 player from the Environment screen.
@@ -17,14 +18,12 @@ final class StoriesV2DemoViewModel: ObservableObject, Identifiable {
 
     @Injected(\.storiesV2RemoteStore) private var remoteStore: StoriesV2RemoteStore
     @Injected(\.storiesV2AssetPrefetchService) private var assetPrefetchService: StoryAssetPrefetchService
+    @Injected(\.storiesV2Presenter) private var presenter: any StoriesV2Presenter
 
     let storyIDs = StoriesV2StoryID.allCases
 
     @Published private(set) var statusMessage: String?
     @Published private(set) var loadingRequest: Request?
-    /// By identity rather than a Bool: a boolean binding keeps reading "already presented" when
-    /// a state change lands in the same update as the assignment, wedging the screen.
-    @Published private(set) var presentedStory: PresentedStory?
 
     /// Single-flight: the list stays tappable for the seconds a story takes to arrive, and a
     /// late one must not replace an already-presented player.
@@ -36,30 +35,39 @@ final class StoriesV2DemoViewModel: ObservableObject, Identifiable {
         openTask?.cancel()
         loadingRequest = request
 
-        openTask = Task { @MainActor in
+        openTask = runTask(in: self) { @MainActor viewModel in
             defer {
-                if loadingRequest == request {
-                    loadingRequest = nil
+                if viewModel.loadingRequest == request {
+                    viewModel.loadingRequest = nil
                 }
             }
 
             do {
-                let stories = try await remoteStore.stories(slugs: request.slugs)
+                let stories = try await viewModel.remoteStore.stories(slugs: request.slugs)
                 try Task.checkCancellation()
-                await play(stories, requested: request.slugs)
+                try await viewModel.play(stories, requested: request.slugs)
             } catch is CancellationError {
             } catch {
-                statusMessage = "Open failed: \(error)"
+                viewModel.statusMessage = "Open failed: \(error)"
             }
         }
     }
 
-    private func play(_ stories: [StoryV2], requested: [String]) async {
+    /// Leaving the screen while a story loads must not leave it to arrive over whatever comes next;
+    /// the list stays tappable the whole time it loads, so that exit is a tap away.
+    func cancel() {
+        openTask?.cancel()
+    }
+
+    private func play(_ stories: [StoryV2], requested: [String]) async throws {
         statusMessage = report(stories, requested: requested)
         guard let story = stories.first else { return }
 
-        let prefetched = await assetPrefetchService.prefetch(story)
-        guard !Task.isCancelled else { return }
+        let prefetched = try await assetPrefetchService.prefetch(story)
+
+        // A row tapped meanwhile owns the player now, so this request must not take it.
+        try Task.checkCancellation()
+
         present(story: prefetched)
     }
 
@@ -78,20 +86,9 @@ final class StoriesV2DemoViewModel: ObservableObject, Identifiable {
         }
     }
 
-    func closePlayer() {
-        presentedStory = nil
-    }
-
+    /// Nothing to reveal behind the player here, and `main` is a nominal source for this dev screen.
     private func present(story: StoryV2) {
-        // No provider is attached on this dev screen, so the source never reaches analytics.
-        let player = StoryPlayerViewModel(
-            story: story,
-            source: .main,
-            hapticPlayer: CommonStoryHapticPlayer()
-        ) { [weak self] _, _ in
-            self?.closePlayer()
-        }
-        presentedStory = PresentedStory(player: player)
+        presenter.present(story: story, source: .main, presentCompletion: {}, onExit: { _, _ in })
     }
 }
 
@@ -108,14 +105,5 @@ extension StoriesV2DemoViewModel {
             case .remoteBatch: StoriesV2StoryID.allCases.map(\.rawValue)
             }
         }
-    }
-}
-
-// MARK: - PresentedStory
-
-extension StoriesV2DemoViewModel {
-    struct PresentedStory: Identifiable {
-        let id = UUID()
-        let player: StoryPlayerViewModel
     }
 }

@@ -14,9 +14,9 @@ import TangemStories
 @Suite("StoryAssetPrefetchServiceTests")
 struct StoryAssetPrefetchServiceTests {
     @Test
-    func resolvesPosterAndFullAssetWhenIncluded() async {
+    func resolvesPosterAndFullAssetWhenIncluded() async throws {
         let cache = StubAssetCache()
-        let result = await StoryAssetPrefetchService(cache: cache).prefetch(
+        let result = try await StoryAssetPrefetchService(cache: cache).prefetch(
             story(assetChecksum: "sha256:a", posterChecksum: "sha256:p"),
             includeFullAssets: true
         )
@@ -29,9 +29,9 @@ struct StoryAssetPrefetchServiceTests {
     }
 
     @Test
-    func fetchesPosterOnlyWhenFullAssetsExcluded() async {
+    func fetchesPosterOnlyWhenFullAssetsExcluded() async throws {
         let cache = StubAssetCache()
-        let result = await StoryAssetPrefetchService(cache: cache).prefetch(
+        let result = try await StoryAssetPrefetchService(cache: cache).prefetch(
             story(assetChecksum: "sha256:a", posterChecksum: "sha256:p"),
             includeFullAssets: false
         )
@@ -41,6 +41,35 @@ struct StoryAssetPrefetchServiceTests {
         #expect(asset.posterURL == URL(fileURLWithPath: "/local/sha256:p"))
         let requested = await cache.requestedChecksums
         #expect(requested == ["sha256:p"])
+    }
+
+    /// A story pulls megabytes of video slide by slide, so a cancelled walk must not start the next
+    /// download — and the cache cannot report the cancellation itself, since a failed download is
+    /// just a miss to it.
+    @Test
+    func cancellationStopsTheWalkBeforeTheCache() async {
+        let cache = StubAssetCache()
+        let service = StoryAssetPrefetchService(cache: cache)
+
+        let task = Task {
+            while !Task.isCancelled {
+                await Task.yield()
+            }
+
+            return try await service.prefetch(
+                story(assetChecksum: "sha256:a", posterChecksum: "sha256:p"),
+                includeFullAssets: true
+            )
+        }
+
+        task.cancel()
+
+        await #expect(throws: CancellationError.self) {
+            _ = try await task.value
+        }
+
+        let requested = await cache.requestedChecksums
+        #expect(requested.isEmpty)
     }
 
     // MARK: - Helpers
