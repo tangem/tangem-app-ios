@@ -315,9 +315,9 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
 
         destinationAddressViewModel.update(address: destination)
 
-        if let additionalField = suggestedDestination.additionalField {
-            additionalFieldViewModel?.update(text: additionalField)
-        }
+        // A suggestion without a memo must clear the field, exactly like the address-book path below: the tag the
+        // user typed for the previous recipient would otherwise travel with the newly selected one.
+        additionalFieldViewModel?.update(text: suggestedDestination.additionalField ?? "")
 
         // Waiting when updatingTask is finished
         Task { @MainActor in
