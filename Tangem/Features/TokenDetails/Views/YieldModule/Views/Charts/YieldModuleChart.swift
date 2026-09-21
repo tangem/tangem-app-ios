@@ -105,8 +105,10 @@ struct YieldModuleChart: View {
             labels = Array(repeating: "Aaa", count: 5)
         }
 
-        let ticks = [0, 7, 14, 21, 27]
-        return Dictionary(uniqueKeysWithValues: zip(ticks, labels))
+        // Five labels at i·total/4 (see `YieldModuleChartManager`); place the ticks at the matching bar indices
+        // instead of assuming 28 bars, otherwise labels drift or fall outside `chartXScale` and disappear.
+        let ticks = (0 ... 4).map { Int((Double($0) * Double(barsCount - 1) / 4).rounded()) }
+        return Dictionary(zip(ticks, labels), uniquingKeysWith: { first, _ in first })
     }
 
     private func makeXLabels() -> [String] {
