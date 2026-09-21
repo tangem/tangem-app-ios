@@ -16,6 +16,7 @@ struct JointAccountOperationDetailsViewModelBuilder {
     private let balanceFormatter = BalanceFormatter()
     private let balanceConverter = BalanceConverter()
     private let tokenIconInfoBuilder = TokenIconInfoBuilder()
+    private let signersResolver = JointAccountOperationSignersResolver()
 
     func build(
         pendingOperation: JointAccountPendingOperation,
@@ -35,9 +36,8 @@ struct JointAccountOperationDetailsViewModelBuilder {
             collectedSignaturesCount: operation.signatures.filter { $0.state == .signed }.count,
             requiredSignaturesCount: account?.policy.signersCount ?? 0,
             membersCount: account?.jointAccountMembersService.slots.members.count ?? 0,
-            // [REDACTED_TODO_COMMENT]
-            // [REDACTED_INFO]
-            answer: .awaiting,
+            answer: answer(of: pendingOperation),
+            canSign: signersResolver.canSign(pendingOperation),
             coordinator: coordinator,
             sign: { try await pendingOperation.sign() }
         )
@@ -47,6 +47,14 @@ struct JointAccountOperationDetailsViewModelBuilder {
 // MARK: - Private
 
 private extension JointAccountOperationDetailsViewModelBuilder {
+    func answer(of pendingOperation: JointAccountPendingOperation) -> JointAccountOperationDetailsViewModel.Answer {
+        switch signersResolver.ownAnswer(of: pendingOperation) {
+        case .signed, .created: .signed
+        case .declined: .declined
+        case .waiting, .none: .awaiting
+        }
+    }
+
     /// - Note: Signed as an outgoing transfer, so it is stated as one — an amount this version cannot read is shown
     ///   the way an unknown balance is rather than as a number that understates what the member is signing.
     func cryptoAmount(of pendingOperation: JointAccountPendingOperation) -> String {
