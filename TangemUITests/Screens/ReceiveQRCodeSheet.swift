@@ -72,6 +72,14 @@ final class ReceiveQRCodeSheet: ScreenBase<ReceiveQRCodeSheetElement> {
         }
     }
 
+    @discardableResult
+    func tapCopy() -> Self {
+        XCTContext.runActivity(named: "Tap Copy button on QR code sheet") { _ in
+            copyButton.waitAndTap()
+            return self
+        }
+    }
+
     func tapShare() -> ShareSheet {
         XCTContext.runActivity(named: "Tap Share button on QR code sheet") { _ in
             shareButton.waitAndTap()
