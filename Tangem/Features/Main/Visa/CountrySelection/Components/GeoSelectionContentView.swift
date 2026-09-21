@@ -15,7 +15,7 @@ import TangemUIUtils
 
 struct GeoSelectionContentView: View {
     let state: LoadingResult<GeoSelectionSections, any Error>
-    let suggestedSectionTitle: String?
+    let highlightedSectionTitle: String?
     let allSectionTitle: String?
     let hasFlags: Bool
     let onItemTap: (String) -> Void
@@ -52,15 +52,15 @@ private extension GeoSelectionContentView {
     func list(_ sections: GeoSelectionSections) -> some View {
         ScrollView {
             LazyVStack(
-                spacing: Constants.sectionSpacing,
+                spacing: .zero,
                 pinnedViews: [.sectionHeaders]
             ) {
-                if let suggested = sections.suggested {
+                if let highlighted = sections.highlighted {
                     Section {
-                        row(suggested)
+                        row(highlighted)
                     } header: {
-                        if let suggestedSectionTitle {
-                            header(suggestedSectionTitle)
+                        if let highlightedSectionTitle {
+                            header(highlightedSectionTitle)
                         }
                     }
                 }
@@ -78,14 +78,16 @@ private extension GeoSelectionContentView {
         }
     }
 
+    @ViewBuilder
     func row(_ item: GeoSelectionItem) -> some View {
-        Row(title: item.title)
-            .start {
-                if hasFlags {
-                    CountryFlagView(url: item.flagURL)
-                }
-            }
-            .onTap { onItemTap(item.id) }
+        if hasFlags {
+            Row(title: item.title)
+                .start { CountryFlagView(url: item.flagURL) }
+                .onTap { onItemTap(item.id) }
+        } else {
+            Row(title: item.title)
+                .onTap { onItemTap(item.id) }
+        }
     }
 
     func header(_ title: String) -> some View {
@@ -93,7 +95,8 @@ private extension GeoSelectionContentView {
             .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, Constants.horizontalPadding)
-            .padding(.vertical, Constants.titleVerticalPadding)
+            .padding(.top, Constants.sectionSpacing)
+            .padding(.bottom, Constants.titleVerticalPadding)
             .background(DesignSystem.Color.bgPrimary)
     }
 }
@@ -160,24 +163,39 @@ private extension GeoSelectionContentView {
 #Preview("Countries") {
     GeoSelectionContentView(
         state: .success(
-            GeoSelectionSections(suggested: nil, all: GeoSelectionItem.previewCountries)
+            GeoSelectionSections(highlighted: nil, all: GeoSelectionItem.previewCountries)
         ),
-        suggestedSectionTitle: nil,
+        highlightedSectionTitle: nil,
         allSectionTitle: nil,
         hasFlags: true,
         onItemTap: { _ in }
     )
 }
 
-#Preview("Regions with suggestion") {
+#Preview("Countries with selection") {
     GeoSelectionContentView(
         state: .success(
             GeoSelectionSections(
-                suggested: GeoSelectionItem.previewRegions[1],
+                highlighted: GeoSelectionItem.previewCountries[2],
+                all: GeoSelectionItem.previewCountries
+            )
+        ),
+        highlightedSectionTitle: "Selected country",
+        allSectionTitle: "Change country",
+        hasFlags: true,
+        onItemTap: { _ in }
+    )
+}
+
+#Preview("Regions with selection") {
+    GeoSelectionContentView(
+        state: .success(
+            GeoSelectionSections(
+                highlighted: GeoSelectionItem.previewRegions[1],
                 all: GeoSelectionItem.previewRegions
             )
         ),
-        suggestedSectionTitle: "Suggested state",
+        highlightedSectionTitle: "Selected state",
         allSectionTitle: "Select another state",
         hasFlags: false,
         onItemTap: { _ in }
@@ -187,7 +205,7 @@ private extension GeoSelectionContentView {
 #Preview("Loading") {
     GeoSelectionContentView(
         state: .loading,
-        suggestedSectionTitle: "Suggested country",
+        highlightedSectionTitle: "Selected country",
         allSectionTitle: "Change country",
         hasFlags: true,
         onItemTap: { _ in }
@@ -196,8 +214,8 @@ private extension GeoSelectionContentView {
 
 #Preview("Empty") {
     GeoSelectionContentView(
-        state: .success(GeoSelectionSections(suggested: nil, all: [])),
-        suggestedSectionTitle: "Suggested country",
+        state: .success(GeoSelectionSections(highlighted: nil, all: [])),
+        highlightedSectionTitle: "Selected country",
         allSectionTitle: "Change country",
         hasFlags: true,
         onItemTap: { _ in }
@@ -207,7 +225,7 @@ private extension GeoSelectionContentView {
 #Preview("Error") {
     GeoSelectionContentView(
         state: .failure(CancellationError()),
-        suggestedSectionTitle: "Suggested country",
+        highlightedSectionTitle: "Selected country",
         allSectionTitle: "Change country",
         hasFlags: true,
         onItemTap: { _ in }
