@@ -51,6 +51,13 @@ final class CollectiblesPacksViewModel: ObservableObject {
         reload(debounced: false)
     }
 
+    func refresh() async {
+        state = .loading
+        reload()
+
+        _ = await reloadTask?.result
+    }
+
     func reload(loreID: String?) {
         cancelTasks()
 
@@ -113,7 +120,7 @@ final class CollectiblesPacksViewModel: ObservableObject {
 
     func showFailed() {
         cancelTasks()
-        state = .failed(hasQuery: false)
+        state = .failed
         paginationState = .none
     }
 
@@ -149,7 +156,7 @@ extension CollectiblesPacksViewModel {
         case loading
         case content([CollectiblesPackCard.Model])
         case empty(hasQuery: Bool)
-        case failed(hasQuery: Bool)
+        case failed
 
         var isLoading: Bool {
             if case .loading = self {
@@ -222,7 +229,7 @@ private extension CollectiblesPacksViewModel {
         } catch {
             guard !Task.isCancelled else { return }
 
-            state = .failed(hasQuery: model.hasQuery)
+            state = .failed
         }
     }
 

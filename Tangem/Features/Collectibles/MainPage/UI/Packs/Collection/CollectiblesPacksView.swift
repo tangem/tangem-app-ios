@@ -46,10 +46,10 @@ private extension CollectiblesPacksView {
                 onRetry: nil
             )
             .frame(minHeight: Constants.messageMinHeight)
-        case .failed(let hasQuery):
+        case .failed:
             CollectiblesEmptyMessage(
                 icon: DesignSystem.Icons.ArrowRefresh.regular20,
-                message: failedMessage(hasQuery: hasQuery),
+                message: Localization.collectiblesMainPacksLoadError,
                 onRetry: viewModel.reload
             )
             .frame(minHeight: Constants.messageMinHeight)
@@ -78,10 +78,6 @@ private extension CollectiblesPacksView {
 private extension CollectiblesPacksView {
     func emptyMessage(hasQuery: Bool) -> String {
         hasQuery ? Localization.collectiblesMainSearchEmpty : Localization.collectiblesMainPacksEmpty
-    }
-
-    func failedMessage(hasQuery: Bool) -> String {
-        hasQuery ? Localization.collectiblesMainSearchLoadError : Localization.collectiblesMainPacksLoadError
     }
 }
 

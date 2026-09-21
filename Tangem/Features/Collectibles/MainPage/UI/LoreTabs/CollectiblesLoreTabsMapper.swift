@@ -37,6 +37,6 @@ enum CollectiblesLoreTabsMapper {
 
 private extension CollectiblesLoreTabsMapper {
     enum Constants {
-        static let allTabTitle = Localization.collectiblesMainAllCardsTab
+        static let allTabTitle = Localization.collectiblesMainAllPacksTab
     }
 }

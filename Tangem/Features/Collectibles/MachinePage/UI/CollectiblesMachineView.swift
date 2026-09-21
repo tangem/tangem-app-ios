@@ -230,9 +230,9 @@ extension CollectiblesMachineView {
         static let navigationBarTopPadding: CGFloat = 8
         static let navigationBarHeight: CGFloat = 56
 
-        static let packSize = CGSize(width: 204, height: 294)
-        static let artworkTopPadding: CGFloat = 48
-        static let contentTopPadding: CGFloat = 48
+        static let packSize = CGSize(width: 252, height: 378)
+        static let artworkTopPadding: CGFloat = 6
+        static let contentTopPadding: CGFloat = 6
         static let contentBottomPadding: CGFloat = 24
         static let horizontalPadding: CGFloat = 16
 

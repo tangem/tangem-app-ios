@@ -47,11 +47,14 @@ final class CollectiblesWelcomeViewModel: ObservableObject {
                 self?.isOnboarding = false
                 self?.routable?.openStories()
             } catch {
+                self?.isOnboarding = false
+
+                guard !error.isCancellationError else { return }
+
                 // [REDACTED_TODO_COMMENT]
                 // reaches the production log without the base58 account keys its `logs` payload
                 // carries alongside it
                 CollectiblesLogger.debug("Onboarding failed: \(error)")
-                self?.isOnboarding = false
                 self?.alert = Self.creationFailureAlert
             }
         }

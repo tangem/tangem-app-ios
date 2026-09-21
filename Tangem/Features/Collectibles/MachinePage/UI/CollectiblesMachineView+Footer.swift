@@ -17,16 +17,21 @@ extension CollectiblesMachineView {
         let expectedValueText: String?
         let openButtonText: String
 
+        @State private var isTurboModeOn = false
+
         var body: some View {
             VStack(spacing: Metrics.verticalSpacing) {
-                expectedValueBlock
-                    .infinityFrame(axis: .horizontal, alignment: .trailing)
+                HStack(alignment: .bottom, spacing: Metrics.blocksSpacing) {
+                    turboModeBlock
+
+                    expectedValueBlock
+                        .infinityFrame(axis: .horizontal, alignment: .trailing)
+                }
 
                 openButton
             }
             .padding(.horizontal, Metrics.horizontalPadding)
             .padding(.top, Metrics.topPadding)
-            .padding(.bottom, Metrics.bottomPadding)
             .background { background.ignoresSafeArea(edges: .bottom) }
         }
     }
@@ -34,6 +39,28 @@ extension CollectiblesMachineView {
 
 private extension CollectiblesMachineView.Footer {
     // MARK: - View properties
+
+    var turboModeBlock: some View {
+        VStack(alignment: .leading, spacing: Metrics.turboModeSpacing) {
+            HStack(spacing: Metrics.turboModeLabelSpacing) {
+                // [REDACTED_TODO_COMMENT]
+                Text(Localization.collectiblesMachineTurboMode)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+
+                DesignSystem.Icons.Info.regular16.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+            }
+
+            Toggle("", isOn: $isTurboModeOn)
+                .labelsHidden()
+                .accessibilityLabel(Localization.collectiblesMachineTurboMode)
+                .tint(DesignSystem.Color.bgBrand)
+                .fixedSize()
+                .scaleEffect(Metrics.toggleScale, anchor: .leading)
+                .frame(width: Metrics.toggleWidth, height: Metrics.toggleHeight, alignment: .leading)
+        }
+    }
 
     var expectedValueBlock: some View {
         VStack(alignment: .trailing, spacing: Metrics.expectedValueSpacing) {
@@ -77,13 +104,19 @@ private extension CollectiblesMachineView.Footer {
 
 private extension CollectiblesMachineView.Footer {
     enum Metrics {
-        static let verticalSpacing: CGFloat = 12
+        static let verticalSpacing: CGFloat = 20
+        static let blocksSpacing: CGFloat = 12
         static let horizontalPadding: CGFloat = 16
         static let topPadding: CGFloat = 16
-        static let bottomPadding: CGFloat = 12
         static let expectedValueSpacing: CGFloat = 2
         static let valueShimmerWidth: CGFloat = 72
         static let valueShimmerHeight: CGFloat = 20
         static let fadeHeight: CGFloat = 24
+
+        static let turboModeSpacing: CGFloat = 2
+        static let turboModeLabelSpacing: CGFloat = 2
+        static let toggleScale: CGFloat = 0.8
+        static let toggleWidth: CGFloat = 41
+        static let toggleHeight: CGFloat = 25
     }
 }

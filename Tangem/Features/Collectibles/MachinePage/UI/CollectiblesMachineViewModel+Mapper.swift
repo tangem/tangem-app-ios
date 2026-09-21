@@ -11,7 +11,6 @@ import TangemLocalization
 
 extension CollectiblesMachineViewModel {
     enum Mapper {
-        private static let balanceFormatter = BalanceFormatter()
         private static let percentFormatter = PercentFormatter()
 
         static func map(_ machine: CollectiblesMachine) -> Details {
@@ -74,16 +73,11 @@ private extension CollectiblesMachineViewModel.Mapper {
 
     /// Whole dollars for prices and tier bounds, where the mockup carries no cents.
     static func makeDollarText(_ value: Decimal) -> String {
-        balanceFormatter.formatFiatBalance(
-            value,
-            currencyCode: AppConstants.usdCurrencyCode,
-            formattingOptions: .collectiblesDollars
-        )
+        CollectiblesPriceFormatter.format(value)
     }
 
-    /// The average card value is money down to the cent, so it keeps the app-wide fiat format.
     static func makeExpectedValueText(_ value: Decimal) -> String {
-        balanceFormatter.formatFiatBalance(value, currencyCode: AppConstants.usdCurrencyCode)
+        CollectiblesPriceFormatter.format(value, formattingOptions: .defaultFiatFormattingOptions)
     }
 
     static func makeCardsCountText(_ count: Int) -> String {
