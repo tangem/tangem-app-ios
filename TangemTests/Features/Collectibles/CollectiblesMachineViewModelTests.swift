@@ -173,8 +173,11 @@ private extension CollectiblesMachineViewModelTests {
             formatEpsilonAsLowestRepresentableValue: true,
             roundingType: .default(roundingMode: .plain, scale: 2)
         )
+        let formatter = BalanceFormatter().makeDecimalFormatter(formattingOptions: options)
+        formatter.locale = Locale(identifier: "en_US")
+        let amount = BalanceFormatter().formatDecimal(price, formattingOptions: options, formatter: formatter)
 
-        return BalanceFormatter().formatCryptoBalance(price, currencyCode: "USDC", formattingOptions: options)
+        return "\(amount) USDC"
     }
 
     static func machine(name: String = "Elite pack", price: Decimal = 50) -> CollectiblesMachine {

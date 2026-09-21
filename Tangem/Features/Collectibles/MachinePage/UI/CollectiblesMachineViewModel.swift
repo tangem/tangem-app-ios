@@ -111,14 +111,9 @@ extension CollectiblesMachineViewModel {
 // MARK: - Private logic
 
 private extension CollectiblesMachineViewModel {
-    static let balanceFormatter = BalanceFormatter()
-
     static func makeOpenButtonText(price: Decimal) -> String {
-        let amount = balanceFormatter.formatCryptoBalance(
-            price,
-            currencyCode: Constants.paymentCurrencyCode,
-            formattingOptions: .collectiblesDollars
-        )
+        let amount = CollectiblesPriceFormatter.formatAmount(price, ticker: Constants.paymentCurrencyCode)
+
         return Localization.collectiblesMachineOpenButton(amount)
     }
 

@@ -93,8 +93,9 @@ struct MultiWalletMainContentRedesignedView: View {
         AccountRowButtonView(viewModel: viewModel) {
             AccountRowTrailingBalanceView(viewModel: viewModel)
         }
+        .iconSettings(AccountItemConstants.collapsedIconSettings)
         .padding(MultiWalletMainContentConstants.collectiblesAccountPadding)
-        .background(Color.Tangem.Surface.level2)
+        .background(MultiWalletMainContentConstants.tokenListBackgroundColor)
         .cornerRadiusContinuous(MultiWalletMainContentConstants.cornerRadius)
     }
 
@@ -296,5 +297,5 @@ private enum MultiWalletMainContentConstants {
     static let tokenListBackgroundColor = DesignSystem.Color.bgSecondary
 
     static let polymarketAccountPadding: CGFloat = 16
-    static let collectiblesAccountPadding: CGFloat = 16
+    static let collectiblesAccountPadding: CGFloat = 12
 }

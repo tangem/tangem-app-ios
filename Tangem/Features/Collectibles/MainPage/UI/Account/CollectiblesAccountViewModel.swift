@@ -7,60 +7,68 @@
 //
 
 import Combine
+import Foundation
+import TangemFoundation
+import TangemLocalization
+import TangemUI
 
 @MainActor
 final class CollectiblesAccountViewModel: ObservableObject {
     // MARK: - Properties
 
-    private let provider: any CollectiblesAccountSummaryProvider
+    private let accountModel: (any CollectiblesBalanceSource)?
+
+    private var didLoad = false
 
     // MARK: - Publishers
 
-    @Published private(set) var state: State = .idle
+    @Published private(set) var summary: CollectiblesAccountView.Summary = .placeholder
+    @Published private var isRefreshing = false
 
     // MARK: - Init
 
-    init(provider: any CollectiblesAccountSummaryProvider) {
-        self.provider = provider
+    init(accountModel: (any CollectiblesBalanceSource)?) {
+        self.accountModel = accountModel
+
+        bind()
     }
 
     // MARK: - Methods
 
     func load() async {
-        switch state {
-        case .loading, .content:
+        guard !didLoad else {
             return
-        case .idle, .failed:
-            await loadSummary()
         }
+
+        didLoad = true
+
+        await refresh()
     }
-}
 
-// MARK: - State
+    func refresh() async {
+        isRefreshing = true
+        defer { isRefreshing = false }
 
-extension CollectiblesAccountViewModel {
-    enum State {
-        case idle
-        case loading
-        case content(CollectiblesAccountView.Summary)
-        case failed
+        await accountModel?.refreshState()
     }
 }
 
 // MARK: - Private logic
 
 private extension CollectiblesAccountViewModel {
-    func loadSummary() async {
-        state = .loading
-
-        do {
-            let summary = try await provider.load()
-            try Task.checkCancellation()
-            state = .content(CollectiblesAccountMapper.map(summary))
-        } catch is CancellationError {
-            state = .idle
-        } catch {
-            state = .failed
+    func bind() {
+        guard let accountModel else {
+            return
         }
+
+        Publishers
+            .CombineLatest3(
+                accountModel.fiatTotalTokenBalanceProvider.formattedBalanceTypePublisher,
+                accountModel.usdcTokenBalanceProvider.balanceTypePublisher,
+                $isRefreshing
+            )
+            .receiveOnMain()
+            .map { fiat, usdc, isRefreshing in Mapper.map(fiat: fiat, usdc: usdc, isRefreshing: isRefreshing) }
+            .assign(to: &$summary)
     }
 }

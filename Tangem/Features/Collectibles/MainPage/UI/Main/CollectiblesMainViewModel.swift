@@ -27,15 +27,15 @@ final class CollectiblesMainViewModel: ObservableObject {
     @Published var isSearchFieldFocused = false
 
     @Published private(set) var isTabsPinned = false
+    @Published private(set) var isBalanceScrolledAway = false
     @Published private(set) var isSearchAvailable = false
-    /// The balance the navigation bar shows once the account block has scrolled away.
-    @Published private(set) var accountBalanceText: String?
+    @Published private(set) var accountBalanceText = ""
 
     @Published private(set) var isSearching = false
 
     /// Search blanks the account block in place, so the bar carries the balance there from the start.
     var showsBalanceInNavigationBar: Bool {
-        isSearching || isTabsPinned
+        isSearching || isBalanceScrolledAway
     }
 
     var showsSearchBar: Bool {
@@ -46,13 +46,14 @@ final class CollectiblesMainViewModel: ObservableObject {
 
     init(
         routable: (any CollectiblesMainRoutable)?,
+        accountModel: (any CollectiblesBalanceSource)?,
         catalogueProvider: any CollectiblesLoresProvider & CollectiblesPacksProvider = CollectiblesAPIService()
     ) {
         let openMachine: (CollectiblesPack) -> Void = { [weak routable] pack in
             routable?.openMachine(for: pack)
         }
 
-        accountViewModel = CollectiblesAccountViewModel(provider: CollectiblesAccountSummaryMockProvider())
+        accountViewModel = CollectiblesAccountViewModel(accountModel: accountModel)
         loreTabsViewModel = CollectiblesLoreTabsViewModel(provider: catalogueProvider)
         packsViewModel = CollectiblesPacksViewModel(
             model: CollectiblesPacksModel(provider: catalogueProvider),
@@ -73,12 +74,20 @@ final class CollectiblesMainViewModel: ObservableObject {
     func observe() async {
         await withTaskGroup(of: Void.self) { group in
             group.addTask { [weak self] in await self?.observeAccountBalance() }
-            group.addTask { [weak self] in await self?.observeCatalogueState() }
+            group.addTask { [weak self] in await self?.observeSearchAvailability() }
             group.addTask { [weak self] in await self?.retryTabsOnCatalogueReload() }
             group.addTask { [weak self] in await self?.collapseCatalogueOnTabsFailure() }
             group.addTask { [weak self] in await self?.observeLoreSelection() }
             group.addTask { [weak self] in await self?.observeSearchQuery() }
             group.addTask { [weak self] in await self?.observeSearchFocus() }
+        }
+    }
+
+    func refresh() async {
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask { [weak self] in await self?.accountViewModel.refresh() }
+            group.addTask { [weak self] in await self?.loreTabsViewModel.refresh() }
+            group.addTask { [weak self] in await self?.packsViewModel.refresh() }
         }
     }
 
@@ -90,6 +99,15 @@ final class CollectiblesMainViewModel: ObservableObject {
         searchQuery = ""
         cancelPendingCatalogueSync()
         searchResultsViewModel.cancelLoading()
+    }
+
+    func updateBalanceVisibility(balanceMaxY: CGFloat) {
+        let threshold = isBalanceScrolledAway ? Constants.balanceShownThreshold : Constants.balanceHiddenThreshold
+        let scrolledAway = balanceMaxY < threshold
+
+        if scrolledAway != isBalanceScrolledAway {
+            isBalanceScrolledAway = scrolledAway
+        }
     }
 
     func updatePinnedState(tabsMinY: CGFloat) {
@@ -105,32 +123,21 @@ final class CollectiblesMainViewModel: ObservableObject {
 
 private extension CollectiblesMainViewModel {
     func observeAccountBalance() async {
-        for await state in await accountViewModel.$state.values {
-            var text: String?
-            if case .content(let summary) = state {
-                text = summary.fiatBalanceText
-            }
-            if accountBalanceText != text {
-                accountBalanceText = text
-            }
+        for await summary in await accountViewModel.$summary.values {
+            guard accountBalanceText != summary.fiatBalancePlainText else { continue }
+
+            accountBalanceText = summary.fiatBalancePlainText
         }
     }
 
-    func observeCatalogueState() async {
-        var searchAvailability = isSearchAvailable
+    /// The search spans every machine, so it follows the catalogue's own count rather than the state of
+    /// whichever tab is on screen - that one turns over on every switch.
+    func observeSearchAvailability() async {
+        for await totalPacksCount in await loreTabsViewModel.$totalPacksCount.values {
+            let isAvailable = totalPacksCount > 0
+            guard isSearchAvailable != isAvailable else { continue }
 
-        for await state in await packsViewModel.$state.values {
-            switch state {
-            case .content, .empty:
-                searchAvailability = true
-            case .failed:
-                searchAvailability = false
-            case .idle, .loading:
-                break
-            }
-            if isSearchAvailable != searchAvailability {
-                isSearchAvailable = searchAvailability
-            }
+            isSearchAvailable = isAvailable
         }
     }
 
@@ -231,5 +238,7 @@ private extension CollectiblesMainViewModel {
     enum Constants {
         static let tabsPinThreshold: CGFloat = 0.5
         static let tabsUnpinThreshold: CGFloat = 1.5
+        static let balanceHiddenThreshold: CGFloat = 0
+        static let balanceShownThreshold: CGFloat = 8
     }
 }
