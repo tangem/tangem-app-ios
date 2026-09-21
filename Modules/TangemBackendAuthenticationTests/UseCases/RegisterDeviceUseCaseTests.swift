@@ -9,6 +9,7 @@
 import enum CryptoKit.P256
 import Foundation
 import Testing
+import TangemLogger
 import TangemTestKit
 @testable import TangemBackendAuthentication
 
@@ -481,7 +482,8 @@ extension RegisterDeviceUseCaseTests {
                 sessionTokensRepository: sessionTokensRepository,
                 deviceKeyManager: DeviceKeyManager(privateKeyRepository: devicePrivateKeyRepository),
                 nonceDecryptor: nonceDecryptor,
-                deviceMetadataProvider: .fake
+                deviceMetadataProvider: DeviceMetadata.fake,
+                logger: Logger(category: OSLogCategory(name: "Tests"))
             ),
             sourceLocation: sourceLocation
         )
