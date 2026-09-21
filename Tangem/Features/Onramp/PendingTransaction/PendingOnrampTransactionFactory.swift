@@ -90,7 +90,11 @@ struct PendingOnrampTransactionFactory {
                 return canceledStatusesList
             case .failed, .txFailed:
                 return failedStatusesList
-            case .refunding, .refunded:
+            // Mirrors the live-status mapping above: `.refunding` is not part of `refundedStatusesList`, so the
+            // merged case resolved the active step to index 0 ("awaiting deposit") until the first poll.
+            case .refunding:
+                return refundingStatusesList
+            case .refunded:
                 return refundedStatusesList
             case .paused:
                 return pausedStatusesList
