@@ -42,10 +42,7 @@ struct MainQRTronURIRequestBuilder: MainQRBlockchainURIRequestBuilder {
             in: queryItems,
             names: MainQRParserConstants.rawAmountQueryKeys
         )
-        let (amount, rawTokenAmount) = resolveTronAmount(
-            parsedAmount: parsedAmount,
-            rawAmountString: rawAmountString
-        )
+        let amount = resolveTronAmount(parsedAmount: parsedAmount, rawAmountString: rawAmountString)
 
         let unknown = MainQRParserSupport.unknownParameters(
             in: queryItems,
@@ -59,7 +56,7 @@ struct MainQRTronURIRequestBuilder: MainQRBlockchainURIRequestBuilder {
             memo: memo,
             tokenSymbol: explicitSymbol ?? tokenValue,
             tokenContractAddress: tokenValue,
-            rawTokenAmount: rawTokenAmount,
+            rawTokenAmount: nil,
             unknownParameters: unknown
         )
     }
@@ -76,29 +73,14 @@ struct MainQRTronURIRequestBuilder: MainQRBlockchainURIRequestBuilder {
         return keys
     }
 
-    private func resolveTronAmount(
-        parsedAmount: Decimal?,
-        rawAmountString: String?
-    ) -> (amount: Decimal?, rawTokenAmount: Decimal?) {
+    /// The shared `QRCodeParser` already consumes `amount` / `value` / `uint256` (the same keys as
+    /// `rawAmountQueryKeys`), so `parsedAmount` is only `nil` when its stricter decimal parsing failed
+    /// (e.g. a comma decimal separator) — fall back to the lenient parser for that case only.
+    private func resolveTronAmount(parsedAmount: Decimal?, rawAmountString: String?) -> Decimal? {
         if let parsedAmount {
-            return (parsedAmount, nil)
+            return parsedAmount
         }
 
-        guard let rawAmountString, let parsed = MainQRDecimalParser.parseDecimal(rawAmountString) else {
-            return (nil, nil)
-        }
-
-        let hasDecimalPoint = rawAmountString.contains(".") || rawAmountString.contains(",")
-
-        if hasDecimalPoint {
-            return (parsed, nil)
-        }
-
-        if parsed <= MainQRParserConstants.tronRawAmountThreshold {
-            return (parsed, nil)
-        }
-
-        MainQRScanLogger.warning(MainQRScanLoggerStrings.tronAmountTreatedAsRaw(rawValue: rawAmountString))
-        return (nil, parsed)
+        return rawAmountString.flatMap(MainQRDecimalParser.parseDecimal)
     }
 }

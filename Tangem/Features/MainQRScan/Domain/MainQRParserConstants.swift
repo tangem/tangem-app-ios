@@ -9,10 +9,6 @@
 import Foundation
 
 enum MainQRParserConstants {
-    /// Tron amount heuristic threshold.
-    /// Integer amounts above this value (without a decimal point) are treated as raw
-    /// values that need to be divided by `10^decimals`.
-    static let tronRawAmountThreshold: Decimal = 100_000
 
     static let walletConnectSchemeName = "wc"
     static let eip681TransferPath = "/transfer"
