@@ -9,6 +9,7 @@
 import Foundation
 import Testing
 import TangemFoundation
+import TangemLogger
 import TangemTestKit
 @testable import TangemBackendAuthentication
 
@@ -238,7 +239,8 @@ extension ObtainUserWalletRegistrationNonceUseCaseTests {
             registrationClient: registrationClient,
             registrationStatusRepository: registrationStatusRepository,
             deviceKeyManager: deviceKeyManager,
-            nonceDecryptor: nonceDecryptor
+            nonceDecryptor: nonceDecryptor,
+            logger: Logger(category: OSLogCategory(name: "Tests"))
         )
     }
 

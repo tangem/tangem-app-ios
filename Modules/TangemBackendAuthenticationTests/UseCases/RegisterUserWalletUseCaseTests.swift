@@ -8,6 +8,7 @@
 
 import Testing
 import struct TangemFoundation.UserWalletId
+import TangemLogger
 @testable import TangemBackendAuthentication
 
 @Suite(.tags(.backendAuthentication))
@@ -155,7 +156,8 @@ extension RegisterUserWalletUseCaseTests {
         RegisterUserWalletUseCase(
             obtainNonce: obtainNonce,
             attestUserWallet: attestUserWallet,
-            submitRegistration: submitRegistration
+            submitRegistration: submitRegistration,
+            logger: Logger(category: OSLogCategory(name: "Tests"))
         )
     }
 

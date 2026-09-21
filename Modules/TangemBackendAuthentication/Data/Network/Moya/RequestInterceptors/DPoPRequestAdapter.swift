@@ -9,6 +9,7 @@
 import Foundation
 import protocol Alamofire.RequestAdapter
 import class Alamofire.Session
+import struct TangemLogger.Logger
 
 /// Attaches `Authorization`/`DPoP` headers to every request sent through a provider carrying this adapter.
 /// Resolves a still-valid cached access token when one exists, or renews the session otherwise via ``RenewSessionTokensUseCase``.
@@ -17,17 +18,20 @@ struct DPoPRequestAdapter: RequestAdapter {
     private let sessionTokensRepository: any SessionTokensRepository
     private let dPoPProofGenerator: DPoPProofGenerator
     private let dateProvider: @Sendable () -> Date
+    private let logger: Logger
 
     init(
         renewSessionTokensUseCase: RenewSessionTokensUseCase,
         sessionTokensRepository: some SessionTokensRepository,
         dPoPProofGenerator: DPoPProofGenerator,
-        dateProvider: @escaping @Sendable @autoclosure () -> Date = Date.now
+        dateProvider: @escaping @Sendable @autoclosure () -> Date = Date.now,
+        logger: Logger
     ) {
         self.renewSessionTokensUseCase = renewSessionTokensUseCase
         self.sessionTokensRepository = sessionTokensRepository
         self.dPoPProofGenerator = dPoPProofGenerator
         self.dateProvider = dateProvider
+        self.logger = logger
     }
 
     func adapt(
@@ -62,6 +66,7 @@ struct DPoPRequestAdapter: RequestAdapter {
                 // other unauthenticated request — sending it through lets RenewSessionTokensRequestRetrier
                 // get its own independent shot at recovery once the real 401/403 comes back, rather than
                 // us denying that chance by failing here on what might be a transient renewal failure.
+                logger.error("Failed to attach DPoP headers, sending request unauthenticated", error: error)
                 completion(.success(urlRequest))
             }
         }

@@ -9,16 +9,16 @@
 import Foundation
 import OSLog
 
-public struct OSLogCategory {
+public struct OSLogCategory: Sendable {
     public let name: String
-    public let prefix: ((_ level: Logger.Level, _ option: Logger.PrefixOption) -> String)?
+    public let prefix: (@Sendable (_ level: Logger.Level, _ option: Logger.PrefixOption) -> String)?
 
     /// Pre-built `os.Logger` for this category.
     let osLogger: os.Logger
 
     public init(
         name: String,
-        prefix: ((_: Logger.Level, _: Logger.PrefixOption) -> String)? = {
+        prefix: (@Sendable (_: Logger.Level, _: Logger.PrefixOption) -> String)? = {
             PrefixBuilder().prefix(level: $0, option: $1)
         }
     ) {

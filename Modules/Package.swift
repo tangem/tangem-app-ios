@@ -152,6 +152,7 @@ var serviceModules: [PackageDescription.Target] {
             name: "TangemBackendAuthentication",
             dependencies: [
                 .target(name: "TangemFoundation"),
+                .target(name: "TangemLogger"),
                 .product(name: "Alamofire", package: "Alamofire"),
                 .product(name: "Moya", package: "Moya"),
             ],
@@ -499,6 +500,7 @@ var unitTestsModules: [PackageDescription.Target] {
             dependencies: [
                 "TangemBackendAuthentication",
                 "TangemFoundation",
+                "TangemLogger",
                 .product(name: "TangemTestKit", package: "TangemTestKit"),
             ],
             swiftSettings: .swift6StrictSettings
