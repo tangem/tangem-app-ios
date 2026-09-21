@@ -184,8 +184,12 @@ struct YieldModulePromoV2View: View {
     }
 
     private var continueButton: some View {
-        MainButton(title: Localization.commonContinue, action: { viewModel.onContinueTap() })
-            .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.promoContinueButton)
+        MainButton(
+            title: viewModel.continueButtonTitle,
+            isDisabled: viewModel.isContinueButtonDisabled,
+            action: { viewModel.onContinueTap() }
+        )
+        .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.promoContinueButton)
     }
 
     private var bottomStack: some View {

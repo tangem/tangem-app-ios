@@ -40,6 +40,7 @@ final class CommonYieldModuleFlowFactory {
     // MARK: - Dependencies
 
     private let walletModel: any WalletModel
+    private let userWalletInfo: UserWalletInfo
     private let transactionDispatcher: any TransactionDispatcher
     private let yieldModuleManager: any YieldModuleManager
 
@@ -47,12 +48,14 @@ final class CommonYieldModuleFlowFactory {
 
     init(
         walletModel: any WalletModel,
+        userWalletInfo: UserWalletInfo,
         yieldModuleManager: YieldModuleManager,
         transactionDispatcher: any TransactionDispatcher
     ) {
         self.yieldModuleManager = yieldModuleManager
         self.transactionDispatcher = transactionDispatcher
         self.walletModel = walletModel
+        self.userWalletInfo = userWalletInfo
     }
 
     // MARK: - View Models
@@ -67,6 +70,7 @@ final class CommonYieldModuleFlowFactory {
 
         return YieldModulePromoViewModel(
             walletModel: walletModel,
+            userWalletInfo: userWalletInfo,
             yieldManagerInteractor: interactor,
             apy: apy,
             isApyBoostPromo: isApyBoostPromo,
@@ -85,6 +89,7 @@ final class CommonYieldModuleFlowFactory {
 
         return YieldModulePromoV2ViewModel(
             walletModel: walletModel,
+            userWalletInfo: userWalletInfo,
             apy: apy,
             marketIncentive: yieldModuleManager.state?.marketInfo?.incentive,
             coordinator: coordinator,
