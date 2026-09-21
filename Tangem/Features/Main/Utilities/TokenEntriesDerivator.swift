@@ -31,8 +31,8 @@ final class TokenEntriesDerivator {
         var subscription: AnyCancellable?
 
         // One-time subscription to get the latest list of crypto accounts
-        subscription = AccountCryptoModelsAggregator
-            .cryptoAccountModelsPublisher(from: userWalletModel.accountModelsManager)
+        subscription = AccountModelsAggregator(.crypto, .joint)
+            .modelsPublisher(from: userWalletModel.accountModelsManager)
             .prefix(1)
             .sink { cryptoAccounts in
                 for account in cryptoAccounts {
