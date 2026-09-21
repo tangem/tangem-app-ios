@@ -45,14 +45,23 @@ struct TokenDetailsView: View {
                     exploreTransactionAction: viewModel.openTransactionExplorer
                 )
 
-                TransactionsListViewRedesigned(
-                    state: viewModel.transactionHistoryState,
-                    exploreAction: viewModel.openExplorer,
-                    openTransactionDetailsAction: viewModel.openTransactionDetails,
-                    reloadButtonAction: viewModel.onButtonReloadHistory,
-                    isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
-                    fetchMore: viewModel.fetchMoreHistory()
-                )
+                VStack(spacing: .zero) {
+                    if let jointOperationsSection = viewModel.jointOperationsAwaitingSignaturesSection {
+                        TransactionsListSectionView(
+                            item: jointOperationsSection,
+                            openTransactionDetailsAction: viewModel.openTransactionDetails
+                        )
+                    }
+
+                    TransactionsListViewRedesigned(
+                        state: viewModel.transactionHistoryState,
+                        exploreAction: viewModel.openExplorer,
+                        openTransactionDetailsAction: viewModel.openTransactionDetails,
+                        reloadButtonAction: viewModel.onButtonReloadHistory,
+                        isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
+                        fetchMore: viewModel.fetchMoreHistory()
+                    )
+                }
                 .padding(.bottom, 40)
             }
             .padding(.top, Constants.headerTopPadding)
