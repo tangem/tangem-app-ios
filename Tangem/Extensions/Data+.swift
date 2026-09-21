@@ -10,6 +10,7 @@ import Foundation
 
 extension Data {
     static func randomData(count: Int) -> Data {
-        return Data(repeating: UInt8.random(in: 0 ... 255), count: count)
+        // `Data(repeating:count:)` repeats a single random byte; every byte has to be drawn independently.
+        return Data((0 ..< count).map { _ in UInt8.random(in: .min ... .max) })
     }
 }
