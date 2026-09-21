@@ -7,7 +7,9 @@
 //
 
 import SwiftUI
+import Kingfisher
 import TangemAssets
+import TangemFoundation
 import TangemUI
 import TangemUIUtils
 
@@ -15,6 +17,8 @@ extension CollectiblesPackCard {
     struct Artwork: View {
         let url: URL?
         let packSize: CGSize
+
+        @State private var loadingState: LoadingResult<Image, any Error> = .loading
 
         var body: some View {
             if let url {
@@ -30,27 +34,31 @@ private extension CollectiblesPackCard.Artwork {
     // MARK: - View properties
 
     func remoteArtwork(_ url: URL) -> some View {
-        CachedAsyncImage(url: url) { phase in
-            switch phase {
-            case .success(let image):
-                ZStack {
-                    // The glow is the artwork itself, blurred: the gray placeholder would read as a dirty halo.
-                    glow(image)
-                    groundShadow
-                    packImage(image)
-                        .frame(width: packSize.width, height: packSize.height)
-                }
-            case .empty:
-                ZStack {
-                    groundShadow
-                    loadingPlaceholder
-                        .frame(width: packSize.width, height: packSize.height)
-                }
-            case .failure:
-                missingArtworkBadge
-            @unknown default:
-                missingArtworkBadge
+        ZStack {
+            if case .success(let image) = loadingState {
+                glow(image)
             }
+
+            if loadingState.error == nil {
+                groundShadow
+            }
+
+            KFImage(url)
+                .resizable()
+                .cancelOnDisappear(true)
+                .fade(duration: Constants.fadeDuration)
+                .cacheOriginalImage()
+                .onFailureView { missingArtworkBadge }
+                .onSuccess { loadingState = .success(Image(uiImage: $0.image)) }
+                .onFailure { loadingState = .failure($0) }
+                .aspectRatio(contentMode: .fit)
+                .frame(width: packSize.width, height: packSize.height)
+                .skeletonable(
+                    isShown: loadingState.isLoading,
+                    size: CGSize(width: Metrics.placeholderWidth * scale, height: Metrics.placeholderHeight * scale),
+                    radius: Metrics.placeholderCornerRadius * scale
+                )
+                .onChange(of: url) { _ in loadingState = .loading }
         }
     }
 
@@ -69,11 +77,14 @@ private extension CollectiblesPackCard.Artwork {
     }
 
     func glow(_ image: Image) -> some View {
-        packImage(image)
+        image
+            .resizable()
+            .aspectRatio(contentMode: .fit)
             .frame(width: packSize.width, height: packSize.height)
             .scaleEffect(Metrics.glowScale)
             .blur(radius: Metrics.glowBlur * scale)
             .opacity(Metrics.glowOpacity)
+            .allowsHitTesting(false)
     }
 
     var groundShadow: some View {
@@ -85,20 +96,6 @@ private extension CollectiblesPackCard.Artwork {
             .offset(y: Metrics.shadowOffset * scale)
     }
 
-    var loadingPlaceholder: some View {
-        // Sized to the visible pouch inside the artwork frame (the image carries
-        // transparent margins), so the ground shadow peeks out from underneath.
-        RoundedRectangle(cornerRadius: Metrics.placeholderCornerRadius * scale, style: .continuous)
-            .fill(DesignSystem.Color.bgTertiary)
-            .frame(width: Metrics.placeholderWidth * scale, height: Metrics.placeholderHeight * scale)
-    }
-
-    func packImage(_ image: Image) -> some View {
-        image
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-    }
-
     // MARK: - Calculations
 
     var scale: CGFloat {
@@ -106,14 +103,21 @@ private extension CollectiblesPackCard.Artwork {
     }
 }
 
+// MARK: - Constants
+
+private extension CollectiblesPackCard.Artwork {
+    enum Constants {
+        static let fadeDuration: TimeInterval = 0.3
+    }
+}
+
 // MARK: - Metrics
 
 private extension CollectiblesPackCard.Artwork {
-    /// Values are taken at the grid card's pack size and scale linearly from it.
     enum Metrics {
         static let referencePackHeight: CGFloat = 216
-        static let glowScale: CGFloat = 1.12
-        static let glowBlur: CGFloat = 18
+        static let glowScale: CGFloat = 1.25
+        static let glowBlur: CGFloat = 27
         static let glowOpacity: CGFloat = 0.55
         static let shadowWidth: CGFloat = 80
         static let shadowHeight: CGFloat = 24

@@ -480,7 +480,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                         guard let viewModel else { return }
 
                         viewModel.coordinator?.openCollectibles(
-                            with: .init(destination: .main, userWalletModel: viewModel.userWalletModel)
+                            with: .init(destination: .main, userWalletModel: viewModel.userWalletModel, accountModel: accountModel)
                         )
                     }
                 }

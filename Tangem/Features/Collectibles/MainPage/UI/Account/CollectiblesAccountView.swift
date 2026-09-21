@@ -15,6 +15,9 @@ import TangemUIUtils
 struct CollectiblesAccountView: View {
     @ObservedObject var viewModel: CollectiblesAccountViewModel
 
+    let balanceCoordinateSpace: CoordinateSpace
+    let onBalanceMaxYChange: (CGFloat) -> Void
+
     var body: some View {
         content.task(viewModel.load)
     }
@@ -23,68 +26,102 @@ struct CollectiblesAccountView: View {
 private extension CollectiblesAccountView {
     // MARK: - View properties
 
-    @ViewBuilder
     var content: some View {
-        switch viewModel.state {
-        case .idle, .loading:
-            Skeleton()
-        case .content(let summary):
-            loaded(summary)
-        case .failed:
-            loaded(.unavailable)
-        }
-    }
-
-    func loaded(_ summary: Summary) -> some View {
         VStack(spacing: 0) {
-            balance(summary)
-            collectionRow(summary)
+            balance(viewModel.summary)
+
+            collectionRow(viewModel.summary)
                 .padding(.top, Metrics.collectionRowTopPadding)
         }
     }
 
     func balance(_ summary: Summary) -> some View {
         VStack(spacing: 0) {
-            Text(summary.fiatBalanceText)
-                .style(DesignSystem.Font.displayMediumToken, color: DesignSystem.Color.textPrimary)
+            LoadableBalanceView(
+                state: summary.fiatBalance,
+                style: .init(font: DesignSystem.Font.displayMediumToken, textColor: DesignSystem.Color.textPrimary),
+                loader: .init(size: CGSize(width: Metrics.balanceLoaderWidth, height: Metrics.balanceLoaderHeight))
+            )
 
             Text(summary.cryptoBalanceText)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                .shimmer()
                 .padding(.top, Metrics.cryptoBalanceTopPadding)
+                .readGeometry(\.frame.maxY, inCoordinateSpace: balanceCoordinateSpace, onChange: onBalanceMaxYChange)
 
-            actionButtons
+            actionButtons(summary)
                 .padding(.top, Metrics.actionButtonsTopPadding)
         }
+        .environment(\.isShimmerActive, summary.isBalanceUpdating)
         .infinityFrame(axis: .horizontal)
         .padding(.top, Metrics.topPadding)
     }
 
-    var actionButtons: some View {
+    func actionButtons(_ summary: Summary) -> some View {
         HStack(spacing: 0) {
             // [REDACTED_TODO_COMMENT]
             TangemMainActionButton(title: Localization.commonAddFunds, icon: Assets.DesignSystem.arrowDown) {}
                 .frame(width: Metrics.actionButtonWidth)
 
             // [REDACTED_TODO_COMMENT]
-            TangemMainActionButton(title: Localization.collectiblesAccountWithdraw, icon: Assets.DesignSystem.arrowUp) {}
+            TangemMainActionButton(title: Localization.commonWithdrawal, icon: Assets.DesignSystem.arrowUp) {}
                 .frame(width: Metrics.actionButtonWidth)
+                .disabled(!summary.isWithdrawalAvailable)
         }
     }
 
+    @ViewBuilder
     func collectionRow(_ summary: Summary) -> some View {
-        // [REDACTED_TODO_COMMENT]
-        Row(title: summary.collectionCountText, subtitle: Localization.collectiblesAccountCollectionRowSubtitle)
-            .lineOrder(.secondaryFirst)
-            .start { collectionIcon }
-            .end { disclosureIcon }
-            .background(
-                DesignSystem.Color.bgSecondary,
-                in: RoundedRectangle(cornerRadius: Metrics.collectionRowCornerRadius, style: .continuous)
-            )
-            .padding(.horizontal, Metrics.horizontalPadding)
+        if summary.isBalanceUpdating {
+            collectionRowSkeleton
+        } else {
+            // [REDACTED_TODO_COMMENT]
+            Row(title: summary.collectionCountText, subtitle: Localization.collectiblesAccountCollectionRowSubtitle)
+                .lineOrder(.secondaryFirst)
+                .start { Self.collectionIcon }
+                .end { Self.disclosureIcon }
+                .background(
+                    DesignSystem.Color.bgSecondary,
+                    in: RoundedRectangle(cornerRadius: Metrics.collectionRowCornerRadius, style: .continuous)
+                )
+                .padding(.horizontal, Metrics.horizontalPadding)
+        }
     }
 
-    var collectionIcon: some View {
+    var collectionRowSkeleton: some View {
+        HStack(spacing: Metrics.collectionRowSpacing) {
+            Self.collectionIcon
+
+            VStack(alignment: .leading, spacing: Metrics.collectionSkeletonSpacing) {
+                skeletonBar(width: Metrics.collectionSubtitleSkeletonWidth)
+
+                skeletonBar(width: Metrics.collectionTitleSkeletonWidth)
+            }
+
+            Spacer(minLength: 0)
+
+            Self.disclosureIcon
+        }
+        .padding(.horizontal, Metrics.collectionRowInnerPadding)
+        .frame(height: Metrics.collectionRowHeight)
+        .background(
+            DesignSystem.Color.bgSecondary,
+            in: RoundedRectangle(cornerRadius: Metrics.collectionRowCornerRadius, style: .continuous)
+        )
+        .padding(.horizontal, Metrics.horizontalPadding)
+    }
+
+    func skeletonBar(width: CGFloat) -> some View {
+        Shimmer()
+            .frame(width: width, height: Metrics.collectionSkeletonBarHeight)
+            .clipShape(Capsule())
+    }
+}
+
+// MARK: - Shared icons
+
+private extension CollectiblesAccountView {
+    static var collectionIcon: some View {
         DesignSystem.Icons.Grid.regular20.image
             .renderingMode(.template)
             .foregroundStyle(DesignSystem.Color.iconBrand)
@@ -93,7 +130,7 @@ private extension CollectiblesAccountView {
             .accessibilityHidden(true)
     }
 
-    var disclosureIcon: some View {
+    static var disclosureIcon: some View {
         DesignSystem.Icons.ChevronRight.regular20.image
             .renderingMode(.template)
             .foregroundStyle(DesignSystem.Color.iconSecondary)
@@ -103,8 +140,7 @@ private extension CollectiblesAccountView {
 
 // MARK: - Metrics
 
-/// Not private: `Skeleton` reads the shared values so it does not jump when the content arrives.
-extension CollectiblesAccountView {
+private extension CollectiblesAccountView {
     enum Metrics {
         static let horizontalPadding: CGFloat = 16
         static let topPadding: CGFloat = 56
@@ -112,9 +148,20 @@ extension CollectiblesAccountView {
         static let actionButtonsTopPadding: CGFloat = 60
         static let actionButtonWidth: CGFloat = 102
 
+        static let balanceLoaderWidth: CGFloat = 190
+        static let balanceLoaderHeight: CGFloat = 40
+
         static let collectionRowTopPadding: CGFloat = 24
         static let collectionRowCornerRadius: CGFloat = 24
         static let collectionIconSize: CGFloat = 40
+
+        static let collectionRowHeight: CGFloat = 72
+        static let collectionRowInnerPadding: CGFloat = 16
+        static let collectionRowSpacing: CGFloat = 12
+        static let collectionSkeletonSpacing: CGFloat = 6
+        static let collectionSkeletonBarHeight: CGFloat = 16
+        static let collectionSubtitleSkeletonWidth: CGFloat = 122
+        static let collectionTitleSkeletonWidth: CGFloat = 76
     }
 }
 
@@ -124,6 +171,10 @@ extension CollectiblesAccountView {
     ZStack {
         DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
-        CollectiblesAccountView(viewModel: CollectiblesAccountViewModel(provider: CollectiblesAccountSummaryMockProvider()))
+        CollectiblesAccountView(
+            viewModel: CollectiblesAccountViewModel(accountModel: nil),
+            balanceCoordinateSpace: .local,
+            onBalanceMaxYChange: { _ in }
+        )
     }
 }

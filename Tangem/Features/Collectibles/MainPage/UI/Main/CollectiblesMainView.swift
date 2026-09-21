@@ -16,7 +16,8 @@ struct CollectiblesMainView: View {
     @ObservedObject var viewModel: CollectiblesMainViewModel
 
     let actionsMenuViewModel: CollectiblesActionsMenuViewModel
-    let onBack: () -> Void
+    let dismissStyle: CollectiblesDismissStyle
+    let onDismiss: () -> Void
 
     @State private var scrollHeight: CGFloat = 0
     @State private var topInset: CGFloat = 0
@@ -60,7 +61,7 @@ private extension CollectiblesMainView {
                 height: Metrics.navigationBarHeight
             ),
             titleView: { navigationBarTitle },
-            leftButtons: { NavigationBarButton.back(action: onBack) },
+            leftButtons: { dismissStyle.button(action: onDismiss) },
             rightButtons: { ActionsMenu(viewModel: actionsMenuViewModel) }
         )
         .padding(.top, Metrics.navigationBarTopPadding)
@@ -78,8 +79,8 @@ private extension CollectiblesMainView {
             Text(Localization.collectiblesMainTitle)
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
-            if viewModel.showsBalanceInNavigationBar, let balance = viewModel.accountBalanceText {
-                Text(balance)
+            if viewModel.showsBalanceInNavigationBar {
+                Text(viewModel.accountBalanceText)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             }
         }
@@ -91,6 +92,7 @@ private extension CollectiblesMainView {
             catalogue
                 .padding(.bottom, Metrics.contentBottomPadding)
         }
+        .refreshable { await viewModel.refresh() }
         .coordinateSpace(name: Constants.scrollSpace)
         .readGeometry(\.size.height, bindTo: $scrollHeight)
     }
@@ -110,7 +112,11 @@ private extension CollectiblesMainView {
 
     var catalogue: some View {
         LazyVStack(spacing: 0, pinnedViews: .sectionHeaders) {
-            CollectiblesAccountView(viewModel: viewModel.accountViewModel)
+            CollectiblesAccountView(
+                viewModel: viewModel.accountViewModel,
+                balanceCoordinateSpace: .named(Constants.scrollSpace),
+                onBalanceMaxYChange: { viewModel.updateBalanceVisibility(balanceMaxY: $0) }
+            )
 
             // Closes the gap to the tabs without touching the header itself, so its height never changes.
             Spacer(minLength: Metrics.tabsTopPadding - Metrics.pinnedTabsTopPadding)
@@ -258,9 +264,10 @@ private struct PreviewCatalogueProvider: CollectiblesLoresProvider, Collectibles
 #Preview {
     NavigationStack {
         CollectiblesMainView(
-            viewModel: CollectiblesMainViewModel(routable: nil, catalogueProvider: PreviewCatalogueProvider()),
+            viewModel: CollectiblesMainViewModel(routable: nil, accountModel: nil, catalogueProvider: PreviewCatalogueProvider()),
             actionsMenuViewModel: CollectiblesActionsMenuViewModel(routable: nil),
-            onBack: {}
+            dismissStyle: .back,
+            onDismiss: {}
         )
     }
 }
