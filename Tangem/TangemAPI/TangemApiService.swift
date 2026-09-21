@@ -207,7 +207,12 @@ protocol TangemApiService: AnyObject {
     // MARK: - Joint accounts
 
     /// - Returns: Every joint account the wallet takes part in
-    func getJointAccounts(walletId: String) async throws -> JointAccountsDTO.Response.JointAccounts
+    /// - Parameter knownETag: The tag the list was last read with, sent as `If-None-Match`; nil reads it outright.
+    /// - Returns: nil when the list has not changed since that tag, which the endpoint says with a 304 and no body;
+    /// otherwise the list and the tag it came with, to be sent back the next time.
+    func getJointAccounts(
+        walletId: String, knownETag: String?
+    ) async throws -> (eTag: String?, accounts: JointAccountsDTO.Response.JointAccounts)?
 
     /// - Returns: The account, in `pending` with the caller as its creator, and one invite per free slot.
     func createJointAccount(
@@ -240,10 +245,11 @@ protocol TangemApiService: AnyObject {
         walletId: String, operationId: String, body: JointAccountsDTO.Request.SignOperation
     ) async throws -> JointAccountsDTO.Response.Operation
 
-    /// - Returns: The operation with its progress recounted, or nil when this very call deleted it — the initiator's
-    /// reject always does, a co-signer's once the threshold becomes unreachable.
+    /// Neither signed nor given a body: which of the two refusals it is follows from the wallet it is called for.
+    /// - Returns: The operation with its progress recounted, or nil when it no longer collects answers at all — this
+    /// call finished it, an earlier one did, or the id names nothing.
     func rejectJointAccountOperation(
-        walletId: String, operationId: String, body: JointAccountsDTO.Request.RejectOperation
+        walletId: String, operationId: String
     ) async throws -> JointAccountsDTO.Response.Operation?
 
     // MARK: - Address Book

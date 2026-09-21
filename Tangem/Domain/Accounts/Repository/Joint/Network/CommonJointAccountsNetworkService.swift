@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 import TangemFoundation
 
 /// - Note: Nothing here is retried. Creating and joining are spent once by contract, so a repeat answers with a
@@ -14,6 +15,7 @@ import TangemFoundation
 /// whether a repeat is what it wants. The two reads are cheap enough to leave to whoever asked.
 final class CommonJointAccountsNetworkService {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.eTagStorage) private var eTagStorage: ETagStorage
 
     private let userWalletId: UserWalletId
     private let mapper: JointAccountsNetworkMapper
@@ -36,10 +38,18 @@ extension CommonJointAccountsNetworkService: JointAccountsNetworkService {
         return try mapper.mapToCreationResult(from: response)
     }
 
-    func getJointAccounts() async throws -> [RemoteJointAccount] {
-        let response = try await tangemApiService.getJointAccounts(walletId: userWalletId.stringValue)
+    func getJointAccounts() async throws -> JointAccountsRemoteState {
+        let knownETag = eTagStorage.loadETag(for: .jointAccounts(walletId: userWalletId))
 
-        return try mapper.mapToJointAccounts(from: response)
+        guard let (eTag, response) = try await tangemApiService.getJointAccounts(walletId: userWalletId.stringValue, knownETag: knownETag) else {
+            return .notModified
+        }
+
+        if let eTag {
+            eTagStorage.saveETag(eTag, for: .jointAccounts(walletId: userWalletId))
+        }
+
+        return try .changed(mapper.mapToJointAccounts(from: response))
     }
 
     func getInvitePreview(inviteId: String) async throws -> JointAccountInvitePreview {
@@ -78,21 +88,20 @@ extension CommonJointAccountsNetworkService: JointAccountsNetworkService {
         return try mapper.mapToOperation(from: response)
     }
 
-    func signOperation(id: String, signature: Data) async throws -> JointAccountOperation {
+    func signOperation(id: String, safeTransaction: SafeTransaction, signature: Data) async throws -> JointAccountOperation {
         let response = try await tangemApiService.signJointAccountOperation(
             walletId: userWalletId.stringValue,
             operationId: id,
-            body: mapper.mapToRequest(from: signature)
+            body: mapper.mapToRequest(safeTransaction: safeTransaction, signature: signature)
         )
 
         return try mapper.mapToOperation(from: response)
     }
 
-    func rejectOperation(id: String, blob: JointAccountOperationRejectionBlob) async throws -> JointAccountOperation? {
+    func rejectOperation(id: String) async throws -> JointAccountOperation? {
         let response = try await tangemApiService.rejectJointAccountOperation(
             walletId: userWalletId.stringValue,
-            operationId: id,
-            body: mapper.mapToRequest(from: blob)
+            operationId: id
         )
 
         return try response.map(mapper.mapToOperation(from:))
