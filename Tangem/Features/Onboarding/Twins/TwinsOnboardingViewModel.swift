@@ -225,7 +225,7 @@ class TwinsOnboardingViewModel: OnboardingViewModel<TwinsOnboardingStep, Onboard
         case .second:
             fallthrough
         case .third:
-            isMainButtonBusy = true
+            isSupplementButtonBusy = true
             subscribeToStepUpdates()
             twinsService.executeCurrentStep()
         default:
@@ -264,7 +264,7 @@ class TwinsOnboardingViewModel: OnboardingViewModel<TwinsOnboardingStep, Onboard
             .isServiceBusy
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isServiceBudy in
-                self?.isMainButtonBusy = isServiceBudy
+                self?.isSupplementButtonBusy = isServiceBudy
             }
             .store(in: &bag)
 
