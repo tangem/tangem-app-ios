@@ -81,6 +81,10 @@ private extension CommonFiatRateProvider {
         // Don't have quote because of error. Update with saving the previous one
         case .none:
             rateSubject.send(.failure(cached: rate.quote))
+        // A quote still denominated in the previous app currency (the repository is not invalidated on a
+        // currency change) must not be shown as loaded: the formatter would put the new symbol on old numbers.
+        case .some(let quote) where quote.currencyCode != AppSettings.shared.selectedCurrencyCode:
+            rateSubject.send(.failure(cached: nil))
         case .some(let quote):
             rateSubject.send(.loaded(quote: quote))
         }
