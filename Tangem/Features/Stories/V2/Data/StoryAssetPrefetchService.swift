@@ -19,9 +19,13 @@ struct StoryAssetPrefetchService {
         self.cache = cache
     }
 
-    func prefetch(_ story: StoryV2, includeFullAssets: Bool = true) async -> StoryV2 {
+    func prefetch(_ story: StoryV2, includeFullAssets: Bool = true) async throws -> StoryV2 {
         var slides: [SlideV2] = []
         for slide in story.slides {
+            // A cancelled download reaches the cache as a plain miss, so nothing below stops the
+            // walk on its own — the next slide would just start downloading megabytes of its own.
+            try Task.checkCancellation()
+
             let asset = slide.asset
             let localPoster = await localFile(asset.posterURL, checksum: asset.posterChecksum)
             let localAsset = includeFullAssets ? await localFile(asset.url, checksum: asset.checksum) : nil
@@ -34,6 +38,9 @@ struct StoryAssetPrefetchService {
                 )
             )
         }
+        // The last slide has no iteration after it to notice a cancellation that landed mid-download.
+        try Task.checkCancellation()
+
         return story.replacingSlides(slides)
     }
 

@@ -40,7 +40,7 @@ struct StoriesDTOMapperTests {
 
         #expect(story.slides.count == 2)
         let first = story.slides[0]
-        #expect(first.id == "one_tap")
+        #expect(first.id == "2")
         #expect(first.order == 1)
         #expect(first.asset.type == .video)
         #expect(first.asset.contentMode == .cover)
@@ -110,7 +110,7 @@ struct StoriesDTOMapperTests {
 
     @Test
     func malformedSlideIsDroppedWithoutLosingTheStory() throws {
-        let broken = #"{ "id": "no_title", "assetType": "video", "durationMs": 1000 }"#
+        let broken = #"{ "id": 99, "assetType": "video", "durationMs": 1000 }"#
         let stories = try map(Self.story(slides: [broken, Self.slideObject()]))
 
         #expect(stories.first?.slides.count == 1)
@@ -141,7 +141,7 @@ struct StoriesDTOMapperTests {
         let slide = Self.slideObject(extra: #""actions": [{ "label": "Go", "style": "primary", "deeplink": "tangem://x" }]"#)
         let mapped = try #require(try map(Self.story(slides: [slide])).first?.slides.first)
 
-        #expect(mapped.actions?.first?.id == "slug_1_slide_action_1")
+        #expect(mapped.actions?.first?.id == "slug_1_7_action_1")
     }
 
     @Test
@@ -238,8 +238,8 @@ struct StoriesDTOMapperTests {
 
     @Test
     func explicitActionIdWinsOverFallback() throws {
-        let json = Self.story(actions: [#"{ "id": "custom", "label": "Go", "style": "primary", "deeplink": "tangem://x" }"#])
-        #expect(try map(json).first?.actions.first?.id == "custom")
+        let json = Self.story(actions: [#"{ "id": 42, "label": "Go", "style": "primary", "deeplink": "tangem://x" }"#])
+        #expect(try map(json).first?.actions.first?.id == "42")
     }
 
     @Test
@@ -267,7 +267,7 @@ struct StoriesDTOMapperTests {
     ) -> String {
         """
         {
-          "id": "slide",
+          "id": 7,
           "title": "Title",
           "subtitle": "Subtitle",
           "assetType": "\(assetType)",
@@ -314,7 +314,7 @@ struct StoriesDTOMapperTests {
           "endBehaviour": "finish",
           "slides": [
             {
-              "id": "one_tap",
+              "id": 2,
               "title": "One tap to control crypto",
               "subtitle": "Confirm every action with your Tangem",
               "assetType": "video",
@@ -329,7 +329,7 @@ struct StoriesDTOMapperTests {
               }
             },
             {
-              "id": "trusted",
+              "id": 3,
               "title": "Trusted by millions",
               "subtitle": "Join the self-custody wallet used worldwide",
               "assetType": "video",
