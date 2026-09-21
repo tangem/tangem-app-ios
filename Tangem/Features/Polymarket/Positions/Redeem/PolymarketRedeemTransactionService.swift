@@ -16,6 +16,7 @@ actor PolymarketRedeemTransactionService {
     private let relayerService: PolymarketRelayerService
     private let depositWalletResolver: PolymarketDepositWalletResolver
     private let signer: PolymarketBatchSigning
+    private let serverClock: PolymarketServerClock
     private let pollDelayProvider: PollDelayProvider
 
     private var isClaimInProgress = false
@@ -25,12 +26,14 @@ actor PolymarketRedeemTransactionService {
         relayerService: PolymarketRelayerService,
         depositWalletResolver: PolymarketDepositWalletResolver,
         signer: PolymarketBatchSigning,
+        serverClock: PolymarketServerClock,
         pollDelayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
         self.redeemService = redeemService
         self.relayerService = relayerService
         self.depositWalletResolver = depositWalletResolver
         self.signer = signer
+        self.serverClock = serverClock
         self.pollDelayProvider = pollDelayProvider
     }
 }
@@ -76,7 +79,7 @@ private extension PolymarketRedeemTransactionService {
     }
 
     func makeDeadline() -> String {
-        String(Int(Date().timeIntervalSince1970) + Constants.deadlineOffset)
+        String(Int(serverClock.now.timeIntervalSince1970) + Constants.deadlineOffset)
     }
 
     func submit(_ batch: PolymarketRelayedBatch) async throws -> PolymarketRedeemRecord {

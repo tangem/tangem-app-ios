@@ -29,7 +29,7 @@ struct SwapModelDexSwapValidationTests {
     @Test("A receive amount below the destination minimum blocks the swap")
     func receiveAmountBelowTheMinimumBlocksTheSwap() async throws {
         let sut = makeSUT(
-            receiveToken: makeReceiveToken(restriction: .notEnoughReceivedAmount(minAmount: 5, reason: .receivingMinimum))
+            receiveToken: makeReceiveToken(restriction: .notEnoughReceivedAmount(minAmount: .fiatUSD(5), reason: .receivingMinimum))
         )
 
         let state = try await sut.map(provider: makeProvider(), dexPreview: makeDexPreview())
@@ -39,7 +39,7 @@ struct SwapModelDexSwapValidationTests {
             return
         }
 
-        #expect(minAmount == 5)
+        #expect(minAmount == .fiatUSD(5))
         #expect(reason == .receivingMinimum)
     }
 

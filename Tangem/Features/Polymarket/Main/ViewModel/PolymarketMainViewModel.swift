@@ -324,7 +324,7 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     private func withdrawStateForPreparedAccount(_ readiness: PolymarketAccountFundsInteractor.Readiness) -> WithdrawState {
-        let minimum = PolymarketMinimumAmount(usd: readiness.depositTarget?.asset.minCheckoutUSD).inToken()
+        let minimum = PolymarketUSDAmount(usd: readiness.depositTarget?.asset.minCheckoutUSD).inToken()
 
         switch collateralBalance {
         case .loaded(let balance):
@@ -548,7 +548,10 @@ final class PolymarketMainViewModel: ObservableObject {
         case .loading:
             break
         case .unavailable:
-            alert = AlertBuilder.makeOkGotItAlert(message: Localization.predictionAddFundsErrorDescription)
+            alert = AlertBuilder.makeOkGotItAlert(
+                message: Localization.predictionAddFundsErrorDescription,
+                okAction: { [weak self] in self?.prepareAccountFunds() }
+            )
         }
     }
 
@@ -564,7 +567,23 @@ final class PolymarketMainViewModel: ObservableObject {
         case .loading:
             break
         case .unavailable(let reason):
-            alert = AlertBuilder.makeOkGotItAlert(message: message(for: reason))
+            alert = AlertBuilder.makeOkGotItAlert(
+                message: message(for: reason),
+                okAction: { [weak self] in self?.retryWithdrawAvailability(after: reason) }
+            )
+        }
+    }
+
+    private func retryWithdrawAvailability(after reason: WithdrawUnavailability) {
+        switch reason {
+        case .emptyBalance, .tooSmallBalance:
+            break
+        case .balanceUnavailable:
+            runTask(in: self) { @MainActor viewModel in
+                await viewModel.refreshBalance()
+            }
+        case .accountUnavailable:
+            prepareAccountFunds()
         }
     }
 
