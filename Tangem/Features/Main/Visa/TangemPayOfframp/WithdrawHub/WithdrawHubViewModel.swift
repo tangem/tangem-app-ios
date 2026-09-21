@@ -163,7 +163,7 @@ final class WithdrawHubViewModel: ObservableObject {
     private func handle(_ outcome: TangemPayWithdrawFlowResolver.Outcome) {
         switch outcome {
         case .swap(let swapParameters):
-            output(.withdrawNote(swapParameters))
+            output(.withdraw(swapParameters))
 
         case .pendingWithdrawOrder:
             output(.withdrawInProgress)
@@ -208,7 +208,7 @@ extension WithdrawHubViewModel {
 
 extension WithdrawHubViewModel {
     enum Output {
-        case withdrawNote(PredefinedSwapParameters)
+        case withdraw(PredefinedSwapParameters)
         case withdrawInProgress
         case noDepositAddress
         case allRecipients
