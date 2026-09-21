@@ -1812,6 +1812,8 @@ public enum Localization {
   public static let hwCloudBackupRestoreUseRecoveryPhrase = Localization.tr("Localizable", "hw_cloud_backup_restore_use_recovery_phrase")
   /// Wrong password
   public static let hwCloudBackupRestoreWrongPassword = Localization.tr("Localizable", "hw_cloud_backup_restore_wrong_password")
+  /// Wrong passphrase
+  public static let hwCloudBackupRestoreWrongPassphrase = Localization.tr("Localizable", "hw_cloud_backup_restore_wrong_passphrase")
   /// Try again
   public static let hwCloudBackupRetry = Localization.tr("Localizable", "hw_cloud_backup_retry")
   /// Google Drive
