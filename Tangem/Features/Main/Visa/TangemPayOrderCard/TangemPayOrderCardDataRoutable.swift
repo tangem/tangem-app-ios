@@ -7,6 +7,7 @@
 
 protocol TangemPayOrderCardDataRoutable: AnyObject {
     func orderCardDataDidPlaceOrder()
+    func orderCardDataDidFailUnexpectedly(retry: @escaping () -> Void)
     func orderCardDataDidGoBack()
     func closeOrderCardData()
 }
