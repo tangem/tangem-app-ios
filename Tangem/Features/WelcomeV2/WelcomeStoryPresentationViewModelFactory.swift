@@ -35,6 +35,7 @@ struct WelcomeStoryPresentationViewModelFactory {
 
     func make(
         provider: WelcomeStoryProviding,
+        onAction: @escaping (StoryActionV2) -> Void,
         onFinished: @escaping (StoryExitReason, StoryActionV2?) -> Void
     ) -> WelcomeStoryPresentationViewModel? {
         let urls = provider.welcomeStoryVideoURLs()
@@ -57,9 +58,10 @@ struct WelcomeStoryPresentationViewModelFactory {
             source: .onboarding,
             analytics: analyticsProvider,
             hapticPlayer: CommonStoryHapticPlayer(),
+            onAction: onAction,
             onFinished: onFinished
         )
-        return WelcomeStoryPresentationViewModel(player: player)
+        return WelcomeStoryPresentationViewModel(player: player, scanAction: scanAction)
     }
 
     private func makeActions() -> [StoryActionV2] {
@@ -70,14 +72,18 @@ struct WelcomeStoryPresentationViewModelFactory {
                 style: .secondary,
                 target: .web(TangemShopUrlBuilder().url(utmCampaign: .prospect).absoluteString)
             ),
-            StoryActionV2(
-                id: ActionID.scanWallet,
-                label: Localization.introductionStoriesButtonPrimary,
-                style: .primary,
-                target: .screen(ScreenKey.hardwareWallet),
-                icon: Assets.tangemIcon
-            ),
+            scanAction,
         ]
+    }
+
+    private var scanAction: StoryActionV2 {
+        StoryActionV2(
+            id: ActionID.scanWallet,
+            label: Localization.introductionStoriesButtonPrimary,
+            style: .primary,
+            target: .screen(ScreenKey.hardwareWallet),
+            icon: Assets.tangemIcon
+        )
     }
 
     /// Haptic timings were authored against these exact clips in the onboarding prototype, so

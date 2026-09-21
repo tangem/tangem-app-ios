@@ -53,6 +53,7 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
     @Published var tangemPayMobileOnboardingCoordinator: TangemPayMobileOnboardingCoordinator?
     @Published var tangemPayCampaignCoordinator: TangemPayCampaignCoordinator?
+    @Published private var isShopPresented = false
 
     private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
 
@@ -61,6 +62,7 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     private var cardScanTask: Task<Void, Never>?
     private var createMobileWalletTask: Task<Void, Never>?
     private var sheetTransitionTask: Task<Void, Never>?
+    private var shopSafariHandle: SafariHandle?
 
     /// `true` while nothing the user navigated to themselves is on screen. The processor gates the promo /
     /// Tangem Pay deep links on this, so they never present over such a screen.
@@ -71,6 +73,7 @@ final class WelcomeV2Coordinator: CoordinatorObject {
             $importOnboardingCoordinator.map { $0 == nil }.eraseToAnyPublisher(),
             $welcomeStoryViewModel.map { $0 == nil }.eraseToAnyPublisher(),
             $scanTroubleshootingDialog.map { $0 == nil }.eraseToAnyPublisher(),
+            $isShopPresented.map { !$0 }.eraseToAnyPublisher(),
         ]
         .combineLatest()
         .map { $0.allSatisfy { $0 } }
@@ -109,6 +112,30 @@ final class WelcomeV2Coordinator: CoordinatorObject {
                 coordinator.render(state)
             }
             .store(in: &bag)
+
+        bindStoryCover()
+    }
+
+    /// The story is not dismissed by its own buttons any more, so whatever they open runs on top of
+    /// it. Playback follows that cover, which keeps the user on the same slide once it goes away.
+    private func bindStoryCover() {
+        Publishers.CombineLatest3(
+            $isScanningCard,
+            $scanTroubleshootingDialog.map { $0 != nil },
+            $isShopPresented
+        )
+        .map { isScanning, isTroubleshooting, isShopPresented in
+            isScanning || isTroubleshooting || isShopPresented
+        }
+        .removeDuplicates()
+        .receive(on: DispatchQueue.main)
+        .withWeakCaptureOf(self)
+        .sink { coordinator, isCovered in
+            MainActor.assumeIsolated {
+                coordinator.welcomeStoryViewModel?.setCovered(isCovered)
+            }
+        }
+        .store(in: &bag)
     }
 
     /// V2 renders only the processor's deep links; the legacy welcome-onboarding steps (TOS + push soft-ask)
@@ -225,18 +252,35 @@ extension WelcomeV2Coordinator: WelcomeV2Routable {
     }
 
     func openShop(url: URL) {
+        // The story stays up behind the shop, so its button is still tappable while the browser opens.
+        guard !isShopPresented else { return }
+
         analytics.logButtonBuy()
         analytics.logShopScreenOpened()
-        safariManager.openURL(url)
+        isShopPresented = true
+
+        shopSafariHandle = safariManager.openURL(
+            url,
+            configuration: .init(),
+            onDismiss: { [weak self] in
+                self?.handleShopDismiss()
+            },
+            // A redirect closes the browser from the outside and reports success instead of a dismissal.
+            onSuccess: { [weak self] _ in
+                self?.handleShopDismiss()
+            }
+        )
     }
 
     func openMain(with userWalletModel: UserWalletModel) {
         cancelPendingTasks()
+        reportWelcomeStoryExit()
         dismiss(with: .main(userWalletModel))
     }
 
     func openOnboarding(with input: OnboardingInput) {
         cancelPendingTasks()
+        reportWelcomeStoryExit()
         dismiss(with: .onboarding(input))
     }
 }
@@ -496,8 +540,11 @@ private extension WelcomeV2Coordinator {
     func presentWelcomeStory() {
         let vm = WelcomeStoryPresentationViewModelFactory().make(
             provider: welcomeStoryProvider,
-            onFinished: { [weak self] _, action in
-                self?.handleWelcomeStoryFinish(action: action)
+            onAction: { [weak self] action in
+                self?.handleWelcomeStoryAction(action)
+            },
+            onFinished: { [weak self] reason, _ in
+                self?.handleWelcomeStoryFinish(reason: reason)
             }
         )
 
@@ -513,13 +560,8 @@ private extension WelcomeV2Coordinator {
     }
 
     @MainActor
-    func handleWelcomeStoryFinish(action: StoryActionV2?) {
-        // The story stays tappable while it fades out, so a second tap must not repeat the action.
-        guard welcomeStoryViewModel != nil else { return }
-
-        welcomeStoryViewModel = nil
-
-        switch action?.target {
+    func handleWelcomeStoryAction(_ action: StoryActionV2) {
+        switch action.target {
         case .screen(let key) where key == WelcomeStoryPresentationViewModelFactory.ScreenKey.hardwareWallet:
             analytics.logButtonScanCard()
             scanHardwareWallet()
@@ -528,8 +570,31 @@ private extension WelcomeV2Coordinator {
             // so the host allowlist applied to remote stories is not needed here.
             guard let url = URL(string: raw), url.scheme?.lowercased() == "https" else { return }
             openShop(url: url)
-        case .screen, .deeplink, .close, nil:
+        case .screen, .deeplink, .close:
             break
+        }
+    }
+
+    @MainActor
+    func handleWelcomeStoryFinish(reason: StoryExitReason) {
+        switch reason {
+        case .closeButton, .swipeDown, .completed:
+            welcomeStoryViewModel = nil
+        case .action:
+            // The scan has taken the user off welcome. Unmounting the story here would run its own
+            // fade and flash welcome back in while the root is already cross-fading away from it.
+            break
+        }
+    }
+
+    func handleShopDismiss() {
+        isShopPresented = false
+        shopSafariHandle = nil
+    }
+
+    func reportWelcomeStoryExit() {
+        MainActor.assumeIsolated {
+            welcomeStoryViewModel?.closeAfterScan()
         }
     }
 
