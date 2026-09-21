@@ -58,7 +58,7 @@ struct SendSuggestedWalletsFactory {
                 )
             }
 
-            if let tangemPayAccountModel = TangemPayAccountAggregator.tangemPayAccountModel(from: userWalletModel.accountModelsManager),
+            if let tangemPayAccountModel = AccountModelsAggregator(.tangemPay).model(from: userWalletModel.accountModelsManager),
                let tangemPayAccount = tangemPayAccountModel.state?.tangemPayAccount,
                referenceTokenItem.token == tangemPayAccount.paymentTokenItem.token,
                referenceTokenItem.blockchain == tangemPayAccount.paymentTokenItem.blockchain,

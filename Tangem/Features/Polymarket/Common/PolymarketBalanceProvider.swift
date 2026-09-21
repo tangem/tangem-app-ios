@@ -109,7 +109,7 @@ private extension CommonPolymarketBalanceProvider {
             return .just(output: nil)
         }
 
-        return PolymarketAccountAggregator.polymarketAccountModelPublisher(from: accountModelsManager)
+        return AccountModelsAggregator(.polymarket).modelPublisher(from: accountModelsManager)
     }
 
     static func makeFormattedBalance(from balanceType: TokenBalanceType) -> FormattedTokenBalanceType {

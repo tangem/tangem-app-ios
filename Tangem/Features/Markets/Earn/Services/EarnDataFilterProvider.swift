@@ -187,7 +187,7 @@ final class EarnDataFilterProvider {
         initialModelsPublisher
             .merge(with: eventModelsPublisher)
             .map { userWalletModels in
-                userWalletModels.map { AccountCryptoModelsAggregator.cryptoAccountModelsPublisher(from: $0.accountModelsManager) }
+                userWalletModels.map { AccountModelsAggregator(.crypto, .joint).modelsPublisher(from: $0.accountModelsManager) }
             }
             .flatMapLatest { publishers -> AnyPublisher<[[any CryptoAccountModel]], Never> in
                 guard !publishers.isEmpty else {
@@ -225,7 +225,7 @@ final class EarnDataFilterProvider {
     @MainActor
     private func updateMyNetworks() {
         let userNetworkIds = Set(
-            AccountCryptoModelsAggregator.cryptoAccountModels(from: userWalletRepository.models)
+            AccountModelsAggregator(.crypto, .joint).models(from: userWalletRepository.models)
                 .flatMap { $0.userTokensManager.userTokens }
                 .map(\.networkId)
         )

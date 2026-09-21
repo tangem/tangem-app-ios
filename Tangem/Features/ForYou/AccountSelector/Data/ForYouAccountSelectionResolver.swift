@@ -80,7 +80,7 @@ private extension ForYouAccountSelectionResolver {
     }
 
     func walletAccountsPublisher(for wallet: any UserWalletModel) -> WalletAccountsPublisher {
-        AccountCryptoModelsAggregator.cryptoAccountModelsPublisher(from: wallet.accountModelsManager).map { accounts in
+        AccountModelsAggregator(.crypto, .joint).modelsPublisher(from: wallet.accountModelsManager).map { accounts in
             accounts.map { WalletAccount(wallet: wallet, account: $0) }
         }
         .eraseToAnyPublisher()
