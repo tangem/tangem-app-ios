@@ -39,7 +39,11 @@ final class CollectiblesDeriveAndSignTask: CardSessionRunnable {
     }
 
     private func runInternal(in session: CardSession) async throws -> Response {
-        let derivationResult = try await DeriveMultipleWalletPublicKeysTask([seedKey: [derivationPath]]).run(in: session)
+        let derivationResult = try await DeriveMultipleWalletPublicKeysTask(
+            [seedKey: [derivationPath]],
+            shouldFailIfNothingDerived: true
+        )
+        .run(in: session)
 
         guard let extendedPublicKey = derivationResult[seedKey]?[derivationPath] else {
             throw Error.keyNotDerived
