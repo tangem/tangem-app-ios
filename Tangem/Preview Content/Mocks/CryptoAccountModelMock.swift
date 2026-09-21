@@ -16,6 +16,7 @@ final class CryptoAccountModelMock {
 
     let id: CryptoAccountModelId
     let isMainAccount: Bool
+    let accountType: AccountType
     let walletModelsManager: WalletModelsManager
     let totalBalanceProvider: TotalBalanceProvider
     let userTokensManager: UserTokensManager
@@ -44,6 +45,7 @@ final class CryptoAccountModelMock {
 
     init(
         isMainAccount: Bool,
+        accountType: AccountType = .crypto,
         walletModelsManager: WalletModelsManager = WalletModelsManagerMock(),
         totalBalanceProvider: TotalBalanceProvider = TotalBalanceProviderMock(),
         userTokensManager: UserTokensManager = UserTokensManagerMock(),
@@ -54,10 +56,11 @@ final class CryptoAccountModelMock {
             userWalletId: UserWalletId(value: .randomData(count: 32)),
             derivationIdentity: CryptoAccountDerivationIdentity(
                 derivationIndex: isMainAccount ? AccountModelUtils.mainAccountDerivationIndex : 1,
-                type: .crypto
+                type: accountType
             )
         )
         self.isMainAccount = isMainAccount
+        self.accountType = accountType
         self.walletModelsManager = walletModelsManager
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensManager = userTokensManager
@@ -84,8 +87,6 @@ extension CryptoAccountModelMock {
 // MARK: - CryptoAccountModel protocol conformance
 
 extension CryptoAccountModelMock: CryptoAccountModel {
-    var accountType: AccountType { .crypto }
-
     var didChangePublisher: AnyPublisher<Void, Never> {
         didChangeSubject.eraseToAnyPublisher()
     }

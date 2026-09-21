@@ -117,8 +117,8 @@ struct PolymarketSupportedAssetsDecodingTests {
         let polygon = assets.filter { $0.chainId == "137" }
 
         #expect(polygon.count == 2)
-        #expect(polygon.first { $0.token.address == "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619" }?.minimumDepositUSD == 2)
-        #expect(polygon.first { $0.token.address == "0x11CD37bb86F65419713f30673A480EA33c826872" }?.minimumDepositUSD == 25)
+        #expect(polygon.first { $0.token.address == "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619" }?.minCheckoutUSD == 2)
+        #expect(polygon.first { $0.token.address == "0x11CD37bb86F65419713f30673A480EA33c826872" }?.minCheckoutUSD == 25)
     }
 
     @Test("An asset on a chain with no known address family is dropped rather than served an EVM address")
@@ -233,7 +233,7 @@ struct PolymarketSupportedAssetIdentityTests {
             chainName: "Chain",
             family: family,
             token: PolymarketSupportedAsset.Token(name: "Token", symbol: "TKN", address: address, decimalCount: 18),
-            minimumDepositUSD: 2
+            minCheckoutUSD: 2
         )
     }
 }

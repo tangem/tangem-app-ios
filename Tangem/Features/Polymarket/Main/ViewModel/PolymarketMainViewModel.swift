@@ -324,7 +324,7 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     private func withdrawStateForPreparedAccount(_ readiness: PolymarketAccountFundsInteractor.Readiness) -> WithdrawState {
-        let minimum = PolymarketMinimumAmount(usd: readiness.depositTarget?.asset.minimumDepositUSD).inToken()
+        let minimum = PolymarketMinimumAmount(usd: readiness.depositTarget?.asset.minCheckoutUSD).inToken()
 
         switch collateralBalance {
         case .loaded(let balance):

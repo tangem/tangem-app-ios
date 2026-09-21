@@ -67,7 +67,7 @@ private extension PolymarketMapper {
                 address: dto.token.address,
                 decimalCount: dto.token.decimals
             ),
-            minimumDepositUSD: dto.minCheckoutUsd
+            minCheckoutUSD: dto.minCheckoutUsd
         )
     }
 
