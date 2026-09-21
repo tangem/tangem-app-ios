@@ -28,7 +28,7 @@ struct PolymarketSwapParametersFactoryTests {
                 address: PolymarketUtilities.usdcContractAddress,
                 decimalCount: 6
             ),
-            minimumDepositUSD: 2
+            minCheckoutUSD: 2
         ),
         fundingAddress: fundingAddress
     )
@@ -64,6 +64,14 @@ struct PolymarketSwapParametersFactoryTests {
         let parameters = makeSUT().make(depositTarget: Self.depositTarget)
 
         #expect(sourceResolver(from: parameters) is PolymarketDepositSourceResolver)
+    }
+
+    @Test("The payment account is kept out of the tokens the deposit can be funded from")
+    func paymentAccountIsNeverADepositSource() throws {
+        let config = try #require(configuration(from: makeSUT().make(depositTarget: Self.depositTarget)))
+        let provider = try #require(config.sourceTokenSelection.walletsProvider as? FilteredTokenSelectorWalletsProvider)
+
+        #expect(provider.isIncluded(CampaignsFixtures.makeTokenSelectorItem()))
     }
 
     @Test("Whatever source the user picks, the destination stays the deposit token")

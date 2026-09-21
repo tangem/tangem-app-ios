@@ -28,7 +28,8 @@ struct PolymarketWithdrawFactory {
                 walletService: services.makeWalletService(walletId: walletId),
                 ownerAddressProvider: PolymarketOnboardingFactory().makeOwnerAddressProvider(for: userWalletModel)
             ),
-            signer: PolymarketBatchSigner(keysRepository: userWalletModel.keysRepository, signer: signer)
+            signer: PolymarketBatchSigner(keysRepository: userWalletModel.keysRepository, signer: signer),
+            serverClock: InjectedValues[\.polymarketServerClock]
         )
 
         return PolymarketWithdrawContext(transactionService: transactionService, signer: signer)
