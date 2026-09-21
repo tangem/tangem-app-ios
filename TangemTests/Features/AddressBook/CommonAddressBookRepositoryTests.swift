@@ -549,6 +549,7 @@ private func makeETagStorageKey(for key: ETagStorageKey) -> String {
     switch key {
     case .accounts(let walletId): "CryptoAccountsETagStorage_\(walletId.stringValue)"
     case .addressBook(let walletId): "AddressBookETagStorage_\(walletId.stringValue)"
+    case .jointAccounts(let walletId): "JointAccountsETagStorage_\(walletId.stringValue)"
     }
 }
 

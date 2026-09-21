@@ -545,12 +545,24 @@ extension CommonTangemApiService: TangemApiService {
 
     // MARK: - Joint accounts
 
-    func getJointAccounts(walletId: String) async throws -> JointAccountsDTO.Response.JointAccounts {
-        let target = TangemApiTarget(type: .getJointAccounts(walletId: walletId))
+    func getJointAccounts(
+        walletId: String, knownETag: String?
+    ) async throws -> (eTag: String?, accounts: JointAccountsDTO.Response.JointAccounts)? {
+        let target = TangemApiTarget(type: .getJointAccounts(walletId: walletId, knownETag: knownETag))
 
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)
-            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
+            let filteredResponse = try response.filterResponseThrowingTangemAPIError(allowRedirectCodes: true)
+
+            // The list is what it was when the tag was issued, and there is no body to read
+            guard filteredResponse.statusCode != 304 else {
+                return nil
+            }
+
+            let eTag = filteredResponse.response?.value(forHTTPHeaderField: TangemAPIHeaders.eTag.rawValue)
+            let accounts = try filteredResponse.map(JointAccountsDTO.Response.JointAccounts.self, using: decoder)
+
+            return (eTag: eTag, accounts: accounts)
         }
     }
 
@@ -621,9 +633,9 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func rejectJointAccountOperation(
-        walletId: String, operationId: String, body: JointAccountsDTO.Request.RejectOperation
+        walletId: String, operationId: String
     ) async throws -> JointAccountsDTO.Response.Operation? {
-        let target = TangemApiTarget(type: .rejectJointAccountOperation(walletId: walletId, operationId: operationId, body: body))
+        let target = TangemApiTarget(type: .rejectJointAccountOperation(walletId: walletId, operationId: operationId))
 
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)

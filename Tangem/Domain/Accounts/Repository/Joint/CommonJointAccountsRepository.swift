@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import BlockchainSdk
 import CombineExt
 import TangemFoundation
 
@@ -25,8 +26,7 @@ final class CommonJointAccountsRepository {
     private lazy var autoupdater = JointAccountsRepositoryAutoupdater(innerRepository: self, isJointAccountsAvailable: isJointAccountsAvailable)
     private var loadAccountsSubscription: AnyCancellable?
 
-    /// - Note: The contract offers no caching, so the list is asked for often and every asker gets the answer of the
-    /// one request that actually goes out.
+    /// - Note: The list is asked for often, and every asker gets the answer of the one request that actually goes out.
     private lazy var loadJointAccountsDebouncer = Debouncer<LoadResult>(interval: Constants.debounceInterval) { [weak self] completion in
         guard let self else {
             // The callers wait through continuations, so even a dead repository has to answer rather than hang them
@@ -239,21 +239,21 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
         return operation
     }
 
-    func signOperation(id: String, signature: Data, forCryptoAccountId cryptoAccountId: String) async throws {
+    func signOperation(id: String, safeTransaction: SafeTransaction, signature: Data, forCryptoAccountId cryptoAccountId: String) async throws {
         guard isJointAccountsAvailable else {
             throw InternalError.featureUnavailable
         }
 
-        let operation = try await networkService.signOperation(id: id, signature: signature)
+        let operation = try await networkService.signOperation(id: id, safeTransaction: safeTransaction, signature: signature)
         try pendingOperationsPersistentStorage.appendNewOrUpdateExisting(operation, forCryptoAccountId: cryptoAccountId)
     }
 
-    func rejectOperation(id: String, blob: JointAccountOperationRejectionBlob, forCryptoAccountId cryptoAccountId: String) async throws {
+    func rejectOperation(id: String, forCryptoAccountId cryptoAccountId: String) async throws {
         guard isJointAccountsAvailable else {
             throw InternalError.featureUnavailable
         }
 
-        guard let operation = try await networkService.rejectOperation(id: id, blob: blob) else {
+        guard let operation = try await networkService.rejectOperation(id: id) else {
             try pendingOperationsPersistentStorage.remove(operationWithId: id, forCryptoAccountId: cryptoAccountId)
             return
         }
@@ -294,8 +294,15 @@ private extension CommonJointAccountsRepository {
     }
 
     func loadJointAccountsFromServerAsync() async throws {
-        let remoteJointAccounts = try await networkService.getJointAccounts()
+        let remoteState = try await networkService.getJointAccounts()
         try Task.checkCancellation()
+
+        guard case .changed(let remoteJointAccounts) = remoteState else {
+            // Nothing is written: the storage already holds this very list, and rewriting it would only wake
+            // every subscriber for nothing
+            JointAccountsLogger.debug("The joint accounts have not changed since they were last read")
+            return
+        }
 
         JointAccountsLogger.info("Loaded \(remoteJointAccounts.count) joint accounts from API.")
         JointAccountsLogger.debug("Accounts: \(remoteJointAccounts)")

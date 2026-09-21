@@ -17,15 +17,16 @@ extension JointAccountsDTO.Response {
         struct Vote {
             /// The names matched here are the wire contract. What the answers mean is
             /// `JointAccountOperation.Signature.State`'s to say.
-            /// - Note: The declining answer is not named yet: this version has only ever seen approvals, and a name it
-            /// does not know costs the answer alone — see `init(from:)`.
             enum Answer: String {
                 case approve
+                case reject
             }
 
             let address: String
             /// Nil for an answer this version has never heard of — see `init(from:)`.
             let vote: Answer?
+            /// Nil for a declining answer: a rejection is not signed.
+            let signature: String?
             /// ISO 8601. Left as it arrived: the shared decoder insists on fractional seconds, which the contract's
             /// examples do without.
             let votedAt: String
@@ -38,6 +39,9 @@ extension JointAccountsDTO.Response {
             case pending
             case executed
             case failed
+            /// The initiator called it off, or the refusals put the threshold out of reach. The collected signatures
+            /// are dropped with it, and the operation leaves the listing.
+            case cancelled
         }
 
         /// Issued by the endpoint when the operation is created, and how every later call addresses it.
@@ -49,9 +53,11 @@ extension JointAccountsDTO.Response {
         let status: Status?
         /// The address of the member whose signature created the operation.
         let initiator: String
-        /// Unix time; swaps expire, plain transfers carry none.
-        let deadline: Int?
+        /// How many answers this operation needs, which is the account's threshold at the time it was created.
+        let threshold: Int
         let votes: [Vote]?
+        /// ISO 8601, left as it arrived — see `Vote.votedAt`.
+        let createdAt: String
     }
 }
 
@@ -64,8 +70,9 @@ extension JointAccountsDTO.Response.Operation: Decodable {
         case safeTx
         case status
         case initiator
-        case deadline
+        case threshold
         case votes
+        case createdAt
     }
 
     init(from decoder: Decoder) throws {
@@ -78,8 +85,9 @@ extension JointAccountsDTO.Response.Operation: Decodable {
         // contract grown — only the name inside it is allowed to be one this version has never heard of
         status = try Status(rawValue: container.decode(String.self, forKey: .status))
         initiator = try container.decode(String.self, forKey: .initiator)
-        deadline = try container.decodeIfPresent(Int.self, forKey: .deadline)
+        threshold = try container.decode(Int.self, forKey: .threshold)
         votes = try container.decodeIfPresent([Vote].self, forKey: .votes)
+        createdAt = try container.decode(String.self, forKey: .createdAt)
     }
 }
 
@@ -87,6 +95,7 @@ extension JointAccountsDTO.Response.Operation.Vote: Decodable {
     private enum CodingKeys: String, CodingKey {
         case address
         case vote
+        case signature
         case votedAt
     }
 
@@ -95,6 +104,7 @@ extension JointAccountsDTO.Response.Operation.Vote: Decodable {
 
         address = try container.decode(String.self, forKey: .address)
         vote = try Answer(rawValue: container.decode(String.self, forKey: .vote))
+        signature = try container.decodeIfPresent(String.self, forKey: .signature)
         votedAt = try container.decode(String.self, forKey: .votedAt)
     }
 }

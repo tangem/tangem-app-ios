@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import BlockchainSdk
 import TangemFoundation
 @testable import Tangem
 
@@ -30,11 +31,11 @@ final class JointAccountsRepositoryStub: JointAccountsRepository {
         operationCalls.withLock(\.created)
     }
 
-    var signedOperations: [(id: String, signature: Data, cryptoAccountId: String)] {
+    var signedOperations: [(id: String, safeTransaction: SafeTransaction, signature: Data, cryptoAccountId: String)] {
         operationCalls.withLock(\.signed)
     }
 
-    var rejectedOperations: [(id: String, blob: JointAccountOperationRejectionBlob, cryptoAccountId: String)] {
+    var rejectedOperations: [(id: String, cryptoAccountId: String)] {
         operationCalls.withLock(\.rejected)
     }
 
@@ -108,12 +109,19 @@ final class JointAccountsRepositoryStub: JointAccountsRepository {
         return registeredOperation
     }
 
-    func signOperation(id: String, signature: Data, forCryptoAccountId cryptoAccountId: String) async throws {
-        operationCalls.withLock { $0.signed.append((id: id, signature: signature, cryptoAccountId: cryptoAccountId)) }
+    func signOperation(
+        id: String,
+        safeTransaction: SafeTransaction,
+        signature: Data,
+        forCryptoAccountId cryptoAccountId: String
+    ) async throws {
+        operationCalls.withLock {
+            $0.signed.append((id: id, safeTransaction: safeTransaction, signature: signature, cryptoAccountId: cryptoAccountId))
+        }
     }
 
-    func rejectOperation(id: String, blob: JointAccountOperationRejectionBlob, forCryptoAccountId cryptoAccountId: String) async throws {
-        operationCalls.withLock { $0.rejected.append((id: id, blob: blob, cryptoAccountId: cryptoAccountId)) }
+    func rejectOperation(id: String, forCryptoAccountId cryptoAccountId: String) async throws {
+        operationCalls.withLock { $0.rejected.append((id: id, cryptoAccountId: cryptoAccountId)) }
     }
 }
 
@@ -122,7 +130,7 @@ final class JointAccountsRepositoryStub: JointAccountsRepository {
 private extension JointAccountsRepositoryStub {
     struct OperationCalls {
         var created: [(request: JointAccountOperationRequest, cryptoAccountId: String)] = []
-        var signed: [(id: String, signature: Data, cryptoAccountId: String)] = []
-        var rejected: [(id: String, blob: JointAccountOperationRejectionBlob, cryptoAccountId: String)] = []
+        var signed: [(id: String, safeTransaction: SafeTransaction, signature: Data, cryptoAccountId: String)] = []
+        var rejected: [(id: String, cryptoAccountId: String)] = []
     }
 }

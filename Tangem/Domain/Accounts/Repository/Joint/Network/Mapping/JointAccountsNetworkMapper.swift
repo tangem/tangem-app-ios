@@ -28,17 +28,20 @@ extension JointAccountsNetworkMapper {
             safeAddress: request.safeAddress,
             chainId: request.chainId,
             safeTx: mapToSafeTx(from: request.safeTransaction),
-            deadline: nil,
             signature: request.signature.hexString.addHexPrefix()
         )
     }
 
-    func mapToRequest(from signature: Data) -> JointAccountsDTO.Request.SignOperation {
-        JointAccountsDTO.Request.SignOperation(signature: signature.hexString.addHexPrefix())
+    func mapToRequest(safeTransaction: SafeTransaction, signature: Data) throws -> JointAccountsDTO.Request.SignOperation {
+        try JointAccountsDTO.Request.SignOperation(
+            safeTx: mapToSafeTx(from: safeTransaction),
+            signature: signature.hexString.addHexPrefix()
+        )
     }
 
     /// The transaction worded as the contract speaks it: `uint256` values as decimal strings, the calldata as lowercase
-    /// hex. The rejection payload is signed over this very wording, so it is written here and nowhere else.
+    /// hex. Creating an operation and signing one both send it, and the endpoint checks the second against the first,
+    /// so the wording lives here and nowhere else.
     func mapToSafeTx(from safeTransaction: SafeTransaction) throws -> JointAccountsDTO.SafeTx {
         try JointAccountsDTO.SafeTx(
             to: safeTransaction.to,
@@ -172,6 +175,7 @@ private extension JointAccountsNetworkMapper {
         case .pending: .pending
         case .executed: .executed
         case .failed: .failed
+        case .cancelled: .cancelled
         case .none: .unknown
         }
     }
@@ -179,6 +183,7 @@ private extension JointAccountsNetworkMapper {
     func mapSignatureState(from answer: JointAccountsDTO.Response.Operation.Vote.Answer?) -> JointAccountOperation.Signature.State {
         switch answer {
         case .approve: .signed
+        case .reject: .declined
         case .none: .unknown
         }
     }

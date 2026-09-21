@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import BlockchainSdk
 import TangemAccounts
 import TangemAssets
 import TangemLocalization
@@ -214,7 +215,7 @@ private struct JointAccountsNetworkServicePreviewStub: JointAccountsNetworkServi
         throw CancellationError()
     }
 
-    func getJointAccounts() async throws -> [RemoteJointAccount] { [] }
+    func getJointAccounts() async throws -> JointAccountsRemoteState { .changed([]) }
 
     func getInvitePreview(inviteId: String) async throws -> JointAccountInvitePreview {
         JointAccountInvitePreview(
@@ -244,11 +245,11 @@ private struct JointAccountsNetworkServicePreviewStub: JointAccountsNetworkServi
         throw CancellationError()
     }
 
-    func signOperation(id: String, signature: Data) async throws -> JointAccountOperation {
+    func signOperation(id: String, safeTransaction: SafeTransaction, signature: Data) async throws -> JointAccountOperation {
         throw CancellationError()
     }
 
-    func rejectOperation(id: String, blob: JointAccountOperationRejectionBlob) async throws -> JointAccountOperation? {
+    func rejectOperation(id: String) async throws -> JointAccountOperation? {
         throw CancellationError()
     }
 }
