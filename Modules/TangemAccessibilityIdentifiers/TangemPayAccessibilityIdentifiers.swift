@@ -16,6 +16,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let mainScreenTile = "\(prefix)MainScreenTile"
     public static let mainScreenTileBalance = "\(prefix)MainScreenTileBalance"
     public static let mainScreenTileSubtitle = "\(prefix)MainScreenTileSubtitle"
+    public static let mainScreenTileCurrency = "\(prefix)MainScreenTileCurrency"
     public static let mainScreenTileCachedIcon = "\(prefix)MainScreenTileCachedIcon"
     public static let getTangemPayBanner = "\(prefix)GetTangemPayBanner"
     public static let getTangemPayBannerOpenButton = "\(prefix)GetTangemPayBannerOpenButton"
@@ -83,6 +84,38 @@ public enum TangemPayAccessibilityIdentifiers {
 
     public static func paymentAccountCardButton(cardId: String) -> String {
         "\(paymentAccountCardButtonPrefix)_\(cardId)"
+    }
+
+    // MARK: - Multichain deposit: choose network sheet
+
+    public static let chooseNetworkSheetCloseButton = "\(prefix)ChooseNetworkSheetCloseButton"
+    public static let chooseNetworkSheetFastOptionsTitle = "\(prefix)ChooseNetworkSheetFastOptionsTitle"
+    public static let chooseNetworkSheetOtherOptionsTitle = "\(prefix)ChooseNetworkSheetOtherOptionsTitle"
+    public static let chooseNetworkSheetRowPrefix = "\(prefix)ChooseNetworkSheetRow"
+
+    public static func chooseNetworkSheetRow(chainId: Int) -> String {
+        "\(chooseNetworkSheetRowPrefix)_\(chainId)"
+    }
+
+    // MARK: - Multichain deposit: other networks sheet
+
+    public static let otherNetworksSheetTitle = "\(prefix)OtherNetworksSheetTitle"
+    public static let otherNetworksSheetSubtitle = "\(prefix)OtherNetworksSheetSubtitle"
+    public static let otherNetworksSheetCloseButton = "\(prefix)OtherNetworksSheetCloseButton"
+
+    // MARK: - Multichain deposit: receive sheet
+
+    public static let multichainReceiveSheetWarningTitle = "\(prefix)MultichainReceiveSheetWarningTitle"
+    public static let multichainReceiveSheetWarningDescription = "\(prefix)MultichainReceiveSheetWarningDescription"
+    public static let multichainReceiveSheetHeading = "\(prefix)MultichainReceiveSheetHeading"
+    public static let multichainReceiveSheetAddress = "\(prefix)MultichainReceiveSheetAddress"
+    public static let multichainReceiveSheetCopyButton = "\(prefix)MultichainReceiveSheetCopyButton"
+    public static let multichainReceiveSheetShowQRButton = "\(prefix)MultichainReceiveSheetShowQRButton"
+    public static let multichainReceiveSheetShareButton = "\(prefix)MultichainReceiveSheetShareButton"
+    public static let multichainReceiveSheetTokenIconPrefix = "\(prefix)MultichainReceiveSheetTokenIcon"
+
+    public static func multichainReceiveSheetTokenIcon(symbol: String) -> String {
+        "\(multichainReceiveSheetTokenIconPrefix)_\(symbol)"
     }
 
     // MARK: - Withdraw flow
