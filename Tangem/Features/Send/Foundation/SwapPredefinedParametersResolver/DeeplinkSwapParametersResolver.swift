@@ -99,8 +99,8 @@ private extension DeeplinkSwapParametersResolver {
 
     /// The backend identifiers of the accounts the wallet has, which is what a deeplink names an account by.
     func existingAccountIds(in accountModelsManager: some AccountModelsManager) -> Set<String> {
-        AccountCryptoModelsAggregator
-            .cryptoAccountModels(from: accountModelsManager)
+        AccountModelsAggregator(.crypto, .joint)
+            .models(from: accountModelsManager)
             .compactMap { Self.accountIdentifier(of: $0) }
             .toSet()
     }

@@ -32,8 +32,8 @@ final class TangemPayNotificationManager {
     init(userWalletModel: UserWalletModel) {
         self.userWalletModel = userWalletModel
 
-        cancellable = TangemPayAccountAggregator
-            .tangemPayAccountModelPublisher(from: userWalletModel.accountModelsManager)
+        cancellable = AccountModelsAggregator(.tangemPay)
+            .modelPublisher(from: userWalletModel.accountModelsManager)
             .withWeakCaptureOf(self)
             .flatMapLatest { manager, accountModel -> AnyPublisher<[NotificationViewInput], Never> in
                 guard let accountModel else {

@@ -290,7 +290,7 @@ final class MainViewModel: ObservableObject {
             .combineLatest()
 
         let cryptoAccountModelsPublisher = userWalletsWithMissingBodyModel
-            .map { AccountCryptoModelsAggregator.cryptoAccountModelsPublisher(from: $0.accountModelsManager) }
+            .map { AccountModelsAggregator(.crypto, .joint).modelsPublisher(from: $0.accountModelsManager) }
             .combineLatest()
 
         pagesWithMissingBodyModelsRecreationSubscription = cryptoAccountModelsPublisher

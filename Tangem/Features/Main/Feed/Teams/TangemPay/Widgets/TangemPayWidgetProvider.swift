@@ -63,8 +63,8 @@ private extension TangemPayWidgetProvider {
         let offer = tangemPayAvailabilityRepository
             .tangemPayFeedCardEntrypointEligibleWalletSelectionPublisher(for: wallet.userWalletId.stringValue)
 
-        let customer = TangemPayAccountAggregator
-            .tangemPayAccountModelPublisher(from: wallet.accountModelsManager)
+        let customer = AccountModelsAggregator(.tangemPay)
+            .modelPublisher(from: wallet.accountModelsManager)
             .flatMapLatest { model -> AnyPublisher<(any TangemPayAccountModel)?, Never> in
                 guard let model else {
                     return .just(output: nil)

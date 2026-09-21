@@ -25,7 +25,7 @@ struct PolymarketOnboardingFactory {
     }
 
     private func hasExistingAccount(for userWalletModel: any UserWalletModel) -> Bool {
-        let state = PolymarketAccountAggregator.polymarketAccountModel(from: userWalletModel.accountModelsManager)?.state
+        let state = AccountModelsAggregator(.polymarket).model(from: userWalletModel.accountModelsManager)?.state
 
         return state == .syncNeeded || presenceStore.hasAccount(userWalletId: userWalletModel.userWalletId)
     }

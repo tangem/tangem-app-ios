@@ -29,8 +29,8 @@ extension CommonPolymarketAccountGlobalStateProvider: PolymarketAccountGlobalSta
     }
 
     func register<T, U>(_ manager: T, forIdentifier identifier: U) where T: AccountModelsManager, U: Hashable {
-        let subscription = PolymarketAccountAggregator
-            .polymarketAccountModelPublisher(from: manager)
+        let subscription = AccountModelsAggregator(.polymarket)
+            .modelPublisher(from: manager)
             .flatMapLatest { accountModel -> AnyPublisher<Bool, Never> in
                 guard let accountModel else { return .just(output: false) }
 

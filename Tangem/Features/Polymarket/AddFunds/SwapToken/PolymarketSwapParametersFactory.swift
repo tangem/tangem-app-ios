@@ -63,7 +63,7 @@ struct PolymarketSwapParametersFactory {
                 receiveTokenSelection: .selectable(
                     .restricted(
                         walletsProvider: FilteredTokenSelectorWalletsProvider(
-                            base: .standardAccountsOnly(),
+                            base: .cryptoJointAccounts(),
                             isIncluded: { item in
                                 guard case .crypto = item.kind else {
                                     return false

@@ -16,7 +16,7 @@ struct AccountModelsManagerAccountCreationHelper {
 
     /// - Parameter identity: What the account was created under, as the creation call answered.
     func createdCryptoAccountModel(with identity: CryptoAccountDerivationIdentity) async -> (any CryptoAccountModel)? {
-        let cryptoAccountModelsPublisher = AccountCryptoModelsAggregator.cryptoAccountModelsPublisher(from: accountModelsManager)
+        let cryptoAccountModelsPublisher = AccountModelsAggregator(.crypto, .joint).modelsPublisher(from: accountModelsManager)
 
         return await createdAccountModel(for: identity, in: cryptoAccountModelsPublisher) {
             $0.id.toPersistentIdentifier().toAnyHashable()

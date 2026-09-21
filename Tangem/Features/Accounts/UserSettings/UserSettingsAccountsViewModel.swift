@@ -88,8 +88,8 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     }
 
     private func bindAccountRows() {
-        AccountCryptoModelsAggregator
-            .cryptoAccountModelsPublisher(from: accountModelsManager)
+        AccountModelsAggregator(.crypto, .joint)
+            .modelsPublisher(from: accountModelsManager)
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, accounts in

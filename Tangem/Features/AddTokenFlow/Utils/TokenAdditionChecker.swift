@@ -40,7 +40,7 @@ enum TokenAdditionChecker {
         let multiCurrencyWallets = userWalletModels.filter { $0.config.hasFeature(.multiCurrency) }
 
         for wallet in multiCurrencyWallets {
-            let accounts = AccountCryptoModelsAggregator.cryptoAccountModels(from: wallet.accountModelsManager)
+            let accounts = AccountModelsAggregator(.crypto, .joint).models(from: wallet.accountModelsManager)
 
             for account in accounts {
                 let tokenItems = tokenItemsFactory(account, wallet.config.supportedBlockchains)

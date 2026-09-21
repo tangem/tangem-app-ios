@@ -17,15 +17,15 @@ enum MultiWalletMainContentUpdater {
             }
 
             outerGroup.addTask {
-                await TangemPayAccountAggregator.tangemPayAccountModel(from: userWalletModel.accountModelsManager)?.refreshState()
+                await AccountModelsAggregator(.tangemPay).model(from: userWalletModel.accountModelsManager)?.refreshState()
             }
 
             outerGroup.addTask {
-                await PolymarketAccountAggregator.polymarketAccountModel(from: userWalletModel.accountModelsManager)?.refreshState()
+                await AccountModelsAggregator(.polymarket).model(from: userWalletModel.accountModelsManager)?.refreshState()
             }
 
             outerGroup.addTask {
-                await CollectiblesAccountAggregator.collectiblesAccountModel(from: userWalletModel.accountModelsManager)?.refreshState()
+                await AccountModelsAggregator(.collectibles).model(from: userWalletModel.accountModelsManager)?.refreshState()
             }
 
             await outerGroup.waitForAll()
@@ -38,8 +38,8 @@ enum MultiWalletMainContentUpdater {
             var subscription: AnyCancellable?
 
             // One-time subscription to get the latest list of crypto accounts
-            subscription = AccountCryptoModelsAggregator
-                .cryptoAccountModelsPublisher(from: userWalletModel.accountModelsManager)
+            subscription = AccountModelsAggregator(.crypto, .joint)
+                .modelsPublisher(from: userWalletModel.accountModelsManager)
                 .prefix(1)
                 .sink { cryptoAccounts in
                     for account in cryptoAccounts {

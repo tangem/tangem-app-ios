@@ -20,8 +20,15 @@ protocol TokenSelectorWalletsProvider {
 // MARK: - Implementations
 
 extension TokenSelectorWalletsProvider where Self == CommonTokenSelectorWalletsProvider {
-    static func common() -> Self { CommonTokenSelectorWalletsProvider(.init(.crypto, .joint, .tangemPay)) }
-    static func standardAccountsOnly() -> Self { CommonTokenSelectorWalletsProvider(.init(.crypto, .joint)) }
+    static func cryptoJointTangemPayAccounts() -> Self {
+        CommonTokenSelectorWalletsProvider(.init(.crypto, .joint(.active), .tangemPay))
+    }
+
+    /// - Note: Only the joint accounts already operated: one still being put together holds no tokens, so it would
+    /// stand in the selector as a section with nothing to pick.
+    static func cryptoJointAccounts() -> Self {
+        CommonTokenSelectorWalletsProvider(.init(.crypto, .joint(.active)))
+    }
 }
 
 // MARK: - Wallet

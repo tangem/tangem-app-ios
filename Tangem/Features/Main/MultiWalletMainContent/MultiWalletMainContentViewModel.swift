@@ -193,7 +193,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         expressBalanceUpdater.updateUnfinishedDestinationBalances(userWalletId: userWalletModel.userWalletId)
 
         runTask { [userWalletModel] in
-            await PolymarketAccountAggregator.polymarketAccountModel(from: userWalletModel.accountModelsManager)?.refreshState()
+            await AccountModelsAggregator(.polymarket).model(from: userWalletModel.accountModelsManager)?.refreshState()
         }
     }
 
@@ -233,7 +233,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     func renewTangemPaySession() {
-        guard let tangemPayAccountModel = TangemPayAccountAggregator.tangemPayAccountModel(from: userWalletModel.accountModelsManager) else {
+        guard let tangemPayAccountModel = AccountModelsAggregator(.tangemPay).model(from: userWalletModel.accountModelsManager) else {
             return
         }
         Analytics.log(.mainNoticeScanYourCardTapped)
@@ -264,7 +264,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     func onAddTokensTap() {
-        guard let mainAccount = AccountCryptoModelsAggregator.cryptoAccountModels(from: userWalletModel.accountModelsManager).first(where: { $0.isMainAccount }) else {
+        guard let mainAccount = AccountModelsAggregator(.crypto).models(from: userWalletModel.accountModelsManager).first(where: { $0.isMainAccount }) else {
             return
         }
 
@@ -385,8 +385,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: &$tangemPayNotificationInputs)
 
-        TangemPayAccountAggregator
-            .tangemPayAccountModelPublisher(from: userWalletModel.accountModelsManager)
+        AccountModelsAggregator(.tangemPay)
+            .modelPublisher(from: userWalletModel.accountModelsManager)
             .withWeakCaptureOf(self)
             .flatMapLatest { viewModel, accountModel -> AnyPublisher<TangemPayAccountViewModel?, Never> in
                 if let accountModel {
@@ -434,8 +434,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func bindPolymarketAccountRow() {
-        PolymarketAccountAggregator
-            .polymarketAccountModelPublisher(from: userWalletModel.accountModelsManager)
+        AccountModelsAggregator(.polymarket)
+            .modelPublisher(from: userWalletModel.accountModelsManager)
             .flatMapLatest { accountModel -> AnyPublisher<(any PolymarketAccountModel)?, Never> in
                 guard let accountModel else { return .just(output: nil) }
 
@@ -461,8 +461,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func bindCollectiblesAccountRow() {
-        CollectiblesAccountAggregator
-            .collectiblesAccountModelPublisher(from: userWalletModel.accountModelsManager)
+        AccountModelsAggregator(.collectibles)
+            .modelPublisher(from: userWalletModel.accountModelsManager)
             .flatMapLatest { accountModel -> AnyPublisher<(any CollectiblesAccountModel)?, Never> in
                 guard let accountModel else { return .just(output: nil) }
 
@@ -490,8 +490,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func bindPendingJointAccountPlates() {
-        JointAccountCryptoModelsAggregator
-            .pendingJointAccountModelsPublisher(from: userWalletModel.accountModelsManager)
+        AccountModelsAggregator(.joint(.pending))
+            .modelsPublisher(from: userWalletModel.accountModelsManager)
             .withWeakCaptureOf(self)
             .map { viewModel, pendingJointAccounts in
                 pendingJointAccounts.map { pendingJointAccount in
@@ -509,10 +509,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func bindPendingJointAccountOperationPlates() {
-        userWalletModel
-            .accountModelsManager
-            .accountModelsPublisher
-            .map(JointAccountCryptoModelsAggregator.jointAccountModels(from:))
+        AccountModelsAggregator(.joint)
+            .modelsPublisher(from: userWalletModel.accountModelsManager)
             .flatMapLatest { jointAccounts -> AnyPublisher<[JointAccountPendingOperation], Never> in
                 guard jointAccounts.isNotEmpty else {
                     return Just([]).eraseToAnyPublisher()
@@ -755,7 +753,7 @@ extension MultiWalletMainContentViewModel {
     }
 
     private func openManageTokens() {
-        guard let mainAccount = AccountCryptoModelsAggregator.cryptoAccountModels(from: userWalletModel.accountModelsManager).first(where: \.isMainAccount) else {
+        guard let mainAccount = AccountModelsAggregator(.crypto).models(from: userWalletModel.accountModelsManager).first(where: \.isMainAccount) else {
             return
         }
 

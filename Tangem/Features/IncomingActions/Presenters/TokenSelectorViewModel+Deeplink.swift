@@ -10,6 +10,6 @@ import Foundation
 extension TokenSelectorViewModel {
     /// The selector a `tangem://sell` deeplink opens, wherever it is shown from.
     static func deeplinkSell() -> TokenSelectorViewModel {
-        .common(walletsProvider: .standardAccountsOnly(), availabilityProvider: .sell())
+        .common(walletsProvider: .cryptoJointAccounts(), availabilityProvider: .sell())
     }
 }

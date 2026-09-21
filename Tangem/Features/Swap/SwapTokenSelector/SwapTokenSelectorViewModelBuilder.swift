@@ -11,7 +11,7 @@ struct SwapTokenSelectorViewModelBuilder {
     private var userWalletRepository: UserWalletRepository
 
     weak var output: (SwapTokenSelectorOutput & SendSourceTokenInput & SendReceiveTokenInput)?
-    /// Flow-imposed limits on what each selector side offers; `nil` falls back to `.common()`.
+    /// Flow-imposed limits on what each selector side offers; `nil` falls back to `.cryptoJointTangemPayAccounts()`.
     var sourceWalletsProvider: (any TokenSelectorWalletsProvider)?
     var receiveWalletsProvider: (any TokenSelectorWalletsProvider)?
     var allowsSourceMarketsTokens: Bool = true
@@ -46,7 +46,7 @@ struct SwapTokenSelectorViewModelBuilder {
         let walletsProvider = isSourceSelection ? sourceWalletsProvider : receiveWalletsProvider
         let suppressesMarketsTokens = isSourceSelection ? !allowsSourceMarketsTokens : !allowsReceiveMarketsTokens
         let tokenSelectorViewModel = TokenSelectorViewModel.swap(
-            walletsProvider: walletsProvider ?? .common(),
+            walletsProvider: walletsProvider ?? .cryptoJointTangemPayAccounts(),
             initialSelectedItem: direction.tokenItem,
             initiallyExpandedAccount: initiallyExpandedAccount,
             preferredWalletId: preferredWalletId,
@@ -78,7 +78,7 @@ struct SwapTokenSelectorViewModelBuilder {
             return nil
         }
 
-        let cryptoAccount = AccountCryptoModelsAggregator.cryptoAccountModels(from: userWalletModel.accountModelsManager).first { account in
+        let cryptoAccount = AccountModelsAggregator(.crypto, .joint).models(from: userWalletModel.accountModelsManager).first { account in
             account.walletModelsManager.walletModels.contains { $0.id == tappedToken.id }
         }
 
