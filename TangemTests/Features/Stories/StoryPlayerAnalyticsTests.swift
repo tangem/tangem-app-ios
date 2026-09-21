@@ -104,9 +104,9 @@ struct StoryPlayerAnalyticsTests {
     func repeatedExitReportsTheStoryClosedOnce() {
         let spy = SpyStoriesAnalyticsProvider()
         var finishedCount = 0
-        let player = Self.makePlayer(spy: spy, source: .main, clock: ManualProgressClock()) { _, _ in
+        let player = Self.makePlayer(spy: spy, source: .main, clock: ManualProgressClock(), onFinished: { _, _ in
             finishedCount += 1
-        }
+        })
 
         player.start()
         player.closeButtonTapped()
@@ -131,6 +131,96 @@ struct StoryPlayerAnalyticsTests {
         #expect(spy.closed.first?.exitReason == .action)
     }
 
+    /// A host that opens the action over the story reports the close itself, once that destination
+    /// has taken the user away.
+    @Test
+    func handledActionDefersTheClose() {
+        let spy = SpyStoriesAnalyticsProvider()
+        let action = Self.makeStory(endBehavior: .finish).actions[0]
+        var handled: [String] = []
+        let player = Self.makePlayer(
+            spy: spy,
+            source: .onboarding,
+            clock: ManualProgressClock(),
+            onAction: { handled.append($0.id) }
+        )
+
+        player.start()
+        player.actionTapped(action)
+
+        #expect(handled == [action.id])
+        #expect(spy.closed.isEmpty)
+
+        player.finish(for: action)
+
+        #expect(spy.closed.count == 1)
+        #expect(spy.closed.first?.exitReason == .action)
+        #expect(spy.closed.first?.action?.id == action.id)
+    }
+
+    @Test
+    func aTapAfterTheFinishIsIgnored() {
+        let spy = SpyStoriesAnalyticsProvider()
+        let action = Self.makeStory(endBehavior: .finish).actions[0]
+        var handled = 0
+        let player = Self.makePlayer(
+            spy: spy,
+            source: .onboarding,
+            clock: ManualProgressClock(),
+            onAction: { _ in handled += 1 }
+        )
+
+        player.start()
+        player.actionTapped(action)
+        player.finish(for: action)
+        player.actionTapped(action)
+
+        #expect(handled == 1)
+        #expect(spy.closed.count == 1)
+    }
+
+    /// Closing is the player's own business: a host routing the other targets must not have to
+    /// remember this one.
+    @Test
+    func closeTargetEndsTheStoryEvenWhenAHostHandlesActions() {
+        let spy = SpyStoriesAnalyticsProvider()
+        let close = StoryActionV2(id: "close", label: "Got it", style: .secondary, target: .close)
+        var handled: [String] = []
+        let player = Self.makePlayer(
+            spy: spy,
+            source: .onboarding,
+            clock: ManualProgressClock(),
+            onAction: { handled.append($0.id) }
+        )
+
+        player.start()
+        player.actionTapped(close)
+
+        #expect(handled.isEmpty)
+        #expect(spy.closed.count == 1)
+        #expect(spy.closed.first?.exitReason == .action)
+        #expect(spy.closed.first?.action?.id == close.id)
+    }
+
+    @Test
+    func completionReportsNoAction() {
+        let spy = SpyStoriesAnalyticsProvider()
+        let clock = ManualProgressClock()
+        var finished: [StoryActionV2?] = []
+        let player = Self.makePlayer(spy: spy, source: .main, clock: clock, onFinished: { _, action in
+            finished.append(action)
+        })
+
+        player.start()
+        // Both slides play themselves out, and the story has nowhere to loop.
+        clock.advance(by: Self.slideDurationSeconds * 3)
+
+        #expect(spy.closed.count == 1)
+        #expect(spy.closed.first?.exitReason == .completed)
+        #expect(spy.closed.first?.action == nil)
+        #expect(finished == [nil])
+    }
+
     // MARK: - Fixtures
 
     private static let slideDurationSeconds: Double = 10
@@ -141,6 +231,7 @@ struct StoryPlayerAnalyticsTests {
         source: StorySource,
         endBehavior: EndBehavior = .finish,
         clock: any ProgressClock,
+        onAction: ((StoryActionV2) -> Void)? = nil,
         onFinished: @escaping (StoryExitReason, StoryActionV2?) -> Void = { _, _ in }
     ) -> StoryPlayerViewModel {
         StoryPlayerViewModel(
@@ -148,6 +239,7 @@ struct StoryPlayerAnalyticsTests {
             source: source,
             analytics: spy,
             clock: clock,
+            onAction: onAction,
             onFinished: onFinished
         )
     }
