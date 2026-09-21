@@ -20,12 +20,15 @@ extension CollectiblesCoordinator {
     }
 
     private func presentStories() {
+        let analytics = storiesAnalyticsProvider
+
         let viewModel = CollectiblesStoriesViewModel(
             slides: CollectiblesStoriesView.Slide.content,
             engine: {
                 StoryPlayerViewModel(
                     story: $0,
                     source: .collectibles,
+                    analytics: analytics,
                     hapticPlayer: CommonStoryHapticPlayer(),
                     onFinished: { _, _ in }
                 )

@@ -15,7 +15,8 @@ import TangemUIUtils
 struct CollectiblesWelcomeView: View {
     @ObservedObject var viewModel: CollectiblesWelcomeViewModel
 
-    let onBack: () -> Void
+    let dismissStyle: CollectiblesDismissStyle
+    let onDismiss: () -> Void
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -24,7 +25,7 @@ struct CollectiblesWelcomeView: View {
             scrollableContent
                 .ignoresSafeArea(edges: .top)
 
-            NavigationBarButton.back(action: onBack)
+            dismissStyle.button(action: onDismiss)
                 .padding(.top, Metrics.backTopPadding)
                 .padding(.leading, Metrics.backLeadingPadding)
         }
@@ -143,5 +144,5 @@ private extension CollectiblesWelcomeView {
 // MARK: - Previews
 
 #Preview {
-    CollectiblesWelcomeView(viewModel: CollectiblesWelcomeViewModel(routable: nil), onBack: {})
+    CollectiblesWelcomeView(viewModel: CollectiblesWelcomeViewModel(routable: nil), dismissStyle: .back, onDismiss: {})
 }

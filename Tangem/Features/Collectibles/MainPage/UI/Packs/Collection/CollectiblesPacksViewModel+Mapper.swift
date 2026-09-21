@@ -11,7 +11,6 @@ import TangemLocalization
 
 extension CollectiblesPacksViewModel {
     enum Mapper {
-        private static let balanceFormatter = BalanceFormatter()
         private static let percentFormatter = PercentFormatter()
 
         static func map(_ packs: [CollectiblesPack]) -> [CollectiblesPackCard.Model] {
@@ -25,11 +24,7 @@ private extension CollectiblesPacksViewModel.Mapper {
         CollectiblesPackCard.Model(
             id: pack.id,
             title: pack.name,
-            priceText: balanceFormatter.formatFiatBalance(
-                pack.price,
-                currencyCode: pack.currencyCode,
-                formattingOptions: .collectiblesDollars
-            ),
+            priceText: CollectiblesPriceFormatter.format(pack.price, currencyCode: pack.currencyCode),
             buybackText: pack.buybackRate.map(makeBuybackText),
             artworkURL: pack.artworkURL
         )
