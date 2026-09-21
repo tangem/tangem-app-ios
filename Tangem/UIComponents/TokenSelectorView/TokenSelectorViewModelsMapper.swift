@@ -11,6 +11,8 @@ import TangemFoundation
 import TangemUI
 
 final class TokenSelectorViewModelsMapper {
+    @Injected(\.alertPresenter) private var alertPresenter: any AlertPresenter
+
     // MARK: - Public
 
     lazy var wallets: [TokenSelectorWalletItemViewModel] = walletsProvider.wallets.map { wallet in
@@ -264,8 +266,20 @@ private extension TokenSelectorViewModelsMapper {
             return cached
         }
 
-        let viewModel = itemViewModelBuilder.mapToTokenSelectorItemViewModel(item: item) { [weak self] in
-            self?.output?.userDidSelect(item: item)
+        let viewModel = itemViewModelBuilder.mapToTokenSelectorItemViewModel(item: item) { [weak self] availabilityType in
+            guard let self else { return }
+
+            switch availabilityType {
+            case .unavailable(reason: .unavailableForSwap(.swapState(let swapState))):
+                TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                    presenter: alertPresenter,
+                    swapStatus: swapState,
+                    action: { self.output?.userDidSelect(item: item) }
+                )
+
+            case .available, .unavailable:
+                output?.userDidSelect(item: item)
+            }
         }
         cache[item] = viewModel
 

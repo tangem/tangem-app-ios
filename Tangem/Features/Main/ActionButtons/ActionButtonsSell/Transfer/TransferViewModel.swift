@@ -65,8 +65,16 @@ final class TransferViewModel: ObservableObject {
             }
             Task { @MainActor in coordinator?.transferRequestSell(walletModel: walletModel, userWalletInfo: userWalletInfo) }
         case .swap:
+            guard availabilityProvider.isSwapAvailable else {
+                showUnavailabilityAlert(for: option)
+                return
+            }
             Task { @MainActor in coordinator?.transferRequestSwap(walletModel: walletModel, userWalletInfo: userWalletInfo) }
         case .swapAndSend:
+            guard availabilityProvider.isSwapAvailable else {
+                showUnavailabilityAlert(for: option)
+                return
+            }
             Task { @MainActor in coordinator?.transferRequestSwapAndSend(walletModel: walletModel, userWalletInfo: userWalletInfo) }
         case .send:
             guard availabilityProvider.isSendAvailable else {
@@ -171,7 +179,7 @@ private extension TransferViewModel {
         let alert: AlertBinder? = switch option {
         case .send: builder.alert(for: availabilityProvider.sendAvailability)
         case .sell: builder.alert(for: availabilityProvider.sellAvailability)
-        case .swap, .swapAndSend: nil
+        case .swap, .swapAndSend: builder.alert(for: availabilityProvider.swapAvailability)
         }
 
         if let alert {

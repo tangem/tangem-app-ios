@@ -82,9 +82,16 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
             )
         case .swap:
             Analytics.log(.addFundsButtonSwap)
-            Task { @MainActor in
-                coordinator?.addFundsRequestSwap(walletModel: walletModel, userWalletModel: userWalletModel)
-            }
+            TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                presenter: alertPresenter,
+                swapStatus: availabilityProvider.swapAvailability,
+                action: { [weak self] in
+                    guard let self else { return }
+                    Task { @MainActor in
+                        self.coordinator?.addFundsRequestSwap(walletModel: self.walletModel, userWalletModel: self.userWalletModel)
+                    }
+                }
+            )
         case .receive:
             TokenActionAvailabilityAlertPresenter.presentOrProceed(
                 presenter: alertPresenter,

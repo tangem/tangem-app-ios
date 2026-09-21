@@ -281,7 +281,7 @@ extension CampaignViewModel {
     func handleSelectedToken(_ item: TokenSelectorItem) {
         selectedToken = item
         selectedTokenRowViewModel = TokenSelectorItemViewModelBuilder(availabilityProvider: AvailableTokenSelectorItemAvailabilityProvider())
-            .mapToTokenSelectorItemViewModel(item: item, action: {})
+            .mapToTokenSelectorItemViewModel(item: item, action: { _ in })
         tokenSelectorViewModel = nil
 
         var transaction = Transaction()

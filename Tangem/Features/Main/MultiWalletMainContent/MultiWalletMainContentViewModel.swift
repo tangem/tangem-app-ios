@@ -674,6 +674,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         return CommonYieldModuleFlowFactory(
             walletModel: walletModel,
+            userWalletInfo: userWalletModel.userWalletInfo,
             yieldModuleManager: manager,
             transactionDispatcher: dispatcher
         )
