@@ -8,6 +8,7 @@
 
 import struct Foundation.Data
 import struct Foundation.Date
+import struct TangemLogger.Logger
 
 actor RenewSessionTokensUseCase {
     private let registerDevice: RegisterDevice
@@ -20,6 +21,7 @@ actor RenewSessionTokensUseCase {
 
     private let deviceMetadataProvider: () -> DeviceMetadata
     private let dateProvider: @Sendable () -> Date
+    private let logger: Logger
 
     private var inFlightRenewalTask: Task<Result<SessionTokens, RenewSessionTokensError>, Never>?
 
@@ -31,7 +33,8 @@ actor RenewSessionTokensUseCase {
         deviceKeyManager: DeviceKeyManager,
         nonceDecryptor: some NonceDecryptor,
         deviceMetadataProvider: @escaping @Sendable @autoclosure () -> DeviceMetadata,
-        dateProvider: @escaping @Sendable @autoclosure () -> Date = Date.now
+        dateProvider: @escaping @Sendable @autoclosure () -> Date = Date.now,
+        logger: Logger
     ) {
         self.registerDevice = registerDevice
 
@@ -44,6 +47,7 @@ actor RenewSessionTokensUseCase {
 
         self.deviceMetadataProvider = deviceMetadataProvider
         self.dateProvider = dateProvider
+        self.logger = logger
     }
 
     func callAsFunction() async throws(RenewSessionTokensError) -> SessionTokens {
@@ -86,10 +90,15 @@ actor RenewSessionTokensUseCase {
             return nil
         }
 
-        return try? await sessionAuthenticationClient.refresh(
-            refreshToken: refreshToken.jwt,
-            accessToken: cachedTokens.accessToken.jwt
-        )
+        do {
+            return try await sessionAuthenticationClient.refresh(
+                refreshToken: refreshToken.jwt,
+                accessToken: cachedTokens.accessToken.jwt
+            )
+        } catch {
+            logger.error("Failed to refresh session tokens from cache, falling back to full authentication", error: error)
+            return nil
+        }
     }
 
     private func authenticateNewSession() async throws(RenewSessionTokensError) -> SessionTokens {
@@ -173,7 +182,7 @@ extension RenewSessionTokensUseCase {
         do {
             return try await appAttestService.generateAttestationToken(for: decryptedNonceBytes)
         } catch {
-            // [REDACTED_TODO_COMMENT]
+            logger.error("Failed to generate app attestation token", error: error)
             return nil
         }
     }
@@ -226,7 +235,7 @@ extension RenewSessionTokensUseCase {
         do {
             try await sessionTokensRepository.delete()
         } catch {
-            // [REDACTED_TODO_COMMENT]
+            logger.error("Failed to delete session tokens after authentication was rejected", error: error)
         }
     }
 }
