@@ -62,6 +62,16 @@ struct TransactionSubtitleView: View {
                 }
             }
 
+        case .contact(let name, let icon, _):
+            HStack(spacing: .unit(.x1)) {
+                AddressBookContactNameIconView(viewData: icon, size: 16)
+
+                Text(name)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+                    .lineLimit(1)
+                    .accessibilityIdentifier(accessibilityIdentifier)
+            }
+
         case .unresolved(let short, _, let blockiesImage):
             HStack(spacing: .unit(.x1)) {
                 addressBlockies(image: blockiesImage)

@@ -91,6 +91,6 @@ private extension AddressBookContact {
             return nil
         }
 
-        return AddressBookContact(id: id, walletId: walletId, name: name, appearance: appearance, entries: entries)
+        return AddressBookContact(id: id, walletId: walletId, name: name, appearance: appearance, createdAt: createdAt, entries: entries)
     }
 }

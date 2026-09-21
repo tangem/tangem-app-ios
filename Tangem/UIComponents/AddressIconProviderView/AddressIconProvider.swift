@@ -10,8 +10,8 @@ import BlockiesSwift
 import class UIKit.UIImage
 
 enum AddressIconProvider {
-    static func makeViewType(address: String) -> AddressIconProviderViewType? {
-        if let contactNameIconData = makeAddressBookContactNameIconData(address: address) {
+    static func makeViewType(address: String, networkId: AddressBookNetworkID?) -> AddressIconProviderViewType? {
+        if let contactNameIconData = makeAddressBookContactNameIconData(address: address, networkId: networkId) {
             return .contact(contactNameIconData)
         }
 
@@ -40,19 +40,23 @@ enum AddressIconProvider {
         return blockies.createImage()
     }
 
-    static func makeAddressBookContactNameIconData(address: String) -> AddressBookContactNameIconViewData? {
+    static func makeAddressBookContactNameIconData(
+        address: String,
+        networkId: AddressBookNetworkID?
+    ) -> AddressBookContactNameIconViewData? {
         guard !address.isEmpty else {
             return nil
         }
 
         let userWalletRepository: UserWalletRepository = InjectedValues[\.userWalletRepository]
-        let contacts = userWalletRepository.models.flatMap { $0.addressBookManager.contacts }
+        let finder = AddressBookContactFinder(
+            contacts: userWalletRepository.models.flatMap { $0.addressBookManager.contacts },
+            walletId: userWalletRepository.selectedModel?.userWalletId
+        )
 
-        guard let contact = contacts.first(where: { $0.entries.caseInsensitiveContains(address: address, networkId: nil) }) else {
-            return nil
-        }
-
-        return AddressBookContactNameIconViewData(contact: contact)
+        return finder
+            .contact(address: address, networkId: networkId)
+            .map(AddressBookContactNameIconViewData.init(contact:))
     }
 }
 

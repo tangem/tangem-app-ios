@@ -86,11 +86,12 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     /// Resolver is cheap to rebuild and `isAccountsMode` can flip while the screen is alive
     /// (user adds first account), so we recompute on every history rebuild.
-    private var subtitleOwnerResolver: SubtitleOwnerResolver {
+    private func subtitleOwnerResolver(contacts: [AddressBookContact]) -> SubtitleOwnerResolver {
         SubtitleOwnerResolver(
             blockchain: walletModel.tokenItem.blockchain,
             currentUserWalletId: userWalletInfo.id,
-            isAccountsMode: isAccountsMode
+            isAccountsMode: isAccountsMode,
+            contacts: contacts
         )
     }
 
@@ -102,6 +103,13 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         return walletModel.ratePublisher
             .map { $0.quote?.priceUsd }
             .prepend(nil)
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    private var addressBookContactsPublisher: AnyPublisher<[AddressBookContact], Never> {
+        AddressBookContactsAggregator
+            .contactsPublisher()
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
@@ -386,11 +394,11 @@ extension SingleTokenBaseViewModel {
             .store(in: &bag)
 
         walletModel.transactionHistoryPublisher
-            .combineLatest(usdRatePublisher)
+            .combineLatest(usdRatePublisher, addressBookContactsPublisher)
             .receiveOnMain()
-            .sink { [weak self] newState, usdRate in
+            .sink { [weak self] newState, usdRate, contacts in
                 AppLogger.info(self, "New transaction history state: \(newState)")
-                self?.updateHistoryState(to: newState, usdRate: usdRate)
+                self?.updateHistoryState(to: newState, usdRate: usdRate, contacts: contacts)
             }
             .store(in: &bag)
 
@@ -522,7 +530,7 @@ extension SingleTokenBaseViewModel {
         })
     }
 
-    private func updateHistoryState(to newState: WalletModelTransactionHistoryState, usdRate: Decimal?) {
+    private func updateHistoryState(to newState: WalletModelTransactionHistoryState, usdRate: Decimal?, contacts: [AddressBookContact]) {
         switch newState {
         case .notSupported:
             transactionHistoryState = .notSupported
@@ -539,7 +547,7 @@ extension SingleTokenBaseViewModel {
                 from: records,
                 groupingStyle: .day(.long),
                 dustFilter: TransactionHistoryDustFilter(usdRate: usdRate),
-                subtitleOwnerResolver: subtitleOwnerResolver
+                subtitleOwnerResolver: subtitleOwnerResolver(contacts: contacts)
             )
             transactionHistoryState = .loaded(listItems)
         }
