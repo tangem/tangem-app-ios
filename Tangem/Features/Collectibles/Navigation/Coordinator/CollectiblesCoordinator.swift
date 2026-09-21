@@ -57,7 +57,7 @@ final class CollectiblesCoordinator: CoordinatorObject {
     /// The account model is the onboarder: it owns the vault state, so the screen that drives onboarding and
     /// the account list read the same object rather than two that resolve the chain separately.
     private func makeOnboarder(options: Options) -> (any CollectiblesOnboarder)? {
-        CollectiblesAccountAggregator.collectiblesAccountModel(from: options.userWalletModel.accountModelsManager)
+        AccountModelsAggregator(.collectibles).model(from: options.userWalletModel.accountModelsManager)
     }
 }
 

@@ -77,7 +77,7 @@ private extension SwapOfferedTokensViewModel {
             return
         }
 
-        let accounts = AccountCryptoModelsAggregator.cryptoAccountModels(from: userWalletModel.accountModelsManager)
+        let accounts = AccountModelsAggregator(.crypto, .joint).models(from: userWalletModel.accountModelsManager)
 
         let resolved = tokenItems.compactMap { tokenItem -> RowViewData? in
             let isAlreadyAdded = accounts.contains {

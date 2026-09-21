@@ -203,7 +203,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         let accountModel: (any CryptoAccountModel)? = {
             guard cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple else { return nil }
-            return AccountCryptoModelsAggregator.cryptoAccountModels(from: model.accountModelsManager).first(where: \.isMainAccount)
+            return AccountModelsAggregator(.crypto).models(from: model.accountModelsManager).first(where: \.isMainAccount)
         }()
 
         let viewModel = SingleWalletMainContentViewModel(
@@ -314,7 +314,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
     private func makeSingleWalletDependencies(
         userWalletModel: UserWalletModel
     ) -> (walletModel: any WalletModel, walletModelsManager: WalletModelsManager)? {
-        guard let mainAccount = AccountCryptoModelsAggregator.cryptoAccountModels(from: userWalletModel.accountModelsManager).first(where: \.isMainAccount) else {
+        guard let mainAccount = AccountModelsAggregator(.crypto).models(from: userWalletModel.accountModelsManager).first(where: \.isMainAccount) else {
             return nil
         }
         let walletModelsManager: WalletModelsManager = mainAccount.walletModelsManager

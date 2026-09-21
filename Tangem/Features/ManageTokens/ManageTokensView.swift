@@ -252,7 +252,7 @@ private extension ManageTokensView {
     let accountModelsManager = AccountModelsManagerMock()
     let context = CommonManageTokensContext(
         accountModelsManager: accountModelsManager,
-        currentAccount: AccountCryptoModelsAggregator.cryptoAccountModels(from: accountModelsManager)[0]
+        currentAccount: AccountModelsAggregator(.crypto, .joint).models(from: accountModelsManager)[0]
     )
 
     let adapter = ManageTokensAdapter(

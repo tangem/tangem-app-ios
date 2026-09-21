@@ -106,7 +106,7 @@ final class AccountModelsManagerStub: AccountModelsManager {
     var accountModels: [AccountModel] { accounts }
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { .just(output: accountModels) }
     var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> {
-        .just(output: AccountCryptoModelsAggregator.cryptoAccountModels(from: accounts).count)
+        .just(output: AccountModelsAggregator(.crypto, .joint).models(from: accounts).count)
     }
 
     var totalJointAccountsCountPublisher: AnyPublisher<Int, Never> { .just(output: 0) }
