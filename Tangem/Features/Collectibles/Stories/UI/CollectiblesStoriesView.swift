@@ -154,7 +154,14 @@ private extension CollectiblesStoriesView {
     CollectiblesStoriesView(
         viewModel: CollectiblesStoriesViewModel(
             slides: CollectiblesStoriesView.Slide.content,
-            engine: { StoryPlayerViewModel(story: $0, source: .collectibles, onFinished: { _, _ in }) }
+            engine: {
+                StoryPlayerViewModel(
+                    story: $0,
+                    source: .collectibles,
+                    hapticPlayer: CommonStoryHapticPlayer(),
+                    onFinished: { _, _ in }
+                )
+            }
         )
     )
 }

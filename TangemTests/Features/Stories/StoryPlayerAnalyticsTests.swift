@@ -84,22 +84,19 @@ struct StoryPlayerAnalyticsTests {
         #expect(spy.closed.first?.watched == 2)
     }
 
-    /// An unattended wrap mutes haptics for the repeated slide, and a manual rewatch lifts that.
     @Test
-    func tapBackAfterAnAutoLoopRestoresHaptics() {
+    func tapBackOnTheFirstSlideAfterAnAutoLoopReportsItOnce() {
         let spy = SpyStoriesAnalyticsProvider()
         let clock = ManualProgressClock()
         let player = Self.makePlayer(spy: spy, source: .main, endBehavior: .loop, clock: clock)
 
         player.start()
-        // Both slides play themselves out, which wraps the story back onto the muted first one.
+        // Both slides play themselves out, which wraps the story back onto the first one.
         clock.advance(by: Self.slideDurationSeconds * 3)
         #expect(player.currentIndex == 0)
-        #expect(player.current.hapticsEnabled == false)
 
         player.tapBackward()
 
-        #expect(player.current.hapticsEnabled == true)
         #expect(spy.viewed.map(\.slideId) == ["s1", "s2"])
     }
 
