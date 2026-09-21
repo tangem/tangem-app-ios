@@ -74,24 +74,24 @@ extension NFTChain: Identifiable {
             return "bsc" + isTestnet.testnetSuffix
         case .avalanche:
             return "avalanche"
-        case .fantom:
-            return "fantom"
+        case .fantom(let isTestnet):
+            return "fantom" + isTestnet.testnetSuffix
         case .cronos:
             return "cronos"
-        case .arbitrum:
-            return "arbitrum"
+        case .arbitrum(let isTestnet):
+            return "arbitrum" + isTestnet.testnetSuffix
         case .gnosis(let isTestnet):
             return "gnosis" + isTestnet.testnetSuffix
         case .chiliz(let isTestnet):
             return "chiliz" + isTestnet.testnetSuffix
         case .base(let isTestnet):
             return "base" + isTestnet.testnetSuffix
-        case .optimism:
-            return "optimism"
+        case .optimism(let isTestnet):
+            return "optimism" + isTestnet.testnetSuffix
         case .moonbeam(let isTestnet):
             return "moonbeam" + isTestnet.testnetSuffix
-        case .moonriver:
-            return "moonriver"
+        case .moonriver(let isTestnet):
+            return "moonriver" + isTestnet.testnetSuffix
         case .solana:
             return "solana"
         }
