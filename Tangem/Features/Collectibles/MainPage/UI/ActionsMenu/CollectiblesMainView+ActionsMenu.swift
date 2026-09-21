@@ -30,6 +30,23 @@ extension CollectiblesMainView {
 private extension ActionsMenu {
     @ViewBuilder
     var items: some View {
+        // [REDACTED_TODO_COMMENT]
+        SwiftUI.Button {} label: {
+            Label(
+                title: { Text(Localization.collectiblesMainMenuActivityLog) },
+                icon: { DesignSystem.Icons.Clock.regular20.image.renderingMode(.template) }
+            )
+        }
+
+        SwiftUI.Button {} label: {
+            Label(
+                title: { Text(Localization.collectiblesMainMenuDeliveries) },
+                icon: { DesignSystem.Icons.Globe.regular20.image.renderingMode(.template) }
+            )
+        }
+
+        Divider()
+
         SwiftUI.Button(action: viewModel.onHowItWorksTap) {
             Label(
                 title: { Text(Localization.collectiblesMainMenuHowItWorks) },
@@ -45,9 +62,29 @@ private extension ActionsMenu {
         }
     }
 
+    @ViewBuilder
     var trigger: some View {
-        NavigationBarButton.details(action: {})
-            .allowsHitTesting(false)
+        let icon = DesignSystem.Icons.DotsVertical.regular20.image
+            .resizable()
+            .renderingMode(.template)
+            .foregroundStyle(DesignSystem.Color.iconPrimary)
+            .frame(size: CGSize(bothDimensions: Metrics.iconSide))
+            .padding(Metrics.iconPadding)
+
+        if #available(iOS 26.0, *) {
+            icon.glassEffect(.regular.interactive(), in: .circle)
+        } else {
+            icon.background(Circle().fill(Colors.Button.secondary))
+        }
+    }
+}
+
+// MARK: - Metrics
+
+private extension ActionsMenu {
+    enum Metrics {
+        static let iconSide: CGFloat = 20
+        static let iconPadding: CGFloat = 12
     }
 }
 

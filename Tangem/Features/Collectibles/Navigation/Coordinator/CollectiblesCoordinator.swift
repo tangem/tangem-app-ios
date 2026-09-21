@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import TangemStories
 
 final class CollectiblesCoordinator: CoordinatorObject {
     // MARK: - Properties
@@ -15,9 +16,12 @@ final class CollectiblesCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.overlayViewPresenter) var overlayViewPresenter: any OverlayViewPresenter
+    @Injected(\.storiesAnalyticsProvider) var storiesAnalyticsProvider: any StoriesAnalyticsProvider
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
+
+    private var accountModel: (any CollectiblesAccountModel)?
 
     // MARK: - Publishers
 
@@ -34,9 +38,11 @@ final class CollectiblesCoordinator: CoordinatorObject {
     // MARK: - Public methods
 
     func start(with options: Options) {
+        accountModel = options.accountModel
+
         switch options.destination {
         case .welcome:
-            state = .welcome(CollectiblesWelcomeViewModel(routable: self, onboarder: makeOnboarder(options: options)))
+            state = .welcome(CollectiblesWelcomeViewModel(routable: self, onboarder: accountModel))
         case .main:
             Task { @MainActor [weak self] in self?.openMain() }
         }
@@ -45,19 +51,13 @@ final class CollectiblesCoordinator: CoordinatorObject {
     @MainActor
     func openMain() {
         state = .main(
-            CollectiblesMainViewModel(routable: self),
+            CollectiblesMainViewModel(routable: self, accountModel: accountModel),
             actionsMenu: CollectiblesActionsMenuViewModel(routable: self)
         )
     }
 
     func closeMachine() {
         machineViewModel = nil
-    }
-
-    /// The account model is the onboarder: it owns the vault state, so the screen that drives onboarding and
-    /// the account list read the same object rather than two that resolve the chain separately.
-    private func makeOnboarder(options: Options) -> (any CollectiblesOnboarder)? {
-        AccountModelsAggregator(.collectibles).model(from: options.userWalletModel.accountModelsManager)
     }
 }
 
@@ -96,10 +96,16 @@ extension CollectiblesCoordinator {
     struct Options {
         let destination: Destination
         let userWalletModel: any UserWalletModel
+        let accountModel: (any CollectiblesAccountModel)?
 
-        init(destination: Destination, userWalletModel: any UserWalletModel) {
+        init(
+            destination: Destination,
+            userWalletModel: any UserWalletModel,
+            accountModel: (any CollectiblesAccountModel)?
+        ) {
             self.destination = destination
             self.userWalletModel = userWalletModel
+            self.accountModel = accountModel
         }
 
         enum Destination {

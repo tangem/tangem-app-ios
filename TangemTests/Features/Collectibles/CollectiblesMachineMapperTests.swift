@@ -95,10 +95,17 @@ private extension CollectiblesMachineMapperTests {
             roundingType: .default(roundingMode: .plain, scale: 2)
         )
 
+        let formatter = BalanceFormatter().makeDefaultFiatFormatter(
+            forCurrencyCode: AppConstants.usdCurrencyCode,
+            locale: Locale(identifier: "en_US"),
+            formattingOptions: options
+        )
+
         return BalanceFormatter().formatFiatBalance(
             value,
             currencyCode: AppConstants.usdCurrencyCode,
-            formattingOptions: options
+            formattingOptions: options,
+            formatter: formatter
         )
     }
 

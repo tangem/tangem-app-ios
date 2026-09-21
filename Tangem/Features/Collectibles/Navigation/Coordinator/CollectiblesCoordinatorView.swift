@@ -12,11 +12,25 @@ import TangemUI
 struct CollectiblesCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: CollectiblesCoordinator
 
+    var dismissStyle: CollectiblesDismissStyle = .back
+
     var body: some View {
         content
             .toolbar(.hidden, for: .navigationBar)
             .background(FeedPopGestureEnabler())
             .navigationLinks(links)
+    }
+}
+
+// MARK: - Presentation
+
+extension View {
+    func collectiblesFullScreenCover(item: Binding<CollectiblesCoordinator?>) -> some View {
+        shtorkaCompatibleFullScreenCover(item: item) { coordinator in
+            NavigationStack {
+                CollectiblesCoordinatorView(coordinator: coordinator, dismissStyle: .close)
+            }
+        }
     }
 }
 
@@ -29,12 +43,13 @@ private extension CollectiblesCoordinatorView {
             Group {
                 switch state {
                 case .welcome(let viewModel):
-                    CollectiblesWelcomeView(viewModel: viewModel, onBack: coordinator.dismiss)
+                    CollectiblesWelcomeView(viewModel: viewModel, dismissStyle: dismissStyle, onDismiss: coordinator.dismiss)
                 case .main(let viewModel, let actionsMenuViewModel):
                     CollectiblesMainView(
                         viewModel: viewModel,
                         actionsMenuViewModel: actionsMenuViewModel,
-                        onBack: coordinator.dismiss
+                        dismissStyle: dismissStyle,
+                        onDismiss: coordinator.dismiss
                     )
                 }
             }

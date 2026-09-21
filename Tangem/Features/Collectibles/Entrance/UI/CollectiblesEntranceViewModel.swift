@@ -35,7 +35,7 @@ final class CollectiblesEntranceViewModel: ObservableObject {
         onRestricted: @MainActor @escaping () -> Void,
         onOpen: @MainActor @escaping (CollectiblesCoordinator.Options) -> Void
     ) {
-        let userWalletModels = userWalletModelsProvider()
+        let userWalletModels = userWalletModelsProvider().filter { $0.isCollectiblesEligible }
 
         guard let firstUserWalletModel = userWalletModels.first else { return }
 
@@ -122,9 +122,9 @@ private extension CollectiblesEntranceViewModel {
 
         switch Destination(hasAccount: hasCollectiblesAccount, isRestricted: isRegionRestricted) {
         case .welcome:
-            onOpen(.init(destination: .welcome, userWalletModel: userWalletModel))
+            onOpen(.init(destination: .welcome, userWalletModel: userWalletModel, accountModel: accountModel))
         case .main:
-            onOpen(.init(destination: .main, userWalletModel: userWalletModel))
+            onOpen(.init(destination: .main, userWalletModel: userWalletModel, accountModel: accountModel))
         case .regionRestrictions:
             onRestricted()
         }
@@ -146,5 +146,13 @@ extension CollectiblesEntranceViewModel {
             case (false, false): self = .welcome
             }
         }
+    }
+}
+
+// MARK: - Eligibility
+
+private extension UserWalletModel {
+    var isCollectiblesEligible: Bool {
+        !isUserWalletLocked && config.hasFeature(.multiCurrency)
     }
 }
