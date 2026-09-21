@@ -25,6 +25,12 @@ public protocol CustomerInfoManagementService: AnyObject {
         idempotencyKey: String
     ) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse
 
+    func sendBankOfframpSignature(
+        orderId: String,
+        signature: String,
+        idempotencyKey: String
+    ) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse
+
     @discardableResult
     func updateCardDisplayName(cardId: String, _ displayName: String) async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.ProductInstance
 
@@ -214,6 +220,20 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
         idempotencyKey: String
     ) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {
         try await self.request(for: .placeOrder(request, idempotencyKey: idempotencyKey))
+    }
+
+    public func sendBankOfframpSignature(
+        orderId: String,
+        signature: String,
+        idempotencyKey: String
+    ) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {
+        try await request(
+            for: .sendBankOfframpSignature(
+                orderId: orderId,
+                request: TangemPayOfframpSignatureRequest(signature: signature),
+                idempotencyKey: idempotencyKey
+            )
+        )
     }
 
     public func getOrder(orderId: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {

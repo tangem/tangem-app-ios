@@ -23,6 +23,8 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
 
     @Published private(set) var rootViewModel: WithdrawHubViewModel?
     @Published var path: [Route] = []
+    @Published var successStatusModel: TransferSuccessStatusView.Model?
+    @Published var failedStatus: FailedStatus?
 
     // MARK: - Child coordinators
 
@@ -34,7 +36,11 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
     private(set) var optionsStore: TangemPayOfframpOptionsStore?
     private(set) var geoStore: TangemPayGeoStore?
     private(set) var orderBuilder: TangemPayOfframpOrderBuilder?
+    private(set) var sendUseCase: TangemPayOffRampSendUseCase?
     private(set) var hasNFCInteraction = false
+
+    private var orderService: (any TangemPayOfframpOrderService)?
+    private var orderSigner: (any TangemPayOfframpOrderSigning)?
     @Published private(set) var transferInputViewModel: TransferInputViewModel?
 
     // MARK: - Geo selection
@@ -56,6 +62,12 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         hasNFCInteraction = options.hasNFCInteraction
+
+        orderService = CommonTangemPayOfframpOrderService(
+            customerService: options.tangemPayAccount.customerService
+        )
+
+        orderSigner = options.tangemPayAccount.offrampOrderSigner
 
         let recentRecipientsStore = TangemPayRecentRecipientsStore(
             repository: CommonTangemPayBankAccountsRepository(
@@ -97,7 +109,13 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
     }
 
     func startWizard(recipient: TangemPayOfframpRecipient) {
-        guard let optionsStore else { return }
+        guard let optionsStore,
+              let orderService,
+              let orderSigner,
+              let recentRecipientsStore
+        else {
+            return
+        }
 
         let orderBuilder = TangemPayOfframpOrderBuilder(recipient: recipient)
         self.orderBuilder = orderBuilder
@@ -106,6 +124,12 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
 
         Task { @MainActor [weak self] in
             guard let self else { return }
+
+            sendUseCase = TangemPayOffRampSendUseCase(
+                orderService: orderService,
+                orderSigner: orderSigner,
+                recentRecipientsStore: recentRecipientsStore
+            )
 
             transferInputViewModel = TransferInputFactory.makeViewModel(
                 orderBuilder: orderBuilder,
@@ -189,6 +213,7 @@ private extension TangemPayOfframpCoordinator {
             .withWeakCaptureOf(self)
             .sink { coordinator, _ in
                 coordinator.orderBuilder = nil
+                coordinator.sendUseCase = nil
                 coordinator.transferInputViewModel = nil
             }
             .store(in: &bag)
@@ -316,8 +341,38 @@ extension TangemPayOfframpCoordinator {
         case .edit(let target):
             path.append(route(for: target))
 
+        case .sent(let model):
+            successStatusModel = model
+
+        case .failed(let model, let onRetry):
+            failedStatus = FailedStatus(model: model, onRetry: onRetry)
+
         case .close:
             dismiss(with: nil)
+        }
+    }
+
+    func retryAfterFailedStatus() {
+        let onRetry = failedStatus?.onRetry
+        failedStatus = nil
+
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(Constants.failedStatusDismissDelay))
+            onRetry?()
+        }
+    }
+}
+
+// MARK: - Failed status
+
+extension TangemPayOfframpCoordinator {
+    struct FailedStatus: Identifiable {
+        let id = UUID()
+        let model: TransferFailedStatusView.Model
+        let onRetry: (() -> Void)?
+
+        var canRetry: Bool {
+            onRetry != nil
         }
     }
 }
@@ -556,5 +611,13 @@ extension TangemPayOfframpCoordinator: TangemPayNoDepositAddressSheetRoutable {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension TangemPayOfframpCoordinator {
+    enum Constants {
+        static let failedStatusDismissDelay: TimeInterval = 0.3
     }
 }
