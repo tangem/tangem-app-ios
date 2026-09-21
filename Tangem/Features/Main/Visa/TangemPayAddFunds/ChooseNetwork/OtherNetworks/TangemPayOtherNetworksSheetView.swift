@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -71,9 +72,11 @@ private extension TangemPayOtherNetworksSheetView {
         VStack(spacing: 8) {
             Text(Localization.tangempayOtherNetworksTitle)
                 .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.otherNetworksSheetTitle)
 
             Text(Localization.tangempayOtherNetworksSubtitle)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.otherNetworksSheetSubtitle)
         }
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)
@@ -88,5 +91,6 @@ private extension TangemPayOtherNetworksSheetView {
         .size(.x12)
         .styleType(.secondary(.default))
         .horizontalLayout(.infinity)
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.otherNetworksSheetCloseButton)
     }
 }
