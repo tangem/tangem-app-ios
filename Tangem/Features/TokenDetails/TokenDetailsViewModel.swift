@@ -138,6 +138,11 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     func openTransactionDetails(_ transaction: TransactionViewModel) {
+        if let jointOperation = jointOperation(for: transaction) {
+            coordinator?.openJointAccountOperationDetails(pendingOperation: jointOperation)
+            return
+        }
+
         guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
             openTransactionExplorer(transaction: transaction.hash)
             return
