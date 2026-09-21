@@ -53,12 +53,12 @@ final class WalletConnectViewModel: ObservableObject {
                 userWalletRepository: userWalletRepository,
                 cryptoAccountsState: cryptoAccountsGlobalStateProvider.globalCryptoAccountsState()
             )
+            subscribeToConnectedDAppsUpdates()
         } else {
             state = .loading
+            // Subscribes to the updates stream itself once the initial list has been delivered.
             fetchConnectedDApps()
         }
-
-        subscribeToConnectedDAppsUpdates()
     }
 
     deinit {
@@ -90,6 +90,9 @@ final class WalletConnectViewModel: ObservableObject {
     }
 
     private func subscribeToConnectedDAppsUpdates() {
+        // Replacing the task without cancelling left the previous stream consumer alive: every update was
+        // handled twice and `disconnectAllConnectedDApps()` could only stop the most recent one.
+        connectedDAppsUpdateHandleTask?.cancel()
         connectedDAppsUpdateHandleTask = Task { [weak self, getConnectedDAppsStream = interactor.getConnectedDApps] in
             for await connectedDApps in await getConnectedDAppsStream() {
                 self?.handle(viewEvent: .connectedDAppsChanged(connectedDApps))
