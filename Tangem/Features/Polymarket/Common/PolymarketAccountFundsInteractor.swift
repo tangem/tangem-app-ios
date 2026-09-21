@@ -38,19 +38,20 @@ final class PolymarketAccountFundsInteractor {
 extension PolymarketAccountFundsInteractor {
     @discardableResult
     func prepare() async -> State {
-        async let bridgeAssets = acceptedAssets()
-
         do {
             async let builderCode = configurationService.builderCode()
             async let verifiedAddress = verifiedDepositWalletAddress()
 
             let depositWalletAddress = try await verifiedAddress
+            let resolvedBuilderCode = try await builderCode
 
-            let depositTarget = await depositTarget(
+            async let bridgeAssets = acceptedAssets()
+            async let bridgeAddresses = fundingAddresses(
                 forDepositWallet: depositWalletAddress,
-                builderCode: try await builderCode,
-                assets: await bridgeAssets
+                builderCode: resolvedBuilderCode
             )
+
+            let depositTarget = depositTarget(assets: await bridgeAssets, addresses: await bridgeAddresses)
 
             return store(.ready(Readiness(
                 depositWalletAddress: depositWalletAddress,
@@ -85,12 +86,26 @@ private extension PolymarketAccountFundsInteractor {
         }
     }
 
-    func depositTarget(
+    func fundingAddresses(
         forDepositWallet depositWalletAddress: String,
-        builderCode: String,
-        assets: [PolymarketSupportedAsset]?
-    ) async -> DepositTarget? {
-        guard let assets else {
+        builderCode: String
+    ) async -> PolymarketBridgeAddresses? {
+        do {
+            return try await bridgeService.fundingAddresses(
+                forDepositWallet: depositWalletAddress,
+                builderCode: builderCode
+            )
+        } catch {
+            PolymarketLogger.error("Failed to prepare a Polymarket deposit", error: error)
+            return nil
+        }
+    }
+
+    func depositTarget(
+        assets: [PolymarketSupportedAsset]?,
+        addresses: PolymarketBridgeAddresses?
+    ) -> DepositTarget? {
+        guard let assets, let addresses else {
             return nil
         }
 
@@ -99,22 +114,12 @@ private extension PolymarketAccountFundsInteractor {
             return nil
         }
 
-        do {
-            let addresses = try await bridgeService.fundingAddresses(
-                forDepositWallet: depositWalletAddress,
-                builderCode: builderCode
-            )
-
-            guard let fundingAddress = addresses.address(for: asset.family) else {
-                PolymarketLogger.warning("A deposit is unavailable: the bridge answered without a \(asset.family) funding address")
-                return nil
-            }
-
-            return DepositTarget(asset: asset, fundingAddress: fundingAddress)
-        } catch {
-            PolymarketLogger.error("Failed to prepare a Polymarket deposit", error: error)
+        guard let fundingAddress = addresses.address(for: asset.family) else {
+            PolymarketLogger.warning("A deposit is unavailable: the bridge answered without a \(asset.family) funding address")
             return nil
         }
+
+        return DepositTarget(asset: asset, fundingAddress: fundingAddress)
     }
 
     func verifiedDepositWalletAddress() async throws -> String {
