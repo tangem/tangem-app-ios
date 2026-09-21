@@ -110,6 +110,9 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayStayOnPlusSheetViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
+            .floatingSheetContent(for: TangemPayErrorRetryPopupViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
+            }
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }

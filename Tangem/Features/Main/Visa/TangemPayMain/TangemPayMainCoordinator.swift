@@ -1124,6 +1124,29 @@ extension TangemPayMainCoordinator: TangemPayOrderCardFlowRoutable {
         cardManagementViewModel?.selectDeliveringPlasticCard()
         orderCardCoordinator = nil
     }
+
+    func orderCardFlowDidFailUnexpectedly(retry: @escaping () -> Void) {
+        Task { @MainActor in
+            let viewModel = TangemPayErrorRetryPopupViewModel(
+                onRetry: { [weak self] in self?.retryOrderFromErrorPopup(retry) },
+                onClose: { [weak self] in self?.closeOrderErrorPopup() }
+            )
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    private func retryOrderFromErrorPopup(_ retry: @escaping () -> Void) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            retry()
+        }
+    }
+
+    private func closeOrderErrorPopup() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
 }
 
 // MARK: - TangemPayActivateCardRoutable
