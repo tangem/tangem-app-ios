@@ -48,6 +48,10 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     final let tokenActionAvailabilityAlertBuilder = TokenActionAvailabilityAlertBuilder()
     final let tokenActionAvailabilityProvider: TokenActionAvailabilityProvider
 
+    @Published private(set) final var jointOperationsAwaitingSignaturesSection: TransactionListItem?
+
+    private var jointOperationsAwaitingSignatures: [JointAccountPendingOperation] = []
+
     private var availableActions: [TokenActionType] = []
     private let tokenRouter: SingleTokenRoutable
     private let priceFormatter = MarketsTokenPriceFormatter()
@@ -103,6 +107,23 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         return walletModel.ratePublisher
             .map { $0.quote?.priceUsd }
             .prepend(nil)
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    private var jointOperationsAwaitingSignaturesPublisher: AnyPublisher<[JointAccountPendingOperation], Never> {
+        guard let jointAccount = walletModel.account as? any JointAccountModel else {
+            return .just(output: [])
+        }
+
+        let tokenItem = walletModel.tokenItem
+
+        return jointAccount
+            .jointAccountPendingOperationsProvider
+            .pendingOperationsPublisher
+            .map { operations in
+                operations.filter { $0.operation.status == .awaitingSignatures && $0.tokenItem == tokenItem }
+            }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
@@ -402,6 +423,17 @@ extension SingleTokenBaseViewModel {
             }
             .store(in: &bag)
 
+        jointOperationsAwaitingSignaturesPublisher
+            .combineLatest(addressBookContactsPublisher)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { owner, input in
+                let (jointOperations, contacts) = input
+                owner.jointOperationsAwaitingSignatures = jointOperations
+                owner.jointOperationsAwaitingSignaturesSection = owner.jointOperationsSection(for: jointOperations, contacts: contacts)
+            }
+            .store(in: &bag)
+
         let notificationsMapper = MultiWalletNotificationBannerMapper()
 
         notificationManager.notificationPublisher
@@ -551,6 +583,31 @@ extension SingleTokenBaseViewModel {
             )
             transactionHistoryState = .loaded(listItems)
         }
+    }
+
+    private func jointOperationsSection(
+        for jointOperations: [JointAccountPendingOperation],
+        contacts: [AddressBookContact]
+    ) -> TransactionListItem? {
+        guard jointOperations.isNotEmpty else {
+            return nil
+        }
+
+        let builder = JointAccountOperationTransactionViewModelBuilder()
+        let resolver = subtitleOwnerResolver(contacts: contacts)
+
+        return TransactionListItem(
+            header: Localization.transactionHistoryPending,
+            items: jointOperations.map { builder.build(pendingOperation: $0, subtitleOwnerResolver: resolver) }
+        )
+    }
+
+    final func jointOperation(for transaction: TransactionViewModel) -> JointAccountPendingOperation? {
+        guard transaction.isPendingSignature else {
+            return nil
+        }
+
+        return jointOperationsAwaitingSignatures.first { $0.operation.id == transaction.hash }
     }
 
     private func updateMiniChartState(using data: MarketsChartModel) {
