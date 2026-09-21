@@ -138,13 +138,17 @@ class ManageTokensViewModel: ObservableObject {
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .combineLatest(customTokensFullList)
             .map { searchText, tokensList in
-                if searchText.isEmpty {
+                // The remote loader trims the query (`TokensListDataLoader.loadItems`); match it here so a trailing
+                // space or a whitespace-only query does not hide the custom tokens while remote results are shown.
+                let query = searchText.trimmed()
+
+                if query.isEmpty {
                     return tokensList
                 }
 
                 return tokensList.filter {
-                    $0.name.range(of: searchText, options: .caseInsensitive) != nil ||
-                        $0.symbol.range(of: searchText, options: .caseInsensitive) != nil
+                    $0.name.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil ||
+                        $0.symbol.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
                 }
             }
             .assign(to: \.customTokensList, on: self, ownership: .weak)
