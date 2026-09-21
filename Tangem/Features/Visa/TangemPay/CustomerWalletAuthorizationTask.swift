@@ -37,7 +37,7 @@ public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
                     throw CustomerWalletAuthorizationTaskError.derivedKeyNotFound
                 }
 
-                let derivationTask = DeriveMultipleWalletPublicKeysTask([seedKey: [derivationPath]])
+                let derivationTask = DeriveMultipleWalletPublicKeysTask([seedKey: [derivationPath]], shouldFailIfNothingDerived: true)
                     .withUserWalletRegistration()
 
                 try await derivationTask

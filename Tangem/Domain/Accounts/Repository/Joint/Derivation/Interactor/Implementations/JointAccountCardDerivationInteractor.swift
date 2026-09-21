@@ -88,7 +88,7 @@ private final class JointAccountDerivationTask<Builder: JointAccountPayloadBuild
     }
 
     private func runInternal(in session: CardSession) async throws -> Response {
-        let derivationTask = DeriveMultipleWalletPublicKeysTask([seedKey: [derivationPath]])
+        let derivationTask = DeriveMultipleWalletPublicKeysTask([seedKey: [derivationPath]], shouldFailIfNothingDerived: true)
             .withUserWalletRegistration()
 
         try await derivationTask
