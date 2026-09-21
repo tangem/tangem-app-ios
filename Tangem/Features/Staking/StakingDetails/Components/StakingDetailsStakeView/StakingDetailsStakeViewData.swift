@@ -21,6 +21,9 @@ struct StakingDetailsStakeViewData: Identifiable {
     let subtitleType: SubtitleType?
     let balance: BalanceFormatted
     let action: (() -> Void)?
+    /// Distinguishes rows that render identically (same validator, same amount — e.g. several Solana stake accounts,
+    /// or two equal `unstaked` withdrawals); without it their `id`s collide in the list.
+    let accountAddress: String? = nil
 
     var accessibilityIdentifier: String? {
         switch subtitleType {
@@ -105,6 +108,7 @@ extension StakingDetailsStakeViewData: Hashable {
         hasher.combine(icon)
         hasher.combine(balance)
         hasher.combine(inProgress)
+        hasher.combine(accountAddress)
     }
 }
 
