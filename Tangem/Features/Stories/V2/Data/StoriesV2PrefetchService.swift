@@ -33,6 +33,8 @@ final class StoriesV2PrefetchService {
         do {
             let stories = try await remoteStore.stories(slugs: ids.map(\.rawValue))
             return await prefetchAssets(of: stories)
+        } catch is CancellationError {
+            return []
         } catch {
             AppLogger.error("Stories V2 prefetch failed", error: error)
             return []
@@ -42,7 +44,7 @@ final class StoriesV2PrefetchService {
     /// A story carries several megabytes of video, so only a few download at a time — a large
     /// batch must not take over the cooperative pool. The show order is preserved.
     private func prefetchAssets(of stories: [StoryV2]) async -> [StoryV2] {
-        await withTaskGroup(of: (offset: Int, story: StoryV2).self) { group in
+        await withTaskGroup(of: (offset: Int, story: StoryV2?).self) { group in
             var remaining = stories.enumerated().makeIterator()
             var prefetched = [StoryV2?](repeating: nil, count: stories.count)
 
@@ -51,7 +53,8 @@ final class StoriesV2PrefetchService {
 
                 // A superseded pass stops feeding the group instead of spawning doomed children.
                 _ = group.addTaskUnlessCancelled { [assetPrefetchService] in
-                    (offset, await assetPrefetchService.prefetch(story))
+                    // A cancelled or failed story leaves the batch without taking the rest with it.
+                    (offset, try? await assetPrefetchService.prefetch(story))
                 }
             }
 
