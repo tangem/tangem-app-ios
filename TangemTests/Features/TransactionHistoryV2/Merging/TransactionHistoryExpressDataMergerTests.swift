@@ -2121,9 +2121,451 @@ struct TransactionHistoryExpressDataMergerTests {
         #expect(try #require(output.first).isEnriched)
     }
 
+    // MARK: - Leg claiming
+
+    @Test("Exchange: a fee transfer sharing the pay-in transaction is not claimed as the swap leg")
+    func exchangeDoesNotClaimFeeTransferSharingThePayInHash() throws {
+        let token = ExpressMergeTestDataFactory.ethereumToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
+            feeTokenItem: token
+        )
+
+        // A gasless transaction pays its fee with a second transfer of the same token within the same
+        // on-chain transaction, so both transfers share the pay-in hash and differ only in index.
+        let feeTransfer = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xPayInHash",
+            isOutgoing: true,
+            sources: [ExpressMergeTestDataFactory.ownerAddress],
+            destinations: [("0xFeeRecipient", try #require(Decimal(stringValue: "0.5")))],
+            date: ExpressMergeTestDataFactory.baseDate,
+            index: 0,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: token
+        )
+        let swapTransfer = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xPayInHash",
+            isOutgoing: true,
+            sources: [ExpressMergeTestDataFactory.ownerAddress],
+            destinations: [("0xPayIn", 43)],
+            date: ExpressMergeTestDataFactory.baseDate,
+            index: 1,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: token
+        )
+        let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "exchange-tx",
+            status: .finished,
+            fromAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payInAddress: "0xPayIn",
+            payInHash: "0xPayInHash",
+            payOutAddress: "0xPayOut",
+            payOutHash: nil,
+            fromCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            fromAmount: 43,
+            fromActualAmount: nil,
+            toCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            toAmount: 1,
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+
+        let output = merger.merge(bsdkTransactions: [feeTransfer, swapTransfer], exchangeTransactions: [exchange], onrampTransactions: [])
+
+        #expect(output.count == 2)
+        #expect(record(in: output, index: 1)?.exchangeInfo?.transaction.txId == "exchange-tx")
+        #expect(record(in: output, index: 0)?.isEnriched == false)
+    }
+
+    @Test("Exchange: a co-traveller transferring the deal's amount elsewhere is not claimed as the swap leg")
+    func exchangeDoesNotClaimCoTravellerCarryingTheSameAmount() throws {
+        let token = ExpressMergeTestDataFactory.ethereumToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
+            feeTokenItem: token
+        )
+
+        // Both transfers move exactly the deal's amount, but only one of them sends it to the pay-in address;
+        // comparing the whole transferred amount alone would claim the other one as a second leg.
+        let swapTransfer = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xPayInHash",
+            isOutgoing: true,
+            sources: [ExpressMergeTestDataFactory.ownerAddress],
+            destinations: [("0xPayIn", 43)],
+            date: ExpressMergeTestDataFactory.baseDate,
+            index: 0,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: token
+        )
+        let unrelatedTransfer = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xPayInHash",
+            isOutgoing: true,
+            sources: [ExpressMergeTestDataFactory.ownerAddress],
+            destinations: [("0xSomeoneElse", 43)],
+            date: ExpressMergeTestDataFactory.baseDate,
+            index: 1,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: token
+        )
+        let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "exchange-tx",
+            status: .finished,
+            fromAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payInAddress: "0xPayIn",
+            payInHash: "0xPayInHash",
+            payOutAddress: "0xPayOut",
+            payOutHash: nil,
+            fromCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            fromAmount: 43,
+            fromActualAmount: nil,
+            toCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            toAmount: 1,
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+
+        let output = merger.merge(bsdkTransactions: [swapTransfer, unrelatedTransfer], exchangeTransactions: [exchange], onrampTransactions: [])
+
+        #expect(output.count == 2)
+        #expect(record(in: output, index: 0)?.exchangeInfo?.transaction.txId == "exchange-tx")
+        #expect(record(in: output, index: 1)?.isEnriched == false)
+    }
+
+    @Test("Exchange: the pay-in transaction is not claimed as the leg of the token being bought")
+    func exchangeDoesNotClaimPayInTransactionForDestinationToken() throws {
+        let token = ExpressMergeTestDataFactory.ethereumToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
+            feeTokenItem: token
+        )
+
+        // Both legs of a DEX swap live on the same blockchain, so the swap call the user sent also shows up
+        // in the history of the token being bought — where it carries none of the received amount.
+        let swapCall = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xSwapHash",
+            isOutgoing: true,
+            sources: [ExpressMergeTestDataFactory.ownerAddress],
+            destinations: [("0xRouter", 0)],
+            date: ExpressMergeTestDataFactory.baseDate,
+            index: 0,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: token
+        )
+        let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "exchange-tx",
+            status: .finished,
+            fromAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payInAddress: "0xRouter",
+            payInHash: "0xSwapHash",
+            payOutAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payOutHash: nil,
+            fromCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            fromAmount: 1,
+            fromActualAmount: nil,
+            toCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            toAmount: 549,
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+
+        let output = merger.merge(bsdkTransactions: [swapCall], exchangeTransactions: [exchange], onrampTransactions: [])
+
+        // The pay-out leg has no on-chain record of its own (it arrives as an internal transfer),
+        // so the deal is represented by a synthetic record instead of the pay-in transaction.
+        #expect(output.count == 2)
+        #expect(record(in: output, hash: "0xSwapHash")?.isEnriched == false)
+        #expect(record(in: output, hash: "ExpressSyntheticTx_exchange-tx")?.exchangeInfo != nil)
+    }
+
+    @Test("Exchange: a hashless DEX deal claims the received leg instead of duplicating it with a synthetic")
+    func exchangeClaimsReceivedLegOfHashlessDeal() throws {
+        let token = ExpressMergeTestDataFactory.ethereumToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
+            feeTokenItem: token
+        )
+        let receivedAmount = try #require(Decimal(stringValue: "28.432395"))
+
+        // A DEX deal reports neither leg's hash, so the pay-out leg can only be matched by the receive
+        // heuristic — which needs the record to name the pay-out address as its destination.
+        let onChain = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xSwapHash",
+            isOutgoing: false,
+            sources: ["0xExecutor"],
+            destinations: [(ExpressMergeTestDataFactory.ownerAddress, receivedAmount)],
+            date: ExpressMergeTestDataFactory.baseDate.addingTimeInterval(12),
+            index: 0,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: token
+        )
+        let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "exchange-tx",
+            status: .waitingTxHash,
+            fromAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payInAddress: "0xRouter",
+            payInHash: nil,
+            payOutAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payOutHash: nil,
+            fromCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            fromAmount: 374,
+            fromActualAmount: nil,
+            toCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            toAmount: receivedAmount,
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+
+        let output = merger.merge(bsdkTransactions: [onChain], exchangeTransactions: [exchange], onrampTransactions: [])
+
+        #expect(output.count == 1)
+        #expect(record(in: output, hash: "0xSwapHash")?.exchangeInfo?.transaction.txId == "exchange-tx")
+    }
+
+    @Test("Receive heuristic: matches the pay-out leg even when the record doesn't name the pay-out address")
+    func receiveHeuristicMatchesWhenPayOutAddressIsMissingFromTheRecord() throws {
+        let token = ExpressMergeTestDataFactory.ethereumToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
+            feeTokenItem: token
+        )
+        let receivedAmount = try #require(Decimal(stringValue: "28.432395"))
+
+        // The record carries the token contract instead of the counterparty as its destination, which is what
+        // some providers report for a token transfer made by a contract call.
+        let onChain = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xSwapHash",
+            isOutgoing: false,
+            sources: ["0xExecutor"],
+            destinations: [("0xTokenContract", receivedAmount)],
+            date: ExpressMergeTestDataFactory.baseDate.addingTimeInterval(12),
+            index: 0,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: token
+        )
+        let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "exchange-tx",
+            status: .waitingTxHash,
+            fromAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payInAddress: "0xRouter",
+            payInHash: nil,
+            payOutAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payOutHash: nil,
+            fromCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            fromAmount: 374,
+            fromActualAmount: nil,
+            toCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            toAmount: receivedAmount,
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+
+        let output = merger.merge(bsdkTransactions: [onChain], exchangeTransactions: [exchange], onrampTransactions: [])
+
+        // No synthetic record next to an unenriched on-chain one
+        #expect(output.count == 1)
+        #expect(record(in: output, hash: "0xSwapHash")?.exchangeInfo?.transaction.txId == "exchange-tx")
+    }
+
+    @Test("Receive heuristic: an unrelated incoming transfer outside the window is not claimed as the pay-out leg")
+    func receiveHeuristicDoesNotClaimUnrelatedTransferWithoutPayOutAddress() throws {
+        let token = ExpressMergeTestDataFactory.ethereumToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
+            feeTokenItem: token
+        )
+        let receivedAmount = try #require(Decimal(stringValue: "28.432395"))
+
+        // Same shape as above, but the transfer arrived a day and an hour after the deal was created.
+        let onChain = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xUnrelated",
+            isOutgoing: false,
+            sources: ["0xExecutor"],
+            destinations: [("0xTokenContract", receivedAmount)],
+            date: ExpressMergeTestDataFactory.baseDate.addingTimeInterval(ExpressMergeTestDataFactory.dayInSeconds + 3600),
+            index: 0,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: token
+        )
+        let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "exchange-tx",
+            status: .waitingTxHash,
+            fromAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payInAddress: "0xRouter",
+            payInHash: nil,
+            payOutAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payOutHash: nil,
+            fromCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            fromAmount: 374,
+            fromActualAmount: nil,
+            toCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            toAmount: receivedAmount,
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+
+        let output = merger.merge(bsdkTransactions: [onChain], exchangeTransactions: [exchange], onrampTransactions: [])
+
+        #expect(record(in: output, hash: "0xUnrelated")?.isEnriched == false)
+        #expect(record(in: output, hash: "ExpressSyntheticTx_exchange-tx")?.exchangeInfo != nil)
+    }
+
+    @Test("Exchange: a hash the deal named itself stays claimed even when no amount lines up")
+    func exchangeClaimsDeterministicallyMatchedHashWithMismatchingAmounts() throws {
+        let token = ExpressMergeTestDataFactory.ethereumToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
+            feeTokenItem: token
+        )
+
+        // Neither transfer carries the reported amount and the two don't add up to it either, which is not
+        // enough to reject a hash the deal itself pointed at
+        let firstTransfer = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xPayInHash",
+            isOutgoing: true,
+            sources: [ExpressMergeTestDataFactory.ownerAddress],
+            destinations: [("0xPayIn", 20)],
+            date: ExpressMergeTestDataFactory.baseDate,
+            index: 0,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: token
+        )
+        let secondTransfer = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xPayInHash",
+            isOutgoing: true,
+            sources: [ExpressMergeTestDataFactory.ownerAddress],
+            destinations: [("0xPoolB", 30)],
+            date: ExpressMergeTestDataFactory.baseDate,
+            index: 1,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: token
+        )
+        let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "exchange-tx",
+            status: .finished,
+            fromAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payInAddress: "0xPayIn",
+            payInHash: "0xPayInHash",
+            payOutAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payOutHash: nil,
+            fromCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            fromAmount: 100,
+            fromActualAmount: nil,
+            toCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            toAmount: 1,
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+
+        let output = merger.merge(bsdkTransactions: [firstTransfer, secondTransfer], exchangeTransactions: [exchange], onrampTransactions: [])
+
+        // Both records are enriched instead of being shown as plain transfers next to a synthetic swap row
+        #expect(output.count == 2)
+        #expect(output.allSatisfy { $0.exchangeInfo?.transaction.txId == "exchange-tx" })
+    }
+
+    @Test("Receive heuristic: matches the pay-out leg even when other records occupy the pay-out address")
+    func receiveHeuristicMatchesWhenPayOutAddressIndexHoldsOtherRecords() throws {
+        let token = ExpressMergeTestDataFactory.ethereumToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
+            feeTokenItem: token
+        )
+        let receivedAmount = try #require(Decimal(stringValue: "47.881127"))
+
+        // The pay-out leg carries the token contract as its destination, so it is missing from the address
+        // index — which still exists, because an ordinary transfer did land on the pay-out address.
+        let ordinaryTransfer = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xOrdinary",
+            isOutgoing: false,
+            sources: ["0xSomeone"],
+            destinations: [(ExpressMergeTestDataFactory.ownerAddress, 5)],
+            date: ExpressMergeTestDataFactory.baseDate.addingTimeInterval(60),
+            index: 0,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: token
+        )
+        let payOutLeg = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xSwapHash",
+            isOutgoing: false,
+            sources: ["0xExecutor"],
+            destinations: [("0xTokenContract", receivedAmount)],
+            date: ExpressMergeTestDataFactory.baseDate.addingTimeInterval(12),
+            index: 0,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: token
+        )
+        let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "exchange-tx",
+            status: .finished,
+            fromAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payInAddress: "0xRouter",
+            payInHash: nil,
+            payOutAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payOutHash: nil,
+            fromCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            fromAmount: 374,
+            fromActualAmount: nil,
+            toCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            toAmount: receivedAmount,
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+
+        let output = merger.merge(
+            bsdkTransactions: [ordinaryTransfer, payOutLeg],
+            exchangeTransactions: [exchange],
+            onrampTransactions: []
+        )
+
+        // The pay-out leg is enriched instead of being shown as an operation next to a synthetic swap row
+        #expect(output.count == 2)
+        #expect(record(in: output, hash: "0xSwapHash")?.exchangeInfo?.transaction.txId == "exchange-tx")
+        #expect(record(in: output, hash: "0xOrdinary")?.isEnriched == false)
+    }
+
     // MARK: - Helpers
 
     private func record(in output: [TransactionRecord], hash: String) -> TransactionRecord? {
         output.first { $0.hash == hash }
+    }
+
+    private func record(in output: [TransactionRecord], index: Int) -> TransactionRecord? {
+        output.first { $0.index == index }
     }
 }
