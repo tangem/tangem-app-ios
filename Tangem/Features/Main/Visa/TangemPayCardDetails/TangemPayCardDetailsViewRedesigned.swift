@@ -231,17 +231,20 @@ struct TangemPayCardDetailsViewRedesigned: View {
         .environment(\.colorScheme, .dark)
     }
 
+    @ViewBuilder
     private var cardHeader: some View {
-        HStack(alignment: .center, spacing: 6) {
-            Text(Localization.tangempayDigitalCard)
-                .font(token: DesignSystem.Font.bodyMediumToken)
-                .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
+        if viewModel.isDigitalCard {
+            HStack(alignment: .center, spacing: 6) {
+                Text(Localization.tangempayDigitalCard)
+                    .font(token: DesignSystem.Font.bodyMediumToken)
+                    .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
 
-            DesignSystem.Icons.Cloud.filled20.image
-                .renderingMode(.template)
-                .foregroundStyle(DesignSystem.Color.iconStaticDark)
+                DesignSystem.Icons.Cloud.filled20.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Color.iconStaticDark)
 
-            Spacer()
+                Spacer()
+            }
         }
     }
 
