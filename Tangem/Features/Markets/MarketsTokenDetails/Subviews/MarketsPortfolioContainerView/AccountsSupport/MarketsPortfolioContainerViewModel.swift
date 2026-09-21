@@ -637,18 +637,24 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
 
-            let helper = SwapPredefinedParametersHelper()
-            guard let parameters = helper.makeParameters(
-                walletModel: walletModel,
-                userWalletInfo: userWalletModel.userWalletInfo,
-                position: .automatic
-            ) else {
-                return
-            }
+            TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                presenter: alertPresenter,
+                swapStatus: availabilityProvider.swapAvailability,
+                action: {
+                    let helper = SwapPredefinedParametersHelper()
+                    guard let parameters = helper.makeParameters(
+                        walletModel: walletModel,
+                        userWalletInfo: userWalletModel.userWalletInfo,
+                        position: .automatic
+                    ) else {
+                        return
+                    }
 
-            Task { @MainActor in
-                coordinator.openSwap(input: parameters, destination: walletModel.tokenItem)
-            }
+                    Task { @MainActor in
+                        coordinator.openSwap(input: parameters, destination: walletModel.tokenItem)
+                    }
+                }
+            )
         case .stake:
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)
             if let stakingManager = walletModel.stakingManager {
