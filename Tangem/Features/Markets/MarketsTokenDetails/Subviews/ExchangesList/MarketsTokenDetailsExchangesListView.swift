@@ -53,7 +53,7 @@ struct MarketsTokenDetailsExchangesListView: View {
                 viewModel?.onOverlayContentProgressChange(progress)
             }
             .background {
-                if sheetSize.hasOpaqueBackground {
+                if !sheetSize.isNonFullFeedSheet {
                     defaultBackgroundColor.ignoresSafeArea()
                 }
             }

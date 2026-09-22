@@ -41,7 +41,7 @@ struct NewsPagerView: View {
                 }
             }
 
-            if viewModel.shouldShowPageIndicator, sheetSize.hasOpaqueBackground {
+            if viewModel.shouldShowPageIndicator, !sheetSize.isNonFullFeedSheet {
                 Group {
                     pageIndicatorOverlay
                         .ignoresSafeArea(.container, edges: .bottom)
@@ -157,7 +157,7 @@ struct NewsPagerView: View {
     }
 
     private var backgroundColor: Color {
-        sheetSize.hasOpaqueBackground ? DesignSystem.Color.bgPrimary : .clear
+        !sheetSize.isNonFullFeedSheet ? DesignSystem.Color.bgPrimary : .clear
     }
 
     @ToolbarContentBuilder
