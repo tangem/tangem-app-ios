@@ -61,7 +61,7 @@ final class AlephiumTransactionBuilder {
     // MARK: - Private Implementation
 
     private func makeUnspent(for utxo: AlephiumUTXO) -> ALPH.AssetOutputInfo? {
-        guard let unsafeAmount = BigUInt(decimal: utxo.value) else {
+        guard let rawAmount = BigUInt(decimal: utxo.value), let amount = ALPH.U256.from(rawAmount) else {
             return nil
         }
 
@@ -73,7 +73,7 @@ final class AlephiumTransactionBuilder {
         let lockupScript = ALPH.Lockup.P2PKH(pkHash: ALPH.Blake2b(bytes: walletPublicKey))
 
         let output = ALPH.AssetOutput(
-            amount: ALPH.U256.unsafe(unsafeAmount),
+            amount: amount,
             lockupScript: lockupScript,
             lockTime: ALPH.TimeStamp(utxo.lockTime),
             tokens: .init(),
@@ -97,7 +97,9 @@ final class AlephiumTransactionBuilder {
         guard
             let innerAmountValue = BigUInt(decimal: amount.value * decimalValue),
             let feeParameters = fee.parameters as? AlephiumFeeParameters,
-            let gasPriceValue = BigUInt(feeParameters.gasPrice.stringValue)
+            let gasPriceValue = BigUInt(feeParameters.gasPrice.stringValue),
+            let attoAlphAmount = ALPH.U256.from(innerAmountValue),
+            let gasPriceAmount = ALPH.U256.from(gasPriceValue)
         else {
             throw BlockchainSdkError.failedToBuildTx
         }
@@ -112,13 +114,13 @@ final class AlephiumTransactionBuilder {
 
         let txOutputInfo = ALPH.TxOutputInfo(
             lockupScript: outputLockupScript,
-            attoAlphAmount: ALPH.U256.unsafe(innerAmountValue),
+            attoAlphAmount: attoAlphAmount,
             tokens: .init(),
             lockTime: nil,
             additionalData: nil
         )
 
-        let gasPrice = ALPH.GasPrice(value: ALPH.U256.unsafe(gasPriceValue))
+        let gasPrice = ALPH.GasPrice(value: gasPriceAmount)
         let gasAmount = ALPH.GasBox(value: feeParameters.gasAmount)
 
         let networkId: ALPH.NetworkId = isTestnet ? .testnet : .mainnet
