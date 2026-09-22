@@ -59,7 +59,9 @@ struct PendingExpressTxStatusBottomSheetView: View {
 
                 providerView
 
-                viewModel.ratingViewModel.map(RatingView.init)
+                viewModel.ratingViewModel.map {
+                    RatingView(viewModel: $0, background: .legacy)
+                }
 
                 statusesView
 
