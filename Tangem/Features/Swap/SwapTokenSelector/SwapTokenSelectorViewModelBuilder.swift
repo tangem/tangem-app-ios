@@ -11,11 +11,12 @@ struct SwapTokenSelectorViewModelBuilder {
     private var userWalletRepository: UserWalletRepository
 
     weak var output: (SwapTokenSelectorOutput & SendSourceTokenInput & SendReceiveTokenInput)?
-    /// Flow-imposed limits on what each selector side offers; `nil` falls back to `.common()`.
+    /// Flow-imposed limits on what each selector side offers; `nil` falls back to `.cryptoJointTangemPayAccounts()`.
     var sourceWalletsProvider: (any TokenSelectorWalletsProvider)?
     var receiveWalletsProvider: (any TokenSelectorWalletsProvider)?
     var allowsSourceMarketsTokens: Bool = true
     var allowsReceiveMarketsTokens: Bool = true
+    var offeredReceiveTokens: [TokenItem] = []
 
     func makeSwapTokenSelectorViewModel(
         direction: SwapTokenSelectorViewModel.SwapDirection,
@@ -44,20 +45,26 @@ struct SwapTokenSelectorViewModelBuilder {
         let isSourceSelection = if case .toDestination = direction { true } else { false }
         let walletsProvider = isSourceSelection ? sourceWalletsProvider : receiveWalletsProvider
         let suppressesMarketsTokens = isSourceSelection ? !allowsSourceMarketsTokens : !allowsReceiveMarketsTokens
-        let showsBalanceFilter = isSourceSelection && FeatureProvider.isAvailable(.swapHideZeroBalanceSource)
-
         let tokenSelectorViewModel = TokenSelectorViewModel.swap(
-            walletsProvider: walletsProvider ?? .common(),
+            walletsProvider: walletsProvider ?? .cryptoJointTangemPayAccounts(),
             initialSelectedItem: direction.tokenItem,
             initiallyExpandedAccount: initiallyExpandedAccount,
             preferredWalletId: preferredWalletId,
-            showsBalanceFilter: showsBalanceFilter
+            showsBalanceFilter: isSourceSelection
         )
+
+        let offeredTokensViewModel = !isSourceSelection && !offeredReceiveTokens.isEmpty
+            ? SwapOfferedTokensViewModel(
+                tokenItems: offeredReceiveTokens,
+                additionCoordinator: marketsTokenAdditionRouter
+            )
+            : nil
 
         return SwapTokenSelectorViewModel(
             swapDirection: direction,
             tokenSelectorViewModel: tokenSelectorViewModel,
             marketsTokensViewModel: suppressesMarketsTokens ? nil : marketsTokensViewModel,
+            offeredTokensViewModel: offeredTokensViewModel,
             output: output,
             tokenSelectorCoordinator: router,
             marketsTokenAdditionCoordinator: marketsTokenAdditionRouter
@@ -71,7 +78,7 @@ struct SwapTokenSelectorViewModelBuilder {
             return nil
         }
 
-        let cryptoAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first { account in
+        let cryptoAccount = AccountModelsAggregator(.crypto, .joint).models(from: userWalletModel.accountModelsManager).first { account in
             account.walletModelsManager.walletModels.contains { $0.id == tappedToken.id }
         }
 

@@ -19,7 +19,7 @@ struct DeeplinkSwapParametersResolverTests {
 
     @Test("Empty deeplink → nil (open swap as from Main)")
     func emptyDeeplink() {
-        let result = select(candidates: [candidate(index: 0, token: "ethereum", network: "ethereum", balance: 100)], params: params())
+        let result = select(candidates: [candidate(index: 0, token: "ethereum", network: "ethereum", balance: 100)], deeplink: deeplink())
         #expect(result == nil)
     }
 
@@ -29,7 +29,7 @@ struct DeeplinkSwapParametersResolverTests {
     func fromWithoutNetwork() {
         let result = select(
             candidates: [candidate(index: 0, token: "ethereum", network: "ethereum", balance: 100)],
-            params: params(fromToken: "ethereum")
+            deeplink: deeplink(fromToken: "ethereum")
         )
         #expect(result == nil)
     }
@@ -39,10 +39,10 @@ struct DeeplinkSwapParametersResolverTests {
     @Test("FROM picks the most-funded matching token across accounts")
     func fromMostFunded() {
         let candidates = [
-            candidate(index: 0, token: "ethereum", network: "ethereum", account: 0, balance: 10),
-            candidate(index: 1, token: "ethereum", network: "ethereum", account: 1, balance: 50),
+            candidate(index: 0, token: "ethereum", network: "ethereum", account: "acc-0", balance: 10),
+            candidate(index: 1, token: "ethereum", network: "ethereum", account: "acc-1", balance: 50),
         ]
-        let result = select(candidates: candidates, params: params(fromToken: "ethereum", fromNetwork: "ethereum"))
+        let result = select(candidates: candidates, deeplink: deeplink(fromToken: "ethereum", fromNetwork: "ethereum"))
         #expect(result?.source == candidates[1])
         #expect(result?.destination == nil)
     }
@@ -50,13 +50,13 @@ struct DeeplinkSwapParametersResolverTests {
     @Test("TO prefers the same account as the resolved FROM over a more-funded other account")
     func toPrefersFromAccount() {
         let candidates = [
-            candidate(index: 0, token: "ethereum", network: "ethereum", account: 3, balance: 100), // FROM (most funded)
-            candidate(index: 1, token: "usd-coin", network: "ethereum", account: 3, balance: 5), // TO in FROM's account
-            candidate(index: 2, token: "usd-coin", network: "ethereum", account: 7, balance: 999), // richer TO elsewhere
+            candidate(index: 0, token: "ethereum", network: "ethereum", account: "acc-3", balance: 100), // FROM (most funded)
+            candidate(index: 1, token: "usd-coin", network: "ethereum", account: "acc-3", balance: 5), // TO in FROM's account
+            candidate(index: 2, token: "usd-coin", network: "ethereum", account: "acc-7", balance: 999), // richer TO elsewhere
         ]
         let result = select(
             candidates: candidates,
-            params: params(fromToken: "ethereum", fromNetwork: "ethereum", toToken: "usd-coin", toNetwork: "ethereum")
+            deeplink: deeplink(fromToken: "ethereum", fromNetwork: "ethereum", toToken: "usd-coin", toNetwork: "ethereum")
         )
         #expect(result?.source == candidates[0])
         #expect(result?.destination == candidates[1])
@@ -66,13 +66,13 @@ struct DeeplinkSwapParametersResolverTests {
     @Test("TO falls back to the most-funded other account when FROM's account lacks it")
     func toMostFundedOtherAccount() {
         let candidates = [
-            candidate(index: 0, token: "ethereum", network: "ethereum", account: 3, balance: 100), // FROM
-            candidate(index: 1, token: "usd-coin", network: "ethereum", account: 7, balance: 5),
-            candidate(index: 2, token: "usd-coin", network: "ethereum", account: 9, balance: 40),
+            candidate(index: 0, token: "ethereum", network: "ethereum", account: "acc-3", balance: 100), // FROM
+            candidate(index: 1, token: "usd-coin", network: "ethereum", account: "acc-7", balance: 5),
+            candidate(index: 2, token: "usd-coin", network: "ethereum", account: "acc-9", balance: 40),
         ]
         let result = select(
             candidates: candidates,
-            params: params(fromToken: "ethereum", fromNetwork: "ethereum", toToken: "usd-coin", toNetwork: "ethereum")
+            deeplink: deeplink(fromToken: "ethereum", fromNetwork: "ethereum", toToken: "usd-coin", toNetwork: "ethereum")
         )
         #expect(result?.source == candidates[0])
         #expect(result?.destination == candidates[2])
@@ -88,7 +88,7 @@ struct DeeplinkSwapParametersResolverTests {
         ]
         let result = select(
             candidates: candidates,
-            params: params(fromToken: "ethereum", fromNetwork: "ethereum", toToken: "solana", toNetwork: "solana")
+            deeplink: deeplink(fromToken: "ethereum", fromNetwork: "ethereum", toToken: "solana", toNetwork: "solana")
         )
         #expect(result?.source == candidates[0])
         #expect(result?.destination == candidates[1])
@@ -100,7 +100,7 @@ struct DeeplinkSwapParametersResolverTests {
         let candidates = [candidate(index: 0, token: "ethereum", network: "ethereum", balance: 10)]
         let result = select(
             candidates: candidates,
-            params: params(fromToken: "ethereum", fromNetwork: "ethereum", toToken: "solana", toNetwork: "solana")
+            deeplink: deeplink(fromToken: "ethereum", fromNetwork: "ethereum", toToken: "solana", toNetwork: "solana")
         )
         #expect(result?.source == candidates[0])
         #expect(result?.destination == nil)
@@ -112,7 +112,7 @@ struct DeeplinkSwapParametersResolverTests {
         let candidates = [candidate(index: 0, token: "bitcoin", network: "bitcoin", balance: 10)]
         let result = select(
             candidates: candidates,
-            params: params(fromToken: "ethereum", fromNetwork: "ethereum", toToken: "solana", toNetwork: "solana")
+            deeplink: deeplink(fromToken: "ethereum", fromNetwork: "ethereum", toToken: "solana", toNetwork: "solana")
         )
         #expect(result == nil)
     }
@@ -128,7 +128,7 @@ struct DeeplinkSwapParametersResolverTests {
         // FROM points at another wallet → ignored; TO still preselected, FROM = best-effort.
         let result = select(
             candidates: candidates,
-            params: params(
+            deeplink: deeplink(
                 fromToken: "ethereum",
                 fromNetwork: "ethereum",
                 toToken: "solana",
@@ -145,8 +145,8 @@ struct DeeplinkSwapParametersResolverTests {
         let candidates = [candidate(index: 0, token: "ethereum", network: "ethereum", balance: 10)]
         let result = select(
             candidates: candidates,
-            params: params(fromToken: "ethereum", fromNetwork: "ethereum", fromAccountId: "does-not-exist"),
-            existingAccounts: ["real-account": 0]
+            deeplink: deeplink(fromToken: "ethereum", fromNetwork: "ethereum", fromAccountId: "does-not-exist"),
+            existingAccountIds: ["real-account"]
         )
         // The unknown account narrows nothing; the requested token is still honored.
         #expect(result?.source == candidates[0])
@@ -157,13 +157,13 @@ struct DeeplinkSwapParametersResolverTests {
     @Test("Unknown account id on both sides → pair and extras still resolved from the token ids")
     func unknownAccountIdOnBothSidesKeepsPair() {
         let candidates = [
-            candidate(index: 0, token: "ethereum", network: "ethereum", account: 0, balance: 3),
-            candidate(index: 1, token: "usd-coin", network: "ethereum", account: 0, balance: 1),
-            candidate(index: 2, token: "solana", network: "solana", account: 0, balance: 100), // richest, must not win
+            candidate(index: 0, token: "ethereum", network: "ethereum", balance: 3),
+            candidate(index: 1, token: "usd-coin", network: "ethereum", balance: 1),
+            candidate(index: 2, token: "solana", network: "solana", balance: 100), // richest, must not win
         ]
         let result = select(
             candidates: candidates,
-            params: params(
+            deeplink: deeplink(
                 fromToken: "ethereum",
                 fromNetwork: "ethereum",
                 toToken: "usd-coin",
@@ -171,7 +171,7 @@ struct DeeplinkSwapParametersResolverTests {
                 fromAccountId: "not-on-this-device",
                 toAccountId: "not-on-this-device"
             ),
-            existingAccounts: ["real-account": 0]
+            existingAccountIds: ["real-account"]
         )
 
         #expect(result?.source == candidates[0])
@@ -184,13 +184,13 @@ struct DeeplinkSwapParametersResolverTests {
     @Test("Unknown account id on FROM only → pair resolved and the amount still applies")
     func unknownAccountIdOnFromSideKeepsAmount() {
         let candidates = [
-            candidate(index: 0, token: "ethereum", network: "ethereum", account: 0, balance: 3),
-            candidate(index: 1, token: "usd-coin", network: "ethereum", account: 0, balance: 1),
-            candidate(index: 2, token: "solana", network: "solana", account: 0, balance: 100), // richest, must not win
+            candidate(index: 0, token: "ethereum", network: "ethereum", balance: 3),
+            candidate(index: 1, token: "usd-coin", network: "ethereum", balance: 1),
+            candidate(index: 2, token: "solana", network: "solana", balance: 100), // richest, must not win
         ]
         let result = select(
             candidates: candidates,
-            params: params(
+            deeplink: deeplink(
                 fromToken: "ethereum",
                 fromNetwork: "ethereum",
                 toToken: "usd-coin",
@@ -198,7 +198,7 @@ struct DeeplinkSwapParametersResolverTests {
                 fromAccountId: "one-character-off",
                 fromAmount: "0.0008"
             ),
-            existingAccounts: ["real-account": 0]
+            existingAccountIds: ["real-account"]
         )
 
         #expect(result?.source == candidates[0])
@@ -209,30 +209,30 @@ struct DeeplinkSwapParametersResolverTests {
     @Test("Valid from_user_account_id pins FROM to that account instead of the most-funded one")
     func fromAccountIdPinsAccount() {
         let candidates = [
-            candidate(index: 0, token: "ethereum", network: "ethereum", account: 0, balance: 100), // most-funded
-            candidate(index: 1, token: "ethereum", network: "ethereum", account: 1, balance: 5), // pinned target
+            candidate(index: 0, token: "ethereum", network: "ethereum", account: "acc-0", balance: 100), // most-funded
+            candidate(index: 1, token: "ethereum", network: "ethereum", account: "acc-1", balance: 5), // pinned target
         ]
         let result = select(
             candidates: candidates,
-            params: params(fromToken: "ethereum", fromNetwork: "ethereum", fromAccountId: "acc-1"),
-            existingAccounts: ["acc-0": 0, "acc-1": 1]
+            deeplink: deeplink(fromToken: "ethereum", fromNetwork: "ethereum", fromAccountId: "acc-1"),
+            existingAccountIds: ["acc-0", "acc-1"]
         )
-        #expect(result?.source == candidates[1]) // account #1, though account #0 holds more
+        #expect(result?.source == candidates[1]) // the pinned account, though the other one holds more
     }
 
     @Test("Valid from_user_account_id whose account lacks the token → best-effort source")
     func fromAccountIdWithoutTokenFallsBackToBestEffort() {
         let candidates = [
-            candidate(index: 0, token: "ethereum", network: "ethereum", account: 0, balance: 100),
-            candidate(index: 1, token: "bitcoin", network: "bitcoin", account: 1, balance: 3, swappable: true),
+            candidate(index: 0, token: "ethereum", network: "ethereum", account: "acc-0", balance: 100),
+            candidate(index: 1, token: "bitcoin", network: "bitcoin", account: "acc-1", balance: 3, swappable: true),
         ]
-        // Pin FROM to account #1, which holds no ethereum → matched source is empty → best-effort.
+        // Pin FROM to acc-1, which holds no ethereum → matched source is empty → best-effort.
         let result = select(
             candidates: candidates,
-            params: params(fromToken: "ethereum", fromNetwork: "ethereum", fromAccountId: "acc-1"),
-            existingAccounts: ["acc-0": 0, "acc-1": 1]
+            deeplink: deeplink(fromToken: "ethereum", fromNetwork: "ethereum", fromAccountId: "acc-1"),
+            existingAccountIds: ["acc-0", "acc-1"]
         )
-        #expect(result?.source == candidates[0]) // best-effort most-funded (ethereum @ account #0)
+        #expect(result?.source == candidates[0]) // best-effort most-funded (ethereum @ acc-0)
         #expect(result?.appliesExtras == false) // FROM is best-effort, not the pinned request
     }
 
@@ -241,7 +241,7 @@ struct DeeplinkSwapParametersResolverTests {
     @Test("Amount and provider without a FROM/TO pair → nil (they never drive selection on their own)")
     func amountOrProviderOnly() {
         let candidates = [candidate(index: 0, token: "ethereum", network: "ethereum", balance: 10)]
-        #expect(select(candidates: candidates, params: params(fromAmount: "0.5", providerId: "changelly")) == nil)
+        #expect(select(candidates: candidates, deeplink: deeplink(fromAmount: "0.5", providerId: "changelly")) == nil)
     }
 
     // MARK: - Case 7: TO + amount, no FROM
@@ -252,7 +252,7 @@ struct DeeplinkSwapParametersResolverTests {
             candidate(index: 0, token: "ethereum", network: "ethereum", balance: 80, swappable: true), // best-effort source
             candidate(index: 1, token: "solana", network: "solana", balance: 3),
         ]
-        let result = select(candidates: candidates, params: params(toToken: "solana", toNetwork: "solana"))
+        let result = select(candidates: candidates, deeplink: deeplink(toToken: "solana", toNetwork: "solana"))
         #expect(result?.source == candidates[0])
         #expect(result?.destination == candidates[1])
     }
@@ -262,7 +262,7 @@ struct DeeplinkSwapParametersResolverTests {
     @Test("Only FROM requested and held → FROM preselected, TO left empty")
     func onlyFromRequested() {
         let candidates = [candidate(index: 0, token: "ethereum", network: "ethereum", balance: 10)]
-        let result = select(candidates: candidates, params: params(fromToken: "ethereum", fromNetwork: "ethereum"))
+        let result = select(candidates: candidates, deeplink: deeplink(fromToken: "ethereum", fromNetwork: "ethereum"))
         #expect(result?.source == candidates[0])
         #expect(result?.destination == nil)
     }
@@ -279,7 +279,7 @@ struct DeeplinkSwapParametersResolverTests {
         // FROM not held → best-effort must pick the swappable BTC, not the richer NFT.
         let result = select(
             candidates: candidates,
-            params: params(fromToken: "ethereum", fromNetwork: "ethereum", toToken: "solana", toNetwork: "solana")
+            deeplink: deeplink(fromToken: "ethereum", fromNetwork: "ethereum", toToken: "solana", toNetwork: "solana")
         )
         #expect(result?.source == candidates[1])
         #expect(result?.destination == candidates[2])
@@ -296,7 +296,7 @@ struct DeeplinkSwapParametersResolverTests {
         // FROM (bitcoin) not held; TO (solana) is the richest swappable — without exclusion it would become source too.
         let result = select(
             candidates: candidates,
-            params: params(fromToken: "bitcoin", fromNetwork: "bitcoin", toToken: "solana", toNetwork: "solana")
+            deeplink: deeplink(fromToken: "bitcoin", fromNetwork: "bitcoin", toToken: "solana", toNetwork: "solana")
         )
         #expect(result?.source == candidates[0])
         #expect(result?.destination == candidates[1])
@@ -307,7 +307,7 @@ struct DeeplinkSwapParametersResolverTests {
         let candidates = [candidate(index: 0, token: "usd-coin", network: "ethereum", balance: 50)]
         let result = select(
             candidates: candidates,
-            params: params(fromToken: "usd-coin", fromNetwork: "ethereum", toToken: "usd-coin", toNetwork: "ethereum")
+            deeplink: deeplink(fromToken: "usd-coin", fromNetwork: "ethereum", toToken: "usd-coin", toNetwork: "ethereum")
         )
         #expect(result?.source == candidates[0])
         #expect(result?.destination == nil)
@@ -322,7 +322,7 @@ struct DeeplinkSwapParametersResolverTests {
             candidate(index: 0, token: "ethereum", network: "ethereum", balance: 100, swappable: false), // requested but not swappable
             candidate(index: 1, token: "bitcoin", network: "bitcoin", balance: 20, swappable: true), // best-effort
         ]
-        let result = select(candidates: candidates, params: params(fromToken: "ethereum", fromNetwork: "ethereum"))
+        let result = select(candidates: candidates, deeplink: deeplink(fromToken: "ethereum", fromNetwork: "ethereum"))
         #expect(result?.source == candidates[1])
         #expect(result?.appliesExtras == false)
     }
@@ -333,14 +333,14 @@ struct DeeplinkSwapParametersResolverTests {
 private extension DeeplinkSwapParametersResolverTests {
     func select(
         candidates: [Candidate],
-        params: DeeplinkNavigationAction.Params,
-        existingAccounts: [String: Int] = [:]
+        deeplink: SwapDeeplink,
+        existingAccountIds: Set<String> = []
     ) -> (source: Candidate, destination: Candidate?, appliesExtras: Bool)? {
         DeeplinkSwapParametersResolver.selectCandidates(
             candidates: candidates,
-            params: params,
+            deeplink: deeplink,
             targetUserWalletId: walletId,
-            existingAccounts: existingAccounts
+            existingAccountIds: existingAccountIds
         )
     }
 
@@ -348,7 +348,7 @@ private extension DeeplinkSwapParametersResolverTests {
         index: Int,
         token: String,
         network: String,
-        account: Int? = 0,
+        account: String? = "acc-0",
         balance: Decimal = 0,
         swappable: Bool = true
     ) -> Candidate {
@@ -356,13 +356,13 @@ private extension DeeplinkSwapParametersResolverTests {
             index: index,
             tokenId: token,
             networkId: network,
-            accountDerivationIndex: account,
+            accountId: account,
             fiatBalance: balance,
             isSwappable: swappable
         )
     }
 
-    func params(
+    func deeplink(
         fromToken: String? = nil,
         fromNetwork: String? = nil,
         toToken: String? = nil,
@@ -373,18 +373,18 @@ private extension DeeplinkSwapParametersResolverTests {
         toAccountId: String? = nil,
         fromAmount: String? = nil,
         providerId: String? = nil
-    ) -> DeeplinkNavigationAction.Params {
-        var params = DeeplinkNavigationAction.Params.empty
-        params.swapFromTokenId = fromToken
-        params.swapFromNetworkId = fromNetwork
-        params.swapToTokenId = toToken
-        params.swapToNetworkId = toNetwork
-        params.swapFromUserWalletId = fromWalletId
-        params.swapToUserWalletId = toWalletId
-        params.swapFromUserAccountId = fromAccountId
-        params.swapToUserAccountId = toAccountId
-        params.swapFromAmount = fromAmount
-        params.swapProviderId = providerId
-        return params
+    ) -> SwapDeeplink {
+        SwapDeeplink(
+            fromTokenId: fromToken,
+            fromNetworkId: fromNetwork,
+            toTokenId: toToken,
+            toNetworkId: toNetwork,
+            fromUserWalletId: fromWalletId,
+            toUserWalletId: toWalletId,
+            fromUserAccountId: fromAccountId,
+            toUserAccountId: toAccountId,
+            fromAmount: fromAmount,
+            providerId: providerId
+        )
     }
 }

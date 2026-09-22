@@ -11,7 +11,7 @@ struct TokenActionAvailabilityAnalyticsMapper {
         switch status {
         case .available, .hidden:
             return Analytics.ParameterValue.available
-        case .unavailable:
+        case .unavailable, .jointAccountsComingSoon:
             return Analytics.ParameterValue.unavailable
         case .customToken:
             return Analytics.ParameterValue.customToken

@@ -16,7 +16,6 @@ import TangemUIUtils
 struct TransactionsListViewRedesigned: View {
     let state: TransactionsListView.State
     let exploreAction: (() -> Void)?
-    let exploreConfirmationDialog: Binding<ConfirmationDialogViewModel?>?
     let openTransactionDetailsAction: (TransactionViewModel) -> Void
     let reloadButtonAction: () -> Void
     let isReloadButtonBusy: Bool
@@ -37,9 +36,6 @@ struct TransactionsListViewRedesigned: View {
                 primaryButton: exploreAction.map(notSupportedExploreButton),
                 secondaryButton: nil
             )
-            .ifLet(exploreConfirmationDialog) { view, dialog in
-                view.confirmationDialog(viewModel: dialog)
-            }
         case .loading:
             loadingContent
         case .loaded(let items):
@@ -51,9 +47,6 @@ struct TransactionsListViewRedesigned: View {
                 primaryButton: errorReloadButton,
                 secondaryButton: exploreAction.map(errorExploreButton)
             )
-            .ifLet(exploreConfirmationDialog) { view, dialog in
-                view.confirmationDialog(viewModel: dialog)
-            }
         }
     }
 
@@ -66,20 +59,20 @@ struct TransactionsListViewRedesigned: View {
                 primaryButton: exploreAction.map(emptyExploreButton),
                 secondaryButton: nil
             )
-            .ifLet(exploreConfirmationDialog) { view, dialog in
-                view.confirmationDialog(viewModel: dialog)
-            }
         } else {
+            // The section is inlined instead of extracted into a view of its own on purpose:
+            // a custom view is opaque to the lazy stack, so it would build every row of a section at once.
             LazyVStack(spacing: .zero) {
                 ForEach(transactionItems.indexed(), id: \.1.id) { _, sectionItem in
-                    let sectionItemHeader = sectionItem.header
-
-                    if sectionItemHeader.isNotEmpty {
-                        sectionHeader(title: sectionItemHeader)
+                    if sectionItem.header.isNotEmpty {
+                        TransactionsListSectionHeaderView(title: sectionItem.header)
                     }
 
                     ForEach(sectionItem.items) { cellItem in
-                        rowOrChip(for: cellItem)
+                        TransactionsListRowView(
+                            viewModel: cellItem,
+                            openTransactionDetailsAction: openTransactionDetailsAction
+                        )
                     }
                 }
 
@@ -92,34 +85,6 @@ struct TransactionsListViewRedesigned: View {
                 }
             }
         }
-    }
-
-    @ViewBuilder
-    private func rowOrChip(for viewModel: TransactionViewModel) -> some View {
-        SwiftUI.Button {
-            openTransactionDetailsAction(viewModel)
-        } label: {
-            switch viewModel.display.style {
-            case .chip:
-                TransactionChipRedesigned(viewModel: viewModel)
-                    .padding(.vertical, .unit(.x1))
-            case .row:
-                TransactionViewRedesigned(viewModel: viewModel)
-                    .padding(.vertical, .unit(.x3))
-            }
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func sectionHeader(title: String) -> some View {
-        HStack {
-            Text(title)
-                .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.primary)
-
-            Spacer()
-        }
-        .padding(.top, .unit(.x6))
-        .padding(.bottom, .unit(.x3))
     }
 
     private var loadingContent: some View {
@@ -235,7 +200,6 @@ private struct StatusStateView: View {
         TransactionsListViewRedesigned(
             state: .loaded(items),
             exploreAction: {},
-            exploreConfirmationDialog: nil,
             openTransactionDetailsAction: { _ in },
             reloadButtonAction: {},
             isReloadButtonBusy: false,
@@ -249,7 +213,6 @@ private struct StatusStateView: View {
     TransactionsListViewRedesigned(
         state: .error("oops"),
         exploreAction: {},
-        exploreConfirmationDialog: nil,
         openTransactionDetailsAction: { _ in },
         reloadButtonAction: {},
         isReloadButtonBusy: false,
@@ -262,7 +225,6 @@ private struct StatusStateView: View {
     TransactionsListViewRedesigned(
         state: .loaded([]),
         exploreAction: {},
-        exploreConfirmationDialog: nil,
         openTransactionDetailsAction: { _ in },
         reloadButtonAction: {},
         isReloadButtonBusy: false,

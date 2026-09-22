@@ -77,7 +77,7 @@ private final class JointAccountDerivationTask<Builder: JointAccountPayloadBuild
     }
 
     func run(in session: CardSession, completion: @escaping CompletionResult<Response>) {
-        runTask(in: self, isDetached: false, priority: .userInitiated) { task in
+        runTask(in: self, priority: .userInitiated) { task in
             do {
                 let response = try await task.runInternal(in: session)
                 completion(.success(response))
@@ -88,7 +88,14 @@ private final class JointAccountDerivationTask<Builder: JointAccountPayloadBuild
     }
 
     private func runInternal(in session: CardSession) async throws -> Response {
-        let derivationResult = try await DeriveMultipleWalletPublicKeysTask([seedKey: [derivationPath]]).run(in: session)
+        let derivationTask = DeriveMultipleWalletPublicKeysTask([seedKey: [derivationPath]], shouldFailIfNothingDerived: true)
+            .withUserWalletRegistration()
+
+        try await derivationTask
+            .prepare(session)
+
+        let derivationResult = try await derivationTask
+            .run(in: session)
 
         guard let extendedPublicKey = derivationResult[seedKey]?[derivationPath] else {
             throw Error.keyNotDerived

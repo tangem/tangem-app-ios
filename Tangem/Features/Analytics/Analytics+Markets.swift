@@ -14,4 +14,10 @@ extension Analytics {
         case price = "Price"
         case chart = "Chart"
     }
+
+    enum MarketsSection: String {
+        case crypto = "Crypto"
+        case assets = "Assets"
+        case earn = "Earn"
+    }
 }

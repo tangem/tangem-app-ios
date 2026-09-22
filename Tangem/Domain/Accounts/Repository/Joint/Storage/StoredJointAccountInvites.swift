@@ -15,5 +15,5 @@ import Foundation
 struct StoredJointAccountInvites: Codable, Equatable {
     let cryptoAccountId: String
     /// Empty when the account was created with every slot taken, which is not the same as having no record at all.
-    let invites: [JointAccountInvite]
+    let invites: [StoredJointAccountInvite]
 }

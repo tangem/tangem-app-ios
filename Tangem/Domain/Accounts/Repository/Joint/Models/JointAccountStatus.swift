@@ -9,38 +9,31 @@
 import TangemMacro
 
 /// Only ever moves forward.
-/// - Warning: What the endpoint reports and what a stored record keeps are the case names themselves, so renaming one
-/// rewrites the contract.
+/// - Note: Read off the wire by `JointAccountsNetworkMapper`, which is where the endpoint's names are matched and an
+/// activated account is refused without its address; a stored record keeps whole cases, payloads included.
 @RawCaseName
-enum JointAccountStatus: Equatable {
+@CaseFlagable
+enum JointAccountStatus: Equatable, Codable {
     /// No address until every slot is taken.
     case pending
     /// Every slot taken and the address computed; the members check it and the creator activates.
-    case confirming
-    case active
+    /// - Note: Carries the address the backend says the composition resolves to, which is what activating confirms.
+    /// Announced rather than settled: nothing is deployed at it yet, and it is only worth acting on once the app has
+    /// worked out the same address itself — see `JointAccountSafeAddressVerifier`.
+    /// - Note: Optional, though the contract has the address by this stage: an answer that omits it costs the one
+    /// account its activation, which is where it is missed, rather than the whole list its refresh.
+    case confirming(safeAddress: String?)
+    /// Operated already — activation is what hands the account the address, so an active account always carries one.
+    case active(safeAddress: String)
     /// Named by the contract as a place to grow into; nothing puts an account here yet.
     case cancelled
-    /// One the endpoint learnt to report after this version shipped. Kept as it arrived rather than turning the whole
-    /// answer into a failure, since the backend goes on adding to the set.
-    case unknown(String)
+    /// One the endpoint learnt to report after this version shipped, costing itself alone rather than the whole
+    /// answer — the backend goes on adding to the set.
+    case unknown
 }
 
-// MARK: - RawRepresentable, Codable
+// MARK: - CustomStringConvertible protocol conformance
 
-/// - Note: Reading and writing come free with the raw value, since the initialiser below never turns one down.
-extension JointAccountStatus: RawRepresentable, Codable {
-    init(rawValue: String) {
-        self = Self.reportable.first { $0.rawValue == rawValue } ?? .unknown(rawValue)
-    }
-
-    /// - Warning: `rawCaseValue` answers `unknown` for the case of that name, dropping the very string it was read
-    /// from, so only the cases this version knows are allowed to take their raw value from it.
-    var rawValue: String {
-        switch self {
-        case .unknown(let rawValue): rawValue
-        case .pending, .confirming, .active, .cancelled: rawCaseValue
-        }
-    }
-
-    private static let reportable: [JointAccountStatus] = [.pending, .confirming, .active, .cancelled]
+extension JointAccountStatus: CustomStringConvertible {
+    var description: String { rawCaseValue }
 }

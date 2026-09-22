@@ -101,7 +101,7 @@ private extension TangemPayPopupView {
     var buttons: some View {
         VStack(spacing: 8) {
             if let secondaryButton = viewModel.secondaryButton {
-                button(secondaryButton, style: .secondary)
+                button(secondaryButton, style: .secondary(.default))
             }
 
             button(viewModel.primaryButton, style: .default)
@@ -118,7 +118,7 @@ private extension TangemPayPopupView {
         .size(.x12)
         .styleType(style)
         .horizontalLayout(.infinity)
-        .isLoading(settings.isLoading)
+        .loading(.spinner(if: settings.isLoading))
         .disabled(settings.isDisabled)
     }
 }

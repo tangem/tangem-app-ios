@@ -32,10 +32,7 @@ final class SendViaSwapUITests: BaseTestCase {
 
         // Import hot wallet via seed phrase
         let mainScreen = CreateWalletSelectorScreen(app)
-            .skipStories()
-            .startWithMobileWallet()
-            .tapImportButton()
-            .tapRecoveryPhrase()
+            .importMobileWallet()
             .enterSeedPhrase(TestSeedPhrases.hotWallet)
             .tapImportButton()
             .tapContinue()
@@ -260,10 +257,7 @@ final class SendViaSwapUITests: BaseTestCase {
 
         // Import hot wallet via seed phrase
         let mainScreen = CreateWalletSelectorScreen(app)
-            .skipStories()
-            .startWithMobileWallet()
-            .tapImportButton()
-            .tapRecoveryPhrase()
+            .importMobileWallet()
             .enterSeedPhrase(TestSeedPhrases.hotWallet)
             .tapImportButton()
             .tapContinue()
@@ -320,10 +314,7 @@ final class SendViaSwapUITests: BaseTestCase {
 
         // Import hot wallet via seed phrase
         let mainScreen = CreateWalletSelectorScreen(app)
-            .skipStories()
-            .startWithMobileWallet()
-            .tapImportButton()
-            .tapRecoveryPhrase()
+            .importMobileWallet()
             .enterSeedPhrase(TestSeedPhrases.hotWallet)
             .tapImportButton()
             .tapContinue()
@@ -396,10 +387,7 @@ final class SendViaSwapUITests: BaseTestCase {
         )
 
         let mainScreen = CreateWalletSelectorScreen(app)
-            .skipStories()
-            .startWithMobileWallet()
-            .tapImportButton()
-            .tapRecoveryPhrase()
+            .importMobileWallet()
             .enterSeedPhrase(TestSeedPhrases.hotWallet)
             .tapImportButton()
             .tapContinue()
@@ -505,6 +493,94 @@ final class SendViaSwapUITests: BaseTestCase {
             .waitForConvertButtonNotDisplayed()
     }
 
+    func testSendViaSwapHighPriceImpactWarning() {
+        setAllureId(10347)
+
+        let bitcoinBalanceScenario = ScenarioConfig(name: "bitcoin_utxo", initialState: "Balance")
+        let assetsScenario = ScenarioConfig(name: "express_api_assets", initialState: "BitcoinExchangeEnabled")
+        let userTokensScenario = ScenarioConfig(name: "user_tokens_api", initialState: "Wallet2")
+        let quotesScenario = ScenarioConfig(name: "quotes_api", initialState: "MediumPriceImpact")
+        // The Markets widget refreshes prices via /v1/coins/list into the same quotes cache, clobbering quotesScenario's ETH price without this.
+        let coinsListScenario = ScenarioConfig(name: "coins_list_api", initialState: "MediumPriceImpact")
+
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            clearStorage: true,
+            scenarios: [bitcoinBalanceScenario, assetsScenario, userTokensScenario, quotesScenario, coinsListScenario]
+        )
+
+        let sendScreen = CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken(Constants.bitcoinTokenName)
+            .tapSendButton()
+            .waitForDisplay()
+            .waitForConvertButton()
+            .tapConvertButton()
+
+        sendScreen
+            .tapReceiveToken(name: Constants.ethereumTokenName)
+            .tapReceiveNetworkOption(name: "Ethereum")
+
+        let summaryScreen = sendScreen
+            .enterReceiveAmount(Constants.priceImpactReceiveAmount)
+            .tapNextButton()
+            .enterDestination(Constants.ethereumAddress)
+            .tapNextButtonToSummary()
+            .waitForDisplay(checkValidatorBlock: false)
+
+        summaryScreen
+            .waitForNotificationShown(title: "High price impact")
+
+        summaryScreen
+            .tapPriceImpactInfoButton()
+            .assertPriceImpactPopoverDisplayed()
+    }
+
+    func testSendViaSwapTradeTooLargeWarning() {
+        setAllureId(10388)
+
+        let bitcoinBalanceScenario = ScenarioConfig(name: "bitcoin_utxo", initialState: "Balance")
+        let assetsScenario = ScenarioConfig(name: "express_api_assets", initialState: "BitcoinExchangeEnabled")
+        let userTokensScenario = ScenarioConfig(name: "user_tokens_api", initialState: "Wallet2")
+        let quotesScenario = ScenarioConfig(name: "quotes_api", initialState: "HighPriceImpact")
+        // See testSendViaSwapHighPriceImpactWarning for why this is needed alongside quotesScenario.
+        let coinsListScenario = ScenarioConfig(name: "coins_list_api", initialState: "HighPriceImpact")
+
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            clearStorage: true,
+            scenarios: [bitcoinBalanceScenario, assetsScenario, userTokensScenario, quotesScenario, coinsListScenario]
+        )
+
+        let sendScreen = CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken(Constants.bitcoinTokenName)
+            .tapSendButton()
+            .waitForDisplay()
+            .waitForConvertButton()
+            .tapConvertButton()
+
+        sendScreen
+            .tapReceiveToken(name: Constants.ethereumTokenName)
+            .tapReceiveNetworkOption(name: "Ethereum")
+
+        let summaryScreen = sendScreen
+            .enterReceiveAmount(Constants.priceImpactReceiveAmount)
+            .tapNextButton()
+            .enterDestination(Constants.ethereumAddress)
+            .tapNextButtonToSummary()
+            .waitForDisplay(checkValidatorBlock: false)
+
+        summaryScreen
+            .waitForNotificationShown(title: "Trade too large")
+
+        summaryScreen
+            .tapPriceImpactInfoButton()
+            .assertPriceImpactPopoverDisplayed()
+    }
+
     func testMemoRestrictedNetworkNotSelectableAsReceiveToken() {
         setAllureId(10196)
 
@@ -566,6 +642,8 @@ private extension SendViaSwapUITests {
         static let xrpAddress = "rN7n7otQDd6FczFgLdSqtcsAUxDkw6fzRH"
         static let sendAmount = "0.001"
         static let updatedAmount = "0.002"
+        /// `sendAmount` falls under the $25 price-impact exemption threshold; these two tests need an amount that clears it.
+        static let priceImpactReceiveAmount = "0.05"
         static let memoFirst = "11111111"
         static let memoSecond = "22222222"
     }

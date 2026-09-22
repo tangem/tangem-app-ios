@@ -39,6 +39,8 @@ struct TransactionViewModel: Hashable, Identifiable {
 
     let cashback: Cashback?
 
+    let isPendingSignature: Bool
+
     var inProgress: Bool {
         status == .inProgress
     }
@@ -132,6 +134,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         interactionAddress: InteractionAddressType,
         timeFormatted: String?,
         amount: String,
+        amountWithCurrencyCode: String? = nil,
         value: String,
         currencyCode: String,
         isOutgoing: Bool,
@@ -142,12 +145,19 @@ struct TransactionViewModel: Hashable, Identifiable {
         expressSubtitle: TransactionDisplayModel.ExpressSubtitle? = nil,
         cardName: String? = nil,
         warning: Warning? = nil,
-        cashback: Cashback? = nil
+        cashback: Cashback? = nil,
+        isPendingSignature: Bool = false
     ) {
         id = ViewModelId(id: TransactionRecord.ID(hash: hash, index: index), statusRawValue: status.rawValue)
-        icon = TransactionViewIconViewData(type: transactionType, status: status, isOutgoing: isOutgoing)
+        icon = TransactionViewIconViewData(
+            type: transactionType,
+            status: status,
+            isOutgoing: isOutgoing,
+            isFromYieldContract: isFromYieldContract
+        )
         self.amount = TransactionViewAmountViewData(
             amount: amount,
+            amountWithCurrencyCode: amountWithCurrencyCode,
             value: value,
             currencyCode: currencyCode,
             type: transactionType,
@@ -166,6 +176,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         self.cardName = cardName
         self.warning = warning
         self.cashback = cashback
+        self.isPendingSignature = isPendingSignature
 
         display = TransactionDisplayModel.make(
             transactionType: transactionType,
@@ -173,7 +184,6 @@ struct TransactionViewModel: Hashable, Identifiable {
             isOutgoing: isOutgoing,
             isFromYieldContract: isFromYieldContract,
             legacyName: Self.legacyName(transactionType: transactionType, isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract),
-            amount: amount,
             addressDestination: Self.computeAddressDestination(
                 interactionAddress: interactionAddress,
                 transactionType: transactionType,
@@ -243,8 +253,8 @@ struct TransactionViewModel: Hashable, Identifiable {
                 : Localization.transactionHistoryTransactionFromAddress(Localization.transactionHistoryMultipleAddresses)
         case .custom(let message):
             return message
-        case .staking(let validator):
-            return validator.flatMap { Localization.stakingValidator + ": " + $0 }
+        case .staking(let target):
+            return target.map { Localization.stakingValidator + ": " + $0.name }
         }
     }
 }
@@ -262,7 +272,22 @@ extension TransactionViewModel {
         case multiple(_ addresses: [String])
         // Temp solution for Visa
         case custom(message: String)
-        case staking(validator: String?)
+        case staking(target: StakingTarget?)
+    }
+
+    struct StakingTarget: Hashable {
+        let address: String
+
+        var name: String { resolvedName ?? address }
+
+        var isResolved: Bool { resolvedName != nil }
+
+        private let resolvedName: String?
+
+        init(address: String, resolvedName: String?) {
+            self.address = address
+            self.resolvedName = resolvedName
+        }
     }
 
     @CaseFlagable
@@ -368,12 +393,15 @@ extension TransactionViewModel {
 
     /// Counterparty rendered alongside the direction prefix in the redesigned subtitle.
     /// One of: a named account (inside the current wallet or another of the user's wallets),
-    /// a named wallet (single-account mode), or an unresolved external address that falls back
-    /// to blockies + truncated hex.
+    /// a named wallet (single-account mode), an address book contact, or an unresolved external
+    /// address that falls back to blockies + truncated hex.
     enum SubtitleOwner: Hashable {
         case accountInCurrentWallet(name: String, icon: AccountIconView.ViewData)
         case wallet(name: String, imageProvider: (any WalletImageProviding)?, thumbnailType: ThumbnailWalletViewType?)
         case accountInOtherWallet(accountName: String, accountIcon: AccountIconView.ViewData)
+        /// An external address the user saved in an address book. The address travels along so the
+        /// details sheet can still offer to copy it.
+        case contact(name: String, icon: AddressBookContactNameIconViewData, fullAddress: String)
         /// Pre-rendered blockies are carried alongside the address so the SwiftUI body doesn't
         /// regenerate the blockies image on every recomputation (long lists scroll-allocate).
         case unresolved(short: String, fullAddress: String, blockiesImage: UIImage?)
@@ -381,7 +409,7 @@ extension TransactionViewModel {
         var isOwnWallet: Bool {
             switch self {
             case .accountInCurrentWallet, .wallet, .accountInOtherWallet: true
-            case .unresolved: false
+            case .contact, .unresolved: false
             }
         }
 
@@ -396,6 +424,9 @@ extension TransactionViewModel {
             case .accountInOtherWallet(let lAcc, let lIcon):
                 guard case .accountInOtherWallet(let rAcc, let rIcon) = rhs else { return false }
                 return lAcc == rAcc && lIcon == rIcon
+            case .contact(let lName, let lIcon, let lAddress):
+                guard case .contact(let rName, let rIcon, let rAddress) = rhs else { return false }
+                return lName == rName && lIcon == rIcon && lAddress == rAddress
             case .unresolved(let lShort, let lAddress, _):
                 guard case .unresolved(let rShort, let rAddress, _) = rhs else { return false }
                 return lShort == rShort && lAddress == rAddress
@@ -415,8 +446,12 @@ extension TransactionViewModel {
                 hasher.combine(2)
                 hasher.combine(accountName)
                 hasher.combine(accountIcon)
-            case .unresolved(let short, let fullAddress, _):
+            case .contact(let name, _, let fullAddress):
                 hasher.combine(3)
+                hasher.combine(name)
+                hasher.combine(fullAddress)
+            case .unresolved(let short, let fullAddress, _):
+                hasher.combine(4)
                 hasher.combine(short)
                 hasher.combine(fullAddress)
             }

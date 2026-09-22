@@ -16,38 +16,55 @@ import TangemFoundation
 struct NewsPagerView: View {
     @ObservedObject var viewModel: NewsPagerViewModel
 
+    @Environment(\.mainShtorkaSize) private var sheetSize
+
+    @State private var sheetNavigationBarHeight: CGFloat = 0
+
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            VStack(spacing: 0) {
-                if !viewModel.isNativeNavigationBarUsed {
-                    navigationBar
+            ZStack(alignment: .top) {
+                VStack(spacing: 0) {
+                    if !sheetSize.isFeedSheet, !viewModel.isNativeNavigationBarUsed {
+                        navigationBar
+                    }
+
+                    pagerContent
+                        .opacity(sheetSize.isFeedSheet ? 1 : viewModel.overlayContentHidingProgress)
+                        .hiddenWhileCollapsed()
                 }
 
-                pagerContent
-                    .opacity(viewModel.overlayContentHidingProgress)
+                if sheetSize.isFeedSheet {
+                    sheetNavigationBar
+                        .readGeometry(\.size.height, bindTo: $sheetNavigationBarHeight)
+                }
             }
 
-            if viewModel.shouldShowPageIndicator {
+            if viewModel.shouldShowPageIndicator, !sheetSize.isNonFullFeedSheet {
                 Group {
                     pageIndicatorOverlay
                         .ignoresSafeArea(.container, edges: .bottom)
                     pageIndicator
                         .padding(.bottom, 8)
                 }
-                .opacity(viewModel.overlayContentHidingProgress)
+                .opacity(sheetSize.isFeedSheet ? 1 : viewModel.overlayContentHidingProgress)
             }
         }
-        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+        .background(backgroundColor.ignoresSafeArea())
         .onAppear { viewModel.handleViewAction(.onAppear) }
         .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
             viewModel?.onOverlayContentProgressChange(progress)
         }
-        .if(viewModel.isMarketsSheetFlow || viewModel.isDeeplinkMode) { view in
+        .if(!sheetSize.isFeedSheet && (viewModel.isMarketsSheetFlow || viewModel.isDeeplinkMode)) { view in
             view.injectMarketsNavigationConfigurator(isSimplified: viewModel.isDeeplinkMode)
         }
-        .if(viewModel.isNativeNavigationBarUsed) { view in
+        .if(sheetSize.isFeedSheet) { view in
+            view
+                .toolbar(.hidden, for: .navigationBar)
+                .background(FeedPopGestureEnabler(prioritizesNavigation: true))
+        }
+        .if(!sheetSize.isFeedSheet && viewModel.isNativeNavigationBarUsed) { view in
             view
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
@@ -88,6 +105,32 @@ struct NewsPagerView: View {
 
     // MARK: - Navigation Bar
 
+    private var sheetNavigationBar: some View {
+        NavigationHeader(
+            leadingContent: {
+                if viewModel.isDeeplinkMode {
+                    NavigationBarButton.close(action: { viewModel.handleViewAction(.back) })
+                        .redesigned()
+                } else {
+                    NavigationBarButton.back(action: { viewModel.handleViewAction(.back) })
+                        .redesigned()
+                }
+            },
+            principalContent: {
+                if sheetSize.isCollapsedFeedSheet {
+                    Text(viewModel.currentArticle?.title ?? Localization.commonNews)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                        .lineLimit(1)
+                }
+            },
+            trailingContent: {
+                NavigationBarButton.share(action: { viewModel.handleViewAction(.share) })
+                    .redesigned()
+                    .disabled(viewModel.isCurrentArticleLoading)
+            }
+        )
+    }
+
     private var navigationBar: some View {
         NavigationBar(
             title: "",
@@ -111,6 +154,10 @@ struct NewsPagerView: View {
             }
         )
         .padding(.top, 12)
+    }
+
+    private var backgroundColor: Color {
+        !sheetSize.isNonFullFeedSheet ? DesignSystem.Color.bgPrimary : .clear
     }
 
     @ToolbarContentBuilder
@@ -141,6 +188,11 @@ struct NewsPagerView: View {
         TabView(selection: currentIndexBinding) {
             ForEach(Array(viewModel.newsIds.enumerated()), id: \.element) { index, newsId in
                 NewsPageContentView(newsId: newsId, viewModel: viewModel)
+                    .if(sheetSize.isFeedSheet) { view in
+                        view.safeAreaInset(edge: .top, spacing: 0) {
+                            Color.clear.frame(height: sheetNavigationBarHeight)
+                        }
+                    }
                     .tag(index)
                     .contentShape(Rectangle())
             }

@@ -72,6 +72,10 @@ extension TransferTransactionDispatcher: TransactionDispatcher {
     }
 
     private func send(transaction: BSDKTransaction) async throws -> TransactionDispatcherResult {
+        if walletModel.isJointAccountParticipant {
+            return try await createJointAccountOperation(transaction: transaction)
+        }
+
         if case .tron = walletModel.tokenItem.blockchain, transaction.fee.amount.type.isToken {
             return try await tronGaslessTransactionSender.send(transaction: transaction)
         }
@@ -88,6 +92,15 @@ extension TransferTransactionDispatcher: TransactionDispatcher {
             isToken: walletModel.tokenItem.isToken
         )
         return dispatcherResult
+    }
+
+    /// A joint account's wallet sends nothing itself: the transfer is registered as an operation of the account, for
+    /// the other members to sign and the relayer to execute.
+    private func createJointAccountOperation(transaction: BSDKTransaction) async throws -> TransactionDispatcherResult {
+        let wallet = try JointAccountWalletBuilder().build(walletModel: walletModel)
+        let operation = try await wallet.createOperation(transaction: transaction)
+
+        return TransactionDispatcherResultMapper().mapResult(operation, signer: transactionSigner.latestSignerType)
     }
 
     private func didUpgradeYieldModule(transaction: BSDKTransaction) -> Bool {
