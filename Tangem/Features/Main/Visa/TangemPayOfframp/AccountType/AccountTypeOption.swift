@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemLocalization
 import TangemPay
 
 enum AccountTypeOption: CaseIterable, Identifiable {
@@ -17,11 +18,9 @@ enum AccountTypeOption: CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .checking:
-            // [REDACTED_TODO_COMMENT]
-            "Checking"
+            Localization.tangempayWithdrawBankAccountTypeChecking
         case .savings:
-            // [REDACTED_TODO_COMMENT]
-            "Saving"
+            Localization.tangempayWithdrawBankAccountTypeSaving
         }
     }
 }

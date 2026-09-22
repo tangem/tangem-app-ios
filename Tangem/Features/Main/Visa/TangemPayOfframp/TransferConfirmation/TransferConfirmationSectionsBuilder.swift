@@ -103,7 +103,7 @@ private extension TransferConfirmationSectionsBuilder {
         [
             section(
                 id: .account,
-                header: Constants.recipientInfoHeader,
+                header: Localization.tangempayWithdrawBankRecipientInfo,
                 entries: account,
                 editTarget: isEditable ? .personalDetails : nil
             ),
@@ -168,35 +168,25 @@ private extension TransferConfirmationSectionsBuilder {
 // MARK: - Titles
 
 private extension TransferConfirmationSectionsBuilder {
-    // [REDACTED_TODO_COMMENT]
     static func title(for id: TangemPayFormField.ID) -> String {
         switch id {
         case .email: Localization.tangempayOrderDataEmail
-        case .accountNumber: "Account number"
-        case .routingNumber: "Routing number"
-        case .firstName: "First name"
-        case .lastName: "Last name"
-        case .businessName: "Business name"
-        case .countryCode: "Country"
-        case .region: "Region / state"
-        case .city: "City"
-        case .line1: "Address line 1"
-        case .line2: "Address line 2"
-        case .postalCode: "Postal code"
-        case .bankName: "Bank name"
-        case .bankRegion: "Bank region / state"
-        case .bankCity: "Bank city"
-        case .bankLine1: "Bank address line 1"
-        case .bankPostalCode: "Postal code"
+        case .accountNumber: Localization.tangempayWithdrawBankFieldAccountNumber
+        case .routingNumber: Localization.tangempayWithdrawBankFieldRoutingNumber
+        case .firstName: Localization.tangempayOrderDataFirstName
+        case .lastName: Localization.tangempayOrderDataLastName
+        case .businessName: Localization.tangempayWithdrawBankFieldBusinessName
+        case .countryCode: Localization.tangempayOrderDataCountry
+        case .region: Localization.tangempayOrderDataRegion
+        case .city: Localization.tangempayOrderDataCity
+        case .line1: Localization.tangempayOrderDataAddressLine1
+        case .line2: Localization.tangempayOrderDataAddressLine2
+        case .postalCode: Localization.tangempayOrderDataPostalCode
+        case .bankName: Localization.tangempayWithdrawBankFieldBankName
+        case .bankRegion: Localization.tangempayWithdrawBankFieldBankRegion
+        case .bankCity: Localization.tangempayWithdrawBankFieldBankCity
+        case .bankLine1: Localization.tangempayWithdrawBankFieldBankAddressLine1
+        case .bankPostalCode: Localization.tangempayOrderDataPostalCode
         }
-    }
-}
-
-// MARK: - Constants
-
-private extension TransferConfirmationSectionsBuilder {
-    enum Constants {
-        // [REDACTED_TODO_COMMENT]
-        static let recipientInfoHeader = "Recipient info"
     }
 }

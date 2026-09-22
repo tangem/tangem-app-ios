@@ -8,6 +8,7 @@
 
 import Combine
 import TangemFoundation
+import TangemLocalization
 import TangemPay
 
 @MainActor
@@ -223,30 +224,28 @@ private extension PersonalDetailsViewModel {
             }
     }
 
-    // [REDACTED_TODO_COMMENT]
     static func accountFields() -> [TangemPayFormField] {
         [
             TangemPayFormField(
                 id: .accountNumber,
-                title: "Account number",
+                title: Localization.tangempayWithdrawBankFieldAccountNumber,
                 placeholder: "000000000000"
             ),
             TangemPayFormField(
                 id: .routingNumber,
-                title: "Routing number",
+                title: Localization.tangempayWithdrawBankFieldRoutingNumber,
                 placeholder: "000000000000"
             ),
         ]
     }
 
-    // [REDACTED_TODO_COMMENT]
     static func nameFields(isBusiness: Bool) -> [TangemPayFormField] {
         if isBusiness {
             return [
                 TangemPayFormField(
                     id: .businessName,
-                    title: "Business name",
-                    placeholder: "Eg., Dunder Mifflin LLC"
+                    title: Localization.tangempayWithdrawBankFieldBusinessName,
+                    placeholder: Localization.tangempayWithdrawBankPlaceholderBusinessName
                 ),
             ]
         }
@@ -254,50 +253,49 @@ private extension PersonalDetailsViewModel {
         return [
             TangemPayFormField(
                 id: .firstName,
-                title: "First name",
-                placeholder: "John"
+                title: Localization.tangempayOrderDataFirstName,
+                placeholder: Localization.tangempayWithdrawBankPlaceholderFirstName
             ),
             TangemPayFormField(
                 id: .lastName,
-                title: "Last name",
-                placeholder: "Doe"
+                title: Localization.tangempayOrderDataLastName,
+                placeholder: Localization.tangempayWithdrawBankPlaceholderLastName
             ),
         ]
     }
 
-    // [REDACTED_TODO_COMMENT]
     func addressFields() -> [TangemPayFormField] {
         [
             TangemPayFormField(
                 id: .countryCode,
-                title: "Country",
-                placeholder: "Not selected",
+                title: Localization.tangempayOrderDataCountry,
+                placeholder: Localization.tangempayWithdrawBankPlaceholderNotSelected,
                 onSelect: { [weak self] in self?.selectCountry() }
             ),
             TangemPayFormField(
                 id: .region,
-                title: "Region / state",
+                title: Localization.tangempayOrderDataRegion,
                 placeholder: regionPlaceholder,
                 onSelect: isRegionSelectable ? { [weak self] in self?.selectRegion() } : nil
             ),
             TangemPayFormField(
                 id: .city,
-                title: "City",
-                placeholder: "Eg., Night City"
+                title: Localization.tangempayOrderDataCity,
+                placeholder: Localization.tangempayWithdrawBankPlaceholderCity
             ),
             TangemPayFormField(
                 id: .line1,
-                title: "Address line 1",
-                placeholder: "Eg., Ebunike st., Apt. 32"
+                title: Localization.tangempayOrderDataAddressLine1,
+                placeholder: Localization.tangempayWithdrawBankPlaceholderAddressLine1
             ),
             TangemPayFormField(
                 id: .line2,
-                title: "Address line 2",
-                placeholder: "Eg., Ebunike st., Apt. 32"
+                title: Localization.tangempayOrderDataAddressLine2,
+                placeholder: Localization.tangempayWithdrawBankPlaceholderAddressLine1
             ),
             TangemPayFormField(
                 id: .postalCode,
-                title: "Postal code",
+                title: Localization.tangempayOrderDataPostalCode,
                 placeholder: "0000"
             ),
         ]
@@ -337,9 +335,10 @@ private extension PersonalDetailsViewModel {
         country?.code == Constants.regionSelectionCountryCode
     }
 
-    // [REDACTED_TODO_COMMENT]
     var regionPlaceholder: String {
-        isRegionSelectable ? "Not selected" : "Eg., Bavaria"
+        isRegionSelectable
+            ? Localization.tangempayWithdrawBankPlaceholderNotSelected
+            : Localization.tangempayWithdrawBankPlaceholderRegionName
     }
 
     func selectCountry() {
