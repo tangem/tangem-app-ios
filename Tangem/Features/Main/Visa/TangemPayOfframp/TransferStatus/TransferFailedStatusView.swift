@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 
 struct TransferFailedStatusView: View {
@@ -17,7 +18,7 @@ struct TransferFailedStatusView: View {
 
     var body: some View {
         if let onRetry {
-            screen.secondaryAction(title: Constants.retryTitle, action: onRetry)
+            screen.secondaryAction(title: Localization.commonRetry, action: onRetry)
         } else {
             screen
         }
@@ -27,7 +28,7 @@ struct TransferFailedStatusView: View {
         StatusScreen(
             title: model.title,
             description: model.description,
-            actionTitle: Constants.closeTitle,
+            actionTitle: Localization.commonClose,
             action: onClose
         )
         .appearance(.warning)
@@ -62,15 +63,6 @@ private extension TransferFailedStatusView.Style {
         case .generic: .warning
         case .unavailableRegion: .heartBroken
         }
-    }
-}
-
-// MARK: - Constants
-
-private extension TransferFailedStatusView {
-    enum Constants {
-        static let closeTitle = "Close"
-        static let retryTitle = "Retry"
     }
 }
 

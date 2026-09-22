@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 
 enum PersonalDetailsFactory {
     @MainActor
@@ -30,11 +31,10 @@ enum PersonalDetailsFactory {
 // MARK: - Title
 
 private extension PersonalDetailsFactory {
-    // [REDACTED_TODO_COMMENT]
     static func title(for recipient: TangemPayOfframpRecipient) -> String {
         switch recipient {
-        case .newBusiness: "To business account"
-        case .newIndividual, .saved: "To personal account"
+        case .newBusiness: Localization.tangempayWithdrawHubToBusinessAccount
+        case .newIndividual, .saved: Localization.tangempayWithdrawHubToPersonalAccount
         }
     }
 }

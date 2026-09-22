@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemLocalization
+
 enum TangemPayOfframpWizardStep {
     case amount
     case transferType
@@ -20,8 +22,7 @@ enum TangemPayOfframpWizardStep {
             return nil
         }
 
-        // [REDACTED_TODO_COMMENT]
-        return "\(index + 1) of \(order.count)"
+        return Localization.tangempayWithdrawBankStepCounter(index + 1, order.count)
     }
 }
 

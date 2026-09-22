@@ -38,8 +38,7 @@ struct AccountTypeContentView: View {
 
 private extension AccountTypeContentView {
     var sectionHeader: some View {
-        // [REDACTED_TODO_COMMENT]
-        Text("Account type")
+        Text(Localization.tangempayWithdrawBankAccountTypeTitle)
             .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
     }
 
