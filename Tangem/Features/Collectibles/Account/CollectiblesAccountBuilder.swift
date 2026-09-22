@@ -49,7 +49,8 @@ struct CollectiblesAccountBuilder {
             ),
             sessionKeySigner: CommonCollectiblesSessionKeySigner(userWalletId: userWalletId),
             coldKeyInteractorFactory: coldKeyInteractorFactory,
-            serviceProvider: serviceProvider
+            serviceProvider: serviceProvider,
+            presenceStore: AppSettingsCollectiblesAccountPresenceStore()
         )
     }
 }

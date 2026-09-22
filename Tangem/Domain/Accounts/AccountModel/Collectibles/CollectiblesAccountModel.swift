@@ -24,6 +24,9 @@ protocol CollectiblesAccountModel: BaseAccountModel, CollectiblesOnboarder, Coll
     var state: CollectiblesState { get }
     var statePublisher: AnyPublisher<CollectiblesState, Never> { get }
 
+    var hasAccount: Bool { get }
+    var hasAccountPublisher: AnyPublisher<Bool, Never> { get }
+
     func update(name: String)
 }
 

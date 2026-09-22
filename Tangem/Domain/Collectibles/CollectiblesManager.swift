@@ -26,6 +26,7 @@ final class CollectiblesManager {
     private let sessionKeySigner: any CollectiblesSessionKeySigner
     private let coldKeyInteractorFactory: CollectiblesColdKeyInteractorFactory
     private let serviceProvider: CollectiblesChainServiceProvider
+    private let presenceStore: any CollectiblesAccountPresenceStore
 
     private let nameSubject: CurrentValueSubject<String, Never>
     private let stateSubject = CurrentValueSubject<CollectiblesState, Never>(.unresolved)
@@ -42,7 +43,8 @@ final class CollectiblesManager {
         balanceService: any CollectiblesBalanceService,
         sessionKeySigner: any CollectiblesSessionKeySigner,
         coldKeyInteractorFactory: CollectiblesColdKeyInteractorFactory,
-        serviceProvider: CollectiblesChainServiceProvider
+        serviceProvider: CollectiblesChainServiceProvider,
+        presenceStore: any CollectiblesAccountPresenceStore
     ) {
         self.id = id
         nameSubject = CurrentValueSubject(name)
@@ -54,6 +56,7 @@ final class CollectiblesManager {
         self.sessionKeySigner = sessionKeySigner
         self.coldKeyInteractorFactory = coldKeyInteractorFactory
         self.serviceProvider = serviceProvider
+        self.presenceStore = presenceStore
 
         runTask { [weak self] in
             await self?.refreshState()
@@ -81,6 +84,19 @@ extension CollectiblesManager: CollectiblesAccountModel {
 
     var statePublisher: AnyPublisher<CollectiblesState, Never> {
         stateSubject.eraseToAnyPublisher()
+    }
+
+    var hasAccount: Bool {
+        state.hasAccount(markedLocally: isMarkedLocally)
+    }
+
+    var hasAccountPublisher: AnyPublisher<Bool, Never> {
+        stateSubject
+            .map { [presenceStore, id] state in
+                state.hasAccount(markedLocally: presenceStore.contains(id.userWalletId))
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider {
@@ -312,6 +328,8 @@ private extension CollectiblesManager {
     }
 
     func update(state: CollectiblesState) {
+        recordPresence(of: state)
+
         // Every emission re-triggers the accounts pipeline's CombineLatest — don't re-publish sameness
         guard state != stateSubject.value else {
             CollectiblesLogger.debug("State resolve finished, unchanged: \(state.logDescription)")
@@ -320,6 +338,21 @@ private extension CollectiblesManager {
 
         CollectiblesLogger.debug("State resolved: \(state.logDescription), was: \(stateSubject.value.logDescription)")
         stateSubject.send(state)
+    }
+
+    func recordPresence(of state: CollectiblesState) {
+        switch state.presenceRecord {
+        case .exists:
+            presenceStore.insert(id.userWalletId)
+        case .absent:
+            presenceStore.remove(id.userWalletId)
+        case .unchanged:
+            break
+        }
+    }
+
+    var isMarkedLocally: Bool {
+        presenceStore.contains(id.userWalletId)
     }
 }
 
