@@ -9,9 +9,12 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct RatingView: View {
     @ObservedObject var viewModel: RatingViewModel
+
+    var background: BackgroundStyle = .plate
 
     var body: some View {
         Group {
@@ -21,10 +24,11 @@ struct RatingView: View {
             case .unrated:
                 CardView(
                     displayRating: viewModel.displayRating,
-                    onRatingSelected: viewModel.onRatingSelected
+                    background: background,
+                    onRatingSelected: viewModel.ratingSelectionHandler
                 )
             case .submitting, .rated, .submitted:
-                CardView(displayRating: viewModel.displayRating)
+                CardView(displayRating: viewModel.displayRating, background: background)
             }
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.state)
@@ -35,32 +39,37 @@ private extension RatingView {
     // MARK: - Subviews
 
     var skeletonView: some View {
-        Color.clear
-            .frame(height: 92)
-            .frame(maxWidth: .infinity)
-            .background(Colors.Background.action)
-            .cornerRadius(14)
-            .skeletonable(isShown: true, radius: 14)
+        CardView(displayRating: 0, background: background)
+            .hidden()
+            .overlay {
+                background.color
+                    .cornerRadiusContinuous(background.cornerRadius)
+                    .skeletonable(isShown: true, radius: background.cornerRadius)
+            }
     }
 }
 
-// MARK: - Previews
+// MARK: - Background style
 
-#Preview {
-    struct RatingViewPreviewStub: RatingProvider {
-        func checkExisting(for transactionId: String) async throws -> ExistingRating? { nil }
-        func submit(request: RatingRequest) async throws {}
-    }
+extension RatingView {
+    struct BackgroundStyle {
+        let color: Color
+        let cornerRadius: CGFloat
+        let verticalPadding: CGFloat
+        let horizontalPadding: CGFloat
 
-    return RatingView(
-        viewModel: RatingViewModel(
-            model: RatingModel(
-                ratingProvider: RatingViewPreviewStub(),
-                transaction: .init(transactionId: "tx_123", providerName: "1inch", txUrl: nil),
-                userWalletIdHash: "hash"
-            ),
-            feedbackPresenter: FloatingSheetRatingFeedbackPresenter()
+        static let plate = BackgroundStyle(
+            color: DesignSystem.Color.bgTertiary,
+            cornerRadius: 24,
+            verticalPadding: 16,
+            horizontalPadding: 16
         )
-    )
-    .padding()
+
+        static let legacy = BackgroundStyle(
+            color: Colors.Background.action,
+            cornerRadius: 14,
+            verticalPadding: 12,
+            horizontalPadding: 14
+        )
+    }
 }
