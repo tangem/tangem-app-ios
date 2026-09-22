@@ -195,44 +195,27 @@ private extension TONWalletManager {
     }
 
     private func transformFeeIfNeeded(with feesAndAddress: ([Fee], String?), amount: Amount) -> AnyPublisher<[Fee], Error> {
-        let (fees, recipientJettonWalletAddress) = feesAndAddress
+        let (fees, _) = feesAndAddress
+        let updatedFees = appendJettonTransferProcessingFeeIfNeeded(fees, amountType: amount.type)
 
-        // Check if recipient's jetton wallet is active
-        if let recipientJettonWalletAddress {
-            return networkService.isJettonWalletActive(jettonWalletAddress: recipientJettonWalletAddress)
-                .withWeakCaptureOf(self)
-                .map { manager, isActive in
-                    manager.appendJettonTransferProcessingFeeIfNeeded(
-                        fees,
-                        amountType: amount.type,
-                        isRecipientJettonWalletActive: isActive
-                    )
-                }
-                .eraseToAnyPublisher()
-        } else {
-            let updatedFees = appendJettonTransferProcessingFeeIfNeeded(
-                fees,
-                amountType: amount.type,
-                isRecipientJettonWalletActive: false
-            )
-            return Just(updatedFees)
-                .setFailureType(to: Error.self)
-                .eraseToAnyPublisher()
-        }
+        return Just(updatedFees)
+            .setFailureType(to: Error.self)
+            .eraseToAnyPublisher()
     }
 
-    private func appendJettonTransferProcessingFeeIfNeeded(
-        _ fees: [Fee],
-        amountType: Amount.AmountType,
-        isRecipientJettonWalletActive: Bool
-    ) -> [Fee] {
+    private func appendJettonTransferProcessingFeeIfNeeded(_ fees: [Fee], amountType: Amount.AmountType) -> [Fee] {
         guard case .token = amountType else {
             return fees
         }
 
-        let processingFee = isRecipientJettonWalletActive
-            ? TONTransactionBuilder.Constants.jettonTransferProcessingFeeForActiveWallet
-            : TONTransactionBuilder.Constants.jettonTransferProcessingFee
+        // The builder always attaches `jettonTransferProcessingFee` (0.05 TON) to the jetton
+        // transfer message regardless of whether the recipient's jetton wallet is active; the
+        // unused portion is refunded on-chain. Display (and therefore validate the balance
+        // against) the amount that actually leaves the wallet. Previously an "active recipient"
+        // discount (0.0001 TON) was shown that the builder never applied, so a balance covering
+        // the displayed value but not the attached 0.05 passed validation, the action phase failed
+        // silently, the seqno was consumed and gas was paid with the jettons unmoved.
+        let processingFee = TONTransactionBuilder.Constants.jettonTransferProcessingFee
 
         return fees.map { fee in
             var amount = fee.amount
