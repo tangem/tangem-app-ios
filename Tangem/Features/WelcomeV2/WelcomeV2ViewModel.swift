@@ -50,11 +50,9 @@ final class WelcomeV2ViewModel: ObservableObject {
     }
 
     func onLegalLinkTap(_ url: URL) {
-        let document: Analytics.ParameterValue = url == AppConstants.tosURL
-            ? .welcomeV2DocumentTerms
-            : .welcomeV2DocumentPrivacy
-        analytics.logLegalOpened(document: document)
-        coordinator?.openLegal(url: url)
+        let document = WelcomeV2LegalDocument(url: url)
+        analytics.logLegalOpened(document: document.analyticsValue)
+        coordinator?.openLegal(document: document)
     }
 
     private func bind() {

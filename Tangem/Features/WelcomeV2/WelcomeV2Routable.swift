@@ -11,7 +11,7 @@ import Foundation
 protocol WelcomeV2Routable: AnyObject {
     func openCreateWallet()
     func openExistingWallet()
-    func openLegal(url: URL)
+    func openLegal(document: WelcomeV2LegalDocument)
     func openMain(with userWalletModel: UserWalletModel)
     func openOnboarding(with input: OnboardingInput)
 }

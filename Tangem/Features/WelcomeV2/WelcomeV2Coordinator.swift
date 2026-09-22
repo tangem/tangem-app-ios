@@ -51,7 +51,7 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     @Published var actionSheetViewModel: WelcomeV2ActionSheetViewModel?
     @Published private(set) var isScanningCard = false
     @Published var importOnboardingCoordinator: OnboardingCoordinator?
-    @Published var legalWebViewModel: WebViewContainerViewModel?
+    @Published var legalViewModel: WelcomeV2LegalViewModel?
     @Published var welcomeStoryViewModel: WelcomeStoryPresentationViewModel?
     @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
     @Published var tangemPayMobileOnboardingCoordinator: TangemPayMobileOnboardingCoordinator?
@@ -245,13 +245,8 @@ extension WelcomeV2Coordinator: WelcomeV2Routable {
         presentExistingWallet()
     }
 
-    func openLegal(url: URL) {
-        legalWebViewModel = WebViewContainerViewModel(
-            url: url,
-            title: "",
-            withCloseButton: true,
-            withNavigationBar: false
-        )
+    func openLegal(document: WelcomeV2LegalDocument) {
+        legalViewModel = WelcomeV2LegalViewModel(document: document)
     }
 
     func openShop(url: URL) {
