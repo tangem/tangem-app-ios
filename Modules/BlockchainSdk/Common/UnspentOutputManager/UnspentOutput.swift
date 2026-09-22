@@ -32,4 +32,11 @@ struct UnspentOutput: Hashable {
         hash = Data(hexString: txId)
         isConfirmed = blockId > 0
     }
+
+    /// `index` and `amount` are decoded from the node verbatim, but every UTXO serializer narrows them
+    /// to the wire types `UInt32` / `Int64`. An output outside those ranges cannot be spent by us and
+    /// would trap the trapping `UInt32(_:)` / `Int64(_:)` initializers, so it must be dropped on decode.
+    var isSerializable: Bool {
+        UInt32(exactly: index) != nil && Int64(exactly: amount) != nil
+    }
 }

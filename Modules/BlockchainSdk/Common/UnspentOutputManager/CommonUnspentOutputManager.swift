@@ -48,15 +48,30 @@ class CommonUnspentOutputManager {
 extension CommonUnspentOutputManager: UnspentOutputManager {
     func update(outputs newOutputs: [UnspentOutput], for address: String) throws {
         let script = try lockingScriptBuilder.lockingScript(for: address)
+        let newOutputs = Self.serializableOutputs(newOutputs)
         outputs { dict in
             dict[script] = newOutputs
         }
     }
 
     func update(outputs newOutputs: [UnspentOutput], for script: UTXOLockingScript) {
+        let newOutputs = Self.serializableOutputs(newOutputs)
         outputs { dict in
             dict[script] = newOutputs
         }
+    }
+
+    /// Drops node-supplied outputs whose `index` / `amount` do not fit the wire types the serializers
+    /// narrow to (`UInt32` / `Int64`). Such an output is unspendable by us and would otherwise trap
+    /// the app on every fee build / send while the provider keeps returning it.
+    private static func serializableOutputs(_ outputs: [UnspentOutput]) -> [UnspentOutput] {
+        let serializable = outputs.filter(\.isSerializable)
+
+        if serializable.count != outputs.count {
+            BSDKLogger.warning("Dropped \(outputs.count - serializable.count) unspent output(s) with an out-of-range index or amount")
+        }
+
+        return serializable
     }
 
     func preImage(amount: Int, fee: Int, destination: String, changeAddress: String, opReturn: Data?) async throws -> PreImageTransaction {
