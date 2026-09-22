@@ -355,12 +355,12 @@ struct MarketsTokenDetailsView: View {
     }
 
     private var backgroundColor: Color {
-        sheetSize.hasOpaqueBackground ? DesignSystem.Color.bgPrimary : .clear
+        !sheetSize.isNonFullFeedSheet ? DesignSystem.Color.bgPrimary : .clear
     }
 
     @ViewBuilder
     private var portfolioBlock: some View {
-        if viewModel.portfolioBlockState.isVisible, sheetSize.hasOpaqueBackground {
+        if viewModel.portfolioBlockState.isVisible, !sheetSize.isNonFullFeedSheet {
             MarketsPortfolioBlockView(
                 state: viewModel.portfolioBlockState,
                 iconURL: viewModel.iconURL,
