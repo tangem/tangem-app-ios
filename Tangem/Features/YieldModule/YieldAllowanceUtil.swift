@@ -8,15 +8,10 @@
 
 import Foundation
 import BigInt
+import BlockchainSdk
 
 struct YieldAllowanceUtil {
     func isPermissionRequired(allowance: String) -> Bool {
-        BigUInt(Data(hexString: allowance)) < Constants.maxAllowance / 2
-    }
-}
-
-extension YieldAllowanceUtil {
-    enum Constants {
-        static let maxAllowance = BigUInt(2).power(256) - 1
+        BigUInt(Data(hexString: allowance)) < BigUInt.maxUInt256 / 2
     }
 }

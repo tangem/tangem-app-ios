@@ -16,18 +16,20 @@ import UIKit
 // MARK: - View extension
 
 public extension View {
-    /// - Parameter isAnimating: play/pause switch for hiding the component can't detect itself —
-    ///   an `.isHidden` / `.opacity(0)` state that keeps the view in the hierarchy, so `onDisappear`
-    ///   never fires (navigation/tab/lazy-scroll hiding pauses on its own and needs no flag).
-    ///   Use it only while the view is invisible: pausing freezes drawing but not the wall-clock time
-    ///   base, so re-enabling it on a *visible* view resumes at the current phase — a visible jump.
-    ///   While hidden that jump can't be seen, which is exactly the intended use.
+    /// - Parameter isVisible: fades the ring alone — the host view keeps its own opacity — and
+    ///   pauses drawing while hidden. Animate it from the call site (`withAnimation`) to reveal
+    ///   the ring. Pausing freezes drawing but not the wall-clock time base, so the phase moves
+    ///   on while hidden; that jump is only ever seen if the ring is hidden and shown again
+    ///   within a rotation.
     func glowRing(
         _ appearance: GlowRingAppearance = .magic,
-        cornerRadius: CGFloat = 24,
-        isAnimating: Bool = true
+        size: GlowRingSize = .card(),
+        isVisible: Bool = true
     ) -> some View {
-        modifier(GlowRingModifier(isAnimating: isAnimating, config: .init(cornerRadius: cornerRadius, palette: appearance.palette)))
+        modifier(GlowRingModifier(
+            isVisible: isVisible,
+            config: GlowRingModifier.Config(size: size, palette: appearance.palette)
+        ))
     }
 }
 
@@ -36,17 +38,15 @@ struct GlowRingModifier: ViewModifier {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isAppeared = false
     @State private var isOnScreen = false
-    /// Margin so the centered stroke's clipped outer half (and the blur falloff feeding
-    /// inward) is fully rendered before the rounded-box clip cuts the outer half.
-    private let margin: CGFloat = 64
 
-    /// Caller-driven switch for cases the component can't detect itself — chiefly `.opacity(0)`,
-    /// which keeps the view in the hierarchy so `onDisappear` never fires.
-    private let isAnimating: Bool
+    /// Hiding the ring is the component's own job: an `.opacity(0)` applied by the caller would
+    /// take the host view with it, and it keeps the view in the hierarchy so `onDisappear` never
+    /// fires to pause the drawing.
+    private let isVisible: Bool
     private let config: Config
 
-    init(isAnimating: Bool, config: Config) {
-        self.isAnimating = isAnimating
+    init(isVisible: Bool, config: Config) {
+        self.isVisible = isVisible
         self.config = config
     }
 
@@ -56,6 +56,7 @@ struct GlowRingModifier: ViewModifier {
                 GeometryReader { proxy in
                     canvas(width: proxy.size.width, height: proxy.size.height)
                 }
+                .opacity(isVisible ? 1 : 0)
                 .allowsHitTesting(false)
             }
             .onGeometryChange(for: Bool.self, of: { proxy in
@@ -66,7 +67,11 @@ struct GlowRingModifier: ViewModifier {
     }
 
     private var isPaused: Bool {
-        !isAnimating || !isAppeared || !isOnScreen
+        !isVisible || !isAppeared || !isOnScreen
+    }
+
+    private var margin: CGFloat {
+        config.margin
     }
 }
 

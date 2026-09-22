@@ -14,6 +14,7 @@ enum ExperimentFeatureFlagKey: String {
     case tangemPayOnboardingVariant = "visa_newonboarding_screen_june2026"
     case onboardingPushNotificationDoubleAsk = "twi_1403_onboarding_push_notification_double_ask"
     case mainPushNotificationDoubleAsk = "twi_1403_main_push_notification_double_ask"
+    case hardwareUpgradeStories = "twi_1357_main_hardware_upgrade_stories"
 }
 
 enum ExperimentFeatureVariantKey: String {

@@ -24,35 +24,55 @@ struct EnvironmentSetupView: View {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
             GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 16)) {
-                GroupedSection(viewModel.appSettingsTogglesViewModels) {
-                    DefaultToggleRowView(viewModel: $0)
-                }
+                if !viewModel.isSearching {
+                    GroupedSection(viewModel.appSettingsTogglesViewModels) {
+                        DefaultToggleRowView(viewModel: $0)
+                    }
 
-                GroupedSection(viewModel.pickerViewModels) {
-                    DefaultPickerRowView(viewModel: $0)
-                }
+                    GroupedSection(viewModel.pickerViewModels) {
+                        DefaultPickerRowView(viewModel: $0)
+                    }
 
-                GroupedSection(viewModel.additionalSettingsViewModels) { viewModel in
-                    DefaultRowView(viewModel: viewModel)
+                    GroupedSection(viewModel.additionalSettingsViewModels) { viewModel in
+                        DefaultRowView(viewModel: viewModel)
+                    }
                 }
 
                 GroupedSection(viewModel.featureStateViewModels) { viewModel in
                     FeatureStateRowView(viewModel: viewModel)
                 }
 
-                surveySparrowControls
+                if viewModel.isSearching, viewModel.featureStateViewModels.isEmpty {
+                    Text("No feature toggles found")
+                        .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                        .padding(.top, 32)
+                }
 
-                demoCardIdControls
+                if !viewModel.isSearching {
+                    surveySparrowControls
 
-                appUidControls
+                    demoCardIdControls
 
-                fcmControls
+                    appUidControls
+
+                    fcmControls
+                }
             }
             .interContentPadding(8)
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            searchBar
         }
         .navigationBarTitle(Text("Environment setup"))
         .navigationBarItems(trailing: exitButton)
         .alert(item: $viewModel.alert) { $0.alert }
+    }
+
+    private var searchBar: some View {
+        Search(text: $viewModel.searchText)
+            .placeholder("Search feature toggles")
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
     }
 
     // [REDACTED_TODO_COMMENT]

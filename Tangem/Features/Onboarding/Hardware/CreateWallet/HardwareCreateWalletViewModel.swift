@@ -26,7 +26,6 @@ final class HardwareCreateWalletViewModel: ObservableObject {
     lazy var infoItems: [InfoItem] = makeInfoItems()
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
 
@@ -111,15 +110,12 @@ private extension HardwareCreateWalletViewModel {
 
             switch result {
             case .error(let error) where error.isCancellationError:
-                viewModel.incomingActionManager.discardIncomingAction()
-
                 await runOnMain {
                     viewModel.isScanning = false
                 }
 
             case .error(let error):
                 viewModel.logScanCardAnalytics(error: error)
-                viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
                     viewModel.isScanning = false
@@ -128,7 +124,6 @@ private extension HardwareCreateWalletViewModel {
 
             case .onboarding(let input, let cardInfo):
                 viewModel.logScanCardOnboardingAnalytics()
-                viewModel.incomingActionManager.discardIncomingAction()
 
                 do {
                     let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
@@ -151,7 +146,6 @@ private extension HardwareCreateWalletViewModel {
 
             case .scanTroubleshooting:
                 viewModel.logScanCardTroubleshootingAnalytics()
-                viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
                     viewModel.isScanning = false
@@ -181,8 +175,6 @@ private extension HardwareCreateWalletViewModel {
                         throw UserWalletRepositoryError.cantUnlockWallet
                     }
                 } catch {
-                    viewModel.incomingActionManager.discardIncomingAction()
-
                     await runOnMain {
                         viewModel.isScanning = false
                         viewModel.alert = error.alertBinder

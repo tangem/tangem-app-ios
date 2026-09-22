@@ -320,6 +320,21 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
         return self
     }
 
+    /// Checks any matching field regardless of hittability, unlike `editableFromAmountField()`.
+    @discardableResult
+    func waitForFromAmountDisplayedValue(_ value: String, timeout: TimeInterval = .robustUIUpdate) -> Self {
+        XCTContext.runActivity(named: "Validate any from amount field displays value '\(value)'") { _ in
+            let matches = app.textFields.matching(identifier: SwapAccessibilityIdentifiers.fromAmountTextField)
+            let predicate = NSPredicate { _, _ in
+                matches.allElementsBoundByIndex.contains { $0.getValue() == value }
+            }
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
+            let result = XCTWaiter().wait(for: [expectation], timeout: timeout)
+            XCTAssertEqual(result, .completed, "From amount field should display value '\(value)'")
+        }
+        return self
+    }
+
     @discardableResult
     func clearFromAmount() -> Self {
         XCTContext.runActivity(named: "Clear from amount text field") { _ in
@@ -451,6 +466,15 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     }
 
     @discardableResult
+    func waitForRetryButtonDisplayed() -> Self {
+        XCTContext.runActivity(named: "Wait for retry button to be displayed on swap screen") { _ in
+            let retryButton = swapContainer.buttons[CommonUIAccessibilityIdentifiers.notificationButton]
+            waitAndAssertTrue(retryButton, "Retry button should be displayed on swap screen")
+        }
+        return self
+    }
+
+    @discardableResult
     func tapPriceChangeInfoButton() -> Self {
         XCTContext.runActivity(named: "Tap price change info button") { _ in
             waitAndAssertTrue(priceChangeInfoButton, "Price change info button should exist")
@@ -463,17 +487,6 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     func waitForPriceChangeWarningDisplayed() -> Self {
         XCTContext.runActivity(named: "Verify price impact warning is displayed") { _ in
             XCTAssertTrue(priceChangeInfoButton.waitForExistence(timeout: .robustUIUpdate), "Price change info button should exist, indicating price impact warning is displayed")
-        }
-        return self
-    }
-
-    @discardableResult
-    func waitForAlertAndDismiss() -> Self {
-        XCTContext.runActivity(named: "Wait for alert and dismiss") { _ in
-            let alert = app.alerts.firstMatch
-            XCTAssertTrue(alert.waitForExistence(timeout: .robustUIUpdate), "Alert should be displayed")
-
-            alert.buttons["OK"].waitAndTap()
         }
         return self
     }
@@ -547,6 +560,49 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     }
 
     @discardableResult
+    func tapProviderBlock() -> SendSwapProviderSelectorScreen {
+        XCTContext.runActivity(named: "Tap provider block to open selector") { _ in
+            let providerBlock = app.buttons[SendAccessibilityIdentifiers.swapProviderBlock].firstMatch
+            waitAndAssertTrue(providerBlock, "Swap provider block should exist")
+
+            // Settle the keyboard first - a tap while it's still up dismisses it instead of reaching the button underneath.
+            let keyboardDismissButton = app.buttons[SwapAccessibilityIdentifiers.keyboardDismissButton].firstMatch
+            if keyboardDismissButton.waitForExistence(timeout: .quick) {
+                keyboardDismissButton.tap()
+                _ = keyboardDismissButton.waitForNonExistence(timeout: .conditional)
+            }
+
+            let sheetOpened = NSPredicate { _, _ in
+                self.app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "sendSwapProviderSelectorRow_")).firstMatch.exists
+            }
+
+            // Target the lower portion of the shared frame, where the always-present compact row's own button actually receives touches.
+            let tapOffsets: [CGVector] = [
+                CGVector(dx: 0.5, dy: 0.8),
+                CGVector(dx: 0.25, dy: 0.65),
+                CGVector(dx: 0.75, dy: 0.65),
+            ]
+
+            let hittablePredicate = NSPredicate(format: "isHittable == true")
+
+            // Retry with short waits - the row can re-render mid-tap, or the compact row can briefly be non-tappable while quotes load.
+            for i in 0 ..< 8 {
+                let hittableExpectation = XCTNSPredicateExpectation(predicate: hittablePredicate, object: providerBlock)
+                guard XCTWaiter().wait(for: [hittableExpectation], timeout: .quick) == .completed else { continue }
+
+                let offset = tapOffsets[i % tapOffsets.count]
+                providerBlock.coordinate(withNormalizedOffset: offset).tap()
+
+                let expectation = XCTNSPredicateExpectation(predicate: sheetOpened, object: nil)
+                if XCTWaiter().wait(for: [expectation], timeout: .quick) == .completed {
+                    break
+                }
+            }
+        }
+        return SendSwapProviderSelectorScreen(app)
+    }
+
+    @discardableResult
     func verifyProviderName(contains expected: String) -> Self {
         XCTContext.runActivity(named: "Verify swap provider name contains '\(expected)'") { _ in
             let providerName = app.staticTexts[SendAccessibilityIdentifiers.swapProviderName].firstMatch
@@ -615,22 +671,59 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     }
 
     @discardableResult
-    func tapMaxAmountFraction() -> Self {
-        XCTContext.runActivity(named: "Tap Max amount fraction chip") { _ in
-            let field = editableFromAmountField()
-            if !field.hasFocus {
-                field.tap()
+    func tapAmountFraction(_ token: String) -> Self {
+        XCTContext.runActivity(named: "Tap '\(token)' amount fraction chip") { _ in
+            var field = editableFromAmountField()
+            // Right after choosing tokens the field is briefly disabled while the initial quote loads.
+            let enabledPredicate = NSPredicate(format: "isEnabled == true")
+            let enabledExpectation = XCTNSPredicateExpectation(predicate: enabledPredicate, object: field)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [enabledExpectation], timeout: .robustUIUpdate),
+                .completed,
+                "From amount field should become enabled"
+            )
+            let chip = app.buttons[SwapAccessibilityIdentifiers.amountFraction(token)].firstMatch
+            let valueBeforeTap = field.getValue()
+            let attempts = 3
+            var applied = false
+
+            // A coordinate tap aimed at the still-animating keyboard accessory lands outside it and only dismisses the keyboard.
+            for attempt in 0 ..< attempts {
+                // Dismissing the keyboard reorders the field matches, so re-resolve the editable one every attempt.
+                field = editableFromAmountField()
+                if !field.hasFocus {
+                    field.tap()
+                }
+                waitAndAssertTrue(chip, "'\(token)' amount fraction chip should exist")
+                // The chip lives in the keyboard accessory view and is often reported non-hittable, so tap by coordinate.
+                if chip.isHittable {
+                    chip.tap()
+                } else {
+                    chip.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+                }
+
+                // Early attempts give up fast to retry a missed tap; the last one waits out a slow quote.
+                let timeout: TimeInterval = attempt == attempts - 1 ? .robustUIUpdate : .quick
+                applied = field.waitForValue(timeout: timeout) { value in
+                    value != valueBeforeTap && value.contains { $0.isNumber && $0 != "0" }
+                }
+
+                if applied {
+                    break
+                }
             }
-            let maxChip = app.buttons[SwapAccessibilityIdentifiers.amountFraction("max")].firstMatch
-            waitAndAssertTrue(maxChip, "Max amount fraction chip should exist")
-            // The chip lives in the keyboard accessory view and is often reported non-hittable, so tap by coordinate.
-            if maxChip.isHittable {
-                maxChip.tap()
-            } else {
-                maxChip.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-            }
+
+            XCTAssertTrue(
+                applied,
+                "'\(token)' amount fraction chip should fill the amount, but it stayed '\(field.getValue())'"
+            )
         }
         return self
+    }
+
+    @discardableResult
+    func tapMaxAmountFraction() -> Self {
+        tapAmountFraction("max")
     }
 
     @discardableResult
@@ -649,14 +742,13 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     private func editableFromAmountField() -> XCUIElement {
         // The editable field is the hittable match; the overlaid measurement field disables hit testing.
         let query = app.textFields.matching(identifier: SwapAccessibilityIdentifiers.fromAmountTextField)
-        let predicate = NSPredicate { _, _ in query.allElementsBoundByIndex.contains { $0.isHittable } }
-        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
-        XCTAssertEqual(
-            XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
-            .completed,
-            "Editable from amount field should become hittable"
-        )
-        return query.allElementsBoundByIndex.first { $0.isHittable } ?? query.firstMatch
+
+        guard let field = query.firstHittableElement() else {
+            XCTFail("Editable from amount field should become hittable")
+            return query.firstMatch
+        }
+
+        return field
     }
 }
 

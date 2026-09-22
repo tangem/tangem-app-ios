@@ -16,7 +16,6 @@ import struct TangemUIUtils.AlertBinder
 
 class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
     @Injected(\.userWalletRepository) var userWalletRepository: UserWalletRepository
-    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
     var navbarSize: CGSize { OnboardingLayoutConstants.navbarSize }
     var progressBarHeight: CGFloat { OnboardingLayoutConstants.progressBarHeight }
@@ -195,7 +194,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
         loadMainImage(imageProvider: input.cardInput.cardImageProvider)
 
-        incomingActionManager.becomeFirstResponder(self)
         bindAnalytics()
     }
 
@@ -543,14 +541,5 @@ extension OnboardingViewModel: OnboardingAddTokensDelegate {
 extension OnboardingViewModel: PushNotificationsPermissionRequestDelegate {
     func didFinishPushNotificationOnboarding() {
         goToNextStep()
-    }
-}
-
-// MARK: - IncomingActionResponder
-
-extension OnboardingViewModel: IncomingActionResponder {
-    /// Intentionally ignore all incoming actions except for promo deeplinks until onboarding is complete
-    func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
-        !action.isPromoDeeplink
     }
 }

@@ -25,6 +25,8 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
     @Injected(\.ratingProvider) private var ratingProvider: RatingProvider
     @Injected(\.transactionHistoryAuxDataRepository) private var auxDataRepository: TransactionHistoryAuxDataRepository
+    @Injected(\.cryptoAccountsGlobalStateProvider)
+    private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
 
     @Published private(set) var header: TransactionDetailsHeaderViewData?
     @Published private(set) var content: Content?
@@ -38,6 +40,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
     private let userWalletId: UserWalletId
     private let userWalletIdHash: String
     private let context: TransactionDetailsContext
+    private let analyticsLogger: TransactionDetailsAnalyticsLogger
 
     private let addressBookAnalyticsLogger: AddressBookAnalyticsLogger
     private let addressBookWallet: AddressBookWallet
@@ -66,6 +69,10 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         userWalletId = userWalletInfo.id
         userWalletIdHash = userWalletInfo.id.hashedStringValue
         addressBookWallet = AddressBookWallet(wallet: userWalletInfo, addressBookManager: addressBookManager)
+        analyticsLogger = TransactionDetailsAnalyticsLogger(
+            userWalletId: userWalletInfo.id,
+            tokenItem: walletModel.tokenItem
+        )
 
         let context = TransactionDetailsContext(
             walletModel: walletModel,
@@ -78,25 +85,18 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
             currencySymbol: walletModel.tokenItem.currencySymbol,
             addressesProvider: walletModel,
             showSign: true,
-            isToken: walletModel.tokenItem.isToken
-        )
-        let resolver = SubtitleOwnerResolver(
-            blockchain: walletModel.tokenItem.blockchain,
-            currentUserWalletId: userWalletInfo.id,
-            isAccountsMode: isAccountsMode
+            isToken: walletModel.tokenItem.isToken,
+            stakingNetwork: walletModel.tokenItem.stakingTokenItem?.network
         )
 
         subscribe(
             id: id,
             transactionHistoryPublisher: walletModel.transactionHistoryPublisher,
-            contactsPublisher: addressBookWallet.addressBookPublisher,
+            contactsPublisher: AddressBookContactsAggregator.contactsPublisher(),
             syncStatePublisher: addressBookWallet.syncStatePublisher,
             context: context,
-            mapper: mapper,
-            resolver: resolver
+            mapper: mapper
         )
-
-        loadAddressBook() // Address book should be loaded as early as possible since it is empty by default
     }
 
     deinit {
@@ -168,14 +168,26 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         }
     }
 
+    private var isAccountsMode: Bool {
+        cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
+    }
+
+    private func subtitleOwnerResolver(contacts: [AddressBookContact]) -> SubtitleOwnerResolver {
+        SubtitleOwnerResolver(
+            blockchain: walletModel.tokenItem.blockchain,
+            currentUserWalletId: userWalletId,
+            isAccountsMode: isAccountsMode,
+            contacts: contacts
+        )
+    }
+
     private func subscribe(
         id: TransactionRecord.ID,
         transactionHistoryPublisher: some Publisher<WalletModelTransactionHistoryState, Never>,
         contactsPublisher: some Publisher<[AddressBookContact], Never>,
         syncStatePublisher: some Publisher<AddressBookSyncState, Never>,
         context: TransactionDetailsContext,
-        mapper: TransactionHistoryMapper,
-        resolver: SubtitleOwnerResolver
+        mapper: TransactionHistoryMapper
     ) {
         let recordPublisher = transactionHistoryPublisher
             .compactMap { state -> TransactionRecord? in
@@ -194,22 +206,38 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
             }
             .removeDuplicates()
 
+        // The history publisher this sheet reads from already re-emits on `didLoadAuxData`, but `recordPublisher`
+        // above drops that emission: the record itself is unchanged when only the auxiliary data is. So an
+        // already-open sheet needs the signal directly to re-map, otherwise it keeps rendering the provider id or
+        // the raw staking address it was first built with.
+        let didLoadAuxDataPublisher = Publishers
+            .stream { [auxDataRepository] in
+                auxDataRepository.didLoadAuxData
+            }
+            .prepend(())
+
         let enrichedRecordPublisher = recordPublisher
             .combineLatest(
                 contactsPublisher.removeDuplicates(),
-                syncStatePublisher.map(\.isSynced).removeDuplicates()
+                syncStatePublisher.map(\.isSynced).removeDuplicates(),
+                didLoadAuxDataPublisher
             )
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .map { viewModel, args in
-                let (record, contacts, isAddressBookSynced) = args
-                let transaction = mapper.mapTransactionViewModel(record, subtitleOwnerResolver: resolver)
+                let (record, contacts, isAddressBookSynced, _) = args
+                let transaction = mapper.mapTransactionViewModel(
+                    record,
+                    subtitleOwnerResolver: viewModel.subtitleOwnerResolver(contacts: contacts)
+                )
 
                 return (
                     record: record,
+                    transaction: transaction,
                     reduced: TransactionDetailsFactory.reduce(
                         transaction: transaction,
                         record: record,
+                        cryptoAmount: mapper.transferAmountValue(from: record),
                         context: context,
                         addContactHelper: viewModel.makeAddContactHelper(
                             for: transaction,
@@ -228,6 +256,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
                 viewModel.header = output.reduced.header
                 viewModel.content = output.reduced.content
                 viewModel.setupRatingViewModel(for: output.reduced.content)
+                viewModel.analyticsLogger.recordUpdated(output.record, transaction: output.transaction)
             }
             .store(in: &bag)
 
@@ -262,22 +291,50 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
     func handleViewAction(_ action: ViewAction) {
         switch action {
-        case .openURL(let url):
+        case .openURL(let url, let kind):
+            logAnalytics(for: kind)
             routable?.openTransactionDetailsURL(url)
         case .share:
+            analyticsLogger.logShare()
             share()
         case .close:
             routable?.closeTransactionDetails()
-        case .copy(let value, let toast):
+        case .copy(let value, let toast, let kind):
+            logAnalytics(for: kind)
             copy(value, toast: toast)
         case .openRefundToken:
+            analyticsLogger.logGoToToken()
             openRefundToken()
         case .addContact(let address):
             addContact(address: address)
+        case .openSigners, .signOperation:
+            // A sent transaction has no signatures left to collect — these reach the joint account sheet instead,
+            // which draws the same blocks over an operation that has not been sent yet
+            break
         #if INTERNAL || DEBUG
         case .debug:
             openDebug()
         #endif
+        }
+    }
+
+    private func logAnalytics(for kind: ViewAction.URLKind) {
+        switch kind {
+        case .explorer:
+            analyticsLogger.logExplore()
+        case .provider(let source):
+            analyticsLogger.logGoToProvider(source: source)
+        case .yieldProvider:
+            break
+        }
+    }
+
+    private func logAnalytics(for kind: ViewAction.CopyKind) {
+        switch kind {
+        case .address:
+            analyticsLogger.logCopyAddress()
+        case .transactionID:
+            analyticsLogger.logCopyTransactionID()
         }
     }
 
@@ -351,12 +408,6 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
     // MARK: - Address book support
 
-    private func loadAddressBook() {
-        runTask(in: self) { viewModel in
-            await viewModel.addressBookWallet.addressBookManager.load(silent: true)
-        }
-    }
-
     private func makeAddContactHelper(
         for transaction: TransactionViewModel,
         contacts: [AddressBookContact],
@@ -364,7 +415,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
     ) -> TransactionDetailsAddContactHelper {
         TransactionDetailsAddContactHelper(
             networkId: AddressBookNetworkID(walletModel.tokenItem.blockchain.networkId),
-            contacts: contacts,
+            contacts: contacts.filter { $0.walletId == userWalletId },
             isAddressBookSynced: isAddressBookSynced,
             transactionType: transaction.transactionType,
             interactionAddress: transaction.interactionAddress
@@ -407,15 +458,31 @@ extension TransactionDetailsViewModel {
     }
 
     enum ViewAction: Equatable {
-        case openURL(URL)
+        case openURL(URL, kind: URLKind)
         case share
-        case copy(value: String, toast: String)
+        case copy(value: String, toast: String, kind: CopyKind)
         case openRefundToken
         case addContact(address: String)
         case close
+        /// Opens the list of who has answered a joint account operation. Meaningless for a sent transaction, which
+        /// has no signers to show — only the joint sheet ever sends it.
+        case openSigners
+        /// Adds this member's signature to a joint account operation. Sent by the joint sheet alone.
+        case signOperation
         #if INTERNAL || DEBUG
         case debug
         #endif
+
+        enum URLKind: Equatable {
+            case explorer
+            case provider(source: TransactionDetailsProviderNavigationSource)
+            case yieldProvider
+        }
+
+        enum CopyKind: Equatable {
+            case address
+            case transactionID
+        }
     }
 
     private enum RefundTokenError: Error {

@@ -52,13 +52,7 @@ final class TangemStoriesViewModel: ObservableObject {
             return
         }
 
-        storyEnrichTask?.cancel()
-        delayedPresentCompletionTask?.cancel()
-        storyFinalizeTask?.cancel()
-
-        state = Self.makeState(for: story) { [weak self] in
-            self?.finalizeActiveStory(analyticsSource: analyticsSource)
-        }
+        show(story: story, analyticsSource: analyticsSource)
 
         delayedPresentCompletionTask = Task {
             // [REDACTED_USERNAME], slightly more than 1 second for smoother SwiftUI.sheet transition that may happen under stories view.
@@ -66,8 +60,11 @@ final class TangemStoriesViewModel: ObservableObject {
             try await Task.sleep(for: .seconds(presentationDelayInSeconds))
             presentCompletion()
         }
+    }
 
-        enrichStory(story)
+    @MainActor
+    func presentOnDemand(story: TangemStory, analyticsSource: Analytics.StoriesSource) {
+        show(story: story, analyticsSource: analyticsSource)
     }
 
     @MainActor
@@ -77,6 +74,19 @@ final class TangemStoriesViewModel: ObservableObject {
     }
 
     // MARK: - Private methods
+
+    @MainActor
+    private func show(story: TangemStory, analyticsSource: Analytics.StoriesSource) {
+        storyEnrichTask?.cancel()
+        delayedPresentCompletionTask?.cancel()
+        storyFinalizeTask?.cancel()
+
+        state = Self.makeState(for: story) { [weak self] in
+            self?.finalizeActiveStory(analyticsSource: analyticsSource)
+        }
+
+        enrichStory(story)
+    }
 
     @MainActor
     private func enrichStory(_ story: TangemStory) {

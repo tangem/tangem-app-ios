@@ -6,22 +6,31 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemPay
+
 struct TangemPayWithdrawAvailabilityProvider {
     private let withdrawTransactionService: any TangemPayWithdrawTransactionService
+    private let orderResolver: TangemPayOrderResolver
     private let tokenBalanceProvider: any TokenBalanceProvider
 
     init(
         withdrawTransactionService: any TangemPayWithdrawTransactionService,
+        orderResolver: TangemPayOrderResolver,
         tokenBalanceProvider: any TokenBalanceProvider
     ) {
         self.withdrawTransactionService = withdrawTransactionService
+        self.orderResolver = orderResolver
         self.tokenBalanceProvider = tokenBalanceProvider
     }
 
     func restriction() async throws -> SendingRestrictions? {
-        let hasActiveWithdrawOrder = try await withdrawTransactionService.hasActiveWithdrawOrder()
+        async let withdrawOrderRequest = withdrawTransactionService.hasActiveWithdrawOrder()
+        async let bankOfframpOrderRequest = orderResolver.findActiveBankOfframpOrder()
 
-        if hasActiveWithdrawOrder {
+        let hasActiveWithdrawOrder = try await withdrawOrderRequest
+        let activeBankOfframpOrder = try await bankOfframpOrderRequest
+
+        if hasActiveWithdrawOrder || activeBankOfframpOrder != nil {
             return .hasPendingWithdrawOrder
         }
 

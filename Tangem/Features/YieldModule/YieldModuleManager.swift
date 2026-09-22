@@ -20,6 +20,8 @@ protocol YieldModuleManager {
     var tokenId: String { get }
     var versionChecker: YieldModuleVersionChecker? { get }
     var swapExecutionRegistryProvider: YieldModuleSwapExecutionRegistryProvider? { get }
+    /// `nil` when the Merkl incentives feature is off.
+    var incentivesManager: YieldIncentivesManager? { get }
 
     func enterFee() async throws -> YieldTransactionFee
     func enter(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String]
@@ -34,6 +36,7 @@ protocol YieldModuleManager {
 
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo
     func fetchChartData() async throws -> YieldChartData
+    func fetchAprHistory(days: Int) async throws -> [YieldIncentiveAprPoint]
 
     func sendActivationState()
     func sendTransactionSendEvent(sourceAddress: String, transactionHash: String)
@@ -54,6 +57,7 @@ final class CommonYieldModuleManager {
 
     let blockchain: Blockchain
     let tokenId: String
+    let incentivesManager: YieldIncentivesManager?
 
     private let walletAddress: String
     private let token: Token
@@ -143,6 +147,10 @@ final class CommonYieldModuleManager {
             yieldSupplyContractAddresses: yieldSupplyContractAddresses,
             tokenBalanceProvider: tokenBalanceProvider
         )
+
+        incentivesManager = FeatureProvider.isAvailable(.merklIncentives)
+            ? InjectedValues[\.yieldIncentivesManagerProvider].manager(chainId: chainId, userAddress: walletAddress)
+            : nil
 
         bind()
         checkPromoAvailability()
@@ -377,6 +385,10 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         try await yieldModuleNetworkManager.fetchChartData(tokenContractAddress: token.contractAddress, chainId: chainId)
     }
 
+    func fetchAprHistory(days: Int) async throws -> [YieldIncentiveAprPoint] {
+        try await yieldModuleNetworkManager.fetchAprHistory(tokenContractAddress: token.contractAddress, chainId: chainId, days: days)
+    }
+
     func sendActivationState() {
         sendActivationStateCancellable = Task {
             switch state?.state {
@@ -604,7 +616,10 @@ private extension CommonYieldModuleManager {
             return statePublisher
         }
 
-        let cachedStateInfo = YieldModuleManagerStateInfo(marketInfo: .init(from: cachedMarket), state: .loading(cachedState: cachedState))
+        let cachedStateInfo = YieldModuleManagerStateInfo(
+            marketInfo: .init(from: cachedMarket),
+            state: .loading(cachedState: cachedState)
+        )
         return statePublisher
             .prepend(cachedStateInfo)
             .eraseToAnyPublisher()

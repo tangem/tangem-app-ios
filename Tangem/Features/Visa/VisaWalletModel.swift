@@ -83,10 +83,19 @@ extension VisaWalletModel: WalletModelBalancesProvider {
     }
 
     func makeTotalTokenBalanceProvider() -> TokenBalanceProvider {
-        TotalTokenBalanceProvider(
+        guard FeatureProvider.isAvailable(.totalTokenBalanceV2) else {
+            return TotalTokenBalanceProvider(
+                tokenItem: tokenItem,
+                availableBalanceProvider: availableBalanceProvider,
+                stakingBalanceProvider: stakingBalanceProvider
+            )
+        }
+
+        // Visa has no staking — nothing replaces the legacy .loaded(0) stub
+        return CompositeTotalTokenBalanceProvider(
             tokenItem: tokenItem,
-            availableBalanceProvider: availableBalanceProvider,
-            stakingBalanceProvider: stakingBalanceProvider
+            base: availableBalanceProvider,
+            compositors: []
         )
     }
 
@@ -153,16 +162,6 @@ extension VisaWalletModel: WalletModelHelpers {
     }
 }
 
-extension VisaWalletModel: WalletModelFeesProvider {
-    var customFeeProviderBuilder: CustomFeeProviderBuilder {
-        fatalError("VisaWalletModel does not support CustomFeeProviderBuilder")
-    }
-
-    var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder {
-        fatalError("VisaWalletModel does not support TokenFeeLoaderBuilder")
-    }
-}
-
 extension VisaWalletModel: WalletModelDependenciesProvider {
     var blockchainDataProvider: any BlockchainDataProvider { VisaDummyBlockchainDataProvider() }
     var withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? { nil }
@@ -183,6 +182,7 @@ extension VisaWalletModel: WalletModelDependenciesProvider {
     var ethereumTransactionDataBuilder: (any EthereumTransactionDataBuilder)? { nil }
     var ethereumNetworkProvider: (any EthereumNetworkProvider)? { nil }
     var ethereumTransactionSigner: (any EthereumTransactionSigner)? { nil }
+    var safeWalletManagerOperationsService: (any SafeWalletManagerOperationsService)? { nil }
     var bitcoinTransactionFeeCalculator: (any BitcoinTransactionFeeCalculator)? { nil }
     var accountInitializationService: (any BlockchainAccountInitializationService)? { nil }
     var minimalBalanceProvider: (any MinimalBalanceProvider)? { nil }

@@ -16,5 +16,6 @@ struct AddressBookContact: Hashable {
     let walletId: UserWalletId
     let name: AddressBookContactName
     let appearance: AddressBookContactAppearance
+    let createdAt: Date
     let entries: AddressBookContactVerifiedEntries
 }
