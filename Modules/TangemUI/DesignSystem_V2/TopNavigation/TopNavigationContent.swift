@@ -115,13 +115,14 @@ struct TopNavigationActionsGroup: View {
                     .barHitTarget(size: size)
             }
         }
-        .padding(.horizontal, contentPadding)
+        .padding(.horizontal, TopNavigationChromeMetrics.capsuleEndPadding)
         .tangemMaterialSurface(
             in: Capsule(),
             isVisible: hasBackground,
             interactive: true,
             shadow: DesignSystem.Shadow.fallbackButton
         )
+        .deferringPressFeedbackToGlass()
     }
 
     @ViewBuilder
@@ -131,10 +132,6 @@ struct TopNavigationActionsGroup: View {
         } else {
             content
         }
-    }
-
-    private var contentPadding: CGFloat {
-        TopNavigationChromeMetrics.contentPadding(for: size)
     }
 }
 
@@ -149,6 +146,7 @@ struct TopNavigationCircleButton: View {
         TopNavigationActionButton(action: action, size: size)
             .tangemMaterialSurface(in: Circle(), interactive: true, shadow: DesignSystem.Shadow.fallbackButton)
             .barHitTarget(size: size, square: true)
+            .deferringPressFeedbackToGlass()
     }
 }
 
@@ -194,6 +192,25 @@ struct TopNavigationActionButton: View {
     }
 }
 
+// MARK: - System-surfaced chrome
+
+@available(iOS 26.0, *)
+struct TopNavigationSystemChrome: View {
+    let actions: [TopNavigation.Action]
+
+    private let size = TopNavigationChromeMetrics.actionButtonSize
+
+    var body: some View {
+        HStack(spacing: TopNavigationChromeMetrics.actionSpacing) {
+            ForEach(actions.indices, id: \.self) { index in
+                TopNavigationActionButton(action: actions[index], size: size)
+                    .contentShape(.rect)
+            }
+        }
+        .deferringPressFeedbackToGlass()
+    }
+}
+
 // MARK: - Menu items
 
 struct TopNavigationMenuItems: View {
@@ -222,6 +239,19 @@ private extension View {
     }
 }
 
+// MARK: - Press feedback
+
+private extension View {
+    @ViewBuilder
+    func deferringPressFeedbackToGlass() -> some View {
+        if #available(iOS 26.0, *) {
+            environment(\.buttonPaintsPressOverlay, false)
+        } else {
+            self
+        }
+    }
+}
+
 // MARK: - Chrome metrics
 
 enum TopNavigationChromeMetrics {
@@ -229,16 +259,12 @@ enum TopNavigationChromeMetrics {
     static let chromeButtonSize: TangemUI.Button.Size = .x11
     static let actionSpacing: CGFloat = .unit(.x1)
     static let trailingGroupSpacing: CGFloat = .unit(.x2)
+    static let capsuleEndPadding: CGFloat = 4
 
-    /// Largest non-accessibility size: UIKit pins the inline bar height, and accessibility sizes outgrow it.
     static let maxDynamicTypeSize: DynamicTypeSize = .xxxLarge
 
     static func hitTargetSide(for size: TangemUI.Button.Size) -> CGFloat {
         max(barHeight, size.height)
-    }
-
-    static func contentPadding(for size: TangemUI.Button.Size) -> CGFloat {
-        (hitTargetSide(for: size) - size.height) / 2
     }
 
     private static let barHeight: CGFloat = .unit(.x11)
