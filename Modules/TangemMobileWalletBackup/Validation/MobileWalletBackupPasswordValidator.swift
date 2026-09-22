@@ -14,6 +14,10 @@ public struct MobileWalletBackupPasswordValidator {
     public init() {}
 
     public func validate(_ password: String) -> Validation {
+        // Measure the SAME string the KDF will consume. WalletBackupFormatV1 trims edge
+        // whitespace and applies NFC before deriving the key, so validating the raw input
+        // let e.g. " Aa1!" report as strong while Argon2 actually received 4 characters.
+        let password = WalletBackupFormatV1.canonicalPassword(password)
         let satisfiedCriteria = makeSatisfiedCriteria(password: password)
         let unsatisfiedCriterion = makeUnsatisfiedCriterion(criteria: satisfiedCriteria)
         let strength = makeStrength(password: password, criteria: satisfiedCriteria)
