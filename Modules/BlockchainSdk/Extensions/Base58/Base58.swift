@@ -85,7 +85,10 @@ public struct Base58 {
         guard size >= 0 else { return Data() }
 
         var base58: [UInt8] = Array(repeating: 0, count: size)
-        for c in string where c != " " {
+        // Leading/trailing whitespace is already trimmed above; an embedded space is
+        // not part of the alphabet, so treat it as invalid instead of silently
+        // decoding a different string than the one that was displayed/validated.
+        for c in string {
             // search for base58 character
             guard let base58Index = base58Alphabet.firstIndex(of: c) else { return Data() }
 
