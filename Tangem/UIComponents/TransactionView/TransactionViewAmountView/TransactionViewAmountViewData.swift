@@ -11,6 +11,10 @@ import TangemAssets
 
 struct TransactionViewAmountViewData: Hashable {
     let amount: String
+    /// Same content as `amount`, but with the ticker always after the number — `BalanceFormatter` places it
+    /// per locale (`en_US` → `USDT 350.31`), which the redesign never wants — and with the sign the redesign
+    /// invents for Supply and Withdraw.
+    let amountWithCurrencyCode: String
     /// Numeric portion without currency suffix, used by the redesigned two-line amount layout.
     let value: String
     /// Currency code shown on the secondary trailing line in the redesigned layout.
@@ -22,6 +26,7 @@ struct TransactionViewAmountViewData: Hashable {
 
     init(
         amount: String,
+        amountWithCurrencyCode: String? = nil,
         value: String? = nil,
         currencyCode: String = "",
         type: TransactionViewModel.TransactionType,
@@ -30,6 +35,7 @@ struct TransactionViewAmountViewData: Hashable {
         isFromYieldContract: Bool
     ) {
         self.amount = amount
+        self.amountWithCurrencyCode = amountWithCurrencyCode ?? amount
         self.value = value ?? amount
         self.currencyCode = currencyCode
         self.type = type
@@ -67,10 +73,32 @@ struct TransactionViewAmountViewData: Hashable {
         }
     }
 
-    /// Numeric value for the redesigned chip, honoring the same visibility rule as `formattedAmount`:
-    /// hidden for transaction types where `formattedAmount` is `nil`, shown otherwise.
+    /// Numeric value for the redesigned chip. Deliberately decoupled from `formattedAmount`, which the legacy
+    /// row reads: the Yield Mode enable/disable chips are label-only, while Supply and Withdraw show a number
+    /// the legacy row keeps hiding.
     var displayValue: String? {
-        formattedAmount == nil ? nil : value
+        switch type {
+        case .yieldEnter, .yieldEnterCoin,
+             .yieldWithdraw, .yieldWithdrawCoin,
+             .vote, .withdraw:
+            return nil
+        case .yieldSend, .yieldTopup,
+             .yieldReactivate, .yieldDeploy, .yieldInit,
+             .gaslessTransactionFee,
+             .transfer,
+             .gaslessTransfer,
+             .swap,
+             .onramp,
+             .operation,
+             .unknownOperation,
+             .stake,
+             .unstake,
+             .claimRewards,
+             .restake,
+             .tangemPay,
+             .approve:
+            return value
+        }
     }
 
     var amountColor: Color {

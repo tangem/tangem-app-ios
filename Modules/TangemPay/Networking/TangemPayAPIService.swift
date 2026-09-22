@@ -26,6 +26,15 @@ public struct TangemPayAPIService<Target: TargetType> {
     }
 
     public func request<T: Decodable>(_ request: Target) async throws(TangemPayAPIServiceError) -> T {
+        let response = try await send(request)
+        return try parseResult(response)
+    }
+
+    public func request(_ request: Target) async throws(TangemPayAPIServiceError) {
+        _ = try await send(request)
+    }
+
+    private func send(_ request: Target) async throws(TangemPayAPIServiceError) -> Response {
         let response: Response
         do {
             response = try await provider.asyncRequest(request)
@@ -39,7 +48,7 @@ public struct TangemPayAPIService<Target: TargetType> {
             throw parseError(response)
         }
 
-        return try parseResult(response)
+        return response
     }
 
     private func parseResult<T: Decodable>(_ response: Response) throws(TangemPayAPIServiceError) -> T {
@@ -104,7 +113,12 @@ public enum TangemPayAPIServiceError: Error {
 public struct TangemPayAPIError: Error, Decodable {
     public let correlationId: String?
     public let code: Int?
+    public let name: String?
     public let message: String?
+
+    public enum Name {
+        public static let waitlistInvalidEmail = "WaitlistInvalidEmailException"
+    }
 
     public enum Code {
         public static let cardIssueActiveOrderExists = 140114
@@ -125,6 +139,8 @@ public struct TangemPayAPIError: Error, Decodable {
         public static let cardReissuePlasticNotAvailable = 140135
         public static let cardReissuePlasticInvalidShippingAddress = 140136
         public static let cardReissuePlasticInvalidEmbossName = 140143
+
+        public static let bankOfframpUnsupportedConfiguration = 140141
     }
 }
 

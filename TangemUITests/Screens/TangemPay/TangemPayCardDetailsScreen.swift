@@ -13,6 +13,8 @@ import TangemAccessibilityIdentifiers
 final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenElement> {
     private static let replaceCardTitle = "Replace card"
     private static let replacingInProgressText = "Replacing your digital card"
+    private static let issuingTitle = "Issuing a new digital card"
+    private static let issuingDescription = "Usually takes up to 5 minutes. In rare cases, up to 48 hours."
 
     private lazy var cardNameEditButton = button(.cardNameEditButton)
     private lazy var changePinRow = button(.changePinRow)
@@ -30,6 +32,8 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     private lazy var copyExpirationButton = button(.cardDetailsCopyExpiration)
     private lazy var copyCvcButton = button(.cardDetailsCopyCvc)
     private lazy var applePayGuideBanner = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.addToApplePayGuideBanner].firstMatch
+    /// Type-agnostic: the issuing message is a plain container, not guaranteed to surface as a specific element type.
+    private lazy var cardIssuingMessage = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.cardIssuingMessage].firstMatch
 
     @discardableResult
     func waitForScreen() -> Self {
@@ -161,6 +165,20 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
                 app.staticTexts[Self.replacingInProgressText].firstMatch,
                 "'Replacing your digital card' should be displayed while reissue is in progress"
             )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyIssuingInProgress() -> Self {
+        XCTContext.runActivity(named: "Verify 'Issuing a new digital card' state on the card screen") { _ in
+            waitAndAssertTrue(
+                cardIssuingMessage,
+                timeout: .networkRequest,
+                "Issuing message should be displayed while the card is being issued"
+            )
+            waitAndAssertTrue(app.staticTexts[Self.issuingTitle].firstMatch, "Issuing title should be displayed")
+            waitAndAssertTrue(app.staticTexts[Self.issuingDescription].firstMatch, "Issuing description should be displayed")
             return self
         }
     }

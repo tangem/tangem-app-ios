@@ -15,6 +15,7 @@ final class MainBottomSheetUIManager {
     private(set) var hasPendingSnapshotUpdate = false
 
     private let isShownSubject: CurrentValueSubject<Bool, Never> = .init(false)
+    private let isExpandedSubject: CurrentValueSubject<Bool, Never> = .init(false)
     private let footerSnapshotSubject: PassthroughSubject<FooterSnapshot, Never> = .init()
     private let footerSnapshotUpdateTriggerSubject: PassthroughSubject<Void, Never> = .init()
     private var pendingFooterSnapshotUpdateCompletions: [() -> Void] = []
@@ -25,6 +26,15 @@ final class MainBottomSheetUIManager {
 extension MainBottomSheetUIManager {
     var isShown: Bool { isShownSubject.value }
     var isShownPublisher: some Publisher<Bool, Never> { isShownSubject }
+
+    /// Whether the sheet is dragged out over the main screen, in either of the two presentation modes.
+    var isExpanded: Bool { isExpandedSubject.value }
+
+    func setExpanded(_ isExpanded: Bool) {
+        ensureOnMainQueue()
+
+        isExpandedSubject.send(isExpanded)
+    }
 
     func show() {
         ensureOnMainQueue()
@@ -38,6 +48,8 @@ extension MainBottomSheetUIManager {
         guard isShown else {
             return
         }
+
+        isExpandedSubject.send(false)
 
         let isShown = false
 

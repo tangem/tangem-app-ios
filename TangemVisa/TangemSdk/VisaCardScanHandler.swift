@@ -64,7 +64,7 @@ public final class VisaCardScanHandler: CardSessionRunnable {
 
         // Start of 2 flow
         VisaLogger.info("Start task for loading challenge for Visa wallet")
-        runTask(in: self, isDetached: false, priority: .userInitiated) { handler in
+        runTask(in: self, priority: .userInitiated) { handler in
             do {
                 let cardActivationState = try await handler.handleWalletAuthorizationWithFallbackToCardAuthorization(
                     session: session,
@@ -210,21 +210,6 @@ public extension VisaCardScanHandler {
             switch self {
             case .failedToCreateDerivationPath, .failedToFindWallet, .failedToFindDerivedWalletKey:
                 return "Error occurred. Please contact support"
-            }
-        }
-    }
-}
-
-public extension CardSessionRunnable {
-    func run(in session: CardSession) async throws -> Response {
-        try await withCheckedThrowingContinuation { continuation in
-            self.run(in: session) { result in
-                switch result {
-                case .success(let success):
-                    continuation.resume(returning: success)
-                case .failure(let failure):
-                    continuation.resume(throwing: failure)
-                }
             }
         }
     }

@@ -71,10 +71,6 @@ final class MobileOnboardingImportWalletFlowBuilder: MobileOnboardingFlowBuilder
 
 private extension MobileOnboardingImportWalletFlowBuilder {
     func logImportCompletedScreenOpenedAnalytics() {
-        guard FeatureProvider.isAvailable(.mobileWalletBackup) else {
-            return
-        }
-
         let contextData = userWalletModel?.analyticsContextData ?? .mobileWallet
 
         Analytics.log(

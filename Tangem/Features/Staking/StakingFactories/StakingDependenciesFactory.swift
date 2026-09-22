@@ -32,7 +32,7 @@ class StakingDependenciesFactory {
         return TangemStakingFactory().makeP2PAPIProvider(
             credential: StakingAPICredential(apiKey: config.apiKey),
             configuration: .stakingConfiguration,
-            network: config.network,
+            network: config.network
         )
     }
 

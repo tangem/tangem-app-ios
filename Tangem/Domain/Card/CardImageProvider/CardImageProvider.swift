@@ -132,11 +132,10 @@ private extension CardImageProvider {
     }
 
     func getTwinNumberFor(for cardId: String) -> Int? {
+        // Uppercased here because `TwinCardSeries.series(for:)` matches case-sensitively
         let prefix = String(cardId.prefix(4)).uppercased()
 
-        return TwinCardSeries.allCases.first(where: {
-            prefix.elementsEqual($0.rawValue.uppercased())
-        })?.number
+        return TwinCardSeries.series(for: prefix)?.number
     }
 }
 

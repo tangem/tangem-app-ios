@@ -81,7 +81,6 @@ struct SecurityKeychainRepository: KeychainRepository {
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: keychainService,
             kSecAttrAccount: keychainAccount,
-            kSecMatchLimit: kSecMatchLimitOne,
             kSecUseDataProtectionKeychain: true,
         ]
         let attributesToUpdate: [CFString: Any] = [kSecValueData: data]

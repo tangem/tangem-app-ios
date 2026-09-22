@@ -19,10 +19,11 @@ public struct Button: View, Setupable {
     private var size: Size = .x10
     private var styleType: StyleType = .brand
     private var horizontalLayout: HorizontalLayout = .intrinsic
-    private var isLoading: Bool = false
+    private var loading: Loading?
     private var accessibilityLabel: String?
     @ScaledMetric private var iconSide = Size.x10.iconSize
     @ScaledMetric private var wrapperPadding = Size.x10.wrapperPadding
+    @ScaledMetric private var horizontalPadding = Size.x10.horizontalPadding
 
     private let action: () -> Void
 
@@ -67,6 +68,7 @@ public struct Button: View, Setupable {
         action = model.action
         _iconSide = ScaledMetric(wrappedValue: model.size.iconSize, relativeTo: .body)
         _wrapperPadding = ScaledMetric(wrappedValue: model.size.wrapperPadding, relativeTo: .body)
+        _horizontalPadding = ScaledMetric(wrappedValue: model.size.horizontalPadding, relativeTo: .body)
     }
 
     public var body: some View {
@@ -78,18 +80,40 @@ public struct Button: View, Setupable {
                 content: content,
                 size: size,
                 styleType: styleType,
-                horizontalLayout: horizontalLayout,
-                isLoading: isLoading
+                horizontalLayout: horizontalLayout
             )
         )
-        .ifLet(accessibilityLabel) { view, label in
-            view.accessibilityLabel(Text(label))
+        .accessibilityLabel(Text(resolvedAccessibilityLabel))
+        .allowsHitTesting(loading == nil)
+    }
+
+    private var isLoading: Bool {
+        loading != nil
+    }
+
+    private var label: some View {
+        ZStack {
+            contentLabel
+                .opacity(isLoading ? 0 : 1)
+
+            loadingRow
         }
-        .allowsHitTesting(!isLoading)
+        .padding(.horizontal, iconOnlyLoadingMessagePadding)
+        .accessibilityHidden(true)
+    }
+
+    /// Icon-only buttons carry no horizontal padding of their own, so a loading message needs it back
+    /// to expand the circle into a pill.
+    private var iconOnlyLoadingMessagePadding: CGFloat {
+        guard case .iconOnly = content, loading?.message != nil else {
+            return 0
+        }
+
+        return horizontalPadding
     }
 
     @ViewBuilder
-    private var label: some View {
+    private var contentLabel: some View {
         switch content {
         case .label(let attributedString, let iconStart, let iconEnd):
             HStack(spacing: 0) {
@@ -108,6 +132,43 @@ public struct Button: View, Setupable {
         case .iconOnly(let icon):
             iconView(icon)
         }
+    }
+
+    private var loadingRow: some View {
+        HStack(spacing: 0) {
+            Text(loading?.message ?? "")
+                .lineLimit(1)
+                .padding(.horizontal, loading?.message == nil ? 0 : wrapperPadding)
+
+            loaderSlot
+        }
+    }
+
+    private var loaderSlot: some View {
+        ZStack {
+            if isLoading {
+                Loader()
+                    .loaderSize(size.loaderSize)
+                    .loaderColor(styleType.foregroundColor)
+            }
+        }
+        .frame(width: size.iconSize, height: size.iconSize)
+    }
+
+    private var resolvedAccessibilityLabel: String {
+        if let message = loading?.message {
+            return message
+        }
+
+        if let accessibilityLabel {
+            return accessibilityLabel
+        }
+
+        guard case .label(let text, _, _) = content else {
+            return ""
+        }
+
+        return String(text.characters)
     }
 
     private func iconView(_ icon: ImageType) -> some View {
@@ -145,6 +206,7 @@ public extension Button {
             $0.size = size
             $0._iconSide = ScaledMetric(wrappedValue: size.iconSize, relativeTo: .body)
             $0._wrapperPadding = ScaledMetric(wrappedValue: size.wrapperPadding, relativeTo: .body)
+            $0._horizontalPadding = ScaledMetric(wrappedValue: size.horizontalPadding, relativeTo: .body)
         }
     }
 
@@ -156,8 +218,8 @@ public extension Button {
         map { $0.horizontalLayout = horizontalLayout }
     }
 
-    func isLoading(_ isLoading: Bool) -> Self {
-        map { $0.isLoading = isLoading }
+    func loading(_ loading: Loading?) -> Self {
+        map { $0.loading = loading }
     }
 
     func accessibilityLabel(_ label: String?) -> Self {

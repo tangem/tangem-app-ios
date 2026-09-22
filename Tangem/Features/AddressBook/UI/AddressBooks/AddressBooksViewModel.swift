@@ -44,6 +44,7 @@ final class AddressBooksViewModel: ObservableObject {
     private weak var selectionOutput: AddressBooksSelectionOutput?
     private let addressBooksProvider: any AddressBooksProvider
     private let analyticsLogger: any AddressBookAnalyticsLogger
+    private let analyticsSource: AddressBookAnalyticsSource
     private let addressBooksSubject: CurrentValueSubject<[AddressBookWallet], Never>
     private let matcher = AddressBookContactMatcher()
     private var bag = Set<AnyCancellable>()
@@ -52,19 +53,20 @@ final class AddressBooksViewModel: ObservableObject {
         coordinator: AddressBooksRoutable,
         addressBooksProvider: any AddressBooksProvider,
         selectionOutput: AddressBooksSelectionOutput? = nil,
-        analyticsLogger: any AddressBookAnalyticsLogger
+        analyticsLogger: any AddressBookAnalyticsLogger,
+        analyticsSource: AddressBookAnalyticsSource
     ) {
         self.coordinator = coordinator
         self.selectionOutput = selectionOutput
         self.addressBooksProvider = addressBooksProvider
         self.analyticsLogger = analyticsLogger
+        self.analyticsSource = analyticsSource
         addressBooksSubject = .init(addressBooksProvider.addressBooks)
         selectedChipId = addressBooksSubject.value.count >= 2 ? Constants.allChipId : addressBooksSubject.value.first?.wallet.id.stringValue
 
         bindAddressBooks()
         bindSearchDebounce()
         bind()
-        loadAllAddressBooks()
     }
 
     func onFirstAppear() {
@@ -85,7 +87,7 @@ final class AddressBooksViewModel: ObservableObject {
     }
 
     func openAddContact() {
-        analyticsLogger.logAddContactTapped(userWalletId: analyticsUserWalletId, source: .settings)
+        analyticsLogger.logAddContactTapped(userWalletId: analyticsUserWalletId, source: analyticsSource)
 
         guard let addContactTarget else {
             return
@@ -109,10 +111,6 @@ final class AddressBooksViewModel: ObservableObject {
 private extension AddressBooksViewModel {
     var analyticsUserWalletId: UserWalletId? {
         userWalletRepository.selectedModel?.userWalletId
-    }
-
-    var analyticsSource: AddressBookAnalyticsSource {
-        selectionOutput != nil ? .sendFlow : .settings
     }
 
     var isAllScope: Bool {
@@ -149,18 +147,6 @@ private extension AddressBooksViewModel {
         Task {
             await TaskGroup.executeKeepingOrder(items: books, action: { book in
                 await book.addressBookManager.load()
-            })
-        }
-    }
-
-    func loadAllAddressBooks() {
-        let managers = userWalletRepository.models
-            .filter { !$0.isUserWalletLocked }
-            .map(\.addressBookManager)
-
-        Task {
-            await TaskGroup.executeKeepingOrder(items: managers, action: { manager in
-                await manager.load()
             })
         }
     }

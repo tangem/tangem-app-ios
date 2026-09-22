@@ -163,7 +163,7 @@ struct StakingDetailsView: View {
             tokenBalanceProvider: CommonWalletModel.mockETH.availableBalanceProvider,
             stakingManager: StakingManagerMock(),
             coordinator: StakingDetailsCoordinator(),
-            deeplinkHandler: PromotionDeeplinkHandler(
+            deeplinkHandler: TokenScreenDeeplinkResponder(
                 coordinator: StakingDetailsCoordinator(),
                 walletModel: CommonWalletModel.mockETH,
                 userWalletInfo: UserWalletModelMock().userWalletInfo

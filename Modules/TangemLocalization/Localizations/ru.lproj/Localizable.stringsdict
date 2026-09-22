@@ -58,6 +58,22 @@
         <string>%li устройств</string>
       </dict>
     </dict>
+    <key>collectibles_account_collection_cards_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li card</string>
+        <key>other</key>
+        <string>%li cards</string>
+      </dict>
+    </dict>
     <key>common_assets_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -652,13 +668,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Топ %li актив</string>
+        <string>%li крупнейший актив</string>
         <key>few</key>
-        <string>Топ %li актива</string>
+        <string>%li крупнейших актива</string>
         <key>many</key>
-        <string>Топ %li активов</string>
+        <string>%li крупнейших активов</string>
         <key>other</key>
-        <string>Top %li assets</string>
+        <string>%li крупнейших активов</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>

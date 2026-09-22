@@ -231,6 +231,8 @@ extension BlockBookAddressResponse {
             let operation: String?
             let bandwidthUsage: String?
             let votes: [Vote]?
+            let claimedVoteReward: String?
+            let totalFee: String?
 
             struct Vote: Decodable {
                 let address: String?
