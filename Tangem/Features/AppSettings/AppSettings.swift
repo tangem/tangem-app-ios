@@ -123,6 +123,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.polymarketHasAccount)
     var polymarketHasAccount: [String: Bool] = [:]
 
+    @AppStorageCompat(StorageType.collectiblesHasAccount)
+    var collectiblesHasAccount: [String: Bool] = [:]
+
     @AppStorageCompat(StorageType.tangemPayIsDisabledForCustomerWalletId)
     var tangemPayIsDisabledForCustomerWalletId: [String: Bool] = [:]
 
