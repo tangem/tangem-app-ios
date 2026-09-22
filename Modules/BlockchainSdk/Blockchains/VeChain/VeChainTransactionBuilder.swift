@@ -111,7 +111,21 @@ final class VeChainTransactionBuilder {
         var gasPriceCoefficient: UInt32 = 0
         if let feeParameters = transaction.fee.parameters as? VeChainFeeParams {
             gasPriceCoefficient = UInt32(feeCalculator.gasPriceCoefficient(from: feeParameters.priority))
-            gas += feeParameters.vmGas
+
+            // `vmGas` is the node's `gasUsed` for the contract call, decoded as an unbounded `Int`.
+            // A huge value overflows the addition and a negative one would trap in `UInt64(_:)`
+            // below; fail the build instead of crashing the app.
+            let (totalGas, overflow) = gas.addingReportingOverflow(feeParameters.vmGas)
+
+            guard !overflow else {
+                throw BlockchainSdkError.failedToBuildTx
+            }
+
+            gas = totalGas
+        }
+
+        guard let gasValue = UInt64(exactly: gas) else {
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return VeChainSigningInput.with { input in
@@ -120,7 +134,7 @@ final class VeChainTransactionBuilder {
             input.blockRef = UInt64(transactionParams.lastBlockInfo.blockRef)
             input.expiration = UInt32(Constants.transactionExpiration)
             input.gasPriceCoef = gasPriceCoefficient
-            input.gas = UInt64(gas)
+            input.gas = gasValue
             input.clauses = clauses
         }
     }
