@@ -148,13 +148,13 @@ struct WelcomeV2View: View {
         if let range = string.range(of: terms) {
             string[range].foregroundColor = DesignSystem.Color.textStaticDarkPrimary
             string[range].font = Font.system(size: 12, weight: .semibold)
-            string[range].link = AppConstants.tosURL
+            string[range].link = WelcomeV2LegalDocument.termsOfService.url
         }
 
         if let range = string.range(of: privacy) {
             string[range].foregroundColor = DesignSystem.Color.textStaticDarkPrimary
             string[range].font = Font.system(size: 12, weight: .semibold)
-            string[range].link = AppConstants.privacyPolicyURL
+            string[range].link = WelcomeV2LegalDocument.privacyPolicy.url
         }
 
         return string
