@@ -33,7 +33,8 @@ enum TransactionDetailsMenuFactory {
                 icon: DesignSystem.Icons.Copy.regular24,
                 action: .copy(
                     value: counterpartyAddress,
-                    toast: Localization.walletNotificationAddressCopied
+                    toast: Localization.walletNotificationAddressCopied,
+                    kind: .address
                 )
             ))
         }
@@ -65,7 +66,7 @@ enum TransactionDetailsMenuFactory {
                 id: "explore",
                 title: Localization.commonExplore,
                 icon: DesignSystem.Icons.Globe.regular24,
-                action: .openURL(url)
+                action: .openURL(url, kind: .explorer)
             ))
         }
 
@@ -74,7 +75,7 @@ enum TransactionDetailsMenuFactory {
                 id: "exploreProvider",
                 title: Localization.yieldModuleExploreSheetExploreAaveButtonTitle,
                 icon: DesignSystem.Icons.Globe.regular24,
-                action: .openURL(yieldProviderURL)
+                action: .openURL(yieldProviderURL, kind: .yieldProvider)
             ))
         }
 
@@ -120,7 +121,8 @@ enum TransactionDetailsMenuFactory {
             icon: DesignSystem.Icons.Copy.regular24,
             action: .copy(
                 value: transactionId(for: record),
-                toast: Localization.expressTransactionIdCopied
+                toast: Localization.expressTransactionIdCopied,
+                kind: .transactionID
             )
         )
     }

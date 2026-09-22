@@ -169,7 +169,9 @@ extension SendCoordinator: SupportChatPresenting {}
 
 // MARK: - AddressBookContactNavigating
 
-extension SendCoordinator: AddressBookContactNavigating {}
+extension SendCoordinator: AddressBookContactNavigating {
+    var addressBookAnalyticsSource: AddressBookAnalyticsSource { .sendFlow }
+}
 
 // MARK: - SendRoutable
 

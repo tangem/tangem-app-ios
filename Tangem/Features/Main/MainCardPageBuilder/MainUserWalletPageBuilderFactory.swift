@@ -111,6 +111,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         let tokenRouter = SingleTokenRouter(
             userWalletInfo: model.userWalletInfo,
+            analyticsSource: .main,
             coordinator: coordinator
         )
 
