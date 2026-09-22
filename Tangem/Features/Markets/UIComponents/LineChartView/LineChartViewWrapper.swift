@@ -186,12 +186,11 @@ extension LineChartViewWrapper.Coordinator: ColorSplitLineChartContainerViewCont
     ) -> ColorSplitLineChartSegmentAppearance? {
         let utility = LineChartViewUtility()
         let chartTrend = chartData.trend
-        let chartLineColor = utility.selectedChartLineColor(for: chartTrend)
-        let chartGradientColors = utility.selectedChartGradientColors(for: chartTrend)
 
-        return ColorSplitLineChartSegmentAppearance(
-            lineColor: chartLineColor,
-            gradient: .init(colors: chartGradientColors)
+        return makeSegmentAppearance(
+            lineColor: utility.selectedChartLineColor(for: chartTrend),
+            gradientColors: utility.selectedChartGradientColors(for: chartTrend),
+            in: viewController
         )
     }
 
@@ -201,12 +200,11 @@ extension LineChartViewWrapper.Coordinator: ColorSplitLineChartContainerViewCont
         viewController: ColorSplitLineChartContainerViewController
     ) -> ColorSplitLineChartSegmentAppearance? {
         let utility = LineChartViewUtility()
-        let chartLineColor = utility.inactiveChartLineColor()
-        let chartGradientColors = utility.inactiveChartGradientColors()
 
-        return ColorSplitLineChartSegmentAppearance(
-            lineColor: chartLineColor,
-            gradient: .init(colors: chartGradientColors)
+        return makeSegmentAppearance(
+            lineColor: utility.inactiveChartLineColor(),
+            gradientColors: utility.inactiveChartGradientColors(),
+            in: viewController
         )
     }
 
@@ -227,12 +225,44 @@ extension LineChartViewWrapper.Coordinator: ColorSplitLineChartContainerViewCont
 
         let utility = LineChartViewUtility()
         let chartTrend = utility.chartTrend(firstValue: highlightedValue, lastValue: lastValue)
-        let chartLineColor = utility.selectedChartLineColor(for: chartTrend)
-        let chartGradientColors = utility.selectedChartGradientColors(for: chartTrend)
+
+        return makeSegmentAppearance(
+            lineColor: utility.selectedChartLineColor(for: chartTrend),
+            gradientColors: utility.selectedChartGradientColors(for: chartTrend),
+            in: viewController
+        )
+    }
+}
+
+// MARK: - Segment appearance
+
+private extension LineChartViewWrapper.Coordinator {
+    /// Maps the gradient onto the plot area instead of the full height of the chart view,
+    /// so that it fades out exactly at the min price grid line.
+    func makeSegmentAppearance(
+        lineColor: UIColor,
+        gradientColors: [UIColor],
+        in viewController: ColorSplitLineChartContainerViewController
+    ) -> ColorSplitLineChartSegmentAppearance {
+        let chartView = viewController.lineChartView
+        let chartViewHeight = chartView.bounds.height
+
+        guard chartViewHeight > 0 else {
+            return ColorSplitLineChartSegmentAppearance(
+                lineColor: lineColor,
+                gradient: ColorSplitLineChartSegmentAppearance.Gradient(colors: gradientColors)
+            )
+        }
+
+        let viewPortHandler = chartView.viewPortHandler
 
         return ColorSplitLineChartSegmentAppearance(
-            lineColor: chartLineColor,
-            gradient: .init(colors: chartGradientColors)
+            lineColor: lineColor,
+            gradient: ColorSplitLineChartSegmentAppearance.Gradient(
+                colors: gradientColors,
+                startPoint: CGPoint(x: 0.5, y: viewPortHandler.contentTop / chartViewHeight),
+                endPoint: CGPoint(x: 0.5, y: viewPortHandler.contentBottom / chartViewHeight)
+            )
         )
     }
 }

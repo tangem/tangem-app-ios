@@ -221,31 +221,7 @@ private extension DetailsViewModel {
             emailAction: { [weak self] in
                 self?.openTangemSupport(models: userWalletModels)
             },
-            chatInput: makeSupportChatInput(source: .settings)
-        )
-    }
-
-    private func makeSupportChatInput(
-        source: Analytics.SupportChatSource,
-        initialMessage: SupportInitialMessage? = nil
-    ) -> SupportChatInputModel {
-        let data = userWalletRepository.models.map {
-            DetailsFeedbackData(
-                userWalletEmailData: $0.emailData,
-                walletModels: AccountWalletModelsAggregator.walletModels(from: $0.accountModelsManager)
-            )
-        }
-
-        let dataCollector = DetailsFeedbackDataCollector(data: data)
-
-        let userIdentifier = selectedUserWalletModel
-            .map { $0.userWalletId.stringValue.lowercased() }
-
-        return SupportChatInputModel(
-            logsComposer: LogsComposer(infoProvider: dataCollector),
-            userIdentifier: userIdentifier,
-            source: source,
-            initialMessage: initialMessage
+            chatInput: SupportChatInputFactory().makeInput(source: .settings)
         )
     }
 
@@ -575,12 +551,7 @@ extension DetailsViewModel: AddWalletTypeSelectorSheetOutput {
     }
 
     func addWalletTypeSelectorDidRequestMobileWallet() {
-        let alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
-            title: Localization.commonComingSoon,
-            message: Localization.userWalletComingSoonDialogDescription,
-            buttonText: Localization.commonOk
-        )
-        alertPresenter.present(alert: alert)
+        coordinator?.openCreateMobileWallet()
     }
 }
 

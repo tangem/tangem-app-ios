@@ -18,6 +18,7 @@ class UserWalletModelMock: UserWalletModel {
     var hasImportedWallets: Bool { false }
     var keysDerivingInteractor: any KeysDeriving { KeysDerivingMock() }
     var jointAccountDerivationInteractor: JointAccountDerivationInteractor { UnavailableJointAccountDerivationInteractor() }
+    var collectiblesColdKeyInteractor: CollectiblesColdKeyInteractor { UnavailableCollectiblesColdKeyInteractor() }
     var tangemPayAuthorizingInteractor: TangemPayAuthorizing { TangemPayAuthorizingMock() }
 
     var keysRepository: KeysRepository {

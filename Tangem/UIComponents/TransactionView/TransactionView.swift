@@ -70,7 +70,7 @@ struct TransactionView: View {
 
     private var name: some View {
         HStack(spacing: 8) {
-            Text(viewModel.display.title)
+            Text(viewModel.display.title.fullText)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
                 .multilineTextAlignment(.leading)
                 .lineLimit(1)

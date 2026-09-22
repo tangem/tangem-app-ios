@@ -11,9 +11,7 @@ import TangemFoundation
 
 enum SwapBalanceRestriction: Equatable {
     case none
-    /// Zero total balance, toggle off: hide any sign of providers (legacy)
-    case hideProviders
-    /// Zero total balance, toggle on: quotes load but only DEX providers are shown
+    /// Zero total balance: quotes load but only DEX providers are shown
     case dexProvidersOnly
 }
 
@@ -65,6 +63,6 @@ extension CommonSwapBalanceRestrictionFeatureChecker: SwapBalanceRestrictionFeat
             return .none
         }
 
-        return FeatureProvider.isAvailable(.hotWalletDexRatesUntilDeposit) ? .dexProvidersOnly : .hideProviders
+        return .dexProvidersOnly
     }
 }

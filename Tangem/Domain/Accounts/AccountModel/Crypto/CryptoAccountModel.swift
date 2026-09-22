@@ -9,8 +9,10 @@
 import Foundation
 import Combine
 
-protocol CryptoAccountModel: BaseAccountModel, BalanceProvidingAccountModel, DisposableEntity, AnyObject where Icon == AccountModel.CompositeIcon {
+protocol CryptoAccountModel: BaseAccountModel, AccountModelEditable, BalanceProvidingAccountModel, DisposableEntity, AnyObject where Icon == AccountModel.CompositeIcon, ID == CryptoAccountModelId, Editor: AccountModelEditor {
     var isMainAccount: Bool { get }
+
+    var accountType: AccountType { get }
 
     var descriptionString: String { get }
 

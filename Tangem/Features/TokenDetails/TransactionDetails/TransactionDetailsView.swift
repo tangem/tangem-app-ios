@@ -28,25 +28,49 @@ struct TransactionDetailsView: View {
     }
 
     private var detailsContent: some View {
+        TransactionDetailsContentView(
+            header: viewModel.header,
+            blocks: viewModel.blocks,
+            onAction: viewModel.handleViewAction
+        )
+    }
+}
+
+// MARK: - Content
+
+/// The sheet as a header over a list of blocks. Split out of ``TransactionDetailsView`` so that anything laid out
+/// the same way — a joint account operation, which is the transaction it will become — reads through the same code
+/// instead of restating the scrolling, the padding and the sheet's own chrome.
+struct TransactionDetailsContentView: View {
+    let header: TransactionDetailsHeaderViewData?
+    let blocks: [TransactionDetailsBlock]
+    let onAction: (TransactionDetailsViewModel.ViewAction) -> Void
+
+    private let blocksSpacing: CGFloat = 12
+
+    var body: some View {
         VStack(spacing: .zero) {
-            if let header = viewModel.header {
-                TransactionDetailsHeaderView(data: header, onAction: viewModel.handleViewAction)
+            if let header {
+                TransactionDetailsHeaderView(data: header, onAction: onAction)
             }
 
-            TransactionDetailsBlocksView(
-                blocks: viewModel.blocks,
-                spacing: blocksSpacing,
-                onAction: viewModel.handleViewAction
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 4)
-            .padding(.bottom, 16)
+            ScrollView {
+                TransactionDetailsBlocksView(
+                    blocks: blocks,
+                    spacing: blocksSpacing,
+                    onAction: onAction
+                )
+                .padding(.horizontal, 16)
+                .padding(.top, 4)
+                .padding(.bottom, 16)
+            }
+            .scrollIndicators(.hidden)
+            .scrollBounceBehavior(.basedOnSize)
         }
         .background(DesignSystem.Color.bgSecondary)
         .floatingSheetConfiguration { config in
             config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
             config.backgroundInteractionBehavior = .tapToDismiss
-            config.verticalSwipeBehavior = .init(target: .sheet, threshold: 100)
             config.sheetFrameUpdateAnimation = .contentFrameUpdate
         }
     }
@@ -54,7 +78,7 @@ struct TransactionDetailsView: View {
 
 // MARK: - Blocks
 
-private struct TransactionDetailsBlocksView: View {
+struct TransactionDetailsBlocksView: View {
     let blocks: [TransactionDetailsBlock]
     let spacing: CGFloat
     let onAction: (TransactionDetailsViewModel.ViewAction) -> Void
@@ -70,7 +94,7 @@ private struct TransactionDetailsBlocksView: View {
     }
 }
 
-private struct TransactionDetailsBlockView: View {
+struct TransactionDetailsBlockView: View {
     let block: TransactionDetailsBlock
     let onAction: (TransactionDetailsViewModel.ViewAction) -> Void
 
@@ -92,6 +116,13 @@ private struct TransactionDetailsBlockView: View {
             TransactionDetailsActionButtonView(data: data, onTap: { onAction(data.action) })
         case .rating(let viewModel):
             RatingView(viewModel: viewModel)
+        case .signatures(let data):
+            TransactionDetailsSignaturesView(data: data, onTap: { onAction(.openSigners) })
+        case .caption(let text):
+            Text(text)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
         }
     }
 }
@@ -161,6 +192,11 @@ private extension AnyTransition {
         .background(DesignSystem.Color.bgPrimary)
 }
 
+#Preview("Approve unlimited") {
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.approveUnlimited())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
 #Preview("Fee") {
     TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.fee())
         .background(DesignSystem.Color.bgPrimary)
@@ -168,6 +204,16 @@ private extension AnyTransition {
 
 #Preview("Yield") {
     TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.yieldEnabled())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Yield disabled") {
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.yieldDisabled())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Yield disabled transfer leg") {
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.yieldDisabledTransferLeg())
         .background(DesignSystem.Color.bgPrimary)
 }
 

@@ -63,7 +63,7 @@ private extension CommonWalletAssetsDiscoveryPersister {
 
     /// Ensures main account token list is initialized before auto-sync.
     func waitForTokenListReady(accountModelsManager: AccountModelsManager) async throws {
-        guard let mainAccount = accountModelsManager.cryptoAccountModels.first(where: { $0.isMainAccount }) else {
+        guard let mainAccount = AccountModelsAggregator(.crypto).models(from: accountModelsManager).first(where: { $0.isMainAccount }) else {
             throw WalletAssetsDiscoveryError.userTokenListNotReady
         }
 
@@ -85,7 +85,7 @@ private extension CommonWalletAssetsDiscoveryPersister {
         discoveredTokens: [TokenItem],
         accountModelsManager: AccountModelsManager
     ) {
-        guard let mainAccount = accountModelsManager.cryptoAccountModels.first(where: { $0.isMainAccount }) else {
+        guard let mainAccount = AccountModelsAggregator(.crypto).models(from: accountModelsManager).first(where: { $0.isMainAccount }) else {
             AssetsDiscoveryLogger.debug("No main crypto account found, skipping token persistence")
             return
         }

@@ -14,16 +14,29 @@ protocol PolymarketAccountModel: BaseAccountModel where Icon == AccountModel.Sta
     var state: PolymarketAccountState? { get }
     var statePublisher: AnyPublisher<PolymarketAccountState?, Never> { get }
 
-    var depositWalletAddress: String? { get }
-
+    var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider { get }
+    var collateralTokenBalanceProvider: TokenBalanceProvider { get }
 
-    func refreshState() async
+    func refreshState(scope: PolymarketBalanceRefreshScope) async
+
+    /// Reads the money only. The account's own status is terminal once it is ready to trade, so the
+    /// screens behind it never ask for it again.
+    func refreshBalance(scope: PolymarketBalanceRefreshScope) async
+}
+
+enum PolymarketBalanceRefreshScope {
+    case full
+    case availableOnly
 }
 
 // MARK: - Default implementations
 
 extension PolymarketAccountModel {
+    func refreshState() async {
+        await refreshState(scope: .availableOnly)
+    }
+
     var name: String {
         Localization.predictionAccountTitle
     }
@@ -34,10 +47,6 @@ extension PolymarketAccountModel {
 
     var didChangePublisher: AnyPublisher<Void, Never> {
         .empty
-    }
-
-    func edit(with editor: (any AccountModelEditor) -> Void) async throws(AccountEditError) -> Self {
-        self
     }
 
     func analyticsParameters(with builder: any AccountsAnalyticsBuilder) -> [Analytics.ParameterKey: String] {

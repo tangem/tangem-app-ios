@@ -12,7 +12,7 @@ import TangemUIUtils
 import TangemAssets
 import TangemLocalization
 
-/// Shared layout for the Earn filter bottom sheets: a blurred navigation header the content scrolls
+/// Layout for the scrollable Earn filter bottom sheets: a blurred navigation header the content scrolls
 /// under, a scoped bottom blur above the pinned Cancel button, and the Cancel button itself.
 struct EarnFilterBottomSheetLayout<Content: View>: View {
     private let title: String
@@ -119,7 +119,7 @@ private extension EarnFilterBottomSheetLayout {
             action: onClose
         )
         .size(.x9)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
     }
 
     var cancelButton: some View {
@@ -129,7 +129,7 @@ private extension EarnFilterBottomSheetLayout {
             action: onCancel
         )
         .size(.x12)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .horizontalLayout(.infinity)
     }
 }

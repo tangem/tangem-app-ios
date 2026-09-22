@@ -13,7 +13,7 @@ enum MobileOnboardingFlowSource {
     case importWallet
     case backup(action: BackupAction)
     case hardwareWallet(action: HardwareWalletAction)
-    case walletSettings(action: WalletSettingsAction?)
+    case walletSettings
 
     var analyticsParams: [Analytics.ParameterKey: Analytics.ParameterValue] {
         switch self {
@@ -21,7 +21,7 @@ enum MobileOnboardingFlowSource {
         case .importWallet: [.source: .importWallet]
         case .backup(let action): [.source: .backup, .action: action.analyticsParameterValue]
         case .hardwareWallet(let action): [.source: .hardwareWallet, .action: action.analyticsParameterValue]
-        case .walletSettings(let action): [.source: .walletSettings, .action: action?.analyticsParameterValue].compactMapValues { $0 }
+        case .walletSettings: [.source: .walletSettings]
         }
     }
 
@@ -53,18 +53,6 @@ enum MobileOnboardingFlowSource {
         var analyticsParameterValue: Analytics.ParameterValue {
             switch self {
             case .upgrade: .upgrade
-            }
-        }
-    }
-
-    enum WalletSettingsAction {
-        case accessCode
-        case remove
-
-        var analyticsParameterValue: Analytics.ParameterValue {
-            switch self {
-            case .accessCode: .accessCode
-            case .remove: .remove
             }
         }
     }

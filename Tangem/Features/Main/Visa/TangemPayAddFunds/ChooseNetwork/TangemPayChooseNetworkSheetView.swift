@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemPay
@@ -47,19 +48,28 @@ private extension TangemPayChooseNetworkSheetView {
         )
         .size(.x11)
         .styleType(.material(.glass))
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.chooseNetworkSheetCloseButton)
     }
 
     var sections: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 16) {
-                section(title: Localization.tangempayChooseNetworkFastWay, rows: viewModel.fastWayRows)
-                section(title: Localization.tangempayChooseNetworkOtherWays, rows: viewModel.otherWaysRows)
+                section(
+                    title: Localization.tangempayChooseNetworkFastWay,
+                    identifier: TangemPayAccessibilityIdentifiers.chooseNetworkSheetFastOptionsTitle,
+                    rows: viewModel.fastWayRows
+                )
+                section(
+                    title: Localization.tangempayChooseNetworkOtherWays,
+                    identifier: TangemPayAccessibilityIdentifiers.chooseNetworkSheetOtherOptionsTitle,
+                    rows: viewModel.otherWaysRows
+                )
             }
         }
     }
 
     @ViewBuilder
-    func section(title: String, rows: [TangemPayNetworkRowViewData]) -> some View {
+    func section(title: String, identifier: String, rows: [TangemPayNetworkRowViewData]) -> some View {
         if !rows.isEmpty {
             VStack(spacing: .zero) {
                 Text(title)
@@ -67,6 +77,7 @@ private extension TangemPayChooseNetworkSheetView {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
+                    .accessibilityIdentifier(identifier)
 
                 ForEach(rows) { viewData in
                     networkRow(viewData)
@@ -92,10 +103,15 @@ private extension TangemPayChooseNetworkSheetView {
                 rowAccessory(viewData.state)
             }
 
+        let identifier = TangemPayAccessibilityIdentifiers.chooseNetworkSheetRow(chainId: viewData.row.id)
+
         if viewData.isTappable {
-            content.onTap { viewModel.userDidTapRow(viewData) }
+            content
+                .onTap { viewModel.userDidTapRow(viewData) }
+                .accessibilityIdentifier(identifier)
         } else {
             content
+                .accessibilityIdentifier(identifier)
         }
     }
 

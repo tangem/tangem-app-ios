@@ -24,13 +24,24 @@ struct MultiWalletMainContentRedesignedView: View {
 
             notificationBanners
 
+            pendingJointAccountsOperations
+
             VStack(spacing: 8) {
                 if let tangemPayAccountViewModel = viewModel.tangemPayAccountViewModel {
                     TangemPayAccountViewRedesigned(viewModel: tangemPayAccountViewModel)
                 }
 
+                if let polymarketAccountViewModel = viewModel.polymarketAccountViewModel {
+                    polymarketAccount(viewModel: polymarketAccountViewModel)
+                }
+
+                pendingJointAccounts
+
                 listContent
-                    .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
+
+                if let collectiblesAccountViewModel = viewModel.collectiblesAccountViewModel {
+                    collectiblesAccount(viewModel: collectiblesAccountViewModel)
+                }
             }
 
             if let nftEntrypointViewModel = viewModel.nftEntrypointViewModel {
@@ -45,7 +56,7 @@ struct MultiWalletMainContentRedesignedView: View {
         .padding(.horizontal, 12)
         .onDidAppear(perform: viewModel.onDidAppear)
         .onWillDisappear(perform: viewModel.onWillDisappear)
-        .bindAlert($viewModel.error)
+        .shtorkaCompatibleBindAlert($viewModel.error)
     }
 
     // MARK: - Notification Banners
@@ -55,6 +66,47 @@ struct MultiWalletMainContentRedesignedView: View {
             items: viewModel.notificationBannerItems,
             stackingType: .carousel
         )
+    }
+
+    // MARK: - Pending joint account operations
+
+    private var pendingJointAccountsOperations: some View {
+        ForEach(viewModel.pendingJointAccountsOperationsViewData) { viewData in
+            JointAccountOperationPlate(viewData: viewData)
+        }
+    }
+
+    // MARK: - Polymarket account
+
+    private func polymarketAccount(viewModel: AccountRowButtonViewModel) -> some View {
+        AccountRowButtonView(viewModel: viewModel) {
+            AccountRowTrailingBalanceView(viewModel: viewModel)
+        }
+        .padding(MultiWalletMainContentConstants.polymarketAccountPadding)
+        .background(MultiWalletMainContentConstants.tokenListBackgroundColor)
+        .cornerRadiusContinuous(MultiWalletMainContentConstants.cornerRadius)
+    }
+
+    // MARK: - Collectibles account
+
+    private func collectiblesAccount(viewModel: AccountRowButtonViewModel) -> some View {
+        AccountRowButtonView(viewModel: viewModel) {
+            AccountRowTrailingBalanceView(viewModel: viewModel)
+        }
+        .iconSettings(AccountItemConstants.collapsedIconSettings)
+        .padding(MultiWalletMainContentConstants.collectiblesAccountPadding)
+        .background(MultiWalletMainContentConstants.tokenListBackgroundColor)
+        .cornerRadiusContinuous(MultiWalletMainContentConstants.cornerRadius)
+    }
+
+    // MARK: - Pending joint accounts
+
+    private var pendingJointAccounts: some View {
+        ForEach(viewModel.pendingJointAccountViewModels) { pendingJointAccountViewModel in
+            PendingJointAccountItemView(viewModel: pendingJointAccountViewModel)
+                .cornerRadius(MultiWalletMainContentConstants.cornerRadius)
+                .backgroundColor(MultiWalletMainContentConstants.tokenListBackgroundColor)
+        }
     }
 
     // MARK: - List Content
@@ -67,6 +119,7 @@ struct MultiWalletMainContentRedesignedView: View {
         if isLoading {
             skeletonPlaceholders
                 .allowsHitTesting(false)
+                .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
                 .transition(.opacity)
         } else if hasContent {
             VStack(spacing: 0) {
@@ -74,6 +127,7 @@ struct MultiWalletMainContentRedesignedView: View {
 
                 plainTokensList
             }
+            .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
             .transition(.opacity)
         } else {
             emptyList
@@ -88,7 +142,7 @@ struct MultiWalletMainContentRedesignedView: View {
             action: viewModel.onOpenOrganizeTokensButtonTap
         )
         .iconStart(Assets.OrganizeTokens.filterIcon)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .size(.x9)
         .accessibilityIdentifier(MainAccessibilityIdentifiers.organizeTokensButton)
     }
@@ -117,9 +171,10 @@ struct MultiWalletMainContentRedesignedView: View {
                 accessibilityLabel: nil,
                 action: viewModel.onAddTokensTap
             )
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .size(.x10)
             .horizontalLayout(.intrinsic)
+            .accessibilityIdentifier(MainAccessibilityIdentifiers.addTokensButton)
         }
         .padding(.top, 36)
     }
@@ -240,4 +295,7 @@ private enum MultiWalletMainContentConstants {
     static let placeholderCount = 3
     static let cornerRadius: CGFloat = 24
     static let tokenListBackgroundColor = DesignSystem.Color.bgSecondary
+
+    static let polymarketAccountPadding: CGFloat = 16
+    static let collectiblesAccountPadding: CGFloat = 12
 }

@@ -15,6 +15,7 @@ private final class TangemStoriesEnvironment {
     let storyAvailabilityService: AppSettingsStoryAvailabilityService
     let enrichStoryUseCase: EnrichStoryUseCase
     let tangemStoriesViewModel: TangemStoriesViewModel
+    let storiesAnalyticsProvider: any StoriesAnalyticsProvider = CommonStoriesAnalyticsProvider()
 
     init() {
         let countLimit = 10
@@ -80,6 +81,10 @@ extension InjectedValues {
 
     var tangemStoriesPresenter: any TangemStoriesPresenter {
         tangemStoriesEnvironment.tangemStoriesViewModel
+    }
+
+    var storiesAnalyticsProvider: any StoriesAnalyticsProvider {
+        tangemStoriesEnvironment.storiesAnalyticsProvider
     }
 }
 

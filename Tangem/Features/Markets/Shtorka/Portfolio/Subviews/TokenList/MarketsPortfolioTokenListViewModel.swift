@@ -42,7 +42,7 @@ final class MarketsPortfolioTokenListViewModel: ObservableObject {
         barTitle: String = Localization.marketsPortfolioBlockTitle,
         barSubtitle: String? = nil,
         onSelect: @escaping (any WalletModel) -> Void,
-        coordinator: MarketsPortfolioTokenListRoutable
+        coordinator: MarketsPortfolioTokenListRoutable? = nil
     ) {
         self.barTitle = barTitle
         self.barSubtitle = barSubtitle
@@ -191,7 +191,7 @@ private extension MarketsPortfolioTokenListViewModel {
             id: walletModel.userWalletId,
             title: userWalletModel.name,
             thumbnail: userWalletModel.config.walletThumbnailType,
-            walletHasMultipleAccounts: userWalletModel.accountModelsManager.cryptoAccountModels.count > 1,
+            walletHasMultipleAccounts: AccountModelsAggregator(.crypto, .joint).models(from: userWalletModel.accountModelsManager).count > 1,
             accounts: [account]
         )
 
@@ -199,7 +199,7 @@ private extension MarketsPortfolioTokenListViewModel {
     }
 
     func resolveAccount(for walletModel: any WalletModel, in userWalletModel: any UserWalletModel) -> (any CryptoAccountModel)? {
-        userWalletModel.accountModelsManager.cryptoAccountModels.first { account in
+        AccountModelsAggregator(.crypto, .joint).models(from: userWalletModel.accountModelsManager).first { account in
             account.walletModelsManager.walletModels.contains { $0.id == walletModel.id }
         }
     }
@@ -233,7 +233,7 @@ private extension MarketsPortfolioTokenListViewModel {
             onSelect(walletModel)
         }
 
-        return TokenRow(model: model, onTap: onTap)
+        return TokenRow(id: walletModel.id, model: model, onTap: onTap)
     }
 
     func makeNoAddressTokenRow(tokenItem: TokenItem) -> TokenRow {
@@ -249,7 +249,7 @@ private extension MarketsPortfolioTokenListViewModel {
             )
         )
 
-        return TokenRow(model: model, onTap: nil)
+        return TokenRow(id: WalletModelId(tokenItem: tokenItem), model: model, onTap: nil)
     }
 }
 
@@ -281,7 +281,8 @@ extension MarketsPortfolioTokenListViewModel {
         var tokenRows: [TokenRow]
     }
 
-    struct TokenRow {
+    struct TokenRow: Identifiable {
+        let id: WalletModelId
         let model: MarketsPortfolioTokenListRowViewModel
         let onTap: (() -> Void)?
     }

@@ -206,6 +206,7 @@ final class TangemPayAccount {
 
     let withdrawAvailabilityProvider: TangemPayWithdrawAvailabilityProvider
     let withdrawTransactionService: any TangemPayWithdrawTransactionService
+    let offrampOrderSigner: any TangemPayOfframpOrderSigning
 
     // MARK: - Balances
 
@@ -274,6 +275,7 @@ final class TangemPayAccount {
         withdrawTransactionService: any TangemPayWithdrawTransactionService,
         transactionDispatcherFactory: @escaping (TangemPayWithdrawEligibility) -> TransactionDispatcher,
         withdrawAvailabilityProvider: TangemPayWithdrawAvailabilityProvider,
+        offrampOrderSigner: any TangemPayOfframpOrderSigning,
         orderStatusPollingService: TangemPayOrderStatusPollingService,
         mainHeaderBalanceProvider: MainHeaderBalanceProvider,
         orderResolver: TangemPayOrderResolver,
@@ -289,6 +291,7 @@ final class TangemPayAccount {
         self.withdrawTransactionService = withdrawTransactionService
         self.transactionDispatcherFactory = transactionDispatcherFactory
         self.withdrawAvailabilityProvider = withdrawAvailabilityProvider
+        self.offrampOrderSigner = offrampOrderSigner
         self.orderStatusPollingService = orderStatusPollingService
         self.mainHeaderBalanceProvider = mainHeaderBalanceProvider
         self.orderResolver = orderResolver
@@ -646,7 +649,7 @@ extension TangemPayAccount {
             guard let self else { return }
 
             do {
-                let offers = try await customerService.getCustomerOffers()
+                let offers = try await customerService.getCustomerOffers(deeplinkValue: nil)
                 offersSubject.send(offers)
             } catch {
                 VisaLogger.error("Failed to load TangemPay offers", error: error)
@@ -747,6 +750,54 @@ extension TangemPayAccount {
                 type: offerData.orderType,
                 customerWalletAddress: customerWalletAddress,
                 specificationName: specificationName
+            )
+            order = try await orderResolver.placeOrder(request: request, idempotencyKey: idempotencyKey)
+        }
+        activeIssueOrderEventsSubject.send(.upsert(order))
+        runTask { [weak self] in
+            await self?.loadCustomerInfo()
+        }
+        startCardIssueTracking(orderId: order.id)
+        return order
+    }
+
+    func loadCampaignCardIssueOffer(deeplinkValue: String) async throws -> TangemPayCustomerOffer? {
+        try await customerService
+            .getCustomerOffers(deeplinkValue: deeplinkValue)
+            .first { $0.type.isCampaignCardIssue }
+    }
+
+    func issueCampaignCard(deeplinkValue: String) async throws -> TangemPayOrderResponse {
+        let info = customerInfoSubject.value
+        guard let customerWalletAddress = info.paymentAccount?.customerWalletAddress else {
+            throw TangemPayAccountError.missingPaymentAccountAddress
+        }
+
+        guard let offerData = try await loadCampaignCardIssueOffer(deeplinkValue: deeplinkValue)?.data,
+              let specificationName = offerData.specificationName else {
+            throw TangemPayAccountError.missingCardIssueOffer
+        }
+
+        let idempotencyKey = TangemPayIdempotencyKey.make(
+            info.id,
+            offerData.orderType,
+            specificationName,
+            customerWalletAddress,
+            deeplinkValue,
+            String(info.cardProductInstances.filter { $0.status == .active }.count)
+        )
+
+        // Any active virtual card issue order is resumed, even one that isn't this campaign's: a second
+        // order — and a second card — is the worse outcome, so the campaign is dropped instead.
+        let order: TangemPayOrderResponse
+        if let existing = try await orderResolver.findActiveCardIssueOrder() {
+            order = existing
+        } else {
+            let request = TangemPayPlaceOrderRequest(
+                type: offerData.orderType,
+                customerWalletAddress: customerWalletAddress,
+                specificationName: specificationName,
+                deeplinkValue: deeplinkValue
             )
             order = try await orderResolver.placeOrder(request: request, idempotencyKey: idempotencyKey)
         }

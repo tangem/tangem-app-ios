@@ -10,18 +10,20 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 extension RatingView {
     struct CardView: View {
         typealias Rating = RatingModel.Rating
 
         let displayRating: Int
+        let background: BackgroundStyle
         var onRatingSelected: ((Rating) -> Void)?
 
         var body: some View {
-            VStack(spacing: 12) {
+            VStack(spacing: 8) {
                 Text(Localization.swappingRateExperienceTitle)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                     .multilineTextAlignment(.center)
 
                 StarsView(
@@ -29,23 +31,15 @@ extension RatingView {
                     onRatingSelected: onRatingSelected
                 )
             }
-            .padding(.vertical, 16)
-            .padding(.horizontal, 14)
             .frame(maxWidth: .infinity)
-            .background(Colors.Background.action)
-            .cornerRadius(14)
+            .roundedBackground(
+                with: background.color,
+                verticalPadding: background.verticalPadding,
+                horizontalPadding: background.horizontalPadding,
+                radius: background.cornerRadius
+            )
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier(RatingAccessibilityIdentifiers.block)
         }
     }
-}
-
-// MARK: - Previews
-
-#Preview {
-    VStack(spacing: 16) {
-        RatingView.CardView(displayRating: 0)
-        RatingView.CardView(displayRating: 3)
-        RatingView.CardView(displayRating: 5)
-    }
-    .padding(.horizontal, 16)
-    .background(Color.gray.opacity(0.1))
 }

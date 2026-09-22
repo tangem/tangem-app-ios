@@ -171,7 +171,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
     }
 
     private func startCashbackLoad() {
-        guard FeatureProvider.isAvailable(.tangemPayCashback), let transactionId = merchantTransactionId else {
+        guard let transactionId = merchantTransactionId else {
             return
         }
 

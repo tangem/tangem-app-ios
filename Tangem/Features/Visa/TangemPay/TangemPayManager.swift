@@ -297,6 +297,60 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         await refreshState()
     }
 
+    func placeCampaignCardIssueOrder(campaignKey: String) async throws(TangemPayCampaignOrderError) {
+        guard let (customerWalletAddress, _) = tangemPayAssembly.customerWalletAddressAndSavedTokensResolver.resolve(
+            customerWalletId: customerWalletId,
+            keysRepository: keysRepository
+        ) else {
+            throw .missingCustomerWalletAddress
+        }
+
+        // A failed lookup must not block enrollment — `findOrders` is not known to answer before KYC —
+        // so `try?` falls through to placing the order.
+        if (try? await orderResolver.findActiveCardIssueOrder()) != nil {
+            await refreshState()
+            return
+        }
+
+        let offers: TangemPayCustomerOffersResponse
+        do {
+            offers = try await customerService.getCustomerOffers(deeplinkValue: campaignKey)
+        } catch {
+            throw .api(error)
+        }
+
+        guard let offer = offers.first(where: { $0.type.isCampaignCardIssue }),
+              let offerData = offer.data,
+              let specificationName = offerData.specificationName else {
+            throw .offerUnavailable
+        }
+
+        let request = TangemPayPlaceOrderRequest(
+            type: offerData.orderType,
+            customerWalletAddress: customerWalletAddress,
+            specificationName: specificationName,
+            deeplinkValue: campaignKey
+        )
+        let idempotencyKey = TangemPayIdempotencyKey.make(
+            customerId ?? customerWalletId,
+            offerData.orderType,
+            specificationName,
+            customerWalletAddress,
+            campaignKey
+        )
+
+        do {
+            _ = try await customerService.placeOrder(request: request, idempotencyKey: idempotencyKey)
+        } catch {
+            if error.apiErrorCode == TangemPayAPIError.Code.cardIssueOfferNotAvailable {
+                throw .offerUnavailable
+            }
+            throw .api(error)
+        }
+
+        await refreshState()
+    }
+
     func cancelTariffPlanPendingTransition() async throws {
         try await customerService.cancelTariffPlanPendingTransition()
         await refreshState()
@@ -341,7 +395,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     }
 
     private func loadCashbackSummary(for account: TangemPayAccount) async {
-        guard FeatureProvider.isAvailable(.tangemPayCashback), !account.isDeactivated else {
+        guard !account.isDeactivated else {
             return
         }
 
@@ -405,4 +459,11 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
 enum TangemPayManagerError: Error {
     case missingCustomerWalletAddress
     case managerDeallocated
+}
+
+enum TangemPayCampaignOrderError: Error {
+    case missingCustomerWalletAddress
+    /// The campaign is over, revoked, or the plan's card limit is reached. Terminal, unlike `api`.
+    case offerUnavailable
+    case api(TangemPayAPIServiceError)
 }

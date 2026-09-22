@@ -15,6 +15,7 @@ final class IncomingActionHandlerSpy: IncomingActionHandler {
 
     var handledURLs: [URL] { state.withLock { $0 } }
 
+    @discardableResult
     func handleIncomingURL(_ url: URL) -> Bool {
         state.withLock { $0.append(url) }
         return true

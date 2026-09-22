@@ -21,7 +21,6 @@ final class EthereumOptimisticRollupWalletManager: EthereumWalletManager {
         networkService: EthereumNetworkService,
         yieldSupplyService: YieldSupplyService? = nil,
         pendingTransactionsManager: EthereumPendingTransactionsManager,
-        isGaslessYieldEnabled: Bool,
         l1SmartContractAddress: String,
         l1FeeMultiplier: Decimal
     ) {
@@ -34,8 +33,7 @@ final class EthereumOptimisticRollupWalletManager: EthereumWalletManager {
             txBuilder: txBuilder,
             networkService: networkService,
             yieldSupplyService: yieldSupplyService,
-            pendingTransactionsManager: pendingTransactionsManager,
-            isGaslessYieldEnabled: isGaslessYieldEnabled
+            pendingTransactionsManager: pendingTransactionsManager
         )
     }
 

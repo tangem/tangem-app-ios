@@ -94,6 +94,6 @@ struct TransactionDetailsAddContactHelper {
     }
 
     private func isSaved(_ address: String) -> Bool {
-        contacts.contains { $0.entries.caseInsensitiveContains(address: address, networkId: networkId) }
+        contacts.contains { $0.entries.contains(address: address, networkId: networkId) }
     }
 }

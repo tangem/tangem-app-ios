@@ -30,7 +30,7 @@ struct SingleWalletMainContentRedesignedView: View {
             tokenCard
         }
         .padding(.horizontal, 12)
-        .bindAlert($viewModel.alert)
+        .shtorkaCompatibleBindAlert($viewModel.alert)
         .frame(maxHeight: .infinity, alignment: .top)
     }
 
@@ -69,9 +69,8 @@ private extension SingleWalletMainContentRedesignedView {
 
 #Preview {
     let userWalletModel = FakeUserWalletModel.xrpNote
-    let walletModel = userWalletModel
-        .accountModelsManager
-        .cryptoAccountModels[0]
+    let walletModel = AccountModelsAggregator(.crypto, .joint)
+        .models(from: userWalletModel.accountModelsManager)[0]
         .walletModelsManager
         .walletModels[0]
 

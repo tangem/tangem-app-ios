@@ -19,6 +19,7 @@ extension PolymarketMapper {
             imageURL: url(from: dto.image),
             iconURL: url(from: dto.icon),
             status: status(from: dto.status),
+            isLive: dto.live ?? false,
             startDate: date(from: dto.startDate),
             endDate: date(from: dto.endDate),
             volume: dto.volume,
@@ -34,17 +35,20 @@ extension PolymarketMapper {
     func mapMarket(_ dto: PolymarketDTO.Market) -> PolymarketMarket {
         PolymarketMarket(
             id: dto.id,
+            conditionId: dto.conditionId,
             title: dto.question,
             groupItemTitle: dto.groupItemTitle,
             imageURL: url(from: dto.image),
             iconURL: url(from: dto.icon),
             status: status(from: dto.status),
             isNegRisk: dto.negRisk ?? false,
-            startDate: date(from: dto.startDateIso ?? dto.startDate),
-            endDate: date(from: dto.endDateIso ?? dto.endDate),
+            isAcceptingOrders: dto.acceptingOrders ?? false,
+            startDate: date(from: dto.startDate ?? dto.startDateIso),
+            endDate: date(from: dto.endDate),
             volume: dto.volume,
             volume24h: dto.volume24hr,
             liquidity: dto.liquidity,
+            orderIndex: dto.orderIndex,
             outcomes: (dto.outcomes ?? []).map(mapOutcome)
         )
     }

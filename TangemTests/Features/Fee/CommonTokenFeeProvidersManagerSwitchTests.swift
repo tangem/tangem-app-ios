@@ -382,8 +382,8 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
     }
 }
 
-@Suite("CommonTokenFeeProvidersManagerProvider — initial selection")
-struct CommonTokenFeeProvidersManagerProviderInitialSelectionTests {
+@Suite("WalletModelTokenFeeProvidersManagerProvider — initial selection")
+struct WalletModelTokenFeeProvidersManagerProviderInitialSelectionTests {
     private let tronNativeTokenItem: TokenItem = .blockchain(.init(.tron(testnet: false), derivationPath: nil))
     private let tronTokenItem: TokenItem = .token(
         .init(
@@ -443,10 +443,10 @@ struct CommonTokenFeeProvidersManagerProviderInitialSelectionTests {
         #expect(selected.feeTokenItem == tronNativeTokenItem)
     }
 
-    private func makeSUT() -> CommonTokenFeeProvidersManagerProvider {
-        CommonTokenFeeProvidersManagerProvider(
-            walletModel: WalletModelTestsMock(tokenItem: tronTokenItem, isEmpty: false)
-        )
+    private func makeSUT() -> WalletModelTokenFeeProvidersManagerProvider {
+        let walletModel = WalletModelTestsMock(tokenItem: tronTokenItem, isEmpty: false)
+
+        return WalletModelTokenFeeProvidersManagerProvider(walletModel: walletModel)
     }
 
     private func makeProvider(tokenItem: TokenItem, balance: Decimal) -> ControllableTokenFeeProviderStub {
@@ -458,8 +458,8 @@ struct CommonTokenFeeProvidersManagerProviderInitialSelectionTests {
     }
 }
 
-@Suite("CommonTokenFeeProvidersManagerProvider — Tron gasless availability", .serialized)
-struct CommonTokenFeeProvidersManagerProviderTronGaslessAvailabilityTests {
+@Suite("WalletModelTokenFeeProvidersManagerProvider — Tron gasless availability", .serialized)
+struct WalletModelTokenFeeProvidersManagerProviderTronGaslessAvailabilityTests {
     private let feeTokenAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
     private let unsupportedTokenAddress = "TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8"
 
@@ -529,10 +529,7 @@ struct CommonTokenFeeProvidersManagerProviderTronGaslessAvailabilityTests {
                 isAccountActivated: isAccountActivated
             )
 
-            let sut = CommonTokenFeeProvidersManagerProvider(
-                walletModel: walletModel,
-                isFeatureAvailable: { $0 == .tronGasless }
-            )
+            let sut = WalletModelTokenFeeProvidersManagerProvider(walletModel: walletModel)
 
             #expect(sut.availableGaslessTokenAddresses() == expectedAddresses)
         }
@@ -828,24 +825,6 @@ struct GaslessYieldFeeTests {
 
         #expect(single.signHash.hexString.lowercased() == "9e385b7d4a71cc70496d0f1f1d2ab5fda665d617cbb0ea26a99c79a4cec21cf4")
         #expect(batch.signHash.hexString.lowercased() == "0dda1b2d4786084e451e9b6b90d386d6ae685b4405b59d134e667bdcbc45ff1a")
-    }
-
-    @Test("Legacy executor signs the pre-batch Transaction type without a gas limit")
-    func legacyExecutorOmitsCallGasLimit() throws {
-        let typedData = try GaslessTransactionBuilder.GaslessTransactionsEIP712Util().makeGaslessTypedData(
-            transaction: Self.stubTransaction(gasLimit: nil),
-            fee: Self.stubFee(),
-            nonce: "0",
-            chainId: 1,
-            verifyingContract: Self.stubVerifyingContract,
-            executorVersion: .legacy
-        )
-
-        #expect(
-            String(decoding: typedData.makeTypeData(primaryType: "Transaction"), as: UTF8.self)
-                == "Transaction(address to,uint256 value,bytes data)"
-        )
-        #expect(typedData.message.objectValue?["transaction"]?.objectValue?["gasLimit"] == nil)
     }
 
     /// Signing `gasLimit: 0` would leave the executor forwarding no gas to the user's call, so a missing

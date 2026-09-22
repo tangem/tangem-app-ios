@@ -28,7 +28,7 @@ enum AppConstants {
     static let infinitySign = "\u{221E}"
     static let tildeSign = "~"
     static let approximatelyEqualSign = "≈"
-    static let dotSign = "•"
+    static let dotSign: String = .bulletSign
     static let rubCurrencyCode = "RUB"
     static let rubSign = "₽"
     static let usdCurrencyCode = "USD"
@@ -45,8 +45,9 @@ enum AppConstants {
 
     static let sessionId = UUID().uuidString
     static let tosURL = URL(string: "https://tangem.com/tangem_tos.html")!
+    static let privacyPolicyURL = URL(string: "https://tangem.com/privacy-policy.html")!
     static let tangemPayTermsAndLimitsURL = URL(string: "https://tangem.com/docs/en/tangem-visa-tariffs.pdf")!
     static let tangemPayVirtualAccountTermsURL = URL(string: "https://tangem.com/docs/en/virtual-account-terms.pdf")!
-    static let tangemPayPrivacyPolicyURL = URL(string: "https://tangem.com/docs/en/pay-privacy-policy.pdf")!
+    static let tangemPayPrivacyPolicyURL = URL(string: "https://tangem.com/docs/en/privacy-policy.pdf")!
     static let appStoreURL = URL(string: "itms-apps://apps.apple.com/app/id1354868448")!
 }

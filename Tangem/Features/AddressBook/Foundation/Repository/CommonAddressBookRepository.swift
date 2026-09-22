@@ -22,7 +22,12 @@ final class CommonAddressBookRepository {
     private let blobCodec: AddressBookBlobCodec
     private let mapper = AddressBookNetworkMapper()
 
-    private let syncStateSubject = CurrentValueSubject<SyncState, Never>(.syncing(cached: nil))
+    /// Starts from the offline copy, so a screen opened right after unlock shows contacts instead of an empty list.
+    /// `lazy` only to reach `loadLocalAddressBook()` from a property initializer.
+    private lazy var syncStateSubject = CurrentValueSubject<SyncState, Never>(
+        .syncing(cached: loadLocalAddressBook().contacts)
+    )
+    private let loadProcessor = SingleTaskProcessor<Void, Never>()
 
     init(
         walletId: UserWalletId,
@@ -42,6 +47,9 @@ final class CommonAddressBookRepository {
         self.blobCodec = blobCodec
 
         encryptionKey = keyProvider.encryptionKey(forWalletPublicKeySeed: walletPublicKeySeed)
+
+        // `lazy var` initialization isn't atomic, and the subject is touched from arbitrary threads afterwards.
+        _ = syncStateSubject
     }
 }
 
@@ -65,7 +73,13 @@ extension CommonAddressBookRepository: AddressBookRepository {
     }
 
     func load(silent: Bool) async {
-        await performLoad(silent: silent)
+        // Callers arriving mid-load await that one instead of firing a second request, and the shared task
+        // outlives them, so a screen going away no longer cancels the load the others wait on. `.syncing` is
+        // published by the load itself: published here, it could land after the joined load had already published
+        // its outcome and strand the book on `.syncing`.
+        await loadProcessor.execute { [weak self] in
+            await self?.performLoad(silent: silent)
+        }
     }
 
     func save(contacts: [AddressBookDecodedContact]) async throws {
@@ -95,6 +109,7 @@ private extension CommonAddressBookRepository {
         if !silent {
             publish(syncState: .syncing(cached: syncStateSubject.value.contacts))
         }
+
         let localBook = loadLocalAddressBook()
 
         do {
@@ -192,6 +207,8 @@ private extension CommonAddressBookRepository {
 
         } catch AddressBookNetworkServiceError.inconsistentState {
             ABLogger.info("Save conflict for wallet \(redactedWalletId), refetching")
+            // Deliberately bypasses `loadProcessor`: the conflict means the remote book moved, so joining a load
+            // that started before this save would hand back the very state that was just rejected.
             await performLoad(silent: true)
             throw AddressBookNetworkServiceError.inconsistentState
         } catch AddressBookNetworkServiceError.malformedResponse(let error) {

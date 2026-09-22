@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemFoundation
 import TangemUIUtils
 
 public struct Chip: Identifiable, Hashable {
@@ -63,6 +64,7 @@ public struct HorizontalChipsView: View {
                         horizontalPadding: chipHorizontalPadding
                     ) {
                         if selectedId != chip.id {
+                            FeedbackGenerator.selection()
                             selectedId = chip.id
                         }
                     }

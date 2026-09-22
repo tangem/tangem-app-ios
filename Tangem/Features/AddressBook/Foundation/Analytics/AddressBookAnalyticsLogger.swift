@@ -14,7 +14,12 @@ protocol AddressBookAnalyticsLogger {
     func logAddContactTapped(userWalletId: UserWalletId?, source: AddressBookAnalyticsSource)
     func logContactScreenOpened(userWalletId: UserWalletId?, contactId: String?)
     func logButtonSaveTo()
-    func logContactSaved(userWalletId: UserWalletId?, contactId: String, mode: AddressBookAnalyticsMode)
+    func logContactSaved(
+        userWalletId: UserWalletId?,
+        contactId: String,
+        mode: AddressBookAnalyticsMode,
+        source: AddressBookAnalyticsSource
+    )
     func logSaveErrorShown(userWalletId: UserWalletId?, contactId: String?, error: Error)
     func logAddressScreenOpened()
     func logAddressInvalid(userWalletId: UserWalletId?, contactId: String?)

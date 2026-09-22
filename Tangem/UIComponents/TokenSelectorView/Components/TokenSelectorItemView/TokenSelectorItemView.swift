@@ -20,12 +20,12 @@ struct TokenSelectorItemView: View {
     }
 
     var body: some View {
-        SwiftUI.Button(action: viewModel.action) {
+        SwiftUI.Button(action: { viewModel.action(viewModel.availabilityType) }) {
             TwoLineRowWithIcon(
                 icon: {
                     TokenItemViewLeadingComponent(
                         tokenIconInfo: viewModel.tokenIconInfo,
-                        hasMonochromeIcon: viewModel.disabledReason != nil
+                        hasMonochromeIcon: viewModel.availabilityType.isUnavailable
                     )
                 },
                 primaryLeadingView: {
@@ -39,53 +39,55 @@ struct TokenSelectorItemView: View {
             )
             .padding(.vertical, 14)
         }
-        .disabled(viewModel.disabledReason?.disablesTap ?? false)
+        .disabled(viewModel.availabilityType.disablesTap)
         .background(backgroundColor)
         .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: viewModel.name))
     }
 
     @ViewBuilder
     private var primaryTrailingView: some View {
-        switch viewModel.disabledReason {
-        case .none:
+        switch viewModel.availabilityType {
+        case .available:
             LoadableBalanceView(
                 state: viewModel.fiatBalance,
                 style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
                 loader: .init(size: .init(width: 40, height: 12))
             )
             .layoutPriority(3)
-        default:
+        case .unavailable:
             EmptyView()
         }
     }
 
     @ViewBuilder
     private var secondaryTrailingView: some View {
-        switch viewModel.disabledReason {
-        case .none:
+        switch viewModel.availabilityType {
+        case .available:
             LoadableBalanceView(
                 state: viewModel.cryptoBalance,
                 style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
                 loader: .init(size: .init(width: 40, height: 12))
             )
             .layoutPriority(3)
-        default:
+        case .unavailable:
             EmptyView()
         }
     }
 
     private var secondaryLeadingView: some View {
         Group {
-            switch viewModel.disabledReason {
-            case .none:
+            switch viewModel.availabilityType {
+            case .available:
                 Text(viewModel.symbol)
-            case .unavailableForOnramp:
+            case .unavailable(.unavailableForOnramp):
                 Text(Localization.tokensListUnavailableToPurchaseHeader)
-            case .unavailableForSwap:
+            case .unavailable(.unavailableForSwap(.swapState(.jointAccountsComingSoon))):
+                Text(Localization.commonComingSoon)
+            case .unavailable(.unavailableForSwap):
                 Text(Localization.tokensListUnavailableToSwapSourceHeader)
-            case .unavailableForSell:
+            case .unavailable(.unavailableForSell):
                 Text(Localization.tokensListUnavailableToSellHeader)
-            case .unavailableForSend:
+            case .unavailable(.unavailableForSend):
                 Text(viewModel.symbol)
             }
         }

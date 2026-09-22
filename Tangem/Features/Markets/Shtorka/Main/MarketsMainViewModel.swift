@@ -29,6 +29,8 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     @Injected(\.viewHierarchySnapshotter) private var viewHierarchySnapshotter: ViewHierarchySnapshotting
     @Injected(\.marketsWidgetsProvider) private var widgetsProvider: MarketsMainWidgetsProvider
     @Injected(\.marketsWidgetsUpdateHandler) private var widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.marketsCategoriesProvider) private var categoriesProvider: MarketsCategoriesProvider
 
     // MARK: - Properties
 
@@ -66,7 +68,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     private var isBottomSheetExpanded: Bool = false
 
     private lazy var promotionNotificationsViewModel: PromotionNotificationsViewModel = {
-        let manager = NewsPromotionNotificationsManager()
+        let manager = NewsPromotionNotificationsManager(placement: .news)
         return PromotionNotificationsViewModel(promotionNotificationsManager: manager)
     }()
 
@@ -164,11 +166,15 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     }
 
     func onPolymarketEntranceTap() {
-        coordinator?.openPolymarket()
+        let userWalletModels = userWalletRepository.models.filter(\.supportsPolymarket)
+
+        guard userWalletModels.isNotEmpty else { return }
+
+        coordinator?.openPolymarket(for: userWalletModels)
     }
 
-    func openGacha(with options: GachaCoordinator.Options) {
-        coordinator?.openGacha(with: options)
+    func openCollectibles(with options: CollectiblesCoordinator.Options) {
+        coordinator?.openCollectibles(with: options)
     }
 }
 
@@ -264,6 +270,8 @@ private extension MarketsMainViewModel {
                 viewModel.pauseQuotesUpdates()
             case .pulse(let viewModel):
                 viewModel.pauseQuotesUpdates()
+            case .realAssets(let viewModel):
+                viewModel.pauseQuotesUpdates()
             case .news, .earn:
                 break
             }
@@ -280,6 +288,8 @@ private extension MarketsMainViewModel {
             case .top(let viewModel):
                 viewModel.resumeQuotesUpdates()
             case .pulse(let viewModel):
+                viewModel.resumeQuotesUpdates()
+            case .realAssets(let viewModel):
                 viewModel.resumeQuotesUpdates()
             case .news, .earn:
                 break
@@ -333,6 +343,20 @@ private extension MarketsMainViewModel {
                 viewModel.pauseQuotesUpdates()
             }
             contentItem = .pulse(viewModel)
+        case .realAssets:
+            let viewModel = RealAssetsWidgetViewModel(
+                widgetType: widgetModel.type,
+                categoriesProvider: categoriesProvider,
+                widgetsUpdateHandler: widgetsUpdateHandler,
+                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+                // The old shtorka shows this as a shelf on a screen that has no sections at all
+                analyticsSection: nil,
+                coordinator: coordinator
+            )
+            if !isBottomSheetExpanded {
+                viewModel.pauseQuotesUpdates()
+            }
+            contentItem = .realAssets(viewModel)
         }
 
         return WidgetStateItem(type: widgetModel.type, content: contentItem)
@@ -365,6 +389,7 @@ extension MarketsMainViewModel {
         case pulse(PulseMarketWidgetViewModel)
         case news(NewsWidgetViewModel)
         case earn(EarnWidgetViewModel)
+        case realAssets(RealAssetsWidgetViewModel)
 
         var id: MarketsWidgetType {
             switch self {
@@ -376,6 +401,8 @@ extension MarketsMainViewModel {
                 return .news
             case .earn:
                 return .earn
+            case .realAssets:
+                return .realAssets
             }
         }
 

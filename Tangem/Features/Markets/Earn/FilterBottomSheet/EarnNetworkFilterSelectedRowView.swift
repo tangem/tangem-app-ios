@@ -15,7 +15,8 @@ struct EarnNetworkFilterSelectedRowView<ID: Hashable>: View {
     let data: DefaultSelectableRowViewModel<ID>
     let selection: Binding<ID>
 
-    @ScaledMetric private var verticalPadding: CGFloat = 18
+    @ScaledMetric private var verticalPadding: CGFloat = 16
+    @ScaledMetric private var subtitleSpacing: CGFloat = 2
     @ScaledMetric private var horizontalMinLength: CGFloat = 4
     @ScaledMetric private var iconSide: CGFloat = 20
 
@@ -26,14 +27,14 @@ struct EarnNetworkFilterSelectedRowView<ID: Hashable>: View {
     var body: some View {
         SwiftUI.Button(action: { selection.isActive(compare: data.id).toggle() }) {
             HStack(spacing: 0) {
-                Text(data.title)
-                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                text
 
                 Spacer(minLength: horizontalMinLength)
 
                 icon
             }
             .padding(.vertical, verticalPadding)
+            .contentShape(Rectangle())
         }
     }
 }
@@ -41,6 +42,19 @@ struct EarnNetworkFilterSelectedRowView<ID: Hashable>: View {
 // MARK: - Subviews
 
 private extension EarnNetworkFilterSelectedRowView {
+    var text: some View {
+        VStack(alignment: .leading, spacing: subtitleSpacing) {
+            Text(data.title)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+
+            if let subtitle = data.subtitle {
+                Text(subtitle)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+            }
+        }
+        .multilineTextAlignment(.leading)
+    }
+
     var icon: some View {
         Group {
             if isSelected {

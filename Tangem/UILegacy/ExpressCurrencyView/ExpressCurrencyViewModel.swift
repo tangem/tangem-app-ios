@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemUI
@@ -213,7 +214,7 @@ extension ExpressCurrencyViewModel {
             // (e.g. "USD") while keeping the account header and balance.
             if let presentation {
                 symbolState = .loaded(text: presentation.currencySymbol)
-                tokenIconState = .tangemPay
+                tokenIconState = .asset(presentation.icon)
             }
         }
     }
@@ -240,6 +241,7 @@ extension ExpressCurrencyViewModel {
         case notAvailable
         case tokenSelectionRequired
         case icon(TokenIconInfo)
-        case tangemPay
+        /// A funded account renders a fixed asset instead of a token icon.
+        case asset(ImageType)
     }
 }

@@ -223,7 +223,8 @@ private extension EarnApyResolverTests {
             isActive: isActive,
             chainId: nil,
             maxFeeNative: nil,
-            maxFeeUSD: nil
+            maxFeeUSD: nil,
+            incentive: nil
         )
     }
 
@@ -351,6 +352,7 @@ private final class YieldModuleManagerStub: YieldModuleManager {
     var tokenId: String { "" }
     var versionChecker: YieldModuleVersionChecker? { nil }
     var swapExecutionRegistryProvider: YieldModuleSwapExecutionRegistryProvider? { nil }
+    var incentivesManager: YieldIncentivesManager? { nil }
 
     func enterFee() async throws -> YieldTransactionFee { fatalError() }
     func enter(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String] { fatalError() }
@@ -361,6 +363,7 @@ private final class YieldModuleManagerStub: YieldModuleManager {
     func currentNetworkFeeParameters() async throws -> EthereumFeeParameters { fatalError() }
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo { fatalError() }
     func fetchChartData() async throws -> YieldChartData { fatalError() }
+    func fetchAprHistory(days: Int) async throws -> [YieldIncentiveAprPoint] { fatalError() }
     func sendActivationState() {}
     func sendTransactionSendEvent(sourceAddress: String, transactionHash: String) {}
 }

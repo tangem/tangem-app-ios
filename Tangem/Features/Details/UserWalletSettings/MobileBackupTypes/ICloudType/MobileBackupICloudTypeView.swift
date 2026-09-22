@@ -21,7 +21,6 @@ struct MobileBackupICloudTypeView: View {
         case .done(let item): state(badge: item.badge, action: item.action)
         case .incomplete(let item): state(badge: item.badge, action: item.action)
         case .requirement(let item): state(badge: item.badge, action: item.action)
-        case .unavailable(let item): unavailableState(item: item)
         case .none: EmptyView()
         }
     }
@@ -53,17 +52,6 @@ private extension MobileBackupICloudTypeView {
                     makeBadge(badge)
                 }
 
-                descriptionView
-            }
-
-            chevronIcon
-        }
-    }
-
-    func unavailableState(item: ViewModel.UnavailableItem) -> some View {
-        makeButton(action: item.action) {
-            VStack(alignment: .leading, spacing: 4) {
-                titleView
                 descriptionView
             }
 

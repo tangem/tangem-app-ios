@@ -32,8 +32,8 @@ extension CommonCryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProv
             "Called with \(LoggingWrapper(identifier)) (\(objectDescription(self)))"
         )
 
-        let subscription = manager
-            .cryptoAccountModelsPublisher
+        let subscription = AccountModelsAggregator(.crypto, .joint)
+            .modelsPublisher(from: manager)
             .map(\.count)
             .withWeakCaptureOf(self)
             .sink { provider, count in

@@ -262,6 +262,7 @@ private extension UserWalletSettingsViewModel {
         if nftAvailabilityProvider.isNFTAvailable(for: userWalletModel) {
             nftViewModel = DefaultToggleRowViewModel(
                 title: Localization.detailsNftTitle,
+                accessibilityIdentifier: WalletSettingsAccessibilityIdentifiers.nftToggle,
                 isOn: .init(
                     root: self,
                     default: false,
@@ -479,17 +480,13 @@ private extension UserWalletSettingsViewModel {
     }
 
     func openMobileBackupNeeded() {
-        coordinator?.openMobileBackupNeeded(
-            userWalletModel: userWalletModel,
-            source: .walletSettings(action: .accessCode),
-            onBackupFinished: weakify(self, forFunction: UserWalletSettingsViewModel.mobileAccessCodeAction)
-        )
+        coordinator?.openMobileBackupNeeded(userWalletModel: userWalletModel)
     }
 
     func openMobileAccessCodeOnboarding(context: MobileWalletContext) {
         let flow = MobileOnboardingFlow.accessCode(
             userWalletModel: userWalletModel,
-            source: .walletSettings(action: .none),
+            source: .walletSettings,
             context: context
         )
         let input = MobileOnboardingInput(flow: flow)
@@ -554,10 +551,11 @@ private extension UserWalletSettingsViewModel {
                     walletModelsManager: cryptoAccountModels.first?.walletModelsManager,
                     userTokensManager: cryptoAccountModels.first?.userTokensManager
                 )
-            case .standard(.multiple), .tangemPay, .polymarket:
+            case .standard(.multiple), .joint, .tangemPay, .polymarket, .collectibles:
                 // In multiple accounts case we don't support managing tokens from this screen,
                 // instead users should manage tokens from respective account details screens.
-                // TangemPay and Polymarket currently don't support managing tokens at all
+                // Token management for joint accounts hasn't shipped yet; TangemPay, Polymarket and Collectibles
+                // don't support it at all
                 updateManagers(walletModelsManager: nil, userTokensManager: nil)
             case .none:
                 // Reachable case - the saved wallet has been deleted from the app
@@ -597,11 +595,9 @@ private extension UserWalletSettingsViewModel {
             .action: action,
         ]
 
-        if FeatureProvider.isAvailable(.mobileWalletBackup) {
-            let statusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
-            params[.backupCloud] = statusUtil.hasICloudBackup ? .done : .incomplete
-            params[.backupManual] = .affirmativeOrNegative(for: statusUtil.hasMnemonicBackup)
-        }
+        let statusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
+        params[.backupCloud] = statusUtil.hasICloudBackup ? .done : .incomplete
+        params[.backupManual] = .affirmativeOrNegative(for: statusUtil.hasMnemonicBackup)
 
         Analytics.log(
             .walletSettingsNoticeBackupFirst,

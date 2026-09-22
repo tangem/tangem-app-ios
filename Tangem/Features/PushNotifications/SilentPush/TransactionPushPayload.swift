@@ -40,7 +40,7 @@ struct TransactionPushPayload {
             let networkId = nonNullString(params.networkId),
             let tokenId = nonNullString(params.tokenId),
             let userWalletId = nonNullString(params.userWalletId),
-            let rawType = nonNullString(params.type),
+            let rawType = nonNullString(TokenDeeplink.Keys.type),
             let type = IncomingActionConstants.DeeplinkType(rawValue: rawType)
         else {
             return nil
@@ -51,6 +51,6 @@ struct TransactionPushPayload {
         self.tokenId = tokenId
         self.userWalletId = userWalletId
         derivationPath = nonNullString(params.derivationPath)
-        transactionId = nonNullString(params.transactionId)
+        transactionId = nonNullString(TokenDeeplink.Keys.transactionId)
     }
 }

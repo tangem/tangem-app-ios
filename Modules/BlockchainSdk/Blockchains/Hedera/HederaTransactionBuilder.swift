@@ -56,6 +56,7 @@ final class HederaTransactionBuilder {
     /// Pass `nil` to let the Hedera SDK network layer select valid and alive consensus network nodes on its own.
     func buildTransferTransactionForSign(
         transaction: Transaction,
+        transferContext: TransferContext,
         validStartDate: UnixTimestamp,
         nodeAccountIds: [Int]?
     ) throws -> CompiledTransaction {
@@ -84,7 +85,8 @@ final class HederaTransactionBuilder {
             amount: transaction.amount,
             destinationAddress: transaction.destinationAddress,
             sourceAccountId: sourceAccountId,
-            feeParams: feeParams
+            feeParams: feeParams,
+            transferContext: transferContext
         )
         .transactionId(transactionId)
         .maxTransactionFee(feeAmount)
@@ -141,20 +143,21 @@ final class HederaTransactionBuilder {
         amount: Amount,
         destinationAddress: String,
         sourceAccountId: AccountId,
-        feeParams: HederaFeeParams
+        feeParams: HederaFeeParams,
+        transferContext: TransferContext
     ) throws -> Hiero.Transaction {
         let transactionValue = amount.value * pow(Decimal(10), amount.decimals)
         let transactionRoundedValue = transactionValue.rounded(roundingMode: .down)
 
-        switch amount.type {
-        case .coin:
+        switch (amount.type, transferContext) {
+        case (.coin, .regular):
             let destinationAccountId = try AccountId.fromSolidityAddressOrString(destinationAddress)
             let transactionAmount = try Hbar(transactionRoundedValue, .tinybar)
             return TransferTransaction()
                 .hbarTransfer(sourceAccountId, transactionAmount.negated())
                 .hbarTransfer(destinationAccountId, transactionAmount)
-        case .token(let token) where HederaTokenContractAddressConverter.isERC20TokenAddress(token.contractAddress):
-            guard let erc20TransferConfiguration = feeParams.erc20TransferConfiguration else {
+        case (.token, .erc20(let tokenContractAddress, let recipientEVMAddress)):
+            guard let gasLimit = feeParams.contractCallGasLimit else {
                 throw BlockchainSdkError.failedToBuildTx
             }
 
@@ -162,24 +165,24 @@ final class HederaTransactionBuilder {
                 throw BlockchainSdkError.failedToBuildTx
             }
 
-            let contractId = try ContractId.fromSolidityAddressOrString(token.contractAddress)
+            let contractId = try ContractId.fromEvmAddress(tokenContractAddress, shard: 0, realm: 0)
             let transferMethod = try TransferERC20TokenMethod(
-                destination: erc20TransferConfiguration.recipientEVMAddress.removeHexPrefix(),
+                destination: recipientEVMAddress.removeHexPrefix(),
                 amount: amountValue
             )
 
             return ContractExecuteTransaction()
                 .contractId(contractId)
-                .gas(erc20TransferConfiguration.gasLimit)
+                .gas(gasLimit)
                 .functionParameters(transferMethod.data)
-        case .token(let token):
+        case (.token(let token), .regular):
             let destinationAccountId = try AccountId.fromSolidityAddressOrString(destinationAddress)
             let tokenId = try TokenId.fromSolidityAddressOrString(token.contractAddress)
             let transactionAmount = transactionRoundedValue.int64Value
             return TransferTransaction()
                 .tokenTransfer(tokenId, sourceAccountId, -transactionAmount)
                 .tokenTransfer(tokenId, destinationAccountId, transactionAmount)
-        case .reserve, .feeResource:
+        case (.reserve, _), (.feeResource, _), (.coin, .erc20):
             throw BlockchainSdkError.failedToBuildTx
         }
     }
@@ -195,6 +198,11 @@ final class HederaTransactionBuilder {
 // MARK: - Auxiliary types
 
 extension HederaTransactionBuilder {
+    enum TransferContext {
+        case regular
+        case erc20(tokenContractAddress: String, recipientEVMAddress: String)
+    }
+
     struct TokenAssociation {
         let accountId: String
         let contractAddress: String

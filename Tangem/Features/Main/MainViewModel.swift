@@ -27,18 +27,7 @@ final class MainViewModel: ObservableObject {
 
     @Published private(set) var pages: [MainUserWalletPageBuilder] = []
     @Published var selectedCardIndex = 0
-    @Published private(set) var isPullToRefreshRunning = false
-
-    private(set) lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject(
-        settings: .init(
-            stopRefreshingDelay: 1,
-            refreshTaskTimeout: 120, // 2 minutes
-            shouldForceRefreshing: true
-        ),
-        refreshable: { [weak self] in
-            await self?.onPullToRefresh()
-        }
-    )
+    @Published private(set) var refreshingUserWalletIDs: Set<UserWalletId> = []
 
     // MARK: - Dependencies
 
@@ -52,7 +41,13 @@ final class MainViewModel: ObservableObject {
 
     private var shouldDelayBottomSheetVisibility = true
     private var isLoggingOut = false
+
+    /// The root of the main screen is what the user sees: set by the view controller's appearance, cleared by
+    /// the view's disappearance, which a push brings and a sheet doesn't.
+    private(set) var isRootVisible = false
     private var didLogMainScreenOpenedAnalytics = false
+
+    private var refreshTasks: [UserWalletId: Task<Void, Never>] = [:]
 
     private var mainScreenOpenedAnalyticsSubscription: AnyCancellable?
     private var pagesWithMissingBodyModelsRecreationSubscription: AnyCancellable?
@@ -102,6 +97,10 @@ final class MainViewModel: ObservableObject {
         }
     }
 
+    deinit {
+        refreshTasks.values.forEach { $0.cancel() }
+    }
+
     // MARK: - Internal functions
 
     func openDetails() {
@@ -127,10 +126,9 @@ final class MainViewModel: ObservableObject {
 
     /// Handles `SwiftUI.View.onDisappear(perform:)`.
     func onViewDisappear() {
+        isRootVisible = false
         didLogMainScreenOpenedAnalytics = false
         mainScreenOpenedAnalyticsSubscription = nil
-
-        coordinator?.resignHandlingIncomingActions()
     }
 
     /// Handles `UIKit.UIViewController.viewDidAppear(_:)`.
@@ -139,6 +137,8 @@ final class MainViewModel: ObservableObject {
         guard !isLoggingOut else {
             return
         }
+
+        isRootVisible = true
 
         let uiManager = mainBottomSheetUIManager
         // On a `cold start` (e.g., after launching the app or after coming back from the background in a `locked` state:
@@ -153,8 +153,10 @@ final class MainViewModel: ObservableObject {
             uiManager.show()
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.coordinator?.beginHandlingIncomingActions()
+        // A push into the stack while the screen is still fading in from the auth screen is lost, so the
+        // deeplink handoff waits the fade out.
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.deeplinkHandoffDelay) { [weak self] in
+            self?.coordinator?.mainScreenDidAppear()
         }
     }
 
@@ -179,18 +181,30 @@ final class MainViewModel: ObservableObject {
         }
     }
 
+    /// Refreshes are tracked per user wallet so that a running refresh does not block swiping to another wallet,
+    /// and so that the spinner survives the page being torn down and rebuilt by the pager.
     @MainActor
-    func pullToRefresh() async {
-        let timeout = 120
-        try? await Task.run(
-            withTimeout: .seconds(timeout),
-            code: {
-                await self.onPullToRefresh()
-            },
-            onTimeout: {
-                AppLogger.error(error: "MainViewModel.pullToRefresh timeout after \(timeout) seconds.")
+    func pullToRefresh(userWalletID: UserWalletId) {
+        guard refreshTasks[userWalletID] == nil else { return }
+
+        refreshingUserWalletIDs.insert(userWalletID)
+
+        refreshTasks[userWalletID] = Task { @MainActor [weak self] in
+            defer {
+                self?.refreshingUserWalletIDs.remove(userWalletID)
+                self?.refreshTasks[userWalletID] = nil
             }
-        ).value
+
+            do {
+                try await Task.run(withTimeout: .seconds(Constants.pullToRefreshTimeout)) { [weak self] in
+                    await self?.onPullToRefresh(userWalletID: userWalletID)
+                }
+            } catch is TaskTimeoutError {
+                AppLogger.error(error: "MainViewModel.pullToRefresh timeout after \(Constants.pullToRefreshTimeout) seconds.")
+            } catch {
+                // Cancelled by `removePages(with:)` or by `deinit`
+            }
+        }
     }
 
     // MARK: - User wallets pages management
@@ -211,6 +225,7 @@ final class MainViewModel: ObservableObject {
     }
 
     private func removePages(with userWalletIds: [UserWalletId]) {
+        userWalletIds.forEach { refreshTasks[$0]?.cancel() }
         pages.removeAll { userWalletIds.contains($0.id) }
 
         guard
@@ -275,7 +290,7 @@ final class MainViewModel: ObservableObject {
             .combineLatest()
 
         let cryptoAccountModelsPublisher = userWalletsWithMissingBodyModel
-            .map(\.accountModelsManager.cryptoAccountModelsPublisher)
+            .map { AccountModelsAggregator(.crypto, .joint).modelsPublisher(from: $0.accountModelsManager) }
             .combineLatest()
 
         pagesWithMissingBodyModelsRecreationSubscription = cryptoAccountModelsPublisher
@@ -339,18 +354,6 @@ final class MainViewModel: ObservableObject {
                 if viewModel.userWalletRepository.selectedModel?.userWalletId != userWalletId {
                     viewModel.userWalletRepository.select(userWalletId: userWalletId)
                 }
-            }
-            .store(in: &bag)
-
-        $selectedCardIndex
-            .removeDuplicates()
-            .prepend(-1) // A dummy value to trigger initial index change event
-            .pairwise()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, input in
-                let (previousCardIndex, currentCardIndex) = input
-                viewModel.pages[safe: previousCardIndex]?.onPageDisappear()
-                viewModel.pages[safe: currentCardIndex]?.onPageAppear()
             }
             .store(in: &bag)
 
@@ -460,7 +463,7 @@ final class MainViewModel: ObservableObject {
             params[.walletType] = Analytics.ParameterValue.seedState(for: hasSeedPhrase).rawValue
             params[.walletHasBackup] = Analytics.ParameterValue.affirmativeOrNegative(for: userWalletModel.config.walletHasBackup).rawValue
 
-            if FeatureProvider.isAvailable(.mobileWalletBackup), isMobileProductType {
+            if isMobileProductType {
                 let backupParams = MobileBackupStatusUtil.completedBackupsAnalyticsParams(config: userWalletModel.config)
                 params.enrich(with: backupParams)
             }
@@ -490,21 +493,10 @@ final class MainViewModel: ObservableObject {
     }
 
     @MainActor
-    private func onPullToRefresh() async {
-        defer {
-            isPullToRefreshRunning = false
-        }
-
-        isPullToRefreshRunning = true
-
-        guard
-            let selectedUserWalletID = userWalletRepository.selectedModel?.userWalletId,
-            let index = pages.firstIndex(where: { $0.id == selectedUserWalletID })
-        else {
+    private func onPullToRefresh(userWalletID: UserWalletId) async {
+        guard let page = pages.first(where: { $0.id == userWalletID }) else {
             return
         }
-
-        let page = pages[index]
 
         switch page {
         case .singleWallet(_, _, _, let viewModel):
@@ -600,8 +592,11 @@ private extension MainViewModel {
         static let pendingWalletsInsertionDelay = 1.0
         static let feedbackRequestDelay = 0.7
         static let pushNotificationAuthorizationRequestDelay = 1.0
+        /// Backstop for a refresh that never completes — nothing else clears the per-wallet spinner.
+        static let pullToRefreshTimeout = 120
         /// Keeps the Markets bottom sheet hidden until the launch (splash) screen has fully faded out,
         /// plus a small buffer to absorb rendering jitter, so the two never overlap on a cold start.
         static let bottomSheetVisibilityColdStartDelay = AppConstants.launchScreenDismissalDuration + 0.2
+        static let deeplinkHandoffDelay: TimeInterval = 0.5
     }
 }

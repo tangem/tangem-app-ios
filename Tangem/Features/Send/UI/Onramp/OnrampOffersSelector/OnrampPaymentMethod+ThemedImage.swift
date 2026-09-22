@@ -11,10 +11,6 @@ import TangemExpress
 
 extension OnrampPaymentMethod {
     func themedImageURL(isDark: Bool) -> URL {
-        guard FeatureProvider.isAvailable(.onrampPaymentMethodThemedImages) else {
-            return image
-        }
-
-        return imageURL(isDark: isDark)
+        imageURL(isDark: isDark)
     }
 }

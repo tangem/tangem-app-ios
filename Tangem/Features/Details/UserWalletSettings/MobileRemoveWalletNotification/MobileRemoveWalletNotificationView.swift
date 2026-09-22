@@ -58,16 +58,7 @@ private extension MobileRemoveWalletNotificationView {
         }
     }
 
-    @ViewBuilder
     var warningIcon: some View {
-        if viewModel.isICloudBackupFeatureAvailable {
-            backupWarningIcon
-        } else {
-            seedWarningIcon
-        }
-    }
-
-    var backupWarningIcon: some View {
         ZStack {
             Circle()
                 .fill(DesignSystem.Color.bgStatusWarningSubtle)
@@ -76,25 +67,6 @@ private extension MobileRemoveWalletNotificationView {
             DesignSystem.Icons.Warning.filled28.image
                 .renderingMode(.template)
                 .foregroundStyle(DesignSystem.Color.iconStatusWarning)
-        }
-    }
-
-    var seedWarningIcon: some View {
-        ZStack {
-            Circle()
-                .fill(Colors.Text.warning.opacity(0.1))
-                .frame(width: 56, height: 56)
-
-            Assets.redCircleWarning.image
-                .renderingMode(.template)
-                .resizable()
-                .foregroundStyle(Colors.Text.warning)
-                .frame(width: 30, height: 30)
-                .background {
-                    Circle()
-                        .fill(Colors.Text.constantWhite)
-                        .padding(4)
-                }
         }
     }
 
@@ -112,7 +84,7 @@ private extension MobileRemoveWalletNotificationView {
                 accessibilityLabel: nil,
                 action: secondary.handler
             )
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .horizontalLayout(.infinity)
             .size(.x12)
 

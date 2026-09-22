@@ -30,6 +30,10 @@ protocol TangemApiService: AnyObject {
     /// Get general market data for a list of tokens
     func loadCoinsList(requestModel: MarketsDTO.General.Request) async throws -> MarketsDTO.General.Response
 
+    func loadCoinsCategories(requestModel: MarketsDTO.Categories.Request) async throws -> MarketsDTO.Categories.Response
+    func loadCoinsGeckoCategories(requestModel: MarketsDTO.GeckoCategories.Request) async throws -> MarketsDTO.GeckoCategories.Response
+    func loadMarketIndicators(requestModel: MarketsDTO.MarketIndicators.Request) async throws -> MarketsDTO.MarketIndicators.Response
+
     func loadTokenMarketsDetails(requestModel: MarketsDTO.Coins.Request) async throws -> MarketsDTO.Coins.Response
 
     /// Get preview history chart data for a list of tokens
@@ -73,7 +77,11 @@ protocol TangemApiService: AnyObject {
 
     // MARK: - User token list management
 
-    func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String) async throws
+    /// Locked the way saving the accounts is: a token list a joint account has is one list for every member, and
+    /// without the lock two of them writing it overwrite each other.
+    /// - Parameter revision: The accounts ETag, sent as `If-Match`.
+    /// - Returns: The fresh ETag, whenever the endpoint reports one back.
+    func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String, revision: String) async throws -> String?
 
     // MARK: - Action Buttons
 
@@ -97,6 +105,8 @@ protocol TangemApiService: AnyObject {
     func activatePromoCode(request model: PromoCodeActivationDTO.Request) -> AnyPublisher<PromoCodeActivationDTO.Response, TangemAPIError>
 
     func loadStory(storyId: String) async throws -> StoryDTO.Response
+
+    func loadStories(slugs: [String], language: String) async throws -> StoriesResponseDTO
 
     // MARK: - Promotions
 
@@ -197,27 +207,50 @@ protocol TangemApiService: AnyObject {
     // MARK: - Joint accounts
 
     /// - Returns: Every joint account the wallet takes part in
-    func getJointAccounts(walletId: String) async throws -> JointAccountsDTO.List.Response
+    /// - Parameter knownETag: The tag the list was last read with, sent as `If-None-Match`; nil reads it outright.
+    /// - Returns: nil when the list has not changed since that tag, which the endpoint says with a 304 and no body;
+    /// otherwise the list and the tag it came with, to be sent back the next time.
+    func getJointAccounts(
+        walletId: String, knownETag: String?
+    ) async throws -> (eTag: String?, accounts: JointAccountsDTO.Response.JointAccounts)?
 
     /// - Returns: The account, in `pending` with the caller as its creator, and one invite per free slot.
     func createJointAccount(
-        walletId: String, body: JointAccountsDTO.Create.Request
-    ) async throws -> JointAccountsDTO.Create.Response
+        walletId: String, body: JointAccountsDTO.Request.Create
+    ) async throws -> JointAccountsDTO.Response.JointAccount
 
     /// - Returns: What the invited wallet is joining and who is inviting it.
     /// - Note: The wallet in the path is the one the invite is being checked for, so a wallet that already holds a slot
     /// is turned away here rather than after the card has been tapped.
     func getJointAccountInvite(
         walletId: String, inviteId: String
-    ) async throws -> JointAccountsDTO.InvitePreview.Response
+    ) async throws -> JointAccountsDTO.Response.InvitePreview
 
     func joinJointAccount(
-        walletId: String, body: JointAccountsDTO.Join.Request
-    ) async throws -> JointAccountsDTO.Join.Response
+        walletId: String, body: JointAccountsDTO.Request.Join
+    ) async throws -> JointAccountsDTO.Response.JointAccount
 
     func activateJointAccount(
-        walletId: String, body: JointAccountsDTO.Activate.Request
-    ) async throws -> JointAccountsDTO.Activate.Response
+        walletId: String, body: JointAccountsDTO.Request.Activate
+    ) async throws -> JointAccountsDTO.Response.JointAccount
+
+    /// - Returns: The operation, in `awaiting_signatures` with the initiator's signature already counted — or in
+    /// `pending` right away when the account's threshold is 1.
+    func createJointAccountOperation(
+        walletId: String, body: JointAccountsDTO.Request.CreateOperation
+    ) async throws -> JointAccountsDTO.Response.Operation
+
+    /// - Returns: The operation with the caller's signature counted in; reaching the threshold hands it to the relayer.
+    func signJointAccountOperation(
+        walletId: String, operationId: String, body: JointAccountsDTO.Request.SignOperation
+    ) async throws -> JointAccountsDTO.Response.Operation
+
+    /// Neither signed nor given a body: which of the two refusals it is follows from the wallet it is called for.
+    /// - Returns: The operation with its progress recounted, or nil when it no longer collects answers at all — this
+    /// call finished it, an earlier one did, or the id names nothing.
+    func rejectJointAccountOperation(
+        walletId: String, operationId: String
+    ) async throws -> JointAccountsDTO.Response.Operation?
 
     // MARK: - Address Book
 

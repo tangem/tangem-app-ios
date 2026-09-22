@@ -26,32 +26,104 @@ struct TransactionChipRedesigned: View {
 
     var body: some View {
         HStack(spacing: .unit(.x1)) {
-            titleView
+            leadingIcon
 
-            if let displayValue = viewModel.amount.displayValue, displayValue.isNotEmpty {
-                SensitiveText(builder: amountWithCurrency, sensitive: displayValue)
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+            if let failedApproveAmount {
+                SensitiveText(builder: failedApproveTitle, sensitive: failedApproveAmount)
+                    .style(DesignSystem.Font.captionMediumToken, color: titleColor)
                     .lineLimit(1)
-            }
+            } else {
+                titleView
 
-            subtitleView
+                if let amountText {
+                    SensitiveText(builder: amountWithCurrency, sensitive: amountText)
+                        .style(DesignSystem.Font.captionMediumToken, color: amountColor)
+                        .lineLimit(1)
+                }
 
-            if viewModel.inProgress {
-                ProgressDots(style: .small)
+                subtitleView
             }
         }
         .padding(.horizontal, .unit(.x3))
         .padding(.vertical, .unit(.x1))
         .background(background)
         .clipShape(Capsule(style: .continuous))
-        .overlay(border)
         .fixedSize(horizontal: false, vertical: true)
     }
 
+    private var amountText: String? {
+        switch viewModel.icon.status {
+        case .failed, .undefined:
+            return nil
+        case .inProgress, .confirmed:
+            return viewModel.amount.displayValue?.nilIfEmpty
+        }
+    }
+
+    /// A failed approve keeps its allowance, folded into a single `Approving <amount> failed` sentence
+    /// instead of the `<title> <amount>` composition every other state uses.
+    private var failedApproveAmount: String? {
+        guard viewModel.transactionType == .approve else {
+            return nil
+        }
+
+        switch viewModel.icon.status {
+        case .failed, .undefined:
+            return viewModel.amount.displayValue?.nilIfEmpty
+        case .inProgress, .confirmed:
+            return nil
+        }
+    }
+
+    private func failedApproveTitle(_ amount: String) -> String {
+        Localization.commonActionFailed("\(Localization.commonApproving) \(amountWithCurrency(amount))")
+    }
+
+    @ViewBuilder
+    private var leadingIcon: some View {
+        switch viewModel.icon.status {
+        case .inProgress:
+            Loader()
+                .loaderSize(.size16)
+                .loaderColor(DesignSystem.Color.iconStatusInfo)
+        case .failed, .undefined:
+            iconImage(DesignSystem.Icons.Cross.regular16.image)
+        case .confirmed where isOperationGlyphVisible:
+            iconImage(viewModel.icon.redesignedIcon)
+        case .confirmed:
+            EmptyView()
+        }
+    }
+
+    private var isOperationGlyphVisible: Bool {
+        viewModel.transactionType != .approve
+    }
+
+    private func iconImage(_ image: Image) -> some View {
+        image
+            .renderingMode(.template)
+            .resizable()
+            .scaledToFit()
+            .frame(size: CGSize(bothDimensions: 16))
+            .foregroundStyle(titleColor)
+    }
+
     private var titleView: some View {
-        Text(display.title)
-            .style(Font.Tangem.Caption12.semibold, color: titleColor)
+        Text(attributedTitle)
+            .style(DesignSystem.Font.captionMediumToken, color: titleColor)
             .lineLimit(1)
+    }
+
+    private var attributedTitle: AttributedString {
+        switch display.title {
+        case .plain(let text):
+            return AttributedString(text)
+        case .emphasizedSuffix(let prefix, let emphasized):
+            var emphasizedPart = AttributedString(emphasized)
+            emphasizedPart.foregroundColor = DesignSystem.Color.textPrimary
+
+            return AttributedString(prefix) + emphasizedPart
+        }
     }
 
     private func amountWithCurrency(_ value: String) -> String {
@@ -63,39 +135,43 @@ struct TransactionChipRedesigned: View {
     @ViewBuilder
     private var subtitleView: some View {
         switch display.subtitle {
-        case .owner(let direction, let owner):
-            TransactionSubtitleView(direction: direction, owner: owner)
+        case .owner(let direction, let owner) where isCounterpartyVisible:
+            TransactionSubtitleView(direction: direction, owner: owner, isAddressEmphasized: true)
 
-        case .text, .express, .none:
+        case .owner, .text, .express, .provider, .none:
             EmptyView()
+        }
+    }
+
+    private var isCounterpartyVisible: Bool {
+        switch viewModel.icon.status {
+        case .failed, .undefined:
+            return false
+        case .inProgress, .confirmed:
+            return true
         }
     }
 
     private var titleColor: Color {
         switch viewModel.icon.status {
-        case .failed, .undefined: .Tangem.Text.Status.warning
-        case .inProgress: .Tangem.Text.Status.accent
-        case .confirmed: .Tangem.Text.Neutral.secondary
+        case .failed, .undefined: DesignSystem.Color.textStatusError
+        case .inProgress: DesignSystem.Color.textStatusInfo
+        case .confirmed: DesignSystem.Color.textSecondary
+        }
+    }
+
+    private var amountColor: Color {
+        switch viewModel.icon.status {
+        case .confirmed: DesignSystem.Color.textPrimary
+        case .inProgress, .failed, .undefined: titleColor
         }
     }
 
     private var background: Color {
         switch viewModel.icon.status {
-        case .failed, .undefined: .Tangem.Markers.backgroundTintedRed
-        case .inProgress: .Tangem.Markers.backgroundTintedBlue
-        case .confirmed: .Tangem.Markers.backgroundTintedGray
-        }
-    }
-
-    @ViewBuilder
-    private var border: some View {
-        switch viewModel.icon.status {
-        case .failed, .undefined:
-            Capsule(style: .continuous).strokeBorder(Color.Tangem.Markers.borderTintedRed, lineWidth: 1)
-        case .inProgress:
-            Capsule(style: .continuous).strokeBorder(Color.Tangem.Markers.borderTintedBlue, lineWidth: 1)
-        case .confirmed:
-            Capsule(style: .continuous).strokeBorder(Color.Tangem.Markers.borderGray, lineWidth: 1)
+        case .failed, .undefined: DesignSystem.Color.bgStatusErrorSubtle
+        case .inProgress: DesignSystem.Color.bgStatusInfoSubtle
+        case .confirmed: DesignSystem.Color.bgOpaqueSecondary
         }
     }
 }

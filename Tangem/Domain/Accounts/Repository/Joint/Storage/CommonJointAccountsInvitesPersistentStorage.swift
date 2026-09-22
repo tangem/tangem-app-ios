@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 import TangemFoundation
 
 final class CommonJointAccountsInvitesPersistentStorage {
@@ -14,6 +15,7 @@ final class CommonJointAccountsInvitesPersistentStorage {
 
     private let key: PersistentStorageKey
     private let workingQueue: DispatchQueue
+    private let didUpdateSubject = PassthroughSubject<Void, Never>()
 
     /// Warmed by the first read and kept in step with every write, so a reader does not wait for the disk.
     private let cache = OSAllocatedUnfairLock<[StoredJointAccountInvites]?>(initialState: nil)
@@ -50,9 +52,18 @@ final class CommonJointAccountsInvitesPersistentStorage {
     private func unsafeSave(_ records: [StoredJointAccountInvites]) throws {
         try persistentStorage.store(value: records, for: key)
         cache.withLock { $0 = records }
+        didUpdateSubject.send()
+    }
+}
+
+// MARK: - JointAccountsInvitesPersistentStorage protocol conformance
+
+extension CommonJointAccountsInvitesPersistentStorage: JointAccountsInvitesPersistentStorage {
+    var didUpdatePublisher: AnyPublisher<Void, Never> {
+        didUpdateSubject.eraseToAnyPublisher()
     }
 
-    private func getList() -> [StoredJointAccountInvites] {
+    func getList() -> [StoredJointAccountInvites] {
         if let cached = cache.withLock({ $0 }) {
             return cached
         }
@@ -61,18 +72,12 @@ final class CommonJointAccountsInvitesPersistentStorage {
             unsafeFetchAndCache()
         }
     }
-}
 
-// MARK: - JointAccountsInvitesPersistentStorage protocol conformance
-
-extension CommonJointAccountsInvitesPersistentStorage: JointAccountsInvitesPersistentStorage {
-    func getInvites(forCryptoAccountId cryptoAccountId: String) -> [JointAccountInvite]? {
-        getList()
-            .first { $0.cryptoAccountId.caseInsensitiveEquals(to: cryptoAccountId) }?
-            .invites
+    func getInvites(forCryptoAccountId cryptoAccountId: String) -> [StoredJointAccountInvite]? {
+        getList().first(by: cryptoAccountId)?.invites
     }
 
-    func save(_ invites: [JointAccountInvite], forCryptoAccountId cryptoAccountId: String) throws {
+    func save(_ invites: [StoredJointAccountInvite], forCryptoAccountId cryptoAccountId: String) throws {
         // This combined read-write operation must be atomic, hence the barrier flag
         try workingQueue.sync(flags: .barrier) {
             let currentRecords = unsafeFetch()
@@ -80,7 +85,7 @@ extension CommonJointAccountsInvitesPersistentStorage: JointAccountsInvitesPersi
             let record = StoredJointAccountInvites(cryptoAccountId: cryptoAccountId, invites: invites)
 
             // Updated in place, so that re-saving unchanged invites keeps the order and fails the dirty check
-            if let index = editedRecords.firstIndex(where: { $0.cryptoAccountId.caseInsensitiveEquals(to: cryptoAccountId) }) {
+            if let index = editedRecords.firstIndex(by: cryptoAccountId) {
                 editedRecords[index] = record
             } else {
                 editedRecords.append(record)

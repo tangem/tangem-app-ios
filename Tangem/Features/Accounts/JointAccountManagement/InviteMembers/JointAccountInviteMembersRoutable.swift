@@ -6,9 +6,17 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
+import SwiftUI
+
 protocol JointAccountInviteMembersRoutable: AnyObject {
     func closeInviteMembers()
-    func shareInvite()
+    func shareInvite(url: URL)
     func openInviteSafety()
-    func openMemberDetails()
+    /// - Parameter accentColor: The colour the member's row is drawn with, so the card opens in the one the tap
+    /// came from rather than working the palette out a second time.
+    func openMemberDetails(name: String, address: String, accentColor: Color)
+    /// - Parameter onConfirm: Run when the sheet is confirmed, since activating needs what the screen holds rather
+    /// than what the flow does.
+    func openActivationConfirmation(onConfirm: @escaping () -> Void)
 }

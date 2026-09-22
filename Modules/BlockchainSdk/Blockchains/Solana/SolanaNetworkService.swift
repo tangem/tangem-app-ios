@@ -285,6 +285,21 @@ public final class SolanaNetworkService: MultiNetworkProvider {
         try await solanaSdk.api.getLatestBlockhash()
     }
 
+    /// `nil` means no account exists at the address.
+    func rawAccountInfo(address: String) async throws -> SolanaRawAccount? {
+        do {
+            let info = try await solanaSdk.api.getAccountInfo(account: address, decodedTo: SolanaRawAccountData.self).async()
+
+            guard let account = info.data.value else {
+                throw BlockchainSdkError.failedToParseNetworkResponse()
+            }
+
+            return SolanaRawAccount(owner: info.owner, data: account.data)
+        } catch SolanaError.nullValue {
+            return nil
+        }
+    }
+
     func getSlot() async throws -> UInt64 {
         try await solanaSdk.api.getSlot()
     }
@@ -377,7 +392,8 @@ public final class SolanaNetworkService: MultiNetworkProvider {
 
             return mapInfo(
                 mainAccountInfo: mainAccount,
-                tokenAccountsInfo: splTokenAccounts + token2022Accounts
+                tokenAccountsInfo: splTokenAccounts + token2022Accounts,
+                ownerAccountId: accountId
             )
         }
         .eraseToAnyPublisher()
@@ -385,7 +401,8 @@ public final class SolanaNetworkService: MultiNetworkProvider {
 
     private func mapInfo(
         mainAccountInfo: SolanaMainAccountInfoResponse,
-        tokenAccountsInfo: [TokenAccount<AccountInfoData>]
+        tokenAccountsInfo: [TokenAccount<AccountInfoData>],
+        ownerAccountId: String
     ) -> SolanaAccountInfoResponse {
         let balance = (Decimal(mainAccountInfo.balance) / blockchain.decimalValue).rounded(blockchain: blockchain)
         let accountExists = mainAccountInfo.accountExists
@@ -414,10 +431,10 @@ public final class SolanaNetworkService: MultiNetworkProvider {
             return SolanaTokenAccountInfoResponse(address: address, mint: mint, balance: amount, space: $0.account.space)
         }
 
-        let tokenPairs = tokenInfoResponses.map { ($0.mint, $0) }
-        let tokensByMint = Dictionary(tokenPairs) { token1, _ in
-            return token1
-        }
+        let tokensByMint = SolanaTokenAccountSelector.uniqueAccountsByMint(
+            tokenInfoResponses,
+            ownerAccountId: ownerAccountId
+        )
 
         return SolanaAccountInfoResponse(
             balance: balance,

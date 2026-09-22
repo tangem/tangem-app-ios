@@ -33,7 +33,7 @@ private extension EarnAddFundsHoldingsAggregator {
     /// Every holding matching the predicate, across every account of all unlocked wallets.
     static func aggregate(in models: [any UserWalletModel], matching predicate: (TokenItem) -> Bool) -> [Holding] {
         models.filter { !$0.isUserWalletLocked }.flatMap { wallet in
-            wallet.accountModelsManager.cryptoAccountModels.flatMap { account in
+            AccountModelsAggregator(.crypto, .joint).models(from: wallet.accountModelsManager).flatMap { account in
                 account.walletModelsManager.walletModels
                     .filter { predicate($0.tokenItem) }
                     .map { Holding(walletModel: $0, userWalletModel: wallet, account: account) }

@@ -236,10 +236,12 @@ private final class StubOnrampAmountInput: OnrampAmountInput {
 
 private struct StubGeoEligibilityService: GeoEligibilityService {
     let isApplePayAllowed: Bool
+    var regionCode: String? { nil }
     var isUK: Bool { false }
 
     func initialize() {}
     func waitForGeoIpRegionIfNeeded() async {}
+    func fetchGeoIpRegionCode() async -> String? { nil }
 }
 
 private final class NoOpOnrampSendAnalyticsLogger: OnrampSendAnalyticsLogger {
@@ -253,6 +255,7 @@ private final class NoOpOnrampSendAnalyticsLogger: OnrampSendAnalyticsLogger {
     func logOnrampFastestMethodClicked(provider: OnrampProvider) {}
     func logOnrampBestRateClicked(provider: OnrampProvider) {}
     func logOnrampButtonAllOffers() {}
+    func logOnrampNoticeGeoRestriction(providerNames: [String]) {}
 
     func logOnrampProvidersScreenOpened() {}
     func logOnrampProviderChosen(provider: ExpressProvider) {}

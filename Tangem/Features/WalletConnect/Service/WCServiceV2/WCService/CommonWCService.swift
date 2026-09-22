@@ -15,7 +15,6 @@ import TangemUIUtils
 
 final class CommonWCService {
     @Injected(\.userWalletRepository) private var userWalletRepository: any UserWalletRepository
-    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     private let v2Service: WCServiceV2
@@ -41,7 +40,7 @@ extension CommonWCService: WCService {
         userWalletRepositoryEventsCancelable = userWalletRepository
             .eventProvider
             .receiveOnMain()
-            .sink { [weak self, userWalletRepository, incomingActionManager, dAppSessionsExtender] walletRepositoryEvent in
+            .sink { [weak self, userWalletRepository, dAppSessionsExtender] walletRepositoryEvent in
                 MainActor.assumeIsolated {
                     guard
                         let self,
@@ -58,7 +57,6 @@ extension CommonWCService: WCService {
 
                     case .unlocked, .inserted, .unlockedWallet, .deleted, .selected:
                         self.hasInitialized = true
-                        incomingActionManager.becomeFirstResponder(self)
 
                         Task {
                             await dAppSessionsExtender.extendConnectedDAppSessionsIfNeeded()

@@ -21,19 +21,8 @@ struct EarnBestOpportunitiesListView: View {
     let hasActiveFilters: Bool
     let clearFilterAction: (() -> Void)?
 
-    private var backgroundColor: Color {
-        DesignSystem.Color.bgSecondary
-    }
-
     var body: some View {
         rootView
-            .defaultRoundedBackground(
-                with: backgroundColor,
-                verticalPadding: Layout.innerContentPadding,
-                horizontalPadding: Layout.innerContentPadding,
-                cornerRadius: 24
-            )
-            .padding(.horizontal, Layout.horizontalPadding)
     }
 
     @ViewBuilder
@@ -105,14 +94,16 @@ struct EarnBestOpportunitiesListView: View {
                 .multilineTextAlignment(.center)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, Layout.emptyViewTextHorizontalPadding)
         }
+        .padding(.vertical, Layout.emptyViewVerticalPadding)
         .padding(.horizontal, Layout.emptyViewHorizontalPadding)
         .infinityFrame(axis: .horizontal, alignment: .center)
-        .frame(height: Layout.defaultMaxHeight)
+        .frame(minHeight: Layout.stateMinHeight)
     }
 
     private var emptyViewWithClearFilter: some View {
-        VStack(spacing: Layout.emptyViewSpacing) {
+        VStack(spacing: Layout.clearFilterSpacing) {
             Text(Localization.earnNoResults)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
 
@@ -122,12 +113,14 @@ struct EarnBestOpportunitiesListView: View {
                     accessibilityLabel: Localization.earnClearFilter,
                     action: clearFilterAction
                 )
-                .size(.x9)
-                .styleType(.secondary)
+                .size(.x8)
+                .styleType(.secondary(.default))
             }
         }
+        .padding(.vertical, Layout.emptyViewVerticalPadding)
+        .padding(.horizontal, Layout.emptyViewHorizontalPadding)
         .infinityFrame(axis: .horizontal, alignment: .center)
-        .frame(height: Layout.defaultMaxHeight)
+        .frame(minHeight: Layout.stateMinHeight)
     }
 
     private var errorView: some View {
@@ -138,7 +131,7 @@ struct EarnBestOpportunitiesListView: View {
             )
         }
         .infinityFrame(axis: .horizontal, alignment: .center)
-        .frame(height: Layout.defaultMaxHeight)
+        .frame(minHeight: Layout.stateMinHeight)
     }
 }
 
@@ -149,9 +142,12 @@ private extension EarnBestOpportunitiesListView {
         static let itemSpacing: CGFloat = .zero
         static let horizontalPadding: CGFloat = 16.0
         static let innerContentPadding: CGFloat = 0.0
-        static let defaultMaxHeight: CGFloat = 180
-        static let emptyViewSpacing: CGFloat = 16
-        static let emptyViewHorizontalPadding: CGFloat = 48
+        static let stateMinHeight: CGFloat = 180
+        static let emptyViewSpacing: CGFloat = 20
+        static let clearFilterSpacing: CGFloat = 8
+        static let emptyViewVerticalPadding: CGFloat = 32
+        static let emptyViewHorizontalPadding: CGFloat = 12
+        static let emptyViewTextHorizontalPadding: CGFloat = 32
     }
 }
 

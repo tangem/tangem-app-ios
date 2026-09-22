@@ -120,6 +120,12 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayIsPaeraCustomer)
     var tangemPayIsPaeraCustomer: [String: Bool] = [:]
 
+    @AppStorageCompat(StorageType.polymarketHasAccount)
+    var polymarketHasAccount: [String: Bool] = [:]
+
+    @AppStorageCompat(StorageType.collectiblesHasAccount)
+    var collectiblesHasAccount: [String: Bool] = [:]
+
     @AppStorageCompat(StorageType.tangemPayIsDisabledForCustomerWalletId)
     var tangemPayIsDisabledForCustomerWalletId: [String: Bool] = [:]
 
@@ -149,6 +155,9 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.tangemPayCachedCashbackSummary)
     var tangemPayCachedCashbackSummary: [String: String] = [:]
+
+    @AppStorageCompat(StorageType.tangemPayRecentRecipientIds)
+    var tangemPayRecentRecipientIds: [String: [String]] = [:]
 
     @AppStorageCompat(StorageType.jailbreakWarningWasShown)
     var jailbreakWarningWasShown: Bool = false
@@ -182,6 +191,15 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.needsTangemPayMobileOnboarding)
     var needsTangemPayMobileOnboarding: Bool = false
+
+    @AppStorageCompat(StorageType.pendingTangemPayCampaignKey)
+    var pendingTangemPayCampaignKey: String? = nil
+
+    @AppStorageCompat(StorageType.geoIpRegionCode)
+    var geoIpRegionCode: String? = nil
+
+    @AppStorageCompat(StorageType.geoIpRegionCodeUpdateDate)
+    var geoIpRegionCodeUpdateDate: Date? = nil
 
     static let shared: AppSettings = .init()
 
@@ -339,5 +357,25 @@ extension AppSettings: TangemPayTransactionHistoryCacheStorage {
         }
 
         tangemPayCachedTransactionHistory[customerWalletId] = jsonString
+    }
+}
+
+extension AppSettings: TangemPayRecentRecipientsCacheStorage {
+    private enum TangemPayRecentRecipientsCacheConstants {
+        static let maxRecipients = 3
+    }
+
+    func recentRecipientIds(customerWalletId: String) -> [String] {
+        tangemPayRecentRecipientIds[customerWalletId] ?? []
+    }
+
+    func recordRecipientUsage(id: String, customerWalletId: String) {
+        var ids = recentRecipientIds(customerWalletId: customerWalletId)
+        ids.removeAll { $0 == id }
+        ids.insert(id, at: 0)
+
+        tangemPayRecentRecipientIds[customerWalletId] = Array(
+            ids.prefix(TangemPayRecentRecipientsCacheConstants.maxRecipients)
+        )
     }
 }

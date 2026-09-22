@@ -28,6 +28,13 @@ extension Analytics {
         case introductionProcessButtonAddExistingWallet = "[Introduction Process] Button - Add Existing Wallet"
         case introductionProcessOpened = "[Introduction Process] Introduction Process Screen Opened"
         case introductionProcessLearn = "[Introduction Process] Button - Learn"
+        case introductionProcessButtonIHaveWallet = "[Introduction Process] Button - I Have Wallet"
+        case introductionProcessButtonHardwareWallet = "[Introduction Process] Button - Hardware Wallet"
+        case introductionProcessButtonSignInWithCard = "[Introduction Process] Button - Sign In With Card"
+        case introductionProcessSheetDismissed = "[Introduction Process] Sheet Dismissed"
+        case introductionProcessLegalOpened = "[Introduction Process] Legal Opened"
+        case introductionProcessScanCancelled = "[Introduction Process] Scan Cancelled"
+        case introductionProcessWelcomeMediaError = "[Introduction Process] Welcome Media Error"
 
         case promoBuy = "[Promo Screen] Button - Buy"
         case promoSuccessOpened = "[Promo Screen] Success Screen Opened"
@@ -384,6 +391,7 @@ extension Analytics {
 
         case swapTokenSelected = "[Swap] Token Selected"
         case swapNoticeUnavailableToSwapPair = "[Swap] Notice - Unavailable To Swap Pair"
+        case swapNoticeGeoRestriction = "[Swap] Notice - Geo Restriction"
         case swapPreselectedTokenChanged = "[Swap] Pre-selected token changed"
         case swapFilterProvider = "[Swap] Filter provider"
         case swapFastAmountInput = "[Swap] Fast amount input"
@@ -571,6 +579,9 @@ extension Analytics {
         case marketsEarnScreenOpened = "[Markets] Earn Screen Opened"
         case marketsTokenSearch = "[Markets] Token Search"
         case marketsTokenSearchedClicked = "[Markets] Token Searched Clicked"
+        case marketsEnterSection = "[Markets] Enter Section"
+        case marketsSelectCategory = "[Markets] Select Category"
+        case marketsNotificationRegionNotSupported = "[Markets] Notification - Region Not Supported"
 
         // MARK: - Earn
 
@@ -663,6 +674,7 @@ extension Analytics {
         case onrampBuyingInProgressScreenOpened = "[Onramp] Buying In Progress Screen Opened"
         case onrampNoticeKYC = "[Onramp] Notice - KYC"
         case onrampNoticeBuyNotSupported = "[Onramp] Notice - Buy Not Supported"
+        case onrampNoticeGeoRestriction = "[Onramp] Notice - Geo Restriction"
         case onrampOnrampStatusOpened = "[Onramp] Onramp Status Opened"
         case onrampButtonGoToProvider = "[Onramp] Button - Go To Provider"
         case onrampOnrampStatus = "[Onramp] Onramp Status"
@@ -715,7 +727,11 @@ extension Analytics {
 
         case storiesSwapStory = "[Stories] Swap Story"
         case storiesYieldPromoStory = "[Stories] Yield Promo Story"
+        case storiesPolymarketOnboardingStory = "[Stories] Polymarket Onboarding Story"
         case storiesError = "[Stories] Error"
+        case storiesStoryOpened = "[Stories] Story Opened"
+        case storiesSlideViewed = "[Stories] Slide Viewed"
+        case storiesStoryClosed = "[Stories] Story Closed"
 
         // MARK: - Tangem API Service
 
@@ -762,6 +778,9 @@ extension Analytics {
         case visaOnboardingChooseWalletPopup = "[Visa Onboarding] Choose Wallet Popup"
         case visaOnboardingVisaIssuingBannerDisplayed = "[Visa Onboarding] Visa Issuing Banner Displayed"
         case visaOnboardingVisaShortForHWActivationScreenOpened = "[Visa Onboarding] Visa Short For HW Activation Screen Opened"
+        case visaOnboardingCobrandDesignOnboardingNewHotWallet = "[Visa Onboarding] Cobrand Design Onboarding New HotWallet"
+        case visaOnboardingCobrandDesignOnboardingNotInPay = "[Visa Onboarding] Cobrand Design Onboarding Not In Pay"
+        case visaOnboardingCobrandDesignOnboardingExistPay = "[Visa Onboarding] Cobrand Design Onboarding Exist Pay"
 
         case visaOnboardingVisaKYCCanceled = "[Visa Onboarding] Visa KYC Canceled"
         case visaOnboardingVisaKYCRejected = "[Visa Onboarding] Visa KYC Rejected"
@@ -896,15 +915,6 @@ extension Analytics {
         case visaCashbackNegativeBannerShowed = "[Visa Cashback] Cashback Negative Banner Showed"
         case visaCashbackLoadingErrorShowed = "[Visa Cashback] Cashback Loading Error Showed"
 
-        // Multichain
-
-        case visaMultichainChooseNetworkPopupShowed = "[Visa Multichain] Choose Network Popup Showed"
-        case visaMultichainFastWayNetworkClicked = "[Visa Multichain] Fast Way Network Clicked"
-        case visaMultichainOtherWayNetworkClicked = "[Visa Multichain] Other Way Network Clicked"
-        case visaMultichainFastWayAddressPopupShowed = "[Visa Multichain] Fast Way Network Address Popup Showed"
-        case visaMultichainAddressFetchErrorShowed = "[Visa Multichain] Address Fetch Error Showed"
-        case visaMultichainOtherWaySwapPopupShowed = "[Visa Multichain] Other Way 1:1 Swap Popup Showed"
-
         // MARK: - NFT
 
         case nftAssetReadMore = "[NFT] Button - Read More"
@@ -991,6 +1001,11 @@ extension Analytics {
         case addressBookAddressSubstitutedInSend = "[Address Book] Address Substituted In Send"
         case addressBookSelectAllNetworksTapped = "[Address Book] Select All Networks Tapped"
 
+        // MARK: - Transaction History
+
+        case transactionDetailScreenOpened = "[Token / Transaction History] Transaction Detail Screen Opened"
+        case transactionDetailButtonCopyTransactionID = "[Transaction History] Button - Copy Transaction ID"
+
         // MARK: - For You
 
         case forYouScreenOpened = "[For You] For You Screen Opened"
@@ -1005,5 +1020,9 @@ extension Analytics {
         case forYouEarnTokenOpened = "[For You] Earn Token Opened"
         case forYouExploreAllTokens = "[For You] Explore All Tokens"
         case forYouIndicatorInfo = "[For You] Indicator Info"
+
+        // MARK: - Backend Authentication
+
+        case userWalletRegistrationUnexpectedCurve = "[Backend Auth] Unexpected Wallet Curve"
     }
 }

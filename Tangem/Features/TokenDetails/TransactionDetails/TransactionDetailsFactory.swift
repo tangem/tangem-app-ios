@@ -34,18 +34,39 @@ enum TransactionDetailsFactory {
     static func reduce(
         transaction: TransactionViewModel,
         record: TransactionRecord,
+        cryptoAmount: Decimal,
         context: TransactionDetailsContext,
         addContactHelper: TransactionDetailsAddContactHelper
     ) -> (header: TransactionDetailsHeaderViewData, content: TransactionDetailsViewModel.Content) {
-        (
-            header(for: transaction, record: record, context: context, addContactHelper: addContactHelper),
-            content(for: transaction, record: record, context: context)
+        let content = content(for: transaction, record: record, cryptoAmount: cryptoAmount, context: context)
+
+        return (
+            header(
+                for: transaction,
+                record: record,
+                context: context,
+                addContactHelper: addContactHelper,
+                counterpartyAddress: copyableCounterpartyAddress(in: content)
+            ),
+            content
         )
+    }
+
+    private static func copyableCounterpartyAddress(in content: TransactionDetailsViewModel.Content) -> String? {
+        guard
+            case .generic(let data) = content,
+            case .copy(let address, _, _) = data.counterparty?.copyAction
+        else {
+            return nil
+        }
+
+        return address
     }
 
     private static func content(
         for transaction: TransactionViewModel,
         record: TransactionRecord,
+        cryptoAmount: Decimal,
         context: TransactionDetailsContext
     ) -> TransactionDetailsViewModel.Content {
         switch record.expressExtraInfo {
@@ -54,7 +75,7 @@ enum TransactionDetailsFactory {
         case .onramp(let info):
             return .onramp(onrampContent(info, context: context))
         case nil:
-            return onChainContent(for: transaction, record: record, context: context)
+            return onChainContent(for: transaction, record: record, cryptoAmount: cryptoAmount, context: context)
         }
     }
 
@@ -63,32 +84,103 @@ enum TransactionDetailsFactory {
     private static func onChainContent(
         for transaction: TransactionViewModel,
         record: TransactionRecord,
+        cryptoAmount: Decimal,
         context: TransactionDetailsContext
     ) -> TransactionDetailsViewModel.Content {
         switch transaction.transactionType {
         case .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit, .yieldReactivate,
              .yieldSend, .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin:
-            return .yield(yieldContent(for: transaction, record: record, context: context))
+            // Only the two operations that move the balance in or out of the protocol get the paired layout;
+            // the rest are a plain single-asset amount, which the generic block already renders.
+            guard let stage = yieldStage(for: transaction.transactionType) else {
+                return .generic(genericOperationContent(
+                    for: transaction,
+                    record: record,
+                    context: context,
+                    counterpartyLabel: nil,
+                    amountText: transaction.amount.amountWithCurrencyCode,
+                    ignoringDirection: true
+                ))
+            }
 
-        case .stake, .unstake, .vote, .withdraw, .claimRewards, .restake:
-            return .generic(genericOperationContent(for: transaction, record: record, context: context, counterpartyLabel: Localization.stakingValidator))
+            return .yield(yieldContent(for: transaction, stage: stage, record: record, context: context))
+
+        case .approve where isDecodedApprove(record):
+            return .generic(approveContent(for: transaction, record: record, context: context))
 
         case .approve:
-            return .generic(genericOperationContent(for: transaction, record: record, context: context, counterpartyLabel: Localization.commonAddress))
+            return .generic(genericOperationContent(
+                for: transaction,
+                record: record,
+                context: context,
+                counterpartyLabel: Localization.commonAddress,
+                ignoringDirection: false
+            ))
 
-        // [REDACTED_TODO_COMMENT]
-        case .gaslessTransactionFee, .operation, .unknownOperation:
-            return .generic(genericOperationContent(for: transaction, record: record, context: context, counterpartyLabel: nil))
+        case .stake, .unstake, .vote, .withdraw, .claimRewards, .restake:
+            return .generic(stakingOperationContent(for: transaction, record: record, context: context))
+
+        case .gaslessTransactionFee:
+            return .generic(gaslessFeeContent(for: transaction, record: record, cryptoAmount: cryptoAmount, context: context))
+
+        case .operation, .unknownOperation:
+            return .generic(genericOperationContent(
+                for: transaction,
+                record: record,
+                context: context,
+                counterpartyLabel: resolvedStakingTargetLabel(for: transaction),
+                ignoringDirection: false
+            ))
 
         case .transfer, .gaslessTransfer, .swap, .onramp, .tangemPay:
             return .generic(sendReceiveContent(for: transaction, record: record, context: context))
         }
     }
 
-    private static func tokensBlock(for transaction: TransactionViewModel, isFailed: Bool, context: TransactionDetailsContext) -> TransactionDetailsTokensViewData {
+    private static func stakingTarget(for transaction: TransactionViewModel) -> TransactionViewModel.StakingTarget? {
+        guard case .staking(.some(let target)) = transaction.interactionAddress else {
+            return nil
+        }
+
+        return target
+    }
+
+    /// Operations that only sometimes turn out to be staking — a bare contract call, a gasless fee — claim the
+    /// validator only once its address resolves to a name; unresolved, it is just the contract they touched.
+    /// Staking operations proper don't go through here: they name the validator in their info section instead.
+    private static func resolvedStakingTarget(for transaction: TransactionViewModel) -> TransactionViewModel.StakingTarget? {
+        guard let target = stakingTarget(for: transaction), target.isResolved else {
+            return nil
+        }
+
+        return target
+    }
+
+    private static func resolvedStakingTargetLabel(for transaction: TransactionViewModel) -> String? {
+        resolvedStakingTarget(for: transaction) == nil ? nil : Localization.stakingValidator
+    }
+
+    private static func isDecodedApprove(_ record: TransactionRecord) -> Bool {
+        if case .approve = record.type {
+            return true
+        }
+
+        return false
+    }
+
+    private static func tokensBlock(
+        for transaction: TransactionViewModel,
+        isFailed: Bool,
+        caption: String?,
+        fiatText: String?,
+        icon: TransactionDetailsTokensViewData.Single.Icon,
+        amountText: String? = nil
+    ) -> TransactionDetailsTokensViewData {
         TransactionDetailsTokensViewData(
-            tokenIconInfo: context.tokenIconInfo,
-            amountText: transaction.amount.amount,
+            icon: icon,
+            caption: caption,
+            amountText: amountText ?? transaction.amount.amount,
+            fiatText: fiatText,
             isAmountStrikethrough: isFailed
         )
     }
@@ -101,45 +193,189 @@ enum TransactionDetailsFactory {
         for transaction: TransactionViewModel,
         record: TransactionRecord,
         context: TransactionDetailsContext,
-        counterpartyLabel: String?
+        counterpartyLabel: String?,
+        amountText: String? = nil,
+        ignoringDirection: Bool
     ) -> TransactionDetailsGenericOperationViewData {
         .init(
-            tokens: tokensBlock(for: transaction, isFailed: isFailed(record: record), context: context),
+            tokens: tokensBlock(
+                for: transaction,
+                isFailed: isFailed(record: record),
+                caption: nil,
+                fiatText: nil,
+                icon: .token(context.tokenIconInfo),
+                amountText: amountText
+            ),
             // On-chain operations don't get a live status banner (that's an Express-only transition)
             statusBanner: nil,
             // and the "for sending X" block
             principalAmount: nil,
             counterparty: counterpartyLabel.flatMap { counterparty(for: transaction, label: $0) },
-            info: networkFeeInfo(from: record),
+            info: networkFeeInfo(from: record, ignoringDirection: ignoringDirection),
             action: nil
         )
     }
 
+    private static func stakingOperationContent(
+        for transaction: TransactionViewModel,
+        record: TransactionRecord,
+        context: TransactionDetailsContext
+    ) -> TransactionDetailsGenericOperationViewData {
+        .init(
+            tokens: tokensBlock(
+                for: transaction,
+                isFailed: isFailed(record: record),
+                caption: nil,
+                fiatText: nil,
+                icon: .token(context.tokenIconInfo)
+            ),
+            statusBanner: stakingStatusBanner(for: transaction, record: record),
+            principalAmount: nil,
+            counterparty: nil,
+            info: stakingInfo(for: transaction, record: record),
+            action: nil
+        )
+    }
+
+    private static func approveContent(
+        for transaction: TransactionViewModel,
+        record: TransactionRecord,
+        context: TransactionDetailsContext
+    ) -> TransactionDetailsGenericOperationViewData {
+        let isFailed = isFailed(record: record)
+
+        return .init(
+            tokens: tokensBlock(
+                for: transaction,
+                isFailed: isFailed,
+                caption: Localization.transactionHistoryApprovedAmount,
+                fiatText: nil,
+                icon: approvedTokenIcon(for: record, context: context)
+            ),
+            statusBanner: isFailed ? nil : highRiskBanner(for: record),
+            principalAmount: nil,
+            counterparty: nil,
+            info: networkFeeInfo(from: record, ignoringDirection: false),
+            action: nil
+        )
+    }
+
+    private static func stakingStatusBanner(
+        for transaction: TransactionViewModel,
+        record: TransactionRecord
+    ) -> TransactionDetailsStatusBannerViewData? {
+        guard isFailed(record: record) else {
+            return nil
+        }
+
+        return .init(
+            kind: .failed,
+            title: transaction.display.title.fullText,
+            subtitle: Localization.commonSomethingWentWrong
+        )
+    }
+
+    private static func stakingInfo(
+        for transaction: TransactionViewModel,
+        record: TransactionRecord
+    ) -> TransactionDetailsInfoSectionViewData? {
+        var rows: [TransactionDetailsInfoSectionViewData.Row] = []
+
+        if let target = stakingTarget(for: transaction) {
+            rows.append(.init(id: "validator", title: Localization.stakingValidator, content: .text(validatorText(for: target))))
+        }
+
+        if let fee = networkFee(from: record, ignoringDirection: false) {
+            rows.append(.init(id: "networkFee", title: Localization.commonNetworkFeeTitle, content: .text(fee)))
+        }
+
+        return rows.isEmpty ? nil : .init(rows: rows)
+    }
+
+    private static func validatorText(for target: TransactionViewModel.StakingTarget) -> String {
+        target.isResolved ? target.name : AddressFormatter(address: target.address).truncated()
+    }
+
+    /// An approve is sent to the contract of the token it approves, so that destination identifies the token to show.
+    private static func approvedTokenIcon(
+        for record: TransactionRecord,
+        context: TransactionDetailsContext
+    ) -> TransactionDetailsTokensViewData.Single.Icon {
+        guard case .single(let destination) = record.destination,
+              case .contract(let tokenContract) = destination.address,
+              let resolved = context.tokenIconInfo(forContract: tokenContract)
+        else {
+            return .unresolved(network: context.networkIconAsset)
+        }
+
+        return .token(resolved)
+    }
+
+    private static func highRiskBanner(for record: TransactionRecord) -> TransactionDetailsStatusBannerViewData? {
+        guard case .approve(let approve) = record.type, approve.allowance == .unlimited else {
+            return nil
+        }
+
+        return .init(
+            kind: .attention,
+            title: Localization.transactionHistoryApproveHighRiskTitle,
+            subtitle: Localization.transactionHistoryApproveHighRiskSubtitle
+        )
+    }
+
+    // MARK: - Gasless fee
+
+    private static func gaslessFeeContent(
+        for transaction: TransactionViewModel,
+        record: TransactionRecord,
+        cryptoAmount: Decimal,
+        context: TransactionDetailsContext
+    ) -> TransactionDetailsGenericOperationViewData {
+        .init(
+            tokens: tokensBlock(
+                for: transaction,
+                isFailed: isFailed(record: record),
+                caption: nil,
+                fiatText: fiatText(amount: cryptoAmount, currencyId: context.tokenCurrencyId),
+                icon: .token(context.tokenIconInfo)
+            ),
+            statusBanner: nil,
+            principalAmount: nil,
+            counterparty: nil,
+            info: nil,
+            action: nil
+        )
+    }
+
+    // MARK: - Yield
+
     private static func yieldContent(
         for transaction: TransactionViewModel,
+        stage: YieldStage,
         record: TransactionRecord,
         context: TransactionDetailsContext
     ) -> TransactionDetailsYieldViewData {
         .init(
             tokens: TransactionDetailsYieldTokensViewData(
-                accountIcon: context.receiverAccountIcon,
+                provider: stage.provider,
                 tokenIconInfo: context.tokenIconInfo,
-                amountText: transaction.amount.amount,
-                statusTitle: yieldStatusTitle(for: transaction.transactionType)
+                amountText: transaction.amount.amountWithCurrencyCode,
+                caption: stage.caption
             ),
             statusBanner: nil,
-            info: networkFeeInfo(from: record),
+            info: networkFeeInfo(from: record, ignoringDirection: true),
             action: nil
         )
     }
 
-    private static func yieldStatusTitle(for type: TransactionViewModel.TransactionType) -> String? {
+    private static func yieldStage(for type: TransactionViewModel.TransactionType) -> YieldStage? {
         switch type {
+        case .yieldEnter, .yieldEnterCoin:
+            return YieldStage(provider: .leading(Assets.YieldModule.yieldModuleAaveLogo), caption: Localization.yieldModuleTransactionSupplied)
         case .yieldWithdraw, .yieldWithdrawCoin:
-            return Localization.yieldModuleTransactionReturned
-        case .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit, .yieldReactivate, .yieldSend, .yieldTopup:
-            return Localization.yieldModuleTransactionSupplied
-        case .stake, .unstake, .vote, .withdraw, .claimRewards, .restake,
+            return YieldStage(provider: .trailing(Assets.YieldModule.yieldModuleAaveLogo), caption: Localization.yieldModuleTransactionReturned)
+        case .yieldDeploy, .yieldInit, .yieldReactivate, .yieldSend, .yieldTopup,
+             .stake, .unstake, .vote, .withdraw, .claimRewards, .restake,
              .approve, .gaslessTransactionFee, .operation, .unknownOperation,
              .transfer, .gaslessTransfer, .swap, .onramp, .tangemPay:
             return nil
@@ -169,7 +405,7 @@ enum TransactionDetailsFactory {
             statusBanner: refund?.banner ?? swapStatusBanner(exchange.status, isLongRunning: isLongRunning),
             provider: provider(info.provider, fallbackId: exchange.providerId, externalURL: exchange.externalTx?.url),
             rate: swapRate(fromAmount: sourceAmount, fromToken: fromToken, toAmount: destinationAmount, toToken: toToken),
-            networkFee: networkFee(from: record),
+            networkFee: networkFee(from: record, ignoringDirection: false),
             action: refund?.action ?? action(for: exchange.status, isLongRunning: isLongRunning, externalURL: exchange.externalTx?.url),
             ratingTransaction: ratingTransaction(for: exchange, providerName: info.provider?.name)
         )
@@ -234,7 +470,7 @@ enum TransactionDetailsFactory {
     }
 
     /// "Long transaction time": an active swap stuck for more than 15 minutes since `createdAt`
-    private static func isLongRunningSwap(_ exchange: ExchangeTransaction) -> Bool {
+    static func isLongRunningSwap(_ exchange: ExchangeTransaction) -> Bool {
         let threshold: TimeInterval = 15 * 60
         let elapsed = Date().timeIntervalSince(exchange.createdAt)
         guard elapsed > threshold else {
@@ -249,6 +485,45 @@ enum TransactionDetailsFactory {
         case .preview, .created, .unknown, .verifying, .paused,
              .finished, .failed, .txFailed, .refunded, .expired:
             return false
+        }
+    }
+
+    static func providerNavigationSource(for info: TransactionHistoryExpressExtraInfo) -> TransactionDetailsProviderNavigationSource? {
+        switch info {
+        case .exchange(let info):
+            providerNavigationSource(for: info.transaction.status, isLongRunning: isLongRunningSwap(info.transaction))
+        case .onramp(let info):
+            providerNavigationSource(for: info.transaction.status)
+        }
+    }
+
+    private static func providerNavigationSource(
+        for swapStatus: ExpressTransactionStatus,
+        isLongRunning: Bool
+    ) -> TransactionDetailsProviderNavigationSource? {
+        if isLongRunning {
+            return .longTime
+        }
+
+        switch swapStatus {
+        case .verifying:
+            return .kyc
+        case .paused:
+            return .status
+        case .unknown, .preview, .created, .exchangeTxSent, .waiting, .waitingTxHash,
+             .confirming, .exchanging, .sending, .finished, .failed, .txFailed, .refunded, .expired:
+            return nil
+        }
+    }
+
+    private static func providerNavigationSource(for onrampStatus: OnrampTransactionStatus) -> TransactionDetailsProviderNavigationSource? {
+        switch onrampStatus {
+        case .verifying:
+            .kyc
+        case .paused, .waitingForPayment:
+            .status
+        case .unknown, .created, .paymentProcessing, .paid, .sending, .refunding, .finished, .failed, .expired, .refunded:
+            nil
         }
     }
 
@@ -367,11 +642,17 @@ enum TransactionDetailsFactory {
         context: TransactionDetailsContext
     ) -> TransactionDetailsGenericOperationViewData {
         return .init(
-            tokens: tokensBlock(for: transaction, isFailed: isFailed(record: record), context: context),
+            tokens: tokensBlock(
+                for: transaction,
+                isFailed: isFailed(record: record),
+                caption: nil,
+                fiatText: nil,
+                icon: .token(context.tokenIconInfo)
+            ),
             statusBanner: nil,
             principalAmount: nil,
             counterparty: counterparty(for: transaction, label: counterpartyLabel(for: transaction)),
-            info: networkFeeInfo(from: record),
+            info: networkFeeInfo(from: record, ignoringDirection: false),
             action: nil
         )
     }
@@ -387,6 +668,8 @@ enum TransactionDetailsFactory {
             return Localization.commonFromWallet
         case .accountInCurrentWallet, .accountInOtherWallet:
             return Localization.commonFromAccount
+        case .contact:
+            return Localization.addressBookContact
         case .unresolved, .none:
             return Localization.commonFromAddress
         }
@@ -402,7 +685,7 @@ enum TransactionDetailsFactory {
         TransactionDetailsProviderInfo(
             name: provider?.name ?? fallbackId,
             type: providerTypeTitle(provider?.type),
-            action: externalURL.map { .openURL($0) }
+            action: externalURL.map { .openURL($0, kind: .provider(source: .status)) }
         )
     }
 
@@ -425,48 +708,29 @@ enum TransactionDetailsFactory {
         isLongRunning: Bool,
         externalURL: URL?
     ) -> TransactionDetailsActionButtonViewData? {
-        if isLongRunning {
-            return externalAction(title: Localization.commonGoToProvider, externalURL: externalURL)
-        }
-
-        switch swapStatus {
-        case .verifying:
-            return externalAction(title: Localization.commonGoToVerification, externalURL: externalURL)
-        case .paused:
-            return externalAction(title: Localization.commonGoToProvider, externalURL: externalURL)
-        case .unknown, .preview, .created, .exchangeTxSent, .waiting, .waitingTxHash,
-             .confirming, .exchanging, .sending, .finished, .failed, .txFailed, .refunded, .expired:
-            return nil
-        }
+        externalAction(source: providerNavigationSource(for: swapStatus, isLongRunning: isLongRunning), externalURL: externalURL)
     }
 
     private static func action(
         for onrampStatus: OnrampTransactionStatus,
         externalURL: URL?
     ) -> TransactionDetailsActionButtonViewData? {
-        switch onrampStatus {
-        case .verifying:
-            return externalAction(title: Localization.commonGoToVerification, externalURL: externalURL)
-        case .paused, .waitingForPayment:
-            return externalAction(title: Localization.commonGoToProvider, externalURL: externalURL)
-        case .unknown, .created, .paymentProcessing, .paid, .sending, .refunding, .finished, .failed, .expired, .refunded:
-            return nil
-        }
+        externalAction(source: providerNavigationSource(for: onrampStatus), externalURL: externalURL)
     }
 
     private static func externalAction(
-        title: String,
+        source: TransactionDetailsProviderNavigationSource?,
         externalURL: URL?
     ) -> TransactionDetailsActionButtonViewData? {
-        guard let externalURL else {
+        guard let source, let externalURL else {
             return nil
         }
 
         return .init(
-            title: title,
+            title: source.actionTitle,
             icon: DesignSystem.Icons.ArrowTopRight.regular20,
             style: .default,
-            action: .openURL(externalURL)
+            action: .openURL(externalURL, kind: .provider(source: source))
         )
     }
 
@@ -476,22 +740,26 @@ enum TransactionDetailsFactory {
         }
 
         let baseSymbol: String
-        let quoteSymbol: String
+        let quoteToken: TokenItem
         let rate: Decimal
 
         switch SwapRateDisplaySideResolver.resolve(from: fromToken, to: toToken) {
         case .fromIsBase:
             baseSymbol = fromToken.currencySymbol
-            quoteSymbol = toToken.currencySymbol
+            quoteToken = toToken
             rate = toAmount / fromAmount
         case .toIsBase:
             baseSymbol = toToken.currencySymbol
-            quoteSymbol = fromToken.currencySymbol
+            quoteToken = fromToken
             rate = fromAmount / toAmount
         }
 
         let base = balanceFormatter.formatCryptoBalance(1, currencyCode: baseSymbol)
-        let quote = balanceFormatter.formatCryptoBalance(rate, currencyCode: quoteSymbol)
+        let quote = balanceFormatter.formatCryptoBalance(
+            rate,
+            currencyCode: quoteToken.currencySymbol,
+            formattingOptions: .cryptoRateFormattingOptions(decimalCount: quoteToken.decimalCount)
+        )
         return "\(base) \(AppConstants.approximatelyEqualSign) \(quote)"
     }
 
@@ -512,10 +780,11 @@ enum TransactionDetailsFactory {
         return balanceFormatter.formatFiatBalance(fiat)
     }
 
-    /// The fee is shown only for outgoing operations.
-    private static func networkFee(from record: TransactionRecord) -> String? {
+    /// The fee is shown only for outgoing operations, unless the caller knows the wallet paid it even though
+    /// the record reads as incoming. Synthetic Express records never show one either way.
+    private static func networkFee(from record: TransactionRecord, ignoringDirection: Bool) -> String? {
         guard
-            record.isOutgoing,
+            record.isOutgoing || ignoringDirection,
             // Hide network fee for synthetic Express records
             !ExpressSyntheticTxHelper.isSyntheticIdentifier(record.hash)
         else {
@@ -526,12 +795,15 @@ enum TransactionDetailsFactory {
         return "\(balanceFormatter.formatDecimal(amount.value)) \(amount.currencySymbol)"
     }
 
-    private static func networkFeeInfo(from record: TransactionRecord) -> TransactionDetailsInfoSectionViewData? {
-        guard let fee = networkFee(from: record) else {
+    private static func networkFeeInfo(
+        from record: TransactionRecord,
+        ignoringDirection: Bool
+    ) -> TransactionDetailsInfoSectionViewData? {
+        guard let fee = networkFee(from: record, ignoringDirection: ignoringDirection) else {
             return nil
         }
 
-        return .init(rows: [.init(id: "networkFee", title: Localization.commonNetworkFeeTitle, content: .text(fee))])
+        return .init(rows: [.init(id: "networkFee", title: Localization.commonNetworkFeeTitle, content: .sensitiveText(fee))])
     }
 
     // MARK: - Header
@@ -540,7 +812,8 @@ enum TransactionDetailsFactory {
         for transaction: TransactionViewModel,
         record: TransactionRecord,
         context: TransactionDetailsContext,
-        addContactHelper: TransactionDetailsAddContactHelper
+        addContactHelper: TransactionDetailsAddContactHelper,
+        counterpartyAddress: String?
     ) -> TransactionDetailsHeaderViewData {
         let status = TransactionOperationStatusMapper.viewStatus(for: record)
         let title = headerTitle(for: transaction, record: record, status: status)
@@ -556,10 +829,18 @@ enum TransactionDetailsFactory {
             title: title.text,
             titleStyle: title.style,
             date: dateText,
-            operationIcon: TransactionViewIconViewData(type: transaction.transactionType, status: status, isOutgoing: transaction.isOutgoing),
+            subtitleStyle: .secondary,
+            operationIcon: TransactionViewIconViewData(
+                type: transaction.transactionType,
+                status: status,
+                isOutgoing: transaction.isOutgoing,
+                isFromYieldContract: transaction.isFromYieldContract
+            ),
             iconGlyph: headerIconGlyph(for: record),
-            menuActions: TransactionDetailsMenuFactory.menuActions(
+            menuSections: TransactionDetailsMenuFactory.menuSections(
                 for: record,
+                counterpartyAddress: counterpartyAddress,
+                transactionType: transaction.transactionType,
                 context: context,
                 addContactHelper: addContactHelper
             )
@@ -593,7 +874,7 @@ enum TransactionDetailsFactory {
                 legacyName: transaction.name,
                 subtitleOwner: transaction.subtitleOwner
             )
-            return (text, onChainTitleStyle(for: status))
+            return (text.fullText, onChainTitleStyle(for: status))
         }
     }
 
@@ -649,15 +930,31 @@ enum TransactionDetailsFactory {
         case .wallet(let name, let imageProvider, _):
             return .init(label: label, actor: .wallet(name: name), copyAction: nil, walletImageProvider: imageProvider)
 
+        case .contact(let name, let icon, let fullAddress):
+            return .init(
+                label: label,
+                actor: .contact(name: name, icon),
+                copyAction: copyAddressAction(for: fullAddress),
+                walletImageProvider: nil
+            )
+
         case .unresolved(let short, let fullAddress, let blockiesImage):
+            if let stakingCounterparty = stakingCounterparty(for: transaction, label: label) {
+                return stakingCounterparty
+            }
+
             return .init(
                 label: label,
                 actor: .address(short: short, blockiesImage: .init(image: blockiesImage)),
-                copyAction: .copy(value: fullAddress, toast: Localization.walletNotificationAddressCopied),
+                copyAction: copyAddressAction(for: fullAddress),
                 walletImageProvider: nil
             )
 
         case .none:
+            if let stakingCounterparty = stakingCounterparty(for: transaction, label: label) {
+                return stakingCounterparty
+            }
+
             guard let address = counterpartyAddress(for: transaction) else {
                 return nil
             }
@@ -668,10 +965,33 @@ enum TransactionDetailsFactory {
                     short: AddressFormatter(address: address).truncated(),
                     blockiesImage: AddressIconProvider.makeBlockiesIconViewData(address: address)
                 ),
-                copyAction: .copy(value: address, toast: Localization.walletNotificationAddressCopied),
+                copyAction: copyAddressAction(for: address),
                 walletImageProvider: nil
             )
         }
+    }
+
+    private static func stakingCounterparty(
+        for transaction: TransactionViewModel,
+        label: String
+    ) -> TransactionDetailsAddressViewData? {
+        guard let target = resolvedStakingTarget(for: transaction) else {
+            return nil
+        }
+
+        return .init(
+            label: label,
+            actor: .address(
+                short: target.name,
+                blockiesImage: AddressIconProvider.makeBlockiesIconViewData(address: target.address)
+            ),
+            copyAction: copyAddressAction(for: target.address),
+            walletImageProvider: nil
+        )
+    }
+
+    private static func copyAddressAction(for address: String) -> TransactionDetailsViewModel.ViewAction {
+        .copy(value: address, toast: Localization.walletNotificationAddressCopied, kind: .address)
     }
 
     private static func counterpartyAddress(for transaction: TransactionViewModel) -> String? {
@@ -680,10 +1000,30 @@ enum TransactionDetailsFactory {
             return address
         case .multiple(let addresses):
             return addresses.first
-        case .staking(let validator):
-            return validator
+        case .staking(let target):
+            return target?.address
         case .custom:
             return nil
+        }
+    }
+}
+
+// MARK: - Yield
+
+private extension TransactionDetailsFactory {
+    struct YieldStage {
+        let provider: TransactionDetailsYieldTokensViewData.Provider
+        let caption: String
+    }
+}
+
+// MARK: - Provider link
+
+private extension TransactionDetailsProviderNavigationSource {
+    var actionTitle: String {
+        switch self {
+        case .kyc: Localization.commonGoToVerification
+        case .status, .longTime: Localization.commonGoToProvider
         }
     }
 }

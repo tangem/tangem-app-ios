@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemExpress
+import TangemStaking
 
 protocol TransactionHistoryAuxDataStorage: Sendable {
     // MARK: Express providers
@@ -24,4 +25,9 @@ protocol TransactionHistoryAuxDataStorage: Sendable {
 
     func cryptoCurrencies() async throws -> [TransactionHistoryAuxDataCachedValue<TokenItem>]
     func saveCryptoCurrencies(_ tokenItems: [TokenItem]) async throws
+
+    // MARK: Staking targets
+
+    func stakingTargets() async throws -> [TransactionHistoryAuxDataCachedValue<StakingTargetSummary>]
+    func saveStakingTargets(_ targets: [StakingTargetSummary]) async throws
 }

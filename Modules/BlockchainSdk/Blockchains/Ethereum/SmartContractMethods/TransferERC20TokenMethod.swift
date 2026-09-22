@@ -33,12 +33,21 @@ public struct TransferERC20TokenMethod {
 // MARK: - Decoding
 
 public extension TransferERC20TokenMethod {
-    /// Recovers the arguments of a `transfer(address,uint256)` call.
-    /// Returns `nil` for anything that is not exactly such a call, including a call carrying
-    /// a dirty address slot, a truncated or padded argument list or a destination that doesn't
-    /// pass the `SmartContractAddress` validation.
+    /// The call as a method again, for whoever needs the destination validated rather than spelled out.
+    /// - Returns: `nil` for whatever `parse(calldata:)` returns nil for.
     init?(calldata: Data) {
-        guard Self.isEncodedCall(calldata) else {
+        guard let transfer = Self.parse(calldata: calldata) else {
+            return nil
+        }
+
+        try? self.init(destination: transfer.destination, amount: transfer.amount)
+    }
+
+    /// Recovers the arguments of a `transfer(address,uint256)` call.
+    /// - Returns: `nil` for anything that is not exactly such a call, including a call carrying a dirty address slot,
+    /// a truncated or padded argument list or a destination that doesn't pass the `SmartContractAddress` validation.
+    static func parse(calldata: Data) -> (amount: BigUInt, destination: String)? {
+        guard isEncodedCall(calldata) else {
             return nil
         }
 
@@ -55,9 +64,13 @@ public extension TransferERC20TokenMethod {
             return nil
         }
 
-        let destinationBytes = Data(destinationSlot.suffix(Constants.addressLength))
+        let destination = Data(destinationSlot.suffix(Constants.addressLength)).hex().addHexPrefix()
 
-        try? self.init(destination: destinationBytes.hex().addHexPrefix(), amount: BigUInt(Data(amountSlot)))
+        guard (try? SmartContractAddress(destination)) != nil else {
+            return nil
+        }
+
+        return (amount: BigUInt(Data(amountSlot)), destination: destination)
     }
 }
 

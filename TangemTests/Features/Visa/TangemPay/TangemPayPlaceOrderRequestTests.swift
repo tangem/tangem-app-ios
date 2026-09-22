@@ -54,6 +54,116 @@ struct TangemPayPlaceOrderRequestTests {
         #expect(Set(data.keys) == ["type", "specification_name", "customer_wallet_address"])
     }
 
+    @Test("Campaign card issue order body carries deeplink_value alongside the legacy fields")
+    func campaignCardIssueOrder_encodesDeeplinkValue() throws {
+        let deeplinkValue = "tpay_for_harvard123"
+
+        let json = try encodeToDictionary(
+            .init(
+                type: "CARD_ISSUE_VIRTUAL_RAIN",
+                customerWalletAddress: "0xWALLET",
+                specificationName: "SP_000004",
+                deeplinkValue: deeplinkValue
+            )
+        )
+
+        #expect(Set(json.keys) == ["data"])
+
+        let data = try #require(json["data"] as? [String: Any])
+        #expect(data["type"] as? String == "CARD_ISSUE_VIRTUAL_RAIN")
+        #expect(data["specification_name"] as? String == "SP_000004")
+        #expect(data["customer_wallet_address"] as? String == "0xWALLET")
+        #expect(data["deeplink_value"] as? String == deeplinkValue)
+
+        #expect(
+            Set(data.keys) == [
+                "type",
+                "specification_name",
+                "customer_wallet_address",
+                "deeplink_value",
+            ]
+        )
+    }
+
+    @Test("Bank off-ramp Mode A body carries bank_account_id and nothing else")
+    func bankOfframpModeA_encodesExactBody() throws {
+        let json = try encodeToDictionary(
+            .init(
+                offrampAmountInCents: 10000,
+                chainId: 137,
+                tokenContractAddress: "0xUSDC",
+                bankAccountId: "7b0f7d70"
+            )
+        )
+
+        let data = try #require(json["data"] as? [String: Any])
+        #expect(data["type"] as? String == "BANK_OFFRAMP_RAIN")
+        #expect(data["amount_in_cents"] as? Int == 10000)
+        #expect(
+            Set(data.keys) == [
+                "type",
+                "amount_in_cents",
+                "chain_id",
+                "token_contract_address",
+                "bank_account_id",
+            ]
+        )
+    }
+
+    @Test("Bank off-ramp Mode B body carries bank_account and no bank_account_id")
+    func bankOfframpModeB_encodesExactBody() throws {
+        let address = TangemPayPlaceOrderRequest.BankAccount.Address(
+            line1: "123 Main St",
+            line2: nil,
+            city: "New York",
+            region: "NY",
+            postalCode: "10001",
+            countryCode: "US"
+        )
+
+        let json = try encodeToDictionary(
+            .init(
+                offrampAmountInCents: 10000,
+                chainId: 137,
+                tokenContractAddress: "0xUSDC",
+                bankAccount: .init(
+                    displayName: nil,
+                    details: .init(
+                        currency: "USD",
+                        rail: .wire,
+                        thirdParty: false,
+                        beneficiary: .individual(firstName: "John", lastName: "Doe"),
+                        beneficiaryAddress: address,
+                        bankName: "Chase Bank",
+                        bankAddress: address,
+                        accountNumber: "1234567890",
+                        routingNumber: "021000021",
+                        bankAccountType: .savings
+                    )
+                )
+            )
+        )
+
+        let data = try #require(json["data"] as? [String: Any])
+        #expect(data["bank_account_id"] == nil)
+        #expect(
+            Set(data.keys) == [
+                "type",
+                "amount_in_cents",
+                "chain_id",
+                "token_contract_address",
+                "bank_account",
+            ]
+        )
+
+        let details = try #require(
+            (data["bank_account"] as? [String: Any])?["details"] as? [String: Any]
+        )
+        #expect(details["rail"] as? String == "WIRE")
+        #expect(details["bank_account_type"] as? String == "SAVINGS")
+        #expect(details["third_party"] as? Bool == false)
+    }
+
     @Test("Plastic reissue order body carries source_product_instance_id alongside emboss_name and shipping_address")
     func plasticReissueOrder_encodesExactBody() throws {
         let shippingAddress = TangemPayPlaceOrderRequest.ShippingAddress(

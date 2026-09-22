@@ -27,15 +27,18 @@ final class EditAddressBookContactManagementInteractor {
 
     private let initialSnapshot: AddressBookContactSnapshot
     private let analyticsLogger: any AddressBookAnalyticsLogger
+    private let analyticsSource: AddressBookAnalyticsSource
 
     init(
         contact: AddressBookContact,
         initialAddressBookWallet: AddressBookWallet,
-        analyticsLogger: any AddressBookAnalyticsLogger
+        analyticsLogger: any AddressBookAnalyticsLogger,
+        analyticsSource: AddressBookAnalyticsSource
     ) {
         self.contact = contact
         self.initialAddressBookWallet = initialAddressBookWallet
         self.analyticsLogger = analyticsLogger
+        self.analyticsSource = analyticsSource
 
         nameSubject = .init(contact.name.value)
         colorSubject = .init(contact.appearance.color)
@@ -185,7 +188,12 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
                 try await source.addressBookManager.deleteContact(id: contact.id)
             }
 
-            analyticsLogger.logContactSaved(userWalletId: analyticsUserWalletId, contactId: contact.id.stringValue, mode: .edit)
+            analyticsLogger.logContactSaved(
+                userWalletId: analyticsUserWalletId,
+                contactId: contact.id.stringValue,
+                mode: .edit,
+                source: analyticsSource
+            )
             return contact.id
         } catch {
             analyticsLogger.logSaveFailure(userWalletId: analyticsUserWalletId, contactId: contact.id.stringValue, error: error)

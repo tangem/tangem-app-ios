@@ -41,7 +41,7 @@ struct WalletModelReceivingRestrictionsProvider: ReceivingRestrictionsProvider {
 
         switch walletModel.state {
         case .noAccount(_, let amountToCreateAccount) where expectAmount < amountToCreateAccount:
-            return .notEnoughReceivedAmount(minAmount: amountToCreateAccount)
+            return .notEnoughReceivedAmount(minAmount: .token(amountToCreateAccount), reason: .accountReserve)
         default:
             return .none
         }

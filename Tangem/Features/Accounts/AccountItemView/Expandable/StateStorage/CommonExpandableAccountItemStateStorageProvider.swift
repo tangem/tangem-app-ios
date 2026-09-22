@@ -18,6 +18,9 @@ final class CommonExpandableAccountItemStateStorageProvider {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
 
+    @Injected(\.cryptoAccountsGlobalStateProvider)
+    private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
+
     /// - Warning: Direct modification of this property will not trigger `didUpdatePublisher`,
     /// use `mutateStorage(storage:userWalletId:mutation:)` method instead.
     @AppStorageCompat(StorageKeys.persistentStorage)
@@ -56,7 +59,7 @@ final class CommonExpandableAccountItemStateStorageProvider {
             userWalletModelsSubscriptions[userWalletId] = userWalletModel
                 .accountModelsManager
                 .accountModelsPublisher
-                .map { $0.cryptoAccounts() }
+                .map { AccountModelsAggregator(.crypto, .joint).models(from: $0) }
                 .prepend([]) // Triggers initial `pairwise` call
                 .pairwise()
                 .receiveOnMain() // This class is used in the UI layer, so we need to receive updates on the main thread
@@ -90,8 +93,8 @@ final class CommonExpandableAccountItemStateStorageProvider {
     }
 
     private func handleCryptoAccounts(
-        oldCryptoAccounts: [CryptoAccounts],
-        newCryptoAccounts: [CryptoAccounts],
+        oldCryptoAccounts: [any CryptoAccountModel],
+        newCryptoAccounts: [any CryptoAccountModel],
         inUserWalletModelWithIdentifier userWalletId: UserWalletId
     ) {
         let newCryptoAccountsIds = mapToPersistentIdentifiers(newCryptoAccounts)
@@ -119,7 +122,8 @@ final class CommonExpandableAccountItemStateStorageProvider {
         }
 
         // Single account in a multiple accounts mode should be expanded by default
-        let shouldAutoExpandSingleAccount = newCryptoAccounts.hasMultipleAccounts && newCryptoAccountsIds.count == 1
+        let shouldAutoExpandSingleAccount = cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
+            && newCryptoAccountsIds.count == 1
         for accountId in newCryptoAccountsIds {
             let storageKey = ExpandableAccountItemStateStorageKeyHelper.makeStorageKey(
                 accountId: accountId,
@@ -149,16 +153,8 @@ final class CommonExpandableAccountItemStateStorageProvider {
         }
     }
 
-    private func mapToPersistentIdentifiers(_ cryptoAccounts: [CryptoAccounts]) -> [any AccountModelPersistentIdentifierConvertible] {
+    private func mapToPersistentIdentifiers(_ cryptoAccounts: [any CryptoAccountModel]) -> [any AccountModelPersistentIdentifierConvertible] {
         return cryptoAccounts
-            .reduce(into: [any CryptoAccountModel]()) { partialResult, element in
-                switch element {
-                case .single(let account):
-                    partialResult.append(account)
-                case .multiple(let accounts):
-                    partialResult.append(contentsOf: accounts)
-                }
-            }
             // Explicit type casting, as current version of the Swift compiler crashes with the following assertion:
             // `Assertion failed: (!componentTy->hasTypeParameter()), function emitKeyPathComponentForDecl at SILGenExpr.cpp:4698.`
             .map { $0.id as (any AccountModelPersistentIdentifierConvertible) }

@@ -19,6 +19,10 @@ protocol CryptoAccountsRepository {
 
     func getRemoteState() async throws -> CryptoAccountsRemoteState
 
+    /// Replaces the local accounts with what the backend has, which is how an account the backend adds by itself
+    /// — the wallet's own entry for a joint account — reaches the list.
+    func loadCryptoAccountsFromRemote() async throws
+
     func addNewCryptoAccount(
         withConfig config: CryptoAccountPersistentConfig,
         remoteState: CryptoAccountsRemoteState
