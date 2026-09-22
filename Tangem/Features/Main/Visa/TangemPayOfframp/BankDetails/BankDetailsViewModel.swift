@@ -12,8 +12,8 @@ import TangemPay
 
 @MainActor
 final class BankDetailsViewModel: ObservableObject {
-    @Published var fields: [OfframpFormField] = []
-    @Published private(set) var focusedFieldID: OfframpFormField.ID?
+    @Published var fields: [TangemPayFormField] = []
+    @Published private(set) var focusedFieldID: TangemPayFormField.ID?
 
     let title: String
     let stepSubtitle: String?
@@ -55,7 +55,7 @@ final class BankDetailsViewModel: ObservableObject {
         fields = makeFields(details: details)
     }
 
-    func focusedFieldDidChange(to id: OfframpFormField.ID?) {
+    func focusedFieldDidChange(to id: TangemPayFormField.ID?) {
         defer { focusedFieldID = id }
 
         guard let blurredFieldID = focusedFieldID, blurredFieldID != id else { return }
@@ -63,13 +63,13 @@ final class BankDetailsViewModel: ObservableObject {
         updateField(blurredFieldID) { $0.error = $0.currentError }
     }
 
-    func fieldDidChange(_ id: OfframpFormField.ID) {
+    func fieldDidChange(_ id: TangemPayFormField.ID) {
         guard field(id)?.error != nil else { return }
 
         updateField(id) { $0.error = nil }
     }
 
-    func fieldBefore(_ id: OfframpFormField.ID?) -> OfframpFormField.ID? {
+    func fieldBefore(_ id: TangemPayFormField.ID?) -> TangemPayFormField.ID? {
         guard let id, let index = fields.firstIndex(where: { $0.id == id }) else {
             return nil
         }
@@ -77,7 +77,7 @@ final class BankDetailsViewModel: ObservableObject {
         return fields[..<index].last { !$0.isSelectable }?.id
     }
 
-    func fieldAfter(_ id: OfframpFormField.ID?) -> OfframpFormField.ID? {
+    func fieldAfter(_ id: TangemPayFormField.ID?) -> TangemPayFormField.ID? {
         guard let id, let index = fields.firstIndex(where: { $0.id == id }) else {
             return nil
         }
@@ -100,17 +100,17 @@ final class BankDetailsViewModel: ObservableObject {
 // MARK: - Fields
 
 private extension BankDetailsViewModel {
-    func field(_ id: OfframpFormField.ID) -> OfframpFormField? {
+    func field(_ id: TangemPayFormField.ID) -> TangemPayFormField? {
         fields.first { $0.id == id }
     }
 
-    func updateField(_ id: OfframpFormField.ID, transform: (inout OfframpFormField) -> Void) {
+    func updateField(_ id: TangemPayFormField.ID, transform: (inout TangemPayFormField) -> Void) {
         guard let index = fields.firstIndex(where: { $0.id == id }) else { return }
 
         transform(&fields[index])
     }
 
-    func text(for id: OfframpFormField.ID) -> String {
+    func text(for id: TangemPayFormField.ID) -> String {
         field(id)?.text.trimmed() ?? ""
     }
 
@@ -125,32 +125,32 @@ private extension BankDetailsViewModel {
     }
 
     // [REDACTED_TODO_COMMENT]
-    func makeFields(details: TangemPayOfframpBankDetails?) -> [OfframpFormField] {
+    func makeFields(details: TangemPayOfframpBankDetails?) -> [TangemPayFormField] {
         let values = details.map(Self.restoredValues(from:)) ?? [:]
 
         return [
-            OfframpFormField(
+            TangemPayFormField(
                 id: .bankName,
                 title: "Bank name",
                 placeholder: "Eg., Goldman Sachs"
             ),
-            OfframpFormField(
+            TangemPayFormField(
                 id: .bankRegion,
                 title: "Bank region / state",
                 placeholder: "Not selected",
                 onSelect: { [weak self] in self?.selectRegion() }
             ),
-            OfframpFormField(
+            TangemPayFormField(
                 id: .bankCity,
                 title: "Bank city",
                 placeholder: "Eg., Night City"
             ),
-            OfframpFormField(
+            TangemPayFormField(
                 id: .bankLine1,
                 title: "Bank address line 1",
                 placeholder: "Eg., Ebunike st., Apt. 32"
             ),
-            OfframpFormField(
+            TangemPayFormField(
                 id: .bankPostalCode,
                 title: "Postal code",
                 placeholder: "0000"
@@ -165,7 +165,7 @@ private extension BankDetailsViewModel {
 
     static func restoredValues(
         from details: TangemPayOfframpBankDetails
-    ) -> [OfframpFormField.ID: String] {
+    ) -> [TangemPayFormField.ID: String] {
         [
             .bankName: details.name,
             .bankRegion: details.region.name,
