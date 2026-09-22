@@ -43,14 +43,15 @@ struct AttestUserWalletUseCaseTests {
 
         let sut = makeSUT(registrationStatusRepository: registrationStatusRepository)
 
-        let request = try #require(await sut(id: expectedID, nonce: nonce, signer: signer))
+        let request = try #require(await sut(id: expectedID, nonce: nonce, recoveryEnrollment: nil, signer: signer))
 
         let expectedRequest = UserWalletRegistrationRequest(
             id: expectedID,
             walletAttestation: expectedWalletAttestation,
             decryptedNonce: expectedDecryptedNonce,
             appAttestationToken: expectedAppAttestationToken,
-            metadata: DeviceMetadata.fake
+            metadata: DeviceMetadata.fake,
+            recoveryEnrollment: nil
         )
         #expect(request == expectedRequest)
 
@@ -67,7 +68,7 @@ struct AttestUserWalletUseCaseTests {
 
         let sut = makeSUT(registrationStatusRepository: registrationStatusRepository)
 
-        let request = try await sut(id: UserWalletId.fake, nonce: .fake, signer: signer)
+        let request = try await sut(id: UserWalletId.fake, nonce: .fake, recoveryEnrollment: nil, signer: signer)
 
         #expect(request == nil)
         #expect(signer.receivedMessages.isEmpty)
@@ -83,7 +84,7 @@ struct AttestUserWalletUseCaseTests {
         let sut = makeSUT()
 
         let error = try await #require(throws: AttestUserWalletError.self) {
-            _ = try await sut(id: UserWalletId.fake, nonce: .fake, signer: signer)
+            _ = try await sut(id: UserWalletId.fake, nonce: .fake, recoveryEnrollment: nil, signer: signer)
         }
 
         guard case .signerFailure(.signingFailed(underlying: expectedUnderlyingError)) = error else {

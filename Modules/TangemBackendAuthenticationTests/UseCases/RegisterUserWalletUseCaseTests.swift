@@ -31,7 +31,7 @@ struct RegisterUserWalletUseCaseTests {
             submitRegistration: Self.submitRegistrationMock(expectedRequest: expectedRequest)
         )
 
-        try await sut(id: expectedID, signer: expectedSigner)
+        try await sut(id: expectedID, recoveryEnrollment: nil, signer: expectedSigner)
     }
 
     @Test
@@ -44,7 +44,7 @@ struct RegisterUserWalletUseCaseTests {
             submitRegistration: Self.neverCalledSubmitRegistrationMock()
         )
 
-        try await sut(id: anyUserWalletID, signer: .successStub)
+        try await sut(id: anyUserWalletID, recoveryEnrollment: nil, signer: .successStub)
     }
 
     @Test
@@ -64,7 +64,7 @@ struct RegisterUserWalletUseCaseTests {
             submitRegistration: Self.neverCalledSubmitRegistrationMock()
         )
 
-        try await sut(id: anyUserWalletID, signer: anySigner)
+        try await sut(id: anyUserWalletID, recoveryEnrollment: nil, signer: anySigner)
     }
 
     @Test
@@ -80,7 +80,7 @@ struct RegisterUserWalletUseCaseTests {
         )
 
         let error = try await #require(throws: RegisterUserWalletError.self) {
-            try await sut(id: UserWalletId.fake, signer: SpyUserWalletRegistrationSigner())
+            try await sut(id: UserWalletId.fake, recoveryEnrollment: nil, signer: SpyUserWalletRegistrationSigner())
         }
 
         guard case .obtainNonceFailure(.clientFailure(.requestNonceFailed(underlying: expectedUnderlyingError))) = error else {
@@ -96,14 +96,14 @@ struct RegisterUserWalletUseCaseTests {
 
         let sut = makeSUT(
             obtainNonce: Self.obtainNonceMock(expectedID: anyUserWalletID),
-            attestUserWallet: { _, _, _ throws(AttestUserWalletError) in
+            attestUserWallet: { _, _, _, _ throws(AttestUserWalletError) in
                 throw AttestUserWalletError.signerFailure(.signingFailed(underlying: expectedUnderlyingError))
             },
             submitRegistration: Self.neverCalledSubmitRegistrationMock()
         )
 
         let error = try await #require(throws: RegisterUserWalletError.self) {
-            try await sut(id: anyUserWalletID, signer: SpyUserWalletRegistrationSigner())
+            try await sut(id: anyUserWalletID, recoveryEnrollment: nil, signer: SpyUserWalletRegistrationSigner())
         }
 
         guard case .attestUserWalletFailure(.signerFailure(.signingFailed(underlying: expectedUnderlyingError))) = error else {
@@ -135,7 +135,7 @@ struct RegisterUserWalletUseCaseTests {
         )
 
         let error = try await #require(throws: RegisterUserWalletError.self) {
-            try await sut(id: expectedID, signer: expectedSigner)
+            try await sut(id: expectedID, recoveryEnrollment: nil, signer: expectedSigner)
         }
 
         guard case .submitFailure(.clientFailure(.registerFailed(underlying: expectedUnderlyingError))) = error else {
@@ -183,7 +183,7 @@ extension RegisterUserWalletUseCaseTests {
         returnedRequest: UserWalletRegistrationRequest?,
         sourceLocation: SourceLocation = #_sourceLocation
     ) -> AttestUserWallet {
-        { actualID, actualNonce, actualSigner in
+        { actualID, actualNonce, _, actualSigner in
             #expect(actualID == expectedID, sourceLocation: sourceLocation)
             #expect(actualNonce == expectedNonce, sourceLocation: sourceLocation)
             #expect((actualSigner as? SpyUserWalletRegistrationSigner) === expectedSigner, sourceLocation: sourceLocation)
@@ -196,7 +196,7 @@ extension RegisterUserWalletUseCaseTests {
     }
 
     private static func neverCalledAttestUserWalletMock(sourceLocation: SourceLocation = #_sourceLocation) -> AttestUserWallet {
-        { _, _, _ in
+        { _, _, _, _ in
             return await confirmation(expectedCount: 0, sourceLocation: sourceLocation) { confirmation in
                 confirmation.confirm()
                 return nil

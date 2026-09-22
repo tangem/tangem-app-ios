@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import struct Foundation.Data
+package import struct Foundation.Data
 private import enum CryptoKit.P256
 
 /// Provides the device's P-256 (secp256r1) public key and signs data with its private counterpart, for backend authentication:
@@ -16,7 +16,7 @@ private import enum CryptoKit.P256
 ///
 /// - Invariant: The private key data itself never leaves this type.
 /// ``publicKey`` only ever exposes its public counterpart, and ``sign(data:)`` is the only way to use it.
-actor DeviceKeyManager {
+package actor DeviceKeyManager {
     private let privateKeyRepository: any DevicePrivateKeyRepository
     private var generateOrLoadPrivateKeyTask: Task<Result<any DevicePrivateKey, DevicePrivateKeyRepositoryError>, Never>?
 
@@ -54,7 +54,7 @@ actor DeviceKeyManager {
     /// every call performs a real Secure Enclave signing operation (measured at ~5ms on real hardware).
     /// Avoid calling it more often than the backend contract requires.
     @concurrent
-    func sign(data: Data) async throws(DeviceKeyManagerError) -> DeviceSignature {
+    package func sign(data: Data) async throws(DeviceKeyManagerError) -> DeviceSignature {
         let privateKey = try await resolvePrivateKey()
 
         let signature: P256.Signing.ECDSASignature
