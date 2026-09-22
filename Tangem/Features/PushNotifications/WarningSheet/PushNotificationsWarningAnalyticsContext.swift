@@ -11,20 +11,12 @@ import Foundation
 struct PushNotificationsWarningAnalyticsContext {
     let zone: Zone
     let variant: Variant
-    /// Passed only in the Main zone (there is no wallet during onboarding).
-    let walletId: String?
 
     var params: [Analytics.ParameterKey: String] {
-        var params: [Analytics.ParameterKey: String] = [
+        [
             .variant: variant.parameterValue.rawValue,
             .zone: zone.parameterValue.rawValue,
         ]
-
-        if let walletId {
-            params[.walletId] = walletId
-        }
-
-        return params
     }
 }
 

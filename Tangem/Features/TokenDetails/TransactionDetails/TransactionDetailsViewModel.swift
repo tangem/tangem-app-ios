@@ -69,10 +69,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         userWalletId = userWalletInfo.id
         userWalletIdHash = userWalletInfo.id.hashedStringValue
         addressBookWallet = AddressBookWallet(wallet: userWalletInfo, addressBookManager: addressBookManager)
-        analyticsLogger = TransactionDetailsAnalyticsLogger(
-            userWalletId: userWalletInfo.id,
-            tokenItem: walletModel.tokenItem
-        )
+        analyticsLogger = TransactionDetailsAnalyticsLogger(tokenItem: walletModel.tokenItem)
 
         let context = TransactionDetailsContext(
             walletModel: walletModel,
@@ -423,7 +420,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
     }
 
     private func addContact(address: String) {
-        addressBookAnalyticsLogger.logAddContactTapped(userWalletId: userWalletId, source: .transactionDetails)
+        addressBookAnalyticsLogger.logAddContactTapped(source: .transactionDetails)
 
         // BSDK transactions don't carry memo information, so we can't prefill it - hence `nil`
         let entry = AddressBookEntryDraft(address: address, blockchain: walletModel.tokenItem.blockchain, memo: nil)

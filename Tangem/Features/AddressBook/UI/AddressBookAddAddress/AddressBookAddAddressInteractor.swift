@@ -214,10 +214,7 @@ extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor
     }
 
     func logSelectAllTapped(didSelectAll: Bool) {
-        analyticsLogger.logSelectAllNetworksTapped(
-            userWalletId: userWalletInfo.id,
-            action: didSelectAll ? .selectAll : .clearAll
-        )
+        analyticsLogger.logSelectAllNetworksTapped(action: didSelectAll ? .selectAll : .clearAll)
     }
 }
 
@@ -231,7 +228,7 @@ private extension CommonAddressBookAddAddressInteractor {
             .filter { $0 }
             .sink { [weak self] _ in
                 guard let self else { return }
-                analyticsLogger.logAddressInvalid(userWalletId: userWalletInfo.id, contactId: contactId?.stringValue)
+                analyticsLogger.logAddressInvalid(contactId: contactId?.stringValue)
             }
             .store(in: &bag)
     }

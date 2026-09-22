@@ -8,7 +8,6 @@
 import Foundation
 import BlockchainSdk
 import TangemExpress
-import TangemFoundation
 
 enum TransactionDetailsProviderNavigationSource: Equatable {
     case status
@@ -26,15 +25,13 @@ enum TransactionDetailsProviderNavigationSource: Equatable {
 
 /// Analytics of the transaction detail sheet.
 final class TransactionDetailsAnalyticsLogger {
-    private let userWalletId: UserWalletId
     private let tokenItem: TokenItem
 
     private var state: State?
     private var didLogScreenOpened = false
     private var loggedStatusBanners: Set<Analytics.Event> = []
 
-    init(userWalletId: UserWalletId, tokenItem: TokenItem) {
-        self.userWalletId = userWalletId
+    init(tokenItem: TokenItem) {
         self.tokenItem = tokenItem
     }
 
@@ -182,7 +179,6 @@ final class TransactionDetailsAnalyticsLogger {
 
     private func actionParams(_ state: State) -> [Analytics.ParameterKey: String] {
         [
-            .commonWalletId: userWalletId.hashedStringValue,
             .token: tokenItem.currencySymbol,
             .blockchain: tokenItem.blockchain.displayName,
             .type: Self.type(for: state.transaction).rawValue,

@@ -31,7 +31,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let coordinatorFactory: MainCoordinatorChildFactory
     private let hardwareUpgradeStoriesFlow = HardwareUpgradeStoriesFlow()
@@ -262,13 +261,9 @@ extension MainCoordinator: MainRoutable {
     func openPushNotificationsAuthorization() {
         let factory = PushNotificationsHelpersFactory()
         let permissionManager = factory.makePermissionManagerForAfterLogin(using: pushNotificationsInteractor)
-        let walletId = userWalletRepository.selectedModel?.userWalletId.stringValue
 
         Task { @MainActor in
-            let viewModel = PushNotificationsMainViewModel(
-                permissionManager: permissionManager,
-                walletId: walletId
-            )
+            let viewModel = PushNotificationsMainViewModel(permissionManager: permissionManager)
             viewModel.start()
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }

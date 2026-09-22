@@ -8,7 +8,6 @@
 
 import struct Foundation.Data
 import TangemSdk
-import TangemFoundation
 import TangemMobileWalletSdk
 
 enum UserWalletRegistrationKeyUtils {
@@ -30,9 +29,7 @@ enum UserWalletRegistrationKeyUtils {
 
     private static func secp256k1PublicKey(_ publicKey: Data, curve: EllipticCurve, cardId: String?) throws(Error) -> Data {
         guard curve == .secp256k1 else {
-            var params: [Analytics.ParameterKey: String] = [
-                .userWalletId: UserWalletId(with: publicKey).hashedStringValue,
-            ]
+            var params: [Analytics.ParameterKey: String] = [:]
             params[.cardId] = cardId
 
             Analytics.log(event: .userWalletRegistrationUnexpectedCurve, params: params)
