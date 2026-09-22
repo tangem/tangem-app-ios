@@ -275,7 +275,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
         try? mobileWalletSdk.delete(walletIDs: [userWalletId])
 
         if let removedUserWallet = removedModels.first {
-            BackendAuthenticationRegistrar.unregisterMobileWalletIfNeeded(removedUserWallet)
+            BackendAuthenticationRegistrar.unregisterUserWalletIfNeeded(removedUserWallet)
         }
 
         sendEvent(.deleted(userWalletIds: [userWalletId], isRepositoryEmpty: models.isEmpty))
