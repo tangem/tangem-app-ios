@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 
 struct WithdrawHubContentView: View {
@@ -34,16 +35,13 @@ struct WithdrawHubContentView: View {
 private extension WithdrawHubContentView {
     var swapSection: some View {
         WithdrawHubSectionView(
-            // [REDACTED_TODO_COMMENT]
-            title: "Transfer or swap",
-            // [REDACTED_TODO_COMMENT]
-            subtitle: "From your payment account",
+            title: Localization.tangempayWithdrawHubSwapSectionTitle,
+            subtitle: Localization.tangempayWithdrawHubSwapSectionSubtitle,
             staticContent: {
                 WithdrawHubActionTileView(
                     data: .action(
                         icon: DesignSystem.Icons.ArrowSwapHorizontal.regular20,
-                        // [REDACTED_TODO_COMMENT]
-                        title: "Within your portfolio",
+                        title: Localization.tangempayWithdrawHubWithinPortfolio,
                         action: { onAction(.withinPortfolioTap) }
                     )
                 )
@@ -80,23 +78,20 @@ private extension WithdrawHubContentView {
 
     var accountsSection: some View {
         WithdrawHubSectionView(
-            // [REDACTED_TODO_COMMENT]
-            title: "Bank transfer",
+            title: Localization.tangempayWithdrawHubBankSectionTitle,
             subtitle: accountsSubtitle,
             subtitleColor: accountsSubtitleColor,
             staticContent: {
                 VStack(spacing: 8) {
                     WithdrawHubCompactActionTileView(
                         icon: Assets.Accounts.user,
-                        // [REDACTED_TODO_COMMENT]
-                        title: "To personal account",
+                        title: Localization.tangempayWithdrawHubToPersonalAccount,
                         action: { onAction(.personalAccountTap) }
                     )
 
                     WithdrawHubCompactActionTileView(
                         icon: Assets.Accounts.briefcase,
-                        // [REDACTED_TODO_COMMENT]
-                        title: "To business account",
+                        title: Localization.tangempayWithdrawHubToBusinessAccount,
                         action: { onAction(.businessAccountTap) }
                     )
                 }
@@ -136,9 +131,9 @@ private extension WithdrawHubContentView {
     var accountsSubtitle: String {
         switch bankTransferState {
         case .loading, .available:
-            Constants.accountsSubtitle
+            Localization.tangempayWithdrawHubBankSectionSubtitle
         case .unavailable:
-            Constants.accountsUnavailableSubtitle
+            Localization.tangempayWithdrawHubBankSectionSubtitleUnavailable
         }
     }
 
@@ -162,8 +157,7 @@ private extension WithdrawHubContentView {
         WithdrawHubActionTileView(
             data: .placeholder(
                 icon: DesignSystem.Icons.Heart.regular20,
-                // [REDACTED_TODO_COMMENT]
-                title: "Your recent transfers will be here"
+                title: Localization.tangempayWithdrawHubRecentsEmpty
             )
         )
         .transition(.content)
@@ -188,11 +182,6 @@ private extension AnyTransition {
 private extension WithdrawHubContentView {
     enum Constants {
         static let skeletonTileCount = 3
-
-        // [REDACTED_TODO_COMMENT]
-        static let accountsSubtitle = "Send to another bank using ACH or FedWire"
-        // [REDACTED_TODO_COMMENT]
-        static let accountsUnavailableSubtitle = "Available only for USDC on Polygon, Base, Arbitrum"
     }
 }
 

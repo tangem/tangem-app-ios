@@ -47,14 +47,10 @@ struct TangemPayFormField: Identifiable {
         var message: String {
             switch self {
             case .invalidEmail: Localization.commonErrorEmailIncorrectFormat
-            // [REDACTED_TODO_COMMENT]
-            case .required: "Required field"
-            // [REDACTED_TODO_COMMENT]
-            case .invalidFormat: "Invalid text format"
-            // [REDACTED_TODO_COMMENT]
-            case .routingNumber: "The routing number is incorrect"
-            // [REDACTED_TODO_COMMENT]
-            case .nonLatin: "Use Latin characters only"
+            case .required: Localization.tangempayOrderDataFieldRequired
+            case .invalidFormat: Localization.tangempayWithdrawBankFieldErrorInvalidFormat
+            case .routingNumber: Localization.tangempayWithdrawBankFieldErrorRoutingNumber
+            case .nonLatin: Localization.tangempayOrderDataFieldLatinOnly
             }
         }
     }

@@ -8,6 +8,7 @@
 
 import Combine
 import TangemFoundation
+import TangemLocalization
 import TangemPay
 
 @MainActor
@@ -124,35 +125,34 @@ private extension BankDetailsViewModel {
         )
     }
 
-    // [REDACTED_TODO_COMMENT]
     func makeFields(details: TangemPayOfframpBankDetails?) -> [TangemPayFormField] {
         let values = details.map(Self.restoredValues(from:)) ?? [:]
 
         return [
             TangemPayFormField(
                 id: .bankName,
-                title: "Bank name",
-                placeholder: "Eg., Goldman Sachs"
+                title: Localization.tangempayWithdrawBankFieldBankName,
+                placeholder: Localization.tangempayWithdrawBankPlaceholderBankName
             ),
             TangemPayFormField(
                 id: .bankRegion,
-                title: "Bank region / state",
-                placeholder: "Not selected",
+                title: Localization.tangempayWithdrawBankFieldBankRegion,
+                placeholder: Localization.tangempayWithdrawBankPlaceholderNotSelected,
                 onSelect: { [weak self] in self?.selectRegion() }
             ),
             TangemPayFormField(
                 id: .bankCity,
-                title: "Bank city",
-                placeholder: "Eg., Night City"
+                title: Localization.tangempayWithdrawBankFieldBankCity,
+                placeholder: Localization.tangempayWithdrawBankPlaceholderCity
             ),
             TangemPayFormField(
                 id: .bankLine1,
-                title: "Bank address line 1",
-                placeholder: "Eg., Ebunike st., Apt. 32"
+                title: Localization.tangempayWithdrawBankFieldBankAddressLine1,
+                placeholder: Localization.tangempayWithdrawBankPlaceholderAddressLine1
             ),
             TangemPayFormField(
                 id: .bankPostalCode,
-                title: "Postal code",
+                title: Localization.tangempayOrderDataPostalCode,
                 placeholder: "0000"
             ),
         ]
