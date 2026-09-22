@@ -26,7 +26,10 @@ struct FeedCoordinatorView: CoordinatorView {
                         shtorkaActions: coordinator.shtorkaActions
                     )
                     .background(FeedPopGestureEnabler())
-                    .navigationDestination(for: FeedDestination.self) { FeedDestinationView(destination: $0) }
+                    .navigationDestination(for: FeedDestination.self) {
+                        FeedDestinationView(destination: $0)
+                            .scrollDisabled(sheetSize.isNonFullFeedSheet)
+                    }
                 }
                 .simultaneousGesture(TapGesture().onEnded {
                     if sheetSize.isCollapsedFeedSheet {
