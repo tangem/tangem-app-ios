@@ -14,11 +14,11 @@ struct RemoteJointAccount: Equatable {
     let cryptoAccountId: String
     let membersCount: Int
     let threshold: Int
-    /// One and the same across every supported EVM network. Absent until every slot is taken.
-    let address: String?
     let status: JointAccountStatus
     /// Only the slots that are taken, in the order they were taken, the creator first.
     let members: [StoredJointAccount.Member]
+    /// The unfinished operations, at most one per network.
+    let operations: [JointAccountOperation]
 }
 
 // MARK: - CustomStringConvertible protocol conformance
@@ -31,9 +31,9 @@ extension RemoteJointAccount: CustomStringConvertible {
             "cryptoAccountId": cryptoAccountId.masked(),
             "membersCount": membersCount,
             "threshold": threshold,
-            "address": address?.masked() ?? "none",
             "status": status,
             "Taken slots count": members.count,
+            "Operations count": operations.count,
         ])
     }
 }

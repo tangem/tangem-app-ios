@@ -9,9 +9,6 @@
 import XCTest
 
 final class TangemPayWithdrawUITests: BaseTestCase {
-    /// CEX withdraw submits via Express, not /customer/card/withdraw; assert single swap submission on this endpoint.
-    private static let exchangeSentEndpointPattern = "/v1/exchange-sent"
-
     func testWithdrawFromTangemPay_SwapsUSDCToBitcoin_AppendsWithdrawalToHistory() {
         setAllureId(4972)
 
@@ -102,24 +99,107 @@ final class TangemPayWithdrawUITests: BaseTestCase {
             .verifyTransactionRowVisible(label: "Withdrawal")
     }
 
+    func testWithdrawSourceSelector_ListsPaymentAccountTokensAndHidesZeroBalance() {
+        setAllureId(11385)
+
+        openMultiNetworkWithdrawSwapScreen()
+            .tapFromTokenSelector()
+            .verifyTokenCount(2)
+            .waitForTokenDisplayed("USDT")
+            .selectBalanceFilter(.all)
+            .verifyTokenCount(3)
+    }
+
+    func testWithdraw_FromSelectedPaymentAccountToken_SendsTargetedRequest() {
+        setAllureId(11386)
+
+        wireMockClient.resetRequestJournalSync()
+
+        openMultiNetworkWithdrawSwapScreen()
+            .chooseSourceToken("USDT")
+            .chooseTokenFromEmptySelector("Bitcoin")
+            .enterFromAmount("5")
+            .confirmSwap()
+
+        SendFinishScreen(app)
+            .waitForDisplay()
+            .tapCloseButton()
+
+        XCTContext.runActivity(named: "Verify the withdrawal was addressed to USDT on BNB Smart Chain") { _ in
+            let body = onlyWithdrawRequestBody()
+            XCTAssertEqual(body["chain_id"] as? Int, Constants.bscChainId, "Withdrawal should name the BNB Smart Chain id")
+            XCTAssertEqual(
+                (body["token_contract_address"] as? String)?.lowercased(),
+                Constants.usdtBscContractAddress,
+                "Withdrawal should name the selected USDT contract"
+            )
+        }
+
+        wireMockClient.setScenarioStateSync("tangem_pay_balance_update", state: "MultiNetworkStatusesAfterWithdraw")
+
+        TangemPayMainScreen(app).waitForScreen()
+        pullToRefresh()
+        TangemPayMainScreen(app).verifyBalanceContains("$12.00")
+    }
+
     private func openWithdrawSwapScreen() -> SwapScreen {
         launchAndImportHotWallet(expressApiType: .mock, scenarios: [
             ScenarioConfig(name: "bitcoin_utxo", initialState: "Started"),
             ScenarioConfig(name: "express_api_assets", initialState: "BitcoinExchangeEnabled"),
             ScenarioConfig(name: "exchange_status_provider", initialState: "Changelly"),
-            ScenarioConfig(name: "tangem_pay_balance_update", initialState: "InitialBalance"),
+            ScenarioConfig(name: "tangem_pay_balance_update", initialState: "InitialBalanceMultinetwork"),
             ScenarioConfig(name: "tangem_pay_transaction_history", initialState: "InitialEmpty"),
         ])
         .openTangemPay()
         .waitForScreen()
         .verifyBalanceContains("$10.00")
         .tapWithdraw()
+        .validateSwapScreenDisplayed()
+    }
+
+    private func openMultiNetworkWithdrawSwapScreen() -> SwapScreen {
+        launchAndImportHotWallet(expressApiType: .mock, scenarios: [
+            ScenarioConfig(name: "bitcoin_utxo", initialState: "Started"),
+            ScenarioConfig(name: "express_api_assets", initialState: "BitcoinExchangeEnabledMultinetwork"),
+            ScenarioConfig(name: "exchange_status_provider", initialState: "Changelly"),
+            ScenarioConfig(name: "tangem_pay_balance_update", initialState: "MultiNetworkStatuses"),
+            ScenarioConfig(name: "tangem_pay_transaction_history", initialState: "InitialEmpty"),
+        ])
+        .openTangemPay()
         .waitForScreen()
-        .tapGotIt()
+        .verifyBalanceContains("$17.00")
+        .tapWithdraw()
         .validateSwapScreenDisplayed()
     }
 
     private func exchangeSentRequestCount() -> Int {
-        wireMockClient.requestCountSync(method: "POST", urlPathPattern: Self.exchangeSentEndpointPattern)
+        wireMockClient.requestCountSync(method: "POST", urlPathPattern: Constants.Endpoint.exchangeSentPattern)
+    }
+
+    private func onlyWithdrawRequestBody() -> [String: Any] {
+        let bodies = wireMockClient.findRequestBodiesSync(method: "POST", urlPath: Constants.Endpoint.withdraw)
+
+        guard bodies.count == 1,
+              let data = bodies[0].data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else {
+            XCTFail("Exactly one withdrawal request with a JSON body should be journalled, but found \(bodies.count)")
+            return [:]
+        }
+
+        return json
+    }
+}
+
+private extension TangemPayWithdrawUITests {
+    enum Constants {
+        static let usdtBscContractAddress = "0x55d398326f99059ff775485246999027b3197955"
+        static let bscChainId = 56
+
+        enum Endpoint {
+            /// CEX withdraw submits via Express, not /customer/card/withdraw; assert single swap submission on this endpoint.
+            static let exchangeSentPattern = "/v1/exchange-sent"
+            static let withdraw = "/bff-v2/v1/customer/card/withdraw"
+        }
     }
 }

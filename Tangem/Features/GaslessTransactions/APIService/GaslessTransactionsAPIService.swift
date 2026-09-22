@@ -93,7 +93,6 @@ private extension CommonGaslessTransactionAPIService {
     /// so the endpoint has to follow the executor the transaction was built and signed for.
     func apiVersion(for executorVersion: GaslessExecutorVersion) -> GaslessTransactionsAPITarget.APIVersion {
         switch executorVersion {
-        case .legacy: .v1
         case .batchCapable: .v2
         }
     }

@@ -149,7 +149,7 @@ extension CommonUserWalletModel: UserWalletModel {
     var emailData: [EmailCollectedData] {
         var data = config.emailData
 
-        if let tangemPayCustomerId = accountModelsManager.tangemPayAccountModel?.customerId {
+        if let tangemPayCustomerId = AccountModelsAggregator(.tangemPay).model(from: accountModelsManager)?.customerId {
             data.append(EmailCollectedData(type: .tangemPayCustomerId, data: tangemPayCustomerId))
         }
         data.append(EmailCollectedData(type: .card(.userWalletId), data: userWalletId.stringValue))
@@ -377,6 +377,17 @@ extension CommonUserWalletModel: JointAccountDerivationInteractorProvider {
                 mobileWalletSdk: CommonMobileWalletSdk()
             )
         }
+    }
+}
+
+extension CommonUserWalletModel: CollectiblesColdKeyInteractorProvider {
+    var collectiblesColdKeyInteractor: CollectiblesColdKeyInteractor {
+        CommonCollectiblesColdKeyInteractor(
+            config: config,
+            keysRepository: keysRepository,
+            keysDeriving: keysDerivingInteractor,
+            signer: signer
+        )
     }
 }
 

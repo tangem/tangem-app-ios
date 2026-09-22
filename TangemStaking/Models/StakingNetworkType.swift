@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum StakingNetworkType: String, RawRepresentable {
+public enum StakingNetworkType: String, RawRepresentable, Sendable {
     case ethereum
     case bsc = "binance-smart-chain"
     case ton = "the-open-network"

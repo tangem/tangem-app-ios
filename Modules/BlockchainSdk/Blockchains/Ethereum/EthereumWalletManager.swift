@@ -19,16 +19,12 @@ class EthereumWalletManager: BaseWalletManager, WalletManager, EthereumTransacti
     let addressConverter: EthereumAddressConverter
     let yieldSupplyService: YieldSupplyService?
     let pendingTransactionsManager: EthereumPendingTransactionsManager
-    let isGaslessYieldEnabled: Bool
 
     private var bag = Set<AnyCancellable>()
 
     var currentHost: String { networkService.host }
 
-    /// The batch-capable executor deployment ships behind the gasless yield feature toggle.
-    var gaslessExecutorVersion: GaslessExecutorVersion {
-        isGaslessYieldEnabled ? .batchCapable : .legacy
-    }
+    var gaslessExecutorVersion: GaslessExecutorVersion { .batchCapable }
 
     init(
         wallet: Wallet,
@@ -36,15 +32,13 @@ class EthereumWalletManager: BaseWalletManager, WalletManager, EthereumTransacti
         txBuilder: EthereumTransactionBuilder,
         networkService: EthereumNetworkService,
         yieldSupplyService: YieldSupplyService? = nil,
-        pendingTransactionsManager: EthereumPendingTransactionsManager,
-        isGaslessYieldEnabled: Bool
+        pendingTransactionsManager: EthereumPendingTransactionsManager
     ) {
         self.txBuilder = txBuilder
         self.networkService = networkService
         self.addressConverter = addressConverter
         self.yieldSupplyService = yieldSupplyService
         self.pendingTransactionsManager = pendingTransactionsManager
-        self.isGaslessYieldEnabled = isGaslessYieldEnabled
 
         super.init(wallet: wallet)
 
@@ -257,6 +251,51 @@ extension EthereumWalletManager: EthereumNetworkProvider {
             .tryMap { nonceResponse -> Int in
                 let stringNonce = (nonceResponse == "0x" ? "0x0" : nonceResponse)
                 return try EthereumMapper.mapInt(stringNonce)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    /// - Returns: `nil` when there is no code at the address: the Safe is not deployed in this network yet, and its
+    /// first operation is what deploys it, at nonce zero.
+    func getSafeNonce(for address: String) -> AnyPublisher<Int?, Error> {
+        addressConverter.convertToETHAddressPublisher(address)
+            .withWeakCaptureOf(self)
+            .flatMap { walletManager, convertedAddress -> AnyPublisher<String, Error> in
+                let nonceRequest = SafeNonceRequest(contractAddress: convertedAddress)
+                return walletManager.networkService.ethCall(request: nonceRequest)
+            }
+            .tryMap { nonceResponse -> Int? in
+                guard SafeContractResponseDecoder.hasCode(nonceResponse) else {
+                    return nil
+                }
+
+                return try SafeContractResponseDecoder.nonce(from: nonceResponse)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func getSafeOwners(for address: String) -> AnyPublisher<[String], Error> {
+        addressConverter.convertToETHAddressPublisher(address)
+            .withWeakCaptureOf(self)
+            .flatMap { walletManager, convertedAddress -> AnyPublisher<String, Error> in
+                let ownersRequest = SafeGetOwnersRequest(contractAddress: convertedAddress)
+                return walletManager.networkService.ethCall(request: ownersRequest)
+            }
+            .tryMap { ownersResponse in
+                try SafeContractResponseDecoder.owners(from: ownersResponse)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func getSafeThreshold(for address: String) -> AnyPublisher<Int, Error> {
+        addressConverter.convertToETHAddressPublisher(address)
+            .withWeakCaptureOf(self)
+            .flatMap { walletManager, convertedAddress -> AnyPublisher<String, Error> in
+                let thresholdRequest = SafeGetThresholdRequest(contractAddress: convertedAddress)
+                return walletManager.networkService.ethCall(request: thresholdRequest)
+            }
+            .tryMap { thresholdResponse in
+                try SafeContractResponseDecoder.threshold(from: thresholdResponse)
             }
             .eraseToAnyPublisher()
     }

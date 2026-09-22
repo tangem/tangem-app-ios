@@ -48,4 +48,11 @@ enum RateType: String, Hashable {
 enum EarnType: String, Hashable {
     case staking = "Staking"
     case yieldMode = "Yield mode"
+
+    var title: String {
+        switch self {
+        case .staking: Localization.commonStaking
+        case .yieldMode: Localization.commonYieldMode
+        }
+    }
 }

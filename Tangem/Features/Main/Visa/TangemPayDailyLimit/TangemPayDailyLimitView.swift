@@ -77,7 +77,7 @@ private extension TangemPayDailyLimitView {
                 .size(.x12)
                 .styleType(.default)
                 .horizontalLayout(.infinity)
-                .isLoading(viewModel.isLoading)
+                .loading(.spinner(if: viewModel.isLoading))
                 .disabled(!viewModel.isSubmitEnabled)
                 .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.dailyLimitSetButton)
                 .padding(.horizontal, 16)

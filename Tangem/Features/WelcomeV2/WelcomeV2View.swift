@@ -8,7 +8,10 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
+import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct WelcomeV2View: View {
     @ObservedObject var viewModel: WelcomeV2ViewModel
@@ -53,7 +56,7 @@ struct WelcomeV2View: View {
                 bottomContainer
             }
         }
-        .preferredColorScheme(.dark)
+        .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 
     private var navigationBar: some View {
@@ -67,29 +70,50 @@ struct WelcomeV2View: View {
         }
     }
 
+    /// Every scene is laid out at once so the block keeps the height of the tallest one
+    /// and the buttons below it don't jump while the texts fade.
     private var titleBlock: some View {
+        ZStack(alignment: .topLeading) {
+            ForEach(WelcomeV2Scene.allCases) { scene in
+                sceneText(scene)
+                    .opacity(viewModel.scene == scene ? 1 : 0)
+                    .accessibilityHidden(viewModel.scene != scene)
+            }
+        }
+        .animation(.easeInOut(duration: Constants.sceneFadeDuration), value: viewModel.scene)
+    }
+
+    private func sceneText(_ scene: WelcomeV2Scene) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("Store all your assets")
+            Text(scene.title)
                 .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textStaticDarkPrimary)
 
-            Text("The only app you need\nto manage your finances")
+            Text(scene.subtitle)
                 .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textStaticDarkSecondary)
         }
     }
 
     private var bottomContainer: some View {
         VStack(spacing: 12) {
-            MainButton(
-                title: "Create wallet",
-                style: .primary,
+            TangemUI.Button(
+                label: Localization.introductionButtonCreateWallet,
+                accessibilityLabel: nil,
                 action: viewModel.onCreateWalletTap
             )
+            .styleType(.default)
+            .horizontalLayout(.infinity)
+            .size(.x14)
+            .accessibilityIdentifier(WelcomeV2AccessibilityIdentifiers.createWalletButton)
 
-            MainButton(
-                title: "I have a wallet",
-                style: .secondary,
+            TangemUI.Button(
+                label: Localization.introductionButtonIHaveAWallet,
+                accessibilityLabel: nil,
                 action: viewModel.onExistingWalletTap
             )
+            .styleType(.secondary(.default))
+            .horizontalLayout(.infinity)
+            .size(.x14)
+            .accessibilityIdentifier(WelcomeV2AccessibilityIdentifiers.existingWalletButton)
 
             footer
                 .padding(.horizontal, 24)
@@ -115,9 +139,9 @@ struct WelcomeV2View: View {
     }
 
     private var footerAttributedString: AttributedString {
-        let terms = "Terms of service"
-        let privacy = "Privacy Policy"
-        var string = AttributedString("By continuing, you agree with \(terms) and \(privacy)")
+        let terms = Localization.introductionTermsOfService
+        let privacy = Localization.commonPrivacyPolicy
+        var string = AttributedString(Localization.introductionLegal(terms, privacy))
         string.setFontStyle(DesignSystem.Font.captionMediumToken)
         string.foregroundColor = DesignSystem.Color.textStaticDarkSecondary
 
@@ -130,11 +154,19 @@ struct WelcomeV2View: View {
         if let range = string.range(of: privacy) {
             string[range].foregroundColor = DesignSystem.Color.textStaticDarkPrimary
             string[range].font = Font.system(size: 12, weight: .semibold)
-            // [REDACTED_TODO_COMMENT]
-            string[range].link = URL(string: "about:blank")
+            string[range].link = AppConstants.privacyPolicyURL
         }
 
         return string
+    }
+}
+
+// MARK: - Constants
+
+private extension WelcomeV2View {
+    enum Constants {
+        /// Fits the pause between two episodes, so a scene is fully gone before the next one appears.
+        static let sceneFadeDuration: TimeInterval = 0.3
     }
 }
 

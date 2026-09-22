@@ -11,8 +11,8 @@
 struct JointAccountInvitePreview: Equatable {
     struct Creator: Equatable {
         let name: String
-        /// - Warning: Its letter case carries an EIP-55 checksum rather than identity, so two of these are never
-        /// compared as strings.
+        /// - Warning: The endpoint keeps these in lower case while the app computes the checksummed form, so two of
+        /// these are only ever compared case-insensitively, never as strings.
         let address: String
     }
 

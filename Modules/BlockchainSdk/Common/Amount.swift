@@ -36,11 +36,11 @@ public struct Amount: CustomStringConvertible, Hashable, Comparable {
 
     public var bigUIntValue: BigUInt? {
         if isZero {
-            return BigUInt.zero
+            return .zero
         }
 
         if value == Decimal.greatestFiniteMagnitude {
-            return BigUInt(2).power(256) - 1
+            return .maxUInt256
         }
 
         return EthereumUtils.parseToBigUInt("\(value)", decimals: decimals)

@@ -18,17 +18,20 @@ extension MainHorizontalPagingScrollView {
             var selectedCardIndex: Int
             var containerGeometryProperties: UserWalletView.ContainerGeometryProperties
             var isHorizontalScrollDisabled: Bool
+            var refreshingUserWalletIDs: Set<UserWalletId>
 
             init(
                 userWalletPageBuilders: [MainUserWalletPageBuilder],
                 selectedCardIndex: Int,
                 containerGeometryProperties: UserWalletView.ContainerGeometryProperties,
-                isHorizontalScrollDisabled: Bool
+                isHorizontalScrollDisabled: Bool,
+                refreshingUserWalletIDs: Set<UserWalletId>
             ) {
                 self.userWalletPageBuilders = userWalletPageBuilders
                 self.selectedCardIndex = selectedCardIndex
                 self.containerGeometryProperties = containerGeometryProperties
                 self.isHorizontalScrollDisabled = isHorizontalScrollDisabled
+                self.refreshingUserWalletIDs = refreshingUserWalletIDs
             }
         }
 
@@ -39,17 +42,20 @@ extension MainHorizontalPagingScrollView {
 
         let containerGeometryProperties: UserWalletView.ContainerGeometryProperties
 
-        let pullToRefreshAction: @MainActor () async -> Void
+        let pullToRefreshAction: @MainActor (UserWalletId) -> Void
+        let refreshingUserWalletIDs: Set<UserWalletId>
         let isHorizontalScrollDisabled: Bool
         let onContentPropertiesChanged: (UserWalletId, UserWalletView.ScrollContentProperties) -> Void
-        let onNormalizedOffsetYChanged: (UserWalletId, CGFloat, Animation?) -> Void
+        let onPagingIndicatorOffsetChanged: (UserWalletId, UserWalletView.PagingIndicatorOffset) -> Void
+        let onPagePositionChanged: (CGFloat) -> Void
 
         func makeCoordinator() -> Coordinator {
             Coordinator(
                 userWalletPageBuilders: userWalletPageBuilders,
                 selectedCardIndex: selectedCardIndex.wrappedValue,
                 containerGeometryProperties: containerGeometryProperties,
-                isHorizontalScrollDisabled: isHorizontalScrollDisabled
+                isHorizontalScrollDisabled: isHorizontalScrollDisabled,
+                refreshingUserWalletIDs: refreshingUserWalletIDs
             )
         }
 
@@ -60,9 +66,11 @@ extension MainHorizontalPagingScrollView {
                 onSelectedCardChanged: onSelectedCardChanged,
                 containerGeometryProperties: containerGeometryProperties,
                 pullToRefreshAction: pullToRefreshAction,
+                refreshingUserWalletIDs: refreshingUserWalletIDs,
                 isHorizontalScrollDisabled: isHorizontalScrollDisabled,
                 onContentPropertiesChanged: onContentPropertiesChanged,
-                onNormalizedOffsetYChanged: onNormalizedOffsetYChanged
+                onPagingIndicatorOffsetChanged: onPagingIndicatorOffsetChanged,
+                onPagePositionChanged: onPagePositionChanged
             )
         }
 
@@ -71,6 +79,7 @@ extension MainHorizontalPagingScrollView {
             context.coordinator.selectedCardIndex = selectedCardIndex.wrappedValue
             context.coordinator.containerGeometryProperties = containerGeometryProperties
             context.coordinator.isHorizontalScrollDisabled = isHorizontalScrollDisabled
+            context.coordinator.refreshingUserWalletIDs = refreshingUserWalletIDs
 
             uiViewController.update(by: context.coordinator)
         }
@@ -94,11 +103,13 @@ final class HorizontalPagingCollectionViewController: UIViewController {
     let selectedCardIndex: Binding<Int>
     let onSelectedCardChanged: (CardsInfoPageChangeReason) -> Void
 
-    let pullToRefreshAction: @MainActor () async -> Void
+    let pullToRefreshAction: @MainActor (UserWalletId) -> Void
     let onContentPropertiesChanged: (UserWalletId, UserWalletView.ScrollContentProperties) -> Void
-    let onNormalizedOffsetYChanged: (UserWalletId, CGFloat, Animation?) -> Void
+    let onPagingIndicatorOffsetChanged: (UserWalletId, UserWalletView.PagingIndicatorOffset) -> Void
+    let onPagePositionChanged: (CGFloat) -> Void
 
     private(set) var containerGeometryProperties: UserWalletView.ContainerGeometryProperties
+    private(set) var refreshingUserWalletIDs: Set<UserWalletId>
 
     private(set) var isHorizontalScrollDisabled: Bool {
         didSet {
@@ -111,10 +122,12 @@ final class HorizontalPagingCollectionViewController: UIViewController {
         selectedCardIndex: Binding<Int>,
         onSelectedCardChanged: @escaping (CardsInfoPageChangeReason) -> Void,
         containerGeometryProperties: UserWalletView.ContainerGeometryProperties,
-        pullToRefreshAction: @MainActor @escaping () async -> Void,
+        pullToRefreshAction: @MainActor @escaping (UserWalletId) -> Void,
+        refreshingUserWalletIDs: Set<UserWalletId>,
         isHorizontalScrollDisabled: Bool,
         onContentPropertiesChanged: @escaping (UserWalletId, UserWalletView.ScrollContentProperties) -> Void,
-        onNormalizedOffsetYChanged: @escaping (UserWalletId, CGFloat, Animation?) -> Void
+        onPagingIndicatorOffsetChanged: @escaping (UserWalletId, UserWalletView.PagingIndicatorOffset) -> Void,
+        onPagePositionChanged: @escaping (CGFloat) -> Void
     ) {
         self.userWalletPageBuilders = userWalletPageBuilders
 
@@ -124,9 +137,11 @@ final class HorizontalPagingCollectionViewController: UIViewController {
 
         self.containerGeometryProperties = containerGeometryProperties
         self.pullToRefreshAction = pullToRefreshAction
+        self.refreshingUserWalletIDs = refreshingUserWalletIDs
         self.isHorizontalScrollDisabled = isHorizontalScrollDisabled
         self.onContentPropertiesChanged = onContentPropertiesChanged
-        self.onNormalizedOffsetYChanged = onNormalizedOffsetYChanged
+        self.onPagingIndicatorOffsetChanged = onPagingIndicatorOffsetChanged
+        self.onPagePositionChanged = onPagePositionChanged
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -172,16 +187,23 @@ final class HorizontalPagingCollectionViewController: UIViewController {
 
         let selectedIndexChanged = targetSelectedIndex != currentCollectionViewIndex
 
+        let userWalletIDsWithChangedRefreshState = refreshingUserWalletIDs
+            .symmetricDifference(coordinator.refreshingUserWalletIDs)
+
         isHorizontalScrollDisabled = coordinator.isHorizontalScrollDisabled
 
         userWalletPageBuilders = newBuilders
         containerGeometryProperties = coordinator.containerGeometryProperties
+        refreshingUserWalletIDs = coordinator.refreshingUserWalletIDs
 
         let viewIsAlreadyInHierarchy = view.window != nil
 
         guard !pageBuildersChanged else {
+            let itemsToReconfigure = changedExistingItems(from: oldBuilders, to: newBuilders)
+                + userWalletIDsWithChangedRefreshState.map { ItemIdentifier(userWalletID: $0) }
+
             applyDatasourceSnapshot(
-                reconfiguring: changedExistingItems(from: oldBuilders, to: newBuilders),
+                reconfiguring: itemsToReconfigure,
                 completion: { [weak self] in
                     guard let self else { return }
                     currentCollectionViewIndex = targetSelectedIndex
@@ -192,9 +214,13 @@ final class HorizontalPagingCollectionViewController: UIViewController {
             return
         }
 
-        if geometryChanged {
-            reconfigureCurrentItem()
+        var userWalletIDsToReconfigure = userWalletIDsWithChangedRefreshState
+
+        if geometryChanged, userWalletPageBuilders.indices.contains(currentCollectionViewIndex) {
+            userWalletIDsToReconfigure.insert(userWalletPageBuilders[currentCollectionViewIndex].id)
         }
+
+        reconfigureItems(with: userWalletIDsToReconfigure)
 
         if selectedIndexChanged {
             currentCollectionViewIndex = targetSelectedIndex
@@ -213,8 +239,7 @@ final class HorizontalPagingCollectionViewController: UIViewController {
         snapshot.appendSections([section])
         snapshot.appendItems(items, toSection: section)
 
-        let itemsSet = Set(items)
-        let validItemsToReconfigure = itemsToReconfigure.filter(itemsSet.contains)
+        let validItemsToReconfigure = Array(Set(itemsToReconfigure).intersection(items))
 
         if !validItemsToReconfigure.isEmpty {
             snapshot.reconfigureItems(validItemsToReconfigure)
@@ -223,17 +248,17 @@ final class HorizontalPagingCollectionViewController: UIViewController {
         dataSource.apply(snapshot, animatingDifferences: false, completion: completion)
     }
 
-    private func reconfigureCurrentItem() {
-        let selectedIndex = currentCollectionViewIndex
-
-        guard userWalletPageBuilders.indices.contains(selectedIndex) else { return }
+    private func reconfigureItems(with userWalletIDs: Set<UserWalletId>) {
+        guard userWalletIDs.isNotEmpty else { return }
 
         var snapshot = dataSource.snapshot()
-        let item = ItemIdentifier(userWalletID: userWalletPageBuilders[selectedIndex].id)
+        let items = userWalletIDs
+            .map { ItemIdentifier(userWalletID: $0) }
+            .filter { snapshot.indexOfItem($0) != nil }
 
-        guard snapshot.indexOfItem(item) != nil else { return }
+        guard items.isNotEmpty else { return }
 
-        snapshot.reconfigureItems([item])
+        snapshot.reconfigureItems(items)
         dataSource.apply(snapshot, animatingDifferences: false)
     }
 
@@ -265,10 +290,17 @@ final class HorizontalPagingCollectionViewController: UIViewController {
     }
 
     private func visibleIndex() -> Int? {
+        guard let index = pagePosition().map({ Int($0.rounded()) }) else { return nil }
+
+        return userWalletPageBuilders.indices.contains(index) ? index : nil
+    }
+
+    /// Horizontal position of the collection view, measured in page widths: `1.5` means the swipe is halfway between
+    /// the second and the third page.
+    private func pagePosition() -> CGFloat? {
         guard collectionView.bounds.width > .zero else { return nil }
 
-        let index = Int((collectionView.contentOffset.x / collectionView.bounds.width).rounded())
-        return userWalletPageBuilders.indices.contains(index) ? index : nil
+        return collectionView.contentOffset.x / collectionView.bounds.width
     }
 
     private func setupCollectionView() {
@@ -293,6 +325,12 @@ final class HorizontalPagingCollectionViewController: UIViewController {
 // MARK: - UICollectionViewDelegate conformance
 
 extension HorizontalPagingCollectionViewController: UICollectionViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard let pagePosition = pagePosition() else { return }
+
+        onPagePositionChanged(pagePosition)
+    }
+
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         updateSelectedIndex()
     }
@@ -324,12 +362,15 @@ extension HorizontalPagingCollectionViewController {
                 UserWalletView(
                     pageBuilder: pageBuilder,
                     showPagingIndicatorStub: self.userWalletPageBuilders.count > 1,
-                    pullToRefreshAction: self.pullToRefreshAction,
+                    isRefreshing: self.refreshingUserWalletIDs.contains(pageBuilder.id),
+                    pullToRefreshAction: { [weak self] in
+                        self?.pullToRefreshAction(pageBuilder.id)
+                    },
                     onContentPropertiesChanged: { [weak self] contentProperties in
                         self?.onContentPropertiesChanged(pageBuilder.id, contentProperties)
                     },
-                    onNormalizedOffsetYChanged: { [weak self] normalizedOffsetY, animation in
-                        self?.onNormalizedOffsetYChanged(pageBuilder.id, normalizedOffsetY, animation)
+                    onPagingIndicatorOffsetChanged: { [weak self] pagingIndicatorOffset in
+                        self?.onPagingIndicatorOffsetChanged(pageBuilder.id, pagingIndicatorOffset)
                     },
                     containerGeometryProperties: self.containerGeometryProperties
                 )

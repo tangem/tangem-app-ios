@@ -70,7 +70,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
             coordinator: self
         )
 
-        handleIncomingAction()
+        handleOpeningAction()
     }
 
     private static func makeFundingFlowBuilder(options: Options) -> TangemPayFundingFlowBuilder {
@@ -89,7 +89,7 @@ extension TangemPayMainCoordinator {
         let userWalletInfo: UserWalletInfo
         let tangemPayAccount: TangemPayAccount
         let userWalletModel: any UserWalletModel
-        let incomingAction: TangemPayIncomingActions?
+        let openingAction: TangemPayOpeningAction?
     }
 
     typealias DismissOptions = FeeCurrencyNavigatingDismissOption
@@ -98,15 +98,15 @@ extension TangemPayMainCoordinator {
 // MARK: - Private
 
 extension TangemPayMainCoordinator {
-    private func handleIncomingAction() {
-        guard let incomingAction = options?.incomingAction else {
+    private func handleOpeningAction() {
+        guard let openingAction = options?.openingAction else {
             return
         }
 
         Task { @MainActor in
             try? await Task.sleep(for: .seconds(0.5))
 
-            switch incomingAction {
+            switch openingAction {
             case .addFunds:
                 rootViewModel?.addFunds()
 
@@ -133,7 +133,7 @@ extension TangemPayMainCoordinator {
                 await openVirtualAccountBankDetails()
 
             case .selectPlan:
-                break
+                openSelectPlan()
             }
         }
     }
@@ -189,7 +189,7 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
     func renewTangemPaySession() {
         guard
             let userWalletModel = options?.userWalletModel,
-            let tangemPayAccountModel = userWalletModel.accountModelsManager.tangemPayAccountModel
+            let tangemPayAccountModel = AccountModelsAggregator(.tangemPay).model(from: userWalletModel.accountModelsManager)
         else {
             return
         }
@@ -326,9 +326,17 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         )
         coordinator.start(with: .init(
             tangemPayAccount: options.tangemPayAccount,
-            fundingFlowBuilder: Self.makeFundingFlowBuilder(options: options)
+            fundingFlowBuilder: Self.makeFundingFlowBuilder(options: options),
+            hasNFCInteraction: options.userWalletModel.config.hasFeature(.nfcInteraction)
         ))
         offrampCoordinator = coordinator
+    }
+
+    func openTangemPayWithdrawNoteSheet() {
+        Task { @MainActor in
+            let viewModel = TangemPayWithdrawNoteSheetViewModel(coordinator: self)
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     func openTangemWithdrawInProgressSheet() {
@@ -434,11 +442,11 @@ extension TangemPayMainCoordinator: TangemPayWithdrawNoteSheetRoutable {
         }
     }
 
-    func openWithdrawal(parameters: PredefinedSwapParameters) {
+    func withdrawNoteSheetDidConfirm() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
             try? await Task.sleep(for: .seconds(0.2))
-            openSwap(parameters: parameters)
+            openTangemPayOfframp()
         }
     }
 }
@@ -520,13 +528,11 @@ extension TangemPayMainCoordinator: TangemPayPinRoutable {
 
 extension TangemPayMainCoordinator: TangemPayChooseNetworkSheetRoutable {
     func chooseNetworkSheetRequestReceive(input: TangemPayReceiveSheetViewModel.Input) {
-        guard let userWalletId = options?.userWalletInfo.id else { return }
-        replaceActiveSheet { TangemPayReceiveSheetViewModel(input: input, userWalletId: userWalletId, coordinator: self) }
+        replaceActiveSheet { TangemPayReceiveSheetViewModel(input: input, coordinator: self) }
     }
 
     func chooseNetworkSheetRequestOtherNetworks() {
-        guard let userWalletId = options?.userWalletInfo.id else { return }
-        replaceActiveSheet { TangemPayOtherNetworksSheetViewModel(userWalletId: userWalletId, coordinator: self) }
+        replaceActiveSheet { TangemPayOtherNetworksSheetViewModel(coordinator: self) }
     }
 
     func closeChooseNetworkSheet() {
@@ -565,17 +571,13 @@ extension TangemPayMainCoordinator: TangemPayOtherNetworksSheetRoutable {
 
 private extension TangemPayMainCoordinator {
     func openChooseNetworkSheet(networks: [TangemPayBalance.Network]) {
-        guard let options else {
+        guard let tangemPayAccount = options?.tangemPayAccount else {
             return
         }
-
-        let tangemPayAccount = options.tangemPayAccount
-        let userWalletId = options.userWalletInfo.id
 
         replaceActiveSheet {
             TangemPayChooseNetworkSheetViewModel(
                 networks: networks,
-                userWalletId: userWalletId,
                 makeOrderService: {
                     TangemPayNetworkContractOrderService(customerService: tangemPayAccount.customerService)
                 },

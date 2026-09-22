@@ -97,7 +97,7 @@ private extension CommonWalletAssetsDiscoveryOrchestrator {
         }
         .withWeakCaptureOf(self)
         .flatMapLatest { service, userWalletModel -> AnyPublisher<UserWalletModel, Never> in
-            let cryptoAccountModelsReady = userWalletModel.accountModelsManager.cryptoAccountModelsPublisher
+            let cryptoAccountModelsReady = AccountModelsAggregator(.crypto).modelsPublisher(from: userWalletModel.accountModelsManager)
                 .filter { cryptoAccountModels in
                     cryptoAccountModels.contains(where: { $0.isMainAccount })
                 }

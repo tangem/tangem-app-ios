@@ -26,9 +26,14 @@ struct SwapTokenSelectorView: View {
                     )
                 },
                 additionalContent: {
-                    if let viewModel = viewModel.marketsTokensViewModel {
+                    if let marketsTokensViewModel = viewModel.marketsTokensViewModel {
                         SwapMarketsTokensView(
-                            viewModel: viewModel
+                            viewModel: marketsTokensViewModel
+                        )
+                    } else if let offeredTokensViewModel = viewModel.offeredTokensViewModel {
+                        SwapOfferedTokensSection(
+                            viewModel: offeredTokensViewModel,
+                            tokenSelectorViewModel: viewModel.tokenSelectorViewModel
                         )
                     }
                 }
@@ -44,5 +49,20 @@ struct SwapTokenSelectorView: View {
         }
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
+    }
+}
+
+// MARK: - Offered tokens
+
+private struct SwapOfferedTokensSection: View {
+    @ObservedObject var viewModel: SwapOfferedTokensViewModel
+    @ObservedObject var tokenSelectorViewModel: TokenSelectorViewModel
+
+    var body: some View {
+        SwapOfferedTokensView(
+            rows: viewModel.rows,
+            showsEmptyMessage: !tokenSelectorViewModel.contentVisibility.isEmpty,
+            onAdd: viewModel.addToken
+        )
     }
 }

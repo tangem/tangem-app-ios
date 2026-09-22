@@ -51,7 +51,7 @@ struct RedesignedSelectorReceiveAssetsDomainItemView: View {
                 action: viewModel.copyAddressButtonDidTap
             )
             .size(.x9)
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
 
             TangemUI.Button(
                 icon: DesignSystem.Icons.ShareIos.regular20,
@@ -59,7 +59,7 @@ struct RedesignedSelectorReceiveAssetsDomainItemView: View {
                 action: viewModel.shareAddressButtonDidTap
             )
             .size(.x9)
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
         }
     }
 }

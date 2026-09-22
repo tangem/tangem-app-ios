@@ -22,33 +22,55 @@ struct AppCoordinatorView: CoordinatorView {
     @Namespace private var namespace
 
     var body: some View {
-        content
-            .accentColor(Colors.Text.primary1)
-            .overlayContentContainer(
-                item: $coordinator.marketsCoordinator,
-                overlayContentContainer: overlayContentContainer
-            ) { coordinator in
-                let marketsCoordinatorView = MarketsCoordinatorView(coordinator: coordinator)
-                    .environment(\.mainWindowSize, mainWindowSize)
+        if FeatureProvider.isAvailable(.nativeMarketsShtorka) {
+            contentWithNativeShtorka
+                .accentColor(Colors.Text.primary1)
+                .bottomSheet(
+                    item: $sensitiveTextVisibilityViewModel.informationHiddenBalancesViewModel,
+                    backgroundColor: Colors.Background.primary
+                ) {
+                    InformationHiddenBalancesView(viewModel: $0)
+                }
+        } else {
+            content
+                .accentColor(Colors.Text.primary1)
+                .overlayContentContainer(
+                    item: $coordinator.marketsCoordinator,
+                    overlayContentContainer: overlayContentContainer
+                ) { coordinator in
+                    let marketsCoordinatorView = MarketsCoordinatorView(coordinator: coordinator)
+                        .environment(\.mainWindowSize, mainWindowSize)
 
-                let viewHierarchySnapshotter = ViewHierarchySnapshottingContainerViewController()
-                viewHierarchySnapshotter.shouldPropagateOverriddenUserInterfaceStyleToChildren = true
-                viewHierarchySnapshotterInitializer.set(viewHierarchySnapshotter)
+                    let viewHierarchySnapshotter = ViewHierarchySnapshottingContainerViewController()
+                    viewHierarchySnapshotter.shouldPropagateOverriddenUserInterfaceStyleToChildren = true
+                    viewHierarchySnapshotterInitializer.set(viewHierarchySnapshotter)
 
-                return UIAppearanceBoundaryContainerView(
-                    boundaryMarker: { viewHierarchySnapshotter },
-                    content: { marketsCoordinatorView }
-                )
-                // Ensures that this is a full-screen container and keyboard avoidance is disabled to mitigate [REDACTED_INFO]
-                .ignoresSafeArea(.all, edges: .vertical)
-            }
-            .modifier(OverlayViewPresenterModifier(viewModel: overlayViewPresenterViewModel))
-            .bottomSheet(
-                item: $sensitiveTextVisibilityViewModel.informationHiddenBalancesViewModel,
-                backgroundColor: Colors.Background.primary
-            ) {
-                InformationHiddenBalancesView(viewModel: $0)
-            }
+                    return UIAppearanceBoundaryContainerView(
+                        boundaryMarker: { viewHierarchySnapshotter },
+                        content: { marketsCoordinatorView }
+                    )
+                    // Ensures that this is a full-screen container and keyboard avoidance is disabled to mitigate [REDACTED_INFO]
+                    .ignoresSafeArea(.all, edges: .vertical)
+                }
+                .modifier(OverlayViewPresenterModifier(viewModel: overlayViewPresenterViewModel))
+                .bottomSheet(
+                    item: $sensitiveTextVisibilityViewModel.informationHiddenBalancesViewModel,
+                    backgroundColor: Colors.Background.primary
+                ) {
+                    InformationHiddenBalancesView(viewModel: $0)
+                }
+        }
+    }
+
+    @ViewBuilder
+    private var contentWithNativeShtorka: some View {
+        if case .main = coordinator.viewState {
+            // Main hosts app overlays inside the shtorka environment so they can be presented above the sheet.
+            content
+        } else {
+            content
+                .modifier(OverlayViewPresenterModifier(viewModel: overlayViewPresenterViewModel))
+        }
     }
 
     private var content: some View {

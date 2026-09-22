@@ -64,14 +64,25 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
 
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        if let leading = resolvedLeading {
-            ToolbarItem(placement: .topBarLeading) {
-                chromeButton(leading)
-            }
-        }
-
+        leadingContent
         principalContent
         trailingContent
+    }
+
+    @ToolbarContentBuilder
+    private var leadingContent: some ToolbarContent {
+        if let leading = resolvedLeading {
+            if #available(iOS 26.0, *) {
+                ToolbarItem(placement: .topBarLeading) {
+                    chromeButton(leading)
+                }
+                .sharedBackgroundVisibility(.hidden)
+            } else {
+                ToolbarItem(placement: .topBarLeading) {
+                    chromeButton(leading)
+                }
+            }
+        }
     }
 
     @ToolbarContentBuilder
@@ -110,32 +121,30 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
 
     @ToolbarContentBuilder
     private var trailingContent: some ToolbarContent {
-        if actions.isNotEmpty {
+        if actions.isNotEmpty || onClose != nil {
             if #available(iOS 26.0, *) {
                 ToolbarItem(placement: .topBarTrailing) {
-                    barHosted {
-                        TopNavigationNativeActionsGroup(actions: actions, hasBackground: actionsHaveBackground)
-                    }
+                    trailingGroup
                 }
                 .sharedBackgroundVisibility(.hidden)
             } else {
                 ToolbarItem(placement: .topBarTrailing) {
-                    barHosted {
-                        TopNavigationActionsPill(actions: actions, hasBackground: actionsHaveBackground)
-                    }
+                    trailingGroup
                 }
             }
         }
+    }
 
-        if onClose != nil, actions.isNotEmpty {
-            if #available(iOS 26.0, *) {
-                ToolbarSpacer(.fixed, placement: .topBarTrailing)
-            }
-        }
+    private var trailingGroup: some View {
+        barHosted {
+            HStack(spacing: TopNavigationChromeMetrics.trailingGroupSpacing) {
+                if actions.isNotEmpty {
+                    TopNavigationActionsGroup(actions: actions, hasBackground: actionsHaveBackground)
+                }
 
-        if let onClose {
-            ToolbarItem(placement: .topBarTrailing) {
-                chromeButton(TopNavigation.Action.close(action: onClose))
+                if let onClose {
+                    TopNavigationCircleButton(action: TopNavigation.Action.close(action: onClose))
+                }
             }
         }
     }
@@ -148,11 +157,7 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
 
     private func chromeButton(_ action: TopNavigation.Action) -> some View {
         barHosted {
-            if #available(iOS 26.0, *) {
-                TopNavigationBarButton(action: action)
-            } else {
-                TopNavigationCircleButton(action: action)
-            }
+            TopNavigationCircleButton(action: action)
         }
     }
 
