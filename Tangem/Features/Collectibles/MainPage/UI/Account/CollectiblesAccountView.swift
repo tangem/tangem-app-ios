@@ -18,6 +18,15 @@ struct CollectiblesAccountView: View {
     let balanceCoordinateSpace: CoordinateSpace
     let onBalanceMaxYChange: (CGFloat) -> Void
 
+    @ScaledMetric private var balanceLoaderWidth: CGFloat = 190
+    @ScaledMetric private var balanceLoaderHeight: CGFloat = 40
+
+    @ScaledMetric(relativeTo: DesignSystem.Font.bodyMediumToken.relativeTo)
+    private var collectionTitleBarHeight: CGFloat = 20
+
+    @ScaledMetric(relativeTo: DesignSystem.Font.captionMediumToken.relativeTo)
+    private var collectionSubtitleBarHeight: CGFloat = 16
+
     var body: some View {
         content.task(viewModel.load)
     }
@@ -40,7 +49,7 @@ private extension CollectiblesAccountView {
             LoadableBalanceView(
                 state: summary.fiatBalance,
                 style: .init(font: DesignSystem.Font.displayMediumToken, textColor: DesignSystem.Color.textPrimary),
-                loader: .init(size: CGSize(width: Metrics.balanceLoaderWidth, height: Metrics.balanceLoaderHeight))
+                loader: .init(size: CGSize(width: balanceLoaderWidth, height: balanceLoaderHeight))
             )
 
             Text(summary.cryptoBalanceText)
@@ -61,11 +70,11 @@ private extension CollectiblesAccountView {
         HStack(spacing: 0) {
             // [REDACTED_TODO_COMMENT]
             TangemMainActionButton(title: Localization.commonAddFunds, icon: Assets.DesignSystem.arrowDown) {}
-                .frame(width: Metrics.actionButtonWidth)
+                .padding(.horizontal, Metrics.actionButtonHorizontalPadding)
 
             // [REDACTED_TODO_COMMENT]
             TangemMainActionButton(title: Localization.commonWithdrawal, icon: Assets.DesignSystem.arrowUp) {}
-                .frame(width: Metrics.actionButtonWidth)
+                .padding(.horizontal, Metrics.actionButtonHorizontalPadding)
                 .disabled(!summary.isWithdrawalAvailable)
         }
     }
@@ -93,17 +102,16 @@ private extension CollectiblesAccountView {
             Self.collectionIcon
 
             VStack(alignment: .leading, spacing: Metrics.collectionSkeletonSpacing) {
-                skeletonBar(width: Metrics.collectionSubtitleSkeletonWidth)
+                skeletonBar(width: Metrics.collectionSubtitleSkeletonWidth, height: collectionSubtitleBarHeight)
 
-                skeletonBar(width: Metrics.collectionTitleSkeletonWidth)
+                skeletonBar(width: Metrics.collectionTitleSkeletonWidth, height: collectionTitleBarHeight)
             }
 
             Spacer(minLength: 0)
 
             Self.disclosureIcon
         }
-        .padding(.horizontal, Metrics.collectionRowInnerPadding)
-        .frame(height: Metrics.collectionRowHeight)
+        .padding(Metrics.collectionRowInnerPadding)
         .background(
             DesignSystem.Color.bgSecondary,
             in: RoundedRectangle(cornerRadius: Metrics.collectionRowCornerRadius, style: .continuous)
@@ -111,9 +119,9 @@ private extension CollectiblesAccountView {
         .padding(.horizontal, Metrics.horizontalPadding)
     }
 
-    func skeletonBar(width: CGFloat) -> some View {
+    func skeletonBar(width: CGFloat, height: CGFloat) -> some View {
         Shimmer()
-            .frame(width: width, height: Metrics.collectionSkeletonBarHeight)
+            .frame(width: width, height: height)
             .clipShape(Capsule())
     }
 }
@@ -146,20 +154,15 @@ private extension CollectiblesAccountView {
         static let topPadding: CGFloat = 56
         static let cryptoBalanceTopPadding: CGFloat = 12
         static let actionButtonsTopPadding: CGFloat = 60
-        static let actionButtonWidth: CGFloat = 102
-
-        static let balanceLoaderWidth: CGFloat = 190
-        static let balanceLoaderHeight: CGFloat = 40
+        static let actionButtonHorizontalPadding: CGFloat = 16
 
         static let collectionRowTopPadding: CGFloat = 24
         static let collectionRowCornerRadius: CGFloat = 24
         static let collectionIconSize: CGFloat = 40
 
-        static let collectionRowHeight: CGFloat = 72
         static let collectionRowInnerPadding: CGFloat = 16
         static let collectionRowSpacing: CGFloat = 12
-        static let collectionSkeletonSpacing: CGFloat = 6
-        static let collectionSkeletonBarHeight: CGFloat = 16
+        static let collectionSkeletonSpacing: CGFloat = 2
         static let collectionSubtitleSkeletonWidth: CGFloat = 122
         static let collectionTitleSkeletonWidth: CGFloat = 76
     }
