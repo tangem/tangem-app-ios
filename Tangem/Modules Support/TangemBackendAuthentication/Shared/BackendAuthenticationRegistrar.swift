@@ -120,11 +120,8 @@ enum BackendAuthenticationRegistrar {
         }
     }
 
-    static func unregisterMobileWalletIfNeeded(_ userWalletModel: some UserWalletModel) {
-        guard
-            FeatureProvider.isAvailable(.backendAuthentication),
-            userWalletModel.isMobileWallet
-        else {
+    static func unregisterUserWalletIfNeeded(_ userWalletModel: some UserWalletModel) {
+        guard FeatureProvider.isAvailable(.backendAuthentication) else {
             return
         }
 
