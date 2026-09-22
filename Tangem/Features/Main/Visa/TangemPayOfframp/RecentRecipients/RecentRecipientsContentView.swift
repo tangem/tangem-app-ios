@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -26,8 +27,7 @@ struct RecentRecipientsContentView: View {
                     }
                 } header: {
                     if !recipients.isEmpty {
-                        // [REDACTED_TODO_COMMENT]
-                        Text("Recents")
+                        Text(Localization.tangempayWithdrawBankRecipientsRecentsTitle)
                             .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, Constants.horizontalPadding)
@@ -69,8 +69,7 @@ private extension RecentRecipientsContentView {
                 }
                 .clipShape(Circle())
 
-            // [REDACTED_TODO_COMMENT]
-            Text("Nothing found. Try something else")
+            Text(Localization.tangempayWithdrawBankRecipientsSearchEmpty)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
         }

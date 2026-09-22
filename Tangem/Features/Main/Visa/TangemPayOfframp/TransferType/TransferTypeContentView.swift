@@ -38,8 +38,7 @@ struct TransferTypeContentView: View {
 
 private extension TransferTypeContentView {
     var sectionHeader: some View {
-        // [REDACTED_TODO_COMMENT]
-        Text("Type of transfer")
+        Text(Localization.tangempayWithdrawBankTransferTypeTitle)
             .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
     }
 

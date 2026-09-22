@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 import TangemUI
 
 struct TransferInputTokenItem: Identifiable, Equatable {
@@ -21,17 +22,8 @@ struct TransferInputTokenItem: Identifiable, Equatable {
     let isOfframpAvailable: Bool
 
     var subtitle: String {
-        let trailing = isOfframpAvailable ? balanceText : Constants.unavailableText
-        return "\(networkName) · \(trailing)"
-    }
-}
-
-// MARK: - Constants
-
-private extension TransferInputTokenItem {
-    enum Constants {
-        // [REDACTED_TODO_COMMENT]
-        static let unavailableText = "Off-ramp unavailable"
+        let trailing = isOfframpAvailable ? balanceText : Localization.tangempayWithdrawBankOfframpUnavailable
+        return Localization.tangempayWithdrawBankSourceSubtitle(networkName, trailing)
     }
 }
 

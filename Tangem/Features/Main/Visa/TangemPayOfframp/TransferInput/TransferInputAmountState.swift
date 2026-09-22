@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 import TangemPay
 
 enum TransferInputAmountState: Equatable {
@@ -24,11 +25,9 @@ enum TransferInputAmountState: Equatable {
         case .empty, .valid:
             nil
         case .outOfRange(let min, let max):
-            // [REDACTED_TODO_COMMENT]
-            "Please set amount from \(Self.format(min)) to \(Self.format(max))"
+            Localization.tangempayWithdrawBankAmountErrorRange(Self.format(min), Self.format(max))
         case .notEnoughFunds:
-            // [REDACTED_TODO_COMMENT]
-            "Not enough funds"
+            Localization.tangempayWithdrawBankAmountNotEnoughFunds
         }
     }
 }
