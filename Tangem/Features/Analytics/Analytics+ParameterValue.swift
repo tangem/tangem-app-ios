@@ -328,6 +328,15 @@ extension Analytics {
         case yieldModuleApproveNeeded = "Approve Required"
         case yieldModuleSourceInfo = "Earning"
 
+        // MARK: - Transaction History
+
+        case txHistoryTransactionDetail = "Transaction Detail"
+        case txHistoryConfirmed = "Confirmed"
+        case txHistoryReceived = "Received"
+        case txHistoryTransfer = "Transfer"
+        case txHistoryTopUp = "Top Up"
+        case txHistoryOperation = "Operation"
+
         // MARK: - Account Settings
 
         case accountSourceEdit = "Edit"

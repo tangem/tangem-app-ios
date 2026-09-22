@@ -35,10 +35,16 @@ struct CommonAddressBookAnalyticsLogger: AddressBookAnalyticsLogger {
         Analytics.log(.addressBookButtonSaveTo)
     }
 
-    func logContactSaved(userWalletId: UserWalletId?, contactId: String, mode: AddressBookAnalyticsMode) {
+    func logContactSaved(
+        userWalletId: UserWalletId?,
+        contactId: String,
+        mode: AddressBookAnalyticsMode,
+        source: AddressBookAnalyticsSource
+    ) {
         Analytics.log(event: .addressBookContactSaved, params: withWalletId(userWalletId, [
             .contactId: contactId,
             .mode: mode.parameterValue.rawValue,
+            .source: source.parameterValue.rawValue,
         ]))
     }
 
@@ -106,7 +112,7 @@ private extension CommonAddressBookAnalyticsLogger {
     func withWalletId(_ userWalletId: UserWalletId?, _ params: [Analytics.ParameterKey: String]) -> [Analytics.ParameterKey: String] {
         guard let userWalletId else { return params }
         var params = params
-        params[.addressBookWalletId] = userWalletId.hashedStringValue
+        params[.commonWalletId] = userWalletId.hashedStringValue
         return params
     }
 
