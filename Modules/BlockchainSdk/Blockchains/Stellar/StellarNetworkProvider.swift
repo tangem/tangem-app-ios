@@ -63,17 +63,19 @@ class StellarNetworkProvider: HostProvider {
                     throw BlockchainSdkError.failedToParseNetworkResponse()
                 }
 
-                let assetBalances = try accountResponse.balances
-                    .filter { $0.assetType != AssetTypeAsString.NATIVE }
-                    .map { assetBalance -> StellarAssetResponse in
-                        guard let code = assetBalance.assetCode,
-                              let issuer = assetBalance.assetIssuer,
-                              let balance = Decimal(stringValue: assetBalance.balance) else {
-                            throw BlockchainSdkError.failedToParseNetworkResponse()
-                        }
-
-                        return StellarAssetResponse(code: code, issuer: issuer, balance: balance)
+                let assetBalances = try accountResponse.balances.compactMap { assetBalance -> StellarAssetResponse? in
+                    guard assetBalance.assetType != AssetTypeAsString.NATIVE,
+                          let code = assetBalance.assetCode,
+                          let issuer = assetBalance.assetIssuer else {
+                        return nil
                     }
+
+                    guard let balance = Decimal(stringValue: assetBalance.balance) else {
+                        throw BlockchainSdkError.failedToParseNetworkResponse()
+                    }
+
+                    return StellarAssetResponse(code: code, issuer: issuer, balance: balance)
+                }
 
                 let divider = self.blockchain.decimalValue
                 let baseReserve = baseReserveStroops / divider
@@ -82,6 +84,7 @@ class StellarNetworkProvider: HostProvider {
                     baseReserve: baseReserve,
                     assetBalances: assetBalances,
                     balance: balance,
+                    subentryCount: Int(accountResponse.subentryCount),
                 )
             }
             .mapError { [weak self] in self?.mapError($0, isAsset: isAsset) ?? BlockchainSdkError.empty }
@@ -174,6 +177,7 @@ struct StellarResponse {
     let baseReserve: Decimal
     let assetBalances: [StellarAssetResponse]
     let balance: Decimal
+    let subentryCount: Int
 }
 
 struct StellarAssetResponse: Hashable {
