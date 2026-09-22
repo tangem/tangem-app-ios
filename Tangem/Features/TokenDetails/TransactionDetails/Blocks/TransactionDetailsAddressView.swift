@@ -116,7 +116,7 @@ private final class WalletCounterpartyIconViewModel: ObservableObject {
             data: .init(
                 label: "From address",
                 actor: .address(short: "33Bd321fS...ga21412B", blockiesImage: AddressBlockiesIconViewData(image: nil)),
-                copyAction: .copy(value: "33Bd321fS...ga21412B", toast: "Copied"),
+                copyAction: .copy(value: "33Bd321fS...ga21412B", toast: "Copied", kind: .address),
                 walletImageProvider: nil
             ),
             onAction: { _ in }
@@ -126,7 +126,7 @@ private final class WalletCounterpartyIconViewModel: ObservableObject {
             data: .init(
                 label: "Recipient",
                 actor: .contact(name: "Alice", AddressBookContactNameIconViewData(letter: "A", color: .blue)),
-                copyAction: .copy(value: "Alice", toast: "Copied"),
+                copyAction: .copy(value: "Alice", toast: "Copied", kind: .address),
                 walletImageProvider: nil
             ),
             onAction: { _ in }
