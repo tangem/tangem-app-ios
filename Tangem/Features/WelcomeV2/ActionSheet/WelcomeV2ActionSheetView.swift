@@ -50,13 +50,12 @@ struct WelcomeV2ActionSheetView: View {
                         .padding(.top, 4)
                 }
 
-                VStack(spacing: 8) {
+                VStack(spacing: .zero) {
                     ForEach(viewModel.items) { item in
                         row(for: item)
                     }
                 }
                 .allowsHitTesting(!viewModel.items.contains(where: \.isLoading))
-                .padding(.horizontal, 16)
                 .padding(.bottom, 20)
             }
         }
@@ -65,21 +64,15 @@ struct WelcomeV2ActionSheetView: View {
     private func row(for item: WelcomeV2ActionSheetItem) -> some View {
         Row(title: item.title, subtitle: item.subtitle)
             .contentLead(.start)
-            .start(icon: item.icon)
+            .start { item.icon.map(RowIcon.init) }
             .end {
                 if item.isLoading {
                     ProgressView()
                         .controlSize(.small)
                         .tint(DesignSystem.Color.iconSecondary)
-                } else {
-                    DesignSystem.Icons.ChevronRight.regular16.image
-                        .renderingMode(.template)
-                        .foregroundStyle(DesignSystem.Color.iconSecondary)
                 }
             }
             .onTap(item.action)
-            .background(DesignSystem.Color.bgOpaquePrimary)
-            .cornerRadiusContinuous(14)
             .accessibilityIdentifier(rowAccessibilityIdentifier(for: item))
     }
 
@@ -91,6 +84,34 @@ struct WelcomeV2ActionSheetView: View {
         case "import": WelcomeV2AccessibilityIdentifiers.actionSheetImportRow
         default: nil
         }
+    }
+}
+
+// MARK: - Row icon
+
+private struct RowIcon: View {
+    let icon: ImageType
+
+    @ScaledMetric private var glyphSize = Constants.glyphSize
+    @ScaledMetric private var backdropSize = Constants.backdropSize
+
+    var body: some View {
+        icon.image
+            .renderingMode(.template)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(size: CGSize(bothDimensions: glyphSize))
+            .foregroundStyle(DesignSystem.Color.iconPrimary)
+            .frame(size: CGSize(bothDimensions: backdropSize))
+            .background(DesignSystem.Color.bgOpaquePrimary, in: Circle())
+            .accessibilityHidden(true)
+    }
+}
+
+private extension RowIcon {
+    enum Constants {
+        static let glyphSize: CGFloat = 20
+        static let backdropSize: CGFloat = 40
     }
 }
 
