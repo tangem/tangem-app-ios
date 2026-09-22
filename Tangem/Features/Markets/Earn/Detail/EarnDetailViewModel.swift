@@ -77,6 +77,14 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
         filterProvider.clear()
     }
 
+    func clearNetworkFilter() {
+        filterProvider.didSelectNetworkFilter(.all)
+    }
+
+    func clearTypeFilter() {
+        filterProvider.didSelectFilterType(.all)
+    }
+
     var canFetchMore: Bool {
         dataProvider.canFetchMore
     }
@@ -240,6 +248,14 @@ extension EarnDetailViewModel {
 
     var selectedFilterTypeTitle: String {
         filterProvider.selectedFilterType.description
+    }
+
+    var isNetworkFilterActive: Bool {
+        filterProvider.selectedNetworkFilter != .all
+    }
+
+    var isTypeFilterActive: Bool {
+        filterProvider.selectedFilterType != .all
     }
 
     var hasActiveFilters: Bool {
