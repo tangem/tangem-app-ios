@@ -23,9 +23,8 @@ struct AppCoordinatorView: CoordinatorView {
 
     var body: some View {
         if FeatureProvider.isAvailable(.nativeMarketsShtorka) {
-            content
+            contentWithNativeShtorka
                 .accentColor(Colors.Text.primary1)
-                .modifier(OverlayViewPresenterModifier(viewModel: overlayViewPresenterViewModel))
                 .bottomSheet(
                     item: $sensitiveTextVisibilityViewModel.informationHiddenBalancesViewModel,
                     backgroundColor: Colors.Background.primary
@@ -60,6 +59,17 @@ struct AppCoordinatorView: CoordinatorView {
                 ) {
                     InformationHiddenBalancesView(viewModel: $0)
                 }
+        }
+    }
+
+    @ViewBuilder
+    private var contentWithNativeShtorka: some View {
+        if case .main = coordinator.viewState {
+            // Main hosts app overlays inside the shtorka environment so they can be presented above the sheet.
+            content
+        } else {
+            content
+                .modifier(OverlayViewPresenterModifier(viewModel: overlayViewPresenterViewModel))
         }
     }
 

@@ -10,8 +10,7 @@ import SwiftUI
 import Testing
 @testable import Tangem
 
-/// The shtorka and a screen shown over the whole app share the root's one presentation slot, so the shtorka is
-/// up exactly when the coordinator wants it shown and nothing is presented over the app.
+/// App overlays are presented above the shtorka and must not dismiss it or its presented content.
 @Suite("Main shtorka state", .serialized)
 @MainActor
 struct MainShtorkaStateObjectTests {
@@ -24,30 +23,36 @@ struct MainShtorkaStateObjectTests {
         }
     }
 
-    @Test("The shtorka steps aside while an overlay is presented and comes back once it is gone")
-    func stepsAsideForAnOverlay() async {
+    @Test("Presenting and dismissing an app overlay preserves the shtorka and its size")
+    func overlayPreservesPresentation() async {
         await withCleanEnvironment { stateObject in
             InjectedValues[\.mainBottomSheetUIManager].show()
             #expect(await waitUntilConditionMet { stateObject.isPresented })
+            stateObject.expand()
 
             InjectedValues[\.overlayViewPresenter].present(Self.overlay)
-            #expect(await waitUntilConditionMet { !stateObject.isPresented })
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            #expect(stateObject.isPresented)
+            #expect(stateObject.size == .full)
 
             InjectedValues[\.overlayViewPresenter].dismiss()
-            #expect(await waitUntilConditionMet { stateObject.isPresented })
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            #expect(stateObject.isPresented)
+            #expect(stateObject.size == .full)
         }
     }
 
-    @Test("An overlay that was up before the coordinator asked for the shtorka keeps it down")
-    func overlayUpBeforeShowKeepsItDown() async {
+    @Test("The coordinator controls shtorka visibility while an overlay is up")
+    func coordinatorControlsVisibilityWithOverlay() async {
         await withCleanEnvironment { stateObject in
             InjectedValues[\.overlayViewPresenter].present(Self.overlay)
             InjectedValues[\.mainBottomSheetUIManager].show()
+            #expect(await waitUntilConditionMet { stateObject.isPresented })
 
-            try? await Task.sleep(nanoseconds: 100_000_000)
-            #expect(!stateObject.isPresented)
+            InjectedValues[\.mainBottomSheetUIManager].hide(shouldUpdateFooterSnapshot: false)
+            #expect(await waitUntilConditionMet { !stateObject.isPresented })
 
-            InjectedValues[\.overlayViewPresenter].dismiss()
+            InjectedValues[\.mainBottomSheetUIManager].show()
             #expect(await waitUntilConditionMet { stateObject.isPresented })
         }
     }
