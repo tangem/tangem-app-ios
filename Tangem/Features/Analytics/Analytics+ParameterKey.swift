@@ -21,7 +21,6 @@ extension Analytics {
         case newSecOption = "new_security_option"
         case errorKey = "Tangem SDK error key"
         case source = "Source"
-        case commonWalletId = "Wallet Id"
         case toggleType = "toggle_type"
         case period = "Period"
         case currency = "Currency Type" // fiat
@@ -178,7 +177,6 @@ extension Analytics {
         case backupType = "Backup Type"
         case backupsCount = "Backup Count"
         case completedBackups = "Completed Backups"
-        case userWalletId = "User Wallet Id"
 
         // MARK: - News
 
@@ -212,7 +210,6 @@ extension Analytics {
 
         case variant
         case zone
-        case walletId = "wallet_id"
 
         // MARK: - Address Book
 

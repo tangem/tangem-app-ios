@@ -167,15 +167,10 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
             }
 
             let contactId = try await addressBookManager.createContact(name: name, appearance: AddressBookContactAppearance(color: colorSubject.value), entries: entries)
-            analyticsLogger.logContactSaved(
-                userWalletId: analyticsUserWalletId,
-                contactId: contactId.stringValue,
-                mode: .create,
-                source: analyticsSource
-            )
+            analyticsLogger.logContactSaved(contactId: contactId.stringValue, mode: .create, source: analyticsSource)
             return contactId
         } catch {
-            analyticsLogger.logSaveFailure(userWalletId: analyticsUserWalletId, contactId: nil, error: error)
+            analyticsLogger.logSaveFailure(contactId: nil, error: error)
             throw error
         }
     }
@@ -183,7 +178,7 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
     func delete() async throws {}
 
     func logContactScreenOpened() {
-        analyticsLogger.logContactScreenOpened(userWalletId: analyticsUserWalletId, contactId: nil)
+        analyticsLogger.logContactScreenOpened(contactId: nil)
     }
 
     func logWalletPickerOpened() {
@@ -191,21 +186,17 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
     }
 
     func logAddressRemoved() {
-        analyticsLogger.logAddressRemoved(userWalletId: analyticsUserWalletId, contactId: nil)
+        analyticsLogger.logAddressRemoved(contactId: nil)
     }
 
     func logDuplicateNameErrorShown() {
-        analyticsLogger.logDuplicateNameErrorShown(userWalletId: analyticsUserWalletId, contactId: nil)
+        analyticsLogger.logDuplicateNameErrorShown(contactId: nil)
     }
 }
 
 // MARK: - Private
 
 private extension CreateAddressBookContactManagementInteractor {
-    var analyticsUserWalletId: UserWalletId? {
-        walletSubject.value.wallet.id
-    }
-
     var nameTakenPublisher: AnyPublisher<Bool, Never> {
         walletSubject
             .map { $0.addressBookManager.contactsPublisher }

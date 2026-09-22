@@ -70,14 +70,13 @@ final class AddressBooksViewModel: ObservableObject {
     }
 
     func onFirstAppear() {
-        let userWalletId = analyticsUserWalletId
         let source = analyticsSource
         allWalletsPublisher()
             .filter { $0.allSatisfy(\.isSettled) }
             .map { wallets in wallets.reduce(0) { $0 + $1.contacts.count } }
             .first()
             .sink { [analyticsLogger] contactsCount in
-                analyticsLogger.logContactListScreenOpened(userWalletId: userWalletId, source: source, contactsCount: contactsCount)
+                analyticsLogger.logContactListScreenOpened(source: source, contactsCount: contactsCount)
             }
             .store(in: &bag)
     }
@@ -87,7 +86,7 @@ final class AddressBooksViewModel: ObservableObject {
     }
 
     func openAddContact() {
-        analyticsLogger.logAddContactTapped(userWalletId: analyticsUserWalletId, source: analyticsSource)
+        analyticsLogger.logAddContactTapped(source: analyticsSource)
 
         guard let addContactTarget else {
             return
@@ -109,10 +108,6 @@ final class AddressBooksViewModel: ObservableObject {
 // MARK: - Private
 
 private extension AddressBooksViewModel {
-    var analyticsUserWalletId: UserWalletId? {
-        userWalletRepository.selectedModel?.userWalletId
-    }
-
     var isAllScope: Bool {
         selectedChipId == Constants.allChipId
     }
@@ -290,7 +285,7 @@ private extension AddressBooksViewModel {
         // In selection mode (opened from Send "View All") a tap resolves the contact's address and
         // returns it instead of editing the contact.
         if selectionOutput != nil {
-            analyticsLogger.logContactSelected(userWalletId: contact.walletId, contactId: contact.id.stringValue)
+            analyticsLogger.logContactSelected(contactId: contact.id.stringValue)
             let groups = contact.entries.groupedByAddress
 
             // A single-address contact is applied directly; a multi-address one opens the address picker.
