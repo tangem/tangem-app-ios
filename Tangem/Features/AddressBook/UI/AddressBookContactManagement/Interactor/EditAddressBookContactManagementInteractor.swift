@@ -188,26 +188,21 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
                 try await source.addressBookManager.deleteContact(id: contact.id)
             }
 
-            analyticsLogger.logContactSaved(
-                userWalletId: analyticsUserWalletId,
-                contactId: contact.id.stringValue,
-                mode: .edit,
-                source: analyticsSource
-            )
+            analyticsLogger.logContactSaved(contactId: contact.id.stringValue, mode: .edit, source: analyticsSource)
             return contact.id
         } catch {
-            analyticsLogger.logSaveFailure(userWalletId: analyticsUserWalletId, contactId: contact.id.stringValue, error: error)
+            analyticsLogger.logSaveFailure(contactId: contact.id.stringValue, error: error)
             throw error
         }
     }
 
     func delete() async throws {
         try await initialAddressBookWallet.addressBookManager.deleteContact(id: contact.id)
-        analyticsLogger.logContactDeleted(userWalletId: contact.walletId, contactId: contact.id.stringValue)
+        analyticsLogger.logContactDeleted(contactId: contact.id.stringValue)
     }
 
     func logContactScreenOpened() {
-        analyticsLogger.logContactScreenOpened(userWalletId: analyticsUserWalletId, contactId: contact.id.stringValue)
+        analyticsLogger.logContactScreenOpened(contactId: contact.id.stringValue)
     }
 
     func logWalletPickerOpened() {
@@ -215,21 +210,17 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
     }
 
     func logAddressRemoved() {
-        analyticsLogger.logAddressRemoved(userWalletId: contact.walletId, contactId: contact.id.stringValue)
+        analyticsLogger.logAddressRemoved(contactId: contact.id.stringValue)
     }
 
     func logDuplicateNameErrorShown() {
-        analyticsLogger.logDuplicateNameErrorShown(userWalletId: analyticsUserWalletId, contactId: contact.id.stringValue)
+        analyticsLogger.logDuplicateNameErrorShown(contactId: contact.id.stringValue)
     }
 }
 
 // MARK: - Wallet change (move between books)
 
 private extension EditAddressBookContactManagementInteractor {
-    var analyticsUserWalletId: UserWalletId? {
-        walletSubject.value.wallet.id
-    }
-
     var nameTakenPublisher: AnyPublisher<Bool, Never> {
         walletSubject
             .map { $0.addressBookManager.contactsPublisher }
