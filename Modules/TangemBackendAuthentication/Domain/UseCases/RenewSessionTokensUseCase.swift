@@ -15,6 +15,7 @@ actor RenewSessionTokensUseCase {
     private let appAttestService: any AppAttestService
     private let sessionAuthenticationClient: any SessionAuthenticationClient
     private let sessionTokensRepository: any SessionTokensRepository
+    private let deviceRegistrationStatusRepository: any DeviceRegistrationStatusRepository
 
     private let deviceKeyManager: DeviceKeyManager
     private let nonceDecryptor: any NonceDecryptor
@@ -30,6 +31,7 @@ actor RenewSessionTokensUseCase {
         appAttestService: some AppAttestService,
         sessionAuthenticationClient: some SessionAuthenticationClient,
         sessionTokensRepository: some SessionTokensRepository,
+        deviceRegistrationStatusRepository: some DeviceRegistrationStatusRepository,
         deviceKeyManager: DeviceKeyManager,
         nonceDecryptor: some NonceDecryptor,
         deviceMetadataProvider: @escaping @Sendable @autoclosure () -> DeviceMetadata,
@@ -41,6 +43,7 @@ actor RenewSessionTokensUseCase {
         self.appAttestService = appAttestService
         self.sessionAuthenticationClient = sessionAuthenticationClient
         self.sessionTokensRepository = sessionTokensRepository
+        self.deviceRegistrationStatusRepository = deviceRegistrationStatusRepository
 
         self.deviceKeyManager = deviceKeyManager
         self.nonceDecryptor = nonceDecryptor
@@ -163,6 +166,8 @@ extension RenewSessionTokensUseCase {
     /// If registration reports the device as already registered (no tokens),
     /// we retry `authenticate()` exactly once more, with no further recovery.
     private func recoverFromMissingDeviceRegistration() async throws(RenewSessionTokensError) -> SessionTokens {
+        deviceRegistrationStatusRepository.persist(isRegistered: false)
+
         let freshSessionTokensAfterRegistration: SessionTokens?
 
         do {
