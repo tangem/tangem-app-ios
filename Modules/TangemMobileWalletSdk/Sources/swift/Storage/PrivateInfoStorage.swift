@@ -66,6 +66,10 @@ final class PrivateInfoStorage {
     }
 
     func deletePrivateInfoData(for walletID: UserWalletId) throws {
+        // Delete the Secure Enclave wrapping key too, mirroring EncryptedSecureStorage.deleteData.
+        // Otherwise `mobile_sdk_private_info_secure_enclave_<id>` is orphaned in the keychain on
+        // wallet deletion (useless without the ciphertext, but it should not linger).
+        secureEnclaveService.delete(tag: walletID.privateInfoSecureEnclaveTag)
         try secureStorage.delete(walletID.privateInfoTag)
     }
 }
