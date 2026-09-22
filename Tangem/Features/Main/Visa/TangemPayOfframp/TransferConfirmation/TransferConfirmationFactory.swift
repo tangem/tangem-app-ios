@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemPay
 
 enum TransferConfirmationFactory {
@@ -29,19 +30,10 @@ enum TransferConfirmationFactory {
                 tokenItems: options.tokens,
                 railItems: options.rails,
                 savedRecipient: savedRecipient,
-                title: Constants.title,
+                title: Localization.tangempayWithdrawBankConfirmTitle,
                 sendButtonIcon: hasNFCInteraction ? Assets.tangemIcon : nil,
                 output: output
             )
         )
-    }
-}
-
-// MARK: - Constants
-
-private extension TransferConfirmationFactory {
-    enum Constants {
-        // [REDACTED_TODO_COMMENT]
-        static let title = "Confirm transfer"
     }
 }

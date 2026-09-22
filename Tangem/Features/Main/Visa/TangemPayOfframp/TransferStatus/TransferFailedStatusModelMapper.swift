@@ -6,34 +6,24 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import TangemLocalization
 
 enum TransferFailedStatusModelMapper {
     static func model(for error: TangemPayOffRampSendUseCase.SendError) -> TransferFailedStatusView.Model {
         switch error {
         case .unavailableRegion:
             TransferFailedStatusView.Model(
-                title: Constants.unavailableRegionTitle,
-                description: Constants.unavailableRegionDescription,
+                title: Localization.tangempayWithdrawBankErrorRegionTitle,
+                description: Localization.commonTryAgainLater,
                 style: .unavailableRegion
             )
 
         case .signatureSubmission, .cancelled, .generic:
             TransferFailedStatusView.Model(
-                title: Constants.genericTitle,
+                title: Localization.tangempayWithdrawBankErrorGeneralTitle,
                 description: nil,
                 style: .generic
             )
         }
-    }
-}
-
-// MARK: - Constants
-
-private extension TransferFailedStatusModelMapper {
-    enum Constants {
-        static let genericTitle = "Something went wrong"
-        static let unavailableRegionTitle = "Transfers are not available"
-        static let unavailableRegionDescription = "Please try again later"
     }
 }

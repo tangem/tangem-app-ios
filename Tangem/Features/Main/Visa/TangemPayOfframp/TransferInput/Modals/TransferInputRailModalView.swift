@@ -19,8 +19,7 @@ struct TransferInputRailModalView: View {
 
     var body: some View {
         VStack(spacing: .zero) {
-            // [REDACTED_TODO_COMMENT]
-            BottomSheetHeaderView(title: "Select route", trailing: { closeButton })
+            BottomSheetHeaderView(title: Localization.tangempayWithdrawBankSelectRoute, trailing: { closeButton })
                 .titleFont(DesignSystem.Font.bodyMediumToken.font)
                 .titleColor(DesignSystem.Color.textPrimary)
                 .padding(.horizontal, Constants.horizontalPadding)

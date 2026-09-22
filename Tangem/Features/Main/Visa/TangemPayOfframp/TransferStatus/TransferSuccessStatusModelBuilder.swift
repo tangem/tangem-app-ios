@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemFoundation
+import TangemLocalization
 import TangemPay
 
 enum TransferSuccessStatusModelBuilder {
@@ -35,10 +36,10 @@ enum TransferSuccessStatusModelBuilder {
 private extension TransferSuccessStatusModelBuilder {
     static func title(amount: Decimal?) -> String {
         guard let amount else {
-            return Constants.titlePrefix
+            return Localization.commonSending
         }
 
-        return "\(Constants.titlePrefix) \(TangemPayOfframpAmountFormatter.format(amount))"
+        return Localization.tangempayWithdrawBankSuccessTitle(TangemPayOfframpAmountFormatter.format(amount))
     }
 
     static let dateFormatter: DateFormatter = {
@@ -86,9 +87,9 @@ private extension TransferSuccessStatusModelBuilder {
         accountNumber: String?
     ) -> [TransferSuccessStatusView.Detail] {
         [
-            detail(id: .recipient, title: Constants.recipientTitle, value: recipient),
-            detail(id: .bankName, title: Constants.bankNameTitle, value: bankName),
-            detail(id: .accountNumber, title: Constants.accountNumberTitle, value: accountNumber),
+            detail(id: .recipient, title: Localization.sendRecipient, value: recipient),
+            detail(id: .bankName, title: Localization.tangempayWithdrawBankFieldBankName, value: bankName),
+            detail(id: .accountNumber, title: Localization.tangempayWithdrawBankFieldAccountNumber, value: accountNumber),
         ]
         .compactMap { $0 }
     }
@@ -114,16 +115,5 @@ private extension TransferSuccessStatusModelBuilder {
         case .business(let businessName):
             businessName
         }
-    }
-}
-
-// MARK: - Constants
-
-private extension TransferSuccessStatusModelBuilder {
-    enum Constants {
-        static let titlePrefix = "Sending"
-        static let recipientTitle = "Recipient"
-        static let bankNameTitle = "Bank name"
-        static let accountNumberTitle = "Account number"
     }
 }
