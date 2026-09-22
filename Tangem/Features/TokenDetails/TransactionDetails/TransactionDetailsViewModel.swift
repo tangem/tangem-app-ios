@@ -40,6 +40,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
     private let userWalletId: UserWalletId
     private let userWalletIdHash: String
     private let context: TransactionDetailsContext
+    private let analyticsLogger: TransactionDetailsAnalyticsLogger
 
     private let addressBookAnalyticsLogger: AddressBookAnalyticsLogger
     private let addressBookWallet: AddressBookWallet
@@ -68,6 +69,10 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         userWalletId = userWalletInfo.id
         userWalletIdHash = userWalletInfo.id.hashedStringValue
         addressBookWallet = AddressBookWallet(wallet: userWalletInfo, addressBookManager: addressBookManager)
+        analyticsLogger = TransactionDetailsAnalyticsLogger(
+            userWalletId: userWalletInfo.id,
+            tokenItem: walletModel.tokenItem
+        )
 
         let context = TransactionDetailsContext(
             walletModel: walletModel,
@@ -228,6 +233,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
                 return (
                     record: record,
+                    transaction: transaction,
                     reduced: TransactionDetailsFactory.reduce(
                         transaction: transaction,
                         record: record,
@@ -250,6 +256,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
                 viewModel.header = output.reduced.header
                 viewModel.content = output.reduced.content
                 viewModel.setupRatingViewModel(for: output.reduced.content)
+                viewModel.analyticsLogger.recordUpdated(output.record, transaction: output.transaction)
             }
             .store(in: &bag)
 
@@ -284,15 +291,19 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
     func handleViewAction(_ action: ViewAction) {
         switch action {
-        case .openURL(let url):
+        case .openURL(let url, let kind):
+            logAnalytics(for: kind)
             routable?.openTransactionDetailsURL(url)
         case .share:
+            analyticsLogger.logShare()
             share()
         case .close:
             routable?.closeTransactionDetails()
-        case .copy(let value, let toast):
+        case .copy(let value, let toast, let kind):
+            logAnalytics(for: kind)
             copy(value, toast: toast)
         case .openRefundToken:
+            analyticsLogger.logGoToToken()
             openRefundToken()
         case .addContact(let address):
             addContact(address: address)
@@ -304,6 +315,26 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         case .debug:
             openDebug()
         #endif
+        }
+    }
+
+    private func logAnalytics(for kind: ViewAction.URLKind) {
+        switch kind {
+        case .explorer:
+            analyticsLogger.logExplore()
+        case .provider(let source):
+            analyticsLogger.logGoToProvider(source: source)
+        case .yieldProvider:
+            break
+        }
+    }
+
+    private func logAnalytics(for kind: ViewAction.CopyKind) {
+        switch kind {
+        case .address:
+            analyticsLogger.logCopyAddress()
+        case .transactionID:
+            analyticsLogger.logCopyTransactionID()
         }
     }
 
@@ -427,9 +458,9 @@ extension TransactionDetailsViewModel {
     }
 
     enum ViewAction: Equatable {
-        case openURL(URL)
+        case openURL(URL, kind: URLKind)
         case share
-        case copy(value: String, toast: String)
+        case copy(value: String, toast: String, kind: CopyKind)
         case openRefundToken
         case addContact(address: String)
         case close
@@ -441,6 +472,17 @@ extension TransactionDetailsViewModel {
         #if INTERNAL || DEBUG
         case debug
         #endif
+
+        enum URLKind: Equatable {
+            case explorer
+            case provider(source: TransactionDetailsProviderNavigationSource)
+            case yieldProvider
+        }
+
+        enum CopyKind: Equatable {
+            case address
+            case transactionID
+        }
     }
 
     private enum RefundTokenError: Error {
