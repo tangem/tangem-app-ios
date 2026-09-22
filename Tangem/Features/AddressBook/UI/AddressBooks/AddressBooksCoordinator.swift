@@ -26,6 +26,8 @@ class AddressBooksCoordinator: CoordinatorObject {
 
     private let analyticsLogger: any AddressBookAnalyticsLogger = CommonAddressBookAnalyticsLogger()
 
+    private(set) var addressBookAnalyticsSource: AddressBookAnalyticsSource = .settings
+
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -35,11 +37,13 @@ class AddressBooksCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        addressBookAnalyticsSource = options.selectionOutput == nil ? .settings : .sendFlow
         rootViewModel = .init(
             coordinator: self,
             addressBooksProvider: options.addressBooksProvider,
             selectionOutput: options.selectionOutput,
-            analyticsLogger: analyticsLogger
+            analyticsLogger: analyticsLogger,
+            analyticsSource: addressBookAnalyticsSource
         )
     }
 }
