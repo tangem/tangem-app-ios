@@ -60,6 +60,14 @@ extension BackendAuthenticationTarget {
             requestBody: requestBody
         )
     }
+
+    init(recoverNonce requestBody: NonceDTO.Request, baseURL: URL) {
+        self.init(
+            baseURL: baseURL,
+            relativePath: "nonce/recover",
+            requestBody: requestBody
+        )
+    }
 }
 
 // MARK: - mobile/authenticate
