@@ -47,6 +47,13 @@ class TezosTransactionBuilder {
             return nil
         }
 
+        // `counter` comes from the node and is incremented once or twice below;
+        // guard against Int overflow (a node returning a near-Int.max counter)
+        // instead of trapping on `counter += 1`.
+        guard counter <= Int.max - 2 else {
+            return nil
+        }
+
         var contents = [TezosOperationContent]()
         contents.reserveCapacity(isPublicKeyRevealed ? 1 : 2)
 
