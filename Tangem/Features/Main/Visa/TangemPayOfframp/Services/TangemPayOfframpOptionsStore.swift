@@ -10,6 +10,7 @@ import Combine
 import Foundation
 import TangemAssets
 import TangemFoundation
+import TangemLocalization
 import TangemPay
 import TangemVisa
 
@@ -138,17 +139,14 @@ extension TangemPayOfframpOptionsStore {
 
     static func etaText(for eta: TangemPayBankOfframpOptionsResponse.ETA) -> String {
         if eta.maxDays <= 0 {
-            // [REDACTED_TODO_COMMENT]
-            return "Same business day"
+            return Localization.tangempayWithdrawBankEtaSameBusinessDay
         }
 
         if eta.minDays == eta.maxDays {
-            // [REDACTED_TODO_COMMENT]
-            return "\(eta.maxDays) business \(eta.maxDays == 1 ? "day" : "days")"
+            return Localization.tangempayWithdrawBankEtaBusinessDays(eta.maxDays)
         }
 
-        // [REDACTED_TODO_COMMENT]
-        return "\(eta.minDays)-\(eta.maxDays) business days"
+        return Localization.tangempayOrderTypeDeliveryEtaRange(eta.minDays, eta.maxDays)
     }
 
     static func makeTokenItems(

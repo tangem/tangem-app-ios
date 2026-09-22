@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemPay
 import TangemUI
 import TangemUIUtils
@@ -61,16 +62,14 @@ private extension TransferConfirmationContentView {
 
     var amountHeader: some View {
         HStack(spacing: Constants.amountHeaderSpacing) {
-            // [REDACTED_TODO_COMMENT]
-            Text("From")
+            Text(Localization.commonFrom)
 
             Assets.Visa.accountAvatar.image
                 .resizable()
                 .scaledToFit()
                 .frame(width: Constants.accountAvatarSide, height: Constants.accountAvatarSide)
 
-            // [REDACTED_TODO_COMMENT]
-            Text("Payment account")
+            Text(Localization.tangempayPaymentAccount)
 
             Spacer(minLength: Constants.amountHeaderSpacing)
 
@@ -211,8 +210,7 @@ private extension TransferConfirmationContentView {
 
     var sendButton: some View {
         TangemUI.Button(
-            // [REDACTED_TODO_COMMENT]
-            label: "Send",
+            label: Localization.commonSend,
             accessibilityLabel: nil,
             action: { action(.sendTap) }
         )

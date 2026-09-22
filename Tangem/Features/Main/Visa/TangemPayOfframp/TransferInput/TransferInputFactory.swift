@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemLocalization
 import TangemPay
 
 enum TransferInputFactory {
@@ -33,24 +34,11 @@ private extension TransferInputFactory {
     static func title(recipient: TangemPayOfframpRecipient, savedRecipientName: String?) -> String {
         switch recipient {
         case .saved:
-            savedRecipientName ?? Constants.savedFallbackTitle
+            savedRecipientName ?? Localization.tangempayWithdrawHubBankSectionTitle
         case .newIndividual:
-            Constants.personalTitle
+            Localization.tangempayWithdrawHubToPersonalAccount
         case .newBusiness:
-            Constants.businessTitle
+            Localization.tangempayWithdrawHubToBusinessAccount
         }
-    }
-}
-
-// MARK: - Constants
-
-private extension TransferInputFactory {
-    enum Constants {
-        // [REDACTED_TODO_COMMENT]
-        static let personalTitle = "To personal account"
-        // [REDACTED_TODO_COMMENT]
-        static let businessTitle = "To business account"
-        // [REDACTED_TODO_COMMENT]
-        static let savedFallbackTitle = "Bank transfer"
     }
 }

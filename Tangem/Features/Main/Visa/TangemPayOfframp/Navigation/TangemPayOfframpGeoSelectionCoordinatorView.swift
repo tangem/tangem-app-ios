@@ -134,14 +134,13 @@ private extension TangemPayOfframpGeoSelectionCoordinatorView {
 // MARK: - Configurations
 
 private extension TangemPayOfframpGeoSelectionCoordinatorView {
-    // [REDACTED_TODO_COMMENT]
     func countryConfiguration(selectedCode: String?) -> GeoSelectionConfiguration {
         GeoSelectionConfiguration(
-            title: "Country",
+            title: Localization.tangempayOrderDataCountry,
             highlight: selectedCode.map {
                 .selected(
                     code: $0,
-                    sectionTitle: "Selected country",
+                    sectionTitle: Localization.tangempayWithdrawBankGeoCountrySelected,
                     allSectionTitle: Localization.tangempayResidencyAllCountry
                 )
             },
@@ -149,14 +148,13 @@ private extension TangemPayOfframpGeoSelectionCoordinatorView {
         )
     }
 
-    // [REDACTED_TODO_COMMENT]
     func regionConfiguration(selectedCode: String?, showsBackButton: Bool) -> GeoSelectionConfiguration {
         GeoSelectionConfiguration(
-            title: "State",
+            title: Localization.tangempayWithdrawBankGeoStateTitle,
             highlight: selectedCode.map {
                 .selected(
                     code: $0,
-                    sectionTitle: "Selected state",
+                    sectionTitle: Localization.tangempayWithdrawBankGeoStateSelected,
                     allSectionTitle: Localization.tangempayResidencyAllState
                 )
             },

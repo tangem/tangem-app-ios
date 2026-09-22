@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAccounts
 import TangemAssets
+import TangemLocalization
 import TangemUI
 
 struct WithdrawHubActionTileView: View {
@@ -100,8 +101,7 @@ private extension WithdrawHubActionTileView {
     @ViewBuilder
     var badge: some View {
         if case .recentToken = data {
-            // [REDACTED_TODO_COMMENT]
-            Badge(label: "Recent", accessibilityLabel: nil)
+            Badge(label: Localization.tangempayWithdrawHubRecentBadge, accessibilityLabel: nil)
                 .size(.x4)
                 .appearance(.neutral)
         }
@@ -175,8 +175,7 @@ private extension WithdrawHubActionTileView.ViewData {
         case .action(_, let title, _), .placeholder(_, let title):
             title
         case .seeAll:
-            // [REDACTED_TODO_COMMENT]
-            "See all"
+            Localization.commonSeeAll
         case .recentAccount(let account):
             account.name
         case .recentToken(let token):

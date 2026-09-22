@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 
 enum TransferTypeFactory {
     @MainActor
@@ -17,19 +18,10 @@ enum TransferTypeFactory {
         TransferTypeView(
             viewModel: TransferTypeViewModel(
                 orderBuilder: orderBuilder,
-                title: Constants.title,
+                title: Localization.tangempayWithdrawHubToPersonalAccount,
                 stepSubtitle: TangemPayOfframpWizardStep.transferType.subtitle(for: orderBuilder.recipient),
                 output: output
             )
         )
-    }
-}
-
-// MARK: - Constants
-
-private extension TransferTypeFactory {
-    enum Constants {
-        // [REDACTED_TODO_COMMENT]
-        static let title = "To personal account"
     }
 }

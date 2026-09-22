@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 
 struct TransferSuccessStatusView: View {
@@ -18,7 +19,7 @@ struct TransferSuccessStatusView: View {
         StatusScreen(
             title: model.title,
             description: model.dateText,
-            actionTitle: Constants.closeTitle,
+            actionTitle: Localization.commonClose,
             action: onClose
         )
         .appearance(.info)
@@ -62,14 +63,6 @@ extension TransferSuccessStatusView.Detail {
         case recipient
         case bankName
         case accountNumber
-    }
-}
-
-// MARK: - Constants
-
-private extension TransferSuccessStatusView {
-    enum Constants {
-        static let closeTitle = "Close"
     }
 }
 

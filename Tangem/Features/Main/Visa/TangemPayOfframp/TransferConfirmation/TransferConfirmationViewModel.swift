@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemAssets
+import TangemLocalization
 import TangemPay
 import TangemVisa
 
@@ -221,10 +222,9 @@ private extension TransferConfirmationViewModel {
             return nil
         }
 
-        // [REDACTED_TODO_COMMENT]
         let total = TangemPayOfframpAmountFormatter.format(amount + rail.feeAmount)
 
-        return "You are sending \(total) including a \(rail.title) fee of \(rail.feeText)"
+        return Localization.tangempayWithdrawBankSendingSummary(total, rail.title, rail.feeText)
     }
 }
 
