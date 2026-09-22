@@ -22,6 +22,7 @@ final class AccountRowButtonViewModel: Identifiable, ObservableObject {
     @Published private(set) var name: String
     @Published private(set) var iconData: AccountIconView.ViewData
     @Published private(set) var subtitleState: SubtitleState = .none
+    @Published private(set) var trailingBalanceState: LoadableBalanceView.State?
 
     let isDisabled: Bool
 
@@ -135,7 +136,30 @@ private extension AccountRowButtonViewModel {
         /// TangemPay accounts don't have token count or fiat balance data for subtitle
         func resolve(accountModel: any TangemPayAccountModel) {}
 
-        /// Polymarket accounts don't have token count or fiat balance data for subtitle
-        func resolve(accountModel: any PolymarketAccountModel) {}
+        func resolve(accountModel: any PolymarketAccountModel) {
+            accountModel
+                .fiatAvailableBalanceProvider
+                .formattedBalanceTypePublisher
+                .map { LoadableBalanceViewStateBuilder().build(type: $0) }
+                .receiveOnMain()
+                .withWeakCaptureOf(viewModel)
+                .sink { vm, balanceState in
+                    vm.trailingBalanceState = balanceState
+                }
+                .store(in: &viewModel.bag)
+        }
+
+        func resolve(accountModel: any CollectiblesAccountModel) {
+            accountModel
+                .fiatTotalTokenBalanceProvider
+                .formattedBalanceTypePublisher
+                .map { LoadableBalanceViewStateBuilder().build(type: $0) }
+                .receiveOnMain()
+                .withWeakCaptureOf(viewModel)
+                .sink { vm, balanceState in
+                    vm.trailingBalanceState = balanceState
+                }
+                .store(in: &viewModel.bag)
+        }
     }
 }

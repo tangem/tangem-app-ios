@@ -81,6 +81,13 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
         dataProvider.canFetchMore
     }
 
+    var isMostlyUsedSectionVisible: Bool {
+        switch mostlyUsedViewModels {
+        case .loading, .failure: true
+        case .success(let viewModels): !viewModels.isEmpty
+        }
+    }
+
     func fetchMore() {
         dataProvider.fetchMore()
     }
@@ -89,10 +96,23 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
         analyticsProvider.logMostlyUsedCarouselScrolled()
     }
 
+    func onMostlyUsedRetry() {
+        dataProvider.refreshMostlyUsedTokens()
+    }
+
     // MARK: - Private Implementation
 
     private func setupMostlyUsedViewModels(from tokens: [EarnTokenModel]) {
-        mostlyUsedViewModels = .success(tokens.map { token in
+        let sortedTokens = tokens.sorted { lhs, rhs in
+            if lhs.rateValue != rhs.rateValue {
+                return lhs.rateValue > rhs.rateValue
+            }
+
+            let nameOrder = lhs.name.localizedCaseInsensitiveCompare(rhs.name)
+            return nameOrder == .orderedSame ? lhs.networkName < rhs.networkName : nameOrder == .orderedAscending
+        }
+
+        mostlyUsedViewModels = .success(sortedTokens.map { token in
             EarnTokenItemViewModel(token: token) { [weak self] in
                 self?.handleTokenTap(token, source: .mostlyUsed)
             }

@@ -16,6 +16,7 @@ struct SwapFlowConfiguration {
     let receiveTokenSelection: ReceiveTokenSelection
     /// Overrides the swap summary navigation title.
     let summaryTitle: String?
+    var offeredReceiveTokens: [TokenItem] = []
 
     static let `default` = SwapFlowConfiguration(
         isPairReversalEnabled: true,
@@ -37,7 +38,7 @@ extension SwapFlowConfiguration {
         var walletsProvider: (any TokenSelectorWalletsProvider)? {
             switch self {
             case .unrestricted: nil
-            case .filtered(let isIncluded): FilteredTokenSelectorWalletsProvider(base: .common(), isIncluded: isIncluded)
+            case .filtered(let isIncluded): FilteredTokenSelectorWalletsProvider(base: .cryptoJointTangemPayAccounts(), isIncluded: isIncluded)
             case .restricted(let walletsProvider, _): walletsProvider
             }
         }

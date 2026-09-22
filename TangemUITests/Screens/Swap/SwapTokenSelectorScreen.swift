@@ -14,6 +14,9 @@ final class SwapTokenSelectorScreen: ScreenBase<SwapTokenSelectorScreenElement> 
     private lazy var closeButton = button(.closeButton)
     private lazy var searchField = searchField(.searchField)
     private lazy var clearSearchButton = searchField.buttons["Clear text"].firstMatch
+    private lazy var balanceFilterChip = button(.balanceFilterChip)
+    private lazy var filteredOutEmptyMessage = staticText(.filteredOutEmptyMessage)
+    private lazy var seeAllButton = button(.seeAllButton)
 
     @discardableResult
     func waitSwapTokenSelectorDisplayed() -> Self {
@@ -143,6 +146,73 @@ final class SwapTokenSelectorScreen: ScreenBase<SwapTokenSelectorScreenElement> 
         return self
     }
 
+    @discardableResult
+    func verifyTokenCount(_ expected: Int) -> Self {
+        XCTContext.runActivity(named: "Verify the token selector lists \(expected) tokens") { _ in
+            let query = app.buttons.matching(
+                NSPredicate(format: "identifier BEGINSWITH %@", CommonUIAccessibilityIdentifiers.tokenSelectorItemPrefix)
+            )
+            let expectation = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "count == %d", expected),
+                object: query
+            )
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Token selector should list \(expected) tokens, but listed \(query.count)"
+            )
+        }
+        return self
+    }
+
+    // MARK: - Balance filter
+
+    @discardableResult
+    func waitBalanceFilterChipLabel(contains text: String) -> Self {
+        XCTContext.runActivity(named: "Verify balance filter chip label contains '\(text)'") { _ in
+            waitAndAssertTrue(balanceFilterChip, "Balance filter chip should exist")
+            let predicate = NSPredicate(format: "label CONTAINS %@", text)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: balanceFilterChip)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Balance filter chip label should contain '\(text)' but was '\(balanceFilterChip.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func selectBalanceFilter(_ option: TokenSelectorBalanceFilterOption) -> Self {
+        XCTContext.runActivity(named: "Select '\(option.rawValue)' balance filter") { _ in
+            waitAndAssertTrue(balanceFilterChip, "Balance filter chip should exist")
+            balanceFilterChip.waitAndTap()
+
+            let optionButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorBalanceFilterOption(option.rawValue)].firstMatch
+            waitAndAssertTrue(optionButton, "Balance filter option '\(option.rawValue)' should be visible")
+            optionButton.waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForFilteredOutEmptyMessageDisplayed() -> Self {
+        XCTContext.runActivity(named: "Verify filtered-out empty message is displayed") { _ in
+            waitAndAssertTrue(filteredOutEmptyMessage, "Filtered-out empty message should be displayed")
+            waitAndAssertTrue(seeAllButton, "'See all' button should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapSeeAllButton() -> Self {
+        XCTContext.runActivity(named: "Tap 'See all' button") { _ in
+            waitAndAssertTrue(seeAllButton, "'See all' button should exist")
+            seeAllButton.waitAndTap()
+        }
+        return self
+    }
+
     // MARK: - Error State
 
     @discardableResult
@@ -177,6 +247,9 @@ final class SwapTokenSelectorScreen: ScreenBase<SwapTokenSelectorScreenElement> 
 enum SwapTokenSelectorScreenElement: String, UIElement {
     case closeButton
     case searchField
+    case balanceFilterChip
+    case filteredOutEmptyMessage
+    case seeAllButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -184,6 +257,17 @@ enum SwapTokenSelectorScreenElement: String, UIElement {
             return CommonUIAccessibilityIdentifiers.closeButton
         case .searchField:
             return "Search"
+        case .balanceFilterChip:
+            return CommonUIAccessibilityIdentifiers.tokenSelectorBalanceFilterChip
+        case .filteredOutEmptyMessage:
+            return SwapAccessibilityIdentifiers.tokenSelectorFilteredOutEmptyMessage
+        case .seeAllButton:
+            return SwapAccessibilityIdentifiers.tokenSelectorSeeAllButton
         }
     }
+}
+
+enum TokenSelectorBalanceFilterOption: String {
+    case all
+    case hideZero
 }

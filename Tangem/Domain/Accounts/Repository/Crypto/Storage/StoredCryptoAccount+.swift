@@ -17,13 +17,13 @@ extension StoredCryptoAccount {
         tokens: [StoredCryptoAccount.Token] = []
     ) {
         self.init(
-            derivationIndex: config.derivationIndex,
+            derivationIndex: config.derivationIdentity.derivationIndex,
+            type: config.derivationIdentity.type,
             name: config.name,
             icon: .init(iconName: config.iconName, iconColor: config.iconColor),
             tokens: tokens,
             grouping: tokenListAppearance.grouping,
-            sorting: tokenListAppearance.sorting,
-            type: .crypto
+            sorting: tokenListAppearance.sorting
         )
     }
 
@@ -32,9 +32,9 @@ extension StoredCryptoAccount {
     #else
     // [REDACTED_TODO_COMMENT]
     @available(iOS, deprecated: 100000.0, message: "For troubleshooting purposes on production builds only ([REDACTED_INFO])")
-    static func dummy(withDerivationIndex derivationIndex: Int) -> Self {
+    static func dummy(withDerivationIdentity derivationIdentity: CryptoAccountDerivationIdentity) -> Self {
         let icon = AccountModel.CompositeIcon(name: .allCases[0], color: .allCases[0])
-        let config = CryptoAccountPersistentConfig(derivationIndex: derivationIndex, name: nil, icon: icon)
+        let config = CryptoAccountPersistentConfig(derivationIdentity: derivationIdentity, name: nil, icon: icon)
 
         return StoredCryptoAccount(config: config, tokenListAppearance: .default)
     }
@@ -42,25 +42,25 @@ extension StoredCryptoAccount {
 
     func withTokens(_ newTokens: [StoredCryptoAccount.Token]) -> Self {
         return StoredCryptoAccount(
-            derivationIndex: derivationIndex,
+            derivationIndex: derivationIdentity.derivationIndex,
+            type: derivationIdentity.type,
             name: name,
             icon: icon,
             tokens: newTokens,
             grouping: grouping,
-            sorting: sorting,
-            type: type
+            sorting: sorting
         )
     }
 
     func with(sorting: StoredCryptoAccount.Sorting, grouping: StoredCryptoAccount.Grouping) -> Self {
         return StoredCryptoAccount(
-            derivationIndex: derivationIndex,
+            derivationIndex: derivationIdentity.derivationIndex,
+            type: derivationIdentity.type,
             name: name,
             icon: icon,
             tokens: tokens,
             grouping: grouping,
-            sorting: sorting,
-            type: type
+            sorting: sorting
         )
     }
 }

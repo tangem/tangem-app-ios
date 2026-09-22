@@ -17,6 +17,10 @@ final class ReferralScreen: ScreenBase<ReferralScreenElement> {
     private lazy var discountSection = staticText(.discountSection)
     private lazy var promoCodeTitle = staticText(.promoCodeTitle)
     private lazy var promoCodeValue = staticText(.promoCodeValue)
+    /// Type-agnostic: the row is composed of a button wrapper whose element type is not guaranteed.
+    private lazy var addressForRewardsAccountRow = app.descendants(matching: .any)
+        .matching(identifier: ReferralAccessibilityIdentifiers.addressForRewardsAccountRow)
+        .firstMatch
 
     @discardableResult
     func verifyReferralScreenDisplayed() -> Self {
@@ -35,6 +39,15 @@ final class ReferralScreen: ScreenBase<ReferralScreenElement> {
         XCTContext.runActivity(named: "Validate 'Your personal code' title is displayed") { _ in
             waitAndAssertTrue(promoCodeTitle, "'Your personal code' title should be displayed")
             return self
+        }
+    }
+
+    @discardableResult
+    func openAccountSelector() -> AccountSelectorSheet {
+        XCTContext.runActivity(named: "Open account selector from the 'Address for rewards' block") { _ in
+            waitAndAssertTrue(addressForRewardsAccountRow, "Account row should be displayed in the 'Address for rewards' block")
+            addressForRewardsAccountRow.waitAndTap()
+            return AccountSelectorSheet(app)
         }
     }
 

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0A40A8802E2FCB28006411E5 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 0A40A87F2E2FCB28006411E5 /* Lottie */; };
 		168398FC0B2E0B938E326B00 /* ios_cio_config.json in Resources */ = {isa = PBXBuildFile; fileRef = 2F184EBAB4A0E9D2286980C2 /* ios_cio_config.json */; };
+		298779BD66F34A0A82C0AE5C /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 82B26E343D644018AD22697E /* Moya */; };
 		2D15536F2FEC18DB00BF1F88 /* TangemNotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2D1553682FEC18DB00BF1F88 /* TangemNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2D67256B2EB0A6490035A4BC /* Experiment in Frameworks */ = {isa = PBXBuildFile; productRef = 2D67256A2EB0A6490035A4BC /* Experiment */; };
 		2DDEAD000000000000000003 /* MessagingPushFCM in Frameworks */ = {isa = PBXBuildFile; productRef = 2DDEAD000000000000000001 /* MessagingPushFCM */; };
@@ -88,6 +89,7 @@
 		F92DB9C92CD4C2F400C16530 /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = F92DB9C82CD4C2F400C16530 /* TangemModules */; };
 		F92DB9CB2CD4C36100C16530 /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = F92DB9CA2CD4C36100C16530 /* TangemModules */; };
 		F92DB9CD2CD4C3D200C16530 /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = F92DB9CC2CD4C3D200C16530 /* TangemModules */; };
+		FEC6EF6E4428451BBC18A043 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 2A0BF277ECDB41CE9916F880 /* Alamofire */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -391,6 +393,8 @@
 				C2FC44072F3E66F900A61EAB /* TangemTestKit in Frameworks */,
 				B67E38C72CC7259B00D660EB /* TangemSdk in Frameworks */,
 				DC2CA0DD2EF069BC00C10344 /* CryptoSwift in Frameworks */,
+				298779BD66F34A0A82C0AE5C /* Moya in Frameworks */,
+				FEC6EF6E4428451BBC18A043 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -697,6 +701,8 @@
 				DC2CA0DC2EF069BC00C10344 /* CryptoSwift */,
 				C2FC44062F3E66F900A61EAB /* TangemTestKit */,
 				B6A0FE802F91386800E28A09 /* BigInt */,
+				82B26E343D644018AD22697E /* Moya */,
+				2A0BF277ECDB41CE9916F880 /* Alamofire */,
 			);
 			productName = "Tangem TapTests";
 			productReference = 5D3F77D824BF56DC00E8695B /* TangemTests.xctest */;
@@ -4591,7 +4597,7 @@
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = 5.1.5;
+				version = 5.2.3;
 			};
 		};
 		B6911ACA302D45550010A7FA /* XCRemoteSwiftPackageReference "swift-protobuf-binaries" */ = {
@@ -4730,6 +4736,11 @@
 			package = B0776C352DA69090004A8765 /* XCRemoteSwiftPackageReference "lottie-spm" */;
 			productName = Lottie;
 		};
+		2A0BF277ECDB41CE9916F880 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B62C16772CBE095A00522683 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
 		2D67256A2EB0A6490035A4BC /* Experiment */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2D26855E2EB09D3A000E472A /* XCRemoteSwiftPackageReference "experiment-ios-client" */;
@@ -4749,6 +4760,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F92DB9C52CD4C24800C16530 /* XCLocalSwiftPackageReference "Modules" */;
 			productName = TangemModules;
+		};
+		82B26E343D644018AD22697E /* Moya */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6C0D3F02CBDC52D001113ED /* XCRemoteSwiftPackageReference "Moya" */;
+			productName = Moya;
 		};
 		B0776C362DA69090004A8765 /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;

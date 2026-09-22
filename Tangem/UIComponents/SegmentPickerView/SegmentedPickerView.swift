@@ -29,7 +29,7 @@ public struct SegmentedPickerView<Option: Hashable & Identifiable, SelectionView
     private let shouldStretchToFill: Bool
     private let segmentAccessibilityIdentifier: ((Option) -> String)?
 
-    @State private var optionIsPressed: [Option.ID: Bool] = [:]
+    @State private var optionIsPressed: [Option.ID: Bool]
     @State private var selectedIndex: Int
     @State private var targetWidth: CGFloat?
 

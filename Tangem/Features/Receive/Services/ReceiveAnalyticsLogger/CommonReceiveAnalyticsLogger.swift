@@ -55,7 +55,9 @@ extension CommonReceiveAnalyticsLogger: QRCodeReceiveAssetsAnalyticsLogger {
                     .blockchain: tokenItem.blockchain.displayName,
                 ]
             )
-        case .crypto:
+        // [REDACTED_TODO_COMMENT]
+        // parameter, so the wallet-receive funnel stops absorbing it ([REDACTED_INFO]).
+        case .crypto, .polymarketDeposit:
             Analytics.log(
                 event: .buttonCopyAddress,
                 params: [
@@ -74,7 +76,7 @@ extension CommonReceiveAnalyticsLogger: QRCodeReceiveAssetsAnalyticsLogger {
             Analytics.log(event: .nftReceiveShareAddressButtonClicked, params: [
                 .blockchain: tokenItem.blockchain.displayName,
             ])
-        case .crypto:
+        case .crypto, .polymarketDeposit:
             Analytics.log(event: .buttonShareAddress, params: [
                 .token: tokenItem.currencySymbol,
                 .blockchain: tokenItem.blockchain.displayName,

@@ -13,6 +13,7 @@ final class StoryAnalyticsService {
         let event = switch storyId {
         case .swap: Analytics.Event.storiesSwapStory
         case .yieldFirstActivationAPYBoost: Analytics.Event.storiesYieldPromoStory
+        case .polymarketOnboarding: Analytics.Event.storiesPolymarketOnboardingStory
         }
 
         reportStoryShown(event: event, lastViewedPageIndex: lastViewedPageIndex, source: source)
@@ -43,6 +44,7 @@ private extension TangemStory.ID {
         switch self {
         case .swap: .swap
         case .yieldFirstActivationAPYBoost: .yieldFirstActivationAPYBoost
+        case .polymarketOnboarding: .polymarketOnboarding
         }
     }
 }

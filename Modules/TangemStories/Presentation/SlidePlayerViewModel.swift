@@ -9,50 +9,73 @@
 import Foundation
 import Combine
 import AVFoundation
-import UIKit
+import Lottie
 
 @MainActor
 public final class SlidePlayerViewModel: ObservableObject, Identifiable {
-    public enum State: Equatable {
-        case preparing
-        case playing
-        case buffering
-        case completed
-    }
+    // MARK: - Identity
 
     public nonisolated var id: String { slide.id }
     public nonisolated let slide: SlideV2
 
-    @Published public private(set) var state: State = .preparing
-    @Published public private(set) var progress: Double = 0
+    // MARK: - What the slide view renders
 
-    public private(set) var watchedMs: Int = 0
+    @Published public private(set) var state: State = .preparing
+    /// Parsed lottie asset; the slide view renders whatever frame the progress points at.
+    @Published private(set) var animation: LottieAnimation?
+    public let progress = SlideProgress()
+    public private(set) var player: AVPlayer?
+
+    // MARK: - Derived state
+
+    public var watchedMs: Int { engine.watchedMs }
     public var didComplete: Bool { state == .completed }
 
+    /// `state` is the single lifecycle machine; a slide is driving playback exactly while it
+    /// shows content. `engine.isPaused` is orthogonal.
+    private var isActive: Bool { state == .playing || state == .buffering }
+
+    // MARK: - Callbacks
+
     var onCompleted: (() -> Void)?
-    public var hapticsEnabled = true
 
-    // MARK: - Private properties
-
-    public private(set) var player: AVPlayer?
-    private var timeObserver: Any?
-    private var statusObservation: NSKeyValueObservation?
-    private var endObserver: NSObjectProtocol?
+    // MARK: - Dependencies
 
     private let clock: ProgressClock
+    private let animationLoader: StoryAnimationLoading
+    /// Patterns handed to the engine run on their own, so every path that pauses, rewinds or tears
+    /// the slide down has to stop them.
+    private let hapticPlayer: (any StoryHapticPlaying)?
+
+    // MARK: - Playback machinery
+
+    private let engine = Engine()
+    private let stallGuard: SlideStallGuard
+
+    // MARK: - Work in flight
+
     private var tickerToken: AnyCancellable?
-    private var stallGuardTask: Task<Void, Never>?
-    private var elapsedMs: Double = 0
-    private var durationMs: Double = 0
+    private var animationTask: Task<Void, Never>?
 
-    private var hasPrepared = false
-    private var isPlaying = false
-    private var isPaused = false
-    private var firedHaptics = Set<Int>()
+    // MARK: - AVPlayer observers
 
-    public init(slide: SlideV2, clock: ProgressClock = RealProgressClock()) {
+    private var timeObserver: Any?
+    private var statusObservation: NSKeyValueObservation?
+    private var prerollObservation: NSKeyValueObservation?
+    private var endObserver: NSObjectProtocol?
+
+    init(
+        slide: SlideV2,
+        clock: ProgressClock = RealProgressClock(),
+        animationLoader: StoryAnimationLoading = StoryAnimationLoader(),
+        hapticPlayer: (any StoryHapticPlaying)? = nil,
+        stallTimeout: TimeInterval = Constants.stallTimeout
+    ) {
         self.slide = slide
         self.clock = clock
+        self.animationLoader = animationLoader
+        self.hapticPlayer = hapticPlayer
+        stallGuard = SlideStallGuard(timeout: stallTimeout, maxBufferingWindows: Constants.maxBufferingWindows)
     }
 
     deinit {
@@ -67,82 +90,151 @@ public final class SlidePlayerViewModel: ObservableObject, Identifiable {
 
     /// Opens the asset without starting playback so neighbours can be preloaded.
     public func prepare() {
-        guard !hasPrepared else { return }
-        hasPrepared = true
+        guard !engine.hasPrepared else { return }
+        engine.hasPrepared = true
         resetProgress()
         state = .preparing
-        durationMs = Double(slide.asset.durationMs)
+        engine.playbackDurationMs = Double(slide.asset.durationMs)
+        engine.loadHapticClusters(from: slide.hapticAtMs)
 
-        if slide.asset.type == .video, let url = slide.asset.url {
-            setupVideoPlayer(url: url)
+        if engine.hasHaptics {
+            hapticPlayer?.prepare()
+        }
+
+        switch slide.asset.type {
+        case .video:
+            if let url = slide.asset.url {
+                setupVideoPlayer(url: url)
+            }
+        case .lottie:
+            loadAnimation()
+        case .image:
+            break
         }
     }
 
     public func play() {
         prepare()
-        guard !isPlaying else { return }
-        isPlaying = true
+        guard !isActive else { return }
 
         switch slide.asset.type {
-        case .image, .lottie:
+        case .image:
             beginTicker()
+        case .lottie:
+            startAnimationPlayback()
         case .video:
             startVideoPlayback()
         }
     }
 
-    public func pause() {
-        isPaused = true
+    func pause() {
+        engine.isPaused = true
         player?.pause()
+        hapticPlayer?.stopPlayback()
     }
 
-    public func resume() {
-        guard isPaused else { return }
-        isPaused = false
+    func resume() {
+        guard engine.isPaused else { return }
+        engine.isPaused = false
+        if engine.didReachEndWhilePaused {
+            engine.didReachEndWhilePaused = false
+            complete()
+            return
+        }
+        // A pending rewind seek finishes with resumeVideoPlayback(); playing here would start
+        // from the stale pre-seek position.
+        guard !engine.isSeekingToStart else { return }
         player?.play()
     }
 
     /// Stops and rewinds while keeping the asset prepared (slide left the active position).
+    /// Pause doesn't survive the departure — otherwise the slide comes back frozen.
     public func rewindToPrepared() {
+        stallGuard.cancel()
         tickerToken?.cancel()
         tickerToken = nil
-        isPlaying = false
+        engine.isPaused = false
+        engine.isSeekingToStart = false
         resetProgress()
         state = .preparing
-        player?.pause()
-        player?.seek(to: .zero)
+
+        if let player {
+            player.pause()
+            engine.isSeekingToStart = true
+            player.seek(to: .zero) { [weak self] _ in
+                Task { @MainActor in
+                    self?.engine.isSeekingToStart = false
+                }
+            }
+        }
+
+        hapticPlayer?.stopPlayback()
     }
 
     public func restart() {
+        engine.isPaused = false
+
+        // Seek instead of recreating the AVPlayer — a fresh player flashes black on the layer.
+        if slide.asset.type == .video, engine.hasPrepared, let player {
+            hapticPlayer?.stopPlayback()
+            resetProgress()
+            state = .playing
+            // Armed across the seek too: a wedged seek must skip the slide, not freeze the story.
+            armStallGuard()
+            player.pause()
+            // Resume only after the seek lands — the periodic observer would otherwise tick with
+            // the pre-seek time and re-inflate progress/watchedMs right after the reset.
+            engine.isSeekingToStart = true
+            player.seek(to: .zero, toleranceBefore: .zero, toleranceAfter: .zero) { [weak self] _ in
+                Task { @MainActor in
+                    guard let self else { return }
+                    self.engine.isSeekingToStart = false
+                    guard self.state == .playing else { return }
+                    self.resumeVideoPlayback()
+                }
+            }
+            return
+        }
+
         teardown()
-        hasPrepared = false
+        engine.hasPrepared = false
+        state = .preparing
         play()
     }
 
     public func teardown() {
-        stallGuardTask?.cancel()
-        stallGuardTask = nil
+        animationTask?.cancel()
+        animationTask = nil
+        stallGuard.cancel()
         tickerToken?.cancel()
         tickerToken = nil
-        isPlaying = false
+        engine.isSeekingToStart = false
         if let timeObserver {
             player?.removeTimeObserver(timeObserver)
         }
         timeObserver = nil
         statusObservation?.invalidate()
         statusObservation = nil
+        prerollObservation?.invalidate()
+        prerollObservation = nil
         if let endObserver {
             NotificationCenter.default.removeObserver(endObserver)
         }
         endObserver = nil
         player?.pause()
+        hapticPlayer?.stopPlayback()
+
+        // A slide left looking active could never start again: `play()` would take its `!isActive`
+        // early return. `.playing` is deliberately left alone — a torn-down story is mid-dismissal,
+        // and swapping a spinner in over the last frame would flash.
+        if state == .buffering {
+            state = .preparing
+        }
     }
 
     private func resetProgress() {
-        elapsedMs = 0
-        watchedMs = 0
-        progress = 0
-        firedHaptics.removeAll()
+        engine.reset()
+        progress.value = 0
     }
 
     // MARK: - Ticker path
@@ -155,129 +247,211 @@ public final class SlidePlayerViewModel: ObservableObject, Identifiable {
     }
 
     private func tick(delta: TimeInterval) {
-        guard state == .playing, !isPaused else { return }
-        elapsedMs += delta * 1000
-        watchedMs = Int(elapsedMs)
-        progress = min(elapsedMs / max(durationMs, 1), 1)
-        fireHapticsIfNeeded(atMs: elapsedMs)
-        if elapsedMs >= durationMs { complete() }
+        guard state == .playing, !engine.isPaused else { return }
+        engine.advance(by: delta)
+        progress.value = engine.progressValue
+        fireHaptics(atMs: engine.elapsedMs)
+        if engine.didReachDuration { complete() }
+    }
+
+    // MARK: - Animation path
+
+    /// Loaded during `prepare()`, so a window neighbour is ready before it becomes visible —
+    /// the same contract the video path gets from `setupVideoPlayer`.
+    private func loadAnimation() {
+        guard animation == nil, animationTask == nil, let url = slide.asset.url else { return }
+
+        animationTask = Task { [weak self, animationLoader] in
+            let loaded = await animationLoader.animation(at: url)
+            guard !Task.isCancelled, let self else { return }
+            animationTask = nil
+            animation = loaded
+
+            // Anything but `.buffering` means nobody is waiting on this load: the slide is a
+            // window neighbour, or it has already left the active position.
+            guard state == .buffering else { return }
+
+            if animation == nil {
+                complete()
+            } else {
+                beginTicker()
+            }
+        }
+    }
+
+    /// An asset that never arrives skips the slide instead of running the progress bar over a
+    /// poster, the same way a video without a player does. Waiting is `.buffering`, so the stall
+    /// guard bounds it and a load that never lands can't leave the story sitting on a spinner.
+    private func startAnimationPlayback() {
+        if animation != nil {
+            beginTicker()
+            return
+        }
+
+        loadAnimation()
+        guard animationTask != nil else {
+            complete()
+            return
+        }
+
+        state = .buffering
+        armStallGuard()
     }
 
     // MARK: - Video path
 
     private func setupVideoPlayer(url: URL) {
-        Self.activateAmbientAudioSessionOnce()
+        StoryAudioSession.activateAmbientOnce()
+
+        let player = makePlayer(url: url)
+        self.player = player
+
+        if url.isFileURL {
+            observePrerollReadiness(of: player)
+        }
+        observePlayhead(of: player)
+        observeStalling(of: player)
+        observeEnd(of: player)
+    }
+
+    private func makePlayer(url: URL) -> AVPlayer {
         let player = AVPlayer(url: url)
         player.isMuted = true
         player.actionAtItemEnd = .pause
-        self.player = player
+        // Instant start for local files; network URLs keep the default — without auto-waiting
+        // a drained buffer stops the player for good and `.buffering` is never reported.
+        player.automaticallyWaitsToMinimizeStalling = !url.isFileURL
+        return player
+    }
 
-        // The observer fires on the requested `.main` queue, so main-actor access is synchronous —
-        // no Task hop that would allocate per tick and reorder against user input.
+    /// Preroll requires `.readyToPlay` (defer to the KVO) and auto-waiting off — with auto-waiting
+    /// on, AVPlayer rejects it or raises. An already playing slide decodes frames itself, so
+    /// prerolling it would be wasted work.
+    private func observePrerollReadiness(of player: AVPlayer) {
+        prerollObservation = player.observe(\.status, options: [.initial, .new]) { [weak self] player, _ in
+            guard player.status == .readyToPlay else { return }
+            Task { @MainActor in
+                guard let self, self.player === player else { return }
+                self.prerollObservation?.invalidate()
+                self.prerollObservation = nil
+                if !self.isActive {
+                    player.preroll(atRate: 1)
+                }
+            }
+        }
+    }
+
+    /// The observer fires on the requested `.main` queue, so main-actor access is synchronous —
+    /// no Task hop that would allocate per tick and reorder against user input.
+    private func observePlayhead(of player: AVPlayer) {
         timeObserver = player.addPeriodicTimeObserver(
             forInterval: CMTime(seconds: Constants.tick, preferredTimescale: 600),
             queue: .main
         ) { [weak self] time in
             MainActor.assumeIsolated {
-                guard let self, self.isPlaying,
+                guard let self, self.isActive,
                       let player = self.player,
                       let item = player.currentItem,
                       item.duration.isNumeric else { return }
                 if self.state == .buffering { self.state = .playing }
-                self.durationMs = item.duration.seconds * 1000
+                self.engine.playbackDurationMs = item.duration.seconds * 1000
                 let curMs = time.seconds * 1000
-                self.watchedMs = max(self.watchedMs, Int(curMs))
-                self.progress = min(curMs / max(self.durationMs, 1), 1)
-                self.fireHapticsIfNeeded(atMs: curMs)
+                self.engine.moveHead(toMs: curMs)
+                self.progress.value = self.engine.progressValue
+                self.fireHaptics(atMs: curMs)
             }
         }
+    }
 
+    private func observeStalling(of player: AVPlayer) {
         statusObservation = player.observe(\.timeControlStatus, options: [.new]) { [weak self] player, _ in
             Task { @MainActor in
-                guard let self, self.isPlaying else { return }
+                guard let self, self.isActive else { return }
                 if player.timeControlStatus == .waitingToPlayAtSpecifiedRate, self.state == .playing {
                     self.state = .buffering
                 }
             }
         }
+    }
 
+    private func observeEnd(of player: AVPlayer) {
         endObserver = NotificationCenter.default.addObserver(
             forName: .AVPlayerItemDidPlayToEndTime,
             object: player.currentItem,
             queue: .main
         ) { [weak self] _ in
             MainActor.assumeIsolated {
-                guard let self, self.isPlaying else { return }
+                guard let self, self.isActive else { return }
+                // Completing under an active pause would switch slides beneath the user's
+                // finger; remember the end and let resume() finish the slide.
+                if self.engine.isPaused {
+                    self.engine.didReachEndWhilePaused = true
+                    return
+                }
                 self.complete()
             }
         }
     }
 
     private func startVideoPlayback() {
-        guard let player else {
+        guard player != nil else {
             complete()
             return
         }
+        resumeVideoPlayback()
+    }
+
+    private func resumeVideoPlayback() {
         state = .playing
-        scheduleStallGuard()
-        if !isPaused {
-            player.play()
+        armStallGuard()
+        if !engine.isPaused {
+            player?.play()
         }
     }
 
-    /// No poster fallback: if playback hasn't progressed within the timeout, skip the slide instead
-    /// of freezing the story. Cancelled by `teardown()` so a departing slide doesn't complete late.
-    private func scheduleStallGuard() {
-        stallGuardTask?.cancel()
-        stallGuardTask = Task { [weak self] in
-            try? await Task.sleep(nanoseconds: UInt64(Constants.stallTimeout * 1_000_000_000))
-            guard !Task.isCancelled, let self,
-                  isPlaying, !self.isPaused,
-                  state != .completed, progress == 0 else { return }
-            complete()
-        }
+    // MARK: - Stall guard
+
+    private func armStallGuard() {
+        stallGuard.arm(
+            probe: { [weak self] in self?.stallProbe() ?? .finished },
+            onStall: { [weak self] in self?.complete() }
+        )
     }
+
+    private func stallProbe() -> SlideStallGuard.Probe {
+        guard state != .completed else { return .finished }
+        guard isActive, !engine.isPaused else { return .idle }
+        guard state != .buffering else { return .buffering }
+        return .progressing(watchedMs: engine.watchedMs)
+    }
+
+    // MARK: - Completion
 
     private func complete() {
         guard state != .completed else { return }
-        progress = 1
+        progress.value = 1
         state = .completed
         tickerToken?.cancel()
         tickerToken = nil
-        stallGuardTask?.cancel()
-        stallGuardTask = nil
+        stallGuard.cancel()
         onCompleted?()
     }
 
     // MARK: - Haptics
 
-    private func fireHapticsIfNeeded(atMs: Double) {
-        guard !isPaused, hapticsEnabled else { return }
-        for mark in slide.hapticAtMs where !firedHaptics.contains(mark) {
-            if atMs >= Double(mark) {
-                firedHaptics.insert(mark)
-                Self.fireHaptic()
-            }
+    /// A rewind seek keeps reporting the pre-seek position while it runs, with the fired set
+    /// already cleared — without the latch every cluster would fire in that one tick.
+    private func fireHaptics(atMs: Double) {
+        guard !engine.isPaused, !engine.isSeekingToStart else { return }
+
+        for cluster in engine.clustersToFire(atMs: atMs) {
+            hapticPlayer?.play(cluster)
         }
-    }
-
-    private static func fireHaptic() {
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-    }
-
-    // MARK: - Audio session
-
-    private static var ambientConfigured = false
-
-    private static func activateAmbientAudioSessionOnce() {
-        guard !ambientConfigured else { return }
-        ambientConfigured = true
-        // `.ambient` mixes with other audio so the user's music is never interrupted.
-        try? AVAudioSession.sharedInstance().setCategory(.ambient, options: [.mixWithOthers])
     }
 
     private enum Constants {
         static let tick: Double = 1.0 / 60.0
         static let stallTimeout: Double = 3.0
+        static let maxBufferingWindows = 3
     }
 }

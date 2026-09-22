@@ -23,7 +23,6 @@ final class NetworkAddressBooksProvider {
 
     init(networkId: AddressBookNetworkID) {
         self.networkId = networkId
-        loadAddressBooks()
     }
 }
 
@@ -65,15 +64,6 @@ private extension NetworkAddressBooksProvider {
         userWalletRepository.models.filter { !$0.isUserWalletLocked }
     }
 
-    func loadAddressBooks() {
-        let managers = models().map(\.addressBookManager)
-        Task {
-            await TaskGroup.executeKeepingOrder(items: managers, action: { manager in
-                await manager.load(silent: true)
-            })
-        }
-    }
-
     func makeBooks(from perWallet: [(UserWalletModel, [AddressBookContact])]) -> [AddressBookWallet] {
         perWallet.compactMap { model, contacts in
             guard contacts.isNotEmpty else {
@@ -101,6 +91,6 @@ private extension AddressBookContact {
             return nil
         }
 
-        return AddressBookContact(id: id, walletId: walletId, name: name, appearance: appearance, entries: entries)
+        return AddressBookContact(id: id, walletId: walletId, name: name, appearance: appearance, createdAt: createdAt, entries: entries)
     }
 }

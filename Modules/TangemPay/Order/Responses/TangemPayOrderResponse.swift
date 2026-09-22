@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 public struct TangemPayOrderResponse: Decodable {
     public let id: String
@@ -45,17 +46,35 @@ public extension TangemPayOrderResponse {
         public let targetTariffPlanId: String?
         public let chainId: Int?
         public let depositAddress: String?
+        public let bankAccountId: String?
+        public let withdrawData: WithdrawData?
     }
 
     enum Step: String {
         case awaitingDeposit = "AWAITING_DEPOSIT"
+        case awaitingSignature = "AWAITING_SIGNATURE"
     }
 
     var isAwaitingDeposit: Bool {
         step == Step.awaitingDeposit.rawValue
     }
 
+    var isAwaitingSignature: Bool {
+        step == Step.awaitingSignature.rawValue
+    }
+
     var targetTariffPlanId: String? {
         data?.targetTariffPlanId
+    }
+}
+
+// MARK: - Withdraw data
+
+public extension TangemPayOrderResponse.Data {
+    struct WithdrawData: Decodable {
+        public let hash: String
+        public let salt: String
+        public let senderAddress: String
+        public let structuredData: EIP712TypedData
     }
 }

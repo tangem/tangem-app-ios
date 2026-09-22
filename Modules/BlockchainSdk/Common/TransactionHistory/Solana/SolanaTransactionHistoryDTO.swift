@@ -117,6 +117,7 @@ enum SolanaTransactionHistoryDTO {
                 let stakeAuthority: String?
                 let withdrawAuthority: String?
                 let newAccount: String?
+                let newSplitAccount: String?
             }
         }
 

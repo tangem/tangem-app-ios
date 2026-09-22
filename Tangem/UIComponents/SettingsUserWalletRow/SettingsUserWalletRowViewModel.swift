@@ -16,6 +16,7 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     @Published var name: String = ""
     @Published var icon: LoadingResult<ImageValue, Never> = .loading
     @Published var cardSetLabel: String
+    @Published var hasSeedPhrase: Bool
     @Published var isUserWalletBackupNeeded: Bool
     @Published var balanceState: LoadableBalanceView.State = .loading()
     let tapAction: () -> Void
@@ -30,6 +31,7 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
         self.init(
             name: userWallet.name,
             cardSetLabel: userWallet.config.cardSetLabel,
+            hasSeedPhrase: Self.hasSeedPhrase(for: userWallet),
             isUserWalletBackupNeeded: MobileBackupStatusUtil(userWalletModel: userWallet).isBackupNeeded,
             isUserWalletLocked: userWallet.isUserWalletLocked,
             userWalletUpdatePublisher: userWallet.updatePublisher,
@@ -42,6 +44,7 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     init(
         name: String,
         cardSetLabel: String,
+        hasSeedPhrase: Bool,
         isUserWalletBackupNeeded: Bool,
         isUserWalletLocked: Bool,
         userWalletUpdatePublisher: AnyPublisher<UpdateResult, Never>,
@@ -51,6 +54,7 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     ) {
         self.name = name
         self.cardSetLabel = cardSetLabel
+        self.hasSeedPhrase = hasSeedPhrase
         self.isUserWalletBackupNeeded = isUserWalletBackupNeeded
         self.isUserWalletLocked = isUserWalletLocked
         self.userWalletUpdatePublisher = userWalletUpdatePublisher
@@ -80,6 +84,7 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
                     viewModel.name = name
                 case .configurationChanged(let model):
                     viewModel.cardSetLabel = model.config.cardSetLabel
+                    viewModel.hasSeedPhrase = Self.hasSeedPhrase(for: model)
                     if case .configurationChanged(let model) = event {
                         viewModel.isUserWalletBackupNeeded = MobileBackupStatusUtil(userWalletModel: model).isBackupNeeded
                         viewModel.walletImageProvider = model.walletImageProvider
@@ -90,9 +95,13 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
 
         totalBalancePublisher
+            .withAppCurrencyCode()
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
-            .sink { $0.setupBalanceState(state: $1) }
+            .sink { viewModel, input in
+                let (state, currencyCode) = input
+                viewModel.setupBalanceState(state: state, currencyCode: currencyCode)
+            }
             .store(in: &bag)
     }
 
@@ -100,12 +109,20 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
         loadImage()
     }
 
-    private func setupBalanceState(state: TotalBalanceState) {
+    private static func hasSeedPhrase(for userWallet: UserWalletModel) -> Bool {
+        if userWallet.config.productType == .mobileWallet {
+            return MobileBackupStatusUtil(userWalletModel: userWallet).hasMnemonicBackup
+        }
+
+        return userWallet.hasImportedWallets
+    }
+
+    private func setupBalanceState(state: TotalBalanceState, currencyCode: String) {
         guard !isUserWalletLocked else {
             balanceState = .loaded(text: Localization.commonLocked)
             return
         }
 
-        balanceState = LoadableBalanceViewStateBuilder().buildTotalBalance(state: state)
+        balanceState = LoadableBalanceViewStateBuilder().buildTotalBalance(state: state, currencyCode: currencyCode)
     }
 }

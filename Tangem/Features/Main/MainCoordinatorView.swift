@@ -20,6 +20,8 @@ struct MainCoordinatorView: CoordinatorView {
     @Environment(\.requestReview) private var requestReview
 
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
+    @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
+    @Injected(\.appOverlaysDependencies.overlayViewPresenterViewModel) private var overlayViewPresenterViewModel: OverlayViewPresenterViewModel
 
     var body: some View {
         NavigationStack {
@@ -38,6 +40,8 @@ struct MainCoordinatorView: CoordinatorView {
                 sheets
             }
             .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak coordinator] state in
+                mainBottomSheetUIManager.setExpanded(!state.isCollapsed)
+
                 if !state.isCollapsed {
                     coordinator?.dismissMarketsTooltip()
                 } else {
@@ -54,6 +58,10 @@ struct MainCoordinatorView: CoordinatorView {
         .overlay {
             marketsTooltipView
         }
+        .mainShtorka(
+            coordinator: coordinator.feedCoordinator,
+            presentsAppOverlays: coordinator.mainQRScanFlowCoordinator == nil
+        )
     }
 
     private var links: some View {
@@ -91,39 +99,51 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.manageTokensCoordinator) {
                 ManageTokensCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.polymarketCoordinator) {
+                PolymarketCoordinatorView(coordinator: $0)
+            }
+            .navigation(item: $coordinator.collectiblesCoordinator) {
+                CollectiblesCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .fullScreenCover(
+            .shtorkaCompatibleFullScreenCover(
                 item: $coordinator.tangemPayOnboardingCoordinator
             ) {
                 TangemPayOnboardingCoordinatorView(coordinator: $0)
             }
-            .fullScreenCover(item: $coordinator.mainQRScanFlowCoordinator) {
-                MainQRScanFlowCoordinatorView(coordinator: $0)
+            .shtorkaCompatibleFullScreenCover(item: $coordinator.tangemPayCampaignCoordinator) {
+                TangemPayCampaignCoordinatorView(coordinator: $0)
             }
-            .sheet(item: $coordinator.sendCoordinator) {
+            .shtorkaCompatibleFullScreenCover(item: $coordinator.mainQRScanFlowCoordinator) {
+                qrScanFlow(coordinator: $0)
+            }
+            .shtorkaCompatibleFullScreenCover(item: $coordinator.jointAccountManagementCoordinator) {
+                JointAccountManagementCoordinatorView(coordinator: $0)
+            }
+            .shtorkaCompatibleSheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
-            .sheet(item: $coordinator.modalOnboardingCoordinator) {
+            .shtorkaCompatibleSheet(item: $coordinator.modalOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
                     .presentation(modal: true, onDismissalAttempt: $0.onDismissalAttempt, onDismissed: nil)
                     .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
-            .sheet(item: $coordinator.visaTransactionDetailsViewModel) {
+            .shtorkaCompatibleSheet(item: $coordinator.visaTransactionDetailsViewModel) {
                 VisaTransactionDetailsView(viewModel: $0)
             }
-            .sheet(item: $coordinator.actionButtonsBuyCoordinator) {
+            .shtorkaCompatibleSheet(item: $coordinator.actionButtonsBuyCoordinator) {
                 ActionButtonsBuyCoordinatorView(coordinator: $0)
             }
-            .sheet(item: $coordinator.actionButtonsSellCoordinator) {
+            .shtorkaCompatibleSheet(item: $coordinator.actionButtonsSellCoordinator) {
                 ActionButtonsSellCoordinatorView(coordinator: $0)
             }
-            .sheet(item: $coordinator.yieldModuleActiveCoordinator) {
+            .shtorkaCompatibleSheet(item: $coordinator.yieldModuleActiveCoordinator) {
                 YieldModuleActiveCoordinatorView(coordinator: $0)
             }
             .floatingSheetContent(for: MobileFinishActivationNeededViewModel.self) {
@@ -144,18 +164,12 @@ struct MainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayKYCDeclinedPopupViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
-            .floatingSheetContent(for: TangemPayTransactionDetailsViewModel.self) {
-                TangemPayTransactionDetailsView(viewModel: $0)
-            }
             .floatingSheetContent(for: PushNotificationsMainViewModel.self) {
                 PushNotificationsMainView(viewModel: $0)
             }
-            .floatingSheetContent(for: CampaignViewModel.self) {
-                CampaignView(viewModel: $0)
-            }
 
         NavHolder()
-            .sheet(item: $coordinator.pendingExpressTxStatusBottomSheetViewModel) { viewModel in
+            .shtorkaCompatibleSheet(item: $coordinator.pendingExpressTxStatusBottomSheetViewModel) { viewModel in
                 PendingExpressTxStatusBottomSheetView(viewModel: viewModel)
             }
 
@@ -166,6 +180,17 @@ struct MainCoordinatorView: CoordinatorView {
                 coordinator.isAppStoreReviewRequested.toggle()
                 requestReview()
             }
+    }
+
+    @ViewBuilder
+    private func qrScanFlow(coordinator: MainQRScanFlowCoordinator) -> some View {
+        if FeatureProvider.isAvailable(.nativeMarketsShtorka) {
+            // QR occupies the shtorka's cover slot, so app overlays must be presented by QR itself.
+            MainQRScanFlowCoordinatorView(coordinator: coordinator)
+                .modifier(OverlayViewPresenterModifier(viewModel: overlayViewPresenterViewModel))
+        } else {
+            MainQRScanFlowCoordinatorView(coordinator: coordinator)
+        }
     }
 
     /// Tooltip is placed on top of the other views

@@ -13,4 +13,10 @@ protocol PolymarketAPIService {
     func search(request: PolymarketSearchRequest) async throws -> PolymarketDTO.EventsSearchResponse
     func series() async throws -> PolymarketDTO.SeriesResponse
     func seriesEvents(seriesId: String) async throws -> PolymarketDTO.SeriesEventsResponse
+    func orderQuote(body: PolymarketDTO.OrderQuoteRequestBody) async throws -> PolymarketDTO.OrderQuoteResponse
+    func positions(request: PolymarketPositionsRequest) async throws -> PolymarketDTO.PositionsResponse
+
+    func closedPositions(request: PolymarketClosedPositionsRequest) async throws -> PolymarketDTO.ClosedPositionsResponse
+
+    func positionOutcome(request: PolymarketPositionOutcomeRequest) async throws -> PolymarketDTO.PositionOutcomeResponse
 }
