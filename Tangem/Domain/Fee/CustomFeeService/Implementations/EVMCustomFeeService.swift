@@ -20,11 +20,17 @@ class EVMCustomFeeService {
     private let feeTokenItem: TokenItem
 
     private lazy var customFeeTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: feeTokenItem.decimalCount)
-    private lazy var gasLimitTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: 0)
+    private lazy var gasLimitTextField = DecimalNumberTextFieldViewModel(
+        maximumFractionDigits: 0,
+        maximumTextLength: Constants.gasLimitMaxLength
+    )
     private lazy var gasPriceTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: Constants.gweiDigits)
     private lazy var maxFeePerGasTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: Constants.gweiDigits)
     private lazy var priorityFeeTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: Constants.gweiDigits)
-    private lazy var nonceTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: 0)
+    private lazy var nonceTextField = DecimalNumberTextFieldViewModel(
+        maximumFractionDigits: 0,
+        maximumTextLength: Constants.nonceMaxLength
+    )
 
     private var gasLimit: BigUInt? {
         gasLimitTextField.value
@@ -414,6 +420,9 @@ private extension EVMCustomFeeService {
     enum Constants {
         static let gweiDigits: Int = 9
         static let gweiSuffix: String = "GWEI"
+        static let gasLimitMaxLength: Int = 10
+        /// max nonce value in EVM is 2^64-1
+        static let nonceMaxLength: Int = 20
     }
 }
 
