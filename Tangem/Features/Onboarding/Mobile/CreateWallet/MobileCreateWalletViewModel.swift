@@ -24,6 +24,7 @@ final class MobileCreateWalletViewModel: ObservableObject {
     let navBarHeight: CGFloat = OnboardingLayoutConstants.navbarSize.height
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
     private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
 
@@ -115,6 +116,7 @@ extension MobileCreateWalletViewModel {
                 await runOnMain {
                     viewModel.isCreating = false
                     viewModel.logOnboardingFinishedAnalytics()
+                    viewModel.pushNotificationsInteractor.suppressAfterLoginRequestsInCurrentSession()
                     viewModel.delegate?.onCreateWallet(userWalletModel: newUserWalletModel)
                 }
             } catch {
