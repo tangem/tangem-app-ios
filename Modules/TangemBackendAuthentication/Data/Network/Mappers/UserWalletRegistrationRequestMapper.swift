@@ -18,21 +18,11 @@ enum UserWalletRegistrationRequestMapper {
             walletSignatureSalt: domainRequest.walletAttestation.walletSignature.salt.base64EncodedString(),
             cardSignature: domainRequest.walletAttestation.cardSignature?.value.base64EncodedString(),
             cardSignatureSalt: domainRequest.walletAttestation.cardSignature?.salt.base64EncodedString(),
-            walletStatus: domainRequest.walletAttestation.origin.flatMap(mapStatus),
+            walletStatus: domainRequest.walletAttestation.walletStatus?.base64EncodedString(),
             attestationToken: domainRequest.appAttestationToken?.base64EncodedString(),
             providerIdToken: domainRequest.recoveryEnrollment?.providerIdToken,
             encryptedRecoveryKey: domainRequest.recoveryEnrollment?.encryptedRecoveryKey,
             metadata: DeviceMetadataMapper.mapToDTO(domainRequest.metadata)
         )
-    }
-
-    private static func mapStatus(fromDomain origin: UserWalletAttestation.Origin) -> String? {
-        switch origin {
-        case .generatedOnCard:
-            Data([0x82]).base64EncodedString()
-
-        case .seedImported:
-            Data([0xC2]).base64EncodedString()
-        }
     }
 }

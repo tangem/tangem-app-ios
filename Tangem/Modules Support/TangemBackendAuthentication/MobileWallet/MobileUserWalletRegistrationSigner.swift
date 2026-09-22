@@ -72,7 +72,7 @@ struct MobileUserWalletRegistrationSigner: UserWalletRegistrationSigner {
         return UserWalletAttestation(
             walletSignature: UserWalletAttestation.Signature(value: rsvSignatureBytes, salt: salt),
             cardSignature: nil,
-            origin: nil
+            walletStatus: nil
         )
     }
 

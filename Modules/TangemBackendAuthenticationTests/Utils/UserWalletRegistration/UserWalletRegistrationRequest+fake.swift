@@ -16,7 +16,7 @@ extension UserWalletRegistrationRequest {
         walletAttestation: UserWalletAttestation(
             walletSignature: UserWalletAttestation.Signature(value: Data([0x0A]), salt: Data([0x0B])),
             cardSignature: nil,
-            origin: nil
+            walletStatus: nil
         ),
         decryptedNonce: "decrypted-nonce",
         appAttestationToken: nil,
