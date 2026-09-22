@@ -1001,6 +1001,11 @@ extension Analytics {
         case addressBookAddressSubstitutedInSend = "[Address Book] Address Substituted In Send"
         case addressBookSelectAllNetworksTapped = "[Address Book] Select All Networks Tapped"
 
+        // MARK: - Transaction History
+
+        case transactionDetailScreenOpened = "[Token / Transaction History] Transaction Detail Screen Opened"
+        case transactionDetailButtonCopyTransactionID = "[Transaction History] Button - Copy Transaction ID"
+
         // MARK: - For You
 
         case forYouScreenOpened = "[For You] For You Screen Opened"
