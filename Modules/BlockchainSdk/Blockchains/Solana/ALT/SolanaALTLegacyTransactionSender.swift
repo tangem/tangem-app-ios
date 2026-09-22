@@ -86,8 +86,14 @@ struct SolanaALTLegacyTransactionSender {
         staticAccountKeys: [PublicKey],
         altKeys: [PublicKey]
     ) throws -> [TransactionInstruction] {
-        return legacyMessage.instructions.map { instr in
-            let keys: [Account.Meta] = instr.accounts.map { idx in
+        // Instruction account / programId indexes are bytes from the dApp's serialized message;
+        // never subscript `accountKeys` with them unchecked.
+        return try legacyMessage.instructions.map { instr in
+            let keys: [Account.Meta] = try instr.accounts.map { idx in
+                guard legacyMessage.accountKeys.indices.contains(idx) else {
+                    throw SolanaALTMessageV0TransactionSender.Error.accountIndexOutOfRange
+                }
+
                 let key = legacyMessage.accountKeys[idx]
                 return Account.Meta(
                     publicKey: key,
@@ -95,7 +101,13 @@ struct SolanaALTLegacyTransactionSender {
                     isWritable: legacyMessage.isAccountWritable(index: idx)
                 )
             }
-            let programIdKey = legacyMessage.accountKeys[Int(instr.programIdIndex)]
+
+            let programIdIndex = Int(instr.programIdIndex)
+            guard legacyMessage.accountKeys.indices.contains(programIdIndex) else {
+                throw SolanaALTMessageV0TransactionSender.Error.accountIndexOutOfRange
+            }
+
+            let programIdKey = legacyMessage.accountKeys[programIdIndex]
             return TransactionInstruction(
                 keys: keys,
                 programId: programIdKey,
