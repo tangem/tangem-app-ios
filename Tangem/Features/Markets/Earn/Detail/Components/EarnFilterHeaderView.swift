@@ -10,13 +10,9 @@ import SwiftUI
 import TangemUI
 
 struct EarnFilterHeaderView: View {
-    let isNetworksFilterEnabled: Bool
-    let isTypesFilterEnabled: Bool
+    let networksFilter: Filter
+    let typesFilter: Filter
     let isLoading: Bool
-    let networkFilterTitle: String
-    let typesFilterTitle: String
-    let onNetworksTap: () -> Void
-    let onTypesTap: () -> Void
 
     @ScaledMetric private var filtersSpacing: CGFloat = 8
 
@@ -25,31 +21,36 @@ struct EarnFilterHeaderView: View {
             if isLoading {
                 ChipSkeleton()
             } else {
-                filterChip(
-                    title: networkFilterTitle,
-                    isEnabled: isNetworksFilterEnabled,
-                    action: onNetworksTap
-                )
+                filterChip(networksFilter)
             }
 
             Spacer(minLength: filtersSpacing)
 
-            filterChip(
-                title: typesFilterTitle,
-                isEnabled: isTypesFilterEnabled,
-                action: onTypesTap
-            )
+            filterChip(typesFilter)
         }
         .padding(.horizontal, Layout.horizontalPadding)
     }
 
-    private func filterChip(
-        title: String,
-        isEnabled: Bool,
-        action: @escaping () -> Void
-    ) -> some View {
-        RealAssetsCategoryChipView(title: title, style: .expandable, onTap: action)
-            .disabled(!isEnabled)
+    private func filterChip(_ filter: Filter) -> some View {
+        RealAssetsCategoryChipView(
+            title: filter.title,
+            style: filter.isActive ? .selected : .expandable,
+            onTap: filter.onTap,
+            onClear: filter.onClear
+        )
+        .disabled(!filter.isEnabled)
+    }
+}
+
+// MARK: - Filter
+
+extension EarnFilterHeaderView {
+    struct Filter {
+        let title: String
+        let isActive: Bool
+        let isEnabled: Bool
+        let onTap: () -> Void
+        let onClear: () -> Void
     }
 }
 
@@ -74,35 +75,33 @@ private struct ChipSkeleton: View {
 // MARK: - Previews
 
 #Preview {
-    VStack(spacing: 16) {
+    func filter(_ title: String, isActive: Bool = false, isEnabled: Bool = true) -> EarnFilterHeaderView.Filter {
+        EarnFilterHeaderView.Filter(title: title, isActive: isActive, isEnabled: isEnabled, onTap: {}, onClear: {})
+    }
+
+    return VStack(spacing: 16) {
         EarnFilterHeaderView(
-            isNetworksFilterEnabled: true,
-            isTypesFilterEnabled: true,
-            isLoading: false,
-            networkFilterTitle: "All networks",
-            typesFilterTitle: "All types",
-            onNetworksTap: {},
-            onTypesTap: {}
+            networksFilter: filter("All networks"),
+            typesFilter: filter("All types"),
+            isLoading: false
         )
 
         EarnFilterHeaderView(
-            isNetworksFilterEnabled: true,
-            isTypesFilterEnabled: true,
-            isLoading: true,
-            networkFilterTitle: "All networks",
-            typesFilterTitle: "Staking",
-            onNetworksTap: {},
-            onTypesTap: {}
+            networksFilter: filter("Solana", isActive: true),
+            typesFilter: filter("Staking", isActive: true),
+            isLoading: false
         )
 
         EarnFilterHeaderView(
-            isNetworksFilterEnabled: false,
-            isTypesFilterEnabled: true,
-            isLoading: false,
-            networkFilterTitle: "All networks",
-            typesFilterTitle: "Yield",
-            onNetworksTap: {},
-            onTypesTap: {}
+            networksFilter: filter("All networks"),
+            typesFilter: filter("Yield mode", isActive: true),
+            isLoading: true
+        )
+
+        EarnFilterHeaderView(
+            networksFilter: filter("All networks", isEnabled: false),
+            typesFilter: filter("All types"),
+            isLoading: false
         )
     }
 }
