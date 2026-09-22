@@ -22,7 +22,7 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
     @Published var networkRowInputs: [EarnNetworkFilterNetworkRowInput] = []
 
     var title: String {
-        Localization.earnFilterBy
+        Localization.earnFilterNetworks
     }
 
     var selectionBinding: Binding<EarnNetworkFilterType> {
