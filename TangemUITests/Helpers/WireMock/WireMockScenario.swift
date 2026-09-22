@@ -40,6 +40,19 @@ struct WireMockRequestCountResponse: Codable {
     let count: Int
 }
 
+struct WireMockFindRequestsRequest: Codable {
+    let method: String
+    let urlPath: String
+}
+
+struct WireMockLoggedRequest: Codable {
+    let body: String?
+}
+
+struct WireMockFindRequestsResponse: Codable {
+    let requests: [WireMockLoggedRequest]
+}
+
 // MARK: - Scenario Configuration
 
 struct ScenarioConfig {

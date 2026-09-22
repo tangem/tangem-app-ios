@@ -74,6 +74,11 @@ struct TokenActionAvailabilityAlertBuilder {
         switch status {
         case .available, .hidden:
             return nil
+        case .jointAccountsComingSoon:
+            return .init(
+                title: Localization.jointAccountComingSoonTitle,
+                message: Localization.jointAccountComingSoonDescription
+            )
         case .blockchainUnreachable, .blockchainLoading:
             return tryAgainLaterAlert
         case .cantSignLongTransactions:

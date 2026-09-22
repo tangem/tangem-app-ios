@@ -16,17 +16,17 @@ import TangemFoundation
 struct TransactionHistorySyntheticTransactionFactory {
     @Injected(\.transactionHistoryAuxDataRepository) private var auxDataRepository: TransactionHistoryAuxDataRepository
 
-    private let ownerAddress: String
-    private let currentToken: TokenItem
+    private let walletModelAddresses: Set<String>
+    private let normalizedCurrentCurrency: ExpressCurrency
     private let feeTokenItem: TokenItem
 
     init(
-        ownerAddress: String,
+        walletModelAddresses: [String],
         currentToken: TokenItem,
         feeTokenItem: TokenItem
     ) {
-        self.ownerAddress = ownerAddress
-        self.currentToken = currentToken
+        self.walletModelAddresses = walletModelAddresses.map { $0.lowercased() }.toSet()
+        normalizedCurrentCurrency = currentToken.normalizedExpressCurrency
         self.feeTokenItem = feeTokenItem
     }
 
@@ -45,7 +45,7 @@ struct TransactionHistorySyntheticTransactionFactory {
         if outgoing {
             // Pay-in leg: the wallet sends the `from` asset to the provider deposit address.
             let amount = exchangeTransaction.from.normalizedAmount
-            source = .single(.init(address: exchangeTransaction.fromAddress ?? ownerAddress, amount: amount))
+            source = .single(.init(address: exchangeTransaction.fromAddress ?? .unknown, amount: amount))
             destination = .single(.init(address: .user(exchangeTransaction.payIn.address), amount: amount))
         } else {
             // Pay-out leg: the wallet receives the `to` asset at its payout address.
@@ -103,9 +103,9 @@ struct TransactionHistorySyntheticTransactionFactory {
     }
 
     private func isOutgoing(_ exchangeTransaction: ExchangeTransaction) -> Bool {
-        // Fast path: using the owner address to determine the direction
-        let isOnSendLeg = exchangeTransaction.fromAddress.map { ownerAddress.caseInsensitiveEquals(to: $0) } ?? false
-        let isOnReceiveLeg = ownerAddress.caseInsensitiveEquals(to: exchangeTransaction.payOut.address)
+        // Fast path: using the wallet addresses to determine the direction
+        let isOnSendLeg = exchangeTransaction.fromAddress.map(isWalletAddress) ?? false
+        let isOnReceiveLeg = isWalletAddress(exchangeTransaction.payOut.address)
 
         if isOnSendLeg != isOnReceiveLeg {
             return isOnSendLeg
@@ -113,7 +113,13 @@ struct TransactionHistorySyntheticTransactionFactory {
 
         // Slow path: the address is ambiguous (owner on both or neither leg, e.g. a swap sent to self),
         // using current token to determine the direction
-        return currentToken.expressCurrency.asCurrency == exchangeTransaction.from.currency
+        return normalizedCurrentCurrency == exchangeTransaction.from.currency
+    }
+
+    /// Case-insensitive on purpose: the addresses of both legs come from third-party providers, which are free to
+    /// return e.g. an upper-cased bech32 form of an address the wallet stores lower-cased.
+    private func isWalletAddress(_ address: String) -> Bool {
+        return walletModelAddresses.contains(address.lowercased())
     }
 
     private func syntheticTransactionStatus(from status: ExpressTransactionStatus) -> TransactionRecord.TransactionStatus {

@@ -36,6 +36,7 @@ final class CommonPushNotificationsInteractor {
 
     private var didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession = false
     private var didPostponeAuthorizationRequestOnWalletOnboardingInCurrentSession = false
+    private var didSuppressAfterLoginRequestsInCurrentSession = false
 
     private func registerIfPossible() {
         runTask(in: self) { interactor in
@@ -103,6 +104,10 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
             return !didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession
                 && !didPostponeAuthorizationRequestOnWalletOnboarding
         case .afterLogin:
+            guard !didSuppressAfterLoginRequestsInCurrentSession else {
+                return false
+            }
+
             let currentRequestState = canRequestAuthorizationOnAfterLogin ?? true
             canRequestAuthorizationOnAfterLogin = true
 
@@ -113,6 +118,7 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
             // Need to exclude if display is required bottom sheet permission request or current session
             guard
                 !isAvailable(in: .afterLogin),
+                !didSuppressAfterLoginRequestsInCurrentSession,
                 !didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession,
                 !didPostponeAuthorizationRequestOnWalletOnboardingInCurrentSession
             else {
@@ -148,6 +154,10 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
         }
 
         logPostponedRequest(in: flow)
+    }
+
+    func suppressAfterLoginRequestsInCurrentSession() {
+        didSuppressAfterLoginRequestsInCurrentSession = true
     }
 
     func logRequest(in flow: PushNotificationsPermissionRequestFlow) {

@@ -33,45 +33,6 @@ struct TronTransactionHistoryMapperTests {
         #expect(records[0].destination == .single(.init(address: .user(otherAddress), amount: 1)))
     }
 
-    @Test
-    func excludesIncomingCoinTransferBelowMinimumAmount() throws {
-        let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
-        let response = makeResponse(transactions: [
-            .init(fromAddress: otherAddress, toAddress: walletAddress, value: "999"),
-        ])
-
-        let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
-
-        #expect(records.isEmpty)
-    }
-
-    @Test
-    func includesOutgoingCoinTransferBelowMinimumAmount() throws {
-        let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
-        let response = makeResponse(transactions: [
-            .init(fromAddress: walletAddress, toAddress: otherAddress, value: "999"),
-        ])
-
-        let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
-
-        #expect(records.count == 1)
-        #expect(records[0].isOutgoing)
-        #expect(records[0].source == .single(.init(address: walletAddress, amount: Decimal(stringValue: "0.000999")!)))
-    }
-
-    @Test
-    func includesCoinTransferAtMinimumAmount() throws {
-        let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
-        let response = makeResponse(transactions: [
-            .init(fromAddress: walletAddress, toAddress: otherAddress, value: "1000"),
-        ])
-
-        let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
-
-        #expect(records.count == 1)
-        #expect(records[0].source == .single(.init(address: walletAddress, amount: 0.001)))
-    }
-
     @Test(arguments: [9, 57, 58])
     func excludesUnsupportedContractTypeFromHistory(contractType: Int) throws {
         let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
@@ -261,6 +222,52 @@ struct TronTransactionHistoryMapperTests {
         #expect(records[0].destination == .single(.init(address: .user(walletAddress), amount: 0)))
     }
 
+    @Test
+    func voteTotalsEveryVoteAndNamesTheFirstWitness() throws {
+        let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
+        let firstWitness = "TAAAA8HfE9E1y39RczVQ1ZascUEtaSToF1"
+        let secondWitness = "TZZZZ8HfE9E1y39RczVQ1ZascUEtaSToF9"
+        let response = makeResponse(transactions: [
+            .init(
+                fromAddress: walletAddress,
+                toAddress: walletAddress,
+                contractType: nil,
+                chainExtraData: makeChainExtraData(
+                    contractType: "VoteWitnessContract",
+                    votes: [.init(address: firstWitness, count: "7"), .init(address: secondWitness, count: "12")]
+                )
+            ),
+        ])
+
+        let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
+
+        #expect(records.count == 1)
+        #expect(records[0].type == .staking(type: .vote, target: firstWitness))
+        #expect(records[0].source == .single(.init(address: walletAddress, amount: 19)))
+    }
+
+    /// The legacy `voteList` is a dictionary, so the named witness has to survive its arbitrary ordering.
+    @Test
+    func voteFromLegacyVoteListTotalsEveryVoteAndNamesTheLowestKeyedWitness() throws {
+        let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
+        let firstWitness = "TAAAA8HfE9E1y39RczVQ1ZascUEtaSToF1"
+        let secondWitness = "TZZZZ8HfE9E1y39RczVQ1ZascUEtaSToF9"
+        let response = makeResponse(transactions: [
+            .init(
+                fromAddress: walletAddress,
+                toAddress: walletAddress,
+                contractType: 4,
+                voteList: [secondWitness: 12, firstWitness: 7]
+            ),
+        ])
+
+        let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
+
+        #expect(records.count == 1)
+        #expect(records[0].type == .staking(type: .vote, target: firstWitness))
+        #expect(records[0].source == .single(.init(address: walletAddress, amount: 19)))
+    }
+
     // MARK: - Helpers
 
     /// Maps a single coin transaction whose integer `contract_type` is absent (so the type is taken
@@ -281,11 +288,20 @@ struct TronTransactionHistoryMapperTests {
     private func makeChainExtraData(
         payloadType: String? = "tron",
         contractType: String?,
-        votes: [BlockBookAddressResponse.ChainExtraData.Payload.Vote]? = nil
+        votes: [BlockBookAddressResponse.ChainExtraData.Payload.Vote]? = nil,
+        claimedVoteReward: String? = nil,
+        totalFee: String? = nil
     ) -> BlockBookAddressResponse.ChainExtraData {
         BlockBookAddressResponse.ChainExtraData(
             payloadType: payloadType,
-            payload: .init(contractType: contractType, operation: nil, bandwidthUsage: nil, votes: votes)
+            payload: .init(
+                contractType: contractType,
+                operation: nil,
+                bandwidthUsage: nil,
+                votes: votes,
+                claimedVoteReward: claimedVoteReward,
+                totalFee: totalFee
+            )
         )
     }
 

@@ -177,6 +177,7 @@ extension TokenActionAvailabilityProvider {
     enum SwapActionAvailabilityStatus {
         case available
         case hidden
+        case jointAccountsComingSoon
         case unavailable(tokenName: String)
         case customToken
         case blockchainLoading
@@ -207,6 +208,10 @@ extension TokenActionAvailabilityProvider {
     }
 
     var swapAvailability: SwapActionAvailabilityStatus {
+        if walletModel.isJointAccountParticipant {
+            return .jointAccountsComingSoon
+        }
+
         if walletModel.isCustom {
             return .customToken
         }
@@ -517,9 +522,26 @@ extension TokenActionAvailabilityProvider {
 // MARK: - Yield mode
 
 extension TokenActionAvailabilityProvider {
+    enum YieldModuleActionAvailabilityStatus {
+        case available
+        case jointAccountsComingSoon
+    }
+
+    var isYieldModuleAvailable: Bool {
+        if case .available = yieldModuleAvailability {
+            return true
+        }
+
+        return false
+    }
+
+    var yieldModuleAvailability: YieldModuleActionAvailabilityStatus {
+        walletModel.isJointAccountParticipant ? .jointAccountsComingSoon : .available
+    }
+
     var yieldAPY: Decimal? {
         guard let yieldModuleState = walletModel.yieldModuleManager?.state,
-              let apy = yieldModuleState.marketInfo?.apy else {
+              let apy = yieldModuleState.marketInfo?.effectiveApy else {
             return nil
         }
 

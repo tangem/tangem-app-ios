@@ -73,6 +73,7 @@ extension Analytics {
         case qr = "QR"
         case manually = "Manually"
         case stories = "Stories"
+        case deeplink = "Deeplink"
         case buy = "Buy"
         case sell = "Sell"
         case swap = "Swap"
@@ -327,6 +328,15 @@ extension Analytics {
         case yieldModuleApproveNeeded = "Approve Required"
         case yieldModuleSourceInfo = "Earning"
 
+        // MARK: - Transaction History
+
+        case txHistoryTransactionDetail = "Transaction Detail"
+        case txHistoryConfirmed = "Confirmed"
+        case txHistoryReceived = "Received"
+        case txHistoryTransfer = "Transfer"
+        case txHistoryTopUp = "Top Up"
+        case txHistoryOperation = "Operation"
+
         // MARK: - Account Settings
 
         case accountSourceEdit = "Edit"
@@ -353,6 +363,26 @@ extension Analytics {
         case all = "ALL"
         case cex = "CEX"
         case dex = "DEX"
+
+        // MARK: - Welcome V2
+
+        // The Create Wallet sheet reuses `.create` (= "Create Wallet") from the Mobile Wallet block.
+
+        case welcomeV2IHaveWallet = "I Have Wallet"
+        case welcomeV2ImportExisting = "Import Existing"
+
+        case welcomeV2DismissCloseButton = "Close Button"
+        case welcomeV2DismissBackButton = "Back Button"
+        case welcomeV2Dismissed = "Dismissed"
+
+        case welcomeV2DocumentTerms = "Terms Of Service"
+        case welcomeV2DocumentPrivacy = "Privacy Policy"
+
+        case welcomeV2MediaStageLoad = "Load"
+
+        case welcomeV2EntryFirstLaunch = "First Launch"
+        case welcomeV2EntryNoWallets = "No Wallets"
+        case welcomeV2EntryLastWalletForgotten = "Last Wallet Forgotten"
 
         // MARK: - Common
 

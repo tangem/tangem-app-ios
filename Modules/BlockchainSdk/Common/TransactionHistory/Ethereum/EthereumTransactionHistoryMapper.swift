@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BigInt
 import TangemFoundation
 
 final class EthereumTransactionHistoryMapper {
@@ -36,6 +37,11 @@ extension EthereumTransactionHistoryMapper: TransactionHistoryMapper {
             return []
         }
 
+        let tokensByContract = (response.tokens ?? []).reduce(into: [String: BlockBookAddressResponse.Token]()) { result, token in
+            guard let contract = token.contract?.lowercased() else { return }
+            result[contract] = token
+        }
+
         return try transactions
             .reduce(into: []) { partialResult, transaction in
                 guard let feeValue = Decimal(stringValue: transaction.fees) else {
@@ -53,7 +59,8 @@ extension EthereumTransactionHistoryMapper: TransactionHistoryMapper {
                         transaction: transaction,
                         transactionInfos: [info],
                         amountType: amountType,
-                        feeValue: feeValue
+                        feeValue: feeValue,
+                        tokensByContract: tokensByContract
                     )
                 case .token(let token):
                     guard let transfers = transaction.tokenTransfers?.nilIfEmpty else {
@@ -76,7 +83,8 @@ extension EthereumTransactionHistoryMapper: TransactionHistoryMapper {
                         transaction: transaction,
                         transactionInfos: outgoingTransactionInfos + incomingTransactionInfos,
                         amountType: amountType,
-                        feeValue: feeValue
+                        feeValue: feeValue,
+                        tokensByContract: tokensByContract
                     )
                 case .feeResource:
                     throw BlockchainSdkError.notImplemented
@@ -224,12 +232,19 @@ private extension EthereumTransactionHistoryMapper {
         }
     }
 
-    func transactionType(_ transaction: BlockBookAddressResponse.Transaction) -> TransactionRecord.TransactionType {
+    func transactionType(
+        _ transaction: BlockBookAddressResponse.Transaction,
+        tokensByContract: [String: BlockBookAddressResponse.Token]
+    ) -> TransactionRecord.TransactionType {
         let ethereumSpecific = transaction.ethereumSpecific
         let methodId = ethereumSpecific?.parsedData?.methodId ?? methodIdFromRawData(ethereumSpecific?.data)
 
         guard let methodId = methodId else {
             return .transfer
+        }
+
+        if let approve = approve(transaction, tokensByContract: tokensByContract) {
+            return .approve(approve)
         }
 
         // ERC-20 transfer method id
@@ -259,6 +274,22 @@ private extension EthereumTransactionHistoryMapper {
         return String(methodId).addHexPrefix()
     }
 
+    func approve(
+        _ transaction: BlockBookAddressResponse.Transaction,
+        tokensByContract: [String: BlockBookAddressResponse.Token]
+    ) -> TransactionRecord.TransactionType.Approve? {
+        // An approve grants a spender permission, it moves nothing, so it emits no Transfer events and the
+        // transaction carries no token transfers to pick between. What it does carry is the call itself, sent
+        // directly to the contract of the approved token — and a single call can only approve one token.
+        let token = transaction.compat.vout.first?.addresses?.first.flatMap { tokensByContract[$0.lowercased()] }
+
+        return ApproveHistoryMapper.approve(
+            calldata: transaction.ethereumSpecific?.data,
+            symbol: token?.symbol,
+            decimals: token?.decimals
+        )
+    }
+
     func tokenTransfers(_ transaction: BlockBookAddressResponse.Transaction) -> [TransactionRecord.TokenTransfer] {
         let tokenTransfers = transaction.tokenTransfers ?? []
 
@@ -280,10 +311,12 @@ private extension EthereumTransactionHistoryMapper {
         transaction: BlockBookAddressResponse.Transaction,
         transactionInfos: [TransactionInfo],
         amountType: Amount.AmountType,
-        feeValue: Decimal
+        feeValue: Decimal,
+        tokensByContract: [String: BlockBookAddressResponse.Token]
     ) -> [TransactionRecord] {
         let hash = transaction.txid
         let fee = Fee(Amount(with: blockchain, value: feeValue / blockchain.decimalValue))
+        let type = transactionType(transaction, tokensByContract: tokensByContract)
 
         return transactionInfos.map { transactionInfo in
             let index = transactionIndicesCounter[hash, default: 0]
@@ -299,7 +332,7 @@ private extension EthereumTransactionHistoryMapper {
                 fee: fee,
                 status: status(transaction),
                 isOutgoing: transactionInfo.isOutgoing,
-                type: transactionType(transaction),
+                type: type,
                 date: Date(timeIntervalSince1970: TimeInterval(transaction.blockTime)),
                 tokenTransfers: tokenTransfers(transaction),
                 isFromYieldContract: isFromYieldContract,

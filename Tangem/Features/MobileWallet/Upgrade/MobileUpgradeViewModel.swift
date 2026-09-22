@@ -28,7 +28,6 @@ final class MobileUpgradeViewModel: ObservableObject {
     let buyButtonTitle = Localization.detailsBuyWallet
     let upgradeButtonTitle = Localization.hwUpgradeStartAction
 
-    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
     @Injected(\.walletCardsBackupReportService) private var reportService: WalletCardsBackupReportService
@@ -95,9 +94,7 @@ extension MobileUpgradeViewModel {
         let securityTrait = TraitItem(
             icon: Assets.lock24,
             title: Localization.hwUpgradeGeneralSecurityTitle,
-            subtitle: FeatureProvider.isAvailable(.mobileWalletBackup)
-                ? Localization.hwUpgradeGeneralSecurityDescriptionV2(MobileBackupConstants.iCloudServiceName)
-                : Localization.hwUpgradeGeneralSecurityDescription
+            subtitle: Localization.hwUpgradeGeneralSecurityDescriptionV2(MobileBackupConstants.iCloudServiceName)
         )
 
         return InfoItem(
@@ -165,15 +162,12 @@ private extension MobileUpgradeViewModel {
 
             switch result {
             case .error(let error) where error.isCancellationError:
-                viewModel.incomingActionManager.discardIncomingAction()
-
                 await runOnMain {
                     viewModel.isScanning = false
                 }
 
             case .error(let error):
                 viewModel.logScanCardAnalytics(error: error)
-                viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
                     viewModel.isScanning = false
@@ -182,7 +176,6 @@ private extension MobileUpgradeViewModel {
 
             case .onboarding(_, let cardInfo):
                 await runOnMain {
-                    viewModel.incomingActionManager.discardIncomingAction()
                     viewModel.isScanning = false
 
                     if viewModel.needResetCardSet(cardInfo: cardInfo) {
@@ -194,7 +187,6 @@ private extension MobileUpgradeViewModel {
 
             case .scanTroubleshooting:
                 viewModel.logScanCardTroubleshootingAnalytics()
-                viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
                     viewModel.isScanning = false
@@ -204,7 +196,6 @@ private extension MobileUpgradeViewModel {
             case .success(let cardInfo):
                 await runOnMain {
                     viewModel.isScanning = false
-                    viewModel.incomingActionManager.discardIncomingAction()
 
                     if viewModel.needResetCardSet(cardInfo: cardInfo) {
                         viewModel.alert = viewModel.makeResetCardSetAlert(cardInfo: cardInfo)

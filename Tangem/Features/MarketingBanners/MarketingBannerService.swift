@@ -77,13 +77,16 @@ private extension MarketingBannerService {
             }
             .switchToLatest()
 
+        let balanceConverter = balanceConverter
+
         let banners = Publishers.CombineLatest(campaigns, amount.prepend(nil).removeDuplicates())
             .asyncMap { [weak self] campaigns, amount -> MarketingBanners in
+                let usdAmount = await Self.usdValue(amount, balanceConverter: balanceConverter)
+
                 guard let self else {
                     return .empty
                 }
 
-                let usdAmount = await usdValue(amount)
                 return selectBanners(from: campaigns, usdAmount: usdAmount)
             }
 
@@ -129,7 +132,7 @@ private extension MarketingBannerService {
         return (try? await apiService.loadMarketingCampaigns(request: dtoRequest).campaigns) ?? []
     }
 
-    func usdValue(_ amount: MarketingBannerAmount?) async -> Decimal? {
+    static func usdValue(_ amount: MarketingBannerAmount?, balanceConverter: BalanceConverter) async -> Decimal? {
         guard let amount else {
             return nil
         }

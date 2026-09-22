@@ -98,7 +98,7 @@ private extension YieldAPYBoostBannerService {
                     story: .yieldFirstActivationAPYBoostStory,
                     analyticsSource: .main,
                     presentCompletion: {
-                        _ = incomingActionHandler.handleIncomingURL(YieldAPYBoostBannerNotificationEvent.deeplink)
+                        incomingActionHandler.handleIncomingURL(YieldAPYBoostBannerNotificationEvent.deeplink)
                     }
                 )
             }

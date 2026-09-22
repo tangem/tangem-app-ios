@@ -118,6 +118,7 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.offrampCoordinator) {
                 TangemPayOfframpCoordinatorView(coordinator: $0)
+                    .interactiveDismissDisabled()
             }
             .sheet(item: $coordinator.addToApplePayGuideViewModel) {
                 TangemPayAddToAppPayGuideView(viewModel: $0)
