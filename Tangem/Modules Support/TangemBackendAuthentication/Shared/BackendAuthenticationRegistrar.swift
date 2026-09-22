@@ -112,7 +112,7 @@ enum BackendAuthenticationRegistrar {
 
         Task {
             do {
-                try await BackendAuthenticationAssembly.registerUserWallet(id: id, signer: signer)
+                try await BackendAuthenticationAssembly.registerUserWallet(id: id, recoveryEnrollment: nil, signer: signer)
                 BackendAuthLogger.info("Registered user wallet \(id.stringValue)")
             } catch {
                 BackendAuthLogger.error("Failed to register user wallet \(id.stringValue)", error: error)

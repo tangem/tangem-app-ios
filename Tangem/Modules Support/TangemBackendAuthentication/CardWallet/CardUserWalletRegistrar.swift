@@ -60,6 +60,7 @@ actor CardUserWalletRegistrar {
                     if let request = try await BackendAuthenticationAssembly.attestUserWallet(
                         id: userWalletId,
                         nonce: nonce,
+                        recoveryEnrollment: nil,
                         signer: signer
                     ) {
                         BackendAuthLogger.info("Attested user wallet \(userWalletId.stringValue) (card \(card.cardId))")

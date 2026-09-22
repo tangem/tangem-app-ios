@@ -11,6 +11,7 @@ public import TangemFoundation
 typealias AttestUserWallet = @Sendable (
     _ id: UserWalletId,
     _ nonce: UserWalletRegistrationNonce,
+    _ recoveryEnrollment: UserWalletRecoveryEnrollment?,
     _ signer: any UserWalletRegistrationSigner
 ) async throws(AttestUserWalletError) -> UserWalletRegistrationRequest?
 
@@ -29,6 +30,7 @@ public struct AttestUserWalletUseCase: Sendable {
     public func callAsFunction(
         id: UserWalletId,
         nonce: UserWalletRegistrationNonce,
+        recoveryEnrollment: UserWalletRecoveryEnrollment?,
         signer: some UserWalletRegistrationSigner
     ) async throws(AttestUserWalletError) -> UserWalletRegistrationRequest? {
         // [REDACTED_TODO_COMMENT]
@@ -45,7 +47,8 @@ public struct AttestUserWalletUseCase: Sendable {
             walletAttestation: walletAttestation,
             decryptedNonce: nonce.value,
             appAttestationToken: nonce.appAttestationToken,
-            metadata: deviceMetadataProvider()
+            metadata: deviceMetadataProvider(),
+            recoveryEnrollment: recoveryEnrollment
         )
     }
 

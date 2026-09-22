@@ -36,6 +36,9 @@ public enum BackendAuthenticationAssembly {
     public static let requestRetrier: any Alamofire.RequestRetrier = Self.renewSessionTokensRequestRetrier
 
     public static let storageCleaner: BackendAuthenticationStorageCleaner = Self.makeStorageCleaner()
+
+    package static let deviceKeyManager = DeviceKeyManager(privateKeyRepository: Self.devicePrivateKeyRepository)
+    package static let obtainRecoveryNonce: ObtainRecoveryNonceUseCase = Self.makeObtainRecoveryNonceUseCase()
 }
 
 // MARK: - Configuration
@@ -113,7 +116,6 @@ extension BackendAuthenticationAssembly {
         decoder: Self.jsonDecoder
     )
 
-    private static let deviceKeyManager = DeviceKeyManager(privateKeyRepository: Self.devicePrivateKeyRepository)
     private static let dPoPProofGenerator = DPoPProofGenerator(deviceKeyManager: Self.deviceKeyManager)
     private static let nonceDecryptor = SecurityNonceDecryptor(appPrivateKey: Self.configuration.appPrivateKey)
     private static let appAttestService = FakeAppAttestService()
@@ -200,8 +202,8 @@ extension BackendAuthenticationAssembly {
     private static func makeRegisterUserWalletUseCase() -> RegisterUserWalletUseCase {
         RegisterUserWalletUseCase(
             obtainNonce: obtainUserWalletRegistrationNonce.callAsFunction,
-            attestUserWallet: { id, nonce, signer async throws(AttestUserWalletError) in
-                try await Self.attestUserWallet(id: id, nonce: nonce, signer: signer)
+            attestUserWallet: { id, nonce, recoveryEnrollment, signer async throws(AttestUserWalletError) in
+                try await Self.attestUserWallet(id: id, nonce: nonce, recoveryEnrollment: recoveryEnrollment, signer: signer)
             },
             submitRegistration: submitUserWalletRegistration.callAsFunction,
             logger: configuration.logger
@@ -213,6 +215,21 @@ extension BackendAuthenticationAssembly {
             registrationClient: userWalletRegistrationClient,
             registrationStatusRepository: userWalletRegistrationStatusRepository,
             sessionTokensRepository: sessionTokensRepository
+        )
+    }
+
+    private static func makeObtainRecoveryNonceUseCase() -> ObtainRecoveryNonceUseCase {
+        let recoveryClient = MoyaUserWalletRecoveryClient(
+            provider: configuration.provider,
+            baseURL: configuration.baseURL,
+            decoder: jsonDecoder
+        )
+
+        return ObtainRecoveryNonceUseCase(
+            registerDevice: registerDevice.callAsFunction,
+            deviceKeyManager: deviceKeyManager,
+            nonceDecryptor: nonceDecryptor,
+            recoveryClient: recoveryClient
         )
     }
 
