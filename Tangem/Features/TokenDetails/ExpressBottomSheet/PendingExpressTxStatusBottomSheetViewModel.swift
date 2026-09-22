@@ -62,7 +62,15 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     private var notificationUpdateWorkItem: DispatchWorkItem?
     private weak var router: PendingExpressTxStatusRoutable?
     private var externalProviderTxURL: URL? {
-        pendingTransaction.externalTxURL.flatMap { URL(string: $0) }
+        // Records persisted by earlier versions may still hold a non-http(s) provider URL;
+        // `SFSafariViewController` would throw on it, so only surface web URLs.
+        guard let url = pendingTransaction.externalTxURL.flatMap({ URL(string: $0) }),
+              let scheme = url.scheme?.lowercased(),
+              ["http", "https"].contains(scheme) else {
+            return nil
+        }
+
+        return url
     }
 
     private var alreadyTrackedTokenNoticeLongTimeTransactionEvent: Bool = false

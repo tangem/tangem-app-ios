@@ -141,7 +141,7 @@ struct ExpressAPIMapper {
             otherNativeFee: otherNativeFee,
             estimatedGasLimit: txDetails.gas.flatMap(Int.init),
             externalTxId: txDetails.externalTxId,
-            externalTxURL: txDetails.externalTxUrl.flatMap(URL.init(string:)),
+            externalTxURL: txDetails.externalTxUrl.flatMap(Self.mapToWebURL),
             payInAddress: txDetails.txTo
         )
     }
@@ -260,7 +260,7 @@ struct ExpressAPIMapper {
                 toAmount: codedData.toAmount,
                 countryCode: codedData.countryCode,
                 externalTxId: codedData.externalTxId,
-                externalTxURL: codedData.externalTxUrl.flatMap(URL.init(string:))
+                externalTxURL: codedData.externalTxUrl.flatMap(Self.mapToWebURL)
             ))
         case .widget, .none:
             guard let widgetURL = codedData.widgetUrl else {
@@ -276,7 +276,7 @@ struct ExpressAPIMapper {
                 toAmount: codedData.toAmount,
                 countryCode: codedData.countryCode,
                 externalTxId: codedData.externalTxId,
-                externalTxURL: codedData.externalTxUrl.flatMap(URL.init(string:))
+                externalTxURL: codedData.externalTxUrl.flatMap(Self.mapToWebURL)
             ))
         }
     }
@@ -314,7 +314,7 @@ struct ExpressAPIMapper {
             toAmount: codedData.toAmount,
             countryCode: codedData.countryCode,
             externalTxId: codedData.externalTxId,
-            externalTxURL: codedData.externalTxUrl.flatMap(URL.init(string:))
+            externalTxURL: codedData.externalTxUrl.flatMap(Self.mapToWebURL)
         )
     }
 
@@ -558,5 +558,20 @@ private extension DecodedTransactionDetails {
             .appendingLogProperty(\.externalTxUrl, of: self)
             .appendingLogProperty(\.payoutAddress, of: self)
             .appendingLogProperty(\.payoutExtraId, of: self)
+    }
+}
+
+// MARK: - Web URL mapping
+
+private extension ExpressAPIMapper {
+    /// Provider-supplied `externalTxUrl` values are opened in `SFSafariViewController`, which throws
+    /// `NSInvalidArgumentException` for any non-http(s) scheme (e.g. a provider's own `changenow://…`
+    /// deep link). Accept only web URLs; anything else is dropped as if absent.
+    static func mapToWebURL(_ string: String) -> URL? {
+        guard let url = URL(string: string), let scheme = url.scheme?.lowercased() else {
+            return nil
+        }
+
+        return ["http", "https"].contains(scheme) ? url : nil
     }
 }
