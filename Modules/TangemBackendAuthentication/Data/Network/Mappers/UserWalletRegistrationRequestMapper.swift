@@ -20,6 +20,8 @@ enum UserWalletRegistrationRequestMapper {
             cardSignatureSalt: domainRequest.walletAttestation.cardSignature?.salt.base64EncodedString(),
             walletStatus: domainRequest.walletAttestation.origin.flatMap(mapStatus),
             attestationToken: domainRequest.appAttestationToken?.base64EncodedString(),
+            providerIdToken: domainRequest.recoveryEnrollment?.providerIdToken,
+            encryptedRecoveryKey: domainRequest.recoveryEnrollment?.encryptedRecoveryKey,
             metadata: DeviceMetadataMapper.mapToDTO(domainRequest.metadata)
         )
     }

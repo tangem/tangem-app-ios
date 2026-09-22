@@ -17,4 +17,5 @@ public struct UserWalletRegistrationRequest: Equatable, Sendable {
     let decryptedNonce: String
     let appAttestationToken: Data?
     let metadata: DeviceMetadata
+    let recoveryEnrollment: UserWalletRecoveryEnrollment?
 }

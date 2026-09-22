@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import struct Foundation.Data
+package import struct Foundation.Data
 
 /// A signature produced by the device's private key,
 /// used for device registration, authentication, and session-authenticated requests.
@@ -18,7 +18,7 @@ import struct Foundation.Data
 ///
 /// The resulting signature is provided in one of two encodings, depending on which request it's part of.
 /// - SeeAlso: ``DevicePublicKey`` for how the underlying key is generated and protected.
-struct DeviceSignature: Equatable, Sendable {
+package struct DeviceSignature: Equatable, Sendable {
     /// The signature as ASN.1 (Abstract Syntax Notation One) DER (Distinguished Encoding Rules)
     /// encoded bytes: a `SEQUENCE` of two `INTEGER`s, `r` and `s`.
     ///
@@ -27,7 +27,7 @@ struct DeviceSignature: Equatable, Sendable {
     ///   | ---                 | ---                               |
     ///   | device registration | `POST /mobile/register`           |
     ///   | authentication      | `POST /mobile/authenticate`       |
-    let derRepresentation: Data
+    package let derRepresentation: Data
 
     /// The signature as raw `r ‖ s` bytes, no ASN.1 wrapping.
     ///
