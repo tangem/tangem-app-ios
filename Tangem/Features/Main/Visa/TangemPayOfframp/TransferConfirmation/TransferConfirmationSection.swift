@@ -19,7 +19,7 @@ struct TransferConfirmationSection: Identifiable, Equatable {
     }
 
     struct Row: Identifiable, Equatable {
-        let id: OfframpFormField.ID
+        let id: TangemPayFormField.ID
         let title: String
         let value: String
     }

@@ -7,6 +7,7 @@
 //
 
 import TangemFoundation
+import TangemLocalization
 import TangemPay
 
 enum TransferConfirmationSectionsBuilder {
@@ -80,10 +81,10 @@ enum TransferConfirmationSectionsBuilder {
 
 private extension TransferConfirmationSectionsBuilder {
     struct Entry {
-        let id: OfframpFormField.ID
+        let id: TangemPayFormField.ID
         let value: String?
 
-        init(_ id: OfframpFormField.ID, _ value: String?) {
+        init(_ id: TangemPayFormField.ID, _ value: String?) {
             self.id = id
             self.value = value
         }
@@ -168,8 +169,9 @@ private extension TransferConfirmationSectionsBuilder {
 
 private extension TransferConfirmationSectionsBuilder {
     // [REDACTED_TODO_COMMENT]
-    static func title(for id: OfframpFormField.ID) -> String {
+    static func title(for id: TangemPayFormField.ID) -> String {
         switch id {
+        case .email: Localization.tangempayOrderDataEmail
         case .accountNumber: "Account number"
         case .routingNumber: "Routing number"
         case .firstName: "First name"
