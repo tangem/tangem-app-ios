@@ -12,7 +12,7 @@ import TangemUI
 
 struct BankDetailsView: View {
     @StateObject private var viewModel: BankDetailsViewModel
-    @FocusState private var focusedField: OfframpFormField.ID?
+    @FocusState private var focusedField: TangemPayFormField.ID?
 
     init(viewModel: @autoclosure @escaping () -> BankDetailsViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel())
@@ -59,7 +59,7 @@ private extension BankDetailsView {
         }
     }
 
-    func moveFocus(to id: OfframpFormField.ID?) {
+    func moveFocus(to id: TangemPayFormField.ID?) {
         guard let id else { return }
 
         focusedField = id

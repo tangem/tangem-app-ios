@@ -1,5 +1,5 @@
 //
-//  OfframpFormField.swift
+//  TangemPayFormField.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,8 +7,9 @@
 //
 
 import SwiftUI
+import TangemLocalization
 
-struct OfframpFormField: Identifiable {
+struct TangemPayFormField: Identifiable {
     let id: ID
     let title: String
     var placeholder: String
@@ -17,6 +18,7 @@ struct OfframpFormField: Identifiable {
     var onSelect: (() -> Void)?
 
     enum ID: Hashable {
+        case email
         case accountNumber
         case routingNumber
         case firstName
@@ -38,15 +40,20 @@ struct OfframpFormField: Identifiable {
     enum Error: Hashable {
         case required
         case invalidFormat
+        case invalidEmail
         case routingNumber
         case nonLatin
 
         var message: String {
-            // [REDACTED_TODO_COMMENT]
             switch self {
+            case .invalidEmail: Localization.commonErrorEmailIncorrectFormat
+            // [REDACTED_TODO_COMMENT]
             case .required: "Required field"
+            // [REDACTED_TODO_COMMENT]
             case .invalidFormat: "Invalid text format"
+            // [REDACTED_TODO_COMMENT]
             case .routingNumber: "The routing number is incorrect"
+            // [REDACTED_TODO_COMMENT]
             case .nonLatin: "Use Latin characters only"
             }
         }
@@ -55,7 +62,7 @@ struct OfframpFormField: Identifiable {
 
 // MARK: - Validation
 
-extension OfframpFormField {
+extension TangemPayFormField {
     var isOptional: Bool {
         id.isOptional
     }
@@ -71,13 +78,16 @@ extension OfframpFormField {
 
 // MARK: - Input traits
 
-extension OfframpFormField.ID {
+extension TangemPayFormField.ID {
     var isOptional: Bool {
         self == .line2
     }
 
     var keyboardType: UIKeyboardType {
         switch self {
+        case .email:
+            .emailAddress
+
         case .accountNumber, .routingNumber, .postalCode, .bankPostalCode:
             .numberPad
 
@@ -89,6 +99,7 @@ extension OfframpFormField.ID {
 
     var textContentType: UITextContentType? {
         switch self {
+        case .email: .emailAddress
         case .accountNumber, .routingNumber, .countryCode, .region, .bankRegion: nil
         case .firstName: .givenName
         case .lastName: .familyName
@@ -107,7 +118,7 @@ extension OfframpFormField.ID {
              .bankName, .bankCity, .bankLine1:
             .words
 
-        case .accountNumber, .routingNumber, .postalCode, .bankPostalCode:
+        case .email, .accountNumber, .routingNumber, .postalCode, .bankPostalCode:
             .never
         }
     }
