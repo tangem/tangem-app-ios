@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemLocalization
+
 enum TransferTypeOption: CaseIterable, Identifiable {
     case ownAccount
     case thirdParty
@@ -15,11 +17,9 @@ enum TransferTypeOption: CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .ownAccount:
-            // [REDACTED_TODO_COMMENT]
-            "Your account"
+            Localization.tangempayWithdrawBankTransferTypeOwn
         case .thirdParty:
-            // [REDACTED_TODO_COMMENT]
-            "3rd-party account"
+            Localization.tangempayWithdrawBankTransferTypeThirdParty
         }
     }
 

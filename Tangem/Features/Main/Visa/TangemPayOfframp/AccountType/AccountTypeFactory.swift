@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 
 enum AccountTypeFactory {
     @MainActor
@@ -17,19 +18,10 @@ enum AccountTypeFactory {
         AccountTypeView(
             viewModel: AccountTypeViewModel(
                 orderBuilder: orderBuilder,
-                title: Constants.title,
+                title: Localization.tangempayWithdrawBankAccountTypeScreenTitle,
                 stepSubtitle: TangemPayOfframpWizardStep.accountType.subtitle(for: orderBuilder.recipient),
                 output: output
             )
         )
-    }
-}
-
-// MARK: - Constants
-
-private extension AccountTypeFactory {
-    enum Constants {
-        // [REDACTED_TODO_COMMENT]
-        static let title = "Select account type"
     }
 }
