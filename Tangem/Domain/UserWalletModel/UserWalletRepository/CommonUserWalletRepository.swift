@@ -70,6 +70,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private let mobileWalletSdk = CommonMobileWalletSdk()
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
     private let collectiblesSessionKeyWalletStore: any CollectiblesSessionKeyWalletStore = CommonCollectiblesSessionKeyWalletStore()
+    private let collectiblesAccountPresenceStore: any CollectiblesAccountPresenceStore = AppSettingsCollectiblesAccountPresenceStore()
     private var bag: Set<AnyCancellable> = .init()
 
     deinit {
@@ -214,6 +215,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
 
             modelsToDelete.forEach {
                 try? collectiblesSessionKeyWalletStore.deleteKey(for: $0)
+                collectiblesAccountPresenceStore.remove($0)
             }
 
             let otherUserWallets = models.filter { $0.userWalletId != selectedUserWalletId }
@@ -264,6 +266,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
         polymarketCredentialsRepository.delete(userWalletId: userWalletId)
         polymarketAccountPresenceStore.delete(userWalletId: userWalletId)
         try? collectiblesSessionKeyWalletStore.deleteKey(for: userWalletId)
+        collectiblesAccountPresenceStore.remove(userWalletId)
 
         let removedModels = models.filter { $0.userWalletId == userWalletId }
         models.removeAll { $0.userWalletId == userWalletId }

@@ -11,7 +11,7 @@ import TangemFoundation
 
 /// Publishes the wallet's single collectibles account. The model is built for every wallet the feature is
 /// enabled for, whether or not a vault exists on chain — presence in the account list says nothing, and
-/// `CollectiblesState.isAccountVisible` is what answers "does this wallet have one".
+/// `CollectiblesAccountModel.hasAccount` is what answers "does this wallet have one".
 struct CollectiblesAccountProvider {
     private let accountModel: ThreadSafeLazy<any CollectiblesAccountModel>
 
