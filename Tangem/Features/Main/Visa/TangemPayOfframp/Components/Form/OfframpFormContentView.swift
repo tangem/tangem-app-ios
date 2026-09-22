@@ -12,9 +12,9 @@ import TangemLocalization
 import TangemUI
 
 struct OfframpFormContentView: View {
-    @Binding var fields: [OfframpFormField]
+    @Binding var fields: [TangemPayFormField]
 
-    let focused: FocusState<OfframpFormField.ID?>.Binding
+    let focused: FocusState<TangemPayFormField.ID?>.Binding
     let state: StateModel
     var suggestions: Suggestions?
     let action: (Action) -> Void
@@ -71,16 +71,16 @@ private extension OfframpFormContentView {
         .animation(.keyboard, value: focusedFieldClearance)
     }
 
-    func fieldRows(_ rows: ArraySlice<OfframpFormField>) -> some View {
+    func fieldRows(_ rows: ArraySlice<TangemPayFormField>) -> some View {
         ForEach(rows) { field in
-            OfframpFormFieldView(field: binding(for: field), focused: focused)
+            TangemPayFormFieldView(field: binding(for: field), focused: focused)
                 .onChange(of: field.text) { _ in
                     action(.fieldChanged(field.id))
                 }
         }
     }
 
-    func binding(for field: OfframpFormField) -> Binding<OfframpFormField> {
+    func binding(for field: TangemPayFormField) -> Binding<TangemPayFormField> {
         Binding(
             get: { fields.first { $0.id == field.id } ?? field },
             set: { updated in
@@ -168,7 +168,7 @@ extension OfframpFormContentView {
 
 extension OfframpFormContentView {
     struct Suggestions {
-        let fieldID: OfframpFormField.ID
+        let fieldID: TangemPayFormField.ID
         let items: [OfframpAccountSuggestion]
         let onSelect: (String) -> Void
     }
@@ -178,7 +178,7 @@ extension OfframpFormContentView {
 
 extension OfframpFormContentView {
     enum Action {
-        case fieldChanged(OfframpFormField.ID)
+        case fieldChanged(TangemPayFormField.ID)
         case focusPrevious
         case focusNext
         case dismissKeyboard
@@ -190,15 +190,15 @@ extension OfframpFormContentView {
 
 @available(iOS 17.0, *)
 #Preview("Bank Details") {
-    @Previewable @State var fields: [OfframpFormField] = [
-        OfframpFormField(id: .bankName, title: "Bank name", placeholder: "Eg., Goldman Sachs"),
-        OfframpFormField(id: .bankRegion, title: "Bank region / state", placeholder: "Not selected"),
-        OfframpFormField(id: .bankCity, title: "Bank city", placeholder: "Eg., Night City"),
-        OfframpFormField(id: .bankLine1, title: "Bank address line 1", placeholder: "Eg., Ebunike st., Apt. 32"),
-        OfframpFormField(id: .bankPostalCode, title: "Postal code", placeholder: "0000"),
+    @Previewable @State var fields: [TangemPayFormField] = [
+        TangemPayFormField(id: .bankName, title: "Bank name", placeholder: "Eg., Goldman Sachs"),
+        TangemPayFormField(id: .bankRegion, title: "Bank region / state", placeholder: "Not selected"),
+        TangemPayFormField(id: .bankCity, title: "Bank city", placeholder: "Eg., Night City"),
+        TangemPayFormField(id: .bankLine1, title: "Bank address line 1", placeholder: "Eg., Ebunike st., Apt. 32"),
+        TangemPayFormField(id: .bankPostalCode, title: "Postal code", placeholder: "0000"),
     ]
 
-    @Previewable @FocusState var focused: OfframpFormField.ID?
+    @Previewable @FocusState var focused: TangemPayFormField.ID?
 
     OfframpFormContentView(
         fields: $fields,
@@ -215,15 +215,15 @@ extension OfframpFormContentView {
 
 @available(iOS 17.0, *)
 #Preview("Suggestions") {
-    @Previewable @State var fields: [OfframpFormField] = [
-        OfframpFormField(id: .accountNumber, title: "Account number", placeholder: "000000000000", text: "082"),
-        OfframpFormField(id: .routingNumber, title: "Routing number", placeholder: "000000000000"),
-        OfframpFormField(id: .firstName, title: "First name", placeholder: "John"),
-        OfframpFormField(id: .lastName, title: "Last name", placeholder: "Doe"),
-        OfframpFormField(id: .city, title: "City", placeholder: "Eg., Night City"),
+    @Previewable @State var fields: [TangemPayFormField] = [
+        TangemPayFormField(id: .accountNumber, title: "Account number", placeholder: "000000000000", text: "082"),
+        TangemPayFormField(id: .routingNumber, title: "Routing number", placeholder: "000000000000"),
+        TangemPayFormField(id: .firstName, title: "First name", placeholder: "John"),
+        TangemPayFormField(id: .lastName, title: "Last name", placeholder: "Doe"),
+        TangemPayFormField(id: .city, title: "City", placeholder: "Eg., Night City"),
     ]
 
-    @Previewable @FocusState var focused: OfframpFormField.ID?
+    @Previewable @FocusState var focused: TangemPayFormField.ID?
 
     let suggestions = OfframpFormContentView.Suggestions(
         fieldID: .accountNumber,

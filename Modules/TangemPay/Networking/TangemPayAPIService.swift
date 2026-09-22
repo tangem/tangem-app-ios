@@ -113,7 +113,12 @@ public enum TangemPayAPIServiceError: Error {
 public struct TangemPayAPIError: Error, Decodable {
     public let correlationId: String?
     public let code: Int?
+    public let name: String?
     public let message: String?
+
+    public enum Name {
+        public static let waitlistInvalidEmail = "WaitlistInvalidEmailException"
+    }
 
     public enum Code {
         public static let cardIssueActiveOrderExists = 140114
