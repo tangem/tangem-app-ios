@@ -17,6 +17,7 @@ extension Button {
         let horizontalLayout: HorizontalLayout
 
         @Environment(\.isEnabled) private var isEnabled
+        @Environment(\.buttonPaintsPressOverlay) private var paintsPressOverlay
         @ScaledMetric private var height: CGFloat
         @ScaledMetric private var labelMinWidth: CGFloat
         @ScaledMetric private var horizontalPadding: CGFloat
@@ -102,7 +103,7 @@ extension Button {
         private func pressOverlay(isPressed: Bool) -> some View {
             Capsule()
                 .fill(styleType.pressOverlay)
-                .opacity(isPressed && isEnabled ? 1 : 0)
+                .opacity(isPressed && isEnabled && paintsPressOverlay ? 1 : 0)
         }
 
         // MARK: - Layout helpers
@@ -139,6 +140,14 @@ extension Button {
             swapsDisabledColors ? DesignSystem.Color.textTertiary : styleType.foregroundColor
         }
     }
+}
+
+// MARK: - Press feedback ownership
+
+extension EnvironmentValues {
+    /// Cleared where an ancestor already paints press feedback — interactive Liquid Glass paints its own,
+    /// and the style's overlay lands on top of it as a second, differently shaped fill.
+    @Entry var buttonPaintsPressOverlay = true
 }
 
 // MARK: - Constants
