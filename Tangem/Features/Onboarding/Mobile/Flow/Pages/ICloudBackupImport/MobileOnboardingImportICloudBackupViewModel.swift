@@ -61,16 +61,6 @@ final class MobileOnboardingImportICloudBackupViewModel: ObservableObject {
         destination: .iCloud
     )
 
-    private var analyticsParams: [Analytics.ParameterKey: String] {
-        guard let backup else {
-            return [:]
-        }
-
-        let walletIdData = Data(hexString: backup.metadata.walletId)
-        let walletId = UserWalletId(value: walletIdData)
-        return [.userWalletId: walletId.hashedStringValue]
-    }
-
     private let creationUtil = MobileCreationUtil()
 
     private weak var dataSource: MobileOnboardingImportICloudBackupDataSource?
@@ -287,30 +277,19 @@ private extension MobileOnboardingImportICloudBackupViewModel {
 
 private extension MobileOnboardingImportICloudBackupViewModel {
     func logPasswordScreenAnalytics() {
-        Analytics.log(
-            event: .enterCloudBackupPasswordScreen,
-            params: analyticsParams,
-            contextParams: .custom(.mobileWallet)
-        )
+        Analytics.log(.enterCloudBackupPasswordScreen, contextParams: .custom(.mobileWallet))
     }
 
     func logImportErrorAnalytics(_ error: Error) {
-        var params = MobileBackupStatusUtil.errorAnalyticsParams(error)
-        params.enrich(with: analyticsParams)
-
         Analytics.log(
             event: .importCloudBackupError,
-            params: params,
+            params: MobileBackupStatusUtil.errorAnalyticsParams(error),
             contextParams: .custom(.mobileWallet)
         )
     }
 
     func logWrongPasswordAnalytics() {
-        Analytics.log(
-            event: .wrongCloudBackupPassword,
-            params: analyticsParams,
-            contextParams: .custom(.mobileWallet)
-        )
+        Analytics.log(.wrongCloudBackupPassword, contextParams: .custom(.mobileWallet))
     }
 }
 
