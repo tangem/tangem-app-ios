@@ -34,6 +34,12 @@ final class RatingViewModel: ObservableObject {
         }
     }
 
+    var ratingSelectionHandler: ((Rating) -> Void)? {
+        guard state == .unrated, selectedRating == nil else { return nil }
+
+        return onRatingSelected
+    }
+
     var isVisible: Bool {
         switch state {
         case .loading:
