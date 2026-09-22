@@ -41,6 +41,9 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     @Injected(\.mailComposePresenter)
     private var mailPresenter: MailComposePresenter
 
+    @Injected(\.pushNotificationsInteractor)
+    private var pushNotificationsInteractor: PushNotificationsInteractor
+
     var dismissAction: Action<OutputOptions>
     var popToRootAction: Action<PopToRootOptions>
 
@@ -634,6 +637,7 @@ private extension WelcomeV2Coordinator {
         logWalletCreatedAnalytics()
 
         try userWalletRepository.add(userWalletModel: userWalletModel)
+        pushNotificationsInteractor.suppressAfterLoginRequestsInCurrentSession()
 
         guard !Task.isCancelled else { return }
 
