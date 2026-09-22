@@ -14,6 +14,7 @@ import TangemFoundation
 /// See https://app.notion.com/p/tangem/Express-36d5d34eb67880fa8082dcdb732c4364?source=copy_link#f5e12a848f494dc28b3ad32fd3243ede for details.
 struct TransactionHistoryExpressDataMerger {
     @Injected(\.transactionHistoryAuxDataRepository) private var auxDataRepository: TransactionHistoryAuxDataRepository
+    @Injected(\.smartContractMethodMapper) private var smartContractMethodMapper: SmartContractMethodMapper
 
     // MARK: - Dependencies
 
@@ -53,7 +54,6 @@ struct TransactionHistoryExpressDataMerger {
         exchangeTransactions: [ExchangeTransaction],
         onrampTransactions: [OnrampTransaction]
     ) -> [TransactionRecord] {
-        // [REDACTED_TODO_COMMENT]
         var bsdkTransactionsGroupedByHash: [String?: [TransactionRecord]] = bsdkTransactions.grouped(by: \.hash)
         var output: [TransactionRecord] = []
         output.reserveCapacity(bsdkTransactions.count + exchangeTransactions.count + onrampTransactions.count)
@@ -177,7 +177,13 @@ struct TransactionHistoryExpressDataMerger {
             output.append(contentsOf: bsdkTransactions.value.filter { !consumedBSDKTransactionsIds.contains($0.id) })
         }
 
-        return sortedRecords(output)
+        let transferCollapser = TransactionHistoryTransferCollapser(
+            walletModelAddresses: walletModelAddresses,
+            isEvm: isEvm,
+            smartContractMethodMapper: smartContractMethodMapper
+        )
+
+        return sortedRecords(transferCollapser.collapse(output))
     }
 
     // MARK: - Leg claiming (Exchange)
