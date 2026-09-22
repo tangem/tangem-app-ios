@@ -1,5 +1,5 @@
 //
-//  OfframpFormFieldView.swift
+//  TangemPayFormFieldView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,10 +10,10 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
-struct OfframpFormFieldView: View {
-    @Binding var field: OfframpFormField
+struct TangemPayFormFieldView: View {
+    @Binding var field: TangemPayFormField
 
-    let focused: FocusState<OfframpFormField.ID?>.Binding
+    let focused: FocusState<TangemPayFormField.ID?>.Binding
 
     private var isFieldFocused: Bool {
         focused.wrappedValue == field.id
@@ -35,7 +35,7 @@ struct OfframpFormFieldView: View {
 
 // MARK: - Subviews
 
-private extension OfframpFormFieldView {
+private extension TangemPayFormFieldView {
     @ViewBuilder
     var input: some View {
         if let onSelect = field.onSelect {
@@ -115,7 +115,7 @@ private extension OfframpFormFieldView {
 
 // MARK: - Constants
 
-private extension OfframpFormFieldView {
+private extension TangemPayFormFieldView {
     enum Constants {
         static let verticalPadding: CGFloat = 12
         static let inputToErrorSpacing: CGFloat = 8
@@ -131,7 +131,7 @@ private extension OfframpFormFieldView {
 
 @available(iOS 17.0, *)
 #Preview {
-    @Previewable @State var field = OfframpFormField(
+    @Previewable @State var field = TangemPayFormField(
         id: .accountNumber,
         title: "Account number",
         placeholder: "0000000000",
@@ -139,8 +139,8 @@ private extension OfframpFormFieldView {
         error: nil
     )
 
-    OfframpFormFieldView(
+    TangemPayFormFieldView(
         field: $field,
-        focused: FocusState<OfframpFormField.ID?>().projectedValue
+        focused: FocusState<TangemPayFormField.ID?>().projectedValue
     )
 }
