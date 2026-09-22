@@ -30,8 +30,7 @@ struct StellarInitialWalletTokenSyncConfigurationProvider {
         do {
             let response = try await stellarNetworkService.getInfo(accountId: address, isAsset: false).async()
 
-            let assetBalancesCount = response.assetBalances.count
-            let fullReserve = response.baseReserve * Decimal(assetBalancesCount + StellarWalletManager.Constants.baseEntryCount)
+            let fullReserve = response.baseReserve * Decimal(response.subentryCount + StellarWalletManager.Constants.baseEntryCount)
             let spendableNative = response.balance - fullReserve
             let nativeBalance = max(spendableNative, 0)
 
