@@ -98,6 +98,7 @@ extension BackendAuthenticationAssembly {
     )
 
     private static let userWalletRegistrationStatusRepository = UserDefaultsUserWalletRegistrationStatusRepository()
+    private static let deviceRegistrationStatusRepository = UserDefaultsDeviceRegistrationStatusRepository()
 
     private static let jsonDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
@@ -130,6 +131,7 @@ extension BackendAuthenticationAssembly {
             appAttestService: Self.appAttestService,
             sessionAuthenticationClient: sessionAuthenticationClient,
             sessionTokensRepository: Self.sessionTokensRepository,
+            deviceRegistrationStatusRepository: Self.deviceRegistrationStatusRepository,
             deviceKeyManager: Self.deviceKeyManager,
             nonceDecryptor: Self.nonceDecryptor,
             deviceMetadataProvider: DeviceMetadata.default,
@@ -159,7 +161,7 @@ extension BackendAuthenticationAssembly {
         return RegisterDeviceUseCase(
             appAttestService: Self.appAttestService,
             registrationClient: deviceRegistrationClient,
-            registrationStatusRepository: UserDefaultsDeviceRegistrationStatusRepository(),
+            registrationStatusRepository: Self.deviceRegistrationStatusRepository,
             sessionTokensRepository: Self.sessionTokensRepository,
             deviceKeyManager: Self.deviceKeyManager,
             nonceDecryptor: Self.nonceDecryptor,

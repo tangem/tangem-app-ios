@@ -311,10 +311,16 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
         tokensRepository.retrieveResult = Result.success(nil)
         tokensRepository.persistResult = Result.success(())
 
+        let deviceRegistrationStatusRepository = SpyDeviceRegistrationStatusRepository()
+
         let sut = makeSUT(
-            registerDevice: { tokensFromRegistration },
+            registerDevice: {
+                deviceRegistrationStatusRepository.persist(isRegistered: true)
+                return tokensFromRegistration
+            },
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
+            deviceRegistrationStatusRepository: deviceRegistrationStatusRepository,
             devicePrivateKeyRepository: .successStub,
             nonceDecryptor: .successStub
         )
@@ -323,6 +329,7 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
 
         #expect(actualSessionTokens == tokensFromRegistration)
         #expect(authenticationClient.receivedMessages == [.requestCipheredNonce, .authenticate(nil)])
+        #expect(deviceRegistrationStatusRepository.receivedMessages == [.persist(isRegistered: false), .persist(isRegistered: true)])
         #expect(tokensRepository.receivedMessages == [.retrieve, .persist(tokensFromRegistration)])
     }
 
@@ -683,6 +690,7 @@ extension RenewSessionTokensUseCaseTests {
         appAttestService: some AppAttestService = SpyAppAttestService(),
         sessionAuthenticationClient: some SessionAuthenticationClient = SpySessionAuthenticationClient(),
         sessionTokensRepository: some SessionTokensRepository = SpySessionTokensRepository(),
+        deviceRegistrationStatusRepository: some DeviceRegistrationStatusRepository = SpyDeviceRegistrationStatusRepository(),
         devicePrivateKeyRepository: some DevicePrivateKeyRepository = SpyDevicePrivateKeyRepository(),
         nonceDecryptor: some NonceDecryptor = SpyNonceDecryptor(),
         dateProvider: @escaping @autoclosure @Sendable () -> Date = Date.now,
@@ -694,6 +702,7 @@ extension RenewSessionTokensUseCaseTests {
                 appAttestService: appAttestService,
                 sessionAuthenticationClient: sessionAuthenticationClient,
                 sessionTokensRepository: sessionTokensRepository,
+                deviceRegistrationStatusRepository: deviceRegistrationStatusRepository,
                 deviceKeyManager: DeviceKeyManager(privateKeyRepository: devicePrivateKeyRepository),
                 nonceDecryptor: nonceDecryptor,
                 deviceMetadataProvider: DeviceMetadata.fake,
