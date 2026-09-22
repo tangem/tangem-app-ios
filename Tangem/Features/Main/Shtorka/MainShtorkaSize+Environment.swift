@@ -26,9 +26,8 @@ extension Optional where Wrapped == ShtorkaSize {
         self == .collapsed
     }
 
-    /// A sheet that is not at full height shows the material behind it, so its screens paint no background of their own.
-    var hasOpaqueBackground: Bool {
-        self == nil || self == .full
+    var isNonFullFeedSheet: Bool {
+        isFeedSheet && self != .full
     }
 }
 
