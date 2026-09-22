@@ -69,11 +69,19 @@ class AlgorandNetworkService: MultiNetworkProvider {
                         throw BlockchainSdkError.failedToParseNetworkResponse()
                     }
 
+                    // `lastRound` is a node-supplied UInt64; a value near UInt64.max would trap in the
+                    // plain `+`. Reject it instead of crashing the app.
+                    let (lastRound, overflow) = response.lastRound.addingReportingOverflow(Constants.bounceRoundValue)
+
+                    guard !overflow else {
+                        throw BlockchainSdkError.failedToParseNetworkResponse()
+                    }
+
                     let transactionParams = AlgorandTransactionBuildParams(
                         genesisId: response.genesisId,
                         genesisHash: genesisHash,
                         firstRound: response.lastRound,
-                        lastRound: response.lastRound + Constants.bounceRoundValue
+                        lastRound: lastRound
                     )
 
                     return transactionParams
