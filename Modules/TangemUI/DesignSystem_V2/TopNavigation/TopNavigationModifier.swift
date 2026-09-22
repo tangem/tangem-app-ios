@@ -74,9 +74,8 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
         if let leading = resolvedLeading {
             if #available(iOS 26.0, *) {
                 ToolbarItem(placement: .topBarLeading) {
-                    chromeButton(leading)
+                    systemChrome([leading])
                 }
-                .sharedBackgroundVisibility(.hidden)
             } else {
                 ToolbarItem(placement: .topBarLeading) {
                     chromeButton(leading)
@@ -121,16 +120,32 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
 
     @ToolbarContentBuilder
     private var trailingContent: some ToolbarContent {
-        if actions.isNotEmpty || onClose != nil {
-            if #available(iOS 26.0, *) {
-                ToolbarItem(placement: .topBarTrailing) {
-                    trailingGroup
-                }
-                .sharedBackgroundVisibility(.hidden)
-            } else {
-                ToolbarItem(placement: .topBarTrailing) {
-                    trailingGroup
-                }
+        if #available(iOS 26.0, *) {
+            systemTrailingContent
+        } else if actions.isNotEmpty || onClose != nil {
+            ToolbarItem(placement: .topBarTrailing) {
+                trailingGroup
+            }
+        }
+    }
+
+    @available(iOS 26.0, *)
+    @ToolbarContentBuilder
+    private var systemTrailingContent: some ToolbarContent {
+        if actions.isNotEmpty {
+            ToolbarItem(placement: .topBarTrailing) {
+                systemChrome(actions)
+            }
+            .sharedBackgroundVisibility(actionsHaveBackground ? .automatic : .hidden)
+        }
+
+        if let onClose {
+            if actions.isNotEmpty {
+                ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                systemChrome([TopNavigation.Action.close(action: onClose)])
             }
         }
     }
@@ -158,6 +173,13 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
     private func chromeButton(_ action: TopNavigation.Action) -> some View {
         barHosted {
             TopNavigationCircleButton(action: action)
+        }
+    }
+
+    @available(iOS 26.0, *)
+    private func systemChrome(_ actions: [TopNavigation.Action]) -> some View {
+        barHosted {
+            TopNavigationSystemChrome(actions: actions)
         }
     }
 

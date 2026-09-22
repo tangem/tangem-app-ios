@@ -96,7 +96,9 @@ public struct Button: View, Setupable {
             contentLabel
                 .opacity(isLoading ? 0 : 1)
 
-            loadingRow
+            if isLoading {
+                loadingRow
+            }
         }
         .padding(.horizontal, iconOnlyLoadingMessagePadding)
         .accessibilityHidden(true)
@@ -145,14 +147,10 @@ public struct Button: View, Setupable {
     }
 
     private var loaderSlot: some View {
-        ZStack {
-            if isLoading {
-                Loader()
-                    .loaderSize(size.loaderSize)
-                    .loaderColor(styleType.foregroundColor)
-            }
-        }
-        .frame(width: size.iconSize, height: size.iconSize)
+        Loader()
+            .loaderSize(size.loaderSize)
+            .loaderColor(styleType.foregroundColor)
+            .frame(width: size.iconSize, height: size.iconSize)
     }
 
     private var resolvedAccessibilityLabel: String {
