@@ -31,10 +31,6 @@ struct TangemPayFundingFlowBuilder {
             return nil
         }
 
-        guard FeatureProvider.isAvailable(.tangemPayAddFundsWithdrawRework) else {
-            return .to(receiveToken)
-        }
-
         // Empty once the account is issued on no network; the resolver then keeps the default destination.
         let destinationCandidates = await makeDestinationCandidates()
 
@@ -69,14 +65,6 @@ struct TangemPayFundingFlowBuilder {
 
     @MainActor
     func withdraw() async -> WithdrawResolution {
-        guard FeatureProvider.isAvailable(.tangemPayAddFundsWithdrawRework) else {
-            guard let sourceToken = makeSwapableToken(presentation: nil) else {
-                return .unavailable
-            }
-
-            return .parameters(.from(sourceToken))
-        }
-
         let accountTokens = await accountTokens()
 
         guard let mostFunded = accountTokens.withdrawStartingPoint else {
@@ -104,7 +92,7 @@ struct TangemPayFundingFlowBuilder {
             // The base provider spans every unlocked wallet, hence the filtering by wallet.
             return .restricted(
                 walletsProvider: FilteredTokenSelectorWalletsProvider(
-                    base: .common(),
+                    base: .cryptoJointTangemPayAccounts(),
                     includesWallet: { [userWalletId = userWalletInfo.id] wallet in
                         wallet.wallet.id == userWalletId
                     },
@@ -133,10 +121,6 @@ struct TangemPayFundingFlowBuilder {
 private extension TangemPayFundingFlowBuilder {
     @MainActor
     func accountTokens() async -> [TangemPayAccountToken] {
-        guard FeatureProvider.isAvailable(.tangemPayMultichain) else {
-            return defaultAccountTokens
-        }
-
         // An empty list also means "not loaded yet" — reload so only an account that truly
         // has no enabled networks ends up with nothing.
         if tangemPayAccount.networks.isEmpty {

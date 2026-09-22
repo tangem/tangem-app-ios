@@ -71,10 +71,7 @@ final class GaslessSendViaSwapUITests: BaseTestCase {
 
     private func importHotWalletAndOpenSwapSummary() -> SendSummaryScreen {
         let sendScreen = CreateWalletSelectorScreen(app)
-            .skipStories()
-            .startWithMobileWallet()
-            .tapImportButton()
-            .tapRecoveryPhrase()
+            .importMobileWallet()
             .enterSeedPhrase(TestSeedPhrases.hotWallet)
             .tapImportButton()
             .tapContinue()

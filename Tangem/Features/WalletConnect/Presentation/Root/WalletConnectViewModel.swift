@@ -316,7 +316,7 @@ extension WalletConnectViewModel {
                 case .standard(.multiple(let accounts)):
                     accounts.forEach(appendSection(for:))
 
-                case .tangemPay, .polymarket:
+                case .joint, .tangemPay, .polymarket, .collectibles:
                     break
                 }
             }

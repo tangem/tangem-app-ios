@@ -124,14 +124,8 @@ struct CommonAddressBookRepositoryTests {
     @Test
     func loadWithCorruptRemoteBlobFallsBackToCachedBook() async throws {
         let cached = try makeContact()
-        let corrupt = AddressBookEnvelope(
-            version: AddressBookBlobCodec.supportedVersion,
-            walletId: walletId,
-            updatedAt: Self.timestamp,
-            sealedBox: AddressBookSealedBox(nonce: zeros(12), ciphertext: Data([0x00, 0x01, 0x02]), tag: zeros(16))
-        )
         let network = StubNetworkService()
-        network.loadResult = .success(.fetched(RemoteAddressBook(etag: "srv-etag", envelope: corrupt)))
+        network.loadResult = .success(.fetched(RemoteAddressBook(etag: "srv-etag", envelope: makeCorruptEnvelope())))
         let persistentStorage = SpyPersistentStorage(stored: try makeStoredDTO(contacts: [cached]))
         let eTagStorage = SpyETagStorage(initialETags: [addressBookETagKey: "cached-etag"])
         let repository = makeRepository(network: network, persistentStorage: persistentStorage, eTagStorage: eTagStorage)
@@ -143,6 +137,89 @@ struct CommonAddressBookRepositoryTests {
         #expect(persistentStorage.clearCallCount == 0)
         #expect(persistentStorage.stored != nil)
         #expect(eTagStorage.clearedKeys.isEmpty)
+    }
+
+    // MARK: - Cache warm-up
+
+    @Test
+    func initPublishesCachedContactsWithoutHittingNetwork() throws {
+        let contact = try makeContact()
+        let network = StubNetworkService()
+        let persistentStorage = SpyPersistentStorage(stored: try makeStoredDTO(contacts: [contact]))
+        let eTagStorage = SpyETagStorage(initialETags: [addressBookETagKey: "cached-etag"])
+        let repository = makeRepository(network: network, persistentStorage: persistentStorage, eTagStorage: eTagStorage)
+
+        #expect(currentContacts(repository) == [contact])
+        #expect(isSyncing(currentSyncState(repository)))
+        #expect(network.loadCallCount == 0)
+    }
+
+    @Test
+    func initWithCorruptCacheInvalidatesItAndStaysEmpty() {
+        let network = StubNetworkService()
+        let persistentStorage = SpyPersistentStorage(stored: mapper.mapToDTO(makeCorruptEnvelope()))
+        let eTagStorage = SpyETagStorage(initialETags: [addressBookETagKey: "cached-etag"])
+        let repository = makeRepository(network: network, persistentStorage: persistentStorage, eTagStorage: eTagStorage)
+
+        #expect(persistentStorage.clearCallCount == 1)
+        #expect(persistentStorage.stored == nil)
+        #expect(eTagStorage.clearedKeys == [addressBookETagKey])
+        #expect(currentContacts(repository).isEmpty)
+        #expect(isSyncing(currentSyncState(repository)))
+        #expect(network.loadCallCount == 0)
+    }
+
+    // MARK: - Single flight
+
+    /// The loud caller joins the silent one, and the cached contacts survive the join.
+    @Test
+    func concurrentLoadsShareOneRequest() async throws {
+        let contact = try makeContact()
+        let network = StubNetworkService()
+        network.loadResult = .success(.notModified)
+        network.loadDelay = .milliseconds(100)
+        let persistentStorage = SpyPersistentStorage(stored: try makeStoredDTO(contacts: [contact]))
+        let eTagStorage = SpyETagStorage(initialETags: [addressBookETagKey: "cached-etag"])
+        let repository = makeRepository(network: network, persistentStorage: persistentStorage, eTagStorage: eTagStorage)
+
+        async let first: Void = repository.load(silent: true)
+        async let second: Void = repository.load(silent: false)
+        _ = await (first, second)
+
+        #expect(network.loadCallCount == 1)
+        #expect(isSynced(currentSyncState(repository)))
+        #expect(currentContacts(repository) == [contact])
+    }
+
+    /// Can't reproduce the join window that used to strand the state on `.syncing`, but pins the invariant behind
+    /// the fix: a load always lands on a terminal state.
+    @Test
+    func aLoudLoadAfterASettledOneStillEndsSynced() async {
+        let network = StubNetworkService()
+        network.loadResult = .success(.notFound)
+        let repository = makeRepository(network: network, persistentStorage: SpyPersistentStorage(), eTagStorage: SpyETagStorage())
+
+        await repository.load(silent: true)
+        await repository.load(silent: false)
+
+        #expect(network.loadCallCount == 2)
+        #expect(isSynced(currentSyncState(repository)))
+    }
+
+    @Test
+    func loadAfterASettledLoadHitsNetworkAgain() async {
+        let network = StubNetworkService()
+        network.loadResult = .failure(URLError(.notConnectedToInternet))
+        let repository = makeRepository(network: network, persistentStorage: SpyPersistentStorage(), eTagStorage: SpyETagStorage())
+
+        await repository.load(silent: false)
+        #expect(isNetworkError(currentSyncState(repository)))
+
+        network.loadResult = .success(.notFound)
+        await repository.load(silent: false)
+
+        #expect(network.loadCallCount == 2)
+        #expect(isSynced(currentSyncState(repository)))
     }
 
     // MARK: - Save
@@ -299,6 +376,16 @@ struct CommonAddressBookRepositoryTests {
         mapper.mapToDTO(try makeEnvelope(contacts: contacts))
     }
 
+    /// A well-formed envelope whose payload isn't a blob, so decoding it fails after decryption.
+    private func makeCorruptEnvelope() -> AddressBookEnvelope {
+        AddressBookEnvelope(
+            version: AddressBookBlobCodec.supportedVersion,
+            walletId: walletId,
+            updatedAt: Self.timestamp,
+            sealedBox: AddressBookSealedBox(nonce: zeros(12), ciphertext: Data([0x00, 0x01, 0x02]), tag: zeros(16))
+        )
+    }
+
     // MARK: - State inspection
 
     private func currentContacts(_ repository: CommonAddressBookRepository) -> [AddressBookDecodedContact] {
@@ -317,6 +404,11 @@ struct CommonAddressBookRepositoryTests {
 
     private func isSynced(_ state: AddressBookSyncState?) -> Bool {
         if case .synced? = state { return true }
+        return false
+    }
+
+    private func isSyncing(_ state: AddressBookSyncState?) -> Bool {
+        if case .syncing? = state { return true }
         return false
     }
 
@@ -344,38 +436,91 @@ struct CommonAddressBookRepositoryTests {
 
 // MARK: - Test doubles
 
-private final class StubNetworkService: AddressBookNetworkService {
-    var loadResult: Result<AddressBookFetchResult, Error> = .success(.notFound)
-    var saveResult: Result<AddressBookSaveResult, Error> = .success(AddressBookSaveResult(etag: "default-etag", updatedAt: Date()))
+// The doubles are read from the test body while in-flight loads write to them, so their state lives behind a lock.
 
-    private(set) var loadCallCount = 0
-    private(set) var saveCallCount = 0
-    private(set) var lastLoadKnownETag: String?
-    private(set) var lastSaveKnownETag: String?
-    private(set) var savedEnvelopes: [AddressBookEnvelope] = []
+private final class StubNetworkService: AddressBookNetworkService {
+    private struct State {
+        var loadResult: Result<AddressBookFetchResult, Error> = .success(.notFound)
+        var saveResult: Result<AddressBookSaveResult, Error> = .success(AddressBookSaveResult(etag: "default-etag", updatedAt: Date()))
+        var loadDelay: Duration?
+        var loadCallCount = 0
+        var saveCallCount = 0
+        var lastLoadKnownETag: String?
+        var lastSaveKnownETag: String?
+        var savedEnvelopes: [AddressBookEnvelope] = []
+    }
+
+    private let state = OSAllocatedUnfairLock(uncheckedState: State())
+
+    var loadResult: Result<AddressBookFetchResult, Error> {
+        get { state.withLock { $0.loadResult } }
+        set { state.withLock { $0.loadResult = newValue } }
+    }
+
+    var saveResult: Result<AddressBookSaveResult, Error> {
+        get { state.withLock { $0.saveResult } }
+        set { state.withLock { $0.saveResult = newValue } }
+    }
+
+    /// Keeps a load "on the wire" long enough for another caller to arrive while it is in flight.
+    var loadDelay: Duration? {
+        get { state.withLock { $0.loadDelay } }
+        set { state.withLock { $0.loadDelay = newValue } }
+    }
+
+    var loadCallCount: Int { state.withLock { $0.loadCallCount } }
+    var saveCallCount: Int { state.withLock { $0.saveCallCount } }
+    var lastLoadKnownETag: String? { state.withLock { $0.lastLoadKnownETag } }
+    var lastSaveKnownETag: String? { state.withLock { $0.lastSaveKnownETag } }
+    var savedEnvelopes: [AddressBookEnvelope] { state.withLock { $0.savedEnvelopes } }
 
     func loadAddressBook(walletId: UserWalletId, knownETag: String?) async throws -> AddressBookFetchResult {
-        loadCallCount += 1
-        lastLoadKnownETag = knownETag
-        return try loadResult.get()
+        let (result, delay) = state.withLock { state in
+            state.loadCallCount += 1
+            state.lastLoadKnownETag = knownETag
+            return (state.loadResult, state.loadDelay)
+        }
+
+        if let delay {
+            try await Task.sleep(for: delay)
+        }
+
+        return try result.get()
     }
 
     func saveAddressBook(_ envelope: AddressBookEnvelope, walletId: UserWalletId, knownETag: String?) async throws -> AddressBookSaveResult {
-        saveCallCount += 1
-        lastSaveKnownETag = knownETag
-        savedEnvelopes.append(envelope)
-        return try saveResult.get()
+        let result = state.withLock { state in
+            state.saveCallCount += 1
+            state.lastSaveKnownETag = knownETag
+            state.savedEnvelopes.append(envelope)
+            return state.saveResult
+        }
+
+        return try result.get()
     }
 }
 
 private final class SpyPersistentStorage: AddressBookPersistentStorage {
-    private(set) var stored: AddressBookDTO.Envelope?
-    var saveError: Error?
-    private(set) var savedEnvelopes: [AddressBookDTO.Envelope] = []
-    private(set) var clearCallCount = 0
+    private struct State {
+        var stored: AddressBookDTO.Envelope?
+        var saveError: Error?
+        var savedEnvelopes: [AddressBookDTO.Envelope] = []
+        var clearCallCount = 0
+    }
+
+    private let state: OSAllocatedUnfairLock<State>
 
     init(stored: AddressBookDTO.Envelope? = nil) {
-        self.stored = stored
+        state = OSAllocatedUnfairLock(uncheckedState: State(stored: stored))
+    }
+
+    var stored: AddressBookDTO.Envelope? { state.withLock { $0.stored } }
+    var savedEnvelopes: [AddressBookDTO.Envelope] { state.withLock { $0.savedEnvelopes } }
+    var clearCallCount: Int { state.withLock { $0.clearCallCount } }
+
+    var saveError: Error? {
+        get { state.withLock { $0.saveError } }
+        set { state.withLock { $0.saveError = newValue } }
     }
 
     func loadEnvelope(for walletId: UserWalletId) -> AddressBookDTO.Envelope? {
@@ -383,16 +528,20 @@ private final class SpyPersistentStorage: AddressBookPersistentStorage {
     }
 
     func saveEnvelope(_ envelope: AddressBookDTO.Envelope, for walletId: UserWalletId) throws {
-        if let saveError {
-            throw saveError
+        try state.withLock { state in
+            if let saveError = state.saveError {
+                throw saveError
+            }
+            state.savedEnvelopes.append(envelope)
+            state.stored = envelope
         }
-        savedEnvelopes.append(envelope)
-        stored = envelope
     }
 
     func clear(for walletId: UserWalletId) {
-        clearCallCount += 1
-        stored = nil
+        state.withLock { state in
+            state.clearCallCount += 1
+            state.stored = nil
+        }
     }
 }
 
@@ -400,32 +549,44 @@ private func makeETagStorageKey(for key: ETagStorageKey) -> String {
     switch key {
     case .accounts(let walletId): "CryptoAccountsETagStorage_\(walletId.stringValue)"
     case .addressBook(let walletId): "AddressBookETagStorage_\(walletId.stringValue)"
+    case .jointAccounts(let walletId): "JointAccountsETagStorage_\(walletId.stringValue)"
     }
 }
 
 private final class SpyETagStorage: ETagStorage {
-    private(set) var etags: [String: String]
-    private(set) var savedETags: [String] = []
-    private(set) var clearedKeys: [String] = []
+    private struct State {
+        var etags: [String: String]
+        var savedETags: [String] = []
+        var clearedKeys: [String] = []
+    }
+
+    private let state: OSAllocatedUnfairLock<State>
 
     init(initialETags: [String: String] = [:]) {
-        etags = initialETags
+        state = OSAllocatedUnfairLock(initialState: State(etags: initialETags))
     }
+
+    var savedETags: [String] { state.withLock { $0.savedETags } }
+    var clearedKeys: [String] { state.withLock { $0.clearedKeys } }
 
     func initialize() {}
 
     func loadETag(for key: ETagStorageKey) -> String? {
-        etags[makeETagStorageKey(for: key)]
+        state.withLock { $0.etags[makeETagStorageKey(for: key)] }
     }
 
     func saveETag(_ eTag: String, for key: ETagStorageKey) {
-        savedETags.append(eTag)
-        etags[makeETagStorageKey(for: key)] = eTag
+        state.withLock { state in
+            state.savedETags.append(eTag)
+            state.etags[makeETagStorageKey(for: key)] = eTag
+        }
     }
 
     func clearETag(for key: ETagStorageKey) {
-        clearedKeys.append(makeETagStorageKey(for: key))
-        etags[makeETagStorageKey(for: key)] = nil
+        state.withLock { state in
+            state.clearedKeys.append(makeETagStorageKey(for: key))
+            state.etags[makeETagStorageKey(for: key)] = nil
+        }
     }
 }
 

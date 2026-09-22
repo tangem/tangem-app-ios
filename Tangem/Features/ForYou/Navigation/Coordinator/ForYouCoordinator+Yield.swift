@@ -6,29 +6,29 @@
 //
 
 import Foundation
+import TangemFoundation
 
 @MainActor
 extension ForYouCoordinator {
     func openEarnYield(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
-        yieldDeeplinkRouter = YieldDeeplinkRouter(
-            discardIncomingAction: { [weak self] in
-                self?.routeOnTokenResolvedAction(
+        runTask(in: self) { coordinator in
+            let destination = await YieldModuleDestinationResolver().resolve(
+                walletModel: walletModel,
+                userWalletModel: userWalletModel
+            )
+
+            switch destination {
+            case .promo(let apy, let flowFactory):
+                coordinator.openYieldPromo(apy: apy, factory: flowFactory)
+            case .active(let flowFactory):
+                coordinator.openYieldActive(factory: flowFactory)
+            case nil:
+                coordinator.routeOnTokenResolvedAction(
                     .alreadyAdded(walletModel: walletModel, userWalletModel: userWalletModel),
                     .forYou
                 )
-            },
-            openYieldPromoAction: { [weak self] apy, factory in
-                self?.openYieldPromo(apy: apy, factory: factory)
-            },
-            openYieldActiveAction: { [weak self] factory in
-                self?.openYieldActive(factory: factory)
-            },
-            onFinish: { [weak self] in
-                self?.yieldDeeplinkRouter = nil
             }
-        )
-
-        yieldDeeplinkRouter?.handle(walletModel: walletModel, userWalletModel: userWalletModel)
+        }
     }
 }
 

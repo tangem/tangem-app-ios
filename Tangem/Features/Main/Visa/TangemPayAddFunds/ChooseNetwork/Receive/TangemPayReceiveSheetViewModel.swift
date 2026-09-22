@@ -35,7 +35,7 @@ final class TangemPayReceiveSheetViewModel: ObservableObject, FloatingSheetConte
 
     private weak var coordinator: TangemPayReceiveSheetRoutable?
 
-    init(input: Input, userWalletId: UserWalletId, coordinator: TangemPayReceiveSheetRoutable) {
+    init(input: Input, coordinator: TangemPayReceiveSheetRoutable) {
         self.input = input
         self.coordinator = coordinator
 
@@ -54,8 +54,6 @@ final class TangemPayReceiveSheetViewModel: ObservableObject, FloatingSheetConte
                 networkIcon: networkIcon
             )
         }
-
-        Analytics.log(event: .visaMultichainFastWayAddressPopupShowed, params: [.blockchain: input.networkTitle], contextParams: .userWallet(userWalletId))
     }
 
     func showQRCode() {

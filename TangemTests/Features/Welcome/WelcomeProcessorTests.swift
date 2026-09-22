@@ -34,4 +34,12 @@ struct WelcomeProcessorTests {
         #expect(state.welcomeOnboarding == nil)
         #expect(state.deepLink == .tangemPay)
     }
+
+    @Test("Tangem Pay campaign startup: campaign deep link carrying the key, no welcome onboarding")
+    func startup_tangemPayCampaign() {
+        let campaignKey = "tpay_for_harvard123"
+        let state = State(startupOnboarding: .tangemPayCampaign(campaignKey: campaignKey))
+        #expect(state.welcomeOnboarding == nil)
+        #expect(state.deepLink == .tangemPayCampaign(campaignKey: campaignKey))
+    }
 }

@@ -12,6 +12,9 @@ import CombineExt
 import TangemFoundation
 
 final class CommonMultiWalletMainContentViewSectionsProvider {
+    @Injected(\.cryptoAccountsGlobalStateProvider)
+    private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
+
     private typealias EntitiesCache = ThreadSafeContainer<Cache>
 
     private let userWalletModel: UserWalletModel
@@ -46,11 +49,14 @@ final class CommonMultiWalletMainContentViewSectionsProvider {
         let publisher = userWalletModel
             .accountModelsManager
             .accountModelsPublisher
-            .map { $0.cryptoAccounts() }
+            .combineLatest(cryptoAccountsGlobalStateProvider.globalCryptoAccountsStatePublisher())
             .withWeakCaptureOf(self)
-            .flatMapLatest { provider, cryptoAccounts -> AnyPublisher<CommonSectionInput, Never> in
-                let cryptoAccountModels = Self.extractCryptoAccountModels(from: cryptoAccounts)
-                let hasMultipleAccounts = cryptoAccounts.hasMultipleAccounts
+            .flatMapLatest { provider, args -> AnyPublisher<CommonSectionInput, Never> in
+                let (accountModels, accountsState) = args
+                // A joint account still being put together holds no tokens and has a plate of its own on this
+                // very screen, so it is left out of the sections here rather than shown twice
+                let cryptoAccountModels = AccountModelsAggregator(.crypto, .joint(.active)).models(from: accountModels)
+                let hasMultipleAccounts = accountsState == .multiple
 
                 guard cryptoAccountModels.isNotEmpty else {
                     let input = CommonSectionInput(hasMultipleAccounts: hasMultipleAccounts, accountSections: [])
@@ -172,18 +178,6 @@ final class CommonMultiWalletMainContentViewSectionsProvider {
 
             return MultiWalletMainContentPlainSection(model: sectionViewModel, items: itemViewModels)
         }
-    }
-
-    private static func extractCryptoAccountModels(from cryptoAccounts: [CryptoAccounts]) -> [any CryptoAccountModel] {
-        return cryptoAccounts
-            .reduce(into: []) { result, cryptoAccount in
-                switch cryptoAccount {
-                case .single(let cryptoAccountModel):
-                    result.append(cryptoAccountModel)
-                case .multiple(let cryptoAccountModels):
-                    result.append(contentsOf: cryptoAccountModels)
-                }
-            }
     }
 
     /// This subscription is needed for purging the cache.

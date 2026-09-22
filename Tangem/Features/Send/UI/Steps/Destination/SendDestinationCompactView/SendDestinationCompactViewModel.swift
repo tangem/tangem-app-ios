@@ -13,8 +13,6 @@ import UIKit
 class SendDestinationCompactViewModel: ObservableObject, Identifiable {
     typealias AdditionalField = (SendDestinationAdditionalFieldType, String)
 
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
     let suiTextViewModel: SUITextViewModel
     @Published var address: String = ""
     @Published var resolved: String?
@@ -40,18 +38,16 @@ class SendDestinationCompactViewModel: ObservableObject, Identifiable {
     }
 
     private var addressBooksChangePublisher: AnyPublisher<Void, Never> {
-        let publishers = userWalletRepository.models
-            .filter { !$0.isUserWalletLocked }
-            .map { $0.addressBookManager.contactsPublisher.mapToVoid() }
-
-        return Publishers.MergeMany(publishers)
+        AddressBookContactsAggregator
+            .contactsPublisher()
+            .mapToVoid()
             .prepend(())
             .eraseToAnyPublisher()
     }
 
     private func updateView(address: SendDestination?, additionalField: SendDestinationAdditionalField) {
         self.address = address?.value.typedAddress ?? ""
-        addressIconType = AddressIconProvider.makeViewType(address: self.address)
+        addressIconType = AddressIconProvider.makeViewType(address: self.address, networkId: nil)
         resolved = address?.value.showableResolved
 
         switch additionalField {

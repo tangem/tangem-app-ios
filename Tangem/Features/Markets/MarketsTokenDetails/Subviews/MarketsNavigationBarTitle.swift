@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 import TangemUIUtils
 
 struct MarketsNavigationBarTitle: View {
@@ -20,21 +21,20 @@ struct MarketsNavigationBarTitle: View {
     let price: String?
 
     let state: State
+    let spacing: CGFloat
+    let fadesOverflow: Bool
 
-    init(tokenName: String, price: String?, state: State) {
+    init(tokenName: String, price: String?, state: State, spacing: CGFloat = 0, fadesOverflow: Bool = false) {
         self.tokenName = tokenName
         self.price = price
         self.state = state
+        self.spacing = spacing
+        self.fadesOverflow = fadesOverflow
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            Text(tokenName)
-                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-                .fixedSize(horizontal: false, vertical: true)
-                .lineLimit(1)
-                .multilineTextAlignment(.center)
-                .minimumScaleFactor(0.6)
+        VStack(spacing: spacing) {
+            title
                 .animation(animation, value: state.titleOffset)
 
             if let price {
@@ -50,6 +50,33 @@ struct MarketsNavigationBarTitle: View {
         }
     }
 
+    @ViewBuilder
+    private var title: some View {
+        if fadesOverflow {
+            ViewThatFits(in: .horizontal) {
+                tokenNameText
+
+                tokenNameText
+                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                    .reverseMask(alignment: .trailing) {
+                        LinearGradient(colors: [.clear, .black], startPoint: .leading, endPoint: .trailing)
+                            .frame(width: 24)
+                    }
+            }
+        } else {
+            tokenNameText
+                .multilineTextAlignment(.center)
+                .minimumScaleFactor(0.6)
+        }
+    }
+
+    private var tokenNameText: some View {
+        Text(tokenName)
+            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+            .lineLimit(1)
+            .fixedSize(horizontal: fadesOverflow, vertical: false)
+    }
+
     private func pricePlaceholder(_ text: String) -> some View {
         priceText(text)
             .opacity(0)
@@ -60,7 +87,6 @@ struct MarketsNavigationBarTitle: View {
     private func priceText(_ text: String) -> some View {
         Text(text)
             .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-            .fixedSize(horizontal: false, vertical: true)
             .lineLimit(1)
             .multilineTextAlignment(.center)
             .minimumScaleFactor(0.6)

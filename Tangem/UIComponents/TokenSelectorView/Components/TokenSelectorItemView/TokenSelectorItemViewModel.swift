@@ -16,11 +16,11 @@ final class TokenSelectorItemViewModel: ObservableObject, Identifiable {
     let symbol: String
     let tokenIconInfo: TokenIconInfo
 
-    @Published var disabledReason: DisabledReason?
+    @Published var availabilityType: TokenSelectorItem.AvailabilityType = .available
     @Published var cryptoBalance: LoadableBalanceView.State
     @Published var fiatBalance: LoadableBalanceView.State
 
-    let action: () -> Void
+    let action: (TokenSelectorItem.AvailabilityType) -> Void
 
     init(
         id: WalletModelId,
@@ -30,7 +30,7 @@ final class TokenSelectorItemViewModel: ObservableObject, Identifiable {
         availabilityTypePublisher: AnyPublisher<TokenSelectorItem.AvailabilityType, Never>,
         cryptoBalanceProvider: TokenBalanceProvider,
         fiatBalanceProvider: TokenBalanceProvider,
-        action: @escaping () -> Void
+        action: @escaping (TokenSelectorItem.AvailabilityType) -> Void
     ) {
         self.id = id
         self.name = name
@@ -52,17 +52,19 @@ final class TokenSelectorItemViewModel: ObservableObject, Identifiable {
             .assign(to: &$fiatBalance)
 
         availabilityTypePublisher
-            .map { $0.disabledReason }
             .receiveOnMain()
-            .assign(to: &$disabledReason)
+            .assign(to: &$availabilityType)
     }
 }
 
-private extension TokenSelectorItem.AvailabilityType {
-    var disabledReason: TokenSelectorItemViewModel.DisabledReason? {
+extension TokenSelectorItem.AvailabilityType {
+    var disablesTap: Bool {
         switch self {
-        case .available: .none
-        case .unavailable(let reason): reason
+        case .available: false
+        case .unavailable(.unavailableForSwap(.noAddress)): true
+        case .unavailable(.unavailableForSwap(.swapState(.customToken))): true
+        case .unavailable(.unavailableForSwap(.swapState)): false
+        case .unavailable(.unavailableForOnramp), .unavailable(.unavailableForSell), .unavailable(.unavailableForSend): true
         }
     }
 }
@@ -78,16 +80,5 @@ extension TokenSelectorItemViewModel {
     enum SwapUnavailabilityReason {
         case noAddress
         case swapState(TokenActionAvailabilityProvider.SwapActionAvailabilityStatus)
-    }
-}
-
-extension TokenSelectorItemViewModel.DisabledReason {
-    var disablesTap: Bool {
-        switch self {
-        case .unavailableForSwap(.noAddress): true
-        case .unavailableForSwap(.swapState(.customToken)): true
-        case .unavailableForSwap(.swapState): false
-        case .unavailableForOnramp, .unavailableForSell, .unavailableForSend: true
-        }
     }
 }

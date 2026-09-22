@@ -87,7 +87,7 @@ struct TopMarketWidgetView: View {
     private var loadingSkeletons: some View {
         VStack(spacing: .zero) {
             ForEach(0 ..< viewModel.itemsOnListWidget, id: \.self) { _ in
-                TangemTwoLineRowSkeletonView()
+                TokenRowMarket(.shimmer)
             }
         }
     }

@@ -168,7 +168,8 @@ private extension TransactionHistoryMapperGaslessTests {
             currencySymbol: "USDT",
             addressesProvider: StubTransactionHistoryAddressesProvider(walletAddresses: [Self.walletAddress]),
             showSign: true,
-            isToken: true
+            isToken: true,
+            stakingNetwork: .ethereum
         )
     }
 

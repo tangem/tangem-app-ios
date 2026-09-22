@@ -75,11 +75,19 @@ final class ForYouAccountsManagerStub: AccountModelsManager {
         accountsSubject.map(\.count).eraseToAnyPublisher()
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountOperationResult {
+    var totalJointAccountsCountPublisher: AnyPublisher<Int, Never> {
+        .just(output: 0)
+    }
+
+    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountCreationResult {
         throw .tooManyAccounts
     }
 
-    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) {
+    func addJointAccount(context: JointAccountCreationContextType) async throws(AccountEditError) -> AccountCreationResult {
+        throw .tooManyAccounts
+    }
+
+    func joinJointAccount(context: JointAccountJoinContext) async throws(AccountEditError) -> AccountCreationResult {
         throw .tooManyAccounts
     }
 
@@ -92,6 +100,7 @@ final class ForYouAccountsManagerStub: AccountModelsManager {
     }
 
     func acceptTangemPayOffer(authorizingInteractor: TangemPayAuthorizing) async {}
+    func acceptTangemPayCampaignOffer(authorizingInteractor: TangemPayAuthorizing, campaignKey: String) async {}
     func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {}
     func dispose() {}
 }

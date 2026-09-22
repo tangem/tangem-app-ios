@@ -247,11 +247,20 @@ private extension CommonSwapNotificationManager {
              .restriction(.notEnoughAmountForTxValue(_, _, let feeCurrencyBalance), _):
             return [makeNotEnoughFeeForTokenTxEvent(tokenItem: source.tokenItem, feeCurrencyBalance: feeCurrencyBalance)]
 
-        case .restriction(.notEnoughReceivedAmount(let minAmount, let tokenSymbol), _):
-            return [.notEnoughReceivedAmountForReserve(amountFormatted: "\(minAmount.formatted()) \(tokenSymbol)")]
+        case .restriction(.tooMuchReceivedAmount(let maxAmount, let tokenSymbol), _):
+            return [.tooMuchReceivedAmount(amountFormatted: format(maxAmount, tokenSymbol: tokenSymbol))]
+
+        case .restriction(.notEnoughReceivedAmount(let minAmount, let tokenSymbol, let reason), _):
+            return [.notEnoughReceivedAmount(amountFormatted: format(minAmount, tokenSymbol: tokenSymbol), reason: reason)]
 
         case .restriction(.regionRestricted, _):
-            return [.regionRestricted]
+            let noticeAnalyticsParams: [Analytics.ParameterKey: String] = [
+                .sendToken: source.tokenItem.currencySymbol,
+                .sendBlockchain: source.tokenItem.blockchain.displayName,
+                .receiveToken: receive.tokenItem.currencySymbol,
+                .receiveBlockchain: receive.tokenItem.blockchain.displayName,
+            ]
+            return [.regionRestricted(analyticsParams: noticeAnalyticsParams)]
 
         case .restriction(.trustlineRequired, _):
             return [.trustlineRequired]
@@ -418,6 +427,19 @@ private extension CommonSwapNotificationManager {
              .noTrustlineAtDestination,
              .destinationIsBurnAddress:
             return .validationErrorEvent(event: validationErrorEvent)
+        }
+    }
+}
+
+// MARK: - Threshold formatting
+
+private extension CommonSwapNotificationManager {
+    func format(_ threshold: ReceivedAmountThreshold, tokenSymbol: String) -> String {
+        switch threshold {
+        case .token(let amount):
+            balanceFormatter.formatCryptoBalance(amount, currencyCode: tokenSymbol)
+        case .fiatUSD(let amount):
+            balanceFormatter.formatFiatBalance(amount, currencyCode: AppConstants.usdCurrencyCode)
         }
     }
 }

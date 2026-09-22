@@ -249,7 +249,7 @@ extension TokenSelectorViewModel {
         let cryptoAccount: any CryptoAccountModel
 
         static func onlyAccount(of userWalletModel: any UserWalletModel) -> Self? {
-            guard let cryptoAccount = userWalletModel.accountModelsManager.cryptoAccountModels.singleElement else {
+            guard let cryptoAccount = AccountModelsAggregator(.crypto, .joint).models(from: userWalletModel.accountModelsManager).singleElement else {
                 return nil
             }
 
@@ -262,7 +262,7 @@ extension TokenSelectorViewModel {
 
 extension TokenSelectorViewModel {
     static func common(
-        walletsProvider: any TokenSelectorWalletsProvider = .common(),
+        walletsProvider: any TokenSelectorWalletsProvider = .cryptoJointTangemPayAccounts(),
         availabilityProvider: any TokenSelectorItemAvailabilityProvider,
         initialSelectedItem: WalletTokenItem? = nil,
         initiallyExpandedAccount: InitiallyExpandedAccount? = nil,
@@ -289,7 +289,7 @@ extension TokenSelectorViewModel {
     }
 
     static func swap(
-        walletsProvider: any TokenSelectorWalletsProvider = .common(),
+        walletsProvider: any TokenSelectorWalletsProvider = .cryptoJointTangemPayAccounts(),
         initialSelectedItem: WalletTokenItem? = nil,
         initiallyExpandedAccount: InitiallyExpandedAccount? = nil,
         preferredWalletId: UserWalletId? = nil,

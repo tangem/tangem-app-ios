@@ -17,7 +17,9 @@ import TangemFoundation
 struct TransactionDetailsAddContactHelperTests {
     private let blockchain: BSDKBlockchain = .ethereum(testnet: false)
     private let otherBlockchain: BSDKBlockchain = .bitcoin(testnet: false)
-    private let counterparty = "0xCounterparty"
+    /// `AddressComparator` applies its EVM rule only to strings that pass `isEvmAddress`, so this has to be a
+    /// real 20-byte address rather than a short stand-in.
+    private let counterparty = "0x5aaeb6053f3e94c9b9a09f33669435e7ef1beaed"
 
     // MARK: - Operation kind
 
@@ -110,8 +112,9 @@ struct TransactionDetailsAddContactHelperTests {
         #expect(helper.addressToSave(for: makeRecord(expressBranch: nil)) == nil)
     }
 
+    /// Case is not part of an EVM address, so a contact saved in either casing counts as saved.
     @Test
-    func hidesTheActionRegardlessOfTheSavedAddressCase() throws {
+    func hidesTheActionRegardlessOfTheEvmAddressCase() throws {
         let helper = try makeHelper(
             contacts: [makeContact(named: "Alice", address: counterparty.uppercased(), on: blockchain)],
             isAddressBookSynced: true,
@@ -231,7 +234,7 @@ struct TransactionDetailsAddContactHelperTests {
 
         return [
             .contract("0xContract"),
-            .staking(validator: "0xValidator"),
+            .staking(target: TransactionViewModel.StakingTarget(address: "0xValidator", resolvedName: nil)),
             .custom(message: "Tangem Pay"),
             .multiple([]),
         ]
@@ -357,6 +360,7 @@ struct TransactionDetailsAddContactHelperTests {
             walletId: UserWalletId(value: Data([0x01])),
             name: contactName,
             appearance: AddressBookContactAppearance(rawColor: "MexicanPink"),
+            createdAt: Date(),
             entries: entries
         )
     }

@@ -80,6 +80,10 @@ extension InjectedValues {
     var overlayViewPresenter: any OverlayViewPresenter {
         environment.overlayViewPresenter
     }
+
+    var overlayViewPresentingStateProvider: any OverlayViewPresentingStateProvider {
+        environment.overlayViewPresenter
+    }
 }
 
 // MARK: - AppOverlaysManager support

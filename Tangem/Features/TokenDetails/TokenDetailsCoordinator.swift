@@ -58,19 +58,14 @@ final class TokenDetailsCoordinator: CoordinatorObject {
 
         let tokenRouter = SingleTokenRouter(
             userWalletInfo: options.userWalletInfo,
+            analyticsSource: .token,
             coordinator: self
         )
 
         let expressFactory = ExpressStatusTrackingFactory(
             userWalletInfo: options.userWalletInfo,
             tokenItem: options.walletModel.tokenItem,
-            transactionHistoryEnricherFactory: { [weak walletModel = options.walletModel] in
-                try? await walletModel?
-                    .featuresPublisher
-                    .first()
-                    .async()
-                    .transactionHistoryProvider
-            }
+            transactionHistoryEnricherFactory: TransactionHistoryEnricherFactory.make(for: options.walletModel)
         )
 
         let expressStatusTracking = expressFactory.makeExpressStatusTracking()
@@ -81,7 +76,7 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             publicKey: options.walletModel.publicKey
         )
 
-        let deeplinkHandler = PromotionDeeplinkHandler(
+        let deeplinkHandler = TokenScreenDeeplinkResponder(
             coordinator: self,
             walletModel: options.walletModel,
             userWalletInfo: options.userWalletInfo
@@ -158,6 +153,17 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
                 routable: self
             )
 
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation) {
+        let viewModel = JointAccountOperationDetailsViewModelBuilder().build(
+            pendingOperation: pendingOperation,
+            coordinator: self
+        )
+
+        Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -407,6 +413,8 @@ extension TokenDetailsCoordinator: TransactionDetailsRoutable {
 // MARK: - AddressBookContactNavigating
 
 extension TokenDetailsCoordinator: AddressBookContactNavigating {
+    var addressBookAnalyticsSource: AddressBookAnalyticsSource { .transactionDetails }
+
     func contactManagementDidDismiss() {
         Task { @MainActor in
             floatingSheetPresenter.resumeSheetsDisplaying()
@@ -583,6 +591,16 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 
 extension TokenDetailsCoordinator: SendFeeCurrencyNavigating {}
 
-// MARK: - PromotionDeeplinkRoutable
+// MARK: - TokenScreenDeeplinkRoutable
 
-extension TokenDetailsCoordinator: PromotionDeeplinkRoutable {}
+extension TokenDetailsCoordinator: TokenScreenDeeplinkRoutable {}
+
+// MARK: - JointAccountOperationDetailsRoutable
+
+extension TokenDetailsCoordinator: JointAccountOperationDetailsRoutable {
+    func closeOperationDetails() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}

@@ -43,6 +43,7 @@ class BaseTestCase: XCTestCase {
         scenarios: [ScenarioConfig] = [],
         mockCardBatchIdOverride: String? = nil,
         mockCardFirmwareOverride: String? = nil,
+        extraLaunchArguments: [String] = [],
         extraLaunchEnvironment: [String: String] = [:]
     ) {
         var arguments: [String] = []
@@ -79,12 +80,16 @@ class BaseTestCase: XCTestCase {
             arguments.append("-uitest-keep-wallets")
         }
 
-        // Per-test overrides first, then run-wide CI/Allure overrides (UITEST_FEATURE_TOGGLES) win.
+        // Defaults first, then per-test overrides, then run-wide CI/Allure ones (UITEST_FEATURE_TOGGLES) win.
         // Keys are Feature names (e.g. TWI-1259_tron_gasless); the app skips unknown ones.
-        let resolvedFeatureToggles = featureToggles.merging(FeatureToggleUITestsOverridesProvider.runOverrides) { _, runOverride in runOverride }
+        let resolvedFeatureToggles = Constants.defaultFeatureToggles
+            .merging(featureToggles) { _, perTest in perTest }
+            .merging(FeatureToggleUITestsOverridesProvider.runOverrides) { _, runOverride in runOverride }
         for (key, isEnabled) in resolvedFeatureToggles {
             arguments.append("-uitest-feature-\(key)-\(isEnabled ? "on" : "off")")
         }
+
+        arguments.append(contentsOf: extraLaunchArguments)
 
         // Pin locale/language so currency, number and date assertions don't depend on the simulator region.
         arguments.append(contentsOf: ["-AppleLocale", "en_US", "-AppleLanguages", "(en)"])
@@ -165,10 +170,7 @@ class BaseTestCase: XCTestCase {
     @discardableResult
     func importHotWallet(accessCode: String? = nil) -> MainScreen {
         let accessCodeScreen = CreateWalletSelectorScreen(app)
-            .skipStories()
-            .startWithMobileWallet()
-            .tapImportButton()
-            .tapRecoveryPhrase()
+            .importMobileWallet()
             .enterSeedPhrase(TestSeedPhrases.hotWallet)
             .tapImportButton()
             .tapContinue()
@@ -200,6 +202,24 @@ class BaseTestCase: XCTestCase {
         return importHotWallet(accessCode: accessCode)
     }
 
+    /// Restarts the app keeping wallets and storage, so caches written before the restart stay readable.
+    @discardableResult
+    func relaunchKeepingState(
+        eligibilityState: String = "PaeraCustomer",
+        scenarios: [ScenarioConfig] = []
+    ) -> MainScreen {
+        XCTContext.runActivity(named: "Restart the app keeping wallets and settings") { _ in
+            app.terminate()
+            launchApp(
+                tangemApiType: .mock,
+                visaApiType: .mock,
+                keepWallets: true,
+                scenarios: [ScenarioConfig(name: "tangem_pay_eligibility", initialState: eligibilityState)] + scenarios
+            )
+            return MainScreen(app)
+        }
+    }
+
     // MARK: - Alert Handling
 
     func waitAndDismissErrorAlert(
@@ -224,6 +244,13 @@ class BaseTestCase: XCTestCase {
 
             alert.buttons[buttonTitle].waitAndTap()
         }
+    }
+}
+
+private extension BaseTestCase {
+    enum Constants {
+        /// The OpenTelemetry exporter has no UI-test stub and would reach the production endpoint on every launch.
+        static let defaultFeatureToggles = ["TWI-1627_opentelemetry_metrics_mirroring": false]
     }
 }
 

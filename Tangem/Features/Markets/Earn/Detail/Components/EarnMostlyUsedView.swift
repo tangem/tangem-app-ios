@@ -9,26 +9,37 @@
 import SwiftUI
 import TangemAssets
 import TangemFoundation
+import TangemUI
+import TangemUIUtils
 
 struct EarnMostlyUsedView: View {
     let viewModels: LoadingResult<[EarnTokenItemViewModel], Error>
+    let retryAction: () -> Void
     var fourthItemAppearIndex: Int = Constants.defaultFourthItemAppearIndex
     var onFourthItemAppeared: (() -> Void)?
 
     var body: some View {
         contentView
             .scrollIndicators(.hidden)
-            .frame(height: Layout.height)
+            .frame(minHeight: Layout.height)
     }
 
     @ViewBuilder
     private var contentView: some View {
         switch viewModels {
-        case .loading, .failure:
+        case .loading:
             skeletonView
+        case .failure:
+            errorView
         case .success(let viewModels):
             loadedView(viewModels: viewModels)
         }
+    }
+
+    private var errorView: some View {
+        TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: retryAction)
+            .padding(.horizontal, Layout.horizontalPadding)
+            .infinityFrame()
     }
 
     private var skeletonView: some View {

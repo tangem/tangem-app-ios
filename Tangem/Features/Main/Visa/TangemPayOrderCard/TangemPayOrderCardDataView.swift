@@ -101,7 +101,7 @@ struct TangemPayOrderCardDataView: View {
         .size(.x12)
         .styleType(.default)
         .horizontalLayout(.infinity)
-        .isLoading(viewModel.isPlacingOrder)
+        .loading(.spinner(if: viewModel.isPlacingOrder))
         .disabled(!viewModel.isOrderEnabled)
         .padding(.horizontal, Constants.footerHorizontalPadding)
         .padding(.vertical, Constants.footerVerticalPadding)

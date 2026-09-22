@@ -34,7 +34,7 @@ struct LockedWalletMainContentRedesignedView: View {
                 .padding(.top, 20)
         }
         .padding(.horizontal, 12)
-        .bindAlert($viewModel.alert)
+        .shtorkaCompatibleBindAlert($viewModel.alert)
         .frame(maxHeight: .infinity, alignment: .top)
     }
 }
@@ -49,7 +49,7 @@ private extension LockedWalletMainContentRedesignedView {
             action: {}
         )
         .iconStart(Assets.OrganizeTokens.filterIcon)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .size(.x9)
         .disabled(true)
     }

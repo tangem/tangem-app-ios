@@ -22,7 +22,7 @@ final class CommonUserTokensManager {
 
     private let userWalletId: UserWalletId
     private let userTokensRepository: UserTokensRepository
-    private let derivationInfo: DerivationInfo
+    private let derivationPathBuilder: any AccountDerivationPathBuilder
     private let existingCurves: [EllipticCurve]
     private let shouldLoadExpressAvailability: Bool
     private let hardwareLimitationsUtil: HardwareLimitationsUtil
@@ -42,14 +42,10 @@ final class CommonUserTokensManager {
             .prefix(untilOutputFrom: isDisposedPublisher)
     }
 
-    private var isMainAccountManager: Bool {
-        AccountModelUtils.isMainAccount(derivationInfo.derivationIndex)
-    }
-
     init(
         userWalletId: UserWalletId,
         userTokensRepository: UserTokensRepository,
-        derivationInfo: DerivationInfo,
+        derivationPathBuilder: any AccountDerivationPathBuilder,
         existingCurves: [EllipticCurve],
         persistentBlockchains: [TokenItem],
         shouldLoadExpressAvailability: Bool,
@@ -57,7 +53,7 @@ final class CommonUserTokensManager {
     ) {
         self.userWalletId = userWalletId
         self.userTokensRepository = userTokensRepository
-        self.derivationInfo = derivationInfo
+        self.derivationPathBuilder = derivationPathBuilder
         self.existingCurves = existingCurves
         self.shouldLoadExpressAvailability = shouldLoadExpressAvailability
         self.hardwareLimitationsUtil = hardwareLimitationsUtil
@@ -70,34 +66,10 @@ final class CommonUserTokensManager {
     }
 
     private func withBlockchainNetwork(_ tokenItem: TokenItem) -> TokenItem {
-        let blockchain = tokenItem.blockchain
-        let derivationPathHelper = AccountDerivationPathHelper(blockchain: blockchain)
-        let derivationPath = tokenItem.blockchainNetwork.derivationPath
-        let derivationIndex = derivationInfo.derivationIndex
-
-        // In case when a token item already contains derivation such token item can be added to the main account as is
-        if isMainAccountManager, derivationPath != nil {
-            return makeTokenItem(from: tokenItem, with: derivationPath)
-        }
-
-        // Non-main account with existing derivation: correct only the account node (if possible)
-        if let existingDerivationPath = derivationPath, let derivationIndexAwarePath = try? derivationPathHelper.makeDerivationPath(
-            from: existingDerivationPath,
-            forAccountWithIndex: derivationIndex
-        ) {
-            return makeTokenItem(from: tokenItem, with: derivationIndexAwarePath)
-        }
-
-        // Derivation unsupported
-        guard let derivationStyle = derivationInfo.derivationStyle else {
-            return tokenItem
-        }
-
-        // Last resort: override from the blockchain's default derivation path
-        let originalDerivationPath = blockchain.derivationPath(for: derivationStyle)
-        let accountAwareDerivationPath = originalDerivationPath.flatMap { path in
-            return try? derivationPathHelper.makeDerivationPath(from: path, forAccountWithIndex: derivationIndex)
-        }
+        let accountAwareDerivationPath = derivationPathBuilder.makeDerivationPath(
+            basedOn: tokenItem.blockchainNetwork.derivationPath,
+            for: tokenItem.blockchain
+        )
 
         return makeTokenItem(from: tokenItem, with: accountAwareDerivationPath)
     }
@@ -172,41 +144,19 @@ final class CommonUserTokensManager {
             throw TangemSdkError.nonHardenedDerivationNotSupported
         }
 
-        let derivationPathHelper = AccountDerivationPathHelper(blockchain: blockchain)
-
-        // Some blockchains do not support any derivations other than the default one (for the main account)
-        if let derivationPath,
-           let accountDerivationNode = try? derivationPathHelper.extractAccountDerivationNode(from: derivationPath),
-           !AccountModelUtils.isMainAccount(accountDerivationNode.rawIndex),
-           !blockchain.curve.supportsDerivation {
+        do {
+            try derivationPathBuilder.validateDerivationPath(derivationPath, for: blockchain)
+        } catch .derivationNotSupported {
             let error = Error.derivationNotSupported(tokenName: tokenItem.name)
             AccountsLogger.error("Failed to validate derivation:", error: error)
             throw error
-        }
-
-        // Token items with custom derivations can be added to the main account as is
-        if isMainAccountManager {
-            return
-        }
-
-        guard
-            let derivationPath,
-            let accountDerivationNode = try? derivationPathHelper.extractAccountDerivationNode(from: derivationPath)
-        else {
-            let error = Error.derivationPathNotFound(tokenName: tokenItem.name)
+        } catch .accountDerivationNodeMismatch(let expected, let actual) {
+            let error = Error.accountDerivationNodeMismatch(expected: expected, actual: actual, tokenName: tokenItem.name)
             AccountsLogger.error("Failed to validate derivation:", error: error)
             throw error
-        }
-
-        let expectedDerivationIndex = UInt32(derivationInfo.derivationIndex)
-        let actualDerivationIndex = accountDerivationNode.rawIndex
-
-        if actualDerivationIndex != expectedDerivationIndex {
-            let error = Error.accountDerivationNodeMismatch(
-                expected: expectedDerivationIndex,
-                actual: actualDerivationIndex,
-                tokenName: tokenItem.name
-            )
+        } catch {
+            // The path names no account this kind of account can place, which is as good as having none
+            let error = Error.derivationPathNotFound(tokenName: tokenItem.name)
             AccountsLogger.error("Failed to validate derivation:", error: error)
             throw error
         }
@@ -618,11 +568,6 @@ extension CommonUserTokensManager: DisposableEntity {
 // MARK: - Auxiliary types
 
 extension CommonUserTokensManager {
-    struct DerivationInfo {
-        let derivationIndex: Int
-        let derivationStyle: DerivationStyle?
-    }
-
     enum Error: LocalizedError {
         case addressNotFound(tokenName: String)
         case derivationNotSupported(tokenName: String)

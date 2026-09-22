@@ -19,6 +19,8 @@ struct TransactionDetailsActionButtonViewData: Equatable {
     let icon: ImageType?
     let style: Style
     let action: TransactionDetailsViewModel.ViewAction
+    var isBusy: Bool = false
+    var isEnabled: Bool = true
 }
 
 struct TransactionDetailsActionButtonView: View {
@@ -35,12 +37,14 @@ struct TransactionDetailsActionButtonView: View {
         .styleType(styleType)
         .size(.x12)
         .horizontalLayout(.infinity)
+        .loading(.spinner(if: data.isBusy))
+        .disabled(!data.isEnabled)
     }
 
     private var styleType: TangemUI.Button.StyleType {
         switch data.style {
         case .default: .default
-        case .secondary: .secondary
+        case .secondary: .secondary(.default)
         }
     }
 }

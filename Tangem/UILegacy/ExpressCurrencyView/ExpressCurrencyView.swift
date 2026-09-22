@@ -213,8 +213,11 @@ struct ExpressCurrencyView<Content: View>: View {
             EmptyView()
         case .icon(let tokenIconInfo):
             TokenIcon(tokenIconInfo: tokenIconInfo, size: imageSize)
-        case .tangemPay:
-            TangemPayTokenIconView(size: imageSize)
+        case .asset(let asset):
+            asset.image
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(size: imageSize)
         }
     }
 }
@@ -255,7 +258,7 @@ struct ChooseTokenPillView: View {
 
     @ViewBuilder
     private var emphasisOverlay: some View {
-        if reduceMotion || !FeatureProvider.isAvailable(.chooseTokenPulseAnimation) {
+        if reduceMotion {
             EmptyView()
         } else {
             TimelineView(.animation) { context in

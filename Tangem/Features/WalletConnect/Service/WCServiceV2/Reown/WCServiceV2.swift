@@ -432,7 +432,7 @@ private extension WCServiceV2 {
         let blockchainNetworkId = WalletConnectBlockchainMapper.mapToDomain(request.chainId)?.networkId
 
         guard
-            let cryptoAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: { account in
+            let cryptoAccount = AccountModelsAggregator(.crypto, .joint).models(from: userWalletModel.accountModelsManager).first(where: { account in
                 account.id.walletConnectIdentifierString == accountId
             })
         else {
@@ -460,7 +460,7 @@ private extension WCServiceV2 {
 
         let blockchainNetworkId = WalletConnectBlockchainMapper.mapToDomain(request.chainId)?.networkId
 
-        return userWalletModel.accountModelsManager.cryptoAccountModels.first(where: { account in
+        return AccountModelsAggregator(.crypto, .joint).models(from: userWalletModel.accountModelsManager).first(where: { account in
             account.walletModelsManager.walletModels.contains { walletModel in
                 let blockchainMatches = blockchainNetworkId.map { walletModel.tokenItem.blockchain.networkId == $0 } ?? true
                 let addressMatches = normalizeAddress(walletModel.walletConnectAddress) == requestedAddress

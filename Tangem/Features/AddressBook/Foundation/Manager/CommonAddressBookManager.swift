@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 import TangemFoundation
 import BlockchainSdk
 
@@ -22,6 +23,31 @@ final class CommonAddressBookManager {
     private let decodedContacts = OSAllocatedUnfairLock(initialState: [AddressBookDecodedContact]())
     private let contactsSubject = CurrentValueSubject<[AddressBookContact], Never>([])
     private var bag = Set<AnyCancellable>()
+
+    /// Subscribing is what asks for a sync: the first subscriber loads, the rest ride the shared subscription, and
+    /// once all are gone the next one syncs again. Each publisher has its own generation, so a screen taking both
+    /// loads twice — the repository's single-flight collapses that into one request.
+    private lazy var onDemandContactsPublisher: AnyPublisher<[AddressBookContact], Never> = Deferred { [weak self] in
+        guard let self else {
+            return Empty<[AddressBookContact], Never>().eraseToAnyPublisher()
+        }
+
+        loadOnDemand()
+        return contactsSubject.eraseToAnyPublisher()
+    }
+    .share(replay: 1)
+    .eraseToAnyPublisher()
+
+    private lazy var onDemandSyncStatePublisher: AnyPublisher<AddressBookSyncState, Never> = Deferred { [weak self] in
+        guard let self else {
+            return Empty<AddressBookSyncState, Never>().eraseToAnyPublisher()
+        }
+
+        loadOnDemand()
+        return repository.syncStatePublisher.eraseToAnyPublisher()
+    }
+    .share(replay: 1)
+    .eraseToAnyPublisher()
 
     init(
         walletId: UserWalletId,
@@ -38,6 +64,10 @@ final class CommonAddressBookManager {
         self.verifier = verifier
         self.supportedBlockchains = supportedBlockchains
 
+        // `lazy var` initialization isn't atomic, and both are read from arbitrary threads afterwards.
+        _ = onDemandContactsPublisher
+        _ = onDemandSyncStatePublisher
+
         bind()
     }
 
@@ -52,6 +82,21 @@ final class CommonAddressBookManager {
     private func handle(decoded: [AddressBookDecodedContact]) {
         decodedContacts.withLock { $0 = decoded }
         contactsSubject.send(decoded.sorted { $0.createdAt > $1.createdAt }.compactMap(verify(_:)))
+    }
+
+    /// A mutation rewrites the whole book, so it validates and signs against the remote state instead of whatever
+    /// the screen showed — the card tap isn't spent on a save the server would reject as stale. A failed refresh
+    /// leaves the book unsynced, and `ensureBookMutable` turns that into `bookUnavailable` rather than an overwrite.
+    private func refreshRemoteState() async {
+        await repository.load(silent: true)
+    }
+
+    /// Silent on purpose: dropping an already `.synced` book back to `.syncing` would shimmer over a list a screen
+    /// already shows, and would fail `ensureBookMutable` for a mutation whose card tap is already done.
+    private func loadOnDemand() {
+        runTask(in: self) { manager in
+            await manager.repository.load(silent: true)
+        }
     }
 
     private var snapshot: [AddressBookDecodedContact] {
@@ -88,6 +133,7 @@ final class CommonAddressBookManager {
             walletId: walletId,
             name: contact.name,
             appearance: AddressBookContactAppearance(rawColor: contact.iconColor),
+            createdAt: contact.createdAt,
             entries: entries
         )
     }
@@ -197,6 +243,7 @@ final class CommonAddressBookManager {
 
     @discardableResult
     private func insert(id: AddressBookContactID, name: AddressBookContactName, appearance: AddressBookContactAppearance, entries: AddressBookContactDraftEntries) async throws -> AddressBookContactID {
+        await refreshRemoteState()
         try repository.ensureBookMutable()
 
         let drafts = entries.raw
@@ -231,7 +278,7 @@ final class CommonAddressBookManager {
 
 extension CommonAddressBookManager: AddressBookManager {
     var contactsPublisher: AnyPublisher<[AddressBookContact], Never> {
-        contactsSubject.eraseToAnyPublisher()
+        onDemandContactsPublisher
     }
 
     var contacts: [AddressBookContact] {
@@ -239,7 +286,7 @@ extension CommonAddressBookManager: AddressBookManager {
     }
 
     var syncStatePublisher: AnyPublisher<AddressBookSyncState, Never> {
-        repository.syncStatePublisher
+        onDemandSyncStatePublisher
     }
 
     func load(silent: Bool) async {
@@ -255,6 +302,7 @@ extension CommonAddressBookManager: AddressBookManager {
     }
 
     func updateContact(id: AddressBookContactID, name: AddressBookContactName, appearance: AddressBookContactAppearance, entries: AddressBookContactDraftEntries) async throws {
+        await refreshRemoteState()
         // Fail fast before the signing card tap; `repository.save` re-checks this authoritatively.
         try repository.ensureBookMutable()
 
@@ -278,6 +326,7 @@ extension CommonAddressBookManager: AddressBookManager {
 
     func deleteContact(id: AddressBookContactID) async throws {
         // No signing here, so no need to pre-check; `repository.save` enforces the synced gate.
+        await refreshRemoteState()
         try await repository.save(contacts: snapshot.filter { $0.id != id })
     }
 }
