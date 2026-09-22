@@ -467,10 +467,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 guard let accountModel else { return .just(output: nil) }
 
                 return accountModel
-                    .statePublisher
-                    .map(\.isAccountVisible)
-                    .removeDuplicates()
-                    .map { [weak accountModel] isAccountVisible in isAccountVisible ? accountModel : nil }
+                    .hasAccountPublisher
+                    .map { [weak accountModel] hasAccount in hasAccount ? accountModel : nil }
                     .eraseToAnyPublisher()
             }
             .withWeakCaptureOf(self)
