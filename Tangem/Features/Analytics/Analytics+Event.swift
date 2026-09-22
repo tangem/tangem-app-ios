@@ -896,6 +896,15 @@ extension Analytics {
         case visaCashbackNegativeBannerShowed = "[Visa Cashback] Cashback Negative Banner Showed"
         case visaCashbackLoadingErrorShowed = "[Visa Cashback] Cashback Loading Error Showed"
 
+        // Multichain
+
+        case visaMultichainChooseNetworkPopupShowed = "[Visa Multichain] Choose Network Popup Showed"
+        case visaMultichainFastWayNetworkClicked = "[Visa Multichain] Fast Way Network Clicked"
+        case visaMultichainOtherWayNetworkClicked = "[Visa Multichain] Other Way Network Clicked"
+        case visaMultichainFastWayAddressPopupShowed = "[Visa Multichain] Fast Way Network Address Popup Showed"
+        case visaMultichainAddressFetchErrorShowed = "[Visa Multichain] Address Fetch Error Showed"
+        case visaMultichainOtherWaySwapPopupShowed = "[Visa Multichain] Other Way 1:1 Swap Popup Showed"
+
         // MARK: - NFT
 
         case nftAssetReadMore = "[NFT] Button - Read More"
