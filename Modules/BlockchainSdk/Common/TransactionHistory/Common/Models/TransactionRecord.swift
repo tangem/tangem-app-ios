@@ -161,7 +161,7 @@ public extension TransactionRecord {
             }
         }
 
-        static func from(_ sources: [Source]) -> Self {
+        public static func from(_ sources: [Source]) -> Self {
             if let source = sources.singleElement {
                 return .single(source)
             }
@@ -194,7 +194,7 @@ public extension TransactionRecord {
             }
         }
 
-        static func from(_ destinations: [Destination]) -> Self {
+        public static func from(_ destinations: [Destination]) -> Self {
             if let destination = destinations.singleElement {
                 return .single(destination)
             }
