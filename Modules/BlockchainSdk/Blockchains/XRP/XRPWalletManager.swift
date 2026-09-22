@@ -444,7 +444,13 @@ private extension XRPWalletManager {
             let enrichedTrustlineTx = enrichTransaction(transaction, withSequence: sequenceTrustlineTx)
             let compiledTrustlineTx = try txBuilder.buildTrustSetTransactionForSign(transaction: enrichedTrustlineTx)
 
-            let sequenceSendTx = sequenceTrustlineTx + 1
+            // The node's sequence is an unbounded `Int`; don't trap on `Int.max + 1`.
+            let (sequenceSendTx, overflow) = sequenceTrustlineTx.addingReportingOverflow(1)
+
+            guard !overflow else {
+                throw BlockchainSdkError.failedToBuildTx
+            }
+
             let enrichedSendTx = enrichTransaction(transaction, withSequence: sequenceSendTx)
             let compiledSendTx = try txBuilder.buildForSign(transaction: enrichedSendTx, partialPaymentAllowed: hasTransferFee)
 
