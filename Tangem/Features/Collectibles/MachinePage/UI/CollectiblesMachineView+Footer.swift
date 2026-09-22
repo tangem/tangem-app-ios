@@ -19,6 +19,8 @@ extension CollectiblesMachineView {
 
         @State private var isTurboModeOn = false
 
+        @ScaledMetric private var valueShimmerHeight: CGFloat = 20
+
         var body: some View {
             VStack(spacing: Metrics.verticalSpacing) {
                 HStack(alignment: .bottom, spacing: Metrics.blocksSpacing) {
@@ -72,7 +74,7 @@ private extension CollectiblesMachineView.Footer {
                     .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
             } else {
                 Shimmer()
-                    .frame(width: Metrics.valueShimmerWidth, height: Metrics.valueShimmerHeight)
+                    .frame(width: Metrics.valueShimmerWidth, height: valueShimmerHeight)
                     .clipShape(Capsule())
             }
         }
@@ -109,14 +111,14 @@ private extension CollectiblesMachineView.Footer {
         static let horizontalPadding: CGFloat = 16
         static let topPadding: CGFloat = 16
         static let expectedValueSpacing: CGFloat = 2
-        static let valueShimmerWidth: CGFloat = 72
-        static let valueShimmerHeight: CGFloat = 20
         static let fadeHeight: CGFloat = 24
+        static let valueShimmerWidth: CGFloat = 72
+
+        static let toggleWidth: CGFloat = 41
+        static let toggleHeight: CGFloat = 25
 
         static let turboModeSpacing: CGFloat = 2
         static let turboModeLabelSpacing: CGFloat = 2
         static let toggleScale: CGFloat = 0.8
-        static let toggleWidth: CGFloat = 41
-        static let toggleHeight: CGFloat = 25
     }
 }
