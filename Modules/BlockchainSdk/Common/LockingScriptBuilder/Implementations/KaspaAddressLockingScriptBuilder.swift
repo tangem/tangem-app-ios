@@ -26,16 +26,22 @@ struct KaspaAddressLockingScriptBuilder {
             throw LockingScriptBuilderError.wrongAddress
         }
 
-        let version = data[0]
+        guard let version = data.first else {
+            throw LockingScriptBuilderError.wrongAddress
+        }
+
         let keyHash = data.dropFirst()
         switch version {
         case AddressType.p2pkhSchnorr.rawValue:
+            guard keyHash.count == 32 else { throw LockingScriptBuilderError.wrongAddress }
             let lockingScript = OpCodeUtils.p2pk(data: keyHash)
             return (version: version, script: .init(data: lockingScript, type: .p2pk, spendable: .none))
         case AddressType.p2pkhECDSA.rawValue:
+            guard keyHash.count == 33 else { throw LockingScriptBuilderError.wrongAddress }
             let lockingScript = OpCodeUtils.p2pkECDSA(data: keyHash)
             return (version: version, script: .init(data: lockingScript, type: .p2pk, spendable: .none))
         case AddressType.p2sh.rawValue:
+            guard keyHash.count == 32 else { throw LockingScriptBuilderError.wrongAddress }
             let lockingScript = OpCodeUtils.p2sh256(data: keyHash)
             return (version: version, script: .init(data: lockingScript, type: .p2sh, spendable: .none))
         default:
