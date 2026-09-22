@@ -520,11 +520,13 @@ extension TangemPayMainCoordinator: TangemPayPinRoutable {
 
 extension TangemPayMainCoordinator: TangemPayChooseNetworkSheetRoutable {
     func chooseNetworkSheetRequestReceive(input: TangemPayReceiveSheetViewModel.Input) {
-        replaceActiveSheet { TangemPayReceiveSheetViewModel(input: input, coordinator: self) }
+        guard let userWalletId = options?.userWalletInfo.id else { return }
+        replaceActiveSheet { TangemPayReceiveSheetViewModel(input: input, userWalletId: userWalletId, coordinator: self) }
     }
 
     func chooseNetworkSheetRequestOtherNetworks() {
-        replaceActiveSheet { TangemPayOtherNetworksSheetViewModel(coordinator: self) }
+        guard let userWalletId = options?.userWalletInfo.id else { return }
+        replaceActiveSheet { TangemPayOtherNetworksSheetViewModel(userWalletId: userWalletId, coordinator: self) }
     }
 
     func closeChooseNetworkSheet() {
@@ -563,13 +565,17 @@ extension TangemPayMainCoordinator: TangemPayOtherNetworksSheetRoutable {
 
 private extension TangemPayMainCoordinator {
     func openChooseNetworkSheet(networks: [TangemPayBalance.Network]) {
-        guard let tangemPayAccount = options?.tangemPayAccount else {
+        guard let options else {
             return
         }
+
+        let tangemPayAccount = options.tangemPayAccount
+        let userWalletId = options.userWalletInfo.id
 
         replaceActiveSheet {
             TangemPayChooseNetworkSheetViewModel(
                 networks: networks,
+                userWalletId: userWalletId,
                 makeOrderService: {
                     TangemPayNetworkContractOrderService(customerService: tangemPayAccount.customerService)
                 },
