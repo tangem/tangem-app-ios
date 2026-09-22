@@ -67,6 +67,16 @@ extension RskAddressService: AddressValidator {
             return false
         }
 
+        // The 40 body characters must be ASCII hex. `Character.isHexDigit` (and a
+        // grapheme-based `count`) also accept full-width / compatibility digits, which
+        // decode to the wrong bytes; require [0-9a-fA-F] explicitly.
+        let cleanHex = address.removeHexPrefix()
+        guard cleanHex.count == 40,
+              cleanHex.allSatisfy({ $0.isASCII && $0.isHexDigit })
+        else {
+            return false
+        }
+
         if let checksummed = toChecksumAddress(address),
            checksummed == address {
             return true
