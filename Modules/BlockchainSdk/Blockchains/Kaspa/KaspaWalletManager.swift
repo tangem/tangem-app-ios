@@ -361,7 +361,7 @@ final class KaspaWalletManager: BaseWalletManager, WalletManager {
                 .asyncTryMap { manager, feeEstimate in
                     let transactionData = try await manager.txBuilder.buildForMassCalculationKRC20(
                         amount: amount,
-                        feeRate: Int(feeEstimate.priorityBucket.feerate),
+                        feeRate: try Self.feeRate(from: feeEstimate),
                         sourceAddress: source,
                         destination: destination,
                         changeAddress: manager.wallet.changeAddress.value
@@ -387,7 +387,7 @@ final class KaspaWalletManager: BaseWalletManager, WalletManager {
                 .asyncTryMap { manager, feeEstimate in
                     let transactionData = try await manager.txBuilder.buildForMassCalculation(
                         amount: amount,
-                        feeRate: Int(feeEstimate.priorityBucket.feerate),
+                        feeRate: try Self.feeRate(from: feeEstimate),
                         sourceAddress: source,
                         destination: destination,
                         changeAddress: manager.wallet.changeAddress.value
@@ -570,6 +570,16 @@ final class KaspaWalletManager: BaseWalletManager, WalletManager {
         wallet.addPendingTransaction(record)
         pendingTokenTransactionHashes[token, default: []].insert(hash)
         wallet.clearAssetRequirements()
+    }
+
+    /// The node reports `feerate` as a `UInt64`; converting with the plain `Int(_:)` traps for
+    /// values above `Int.max`. Fail the fee estimate instead of crashing the app.
+    private static func feeRate(from feeEstimate: KaspaDTO.EstimateFee.Response) throws -> Int {
+        guard let feeRate = Int(exactly: feeEstimate.priorityBucket.feerate) else {
+            throw BlockchainSdkError.failedToGetFee
+        }
+
+        return feeRate
     }
 }
 
