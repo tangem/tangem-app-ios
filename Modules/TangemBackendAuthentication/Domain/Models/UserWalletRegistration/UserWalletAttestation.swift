@@ -20,7 +20,7 @@ public struct UserWalletAttestation: Equatable, Sendable {
     public let walletSignature: Signature
 
     /// Proves the wallet's key lives on a genuine, registered Tangem card.
-    /// Signs `sha256(walletPublicKey ‖ nonce ‖ salt ‖ origin)` with the card's own private key,
+    /// Signs `sha256(walletPublicKey ‖ nonce ‖ salt ‖ walletStatus)` with the card's own private key,
     /// which the backend verifies against its card registry.
     ///
     /// `nil` when either:
@@ -28,21 +28,19 @@ public struct UserWalletAttestation: Equatable, Sendable {
     /// - the card's firmware predates `COS 2.01` and can't produce a card signature at all. Such wallets are treated as `mobile`.
     public let cardSignature: Signature?
 
-    /// How the user wallet's key came to exist on the card:
-    /// - generated fresh.
-    /// - imported from a seed phrase.
+    /// The raw wallet status byte reported by the card (`Card.Wallet.Status.rawValue`).
     ///
     /// `nil` when either:
     /// - this is a mobile (software-only) wallet.
     /// - the card's firmware predates `COS 2.01` and can't produce a card signature at all. Such wallets are treated as `mobile`.
     /// - the card does produce a card signature (`COS 2.01+`) but predates `COS 6.16`,
     /// the minimum firmware that reports wallet status at all.
-    public let origin: Origin?
+    public let walletStatus: Data?
 
-    public init(walletSignature: Signature, cardSignature: Signature?, origin: Origin?) {
+    public init(walletSignature: Signature, cardSignature: Signature?, walletStatus: Data?) {
         self.walletSignature = walletSignature
         self.cardSignature = cardSignature
-        self.origin = origin
+        self.walletStatus = walletStatus
     }
 }
 
@@ -61,14 +59,5 @@ public extension UserWalletAttestation {
             self.value = value
             self.salt = salt
         }
-    }
-
-    /// How the user wallet's key came to exist on the card.
-    enum Origin: Equatable, Sendable {
-        /// The key pair was generated directly in the card's Secure Element.
-        case generatedOnCard
-
-        /// The key pair was imported onto the card from a seed phrase.
-        case seedImported
     }
 }
