@@ -58,6 +58,7 @@ final class TokenDetailsCoordinator: CoordinatorObject {
 
         let tokenRouter = SingleTokenRouter(
             userWalletInfo: options.userWalletInfo,
+            analyticsSource: .token,
             coordinator: self
         )
 
@@ -412,6 +413,8 @@ extension TokenDetailsCoordinator: TransactionDetailsRoutable {
 // MARK: - AddressBookContactNavigating
 
 extension TokenDetailsCoordinator: AddressBookContactNavigating {
+    var addressBookAnalyticsSource: AddressBookAnalyticsSource { .transactionDetails }
+
     func contactManagementDidDismiss() {
         Task { @MainActor in
             floatingSheetPresenter.resumeSheetsDisplaying()
