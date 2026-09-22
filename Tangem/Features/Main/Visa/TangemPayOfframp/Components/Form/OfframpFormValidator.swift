@@ -11,9 +11,9 @@ import TangemFoundation
 
 enum OfframpFormValidator {
     static func error(
-        for id: OfframpFormField.ID,
+        for id: TangemPayFormField.ID,
         in text: String
-    ) -> OfframpFormField.Error? {
+    ) -> TangemPayFormField.Error? {
         let value = text.trimmed()
 
         guard !value.isEmpty else {
@@ -21,6 +21,9 @@ enum OfframpFormValidator {
         }
 
         switch id {
+        case .email:
+            return TangemPayEmailValidator.isValid(value) ? nil : .invalidEmail
+
         case .accountNumber:
             return matches(value, Constants.accountNumberPattern) ? nil : .invalidFormat
 
@@ -57,7 +60,7 @@ private extension OfframpFormValidator {
         value.range(of: pattern, options: .regularExpression) != nil
     }
 
-    static func textError(in value: String, lengthLimit: Int) -> OfframpFormField.Error? {
+    static func textError(in value: String, lengthLimit: Int) -> TangemPayFormField.Error? {
         guard value.count <= lengthLimit else {
             return .invalidFormat
         }
