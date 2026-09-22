@@ -58,16 +58,14 @@ private extension TransferInputContentView {
 
     var amountHeader: some View {
         HStack(spacing: 4) {
-            // [REDACTED_TODO_COMMENT]
-            Text("From")
+            Text(Localization.commonFrom)
 
             Assets.Visa.accountAvatar.image
                 .resizable()
                 .scaledToFit()
                 .frame(width: 16, height: 16)
 
-            // [REDACTED_TODO_COMMENT]
-            Text("Payment account")
+            Text(Localization.tangempayPaymentAccount)
         }
         .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textTertiary)
     }
@@ -123,8 +121,7 @@ private extension TransferInputContentView {
 
     var maxButton: some View {
         TangemUI.Button(
-            // [REDACTED_TODO_COMMENT]
-            label: "Max",
+            label: Localization.sendMaxAmount,
             accessibilityLabel: nil,
             action: { action(.maxTap) }
         )

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 import TangemUI
 
 struct TangemPayOfframpCoordinatorView: CoordinatorView {
@@ -43,8 +44,7 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
                 )
                 RecentRecipientsView(viewModel: viewModel)
                     .topNavigation(
-                        // [REDACTED_TODO_COMMENT]
-                        title: "Bank transfers",
+                        title: Localization.tangempayWithdrawBankRecipientsTitle,
                         onClose: { [weak coordinator] in
                             coordinator?.dismiss(with: nil)
                         }
