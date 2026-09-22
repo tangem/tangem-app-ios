@@ -22,6 +22,7 @@ final class TangemPayMobileOnboardingViewModel: ObservableObject {
     @Published var isCreating: Bool = false
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
     private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
     private let analyticsContextParams: Analytics.ContextParams = .custom(.mobileWallet)
@@ -83,6 +84,8 @@ final class TangemPayMobileOnboardingViewModel: ObservableObject {
 
                 BackendAuthenticationRegistrar.registerNewMobileWallet(newUserWalletModel)
                 try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
+
+                await runOnMain { viewModel.pushNotificationsInteractor.suppressAfterLoginRequestsInCurrentSession() }
 
                 try await newUserWalletModel.accountModelsManager.acceptTangemPayOffer(
                     authorizingInteractor: newUserWalletModel.tangemPayAuthorizingInteractor

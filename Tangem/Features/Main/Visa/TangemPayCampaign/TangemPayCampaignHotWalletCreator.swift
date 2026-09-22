@@ -6,11 +6,15 @@
 //
 
 import Foundation
+import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 
 struct TangemPayCampaignHotWalletCreator {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
+
+    @Injected(\.pushNotificationsInteractor)
+    private var pushNotificationsInteractor: PushNotificationsInteractor
 
     private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
 
@@ -26,6 +30,8 @@ struct TangemPayCampaignHotWalletCreator {
 
         BackendAuthenticationRegistrar.registerNewMobileWallet(userWalletModel)
         try userWalletRepository.add(userWalletModel: userWalletModel)
+
+        await runOnMain { pushNotificationsInteractor.suppressAfterLoginRequestsInCurrentSession() }
 
         return userWalletModel
     }
