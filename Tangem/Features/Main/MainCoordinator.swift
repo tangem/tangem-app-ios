@@ -216,11 +216,8 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openQRScan() {
-        mainBottomSheetUIManager.hide()
-
         let dismissAction: Action<MainQRScanFlowCoordinator.DismissOptions?> = { [weak self] options in
             self?.mainQRScanFlowCoordinator = nil
-            self?.mainBottomSheetUIManager.show()
 
             if case .openFeeCurrency(let option) = options {
                 self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
