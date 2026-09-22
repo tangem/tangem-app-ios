@@ -20,6 +20,7 @@ extension UserWalletRegistrationRequest {
         ),
         decryptedNonce: "decrypted-nonce",
         appAttestationToken: nil,
-        metadata: .fake
+        metadata: .fake,
+        recoveryEnrollment: nil
     )
 }
