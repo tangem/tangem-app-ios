@@ -52,13 +52,21 @@ private extension EarnContentView {
                 .padding(.bottom, listHeaderSpacing)
 
             EarnFilterHeaderView(
-                isNetworksFilterEnabled: viewModel.isFilterInteractionEnabled,
-                isTypesFilterEnabled: true,
-                isLoading: viewModel.isFilterLoading,
-                networkFilterTitle: viewModel.selectedNetworkFilterTitle,
-                typesFilterTitle: viewModel.selectedFilterTypeTitle,
-                onNetworksTap: { viewModel.handleViewAction(.networksFilterTap) },
-                onTypesTap: { viewModel.handleViewAction(.typesFilterTap) }
+                networksFilter: .init(
+                    title: viewModel.selectedNetworkFilterTitle,
+                    isActive: viewModel.isNetworkFilterActive,
+                    isEnabled: viewModel.isFilterInteractionEnabled,
+                    onTap: { viewModel.handleViewAction(.networksFilterTap) },
+                    onClear: viewModel.clearNetworkFilter
+                ),
+                typesFilter: .init(
+                    title: viewModel.selectedFilterTypeTitle,
+                    isActive: viewModel.isTypeFilterActive,
+                    isEnabled: true,
+                    onTap: { viewModel.handleViewAction(.typesFilterTap) },
+                    onClear: viewModel.clearTypeFilter
+                ),
+                isLoading: viewModel.isFilterLoading
             )
             .padding(.bottom, filtersSpacing)
 
