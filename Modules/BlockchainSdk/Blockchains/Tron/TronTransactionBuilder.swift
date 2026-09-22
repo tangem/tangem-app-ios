@@ -40,9 +40,16 @@ class TronTransactionBuilder {
 
         let tenHours: Int64 = 10 * 60 * 60 * 1000 // same as WalletCore
 
+        // The block timestamp is node-supplied; a value near Int64.max would trap in the plain `+`.
+        let (expiration, overflow) = blockHeader.timestamp.addingReportingOverflow(tenHours)
+
+        guard !overflow else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+
         let rawData = Protocol_Transaction.raw.with {
             $0.timestamp = blockHeader.timestamp
-            $0.expiration = blockHeader.timestamp + tenHours
+            $0.expiration = expiration
             $0.refBlockHash = refBlockHash
             $0.refBlockBytes = refBlockBytes
             $0.contract = [
