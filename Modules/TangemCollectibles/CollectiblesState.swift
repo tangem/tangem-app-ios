@@ -27,8 +27,9 @@ public enum CollectiblesState: Hashable, Sendable {
 }
 
 public extension CollectiblesState {
-    /// Whether a vault exists on chain. The model is built for every wallet the feature is enabled for, so
-    /// only the state answers this. `rekeyRequired` counts — the vault is there, it just names another key.
+    /// Whether a read confirmed the vault on chain. `rekeyRequired` counts — the vault is there, it just names
+    /// another key. Not the same question as "does this wallet have an account": a state that read nothing yet
+    /// answers no here, while the app can still know the answer from what it recorded earlier.
     var isAccountVisible: Bool {
         switch self {
         case .ready, .rekeyRequired: true
