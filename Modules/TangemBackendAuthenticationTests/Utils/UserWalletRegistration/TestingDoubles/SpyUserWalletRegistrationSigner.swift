@@ -35,8 +35,10 @@ extension UserWalletRegistrationSigner where Self == SpyUserWalletRegistrationSi
             salt: Data("any wallet salt".utf8)
         )
 
+        let walletAttestation = UserWalletAttestation(walletSignature: walletSignature, cardSignature: nil, walletStatus: nil)
+
         let stub = SpyUserWalletRegistrationSigner()
-        stub.attestResult = Result.success(UserWalletAttestation(walletSignature: walletSignature, cardSignature: nil, origin: nil))
+        stub.attestResult = Result.success(walletAttestation)
         return stub
     }
 }

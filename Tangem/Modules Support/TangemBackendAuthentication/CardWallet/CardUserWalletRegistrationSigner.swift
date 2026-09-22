@@ -28,8 +28,7 @@ final class CardUserWalletRegistrationSigner: @unchecked Sendable {
     private func makeAttestation(
         from response: AttestWalletKeyResponse,
         decryptedNonceBytes: Data,
-        cardPublicKey: Data,
-        isWalletImported: Bool
+        cardPublicKey: Data
     ) throws(UserWalletRegistrationSignerError) -> UserWalletAttestation {
         let walletSignature = try makeWalletSignature(from: response, decryptedNonceBytes: decryptedNonceBytes)
 
@@ -37,31 +36,22 @@ final class CardUserWalletRegistrationSigner: @unchecked Sendable {
             let rawCardSignature = response.cardSignature,
             let cardSignatureSalt = response.publicKeySalt
         else {
-            // Both signature and origin require >= COS 2.01
-            return UserWalletAttestation(walletSignature: walletSignature, cardSignature: nil, origin: nil)
+            // Both signature and wallet status require >= COS 2.01
+            return UserWalletAttestation(walletSignature: walletSignature, cardSignature: nil, walletStatus: nil)
         }
-
-        let walletStatusByte: Data
-        let origin: UserWalletAttestation.Origin?
 
         // Status requires >= COS 6.16
-        if let walletStatus = response.walletStatus {
-            walletStatusByte = walletStatus.rawValue.byte
-            origin = isWalletImported ? .seedImported : .generatedOnCard
-        } else {
-            walletStatusByte = Data()
-            origin = nil
-        }
+        let walletStatusByte = response.walletStatus?.rawValue.byte
 
         let cardSignature = try makeCardSignature(
             from: rawCardSignature,
             salt: cardSignatureSalt,
-            walletStatusByte: walletStatusByte,
+            walletStatusByte: walletStatusByte ?? Data(),
             decryptedNonceBytes: decryptedNonceBytes,
             cardPublicKey: cardPublicKey
         )
 
-        return UserWalletAttestation(walletSignature: walletSignature, cardSignature: cardSignature, origin: origin)
+        return UserWalletAttestation(walletSignature: walletSignature, cardSignature: cardSignature, walletStatus: walletStatusByte)
     }
 
     private func makeWalletSignature(
@@ -105,7 +95,7 @@ extension CardUserWalletRegistrationSigner: UserWalletRegistrationSigner {
     func attest(decryptedNonceBytes: Data) async throws(UserWalletRegistrationSignerError) -> UserWalletAttestation {
         guard
             let card = session.environment.card,
-            let wallet = card.wallets[walletPublicKey]
+            card.wallets[walletPublicKey] != nil
         else {
             throw .walletKeyUnavailable(underlying: "Missing card or wallet in session environment")
         }
@@ -124,8 +114,7 @@ extension CardUserWalletRegistrationSigner: UserWalletRegistrationSigner {
         return try makeAttestation(
             from: response,
             decryptedNonceBytes: decryptedNonceBytes,
-            cardPublicKey: card.cardPublicKey,
-            isWalletImported: wallet.isImported
+            cardPublicKey: card.cardPublicKey
         )
     }
 }
