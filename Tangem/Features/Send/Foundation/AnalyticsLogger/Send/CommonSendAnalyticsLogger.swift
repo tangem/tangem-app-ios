@@ -129,15 +129,15 @@ extension CommonSendAnalyticsLogger: SendDestinationAnalyticsLogger {
     }
 
     func logAddressBookWidgetShown() {
-        addressBookAnalyticsLogger.logSendFlowWidgetShown(userWalletId: sendSourceTokenInput?.sourceToken.value?.userWalletInfo.id)
+        addressBookAnalyticsLogger.logSendFlowWidgetShown()
     }
 
     func logAddressBookContactSelected(_ contact: AddressBookContact) {
-        addressBookAnalyticsLogger.logContactSelected(userWalletId: contact.walletId, contactId: contact.id.stringValue)
+        addressBookAnalyticsLogger.logContactSelected(contactId: contact.id.stringValue)
     }
 
     func logAddressBookAddressSubstituted(_ contact: AddressBookContact) {
-        addressBookAnalyticsLogger.logAddressSubstitutedInSend(userWalletId: contact.walletId, contactId: contact.id.stringValue)
+        addressBookAnalyticsLogger.logAddressSubstitutedInSend(contactId: contact.id.stringValue)
     }
 
     func logSendAddressEntered(isAddressValid: Bool, addressSource: Analytics.DestinationAddressSource) {
