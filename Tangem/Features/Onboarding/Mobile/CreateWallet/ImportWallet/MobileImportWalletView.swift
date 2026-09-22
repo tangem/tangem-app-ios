@@ -87,7 +87,7 @@ private extension MobileImportWalletView {
             accessibilityLabel: nil,
             action: viewModel.onRecoveryPhraseTap
         )
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .size(.x12)
         .horizontalLayout(.infinity)
         .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.mobileImportWalletRecoveryPhraseButton)
@@ -100,10 +100,10 @@ private extension MobileImportWalletView {
             accessibilityLabel: nil,
             action: state.action
         )
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .size(.x12)
         .horizontalLayout(.infinity)
-        .isLoading(state.isLoading)
+        .loading(.spinner(if: state.isLoading))
         .disabled(!state.isEnabled)
         .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.mobileImportWalletICloudBackupButton)
     }

@@ -174,8 +174,9 @@ extension MobileUserWalletConfig: UserWalletConfig {
         fatalError("Implementation not required")
     }
 
-    func makeAnyWalletManagerFactory() -> any AnyWalletManagerFactory {
-        GenericWalletManagerFactory()
+    func makeAnyWalletFactory() -> any AnyWalletFactory {
+        let dataStorage = UserDefaultsBlockchainDataStorage(suiteName: AppEnvironment.current.blockchainDataStorageSuiteName)
+        return GenericWalletFactory(dataStorage: dataStorage)
     }
 
     func makeMainHeaderProviderFactory() -> any MainHeaderProviderFactory {

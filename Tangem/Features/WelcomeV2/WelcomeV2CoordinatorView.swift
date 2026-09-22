@@ -12,19 +12,18 @@ import TangemUI
 struct WelcomeV2CoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: WelcomeV2Coordinator
 
+    @Environment(\.colorScheme) private var systemColorScheme
+
     var body: some View {
         NavigationStack {
             content
                 .navigationLinks(links)
         }
+        .environment(\.colorScheme, .dark)
     }
 
     private var links: some View {
         NavHolder()
-            .navigation(item: $coordinator.mobileCreateWalletCoordinator) {
-                MobileCreateWalletCoordinatorView(coordinator: $0)
-                    .navigationBarHidden(true)
-            }
             .navigation(item: $coordinator.importOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
                     .navigationBarHidden(true)
@@ -39,8 +38,8 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
 
             sheetsContent
 
-            if let hardwareViewModel = coordinator.hardwareWalletViewModel {
-                WelcomeHardwareWalletView(viewModel: hardwareViewModel)
+            if let storyViewModel = coordinator.welcomeStoryViewModel {
+                WelcomeStoryView(viewModel: storyViewModel)
                     .transition(.opacity)
                     .zIndex(1)
             }
@@ -51,12 +50,23 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
                         .transition(.opacity)
                 }
             }
+
+            ZStack {
+                if let tangemPayCampaignCoordinator = coordinator.tangemPayCampaignCoordinator {
+                    TangemPayCampaignCoordinatorView(coordinator: tangemPayCampaignCoordinator)
+                        .environment(\.colorScheme, systemColorScheme)
+                        .transition(.opacity)
+                }
+            }
         }
-        .animation(.easeInOut(duration: 0.35), value: coordinator.hardwareWalletViewModel != nil)
+        .animation(.easeInOut(duration: 0.35), value: coordinator.welcomeStoryViewModel != nil)
         .animation(.easeInOut(duration: 0.35), value: coordinator.tangemPayMobileOnboardingCoordinator != nil)
+        .animation(.easeInOut(duration: 0.35), value: coordinator.tangemPayCampaignCoordinator != nil)
         .overlay(sheets)
+        .confirmationDialog(viewModel: $coordinator.scanTroubleshootingDialog)
         .fullScreenCover(item: $coordinator.legalWebViewModel) { webViewModel in
             WebViewContainer(viewModel: webViewModel)
+                .environment(\.colorScheme, .dark)
         }
     }
 
@@ -68,7 +78,7 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
             .floatingSheet(
                 viewModel: coordinator.actionSheetViewModel,
                 dismissSheetAction: { [weak coordinator] in
-                    coordinator?.actionSheetViewModel = nil
+                    coordinator?.handleBackgroundSheetDismiss()
                 }
             )
             .allowsHitTesting(coordinator.actionSheetViewModel != nil)

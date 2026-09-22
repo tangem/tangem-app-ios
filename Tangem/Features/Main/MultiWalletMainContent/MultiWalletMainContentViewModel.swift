@@ -37,6 +37,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
     @Published private(set) var tangemPayAccountViewModel: TangemPayAccountViewModel?
+    @Published private(set) var polymarketAccountViewModel: AccountRowButtonViewModel?
+    @Published private(set) var collectiblesAccountViewModel: AccountRowButtonViewModel?
+
+    @Published private(set) var pendingJointAccountViewModels: [PendingJointAccountItemViewModel] = []
+    @Published private(set) var pendingJointAccountsOperationsViewData: [JointAccountOperationPlate.ViewData] = []
 
     @Published private(set) var isScannerBusy = false
     @Published var error: AlertBinder? = nil
@@ -106,8 +111,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private var derivator: TokenEntriesDerivator?
 
     private var canManageTokens: Bool { userWalletModel.config.hasFeature(.multiCurrency) }
-
-    private let isPageSelectedSubject = PassthroughSubject<Bool, Never>()
 
     @MainActor
     private var isUpdating = false
@@ -188,6 +191,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         yieldApyBoostBannerNotificationManager.refreshFromCache()
 
         expressBalanceUpdater.updateUnfinishedDestinationBalances(userWalletId: userWalletModel.userWalletId)
+
+        runTask { [userWalletModel] in
+            await AccountModelsAggregator(.polymarket).model(from: userWalletModel.accountModelsManager)?.refreshState()
+        }
     }
 
     func onWillDisappear() {
@@ -226,7 +233,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     func renewTangemPaySession() {
-        guard let tangemPayAccountModel = userWalletModel.accountModelsManager.tangemPayAccountModel else {
+        guard let tangemPayAccountModel = AccountModelsAggregator(.tangemPay).model(from: userWalletModel.accountModelsManager) else {
             return
         }
         Analytics.log(.mainNoticeScanYourCardTapped)
@@ -257,7 +264,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     func onAddTokensTap() {
-        guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: { $0.isMainAccount }) else {
+        guard let mainAccount = AccountModelsAggregator(.crypto).models(from: userWalletModel.accountModelsManager).first(where: { $0.isMainAccount }) else {
             return
         }
 
@@ -360,12 +367,16 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: &$notificationBannerItems)
 
         rateAppController.bind(
-            isPageSelectedPublisher: isPageSelectedSubject,
             notificationsPublisher1: $notificationInputs,
             notificationsPublisher2: $tokensNotificationInputs
         )
 
         nftFeatureLifecycleHandler.startObserving()
+
+        bindPolymarketAccountRow()
+        bindCollectiblesAccountRow()
+        bindPendingJointAccountPlates()
+        bindPendingJointAccountOperationPlates()
     }
 
     private func setupTangemPayIfNeeded() {
@@ -374,8 +385,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: &$tangemPayNotificationInputs)
 
-        userWalletModel.accountModelsManager
-            .tangemPayAccountModelPublisher
+        AccountModelsAggregator(.tangemPay)
+            .modelPublisher(from: userWalletModel.accountModelsManager)
             .withWeakCaptureOf(self)
             .flatMapLatest { viewModel, accountModel -> AnyPublisher<TangemPayAccountViewModel?, Never> in
                 if let accountModel {
@@ -420,6 +431,106 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private func setupActionButtons() {
         actionButtonsViewModel = makeActionButtonsViewModel()
+    }
+
+    private func bindPolymarketAccountRow() {
+        AccountModelsAggregator(.polymarket)
+            .modelPublisher(from: userWalletModel.accountModelsManager)
+            .flatMapLatest { accountModel -> AnyPublisher<(any PolymarketAccountModel)?, Never> in
+                guard let accountModel else { return .just(output: nil) }
+
+                return accountModel
+                    .statePublisher
+                    .map { $0?.isAccountVisible == true }
+                    .removeDuplicates()
+                    .map { [weak accountModel] isAccountVisible in isAccountVisible ? accountModel : nil }
+                    .eraseToAnyPublisher()
+            }
+            .withWeakCaptureOf(self)
+            .map { viewModel, accountModel -> AccountRowButtonViewModel? in
+                accountModel.map { accountModel in
+                    AccountRowButtonViewModel(accountModel: accountModel) { [weak viewModel] in
+                        guard let viewModel else { return }
+
+                        viewModel.coordinator?.openPolymarket(userWalletModel: viewModel.userWalletModel)
+                    }
+                }
+            }
+            .receiveOnMain()
+            .assign(to: &$polymarketAccountViewModel)
+    }
+
+    private func bindCollectiblesAccountRow() {
+        AccountModelsAggregator(.collectibles)
+            .modelPublisher(from: userWalletModel.accountModelsManager)
+            .flatMapLatest { accountModel -> AnyPublisher<(any CollectiblesAccountModel)?, Never> in
+                guard let accountModel else { return .just(output: nil) }
+
+                return accountModel
+                    .hasAccountPublisher
+                    .map { [weak accountModel] hasAccount in hasAccount ? accountModel : nil }
+                    .eraseToAnyPublisher()
+            }
+            .withWeakCaptureOf(self)
+            .map { viewModel, accountModel -> AccountRowButtonViewModel? in
+                accountModel.map { accountModel in
+                    AccountRowButtonViewModel(accountModel: accountModel) { [weak viewModel] in
+                        guard let viewModel else { return }
+
+                        viewModel.coordinator?.openCollectibles(
+                            with: .init(destination: .main, userWalletModel: viewModel.userWalletModel, accountModel: accountModel)
+                        )
+                    }
+                }
+            }
+            .receiveOnMain()
+            .assign(to: &$collectiblesAccountViewModel)
+    }
+
+    private func bindPendingJointAccountPlates() {
+        AccountModelsAggregator(.joint(.pending))
+            .modelsPublisher(from: userWalletModel.accountModelsManager)
+            .withWeakCaptureOf(self)
+            .map { viewModel, pendingJointAccounts in
+                pendingJointAccounts.map { pendingJointAccount in
+                    PendingJointAccountItemViewModel(jointAccount: pendingJointAccount) { [weak viewModel] in
+                        guard let viewModel else {
+                            return
+                        }
+
+                        viewModel.coordinator?.openJointAccountMembers(jointAccount: pendingJointAccount)
+                    }
+                }
+            }
+            .receiveOnMain()
+            .assign(to: &$pendingJointAccountViewModels)
+    }
+
+    private func bindPendingJointAccountOperationPlates() {
+        AccountModelsAggregator(.joint)
+            .modelsPublisher(from: userWalletModel.accountModelsManager)
+            .flatMapLatest { jointAccounts -> AnyPublisher<[JointAccountPendingOperation], Never> in
+                guard jointAccounts.isNotEmpty else {
+                    return Just([]).eraseToAnyPublisher()
+                }
+
+                return jointAccounts
+                    .map { $0.jointAccountPendingOperationsProvider.pendingOperationsPublisher }
+                    .combineLatest()
+                    .map { $0.flattened() }
+                    .eraseToAnyPublisher()
+            }
+            .map { pendingOperations in
+                let builder = JointAccountOperationPlateViewDataBuilder()
+
+                return pendingOperations.map { pendingOperation in
+                    builder.build(pendingOperation: pendingOperation) { [weak self] in
+                        self?.coordinator?.openJointAccountOperationDetails(pendingOperation: pendingOperation)
+                    }
+                }
+            }
+            .receiveOnMain()
+            .assign(to: &$pendingJointAccountsOperationsViewData)
     }
 
     /// - Note: This method throws an opaque error if the NFT Entrypoint view model is already created and there is no need to update it.
@@ -521,7 +632,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         func openPromoYield() {
-            if let apy = yieldManager.state?.marketInfo?.apy {
+            if let apy = yieldManager.state?.marketInfo?.effectiveApy {
                 coordinator?.openYieldModulePromoView(apy: apy, factory: factory)
                 logger.logEarningApyClicked(state: .disabled)
             }
@@ -559,6 +670,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         return CommonYieldModuleFlowFactory(
             walletModel: walletModel,
+            userWalletInfo: userWalletModel.userWalletInfo,
             yieldModuleManager: manager,
             transactionDispatcher: dispatcher
         )
@@ -639,7 +751,7 @@ extension MultiWalletMainContentViewModel {
     }
 
     private func openManageTokens() {
-        guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount) else {
+        guard let mainAccount = AccountModelsAggregator(.crypto).models(from: userWalletModel.accountModelsManager).first(where: \.isMainAccount) else {
             return
         }
 
@@ -750,7 +862,7 @@ extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
             userWalletInfo: userWalletModel.userWalletInfo,
             tangemPayAccount: tangemPayAccount,
             userWalletModel: userWalletModel,
-            incomingAction: nil
+            openingAction: nil
         )
     }
 
@@ -832,18 +944,6 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
         default:
             assertionFailure("This event shouldn't have tap action on main screen. Event: \(event)")
         }
-    }
-}
-
-// MARK: - MainViewPage protocol conformance
-
-extension MultiWalletMainContentViewModel: MainViewPage {
-    func onPageAppear() {
-        isPageSelectedSubject.send(true)
-    }
-
-    func onPageDisappear() {
-        isPageSelectedSubject.send(false)
     }
 }
 

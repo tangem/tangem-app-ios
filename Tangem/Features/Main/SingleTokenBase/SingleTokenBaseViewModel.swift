@@ -22,7 +22,8 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 @available(iOS, deprecated: 100000, message: "Avoid adding another derived class. Rethink your architectural decisions.")
 class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Injected(\.storyAvailabilityService) private var storyAvailabilityService: any StoryAvailabilityService
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.cryptoAccountsGlobalStateProvider)
+    private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
 
     @Published final var alert: AlertBinder?
     @Published final var transactionHistoryState: TransactionsListView.State = .loading
@@ -46,6 +47,10 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     final let notificationManager: NotificationManager
     final let tokenActionAvailabilityAlertBuilder = TokenActionAvailabilityAlertBuilder()
     final let tokenActionAvailabilityProvider: TokenActionAvailabilityProvider
+
+    @Published private(set) final var jointOperationsAwaitingSignaturesSection: TransactionListItem?
+
+    private var jointOperationsAwaitingSignatures: [JointAccountPendingOperation] = []
 
     private var availableActions: [TokenActionType] = []
     private let tokenRouter: SingleTokenRoutable
@@ -79,16 +84,18 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         currencySymbol: currencySymbol,
         addressesProvider: walletModel,
         showSign: true,
-        isToken: walletModel.tokenItem.isToken
+        isToken: walletModel.tokenItem.isToken,
+        stakingNetwork: walletModel.tokenItem.stakingTokenItem?.network
     )
 
     /// Resolver is cheap to rebuild and `isAccountsMode` can flip while the screen is alive
     /// (user adds first account), so we recompute on every history rebuild.
-    private var subtitleOwnerResolver: SubtitleOwnerResolver {
+    private func subtitleOwnerResolver(contacts: [AddressBookContact]) -> SubtitleOwnerResolver {
         SubtitleOwnerResolver(
             blockchain: walletModel.tokenItem.blockchain,
             currentUserWalletId: userWalletInfo.id,
-            isAccountsMode: isAccountsMode
+            isAccountsMode: isAccountsMode,
+            contacts: contacts
         )
     }
 
@@ -104,10 +111,32 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             .eraseToAnyPublisher()
     }
 
-    var isAccountsMode: Bool {
-        userWalletRepository.models.contains {
-            $0.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
+    private var jointOperationsAwaitingSignaturesPublisher: AnyPublisher<[JointAccountPendingOperation], Never> {
+        guard let jointAccount = walletModel.account as? any JointAccountModel else {
+            return .just(output: [])
         }
+
+        let tokenItem = walletModel.tokenItem
+
+        return jointAccount
+            .jointAccountPendingOperationsProvider
+            .pendingOperationsPublisher
+            .map { operations in
+                operations.filter { $0.operation.status == .awaitingSignatures && $0.tokenItem == tokenItem }
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    private var addressBookContactsPublisher: AnyPublisher<[AddressBookContact], Never> {
+        AddressBookContactsAggregator
+            .contactsPublisher()
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    var isAccountsMode: Bool {
+        return cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
     }
 
     private lazy var pendingTransactionRecordMapper = PendingTransactionRecordMapper(formatter: BalanceFormatter())
@@ -386,11 +415,22 @@ extension SingleTokenBaseViewModel {
             .store(in: &bag)
 
         walletModel.transactionHistoryPublisher
-            .combineLatest(usdRatePublisher)
+            .combineLatest(usdRatePublisher, addressBookContactsPublisher)
             .receiveOnMain()
-            .sink { [weak self] newState, usdRate in
+            .sink { [weak self] newState, usdRate, contacts in
                 AppLogger.info(self, "New transaction history state: \(newState)")
-                self?.updateHistoryState(to: newState, usdRate: usdRate)
+                self?.updateHistoryState(to: newState, usdRate: usdRate, contacts: contacts)
+            }
+            .store(in: &bag)
+
+        jointOperationsAwaitingSignaturesPublisher
+            .combineLatest(addressBookContactsPublisher)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { owner, input in
+                let (jointOperations, contacts) = input
+                owner.jointOperationsAwaitingSignatures = jointOperations
+                owner.jointOperationsAwaitingSignaturesSection = owner.jointOperationsSection(for: jointOperations, contacts: contacts)
             }
             .store(in: &bag)
 
@@ -522,7 +562,7 @@ extension SingleTokenBaseViewModel {
         })
     }
 
-    private func updateHistoryState(to newState: WalletModelTransactionHistoryState, usdRate: Decimal?) {
+    private func updateHistoryState(to newState: WalletModelTransactionHistoryState, usdRate: Decimal?, contacts: [AddressBookContact]) {
         switch newState {
         case .notSupported:
             transactionHistoryState = .notSupported
@@ -539,10 +579,35 @@ extension SingleTokenBaseViewModel {
                 from: records,
                 groupingStyle: .day(.long),
                 dustFilter: TransactionHistoryDustFilter(usdRate: usdRate),
-                subtitleOwnerResolver: subtitleOwnerResolver
+                subtitleOwnerResolver: subtitleOwnerResolver(contacts: contacts)
             )
             transactionHistoryState = .loaded(listItems)
         }
+    }
+
+    private func jointOperationsSection(
+        for jointOperations: [JointAccountPendingOperation],
+        contacts: [AddressBookContact]
+    ) -> TransactionListItem? {
+        guard jointOperations.isNotEmpty else {
+            return nil
+        }
+
+        let builder = JointAccountOperationTransactionViewModelBuilder()
+        let resolver = subtitleOwnerResolver(contacts: contacts)
+
+        return TransactionListItem(
+            header: Localization.transactionHistoryPending,
+            items: jointOperations.map { builder.build(pendingOperation: $0, subtitleOwnerResolver: resolver) }
+        )
+    }
+
+    final func jointOperation(for transaction: TransactionViewModel) -> JointAccountPendingOperation? {
+        guard transaction.isPendingSignature else {
+            return nil
+        }
+
+        return jointOperationsAwaitingSignatures.first { $0.operation.id == transaction.hash }
     }
 
     private func updateMiniChartState(using data: MarketsChartModel) {

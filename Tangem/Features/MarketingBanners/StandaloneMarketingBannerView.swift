@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct StandaloneMarketingBannerView: View {
     let viewModel: StandaloneMarketingBannerViewModel
@@ -18,6 +19,7 @@ struct StandaloneMarketingBannerView: View {
             .slotStart { leadingIcon }
             .slotEnd { trailingContent }
             .onTap(viewModel.action)
+            .accessibilityIdentifier(MarketingBannerAccessibilityIdentifiers.standaloneBanner(id: viewModel.id))
     }
 
     @ViewBuilder

@@ -107,7 +107,8 @@ private extension CommonSendDestinationWalletDataProvider {
                     currencySymbol: walletModel.tokenItem.currencySymbol,
                     addressesProvider: walletModel,
                     showSign: false,
-                    isToken: walletModel.tokenItem.isToken
+                    isToken: walletModel.tokenItem.isToken,
+                    stakingNetwork: walletModel.tokenItem.stakingTokenItem?.network
                 )
             )
         )

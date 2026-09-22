@@ -88,6 +88,8 @@ private final class StubStakingYieldInfoProvider: StakingYieldInfoProvider, @unc
     private let result: Result<StakingYieldInfo, Error>
     private(set) var callCount: Int = 0
 
+    var stakingTargets: AsyncStream<[StakingTargetSummary]> { AsyncStream { $0.finish() } }
+
     init(_ result: Result<StakingYieldInfo, Error>) {
         self.result = result
     }

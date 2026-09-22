@@ -7,6 +7,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 
@@ -39,6 +40,10 @@ final class TangemPayCardsLimitReachedSheetViewModel: TangemPayPopupViewModel {
             size: .default,
             action: upgrade
         )
+    }
+
+    var primaryButtonAccessibilityIdentifier: String? {
+        TangemPayAccessibilityIdentifiers.cardsLimitReachedConfirmButton
     }
 
     var secondaryButton: MainButton.Settings? {

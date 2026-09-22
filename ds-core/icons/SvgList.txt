@@ -11,6 +11,7 @@ Arrow Split Top / 16, 20, 24, 28 / Regular
 Arrow Swap Horizontal / 12, 16, 20, 24, 28, 32 / Regular
 Arrow Top Left / 12, 16, 20, 24, 28 / Regular
 Arrow Top Right / 12, 16, 20, 24, 28 / Regular
+Arrow Up Down / 16, 20, 24, 28 / Regular
 Arrow Up / 12, 16, 20, 24, 28, 32 / Regular
 Banknote Arrow Down / 16, 20, 24, 28 / Regular
 Banknote Arrow Horizontal / 16, 20, 24, 28 / Regular
@@ -19,13 +20,15 @@ Basketball / 16, 20, 24, 28 / Regular
 Bell Cross / 20, 24, 28 / Regular
 Bell / 20, 24, 28 / Regular
 Binoculars / 16, 20, 24, 28, 32 / Regular
+Box / 16, 20, 24, 28 / Regular
+Calculator / 16, 20, 24 / Regular
 Calendar / 16, 20, 24, 28 / Regular
 Card Plus / 20, 24, 28, 32 / Regular
 Card / 12, 16, 20, 24 / Regular
 Cards Star / 16, 20, 24, 28 / Regular
 Chart Bar Vertical / 16, 20, 24, 28 / Regular
 Chart Line Vertical / 16, 20, 24, 28 / Regular
-Checkmark / 16, 20, 24 / Regular
+Checkmark / 16, 20, 24, 28 / Regular
 Chevron Collapse / 16, 20, 24, 28 / Regular
 Chevron Double Vertical / 12, 16, 20, 24, 28, 32 / Regular
 Chevron Down / 12, 16, 20, 24, 28, 32 / Regular
@@ -66,6 +69,8 @@ Headphones Support / 12, 16, 20, 24 / Regular
 Heart Broken / 16, 20, 24, 28, 32 / Regular
 Heart / 16, 20, 24, 28, 32 / Filled & Regular
 Info / 16, 20, 24, 28, 32 / Regular
+Keyboard Down / 16, 20, 24 / Regular
+Keyboard Up / 16, 20, 24 / Regular
 Lightning / 20, 24, 28 / Regular
 Loading Spinner / 12, 16, 20, 24, 28, 32 / Regular
 Logo Tangem / 16, 20, 24 / Regular
@@ -92,7 +97,8 @@ Sign Minus / 12, 16, 20, 24, 28 / Regular
 Sign Plus / 12, 16, 20, 24, 28 / Regular
 Sign USD / 12, 16, 20, 24, 28, 32 / Regular
 Snowflake / 12, 16, 20, 24, 28 / Regular
-Stack / 16, 20, 24, 28 / Regular
+Stack / 12, 16, 20, 24, 28 / Regular
+Star / 16, 20, 24, 28 / Filled & Regular
 Success / 16, 20, 24, 28, 32 / Filled & Regular
 Sun / 16, 20, 24, 28 / Regular
 Theater / 16, 20, 24, 28 / Regular
@@ -100,9 +106,10 @@ Trash Bin / 12, 16, 20, 24, 28 / Regular
 Triangle Down / 12, 16, 20, 24, 28, 32 / Regular
 Triangle Up / 12, 16, 20, 24, 28, 32 / Regular
 User Plus / 16, 20, 24, 28 / Regular
-User / 16, 20, 24, 28 / Regular
-Users / 16, 20, 24, 28 / Regular
+User / 16, 20, 24, 28 / Filled & Regular
+Users / 16, 20, 24, 28 / Filled & Regular
 Wallet Checkmark / 16, 20, 24, 28 / Regular
+Wallet Plus / 16, 20, 24, 28 / Regular
 Wallet / 16, 20, 24, 28 / Regular
 Warning / 16, 20, 24, 28 / Filled & Regular
 Weather / 16, 20, 24, 28 / Regular

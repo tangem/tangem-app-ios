@@ -88,7 +88,7 @@ struct TangemPayOrderCardSuccessView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(DesignSystem.Color.bgPrimary)
-        .glowRing(.success, cornerRadius: Constants.glowRingCornerRadius)
+        .glowRing(.success, size: .fullscreen(cornerRadius: nil))
         .ignoresSafeArea()
     }
 }
@@ -117,8 +117,5 @@ private extension TangemPayOrderCardSuccessView {
         static let innerGlowOrigin = CGPoint(x: 255, y: -151)
         static let innerGlowOpacity: Double = 0.4
         static let innerGlowBlur: CGFloat = 96
-
-        /// Matches the Figma `screen-radius` token — the ring hugs the device bezel.
-        static let glowRingCornerRadius: CGFloat = 55
     }
 }

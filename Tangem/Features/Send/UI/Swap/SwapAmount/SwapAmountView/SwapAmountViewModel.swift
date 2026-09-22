@@ -190,8 +190,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
     /// The whole FROM area works as the `Choose token` button while no source token is selected.
     var isWholeSourceAreaTapEnabled: Bool {
-        FeatureProvider.isAvailable(.swapChooseTokenWholeAreaTap)
-            && sourceExpressCurrencyViewModel.state.tokenIconState == .tokenSelectionRequired
+        sourceExpressCurrencyViewModel.state.tokenIconState == .tokenSelectionRequired
     }
 
     func userDidTapSourceArea() {

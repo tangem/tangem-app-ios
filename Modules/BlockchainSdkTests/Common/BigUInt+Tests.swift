@@ -12,6 +12,19 @@ import Foundation
 
 struct BigUInt_ {
     @Test
+    func hexString() {
+        #expect(BigUInt(0).hexString == "0x0")
+        #expect(BigUInt(10).power(18).hexString == "0xde0b6b3a7640000")
+    }
+
+    @Test
+    func increasedByPercent() {
+        #expect(BigUInt(21_000).increased(byPercent: 12) == 23_520)
+        #expect(BigUInt(2_000).increased(byPercent: 5) == 2_100)
+        #expect(BigUInt(3).increased(byPercent: 50) == 4)
+    }
+
+    @Test
     func decimalToBigUInt() throws {
         let decimalToBigUIntFormatted: (String) -> String = { string in
             let decimal = Decimal(string: string)

@@ -28,4 +28,11 @@ final class ReceiveTokenAlertSheet: Screen {
             return self
         }
     }
+
+    func tapGotIt() -> ReceiveTemplatesSheet {
+        XCTContext.runActivity(named: "Tap 'Got it' on the deposit info sheet") { _ in
+            app.buttons[Self.gotItButtonLabel].firstMatch.waitAndTap()
+            return ReceiveTemplatesSheet(app)
+        }
+    }
 }

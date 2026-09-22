@@ -10,9 +10,15 @@ import SwiftUI
 import TangemAssets
 
 public struct GlowRingShowcase: View {
+    private enum SizeOption: String, CaseIterable {
+        case card
+        case fullscreen
+    }
+
     @State private var appearance: GlowRingAppearance = .magic
+    @State private var sizeOption: SizeOption = .card
     @State private var cornerRadius: CGFloat = 24
-    @State private var isAnimating = true
+    @State private var isVisible = true
 
     public init() {}
 
@@ -42,16 +48,33 @@ private extension GlowRingShowcase {
                 }
                 .pickerStyle(.segmented)
 
+                Picker("Size", selection: $sizeOption) {
+                    ForEach(SizeOption.allCases, id: \.self) { option in
+                        Text(option.rawValue.capitalized).tag(option)
+                    }
+                }
+                .pickerStyle(.segmented)
+
                 Stepper("Corner radius: \(Int(cornerRadius))", value: $cornerRadius, in: 0 ... 48, step: 2)
-                Toggle("isAnimating", isOn: $isAnimating)
+                    .disabled(sizeOption == .fullscreen)
+                Toggle("isVisible", isOn: $isVisible)
 
                 banner(
                     title: title(for: appearance),
                     subtitle: "Reconfigure with the controls above",
-                    cornerRadius: cornerRadius
+                    cornerRadius: size.cornerRadius
                 )
-                .glowRing(appearance, cornerRadius: cornerRadius, isAnimating: isAnimating)
+                .glowRing(appearance, size: size, isVisible: isVisible)
             }
+        }
+    }
+
+    /// `fullscreen` takes its radius from the screen, so the demo card follows it to keep the
+    /// ring on the corner.
+    var size: GlowRingSize {
+        switch sizeOption {
+        case .card: .card(cornerRadius: cornerRadius)
+        case .fullscreen: .fullscreen(cornerRadius: nil)
         }
     }
 

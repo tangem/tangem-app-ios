@@ -49,12 +49,23 @@ enum TransactionDetailsPreviewFactory {
     }
 
     static func approve() -> TransactionDetailsViewModel {
+        // The allowance reaches the sheet already scaled by the token's decimals, so this is 1 234.5678 USDT rather
+        // than a raw integer. The value carries both a grouping separator and a fraction on purpose — a round number
+        // would render identically whether or not the amount is formatted at all.
+        approve(allowance: .limited(1234.5678))
+    }
+
+    static func approveUnlimited() -> TransactionDetailsViewModel {
+        approve(allowance: .unlimited)
+    }
+
+    private static func approve(allowance: TransactionRecord.TransactionType.Approve.Allowance) -> TransactionDetailsViewModel {
         viewModel(record: onChainRecord(
             hash: "0xapproved",
-            type: .contractMethodName(name: "approve"),
+            type: .approve(.init(spender: spenderAddress, symbol: "USDT", allowance: allowance)),
             isOutgoing: true,
             source: .init(address: walletAddress, amount: 0),
-            destination: .init(address: .contract(spenderAddress), amount: 0)
+            destination: .init(address: .contract(tokenContractAddress), amount: 0)
         ))
     }
 
@@ -80,12 +91,21 @@ enum TransactionDetailsPreviewFactory {
 
     // MARK: - Yield
 
-    static func yieldTokens() -> TransactionDetailsYieldTokensViewData {
+    static func yieldSupplied() -> TransactionDetailsYieldTokensViewData {
         .init(
-            accountIcon: .composite(backgroundColor: .purple, nameMode: .letter("M")),
+            provider: .leading(Assets.YieldModule.yieldModuleAaveLogo),
             tokenIconInfo: icon("Tether", color: .green),
             amountText: "1,294.23 USDT",
-            statusTitle: "Supplied"
+            caption: "Supplied"
+        )
+    }
+
+    static func yieldReturned() -> TransactionDetailsYieldTokensViewData {
+        .init(
+            provider: .trailing(Assets.YieldModule.yieldModuleAaveLogo),
+            tokenIconInfo: icon("Tether", color: .green),
+            amountText: "1,294.23 USDT",
+            caption: "Returned"
         )
     }
 
@@ -97,6 +117,27 @@ enum TransactionDetailsPreviewFactory {
             source: .init(address: walletAddress, amount: 2.5),
             destination: .init(address: .contract(spenderAddress), amount: 2.5)
         ))
+    }
+
+    static func yieldDisabled() -> TransactionDetailsViewModel {
+        viewModel(record: onChainRecord(
+            hash: "0xyieldwithdraw",
+            type: .contractMethodName(name: "yieldWithdraw"),
+            isOutgoing: false,
+            source: .init(address: spenderAddress, amount: 2.5),
+            destination: .init(address: .user(walletAddress), amount: 2.5)
+        ), token: .tetherMock)
+    }
+
+    static func yieldDisabledTransferLeg() -> TransactionDetailsViewModel {
+        viewModel(record: onChainRecord(
+            hash: "0xyieldsend",
+            type: .contractMethodName(name: "yieldSend"),
+            isOutgoing: false,
+            source: .init(address: spenderAddress, amount: 2.5),
+            destination: .init(address: .user(walletAddress), amount: 2.5),
+            isFromYieldContract: true
+        ), token: .tetherMock)
     }
 
     // MARK: - Swap
@@ -136,12 +177,18 @@ enum TransactionDetailsPreviewFactory {
     // MARK: - Tokens block
 
     static func tokensSingle() -> TransactionDetailsTokensViewData {
-        .init(tokenIconInfo: icon("Tether", color: .green), amountText: "+350.31 USDT", fiatText: "$350.31")
+        .init(
+            icon: .token(icon("Tether", color: .green)),
+            caption: nil,
+            amountText: "+350.31 USDT",
+            fiatText: "$350.31",
+            isAmountStrikethrough: false
+        )
     }
 
     /// Failed single operation — the amount is struck through and dimmed.
     static func tokensSingleFailed() -> TransactionDetailsTokensViewData {
-        .init(tokenIconInfo: icon("Tether", color: .green), amountText: "350.31 USDT", fiatText: "$350.31", isAmountStrikethrough: true)
+        .init(icon: .token(icon("Tether", color: .green)), caption: nil, amountText: "350.31 USDT", fiatText: "$350.31", isAmountStrikethrough: true)
     }
 
     static func tokensPair() -> TransactionDetailsTokensViewData {
@@ -165,14 +212,14 @@ enum TransactionDetailsPreviewFactory {
 private extension TransactionDetailsPreviewFactory {
     static let noopRoutable = NoopTransactionDetailsRoutable()
 
-    static func viewModel(record: TransactionRecord) -> TransactionDetailsViewModel {
+    static func viewModel(record: TransactionRecord, token: Token? = nil) -> TransactionDetailsViewModel {
         guard let userWalletModel = CommonUserWalletModel.mock else {
             preconditionFailure("CommonUserWalletModel.mock is unavailable in previews")
         }
 
         return TransactionDetailsViewModel(
             id: record.id,
-            walletModel: CommonWalletModel.previewWalletModel(history: [record]),
+            walletModel: CommonWalletModel.previewWalletModel(history: [record], token: token),
             userWalletInfo: userWalletModel.userWalletInfo,
             isAccountsMode: false,
             addressBookManager: userWalletModel.addressBookManager,
@@ -189,7 +236,10 @@ private extension TransactionDetailsPreviewFactory {
     static let walletAddress = "0xtestaddress"
     static let counterpartyAddress = "0x90F79bf6EB2c4f870365E785982E1f101E93b906"
     static let validatorAddress = "0x1234abcd5678ef901234abcd5678ef901234abcd"
-    static let spenderAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+    /// USDT on Ethereum — the contract an approve is sent to, and what the sheet shows as the approved token.
+    static let tokenContractAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+    /// LI.FI diamond — a router an approve typically grants an allowance to. Never the token contract itself.
+    static let spenderAddress = "0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE"
 
     static var ethTokenItem: TokenItem {
         .blockchain(.init(.ethereum(testnet: false), derivationPath: nil))
@@ -211,7 +261,8 @@ private extension TransactionDetailsPreviewFactory {
         source: TransactionRecord.Source,
         destination: TransactionRecord.Destination,
         fee: Decimal = 0.00056,
-        extraInfo: TransactionHistoryExpressExtraInfo? = nil
+        extraInfo: TransactionHistoryExpressExtraInfo? = nil,
+        isFromYieldContract: Bool = false
     ) -> TransactionRecord {
         let record = TransactionRecord(
             hash: hash,
@@ -224,6 +275,7 @@ private extension TransactionDetailsPreviewFactory {
             type: type,
             date: Date(),
             tokenTransfers: [],
+            isFromYieldContract: isFromYieldContract,
             nonce: 0
         )
 

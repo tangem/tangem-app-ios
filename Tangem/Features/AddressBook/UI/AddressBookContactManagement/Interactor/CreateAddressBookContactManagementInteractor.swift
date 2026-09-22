@@ -20,13 +20,16 @@ final class CreateAddressBookContactManagementInteractor {
     private let walletSubject: CurrentValueSubject<AddressBookWallet, Never>
     private let initialSnapshot: AddressBookContactSnapshot
     private let analyticsLogger: any AddressBookAnalyticsLogger
+    private let analyticsSource: AddressBookAnalyticsSource
 
     init(
         addressBookWallet: AddressBookWallet,
         prefilledEntries: [AddressBookEntryDraft] = [],
-        analyticsLogger: any AddressBookAnalyticsLogger
+        analyticsLogger: any AddressBookAnalyticsLogger,
+        analyticsSource: AddressBookAnalyticsSource
     ) {
         self.analyticsLogger = analyticsLogger
+        self.analyticsSource = analyticsSource
         nameSubject = .init("")
         colorSubject = .init(CompositeIconColor.randomElement())
         addressesSubject = .init(prefilledEntries)
@@ -164,7 +167,12 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
             }
 
             let contactId = try await addressBookManager.createContact(name: name, appearance: AddressBookContactAppearance(color: colorSubject.value), entries: entries)
-            analyticsLogger.logContactSaved(userWalletId: analyticsUserWalletId, contactId: contactId.stringValue, mode: .create)
+            analyticsLogger.logContactSaved(
+                userWalletId: analyticsUserWalletId,
+                contactId: contactId.stringValue,
+                mode: .create,
+                source: analyticsSource
+            )
             return contactId
         } catch {
             analyticsLogger.logSaveFailure(userWalletId: analyticsUserWalletId, contactId: nil, error: error)

@@ -7,6 +7,7 @@
 //
 
 import BlockchainSdk
+import TangemAssets
 import TangemExpress
 import TangemPay
 
@@ -48,7 +49,7 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
         )
         let tokenFeeProvidersManager = tokenFeeProvidersManagerProvider.makeTokenFeeProvidersManager()
 
-        let transactionCreator = TangemPayTransactionCreator(
+        let transactionCreator = AccountTransactionCreator(
             sourceAddress: defaultAddressString,
             transactionValidator: transactionValidator
         )
@@ -121,10 +122,9 @@ extension SendReceiveTokenPresentation {
     /// The payment account is always presented in USD, independent of the wallet's selected
     /// fiat currency.
     static var tangemPayAccount: SendReceiveTokenPresentation? {
-        guard FeatureProvider.isAvailable(.tangemPayAddFundsWithdrawRework) else {
-            return nil
-        }
-
-        return SendReceiveTokenPresentation(currencySymbol: TangemPayUtilities.fiatItem.currencyCode)
+        SendReceiveTokenPresentation(
+            currencySymbol: TangemPayUtilities.fiatItem.currencyCode,
+            icon: Assets.Visa.tokenAvatar
+        )
     }
 }
