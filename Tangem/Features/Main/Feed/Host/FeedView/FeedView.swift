@@ -49,6 +49,7 @@ struct FeedView: View {
         FeedSearchBarView(
             viewModel: viewModel.searchBarViewModel,
             isActive: searchViewModel.isActive,
+            onExpand: shtorkaActions.expand,
             onFocus: {
                 searchViewModel.open()
                 shtorkaActions.expand()

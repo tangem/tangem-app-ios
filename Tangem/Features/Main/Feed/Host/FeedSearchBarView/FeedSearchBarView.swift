@@ -14,6 +14,7 @@ import TangemUIUtils
 struct FeedSearchBarView: View {
     @ObservedObject var viewModel: FeedSearchBarViewModel
     let isActive: Bool
+    let onExpand: () -> Void
     let onFocus: () -> Void
     let onCancel: () -> Void
     let onHeightChange: (CGFloat) -> Void
@@ -27,6 +28,18 @@ struct FeedSearchBarView: View {
             .placeholder(Localization.marketsSearchTitlePlaceholder)
             .onSubmit(viewModel.submit)
             .infinityFrame(axis: .horizontal)
+            .allowsHitTesting(!sheetSize.isNonFullFeedSheet)
+            .accessibilityHidden(sheetSize.isNonFullFeedSheet)
+            .overlay {
+                if sheetSize.isNonFullFeedSheet {
+                    SwiftUI.Button(action: onExpand) {
+                        Color.clear
+                            .contentShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(Localization.marketsSearchTitlePlaceholder)
+                }
+            }
             .padding(.horizontal, Constants.horizontalInset)
             .padding(.top, Constants.topInset)
             .readGeometry(\.size.height, onChange: { reportSearchBar(height: $0) })
@@ -36,7 +49,7 @@ struct FeedSearchBarView: View {
                 }
             }
             .onChange(of: sheetSize) { size in
-                if let size, size != .full {
+                if size.isNonFullFeedSheet {
                     isFocused = false
                 }
             }
