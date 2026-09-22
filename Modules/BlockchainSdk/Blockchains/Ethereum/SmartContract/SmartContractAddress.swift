@@ -20,6 +20,13 @@ public struct SmartContractAddress: Equatable {
             throw Error.invalidAddress
         }
 
+        // Fail closed: the ABI slot is built with `Data(hexString:)`, which returns empty data for any
+        // non-ASCII scalar. Require the decoded form to be exactly 20 bytes so a string that passed the
+        // shape check can never silently encode as the zero address.
+        guard Data(hexString: address.removeHexPrefix()).count == Constants.addressLength else {
+            throw Error.invalidAddress
+        }
+
         guard !EVMAddressUtils.isBurnAddress(address) else {
             throw Error.burnAddress
         }
@@ -46,5 +53,6 @@ public extension SmartContractAddress {
 private extension SmartContractAddress {
     enum Constants {
         static let parameterLength = 32
+        static let addressLength = 20
     }
 }

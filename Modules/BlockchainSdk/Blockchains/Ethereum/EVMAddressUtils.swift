@@ -72,10 +72,18 @@ public enum EVMAddressUtils {
             return false
         }
 
+        let cleanHex = address.removeHexPrefix()
+
+        // The 40 body characters must be ASCII hex. Without this a caseless non-ASCII "digit" such as
+        // fullwidth `５` (U+FF15) passed the shape check and the not-mixed-case branch below, was
+        // displayed verbatim, and then encoded to the zero address in the ERC-20 calldata.
+        guard cleanHex.allSatisfy({ $0.isASCII && $0.isHexDigit }) else {
+            return false
+        }
+
         if let checksummed = toChecksumAddress(address), checksummed == address {
             return true
         } else {
-            let cleanHex = address.removeHexPrefix()
             if cleanHex.lowercased() != cleanHex, cleanHex.uppercased() != cleanHex {
                 return false
             }
