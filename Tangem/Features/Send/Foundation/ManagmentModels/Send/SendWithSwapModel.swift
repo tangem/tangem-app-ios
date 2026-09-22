@@ -497,6 +497,13 @@ extension SendWithSwapModel: SendFeeInput {
             .eraseToAnyPublisher()
     }
 
+    /// Must be forwarded like the other `SendFeeInput` members: without it the protocol's permissive
+    /// default (`true`) applies and `InformationRelevanceService` never treats a stale / mismatched
+    /// (e.g. expired Tron gasless quote) fee as "not actual" on the shipped Send path.
+    var isSelectedFeeActual: Bool {
+        isSwapMode ? swapModel.isSelectedFeeActual : transferModel.isSelectedFeeActual
+    }
+
     var supportFeeSelection: Bool {
         isSwapMode ? swapModel.supportFeeSelection : transferModel.supportFeeSelection
     }
