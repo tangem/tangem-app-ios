@@ -27,7 +27,7 @@ struct AttestUserWalletUseCaseTests {
                 value: Data("some card signature".utf8),
                 salt: Data("some card salt".utf8)
             ),
-            origin: .generatedOnCard
+            walletStatus: .cardWalletStatusBackedUp
         )
         signer.attestResult = Result.success(expectedWalletAttestation)
 
@@ -105,4 +105,8 @@ extension AttestUserWalletUseCaseTests {
             deviceMetadataProvider: .fake
         )
     }
+}
+
+private extension Data {
+    static let cardWalletStatusBackedUp = Data([0x82])
 }
