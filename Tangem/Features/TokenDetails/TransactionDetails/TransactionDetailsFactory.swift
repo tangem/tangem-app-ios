@@ -55,7 +55,7 @@ enum TransactionDetailsFactory {
     private static func copyableCounterpartyAddress(in content: TransactionDetailsViewModel.Content) -> String? {
         guard
             case .generic(let data) = content,
-            case .copy(let address, _) = data.counterparty?.copyAction
+            case .copy(let address, _, _) = data.counterparty?.copyAction
         else {
             return nil
         }
@@ -470,7 +470,7 @@ enum TransactionDetailsFactory {
     }
 
     /// "Long transaction time": an active swap stuck for more than 15 minutes since `createdAt`
-    private static func isLongRunningSwap(_ exchange: ExchangeTransaction) -> Bool {
+    static func isLongRunningSwap(_ exchange: ExchangeTransaction) -> Bool {
         let threshold: TimeInterval = 15 * 60
         let elapsed = Date().timeIntervalSince(exchange.createdAt)
         guard elapsed > threshold else {
@@ -485,6 +485,45 @@ enum TransactionDetailsFactory {
         case .preview, .created, .unknown, .verifying, .paused,
              .finished, .failed, .txFailed, .refunded, .expired:
             return false
+        }
+    }
+
+    static func providerNavigationSource(for info: TransactionHistoryExpressExtraInfo) -> TransactionDetailsProviderNavigationSource? {
+        switch info {
+        case .exchange(let info):
+            providerNavigationSource(for: info.transaction.status, isLongRunning: isLongRunningSwap(info.transaction))
+        case .onramp(let info):
+            providerNavigationSource(for: info.transaction.status)
+        }
+    }
+
+    private static func providerNavigationSource(
+        for swapStatus: ExpressTransactionStatus,
+        isLongRunning: Bool
+    ) -> TransactionDetailsProviderNavigationSource? {
+        if isLongRunning {
+            return .longTime
+        }
+
+        switch swapStatus {
+        case .verifying:
+            return .kyc
+        case .paused:
+            return .status
+        case .unknown, .preview, .created, .exchangeTxSent, .waiting, .waitingTxHash,
+             .confirming, .exchanging, .sending, .finished, .failed, .txFailed, .refunded, .expired:
+            return nil
+        }
+    }
+
+    private static func providerNavigationSource(for onrampStatus: OnrampTransactionStatus) -> TransactionDetailsProviderNavigationSource? {
+        switch onrampStatus {
+        case .verifying:
+            .kyc
+        case .paused, .waitingForPayment:
+            .status
+        case .unknown, .created, .paymentProcessing, .paid, .sending, .refunding, .finished, .failed, .expired, .refunded:
+            nil
         }
     }
 
@@ -646,7 +685,7 @@ enum TransactionDetailsFactory {
         TransactionDetailsProviderInfo(
             name: provider?.name ?? fallbackId,
             type: providerTypeTitle(provider?.type),
-            action: externalURL.map { .openURL($0) }
+            action: externalURL.map { .openURL($0, kind: .provider(source: .status)) }
         )
     }
 
@@ -669,48 +708,29 @@ enum TransactionDetailsFactory {
         isLongRunning: Bool,
         externalURL: URL?
     ) -> TransactionDetailsActionButtonViewData? {
-        if isLongRunning {
-            return externalAction(title: Localization.commonGoToProvider, externalURL: externalURL)
-        }
-
-        switch swapStatus {
-        case .verifying:
-            return externalAction(title: Localization.commonGoToVerification, externalURL: externalURL)
-        case .paused:
-            return externalAction(title: Localization.commonGoToProvider, externalURL: externalURL)
-        case .unknown, .preview, .created, .exchangeTxSent, .waiting, .waitingTxHash,
-             .confirming, .exchanging, .sending, .finished, .failed, .txFailed, .refunded, .expired:
-            return nil
-        }
+        externalAction(source: providerNavigationSource(for: swapStatus, isLongRunning: isLongRunning), externalURL: externalURL)
     }
 
     private static func action(
         for onrampStatus: OnrampTransactionStatus,
         externalURL: URL?
     ) -> TransactionDetailsActionButtonViewData? {
-        switch onrampStatus {
-        case .verifying:
-            return externalAction(title: Localization.commonGoToVerification, externalURL: externalURL)
-        case .paused, .waitingForPayment:
-            return externalAction(title: Localization.commonGoToProvider, externalURL: externalURL)
-        case .unknown, .created, .paymentProcessing, .paid, .sending, .refunding, .finished, .failed, .expired, .refunded:
-            return nil
-        }
+        externalAction(source: providerNavigationSource(for: onrampStatus), externalURL: externalURL)
     }
 
     private static func externalAction(
-        title: String,
+        source: TransactionDetailsProviderNavigationSource?,
         externalURL: URL?
     ) -> TransactionDetailsActionButtonViewData? {
-        guard let externalURL else {
+        guard let source, let externalURL else {
             return nil
         }
 
         return .init(
-            title: title,
+            title: source.actionTitle,
             icon: DesignSystem.Icons.ArrowTopRight.regular20,
             style: .default,
-            action: .openURL(externalURL)
+            action: .openURL(externalURL, kind: .provider(source: source))
         )
     }
 
@@ -914,7 +934,7 @@ enum TransactionDetailsFactory {
             return .init(
                 label: label,
                 actor: .contact(name: name, icon),
-                copyAction: .copy(value: fullAddress, toast: Localization.walletNotificationAddressCopied),
+                copyAction: copyAddressAction(for: fullAddress),
                 walletImageProvider: nil
             )
 
@@ -971,7 +991,7 @@ enum TransactionDetailsFactory {
     }
 
     private static func copyAddressAction(for address: String) -> TransactionDetailsViewModel.ViewAction {
-        .copy(value: address, toast: Localization.walletNotificationAddressCopied)
+        .copy(value: address, toast: Localization.walletNotificationAddressCopied, kind: .address)
     }
 
     private static func counterpartyAddress(for transaction: TransactionViewModel) -> String? {
@@ -994,5 +1014,16 @@ private extension TransactionDetailsFactory {
     struct YieldStage {
         let provider: TransactionDetailsYieldTokensViewData.Provider
         let caption: String
+    }
+}
+
+// MARK: - Provider link
+
+private extension TransactionDetailsProviderNavigationSource {
+    var actionTitle: String {
+        switch self {
+        case .kyc: Localization.commonGoToVerification
+        case .status, .longTime: Localization.commonGoToProvider
+        }
     }
 }

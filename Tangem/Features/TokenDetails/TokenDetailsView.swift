@@ -382,6 +382,7 @@ private extension TokenDetailsView {
             coordinator: coordinator,
             tokenRouter: SingleTokenRouter(
                 userWalletInfo: userWalletModel.userWalletInfo,
+                analyticsSource: .token,
                 coordinator: coordinator
             ),
             pendingTransactionDetails: nil,
