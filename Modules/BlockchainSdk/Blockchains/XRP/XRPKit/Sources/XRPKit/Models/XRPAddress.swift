@@ -54,10 +54,10 @@ struct XRPAddress {
             if prefix == [0x05, 0x44] { // mainnet
                 try self.init(rAddress: address, tag: tag)
                 isTest = false
-            } else if prefix == [0x04, 0x93] { // testnet
-                try self.init(rAddress: address, tag: tag)
-                isTest = true
             } else {
+                // Tangem's XRP is mainnet-only. A testnet X-address (prefix 0x04 0x93)
+                // or any other network prefix must not be resolved to a mainnet
+                // account (XLS-5 requires rejecting foreign-network X-addresses).
                 throw XRPError.invalidAddress
             }
         } else {
