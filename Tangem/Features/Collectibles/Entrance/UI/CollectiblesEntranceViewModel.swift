@@ -114,11 +114,11 @@ private extension CollectiblesEntranceViewModel {
         let accountModel = AccountModelsAggregator(.collectibles)
             .model(from: userWalletModel.accountModelsManager)
 
-        if accountModel?.state == .unresolved {
+        if accountModel?.hasAccount != true, accountModel?.state == .unresolved {
             await accountModel?.refreshState()
         }
 
-        let hasCollectiblesAccount = accountModel?.state.isAccountVisible ?? false
+        let hasCollectiblesAccount = accountModel?.hasAccount ?? false
 
         switch Destination(hasAccount: hasCollectiblesAccount, isRestricted: isRegionRestricted) {
         case .welcome:
