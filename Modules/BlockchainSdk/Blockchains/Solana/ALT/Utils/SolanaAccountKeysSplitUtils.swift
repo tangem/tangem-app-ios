@@ -72,10 +72,10 @@ struct SolanaAccountKeysSplitUtils: SolanaAccountKeysSplitProvider {
             return ([], [])
         }
 
-        var signerKeys = Set<PublicKey>()
-        for i in 0 ..< Int(header.numRequiredSignatures) {
-            signerKeys.insert(inputStaticAccountKeys[i])
-        }
+        // `numRequiredSignatures` is a header byte from the dApp's message; a value above the key count
+        // must not run this loop out of bounds.
+        let signerCount = min(Int(header.numRequiredSignatures), inputStaticAccountKeys.count)
+        let signerKeys = Set(inputStaticAccountKeys[0 ..< signerCount])
 
         var programIdKeys = Set<PublicKey>()
         for instr in compiledInstructions {
