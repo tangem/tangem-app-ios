@@ -21,6 +21,7 @@ struct MainCoordinatorView: CoordinatorView {
 
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
+    @Injected(\.appOverlaysDependencies.overlayViewPresenterViewModel) private var overlayViewPresenterViewModel: OverlayViewPresenterViewModel
 
     var body: some View {
         NavigationStack {
@@ -57,7 +58,10 @@ struct MainCoordinatorView: CoordinatorView {
         .overlay {
             marketsTooltipView
         }
-        .mainShtorka(coordinator: coordinator.feedCoordinator)
+        .mainShtorka(
+            coordinator: coordinator.feedCoordinator,
+            presentsAppOverlays: coordinator.mainQRScanFlowCoordinator == nil
+        )
     }
 
     private var links: some View {
@@ -115,7 +119,7 @@ struct MainCoordinatorView: CoordinatorView {
                 TangemPayCampaignCoordinatorView(coordinator: $0)
             }
             .shtorkaCompatibleFullScreenCover(item: $coordinator.mainQRScanFlowCoordinator) {
-                MainQRScanFlowCoordinatorView(coordinator: $0)
+                qrScanFlow(coordinator: $0)
             }
             .shtorkaCompatibleFullScreenCover(item: $coordinator.jointAccountManagementCoordinator) {
                 JointAccountManagementCoordinatorView(coordinator: $0)
@@ -176,6 +180,17 @@ struct MainCoordinatorView: CoordinatorView {
                 coordinator.isAppStoreReviewRequested.toggle()
                 requestReview()
             }
+    }
+
+    @ViewBuilder
+    private func qrScanFlow(coordinator: MainQRScanFlowCoordinator) -> some View {
+        if FeatureProvider.isAvailable(.nativeMarketsShtorka) {
+            // QR occupies the shtorka's cover slot, so app overlays must be presented by QR itself.
+            MainQRScanFlowCoordinatorView(coordinator: coordinator)
+                .modifier(OverlayViewPresenterModifier(viewModel: overlayViewPresenterViewModel))
+        } else {
+            MainQRScanFlowCoordinatorView(coordinator: coordinator)
+        }
     }
 
     /// Tooltip is placed on top of the other views
