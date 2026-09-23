@@ -163,8 +163,19 @@ extension PolymarketOrderModel {
 
         guard quotable != state.enteredAmount else { return }
 
-        state.enteredAmount = quotable
-        restartQuoteLoop(debounced: false)
+        apply(enteredAmount: quotable, debounced: false)
+    }
+
+    /// A quote answers one amount, so it has to stop counting the moment the amount changes. Both are moved in a
+    /// single mutation, otherwise the old answer is published against the new amount for one pass and the gate
+    /// reads it as a verdict on what the user has just typed.
+    func apply(enteredAmount: Decimal?, debounced: Bool) {
+        var updated = state
+        updated.enteredAmount = enteredAmount
+        updated.quote = .empty
+        state = updated
+
+        restartQuoteLoop(debounced: debounced)
     }
 
     struct State: Equatable {
@@ -211,8 +222,7 @@ private extension PolymarketOrderModel {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { model, amount in
-                model.state.enteredAmount = amount
-                model.restartQuoteLoop(debounced: true)
+                model.apply(enteredAmount: amount, debounced: true)
             }
 
             .store(in: &bag)
@@ -292,8 +302,7 @@ private extension PolymarketOrderModel {
 
         guard quotable != state.enteredAmount else { return }
 
-        state.enteredAmount = quotable
-        restartQuoteLoop(debounced: false)
+        apply(enteredAmount: quotable, debounced: false)
     }
 
     func spendable(fraction: PolymarketAmountFraction, of balance: Decimal) -> Decimal {
@@ -453,9 +462,12 @@ private extension PolymarketOrderModel {
             guard !Task.isCancelled else { return }
 
             failureClock.reset()
-            state.minAmount = intent.minAmount(from: quote)
-            state.quote = PolymarketOrderQuoteState(quote: quote)
-            state.quoteReceivedAt = Date()
+
+            var updated = state
+            updated.minAmount = intent.minAmount(from: quote)
+            updated.quote = PolymarketOrderQuoteState(quote: quote)
+            updated.quoteReceivedAt = Date()
+            state = updated
 
             if quote.status == .marketClosed {
                 suspendQuoteLoop()

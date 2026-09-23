@@ -73,6 +73,10 @@ extension CommonPolymarketAccountModel: PolymarketAccountModel {
         balanceService.collateralTokenBalanceProvider
     }
 
+    var collateralTotalBalanceProvider: TokenBalanceProvider {
+        balanceService.collateralTotalBalanceProvider
+    }
+
     func refreshState(scope: PolymarketBalanceRefreshScope) async {
         let positionsReadsBefore = positionsReads.withLock { $0 }
 
