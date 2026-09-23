@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import Combine
+import BigInt
 import TangemUI
 import TangemFoundation
 import TangemLocalization
@@ -52,6 +54,12 @@ final class YieldModuleActiveViewModel: ObservableObject {
     @Published
     private(set) var apyTrend: ApyTrend = .none
 
+    @Published
+    private(set) var rewardsBannerData: YieldModuleRewardsBannerView.ViewData?
+
+    @Published
+    private(set) var apyBreakdown: YieldApyBreakdown?
+
     private var maxFee: String?
 
     // MARK: - Promo State
@@ -93,6 +101,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
 
     private let transactionFlowFactory: YieldModuleTransactionFlowFactory
     private let yieldManagerInteractor: YieldManagerInteractor
+    private let marketInfoPublisher: AnyPublisher<YieldModuleMarketInfo?, Never>
     private let notificationManager: YieldModuleNotificationManager
     private let marketingBannerManager = MarketingBannerManager()
     private let logger: YieldAnalyticsLogger
@@ -102,6 +111,8 @@ final class YieldModuleActiveViewModel: ObservableObject {
     private(set) var activityState: ActivityState = .active
     private(set) var readMoreURL = TangemBlogUrlBuilder().url(post: .yieldMode)
     private var minimalTopupAmountInFiat: Decimal?
+    private var bag = Set<AnyCancellable>()
+    private var marketStateTask: Task<Void, Never>?
 
     // MARK: - Init
 
@@ -110,6 +121,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
         coordinator: YieldModuleActiveCoordinator?,
         transactionFlowFactory: YieldModuleTransactionFlowFactory,
         yieldManagerInteractor: YieldManagerInteractor,
+        marketInfoPublisher: AnyPublisher<YieldModuleMarketInfo?, Never>,
         notificationManager: YieldModuleNotificationManager,
         logger: YieldAnalyticsLogger
     ) {
@@ -117,11 +129,13 @@ final class YieldModuleActiveViewModel: ObservableObject {
         self.coordinator = coordinator
         self.transactionFlowFactory = transactionFlowFactory
         self.yieldManagerInteractor = yieldManagerInteractor
+        self.marketInfoPublisher = marketInfoPublisher
         self.logger = logger
         self.notificationManager = notificationManager
 
         logger.logEarningInProgressScreenOpened()
 
+        bind()
         start()
     }
 
@@ -141,6 +155,18 @@ final class YieldModuleActiveViewModel: ObservableObject {
 
     func onPromoBonusTap() {
         coordinator?.openYieldApyBoostStory()
+    }
+
+    func onApyInfoTap() {
+        guard let apyBreakdown else { return }
+
+        coordinator?.openAboutApySheet(
+            viewModel: YieldModuleAboutApyViewModel(baseApy: apyBreakdown.baseApy, rewardsApr: apyBreakdown.rewardsApr)
+        )
+    }
+
+    func onClaimTap() {
+        // The claim sheet arrives with the claim part of the Merkl incentives series.
     }
 
     // MARK: - Public Implementation
@@ -172,6 +198,16 @@ final class YieldModuleActiveViewModel: ObservableObject {
     // MARK: - Private Implementation
 
     private func start() {
+        Task { await getAvailableFunds() }
+        Task {
+            await getEarnInfoFees()
+            await checkWarnings()
+        }
+        Task { await fetchChartData() }
+        Task { await getYieldPromoData() }
+    }
+
+    private func bind() {
         marketingBannerManager.setup(
             bannersPublisher: marketingCampaignsRepository.bannersPublisher(for: walletModel.tokenItem, kind: .yield)
         )
@@ -180,14 +216,51 @@ final class YieldModuleActiveViewModel: ObservableObject {
             .map { $0.nilIfEmpty }
             .assign(to: &$standaloneMarketingBanners)
 
-        Task { await getAvailableFunds() }
-        Task {
-            await getEarnInfoFees()
-            await checkWarnings()
+        marketInfoPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.refreshMarketState()
+            }
+            .store(in: &bag)
+    }
+
+    private func refreshMarketState() {
+        marketStateTask?.cancel()
+        marketStateTask = Task { @MainActor [weak self] in
+            await self?.getApy()
+
+            guard !Task.isCancelled else {
+                return
+            }
+
+            await self?.getIncentives()
         }
-        Task { await getApy() }
-        Task { await fetchChartData() }
-        Task { await getYieldPromoData() }
+    }
+
+    @MainActor
+    private func getIncentives() async {
+        let breakdown = await yieldManagerInteractor.getApyBreakdown()
+        let hasActiveCampaign = await yieldManagerInteractor.hasActiveIncentiveCampaign()
+
+        guard !Task.isCancelled else {
+            return
+        }
+
+        apyBreakdown = breakdown
+
+        let summary = hasActiveCampaign ? await yieldManagerInteractor.getIncentivesSummary() : nil
+
+        guard !Task.isCancelled else {
+            return
+        }
+
+        let surfaceState = YieldIncentivesSurfaceState.make(
+            campaignActive: hasActiveCampaign,
+            summary: summary,
+            isClaimInFlight: false
+        )
+
+        rewardsBannerData = makeRewardsBannerData(surfaceState: surfaceState, summary: summary)
     }
 
     @MainActor
@@ -300,7 +373,13 @@ final class YieldModuleActiveViewModel: ObservableObject {
         apyState = .loading
         apyTrend = .loading
 
-        if let apy = try? await yieldManagerInteractor.getApy() {
+        let apy = try? await yieldManagerInteractor.getApy()
+
+        guard !Task.isCancelled else {
+            return
+        }
+
+        if let apy {
             apyState = .loaded(text: PercentFormatter().format(apy, option: .earn))
             apyTrend = .increased
         } else {
@@ -402,5 +481,65 @@ private extension YieldModuleActiveViewModel {
 extension YieldModuleActiveViewModel {
     func onBonusPaidOutBannerDismiss() {
         isBonusPaidOutBannerDismissed = true
+    }
+}
+
+// MARK: - Rewards Banner
+
+private extension YieldModuleActiveViewModel {
+    func makeRewardsBannerData(
+        surfaceState: YieldIncentivesSurfaceState,
+        summary: YieldIncentivesRewardsSummary?
+    ) -> YieldModuleRewardsBannerView.ViewData? {
+        guard let summary else {
+            return nil
+        }
+
+        switch surfaceState {
+        case .none, .apyOverlayOnly:
+            return nil
+
+        case .pendingOnly:
+            return YieldModuleRewardsBannerView.ViewData(
+                title: Localization.yieldModuleRewardsBannerPendingTitle,
+                subtitle: Localization.yieldModuleRewardsBannerPendingSubtitle(formatPendingAmounts(summary.pendingRewards)),
+                claimAvailability: .hidden
+            )
+
+        case .belowThreshold:
+            return YieldModuleRewardsBannerView.ViewData(
+                title: Localization.yieldModuleRewardsBannerTitle(formatClaimableTotal(summary)),
+                subtitle: Localization.yieldModuleRewardsBannerBelowThresholdSubtitle,
+                claimAvailability: .disabled
+            )
+
+        case .claimAvailable, .claimInFlight:
+            return YieldModuleRewardsBannerView.ViewData(
+                title: Localization.yieldModuleRewardsBannerTitle(formatClaimableTotal(summary)),
+                subtitle: Localization.yieldModuleRewardsBannerSubtitle,
+                claimAvailability: surfaceState == .claimAvailable ? .available : .disabled
+            )
+        }
+    }
+
+    func formatClaimableTotal(_ summary: YieldIncentivesRewardsSummary) -> String {
+        // Backend USD estimates are always USD, regardless of the app's display currency.
+        BalanceFormatter().formatFiatBalance(summary.totalClaimableNetUsd, currencyCode: AppConstants.usdCurrencyCode)
+    }
+
+    func formatPendingAmounts(_ rewards: [YieldIncentiveReward]) -> String {
+        let formatter = BalanceFormatter()
+
+        return rewards
+            .compactMap { reward in
+                guard let baseUnitsValue = Decimal(string: String(reward.pendingAmount)) else {
+                    return nil
+                }
+
+                let value = baseUnitsValue / pow(10, reward.decimals)
+
+                return formatter.formatCryptoBalance(value, currencyCode: reward.symbol)
+            }
+            .joined(separator: ", ")
     }
 }

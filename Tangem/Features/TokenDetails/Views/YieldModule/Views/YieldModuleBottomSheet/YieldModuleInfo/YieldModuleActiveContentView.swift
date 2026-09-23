@@ -40,6 +40,8 @@ struct YieldModuleActiveContentView: View {
 
                 marketingBanner
 
+                rewardsBanner
+
                 myFundsSection
 
                 bottomSection
@@ -88,6 +90,13 @@ struct YieldModuleActiveContentView: View {
     }
 
     @ViewBuilder
+    private var rewardsBanner: some View {
+        if let rewardsBannerData = viewModel.rewardsBannerData {
+            YieldModuleRewardsBannerView(viewData: rewardsBannerData, claimAction: viewModel.onClaimTap)
+        }
+    }
+
+    @ViewBuilder
     private var apyTrendView: some View {
         switch viewModel.apyTrend {
         case .increased, .loading:
@@ -103,8 +112,7 @@ struct YieldModuleActiveContentView: View {
 
     private var topSection: some View {
         VStack(alignment: .leading, spacing: .zero) {
-            Text(Localization.yieldModuleEarnSheetCurrentApyTitle)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            currentApyTitle
                 .padding(.bottom, 4)
 
             HStack {
@@ -134,6 +142,30 @@ struct YieldModuleActiveContentView: View {
             }
         }
         .defaultRoundedBackground(with: Colors.Background.action)
+    }
+
+    private var currentApyTitle: some View {
+        HStack(spacing: 4) {
+            Text(Localization.yieldModuleEarnSheetCurrentApyTitle)
+                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+            if viewModel.apyBreakdown != nil {
+                apyInfoButton
+            }
+        }
+    }
+
+    private var apyInfoButton: some View {
+        SwiftUI.Button(action: viewModel.onApyInfoTap) {
+            Assets.infoCircle16.image
+                .renderingMode(.template)
+                .foregroundStyle(Colors.Icon.informative)
+                // Grows the 16pt icon to the 44pt accessibility touch target without moving the layout.
+                .padding(Constants.apyInfoTouchPadding)
+                .contentShape(Rectangle())
+        }
+        .padding(-Constants.apyInfoTouchPadding)
+        .accessibilityLabel(Localization.yieldModuleAboutApySheetTitle)
     }
 
     private func promoBonusButton(text: String) -> some View {
@@ -270,5 +302,13 @@ struct YieldModuleActiveContentView: View {
                     .padding(.leading, 14)
             }
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension YieldModuleActiveContentView {
+    enum Constants {
+        static let apyInfoTouchPadding: CGFloat = 14
     }
 }

@@ -106,6 +106,7 @@ final class CommonYieldModuleFlowFactory {
             coordinator: coordinator,
             transactionFlowFactory: makeTransactionFlowFactory(coordinator: coordinator, interactor: interactor),
             yieldManagerInteractor: interactor,
+            marketInfoPublisher: yieldModuleManager.marketInfoPublisher,
             notificationManager: YieldModuleNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem),
             logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
         )
