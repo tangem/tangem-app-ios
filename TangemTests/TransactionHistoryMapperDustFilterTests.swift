@@ -120,6 +120,7 @@ private extension TransactionHistoryMapperDustFilterTests {
     func makeSUT() -> Tangem.TransactionHistoryMapper {
         Tangem.TransactionHistoryMapper(
             currencySymbol: "ETH",
+            blockchain: .ethereum(testnet: false),
             addressesProvider: StubTransactionHistoryAddressesProvider(walletAddresses: [Self.ownAddress]),
             showSign: true,
             isToken: false,
