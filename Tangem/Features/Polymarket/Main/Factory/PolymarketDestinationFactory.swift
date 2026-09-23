@@ -13,15 +13,18 @@ import TangemPolymarket
 final class PolymarketDestinationFactory {
     private let dependencies: PolymarketMainDependencies
     private let onAddFunds: () -> Void
+    private let onRegionWarning: () -> Void
     private let onReturnToMain: () -> Void
 
     init(
         dependencies: PolymarketMainDependencies,
         onAddFunds: @escaping () -> Void,
+        onRegionWarning: @escaping () -> Void,
         onReturnToMain: @escaping () -> Void
     ) {
         self.dependencies = dependencies
         self.onAddFunds = onAddFunds
+        self.onRegionWarning = onRegionWarning
         self.onReturnToMain = onReturnToMain
     }
 
@@ -29,35 +32,10 @@ final class PolymarketDestinationFactory {
         onReturnToMain()
     }
 
-    func makeEventDetails(
-        eventID: String,
-        category: PolymarketCategory?,
-        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
-        onRegionWarning: @escaping () -> Void,
-        onOpenPosition: @escaping (PolymarketPosition) -> Void,
-        onClose: @escaping Action<Void>
-    ) -> PolymarketEventDetailsCoordinator {
-        let coordinator = PolymarketEventDetailsCoordinator(dismissAction: onClose)
-
-        coordinator.start(with: .init(
-            eventID: eventID,
-            category: category,
-            apiProvider: dependencies.apiProvider,
-            geoblockStateProvider: dependencies.geoblockStateProvider,
-            onOrderPlaced: onOrderPlaced,
-            onRegionWarning: onRegionWarning,
-            onOpenPosition: onOpenPosition,
-            orderBuilder: self
-        ))
-
-        return coordinator
-    }
-
     func makePositionDetails(
         position: PolymarketPosition,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
         onRegionWarning: @escaping () -> Void,
-        onOpenPosition: @escaping (PolymarketPosition) -> Void,
         onClose: @escaping Action<Void>
     ) -> PolymarketPositionDetailsCoordinator {
         let coordinator = PolymarketPositionDetailsCoordinator(dismissAction: onClose)
@@ -68,8 +46,8 @@ final class PolymarketDestinationFactory {
             geoblockStateProvider: dependencies.geoblockStateProvider,
             onOrderPlaced: onOrderPlaced,
             onRegionWarning: onRegionWarning,
-            onOpenPosition: onOpenPosition,
-            orderBuilder: self
+            orderBuilder: self,
+            eventBuilder: self
         ))
 
         return coordinator
@@ -78,7 +56,7 @@ final class PolymarketDestinationFactory {
     func makeMyPositions(
         tab: PolymarketPositionsTab,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
-        onClaimed: @escaping () -> Void,
+        onClaimed: @escaping (PolymarketPosition?) -> Void,
         onRegionWarning: @escaping () -> Void,
         onClose: @escaping Action<Void>
     ) -> PolymarketMyPositionsCoordinator {
@@ -93,14 +71,15 @@ final class PolymarketDestinationFactory {
             onRegionWarning: onRegionWarning,
             onOrderPlaced: onOrderPlaced,
             onClaimed: onClaimed,
-            orderBuilder: self
+            orderBuilder: self,
+            eventBuilder: self
         ))
 
         return coordinator
     }
 }
 
-// MARK: - PolymarketOrderFlowBuilder protocol conformance
+// MARK: - PolymarketOrderFlowBuilder
 
 extension PolymarketDestinationFactory: PolymarketOrderFlowBuilder {
     func makeOrderCoordinator(
@@ -108,6 +87,7 @@ extension PolymarketDestinationFactory: PolymarketOrderFlowBuilder {
         outcome: PolymarketOutcome,
         eventTitle: String,
         request: PolymarketOrderRequest,
+        pushesPlacedPosition: Bool,
         onPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
         onOpenPosition: @escaping (PolymarketPosition) -> Void,
         onClose: @escaping () -> Void
@@ -126,10 +106,6 @@ extension PolymarketDestinationFactory: PolymarketOrderFlowBuilder {
                 } else {
                     onClose()
                 }
-
-                Task { @MainActor in
-                    onPlaced(payload.indexing)
-                }
             }
         )
 
@@ -138,13 +114,41 @@ extension PolymarketDestinationFactory: PolymarketOrderFlowBuilder {
             outcome: outcome,
             eventTitle: eventTitle,
             walletId: dependencies.walletId,
+            account: dependencies.orderAccount,
             intent: dependencies.makeOrderIntent(for: request),
             geoblockStateProvider: dependencies.geoblockStateProvider,
             placementService: dependencies.placementService,
             positionsService: dependencies.positionsService,
             clobService: dependencies.clobService,
             isAwaitingFundsPublisher: dependencies.fundsArrivalTracker.$isAwaitingFunds.eraseToAnyPublisher(),
+            positionBuilder: pushesPlacedPosition ? self : nil,
+            onPlaced: onPlaced,
+            onRegionWarning: onRegionWarning,
             onAddFunds: onAddFunds
+        ))
+
+        return coordinator
+    }
+}
+
+extension PolymarketDestinationFactory: PolymarketEventDetailsBuilder {
+    func makeEventDetailsCoordinator(
+        eventID: String,
+        category: PolymarketCategory?,
+        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
+        onRegionWarning: @escaping () -> Void,
+        onClose: @escaping Action<Void>
+    ) -> PolymarketEventDetailsCoordinator {
+        let coordinator = PolymarketEventDetailsCoordinator(dismissAction: onClose)
+
+        coordinator.start(with: .init(
+            eventID: eventID,
+            category: category,
+            apiProvider: dependencies.apiProvider,
+            geoblockStateProvider: dependencies.geoblockStateProvider,
+            onOrderPlaced: onOrderPlaced,
+            onRegionWarning: onRegionWarning,
+            orderBuilder: self
         ))
 
         return coordinator

@@ -41,7 +41,7 @@ extension PolymarketOrderMarketRow.Model {
             question: position.question ?? Localization.predictionPositionsUnavailable,
             imageURL: position.iconURL,
             outcomeTitle: position.outcome,
-            outcomePriceText: PolymarketPriceFormatter.centsText(position.curPrice),
+            outcomePriceText: PolymarketPriceFormatter.centsText(position.avgPrice),
             outcomeStyle: PolymarketOutcomeStyle(outcomeIndex: position.outcomeIndex, name: position.outcome)
         )
     }

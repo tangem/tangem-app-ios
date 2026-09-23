@@ -277,8 +277,7 @@ extension PolymarketOrderResultViewModel.State {
 
 private extension PolymarketOrderResultViewModel {
     enum Constants {
-        // [REDACTED_TODO_COMMENT]
-        static let viewPositionTitle = "View position"
+        static let viewPositionTitle = Localization.predictionPlaceResultViewPosition
         static let partiallySoldTitle = Localization.predictionCloseResultPartiallySoldTitle
         static let noLiquidityTitle = Localization.predictionCloseResultNoFillTitle
         static let tokensSoldTitle = Localization.predictionCloseResultTokensSold

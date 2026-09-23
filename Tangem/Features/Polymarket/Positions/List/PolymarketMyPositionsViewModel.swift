@@ -41,6 +41,7 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
 
     private var loaded: [Row] = []
     private var seenIDs: Set<String> = []
+    private var positionsGoneLocally: Set<String> = []
     private var offset = 0
     private var hasNext = false
     private var loadingTask: Task<Void, Never>?
@@ -76,6 +77,14 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
 
             viewModel.reload()
         }
+    }
+
+    func claimed(_ position: PolymarketPosition?) {
+        if let position {
+            positionsGoneLocally.insert(position.id)
+        }
+
+        reload()
     }
 
     func refreshInPlace() {
@@ -180,7 +189,9 @@ private extension PolymarketMyPositionsViewModel {
                 limit: Constants.pageSize,
                 offset: offset
             )
-            return Page(rows: page.positions.map(Row.open), receivedCount: page.receivedCount, hasNext: page.hasNext)
+            let rows = page.positions.filter { !$0.isEmptied && !positionsGoneLocally.contains($0.id) }.map(Row.open)
+
+            return Page(rows: rows, receivedCount: page.receivedCount, hasNext: page.hasNext)
         case .finished:
             let page = try await positionsService.closedPositions(
                 sort: .closedAt,
@@ -262,7 +273,7 @@ extension PolymarketMyPositionsViewModel {
 
         switch row {
         case .open(let position) where position.isRedeemable || position.settlement?.isResolved == true:
-            coordinator?.openRedeem(position: position, onClaimed: { [weak self] in self?.reload() })
+            coordinator?.openRedeem(position: position, onClaimed: { [weak self] claimed in self?.claimed(claimed) })
         case .open(let position):
             coordinator?.openPositionDetails(
                 position: position,

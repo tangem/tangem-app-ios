@@ -11,8 +11,9 @@ import TangemFoundation
 
 final class PolymarketWidgetProvider {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.polymarketAvailabilityProvider) private var availabilityProvider: PolymarketAvailabilityProvider
 
-    private let walletSubject = CurrentValueSubject<UserWalletModel?, Never>(nil)
+    private let walletsSubject = CurrentValueSubject<[UserWalletModel], Never>([])
     private weak var router: FeedWidgetsRoutable?
     private var bag = Set<AnyCancellable>()
 
@@ -27,16 +28,19 @@ final class PolymarketWidgetProvider {
 
 extension PolymarketWidgetProvider: FeedWidgetProvider {
     var widgetPublisher: AnyPublisher<FeedWidget?, Never> {
-        walletSubject
-            .map { $0 == nil ? nil : FeedWidget.polymarket }
+        Publishers
+            .CombineLatest(walletsSubject, availabilityProvider.isAvailablePublisher)
+            .map { wallets, isAvailable in
+                guard isAvailable, wallets.isNotEmpty else { return nil }
+
+                return FeedWidget.polymarket
+            }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
 
     func select() {
-        guard let wallet = walletSubject.value else { return }
-
-        router?.openPolymarketMain(wallet: wallet)
+        router?.openPolymarket(wallets: walletsSubject.value)
     }
 }
 
@@ -50,15 +54,11 @@ private extension PolymarketWidgetProvider {
             .prepend(())
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { provider, _ in provider.resolveWallet() }
+            .sink { provider, _ in provider.resolveWallets() }
             .store(in: &bag)
     }
 
-    func resolveWallet() {
-        let selected = userWalletRepository.selectedModel
-        let wallet = selected.flatMap { $0.isUserWalletLocked ? nil : $0 }
-            ?? userWalletRepository.models.first { !$0.isUserWalletLocked }
-
-        walletSubject.send(wallet)
+    func resolveWallets() {
+        walletsSubject.send(userWalletRepository.models.filter(\.supportsPolymarket))
     }
 }
