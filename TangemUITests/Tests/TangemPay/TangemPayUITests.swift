@@ -58,19 +58,16 @@ final class TangemPayUITests: BaseTestCase {
             scenarios: [ScenarioConfig(name: "tangem_pay_transaction_history", initialState: "InitialEmpty")]
         )
 
-        let mainAfterBack = mainScreen
+        let paymentAccount = mainScreen
             .openTangemPay()
             .waitForScreen()
             .verifyTransactionNotVisible(merchantName: "Mock Merchant")
-            .tapBack()
 
         // Simulate a new transaction on the Tangem Pay
         wireMockClient.setScenarioStateSync("tangem_pay_transaction_history", state: "AfterTransaction")
+        pullToRefresh()
 
-        mainAfterBack
-            .openTangemPay()
-            .waitForScreen()
-            .verifyTransactionVisible(merchantName: "Mock Merchant")
+        paymentAccount.verifyTransactionVisible(merchantName: "Mock Merchant")
     }
 
     func testFreezeUnfreezeCard_TogglesCardState() {
