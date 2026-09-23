@@ -42,6 +42,15 @@ protocol YieldModuleManager {
     func sendTransactionSendEvent(sourceAddress: String, transactionHash: String)
 }
 
+extension YieldModuleManager {
+    var marketInfoPublisher: AnyPublisher<YieldModuleMarketInfo?, Never> {
+        statePublisher
+            .map(\.?.marketInfo)
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+}
+
 protocol YieldModuleManagerUpdater {
     func updateState(
         walletModelState: WalletModelState,

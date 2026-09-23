@@ -72,6 +72,24 @@ actor YieldManagerInteractor {
         }
     }
 
+    func hasActiveIncentiveCampaign() -> Bool {
+        manager.state?.marketInfo?.incentive != nil
+    }
+
+    func getApyBreakdown() -> YieldApyBreakdown? {
+        guard let marketInfo = manager.state?.marketInfo,
+              let rewardsApr = marketInfo.incentive?.rewardsApr,
+              rewardsApr > 0 else {
+            return nil
+        }
+
+        return YieldApyBreakdown(baseApy: marketInfo.apy, rewardsApr: rewardsApr)
+    }
+
+    func getIncentivesSummary() async -> YieldIncentivesRewardsSummary? {
+        await manager.incentivesManager?.incentives()
+    }
+
     func getMaxFeeNative() -> Decimal? {
         if let marketInfo = manager.state?.marketInfo, let maxFeeNative = marketInfo.maxFeeNative {
             return maxFeeNative
@@ -226,6 +244,12 @@ actor YieldManagerInteractor {
             throw error
         }
     }
+}
+
+/// Components behind the displayed rate, in the same fraction form as the market APY.
+struct YieldApyBreakdown: Equatable {
+    let baseApy: Decimal
+    let rewardsApr: Decimal
 }
 
 private extension YieldManagerInteractor {
