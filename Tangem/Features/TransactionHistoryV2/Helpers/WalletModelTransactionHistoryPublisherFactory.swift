@@ -24,6 +24,10 @@ enum WalletModelTransactionHistoryPublisherFactory {
         tokenItem: TokenItem,
         feeTokenItem: TokenItem
     ) -> AnyPublisher<WalletModelTransactionHistoryState, Never> {
+        // Retained before the express merge: an emptied on-chain response would otherwise still produce a
+        // shorter merged list, which is how the reported partial loss of rows happens.
+        let transactionHistoryPublisher = transactionHistoryPublisher.retainingContent()
+
         guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
             return transactionHistoryPublisher.eraseToAnyPublisher()
         }
@@ -109,18 +113,16 @@ enum WalletModelTransactionHistoryPublisherFactory {
                         using: merger
                     )
                     return .loaded(items: mergedTransactions)
-                case .notSupported:
-                    // The `.notSupported` state should be handled too, because merging can add synthetic transactions even without matching BSDK transactions.
+                case .notSupported, .error:
+                    // Merging can add synthetic transactions even without matching BSDK transactions.
                     let mergedTransactions = merge(
                         bsdkTransactions: [],
                         exchangeTransactions: exchangeTransactions,
                         onrampTransactions: onrampTransactions,
                         using: merger
                     )
-                    return mergedTransactions.isEmpty ? .notSupported : .loaded(items: mergedTransactions)
-                case .error,
-                     .notLoaded,
-                     .loading:
+                    return mergedTransactions.isEmpty ? transactionHistoryState : .loaded(items: mergedTransactions)
+                case .notLoaded, .loading:
                     return transactionHistoryState
                 }
             }

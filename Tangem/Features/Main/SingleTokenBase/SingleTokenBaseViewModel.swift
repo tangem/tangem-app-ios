@@ -567,12 +567,12 @@ extension SingleTokenBaseViewModel {
         switch newState {
         case .notSupported:
             transactionHistoryState = .notSupported
-        case .notLoaded:
-            transactionHistoryState = .loading
-        case .loading:
-            if case .notLoaded = newState {
-                transactionHistoryState = .loading
+        case .notLoaded, .loading:
+            if case .loaded = transactionHistoryState {
+                break
             }
+
+            transactionHistoryState = .loading
         case .error(let error):
             transactionHistoryState = .error(error)
         case .loaded(let records):
