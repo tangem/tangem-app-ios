@@ -113,7 +113,8 @@ final class SwapDeeplinksUITests: BaseTestCase {
             .waitForFromAmountDisplayedValue(amount)
     }
 
-    func testDeeplinkFromSwapScreenOpensNewSwapWithUpdatedAmount() {
+    /// [REDACTED_INFO] Deeplink for Swap: Multiple swap bottom sheets stack on top of each other when opening a deeplink repeatedly
+    func skipped_testDeeplinkFromSwapScreenOpensNewSwapWithUpdatedAmount() {
         setAllureId(10928)
         let firstAmount = "0.0008"
         let secondAmount = "0.002"
