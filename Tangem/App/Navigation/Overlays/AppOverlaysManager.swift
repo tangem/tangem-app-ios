@@ -29,6 +29,7 @@ final class AppOverlaysManager {
     private var overlayWindow: UIWindow?
     private var storiesViewController: UIViewController?
     private var storiesV2ViewController: UIViewController?
+    private var overlayPresentationHost: OverlayViewPresentationHost?
 
     private var cancellables: Set<AnyCancellable>
     private weak var mainWindow: MainWindow?
@@ -49,6 +50,11 @@ final class AppOverlaysManager {
             sheetViewModel: floatingSheetViewModel,
             sheetRegistry: sheetRegistry,
             alertPresenterViewModel: alertPresenterViewModel
+        )
+
+        overlayPresentationHost = OverlayViewPresentationHost(
+            viewModel: overlayViewPresenterViewModel,
+            sheetRegistry: sheetRegistry
         )
 
         bindStories()

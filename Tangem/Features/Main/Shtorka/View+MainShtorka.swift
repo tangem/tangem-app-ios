@@ -12,9 +12,9 @@ import TangemUIUtils
 
 extension View {
     @ViewBuilder
-    func mainShtorka(coordinator: FeedCoordinator?, presentsAppOverlays: Bool) -> some View {
+    func mainShtorka(coordinator: FeedCoordinator?) -> some View {
         if FeatureProvider.isAvailable(.nativeMarketsShtorka), let coordinator {
-            modifier(MainShtorkaViewModifier(coordinator: coordinator, presentsAppOverlays: presentsAppOverlays))
+            modifier(MainShtorkaViewModifier(coordinator: coordinator))
         } else {
             self
         }
@@ -22,24 +22,17 @@ extension View {
 }
 
 private struct MainShtorkaViewModifier: ViewModifier {
-    @Injected(\.appOverlaysDependencies.overlayViewPresenterViewModel) private var overlayViewPresenterViewModel: OverlayViewPresenterViewModel
-
     let coordinator: FeedCoordinator
-    let presentsAppOverlays: Bool
 
     @ObservedObject private var stateObject: MainShtorkaStateObject
 
-    init(coordinator: FeedCoordinator, presentsAppOverlays: Bool) {
+    init(coordinator: FeedCoordinator) {
         self.coordinator = coordinator
-        self.presentsAppOverlays = presentsAppOverlays
         stateObject = coordinator.shtorkaStateObject
     }
 
     func body(content: Content) -> some View {
         content
-            .background {
-                MainShtorkaOverlayPresenter(viewModel: overlayViewPresenterViewModel, isEnabled: presentsAppOverlays)
-            }
             // Read here rather than inside the sheet: the sheet's content ignores the bottom inset and a floating
             // sheet moves its own insets during transitions. On the main screen the values are the window's.
             .background {
@@ -76,35 +69,5 @@ private struct MainShtorkaViewModifier: ViewModifier {
                     .environment(\.mainShtorkaSize, stateObject.size)
                     .environment(\.mainShtorkaContentIsCollapsed, stateObject.isContentCollapsed)
             }
-    }
-}
-
-// MARK: - App overlays
-
-private struct MainShtorkaOverlayPresenter: View {
-    @ObservedObject var viewModel: OverlayViewPresenterViewModel
-    let isEnabled: Bool
-
-    var body: some View {
-        NavHolder()
-            .shtorkaCompatibleSheet(item: enabledBinding(viewModel.sheet(at: 0))) { item in
-                item.view
-                    .modifier(OverlayViewPresenterModifier(viewModel: viewModel, depth: 1))
-            }
-            .shtorkaCompatibleFullScreenCover(item: enabledBinding(viewModel.fullScreenCover(at: 0))) { item in
-                item.view
-                    .modifier(OverlayViewPresenterModifier(viewModel: viewModel, depth: 1))
-            }
-    }
-
-    private func enabledBinding(_ binding: Binding<OverlayView?>) -> Binding<OverlayView?> {
-        Binding(
-            get: { isEnabled ? binding.wrappedValue : nil },
-            set: { value in
-                if isEnabled {
-                    binding.wrappedValue = value
-                }
-            }
-        )
     }
 }
