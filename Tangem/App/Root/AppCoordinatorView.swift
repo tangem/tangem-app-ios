@@ -21,7 +21,7 @@ struct AppCoordinatorView: CoordinatorView {
     @Namespace private var namespace
 
     var body: some View {
-        if FeatureProvider.isAvailable(.nativeMarketsShtorka) {
+        if FeatureProvider.isAvailable(.newShtorkaEnabled) {
             content
                 .accentColor(Colors.Text.primary1)
                 .bottomSheet(
