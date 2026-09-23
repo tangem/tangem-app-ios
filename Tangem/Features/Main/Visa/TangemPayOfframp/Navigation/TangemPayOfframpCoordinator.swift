@@ -88,9 +88,7 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
         )
         self.optionsStore = optionsStore
 
-        // [REDACTED_TODO_COMMENT]
-        // let repository = CommonTangemPayGeoRepository()
-        let repository = MockTangemPayGeoRepository()
+        let repository = CommonTangemPayGeoRepository()
         geoStore = TangemPayGeoStore(repository: repository)
 
         rootViewModel = WithdrawHubViewModel(
