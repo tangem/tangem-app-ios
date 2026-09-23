@@ -67,7 +67,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
     @Published var mainQRScanFlowCoordinator: MainQRScanFlowCoordinator?
 
-    private(set) var feedCoordinator: FeedCoordinator?
+    private(set) var shtorka: MainShtorkaPresenter?
 
     // MARK: - Child view models
 
@@ -126,19 +126,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
             onActivation: weakify(self, forFunction: MainCoordinator.openMobileFinishActivation)
         )
 
-        setupFeedCoordinator()
-    }
-
-    // MARK: - Private Implementation
-
-    private func setupFeedCoordinator() {
-        guard FeatureProvider.isAvailable(.newShtorkaEnabled) else {
-            return
-        }
-
-        let coordinator = FeedCoordinator(popToRootAction: popToRootAction)
-        coordinator.start(with: .init(host: self))
-        feedCoordinator = coordinator
+        shtorka = MainShtorkaPresenter(host: self, popToRootAction: popToRootAction)
     }
 
     // MARK: - Tooltip Interaction

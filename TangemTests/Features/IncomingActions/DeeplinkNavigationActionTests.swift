@@ -342,6 +342,27 @@ struct DeeplinkNavigationActionTests {
         #expect(action(urlString) == nil)
     }
 
+    // MARK: - Discover
+
+    @Test(
+        "A discover link takes the section and filter it carries",
+        arguments: [
+            ("tangem://discover", DeeplinkNavigationAction.feed(FeedDeeplink(section: nil, category: nil, type: nil))),
+            ("tangem://discover?section=Assets", .feed(FeedDeeplink(section: "assets", category: nil, type: nil))),
+            (
+                "tangem://discover?section=Assets&category=XStocks&type=Staking",
+                .feed(FeedDeeplink(section: "assets", category: "xstocks", type: "staking"))
+            ),
+            (
+                "tangem://discover?section=earn&type=embedded_yield",
+                .feed(FeedDeeplink(section: "earn", category: nil, type: "embedded_yield"))
+            ),
+        ]
+    )
+    func shtorka(urlString: String, expected: DeeplinkNavigationAction) {
+        #expect(action(urlString) == expected)
+    }
+
     // MARK: - Campaigns
 
     /// A campaign link needs no id: a missing one falls back to the campaign-not-active sheet when handled.

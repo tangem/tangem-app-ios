@@ -27,7 +27,7 @@ final class FeedDetentHeights: ObservableObject {
     @Published private(set) var isContentCollapsed = true
 
     private var searchBarHeight = FeedDetentHeights.initialSearchBarHeight
-    private(set) var widgetsHeight: CGFloat = .zero
+    private var widgetsHeight: CGFloat = .zero
     private var tabChipsHeight: CGFloat = .zero
     private var safeArea = EdgeInsets()
 

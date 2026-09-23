@@ -14,9 +14,9 @@ struct FeedView: View {
     @ObservedObject var viewModel: FeedViewModel
     @ObservedObject var searchViewModel: FeedSearchViewModel
 
-    let shtorkaReporting: any MainShtorkaReporting
-    let shtorkaActions: any MainShtorkaViewActionProvider
+    let container: any FeedContainer
 
+    @Environment(\.feedDetentReporting) private var detentReporting
     @Environment(\.mainShtorkaSize) private var sheetSize
 
     @State private var isContentUnderSearchBar = false
@@ -49,13 +49,13 @@ struct FeedView: View {
         FeedSearchBarView(
             viewModel: viewModel.searchBarViewModel,
             isActive: searchViewModel.isActive,
-            onExpand: shtorkaActions.expand,
+            onExpand: container.expand,
             onFocus: {
                 searchViewModel.open()
-                shtorkaActions.expand()
+                container.expand()
             },
             onCancel: searchViewModel.reset,
-            onHeightChange: { shtorkaReporting.report(searchBar: $0) }
+            onHeightChange: { detentReporting?.report(searchBar: $0) }
         )
     }
 
@@ -67,15 +67,19 @@ struct FeedView: View {
                 ScrollView {
                     VStack(spacing: FeedConstants.widgetsToTabsSpacing) {
                         FeedWidgetsView(viewModel: viewModel.widgetsViewModel)
-                            .readGeometry(\.size.height) { shtorkaReporting.report(widgets: $0) }
+                            .readGeometry(\.size.height) { height in
+                                viewModel.scrollCoordinator.report(widgets: height)
+                                detentReporting?.report(widgets: height)
+                            }
 
                         FeedTabsView(
                             viewModel: viewModel.tabsViewModel,
-                            shtorkaActions: shtorkaActions,
-                            shtorkaReporting: shtorkaReporting,
+                            container: container,
                             areChipsPinned: $areChipsPinned,
                             scrollProxy: proxy,
-                            viewportHeight: visibleHeight
+                            viewportHeight: visibleHeight,
+                            scrollTarget: { viewModel.scrollCoordinator.scrollTarget(forTab: $0, viewportHeight: visibleHeight, pinTabs: $1, chipsPinned: $2) },
+                            onChipsHeightChange: { detentReporting?.report(tabChips: $0) }
                         )
                         .frame(minHeight: visibleHeight, alignment: .top)
                     }
@@ -85,7 +89,7 @@ struct FeedView: View {
                             .id(FeedConstants.contentAnchorID)
                     }
                     .onGeometryChange(for: CGFloat.self, of: { -$0.frame(in: .named(FeedConstants.scrollCoordinateSpace)).minY }) { offset in
-                        shtorkaReporting.report(scrollOffset: offset, tabID: viewModel.tabsViewModel.selectedTab.id)
+                        viewModel.scrollCoordinator.report(offset: offset, tabID: viewModel.tabsViewModel.selectedTab.id)
 
                         let isUnderSearchBar = offset > 0
                         if isUnderSearchBar != isContentUnderSearchBar {

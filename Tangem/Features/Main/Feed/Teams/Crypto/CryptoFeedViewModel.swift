@@ -24,6 +24,10 @@ final class CryptoFeedViewModel: ObservableObject {
         pulse = PulseViewModel(dataProvider: pulseDataProvider, router: router)
     }
 
+    func select(categoryId: String) {
+        pulse.select(categoryId: categoryId)
+    }
+
     func feedSheetSizeDidChange(to size: ShtorkaSize) {
         marketCap.feedSheetSizeDidChange(to: size)
         pulse.feedSheetSizeDidChange(to: size)

@@ -12,9 +12,9 @@ import TangemUIUtils
 
 extension View {
     @ViewBuilder
-    func mainShtorka(coordinator: FeedCoordinator?) -> some View {
-        if FeatureProvider.isAvailable(.newShtorkaEnabled), let coordinator {
-            modifier(MainShtorkaViewModifier(coordinator: coordinator))
+    func mainShtorka(_ presenter: MainShtorkaPresenter?) -> some View {
+        if let content = presenter?.content {
+            modifier(MainShtorkaViewModifier(content: content))
         } else {
             self
         }
@@ -22,13 +22,13 @@ extension View {
 }
 
 private struct MainShtorkaViewModifier: ViewModifier {
-    let coordinator: FeedCoordinator
+    private let coordinator: FeedCoordinator
 
     @ObservedObject private var stateObject: MainShtorkaStateObject
 
-    init(coordinator: FeedCoordinator) {
-        self.coordinator = coordinator
-        stateObject = coordinator.shtorkaStateObject
+    init(content: MainShtorkaPresenter.Content) {
+        coordinator = content.feed
+        stateObject = content.state
     }
 
     func body(content: Content) -> some View {
@@ -68,6 +68,7 @@ private struct MainShtorkaViewModifier: ViewModifier {
                     // in the feed, and a screen opened outside the sheet keeps the defaults.
                     .environment(\.mainShtorkaSize, stateObject.size)
                     .environment(\.mainShtorkaContentIsCollapsed, stateObject.isContentCollapsed)
+                    .environment(\.feedDetentReporting, stateObject)
             }
     }
 }

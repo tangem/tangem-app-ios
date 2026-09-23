@@ -53,6 +53,13 @@ final class FeedTabsViewModel: ObservableObject {
         }
     }
 
+    func selectTab(kind: FeedTabKind) {
+        let tab = tabs.first { $0.kind == kind } ?? tabs[0]
+
+        onSelectTab(tab)
+        movePage(to: tab)
+    }
+
     func sheetSizeDidChange(to size: ShtorkaSize) {
         sheetSize = size
         tabs.forEach { $0.feedSheetSizeDidChange(to: size) }
@@ -92,6 +99,18 @@ final class FeedTabsViewModel: ObservableObject {
         currentPage = FeedTabPage(tab: tab)
         updatePromoBannersVisibility()
         return target ?? pending
+    }
+
+    /// The page moves without the slide and without touching the scroll a jump is still owed: the pager applies
+    /// that one when it renders, and here there may be no pager at all.
+    private func movePage(to tab: FeedTab) {
+        guard currentPage.id != tab.id else {
+            return
+        }
+
+        departingPages = []
+        currentPage = FeedTabPage(tab: tab, topInset: currentPage.topInset)
+        updatePromoBannersVisibility()
     }
 
     private func resolve(_ target: FeedScrollTarget?) -> FeedScrollTarget? {

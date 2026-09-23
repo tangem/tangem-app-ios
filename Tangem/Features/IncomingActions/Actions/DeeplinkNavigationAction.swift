@@ -14,6 +14,7 @@ enum DeeplinkNavigationAction: Equatable {
     case yield(YieldDeeplink)
     case swap(SwapDeeplink)
     case markets(MarketsDeeplink)
+    case feed(FeedDeeplink)
     case buy(BuyDeeplink)
     case sell(SellDeeplink)
     case referral(ReferralDeeplink)
@@ -76,6 +77,7 @@ extension DeeplinkNavigationAction {
         YieldDeeplink.host: YieldDeeplink.self,
         SwapDeeplink.host: SwapDeeplink.self,
         MarketsDeeplink.host: MarketsDeeplink.self,
+        FeedDeeplink.host: FeedDeeplink.self,
         BuyDeeplink.host: BuyDeeplink.self,
         SellDeeplink.host: SellDeeplink.self,
         ReferralDeeplink.host: ReferralDeeplink.self,
