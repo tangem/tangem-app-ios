@@ -252,26 +252,22 @@ final class AppTransfersUITests: BaseTestCase {
     func testTransferModeAvailableFromTangemPayAccount() {
         setAllureId(9856)
 
-        launchApp(
-            tangemApiType: .mock,
+        launchAndImportHotWalletWithRealPayAuthorization(
             expressApiType: .mock,
-            visaApiType: .mock,
-            clearStorage: true,
             scenarios: [
-                ScenarioConfig(name: "tangem_pay_eligibility", initialState: "PaeraCustomer"),
                 ScenarioConfig(name: "tangem_pay_balance_update", initialState: "InitialBalanceMultinetwork"),
                 ScenarioConfig(name: "tangem_pay_transaction_history", initialState: "InitialEmpty"),
                 ScenarioConfig(name: "user_tokens_api", initialState: "TangemPayTransferUsdc"),
+                // Without BANK_OFFRAMP among the eligible channels the Withdraw button keeps opening the swap flow.
+                ScenarioConfig(name: Constants.eligibilityChannelsScenario, initialState: Constants.withoutBankOfframpState),
             ]
         )
-
-        importHotWallet()
-            .openTangemPay()
-            .waitForScreen()
-            .tapWithdraw()
-            .validateSwapScreenDisplayed()
-            .chooseTokenFromEmptySelector(Constants.tangemPayToken)
-            .waitForProviderBlockNotDisplayed()
+        .openTangemPay()
+        .waitForScreen()
+        .tapWithdraw()
+        .validateSwapScreenDisplayed()
+        .chooseTokenFromEmptySelector(Constants.tangemPayToken)
+        .waitForProviderBlockNotDisplayed()
     }
 
     func testFeeCalculationErrorDisablesTransfer() {
@@ -550,6 +546,9 @@ private extension AppTransfersUITests {
         static let insufficientFeeTitle = "Unable to cover Ethereum fee"
         static let insufficientFeeMessage = "To make a transaction you need to deposit some Ethereum ETH"
         static let goToFeeCurrencyLabel = "Go to ETH"
+
+        static let eligibilityChannelsScenario = "tangem_pay_eligibility_channels"
+        static let withoutBankOfframpState = "Started"
 
         static let ethereumTransferScenarios: [ScenarioConfig] = [
             ScenarioConfig(name: "user_tokens_api", initialState: "TwoAccountsSameToken"),
