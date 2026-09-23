@@ -18,7 +18,6 @@ struct CollectiblesStoriesOverlayView: View {
     var body: some View {
         CollectiblesStoriesView(viewModel: viewModel)
             .opacity(isVisible ? 1 : 0)
-            .presentationBackground(.clear)
             .onAppear(perform: onAppear)
             .task(id: viewModel.isFinished, dismiss)
     }

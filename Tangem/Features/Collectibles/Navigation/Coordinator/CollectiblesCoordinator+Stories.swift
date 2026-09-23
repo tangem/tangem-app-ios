@@ -19,10 +19,14 @@ extension CollectiblesCoordinator {
         Task { [weak self] in self?.presentStories() }
     }
 
+    func closeStories() {
+        storiesViewModel = nil
+    }
+
     private func presentStories() {
         let analytics = storiesAnalyticsProvider
 
-        let viewModel = CollectiblesStoriesViewModel(
+        storiesViewModel = CollectiblesStoriesViewModel(
             slides: CollectiblesStoriesView.Slide.content,
             engine: {
                 StoryPlayerViewModel(
@@ -34,24 +38,5 @@ extension CollectiblesCoordinator {
                 )
             }
         )
-
-        let presenter = overlayViewPresenter
-
-        let view = CollectiblesStoriesOverlayView(
-            viewModel: viewModel,
-            onDismiss: { presenter.dismiss() }
-        )
-
-        presenter.present(
-            OverlayView(id: Constants.storiesOverlayID, view: view, style: .fullScreenCover, animated: false)
-        )
-    }
-}
-
-// MARK: - Constants
-
-private extension CollectiblesCoordinator {
-    enum Constants {
-        static let storiesOverlayID = "collectibles_stories"
     }
 }

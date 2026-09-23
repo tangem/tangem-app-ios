@@ -26,6 +26,10 @@ struct FeedDestinationView: View {
                 .toolbar(.hidden, for: .navigationBar)
         case .polymarket(let coordinator):
             PolymarketCoordinatorView(coordinator: coordinator)
+        case .collectibles(let coordinator):
+            NavigationStack {
+                CollectiblesCoordinatorView(coordinator: coordinator, dismissStyle: .close)
+            }
         case .accountForm(let viewModel):
             NavigationStack { AccountFormView(viewModel: viewModel) }
                 .presentation(onDismissalAttempt: viewModel.onClose)
