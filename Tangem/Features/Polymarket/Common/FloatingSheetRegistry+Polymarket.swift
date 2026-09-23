@@ -36,8 +36,12 @@ extension FloatingSheetRegistry {
             PolymarketAddFundsSheetView(viewModel: viewModel)
         }
 
-        register(ReceiveMainViewModel.self) { viewModel in
-            ReceiveMainView(viewModel: viewModel)
+        register(PolymarketChooseNetworkSheetViewModel.self) { viewModel in
+            PolymarketChooseNetworkSheetView(viewModel: viewModel)
+        }
+
+        register(PolymarketReceiveSheetViewModel.self) { viewModel in
+            PolymarketReceiveSheetView(viewModel: viewModel)
         }
     }
 }
