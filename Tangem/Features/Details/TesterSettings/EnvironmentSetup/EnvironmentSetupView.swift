@@ -56,6 +56,8 @@ struct EnvironmentSetupView: View {
                     appUidControls
 
                     fcmControls
+
+                    walletIdControls
                 }
             }
             .interContentPadding(8)
@@ -163,6 +165,43 @@ struct EnvironmentSetupView: View {
             }
         }
         .padding(.horizontal)
+    }
+
+    private var walletIdControls: some View {
+        VStack(spacing: 10) {
+            Text("Wallet IDs")
+                .font(.headline)
+
+            VStack(spacing: 15) {
+                ForEach(viewModel.walletIds) { wallet in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(wallet.name)
+                            .font(.footnote)
+                            .bold()
+
+                        walletIdRow(title: "id", value: wallet.id)
+
+                        walletIdRow(title: "hash", value: wallet.hash)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+        }
+        .padding(.horizontal)
+    }
+
+    private func walletIdRow(title: String, value: String) -> some View {
+        HStack {
+            Text("\(title): \(value)")
+                .font(.footnote)
+
+            SwiftUI.Button {
+                viewModel.copy(value)
+            } label: {
+                Image(systemName: "doc.on.doc")
+                    .foregroundColor(Color.blue)
+            }
+        }
     }
 
     private var exitButton: some View {
