@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 
 struct FeedCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: FeedCoordinator
@@ -36,6 +37,7 @@ struct FeedCoordinatorView: CoordinatorView {
                         coordinator.shtorkaActions.expand()
                     }
                 })
+                .onAnimationCompleted(for: sheetSize == .full, completion: coordinator.sheetDidFinishExpanding)
                 .environment(\.feedZoomNamespace, zoomNamespace)
                 .fullScreenCover(item: $coordinator.cover) { FeedCoverView(cover: $0, namespace: zoomNamespace) }
             }

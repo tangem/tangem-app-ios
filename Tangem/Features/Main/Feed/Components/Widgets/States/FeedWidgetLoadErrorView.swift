@@ -28,7 +28,7 @@ struct FeedWidgetLoadErrorView: View {
                     .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
             }
         } background: {
-            DesignSystem.Color.bgSecondary
+            FeedWidgetBackground(defaultColor: DesignSystem.Color.bgSecondary)
         }
         .accessibilityElement(children: .combine)
     }
