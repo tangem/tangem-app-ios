@@ -12,12 +12,13 @@ import TangemUIUtils
 
 struct FeedTabsView: View {
     @ObservedObject var viewModel: FeedTabsViewModel
-    let shtorkaActions: any MainShtorkaViewActionProvider
-    let shtorkaReporting: any MainShtorkaReporting
+    let container: any FeedContainer
 
     @Binding var areChipsPinned: Bool
     let scrollProxy: ScrollViewProxy
     let viewportHeight: CGFloat
+    let scrollTarget: (_ tabID: String, _ pinTabs: Bool, _ chipsPinned: Bool) -> FeedScrollTarget?
+    let onChipsHeightChange: (CGFloat) -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.layoutDirection) private var layoutDirection
@@ -114,7 +115,7 @@ struct FeedTabsView: View {
                 .hidden()
                 .readGeometry(\.size.height) { height in
                     chipsHeight = height
-                    shtorkaReporting.report(tabChips: height)
+                    onChipsHeightChange(height)
                 }
                 .allowsHitTesting(false)
                 .accessibilityHidden(true)
@@ -138,9 +139,9 @@ struct FeedTabsView: View {
     // MARK: - Switching
 
     private func expandAndSelect(_ tab: FeedTab) {
-        if sheetSize != .full || pendingTab != nil {
+        if sheetSize.isNonFullFeedSheet || pendingTab != nil {
             pendingTab = tab
-            shtorkaActions.expand()
+            container.expand()
             return
         }
 
@@ -186,12 +187,7 @@ struct FeedTabsView: View {
     }
 
     private func scrollTarget(for tab: FeedTab, pinTabs: Bool) -> FeedScrollTarget? {
-        shtorkaReporting.scrollTarget(
-            forTab: tab.id,
-            viewportHeight: viewportHeight,
-            pinTabs: pinTabs,
-            chipsPinned: areChipsPinned
-        )
+        scrollTarget(tab.id, pinTabs, areChipsPinned)
     }
 
     private func move(to target: FeedScrollTarget?) {
