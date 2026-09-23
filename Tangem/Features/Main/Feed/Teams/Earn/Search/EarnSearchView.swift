@@ -64,8 +64,6 @@ private extension EarnSearchView {
                     EarnTokenItemViewRedesign(viewModel: result)
                 }
             }
-            .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: 0, radius: Constants.cornerRadius)
-            .padding(.horizontal, Constants.horizontalPadding)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -78,7 +76,6 @@ private extension EarnSearchView {
         static let contentID = "earnSearchContent"
         static let contentVerticalInset: CGFloat = 8
         static let sectionHeaderSpacing: CGFloat = 8
-        static let cornerRadius: CGFloat = 20
         static let horizontalPadding: CGFloat = 16
         static let errorVerticalInset: CGFloat = 24
     }
