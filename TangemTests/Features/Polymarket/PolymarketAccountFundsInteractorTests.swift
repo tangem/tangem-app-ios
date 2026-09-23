@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 import Testing
 import TangemFoundation
 import TangemPolymarket
@@ -146,12 +147,13 @@ private extension PolymarketSupportedAsset {
         chainId: String,
         symbol: String,
         address: String,
+        family: PolymarketChainFamily = .evm,
         minimum: Decimal = 2
     ) -> PolymarketSupportedAsset {
         PolymarketSupportedAsset(
             chainId: chainId,
             chainName: "Chain \(chainId)",
-            family: .evm,
+            family: family,
             token: Token(name: symbol, symbol: symbol, address: address, decimalCount: 6),
             minCheckoutUSD: minimum
         )
@@ -163,69 +165,49 @@ private extension PolymarketSupportedAsset {
         address: PolymarketUtilities.usdcContractAddress,
         minimum: 2
     )
+
+    static let usdcBase = make(
+        chainId: "8453",
+        symbol: "USDC",
+        address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        minimum: 2
+    )
+
+    static let usdcSolana = make(
+        chainId: "1151111081099710",
+        symbol: "USDC",
+        address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        family: .svm,
+        minimum: 2
+    )
 }
 
 private let ownerAddress = "0x1111111111111111111111111111111111111111"
 private let fundingAddress = "0x2222222222222222222222222222222222222222"
 private let bitcoinFundingAddress = "bc1qfundingaddressplaceholder22222222222222"
+private let solanaFundingAddress = "So11111111111111111111111111111111111111112"
 private let derivedDepositWallet = try! PolymarketDepositWalletDeriver.derive(ownerAddress: ownerAddress)
+
+private let supportedBlockchains: Set<Blockchain> = [
+    PolymarketUtilities.blockchain,
+    .base(testnet: false),
+    .solana(curve: .ed25519_slip0010, testnet: false),
+]
 
 private func makeInteractor(
     bridge: any PolymarketBridgeService = BridgeServiceStub(),
     configuration: ConfigurationServiceSpy = ConfigurationServiceSpy(),
     walletService: DepositWalletServiceStub = DepositWalletServiceStub(),
-    ownerAddressProvider: OwnerAddressProviderStub = OwnerAddressProviderStub()
+    ownerAddressProvider: OwnerAddressProviderStub = OwnerAddressProviderStub(),
+    supportedBlockchains: Set<Blockchain> = supportedBlockchains
 ) -> PolymarketAccountFundsInteractor {
     PolymarketAccountFundsInteractor(
         bridgeService: bridge,
         configurationService: configuration,
         walletService: walletService,
-        ownerAddressProvider: ownerAddressProvider
+        ownerAddressProvider: ownerAddressProvider,
+        supportedBlockchains: supportedBlockchains
     )
-}
-
-// MARK: - Asset lookup
-
-@Suite("Polymarket add funds asset lookup")
-struct PolymarketAddFundsAssetLookupTests {
-    @Test("USDC on Polygon is matched by chain and contract, not by symbol")
-    func matchesByContract() {
-        let lookalike = PolymarketSupportedAsset.make(
-            chainId: "137",
-            symbol: "USDC",
-            address: "0x0000000000000000000000000000000000000001"
-        )
-
-        #expect(PolymarketUtilities.usdcOnPolygon(in: [lookalike]) == nil)
-        #expect(PolymarketUtilities.usdcOnPolygon(in: [lookalike, .usdcPolygon]) == .usdcPolygon)
-    }
-
-    @Test("The same contract on another chain is not a match")
-    func rejectsOtherChains() {
-        let usdcBase = PolymarketSupportedAsset.make(
-            chainId: "8453",
-            symbol: "USDC",
-            address: PolymarketUtilities.usdcContractAddress
-        )
-
-        #expect(PolymarketUtilities.usdcOnPolygon(in: [usdcBase]) == nil)
-    }
-
-    @Test("The contract is matched regardless of address casing")
-    func ignoresAddressCasing() {
-        let checksummed = PolymarketSupportedAsset.make(
-            chainId: "137",
-            symbol: "USDC",
-            address: PolymarketUtilities.usdcContractAddress.uppercased()
-        )
-
-        #expect(PolymarketUtilities.usdcOnPolygon(in: [checksummed]) != nil)
-    }
-
-    @Test("An empty list has nothing to match")
-    func emptyList() {
-        #expect(PolymarketUtilities.usdcOnPolygon(in: []) == nil)
-    }
 }
 
 // MARK: - Preparation
@@ -243,17 +225,64 @@ struct PolymarketAddFundsPreparationTests {
 
         await interactor.prepare()
 
-        guard let target = interactor.state.depositTarget else {
+        guard let target = interactor.state.depositTargets.first else {
             Issue.record("Expected a funding target, got \(interactor.state)")
             return
         }
 
-        #expect(target.asset == .usdcPolygon)
-        #expect(target.asset.minCheckoutUSD == 2)
+        #expect(target.entry == PolymarketDepositAssetCatalog.usdcOnPolygon)
+        #expect(target.minCheckoutUSD == 2)
         #expect(target.fundingAddress == fundingAddress)
     }
 
-    @Test("A bridge that does not list USDC on Polygon withholds the deposit without blocking a withdrawal")
+    @Test("Every asset the app offers becomes a target, ordered by the app and addressed by its own chain family")
+    func buildsATargetPerAcceptedAsset() async {
+        let bridge = BridgeServiceStub(
+            assets: [.usdcSolana, .usdcBase, .usdcPolygon],
+            fundingAddresses: PolymarketBridgeAddresses(addresses: [.evm: fundingAddress, .svm: solanaFundingAddress])
+        )
+
+        let interactor = makeInteractor(bridge: bridge)
+        await interactor.prepare()
+
+        guard case .ready(let readiness) = interactor.state else {
+            Issue.record("Expected a prepared account, got \(interactor.state)")
+            return
+        }
+
+        #expect(readiness.depositTargets.map(\.entry) == [
+            PolymarketDepositAssetCatalog.usdcOnPolygon,
+            PolymarketDepositAssetCatalog.usdcOnBase,
+            PolymarketDepositAssetCatalog.usdcOnSolana,
+        ])
+        #expect(readiness.depositTargets.map(\.fundingAddress) == [fundingAddress, fundingAddress, solanaFundingAddress])
+        #expect(readiness.depositTargets.first?.entry == PolymarketDepositAssetCatalog.usdcOnPolygon)
+    }
+
+    @Test("The withdrawal floor survives even when nothing on the account's own chain can be deposited")
+    func withdrawalFloorOutlivesTheDepositTargets() async {
+        let bridge = BridgeServiceStub(
+            assets: [.usdcPolygon, .usdcBase],
+            fundingAddresses: PolymarketBridgeAddresses(addresses: [.svm: solanaFundingAddress])
+        )
+
+        let interactor = makeInteractor(bridge: bridge)
+        await interactor.prepare()
+
+        #expect(interactor.state.depositTargets.isEmpty)
+        #expect(interactor.state.collateralMinCheckoutUSD == 2)
+    }
+
+    @Test("A bridge that stops listing USDC on Polygon leaves no withdrawal floor to enforce")
+    func withdrawalFloorNeedsTheCollateralAsset() async {
+        let interactor = makeInteractor(bridge: BridgeServiceStub(assets: [.usdcBase]))
+
+        await interactor.prepare()
+
+        #expect(interactor.state.collateralMinCheckoutUSD == nil)
+    }
+
+    @Test("A bridge that lists no asset the app offers withholds the deposit without blocking a withdrawal")
     func depositWithheldWhenNotAccepted() async {
         let other = PolymarketSupportedAsset.make(
             chainId: "8453",
@@ -265,7 +294,7 @@ struct PolymarketAddFundsPreparationTests {
 
         await interactor.prepare()
 
-        #expect(interactor.state.depositTarget == nil)
+        #expect(interactor.state.depositTargets.first == nil)
         #expect(interactor.state.depositWalletAddress == derivedDepositWallet)
     }
 
@@ -275,7 +304,7 @@ struct PolymarketAddFundsPreparationTests {
 
         await interactor.prepare()
 
-        #expect(interactor.state.depositTarget == nil)
+        #expect(interactor.state.depositTargets.first == nil)
         #expect(interactor.state.depositWalletAddress == derivedDepositWallet)
     }
 
@@ -338,11 +367,11 @@ struct PolymarketAddFundsPreparationTests {
         let interactor = makeInteractor(bridge: FirstAttemptFailsBridgeStub())
 
         await interactor.prepare()
-        #expect(interactor.state.depositTarget == nil)
+        #expect(interactor.state.depositTargets.first == nil)
 
         await interactor.prepare()
 
-        #expect(interactor.state.depositTarget != nil)
+        #expect(interactor.state.depositTargets.first != nil)
     }
 
     @Test("Preparation hands its outcome back, so the caller does not have to read the state to learn it")
@@ -354,7 +383,7 @@ struct PolymarketAddFundsPreparationTests {
         let unavailableOutcome = await unavailable.prepare()
 
         #expect(availableOutcome == available.state)
-        #expect(availableOutcome.depositTarget != nil)
+        #expect(availableOutcome.depositTargets.first != nil)
         #expect(unavailableOutcome == .unavailable)
     }
 }
@@ -369,7 +398,7 @@ struct PolymarketAddFundsDepositWalletTests {
 
         await interactor.prepare()
 
-        #expect(interactor.state.depositTarget != nil)
+        #expect(interactor.state.depositTargets.first != nil)
     }
 
     @Test("A backend record that disagrees with the derivation blocks funding instead of depositing elsewhere")
@@ -424,7 +453,7 @@ struct PolymarketAddFundsFundingAddressTests {
         let interactor = makeInteractor(bridge: bridge)
         await interactor.prepare()
 
-        #expect(interactor.state.depositTarget?.fundingAddress == fundingAddress)
+        #expect(interactor.state.depositTargets.first?.fundingAddress == fundingAddress)
     }
 
     @Test("A bridge answer without an address for that family withholds the deposit alone")
@@ -436,8 +465,26 @@ struct PolymarketAddFundsFundingAddressTests {
         let interactor = makeInteractor(bridge: bridge)
         await interactor.prepare()
 
-        #expect(interactor.state.depositTarget == nil)
+        #expect(interactor.state.depositTargets.first == nil)
         #expect(interactor.state.depositWalletAddress == derivedDepositWallet)
+    }
+
+    @Test("Only the assets whose family got no address are dropped, the rest stay depositable")
+    func dropsOnlyTheFamilyWithoutAnAddress() async {
+        let bridge = BridgeServiceStub(
+            assets: [.usdcPolygon, .usdcSolana],
+            fundingAddresses: PolymarketBridgeAddresses(addresses: [.evm: fundingAddress])
+        )
+
+        let interactor = makeInteractor(bridge: bridge)
+        await interactor.prepare()
+
+        guard case .ready(let readiness) = interactor.state else {
+            Issue.record("Expected a prepared account, got \(interactor.state)")
+            return
+        }
+
+        #expect(readiness.depositTargets.map(\.entry) == [PolymarketDepositAssetCatalog.usdcOnPolygon])
     }
 
     @Test("A funding address that cannot be fetched withholds the deposit alone")
@@ -446,7 +493,7 @@ struct PolymarketAddFundsFundingAddressTests {
 
         await interactor.prepare()
 
-        #expect(interactor.state.depositTarget == nil)
+        #expect(interactor.state.depositTargets.first == nil)
         #expect(interactor.state.depositWalletAddress == derivedDepositWallet)
     }
 
@@ -454,10 +501,10 @@ struct PolymarketAddFundsFundingAddressTests {
     func fundingAddressIsFetchedOnPreparation() async {
         let interactor = makeInteractor()
 
-        #expect(interactor.state.depositTarget == nil)
+        #expect(interactor.state.depositTargets.first == nil)
 
         await interactor.prepare()
 
-        #expect(interactor.state.depositTarget != nil)
+        #expect(interactor.state.depositTargets.first != nil)
     }
 }
