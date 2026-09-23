@@ -9,7 +9,7 @@
 import Foundation
 
 protocol PolymarketAddFundsSheetRoutable: AnyObject {
-    func openReceiveSheet(viewModel: ReceiveMainViewModel)
+    func openChooseNetworkSheet(networks: [PolymarketDepositNetwork])
 
     func openSwapFlow(parameters: PredefinedSwapParameters)
 
