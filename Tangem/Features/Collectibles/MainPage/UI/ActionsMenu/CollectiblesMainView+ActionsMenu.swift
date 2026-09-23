@@ -21,6 +21,8 @@ extension CollectiblesMainView {
             Menu(content: { items }, label: { trigger })
                 .accessibilityAddTraits(.isButton)
                 .accessibilityLabel(Localization.commonMore)
+                // [REDACTED_TODO_COMMENT]
+                .collectiblesDevnetAlert(viewModel.devnet)
         }
     }
 }
@@ -60,6 +62,9 @@ private extension ActionsMenu {
                 icon: { DesignSystem.Icons.Mail.regular20.image.renderingMode(.template) }
             )
         }
+
+        // [REDACTED_TODO_COMMENT]
+        CollectiblesDevnetMenu(viewModel: viewModel.devnet)
     }
 
     @ViewBuilder

@@ -45,6 +45,8 @@ struct CollectiblesMainView: View {
             }
         }
         .animation(.default, value: viewModel.showsSearchBar)
+        // [REDACTED_TODO_COMMENT]
+        .collectiblesDevnetProgress(actionsMenuViewModel.devnet)
         .task(viewModel.observe)
         .safeAreaInset(edge: .top, spacing: 0) { navigationBar }
     }

@@ -12,10 +12,14 @@ final class CollectiblesActionsMenuViewModel {
 
     private weak var routable: (any CollectiblesActionsMenuRoutable)?
 
+    // [REDACTED_TODO_COMMENT]
+    let devnet: CollectiblesDevnetMenuViewModel?
+
     // MARK: - Init
 
-    init(routable: (any CollectiblesActionsMenuRoutable)?) {
+    init(routable: (any CollectiblesActionsMenuRoutable)?, devnet: CollectiblesDevnetMenuViewModel? = nil) {
         self.routable = routable
+        self.devnet = devnet
     }
 
     // MARK: - Methods
