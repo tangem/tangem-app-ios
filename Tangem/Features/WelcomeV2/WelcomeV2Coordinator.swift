@@ -631,6 +631,7 @@ private extension WelcomeV2Coordinator {
         AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWalletModel.userWalletId)
         logWalletCreatedAnalytics()
 
+        BackendAuthenticationRegistrar.registerNewMobileWallet(userWalletModel)
         try userWalletRepository.add(userWalletModel: userWalletModel)
         pushNotificationsInteractor.suppressAfterLoginRequestsInCurrentSession()
 
