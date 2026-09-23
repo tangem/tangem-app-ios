@@ -38,7 +38,7 @@ struct FeedProductCardView: View {
                     .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
             }
         } background: {
-            DesignSystem.Color.bgOpaquePrimary
+            FeedWidgetBackground(defaultColor: DesignSystem.Color.bgOpaquePrimary)
                 .overlay { FeedProductGlowView(color: appearance.color) }
         }
         .accessibilityElement(children: .combine)

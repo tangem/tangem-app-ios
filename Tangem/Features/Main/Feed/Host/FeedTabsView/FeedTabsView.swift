@@ -13,18 +13,20 @@ import TangemUIUtils
 struct FeedTabsView: View {
     @ObservedObject var viewModel: FeedTabsViewModel
     let shtorkaActions: any MainShtorkaViewActionProvider
+    let shtorkaReporting: any MainShtorkaReporting
 
     @Binding var areChipsPinned: Bool
     let scrollProxy: ScrollViewProxy
-    let scrollTarget: (_ tabID: String, _ pinTabs: Bool, _ chipsPinned: Bool) -> FeedScrollTarget?
-    let onChipsHeightChange: (CGFloat) -> Void
+    let viewportHeight: CGFloat
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.layoutDirection) private var layoutDirection
+    @Environment(\.mainShtorkaSize) private var sheetSize
 
     @State private var chipsHeight: CGFloat = 0
     @State private var contentWidth: CGFloat = 0
     @State private var slideGeneration = 0
+    @State private var pendingTab: FeedTab?
 
     var body: some View {
         LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
@@ -52,11 +54,30 @@ struct FeedTabsView: View {
                         .onGeometryChange(for: Bool.self, of: {
                             $0.frame(in: .named(FeedConstants.scrollCoordinateSpace)).minY <= 0.5
                         }) { areChipsPinned = $0 }
+                        // On iOS 16, interactive rows can otherwise receive taps through the pinned header.
+                        .zIndex(1)
                 }
             }
         }
+        .background(alignment: .top) {
+            Color.clear
+                .frame(height: FeedConstants.scrollAnchorHeight)
+                .id(FeedConstants.tabsAnchorID)
+        }
         .onAppear { move(to: scrollTarget(for: viewModel.selectedTab, pinTabs: false)) }
         .onChange(of: viewModel.selectedTab.id) { _ in show(viewModel.selectedTab) }
+        .onReceive(viewModel.tabSelectionPublisher, perform: expandAndSelect)
+        .onChange(of: viewportHeight) { _ in
+            guard sheetSize == .full, let pendingTab else { return }
+
+            self.pendingTab = nil
+            select(pendingTab)
+        }
+        .onChange(of: sheetSize) { size in
+            if size != .full {
+                pendingTab = nil
+            }
+        }
         .overlay(alignment: .top) { chipsMeasurer }
     }
 
@@ -93,7 +114,7 @@ struct FeedTabsView: View {
                 .hidden()
                 .readGeometry(\.size.height) { height in
                     chipsHeight = height
-                    onChipsHeightChange(height)
+                    shtorkaReporting.report(tabChips: height)
                 }
                 .allowsHitTesting(false)
                 .accessibilityHidden(true)
@@ -110,18 +131,29 @@ struct FeedTabsView: View {
     private var tabSelection: Binding<FeedTab> {
         Binding(
             get: { viewModel.selectedTab },
-            set: { tab in
-                let isAlreadySelected = tab.id == viewModel.selectedTab.id
-                viewModel.onSelectTab(tab)
-                shtorkaActions.expand()
-                if isAlreadySelected {
-                    move(to: viewModel.startSlide(to: tab, target: scrollTarget(for: tab, pinTabs: true)))
-                }
-            }
+            set: expandAndSelect
         )
     }
 
     // MARK: - Switching
+
+    private func expandAndSelect(_ tab: FeedTab) {
+        if sheetSize != .full || pendingTab != nil {
+            pendingTab = tab
+            shtorkaActions.expand()
+            return
+        }
+
+        select(tab)
+    }
+
+    private func select(_ tab: FeedTab) {
+        let isAlreadySelected = tab.id == viewModel.selectedTab.id
+        viewModel.onSelectTab(tab)
+        if isAlreadySelected {
+            move(to: viewModel.startSlide(to: tab, target: scrollTarget(for: tab, pinTabs: true)))
+        }
+    }
 
     private var slideWidth: CGFloat {
         layoutDirection == .leftToRight ? contentWidth : -contentWidth
@@ -154,11 +186,20 @@ struct FeedTabsView: View {
     }
 
     private func scrollTarget(for tab: FeedTab, pinTabs: Bool) -> FeedScrollTarget? {
-        scrollTarget(tab.id, pinTabs, areChipsPinned)
+        shtorkaReporting.scrollTarget(
+            forTab: tab.id,
+            viewportHeight: viewportHeight,
+            pinTabs: pinTabs,
+            chipsPinned: areChipsPinned
+        )
     }
 
     private func move(to target: FeedScrollTarget?) {
         switch target {
+        case .pinTabs:
+            withAnimation(reduceMotion ? nil : .easeInOut(duration: Constants.pinDuration)) {
+                scrollProxy.scrollTo(FeedConstants.tabsAnchorID, anchor: .top)
+            }
         case .jump(let anchor, _):
             scrollProxy.scrollTo(FeedConstants.contentAnchorID, anchor: anchor)
         case .scroll(let anchor):

@@ -107,6 +107,11 @@ final class MainShtorkaStateObject: ObservableObject {
             return .jump(anchor: anchor, shift: scrollState.offset - previousOffset)
         }
 
+        // A viewport-relative anchor overshoots while the sheet grows from medium to full.
+        if pinTabs, scrollState.offset == headerHeight {
+            return .pinTabs
+        }
+
         return .scroll(anchor: anchor)
     }
 
@@ -167,7 +172,7 @@ private extension MainShtorkaStateObject {
             return
         }
 
-        withTransaction(.withoutAnimations()) {
+        withAnimation {
             isPresented = true
         }
     }

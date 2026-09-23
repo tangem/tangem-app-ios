@@ -13,6 +13,7 @@ enum FeedConstants {
     static let topFadeHeight: CGFloat = 16
     static let searchContentInset: CGFloat = 16
     static let contentAnchorID = "feedContent"
+    static let tabsAnchorID = "feedTabs"
     static let scrollAnchorHeight: CGFloat = 1
     static let widgetsAnchorID = "feedWidgetsRow"
     static let widgetsToTabsSpacing: CGFloat = 16
