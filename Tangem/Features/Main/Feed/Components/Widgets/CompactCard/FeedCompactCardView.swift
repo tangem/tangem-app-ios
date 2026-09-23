@@ -31,7 +31,10 @@ struct FeedCompactCardView<Icon: View>: View {
         .padding(.top, Constants.padding)
         .padding(.bottom, Constants.bottomPadding)
         .infinityFrame(alignment: .leading)
-        .background(DesignSystem.Color.bgOpaquePrimary, in: RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
+        .background {
+            FeedWidgetBackground(defaultColor: DesignSystem.Color.bgOpaquePrimary)
+                .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
+        }
     }
 }
 

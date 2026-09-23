@@ -17,6 +17,11 @@ final class FeedTabsViewModel: ObservableObject {
 
     let tabs: [FeedTab]
 
+    var tabSelectionPublisher: AnyPublisher<FeedTab, Never> {
+        tabSelectionSubject.eraseToAnyPublisher()
+    }
+
+    private let tabSelectionSubject = PassthroughSubject<FeedTab, Never>()
     private var sheetSize: ShtorkaSize = .collapsed
     private var slideDirection: CGFloat = 1
     private var pendingJump: PendingJump?
@@ -30,6 +35,10 @@ final class FeedTabsViewModel: ObservableObject {
 
         selectedTab = tabs[0]
         currentPage = FeedTabPage(tab: tabs[0])
+    }
+
+    func requestTabSelection(_ tab: FeedTab) {
+        tabSelectionSubject.send(tab)
     }
 
     func onSelectTab(_ tab: FeedTab) {
@@ -101,7 +110,7 @@ final class FeedTabsViewModel: ObservableObject {
                 departingPages[index].topInset += actualShift
             }
             return .jump(anchor: anchor, shift: actualShift)
-        case .scroll:
+        case .pinTabs, .scroll:
             pendingJump = nil
             currentPage.topInset = 0
             for index in departingPages.indices {

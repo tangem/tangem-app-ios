@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct FeedSearchView: View {
     @ObservedObject var viewModel: FeedSearchViewModel
@@ -24,7 +25,7 @@ private extension FeedSearchView {
     var content: some View {
         switch viewModel.state {
         case .suggestions(let history):
-            CryptoSearchView(viewModel: viewModel.marketViewModel, showsResultBackground: false) {
+            CryptoSearchView(viewModel: viewModel.marketViewModel) {
                 if !history.isEmpty {
                     FeedSearchRecentView(
                         queries: history.queries,
@@ -33,10 +34,27 @@ private extension FeedSearchView {
                     )
                 }
             }
-            .padding(.top, FeedConstants.searchContentInset)
+            .safeAreaInset(edge: .top, spacing: 0) {
+                Color.clear
+                    .frame(height: FeedConstants.searchContentInset)
+                    .allowsHitTesting(false)
+            }
+            .reverseMask(alignment: .top) {
+                FeedTopFade(height: Constants.fadeHeight, visibleHeight: Constants.visibleFadeHeight)
+            }
 
         case .tabs:
             FeedSearchTabsView(viewModel: viewModel.tabsViewModel)
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension FeedSearchView {
+    enum Constants {
+        // Keep the 32 pt gradient below the hard fade's 56 pt solid header.
+        static let fadeHeight: CGFloat = 88
+        static let visibleFadeHeight: CGFloat = 32
     }
 }

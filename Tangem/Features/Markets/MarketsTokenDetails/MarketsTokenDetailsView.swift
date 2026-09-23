@@ -145,16 +145,9 @@ struct MarketsTokenDetailsView: View {
     }
 
     private var sheetNavigationBarTitle: some View {
-        ViewThatFits(in: .horizontal) {
-            // Keep short names centered; let overflowing names use all the space between the buttons.
-            navigationBarTitle
-                .padding(.horizontal, max(headerLeadingWidth, headerTrailingWidth) + Constants.titleToButtonSpacing)
-
-            navigationBarTitle
-                .padding(.leading, headerLeadingWidth + Constants.titleToButtonSpacing)
-                .padding(.trailing, headerTrailingWidth + Constants.titleToButtonSpacing)
-        }
-        .allowsHitTesting(false)
+        navigationBarTitle
+            .padding(.horizontal, max(headerLeadingWidth, headerTrailingWidth) + Constants.titleToButtonSpacing)
+            .allowsHitTesting(false)
     }
 
     private var navigationBar: some View {

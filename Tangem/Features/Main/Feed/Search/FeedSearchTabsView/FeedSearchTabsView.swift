@@ -23,12 +23,8 @@ struct FeedSearchTabsView: View {
                     .frame(height: tabsHeight)
                     .allowsHitTesting(false)
             }
-            // Fade the content without painting over the sheet's changing glass background.
-            .mask {
-                Rectangle()
-                    .overlay(alignment: .top) {
-                        tabsFade.blendMode(.destinationOut)
-                    }
+            .reverseMask(alignment: .top) {
+                FeedTopFade(height: Constants.fadeHeight, visibleHeight: tabsHeight + Constants.fadeBottomOverlap)
             }
             .overlay(alignment: .top) { tabsRow }
     }
@@ -41,15 +37,6 @@ struct FeedSearchTabsView: View {
             .padding(.top, FeedConstants.searchContentInset)
             .padding(.bottom, Constants.tabsSpacing)
             .readGeometry(\.size.height, bindTo: $tabsHeight)
-    }
-
-    private var tabsFade: some View {
-        Fade(position: .top)
-            .variant(.hard)
-            .backgroundColor(.black)
-            .frame(height: Constants.fadeHeight)
-            .frame(height: tabsHeight + Constants.fadeBottomOverlap, alignment: .bottom)
-            .clipped()
     }
 
     @ViewBuilder

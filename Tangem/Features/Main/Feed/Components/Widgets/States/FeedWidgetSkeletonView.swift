@@ -34,7 +34,7 @@ struct FeedWidgetSkeletonView: View {
                 Shimmer().variant(.text(style: .subheading))
             }
         } background: {
-            DesignSystem.Color.bgSecondary
+            FeedWidgetBackground(defaultColor: DesignSystem.Color.bgSecondary)
         }
         .accessibilityHidden(true)
     }

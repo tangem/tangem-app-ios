@@ -14,16 +14,13 @@ import TangemUI
 struct CryptoSearchView<Header: View>: View {
     @ObservedObject var viewModel: CryptoSearchViewModel
 
-    private let showsResultBackground: Bool
     private let header: Header
 
     init(
         viewModel: CryptoSearchViewModel,
-        showsResultBackground: Bool = true,
         @ViewBuilder header: () -> Header = { EmptyView() }
     ) {
         self.viewModel = viewModel
-        self.showsResultBackground = showsResultBackground
         self.header = header()
     }
 
@@ -68,8 +65,7 @@ private extension CryptoSearchView {
                 CryptoSearchResultsView(
                     rows: rows,
                     onAppear: viewModel.onResultAppear,
-                    onDisappear: viewModel.onResultDisappear,
-                    showsBackground: showsResultBackground
+                    onDisappear: viewModel.onResultDisappear
                 )
 
                 if hasTokensUnderCap {
