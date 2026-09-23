@@ -549,7 +549,7 @@ extension TangemPayAccount {
     }
 
     private func refreshActivatingProductInstanceIds(cards: [TangemPayCard]) async {
-        guard FeatureProvider.isAvailable(.tangemPayPlastic), cards.contains(where: \.isAwaitingActivation) else {
+        guard cards.contains(where: \.isAwaitingActivation) else {
             activatingProductInstanceIdsSubject.value = []
             return
         }
