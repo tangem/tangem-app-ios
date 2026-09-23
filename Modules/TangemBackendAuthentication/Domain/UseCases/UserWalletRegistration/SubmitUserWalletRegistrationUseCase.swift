@@ -32,7 +32,7 @@ public struct SubmitUserWalletRegistrationUseCase: Sendable {
             try await persist(sessionTokens: sessionTokens)
         }
 
-        await registrationStatusRepository.persist(isRegistered: true, id: request.id)
+        await registrationStatusRepository.persist(registeredID: request.id)
     }
 
     private func register(request: UserWalletRegistrationRequest) async throws(SubmitUserWalletRegistrationError) -> SessionTokens? {

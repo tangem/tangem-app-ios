@@ -9,7 +9,8 @@
 import class Foundation.UserDefaults
 import struct TangemFoundation.UserWalletId
 
-/// - Note: besides the fact that UserDefaults operations are individually thread-safe, ``persist(isRegistered:id:)`` is not atomic.
+/// - Note: besides the fact that UserDefaults operations are individually thread-safe,
+/// ``persist(registeredID:)`` and ``remove(registeredID:)`` are not atomic.
 actor UserDefaultsUserWalletRegistrationStatusRepository: UserWalletRegistrationStatusRepository {
     private static let key = "com.tangem.backendAuthentication.registeredUserWalletIDs"
 
@@ -25,19 +26,28 @@ actor UserDefaultsUserWalletRegistrationStatusRepository: UserWalletRegistration
         retrieveRegisteredUserWalletIDs().contains(id.hashedStringValue(message: Self.key))
     }
 
-    func persist(isRegistered: Bool, id: UserWalletId) {
+    func persist(registeredID: UserWalletId) {
         var registeredUserWalletIDs = retrieveRegisteredUserWalletIDs()
+        registeredUserWalletIDs.insert(registeredID.hashedStringValue(message: Self.key))
+        persist(registeredUserWalletIDs: registeredUserWalletIDs)
+    }
 
-        if isRegistered {
-            registeredUserWalletIDs.insert(id.hashedStringValue(message: Self.key))
-        } else {
-            registeredUserWalletIDs.remove(id.hashedStringValue(message: Self.key))
-        }
+    func replaceAll(with newRegisteredIDs: [UserWalletId]) {
+        let registeredUserWalletIDs = Set(newRegisteredIDs.map { $0.hashedStringValue(message: Self.key) })
+        persist(registeredUserWalletIDs: registeredUserWalletIDs)
+    }
 
-        userDefaults.set(Array(registeredUserWalletIDs), forKey: Self.key)
+    func remove(registeredID: UserWalletId) {
+        var registeredUserWalletIDs = retrieveRegisteredUserWalletIDs()
+        registeredUserWalletIDs.remove(registeredID.hashedStringValue(message: Self.key))
+        persist(registeredUserWalletIDs: registeredUserWalletIDs)
     }
 
     private func retrieveRegisteredUserWalletIDs() -> Set<String> {
         Set(userDefaults.stringArray(forKey: Self.key) ?? [])
+    }
+
+    private func persist(registeredUserWalletIDs: Set<String>) {
+        userDefaults.set(Array(registeredUserWalletIDs), forKey: Self.key)
     }
 }

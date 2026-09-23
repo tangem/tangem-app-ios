@@ -27,15 +27,25 @@ final class SpyUserWalletRegistrationStatusRepository: UserWalletRegistrationSta
         return retrieveResult
     }
 
-    func persist(isRegistered: Bool, id: UserWalletId) {
-        state.withLock { $0.receivedMessages.append(.persist(isRegistered: isRegistered, id: id)) }
+    func persist(registeredID: UserWalletId) {
+        state.withLock { $0.receivedMessages.append(.persist(registeredID)) }
+    }
+
+    func replaceAll(with newRegisteredIDs: [UserWalletId]) {
+        state.withLock { $0.receivedMessages.append(.replaceAll(newRegisteredIDs)) }
+    }
+
+    func remove(registeredID: UserWalletId) {
+        state.withLock { $0.receivedMessages.append(.remove(registeredID)) }
     }
 }
 
 extension SpyUserWalletRegistrationStatusRepository {
     enum Message: Equatable {
         case retrieve(UserWalletId)
-        case persist(isRegistered: Bool, id: UserWalletId)
+        case persist(UserWalletId)
+        case replaceAll([UserWalletId])
+        case remove(UserWalletId)
     }
 
     private struct State {

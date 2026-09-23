@@ -137,6 +137,7 @@ extension BackendAuthenticationAssembly {
             sessionAuthenticationClient: sessionAuthenticationClient,
             sessionTokensRepository: Self.sessionTokensRepository,
             deviceRegistrationStatusRepository: Self.deviceRegistrationStatusRepository,
+            userWalletRegistrationStatusRepository: Self.userWalletRegistrationStatusRepository,
             deviceKeyManager: Self.deviceKeyManager,
             nonceDecryptor: Self.nonceDecryptor,
             deviceMetadataProvider: DeviceMetadata.default,
