@@ -22,8 +22,7 @@ public enum BackendAuthenticationAssembly {
     public static let obtainUserWalletRegistrationNonce: ObtainUserWalletRegistrationNonceUseCase =
         Self.makeObtainUserWalletRegistrationNonceUseCase()
 
-    public static let attestUserWallet: AttestUserWalletUseCase =
-        Self.makeAttestUserWalletUseCase()
+    public static let attestUserWallet: AttestUserWalletUseCase = Self.makeAttestUserWalletUseCase()
 
     public static let submitUserWalletRegistration: SubmitUserWalletRegistrationUseCase =
         Self.makeSubmitUserWalletRegistrationUseCase()
@@ -31,6 +30,10 @@ public enum BackendAuthenticationAssembly {
     public static let registerUserWallet: RegisterUserWalletUseCase = Self.makeRegisterUserWalletUseCase()
 
     public static let unregisterUserWallet: UnregisterUserWalletUseCase = Self.makeUnregisterUserWalletUseCase()
+
+    public static let clearUserWalletRegistrationStatus = ClearUserWalletRegistrationStatusUseCase(
+        registrationStatusRepository: Self.userWalletRegistrationStatusRepository
+    )
 
     public static let requestAdapter: any Alamofire.RequestAdapter = Self.dPoPRequestAdapter
     public static let requestRetrier: any Alamofire.RequestRetrier = Self.renewSessionTokensRequestRetrier
