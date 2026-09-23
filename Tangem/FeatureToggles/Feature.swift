@@ -88,12 +88,12 @@ enum Feature: String, Hashable, CaseIterable {
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .walletConnectBitcoin: return .unspecified
         case .usdtRevokeGaslessFee: return .unspecified
-        case .transactionHistoryV2: return .unspecified
+        case .transactionHistoryV2: return .version("6.4")
         case .mobileWalletMultiCreation: return .unspecified
         case .stakingFlowV2: return .version("6.4")
         case .priceAlertsSubscription: return .unspecified
         case .backup4cards: return .unspecified
-        case .backendAuthentication: return .unspecified
+        case .backendAuthentication: return .version("6.4")
         case .polymarket: return .unspecified
         case .walletCardsBackupReport: return .unspecified
         case .jointAccounts: return .unspecified
@@ -112,7 +112,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .hardwareUpgradeStories: return .unspecified
         case .jointAccountsGaslessTokenFee: return .unspecified
         case .merklIncentives: return .unspecified
-        case .tangemPayCustomCards: return .unspecified
+        case .tangemPayCustomCards: return .version("6.4")
         case .mcp: return .unspecified
         case .tangemPayChooseCountry: return .version("6.5")
         }
