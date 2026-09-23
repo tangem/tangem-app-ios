@@ -16,6 +16,6 @@ public struct ClearUserWalletRegistrationStatusUseCase: Sendable {
     }
 
     public func callAsFunction(id: UserWalletId) async {
-        await registrationStatusRepository.persist(isRegistered: false, id: id)
+        await registrationStatusRepository.remove(registeredID: id)
     }
 }
