@@ -55,10 +55,14 @@ enum BackendAuthenticationRegistrar {
     }
 
     static func registerNewMobileWallet(_ userWalletModel: some UserWalletModel) {
-        guard
-            FeatureProvider.isAvailable(.backendAuthentication),
-            userWalletModel.isMobileWallet
-        else {
+        guard FeatureProvider.isAvailable(.backendAuthentication) else {
+            return
+        }
+
+        guard userWalletModel.isMobileWallet else {
+            let errorMessage = "Expected to receive a mobile wallet, got cold instead. Developer mistake."
+            BackendAuthLogger.warning(errorMessage)
+            assertionFailure(errorMessage)
             return
         }
 
