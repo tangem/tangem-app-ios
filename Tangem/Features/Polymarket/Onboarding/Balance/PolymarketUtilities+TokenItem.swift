@@ -42,21 +42,6 @@ extension PolymarketUtilities {
     }
 }
 
-// MARK: - Bridge asset lookup
-
-extension PolymarketUtilities {
-    static func usdcOnPolygon(in assets: [PolymarketSupportedAsset]) -> PolymarketSupportedAsset? {
-        guard let polygonChainId = blockchain.chainId.map(String.init) else {
-            return nil
-        }
-
-        return assets.first { asset in
-            asset.chainId == polygonChainId
-                && asset.token.address.caseInsensitiveCompare(usdcContractAddress) == .orderedSame
-        }
-    }
-}
-
 // MARK: - Constants
 
 private extension PolymarketUtilities {

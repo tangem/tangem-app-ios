@@ -1,5 +1,5 @@
 //
-//  TangemPayAddFundsDestinationResolverTests.swift
+//  AccountFundingDestinationResolverTests.swift
 //  TangemTests
 //
 //  Copyright © 2026 Tangem AG. All rights reserved.
@@ -10,8 +10,8 @@ import Testing
 import BlockchainSdk
 @testable import Tangem
 
-@Suite("TangemPayAddFundsDestinationResolver")
-struct TangemPayAddFundsDestinationResolverTests {
+@Suite("AccountFundingDestinationResolver")
+struct AccountFundingDestinationResolverTests {
     private let usdtBase = SwapableTokenStub(
         tokenItem: .accountToken(symbol: "USDT", contract: "0xBASEUSDT", blockchain: .base(testnet: false))
     )
@@ -22,8 +22,8 @@ struct TangemPayAddFundsDestinationResolverTests {
         tokenItem: .accountToken(symbol: "USDC", contract: "0xETHUSDC", blockchain: .ethereum(testnet: false))
     )
 
-    private var resolver: TangemPayAddFundsDestinationResolver {
-        TangemPayAddFundsDestinationResolver(
+    private var resolver: AccountFundingDestinationResolver {
+        AccountFundingDestinationResolver(
             candidates: [usdtBase, usdtPolygon, usdcPolygon],
             defaultDestination: defaultDestination
         )
@@ -68,7 +68,7 @@ struct TangemPayAddFundsDestinationResolverTests {
 
     @Test("The default remains only when every candidate is the source's own asset")
     func defaultOnlyWhenNoCandidateDiffers() {
-        let resolver = TangemPayAddFundsDestinationResolver(
+        let resolver = AccountFundingDestinationResolver(
             candidates: [usdcPolygon],
             defaultDestination: defaultDestination
         )
@@ -87,7 +87,7 @@ struct TangemPayAddFundsDestinationResolverTests {
         let baseUSDC = SwapableTokenStub(
             tokenItem: .accountToken(symbol: "USDC", contract: "0xBASEUSDC", blockchain: .base(testnet: false))
         )
-        let resolver = TangemPayAddFundsDestinationResolver(
+        let resolver = AccountFundingDestinationResolver(
             candidates: [usdcPolygon, baseUSDC],
             defaultDestination: usdcPolygon
         )
@@ -102,7 +102,7 @@ struct TangemPayAddFundsDestinationResolverTests {
     @Test("Contract identity folds case on every network, matching the domain's Token equality")
     func contractIdentityFoldsCaseForAllNetworks() {
         let tronUSDT = SwapableTokenStub(tokenItem: .tronToken(symbol: "USDT", contract: "TUsdtContract"))
-        let resolver = TangemPayAddFundsDestinationResolver(
+        let resolver = AccountFundingDestinationResolver(
             candidates: [tronUSDT],
             defaultDestination: usdcPolygon
         )
