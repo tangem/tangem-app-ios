@@ -59,6 +59,10 @@ struct PolymarketMainDependencies {
         AccountModelsAggregator(.polymarket).model(from: userWalletModel.accountModelsManager)
     }
 
+    var orderAccount: PolymarketOrderAccount? {
+        accountModel.map(PolymarketOrderAccount.init(accountModel:))
+    }
+
     var walletModelsProvider: MainScreenUIOrderedWalletModelsProvider {
         MainScreenUIOrderedWalletModelsProvider(userWalletModel: userWalletModel)
     }
@@ -71,6 +75,7 @@ struct PolymarketMainDependencies {
             accountFundsInteractor: accountFundsInteractor,
             positionsService: positionsService,
             fundsArrivalTracker: fundsArrivalTracker,
+            userWalletId: userWalletModel.userWalletId,
             coordinator: routable
         )
     }

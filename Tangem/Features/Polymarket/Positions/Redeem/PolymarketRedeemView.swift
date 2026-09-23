@@ -69,9 +69,8 @@ struct PolymarketRedeemView: View {
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
     private func profitRow(_ profit: PolymarketRedeemViewModel.Profit) -> some View {
-        TangemUI.Row(title: "Profit")
+        TangemUI.Row(title: Localization.predictionPositionResultProfit)
             .valueAccessory {
                 UtilPriceChange(value: profit.text, direction: profit.direction)
             }
