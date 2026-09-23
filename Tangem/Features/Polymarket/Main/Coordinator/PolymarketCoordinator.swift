@@ -327,13 +327,15 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
 // MARK: - PolymarketAddFundsSheetRoutable
 
 extension PolymarketCoordinator: PolymarketAddFundsSheetRoutable {
-    func openReceiveSheet(viewModel: ReceiveMainViewModel) {
+    func openChooseNetworkSheet(networks: [PolymarketDepositNetwork]) {
         Task { @MainActor [weak self] in
             guard let self else { return }
 
             addFundsSheet = nil
             floatingSheetPresenter.removeActiveSheet()
-            floatingSheetPresenter.enqueue(sheet: viewModel)
+            floatingSheetPresenter.enqueue(
+                sheet: PolymarketChooseNetworkSheetViewModel(networks: networks, coordinator: self)
+            )
         }
     }
 
@@ -350,6 +352,37 @@ extension PolymarketCoordinator: PolymarketAddFundsSheetRoutable {
     func closeAddFundsSheet() {
         Task { @MainActor [weak self] in
             self?.addFundsSheet = nil
+            self?.floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - PolymarketChooseNetworkSheetRoutable
+
+extension PolymarketCoordinator: PolymarketChooseNetworkSheetRoutable {
+    func chooseNetworkSheetRequestReceive(input: PolymarketReceiveSheetViewModel.Input) {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            floatingSheetPresenter.removeActiveSheet()
+            floatingSheetPresenter.enqueue(
+                sheet: PolymarketReceiveSheetViewModel(input: input, coordinator: self)
+            )
+        }
+    }
+
+    func closeChooseNetworkSheet() {
+        Task { @MainActor [weak self] in
+            self?.floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - PolymarketReceiveSheetRoutable
+
+extension PolymarketCoordinator: PolymarketReceiveSheetRoutable {
+    func closeReceiveSheet() {
+        Task { @MainActor [weak self] in
             self?.floatingSheetPresenter.removeActiveSheet()
         }
     }

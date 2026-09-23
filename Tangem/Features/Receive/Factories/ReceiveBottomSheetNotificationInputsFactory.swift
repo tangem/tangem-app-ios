@@ -35,21 +35,8 @@ struct ReceiveBottomSheetNotificationInputsFactory {
         ]
 
         switch (flow, tokenItem.blockchain) {
-        case (.polymarketDeposit(let minimumDepositFormatted), _):
-            return [
-                NotificationViewInput(
-                    style: .plain,
-                    severity: .info,
-                    settings: .init(
-                        event: PolymarketDepositNotificationEvent.depositLimits(
-                            assetSymbol: assetSymbol,
-                            networkName: tokenItem.networkName,
-                            minimumFormatted: minimumDepositFormatted
-                        ),
-                        dismissAction: nil
-                    )
-                ),
-            ]
+        case (.polymarketDeposit, _):
+            return baseNotificationInputs
         case (.nft, .solana):
             return [
                 NotificationViewInput(
