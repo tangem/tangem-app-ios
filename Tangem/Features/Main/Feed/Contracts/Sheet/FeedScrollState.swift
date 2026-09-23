@@ -56,6 +56,7 @@ final class FeedScrollState {
 }
 
 enum FeedScrollTarget {
+    case pinTabs
     case jump(anchor: UnitPoint, shift: CGFloat)
     case scroll(anchor: UnitPoint)
 }

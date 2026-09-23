@@ -42,6 +42,7 @@ final class FeedCoordinator: CoordinatorObject {
     private weak var presentedWidgetSheet: AnyObject?
     private weak var accountCreationWallet: UserWalletModel?
     private var accountFormCompletion: (() -> Void)?
+    private var pendingDestination: FeedDestination?
     private var bag = Set<AnyCancellable>()
 
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
@@ -67,6 +68,16 @@ final class FeedCoordinator: CoordinatorObject {
         accountFormCompletion = nil
         completion?()
     }
+
+    func sheetDidFinishExpanding() {
+        guard let pendingDestination else { return }
+        self.pendingDestination = nil
+
+        guard shtorkaStateObject.isPresented, shtorkaStateObject.size == .full,
+              path.isEmpty, presented == nil, cover == nil, presentedWidgetSheet == nil else { return }
+
+        push(pendingDestination)
+    }
 }
 
 // MARK: - Options
@@ -81,6 +92,7 @@ extension FeedCoordinator {
 
 extension FeedCoordinator: FeedNavigation {
     func push(_ destination: FeedDestination) {
+        pendingDestination = nil
         endEditing()
         path.append(destination)
     }
@@ -132,9 +144,8 @@ extension FeedCoordinator: FeedWidgetsRoutable {
     }
 
     func openForYou() {
-        guard path.isEmpty else { return }
+        guard path.isEmpty, pendingDestination == nil else { return }
 
-        shtorkaStateObject.expand()
         let coordinator = ForYouCoordinator(
             dismissAction: { [weak self] _ in self?.pop() },
             popToRootAction: popToRootAction,
@@ -143,7 +154,16 @@ extension FeedCoordinator: FeedWidgetsRoutable {
             }
         )
         coordinator.start(with: .init())
-        push(.forYou(coordinator))
+
+        guard shtorkaStateObject.size != .full else {
+            push(.forYou(coordinator))
+            return
+        }
+
+        pendingDestination = .forYou(coordinator)
+        withAnimation {
+            shtorkaStateObject.expand()
+        }
     }
 
     func openEarn() {
@@ -151,8 +171,7 @@ extension FeedCoordinator: FeedWidgetsRoutable {
               let tab = tabs.tabs.first(where: { $0.kind == .earn }) else { return }
 
         rootViewModel?.searchViewModel.reset()
-        tabs.onSelectTab(tab)
-        shtorkaStateObject.expand()
+        tabs.requestTabSelection(tab)
     }
 
     func openTangemPay(_ entry: FeedTangemPayEntry) {
@@ -317,6 +336,10 @@ private extension FeedCoordinator {
             .dropFirst()
             .withWeakCaptureOf(self)
             .sink { coordinator, size in
+                if size != .full {
+                    coordinator.pendingDestination = nil
+                }
+
                 // Keep search behind a child screen so Back can restore it after the sheet expands.
                 guard size != .full, coordinator.path.isEmpty,
                       coordinator.presented == nil, coordinator.cover == nil else { return }
@@ -338,6 +361,7 @@ private extension FeedCoordinator {
     /// Routes outlive a collapse — the collapsed sheet still shows the screen the user left open — but not the sheet
     /// itself: once it is gone, the screens it held go with it instead of living on until the main screen is rebuilt.
     func dropRoutes() {
+        pendingDestination = nil
         guard path.isNotEmpty || presented != nil || cover != nil else {
             return
         }
