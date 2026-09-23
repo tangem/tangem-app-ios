@@ -107,11 +107,11 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             iconColor = account.icon.color
             iconName = account.icon.name
             accountName = account.name
-        case .create:
+        case .create(let creator):
             let newIcon = AccountModelUtils.UI.newAccountIcon()
             iconColor = newIcon.color
             iconName = newIcon.name
-            accountName = ""
+            accountName = creator.initialAccountName
         }
 
         let selectedColor = GridItemColor(
