@@ -502,13 +502,6 @@ final class TangemPayMainViewModel: ObservableObject {
     private func openCardIssueIfOfferAvailable(cardType: TangemPayOrderCardType?) -> Bool {
         let virtualOffer = tangemPayAccount.additionalCardIssueOffer
 
-        guard FeatureProvider.isAvailable(.tangemPayPlastic) else {
-            guard let virtualOffer, let fee = virtualOffer.fee else { return false }
-
-            openIssueAdditionalCardCostPopup(offer: virtualOffer, fee: fee)
-            return true
-        }
-
         guard virtualOffer?.fee != nil || tangemPayAccount.plasticCardIssueOffer != nil else {
             return false
         }

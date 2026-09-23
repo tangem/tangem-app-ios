@@ -58,7 +58,7 @@ final class TangemPayOrderCardTypeViewModel: ObservableObject, Identifiable {
         let cardTypes = TangemPayOrderCardType.allCases.filter { type in
             switch type {
             case .virtual: virtualOffer?.fee != nil
-            case .plastic: FeatureProvider.isAvailable(.tangemPayPlastic)
+            case .plastic: true
             }
         }
 

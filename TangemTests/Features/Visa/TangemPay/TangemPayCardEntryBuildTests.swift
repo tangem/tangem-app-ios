@@ -10,10 +10,7 @@ import Testing
 import TangemPay
 @testable import Tangem
 
-@Suite(
-    "TangemPayCardEntry.build plastic delivering mapping",
-    .enabled(if: FeatureProvider.isAvailable(.tangemPayPlastic))
-)
+@Suite("TangemPayCardEntry.build plastic delivering mapping")
 struct TangemPayCardEntryBuildTests {
     @Test("A reissue order with no matching card becomes a delivering plastic entry")
     func reissueOrder_becomesDeliveringPlastic() throws {
