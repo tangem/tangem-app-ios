@@ -75,6 +75,14 @@ final class TangemPayVirtualAccountInfoSheet: ScreenBase<TangemPayVirtualAccount
         }
     }
 
+    @discardableResult
+    func tapShowDetailsExpectingError() -> TangemPayVirtualAccountBankDetailsErrorSheet {
+        XCTContext.runActivity(named: "Tap Show details expecting the banking details error sheet") { _ in
+            tapShowDetails()
+            return TangemPayVirtualAccountBankDetailsErrorSheet(app)
+        }
+    }
+
     private func tapShowDetails() {
         showDetailsButton.waitAndTap()
         XCTAssertTrue(

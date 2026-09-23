@@ -12,6 +12,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemPay
 import TangemVisa
+import TangemAccessibilityIdentifiers
 
 @MainActor
 final class TangemPayVirtualAccountBankDetailsErrorPopupViewModel: TangemPayPopupViewModel {
@@ -41,6 +42,10 @@ final class TangemPayVirtualAccountBankDetailsErrorPopupViewModel: TangemPayPopu
             isLoading: isLoading,
             action: retry
         )
+    }
+
+    var primaryButtonAccessibilityIdentifier: String? {
+        TangemPayAccessibilityIdentifiers.virtualAccountBankDetailsErrorRetryButton
     }
 
     var secondaryButton: MainButton.Settings? {
