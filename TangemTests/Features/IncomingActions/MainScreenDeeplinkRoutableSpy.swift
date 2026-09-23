@@ -16,6 +16,11 @@ final class MainScreenDeeplinkRoutableSpy: MainScreenDeeplinkRoutable {
     private(set) var didOpenBuy = false
     private(set) var swapParameters: PredefinedSwapParameters?
     private(set) var openedCampaignKey: String?
+    private(set) var openedFeed: FeedSelection?
+
+    func openFeed(selection: FeedSelection) {
+        openedFeed = selection
+    }
 
     func openMarketsTokenDetails(tokenModel: MarketsTokenModel) {
         openedMarketsTokenId = tokenModel.id

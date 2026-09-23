@@ -20,19 +20,14 @@ final class FeedCoordinator: CoordinatorObject {
     @Published private(set) var rootViewModel: FeedViewModel?
     @Published var path: [FeedDestination] = [] {
         didSet {
-            shtorkaStateObject.setNavigationActive(path.isNotEmpty)
+            container?.setNavigationActive(path.isNotEmpty)
         }
     }
 
     @Published var presented: FeedDestination?
     @Published var cover: FeedCover?
 
-    let shtorkaStateObject = MainShtorkaStateObject()
-
-    /// The feed's own views get the sheet narrowed down to what they may do with it, its view model to what it
-    /// has to follow.
-    var shtorkaReporting: any MainShtorkaReporting { shtorkaStateObject }
-    var shtorkaActions: any MainShtorkaViewActionProvider { shtorkaStateObject }
+    private(set) var container: (any FeedContainer)?
 
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
@@ -54,16 +49,26 @@ final class FeedCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        container = options.container
         host = options.host
+
         let context = FeedContext(navigation: self, popToRootAction: popToRootAction)
         earnRouter = EarnFeedRouter(context: context)
         rootViewModel = FeedViewModelFactory().makeViewModel(
             context: context,
-            shtorkaActions: shtorkaActions,
-            widgetsRouter: self
+            container: options.container,
+            widgetsRouter: self,
+            canOpenHostScreens: options.host != nil,
+            selection: options.selection
         )
 
-        bind()
+        bind(to: options.container)
+    }
+
+    func apply(selection: FeedSelection) {
+        dropRoutes()
+        rootViewModel?.searchViewModel.reset()
+        rootViewModel?.apply(selection: selection)
     }
 
     func accountFormDidDismiss() {
@@ -76,7 +81,7 @@ final class FeedCoordinator: CoordinatorObject {
         guard let pendingDestination else { return }
         self.pendingDestination = nil
 
-        guard shtorkaStateObject.isPresented, shtorkaStateObject.size == .full,
+        guard let container, container.isPresented, container.size == .full,
               path.isEmpty, presented == nil, cover == nil, presentedWidgetSheet == nil else { return }
 
         push(pendingDestination)
@@ -87,7 +92,13 @@ final class FeedCoordinator: CoordinatorObject {
 
 extension FeedCoordinator {
     struct Options {
-        let host: FeedHostRoutable
+        let container: any FeedContainer
+        /// The screen the feed is shown on, for the destinations it cannot open itself. Absent where the feed
+        /// stands on its own: a widget that exists only for that hand-off is left out rather than left dead.
+        /// Add account stays either way — creating the account is its own errand, and only the step on to
+        /// Manage tokens afterwards has nowhere to go.
+        var host: FeedHostRoutable?
+        var selection: FeedSelection?
     }
 }
 
@@ -135,7 +146,7 @@ extension FeedCoordinator: FeedWidgetsRoutable {
     func openPolymarketMain(wallet: UserWalletModel) {
         guard path.isEmpty else { return }
 
-        shtorkaStateObject.expand()
+        container?.expand()
 
         let coordinator = PolymarketCoordinator(
             dismissAction: { [weak self] in self?.pop() },
@@ -173,14 +184,14 @@ extension FeedCoordinator: FeedWidgetsRoutable {
         )
         coordinator.start(with: .init())
 
-        guard shtorkaStateObject.size != .full else {
+        guard let container, container.size != .full else {
             push(.forYou(coordinator))
             return
         }
 
         pendingDestination = .forYou(coordinator)
         withAnimation {
-            shtorkaStateObject.expand()
+            container.expand()
         }
     }
 
@@ -328,7 +339,7 @@ private extension FeedCoordinator {
             let accountModel = wallet.collectiblesAccountModel()
             let outcome = await CollectiblesEntranceResolver.resolve(for: accountModel, isRegionRestricted: isRegionRestricted)
 
-            guard shtorkaStateObject.isPresented, path.isEmpty, presented == nil, presentedWidgetSheet == nil else {
+            guard container?.isPresented == true, path.isEmpty, presented == nil, presentedWidgetSheet == nil else {
                 return
             }
 
@@ -382,10 +393,9 @@ private extension FeedCoordinator {
 // MARK: - Private
 
 private extension FeedCoordinator {
-    func bind() {
-        shtorkaActions
+    func bind(to container: any FeedContainer) {
+        container
             .sizePublisher
-            .dropFirst()
             .withWeakCaptureOf(self)
             .sink { coordinator, size in
                 if size != .full {
@@ -400,9 +410,8 @@ private extension FeedCoordinator {
             }
             .store(in: &bag)
 
-        shtorkaStateObject
-            .$isPresented
-            .filter { !$0 }
+        container
+            .dismissPublisher
             .withWeakCaptureOf(self)
             .sink { coordinator, _ in
                 coordinator.dropRoutes()
