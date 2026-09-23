@@ -22,7 +22,7 @@ struct ClearUserWalletRegistrationStatusUseCaseTests {
 
         await sut(id: expectedID)
 
-        #expect(repository.receivedMessages == [.persist(isRegistered: false, id: expectedID)])
+        #expect(repository.receivedMessages == [.remove(expectedID)])
     }
 }
 
