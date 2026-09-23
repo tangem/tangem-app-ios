@@ -132,6 +132,14 @@ struct TangemPayOrderCardTypeView: View {
             .resizable()
             .scaledToFit()
             .frame(width: Constants.cardWidth, height: Constants.cardHeight)
+            .overlay(alignment: .topLeading) {
+                if cardType == .virtual {
+                    DesignSystem.Icons.Cloud.filled20.image
+                        .renderingMode(.template)
+                        .foregroundStyle(DesignSystem.Color.iconStaticDark)
+                        .padding(16)
+                }
+            }
     }
 
     // MARK: - Rows
