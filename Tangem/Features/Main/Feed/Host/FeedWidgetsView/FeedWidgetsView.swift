@@ -82,6 +82,9 @@ struct FeedWidgetsView: View {
 
         case .polymarket:
             PolymarketWidgetView()
+
+        case .collectibles:
+            CollectiblesWidgetView()
         }
     }
 }
