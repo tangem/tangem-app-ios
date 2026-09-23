@@ -170,7 +170,7 @@ private extension CommonPromotionRepository {
     static var placementsToLoad: [PromotionPlacement] {
         var placements: [PromotionPlacement] = [.main, .news, .paymentAccountMain]
 
-        guard FeatureProvider.isAvailable(.nativeMarketsShtorka) else {
+        guard FeatureProvider.isAvailable(.newShtorkaEnabled) else {
             return placements
         }
 
