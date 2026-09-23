@@ -134,14 +134,12 @@ extension TangemPayCardEntry {
         activatingProductInstanceIds: Set<String>,
         hiddenSourceProductInstanceIds: Set<String>
     ) -> [TangemPayCardEntry] {
-        let isPlasticEnabled = FeatureProvider.isAvailable(.tangemPayPlastic)
-
         var entries: [TangemPayCardEntry] = []
         entries.reserveCapacity(cards.count + pendingProductInstances.count + activeIssueOrders.count)
 
         for card in cards {
             if hiddenSourceProductInstanceIds.contains(card.productInstance.id) { continue }
-            if isPlasticEnabled, card.isAwaitingActivation {
+            if card.isAwaitingActivation {
                 entries.append(.plastic(.awaitingActivation(
                     card: card,
                     isActivating: activatingProductInstanceIds.contains(card.productInstance.id)
@@ -164,7 +162,7 @@ extension TangemPayCardEntry {
                pendingPIIds.contains(pid) || cardPIIds.contains(pid) {
                 continue
             }
-            guard isPlasticEnabled, plasticDeliveringOrderTypes.contains(order.type) else {
+            guard plasticDeliveringOrderTypes.contains(order.type) else {
                 entries.append(.issuing(.order(order)))
                 continue
             }
