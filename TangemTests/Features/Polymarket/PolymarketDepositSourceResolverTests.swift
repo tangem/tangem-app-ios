@@ -18,6 +18,46 @@ struct PolymarketDepositSourceResolverTests {
     private let usdcPolygon = PolymarketUtilities.usdcTokenItem
     private let ethereum = TokenItem.blockchain(BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil))
 
+    private let usdcBase = TokenItem.accountToken(
+        symbol: "USDC",
+        contract: PolymarketDepositAssetCatalog.usdcOnBase.contractAddress,
+        blockchain: .base(testnet: false)
+    )
+
+    @Test("With several accepted networks the richest of them is preselected, not the first")
+    func richestAcceptedNetworkWins() {
+        let poorer = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 10)
+        let richer = WalletModelTestsMock(tokenItem: usdcBase, isEmpty: false, fiatBalance: 500)
+
+        let chosen = PolymarketDepositSourceResolver.chooseSource(
+            from: [poorer, richer],
+            depositCurrencies: [usdcPolygon.expressCurrency, usdcBase.expressCurrency],
+            availabilityChecker: FundingSourceAvailabilityCheckerStub(
+                transferAvailable: [poorer.id, richer.id],
+                swapAvailable: []
+            )
+        )
+
+        #expect(chosen?.tokenItem == usdcBase)
+    }
+
+    @Test("A network the bridge does not accept is no transfer source, however rich it is")
+    func unacceptedNetworkIsNoTransferSource() {
+        let accepted = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 10)
+        let unaccepted = WalletModelTestsMock(tokenItem: usdcBase, isEmpty: false, fiatBalance: 500)
+
+        let chosen = PolymarketDepositSourceResolver.chooseSource(
+            from: [accepted, unaccepted],
+            depositCurrencies: [usdcPolygon.expressCurrency],
+            availabilityChecker: FundingSourceAvailabilityCheckerStub(
+                transferAvailable: [accepted.id, unaccepted.id],
+                swapAvailable: []
+            )
+        )
+
+        #expect(chosen?.tokenItem == usdcPolygon)
+    }
+
     @Test("The bridge's own currency stays the transfer source even when Express can't swap it")
     func depositCurrencyWinsWithoutSwapAvailability() {
         let matching = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 50)
@@ -25,7 +65,7 @@ struct PolymarketDepositSourceResolverTests {
 
         let chosen = PolymarketDepositSourceResolver.chooseSource(
             from: [matching, swapFallback],
-            depositCurrency: usdcPolygon.expressCurrency,
+            depositCurrencies: [usdcPolygon.expressCurrency],
             availabilityChecker: FundingSourceAvailabilityCheckerStub(
                 transferAvailable: [matching.id],
                 swapAvailable: [swapFallback.id]
@@ -42,7 +82,7 @@ struct PolymarketDepositSourceResolverTests {
 
         let chosen = PolymarketDepositSourceResolver.chooseSource(
             from: [matching, swapFallback],
-            depositCurrency: usdcPolygon.expressCurrency,
+            depositCurrencies: [usdcPolygon.expressCurrency],
             availabilityChecker: FundingSourceAvailabilityCheckerStub(
                 transferAvailable: [matching.id],
                 swapAvailable: [swapFallback.id]
@@ -59,7 +99,7 @@ struct PolymarketDepositSourceResolverTests {
 
         let chosen = PolymarketDepositSourceResolver.chooseSource(
             from: [matching, swapFallback],
-            depositCurrency: usdcPolygon.expressCurrency,
+            depositCurrencies: [usdcPolygon.expressCurrency],
             availabilityChecker: FundingSourceAvailabilityCheckerStub(swapAvailable: [swapFallback.id])
         )
 
@@ -73,7 +113,7 @@ struct PolymarketDepositSourceResolverTests {
 
         let chosen = PolymarketDepositSourceResolver.chooseSource(
             from: [swapAvailable, swapUnavailable],
-            depositCurrency: usdcPolygon.expressCurrency,
+            depositCurrencies: [usdcPolygon.expressCurrency],
             availabilityChecker: FundingSourceAvailabilityCheckerStub(swapAvailable: [swapAvailable.id])
         )
 
@@ -87,7 +127,7 @@ struct PolymarketDepositSourceResolverTests {
 
         let chosen = PolymarketDepositSourceResolver.chooseSource(
             from: [unavailable, available],
-            depositCurrency: usdcPolygon.expressCurrency,
+            depositCurrencies: [usdcPolygon.expressCurrency],
             availabilityChecker: FundingSourceAvailabilityCheckerStub(swapAvailable: [available.id])
         )
 
@@ -100,7 +140,7 @@ struct PolymarketDepositSourceResolverTests {
 
         let chosen = PolymarketDepositSourceResolver.chooseSource(
             from: [unavailable],
-            depositCurrency: usdcPolygon.expressCurrency,
+            depositCurrencies: [usdcPolygon.expressCurrency],
             availabilityChecker: FundingSourceAvailabilityCheckerStub()
         )
 
@@ -114,7 +154,7 @@ struct PolymarketDepositSourceResolverTests {
 
         let chosen = PolymarketDepositSourceResolver.chooseSource(
             from: [joint, standard],
-            depositCurrency: usdcPolygon.expressCurrency,
+            depositCurrencies: [usdcPolygon.expressCurrency],
             availabilityChecker: FundingSourceAvailabilityCheckerStub(
                 transferAvailable: [joint.id, standard.id],
                 swapAvailable: [joint.id, standard.id]
@@ -131,7 +171,7 @@ struct PolymarketDepositSourceResolverTests {
 
         let chosen = PolymarketDepositSourceResolver.chooseSource(
             from: [joint, standard],
-            depositCurrency: usdcPolygon.expressCurrency,
+            depositCurrencies: [usdcPolygon.expressCurrency],
             availabilityChecker: FundingSourceAvailabilityCheckerStub(swapAvailable: [joint.id, standard.id])
         )
 
@@ -144,7 +184,7 @@ struct PolymarketDepositSourceResolverTests {
 
         let chosen = PolymarketDepositSourceResolver.chooseSource(
             from: [joint],
-            depositCurrency: usdcPolygon.expressCurrency,
+            depositCurrencies: [usdcPolygon.expressCurrency],
             availabilityChecker: FundingSourceAvailabilityCheckerStub(
                 transferAvailable: [joint.id],
                 swapAvailable: [joint.id]

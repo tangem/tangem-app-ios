@@ -48,7 +48,7 @@ struct TangemPayFundingFlowBuilder {
                 // Funding the account from itself makes no sense.
                 sourceTokenSelection: .filtered(isIncluded: { !$0.isPayAccount }),
                 receiveTokenSelection: .followsSource(
-                    TangemPayAddFundsDestinationResolver(
+                    AccountFundingDestinationResolver(
                         candidates: destinationCandidates,
                         defaultDestination: receiveToken
                     )

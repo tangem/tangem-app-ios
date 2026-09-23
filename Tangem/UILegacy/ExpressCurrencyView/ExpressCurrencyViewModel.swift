@@ -53,10 +53,9 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         state.update(wallet: wallet, presentation: presentation, viewType: viewType)
 
         if case .success(let wallet as SendSourceToken) = wallet {
-            // An abstractly presented account has no token to denominate its balance in.
-            let balanceProvider = presentation == nil
-                ? wallet.availableBalanceProvider
-                : wallet.fiatAvailableBalanceProvider
+            let balanceProvider = presentation?.balanceDenomination == .fiat
+                ? wallet.fiatAvailableBalanceProvider
+                : wallet.availableBalanceProvider
 
             balanceStateCancellable = balanceProvider.formattedBalanceTypePublisher
                 .withWeakCaptureOf(self)

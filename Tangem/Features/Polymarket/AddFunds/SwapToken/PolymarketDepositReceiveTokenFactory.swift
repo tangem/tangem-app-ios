@@ -17,8 +17,7 @@ struct PolymarketDepositReceiveTokenFactory {
     let depositTarget: PolymarketAccountFundsInteractor.DepositTarget
 
     func makeReceiveToken() -> SendSwapableToken {
-        let tokenItem = PolymarketUtilities.usdcTokenItem
-
+        let tokenItem = depositTarget.tokenItem
         let balanceProvider = accountModel.collateralTokenBalanceProvider
 
         let sourceToken = CommonSendSourceToken(
@@ -58,7 +57,7 @@ struct PolymarketDepositReceiveTokenFactory {
             sendingRestrictionsProvider: PolymarketAccountSendingRestrictionsProvider(),
             receivingRestrictionsProvider: PolymarketDepositReceivingRestrictionsProvider(
                 userWalletInfo: userWalletInfo,
-                minCheckoutUSD: depositTarget.asset.minCheckoutUSD,
+                minCheckoutUSD: depositTarget.minCheckoutUSD,
                 tokenItem: tokenItem
             ),
             tokenFeeProvidersManagerProvider: feeProvidersManagerProvider,
@@ -85,7 +84,8 @@ private extension PolymarketDepositReceiveTokenFactory {
     func makePresentation(tokenItem: TokenItem) -> SendReceiveTokenPresentation {
         SendReceiveTokenPresentation(
             currencySymbol: tokenItem.currencySymbol,
-            icon: Assets.Polymarket.accountAvatar
+            icon: Assets.Polymarket.accountAvatar,
+            balanceDenomination: .token
         )
     }
 
