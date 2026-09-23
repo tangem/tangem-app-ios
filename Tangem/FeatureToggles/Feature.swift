@@ -26,7 +26,7 @@ enum Feature: String, Hashable, CaseIterable {
     case ethPolLocalStakingValidation
     case yieldDexTransferDetection
     case welcomeScreenV2
-    case nativeMarketsShtorka
+    case newShtorkaEnabled
     case collectibles
     case openTelemetryMetrics
     case totalTokenBalanceV2
@@ -63,7 +63,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .ethPolLocalStakingValidation: return "[REDACTED_INFO]_eth_pol_local_staking_validation"
         case .yieldDexTransferDetection: return "[REDACTED_INFO]_yield_dex_transfer_detection"
         case .welcomeScreenV2: return "TWI-1747_welcome_screen_v2"
-        case .nativeMarketsShtorka: return "TWI-1608_new_shtorka_enabled"
+        case .newShtorkaEnabled: return "TWI-1608_new_shtorka_enabled"
         case .collectibles: return "TWI-1640_gacha_machine"
         case .openTelemetryMetrics: return "TWI-1627_opentelemetry_metrics_mirroring"
         case .totalTokenBalanceV2: return "[REDACTED_INFO]_total_token_balance_v2"
@@ -100,7 +100,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .ethPolLocalStakingValidation: return .unspecified
         case .yieldDexTransferDetection: return .unspecified
         case .welcomeScreenV2: return .version("6.4")
-        case .nativeMarketsShtorka: return .unspecified
+        case .newShtorkaEnabled: return .version("6.4")
         case .collectibles: return .unspecified
         case .openTelemetryMetrics: return .version("6.4")
         case .totalTokenBalanceV2: return .unspecified

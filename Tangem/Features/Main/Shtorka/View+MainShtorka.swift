@@ -13,7 +13,7 @@ import TangemUIUtils
 extension View {
     @ViewBuilder
     func mainShtorka(coordinator: FeedCoordinator?) -> some View {
-        if FeatureProvider.isAvailable(.nativeMarketsShtorka), let coordinator {
+        if FeatureProvider.isAvailable(.newShtorkaEnabled), let coordinator {
             modifier(MainShtorkaViewModifier(coordinator: coordinator))
         } else {
             self
