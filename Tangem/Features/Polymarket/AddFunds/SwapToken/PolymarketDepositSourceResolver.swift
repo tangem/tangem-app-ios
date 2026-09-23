@@ -13,17 +13,17 @@ final class PolymarketDepositSourceResolver {
     private let userWalletInfo: UserWalletInfo
     private let walletModelsProvider: MainScreenUIOrderedWalletModelsProvider
     private let availabilityChecker: FundingSourceAvailabilityChecker
-    private let depositCurrency: ExpressWalletCurrency
+    private let depositCurrencies: Set<ExpressWalletCurrency>
 
     init(
         userWalletInfo: UserWalletInfo,
         walletModelsProvider: MainScreenUIOrderedWalletModelsProvider,
-        depositCurrency: ExpressWalletCurrency,
+        depositCurrencies: Set<ExpressWalletCurrency>,
         availabilityChecker: FundingSourceAvailabilityChecker
     ) {
         self.userWalletInfo = userWalletInfo
         self.walletModelsProvider = walletModelsProvider
-        self.depositCurrency = depositCurrency
+        self.depositCurrencies = depositCurrencies
         self.availabilityChecker = availabilityChecker
     }
 }
@@ -42,13 +42,13 @@ extension PolymarketDepositSourceResolver: SwapSourceTokenResolver {
 extension PolymarketDepositSourceResolver {
     static func chooseSource(
         from walletModels: [any WalletModel],
-        depositCurrency: ExpressWalletCurrency,
+        depositCurrencies: Set<ExpressWalletCurrency>,
         availabilityChecker: FundingSourceAvailabilityChecker
     ) -> (any WalletModel)? {
         let selectable = walletModels.filter { !$0.isJointAccountParticipant }
 
         let matching = selectable.filter {
-            $0.tokenItem.expressCurrency == depositCurrency
+            depositCurrencies.contains($0.tokenItem.expressCurrency)
                 && availabilityChecker.isTransferAvailable(walletModel: $0)
         }
 
@@ -67,7 +67,7 @@ private extension PolymarketDepositSourceResolver {
     func resolveSourceToken(from walletModels: [any WalletModel]) -> SendSwapableToken? {
         let chosen = Self.chooseSource(
             from: walletModels,
-            depositCurrency: depositCurrency,
+            depositCurrencies: depositCurrencies,
             availabilityChecker: availabilityChecker
         )
 
