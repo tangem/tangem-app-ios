@@ -202,6 +202,24 @@ class BaseTestCase: XCTestCase {
         return importHotWallet(accessCode: accessCode)
     }
 
+    /// Signing a withdrawal needs the key the Tangem Pay authorization derives, so the synthetic tokens are skipped.
+    @discardableResult
+    func launchAndImportHotWalletWithRealPayAuthorization(
+        expressApiType: ExpressAPI? = nil,
+        scenarios: [ScenarioConfig] = []
+    ) -> MainScreen {
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: expressApiType,
+            visaApiType: .mock,
+            clearStorage: true,
+            scenarios: [ScenarioConfig(name: "tangem_pay_eligibility", initialState: "PaeraCustomer")] + scenarios,
+            extraLaunchArguments: [Constants.realPayAuthorizationArgument]
+        )
+
+        return importHotWallet().renewTangemPaySession()
+    }
+
     /// Restarts the app keeping wallets and storage, so caches written before the restart stay readable.
     @discardableResult
     func relaunchKeepingState(
@@ -251,6 +269,9 @@ private extension BaseTestCase {
     enum Constants {
         /// The OpenTelemetry exporter has no UI-test stub and would reach the production endpoint on every launch.
         static let defaultFeatureToggles = ["TWI-1627_opentelemetry_metrics_mirroring": false]
+
+        /// Keeps `TangemPayMocksConfigurator` from injecting synthetic authorization tokens.
+        static let realPayAuthorizationArgument = "-uitest-tangempay-real-authorization"
     }
 }
 
