@@ -158,6 +158,7 @@ private extension PolymarketCoordinator {
             destinationFactory: PolymarketDestinationFactory(
                 dependencies: dependencies,
                 onAddFunds: { [weak self] in self?.openAddFunds() },
+                onRegionWarning: { [weak self] in self?.openRegionWarning() },
                 onReturnToMain: { [weak self] in self?.popToMain() }
             ),
             fundingFlow: PolymarketFundingFlow(dependencies: dependencies)
@@ -187,20 +188,17 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
     ) {
         guard case .main(_, let destinationFactory, _) = viewState else { return }
 
-        destination = .eventDetails(destinationFactory.makeEventDetails(
+        destination = .eventDetails(destinationFactory.makeEventDetailsCoordinator(
             eventID: eventID,
             category: category,
             onOrderPlaced: onOrderPlaced,
             onRegionWarning: { [weak self] in self?.openRegionWarning() },
-            onOpenPosition: { [weak self] position in
-                self?.openPositionDetails(position: position, onOrderPlaced: onOrderPlaced)
-            },
             onClose: { [weak self] in self?.popToMain() }
         ))
     }
 
     @MainActor
-    func openRedeem(position: PolymarketPosition, onClaimed: @escaping () -> Void) {
+    func openRedeem(position: PolymarketPosition, onClaimed: @escaping (PolymarketPosition?) -> Void) {
         guard let redeemService else { return }
 
         destination = .redeem(PolymarketRedeemViewModel(
@@ -225,9 +223,6 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
             position: position,
             onOrderPlaced: onOrderPlaced,
             onRegionWarning: { [weak self] in self?.openRegionWarning() },
-            onOpenPosition: { [weak self] position in
-                self?.openPositionDetails(position: position, onOrderPlaced: onOrderPlaced)
-            },
             onClose: { [weak self] in self?.popToMain() }
         ))
     }
@@ -246,6 +241,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
             outcome: outcome,
             eventTitle: eventTitle,
             request: request,
+            pushesPlacedPosition: true,
             onPlaced: onPlaced,
             onOpenPosition: { [weak self] position in
                 self?.openPositionDetails(position: position, onOrderPlaced: onPlaced)
@@ -258,7 +254,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
     func openMyPositions(
         tab: PolymarketPositionsTab,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
-        onClaimed: @escaping () -> Void
+        onClaimed: @escaping (PolymarketPosition?) -> Void
     ) {
         guard case .main(_, let destinationFactory, _) = viewState else { return }
 
