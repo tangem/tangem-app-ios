@@ -1,5 +1,5 @@
 //
-//  TangemPayGeoCountriesResponse.swift
+//  TangemPayGeoCountry.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,10 +7,6 @@
 //
 
 import Foundation
-
-public struct TangemPayGeoCountriesResponse: Decodable {
-    public let countries: [TangemPayGeoCountry]
-}
 
 public struct TangemPayGeoCountry: Decodable, Equatable {
     public let code: String

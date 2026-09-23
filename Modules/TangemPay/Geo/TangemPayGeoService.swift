@@ -7,6 +7,6 @@
 //
 
 public protocol TangemPayGeoService {
-    func getCountries() async throws -> TangemPayGeoCountriesResponse
-    func getRegions(countryCode: String) async throws -> TangemPayGeoRegionsResponse
+    func getCountries() async throws -> [TangemPayGeoCountry]
+    func getRegions(countryCode: String) async throws -> [TangemPayGeoRegion]
 }

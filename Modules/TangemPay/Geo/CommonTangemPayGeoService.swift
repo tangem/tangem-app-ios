@@ -29,11 +29,11 @@ final class CommonTangemPayGeoService {
 }
 
 extension CommonTangemPayGeoService: TangemPayGeoService {
-    func getCountries() async throws -> TangemPayGeoCountriesResponse {
+    func getCountries() async throws -> [TangemPayGeoCountry] {
         try await request(for: .countries)
     }
 
-    func getRegions(countryCode: String) async throws -> TangemPayGeoRegionsResponse {
+    func getRegions(countryCode: String) async throws -> [TangemPayGeoRegion] {
         try await request(for: .regions(countryCode: countryCode))
     }
 }

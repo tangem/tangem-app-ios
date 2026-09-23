@@ -170,21 +170,3 @@ private extension TangemPayOfframpGeoSelectionCoordinatorView {
         static let regionSelectionCountryCode = "US"
     }
 }
-
-// MARK: - Previews
-
-#Preview("Country") {
-    TangemPayOfframpGeoSelectionCoordinatorView(
-        store: TangemPayGeoStore(repository: MockTangemPayGeoRepository()),
-        start: .country(selectedCountryCode: "US", selectedRegionCode: "US-CA"),
-        output: { _ in }
-    )
-}
-
-#Preview("State") {
-    TangemPayOfframpGeoSelectionCoordinatorView(
-        store: TangemPayGeoStore(repository: MockTangemPayGeoRepository()),
-        start: .region(countryCode: "US", selectedCode: "US-CA"),
-        output: { _ in }
-    )
-}
