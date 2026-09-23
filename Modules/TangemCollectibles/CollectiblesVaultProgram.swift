@@ -259,6 +259,25 @@ public struct CollectiblesVaultProgram {
         )
     }
 
+    /// Accounts: vault (the account being closed), cold owner (writable signer — the rent lands on it).
+    /// Takes no arguments. The vault's token accounts are not touched: closing them is a separate
+    /// instruction, and a vault closed before them leaves their rent stranded until one is deployed again
+    /// for the same owner.
+    public func closeVaultInstruction(coldOwner: Data) throws -> CollectiblesInstruction {
+        guard coldOwner.count == PublicKey.LENGTH, let coldOwnerKey = PublicKey(data: coldOwner) else {
+            throw ProgramError.invalidPublicKey
+        }
+
+        return CollectiblesInstruction(
+            programId: programId.base58EncodedString,
+            accounts: [
+                .init(address: try vaultPDA(coldOwner: coldOwnerKey).base58EncodedString, isSigner: false, isWritable: true),
+                .init(address: coldOwnerKey.base58EncodedString, isSigner: true, isWritable: true),
+            ],
+            data: Self.instructionDiscriminator("close_vault")
+        )
+    }
+
     /// Accounts: vault, cold owner (read-only signer). No payer — nothing is allocated here,
     /// and the fee payer is a transaction-level slot, not an instruction account.
     public func updateVaultInstruction(
