@@ -25,10 +25,10 @@ final class CommonTangemPayGeoRepository {
 
 extension CommonTangemPayGeoRepository: TangemPayGeoRepository {
     func countries() async throws -> [TangemPayGeoCountry] {
-        try await geoService.getCountries().countries
+        try await geoService.getCountries()
     }
 
     func regions(countryCode: String) async throws -> [TangemPayGeoRegion] {
-        try await geoService.getRegions(countryCode: countryCode).regions
+        try await geoService.getRegions(countryCode: countryCode)
     }
 }
