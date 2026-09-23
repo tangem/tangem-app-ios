@@ -118,7 +118,7 @@ final class SwapFeeUITests: BaseTestCase {
             .waitForFeeSelectorToAppear()
             .selectFeeOption(.normal)
             .validateFeeChanged()
-            .waitForNotificationNotShown()
+            .waitForNotificationNotShown(title: notEnoughFeeTitle)
             .waitForConfirmButtonEnabled()
     }
 }
