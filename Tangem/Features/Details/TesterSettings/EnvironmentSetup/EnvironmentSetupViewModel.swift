@@ -43,7 +43,11 @@ final class EnvironmentSetupViewModel: ObservableObject {
     /// Application UID
     @Published var applicationUid: String = ""
 
+    @Published private(set) var walletIds: [WalletIds] = []
+
     // MARK: - Dependencies
+
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let featureStorage = FeatureStorage.instance
     private weak var coordinator: EnvironmentSetupRoutable?
@@ -240,12 +244,22 @@ final class EnvironmentSetupViewModel: ObservableObject {
         fcmToken = Messaging.messaging().fcmToken ?? "none"
 
         updateApplicationUid()
+        updateWalletIds()
     }
 
     func copyField(_ keyPath: KeyPath<EnvironmentSetupViewModel, String>) {
-        let value = self[keyPath: keyPath]
+        copy(self[keyPath: keyPath])
+    }
+
+    func copy(_ value: String) {
         UIPasteboard.general.string = value
         UINotificationFeedbackGenerator().notificationOccurred(.success)
+    }
+
+    func updateWalletIds() {
+        walletIds = userWalletRepository.models.map {
+            WalletIds(id: $0.userWalletId.stringValue, name: $0.name, hash: $0.userWalletId.hashedStringValue)
+        }
     }
 
     func resetApplicationUID() {
@@ -314,5 +328,15 @@ final class EnvironmentSetupViewModel: ObservableObject {
 
     func handleSurveySparrowDemoNPSButtonTapped() {
         coordinator?.openSparrowSurveyNPSDemo(withToken: surveySparrowToken)
+    }
+}
+
+// MARK: - Wallet ids
+
+extension EnvironmentSetupViewModel {
+    struct WalletIds: Identifiable {
+        let id: String
+        let name: String
+        let hash: String
     }
 }
