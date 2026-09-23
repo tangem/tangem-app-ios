@@ -11,17 +11,13 @@ import UIKit
 import TangemAccessibilityIdentifiers
 
 final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenElement> {
-    private static let replaceCardTitle = "Replace card"
-    private static let replacingInProgressText = "Replacing your digital card"
-    private static let issuingTitle = "Issuing a new digital card"
-    private static let issuingDescription = "Usually takes up to 5 minutes. In rare cases, up to 48 hours."
-
     private lazy var cardNameEditButton = button(.cardNameEditButton)
     private lazy var changePinRow = button(.changePinRow)
     private lazy var freezeRowActive = button(.freezeCardRowStateActive)
     private lazy var freezeRowFrozen = button(.freezeCardRowStateFrozen)
     private lazy var moreMenuButton = button(.cardManagementMoreButton)
-    private lazy var replaceCardMenuItem = button(Self.replaceCardTitle)
+    private lazy var replaceCardMenuItem = button(Constants.replaceCardTitle)
+    private lazy var closeCardMenuItem = button(Constants.closeCardTitle)
     private lazy var dailyLimitChangeButton = button(.dailyLimitChangeButton)
     private lazy var showDetailsButton = button(.cardDetailsShowButton)
     private lazy var hideDetailsButton = button(.cardDetailsHideButton)
@@ -159,10 +155,68 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     }
 
     @discardableResult
+    func tapCloseCard() -> TangemPayCloseCardSheet {
+        XCTContext.runActivity(named: "Open Close card from more menu") { _ in
+            moreMenuButton.waitAndTap()
+            closeCardMenuItem.waitAndTap()
+            return TangemPayCloseCardSheet(app)
+        }
+    }
+
+    @discardableResult
+    func verifyCloseCardDisabled() -> Self {
+        XCTContext.runActivity(named: "Verify Close card is displayed but disabled") { _ in
+            moreMenuButton.waitAndTap()
+            waitAndAssertTrue(closeCardMenuItem, "Close card menu item should be displayed")
+            closeCardMenuItem.waitForState(state: .disabled)
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyCardClosingInProgress() -> Self {
+        XCTContext.runActivity(named: "Verify 'Closing your card' state") { _ in
+            waitAndAssertTrue(
+                app.staticTexts[Constants.closingInProgressText].firstMatch,
+                timeout: .networkRequest,
+                "'Closing your card' should be displayed while the card is being closed"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitForCardClosingCompleted() -> Self {
+        XCTContext.runActivity(named: "Wait for the card closing to complete") { _ in
+            XCTAssertTrue(
+                app.staticTexts[Constants.closingInProgressText].firstMatch.waitForNonExistence(timeout: .networkRequest),
+                "'Closing your card' should disappear once the close order completes"
+            )
+            waitAndAssertTrue(changePinRow, timeout: .networkRequest, "Card actions should return after the card is closed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyCardNameNotDisplayed(_ name: String) -> Self {
+        XCTContext.runActivity(named: "Verify card '\(name)' is not displayed") { _ in
+            let nameButton = app.buttons
+                .matching(identifier: TangemPayAccessibilityIdentifiers.cardNameEditButton)
+                .matching(NSPredicate(format: "label CONTAINS %@", name))
+                .firstMatch
+            XCTAssertTrue(
+                nameButton.waitForNonExistence(timeout: .networkRequest),
+                "Card '\(name)' should not be displayed in card management"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func verifyReplacingInProgress() -> Self {
         XCTContext.runActivity(named: "Verify 'Replacing your digital card' state") { _ in
             waitAndAssertTrue(
-                app.staticTexts[Self.replacingInProgressText].firstMatch,
+                app.staticTexts[Constants.replacingInProgressText].firstMatch,
                 "'Replacing your digital card' should be displayed while reissue is in progress"
             )
             return self
@@ -177,8 +231,8 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
                 timeout: .networkRequest,
                 "Issuing message should be displayed while the card is being issued"
             )
-            waitAndAssertTrue(app.staticTexts[Self.issuingTitle].firstMatch, "Issuing title should be displayed")
-            waitAndAssertTrue(app.staticTexts[Self.issuingDescription].firstMatch, "Issuing description should be displayed")
+            waitAndAssertTrue(app.staticTexts[Constants.issuingTitle].firstMatch, "Issuing title should be displayed")
+            waitAndAssertTrue(app.staticTexts[Constants.issuingDescription].firstMatch, "Issuing description should be displayed")
             return self
         }
     }
@@ -437,5 +491,16 @@ enum TangemPayCardDetailsScreenElement: String, UIElement {
         case .cardDetailsCopyCvc:
             TangemPayAccessibilityIdentifiers.cardDetailsCopyCvc
         }
+    }
+}
+
+private extension TangemPayCardDetailsScreen {
+    enum Constants {
+        static let replaceCardTitle = "Replace card"
+        static let replacingInProgressText = "Replacing your digital card"
+        static let issuingTitle = "Issuing a new digital card"
+        static let issuingDescription = "Usually takes up to 5 minutes. In rare cases, up to 48 hours."
+        static let closeCardTitle = "Close card"
+        static let closingInProgressText = "Closing your card"
     }
 }

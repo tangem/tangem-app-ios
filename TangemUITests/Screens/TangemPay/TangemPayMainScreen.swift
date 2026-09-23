@@ -72,6 +72,37 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
+    func tapCard(cardId: String) -> TangemPayCardDetailsScreen {
+        XCTContext.runActivity(named: "Tap card '\(cardId)' to open card management") { _ in
+            cardButton(cardId: cardId).waitAndTap()
+            return TangemPayCardDetailsScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyCardDisplayed(cardId: String) -> Self {
+        XCTContext.runActivity(named: "Verify card '\(cardId)' is displayed") { _ in
+            waitAndAssertTrue(
+                cardButton(cardId: cardId),
+                timeout: .networkRequest,
+                "Card '\(cardId)' should be displayed on Payment account"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyCardNotDisplayed(cardId: String) -> Self {
+        XCTContext.runActivity(named: "Verify card '\(cardId)' is not displayed") { _ in
+            XCTAssertTrue(
+                cardButton(cardId: cardId).waitForNonExistence(timeout: .networkRequest),
+                "Card '\(cardId)' should not be displayed on Payment account"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func tapAddCard() -> TangemPayOrderCardTypeScreen {
         XCTContext.runActivity(named: "Tap add card button to issue an additional card") { _ in
             addCardButton.waitAndTap()
@@ -561,6 +592,10 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
             reloadHistoryButton.waitAndTap()
             return self
         }
+    }
+
+    private func cardButton(cardId: String) -> XCUIElement {
+        app.buttons[TangemPayAccessibilityIdentifiers.paymentAccountCardButton(cardId: cardId)].firstMatch
     }
 
     private func transactionRowElement(identifier: String, label: String) -> XCUIElement {
