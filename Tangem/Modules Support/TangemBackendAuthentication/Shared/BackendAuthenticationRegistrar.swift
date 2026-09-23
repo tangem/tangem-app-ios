@@ -140,6 +140,18 @@ enum BackendAuthenticationRegistrar {
             }
         }
     }
+
+    static func prepareMobileWalletForColdUpgrade(_ userWalletModel: some UserWalletModel) async {
+        guard
+            FeatureProvider.isAvailable(.backendAuthentication),
+            userWalletModel.isMobileWallet
+        else {
+            return
+        }
+
+        await BackendAuthenticationAssembly.clearUserWalletRegistrationStatus(id: userWalletModel.userWalletId)
+        BackendAuthLogger.info("Mobile wallet on-device registration status cleared before cold wallet upgrade.")
+    }
 }
 
 private extension UserWalletModel {
