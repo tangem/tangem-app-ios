@@ -17,7 +17,7 @@ struct SubmitUserWalletRegistrationUseCaseTests {
         let request = UserWalletRegistrationRequest.fake
 
         let registrationClient = SpyUserWalletRegistrationClient()
-        let expectedSessionTokens = SessionTokens.fake
+        let expectedSessionTokens = SessionTokens.uniqueFake()
         registrationClient.registerResult = Result.success(expectedSessionTokens)
 
         let sessionTokensRepository = SpySessionTokensRepository()
@@ -35,7 +35,7 @@ struct SubmitUserWalletRegistrationUseCaseTests {
 
         #expect(registrationClient.receivedMessages == [.register(request)])
         #expect(sessionTokensRepository.receivedMessages == [.persist(expectedSessionTokens)])
-        #expect(registrationStatusRepository.receivedMessages == [.persist(isRegistered: true, id: request.id)])
+        #expect(registrationStatusRepository.receivedMessages == [.persist(request.id)])
     }
 
     @Test
@@ -57,7 +57,7 @@ struct SubmitUserWalletRegistrationUseCaseTests {
         try await sut(request: request)
 
         #expect(sessionTokensRepository.receivedMessages.isEmpty)
-        #expect(registrationStatusRepository.receivedMessages == [.persist(isRegistered: true, id: request.id)])
+        #expect(registrationStatusRepository.receivedMessages == [.persist(request.id)])
     }
 
     @Test
@@ -89,7 +89,7 @@ struct SubmitUserWalletRegistrationUseCaseTests {
         let request = UserWalletRegistrationRequest.fake
 
         let registrationClient = SpyUserWalletRegistrationClient()
-        let expectedSessionTokens = SessionTokens.fake
+        let expectedSessionTokens = SessionTokens.uniqueFake()
         registrationClient.registerResult = Result.success(expectedSessionTokens)
 
         let sessionTokensRepository = SpySessionTokensRepository()
