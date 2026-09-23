@@ -12,10 +12,6 @@ extension MainCoordinator: MainScreenDeeplinkRoutable {
         mainViewModel?.isRootVisible ?? false
     }
 
-    var isShtorkaPresented: Bool {
-        feedCoordinator?.shtorkaStateObject.isPresented ?? false
-    }
-
     func openBuy(userWalletModel: any UserWalletModel) {
         openBuy(
             userWalletModels: [userWalletModel],

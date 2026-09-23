@@ -34,8 +34,18 @@ struct OverlayViewPresenterViewModelTests {
         #expect(!presenter.isPresenting)
     }
 
-    @Test("Dismissing all takes down the whole stack at once, as the lock does")
-    func dismissAllEmptiesTheStack() {
+    @Test("A newer overlay takes the place of the one presented")
+    func newerOverlayReplacesPresented() {
+        let presenter = OverlayViewPresenterViewModel()
+
+        presenter.present(Self.overlay(id: "one"))
+        presenter.present(Self.overlay(id: "two"))
+
+        #expect(presenter.presentedOverlay?.id == "two")
+    }
+
+    @Test("Dismissing all takes down what is presented, as the lock does")
+    func dismissAllTakesDownPresented() {
         let presenter = OverlayViewPresenterViewModel()
 
         presenter.present(Self.overlay(id: "one"))

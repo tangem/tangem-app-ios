@@ -13,14 +13,12 @@ final class DebugMenuPresenter {
     @Injected(\.overlayViewPresenter) private var overlayViewPresenter: any OverlayViewPresenter
 
     private static let overlayId = "DebugMenuPresenter.EnvironmentSetup"
-    private var isPresenting = false
 
     nonisolated init() {}
 
+    /// The presenter shows one screen at a time and refuses the one it already shows, so asking twice is its
+    /// business rather than a flag kept here — a flag would stay raised when a deeplink takes the menu's place.
     func presentIfNeeded() {
-        guard !isPresenting else { return }
-        isPresenting = true
-
         let coordinator = EnvironmentSetupCoordinator(
             dismissAction: { [weak self] _ in self?.dismiss() },
             popToRootAction: { [weak self] _ in self?.dismiss() }
@@ -41,8 +39,6 @@ final class DebugMenuPresenter {
     }
 
     private func dismiss() {
-        guard isPresenting else { return }
         overlayViewPresenter.dismiss()
-        isPresenting = false
     }
 }

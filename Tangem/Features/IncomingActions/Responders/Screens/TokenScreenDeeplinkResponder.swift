@@ -11,6 +11,9 @@ import TangemFoundation
 
 /// Answers on behalf of the token screen — token details and staking details alike — for the deeplinks it has
 /// a flow of its own for: a swap inside the screen and buying the very token it shows.
+///
+/// Only while its screen is what the user sees: what it opens appears in the screen's own hierarchy, so a link
+/// arriving over something the screen already shows goes on down the chain, to whoever shows it over instead.
 final class TokenScreenDeeplinkResponder {
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
@@ -124,7 +127,7 @@ extension TokenScreenDeeplinkResponder: IncomingActionResponder {
 
     func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
         // Incoming actions are dispatched on the main thread, and so is everything a deeplink reads here.
-        guard MainActor.assumeIsolated({ route(action) }) else {
+        guard MainActor.assumeIsolated({ ScreenDeeplinkVisibility.isWindowRootOnTop() && route(action) }) else {
             return false
         }
 

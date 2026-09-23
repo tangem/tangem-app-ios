@@ -7,9 +7,7 @@
 
 import Combine
 import Foundation
-import UIKit
 import TangemFoundation
-import TangemUIUtils
 
 /// Opens on the main screen what the main screen can open itself, exactly as a tap would. Answers only while its
 /// root is the top of what the user sees — otherwise the screen would go under whatever is open, so it is left to
@@ -265,21 +263,7 @@ private extension MainScreenDeeplinkResponder {
             return false
         }
 
-        return isWindowRootOnTop
-    }
-
-    var isWindowRootOnTop: Bool {
-        guard let rootViewController = UIApplication.mainWindow?.rootViewController else {
-            return false
-        }
-
-        guard let presented = rootViewController.presentedViewController else {
-            return true
-        }
-
-        // The only thing presented on the root that leaves the main screen in view is its own shtorka, and the
-        // shtorka steps aside for anything shown over the app, so what is presented while it is up is the shtorka.
-        return coordinator?.isShtorkaPresented == true && presented.presentedViewController == nil
+        return ScreenDeeplinkVisibility.isWindowRootOnTop()
     }
 }
 
