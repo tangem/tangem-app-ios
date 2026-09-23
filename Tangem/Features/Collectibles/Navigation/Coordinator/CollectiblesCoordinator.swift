@@ -8,6 +8,8 @@
 
 import Combine
 import Foundation
+import BlockchainSdk
+import TangemFoundation
 import TangemStories
 
 final class CollectiblesCoordinator: CoordinatorObject {
@@ -21,6 +23,9 @@ final class CollectiblesCoordinator: CoordinatorObject {
     let popToRootAction: Action<PopToRootOptions>
 
     private var accountModel: (any CollectiblesAccountModel)?
+
+    // [REDACTED_TODO_COMMENT]
+    private var devnetUserWalletModel: (any UserWalletModel)?
 
     // MARK: - Publishers
 
@@ -39,6 +44,7 @@ final class CollectiblesCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         accountModel = options.accountModel
+        devnetUserWalletModel = options.userWalletModel
 
         switch options.destination {
         case .welcome:
@@ -52,7 +58,8 @@ final class CollectiblesCoordinator: CoordinatorObject {
     func openMain() {
         state = .main(
             CollectiblesMainViewModel(routable: self, accountModel: accountModel),
-            actionsMenu: CollectiblesActionsMenuViewModel(routable: self)
+            // [REDACTED_TODO_COMMENT]
+            actionsMenu: CollectiblesActionsMenuViewModel(routable: self, devnet: makeDevnetMenuViewModel())
         )
     }
 
@@ -86,6 +93,27 @@ extension CollectiblesCoordinator: CollectiblesMainRoutable {
 
         Task { @MainActor in
             mailPresenter.present(viewModel: mailViewModel)
+        }
+    }
+}
+
+// MARK: - Devnet menu
+
+// [REDACTED_TODO_COMMENT]
+private extension CollectiblesCoordinator {
+    @MainActor
+    func makeDevnetMenuViewModel() -> CollectiblesDevnetMenuViewModel? {
+        guard !AppEnvironment.current.isProduction,
+              CollectiblesChainEnvironment.blockchain.isTestnet,
+              let accountModel,
+              let userWalletModel = devnetUserWalletModel else {
+            return nil
+        }
+
+        let actions = CommonCollectiblesDevnetActions(accountModel: accountModel, userWalletModel: userWalletModel)
+
+        return CollectiblesDevnetMenuViewModel(actions: actions) { [weak self] in
+            self?.dismiss()
         }
     }
 }
