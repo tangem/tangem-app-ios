@@ -61,6 +61,9 @@ private struct MainShtorkaViewModifier: ViewModifier {
                 expansionProgress: stateObject.expansionProgressPublisher
             ) {
                 FeedCoordinatorView(coordinator: coordinator)
+                    // The system glass background stretches during a drag and jumps back when it ends on iOS 26.
+                    // A custom material keeps the native detent transition continuous.
+                    .presentationBackground(.ultraThinMaterial)
                     .background {
                         Color.clear
                             .readGeometry { geometry in

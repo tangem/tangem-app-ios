@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import TangemAssets
 import TangemUI
 
 struct FeedSearchSkeletonView: View {
@@ -15,15 +14,14 @@ struct FeedSearchSkeletonView: View {
         VStack(alignment: .leading, spacing: Constants.headerSpacing) {
             Shimmer()
                 .variant(.custom(width: Constants.pillWidth, height: Constants.pillHeight))
+                .padding(.horizontal, Constants.horizontalPadding)
 
             VStack(spacing: 0) {
                 ForEach(0 ..< Constants.rowCount, id: \.self) { _ in
                     TokenRow(.shimmer)
                 }
             }
-            .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: 0, radius: Constants.cornerRadius)
         }
-        .padding(.horizontal, Constants.horizontalPadding)
     }
 }
 
@@ -35,7 +33,6 @@ private extension FeedSearchSkeletonView {
         static let pillWidth: CGFloat = 122
         static let pillHeight: CGFloat = 16
         static let headerSpacing: CGFloat = 16
-        static let cornerRadius: CGFloat = 24
         static let horizontalPadding: CGFloat = 16
     }
 }

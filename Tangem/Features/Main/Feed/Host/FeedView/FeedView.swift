@@ -72,10 +72,10 @@ struct FeedView: View {
                         FeedTabsView(
                             viewModel: viewModel.tabsViewModel,
                             shtorkaActions: shtorkaActions,
+                            shtorkaReporting: shtorkaReporting,
                             areChipsPinned: $areChipsPinned,
                             scrollProxy: proxy,
-                            scrollTarget: { shtorkaReporting.scrollTarget(forTab: $0, viewportHeight: visibleHeight, pinTabs: $1, chipsPinned: $2) },
-                            onChipsHeightChange: { shtorkaReporting.report(tabChips: $0) }
+                            viewportHeight: visibleHeight
                         )
                         .frame(minHeight: visibleHeight, alignment: .top)
                     }
