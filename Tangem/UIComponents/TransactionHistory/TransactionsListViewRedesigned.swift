@@ -78,8 +78,8 @@ struct TransactionsListViewRedesigned: View {
 
                 if let fetchMore {
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: Color.Tangem.Graphic.Neutral.primary))
-                        .padding(.vertical, .unit(.x4))
+                        .progressViewStyle(CircularProgressViewStyle(tint: DesignSystem.Color.iconPrimary))
+                        .padding(.vertical, 16)
                         .onAppear { fetchMore.start() }
                         .id(fetchMore.id)
                 }
@@ -140,19 +140,20 @@ private struct StatusStateView: View {
     let secondaryButton: ActionButton?
 
     var body: some View {
-        VStack(spacing: .unit(.x4)) {
+        VStack(spacing: 16) {
             icon.image
                 .renderingMode(.template)
-                .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiary)
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
                 .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.statusStateIcon)
 
             Text(message)
                 .multilineTextAlignment(.center)
-                .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.primary)
-                .padding(.horizontal, .unit(.x9))
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 16)
 
             if primaryButton != nil || secondaryButton != nil {
-                HStack(spacing: .unit(.x2)) {
+                HStack(spacing: 8) {
                     if let primaryButton {
                         actionButton(primaryButton)
                     }
@@ -162,7 +163,7 @@ private struct StatusStateView: View {
                 }
             }
         }
-        .padding(.vertical, .unit(.x6))
+        .padding(.vertical, 24)
     }
 
     private func actionButton(_ button: ActionButton) -> some View {
@@ -206,7 +207,7 @@ private struct StatusStateView: View {
             fetchMore: nil
         )
     }
-    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+    .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
 }
 
 #Preview("Error") {
@@ -218,7 +219,7 @@ private struct StatusStateView: View {
         isReloadButtonBusy: false,
         fetchMore: nil
     )
-    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+    .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
 }
 
 #Preview("Empty") {
@@ -230,6 +231,6 @@ private struct StatusStateView: View {
         isReloadButtonBusy: false,
         fetchMore: nil
     )
-    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+    .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
 }
 #endif // DEBUG
