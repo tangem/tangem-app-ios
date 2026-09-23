@@ -101,10 +101,12 @@ struct TangemPayVirtualAccountBankDetailsView: View {
                 Text(verbatim: "\(Localization.tangempayVaAvailableToDepositDay) \(Constants.dailyDepositLimit)")
                     .font(token: DesignSystem.Font.subheadingMediumToken)
                     .foregroundStyle(DesignSystem.Color.textPrimary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountDepositLimitTitle)
 
                 Text(Localization.tangempayVaLimitResettingEveryday)
                     .font(token: DesignSystem.Font.captionMediumToken)
                     .foregroundStyle(DesignSystem.Color.textSecondary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountDepositLimitSubtitle)
             }
             .fixedSize(horizontal: false, vertical: true)
 
