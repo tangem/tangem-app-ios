@@ -12,6 +12,8 @@ import TangemAssets
 import TangemUI
 
 struct TransactionDetailsContext {
+    @Injected(\.transactionHistoryAuxDataRepository) private var auxDataRepository: TransactionHistoryAuxDataRepository
+
     private let walletModel: any WalletModel
     private let userWalletInfo: UserWalletInfo
     private let isAccountsMode: Bool
@@ -37,9 +39,7 @@ struct TransactionDetailsContext {
         let blockchain = walletModel.tokenItem.blockchain
         let comparator = AddressComparator()
 
-        guard let walletModels = walletModel.account?.walletModelsManager.walletModels else {
-            return nil
-        }
+        let walletModels = walletModel.account?.walletModelsManager.walletModels ?? []
 
         let matching: (any WalletModel)? = walletModels.first { model in
             guard let contractAddress: String = model.tokenItem.contractAddress else {
@@ -51,10 +51,18 @@ struct TransactionDetailsContext {
         }
 
         guard let matching else {
-            return nil
+            return knownTokenIconInfo(forContract: contract)
         }
 
         return TokenIconInfoBuilder().build(from: matching.tokenItem, isCustom: matching.isCustom)
+    }
+
+    /// A token outside the account, e.g. an approve of a token the user doesn't hold, is looked up among all the
+    /// tokens known on the network. A cache miss fires a background load, and the sheet re-renders once it lands.
+    private func knownTokenIconInfo(forContract contract: String) -> TokenIconInfo? {
+        auxDataRepository
+            .cryptoCurrency(forContract: contract, blockchain: walletModel.tokenItem.blockchain)
+            .map { TokenIconInfoBuilder().build(from: $0, isCustom: false) }
     }
 
     var tokenSymbol: String {
