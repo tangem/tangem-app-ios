@@ -27,13 +27,13 @@ final class UserDefaultsUserWalletRegistrationStatusRepositoryTests: LeakTrackin
         #expect(await sut.retrieve(id: Self.firstWalletID) == false)
     }
 
-    @Test(arguments: [true, false])
-    func retrieveReflectsPersistedValue(isRegistered: Bool) async throws {
+    @Test
+    func retrieveReturnsTrueForPersistedID() async throws {
         let (sut, _) = try makeSUT()
 
-        await sut.persist(isRegistered: isRegistered, id: Self.firstWalletID)
+        await sut.persist(registeredID: Self.firstWalletID)
 
-        #expect(await sut.retrieve(id: Self.firstWalletID) == isRegistered)
+        #expect(await sut.retrieve(id: Self.firstWalletID) == true)
     }
 
     @Test
@@ -49,7 +49,7 @@ final class UserDefaultsUserWalletRegistrationStatusRepositoryTests: LeakTrackin
     func persistDoesNotAffectOtherIDs() async throws {
         let (sut, _) = try makeSUT()
 
-        await sut.persist(isRegistered: true, id: Self.firstWalletID)
+        await sut.persist(registeredID: Self.firstWalletID)
 
         #expect(await sut.retrieve(id: Self.secondWalletID) == false)
     }
@@ -58,20 +58,20 @@ final class UserDefaultsUserWalletRegistrationStatusRepositoryTests: LeakTrackin
     func persistPreservesPreviouslyRegisteredIDs() async throws {
         let (sut, _) = try makeSUT()
 
-        await sut.persist(isRegistered: true, id: Self.firstWalletID)
-        await sut.persist(isRegistered: true, id: Self.secondWalletID)
+        await sut.persist(registeredID: Self.firstWalletID)
+        await sut.persist(registeredID: Self.secondWalletID)
 
         #expect(await sut.retrieve(id: Self.firstWalletID) == true)
         #expect(await sut.retrieve(id: Self.secondWalletID) == true)
     }
 
     @Test
-    func persistUnregisteringRemovesOnlyTheGivenID() async throws {
+    func removeRemovesOnlyTheGivenID() async throws {
         let (sut, _) = try makeSUT()
 
-        await sut.persist(isRegistered: true, id: Self.firstWalletID)
-        await sut.persist(isRegistered: true, id: Self.secondWalletID)
-        await sut.persist(isRegistered: false, id: Self.firstWalletID)
+        await sut.persist(registeredID: Self.firstWalletID)
+        await sut.persist(registeredID: Self.secondWalletID)
+        await sut.remove(registeredID: Self.firstWalletID)
 
         #expect(await sut.retrieve(id: Self.firstWalletID) == false)
         #expect(await sut.retrieve(id: Self.secondWalletID) == true)
@@ -81,12 +81,35 @@ final class UserDefaultsUserWalletRegistrationStatusRepositoryTests: LeakTrackin
     func persistIsIdempotent() async throws {
         let (sut, userDefaults) = try makeSUT()
 
-        await sut.persist(isRegistered: true, id: Self.firstWalletID)
-        await sut.persist(isRegistered: true, id: Self.firstWalletID)
+        await sut.persist(registeredID: Self.firstWalletID)
+        await sut.persist(registeredID: Self.firstWalletID)
 
         let expectedStoredIDs = [Self.firstWalletID.hashedStringValue(message: Self.key)]
 
         #expect(userDefaults.stringArray(forKey: Self.key) == expectedStoredIDs)
+    }
+
+    @Test
+    func replaceAllKeepsOnlyNewRegisteredIDs() async throws {
+        let (sut, _) = try makeSUT()
+
+        await sut.persist(registeredID: Self.firstWalletID)
+        await sut.replaceAll(with: [Self.secondWalletID])
+
+        #expect(await sut.retrieve(id: Self.firstWalletID) == false)
+        #expect(await sut.retrieve(id: Self.secondWalletID) == true)
+    }
+
+    @Test
+    func replaceAllWithNoIDsRemovesEveryRegisteredID() async throws {
+        let (sut, _) = try makeSUT()
+
+        await sut.persist(registeredID: Self.firstWalletID)
+        await sut.persist(registeredID: Self.secondWalletID)
+        await sut.replaceAll(with: [])
+
+        #expect(await sut.retrieve(id: Self.firstWalletID) == false)
+        #expect(await sut.retrieve(id: Self.secondWalletID) == false)
     }
 }
 

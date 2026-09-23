@@ -14,8 +14,10 @@ actor RenewSessionTokensUseCase {
     private let registerDevice: RegisterDevice
     private let appAttestService: any AppAttestService
     private let sessionAuthenticationClient: any SessionAuthenticationClient
+
     private let sessionTokensRepository: any SessionTokensRepository
     private let deviceRegistrationStatusRepository: any DeviceRegistrationStatusRepository
+    private let userWalletRegistrationStatusRepository: any UserWalletRegistrationStatusRepository
 
     private let deviceKeyManager: DeviceKeyManager
     private let nonceDecryptor: any NonceDecryptor
@@ -32,6 +34,7 @@ actor RenewSessionTokensUseCase {
         sessionAuthenticationClient: some SessionAuthenticationClient,
         sessionTokensRepository: some SessionTokensRepository,
         deviceRegistrationStatusRepository: some DeviceRegistrationStatusRepository,
+        userWalletRegistrationStatusRepository: some UserWalletRegistrationStatusRepository,
         deviceKeyManager: DeviceKeyManager,
         nonceDecryptor: some NonceDecryptor,
         deviceMetadataProvider: @escaping @Sendable @autoclosure () -> DeviceMetadata,
@@ -42,8 +45,10 @@ actor RenewSessionTokensUseCase {
 
         self.appAttestService = appAttestService
         self.sessionAuthenticationClient = sessionAuthenticationClient
+
         self.sessionTokensRepository = sessionTokensRepository
         self.deviceRegistrationStatusRepository = deviceRegistrationStatusRepository
+        self.userWalletRegistrationStatusRepository = userWalletRegistrationStatusRepository
 
         self.deviceKeyManager = deviceKeyManager
         self.nonceDecryptor = nonceDecryptor
@@ -176,11 +181,16 @@ extension RenewSessionTokensUseCase {
             throw RenewSessionTokensError.registrationFailure(error)
         }
 
+        let recoveredSessionTokens: SessionTokens
+
         if let freshSessionTokensAfterRegistration {
-            return freshSessionTokensAfterRegistration
+            recoveredSessionTokens = freshSessionTokensAfterRegistration
+        } else {
+            recoveredSessionTokens = try await authenticate()
         }
 
-        return try await authenticate()
+        await userWalletRegistrationStatusRepository.replaceAll(with: recoveredSessionTokens.userWalletIDs)
+        return recoveredSessionTokens
     }
 
     private func generateAttestationToken(for decryptedNonceBytes: Data) async -> Data? {
