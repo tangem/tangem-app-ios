@@ -15,6 +15,7 @@ final class FeedViewModel: ObservableObject {
     let searchViewModel: FeedSearchViewModel
     let tabsViewModel: FeedTabsViewModel
     let widgetsViewModel: FeedWidgetsViewModel
+    let scrollCoordinator = FeedScrollCoordinator()
 
     private var isSheetOpened = false
 
@@ -25,40 +26,56 @@ final class FeedViewModel: ObservableObject {
         searchViewModel: FeedSearchViewModel,
         tabsViewModel: FeedTabsViewModel,
         widgetsViewModel: FeedWidgetsViewModel,
-        shtorkaActions: any MainShtorkaViewActionProvider
+        container: any FeedContainer,
+        selection: FeedSelection?
     ) {
         self.searchBarViewModel = searchBarViewModel
         self.searchViewModel = searchViewModel
         self.tabsViewModel = tabsViewModel
         self.widgetsViewModel = widgetsViewModel
 
-        bind(to: shtorkaActions)
+        // Before the container is listened to: the size it reports counts the feed as opened, and it has to be
+        // opened on the section the link named rather than on the default one.
+        if let selection {
+            apply(selection: selection)
+        }
+
+        bind(to: container)
+    }
+
+    func apply(selection: FeedSelection) {
+        tabsViewModel.selectTab(kind: selection.tabKind)
+        tabsViewModel.selectedTab.apply(selection: selection)
     }
 }
 
 // MARK: - Private
 
 private extension FeedViewModel {
-    func bind(to shtorkaActions: any MainShtorkaViewActionProvider) {
-        shtorkaActions
+    func bind(to container: any FeedContainer) {
+        container
             .sizePublisher
-            // The size the feed opens with is already what it renders; only a change asks it for anything.
-            .dropFirst()
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, size in
-                viewModel.sheetSizeDidChange(to: size)
+                viewModel.sizeDidChange(to: size)
             }
             .store(in: &bag)
     }
 
-    func sheetSizeDidChange(to size: ShtorkaSize) {
+    func sizeDidChange(to size: ShtorkaSize) {
         switch size {
         case .collapsed:
             isSheetOpened = false
         case .medium, .full:
             logScreenOpenedIfNeeded()
             widgetsViewModel.refresh()
+        }
+
+        // Where each tab was left is worth restoring within one reading of the feed; a feed the user comes back
+        // to starts from the top.
+        if size != .full {
+            scrollCoordinator.reset()
         }
 
         tabsViewModel.sheetSizeDidChange(to: size)

@@ -13,6 +13,8 @@ protocol MainScreenDeeplinkRoutable: AnyObject {
     /// presented over the window is the responder's own question.
     var isRootVisible: Bool { get }
 
+    func openFeed(selection: FeedSelection)
+
     func openTokenDetails(
         for walletModel: any WalletModel,
         userWalletModel: UserWalletModel,
