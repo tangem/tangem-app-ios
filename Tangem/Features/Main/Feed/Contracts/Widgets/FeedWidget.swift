@@ -24,13 +24,14 @@ enum FeedWidget: Identifiable, Equatable {
     case tangemPay
     case referFriend(reward: LoadingResult<String, LoadError>)
     case polymarket
+    case collectibles
 
     var id: String { rawCaseValue }
 
     var span: Span {
         switch self {
         case .forYou, .addAccount: .compact
-        case .startEarning, .tangemPay, .referFriend, .polymarket: .wide
+        case .startEarning, .tangemPay, .referFriend, .polymarket, .collectibles: .wide
         }
     }
 
@@ -38,7 +39,7 @@ enum FeedWidget: Identifiable, Equatable {
         switch self {
         case .startEarning(let state): state.mapValue { _ in }
         case .referFriend(let reward): reward.mapValue { _ in }
-        case .forYou, .addAccount, .tangemPay, .polymarket: .success(())
+        case .forYou, .addAccount, .tangemPay, .polymarket, .collectibles: .success(())
         }
     }
 }

@@ -111,48 +111,13 @@ private extension CollectiblesEntranceViewModel {
         isResolvingDestination = true
         defer { isResolvingDestination = false }
 
-        let accountModel = AccountModelsAggregator(.collectibles)
-            .model(from: userWalletModel.accountModelsManager)
+        let accountModel = userWalletModel.collectiblesAccountModel()
 
-        if accountModel?.hasAccount != true, accountModel?.state == .unresolved {
-            await accountModel?.refreshState()
-        }
-
-        let hasCollectiblesAccount = accountModel?.hasAccount ?? false
-
-        switch Destination(hasAccount: hasCollectiblesAccount, isRestricted: isRegionRestricted) {
-        case .welcome:
-            onOpen(.init(destination: .welcome, userWalletModel: userWalletModel, accountModel: accountModel))
-        case .main:
-            onOpen(.init(destination: .main, userWalletModel: userWalletModel, accountModel: accountModel))
-        case .regionRestrictions:
+        switch await CollectiblesEntranceResolver.resolve(for: accountModel, isRegionRestricted: isRegionRestricted) {
+        case .open(let destination):
+            onOpen(.init(destination: destination, userWalletModel: userWalletModel, accountModel: accountModel))
+        case .regionRestricted:
             onRestricted()
         }
-    }
-}
-
-// MARK: - Destination
-
-extension CollectiblesEntranceViewModel {
-    enum Destination: Equatable {
-        case welcome
-        case main
-        case regionRestrictions
-
-        init(hasAccount: Bool, isRestricted: Bool) {
-            switch (hasAccount, isRestricted) {
-            case (true, _): self = .main
-            case (false, true): self = .regionRestrictions
-            case (false, false): self = .welcome
-            }
-        }
-    }
-}
-
-// MARK: - Eligibility
-
-private extension UserWalletModel {
-    var isCollectiblesEligible: Bool {
-        !isUserWalletLocked && config.hasFeature(.multiCurrency)
     }
 }

@@ -56,7 +56,7 @@ final class CollectiblesGeoblockViewModel: ObservableObject, FloatingSheetConten
     }
 
     func close() {
-        guard #available(iOS 26.0, *) else {
+        guard isRestrictionsPresented else {
             floatingSheetPresenter.removeActiveSheet()
             return
         }
