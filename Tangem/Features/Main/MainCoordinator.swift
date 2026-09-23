@@ -132,7 +132,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     // MARK: - Private Implementation
 
     private func setupFeedCoordinator() {
-        guard FeatureProvider.isAvailable(.nativeMarketsShtorka) else {
+        guard FeatureProvider.isAvailable(.newShtorkaEnabled) else {
             return
         }
 
