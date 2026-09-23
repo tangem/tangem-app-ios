@@ -30,6 +30,6 @@ enum ScreenDeeplinkVisibility {
     /// what is presented while it is up is the shtorka itself. Only the native one is presented at all — the
     /// one it replaces lives in a container of the window's root.
     private static var isShtorkaPresented: Bool {
-        FeatureProvider.isAvailable(.nativeMarketsShtorka) && InjectedValues[\.mainBottomSheetUIManager].isShown
+        FeatureProvider.isAvailable(.newShtorkaEnabled) && InjectedValues[\.mainBottomSheetUIManager].isShown
     }
 }
