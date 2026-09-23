@@ -53,35 +53,37 @@ extension PolymarketAddFundsSheetViewModel {
 
 private extension PolymarketAddFundsSheetViewModel {
     func openSwap() {
-        guard let depositTarget = interactor.state.depositTarget else {
-            PolymarketLogger.warning("Add funds became unavailable while its sheet was open")
-            alert = AlertBuilder.makeOkGotItAlert(message: Localization.predictionAddFundsErrorDescription)
+        guard let parameters = swapParametersFactory.make(depositTargets: interactor.state.depositTargets) else {
+            reportUnavailableDeposit()
             return
         }
 
-        let parameters = swapParametersFactory.make(depositTarget: depositTarget)
         coordinator?.openSwapFlow(parameters: parameters)
     }
 
     func openReceive() {
-        guard let depositTarget = interactor.state.depositTarget else {
-            PolymarketLogger.warning("Add funds became unavailable while its sheet was open")
-            alert = AlertBuilder.makeOkGotItAlert(message: Localization.predictionAddFundsErrorDescription)
+        guard let depositTarget = interactor.state.depositTargets.first else {
+            reportUnavailableDeposit()
             return
         }
 
         coordinator?.openReceiveSheet(viewModel: makeReceiveViewModel(depositTarget: depositTarget))
     }
 
-    func minimumDepositFormatted(for asset: PolymarketSupportedAsset) -> String {
-        BalanceFormatter().formatFiatBalance(asset.minCheckoutUSD, currencyCode: AppConstants.usdCurrencyCode)
+    func reportUnavailableDeposit() {
+        PolymarketLogger.warning("Add funds became unavailable while its sheet was open")
+        alert = AlertBuilder.makeOkGotItAlert(message: Localization.predictionAddFundsErrorDescription)
+    }
+
+    func minimumDepositFormatted(for depositTarget: PolymarketAccountFundsInteractor.DepositTarget) -> String {
+        BalanceFormatter().formatFiatBalance(depositTarget.minCheckoutUSD, currencyCode: AppConstants.usdCurrencyCode)
     }
 
     func makeReceiveViewModel(depositTarget: PolymarketAccountFundsInteractor.DepositTarget) -> ReceiveMainViewModel {
         let viewModel = ReceiveMainViewModel(
             options: .init(
-                tokenItem: PolymarketUtilities.usdcTokenItem,
-                flow: .polymarketDeposit(minimumDepositFormatted: minimumDepositFormatted(for: depositTarget.asset)),
+                tokenItem: depositTarget.tokenItem,
+                flow: .polymarketDeposit(minimumDepositFormatted: minimumDepositFormatted(for: depositTarget)),
                 addressTypesProvider: SingleAddressReceiveAddressTypesProvider(
                     address: depositTarget.fundingAddress,
                     colorScheme: .whiteBlack

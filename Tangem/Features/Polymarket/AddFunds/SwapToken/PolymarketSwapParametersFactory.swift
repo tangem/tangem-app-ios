@@ -15,29 +15,35 @@ struct PolymarketSwapParametersFactory {
     let walletModelsProvider: MainScreenUIOrderedWalletModelsProvider
     let accountModel: any PolymarketAccountModel
 
-    func make(depositTarget: PolymarketAccountFundsInteractor.DepositTarget) -> PredefinedSwapParameters {
-        let receiveToken = PolymarketDepositReceiveTokenFactory(
-            userWalletInfo: userWalletInfo,
-            accountModel: accountModel,
-            depositTarget: depositTarget
-        )
-        .makeReceiveToken()
+    func make(depositTargets: [PolymarketAccountFundsInteractor.DepositTarget]) -> PredefinedSwapParameters? {
+        let candidates = depositTargets.map { depositTarget in
+            PolymarketDepositReceiveTokenFactory(
+                userWalletInfo: userWalletInfo,
+                accountModel: accountModel,
+                depositTarget: depositTarget
+            )
+            .makeReceiveToken()
+        }
+
+        guard let defaultDestination = candidates.first else {
+            return nil
+        }
 
         let sourceResolver = PolymarketDepositSourceResolver(
             userWalletInfo: userWalletInfo,
             walletModelsProvider: walletModelsProvider,
-            depositCurrency: receiveToken.tokenItem.expressCurrency,
+            depositCurrencies: Set(candidates.map(\.tokenItem.expressCurrency)),
             availabilityChecker: CommonFundingSourceAvailabilityChecker(userWalletInfo: userWalletInfo)
         )
 
         return .to(
-            receiveToken,
+            defaultDestination,
             sourceResolver: sourceResolver,
             configuration: SwapFlowConfiguration(
                 isPairReversalEnabled: false,
                 sourceTokenSelection: .filtered(isIncluded: { !$0.isPayAccount }),
                 receiveTokenSelection: .followsSource(
-                    PolymarketDepositDestinationResolver(destination: receiveToken)
+                    AccountFundingDestinationResolver(candidates: candidates, defaultDestination: defaultDestination)
                 ),
                 summaryTitle: Localization.commonAddFunds
             )
