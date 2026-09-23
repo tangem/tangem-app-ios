@@ -30,6 +30,24 @@ final class TangemPayVirtualAccountBankDetailsSheet: ScreenBase<TangemPayVirtual
         }
     }
 
+    @discardableResult
+    func verifyDepositLimit() -> Self {
+        XCTContext.runActivity(named: "Verify the daily deposit limit banner") { _ in
+            let limitTitle = staticText(.depositLimitTitle)
+            waitAndAssertTrue(limitTitle, "Deposit limit title should be displayed")
+            XCTAssertEqual(limitTitle.label, Constants.depositLimitTitle, "Deposit limit title should match the design")
+
+            let limitSubtitle = staticText(.depositLimitSubtitle)
+            waitAndAssertTrue(limitSubtitle, "Deposit limit subtitle should be displayed")
+            XCTAssertEqual(
+                limitSubtitle.label,
+                Constants.depositLimitSubtitle,
+                "Deposit limit subtitle should match the design"
+            )
+            return self
+        }
+    }
+
     private func detailValueText(_ field: TangemPayVirtualAccountBankDetail) -> XCUIElement {
         app.staticTexts[TangemPayAccessibilityIdentifiers.virtualAccountBankDetailValue(field.rawValue)].firstMatch
     }
@@ -46,11 +64,24 @@ enum TangemPayVirtualAccountBankDetail: String {
 
 enum TangemPayVirtualAccountBankDetailsSheetElement: String, UIElement {
     case shareButton
+    case depositLimitTitle
+    case depositLimitSubtitle
 
     var accessibilityIdentifier: String {
         switch self {
         case .shareButton:
             TangemPayAccessibilityIdentifiers.virtualAccountBankDetailsShareButton
+        case .depositLimitTitle:
+            TangemPayAccessibilityIdentifiers.virtualAccountDepositLimitTitle
+        case .depositLimitSubtitle:
+            TangemPayAccessibilityIdentifiers.virtualAccountDepositLimitSubtitle
         }
+    }
+}
+
+private extension TangemPayVirtualAccountBankDetailsSheet {
+    enum Constants {
+        static let depositLimitTitle = "Available to deposit per day: $10,000"
+        static let depositLimitSubtitle = "Limit is resetting every day"
     }
 }
