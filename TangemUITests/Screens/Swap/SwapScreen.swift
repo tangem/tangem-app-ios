@@ -29,8 +29,9 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     private lazy var priceChangeInfoButton = app.buttons[SwapAccessibilityIdentifiers.priceChangeInfoButton].firstMatch
 
     private lazy var swapContainer = app.scrollViews[SwapAccessibilityIdentifiers.title]
-    private lazy var notificationTitle = swapContainer.staticTexts[CommonUIAccessibilityIdentifiers.notificationTitle]
-    private lazy var notificationMessage = swapContainer.staticTexts[CommonUIAccessibilityIdentifiers.notificationMessage]
+    /// Every banner stamps the same identifier, so a single element would resolve ambiguously once two are shown.
+    private lazy var notificationTitles = swapContainer.staticTexts.matching(identifier: CommonUIAccessibilityIdentifiers.notificationTitle)
+    private lazy var notificationMessages = swapContainer.staticTexts.matching(identifier: CommonUIAccessibilityIdentifiers.notificationMessage)
     private lazy var notificationIcon = swapContainer.images[CommonUIAccessibilityIdentifiers.notificationIcon].firstMatch
     private lazy var insufficientFundsText = swapContainer.staticTexts["Insufficient funds"].firstMatch
 
@@ -47,9 +48,11 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     @discardableResult
     func enterFromAmount(_ amount: String) -> Self {
         XCTContext.runActivity(named: "Enter amount '\(amount)' in from field") { _ in
-            let field = editableFromAmountField()
             // The field formats the value with grouping separators, so compare on digits and the decimal separator only.
             let expectedDigits = amount.filter { $0.isNumber || $0 == "." }
+            let field = editableFromAmountField()
+            waitForFieldEnabled(field)
+
             // [REDACTED_INFO]: the field resigns focus on swap-state re-renders, so clear, refocus and retype until it sticks.
             for attempt in 0 ..< 8 {
                 if attempt > 0 || !field.hasFocus {
@@ -165,16 +168,22 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     @discardableResult
     func waitErrorShown(title: String? = nil, message: String? = nil) -> Self {
         XCTContext.runActivity(named: "Wait for error banner") { _ in
-            if let title = title {
-                let titleLabel = app.staticTexts[CommonUIAccessibilityIdentifiers.notificationTitle]
-                XCTAssertTrue(titleLabel.waitForExistence(timeout: .robustUIUpdate), "Error title should exist")
-                XCTAssertEqual(titleLabel.label, title, "Error title should be '\(title)' but was '\(titleLabel.label)'")
-            }
+            // The error banner is shown over the screen rather than inside the swap container, so it is looked up on the app.
+            switch (title, message) {
+            case (.some(let title), .some(let message)):
+                let banner = app.descendants(matching: .any)
+                    .matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", title, message))
+                    .firstMatch
+                waitAndAssertTrue(banner, "Error banner '\(title)' with message '\(message)' should be shown")
 
-            if let message = message {
-                let messageLabel = app.staticTexts[CommonUIAccessibilityIdentifiers.notificationMessage]
-                XCTAssertTrue(messageLabel.waitForExistence(timeout: .robustUIUpdate), "Error message should exist")
-                XCTAssertEqual(messageLabel.label, message, "Error message should be '\(message)' but was '\(messageLabel.label)'")
+            case (.some(let title), .none):
+                waitAndAssertTrue(errorLabel(identifier: CommonUIAccessibilityIdentifiers.notificationTitle, text: title), "Error banner '\(title)' should be shown")
+
+            case (.none, .some(let message)):
+                waitAndAssertTrue(errorLabel(identifier: CommonUIAccessibilityIdentifiers.notificationMessage, text: message), "Error message '\(message)' should be shown")
+
+            case (.none, .none):
+                break
             }
         }
         return self
@@ -339,10 +348,13 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     func clearFromAmount() -> Self {
         XCTContext.runActivity(named: "Clear from amount text field") { _ in
             let field = editableFromAmountField()
+            waitForFieldEnabled(field)
+
             // Tapping an already focused field can resolve to the pass-through twin and dismiss the keyboard.
             if !field.hasFocus {
                 field.tap()
             }
+
             let length = field.getValue().count
             if length > 0 {
                 field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: length))
@@ -410,15 +422,27 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     @discardableResult
     func waitForNotificationShown(title: String? = nil, message: String? = nil) -> Self {
         XCTContext.runActivity(named: "Wait for notification banner with title: '\(title ?? "any")'") { _ in
-            XCTAssertTrue(notificationTitle.waitForExistence(timeout: .robustUIUpdate), "Notification title should exist on swap screen")
+            switch (title, message) {
+            case (.some(let title), .some(let message)):
+                XCTAssertTrue(
+                    notificationBanner(title: title, message: message).waitForExistence(timeout: .robustUIUpdate),
+                    "Notification '\(title)' with message '\(message)' should be shown, shown instead: \(shownNotificationTitles())"
+                )
 
-            if let title {
-                XCTAssertEqual(notificationTitle.label, title, "Notification title should be '\(title)' but was '\(notificationTitle.label)'")
-            }
+            case (.some(let title), .none):
+                XCTAssertTrue(
+                    notificationTitle(title).waitForExistence(timeout: .robustUIUpdate),
+                    "Notification '\(title)' should be shown on swap screen, shown instead: \(shownNotificationTitles())"
+                )
 
-            if let message {
-                XCTAssertTrue(notificationMessage.waitForExistence(timeout: .robustUIUpdate), "Notification message should exist on swap screen")
-                XCTAssertEqual(notificationMessage.label, message, "Notification message should be '\(message)' but was '\(notificationMessage.label)'")
+            case (.none, .some(let message)):
+                XCTAssertTrue(
+                    notificationMessage(message).waitForExistence(timeout: .robustUIUpdate),
+                    "Notification message '\(message)' should be shown on swap screen"
+                )
+
+            case (.none, .none):
+                XCTAssertTrue(notificationTitles.firstMatch.waitForExistence(timeout: .robustUIUpdate), "Notification title should exist on swap screen")
             }
         }
         return self
@@ -437,14 +461,8 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     @discardableResult
     func waitForNotificationMessageContaining(_ substring: String) -> Self {
         XCTContext.runActivity(named: "Wait for notification message containing '\(substring)'") { _ in
-            XCTAssertTrue(notificationMessage.waitForExistence(timeout: .robustUIUpdate), "Notification message should exist on swap screen")
-            let predicate = NSPredicate(format: "label CONTAINS %@", substring)
-            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: notificationMessage)
-            XCTAssertEqual(
-                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
-                .completed,
-                "Notification message should contain '\(substring)' but was '\(notificationMessage.label)'"
-            )
+            let message = notificationMessages.matching(NSPredicate(format: "label CONTAINS %@", substring)).firstMatch
+            waitAndAssertTrue(message, "Notification message containing '\(substring)' should be shown on swap screen")
         }
         return self
     }
@@ -460,7 +478,18 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     @discardableResult
     func waitForNotificationNotShown() -> Self {
         XCTContext.runActivity(named: "Wait for notification banner to disappear from swap screen") { _ in
-            XCTAssertTrue(notificationTitle.waitForNonExistence(timeout: .robustUIUpdate), "Notification title should not exist on swap screen")
+            XCTAssertTrue(notificationTitles.firstMatch.waitForNonExistence(timeout: .robustUIUpdate), "Notification title should not exist on swap screen")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForNotificationNotShown(title: String) -> Self {
+        XCTContext.runActivity(named: "Wait for notification '\(title)' to disappear from swap screen") { _ in
+            XCTAssertTrue(
+                notificationTitle(title).waitForNonExistence(timeout: .robustUIUpdate),
+                "Notification '\(title)' should not be shown on swap screen"
+            )
         }
         return self
     }
@@ -468,7 +497,7 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     @discardableResult
     func waitForRetryButtonDisplayed() -> Self {
         XCTContext.runActivity(named: "Wait for retry button to be displayed on swap screen") { _ in
-            let retryButton = swapContainer.buttons[CommonUIAccessibilityIdentifiers.notificationButton]
+            let retryButton = swapContainer.buttons[CommonUIAccessibilityIdentifiers.notificationButton].firstMatch
             waitAndAssertTrue(retryButton, "Retry button should be displayed on swap screen")
         }
         return self
@@ -674,14 +703,7 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     func tapAmountFraction(_ token: String) -> Self {
         XCTContext.runActivity(named: "Tap '\(token)' amount fraction chip") { _ in
             var field = editableFromAmountField()
-            // Right after choosing tokens the field is briefly disabled while the initial quote loads.
-            let enabledPredicate = NSPredicate(format: "isEnabled == true")
-            let enabledExpectation = XCTNSPredicateExpectation(predicate: enabledPredicate, object: field)
-            XCTAssertEqual(
-                XCTWaiter().wait(for: [enabledExpectation], timeout: .robustUIUpdate),
-                .completed,
-                "From amount field should become enabled"
-            )
+            waitForFieldEnabled(field)
             let chip = app.buttons[SwapAccessibilityIdentifiers.amountFraction(token)].firstMatch
             let valueBeforeTap = field.getValue()
             let attempts = 3
@@ -737,6 +759,45 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
             XCTAssertTrue(isNotZero, "From amount should be greater than zero, but was '\(field.getValue())'")
         }
         return self
+    }
+
+    private func notificationTitle(_ title: String) -> XCUIElement {
+        notificationTitles.matching(NSPredicate(format: "label == %@", title)).firstMatch
+    }
+
+    private func notificationMessage(_ message: String) -> XCUIElement {
+        notificationMessages.matching(NSPredicate(format: "label == %@", message)).firstMatch
+    }
+
+    private func errorLabel(identifier: String, text: String) -> XCUIElement {
+        app.staticTexts
+            .matching(identifier: identifier)
+            .matching(NSPredicate(format: "label == %@", text))
+            .firstMatch
+    }
+
+    /// A banner exposes its title and message as one combined label, so the pair is matched on the banner itself.
+    private func notificationBanner(title: String, message: String) -> XCUIElement {
+        swapContainer.descendants(matching: .any)
+            .matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", title, message))
+            .firstMatch
+    }
+
+    private func shownNotificationTitles() -> [String] {
+        swapContainer.getLabels(identifier: CommonUIAccessibilityIdentifiers.notificationTitle)
+    }
+
+    /// Right after choosing tokens the field is briefly disabled while the initial quote loads.
+    private func waitForFieldEnabled(_ field: XCUIElement) {
+        let expectation = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "isEnabled == true"),
+            object: field
+        )
+        XCTAssertEqual(
+            XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+            .completed,
+            "From amount field should become enabled"
+        )
     }
 
     private func editableFromAmountField() -> XCUIElement {

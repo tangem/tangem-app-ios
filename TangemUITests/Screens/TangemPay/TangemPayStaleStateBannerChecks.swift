@@ -77,6 +77,22 @@ extension TangemPayStaleStateBannerChecks {
         }
     }
 
+    /// Signing needs the wallet key that only the Tangem Pay authorization derives, so tests that sign renew the session first.
+    @discardableResult
+    func renewTangemPaySession() -> Self {
+        XCTContext.runActivity(named: "Renew Tangem Pay session") { _ in
+            let renewButton = notificationBannerButton(TangemPayAccessibilityIdentifiers.sessionExpiredNotification)
+            waitAndAssertTrue(renewButton, timeout: .networkRequest, "Session expired banner should offer to renew the session")
+
+            renewButton.waitAndTap()
+            XCTAssertTrue(
+                sessionExpiredBanner.waitForNonExistence(timeout: .networkRequest),
+                "Session expired banner should disappear once the session is renewed"
+            )
+            return self
+        }
+    }
+
     private var sessionExpiredBanner: XCUIElement {
         banner(TangemPayAccessibilityIdentifiers.sessionExpiredNotification)
     }

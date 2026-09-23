@@ -143,12 +143,14 @@ final class TangemPayWithdrawUITests: BaseTestCase {
     }
 
     private func openWithdrawSwapScreen() -> SwapScreen {
-        launchAndImportHotWallet(expressApiType: .mock, scenarios: [
+        launchAndImportHotWalletWithRealPayAuthorization(expressApiType: .mock, scenarios: [
             ScenarioConfig(name: "bitcoin_utxo", initialState: "Started"),
             ScenarioConfig(name: "express_api_assets", initialState: "BitcoinExchangeEnabled"),
             ScenarioConfig(name: "exchange_status_provider", initialState: "Changelly"),
             ScenarioConfig(name: "tangem_pay_balance_update", initialState: "InitialBalanceMultinetwork"),
             ScenarioConfig(name: "tangem_pay_transaction_history", initialState: "InitialEmpty"),
+            // Without BANK_OFFRAMP among the eligible channels the Withdraw button keeps opening the swap flow.
+            ScenarioConfig(name: Constants.Scenario.eligibilityChannels, initialState: Constants.State.withoutBankOfframp),
         ])
         .openTangemPay()
         .waitForScreen()
@@ -158,12 +160,14 @@ final class TangemPayWithdrawUITests: BaseTestCase {
     }
 
     private func openMultiNetworkWithdrawSwapScreen() -> SwapScreen {
-        launchAndImportHotWallet(expressApiType: .mock, scenarios: [
+        launchAndImportHotWalletWithRealPayAuthorization(expressApiType: .mock, scenarios: [
             ScenarioConfig(name: "bitcoin_utxo", initialState: "Started"),
             ScenarioConfig(name: "express_api_assets", initialState: "BitcoinExchangeEnabledMultinetwork"),
             ScenarioConfig(name: "exchange_status_provider", initialState: "Changelly"),
             ScenarioConfig(name: "tangem_pay_balance_update", initialState: "MultiNetworkStatuses"),
             ScenarioConfig(name: "tangem_pay_transaction_history", initialState: "InitialEmpty"),
+            // Without BANK_OFFRAMP among the eligible channels the Withdraw button keeps opening the swap flow.
+            ScenarioConfig(name: Constants.Scenario.eligibilityChannels, initialState: Constants.State.withoutBankOfframp),
         ])
         .openTangemPay()
         .waitForScreen()
@@ -195,6 +199,14 @@ private extension TangemPayWithdrawUITests {
     enum Constants {
         static let usdtBscContractAddress = "0x55d398326f99059ff775485246999027b3197955"
         static let bscChainId = 56
+
+        enum Scenario {
+            static let eligibilityChannels = "tangem_pay_eligibility_channels"
+        }
+
+        enum State {
+            static let withoutBankOfframp = "Started"
+        }
 
         enum Endpoint {
             /// CEX withdraw submits via Express, not /customer/card/withdraw; assert single swap submission on this endpoint.

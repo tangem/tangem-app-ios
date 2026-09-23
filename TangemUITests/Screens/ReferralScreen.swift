@@ -25,11 +25,11 @@ final class ReferralScreen: ScreenBase<ReferralScreenElement> {
     @discardableResult
     func verifyReferralScreenDisplayed() -> Self {
         XCTContext.runActivity(named: "Validate Referral Screen") { _ in
-            XCTAssertTrue(title.waitForExistence(timeout: .robustUIUpdate))
-            XCTAssertTrue(currenciesSection.exists, "Currencies section elements should exist")
-            XCTAssertTrue(discountSection.exists, "Discount section elements should exist")
-            XCTAssertTrue(participateButton.exists, "Participate button should exist")
-            XCTAssertTrue(tosButton.exists, "TOS button should exist")
+            waitAndAssertTrue(title, "Referral screen title should exist")
+            waitAndAssertTrue(currenciesSection, "Currencies section elements should exist")
+            waitAndAssertTrue(discountSection, "Discount section elements should exist")
+            waitAndAssertTrue(participateButton, "Participate button should exist")
+            waitAndAssertTrue(tosButton, "TOS button should exist")
             return self
         }
     }
