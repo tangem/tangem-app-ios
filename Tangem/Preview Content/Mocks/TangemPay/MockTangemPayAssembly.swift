@@ -25,12 +25,18 @@ final class MockTangemPayAssembly: TangemPayAssembly {
         MockTangemPayBiometryAuthorizer()
     }
 
+    /// Deliberately the real dispatcher: a hot wallet can sign once the session is renewed, so withdrawals reach the mocked backend.
     func makeTransactionDispatcher(
         withdrawTransactionService: TangemPayWithdrawTransactionService,
         signerFactory: TangemSignerFactory,
         walletPublicKey: Wallet.PublicKey?,
         withdrawEligibility: TangemPayWithdrawEligibility
     ) -> TransactionDispatcher {
-        MockTangemPayTransactionDispatcher()
+        TangemPayTransactionDispatcher(
+            withdrawTransactionService: withdrawTransactionService,
+            signerFactory: signerFactory,
+            walletPublicKey: walletPublicKey,
+            withdrawEligibility: withdrawEligibility
+        )
     }
 }

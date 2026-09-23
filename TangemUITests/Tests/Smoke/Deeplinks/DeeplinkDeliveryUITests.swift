@@ -12,6 +12,8 @@ final class DeeplinkDeliveryUITests: BaseTestCase {
     private let safariHelper = SafariHelper()
 
     func testDeeplinkFromMainScreen_OpensScreen() {
+        setAllureId(11800)
+
         launchApp(tangemApiType: .mock)
 
         CreateWalletSelectorScreen(app)
@@ -25,6 +27,8 @@ final class DeeplinkDeliveryUITests: BaseTestCase {
     }
 
     func testDeeplinkOverOpenScreen_OpensWithoutReturningToMain() {
+        setAllureId(11801)
+
         launchApp(tangemApiType: .mock)
 
         CreateWalletSelectorScreen(app)
@@ -39,6 +43,8 @@ final class DeeplinkDeliveryUITests: BaseTestCase {
     }
 
     func testDeeplinkWhileAppIsClosed_OpensOnceTheMainScreenIsUp() {
+        setAllureId(11802)
+
         launchApp(tangemApiType: .mock)
 
         CreateWalletSelectorScreen(app)
