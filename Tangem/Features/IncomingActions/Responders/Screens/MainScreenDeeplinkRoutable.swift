@@ -13,9 +13,6 @@ protocol MainScreenDeeplinkRoutable: AnyObject {
     /// presented over the window is the responder's own question.
     var isRootVisible: Bool { get }
 
-    /// Whether the markets shtorka is up over the root. It is the root's normal company, not something covering it.
-    var isShtorkaPresented: Bool { get }
-
     func openTokenDetails(
         for walletModel: any WalletModel,
         userWalletModel: UserWalletModel,
