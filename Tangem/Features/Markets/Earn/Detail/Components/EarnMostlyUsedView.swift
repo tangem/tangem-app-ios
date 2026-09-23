@@ -21,6 +21,8 @@ struct EarnMostlyUsedView: View {
     var body: some View {
         contentView
             .scrollIndicators(.hidden)
+            // During tab transitions, the outgoing page can propose a much taller height than the carousel needs.
+            .fixedSize(horizontal: false, vertical: true)
             .frame(minHeight: Layout.height)
     }
 
