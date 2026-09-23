@@ -22,6 +22,7 @@ final class PolymarketPositionDetailsViewModel: ObservableObject, Identifiable {
     var model: PolymarketPositionDetailsView.Model {
         .make(
             position: position,
+            openEventDetails: { [weak self] in self?.onMarketTap() },
             onClosePosition: { [weak self] in self?.onOrderTap(.sell(shares: self?.position.size ?? 0)) },
             onBuy: { [weak self] in self?.onOrderTap(.buy) },
             onHint: { [weak self] hint in self?.hint = hint },
@@ -70,6 +71,19 @@ final class PolymarketPositionDetailsViewModel: ObservableObject, Identifiable {
 // MARK: - The market the position belongs to
 
 private extension PolymarketPositionDetailsViewModel {
+    private func onMarketTap() {
+        guard let eventId = position.eventId else { return }
+
+        coordinator?.openEventDetails(
+            eventID: eventId,
+            category: nil,
+            onOrderPlaced: { [weak self] indexing in
+                self?.onOrderPlaced(indexing)
+                self?.follow(indexing)
+            }
+        )
+    }
+
     func onOrderTap(_ request: PolymarketOrderRequest) {
         guard orderTask == nil else { return }
 
@@ -117,7 +131,9 @@ private extension PolymarketPositionDetailsViewModel {
 
             guard !Task.isCancelled else { return }
 
-            guard let updated, updated.size > 0 else {
+            guard let updated, updated.id == viewModel.position.id else { return }
+
+            guard updated.size > 0 else {
                 viewModel.coordinator?.closePositionDetails()
                 return
             }
