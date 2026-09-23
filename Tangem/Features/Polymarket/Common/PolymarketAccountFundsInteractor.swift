@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 import TangemFoundation
 import TangemPolymarket
 
@@ -17,6 +18,7 @@ final class PolymarketAccountFundsInteractor {
     private let configurationService: PolymarketConfigurationService
     private let walletService: PolymarketDepositWalletService
     private let ownerAddressProvider: PolymarketOwnerAddressProviding
+    private let supportedBlockchains: Set<Blockchain>
 
     private let storedState = OSAllocatedUnfairLock(initialState: State.loading)
 
@@ -24,12 +26,14 @@ final class PolymarketAccountFundsInteractor {
         bridgeService: PolymarketBridgeService,
         configurationService: PolymarketConfigurationService,
         walletService: PolymarketDepositWalletService,
-        ownerAddressProvider: PolymarketOwnerAddressProviding
+        ownerAddressProvider: PolymarketOwnerAddressProviding,
+        supportedBlockchains: Set<Blockchain>
     ) {
         self.bridgeService = bridgeService
         self.configurationService = configurationService
         self.walletService = walletService
         self.ownerAddressProvider = ownerAddressProvider
+        self.supportedBlockchains = supportedBlockchains
     }
 }
 
@@ -51,11 +55,13 @@ extension PolymarketAccountFundsInteractor {
                 builderCode: resolvedBuilderCode
             )
 
-            let depositTarget = depositTarget(assets: await bridgeAssets, addresses: await bridgeAddresses)
+            let assets = await bridgeAssets
+            let depositTargets = depositTargets(assets: assets, addresses: await bridgeAddresses)
 
             return store(.ready(Readiness(
                 depositWalletAddress: depositWalletAddress,
-                depositTarget: depositTarget
+                depositTargets: depositTargets,
+                collateralMinCheckoutUSD: collateralMinCheckoutUSD(in: assets)
             )))
         } catch {
             guard !Task.isCancelled else { return state }
@@ -101,25 +107,82 @@ private extension PolymarketAccountFundsInteractor {
         }
     }
 
-    func depositTarget(
+    func depositTargets(
         assets: [PolymarketSupportedAsset]?,
         addresses: PolymarketBridgeAddresses?
-    ) -> DepositTarget? {
+    ) -> [DepositTarget] {
         guard let assets, let addresses else {
+            return []
+        }
+
+        let acceptedAssets = PolymarketDepositAssetCatalog.acceptedAssets(from: assets)
+
+        guard !acceptedAssets.isEmpty else {
+            PolymarketLogger.warning("A deposit is unavailable: the bridge accepts none of the assets the app offers")
+            return []
+        }
+
+        return makeDepositTargets(from: acceptedAssets, addresses: addresses)
+    }
+
+    /// The withdrawal floor is a fact of the bridge, so it must not depend on anything that
+    /// narrows the deposit side — wallet support, funding addresses, the catalog's ordering.
+    func collateralMinCheckoutUSD(in assets: [PolymarketSupportedAsset]?) -> Decimal? {
+        guard let assets else {
             return nil
         }
 
-        guard let asset = PolymarketUtilities.usdcOnPolygon(in: assets) else {
-            PolymarketLogger.warning("A deposit is unavailable: the bridge does not currently accept USDC on Polygon")
-            return nil
+        return PolymarketDepositAssetCatalog
+            .acceptedAsset(for: PolymarketDepositAssetCatalog.usdcOnPolygon, in: assets)?
+            .minCheckoutUSD
+    }
+
+    func makeDepositTargets(
+        from acceptedAssets: [PolymarketDepositAssetCatalog.AcceptedAsset],
+        addresses: PolymarketBridgeAddresses
+    ) -> [DepositTarget] {
+        var targets: [DepositTarget] = []
+        var familiesWithoutAddress = Set<PolymarketChainFamily>()
+        var networksTheWalletCannotUse = Set<String>()
+
+        for acceptedAsset in acceptedAssets {
+            guard let tokenItem = acceptedAsset.entry.makeTokenItem(supportedBlockchains: supportedBlockchains) else {
+                networksTheWalletCannotUse.insert(acceptedAsset.entry.networkId)
+                continue
+            }
+
+            guard let fundingAddress = addresses.address(for: acceptedAsset.bridgeAsset.family) else {
+                familiesWithoutAddress.insert(acceptedAsset.bridgeAsset.family)
+                continue
+            }
+
+            targets.append(DepositTarget(
+                entry: acceptedAsset.entry,
+                tokenItem: tokenItem,
+                minCheckoutUSD: acceptedAsset.bridgeAsset.minCheckoutUSD,
+                fundingAddress: fundingAddress
+            ))
         }
 
-        guard let fundingAddress = addresses.address(for: asset.family) else {
-            PolymarketLogger.warning("A deposit is unavailable: the bridge answered without a \(asset.family) funding address")
-            return nil
+        if !networksTheWalletCannotUse.isEmpty {
+            PolymarketLogger.warning(
+                "The wallet supports none of these networks the bridge accepts: "
+                    + networksTheWalletCannotUse.sorted().joined(separator: ", ")
+            )
         }
 
-        return DepositTarget(asset: asset, fundingAddress: fundingAddress)
+        if !familiesWithoutAddress.isEmpty {
+            PolymarketLogger.warning(
+                "The bridge answered without a funding address for: "
+                    + familiesWithoutAddress.map { "\($0)" }.sorted().joined(separator: ", ")
+            )
+        }
+
+        if targets.isEmpty {
+            PolymarketLogger.warning("A deposit is unavailable: nothing the bridge accepts survived both checks above")
+        }
+
+        return targets
     }
 
     func verifiedDepositWalletAddress() async throws -> String {
@@ -140,8 +203,13 @@ extension PolymarketAccountFundsInteractor {
         case ready(Readiness)
         case unavailable
 
-        var depositTarget: DepositTarget? {
-            if case .ready(let readiness) = self { return readiness.depositTarget }
+        var depositTargets: [DepositTarget] {
+            if case .ready(let readiness) = self { return readiness.depositTargets }
+            return []
+        }
+
+        var collateralMinCheckoutUSD: Decimal? {
+            if case .ready(let readiness) = self { return readiness.collateralMinCheckoutUSD }
             return nil
         }
 
@@ -153,11 +221,14 @@ extension PolymarketAccountFundsInteractor {
 
     struct Readiness: Equatable {
         let depositWalletAddress: String
-        let depositTarget: DepositTarget?
+        let depositTargets: [DepositTarget]
+        let collateralMinCheckoutUSD: Decimal?
     }
 
     struct DepositTarget: Equatable {
-        let asset: PolymarketSupportedAsset
+        let entry: PolymarketDepositAssetCatalog.Entry
+        let tokenItem: TokenItem
+        let minCheckoutUSD: Decimal
         let fundingAddress: String
     }
 }

@@ -132,7 +132,10 @@ private extension PolymarketWithdrawTransactionService {
     ) async throws -> String {
         let assets = try await bridgeService.supportedAssets()
 
-        guard let asset = PolymarketUtilities.usdcOnPolygon(in: assets) else {
+        guard let asset = PolymarketDepositAssetCatalog.acceptedAsset(
+            for: PolymarketDepositAssetCatalog.usdcOnPolygon,
+            in: assets
+        ) else {
             throw Error.destinationAssetUnavailable
         }
 
