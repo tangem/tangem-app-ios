@@ -16,6 +16,18 @@ struct TangemPayMocksConfigurator: Initializable {
             return
         }
         InjectedValues[\.tangemPayAssembly] = MockTangemPayAssembly()
+
+        // Synthetic tokens skip the key derivation a withdrawal is signed with, so signing tests opt out of them.
+        guard !ProcessInfo.processInfo.arguments.contains(Constants.realAuthorizationArgument) else {
+            return
+        }
+
         InjectedValues[\.tangemPayAuthorizationTokensRepository] = MockTangemPayAuthorizationTokensRepository()
+    }
+}
+
+extension TangemPayMocksConfigurator {
+    enum Constants {
+        static let realAuthorizationArgument = "-uitest-tangempay-real-authorization"
     }
 }

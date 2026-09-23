@@ -20,7 +20,7 @@ final class SwapRatingUITests: BaseTestCase {
                 ScenarioConfig(name: "user_tokens_api", initialState: "PolygonUSDCHotWallet"),
                 ScenarioConfig(name: "quotes_api", initialState: "PolygonUSDC"),
                 ScenarioConfig(name: "express_api_assets", initialState: "BitcoinExchangeEnabled"),
-                ScenarioConfig(name: "exchange_status_provider", initialState: "Changelly"),
+                ScenarioConfig(name: Constants.exchangeStatusScenario, initialState: Constants.pendingState),
                 ScenarioConfig(name: "polygon_coin_balance", initialState: "ZeroBalance"),
             ]
         )
@@ -41,20 +41,28 @@ final class SwapRatingUITests: BaseTestCase {
             .tapCloseButton()
             .waitForPendingExpressTransaction()
 
-        let expressStatusSheet = tokenScreen.tapPendingExpressTransaction()
-
-        let statusSheet = expressStatusSheet
+        let statusSheet = tokenScreen
+            .tapPendingExpressTransaction()
             .waitForDisplay()
+
+        // Only a finished swap is rateable, and a finished one leaves the token screen, so the status is flipped here.
+        wireMockClient.setScenarioStateSync(Constants.exchangeStatusScenario, state: Constants.finishedState)
+
+        statusSheet
             .assertRatingBlockDisplayed()
-
-        let feedbackScreen = statusSheet
             .tapStar(5)
-
-        feedbackScreen
             .waitForDisplay()
             .assertSubmitButtonDisplayed()
             .enterFeedback("Great swap experience")
             .tapSubmitButton()
             .assertStarNotTappable(5)
+    }
+}
+
+private extension SwapRatingUITests {
+    enum Constants {
+        static let exchangeStatusScenario = "exchange_status_provider"
+        static let pendingState = "Changelly"
+        static let finishedState = "Finished"
     }
 }
