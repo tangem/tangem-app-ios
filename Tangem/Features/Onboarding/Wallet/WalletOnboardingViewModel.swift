@@ -635,14 +635,20 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
             isSupplementButtonBusy = true
 
-            createWalletOnPrimaryCard(
-                using: mnemonic,
-                mnemonicPassphrase: mnemonicPassphrase,
-                walletCreationType: .seedImport(
-                    length: mnemonicPhrase.count,
-                    isWithPassphrase: mnemonicPassphrase.isNotEmpty
+            Task { @MainActor [weak self] in
+                if let userWalletModel = self?.userWalletModel {
+                    await BackendAuthenticationRegistrar.prepareMobileWalletForColdUpgrade(userWalletModel)
+                }
+
+                self?.createWalletOnPrimaryCard(
+                    using: mnemonic,
+                    mnemonicPassphrase: mnemonicPassphrase,
+                    walletCreationType: .seedImport(
+                        length: mnemonicPhrase.count,
+                        isWithPassphrase: mnemonicPassphrase.isNotEmpty
+                    )
                 )
-            )
+            }
 
         } catch {
             isSupplementButtonBusy = false
