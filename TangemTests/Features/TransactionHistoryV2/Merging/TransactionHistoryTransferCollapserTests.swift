@@ -260,6 +260,7 @@ private extension TransactionHistoryTransferCollapserTests {
     func makeHistoryMapper(walletAddresses: [String] = [TransactionHistoryTransferCollapserTests.owner]) -> Tangem.TransactionHistoryMapper {
         Tangem.TransactionHistoryMapper(
             currencySymbol: Self.currencySymbol,
+            blockchain: .ethereum(testnet: false),
             addressesProvider: StubCollapserAddressesProvider(walletAddresses: walletAddresses),
             showSign: true,
             isToken: false,

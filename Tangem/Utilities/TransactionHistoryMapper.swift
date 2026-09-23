@@ -30,6 +30,7 @@ struct TransactionHistoryMapper {
     @Injected(\.transactionHistoryAuxDataRepository) private var transactionHistoryAuxDataRepository: TransactionHistoryAuxDataRepository
 
     private let currencySymbol: String
+    private let blockchain: Blockchain
     private let addressesProvider: WalletModelTransactionHistoryAddressesProvider
     private let showSign: Bool
     private let isToken: Bool
@@ -82,12 +83,14 @@ struct TransactionHistoryMapper {
 
     init(
         currencySymbol: String,
+        blockchain: Blockchain,
         addressesProvider: WalletModelTransactionHistoryAddressesProvider,
         showSign: Bool,
         isToken: Bool,
         stakingNetwork: StakingNetworkType?
     ) {
         self.currencySymbol = currencySymbol
+        self.blockchain = blockchain
         self.addressesProvider = addressesProvider
         self.showSign = showSign
         self.isToken = isToken
@@ -382,14 +385,48 @@ private extension TransactionHistoryMapper {
         let record: TransactionRecord
         let transactionType: TransactionViewModel.TransactionType
         let amount: Decimal
+        let approve: TransactionRecord.TransactionType.Approve?
     }
 
     func prepare(_ record: TransactionRecord) -> PreparedRecord {
         PreparedRecord(
             record: record,
             transactionType: transactionType(from: record),
-            amount: transferAmountValue(from: record)
+            amount: transferAmountValue(from: record),
+            approve: approve(from: record)
         )
+    }
+
+    func approve(from record: TransactionRecord) -> TransactionRecord.TransactionType.Approve? {
+        guard case .approve(let approve) = record.type else {
+            return nil
+        }
+
+        guard needsApprovedToken(approve), let token = approvedToken(for: record) else {
+            return approve
+        }
+
+        return approve.resolving(symbol: token.currencySymbol, decimals: token.decimalCount)
+    }
+
+    func needsApprovedToken(_ approve: TransactionRecord.TransactionType.Approve) -> Bool {
+        switch approve.allowance {
+        case .unscaled:
+            return true
+        case .unlimited, .revoked, .limited:
+            return approve.symbol == nil
+        }
+    }
+
+    func approvedToken(for record: TransactionRecord) -> TokenItem? {
+        guard
+            FeatureProvider.isAvailable(.transactionHistoryV2),
+            let contract = record.approvedTokenContract
+        else {
+            return nil
+        }
+
+        return transactionHistoryAuxDataRepository.cryptoCurrency(forContract: contract, blockchain: blockchain)
     }
 
     func makeTransactionViewModel(
@@ -415,7 +452,7 @@ private extension TransactionHistoryMapper {
             amount: formattedAmount.legacy,
             amountWithCurrencyCode: formattedAmount.withCurrencyCode,
             value: formattedAmount.redesigned,
-            currencyCode: amountSymbol(for: record),
+            currencyCode: amountSymbol(for: prepared),
             isOutgoing: record.isOutgoing,
             transactionType: prepared.transactionType,
             status: status(from: record),
@@ -718,7 +755,7 @@ private extension TransactionHistoryMapper {
         case .stake, .unstake, .restake, .vote, .withdraw:
             return makeFormattedAmount(amount, symbol: currencySymbol)
         case .approve:
-            return approveAmount(for: record) ?? makeFormattedAmount(amount, symbol: currencySymbol)
+            return prepared.approve.map(approveAmount(for:)) ?? makeFormattedAmount(amount, symbol: currencySymbol)
         case .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin:
             return makeFormattedAmount(amount, symbol: currencySymbol)
         // Supply and Withdraw take their sign from the operation rather than the on-chain direction, which
@@ -749,14 +786,12 @@ private extension TransactionHistoryMapper {
         return sign
     }
 
-    func approveAmount(for record: TransactionRecord) -> FormattedAmount? {
-        guard case .approve(let approve) = record.type else {
-            return nil
-        }
+    func approveAmount(for approve: TransactionRecord.TransactionType.Approve) -> FormattedAmount {
+        let symbol = approveSymbol(approve)
 
         switch approve.allowance {
         case .revoked:
-            return makeFormattedAmount(.zero, symbol: amountSymbol(for: record))
+            return makeFormattedAmount(.zero, symbol: symbol)
         case .unlimited:
             let legacy = approve.symbol.map(Localization.transactionHistoryUnlimitedAmount) ?? Localization.transactionHistoryUnlimited
 
@@ -766,20 +801,18 @@ private extension TransactionHistoryMapper {
                 withCurrencyCode: legacy
             )
         case .limited(let value):
-            return makeFormattedAmount(value, symbol: amountSymbol(for: record))
+            return makeFormattedAmount(value, symbol: symbol)
+        case .unscaled:
+            return FormattedAmount(legacy: "", redesigned: "", withCurrencyCode: "")
         }
     }
 
-    func amountSymbol(for record: TransactionRecord) -> String {
-        guard case .approve(let approve) = record.type else {
-            return currencySymbol
-        }
+    func amountSymbol(for prepared: PreparedRecord) -> String {
+        prepared.approve.map(approveSymbol(_:)) ?? currencySymbol
+    }
 
-        if let symbol = approve.symbol {
-            return symbol
-        }
-
-        return approve.allowance == .unlimited ? "" : .unknown
+    func approveSymbol(_ approve: TransactionRecord.TransactionType.Approve) -> String {
+        approve.symbol ?? ""
     }
 
     func makeGaslessTransactionInteractionAddress(from record: TransactionRecord) -> TransactionViewModel.InteractionAddressType? {

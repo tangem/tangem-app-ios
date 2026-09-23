@@ -98,6 +98,7 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
     func makeSUT() -> TransactionHistoryMapper {
         TransactionHistoryMapper(
             currencySymbol: "ETH",
+            blockchain: .ethereum(testnet: false),
             addressesProvider: StubExpressSubtitleAddressesProvider(walletAddresses: ["0xSource"]),
             showSign: true,
             isToken: false,
