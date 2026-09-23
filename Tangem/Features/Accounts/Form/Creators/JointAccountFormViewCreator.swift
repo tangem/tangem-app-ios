@@ -26,6 +26,10 @@ extension JointAccountFormViewCreator: AccountFormViewCreator {
     var navigationTitle: String { "" }
     var mainButtonTitle: String { Localization.commonContinue }
 
+    /// Unlike a crypto account, a joint one opens with its name already filled in, so that the user can go on
+    /// without naming it.
+    var initialAccountName: String { Localization.commonJointAccount }
+
     /// - Note: The joint accounts are counted apart from the wallet's own ones, and it is their count the form shows
     /// as the ordinal number of the account being created.
     var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
