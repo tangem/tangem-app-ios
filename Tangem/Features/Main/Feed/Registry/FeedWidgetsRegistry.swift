@@ -20,6 +20,10 @@ enum FeedWidgetsRegistry {
             providers.append(PolymarketWidgetProvider(router: router))
         }
 
+        if FeatureProvider.isAvailable(.collectibles) {
+            providers.append(CollectiblesWidgetProvider(router: router))
+        }
+
         return providers
     }
 }
