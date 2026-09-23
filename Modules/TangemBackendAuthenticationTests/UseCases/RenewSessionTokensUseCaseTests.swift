@@ -26,7 +26,7 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
             userWalletIDs: []
         )
 
-        let expectedSessionTokens = SessionTokens.fake
+        let expectedSessionTokens = SessionTokens.uniqueFake()
 
         let authenticationClient = SpySessionAuthenticationClient()
         authenticationClient.refreshResult = Result.success(expectedSessionTokens)
@@ -57,7 +57,7 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
 
         let authenticationClient = SpySessionAuthenticationClient()
         let expectedCipheredNonce = "some ciphered nonce"
-        let expectedSessionTokens = SessionTokens.fake
+        let expectedSessionTokens = SessionTokens.uniqueFake()
         authenticationClient.requestCipheredNonceResult = Result.success(expectedCipheredNonce)
         authenticationClient.authenticateResult = Result.success(expectedSessionTokens)
 
@@ -100,7 +100,7 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
             userWalletIDs: []
         )
 
-        let expectedSessionTokens = SessionTokens.fake
+        let expectedSessionTokens = SessionTokens.uniqueFake()
 
         let authenticationClient = SpySessionAuthenticationClient()
         authenticationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
@@ -132,7 +132,7 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
             userWalletIDs: []
         )
 
-        let expectedSessionTokens = SessionTokens.fake
+        let expectedSessionTokens = SessionTokens.uniqueFake()
 
         let authenticationClient = SpySessionAuthenticationClient()
         authenticationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
@@ -166,7 +166,7 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
             userWalletIDs: []
         )
 
-        let expectedSessionTokens = SessionTokens.fake
+        let expectedSessionTokens = SessionTokens.uniqueFake()
 
         let authenticationClient = SpySessionAuthenticationClient()
         authenticationClient.refreshResult = Result.failure(.refreshFailed(underlying: AnyTestError()))
@@ -301,7 +301,7 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
 
     @Test
     func renewSessionTokensReusesTokensFromRegistrationOnDeviceRegistrationMissingError() async throws {
-        let tokensFromRegistration = SessionTokens.fake
+        let tokensFromRegistration = SessionTokens.uniqueFake()
 
         let authenticationClient = SpySessionAuthenticationClient()
         authenticationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
@@ -312,6 +312,7 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
         tokensRepository.persistResult = Result.success(())
 
         let deviceRegistrationStatusRepository = SpyDeviceRegistrationStatusRepository()
+        let userWalletRegistrationStatusRepository = SpyUserWalletRegistrationStatusRepository()
 
         let sut = makeSUT(
             registerDevice: {
@@ -321,6 +322,7 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
             deviceRegistrationStatusRepository: deviceRegistrationStatusRepository,
+            userWalletRegistrationStatusRepository: userWalletRegistrationStatusRepository,
             devicePrivateKeyRepository: .successStub,
             nonceDecryptor: .successStub
         )
@@ -331,11 +333,12 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
         #expect(authenticationClient.receivedMessages == [.requestCipheredNonce, .authenticate(nil)])
         #expect(deviceRegistrationStatusRepository.receivedMessages == [.persist(isRegistered: false), .persist(isRegistered: true)])
         #expect(tokensRepository.receivedMessages == [.retrieve, .persist(tokensFromRegistration)])
+        #expect(userWalletRegistrationStatusRepository.receivedMessages == [.replaceAll(tokensFromRegistration.userWalletIDs)])
     }
 
     @Test
     func renewSessionTokensRetriesAuthenticateOnceWhenDeviceAlreadyRegistered() async throws {
-        let expectedSessionTokens = SessionTokens.fake
+        let expectedSessionTokens = SessionTokens.uniqueFake()
 
         let authenticationClient = SpySessionAuthenticationClient()
         authenticationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
@@ -345,6 +348,8 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
         tokensRepository.retrieveResult = Result.success(nil)
         tokensRepository.persistResult = Result.success(())
 
+        let userWalletRegistrationStatusRepository = SpyUserWalletRegistrationStatusRepository()
+
         let sut = makeSUT(
             registerDevice: {
                 authenticationClient.authenticateResult = Result.success(expectedSessionTokens)
@@ -352,6 +357,7 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
             },
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
+            userWalletRegistrationStatusRepository: userWalletRegistrationStatusRepository,
             devicePrivateKeyRepository: .successStub,
             nonceDecryptor: .successStub
         )
@@ -364,6 +370,7 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
             .requestCipheredNonce, .authenticate(nil),
         ])
         #expect(tokensRepository.receivedMessages == [.retrieve, .persist(expectedSessionTokens)])
+        #expect(userWalletRegistrationStatusRepository.receivedMessages == [.replaceAll(expectedSessionTokens.userWalletIDs)])
     }
 
     @Test
@@ -375,9 +382,12 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
         let tokensRepository = SpySessionTokensRepository()
         tokensRepository.retrieveResult = Result.success(nil)
 
+        let userWalletRegistrationStatusRepository = SpyUserWalletRegistrationStatusRepository()
+
         let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
+            userWalletRegistrationStatusRepository: userWalletRegistrationStatusRepository,
             devicePrivateKeyRepository: .successStub,
             nonceDecryptor: .successStub
         )
@@ -396,6 +406,7 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
             .requestCipheredNonce, .authenticate(nil),
         ])
         #expect(tokensRepository.receivedMessages == [.retrieve])
+        #expect(userWalletRegistrationStatusRepository.receivedMessages.isEmpty)
     }
 
     @Test
@@ -407,12 +418,15 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
         let tokensRepository = SpySessionTokensRepository()
         tokensRepository.retrieveResult = Result.success(nil)
 
+        let userWalletRegistrationStatusRepository = SpyUserWalletRegistrationStatusRepository()
+
         let sut = makeSUT(
             registerDevice: { () throws(RegisterDeviceError) -> SessionTokens? in
                 throw RegisterDeviceError.repositoryFailure(.encodingFailed)
             },
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
+            userWalletRegistrationStatusRepository: userWalletRegistrationStatusRepository,
             devicePrivateKeyRepository: .successStub,
             nonceDecryptor: .successStub
         )
@@ -427,12 +441,13 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
         }
 
         #expect(tokensRepository.receivedMessages == [.retrieve])
+        #expect(userWalletRegistrationStatusRepository.receivedMessages.isEmpty)
     }
 
     @Test
     func renewSessionTokensSucceedsEvenWhenAttestationFails() async throws {
         let authenticationClient = SpySessionAuthenticationClient()
-        let expectedSessionTokens = SessionTokens.fake
+        let expectedSessionTokens = SessionTokens.uniqueFake()
         authenticationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
         authenticationClient.authenticateResult = Result.success(expectedSessionTokens)
 
@@ -531,7 +546,7 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
 
         let authenticationClient = SpySessionAuthenticationClient()
         let expectedCipheredNonce = "some ciphered nonce"
-        let expectedSessionTokens = SessionTokens.fake
+        let expectedSessionTokens = SessionTokens.uniqueFake()
         authenticationClient.requestCipheredNonceResult = Result.success(expectedCipheredNonce)
         authenticationClient.authenticateResult = Result.success(expectedSessionTokens)
 
@@ -571,7 +586,7 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
 
     @Test
     func renewSessionTokensCoalescesConcurrentCalls() async throws {
-        let expectedSessionTokens = SessionTokens.fake
+        let expectedSessionTokens = SessionTokens.uniqueFake()
 
         let authenticationClient = SpySessionAuthenticationClient()
         authenticationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
@@ -669,7 +684,7 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
 
         #expect(authenticationClient.receivedMessages == [.requestCipheredNonce, .authenticate(nil)])
 
-        let freshSessionTokensAfterAuthentication = SessionTokens.fake
+        let freshSessionTokensAfterAuthentication = SessionTokens.uniqueFake()
         authenticationClient.authenticateResult = Result.success(freshSessionTokensAfterAuthentication)
 
         let actualSessionTokens = try await sut()
@@ -691,6 +706,7 @@ extension RenewSessionTokensUseCaseTests {
         sessionAuthenticationClient: some SessionAuthenticationClient = SpySessionAuthenticationClient(),
         sessionTokensRepository: some SessionTokensRepository = SpySessionTokensRepository(),
         deviceRegistrationStatusRepository: some DeviceRegistrationStatusRepository = SpyDeviceRegistrationStatusRepository(),
+        userWalletRegistrationStatusRepository: some UserWalletRegistrationStatusRepository = SpyUserWalletRegistrationStatusRepository(),
         devicePrivateKeyRepository: some DevicePrivateKeyRepository = SpyDevicePrivateKeyRepository(),
         nonceDecryptor: some NonceDecryptor = SpyNonceDecryptor(),
         dateProvider: @escaping @autoclosure @Sendable () -> Date = Date.now,
@@ -703,6 +719,7 @@ extension RenewSessionTokensUseCaseTests {
                 sessionAuthenticationClient: sessionAuthenticationClient,
                 sessionTokensRepository: sessionTokensRepository,
                 deviceRegistrationStatusRepository: deviceRegistrationStatusRepository,
+                userWalletRegistrationStatusRepository: userWalletRegistrationStatusRepository,
                 deviceKeyManager: DeviceKeyManager(privateKeyRepository: devicePrivateKeyRepository),
                 nonceDecryptor: nonceDecryptor,
                 deviceMetadataProvider: DeviceMetadata.fake,

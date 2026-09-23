@@ -23,7 +23,7 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
 
         let registrationClient = SpyDeviceRegistrationClient()
         let expectedCipheredNonce = "some ciphered nonce"
-        let expectedSessionTokens = SessionTokens.fake
+        let expectedSessionTokens = SessionTokens.uniqueFake()
         registrationClient.requestCipheredNonceResult = Result.success(expectedCipheredNonce)
         registrationClient.registerResult = Result.success(expectedSessionTokens)
 
@@ -113,7 +113,7 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
 
         let registrationClient = SpyDeviceRegistrationClient()
         registrationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
-        let expectedSessionTokens = SessionTokens.fake
+        let expectedSessionTokens = SessionTokens.uniqueFake()
         registrationClient.registerResult = Result.success(expectedSessionTokens)
 
         let nonceDecryptor = SpyNonceDecryptor()
@@ -269,7 +269,7 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
 
         let registrationClient = SpyDeviceRegistrationClient()
         let expectedCipheredNonce = "some ciphered nonce"
-        let expectedSessionTokens = SessionTokens.fake
+        let expectedSessionTokens = SessionTokens.uniqueFake()
         registrationClient.requestCipheredNonceResult = Result.success(expectedCipheredNonce)
         registrationClient.registerResult = Result.success(expectedSessionTokens)
 
@@ -320,7 +320,7 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
 
     @Test
     func registerDeviceCoalescesConcurrentCalls() async throws {
-        let expectedSessionTokens = SessionTokens.fake
+        let expectedSessionTokens = SessionTokens.uniqueFake()
 
         let appAttestService = SpyAppAttestService()
         let expectedAppAttestationToken = Data("some attestation token".utf8)
@@ -440,7 +440,7 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
         let secondExpectedAppAttestationToken = Data("second app attestation token".utf8)
         appAttestService.generateAttestationTokenResult = Result.success(secondExpectedAppAttestationToken)
 
-        let freshSessionTokensAfterRetry = SessionTokens.fake
+        let freshSessionTokensAfterRetry = SessionTokens.uniqueFake()
         registrationClient.registerResult = Result.success(freshSessionTokensAfterRetry)
 
         let secondExpectedRequest = try makeDeviceRegistrationRequest(

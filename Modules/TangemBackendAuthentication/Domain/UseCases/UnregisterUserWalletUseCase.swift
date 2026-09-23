@@ -30,7 +30,7 @@ public struct UnregisterUserWalletUseCase: Sendable {
             try await persist(sessionTokens: sessionTokens)
         }
 
-        await registrationStatusRepository.persist(isRegistered: false, id: id)
+        await registrationStatusRepository.remove(registeredID: id)
     }
 
     private func unregisterUserWallet(id: UserWalletId) async throws(UnregisterUserWalletError) -> SessionTokens? {
