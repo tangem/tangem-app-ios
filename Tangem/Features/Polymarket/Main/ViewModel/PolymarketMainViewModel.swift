@@ -33,6 +33,7 @@ final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var addFundsState: ActionState = .loading
     @Published private(set) var withdrawState: WithdrawState = .loading
     @Published private(set) var positionsState: PositionsState = .loading
+    @Published private(set) var hadPositionsBefore = false
     @Published private(set) var hasFinishedPositions = false
     @Published private(set) var hasMorePositions = false
     @Published private(set) var isSearching = false
@@ -43,14 +44,6 @@ final class PolymarketMainViewModel: ObservableObject {
     let search: PolymarketSearchViewModel
 
     private(set) var categoryTabs: [PolymarketCategoryTab] = []
-
-    var showsPositions: Bool {
-        switch positionsState {
-        case .loading: false
-        case .failed: true
-        case .loaded(let models): !models.isEmpty || hasFinishedPositions || hasMorePositions
-        }
-    }
 
     var selectedCategoryTab: Binding<PolymarketCategoryTab> {
         Binding(
@@ -64,10 +57,10 @@ final class PolymarketMainViewModel: ObservableObject {
     private let balanceProvider: PolymarketBalanceProvider
     private let accountFundsInteractor: PolymarketAccountFundsInteractor?
     private let positionsService: PolymarketPositionsService?
+    private let userWalletId: UserWalletId
+    private let presenceStore: PolymarketAccountPresenceStore = AppSettings.shared
     private let fundsArrivalTracker: PolymarketFundsArrivalTracker
     private weak var coordinator: PolymarketMainRoutable?
-
-    private static let balanceFormatter = BalanceFormatter()
 
     private let balanceStateBuilder = LoadableBalanceViewStateBuilder()
 
@@ -93,6 +86,7 @@ final class PolymarketMainViewModel: ObservableObject {
     private var orderTask: Task<Void, Never>?
     private var claimTask: Task<Void, Never>?
     private var openPositions: [PolymarketPosition] = []
+    private var positionsGoneLocally: Set<String> = []
 
     init(
         apiProvider: PolymarketAPIProvider,
@@ -101,6 +95,7 @@ final class PolymarketMainViewModel: ObservableObject {
         accountFundsInteractor: PolymarketAccountFundsInteractor?,
         positionsService: PolymarketPositionsService?,
         fundsArrivalTracker: PolymarketFundsArrivalTracker,
+        userWalletId: UserWalletId,
         coordinator: PolymarketMainRoutable
     ) {
         self.apiProvider = apiProvider
@@ -110,6 +105,7 @@ final class PolymarketMainViewModel: ObservableObject {
         self.accountFundsInteractor = accountFundsInteractor
         self.positionsService = positionsService
         self.fundsArrivalTracker = fundsArrivalTracker
+        self.userWalletId = userWalletId
         self.coordinator = coordinator
         search.coordinator = self
 
@@ -347,10 +343,7 @@ final class PolymarketMainViewModel: ObservableObject {
             return .available
         }
 
-        let formatted = Self.balanceFormatter.formatCryptoBalance(
-            minimum,
-            currencyCode: PolymarketUtilities.usdcTokenItem.currencySymbol
-        )
+        let formatted = PolymarketOrderFormatter.money(minimum)
 
         return .unavailable(.tooSmallBalance(minimumFormatted: formatted))
     }
@@ -366,6 +359,9 @@ final class PolymarketMainViewModel: ObservableObject {
         positionsTask?.cancel()
 
         if case .loaded = positionsState {} else {
+            // Read once per round: the flag is written by this very load, and a mid-flight flip would
+            // swap one state for another in front of the user.
+            hadPositionsBefore = presenceStore.hadPositions(userWalletId: userWalletId)
             positionsState = .loading
         }
 
@@ -375,7 +371,7 @@ final class PolymarketMainViewModel: ObservableObject {
                 let page = try await Self.activePositions(service: positionsService)
                 try Task.checkCancellation()
 
-                viewModel.openPositions = Array(page.positions.prefix(Constants.positionsShown))
+                viewModel.openPositions = Array(viewModel.stillOpen(page.positions).prefix(Constants.positionsShown))
                 viewModel.hasMorePositions = page.hasNext || page.receivedCount > viewModel.openPositions.count
 
                 let probed = await finished
@@ -384,9 +380,16 @@ final class PolymarketMainViewModel: ObservableObject {
 
                 if let probed {
                     viewModel.hasFinishedPositions = probed
-                } else if viewModel.openPositions.isEmpty, !viewModel.hasFinishedPositions {
+                }
+
+                if probed == nil, viewModel.openPositions.isEmpty, !viewModel.hasFinishedPositions {
                     viewModel.positionsState = .failed
                     return
+                }
+
+                if viewModel.openPositions.isNotEmpty || viewModel.hasFinishedPositions {
+                    viewModel.presenceStore.markPositionsExisted(for: viewModel.userWalletId)
+                    viewModel.hadPositionsBefore = true
                 }
 
                 withAnimation(.easeInOut(duration: Constants.listAnimationDuration)) {
@@ -404,6 +407,12 @@ final class PolymarketMainViewModel: ObservableObject {
                 viewModel.positionsState = .failed
             }
         }
+    }
+
+    func stillOpen(_ positions: [PolymarketPosition]) -> [PolymarketPosition] {
+        positionsGoneLocally.formIntersection(positions.map(\.id))
+
+        return positions.filter { !positionsGoneLocally.contains($0.id) }
     }
 
     private static func probeFinishedPositions(service: PolymarketPositionsService) async -> Bool? {
@@ -525,7 +534,7 @@ final class PolymarketMainViewModel: ObservableObject {
         coordinator?.openMyPositions(
             tab: tab,
             onOrderPlaced: { [weak self] indexing in self?.orderPlaced(awaiting: indexing) },
-            onClaimed: { [weak self] in self?.claimed() }
+            onClaimed: { [weak self] claimed in self?.claimed(claimed) }
         )
     }
 
@@ -941,7 +950,7 @@ extension PolymarketMainViewModel {
 
         guard !position.isRedeemable, position.settlement?.isResolved != true else {
             Task { @MainActor in
-                coordinator?.openRedeem(position: position, onClaimed: { [weak self] in self?.claimed() })
+                coordinator?.openRedeem(position: position, onClaimed: { [weak self] claimed in self?.claimed(claimed) })
             }
             return
         }
@@ -956,12 +965,31 @@ extension PolymarketMainViewModel {
 // MARK: - Claims
 
 private extension PolymarketMainViewModel {
-    func claimed() {
+    func claimed(_ position: PolymarketPosition?) {
         claimTask?.cancel()
+
+        fundsArrivalTracker.startAwaitingBalanceChange()
 
         claimTask = runTask(in: self) { @MainActor viewModel in
             await viewModel.refreshAccount()
+            await viewModel.positionsTask?.value
+
+            guard !Task.isCancelled else { return }
+
+            viewModel.drop(claimed: position)
         }
+    }
+
+    /// The claimed shares are burned, but the list keeps handing the position back until the indexer notices.
+    func drop(claimed position: PolymarketPosition?) {
+        guard let position else { return }
+
+        positionsGoneLocally.insert(position.id)
+
+        guard openPositions.contains(where: { $0.id == position.id }) else { return }
+
+        openPositions = openPositions.filter { $0.id != position.id }
+        positionsState = .loaded(openPositions.map(PolymarketPositionRow.Model.make(position:)))
     }
 }
 
@@ -971,14 +999,39 @@ private extension PolymarketMainViewModel {
     func orderPlaced(awaiting indexing: PolymarketOrderIndexing) {
         orderTask?.cancel()
 
+        fundsArrivalTracker.startAwaitingBalanceChange()
+
         orderTask = runTask(in: self) { @MainActor viewModel in
             await viewModel.refreshBalance()
-            _ = await indexing.value
+
+            let traded = await indexing.value
 
             guard !Task.isCancelled else { return }
 
             await viewModel.refreshAccount()
+            await viewModel.positionsTask?.value
+
+            guard !Task.isCancelled else { return }
+
+            viewModel.apply(traded: traded)
         }
+    }
+
+    /// The list endpoint lags behind the traded outcome, so the reload can still hand back the pre-fill position.
+    func apply(traded position: PolymarketPosition?) {
+        guard let position else { return }
+
+        if position.isEmptied {
+            positionsGoneLocally.insert(position.id)
+        }
+
+        guard openPositions.contains(where: { $0.id == position.id }) else { return }
+
+        openPositions = position.size > 0
+            ? openPositions.map { $0.id == position.id ? position : $0 }
+            : openPositions.filter { $0.id != position.id }
+
+        positionsState = .loaded(openPositions.map(PolymarketPositionRow.Model.make(position:)))
     }
 }
 
