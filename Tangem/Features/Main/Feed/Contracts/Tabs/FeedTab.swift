@@ -37,6 +37,19 @@ enum FeedTab: Identifiable {
         }
     }
 
+    func apply(selection: FeedSelection) {
+        switch (self, selection) {
+        case (.crypto(let viewModel), .crypto(.some(let categoryId))):
+            viewModel.select(categoryId: categoryId)
+        case (.realAssets(let viewModel), .realAssets(let categoryId)):
+            viewModel.select(categoryId: categoryId)
+        case (.earn(let viewModel), .earn(.some(let type))):
+            viewModel.select(type: type)
+        default:
+            break
+        }
+    }
+
     func feedSheetSizeDidChange(to size: ShtorkaSize) {
         switch self {
         case .crypto(let viewModel): viewModel.feedSheetSizeDidChange(to: size)
