@@ -1,5 +1,5 @@
 //
-//  TangemPayAddFundsDestinationResolver.swift
+//  AccountFundingDestinationResolver.swift
 //  TangemApp
 //
 //  Copyright © 2026 Tangem AG. All rights reserved.
@@ -7,14 +7,14 @@
 
 import TangemExpress
 
-/// Picks the payment-account token to receive the funds, in priority order:
-/// 1. The account token whose currency equals the source's (token + network) — the same equality
+/// Picks the token that receives the funds when an account is topped up, in priority order:
+/// 1. The candidate whose currency equals the source's (token + network) — the same equality
 ///    `ExpressManagerSwappingPair.isTransfer` uses, so Express treats the pair as a plain transfer.
-/// 2. A *different* account token in the source's network — a swap that never leaves the network.
+/// 2. A *different* candidate in the source's network — a swap that never leaves the network.
 ///    Same-asset candidates that differ only in contract-address checksum casing are excluded here:
 ///    they would fail the exact transfer check above yet make a degenerate token-into-itself swap.
 /// 3. Any candidate that isn't the source's own asset, then the account's default token.
-final class TangemPayAddFundsDestinationResolver {
+final class AccountFundingDestinationResolver {
     private let candidates: [SendSwapableToken]
     private let defaultDestination: SendSwapableToken
 
@@ -26,7 +26,7 @@ final class TangemPayAddFundsDestinationResolver {
 
 // MARK: - SwapDestinationTokenResolver
 
-extension TangemPayAddFundsDestinationResolver: SwapDestinationTokenResolver {
+extension AccountFundingDestinationResolver: SwapDestinationTokenResolver {
     func resolveDestination(for source: SendSwapableToken) -> SendReceiveToken {
         let sourceCurrency = source.tokenItem.expressCurrency
 
