@@ -46,7 +46,7 @@ final class PolymarketReceiveSheetViewModel: ObservableObject, FloatingSheetCont
         address = input.depositAddress
 
         analyticsLogger = CommonReceiveAnalyticsLogger(
-            flow: .polymarketDeposit(minimumDepositFormatted: input.minimumDepositFormatted),
+            flow: .polymarketDeposit,
             tokenItem: input.primaryToken
         )
 
@@ -120,7 +120,7 @@ private extension PolymarketReceiveSheetViewModel {
         let colorScheme = ReceiveAddressInfoUtils.ColorScheme.whiteBlack
 
         return QRCodeReceiveAssetsViewModel(
-            flow: .polymarketDeposit(minimumDepositFormatted: input.minimumDepositFormatted),
+            flow: .polymarketDeposit,
             tokenItem: input.primaryToken,
             addressInfo: ReceiveAddressInfo(
                 address: address,
