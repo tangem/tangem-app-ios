@@ -10,5 +10,9 @@ import struct TangemFoundation.UserWalletId
 
 protocol UserWalletRegistrationStatusRepository: Sendable {
     func retrieve(id: UserWalletId) async -> Bool
-    func persist(isRegistered: Bool, id: UserWalletId) async
+
+    func persist(registeredID: UserWalletId) async
+    func replaceAll(with newRegisteredIDs: [UserWalletId]) async
+
+    func remove(registeredID: UserWalletId) async
 }
