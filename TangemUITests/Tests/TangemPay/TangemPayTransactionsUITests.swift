@@ -13,6 +13,7 @@ final class TangemPayTransactionsUITests: BaseTestCase {
     private static let nextPageEndpointPattern = "/bff-v2/v1/(customer/)?transactions\\?.*cursor=page1-20.*"
     private static let transactionDetailEndpointPath = "/bff-v2/v1/(customer/)?transactions/mock-spend-completed-1"
     private static let historyScenario = "tangem_pay_transaction_history"
+    private static let renameScenario = "tangem_pay_card_rename"
 
     func testTransactionsRequested_WhenPaymentAccountOpens() {
         setAllureId(9545)
@@ -215,6 +216,58 @@ final class TangemPayTransactionsUITests: BaseTestCase {
                 "Retry should request the transaction details endpoint again"
             )
         }
+    }
+
+    func testNewTransaction_LoadedWhenPaymentAccountReopened() {
+        setAllureId(9559)
+
+        let paymentAccount = launchWithTransactionHistory(state: "InitialEmpty")
+            .openTangemPay()
+            .waitForScreen()
+            .verifyEmptyTransactionsState()
+
+        // The manual case spends from the card here, the mocked flow swaps the spend for a history state.
+        wireMockClient.setScenarioStateSync(Self.historyScenario, state: "SpendCompleted")
+
+        let requestsBeforeReopening = transactionsRequestCount()
+
+        paymentAccount
+            .tapBack()
+            .openTangemPay()
+            .waitForScreen()
+            .verifyTransactionRow(name: "Tangem Coffee")
+
+        XCTContext.runActivity(named: "Verify reopening Payment account requested the history again") { _ in
+            XCTAssertGreaterThan(
+                transactionsRequestCount(),
+                requestsBeforeReopening,
+                "Reopening Payment account should request the transactions endpoint again"
+            )
+        }
+    }
+
+    func testRenamedCardName_ShownInTransactionDetails() {
+        setAllureId(11477)
+
+        launchAndImportHotWallet(scenarios: [
+            ScenarioConfig(name: "tangem_pay_balance_update", initialState: "InitialBalance"),
+            ScenarioConfig(name: Self.historyScenario, initialState: "SpendCompleted"),
+            ScenarioConfig(name: Self.renameScenario, initialState: "Started"),
+        ])
+        .openTangemPay()
+        .waitForScreen()
+        .tapCard()
+        .waitForScreen()
+        .tapCardName()
+        .waitForScreen()
+        .clearAndEnterName("Renamed Card")
+        .submitExpectingSuccess()
+        .verifyCardName(contains: "Renamed Card")
+        .tapBack()
+        .waitForScreen()
+        .tapTransaction(name: "Tangem Coffee")
+        .waitForScreen()
+        .verifyCard(numberEnd: "4242", cardName: "Renamed Card")
     }
 
     private func launchWithTransactionHistory(state: String) -> MainScreen {

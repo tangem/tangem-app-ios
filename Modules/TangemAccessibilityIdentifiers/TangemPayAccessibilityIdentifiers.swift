@@ -65,6 +65,9 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let virtualAccountFeeErrorBanner = "\(prefix)VirtualAccountFeeErrorBanner"
     public static let virtualAccountSuccessTitle = "\(prefix)VirtualAccountSuccessTitle"
     public static let virtualAccountSuccessCloseButton = "\(prefix)VirtualAccountSuccessCloseButton"
+    public static let virtualAccountDepositLimitTitle = "\(prefix)VirtualAccountDepositLimitTitle"
+    public static let virtualAccountDepositLimitSubtitle = "\(prefix)VirtualAccountDepositLimitSubtitle"
+    public static let virtualAccountBankDetailsErrorRetryButton = "\(prefix)VirtualAccountBankDetailsErrorRetryButton"
 
     public static func virtualAccountFeeTitle(_ fee: VirtualAccountFee) -> String {
         "\(prefix)VirtualAccountFeeTitle_\(fee.rawValue)"
@@ -149,6 +152,13 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let freezeCardRowStateFrozen = "\(prefix)FreezeCardRowStateFrozen"
     public static let freezeSheetConfirmButton = "\(prefix)FreezeSheetConfirmButton"
     public static let unfreezeSheetConfirmButton = "\(prefix)UnfreezeSheetConfirmButton"
+    public static let closeCardSheetConfirmButton = "\(prefix)CloseCardSheetConfirmButton"
+
+    // MARK: - Popup sheet
+
+    public static let popupIcon = "\(prefix)PopupIcon"
+    public static let popupCloseButton = "\(prefix)PopupCloseButton"
+    public static let popupSecondaryButton = "\(prefix)PopupSecondaryButton"
 
     // MARK: - Card rename
 

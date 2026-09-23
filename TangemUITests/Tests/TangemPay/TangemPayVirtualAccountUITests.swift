@@ -13,6 +13,8 @@ final class TangemPayVirtualAccountUITests: BaseTestCase {
     private let feesScenario = "tangem_pay_onramp_fees"
     private let orderScenario = "tangem_pay_virtual_account_order"
     private let accountScenario = "tangem_pay_virtual_account"
+    private let bankCredentialsScenario = "tangem_pay_bank_credentials"
+    private let bankCredentialsEndpointPattern = "/bff-v2/v1/account/bank-credentials/mock-va-product-id"
     private let placeOrderEndpointPattern = "/bff-v2/v1/order"
     private let customerInfoEndpointPattern = "/bff-v2/v1/customer/me"
     private let achFee = "$1.5"
@@ -116,20 +118,79 @@ final class TangemPayVirtualAccountUITests: BaseTestCase {
             .verifyFeeValue(.fedwire, equals: fedwireFee)
     }
 
-    private func openBankTransferFeeSheet(feesState: String) -> TangemPayVirtualAccountInfoSheet {
+    func testBankingDetails_ShowAllRequisitesAndDepositLimit() {
+        setAllureId(10295)
+
+        openBankTransferSheetWithActiveAccount(bankCredentialsState: "Started")
+            .tapShowDetailsExpectingBankDetails()
+            .waitForScreen()
+            .verifyDetail(.beneficiaryName, equals: "Hot Wallet User")
+            .verifyDetail(.beneficiaryAddress, equals: "1 Market St, San Francisco, CA 94105")
+            .verifyDetail(.bankName, equals: "Lead Bank")
+            .verifyDetail(.bankAddress, equals: "1801 Main St, Kansas City, MO 64108")
+            .verifyDetail(.accountNumber, equals: "1234567890")
+            .verifyDetail(.routingNumber, equals: "101019644")
+            .verifyDepositLimit()
+    }
+
+    func testBankingDetailsError_RetryLoadsRequisites() {
+        setAllureId(10297)
+
+        let errorSheet = openBankTransferSheetWithActiveAccount(bankCredentialsState: "Error")
+            .tapShowDetailsExpectingError()
+            .waitForScreen()
+            .verifySheetContent()
+
+        wireMockClient.setScenarioStateSync(bankCredentialsScenario, state: "Started")
+
+        let requestsBeforeRetry = bankCredentialsRequestCount()
+
+        errorSheet
+            .tapRetry()
+            .waitForScreen()
+            .verifyDetail(.accountNumber, equals: "1234567890")
+            .verifyDetail(.routingNumber, equals: "101019644")
+
+        XCTContext.runActivity(named: "Verify Retry requested the banking details again") { _ in
+            XCTAssertGreaterThan(
+                bankCredentialsRequestCount(),
+                requestsBeforeRetry,
+                "Retry should request the bank credentials endpoint again"
+            )
+        }
+    }
+
+    private func openBankTransferSheetWithActiveAccount(bankCredentialsState: String) -> TangemPayVirtualAccountInfoSheet {
+        openBankTransferFeeSheet(
+            feesState: "Started",
+            extraScenarios: [
+                ScenarioConfig(name: accountScenario, initialState: "AccountActive"),
+                ScenarioConfig(name: bankCredentialsScenario, initialState: bankCredentialsState),
+            ]
+        )
+    }
+
+    private func bankCredentialsRequestCount() -> Int {
+        wireMockClient.requestCountSync(method: "GET", urlPathPattern: bankCredentialsEndpointPattern)
+    }
+
+    private func openBankTransferFeeSheet(
+        feesState: String,
+        extraScenarios: [ScenarioConfig] = []
+    ) -> TangemPayVirtualAccountInfoSheet {
         launchAndImportHotWallet(scenarios: [
             ScenarioConfig(name: channelsScenario, initialState: "VirtualAccount"),
             ScenarioConfig(name: "tangem_pay_balance_update", initialState: "InitialBalance"),
             ScenarioConfig(name: "tangem_pay_transaction_history", initialState: "InitialEmpty"),
             ScenarioConfig(name: feesScenario, initialState: feesState),
-        ])
-        .openTangemPay()
-        .waitForScreen()
-        .tapAddFunds()
-        .waitForScreen()
-        .verifyBankTransferOptionDisplayed()
-        .tapBankTransfer()
-        .waitForScreen()
+        ] + extraScenarios)
+            .openTangemPay()
+            .waitForScreen()
+            .tapAddFunds()
+            .waitForScreen()
+            .verifyBankTransferOptionDisplayed()
+            .tapBankTransfer()
+            .waitForScreen()
     }
 
     private func placeOrderRequestCount() -> Int {
