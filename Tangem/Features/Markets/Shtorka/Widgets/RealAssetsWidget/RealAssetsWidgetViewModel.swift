@@ -57,6 +57,7 @@ final class RealAssetsWidgetViewModel: ObservableObject {
     private var marketCapFormatter: MarketCapFormatter
     private var categoriesSnapshot: MarketsCategoriesSnapshot?
     private var categoriesLoadingTask: Task<Void, Never>?
+    private var requestedCategoryId: String?
     private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
@@ -149,6 +150,24 @@ final class RealAssetsWidgetViewModel: ObservableObject {
         }
     }
 
+    func select(categoryId: String?) {
+        guard let categoryId else {
+            requestedCategoryId = nil
+            return
+        }
+
+        guard let categoriesSnapshot else {
+            requestedCategoryId = categoryId
+            return
+        }
+
+        guard let selection = selection(for: categoryId, in: categoriesSnapshot) else {
+            return
+        }
+
+        select(selection)
+    }
+
     func pauseQuotesUpdates() {
         quotesUpdatesScheduler.suspend()
     }
@@ -181,7 +200,7 @@ private extension RealAssetsWidgetViewModel {
                 categoriesSnapshot = snapshot
                 widgetsUpdateHandler?.performUpdateLoading(state: .loaded, for: widgetType)
                 makeFeaturedViewModel(from: snapshot)
-                select(defaultSelection)
+                select(requestedSelection(from: snapshot) ?? defaultSelection)
             } catch {
                 guard let self, !error.isCancellationError else { return }
 
@@ -190,6 +209,19 @@ private extension RealAssetsWidgetViewModel {
                 widgetsUpdateHandler?.performUpdateLoading(state: .error, for: widgetType)
             }
         }
+    }
+
+    func requestedSelection(from snapshot: MarketsCategoriesSnapshot) -> RealAssetsCategorySelection? {
+        defer { requestedCategoryId = nil }
+
+        return requestedCategoryId.flatMap { selection(for: $0, in: snapshot) }
+    }
+
+    func selection(for categoryId: String, in snapshot: MarketsCategoriesSnapshot) -> RealAssetsCategorySelection? {
+        snapshot
+            .selectableCategories
+            .first { $0.code == categoryId || String($0.id) == categoryId }
+            .map { RealAssetsCategorySelection(category: $0) }
     }
 
     func defaultSelection(from snapshot: MarketsCategoriesSnapshot) -> RealAssetsCategorySelection? {

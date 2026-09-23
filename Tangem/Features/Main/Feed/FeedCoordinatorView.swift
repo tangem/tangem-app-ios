@@ -18,13 +18,12 @@ struct FeedCoordinatorView: CoordinatorView {
 
     var body: some View {
         ZStack {
-            if let viewModel = coordinator.rootViewModel {
+            if let viewModel = coordinator.rootViewModel, let container = coordinator.container {
                 NavigationStack(path: $coordinator.path) {
                     FeedView(
                         viewModel: viewModel,
                         searchViewModel: viewModel.searchViewModel,
-                        shtorkaReporting: coordinator.shtorkaReporting,
-                        shtorkaActions: coordinator.shtorkaActions
+                        container: container
                     )
                     .background(FeedPopGestureEnabler())
                     .navigationDestination(for: FeedDestination.self) {
@@ -34,7 +33,7 @@ struct FeedCoordinatorView: CoordinatorView {
                 }
                 .simultaneousGesture(TapGesture().onEnded {
                     if sheetSize.isCollapsedFeedSheet {
-                        coordinator.shtorkaActions.expand()
+                        container.expand()
                     }
                 })
                 .onAnimationCompleted(for: sheetSize == .full, completion: coordinator.sheetDidFinishExpanding)
