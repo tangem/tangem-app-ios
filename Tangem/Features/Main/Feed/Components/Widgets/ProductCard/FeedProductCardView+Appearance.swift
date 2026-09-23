@@ -15,6 +15,7 @@ extension FeedProductCardView {
         case earn
         case referral
         case polymarket
+        case collectibles
 
         var icon: Image {
             switch self {
@@ -23,13 +24,14 @@ extension FeedProductCardView {
             // [REDACTED_TODO_COMMENT]
             case .referral: Assets.Accounts.gift.image
             case .polymarket: DesignSystem.Icons.MagicBall.regular20.image
+            case .collectibles: Assets.Accounts.starAccounts.image
             }
         }
 
         var iconSize: CGSize {
             switch self {
             case .pay: CGSize(width: 22, height: 8)
-            case .earn, .referral, .polymarket: CGSize(width: 20, height: 20)
+            case .earn, .referral, .polymarket, .collectibles: CGSize(width: 20, height: 20)
             }
         }
 
@@ -44,6 +46,7 @@ extension FeedProductCardView {
             case .earn: DesignSystem.Color.bgAccentBlue
             case .referral: Color(red: 195 / 255, green: 83 / 255, blue: 121 / 255)
             case .polymarket: Color(red: 169 / 255, green: 103 / 255, blue: 253 / 255)
+            case .collectibles: DesignSystem.Color.iconStatusWarning
             }
         }
 
