@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemLocalization
 import TangemPolymarket
 import TangemUI
@@ -62,38 +63,18 @@ private extension PolymarketAddFundsSheetViewModel {
     }
 
     func openReceive() {
-        guard let depositTarget = interactor.state.depositTargets.first else {
+        let networks = PolymarketDepositNetworkResolver.resolve(depositTargets: interactor.state.depositTargets)
+
+        guard networks.isNotEmpty else {
             reportUnavailableDeposit()
             return
         }
 
-        coordinator?.openReceiveSheet(viewModel: makeReceiveViewModel(depositTarget: depositTarget))
+        coordinator?.openChooseNetworkSheet(networks: networks)
     }
 
     func reportUnavailableDeposit() {
         PolymarketLogger.warning("Add funds became unavailable while its sheet was open")
         alert = AlertBuilder.makeOkGotItAlert(message: Localization.predictionAddFundsErrorDescription)
-    }
-
-    func minimumDepositFormatted(for depositTarget: PolymarketAccountFundsInteractor.DepositTarget) -> String {
-        BalanceFormatter().formatFiatBalance(depositTarget.minCheckoutUSD, currencyCode: AppConstants.usdCurrencyCode)
-    }
-
-    func makeReceiveViewModel(depositTarget: PolymarketAccountFundsInteractor.DepositTarget) -> ReceiveMainViewModel {
-        let viewModel = ReceiveMainViewModel(
-            options: .init(
-                tokenItem: depositTarget.tokenItem,
-                flow: .polymarketDeposit(minimumDepositFormatted: minimumDepositFormatted(for: depositTarget)),
-                addressTypesProvider: SingleAddressReceiveAddressTypesProvider(
-                    address: depositTarget.fundingAddress,
-                    colorScheme: .whiteBlack
-                )
-            ),
-            receiveTokenWithdrawNoticeInteractor: PolymarketReceiveTokenWithdrawNoticeInteractor()
-        )
-
-        viewModel.start()
-
-        return viewModel
     }
 }
