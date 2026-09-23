@@ -2630,7 +2630,6 @@
 "tangempay_withdraw_bank_error_region_title" = "Transfers are not available";
 "tangempay_withdraw_bank_error_sender_region" = "Transfers from your region currently unavailable";
 "tangempay_withdraw_bank_error_unsupported_configuration" = "Transfers are not available. Please try again later";
-"tangempay_withdraw_bank_eta_business_days_range" = "%3$d-%3$d business days";
 "tangempay_withdraw_bank_eta_same_business_day" = "Same business day";
 "tangempay_withdraw_bank_field_account_number" = "Account number";
 "tangempay_withdraw_bank_field_bank_address_line1" = "Bank address line 1";
