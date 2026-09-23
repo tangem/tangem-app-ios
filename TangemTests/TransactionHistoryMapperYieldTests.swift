@@ -239,6 +239,7 @@ private extension TransactionHistoryMapperYieldTests {
     func makeSUT(isToken: Bool = true) -> Tangem.TransactionHistoryMapper {
         Tangem.TransactionHistoryMapper(
             currencySymbol: "ETH",
+            blockchain: .ethereum(testnet: false),
             addressesProvider: StubTransactionHistoryAddressesProvider(walletAddresses: ["0xSource"]),
             showSign: true,
             isToken: isToken,

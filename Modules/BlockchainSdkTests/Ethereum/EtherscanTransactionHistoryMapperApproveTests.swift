@@ -6,11 +6,12 @@
 //
 
 import Foundation
+import BigInt
 @testable import BlockchainSdk
 import Testing
 
 /// The Etherscan history carries the calldata but nothing about the approved token, so only the allowances that need
-/// no decimals are recoverable there. A limited one stays a plain contract call rather than an approve without amount.
+/// no decimals are complete there. A limited one keeps its raw amount for the app to scale once it knows the token.
 struct EtherscanTransactionHistoryMapperApproveTests {
     private let blockchain = Blockchain.polygon(testnet: false)
     private let walletAddress = "0x90e4d59c8583e37426b37d1d7394b6008a987c67"
@@ -36,12 +37,33 @@ struct EtherscanTransactionHistoryMapperApproveTests {
         #expect(records[0].type == .approve(.init(spender: spender, symbol: nil, allowance: .revoked)))
     }
 
-    @Test("Leaves a limited allowance as a plain contract call, since its decimals are unknown here")
-    func limitedApproveStaysContractCall() throws {
+    @Test("Leaves a limited allowance unscaled, since its decimals are unknown here")
+    func limitedApproveIsUnscaled() throws {
         let calldata = ["0x095ea7b3", spenderSlot, "0000000000000000000000000000000000000000000000000000000001ab3f00"].joined()
         let records = try map(calldata: calldata)
 
-        #expect(records[0].type == .contractMethodIdentifier(id: ApproveERC20TokenMethod.methodId))
+        #expect(records[0].type == .approve(.init(spender: spender, symbol: nil, allowance: .unscaled(28_000_000))))
+    }
+
+    @Test("Resolving scales an unscaled allowance by the token's decimals and names the token")
+    func resolvingScalesUnscaledAllowance() {
+        let approve = TransactionRecord.TransactionType.Approve(spender: spender, symbol: nil, allowance: .unscaled(28_000_000))
+
+        #expect(approve.resolving(symbol: "USDT", decimals: 6) == .init(spender: spender, symbol: "USDT", allowance: .limited(28)))
+    }
+
+    @Test("Resolving names the token of an allowance that needs no decimals")
+    func resolvingNamesRevokedToken() {
+        let approve = TransactionRecord.TransactionType.Approve(spender: spender, symbol: nil, allowance: .revoked)
+
+        #expect(approve.resolving(symbol: "USDT", decimals: 6) == .init(spender: spender, symbol: "USDT", allowance: .revoked))
+    }
+
+    @Test("Resolving keeps a symbol the provider reported")
+    func resolvingKeepsProviderSymbol() {
+        let approve = TransactionRecord.TransactionType.Approve(spender: spender, symbol: "USDT", allowance: .limited(28))
+
+        #expect(approve.resolving(symbol: "OTHER", decimals: 18) == approve)
     }
 
     @Test("Leaves a transaction without calldata alone")

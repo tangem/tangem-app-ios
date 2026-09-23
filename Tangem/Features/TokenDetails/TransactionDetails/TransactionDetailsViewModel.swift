@@ -80,6 +80,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
         let mapper = TransactionHistoryMapper(
             currencySymbol: walletModel.tokenItem.currencySymbol,
+            blockchain: walletModel.tokenItem.blockchain,
             addressesProvider: walletModel,
             showSign: true,
             isToken: walletModel.tokenItem.isToken,

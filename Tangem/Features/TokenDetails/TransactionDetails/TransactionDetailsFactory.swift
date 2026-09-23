@@ -250,7 +250,8 @@ enum TransactionDetailsFactory {
                 isFailed: isFailed,
                 caption: Localization.transactionHistoryApprovedAmount,
                 fiatText: nil,
-                icon: approvedTokenIcon(for: record, context: context)
+                icon: approvedTokenIcon(for: record, context: context),
+                amountText: transaction.amount.amountWithCurrencyCode
             ),
             statusBanner: isFailed ? nil : highRiskBanner(for: record),
             principalAmount: nil,
@@ -296,13 +297,11 @@ enum TransactionDetailsFactory {
         target.isResolved ? target.name : AddressFormatter(address: target.address).truncated()
     }
 
-    /// An approve is sent to the contract of the token it approves, so that destination identifies the token to show.
     private static func approvedTokenIcon(
         for record: TransactionRecord,
         context: TransactionDetailsContext
     ) -> TransactionDetailsTokensViewData.Single.Icon {
-        guard case .single(let destination) = record.destination,
-              case .contract(let tokenContract) = destination.address,
+        guard let tokenContract = record.approvedTokenContract,
               let resolved = context.tokenIconInfo(forContract: tokenContract)
         else {
             return .unresolved(network: context.networkIconAsset)

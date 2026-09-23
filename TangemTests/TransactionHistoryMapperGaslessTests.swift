@@ -166,6 +166,7 @@ private extension TransactionHistoryMapperGaslessTests {
     func makeSUT() -> Tangem.TransactionHistoryMapper {
         Tangem.TransactionHistoryMapper(
             currencySymbol: "USDT",
+            blockchain: .ethereum(testnet: false),
             addressesProvider: StubTransactionHistoryAddressesProvider(walletAddresses: [Self.walletAddress]),
             showSign: true,
             isToken: true,

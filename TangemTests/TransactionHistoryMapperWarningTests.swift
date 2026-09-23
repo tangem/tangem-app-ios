@@ -86,6 +86,7 @@ private extension TransactionHistoryMapperWarningTests {
     func makeSUT() -> TransactionHistoryMapper {
         TransactionHistoryMapper(
             currencySymbol: "ETH",
+            blockchain: .ethereum(testnet: false),
             addressesProvider: StubWarningAddressesProvider(walletAddresses: ["0xSource"]),
             showSign: true,
             isToken: false,

@@ -28,6 +28,15 @@ extension TransactionHistoryAuxDataRepository {
         return await cryptoCurrency(for: currency, supportedBlockchains: SupportedBlockchains.all)
     }
 
+    nonisolated func cryptoCurrency(forContract contractAddress: String, blockchain: Blockchain) -> TokenItem? {
+        let currency = ExpressCurrency(
+            contractAddress: TransactionHistoryAddressNormalizer.normalize(contractAddress, isEvm: blockchain.isEvm),
+            network: blockchain.networkId
+        )
+
+        return cryptoCurrency(for: currency)
+    }
+
     nonisolated func cryptoCurrencies(for currencies: [ExpressCurrency]) -> [ExpressCurrency: TokenItem] {
         return currencies.reduce(into: [:]) { result, currency in
             result[currency] = cryptoCurrency(for: currency)
