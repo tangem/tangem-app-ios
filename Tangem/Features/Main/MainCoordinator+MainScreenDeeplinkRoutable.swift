@@ -12,6 +12,10 @@ extension MainCoordinator: MainScreenDeeplinkRoutable {
         mainViewModel?.isRootVisible ?? false
     }
 
+    func openFeed(selection: FeedSelection) {
+        shtorka?.open(selection: selection)
+    }
+
     func openBuy(userWalletModel: any UserWalletModel) {
         openBuy(
             userWalletModels: [userWalletModel],
