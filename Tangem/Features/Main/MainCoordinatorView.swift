@@ -57,7 +57,7 @@ struct MainCoordinatorView: CoordinatorView {
         .overlay {
             marketsTooltipView
         }
-        .mainShtorka(coordinator: coordinator.feedCoordinator)
+        .mainShtorka(coordinator.shtorka)
     }
 
     private var links: some View {

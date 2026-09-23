@@ -40,6 +40,7 @@ struct DeeplinkOverlayProviderTests {
              .payApp,
              .jointAccountInvite,
              .token,
+             .feed,
              .support:
             true
 
@@ -71,6 +72,7 @@ struct DeeplinkOverlayProviderTests {
         .payApp(PayAppDeeplink(deeplinkString: "https://tangem.com/pay-app?id=1")),
         .jointAccountInvite(JointAccountInviteDeeplink(inviteId: "B15CF4AC")),
         .token(TokenDeeplink(tokenId: "ethereum", networkId: "ethereum")),
+        .feed(FeedDeeplink(section: nil, category: nil, type: nil)),
         .tangemPayAccount(TangemPayAccountDeeplink(screen: nil, userWalletId: nil)),
         .tangemPayTransaction(TangemPayTransactionDeeplink(payload: TangemPayPushPayload(customerWalletId: "wallet", customerId: "customer", body: .thresholdTopUp))),
         .campaigns(CampaignsDeeplink(campaignId: nil)),

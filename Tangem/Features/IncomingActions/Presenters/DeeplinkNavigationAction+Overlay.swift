@@ -30,6 +30,7 @@ extension DeeplinkNavigationAction {
         case .jointAccountInvite(let deeplink): deeplink
         case .token(let deeplink): deeplink
         case .support(let deeplink): deeplink
+        case .feed(let deeplink): deeplink
         // Shown by whoever owns them: the payment account and the co-brand campaign from the main screen,
         // campaigns, the survey and a payment transaction by responders of their own.
         case .tangemPayAccount, .campaigns, .survey, .payCustomCard, .tangemPayTransaction: nil

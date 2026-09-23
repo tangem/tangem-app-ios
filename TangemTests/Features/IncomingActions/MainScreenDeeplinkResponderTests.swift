@@ -55,6 +55,40 @@ struct MainScreenDeeplinkResponderTests {
         }
     }
 
+    @Test("A shtorka link opens the sheet the main screen already has, on the section and filter it names")
+    func opensTheShtorkaItAlreadyHas() async {
+        await withMainScreen { responder, coordinator in
+            let shown = responder.didReceiveIncomingAction(Constants.shtorkaAction)
+
+            #expect(shown)
+            #expect(coordinator.openedFeed == .earn(type: .staking))
+        }
+    }
+
+    @Test("A shtorka link lands while the shtorka is already expanded")
+    func opensTheShtorkaWhileItIsExpanded() async {
+        await withMainScreen { responder, coordinator in
+            InjectedValues[\.mainBottomSheetUIManager].setExpanded(true)
+
+            let shown = responder.didReceiveIncomingAction(Constants.shtorkaAction)
+
+            #expect(shown)
+            #expect(coordinator.openedFeed == .earn(type: .staking))
+        }
+    }
+
+    @Test("A screen pushed over the main screen leaves the shtorka link to whoever shows it over")
+    func passesOnShtorkaWhileRootIsCovered() async {
+        await withMainScreen { responder, coordinator in
+            coordinator.isRootVisible = false
+
+            let shown = responder.didReceiveIncomingAction(Constants.shtorkaAction)
+
+            #expect(!shown)
+            #expect(coordinator.openedFeed == nil)
+        }
+    }
+
     @Test("A token link naming a wallet this device doesn't have is passed on rather than waited for")
     func passesOnTokenOfUnknownWallet() async {
         await withMainScreen { responder, _ in
@@ -145,5 +179,8 @@ private extension MainScreenDeeplinkResponderTests {
         static let tokenChartAction = IncomingAction.navigation(.tokenChart(TokenChartDeeplink(tokenId: tokenId)))
         static let campaignKey = "tpay_for_harvard123"
         static let campaignAction = IncomingAction.navigation(.payCustomCard(PayCustomCardDeeplink(campaignKey: campaignKey)))
+        static let shtorkaAction = IncomingAction.navigation(
+            .feed(FeedDeeplink(section: "earn", category: nil, type: "staking"))
+        )
     }
 }

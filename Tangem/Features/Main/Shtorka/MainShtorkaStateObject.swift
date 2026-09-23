@@ -11,35 +11,11 @@ import SwiftUI
 import TangemFoundation
 import TangemUI
 
-/// The sizes the feed measures for the sheet and the scroll anchor it asks back. Only the top of the feed reports:
-/// the views below it hand their measurements up instead of knowing about the sheet.
-protocol MainShtorkaReporting: AnyObject {
-    func report(searchBar height: CGFloat)
-    func report(widgets height: CGFloat)
-    func report(tabChips height: CGFloat)
-    func report(scrollOffset: CGFloat, tabID: String)
-    func scrollTarget(forTab id: String, viewportHeight: CGFloat, pinTabs: Bool, chipsPinned: Bool) -> FeedScrollTarget?
-}
-
-/// What a view inside the sheet may do with it: follow the size it settles on and open it. The presentation state
-/// stays out of reach.
-protocol MainShtorkaViewActionProvider: AnyObject {
-    var sizePublisher: AnyPublisher<ShtorkaSize, Never> { get }
-
-    func expand()
-}
-
 final class MainShtorkaStateObject: ObservableObject {
     @Injected(\.mainBottomSheetUIManager) private var bottomSheetUIManager: MainBottomSheetUIManager
 
     @Published var isPresented = false
-    @Published var size: ShtorkaSize = .collapsed {
-        didSet {
-            if size != .full {
-                scrollState.reset()
-            }
-        }
-    }
+    @Published var size: ShtorkaSize = .collapsed
 
     @Published private(set) var isContentCollapsed = true
 
@@ -58,7 +34,6 @@ final class MainShtorkaStateObject: ObservableObject {
     }
 
     private let heights = FeedDetentHeights()
-    private let scrollState = FeedScrollState()
     private var bag = Set<AnyCancellable>()
 
     init() {
@@ -81,38 +56,6 @@ final class MainShtorkaStateObject: ObservableObject {
             expand()
         }
         isNavigationActive = isActive
-    }
-
-    // MARK: - Tab scroll positions
-
-    func report(scrollOffset: CGFloat, tabID: String) {
-        scrollState.report(offset: scrollOffset, tabID: tabID)
-    }
-
-    func scrollTarget(forTab id: String, viewportHeight: CGFloat, pinTabs: Bool, chipsPinned: Bool) -> FeedScrollTarget? {
-        let headerHeight = heights.widgetsHeight + FeedConstants.widgetsToTabsSpacing
-        let previousOffset = scrollState.offset
-        scrollState.select(tabID: id, headerHeight: headerHeight)
-
-        if pinTabs {
-            scrollState.pinTabs(headerHeight: headerHeight)
-        }
-
-        guard let anchor = scrollState.restorationAnchor(tabID: id, viewportHeight: viewportHeight),
-              scrollState.offset != previousOffset else {
-            return nil
-        }
-
-        if chipsPinned {
-            return .jump(anchor: anchor, shift: scrollState.offset - previousOffset)
-        }
-
-        // A viewport-relative anchor overshoots while the sheet grows from medium to full.
-        if pinTabs, scrollState.offset == headerHeight {
-            return .pinTabs
-        }
-
-        return .scroll(anchor: anchor)
     }
 
     // MARK: - Detent heights
@@ -193,14 +136,19 @@ private extension MainShtorkaStateObject {
     }
 }
 
-// MARK: - MainShtorkaReporting
+// MARK: - FeedDetentReporting
 
-extension MainShtorkaStateObject: MainShtorkaReporting {}
+extension MainShtorkaStateObject: FeedDetentReporting {}
 
-// MARK: - MainShtorkaViewActionProvider
+// MARK: - FeedContainer
 
-extension MainShtorkaStateObject: MainShtorkaViewActionProvider {
+extension MainShtorkaStateObject: FeedContainer {
     var sizePublisher: AnyPublisher<ShtorkaSize, Never> {
-        $size.removeDuplicates().eraseToAnyPublisher()
+        // The feed is built inside the sheet at the size it already renders; only a change asks it for anything.
+        $size.removeDuplicates().dropFirst().eraseToAnyPublisher()
+    }
+
+    var dismissPublisher: AnyPublisher<Void, Never> {
+        $isPresented.filter { !$0 }.map { _ in () }.eraseToAnyPublisher()
     }
 }

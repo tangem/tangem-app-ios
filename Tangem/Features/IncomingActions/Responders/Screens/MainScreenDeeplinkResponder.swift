@@ -61,7 +61,7 @@ private extension MainScreenDeeplinkResponder {
         loadingTask?.cancel()
         loadingTask = nil
 
-        guard let coordinator, canShow else {
+        guard let coordinator, canShow(navigationAction) else {
             return false
         }
 
@@ -70,6 +70,10 @@ private extension MainScreenDeeplinkResponder {
 
     func open(_ action: DeeplinkNavigationAction, using coordinator: any MainScreenDeeplinkRoutable) -> Bool {
         switch action {
+        case .feed(let deeplink):
+            prepare()
+            coordinator.openFeed(selection: deeplink.makeSelection())
+
         case .token(let deeplink):
             // The token may still be on its way from the backend, so the link is claimed now and opened when it
             // lands — but only for a wallet this device has.
@@ -255,11 +259,19 @@ private extension MainScreenDeeplinkResponder {
 
 @MainActor
 private extension MainScreenDeeplinkResponder {
-    /// The main screen's root is what the user sees: not behind a screen it pushed, the markets shtorka
-    /// collapsed, and nothing presented over the window's root — its own sheets, a browser or a survey alike.
-    /// What lives in the app's own overlay window, stories among them, isn't seen from here.
+    func canShow(_ action: DeeplinkNavigationAction) -> Bool {
+        switch action {
+        case .feed: isRootOnTop
+        default: canShow
+        }
+    }
+
     var canShow: Bool {
-        guard coordinator?.isRootVisible == true, !mainBottomSheetUIManager.isExpanded else {
+        isRootOnTop && !mainBottomSheetUIManager.isExpanded
+    }
+
+    var isRootOnTop: Bool {
+        guard coordinator?.isRootVisible == true else {
             return false
         }
 

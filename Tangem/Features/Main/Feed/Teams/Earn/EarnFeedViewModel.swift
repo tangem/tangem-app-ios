@@ -30,6 +30,10 @@ final class EarnFeedViewModel: ObservableObject {
         AppLogger.debug("EarnFeedViewModel deinit")
     }
 
+    func select(type: EarnFilterType) {
+        filterProvider.didSelectFilterType(type)
+    }
+
     func onViewAppear() {
         Task { @MainActor [weak self] in
             guard let self else {

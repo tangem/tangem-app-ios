@@ -19,6 +19,7 @@ final class RealAssetsFeedViewModel: ObservableObject {
 
     private let router: any RealAssetsFeedRoutable
     private var sheetSize: ShtorkaSize = .collapsed
+    private var requestedCategoryId: String?
 
     init(promotionNotificationsManager: PromotionNotificationsManager, router: any RealAssetsFeedRoutable) {
         promoBanner = PromotionNotificationsViewModel(promotionNotificationsManager: promotionNotificationsManager)
@@ -47,7 +48,21 @@ final class RealAssetsFeedViewModel: ObservableObject {
             viewModel.pauseQuotesUpdates()
         }
 
+        if let requestedCategoryId {
+            viewModel.select(categoryId: requestedCategoryId)
+            self.requestedCategoryId = nil
+        }
+
         shelfViewModel = viewModel
+    }
+
+    func select(categoryId: String?) {
+        guard let shelfViewModel else {
+            requestedCategoryId = categoryId
+            return
+        }
+
+        shelfViewModel.select(categoryId: categoryId)
     }
 
     func feedSheetSizeDidChange(to size: ShtorkaSize) {

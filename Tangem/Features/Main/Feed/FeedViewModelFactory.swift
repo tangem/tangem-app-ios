@@ -13,8 +13,10 @@ struct FeedViewModelFactory {
 
     func makeViewModel(
         context: FeedContext,
-        shtorkaActions: any MainShtorkaViewActionProvider,
-        widgetsRouter: FeedWidgetsRoutable
+        container: any FeedContainer,
+        widgetsRouter: FeedWidgetsRoutable,
+        canOpenHostScreens: Bool,
+        selection: FeedSelection?
     ) -> FeedViewModel {
         let searchBarViewModel = FeedSearchBarViewModel()
         let historyProvider = CommonFeedSearchHistoryProvider(storage: CommonFeedSearchHistoryStorage())
@@ -42,8 +44,14 @@ struct FeedViewModelFactory {
                 )
             ),
             tabsViewModel: FeedTabsViewModel(tabs: tabs),
-            widgetsViewModel: FeedWidgetsViewModel(providers: FeedWidgetsRegistry.makeProviders(router: widgetsRouter)),
-            shtorkaActions: shtorkaActions
+            widgetsViewModel: FeedWidgetsViewModel(
+                providers: FeedWidgetsRegistry.makeProviders(
+                    router: widgetsRouter,
+                    canOpenHostScreens: canOpenHostScreens
+                )
+            ),
+            container: container,
+            selection: selection
         )
     }
 }
