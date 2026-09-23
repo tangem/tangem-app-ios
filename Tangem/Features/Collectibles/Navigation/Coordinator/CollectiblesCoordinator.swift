@@ -15,7 +15,6 @@ final class CollectiblesCoordinator: CoordinatorObject {
 
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
-    @Injected(\.overlayViewPresenter) var overlayViewPresenter: any OverlayViewPresenter
     @Injected(\.storiesAnalyticsProvider) var storiesAnalyticsProvider: any StoriesAnalyticsProvider
 
     let dismissAction: Action<Void>
@@ -27,6 +26,7 @@ final class CollectiblesCoordinator: CoordinatorObject {
 
     @Published private(set) var state: ViewState?
     @Published var machineViewModel: CollectiblesMachineViewModel?
+    @Published var storiesViewModel: CollectiblesStoriesViewModel?
 
     // MARK: - Init
 

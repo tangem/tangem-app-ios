@@ -45,6 +45,9 @@ final class FeedCoordinator: CoordinatorObject {
     private var pendingDestination: FeedDestination?
     private var bag = Set<AnyCancellable>()
 
+    @MainActor
+    private var isOpeningCollectibles = false
+
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
@@ -141,6 +144,21 @@ extension FeedCoordinator: FeedWidgetsRoutable {
         coordinator.start(with: .init(userWalletModel: wallet))
 
         push(.polymarket(coordinator))
+    }
+
+    func openCollectibles(wallets: [UserWalletModel], isRegionRestricted: Bool) {
+        Task { @MainActor [weak self] in
+            guard let self, path.isEmpty, presentedWidgetSheet == nil, let wallet = wallets.first else { return }
+
+            guard wallets.count > 1 else {
+                openCollectibles(for: wallet, isRegionRestricted: isRegionRestricted)
+                return
+            }
+
+            presentWalletSelector(wallets: wallets) { [weak self] wallet in
+                self?.openCollectibles(for: wallet, isRegionRestricted: isRegionRestricted)
+            }
+        }
     }
 
     func openForYou() {
@@ -295,6 +313,40 @@ private extension FeedCoordinator {
             coordinator: self
         )
         enqueueWidgetSheet(viewModel)
+    }
+
+    func openCollectibles(for wallet: UserWalletModel, isRegionRestricted: Bool) {
+        guard !isOpeningCollectibles else { return }
+
+        isOpeningCollectibles = true
+
+        Task { @MainActor [weak self] in
+            defer { self?.isOpeningCollectibles = false }
+
+            guard let self else { return }
+
+            let accountModel = wallet.collectiblesAccountModel()
+            let outcome = await CollectiblesEntranceResolver.resolve(for: accountModel, isRegionRestricted: isRegionRestricted)
+
+            guard shtorkaStateObject.isPresented, path.isEmpty, presented == nil, presentedWidgetSheet == nil else {
+                return
+            }
+
+            switch outcome {
+            case .open(let destination):
+                let coordinator = CollectiblesCoordinator(
+                    dismissAction: { [weak self] in self?.dismissPresented() },
+                    popToRootAction: popToRootAction
+                )
+                coordinator.start(with: .init(destination: destination, userWalletModel: wallet, accountModel: accountModel))
+
+                present(.collectibles(coordinator))
+
+            case .regionRestricted:
+                let geoblock = CollectiblesGeoblockViewModel()
+                enqueueWidgetSheet(geoblock)
+            }
+        }
     }
 
     func presentWalletSelector(wallets: [UserWalletModel], onSelect: @escaping @MainActor (UserWalletModel) -> Void) {
