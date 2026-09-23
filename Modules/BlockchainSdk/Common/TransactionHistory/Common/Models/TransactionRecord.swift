@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BigInt
 import TangemFoundation
 
 public struct TransactionRecord: Hashable {
@@ -118,6 +119,9 @@ public extension TransactionRecord {
                 case revoked
                 /// The granted amount, already scaled by the token's decimals.
                 case limited(Decimal)
+                /// The granted amount as the raw uint256 of the calldata, left unscaled because the provider doesn't
+                /// know the token's decimals. See `resolving(symbol:decimals:)`.
+                case unscaled(BigUInt)
             }
         }
 
