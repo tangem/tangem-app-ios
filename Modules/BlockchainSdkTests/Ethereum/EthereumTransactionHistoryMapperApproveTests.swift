@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BigInt
 @testable import BlockchainSdk
 import Testing
 
@@ -60,14 +61,12 @@ struct EthereumTransactionHistoryMapperApproveTests {
         #expect(records[0].type == .approve(.init(spender: spender, symbol: "USDT", allowance: .unlimited)))
     }
 
-    @Test("Stays a plain contract call when the approved token isn't among the address's tokens")
-    func limitedApproveWithoutKnownTokenIsNotAnApprove() throws {
+    @Test("Keeps the raw allowance when the approved token isn't among the address's tokens")
+    func limitedApproveWithoutKnownTokenIsUnscaled() throws {
         let records = try map(calldata: limitedCalldata, tokens: [])
 
         #expect(records.count == 1)
-        // Without the token's decimals the raw integer isn't an amount, and an approve carrying no allowance would
-        // render as a zero one — that is, as a revoke. The record keeps its method id instead.
-        #expect(records[0].type == .contractMethodIdentifier(id: ApproveERC20TokenMethod.methodId))
+        #expect(records[0].type == .approve(.init(spender: spender, symbol: nil, allowance: .unscaled(28_000_000))))
     }
 
     @Test("An unlimited allowance needs no decimals, so it survives an unknown token")
