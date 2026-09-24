@@ -17,22 +17,18 @@ struct TransactionHistoryDustFilter {
     }
 
     func isDust(amount: Decimal, isOutgoing: Bool, transactionType: TransactionViewModel.TransactionType) -> Bool {
-        guard let usdRate, usdRate > 0, isFilterable(transactionType, isOutgoing: isOutgoing) else {
+        guard !isOutgoing, let usdRate, usdRate > 0, isFilterable(transactionType) else {
             return false
         }
 
         return abs(amount) * usdRate < Constants.thresholdUSD
     }
 
-    private func isFilterable(
-        _ transactionType: TransactionViewModel.TransactionType,
-        isOutgoing: Bool
-    ) -> Bool {
+    private func isFilterable(_ transactionType: TransactionViewModel.TransactionType) -> Bool {
         switch transactionType {
         case .transfer,
-             .gaslessTransfer:
-            return true
-        case .stake,
+             .gaslessTransfer,
+             .stake,
              .unstake,
              .withdraw,
              .claimRewards,
@@ -42,7 +38,7 @@ struct TransactionHistoryDustFilter {
              .yieldWithdraw,
              .yieldWithdrawCoin,
              .yieldSend:
-            return !isOutgoing
+            return true
         case .yieldDeploy,
              .yieldInit,
              .yieldReactivate,
