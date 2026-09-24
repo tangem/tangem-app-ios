@@ -766,6 +766,9 @@
 "force_update_warning_title" = "Потрібне оновлення";
 "gasless_not_enough_funds_to_cover_token_fee" = "Недостатньо коштів";
 "gasless_transaction_fee" = "Комісія за транзакцію";
+"gasless_tron_activation_attempts_limit" = "You've made several attempts. Try again later.";
+"gasless_tron_activation_min_balance_description" = "Your balance should be higher than %@.";
+"gasless_tron_activation_try_again_later" = "Try again later.";
 "generic_error_code" = "Виникла помилка. Код: %@.";
 "generic_requires_memo_error" = "Вимагається memo";
 "get_token_title" = "Поповнити %1$@";
@@ -1047,6 +1050,7 @@
 "joint_account_onboarding_shared_description" = "Use it with your friends, family, or partners.";
 "joint_account_onboarding_shared_title" = "Shared account.";
 "joint_account_onboarding_subtitle" = "A simple way to manage crypto together — for personal or business needs.";
+"joint_account_pending_transaction_message" = "Review and sign the operation";
 "joint_account_send_blocked_subtitle" = "Sending is blocked for security reasons. Please contact support";
 "joint_account_send_blocked_title" = "Sending is blocked";
 "joint_account_send_create_request" = "Create request";
@@ -1502,6 +1506,7 @@
 "prediction_account_open_detailed_view" = "Open detailed view";
 "prediction_account_subtitle" = "Add funds & start predict";
 "prediction_account_title" = "Prediction account";
+"prediction_account_unavailable" = "Couldn't connect to your prediction account. Refresh or reopen this screen.";
 "prediction_add_funds_error_description" = "Couldn't load deposit details. Refresh or re-enter this screen.";
 "prediction_add_funds_notification_limits_description" = "The deposit amount must be at least %1$@. Deposits above $50,000 are not recommended — split a larger amount into several smaller deposits.";
 "prediction_add_funds_notification_limits_title" = "Deposit limits";
@@ -1552,6 +1557,8 @@
 "prediction_main_available_balance" = "Available Balance";
 "prediction_main_data_outdated" = "Data may be outdated.";
 "prediction_main_empty_events" = "No events yet";
+"prediction_main_empty_positions_subtitle" = "Explore new events";
+"prediction_main_empty_positions_title" = "You don’t have active predictions";
 "prediction_main_events_load_error" = "Failed to load events.\nTap to reload";
 "prediction_main_explore_events" = "Explore Events";
 "prediction_main_subtitle" = "USDC on Polygon network";
@@ -1695,9 +1702,17 @@
 "prediction_search_initial_subtitle" = "Search events or your predictions";
 "prediction_search_initial_title" = "Start typing to search";
 "prediction_search_results_title" = "Search results";
+"prediction_withdraw_balance_unavailable" = "Couldn't load your prediction account balance. Refresh or reopen this screen.";
 "prediction_withdraw_confirm_fee_footer" = "No network fee is charged for this withdrawal. The amount you receive may differ slightly due to bridge conversion.";
 "prediction_withdraw_confirm_title" = "Confirm withdrawal";
+"prediction_withdraw_empty_balance" = "There's nothing to withdraw yet. Add funds to your prediction account first.";
+"prediction_withdraw_error_address_unavailable" = "Couldn't get a withdrawal address. Try again";
+"prediction_withdraw_error_asset_unavailable" = "Withdrawals to USDC on Polygon are paused. Try again later";
+"prediction_withdraw_error_foreign_account" = "This prediction account isn't linked to this wallet. Contact support";
+"prediction_withdraw_error_generic" = "Couldn't send the withdrawal. Check your connection and try again";
+"prediction_withdraw_error_rejected" = "Polymarket rejected the withdrawal. Try again";
 "prediction_withdraw_in_progress_message" = "Your previous withdrawal is still being processed. Wait for it to finish before starting a new one.";
+"prediction_withdraw_min_amount" = "The minimum withdrawal is %@. Add funds to reach it.";
 "prediction_withdraw_status_failed_description" = "Something went wrong while processing your withdrawal. Please try again or contact support.";
 "prediction_withdraw_status_failed_title" = "Withdrawal failed";
 "prediction_withdraw_status_sent_description" = "Delivery may take up to %1$d minutes";
@@ -2629,7 +2644,6 @@
 "tangempay_withdraw_bank_error_recipient_region" = "Transfers to recipient's region currently unavailable";
 "tangempay_withdraw_bank_error_region_title" = "Transfers are not available";
 "tangempay_withdraw_bank_error_sender_region" = "Transfers from your region currently unavailable";
-"tangempay_withdraw_bank_error_unsupported_configuration" = "Transfers are not available. Please try again later";
 "tangempay_withdraw_bank_eta_same_business_day" = "Same business day";
 "tangempay_withdraw_bank_field_account_number" = "Account number";
 "tangempay_withdraw_bank_field_bank_address_line1" = "Bank address line 1";
@@ -2664,9 +2678,7 @@
 "tangempay_withdraw_bank_sending_summary" = "You are sending %1$@ including a %2$@ fee of %3$@";
 "tangempay_withdraw_bank_source_subtitle" = "%1$@ · %2$@";
 "tangempay_withdraw_bank_step_counter" = "%1$d of %2$d";
-"tangempay_withdraw_bank_success_description" = "The transfer is on its way to the recipient's bank account.";
 "tangempay_withdraw_bank_success_title" = "Sending %@";
-"tangempay_withdraw_bank_title_to_recipient" = "To %@";
 "tangempay_withdraw_bank_transfer_type_own" = "Your account";
 "tangempay_withdraw_bank_transfer_type_third_party" = "3rd-party account";
 "tangempay_withdraw_bank_transfer_type_title" = "Type of transfer";
