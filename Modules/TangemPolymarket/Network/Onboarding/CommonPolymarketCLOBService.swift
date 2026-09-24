@@ -100,7 +100,8 @@ extension CommonPolymarketCLOBService: PolymarketCLOBService {
     }
 
     func price(tokenId: String, side: PolymarketOrderSide) async throws -> Decimal {
-        let dto: PolymarketDTO.PriceResponse = try await request(.price(tokenId: tokenId, side: side), authHeaders: [:])
+        let target = PolymarketCLOBTarget.Target.price(tokenId: tokenId, orderSide: side)
+        let dto: PolymarketDTO.PriceResponse = try await request(target, authHeaders: [:])
 
         return try mapper.mapPrice(dto)
     }
