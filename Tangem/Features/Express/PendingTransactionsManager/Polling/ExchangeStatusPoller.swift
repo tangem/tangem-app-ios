@@ -192,7 +192,8 @@ final class ExchangeStatusPoller {
             let refundedTokenItem = await handleRefundedTokenIfNeeded(
                 blockchainNetwork: transactionRecord.sourceTokenTxInfo.tokenItem.blockchainNetwork,
                 providerType: transactionRecord.provider.type,
-                refundedCurrency: expressTransaction.refund?.currency
+                refundedCurrency: expressTransaction.refund?.currency,
+                sourceUserWalletId: sourceUserWalletId
             )
 
             try Task.checkCancellation()
@@ -230,14 +231,23 @@ final class ExchangeStatusPoller {
         blockchainNetwork: BlockchainNetwork,
         providerType: ExpressPendingTransactionRecord.ProviderType,
         refundedCurrency: ExpressCurrency?,
+        sourceUserWalletId: String
     ) async -> TokenItem? {
         guard providerType == .dexBridge, let refundedCurrency else {
             return nil
         }
 
+        // Resolve the source wallet so the refunded token is added to the wallet that made the swap,
+        // not to whichever wallet happens to share the same derivation path first. Fall back to this
+        // poller's own wallet if the source id can't be resolved.
+        let ownerUserWalletId = userWalletRepository.models
+            .first(where: { $0.userWalletId.stringValue == sourceUserWalletId })?
+            .userWalletId ?? userWalletId
+
         return try? await expressRefundedTokenHandler.handle(
             blockchainNetwork: blockchainNetwork,
-            expressCurrency: refundedCurrency
+            expressCurrency: refundedCurrency,
+            userWalletId: ownerUserWalletId
         )
     }
 }
