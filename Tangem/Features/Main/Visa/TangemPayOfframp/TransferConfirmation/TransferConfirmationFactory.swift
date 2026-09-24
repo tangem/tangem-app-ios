@@ -19,6 +19,7 @@ enum TransferConfirmationFactory {
         optionsStore: TangemPayOfframpOptionsStore,
         savedRecipient: TangemPayBankAccountResponse?,
         hasNFCInteraction: Bool,
+        analyticsLogger: any TangemPayOfframpAnalyticsLogger,
         output: @escaping (TransferConfirmationViewModel.Output) -> Void
     ) -> some View {
         let options = optionsStore.state.options ?? .empty
@@ -32,6 +33,7 @@ enum TransferConfirmationFactory {
                 savedRecipient: savedRecipient,
                 title: Localization.tangempayWithdrawBankConfirmTitle,
                 sendButtonIcon: hasNFCInteraction ? Assets.tangemIcon : nil,
+                analyticsLogger: analyticsLogger,
                 output: output
             )
         )

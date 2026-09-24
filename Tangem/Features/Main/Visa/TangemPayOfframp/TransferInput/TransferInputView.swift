@@ -41,6 +41,7 @@ struct TransferInputView: View {
             )
             .presentationDetents(idealHeight: Constants.railModalIdealHeight)
         }
+        .onAppear(perform: viewModel.onAppear)
     }
 }
 
