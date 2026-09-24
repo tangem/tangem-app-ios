@@ -47,7 +47,9 @@ final class ObtainUserWalletRegistrationNonceUseCaseTests: LeakTrackingTestSuite
             nonceDecryptor: nonceDecryptor
         )
 
-        let nonce = try #require(await sut(id: UserWalletId.fake))
+        let expectedID = UserWalletId.uniqueFake()
+
+        let nonce = try #require(await sut(id: expectedID))
 
         #expect(nonce.value == expectedDecryptedNonce)
         #expect(nonce.bytesToSign == expectedNonceBytesToSign)
@@ -57,7 +59,7 @@ final class ObtainUserWalletRegistrationNonceUseCaseTests: LeakTrackingTestSuite
         #expect(nonceDecryptor.receivedMessages == [.decrypt(expectedCipheredNonce)])
         #expect(appAttestService.receivedMessages == [.generateAttestationToken(expectedDecryptedNonceBytes)])
         #expect(registrationClient.receivedMessages == [.requestCipheredNonce(expectedDevicePublicKey)])
-        #expect(registrationStatusRepository.receivedMessages == [.retrieve(UserWalletId.fake)])
+        #expect(registrationStatusRepository.receivedMessages == [.retrieve(expectedID)])
     }
 
     @Test
@@ -88,11 +90,13 @@ final class ObtainUserWalletRegistrationNonceUseCaseTests: LeakTrackingTestSuite
             registrationStatusRepository: registrationStatusRepository
         )
 
-        let nonce = try await sut(id: UserWalletId.fake)
+        let expectedID = UserWalletId.uniqueFake()
+
+        let nonce = try await sut(id: expectedID)
 
         #expect(nonce == nil)
         #expect(registrationClient.receivedMessages.isEmpty)
-        #expect(registrationStatusRepository.receivedMessages == [.retrieve(UserWalletId.fake)])
+        #expect(registrationStatusRepository.receivedMessages == [.retrieve(expectedID)])
     }
 
     @Test
