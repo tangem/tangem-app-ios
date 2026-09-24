@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 import TangemUIUtils
@@ -46,6 +47,7 @@ struct TransactionDetailsInfoSectionView: View {
         VStack(spacing: .zero) {
             ForEach(Array(data.rows.enumerated()), id: \.element.id) { index, row in
                 rowView(row, showsDivider: index != data.rows.count - 1)
+                    .accessibilityIdentifier(TransactionDetailsAccessibilityIdentifiers.infoRow(id: row.id))
             }
         }
     }
