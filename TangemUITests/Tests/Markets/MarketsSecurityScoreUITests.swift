@@ -17,7 +17,7 @@ final class MarketsSecurityScoreUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
+            .openMarketsSheet()
             .searchForToken(tokenName)
             .openTokenDetails(tokenName)
             .verifySecurityScoreBlockDisplayed()
@@ -34,7 +34,7 @@ final class MarketsSecurityScoreUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
+            .openMarketsSheet()
             .searchForToken(tokenName)
             .openTokenDetails(tokenName)
             .openSecurityScoreDetails()
@@ -50,7 +50,7 @@ final class MarketsSecurityScoreUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
+            .openMarketsSheet()
             .searchForToken(tokenName)
             .openTokenDetails(tokenName)
             .verifySecurityScoreBlockHidden()
