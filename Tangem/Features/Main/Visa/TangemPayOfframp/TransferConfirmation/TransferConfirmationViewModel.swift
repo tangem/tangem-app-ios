@@ -25,6 +25,7 @@ final class TransferConfirmationViewModel: ObservableObject {
     private let railItems: [TransferInputRailItem]
     private let savedRecipient: TangemPayBankAccountResponse?
     private let sendButtonIcon: ImageType?
+    private let analyticsLogger: any TangemPayOfframpAnalyticsLogger
     private let output: (Output) -> Void
 
     init(
@@ -35,6 +36,7 @@ final class TransferConfirmationViewModel: ObservableObject {
         savedRecipient: TangemPayBankAccountResponse?,
         title: String,
         sendButtonIcon: ImageType?,
+        analyticsLogger: any TangemPayOfframpAnalyticsLogger,
         output: @escaping (Output) -> Void
     ) {
         self.orderBuilder = orderBuilder
@@ -44,6 +46,7 @@ final class TransferConfirmationViewModel: ObservableObject {
         self.savedRecipient = savedRecipient
         self.title = title
         self.sendButtonIcon = sendButtonIcon
+        self.analyticsLogger = analyticsLogger
         self.output = output
 
         if orderBuilder.rail == nil, let rail = railItems.first?.rail {
@@ -58,6 +61,8 @@ final class TransferConfirmationViewModel: ObservableObject {
             sendButtonIcon: sendButtonIcon,
             isSending: false
         )
+
+        analyticsLogger.logConfirmationScreenOpened()
     }
 
     func refresh() {
@@ -78,15 +83,36 @@ final class TransferConfirmationViewModel: ObservableObject {
 
         switch action {
         case .editTap(let target):
+            logEditClicked(target)
             output(.edit(target))
 
+        case .railTap:
+            analyticsLogger.logRailSelectorClicked()
+            output(.edit(.amount))
+
         case .sendTap:
+            analyticsLogger.logSendOnConfirmationClicked()
             send()
         }
     }
 
     func onCloseTap() {
         output(.close)
+    }
+}
+
+// MARK: - Edit analytics
+
+private extension TransferConfirmationViewModel {
+    func logEditClicked(_ target: TransferConfirmationEditTarget) {
+        switch target {
+        case .amount:
+            break
+        case .personalDetails:
+            analyticsLogger.logRecipientDetailsOnConfirmationClicked()
+        case .bankDetails:
+            analyticsLogger.logRecipientBankDetailsOnConfirmationClicked()
+        }
     }
 }
 
@@ -126,6 +152,7 @@ private extension TransferConfirmationViewModel {
 
             do {
                 let result = try await operation()
+                analyticsLogger.logSendSuccessScreenShowed(rail: orderBuilder.rail)
                 output(.sent(makeSuccessStatusModel(date: result.createdAt)))
             } catch {
                 VisaLogger.error("Failed to send the Tangem Pay off-ramp order", error: error)
@@ -141,12 +168,14 @@ private extension TransferConfirmationViewModel {
             refresh()
 
         case .signatureSubmission(canRetry: true):
+            analyticsLogger.logSendErrorScreenOpened()
             output(.failed(
                 model: TransferFailedStatusModelMapper.model(for: error),
                 onRetry: { [weak self] in self?.retrySignature() }
             ))
 
         case .unavailableRegion, .generic, .signatureSubmission:
+            analyticsLogger.logSendErrorScreenOpened()
             output(.failed(model: TransferFailedStatusModelMapper.model(for: error), onRetry: nil))
         }
     }
