@@ -43,7 +43,7 @@ struct QRCodeParser {
                 if let decimalValue = parseDecimal(parameterValue) {
                     result.amount = makeAmount(with: decimalValue)
                 }
-            case .message, .memo:
+            case .message, .memo, .tag, .destinationTag, .dt:
                 result.memo = parameterValue.removingPercentEncoding
             case .address:
                 // Overrides destination address for token transfers (`address` parameter from ERC-681)
@@ -165,6 +165,11 @@ private extension QRCodeParser {
         /// From BIP-0021.
         case message
         case memo
+        /// XRP destination tag (`ripple:r…?dt=123`) and the `tag` / `destinationtag` spellings used by
+        /// exchanges; routed to the same additional field as `memo`. Mirrors `MainQRParserConstants.memoQueryKeys`.
+        case tag
+        case destinationTag = "destinationtag"
+        case dt
         /// From ERC-681, the destination for token transfers.
         case address
         /// From ERC-681, the amount for Ethereum transfers.
