@@ -36,11 +36,14 @@ struct FeedTabsView: View {
                     ForEach(viewModel.pages) { page in
                         tabContent(for: page.tab)
                             .padding(.top, page.topInset)
-                            .clipped()
                             .lockedGeometry()
                             .offset(x: page.offset * slideWidth)
+                            .opacity(page.isPreparing ? 0 : 1)
+                            .allowsHitTesting(!page.isPreparing)
+                            .accessibilityHidden(page.isPreparing)
                     }
                 }
+                .clipped()
                 .onGeometryChange(for: CGFloat.self, of: \.size.width) { contentWidth = $0 }
                 .padding(.bottom, Constants.tabContentBottomInset)
             } header: {
@@ -173,15 +176,25 @@ struct FeedTabsView: View {
         let generation = slideGeneration
 
         Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(Constants.slideDelay))
+            try? await ContinuousClock().sleep(for: .milliseconds(Constants.slideDelay))
             guard generation == slideGeneration else { return }
+
+            var preparationTransaction = Transaction()
+            preparationTransaction.disablesAnimations = true
+            let didPreparePage = withTransaction(preparationTransaction) {
+                viewModel.prepareSlide()
+            }
+            if didPreparePage {
+                try? await ContinuousClock().sleep(for: .milliseconds(Constants.slideDelay))
+                guard generation == slideGeneration else { return }
+            }
 
             withAnimation(Constants.slideAnimation) {
                 viewModel.slide()
             } completion: {
                 guard generation == slideGeneration else { return }
 
-                move(to: viewModel.settleSlide())
+                viewModel.settleSlide()
             }
         }
     }
