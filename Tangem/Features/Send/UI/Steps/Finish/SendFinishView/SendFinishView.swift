@@ -49,6 +49,10 @@ struct SendFinishView: View {
                 SendFeeFinishView(viewModel: sendFeeCompactViewModel)
             }
 
+            if let jointAccountSignaturesCompactViewModel = viewModel.jointAccountSignaturesCompactViewModel {
+                JointAccountSignaturesCompactView(viewModel: jointAccountSignaturesCompactViewModel)
+            }
+
             if let onrampStatusCompactViewModel = viewModel.onrampStatusCompactViewModel {
                 OnrampStatusCompactView(viewModel: onrampStatusCompactViewModel)
             }
