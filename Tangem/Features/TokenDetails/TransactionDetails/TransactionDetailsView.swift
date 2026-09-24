@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemUI
 import TangemAssets
 
@@ -68,6 +69,7 @@ struct TransactionDetailsContentView: View {
             .scrollBounceBehavior(.basedOnSize)
         }
         .background(DesignSystem.Color.bgSecondary)
+        .accessibilityIdentifier(TransactionDetailsAccessibilityIdentifiers.sheet)
         .floatingSheetConfiguration { config in
             config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
             config.backgroundInteractionBehavior = .tapToDismiss

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -75,6 +76,7 @@ private extension CryptoSearchView {
 
         case .empty:
             FeedSearchEmptyView(title: Localization.commonNoResults)
+                .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSearchNoResultsLabel)
 
         case .failed:
             TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.onRetry)
@@ -106,6 +108,7 @@ private extension CryptoSearchView {
             )
             .styleType(.secondary(.default))
             .size(.x8)
+            .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsTokensUnderCapExpandButton)
         }
         .frame(maxWidth: .infinity)
         .padding(.top, Constants.noticeTopInset)

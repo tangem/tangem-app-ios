@@ -17,7 +17,7 @@ final class MarketsSearchUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
+            .openMarketsSheet()
             .searchForToken(ticker)
             .verifyAllVisibleSearchResultsCurrencyContains(ticker)
     }
@@ -30,7 +30,7 @@ final class MarketsSearchUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
+            .openMarketsSheet()
             .searchForToken(query)
             .verifyAllVisibleSearchResultsTokenNameContains(query)
     }
@@ -43,7 +43,7 @@ final class MarketsSearchUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
+            .openMarketsSheet()
             .searchForToken(query)
             .tapShowTokensUnderCapButton()
             .verifyAllVisibleSearchResultsTokenNameContains(query)
@@ -57,7 +57,7 @@ final class MarketsSearchUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
+            .openMarketsSheet()
             .searchForToken(query)
             .verifyNoResultsStateIsDisplayed()
     }
@@ -82,8 +82,8 @@ final class MarketsSearchUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
-            .tapSeeAll()
+            .openMarketsSheet()
+            .openTokenList()
             .verifyFirstCoinsOrder(expected)
     }
 
@@ -96,7 +96,7 @@ final class MarketsSearchUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
+            .openMarketsSheet()
             .searchForToken(contractAddress)
             .verifyTokenInSearchResults(expectedMarketsToken)
     }
@@ -107,7 +107,7 @@ final class MarketsSearchUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
+            .openMarketsSheet()
             .tapSearchFieldAndVerifyKeyboard()
             .typeInSearchField("b")
             .verifyAllVisibleSearchResultsTokenNameContains("b")
