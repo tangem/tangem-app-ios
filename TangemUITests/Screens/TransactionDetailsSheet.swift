@@ -1,5 +1,5 @@
 //
-//  ExpressStatusBottomSheetScreen.swift
+//  TransactionDetailsSheet.swift
 //  TangemUITests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,34 +9,34 @@
 import XCTest
 import TangemAccessibilityIdentifiers
 
-final class ExpressStatusBottomSheetScreen: ScreenBase<ExpressStatusBottomSheetElement> {
-    private lazy var title = staticText(.title)
-    private lazy var providerTitle = staticText(.providerTitle)
+final class TransactionDetailsSheet: ScreenBase<TransactionDetailsSheetElement> {
+    private lazy var sheet = app.descendants(matching: .any)[TransactionDetailsAccessibilityIdentifiers.sheet].firstMatch
+    private lazy var providerRow = app.descendants(matching: .any)[
+        TransactionDetailsAccessibilityIdentifiers.infoRow(id: Constants.providerRowId)
+    ].firstMatch
 
     @discardableResult
     func waitForDisplay() -> Self {
-        XCTContext.runActivity(named: "Wait for express status sheet to display") { _ in
-            waitAndAssertTrue(title, "Express status sheet title should exist")
+        XCTContext.runActivity(named: "Wait for transaction details sheet to display") { _ in
+            waitAndAssertTrue(sheet, "Transaction details sheet should exist")
         }
         return self
     }
 
     @discardableResult
     func assertProviderTitle(contains expected: String) -> Self {
-        XCTContext.runActivity(named: "Assert provider title contains '\(expected)'") { _ in
-            waitAndAssertTrue(providerTitle, "Provider title should exist")
+        XCTContext.runActivity(named: "Assert provider row contains '\(expected)'") { _ in
+            waitAndAssertTrue(providerRow, "Provider row should exist")
             let predicate = NSPredicate(format: "label CONTAINS %@", expected)
-            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: providerTitle)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: providerRow)
             XCTAssertEqual(
                 XCTWaiter().wait(for: [expectation], timeout: .networkRequest),
                 .completed,
-                "Provider title should contain '\(expected)' but was '\(providerTitle.label)'"
+                "Provider row should contain '\(expected)' but was '\(providerRow.label)'"
             )
         }
         return self
     }
-
-    // MARK: - Rating
 
     @discardableResult
     func assertRatingBlockDisplayed() -> Self {
@@ -67,16 +67,19 @@ final class ExpressStatusBottomSheetScreen: ScreenBase<ExpressStatusBottomSheetE
     }
 }
 
-enum ExpressStatusBottomSheetElement: String, UIElement {
-    case title
-    case providerTitle
+enum TransactionDetailsSheetElement: String, UIElement {
+    case sheet
 
     var accessibilityIdentifier: String {
         switch self {
-        case .title:
-            return TokenAccessibilityIdentifiers.expressStatusSheetTitle
-        case .providerTitle:
-            return TokenAccessibilityIdentifiers.expressStatusProviderTitle
+        case .sheet:
+            return TransactionDetailsAccessibilityIdentifiers.sheet
         }
+    }
+}
+
+private extension TransactionDetailsSheet {
+    enum Constants {
+        static let providerRowId = "provider"
     }
 }

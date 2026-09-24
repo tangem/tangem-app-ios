@@ -258,6 +258,8 @@ extension CommonServicesManager: ServicesManager {
             return
         }
 
+        await UITestsStorageCleaner.clearKeychain()
+
         await userWalletRepository.initialize()
 
         // A referral saved before there was a wallet is bound now that the wallets are known.
