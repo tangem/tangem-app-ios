@@ -32,11 +32,7 @@ final class MobileWalletUnlocker: UserWalletModelUnlocker {
         do {
             if canUnlockAutomatically {
                 let context = try mobileWalletSdk.validate(auth: .none, for: userWalletId)
-                BackendAuthenticationRegistrar.registerUnlockedMobileWallet(
-                    id: userWalletId,
-                    context: context,
-                    mobileWalletSDK: mobileWalletSdk
-                )
+                BackendAuthenticationRegistrar.registerMobileWalletAfterAutomaticUnlock(id: userWalletId, context: context)
 
                 return try makeSuccessResult(context: context)
             } else {
@@ -84,11 +80,7 @@ private extension MobileWalletUnlocker {
     func map(result: MobileUnlockUtil.Result) throws -> UserWalletModelUnlockerResult {
         switch result {
         case .accessCode(let context):
-            BackendAuthenticationRegistrar.registerUnlockedMobileWallet(
-                id: userWalletId,
-                context: context,
-                mobileWalletSDK: mobileWalletSdk
-            )
+            BackendAuthenticationRegistrar.registerMobileWalletAfterAccessCodeUnlock(id: userWalletId, context: context)
             return try makeSuccessResult(context: context)
 
         case .biometrics(let laContext):
