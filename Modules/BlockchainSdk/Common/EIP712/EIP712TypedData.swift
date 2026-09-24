@@ -197,21 +197,27 @@ private extension EIP712TypedData {
         encodeData(data: data, type: type).sha3(.keccak256)
     }
 
-    /// Recursively finds all the dependencies of a type
-    func findDependencies(primaryType: String, dependencies: Set<String> = Set<String>()) -> Set<String> {
-        var found = dependencies
-        guard !found.contains(primaryType),
-              let primaryTypes = types[primaryType] else {
-            return found
-        }
-        found.insert(primaryType)
-        for type in primaryTypes {
-            let typeName = extractArrayTypeIfNeeded(from: type.type)
-            if isPrimitiveType(typeName) {
+    /// Finds all the dependencies of a type.
+    ///
+    /// Implemented iteratively: `types` comes from a dApp, and a long chain of struct references
+    /// must not overflow the call stack.
+    func findDependencies(primaryType: String) -> Set<String> {
+        var found = Set<String>()
+        var pending = [primaryType]
+
+        while let currentType = pending.popLast() {
+            guard !found.contains(currentType),
+                  let fields = types[currentType] else {
                 continue
             }
-            findDependencies(primaryType: typeName, dependencies: found)
-                .forEach { found.insert($0) }
+            found.insert(currentType)
+            for field in fields {
+                let typeName = extractArrayTypeIfNeeded(from: field.type)
+                if isPrimitiveType(typeName) {
+                    continue
+                }
+                pending.append(typeName)
+            }
         }
         return found
     }
