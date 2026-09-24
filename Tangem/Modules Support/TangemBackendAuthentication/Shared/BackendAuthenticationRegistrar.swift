@@ -49,13 +49,38 @@ enum BackendAuthenticationRegistrar {
 
         do {
             let sessionTokens = try await registerDevice()
-            BackendAuthLogger.info(sessionTokens == nil ? "Device already registered" : "Device registration succeeded")
+            let didRegisterDevice = sessionTokens != nil
+
+            didRegisterDevice
+                ? BackendAuthLogger.info("Device registration succeeded")
+                : BackendAuthLogger.debug("Device has already been registered")
         } catch {
             BackendAuthLogger.error("Device registration failed", error: error)
         }
     }
 
-    static func registerNewMobileWallet(_ userWalletModel: some UserWalletModel) {
+    static func unregisterUserWallet(_ userWalletModel: some UserWalletModel) {
+        guard FeatureProvider.isAvailable(.backendAuthentication) else {
+            return
+        }
+
+        let id = userWalletModel.userWalletId
+
+        Task {
+            do {
+                try await BackendAuthenticationAssembly.unregisterUserWallet(id: id)
+                BackendAuthLogger.info("Unregistered user wallet \(id.stringValue)")
+            } catch {
+                BackendAuthLogger.error("Failed to unregister user wallet \(id.stringValue)", error: error)
+            }
+        }
+    }
+}
+
+// MARK: - Mobile wallet
+
+extension BackendAuthenticationRegistrar {
+    static func registerNewUnprotectedMobileWallet(_ userWalletModel: some UserWalletModel) {
         guard
             FeatureProvider.isAvailable(.backendAuthentication),
             userWalletModel.assertIsMobileWallet()
@@ -70,7 +95,7 @@ enum BackendAuthenticationRegistrar {
         do {
             context = try mobileWalletSDK.validate(auth: .none, for: userWalletModel.userWalletId)
         } catch {
-            let errorMessage = "Expected a newly created mobile wallet to always be unprotected. Developer mistake."
+            let errorMessage = "Expected a newly created mobile wallet to always be unprotected. Developer mistake"
             BackendAuthLogger.error(errorMessage, error: error)
             assertionFailure(errorMessage)
             return
@@ -81,24 +106,22 @@ enum BackendAuthenticationRegistrar {
         do {
             secp256k1PublicKey = try userWalletModel.keysRepository.masterKeyPublicKey(curve: .secp256k1)
         } catch {
-            let errorMessage = "Expected a newly created mobile wallet to always have a secp256k1 key. Developer mistake."
+            let errorMessage = "Expected a newly created mobile wallet to always have a secp256k1 key. Developer mistake"
             BackendAuthLogger.error(errorMessage, error: error)
             assertionFailure(errorMessage)
             return
         }
 
-        registerUnlockedMobileWallet(
+        Self.registerMobileWallet(
             id: userWalletModel.userWalletId,
             context: context,
+            trigger: .newUnprotectedCreation,
             mobileWalletSDK: mobileWalletSDK,
             secp256k1PublicKey: secp256k1PublicKey
         )
     }
 
-    static func registerBiometricallyUnlockedMobileWalletIfNeeded(
-        _ userWalletModel: some UserWalletModel,
-        context laContext: LAContext
-    ) {
+    static func registerMobileWalletAfterBiometricUnlock(_ userWalletModel: some UserWalletModel, context laContext: LAContext) {
         guard
             FeatureProvider.isAvailable(.backendAuthentication),
             userWalletModel.isMobileWallet
@@ -110,8 +133,12 @@ enum BackendAuthenticationRegistrar {
 
         Task {
             let userWalletIsAlreadyRegistered = await BackendAuthenticationAssembly.retrieveUserWalletRegistrationStatus(id: id)
+            let registrationTrigger = MobileWalletRegistrationTrigger.afterBiometricUnlock
 
             guard !userWalletIsAlreadyRegistered else {
+                BackendAuthLogger.debug(
+                    "Skipped registration of mobile wallet \(id.stringValue) \(registrationTrigger), already registered"
+                )
                 return
             }
 
@@ -130,13 +157,59 @@ enum BackendAuthenticationRegistrar {
                 return
             }
 
-            Self.registerUnlockedMobileWallet(id: id, context: context, mobileWalletSDK: mobileWalletSDK)
+            Self.registerMobileWallet(id: id, context: context, trigger: registrationTrigger, mobileWalletSDK: mobileWalletSDK)
         }
     }
 
-    static func registerUnlockedMobileWallet(
+    static func registerMobileWalletAfterAccessCodeUpdated(_ userWalletModel: some UserWalletModel, accessCode: String) {
+        guard
+            FeatureProvider.isAvailable(.backendAuthentication),
+            userWalletModel.assertIsMobileWallet()
+        else {
+            return
+        }
+
+        let id = userWalletModel.userWalletId
+
+        Task {
+            let userWalletIsAlreadyRegistered = await BackendAuthenticationAssembly.retrieveUserWalletRegistrationStatus(id: id)
+            let registrationTrigger = MobileWalletRegistrationTrigger.afterAccessCodeUpdated
+
+            guard !userWalletIsAlreadyRegistered else {
+                BackendAuthLogger.debug(
+                    "Skipped registration of mobile wallet \(id.stringValue) \(registrationTrigger), already registered"
+                )
+                return
+            }
+
+            let mobileWalletSDK = CommonMobileWalletSdk()
+            let context: MobileWalletContext
+
+            do {
+                context = try mobileWalletSDK.validate(auth: .accessCode(accessCode), for: id)
+            } catch {
+                let errorMessage = "Fresh access code is expected to be valid for a given mobile wallet. Developer mistake"
+                BackendAuthLogger.error(errorMessage, error: error)
+                assertionFailure(errorMessage)
+                return
+            }
+
+            Self.registerMobileWallet(id: id, context: context, trigger: registrationTrigger, mobileWalletSDK: mobileWalletSDK)
+        }
+    }
+
+    static func registerMobileWalletAfterAutomaticUnlock(id: UserWalletId, context: MobileWalletContext) {
+        registerMobileWallet(id: id, context: context, trigger: .afterAutomaticUnlock, mobileWalletSDK: CommonMobileWalletSdk())
+    }
+
+    static func registerMobileWalletAfterAccessCodeUnlock(id: UserWalletId, context: MobileWalletContext) {
+        registerMobileWallet(id: id, context: context, trigger: .afterAccessCodeUnlock, mobileWalletSDK: CommonMobileWalletSdk())
+    }
+
+    private static func registerMobileWallet(
         id: UserWalletId,
         context: MobileWalletContext,
+        trigger: MobileWalletRegistrationTrigger,
         mobileWalletSDK: some MobileWalletSdk,
         secp256k1PublicKey: Data? = nil
     ) {
@@ -153,26 +226,9 @@ enum BackendAuthenticationRegistrar {
         Task {
             do {
                 try await BackendAuthenticationAssembly.registerUserWallet(id: id, recoveryEnrollment: nil, signer: signer)
-                BackendAuthLogger.info("Registered user wallet \(id.stringValue)")
+                BackendAuthLogger.info("Registered mobile wallet \(id.stringValue) \(trigger)")
             } catch {
-                BackendAuthLogger.error("Failed to register user wallet \(id.stringValue)", error: error)
-            }
-        }
-    }
-
-    static func unregisterUserWalletIfNeeded(_ userWalletModel: some UserWalletModel) {
-        guard FeatureProvider.isAvailable(.backendAuthentication) else {
-            return
-        }
-
-        let id = userWalletModel.userWalletId
-
-        Task {
-            do {
-                try await BackendAuthenticationAssembly.unregisterUserWallet(id: id)
-                BackendAuthLogger.info("Unregistered user wallet \(id.stringValue)")
-            } catch {
-                BackendAuthLogger.error("Failed to unregister user wallet \(id.stringValue)", error: error)
+                BackendAuthLogger.error("Failed to register mobile wallet \(id.stringValue) \(trigger)", error: error)
             }
         }
     }
@@ -186,7 +242,27 @@ enum BackendAuthenticationRegistrar {
         }
 
         await BackendAuthenticationAssembly.clearUserWalletRegistrationStatus(id: userWalletModel.userWalletId)
-        BackendAuthLogger.info("Mobile wallet on-device registration status cleared before cold wallet upgrade.")
+        BackendAuthLogger.info("Mobile wallet on-device registration status cleared before cold wallet upgrade")
+    }
+}
+
+private extension BackendAuthenticationRegistrar {
+    enum MobileWalletRegistrationTrigger: CustomStringConvertible {
+        case newUnprotectedCreation
+        case afterAutomaticUnlock
+        case afterAccessCodeUnlock
+        case afterBiometricUnlock
+        case afterAccessCodeUpdated
+
+        var description: String {
+            switch self {
+            case .newUnprotectedCreation: "on new unprotected wallet creation"
+            case .afterAutomaticUnlock: "after automatic unlock"
+            case .afterAccessCodeUnlock: "after access code unlock"
+            case .afterBiometricUnlock: "after biometric unlock"
+            case .afterAccessCodeUpdated: "after access code update"
+            }
+        }
     }
 }
 
@@ -200,7 +276,7 @@ private extension UserWalletModel {
             return true
         }
 
-        let errorMessage = "Expected to receive a mobile wallet, got cold instead. Developer mistake."
+        let errorMessage = "Expected to receive a mobile wallet, got cold instead. Developer mistake"
         BackendAuthLogger.warning(file: file, line: line, function: function, errorMessage)
         assertionFailure(errorMessage, file: file, line: line)
 
