@@ -53,15 +53,13 @@ private extension TransactionDetailsInfoRowSensitivityTests {
     func makeOnrampViewData(rate: String?) -> TransactionDetailsOnrampViewData {
         TransactionDetailsOnrampViewData(
             stage: .finished,
-            paid: .init(amount: "100", symbol: "EUR", fiatPrice: nil, flagIconURL: nil, isFlagLoading: false),
+            paid: .init(amount: "100", symbol: "EUR", flagIconURL: nil, isFlagLoading: false),
             received: .init(
                 destination: .wallet(name: "Wallet"),
                 amount: "1800",
                 symbol: "POL",
-                fiatPrice: nil,
                 tokenIconInfo: .remote(name: "Polygon", imageURL: nil)
             ),
-            isReceivedEstimated: false,
             statusBanner: nil,
             provider: nil,
             rate: rate,
