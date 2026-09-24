@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemLocalization
 import TangemUI
 import TangemUIUtils
@@ -24,9 +25,7 @@ struct FeedSearchBarView: View {
     @State private var isFocused = false
 
     var body: some View {
-        Search(text: queryBinding, isActive: $isFocused, cancelAction: onCancel, onFocusChanged: focusDidChange)
-            .placeholder(Localization.marketsSearchTitlePlaceholder)
-            .onSubmit(viewModel.submit)
+        searchBar
             .infinityFrame(axis: .horizontal)
             .allowsHitTesting(!sheetSize.isNonFullFeedSheet)
             .accessibilityHidden(sheetSize.isNonFullFeedSheet)
@@ -53,6 +52,27 @@ struct FeedSearchBarView: View {
                     isFocused = false
                 }
             }
+    }
+
+    private var searchBar: some View {
+        HStack(spacing: 8) {
+            Search(text: queryBinding, isActive: $isFocused, onFocusChanged: focusDidChange)
+                .placeholder(Localization.marketsSearchTitlePlaceholder)
+                .showsCloseButton(false)
+                .onSubmit(viewModel.submit)
+
+            if isActive {
+                TangemUI.Button(
+                    icon: DesignSystem.Icons.Cross.regular20,
+                    accessibilityLabel: Localization.commonCancel,
+                    action: onCancel
+                )
+                .styleType(.material(.glass))
+                .size(.x11)
+                .transition(.opacity)
+            }
+        }
+        .animation(isActive ? Constants.openingAnimation : Constants.closingAnimation, value: isActive)
     }
 
     private var queryBinding: Binding<String> {
@@ -83,5 +103,7 @@ private extension FeedSearchBarView {
     enum Constants {
         static let horizontalInset: CGFloat = 16
         static let topInset: CGFloat = 16
+        static let openingAnimation: Animation = .timingCurve(0.8, 0, 0.2, 1, duration: 0.3)
+        static let closingAnimation: Animation = .timingCurve(0.8, 0, 0.8, 1, duration: 0.3)
     }
 }
