@@ -39,6 +39,10 @@ public enum MarketsAccessibilityIdentifiers {
         "marketsIntervalSegment_\(intervalId)"
     }
 
+    public static func marketsIntervalButton(_ selectedIntervalId: String) -> String {
+        "marketsIntervalButton_\(selectedIntervalId)"
+    }
+
     public static func marketsListTokenItem(uniqueId: String) -> String {
         return "marketsListTokenItem_\(uniqueId)"
     }

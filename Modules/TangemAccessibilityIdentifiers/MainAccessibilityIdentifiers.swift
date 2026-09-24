@@ -31,6 +31,7 @@ public enum MainAccessibilityIdentifiers {
     public static let searchThroughMarketField = "mainSearchThroughMarketField"
     public static let searchThroughMarketFieldContainer = "mainSearchThroughMarketFieldContainer"
     public static let searchThroughMarketClearButton = "mainSearchThroughMarketClearButton"
+    public static let shtorkaExpandButton = "mainShtorkaExpandButton"
     public static let addToPortfolioButton = "mainAddToPortfolioButton"
     public static let addTokensButton = "mainAddTokensButton"
     public static let tokenNotSupportedNotice = "mainTokenNotSupportedNotice"

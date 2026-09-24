@@ -80,7 +80,7 @@ final class TokenListUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .verifyAddTokensButtonVisible()
-            .verifyMarketBottomSheetGrabberVisible()
+            .verifyMarketsSheetIsCollapsedOnMain()
     }
 
     func testTokenList_customIconInTokenList() {
