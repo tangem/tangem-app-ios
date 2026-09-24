@@ -343,6 +343,13 @@ struct TransactionHistoryMapper {
             return nil
         }
 
+        // Skip zero-value transfers. An attacker can emit a free Transfer(victim, look-alike, 0)
+        // (e.g. transferFrom(victim, look-alike, 0), which succeeds at allowance 0 on USDT/USDC);
+        // it would otherwise surface the look-alike address as a one-tap suggested recipient.
+        guard transferAmountValue(from: record) > 0 else {
+            return nil
+        }
+
         let amountFormatted = transferAmount(from: record).legacy
         let date = record.date ?? Date()
         let dateFormatted = Self.dateTimeFormatter.string(from: date)
