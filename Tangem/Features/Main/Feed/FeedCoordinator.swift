@@ -30,6 +30,7 @@ final class FeedCoordinator: CoordinatorObject {
     private(set) var container: (any FeedContainer)?
 
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+    @Injected(\.floatingSheetPresentingStateProvider) private var sheetStateProvider: FloatingSheetPresentingStateProvider
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
     private weak var host: FeedHostRoutable?
@@ -406,6 +407,16 @@ private extension FeedCoordinator {
 
 private extension FeedCoordinator {
     func bind(to container: any FeedContainer) {
+        sheetStateProvider
+            .hasPresentedSheetPublisher
+            .filter { !$0 }
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { coordinator, _ in
+                coordinator.presentedWidgetSheet = nil
+            }
+            .store(in: &bag)
+
         container
             .sizePublisher
             .withWeakCaptureOf(self)
