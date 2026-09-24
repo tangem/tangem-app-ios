@@ -24,11 +24,11 @@ struct TransactionHistoryMapperDustFilterTests {
 
     // MARK: - Amount derivation
 
-    @Test("Outgoing transfer below the threshold is hidden")
-    func outgoingTransferBelowThresholdIsHidden() {
-        let record = makeRecord(hash: "dust", amount: belowThreshold, isOutgoing: true, date: Self.baseDate)
+    @Test("Outgoing transfer below the threshold is shown")
+    func outgoingTransferBelowThresholdIsShown() {
+        let record = makeRecord(hash: "outgoing", amount: belowThreshold, isOutgoing: true, date: Self.baseDate)
 
-        #expect(mapRecords([record]).isEmpty)
+        #expect(hashes(mapRecords([record])) == ["outgoing"])
     }
 
     @Test("Incoming transfer below the threshold is hidden")
@@ -40,26 +40,26 @@ struct TransactionHistoryMapperDustFilterTests {
 
     @Test("Transfer above the threshold is shown")
     func transferAboveThresholdIsShown() {
-        let record = makeRecord(hash: "visible", amount: aboveThreshold, isOutgoing: true, date: Self.baseDate)
+        let record = makeRecord(hash: "visible", amount: aboveThreshold, isOutgoing: false, date: Self.baseDate)
 
         #expect(hashes(mapRecords([record])) == ["visible"])
     }
 
-    @Test("Change is excluded from the outgoing amount before the threshold is applied")
-    func outgoingAmountExcludesChange() {
-        // Sends `aboveThreshold + belowThreshold` and gets `aboveThreshold` back as change, so the amount the row
+    @Test("Only the part received by the wallet counts towards the threshold")
+    func incomingAmountExcludesOtherRecipients() {
+        // The sender pays `belowThreshold` to the wallet and `aboveThreshold` elsewhere, so the amount the row
         // shows — and the one the threshold is applied to — is `belowThreshold`.
         let record = TransactionRecord(
             hash: "dust",
             index: 0,
-            source: .multiple([.init(address: Self.ownAddress, amount: aboveThreshold + belowThreshold)]),
+            source: .multiple([.init(address: Self.counterpartyAddress, amount: aboveThreshold + belowThreshold)]),
             destination: .multiple([
-                .init(address: .user(Self.counterpartyAddress), amount: belowThreshold),
-                .init(address: .user(Self.ownAddress), amount: aboveThreshold),
+                .init(address: .user(Self.ownAddress), amount: belowThreshold),
+                .init(address: .user(Self.counterpartyAddress), amount: aboveThreshold),
             ]),
             fee: ExpressMergeTestDataFactory.ethereumToken.zeroFee,
             status: .confirmed,
-            isOutgoing: true,
+            isOutgoing: false,
             type: .transfer,
             date: Self.baseDate,
             tokenTransfers: [],
@@ -81,7 +81,7 @@ struct TransactionHistoryMapperDustFilterTests {
 
     @Test("Mapper without a rate keeps everything")
     func mapperWithoutRateKeepsEverything() {
-        let record = makeRecord(hash: "dust", amount: belowThreshold, isOutgoing: true, date: Self.baseDate)
+        let record = makeRecord(hash: "dust", amount: belowThreshold, isOutgoing: false, date: Self.baseDate)
 
         let items = makeSUT().mapTransactionListItem(
             from: [record],
@@ -100,9 +100,9 @@ struct TransactionHistoryMapperDustFilterTests {
         let previousDay = Self.baseDate.addingTimeInterval(-ExpressMergeTestDataFactory.dayInSeconds)
 
         let items = mapRecords([
-            makeRecord(hash: "dust1", amount: belowThreshold, isOutgoing: true, date: previousDay),
-            makeRecord(hash: "dust2", amount: belowThreshold, isOutgoing: true, date: previousDay),
-            makeRecord(hash: "visible", amount: aboveThreshold, isOutgoing: true, date: Self.baseDate),
+            makeRecord(hash: "dust1", amount: belowThreshold, isOutgoing: false, date: previousDay),
+            makeRecord(hash: "dust2", amount: belowThreshold, isOutgoing: false, date: previousDay),
+            makeRecord(hash: "visible", amount: aboveThreshold, isOutgoing: false, date: Self.baseDate),
         ])
 
         #expect(items.count == 1)
