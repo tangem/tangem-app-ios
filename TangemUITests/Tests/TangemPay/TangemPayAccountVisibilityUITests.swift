@@ -61,7 +61,7 @@ final class TangemPayAccountVisibilityUITests: BaseTestCase {
         setAllureId(11468)
 
         launchWithPayAndTwoAccounts()
-            .openMarketsSheetWithSwipe()
+            .openMarketsSheet()
             .searchForToken(Constants.marketsToken)
             .openTokenDetails(Constants.marketsToken)
             .tapAddToPortfolio()

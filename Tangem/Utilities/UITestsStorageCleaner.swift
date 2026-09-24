@@ -95,7 +95,7 @@ enum UITestsStorageCleaner {
         #endif
     }
 
-    /// Clears all wallet data including Documents/user_wallets and Keychain
+    /// Clears all wallet data including Documents/user_wallets
     static func clearWalletData() {
         #if DEBUG
         AppLogger.info("Clearing wallet data for UI tests")
@@ -110,12 +110,21 @@ enum UITestsStorageCleaner {
         // Clear PersistentStorage encrypted files (accounts, wallets, etc.)
         clearPersistentStorageFiles()
 
-        // Clear all Keychain data (including encryption keys stored in BiometricsStorage)
-        Task {
-            await KeychainCleaner.cleanAllData()
+        AppLogger.info("Wallet data cleared for UI tests")
+        #endif
+    }
+
+    static func clearKeychain() async {
+        #if DEBUG
+        guard
+            AppEnvironment.current.isUITest,
+            !ProcessInfo.processInfo.arguments.contains("-uitest-keep-wallets")
+        else {
+            return
         }
 
-        AppLogger.info("Wallet data cleared for UI tests")
+        await KeychainCleaner.cleanAllData()
+        AppLogger.info("Keychain data cleared for UI tests")
         #endif
     }
 
