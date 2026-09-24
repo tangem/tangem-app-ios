@@ -13,6 +13,7 @@ enum TransferTypeFactory {
     @MainActor
     static func makeView(
         orderBuilder: TangemPayOfframpOrderBuilder,
+        analyticsLogger: any TangemPayOfframpAnalyticsLogger,
         output: @escaping (TransferTypeViewModel.Output) -> Void
     ) -> some View {
         TransferTypeView(
@@ -20,6 +21,7 @@ enum TransferTypeFactory {
                 orderBuilder: orderBuilder,
                 title: Localization.tangempayWithdrawHubToPersonalAccount,
                 stepSubtitle: TangemPayOfframpWizardStep.transferType.subtitle(for: orderBuilder.recipient),
+                analyticsLogger: analyticsLogger,
                 output: output
             )
         )

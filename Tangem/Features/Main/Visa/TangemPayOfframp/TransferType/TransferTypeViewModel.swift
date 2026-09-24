@@ -16,20 +16,25 @@ final class TransferTypeViewModel: ObservableObject {
     let stepSubtitle: String?
 
     private let orderBuilder: TangemPayOfframpOrderBuilder
+    private let analyticsLogger: any TangemPayOfframpAnalyticsLogger
     private let output: (Output) -> Void
 
     init(
         orderBuilder: TangemPayOfframpOrderBuilder,
         title: String,
         stepSubtitle: String?,
+        analyticsLogger: any TangemPayOfframpAnalyticsLogger,
         output: @escaping (Output) -> Void
     ) {
         self.orderBuilder = orderBuilder
         self.title = title
         self.stepSubtitle = stepSubtitle
+        self.analyticsLogger = analyticsLogger
         self.output = output
 
         selection = orderBuilder.isThirdParty.map(TransferTypeOption.init(isThirdParty:))
+
+        analyticsLogger.logPersonalAccountTypeScreenOpened()
     }
 
     var contentState: TransferTypeContentView.State {
@@ -60,6 +65,8 @@ private extension TransferTypeViewModel {
         guard let selection else { return }
 
         orderBuilder.set(isThirdParty: selection.isThirdParty)
+
+        analyticsLogger.logPersonalAccountTypeContinueClicked(isThirdParty: selection.isThirdParty)
         output(.continueWizard)
     }
 }

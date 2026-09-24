@@ -23,11 +23,13 @@ final class PersonalDetailsViewModel: ObservableObject {
     private let orderBuilder: TangemPayOfframpOrderBuilder
     private let recentRecipientsStore: TangemPayRecentRecipientsStore
     private let isBusiness: Bool
+    private let analyticsLogger: any TangemPayOfframpAnalyticsLogger
     private let output: (Output) -> Void
 
     private var country: TangemPayGeoCountry?
     private var region: TangemPayGeoRegion?
     private var recipients: [TangemPayBankAccountResponse] = []
+    private var loggedFilledFields: Set<TangemPayFormField.ID> = []
 
     private var bag: Set<AnyCancellable> = []
 
@@ -36,18 +38,22 @@ final class PersonalDetailsViewModel: ObservableObject {
         recentRecipientsStore: TangemPayRecentRecipientsStore,
         title: String,
         stepSubtitle: String?,
+        analyticsLogger: any TangemPayOfframpAnalyticsLogger,
         output: @escaping (Output) -> Void
     ) {
         self.orderBuilder = orderBuilder
         self.recentRecipientsStore = recentRecipientsStore
         self.title = title
         self.stepSubtitle = stepSubtitle
+        self.analyticsLogger = analyticsLogger
         self.output = output
 
         isBusiness = orderBuilder.recipient == .newBusiness
 
         refresh()
         bind()
+
+        analyticsLogger.logRecipientDetailsScreenOpened()
     }
 
     var contentState: OfframpFormContentView.StateModel {
@@ -72,6 +78,7 @@ final class PersonalDetailsViewModel: ObservableObject {
     func focusedFieldDidChange(to id: TangemPayFormField.ID?) {
         if let blurredFieldID = focusedFieldID, blurredFieldID != id {
             updateField(blurredFieldID) { $0.error = $0.currentError }
+            logFieldFilledIfNeeded(blurredFieldID)
         }
 
         focusedFieldID = id
@@ -108,6 +115,9 @@ final class PersonalDetailsViewModel: ObservableObject {
         guard isContinueEnabled, let country else { return }
 
         orderBuilder.set(personalDetails: makePersonalDetails(country: country))
+
+        focusedFieldID.map(logFieldFilledIfNeeded)
+        analyticsLogger.logRecipientDetailsContinueClicked()
         output(.continueWizard)
     }
 
@@ -170,6 +180,16 @@ private extension PersonalDetailsViewModel {
                 )
             }
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+}
+
+// MARK: - Field analytics
+
+private extension PersonalDetailsViewModel {
+    func logFieldFilledIfNeeded(_ id: TangemPayFormField.ID) {
+        guard !text(for: id).isEmpty, loggedFilledFields.insert(id).inserted else { return }
+
+        analyticsLogger.logRecipientDetailsFieldFilled(field: id)
     }
 }
 
@@ -379,9 +399,12 @@ private extension PersonalDetailsViewModel {
             $0.error = nil
         }
 
+        logFieldFilledIfNeeded(.countryCode)
+
         guard didChange else { return }
 
         region = nil
+        loggedFilledFields.remove(.region)
 
         let onSelect: (() -> Void)? = isRegionSelectable ? { [weak self] in self?.selectRegion() } : nil
         let placeholder = regionPlaceholder
@@ -401,6 +424,8 @@ private extension PersonalDetailsViewModel {
             $0.text = selected.name
             $0.error = nil
         }
+
+        logFieldFilledIfNeeded(.region)
     }
 }
 
