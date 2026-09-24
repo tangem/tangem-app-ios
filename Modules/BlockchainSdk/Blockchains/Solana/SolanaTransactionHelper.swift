@@ -103,6 +103,51 @@ public struct SolanaTransactionHelper {
     public func transactionSize(withoutSignaturePlaceholders: Data) -> SolanaTransactionSize {
         return withoutSignaturePlaceholders.count >= Constants.supportedTransactionSize ? .long : .default
     }
+
+    /// Returns `true` when `data` deserializes as a Solana transaction message (legacy or v0).
+    ///
+    /// Such bytes must never be raw-signed via `solana_signMessage`: an ed25519 signature over a
+    /// transaction message *is* a valid transaction signature, so a dApp could obtain a blind
+    /// transaction signature disguised as an off-chain message (the wallet only ever shows the user a
+    /// base58 blob). Genuine off-chain messages — plain UTF-8 text, or the `\xffsolana offchain`
+    /// domain format — do not parse as a message header and return `false`. This mirrors what
+    /// Phantom / Solflare / Backpack do and is independent of full transaction parsing.
+    public func looksLikeTransactionMessage(_ data: Data) -> Bool {
+        guard let firstByte = data.bytes.first else { return false }
+
+        var reader = BinaryReader(bytes: data.bytes)
+        do {
+            let isVersioned = firstByte & Constants.versionedMessageMask != 0
+            if isVersioned {
+                let version = try reader.read() & ~Constants.versionedMessageMask
+                guard version == 0 else { return false } // only v0 is defined
+            }
+
+            let numRequiredSignatures = Int(try reader.read())
+            let numReadonlySignedAccounts = Int(try reader.read())
+            let numReadonlyUnsignedAccounts = Int(try reader.read())
+
+            guard numRequiredSignatures >= 1,
+                  numReadonlySignedAccounts <= numRequiredSignatures else {
+                return false
+            }
+
+            let accountCount = try reader.decodeLength()
+            guard accountCount >= numRequiredSignatures,
+                  accountCount >= numReadonlySignedAccounts + numReadonlyUnsignedAccounts else {
+                return false
+            }
+
+            _ = try reader.read(count: accountCount * Constants.publicKeyLength) // static account keys
+            _ = try reader.read(count: Constants.publicKeyLength) // recent blockhash
+
+            let instructionCount = try reader.decodeLength()
+            return instructionCount >= 1
+        } catch {
+            // Ran out of bytes / malformed header -> not a transaction message, safe to sign.
+            return false
+        }
+    }
 }
 
 extension SolanaTransactionHelper {

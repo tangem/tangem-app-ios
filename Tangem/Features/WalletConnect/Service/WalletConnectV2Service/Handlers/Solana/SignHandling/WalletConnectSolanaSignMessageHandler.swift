@@ -10,6 +10,7 @@ import JSONRPC
 import TangemLocalization
 import Foundation
 import Commons
+import BlockchainSdk
 
 struct WalletConnectSolanaSignMessageHandler {
     private let message: String
@@ -65,8 +66,23 @@ extension WalletConnectSolanaSignMessageHandler: WalletConnectMessageHandler {
     }
 
     func handle() async throws -> RPCResult {
+        let messageData = message.base58DecodedData
+
+        // Blind-signing guard: refuse to raw-sign bytes that deserialize as a Solana transaction
+        // message (legacy or v0). A signature over a transaction message is a valid transaction
+        // signature, so a dApp could otherwise obtain a transaction signature disguised as an
+        // off-chain `solana_signMessage` (which the user only sees as a base58 blob and which gets
+        // no per-transaction simulation). Genuine off-chain messages are unaffected.
+        if SolanaTransactionHelper().looksLikeTransactionMessage(messageData) {
+            WCLogger.error("Rejected solana_signMessage: payload deserializes as a Solana transaction message (blind-signing attempt)")
+            return .error(.init(
+                code: -32602,
+                message: "Refusing to raw-sign a Solana transaction message via solana_signMessage"
+            ))
+        }
+
         do {
-            let signature = try await signer.sign(data: message.base58DecodedData, using: walletModel)
+            let signature = try await signer.sign(data: messageData, using: walletModel)
             return .response(
                 AnyCodable(WalletConnectSolanaSignMessageDTO.Body(signature: signature.base58EncodedString))
             )
