@@ -27,6 +27,10 @@ struct SendSummaryView: View {
 
             feeSectionView
 
+            if let jointAccountSignaturesCompactViewModel = viewModel.jointAccountSignaturesCompactViewModel {
+                JointAccountSignaturesCompactView(viewModel: jointAccountSignaturesCompactViewModel)
+            }
+
             notificationsView
         }
         .safeAreaInset(edge: .bottom, spacing: .zero) {
