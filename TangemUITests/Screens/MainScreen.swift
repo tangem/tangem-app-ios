@@ -33,6 +33,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var walletLockedNotificationUnlockButton = notificationBannerButton(MainAccessibilityIdentifiers.walletLockedNotification)
     private lazy var missingDerivationSynchronizeButton = notificationBannerButton(MainAccessibilityIdentifiers.missingDerivationNotification)
     private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
+    private lazy var shtorkaExpandButton = app.buttons[MainAccessibilityIdentifiers.shtorkaExpandButton].firstMatch
     private lazy var tangemPayTile = app.buttons[TangemPayAccessibilityIdentifiers.mainScreenTile].firstMatch
     private lazy var tangemPayTileBalance = app.staticTexts[TangemPayAccessibilityIdentifiers.mainScreenTileBalance].firstMatch
     /// Type-agnostic: a decorative image inside a button is not guaranteed to stay an `Image` element.
@@ -123,9 +124,10 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
-    func verifyMarketBottomSheetGrabberVisible() -> Self {
-        XCTContext.runActivity(named: "Verify 'Markets' bottom sheet drag handle is visible") { _ in
-            waitAndAssertTrue(grabber, "'Markets' bottom sheet drag handle should be visible")
+    func verifyMarketsSheetIsCollapsedOnMain() -> Self {
+        XCTContext.runActivity(named: "Verify collapsed 'Markets' sheet is visible on main") { _ in
+            let sheet = shtorkaExpandButton.waitForExistence(timeout: .conditional) ? shtorkaExpandButton : grabber
+            waitAndAssertTrue(sheet, "Collapsed 'Markets' sheet should be visible")
             return self
         }
     }
@@ -1148,11 +1150,15 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
-    func openMarketsSheetWithSwipe() -> MarketsAndNewsScreen {
-        XCTContext.runActivity(named: "Open markets sheet with swipe up gesture") { _ in
+    func openMarketsSheet() -> MarketsAndNewsScreen {
+        XCTContext.runActivity(named: "Open markets sheet") { _ in
+            if shtorkaExpandButton.waitForExistence(timeout: .conditional) {
+                shtorkaExpandButton.waitAndTap()
+                return MarketsAndNewsScreen(app)
+            }
+
             waitAndAssertTrue(grabber)
 
-            // Swipe up on the grabber view
             let startPoint = grabber.coordinate(
                 withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
             let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: -300))
@@ -1209,8 +1215,9 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         for _ in 0 ..< attempts {
             if hasVisibleFrame(element) {
                 let frame = element.frame
-                if grabber.exists, frame.maxY > grabber.frame.minY {
-                    let offset = min(frame.maxY - grabber.frame.minY + 50, app.frame.height)
+                let sheetTop = marketsSheetTop
+                if frame.maxY > sheetTop {
+                    let offset = min(frame.maxY - sheetTop + 50, app.frame.height)
                     scrollTokensList(byOffset: -offset)
                     continue
                 }
@@ -1220,6 +1227,18 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
 
         return hasVisibleFrame(element)
+    }
+
+    private var marketsSheetTop: CGFloat {
+        if shtorkaExpandButton.exists {
+            return shtorkaExpandButton.frame.minY - Constants.shtorkaSearchBarInset
+        }
+
+        if grabber.exists {
+            return grabber.frame.minY
+        }
+
+        return app.frame.maxY
     }
 
     /// Avoids `.isHittable` because it aborts the test with "Activation point invalid" when a SwiftUI row is mid-animation.
@@ -1235,8 +1254,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         // sheet peeking at the bottom, which pulls the sheet open and hides every token. Anchor on a real
         // visible token row so the list's scroll view captures the gesture, and keep both endpoints above the grabber.
         let screen = app.frame
-        let grabberTop = grabber.exists ? grabber.frame.minY : screen.maxY
-        let rows = visibleTokenRows(above: grabberTop)
+        let sheetTop = marketsSheetTop
+        let rows = visibleTokenRows(above: sheetTop)
 
         let anchorX: CGFloat
         let startY: CGFloat
@@ -1248,10 +1267,10 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             startY = row.frame.midY
         } else {
             anchorX = screen.midX
-            startY = min(screen.midY, grabberTop - 100)
+            startY = min(screen.midY, sheetTop - 100)
         }
 
-        let endY = min(max(startY + dy, screen.minY + 100), grabberTop - 20)
+        let endY = min(max(startY + dy, screen.minY + 100), sheetTop - 20)
         let origin = app.coordinate(withNormalizedOffset: .zero)
         let start = origin.withOffset(CGVector(dx: anchorX, dy: startY))
         let end = origin.withOffset(CGVector(dx: anchorX, dy: endY))
@@ -1259,11 +1278,11 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     /// Visible token rows above the Markets grabber, top-to-bottom, used as safe drag anchors.
-    private func visibleTokenRows(above grabberTop: CGFloat) -> [XCUIElement] {
+    private func visibleTokenRows(above sheetTop: CGFloat) -> [XCUIElement] {
         visibleTokensList().staticTexts
             .matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
             .allElementsBoundByIndex
-            .filter { hasVisibleFrame($0) && $0.frame.maxY < grabberTop }
+            .filter { hasVisibleFrame($0) && $0.frame.maxY < sheetTop }
             .sorted { $0.frame.minY < $1.frame.minY }
     }
 
@@ -1320,8 +1339,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         let screen = app.frame
         let origin = app.coordinate(withNormalizedOffset: .zero)
         for _ in 0 ..< attempts {
-            let grabberTop = grabber.exists ? grabber.frame.minY : screen.maxY
-            let startY = min(screen.midY, grabberTop - 40)
+            let startY = min(screen.midY, marketsSheetTop - 40)
             let endY = max(screen.minY + 120, startY - 250)
             origin.withOffset(CGVector(dx: screen.midX, dy: startY))
                 .press(forDuration: 0.1, thenDragTo: origin.withOffset(CGVector(dx: screen.midX, dy: endY)))
@@ -1412,5 +1430,11 @@ extension MainScreen {
                 )
             }
         }
+    }
+}
+
+private extension MainScreen {
+    enum Constants {
+        static let shtorkaSearchBarInset: CGFloat = 16
     }
 }
