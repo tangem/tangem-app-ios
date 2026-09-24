@@ -14,12 +14,13 @@ import TangemFoundation
 final class EarnWidgetProvider {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    private let resultSubject = CurrentValueSubject<LoadingResult<FeedEarnWidgetState, FeedWidget.LoadError>, Never>(.loading)
+    private let widgetSubject = CurrentValueSubject<FeedWidget, Never>(.startEarning(.loading, walletId: nil))
     private let earnProvider: MarketsWidgetEarnProvider = CommonMarketsWidgetEarnService(ethereumP2PFilter: CommonEarnEthereumP2PFilter())
     private let apyResolver = EarnApyResolver()
     private weak var router: FeedWidgetsRoutable?
 
     private var holdings: [any WalletModel] = []
+    private var walletId: UserWalletId?
     private var featuredAPY: Decimal?
     private var hasActivePosition = false
     private var hasRequestedFeatured = false
@@ -38,13 +39,13 @@ final class EarnWidgetProvider {
 
 extension EarnWidgetProvider: FeedWidgetProvider {
     var widgetPublisher: AnyPublisher<FeedWidget?, Never> {
-        resultSubject
-            .map { FeedWidget.startEarning($0) }
+        widgetSubject
+            .map(Optional.some)
             .eraseToAnyPublisher()
     }
 
     func refresh() {
-        guard !hasRequestedFeatured || resultSubject.value.isFailure else {
+        guard !hasRequestedFeatured || widgetSubject.value.loadingState.isFailure else {
             return
         }
 
@@ -93,6 +94,7 @@ private extension EarnWidgetProvider {
         walletBag.removeAll()
 
         guard let wallet else {
+            walletId = nil
             bindHoldings([])
             return
         }
@@ -100,7 +102,10 @@ private extension EarnWidgetProvider {
         AccountWalletModelsAggregator.walletModelsPublisher(from: wallet.accountModelsManager)
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { provider, holdings in provider.bindHoldings(holdings) }
+            .sink { provider, holdings in
+                provider.walletId = wallet.userWalletId
+                provider.bindHoldings(holdings)
+            }
             .store(in: &walletBag)
     }
 
@@ -157,10 +162,11 @@ private extension EarnWidgetProvider {
             .failure(FeedWidget.LoadError())
         }
 
-        guard resultSubject.value != result else {
+        let widget = FeedWidget.startEarning(result, walletId: walletId)
+        guard widgetSubject.value != widget else {
             return
         }
 
-        resultSubject.send(result)
+        widgetSubject.send(widget)
     }
 }

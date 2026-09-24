@@ -332,7 +332,9 @@ private extension FeedCoordinator {
         let viewModel = AddAccountTypeSelectorViewModel(
             accountModelsManager: wallet.accountModelsManager,
             userWalletConfig: wallet.config,
-            coordinator: self
+            coordinator: self,
+            // The feed records the entry tap before presenting the selector.
+            shouldLogAddAccountTap: false
         )
         enqueueWidgetSheet(viewModel)
     }

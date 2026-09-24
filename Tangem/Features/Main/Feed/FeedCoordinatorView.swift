@@ -23,7 +23,8 @@ struct FeedCoordinatorView: CoordinatorView {
                     FeedView(
                         viewModel: viewModel,
                         searchViewModel: viewModel.searchViewModel,
-                        container: container
+                        container: container,
+                        isContentVisible: coordinator.path.isEmpty && coordinator.presented == nil && coordinator.cover == nil
                     )
                     .background(FeedPopGestureEnabler())
                     .navigationDestination(for: FeedDestination.self) {

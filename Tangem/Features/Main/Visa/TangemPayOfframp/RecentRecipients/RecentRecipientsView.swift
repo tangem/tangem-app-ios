@@ -11,15 +11,24 @@ import TangemLocalization
 import TangemUI
 
 struct RecentRecipientsView: View {
-    @ObservedObject var viewModel: RecentRecipientsViewModel
+    @StateObject private var viewModel: RecentRecipientsViewModel
+
+    init(viewModel: @autoclosure @escaping () -> RecentRecipientsViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel())
+    }
 
     var body: some View {
         RecentRecipientsContentView(
             recipients: viewModel.recipients,
             onRecipientTap: viewModel.onRecipientTap
         )
-        .tangemSearchable(text: $viewModel.searchText, prompt: Localization.commonSearch)
+        .tangemSearchable(
+            text: $viewModel.searchText,
+            isActive: $viewModel.isSearchActive,
+            prompt: Localization.commonSearch
+        )
         .autocorrectionDisabled()
         .textInputAutocapitalization(.never)
+        .onChange(of: viewModel.isSearchActive, perform: viewModel.searchActiveDidChange(to:))
     }
 }
