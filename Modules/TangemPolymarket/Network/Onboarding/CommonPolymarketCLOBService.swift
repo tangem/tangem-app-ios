@@ -63,10 +63,10 @@ extension CommonPolymarketCLOBService: PolymarketCLOBService {
         let target = PolymarketCLOBTarget.Target.placeOrder(body: body)
         let signedTarget = PolymarketCLOBTarget(baseURL: baseURL, target: target, authHeaders: [:])
 
-        let dto: PolymarketDTO.PlaceOrderResponse
+        let authHeaders: PolymarketL2AuthHeaders
 
         do {
-            let authHeaders = try PolymarketL2Auth.headers(
+            authHeaders = try PolymarketL2Auth.headers(
                 credentials: credentials,
                 ownerAddress: ownerAddress,
                 timestamp: String(Int(Date().timeIntervalSince1970)),
@@ -74,7 +74,13 @@ extension CommonPolymarketCLOBService: PolymarketCLOBService {
                 requestPath: signedTarget.signedPath,
                 body: String(decoding: body, as: UTF8.self)
             )
+        } catch {
+            throw PolymarketOrderPlacementError.notSent(underlying: error)
+        }
 
+        let dto: PolymarketDTO.PlaceOrderResponse
+
+        do {
             dto = try await request(target, authHeaders: authHeaders.values)
         } catch let error as CancellationError {
             throw error
@@ -125,7 +131,7 @@ extension CommonPolymarketCLOBService: PolymarketCLOBService {
 extension CommonPolymarketCLOBService {
     static func placementError(from error: PolymarketAPIError) -> PolymarketOrderPlacementError {
         guard case .http(let statusCode, let problemDetail) = error, (400 ..< 500).contains(statusCode) else {
-            return .ambiguous(underlying: error)
+            return reachedExchange(error) ? .ambiguous(underlying: error) : .notSent(underlying: error)
         }
 
         let message = problemDetail?.message
@@ -137,8 +143,27 @@ extension CommonPolymarketCLOBService {
         return .noLiquidity(message: message)
     }
 
+    private static func reachedExchange(_ error: PolymarketAPIError) -> Bool {
+        guard case .connection(let underlying) = error, let code = underlying.networkErrorCode else {
+            return true
+        }
+
+        return !Constants.unreachableCodes.contains(code)
+    }
+
     private enum Constants {
         static let noMatchMarker = "no orders found to match"
+
+        static let unreachableCodes: Set<URLError.Code> = [
+            .notConnectedToInternet,
+            .cannotFindHost,
+            .cannotConnectToHost,
+            .dnsLookupFailed,
+            .secureConnectionFailed,
+            .appTransportSecurityRequiresSecureConnection,
+            .internationalRoamingOff,
+            .dataNotAllowed,
+        ]
     }
 }
 
