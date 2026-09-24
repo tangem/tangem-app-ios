@@ -28,7 +28,7 @@ struct MultiWalletMainContentRedesignedView: View {
 
             VStack(spacing: 8) {
                 if let tangemPayAccountViewModel = viewModel.tangemPayAccountViewModel {
-                    TangemPayAccountViewRedesigned(viewModel: tangemPayAccountViewModel)
+                    TangemPayAccountView(viewModel: tangemPayAccountViewModel)
                 }
 
                 if let polymarketAccountViewModel = viewModel.polymarketAccountViewModel {

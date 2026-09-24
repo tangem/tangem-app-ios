@@ -1,5 +1,5 @@
 //
-//  TangemPayIssuingCardBannerRedesigned.swift
+//  TangemPayIssuingCardBanner.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 
-struct TangemPayIssuingCardBannerRedesigned: View {
+struct TangemPayIssuingCardBanner: View {
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Assets.clock32.image
@@ -51,7 +51,7 @@ struct TangemPayIssuingCardBannerRedesigned: View {
 // MARK: - Previews
 
 #Preview {
-    TangemPayIssuingCardBannerRedesigned()
+    TangemPayIssuingCardBanner()
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(DesignSystem.Color.bgPrimary)
