@@ -158,6 +158,33 @@ final class TransactionHistoryMapperGaslessTests {
         let suggested = mapper.mapSuggestedRecord(record)
         #expect(suggested?.address == "0xReceiverAddress")
     }
+
+    @Test("Tron gasless compensation transfer stays in the history but is not suggested as a recipient")
+    func tronGaslessCompensationTransfer_isNotSuggested() {
+        let mapper = makeSUT()
+        let record = TransactionRecord(
+            hash: "0xCompensationHash",
+            index: 0,
+            source: .single(.init(address: Self.walletAddress, amount: 1)),
+            destination: .single(.init(address: .user("TSWsmaEDgWaE2VsP9tCBGh5GbBRbrdHSuZ"), amount: 1)),
+            fee: Fee(Amount(type: .coin, currencySymbol: "TRX", value: 0, decimals: 6)),
+            status: .confirmed,
+            isOutgoing: true,
+            type: .transfer,
+            date: Date(),
+            tokenTransfers: [],
+            nonce: nil
+        )
+        #expect(mapper.mapSuggestedRecord(record) == nil)
+
+        let historyItems = mapper.mapTransactionListItem(
+            from: [record],
+            groupingStyle: .day(.short),
+            dustFilter: TransactionHistoryDustFilter(usdRate: nil),
+            subtitleOwnerResolver: nil
+        )
+        #expect(historyItems.flatMap(\.items).map(\.hash) == ["0xCompensationHash"])
+    }
 }
 
 // MARK: - Helpers
