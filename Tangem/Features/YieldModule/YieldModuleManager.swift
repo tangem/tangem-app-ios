@@ -32,6 +32,10 @@ protocol YieldModuleManager {
     func approveFee() async throws -> YieldTransactionFee
     func approve(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> String
 
+    func claimFee(to: String, data: Data) async throws -> YieldTransactionFee
+    func makeClaimTransaction(to: String, data: Data, fee: YieldTransactionFee) async throws -> BSDKTransaction
+    func submitClaim(transaction: BSDKTransaction, transactionDispatcher: TransactionDispatcher) async throws -> String
+
     func currentNetworkFeeParameters() async throws -> EthereumFeeParameters
 
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo
@@ -381,6 +385,23 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         await setNextExpectedState(.active)
 
         return hash
+    }
+
+    func claimFee(to: String, data: Data) async throws -> YieldTransactionFee {
+        try await transactionFeeProvider.claimFee(to: to, data: data)
+    }
+
+    func makeClaimTransaction(to: String, data: Data, fee: YieldTransactionFee) async throws -> BSDKTransaction {
+        guard let claimFee = fee as? ClaimFee else {
+            throw YieldModuleError.feeNotFound
+        }
+
+        return try await transactionProvider.claimTransaction(to: to, data: data, fee: claimFee.fee)
+    }
+
+    func submitClaim(transaction: BSDKTransaction, transactionDispatcher: TransactionDispatcher) async throws -> String {
+        try await transactionDispatcher
+            .send(transaction: .transfer(transaction)).hash
     }
 
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo {
