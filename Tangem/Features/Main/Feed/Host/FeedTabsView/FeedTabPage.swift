@@ -12,6 +12,7 @@ struct FeedTabPage: Identifiable {
     let tab: FeedTab
     var topInset: CGFloat = 0
     var offset: CGFloat = 0
+    var isPreparing = false
 
     var id: String { tab.id }
 }
