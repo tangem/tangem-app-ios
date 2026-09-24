@@ -18,11 +18,13 @@ final class FeedWidgetsViewModel: ObservableObject {
     }
 
     private let providers: [FeedWidgetProvider]
+    private let analytics: FeedWidgetsAnalytics
     private var widgets: [FeedWidget?] = []
     private var bag = Set<AnyCancellable>()
 
-    init(providers: [FeedWidgetProvider]) {
+    init(providers: [FeedWidgetProvider], analytics: FeedWidgetsAnalytics) {
         self.providers = providers
+        self.analytics = analytics
 
         bind()
     }
@@ -32,11 +34,12 @@ final class FeedWidgetsViewModel: ObservableObject {
     }
 
     func select(_ widget: FeedWidget) {
-        guard let index = widgets.firstIndex(where: { $0?.id == widget.id }) else {
+        guard let index = widgets.firstIndex(where: { $0?.id == widget.id }),
+              let currentWidget = widgets[index] else {
             return
         }
 
-        switch widget.loadingState {
+        switch currentWidget.loadingState {
         case .loading:
             return
 
@@ -44,8 +47,17 @@ final class FeedWidgetsViewModel: ObservableObject {
             providers[index].refresh()
 
         case .success:
+            analytics.logSelection(of: currentWidget)
             providers[index].select()
         }
+    }
+
+    func updateVisibility(of widget: FeedWidget, isVisible: Bool) {
+        analytics.updateVisibility(of: widget, isVisible: isVisible)
+    }
+
+    func updateContentVisibility(_ isVisible: Bool) {
+        analytics.updateContentVisibility(isVisible)
     }
 }
 

@@ -82,6 +82,9 @@ private extension ReferralWidgetProvider {
 
     func bindWallet(_ wallet: UserWalletModel?) {
         walletBag.removeAll()
+        if self.wallet?.userWalletId != wallet?.userWalletId {
+            info = nil
+        }
         self.wallet = wallet.flatMap { $0.config.hasFeature(.referralProgram) ? $0 : nil }
 
         guard let wallet = self.wallet else {
@@ -106,9 +109,12 @@ private extension ReferralWidgetProvider {
 
     func resolveWidget() {
         let widget: FeedWidget? = if let wallet, let reward = Self.makeReward(info: info, config: wallet.config) {
-            .referFriend(reward: .success(reward))
+            .referFriend(reward: .success(reward), walletId: wallet.userWalletId)
         } else if let wallet, info == nil {
-            .referFriend(reward: failedWalletIds.contains(wallet.userWalletId) ? .failure(FeedWidget.LoadError()) : .loading)
+            .referFriend(
+                reward: failedWalletIds.contains(wallet.userWalletId) ? .failure(FeedWidget.LoadError()) : .loading,
+                walletId: wallet.userWalletId
+            )
         } else {
             nil
         }

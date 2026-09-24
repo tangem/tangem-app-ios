@@ -19,6 +19,10 @@ final class StandaloneFeedContainer: FeedContainer {
         Just(.full).eraseToAnyPublisher()
     }
 
+    var contentCollapsedPublisher: AnyPublisher<Bool, Never> {
+        Just(false).eraseToAnyPublisher()
+    }
+
     var dismissPublisher: AnyPublisher<Void, Never> {
         Empty(completeImmediately: false).eraseToAnyPublisher()
     }
