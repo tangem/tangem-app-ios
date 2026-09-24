@@ -6,8 +6,9 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import class Alamofire.Interceptor
 import struct Foundation.Data
+import class LocalAuthentication.LAContext
+import class Alamofire.Interceptor
 import TangemBackendAuthentication
 import TangemFoundation
 import TangemMobileWalletSdk
@@ -55,14 +56,10 @@ enum BackendAuthenticationRegistrar {
     }
 
     static func registerNewMobileWallet(_ userWalletModel: some UserWalletModel) {
-        guard FeatureProvider.isAvailable(.backendAuthentication) else {
-            return
-        }
-
-        guard userWalletModel.isMobileWallet else {
-            let errorMessage = "Expected to receive a mobile wallet, got cold instead. Developer mistake."
-            BackendAuthLogger.warning(errorMessage)
-            assertionFailure(errorMessage)
+        guard
+            FeatureProvider.isAvailable(.backendAuthentication),
+            userWalletModel.assertIsMobileWallet()
+        else {
             return
         }
 
@@ -96,6 +93,45 @@ enum BackendAuthenticationRegistrar {
             mobileWalletSDK: mobileWalletSDK,
             secp256k1PublicKey: secp256k1PublicKey
         )
+    }
+
+    static func registerBiometricallyUnlockedMobileWalletIfNeeded(
+        _ userWalletModel: some UserWalletModel,
+        context laContext: LAContext
+    ) {
+        guard
+            FeatureProvider.isAvailable(.backendAuthentication),
+            userWalletModel.isMobileWallet
+        else {
+            return
+        }
+
+        let id = userWalletModel.userWalletId
+
+        Task {
+            let userWalletIsAlreadyRegistered = await BackendAuthenticationAssembly.retrieveUserWalletRegistrationStatus(id: id)
+
+            guard !userWalletIsAlreadyRegistered else {
+                return
+            }
+
+            let mobileWalletSDK = CommonMobileWalletSdk()
+            let context: MobileWalletContext
+
+            do {
+                context = try mobileWalletSDK.validate(auth: .biometrics(context: laContext), for: id)
+            } catch {
+                BackendAuthLogger.info(
+                    """
+                    Registration of the biometrically unlocked mobile wallet is skipped until \
+                    the wallet is unlocked with its access code. Biometric access is unavailable due to: \(error)
+                    """
+                )
+                return
+            }
+
+            Self.registerUnlockedMobileWallet(id: id, context: context, mobileWalletSDK: mobileWalletSDK)
+        }
     }
 
     static func registerUnlockedMobileWallet(
@@ -144,7 +180,7 @@ enum BackendAuthenticationRegistrar {
     static func prepareMobileWalletForColdUpgrade(_ userWalletModel: some UserWalletModel) async {
         guard
             FeatureProvider.isAvailable(.backendAuthentication),
-            userWalletModel.isMobileWallet
+            userWalletModel.assertIsMobileWallet()
         else {
             return
         }
@@ -157,5 +193,17 @@ enum BackendAuthenticationRegistrar {
 private extension UserWalletModel {
     var isMobileWallet: Bool {
         !config.hasFeature(.nfcInteraction)
+    }
+
+    func assertIsMobileWallet(file: StaticString = #fileID, line: UInt = #line, function: StaticString = #function) -> Bool {
+        if isMobileWallet {
+            return true
+        }
+
+        let errorMessage = "Expected to receive a mobile wallet, got cold instead. Developer mistake."
+        BackendAuthLogger.warning(file: file, line: line, function: function, errorMessage)
+        assertionFailure(errorMessage, file: file, line: line)
+
+        return false
     }
 }
