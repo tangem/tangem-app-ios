@@ -82,6 +82,10 @@ struct TransactionViewAmountViewData: Hashable {
              .yieldWithdraw, .yieldWithdrawCoin,
              .vote, .withdraw:
             return nil
+        // No crypto reaches the wallet on a top-up that never settled, so the row states no amount at all
+        // rather than striking through the figure the provider once promised.
+        case .onramp where status == .failed:
+            return nil
         case .yieldSend, .yieldTopup,
              .yieldReactivate, .yieldDeploy, .yieldInit,
              .gaslessTransactionFee,
