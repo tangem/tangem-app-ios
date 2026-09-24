@@ -17,6 +17,9 @@ extension PreserveRule {
     )
 }
 
+/// Patterns are regex literals rather than `RegexBuilder` compositions: the Swift 6.4.0 runtime shipped
+/// with iOS 27.0 corrupts a builder regex when a string literal is followed by an embedded regex that also
+/// starts with a literal, which made this rule match arbitrary text. `ChoiceOf` only alternates and is unaffected.
 private extension PreserveRule {
     static let swapPayloadPattern = Regex {
         ChoiceOf {
@@ -29,122 +32,105 @@ private extension PreserveRule {
         }
     }
 
-    static let exchangeDataRequest = Regex {
-        "Exchange data request payload:"
-        logField("fromAddress")
-        logField("fromContractAddress")
-        logField("fromNetwork")
-        logField("toContractAddress")
-        logField("toNetwork")
-        logField("toDecimals")
-        logField("fromAmount")
-        logField("toAmount")
-        logField("fromDecimals")
-        logField("providerId")
-        logField("rateType")
-        logField("toAddress")
-        logField("refundAddress")
-    }
+    // swiftformat:disable indent
+    // SwiftFormat misreads quotes and escaped brackets inside multi-line regex literals and breaks their indentation.
 
-    static let exchangeDataResponse = Regex {
-        "Exchange data response payload:"
-        logField("txId")
-        logField("fromAmount")
-        logField("fromDecimals")
-        logField("toAmount")
-        logField("toDecimals")
-        logField("payTill")
-    }
+    static let exchangeDataRequest = #/
+        (?s)
+        Exchange\ data\ request\ payload:
+        \n"fromAddress":\ "(?:(?!"|\n).)*"
+        \n"fromContractAddress":\ "(?:(?!"|\n).)*"
+        \n"fromNetwork":\ "(?:(?!"|\n).)*"
+        \n"toContractAddress":\ "(?:(?!"|\n).)*"
+        \n"toNetwork":\ "(?:(?!"|\n).)*"
+        \n"toDecimals":\ "(?:(?!"|\n).)*"
+        \n"fromAmount":\ "(?:(?!"|\n).)*"
+        \n"toAmount":\ "(?:(?!"|\n).)*"
+        \n"fromDecimals":\ "(?:(?!"|\n).)*"
+        \n"providerId":\ "(?:(?!"|\n).)*"
+        \n"rateType":\ "(?:(?!"|\n).)*"
+        \n"toAddress":\ "(?:(?!"|\n).)*"
+        \n"refundAddress":\ "(?:(?!"|\n).)*"
+        /#
 
-    static let exchangeStatusResponse = Regex {
-        "Exchange status response payload:"
-        logField("txId")
-        logField("providerId")
-        logField("fromAddress")
-        logField("payinAddress")
-        logField("payinExtraId")
-        logField("payoutAddress")
-        logField("refundAddress")
-        logField("refundExtraId")
-        logField("rateType")
-        logField("status")
-        logField("externalTxId")
-        logField("externalTxUrl")
-        logField("payinHash")
-        logField("payoutHash")
-        logField("refundNetwork")
-        logField("refundContractAddress")
-        logField("createdAt")
-        logField("updatedAt")
-        logField("payTill")
-        logField("averageDuration")
-        logField("fromContractAddress")
-        logField("fromNetwork")
-        logField("fromDecimals")
-        logField("fromAmount")
-        logField("toContractAddress")
-        logField("toNetwork")
-        logField("toDecimals")
-        logField("toAmount")
-        logField("toActualAmount")
-    }
+    static let exchangeDataResponse = #/
+        (?s)
+        Exchange\ data\ response\ payload:
+        \n"txId":\ "(?:(?!"|\n).)*"
+        \n"fromAmount":\ "(?:(?!"|\n).)*"
+        \n"fromDecimals":\ "(?:(?!"|\n).)*"
+        \n"toAmount":\ "(?:(?!"|\n).)*"
+        \n"toDecimals":\ "(?:(?!"|\n).)*"
+        \n"payTill":\ "(?:(?!"|\n).)*"
+        /#
 
-    static let exchangeSentRequest = Regex {
-        "Exchange sent request payload:"
-        logField("txHash")
-        logField("txId")
-        logField("fromNetwork")
-        logField("fromAddress")
-        logField("payinAddress")
-        logField("payinExtraId")
-    }
+    static let exchangeStatusResponse = #/
+        (?s)
+        Exchange\ status\ response\ payload:
+        \n"txId":\ "(?:(?!"|\n).)*"
+        \n"providerId":\ "(?:(?!"|\n).)*"
+        \n"fromAddress":\ "(?:(?!"|\n).)*"
+        \n"payinAddress":\ "(?:(?!"|\n).)*"
+        \n"payinExtraId":\ "(?:(?!"|\n).)*"
+        \n"payoutAddress":\ "(?:(?!"|\n).)*"
+        \n"refundAddress":\ "(?:(?!"|\n).)*"
+        \n"refundExtraId":\ "(?:(?!"|\n).)*"
+        \n"rateType":\ "(?:(?!"|\n).)*"
+        \n"status":\ "(?:(?!"|\n).)*"
+        \n"externalTxId":\ "(?:(?!"|\n).)*"
+        \n"externalTxUrl":\ "(?:(?!"|\n).)*"
+        \n"payinHash":\ "(?:(?!"|\n).)*"
+        \n"payoutHash":\ "(?:(?!"|\n).)*"
+        \n"refundNetwork":\ "(?:(?!"|\n).)*"
+        \n"refundContractAddress":\ "(?:(?!"|\n).)*"
+        \n"createdAt":\ "(?:(?!"|\n).)*"
+        \n"updatedAt":\ "(?:(?!"|\n).)*"
+        \n"payTill":\ "(?:(?!"|\n).)*"
+        \n"averageDuration":\ "(?:(?!"|\n).)*"
+        \n"fromContractAddress":\ "(?:(?!"|\n).)*"
+        \n"fromNetwork":\ "(?:(?!"|\n).)*"
+        \n"fromDecimals":\ "(?:(?!"|\n).)*"
+        \n"fromAmount":\ "(?:(?!"|\n).)*"
+        \n"toContractAddress":\ "(?:(?!"|\n).)*"
+        \n"toNetwork":\ "(?:(?!"|\n).)*"
+        \n"toDecimals":\ "(?:(?!"|\n).)*"
+        \n"toAmount":\ "(?:(?!"|\n).)*"
+        \n"toActualAmount":\ "(?:(?!"|\n).)*"
+        /#
 
-    static let exchangeSentResponse = Regex {
-        "Exchange sent response payload:"
-        logField("txId")
-        logField("status")
-    }
+    static let exchangeSentRequest = #/
+        (?s)
+        Exchange\ sent\ request\ payload:
+        \n"txHash":\ "(?:(?!"|\n).)*"
+        \n"txId":\ "(?:(?!"|\n).)*"
+        \n"fromNetwork":\ "(?:(?!"|\n).)*"
+        \n"fromAddress":\ "(?:(?!"|\n).)*"
+        \n"payinAddress":\ "(?:(?!"|\n).)*"
+        \n"payinExtraId":\ "(?:(?!"|\n).)*"
+        /#
 
-    static let decodedTransactionDetails = Regex {
-        "Exchange data decoded transaction details payload:"
-        logField("requestId")
-        logField("txType")
-        logField("txFrom")
-        logField("txTo")
-        logField("txExtraId")
-        logField("txValue")
-        logField("otherNativeFee")
-        logField("gas")
-        logField("externalTxId")
-        logField("externalTxUrl")
-        logField("payoutAddress")
-        logField("payoutExtraId")
-    }
+    static let exchangeSentResponse = #/
+        (?s)
+        Exchange\ sent\ response\ payload:
+        \n"txId":\ "(?:(?!"|\n).)*"
+        \n"status":\ "(?:(?!"|\n).)*"
+        /#
 
-    static func logField(_ fieldName: Substring) -> Regex<Substring> {
-        Regex {
-            "\n"
-            quote
-            fieldName
-            quote
-            ": "
-            quote
-            fieldValue
-            quote
-        }
-    }
-
-    static let fieldValue = Regex {
-        ZeroOrMore {
-            NegativeLookahead {
-                ChoiceOf {
-                    quote
-                    "\n"
-                }
-            }
-            CharacterClass.any
-        }
-    }
-
-    static let quote = "\""
+    static let decodedTransactionDetails = #/
+        (?s)
+        Exchange\ data\ decoded\ transaction\ details\ payload:
+        \n"requestId":\ "(?:(?!"|\n).)*"
+        \n"txType":\ "(?:(?!"|\n).)*"
+        \n"txFrom":\ "(?:(?!"|\n).)*"
+        \n"txTo":\ "(?:(?!"|\n).)*"
+        \n"txExtraId":\ "(?:(?!"|\n).)*"
+        \n"txValue":\ "(?:(?!"|\n).)*"
+        \n"otherNativeFee":\ "(?:(?!"|\n).)*"
+        \n"gas":\ "(?:(?!"|\n).)*"
+        \n"externalTxId":\ "(?:(?!"|\n).)*"
+        \n"externalTxUrl":\ "(?:(?!"|\n).)*"
+        \n"payoutAddress":\ "(?:(?!"|\n).)*"
+        \n"payoutExtraId":\ "(?:(?!"|\n).)*"
+        /#
+    // swiftformat:enable indent
 }
