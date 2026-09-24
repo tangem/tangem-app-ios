@@ -43,8 +43,10 @@ public struct PolymarketOrderNotificationsView: View {
         switch notification {
         case .awaitingFunds:
             base.slotEnd { Loader().loaderSize(Constants.loaderSize) }
-        case .partialFill, .noLiquidity:
+        case .partialFill:
             base.slotEnd { infoIcon }
+        case .noLiquidity:
+            base.slotEnd { warningIcon }
         case .quoteUnavailable:
             if let onRetry {
                 base.primaryButton(MessageBannerButton(title: Localization.commonRetry, action: onRetry))
@@ -57,7 +59,15 @@ public struct PolymarketOrderNotificationsView: View {
     }
 
     private var infoIcon: some View {
-        DesignSystem.Icons.Info.regular20.image
+        icon(DesignSystem.Icons.Info.regular20)
+    }
+
+    private var warningIcon: some View {
+        icon(DesignSystem.Icons.Warning.regular20)
+    }
+
+    private func icon(_ asset: ImageType) -> some View {
+        asset.image
             .renderingMode(.template)
             .resizable()
             .frame(width: Constants.infoIconSide, height: Constants.infoIconSide)
