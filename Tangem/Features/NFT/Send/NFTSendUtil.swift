@@ -14,6 +14,8 @@ struct NFTSendUtil {
     /// - Note: Amount is fixed for NFTs.
     /// We currently support sending only a single NFT asset per transaction, even for ERC1155
     static let amountToSend: Decimal = 1
+    /// - Note: NFTs are indivisible, so the token item never scales the amount by a network-supplied `decimals` value.
+    static let decimalCount = 0
 
     private let walletModel: any WalletModel
     private let userWalletModel: UserWalletModel
@@ -58,7 +60,7 @@ struct NFTSendUtil {
             name: asset.name,
             symbol: asset.name,
             contractAddress: asset.id.contractAddress,
-            decimalCount: asset.decimalCount,
+            decimalCount: NFTSendUtil.decimalCount,
             metadata: metadata
         )
         let blockchainNetwork = mainTokenWalletModel.tokenItem.blockchainNetwork
