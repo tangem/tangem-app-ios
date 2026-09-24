@@ -318,6 +318,11 @@ extension PolymarketOrderQuote {
         status: PolymarketQuoteStatus,
         shares: Decimal = 138,
         expectedExecutionAmount: Decimal = 140,
+        fees: PolymarketOrderFees = PolymarketOrderFees(
+            market: Decimal(string: "0.3")!,
+            builder: Decimal(string: "0.2")!,
+            total: Decimal(string: "0.5")!
+        ),
         total: Decimal = Decimal(string: "100.5")!,
         worstCasePrice: Decimal = Decimal(string: "0.735")!,
         minOrderSize: Decimal = 5,
@@ -332,11 +337,7 @@ extension PolymarketOrderQuote {
             expectedExecutionAmount: expectedExecutionAmount,
             averagePrice: Decimal(string: "0.72")!,
             worstCasePrice: worstCasePrice,
-            fees: PolymarketOrderFees(
-                market: Decimal(string: "0.3")!,
-                builder: Decimal(string: "0.2")!,
-                total: Decimal(string: "0.5")!
-            ),
+            fees: fees,
             total: total,
             builderCode: "0x00000000000000000000000000000000000000000000000000000000000000aa",
             minOrderSize: minOrderSize,
