@@ -26,13 +26,13 @@ struct PolymarketOrderFractionTests {
         #expect(model.amountField.value == 100)
     }
 
-    @Test("A share of the balance is cut to what the collateral can express")
-    func fractionIsRoundedToCollateralPrecision() async throws {
+    @Test("A share of the balance is cut to the cent the field can spell")
+    func fractionIsRoundedToTheEnterablePrecision() async throws {
         let model = try await makeModel(balance: Decimal(string: "0.3333333")!)
 
         model.handleViewAction(.fractionSelected(.quarter))
 
-        #expect(model.state.enteredAmount == Decimal(string: "0.083333")!)
+        #expect(model.state.enteredAmount == Decimal(string: "0.08")!)
     }
 
     @Test("Max buys with nine tenths of the balance and leaves the rest untouched")
@@ -123,7 +123,7 @@ struct PolymarketOrderFractionTests {
         model.handleViewAction(.fractionSelected(.quarter))
 
         #expect(model.state.enteredAmount == nil)
-        #expect(model.amountField.value == Decimal(string: "0.005")!)
+        #expect(model.amountField.value == 0)
     }
 }
 
@@ -163,11 +163,11 @@ private extension PolymarketOrderFractionTests {
     }
 }
 
-private extension PolymarketOutcome {
+extension PolymarketOutcome {
     static let fixture = PolymarketOutcome(assetId: "asset", title: "Yes", probability: Decimal(string: "0.55")!)
 }
 
-private extension PolymarketMarket {
+extension PolymarketMarket {
     static let fixture = PolymarketMarket(
         id: "market",
         conditionId: nil,
