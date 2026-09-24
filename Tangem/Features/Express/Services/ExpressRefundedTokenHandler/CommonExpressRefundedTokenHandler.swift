@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemExpress
+import TangemFoundation
 
 class CommonExpressRefundedTokenHandler: ExpressRefundedTokenHandler {
     private let converter: ExpressCurrencyConverter
@@ -16,13 +17,13 @@ class CommonExpressRefundedTokenHandler: ExpressRefundedTokenHandler {
         self.converter = converter
     }
 
-    func handle(blockchainNetwork: BlockchainNetwork, expressCurrency: ExpressCurrency) async throws -> TokenItem {
+    func handle(blockchainNetwork: BlockchainNetwork, expressCurrency: ExpressCurrency, userWalletId: UserWalletId) async throws -> TokenItem {
         let tokenItem = try await converter.convert(
             expressCurrency: expressCurrency,
             in: blockchainNetwork
         )
 
-        try TokenAdder.addToken(tokenItem: tokenItem)
+        try TokenAdder.addToken(tokenItem: tokenItem, userWalletId: userWalletId)
 
         return tokenItem
     }
