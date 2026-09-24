@@ -746,9 +746,7 @@ private extension TransactionHistoryMapper {
         let amount = prepared.amount
 
         if case .onramp(let info) = record.expressExtraInfo {
-            let isEstimated = info.transaction.to.actualAmount == nil || status(from: record) == .inProgress
-            let prefix = isEstimated ? "\(AppConstants.tildeSign) " : ""
-            return makeFormattedAmount(amount, symbol: currencySymbol, sign: prefix)
+            return onrampAmount(for: record, info: info, amount: amount)
         }
 
         switch prepared.transactionType {
@@ -776,6 +774,22 @@ private extension TransactionHistoryMapper {
         default:
             return formatted(amount: amount, isOutgoing: record.isOutgoing, isFailed: record.status == .failed)
         }
+    }
+
+    func onrampAmount(for record: TransactionRecord, info: OnrampTransactionInfo, amount: Decimal) -> FormattedAmount {
+        let status = status(from: record)
+        let tilde = "\(AppConstants.tildeSign) "
+
+        let redesignedSign = switch status {
+        case .inProgress: tilde
+        case .confirmed: AppConstants.plusSign
+        case .failed, .undefined: ""
+        }
+
+        // The legacy row keeps the estimate rule it shipped with; only the redesigned sign follows the stage.
+        let legacySign = info.transaction.to.actualAmount == nil || status == .inProgress ? tilde : ""
+
+        return makeFormattedAmount(amount, symbol: currencySymbol, sign: legacySign, redesignedSign: redesignedSign)
     }
 
     func yieldSign(_ sign: String, amount: Decimal, record: TransactionRecord) -> String {
