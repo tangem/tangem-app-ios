@@ -248,7 +248,15 @@ final class YieldModuleActiveViewModel: ObservableObject {
 
         apyBreakdown = breakdown
 
-        let summary = hasActiveCampaign ? await yieldManagerInteractor.getIncentivesSummary() : nil
+        let summary: YieldIncentivesRewardsSummary?
+
+        do {
+            summary = hasActiveCampaign ? try await yieldManagerInteractor.getIncentivesSummary() : nil
+        } catch {
+            // A load that failed says nothing about the rewards, so the banner keeps whatever it already shows.
+            AppLogger.error("Failed to load yield incentives", error: error)
+            return
+        }
 
         guard !Task.isCancelled else {
             return
