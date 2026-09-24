@@ -12,20 +12,28 @@ import protocol TangemUI.FloatingSheetContentViewModel
 final class AddAccountTypeSelectorViewModel: ObservableObject {
     private let accountModelsManager: any AccountModelsManager
     private let userWalletConfig: UserWalletConfig
+    private let shouldLogAddAccountTap: Bool
     private weak var coordinator: AddAccountTypeSelectorRoutable?
 
     init(
         accountModelsManager: any AccountModelsManager,
         userWalletConfig: UserWalletConfig,
-        coordinator: AddAccountTypeSelectorRoutable?
+        coordinator: AddAccountTypeSelectorRoutable?,
+        shouldLogAddAccountTap: Bool = true
     ) {
         self.accountModelsManager = accountModelsManager
         self.userWalletConfig = userWalletConfig
+        self.shouldLogAddAccountTap = shouldLogAddAccountTap
         self.coordinator = coordinator
     }
 
     func onCryptoAccountTap() {
-        Analytics.log(event: .walletSettingsButtonAddAccount, params: [.productType: userWalletConfig.productType.rawValue])
+        if shouldLogAddAccountTap {
+            Analytics.log(event: .walletSettingsButtonAddAccount, params: [
+                .productType: userWalletConfig.productType.rawValue,
+                .source: Analytics.ParameterValue.settings.rawValue,
+            ])
+        }
 
         coordinator?.openCryptoAccountForm(
             accountModelsManager: accountModelsManager,
