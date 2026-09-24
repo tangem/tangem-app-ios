@@ -14,9 +14,12 @@ protocol PolymarketAvailabilityProvider {
     var isAvailable: Bool { get }
 
     var isAvailablePublisher: AnyPublisher<Bool, Never> { get }
+
+    func isAvailablePublisher(hasAccount: @escaping () -> Bool) -> AnyPublisher<Bool, Never>
 }
 
 /// The experiment is evaluated for the selected wallet, so one enrolled wallet opens the feature for the session.
+/// A wallet that already has an account keeps the feature on its own, without the experiment and without the toggle.
 struct CommonPolymarketAvailabilityProvider: PolymarketAvailabilityProvider {
     @Injected(\.experimentService) private var experimentService: ExperimentService
 
@@ -41,9 +44,19 @@ struct CommonPolymarketAvailabilityProvider: PolymarketAvailabilityProvider {
     }
 
     var isAvailablePublisher: AnyPublisher<Bool, Never> {
-        let isAvailable = { self.isAvailable }
+        makeAvailabilityPublisher { isAvailable }
+    }
 
-        return experimentService
+    func isAvailable(hasAccount: () -> Bool) -> Bool {
+        hasAccount() || isAvailable
+    }
+
+    func isAvailablePublisher(hasAccount: @escaping () -> Bool) -> AnyPublisher<Bool, Never> {
+        makeAvailabilityPublisher { isAvailable(hasAccount: hasAccount) }
+    }
+
+    private func makeAvailabilityPublisher(_ isAvailable: @escaping () -> Bool) -> AnyPublisher<Bool, Never> {
+        experimentService
             .variantsPublisher
             .map { _ in isAvailable() }
             .prepend(isAvailable())
