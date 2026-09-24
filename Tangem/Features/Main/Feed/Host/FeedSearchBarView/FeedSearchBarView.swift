@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -37,6 +38,7 @@ struct FeedSearchBarView: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(Localization.marketsSearchTitlePlaceholder)
+                    .accessibilityIdentifier(MainAccessibilityIdentifiers.shtorkaExpandButton)
                 }
             }
             .padding(.horizontal, Constants.horizontalInset)
@@ -59,6 +61,9 @@ struct FeedSearchBarView: View {
             Search(text: queryBinding, isActive: $isFocused, onFocusChanged: focusDidChange)
                 .placeholder(Localization.marketsSearchTitlePlaceholder)
                 .showsCloseButton(false)
+                .containerAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketFieldContainer)
+                .textFieldAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketField)
+                .clearButtonAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketClearButton)
                 .onSubmit(viewModel.submit)
 
             if isActive {

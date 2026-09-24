@@ -10,15 +10,17 @@ import TangemAccessibilityIdentifiers
 import XCTest
 
 final class MarketsAndNewsScreen: ScreenBase<MarketsAndNewsScreenElement> {
-    private lazy var seeAllButton = button(.seeAllButton)
     private lazy var searchField = textField(.searchThroughMarketField)
     private lazy var searchFieldContainer = button(.searchThroughMarketFieldContainer)
 
     @discardableResult
-    func tapSeeAll() -> MarketsScreen {
-        XCTContext.runActivity(named: "Tap See All button to open Markets screen") { _ in
-            waitAndAssertTrue(seeAllButton, "See All button should be displayed")
-            seeAllButton.waitAndTap()
+    func openTokenList() -> MarketsScreen {
+        XCTContext.runActivity(named: "Scroll the Markets sheet to the token list") { _ in
+            let defaultCategoryChip = app.buttons[
+                MarketsAccessibilityIdentifiers.marketsSortOption(Constants.defaultCategory)
+            ].firstMatch
+            scrollToElement(defaultCategoryChip)
+            waitAndAssertTrue(defaultCategoryChip, "Markets category chips should be reachable")
             return MarketsScreen(app)
         }
     }
@@ -28,6 +30,7 @@ final class MarketsAndNewsScreen: ScreenBase<MarketsAndNewsScreenElement> {
         XCTContext.runActivity(named: "Search for token: \(tokenName)") { _ in
             tapSearchField()
             searchField.typeText(tokenName)
+            searchField.typeText("\n")
             return MarketsScreen(app)
         }
     }
@@ -83,18 +86,21 @@ final class MarketsAndNewsScreen: ScreenBase<MarketsAndNewsScreenElement> {
 }
 
 enum MarketsAndNewsScreenElement: String, UIElement {
-    case seeAllButton
     case searchThroughMarketField
     case searchThroughMarketFieldContainer
 
     var accessibilityIdentifier: String {
         switch self {
-        case .seeAllButton:
-            return MarketsAccessibilityIdentifiers.marketsSeeAllButton
         case .searchThroughMarketField:
             return MainAccessibilityIdentifiers.searchThroughMarketField
         case .searchThroughMarketFieldContainer:
             return MainAccessibilityIdentifiers.searchThroughMarketFieldContainer
         }
+    }
+}
+
+private extension MarketsAndNewsScreen {
+    enum Constants {
+        static let defaultCategory = "rating"
     }
 }
