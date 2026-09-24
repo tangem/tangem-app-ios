@@ -38,6 +38,11 @@ enum DynamicAddressesCustomDerivationChecker {
     /// A collision is possible only when both paths have the standard BIP-44 length and share
     /// the same account prefix. Missing paths or non-standard lengths cannot collide with
     /// XPUB-derived addresses, so the operation is allowed.
+    ///
+    /// The prefix is compared by the canonical 32-bit child index (what is actually sent to the card),
+    /// not by the `DerivationNode` enum form: a non-hardened `2147483648` and a hardened `0'` are the
+    /// same key on the wire. A node whose raw index does not fit the BIP-32 range is treated as colliding
+    /// (fail closed) — such a path cannot be derived anyway.
     private static func pathsCouldCollide(_ lhs: TokenItem, _ rhs: TokenItem) -> Bool {
         guard
             let lhsNodes = lhs.blockchainNetwork.derivationPath?.nodes,
@@ -48,7 +53,14 @@ enum DynamicAddressesCustomDerivationChecker {
             return false
         }
 
-        return lhsNodes.prefix(Constants.accountPrefixLength) == rhsNodes.prefix(Constants.accountPrefixLength)
+        let lhsPrefix = lhsNodes.prefix(Constants.accountPrefixLength).map(\.canonicalIndex)
+        let rhsPrefix = rhsNodes.prefix(Constants.accountPrefixLength).map(\.canonicalIndex)
+
+        guard !lhsPrefix.contains(nil), !rhsPrefix.contains(nil) else {
+            return true
+        }
+
+        return lhsPrefix == rhsPrefix
     }
 }
 

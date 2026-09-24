@@ -49,7 +49,10 @@ final class AddCustomTokenDerivationPathWriterViewModel: ObservableObject, Ident
     }
 
     func save() {
-        guard let derivationPath = try? DerivationPath(rawPath: derivationPathText) else {
+        guard
+            let derivationPath = try? DerivationPath(rawPath: derivationPathText),
+            derivationPath.hasValidNodeIndices
+        else {
             return
         }
 
@@ -80,6 +83,13 @@ final class AddCustomTokenDerivationPathWriterViewModel: ObservableObject, Ident
 
         do {
             let derivationPath = try DerivationPath(rawPath: rawPath)
+
+            // A raw index >= 2^31 is not a valid BIP-32 child index: written non-hardened it aliases the
+            // hardened index (`2147483649` == `1'` on the wire), written hardened it overflows on derivation.
+            guard derivationPath.hasValidNodeIndices else {
+                return .failure(hint: .none)
+            }
+
             let tokenItem = TokenItem.blockchain(.init(blockchain, derivationPath: derivationPath))
 
             guard !context.hasDynamicAddressRestriction(for: tokenItem) else {
