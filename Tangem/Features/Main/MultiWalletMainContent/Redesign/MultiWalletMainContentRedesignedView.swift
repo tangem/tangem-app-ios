@@ -97,6 +97,8 @@ struct MultiWalletMainContentRedesignedView: View {
         .padding(MultiWalletMainContentConstants.collectiblesAccountPadding)
         .background(MultiWalletMainContentConstants.tokenListBackgroundColor)
         .cornerRadiusContinuous(MultiWalletMainContentConstants.cornerRadius)
+        .contentShape(.rect)
+        .buttonStyle(.defaultScaled)
     }
 
     // MARK: - Pending joint accounts
