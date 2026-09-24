@@ -10,7 +10,7 @@ import Foundation
 
 extension UserWalletModel {
     var isCollectiblesEligible: Bool {
-        guard !isUserWalletLocked, config.hasFeature(.multiCurrency) else {
+        guard !isUserWalletLocked, config.hasFeature(.multiCurrency), config.hasFeature(.hdWallets) else {
             return false
         }
 
