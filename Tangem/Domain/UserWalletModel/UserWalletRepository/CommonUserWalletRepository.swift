@@ -275,7 +275,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
         try? mobileWalletSdk.delete(walletIDs: [userWalletId])
 
         if let removedUserWallet = removedModels.first {
-            BackendAuthenticationRegistrar.unregisterUserWalletIfNeeded(removedUserWallet)
+            BackendAuthenticationRegistrar.unregisterUserWallet(removedUserWallet)
         }
 
         sendEvent(.deleted(userWalletIds: [userWalletId], isRepositoryEmpty: models.isEmpty))
@@ -374,7 +374,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
 
         unlockedModels
             .filter { !$0.isUserWalletLocked && userWalletIds.contains($0.userWalletId) }
-            .forEach { BackendAuthenticationRegistrar.registerBiometricallyUnlockedMobileWalletIfNeeded($0, context: context) }
+            .forEach { BackendAuthenticationRegistrar.registerMobileWalletAfterBiometricUnlock($0, context: context) }
     }
 
     private func handleUnlock(context: LAContext) throws -> UserWalletModel {
