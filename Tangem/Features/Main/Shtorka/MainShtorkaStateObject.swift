@@ -21,9 +21,10 @@ final class MainShtorkaStateObject: ObservableObject {
 
     @Published private var feedDetents = ShtorkaDetents()
     @Published private var isNavigationActive = false
+    @Published private var isSearchActive = false
 
     var detents: ShtorkaDetents {
-        guard isNavigationActive else { return feedDetents }
+        guard isNavigationActive || isSearchActive else { return feedDetents }
 
         // The detent set deduplicates collapsed, and its reverse mapping still resolves to collapsed.
         return ShtorkaDetents(collapsed: feedDetents.collapsed, medium: feedDetents.collapsed, full: feedDetents.full)
@@ -56,6 +57,13 @@ final class MainShtorkaStateObject: ObservableObject {
             expand()
         }
         isNavigationActive = isActive
+    }
+
+    func setSearchActive(_ isActive: Bool) {
+        if isActive {
+            expand()
+        }
+        isSearchActive = isActive
     }
 
     // MARK: - Detent heights
