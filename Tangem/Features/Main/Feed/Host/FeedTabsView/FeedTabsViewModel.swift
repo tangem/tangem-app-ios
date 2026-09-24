@@ -24,7 +24,6 @@ final class FeedTabsViewModel: ObservableObject {
     private let tabSelectionSubject = PassthroughSubject<FeedTab, Never>()
     private var sheetSize: ShtorkaSize = .collapsed
     private var slideDirection: CGFloat = 1
-    private var pendingJump: PendingJump?
 
     var pages: [FeedTabPage] {
         departingPages + [currentPage]
@@ -76,8 +75,18 @@ final class FeedTabsViewModel: ObservableObject {
         slideDirection = index(of: tab) > index(of: currentPage.tab) ? 1 : -1
         let returning = departingPages.first { $0.id == tab.id }
         departingPages = departingPages.filter { $0.id != tab.id } + [currentPage]
-        currentPage = returning ?? FeedTabPage(tab: tab, offset: slideDirection)
+        // A lazy list created outside the viewport can stay empty after sliding in.
+        // Let new pages realize their visible rows before moving them to the starting edge.
+        currentPage = returning ?? FeedTabPage(tab: tab, isPreparing: true)
         return resolve(target)
+    }
+
+    func prepareSlide() -> Bool {
+        guard currentPage.isPreparing else { return false }
+
+        currentPage.offset = slideDirection
+        currentPage.isPreparing = false
+        return true
     }
 
     func slide() {
@@ -87,22 +96,19 @@ final class FeedTabsViewModel: ObservableObject {
         }
     }
 
-    func settleSlide() -> FeedScrollTarget? {
+    func settleSlide() {
         departingPages = []
         updatePromoBannersVisibility()
-        return finishPendingJump()
     }
 
     func showInstantly(_ tab: FeedTab, target: FeedScrollTarget?) -> FeedScrollTarget? {
-        let pending = finishPendingJump()
         departingPages = []
         currentPage = FeedTabPage(tab: tab)
         updatePromoBannersVisibility()
-        return target ?? pending
+        return target
     }
 
-    /// The page moves without the slide and without touching the scroll a jump is still owed: the pager applies
-    /// that one when it renders, and here there may be no pager at all.
+    /// Select the page without animating or touching the scroll; the pager may not be mounted yet.
     private func movePage(to tab: FeedTab) {
         guard currentPage.id != tab.id else {
             return
@@ -116,38 +122,23 @@ final class FeedTabsViewModel: ObservableObject {
     private func resolve(_ target: FeedScrollTarget?) -> FeedScrollTarget? {
         switch target {
         case .jump(let anchor, let shift):
-            let actualShift = (pendingJump?.shift ?? 0) + shift
-            guard actualShift >= 0 else {
-                pendingJump = PendingJump(anchor: anchor, shift: actualShift)
-                currentPage.topInset = -actualShift
-                return nil
-            }
-
-            pendingJump = nil
+            // Restore before the slide in either direction. Compensating the outgoing pages
+            // keeps them in place without changing the scroll offset again at completion.
             currentPage.topInset = 0
             for index in departingPages.indices {
-                departingPages[index].topInset += actualShift
+                departingPages[index].topInset += shift
             }
-            return .jump(anchor: anchor, shift: actualShift)
+            return .jump(anchor: anchor, shift: shift)
         case .pinTabs, .scroll:
-            pendingJump = nil
             currentPage.topInset = 0
             for index in departingPages.indices {
                 departingPages[index].topInset = 0
             }
             return target
         case nil:
-            currentPage.topInset = -(pendingJump?.shift ?? 0)
+            currentPage.topInset = 0
             return nil
         }
-    }
-
-    private func finishPendingJump() -> FeedScrollTarget? {
-        guard let jump = pendingJump else { return nil }
-
-        pendingJump = nil
-        currentPage.topInset = 0
-        return .jump(anchor: jump.anchor, shift: jump.shift)
     }
 
     private func index(of tab: FeedTab) -> Int {
@@ -162,9 +153,4 @@ final class FeedTabsViewModel: ObservableObject {
             tab.promoBanner?.onScreenVisibilityChange(isVisible: isVisible)
         }
     }
-}
-
-private struct PendingJump {
-    let anchor: UnitPoint
-    let shift: CGFloat
 }
