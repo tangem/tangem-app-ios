@@ -53,6 +53,15 @@ final class FeedViewModel: ObservableObject {
 
 private extension FeedViewModel {
     func bind(to container: any FeedContainer) {
+        searchViewModel
+            .$isActive
+            .removeDuplicates()
+            .receiveOnMain()
+            .sink { [weak container] isActive in
+                container?.setSearchActive(isActive)
+            }
+            .store(in: &bag)
+
         container
             .sizePublisher
             .receiveOnMain()
