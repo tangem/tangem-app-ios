@@ -1,5 +1,5 @@
 //
-//  TangemPayDailyLimitRowRedesigned.swift
+//  TangemPayDailyLimitRow.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import TangemUI
 import TangemLocalization
 import TangemAccessibilityIdentifiers
 
-struct TangemPayDailyLimitRowRedesigned: View {
+struct TangemPayDailyLimitRow: View {
     let state: TangemPayDailyLimitState
     let isFrozen: Bool
     let changeAction: () -> Void
@@ -91,18 +91,18 @@ struct TangemPayDailyLimitRowRedesigned: View {
 
 #Preview {
     VStack(spacing: 12) {
-        TangemPayDailyLimitRowRedesigned(state: .loading, isFrozen: false, changeAction: {})
-        TangemPayDailyLimitRowRedesigned(
+        TangemPayDailyLimitRow(state: .loading, isFrozen: false, changeAction: {})
+        TangemPayDailyLimitRow(
             state: .loaded(TangemPayDailyLimit(currentLimit: "$50,000")),
             isFrozen: false,
             changeAction: {}
         )
-        TangemPayDailyLimitRowRedesigned(
+        TangemPayDailyLimitRow(
             state: .loaded(TangemPayDailyLimit(currentLimit: "$50,000")),
             isFrozen: true,
             changeAction: {}
         )
-        TangemPayDailyLimitRowRedesigned(state: .error, isFrozen: false, changeAction: {})
+        TangemPayDailyLimitRow(state: .error, isFrozen: false, changeAction: {})
     }
     .padding(16)
     .frame(maxWidth: .infinity, maxHeight: .infinity)

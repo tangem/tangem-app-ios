@@ -16,21 +16,19 @@ struct TangemPayPinView: View {
     @ObservedObject var viewModel: TangemPayPinViewModel
 
     var body: some View {
-        redesignedBody
+        content
     }
 }
 
-// MARK: - Redesigned
-
 private extension TangemPayPinView {
-    var redesignedBody: some View {
+    var content: some View {
         NavigationStack {
             Group {
                 switch viewModel.state {
                 case .enterPin:
-                    redesignedEnterPinView
+                    enterPinView
                 case .created:
-                    redesignedSuccessView
+                    successView
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -51,7 +49,7 @@ private extension TangemPayPinView {
         }
     }
 
-    var redesignedEnterPinView: some View {
+    var enterPinView: some View {
         VStack(spacing: 0) {
             VStack(spacing: 24) {
                 Text(viewModel.enterPinHeader)
@@ -83,7 +81,7 @@ private extension TangemPayPinView {
         .onAppear(perform: viewModel.onAppear)
     }
 
-    var redesignedSuccessView: some View {
+    var successView: some View {
         TangemPaySuccessView(
             model: .init(
                 icon: DesignSystem.Icons.Success.regular20,
