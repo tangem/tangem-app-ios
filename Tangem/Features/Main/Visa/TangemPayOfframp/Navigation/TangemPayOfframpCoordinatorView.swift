@@ -35,20 +35,22 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
     private func destination(_ route: TangemPayOfframpCoordinator.Route) -> some View {
         switch route {
         case .recentRecipients:
-            if let store = coordinator.recentRecipientsStore {
-                let viewModel = RecentRecipientsViewModel(
-                    recentRecipientsStore: store,
-                    output: { [weak coordinator] bankAccountId in
-                        coordinator?.startWizard(recipient: .saved(bankAccountId: bankAccountId))
-                    }
-                )
-                RecentRecipientsView(viewModel: viewModel)
-                    .topNavigation(
-                        title: Localization.tangempayWithdrawBankRecipientsTitle,
-                        onClose: { [weak coordinator] in
-                            coordinator?.dismiss(with: nil)
+            if let store = coordinator.recentRecipientsStore, let analyticsLogger = coordinator.analyticsLogger {
+                RecentRecipientsView(
+                    viewModel: RecentRecipientsViewModel(
+                        recentRecipientsStore: store,
+                        analyticsLogger: analyticsLogger,
+                        output: { [weak coordinator] bankAccountId in
+                            coordinator?.startWizard(recipient: .saved(bankAccountId: bankAccountId))
                         }
                     )
+                )
+                .topNavigation(
+                    title: Localization.tangempayWithdrawBankRecipientsTitle,
+                    onClose: { [weak coordinator] in
+                        coordinator?.dismiss(with: nil)
+                    }
+                )
             }
 
         case .swap:
@@ -62,9 +64,10 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
             }
 
         case .transferType:
-            if let orderBuilder = coordinator.orderBuilder {
+            if let orderBuilder = coordinator.orderBuilder, let analyticsLogger = coordinator.analyticsLogger {
                 TransferTypeFactory.makeView(
                     orderBuilder: orderBuilder,
+                    analyticsLogger: analyticsLogger,
                     output: { [weak coordinator] in coordinator?.handle($0) }
                 )
             }
@@ -78,18 +81,22 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
             }
 
         case .personalDetails(let mode):
-            if let orderBuilder = coordinator.orderBuilder, let store = coordinator.recentRecipientsStore {
+            if let orderBuilder = coordinator.orderBuilder,
+               let store = coordinator.recentRecipientsStore,
+               let analyticsLogger = coordinator.analyticsLogger {
                 PersonalDetailsFactory.makeView(
                     orderBuilder: orderBuilder,
                     recentRecipientsStore: store,
+                    analyticsLogger: analyticsLogger,
                     output: { [weak coordinator] in coordinator?.handle($0, mode: mode) }
                 )
             }
 
         case .bankDetails(let mode):
-            if let orderBuilder = coordinator.orderBuilder {
+            if let orderBuilder = coordinator.orderBuilder, let analyticsLogger = coordinator.analyticsLogger {
                 BankDetailsFactory.makeView(
                     orderBuilder: orderBuilder,
+                    analyticsLogger: analyticsLogger,
                     output: { [weak coordinator] in coordinator?.handle($0, mode: mode) }
                 )
             }
@@ -97,13 +104,15 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
         case .transferConfirmation:
             if let orderBuilder = coordinator.orderBuilder,
                let sendUseCase = coordinator.sendUseCase,
-               let optionsStore = coordinator.optionsStore {
+               let optionsStore = coordinator.optionsStore,
+               let analyticsLogger = coordinator.analyticsLogger {
                 TransferConfirmationFactory.makeView(
                     orderBuilder: orderBuilder,
                     sendUseCase: sendUseCase,
                     optionsStore: optionsStore,
                     savedRecipient: coordinator.activeSavedRecipient,
                     hasNFCInteraction: coordinator.hasNFCInteraction,
+                    analyticsLogger: analyticsLogger,
                     output: { [weak coordinator] in coordinator?.handle($0) }
                 )
             }

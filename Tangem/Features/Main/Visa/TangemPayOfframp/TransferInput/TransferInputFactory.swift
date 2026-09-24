@@ -16,6 +16,7 @@ enum TransferInputFactory {
         optionsStore: TangemPayOfframpOptionsStore,
         recipient: TangemPayOfframpRecipient,
         savedRecipientName: String?,
+        analyticsLogger: any TangemPayOfframpAnalyticsLogger,
         output: @escaping (TransferInputViewModel.Output) -> Void
     ) -> TransferInputViewModel {
         TransferInputViewModel(
@@ -23,6 +24,7 @@ enum TransferInputFactory {
             optionsStore: optionsStore,
             title: title(recipient: recipient, savedRecipientName: savedRecipientName),
             stepSubtitle: TangemPayOfframpWizardStep.amount.subtitle(for: recipient),
+            analyticsLogger: analyticsLogger,
             output: output
         )
     }
