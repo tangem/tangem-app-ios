@@ -19,6 +19,7 @@ struct CryptoFeedView: View {
                 paginationMinHeight: Constants.paginationMinHeight
             )
             .padding(.horizontal, Constants.horizontalPadding)
+            .clipped()
             MarketCapView(viewModel: viewModel.marketCap)
             PulseView(viewModel: viewModel.pulse)
         }
