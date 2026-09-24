@@ -16,14 +16,16 @@ public struct BackendAuthenticationStorageCleaner: Sendable {
     public func clean() async {
         do {
             try await devicePrivateKeyRepository.delete()
+            logger.debug("Device private key cleared.")
         } catch {
-            logger.error("Failed to delete device private key while cleaning backend authentication storage", error: error)
+            logger.error("Failed to clear device private key.", error: error)
         }
 
         do {
             try await sessionTokensRepository.delete()
+            logger.debug("Session tokens cleared.")
         } catch {
-            logger.error("Failed to delete session tokens while cleaning backend authentication storage", error: error)
+            logger.error("Failed to clear session tokens.", error: error)
         }
     }
 }
