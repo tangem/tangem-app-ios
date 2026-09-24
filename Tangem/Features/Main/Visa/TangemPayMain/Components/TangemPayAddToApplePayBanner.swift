@@ -1,5 +1,5 @@
 //
-//  TangemPayAddToApplePayBannerRedesigned.swift
+//  TangemPayAddToApplePayBanner.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import TangemAssets
 import TangemLocalization
 import TangemAccessibilityIdentifiers
 
-struct TangemPayAddToApplePayBannerRedesigned: View {
+struct TangemPayAddToApplePayBanner: View {
     let openAction: () -> Void
     let closeAction: () -> Void
 

@@ -1,5 +1,5 @@
 //
-//  TangemPayTransactionDetailsRedesignedMapper.swift
+//  TangemPayTransactionDetailsMapper.swift
 //  TangemApp
 //
 //  Copyright © 2026 Tangem AG. All rights reserved.
@@ -11,7 +11,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemPay
 
-struct TangemPayTransactionDetailsRedesignedMapper {
+struct TangemPayTransactionDetailsMapper {
     private let dateFormatter = DateFormatter(dateFormat: "MMM d yyyy")
     private let amountFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -211,8 +211,8 @@ struct TangemPayTransactionDetailsRedesignedMapper {
 // MARK: - History projection
 
 extension TangemPayTransactionRecord {
-    func redesignedDisplayModel(
-        using mapper: TangemPayTransactionDetailsRedesignedMapper
+    func displayModel(
+        using mapper: TangemPayTransactionDetailsMapper
     ) -> TangemPayTransactionDetailsDisplayModel {
         switch record.displayRecord {
         case .merchant(let merchant): mapper.map(spend: merchant.displayInput)
@@ -226,8 +226,8 @@ extension TangemPayTransactionRecord {
 // MARK: - Push projection
 
 extension TangemPayPushPayload {
-    func redesignedDisplayModel(
-        using mapper: TangemPayTransactionDetailsRedesignedMapper
+    func displayModel(
+        using mapper: TangemPayTransactionDetailsMapper
     ) -> TangemPayTransactionDetailsDisplayModel? {
         switch body {
         case .transactionSpend(let spend),

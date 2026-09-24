@@ -18,23 +18,21 @@ struct TangemPayDailyLimitView: View {
     @FocusState private var isInputFocused: Bool
 
     var body: some View {
-        redesignedBody
+        content
     }
 }
 
-// MARK: - Redesigned
-
 private extension TangemPayDailyLimitView {
-    var redesignedBody: some View {
+    var content: some View {
         NavigationStack {
             Group {
                 switch viewModel.state {
                 case .editLimit:
-                    redesignedEditLimitView
+                    editLimitView
                         .focused($isInputFocused)
                         .onAppear { isInputFocused = true }
                 case .success:
-                    redesignedSuccessView
+                    successView
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -59,14 +57,14 @@ private extension TangemPayDailyLimitView {
         }
     }
 
-    var redesignedEditLimitView: some View {
+    var editLimitView: some View {
         VStack(spacing: 0) {
-            redesignedAmountSection
+            amountSection
 
             Spacer()
 
             VStack(spacing: 12) {
-                redesignedPresetsRow
+                presetsRow
                     .padding(.horizontal, 12)
 
                 TangemUI.Button(
@@ -88,7 +86,7 @@ private extension TangemPayDailyLimitView {
         .background(DesignSystem.Color.bgSecondary.ignoresSafeArea())
     }
 
-    var redesignedAmountSection: some View {
+    var amountSection: some View {
         VStack(spacing: 12) {
             Text(viewModel.hintText)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textTertiary)
@@ -108,7 +106,7 @@ private extension TangemPayDailyLimitView {
         .frame(maxWidth: .infinity)
     }
 
-    var redesignedPresetsRow: some View {
+    var presetsRow: some View {
         HStack(spacing: 8) {
             ForEach(viewModel.presets, id: \.self) { preset in
                 SwiftUI.Button {
@@ -127,7 +125,7 @@ private extension TangemPayDailyLimitView {
         }
     }
 
-    var redesignedSuccessView: some View {
+    var successView: some View {
         TangemPaySuccessView(
             model: .init(
                 icon: DesignSystem.Icons.Success.regular20,
