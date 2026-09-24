@@ -41,6 +41,7 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
     private var addFundsAction: (() -> Void)?
     private var indexingTask: PolymarketOrderIndexing?
     private var isMarketClosedPresented = false
+    private var isQuoteUnavailablePresented = false
 
     // MARK: - Init
 
@@ -101,6 +102,20 @@ extension PolymarketOrderCoordinator: PolymarketOrderRoutable {
         isMarketClosedPresented = true
 
         floatingSheetPresenter.enqueue(sheet: PolymarketRegionRestrictionViewModel.marketClosed(
+            onClose: { [weak self] in
+                self?.floatingSheetPresenter.removeActiveSheet()
+                self?.closeOrder()
+            }
+        ))
+    }
+
+    @MainActor
+    func openQuoteUnavailable() {
+        guard !isQuoteUnavailablePresented else { return }
+
+        isQuoteUnavailablePresented = true
+
+        floatingSheetPresenter.enqueue(sheet: PolymarketRegionRestrictionViewModel.quoteUnavailable(
             onClose: { [weak self] in
                 self?.floatingSheetPresenter.removeActiveSheet()
                 self?.closeOrder()

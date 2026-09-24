@@ -78,8 +78,6 @@ final class PolymarketOrderViewModel: ObservableObject {
             model.step(by: step)
         case .fractionTapped(let fraction):
             model.handleViewAction(.fractionSelected(fraction))
-        case .quoteRetryTapped:
-            model.handleViewAction(.quoteRetried)
         }
     }
 }
@@ -133,7 +131,6 @@ extension PolymarketOrderViewModel {
         case addFundsTapped
         case slippageTapped
         case fractionTapped(PolymarketAmountFraction)
-        case quoteRetryTapped
     }
 }
 
@@ -192,6 +189,10 @@ private extension PolymarketOrderViewModel {
 
         if gate.notifications.contains(.marketClosed) {
             coordinator?.openMarketClosed()
+        }
+
+        if case .failed = state.quote {
+            coordinator?.openQuoteUnavailable()
         }
     }
 }

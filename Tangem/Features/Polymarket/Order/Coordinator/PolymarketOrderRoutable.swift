@@ -14,6 +14,9 @@ protocol PolymarketOrderRoutable: AnyObject {
     @MainActor
     func openMarketClosed()
 
+    @MainActor
+    func openQuoteUnavailable()
+
     func openAddFunds()
 
     func openSlippageSelector(percent: Decimal, onConfirm: @escaping (Decimal) -> Void)

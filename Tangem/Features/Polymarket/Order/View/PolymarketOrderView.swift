@@ -75,10 +75,7 @@ struct PolymarketOrderView: View {
                 }
             }
 
-            PolymarketOrderNotificationsView(
-                notifications: viewModel.notifications,
-                onRetry: { viewModel.handleViewAction(.quoteRetryTapped) }
-            )
+            PolymarketOrderNotificationsView(notifications: viewModel.notifications)
 
             PolymarketOrderSlippageRow(
                 valueText: viewModel.slippageText,

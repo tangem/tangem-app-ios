@@ -130,8 +130,6 @@ final class PolymarketOrderModel: ObservableObject {
             apply(fraction: fraction)
         case .slippageSelected(let percent):
             apply(slippagePercent: percent)
-        case .quoteRetried:
-            restartQuoteLoop(debounced: false)
         }
     }
 }
@@ -205,7 +203,6 @@ extension PolymarketOrderModel {
         case screenDisappeared
         case fractionSelected(PolymarketAmountFraction)
         case slippageSelected(Decimal)
-        case quoteRetried
     }
 }
 
