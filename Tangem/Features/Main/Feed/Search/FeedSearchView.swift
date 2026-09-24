@@ -40,21 +40,11 @@ private extension FeedSearchView {
                     .allowsHitTesting(false)
             }
             .reverseMask(alignment: .top) {
-                FeedTopFade(height: Constants.fadeHeight, visibleHeight: Constants.visibleFadeHeight)
+                FeedTopFade()
             }
 
         case .tabs:
             FeedSearchTabsView(viewModel: viewModel.tabsViewModel)
         }
-    }
-}
-
-// MARK: - Constants
-
-private extension FeedSearchView {
-    enum Constants {
-        // Keep the 32 pt gradient below the hard fade's 56 pt solid header.
-        static let fadeHeight: CGFloat = 88
-        static let visibleFadeHeight: CGFloat = 32
     }
 }
