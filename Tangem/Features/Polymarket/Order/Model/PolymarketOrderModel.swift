@@ -314,11 +314,14 @@ private extension PolymarketOrderModel {
             return max(share, min(Constants.minSellableShares, balance))
         }
 
-        guard intent.deductsFeeFromMax else {
+        if intent.maxOffersWholePosition {
             return balance
         }
 
-        return (balance / (1 + feeRate)).rounded(scale: intent.fractionDigits, roundingMode: .down)
+        let share = balance * Constants.maxShareOfBalance
+        let feeCeiling = balance / (1 + feeRate)
+
+        return min(share, feeCeiling).rounded(scale: intent.fractionDigits, roundingMode: .down)
     }
 
     var feeRate: Decimal {
@@ -493,6 +496,7 @@ private extension PolymarketOrderModel {
     enum Constants {
         static let minQuotableAmount: Decimal = 0.01
         static let minSellableShares: Decimal = 1
+        static let maxShareOfBalance: Decimal = 0.9
         static let debounce: TimeInterval = 0.5
         static let pollInterval: TimeInterval = 3
         static let failureGracePeriod: TimeInterval = 30
