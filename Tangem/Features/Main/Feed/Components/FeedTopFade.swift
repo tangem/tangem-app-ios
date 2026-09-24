@@ -13,6 +13,12 @@ struct FeedTopFade: View {
     let height: CGFloat
     let visibleHeight: CGFloat
 
+    /// Keep the default 32 pt gradient below the hard fade's 56 pt solid header.
+    init(height: CGFloat = 88, visibleHeight: CGFloat = 32) {
+        self.height = height
+        self.visibleHeight = visibleHeight
+    }
+
     var body: some View {
         Fade(position: .top)
             .variant(.hard)

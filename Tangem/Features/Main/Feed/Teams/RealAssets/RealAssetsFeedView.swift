@@ -18,6 +18,7 @@ struct RealAssetsFeedView: View {
         VStack(spacing: Constants.sectionSpacing) {
             PromotionNotificationsView(viewModel: viewModel.promoBanner)
                 .padding(.horizontal, Constants.horizontalPadding)
+                .clipped()
 
             content
         }
