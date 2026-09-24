@@ -100,13 +100,19 @@ final class CommonYieldModuleFlowFactory {
 
     private func makeYieldModuleActiveViewModel(coordinator: YieldModuleActiveCoordinator) -> YieldModuleActiveViewModel {
         let interactor = makeInteractor()
+        let claimInteractor = makeClaimInteractor()
 
         return YieldModuleActiveViewModel(
             walletModel: walletModel,
             coordinator: coordinator,
-            transactionFlowFactory: makeTransactionFlowFactory(coordinator: coordinator, interactor: interactor),
+            transactionFlowFactory: makeTransactionFlowFactory(
+                coordinator: coordinator,
+                interactor: interactor,
+                claimInteractor: claimInteractor
+            ),
             yieldManagerInteractor: interactor,
             marketInfoPublisher: yieldModuleManager.marketInfoPublisher,
+            claimInteractor: claimInteractor,
             notificationManager: YieldModuleNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem),
             logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
         )
@@ -127,11 +133,13 @@ final class CommonYieldModuleFlowFactory {
 
     private func makeTransactionFlowFactory(
         coordinator: YieldModuleActiveCoordinator,
-        interactor: YieldManagerInteractor
+        interactor: YieldManagerInteractor,
+        claimInteractor: YieldIncentivesClaimInteractor?
     ) -> YieldModuleTransactionFlowFactory {
         YieldModuleTransactionFlowFactory(
             walletModel: walletModel,
             yieldManagerInteractor: interactor,
+            claimInteractor: claimInteractor,
             logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId),
             tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: transactionDispatcher.hasNFCInteraction),
             confirmTransactionPolicy: CommonConfirmTransactionPolicy(dispatcher: transactionDispatcher),
@@ -145,6 +153,23 @@ final class CommonYieldModuleFlowFactory {
         YieldManagerInteractor(
             transactionDispatcher: transactionDispatcher,
             manager: yieldModuleManager
+        )
+    }
+
+    private func makeClaimInteractor() -> YieldIncentivesClaimInteractor? {
+        guard FeatureProvider.isAvailable(.merklIncentives),
+              let chainId = walletModel.tokenItem.blockchain.chainId else {
+            return nil
+        }
+
+        let userAddress = walletModel.defaultAddressString
+
+        return YieldIncentivesClaimInteractor(
+            chainId: chainId,
+            userAddress: userAddress,
+            manager: yieldModuleManager,
+            transactionDispatcher: transactionDispatcher,
+            tracker: InjectedValues[\.yieldIncentivesClaimTrackerProvider].tracker(chainId: chainId, userAddress: userAddress)
         )
     }
 }
