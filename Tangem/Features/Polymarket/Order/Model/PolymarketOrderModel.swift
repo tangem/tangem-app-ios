@@ -186,6 +186,7 @@ extension PolymarketOrderModel {
         var geoblock: PolymarketGeoblockState = .unknown
         var isAwaitingFunds = false
         var bookPrice: Decimal?
+        var bookPriceFailure: PolymarketBookPriceFailure?
 
         var isBelowMinAmount: Bool {
             guard let enteredAmount, let minAmount else { return false }
@@ -434,11 +435,19 @@ private extension PolymarketOrderModel {
 
             guard !Task.isCancelled else { return }
 
-            state.bookPrice = price
+            var updated = state
+            updated.bookPrice = price
+            updated.bookPriceFailure = nil
+            state = updated
         } catch {
             guard !Task.isCancelled, !error.isCancellationError else { return }
 
             PolymarketLogger.error("Order book price request failed", error: error)
+
+            guard let failure = PolymarketBookPriceFailure(error: error) else { return }
+
+            state.bookPriceFailure = failure
+            suspendQuoteLoop()
         }
     }
 
