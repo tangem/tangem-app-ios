@@ -31,7 +31,7 @@ struct AttestUserWalletUseCaseTests {
         )
         signer.attestResult = Result.success(expectedWalletAttestation)
 
-        let expectedID = UserWalletId.fake
+        let expectedID = UserWalletId.uniqueFake()
         let expectedNonceBytesToSign = Data([0x01, 0x02, 0x03])
         let expectedDecryptedNonce = "some decrypted nonce"
         let expectedAppAttestationToken = Data("some attestation token".utf8)
@@ -65,14 +65,15 @@ struct AttestUserWalletUseCaseTests {
         registrationStatusRepository.retrieveResult = true
 
         let signer = SpyUserWalletRegistrationSigner()
+        let expectedID = UserWalletId.uniqueFake()
 
         let sut = makeSUT(registrationStatusRepository: registrationStatusRepository)
 
-        let request = try await sut(id: UserWalletId.fake, nonce: .fake, recoveryEnrollment: nil, signer: signer)
+        let request = try await sut(id: expectedID, nonce: .fake, recoveryEnrollment: nil, signer: signer)
 
         #expect(request == nil)
         #expect(signer.receivedMessages.isEmpty)
-        #expect(registrationStatusRepository.receivedMessages == [.retrieve(UserWalletId.fake)])
+        #expect(registrationStatusRepository.receivedMessages == [.retrieve(expectedID)])
     }
 
     @Test

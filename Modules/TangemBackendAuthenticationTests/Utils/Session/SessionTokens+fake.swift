@@ -23,7 +23,10 @@ extension SessionTokens {
         SessionTokens(
             accessToken: Token(jwt: "access-jwt-\(UUID().uuidString)", expiresAt: Date.fake),
             refreshToken: Token(jwt: "refresh-jwt-\(UUID().uuidString)", expiresAt: Date.fake),
-            userWalletIDs: [UserWalletId(value: Data(UUID().uuidString.utf8))]
+            userWalletIDs: [
+                UserWalletId.uniqueFake(),
+                UserWalletId.uniqueFake(),
+            ]
         )
     }
 }
