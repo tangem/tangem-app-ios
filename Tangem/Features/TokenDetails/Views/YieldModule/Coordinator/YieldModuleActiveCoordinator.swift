@@ -27,7 +27,15 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
 
     @Published
     var rootViewModel: YieldModuleActiveViewModel? = nil
+
+    @Published
+    var claimViewModel: YieldModuleClaimViewModel? = nil
+
     private var handle: SafariHandle?
+
+    var isClaimSheetPresented: Bool {
+        claimViewModel != nil
+    }
 
     // MARK: - Init
 
@@ -60,6 +68,18 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
         }
     }
 
+    func openClaimSheet(viewModel: YieldModuleClaimViewModel) {
+        Task { @MainActor [weak self] in
+            self?.claimViewModel = viewModel
+        }
+    }
+
+    func closeClaimSheet() {
+        Task { @MainActor [weak self] in
+            self?.claimViewModel = nil
+        }
+    }
+
     func openAboutApySheet(viewModel: YieldModuleAboutApyViewModel) {
         Task { @MainActor [weak self] in
             self?.floatingSheetPresenter.enqueue(sheet: viewModel)
@@ -78,25 +98,32 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
 
     func openFeeCurrency(walletModel: any WalletModel) {
         Task { @MainActor [weak self] in
-            self?.floatingSheetPresenter.removeActiveSheet()
+            self?.closePresentedSheets()
             self?.dismiss(with: .init(walletModel: walletModel))
         }
     }
 
     func closeBottomSheet() {
         Task { @MainActor [weak self] in
-            self?.floatingSheetPresenter.removeActiveSheet()
+            self?.closePresentedSheets()
         }
     }
 
     func dismiss() {
         Task { @MainActor [weak self] in
-            self?.floatingSheetPresenter.removeActiveSheet()
+            self?.closePresentedSheets()
             self?.dismiss(with: nil)
         }
     }
 
     // MARK: - Private Implementation
+
+    /// The claim uses a native sheet while everything else here goes through the floating presenter.
+    @MainActor
+    private func closePresentedSheets() {
+        claimViewModel = nil
+        floatingSheetPresenter.removeActiveSheet()
+    }
 
     @MainActor
     private func resumeBottomSheet() {
