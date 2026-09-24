@@ -21,6 +21,7 @@ struct EarnFeedView: View {
                 paginationMinHeight: Constants.paginationMinHeight
             )
             .padding(.horizontal, Constants.horizontalPadding)
+            .clipped()
 
             content
         }
