@@ -15,7 +15,7 @@ import TangemLogger
 struct RegisterUserWalletUseCaseTests {
     @Test
     func registerUserWalletObtainsNonceAttestsAndSubmitsRegistrationOnSuccess() async throws {
-        let expectedID = UserWalletId.fake
+        let expectedID = UserWalletId.uniqueFake()
         let expectedNonce = UserWalletRegistrationNonce.fake
         let expectedRequest = UserWalletRegistrationRequest.fake
         let expectedSigner = SpyUserWalletRegistrationSigner()
@@ -36,7 +36,7 @@ struct RegisterUserWalletUseCaseTests {
 
     @Test
     func registerUserWalletReturnsEarlyWhenNonceUnavailable() async throws {
-        let anyUserWalletID = UserWalletId.fake
+        let anyUserWalletID = UserWalletId.uniqueFake()
 
         let sut = makeSUT(
             obtainNonce: Self.obtainNonceMock(expectedID: anyUserWalletID, returnedNonce: nil),
@@ -49,7 +49,7 @@ struct RegisterUserWalletUseCaseTests {
 
     @Test
     func registerUserWalletReturnsEarlyWhenAttestationSkipped() async throws {
-        let anyUserWalletID = UserWalletId.fake
+        let anyUserWalletID = UserWalletId.uniqueFake()
         let anyNonce = UserWalletRegistrationNonce.fake
         let anySigner = SpyUserWalletRegistrationSigner()
 
@@ -91,7 +91,7 @@ struct RegisterUserWalletUseCaseTests {
 
     @Test
     func registerUserWalletThrowsAttestUserWalletFailureWhenAttestationFails() async throws {
-        let anyUserWalletID = UserWalletId.fake
+        let anyUserWalletID = UserWalletId.uniqueFake()
         let expectedUnderlyingError = AnyTestError()
 
         let sut = makeSUT(
@@ -114,7 +114,7 @@ struct RegisterUserWalletUseCaseTests {
 
     @Test
     func registerUserWalletThrowsSubmitFailureWhenSubmitRegistrationFails() async throws {
-        let expectedID = UserWalletId.fake
+        let expectedID = UserWalletId.uniqueFake()
         let expectedNonce = UserWalletRegistrationNonce.fake
         let expectedRequest = UserWalletRegistrationRequest.fake
         let expectedUnderlyingError = AnyTestError()

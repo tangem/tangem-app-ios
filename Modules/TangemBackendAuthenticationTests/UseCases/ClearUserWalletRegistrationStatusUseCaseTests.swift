@@ -15,7 +15,7 @@ import struct TangemFoundation.UserWalletId
 struct ClearUserWalletRegistrationStatusUseCaseTests {
     @Test
     func clearUserWalletRegistrationStatusPersistsUnregisteredForGivenID() async {
-        let expectedID = UserWalletId.fake
+        let expectedID = UserWalletId.uniqueFake()
         let repository = SpyUserWalletRegistrationStatusRepository()
 
         let sut = makeSUT(registrationStatusRepository: repository)

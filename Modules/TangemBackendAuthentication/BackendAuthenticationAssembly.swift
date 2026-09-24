@@ -31,6 +31,10 @@ public enum BackendAuthenticationAssembly {
 
     public static let unregisterUserWallet: UnregisterUserWalletUseCase = Self.makeUnregisterUserWalletUseCase()
 
+    public static let retrieveUserWalletRegistrationStatus = RetrieveUserWalletRegistrationStatusUseCase(
+        registrationStatusRepository: Self.userWalletRegistrationStatusRepository
+    )
+
     public static let clearUserWalletRegistrationStatus = ClearUserWalletRegistrationStatusUseCase(
         registrationStatusRepository: Self.userWalletRegistrationStatusRepository
     )
