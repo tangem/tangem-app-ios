@@ -123,7 +123,8 @@ struct QRCodeParser {
         // In this case, we consider the given string to be malformed, and we stop the decimal number parsing routine
         guard
             normalizedStringValue.split(separator: decimalSeparator.first!).count < 3,
-            let value = Decimal(stringValue: normalizedStringValue)
+            let value = Decimal(stringValue: normalizedStringValue),
+            !value.isNaN
         else {
             return nil
         }
