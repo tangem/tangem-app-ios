@@ -110,7 +110,7 @@ extension MobileCreateWalletViewModel {
                 AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: newUserWalletModel.userWalletId)
                 viewModel.logWalletCreatedAnalytics()
 
-                BackendAuthenticationRegistrar.registerNewMobileWallet(newUserWalletModel)
+                BackendAuthenticationRegistrar.registerNewUnprotectedMobileWallet(newUserWalletModel)
                 try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
 
                 await runOnMain {
