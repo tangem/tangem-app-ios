@@ -51,6 +51,28 @@ enum PolymarketQuoteUnavailability: Equatable {
     case undefined
 }
 
+// MARK: - Book price
+
+enum PolymarketBookPriceFailure: Equatable {
+    case marketClosed
+    case unreadable
+
+    init?(error: Error) {
+        guard case PolymarketAPIError.http(let statusCode, _) = error else { return nil }
+
+        switch statusCode {
+        case Constants.noOrderBookStatusCode: self = .marketClosed
+        case Constants.invalidTokenStatusCode: self = .unreadable
+        default: return nil
+        }
+    }
+
+    private enum Constants {
+        static let noOrderBookStatusCode = 404
+        static let invalidTokenStatusCode = 400
+    }
+}
+
 // MARK: - Failure
 
 enum PolymarketOrderQuoteFailure: Equatable {

@@ -171,7 +171,14 @@ private extension PolymarketOrderViewModel {
         isAwaitingFunds = state.isAwaitingFunds
         isNextEnabled = gate.isPrimaryButtonEnabled
 
-        if let price = state.quote.quote?.averagePrice ?? state.bookPrice {
+        if state.bookPriceFailure != nil, state.quote.quote == nil {
+            marketRow = .make(
+                market: model.market,
+                outcome: model.outcome,
+                eventTitle: model.eventTitle,
+                isPriceUnavailable: true
+            )
+        } else if let price = state.quote.quote?.averagePrice ?? state.bookPrice {
             marketRow = .make(
                 market: model.market,
                 outcome: model.outcome,
@@ -193,6 +200,12 @@ private extension PolymarketOrderViewModel {
 
         if case .failed = state.quote {
             coordinator?.openQuoteUnavailable()
+        }
+
+        switch state.bookPriceFailure {
+        case .marketClosed: coordinator?.openMarketClosed()
+        case .unreadable: coordinator?.openQuoteUnavailable()
+        case nil: break
         }
     }
 }
