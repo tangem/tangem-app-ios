@@ -26,6 +26,7 @@ public struct PolymarketOrderFeeRow: View {
 
     public var body: some View {
         let row = TangemUI.Row(title: Localization.predictionPlaceFee)
+            .titleAccessory { hintIcon }
             .valueAccessory { value }
             .showDivider(showsDivider)
 
@@ -44,10 +45,13 @@ public struct PolymarketOrderFeeRow: View {
             Text(valueText)
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
+        }
+    }
 
-            if onTap != nil {
-                PolymarketHintIcon(asset: DesignSystem.Icons.Info.regular16)
-            }
+    @ViewBuilder
+    private var hintIcon: some View {
+        if onTap != nil {
+            PolymarketHintIcon(asset: DesignSystem.Icons.Info.regular16)
         }
     }
 }
