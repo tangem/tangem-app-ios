@@ -191,7 +191,10 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     private func onTapNewAccount() {
         guard FeatureProvider.isAvailable(.jointAccounts) else {
             // With the selector the event is logged once the crypto account is picked, see `AddAccountTypeSelectorViewModel`
-            Analytics.log(event: .walletSettingsButtonAddAccount, params: [.productType: userWalletConfig.productType.rawValue])
+            Analytics.log(event: .walletSettingsButtonAddAccount, params: [
+                .productType: userWalletConfig.productType.rawValue,
+                .source: Analytics.ParameterValue.settings.rawValue,
+            ])
             coordinator?.addNewAccount(accountModelsManager: accountModelsManager, userWalletConfig: userWalletConfig)
             return
         }
