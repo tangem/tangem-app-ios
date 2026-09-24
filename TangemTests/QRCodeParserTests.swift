@@ -527,6 +527,49 @@ final class QRCodeParserTests: XCTestCase {
         )
     }
 
+    func testXRPDestinationTag() throws {
+        let blockchain: Blockchain = .xrp(curve: .secp256k1)
+        let parser = QRCodeParser(
+            amountType: .coin,
+            blockchain: blockchain,
+            decimalCount: blockchain.decimalCount
+        )
+
+        // `dt` is the de-facto exchange spelling (also used by the main-screen scanner)
+        testPositiveCase(
+            code: "ripple:rEb8TK3gBgk5auZkwc6sHnwrGVJH8DuaLh?dt=12345",
+            destination: "rEb8TK3gBgk5auZkwc6sHnwrGVJH8DuaLh",
+            amount: nil,
+            memo: "12345",
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "xrpl:rEb8TK3gBgk5auZkwc6sHnwrGVJH8DuaLh?amount=10&tag=777",
+            destination: "rEb8TK3gBgk5auZkwc6sHnwrGVJH8DuaLh",
+            amount: Amount(with: blockchain, type: .coin, value: try XCTUnwrap(Decimal(stringValue: "10"))),
+            memo: "777",
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "rEb8TK3gBgk5auZkwc6sHnwrGVJH8DuaLh?destinationTag=42",
+            destination: "rEb8TK3gBgk5auZkwc6sHnwrGVJH8DuaLh",
+            amount: nil,
+            memo: "42",
+            parser: parser
+        )
+
+        // No tag → no additional field
+        testPositiveCase(
+            code: "ripple:rEb8TK3gBgk5auZkwc6sHnwrGVJH8DuaLh?amount=1",
+            destination: "rEb8TK3gBgk5auZkwc6sHnwrGVJH8DuaLh",
+            amount: Amount(with: blockchain, type: .coin, value: try XCTUnwrap(Decimal(stringValue: "1"))),
+            memo: nil,
+            parser: parser
+        )
+    }
+
     private func testPositiveCase(
         code: String,
         destination: String?,
