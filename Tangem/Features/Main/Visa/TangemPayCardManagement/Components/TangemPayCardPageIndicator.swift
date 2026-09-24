@@ -1,5 +1,5 @@
 //
-//  TangemPayCardPageIndicatorRedesigned.swift
+//  TangemPayCardPageIndicator.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import SwiftUI
 import TangemAssets
 
-struct TangemPayCardPageIndicatorRedesigned: View {
+struct TangemPayCardPageIndicator: View {
     let count: Int
     let selectedIndex: Int
 
@@ -30,8 +30,8 @@ struct TangemPayCardPageIndicatorRedesigned: View {
 
 #Preview {
     VStack(spacing: 24) {
-        TangemPayCardPageIndicatorRedesigned(count: 2, selectedIndex: 1)
-        TangemPayCardPageIndicatorRedesigned(count: 3, selectedIndex: 0)
+        TangemPayCardPageIndicator(count: 2, selectedIndex: 1)
+        TangemPayCardPageIndicator(count: 3, selectedIndex: 0)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(DesignSystem.Color.bgPrimary)

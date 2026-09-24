@@ -57,8 +57,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private(set) lazy var bottomSheetFooterViewModel = MainBottomSheetFooterViewModel()
 
     @Published private(set) var actionButtonsViewModel: ActionButtonsViewModel?
-    // [REDACTED_INFO]: legacy banner; redesign surfaces the same banner through `getTangemPayBannerNotificationManager`.
-    @Published private(set) var tangemPayBannerViewModel: GetTangemPayBannerViewModel?
 
     var isOrganizeTokensVisible: Bool {
         func numberOfTokensInSections<T, U>(_ sections: [SectionModel<T, U>]) -> Int {
@@ -81,7 +79,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - Dependencies
 
     @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
-    @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let notificationBannerItemsProvider: NotificationBannerItemsProvider
@@ -408,25 +405,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             }
             .receiveOnMain()
             .assign(to: &$tangemPayAccountViewModel)
-
-        // [REDACTED_INFO]: legacy banner; redesign uses `getTangemPayBannerNotificationManager`.
-        tangemPayAvailabilityRepository
-            .tangemPayBannerEntrypointEligibleWalletSelectionPublisher(for: userWalletModel.userWalletId.stringValue)
-            .withWeakCaptureOf(self)
-            .map { viewModel, availableSelection in
-                if let availableSelection {
-                    GetTangemPayBannerViewModel(
-                        onBannerTap: { [weak viewModel] in
-                            viewModel?.coordinator?.openGetTangemPay(availableSelection: availableSelection)
-                            Analytics.log(.visaOnboardingVisaPermanentBannerClicked)
-                        }
-                    )
-                } else {
-                    nil
-                }
-            }
-            .receiveOnMain()
-            .assign(to: &$tangemPayBannerViewModel)
     }
 
     private func setupActionButtons() {
