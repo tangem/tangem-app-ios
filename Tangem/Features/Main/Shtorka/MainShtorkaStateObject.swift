@@ -159,4 +159,8 @@ extension MainShtorkaStateObject: FeedContainer {
     var dismissPublisher: AnyPublisher<Void, Never> {
         $isPresented.filter { !$0 }.map { _ in () }.eraseToAnyPublisher()
     }
+
+    var contentCollapsedPublisher: AnyPublisher<Bool, Never> {
+        $isContentCollapsed.removeDuplicates().eraseToAnyPublisher()
+    }
 }
