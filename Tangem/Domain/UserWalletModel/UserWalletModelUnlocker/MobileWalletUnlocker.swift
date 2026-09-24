@@ -92,13 +92,6 @@ private extension MobileWalletUnlocker {
             return try makeSuccessResult(context: context)
 
         case .biometrics(let laContext):
-            if let context = try? mobileWalletSdk.validate(auth: .biometrics(context: laContext), for: userWalletId) {
-                BackendAuthenticationRegistrar.registerUnlockedMobileWallet(
-                    id: userWalletId,
-                    context: context,
-                    mobileWalletSDK: mobileWalletSdk
-                )
-            }
             return .biometrics(laContext)
 
         case .canceled:
