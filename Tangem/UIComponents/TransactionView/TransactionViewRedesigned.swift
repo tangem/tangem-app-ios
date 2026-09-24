@@ -47,15 +47,28 @@ struct TransactionViewRedesigned: View {
         }
     }
 
+    @ViewBuilder
     private var rowLayout: some View {
-        TangemTwoLineRowLayout(
-            icon: { iconView },
-            primaryLeading: { nameView },
-            primaryTrailing: { amountView },
-            secondaryLeading: { subtitleView },
-            secondaryTrailing: { secondaryTrailingView }
-        )
-        .compressionPolicy(.trailingPreserved)
+        if let value = viewModel.amount.displayValue {
+            TangemTwoLineRowLayout(
+                icon: { iconView },
+                primaryLeading: { nameView },
+                primaryTrailing: { amountView(value) },
+                secondaryLeading: { subtitleView },
+                secondaryTrailing: { secondaryTrailingView }
+            )
+            .compressionPolicy(.trailingPreserved)
+        } else {
+            // Without an amount the top trailing slot would be blank, leaving the ticker hanging off the
+            // bottom line, so the whole trailing column moves to the centre instead.
+            TangemTwoLineRowLayout(
+                icon: { iconView },
+                primaryLeading: { nameView },
+                secondaryLeading: { subtitleView },
+                centeredTrailing: { secondaryTrailingView }
+            )
+            .compressionPolicy(.trailingPreserved)
+        }
     }
 
     private func warningView(_ warning: TransactionViewModel.Warning) -> some View {
@@ -159,8 +172,8 @@ struct TransactionViewRedesigned: View {
         }
     }
 
-    private var amountView: some View {
-        SensitiveText(viewModel.amount.value)
+    private func amountView(_ value: String) -> some View {
+        SensitiveText(value)
             .style(Font.Tangem.Body16.medium, color: amountColor)
             .strikethrough(isFailed, color: amountColor)
             .lineLimit(1)
