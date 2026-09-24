@@ -80,25 +80,19 @@ private extension AddAccountWidgetProvider {
             return
         }
 
+        let availability = FeedAccountAvailability(crypto: true, joint: FeatureProvider.isAvailable(.jointAccounts))
+
+        // Keep each wallet's account models current for the limit check when an account type is selected.
         wallets
             .map { wallet in
                 wallet.accountModelsManager.accountModelsPublisher
-                    .map(\.cryptoAccountsCount)
-                    .removeDuplicates()
-                    .map { FeedAccountCandidate(wallet: wallet, availability: Self.makeAvailability(cryptoAccountsCount: $0)) }
+                    .map { _ in FeedAccountCandidate(wallet: wallet, availability: availability) }
                     .eraseToAnyPublisher()
             }
             .combineLatest()
-            .map { $0.filter(\.availability.isAvailable) }
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { provider, candidates in provider.candidatesSubject.send(candidates) }
             .store(in: &walletsBag)
-    }
-
-    static func makeAvailability(cryptoAccountsCount: Int) -> FeedAccountAvailability {
-        let crypto = cryptoAccountsCount < AccountModelUtils.maxNumberOfAccounts
-
-        return FeedAccountAvailability(crypto: crypto, joint: crypto && FeatureProvider.isAvailable(.jointAccounts))
     }
 }
