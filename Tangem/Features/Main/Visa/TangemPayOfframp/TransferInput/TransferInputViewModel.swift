@@ -30,7 +30,12 @@ final class TransferInputViewModel: ObservableObject {
     let railItems: [TransferInputRailItem]
 
     private let orderBuilder: TangemPayOfframpOrderBuilder
+    private let analyticsLogger: any TangemPayOfframpAnalyticsLogger
     private let output: (Output) -> Void
+
+    private var hasAppeared = false
+    private var hasLoggedAmountEntered = false
+    private var hasLoggedInsufficientFunds = false
 
     private var bag: Set<AnyCancellable> = []
 
@@ -39,11 +44,13 @@ final class TransferInputViewModel: ObservableObject {
         optionsStore: TangemPayOfframpOptionsStore,
         title: String,
         stepSubtitle: String?,
+        analyticsLogger: any TangemPayOfframpAnalyticsLogger,
         output: @escaping (Output) -> Void
     ) {
         self.orderBuilder = orderBuilder
         self.title = title
         self.stepSubtitle = stepSubtitle
+        self.analyticsLogger = analyticsLogger
         self.output = output
 
         let options = optionsStore.state.options ?? .empty
@@ -68,8 +75,12 @@ final class TransferInputViewModel: ObservableObject {
     func handle(_ action: TransferInputContentView.Action) {
         switch action {
         case .tokenTap:
+            analyticsLogger.logCoinSelectorClicked()
+            analyticsLogger.logCoinSelectionSheetOpened()
             isTokenModalPresented = true
         case .railTap:
+            analyticsLogger.logRailSelectorClicked()
+            analyticsLogger.logRailSelectionSheetOpened()
             isRailModalPresented = true
         case .maxTap:
             applyMaxAmount()
@@ -80,6 +91,11 @@ final class TransferInputViewModel: ObservableObject {
 
     func onCloseTap() {
         output(.close)
+    }
+
+    func onAppear() {
+        hasAppeared = true
+        logInsufficientFundsIfNeeded()
     }
 }
 
@@ -133,6 +149,7 @@ private extension TransferInputViewModel {
         )
         orderBuilder.set(rail: selectedRail)
 
+        analyticsLogger.logAmountContinueClicked()
         output(.continueWizard)
     }
 }
@@ -163,6 +180,10 @@ private extension TransferInputViewModel {
             return
         }
 
+        if item.id != selectedTokenID {
+            analyticsLogger.logCoinInSelectionSheetClicked()
+        }
+
         selectedTokenID = item.id
         isTokenModalPresented = false
         revalidate()
@@ -170,6 +191,10 @@ private extension TransferInputViewModel {
 
     func selectRail(_ rail: TangemPayBankAccountRail?) {
         guard let rail, railItems.contains(where: { $0.rail == rail }) else { return }
+
+        if rail != selectedRail {
+            analyticsLogger.logRailInSelectionSheetClicked()
+        }
 
         selectedRail = rail
         isRailModalPresented = false
@@ -195,6 +220,7 @@ private extension TransferInputViewModel {
     func restore() {
         if let amount = orderBuilder.amount {
             amountFieldViewModel.update(value: amount)
+            hasLoggedAmountEntered = true
         }
 
         selectedRail = orderBuilder.rail
@@ -219,11 +245,35 @@ private extension TransferInputViewModel {
     }
 
     func revalidate() {
+        let amount = amountFieldViewModel.value
+
         amountState = Self.validate(
-            amount: amountFieldViewModel.value,
+            amount: amount,
             balance: selectedToken?.balance,
             fee: selectedRailItem?.feeAmount ?? .zero
         )
+
+        logAmountEnteredIfNeeded(amount: amount)
+        logInsufficientFundsIfNeeded()
+    }
+
+    func logAmountEnteredIfNeeded(amount: Decimal?) {
+        guard let amount, amount > 0, !hasLoggedAmountEntered else { return }
+
+        hasLoggedAmountEntered = true
+        analyticsLogger.logAmountEntered()
+    }
+
+    func logInsufficientFundsIfNeeded() {
+        guard amountState == .notEnoughFunds else {
+            hasLoggedInsufficientFunds = false
+            return
+        }
+
+        guard hasAppeared, !hasLoggedInsufficientFunds else { return }
+
+        hasLoggedInsufficientFunds = true
+        analyticsLogger.logInsufficientFundsStateShowed()
     }
 }
 

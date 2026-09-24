@@ -13,16 +13,20 @@ import TangemPay
 
 final class RecentRecipientsViewModel: ObservableObject {
     @Published var searchText = ""
+    @Published var isSearchActive = false
     @Published private(set) var recipients: [RecentRecipientItem] = []
 
     private let recentRecipientsStore: TangemPayRecentRecipientsStore
+    private let analyticsLogger: any TangemPayOfframpAnalyticsLogger
     private let output: (String) -> Void
 
     init(
         recentRecipientsStore: TangemPayRecentRecipientsStore,
+        analyticsLogger: any TangemPayOfframpAnalyticsLogger,
         output: @escaping (String) -> Void
     ) {
         self.recentRecipientsStore = recentRecipientsStore
+        self.analyticsLogger = analyticsLogger
         self.output = output
 
         bind()
@@ -30,11 +34,20 @@ final class RecentRecipientsViewModel: ObservableObject {
         if recentRecipientsStore.recipients.isEmpty {
             recentRecipientsStore.load()
         }
+
+        analyticsLogger.logSavedContactsScreenOpened()
     }
 
     func onRecipientTap(id: String) {
+        analyticsLogger.logSavedContactOnContactsScreenClicked()
         recentRecipientsStore.recordSelection(id: id)
         output(id)
+    }
+
+    func searchActiveDidChange(to isActive: Bool) {
+        guard isActive else { return }
+
+        analyticsLogger.logSearchBarClicked()
     }
 
     private func bind() {

@@ -107,7 +107,7 @@ private extension TransferConfirmationContentView {
     var railRow: some View {
         if let rail = state.rail {
             SwiftUI.Button {
-                action(.editTap(.amount))
+                action(.railTap)
             } label: {
                 railContent(rail)
             }
@@ -272,6 +272,7 @@ extension TransferConfirmationContentView {
 extension TransferConfirmationContentView {
     enum Action {
         case editTap(TransferConfirmationEditTarget)
+        case railTap
         case sendTap
     }
 }
