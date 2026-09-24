@@ -68,13 +68,13 @@ struct PolymarketOrderFractionTests {
         #expect(model.state.enteredAmount == 100)
     }
 
-    @Test("The nine tenths Max offers are cut to what the collateral can express")
-    func maxIsRoundedToCollateralPrecision() async throws {
+    @Test("The nine tenths Max offers are cut to the cent the field can spell")
+    func maxIsRoundedToTheEnteredPrecision() async throws {
         let model = try await makeModel(balance: Decimal(string: "0.3333333")!)
 
         model.handleViewAction(.fractionSelected(.max))
 
-        #expect(model.state.enteredAmount == Decimal(string: "0.299999")!)
+        #expect(model.state.enteredAmount == Decimal(string: "0.29")!)
     }
 
     @Test("A share of a position is cut to whole tokens")
