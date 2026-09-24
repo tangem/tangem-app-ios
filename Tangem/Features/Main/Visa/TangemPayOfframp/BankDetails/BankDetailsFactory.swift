@@ -13,6 +13,7 @@ enum BankDetailsFactory {
     @MainActor
     static func makeView(
         orderBuilder: TangemPayOfframpOrderBuilder,
+        analyticsLogger: any TangemPayOfframpAnalyticsLogger,
         output: @escaping (BankDetailsViewModel.Output) -> Void
     ) -> some View {
         BankDetailsView(
@@ -20,6 +21,7 @@ enum BankDetailsFactory {
                 orderBuilder: orderBuilder,
                 title: title(for: orderBuilder.recipient),
                 stepSubtitle: TangemPayOfframpWizardStep.bankDetails.subtitle(for: orderBuilder.recipient),
+                analyticsLogger: analyticsLogger,
                 output: output
             )
         )
