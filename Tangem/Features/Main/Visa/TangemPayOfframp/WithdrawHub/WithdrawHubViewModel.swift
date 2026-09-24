@@ -25,6 +25,7 @@ final class WithdrawHubViewModel: ObservableObject {
     private let withdrawFlowResolver: TangemPayWithdrawFlowResolver
     private let recentRecipientsStore: TangemPayRecentRecipientsStore
     private let optionsStore: TangemPayOfframpOptionsStore
+    private let analyticsLogger: any TangemPayOfframpAnalyticsLogger
     private let output: (Output) -> Void
 
     private var withinPortfolioTask: Task<Void, Error>?
@@ -33,16 +34,20 @@ final class WithdrawHubViewModel: ObservableObject {
         withdrawFlowResolver: TangemPayWithdrawFlowResolver,
         recentRecipientsStore: TangemPayRecentRecipientsStore,
         optionsStore: TangemPayOfframpOptionsStore,
+        analyticsLogger: any TangemPayOfframpAnalyticsLogger,
         output: @escaping (Output) -> Void
     ) {
         self.withdrawFlowResolver = withdrawFlowResolver
         self.recentRecipientsStore = recentRecipientsStore
         self.optionsStore = optionsStore
+        self.analyticsLogger = analyticsLogger
         self.output = output
 
         bind()
         recentRecipientsStore.load()
         optionsStore.load()
+
+        analyticsLogger.logBankTransferSheetOpened()
     }
 
     func onCloseTap() {
@@ -69,10 +74,12 @@ final class WithdrawHubViewModel: ObservableObject {
     }
 
     private func onPersonalAccountTap() {
+        analyticsLogger.logToPersonalAccountClicked()
         output(.startWizard(.newIndividual))
     }
 
     private func onBusinessAccountTap() {
+        analyticsLogger.logToBusinessAccountClicked()
         output(.startWizard(.newBusiness))
     }
 
@@ -81,11 +88,13 @@ final class WithdrawHubViewModel: ObservableObject {
     }
 
     private func onRecentAccountTap(id: String) {
+        analyticsLogger.logSavedContactClicked()
         recentRecipientsStore.recordSelection(id: id)
         output(.startWizard(.saved(bankAccountId: id)))
     }
 
     private func onSeeAllTap() {
+        analyticsLogger.logSavedContactsSeeAllClicked()
         output(.allRecipients)
     }
 

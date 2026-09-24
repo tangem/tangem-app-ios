@@ -20,22 +20,28 @@ final class BankDetailsViewModel: ObservableObject {
     let stepSubtitle: String?
 
     private let orderBuilder: TangemPayOfframpOrderBuilder
+    private let analyticsLogger: any TangemPayOfframpAnalyticsLogger
     private let output: (Output) -> Void
 
     private var region: TangemPayGeoRegion?
+    private var loggedFilledFields: Set<TangemPayFormField.ID> = []
 
     init(
         orderBuilder: TangemPayOfframpOrderBuilder,
         title: String,
         stepSubtitle: String?,
+        analyticsLogger: any TangemPayOfframpAnalyticsLogger,
         output: @escaping (Output) -> Void
     ) {
         self.orderBuilder = orderBuilder
         self.title = title
         self.stepSubtitle = stepSubtitle
+        self.analyticsLogger = analyticsLogger
         self.output = output
 
         refresh()
+
+        analyticsLogger.logRecipientBankDetailsScreenOpened()
     }
 
     var contentState: OfframpFormContentView.StateModel {
@@ -62,6 +68,7 @@ final class BankDetailsViewModel: ObservableObject {
         guard let blurredFieldID = focusedFieldID, blurredFieldID != id else { return }
 
         updateField(blurredFieldID) { $0.error = $0.currentError }
+        logFieldFilledIfNeeded(blurredFieldID)
     }
 
     func fieldDidChange(_ id: TangemPayFormField.ID) {
@@ -90,11 +97,24 @@ final class BankDetailsViewModel: ObservableObject {
         guard isContinueEnabled, let region else { return }
 
         orderBuilder.set(bankDetails: makeBankDetails(region: region))
+
+        focusedFieldID.map(logFieldFilledIfNeeded)
+        analyticsLogger.logRecipientBankDetailsContinueClicked()
         output(.continueWizard)
     }
 
     func onCloseTap() {
         output(.close)
+    }
+}
+
+// MARK: - Field analytics
+
+private extension BankDetailsViewModel {
+    func logFieldFilledIfNeeded(_ id: TangemPayFormField.ID) {
+        guard !text(for: id).isEmpty, loggedFilledFields.insert(id).inserted else { return }
+
+        analyticsLogger.logRecipientBankDetailsFieldFilled(field: id)
     }
 }
 
@@ -191,6 +211,8 @@ private extension BankDetailsViewModel {
                     $0.text = selected.name
                     $0.error = nil
                 }
+
+                self?.logFieldFilledIfNeeded(.bankRegion)
             }
         )
     }

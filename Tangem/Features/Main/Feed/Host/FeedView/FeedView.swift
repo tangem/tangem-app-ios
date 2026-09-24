@@ -15,6 +15,7 @@ struct FeedView: View {
     @ObservedObject var searchViewModel: FeedSearchViewModel
 
     let container: any FeedContainer
+    let isContentVisible: Bool
 
     @Environment(\.feedDetentReporting) private var detentReporting
     @Environment(\.mainShtorkaSize) private var sheetSize
@@ -66,11 +67,15 @@ struct FeedView: View {
 
                 ScrollView {
                     VStack(spacing: FeedConstants.widgetsToTabsSpacing) {
-                        FeedWidgetsView(viewModel: viewModel.widgetsViewModel)
-                            .readGeometry(\.size.height) { height in
-                                viewModel.scrollCoordinator.report(widgets: height)
-                                detentReporting?.report(widgets: height)
-                            }
+                        FeedWidgetsView(
+                            viewModel: viewModel.widgetsViewModel,
+                            viewport: viewport.frame(in: .global),
+                            isContentVisible: isContentVisible && !searchViewModel.isActive
+                        )
+                        .readGeometry(\.size.height) { height in
+                            viewModel.scrollCoordinator.report(widgets: height)
+                            detentReporting?.report(widgets: height)
+                        }
 
                         FeedTabsView(
                             viewModel: viewModel.tabsViewModel,

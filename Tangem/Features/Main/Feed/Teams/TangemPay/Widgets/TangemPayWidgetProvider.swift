@@ -14,7 +14,7 @@ final class TangemPayWidgetProvider {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
 
-    private let entrySubject = CurrentValueSubject<FeedTangemPayEntry?, Never>(nil)
+    private let entrySubject = CurrentValueSubject<WalletEntry?, Never>(nil)
     private weak var router: FeedWidgetsRoutable?
     private var bag = Set<AnyCancellable>()
 
@@ -29,12 +29,12 @@ final class TangemPayWidgetProvider {
 extension TangemPayWidgetProvider: FeedWidgetProvider {
     var widgetPublisher: AnyPublisher<FeedWidget?, Never> {
         entrySubject
-            .map { $0 == nil ? nil : FeedWidget.tangemPay }
+            .map { $0.map { FeedWidget.tangemPay(walletId: $0.walletId) } }
             .eraseToAnyPublisher()
     }
 
     func select() {
-        guard let entry = entrySubject.value else { return }
+        guard let entry = entrySubject.value?.entry else { return }
 
         router?.openTangemPay(entry)
     }
@@ -43,15 +43,22 @@ extension TangemPayWidgetProvider: FeedWidgetProvider {
 // MARK: - Private
 
 private extension TangemPayWidgetProvider {
+    struct WalletEntry {
+        let entry: FeedTangemPayEntry
+        let walletId: UserWalletId
+    }
+
     func bind() {
         userWalletRepository.selectedUnlockedModelPublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { provider, wallet -> AnyPublisher<FeedTangemPayEntry?, Never> in
+            .flatMapLatest { provider, wallet -> AnyPublisher<WalletEntry?, Never> in
                 guard let wallet else {
                     return .just(output: nil)
                 }
 
                 return provider.entryPublisher(for: wallet)
+                    .map { $0.map { WalletEntry(entry: $0, walletId: wallet.userWalletId) } }
+                    .eraseToAnyPublisher()
             }
             .receiveOnMain()
             .withWeakCaptureOf(self)
