@@ -109,10 +109,9 @@ struct FeedView: View {
                         .frame(height: FeedConstants.searchContentInset)
                         .allowsHitTesting(false)
                 }
-                .overlay(alignment: .top) {
+                .reverseMask(alignment: .top) {
                     if isContentUnderSearchBar, !areChipsPinned {
-                        Fade(position: .top)
-                            .frame(height: FeedConstants.topFadeHeight)
+                        FeedTopFade()
                     }
                 }
                 // An edge-attached collapsed sheet is taller than the search bar by this inset; keep the widgets out of it.
