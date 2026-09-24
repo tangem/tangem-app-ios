@@ -19,6 +19,8 @@ import TangemUIUtils
 /// back and dims.
 @MainActor
 final class OverlayViewPresentationHost {
+    @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
+
     private let viewModel: OverlayViewPresenterViewModel
     private let sheetRegistry: FloatingSheetRegistry
 
@@ -115,7 +117,7 @@ private extension OverlayViewPresentationHost {
             return
         }
 
-        guard !top.isBeingPresented, !top.isBeingDismissed else {
+        guard !top.isBeingPresented, !top.isBeingDismissed, !isShtorkaComingUp(over: top) else {
             DispatchQueue.main.asyncAfter(deadline: .now() + Constants.presentationRetryDelay) { [weak self] in
                 self?.presentWhenTopIsFree(viewController, for: overlay)
             }
@@ -123,6 +125,14 @@ private extension OverlayViewPresentationHost {
         }
 
         top.present(viewController, animated: overlay.animated)
+    }
+
+    /// The shtorka is asked for but not yet presented from the root. A screen the root shows before it is taken down
+    /// when SwiftUI puts the shtorka up, so it waits to go over the shtorka instead.
+    func isShtorkaComingUp(over top: UIViewController) -> Bool {
+        FeatureProvider.isAvailable(.newShtorkaEnabled)
+            && mainBottomSheetUIManager.isShown
+            && top === UIApplication.mainWindow?.rootViewController
     }
 
     func dismiss(completion: (() -> Void)? = nil) {
