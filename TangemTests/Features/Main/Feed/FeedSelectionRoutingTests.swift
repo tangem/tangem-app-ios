@@ -134,7 +134,10 @@ private extension FeedSelectionRoutingTests {
                 )
             ),
             tabsViewModel: FeedTabsViewModel(tabs: [.predictions, .earn(earn)]),
-            widgetsViewModel: FeedWidgetsViewModel(providers: widgetProviders),
+            widgetsViewModel: FeedWidgetsViewModel(
+                providers: widgetProviders,
+                analytics: FeedWidgetsAnalytics(container: container)
+            ),
             container: container,
             selection: selection
         )
@@ -222,6 +225,10 @@ private final class FeedContainerStub: FeedContainer {
 
     var sizePublisher: AnyPublisher<ShtorkaSize, Never> {
         Empty<ShtorkaSize, Never>(completeImmediately: false).eraseToAnyPublisher()
+    }
+
+    var contentCollapsedPublisher: AnyPublisher<Bool, Never> {
+        Empty<Bool, Never>(completeImmediately: false).eraseToAnyPublisher()
     }
 
     var dismissPublisher: AnyPublisher<Void, Never> {
