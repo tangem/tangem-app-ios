@@ -99,6 +99,7 @@ struct PulseView: View {
         .accessibilityIdentifier { option in
             MarketsAccessibilityIdentifiers.marketsIntervalSegment(option.interval.rawValue)
         }
+        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsIntervalButton(viewModel.selectedInterval.rawValue))
         .fixedSize(horizontal: true, vertical: false)
     }
 
@@ -135,6 +136,8 @@ struct PulseView: View {
             chip(category.title, isSelected: isSelected)
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSortOption(category.accessibilityOrderId))
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     private func chip(_ title: String, isSelected: Bool) -> some View {
@@ -151,6 +154,18 @@ struct PulseView: View {
                     Capsule().fill(DesignSystem.Color.bgOpaqueSecondary)
                 }
             }
+    }
+}
+
+private extension PulseCategory {
+    var accessibilityOrderId: String {
+        switch self {
+        case .marketCap: MarketsListOrderType.rating.rawValue
+        case .topGainers: MarketsListOrderType.gainers.rawValue
+        case .topLosers: MarketsListOrderType.losers.rawValue
+        case .experiencedBuyers: MarketsListOrderType.buyers.rawValue
+        case .trending: MarketsListOrderType.trending.rawValue
+        }
     }
 }
 
