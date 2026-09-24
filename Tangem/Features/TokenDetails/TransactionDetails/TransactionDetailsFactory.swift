@@ -579,7 +579,6 @@ enum TransactionDetailsFactory {
         let paid = TransactionDetailsOnrampViewData.PaidLeg(
             amount: balanceFormatter.formatDecimal(onramp.from.amount),
             symbol: onramp.from.currencyCode,
-            fiatPrice: nil,
             flagIconURL: info.fiatCurrency?.identity.image ?? IconURLBuilder().fiatIconURL(currencyCode: onramp.from.currencyCode),
             isFlagLoading: info.fiatCurrency == nil
         )
@@ -590,9 +589,8 @@ enum TransactionDetailsFactory {
 
         let received = TransactionDetailsOnrampViewData.ReceivedLeg(
             destination: destination,
-            amount: balanceFormatter.formatDecimal(receivedAmount),
+            amount: receivedAmount.map { balanceFormatter.formatDecimal($0) },
             symbol: context.tokenSymbol,
-            fiatPrice: fiatText(amount: receivedAmount, currencyId: context.tokenCurrencyId),
             tokenIconInfo: context.tokenIconInfo
         )
 
@@ -600,7 +598,6 @@ enum TransactionDetailsFactory {
             stage: TransactionOperationStatusMapper.stage(for: onramp.status),
             paid: paid,
             received: received,
-            isReceivedEstimated: onramp.to.actualAmount == nil,
             statusBanner: onrampStatusBanner(onramp.status),
             provider: provider(info.provider, fallbackId: onramp.providerId, externalURL: onramp.externalTx?.url),
             rate: fiatRate(cryptoAmount: receivedAmount, cryptoSymbol: context.tokenSymbol, fiatAmount: onramp.from.amount, fiatSymbol: onramp.from.currencyCode),
