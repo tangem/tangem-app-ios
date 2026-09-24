@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 import BlockchainSdk
 import TangemFoundation
 
@@ -19,20 +20,29 @@ actor YieldIncentivesClaimInteractor {
     private let userAddress: String
     private let manager: YieldModuleManager
     private let transactionDispatcher: TransactionDispatcher
+    private let tracker: YieldIncentivesClaimTracker
     private let validator = YieldClaimCalldataValidator()
 
-    private(set) var isClaimInFlight = false
+    var isClaimInFlight: Bool {
+        get async { await tracker.isClaimInFlight }
+    }
+
+    nonisolated var claimEventPublisher: AnyPublisher<YieldIncentivesClaimTracker.Event, Never> {
+        tracker.eventPublisher
+    }
 
     init(
         chainId: Int,
         userAddress: String,
         manager: YieldModuleManager,
-        transactionDispatcher: TransactionDispatcher
+        transactionDispatcher: TransactionDispatcher,
+        tracker: YieldIncentivesClaimTracker
     ) {
         self.chainId = chainId
         self.userAddress = userAddress
         self.manager = manager
         self.transactionDispatcher = transactionDispatcher
+        self.tracker = tracker
     }
 
     /// Fresh calldata → validation → owner-paid network fee; a validation failure never reaches the card.
@@ -42,7 +52,8 @@ actor YieldIncentivesClaimInteractor {
         }
 
         let calldata = try await yieldModuleNetworkManager.fetchClaimCalldata(chainId: chainId, userAddress: userAddress)
-        let validated = try await validate(calldata)
+        let summary = try await fetchSummary()
+        let validated = try validate(calldata, summary: summary)
         let fee = try await manager.claimFee(to: validated.to, data: validated.data)
         let transaction = try await manager.makeClaimTransaction(to: validated.to, data: validated.data, fee: fee)
 
@@ -50,48 +61,69 @@ actor YieldIncentivesClaimInteractor {
             throw ClaimError.moduleUnavailable
         }
 
-        return PreparedClaim(calldata: calldata, to: validated.to, data: validated.data, fee: fee, transaction: transaction)
+        return PreparedClaim(
+            calldata: calldata,
+            summary: summary,
+            to: validated.to,
+            data: validated.data,
+            fee: fee,
+            transaction: transaction
+        )
     }
 
     /// The earlier `prepare` result only shapes the confirmation sheet — the submitted transaction
     /// is built from calldata fetched right here, and its fresh recommendation overrides the earlier
     /// one. No automatic retries.
-    func claim() async throws -> String {
-        guard !isClaimInFlight else {
+    func claim(confirmedFee: Decimal?, isFeeCovered: (Amount) -> Bool) async throws -> String {
+        guard await tracker.beginClaim() else {
             throw ClaimError.claimAlreadyInFlight
         }
-
-        isClaimInFlight = true
 
         let prepared: PreparedClaim
 
         do {
             prepared = try await prepare()
+
+            // The sheet checked the fee it displayed; this one is the fee the card is about to sign.
+            guard isFeeCovered(prepared.fee.totalFeeAmount) else {
+                throw ClaimError.insufficientFee
+            }
+
+            if let confirmedFee, prepared.fee.totalFeeAmount.value > confirmedFee {
+                throw ClaimError.feeIncreased
+            }
         } catch {
-            isClaimInFlight = false
+            await tracker.releaseClaim()
             throw error
         }
 
         do {
-            return try await manager.submitClaim(
+            let transactionHash = try await manager.submitClaim(
                 transaction: prepared.transaction,
                 transactionDispatcher: transactionDispatcher
             )
-        } catch {
-            // Only a declined signature is certain to have reached no node; any later failure may already be
-            // broadcast, so the guard holds until the outcome is reconciled.
-            if error.isCancellationError {
-                isClaimInFlight = false
+
+            await tracker.claimSubmitted { [manager] in
+                await manager.awaitPendingTransactionCleared(
+                    transactionHash: transactionHash,
+                    timeout: YieldIncentivesClaimTracker.reconciliationWindow
+                )
             }
 
-            throw error
-        }
-    }
+            return transactionHash
+        } catch {
+            // A declined signature is the only failure certain to have left the transaction unsent; by the time
+            // anything else surfaces it is wrapped past recognition, so the rewards decide instead of the error.
+            if error.isCancellationError {
+                await tracker.releaseClaim()
+                throw error
+            }
 
-    /// Releases the single-flight guard once the submitted claim is reconciled — confirmed,
-    /// definitively failed, or resolved through a rewards refresh.
-    func finishClaim() {
-        isClaimInFlight = false
+            AppLogger.error("Yield claim submission left unresolved", error: error)
+            await tracker.claimSubmissionUnresolved()
+
+            throw ClaimError.submissionUnresolved
+        }
     }
 
     /// Read through the shared manager so the sheet and the banner underneath cannot state different totals,
@@ -117,9 +149,10 @@ actor YieldIncentivesClaimInteractor {
         return summary
     }
 
-    private func validate(_ calldata: YieldClaimCalldata) async throws -> YieldClaimCalldataValidator.ValidatedClaim {
-        let summary = try await fetchSummary()
-
+    private func validate(
+        _ calldata: YieldClaimCalldata,
+        summary: YieldIncentivesRewardsSummary
+    ) throws -> YieldClaimCalldataValidator.ValidatedClaim {
         // A wallet refresh replaces the active state with `.loading`, which carries the same info in its cache.
         let state = manager.state?.state
 
@@ -161,6 +194,7 @@ actor YieldIncentivesClaimInteractor {
 extension YieldIncentivesClaimInteractor {
     struct PreparedClaim {
         let calldata: YieldClaimCalldata
+        let summary: YieldIncentivesRewardsSummary
         let to: String
         let data: Data
         let fee: YieldTransactionFee
@@ -172,5 +206,9 @@ extension YieldIncentivesClaimInteractor {
         case claimAlreadyInFlight
         case rewardsUnavailable
         case moduleUnavailable
+        case insufficientFee
+        case feeIncreased
+        /// The submission may already have reached a node; the tracker decides its outcome.
+        case submissionUnresolved
     }
 }
