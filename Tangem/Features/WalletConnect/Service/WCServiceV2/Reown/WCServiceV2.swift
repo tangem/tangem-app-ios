@@ -301,6 +301,15 @@ private extension WCServiceV2 {
                         )
 
                         self.transactionRequestSubject.send(.success(handleTransactionData))
+                    } catch WalletConnectTransactionRequestProcessingError.blockchainToAddDuplicate
+                        where request.method == WalletConnectMethod.switchChain.rawValue {
+                        // EIP-3326: the session already includes the requested chain, so there is nothing to
+                        // switch — that is a success (`null` result), not an error. dApps call
+                        // `wallet_switchEthereumChain` before every transaction; an error here (and the
+                        // generic error toast it produced) broke that flow for an already-connected network.
+                        WCLogger.info("wallet_switchEthereumChain to an already connected chain — responding with success.")
+                        await self.respondWithEmptySuccess(to: request)
+                        await self.duplicateRequestFilter.removeFootprint(for: request)
                     } catch {
                         WCLogger.error("WCHandleTransactionDTO creation failed: ", error: error)
                         await self.reject(transactionRequest: request)
@@ -498,6 +507,20 @@ private extension WCServiceV2 {
     private func normalizeAddress(_ address: String) -> String {
         let trimmedAddress = address.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmedAddress.isEvmAddress ? trimmedAddress.lowercased() : trimmedAddress
+    }
+
+    /// Responds with the same empty payload `wallet_addEthereumChain` returns on success.
+    private func respondWithEmptySuccess(to transactionRequest: Request) async {
+        do {
+            try await walletKitClient.respond(
+                topic: transactionRequest.topic,
+                requestId: transactionRequest.id,
+                response: .response(AnyCodable(""))
+            )
+        } catch {
+            let errorMessage = "Failed to respond with success to request with topic: \(transactionRequest.topic) for method: \(transactionRequest.method)"
+            WCLogger.error(errorMessage, error: error)
+        }
     }
 
     private func reject(transactionRequest: Request) async {
