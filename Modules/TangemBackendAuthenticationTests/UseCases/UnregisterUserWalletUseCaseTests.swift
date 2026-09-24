@@ -15,7 +15,7 @@ import struct TangemFoundation.UserWalletId
 struct UnregisterUserWalletUseCaseTests {
     @Test
     func unregisterUserWalletUnregistersAndPersistsTokensOnSuccess() async throws {
-        let expectedID = UserWalletId.fake
+        let expectedID = UserWalletId.uniqueFake()
 
         let registrationClient = SpyUserWalletRegistrationClient()
         let expectedSessionTokens = SessionTokens.uniqueFake()
@@ -41,7 +41,7 @@ struct UnregisterUserWalletUseCaseTests {
 
     @Test
     func unregisterUserWalletPersistsStatusWithoutTokensWhenNotRegisteredOnServer() async throws {
-        let expectedID = UserWalletId.fake
+        let expectedID = UserWalletId.uniqueFake()
 
         let registrationClient = SpyUserWalletRegistrationClient()
         registrationClient.unregisterResult = Result.failure(.wasNotRegistered)
@@ -87,7 +87,7 @@ struct UnregisterUserWalletUseCaseTests {
 
     @Test
     func unregisterUserWalletThrowsRepositoryFailureWhenPersistFails() async throws {
-        let expectedID = UserWalletId.fake
+        let expectedID = UserWalletId.uniqueFake()
 
         let registrationClient = SpyUserWalletRegistrationClient()
         let expectedSessionTokens = SessionTokens.uniqueFake()
