@@ -30,6 +30,10 @@ extension JointAccountFormViewCreator: AccountFormViewCreator {
     /// without naming it.
     var initialAccountName: String { Localization.commonJointAccount }
 
+    /// Derivation is a matter of the wallet's own accounts; a joint account is not one of them and says nothing
+    /// about it.
+    var showsAccountIndexDescription: Bool { false }
+
     /// - Note: The joint accounts are counted apart from the wallet's own ones, and it is their count the form shows
     /// as the ordinal number of the account being created.
     var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
