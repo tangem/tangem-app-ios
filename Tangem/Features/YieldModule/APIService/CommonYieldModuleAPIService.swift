@@ -57,6 +57,24 @@ extension CommonYieldModuleAPIService: YieldModuleAPIService {
         try await incentivesRequest(for: .incentives(chainId: chainId, userAddress: userAddress))
     }
 
+    func getClaimCalldata(
+        chainId: Int,
+        userAddress: String
+    ) async throws -> YieldModuleDTO.Response.ClaimCalldata {
+        let enveloped: YieldModuleDTO.Enveloped<YieldModuleDTO.Response.ClaimCalldata> = try await request(
+            for: .claimCalldata(chainId: chainId, userAddress: userAddress),
+            decoder: decoder
+        )
+        return enveloped.result
+    }
+
+    func getClaimHistory(
+        chainId: Int,
+        userAddress: String
+    ) async throws -> YieldModuleDTO.Response.ClaimHistory? {
+        try await incentivesRequest(for: .claimHistory(chainId: chainId, userAddress: userAddress))
+    }
+
     func getAprHistory(
         chainId: Int,
         tokenAddress: String,
