@@ -14,6 +14,7 @@ enum PersonalDetailsFactory {
     static func makeView(
         orderBuilder: TangemPayOfframpOrderBuilder,
         recentRecipientsStore: TangemPayRecentRecipientsStore,
+        analyticsLogger: any TangemPayOfframpAnalyticsLogger,
         output: @escaping (PersonalDetailsViewModel.Output) -> Void
     ) -> some View {
         PersonalDetailsView(
@@ -22,6 +23,7 @@ enum PersonalDetailsFactory {
                 recentRecipientsStore: recentRecipientsStore,
                 title: title(for: orderBuilder.recipient),
                 stepSubtitle: TangemPayOfframpWizardStep.personalDetails.subtitle(for: orderBuilder.recipient),
+                analyticsLogger: analyticsLogger,
                 output: output
             )
         )

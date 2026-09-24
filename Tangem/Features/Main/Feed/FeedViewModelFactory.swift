@@ -48,7 +48,8 @@ struct FeedViewModelFactory {
                 providers: FeedWidgetsRegistry.makeProviders(
                     router: widgetsRouter,
                     canOpenHostScreens: canOpenHostScreens
-                )
+                ),
+                analytics: FeedWidgetsAnalytics(container: container)
             ),
             container: container,
             selection: selection

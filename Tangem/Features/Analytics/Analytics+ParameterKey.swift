@@ -249,5 +249,7 @@ extension Analytics {
 
         case section = "Section"
         case category = "Category"
+        case productCard = "Product Card"
+        case shtorkaState = "Shtorka State"
     }
 }
