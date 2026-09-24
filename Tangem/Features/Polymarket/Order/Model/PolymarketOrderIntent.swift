@@ -36,10 +36,10 @@ extension PolymarketOrderIntent {
         }
     }
 
-    var deductsFeeFromMax: Bool {
+    var maxOffersWholePosition: Bool {
         switch self {
-        case .buy: true
-        case .sell: false
+        case .buy: false
+        case .sell: true
         }
     }
 
