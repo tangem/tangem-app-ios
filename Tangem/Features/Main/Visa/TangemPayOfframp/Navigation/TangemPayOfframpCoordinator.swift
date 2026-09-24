@@ -37,6 +37,7 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
     private(set) var geoStore: TangemPayGeoStore?
     private(set) var orderBuilder: TangemPayOfframpOrderBuilder?
     private(set) var sendUseCase: TangemPayOffRampSendUseCase?
+    private(set) var analyticsLogger: (any TangemPayOfframpAnalyticsLogger)?
     private(set) var hasNFCInteraction = false
 
     private var orderService: (any TangemPayOfframpOrderService)?
@@ -62,6 +63,11 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         hasNFCInteraction = options.hasNFCInteraction
+
+        let analyticsLogger = CommonTangemPayOfframpAnalyticsLogger(
+            userWalletId: options.tangemPayAccount.userWalletId
+        )
+        self.analyticsLogger = analyticsLogger
 
         orderService = CommonTangemPayOfframpOrderService(
             customerService: options.tangemPayAccount.customerService
@@ -98,6 +104,7 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
             ),
             recentRecipientsStore: recentRecipientsStore,
             optionsStore: optionsStore,
+            analyticsLogger: analyticsLogger,
             output: { [weak self] in
                 self?.handle($0)
             }
@@ -110,7 +117,8 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
         guard let optionsStore,
               let orderService,
               let orderSigner,
-              let recentRecipientsStore
+              let recentRecipientsStore,
+              let analyticsLogger
         else {
             return
         }
@@ -134,6 +142,7 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
                 optionsStore: optionsStore,
                 recipient: recipient,
                 savedRecipientName: savedRecipientName,
+                analyticsLogger: analyticsLogger,
                 output: { [weak self] in
                     self?.handle($0)
                 }
@@ -410,6 +419,7 @@ private extension TangemPayOfframpCoordinator {
                 let self,
                 let orderBuilder,
                 let optionsStore,
+                let analyticsLogger,
                 let index = path.lastIndex(of: .transferInput)
             else {
                 return
@@ -420,6 +430,7 @@ private extension TangemPayOfframpCoordinator {
                 optionsStore: optionsStore,
                 recipient: orderBuilder.recipient,
                 savedRecipientName: savedRecipientName(for: orderBuilder.recipient),
+                analyticsLogger: analyticsLogger,
                 output: { [weak self] in
                     self?.handle($0)
                 }
