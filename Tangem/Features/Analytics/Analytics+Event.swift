@@ -581,6 +581,9 @@ extension Analytics {
         case marketsTokenSearchedClicked = "[Markets] Token Searched Clicked"
         case marketsEnterSection = "[Markets] Enter Section"
         case marketsSelectCategory = "[Markets] Select Category"
+        case marketsProductCardShown = "[Markets] Product Card Shown"
+        case marketsProductCardClicked = "[Markets] Product Card Clicked"
+        case marketsForYouClicked = "[Markets] For You Clicked"
         case marketsNotificationRegionNotSupported = "[Markets] Notification - Region Not Supported"
 
         // MARK: - Earn

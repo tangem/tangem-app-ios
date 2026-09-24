@@ -22,6 +22,10 @@ protocol FeedContainer: AnyObject {
     /// report until that changes.
     var sizePublisher: AnyPublisher<ShtorkaSize, Never> { get }
 
+    /// Whether the feed's content has reached the physically collapsed state. This may change during an
+    /// interrupted drag even when the settled size does not.
+    var contentCollapsedPublisher: AnyPublisher<Bool, Never> { get }
+
     /// The container has taken the feed off screen for good.
     var dismissPublisher: AnyPublisher<Void, Never> { get }
 

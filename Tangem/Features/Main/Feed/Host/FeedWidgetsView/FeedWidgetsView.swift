@@ -13,6 +13,11 @@ import TangemUIUtils
 struct FeedWidgetsView: View {
     @ObservedObject var viewModel: FeedWidgetsViewModel
 
+    let viewport: CGRect
+    let isContentVisible: Bool
+
+    @Environment(\.scenePhase) private var scenePhase
+
     @ScaledMetric private var compactCardWidth: CGFloat = Constants.compactCardWidth
     @ScaledMetric private var compactCardHeight: CGFloat = Constants.compactCardHeight
     @ScaledMetric private var wideCardWidth: CGFloat = Constants.wideCardWidth
@@ -22,7 +27,11 @@ struct FeedWidgetsView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(alignment: .top, spacing: Constants.spacing) {
                     ForEach(viewModel.columns) { column in
-                        view(for: column, productWidth: productCardWidth(in: geometry.size.width))
+                        view(
+                            for: column,
+                            productWidth: productCardWidth(in: geometry.size.width),
+                            viewport: viewport.intersection(geometry.frame(in: .global))
+                        )
                     }
                 }
                 .padding(.horizontal, Constants.horizontalInset)
@@ -30,26 +39,40 @@ struct FeedWidgetsView: View {
             }
         }
         .frame(height: columnHeight)
+        .onAppear { viewModel.updateContentVisibility(isTrackingVisibility) }
+        .onChange(of: isTrackingVisibility) { viewModel.updateContentVisibility($0) }
+        .onDisappear { viewModel.updateContentVisibility(false) }
     }
 
     @ViewBuilder
-    private func view(for column: FeedWidgetColumn, productWidth: CGFloat) -> some View {
+    private func view(for column: FeedWidgetColumn, productWidth: CGFloat, viewport: CGRect) -> some View {
         switch column {
         case .pair(let top, let bottom):
             VStack(spacing: Constants.spacing) {
-                view(for: top, productWidth: productWidth)
-                view(for: bottom, productWidth: productWidth)
+                view(for: top, productWidth: productWidth, viewport: viewport)
+                view(for: bottom, productWidth: productWidth, viewport: viewport)
             }
         case .single(let widget):
-            view(for: widget, productWidth: productWidth)
+            view(for: widget, productWidth: productWidth, viewport: viewport)
         }
     }
 
     @ViewBuilder
-    private func view(for widget: FeedWidget, productWidth: CGFloat) -> some View {
+    private func view(for widget: FeedWidget, productWidth: CGFloat, viewport: CGRect) -> some View {
         let card = content(for: widget)
             .frame(size: cardSize(for: widget.span, productWidth: productWidth))
 
+        widgetButton(widget, card: card)
+            .onGeometryChange(for: FeedWidget?.self, of: { geometry in
+                viewport.intersection(geometry.frame(in: .global)).isEmpty ? nil : widget
+            }) { visibleWidget in
+                viewModel.updateVisibility(of: visibleWidget ?? widget, isVisible: visibleWidget != nil)
+            }
+            .onDisappear { viewModel.updateVisibility(of: widget, isVisible: false) }
+    }
+
+    @ViewBuilder
+    private func widgetButton(_ widget: FeedWidget, card: some View) -> some View {
         if widget.loadingState.isLoading {
             card
         } else {
@@ -71,13 +94,13 @@ struct FeedWidgetsView: View {
         case .addAccount:
             FeedAddAccountWidgetView()
 
-        case .startEarning(let state):
+        case .startEarning(let state, _):
             FeedEarnWidgetView(state: state)
 
         case .tangemPay:
             FeedTangemPayWidgetView()
 
-        case .referFriend(let reward):
+        case .referFriend(let reward, _):
             FeedReferralWidgetView(reward: reward)
 
         case .polymarket:
@@ -92,6 +115,10 @@ struct FeedWidgetsView: View {
 // MARK: - Private
 
 private extension FeedWidgetsView {
+    var isTrackingVisibility: Bool {
+        isContentVisible && scenePhase == .active
+    }
+
     var columnHeight: CGFloat {
         compactCardHeight * 2 + Constants.spacing
     }
