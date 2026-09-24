@@ -14,6 +14,49 @@ import Testing
 @Suite("Main shtorka state", .serialized)
 @MainActor
 struct MainShtorkaStateObjectTests {
+    @Test("Search skips medium and restores it after collapsing and closing")
+    func searchUsesCollapsedAndFullDetents() async {
+        await withCleanEnvironment { stateObject in
+            let feedDetents = stateObject.detents
+            stateObject.size = .medium
+
+            stateObject.setSearchActive(true)
+
+            #expect(stateObject.size == .full)
+            #expect(stateObject.detents.all == [feedDetents.collapsed, feedDetents.full])
+            #expect(stateObject.detents.size(for: feedDetents.collapsed) == .collapsed)
+
+            stateObject.collapse()
+            stateObject.setSearchActive(false)
+
+            #expect(stateObject.size == .collapsed)
+            #expect(stateObject.detents == feedDetents)
+        }
+    }
+
+    @Test("Search and navigation independently keep medium unavailable", arguments: [true, false])
+    func searchAndNavigationKeepTheirOwnDetentRestriction(closeSearchFirst: Bool) async {
+        await withCleanEnvironment { stateObject in
+            let feedDetents = stateObject.detents
+            stateObject.setSearchActive(true)
+            stateObject.setNavigationActive(true)
+
+            if closeSearchFirst {
+                stateObject.setSearchActive(false)
+            } else {
+                stateObject.setNavigationActive(false)
+            }
+
+            #expect(stateObject.detents.all == [feedDetents.collapsed, feedDetents.full])
+
+            stateObject.setSearchActive(false)
+            stateObject.setNavigationActive(false)
+
+            #expect(stateObject.detents == feedDetents)
+            #expect(stateObject.size == .full)
+        }
+    }
+
     @Test("Shown by the coordinator with nothing over the app, the shtorka is up")
     func shownWithoutOverlayIsPresented() async {
         await withCleanEnvironment { stateObject in

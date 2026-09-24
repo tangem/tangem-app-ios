@@ -30,4 +30,6 @@ protocol FeedContainer: AnyObject {
 
     /// The feed has pushed a screen, or come back from one.
     func setNavigationActive(_ isActive: Bool)
+
+    func setSearchActive(_ isActive: Bool)
 }
