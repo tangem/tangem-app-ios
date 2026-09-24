@@ -40,8 +40,7 @@ struct TransactionDetailsOperationIconView: View {
         case .active: DesignSystem.Color.bgStatusInfoSubtle
         case .attention: DesignSystem.Color.bgStatusWarningSubtle
         case .neutral: DesignSystem.Color.bgOpaqueSecondary
-        case .failed: DesignSystem.Color.bgStatusErrorSubtle
-        case .expired: DesignSystem.Color.bgOpaqueSecondary
+        case .failed, .expired: DesignSystem.Color.bgStatusErrorSubtle
         }
     }
 
@@ -50,8 +49,7 @@ struct TransactionDetailsOperationIconView: View {
         case .active: DesignSystem.Color.iconStatusInfo
         case .attention: DesignSystem.Color.iconStatusWarning
         case .neutral: DesignSystem.Color.iconPrimary
-        case .failed: DesignSystem.Color.iconStatusError
-        case .expired: DesignSystem.Color.iconTertiary
+        case .failed, .expired: DesignSystem.Color.iconStatusError
         }
     }
 }
