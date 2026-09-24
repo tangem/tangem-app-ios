@@ -343,6 +343,11 @@ struct TransactionHistoryMapper {
             return nil
         }
 
+        // Tron gasless compensation is a plain TRC20 transfer to our fee address, and users picked it from Recents
+        guard !Self.tronGaslessFeeRecipientAddresses.contains(where: { $0.caseInsensitiveEquals(to: address) }) else {
+            return nil
+        }
+
         let amountFormatted = transferAmount(from: record).legacy
         let date = record.date ?? Date()
         let dateFormatted = Self.dateTimeFormatter.string(from: date)
@@ -357,6 +362,12 @@ struct TransactionHistoryMapper {
             dateFormatted: dateFormatted
         )
     }
+}
+
+private extension TransactionHistoryMapper {
+    static let tronGaslessFeeRecipientAddresses = [
+        "TSWsmaEDgWaE2VsP9tCBGh5GbBRbrdHSuZ",
+    ]
 }
 
 // MARK: - TransactionHistoryMapper
