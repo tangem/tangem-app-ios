@@ -26,4 +26,6 @@ final class StandaloneFeedContainer: FeedContainer {
     func expand() {}
 
     func setNavigationActive(_ isActive: Bool) {}
+
+    func setSearchActive(_ isActive: Bool) {}
 }
