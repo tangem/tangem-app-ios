@@ -16,8 +16,8 @@ final class MarketsTokenListUITests: BaseTestCase {
 
         let markets = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
-            .tapSeeAll()
+            .openMarketsSheet()
+            .openTokenList()
             .verifyIntervalSelected("24h")
             .selectInterval("1w")
             .verifyIntervalSelected("1w")
@@ -40,8 +40,8 @@ final class MarketsTokenListUITests: BaseTestCase {
 
         let markets = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
-            .tapSeeAll()
+            .openMarketsSheet()
+            .openTokenList()
             .verifyTokensHavePriceChangeAndCharts()
 
         let initialPriceChange = markets.firstPriceChangeText()
@@ -66,9 +66,9 @@ final class MarketsTokenListUITests: BaseTestCase {
 
         let markets = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
-            .tapSeeAll()
-            .verifySortSelected(SortOption.rating.displayName)
+            .openMarketsSheet()
+            .openTokenList()
+            .verifySortSelected(SortOption.rating.rawValue)
 
         let initialTokenOrder = markets.getFirstTokenNames(count: 5)
         XCTAssertGreaterThanOrEqual(initialTokenOrder.count, 3, "Should have at least 3 tokens to compare order")
@@ -77,17 +77,8 @@ final class MarketsTokenListUITests: BaseTestCase {
         let sortOptionsToTest: [SortOption] = Array(SortOption.allCases.dropFirst())
 
         for sortOption in sortOptionsToTest {
-            markets.tapSortButton()
-
             markets.selectSortOption(sortOption.rawValue)
-
-            let sortButton = app.buttons[MarketsAccessibilityIdentifiers.marketsSortButton]
-            XCTAssertTrue(
-                sortButton.waitForExistence(timeout: .robustUIUpdate),
-                "Sort button should exist after selecting sort option"
-            )
-
-            markets.verifySortSelected(sortOption.displayName)
+            markets.verifySortSelected(sortOption.rawValue)
 
             markets.waitForPriceChangeData()
             let newTokenOrder = markets.getFirstTokenNames(count: 5)
@@ -106,45 +97,38 @@ final class MarketsTokenListUITests: BaseTestCase {
 
         let markets = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
-            .tapSeeAll()
-
-        let sortButton = app.buttons[MarketsAccessibilityIdentifiers.marketsSortButton]
-        XCTAssertTrue(
-            sortButton.waitForExistence(timeout: .robustUIUpdate),
-            "Markets sheet should be open"
-        )
+            .openMarketsSheet()
+            .openTokenList()
 
         markets
             .verifyIntervalSelected("24h")
             .selectInterval("1w")
             .verifyIntervalSelected("1w")
-            .verifySortSelected(SortOption.rating.displayName)
-            .tapSortButton()
+            .verifySortSelected(SortOption.rating.rawValue)
             .selectSortOption(SortOption.trending.rawValue)
-            .verifySortSelected(SortOption.trending.displayName)
+            .verifySortSelected(SortOption.trending.rawValue)
 
         let mainScreen = markets.closeMarketsSheetWithSwipe()
 
         mainScreen
             .openDetails()
             .goBackToMain()
-            .openMarketsSheetWithSwipe()
+            .openMarketsSheet()
 
         MarketsScreen(app)
             .verifyIntervalSelected("1w")
-            .verifySortSelected(SortOption.trending.displayName)
+            .verifySortSelected(SortOption.trending.rawValue)
 
         app.terminate()
         launchApp()
         let marketsAfterRestart = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
-            .tapSeeAll()
+            .openMarketsSheet()
+            .openTokenList()
 
         marketsAfterRestart
             .verifyIntervalSelected("24h")
-            .verifySortSelected(SortOption.rating.displayName)
+            .verifySortSelected(SortOption.rating.rawValue)
     }
 
     func testMarketsTokenListDisplay() {
@@ -154,14 +138,8 @@ final class MarketsTokenListUITests: BaseTestCase {
 
         let markets = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
-            .tapSeeAll()
-
-        let sortButton = app.buttons[MarketsAccessibilityIdentifiers.marketsSortButton]
-        XCTAssertTrue(
-            sortButton.waitForExistence(timeout: .robustUIUpdate),
-            "Markets sheet should be open"
-        )
+            .openMarketsSheet()
+            .openTokenList()
 
         markets
             .verifyAllTokensHaveRequiredElements()

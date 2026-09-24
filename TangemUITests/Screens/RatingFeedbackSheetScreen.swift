@@ -40,12 +40,12 @@ final class RatingFeedbackSheetScreen: ScreenBase<RatingFeedbackSheetElement> {
     }
 
     @discardableResult
-    func tapSubmitButton() -> ExpressStatusBottomSheetScreen {
+    func tapSubmitButton() -> TransactionDetailsSheet {
         XCTContext.runActivity(named: "Tap 'Send feedback' button") { _ in
             waitAndAssertTrue(submitButton, "'Send feedback' button should exist")
             submitButton.waitAndTap()
         }
-        return ExpressStatusBottomSheetScreen(app)
+        return TransactionDetailsSheet(app)
     }
 }
 

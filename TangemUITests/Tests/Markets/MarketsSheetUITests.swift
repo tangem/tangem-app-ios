@@ -30,7 +30,7 @@ final class MarketsSheetUITests: BaseTestCase {
 
                 CreateWalletSelectorScreen(app)
                     .scanMockWallet(name: cardType)
-                    .openMarketsSheetWithSwipe()
+                    .openMarketsSheet()
                     .verifyMarketsSheetIsDisplayed()
 
                 app.terminate()
