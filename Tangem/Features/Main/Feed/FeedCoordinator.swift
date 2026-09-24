@@ -30,6 +30,7 @@ final class FeedCoordinator: CoordinatorObject {
     private(set) var container: (any FeedContainer)?
 
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+    @Injected(\.floatingSheetPresentingStateProvider) private var sheetStateProvider: FloatingSheetPresentingStateProvider
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
     private weak var host: FeedHostRoutable?
@@ -249,8 +250,9 @@ extension FeedCoordinator: FeedWidgetsRoutable {
 extension FeedCoordinator: AddAccountTypeSelectorRoutable {
     func openCryptoAccountForm(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
         Task { @MainActor in
+            guard presented == nil, validateAccountLimit(accountModelsManager: accountModelsManager) else { return }
+
             dismissWidgetSheet()
-            guard presented == nil else { return }
 
             let viewModel = AccountFormViewModel(
                 flowType: .create(creator: CryptoAccountFormViewCreator(accountModelsManager: accountModelsManager)),
@@ -262,8 +264,9 @@ extension FeedCoordinator: AddAccountTypeSelectorRoutable {
 
     func openJointAccountManagement(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
         Task { @MainActor in
+            guard presented == nil, validateAccountLimit(accountModelsManager: accountModelsManager) else { return }
+
             dismissWidgetSheet()
-            guard presented == nil else { return }
 
             let coordinator = JointAccountManagementCoordinator(
                 dismissAction: { [weak self] _ in
@@ -305,6 +308,16 @@ extension FeedCoordinator: AccountFormViewModelRoutable {
 
 @MainActor
 private extension FeedCoordinator {
+    func validateAccountLimit(accountModelsManager: any AccountModelsManager) -> Bool {
+        let accountsCount = AccountModelsAggregator(.crypto, .joint).models(from: accountModelsManager).count
+        guard accountsCount < AccountModelUtils.maxNumberOfAccounts else {
+            alertPresenter.present(alert: AccountEditErrorAlertBuilder.makeAlert(for: .tooManyAccounts))
+            return false
+        }
+
+        return true
+    }
+
     func openAccountCreation(for candidate: FeedAccountCandidate) {
         guard presented == nil, candidate.availability.isAvailable else { return }
 
@@ -408,6 +421,16 @@ private extension FeedCoordinator {
 
 private extension FeedCoordinator {
     func bind(to container: any FeedContainer) {
+        sheetStateProvider
+            .hasPresentedSheetPublisher
+            .filter { !$0 }
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { coordinator, _ in
+                coordinator.presentedWidgetSheet = nil
+            }
+            .store(in: &bag)
+
         container
             .sizePublisher
             .withWeakCaptureOf(self)
