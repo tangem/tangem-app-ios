@@ -17,5 +17,8 @@ struct YieldModuleActiveCoordinatorView: View {
                 YieldModuleActiveContentView(viewModel: viewModel)
             }
         }
+        .sheet(item: $coordinator.claimViewModel) { viewModel in
+            YieldModuleClaimView(viewModel: viewModel)
+        }
     }
 }

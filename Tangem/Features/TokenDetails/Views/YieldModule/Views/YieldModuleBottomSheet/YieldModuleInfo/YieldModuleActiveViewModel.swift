@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import BigInt
 import TangemUI
 import TangemFoundation
 import TangemLocalization
@@ -60,6 +59,8 @@ final class YieldModuleActiveViewModel: ObservableObject {
     @Published
     private(set) var apyBreakdown: YieldApyBreakdown?
 
+    private var incentivesSummary: YieldIncentivesRewardsSummary?
+    private var hasActiveIncentiveCampaign = false
     private var maxFee: String?
 
     // MARK: - Promo State
@@ -102,6 +103,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
     private let transactionFlowFactory: YieldModuleTransactionFlowFactory
     private let yieldManagerInteractor: YieldManagerInteractor
     private let marketInfoPublisher: AnyPublisher<YieldModuleMarketInfo?, Never>
+    private let claimInteractor: YieldIncentivesClaimInteractor?
     private let notificationManager: YieldModuleNotificationManager
     private let marketingBannerManager = MarketingBannerManager()
     private let logger: YieldAnalyticsLogger
@@ -122,6 +124,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
         transactionFlowFactory: YieldModuleTransactionFlowFactory,
         yieldManagerInteractor: YieldManagerInteractor,
         marketInfoPublisher: AnyPublisher<YieldModuleMarketInfo?, Never>,
+        claimInteractor: YieldIncentivesClaimInteractor?,
         notificationManager: YieldModuleNotificationManager,
         logger: YieldAnalyticsLogger
     ) {
@@ -130,6 +133,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
         self.transactionFlowFactory = transactionFlowFactory
         self.yieldManagerInteractor = yieldManagerInteractor
         self.marketInfoPublisher = marketInfoPublisher
+        self.claimInteractor = claimInteractor
         self.logger = logger
         self.notificationManager = notificationManager
 
@@ -166,7 +170,13 @@ final class YieldModuleActiveViewModel: ObservableObject {
     }
 
     func onClaimTap() {
-        // The claim sheet arrives with the claim part of the Merkl incentives series.
+        guard coordinator?.isClaimSheetPresented == false,
+              let incentivesSummary,
+              let viewModel = transactionFlowFactory.makeClaimViewModel(summary: incentivesSummary) else {
+            return
+        }
+
+        coordinator?.openClaimSheet(viewModel: viewModel)
     }
 
     // MARK: - Public Implementation
@@ -222,6 +232,13 @@ final class YieldModuleActiveViewModel: ObservableObject {
                 self?.refreshMarketState()
             }
             .store(in: &bag)
+
+        claimInteractor?.claimEventPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] event in
+                self?.handleClaimEvent(event)
+            }
+            .store(in: &bag)
     }
 
     private func refreshMarketState() {
@@ -240,7 +257,6 @@ final class YieldModuleActiveViewModel: ObservableObject {
     @MainActor
     private func getIncentives() async {
         let breakdown = await yieldManagerInteractor.getApyBreakdown()
-        let hasActiveCampaign = await yieldManagerInteractor.hasActiveIncentiveCampaign()
 
         guard !Task.isCancelled else {
             return
@@ -248,10 +264,23 @@ final class YieldModuleActiveViewModel: ObservableObject {
 
         apyBreakdown = breakdown
 
+        await refreshIncentives()
+    }
+
+    @MainActor
+    private func refreshIncentives() async {
+        hasActiveIncentiveCampaign = await yieldManagerInteractor.hasActiveIncentiveCampaign()
+
+        guard !Task.isCancelled else {
+            return
+        }
+
         let summary: YieldIncentivesRewardsSummary?
 
         do {
-            summary = hasActiveCampaign ? try await yieldManagerInteractor.getIncentivesSummary() : nil
+            summary = hasActiveIncentiveCampaign
+                ? try await yieldManagerInteractor.getIncentivesSummary()
+                : nil
         } catch {
             // A load that failed says nothing about the rewards, so the banner keeps whatever it already shows.
             AppLogger.error("Failed to load yield incentives", error: error)
@@ -262,13 +291,44 @@ final class YieldModuleActiveViewModel: ObservableObject {
             return
         }
 
+        incentivesSummary = summary
+
+        await updateRewardsBanner(summary: summary)
+    }
+
+    @MainActor
+    private func updateRewardsBanner(summary: YieldIncentivesRewardsSummary?) async {
+        let isClaimInFlight = await claimInteractor?.isClaimInFlight ?? false
         let surfaceState = YieldIncentivesSurfaceState.make(
-            campaignActive: hasActiveCampaign,
+            campaignActive: hasActiveIncentiveCampaign,
             summary: summary,
-            isClaimInFlight: false
+            isClaimInFlight: isClaimInFlight
         )
 
         rewardsBannerData = makeRewardsBannerData(surfaceState: surfaceState, summary: summary)
+    }
+
+    /// The claim outlives the sheet it was started from, so the screen learns about it from the tracker
+    /// rather than from a callback the dismissed sheet may never get to make. Both terminal events arrive
+    /// right after the tracker forced its own rewards read, so the refreshes below are served from it.
+    private func handleClaimEvent(_ event: YieldIncentivesClaimTracker.Event) {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            switch event {
+            case .submitted:
+                await updateRewardsBanner(summary: incentivesSummary)
+
+            case .confirmed:
+                Toast(view: SuccessToast(text: Localization.yieldModuleClaimSuccessToast))
+                    .present(layout: .top(padding: 14), type: .temporary())
+
+                await refreshIncentives()
+
+            case .unresolved:
+                await refreshIncentives()
+            }
+        }
     }
 
     @MainActor
@@ -536,18 +596,10 @@ private extension YieldModuleActiveViewModel {
     }
 
     func formatPendingAmounts(_ rewards: [YieldIncentiveReward]) -> String {
-        let formatter = BalanceFormatter()
+        let formatter = YieldIncentiveAmountFormatter()
 
         return rewards
-            .compactMap { reward in
-                guard let baseUnitsValue = Decimal(string: String(reward.pendingAmount)) else {
-                    return nil
-                }
-
-                let value = baseUnitsValue / pow(10, reward.decimals)
-
-                return formatter.formatCryptoBalance(value, currencyCode: reward.symbol)
-            }
+            .compactMap { formatter.format(baseUnits: $0.pendingAmount, decimals: $0.decimals, symbol: $0.symbol) }
             .joined(separator: ", ")
     }
 }
