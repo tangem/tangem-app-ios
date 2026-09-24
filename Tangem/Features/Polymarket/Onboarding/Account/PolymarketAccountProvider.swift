@@ -10,11 +10,13 @@ import Combine
 import TangemFoundation
 
 struct PolymarketAccountProvider {
+    private let hasAccount: () -> Bool
     private let accountModel: ThreadSafeLazy<any PolymarketAccountModel>
 
     @Injected(\.polymarketAvailabilityProvider) private var availabilityProvider: PolymarketAvailabilityProvider
 
     init(builder: PolymarketAccountBuilder) {
+        hasAccount = builder.hasAccount
         accountModel = ThreadSafeLazy(builder.buildAccountModel)
     }
 }
@@ -24,7 +26,7 @@ struct PolymarketAccountProvider {
 extension PolymarketAccountProvider: AccountModelsProvider {
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
         availabilityProvider
-            .isAvailablePublisher
+            .isAvailablePublisher(hasAccount: hasAccount)
             .handleEvents(receiveOutput: { [accountModel] isAvailable in
                 guard isAvailable else { return }
 
