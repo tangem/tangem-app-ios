@@ -168,6 +168,10 @@ enum TransactionDetailsPreviewFactory {
         viewModel(record: onrampRecord(hash: "0xonrampfailed", status: .failed))
     }
 
+    static func onrampExpired() -> TransactionDetailsViewModel {
+        viewModel(record: onrampRecord(hash: "0xonrampexpired", status: .expired))
+    }
+
     // MARK: - Principal amount (fee "For sending")
 
     static func principalAmount() -> TransactionDetailsPrincipalAmountViewData {
@@ -352,7 +356,12 @@ private extension TransactionDetailsPreviewFactory {
             externalTx: ExternalTxInfo(id: "onramp-external", url: URL(string: "https://mercuryo.io")),
             payOut: PayOutInfo(address: walletAddress, hash: nil),
             from: OnrampHistoryFiatAsset(currencyCode: "EUR", amount: 250),
-            to: OnrampHistoryCryptoAsset(currency: toCurrency, amount: 0.065, actualAmount: status == .finished ? 0.065 : nil, decimals: 18),
+            to: OnrampHistoryCryptoAsset(
+                currency: toCurrency,
+                amount: status == .expired ? nil : 0.065,
+                actualAmount: status == .finished ? 0.065 : nil,
+                decimals: 18
+            ),
             paymentMethod: "card",
             countryCode: "DE",
             createdAt: Date(),

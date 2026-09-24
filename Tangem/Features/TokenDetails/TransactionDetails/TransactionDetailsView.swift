@@ -182,6 +182,11 @@ private extension AnyTransition {
         .background(DesignSystem.Color.bgPrimary)
 }
 
+#Preview("Onramp expired") {
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.onrampExpired())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
 #Preview("Staking") {
     TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.staking())
         .background(DesignSystem.Color.bgPrimary)
