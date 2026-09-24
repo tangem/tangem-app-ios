@@ -107,8 +107,7 @@ struct TransactionDetailsHeaderView: View {
         case .active: DesignSystem.Color.textBrand
         case .attention: DesignSystem.Color.textStatusWarning
         case .neutral: DesignSystem.Color.textPrimary
-        case .failed: DesignSystem.Color.textStatusError
-        case .expired: DesignSystem.Color.textTertiary
+        case .failed, .expired: DesignSystem.Color.textStatusError
         }
     }
 
