@@ -11,15 +11,29 @@ import TangemFoundation
 
 public final class PrivateInfo {
     private(set) var entropy: Data
-    let passphrase: String
+
+    /// Backing store for the BIP39 passphrase. Kept as `Data` (rather than a
+    /// `String`) so that `clear()` can zero the plaintext bytes in place, the
+    /// same way it does for `entropy`. A `String` cannot be reliably wiped.
+    private(set) var passphraseData: Data
+
+    var passphrase: String {
+        String(decoding: passphraseData, as: UTF8.self)
+    }
 
     init(entropy: Data, passphrase: String) {
         self.entropy = entropy
-        self.passphrase = passphrase
+        passphraseData = Data(passphrase.utf8)
+    }
+
+    init(entropy: Data, passphraseData: Data) {
+        self.entropy = entropy
+        self.passphraseData = passphraseData
     }
 
     func clear() {
         entropy.secureErase()
+        passphraseData.secureErase()
     }
 }
 
@@ -52,15 +66,14 @@ extension PrivateInfo {
         let passphraseLength = Int(UInt32(bigEndian: data.subdata(in: offset ..< (offset + 4)).withUnsafeBytes { $0.load(as: UInt32.self) }))
         offset += 4
 
-        var passphrase = ""
+        var passphraseData = Data()
         if passphraseLength > 0 {
             guard data.count >= offset + passphraseLength else { return nil }
-            let passphraseBytes = data.subdata(in: offset ..< (offset + passphraseLength))
-            passphrase = String(decoding: passphraseBytes, as: UTF8.self)
+            passphraseData = data.subdata(in: offset ..< (offset + passphraseLength))
             offset += passphraseLength
         }
 
-        self.init(entropy: entropy, passphrase: passphrase)
+        self.init(entropy: entropy, passphraseData: passphraseData)
     }
 
     func encode() -> Data {
@@ -69,9 +82,8 @@ extension PrivateInfo {
         data.append(contentsOf: withUnsafeBytes(of: UInt32(entropy.count).bigEndian, Array.init))
         data.append(entropy)
 
-        let passphraseBytes = Data(passphrase.utf8)
-        data.append(contentsOf: withUnsafeBytes(of: UInt32(passphraseBytes.count).bigEndian, Array.init))
-        data.append(passphraseBytes)
+        data.append(contentsOf: withUnsafeBytes(of: UInt32(passphraseData.count).bigEndian, Array.init))
+        data.append(passphraseData)
 
         return data
     }
