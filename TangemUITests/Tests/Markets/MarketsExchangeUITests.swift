@@ -17,7 +17,7 @@ final class MarketsExchangeUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
+            .openMarketsSheet()
             .searchForToken(tokenName)
             .openTokenDetails(tokenName)
             .openExchanges()
@@ -32,7 +32,7 @@ final class MarketsExchangeUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
+            .openMarketsSheet()
             .searchForToken(tokenName)
             .openTokenDetails(tokenName)
             .verifyListedOnExchangesBlock()
@@ -48,7 +48,7 @@ final class MarketsExchangeUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
+            .openMarketsSheet()
             .searchForToken(tokenName)
             .openTokenDetails(tokenName)
             .openExchanges()
@@ -63,7 +63,7 @@ final class MarketsExchangeUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
+            .openMarketsSheet()
             .searchForToken(tokenName)
             .openTokenDetails(tokenName)
             .openExchanges()
@@ -78,7 +78,7 @@ final class MarketsExchangeUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
+            .openMarketsSheet()
             .searchForToken(tokenName)
             .openTokenDetails(tokenName)
             .openExchanges()
@@ -101,7 +101,7 @@ final class MarketsExchangeUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
+            .openMarketsSheet()
             .searchForToken(tokenName)
             .openTokenDetails(tokenName)
             .verifyListedOnExchangesBlockEmpty()
@@ -128,7 +128,7 @@ final class MarketsExchangeUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
+            .openMarketsSheet()
             .searchForToken(tokenName)
             .openTokenDetails(tokenName)
             .openExchanges()

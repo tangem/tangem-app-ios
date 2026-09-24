@@ -45,8 +45,9 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     private lazy var availableBalance = staticText(.availableBalance)
     private lazy var stakingBalance = staticText(.stakingBalance)
 
-    /// Pending express transaction
-    private lazy var pendingExpressTransaction = button(.pendingExpressTransaction)
+    private lazy var pendingSwapHistoryItem = app.staticTexts[
+        TxHistoryAccessibilityIdentifiers.transactionItem(key: Constants.swapTransactionKey)
+    ].firstMatch
 
     private lazy var marketingBanner = button(.marketingBanner)
 
@@ -178,18 +179,20 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     @discardableResult
     func waitForPendingExpressTransaction() -> Self {
         XCTContext.runActivity(named: "Wait for pending express transaction to appear") { _ in
-            waitAndAssertTrue(pendingExpressTransaction, "Pending express transaction should be displayed")
+            scrollToElement(pendingSwapHistoryItem)
+            waitAndAssertTrue(pendingSwapHistoryItem, "Pending swap should be displayed in history")
             return self
         }
     }
 
     @discardableResult
-    func tapPendingExpressTransaction() -> ExpressStatusBottomSheetScreen {
-        XCTContext.runActivity(named: "Tap pending express transaction to open its status sheet") { _ in
-            waitAndAssertTrue(pendingExpressTransaction, "Pending express transaction should be displayed")
-            pendingExpressTransaction.waitAndTap()
+    func tapPendingExpressTransaction() -> TransactionDetailsSheet {
+        XCTContext.runActivity(named: "Tap pending express transaction to open its details") { _ in
+            waitAndAssertTrue(pendingSwapHistoryItem, "Pending swap should be displayed in history")
+            scrollToElement(pendingSwapHistoryItem)
+            pendingSwapHistoryItem.waitAndTap()
         }
-        return ExpressStatusBottomSheetScreen(app)
+        return TransactionDetailsSheet(app)
     }
 
     @discardableResult
@@ -533,7 +536,6 @@ enum TokenScreenElement: String, UIElement {
     case sellButton
     case addFundsButton
     case transferButton
-    case pendingExpressTransaction
     case marketingBanner
 
     var accessibilityIdentifier: String {
@@ -578,11 +580,15 @@ enum TokenScreenElement: String, UIElement {
             return ActionButtonsAccessibilityIdentifiers.addFundsButton
         case .transferButton:
             return ActionButtonsAccessibilityIdentifiers.transferButton
-        case .pendingExpressTransaction:
-            return TokenAccessibilityIdentifiers.pendingExpressTransaction
         case .marketingBanner:
             // Campaign id fixed by the `TokenDetailsSwapBanner` mock scenario state.
             return MarketingBannerAccessibilityIdentifiers.standaloneBanner(id: 9001)
         }
+    }
+}
+
+private extension TokenScreen {
+    enum Constants {
+        static let swapTransactionKey = "swap"
     }
 }
