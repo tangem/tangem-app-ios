@@ -48,33 +48,29 @@ struct CollectiblesMainView: View {
         // [REDACTED_TODO_COMMENT]
         .collectiblesDevnetProgress(actionsMenuViewModel.devnet)
         .task(viewModel.observe)
-        .safeAreaInset(edge: .top, spacing: 0) { navigationBar }
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden()
+        .toolbar { toolbarContent }
     }
 }
 
 private extension CollectiblesMainView {
-    // MARK: - View properties
+    // MARK: - Toolbar
 
-    var navigationBar: some View {
-        NavigationBar(
-            settings: .init(
-                backgroundColor: .clear,
-                horizontalPadding: Metrics.navigationBarHorizontalPadding,
-                height: Metrics.navigationBarHeight
-            ),
-            titleView: { navigationBarTitle },
-            leftButtons: { dismissStyle.button(action: onDismiss) },
-            rightButtons: { ActionsMenu(viewModel: actionsMenuViewModel) }
-        )
-        .padding(.top, Metrics.navigationBarTopPadding)
-        .environment(\.isRedesign, true)
-        .background {
-            Fade(position: .top)
-                .blurred()
-                .backgroundColor(DesignSystem.Color.bgPrimary)
-                .ignoresSafeArea(edges: .top)
+    @ToolbarContentBuilder
+    var toolbarContent: some ToolbarContent {
+        dismissStyle.toolbarButton(placement: .topBarLeading, action: onDismiss)
+
+        ToolbarItem(placement: .principal) {
+            navigationBarTitle
+        }
+
+        ToolbarItem(placement: .topBarTrailing) {
+            ActionsMenu(viewModel: actionsMenuViewModel)
         }
     }
+
+    // MARK: - View properties
 
     var navigationBarTitle: some View {
         VStack(spacing: 2) {
@@ -214,10 +210,6 @@ private extension CollectiblesMainView {
 
 private extension CollectiblesMainView {
     enum Metrics {
-        static let navigationBarHorizontalPadding: CGFloat = 16
-        static let navigationBarTopPadding: CGFloat = 8
-        static let navigationBarHeight: CGFloat = 56
-
         static let tabsTopPadding: CGFloat = 40
         static let pinnedTabsTopPadding: CGFloat = 8
         static let pinnedTabsBottomPadding: CGFloat = 8
