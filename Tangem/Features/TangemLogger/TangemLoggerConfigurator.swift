@@ -57,6 +57,12 @@ struct TangemLoggerConfiguration: TangemLogger.Logger.Configuration {
 
 struct TangemSDKLogger: TangemSdkLogger {
     func log(_ message: String, level: Log.Level) {
+        // Honor the configured SDK log level. `Log.logInternal` dispatches to every logger without
+        // checking `logLevel`, so levels that are deliberately excluded from `tangemSDKLogConfig`
+        // (e.g. `.tlv`, which is mapped to `.info` below and would otherwise be persisted to the
+        // exported support archive) still reach this logger. Drop anything not in the configured level.
+        guard Log.filter(level) else { return }
+
         let prefix = level.prefix.isEmpty ? level.emoji : "\(level.emoji)\(level.prefix)"
 
         switch level {
