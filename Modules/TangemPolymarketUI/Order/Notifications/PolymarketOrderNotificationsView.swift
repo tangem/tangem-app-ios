@@ -13,11 +13,9 @@ import TangemUI
 
 public struct PolymarketOrderNotificationsView: View {
     private let notifications: [PolymarketOrderNotification]
-    private let onRetry: (() -> Void)?
 
-    public init(notifications: [PolymarketOrderNotification], onRetry: (() -> Void)? = nil) {
+    public init(notifications: [PolymarketOrderNotification]) {
         self.notifications = notifications
-        self.onRetry = onRetry
     }
 
     public var body: some View {
@@ -47,13 +45,7 @@ public struct PolymarketOrderNotificationsView: View {
             base.slotEnd { infoIcon }
         case .noLiquidity:
             base.slotEnd { warningIcon }
-        case .quoteUnavailable:
-            if let onRetry {
-                base.primaryButton(MessageBannerButton(title: Localization.commonRetry, action: onRetry))
-            } else {
-                base
-            }
-        case .belowMinOrder, .marketClosed, .regionRestricted:
+        case .quoteUnavailable, .belowMinOrder, .marketClosed, .regionRestricted:
             base
         }
     }

@@ -88,8 +88,6 @@ final class PolymarketOrderSummaryViewModel: ObservableObject {
             openFeeBreakdown()
         case .legalTermsTapped(let url):
             coordinator?.openLegalTerms(url: url)
-        case .quoteRetryTapped:
-            model.handleViewAction(.quoteRetried)
         }
     }
 }
@@ -105,7 +103,6 @@ extension PolymarketOrderSummaryViewModel {
         case placeTapped
         case feeTapped
         case legalTermsTapped(URL)
-        case quoteRetryTapped
     }
 }
 
