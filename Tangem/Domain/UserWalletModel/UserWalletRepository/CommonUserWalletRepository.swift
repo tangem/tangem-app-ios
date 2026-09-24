@@ -371,6 +371,10 @@ final class CommonUserWalletRepository: UserWalletRepository {
         models = unlockedModels
 
         replacedLockedModels.forEach { $0.dispose() }
+
+        unlockedModels
+            .filter { !$0.isUserWalletLocked && userWalletIds.contains($0.userWalletId) }
+            .forEach { BackendAuthenticationRegistrar.registerBiometricallyUnlockedMobileWalletIfNeeded($0, context: context) }
     }
 
     private func handleUnlock(context: LAContext) throws -> UserWalletModel {
