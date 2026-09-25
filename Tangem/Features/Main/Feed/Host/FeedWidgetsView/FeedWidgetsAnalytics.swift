@@ -11,16 +11,13 @@ import TangemFoundation
 import TangemUI
 
 final class FeedWidgetsAnalytics {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.overlayViewPresentingStateProvider) private var overlayStateProvider: OverlayViewPresentingStateProvider
     @Injected(\.floatingSheetPresentingStateProvider) private var sheetStateProvider: FloatingSheetPresentingStateProvider
 
-    // Used only in memory to reset the viewing session; never include the ID or its hash in event payloads.
-    private var sessionWalletId: UserWalletId?
     private var sheetSize: ShtorkaSize = .collapsed
     private var canLogImpressions = false
     private var isContentVisible = false
-    private var visibleProducts: [ProductCard: UserWalletId] = [:]
+    private var visibleProducts = Set<ProductCard>()
     private var shownProducts = Set<ProductCard>()
     private var subscription: AnyCancellable?
 
@@ -32,8 +29,7 @@ final class FeedWidgetsAnalytics {
         .map { $0 || $1 }
         .removeDuplicates()
 
-        subscription = Publishers.CombineLatest4(
-            userWalletRepository.selectedUnlockedModelPublisher.map { $0?.userWalletId }.removeDuplicates(),
+        subscription = Publishers.CombineLatest3(
             container.sizePublisher,
             container.contentCollapsedPublisher,
             isCoveredPublisher
@@ -41,17 +37,13 @@ final class FeedWidgetsAnalytics {
         .receiveOnMain()
         .withWeakCaptureOf(self)
         .sink { analytics, state in
-            let (walletId, size, isCollapsed, isCovered) = state
-            if analytics.sessionWalletId != walletId {
-                analytics.visibleProducts = analytics.visibleProducts.filter { $0.value == walletId }
-            }
+            let (size, isCollapsed, isCovered) = state
             // Actual collapse ends a viewing session even if an interrupted drag never changes the detent.
-            if analytics.sessionWalletId != walletId || isCollapsed {
+            if isCollapsed {
                 analytics.shownProducts.removeAll()
             }
-            analytics.sessionWalletId = walletId
             analytics.sheetSize = size
-            analytics.canLogImpressions = walletId != nil && !isCollapsed && !isCovered
+            analytics.canLogImpressions = !isCollapsed && !isCovered
             analytics.logVisibleProducts()
         }
     }
@@ -62,24 +54,18 @@ final class FeedWidgetsAnalytics {
     }
 
     func updateVisibility(of widget: FeedWidget, isVisible: Bool) {
-        guard let product = ProductCard(widget: widget), let walletId = widget.walletId else { return }
+        guard let product = ProductCard(widget: widget) else { return }
 
         if isVisible, widget.loadingState.isSuccess {
-            guard walletId == selectedWalletId else { return }
-
-            visibleProducts[product] = walletId
-        } else if visibleProducts[product] == walletId {
-            visibleProducts[product] = nil
+            visibleProducts.insert(product)
+        } else {
+            visibleProducts.remove(product)
         }
         logVisibleProducts()
     }
 
     func logSelection(of widget: FeedWidget) {
         guard widget.loadingState.isSuccess else { return }
-
-        if let walletId = widget.walletId, walletId != selectedWalletId {
-            return
-        }
 
         switch widget {
         case .startEarning:
@@ -99,17 +85,10 @@ final class FeedWidgetsAnalytics {
 }
 
 private extension FeedWidgetsAnalytics {
-    var selectedWalletId: UserWalletId? {
-        guard let wallet = userWalletRepository.selectedModel, !wallet.isUserWalletLocked else { return nil }
-
-        return wallet.userWalletId
-    }
-
     func logVisibleProducts() {
-        guard isContentVisible, canLogImpressions,
-              let walletId = sessionWalletId, walletId == selectedWalletId else { return }
+        guard isContentVisible, canLogImpressions else { return }
 
-        for product in ProductCard.allCases where visibleProducts[product] == walletId {
+        for product in ProductCard.allCases where visibleProducts.contains(product) {
             guard shownProducts.insert(product).inserted else { continue }
 
             log(.marketsProductCardShown, params: [.productCard: product.rawValue])
@@ -121,8 +100,6 @@ private extension FeedWidgetsAnalytics {
     }
 
     func log(_ event: Analytics.Event, params: [Analytics.ParameterKey: String] = [:]) {
-        guard let walletId = sessionWalletId, walletId == selectedWalletId else { return }
-
         var params = params
         params[.shtorkaState] = switch sheetSize {
         case .collapsed: "Collapsed"

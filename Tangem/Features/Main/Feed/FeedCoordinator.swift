@@ -206,25 +206,35 @@ extension FeedCoordinator: FeedWidgetsRoutable {
         host?.openTangemPay(entry: entry)
     }
 
-    func openReferral(wallet: UserWalletModel) {
-        guard presented == nil else { return }
+    func openReferral(
+        candidates: [FeedReferralWalletCandidate],
+        candidatesPublisher: AnyPublisher<[FeedReferralWalletCandidate], Never>,
+        resolveAvailableWallet: @escaping (UserWalletId) -> UserWalletModel?,
+        onDismiss: @escaping (UserWalletId) -> Void
+    ) {
+        Task { @MainActor [weak self] in
+            guard let self, presented == nil, presentedWidgetSheet == nil else { return }
 
-        let coordinator = ReferralCoordinator(
-            dismissAction: { [weak self] _ in
-                guard let self, case .referral = presented else { return }
+            let availableCandidates = candidates.filter(\.isAvailable)
+            guard let candidate = availableCandidates.first else { return }
 
-                dismissPresented()
-            },
-            popToRootAction: popToRootAction
-        )
-        coordinator.start(with: .init(input: .init(
-            userWalletId: wallet.userWalletId.value,
-            supportedBlockchains: wallet.config.supportedBlockchains,
-            accountModelsManager: wallet.accountModelsManager,
-            tokenIconInfoBuilder: TokenIconInfoBuilder(),
-            userWalletModel: wallet
-        )))
-        present(.referral(coordinator))
+            guard availableCandidates.count > 1 else {
+                openReferral(for: candidate.wallet.userWalletId, resolveAvailableWallet: resolveAvailableWallet, onDismiss: onDismiss)
+                return
+            }
+
+            let selector = FeedReferralWalletSelectorViewModel(
+                candidates: candidates,
+                candidatesPublisher: candidatesPublisher,
+                onSelect: { [weak self] walletId in
+                    Task { @MainActor [weak self] in
+                        self?.openReferral(for: walletId, resolveAvailableWallet: resolveAvailableWallet, onDismiss: onDismiss)
+                    }
+                },
+                close: { [weak self] in self?.dismissWidgetSheet() }
+            )
+            enqueueWidgetSheet(selector)
+        }
     }
 
     func openAddAccount(candidates: [FeedAccountCandidate]) {
@@ -308,6 +318,36 @@ extension FeedCoordinator: AccountFormViewModelRoutable {
 
 @MainActor
 private extension FeedCoordinator {
+    func openReferral(
+        for walletId: UserWalletId,
+        resolveAvailableWallet: (UserWalletId) -> UserWalletModel?,
+        onDismiss: @escaping (UserWalletId) -> Void
+    ) {
+        guard presented == nil, let wallet = resolveAvailableWallet(walletId) else { return }
+
+        if presentedWidgetSheet != nil {
+            dismissWidgetSheet()
+        }
+
+        let coordinator = ReferralCoordinator(
+            dismissAction: { [weak self] _ in
+                guard let self, case .referral = presented else { return }
+
+                dismissPresented()
+                onDismiss(wallet.userWalletId)
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(input: .init(
+            userWalletId: wallet.userWalletId.value,
+            supportedBlockchains: wallet.config.supportedBlockchains,
+            accountModelsManager: wallet.accountModelsManager,
+            tokenIconInfoBuilder: TokenIconInfoBuilder(),
+            userWalletModel: wallet
+        )))
+        present(.referral(coordinator))
+    }
+
     func validateAccountLimit(accountModelsManager: any AccountModelsManager) -> Bool {
         let accountsCount = AccountModelsAggregator(.crypto, .joint).models(from: accountModelsManager).count
         guard accountsCount < AccountModelUtils.maxNumberOfAccounts else {

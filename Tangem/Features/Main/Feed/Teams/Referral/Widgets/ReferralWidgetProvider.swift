@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 import TangemFoundation
 
 final class ReferralWidgetProvider {
@@ -15,10 +16,18 @@ final class ReferralWidgetProvider {
     @Injected(\.referralProgramInfoRepository) private var referralProgramInfoRepository: ReferralProgramInfoRepository
 
     private let widgetSubject = CurrentValueSubject<FeedWidget?, Never>(nil)
+    private let candidatesSubject = CurrentValueSubject<[FeedReferralWalletCandidate], Never>([])
+    private let rewardFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = Constants.rewardMaximumFractionDigits
+        return formatter
+    }()
+
     private weak var router: FeedWidgetsRoutable?
 
-    private var wallet: UserWalletModel?
-    private var info: ReferralProgramInfo?
+    private var wallets: [UserWalletModel] = []
+    private var infos: [UserWalletId: ReferralProgramInfo] = [:]
     private var requestedWalletIds: Set<UserWalletId> = []
     private var failedWalletIds: Set<UserWalletId> = []
     private var hasRefreshed = false
@@ -36,36 +45,46 @@ final class ReferralWidgetProvider {
 
 extension ReferralWidgetProvider: FeedWidgetProvider {
     var widgetPublisher: AnyPublisher<FeedWidget?, Never> {
-        widgetSubject.eraseToAnyPublisher()
+        widgetSubject.removeDuplicates().eraseToAnyPublisher()
     }
 
     func refresh() {
         hasRefreshed = true
 
-        guard let walletId = wallet?.userWalletId, requestedWalletIds.insert(walletId).inserted else {
-            return
-        }
+        for wallet in wallets {
+            let walletId = wallet.userWalletId
+            guard requestedWalletIds.insert(walletId).inserted else { continue }
 
-        failedWalletIds.remove(walletId)
-        resolveWidget()
+            failedWalletIds.remove(walletId)
 
-        runTask(in: self) { provider in
-            do {
-                _ = try await provider.referralProgramInfoRepository.loadInfo(for: walletId)
-            } catch {
-                await runOnMain {
-                    provider.requestedWalletIds.remove(walletId)
-                    provider.failedWalletIds.insert(walletId)
-                    provider.resolveWidget()
+            runTask(in: self) { provider in
+                do {
+                    _ = try await provider.referralProgramInfoRepository.loadInfo(for: walletId)
+                } catch {
+                    await runOnMain {
+                        provider.requestedWalletIds.remove(walletId)
+                        provider.failedWalletIds.insert(walletId)
+                        provider.resolveWidget()
+                    }
                 }
             }
         }
+
+        resolveWidget()
     }
 
     func select() {
-        guard let wallet else { return }
-
-        router?.openReferral(wallet: wallet)
+        router?.openReferral(
+            candidates: candidatesSubject.value,
+            candidatesPublisher: candidatesSubject.removeDuplicates().eraseToAnyPublisher(),
+            resolveAvailableWallet: { [weak self] walletId in
+                self?.resolveAvailableWallet(walletId)
+            },
+            onDismiss: { [weak self] walletId in
+                self?.requestedWalletIds.remove(walletId)
+                self?.refresh()
+            }
+        )
     }
 }
 
@@ -73,71 +92,119 @@ extension ReferralWidgetProvider: FeedWidgetProvider {
 
 private extension ReferralWidgetProvider {
     func bind() {
-        userWalletRepository.selectedUnlockedModelPublisher
+        userWalletRepository.eventProvider
+            .filter { event in
+                switch event {
+                case .selected: false
+                default: true
+                }
+            }
+            .mapToVoid()
+            .prepend(())
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { provider, wallet in provider.bindWallet(wallet) }
+            .sink { provider, _ in provider.bindWallets() }
             .store(in: &bag)
     }
 
-    func bindWallet(_ wallet: UserWalletModel?) {
+    func bindWallets() {
         walletBag.removeAll()
-        if self.wallet?.userWalletId != wallet?.userWalletId {
-            info = nil
-        }
-        self.wallet = wallet.flatMap { $0.config.hasFeature(.referralProgram) ? $0 : nil }
 
-        guard let wallet = self.wallet else {
-            info = nil
+        let unlockedWallets = userWalletRepository.models.filter { !$0.isUserWalletLocked }
+        wallets = unlockedWallets.filter { $0.config.hasFeature(.referralProgram) }
+        let walletIds = Set(wallets.map(\.userWalletId))
+        infos = infos.filter { walletIds.contains($0.key) }
+        requestedWalletIds.formIntersection(walletIds)
+        failedWalletIds.formIntersection(walletIds)
+
+        Publishers.MergeMany(unlockedWallets.map { wallet in
+            wallet.updatePublisher.filter { update in
+                guard case .configurationChanged = update else { return false }
+                return true
+            }
+        })
+        .receiveOnMain()
+        .withWeakCaptureOf(self)
+        .sink { provider, _ in provider.bindWallets() }
+        .store(in: &walletBag)
+
+        guard !wallets.isEmpty else {
             resolveWidget()
             return
         }
 
-        referralProgramInfoRepository.infoPublisher(for: wallet.userWalletId)
-            .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { provider, info in
-                provider.info = info
-                provider.resolveWidget()
+        wallets.map { wallet in
+            referralProgramInfoRepository.infoPublisher(for: wallet.userWalletId)
+                .map { (wallet.userWalletId, $0) }
+                .eraseToAnyPublisher()
+        }
+        .combineLatest()
+        .receiveOnMain()
+        .withWeakCaptureOf(self)
+        .sink { provider, infos in
+            provider.infos = infos.reduce(into: [:]) { result, entry in
+                result[entry.0] = entry.1
             }
-            .store(in: &walletBag)
+            provider.resolveWidget()
+        }
+        .store(in: &walletBag)
 
         if hasRefreshed {
             refresh()
+        } else {
+            resolveWidget()
         }
     }
 
     func resolveWidget() {
-        let widget: FeedWidget? = if let wallet, let reward = Self.makeReward(info: info, config: wallet.config) {
-            .referFriend(reward: .success(reward), walletId: wallet.userWalletId)
-        } else if let wallet, info == nil {
-            .referFriend(
-                reward: failedWalletIds.contains(wallet.userWalletId) ? .failure(FeedWidget.LoadError()) : .loading,
-                walletId: wallet.userWalletId
-            )
+        let candidates = userWalletRepository.models.map(makeCandidate(for:))
+        candidatesSubject.send(candidates)
+
+        let widget: FeedWidget? = if let reward = candidates.lazy.compactMap(\.reward).first {
+            .referFriend(reward: .success(reward))
+        } else if candidates.contains(where: { $0.state == .loading }) {
+            .referFriend(reward: .loading)
+        } else if candidates.contains(where: { $0.state == .failure }) {
+            .referFriend(reward: .failure(FeedWidget.LoadError()))
         } else {
             nil
-        }
-
-        guard widgetSubject.value != widget else {
-            return
         }
 
         widgetSubject.send(widget)
     }
 
-    static func makeReward(info: ReferralProgramInfo?, config: UserWalletConfig) -> String? {
-        guard let info, info.referral == nil,
+    func makeCandidate(for wallet: UserWalletModel) -> FeedReferralWalletCandidate {
+        guard !wallet.isUserWalletLocked, wallet.config.hasFeature(.referralProgram) else {
+            return .init(wallet: wallet, state: .unavailable)
+        }
+
+        guard let info = infos[wallet.userWalletId] else {
+            return .init(wallet: wallet, state: failedWalletIds.contains(wallet.userWalletId) ? .failure : .loading)
+        }
+
+        guard let reward = makeReward(info: info, config: wallet.config) else {
+            return .init(wallet: wallet, state: .unavailable)
+        }
+
+        return .init(wallet: wallet, state: .available(reward: reward))
+    }
+
+    func resolveAvailableWallet(_ walletId: UserWalletId) -> UserWalletModel? {
+        guard let wallet = userWalletRepository.models.first(where: { $0.userWalletId == walletId }),
+              makeCandidate(for: wallet).isAvailable else { return nil }
+
+        return wallet
+    }
+
+    func makeReward(info: ReferralProgramInfo, config: UserWalletConfig) -> String? {
+        guard info.referral == nil,
               let award = info.conditions.awards.first,
               config.supportedBlockchains.contains(where: { $0.networkId == award.token.networkId }),
               award.token.storageToken != nil, award.amount > 0 else {
             return nil
         }
 
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.maximumFractionDigits = Constants.rewardMaximumFractionDigits
-        guard let amount = formatter.string(from: award.amount as NSDecimalNumber) else { return nil }
+        guard let amount = rewardFormatter.string(from: award.amount as NSDecimalNumber) else { return nil }
 
         return "\(amount) \(award.token.symbol)"
     }
