@@ -64,6 +64,7 @@ struct TransactionDisplayModel: Hashable {
         let leading: Leading
         let symbol: String
         let owner: TransactionViewModel.SubtitleOwner?
+        let counterparty: TransactionViewModel.SubtitleOwner?
     }
 
     enum Direction: Hashable {
