@@ -140,6 +140,19 @@ struct ProductionLogSanitizerPolicyTests {
         #expect(actual == input)
     }
 
+    /// On iOS 27.0, RegexBuilder-composed preserve rules matched arbitrary text split by `, `,
+    /// so every log line like these was replaced with preserve placeholders.
+    @Test(arguments: [
+        "Phone model: iPhone 17 Pro Max, OS version: iOS 27.0, App version: 6.3.1 (2268)",
+        "<ServicesManager:99:recordAppLaunch()> Current launch number: 3906",
+        "Request ➡️: api.tangem.org; Info: /networks/providers; Method: GET; Headers: api-key, platform, language",
+    ])
+    func shouldLeaveSafeCommaSeparatedLogUnchanged(input: String) {
+        let actual = LogSanitizer.sanitize(input, policy: .production)
+
+        #expect(actual == input)
+    }
+
     @Test
     func shouldRedactMultipleSensitiveKeysInSingleLog() {
         let input = "key=abcd1234abcd5678abcd&auth=1234abcd1234abcd1234"
