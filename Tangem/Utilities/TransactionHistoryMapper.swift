@@ -234,9 +234,10 @@ struct TransactionHistoryMapper {
             return nil
         }
 
+        let counterparty = counterpartyAddress.flatMap { resolver?.resolve(address: $0, blockchain: counterpartyToken.blockchain) }
+
         let owner = counterpartyOwner(
-            counterpartyAddress: counterpartyAddress,
-            counterpartyBlockchain: counterpartyToken.blockchain,
+            counterparty: counterparty,
             currentLegAddress: currentLegAddress,
             resolver: resolver
         )
@@ -245,7 +246,8 @@ struct TransactionHistoryMapper {
             direction: direction,
             leading: .token(TokenIconInfoBuilder().build(from: counterpartyToken, isCustom: counterpartyToken.token?.isCustom ?? false)),
             symbol: counterpartyToken.currencySymbol,
-            owner: owner
+            owner: owner,
+            counterparty: counterparty
         )
     }
 
@@ -257,22 +259,20 @@ struct TransactionHistoryMapper {
             direction: .incoming,
             leading: .fiat(url: flagURL),
             symbol: onramp.from.currencyCode,
-            owner: nil
+            owner: nil,
+            counterparty: nil
         )
     }
 
     private func counterpartyOwner(
-        counterpartyAddress: String?,
-        counterpartyBlockchain: Blockchain,
+        counterparty: TransactionViewModel.SubtitleOwner?,
         currentLegAddress: String?,
         resolver: SubtitleOwnerResolver?
     ) -> TransactionViewModel.SubtitleOwner? {
-        guard let resolver, let counterpartyAddress else {
-            return nil
-        }
-
-        guard let counterpartyOwner = resolver.resolve(address: counterpartyAddress, blockchain: counterpartyBlockchain),
-              counterpartyOwner.isOwnWallet
+        guard
+            let resolver,
+            let counterpartyOwner = counterparty,
+            counterpartyOwner.isOwnWallet
         else {
             return nil
         }
