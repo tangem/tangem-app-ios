@@ -346,21 +346,6 @@ struct TangemPayMainView: View {
                     }
                 }
 
-                if viewModel.isVisaBenefitsAvailable {
-                    SwiftUI.Button(action: viewModel.visaBenefits) {
-                        Label {
-                            Text(Localization.tangempayVisaBenefits)
-                        } icon: {
-                            DesignSystem.Icons.Heart.regular20.image
-                        }
-                    }
-                }
-
-                SwiftUI.Button(action: viewModel.termsAndLimits) {
-                    Label(Localization.tangemPayTermsLimits, systemImage: "text.page")
-                }
-                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.termsAndLimitsMenuItem)
-
                 SwiftUI.Button(action: viewModel.contactSupport) {
                     Label(Localization.tangempayPaySupport, systemImage: "text.bubble")
                 }
