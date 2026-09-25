@@ -596,17 +596,16 @@ final class PolymarketMainViewModel: ObservableObject {
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
     private func message(for reason: WithdrawUnavailability) -> String {
         switch reason {
         case .emptyBalance:
-            Localization.tokenButtonUnavailabilityReasonEmptyBalanceSend
+            Localization.predictionWithdrawEmptyBalance
         case .tooSmallBalance(let minimumFormatted):
-            Localization.transferMinAmountError(minimumFormatted)
+            Localization.predictionWithdrawMinAmount(minimumFormatted)
         case .balanceUnavailable:
-            "Couldn't read your Polymarket balance. Refresh or re-enter this screen."
+            Localization.predictionWithdrawBalanceUnavailable
         case .accountUnavailable:
-            "Couldn't reach your Polymarket account. Refresh or re-enter this screen."
+            Localization.predictionAccountUnavailable
         }
     }
 
