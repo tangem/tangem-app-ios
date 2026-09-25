@@ -41,7 +41,6 @@ final class PolymarketOrderModel: ObservableObject {
     private var quoteTask: Task<Void, Never>?
     private var heldSharesTask: Task<Decimal?, Never>?
     private var visibleScreens = 0
-    private var failureClock = PolymarketQuoteFailureClock(gracePeriod: Constants.failureGracePeriod)
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Init
@@ -422,7 +421,6 @@ private extension PolymarketOrderModel {
     func suspendQuoteLoop() {
         quoteTask?.cancel()
         quoteTask = nil
-        failureClock.reset()
     }
 
     var pollInterval: TimeInterval {
@@ -470,8 +468,6 @@ private extension PolymarketOrderModel {
             let quote = try await apiProvider.orderQuote(request: request)
             guard !Task.isCancelled else { return }
 
-            failureClock.reset()
-
             var updated = state
             updated.minAmount = intent.minAmount(from: quote)
             updated.quote = PolymarketOrderQuoteState(quote: quote)
@@ -490,8 +486,6 @@ private extension PolymarketOrderModel {
     }
 
     func handleQuoteFailure(_ error: Error) {
-        guard failureClock.shouldSurfaceFailure(hasQuote: state.quote.quote != nil) else { return }
-
         state.quote = .failed(PolymarketOrderQuoteFailure(error: error))
     }
 }
@@ -505,6 +499,5 @@ private extension PolymarketOrderModel {
         static let maxShareOfBalance: Decimal = 0.9
         static let debounce: TimeInterval = 0.5
         static let pollInterval: TimeInterval = 3
-        static let failureGracePeriod: TimeInterval = 30
     }
 }

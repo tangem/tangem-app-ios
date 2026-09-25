@@ -171,7 +171,7 @@ private extension PolymarketOrderViewModel {
         isAwaitingFunds = state.isAwaitingFunds
         isNextEnabled = gate.isPrimaryButtonEnabled
 
-        if state.bookPriceFailure != nil, state.quote.quote == nil {
+        if state.quote.isFailed || (state.bookPriceFailure != nil && state.quote.quote == nil) {
             marketRow = .make(
                 market: model.market,
                 outcome: model.outcome,
@@ -196,10 +196,6 @@ private extension PolymarketOrderViewModel {
 
         if gate.notifications.contains(.marketClosed) {
             coordinator?.openMarketClosed()
-        }
-
-        if case .failed = state.quote {
-            coordinator?.openQuoteUnavailable()
         }
 
         switch state.bookPriceFailure {

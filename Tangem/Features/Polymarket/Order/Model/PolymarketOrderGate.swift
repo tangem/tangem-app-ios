@@ -83,7 +83,9 @@ private extension PolymarketOrderGate {
             case .marketClosed: notifications.append(.marketClosed)
             case .undefined: notifications.append(.quoteUnavailable)
             }
-        case .failed, .empty, .loading:
+        case .failed:
+            notifications.append(.quoteUnavailable)
+        case .empty, .loading:
             break
         }
 
