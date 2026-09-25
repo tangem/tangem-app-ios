@@ -20,9 +20,10 @@ struct PrivateInfoStorageManagerTests {
         return PrivateInfo(entropy: entropy, passphrase: passphrase)
     }
 
-    private func makeStorage() -> PrivateInfoStorageManager {
-        let mockedSecureStorage = MockedSecureStorage()
-        let mockedSecureEnclaveService = MockedSecureEnclaveService()
+    private func makeStorage(
+        mockedSecureStorage: MockedSecureStorage = MockedSecureStorage(),
+        mockedSecureEnclaveService: MobileWalletSecureEnclaveService = MockedSecureEnclaveService()
+    ) -> PrivateInfoStorageManager {
         let mockedBiometricsSecureEnclaveService = MockedBiometricsSecureEnclaveService()
         let mockedBiometricsStorage = MockedBiometricsStorage()
 
@@ -94,6 +95,46 @@ struct PrivateInfoStorageManagerTests {
 
         #expect(throws: Error.self, performing: {
             try storage.validate(auth: .accessCode("newAccessCode"), for: walletID)
+        })
+    }
+
+    @Test
+    func testWrongAccessCodeIsReportedAsWrongAccessCode() throws {
+        let storage = makeStorage()
+
+        try storage.storeUnsecured(privateInfoData: makePrivateInfo().encode(), walletID: walletID)
+        let context = try storage.validate(auth: .none, for: walletID)
+        try storage.updateAccessCode("accessCode", context: context)
+
+        #expect(throws: MobileWalletUnlockError.wrongAccessCode, performing: {
+            try storage.validate(auth: .accessCode("newAccessCode"), for: walletID)
+        })
+    }
+
+    @Test
+    func testPurgedSecureEnclaveKeyIsNotReportedAsWrongAccessCode() throws {
+        // Arrange: a wallet protected by an access code, stored while the Secure Enclave key still existed.
+        let sharedSecureStorage = MockedSecureStorage()
+        let storage = makeStorage(mockedSecureStorage: sharedSecureStorage)
+
+        try storage.storeUnsecured(privateInfoData: makePrivateInfo().encode(), walletID: walletID)
+        let context = try storage.validate(auth: .none, for: walletID)
+        try storage.updateAccessCode("accessCode", context: context)
+
+        // Act: the same keychain items, but the SE wrapping key is gone (device passcode was turned off).
+        let storageAfterPurge = makeStorage(
+            mockedSecureStorage: sharedSecureStorage,
+            mockedSecureEnclaveService: MockedPurgedKeySecureEnclaveService()
+        )
+
+        // Assert: the correct code must surface a storage failure, not a wrong-code error…
+        #expect(throws: MobileWalletUnlockError.keyStorageUnavailable, performing: {
+            try storageAfterPurge.validate(auth: .accessCode("accessCode"), for: walletID)
+        })
+
+        // …while a genuinely wrong code is still reported as such (the password layer is checked first).
+        #expect(throws: MobileWalletUnlockError.wrongAccessCode, performing: {
+            try storageAfterPurge.validate(auth: .accessCode("wrongAccessCode"), for: walletID)
         })
     }
 
