@@ -58,7 +58,7 @@ struct FeedSearchBarView: View {
 
     private var searchBar: some View {
         HStack(spacing: 8) {
-            Search(text: queryBinding, isActive: $isFocused, onFocusChanged: focusDidChange)
+            Search(text: $viewModel.query, isActive: $isFocused, onFocusChanged: focusDidChange)
                 .placeholder(Localization.marketsSearchTitlePlaceholder)
                 .showsCloseButton(false)
                 .containerAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketFieldContainer)
@@ -78,13 +78,6 @@ struct FeedSearchBarView: View {
             }
         }
         .animation(isActive ? Constants.openingAnimation : Constants.closingAnimation, value: isActive)
-    }
-
-    private var queryBinding: Binding<String> {
-        Binding(
-            get: { isActive ? viewModel.query : "" },
-            set: { viewModel.query = $0 }
-        )
     }
 
     private func focusDidChange(_ isFocused: Bool) {
