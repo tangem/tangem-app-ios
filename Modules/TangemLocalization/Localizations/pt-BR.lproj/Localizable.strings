@@ -221,6 +221,11 @@
 "collectibles_account_collection_empty" = "Nenhum cartão";
 "collectibles_account_collection_row_subtitle" = "Minha coleção";
 "collectibles_account_withdraw" = "Saque";
+"collectibles_confirm_order_approve_button" = "Aprovar";
+"collectibles_confirm_order_not_enough_funds_button" = "Saldo insuficiente";
+"collectibles_confirm_order_platform_fee" = "Taxa da plataforma";
+"collectibles_confirm_order_screen_title" = "Confirm order";
+"collectibles_confirm_order_total" = "Total";
 "collectibles_entrance_card_subtitle" = "Abra pacotes de cartões colecionáveis certificados";
 "collectibles_entrance_card_title" = "Explore coleções";
 "collectibles_machine_buyback_value" = "%@ do valor";
@@ -231,6 +236,7 @@
 "collectibles_machine_load_error" = "Não foi possível carregar os detalhes do pacote.\nToque para recarregar";
 "collectibles_machine_open_button" = "Abrir por %@";
 "collectibles_machine_powered_by" = "Desenvolvido por %@";
+"collectibles_machine_prize_pool_load_error" = "Falha ao carregar o conjunto de prêmios.\nToque para recarregar";
 "collectibles_machine_prize_pool_section" = "No conjunto de prêmios";
 "collectibles_machine_tier_common" = "Comum";
 "collectibles_machine_tier_epic" = "Épico";
@@ -263,6 +269,8 @@
 "collectibles_stories_security_title" = "Alta segurança, design sem contato";
 "collectibles_stories_transparency_subtitle" = "Veja todos os cartões antes de comprar e acompanhe aberturas ao vivo diretamente da blockchain, com a carteira de cada colecionador e o valor do cartão. Tudo no app";
 "collectibles_stories_transparency_title" = "Nada fica escondido";
+"collectibles_turbo_mode_bottomsheet_message" = "Turbo Mode automatically sells back any Common card. Hunt grails at maximum speed";
+"collectibles_turbo_mode_bottomsheet_title" = "Turbo Mode";
 "collectibles_welcome_benefit_cold_wallet_subtitle" = "Somente seu cartão pode movimentá-los";
 "collectibles_welcome_benefit_cold_wallet_title" = "Os cartões vão para a sua carteira fria";
 "collectibles_welcome_benefit_sell_offers_subtitle" = "85–93%% do valor segurado, em USDC";
@@ -766,9 +774,9 @@
 "force_update_warning_title" = "Atualização necessária";
 "gasless_not_enough_funds_to_cover_token_fee" = "Fundos insuficientes";
 "gasless_transaction_fee" = "Taxa de transação";
-"gasless_tron_activation_attempts_limit" = "You've made several attempts. Try again later.";
-"gasless_tron_activation_min_balance_description" = "Your balance should be higher than %@.";
-"gasless_tron_activation_try_again_later" = "Try again later.";
+"gasless_tron_activation_attempts_limit" = "Você fez várias tentativas. Tente novamente mais tarde.";
+"gasless_tron_activation_min_balance_description" = "Seu saldo deve ser superior a %@.";
+"gasless_tron_activation_try_again_later" = "Tente novamente mais tarde.";
 "generic_error_code" = "Ocorreu um erro. Código: %@.";
 "generic_requires_memo_error" = "Requer memorando";
 "get_token_title" = "Obter %1$@";
@@ -982,7 +990,7 @@
 "introduction_stories_three_title" = "Suas chaves, suas criptomoedas";
 "introduction_stories_two_subtitle" = "Use qualquer um dos seus cartões para acessar sua carteira";
 "introduction_stories_two_title" = "Uma carteira, vários cartões";
-"introduction_subtitle" = "O único aplicativo de que você precisa\npara gerenciar suas finanças";
+"introduction_subtitle" = "Um único lugar seguro para tudo o que é seu";
 "introduction_terms_of_service" = "Termos de serviço";
 "introduction_title" = "Armazene todos os seus ativos";
 "jailbreak_warning_message" = "Dispositivos com jailbreak são considerados menos seguros. Seus dados podem estar expostos a riscos adicionais.";
@@ -991,7 +999,7 @@
 "joint_account_activation_account_button_title" = "Ativar conta";
 "joint_account_activation_subtitle" = "Todos os membros desta conta compartilham o mesmo saldo. Qualquer membro pode gastar ou sacar os fundos a qualquer momento — inclusive sem a sua aprovação";
 "joint_account_activation_title" = "Você está ativando uma conta compartilhada";
-"joint_account_coming_soon_description" = "Esta ação ainda não é compatível com contas conjuntas. Estamos trabalhando para disponibilizá-la.";
+"joint_account_coming_soon_description" = "Esta ação ainda não é compatível com contas conjuntas. Estamos trabalhando para disponibilizá-la";
 "joint_account_coming_soon_title" = "Em breve nas contas conjuntas";
 "joint_account_invite_invalid_subtitle" = "Verifique se você abriu o link completo ou peça ao proprietário da conta para enviá-lo novamente";
 "joint_account_invite_invalid_title" = "O link de convite não é válido";
@@ -1139,7 +1147,7 @@
 "market_crypto_total_cap_fear_greed_title_full" = "Índice de medo e ganância";
 "market_crypto_total_cap_fear_greed_title_short" = "Índice de medo e ganância";
 "market_crypto_total_cap_info" = "A capitalização de mercado de criptomoedas é o valor total, em dólares, de todas as criptomoedas, calculado multiplicando-se o preço atual de cada uma pelo seu suprimento em circulação.\nFonte: coinmarketcap.com";
-"market_crypto_total_market_cap_title" = "Capitalização de mercado total";
+"market_crypto_total_market_cap_title" = "Capitalização total de mercado";
 "market_failed_to_load_filters" = "Falha ao carregar o filtro.\nToque para recarregar";
 "markets_about_coin_header" = "Sobre a moeda";
 "markets_add_to_my_portfolio_description" = "Para comprar, trocar ou receber este ativo, adicione-o à sua carteira.";
@@ -2769,6 +2777,8 @@
 "transaction_history_empty_transactions" = "Você ainda não possui nenhuma transação.";
 "transaction_history_enabling_yield_mode" = "Ativando o modo de rendimento";
 "transaction_history_error_failed_to_load" = "Falha ao carregar o histórico de transações. Clique no botão \n para atualizar as informações.";
+"transaction_history_fee_for_operation_name" = "For %@";
+"transaction_history_fee_for_operation" = "For operation";
 "transaction_history_fee_for_sending" = "Para envio";
 "transaction_history_fee_sending_asset" = "Enviar %%image%%%@";
 "transaction_history_from_inline_address" = "de: %%image%% %@";
