@@ -44,7 +44,6 @@ class TangemPayMainCoordinator: CoordinatorObject {
     @Published var addToApplePayGuideViewModel: TangemPayAddToAppPayGuideViewModel?
     @Published var tangemPayPinViewModel: TangemPayPinViewModel?
     @Published var tangemPayDailyLimitViewModel: TangemPayDailyLimitViewModel?
-    @Published var termsAndLimitsViewModel: WebViewContainerViewModel?
     @Published var pendingExpressTxStatusBottomSheet: PendingExpressTxStatusBottomSheetViewModel?
     @Published var virtualAccountSuccessViewModel: TangemPayVirtualAccountSuccessViewModel?
     @Published var cashbackDetailViewModel: TangemPayCashbackDetailViewModel?
@@ -386,22 +385,6 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             pendingTransactionsManager: pendingTransactionsManager,
             router: self
         )
-    }
-
-    func openTermsAndLimits() {
-        termsAndLimitsViewModel = .init(
-            url: AppConstants.tangemPayTermsAndLimitsURL,
-            title: "",
-            withCloseButton: true
-        )
-    }
-
-    func openVisaBenefits() {
-        guard let url = TangemPayVisaBenefitsURLBuilder().url() else {
-            return
-        }
-
-        safariManager.openURL(url)
     }
 
     func openCashbackDetail(summary: TangemPayCashback.Summary) {
