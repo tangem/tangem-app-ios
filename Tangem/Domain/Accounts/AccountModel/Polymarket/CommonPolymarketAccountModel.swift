@@ -27,6 +27,7 @@ final class CommonPolymarketAccountModel {
     private let refreshProcessor = SingleTaskProcessor<Void, Never>()
     private let lastPositionsValue = OSAllocatedUnfairLock<Decimal?>(initialState: nil)
     private let positionsReads = OSAllocatedUnfairLock<Int>(initialState: 0)
+    private let stateReads = OSAllocatedUnfairLock<Int>(initialState: 0)
 
     init(
         userWalletId: UserWalletId,
@@ -79,12 +80,14 @@ extension CommonPolymarketAccountModel: PolymarketAccountModel {
 
     func refreshState(scope: PolymarketBalanceRefreshScope) async {
         let positionsReadsBefore = positionsReads.withLock { $0 }
+        let stateReadsBefore = stateReads.withLock { $0 }
 
         await runRound(scope: scope)
 
+        let joinedARoundThatSkippedTheState = stateReads.withLock { $0 } == stateReadsBefore
         let joinedARoundThatSkippedThePositions = scope == .full && positionsReads.withLock { $0 } == positionsReadsBefore
 
-        guard joinedARoundThatSkippedThePositions else {
+        guard joinedARoundThatSkippedTheState || joinedARoundThatSkippedThePositions else {
             return
         }
 
@@ -117,6 +120,8 @@ private extension CommonPolymarketAccountModel {
     }
 
     func loadState(scope: PolymarketBalanceRefreshScope) async {
+        stateReads.withLock { $0 += 1 }
+
         let ownerAddress = ownerAddressProvider.getOwnerAddress()
 
         guard !presenceStore.hasAccount(userWalletId: userWalletId) else {
