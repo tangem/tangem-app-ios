@@ -16,67 +16,68 @@ import TangemAccessibilityIdentifiers
 struct YieldModuleClaimView: View {
     @ObservedObject var viewModel: YieldModuleClaimViewModel
 
-    @State private var scrollContentHeight: CGFloat = 0
-    @State private var buttonHeight: CGFloat = 0
-
-    /// The sheet opens at its content height; once the content outgrows the screen, the system clamps that detent
-    /// to the full-height one.
-    private var detents: Set<PresentationDetent> {
-        [.height(scrollContentHeight + buttonHeight), .large]
-    }
-
     // MARK: - View Body
 
     var body: some View {
-        VStack(spacing: .zero) {
-            ScrollView(showsIndicators: false) {
-                scrollContent
-                    .padding(.horizontal, Constants.horizontalPadding)
-                    .readGeometry(\.size.height) { scrollContentHeight = $0 }
-            }
-            .scrollBounceBehavior(.basedOnSize)
-
-            buttonBlock
-                .readGeometry(\.size.height) { buttonHeight = $0 }
+        ScrollView(showsIndicators: false) {
+            scrollContent
+                .padding(.horizontal, Constants.horizontalPadding)
         }
-        .background(Colors.Background.tertiary.ignoresSafeArea())
-        .presentationDetents(detents)
-        .presentationDragIndicator(.visible)
-        .presentationCornerRadius(Constants.cornerRadius)
-        .interactiveDismissDisabled(viewModel.isProcessingRequest)
+        .scrollBounceBehavior(.basedOnSize)
+        .safeAreaInset(edge: .bottom, spacing: .zero) {
+            buttonBlock
+        }
+        .floatingSheetConfiguration { configuration in
+            configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+            configuration.backgroundInteractionBehavior = viewModel.isProcessingRequest ? .consumeTouches : .tapToDismiss
+            configuration.verticalSwipeBehavior = viewModel.isProcessingRequest
+                ? nil
+                : .init(target: .sheet, threshold: Constants.swipeDismissThreshold)
+        }
+        .accessibilityAction(.escape) {
+            guard !viewModel.isProcessingRequest else { return }
+
+            viewModel.onCloseTap()
+        }
     }
 
     // MARK: - Sub Views
 
     private var scrollContent: some View {
         VStack(spacing: .zero) {
-            Text(Localization.yieldModuleClaimSheetTitle)
-                .style(Fonts.Bold.title2, color: Colors.Text.primary1)
-                .multilineTextAlignment(.center)
-                .padding(.top, 14)
-
-            Text(Localization.yieldModuleClaimSheetSubtitle)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.top, 8)
+            headerView
 
             totalView
-                .padding(.top, 16)
+                .padding(.top, Constants.totalTopPadding)
+                .padding(.bottom, Constants.totalBottomPadding)
 
             rewardsAndFees
-                .padding(.top, 24)
         }
+    }
+
+    private var headerView: some View {
+        VStack(spacing: Constants.headerSpacing) {
+            Text(Localization.yieldModuleClaimSheetTitle)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+
+            Text(Localization.yieldModuleClaimSheetSubtitle)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+        }
+        .multilineTextAlignment(.center)
+        .frame(minHeight: Constants.headerHeight)
+        .padding(.top, Constants.headerTopPadding)
+        .padding(.bottom, Constants.headerBottomPadding)
     }
 
     private var totalView: some View {
         Text(viewModel.viewData.total)
-            .style(Fonts.Bold.largeTitle, color: Colors.Text.primary1)
+            .style(DesignSystem.Font.displayMediumToken, color: DesignSystem.Color.textPrimary)
             .lineLimit(1)
             .minimumScaleFactor(0.5)
     }
 
     private var rewardsAndFees: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: Constants.cardSpacing) {
             ForEach(viewModel.viewData.sections) { section in
                 YieldModuleClaimRewardsSectionView(section: section)
             }
@@ -118,7 +119,10 @@ struct YieldModuleClaimView: View {
                 needsBackground: false
             )
         }
-        .defaultRoundedBackground(with: Colors.Background.action)
+        .defaultRoundedBackground(
+            with: DesignSystem.Color.bgOpaquePrimary,
+            cornerRadius: Constants.cardCornerRadius
+        )
     }
 
     private var notesView: some View {
@@ -172,6 +176,15 @@ struct YieldModuleClaimView: View {
 private extension YieldModuleClaimView {
     enum Constants {
         static let horizontalPadding: CGFloat = 16
-        static let cornerRadius: CGFloat = 24
+        static let swipeDismissThreshold: CGFloat = 100
+        static let cardCornerRadius: CGFloat = 24
+        static let cardSpacing: CGFloat = 8
+        /// The toolbar row the design keeps at the top, whatever the two lines inside it measure.
+        static let headerHeight: CGFloat = 44
+        static let headerSpacing: CGFloat = 4
+        static let headerTopPadding: CGFloat = 16
+        static let headerBottomPadding: CGFloat = 16
+        static let totalTopPadding: CGFloat = 24
+        static let totalBottomPadding: CGFloat = 48
     }
 }

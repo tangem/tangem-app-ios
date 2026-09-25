@@ -14,11 +14,12 @@ struct YieldModuleActiveCoordinatorView: View {
     var body: some View {
         ZStack {
             if let viewModel = coordinator.rootViewModel {
-                YieldModuleActiveContentView(viewModel: viewModel)
+                if coordinator.usesIncentiveDesign {
+                    YieldModuleActiveContentV2View(viewModel: viewModel)
+                } else {
+                    YieldModuleActiveContentView(viewModel: viewModel)
+                }
             }
-        }
-        .sheet(item: $coordinator.claimViewModel) { viewModel in
-            YieldModuleClaimView(viewModel: viewModel)
         }
     }
 }

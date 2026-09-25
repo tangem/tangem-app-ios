@@ -98,7 +98,10 @@ final class CommonYieldModuleFlowFactory {
         )
     }
 
-    private func makeYieldModuleActiveViewModel(coordinator: YieldModuleActiveCoordinator) -> YieldModuleActiveViewModel {
+    private func makeYieldModuleActiveViewModel(
+        coordinator: YieldModuleActiveCoordinator,
+        usesIncentiveDesign: Bool
+    ) -> YieldModuleActiveViewModel {
         let interactor = makeInteractor()
         let claimInteractor = makeClaimInteractor()
 
@@ -114,7 +117,8 @@ final class CommonYieldModuleFlowFactory {
             marketInfoPublisher: yieldModuleManager.marketInfoPublisher,
             claimInteractor: claimInteractor,
             notificationManager: YieldModuleNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem),
-            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId),
+            usesIncentiveDesign: usesIncentiveDesign
         )
     }
 
@@ -228,8 +232,12 @@ extension CommonYieldModuleFlowFactory: YieldModuleFlowFactory {
         dismissAction: @escaping Action<YieldModuleActiveCoordinator.DismissOptions?>
     ) -> YieldModuleActiveCoordinator {
         let coordinator = YieldModuleActiveCoordinator(dismissAction: dismissAction)
-        let viewModel = makeYieldModuleActiveViewModel(coordinator: coordinator)
-        let options = YieldModuleActiveCoordinator.Options(viewModel: viewModel)
+        let usesIncentiveDesign = FeatureProvider.isAvailable(.merklIncentives)
+        let viewModel = makeYieldModuleActiveViewModel(coordinator: coordinator, usesIncentiveDesign: usesIncentiveDesign)
+        let options = YieldModuleActiveCoordinator.Options(
+            viewModel: viewModel,
+            usesIncentiveDesign: usesIncentiveDesign
+        )
 
         coordinator.start(with: options)
         return coordinator
