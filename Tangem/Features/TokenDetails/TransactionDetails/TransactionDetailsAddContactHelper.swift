@@ -32,11 +32,11 @@ struct TransactionDetailsAddContactHelper {
     private var isPlainTransfer: Bool {
         switch transactionType {
         case .transfer,
-             .gaslessTransfer,
              .tangemPay(.transfer):
             return true
 
-        case .swap,
+        case .gaslessTransfer,
+             .swap,
              .onramp,
              .tangemPay(.fee),
              .tangemPay(.spend),
@@ -57,6 +57,7 @@ struct TransactionDetailsAddContactHelper {
              .restake,
              .approve,
              .gaslessTransactionFee,
+             .networkFee,
              .operation,
              .unknownOperation:
             return false

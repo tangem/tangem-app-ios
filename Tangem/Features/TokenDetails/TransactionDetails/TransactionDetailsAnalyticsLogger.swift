@@ -211,7 +211,7 @@ final class TransactionDetailsAnalyticsLogger {
         case .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit, .yieldReactivate,
              .yieldSend, .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin:
             .yieldModuleSourceInfo
-        case .gaslessTransactionFee, .operation, .unknownOperation:
+        case .gaslessTransactionFee, .networkFee, .operation, .unknownOperation:
             .txHistoryOperation
         }
     }
@@ -251,7 +251,7 @@ final class TransactionDetailsAnalyticsLogger {
         case .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit, .yieldReactivate,
              .yieldSend, .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin:
             .yieldModuleSourceInfo
-        case .gaslessTransactionFee:
+        case .gaslessTransactionFee, .networkFee:
             .fee
         case .operation, .unknownOperation:
             .txHistoryOperation
