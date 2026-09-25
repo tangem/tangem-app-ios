@@ -28,6 +28,10 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
                 OnboardingCoordinatorView(coordinator: $0)
                     .navigationBarHidden(true)
             }
+            .navigation(item: $coordinator.createWalletSelectorCoordinator) {
+                CreateWalletSelectorCoordinatorView(coordinator: $0)
+                    .environment(\.colorScheme, systemColorScheme)
+            }
     }
 
     private var content: some View {
@@ -41,7 +45,6 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
             if let storyViewModel = coordinator.welcomeStoryViewModel {
                 WelcomeStoryView(viewModel: storyViewModel)
                     .transition(.opacity)
-                    .zIndex(1)
             }
 
             ZStack {
