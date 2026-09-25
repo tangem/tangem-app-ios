@@ -298,15 +298,37 @@ extension CommonPolymarketAccountModelTests {
         #expect(balance.lastLoadedBalance?.freshTotal == nil)
     }
 
-    @Test("A refresh that asks for nothing in particular leaves the positions alone")
-    func aPlainRefreshDoesNotReadPositions() async {
+    @Test("A refresh that names no scope reads the positions too, because the wallet's main screen shows the total")
+    func aPlainRefreshReadsPositions() async {
         let positions = PolymarketPositionsValueServiceStub(result: .success(7))
         let (sut, balance) = makeActiveSUT(available: 10, positionsValueService: positions)
 
         await sut.refreshState()
 
-        #expect(positions.calls == 0)
+        #expect(positions.calls == 1)
         #expect(balance.lastLoadedBalance?.available == 10)
+        #expect(balance.lastLoadedBalance?.total == 17)
+    }
+
+    @Test("An account with no balance to read is still asked for only once, even though the round wanted the positions")
+    func aFullRoundOnAnAccountWithoutABalanceAsksOnce() async {
+        let wallet = PolymarketDepositWalletServiceStub(status: .notCreated)
+        let (sut, _) = makeSUT(walletService: wallet, credentialsRepository: PolymarketCredentialsRepositoryStub())
+
+        await sut.refreshState(scope: .full)
+
+        #expect(wallet.requestedOwnerAddresses.count == 1)
+    }
+
+    @Test("An account that needs a sync settles after a single round as well")
+    func aFullRoundOnAnAccountThatNeedsSyncSettlesAtOnce() async {
+        let wallet = PolymarketDepositWalletServiceStub(status: .readyToTrade)
+        let (sut, balance) = makeSUT(walletService: wallet, credentialsRepository: PolymarketCredentialsRepositoryStub())
+
+        await sut.refreshState(scope: .full)
+
+        #expect(sut.state == .syncNeeded)
+        #expect(balance.unavailableCalls == 1)
     }
 
     @Test("Skipping the positions before anything is known leaves the total unknown instead of pretending there are no bets")

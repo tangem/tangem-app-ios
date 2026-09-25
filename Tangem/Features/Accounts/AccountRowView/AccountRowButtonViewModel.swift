@@ -138,7 +138,7 @@ private extension AccountRowButtonViewModel {
 
         func resolve(accountModel: any PolymarketAccountModel) {
             accountModel
-                .fiatAvailableBalanceProvider
+                .fiatTotalTokenBalanceProvider
                 .formattedBalanceTypePublisher
                 .map { LoadableBalanceViewStateBuilder().build(type: $0) }
                 .receiveOnMain()
