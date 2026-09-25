@@ -44,11 +44,9 @@ enum TangemPayOfferAvailability {
 protocol TangemPayAvailabilityRepository {
     var tangemPayOfferAvailability: TangemPayOfferAvailability { get }
     var tangemPayDetailsEntrypointEligibleWalletSelectionPublisher: AnyPublisher<TangemPayWalletSelectionType?, Never> { get }
+    var tangemPayFeedCardEntrypointEligibleWalletSelectionPublisher: AnyPublisher<TangemPayWalletSelectionType?, Never> { get }
 
     func tangemPayBannerEntrypointEligibleWalletSelectionPublisher(
-        for customerWalletId: String
-    ) -> AnyPublisher<TangemPayWalletSelectionType?, Never>
-    func tangemPayFeedCardEntrypointEligibleWalletSelectionPublisher(
         for customerWalletId: String
     ) -> AnyPublisher<TangemPayWalletSelectionType?, Never>
     func userDidCloseGetTangemPayBanner()

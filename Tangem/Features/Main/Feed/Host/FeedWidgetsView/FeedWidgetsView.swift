@@ -94,13 +94,13 @@ struct FeedWidgetsView: View {
         case .addAccount:
             FeedAddAccountWidgetView()
 
-        case .startEarning(let state, _):
+        case .startEarning(let state):
             FeedEarnWidgetView(state: state)
 
         case .tangemPay:
             FeedTangemPayWidgetView()
 
-        case .referFriend(let reward, _):
+        case .referFriend(let reward):
             FeedReferralWidgetView(reward: reward)
 
         case .polymarket:
