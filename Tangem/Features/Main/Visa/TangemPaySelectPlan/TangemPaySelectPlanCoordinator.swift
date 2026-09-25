@@ -17,6 +17,8 @@ final class TangemPaySelectPlanCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
 
+    private var safariHandle: SafariHandle?
+
     // MARK: - Root view model
 
     @Published private(set) var selectPlanViewModel: TangemPaySelectPlanViewModel?
@@ -151,6 +153,18 @@ extension TangemPaySelectPlanCoordinator: TangemPayComparePlansRoutable {
     func closeComparePlans() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func openComparePlansURL(_ url: URL) {
+        Task { @MainActor in
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            safariHandle = safariManager.openURL(
+                url,
+                configuration: .init(),
+                onDismiss: { [weak self] in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+                onSuccess: { [weak self] _ in self?.floatingSheetPresenter.resumeSheetsDisplaying() }
+            )
         }
     }
 }

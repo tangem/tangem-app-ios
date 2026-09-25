@@ -10,6 +10,7 @@
 import Foundation
 import Testing
 import BlockchainSdk
+import TangemLocalization
 @testable import Tangem
 
 @Suite("Notice - Not Enough Fee — Balance parameter")
@@ -65,5 +66,17 @@ struct NotEnoughFeeNoticeBalanceParamTests {
 
     private enum TestError: Error {
         case unexpectedEvent
+    }
+}
+
+@Suite("Minimum fee-token balance notification")
+struct MinimumFeeTokenBalanceNotificationTests {
+    @Test("Notification is critical and shows the required amount")
+    func notificationContent() {
+        let event = SendNotificationEvent.minimumFeeTokenBalanceRequired(formattedAmount: "5 USDT")
+
+        #expect(event.title == .string(Localization.commonInsufficientBalance))
+        #expect(event.description == Localization.gaslessTronActivationMinBalanceDescription("5 USDT"))
+        #expect(event.severity == .critical)
     }
 }
