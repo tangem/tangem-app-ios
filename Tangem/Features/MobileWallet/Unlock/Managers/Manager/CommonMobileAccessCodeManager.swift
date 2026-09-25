@@ -222,9 +222,14 @@ extension CommonMobileAccessCodeManager: MobileAccessCodeManager {
                 let context = try mobileWalletSdk.validate(auth: .accessCode(accessCode), for: userWalletId)
                 cleanWrongAccessCodeStore()
                 command = makeValidCommand(context: context)
-            } catch {
+            } catch MobileWalletUnlockError.wrongAccessCode {
                 storeWrongAccessCode()
                 command = makeInvalidCommand(availableState: availableState)
+            } catch {
+                // The code was not rejected — the key storage is. Counting this as a wrong attempt would walk
+                // a recoverable wallet down the lock → delete ladder and tell the user to delete it.
+                AppLogger.error("Mobile wallet key storage is unavailable, access code not counted as wrong", error: error)
+                command = makeUnavailableCommand(state: .keyStorageUnavailable)
             }
             stateCommandSubject.send(command)
 

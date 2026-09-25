@@ -199,6 +199,9 @@ private extension MobileUnlockViewModel {
         switch state {
         case .needsToDelete:
             onAction(.unavailableDueToDeletion)
+        case .keyStorageUnavailable:
+            let item = InfoWarningItem(title: Localization.hwCloudBackupRestoreErrorWithRecovery)
+            infoState = .warning(item)
         }
     }
 

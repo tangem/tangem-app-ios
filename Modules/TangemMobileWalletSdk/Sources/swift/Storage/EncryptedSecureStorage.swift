@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CryptoKit
 import TangemSdk
 import TangemFoundation
 
@@ -56,20 +57,33 @@ final class EncryptedSecureStorage {
             throw PrivateInfoStorageError.noInfo(tag: keyTag)
         }
 
-        let secureEnclaveEncryptedKey = switch accessCode {
+        let secureEnclaveEncryptedKey: Data
+        switch accessCode {
         case .some(let code):
-            try AESEncoder.decryptWithPassword(
-                password: code,
-                encryptedData: encryptedAesKey
-            )
+            do {
+                secureEnclaveEncryptedKey = try AESEncoder.decryptWithPassword(
+                    password: code,
+                    encryptedData: encryptedAesKey
+                )
+            } catch CryptoKitError.authenticationFailure, EncodingError.invalidPassword {
+                // Only a failed GCM tag check (or an unusable password string) means the access code itself is wrong.
+                throw MobileWalletUnlockError.wrongAccessCode
+            }
         case .none:
-            encryptedAesKey
+            secureEnclaveEncryptedKey = encryptedAesKey
         }
 
-        return try secureEnclaveService.decryptData(
-            secureEnclaveEncryptedKey,
-            keyTag: secureEnclaveKeyTag
-        )
+        // Past this point the access code is correct. If the Secure Enclave cannot unwrap the key, the SE
+        // key is gone or unusable (e.g. purged by iOS together with the device passcode) — that is a storage
+        // failure, not a wrong code, and no code the user could enter would fix it.
+        do {
+            return try secureEnclaveService.decryptData(
+                secureEnclaveEncryptedKey,
+                keyTag: secureEnclaveKeyTag
+            )
+        } catch {
+            throw MobileWalletUnlockError.keyStorageUnavailable
+        }
     }
 
     func deleteData(keyTag: String, secureEnclaveKeyTag: String) throws {
