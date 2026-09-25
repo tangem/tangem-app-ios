@@ -41,7 +41,7 @@ struct TransactionDetailsPrincipalAmountView: View {
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                 .lineLimit(1)
 
-            TokenIcon(tokenIconInfo: data.tokenIconInfo, size: CGSize(bothDimensions: tokenBadgeSide))
+            TokenIcon(tokenIconInfo: data.tokenIconInfo, size: CGSize(bothDimensions: tokenBadgeSide), isWithOverlays: false)
         }
     }
 
@@ -51,7 +51,7 @@ struct TransactionDetailsPrincipalAmountView: View {
             .resizable()
             .scaledToFit()
             .frame(size: CGSize(bothDimensions: iconSide))
-            .foregroundStyle(DesignSystem.Color.iconSecondary)
+            .foregroundStyle(DesignSystem.Color.iconPrimary)
             .frame(size: CGSize(bothDimensions: iconContainerSide))
             .background(DesignSystem.Color.bgOpaquePrimary, in: Circle())
     }

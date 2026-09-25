@@ -125,6 +125,7 @@ struct TransactionHistoryDustFilterTests {
         case .vote: break
         case .restake: break
         case .gaslessTransactionFee: break
+        case .networkFee: break
         case .operation: break
         case .unknownOperation: break
         case .tangemPay: break
@@ -157,6 +158,7 @@ struct TransactionHistoryDustFilterTests {
             .vote,
             .restake,
             .gaslessTransactionFee,
+            .networkFee(sent: nil),
             .operation(name: "Mint"),
             .unknownOperation,
             .tangemPay(.transfer(name: "Tangem Pay")),

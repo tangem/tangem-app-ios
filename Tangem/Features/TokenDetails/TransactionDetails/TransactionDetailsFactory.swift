@@ -120,8 +120,8 @@ enum TransactionDetailsFactory {
         case .stake, .unstake, .vote, .withdraw, .claimRewards, .restake:
             return .generic(stakingOperationContent(for: transaction, record: record, context: context))
 
-        case .gaslessTransactionFee:
-            return .generic(gaslessFeeContent(for: transaction, record: record, cryptoAmount: cryptoAmount, context: context))
+        case .gaslessTransactionFee, .networkFee:
+            return .generic(feeContent(for: transaction, record: record, cryptoAmount: cryptoAmount, context: context))
 
         case .operation, .unknownOperation:
             return .generic(genericOperationContent(
@@ -322,9 +322,9 @@ enum TransactionDetailsFactory {
         )
     }
 
-    // MARK: - Gasless fee
+    // MARK: - Fee
 
-    private static func gaslessFeeContent(
+    private static func feeContent(
         for transaction: TransactionViewModel,
         record: TransactionRecord,
         cryptoAmount: Decimal,
@@ -339,10 +339,23 @@ enum TransactionDetailsFactory {
                 icon: .token(context.tokenIconInfo)
             ),
             statusBanner: nil,
-            principalAmount: nil,
+            principalAmount: sentTokens(for: transaction),
             counterparty: nil,
             info: nil,
             action: nil
+        )
+    }
+
+    private static func sentTokens(for transaction: TransactionViewModel) -> TransactionDetailsPrincipalAmountViewData? {
+        guard case .networkFee(.some(let sent)) = transaction.transactionType else {
+            return nil
+        }
+
+        return .init(
+            icon: DesignSystem.Icons.ArrowUp.regular24,
+            label: Localization.commonSend,
+            amount: sent.amount,
+            tokenIconInfo: sent.iconInfo
         )
     }
 
@@ -375,7 +388,7 @@ enum TransactionDetailsFactory {
             return YieldStage(provider: .trailing(Assets.YieldModule.yieldModuleAaveLogo), caption: Localization.yieldModuleTransactionReturned)
         case .yieldDeploy, .yieldInit, .yieldReactivate, .yieldSend, .yieldTopup,
              .stake, .unstake, .vote, .withdraw, .claimRewards, .restake,
-             .approve, .gaslessTransactionFee, .operation, .unknownOperation,
+             .approve, .gaslessTransactionFee, .networkFee, .operation, .unknownOperation,
              .transfer, .gaslessTransfer, .swap, .onramp, .tangemPay:
             return nil
         }
