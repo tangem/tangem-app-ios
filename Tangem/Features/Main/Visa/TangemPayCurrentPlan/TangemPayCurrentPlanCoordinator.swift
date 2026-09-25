@@ -16,6 +16,7 @@ final class TangemPayCurrentPlanCoordinator: CoordinatorObject {
     let popToRootAction: Action<PopToRootOptions>
 
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.safariManager) private var safariManager: SafariManager
 
     // MARK: - Root view model
 
@@ -24,6 +25,7 @@ final class TangemPayCurrentPlanCoordinator: CoordinatorObject {
     // MARK: - Child coordinators (push navigation)
 
     @Published var selectPlanCoordinator: TangemPaySelectPlanCoordinator?
+    @Published var termsAndLimitsViewModel: WebViewContainerViewModel?
 
     private var options: Options?
 
@@ -94,6 +96,18 @@ extension TangemPayCurrentPlanCoordinator: TangemPayCurrentPlanRoutable {
             mode: .planChange(customerTariffPlan: options.customerTariffPlan)
         ))
         selectPlanCoordinator = coordinator
+    }
+
+    func openURL(_ url: URL) {
+        safariManager.openURL(url)
+    }
+
+    func openFullTerms() {
+        termsAndLimitsViewModel = WebViewContainerViewModel(
+            url: AppConstants.tangemPayTermsAndLimitsURL,
+            title: "",
+            withCloseButton: true
+        )
     }
 
     func openStayOnPlusConfirmation(planName: String, pendingPlanName: String) {

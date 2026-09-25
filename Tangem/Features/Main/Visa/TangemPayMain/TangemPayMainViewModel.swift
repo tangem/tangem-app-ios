@@ -86,8 +86,6 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @Published private(set) var currentPlanState: CurrentPlanState = .unknown
 
-    @Published private(set) var isVisaBenefitsAvailable = false
-
     lazy var cardDeactivatedNotificationInput: NotificationViewInput? = tangemPayAccount.isDeactivated
         ? NotificationsFactory().buildNotificationInput(
             for: TangemPayCardDeactivatedNotificationEvent(),
@@ -702,15 +700,6 @@ final class TangemPayMainViewModel: ObservableObject {
         Analytics.log(.visaTiersPlusCardsClosureWarningBannerShowed, contextParams: .userWallet(userWalletInfo.id))
     }
 
-    func termsAndLimits() {
-        Analytics.log(.visaScreenTermsAndLimitsClicked, contextParams: .userWallet(userWalletInfo.id))
-        coordinator?.openTermsAndLimits()
-    }
-
-    func visaBenefits() {
-        coordinator?.openVisaBenefits()
-    }
-
     func contactSupport() {
         Analytics.log(.visaScreenGoToSupportOnBetaBannerClicked, contextParams: .userWallet(userWalletInfo.id))
         let dataCollector = TangemPaySupportDataCollector(
@@ -914,17 +903,6 @@ private extension TangemPayMainViewModel {
         .removeDuplicates()
         .receiveOnMain()
         .assign(to: &$currentPlanState)
-
-        tangemPayAccount.customerTariffPlanPublisher
-            .map { plan in
-                guard let plan else {
-                    return false
-                }
-                return plan.tariffPlan.type != TangemPayAccount.basicTariffPlanType
-            }
-            .removeDuplicates()
-            .receiveOnMain()
-            .assign(to: &$isVisaBenefitsAvailable)
 
         tangemPayAccount.customerTariffPlanPublisher
             .map { plan in
