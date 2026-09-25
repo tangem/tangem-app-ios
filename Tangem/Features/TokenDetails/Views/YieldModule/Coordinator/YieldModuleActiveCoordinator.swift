@@ -28,8 +28,10 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
     @Published
     var rootViewModel: YieldModuleActiveViewModel? = nil
 
-    @Published
-    var claimViewModel: YieldModuleClaimViewModel? = nil
+    private(set) var usesIncentiveDesign = false
+
+    /// Held weakly: the presenter owns the sheet, so the reference goes away with it however it was dismissed.
+    private weak var claimViewModel: YieldModuleClaimViewModel?
 
     private var handle: SafariHandle?
 
@@ -47,6 +49,7 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
     // MARK: - Public Implementation
 
     func start(with options: Options) {
+        usesIncentiveDesign = options.usesIncentiveDesign
         rootViewModel = options.viewModel
     }
 
@@ -71,12 +74,13 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
     func openClaimSheet(viewModel: YieldModuleClaimViewModel) {
         Task { @MainActor [weak self] in
             self?.claimViewModel = viewModel
+            self?.floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
     func closeClaimSheet() {
         Task { @MainActor [weak self] in
-            self?.claimViewModel = nil
+            self?.floatingSheetPresenter.removeActiveSheet()
         }
     }
 
@@ -118,10 +122,8 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
 
     // MARK: - Private Implementation
 
-    /// The claim uses a native sheet while everything else here goes through the floating presenter.
     @MainActor
     private func closePresentedSheets() {
-        claimViewModel = nil
         floatingSheetPresenter.removeActiveSheet()
     }
 
@@ -136,6 +138,7 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
 extension YieldModuleActiveCoordinator {
     struct Options {
         let viewModel: YieldModuleActiveViewModel
+        let usesIncentiveDesign: Bool
     }
 
     typealias DismissOptions = FeeCurrencyNavigatingDismissOption

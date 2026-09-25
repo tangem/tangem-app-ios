@@ -8,26 +8,30 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 import TangemAssets
 
 struct YieldModuleClaimRewardsSectionView: View {
     let section: YieldModuleClaimViewData.Section
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Constants.rowSpacing) {
             Text(section.title)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.leading)
 
             ForEach(Array(section.rewards.enumerated()), id: \.element.id) { index, reward in
                 if index > 0 {
-                    Separator(color: Colors.Stroke.primary)
+                    Separator(color: DesignSystem.Color.borderSecondary)
                 }
 
                 rewardRow(reward)
             }
         }
-        .defaultRoundedBackground(with: Colors.Background.action)
+        .defaultRoundedBackground(
+            with: DesignSystem.Color.bgOpaquePrimary,
+            cornerRadius: Constants.cornerRadius
+        )
     }
 
     private func rewardRow(_ reward: YieldModuleClaimViewData.Reward) -> some View {
@@ -36,10 +40,10 @@ struct YieldModuleClaimRewardsSectionView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(reward.symbol)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
                 Text(reward.networkName)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             }
 
             Spacer(minLength: 8)
@@ -47,11 +51,11 @@ struct YieldModuleClaimRewardsSectionView: View {
             VStack(alignment: .trailing, spacing: 2) {
                 if let fiatAmount = reward.fiatAmount {
                     Text(fiatAmount)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                 }
 
                 Text(reward.amount)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             }
         }
     }
@@ -61,6 +65,8 @@ struct YieldModuleClaimRewardsSectionView: View {
 
 private extension YieldModuleClaimRewardsSectionView {
     enum Constants {
-        static let iconSize = CGSize(bothDimensions: 36)
+        static let iconSize = CGSize(bothDimensions: 40)
+        static let rowSpacing: CGFloat = 12
+        static let cornerRadius: CGFloat = 24
     }
 }
