@@ -60,8 +60,7 @@ struct TransactionHistoryTransferCollapserTests {
 
         let collapser = TransactionHistoryTransferCollapser(
             walletModelAddresses: [asTheProviderSpellsIt],
-            isEvm: true,
-            smartContractMethodMapper: CommonSmartContractMethodMapper()
+            isEvm: true
         )
 
         let collapsed = collapser.collapse([
@@ -88,6 +87,24 @@ struct TransactionHistoryTransferCollapserTests {
         #expect(!viewModel.amount.amount.hasPrefix(AppConstants.minusSign))
         #expect(!viewModel.amount.amount.hasPrefix(AppConstants.plusSign))
         #expect(viewModel.amount.amount == formatted(0, signedBy: ""))
+    }
+
+    /// Several transfers rarely share a meaning worth borrowing from the method that carried them, so what the
+    /// balance did names the row instead — and a transaction that moved nothing has nothing to name it after.
+    @Test("The folded row is named after the balance change, and falls back to an operation when there is none")
+    func theFoldedRowIsNamedAfterItsTotal() throws {
+        let moved = makeCollapser().collapse([
+            transfer(index: 0, from: Self.owner, to: Self.pool, amount: 2, type: .contractMethodIdentifier(id: "0xe21fd0e9")),
+            transfer(index: 1, from: Self.owner, to: Self.otherPool, amount: 1, type: .contractMethodIdentifier(id: "0xe21fd0e9")),
+        ])
+
+        let movedNothing = makeCollapser().collapse([
+            transfer(index: 0, from: Self.owner, to: Self.pool, amount: 2, type: .contractMethodIdentifier(id: "0xe21fd0e9")),
+            transfer(index: 1, from: Self.pool, to: Self.owner, amount: 2, type: .contractMethodIdentifier(id: "0xe21fd0e9")),
+        ])
+
+        #expect(try #require(moved.singleElement).type == .transfer)
+        #expect(try #require(movedNothing.singleElement).type == .unknownOperation)
     }
 
     @Test("The fee belongs to the transaction, so folding must not add it up per transfer")
@@ -146,6 +163,21 @@ struct TransactionHistoryTransferCollapserTests {
         #expect(viewModel.interactionAddress == .user(Self.pool))
     }
 
+    /// Folding names a contract call after the balance it moved, which would otherwise offer the pool it swapped
+    /// through among the recipients the send screen suggests.
+    @Test("A folded row is not offered as a recent recipient, a plain transfer still is")
+    func aFoldedRowIsNotSuggested() throws {
+        let swapMethod = TransactionRecord.TransactionType.contractMethodIdentifier(id: "0xe21fd0e9")
+        let mapper = makeHistoryMapper()
+        let folded = try #require(makeCollapser().collapse([
+            transfer(index: 0, from: Self.owner, to: Self.pool, amount: 1, type: swapMethod),
+            transfer(index: 1, from: Self.owner, to: Self.pool, amount: 2, type: swapMethod),
+        ]).singleElement)
+
+        #expect(mapper.mapSuggestedRecord(folded) == nil)
+        #expect(mapper.mapSuggestedRecord(transfer(index: 0, from: Self.owner, to: Self.pool, amount: 1)) != nil)
+    }
+
     // MARK: - What must not be folded
 
     @Test("A transaction that never touches the wallet is left exactly as it came")
@@ -166,31 +198,6 @@ struct TransactionHistoryTransferCollapserTests {
         ]
 
         #expect(makeCollapser().collapse(records).count == 2)
-    }
-
-    @Test("Gasless is out of scope: its fee is a record of its own and folding would swallow it")
-    func gaslessTransactionsAreNotFolded() {
-        let records = [
-            transfer(index: 0, from: Self.owner, to: Self.pool, amount: 1, type: .contractMethodName(name: "gaslessTransaction")),
-            transfer(index: 1, from: Self.owner, to: Self.pool, amount: 1, type: .contractMethodName(name: "gaslessTransaction")),
-        ]
-
-        #expect(makeCollapser().collapse(records) == records)
-    }
-
-    /// Runs against the shipped `contract_methods.json` rather than a stub: the executor has been redeployed
-    /// before, and an id that stops resolving would silently start folding gasless transactions again.
-    @Test(
-        "Every executor entry point the spec names resolves to gasless in the shipped config",
-        arguments: ["0x6234d42b", "0x4b072692", "0xf9b181bf"]
-    )
-    func everySpecifiedExecutorEntryPointIsRecognized(methodId: String) {
-        let records = [
-            transfer(index: 0, from: Self.owner, to: Self.pool, amount: 1, type: .contractMethodIdentifier(id: methodId)),
-            transfer(index: 1, from: Self.owner, to: Self.pool, amount: 1, type: .contractMethodIdentifier(id: methodId)),
-        ]
-
-        #expect(makeCollapser().collapse(records) == records)
     }
 
     @Test("Records of one transaction claimed by different deals keep the classification the Express merge gave them")
@@ -247,13 +254,10 @@ private extension TransactionHistoryTransferCollapserTests {
     static let hash = "0xHash"
     static let currencySymbol = "ETH"
 
-    /// The mapper is handed over rather than resolved from `InjectedValues`: other suites swap that global for a
-    /// stub of their own while they run, and this one would read whichever of the two happened to be installed.
     func makeCollapser() -> TransactionHistoryTransferCollapser {
         TransactionHistoryTransferCollapser(
             walletModelAddresses: [Self.owner],
-            isEvm: true,
-            smartContractMethodMapper: CommonSmartContractMethodMapper()
+            isEvm: true
         )
     }
 
