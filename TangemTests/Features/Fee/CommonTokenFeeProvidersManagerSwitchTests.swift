@@ -14,6 +14,7 @@ import Combine
 @testable import BlockchainSdk
 import BigInt
 import TangemFoundation
+import TangemLocalization
 @testable import Tangem
 
 @Suite("CommonTokenFeeProvidersManager — switchToProviderWithEnoughBalanceIfNeeded", .serialized)
@@ -468,16 +469,34 @@ struct WalletModelTokenFeeProvidersManagerProviderTronGaslessAvailabilityTests {
         await assertAvailableTokenAddresses(
             tokenAddress: feeTokenAddress,
             isAccountActivated: true,
-            expectedAddresses: [feeTokenAddress]
+            expectedAddresses: [feeTokenAddress],
+            expectedMinimumBalance: nil
         )
     }
 
-    @Test("Non-activated Tron account hides gasless fee tokens")
-    func nonActivatedAccount_hidesGaslessFeeTokens() async {
+    @Test(
+        "Non-activated Tron account exposes the sent token when gasless activation is available",
+        .enabled(if: FeatureProvider.isAvailable(.tronGaslessActivation))
+    )
+    func nonActivatedAccountWithSupportedToken_exposesSentToken() async {
         await assertAvailableTokenAddresses(
             tokenAddress: feeTokenAddress,
             isAccountActivated: false,
-            expectedAddresses: []
+            expectedAddresses: [feeTokenAddress],
+            expectedMinimumBalance: 5
+        )
+    }
+
+    @Test(
+        "Non-activated Tron account hides gasless fees when activation is unavailable",
+        .enabled(if: !FeatureProvider.isAvailable(.tronGaslessActivation))
+    )
+    func nonActivatedAccountWithSupportedToken_hidesGaslessWhenActivationUnavailable() async {
+        await assertAvailableTokenAddresses(
+            tokenAddress: feeTokenAddress,
+            isAccountActivated: false,
+            expectedAddresses: [],
+            expectedMinimumBalance: nil
         )
     }
 
@@ -486,14 +505,16 @@ struct WalletModelTokenFeeProvidersManagerProviderTronGaslessAvailabilityTests {
         await assertAvailableTokenAddresses(
             tokenAddress: unsupportedTokenAddress,
             isAccountActivated: true,
-            expectedAddresses: []
+            expectedAddresses: [],
+            expectedMinimumBalance: nil
         )
     }
 
     private func assertAvailableTokenAddresses(
         tokenAddress: String,
         isAccountActivated: Bool,
-        expectedAddresses: [String]
+        expectedAddresses: [String],
+        expectedMinimumBalance: Decimal?
     ) async {
         await InjectedDependenciesIsolation.shared.run {
             let previousNetworkManager = InjectedValues[\.gaslessTransactionsNetworkManager]
@@ -532,6 +553,7 @@ struct WalletModelTokenFeeProvidersManagerProviderTronGaslessAvailabilityTests {
             let sut = WalletModelTokenFeeProvidersManagerProvider(walletModel: walletModel)
 
             #expect(sut.availableGaslessTokenAddresses() == expectedAddresses)
+            #expect(sut.minimumRequiredGaslessFeeTokenBalance() == expectedMinimumBalance)
         }
     }
 }
@@ -611,6 +633,7 @@ struct TronGaslessQuoteRequestTests {
             tokenItem: .token(token, .init(blockchain, derivationPath: nil)),
             feeToken: feeToken,
             sourceAddress: sourceAddress,
+            userWalletId: UserWalletId(value: Data("wallet".utf8)),
             networkManager: networkManager
         )
 
@@ -694,6 +717,80 @@ struct TronGaslessQuoteRequestTests {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         return try decoder.decode(GaslessTransactionsDTO.Response.TronEstimate.self, from: data)
+    }
+}
+
+@Suite("Tron gasless API contract")
+struct TronGaslessAPIContractTests {
+    @Test("Estimate and submit requests include the user wallet ID header")
+    func requestsIncludeUserWalletIdHeader() {
+        let userWalletId = UserWalletId(value: Data("wallet".utf8))
+        let estimate = GaslessTransactionsAPITarget(
+            apiType: .prod,
+            target: .tronEstimate(
+                request: .init(
+                    fromAddress: "TFrom",
+                    toAddress: "TTo",
+                    tokenContract: "TToken",
+                    amount: "1",
+                    feeTokenContract: "TFeeToken"
+                ),
+                userWalletId: userWalletId
+            )
+        )
+        let submit = GaslessTransactionsAPITarget(
+            apiType: .prod,
+            target: .tronSubmit(
+                request: .init(
+                    quoteId: "quote",
+                    signedCompensationTx: "compensation",
+                    signedOriginalTx: "original"
+                ),
+                userWalletId: userWalletId
+            )
+        )
+
+        #expect(estimate.headers?["userWalletId"] == userWalletId.stringValue)
+        #expect(submit.headers?["userWalletId"] == userWalletId.stringValue)
+    }
+
+    @Test("Activation error codes map from Tangem API errors")
+    func activationErrorCodesMapFromTangemAPIError() throws {
+        for code in GaslessTransactionsDTO.APIError.TronActivation.Code.allCases {
+            let data = Data(
+                """
+                {
+                  "error": {
+                    "code": 400,
+                    "message": "\(code.rawValue)"
+                  }
+                }
+                """.utf8
+            )
+
+            let apiError = try JSONDecoder().decode(TangemBaseAPIError.self, from: data).error
+            let activation = try #require(GaslessTransactionsDTO.APIError.TronActivation(apiError: apiError))
+
+            #expect(activation.code == code)
+            #expect(activation.message == code.rawValue)
+        }
+    }
+
+    @Test("Activation throttling errors use localized messages")
+    func activationThrottlingErrorsUseLocalizedMessages() throws {
+        let rateLimited = try #require(
+            GaslessTransactionsDTO.APIError.TronActivation(
+                apiError: TangemAPIError(code: .badRequest, message: GaslessTransactionsDTO.APIError.TronActivation.Code.activationRateLimited.rawValue)
+            )
+        )
+        let halted = try #require(
+            GaslessTransactionsDTO.APIError.TronActivation(
+                apiError: TangemAPIError(code: .badRequest, message: GaslessTransactionsDTO.APIError.TronActivation.Code.activationHalted.rawValue)
+            )
+        )
+
+        #expect(rateLimited.errorDescription == Localization.gaslessTronActivationAttemptsLimit)
+        #expect(halted.errorDescription == Localization.gaslessTronActivationTryAgainLater)
     }
 }
 
@@ -1113,7 +1210,10 @@ private final class GaslessTransactionsNetworkManagerStub: GaslessTransactionsNe
     func updateAvailableTokens() {}
     func sendGaslessTransaction(_ transaction: GaslessTransaction, executorVersion: GaslessExecutorVersion) async throws -> String { "" }
     func sendGaslessBatchTransaction(_ transaction: GaslessBatchTransaction) async throws -> String { "" }
-    func estimateTronGaslessTransaction(_ request: TronEstimateRequest) async throws -> TronEstimateResponse {
+    func estimateTronGaslessTransaction(
+        _ request: TronEstimateRequest,
+        userWalletId: UserWalletId
+    ) async throws -> TronEstimateResponse {
         guard let tronEstimate else {
             throw CancellationError()
         }
@@ -1121,7 +1221,10 @@ private final class GaslessTransactionsNetworkManagerStub: GaslessTransactionsNe
         return try await tronEstimate(request)
     }
 
-    func submitTronGaslessTransaction(_ request: TronSubmitRequest) async throws -> TronSubmitResponse {
+    func submitTronGaslessTransaction(
+        _ request: TronSubmitRequest,
+        userWalletId: UserWalletId
+    ) async throws -> TronSubmitResponse {
         throw CancellationError()
     }
 
