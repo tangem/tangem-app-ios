@@ -50,6 +50,7 @@ struct TransactionHistoryDustFilter {
              .unknownOperation,
              .operation,
              .gaslessTransactionFee,
+             .networkFee,
              .tangemPay:
             return false
         }

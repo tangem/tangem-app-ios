@@ -137,9 +137,8 @@ final class EtherscanTransactionHistoryMapper {
     }
 
     private func tokenTransfer(_ transaction: EtherscanTransactionHistoryResult.Transaction) -> [TransactionRecord.TokenTransfer] {
-        guard transaction.contractAddress != nil else {
-            // No contract address — treat as non-token (native) transfer
-            return []
+        guard !transaction.isFromTransactionList else {
+            return decodedTokenTransfer(transaction).map { [$0] } ?? []
         }
 
         let amount = Decimal(stringValue: transaction.value) ?? 0
@@ -152,6 +151,28 @@ final class EtherscanTransactionHistoryMapper {
             decimals: nil,
             contract: nil
         )]
+    }
+
+    private func decodedTokenTransfer(
+        _ transaction: EtherscanTransactionHistoryResult.Transaction
+    ) -> TransactionRecord.TokenTransfer? {
+        guard
+            let input = transaction.input?.nilIfEmpty,
+            let transfer = TransferERC20TokenMethod.parse(calldata: Data(hexString: input)),
+            let amount = Decimal(stringValue: transfer.amount.description)
+        else {
+            return nil
+        }
+
+        return TransactionRecord.TokenTransfer(
+            source: transaction.from,
+            destination: transfer.destination,
+            amount: amount,
+            name: nil,
+            symbol: nil,
+            decimals: nil,
+            contract: transaction.to
+        )
     }
 }
 
@@ -201,11 +222,9 @@ extension EtherscanTransactionHistoryMapper: TransactionHistoryMapper {
                     return .user(destinationAddress)
                 }
 
-                if let contract = transaction.contractAddress?.nilIfEmpty {
-                    return .contract(contract)
-                }
+                let isTokenTransfer = transaction.contractAddress?.nilIfEmpty != nil
 
-                if transaction.functionName?.nilIfEmpty != nil {
+                if !isTokenTransfer, transaction.functionName?.nilIfEmpty != nil {
                     return .contract(destinationAddress)
                 }
 
@@ -263,6 +282,10 @@ private extension EtherscanTransactionHistoryMapper {
 private extension EtherscanTransactionHistoryResult.Transaction {
     var isContractInteraction: Bool {
         return contractAddress?.nilIfEmpty != nil || functionName?.nilIfEmpty != nil
+    }
+
+    var isFromTransactionList: Bool {
+        return contractAddress?.nilIfEmpty == nil
     }
 }
 
