@@ -17,18 +17,15 @@ import TangemFoundation
 /// or three rows. Each transaction is folded into one row carrying what the wallet actually gained or lost and
 /// a single fee.
 struct TransactionHistoryTransferCollapser {
-    private let smartContractMethodMapper: SmartContractMethodMapper
     private let walletModelAddresses: Set<String>
     private let isEvm: Bool
 
     init(
         walletModelAddresses: Set<String>,
-        isEvm: Bool,
-        smartContractMethodMapper: SmartContractMethodMapper
+        isEvm: Bool
     ) {
         self.walletModelAddresses = walletModelAddresses
         self.isEvm = isEvm
-        self.smartContractMethodMapper = smartContractMethodMapper
     }
 
     func collapse(_ records: [TransactionRecord]) -> [TransactionRecord] {
@@ -54,12 +51,6 @@ struct TransactionHistoryTransferCollapser {
 private extension TransactionHistoryTransferCollapser {
     func collapsed(_ group: [TransactionRecord]) -> [TransactionRecord] {
         guard group.count > 1, let anchor = group.min(by: \.index) else {
-            return group
-        }
-
-        // Gasless is out of scope by the acceptance criteria: its fee arrives as a record of its own that the
-        // history is meant to show separately, and folding the transaction would swallow it.
-        guard !isGasless(anchor) else {
             return group
         }
 
@@ -126,13 +117,23 @@ private extension TransactionHistoryTransferCollapser {
             fee: fee,
             status: anchor.status,
             isOutgoing: isOutgoing,
-            type: anchor.type,
+            type: foldedType(anchor: anchor, delta: delta),
             date: anchor.date,
             tokenTransfers: anchor.tokenTransfers,
             isFromYieldContract: anchor.isFromYieldContract,
+            isFolded: true,
             nonce: anchor.nonce,
             extraInfo: anchor.expressExtraInfo
         )
+    }
+
+    func foldedType(anchor: TransactionRecord, delta: Decimal) -> TransactionRecord.TransactionType {
+        switch anchor.type {
+        case .contractMethodIdentifier, .contractMethodName:
+            return delta.isZero ? .contractMethodName(name: nil) : .transfer
+        case .transfer, .approve, .staking:
+            return anchor.type
+        }
     }
 
     func fee(of group: [TransactionRecord], anchor: TransactionRecord) -> Fee {
@@ -198,34 +199,11 @@ private extension TransactionHistoryTransferCollapser {
     }
 }
 
-// MARK: - Gasless
-
-private extension TransactionHistoryTransferCollapser {
-    func isGasless(_ record: TransactionRecord) -> Bool {
-        switch record.type {
-        case .contractMethodIdentifier(let id):
-            return smartContractMethodMapper.getName(for: id) == Constants.gaslessTransactionMethodName
-        case .contractMethodName(let name):
-            return name == Constants.gaslessTransactionMethodName
-        case .transfer, .staking, .approve:
-            return false
-        }
-    }
-}
-
 // MARK: - Auxiliary types
 
 private extension TransactionHistoryTransferCollapser {
     struct GroupKey: Hashable {
         let hash: String
         let expressTransactionId: String?
-    }
-}
-
-// MARK: - Constants
-
-private extension TransactionHistoryTransferCollapser {
-    enum Constants {
-        static let gaslessTransactionMethodName = "gaslessTransaction"
     }
 }
