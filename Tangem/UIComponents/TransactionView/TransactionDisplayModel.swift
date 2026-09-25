@@ -126,7 +126,7 @@ extension TransactionDisplayModel {
             return true
         case .yieldSend, .yieldTopup, .yieldInit, .yieldDeploy, .yieldReactivate,
              .transfer, .swap, .onramp, .claimRewards, .operation, .unknownOperation,
-             .gaslessTransactionFee, .gaslessTransfer, .tangemPay:
+             .gaslessTransactionFee, .gaslessTransfer, .networkFee, .tangemPay:
             return false
         }
     }
@@ -140,8 +140,10 @@ extension TransactionDisplayModel {
         subtitleOwner: TransactionViewModel.SubtitleOwner?
     ) -> TitleContent {
         switch transactionType {
-        case .transfer:
+        case .transfer, .gaslessTransfer:
             return transferTitle(isOutgoing: isOutgoing, status: status, subtitleOwner: subtitleOwner)
+        case .gaslessTransactionFee, .networkFee:
+            return .plain(Localization.commonNetworkFeeTitle)
         case .yieldSend where transactionType.isTransferLikeYieldSend(isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract):
             return transferTitle(isOutgoing: isOutgoing, status: status, subtitleOwner: subtitleOwner)
         case .yieldSend:
@@ -253,6 +255,14 @@ extension TransactionDisplayModel {
             return .text(Localization.transactionHistoryEarnedFromStake)
         }
 
+        if case .networkFee(.some(let sent)) = transactionType {
+            return .text(Localization.commonSend + " " + sent.amount)
+        }
+
+        if transactionType.isGaslessTransactionFee || transactionType.isNetworkFee {
+            return .text(Localization.transactionHistoryFeeForSending)
+        }
+
         if let owner = subtitleOwner {
             return .owner(direction: isOutgoing ? .outgoing : .incoming, owner: owner)
         }
@@ -269,7 +279,7 @@ extension TransactionDisplayModel {
         case .yieldSend, .yieldTopup, .yieldInit, .yieldDeploy, .yieldReactivate,
              .transfer, .swap, .onramp, .stake, .unstake, .vote, .restake, .withdraw,
              .claimRewards, .approve, .operation, .unknownOperation,
-             .gaslessTransactionFee, .gaslessTransfer, .tangemPay:
+             .gaslessTransactionFee, .gaslessTransfer, .networkFee, .tangemPay:
             return false
         }
     }
@@ -288,7 +298,7 @@ extension TransactionDisplayModel {
              .yieldInit, .yieldDeploy, .yieldReactivate,
              .transfer, .swap, .onramp, .stake, .unstake, .vote, .restake, .withdraw,
              .claimRewards, .approve, .operation, .unknownOperation,
-             .gaslessTransactionFee, .gaslessTransfer, .tangemPay:
+             .gaslessTransactionFee, .gaslessTransfer, .networkFee, .tangemPay:
             return nil
         }
     }

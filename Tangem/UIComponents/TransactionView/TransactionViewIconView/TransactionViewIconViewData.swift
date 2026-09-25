@@ -38,7 +38,7 @@ struct TransactionViewIconViewData: Hashable {
             return DesignSystem.Icons.Card.regular20.image
         case .transfer, .operation, .unknownOperation, .tangemPay(.transfer), .yieldTopup, .yieldSend, .gaslessTransfer:
             return isOutgoing ? Assets.arrowUpMini.image : Assets.arrowDownMini.image
-        case .gaslessTransactionFee:
+        case .gaslessTransactionFee, .networkFee:
             return DesignSystem.Icons.Percent.regular20.image
         case .stake, .vote, .restake, .unstake, .withdraw, .claimRewards:
             return DesignSystem.Icons.Stack.regular16.image
@@ -64,7 +64,7 @@ struct TransactionViewIconViewData: Hashable {
              .yieldInit, .yieldDeploy, .yieldReactivate,
              .transfer, .swap, .onramp, .stake, .unstake, .vote, .restake, .withdraw,
              .claimRewards, .approve, .operation, .unknownOperation,
-             .gaslessTransactionFee, .gaslessTransfer, .tangemPay:
+             .gaslessTransactionFee, .gaslessTransfer, .networkFee, .tangemPay:
             return icon
         }
     }
