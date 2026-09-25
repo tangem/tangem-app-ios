@@ -16,10 +16,12 @@ final class CommonWalletModelsAggregator: WalletModelsAggregator {
     let walletModelsPublisher: AnyPublisher<[any WalletModel], Never>
 
     private let walletModelsSubject = CurrentValueSubject<[any WalletModel], Never>([])
+    private let accountScope: AccountWalletModelsAggregator.AccountScope
 
     private var bag: Set<AnyCancellable> = []
 
-    init() {
+    init(accountScope: AccountWalletModelsAggregator.AccountScope = .personalAndJoint) {
+        self.accountScope = accountScope
         walletModelsPublisher = walletModelsSubject.eraseToAnyPublisher()
         bind()
     }
@@ -30,9 +32,9 @@ final class CommonWalletModelsAggregator: WalletModelsAggregator {
 private extension CommonWalletModelsAggregator {
     func bind() {
         makeUnlockedUserWalletsPublisher()
-            .flatMapLatest { unlockedUserWallets -> AnyPublisher<[any WalletModel], Never> in
+            .flatMapLatest { [accountScope] unlockedUserWallets -> AnyPublisher<[any WalletModel], Never> in
                 let publishers = unlockedUserWallets.map {
-                    AccountWalletModelsAggregator.walletModelsPublisher(from: $0.accountModelsManager)
+                    AccountWalletModelsAggregator.walletModelsPublisher(from: $0.accountModelsManager, accountScope: accountScope)
                 }
 
                 guard publishers.isNotEmpty else {
