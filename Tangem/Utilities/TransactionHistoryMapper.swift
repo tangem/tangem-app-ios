@@ -701,6 +701,10 @@ extension TransactionHistoryMapper {
 extension TransactionHistoryMapper {
     func transferAmountValue(from record: TransactionRecord) -> Decimal {
         if record.isOutgoing {
+            if blockchain.isUTXO, let sentToOthers = amountSentToOthers(in: record) {
+                return sentToOthers
+            }
+
             let sent: Decimal = {
                 switch record.source {
                 case .single(let source):
@@ -729,6 +733,14 @@ extension TransactionHistoryMapper {
                 return destinations.sum(for: walletAddresses)
             }
         }
+    }
+
+    private func amountSentToOthers(in record: TransactionRecord) -> Decimal? {
+        let sentToOthers = record.destination.destinations
+            .filter { !walletAddresses.contains($0.address.string) }
+            .reduce(Decimal.zero) { $0 + $1.amount }
+
+        return sentToOthers.isZero ? nil : sentToOthers
     }
 }
 
