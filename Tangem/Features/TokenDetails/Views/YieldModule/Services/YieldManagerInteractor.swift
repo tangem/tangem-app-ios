@@ -78,8 +78,7 @@ actor YieldManagerInteractor {
 
     func getApyBreakdown() -> YieldApyBreakdown? {
         guard let marketInfo = manager.state?.marketInfo,
-              let rewardsApr = marketInfo.incentive?.rewardsApr,
-              rewardsApr > 0 else {
+              let rewardsApr = marketInfo.incentive?.rewardsApr else {
             return nil
         }
 

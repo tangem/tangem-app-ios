@@ -46,6 +46,8 @@ actor YieldIncentivesClaimInteractor {
     }
 
     /// Fresh calldata → validation → owner-paid network fee; a validation failure never reaches the card.
+    /// Stops at the fee: building the transaction validates the balance behind it, and the sheet has to show
+    /// the fee it cannot cover rather than an error in its place.
     func prepare() async throws -> PreparedClaim {
         guard manager.blockchain.chainId == chainId else {
             throw ClaimError.moduleUnavailable
@@ -55,19 +57,13 @@ actor YieldIncentivesClaimInteractor {
         let summary = try await fetchSummary()
         let validated = try validate(calldata, summary: summary)
         let fee = try await manager.claimFee(to: validated.to, data: validated.data)
-        let transaction = try await manager.makeClaimTransaction(to: validated.to, data: validated.data, fee: fee)
-
-        guard transaction.sourceAddress.caseInsensitiveEquals(to: userAddress) else {
-            throw ClaimError.moduleUnavailable
-        }
 
         return PreparedClaim(
             calldata: calldata,
             summary: summary,
             to: validated.to,
             data: validated.data,
-            fee: fee,
-            transaction: transaction
+            fee: fee
         )
     }
 
@@ -79,10 +75,10 @@ actor YieldIncentivesClaimInteractor {
             throw ClaimError.claimAlreadyInFlight
         }
 
-        let prepared: PreparedClaim
+        let transaction: BSDKTransaction
 
         do {
-            prepared = try await prepare()
+            let prepared = try await prepare()
 
             // The sheet checked the fee it displayed; this one is the fee the card is about to sign.
             guard isFeeCovered(prepared.fee.totalFeeAmount) else {
@@ -92,6 +88,12 @@ actor YieldIncentivesClaimInteractor {
             if let confirmedFee, prepared.fee.totalFeeAmount.value > confirmedFee {
                 throw ClaimError.feeIncreased
             }
+
+            transaction = try await manager.makeClaimTransaction(to: prepared.to, data: prepared.data, fee: prepared.fee)
+
+            guard transaction.sourceAddress.caseInsensitiveEquals(to: userAddress) else {
+                throw ClaimError.moduleUnavailable
+            }
         } catch {
             await tracker.releaseClaim()
             throw error
@@ -99,7 +101,7 @@ actor YieldIncentivesClaimInteractor {
 
         do {
             let transactionHash = try await manager.submitClaim(
-                transaction: prepared.transaction,
+                transaction: transaction,
                 transactionDispatcher: transactionDispatcher
             )
 
@@ -198,7 +200,6 @@ extension YieldIncentivesClaimInteractor {
         let to: String
         let data: Data
         let fee: YieldTransactionFee
-        let transaction: BSDKTransaction
     }
 
     enum ClaimError: Error {

@@ -117,6 +117,10 @@ final class YieldModuleClaimViewModel: ObservableObject {
         }
     }
 
+    func onCloseTap() {
+        coordinator?.closeClaimSheet()
+    }
+
     // MARK: - Private Implementation
 
     private func start() {
@@ -231,9 +235,9 @@ final class YieldModuleClaimViewModel: ObservableObject {
     }
 }
 
-// MARK: - Identifiable
+// MARK: - FloatingSheetContentViewModel
 
-extension YieldModuleClaimViewModel: Identifiable {}
+extension YieldModuleClaimViewModel: FloatingSheetContentViewModel {}
 
 // MARK: - Shown Fee
 
