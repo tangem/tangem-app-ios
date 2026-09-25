@@ -14,14 +14,15 @@ import TangemPolymarketUI
 
 extension PolymarketOrderSummaryHeader.Model {
     static func make(
+        account: PolymarketOrderAccount?,
         amountText: String,
         balanceText: String,
         toWin: PolymarketAmountBadge.State?,
         isProceeds: Bool
     ) -> Self {
         Self(
-            accountName: Localization.predictionPlaceSummaryAccount,
-            accountIcon: Assets.Polymarket.logo,
+            accountName: account?.name ?? Localization.predictionPlaceSummaryAccount,
+            accountIcon: account?.icon ?? Assets.Polymarket.accountAvatar,
             balanceText: balanceText,
             amountText: amountText,
             toWin: toWin,

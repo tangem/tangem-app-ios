@@ -78,8 +78,6 @@ final class PolymarketOrderViewModel: ObservableObject {
             model.step(by: step)
         case .fractionTapped(let fraction):
             model.handleViewAction(.fractionSelected(fraction))
-        case .quoteRetryTapped:
-            model.handleViewAction(.quoteRetried)
         }
     }
 }
@@ -133,7 +131,6 @@ extension PolymarketOrderViewModel {
         case addFundsTapped
         case slippageTapped
         case fractionTapped(PolymarketAmountFraction)
-        case quoteRetryTapped
     }
 }
 
@@ -174,7 +171,14 @@ private extension PolymarketOrderViewModel {
         isAwaitingFunds = state.isAwaitingFunds
         isNextEnabled = gate.isPrimaryButtonEnabled
 
-        if let price = state.quote.quote?.averagePrice ?? state.bookPrice {
+        if state.quote.isFailed || (state.bookPriceFailure != nil && state.quote.quote == nil) {
+            marketRow = .make(
+                market: model.market,
+                outcome: model.outcome,
+                eventTitle: model.eventTitle,
+                isPriceUnavailable: true
+            )
+        } else if let price = state.quote.quote?.averagePrice ?? state.bookPrice {
             marketRow = .make(
                 market: model.market,
                 outcome: model.outcome,
@@ -192,6 +196,12 @@ private extension PolymarketOrderViewModel {
 
         if gate.notifications.contains(.marketClosed) {
             coordinator?.openMarketClosed()
+        }
+
+        switch state.bookPriceFailure {
+        case .marketClosed: coordinator?.openMarketClosed()
+        case .unreadable: coordinator?.openQuoteUnavailable()
+        case nil: break
         }
     }
 }

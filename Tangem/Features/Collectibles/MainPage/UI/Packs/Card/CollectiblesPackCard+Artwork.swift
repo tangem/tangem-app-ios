@@ -37,9 +37,7 @@ private extension CollectiblesPackCard.Artwork {
         ZStack {
             if case .success(let image) = loadingState {
                 glow(image)
-            }
 
-            if loadingState.error == nil {
                 groundShadow
             }
 
@@ -53,13 +51,16 @@ private extension CollectiblesPackCard.Artwork {
                 .onFailure { loadingState = .failure($0) }
                 .aspectRatio(contentMode: .fit)
                 .frame(width: packSize.width, height: packSize.height)
-                .skeletonable(
-                    isShown: loadingState.isLoading,
-                    size: CGSize(width: Metrics.placeholderWidth * scale, height: Metrics.placeholderHeight * scale),
-                    radius: Metrics.placeholderCornerRadius * scale
-                )
+                .hidden(loadingState.isLoading)
+                .overlay { placeholder.hidden(!loadingState.isLoading) }
                 .onChange(of: url) { _ in loadingState = .loading }
         }
+    }
+
+    var placeholder: some View {
+        Shimmer()
+            .frame(width: Metrics.placeholderWidth * scale, height: Metrics.placeholderHeight * scale)
+            .clipShape(RoundedRectangle(cornerRadius: Metrics.placeholderCornerRadius * scale, style: .continuous))
     }
 
     var missingArtworkBadge: some View {

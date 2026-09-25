@@ -43,6 +43,11 @@ final class FakeTangemApiService: TangemApiService {
 
     var loadPromotionsHandler: ((PromotionsDTO.Load.Request) async throws -> PromotionsDTO.Load.Response)?
 
+    // MARK: - Joint Accounts Handlers (Tests/Previews)
+
+    var getJointAccountsHandler: ((_ knownETag: String?) async throws -> (eTag: String?, accounts: JointAccountsDTO.Response.JointAccounts)?)?
+    var rejectJointAccountOperationHandler: ((_ operationId: String) async throws -> JointAccountsDTO.Response.Operation?)?
+
     init(geoIpRegionCode: String = "us") {
         self.geoIpRegionCode = geoIpRegionCode
     }
@@ -309,7 +314,11 @@ final class FakeTangemApiService: TangemApiService {
     func getJointAccounts(
         walletId: String, knownETag: String?
     ) async throws -> (eTag: String?, accounts: JointAccountsDTO.Response.JointAccounts)? {
-        throw "Not implemented"
+        guard let getJointAccountsHandler else {
+            throw "Not implemented"
+        }
+
+        return try await getJointAccountsHandler(knownETag)
     }
 
     func createJointAccount(
@@ -351,7 +360,11 @@ final class FakeTangemApiService: TangemApiService {
     func rejectJointAccountOperation(
         walletId: String, operationId: String
     ) async throws -> JointAccountsDTO.Response.Operation? {
-        throw "Not implemented"
+        guard let rejectJointAccountOperationHandler else {
+            throw "Not implemented"
+        }
+
+        return try await rejectJointAccountOperationHandler(operationId)
     }
 
     func syncAddressBooks(_ request: AddressBookDTO.SyncRequest) async throws -> AddressBookDTO.Response {

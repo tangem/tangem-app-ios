@@ -190,7 +190,7 @@ struct PolymarketWelcomeView: View {
             .styleType(.default)
             .size(.x12)
             .horizontalLayout(.infinity)
-            .loading(.spinner(if: viewModel.isRunning))
+            .loading(viewModel.stageMessage.map(TangemUI.Button.Loading.spinnerWithMessage))
         }
         .padding(.horizontal, Constants.horizontalPadding)
         .padding(.vertical, Constants.footerVerticalPadding)

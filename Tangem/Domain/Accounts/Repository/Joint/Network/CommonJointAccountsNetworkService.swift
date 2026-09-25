@@ -34,6 +34,7 @@ extension CommonJointAccountsNetworkService: JointAccountsNetworkService {
             walletId: userWalletId.stringValue,
             body: mapper.mapToRequest(from: blob)
         )
+        invalidateJointAccountsETag()
 
         return try mapper.mapToCreationResult(from: response)
     }
@@ -66,6 +67,7 @@ extension CommonJointAccountsNetworkService: JointAccountsNetworkService {
             walletId: userWalletId.stringValue,
             body: mapper.mapToRequest(from: blob)
         )
+        invalidateJointAccountsETag()
 
         return try mapper.mapToJointAccount(from: response)
     }
@@ -75,6 +77,7 @@ extension CommonJointAccountsNetworkService: JointAccountsNetworkService {
             walletId: userWalletId.stringValue,
             body: mapper.mapToRequest(from: blob)
         )
+        invalidateJointAccountsETag()
 
         return try mapper.mapToJointAccount(from: response)
     }
@@ -84,6 +87,7 @@ extension CommonJointAccountsNetworkService: JointAccountsNetworkService {
             walletId: userWalletId.stringValue,
             body: mapper.mapToRequest(from: request)
         )
+        invalidateJointAccountsETag()
 
         return try mapper.mapToOperation(from: response)
     }
@@ -94,6 +98,7 @@ extension CommonJointAccountsNetworkService: JointAccountsNetworkService {
             operationId: id,
             body: mapper.mapToRequest(safeTransaction: safeTransaction, signature: signature)
         )
+        invalidateJointAccountsETag()
 
         return try mapper.mapToOperation(from: response)
     }
@@ -103,7 +108,19 @@ extension CommonJointAccountsNetworkService: JointAccountsNetworkService {
             walletId: userWalletId.stringValue,
             operationId: id
         )
+        invalidateJointAccountsETag()
 
         return try response.map(mapper.mapToOperation(from:))
+    }
+}
+
+// MARK: - Private
+
+private extension CommonJointAccountsNetworkService {
+    /// Callers persist the write's response locally, so the tag no longer describes the cached listing. Kept, it would
+    /// have the next read answer `304` against that cache: once the listing comes back to what it was (an operation
+    /// executed before the first poll), the cache is never corrected.
+    func invalidateJointAccountsETag() {
+        eTagStorage.clearETag(for: .jointAccounts(walletId: userWalletId))
     }
 }

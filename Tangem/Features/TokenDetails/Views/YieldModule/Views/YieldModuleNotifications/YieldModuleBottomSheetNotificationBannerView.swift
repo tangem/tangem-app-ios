@@ -27,6 +27,8 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
             return Localization.yieldModuleUnableToCoverFeeTitle(feeCurrencyName)
         case .feeUnreachable:
             return Localization.yieldModuleNetworkFeeUnreachableNotificationTitle
+        case .rewardsUnavailable:
+            return Localization.yieldModuleClaimRewardsUnavailableNotificationTitle
         case .hasUndepositedAmounts(let amount, let currencySymbol):
             return Localization.yieldModuleDepositErrorNotificationTitle(amount, currencySymbol)
         case .highFees:
@@ -42,6 +44,8 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
             return Localization.yieldModuleUnableToCoverFeeDescription(feeCurrencyName, "")
         case .feeUnreachable:
             return Localization.yieldModuleNetworkFeeUnreachableNotificationDescription
+        case .rewardsUnavailable:
+            return Localization.yieldModuleClaimRewardsUnavailableNotificationDescription
         case .hasUndepositedAmounts:
             return nil
         case .highFees:
@@ -65,7 +69,7 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
             action = buttonAction
             style = .secondary
 
-        case .feeUnreachable(let buttonAction):
+        case .feeUnreachable(let buttonAction), .rewardsUnavailable(let buttonAction):
             title = Localization.warningButtonRefresh
             action = buttonAction
             style = .secondary
@@ -117,7 +121,7 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
         switch params {
         case .hasUndepositedAmounts, .highFees:
             return Assets.blueCircleWarning.image
-        case .approveNeeded, .feeUnreachable:
+        case .approveNeeded, .feeUnreachable, .rewardsUnavailable:
             return Assets.attention.image
         case .notEnoughFeeCurrency(_, let tokenIcon, _):
             return tokenIcon.image

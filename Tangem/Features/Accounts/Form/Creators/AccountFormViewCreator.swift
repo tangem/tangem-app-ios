@@ -17,6 +17,10 @@ protocol AccountFormViewCreator {
     /// The name the form opens with; empty means the user starts from a blank field.
     var initialAccountName: String { get }
 
+    /// Whether the form explains under the name field which ordinal number the account takes, and so which
+    /// derivation it gets.
+    var showsAccountIndexDescription: Bool { get }
+
     /// Archived + active accounts, the form shows it as the ordinal number of the account being created.
     var totalAccountsCountPublisher: AnyPublisher<Int, Never> { get }
 
@@ -25,6 +29,7 @@ protocol AccountFormViewCreator {
 
 extension AccountFormViewCreator {
     var initialAccountName: String { "" }
+    var showsAccountIndexDescription: Bool { true }
 }
 
 // MARK: - Auxiliary types

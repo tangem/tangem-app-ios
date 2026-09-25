@@ -16,6 +16,9 @@ final class SwapableTokenStub: SendSwapableToken {
     private let receivingRestriction: ReceivedRestriction?
     private let validator: SendTransactionValidator?
     private let receiveDestination: SendReceiveTokenDestination?
+    private let balanceProviders: BalanceProviders?
+
+    let presentation: SendReceiveTokenPresentation?
 
     init(
         blockchain: Blockchain,
@@ -29,6 +32,8 @@ final class SwapableTokenStub: SendSwapableToken {
         self.receivingRestriction = receivingRestriction
         validator = transactionValidator
         receiveDestination = destination
+        balanceProviders = nil
+        presentation = nil
     }
 
     init(
@@ -36,13 +41,22 @@ final class SwapableTokenStub: SendSwapableToken {
         sendingRestriction: SendingRestrictions? = nil,
         receivingRestriction: ReceivedRestriction? = nil,
         transactionValidator: SendTransactionValidator? = nil,
-        destination: SendReceiveTokenDestination? = nil
+        destination: SendReceiveTokenDestination? = nil,
+        balanceProviders: BalanceProviders? = nil,
+        presentation: SendReceiveTokenPresentation? = nil
     ) {
         inner = SendSourceTokenStub(tokenItem: tokenItem)
         self.sendingRestriction = sendingRestriction
         self.receivingRestriction = receivingRestriction
         validator = transactionValidator
         receiveDestination = destination
+        self.balanceProviders = balanceProviders
+        self.presentation = presentation
+    }
+
+    struct BalanceProviders {
+        let available: TokenBalanceProvider
+        let fiatAvailable: TokenBalanceProvider
     }
 
     var sendingRestrictionsProvider: any SendingRestrictionsProvider {
@@ -63,8 +77,8 @@ final class SwapableTokenStub: SendSwapableToken {
     var header: TokenHeader { inner.header }
     var feeTokenItem: TokenItem { inner.feeTokenItem }
     var defaultAddressString: String { inner.defaultAddressString }
-    var availableBalanceProvider: TokenBalanceProvider { inner.availableBalanceProvider }
-    var fiatAvailableBalanceProvider: TokenBalanceProvider { inner.fiatAvailableBalanceProvider }
+    var availableBalanceProvider: TokenBalanceProvider { balanceProviders?.available ?? inner.availableBalanceProvider }
+    var fiatAvailableBalanceProvider: TokenBalanceProvider { balanceProviders?.fiatAvailable ?? inner.fiatAvailableBalanceProvider }
     var allowanceService: (any AllowanceService)? { inner.allowanceService }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { inner.withdrawalNotificationProvider }
     var scaledUIAmountMultiplierResolver: ScaledUIAmountMultiplierResolver? { inner.scaledUIAmountMultiplierResolver }
@@ -75,6 +89,7 @@ final class SwapableTokenStub: SendSwapableToken {
     var tangemIconProvider: any TangemIconProvider { inner.tangemIconProvider }
     var confirmTransactionPolicy: any ConfirmTransactionPolicy { inner.confirmTransactionPolicy }
     var isTangemPayAccount: Bool { inner.isTangemPayAccount }
+    var jointAccountPolicy: JointAccountPolicy? { inner.jointAccountPolicy }
 
     // MARK: - Swap members
 

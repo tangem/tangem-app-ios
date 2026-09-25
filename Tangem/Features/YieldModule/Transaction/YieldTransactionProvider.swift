@@ -163,6 +163,13 @@ final class YieldTransactionProvider {
         return try await [transaction(contractAddress: yieldContractAddress, txData: method.data, fee: fee.fee)]
     }
 
+    // MARK: - Claim
+
+    /// The exact backend-provided `to`/`data` pair — the calldata is opaque and submitted as is, with zero value.
+    func claimTransaction(to: String, data: Data, fee: Fee) async throws -> Transaction {
+        try await transaction(contractAddress: to, txData: data, fee: fee)
+    }
+
     // MARK: - Approve
 
     func approveTransaction(

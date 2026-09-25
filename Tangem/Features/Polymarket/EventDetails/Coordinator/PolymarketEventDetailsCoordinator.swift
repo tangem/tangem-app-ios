@@ -23,7 +23,6 @@ final class PolymarketEventDetailsCoordinator: CoordinatorObject {
     @Published var destination: Destination?
 
     private var onRegionWarning: (() -> Void)?
-    private var onOpenPosition: ((PolymarketPosition) -> Void)?
     private weak var orderBuilder: PolymarketOrderFlowBuilder?
 
     // MARK: - Init
@@ -38,7 +37,6 @@ final class PolymarketEventDetailsCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         onRegionWarning = options.onRegionWarning
-        onOpenPosition = options.onOpenPosition
         orderBuilder = options.orderBuilder
 
         rootViewModel = PolymarketEventDetailsViewModel(
@@ -62,7 +60,6 @@ extension PolymarketEventDetailsCoordinator {
         let geoblockStateProvider: PolymarketGeoblockStateProvider
         let onOrderPlaced: @MainActor (PolymarketOrderIndexing) -> Void
         let onRegionWarning: () -> Void
-        let onOpenPosition: (PolymarketPosition) -> Void
         let orderBuilder: PolymarketOrderFlowBuilder
     }
 
@@ -92,7 +89,6 @@ extension PolymarketEventDetailsCoordinator {
             position: position,
             onOrderPlaced: onPlaced,
             onRegionWarning: { [weak self] in self?.onRegionWarning?() },
-            onOpenPosition: { [weak self] position in self?.pushPositionDetails(position, onPlaced: onPlaced) },
             onClose: { [weak self] in self?.popToEventDetails() }
         ) else {
             return
@@ -129,6 +125,7 @@ extension PolymarketEventDetailsCoordinator: PolymarketEventDetailsRoutable {
             outcome: outcome,
             eventTitle: eventTitle,
             request: request,
+            pushesPlacedPosition: true,
             onPlaced: onPlaced,
             onOpenPosition: { [weak self] position in self?.pushPositionDetails(position, onPlaced: onPlaced) },
             onClose: { [weak self] in self?.popToEventDetails() }
