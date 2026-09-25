@@ -35,7 +35,7 @@ enum PolymarketBalanceRefreshScope {
 
 extension PolymarketAccountModel {
     func refreshState() async {
-        await refreshState(scope: .availableOnly)
+        await refreshState(scope: .full)
     }
 
     var name: String {
