@@ -56,6 +56,7 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
     @Published var tangemPayMobileOnboardingCoordinator: TangemPayMobileOnboardingCoordinator?
     @Published var tangemPayCampaignCoordinator: TangemPayCampaignCoordinator?
+    @Published var createWalletSelectorCoordinator: CreateWalletSelectorCoordinator?
     @Published private var isShopPresented = false
 
     private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
@@ -68,13 +69,14 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     private var shopSafariHandle: SafariHandle?
 
     /// `true` while nothing the user navigated to themselves is on screen. The processor gates the promo /
-    /// Tangem Pay deep links on this, so they never present over such a screen.
+    /// Tangem Pay deep links on this, so they never present over such a screen. The welcome story is not one
+    /// of them: it never closes by itself, and counting it here would hold a deep link forever.
     private var isIdlePublisher: AnyPublisher<Bool, Never> {
         [
             $actionSheetViewModel.map { $0 == nil }.eraseToAnyPublisher(),
             $isScanningCard.map { !$0 }.eraseToAnyPublisher(),
             $importOnboardingCoordinator.map { $0 == nil }.eraseToAnyPublisher(),
-            $welcomeStoryViewModel.map { $0 == nil }.eraseToAnyPublisher(),
+            $createWalletSelectorCoordinator.map { $0 == nil }.eraseToAnyPublisher(),
             $scanTroubleshootingDialog.map { $0 == nil }.eraseToAnyPublisher(),
             $isShopPresented.map { !$0 }.eraseToAnyPublisher(),
         ]
@@ -144,16 +146,41 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     /// V2 renders only the processor's deep links; the legacy welcome-onboarding steps (TOS + push soft-ask)
     /// are intentionally skipped — V2's design doesn't replicate the old modal onboarding on top of welcome.
     private func render(_ state: WelcomeProcessor.State) {
+        guard state.deepLink != nil else { return }
+
+        closeWelcomeStory()
+
         switch state.deepLink {
         case .tangemPay:
             showTangemPayMobileOnboarding()
         case .tangemPayCampaign(let campaignKey):
             showTangemPayCampaign(campaignKey: campaignKey)
         case .promo:
-            presentCreateWallet()
+            showMobileWalletPromo()
         case .none:
             break
         }
+    }
+
+    /// Only `CreateWalletSelectorCoordinator` reads `shouldShowMobilePromoWalletSelector` and swaps in the
+    /// promo variant, so the referral deep link goes through it rather than V2's create-wallet sheet.
+    private func showMobileWalletPromo() {
+        guard createWalletSelectorCoordinator == nil else { return }
+
+        let dismissAction: Action<CreateWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
+            guard let self else { return }
+
+            switch options {
+            case .main(let userWalletModel):
+                openMain(with: userWalletModel)
+            case .dismiss:
+                createWalletSelectorCoordinator = nil
+            }
+        }
+
+        let coordinator = CreateWalletSelectorCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: .init(showsBackButton: false))
+        createWalletSelectorCoordinator = coordinator
     }
 
     private func showTangemPayMobileOnboarding() {
@@ -518,7 +545,9 @@ private extension WelcomeV2Coordinator {
 
             guard actionSheetViewModel == nil,
                   importOnboardingCoordinator == nil,
-                  tangemPayMobileOnboardingCoordinator == nil else {
+                  tangemPayMobileOnboardingCoordinator == nil,
+                  tangemPayCampaignCoordinator == nil,
+                  createWalletSelectorCoordinator == nil else {
                 return
             }
 
@@ -593,6 +622,13 @@ private extension WelcomeV2Coordinator {
     func reportWelcomeStoryExit() {
         MainActor.assumeIsolated {
             welcomeStoryViewModel?.closeAfterScan()
+        }
+    }
+
+    func closeWelcomeStory() {
+        MainActor.assumeIsolated {
+            welcomeStoryViewModel?.cancel()
+            welcomeStoryViewModel = nil
         }
     }
 
