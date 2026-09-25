@@ -32,8 +32,14 @@ protocol GaslessTransactionsNetworkManager {
     func updateAvailableTokens()
     func sendGaslessTransaction(_ transaction: GaslessTransaction, executorVersion: GaslessExecutorVersion) async throws -> String
     func sendGaslessBatchTransaction(_ transaction: GaslessBatchTransaction) async throws -> String
-    func estimateTronGaslessTransaction(_ request: TronEstimateRequest) async throws -> TronEstimateResponse
-    func submitTronGaslessTransaction(_ request: TronSubmitRequest) async throws -> TronSubmitResponse
+    func estimateTronGaslessTransaction(
+        _ request: TronEstimateRequest,
+        userWalletId: UserWalletId
+    ) async throws -> TronEstimateResponse
+    func submitTronGaslessTransaction(
+        _ request: TronSubmitRequest,
+        userWalletId: UserWalletId
+    ) async throws -> TronSubmitResponse
     func initialize()
 
     var cachedFeeRecipientAddress: String? { get }
@@ -130,12 +136,22 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
         try await apiService.sendGaslessBatchTransaction(transaction)
     }
 
-    func estimateTronGaslessTransaction(_ request: TronEstimateRequest) async throws -> TronEstimateResponse {
-        try await apiService.estimateTronGaslessTransaction(request)
+    func estimateTronGaslessTransaction(
+        _ request: TronEstimateRequest,
+        userWalletId: UserWalletId
+    ) async throws -> TronEstimateResponse {
+        try await mapTronActivationError {
+            try await apiService.estimateTronGaslessTransaction(request, userWalletId: userWalletId)
+        }
     }
 
-    func submitTronGaslessTransaction(_ request: TronSubmitRequest) async throws -> TronSubmitResponse {
-        try await apiService.submitTronGaslessTransaction(request)
+    func submitTronGaslessTransaction(
+        _ request: TronSubmitRequest,
+        userWalletId: UserWalletId
+    ) async throws -> TronSubmitResponse {
+        try await mapTronActivationError {
+            try await apiService.submitTronGaslessTransaction(request, userWalletId: userWalletId)
+        }
     }
 
     func preloadFeeRecipientAddress() {
@@ -164,6 +180,14 @@ private extension CommonGaslessTransactionsNetworkManager {
         }
 
         self.fetchFeeTokensTask = fetchFeeTokensTask
+    }
+
+    func mapTronActivationError<T>(_ work: () async throws -> T) async throws -> T {
+        do {
+            return try await work()
+        } catch let error as TangemAPIError {
+            throw GaslessTransactionsDTO.APIError.TronActivation(apiError: error) ?? error
+        }
     }
 
     func updateAvailableTronFeeTokens() {

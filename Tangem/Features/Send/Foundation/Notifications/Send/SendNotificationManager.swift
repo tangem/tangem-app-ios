@@ -14,6 +14,7 @@ import TangemFoundation
 protocol SendNotificationManagerInput {
     var feeValues: AnyPublisher<[TokenFee], Never> { get }
     var selectedTokenFeePublisher: AnyPublisher<TokenFee, Never> { get }
+    var feeTokenUsageAvailabilityPublisher: AnyPublisher<FeeTokenUsageAvailability, Never> { get }
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
 
     var bsdkTransactionResultPublisher: AnyPublisher<Result<BSDKTransaction, Error>?, Never> { get }
@@ -64,6 +65,13 @@ private extension CommonSendNotificationManager {
             .withWeakCaptureOf(self)
             .sink { manager, fee in
                 manager.updateNetworkFeeUnreachable(error: fee.value.error)
+            }
+            .store(in: &bag)
+
+        input.feeTokenUsageAvailabilityPublisher
+            .withWeakCaptureOf(self)
+            .sink { manager, availability in
+                manager.updateFeeTokenUsageAvailability(availability)
             }
             .store(in: &bag)
 
@@ -201,6 +209,19 @@ private extension CommonSendNotificationManager {
             show(notification: .highNetworkFee)
         } else {
             hideAllNotification { $0.isHighNetworkFee }
+        }
+    }
+
+    func updateFeeTokenUsageAvailability(_ availability: FeeTokenUsageAvailability) {
+        switch availability {
+        case .available:
+            hideAllNotification { $0.isMinimumFeeTokenBalanceRequired }
+        case .minimumBalanceRequired(let amount, let tokenItem):
+            let formattedAmount = BalanceFormatter().formatCryptoBalance(
+                amount,
+                currencyCode: tokenItem.currencySymbol
+            )
+            show(notification: .minimumFeeTokenBalanceRequired(formattedAmount: formattedAmount))
         }
     }
 }

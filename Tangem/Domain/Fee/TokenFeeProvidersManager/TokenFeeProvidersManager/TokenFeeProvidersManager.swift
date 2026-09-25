@@ -37,4 +37,11 @@ extension TokenFeeProvidersManager {
     var selectedTokenFeePublisher: AnyPublisher<TokenFee, Never> {
         selectedFeeProviderPublisher.flatMapLatest { $0.selectedTokenFeePublisher }.eraseToAnyPublisher()
     }
+
+    var selectedFeeTokenUsageAvailabilityPublisher: AnyPublisher<FeeTokenUsageAvailability, Never> {
+        selectedFeeProviderPublisher
+            .flatMapLatest { $0.usageAvailabilityPublisher }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
 }
