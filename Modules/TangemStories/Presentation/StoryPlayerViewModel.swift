@@ -190,6 +190,13 @@ public final class StoryPlayerViewModel: ObservableObject {
     public func closeButtonTapped() { finalize(exitReason: .closeButton, action: nil) }
     public func swipeDown() { finalize(exitReason: .swipeDown, action: nil) }
 
+    /// The viewer did not leave the story, so nothing is reported; the host unmounts it itself.
+    public func cancel() {
+        guard !hasFinished else { return }
+        hasFinished = true
+        teardownWindow()
+    }
+
     public func actionTapped(_ action: StoryActionV2) {
         // Closing stays the player's own business even when a host routes the other targets:
         // a host that forgot this one would leave the button dead.
