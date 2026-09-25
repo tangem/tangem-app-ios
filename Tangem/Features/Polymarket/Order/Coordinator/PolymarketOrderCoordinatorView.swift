@@ -37,7 +37,16 @@ struct PolymarketOrderCoordinatorView: CoordinatorView {
                     PolymarketOrderSummaryView(viewModel: viewModel)
                 case .result(let viewModel):
                     PolymarketOrderResultView(viewModel: viewModel)
+                        .navigationLinks(positionLinks)
                 }
+            }
+    }
+
+    private var positionLinks: some View {
+        NavHolder()
+            .navigation(item: $coordinator.positionDetailsCoordinator) { coordinator in
+                PolymarketPositionDetailsCoordinatorView(coordinator: coordinator)
+                    .background(PolymarketPopGestureDisabler())
             }
     }
 }

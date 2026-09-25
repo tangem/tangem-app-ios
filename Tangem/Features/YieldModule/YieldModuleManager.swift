@@ -32,6 +32,13 @@ protocol YieldModuleManager {
     func approveFee() async throws -> YieldTransactionFee
     func approve(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> String
 
+    func claimFee(to: String, data: Data) async throws -> YieldTransactionFee
+    func makeClaimTransaction(to: String, data: Data, fee: YieldTransactionFee) async throws -> BSDKTransaction
+    func submitClaim(transaction: BSDKTransaction, transactionDispatcher: TransactionDispatcher) async throws -> String
+    /// Waits until the submitted claim leaves the pending records, `false` on timeout. A record also leaves
+    /// when the transaction is dropped, so the answer alone never means the claim landed.
+    func awaitPendingTransactionCleared(transactionHash: String, timeout: TimeInterval) async -> Bool
+
     func currentNetworkFeeParameters() async throws -> EthereumFeeParameters
 
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo
@@ -381,6 +388,53 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         await setNextExpectedState(.active)
 
         return hash
+    }
+
+    func claimFee(to: String, data: Data) async throws -> YieldTransactionFee {
+        try await transactionFeeProvider.claimFee(to: to, data: data)
+    }
+
+    func makeClaimTransaction(to: String, data: Data, fee: YieldTransactionFee) async throws -> BSDKTransaction {
+        guard let claimFee = fee as? ClaimFee else {
+            throw YieldModuleError.feeNotFound
+        }
+
+        return try await transactionProvider.claimTransaction(to: to, data: data, fee: claimFee.fee)
+    }
+
+    func submitClaim(transaction: BSDKTransaction, transactionDispatcher: TransactionDispatcher) async throws -> String {
+        try await transactionDispatcher
+            .send(transaction: .transfer(transaction)).hash
+    }
+
+    func awaitPendingTransactionCleared(transactionHash: String, timeout: TimeInterval) async -> Bool {
+        // The submitted claim is a coin-valued call, so it only shows up in the unfiltered pending records.
+        let minedPublisher = pendingTransactionsPublisher
+            .map { records in
+                records.contains { $0.hash.caseInsensitiveEquals(to: transactionHash) }
+            }
+            .removeDuplicates()
+            .drop(while: { !$0 })
+            .filter { !$0 }
+            .first()
+
+        let minedTask = Task {
+            try await minedPublisher.async()
+        }
+
+        let timeoutTask = Task {
+            try await Task.sleep(for: .seconds(timeout))
+            minedTask.cancel()
+        }
+
+        defer { timeoutTask.cancel() }
+
+        do {
+            _ = try await minedTask.value
+            return true
+        } catch {
+            return false
+        }
     }
 
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo {

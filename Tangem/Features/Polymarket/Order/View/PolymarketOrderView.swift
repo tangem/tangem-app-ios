@@ -75,10 +75,7 @@ struct PolymarketOrderView: View {
                 }
             }
 
-            PolymarketOrderNotificationsView(
-                notifications: viewModel.notifications,
-                onRetry: { viewModel.handleViewAction(.quoteRetryTapped) }
-            )
+            PolymarketOrderNotificationsView(notifications: viewModel.notifications)
 
             PolymarketOrderSlippageRow(
                 valueText: viewModel.slippageText,
@@ -129,6 +126,7 @@ struct PolymarketOrderView: View {
                 placeholderColor: DesignSystem.Color.textTertiary
             ))
             .alignment(.center)
+            .minTextScale(Constants.amountMinTextScale)
             .focused($isAmountFocused)
     }
 
@@ -230,7 +228,10 @@ struct PolymarketOrderView: View {
         TangemUI.Button(
             label: viewModel.nextButtonTitle,
             accessibilityLabel: viewModel.nextButtonTitle,
-            action: { viewModel.handleViewAction(.nextTapped) }
+            action: {
+                isAmountFocused = false
+                viewModel.handleViewAction(.nextTapped)
+            }
         )
         .styleType(.default)
         .size(.x12)
@@ -253,6 +254,7 @@ private extension Animation {
 private extension PolymarketOrderView {
     enum Constants {
         static let topBarTopPadding: CGFloat = 8
+        static let amountMinTextScale: CGFloat = 0.5
         static let horizontalPadding: CGFloat = 16
         static let sellControlsSpacing: CGFloat = 4
         static let chipMinWidth: CGFloat = 56

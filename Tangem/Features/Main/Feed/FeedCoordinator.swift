@@ -144,18 +144,16 @@ extension FeedCoordinator: FeedNavigation {
 // MARK: - FeedWidgetsRoutable
 
 extension FeedCoordinator: FeedWidgetsRoutable {
-    func openPolymarketMain(wallet: UserWalletModel) {
-        guard path.isEmpty else { return }
+    func openPolymarket(wallets: [UserWalletModel]) {
+        Task { @MainActor [weak self] in
+            guard let self, presented == nil, presentedWidgetSheet == nil else { return }
 
-        container?.expand()
-
-        let coordinator = PolymarketCoordinator(
-            dismissAction: { [weak self] in self?.pop() },
-            popToRootAction: popToRootAction
-        )
-        coordinator.start(with: .init(userWalletModel: wallet))
-
-        push(.polymarket(coordinator))
+            if wallets.count > 1 {
+                presentPolymarketWalletSelector(wallets)
+            } else if let wallet = wallets.first {
+                host?.openPolymarket(userWalletModel: wallet)
+            }
+        }
     }
 
     func openCollectibles(wallets: [UserWalletModel], isRegionRestricted: Bool) {
@@ -377,6 +375,22 @@ private extension FeedCoordinator {
             coordinator: self,
             // The feed records the entry tap before presenting the selector.
             shouldLogAddAccountTap: false
+        )
+        enqueueWidgetSheet(viewModel)
+    }
+
+    func presentPolymarketWalletSelector(_ wallets: [UserWalletModel]) {
+        let viewModel = PolymarketWalletSelectorViewModel(
+            userWalletModels: wallets,
+            onSelect: { [weak self] wallet in
+                Task { @MainActor [weak self] in
+                    self?.dismissWidgetSheet()
+                    self?.host?.openPolymarket(userWalletModel: wallet)
+                }
+            },
+            onClose: { [weak self] in
+                Task { @MainActor [weak self] in self?.dismissWidgetSheet() }
+            }
         )
         enqueueWidgetSheet(viewModel)
     }

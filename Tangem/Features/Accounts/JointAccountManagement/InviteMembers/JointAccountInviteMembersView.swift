@@ -151,7 +151,7 @@ struct JointAccountInviteMembersView: View {
     private func freeSlotView(_ freeSlot: JointAccountInviteMembersViewModel.FreeSlotViewData) -> some View {
         JointAccountMemberRow(
             avatar: .emptySlot,
-            title: Localization.jointAccountInviteMembersNewMember,
+            title: Localization.jointAccountInviteMembersMember,
             subtitle: Localization.jointAccountInviteMembersNotInvited,
             accessory: accessory(for: freeSlot)
         )

@@ -36,7 +36,11 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         case .edit(let account):
             return account.resolve(using: DescriptionResolver())
 
-        case .create:
+        case .create(let creator):
+            guard creator.showsAccountIndexDescription else {
+                return nil
+            }
+
             return Localization.accountFormAccountIndex(totalAccountsCount)
         }
     }
