@@ -58,6 +58,35 @@ enum PolkadotNetwork {
         }
     }
 
+    /// The chain's genesis block hash, which every signed extrinsic commits to.
+    ///
+    /// The node reports it (`chain_getBlockHash(0)`), but the wallet must not take the chain identity from the
+    /// node it is about to trust: a node answering with another Substrate chain's genesis / block / runtime
+    /// makes the user-approved transfer a valid extrinsic on that other chain (the balance-transfer call index
+    /// and the recipient's raw public key are identical across these networks). Pinning the hash is the
+    /// standard Substrate wallet defence. `nil` disables the check (no authoritative value confirmed).
+    ///
+    /// Sources: `@polkadot/networks` `knownGenesis` (polkadot, kusama, westend, aleph-node, bittensor),
+    /// Joystream mainnet release v12.1000.0, Energy Web X public RPC `chain_getBlockHash(0)`.
+    var genesisHash: String? {
+        switch self {
+        case .polkadot:
+            return "0x91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3"
+        case .westend:
+            return "0xe143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e"
+        case .kusama:
+            return "0xb0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe"
+        case .azero(_, let isTestnet):
+            return isTestnet ? nil : "0x70255b4d28de0fc4e1a193d7e175ad1ccef431598211c55538f1018651a0344e"
+        case .joystream:
+            return "0x6b5e488e0fa8f9821110d5c13f4c468abcd43ce5e297e62b34c53c3346465956"
+        case .bittensor:
+            return "0x2f0555cc76fc2840a25a6ea3b9637146806f1f44b090c175ffde2a7e5ab36c03"
+        case .energyWebX:
+            return "0x5a51e04b88a4784d205091aa7bada002f3e5da3045e5b05655ee4db2589c33b5"
+        }
+    }
+
     var blockchainName: String {
         switch self {
         case .polkadot(let curve):
