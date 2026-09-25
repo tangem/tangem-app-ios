@@ -84,12 +84,12 @@ struct PolymarketOrderGateTests {
         #expect(gate.notifications == [.quoteUnavailable])
     }
 
-    @Test("A quote that never arrived holds the button and leaves the screen to the sheet")
+    @Test("A quote that never arrived says so on the screen and holds the button")
     func failedQuoteBlocks() {
         let gate = PolymarketOrderGate(state: .stub(quoteState: .failed(.network)), intent: Self.buyIntent)
 
         #expect(!gate.isPrimaryButtonEnabled)
-        #expect(gate.notifications.isEmpty)
+        #expect(gate.notifications == [.quoteUnavailable])
     }
 
     @Test("Waiting for the first quote is not a reason to warn, only to wait")
