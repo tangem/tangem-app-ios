@@ -16,6 +16,7 @@ import TangemUI
 extension PolymarketPositionDetailsView.Model {
     static func make(
         position: PolymarketPosition,
+        openEventDetails: @escaping () -> Void,
         onClosePosition: @escaping () -> Void,
         onBuy: @escaping () -> Void,
         onHint: @escaping (PolymarketPositionHintSheetView.Model) -> Void,
@@ -29,6 +30,7 @@ extension PolymarketPositionDetailsView.Model {
             stats: stats(position: position, onHint: onHint),
             rows: rows(position: position),
             notice: notice(position: position),
+            openEventDetails: openEventDetails,
             secondaryAction: action(
                 title: Localization.commonClose,
                 isEnabled: canTrade(position) && !isOrderLoading,

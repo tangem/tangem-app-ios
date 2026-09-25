@@ -28,7 +28,7 @@ struct PolymarketFundsArrivalTrackerTests {
     func withdrawalRaisesNoBanner() {
         let sut = makeSUT()
 
-        sut.startAwaitingWithdrawal()
+        sut.startAwaitingBalanceChange()
 
         #expect(!sut.isAwaitingFunds)
         #expect(sut.isBalanceChangeExpected)

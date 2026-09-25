@@ -10,14 +10,23 @@ import Foundation
 import TangemFoundation
 
 enum PolymarketPriceFormatter {
-    static func centsText(_ probability: Decimal?) -> String {
+    static func cents(_ probability: Decimal?) -> String {
         guard let probability else {
             return BalanceFormatter.defaultEmptyBalanceString
         }
 
-        let cents = (probability * Constants.centsPerUnit).intValue(roundingMode: .plain)
+        return balanceFormatter.formatDecimal(
+            probability * Constants.centsPerUnit,
+            formattingOptions: .predictionCents
+        )
+    }
 
-        return "\(cents)\(Constants.centsSuffix)"
+    static func centsText(_ probability: Decimal?) -> String {
+        guard probability != nil else {
+            return BalanceFormatter.defaultEmptyBalanceString
+        }
+
+        return "\(cents(probability))\(Constants.centsSuffix)"
     }
 
     static func percentText(_ probability: Decimal?) -> String {
@@ -29,6 +38,7 @@ enum PolymarketPriceFormatter {
     }
 
     private static let percentFormatter = PercentFormatter()
+    private static let balanceFormatter = BalanceFormatter()
 }
 
 // MARK: - Constants
@@ -38,4 +48,15 @@ private extension PolymarketPriceFormatter {
         static let centsPerUnit: Decimal = 100
         static let centsSuffix = "¢"
     }
+}
+
+// MARK: - Formatting options
+
+private extension BalanceFormattingOptions {
+    static let predictionCents = BalanceFormattingOptions(
+        minFractionDigits: 0,
+        maxFractionDigits: 1,
+        formatEpsilonAsLowestRepresentableValue: false,
+        roundingType: .default(roundingMode: .plain, scale: 1)
+    )
 }

@@ -26,6 +26,8 @@ public enum YieldModuleImplementationAddresses {
             return "0xe1d0BF13C427C4B2e25Df0CA29E1Faa2d10458f3"
         case .avalanche(false):
             return "0xe1d0BF13C427C4B2e25Df0CA29E1Faa2d10458f3"
+        case .monad(false):
+            return "0x86eF3fAF4787ea8Da6E35A45fC468D22bF4A344e"
         default:
             return nil
         }

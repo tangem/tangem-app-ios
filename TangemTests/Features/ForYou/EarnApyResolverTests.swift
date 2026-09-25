@@ -360,6 +360,10 @@ private final class YieldModuleManagerStub: YieldModuleManager {
     func exit(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String] { fatalError() }
     func approveFee() async throws -> YieldTransactionFee { fatalError() }
     func approve(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> String { fatalError() }
+    func claimFee(to: String, data: Data) async throws -> YieldTransactionFee { fatalError() }
+    func makeClaimTransaction(to: String, data: Data, fee: YieldTransactionFee) async throws -> BSDKTransaction { fatalError() }
+    func submitClaim(transaction: BSDKTransaction, transactionDispatcher: TransactionDispatcher) async throws -> String { fatalError() }
+    func awaitPendingTransactionCleared(transactionHash: String, timeout: TimeInterval) async -> Bool { fatalError() }
     func currentNetworkFeeParameters() async throws -> EthereumFeeParameters { fatalError() }
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo { fatalError() }
     func fetchChartData() async throws -> YieldChartData { fatalError() }
