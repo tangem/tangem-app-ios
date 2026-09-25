@@ -32,7 +32,8 @@ struct FeedProductCardView: View {
             VStack(alignment: .leading, spacing: Constants.textSpacing) {
                 Text(caption)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                    .lineLimit(1)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Text(message)
                     .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
