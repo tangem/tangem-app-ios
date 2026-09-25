@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemPay
@@ -79,6 +80,15 @@ final class TangemPayCurrentPlanViewModel: ObservableObject {
     func changePlan() {
         Analytics.log(.visaTiersChangePlanClicked)
         coordinator?.openSelectPlan()
+    }
+
+    func openURL(_ url: URL) {
+        coordinator?.openURL(url)
+    }
+
+    func openFullTerms() {
+        Analytics.log(.visaScreenTermsAndLimitsClicked, contextParams: .userWallet(userWalletId))
+        coordinator?.openFullTerms()
     }
 
     func cancelTransition() {
@@ -192,7 +202,12 @@ private extension TangemPayCurrentPlanViewModel {
 
             let rows = sectionItems
                 .sorted { $0.order < $1.order }
-                .map { Row(label: $0.title, value: $0.body ?? "") }
+                .map { item in
+                    Row(
+                        label: item.title,
+                        value: TangemPayMarkdown.attributed(item.body ?? "", linkColor: DesignSystem.Color.textPrimary)
+                    )
+                }
 
             return Section(title: type.sectionTitle, rows: rows)
         }
@@ -214,6 +229,8 @@ private extension VisaCustomerInfoResponse.TariffPlan.DescriptionItem.ItemType {
 protocol TangemPayCurrentPlanRoutable: AnyObject {
     func openSelectPlan()
     func openStayOnPlusConfirmation(planName: String, pendingPlanName: String)
+    func openURL(_ url: URL)
+    func openFullTerms()
 }
 
 extension TangemPayCurrentPlanViewModel {
@@ -237,6 +254,6 @@ extension TangemPayCurrentPlanViewModel {
     struct Row: Identifiable {
         let id = UUID()
         let label: String
-        let value: String
+        let value: AttributedString
     }
 }
