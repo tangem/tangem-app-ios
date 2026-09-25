@@ -130,9 +130,6 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
                 TangemPayDailyLimitView(viewModel: $0)
                     .presentationCornerRadius(24)
             }
-            .sheet(item: $coordinator.termsAndLimitsViewModel) {
-                WebViewContainer(viewModel: $0)
-            }
             .bottomSheet(
                 item: $coordinator.pendingExpressTxStatusBottomSheet,
                 backgroundColor: Colors.Background.tertiary

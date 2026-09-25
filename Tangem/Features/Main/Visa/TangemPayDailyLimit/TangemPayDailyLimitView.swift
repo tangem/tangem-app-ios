@@ -128,16 +128,12 @@ private extension TangemPayDailyLimitView {
     }
 
     var redesignedSuccessView: some View {
-        TangemPaySuccessView(
-            model: .init(
-                icon: DesignSystem.Icons.Success.regular20,
-                title: Localization.tangempayCardPageDailyLimitSuccessTitle,
-                subtitle: Localization.tangempayCardPageDailyLimitSuccessDescription,
-                buttonTitle: Localization.commonDone,
-                titleAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.dailyLimitSuccessTitle,
-                buttonAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.dailyLimitDoneButton
-            ),
+        StatusScreen(
+            title: Localization.tangempayCardPageDailyLimitSuccessTitle,
+            description: Localization.tangempayCardPageDailyLimitSuccessDescription,
+            actionTitle: Localization.commonClose,
             action: viewModel.close
         )
+        .appearance(.success)
     }
 }
