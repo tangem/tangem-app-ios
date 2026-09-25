@@ -31,8 +31,14 @@ protocol GaslessTransactionsAPIService {
     ) async throws -> String
     func sendGaslessBatchTransaction(_ transaction: GaslessTransactionsDTO.Request.GaslessBatchTransaction) async throws -> String
     func getFeeRecipientAddress() async throws -> String
-    func estimateTronGaslessTransaction(_ request: TronEstimateRequest) async throws -> TronEstimateResponse
-    func submitTronGaslessTransaction(_ request: TronSubmitRequest) async throws -> TronSubmitResponse
+    func estimateTronGaslessTransaction(
+        _ request: TronEstimateRequest,
+        userWalletId: UserWalletId
+    ) async throws -> TronEstimateResponse
+    func submitTronGaslessTransaction(
+        _ request: TronSubmitRequest,
+        userWalletId: UserWalletId
+    ) async throws -> TronSubmitResponse
 }
 
 final class CommonGaslessTransactionAPIService {
@@ -79,12 +85,18 @@ extension CommonGaslessTransactionAPIService: GaslessTransactionsAPIService {
         return response.feeRecipientAddress
     }
 
-    func estimateTronGaslessTransaction(_ request: TronEstimateRequest) async throws -> TronEstimateResponse {
-        try await self.request(for: .tronEstimate(request: request))
+    func estimateTronGaslessTransaction(
+        _ request: TronEstimateRequest,
+        userWalletId: UserWalletId
+    ) async throws -> TronEstimateResponse {
+        try await self.request(for: .tronEstimate(request: request, userWalletId: userWalletId))
     }
 
-    func submitTronGaslessTransaction(_ request: TronSubmitRequest) async throws -> TronSubmitResponse {
-        try await self.request(for: .tronSubmit(request: request))
+    func submitTronGaslessTransaction(
+        _ request: TronSubmitRequest,
+        userWalletId: UserWalletId
+    ) async throws -> TronSubmitResponse {
+        try await self.request(for: .tronSubmit(request: request, userWalletId: userWalletId))
     }
 }
 
@@ -100,6 +112,7 @@ private extension CommonGaslessTransactionAPIService {
     func request<T: Decodable>(for target: GaslessTransactionsAPITarget.TargetType) async throws -> T {
         let request = GaslessTransactionsAPITarget(apiType: apiType, target: target)
         let response = try await provider.asyncRequest(request)
+
         return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: false, decoder: decoder)
     }
 }

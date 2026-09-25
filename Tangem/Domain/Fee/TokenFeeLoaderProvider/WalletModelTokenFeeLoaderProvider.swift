@@ -86,7 +86,8 @@ extension WalletModelTokenFeeLoaderProvider: TokenFeeLoaderProvider {
             return CommonTronGaslessTokenFeeLoader(
                 tokenItem: tokenItem,
                 feeToken: feeToken,
-                sourceAddress: walletModel.defaultAddressString
+                sourceAddress: walletModel.defaultAddressString,
+                userWalletId: walletModel.userWalletId
             )
         }
 

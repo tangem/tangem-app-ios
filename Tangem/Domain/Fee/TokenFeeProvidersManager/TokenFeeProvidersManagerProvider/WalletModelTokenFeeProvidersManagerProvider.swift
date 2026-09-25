@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import TangemFoundation
 
 struct WalletModelTokenFeeProvidersManagerProvider {
@@ -52,8 +53,12 @@ extension WalletModelTokenFeeProvidersManagerProvider: TokenFeeProvidersManagerP
 extension WalletModelTokenFeeProvidersManagerProvider {
     func availableGaslessTokenAddresses() -> [String] {
         if case .tron(testnet: false) = walletModel.tokenItem.blockchain {
-            guard walletModel.tronAccountActivationStateProvider?.isAccountActivated == true,
-                  let contractAddress = walletModel.tokenItem.contractAddress else {
+            guard let contractAddress = walletModel.tokenItem.contractAddress else {
+                return []
+            }
+
+            if !FeatureProvider.isAvailable(.tronGaslessActivation),
+               walletModel.tronAccountActivationStateProvider?.isAccountActivated != true {
                 return []
             }
 
@@ -97,6 +102,16 @@ extension WalletModelTokenFeeProvidersManagerProvider {
 
         // Fallback to coin. In case we don't have any gasless providers.
         return main
+    }
+
+    func minimumRequiredGaslessFeeTokenBalance() -> Decimal? {
+        guard FeatureProvider.isAvailable(.tronGaslessActivation),
+              case .tron(testnet: false) = walletModel.tokenItem.blockchain,
+              walletModel.tronAccountActivationStateProvider?.isAccountActivated == false else {
+            return nil
+        }
+
+        return Constants.tronGaslessActivationMinimumBalance
     }
 }
 
@@ -170,6 +185,7 @@ private extension WalletModelTokenFeeProvidersManagerProvider {
                 customFeeProvider: .none,
                 feeTokenItemBalanceProvider: feeTokenItemBalanceProvider,
                 supportingOptions: .exactly([.market]),
+                minimumRequiredBalance: minimumRequiredGaslessFeeTokenBalance(),
             )
         }
 
@@ -190,5 +206,11 @@ private extension WalletModelTokenFeeProvidersManagerProvider {
             feeTokenBalanceProvider: feeTokenItemBalanceProvider,
             versionChecker: feeWalletModel.yieldModuleManager?.versionChecker
         )
+    }
+}
+
+private extension WalletModelTokenFeeProvidersManagerProvider {
+    enum Constants {
+        static let tronGaslessActivationMinimumBalance: Decimal = 5
     }
 }

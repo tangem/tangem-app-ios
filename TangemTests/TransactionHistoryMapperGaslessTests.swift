@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import Testing
+import TangemFoundation
 import TangemLocalization
 @testable import BlockchainSdk
 @testable import Tangem
@@ -273,13 +274,15 @@ private final class StubGaslessTransactionsNetworkManager: GaslessTransactionsNe
     ) async throws -> String { "" }
     func sendGaslessBatchTransaction(_ transaction: GaslessTransactionsDTO.Request.GaslessBatchTransaction) async throws -> String { "" }
     func estimateTronGaslessTransaction(
-        _ request: GaslessTransactionsDTO.Request.TronEstimate
+        _ request: GaslessTransactionsDTO.Request.TronEstimate,
+        userWalletId: UserWalletId
     ) async throws -> GaslessTransactionsDTO.Response.TronEstimate {
         throw CancellationError()
     }
 
     func submitTronGaslessTransaction(
-        _ request: GaslessTransactionsDTO.Request.TronSubmit
+        _ request: GaslessTransactionsDTO.Request.TronSubmit,
+        userWalletId: UserWalletId
     ) async throws -> GaslessTransactionsDTO.Response.TronSubmit {
         throw CancellationError()
     }
