@@ -54,7 +54,8 @@ final class TronGaslessTransactionSender {
                 quoteId: quote.quoteId,
                 signedCompensationTx: signedTransactions.signedCompensationTx,
                 signedOriginalTx: signedTransactions.signedOriginalTx
-            )
+            ),
+            userWalletId: walletModel.userWalletId
         )
 
         switch response.status {
