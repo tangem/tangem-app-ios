@@ -225,6 +225,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         case .yieldWithdraw, .yieldWithdrawCoin: Localization.yieldModuleTransactionExit
         case .gaslessTransactionFee: Localization.gaslessTransactionFee
         case .gaslessTransfer: Localization.transactionHistoryOperation
+        case .networkFee: Localization.commonNetworkFeeTitle
         }
     }
 
@@ -275,6 +276,11 @@ extension TransactionViewModel {
         case staking(target: StakingTarget?)
     }
 
+    struct SentTokens: Hashable {
+        let amount: String
+        let iconInfo: TokenIconInfo
+    }
+
     struct StakingTarget: Hashable {
         let address: String
 
@@ -316,6 +322,7 @@ extension TransactionViewModel {
         case yieldWithdrawCoin
         case gaslessTransactionFee
         case gaslessTransfer
+        case networkFee(sent: SentTokens?)
 
         case tangemPay(TangemPayTransactionType)
 
@@ -344,6 +351,7 @@ extension TransactionViewModel {
             case .yieldWithdraw: "yieldWithdraw"
             case .yieldWithdrawCoin: "yieldWithdrawCoin"
             case .gaslessTransactionFee: "gaslessTransactionFee"
+            case .networkFee: "networkFee"
             case .gaslessTransfer: "gaslessTransfer"
             case .tangemPay: "tangemPay"
             }

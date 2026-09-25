@@ -181,19 +181,20 @@ struct TransactionDetailsAddContactHelperTests {
         case .yieldWithdraw: break
         case .yieldWithdrawCoin: break
         case .gaslessTransactionFee: break
+        case .networkFee: break
         case .operation: break
         case .unknownOperation: break
         }
 
         return [
             .transfer,
-            .gaslessTransfer,
             .tangemPay(.transfer(name: "Tangem Pay")),
         ]
     }
 
     private static var nonPlainTransferTypes: [TransactionViewModel.TransactionType] {
         [
+            .gaslessTransfer,
             .swap,
             .onramp,
             .approve,
@@ -213,6 +214,7 @@ struct TransactionDetailsAddContactHelperTests {
             .yieldWithdraw,
             .yieldWithdrawCoin,
             .gaslessTransactionFee,
+            .networkFee(sent: nil),
             .operation(name: "Mint"),
             .unknownOperation,
             .tangemPay(.fee(name: "Service fee")),
