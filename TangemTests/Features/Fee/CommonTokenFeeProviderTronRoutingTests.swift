@@ -8,6 +8,7 @@
 import Foundation
 import Testing
 import BlockchainSdk
+import TangemFoundation
 @testable import TangemExpress
 @testable import Tangem
 
@@ -31,7 +32,8 @@ struct CommonTokenFeeProviderTronRoutingTests {
                 contractAddress: token.contractAddress,
                 decimalCount: token.decimalCount
             ),
-            sourceAddress: "TSourceAddress"
+            sourceAddress: "TSourceAddress",
+            userWalletId: UserWalletId(value: Data("wallet".utf8))
         )
         let sut = makeSUT(loader: loader)
 

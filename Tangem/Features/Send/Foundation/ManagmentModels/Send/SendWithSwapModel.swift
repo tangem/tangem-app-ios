@@ -653,6 +653,15 @@ extension SendWithSwapModel: SendNotificationManagerInput {
             .eraseToAnyPublisher()
     }
 
+    var feeTokenUsageAvailabilityPublisher: AnyPublisher<FeeTokenUsageAvailability, Never> {
+        isSwapModePublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { model, isSwap in
+                isSwap ? .just(output: .available) : model.transferModel.feeTokenUsageAvailabilityPublisher
+            }
+            .eraseToAnyPublisher()
+    }
+
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> {
         isSwapModePublisher
             .withWeakCaptureOf(self)
