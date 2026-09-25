@@ -84,16 +84,12 @@ private extension TangemPayPinView {
     }
 
     var redesignedSuccessView: some View {
-        TangemPaySuccessView(
-            model: .init(
-                icon: DesignSystem.Icons.Success.regular20,
-                title: Localization.tangempayCardDetailsChangePinSuccessTitle,
-                subtitle: Localization.tangempayCardDetailsChangePinSuccessDescription,
-                buttonTitle: Localization.commonClose,
-                titleAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.pinSuccessTitle,
-                buttonAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.pinDoneButton
-            ),
+        StatusScreen(
+            title: Localization.tangempayCardDetailsChangePinSuccessTitle,
+            description: Localization.tangempayCardDetailsChangePinSuccessDescription,
+            actionTitle: Localization.commonClose,
             action: viewModel.close
         )
+        .appearance(.success)
     }
 }
