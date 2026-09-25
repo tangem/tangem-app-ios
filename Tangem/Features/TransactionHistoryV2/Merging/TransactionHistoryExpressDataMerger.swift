@@ -14,6 +14,7 @@ import TangemFoundation
 /// See https://app.notion.com/p/tangem/Express-36d5d34eb67880fa8082dcdb732c4364?source=copy_link#f5e12a848f494dc28b3ad32fd3243ede for details.
 struct TransactionHistoryExpressDataMerger {
     @Injected(\.transactionHistoryAuxDataRepository) private var auxDataRepository: TransactionHistoryAuxDataRepository
+    @Injected(\.gaslessTransactionsNetworkManager) private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
     @Injected(\.smartContractMethodMapper) private var smartContractMethodMapper: SmartContractMethodMapper
 
     // MARK: - Dependencies
@@ -50,10 +51,19 @@ struct TransactionHistoryExpressDataMerger {
     // MARK: - Merge routine
 
     func merge(
-        bsdkTransactions: [TransactionRecord],
+        bsdkTransactions incomingBSDKTransactions: [TransactionRecord],
         exchangeTransactions: [ExchangeTransaction],
         onrampTransactions: [OnrampTransaction]
     ) -> [TransactionRecord] {
+        let classifier = TransactionHistoryTransferClassifier(
+            smartContractMethodMapper: smartContractMethodMapper,
+            gaslessFeeMatcher: GaslessTransactionFeeMatcher(
+                smartContractMethodMapper: smartContractMethodMapper,
+                serviceFeeRecipientAddress: gaslessTransactionsNetworkManager.cachedFeeRecipientAddress
+            )
+        )
+        let (standaloneTransactions, bsdkTransactions) = classifier.classify(incomingBSDKTransactions)
+
         var bsdkTransactionsGroupedByHash: [String?: [TransactionRecord]] = bsdkTransactions.grouped(by: \.hash)
         var output: [TransactionRecord] = []
         output.reserveCapacity(bsdkTransactions.count + exchangeTransactions.count + onrampTransactions.count)
@@ -179,21 +189,19 @@ struct TransactionHistoryExpressDataMerger {
 
         let transferCollapser = TransactionHistoryTransferCollapser(
             walletModelAddresses: walletModelAddresses,
-            isEvm: isEvm,
-            smartContractMethodMapper: smartContractMethodMapper
+            isEvm: isEvm
         )
 
-        return sortedRecords(transferCollapser.collapse(output))
+        return sortedRecords(transferCollapser.collapse(output) + standaloneTransactions)
     }
 
     // MARK: - Leg claiming (Exchange)
 
-    /// One on-chain transaction can carry transfers that belong to no deal at all — the fee transfer of a
-    /// gasless transaction, for one — and, when both legs of a swap live on the same blockchain, its pay-in
-    /// transaction shows up in the history of the token being bought as well. Claiming the whole group by its
-    /// hash would mark all of that as a swap, so what isn't the leg is passed through unenriched, keeping its
-    /// own classification, while the leg that has no on-chain record of its own is covered by a synthetic
-    /// transaction.
+    /// One on-chain transaction can carry transfers that belong to no deal at all, and, when both legs of a
+    /// swap live on the same blockchain, its pay-in transaction shows up in the history of the token being
+    /// bought as well. Claiming the whole group by its hash would mark all of that as a swap, so what isn't
+    /// the leg is passed through unenriched, keeping its own classification, while the leg that has no
+    /// on-chain record of its own is covered by a synthetic transaction.
     ///
     /// Returns `nil` when the group holds no record of the expected leg, which is the same as no match at all.
     private func claimLegRecords(
