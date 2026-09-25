@@ -24,6 +24,9 @@ public struct TransactionRecord: Hashable {
     public let date: Date?
     public let tokenTransfers: [TokenTransfer]
     public let isFromYieldContract: Bool
+    /// Whether this record stands for several transfers of one transaction folded together. What it names is the
+    /// balance the wallet ended up with, not a payment made to the counterparty it shows.
+    public let isFolded: Bool
     /// For EVM only.
     public let nonce: Int?
     public var extraInfo: ExtraInfo? { _extraInfo?.wrapped }
@@ -51,6 +54,7 @@ public struct TransactionRecord: Hashable {
         date: Date?,
         tokenTransfers: [TokenTransfer],
         isFromYieldContract: Bool = false,
+        isFolded: Bool = false,
         nonce: Int?,
         extraInfo: ExtraInfoType? = nil
     ) {
@@ -65,6 +69,7 @@ public struct TransactionRecord: Hashable {
         self.date = date
         self.tokenTransfers = tokenTransfers
         self.isFromYieldContract = isFromYieldContract
+        self.isFolded = isFolded
         self.nonce = nonce
         _extraInfo = extraInfo.map(AnyExtraInfo.init)
     }
