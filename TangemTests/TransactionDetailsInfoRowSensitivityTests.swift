@@ -38,8 +38,8 @@ private extension TransactionDetailsInfoRowSensitivityTests {
     func makeSwapViewData(rate: String?, networkFee: String?) -> TransactionDetailsSwapViewData {
         TransactionDetailsSwapViewData(
             stage: .finished,
-            source: .init(amount: "390", symbol: "USDT", tokenIconInfo: nil),
-            destination: .init(amount: "1800", symbol: "POL", tokenIconInfo: nil),
+            source: .init(amount: "390", symbol: "USDT", tokenIconInfo: nil, actor: nil),
+            destination: .init(amount: "1800", symbol: "POL", tokenIconInfo: nil, actor: nil),
             isDestinationEstimated: false,
             statusBanner: nil,
             provider: nil,

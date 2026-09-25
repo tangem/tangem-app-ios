@@ -14,6 +14,7 @@ struct TransactionDetailsSwapViewData: TransactionDetailsOperationViewData {
         let amount: String
         let symbol: String?
         let tokenIconInfo: TokenIconInfo?
+        let actor: TransactionDetailsActor?
     }
 
     struct RatingTransaction {
@@ -38,14 +39,20 @@ struct TransactionDetailsSwapViewData: TransactionDetailsOperationViewData {
     var tokensData: TransactionDetailsTokensViewData {
         TransactionDetailsTokensViewData(
             from: .init(
-                direction: .init(label: Localization.swappingFromTitleV2, actor: nil),
+                direction: .init(
+                    label: source.actor == nil ? Localization.swappingFromTitleV2 : Localization.commonFrom,
+                    actor: source.actor
+                ),
                 icon: icon(for: source),
                 amountText: sourceAmountText,
                 fiatText: nil,
                 isAmountStrikethrough: false
             ),
             to: .init(
-                direction: .init(label: Localization.swappingToTitle, actor: nil),
+                direction: .init(
+                    label: destination.actor == nil ? Localization.swappingToTitle : Localization.commonTo,
+                    actor: destination.actor
+                ),
                 icon: icon(for: destination),
                 amountText: destinationAmountText,
                 fiatText: nil,
