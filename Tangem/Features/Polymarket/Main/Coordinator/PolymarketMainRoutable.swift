@@ -18,13 +18,13 @@ protocol PolymarketMainRoutable: AnyObject {
     func openMyPositions(
         tab: PolymarketPositionsTab,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
-        onClaimed: @escaping () -> Void
+        onClaimed: @escaping (PolymarketPosition?) -> Void
     )
 
     func openAddFunds()
 
     @MainActor
-    func openRedeem(position: PolymarketPosition, onClaimed: @escaping () -> Void)
+    func openRedeem(position: PolymarketPosition, onClaimed: @escaping (PolymarketPosition?) -> Void)
 
     @MainActor
     func openHowItWorks()
