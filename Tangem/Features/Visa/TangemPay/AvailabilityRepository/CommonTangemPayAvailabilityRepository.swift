@@ -7,6 +7,7 @@
 //
 
 import Combine
+import CombineExt
 import TangemFoundation
 import TangemPay
 import TangemVisa
@@ -105,9 +106,7 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
         .eraseToAnyPublisher()
     }
 
-    func tangemPayFeedCardEntrypointEligibleWalletSelectionPublisher(
-        for customerWalletId: String
-    ) -> AnyPublisher<TangemPayWalletSelectionType?, Never> {
+    var tangemPayFeedCardEntrypointEligibleWalletSelectionPublisher: AnyPublisher<TangemPayWalletSelectionType?, Never> {
         Publishers
             .CombineLatest(
                 tangemPayEligibleWalletSelectionPublisher(for: .banner),
@@ -115,7 +114,6 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
             )
             .map { walletSelection, currentWalletModelsContainPaeraCustomers in
                 guard let walletSelection,
-                      walletSelection.userWalletModelsIds.contains(customerWalletId),
                       !currentWalletModelsContainPaeraCustomers
                 else {
                     return nil
@@ -123,6 +121,7 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
 
                 return walletSelection
             }
+            .removeDuplicates()
             .eraseToAnyPublisher()
     }
 
