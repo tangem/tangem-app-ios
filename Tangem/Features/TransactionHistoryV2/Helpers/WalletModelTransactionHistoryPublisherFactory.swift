@@ -41,12 +41,7 @@ enum WalletModelTransactionHistoryPublisherFactory {
             .map(\.transactionHistoryProvider)
             .removeDuplicates { $0?.id.toAnyHashable() == $1?.id.toAnyHashable() }
             .flatMapLatest { provider -> AnyPublisher<WalletModelTransactionHistoryState, Never> in
-                // No provider (unsupported chain) -> emit the unenriched on-chain history.
-                guard let provider else {
-                    return transactionHistoryPublisher.eraseToAnyPublisher()
-                }
-
-                return makeEnrichedPublisher(
+                makeEnrichedPublisher(
                     from: transactionHistoryPublisher,
                     walletModelAddressesPublisher: walletModelAddressesPublisher,
                     provider: provider,
@@ -62,21 +57,28 @@ enum WalletModelTransactionHistoryPublisherFactory {
     private static func makeEnrichedPublisher(
         from originalTransactionHistoryPublisher: some Publisher<WalletModelTransactionHistoryState, Never>,
         walletModelAddressesPublisher: some Publisher<[String], Never>,
-        provider: some TransactionHistoryProviding,
+        provider: (any TransactionHistoryProviding)?,
         walletModelId: WalletModelId,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem
     ) -> AnyPublisher<WalletModelTransactionHistoryState, Never> {
+        let expressRecords: AnyPublisher<[TransactionHistoryRecordsReader.Record], Never> = if let provider {
+            Publishers
+                .stream {
+                    provider.historyUpdates(
+                        for: walletModelId,
+                        walletModelAddressesPublisher: walletModelAddressesPublisher
+                    )
+                }
+                .eraseToAnyPublisher()
+        } else {
+            .just(output: [])
+        }
+
         // [REDACTED_TODO_COMMENT]
-        return originalTransactionHistoryPublisher
+        let combinedInput = originalTransactionHistoryPublisher
             .combineLatest(
-                Publishers
-                    .stream {
-                        provider.historyUpdates(
-                            for: walletModelId,
-                            walletModelAddressesPublisher: walletModelAddressesPublisher
-                        )
-                    },
+                expressRecords,
                 Publishers
                     .stream {
                         auxDataRepository.didLoadAuxData
@@ -84,7 +86,14 @@ enum WalletModelTransactionHistoryPublisherFactory {
                     .prepend(()) // Emit an initial value in case the aux data is already cached and no updates are coming
             )
             .withLatestFrom(walletModelAddressesPublisher) { ($0.0, $0.1, $1) }
-            .receive(on: provider.mappingQueue)
+
+        let mergeInput = if let provider {
+            combinedInput.receive(on: provider.mappingQueue).eraseToAnyPublisher()
+        } else {
+            combinedInput.eraseToAnyPublisher()
+        }
+
+        return mergeInput
             .map { transactionHistoryState, records, walletModelAddresses in
                 let merger = TransactionHistoryExpressDataMerger(
                     walletModelAddresses: walletModelAddresses,
