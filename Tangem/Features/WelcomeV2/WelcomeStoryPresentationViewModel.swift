@@ -28,4 +28,8 @@ final class WelcomeStoryPresentationViewModel: ObservableObject, Identifiable {
     func closeAfterScan() {
         player.finish(for: scanAction)
     }
+
+    func cancel() {
+        player.cancel()
+    }
 }
