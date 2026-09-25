@@ -124,6 +124,7 @@ private extension FeedSelectionRoutingTests {
             searchBarViewModel: searchBarViewModel,
             searchViewModel: FeedSearchViewModel(
                 searchBarViewModel: searchBarViewModel,
+                resultsQuery: .init(""),
                 tabsViewModel: FeedSearchTabsViewModel(tabs: [.predictions]),
                 historyProvider: HistoryProviderStub(),
                 marketViewModel: CryptoSearchViewModel(
