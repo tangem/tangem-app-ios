@@ -22,9 +22,7 @@ enum FeedWidgetsRegistry {
         providers.append(EarnWidgetProvider(router: router))
         providers.append(ReferralWidgetProvider(router: router))
 
-        if FeatureProvider.isAvailable(.polymarket) {
-            providers.append(PolymarketWidgetProvider(router: router))
-        }
+        providers.append(PolymarketWidgetProvider(router: router))
 
         if FeatureProvider.isAvailable(.collectibles) {
             providers.append(CollectiblesWidgetProvider(router: router))

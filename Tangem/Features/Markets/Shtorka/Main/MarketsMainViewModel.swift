@@ -24,6 +24,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 
     @Published private(set) var headerViewModel: MainBottomSheetHeaderViewModel
     @Published private(set) var tokenListViewModel: MarketsTokenListViewModel
+    @Published private(set) var isPolymarketAvailable = false
 
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.viewHierarchySnapshotter) private var viewHierarchySnapshotter: ViewHierarchySnapshotting
@@ -31,6 +32,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     @Injected(\.marketsWidgetsUpdateHandler) private var widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.marketsCategoriesProvider) private var categoriesProvider: MarketsCategoriesProvider
+    @Injected(\.polymarketAvailabilityProvider) private var polymarketAvailabilityProvider: PolymarketAvailabilityProvider
 
     // MARK: - Properties
 
@@ -118,6 +120,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
         bindChildViewModels()
         bindToWidgetsProvider()
         bindToMainBottomSheetUIManager()
+        bindToPolymarketAvailability()
 
         widgetsProvider.reloadWidgets()
 
@@ -181,6 +184,17 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 // MARK: - Private Implementation
 
 private extension MarketsMainViewModel {
+    func bindToPolymarketAvailability() {
+        polymarketAvailabilityProvider
+            .isAvailablePublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, isAvailable in
+                viewModel.isPolymarketAvailable = isAvailable
+            }
+            .store(in: &bag)
+    }
+
     func bindToTokenSearch() {
         tokenSearchViewModel.$state
             .map { $0 != .idle }
