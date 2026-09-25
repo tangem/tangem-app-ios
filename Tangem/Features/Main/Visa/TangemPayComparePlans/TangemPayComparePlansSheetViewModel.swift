@@ -6,15 +6,19 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
+import TangemAssets
 import TangemLocalization
 import TangemPay
 import TangemUI
+import UIKit
 
 struct TangemPayComparePlansSheetViewModel: FloatingSheetContentViewModel {
     var id: String { String(describing: Self.self) }
 
     let title = Localization.tangempaySelectPlanCompare
     let sections: [ComparisonSection]
+    let scrollState = ScrollState()
 
     private let coordinator: TangemPayComparePlansRoutable
 
@@ -39,10 +43,13 @@ struct TangemPayComparePlansSheetViewModel: FloatingSheetContentViewModel {
         sections = orderedAttributes.map { attribute in
             ComparisonSection(
                 title: attribute,
+                isStacked: attribute == orderedAttributes.last,
                 rows: plansWithValues.map { plan in
-                    Row(
+                    let rawValue = plan.valuesByTitle[attribute].flatMap { $0 }
+                    return Row(
                         planName: plan.name,
-                        value: plan.valuesByTitle[attribute].flatMap { $0 } ?? Constants.missingValue
+                        value: rawValue.map { TangemPayMarkdown.attributed($0, linkColor: DesignSystem.Color.textPrimary) }
+                            ?? Constants.missingValue
                     )
                 }
             )
@@ -55,13 +62,17 @@ struct TangemPayComparePlansSheetViewModel: FloatingSheetContentViewModel {
         Analytics.log(.visaTiersPlansComparisonPopupClosed)
         coordinator.closeComparePlans()
     }
+
+    func openURL(_ url: URL) {
+        coordinator.openComparePlansURL(url)
+    }
 }
 
 // MARK: - Mapping
 
 private extension TangemPayComparePlansSheetViewModel {
     enum Constants {
-        static let missingValue = "—"
+        static let missingValue = AttributedString("—")
     }
 
     /// Distinct description-item titles across all plans, ordered card-related first, then by `order`.
@@ -99,13 +110,19 @@ extension TangemPayComparePlansSheetViewModel {
     struct ComparisonSection: Identifiable {
         var id: String { title }
         let title: String
+        let isStacked: Bool
         let rows: [Row]
     }
 
     struct Row: Identifiable {
         var id: String { planName }
         let planName: String
-        let value: String
+        let value: AttributedString
+    }
+
+    final class ScrollState {
+        weak var scrollView: UIScrollView?
+        var pendingRestoreOffset: CGPoint?
     }
 }
 
@@ -113,4 +130,5 @@ extension TangemPayComparePlansSheetViewModel {
 
 protocol TangemPayComparePlansRoutable: AnyObject {
     func closeComparePlans()
+    func openComparePlansURL(_ url: URL)
 }

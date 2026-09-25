@@ -187,18 +187,7 @@ private extension TangemPaySelectPlanViewModel {
     }
 
     static func makeMarkdown(_ string: String, linkColor: Color) -> AttributedString {
-        let options = AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
-
-        guard var attributed = try? AttributedString(markdown: string, options: options) else {
-            return AttributedString(string)
-        }
-
-        for run in attributed.runs where run.link != nil {
-            attributed[run.range].underlineStyle = Text.LineStyle.single
-            attributed[run.range].foregroundColor = linkColor
-        }
-
-        return attributed
+        TangemPayMarkdown.attributed(string, linkColor: linkColor)
     }
 }
 

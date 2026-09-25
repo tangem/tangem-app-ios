@@ -14,6 +14,7 @@ struct CommonTronGaslessTokenFeeLoader {
     let tokenItem: TokenItem
     let feeToken: BSDKToken
     let sourceAddress: String
+    let userWalletId: UserWalletId
 
     private let networkManager: GaslessTransactionsNetworkManager
 
@@ -21,11 +22,13 @@ struct CommonTronGaslessTokenFeeLoader {
         tokenItem: TokenItem,
         feeToken: BSDKToken,
         sourceAddress: String,
+        userWalletId: UserWalletId,
         networkManager: GaslessTransactionsNetworkManager = InjectedValues[\.gaslessTransactionsNetworkManager]
     ) {
         self.tokenItem = tokenItem
         self.feeToken = feeToken
         self.sourceAddress = sourceAddress
+        self.userWalletId = userWalletId
         self.networkManager = networkManager
     }
 }
@@ -70,7 +73,7 @@ private extension CommonTronGaslessTokenFeeLoader {
             feeTokenContract: feeToken.contractAddress
         )
 
-        let quote = try await networkManager.estimateTronGaslessTransaction(request)
+        let quote = try await networkManager.estimateTronGaslessTransaction(request, userWalletId: userWalletId)
         guard let compensationAmountRaw = Decimal(stringValue: quote.compensationAmountRaw) else {
             throw TokenFeeLoaderError.invalidGaslessTronCompensationAmount(quote.compensationAmountRaw)
         }

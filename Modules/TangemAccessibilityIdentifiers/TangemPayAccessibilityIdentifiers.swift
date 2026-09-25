@@ -240,6 +240,7 @@ public enum TangemPayAccessibilityIdentifiers {
 
     public static let currentPlanName = "\(prefix)CurrentPlanName"
     public static let currentPlanChangeButton = "\(prefix)CurrentPlanChangeButton"
+    public static let currentPlanFullTermsButton = "\(prefix)CurrentPlanFullTermsButton"
     public static let currentPlanAwaitingDepositBanner = "\(prefix)CurrentPlanAwaitingDepositBanner"
     public static let currentPlanDowngradeBanner = "\(prefix)CurrentPlanDowngradeBanner"
     public static let currentPlanFeeChargedBanner = "\(prefix)CurrentPlanFeeChargedBanner"

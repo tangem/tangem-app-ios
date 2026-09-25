@@ -20,6 +20,7 @@ final class CommonTokenFeeProvider {
     let customFeeProvider: (any CustomFeeProvider)?
     let feeTokenItemBalanceProvider: TokenBalanceProvider
     let supportingOptions: TokenFeeProviderSupportingOptions
+    let minimumRequiredBalance: Decimal?
 
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
@@ -40,12 +41,14 @@ final class CommonTokenFeeProvider {
         customFeeProvider: (any CustomFeeProvider)?,
         feeTokenItemBalanceProvider: TokenBalanceProvider,
         supportingOptions: TokenFeeProviderSupportingOptions,
+        minimumRequiredBalance: Decimal? = nil,
     ) {
         self.feeTokenItem = feeTokenItem
         self.tokenFeeLoader = tokenFeeLoader
         self.customFeeProvider = customFeeProvider
         self.feeTokenItemBalanceProvider = feeTokenItemBalanceProvider
         self.supportingOptions = supportingOptions
+        self.minimumRequiredBalance = minimumRequiredBalance
 
         bind()
     }
@@ -56,6 +59,18 @@ final class CommonTokenFeeProvider {
 extension CommonTokenFeeProvider: TokenFeeProvider {
     var balanceFeeTokenState: TokenBalanceType { feeTokenItemBalanceProvider.balanceType }
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { feeTokenItemBalanceProvider.balanceTypePublisher }
+    var usageAvailability: FeeTokenUsageAvailability {
+        mapToUsageAvailability(balance: balanceFeeTokenState)
+    }
+
+    var usageAvailabilityPublisher: AnyPublisher<FeeTokenUsageAvailability, Never> {
+        balanceTypePublisher
+            .withWeakCaptureOf(self)
+            .map { provider, balance in provider.mapToUsageAvailability(balance: balance) }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     var formattedFeeTokenBalance: FormattedTokenBalanceType {
         let currencyId = feeTokenItem.currencyId
         let currencySymbol = feeTokenItem.currencySymbol
@@ -263,6 +278,16 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
 // MARK: - Private
 
 private extension CommonTokenFeeProvider {
+    func mapToUsageAvailability(balance: TokenBalanceType) -> FeeTokenUsageAvailability {
+        guard let minimumRequiredBalance,
+              let balance = balance.loaded,
+              balance < minimumRequiredBalance else {
+            return .available
+        }
+
+        return .minimumBalanceRequired(amount: minimumRequiredBalance, tokenItem: feeTokenItem)
+    }
+
     func bind() {
         customFeeProviderInitialSetupCancellable = customFeeProvider?.subscribeToInitialSetup(
             tokenFeeProvider: self
