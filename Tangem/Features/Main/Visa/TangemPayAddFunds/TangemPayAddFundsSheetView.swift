@@ -15,14 +15,12 @@ struct TangemPayAddFundsSheetView: View {
     @ObservedObject var viewModel: TangemPayAddFundsSheetViewModel
 
     var body: some View {
-        redesignedBody
+        content
     }
 }
 
-// MARK: - Redesigned
-
 private extension TangemPayAddFundsSheetView {
-    var redesignedBody: some View {
+    var content: some View {
         VStack(spacing: .zero) {
             header
 

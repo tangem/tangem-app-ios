@@ -28,7 +28,7 @@ struct MultiWalletMainContentRedesignedView: View {
 
             VStack(spacing: 8) {
                 if let tangemPayAccountViewModel = viewModel.tangemPayAccountViewModel {
-                    TangemPayAccountViewRedesigned(viewModel: tangemPayAccountViewModel)
+                    TangemPayAccountView(viewModel: tangemPayAccountViewModel)
                 }
 
                 if let polymarketAccountViewModel = viewModel.polymarketAccountViewModel {
@@ -97,6 +97,8 @@ struct MultiWalletMainContentRedesignedView: View {
         .padding(MultiWalletMainContentConstants.collectiblesAccountPadding)
         .background(MultiWalletMainContentConstants.tokenListBackgroundColor)
         .cornerRadiusContinuous(MultiWalletMainContentConstants.cornerRadius)
+        .contentShape(.rect)
+        .buttonStyle(.defaultScaled)
     }
 
     // MARK: - Pending joint accounts

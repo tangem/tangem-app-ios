@@ -20,6 +20,7 @@ enum YieldModuleNotificationBannerParams: Identifiable {
     case notEnoughFeeCurrency(feeCurrencyName: String, tokenIcon: ImageType, buttonAction: @MainActor @Sendable () -> Void)
     case approveNeeded(buttonAction: @MainActor @Sendable () -> Void)
     case feeUnreachable(buttonAction: @MainActor @Sendable () -> Void)
+    case rewardsUnavailable(buttonAction: @MainActor @Sendable () -> Void)
     case hasUndepositedAmounts(amount: String, currencySymbol: String)
     case highFees
 
@@ -31,6 +32,8 @@ enum YieldModuleNotificationBannerParams: Identifiable {
             "approveNeeded"
         case .feeUnreachable:
             "feeUnreachable"
+        case .rewardsUnavailable:
+            "rewardsUnavailable"
         case .hasUndepositedAmounts:
             "hasUndepositedAmounts"
         case .highFees:

@@ -20,7 +20,7 @@ protocol FeedWidgetsRoutable: AnyObject {
     )
     func openForYou()
     func openAddAccount(candidates: [FeedAccountCandidate])
-    func openPolymarketMain(wallet: UserWalletModel)
+    func openPolymarket(wallets: [UserWalletModel])
     func openCollectibles(wallets: [UserWalletModel], isRegionRestricted: Bool)
 }
 
