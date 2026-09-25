@@ -56,7 +56,8 @@ final class CommonGaslessTransactionsNetworkManager {
     private var fetchFeeTokensTask: Task<Void, Never>?
     private var fetchTronFeeTokensTask: Task<Void, Never>?
     private var feeRecipientTask: Task<String?, Never>?
-    private var _feeRecipientAddress: String?
+
+    private let _feeRecipientAddress = OSAllocatedUnfairLock<String?>(initialState: nil)
 
     init(apiService: GaslessTransactionsAPIService) {
         self.apiService = apiService
@@ -67,7 +68,7 @@ final class CommonGaslessTransactionsNetworkManager {
 
 extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager {
     var cachedFeeRecipientAddress: String? {
-        _feeRecipientAddress
+        _feeRecipientAddress.withLock { $0 }
     }
 
     var currentHost: String {
@@ -78,7 +79,7 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
 
     var feeRecipientAddress: String? {
         get async {
-            if let cached = _feeRecipientAddress {
+            if let cached = cachedFeeRecipientAddress {
                 return cached
             }
             if let task = feeRecipientTask {
@@ -88,7 +89,7 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
             let task = Task<String?, Never> {
                 do {
                     let address = try await apiService.getFeeRecipientAddress()
-                    _feeRecipientAddress = address
+                    _feeRecipientAddress.withLock { $0 = address }
                     return address
                 } catch {
                     AppLogger.error("Failed to fetch fee recipient address", error: error)
@@ -156,7 +157,8 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
 
     func preloadFeeRecipientAddress() {
         Task { [weak self] in
-            self?._feeRecipientAddress = try await self?.apiService.getFeeRecipientAddress()
+            let address = try await self?.apiService.getFeeRecipientAddress()
+            self?._feeRecipientAddress.withLock { $0 = address }
         }
     }
 }
