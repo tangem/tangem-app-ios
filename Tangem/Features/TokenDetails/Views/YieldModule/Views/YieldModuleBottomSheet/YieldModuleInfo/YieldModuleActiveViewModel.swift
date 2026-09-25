@@ -48,7 +48,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
     private(set) var earInfoFooterText: AttributedString?
 
     @Published
-    private(set) var chartState: YieldChartContainerState = .loading
+    private(set) var chartState: YieldModuleEarnInfoChartContainer.State = .loading
 
     @Published
     private(set) var apyTrend: ApyTrend = .none
@@ -107,6 +107,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
     private let notificationManager: YieldModuleNotificationManager
     private let marketingBannerManager = MarketingBannerManager()
     private let logger: YieldAnalyticsLogger
+    private let usesIncentiveDesign: Bool
 
     // MARK: - Properties
 
@@ -126,7 +127,8 @@ final class YieldModuleActiveViewModel: ObservableObject {
         marketInfoPublisher: AnyPublisher<YieldModuleMarketInfo?, Never>,
         claimInteractor: YieldIncentivesClaimInteractor?,
         notificationManager: YieldModuleNotificationManager,
-        logger: YieldAnalyticsLogger
+        logger: YieldAnalyticsLogger,
+        usesIncentiveDesign: Bool
     ) {
         self.walletModel = walletModel
         self.coordinator = coordinator
@@ -136,6 +138,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
         self.claimInteractor = claimInteractor
         self.logger = logger
         self.notificationManager = notificationManager
+        self.usesIncentiveDesign = usesIncentiveDesign
 
         logger.logEarningInProgressScreenOpened()
 
@@ -165,7 +168,11 @@ final class YieldModuleActiveViewModel: ObservableObject {
         guard let apyBreakdown else { return }
 
         coordinator?.openAboutApySheet(
-            viewModel: YieldModuleAboutApyViewModel(baseApy: apyBreakdown.baseApy, rewardsApr: apyBreakdown.rewardsApr)
+            viewModel: YieldModuleAboutApyViewModel(
+                baseApy: apyBreakdown.baseApy,
+                rewardsApr: apyBreakdown.rewardsApr,
+                usesIncentiveDesign: usesIncentiveDesign
+            )
         )
     }
 
@@ -427,8 +434,13 @@ final class YieldModuleActiveViewModel: ObservableObject {
 
         do {
             try await Task.sleep(for: .seconds(0.5))
-            let chartData = try await yieldManagerInteractor.getChartData()
-            chartState = .loaded(chartData)
+
+            if usesIncentiveDesign {
+                let incentiveData = try await yieldManagerInteractor.getIncentiveChartData(period: .threeMonths)
+                chartState = incentiveData.baseApyData.isEmpty ? .unavailable : .incentive(incentiveData)
+            } else {
+                chartState = .legacy(try await yieldManagerInteractor.getChartData())
+            }
         } catch {
             chartState = .error(action: { [weak self] in
                 await self?.fetchChartData()
