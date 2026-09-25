@@ -40,6 +40,7 @@ public enum FeeAccessibilityIdentifiers {
 
     /// Custom fee fields
     public static let customFeeMaxFeeField = "customFeeMaxFeeField"
+    public static let customFeeMaxFeePerGasField = "customFeeMaxFeePerGasField"
     public static let customFeeMaxFeeFiatValue = "customFeeMaxFeeFiatValue"
     public static let customFeeSatoshiPerByteField = "customFeeSatoshiPerByteField"
     public static let customFeeNonceField = "customFeeNonceField"
