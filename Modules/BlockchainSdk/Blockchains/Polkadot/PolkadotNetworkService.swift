@@ -69,13 +69,22 @@ class PolkadotNetworkService: MultiNetworkProvider {
                         }
                         .eraseToAnyPublisher()
 
+                    let expectedGenesisHash = service.network.genesisHash
+
                     return Publishers.Zip4(
                         provider.blockhash(.genesis),
                         latestBlockPublisher,
                         getNoncePublisher,
                         provider.runtimeVersion()
-                    ).map { genesisHash, latestBlockInfo, nonce, runtimeVersion in
-                        PolkadotBlockchainMeta(
+                    ).tryMap { genesisHash, latestBlockInfo, nonce, runtimeVersion in
+                        if let expectedGenesisHash, !Self.genesisHashMatches(genesisHash, expected: expectedGenesisHash) {
+                            BSDKLogger.error(
+                                error: "Node returned genesis hash \(genesisHash) for \(service.network.blockchainName), expected \(expectedGenesisHash)"
+                            )
+                            throw BlockchainSdkError.failedToParseNetworkResponse()
+                        }
+
+                        return PolkadotBlockchainMeta(
                             specVersion: runtimeVersion.specVersion,
                             transactionVersion: runtimeVersion.transactionVersion,
                             genesisHash: genesisHash,
@@ -108,6 +117,16 @@ class PolkadotNetworkService: MultiNetworkProvider {
         providerPublisher { provider in
             provider.submitExtrinsic(data.hex().addHexPrefix())
         }
+    }
+}
+
+// MARK: - Genesis hash pinning
+
+extension PolkadotNetworkService {
+    /// Case- and prefix-insensitive comparison of two hex-encoded block hashes.
+    static func genesisHashMatches(_ actual: String, expected: String) -> Bool {
+        let normalize: (String) -> String = { $0.removeHexPrefix().lowercased() }
+        return normalize(actual) == normalize(expected)
     }
 }
 
