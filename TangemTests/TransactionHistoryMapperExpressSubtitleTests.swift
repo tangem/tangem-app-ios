@@ -7,6 +7,7 @@
 
 import Foundation
 import Testing
+import TangemFoundation
 import BlockchainSdk
 @testable import Tangem
 @testable import TangemExpress
@@ -47,6 +48,30 @@ struct TransactionHistoryMapperExpressSubtitleTests {
         }
         #expect(incomingModel.direction == .incoming)
         #expect(incomingModel.symbol == ExpressMergeTestDataFactory.ethereumToken.currencySymbol)
+    }
+
+    @Test("After a Send&Swap to an outside address the row names nobody, while the recipient stays known for the details")
+    func sendAndSwapToAnOutsideAddress() {
+        let resolver = SubtitleOwnerResolver(
+            blockchain: .ethereum(testnet: false),
+            currentUserWalletId: UserWalletId(value: Data()),
+            isAccountsMode: false,
+            contacts: []
+        )
+
+        let viewModel = makeSUT().mapTransactionViewModel(swapRecord(isOutgoing: true), subtitleOwnerResolver: resolver)
+
+        guard case .express(let model)? = viewModel.display.subtitle else {
+            Issue.record("expected an express subtitle for a swap")
+            return
+        }
+        #expect(model.owner == nil)
+
+        guard case .unresolved(_, let fullAddress, _)? = model.counterparty else {
+            Issue.record("expected the pay-out address to resolve to an outside one")
+            return
+        }
+        #expect(fullAddress == "0xOut")
     }
 
     @Test("Onramp subtitle shows the paid fiat with a `from:` prefix and no owner")
