@@ -29,6 +29,12 @@ enum PolymarketOrderQuoteState: Equatable {
         return nil
     }
 
+    var isFailed: Bool {
+        if case .failed = self { return true }
+
+        return false
+    }
+
     var isLive: Bool {
         quote?.isLive ?? false
     }
