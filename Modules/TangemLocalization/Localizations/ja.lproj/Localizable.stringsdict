@@ -229,7 +229,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>%li のレーティングに基づいて</string>
+        <string>%li件の評価に基づく</string>
       </dict>
     </dict>
     <key>news_published_hours_ago</key>
