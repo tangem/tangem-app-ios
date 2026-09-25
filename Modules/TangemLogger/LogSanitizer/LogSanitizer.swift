@@ -9,7 +9,7 @@
 /// Redacts sensitive content in log strings according to a provided policy.
 ///
 /// The sanitizer applies preserve rules first, then redact rules,
-/// and finally restores preserved values back into the resulting log string.
+/// and finally restores preserved values back into the resulting log string in reverse rule order.
 enum LogSanitizer {
     /// Redacts sensitive content in a log string
     /// while preserving explicitly allowed values defined by the provided policy.
@@ -30,7 +30,9 @@ enum LogSanitizer {
             redactRule.redact(&sanitized)
         }
 
-        for (preserveRule, preservedValues) in zip(policy.preserveRules, preserved) {
+        // A later preserve rule may capture a fragment that already contains an earlier rule's placeholder,
+        // so values are restored in reverse order to unwrap nested placeholders instead of leaking them.
+        for (preserveRule, preservedValues) in zip(policy.preserveRules, preserved).reversed() {
             preserveRule.restore(preservedValues, &sanitized)
         }
 
