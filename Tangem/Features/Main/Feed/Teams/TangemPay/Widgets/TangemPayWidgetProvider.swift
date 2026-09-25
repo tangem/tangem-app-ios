@@ -7,14 +7,12 @@
 //
 
 import Combine
-import CombineExt
 import TangemFoundation
 
 final class TangemPayWidgetProvider {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
 
-    private let entrySubject = CurrentValueSubject<WalletEntry?, Never>(nil)
+    private let walletSelectionSubject = CurrentValueSubject<TangemPayWalletSelectionType?, Never>(nil)
     private weak var router: FeedWidgetsRoutable?
     private var bag = Set<AnyCancellable>()
 
@@ -28,63 +26,26 @@ final class TangemPayWidgetProvider {
 
 extension TangemPayWidgetProvider: FeedWidgetProvider {
     var widgetPublisher: AnyPublisher<FeedWidget?, Never> {
-        entrySubject
-            .map { $0.map { FeedWidget.tangemPay(walletId: $0.walletId) } }
+        walletSelectionSubject
+            .map { $0 == nil ? nil : FeedWidget.tangemPay }
             .eraseToAnyPublisher()
     }
 
     func select() {
-        guard let entry = entrySubject.value?.entry else { return }
+        guard let walletSelection = walletSelectionSubject.value else { return }
 
-        router?.openTangemPay(entry)
+        router?.openTangemPay(.offer(walletSelection))
     }
 }
 
 // MARK: - Private
 
 private extension TangemPayWidgetProvider {
-    struct WalletEntry {
-        let entry: FeedTangemPayEntry
-        let walletId: UserWalletId
-    }
-
     func bind() {
-        userWalletRepository.selectedUnlockedModelPublisher
-            .withWeakCaptureOf(self)
-            .flatMapLatest { provider, wallet -> AnyPublisher<WalletEntry?, Never> in
-                guard let wallet else {
-                    return .just(output: nil)
-                }
-
-                return provider.entryPublisher(for: wallet)
-                    .map { $0.map { WalletEntry(entry: $0, walletId: wallet.userWalletId) } }
-                    .eraseToAnyPublisher()
-            }
+        tangemPayAvailabilityRepository.tangemPayFeedCardEntrypointEligibleWalletSelectionPublisher
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { provider, entry in provider.entrySubject.send(entry) }
+            .sink { provider, walletSelection in provider.walletSelectionSubject.send(walletSelection) }
             .store(in: &bag)
-    }
-
-    func entryPublisher(for wallet: UserWalletModel) -> AnyPublisher<FeedTangemPayEntry?, Never> {
-        let offer = tangemPayAvailabilityRepository
-            .tangemPayFeedCardEntrypointEligibleWalletSelectionPublisher(for: wallet.userWalletId.stringValue)
-
-        let customer = AccountModelsAggregator(.tangemPay)
-            .modelPublisher(from: wallet.accountModelsManager)
-            .flatMapLatest { model -> AnyPublisher<(any TangemPayAccountModel)?, Never> in
-                guard let model else {
-                    return .just(output: nil)
-                }
-
-                return model.statePublisher
-                    .map { _ -> (any TangemPayAccountModel)? in model }
-                    .prepend(Optional(model))
-                    .eraseToAnyPublisher()
-            }
-
-        return Publishers.CombineLatest(offer, customer)
-            .map { FeedTangemPayEntry.resolve(offer: $0, customer: $1, wallet: wallet) }
-            .eraseToAnyPublisher()
     }
 }

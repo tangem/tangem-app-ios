@@ -12,20 +12,17 @@ import CombineExt
 import TangemFoundation
 
 final class EarnWidgetProvider {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
-    private let widgetSubject = CurrentValueSubject<FeedWidget, Never>(.startEarning(.loading, walletId: nil))
+    private let widgetSubject = CurrentValueSubject<FeedWidget, Never>(.startEarning(.loading))
     private let earnProvider: MarketsWidgetEarnProvider = CommonMarketsWidgetEarnService(ethereumP2PFilter: CommonEarnEthereumP2PFilter())
+    private let walletModelsAggregator: WalletModelsAggregator = CommonWalletModelsAggregator(accountScope: .personal)
     private let apyResolver = EarnApyResolver()
     private weak var router: FeedWidgetsRoutable?
 
     private var holdings: [any WalletModel] = []
-    private var walletId: UserWalletId?
     private var featuredAPY: Decimal?
     private var hasActivePosition = false
     private var hasRequestedFeatured = false
     private var bag = Set<AnyCancellable>()
-    private var walletBag = Set<AnyCancellable>()
     private var holdingsBag = Set<AnyCancellable>()
 
     init(router: FeedWidgetsRoutable) {
@@ -73,10 +70,10 @@ private extension EarnWidgetProvider {
     }
 
     func bind() {
-        userWalletRepository.selectedUnlockedModelPublisher
+        walletModelsAggregator.walletModelsPublisher
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { provider, wallet in provider.bindWallet(wallet) }
+            .sink { provider, holdings in provider.bindHoldings(holdings) }
             .store(in: &bag)
 
         earnProvider.earnResultPublisher
@@ -90,31 +87,14 @@ private extension EarnWidgetProvider {
             .store(in: &bag)
     }
 
-    func bindWallet(_ wallet: UserWalletModel?) {
-        walletBag.removeAll()
-
-        guard let wallet else {
-            walletId = nil
-            bindHoldings([])
-            return
-        }
-
-        AccountWalletModelsAggregator.walletModelsPublisher(from: wallet.accountModelsManager)
-            .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { provider, holdings in
-                provider.walletId = wallet.userWalletId
-                provider.bindHoldings(holdings)
-            }
-            .store(in: &walletBag)
-    }
-
     func bindHoldings(_ holdings: [any WalletModel]) {
         self.holdings = holdings
         holdingsBag.removeAll()
 
         let triggers = holdings.flatMap { model -> [AnyPublisher<Void, Never>] in
             [
+                model.totalTokenBalanceProvider.balanceTypePublisher.mapToVoid().eraseToAnyPublisher(),
+                model.fiatTotalTokenBalanceProvider.balanceTypePublisher.mapToVoid().eraseToAnyPublisher(),
                 model.stakingManager?.statePublisher.mapToVoid().eraseToAnyPublisher(),
                 model.yieldModuleManager?.statePublisher.mapToVoid().eraseToAnyPublisher(),
             ].compactMap { $0 }
@@ -162,7 +142,7 @@ private extension EarnWidgetProvider {
             .failure(FeedWidget.LoadError())
         }
 
-        let widget = FeedWidget.startEarning(result, walletId: walletId)
+        let widget = FeedWidget.startEarning(result)
         guard widgetSubject.value != widget else {
             return
         }
