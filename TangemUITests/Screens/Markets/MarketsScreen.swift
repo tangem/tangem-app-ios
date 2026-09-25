@@ -12,7 +12,11 @@ import XCTest
 
 final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     private lazy var searchField = textField(.searchThroughMarketField)
-    private lazy var searchFieldContainer = app.buttons[MainAccessibilityIdentifiers.searchThroughMarketFieldContainer].firstMatch
+    private lazy var searchFieldContainer = app.descendants(matching: .any)
+        .matching(identifier: MainAccessibilityIdentifiers.searchThroughMarketFieldContainer)
+        .firstMatch
+    private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
+    private lazy var mainDetailsButton = app.buttons[MainAccessibilityIdentifiers.detailsButton].firstMatch
     private lazy var searchFieldClearButton = app.buttons[MainAccessibilityIdentifiers.searchThroughMarketClearButton]
     private lazy var addToPortfolioButton = button(.addToPortfolioButton)
     private lazy var continueButton = button(.continueButton)
@@ -30,17 +34,17 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     @discardableResult
     func closeMarketsSheetWithSwipe() -> MainScreen {
         XCTContext.runActivity(named: "Close markets sheet with swipe down gesture") { _ in
-            let grabberView = app.otherElements.matching(identifier: CommonUIAccessibilityIdentifiers.grabber).firstMatch
-            let dragAnchor = grabberView.exists ? grabberView : searchFieldContainer
+            // The main screen's top bar stays out of reach for as long as the feed sheet covers it.
+            for _ in 0 ..< Constants.sheetCloseAttempts {
+                if mainDetailsButton.isHittable {
+                    break
+                }
 
-            guard dragAnchor.waitForExistence(timeout: .conditional) else {
-                return MainScreen(app)
+                dragFeedSheetDown()
+                waitUntilHittable(mainDetailsButton)
             }
 
-            let startPoint = dragAnchor.coordinate(
-                withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
-            let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: 400))
-            startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
+            XCTAssertTrue(mainDetailsButton.isHittable, "Markets sheet should be closed and the main screen reachable")
 
             return MainScreen(app)
         }
@@ -662,13 +666,44 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
         }
     }
 
+    private func waitUntilHittable(_ element: XCUIElement) {
+        let expectation = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "isHittable == true"),
+            object: element
+        )
+        _ = XCTWaiter().wait(for: [expectation], timeout: .quick)
+    }
+
+    private func dragFeedSheetDown() {
+        let startPoint = feedSheetDragStartPoint()
+        startPoint.press(
+            forDuration: 0.1,
+            thenDragTo: startPoint.withOffset(CGVector(dx: 0, dy: Constants.sheetCloseDragDistance))
+        )
+    }
+
+    private func feedSheetDragStartPoint() -> XCUICoordinate {
+        let centre = CGVector(dx: 0.5, dy: 0.5)
+
+        if grabber.exists {
+            return grabber.coordinate(withNormalizedOffset: centre)
+        }
+
+        if searchFieldContainer.exists {
+            return searchFieldContainer.coordinate(withNormalizedOffset: centre)
+        }
+
+        return app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: Constants.sheetHeaderNormalizedY))
+    }
+
     private func scrollToSortOption(_ element: XCUIElement) {
         let anchor = app.buttons[MarketsAccessibilityIdentifiers.marketsSortOption(Constants.defaultSortOption)].firstMatch
         scrollToElement(anchor)
 
         guard !element.isHittable else { return }
 
-        app.scrollHorizontallyToElement(element)
+        // The chips row sits above the screen centre, where the default swipe would land.
+        app.scrollHorizontallyToElement(element, startPoint: anchor.frame.midY / app.frame.height)
     }
 }
 
@@ -704,5 +739,8 @@ enum MarketsScreenElement: String, UIElement {
 private extension MarketsScreen {
     enum Constants {
         static let defaultSortOption = "rating"
+        static let sheetCloseAttempts = 3
+        static let sheetCloseDragDistance: CGFloat = 400
+        static let sheetHeaderNormalizedY = 0.12
     }
 }
