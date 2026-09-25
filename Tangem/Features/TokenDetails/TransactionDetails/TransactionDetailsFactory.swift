@@ -71,7 +71,7 @@ enum TransactionDetailsFactory {
     ) -> TransactionDetailsViewModel.Content {
         switch record.expressExtraInfo {
         case .exchange(let info):
-            return .swap(swapContent(info, record: record, context: context))
+            return .swap(swapContent(info, transaction: transaction, record: record, context: context))
         case .onramp(let info):
             return .onramp(onrampContent(info, context: context))
         case nil:
@@ -385,6 +385,7 @@ enum TransactionDetailsFactory {
 
     private static func swapContent(
         _ info: ExchangeTransactionInfo,
+        transaction: TransactionViewModel,
         record: TransactionRecord,
         context: TransactionDetailsContext
     ) -> TransactionDetailsSwapViewData {
@@ -396,10 +397,12 @@ enum TransactionDetailsFactory {
         let isLongRunning = isLongRunningSwap(exchange)
         let refund = refundedIn(exchange: exchange, info: info)
 
+        let parties = swapParties(for: transaction, context: context)
+
         return TransactionDetailsSwapViewData(
             stage: TransactionOperationStatusMapper.stage(for: exchange.status),
-            source: leg(amount: sourceAmount, token: fromToken),
-            destination: leg(amount: destinationAmount, token: toToken),
+            source: leg(amount: sourceAmount, token: fromToken, actor: parties?.source),
+            destination: leg(amount: destinationAmount, token: toToken, actor: parties?.destination),
             isDestinationEstimated: exchange.rateType == .float,
             statusBanner: refund?.banner ?? swapStatusBanner(exchange.status, isLongRunning: isLongRunning),
             provider: provider(info.provider, fallbackId: exchange.providerId, externalURL: exchange.externalTx?.url),
@@ -526,12 +529,55 @@ enum TransactionDetailsFactory {
         }
     }
 
-    private static func leg(amount: Decimal, token: TokenItem?) -> TransactionDetailsSwapViewData.Leg {
+    private static func leg(amount: Decimal, token: TokenItem?, actor: TransactionDetailsActor?) -> TransactionDetailsSwapViewData.Leg {
         .init(
             amount: balanceFormatter.formatDecimal(amount),
             symbol: token?.currencySymbol,
-            tokenIconInfo: token.map { TokenIconInfoBuilder().build(from: $0, isCustom: false) }
+            tokenIconInfo: token.map { TokenIconInfoBuilder().build(from: $0, isCustom: false) },
+            actor: actor
         )
+    }
+
+    private static func swapParties(
+        for transaction: TransactionViewModel,
+        context: TransactionDetailsContext
+    ) -> (source: TransactionDetailsActor, destination: TransactionDetailsActor)? {
+        guard
+            case .express(let subtitle) = transaction.display.subtitle,
+            let counterpartyOwner = subtitle.counterparty
+        else {
+            return nil
+        }
+
+        let holder = holderActor(context: context)
+        let counterparty = actor(for: counterpartyOwner)
+
+        if transaction.isOutgoing {
+            return (source: holder, destination: counterparty)
+        }
+
+        return (source: counterparty, destination: holder)
+    }
+
+    private static func holderActor(context: TransactionDetailsContext) -> TransactionDetailsActor {
+        context.receiverAccountIcon
+            .map { .account(name: context.receiverName, icon: $0) }
+            ?? .wallet(name: context.receiverName)
+    }
+
+    private static func actor(for owner: TransactionViewModel.SubtitleOwner) -> TransactionDetailsActor {
+        switch owner {
+        case .accountInCurrentWallet(let name, let icon):
+            return .account(name: name, icon: icon)
+        case .accountInOtherWallet(let accountName, let accountIcon):
+            return .account(name: accountName, icon: accountIcon)
+        case .wallet(let name, _, _):
+            return .wallet(name: name)
+        case .contact(let name, let icon, _):
+            return .contact(name: name, icon)
+        case .unresolved(let short, _, let blockiesImage):
+            return .address(short: short, blockiesImage: .init(image: blockiesImage))
+        }
     }
 
     private static func swapStatusBanner(_ status: ExpressTransactionStatus, isLongRunning: Bool) -> TransactionDetailsStatusBannerViewData? {
@@ -583,12 +629,8 @@ enum TransactionDetailsFactory {
             isFlagLoading: info.fiatCurrency == nil
         )
 
-        let destination: TransactionDetailsActor = context.receiverAccountIcon
-            .map { .account(name: context.receiverName, icon: $0) }
-            ?? .wallet(name: context.receiverName)
-
         let received = TransactionDetailsOnrampViewData.ReceivedLeg(
-            destination: destination,
+            destination: holderActor(context: context),
             amount: receivedAmount.map { balanceFormatter.formatDecimal($0) },
             symbol: context.tokenSymbol,
             tokenIconInfo: context.tokenIconInfo
