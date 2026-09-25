@@ -25,7 +25,8 @@ struct FeedCompactCardView<Icon: View>: View {
 
             Text(title)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
-                .lineLimit(1)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.horizontal, Constants.padding)
         .padding(.top, Constants.padding)
