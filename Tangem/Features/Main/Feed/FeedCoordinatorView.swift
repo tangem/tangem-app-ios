@@ -52,6 +52,9 @@ struct FeedCoordinatorView: CoordinatorView {
                 .floatingSheetContent(for: AddAccountTypeSelectorViewModel.self) {
                     AddAccountTypeSelectorView(viewModel: $0)
                 }
+                .floatingSheetContent(for: FeedReferralWalletSelectorViewModel.self) {
+                    FeedReferralWalletSelectorView(viewModel: $0)
+                }
         }
     }
 
