@@ -81,12 +81,6 @@ private extension FeedViewModel {
             widgetsViewModel.refresh()
         }
 
-        // Where each tab was left is worth restoring within one reading of the feed; a feed the user comes back
-        // to starts from the top.
-        if size != .full {
-            scrollCoordinator.reset()
-        }
-
         tabsViewModel.sheetSizeDidChange(to: size)
     }
 

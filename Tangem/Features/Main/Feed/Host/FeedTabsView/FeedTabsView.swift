@@ -44,17 +44,17 @@ struct FeedTabsView: View {
                     }
                 }
                 .clipped()
+                .reverseMask(alignment: .top) {
+                    if areChipsPinned {
+                        pinnedTabsFade
+                    }
+                }
                 .onGeometryChange(for: CGFloat.self, of: \.size.width) { contentWidth = $0 }
                 .padding(.bottom, Constants.tabContentBottomInset)
             } header: {
                 if viewModel.tabs.count > 1 {
                     tabChips
                         .padding(.bottom, FeedConstants.chipsBottomInset)
-                        .background(alignment: .top) {
-                            if areChipsPinned {
-                                pinnedTabsFade
-                            }
-                        }
                         .onGeometryChange(for: Bool.self, of: {
                             $0.frame(in: .named(FeedConstants.scrollCoordinateSpace)).minY <= 0.5
                         }) { areChipsPinned = $0 }
@@ -86,13 +86,13 @@ struct FeedTabsView: View {
     }
 
     private var pinnedTabsFade: some View {
-        // The search bar clips the upper part of Figma's 121 pt fade; its 40 pt ramp ends 9 pt below the chips.
-        Fade(position: .top)
-            .variant(.hard)
-            .frame(height: Constants.fadeHeight)
-            .frame(height: FeedConstants.searchContentInset + chipsHeight + Constants.fadeBottomOverlap, alignment: .bottom)
-            .clipped()
-            .offset(y: -FeedConstants.searchContentInset)
+        GeometryReader { geometry in
+            FeedTopFade(
+                height: Constants.fadeHeight,
+                visibleHeight: FeedConstants.searchContentInset + chipsHeight + Constants.fadeBottomOverlap
+            )
+            .offset(y: -geometry.frame(in: .named(FeedConstants.scrollCoordinateSpace)).minY - FeedConstants.searchContentInset)
+        }
     }
 
     @ViewBuilder

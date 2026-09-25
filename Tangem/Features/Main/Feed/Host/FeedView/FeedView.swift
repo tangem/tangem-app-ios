@@ -126,7 +126,7 @@ struct FeedView: View {
     }
 
     private func resetScroll(at size: ShtorkaSize, with proxy: ScrollViewProxy) {
-        guard size != .full else {
+        guard isContentVisible, size != .full else {
             return
         }
 

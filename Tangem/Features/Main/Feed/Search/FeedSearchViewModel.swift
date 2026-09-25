@@ -19,17 +19,20 @@ final class FeedSearchViewModel: ObservableObject {
     let marketViewModel: CryptoSearchViewModel
 
     private let historyProvider: FeedSearchHistoryProvider
+    private let resultsQuery: CurrentValueSubject<String, Never>
 
     private var history: FeedSearchHistory = .empty
     private var bag = Set<AnyCancellable>()
 
     init(
         searchBarViewModel: FeedSearchBarViewModel,
+        resultsQuery: CurrentValueSubject<String, Never>,
         tabsViewModel: FeedSearchTabsViewModel,
         historyProvider: FeedSearchHistoryProvider,
         marketViewModel: CryptoSearchViewModel
     ) {
         self.searchBarViewModel = searchBarViewModel
+        self.resultsQuery = resultsQuery
         self.tabsViewModel = tabsViewModel
         self.historyProvider = historyProvider
         self.marketViewModel = marketViewModel
@@ -47,21 +50,19 @@ final class FeedSearchViewModel: ObservableObject {
         }
 
         searchBarViewModel.query = ""
+        resultsQuery.send("")
+        state = .suggestions(history)
         isActive = true
         syncVisibility()
     }
 
     func close() {
-        guard isActive else {
-            return
-        }
-
         isActive = false
         syncVisibility()
+        searchBarViewModel.query = ""
     }
 
     func reset() {
-        // Keep the outgoing results stable during their exit animation; the next search starts with a blank query.
         close()
     }
 
@@ -80,11 +81,12 @@ private extension FeedSearchViewModel {
     func bind() {
         searchBarViewModel
             .queryPublisher
-            .map { $0.trimmed().isEmpty }
-            .removeDuplicates()
             .withWeakCaptureOf(self)
-            .sink { viewModel, isBlank in
-                viewModel.onQueryBlankChange(isBlank)
+            .sink { viewModel, query in
+                guard viewModel.isActive else { return }
+
+                viewModel.resultsQuery.send(query)
+                viewModel.onQueryBlankChange(query.trimmed().isEmpty)
             }
             .store(in: &bag)
 
@@ -112,6 +114,11 @@ private extension FeedSearchViewModel {
 
 private extension FeedSearchViewModel {
     func onQueryBlankChange(_ isBlank: Bool) {
+        switch (isBlank, state) {
+        case (true, .suggestions), (false, .tabs): return
+        default: break
+        }
+
         state = isBlank ? .suggestions(history) : .tabs
         syncVisibility()
     }
