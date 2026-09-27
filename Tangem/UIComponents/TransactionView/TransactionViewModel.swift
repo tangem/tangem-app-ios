@@ -281,6 +281,12 @@ extension TransactionViewModel {
         let iconInfo: TokenIconInfo
     }
 
+    enum NetworkFeePurpose: Hashable {
+        case sending
+        case yieldMode
+        case operation
+    }
+
     struct StakingTarget: Hashable {
         let address: String
 
@@ -322,7 +328,7 @@ extension TransactionViewModel {
         case yieldWithdrawCoin
         case gaslessTransactionFee
         case gaslessTransfer
-        case networkFee(sent: SentTokens?)
+        case networkFee(purpose: NetworkFeePurpose, sent: SentTokens?)
 
         case tangemPay(TangemPayTransactionType)
 
