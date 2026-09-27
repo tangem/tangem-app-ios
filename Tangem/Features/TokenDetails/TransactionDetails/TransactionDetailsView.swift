@@ -26,12 +26,14 @@ struct TransactionDetailsView: View {
             }
         }
         .animation(.contentFrameUpdate, value: viewModel.presentedFeedback == nil)
+        .task { await viewModel.waitForPresentationToSettle() }
     }
 
     private var detailsContent: some View {
         TransactionDetailsContentView(
             header: viewModel.header,
             blocks: viewModel.blocks,
+            animatesBlockChanges: viewModel.isPresentationSettled,
             onAction: viewModel.handleViewAction
         )
     }
@@ -45,6 +47,7 @@ struct TransactionDetailsView: View {
 struct TransactionDetailsContentView: View {
     let header: TransactionDetailsHeaderViewData?
     let blocks: [TransactionDetailsBlock]
+    let animatesBlockChanges: Bool
     let onAction: (TransactionDetailsViewModel.ViewAction) -> Void
 
     private let blocksSpacing: CGFloat = 12
@@ -69,6 +72,10 @@ struct TransactionDetailsContentView: View {
             .scrollBounceBehavior(.basedOnSize)
         }
         .background(DesignSystem.Color.bgSecondary)
+        // The floating sheet cuts animations off at its content and resizes itself with `.contentFrameUpdate`.
+        // Everything inside has to move on that same curve, header and scroll view included, or the content
+        // outruns the sheet's edge whenever a block comes or goes.
+        .animation(animatesBlockChanges ? .contentFrameUpdate : nil, value: blocks.map(\.id))
         .accessibilityIdentifier(TransactionDetailsAccessibilityIdentifiers.sheet)
         .floatingSheetConfiguration { config in
             config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
@@ -92,7 +99,6 @@ struct TransactionDetailsBlocksView: View {
                     .transition(.opacity)
             }
         }
-        .animation(.easeInOut(duration: 0.3), value: blocks.map(\.id))
     }
 }
 
