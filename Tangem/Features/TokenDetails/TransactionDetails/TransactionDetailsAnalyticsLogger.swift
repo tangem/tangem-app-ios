@@ -52,20 +52,16 @@ final class TransactionDetailsAnalyticsLogger {
 
     // MARK: - User actions
 
-    /// `Button - Copy Address` is reused from Token / Receive, where it goes to every analytics system — the
-    /// detail sheet is one more source of the same event, not a new one, so it keeps that reach.
     func logCopyAddress() {
-        logAction(.buttonCopyAddress, analyticsSystems: .all)
+        logAction(.tokenButtonCopyAddress)
     }
 
-    /// Unlike the events reused from other screens, this one is only ever sent from here, so it carries no
-    /// `Source` to tell call sites apart.
     func logCopyTransactionID() {
         logAction(.transactionDetailButtonCopyTransactionID, source: nil)
     }
 
     func logShare() {
-        logAction(.sendButtonShare)
+        logAction(.tokenButtonShare)
     }
 
     func logExplore() {
@@ -162,11 +158,7 @@ final class TransactionDetailsAnalyticsLogger {
 
     // MARK: - Parameters
 
-    private func logAction(
-        _ event: Analytics.Event,
-        source: Analytics.ParameterValue? = .txHistoryTransactionDetail,
-        analyticsSystems: [Analytics.AnalyticsSystem] = .defaultSystems
-    ) {
+    private func logAction(_ event: Analytics.Event, source: Analytics.ParameterValue? = .txHistoryTransactionDetail) {
         guard let state else {
             return
         }
@@ -174,7 +166,7 @@ final class TransactionDetailsAnalyticsLogger {
         var params = actionParams(state)
         params[.source] = source?.rawValue
 
-        Analytics.log(event: event, params: params, analyticsSystems: analyticsSystems)
+        Analytics.log(event: event, params: params)
     }
 
     private func actionParams(_ state: State) -> [Analytics.ParameterKey: String] {
