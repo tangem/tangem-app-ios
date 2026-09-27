@@ -255,11 +255,18 @@ extension TransactionDisplayModel {
             return .text(Localization.transactionHistoryEarnedFromStake)
         }
 
-        if case .networkFee(.some(let sent)) = transactionType {
-            return .text(Localization.commonSend + " " + sent.amount)
+        if case .networkFee(let purpose, _) = transactionType {
+            switch purpose {
+            case .sending:
+                return .text(Localization.transactionHistoryFeeForSending)
+            case .yieldMode:
+                return .text(Localization.transactionHistoryFeeForOperationName(Localization.commonYieldModeInline))
+            case .operation:
+                return .text(Localization.transactionHistoryFeeForOperation)
+            }
         }
 
-        if transactionType.isGaslessTransactionFee || transactionType.isNetworkFee {
+        if transactionType.isGaslessTransactionFee {
             return .text(Localization.transactionHistoryFeeForSending)
         }
 

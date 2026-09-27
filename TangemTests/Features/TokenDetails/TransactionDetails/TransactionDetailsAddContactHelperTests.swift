@@ -214,7 +214,7 @@ struct TransactionDetailsAddContactHelperTests {
             .yieldWithdraw,
             .yieldWithdrawCoin,
             .gaslessTransactionFee,
-            .networkFee(sent: nil),
+            .networkFee(purpose: .sending, sent: nil),
             .operation(name: "Mint"),
             .unknownOperation,
             .tangemPay(.fee(name: "Service fee")),
