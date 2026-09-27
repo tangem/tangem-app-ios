@@ -113,6 +113,8 @@ extension Analytics {
         case tokenButtonTransfer = "[Token] Button - Transfer"
         case buttonReceive = "[Token] Button - Receive"
         case buttonUnderstand = "[Token] Button - Understand"
+        case tokenButtonShare = "[Token] Button - Share"
+        case tokenButtonCopyAddress = "[Token] Button - Copy Address"
         case tokenBought = "[Token] Token Bought"
         case receiveScreenOpened = "[Token / Receive] Receive Screen Opened"
         case qrScreenOpened = "[Token / Receive] QR Screen Opened"
@@ -1049,7 +1051,7 @@ extension Analytics {
 
         // MARK: - Transaction History
 
-        case transactionDetailScreenOpened = "[Token / Transaction History] Transaction Detail Screen Opened"
+        case transactionDetailScreenOpened = "[Transaction History] Transaction Detail Screen Opened"
         case transactionDetailButtonCopyTransactionID = "[Transaction History] Button - Copy Transaction ID"
 
         // MARK: - For You
