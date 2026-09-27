@@ -158,7 +158,7 @@ struct TransactionHistoryDustFilterTests {
             .vote,
             .restake,
             .gaslessTransactionFee,
-            .networkFee(sent: nil),
+            .networkFee(purpose: .sending, sent: nil),
             .operation(name: "Mint"),
             .unknownOperation,
             .tangemPay(.transfer(name: "Tangem Pay")),

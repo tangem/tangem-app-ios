@@ -677,7 +677,7 @@ private extension TransactionHistoryMapper {
             return type
         }
 
-        guard type == .unknownOperation || type == .transfer || type == .yieldSend else {
+        guard let purpose = networkFeePurpose(for: type) else {
             return type
         }
 
@@ -689,7 +689,41 @@ private extension TransactionHistoryMapper {
             return type
         }
 
-        return .networkFee(sent: sentTokens(of: record))
+        return .networkFee(purpose: purpose, sent: sentTokens(of: record))
+    }
+
+    func networkFeePurpose(for type: TransactionViewModel.TransactionType) -> TransactionViewModel.NetworkFeePurpose? {
+        switch type {
+        case .transfer,
+             .yieldSend:
+            return .sending
+        case .yieldDeploy,
+             .yieldEnterCoin,
+             .yieldInit,
+             .yieldReactivate,
+             .yieldTopup,
+             .yieldWithdrawCoin:
+            return .yieldMode
+        case .unknownOperation:
+            return .operation
+        case .swap,
+             .onramp,
+             .stake,
+             .approve,
+             .unstake,
+             .vote,
+             .withdraw,
+             .claimRewards,
+             .restake,
+             .operation,
+             .yieldEnter,
+             .yieldWithdraw,
+             .gaslessTransactionFee,
+             .gaslessTransfer,
+             .networkFee,
+             .tangemPay:
+            return nil
+        }
     }
 
     func sentTokens(of record: TransactionRecord) -> TransactionViewModel.SentTokens? {
