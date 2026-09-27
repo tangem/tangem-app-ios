@@ -347,7 +347,7 @@ enum TransactionDetailsFactory {
     }
 
     private static func sentTokens(for transaction: TransactionViewModel) -> TransactionDetailsPrincipalAmountViewData? {
-        guard case .networkFee(.some(let sent)) = transaction.transactionType else {
+        guard case .networkFee(_, .some(let sent)) = transaction.transactionType else {
             return nil
         }
 
