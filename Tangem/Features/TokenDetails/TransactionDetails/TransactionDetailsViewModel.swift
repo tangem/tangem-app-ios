@@ -31,6 +31,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
     @Published private(set) var header: TransactionDetailsHeaderViewData?
     @Published private(set) var content: Content?
     @Published private(set) var presentedFeedback: RatingFeedbackBottomSheetViewModel?
+    @Published private(set) var isPresentationSettled = false
 
     @Published private var ratingViewModel: RatingViewModel?
     @Published private var isRatingCardVisible = false
@@ -155,7 +156,13 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
         let blocks = Self.rawBlocks(for: content)
 
-        guard let ratingViewModel, isRatingCardVisible else { return blocks }
+        guard
+            let ratingViewModel,
+            isRatingCardVisible,
+            isPresentationSettled
+        else {
+            return blocks
+        }
 
         return blocks.flatMap { block in
             if case .tokens = block {
@@ -286,6 +293,16 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
     }
 
     // MARK: - Actions
+
+    func waitForPresentationToSettle() async {
+        do {
+            try await Task.sleep(for: Constants.presentationSettleDelay)
+        } catch {
+            return
+        }
+
+        isPresentationSettled = true
+    }
 
     func handleViewAction(_ action: ViewAction) {
         switch action {
@@ -485,6 +502,14 @@ extension TransactionDetailsViewModel {
 
     private enum RefundTokenError: Error {
         case targetNotResolved
+    }
+}
+
+// MARK: - Constants
+
+private extension TransactionDetailsViewModel {
+    enum Constants {
+        static let presentationSettleDelay: Duration = .milliseconds(450)
     }
 }
 

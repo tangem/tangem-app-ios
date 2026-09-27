@@ -764,7 +764,16 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
     }
 
     func logExploreButton() {
-        Analytics.log(.sendButtonExplore)
+        switch sendType {
+        case .nft:
+            Analytics.log(.nftAssetExplore)
+        case .swap:
+            var params: [Analytics.ParameterKey: String] = [:]
+            params[.token] = sourceTokenItem?.currencySymbol
+            Analytics.log(event: .swapButtonExplore, params: params)
+        case .send, .sell:
+            Analytics.log(.sendButtonExplore)
+        }
     }
 
     private func logSendFinishScreenOpened(destinationDidResolved: Bool) {
