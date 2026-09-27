@@ -29,6 +29,7 @@ struct JointAccountOperationDetailsView: View {
             TransactionDetailsContentView(
                 header: viewModel.header,
                 blocks: viewModel.blocks,
+                animatesBlockChanges: true,
                 onAction: viewModel.handleViewAction
             )
         case .signers(let signersViewModel):
