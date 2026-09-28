@@ -15,7 +15,7 @@ struct TransactionDetailsSwapLegsTests {
     @Test("A leg that knows where it leaves from or lands names it as From / To")
     func legsWithActorsNameBothSides() {
         let holder = TransactionDetailsActor.wallet(name: "Main wallet")
-        let recipient = TransactionDetailsActor.address(short: "33Bd3...a21412B", blockiesImage: .init(image: nil))
+        let recipient = TransactionDetailsActor.address("33Bd321fS2p2o8Bk7mQwXeATkLQ3B36Yv2p21cEZga21412B", blockiesImage: AddressBlockiesIconViewData(image: nil))
 
         let data = makeSwapViewData(sourceActor: holder, destinationActor: recipient)
 

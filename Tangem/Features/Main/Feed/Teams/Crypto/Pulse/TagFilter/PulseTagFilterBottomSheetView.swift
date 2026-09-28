@@ -55,14 +55,16 @@ struct PulseTagFilterBottomSheetView: View {
                 header
             }
 
-            if viewModel.loadingState == .loaded {
+            if viewModel.showsFooter {
                 footer
                     .padding(footerPadding)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
         .background(DesignSystem.Color.bgPrimary)
         .onAppear(perform: viewModel.onViewAppear)
         .animation(.easeInOut(duration: 0.2), value: viewModel.loadingState)
+        .animation(.easeInOut(duration: 0.2), value: viewModel.showsFooter)
     }
 }
 

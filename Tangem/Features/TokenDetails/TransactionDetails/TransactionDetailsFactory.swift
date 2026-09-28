@@ -283,7 +283,7 @@ enum TransactionDetailsFactory {
         var rows: [TransactionDetailsInfoSectionViewData.Row] = []
 
         if let target = stakingTarget(for: transaction) {
-            rows.append(.init(id: "validator", title: Localization.stakingValidator, content: .text(validatorText(for: target))))
+            rows.append(TransactionDetailsInfoSectionViewData.Row(id: "validator", title: Localization.stakingValidator, content: validatorContent(for: target)))
         }
 
         if let fee = networkFee(from: record, ignoringDirection: false) {
@@ -293,8 +293,8 @@ enum TransactionDetailsFactory {
         return rows.isEmpty ? nil : .init(rows: rows)
     }
 
-    private static func validatorText(for target: TransactionViewModel.StakingTarget) -> String {
-        target.isResolved ? target.name : AddressFormatter(address: target.address).truncated()
+    private static func validatorContent(for target: TransactionViewModel.StakingTarget) -> TransactionDetailsInfoSectionViewData.Row.Content {
+        target.isResolved ? .text(target.name) : .address(target.address)
     }
 
     private static func approvedTokenIcon(
@@ -588,8 +588,8 @@ enum TransactionDetailsFactory {
             return .wallet(name: name)
         case .contact(let name, let icon, _):
             return .contact(name: name, icon)
-        case .unresolved(let short, _, let blockiesImage):
-            return .address(short: short, blockiesImage: .init(image: blockiesImage))
+        case .unresolved(_, let fullAddress, let blockiesImage):
+            return .address(fullAddress, blockiesImage: AddressBlockiesIconViewData(image: blockiesImage))
         }
     }
 
@@ -989,14 +989,14 @@ enum TransactionDetailsFactory {
                 walletImageProvider: nil
             )
 
-        case .unresolved(let short, let fullAddress, let blockiesImage):
+        case .unresolved(_, let fullAddress, let blockiesImage):
             if let stakingCounterparty = stakingCounterparty(for: transaction, label: label) {
                 return stakingCounterparty
             }
 
             return .init(
                 label: label,
-                actor: .address(short: short, blockiesImage: .init(image: blockiesImage)),
+                actor: .address(fullAddress, blockiesImage: AddressBlockiesIconViewData(image: blockiesImage)),
                 copyAction: copyAddressAction(for: fullAddress),
                 walletImageProvider: nil
             )
@@ -1013,7 +1013,7 @@ enum TransactionDetailsFactory {
             return .init(
                 label: label,
                 actor: .address(
-                    short: AddressFormatter(address: address).truncated(),
+                    address,
                     blockiesImage: AddressIconProvider.makeBlockiesIconViewData(address: address)
                 ),
                 copyAction: copyAddressAction(for: address),
@@ -1032,8 +1032,8 @@ enum TransactionDetailsFactory {
 
         return .init(
             label: label,
-            actor: .address(
-                short: target.name,
+            actor: .validator(
+                name: target.name,
                 blockiesImage: AddressIconProvider.makeBlockiesIconViewData(address: target.address)
             ),
             copyAction: copyAddressAction(for: target.address),
