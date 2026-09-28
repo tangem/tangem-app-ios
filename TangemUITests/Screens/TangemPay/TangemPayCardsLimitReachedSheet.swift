@@ -11,6 +11,7 @@ import TangemAccessibilityIdentifiers
 
 final class TangemPayCardsLimitReachedSheet: ScreenBase<TangemPayCardsLimitReachedSheetElement> {
     private lazy var upgradePlanButton = button(.upgradePlanButton)
+    private lazy var cancelButton = button(.cancelButton)
 
     @discardableResult
     func waitForSheet() -> Self {
@@ -30,6 +31,15 @@ final class TangemPayCardsLimitReachedSheet: ScreenBase<TangemPayCardsLimitReach
     }
 
     @discardableResult
+    func verifyCancelButton() -> Self {
+        XCTContext.runActivity(named: "Verify the cards limit sheet offers Cancel") { _ in
+            waitAndAssertTrue(cancelButton, "Cancel button should be displayed on the cards limit sheet")
+            XCTAssertEqual(cancelButton.label, Constants.cancelTitle, "Secondary button on the cards limit sheet should read '\(Constants.cancelTitle)'")
+            return self
+        }
+    }
+
+    @discardableResult
     func tapUpgradePlan() -> TangemPaySelectPlanScreen {
         XCTContext.runActivity(named: "Tap Upgrade plan") { _ in
             upgradePlanButton.waitAndTap()
@@ -40,11 +50,20 @@ final class TangemPayCardsLimitReachedSheet: ScreenBase<TangemPayCardsLimitReach
 
 enum TangemPayCardsLimitReachedSheetElement: String, UIElement {
     case upgradePlanButton
+    case cancelButton
 
     var accessibilityIdentifier: String {
         switch self {
         case .upgradePlanButton:
             TangemPayAccessibilityIdentifiers.cardsLimitReachedConfirmButton
+        case .cancelButton:
+            TangemPayAccessibilityIdentifiers.popupSecondaryButton
         }
+    }
+}
+
+private extension TangemPayCardsLimitReachedSheet {
+    enum Constants {
+        static let cancelTitle = "Cancel"
     }
 }

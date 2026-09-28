@@ -25,7 +25,7 @@ final class TangemPayUITests: BaseTestCase {
             .waitForPinEntryScreen()
             .enterPin("5217")
             .waitForSuccessScreen()
-            .tapDone()
+            .tapSuccessClose()
             .waitForScreen()
     }
 
@@ -113,15 +113,22 @@ final class TangemPayUITests: BaseTestCase {
             .verifyToastVisible(text: "CVC copied")
     }
 
-    func testTermsAndFees_OpensTariffsWebView_FromMoreActionsMenu() {
+    func testTermsAndFees_OpensTariffsWebView_FromCurrentPlan() {
         setAllureId(9592)
 
-        launchAndImportHotWallet()
-            .openTangemPay()
-            .waitForScreen()
-            .openTermsAndFees()
-            .verifyWebViewLoaded()
-            .verifyDocumentTitle()
+        launchAndImportHotWallet(
+            scenarios: [
+                ScenarioConfig(name: "tangem_pay_tariff_plan", initialState: "Basic"),
+                ScenarioConfig(name: "tangem_pay_tariff_plan_transitions", initialState: "FromBasic"),
+            ]
+        )
+        .openTangemPay()
+        .waitForScreen()
+        .openCurrentPlan()
+        .waitForScreen()
+        .tapFullTerms()
+        .verifyWebViewLoaded()
+        .verifyDocumentTitle()
     }
 
     func testAddFunds_DisabledWhenNoDepositAddress() {

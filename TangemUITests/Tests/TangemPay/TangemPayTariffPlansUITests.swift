@@ -26,7 +26,7 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
     func testSelectBasicPlan_DuringOnboarding_IssuesBasicCard() {
         setAllureId(10375)
 
-        let selectPlan = launchForOnboarding()
+        let selectPlan = launchForOnboarding(balance: "AfterFullWithdraw")
             .openTangemPaySelectPlan()
             .waitForScreen()
             .verifyPlanName(Constants.Plan.basic)
@@ -34,16 +34,23 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
             .verifyPlanDetail("$0 / month")
 
         let ordersBefore = placeOrderRequestCount()
-        completePlanOrder(planState: "Basic")
-        selectPlan
+        stagePlanState("Basic")
+        stageBasicOrderIssuing()
+        let paymentAccount = selectPlan
             .tapSelectExpectingPlanActivation()
             .waitForScreen()
+            .verifyIssuingCardBanner()
+            .verifyWithdrawDisabled()
+        assertOrdersPlaced(since: ordersBefore)
+
+        completeBasicOrderIssuing()
+        paymentAccount
+            .waitForIssuingCardBannerHidden()
             .openMoreActionsMenu()
             .verifyCurrentPlanMenuItem()
             .tapCurrentPlanMenuItem()
             .waitForScreen()
             .verifyPlanName(Constants.Plan.basic)
-        assertOrdersPlaced(since: ordersBefore)
     }
 
     func testSelectPlusPlan_DuringOnboarding_CanBeCancelledBeforePayment() {
@@ -55,7 +62,7 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
             .swipeToPlan(named: Constants.Plan.plus)
             .verifyPlanDetail("\(Constants.Plan.plusFee) / month")
 
-        awaitPlanFeePayment()
+        awaitPlanFeePayment(orders: "AwaitingDepositWithBasicFallback")
         let paymentAccount = selectPlan
             .tapSelectExpectingPlanActivation()
             .waitForScreen()
@@ -63,18 +70,25 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
             .verifyAwaitingDepositBanner(contains: Constants.Plan.plusFee)
 
         let cancelsBefore = cancelOrderRequestCount()
+        let ordersBefore = placeOrderRequestCount()
         let currentPlan = paymentAccount
             .openCurrentPlan()
             .waitForScreen()
             .verifyAwaitingDepositBanner(contains: "awaiting payment for plan fee")
+        stageBasicOrderPolling()
         currentPlan.tapCancelTransition()
-        drainPlanOrders()
         assertRequestSent(cancelOrderRequestCount, since: cancelsBefore, named: "order cancellation")
 
         currentPlan
             .waitForAwaitingDepositBannerHidden()
             .tapBack()
             .waitForAwaitingDepositBannerHidden()
+            .verifyIssuingCardBanner()
+        assertOrdersPlaced(since: ordersBefore)
+
+        completeBasicOrderIssuing()
+        paymentAccount
+            .waitForIssuingCardBannerHidden()
     }
 
     func testSelectPlusPlan_DuringOnboarding_IssuesPlusCardAfterTopUp() {
@@ -86,16 +100,27 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
             .swipeToPlan(named: Constants.Plan.plus)
 
         awaitPlanFeePayment()
-        selectPlan
+        let paymentAccount = selectPlan
             .tapSelectExpectingPlanActivation()
             .waitForScreen()
             .verifyAwaitingDepositBanner(contains: Constants.Plan.plusFee)
+            .tapAwaitingDepositAddFunds()
+            .waitForScreen()
+            .verifySwapAndReceiveOptions()
+            .close()
 
         wireMockClient.setScenarioStateSync(Constants.Scenario.balance, state: "AfterDeposit")
-        completePlanOrder(planState: "Plus")
-
-        TangemPayMainScreen(app)
+        stagePlusOrderIssuing()
+        paymentAccount
             .waitForAwaitingDepositBannerHidden()
+            .verifyIssuingCardBanner()
+
+        completePlusOrderWithPlanFee()
+        paymentAccount
+            .waitForIssuingCardBannerHidden()
+        pullToRefresh()
+        paymentAccount
+            .verifyTransactionVisible(merchantName: Constants.Transaction.planFee)
             .openMoreActionsMenu()
             .verifyCurrentPlanMenuItem()
             .tapCurrentPlanMenuItem()
@@ -109,7 +134,9 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
         launchWithPlan(state: "Basic", transitions: "FromBasic")
             .openTangemPay()
             .waitForScreen()
-            .openCurrentPlan()
+            .openMoreActionsMenu()
+            .verifyMoreActionsMenuItems()
+            .tapCurrentPlanMenuItem()
             .waitForScreen()
             .tapChangePlan()
             .waitForScreen()
@@ -127,7 +154,7 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
             .openTangemPay()
             .waitForScreen()
             .openMoreActionsMenu()
-            .verifyCurrentPlanMenuItem()
+            .verifyMoreActionsMenuItems()
             .tapCurrentPlanMenuItem()
             .waitForScreen()
 
@@ -147,10 +174,20 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
             .verifyPoint(contains: "\(Constants.Plan.plusFee) monthly fee will be taken")
 
         awaitPlanFeePayment()
-        confirmPlan
+        let paymentAccount = confirmPlan
             .tapConfirm()
             .waitForScreen()
             .verifyAwaitingDepositBanner(contains: Constants.Plan.plusFee)
+
+        wireMockClient.setScenarioStateSync(Constants.Scenario.balance, state: "AfterDeposit")
+        stagePlusOrderIssuing()
+        paymentAccount
+            .waitForAwaitingDepositBannerHidden()
+            .verifyIssuingCardBanner()
+
+        completePlanOrder(planState: "Plus")
+        paymentAccount
+            .waitForIssuingCardBannerHidden()
     }
 
     func testUpgradeToPlus_WithSufficientBalance_IssuesPlusCard() {
@@ -159,7 +196,9 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
         let confirmPlan = launchWithPlan(state: "Basic", transitions: "FromBasic")
             .openTangemPay()
             .waitForScreen()
-            .openCurrentPlan()
+            .openMoreActionsMenu()
+            .verifyMoreActionsMenuItems()
+            .tapCurrentPlanMenuItem()
             .waitForScreen()
             .tapChangePlan()
             .waitForScreen()
@@ -168,10 +207,19 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
             .waitForScreen()
 
         let ordersBefore = placeOrderRequestCount()
-        completePlanOrder(planState: "Plus")
-        confirmPlan
+        stagePlusOrderIssuing()
+        let paymentAccount = confirmPlan
             .tapConfirm()
             .waitForScreen()
+            .verifyIssuingCardBanner()
+        assertOrdersPlaced(since: ordersBefore)
+
+        completePlusOrderWithPlanFee()
+        paymentAccount
+            .waitForIssuingCardBannerHidden()
+        pullToRefresh()
+        paymentAccount
+            .verifyTransactionVisible(merchantName: Constants.Transaction.planFee)
             .openMoreActionsMenu()
             .verifyCurrentPlanMenuItem()
             .tapCurrentPlanMenuItem()
@@ -193,6 +241,7 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
         .openTangemPay()
         .waitForScreen()
         .verifyAwaitingDepositBanner(contains: Constants.Plan.plusFee)
+        .verifyCardDisplayed(cardId: Constants.Card.id)
 
         let cancelsBefore = cancelOrderRequestCount()
         let currentPlan = paymentAccount
@@ -206,6 +255,7 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
             .waitForAwaitingDepositBannerHidden()
             .tapBack()
             .waitForAwaitingDepositBannerHidden()
+            .verifyCardDisplayed(cardId: Constants.Card.id)
             .openMoreActionsMenu()
             .verifyCurrentPlanMenuItem()
             .tapCurrentPlanMenuItem()
@@ -220,7 +270,7 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
             .openTangemPay()
             .waitForScreen()
             .openMoreActionsMenu()
-            .verifyCurrentPlanMenuItem()
+            .verifyMoreActionsMenuItems()
             .tapCurrentPlanMenuItem()
             .waitForScreen()
             .verifyPlanName(Constants.Plan.plus)
@@ -250,7 +300,9 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
         let currentPlan = launchWithPlan(state: "DowngradePending", transitions: "FromPlus")
             .openTangemPay()
             .waitForScreen()
-            .openCurrentPlan()
+            .openMoreActionsMenu()
+            .verifyMoreActionsMenuItems()
+            .tapCurrentPlanMenuItem()
             .waitForScreen()
             .verifyDowngradeBanner(contains: Constants.Plan.basic)
 
@@ -290,6 +342,7 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
             .tapAddCardExpectingCardsLimit()
             .waitForSheet()
             .verifyContent(title: "Cards limit reached for this plan", description: "Upgrade plan to have more cards")
+            .verifyCancelButton()
     }
 
     func testCardsLimit_OnPlusPlan_ShowsMaximumCardsIssued() {
@@ -330,6 +383,7 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
             ScenarioConfig(name: Constants.Scenario.transitions, initialState: transitions),
             ScenarioConfig(name: Constants.Scenario.orders, initialState: orders),
             ScenarioConfig(name: Constants.Scenario.order, initialState: order),
+            ScenarioConfig(name: Constants.Scenario.basicOrder, initialState: "Completed"),
             ScenarioConfig(name: Constants.Scenario.cardIssueOrders, initialState: "Empty"),
             ScenarioConfig(name: Constants.Scenario.balance, initialState: balance),
             ScenarioConfig(name: Constants.Scenario.history, initialState: "InitialEmpty"),
@@ -343,8 +397,8 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
     }
 
     @discardableResult
-    private func launchForOnboarding() -> MainScreen {
-        launchWithPlan(state: "PlanSelectNeeded", transitions: "Onboarding")
+    private func launchForOnboarding(balance: String = "InitialBalance") -> MainScreen {
+        launchWithPlan(state: "PlanSelectNeeded", transitions: "Onboarding", balance: balance)
     }
 
     /// Staged before the action, because the app reloads customer info as soon as the request returns.
@@ -353,10 +407,34 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
     }
 
     /// Staged before the action, for the same reason as stagePlanState.
-    private func awaitPlanFeePayment() {
+    private func awaitPlanFeePayment(orders: String = "AwaitingDeposit") {
         wireMockClient.setScenarioStateSync(Constants.Scenario.plan, state: "Basic")
-        wireMockClient.setScenarioStateSync(Constants.Scenario.orders, state: "AwaitingDeposit")
+        wireMockClient.setScenarioStateSync(Constants.Scenario.orders, state: orders)
         wireMockClient.setScenarioStateSync(Constants.Scenario.order, state: "AwaitingDeposit")
+    }
+
+    private func stagePlusOrderIssuing() {
+        wireMockClient.setScenarioStateSync(Constants.Scenario.order, state: "Started")
+        wireMockClient.setScenarioStateSync(Constants.Scenario.orders, state: "PlusProcessing")
+    }
+
+    private func completePlusOrderWithPlanFee() {
+        wireMockClient.setScenarioStateSync(Constants.Scenario.history, state: "AfterPlanFee")
+        completePlanOrder(planState: "Plus")
+    }
+
+    private func stageBasicOrderPolling() {
+        wireMockClient.setScenarioStateSync(Constants.Scenario.basicOrder, state: "Processing")
+    }
+
+    private func stageBasicOrderIssuing() {
+        stageBasicOrderPolling()
+        wireMockClient.setScenarioStateSync(Constants.Scenario.orders, state: "BasicProcessing")
+    }
+
+    private func completeBasicOrderIssuing() {
+        wireMockClient.setScenarioStateSync(Constants.Scenario.basicOrder, state: "Completed")
+        wireMockClient.setScenarioStateSync(Constants.Scenario.orders, state: "Empty")
     }
 
     /// Staged before the action, for the same reason as stagePlanState.
@@ -411,6 +489,7 @@ private extension TangemPayTariffPlansUITests {
             static let transitions = "tangem_pay_tariff_plan_transitions"
             static let orders = "tangem_pay_tariff_plan_orders"
             static let order = "tangem_pay_tariff_plan_order"
+            static let basicOrder = "tangem_pay_tariff_plan_basic_order"
             static let offers = "tangem_pay_tariff_plan_offers"
             static let cardIssueOrders = "tangem_pay_card_issue_orders"
             static let balance = "tangem_pay_balance_update"
@@ -429,6 +508,14 @@ private extension TangemPayTariffPlansUITests {
             static let plus = "Plus"
             static let plusProgram = "Visa Signature"
             static let plusFee = "$29.99"
+        }
+
+        enum Card {
+            static let id = "mock-card-id"
+        }
+
+        enum Transaction {
+            static let planFee = "Plus monthly plan fee"
         }
     }
 }
