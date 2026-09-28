@@ -10,6 +10,7 @@ import JSONRPC
 import TangemLocalization
 import Foundation
 import Commons
+import BlockchainSdk
 
 struct WalletConnectSolanaSignMessageHandler {
     private let message: String
@@ -31,6 +32,10 @@ struct WalletConnectSolanaSignMessageHandler {
                 let walletModel = wcAccountsWalletModelProvider.getModel(with: blockchainId, accountId: accountId)
             else {
                 throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainNetworkID: blockchainId)
+            }
+
+            guard !SolanaTransactionHelper().isTransactionMessage(parameters.message.base58DecodedData) else {
+                throw WalletConnectTransactionRequestProcessingError.invalidPayload("solana_signMessage payload is a serialized Solana transaction")
             }
 
             message = parameters.message
