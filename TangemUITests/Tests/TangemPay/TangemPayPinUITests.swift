@@ -177,7 +177,7 @@ final class TangemPayPinUITests: BaseTestCase {
         .waitForPinEntryScreen()
         .enterPin(validPin)
         .verifySuccessContent()
-        .tapDone()
+        .tapSuccessClose()
         .waitForScreen()
     }
 }
