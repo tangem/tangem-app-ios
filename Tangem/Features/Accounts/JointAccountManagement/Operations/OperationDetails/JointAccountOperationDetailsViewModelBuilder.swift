@@ -31,7 +31,7 @@ struct JointAccountOperationDetailsViewModelBuilder {
             tokenIconInfo: tokenIconInfoBuilder.build(from: tokenItem, isCustom: pendingOperation.wallet.isCustom),
             cryptoAmount: cryptoAmount(of: pendingOperation),
             fiatAmount: fiatAmount(of: pendingOperation),
-            recipient: AddressFormatter(address: pendingOperation.destination).truncated(),
+            recipient: pendingOperation.destination,
             recipientBlockiesImage: AddressIconProvider.makeBlockiesImage(address: pendingOperation.destination),
             networkFee: networkFee(of: pendingOperation),
             collectedSignaturesCount: operation.signatures.filter { $0.state == .signed }.count,

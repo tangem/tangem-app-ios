@@ -27,7 +27,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     /// Written out for display, and taken from the payload's own `value` rather than from a field on the response.
     let cryptoAmount: String
     let fiatAmount: String
-    /// Already shortened, taken from the payload's own `to`.
+    /// Taken from the payload's own `to`.
     let recipient: String
     /// Rendered ahead of time rather than in the view body: generating blockies is not free, and the sheet has no
     /// reason to redo it on every recomputation.
@@ -210,7 +210,7 @@ private extension JointAccountOperationDetailsViewModel {
             TransactionDetailsAddressViewData(
                 label: Localization.sendRecipient,
                 actor: .address(
-                    short: recipient,
+                    recipient,
                     blockiesImage: AddressBlockiesIconViewData(image: recipientBlockiesImage)
                 ),
                 copyAction: nil
