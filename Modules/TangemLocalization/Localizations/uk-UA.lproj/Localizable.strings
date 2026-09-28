@@ -218,6 +218,7 @@
 "cardano_insufficient_balance_to_send_token_description" = "Щоб здійснити транзакцію %1$@, внесіть певну суму ADA для покриття мережевої комісії та мінімальне значення ADA (рекомендовано 5 ADA)";
 "cardano_insufficient_balance_to_send_token_title" = "Недостатньо ADA для транзакції";
 "cardano_max_amount_has_token_description" = "Ви повинні утримувати деяку кількість ADA, оскільки у вас на балансі є токени в мережі Cardano";
+"choose_asset_title" = "Choose asset";
 "collectibles_account_collection_empty" = "No cards";
 "collectibles_account_collection_row_subtitle" = "My collection";
 "collectibles_account_withdraw" = "Withdrawal";
@@ -1735,6 +1736,8 @@
 "promo_campaign_reactivation_summary_description" = "Отримуйте 0.5%% кешбеку за кожний обмін від $500 у будь-якій парі, крім стейблкоїна на стейблкоїн. Максимальна виплата: $50 за обмін.\n\nЗдійсніть п'ять відповідних умовам обмінів та розблокуйте додатковий бонус у $10.\n\nНагороди виплачуються щотижня в USDT або USDC на обрану адресу.";
 "promo_campaign_select_cashback_account" = "Оберіть рахунок для кешбеку";
 "promo_campaign_select_token" = "Оберіть токен кешбеку";
+"promo_campaign_selected_cashback_account" = "Selected cashback account";
+"promo_campaign_selected_token" = "Selected cashback token";
 "promo_campaign_summary_title" = "Долучитися до %1$@";
 "promo_campaign_terms_agreement_android" = "I agree with";
 "promo_campaign_terms_agreement" = "Я приймаю %1$@";
@@ -2287,6 +2290,8 @@
 "tangempay_card_details_add_funds_subtitle" = "Варіанти поповнення";
 "tangempay_card_details_add_funds" = "Поповнити рахунок";
 "tangempay_card_details_add_to_wallet_button_text" = "Додати до Google Wallet";
+"tangempay_card_details_add_to_wallet_error_description" = "Try another device or contact support";
+"tangempay_card_details_add_to_wallet_error_title" = "Could Not Add Card";
 "tangempay_card_details_awaiting_deposit_cancel_button" = "Скасувати %1$@, перейти на %2$@";
 "tangempay_card_details_awaiting_deposit_subtitle" = "Щоб оплатити щомісячну вартість тарифу та почати використовувати нову картку";
 "tangempay_card_details_awaiting_deposit_title" = "Поповніть рахунок до %1$@";
@@ -2690,6 +2695,7 @@
 "tangempay_withdraw_bank_transfer_type_own" = "Your account";
 "tangempay_withdraw_bank_transfer_type_third_party" = "3rd-party account";
 "tangempay_withdraw_bank_transfer_type_title" = "Type of transfer";
+"tangempay_withdraw_hub_accounts_load_error" = "Couldn’t load list. Tap to reload";
 "tangempay_withdraw_hub_bank_section_subtitle_unavailable" = "Available only for USDC on Polygon, Base, Arbitrum";
 "tangempay_withdraw_hub_bank_section_subtitle" = "Send to another bank using ACH or FedWire";
 "tangempay_withdraw_hub_bank_section_title" = "Bank transfer";

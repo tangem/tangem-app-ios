@@ -218,14 +218,15 @@
 "cardano_insufficient_balance_to_send_token_description" = "Um eine %1$@ Transaktion durchzuführen, musst du einen gewissen ADA-Betrag einzahlen, um die Netzwerkgebühr und den ADA-Mindestwert zu decken (5 ADA werden empfohlen).";
 "cardano_insufficient_balance_to_send_token_title" = "Nicht genügend ADA für die Tokenübertrag";
 "cardano_max_amount_has_token_description" = "Du musst einige ADA verwalten, weil du einige Token auf der Cardano-Blockchain besitzt";
+"choose_asset_title" = "Choose asset";
 "collectibles_account_collection_empty" = "Keine Karten";
 "collectibles_account_collection_row_subtitle" = "Meine Sammlung";
 "collectibles_account_withdraw" = "Auszahlung";
-"collectibles_confirm_order_approve_button" = "Approve";
-"collectibles_confirm_order_not_enough_funds_button" = "Not enough funds";
-"collectibles_confirm_order_platform_fee" = "Platform fee";
-"collectibles_confirm_order_screen_title" = "Confirm order";
-"collectibles_confirm_order_total" = "Total";
+"collectibles_confirm_order_approve_button" = "Genehmigen";
+"collectibles_confirm_order_not_enough_funds_button" = "Nicht genügend Mittel";
+"collectibles_confirm_order_platform_fee" = "Plattformgebühr";
+"collectibles_confirm_order_screen_title" = "Bestellung bestätigen";
+"collectibles_confirm_order_total" = "Gesamt";
 "collectibles_entrance_card_subtitle" = "Geöffnete Packungen mit sortierten Sammelkarten";
 "collectibles_entrance_card_title" = "Kollektionen entdecken";
 "collectibles_machine_buyback_value" = "%@ von Wert";
@@ -236,7 +237,7 @@
 "collectibles_machine_load_error" = "Die Details zum Paket konnten nicht geladen werden.\nZum Neuladen bitte antippen";
 "collectibles_machine_open_button" = "Geöffnet für %@";
 "collectibles_machine_powered_by" = "Unterstützt von %@";
-"collectibles_machine_prize_pool_load_error" = "Failed to load prize pool.\nTap to reload";
+"collectibles_machine_prize_pool_load_error" = "Der Preispool konnte nicht geladen werden.\nZum Neuladen bitte antippen";
 "collectibles_machine_prize_pool_section" = "Im Preispool";
 "collectibles_machine_tier_common" = "Allgemein";
 "collectibles_machine_tier_epic" = "Episch";
@@ -984,7 +985,7 @@
 "introduction_stories_button_secondary" = "Mehr erfahren oder kaufen";
 "introduction_stories_four_subtitle" = "Nutze die Self-Custody Wallet, die weltweit im Einsatz ist";
 "introduction_stories_four_title" = "Millionen Menschen vertrauen uns.";
-"introduction_stories_one_subtitle" = "Bestätigen Sie jede Aktion mit Ihrem Tangem ";
+"introduction_stories_one_subtitle" = "Bestätigen Sie jede Aktion mit Ihrem Tangem";
 "introduction_stories_one_title" = "Kryptowährungen mit einem Fingertipp steuern";
 "introduction_stories_three_subtitle" = "Ihre privaten Schlüssel verlassen niemals die Karte.";
 "introduction_stories_three_title" = "Ihre Schlüssel, Ihre Krypto";
@@ -1058,7 +1059,7 @@
 "joint_account_onboarding_shared_description" = "Nutze es gemeinsam mit deinen Freunden, deiner Familie oder deinem Partner.";
 "joint_account_onboarding_shared_title" = "Gemeinsames Konto.";
 "joint_account_onboarding_subtitle" = "Eine einfache Möglichkeit, Kryptowährungen gemeinsam zu verwalten – für private oder geschäftliche Zwecke.";
-"joint_account_pending_transaction_message" = "Review and sign the operation";
+"joint_account_pending_transaction_message" = "Prüfen und unterzeichnen Sie den Vorgang";
 "joint_account_send_blocked_subtitle" = "Das Senden ist aus Sicherheitsgründen gesperrt. Bitte wenden Sie sich an den Support.";
 "joint_account_send_blocked_title" = "Das Senden ist gesperrt";
 "joint_account_send_create_request" = "Anfrage erstellen";
@@ -1735,6 +1736,8 @@
 "promo_campaign_reactivation_summary_description" = "Erhalten Sie bei jedem Swap über 500 $ ein Cashback von 0,5%% , und zwar für alle Währungspaare außer „Stablecoin zu Stablecoin“. Die maximale Auszahlung beträgt 50 $ pro Swap.\n\nFühren Sie fünf qualifizierende Swaps durch und sichern Sie sich einen zusätzlichen Bonus von 10 $.\n\nDie Prämien werden wöchentlich in USDT oder USDC an die ausgewählte Adresse ausgezahlt.";
 "promo_campaign_select_cashback_account" = "Cashback-Konto auswählen";
 "promo_campaign_select_token" = "Cashback-Token auswählen";
+"promo_campaign_selected_cashback_account" = "Selected cashback account";
+"promo_campaign_selected_token" = "Selected cashback token";
 "promo_campaign_summary_title" = "Melden Sie sich an %1$@";
 "promo_campaign_terms_agreement_android" = "Ich stimme zu, dass";
 "promo_campaign_terms_agreement" = "Ich stimme zu, dass %1$@";
@@ -2287,6 +2290,8 @@
 "tangempay_card_details_add_funds_subtitle" = "Aufladeoptionen";
 "tangempay_card_details_add_funds" = "Guthaben hinzufügen";
 "tangempay_card_details_add_to_wallet_button_text" = "Zu Google Wallet hinzufügen";
+"tangempay_card_details_add_to_wallet_error_description" = "Try another device or contact support";
+"tangempay_card_details_add_to_wallet_error_title" = "Could Not Add Card";
 "tangempay_card_details_awaiting_deposit_cancel_button" = "Stornieren %1$@, umziehen nach %2$@";
 "tangempay_card_details_awaiting_deposit_subtitle" = "Um die monatliche Gebühr für den Tarif zu bezahlen und die Karte zu nutzen";
 "tangempay_card_details_awaiting_deposit_title" = "Laden Sie Ihr Konto auf unter %1$@";
@@ -2690,6 +2695,7 @@
 "tangempay_withdraw_bank_transfer_type_own" = "Ihr Konto";
 "tangempay_withdraw_bank_transfer_type_third_party" = "Drittanbieterkonto";
 "tangempay_withdraw_bank_transfer_type_title" = "Art der Überweisung";
+"tangempay_withdraw_hub_accounts_load_error" = "Couldn’t load list. Tap to reload";
 "tangempay_withdraw_hub_bank_section_subtitle_unavailable" = "Nur für USDC auf Polygon, Base und Arbitrum verfügbar";
 "tangempay_withdraw_hub_bank_section_subtitle" = "Senden Sie per ACH oder FedWire an eine andere Bank.";
 "tangempay_withdraw_hub_bank_section_title" = "Banküberweisung";
@@ -2777,8 +2783,8 @@
 "transaction_history_empty_transactions" = "Du hast noch keine Transaktionen";
 "transaction_history_enabling_yield_mode" = "Yield-Modus aktivieren";
 "transaction_history_error_failed_to_load" = "Der Transaktionsverlauf konnte nicht geladen werden.\nKlicke auf die Schaltfläche Neu laden, um die Informationen zu aktualisieren.";
-"transaction_history_fee_for_operation_name" = "For %@";
-"transaction_history_fee_for_operation" = "For operation";
+"transaction_history_fee_for_operation_name" = "Für %@";
+"transaction_history_fee_for_operation" = "Für den Betrieb";
 "transaction_history_fee_for_sending" = "Zum Versenden";
 "transaction_history_fee_sending_asset" = "Schicken %%Bild%% %@";
 "transaction_history_from_inline_address" = "aus: %%image%% %@";
