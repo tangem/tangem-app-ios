@@ -13,12 +13,12 @@ import TangemAssets
 import TangemLocalization
 
 /// Layout for the scrollable Earn filter bottom sheets: a blurred navigation header the content scrolls
-/// under, a scoped bottom blur above the pinned Cancel button, and the Cancel button itself.
-struct EarnFilterBottomSheetLayout<Content: View>: View {
+/// under, a scoped bottom blur above the pinned footer, and the footer itself.
+struct EarnFilterBottomSheetLayout<Content: View, Footer: View>: View {
     private let title: String
     private let onClose: () -> Void
-    private let onCancel: () -> Void
     private let content: Content
+    private let footer: Footer
 
     @State private var headerHeight: CGFloat = 0
     @State private var showBottomFade = false
@@ -26,19 +26,18 @@ struct EarnFilterBottomSheetLayout<Content: View>: View {
 
     @ScaledMetric private var contentHorizontalPadding: CGFloat = 16
     @ScaledMetric private var contentTopSpacing: CGFloat = 16
-    @ScaledMetric private var cancelPadding: CGFloat = 16
     @ScaledMetric private var bottomFadeHeight: CGFloat = 40
 
     init(
         title: String,
         onClose: @escaping () -> Void,
-        onCancel: @escaping () -> Void,
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
+        @ViewBuilder footer: () -> Footer
     ) {
         self.title = title
         self.onClose = onClose
-        self.onCancel = onCancel
         self.content = content()
+        self.footer = footer()
     }
 
     var body: some View {
@@ -48,8 +47,7 @@ struct EarnFilterBottomSheetLayout<Content: View>: View {
                 header
             }
 
-            cancelButton
-                .padding(cancelPadding)
+            footer
         }
         .background(DesignSystem.Color.bgPrimary)
     }
@@ -120,16 +118,5 @@ private extension EarnFilterBottomSheetLayout {
         )
         .size(.x9)
         .styleType(.secondary(.default))
-    }
-
-    var cancelButton: some View {
-        TangemUI.Button(
-            label: AttributedString(Localization.commonCancel),
-            accessibilityLabel: Localization.commonCancel,
-            action: onCancel
-        )
-        .size(.x12)
-        .styleType(.secondary(.default))
-        .horizontalLayout(.infinity)
     }
 }
