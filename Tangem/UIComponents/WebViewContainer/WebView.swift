@@ -92,6 +92,8 @@ struct WebView: UIViewRepresentable {
         let allowsJavaScript: Bool
         let validatesCertificateTransparency: Bool
         let messageHandlers: [String: (Any) -> Void]
+        /// Origin of the document we loaded; the only one allowed to post to `messageHandlers`.
+        let bridgeOrigin: URL?
 
         init(
             urlActions: [String: (String) -> Void] = [:],
@@ -100,7 +102,8 @@ struct WebView: UIViewRepresentable {
             fallbackURL: URL?,
             allowsJavaScript: Bool,
             validatesCertificateTransparency: Bool,
-            messageHandlers: [String: (Any) -> Void]
+            messageHandlers: [String: (Any) -> Void],
+            bridgeOrigin: URL?
         ) {
             self.urlActions = urlActions
             self.popupUrl = popupUrl
@@ -109,6 +112,7 @@ struct WebView: UIViewRepresentable {
             self.allowsJavaScript = allowsJavaScript
             self.validatesCertificateTransparency = validatesCertificateTransparency
             self.messageHandlers = messageHandlers
+            self.bridgeOrigin = bridgeOrigin
         }
 
         func webView(
@@ -190,7 +194,30 @@ struct WebView: UIViewRepresentable {
             _ userContentController: WKUserContentController,
             didReceive message: WKScriptMessage
         ) {
+            // `window.webkit.messageHandlers.<name>.postMessage` is reachable from every frame on the page,
+            // including third-party iframes. Accept a message only from the main frame of the document we
+            // loaded, never from an embedded frame or a page the main frame navigated away to.
+            guard message.frameInfo.isMainFrame, isBridgeOrigin(message.frameInfo.securityOrigin) else {
+                AppLogger.warning("Ignoring script message \(message.name) from a non-bridge frame")
+                return
+            }
+
             messageHandlers[message.name]?(message.body)
+        }
+
+        private func isBridgeOrigin(_ origin: WKSecurityOrigin) -> Bool {
+            guard let bridgeOrigin, let expectedHost = bridgeOrigin.host else {
+                return false
+            }
+
+            // `WKSecurityOrigin.port` is 0 when the origin uses the scheme's default port.
+            let defaultPort = bridgeOrigin.scheme == "https" ? 443 : 80
+            let expectedPort = bridgeOrigin.port ?? defaultPort
+            let originPort = origin.port == 0 ? defaultPort : origin.port
+
+            return origin.protocol == bridgeOrigin.scheme
+                && origin.host.caseInsensitiveCompare(expectedHost) == .orderedSame
+                && originPort == expectedPort
         }
     }
 
@@ -202,7 +229,8 @@ struct WebView: UIViewRepresentable {
             fallbackURL: timeoutSettings?.fallbackURL,
             allowsJavaScript: allowsJavaScript,
             validatesCertificateTransparency: validatesCertificateTransparency,
-            messageHandlers: messageHandlers
+            messageHandlers: messageHandlers,
+            bridgeOrigin: htmlString != nil ? baseURL : url
         )
     }
 }
