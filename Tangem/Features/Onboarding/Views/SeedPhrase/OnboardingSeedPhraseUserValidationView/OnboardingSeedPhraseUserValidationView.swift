@@ -54,6 +54,11 @@ struct OnboardingSeedPhraseUserValidationView: View {
                     )
                     .padding(.top, 20)
 
+                    if let passphraseSetupViewModel = viewModel.passphraseSetupViewModel {
+                        OnboardingSeedPassphraseSetupView(viewModel: passphraseSetupViewModel)
+                            .padding(.top, 20)
+                    }
+
                     Color.clear
                         .frame(minHeight: max(20, containerSize.height - contentSize.height))
                 }
@@ -152,7 +157,8 @@ private struct WordInputView: View {
                 secondWord: "tree",
                 seventhWord: "lunar",
                 eleventhWord: "banana",
-                createWalletAction: {}
+                allowsPassphrase: true,
+                createWalletAction: { _ in }
             )
         )
     )

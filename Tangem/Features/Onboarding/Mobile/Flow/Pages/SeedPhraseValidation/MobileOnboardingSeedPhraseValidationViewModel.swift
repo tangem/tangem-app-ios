@@ -79,7 +79,7 @@ private extension MobileOnboardingSeedPhraseValidationViewModel {
                 secondWord: mnemonic[1],
                 seventhWord: mnemonic[6],
                 eleventhWord: mnemonic[10],
-                createWalletAction: { [weak self] in
+                createWalletAction: { [weak self] _ in
                     self?.onCreateWallet()
                 }
             )
