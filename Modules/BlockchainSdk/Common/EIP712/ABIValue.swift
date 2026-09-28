@@ -67,7 +67,13 @@ public indirect enum ABIValue: Equatable {
     public init(_ value: Any, type: ABIType) throws {
         switch (type, value) {
         case (.uint(let bits), let value as Int):
-            self = .uint(bits: bits, BigUInt(value))
+            // `BigUInt(_:)` has a `source >= 0` precondition; a negative JSON number in a `uint*`
+            // field of dApp-supplied typed data must surface as an encoding error, not a trap.
+            guard let unsignedValue = BigUInt(exactly: value) else {
+                throw ABIError.invalidArgumentType
+            }
+
+            self = .uint(bits: bits, unsignedValue)
         case (.uint(let bits), let value as UInt):
             self = .uint(bits: bits, BigUInt(value))
         case (.uint(let bits), let value as BigUInt):
