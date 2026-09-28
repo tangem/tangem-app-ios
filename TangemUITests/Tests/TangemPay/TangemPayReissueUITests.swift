@@ -136,6 +136,7 @@ final class TangemPayReissueUITests: BaseTestCase {
             .tapReplaceCard()
             .waitForSheet()
             .verifyUnableToCoverFee()
+            .verifyReplaceCardDisabled()
             .tapAddFunds()
             .waitForScreen()
             .verifySwapAndReceiveOptions()
