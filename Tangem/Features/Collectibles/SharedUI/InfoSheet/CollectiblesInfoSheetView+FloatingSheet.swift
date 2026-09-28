@@ -1,5 +1,5 @@
 //
-//  CollectiblesRegionRestrictionsView+FloatingSheet.swift
+//  CollectiblesInfoSheetView+FloatingSheet.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,22 +10,16 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
-extension CollectiblesRegionRestrictionsView {
+extension CollectiblesInfoSheetView {
     struct FloatingSheet: View {
-        let viewModel: CollectiblesGeoblockViewModel
+        let viewModel: CollectiblesInfoSheetViewModel
 
         var body: some View {
-            CollectiblesRegionRestrictionsView(onClose: viewModel.close)
+            CollectiblesInfoSheetView(model: viewModel.model, onClose: viewModel.close)
                 .floatingSheetConfiguration { configuration in
                     configuration.sheetBackgroundColor = DesignSystem.Color.bgPrimary
                     configuration.backgroundInteractionBehavior = .tapToDismiss
                 }
         }
     }
-}
-
-// MARK: - Previews
-
-#Preview {
-    CollectiblesRegionRestrictionsView.FloatingSheet(viewModel: CollectiblesGeoblockViewModel())
 }
