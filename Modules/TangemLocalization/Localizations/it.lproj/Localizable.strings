@@ -218,6 +218,7 @@
 "cardano_insufficient_balance_to_send_token_description" = "To make a %1$@ transaction, you must deposit some ADA to cover the network fee and minimum ADA value (5 ADA recommended)";
 "cardano_insufficient_balance_to_send_token_title" = "Insufficient ADA for token transfer";
 "cardano_max_amount_has_token_description" = "You must maintain some ADA because you have some tokens on the Cardano blockchain";
+"choose_asset_title" = "Choose asset";
 "collectibles_account_collection_empty" = "No cards";
 "collectibles_account_collection_row_subtitle" = "My collection";
 "collectibles_account_withdraw" = "Withdrawal";
@@ -984,7 +985,7 @@
 "introduction_stories_button_secondary" = "Learn more or buy";
 "introduction_stories_four_subtitle" = "Join the self-custody wallet used worldwide";
 "introduction_stories_four_title" = "Trusted by millions";
-"introduction_stories_one_subtitle" = "Confirm every action with your Tangem ";
+"introduction_stories_one_subtitle" = "Confirm every action with your Tangem";
 "introduction_stories_one_title" = "One tap to control crypto";
 "introduction_stories_three_subtitle" = "Your private keys never leave the card.";
 "introduction_stories_three_title" = "Your keys, your crypto";
@@ -1735,6 +1736,8 @@
 "promo_campaign_reactivation_summary_description" = "Earn 0.5%% cashback on every swap over $500, on any pair except stable to stable. Max payout $50 per swap.\n\nComplete five qualifying swaps and unlock an extra $10 bonus.\n\nRewards are paid weekly in USDT or USDC on the address selected.";
 "promo_campaign_select_cashback_account" = "Seleziona il token di cashback";
 "promo_campaign_select_token" = "Seleziona il token di cashback";
+"promo_campaign_selected_cashback_account" = "Selected cashback account";
+"promo_campaign_selected_token" = "Selected cashback token";
 "promo_campaign_summary_title" = "Enroll in %1$@";
 "promo_campaign_terms_agreement_android" = "I agree with";
 "promo_campaign_terms_agreement" = "I agree with %1$@";
@@ -2287,6 +2290,8 @@
 "tangempay_card_details_add_funds_subtitle" = "Opzioni di ricarica";
 "tangempay_card_details_add_funds" = "Aggiungi fondi";
 "tangempay_card_details_add_to_wallet_button_text" = "Aggiungi a Google Wallet";
+"tangempay_card_details_add_to_wallet_error_description" = "Try another device or contact support";
+"tangempay_card_details_add_to_wallet_error_title" = "Could Not Add Card";
 "tangempay_card_details_awaiting_deposit_cancel_button" = "Annulla %1$@, passa a %2$@";
 "tangempay_card_details_awaiting_deposit_subtitle" = "Per pagare il piano e attivare la nuova carta";
 "tangempay_card_details_awaiting_deposit_title" = "Ricarica il conto entro il %1$@";
@@ -2690,6 +2695,7 @@
 "tangempay_withdraw_bank_transfer_type_own" = "Your account";
 "tangempay_withdraw_bank_transfer_type_third_party" = "3rd-party account";
 "tangempay_withdraw_bank_transfer_type_title" = "Type of transfer";
+"tangempay_withdraw_hub_accounts_load_error" = "Couldn’t load list. Tap to reload";
 "tangempay_withdraw_hub_bank_section_subtitle_unavailable" = "Available only for USDC on Polygon, Base, Arbitrum";
 "tangempay_withdraw_hub_bank_section_subtitle" = "Send to another bank using ACH or FedWire";
 "tangempay_withdraw_hub_bank_section_title" = "Bank transfer";
