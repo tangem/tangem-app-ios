@@ -72,6 +72,18 @@ extension CollectiblesAPIService: CollectiblesMachineProvider {
     }
 }
 
+// MARK: - Prize pool
+
+extension CollectiblesAPIService {
+    func loadPrizePool(machineID: String, page: Int, userWalletID: String) async throws -> CollectiblesPrizePoolPage {
+        let nftsRequest = CollectiblesDTO.MachineNftsRequest(page: page, limit: Constants.pageLimit)
+        let target = CollectiblesAPITarget.Target.machineNfts(externalID: machineID, nftsRequest, userWalletID: userWalletID)
+        let response: CollectiblesDTO.MachineNftsResponse = try await request(target)
+
+        return Mapper.mapToPrizePoolPage(response)
+    }
+}
+
 // MARK: - Pack opening
 
 extension CollectiblesAPIService {

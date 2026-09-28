@@ -25,6 +25,7 @@ final class CollectiblesCoordinator: CoordinatorObject {
     let popToRootAction: Action<PopToRootOptions>
 
     private var accountModel: (any CollectiblesAccountModel)?
+    private var userWalletID = ""
 
     // [REDACTED_TODO_COMMENT]
     private var devnetUserWalletModel: (any UserWalletModel)?
@@ -45,6 +46,7 @@ final class CollectiblesCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         accountModel = options.accountModel
+        userWalletID = options.userWalletModel.userWalletId.stringValue
         devnetUserWalletModel = options.userWalletModel
 
         switch options.destination {
@@ -81,7 +83,10 @@ extension CollectiblesCoordinator: CollectiblesMainRoutable {
     func openMachine(for pack: CollectiblesPack) {
         guard machineViewModel == nil else { return }
 
-        machineViewModel = CollectiblesMachineViewModel(pack: pack)
+        machineViewModel = CollectiblesMachineViewModel(
+            pack: pack,
+            prizePoolProvider: CommonCollectiblesPrizePoolProvider(userWalletID: userWalletID)
+        )
     }
 
     func openSupport() {
