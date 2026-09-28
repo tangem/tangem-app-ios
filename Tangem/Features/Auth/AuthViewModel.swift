@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import Combine
 import TangemFoundation
 import TangemLocalization
@@ -243,24 +244,36 @@ private extension AuthViewModel {
         }
     }
 
+    @MainActor
     func handleUnlockWithBiometryResult(error: Error) async {
-        await runOnMain {
-            switch state {
-            case .locked:
-                setup(state: makeWalletsState())
-                if !error.isCancellationError {
-                    alert = error.alertBinder
-                } else {
-                    unlockSingleProtectedMobileWalletIfNeeded()
-                }
-            case .wallets:
-                if !error.isCancellationError {
-                    alert = error.alertBinder
-                }
-            case .none:
-                break
+        await waitUntilApplicationIsActive()
+
+        switch state {
+        case .locked:
+            setup(state: makeWalletsState())
+            if !error.isCancellationError {
+                alert = error.alertBinder
+            } else {
+                unlockSingleProtectedMobileWalletIfNeeded()
             }
+        case .wallets:
+            if !error.isCancellationError {
+                alert = error.alertBinder
+            }
+        case .none:
+            break
         }
+    }
+
+    @MainActor
+    func waitUntilApplicationIsActive() async {
+        guard UIApplication.shared.applicationState != .active else {
+            return
+        }
+
+        _ = await NotificationCenter.default
+            .notifications(named: UIApplication.didBecomeActiveNotification)
+            .first { _ in true }
     }
 
     func unlockSingleProtectedMobileWalletIfNeeded() {
