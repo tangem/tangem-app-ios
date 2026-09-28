@@ -12,6 +12,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemUIUtils
 import TangemMobileWalletSdk
+import TangemMobileWalletBackup
 import protocol TangemUI.FloatingSheetContentViewModel
 
 final class MobileRemoveWalletNotificationViewModel: ObservableObject {
@@ -66,6 +67,8 @@ final class MobileRemoveWalletNotificationViewModel: ObservableObject {
         config: userWalletModel.config,
         biometricsProvider: CommonUserWalletBiometricsProvider()
     )
+
+    private lazy var backupManager: MobileWalletBackupManager = CommonMobileWalletBackupManager(destination: .iCloud)
 
     private let userWalletModel: UserWalletModel
     private let removeManager: MobileRemoveWalletManager
@@ -154,8 +157,38 @@ private extension MobileRemoveWalletNotificationViewModel {
     func removeHandler(deletesICloudBackup: Bool) {
         removeManager.deletesICloudBackup = deletesICloudBackup
         runTask(in: self) { viewModel in
+            // `.iCloudBackup` comes from a flag cached in the wallet config; it is never re-checked against
+            // iCloud. The low-friction "Forget" offered in that state assumes the backup file is still there,
+            // so confirm that before the wallet — and with it the only copy of the seed — is deleted.
+            if viewModel.backupState == .iCloudBackup, !deletesICloudBackup {
+                guard await viewModel.verifyICloudBackupExists() else {
+                    return
+                }
+            }
+
             await viewModel.openRemoveWallet()
         }
+    }
+
+    func verifyICloudBackupExists() async -> Bool {
+        do {
+            if try await backupManager.loadBackup(walletId: userWalletModel.userWalletId) != nil {
+                return true
+            }
+
+            AppLogger.warning("Forget wallet: the cached iCloud-backup flag is set, but no backup file was found")
+            await showAlert(
+                AlertBinder(
+                    title: Localization.hwCloudBackupNotFoundTitle,
+                    message: Localization.hwCloudBackupNotFoundDescription
+                )
+            )
+        } catch {
+            AppLogger.error("Forget wallet: failed to verify the iCloud backup:", error: error)
+            await showErrorAlert(error)
+        }
+
+        return false
     }
 
     func backupHandler() {
