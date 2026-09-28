@@ -16,8 +16,8 @@ extension CollectiblesMachineView {
     struct Footer: View {
         let expectedValueText: String?
         let openButtonText: String
-
-        @State private var isTurboModeOn = false
+        @Binding var isTurboModeOn: Bool
+        let onTurboModeInfoTap: () -> Void
 
         @ScaledMetric private var labelShimmerHeight: CGFloat = 12
         @ScaledMetric private var valueShimmerHeight: CGFloat = 20
@@ -45,15 +45,18 @@ private extension CollectiblesMachineView.Footer {
 
     var turboModeBlock: some View {
         VStack(alignment: .leading, spacing: Metrics.turboModeSpacing) {
-            HStack(spacing: Metrics.turboModeLabelSpacing) {
-                // [REDACTED_TODO_COMMENT]
-                Text(Localization.collectiblesMachineTurboMode)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+            SwiftUI.Button(action: onTurboModeInfoTap) {
+                HStack(spacing: Metrics.turboModeLabelSpacing) {
+                    Text(Localization.collectiblesMachineTurboMode)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
-                DesignSystem.Icons.Info.regular16.image
-                    .renderingMode(.template)
-                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+                    DesignSystem.Icons.Info.regular16.image
+                        .renderingMode(.template)
+                        .foregroundStyle(DesignSystem.Color.iconSecondary)
+                }
+                .expandingHitArea(by: Metrics.turboModeInfoHitAreaInset)
             }
+            .buttonStyle(.plain)
 
             Toggle("", isOn: $isTurboModeOn)
                 .labelsHidden()
@@ -135,6 +138,7 @@ private extension CollectiblesMachineView.Footer {
 
         static let turboModeSpacing: CGFloat = 2
         static let turboModeLabelSpacing: CGFloat = 2
+        static let turboModeInfoHitAreaInset: CGFloat = 14
         static let toggleScale: CGFloat = 0.8
     }
 }
