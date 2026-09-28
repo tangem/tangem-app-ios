@@ -19,6 +19,11 @@ final class MainBottomSheetUIManager {
     private let footerSnapshotSubject: PassthroughSubject<FooterSnapshot, Never> = .init()
     private let footerSnapshotUpdateTriggerSubject: PassthroughSubject<Void, Never> = .init()
     private var pendingFooterSnapshotUpdateCompletions: [() -> Void] = []
+    private var pendingShow: Task<Void, Error>?
+
+    deinit {
+        pendingShow?.cancel()
+    }
 }
 
 // MARK: - Visibility management
@@ -36,14 +41,30 @@ extension MainBottomSheetUIManager {
         isExpandedSubject.send(isExpanded)
     }
 
-    func show() {
+    func show(after delay: TimeInterval = 0) {
         ensureOnMainQueue()
 
-        isShownSubject.send(true)
+        pendingShow?.cancel()
+        pendingShow = nil
+
+        guard delay > 0 else {
+            isShownSubject.send(true)
+            return
+        }
+
+        pendingShow = Task.delayed(withDelay: delay) { @MainActor [weak self] in
+            try Task.checkCancellation()
+            self?.pendingShow = nil
+            self?.isShownSubject.send(true)
+        }
     }
 
     func hide(shouldUpdateFooterSnapshot: Bool = true) {
         ensureOnMainQueue()
+
+        // Navigation can hide the sheet before its cold-start presentation has run.
+        pendingShow?.cancel()
+        pendingShow = nil
 
         guard isShown else {
             return
