@@ -243,6 +243,7 @@ private extension MarketsTokenListViewModel {
 
                 quotesRepositoryUpdateHelper.updateQuotes(marketsTokens: items, for: AppSettings.shared.selectedCurrencyCode)
             })
+            .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .compactMap { viewModel, event in
                 guard case .appendedItems(let items, let lastPage) = event else {
@@ -252,7 +253,6 @@ private extension MarketsTokenListViewModel {
                 let tokenViewModelsToAppend = viewModel.mapToItemViewModel(items, offset: viewModel.tokenViewModels.count)
                 return (tokenViewModelsToAppend, lastPage)
             }
-            .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { (viewModel: MarketsTokenListViewModel, mappedEvent: ([MarketsItemViewModel], Bool)) in
                 let (items, lastPage) = mappedEvent
