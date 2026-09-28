@@ -34,21 +34,21 @@ struct MarketCapView: View {
     private func content(_ content: MarketCapViewModel.Content, isLoading: Bool) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 0) {
-                Text(Localization.marketCryptoTotalMarketCapTitle)
-                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textSecondary)
-
                 HStack(spacing: 8) {
-                    HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text(content.totalMarketCap)
-                            .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
-                            .skeletonable(isShown: isLoading, size: Constants.capSkeletonSize)
-
-                        PriceChangeView(state: content.priceChange, useRedesignColors: true)
-                    }
+                    Text(Localization.marketCryptoTotalMarketCapTitle)
+                        .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textSecondary)
 
                     if !isLoading {
                         infoButton
                     }
+                }
+
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text(content.totalMarketCap)
+                        .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+                        .skeletonable(isShown: isLoading, size: Constants.capSkeletonSize)
+
+                    PriceChangeView(state: content.priceChange, useRedesignColors: true)
                 }
             }
 

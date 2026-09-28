@@ -140,17 +140,14 @@ final class MainViewModel: ObservableObject {
 
         isRootVisible = true
 
-        let uiManager = mainBottomSheetUIManager
         // On a `cold start` (e.g., after launching the app or after coming back from the background in a `locked` state:
         // in both cases a new VM is created), the bottom sheet should become visible with some delay to prevent it from
         // being placed over the authorization or the launch (splash) screen, which is still fading out at this point.
         if shouldDelayBottomSheetVisibility {
             shouldDelayBottomSheetVisibility = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.bottomSheetVisibilityColdStartDelay) {
-                uiManager.show()
-            }
+            mainBottomSheetUIManager.show(after: Constants.bottomSheetVisibilityColdStartDelay)
         } else {
-            uiManager.show()
+            mainBottomSheetUIManager.show()
         }
 
         // A push into the stack while the screen is still fading in from the auth screen is lost, so the
