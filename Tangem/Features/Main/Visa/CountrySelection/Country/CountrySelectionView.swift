@@ -23,6 +23,7 @@ struct CountrySelectionView: View {
             highlightedSectionTitle: viewModel.configuration.highlight?.sectionTitle,
             allSectionTitle: viewModel.configuration.highlight?.allSectionTitle,
             hasFlags: true,
+            loadingItemId: viewModel.loadingItemId,
             onItemTap: viewModel.onItemTap(id:)
         )
         .tangemSearchable(text: $viewModel.searchText, prompt: Localization.commonSearch)

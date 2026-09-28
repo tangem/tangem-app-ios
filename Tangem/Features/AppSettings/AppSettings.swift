@@ -161,6 +161,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayRecentRecipientIds)
     var tangemPayRecentRecipientIds: [String: [String]] = [:]
 
+    @AppStorageCompat(StorageType.tangemPayUnavailableRegion)
+    var tangemPayUnavailableRegion: [String: String] = [:]
+
     @AppStorageCompat(StorageType.jailbreakWarningWasShown)
     var jailbreakWarningWasShown: Bool = false
 
