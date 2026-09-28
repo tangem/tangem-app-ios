@@ -491,7 +491,7 @@ private extension FeedCoordinator {
                 guard size != .full, coordinator.path.isEmpty,
                       coordinator.presented == nil, coordinator.cover == nil else { return }
 
-                coordinator.rootViewModel?.scrollCoordinator.reset()
+                coordinator.rootViewModel?.resetSavedScrollPositions()
                 coordinator.rootViewModel?.searchViewModel.reset()
             }
             .store(in: &bag)

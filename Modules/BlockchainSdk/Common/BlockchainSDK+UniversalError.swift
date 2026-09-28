@@ -329,6 +329,8 @@ extension SolanaBSDKError: UniversalError {
             102010102
         case .invalidSignatureLength:
             102010103
+        case .invalidCompactU16:
+            102010104
         }
     }
 }
