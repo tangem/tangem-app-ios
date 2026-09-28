@@ -16,6 +16,7 @@ import TangemUI
 import TangemLocalization
 import TangemUIUtils
 import TangemAssets
+import struct Commons.AnyCodable
 
 @MainActor
 final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewModel & WCTransactionViewModelDisplayData {
@@ -54,6 +55,9 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
 
     let transactionData: WCHandleTransactionData
     let addressRowViewModel: WCTransactionAddressRowViewModel?
+    /// For `wallet_addEthereumChain`: the network the dApp asks to add to the session. `transactionData.blockchain`
+    /// is the (already connected) chain the request arrived on, which is not what the user is consenting to.
+    let blockchainToAdd: Blockchain?
     let feeManager: WCTransactionFeeManager
 
     private(set) var isDappVerified: Bool = false
@@ -71,6 +75,7 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
     ) {
         self.transactionData = transactionData
         self.addressRowViewModel = Self.makeAddressRowViewModel(from: transactionData)
+        self.blockchainToAdd = Self.makeBlockchainToAdd(from: transactionData)
         self.feeManager = feeManager
         self.simulationManager = simulationManager
         self.securityManager = securityManager
@@ -536,6 +541,20 @@ private extension WCTransactionViewModel {
         }
 
         return walletModel.feeTokenItem
+    }
+
+    private static func makeBlockchainToAdd(from transactionData: WCHandleTransactionData) -> Blockchain? {
+        guard transactionData.method == .addChain else {
+            return nil
+        }
+
+        do {
+            let requestParams = try JSONDecoder().decode(AnyCodable.self, from: transactionData.requestData)
+            return try WalletConnectAddEthereumChainMessageHandler.parseBlockchain(from: requestParams)
+        } catch {
+            WCLogger.error("Failed to resolve the chain requested by wallet_addEthereumChain", error: error)
+            return nil
+        }
     }
 
     private static func makeAddressRowViewModel(from transactionData: WCHandleTransactionData) -> WCTransactionAddressRowViewModel? {

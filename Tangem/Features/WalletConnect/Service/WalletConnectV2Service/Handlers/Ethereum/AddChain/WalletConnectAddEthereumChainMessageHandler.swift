@@ -92,7 +92,9 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
         }
     }
 
-    private static func parseBlockchain(
+    /// Resolves the chain a `wallet_addEthereumChain` request asks to add. Internal so the consent sheet
+    /// can show that chain instead of the one the request arrived on.
+    static func parseBlockchain(
         from requestParams: AnyCodable
     ) throws(WalletConnectTransactionRequestProcessingError) -> BlockchainSdk.Blockchain {
         guard

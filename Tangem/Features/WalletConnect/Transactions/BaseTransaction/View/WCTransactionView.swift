@@ -366,13 +366,26 @@ private extension WCTransactionView {
         }
     }
 
+    /// `wallet_addEthereumChain` widens the session to a new network; the sheet must say which one.
     @ViewBuilder
     private var addChainContextRow: some View {
-        if let connectionTargetKind = viewModel.connectionTargetKind {
-            WCTransactionConnectionTargetRow(kind: connectionTargetKind)
-                .background(Colors.Background.action)
-                .cornerRadius(14, corners: .allCorners)
+        VStack(alignment: .leading, spacing: 0) {
+            if let connectionTargetKind = viewModel.connectionTargetKind {
+                WCTransactionConnectionTargetRow(kind: connectionTargetKind)
+            }
+
+            if let blockchainToAdd = viewModel.blockchainToAdd {
+                if viewModel.connectionTargetKind != nil {
+                    Separator(height: .minimal, color: Colors.Stroke.primary)
+                        .padding(.leading, 46)
+                        .padding(.trailing, 14)
+                }
+
+                WCTransactionNetworkRow(blockchain: blockchainToAdd)
+            }
         }
+        .background(Colors.Background.action)
+        .cornerRadius(14, corners: .allCorners)
     }
 }
 
