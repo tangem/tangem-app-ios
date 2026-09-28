@@ -10,6 +10,7 @@ import Combine
 import Foundation
 import TangemLocalization
 import TangemUIUtils
+import TangemCollectibles
 
 final class CollectiblesWelcomeViewModel: ObservableObject {
     // MARK: - Properties

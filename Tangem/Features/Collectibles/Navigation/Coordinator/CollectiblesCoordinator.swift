@@ -11,6 +11,7 @@ import Foundation
 import BlockchainSdk
 import TangemFoundation
 import TangemStories
+import TangemCollectibles
 
 final class CollectiblesCoordinator: CoordinatorObject {
     // MARK: - Properties

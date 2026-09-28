@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemCollectibles
 
 extension UserWalletModel {
     var isCollectiblesEligible: Bool {
@@ -14,7 +15,7 @@ extension UserWalletModel {
             return false
         }
 
-        return (try? keysRepository.masterKey(curve: CollectiblesAccountKeyPath.curve(for: config))) != nil
+        return (try? keysRepository.masterKey(curve: CollectiblesAccountKeyPath.curve(for: config.derivationStyle))) != nil
     }
 
     func collectiblesAccountModel() -> (any CollectiblesAccountModel)? {
