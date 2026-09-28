@@ -1,5 +1,5 @@
 //
-//  CollectiblesRegionRestrictionsView.swift
+//  CollectiblesInfoSheetView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,11 +8,11 @@
 
 import SwiftUI
 import TangemAssets
-import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
-struct CollectiblesRegionRestrictionsView: View {
+struct CollectiblesInfoSheetView: View {
+    let model: Model
     let onClose: () -> Void
 
     var body: some View {
@@ -26,9 +26,22 @@ struct CollectiblesRegionRestrictionsView: View {
     }
 }
 
+// MARK: - Model
+
+extension CollectiblesInfoSheetView {
+    struct Model {
+        let icon: ImageType
+        let iconColor: Color
+        let iconBackgroundColor: Color
+        let title: String
+        let message: String
+        let buttonTitle: String
+    }
+}
+
 // MARK: - Content
 
-private extension CollectiblesRegionRestrictionsView {
+private extension CollectiblesInfoSheetView {
     // MARK: - View properties
 
     var header: some View {
@@ -51,22 +64,22 @@ private extension CollectiblesRegionRestrictionsView {
     }
 
     var avatar: some View {
-        DesignSystem.Icons.Warning.regular28.image
+        model.icon.image
             .renderingMode(.template)
             .resizable()
             .frame(size: CGSize(bothDimensions: Metrics.iconSize))
-            .foregroundStyle(DesignSystem.Color.iconStatusWarning)
+            .foregroundStyle(model.iconColor)
             .frame(size: CGSize(bothDimensions: Metrics.avatarSize))
-            .background(DesignSystem.Color.bgStatusWarningSubtle)
+            .background(model.iconBackgroundColor)
             .clipShape(Circle())
     }
 
     var texts: some View {
         VStack(spacing: Metrics.textsSpacing) {
-            Text(Localization.collectiblesRegionRestrictionsTitle)
+            Text(model.title)
                 .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
 
-            Text(Localization.collectiblesRegionRestrictionsSubtitle)
+            Text(model.message)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
         }
         .multilineTextAlignment(.center)
@@ -76,7 +89,7 @@ private extension CollectiblesRegionRestrictionsView {
     }
 
     var footer: some View {
-        TangemUI.Button(label: Localization.commonClose, accessibilityLabel: nil, action: onClose)
+        TangemUI.Button(label: model.buttonTitle, accessibilityLabel: nil, action: onClose)
             .styleType(.default)
             .horizontalLayout(.infinity)
             .size(.x12)
@@ -87,7 +100,7 @@ private extension CollectiblesRegionRestrictionsView {
 
 // MARK: - Metrics
 
-extension CollectiblesRegionRestrictionsView {
+extension CollectiblesInfoSheetView {
     enum Metrics {
         static let horizontalPadding: CGFloat = 16
         static let headerTopPadding: CGFloat = 16
@@ -106,10 +119,4 @@ extension CollectiblesRegionRestrictionsView {
 
         static let estimatedHeight: CGFloat = 380
     }
-}
-
-// MARK: - Previews
-
-#Preview {
-    CollectiblesRegionRestrictionsView(onClose: {})
 }

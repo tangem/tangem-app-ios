@@ -32,10 +32,16 @@ struct CollectiblesMachineView: View {
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if !viewModel.state.isFailed {
-                Footer(expectedValueText: expectedValueText, openButtonText: viewModel.openButtonText)
+                Footer(
+                    expectedValueText: expectedValueText,
+                    openButtonText: viewModel.openButtonText,
+                    isTurboModeOn: $viewModel.isTurboModeOn,
+                    onTurboModeInfoTap: viewModel.showTurboModeInfo
+                )
             }
         }
         .on(willAppear: viewModel.load, willDisappear: viewModel.stopPolling)
+        .collectiblesInfoSheet(viewModel: viewModel.turboModeInfoViewModel)
         .safeAreaInset(edge: .top, spacing: 0) { navigationBar }
     }
 }
