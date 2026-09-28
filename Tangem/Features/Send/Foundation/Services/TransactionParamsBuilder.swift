@@ -32,9 +32,15 @@ struct TransactionParamsBuilder {
         case .stellar:
             if let memoID = UInt64(value) {
                 return StellarTransactionParams(memo: .id(memoID))
-            } else {
-                return StellarTransactionParams(memo: .text(value))
             }
+
+            // MEMO_TEXT is limited to 28 *bytes*; a longer memo is signed by the card and then rejected by
+            // Horizon as malformed, so refuse it here where the destination field shows the error.
+            guard value.utf8.count <= Constants.stellarTextMemoMaxBytes else {
+                throw TransactionParamsBuilderError.invalidMemoDestinationTag
+            }
+
+            return StellarTransactionParams(memo: .text(value))
         case .ton:
             return TONTransactionParams(memo: value)
         case .cosmos, .terraV1, .terraV2, .sei, .gonka:
@@ -145,6 +151,13 @@ struct TransactionParamsBuilder {
              .seiEvm:
             throw TransactionParamsBuilderError.extraIdNotSupported
         }
+    }
+}
+
+private extension TransactionParamsBuilder {
+    enum Constants {
+        /// Stellar `MEMO_TEXT` payload limit (bytes, not characters).
+        static let stellarTextMemoMaxBytes = 28
     }
 }
 
