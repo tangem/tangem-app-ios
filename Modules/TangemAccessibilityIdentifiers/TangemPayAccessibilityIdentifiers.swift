@@ -53,6 +53,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let withdrawButton = "\(prefix)WithdrawButton"
     public static let moreActionsButton = "\(prefix)MoreActionsButton"
     public static let termsAndLimitsMenuItem = "\(prefix)TermsAndLimitsMenuItem"
+    public static let paySupportMenuItem = "\(prefix)PaySupportMenuItem"
     public static let removeAccountMenuItem = "\(prefix)RemoveAccountMenuItem"
 
     // MARK: - Add funds flow
@@ -60,6 +61,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let addFundsSheetSwapOption = "\(prefix)AddFundsSheetSwapOption"
     public static let addFundsSheetReceiveOption = "\(prefix)AddFundsSheetReceiveOption"
     public static let addFundsSheetBankTransferOption = "\(prefix)AddFundsSheetBankTransferOption"
+    public static let addFundsSheetCloseButton = "\(prefix)AddFundsSheetCloseButton"
     public static let virtualAccountShowDetailsButton = "\(prefix)VirtualAccountShowDetailsButton"
     public static let virtualAccountBankDetailsShareButton = "\(prefix)VirtualAccountBankDetailsShareButton"
     public static let virtualAccountFeeErrorBanner = "\(prefix)VirtualAccountFeeErrorBanner"
