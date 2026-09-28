@@ -17,7 +17,25 @@ class OnboardingSeedPhraseUserValidationViewModel: ObservableObject {
         let secondWord: String
         let seventhWord: String
         let eleventhWord: String
-        let createWalletAction: () -> Void
+        /// Offer the optional BIP-39 passphrase toggle (wallet *creation* only; the mobile flow validates
+        /// an already created wallet and must not show it).
+        let allowsPassphrase: Bool
+        /// `passphrase` is `nil` unless the user opted in and typed a valid, confirmed passphrase.
+        let createWalletAction: (_ passphrase: String?) -> Void
+
+        init(
+            secondWord: String,
+            seventhWord: String,
+            eleventhWord: String,
+            allowsPassphrase: Bool = false,
+            createWalletAction: @escaping (_ passphrase: String?) -> Void
+        ) {
+            self.secondWord = secondWord
+            self.seventhWord = seventhWord
+            self.eleventhWord = eleventhWord
+            self.allowsPassphrase = allowsPassphrase
+            self.createWalletAction = createWalletAction
+        }
     }
 
     @Published var firstInputText = ""
@@ -28,6 +46,9 @@ class OnboardingSeedPhraseUserValidationViewModel: ObservableObject {
     @Published var thirdInputHasError = false
 
     @Published var isCreateWalletButtonEnabled = false
+
+    /// Present only when `ValidationInput.allowsPassphrase` is set.
+    let passphraseSetupViewModel: OnboardingSeedPassphraseSetupViewModel?
 
     var actionTitle: String {
         switch mode {
@@ -45,23 +66,37 @@ class OnboardingSeedPhraseUserValidationViewModel: ObservableObject {
 
     private let mode: Mode
     private let input: ValidationInput
+    /// Mirrors `passphraseSetupViewModel.isValid`; `@Published` emits before the property is written, so the
+    /// latest value is taken from the stream rather than read back from the child view model.
+    private var isPassphraseValid = true
     private var bag: Set<AnyCancellable> = []
 
     init(mode: Mode, validationInput: ValidationInput) {
         self.mode = mode
         input = validationInput
+        passphraseSetupViewModel = validationInput.allowsPassphrase
+            ? OnboardingSeedPassphraseSetupViewModel(showsMobileUpgradeNote: mode == .mobile)
+            : nil
 
         bind()
     }
 
     func createWallet() {
-        input.createWalletAction()
+        input.createWalletAction(passphraseSetupViewModel?.resolvedPassphrase)
     }
 
     private func bind() {
         subscribeToInputUpdates(to: \.$firstInputText, errorKeyParh: \.firstInputHasError, targetWord: input.secondWord, on: self)
         subscribeToInputUpdates(to: \.$secondInputText, errorKeyParh: \.secondInputHasError, targetWord: input.seventhWord, on: self)
         subscribeToInputUpdates(to: \.$thirdInputText, errorKeyParh: \.thirdInputHasError, targetWord: input.eleventhWord, on: self)
+
+        passphraseSetupViewModel?.$isValid
+            .removeDuplicates()
+            .sink { [weak self] isPassphraseValid in
+                self?.isPassphraseValid = isPassphraseValid
+                self?.updateButtonState()
+            }
+            .store(in: &bag)
     }
 
     private func subscribeToInputUpdates(
@@ -90,9 +125,11 @@ class OnboardingSeedPhraseUserValidationViewModel: ObservableObject {
     }
 
     private func updateButtonState() {
-        isCreateWalletButtonEnabled = firstInputText == input.secondWord &&
+        let wordsMatch = firstInputText == input.secondWord &&
             secondInputText == input.seventhWord &&
             thirdInputText == input.eleventhWord
+
+        isCreateWalletButtonEnabled = wordsMatch && isPassphraseValid
     }
 }
 
