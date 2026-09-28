@@ -48,10 +48,6 @@ struct DetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.environmentSetupCoordinator) {
                 EnvironmentSetupCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.mobileCreateWalletCoordinator) {
-                MobileCreateWalletCoordinatorView(coordinator: $0)
-                    .navigationBarHidden(true)
-            }
             .navigation(item: $coordinator.logsViewModel) {
                 LogsView(viewModel: $0)
             }
