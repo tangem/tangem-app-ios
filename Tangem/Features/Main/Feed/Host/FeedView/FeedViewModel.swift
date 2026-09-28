@@ -7,16 +7,19 @@
 //
 
 import Combine
+import Foundation
 import TangemFoundation
 import TangemUI
 
 final class FeedViewModel: ObservableObject {
+    @Published private(set) var isContentUnderSearchBar = false
+
     let searchBarViewModel: FeedSearchBarViewModel
     let searchViewModel: FeedSearchViewModel
     let tabsViewModel: FeedTabsViewModel
     let widgetsViewModel: FeedWidgetsViewModel
-    let scrollCoordinator = FeedScrollCoordinator()
 
+    private let scrollCoordinator = FeedScrollCoordinator()
     private var isSheetOpened = false
 
     private var bag = Set<AnyCancellable>()
@@ -46,6 +49,41 @@ final class FeedViewModel: ObservableObject {
     func apply(selection: FeedSelection) {
         tabsViewModel.selectTab(kind: selection.tabKind)
         tabsViewModel.selectedTab.apply(selection: selection)
+    }
+
+    func widgetsHeightDidChange(_ height: CGFloat) {
+        scrollCoordinator.report(widgets: height)
+    }
+
+    func scrollOffsetDidChange(_ offset: CGFloat) {
+        scrollCoordinator.report(offset: offset, tabID: tabsViewModel.selectedTab.id)
+
+        let isUnderSearchBar = offset > 0
+        if isUnderSearchBar != isContentUnderSearchBar {
+            isContentUnderSearchBar = isUnderSearchBar
+        }
+    }
+
+    func scrollTarget(viewportHeight: CGFloat) -> (String, Bool, Bool) -> FeedScrollTarget? {
+        { [weak self] tabID, pinTabs, chipsPinned in
+            self?.scrollCoordinator.scrollTarget(
+                forTab: tabID,
+                viewportHeight: viewportHeight,
+                pinTabs: pinTabs,
+                chipsPinned: chipsPinned
+            )
+        }
+    }
+
+    func resetScroll() {
+        resetSavedScrollPositions()
+        if isContentUnderSearchBar {
+            isContentUnderSearchBar = false
+        }
+    }
+
+    func resetSavedScrollPositions() {
+        scrollCoordinator.reset()
     }
 }
 
