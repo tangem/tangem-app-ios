@@ -27,6 +27,7 @@ struct TransactionDetailsAddressView: View {
     var body: some View {
         Row(title: title, subtitle: data.label)
             .lineOrder(.secondaryFirst)
+            .truncationModes(RowTruncationModes(title: data.actor.displayNameTruncationMode))
             .start { startIcon }
             .ifLet(data.copyAction) { view, action in
                 view.onTap { onAction(action) }
@@ -42,7 +43,7 @@ struct TransactionDetailsAddressView: View {
     @ViewBuilder
     private var startIcon: some View {
         switch data.actor {
-        case .address(_, let blockiesImage):
+        case .address(_, let blockiesImage), .validator(_, let blockiesImage):
             AddressBlockiesIconView(viewData: blockiesImage)
         case .contact(_, let icon):
             AddressBookContactNameIconView(viewData: icon)
@@ -115,8 +116,8 @@ private final class WalletCounterpartyIconViewModel: ObservableObject {
         TransactionDetailsAddressView(
             data: .init(
                 label: "From address",
-                actor: .address(short: "33Bd321fS...ga21412B", blockiesImage: AddressBlockiesIconViewData(image: nil)),
-                copyAction: .copy(value: "33Bd321fS...ga21412B", toast: "Copied", kind: .address),
+                actor: .address("33Bd321fS2p2o8Bk7mQwXeATkLQ3B36Yv2p21cEZga21412B", blockiesImage: AddressBlockiesIconViewData(image: nil)),
+                copyAction: .copy(value: "33Bd321fS2p2o8Bk7mQwXeATkLQ3B36Yv2p21cEZga21412B", toast: "Copied", kind: .address),
                 walletImageProvider: nil
             ),
             onAction: { _ in }
