@@ -16,4 +16,8 @@ struct JointAccountMembersServiceMock: JointAccountMembersService {
     var slotsPublisher: AnyPublisher<[JointAccountSlot], Never> {
         Just(slots).eraseToAnyPublisher()
     }
+
+    func requestFrequentUpdates() -> AnyCancellable {
+        AnyCancellable {}
+    }
 }
