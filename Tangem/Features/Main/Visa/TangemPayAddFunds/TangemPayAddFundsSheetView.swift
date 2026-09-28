@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayAddFundsSheetView: View {
     @ObservedObject var viewModel: TangemPayAddFundsSheetViewModel
@@ -58,5 +59,6 @@ private extension TangemPayAddFundsSheetView {
         TangemUI.Button(icon: DesignSystem.Icons.Cross.regular20, accessibilityLabel: Localization.commonClose, action: viewModel.close)
             .size(.x11)
             .styleType(.material(.glass))
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.addFundsSheetCloseButton)
     }
 }

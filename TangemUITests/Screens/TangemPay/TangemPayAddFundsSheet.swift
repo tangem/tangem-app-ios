@@ -13,6 +13,7 @@ final class TangemPayAddFundsSheet: ScreenBase<TangemPayAddFundsSheetElement> {
     private lazy var swapOptionButton = button(.swapOption)
     private lazy var receiveOptionButton = button(.receiveOption)
     private lazy var bankTransferOptionButton = button(.bankTransferOption)
+    private lazy var closeButton = button(.closeButton)
 
     @discardableResult
     func waitForScreen() -> Self {
@@ -100,6 +101,15 @@ final class TangemPayAddFundsSheet: ScreenBase<TangemPayAddFundsSheetElement> {
         }
     }
 
+    @discardableResult
+    func close() -> TangemPayMainScreen {
+        XCTContext.runActivity(named: "Close the Add Funds sheet") { _ in
+            closeButton.waitAndTap()
+            XCTAssertTrue(swapOptionButton.waitForNonExistence(timeout: .robustUIUpdate), "Add Funds sheet should be closed")
+            return TangemPayMainScreen(app)
+        }
+    }
+
     private func verifyLabel(of element: XCUIElement, contains texts: [String], name: String) {
         waitAndAssertTrue(element, "\(name) option should be displayed")
         for text in texts {
@@ -115,6 +125,7 @@ enum TangemPayAddFundsSheetElement: String, UIElement {
     case swapOption
     case receiveOption
     case bankTransferOption
+    case closeButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -124,6 +135,8 @@ enum TangemPayAddFundsSheetElement: String, UIElement {
             TangemPayAccessibilityIdentifiers.addFundsSheetReceiveOption
         case .bankTransferOption:
             TangemPayAccessibilityIdentifiers.addFundsSheetBankTransferOption
+        case .closeButton:
+            TangemPayAccessibilityIdentifiers.addFundsSheetCloseButton
         }
     }
 }
