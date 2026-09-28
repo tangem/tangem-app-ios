@@ -11,4 +11,5 @@ enum SolanaBSDKError: Error {
     case notImplemented
     case signerPublicKeyNotFound
     case invalidSignatureLength
+    case invalidCompactU16
 }
