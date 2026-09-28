@@ -1,5 +1,5 @@
 //
-//  CollectiblesRegionRestrictionsView+Sheet.swift
+//  View+CollectiblesRegionRestrictions.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,8 +7,6 @@
 //
 
 import SwiftUI
-import TangemAssets
-import TangemUI
 
 extension View {
     func collectiblesRegionRestrictionsSheet(isRestricted: Binding<Bool>, isRequested: Binding<Bool>) -> some View {
@@ -34,11 +32,6 @@ private struct CollectiblesRegionRestrictionsSheetModifier: ViewModifier {
                 viewModel.presentRestrictions()
                 self.isRequested = false
             }
-            .sheet(isPresented: $viewModel.isRestrictionsPresented) {
-                CollectiblesRegionRestrictionsView(onClose: viewModel.close)
-                    .presentationDetents(idealHeight: CollectiblesRegionRestrictionsView.Metrics.estimatedHeight)
-                    .presentationDragIndicator(.hidden)
-                    .presentationBackground(DesignSystem.Color.bgPrimary)
-            }
+            .collectiblesInfoSheet(viewModel: viewModel.restrictionsSheetViewModel)
     }
 }
