@@ -429,7 +429,7 @@ private extension FeedCoordinator {
                 present(.collectibles(coordinator))
 
             case .regionRestricted:
-                let geoblock = CollectiblesGeoblockViewModel()
+                let geoblock = CollectiblesInfoSheetViewModel(model: .regionRestrictions)
                 enqueueWidgetSheet(geoblock)
             }
         }
