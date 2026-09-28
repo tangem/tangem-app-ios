@@ -19,8 +19,8 @@ struct FeedView: View {
 
     @Environment(\.feedDetentReporting) private var detentReporting
     @Environment(\.mainShtorkaSize) private var sheetSize
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    @State private var isContentUnderSearchBar = false
     @State private var areChipsPinned = false
 
     var body: some View {
@@ -73,7 +73,7 @@ struct FeedView: View {
                             isContentVisible: isContentVisible && !searchViewModel.isActive
                         )
                         .readGeometry(\.size.height) { height in
-                            viewModel.scrollCoordinator.report(widgets: height)
+                            viewModel.widgetsHeightDidChange(height)
                             detentReporting?.report(widgets: height)
                         }
 
@@ -83,7 +83,7 @@ struct FeedView: View {
                             areChipsPinned: $areChipsPinned,
                             scrollProxy: proxy,
                             viewportHeight: visibleHeight,
-                            scrollTarget: { viewModel.scrollCoordinator.scrollTarget(forTab: $0, viewportHeight: visibleHeight, pinTabs: $1, chipsPinned: $2) },
+                            scrollTarget: viewModel.scrollTarget(viewportHeight: visibleHeight),
                             onChipsHeightChange: { detentReporting?.report(tabChips: $0) }
                         )
                         .frame(minHeight: visibleHeight, alignment: .top)
@@ -93,14 +93,11 @@ struct FeedView: View {
                             .frame(height: FeedConstants.scrollAnchorHeight)
                             .id(FeedConstants.contentAnchorID)
                     }
-                    .onGeometryChange(for: CGFloat.self, of: { -$0.frame(in: .named(FeedConstants.scrollCoordinateSpace)).minY }) { offset in
-                        viewModel.scrollCoordinator.report(offset: offset, tabID: viewModel.tabsViewModel.selectedTab.id)
-
-                        let isUnderSearchBar = offset > 0
-                        if isUnderSearchBar != isContentUnderSearchBar {
-                            isContentUnderSearchBar = isUnderSearchBar
-                        }
-                    }
+                    .onGeometryChange(
+                        for: CGFloat.self,
+                        of: { -$0.frame(in: .named(FeedConstants.scrollCoordinateSpace)).minY },
+                        action: weakify(viewModel, forFunction: FeedViewModel.scrollOffsetDidChange)
+                    )
                 }
                 .scrollIndicators(.hidden)
                 .coordinateSpace(name: FeedConstants.scrollCoordinateSpace)
@@ -110,7 +107,7 @@ struct FeedView: View {
                         .allowsHitTesting(false)
                 }
                 .reverseMask(alignment: .top) {
-                    if isContentUnderSearchBar, !areChipsPinned {
+                    if viewModel.isContentUnderSearchBar, !areChipsPinned {
                         FeedTopFade()
                     }
                 }
@@ -126,11 +123,12 @@ struct FeedView: View {
     }
 
     private func resetScroll(at size: ShtorkaSize, with proxy: ScrollViewProxy) {
-        guard isContentVisible, size != .full else {
+        guard size != .full else {
             return
         }
 
-        withAnimation {
+        withAnimation(reduceMotion ? nil : .default) {
+            viewModel.resetScroll()
             proxy.scrollTo(FeedConstants.contentAnchorID, anchor: .top)
             proxy.scrollTo(FeedConstants.widgetsAnchorID, anchor: .leading)
         }
