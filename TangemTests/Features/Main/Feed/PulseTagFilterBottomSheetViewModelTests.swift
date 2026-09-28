@@ -85,6 +85,31 @@ struct PulseTagFilterBottomSheetViewModelTests {
         #expect(dismissCount.withLock { $0 } == 2)
     }
 
+    @Test("Reset and Apply show up only once the selection differs from the applied one")
+    func footerFollowsSelectionChanges() async {
+        let viewModel = makeViewModel(result: .success(snapshot(country: "US")))
+        #expect(!viewModel.showsFooter)
+
+        viewModel.onViewAppear()
+        await viewModel.waitUntilLoaded()
+        #expect(!viewModel.showsFooter)
+
+        let did = viewModel.categoryItems.first { $0.id == "decentralized-identifier-did" }!
+        viewModel.select(did)
+        #expect(viewModel.showsFooter)
+
+        viewModel.reset()
+        #expect(!viewModel.showsFooter)
+
+        let appliedViewModel = makeViewModel(result: .success(snapshot(country: "US")), selectedTagID: "layer-1")
+        appliedViewModel.onViewAppear()
+        await appliedViewModel.waitUntilLoaded()
+        #expect(!appliedViewModel.showsFooter)
+
+        appliedViewModel.reset()
+        #expect(appliedViewModel.showsFooter)
+    }
+
     @Test("Apply with a selection the loaded list cannot resolve keeps the current tag and only dismisses")
     func applyWithUnresolvableSelectionKeepsTag() async {
         let applied = OSAllocatedUnfairLock(initialState: [PulseTagSelection?]())
