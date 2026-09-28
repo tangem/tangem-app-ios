@@ -77,7 +77,7 @@ final class TangemPayDailyLimitUITests: BaseTestCase {
         .clearAndEnterAmount("5000")
         .tapSetLimits()
         .verifySuccessDisplayed()
-        .tapDone()
+        .tapSuccessClose()
         .verifyDailyLimitValue(contains: "5,000")
     }
 
