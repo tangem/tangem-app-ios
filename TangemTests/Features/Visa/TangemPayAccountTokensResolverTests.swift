@@ -413,6 +413,34 @@ struct TangemPayAccountTokensResolverTests {
         #expect(tokens.first?.tokenItem.expressCurrency == walletToken.expressCurrency)
     }
 
+    @Test("A Tron TRC-20 contract keeps its base58 casing — lowercasing it would address a different contract")
+    func tronContractCasingIsPreserved() throws {
+        let networks = try makeTangemPayNetworks(
+            """
+            [
+              {
+                "name": "\(Blockchain.tron(testnet: false).networkId)",
+                "isTestnet": false,
+                "chainId": 728126428,
+                "status": "ENABLED",
+                "depositAddress": "TDepositAddress",
+                "tokens": [
+                  { "token": "USDT", "tokenContractAddress": "\(Self.tronUSDTContract)" }
+                ]
+              }
+            ]
+            """
+        )
+
+        let tokens = TangemPayAccountTokensResolver().resolve(networks: networks)
+
+        #expect(tokens.first?.tokenItem.blockchain == .tron(testnet: false))
+        #expect(tokens.first?.tokenItem.contractAddress == Self.tronUSDTContract)
+    }
+
+    /// Mainnet USDT on Tron (TRC-20).
+    private static let tronUSDTContract = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+
     /// Not the canonical USDC — its hardcoded item would mask how the rest are built.
     private static let usdtContract = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
 }

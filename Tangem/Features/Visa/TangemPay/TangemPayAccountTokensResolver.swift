@@ -76,15 +76,20 @@ private extension TangemPayAccountTokensResolver {
             Token(
                 name: entry.symbol,
                 symbol: entry.symbol,
-                // Express compares contracts verbatim; the wallet's own tokens carry the catalog's
-                // lowercase form, and a checksummed one would read as a different token.
-                contractAddress: entry.contractAddress.lowercased(),
+                // Express compares contracts verbatim; the wallet's own EVM tokens carry the catalog's
+                // lowercase form, and a checksummed one would read as a different token. Tron TRC-20
+                // contracts are base58 — case-sensitive — so they must be kept as issued.
+                contractAddress: normalizedContractAddress(for: entry),
                 decimalCount: TangemPayUtilities.tokenDecimalCount(chainId: entry.chainId),
                 id: TangemPayUtilities.tokenId(symbol: entry.symbol),
                 metadata: .fungibleTokenMetadata
             ),
             BlockchainNetwork(entry.blockchain, derivationPath: nil)
         )
+    }
+
+    func normalizedContractAddress(for entry: Entry) -> String {
+        entry.blockchain.isEvm ? entry.contractAddress.lowercased() : entry.contractAddress
     }
 
     func canonicalTokenItem(for entry: Entry) -> TokenItem? {
