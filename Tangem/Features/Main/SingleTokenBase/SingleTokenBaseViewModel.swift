@@ -62,6 +62,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private var updateTask: Task<Void, Never>?
     private var bag = Set<AnyCancellable>()
+    private var jointFrequentUpdatesSubscription: AnyCancellable?
 
     private var blockchainNetwork: BlockchainNetwork { walletModel.tokenItem.blockchainNetwork }
 
@@ -228,6 +229,15 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     /// Please check `SingleWalletMainContentViewModel` and `TokenDetailsViewModel`
     func openMarketsTokenDetails() {
         tokenRouter.openMarketsTokenDetails(for: walletModel.tokenItem)
+    }
+
+    final func startJointFrequentUpdates() {
+        let jointAccount = walletModel.account as? any JointAccountModel
+        jointFrequentUpdatesSubscription = jointAccount?.jointAccountPendingOperationsProvider.requestFrequentUpdates()
+    }
+
+    final func stopJointFrequentUpdates() {
+        jointFrequentUpdatesSubscription = nil
     }
 
     final func onButtonReloadHistory() {

@@ -180,10 +180,12 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     func onAppear() {
         logScreenOpenedAnalytics()
         deeplinkHandler.beginHandlingIncomingActions()
+        startJointFrequentUpdates()
     }
 
     func onDisappear() {
         deeplinkHandler.endHandlingIncomingActions()
+        stopJointFrequentUpdates()
     }
 
     func onFirstAppear() {
