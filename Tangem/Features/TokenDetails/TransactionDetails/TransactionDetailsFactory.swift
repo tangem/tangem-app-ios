@@ -955,16 +955,13 @@ enum TransactionDetailsFactory {
 
     private static func onrampTitle(status: OnrampTransactionStatus) -> (text: String, style: TransactionDetailsHeaderViewData.TitleStyle) {
         switch status {
-        case .created, .waitingForPayment, .paymentProcessing, .paid, .sending, .refunding, .unknown:
+        case .created, .waitingForPayment, .paymentProcessing, .paid, .sending, .refunding, .unknown,
+             .verifying, .paused:
             return (Localization.transactionHistoryStatusToppingUp, .active)
-        case .verifying, .paused:
-            return (Localization.transactionHistoryStatusToppingUp, .attention)
         case .finished:
             return (Localization.txHistoryOnrampToppedUp, .neutral)
-        case .failed, .refunded:
+        case .failed, .refunded, .expired:
             return (Localization.transactionHistoryStatusTopUpFailed, .failed)
-        case .expired:
-            return (Localization.transactionHistoryStatusTopUpFailed, .expired)
         }
     }
 

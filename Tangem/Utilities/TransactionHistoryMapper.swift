@@ -285,9 +285,7 @@ struct TransactionHistoryMapper {
         switch record.expressExtraInfo {
         case .exchange(let info):
             return warning(for: info.transaction.status)
-        case .onramp(let info):
-            return warning(for: info.transaction.status)
-        case nil:
+        case .onramp, nil:
             return nil
         }
     }
@@ -312,27 +310,6 @@ struct TransactionHistoryMapper {
              .failed,
              .txFailed,
              .refunded:
-            return nil
-        }
-    }
-
-    private func warning(for status: OnrampTransactionStatus) -> TransactionViewModel.Warning? {
-        switch status {
-        case .verifying:
-            return .verifying
-        case .paused:
-            return .paused
-        case .unknown,
-             .created,
-             .expired,
-             .waitingForPayment,
-             .paymentProcessing,
-             .failed,
-             .paid,
-             .sending,
-             .refunding,
-             .refunded,
-             .finished:
             return nil
         }
     }
