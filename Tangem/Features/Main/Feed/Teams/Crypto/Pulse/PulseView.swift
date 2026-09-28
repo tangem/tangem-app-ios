@@ -16,6 +16,8 @@ import TangemUI
 struct PulseView: View {
     @ObservedObject var viewModel: PulseViewModel
     @ScaledMetric(relativeTo: .subheadline) private var controlHeight: CGFloat = 36
+    @ScaledMetric private var filterHeight: CGFloat = 36
+    @ScaledMetric private var filterIconSize: CGFloat = 16
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -89,15 +91,29 @@ struct PulseView: View {
     }
 
     private var intervalDropDown: some View {
-        TangemDropDown(
-            singleSelection: Binding(
-                get: { PulseIntervalOption(interval: viewModel.selectedInterval) },
-                set: { viewModel.onSelectInterval($0.interval) }
-            ),
-            in: viewModel.intervals.map(PulseIntervalOption.init)
-        )
-        .accessibilityIdentifier { option in
-            MarketsAccessibilityIdentifiers.marketsIntervalSegment(option.interval.rawValue)
+        TangemDropDown(items: viewModel.intervals.map { interval in
+            TangemDropDownItem(
+                id: interval,
+                text: PulseIntervalOption(interval: interval).text,
+                isChecked: interval == viewModel.selectedInterval,
+                accessibilityIdentifier: MarketsAccessibilityIdentifiers.marketsIntervalSegment(interval.rawValue),
+                action: { viewModel.onSelectInterval(interval) }
+            )
+        }) {
+            HStack(spacing: 4) {
+                Text(PulseIntervalOption(interval: viewModel.selectedInterval).text)
+                    .lineLimit(1)
+
+                DesignSystem.Icons.ChevronDown.regular16.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .frame(width: filterIconSize, height: filterIconSize)
+            }
+            .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
+            .padding(.leading, 12)
+            .padding(.trailing, 10)
+            .frame(height: filterHeight)
+            .background(DesignSystem.Color.bgOpaqueSecondary, in: .capsule)
         }
         .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsIntervalButton(viewModel.selectedInterval.rawValue))
         .fixedSize(horizontal: true, vertical: false)

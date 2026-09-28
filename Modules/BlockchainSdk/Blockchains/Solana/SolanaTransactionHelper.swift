@@ -95,6 +95,83 @@ public struct SolanaTransactionHelper {
         }
     }
 
+    public func isTransactionMessage(_ data: Data) -> Bool {
+        guard !data.isEmpty else {
+            return false
+        }
+
+        return (try? parseAsTransactionMessage(data)) ?? false
+    }
+
+    private func parseAsTransactionMessage(_ data: Data) throws -> Bool {
+        let bytes: [UInt8] = data.bytes
+        var reader = BinaryReader(bytes: bytes)
+
+        let isVersioned = bytes[0] & Constants.versionedMessageMask != 0
+        if isVersioned {
+            guard bytes[0] & ~Constants.versionedMessageMask == Constants.supportedMessageVersion else {
+                return false
+            }
+
+            _ = try reader.read()
+        }
+
+        let numRequiredSignatures = Int(try reader.read())
+        let numReadonlySignedAccounts = Int(try reader.read())
+        let numReadonlyUnsignedAccounts = Int(try reader.read())
+
+        let accountCount = try readCompactU16(from: &reader)
+        guard
+            numRequiredSignatures > 0,
+            numRequiredSignatures <= accountCount,
+            numReadonlySignedAccounts <= numRequiredSignatures,
+            numReadonlyUnsignedAccounts <= accountCount - numRequiredSignatures
+        else {
+            return false
+        }
+
+        _ = try reader.read(count: accountCount * Constants.publicKeyLength)
+        _ = try reader.read(count: Constants.blockhashLength)
+
+        let instructionCount = try readCompactU16(from: &reader)
+        for _ in 0 ..< instructionCount {
+            let programIdIndex = Int(try reader.read())
+            guard isVersioned || programIdIndex < accountCount else {
+                return false
+            }
+
+            let accountIndexCount = try readCompactU16(from: &reader)
+            for _ in 0 ..< accountIndexCount {
+                let accountIndex = Int(try reader.read())
+                guard isVersioned || accountIndex < accountCount else {
+                    return false
+                }
+            }
+
+            _ = try reader.read(count: try readCompactU16(from: &reader))
+        }
+
+        if isVersioned {
+            let lookupCount = try readCompactU16(from: &reader)
+            for _ in 0 ..< lookupCount {
+                _ = try reader.read(count: Constants.publicKeyLength)
+                _ = try reader.read(count: try readCompactU16(from: &reader))
+                _ = try reader.read(count: try readCompactU16(from: &reader))
+            }
+        }
+
+        return reader.remainBytes == 0
+    }
+
+    private func readCompactU16(from reader: inout BinaryReader) throws -> Int {
+        let value = try reader.decodeLength()
+        guard (0 ... Int(UInt16.max)).contains(value) else {
+            throw SolanaBSDKError.invalidCompactU16
+        }
+
+        return value
+    }
+
     public func transactionSize(withSignaturePlaceholders: Data) throws -> SolanaTransactionSize {
         let transaction = try removeSignaturesPlaceholders(from: withSignaturePlaceholders).transaction
         return transactionSize(withoutSignaturePlaceholders: transaction)
@@ -114,7 +191,9 @@ extension SolanaTransactionHelper {
     private enum Constants {
         static let signatureLength: Int = 64
         static let publicKeyLength: Int = 32
+        static let blockhashLength: Int = 32
         static let versionedMessageMask: UInt8 = 0x80
+        static let supportedMessageVersion: UInt8 = 0
 
         /// Maximum APDU payload size in bytes.
         ///

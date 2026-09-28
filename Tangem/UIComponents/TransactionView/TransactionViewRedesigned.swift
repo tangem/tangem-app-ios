@@ -174,8 +174,8 @@ struct TransactionViewRedesigned: View {
 
     private func amountView(_ value: String) -> some View {
         SensitiveText(value)
+            .strikethroughWhenVisible(isFailed, color: amountColor)
             .style(Font.Tangem.Body16.medium, color: amountColor)
-            .strikethrough(isFailed, color: amountColor)
             .lineLimit(1)
             .layoutPriority(1)
             .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionAmount(key: transactionKey))

@@ -8,10 +8,12 @@
 
 import Foundation
 import SwiftUI
+import TangemUIUtils
 
-public struct SensitiveText: View {
+public struct SensitiveText: View, Setupable {
     @ObservedObject private var visibilityState: SensitiveTextVisibilityState = .shared
     private let textType: TextType
+    private var strikethroughStyle: StrikethroughStyle?
 
     public init(_ textType: TextType) {
         self.textType = textType
@@ -30,17 +32,36 @@ public struct SensitiveText: View {
     }
 
     public var body: some View {
+        text
+            .strikethrough(strikethroughStyle != nil && !visibilityState.isHidden, color: strikethroughStyle?.color)
+    }
+
+    private var text: Text {
         let maskedBalanceString = visibilityState.maskedBalanceString
 
         switch textType {
         case .string(let string):
-            Text(visibilityState.isHidden ? maskedBalanceString : string)
+            return Text(visibilityState.isHidden ? maskedBalanceString : string)
         case .attributed(let string):
-            Text(visibilityState.isHidden ? string.masked(with: maskedBalanceString) : string)
+            return Text(visibilityState.isHidden ? string.masked(with: maskedBalanceString) : string)
                 .monospacedDigit()
         case .builder(let builder, let sensitive):
-            Text(builder(visibilityState.isHidden ? maskedBalanceString : sensitive))
+            return Text(builder(visibilityState.isHidden ? maskedBalanceString : sensitive))
         }
+    }
+}
+
+// MARK: - Setupable
+
+public extension SensitiveText {
+    func strikethroughWhenVisible(_ isActive: Bool = true, color: Color? = nil) -> Self {
+        map { $0.strikethroughStyle = isActive ? StrikethroughStyle(color: color) : nil }
+    }
+}
+
+private extension SensitiveText {
+    struct StrikethroughStyle {
+        let color: Color?
     }
 }
 

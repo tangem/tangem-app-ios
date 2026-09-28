@@ -146,11 +146,11 @@ struct TransactionDetailsTokensView: View {
 
                 VStack(spacing: 2) {
                     SensitiveText(single.amountText)
+                        .strikethroughWhenVisible(single.isAmountStrikethrough)
                         .style(
                             DesignSystem.Font.headingMediumToken,
                             color: single.isAmountStrikethrough ? DesignSystem.Color.textTertiary : DesignSystem.Color.textPrimary
                         )
-                        .strikethrough(single.isAmountStrikethrough)
                         .multilineTextAlignment(.center)
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
@@ -213,11 +213,11 @@ struct TransactionDetailsTokensView: View {
 
     private func legAmountLabel(_ text: String, isStrikethrough: Bool) -> some View {
         SensitiveText(text)
+            .strikethroughWhenVisible(isStrikethrough)
             .style(
                 DesignSystem.Font.headingSmallToken,
                 color: isStrikethrough ? DesignSystem.Color.textTertiary : DesignSystem.Color.textPrimary
             )
-            .strikethrough(isStrikethrough)
             .lineLimit(1)
             .minimumScaleFactor(0.7)
     }
