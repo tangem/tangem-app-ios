@@ -152,11 +152,7 @@ struct FeedTabsView: View {
     }
 
     private func select(_ tab: FeedTab) {
-        let isAlreadySelected = tab.id == viewModel.selectedTab.id
         viewModel.onSelectTab(tab)
-        if isAlreadySelected {
-            move(to: viewModel.startSlide(to: tab, target: scrollTarget(for: tab, pinTabs: true)))
-        }
     }
 
     private var slideWidth: CGFloat {
@@ -164,7 +160,7 @@ struct FeedTabsView: View {
     }
 
     private func show(_ tab: FeedTab) {
-        let target = scrollTarget(for: tab, pinTabs: true)
+        let target = scrollTarget(for: tab, pinTabs: false)
 
         guard #available(iOS 17.0, *), !reduceMotion else {
             move(to: viewModel.showInstantly(tab, target: target))

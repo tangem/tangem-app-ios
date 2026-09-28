@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import TangemFoundation
 
 final class FeedScrollState {
     private(set) var tabID: String?
@@ -17,21 +16,29 @@ final class FeedScrollState {
     func select(tabID: String, headerHeight: CGFloat) {
         guard self.tabID != tabID else { return }
 
+        let currentOffset = pendingOffset ?? offset
+        let headerHeight = max(0, headerHeight)
         if let previousID = self.tabID {
-            offsets[previousID] = pendingOffset ?? offset
+            offsets[previousID] = currentOffset
         }
 
-        pendingOffset = offsets[tabID] ?? min(offset, max(0, headerHeight))
+        let savedOffset = offsets[tabID] ?? 0
+        pendingOffset = savedOffset > headerHeight ? savedOffset : min(currentOffset, headerHeight)
         self.tabID = tabID
     }
 
     func pinTabs(headerHeight: CGFloat) {
-        pendingOffset = clamp(pendingOffset ?? offset, min: max(0, headerHeight), max: .infinity)
+        pendingOffset = max(pendingOffset ?? offset, max(0, headerHeight))
     }
 
-    func report(offset: CGFloat, tabID: String) {
+    func report(offset: CGFloat, tabID: String, widgetsHeight: CGFloat) {
         guard self.tabID == tabID, pendingOffset == nil else { return }
+
         self.offset = max(0, offset)
+        if self.offset < widgetsHeight {
+            // Revealing the widgets restarts every tab's list without moving the active scroll view.
+            offsets.removeAll()
+        }
     }
 
     func restorationAnchor(tabID: String, viewportHeight: CGFloat) -> UnitPoint? {
@@ -51,7 +58,7 @@ final class FeedScrollState {
     func reset() {
         offset = 0
         pendingOffset = nil
-        if let tabID { offsets[tabID] = 0 }
+        offsets.removeAll()
     }
 }
 
