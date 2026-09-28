@@ -272,9 +272,15 @@ extension FeedCoordinator: AddAccountTypeSelectorRoutable {
         }
     }
 
-    func openJointAccountManagement(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
+    func openJointAccountManagement() {
         Task { @MainActor in
-            guard presented == nil, validateAccountLimit(accountModelsManager: accountModelsManager) else { return }
+            guard
+                presented == nil,
+                let accountCreationWallet,
+                validateAccountLimit(accountModelsManager: accountCreationWallet.accountModelsManager)
+            else {
+                return
+            }
 
             dismissWidgetSheet()
 
@@ -286,7 +292,7 @@ extension FeedCoordinator: AddAccountTypeSelectorRoutable {
                 },
                 popToRootAction: popToRootAction
             )
-            coordinator.start(with: .creation(.init(accountModelsManager: accountModelsManager, userWalletConfig: userWalletConfig)))
+            coordinator.start(with: .creation(.init(userWalletModel: accountCreationWallet)))
             present(.jointAccount(coordinator))
         }
     }
