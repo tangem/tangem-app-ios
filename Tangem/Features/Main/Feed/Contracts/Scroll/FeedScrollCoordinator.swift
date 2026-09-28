@@ -8,12 +8,15 @@
 import SwiftUI
 import TangemUIUtils
 
-/// Where each tab was left and where the tab being switched to has to land. It belongs to the feed rather than
-/// to whatever shows it: the same scroll follows the feed into the sheet on the main screen and onto a screen
-/// of its own.
+/// Remembers each tab's scroll position until the widgets become visible,
+/// both in the main sheet and when the feed is shown on a screen of its own.
 final class FeedScrollCoordinator {
     private let state = FeedScrollState()
     private var widgetsHeight: CGFloat = .zero
+
+    private var headerHeight: CGFloat {
+        widgetsHeight + FeedConstants.widgetsToTabsSpacing
+    }
 
     /// A zero is the widgets before they have anything to measure, not a header that has gone away — keeping the
     /// last real height is what stops the first tab from being placed against a header of nothing.
@@ -24,12 +27,12 @@ final class FeedScrollCoordinator {
     }
 
     func report(offset: CGFloat, tabID: String) {
-        state.report(offset: offset, tabID: tabID)
+        state.report(offset: offset, tabID: tabID, widgetsHeight: widgetsHeight)
     }
 
     func scrollTarget(forTab id: String, viewportHeight: CGFloat, pinTabs: Bool, chipsPinned: Bool) -> FeedScrollTarget? {
-        let headerHeight = widgetsHeight + FeedConstants.widgetsToTabsSpacing
         let previousOffset = state.offset
+        let isSwitchingTab = state.tabID != id
         state.select(tabID: id, headerHeight: headerHeight)
 
         if pinTabs {
@@ -41,7 +44,7 @@ final class FeedScrollCoordinator {
             return nil
         }
 
-        if chipsPinned {
+        if isSwitchingTab || chipsPinned {
             return .jump(anchor: anchor, shift: state.offset - previousOffset)
         }
 
