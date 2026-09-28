@@ -92,9 +92,7 @@ final class MainViewModel: ObservableObject {
             pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
         )
 
-        if let selectedIndex = pages.firstIndex(where: { $0.id == selectedUserWalletId }) {
-            selectedCardIndex = selectedIndex
-        }
+        selectPage(userWalletId: selectedUserWalletId)
     }
 
     deinit {
@@ -110,6 +108,14 @@ final class MainViewModel: ObservableObject {
     func openQRScan() {
         Analytics.log(.mainScreenButtonQRScan)
         coordinator?.openQRScan()
+    }
+
+    func selectPage(userWalletId: UserWalletId) {
+        guard let index = pages.firstIndex(where: { $0.id == userWalletId }) else {
+            return
+        }
+
+        selectedCardIndex = index
     }
 
     /// Handles `SwiftUI.View.onAppear(perform:)`.

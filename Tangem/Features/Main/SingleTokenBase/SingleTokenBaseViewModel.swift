@@ -113,7 +113,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             .eraseToAnyPublisher()
     }
 
-    private var jointOperationsAwaitingSignaturesPublisher: AnyPublisher<[JointAccountPendingOperation], Never> {
+    final var jointOperationsInFlightPublisher: AnyPublisher<[JointAccountPendingOperation], Never> {
         guard let jointAccount = walletModel.account as? any JointAccountModel else {
             return .just(output: [])
         }
@@ -124,8 +124,15 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             .jointAccountPendingOperationsProvider
             .pendingOperationsPublisher
             .map { operations in
-                operations.filter { $0.operation.status == .awaitingSignatures && $0.tokenItem == tokenItem }
+                operations.filter { $0.operation.status.isInFlight && $0.tokenItem == tokenItem }
             }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    private var jointOperationsAwaitingSignaturesPublisher: AnyPublisher<[JointAccountPendingOperation], Never> {
+        jointOperationsInFlightPublisher
+            .map { operations in operations.filter { $0.operation.status == .awaitingSignatures } }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
