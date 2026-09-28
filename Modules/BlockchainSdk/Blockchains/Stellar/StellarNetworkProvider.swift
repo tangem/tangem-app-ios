@@ -64,7 +64,10 @@ class StellarNetworkProvider: HostProvider {
                 }
 
                 let assetBalances = try accountResponse.balances
-                    .filter { $0.assetType != AssetTypeAsString.NATIVE }
+                    // Liquidity-pool shares carry a `liquidity_pool_id` instead of `asset_code` /
+                    // `asset_issuer`; they are not a token we display, and throwing on them below
+                    // used to fail the whole account load for anyone who ever deposited into an AMM.
+                    .filter { $0.assetType != AssetTypeAsString.NATIVE && $0.assetType != AssetTypeAsString.POOL_SHARE }
                     .map { assetBalance -> StellarAssetResponse in
                         guard let code = assetBalance.assetCode,
                               let issuer = assetBalance.assetIssuer,
