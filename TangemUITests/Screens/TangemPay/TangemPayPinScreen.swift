@@ -21,11 +21,15 @@ final class TangemPayPinScreen: ScreenBase<TangemPayPinScreenElement> {
     private lazy var validationError = app.staticTexts
         .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, validationErrorText))
         .firstMatch
-    private lazy var successTitle = staticText(.pinSuccessTitle)
+    private lazy var successTitle = app.staticTexts
+        .matching(NSPredicate(format: "label == %@", successTitleText))
+        .firstMatch
     private lazy var successDescription = app.staticTexts
         .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, successDescriptionText))
         .firstMatch
-    private lazy var doneButton = button(.pinDoneButton)
+    private lazy var successCloseButton = app.buttons
+        .matching(NSPredicate(format: "label == %@", Constants.Success.closeButton))
+        .firstMatch
     private lazy var closeButton = button(.closeButton)
 
     @discardableResult
@@ -97,7 +101,7 @@ final class TangemPayPinScreen: ScreenBase<TangemPayPinScreenElement> {
     func waitForSuccessScreen() -> Self {
         XCTContext.runActivity(named: "Wait for PIN success screen") { _ in
             waitAndAssertTrue(successTitle, timeout: .networkRequest, "PIN success title should be displayed")
-            waitAndAssertTrue(doneButton, "Done button should be displayed")
+            waitAndAssertTrue(successCloseButton, "Close button should be displayed on the PIN success screen")
             return self
         }
     }
@@ -113,9 +117,9 @@ final class TangemPayPinScreen: ScreenBase<TangemPayPinScreenElement> {
     }
 
     @discardableResult
-    func tapDone() -> TangemPayCardDetailsScreen {
-        XCTContext.runActivity(named: "Tap Done button") { _ in
-            doneButton.waitAndTap()
+    func tapSuccessClose() -> TangemPayCardDetailsScreen {
+        XCTContext.runActivity(named: "Tap Close on the PIN success screen") { _ in
+            successCloseButton.waitAndTap()
             return TangemPayCardDetailsScreen(app)
         }
     }
@@ -147,8 +151,6 @@ final class TangemPayPinScreen: ScreenBase<TangemPayPinScreenElement> {
 enum TangemPayPinScreenElement: String, UIElement {
     case pinScreenTitle
     case pinInputField
-    case pinSuccessTitle
-    case pinDoneButton
     case closeButton
 
     var accessibilityIdentifier: String {
@@ -157,12 +159,16 @@ enum TangemPayPinScreenElement: String, UIElement {
             TangemPayAccessibilityIdentifiers.pinScreenTitle
         case .pinInputField:
             TangemPayAccessibilityIdentifiers.pinInputField
-        case .pinSuccessTitle:
-            TangemPayAccessibilityIdentifiers.pinSuccessTitle
-        case .pinDoneButton:
-            TangemPayAccessibilityIdentifiers.pinDoneButton
         case .closeButton:
             CommonUIAccessibilityIdentifiers.closeButton
+        }
+    }
+}
+
+private extension TangemPayPinScreen {
+    enum Constants {
+        enum Success {
+            static let closeButton = "Close"
         }
     }
 }
