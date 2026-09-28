@@ -10,6 +10,7 @@ import Foundation
 import LocalAuthentication
 import Combine
 import CryptoKit
+import TangemCollectibles
 import TangemPolymarket
 import TangemSdk
 import TangemVisa
@@ -70,7 +71,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private let mobileWalletSdk = CommonMobileWalletSdk()
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
     private let collectiblesSessionKeyWalletStore: any CollectiblesSessionKeyWalletStore = CommonCollectiblesSessionKeyWalletStore()
-    private let collectiblesAccountPresenceStore: any CollectiblesAccountPresenceStore = AppSettingsCollectiblesAccountPresenceStore()
+    private let collectiblesAccountPresenceStore: any CollectiblesAccountPresenceStore = StoredCollectiblesAccountPresenceStore.appSettings()
     private var bag: Set<AnyCancellable> = .init()
 
     deinit {
