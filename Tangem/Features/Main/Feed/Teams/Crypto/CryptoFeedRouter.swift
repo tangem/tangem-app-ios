@@ -17,10 +17,10 @@ protocol CryptoFeedRoutable: AnyObject {
 
 final class CryptoFeedRouter {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+    @Injected(\.floatingSheetPresentingStateProvider) private var sheetStateProvider: FloatingSheetPresentingStateProvider
 
     private weak var navigation: (any FeedNavigation)?
     private weak var tagFilter: PulseTagFilterBottomSheetViewModel?
-    private weak var marketCapInfo: MarketCapInfoBottomSheetViewModel?
 
     private let popToRootAction: Action<PopToRootOptions>
     private let portfolioTokenRouter: FeedPortfolioTokenRouter
@@ -66,19 +66,17 @@ extension CryptoFeedRouter: CryptoFeedRoutable {
 
     func openMarketCapInfo(subject: MarketCapInfoSubject) {
         Task { @MainActor [weak self] in
-            guard let self, marketCapInfo == nil else {
+            guard let self, !sheetStateProvider.hasPresentedSheet else {
                 return
             }
 
             let viewModel = MarketCapInfoBottomSheetViewModel(
                 subject: subject,
                 closeAction: { [weak self] in
-                    self?.marketCapInfo = nil
                     self?.floatingSheetPresenter.removeActiveSheet()
                 }
             )
 
-            marketCapInfo = viewModel
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
