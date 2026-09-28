@@ -64,7 +64,7 @@ private extension JointAccountOperationDetailsViewModel {
             ),
             cryptoAmount: "–0.3212 ETH",
             fiatAmount: "$591.08",
-            recipient: "33Bd321fS…0xxdSga21412B",
+            recipient: "33Bd321fS2p2o8Bk7mQwXeATkLQ3B36Yv2p210xxdSga21412B",
             recipientBlockiesImage: nil,
             networkFee: "~0.00056 ETH",
             collectedSignaturesCount: 1,

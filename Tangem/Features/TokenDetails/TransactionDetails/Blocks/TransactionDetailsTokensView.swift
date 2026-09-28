@@ -235,6 +235,7 @@ struct TransactionDetailsTokensView: View {
                 Text(actor.displayName)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .lineLimit(1)
+                    .truncationMode(actor.displayNameTruncationMode)
             }
         }
     }
@@ -242,7 +243,7 @@ struct TransactionDetailsTokensView: View {
     @ViewBuilder
     private func actorIcon(_ actor: TransactionDetailsActor) -> some View {
         switch actor {
-        case .address(_, let blockiesImage):
+        case .address(_, let blockiesImage), .validator(_, let blockiesImage):
             AddressBlockiesIconView(viewData: blockiesImage, size: captionIconSide)
         case .contact(_, let icon):
             AddressBookContactNameIconView(viewData: icon, size: captionIconSide)
