@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import SwiftUI
 import TangemPay
 
@@ -15,6 +16,7 @@ enum RegionSelectionFactory {
         store: TangemPayGeoStore,
         countryCode: String,
         configuration: GeoSelectionConfiguration,
+        loadingItemIdPublisher: AnyPublisher<String?, Never> = Just(nil).eraseToAnyPublisher(),
         output: @escaping (RegionSelectionViewModel.Output) -> Void
     ) -> some View {
         RegionSelectionView(
@@ -22,6 +24,7 @@ enum RegionSelectionFactory {
                 store: store,
                 countryCode: countryCode,
                 configuration: configuration,
+                loadingItemIdPublisher: loadingItemIdPublisher,
                 output: output
             )
         )
