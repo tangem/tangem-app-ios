@@ -39,6 +39,9 @@ public enum BlockchainSdkError: LocalizedError {
     case noTrustlineAtDestination
     case scaledUIAmountMultiplierMismatch
     case scaledUIAmountMultiplierNotCorroborated
+    /// The destination exists on chain but is owned by a program (token account, PDA, …), so coins
+    /// sent to it cannot be spent by anyone.
+    case destinationIsNotSystemAccount
 
     public var errorDescription: String? {
         switch self {
@@ -52,6 +55,8 @@ public enum BlockchainSdkError: LocalizedError {
             return Localization.commonSendTxError
         case .failedToLoadFee:
             return Localization.commonFeeError
+        case .destinationIsNotSystemAccount:
+            return Localization.sendRecipientAddressError
         default:
             return Localization.genericErrorCode(errorCode)
         }
