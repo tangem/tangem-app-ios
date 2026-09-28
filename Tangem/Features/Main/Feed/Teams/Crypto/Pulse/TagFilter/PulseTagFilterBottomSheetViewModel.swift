@@ -25,6 +25,11 @@ final class PulseTagFilterBottomSheetViewModel: ObservableObject, FloatingSheetC
         loadingState == .loaded && categoryItems.isEmpty
     }
 
+    var showsFooter: Bool {
+        loadingState == .loaded && selectedTagID != appliedTagID
+    }
+
+    private let appliedTagID: String?
     private var items: [Item] = []
     private var snapshot: MarketsGeckoCategoriesSnapshot?
     private var loadingTask: Task<Void, Never>?
@@ -41,6 +46,7 @@ final class PulseTagFilterBottomSheetViewModel: ObservableObject, FloatingSheetC
         onDismiss: @escaping () -> Void
     ) {
         selectedTagID = input.selectedTagID
+        appliedTagID = input.selectedTagID
         onApply = input.onApply
         self.categoriesProvider = categoriesProvider
         self.marketCapFormatter = marketCapFormatter ?? MarketCapFormatter(
