@@ -566,13 +566,15 @@ private extension CommonYieldModuleManager {
             throw YieldModuleError.maxNetworkFeeNotFound
         }
 
-        let maxFeeNativeWei = maxFeeNative * blockchain.decimalValue
         let coinPrice = try await quotesRepository.quote(for: blockchain.currencyId)
         let tokenPrice = try await quotesRepository.quote(for: tokenCurrencyId)
 
-        let maxNetworkFeeToken = maxFeeNativeWei * coinPrice.price / tokenPrice.price
-
-        return EthereumUtils.mapToBigUInt(maxNetworkFeeToken)
+        return try YieldMaxNetworkFeeUtil().maxNetworkFee(
+            maxFeeNative: maxFeeNative,
+            coinPrice: coinPrice.price,
+            tokenPrice: tokenPrice.price,
+            token: token
+        )
     }
 
     func activate() async {
