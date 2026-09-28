@@ -11,6 +11,7 @@ import TangemAccessibilityIdentifiers
 
 final class TangemPayCurrentPlanScreen: ScreenBase<TangemPayCurrentPlanScreenElement> {
     private lazy var changePlanButton = button(.changePlanButton)
+    private lazy var fullTermsButton = button(.fullTermsButton)
 
     @discardableResult
     func waitForScreen() -> Self {
@@ -115,6 +116,14 @@ final class TangemPayCurrentPlanScreen: ScreenBase<TangemPayCurrentPlanScreenEle
     }
 
     @discardableResult
+    func tapFullTerms() -> TangemPayTermsAndFeesSheet {
+        XCTContext.runActivity(named: "Open the full terms from the Current plan screen") { _ in
+            fullTermsButton.waitAndTap()
+            return TangemPayTermsAndFeesSheet(app)
+        }
+    }
+
+    @discardableResult
     func tapBack() -> TangemPayMainScreen {
         tapBackButton(to: TangemPayMainScreen.self)
     }
@@ -141,11 +150,14 @@ final class TangemPayCurrentPlanScreen: ScreenBase<TangemPayCurrentPlanScreenEle
 
 enum TangemPayCurrentPlanScreenElement: String, UIElement {
     case changePlanButton
+    case fullTermsButton
 
     var accessibilityIdentifier: String {
         switch self {
         case .changePlanButton:
             TangemPayAccessibilityIdentifiers.currentPlanChangeButton
+        case .fullTermsButton:
+            TangemPayAccessibilityIdentifiers.currentPlanFullTermsButton
         }
     }
 }

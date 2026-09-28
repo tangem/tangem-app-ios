@@ -349,6 +349,7 @@ struct TangemPayMainView: View {
                 SwiftUI.Button(action: viewModel.contactSupport) {
                     Label(Localization.tangempayPaySupport, systemImage: "text.bubble")
                 }
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paySupportMenuItem)
 
                 if viewModel.isDeactivated {
                     SwiftUI.Button(role: .destructive, action: viewModel.promptRemoveAccount) {

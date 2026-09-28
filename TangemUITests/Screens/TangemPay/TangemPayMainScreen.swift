@@ -39,7 +39,7 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     private lazy var addFundsButton = button(.addFundsButton)
     private lazy var withdrawButton = button(.withdrawButton)
     private lazy var moreActionsButton = button(.moreActionsButton)
-    private lazy var termsAndFeesMenuItem = button(.termsAndLimitsMenuItem)
+    private lazy var paySupportMenuItem = button(.paySupportMenuItem)
     private lazy var removeAccountMenuItem = button(.removeAccountMenuItem)
     /// Type-agnostic: the banner is a plain container, not guaranteed to surface as a specific element type.
     private lazy var cardDeactivatedBanner = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.cardDeactivatedNotification].firstMatch
@@ -54,6 +54,7 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     private lazy var currentPlanMenuItem = button(.currentPlanMenuItem)
     /// Type-agnostic: the badge is a plain container, not guaranteed to surface as a specific element type.
     private lazy var inactiveBadge = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.paymentAccountInactiveBadge].firstMatch
+    private lazy var awaitingDepositAddFundsButton = notificationBannerButton(TangemPayAccessibilityIdentifiers.awaitingDepositBanner)
 
     @discardableResult
     func waitForScreen() -> Self {
@@ -300,15 +301,6 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
-    func openTermsAndFees() -> TangemPayTermsAndFeesSheet {
-        XCTContext.runActivity(named: "Open Terms and fees from more actions menu") { _ in
-            moreActionsButton.waitAndTap()
-            termsAndFeesMenuItem.waitAndTap()
-            return TangemPayTermsAndFeesSheet(app)
-        }
-    }
-
-    @discardableResult
     func openMoreActionsMenu() -> Self {
         XCTContext.runActivity(named: "Open the more actions menu") { _ in
             moreActionsButton.waitAndTap()
@@ -322,6 +314,15 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     func verifyCurrentPlanMenuItem() -> Self {
         XCTContext.runActivity(named: "Verify the Current plan menu item is displayed") { _ in
             waitAndAssertTrue(currentPlanMenuItem, timeout: .networkRequest, "Current plan menu item should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyMoreActionsMenuItems() -> Self {
+        XCTContext.runActivity(named: "Verify the more actions menu offers Current plan and Pay support") { _ in
+            waitAndAssertTrue(currentPlanMenuItem, timeout: .networkRequest, "Current plan menu item should be displayed")
+            waitAndAssertTrue(paySupportMenuItem, "Pay support menu item should be displayed")
             return self
         }
     }
@@ -355,6 +356,14 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
                 .firstMatch
             waitAndAssertTrue(bannerText, timeout: .networkRequest, "Top-up banner should contain '\(text)'")
             return self
+        }
+    }
+
+    @discardableResult
+    func tapAwaitingDepositAddFunds() -> TangemPayAddFundsSheet {
+        XCTContext.runActivity(named: "Tap Add funds on the top-up banner") { _ in
+            awaitingDepositAddFundsButton.waitAndTap()
+            return TangemPayAddFundsSheet(app)
         }
     }
 
@@ -628,7 +637,7 @@ enum TangemPayMainScreenElement: String, UIElement {
     case addFundsButton
     case withdrawButton
     case moreActionsButton
-    case termsAndLimitsMenuItem
+    case paySupportMenuItem
     case removeAccountMenuItem
     case currentPlanMenuItem
 
@@ -650,8 +659,8 @@ enum TangemPayMainScreenElement: String, UIElement {
             TangemPayAccessibilityIdentifiers.withdrawButton
         case .moreActionsButton:
             TangemPayAccessibilityIdentifiers.moreActionsButton
-        case .termsAndLimitsMenuItem:
-            TangemPayAccessibilityIdentifiers.termsAndLimitsMenuItem
+        case .paySupportMenuItem:
+            TangemPayAccessibilityIdentifiers.paySupportMenuItem
         case .removeAccountMenuItem:
             TangemPayAccessibilityIdentifiers.removeAccountMenuItem
         case .currentPlanMenuItem:
