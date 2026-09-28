@@ -218,6 +218,7 @@
 "cardano_insufficient_balance_to_send_token_description" = "Para realizar una %1$@ transacción, deba depositar algo de ADA para cubrir la tarifa de red y el valor mínimo de ADA (se recomiendan 5 ADA)";
 "cardano_insufficient_balance_to_send_token_title" = "ADA insuficiente para la transferencia de tokens";
 "cardano_max_amount_has_token_description" = "Deba mantener algo de ADA porque tiene algunos tokens en la blockchain de Cardano";
+"choose_asset_title" = "Choose asset";
 "collectibles_account_collection_empty" = "No cards";
 "collectibles_account_collection_row_subtitle" = "My collection";
 "collectibles_account_withdraw" = "Withdrawal";
@@ -1735,6 +1736,8 @@
 "promo_campaign_reactivation_summary_description" = "Gane un reembolso de 0.5%% por cada intercambio superior a 500 $, en cualquier par de divisas, excepto entre stablecoins. El pago máximo es de 50 $ por intercambio.\n\nRealice cinco intercambios válidos y desbloquee una bonificación adicional de 10 $.\n\nLas recompensas se abonan semanalmente en USDT o USDC en la dirección seleccionada.";
 "promo_campaign_select_cashback_account" = "Seleccione una cuenta de reembolso";
 "promo_campaign_select_token" = "Seleccionar token de cashback";
+"promo_campaign_selected_cashback_account" = "Selected cashback account";
+"promo_campaign_selected_token" = "Selected cashback token";
 "promo_campaign_summary_title" = "Inscríbase en %1$@";
 "promo_campaign_terms_agreement_android" = "Estoy de acuerdo con";
 "promo_campaign_terms_agreement" = "Estoy de acuerdo con %1$@";
@@ -2287,6 +2290,8 @@
 "tangempay_card_details_add_funds_subtitle" = "Opciones de recarga";
 "tangempay_card_details_add_funds" = "Agregar fondos";
 "tangempay_card_details_add_to_wallet_button_text" = "Añadir a Google Wallet";
+"tangempay_card_details_add_to_wallet_error_description" = "Try another device or contact support";
+"tangempay_card_details_add_to_wallet_error_title" = "Could Not Add Card";
 "tangempay_card_details_awaiting_deposit_cancel_button" = "Cancelar %1$@, pasar a %2$@";
 "tangempay_card_details_awaiting_deposit_subtitle" = "Para pagar el plan y activar la nueva tarjeta";
 "tangempay_card_details_awaiting_deposit_title" = "Recargue su cuenta antes del %1$@";
@@ -2690,6 +2695,7 @@
 "tangempay_withdraw_bank_transfer_type_own" = "Your account";
 "tangempay_withdraw_bank_transfer_type_third_party" = "3rd-party account";
 "tangempay_withdraw_bank_transfer_type_title" = "Type of transfer";
+"tangempay_withdraw_hub_accounts_load_error" = "Couldn’t load list. Tap to reload";
 "tangempay_withdraw_hub_bank_section_subtitle_unavailable" = "Available only for USDC on Polygon, Base, Arbitrum";
 "tangempay_withdraw_hub_bank_section_subtitle" = "Send to another bank using ACH or FedWire";
 "tangempay_withdraw_hub_bank_section_title" = "Bank transfer";
