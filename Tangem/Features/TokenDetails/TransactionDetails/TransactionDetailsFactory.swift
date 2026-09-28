@@ -287,7 +287,7 @@ enum TransactionDetailsFactory {
         }
 
         if let fee = networkFee(from: record, ignoringDirection: false) {
-            rows.append(.init(id: "networkFee", title: Localization.commonNetworkFeeTitle, content: .text(fee)))
+            rows.append(.init(id: "networkFee", title: Localization.commonNetworkFeeTitle, content: .sensitiveText(fee)))
         }
 
         return rows.isEmpty ? nil : .init(rows: rows)
