@@ -100,6 +100,8 @@ extension BlockchainSdkError: UniversalError {
             return 102000025
         case .scaledUIAmountMultiplierNotCorroborated:
             return 102000026
+        case .destinationIsNotSystemAccount:
+            return 102000027
         }
     }
 }

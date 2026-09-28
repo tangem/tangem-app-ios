@@ -131,15 +131,28 @@ public final class SolanaNetworkService: MultiNetworkProvider {
         destinationAddress: String,
         signer: SolanaTransactionSigner
     ) -> AnyPublisher<TransactionID, Error> {
-        solanaSdk.action.sendSOL(
-            to: destinationAddress,
-            amount: amount,
-            computeUnitLimit: computeUnitLimit,
-            computeUnitPrice: computeUnitPrice,
-            allowUnfundedRecipient: true,
-            signer: signer
-        )
-        .eraseToAnyPublisher()
+        // `allowUnfundedRecipient: true` is needed so an address that does not exist yet can be funded,
+        // but it also skips the SDK's owner check. Lamports sent to an existing account owned by a
+        // program — an associated token account, a PDA — are unspendable by anyone, so refuse such a
+        // destination here, before the transaction is signed (the SPL path already does this).
+        checkIfSolanaAccount(destinationAddress: destinationAddress)
+            .tryMap { isSystemAccount in
+                guard isSystemAccount else {
+                    throw BlockchainSdkError.destinationIsNotSystemAccount
+                }
+            }
+            .withWeakCaptureOf(self)
+            .flatMap { service, _ in
+                service.solanaSdk.action.sendSOL(
+                    to: destinationAddress,
+                    amount: amount,
+                    computeUnitLimit: computeUnitLimit,
+                    computeUnitPrice: computeUnitPrice,
+                    allowUnfundedRecipient: true,
+                    signer: signer
+                )
+            }
+            .eraseToAnyPublisher()
     }
 
     func sendRaw(
