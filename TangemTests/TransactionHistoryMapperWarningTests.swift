@@ -19,10 +19,9 @@ struct TransactionHistoryMapperWarningTests {
         #expect(warning == Self.expectedWarning(for: status))
     }
 
-    @Test("Onramp surfaces the matching warning per status", arguments: OnrampTransactionStatus.allCases)
+    @Test("Onramp rows carry no warning in any status", arguments: OnrampTransactionStatus.allCases)
     func onrampWarning(status: OnrampTransactionStatus) {
-        let warning = makeWarning(for: .onramp(onrampInfo(status: status)))
-        #expect(warning == Self.expectedWarning(for: status))
+        #expect(makeWarning(for: .onramp(onrampInfo(status: status))) == nil)
     }
 
     @Test("A plain transfer (no Express extra info) has no warning")
@@ -54,27 +53,6 @@ private extension TransactionHistoryMapperWarningTests {
              .failed,
              .txFailed,
              .refunded:
-            return nil
-        }
-    }
-
-    static func expectedWarning(for status: OnrampTransactionStatus) -> TransactionViewModel.Warning? {
-        switch status {
-        case .verifying:
-            return .verifying
-        case .paused:
-            return .paused
-        case .unknown,
-             .created,
-             .expired,
-             .waitingForPayment,
-             .paymentProcessing,
-             .failed,
-             .paid,
-             .sending,
-             .refunding,
-             .refunded,
-             .finished:
             return nil
         }
     }
