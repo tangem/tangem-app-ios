@@ -19,9 +19,6 @@ final class DetailsCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.connectedDAppRepository) private var connectedDAppRepository: any WalletConnectConnectedDAppRepository
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
-    @Injected(\.alertPresenter) private var alertPresenter: any AlertPresenter
-
-    private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
 
     // MARK: - Main view model
 
@@ -35,7 +32,6 @@ final class DetailsCoordinator: CoordinatorObject {
     @Published var appSettingsCoordinator: AppSettingsCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
     @Published var addWalletSelectorCoordinator: AddWalletSelectorCoordinator?
-    @Published var mobileCreateWalletCoordinator: MobileCreateWalletCoordinator?
     @Published var addressBooksCoordinator: AddressBooksCoordinator?
 
     // MARK: - Child view models
@@ -132,28 +128,6 @@ extension DetailsCoordinator: DetailsRoutable {
         let inputOptions = AddWalletSelectorCoordinator.InputOptions(source: .settings)
         coordinator.start(with: inputOptions)
         addWalletSelectorCoordinator = coordinator
-    }
-
-    func openCreateMobileWallet() {
-        guard mobileWalletFeatureProvider.isAvailable else {
-            alertPresenter.present(alert: mobileWalletFeatureProvider.makeRestrictionAlert())
-            return
-        }
-
-        let dismissAction: Action<MobileCreateWalletCoordinator.OutputOptions> = { [weak self] options in
-            self?.mobileCreateWalletCoordinator = nil
-
-            switch options {
-            case .main:
-                self?.dismiss()
-            case .dismiss:
-                break
-            }
-        }
-
-        let coordinator = MobileCreateWalletCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: MobileCreateWalletCoordinator.InputOptions(source: .addNewWallet))
-        mobileCreateWalletCoordinator = coordinator
     }
 
     func openAddWalletTypeSelector(output: AddWalletTypeSelectorSheetOutput) {
