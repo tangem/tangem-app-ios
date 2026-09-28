@@ -18,15 +18,11 @@ protocol EarnFeedRoutable: AnyObject {
 final class EarnFeedRouter {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+    @Injected(\.floatingSheetPresentingStateProvider) private var sheetStateProvider: FloatingSheetPresentingStateProvider
     @Injected(\.earnDataFilterProvider) private var filterProvider: EarnDataFilterProvider
     @Injected(\.earnAnalyticsProvider) private var analyticsProvider: EarnAnalyticsProvider
 
     private weak var navigation: (any FeedNavigation)?
-
-    /// Holds whichever filter sheet is on screen or queued, so a second tap can't stack another one behind it.
-    /// Weak on purpose: a sheet that goes away without its dismiss handler — `removeAllSheets()`, say — clears the
-    /// reference by itself instead of locking the filter routes out for good.
-    private weak var presentedFilterSheet: AnyObject?
 
     private let popToRootAction: Action<PopToRootOptions>
 
@@ -50,7 +46,7 @@ extension EarnFeedRouter: EarnFeedRoutable {
 
     func openNetworksFilter() {
         Task { @MainActor [weak self] in
-            guard let self, presentedFilterSheet == nil else {
+            guard let self, !sheetStateProvider.hasPresentedSheet else {
                 return
             }
 
@@ -66,7 +62,7 @@ extension EarnFeedRouter: EarnFeedRoutable {
 
     func openTypesFilter() {
         Task { @MainActor [weak self] in
-            guard let self, presentedFilterSheet == nil else {
+            guard let self, !sheetStateProvider.hasPresentedSheet else {
                 return
             }
 
@@ -85,13 +81,11 @@ extension EarnFeedRouter: EarnFeedRoutable {
 
 @MainActor
 private extension EarnFeedRouter {
-    func present(filterSheet viewModel: some FloatingSheetContentViewModel & AnyObject) {
-        presentedFilterSheet = viewModel
+    func present(filterSheet viewModel: some FloatingSheetContentViewModel) {
         floatingSheetPresenter.enqueue(sheet: viewModel)
     }
 
     func dismissFilterSheet() {
-        presentedFilterSheet = nil
         floatingSheetPresenter.removeActiveSheet()
     }
 }
