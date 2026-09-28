@@ -551,7 +551,12 @@ extension DetailsViewModel: AddWalletTypeSelectorSheetOutput {
     }
 
     func addWalletTypeSelectorDidRequestMobileWallet() {
-        coordinator?.openCreateMobileWallet()
+        let alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
+            title: Localization.commonComingSoon,
+            message: Localization.userWalletComingSoonDialogDescription,
+            buttonText: Localization.commonOk
+        )
+        alertPresenter.present(alert: alert)
     }
 }
 
