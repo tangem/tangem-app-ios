@@ -65,9 +65,13 @@ public final class CommonMobileWalletSdk: MobileWalletSdk {
     }
 
     public func generateWallet() throws -> UserWalletId {
+        try generateWallet(passphrase: "")
+    }
+
+    public func generateWallet(passphrase: String) throws -> UserWalletId {
         let entropy = try CryptoUtils.generateRandomBytes(count: 16) // 128 bits of entropy
 
-        return try importWallet(entropy: entropy, passphrase: "")
+        return try importWallet(entropy: entropy, passphrase: passphrase)
     }
 
     public func validate(auth: AuthenticationUnlockData, for walletID: UserWalletId) throws -> MobileWalletContext {

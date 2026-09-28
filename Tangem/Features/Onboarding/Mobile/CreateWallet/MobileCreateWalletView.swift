@@ -54,6 +54,9 @@ private extension MobileCreateWalletView {
                     }
                 }
                 .padding(.top, 32)
+
+                OnboardingSeedPassphraseSetupView(viewModel: viewModel.passphraseSetupViewModel)
+                    .padding(.top, 32)
             }
             .padding(.top, 64)
             .padding(.horizontal, 24)
@@ -103,6 +106,7 @@ private extension MobileCreateWalletView {
                 title: viewModel.createButtonTitle,
                 style: .primary,
                 isLoading: viewModel.isCreating,
+                isDisabled: !viewModel.isCreateButtonEnabled,
                 action: viewModel.onCreateTap
             )
             .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.mobileCreateWalletCreateButton)

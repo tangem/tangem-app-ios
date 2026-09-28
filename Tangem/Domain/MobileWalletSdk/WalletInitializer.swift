@@ -36,7 +36,7 @@ final class MobileWalletInitializer: WalletInitializer {
         case .some(let mnemonic):
             try sdk.importWallet(entropy: mnemonic.getEntropy(), passphrase: parameters.passphrase ?? "")
         case .none:
-            try sdk.generateWallet()
+            try sdk.generateWallet(passphrase: parameters.passphrase ?? "")
         }
 
         let context = try sdk.validate(auth: .none, for: userWalletId)

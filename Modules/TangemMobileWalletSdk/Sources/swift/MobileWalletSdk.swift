@@ -17,6 +17,12 @@ public protocol MobileWalletSdk {
     /// - Throws: An error if wallet generation fails.
     func generateWallet() throws -> UserWalletId
 
+    /// Generates a new mobile wallet whose keys are derived with a BIP-39 passphrase.
+    /// - Parameter passphrase: The passphrase for mnemonic derivation (an empty string means none).
+    /// - Returns: The identifier of the newly created wallet as `UserWalletId`.
+    /// - Throws: An error if wallet generation fails or the passphrase is invalid.
+    func generateWallet(passphrase: String) throws -> UserWalletId
+
     /// Imports a mobile wallet using the provided entropy and passphrase.
     /// - Parameters:
     ///   - entropy: The entropy data for wallet generation.
