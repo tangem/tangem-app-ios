@@ -23,6 +23,10 @@ enum IncomingActionConstants {
         "feedback.tangem.com",
     ]
 
+    /// AppsFlyer OneLink domain registered in the `applinks:` entitlement; the only host that may carry
+    /// a `deep_link_value` we act on.
+    static let appsFlyerOneLinkHost = "tangem.onelink.me"
+
     static let newsPath = "/news"
     static let universalLinkScheme = "tangem://"
     static let ndefPath = "ndef"
