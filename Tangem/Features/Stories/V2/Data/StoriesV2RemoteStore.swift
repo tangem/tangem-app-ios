@@ -10,10 +10,13 @@ import Foundation
 import TangemFoundation
 import TangemStories
 
-struct StoriesV2RemoteStore {
+/// A reference type so every caller shares `requests`; a second instance would coalesce nothing.
+final class StoriesV2RemoteStore {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     private let mapper: StoriesDTOMapper
+
+    private let requests = KeyedTaskProcessor<[String], [StoryV2]>()
 
     init(mapper: StoriesDTOMapper) {
         self.mapper = mapper
@@ -23,7 +26,10 @@ struct StoriesV2RemoteStore {
     /// language, while stories follow the app's. It is passed whole — the content codes include
     /// `pt-BR`, `zh-Hans` and `zh-Hant`, which two-letter codes cannot express.
     func stories(slugs: [String]) async throws -> [StoryV2] {
-        let response = try await tangemApiService.loadStories(slugs: slugs, language: Locale.appLanguageCode)
-        return mapper.map(response)
+        try await requests.execute(forKey: slugs) { [tangemApiService, mapper] in
+            let response = try await tangemApiService.loadStories(slugs: slugs, language: Locale.appLanguageCode)
+
+            return mapper.map(response)
+        }
     }
 }
