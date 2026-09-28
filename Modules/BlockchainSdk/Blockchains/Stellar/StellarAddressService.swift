@@ -26,13 +26,17 @@ extension StellarAddressService: AddressProvider {
     }
 
     private func validateAddress(_ address: String) -> Bool {
-        // Need verify for use KeyPair(accountId: address) in library stellar-sdk for skip bad condition [Array(([UInt8](data))[1...data.count - 3])]
-        guard let baseData = address.base32DecodedData, baseData.count >= 4 else {
+        // A StrKey account id is `G` + 55 upper-case base32 characters. The SDK's base32 decoder is
+        // case-insensitive and `KeyPair(accountId:)` never checks the trailing CRC16, so without this a
+        // one-character typo (or a lower-cased address Horizon rejects) was accepted and, for an uncreated
+        // destination, funded as a brand-new account nobody holds the key for.
+        guard address.range(of: Constants.strKeyAccountIdPattern, options: .regularExpression) != nil else {
             return false
         }
 
-        let keyPair = try? KeyPair(accountId: address)
-        return keyPair != nil
+        // Length, version byte, payload size and checksum (`decodeCheck`); also guards the
+        // `[1...count - 3]` slice `KeyPair(accountId:)` performs.
+        return address.isValidEd25519PublicKey()
     }
 
     private func validateContractAddress(_ contractAddress: String) -> Bool {
@@ -63,5 +67,13 @@ extension StellarAddressService: AddressValidator {
 
     func validateCustomTokenAddress(_ address: String) -> Bool {
         validateContractAddress(address)
+    }
+}
+
+// MARK: - Constants
+
+private extension StellarAddressService {
+    enum Constants {
+        static let strKeyAccountIdPattern = "^G[A-Z2-7]{55}$"
     }
 }
