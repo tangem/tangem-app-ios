@@ -102,7 +102,10 @@ private extension CollectiblesMachineView {
             detailChips(details)
                 .padding(.vertical, Metrics.chipsContainerVerticalPadding)
 
-            poweredBy
+            CollectiblesPrizePoolView(viewModel: viewModel.prizePoolViewModel)
+                .padding(.top, Metrics.sectionsGap)
+
+            PoweredBy()
                 .padding(.top, Metrics.poweredByTopPadding)
         }
         .padding(.horizontal, Metrics.horizontalPadding)
@@ -168,11 +171,6 @@ private extension CollectiblesMachineView {
         .chipDecorated()
     }
 
-    var poweredBy: some View {
-        Text(Self.poweredByText)
-            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-    }
-
     // MARK: - Calculations
 
     var expectedValueText: String? {
@@ -190,25 +188,6 @@ private extension CollectiblesMachineView {
         // Absent from the mockup (no machine carries the tier yet); the gold-ish accent is the safe guess.
         case .legendary: DesignSystem.Color.bgAccentOrange
         }
-    }
-
-    static let poweredByText: AttributedString = {
-        let partner = Constants.partnerName
-        var text = AttributedString(Localization.collectiblesMachinePoweredBy(partner))
-
-        if let range = text.range(of: partner) {
-            text[range].foregroundColor = DesignSystem.Color.textPrimary
-        }
-
-        return text
-    }()
-}
-
-// MARK: - Constants
-
-private extension CollectiblesMachineView {
-    enum Constants {
-        static let partnerName = "Collector Crypt"
     }
 }
 
@@ -257,6 +236,15 @@ extension CollectiblesMachineView {
 
 // MARK: - Previews
 
+private struct PreviewPrizePoolProvider: CollectiblesPrizePoolProvider {
+    func load(machineID: String, page: Int) async throws -> CollectiblesPrizePoolPage {
+        let prizes = (1 ... 4).map { index in
+            CollectiblesPrize(id: "prize-\(index)", name: "Charizard \(index)", imageURL: nil, grade: "PSA 9", insuredValue: Decimal(1000 * index))
+        }
+        return CollectiblesPrizePoolPage(prizes: prizes, hasNext: false)
+    }
+}
+
 private struct PreviewMachineProvider: CollectiblesMachineProvider {
     func load(id: String) async throws -> CollectiblesMachine {
         CollectiblesMachine(
@@ -289,6 +277,7 @@ private struct PreviewMachineProvider: CollectiblesMachineProvider {
                     buybackRate: 0.85,
                     artworkURL: nil
                 ),
+                prizePoolProvider: PreviewPrizePoolProvider(),
                 provider: PreviewMachineProvider()
             ),
             onBack: {}

@@ -18,6 +18,8 @@ final class CollectiblesMachineViewModel: ObservableObject {
     private let provider: any CollectiblesMachineProvider
     private let pollInterval: Duration
 
+    let prizePoolViewModel: CollectiblesPrizePoolViewModel
+
     private(set) var pollingTask: Task<Void, Never>?
 
     // MARK: - Publishers
@@ -33,6 +35,7 @@ final class CollectiblesMachineViewModel: ObservableObject {
 
     init(
         pack: CollectiblesPack,
+        prizePoolProvider: any CollectiblesPrizePoolProvider,
         provider: any CollectiblesMachineProvider = CollectiblesAPIService(),
         pollInterval: Duration = Constants.defaultPollInterval
     ) {
@@ -42,6 +45,7 @@ final class CollectiblesMachineViewModel: ObservableObject {
         machineID = pack.id
         self.provider = provider
         self.pollInterval = pollInterval
+        prizePoolViewModel = CollectiblesPrizePoolViewModel(machineID: pack.id, provider: prizePoolProvider)
     }
 
     deinit {
@@ -51,6 +55,8 @@ final class CollectiblesMachineViewModel: ObservableObject {
     // MARK: - Methods
 
     func load() {
+        prizePoolViewModel.load()
+
         guard pollingTask == nil else { return }
 
         startPolling()
