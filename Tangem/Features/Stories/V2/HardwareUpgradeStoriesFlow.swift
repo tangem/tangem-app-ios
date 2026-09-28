@@ -104,8 +104,7 @@ final class HardwareUpgradeStoriesFlow {
         loadTask.withLock { $0 = task }
     }
 
-    /// Stops a load nobody is waiting for any more; the several megabytes of video it pulls are
-    /// worth abandoning as soon as the screen that asked for them goes away.
+    /// Stops the flow from presenting a story nobody waits for.
     func cancel() {
         loadTask.withLock { $0?.cancel() }
     }
