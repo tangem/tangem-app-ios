@@ -18,6 +18,7 @@ struct GeoSelectionContentView: View {
     let highlightedSectionTitle: String?
     let allSectionTitle: String?
     let hasFlags: Bool
+    var loadingItemId: String?
     let onItemTap: (String) -> Void
 
     var body: some View {
@@ -76,6 +77,7 @@ private extension GeoSelectionContentView {
                 }
             }
         }
+        .allowsHitTesting(loadingItemId == nil)
     }
 
     @ViewBuilder
@@ -83,10 +85,20 @@ private extension GeoSelectionContentView {
         if hasFlags {
             Row(title: item.title)
                 .start { CountryFlagView(url: item.flagURL) }
+                .end { loader(for: item) }
                 .onTap { onItemTap(item.id) }
         } else {
             Row(title: item.title)
+                .end { loader(for: item) }
                 .onTap { onItemTap(item.id) }
+        }
+    }
+
+    @ViewBuilder
+    func loader(for item: GeoSelectionItem) -> some View {
+        if item.id == loadingItemId {
+            Loader()
+                .loaderSize(.size20)
         }
     }
 
@@ -198,6 +210,19 @@ private extension GeoSelectionContentView {
         highlightedSectionTitle: "Selected state",
         allSectionTitle: "Select another state",
         hasFlags: false,
+        onItemTap: { _ in }
+    )
+}
+
+#Preview("Item loading") {
+    GeoSelectionContentView(
+        state: .success(
+            GeoSelectionSections(highlighted: nil, all: GeoSelectionItem.previewCountries)
+        ),
+        highlightedSectionTitle: nil,
+        allSectionTitle: nil,
+        hasFlags: true,
+        loadingItemId: GeoSelectionItem.previewCountries[1].id,
         onItemTap: { _ in }
     )
 }

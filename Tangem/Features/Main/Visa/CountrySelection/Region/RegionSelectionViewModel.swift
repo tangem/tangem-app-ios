@@ -15,6 +15,7 @@ import TangemPay
 final class RegionSelectionViewModel: ObservableObject {
     @Published var searchText = ""
     @Published private(set) var state: LoadingResult<GeoSelectionSections, any Error> = .loading
+    @Published private(set) var loadingItemId: String?
     @Published private(set) var regions: [TangemPayGeoRegion] = []
 
     let configuration: GeoSelectionConfiguration
@@ -27,6 +28,7 @@ final class RegionSelectionViewModel: ObservableObject {
         store: TangemPayGeoStore,
         countryCode: String,
         configuration: GeoSelectionConfiguration,
+        loadingItemIdPublisher: AnyPublisher<String?, Never> = Just(nil).eraseToAnyPublisher(),
         output: @escaping (Output) -> Void
     ) {
         self.store = store
@@ -34,12 +36,12 @@ final class RegionSelectionViewModel: ObservableObject {
         self.configuration = configuration
         self.output = output
 
-        bind()
+        bind(loadingItemIdPublisher: loadingItemIdPublisher)
         store.loadRegions(countryCode: countryCode)
     }
 
     func onItemTap(id: String) {
-        guard let region = regions.first(where: {
+        guard loadingItemId == nil, let region = regions.first(where: {
             $0.code == id
         }) else {
             return
@@ -69,7 +71,11 @@ extension RegionSelectionViewModel {
 // MARK: - Binding
 
 private extension RegionSelectionViewModel {
-    func bind() {
+    func bind(loadingItemIdPublisher: AnyPublisher<String?, Never>) {
+        loadingItemIdPublisher
+            .receiveOnMain()
+            .assign(to: &$loadingItemId)
+
         let regionsPublisher = store.regionsPublisher(countryCode: countryCode)
 
         regionsPublisher
