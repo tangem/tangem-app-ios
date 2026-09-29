@@ -45,7 +45,7 @@ private struct ShtorkaModifier<SheetContent: View>: ViewModifier {
             .environment(\.isShtorkaActive, isPresented)
             .sheet(isPresented: $isPresented) {
                 sheetContent()
-                    .modifier(ShtorkaScrollTouchModifier())
+                    .modifier(SheetScrollTouchModifier())
                     .shtorkaPresentationHost(presentationHost)
                     .environment(\.shtorkaPresentationHost, presentationHost)
                     .environment(\.isShtorkaActive, isPresented)
@@ -67,20 +67,6 @@ private struct ShtorkaModifier<SheetContent: View>: ViewModifier {
             get: { detents.detent(for: size) },
             set: { detents.size(for: $0).map { size = $0 } }
         )
-    }
-}
-
-private struct ShtorkaScrollTouchModifier: ViewModifier {
-    @ViewBuilder
-    func body(content: Content) -> some View {
-        if #available(iOS 26.0, *) {
-            content
-        } else if #available(iOS 18.0, *) {
-            // iOS 18 can release a button as a tap after the sheet takes over its drag; a simultaneous tap recognizer restores the cancellation.
-            content.simultaneousGesture(TapGesture())
-        } else {
-            content
-        }
     }
 }
 
