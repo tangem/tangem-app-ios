@@ -15,7 +15,6 @@ enum TangemPayCardEntry: Identifiable {
 
     enum Issuing {
         case card(TangemPayCard)
-        case pendingProductInstance(VisaCustomerInfoResponse.ProductInstance)
         case order(TangemPayOrderResponse)
     }
 
@@ -74,8 +73,6 @@ enum TangemPayCardEntry: Identifiable {
             card.cardId
         case .issuing(.card(let card)):
             card.cardId
-        case .issuing(.pendingProductInstance(let pi)):
-            pi.id
         case .issuing(.order(let order)):
             order.id
         case .plastic(let plastic):
@@ -87,8 +84,6 @@ enum TangemPayCardEntry: Identifiable {
         switch self {
         case .issued(let card), .issuing(.card(let card)):
             card.productInstance.id
-        case .issuing(.pendingProductInstance(let pi)):
-            pi.id
         case .issuing(.order(let order)):
             order.data?.productInstanceId
         case .plastic(let plastic):
@@ -108,13 +103,9 @@ enum TangemPayCardEntry: Identifiable {
         switch self {
         case .issued(let card), .issuing(.card(let card)):
             card
-        case .issuing(.pendingProductInstance), .issuing(.order), .plastic:
+        case .issuing(.order), .plastic:
             nil
         }
-    }
-
-    var pendingProductInstance: VisaCustomerInfoResponse.ProductInstance? {
-        if case .issuing(.pendingProductInstance(let pi)) = self { pi } else { nil }
     }
 
     var order: TangemPayOrderResponse? {
@@ -129,13 +120,12 @@ enum TangemPayCardEntry: Identifiable {
 extension TangemPayCardEntry {
     static func build(
         cards: [TangemPayCard],
-        pendingProductInstances: [VisaCustomerInfoResponse.ProductInstance],
         activeIssueOrders: [TangemPayOrderResponse],
         activatingProductInstanceIds: Set<String>,
         hiddenSourceProductInstanceIds: Set<String>
     ) -> [TangemPayCardEntry] {
         var entries: [TangemPayCardEntry] = []
-        entries.reserveCapacity(cards.count + pendingProductInstances.count + activeIssueOrders.count)
+        entries.reserveCapacity(cards.count + activeIssueOrders.count)
 
         for card in cards {
             if hiddenSourceProductInstanceIds.contains(card.productInstance.id) { continue }
@@ -148,18 +138,12 @@ extension TangemPayCardEntry {
                 entries.append(card.isIssuing ? .issuing(.card(card)) : .issued(card))
             }
         }
-        let pendingPIIds = Set(pendingProductInstances.map(\.id))
         let cardPIIds = Set(cards.map(\.productInstance.id))
-        for pi in pendingProductInstances.sorted(by: { $0.id < $1.id }) {
-            if cardPIIds.contains(pi.id) { continue }
-            entries.append(.issuing(.pendingProductInstance(pi)))
-        }
         // A plastic order carries no `product_instance_id` to match its card by, and only one runs at a time.
         let hasDeliveredPlasticCard = cards.contains(where: \.isAwaitingActivation)
         let plasticDeliveringOrderTypes = TangemPayOrderType.plasticDeliveringFamily
         for order in activeIssueOrders.sorted(by: { $0.id < $1.id }) {
-            if let pid = order.data?.productInstanceId,
-               pendingPIIds.contains(pid) || cardPIIds.contains(pid) {
+            if let pid = order.data?.productInstanceId, cardPIIds.contains(pid) {
                 continue
             }
             guard plasticDeliveringOrderTypes.contains(order.type) else {
