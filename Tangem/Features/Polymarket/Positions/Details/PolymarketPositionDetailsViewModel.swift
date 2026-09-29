@@ -32,6 +32,7 @@ final class PolymarketPositionDetailsViewModel: ObservableObject, Identifiable {
 
     @Published private(set) var position: PolymarketPosition
     private let apiProvider: PolymarketAPIProvider
+    private let positionsService: PolymarketPositionsService
     private let geoblockStateProvider: PolymarketGeoblockStateProvider
     private let onOrderPlaced: @MainActor (PolymarketOrderIndexing) -> Void
     private weak var coordinator: PolymarketPositionDetailsRoutable?
@@ -42,12 +43,14 @@ final class PolymarketPositionDetailsViewModel: ObservableObject, Identifiable {
     init(
         position: PolymarketPosition,
         apiProvider: PolymarketAPIProvider,
+        positionsService: PolymarketPositionsService,
         geoblockStateProvider: PolymarketGeoblockStateProvider,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
         coordinator: PolymarketPositionDetailsRoutable
     ) {
         self.position = position
         self.apiProvider = apiProvider
+        self.positionsService = positionsService
         self.geoblockStateProvider = geoblockStateProvider
         self.onOrderPlaced = onOrderPlaced
         self.coordinator = coordinator
@@ -84,6 +87,28 @@ private extension PolymarketPositionDetailsViewModel {
         )
     }
 
+    func tradableRequest(from request: PolymarketOrderRequest) async throws -> PolymarketOrderRequest? {
+        let refreshed = try await positionsService.position(
+            conditionId: position.conditionId,
+            assetId: position.assetId
+        )
+
+        try Task.checkCancellation()
+
+        guard let refreshed else { return nil }
+
+        position = refreshed
+
+        guard refreshed.resolutionStatus == .open, refreshed.isAcceptingOrders else { return nil }
+
+        switch request {
+        case .buy:
+            return .buy
+        case .sell:
+            return refreshed.isEmptied ? nil : .sell(shares: refreshed.size)
+        }
+    }
+
     func onOrderTap(_ request: PolymarketOrderRequest) {
         guard orderTask == nil else { return }
 
@@ -101,6 +126,11 @@ private extension PolymarketPositionDetailsViewModel {
             }
 
             do {
+                guard let request = try await viewModel.tradableRequest(from: request) else {
+                    viewModel.coordinator?.openMarketClosed()
+                    return
+                }
+
                 let (market, outcome, eventTitle) = try await viewModel.market()
                 try Task.checkCancellation()
 

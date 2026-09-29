@@ -8,8 +8,11 @@
 
 import Foundation
 import TangemPolymarket
+import TangemPolymarketUI
 
 final class PolymarketPositionDetailsCoordinator: CoordinatorObject {
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -44,6 +47,7 @@ final class PolymarketPositionDetailsCoordinator: CoordinatorObject {
         rootViewModel = PolymarketPositionDetailsViewModel(
             position: options.position,
             apiProvider: options.apiProvider,
+            positionsService: options.positionsService,
             geoblockStateProvider: options.geoblockStateProvider,
             onOrderPlaced: options.onOrderPlaced,
             coordinator: self
@@ -57,6 +61,7 @@ extension PolymarketPositionDetailsCoordinator {
     struct Options {
         let position: PolymarketPosition
         let apiProvider: PolymarketAPIProvider
+        let positionsService: PolymarketPositionsService
         let geoblockStateProvider: PolymarketGeoblockStateProvider
         let onOrderPlaced: @MainActor (PolymarketOrderIndexing) -> Void
         let onRegionWarning: () -> Void
@@ -98,6 +103,13 @@ extension PolymarketPositionDetailsCoordinator: PolymarketPositionDetailsRoutabl
 
     func openRegionWarning() {
         onRegionWarning?()
+    }
+
+    @MainActor
+    func openMarketClosed() {
+        floatingSheetPresenter.enqueue(sheet: PolymarketRegionRestrictionViewModel.marketClosed(
+            onClose: { [weak self] in self?.floatingSheetPresenter.removeActiveSheet() }
+        ))
     }
 
     func openEventDetails(
