@@ -43,6 +43,7 @@ final class PolymarketDestinationFactory {
         coordinator.start(with: .init(
             position: position,
             apiProvider: dependencies.apiProvider,
+            positionsService: dependencies.positionsService,
             geoblockStateProvider: dependencies.geoblockStateProvider,
             onOrderPlaced: onOrderPlaced,
             onRegionWarning: onRegionWarning,

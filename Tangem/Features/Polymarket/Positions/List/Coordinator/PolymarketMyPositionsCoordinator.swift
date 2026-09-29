@@ -24,6 +24,7 @@ final class PolymarketMyPositionsCoordinator: CoordinatorObject {
     @Published var destination: Destination?
 
     private var apiProvider: PolymarketAPIProvider?
+    private var positionsService: PolymarketPositionsService?
     private var geoblockStateProvider: PolymarketGeoblockStateProvider?
     private var redeemService: PolymarketRedeeming?
     private var onRegionWarning: (() -> Void)?
@@ -44,6 +45,7 @@ final class PolymarketMyPositionsCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         apiProvider = options.apiProvider
+        positionsService = options.positionsService
         geoblockStateProvider = options.geoblockStateProvider
         redeemService = options.redeemService
         onRegionWarning = options.onRegionWarning
@@ -116,7 +118,7 @@ extension PolymarketMyPositionsCoordinator: PolymarketMyPositionsRoutable {
             return
         }
 
-        guard let apiProvider, let geoblockStateProvider, let orderBuilder, let eventBuilder else { return }
+        guard let apiProvider, let positionsService, let geoblockStateProvider, let orderBuilder, let eventBuilder else { return }
 
         let coordinator = PolymarketPositionDetailsCoordinator(
             dismissAction: { [weak self] in self?.popToPositions() }
@@ -125,6 +127,7 @@ extension PolymarketMyPositionsCoordinator: PolymarketMyPositionsRoutable {
         coordinator.start(with: .init(
             position: position,
             apiProvider: apiProvider,
+            positionsService: positionsService,
             geoblockStateProvider: geoblockStateProvider,
             onOrderPlaced: { [weak self] indexing in
                 onOrderPlaced(indexing)
