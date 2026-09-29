@@ -175,15 +175,15 @@ struct PolymarketOrderView: View {
                 .frame(maxWidth: .infinity)
             }
 
-            stepButton(DesignSystem.Icons.SignMinus.regular20, step: -1)
+            stepButton(DesignSystem.Icons.SignMinus.regular20, step: -1, label: Constants.decreaseAccessibilityLabel)
 
-            stepButton(DesignSystem.Icons.SignPlus.regular20, step: 1)
+            stepButton(DesignSystem.Icons.SignPlus.regular20, step: 1, label: Constants.increaseAccessibilityLabel)
         }
         .padding(.horizontal, Constants.horizontalPadding)
         .padding(.bottom, Constants.sellControlsBottomPadding)
     }
 
-    private func stepButton(_ icon: ImageType, step: Int) -> some View {
+    private func stepButton(_ icon: ImageType, step: Int, label: String) -> some View {
         sellControl(minWidth: Constants.controlSide) {
             icon.image
                 .renderingMode(.template)
@@ -194,6 +194,7 @@ struct PolymarketOrderView: View {
             viewModel.handleViewAction(.stepTapped(step))
         }
         .frame(width: Constants.controlSide)
+        .accessibilityLabel(label)
     }
 
     private func sellControl(
@@ -258,6 +259,11 @@ private extension PolymarketOrderView {
         static let horizontalPadding: CGFloat = 16
         static let sellControlsSpacing: CGFloat = 4
         static let chipMinWidth: CGFloat = 56
+        // [REDACTED_TODO_COMMENT]
+        static let decreaseAccessibilityLabel = "Decrease"
+        // [REDACTED_TODO_COMMENT]
+        static let increaseAccessibilityLabel = "Increase"
+
         static let controlSide: CGFloat = 36
         static let stepIconSide: CGFloat = 20
         static let proceedsSkeletonWidth: CGFloat = 140
