@@ -139,7 +139,7 @@ enum MainUserWalletPageBuilder: Identifiable {
 
     @ViewBuilder
     var bottomOverlay: some View {
-        // With the shtorka on, the bottom is reserved by the sheet itself, and the legacy footer has nothing to peek from.
+        // The pager reserves the new sheet's measured inset; its search bar is presented separately.
         if FeatureProvider.isAvailable(.newShtorkaEnabled) {
             // [REDACTED_TODO_COMMENT]
             EmptyView()
