@@ -52,8 +52,14 @@ struct JointAccountOperationDetailsView: View {
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
 }
 
+#Preview("Sending to the network") {
+    JointAccountOperationDetailsView(viewModel: .preview(answer: .signed, isSending: true))
+        .frame(maxHeight: .infinity, alignment: .bottom)
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+}
+
 private extension JointAccountOperationDetailsViewModel {
-    static func preview(answer: Answer) -> JointAccountOperationDetailsViewModel {
+    static func preview(answer: Answer, isSending: Bool = false) -> JointAccountOperationDetailsViewModel {
         JointAccountOperationDetailsViewModel(
             tokenIconInfo: TokenIconInfo(
                 name: "Ethereum",
@@ -85,6 +91,7 @@ private extension JointAccountOperationDetailsViewModel {
                 ),
             ],
             answer: answer,
+            isSending: isSending,
             canSign: true,
             coordinator: nil,
             sign: {}

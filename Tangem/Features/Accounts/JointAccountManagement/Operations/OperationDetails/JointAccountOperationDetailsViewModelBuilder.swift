@@ -39,6 +39,7 @@ struct JointAccountOperationDetailsViewModelBuilder {
             membersCount: account?.jointAccountMembersService.slots.members.count ?? 0,
             signers: signersBuilder.build(pendingOperation: pendingOperation),
             answer: answer(of: pendingOperation),
+            isSending: operation.status == .pending,
             canSign: signersResolver.canSign(pendingOperation),
             coordinator: coordinator,
             sign: { try await pendingOperation.sign() }
