@@ -122,7 +122,6 @@ final class PersonalDetailsViewModel: ObservableObject {
     }
 
     func onSuggestionTap(id: String) {
-        recentRecipientsStore.recordSelection(id: id)
         orderBuilder.selectSaved(bankAccountId: id)
         output(.savedRecipientSelected)
     }
