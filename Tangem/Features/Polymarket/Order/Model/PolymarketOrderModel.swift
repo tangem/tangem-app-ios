@@ -359,8 +359,16 @@ private extension PolymarketOrderModel {
     func applyHeldShares(_ size: Decimal?) {
         guard case .sell = intent, let size, size != state.balance else { return }
 
+        let heldWholePosition = state.enteredAmount == state.balance
+
         state.balance = size
-        preselectWholePositionIfNeeded()
+
+        guard heldWholePosition || (state.enteredAmount ?? 0) > size else {
+            preselectWholePositionIfNeeded()
+            return
+        }
+
+        select(amount: size)
     }
 
     static func heldPosition(
@@ -486,6 +494,8 @@ private extension PolymarketOrderModel {
     }
 
     func handleQuoteFailure(_ error: Error) {
+        guard state.quote.quote == nil else { return }
+
         state.quote = .failed(PolymarketOrderQuoteFailure(error: error))
     }
 }
