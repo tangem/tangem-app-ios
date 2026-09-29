@@ -53,4 +53,34 @@ struct TangemPayPlaceOrderRequestTests {
         #expect(data["deposit_address"] == nil)
         #expect(Set(data.keys) == ["type", "specification_name", "customer_wallet_address"])
     }
+
+    @Test("Plastic reissue order body carries source_product_instance_id alongside emboss_name and shipping_address")
+    func plasticReissueOrder_encodesExactBody() throws {
+        let shippingAddress = TangemPayPlaceOrderRequest.ShippingAddress(
+            firstName: "John",
+            lastName: "Doe",
+            line1: "1 Main St",
+            line2: nil,
+            city: "New York",
+            region: "NY",
+            postalCode: "10001",
+            phoneNumber: "+15551234567"
+        )
+
+        let json = try encodeToDictionary(
+            .init(
+                customerWalletAddress: "0xWALLET",
+                sourceProductInstanceId: "pi-123",
+                embossName: "JOHN DOE",
+                shippingAddress: shippingAddress
+            )
+        )
+
+        let data = try #require(json["data"] as? [String: Any])
+        #expect(data["type"] as? String == "CARD_REISSUE_PLASTIC_RAIN")
+        #expect(data["customer_wallet_address"] as? String == "0xWALLET")
+        #expect(data["source_product_instance_id"] as? String == "pi-123")
+        #expect(data["emboss_name"] as? String == "JOHN DOE")
+        #expect(data["shipping_address"] != nil)
+    }
 }

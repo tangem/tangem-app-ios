@@ -27,6 +27,7 @@ struct TangemPayActivateCardView: View {
                 content: { title }
             )
             .onDidAppear(perform: viewModel.focusEntry)
+            .alert(item: $viewModel.alert) { $0.alert }
     }
 
     /// Static-dark rather than themed: the bar sits over the card in either app theme.
@@ -35,6 +36,10 @@ struct TangemPayActivateCardView: View {
             .font(token: DesignSystem.Font.bodyMediumToken)
             .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
             .lineLimit(1)
+    }
+
+    private var hintColor: Color {
+        viewModel.isHintError ? DesignSystem.Color.textStatusError : DesignSystem.Color.textSecondary
     }
 
     private var cardArt: some View {
@@ -57,7 +62,7 @@ struct TangemPayActivateCardView: View {
     private var footer: some View {
         VStack(spacing: Constants.hintToButtonSpacing) {
             Text(viewModel.hint)
-                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                .style(DesignSystem.Font.captionMediumToken, color: hintColor)
                 .multilineTextAlignment(.center)
 
             TangemUI.Button(

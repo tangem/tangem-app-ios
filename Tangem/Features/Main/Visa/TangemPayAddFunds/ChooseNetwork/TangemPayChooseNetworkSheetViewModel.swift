@@ -20,6 +20,7 @@ final class TangemPayChooseNetworkSheetViewModel: ObservableObject, FloatingShee
     private var orderServices: [Int: TangemPayNetworkContractOrderService] = [:]
     private var isRouting = false
 
+    private let userWalletId: UserWalletId
     private let makeOrderService: () -> TangemPayNetworkContractOrderService
     private let refreshNetworks: () async -> [TangemPayBalance.Network]
 
@@ -27,11 +28,13 @@ final class TangemPayChooseNetworkSheetViewModel: ObservableObject, FloatingShee
 
     init(
         networks: [TangemPayBalance.Network],
+        userWalletId: UserWalletId,
         makeOrderService: @escaping () -> TangemPayNetworkContractOrderService,
         refreshNetworks: @escaping () async -> [TangemPayBalance.Network],
         coordinator: TangemPayChooseNetworkSheetRoutable
     ) {
         self.networks = networks
+        self.userWalletId = userWalletId
         self.makeOrderService = makeOrderService
         self.refreshNetworks = refreshNetworks
         self.coordinator = coordinator
@@ -46,10 +49,13 @@ final class TangemPayChooseNetworkSheetViewModel: ObservableObject, FloatingShee
 
         switch viewData.row.action {
         case .receive(let input):
+            Analytics.log(event: .visaMultichainFastWayNetworkClicked, params: [.blockchain: viewData.row.title], contextParams: .userWallet(userWalletId))
             openReceive(input: input)
         case .issueContract(let chainId):
+            Analytics.log(event: .visaMultichainFastWayNetworkClicked, params: [.blockchain: viewData.row.title], contextParams: .userWallet(userWalletId))
             issueContract(chainId: chainId)
         case .explainOtherNetworks:
+            Analytics.log(event: .visaMultichainOtherWayNetworkClicked, params: [.blockchain: viewData.row.title], contextParams: .userWallet(userWalletId))
             isRouting = true
             coordinator?.chooseNetworkSheetRequestOtherNetworks()
         case nil:
@@ -148,6 +154,11 @@ private extension TangemPayChooseNetworkSheetViewModel {
     }
 
     func updateRowState(_ state: TangemPayNetworkRowViewData.State?, chainId: Int) {
+        if state == .error {
+            let name = (fastWayRows + otherWaysRows).first { $0.row.id == chainId }?.row.title
+            Analytics.log(event: .visaMultichainAddressFetchErrorShowed, params: [.blockchain: name ?? String(chainId)], contextParams: .userWallet(userWalletId))
+        }
+
         rowStates[chainId] = state
         rebuildRows()
     }

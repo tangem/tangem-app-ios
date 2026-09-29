@@ -12,7 +12,7 @@ import TangemAssets
 
 struct TangemPaySmallCardViewRedesigned: View {
     enum State {
-        case issued(cardNumberEnd: String, isFrozen: Bool, thumbnailURL: URL?)
+        case issued(cardNumberEnd: String, isFrozen: Bool, isPhysical: Bool, thumbnailURL: URL?)
         case issuing
         case replacing
         /// It's used when user requested to issue the card but don't have money on account to do that.
@@ -48,7 +48,7 @@ struct TangemPaySmallCardViewRedesigned: View {
     @ViewBuilder
     private var background: some View {
         switch state {
-        case .issued(_, _, let thumbnailURL):
+        case .issued(_, _, _, let thumbnailURL):
             KFImage(thumbnailURL)
                 .placeholder {
                     Assets.Visa.chipIssued.image
@@ -64,7 +64,7 @@ struct TangemPaySmallCardViewRedesigned: View {
     @ViewBuilder
     private var icon: some View {
         switch state {
-        case .issued(_, let isFrozen, _):
+        case .issued(_, let isFrozen, let isPhysical, _):
             if isFrozen {
                 DesignSystem.Icons.Snowflake.regular16.image
                     .renderingMode(.template)
@@ -72,7 +72,7 @@ struct TangemPaySmallCardViewRedesigned: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 12, height: 12)
                     .foregroundStyle(.white)
-            } else {
+            } else if !isPhysical {
                 Image(systemName: "cloud.fill")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -93,7 +93,7 @@ struct TangemPaySmallCardViewRedesigned: View {
     @ViewBuilder
     private var cardNumber: some View {
         switch state {
-        case .issued(let cardNumberEnd, _, _):
+        case .issued(let cardNumberEnd, _, _, _):
             numberText(cardNumberEnd)
         case .ghost:
             numberText("0000")
@@ -115,8 +115,8 @@ struct TangemPaySmallCardViewRedesigned: View {
 
 #Preview {
     HStack(spacing: 8) {
-        TangemPaySmallCardViewRedesigned(state: .issued(cardNumberEnd: "9092", isFrozen: false, thumbnailURL: nil))
-        TangemPaySmallCardViewRedesigned(state: .issued(cardNumberEnd: "9092", isFrozen: true, thumbnailURL: nil))
+        TangemPaySmallCardViewRedesigned(state: .issued(cardNumberEnd: "9092", isFrozen: false, isPhysical: false, thumbnailURL: nil))
+        TangemPaySmallCardViewRedesigned(state: .issued(cardNumberEnd: "9092", isFrozen: true, isPhysical: false, thumbnailURL: nil))
         TangemPaySmallCardViewRedesigned(state: .issuing)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)

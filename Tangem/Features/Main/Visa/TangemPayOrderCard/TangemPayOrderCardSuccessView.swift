@@ -40,9 +40,11 @@ struct TangemPayOrderCardSuccessView: View {
                 .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
                 .padding(.top, Constants.checkmarkToTitleSpacing)
 
-            Text(viewModel.deliveryNote)
-                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                .padding(.top, Constants.titleToNoteSpacing)
+            if let deliveryNote = viewModel.deliveryNote {
+                Text(deliveryNote)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .padding(.top, Constants.titleToNoteSpacing)
+            }
         }
         .multilineTextAlignment(.center)
         .padding(.horizontal, Constants.contentHorizontalPadding)
