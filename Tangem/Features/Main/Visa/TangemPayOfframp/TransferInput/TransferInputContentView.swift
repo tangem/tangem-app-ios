@@ -237,10 +237,7 @@ extension TransferInputContentView {
 #if DEBUG
 private enum TransferInputPreview {
     static func make(amount: Decimal?, state: TransferInputContentView.State) -> some View {
-        let fieldViewModel = DecimalNumberTextFieldViewModel(
-            maximumFractionDigits: 2,
-            locale: Locale(identifier: "en_US")
-        )
+        let fieldViewModel = DecimalNumberTextFieldViewModel(maximumFractionDigits: 2)
         fieldViewModel.update(value: amount)
 
         return TransferInputContentView(

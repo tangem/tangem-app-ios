@@ -17,6 +17,7 @@ struct SwapFlowConfiguration {
     /// Overrides the swap summary navigation title.
     let summaryTitle: String?
     var offeredReceiveTokens: [TokenItem] = []
+    var onTransactionSent: ((SwapSentTransaction) -> Void)?
 
     static let `default` = SwapFlowConfiguration(
         isPairReversalEnabled: true,
@@ -27,6 +28,12 @@ struct SwapFlowConfiguration {
 }
 
 extension SwapFlowConfiguration {
+    struct SwapSentTransaction {
+        let source: SendSwapableToken
+        let receive: SendReceiveToken
+        let result: TransactionDispatcherResult
+    }
+
     enum TokenSelection {
         case unrestricted
         /// The full list minus items the predicate rejects; markets search stays available.
