@@ -11,7 +11,7 @@ import TangemLocalization
 import TangemUI
 
 struct TangemPayPlasticCardMessageView: View {
-    let stage: TangemPayPlasticCardStub.Stage
+    let stage: TangemPayCardEntry.Plastic.Stage
     let email: String?
 
     var body: some View {
