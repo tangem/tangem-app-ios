@@ -40,14 +40,14 @@ final class RegionSelectionViewModel: ObservableObject {
         store.loadRegions(countryCode: countryCode)
     }
 
-    func onItemTap(id: String) {
+    func onItemTap(id: String, isHighlighted: Bool) {
         guard loadingItemId == nil, let region = regions.first(where: {
             $0.code == id
         }) else {
             return
         }
 
-        output(.selected(region))
+        output(.selected(region, isHighlighted: isHighlighted))
     }
 
     func onRetryTap() {
@@ -63,7 +63,7 @@ final class RegionSelectionViewModel: ObservableObject {
 
 extension RegionSelectionViewModel {
     enum Output {
-        case selected(TangemPayGeoRegion)
+        case selected(TangemPayGeoRegion, isHighlighted: Bool)
         case closed
     }
 }

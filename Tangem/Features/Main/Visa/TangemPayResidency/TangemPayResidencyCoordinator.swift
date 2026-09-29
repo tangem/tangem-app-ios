@@ -29,6 +29,7 @@ final class TangemPayResidencyCoordinator: CoordinatorObject {
 
     private let availabilityService: TangemPayAvailabilityService
     private let unavailableRegionStorage: TangemPayUnavailableRegionStorage
+    private let analyticsLogger: TangemPayResidencyAnalyticsLogger
 
     private var selectedCountry: TangemPayGeoCountry?
     private var eligibilityTask: Task<Void, Never>?
@@ -50,6 +51,7 @@ final class TangemPayResidencyCoordinator: CoordinatorObject {
 
         availabilityService = TangemPayAvailabilityServiceBuilder().build()
         unavailableRegionStorage = AppSettings.shared
+        analyticsLogger = CommonTangemPayResidencyAnalyticsLogger()
     }
 
     deinit {
@@ -59,6 +61,7 @@ final class TangemPayResidencyCoordinator: CoordinatorObject {
     func start(with options: Options) {
         product = options.product
         geoStore = options.geoStore
+        analyticsLogger.logCountrySelectScreenOpened()
     }
 
     func close() {
@@ -71,7 +74,8 @@ final class TangemPayResidencyCoordinator: CoordinatorObject {
 extension TangemPayResidencyCoordinator {
     func handle(_ output: CountrySelectionViewModel.Output) {
         switch output {
-        case .selected(let country):
+        case .selected(let country, let isHighlighted):
+            analyticsLogger.logCountrySelected(country, isSuggested: isHighlighted)
             selectedCountry = country
             checkEligibility(country: country, region: nil)
 
@@ -82,11 +86,12 @@ extension TangemPayResidencyCoordinator {
 
     func handle(_ output: RegionSelectionViewModel.Output) {
         switch output {
-        case .selected(let region):
+        case .selected(let region, let isHighlighted):
             guard let selectedCountry else {
                 return
             }
 
+            analyticsLogger.logStateSelected(region, isSuggested: isHighlighted)
             checkEligibility(country: selectedCountry, region: region)
 
         case .closed:
@@ -101,17 +106,22 @@ extension TangemPayResidencyCoordinator {
     func handle(_ output: TangemPayUnavailableRegionView.Output) {
         switch output {
         case .selectAnotherRegion:
+            analyticsLogger.logSelectAnotherRegionTapped()
             selectedCountry = nil
             path = []
+            analyticsLogger.logCountrySelectScreenOpened()
 
         case .joinWaitlist:
+            analyticsLogger.logJoinWaitlistTapped()
             isWaitlistPresented = true
+            analyticsLogger.logWaitlistScreenOpened()
         }
     }
 
     func handle(_ output: TangemPayWaitlistViewModel.Output) {
         switch output {
         case .joined:
+            analyticsLogger.logWaitlistSaved()
             isWaitlistPresented = false
             dismiss(with: .joinedWaitlist)
 
@@ -163,19 +173,23 @@ private extension TangemPayResidencyCoordinator {
         region: TangemPayGeoRegion?
     ) {
         guard response.available else {
+            analyticsLogger.logEligibilityCheckResult(isEligible: false, country: country, region: region)
             unavailableRegionStorage.setUnavailableRegion(
                 TangemPayUnavailableRegion(country: response.country, region: response.region),
                 for: product
             )
             path.append(.unavailableRegion)
+            analyticsLogger.logRegionNotAvailableScreenOpened()
             return
         }
 
         if region == nil, country.hasRegions {
             path.append(.region(countryCode: country.code))
+            analyticsLogger.logStateScreenOpened()
             return
         }
 
+        analyticsLogger.logEligibilityCheckResult(isEligible: true, country: country, region: region)
         unavailableRegionStorage.clearUnavailableRegion(for: product)
         dismiss(with: .available)
     }
