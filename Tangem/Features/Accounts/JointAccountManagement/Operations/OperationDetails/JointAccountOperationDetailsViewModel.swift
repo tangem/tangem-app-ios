@@ -46,6 +46,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
 
     @Published private(set) var answer: Answer
 
+    private let isSending: Bool
     private let canSign: Bool
     private let sign: () async throws -> Void
     private weak var coordinator: JointAccountOperationDetailsRoutable?
@@ -63,10 +64,12 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         membersCount: Int,
         signers: [JointAccountSignerRow.ViewData],
         answer: Answer,
+        isSending: Bool,
         canSign: Bool,
         coordinator: JointAccountOperationDetailsRoutable?,
         sign: @escaping () async throws -> Void
     ) {
+        self.isSending = isSending
         self.canSign = canSign
         self.sign = sign
         self.signers = signers
@@ -83,15 +86,19 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         self.coordinator = coordinator
     }
 
-    /// Neutral icon and title by design: the warning-coloured line under the title is what says the operation is
-    /// still waiting, and repeating that in the title would say it twice.
+    /// While signatures are collected the icon and title stay neutral by design: the warning-coloured line under the
+    /// title is what says the operation is still waiting, and repeating that in the title would say it twice.
     var header: TransactionDetailsHeaderViewData {
         TransactionDetailsHeaderViewData(
-            title: Localization.commonSend,
-            titleStyle: .neutral,
-            date: Localization.transactionHistoryPending,
-            subtitleStyle: .warning,
-            operationIcon: TransactionViewIconViewData(type: .transfer, status: .confirmed, isOutgoing: true),
+            title: isSending ? Localization.commonSending : Localization.commonSend,
+            titleStyle: isSending ? .active : .neutral,
+            date: isSending ? Localization.jointOperationSendingToNetwork : Localization.transactionHistoryPending,
+            subtitleStyle: isSending ? .secondary : .warning,
+            operationIcon: TransactionViewIconViewData(
+                type: .transfer,
+                status: isSending ? .inProgress : .confirmed,
+                isOutgoing: true
+            ),
             iconGlyph: nil,
             menuSections: []
         )
@@ -264,7 +271,7 @@ private extension JointAccountOperationDetailsViewModel {
     }
 
     var isSignEnabled: Bool {
-        guard canSign else {
+        guard canSign, !isSending else {
             return false
         }
 
@@ -276,8 +283,12 @@ private extension JointAccountOperationDetailsViewModel {
 
     /// A member who declined is told the operation is not dead: the others can still reach the threshold without
     /// them, which is the whole point of a threshold below the member count.
-    var footerBlock: TransactionDetailsBlock {
-        switch answer {
+    var footerBlock: TransactionDetailsBlock? {
+        guard !isSending else {
+            return nil
+        }
+
+        return switch answer {
         case .awaiting:
             .caption(Localization.jointOperationAutoSendsFooter(requiredSignaturesCount, membersCount))
         case .signed:
