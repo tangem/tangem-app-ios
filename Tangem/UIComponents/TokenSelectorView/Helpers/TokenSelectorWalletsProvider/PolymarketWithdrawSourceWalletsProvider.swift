@@ -31,7 +31,8 @@ private extension PolymarketWithdrawSourceWalletsProvider {
         return TokenSelectorAccount(
             account: source.accountModel,
             itemsProvider: StaticTokenSelectorItemsProvider(items: [item]),
-            rateProvider: nil
+            rateProvider: nil,
+            currencyCode: nil
         )
     }
 }
