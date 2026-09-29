@@ -1,4 +1,5 @@
 Address Polygon / 16, 20, 24 / Regular
+Arrow Collapse / 16, 20, 24, 28 / Regular
 Arrow Down Left / 12, 16, 20, 24, 28 / Regular
 Arrow Down Right / 12, 16, 20, 24, 28 / Regular
 Arrow Down / 12, 16, 20, 24, 28, 32 / Regular
@@ -73,7 +74,8 @@ Keyboard Down / 16, 20, 24 / Regular
 Keyboard Up / 16, 20, 24 / Regular
 Lightning / 20, 24, 28 / Regular
 Loading Spinner / 12, 16, 20, 24, 28, 32 / Regular
-Logo Tangem / 16, 20, 24 / Regular
+Logo Apple / 16, 20, 24, 28, 32 / Regular
+Logo Tangem / 16, 20, 24, 28, 32 / Regular
 Magic Ball / 16, 20, 24, 28 / Regular
 Mail / 16, 20, 24 / Regular
 Percent Backward / 20, 24, 28 / Regular
