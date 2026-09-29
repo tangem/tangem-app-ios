@@ -821,6 +821,28 @@ extension Analytics {
         case visaCloseCardConfirmationPopupOpened = "[Visa Card Management] Visa Close Card Confirmation Popup Opened"
         case visaCloseCardConfirmed = "[Visa Card Management] Visa Close Card Confirmed"
 
+        // Plastic
+
+        case visaPlasticCardTypeSelectionScreenOpened = "[Visa Plastic] Card Type Selection Screen Opened"
+        case visaPlasticVirtualSelectClicked = "[Visa Plastic] Virtual Select Clicked"
+        case visaPlasticPlasticSelectClicked = "[Visa Plastic] Plastic Select Clicked"
+        case visaPlasticVirtualTypeClicked = "[Visa Plastic] Virtual Type Clicked"
+        case visaPlasticPlasticTypeClicked = "[Visa Plastic] Plastic Type Clicked"
+        case visaPlasticCardTypeSwiped = "[Visa Plastic] Card Type Swiped"
+        case visaPlasticDeliveryCostNotEnoughMoneyShowed = "[Visa Plastic] Delivery Cost Not Enough Money Showed"
+        case visaPlasticAddressScreenOpened = "[Visa Plastic] Address Screen Opened"
+        case visaPlasticOrderCardClicked = "[Visa Plastic] Order Card Clicked"
+        case visaPlasticCardOrderedSuccessScreenShowed = "[Visa Plastic] Card Ordered Success Screen Showed"
+        case visaPlasticCardInTransitBannerShowed = "[Visa Plastic] Card In Transit Banner Showed"
+        case visaPlasticActivateCardBannerButtonClicked = "[Visa Plastic] Activate Card Banner Button Clicked"
+        case visaPlasticCardInTransitDetailsShowed = "[Visa Plastic] Card In Transit Details Showed"
+        case visaPlasticActivateCardManagementButtonClicked = "[Visa Plastic] Activate Card Management Button Clicked"
+        case visaPlasticCardActivationScreenOpened = "[Visa Plastic] Card Activation Screen Opened"
+        case visaPlasticCardLast4DigitsEntered = "[Visa Plastic] Card Last 4 Digits Entered"
+        case visaPlasticActivationContinueClicked = "[Visa Plastic] Activation Continue Clicked"
+        case visaPlasticLast4DigitsValidationErrorShowed = "[Visa Plastic] Last 4 Digits Validation Error Showed"
+        case visaPlasticCardActivationSuccess = "[Visa Plastic] Card Activation Success"
+
         // Tiers
 
         case visaTiersTierSelectionScreenShowed = "[Visa Tiers] Tier Selection Screen Showed"
@@ -873,6 +895,15 @@ extension Analytics {
         case visaCashbackUpcomingAccrualBannerShowed = "[Visa Cashback] Cashback Upcoming Accrual Banner Showed"
         case visaCashbackNegativeBannerShowed = "[Visa Cashback] Cashback Negative Banner Showed"
         case visaCashbackLoadingErrorShowed = "[Visa Cashback] Cashback Loading Error Showed"
+
+        // Multichain
+
+        case visaMultichainChooseNetworkPopupShowed = "[Visa Multichain] Choose Network Popup Showed"
+        case visaMultichainFastWayNetworkClicked = "[Visa Multichain] Fast Way Network Clicked"
+        case visaMultichainOtherWayNetworkClicked = "[Visa Multichain] Other Way Network Clicked"
+        case visaMultichainFastWayAddressPopupShowed = "[Visa Multichain] Fast Way Network Address Popup Showed"
+        case visaMultichainAddressFetchErrorShowed = "[Visa Multichain] Address Fetch Error Showed"
+        case visaMultichainOtherWaySwapPopupShowed = "[Visa Multichain] Other Way 1:1 Swap Popup Showed"
 
         // MARK: - NFT
 
