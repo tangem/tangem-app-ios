@@ -22,6 +22,11 @@ final class MainShtorkaStateObject: ObservableObject {
     @Published private var feedDetents = ShtorkaDetents()
     @Published private var isNavigationActive = false
     @Published private var isSearchActive = false
+    @Published private var collapsedBottomInset: CGFloat = .zero
+
+    var mainContentBottomInset: CGFloat {
+        isPresented ? collapsedBottomInset : .zero
+    }
 
     var detents: ShtorkaDetents {
         guard isNavigationActive || isSearchActive else { return feedDetents }
@@ -40,6 +45,7 @@ final class MainShtorkaStateObject: ObservableObject {
     init() {
         heights.detentsPublisher.assign(to: &$feedDetents)
         heights.$isContentCollapsed.assign(to: &$isContentCollapsed)
+        heights.$collapsedBottomInset.assign(to: &$collapsedBottomInset)
 
         bind()
     }
