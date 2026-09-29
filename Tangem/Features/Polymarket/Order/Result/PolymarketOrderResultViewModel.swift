@@ -209,7 +209,7 @@ private extension PolymarketOrderResultViewModel {
             banner: makeBanner(state: state),
             market: content.market,
             tokensBoughtText: makeTokensBoughtText(state: state, content: content),
-            executionPriceText: content.executionPrice.map(PolymarketPriceFormatter.centsText),
+            executionPriceText: content.executionPrice.map { PolymarketPriceFormatter.centsText($0) },
             resolutionDateText: content.resolutionDate.map(PolymarketOrderResultFormatter.resolutionDate),
             tokensTitle: content.side == .sell
                 ? Constants.tokensSoldTitle
