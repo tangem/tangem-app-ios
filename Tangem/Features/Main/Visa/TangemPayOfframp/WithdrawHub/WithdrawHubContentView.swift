@@ -15,6 +15,7 @@ struct WithdrawHubContentView: View {
     let isWithinPortfolioLoading: Bool
     let recentTokens: WithdrawHubSectionState<WithdrawHubRecentTokenItem>
     let recentAccounts: WithdrawHubSectionState<WithdrawHubRecentAccountItem>
+    let isSeeAllAccountsVisible: Bool
     let bankTransferState: WithdrawHubViewModel.BankTransferState
     let onAction: (WithdrawHubViewModel.ViewAction) -> Void
 
@@ -53,6 +54,9 @@ private extension WithdrawHubContentView {
                     skeletonTiles
 
                 case .loaded(let items) where items.isEmpty:
+                    placeholderTile
+
+                case .failed:
                     placeholderTile
 
                 case .loaded(let items):
@@ -104,6 +108,9 @@ private extension WithdrawHubContentView {
                 case .loaded(let items) where items.isEmpty:
                     placeholderTile
 
+                case .failed:
+                    retryTile
+
                 case .loaded(let items):
                     ForEach(items) { item in
                         WithdrawHubActionTileView(
@@ -119,13 +126,16 @@ private extension WithdrawHubContentView {
                     }
                     .transition(.content)
 
-                    WithdrawHubActionTileView(data: .seeAll(action: { onAction(.seeAllTap) }))
-                        .transition(.content)
+                    if isSeeAllAccountsVisible {
+                        WithdrawHubActionTileView(data: .seeAll(action: { onAction(.seeAllTap) }))
+                            .transition(.content)
+                    }
                 }
             }
         )
         .disabled(!bankTransferState.isEnabled)
         .animation(.contentUpdate, value: recentAccounts.contentID)
+        .animation(.contentUpdate, value: isSeeAllAccountsVisible)
     }
 
     var accountsSubtitle: String {
@@ -150,6 +160,17 @@ private extension WithdrawHubContentView {
         ForEach(0 ..< Constants.skeletonTileCount, id: \.self) { _ in
             WithdrawHubActionTileView.Skeleton()
         }
+        .transition(.content)
+    }
+
+    var retryTile: some View {
+        WithdrawHubActionTileView(
+            data: .retry(
+                title: Localization.nftWalletUnableToLoad,
+                buttonTitle: Localization.alertButtonTryAgain,
+                action: { onAction(.retryRecentAccountsTap) }
+            )
+        )
         .transition(.content)
     }
 
@@ -193,6 +214,7 @@ private extension WithdrawHubContentView {
         isWithinPortfolioLoading: false,
         recentTokens: .loading,
         recentAccounts: .loading,
+        isSeeAllAccountsVisible: false,
         bankTransferState: .loading,
         onAction: { _ in }
     )
@@ -204,6 +226,7 @@ private extension WithdrawHubContentView {
         isWithinPortfolioLoading: false,
         recentTokens: .loaded([]),
         recentAccounts: .loaded([]),
+        isSeeAllAccountsVisible: false,
         bankTransferState: .available,
         onAction: { _ in }
     )
@@ -215,6 +238,31 @@ private extension WithdrawHubContentView {
         isWithinPortfolioLoading: false,
         recentTokens: .loaded([.preview]),
         recentAccounts: .loaded([.preview]),
+        isSeeAllAccountsVisible: false,
+        bankTransferState: .available,
+        onAction: { _ in }
+    )
+    .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
+}
+
+#Preview("With recents and See all") {
+    WithdrawHubContentView(
+        isWithinPortfolioLoading: false,
+        recentTokens: .loaded([.preview]),
+        recentAccounts: .loaded([.preview, .preview2, .preview3]),
+        isSeeAllAccountsVisible: true,
+        bankTransferState: .available,
+        onAction: { _ in }
+    )
+    .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
+}
+
+#Preview("Bank accounts failed") {
+    WithdrawHubContentView(
+        isWithinPortfolioLoading: false,
+        recentTokens: .loaded([]),
+        recentAccounts: .failed,
+        isSeeAllAccountsVisible: false,
         bankTransferState: .available,
         onAction: { _ in }
     )
@@ -226,6 +274,7 @@ private extension WithdrawHubContentView {
         isWithinPortfolioLoading: false,
         recentTokens: .loaded([.preview]),
         recentAccounts: .loaded([.preview]),
+        isSeeAllAccountsVisible: false,
         bankTransferState: .unavailable,
         onAction: { _ in }
     )

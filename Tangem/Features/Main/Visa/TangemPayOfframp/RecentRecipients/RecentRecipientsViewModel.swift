@@ -40,7 +40,6 @@ final class RecentRecipientsViewModel: ObservableObject {
 
     func onRecipientTap(id: String) {
         analyticsLogger.logSavedContactOnContactsScreenClicked()
-        recentRecipientsStore.recordSelection(id: id)
         output(id)
     }
 

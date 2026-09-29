@@ -34,6 +34,7 @@ enum PersistentStorageKey {
     case addressBook(cid: String)
     case coinsCategoriesCache
     case coinsGeckoCategoriesCache
+    case tangemPayRecentOperations(cid: String)
 
     var path: String {
         switch self {
@@ -71,6 +72,8 @@ enum PersistentStorageKey {
             return "coins_categories_cache"
         case .coinsGeckoCategoriesCache:
             return "coins_gecko_categories_cache"
+        case .tangemPayRecentOperations(let cid):
+            return "tangem_pay_recent_operations_\(cid)"
         }
     }
 
@@ -117,6 +120,8 @@ enum PersistentStorageKey {
             false
         case .coinsCategoriesCache, .coinsGeckoCategoriesCache:
             // Public market metadata, and the shelf has to render while the device is locked.
+            false
+        case .tangemPayRecentOperations:
             false
         }
     }
