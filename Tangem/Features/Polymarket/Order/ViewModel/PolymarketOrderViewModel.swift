@@ -189,6 +189,8 @@ private extension PolymarketOrderViewModel {
 
         if let quote = state.quote.quote {
             proceedsText = PolymarketOrderFormatter.money(quote.expectedExecutionAmount)
+        } else if proceedsText.isEmpty, !isAwaitingQuote {
+            proceedsText = .enDashSign
         }
 
         isProceedsStale = state.quote.quote == nil

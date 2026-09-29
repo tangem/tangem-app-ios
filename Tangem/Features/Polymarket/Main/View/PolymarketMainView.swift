@@ -164,7 +164,7 @@ struct PolymarketMainView: View {
     @ViewBuilder
     private var positionsSection: some View {
         switch viewModel.positionsState {
-        case .loading where viewModel.hadPositionsBefore:
+        case .loading where viewModel.hadPositionsBefore || viewModel.isRetryingPositions:
             positionsBlock {
                 PolymarketPositionsSkeletonView(rowCount: Constants.positionsSkeletonRowCount)
             }
@@ -174,7 +174,7 @@ struct PolymarketMainView: View {
             positionsBlock {
                 PolymarketEmptyMessageView(
                     message: Localization.predictionPositionsLoadError,
-                    onRetry: viewModel.loadPositions
+                    onRetry: { viewModel.loadPositions(userInitiated: true) }
                 )
             }
         case .loaded(let models) where !models.isEmpty:
