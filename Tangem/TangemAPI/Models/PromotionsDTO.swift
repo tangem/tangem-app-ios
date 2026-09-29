@@ -16,9 +16,9 @@ extension PromotionsDTO {
     enum Placement: String, Codable {
         case main
         case news = "shtorka"
-        case crypto
-        case realAssets = "assets"
-        case earn
+        case crypto = "shtorka_crypto"
+        case realAssets = "shtorka_rwa"
+        case earn = "shtorka_earn"
         case paymentAccountMain = "payment_account_main"
     }
 }
