@@ -274,6 +274,36 @@ public enum TangemPayAccessibilityIdentifiers {
     public static func comparePlansRow(_ planName: String) -> String {
         "\(prefix)ComparePlansRow_\(planName)"
     }
+
+    // MARK: - Cashback on payment account screen
+
+    public static let cashbackBannerTitle = "\(prefix)CashbackBannerTitle"
+    public static let cashbackBannerSubtitle = "\(prefix)CashbackBannerSubtitle"
+    public static let cashbackMenuItem = "\(prefix)CashbackMenuItem"
+    public static let cashbackDeactivatedBanner = "\(prefix)CashbackDeactivatedBanner"
+
+    // MARK: - Cashback screen
+
+    public static let cashbackDetailCloseButton = "\(prefix)CashbackDetailCloseButton"
+    public static let cashbackDetailHeaderTitle = "\(prefix)CashbackDetailHeaderTitle"
+    public static let cashbackDetailHeaderSubtitle = "\(prefix)CashbackDetailHeaderSubtitle"
+    public static let cashbackDetailInfoBanner = "\(prefix)CashbackDetailInfoBanner"
+    public static let cashbackDetailRateCard = "\(prefix)CashbackDetailRateCard"
+    public static let cashbackDetailAccrualsCard = "\(prefix)CashbackDetailAccrualsCard"
+    public static let cashbackDetailReloadButton = "\(prefix)CashbackDetailReloadButton"
+    public static let cashbackDetailErrorTitle = "\(prefix)CashbackDetailErrorTitle"
+    public static let cashbackChartTotal = "\(prefix)CashbackChartTotal"
+    public static let cashbackChartMonthPrefix = "\(prefix)CashbackChartMonth"
+    private static let cashbackChartValuePrefix = "\(prefix)CashbackChartValue"
+    public static let cashbackAdditionalSectionTitle = "\(prefix)CashbackAdditionalSectionTitle"
+
+    public static func cashbackChartMonth(_ month: String) -> String {
+        "\(cashbackChartMonthPrefix)_\(month)"
+    }
+
+    public static func cashbackChartValue(_ month: String) -> String {
+        "\(cashbackChartValuePrefix)_\(month)"
+    }
 }
 
 public extension TangemPayAccessibilityIdentifiers {
