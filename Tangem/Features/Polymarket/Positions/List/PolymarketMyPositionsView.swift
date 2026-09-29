@@ -47,6 +47,7 @@ struct PolymarketMyPositionsView: View {
         }
         .horizontalPadding(Constants.horizontalPadding)
         .padding(.top, Constants.contentTopPadding)
+        .refreshable { await viewModel.refresh() }
     }
 
     private var controlsRow: some View {
@@ -137,14 +138,16 @@ struct PolymarketMyPositionsView: View {
                 .frame(height: Constants.paginationTriggerHeight)
                 .onAppear { viewModel.handleViewAction(.loadMore) }
         case .paginationLoading:
-            ProgressView()
+            Loader()
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, Constants.paginationVerticalPadding)
         case .paginationError:
-            PolymarketEmptyMessageView(
-                message: Localization.predictionPositionsLoadError,
-                onRetry: { viewModel.handleViewAction(.loadMore) }
+            TangemUnableToLoadDataView(
+                isButtonBusy: false,
+                retryButtonAction: { viewModel.handleViewAction(.loadMore) }
             )
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, Constants.paginationVerticalPadding)
         case .loading, .error, .empty, .allDataLoaded:
             EmptyView()
         }

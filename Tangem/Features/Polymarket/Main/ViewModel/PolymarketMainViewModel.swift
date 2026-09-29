@@ -34,6 +34,7 @@ final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var withdrawState: WithdrawState = .loading
     @Published private(set) var positionsState: PositionsState = .loading
     @Published private(set) var hadPositionsBefore = false
+    @Published private(set) var isRetryingPositions = false
     @Published private(set) var hasFinishedPositions = false
     @Published private(set) var hasMorePositions = false
     @Published private(set) var isSearching = false
@@ -213,6 +214,11 @@ final class PolymarketMainViewModel: ObservableObject {
 
                 guard !Task.isCancelled, let self else { return }
 
+                guard !isShowingLoadFailure else {
+                    stopContentRefresh()
+                    return
+                }
+
                 loadPositions()
                 await refreshVisibleEvents()
             }
@@ -350,7 +356,7 @@ final class PolymarketMainViewModel: ObservableObject {
 
     // MARK: - Positions
 
-    func loadPositions() {
+    func loadPositions(userInitiated: Bool = false) {
         guard let positionsService else {
             positionsState = .loaded([])
             return
@@ -358,10 +364,17 @@ final class PolymarketMainViewModel: ObservableObject {
 
         positionsTask?.cancel()
 
-        if case .loaded = positionsState {} else {
+        if userInitiated {
+            startContentRefresh()
+        }
+
+        let isSilentRound = positionsState == .failed && !userInitiated
+
+        if case .loaded = positionsState {} else if !isSilentRound {
             // Read once per round: the flag is written by this very load, and a mid-flight flip would
             // swap one state for another in front of the user.
             hadPositionsBefore = presenceStore.hadPositions(userWalletId: userWalletId)
+            isRetryingPositions = isRetryingPositions || userInitiated
             positionsState = .loading
         }
 
@@ -382,6 +395,8 @@ final class PolymarketMainViewModel: ObservableObject {
                     viewModel.hasFinishedPositions = probed
                 }
 
+                viewModel.isRetryingPositions = false
+
                 if probed == nil, viewModel.openPositions.isEmpty, !viewModel.hasFinishedPositions {
                     viewModel.positionsState = .failed
                     return
@@ -401,6 +416,8 @@ final class PolymarketMainViewModel: ObservableObject {
                 guard !error.isCancellationError else { return }
 
                 PolymarketLogger.error("Failed to load the open positions", error: error)
+
+                viewModel.isRetryingPositions = false
 
                 if case .loaded = viewModel.positionsState { return }
 
@@ -492,12 +509,18 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     func retry() {
+        startContentRefresh()
+
         guard !categories.isEmpty else {
             load()
             return
         }
 
         fetchEvents()
+    }
+
+    var isShowingLoadFailure: Bool {
+        loadingState == .error || positionsState == .failed
     }
 
     func select(categoryID: Int?) {
@@ -866,7 +889,7 @@ private extension PolymarketMainViewModel {
 
     func makeBalanceState(from formatted: FormattedTokenBalanceType) -> LoadableBalanceView.State {
         AttributedBalanceFormatter.decimalColored(
-            balanceStateBuilder.build(type: steady(formatted)),
+            balanceStateBuilder.build(type: steady(formatted), icon: .leading),
             integerPart: .init(
                 font: TangemFontStyle(DesignSystem.Font.displayMediumToken),
                 color: DesignSystem.Color.textPrimary

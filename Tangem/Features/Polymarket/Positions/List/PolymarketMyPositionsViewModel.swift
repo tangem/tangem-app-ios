@@ -97,7 +97,14 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
                 let page = try await viewModel.page(for: tab, offset: 0)
                 try Task.checkCancellation()
 
-                guard tab == viewModel.tab, !viewModel.loaded.isEmpty else { return }
+                guard tab == viewModel.tab else { return }
+
+                guard !viewModel.loaded.isEmpty else {
+                    viewModel.offset = 0
+                    viewModel.append(page)
+                    viewModel.settle()
+                    return
+                }
 
                 viewModel.replaceLoaded(with: page.rows)
             } catch {
@@ -106,6 +113,33 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
                 PolymarketLogger.error("Failed to refresh the positions list", error: error)
             }
         }
+    }
+
+    func refresh() async {
+        guard loadingState != .loading, loadingState != .paginationLoading else { return }
+
+        let tab = tab
+
+        refreshTask = runTask(in: self) { @MainActor viewModel in
+            do {
+                let page = try await viewModel.page(for: tab, offset: 0)
+                try Task.checkCancellation()
+
+                guard tab == viewModel.tab else { return }
+
+                viewModel.loaded = []
+                viewModel.seenIDs = []
+                viewModel.offset = 0
+                viewModel.append(page)
+                viewModel.settle()
+            } catch {
+                guard !error.isCancellationError else { return }
+
+                PolymarketLogger.error("Failed to refresh the positions list", error: error)
+            }
+        }
+
+        await refreshTask?.value
     }
 
     func reload() {

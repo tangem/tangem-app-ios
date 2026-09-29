@@ -156,10 +156,13 @@ private extension PolymarketEventDetailsContent {
 
         static let dateFormatter: DateFormatter = {
             let formatter = DateFormatter()
-            formatter.locale = Locale(identifier: "en_US_POSIX")
             formatter.timeZone = TimeZone(identifier: "America/New_York")
-            formatter.dateFormat = "MMM d, yyyy, h:mm a 'ET'"
+            formatter.setLocalizedDateFormatFromTemplate(dateTemplate)
+            formatter.dateFormat = (formatter.dateFormat ?? dateTemplate).appending(marketTimeZoneSuffix)
             return formatter
         }()
+
+        static let dateTemplate = "MMMdyyyyjmm"
+        static let marketTimeZoneSuffix = " 'ET'"
     }
 }
