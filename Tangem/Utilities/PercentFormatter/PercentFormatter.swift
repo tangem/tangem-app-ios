@@ -90,7 +90,7 @@ extension PercentFormatter.Option {
     static let onramp = PercentFormatter.Option(fractionDigits: .two, prefix: .onlyMinus, suffix: .default)
 
     static let predictionProbability = PercentFormatter.Option(
-        fractionDigits: .init(min: 0, max: 1),
+        fractionDigits: .init(min: 0, max: 0),
         prefix: .empty,
         suffix: PercentFormatter.Suffix(value: "%")
     )
