@@ -17,7 +17,11 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
     let dismissAction: Action<DismissOptions?>
     let popToRootAction: Action<PopToRootOptions>
 
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.floatingSheetPresenter)
+    private var floatingSheetPresenter: any FloatingSheetPresenter
+
+    @Injected(\.tangemPayRecentOperationsStore)
+    private var tangemPayRecentOperationsStore: TangemPayRecentOperationsStore
 
     // MARK: - Root view model
 
@@ -78,9 +82,7 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
         let recentRecipientsStore = TangemPayRecentRecipientsStore(
             repository: CommonTangemPayBankAccountsRepository(
                 customerService: options.tangemPayAccount.customerService
-            ),
-            cacheStorage: AppSettings.shared,
-            customerWalletId: options.tangemPayAccount.userWalletId.stringValue
+            )
         )
         self.recentRecipientsStore = recentRecipientsStore
 
@@ -102,6 +104,8 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
                 fundingFlowBuilder: options.fundingFlowBuilder,
                 withdrawAvailabilityProvider: options.tangemPayAccount.withdrawAvailabilityProvider
             ),
+            tangemPayAccount: options.tangemPayAccount,
+            recentOperationsStore: tangemPayRecentOperationsStore,
             recentRecipientsStore: recentRecipientsStore,
             optionsStore: optionsStore,
             analyticsLogger: analyticsLogger,

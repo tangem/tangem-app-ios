@@ -23,7 +23,8 @@ extension SwapFlowBaseDependenciesFactory {
         pairUpdateHandler: SwapPairUpdateHandler,
         shouldStartInitialLoading: Bool,
         sourceTokenResolver: (any SwapSourceTokenResolver)? = nil,
-        destinationTokenResolver: (any SwapDestinationTokenResolver)? = nil
+        destinationTokenResolver: (any SwapDestinationTokenResolver)? = nil,
+        onTransactionSent: ((SwapFlowConfiguration.SwapSentTransaction) -> Void)? = nil
     ) -> SwapModel {
         SwapModel(
             sourceToken: sourceToken,
@@ -39,6 +40,7 @@ extension SwapFlowBaseDependenciesFactory {
             balanceRestrictionFeatureChecker: makeSwapBalanceRestrictionFeatureChecker(),
             sourceTokenResolver: sourceTokenResolver,
             destinationTokenResolver: destinationTokenResolver,
+            onTransactionSent: onTransactionSent,
             shouldStartInitialLoading: shouldStartInitialLoading,
         )
     }

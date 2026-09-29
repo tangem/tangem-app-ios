@@ -59,6 +59,9 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     @Injected(\.tangemPayAssembly)
     private var tangemPayAssembly: TangemPayAssembly
 
+    @Injected(\.tangemPayRecentOperationsStore)
+    private var tangemPayRecentOperationsStore: TangemPayRecentOperationsStore
+
     private let userWalletId: UserWalletId
     private let keysRepository: KeysRepository
     private let availabilityService: TangemPayAvailabilityService
@@ -175,6 +178,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
                 paeraCustomerFlagRepository.setShouldShowGetBanner(false)
                 customerInfoCacheStorage.clearCachedCustomerInfo(customerWalletId: customerWalletId)
                 cashbackCacheStorage.clearCachedCashbackSummary(customerWalletId: customerWalletId)
+                tangemPayRecentOperationsStore.clear(customerWalletId: customerWalletId)
                 stateSubject.value = nil
                 onFinish(true)
             } catch {

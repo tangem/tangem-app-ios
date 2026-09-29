@@ -158,4 +158,10 @@ final class DesignSystemDemoViewModel: ObservableObject {
     func openShtorkaDemo() {
         coordinator?.openShtorkaDemo()
     }
+
+    func openModalDemo() {
+        coordinator?.openModalDemo()
+    }
 }
+
+final class ModalDemoViewModel: ObservableObject, Identifiable {}

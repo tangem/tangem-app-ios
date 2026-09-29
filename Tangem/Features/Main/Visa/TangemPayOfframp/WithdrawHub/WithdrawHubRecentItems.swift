@@ -46,5 +46,19 @@ extension WithdrawHubRecentAccountItem {
         name: "Pablo E",
         accountNumber: "0000000000"
     )
+
+    static let preview2 = WithdrawHubRecentAccountItem(
+        id: "maria",
+        monogram: "M",
+        name: "Maria S",
+        accountNumber: "1111111111"
+    )
+
+    static let preview3 = WithdrawHubRecentAccountItem(
+        id: "john",
+        monogram: "J",
+        name: "John D",
+        accountNumber: "2222222222"
+    )
 }
 #endif

@@ -85,6 +85,13 @@ private extension WithdrawHubActionTileView {
 
         case .recentToken(let token):
             TokenIconV2(tokenIconInfo: token.tokenIconInfo, size: .size40)
+
+        case .retry:
+            glyph(
+                DesignSystem.Icons.ArrowRefresh.regular20,
+                tint: DesignSystem.Color.iconPrimary,
+                background: DesignSystem.Color.bgTertiary
+            )
         }
     }
 
@@ -126,6 +133,11 @@ private extension WithdrawHubActionTileView {
 
                 AccountIconView(data: token.accountIcon, settings: .smallSized)
             }
+
+        case .retry(_, let buttonTitle, _):
+            Text(buttonTitle)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textAccentBlue)
+                .lineLimit(1)
         }
     }
 
@@ -151,6 +163,7 @@ extension WithdrawHubActionTileView {
         case seeAll(action: () -> Void)
         case recentAccount(RecentAccount)
         case recentToken(RecentToken)
+        case retry(title: String, buttonTitle: String, action: () -> Void)
     }
 
     struct RecentAccount {
@@ -172,7 +185,7 @@ extension WithdrawHubActionTileView {
 private extension WithdrawHubActionTileView.ViewData {
     var title: String {
         switch self {
-        case .action(_, let title, _), .placeholder(_, let title):
+        case .action(_, let title, _), .placeholder(_, let title), .retry(let title, _, _):
             title
         case .seeAll:
             Localization.commonSeeAll
@@ -187,7 +200,7 @@ private extension WithdrawHubActionTileView.ViewData {
         switch self {
         case .action:
             DesignSystem.Color.bgStatusInfoSubtle
-        case .seeAll, .recentAccount, .recentToken:
+        case .seeAll, .recentAccount, .recentToken, .retry:
             DesignSystem.Color.bgSecondary
         case .placeholder:
             Color.clear
@@ -205,7 +218,7 @@ private extension WithdrawHubActionTileView.ViewData {
 
     var action: (() -> Void)? {
         switch self {
-        case .action(_, _, let action), .seeAll(let action): action
+        case .action(_, _, let action), .seeAll(let action), .retry(_, _, let action): action
         case .placeholder: nil
         case .recentAccount(let account): account.action
         case .recentToken(let token): token.action
@@ -256,6 +269,13 @@ extension WithdrawHubActionTileView {
 #Preview("See all") {
     WithdrawHubActionTileView(data: .seeAll(action: {}))
         .frame(width: 160, height: 136)
+}
+
+#Preview("Retry") {
+    WithdrawHubActionTileView(
+        data: .retry(title: "Unable to load the data", buttonTitle: "Try again", action: {})
+    )
+    .frame(width: 160, height: 136)
 }
 
 #Preview("Recent account") {

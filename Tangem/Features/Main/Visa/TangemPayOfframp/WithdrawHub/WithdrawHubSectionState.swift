@@ -9,17 +9,26 @@
 enum WithdrawHubSectionState<Item> {
     case loading
     case loaded([Item])
+    case failed
 }
 
 // MARK: - Content identity
 
 extension WithdrawHubSectionState where Item: Identifiable {
-    var contentID: [Item.ID]? {
+    var contentID: ContentID {
         switch self {
         case .loading:
-            nil
+            .loading
         case .loaded(let items):
-            items.map(\.id)
+            .loaded(items.map(\.id))
+        case .failed:
+            .failed
         }
+    }
+
+    enum ContentID: Hashable {
+        case loading
+        case loaded([Item.ID])
+        case failed
     }
 }
