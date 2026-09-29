@@ -156,9 +156,6 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayCachedCashbackSummary)
     var tangemPayCachedCashbackSummary: [String: String] = [:]
 
-    @AppStorageCompat(StorageType.tangemPayRecentRecipientIds)
-    var tangemPayRecentRecipientIds: [String: [String]] = [:]
-
     @AppStorageCompat(StorageType.jailbreakWarningWasShown)
     var jailbreakWarningWasShown: Bool = false
 
@@ -357,25 +354,5 @@ extension AppSettings: TangemPayTransactionHistoryCacheStorage {
         }
 
         tangemPayCachedTransactionHistory[customerWalletId] = jsonString
-    }
-}
-
-extension AppSettings: TangemPayRecentRecipientsCacheStorage {
-    private enum TangemPayRecentRecipientsCacheConstants {
-        static let maxRecipients = 3
-    }
-
-    func recentRecipientIds(customerWalletId: String) -> [String] {
-        tangemPayRecentRecipientIds[customerWalletId] ?? []
-    }
-
-    func recordRecipientUsage(id: String, customerWalletId: String) {
-        var ids = recentRecipientIds(customerWalletId: customerWalletId)
-        ids.removeAll { $0 == id }
-        ids.insert(id, at: 0)
-
-        tangemPayRecentRecipientIds[customerWalletId] = Array(
-            ids.prefix(TangemPayRecentRecipientsCacheConstants.maxRecipients)
-        )
     }
 }

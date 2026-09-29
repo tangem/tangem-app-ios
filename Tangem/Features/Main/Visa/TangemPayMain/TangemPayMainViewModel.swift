@@ -1105,7 +1105,7 @@ private extension TangemPayMainViewModel {
 
         switch restriction {
         case .none, .zeroWalletBalance:
-            coordinator?.openTangemPayWithdrawNoteSheet()
+            coordinator?.openTangemPayOfframp()
         case .hasPendingWithdrawOrder:
             coordinator?.openTangemWithdrawInProgressSheet()
         default:
