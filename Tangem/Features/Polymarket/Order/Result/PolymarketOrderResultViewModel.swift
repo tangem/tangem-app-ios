@@ -174,14 +174,14 @@ private extension PolymarketOrderResultViewModel {
     static func makeTitle(state: State, content: Content) -> String {
         switch state {
         case .placed:
-            let amount = PolymarketOrderFormatter.enteredAmount(content.filledAmount ?? content.orderedAmount)
+            let amount = PolymarketOrderFormatter.money(content.filledAmount ?? content.orderedAmount)
 
             return content.side == .sell
                 ? Localization.predictionCloseResultSoldTitle(amount)
                 : Localization.predictionPlaceResultPlacedTitle(amount)
         case .partiallyPlaced:
-            let filled = PolymarketOrderFormatter.enteredAmount(content.filledAmount)
-            let ordered = PolymarketOrderFormatter.enteredAmount(content.orderedAmount)
+            let filled = PolymarketOrderFormatter.money(content.filledAmount)
+            let ordered = PolymarketOrderFormatter.money(content.orderedAmount)
             return [
                 content.side == .sell ? Constants.partiallySoldTitle : Localization.predictionPlaceResultPartialTitle,
                 Localization.predictionPlaceResultPartialAmount(filled, ordered),
