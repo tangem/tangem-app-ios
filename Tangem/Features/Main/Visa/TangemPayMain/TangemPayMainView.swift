@@ -95,6 +95,11 @@ struct TangemPayMainView: View {
                     TangemPayIssuingCardBannerRedesigned()
                 }
 
+                if let deliveryBannerState = viewModel.cardDeliveryBannerState {
+                    cardDeliveryBanner(state: deliveryBannerState)
+                        .onAppear(perform: viewModel.onCardDeliveryBannerAppear)
+                }
+
                 if let banner = viewModel.systemDowngradeBanner {
                     MessageBanner(title: banner.title, description: banner.subtitle)
                         .variant(.error)
@@ -180,6 +185,23 @@ struct TangemPayMainView: View {
         .primaryButton(viewModel.awaitingDepositAddFundsButton)
     }
 
+    private func cardDeliveryBanner(state: TangemPayMainViewModel.CardDeliveryBannerState) -> some View {
+        MessageBanner(title: state.title, description: state.description)
+            .slotStart {
+                DesignSystem.Icons.Clock.regular20.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Color.iconPrimary)
+            }
+            .secondaryButton(
+                state.activatableCard.map { card in
+                    MessageBannerButton(
+                        title: Localization.tangempayCardDetailsActivate,
+                        action: { viewModel.onActivateCardBannerButton(card: card) }
+                    )
+                }
+            )
+    }
+
     private func failedToIssueCardBanner(contactSupportButton: MessageBannerButton) -> some View {
         MessageBanner(
             title: Localization.tangempayFailedToIssueCard,
@@ -232,7 +254,12 @@ struct TangemPayMainView: View {
                 TangemPaySmallCardViewRedesigned(
                     state: card.isReissuing || card.isClosing
                         ? .replacing
-                        : .issued(cardNumberEnd: card.cardNumberEnd, isFrozen: card.isFrozen, thumbnailURL: card.thumbnailImageURL)
+                        : .issued(
+                            cardNumberEnd: card.cardNumberEnd,
+                            isFrozen: card.isFrozen,
+                            isPhysical: card.isPhysical,
+                            thumbnailURL: card.thumbnailImageURL
+                        )
                 )
             }
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountCardButton(cardId: card.cardId))
