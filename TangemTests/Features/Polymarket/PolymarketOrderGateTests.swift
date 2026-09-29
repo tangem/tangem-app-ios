@@ -236,13 +236,21 @@ struct PolymarketOrderGateTests {
         #expect(gate.amountCaption == .notEnoughLiquidity)
     }
 
-    @Test("Selling under the share minimum keeps the order placeable and unwarned")
-    func sellUnderTheShareMinimumStaysPlaceable() {
-        let state = PolymarketOrderModel.State.stub(quote: .stub(status: .belowMinOrderSize), enteredAmount: 1, balance: 1000)
+    @Test("Closing the whole position under the share minimum keeps the order placeable and unwarned")
+    func fullCloseUnderTheShareMinimumStaysPlaceable() {
+        let state = PolymarketOrderModel.State.stub(quote: .stub(status: .belowMinOrderSize), enteredAmount: 1000, balance: 1000)
         let gate = PolymarketOrderGate(state: state, intent: .sell(shares: 1000))
 
         #expect(gate.isPrimaryButtonEnabled)
         #expect(gate.notifications.isEmpty)
+    }
+
+    @Test("Selling part of a position under the share minimum is not placeable")
+    func partialSellUnderTheShareMinimumIsBlocked() {
+        let state = PolymarketOrderModel.State.stub(quote: .stub(status: .belowMinOrderSize), enteredAmount: 1, balance: 1000)
+        let gate = PolymarketOrderGate(state: state, intent: .sell(shares: 1000))
+
+        #expect(!gate.isPrimaryButtonEnabled)
     }
 
     @Test("A side with no floor to state reports none")

@@ -135,7 +135,7 @@ private extension PolymarketOrderSummaryViewModel {
                         "The exchange matched the order and filled no shares",
                         error: PlacementAnomaly.matchedWithoutFill
                     )
-                    reportFailure()
+                    reportFailure(returningToMain: true)
                     return
                 }
 
@@ -171,15 +171,26 @@ private extension PolymarketOrderSummaryViewModel {
         }
     }
 
-    func reportFailure() {
-        resume()
+    func reportFailure(returningToMain: Bool = false) {
+        if !returningToMain {
+            resume()
+        }
+
         alert = AlertBuilder.makeAlert(
             title: Localization.commonSomethingWentWrong,
             message: Localization.predictionPlaceErrorDescription,
             primaryButton: .default(Text(Localization.commonSupport)) { [weak self] in
                 self?.coordinator?.openSupport()
+
+                guard returningToMain else { return }
+
+                self?.coordinator?.returnToMain()
             },
-            secondaryButton: .cancel(Text(Localization.commonClose))
+            secondaryButton: .cancel(Text(Localization.commonClose)) { [weak self] in
+                guard returningToMain else { return }
+
+                self?.coordinator?.returnToMain()
+            }
         )
     }
 

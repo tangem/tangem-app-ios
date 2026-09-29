@@ -14,6 +14,9 @@ protocol PolymarketPositionDetailsRoutable: AnyObject {
 
     func openRegionWarning()
 
+    @MainActor
+    func openMarketClosed()
+
     func openOrder(
         market: PolymarketMarket,
         outcome: PolymarketOutcome,

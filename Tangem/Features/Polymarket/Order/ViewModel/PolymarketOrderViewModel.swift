@@ -215,8 +215,9 @@ private extension PolymarketOrderViewModel {
         guard case .sell(let held) = intent else { return nil }
 
         let selling = PolymarketOrderFormatter.shares(state.enteredAmount ?? 0)
+        let total = PolymarketOrderFormatter.shares(state.balance ?? held)
 
-        return Localization.predictionCloseSellingOf(selling, PolymarketOrderFormatter.shares(held))
+        return Localization.predictionCloseSellingOf(selling, total)
     }
 
     static func makePayment(balance: Decimal?, intent: PolymarketOrderIntent) -> PolymarketOrderPaymentRow.Model? {
