@@ -65,6 +65,7 @@ struct PolymarketFeeBreakdownSheetView: View {
     private var orderRow: some View {
         TangemUI.Row(title: viewModel.orderTitle, subtitle: viewModel.orderCaption)
             .valueAccessory { money(viewModel.orderValue) }
+            .contentLead(.end)
             .subtitleLineLimit(nil)
             .verticalAlignment(.top)
             .showDivider()
