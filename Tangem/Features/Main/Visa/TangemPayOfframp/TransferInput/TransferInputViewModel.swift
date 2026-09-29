@@ -13,10 +13,7 @@ import TangemPay
 
 @MainActor
 final class TransferInputViewModel: ObservableObject {
-    let amountFieldViewModel = DecimalNumberTextFieldViewModel(
-        maximumFractionDigits: Constants.fractionDigits,
-        locale: Locale(identifier: Constants.localeIdentifier)
-    )
+    let amountFieldViewModel = DecimalNumberTextFieldViewModel(maximumFractionDigits: Constants.fractionDigits)
 
     @Published private(set) var selectedTokenID: TransferInputTokenItem.ID?
     @Published private(set) var selectedRail: TangemPayBankAccountRail?
@@ -110,6 +107,15 @@ private extension TransferInputViewModel {
         railItems.first { $0.rail == selectedRail }
     }
 
+    var availableAmount: Decimal? {
+        guard let selectedToken else { return nil }
+
+        let fee = selectedRailItem?.feeAmount ?? .zero
+
+        return max(.zero, selectedToken.balance - fee)
+            .rounded(scale: Constants.fractionDigits, roundingMode: .down)
+    }
+
     var isContinueEnabled: Bool {
         amountState.isValid && selectedToken != nil && selectedRail != nil
     }
@@ -119,14 +125,9 @@ private extension TransferInputViewModel {
 
 private extension TransferInputViewModel {
     func applyMaxAmount() {
-        guard let selectedToken else { return }
-        guard let fee = selectedRailItem?.feeAmount else { return }
+        guard selectedRailItem != nil, let availableAmount else { return }
 
-        let available = max(.zero, selectedToken.balance - fee)
-        let amount = min(available, Constants.maxAmount)
-            .rounded(scale: Constants.fractionDigits, roundingMode: .down)
-
-        amountFieldViewModel.update(value: amount)
+        amountFieldViewModel.update(value: availableAmount)
         revalidate()
     }
 
@@ -247,11 +248,7 @@ private extension TransferInputViewModel {
     func revalidate() {
         let amount = amountFieldViewModel.value
 
-        amountState = Self.validate(
-            amount: amount,
-            balance: selectedToken?.balance,
-            fee: selectedRailItem?.feeAmount ?? .zero
-        )
+        amountState = Self.validate(amount: amount, available: availableAmount)
 
         logAmountEnteredIfNeeded(amount: amount)
         logInsufficientFundsIfNeeded()
@@ -280,17 +277,19 @@ private extension TransferInputViewModel {
 // MARK: - Validation
 
 private extension TransferInputViewModel {
-    static func validate(amount: Decimal?, balance: Decimal?, fee: Decimal) -> TransferInputAmountState {
-        guard let amount, amount > 0 else {
+    static func validate(amount: Decimal?, available: Decimal?) -> TransferInputAmountState {
+        guard let amount, amount > 0, let available else {
             return .empty
         }
 
-        guard amount >= Constants.minAmount, amount <= Constants.maxAmount else {
-            return .outOfRange(min: Constants.minAmount, max: Constants.maxAmount)
+        if amount > available {
+            return .notEnoughFunds
         }
 
-        if let balance, amount + fee > balance {
-            return .notEnoughFunds
+        if amount < Constants.minAmount {
+            return available >= Constants.minAmount
+                ? .outOfRange(min: Constants.minAmount, max: available)
+                : .notEnoughFunds
         }
 
         return .valid
@@ -311,8 +310,6 @@ extension TransferInputViewModel {
 extension TransferInputViewModel {
     enum Constants {
         static let minAmount: Decimal = 1
-        static let maxAmount: Decimal = 10_000
         static let fractionDigits = 2
-        static let localeIdentifier = "en_US"
     }
 }
