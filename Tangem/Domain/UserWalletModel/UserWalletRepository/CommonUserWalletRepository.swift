@@ -23,6 +23,8 @@ final class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
     @Injected(\.tangemPayAuthorizationTokensRepository)
     private var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
+    @Injected(\.tangemPayRecentOperationsStore)
+    private var tangemPayRecentOperationsStore: TangemPayRecentOperationsStore
 
     var shouldLockOnBackground: Bool {
         if isLocked {
@@ -68,6 +70,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private let supportChatTokenStorage = SupportChatTokenStorage()
     private let polymarketCredentialsRepository = CommonPolymarketCredentialsRepository()
     private let polymarketAccountPresenceStore: PolymarketAccountPresenceStore = AppSettings.shared
+    private let tangemPayStorageCleaner: TangemPayStorageCleaner = AppSettings.shared
     private let mobileWalletSdk = CommonMobileWalletSdk()
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
     private let collectiblesSessionKeyWalletStore: any CollectiblesSessionKeyWalletStore = CommonCollectiblesSessionKeyWalletStore()
@@ -264,6 +267,8 @@ final class CommonUserWalletRepository: UserWalletRepository {
             try? visaRefreshTokenRepository.deleteToken(visaRefreshTokenId: .cardId($0))
         }
         try? tangemPayAuthorizationTokensRepository.deleteTokens(customerWalletId: userWalletId.stringValue)
+        tangemPayRecentOperationsStore.clear(customerWalletId: userWalletId.stringValue)
+        tangemPayStorageCleaner.clear(customerWalletId: userWalletId.stringValue)
         polymarketCredentialsRepository.delete(userWalletId: userWalletId)
         polymarketAccountPresenceStore.delete(userWalletId: userWalletId)
         try? collectiblesSessionKeyWalletStore.deleteKey(for: userWalletId)

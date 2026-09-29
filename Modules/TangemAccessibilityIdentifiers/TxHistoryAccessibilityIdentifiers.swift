@@ -34,4 +34,8 @@ public enum TxHistoryAccessibilityIdentifiers {
     public static func transactionSubtitle(key: String) -> String {
         "txHistoryTransactionSubtitle_\(key)"
     }
+
+    public static func transactionCashback(key: String) -> String {
+        "txHistoryTransactionCashback_\(key)"
+    }
 }
