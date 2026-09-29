@@ -41,9 +41,9 @@ private extension TransferInputAmountState {
             currencyCode: TangemPayUtilities.fiatItem.currencyCode,
             formattingOptions: .init(
                 minFractionDigits: 0,
-                maxFractionDigits: 0,
+                maxFractionDigits: 2,
                 formatEpsilonAsLowestRepresentableValue: false,
-                roundingType: .default(roundingMode: .plain, scale: 0)
+                roundingType: .default(roundingMode: .down, scale: 2)
             )
         )
     }

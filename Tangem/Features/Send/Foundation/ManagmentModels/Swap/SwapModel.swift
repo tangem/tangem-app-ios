@@ -60,6 +60,7 @@ final class SwapModel {
     private let balanceRestrictionHandler: SwapBalanceRestrictionHandler
     private let sourceTokenResolver: (any SwapSourceTokenResolver)?
     private let destinationTokenResolver: (any SwapDestinationTokenResolver)?
+    private let onTransactionSent: ((SwapFlowConfiguration.SwapSentTransaction) -> Void)?
 
     private let balanceConverter = BalanceConverter()
     private var bag: Set<AnyCancellable> = []
@@ -79,6 +80,7 @@ final class SwapModel {
         balanceRestrictionFeatureChecker: SwapBalanceRestrictionFeatureChecker,
         sourceTokenResolver: (any SwapSourceTokenResolver)? = nil,
         destinationTokenResolver: (any SwapDestinationTokenResolver)? = nil,
+        onTransactionSent: ((SwapFlowConfiguration.SwapSentTransaction) -> Void)? = nil,
         shouldStartInitialLoading: Bool,
     ) {
         self.expressManager = expressManager
@@ -91,6 +93,7 @@ final class SwapModel {
         self.pairUpdateHandler = pairUpdateHandler
         self.sourceTokenResolver = sourceTokenResolver
         self.destinationTokenResolver = destinationTokenResolver
+        self.onTransactionSent = onTransactionSent
         balanceRestrictionHandler = SwapBalanceRestrictionHandler(checker: balanceRestrictionFeatureChecker)
 
         _sourceToken = .init(sourceToken.map { .success($0) } ?? .loading)
@@ -1104,6 +1107,8 @@ extension SwapModel {
                 throw SwapModel.SwapModelError.transactionDataNotFound
             }
         }
+
+        onTransactionSent?(.init(source: source, receive: receive, result: result))
 
         _transactionTime.send(.now)
         _transactionURL.send(result.url)
