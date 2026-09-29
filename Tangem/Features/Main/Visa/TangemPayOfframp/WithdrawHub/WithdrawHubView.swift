@@ -20,6 +20,7 @@ struct WithdrawHubView: View {
             isWithinPortfolioLoading: viewModel.isWithinPortfolioLoading,
             recentTokens: viewModel.recentTokens,
             recentAccounts: viewModel.recentAccounts,
+            isSeeAllAccountsVisible: viewModel.isSeeAllAccountsVisible,
             bankTransferState: viewModel.bankTransferState,
             onAction: viewModel.handleViewAction
         )
