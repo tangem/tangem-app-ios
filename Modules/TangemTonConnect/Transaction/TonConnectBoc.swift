@@ -22,6 +22,12 @@ enum TonConnectBoc {
     /// Upper bound on the number of cells in one BoC.
     static let maxCellCount = 4096
 
+    /// Upper bound on the depth of the cell tree. Real payloads are a handful of levels deep (a jetton
+    /// transfer is 3, a DEX swap about 6); TonSwift serialises and hashes trees recursively, and a chain a few
+    /// hundred cells deep overflows a secondary thread's stack — observed with a 513-cell chain under the
+    /// test runner. Refusing anything deeper than 64 keeps that path unreachable from a dApp.
+    static let maxDepth = 64
+
     /// Decodes a base64 (standard or url-safe alphabet) BoC that must contain exactly one root cell.
     static func singleRootCell(base64: String, field: String) throws -> Cell {
         guard let data = decodeBase64(base64) else {
@@ -74,6 +80,7 @@ enum TonConnectBoc {
         case badLevel = "non-zero level is not supported"
         case badRefIndex = "ref index is not a forward reference"
         case unsupportedExotic = "exotic cells are not supported"
+        case tooDeep = "cell tree is too deep"
         case trailingBytes = "trailing bytes after BoC"
     }
 
@@ -116,6 +123,9 @@ enum TonConnectBoc {
         guard totalCellSize <= UInt64(cursor.remaining) else { throw PreflightError.truncated }
         let cellDataEnd = cursor.position + Int(totalCellSize)
 
+        // Refs only point forward, so the depth of every cell follows from its refs in a single reverse pass.
+        var refsOf = [[Int]](repeating: [], count: Int(cellCount))
+
         for index in 0 ..< Int(cellCount) {
             let d1 = try cursor.readByte()
             let d2 = try cursor.readByte()
@@ -136,12 +146,19 @@ enum TonConnectBoc {
             for _ in 0 ..< refCount {
                 let ref = try cursor.readUInt(byteCount: refByteCount)
                 guard ref > UInt64(index), ref < cellCount else { throw PreflightError.badRefIndex }
+                refsOf[index].append(Int(ref))
             }
 
             guard cursor.position <= cellDataEnd else { throw PreflightError.badCellDataSize }
         }
 
         guard cursor.position == cellDataEnd else { throw PreflightError.badCellDataSize }
+
+        var depth = [Int](repeating: 0, count: Int(cellCount))
+        for index in stride(from: Int(cellCount) - 1, through: 0, by: -1) {
+            depth[index] = (refsOf[index].map { depth[$0] }.max() ?? -1) + 1
+            guard depth[index] <= maxDepth else { throw PreflightError.tooDeep }
+        }
 
         if hasCRC32C {
             try cursor.skip(4)

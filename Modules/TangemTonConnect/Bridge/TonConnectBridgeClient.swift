@@ -16,7 +16,12 @@ public final class TonConnectBridgeClient: Sendable {
     public enum TransportError: Error, Equatable {
         case httpStatus(Int)
         case notHTTPResponse
+        /// The stream sent more than `maxLineByteCount` bytes without a newline.
+        case lineTooLong
     }
+
+    /// Upper bound on one SSE line; the bridge's own message-size limit is far below this.
+    public static let maxLineByteCount = 1024 * 1024
 
     private let requestFactory: TonConnectBridgeRequestFactory
     private let session: URLSession
@@ -63,19 +68,34 @@ public final class TonConnectBridgeClient: Sendable {
                     try Self.validate(response)
 
                     var parser = TonConnectSSEParser()
-                    for try await line in bytes.lines {
-                        try Task.checkCancellation()
+                    var lineBuffer = Data()
+                    // `AsyncBytes.lines` buffers a line without bound; read bytes ourselves so a stream that
+                    // never sends `\n` cannot grow the wallet's memory.
+                    for try await byte in bytes {
+                        if byte == UInt8(ascii: "\n") {
+                            let line = String(decoding: lineBuffer, as: UTF8.self)
+                            lineBuffer.removeAll(keepingCapacity: true)
+                            try Task.checkCancellation()
 
-                        guard let event = parser.feed(line: line), !event.isHeartbeat else {
-                            continue
-                        }
+                            guard let event = parser.feed(line: line), !event.isHeartbeat else {
+                                continue
+                            }
 
-                        if let message = try? TonConnectBridgeMessage.decode(sseData: event.data, eventID: event.id) {
-                            continuation.yield(message)
+                            if let message = try? TonConnectBridgeMessage.decode(sseData: event.data, eventID: event.id) {
+                                continuation.yield(message)
+                            }
+                        } else {
+                            guard lineBuffer.count < Self.maxLineByteCount else {
+                                throw TransportError.lineTooLong
+                            }
+                            lineBuffer.append(byte)
                         }
                     }
 
-                    // `bytes.lines` does not emit the trailing event when the stream ends without a blank line.
+                    // A stream that ends without a blank line still leaves one buffered event.
+                    if !lineBuffer.isEmpty {
+                        _ = parser.feed(line: String(decoding: lineBuffer, as: UTF8.self))
+                    }
                     if let event = parser.feed(line: ""), !event.isHeartbeat,
                        let message = try? TonConnectBridgeMessage.decode(sseData: event.data, eventID: event.id) {
                         continuation.yield(message)

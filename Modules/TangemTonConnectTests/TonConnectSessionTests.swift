@@ -45,7 +45,7 @@ struct TonConnectSessionTests {
         try session.acceptRequest(id: "10000000000000")
     }
 
-    @Test(arguments: ["", "abc", "-1", "1.0", "0x10"])
+    @Test(arguments: ["", "abc", "-1", "1.0", "0x10", "+1", String(repeating: "9", count: 65)])
     func rejectsNonIntegerIds(id: String) {
         var session = makeSession()
 

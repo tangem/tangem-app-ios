@@ -31,8 +31,8 @@ struct TonConnectTransferBuilderTests {
         // Vector from BlockchainSdkTests/TON/TONAddressTests (WalletCore derivation for the same key).
         let builder = try TonConnectTransferBuilder(publicKey: Data(hex: "e7287a82bdcd3a5c2d0ee2150ccbc80d6a00991411fb44cd4d13cef46618aadb"))
 
-        #expect(try builder.address.toString(bounceable: false) == "UQBqoh0pqy6zIksGZFMLdqV5Q2R7rzlTO0Durz6OnUgKrdpr")
-        #expect(try builder.address.toRaw() == "0:6aa21d29ab2eb3224b0664530b76a57943647baf39533b40eeaf3e8e9d480aad")
+        #expect(builder.address.toString(bounceable: false) == "UQBqoh0pqy6zIksGZFMLdqV5Q2R7rzlTO0Durz6OnUgKrdpr")
+        #expect(builder.address.toRaw() == "0:6aa21d29ab2eb3224b0664530b76a57943647baf39533b40eeaf3e8e9d480aad")
     }
 
     @Test
@@ -42,7 +42,7 @@ struct TonConnectTransferBuilderTests {
         let boc = try builder.stateInitBoc()
         let cell = try Cell.fromBoc(src: Data(base64Encoded: boc)!)[0]
 
-        #expect(cell.hash() == (try builder.address.hash), "spec: walletStateInit.hash() must equal address.hash()")
+        #expect(cell.hash() == builder.address.hash, "spec: walletStateInit.hash() must equal address.hash()")
         // Public key is recoverable from the data cell: seqno(32) ++ wallet_id(32) ++ pubkey(256).
         let stateInitSlice = try cell.beginParse()
         #expect(try stateInitSlice.loadBit() == 0, "no split_depth")
@@ -107,7 +107,7 @@ struct TonConnectTransferBuilderTests {
             Issue.record("expected an ext_in_msg_info")
             return
         }
-        #expect(info.dest == (try builder.address))
+        #expect(info.dest == builder.address)
         #expect(external.stateInit == nil, "deployed wallet (seqno > 0) must not attach StateInit")
 
         let body = try external.body.beginParse()
@@ -158,7 +158,7 @@ struct TonConnectTransferBuilderTests {
 
         let external = try Message.loadFrom(slice: try Cell.fromBoc(src: Data(base64Encoded: boc)!)[0].beginParse())
         let walletStateInit = try #require(external.stateInit)
-        #expect(try Builder().store(walletStateInit).endCell().hash() == (try builder.address.hash))
+        #expect(try Builder().store(walletStateInit).endCell().hash() == builder.address.hash)
 
         let outgoing = try external.body.beginParse()
         _ = try outgoing.loadBytes(64)
@@ -186,5 +186,54 @@ struct TonConnectTransferBuilderTests {
         #expect(throws: (any Error).self) {
             try builder.prepare(makeTransaction(messages: Array(repeating: message, count: 5)), seqno: 1)
         }
+    }
+
+    /// Vectors produced by the first implementation of this builder (TonSwift `MessageRelaxed`/`StateInit`
+    /// types) before it was rewritten on raw `Builder` primitives; the Android module pins the same values.
+    @Test
+    func matchesPinnedCrossPlatformVectors() throws {
+        let builder = try TonConnectTransferBuilder(publicKey: Data(hex: "e7287a82bdcd3a5c2d0ee2150ccbc80d6a00991411fb44cd4d13cef46618aadb"), now: { Self.now })
+        let payload = TonConnectSendTransactionPayload(validUntil: 1_764_424_302, network: .mainnet, from: nil, messages: [
+            .init(address: "EQBm--PFwDv1yCeS-QTJ-L8oiUpqo9IT1BwgVptlSq3ts90Q", amount: "100000000", payload: "te6cckEBAQEADQAAFgAAAABjb21tZW5053+evA=="),
+            .init(address: "UQBm--PFwDv1yCeS-QTJ-L8oiUpqo9IT1BwgVptlSq3ts4DV", amount: "1"),
+        ])
+        let transaction = try TonConnectSendTransactionValidator(now: { Self.now })
+            .validate(payload, for: TonConnectWalletAccount(address: builder.address, network: .mainnet))
+        let signature = Data(repeating: 0x44, count: 64)
+
+        // TonSwift's BoC writer orders cells by `Set` iteration, so the serialised bytes are not stable;
+        // compare the cell tree instead.
+        let pinnedStateInit = "te6cckECFgEAAwQAAgE0AgEAUQAAAAApqaMX5yh6gr3NOlwtDuIVDMvIDWoAmRQR+0TNTRPO9GYYqttAART/APSkE/S88sgLAwIBIAkEBPjygwjXGCDTH9Mf0x8C+CO78mTtRNDTH9Mf0//0BNFRQ7ryoVFRuvKiBfkBVBBk+RDyo/gAJKTIyx9SQMsfUjDL/1IQ9ADJ7VT4DwHTByHAAJ9sUZMg10qW0wfUAvsA6DDgIcAB4wAhwALjAAHAA5Ew4w0DpMjLHxLLH8v/CAcGBQAK9ADJ7VQAbIEBCNcY+gDTPzBSJIEBCPRZ8qeCEGRzdHJwdIAYyMsFywJQBc8WUAP6AhPLassfEss/yXP7AABwgQEI1xj6ANM/yFQgR4EBCPRR8qeCEG5vdGVwdIAYyMsFywJQBs8WUAT6AhTLahLLH8s/yXP7AAIAbtIH+gDU1CL5AAXIygcVy//J0Hd0gBjIywXLAiLPFlAF+gIUy2sSzMzJc/sAyEAUgQEI9FHypwICAUgTCgIBIAwLAFm9JCtvaiaECAoGuQ+gIYRw1AgIR6STfSmRDOaQPp/5g3gSgBt4EBSJhxWfMYQCASAODQARuMl+1E0NcLH4AgFYEg8CASAREAAZrx32omhAEGuQ64WPwAAZrc52omhAIGuQ64X/wAA9sp37UTQgQFA1yH0BDACyMoHy//J0AGBAQj0Cm+hMYALm0AHQ0wMhcbCSXwTgItdJwSCSXwTgAtMfIYIQcGx1Z70ighBkc3RyvbCSXwXgA/pAMCD6RAHIygfL/8nQ7UTQgQFA1yH0BDBcgQEI9ApvoTGzkl8H4AXTP8glghBwbHVnupI4MOMNA4IQZHN0crqSXwbjDRUUAIpQBIEBCPRZMO1E0IEBQNcgyAHPFvQAye1UAXKwjiOCEGRzdHKDHrFwgBhQBcsFUAPPFiP6AhPLassfyz/JgED7AJJfA+IAeAH6APQEMPgnbyIwUAqhIb7y4FCCEHBsdWeDHrFwgBhQBMsFJs8WWPoCGfQAy2kXyx9SYMs/IMmAQPsABtoNw/Q="
+        #expect(try Cell.fromBoc(src: Data(base64Encoded: try builder.stateInitBoc())!)[0].hash() == Cell.fromBoc(src: Data(base64Encoded: pinnedStateInit)!)[0].hash())
+
+        let deployed = try builder.prepare(transaction, seqno: 7)
+        #expect(deployed.hashToSign == Data(hex: "5494af2299ac662eefb3e76f0ae6be3891d1afb2e5720777ab7086cb939fee48"))
+        let pinnedDeployed = "te6cckECAwEAAOoAAuOIANVEOlNWXWZElgzIphbtSvKGyPdecqZ2gd1efR06kBVaAiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiFNTRi7SVfTcAAAADgAGBwCAQBiQgAzffHi4B365BPJfIJk/F+URKU1UekJ6g4QK02ypVb22YgIAAAAAAAAAAAAAAAAAAB+YgAzffHi4B365BPJfIJk/F+URKU1UekJ6g4QK02ypVb22aAvrwgAAAAAAAAAAAAAAAAAAAAAAABjb21tZW50c7QF8Q=="
+        let deployedBoc = try builder.assemble(deployed, signature: signature)
+        #expect(try Cell.fromBoc(src: Data(base64Encoded: deployedBoc)!)[0].hash() == Cell.fromBoc(src: Data(base64Encoded: pinnedDeployed)!)[0].hash())
+
+        let undeployed = try builder.prepare(transaction, seqno: 0)
+        #expect(undeployed.hashToSign == Data(hex: "39bcf1dd0c0b535aaa3e87fddbacdc94608657d33847dd19275eba79ef1aba65"))
+        let undeployedBoc = try builder.assemble(undeployed, signature: signature)
+        let undeployedRoot = try Cell.fromBoc(src: Data(base64Encoded: undeployedBoc)!)[0]
+        #expect(undeployedRoot.refs.count == 4, "StateInit (2 refs) and both messages inline, as in the pinned vector")
+        // 2+2+267+4 header, 1+1+5 inline StateInit, 1 body flag, 512 signature, 32+32+32+8 + 2×8 signing message = 915
+        #expect(undeployedRoot.bits.length == 915)
+        let pinnedUndeployed = "te6cckECGAEAA+wABOWIANVEOlNWXWZElgzIphbtSvKGyPdecqZ2gd1efR06kBVaEYiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiFNTRi7SVfTcAAAAAAAGBwAhYDAQBiQgAzffHi4B365BPJfIJk/F+URKU1UekJ6g4QK02ypVb22YgIAAAAAAAAAAAAAAAAAAEU/wD0pBP0vPLICwQAfmIAM33x4uAd+uQTyXyCZPxflESlNVHpCeoOECtNsqVW9tmgL68IAAAAAAAAAAAAAAAAAAAAAAAAY29tbWVudAIBIAkFBPjygwjXGCDTH9Mf0x8C+CO78mTtRNDTH9Mf0//0BNFRQ7ryoVFRuvKiBfkBVBBk+RDyo/gAJKTIyx9SQMsfUjDL/1IQ9ADJ7VT4DwHTByHAAJ9sUZMg10qW0wfUAvsA6DDgIcAB4wAhwALjAAHAA5Ew4w0DpMjLHxLLH8v/DggHBgAK9ADJ7VQAbIEBCNcY+gDTPzBSJIEBCPRZ8qeCEGRzdHJwdIAYyMsFywJQBc8WUAP6AhPLassfEss/yXP7AABwgQEI1xj6ANM/yFQgR4EBCPRR8qeCEG5vdGVwdIAYyMsFywJQBs8WUAT6AhTLahLLH8s/yXP7AAICAUgMCgIBIA8LAFm9JCtvaiaECAoGuQ+gIYRw1AgIR6STfSmRDOaQPp/5g3gSgBt4EBSJhxWfMYQC5tAB0NMDIXGwkl8E4CLXScEgkl8E4ALTHyGCEHBsdWe9IoIQZHN0cr2wkl8F4AP6QDAg+kQByMoHy//J0O1E0IEBQNch9AQwXIEBCPQKb6Exs5JfB+AF0z/IJYIQcGx1Z7qSODDjDQOCEGRzdHK6kl8G4w0XDQCKUASBAQj0WTDtRNCBAUDXIMgBzxb0AMntVAFysI4jghBkc3Rygx6xcIAYUAXLBVADzxYj+gITy2rLH8s/yYBA+wCSXwPiAG7SB/oA1NQi+QAFyMoHFcv/ydB3dIAYyMsFywIizxZQBfoCFMtrEszMyXP7AMhAFIEBCPRR8qcCAgEgERAAEbjJftRNDXCx+AIBWBUSAgEgFBMAGa8d9qJoQBBrkOuFj8AAGa3OdqJoQCBrkOuF/8AAPbKd+1E0IEBQNch9AQwAsjKB8v/ydABgQEI9ApvoTGAAUQAAAAApqaMX5yh6gr3NOlwtDuIVDMvIDWoAmRQR+0TNTRPO9GYYqttAAHgB+gD0BDD4J28iMFAKoSG+8uBQghBwbHVngx6xcIAYUATLBSbPFlj6Ahn0AMtpF8sfUmDLPyDJgED7AAZRXkSf"
+        #expect(try undeployedRoot.hash() == Cell.fromBoc(src: Data(base64Encoded: pinnedUndeployed)!)[0].hash())
+    }
+
+    @Test
+    func forwardableStateInitCheckAcceptsEmptyLibraryOnly() throws {
+        let code = try Builder().store(uint: 1, bits: 8).endCell()
+        let plain = try Builder().store(bit: false).store(bit: false).store(bit: true).store(ref: code).store(bit: true).store(ref: Builder().endCell()).store(bit: false).endCell()
+        let withLibrary = try Builder().store(bit: false).store(bit: false).store(bit: false).store(bit: false).store(bit: true).store(ref: code).endCell()
+        let missingRef = try Builder().store(bit: false).store(bit: false).store(bit: true).store(bit: false).store(bit: false).endCell()
+        let trailingBits = try Builder().store(bit: false).store(bit: false).store(bit: false).store(bit: false).store(bit: false).store(bit: true).endCell()
+
+        #expect(TonConnectTransferBuilder.isForwardableStateInit(plain))
+        #expect(!TonConnectTransferBuilder.isForwardableStateInit(withLibrary), "non-empty HashmapE is refused, never parsed")
+        #expect(!TonConnectTransferBuilder.isForwardableStateInit(missingRef))
+        #expect(!TonConnectTransferBuilder.isForwardableStateInit(trailingBits))
     }
 }

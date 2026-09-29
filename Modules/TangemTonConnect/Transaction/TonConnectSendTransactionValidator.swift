@@ -106,7 +106,7 @@ public struct TonConnectSendTransactionValidator: Sendable {
         return TonConnectValidatedTransaction(
             validUntil: validUntil,
             messages: try messages.enumerated().map { index, message in
-                try validate(message, index: index)
+                try validate(message, index: index, account: account)
             }
         )
     }
@@ -127,7 +127,7 @@ public struct TonConnectSendTransactionValidator: Sendable {
         return UInt64(raw)
     }
 
-    private func validate(_ message: TonConnectSendTransactionPayload.Message, index: Int) throws -> TonConnectValidatedTransaction.Message {
+    private func validate(_ message: TonConnectSendTransactionPayload.Message, index: Int, account: TonConnectWalletAccount) throws -> TonConnectValidatedTransaction.Message {
         let field = "messages[\(index)]"
 
         // The spec requires the user-friendly form: it carries the bounce flag the wallet must honour.
@@ -142,7 +142,14 @@ public struct TonConnectSendTransactionValidator: Sendable {
             throw TonConnectError.badRequest("\(field).address is not a valid TON address")
         }
 
-        guard let amount = BigUInt(message.amount, radix: 10), !message.amount.isEmpty else {
+        // A test-only address (tag 0x80) must never receive mainnet funds.
+        if friendly.isTestOnly, account.network == .mainnet {
+            throw TonConnectError.badRequest("\(field).address is a test-only address, the connected account is on mainnet")
+        }
+
+        // Digits only: `BigUInt("+1")` would otherwise be accepted, and the two platforms must agree.
+        guard !message.amount.isEmpty, message.amount.utf8.allSatisfy({ (UInt8(ascii: "0") ... UInt8(ascii: "9")).contains($0) }),
+              let amount = BigUInt(message.amount, radix: 10) else {
             throw TonConnectError.badRequest("\(field).amount must be a non-negative decimal string of nanocoins")
         }
 
@@ -158,13 +165,10 @@ public struct TonConnectSendTransactionValidator: Sendable {
         let payload = try message.payload.map { try TonConnectBoc.singleRootCell(base64: $0, field: "\(field).payload") }
         let stateInit = try message.stateInit.map { try TonConnectBoc.singleRootCell(base64: $0, field: "\(field).stateInit") }
 
-        if let stateInit {
-            // Fail early on a stateInit the wallet contract could not serialise into the message.
-            do {
-                _ = try StateInit.loadFrom(slice: stateInit.beginParse())
-            } catch {
-                throw TonConnectError.badRequest("\(field).stateInit is not a valid StateInit cell")
-            }
+        // Structural check only — TonSwift's `StateInit.loadFrom` runs the HashmapE reader on the `library`
+        // field, which traps on a hostile label (`bitsForInt` of a negative remaining key length).
+        if let stateInit, !TonConnectTransferBuilder.isForwardableStateInit(stateInit) {
+            throw TonConnectError.badRequest("\(field).stateInit is not a valid StateInit cell")
         }
 
         return TonConnectValidatedTransaction.Message(

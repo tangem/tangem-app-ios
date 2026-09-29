@@ -40,7 +40,7 @@ public struct TonConnectConnectEventFactory {
         signer: any TonConnectSigner
     ) async throws -> Approval {
         let transferBuilder = try TonConnectTransferBuilder(publicKey: publicKey)
-        let address = try transferBuilder.address
+        let address = transferBuilder.address
 
         let account = TonConnectSession.Account(
             address: address.toRaw(),
@@ -53,7 +53,12 @@ public struct TonConnectConnectEventFactory {
 
         for item in request.items {
             switch item {
-            case .tonAddress:
+            case .tonAddress(let requestedNetwork):
+                // The dApp may pin the network it wants; connecting a mainnet account to a testnet dApp
+                // (or vice versa) must be refused, not silently answered with the wallet's network.
+                if let requestedNetwork, requestedNetwork != network {
+                    throw TonConnectError.badRequest("requested network \(requestedNetwork) does not match the wallet network \(network)")
+                }
                 replies.append(.tonAddress(TonConnectAddressItemReply(
                     address: account.address,
                     network: network,

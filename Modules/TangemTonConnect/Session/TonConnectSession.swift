@@ -73,8 +73,13 @@ public struct TonConnectSession: Codable, Equatable, Sendable, Identifiable {
     ///
     /// The first id is accepted as the baseline; every later id must be strictly greater. Ids are
     /// compared as unsigned integers — the reference SDK uses millisecond timestamps.
+    /// Longest request id accepted (the reference SDK sends 13-digit millisecond timestamps).
+    public static let maxRequestIDLength = 64
+
     public mutating func acceptRequest(id: String) throws {
-        guard let incoming = BigUInt(id, radix: 10), !id.isEmpty else {
+        guard !id.isEmpty, id.count <= Self.maxRequestIDLength,
+              id.utf8.allSatisfy({ (UInt8(ascii: "0") ... UInt8(ascii: "9")).contains($0) }),
+              let incoming = BigUInt(id, radix: 10) else {
             throw TonConnectError.badRequest("request id must be a non-negative integer")
         }
 

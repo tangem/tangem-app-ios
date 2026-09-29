@@ -17,6 +17,11 @@ public struct TonConnectDeepLinkParser: Sendable {
     public static let unifiedScheme = "tc"
     public static let supportedProtocolVersion = TonConnectDeviceInfo.supportedProtocolVersion
 
+    /// Schemes a custom `ret` URL may use. The wallet opens `ret` after the user acts, so an arbitrary
+    /// scheme (`tel:`, `sms:`, another wallet's scheme…) would let a dApp launch things on the user's
+    /// behalf; only web and Telegram return targets are meaningful.
+    public static let allowedReturnURLSchemes: Set<String> = ["https", "http", "tg"]
+
     private enum Parameter {
         static let version = "v"
         static let clientID = "id"
@@ -99,7 +104,7 @@ public struct TonConnectDeepLinkParser: Sendable {
         case "none":
             return .none
         case let custom?:
-            if let url = URL(string: custom), url.scheme != nil {
+            if let url = URL(string: custom), let scheme = url.scheme?.lowercased(), Self.allowedReturnURLSchemes.contains(scheme) {
                 return .url(url)
             }
             return .back

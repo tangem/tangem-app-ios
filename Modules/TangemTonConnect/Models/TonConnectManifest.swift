@@ -24,9 +24,17 @@ public struct TonConnectManifest: Codable, Equatable, Sendable {
         self.privacyPolicyUrl = privacyPolicyUrl
     }
 
+    /// Upper bound on a manifest body. Real manifests are a few hundred bytes; the limit keeps a hostile
+    /// `manifestUrl` from feeding the JSON decoder megabytes.
+    public static let maxByteCount = 64 * 1024
+
     /// Decodes a manifest body and applies the content rules from `spec/manifest.md`
     /// and the domain-binding rules from `spec/connect.md`.
     public static func decode(from body: Data) throws -> TonConnectManifest {
+        guard body.count <= maxByteCount else {
+            throw TonConnectError.manifestContentError("manifest exceeds \(maxByteCount) bytes")
+        }
+
         let manifest: TonConnectManifest
         do {
             manifest = try JSONDecoder().decode(TonConnectManifest.self, from: body)
@@ -63,9 +71,25 @@ public struct TonConnectManifest: Codable, Equatable, Sendable {
         return host
     }
 
+    /// `true` when the manifest was fetched from the domain it claims (`manifestUrl` host equals `url`
+    /// host or is a subdomain of it).
+    ///
+    /// The spec lets a dApp host its manifest anywhere, and CDN / GitHub-hosted manifests are common, so a
+    /// mismatch is not an error. It is, however, the exact shape of a `ton_proof` phishing attempt: a
+    /// manifest served from `attacker.example` that claims `url: https://real-dapp.example` makes the
+    /// wallet sign a login proof for the real dApp's domain with the attacker's nonce. The UI should show
+    /// the serving host prominently (and warn) when this returns `false`.
+    public func isServedFromAppDomain(manifestUrl: URL) -> Bool {
+        guard let appDomain = try? appDomain(), let servingHost = manifestUrl.host?.lowercased() else {
+            return false
+        }
+        return servingHost == appDomain || servingHost.hasSuffix("." + appDomain)
+    }
+
     static func isValidAppDomain(_ host: String) -> Bool {
         let labels = host.split(separator: ".", omittingEmptySubsequences: false)
-        guard labels.count >= 2 else { return false }
-        return labels.allSatisfy { !$0.isEmpty }
+        guard labels.count >= 2, labels.allSatisfy({ !$0.isEmpty }) else { return false }
+        // A dotted IPv4 literal is not a domain name.
+        return !labels.allSatisfy { $0.allSatisfy(\.isNumber) }
     }
 }

@@ -31,9 +31,15 @@ public struct TonConnectSSEEvent: Equatable, Sendable {
 /// Feed it lines without their terminator; an event is emitted on every empty line. Comment lines
 /// (`:`) and unknown fields are ignored, `data:` lines are joined with `\n`.
 public struct TonConnectSSEParser: Sendable {
+    /// Upper bound on the accumulated `data:` of one event. A bridge (or anyone able to inject into the
+    /// stream) must not be able to grow the wallet's memory without ever sending the terminating blank line.
+    public static let maxEventDataByteCount = 1024 * 1024
+
     private var id: String?
     private var event: String?
     private var dataLines: [String] = []
+    private var dataByteCount = 0
+    private var overflowed = false
 
     public init() {}
 
@@ -68,7 +74,13 @@ public struct TonConnectSSEParser: Sendable {
         case "event":
             event = String(value)
         case "data":
-            dataLines.append(String(value))
+            dataByteCount += value.utf8.count + 1
+            if dataByteCount > Self.maxEventDataByteCount {
+                overflowed = true
+                dataLines.removeAll()
+            } else if !overflowed {
+                dataLines.append(String(value))
+            }
         default:
             break
         }
@@ -80,9 +92,12 @@ public struct TonConnectSSEParser: Sendable {
         defer {
             event = nil
             dataLines = []
+            dataByteCount = 0
+            overflowed = false
         }
 
-        guard !dataLines.isEmpty else {
+        // An oversized event is dropped whole rather than delivered truncated.
+        guard !overflowed, !dataLines.isEmpty else {
             return nil
         }
 
