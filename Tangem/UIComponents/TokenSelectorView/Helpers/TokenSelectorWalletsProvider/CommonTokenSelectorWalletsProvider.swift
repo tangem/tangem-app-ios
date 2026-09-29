@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemPay
+
 final class CommonTokenSelectorWalletsProvider {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
@@ -57,7 +59,12 @@ private extension CommonTokenSelectorWalletsProvider {
             cryptoAccount: cryptoAccount
         )
 
-        return TokenSelectorAccount(account: cryptoAccount, itemsProvider: itemsProvider, rateProvider: cryptoAccount.rateProvider)
+        return TokenSelectorAccount(
+            account: cryptoAccount,
+            itemsProvider: itemsProvider,
+            rateProvider: cryptoAccount.rateProvider,
+            currencyCode: nil
+        )
     }
 
     func mapToTokenSelectorAccount(
@@ -69,7 +76,12 @@ private extension CommonTokenSelectorWalletsProvider {
             tangemPayAccountModel: tangemPayAccountModel
         )
 
-        return TokenSelectorAccount(account: tangemPayAccountModel, itemsProvider: itemsProvider, rateProvider: nil)
+        return TokenSelectorAccount(
+            account: tangemPayAccountModel,
+            itemsProvider: itemsProvider,
+            rateProvider: nil,
+            currencyCode: TangemPayUtilities.fiatItem.currencyCode
+        )
     }
 
     func mapToAccountType(

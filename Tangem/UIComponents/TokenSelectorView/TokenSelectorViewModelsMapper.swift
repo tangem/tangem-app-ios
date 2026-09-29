@@ -246,6 +246,7 @@ private extension TokenSelectorViewModelsMapper {
             expandableViewModel = TokenSelectorExpandableAccountItemViewModel(
                 account: account.account,
                 rateProvider: account.rateProvider,
+                currencyCode: account.currencyCode,
                 stateStorage: accountStateStorage,
                 initiallyExpanded: isInitiallyExpanded,
                 itemsCountPublisher: rawItemsPublisher.map(\.count).eraseToAnyPublisher(),
