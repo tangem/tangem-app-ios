@@ -62,6 +62,7 @@ struct PolymarketWelcomeView: View {
                 .clipped()
                 .overlay { heroTint }
                 .offset(y: -overscroll)
+                .accessibilityHidden(true)
         }
         .aspectRatio(Constants.heroAspectRatio, contentMode: .fit)
         .padding(.bottom, -heroContentOverlap(forWidth: containerWidth))
@@ -124,6 +125,7 @@ struct PolymarketWelcomeView: View {
                 .resizable()
                 .frame(width: Constants.highlightIconSize, height: Constants.highlightIconSize)
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
+                .accessibilityHidden(true)
 
             Spacer(minLength: Constants.highlightIconSpacing)
 
