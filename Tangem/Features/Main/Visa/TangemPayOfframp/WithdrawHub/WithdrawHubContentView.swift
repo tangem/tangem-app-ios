@@ -166,8 +166,7 @@ private extension WithdrawHubContentView {
     var retryTile: some View {
         WithdrawHubActionTileView(
             data: .retry(
-                title: Localization.nftWalletUnableToLoad,
-                buttonTitle: Localization.alertButtonTryAgain,
+                title: Localization.tangempayWithdrawHubAccountsLoadError,
                 action: { onAction(.retryRecentAccountsTap) }
             )
         )
