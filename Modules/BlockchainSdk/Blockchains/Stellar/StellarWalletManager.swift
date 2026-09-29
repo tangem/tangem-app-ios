@@ -179,8 +179,7 @@ class StellarWalletManager: BaseWalletManager, WalletManager {
     }
 
     private func updateWallet(with response: StellarResponse, tokens: [Token]) {
-        let assetBalancesCount = response.assetBalances.count
-        let fullReserve = response.baseReserve * Decimal(assetBalancesCount + Constants.baseEntryCount)
+        let fullReserve = response.baseReserve * Decimal(response.subentryCount + Constants.baseEntryCount)
 
         wallet.add(reserveValue: fullReserve)
         wallet.add(coinValue: response.balance - fullReserve)
