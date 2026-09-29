@@ -177,7 +177,7 @@ private extension PolymarketPositionDetailsView.Model {
 
     static func priceChange(position: PolymarketPosition) -> String {
         let from = PolymarketPriceFormatter.centsText(position.avgPrice)
-        let to = PolymarketPriceFormatter.centsText(position.curPrice)
+        let to = PolymarketPriceFormatter.centsText(position.curPrice, isResolved: position.settlement?.isResolved == true)
 
         return "\(from) \(Constants.arrow) \(to)"
     }
