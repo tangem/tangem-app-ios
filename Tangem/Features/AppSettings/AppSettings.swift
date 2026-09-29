@@ -356,3 +356,17 @@ extension AppSettings: TangemPayTransactionHistoryCacheStorage {
         tangemPayCachedTransactionHistory[customerWalletId] = jsonString
     }
 }
+
+extension AppSettings: TangemPayStorageCleaner {
+    func clear(customerWalletId: String) {
+        tangemPayCachedCustomerInfo[customerWalletId] = nil
+        tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId] = nil
+        tangemPayIsPaeraCustomer[customerWalletId] = nil
+        tangemPayIsKYCHiddenForCustomerWalletId[customerWalletId] = nil
+        tangemPayIsDisabledForCustomerWalletId[customerWalletId] = nil
+        tangemPayCashbackBlockedBannerDismissedForCustomerWalletId[customerWalletId] = nil
+        tangemPayCachedLocalState[customerWalletId] = nil
+        tangemPayCachedTransactionHistory[customerWalletId] = nil
+        tangemPayCachedCashbackSummary[customerWalletId] = nil
+    }
+}
