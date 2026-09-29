@@ -6,6 +6,6 @@
 //
 
 protocol TangemPayActivateCardRoutable: AnyObject {
-    func activateCardDidFinish(cardId: String)
+    func activateCardDidFinish()
     func closeActivateCard()
 }
