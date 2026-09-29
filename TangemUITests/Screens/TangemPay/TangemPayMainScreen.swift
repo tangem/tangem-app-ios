@@ -55,6 +55,17 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     /// Type-agnostic: the badge is a plain container, not guaranteed to surface as a specific element type.
     private lazy var inactiveBadge = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.paymentAccountInactiveBadge].firstMatch
     private lazy var awaitingDepositAddFundsButton = notificationBannerButton(TangemPayAccessibilityIdentifiers.awaitingDepositBanner)
+    private lazy var cashbackBannerTitle = staticText(.cashbackBannerTitle)
+    private lazy var cashbackBannerSubtitle = staticText(.cashbackBannerSubtitle)
+    private lazy var cashbackMenuItem = button(.cashbackMenuItem)
+    private lazy var cashbackDeactivatedBannerTitle = app.staticTexts
+        .matching(NSPredicate(
+            format: "identifier == %@ AND label CONTAINS %@",
+            TangemPayAccessibilityIdentifiers.cashbackDeactivatedBanner,
+            Constants.cashbackDeactivatedTitle
+        ))
+        .firstMatch
+    private lazy var cashbackDeactivatedGotItButton = notificationBannerButton(TangemPayAccessibilityIdentifiers.cashbackDeactivatedBanner)
 
     @discardableResult
     func waitForScreen() -> Self {
@@ -603,6 +614,108 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
         }
     }
 
+    @discardableResult
+    func verifyTransactionCashback(name: String, cashback: String) -> Self {
+        scrollToTransaction(name: name)
+        verifyTransactionRow(name: name)
+
+        return XCTContext.runActivity(named: "Verify cashback '\(cashback)' of row '\(name)'") { _ in
+            let row = transactionRowContainer(name: name)
+            waitAndAssertTrue(row, "Transaction row '\(name)' should exist")
+            // The badge combines its children into one element that is not a static text.
+            waitAndAssertTrue(
+                rowText(in: row, identifier: TxHistoryAccessibilityIdentifiers.transactionCashback(key: Self.tangemPayKey), label: cashback, type: .any),
+                "Transaction row '\(name)' should show cashback '\(cashback)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyCashbackWidget(amount: String, month: String) -> Self {
+        XCTContext.runActivity(named: "Verify the cashback widget shows \(amount) in \(month)") { _ in
+            waitAndAssertTrue(cashbackBannerSubtitle, timeout: .networkRequest, "Cashback widget should be displayed")
+            XCTAssertEqual(cashbackBannerTitle.label, Constants.cashbackTitle, "Cashback widget title mismatch")
+            XCTAssertEqual(cashbackBannerSubtitle.label, "\(amount) in \(month)", "Cashback widget amount mismatch")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyCashbackWidgetHidden() -> Self {
+        XCTContext.runActivity(named: "Verify the cashback widget is hidden") { _ in
+            XCTAssertFalse(cashbackBannerSubtitle.waitForExistence(timeout: .conditional), "Cashback widget should not be displayed")
+            return self
+        }
+    }
+
+    func tapCashbackWidget() -> TangemPayCashbackScreen {
+        XCTContext.runActivity(named: "Open the Cashback screen from the widget") { _ in
+            waitAndAssertTrue(cashbackBannerSubtitle, timeout: .networkRequest, "Cashback widget should be displayed")
+            let cashbackScreen = TangemPayCashbackScreen(app)
+            // The widget ignores taps while the summary is still reloading, so the tap is retried.
+            var attempt = 0
+            repeat {
+                cashbackBannerSubtitle.tap()
+                attempt += 1
+            } while !cashbackScreen.isOpened(timeout: .conditional) && attempt < Constants.cashbackOpenAttempts
+            return cashbackScreen.waitForScreen()
+        }
+    }
+
+    /// Expects the more actions menu to be open.
+    @discardableResult
+    func verifyCashbackMenuItem(month: String) -> Self {
+        XCTContext.runActivity(named: "Verify the 'Cashback in \(month)' menu item below Current plan") { _ in
+            waitAndAssertTrue(cashbackMenuItem, timeout: .networkRequest, "Cashback menu item should be displayed")
+            XCTAssertEqual(cashbackMenuItem.label, "Cashback in \(month)", "Cashback menu item title mismatch")
+            waitAndAssertTrue(currentPlanMenuItem, "Current plan menu item should be displayed")
+            XCTAssertGreaterThan(
+                cashbackMenuItem.frame.minY,
+                currentPlanMenuItem.frame.minY,
+                "Cashback menu item should be placed below Current plan"
+            )
+            return self
+        }
+    }
+
+    /// Expects the more actions menu to be open.
+    @discardableResult
+    func verifyCashbackMenuItemHidden() -> Self {
+        XCTContext.runActivity(named: "Verify the more actions menu has no cashback item") { _ in
+            waitAndAssertTrue(currentPlanMenuItem, timeout: .networkRequest, "Current plan menu item should be displayed")
+            XCTAssertFalse(cashbackMenuItem.exists, "Cashback menu item should not be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyCashbackDeactivatedBanner() -> Self {
+        XCTContext.runActivity(named: "Verify the cashback deactivation banner") { _ in
+            waitAndAssertTrue(cashbackDeactivatedBannerTitle, timeout: .networkRequest, "Cashback deactivation banner should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapCashbackDeactivatedGotIt() -> Self {
+        XCTContext.runActivity(named: "Tap Got it on the cashback deactivation banner") { _ in
+            cashbackDeactivatedGotItButton.waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitForCashbackDeactivatedBannerHidden() -> Self {
+        XCTContext.runActivity(named: "Wait for the cashback deactivation banner to disappear") { _ in
+            XCTAssertTrue(
+                cashbackDeactivatedBannerTitle.waitForNonExistence(timeout: .conditional),
+                "Cashback deactivation banner should disappear after Got it"
+            )
+            return self
+        }
+    }
+
     private func cardButton(cardId: String) -> XCUIElement {
         app.buttons[TangemPayAccessibilityIdentifiers.paymentAccountCardButton(cardId: cardId)].firstMatch
     }
@@ -620,8 +733,8 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
             .firstMatch
     }
 
-    private func rowText(in row: XCUIElement, identifier: String, label: String) -> XCUIElement {
-        row.staticTexts
+    private func rowText(in row: XCUIElement, identifier: String, label: String, type: XCUIElement.ElementType = .staticText) -> XCUIElement {
+        row.descendants(matching: type)
             .matching(identifier: identifier)
             .matching(NSPredicate(format: "label == %@", label))
             .firstMatch
@@ -640,6 +753,9 @@ enum TangemPayMainScreenElement: String, UIElement {
     case paySupportMenuItem
     case removeAccountMenuItem
     case currentPlanMenuItem
+    case cashbackBannerTitle
+    case cashbackBannerSubtitle
+    case cashbackMenuItem
 
     var accessibilityIdentifier: String {
         switch self {
@@ -665,6 +781,20 @@ enum TangemPayMainScreenElement: String, UIElement {
             TangemPayAccessibilityIdentifiers.removeAccountMenuItem
         case .currentPlanMenuItem:
             TangemPayAccessibilityIdentifiers.currentPlanMenuItem
+        case .cashbackBannerTitle:
+            TangemPayAccessibilityIdentifiers.cashbackBannerTitle
+        case .cashbackBannerSubtitle:
+            TangemPayAccessibilityIdentifiers.cashbackBannerSubtitle
+        case .cashbackMenuItem:
+            TangemPayAccessibilityIdentifiers.cashbackMenuItem
         }
+    }
+}
+
+private extension TangemPayMainScreen {
+    enum Constants {
+        static let cashbackTitle = "Cashback"
+        static let cashbackDeactivatedTitle = "Cashback deactivated"
+        static let cashbackOpenAttempts = 3
     }
 }

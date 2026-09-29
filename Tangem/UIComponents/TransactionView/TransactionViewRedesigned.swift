@@ -216,6 +216,7 @@ struct TransactionViewRedesigned: View {
         HStack(spacing: 4) {
             if let cashback = viewModel.cashback {
                 TransactionCashbackBadge(cashback: cashback)
+                    .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionCashback(key: transactionKey))
             }
 
             if let text = viewModel.secondaryTrailingText {

@@ -83,6 +83,7 @@ enum UITestsStorageCleaner {
         AppSettings.shared.tangemPayCachedTransactionHistory = [:]
         AppSettings.shared.tangemPayCachedCustomerInfo = [:]
         AppSettings.shared.tangemPayCachedCashbackSummary = [:]
+        AppSettings.shared.tangemPayCashbackBlockedBannerDismissedForCustomerWalletId = [:]
         AppLogger.info("Tangem Pay state cleared for UI tests")
         #endif
     }
