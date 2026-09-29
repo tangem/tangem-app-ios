@@ -382,6 +382,17 @@ var featureModules: [PackageDescription.Target] {
                 .swiftLanguageMode(.v5),
             ]
         ),
+        .tangemTarget(
+            name: "TangemTonConnect",
+            dependencies: [
+                "BigInt",
+                .product(name: "Sodium", package: "swift-sodium"),
+                .product(name: "TonSwift", package: "ton-swift"),
+            ],
+            swiftSettings: [
+                .swiftLanguageMode(.v5),
+            ]
+        ),
     ]
 }
 
@@ -499,6 +510,14 @@ var unitTestsModules: [PackageDescription.Target] {
             dependencies: [
                 "TangemPolymarket",
                 "Moya",
+            ]
+        ),
+        .tangemTestTarget(
+            name: "TangemTonConnectTests",
+            dependencies: [
+                "BigInt",
+                "TangemTonConnect",
+                .product(name: "TonSwift", package: "ton-swift"),
             ]
         ),
     ]
