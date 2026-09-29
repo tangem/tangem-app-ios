@@ -45,6 +45,7 @@ protocol DesignSystemDemoRoutable: AnyObject {
     func openUtilPriceChangeDemo()
     func openUtilBalanceDemo()
     func openShtorkaDemo()
+    func openModalDemo()
 }
 
 final class DesignSystemDemoCoordinator: CoordinatorObject {
@@ -88,6 +89,7 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var utilPriceChangeDemoViewModel: UtilPriceChangeDemoViewModel?
     @Published var utilBalanceDemoViewModel: UtilBalanceDemoViewModel?
     @Published var shtorkaDemoViewModel: ShtorkaDemoViewModel?
+    @Published var modalDemoViewModel: ModalDemoViewModel?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -245,6 +247,10 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
 
     func openShtorkaDemo() {
         shtorkaDemoViewModel = .init()
+    }
+
+    func openModalDemo() {
+        modalDemoViewModel = .init()
     }
 }
 

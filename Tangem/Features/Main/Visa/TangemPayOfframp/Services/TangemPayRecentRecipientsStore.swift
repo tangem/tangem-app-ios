@@ -11,16 +11,8 @@ import TangemPay
 import TangemVisa
 
 final class TangemPayRecentRecipientsStore {
-    var recentsPublisher: some Publisher<State, Never> {
-        Publishers.CombineLatest(stateSubject, recentIdsSubject)
-            .map { state, recentIds -> State in
-                switch state {
-                case .loading:
-                    .loading
-                case .loaded(let bankAccounts):
-                    .loaded(Self.recents(from: bankAccounts, recentIds: recentIds))
-                }
-            }
+    var statePublisher: some Publisher<State, Never> {
+        stateSubject
     }
 
     var recipientsPublisher: some Publisher<[TangemPayBankAccountResponse], Never> {
@@ -32,24 +24,12 @@ final class TangemPayRecentRecipientsStore {
     }
 
     private let repository: any TangemPayBankAccountsRepository
-    private let cacheStorage: any TangemPayRecentRecipientsCacheStorage
-    private let customerWalletId: String
-
     private let stateSubject = CurrentValueSubject<State, Never>(.loading)
-    private let recentIdsSubject: CurrentValueSubject<[String], Never>
 
     private var loadTask: Task<Void, Never>?
 
-    init(
-        repository: any TangemPayBankAccountsRepository,
-        cacheStorage: any TangemPayRecentRecipientsCacheStorage,
-        customerWalletId: String
-    ) {
+    init(repository: any TangemPayBankAccountsRepository) {
         self.repository = repository
-        self.cacheStorage = cacheStorage
-        self.customerWalletId = customerWalletId
-
-        recentIdsSubject = CurrentValueSubject(cacheStorage.recentRecipientIds(customerWalletId: customerWalletId))
     }
 
     func load() {
@@ -61,17 +41,11 @@ final class TangemPayRecentRecipientsStore {
     func reload() {
         loadTask?.cancel()
 
+        if case .failed = stateSubject.value {
+            stateSubject.send(.loading)
+        }
+
         startLoad()
-    }
-
-    func recordSelection(id: String) {
-        cacheStorage.recordRecipientUsage(id: id, customerWalletId: customerWalletId)
-        recentIdsSubject.send(cacheStorage.recentRecipientIds(customerWalletId: customerWalletId))
-    }
-
-    func recordNewRecipient(id: String) {
-        recordSelection(id: id)
-        reload()
     }
 
     private func startLoad() {
@@ -91,7 +65,7 @@ final class TangemPayRecentRecipientsStore {
             return
         }
 
-        stateSubject.send(.loaded([]))
+        stateSubject.send(.failed)
     }
 }
 
@@ -101,30 +75,15 @@ extension TangemPayRecentRecipientsStore {
     enum State {
         case loading
         case loaded([TangemPayBankAccountResponse])
+        case failed
 
         var recipients: [TangemPayBankAccountResponse] {
             switch self {
-            case .loading:
+            case .loading, .failed:
                 []
             case .loaded(let bankAccounts):
                 bankAccounts
             }
         }
-    }
-}
-
-// MARK: - Helpers
-
-private extension TangemPayRecentRecipientsStore {
-    static func recents(
-        from bankAccounts: [TangemPayBankAccountResponse],
-        recentIds: [String]
-    ) -> [TangemPayBankAccountResponse] {
-        let bankAccountsById = Dictionary(
-            bankAccounts.map { ($0.id, $0) },
-            uniquingKeysWith: { first, _ in first }
-        )
-
-        return recentIds.compactMap { bankAccountsById[$0] }
     }
 }

@@ -58,7 +58,6 @@ enum StorageType: String {
     case tangemPayCachedCustomerInfo = "tangem_pay_cached_customer_info"
     case tangemPayCachedCashbackSummary = "tangem_pay_cached_cashback_summary"
     case tangemPayVirtualAccountConditionsShown = "tangem_pay_virtual_account_conditions_shown"
-    case tangemPayRecentRecipientIds = "tangem_pay_recent_recipient_ids"
     case tangemPayUnavailableRegion = "tangem_pay_unavailable_region"
     case jailbreakWarningWasShown = "jailbreak_warning_was_shown"
     case referralRefcode = "referral_refcode"

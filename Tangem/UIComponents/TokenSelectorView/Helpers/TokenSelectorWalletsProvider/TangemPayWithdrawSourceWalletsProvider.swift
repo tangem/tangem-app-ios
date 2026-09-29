@@ -41,7 +41,8 @@ private extension TangemPayWithdrawSourceWalletsProvider {
         return TokenSelectorAccount(
             account: tangemPayAccountModel,
             itemsProvider: StaticTokenSelectorItemsProvider(items: items),
-            rateProvider: nil
+            rateProvider: nil,
+            currencyCode: nil
         )
     }
 }

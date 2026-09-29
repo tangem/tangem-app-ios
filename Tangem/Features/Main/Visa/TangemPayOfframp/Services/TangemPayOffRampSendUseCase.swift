@@ -17,7 +17,7 @@ final class TangemPayOffRampSendUseCase {
     private let orderSigner: any TangemPayOfframpOrderSigning
     private let recentRecipientsStore: TangemPayRecentRecipientsStore
 
-    private var recordedBankAccountId: String?
+    private var reloadedBankAccountId: String?
     private var sendTask: Task<SendResult, Error>?
     private var signatureRetryContext: SignatureRetryContext?
 
@@ -90,7 +90,7 @@ private extension TangemPayOffRampSendUseCase {
             throw Self.placeOrderError(error)
         }
 
-        recordRecipientIfNeeded(order, request: request)
+        reloadRecipientsIfNeeded(order, request: request)
         return order
     }
 
@@ -124,7 +124,7 @@ private extension TangemPayOffRampSendUseCase {
         for await result in polling {
             switch result {
             case .success(let order):
-                recordRecipientIfNeeded(order, request: request)
+                reloadRecipientsIfNeeded(order, request: request)
 
                 if order.isAwaitingSignature {
                     guard let withdrawData = order.data?.withdrawData else {
@@ -204,18 +204,18 @@ private extension TangemPayOffRampSendUseCase {
 // MARK: - Recent recipient
 
 private extension TangemPayOffRampSendUseCase {
-    func recordRecipientIfNeeded(
+    func reloadRecipientsIfNeeded(
         _ order: TangemPayOrderResponse,
         request: TangemPayPlaceOrderRequest
     ) {
         guard let bankAccountId = order.data?.bankAccountId ?? request.data.bankAccountId,
-              recordedBankAccountId != bankAccountId
+              reloadedBankAccountId != bankAccountId
         else {
             return
         }
 
-        recordedBankAccountId = bankAccountId
-        recentRecipientsStore.recordNewRecipient(id: bankAccountId)
+        reloadedBankAccountId = bankAccountId
+        recentRecipientsStore.reload()
     }
 }
 
@@ -231,7 +231,7 @@ private extension TangemPayOffRampSendUseCase {
     }
 
     func reset() {
-        recordedBankAccountId = nil
+        reloadedBankAccountId = nil
         signatureRetryContext = nil
     }
 }
