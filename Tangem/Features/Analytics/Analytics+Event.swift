@@ -796,6 +796,17 @@ extension Analytics {
         case visaOnboardingPermanentButtonShowed = "[Visa Onboarding] Visa Permanent Button Showed"
         case visaOnboardingPermanentBannerShowed = "[Visa Onboarding] Visa Permanent Banner Showed"
 
+        case vaOnboardingCountrySelectScreenOpened = "[VA Onboarding] VA Country Select Screen Opened"
+        case vaOnboardingCountrySelected = "[VA Onboarding] VA Country Selected"
+        case vaOnboardingStateScreenOpened = "[VA Onboarding] VA State Screen Opened"
+        case vaOnboardingStateSelected = "[VA Onboarding] VA State Selected"
+        case vaOnboardingEligibilityCheckResult = "[VA Onboarding] VA Eligibility Check Result"
+        case vaOnboardingRegionNotAvailableScreenOpened = "[VA Onboarding] VA Region Not Available Screen Opened"
+        case vaOnboardingRegionNotAvailableSelectAnotherTapped = "[VA Onboarding] VA Region Not Available Select Another Tapped"
+        case vaOnboardingRegionNotAvailableJoinWaitlistTapped = "[VA Onboarding] VA Region Not Available Join Waitlist Tapped"
+        case vaOnboardingWaitlistScreenOpened = "[VA Onboarding] VA Waitlist Screen Opened"
+        case vaOnboardingWaitlistSaved = "[VA Onboarding] VA Waitlist Saved"
+
         case visaScreenVisaMainScreenOpened = "[Visa Screen] Visa Main Screen Opened"
         case visaScreenCardSettingsClicked = "[Visa Card Management] Button - Card Settings"
         case visaScreenTermsAndLimitsClicked = "[Visa Screen] Button - Terms And Limits"
