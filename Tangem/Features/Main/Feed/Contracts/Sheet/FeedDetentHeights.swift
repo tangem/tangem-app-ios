@@ -26,6 +26,10 @@ final class FeedDetentHeights: ObservableObject {
 
     @Published private(set) var isContentCollapsed = true
 
+    @Published private(set) var collapsedBottomInset: CGFloat = FeedDetentHeights.initialSearchBarHeight
+        + FeedConstants.searchContentInset
+        + FeedConstants.collapsedBottomInset
+
     private var searchBarHeight = FeedDetentHeights.initialSearchBarHeight
     private var widgetsHeight: CGFloat = .zero
     private var tabChipsHeight: CGFloat = .zero
@@ -123,6 +127,11 @@ private extension FeedDetentHeights {
     func syncDetents() {
         updateContentVisibility()
         expansionProgress = makeExpansionProgress()
+        // Reserve the collapsed sheet and its floating gap without moving the wallet content during a drag.
+        let bottomInset = collapsed + (FeedConstants.usesFloatingSheet ? safeArea.bottom : 0)
+        if collapsedBottomInset != bottomInset {
+            collapsedBottomInset = bottomInset
+        }
         // A collapsed floating sheet sits above the home indicator; an edge-attached one extends through the safe area.
         let collapsedSafeArea = FeedConstants.usesFloatingSheet ? 0 : safeArea.bottom
         let collapsedHeight = max(0, collapsed - collapsedSafeArea)
