@@ -340,6 +340,7 @@ struct TangemPayMainView: View {
                     }
                     .menuActionDismissBehavior(.disabled)
                     .disabled(cashbackMenuState.isReloading)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackMenuItem)
                     .onAppear(perform: viewModel.logCashbackMenuItemImpression)
                     .onChange(of: viewModel.cashbackMenuItemImpression) { _ in
                         viewModel.logCashbackMenuItemImpression()
@@ -392,5 +393,6 @@ struct TangemPayMainView: View {
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
         }
         .secondaryButton(gotItButton)
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackDeactivatedBanner)
     }
 }

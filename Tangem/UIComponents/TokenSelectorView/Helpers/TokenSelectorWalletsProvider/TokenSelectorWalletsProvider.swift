@@ -51,6 +51,7 @@ struct TokenSelectorAccount {
     let account: any BaseAccountModel
     let itemsProvider: TokenSelectorAccountModelItemsProvider
     let rateProvider: (any AccountRateProvider)?
+    let currencyCode: String?
 }
 
 // MARK: - Account's items

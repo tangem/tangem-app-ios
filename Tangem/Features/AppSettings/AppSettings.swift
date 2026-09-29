@@ -158,9 +158,6 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayCachedCashbackSummary)
     var tangemPayCachedCashbackSummary: [String: String] = [:]
 
-    @AppStorageCompat(StorageType.tangemPayRecentRecipientIds)
-    var tangemPayRecentRecipientIds: [String: [String]] = [:]
-
     @AppStorageCompat(StorageType.tangemPayUnavailableRegion)
     var tangemPayUnavailableRegion: [String: String] = [:]
 
@@ -365,22 +362,16 @@ extension AppSettings: TangemPayTransactionHistoryCacheStorage {
     }
 }
 
-extension AppSettings: TangemPayRecentRecipientsCacheStorage {
-    private enum TangemPayRecentRecipientsCacheConstants {
-        static let maxRecipients = 3
-    }
-
-    func recentRecipientIds(customerWalletId: String) -> [String] {
-        tangemPayRecentRecipientIds[customerWalletId] ?? []
-    }
-
-    func recordRecipientUsage(id: String, customerWalletId: String) {
-        var ids = recentRecipientIds(customerWalletId: customerWalletId)
-        ids.removeAll { $0 == id }
-        ids.insert(id, at: 0)
-
-        tangemPayRecentRecipientIds[customerWalletId] = Array(
-            ids.prefix(TangemPayRecentRecipientsCacheConstants.maxRecipients)
-        )
+extension AppSettings: TangemPayStorageCleaner {
+    func clear(customerWalletId: String) {
+        tangemPayCachedCustomerInfo[customerWalletId] = nil
+        tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId] = nil
+        tangemPayIsPaeraCustomer[customerWalletId] = nil
+        tangemPayIsKYCHiddenForCustomerWalletId[customerWalletId] = nil
+        tangemPayIsDisabledForCustomerWalletId[customerWalletId] = nil
+        tangemPayCashbackBlockedBannerDismissedForCustomerWalletId[customerWalletId] = nil
+        tangemPayCachedLocalState[customerWalletId] = nil
+        tangemPayCachedTransactionHistory[customerWalletId] = nil
+        tangemPayCachedCashbackSummary[customerWalletId] = nil
     }
 }

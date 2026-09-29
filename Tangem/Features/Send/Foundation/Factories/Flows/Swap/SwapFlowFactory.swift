@@ -33,7 +33,8 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
         ),
         shouldStartInitialLoading: true,
         sourceTokenResolver: sourceTokenResolver,
-        destinationTokenResolver: configuration.receiveTokenSelection.destinationResolver
+        destinationTokenResolver: configuration.receiveTokenSelection.destinationResolver,
+        onTransactionSent: configuration.onTransactionSent
     )
     lazy var notificationManager = makeSwapNotificationManager()
     lazy var marketingBannerManager = makeSwapMarketingBannerManager()

@@ -27,7 +27,6 @@ final class TangemPayAccount {
     var cardEntries: [TangemPayCardEntry] {
         TangemPayCardEntry.build(
             cards: cardsSubject.value,
-            pendingProductInstances: customerInfoSubject.value.cardProductInstances.filter { $0.cardId == nil },
             activeIssueOrders: activeIssueOrdersSubject.value,
             activatingProductInstanceIds: activatingProductInstanceIdsSubject.value,
             hiddenSourceProductInstanceIds: Set(reissueSourceProductInstanceIdByOrderId.values)
@@ -40,11 +39,10 @@ final class TangemPayAccount {
             activatingProductInstanceIdsSubject
         )
         .map { [weak self] bffState, activatingProductInstanceIds in
-            let (cards, info, orders, _) = bffState
+            let (cards, _, orders, _) = bffState
             let hiddenSourceProductInstanceIds = Set((self?.reissueSourceProductInstanceIdByOrderId ?? [:]).values)
             return TangemPayCardEntry.build(
                 cards: cards,
-                pendingProductInstances: info.cardProductInstances.filter { $0.cardId == nil },
                 activeIssueOrders: orders,
                 activatingProductInstanceIds: activatingProductInstanceIds,
                 hiddenSourceProductInstanceIds: hiddenSourceProductInstanceIds
@@ -681,9 +679,8 @@ extension TangemPayAccount {
             guard let self else { return }
 
             let localOrdersBeforeFetch = activeIssueOrdersSubject.value
-            let sharedTrackableTypes = TangemPayOrderType.cardIssueFamily
-                + TangemPayOrderType.cardIssuePlasticFamily
-                + TangemPayOrderType.tariffPlanTransitionFamily
+            let cardIssueTypes = TangemPayOrderType.cardIssueFamily + TangemPayOrderType.cardIssuePlasticFamily
+            let sharedTrackableTypes = cardIssueTypes + TangemPayOrderType.tariffPlanTransitionFamily
             let reissueTrackableTypes = TangemPayOrderType.cardReissuePlasticFamily
 
             let bffActiveOrders: [TangemPayOrderResponse]
@@ -706,9 +703,15 @@ extension TangemPayAccount {
                 orderStatusPollingService.cancel()
             }
 
-            if let order = bffActiveOrders.filter({ sharedTrackableTypes.contains($0.type) }).mostRecentByUpdatedAt {
-                activeIssueOrderEventsSubject.send(.upsert(order))
-                startCardIssueTracking(orderId: order.id)
+            let sharedOrder = bffActiveOrders.filter { sharedTrackableTypes.contains($0.type) }.mostRecentByUpdatedAt
+            if let sharedOrder {
+                activeIssueOrderEventsSubject.send(.upsert(sharedOrder))
+                startCardIssueTracking(orderId: sharedOrder.id)
+            }
+
+            if let cardIssueOrder = bffActiveOrders.filter({ cardIssueTypes.contains($0.type) }).mostRecentByUpdatedAt,
+               cardIssueOrder.id != sharedOrder?.id {
+                activeIssueOrderEventsSubject.send(.upsert(cardIssueOrder))
             }
 
             if let order = bffActiveOrders.filter({ reissueTrackableTypes.contains($0.type) }).mostRecentByUpdatedAt {
