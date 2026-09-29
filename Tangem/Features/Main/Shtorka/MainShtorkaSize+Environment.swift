@@ -9,6 +9,9 @@ import SwiftUI
 import TangemUI
 
 extension EnvironmentValues {
+    /// Space reserved below the wallet content for the collapsed feed sheet, including its floating gap.
+    @Entry var mainShtorkaBottomInset: CGFloat = .zero
+
     /// Whether the sheet is low enough to show a screen's header alone. Follows the sheet's height through a
     /// drag, unlike the selected detent in `mainShtorkaSize`.
     @Entry var mainShtorkaContentIsCollapsed = false

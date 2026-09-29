@@ -34,7 +34,9 @@ struct MainHorizontalPagingScrollView: View {
     /// and the third page. `nil` until the pager reports it.
     @State private var pagePosition: CGFloat?
 
-    @State private var bottomOverlayHeight = CGFloat.zero
+    @Environment(\.mainShtorkaBottomInset) private var mainShtorkaBottomInset
+
+    @State private var legacyBottomOverlayHeight = CGFloat.zero
     @State private var contentFooterHeight = CGFloat.zero
     @State private var safeAreaInsetsTop = CGFloat.zero
 
@@ -170,8 +172,12 @@ struct MainHorizontalPagingScrollView: View {
         selectedUserWalletPageBuilder
             .bottomOverlay
             .onGeometryChange(for: CGFloat.self, of: \.size.height) { bottomOverlayHeight in
-                self.bottomOverlayHeight = bottomOverlayHeight
+                legacyBottomOverlayHeight = bottomOverlayHeight
             }
+    }
+
+    private var bottomOverlayHeight: CGFloat {
+        max(legacyBottomOverlayHeight, mainShtorkaBottomInset)
     }
 
     private var isHorizontalScrollDisabled: Bool {
