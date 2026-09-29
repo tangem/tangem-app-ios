@@ -12,12 +12,19 @@ struct TangemPayInputMask {
 
     private let template: String
 
+    /// Rejects a mask without the country code that E.164 is built from, so the caller falls back to digits.
     init?(_ mask: String) {
-        guard let slotIndex = mask.firstIndex(of: Constants.digitSlot) else {
+        guard mask.hasPrefix("+"), let slotIndex = mask.firstIndex(of: Constants.digitSlot) else {
             return nil
         }
 
-        prefix = String(mask[..<slotIndex])
+        let prefix = String(mask[..<slotIndex])
+
+        guard prefix.contains(where: \.isWholeNumber) else {
+            return nil
+        }
+
+        self.prefix = prefix
         template = String(mask[slotIndex...])
     }
 
@@ -30,18 +37,20 @@ struct TangemPayInputMask {
         return prefix + filled(with: digits(of: text))
     }
 
-    /// Sample digits run through the mask, so an empty field hints at the shape with a plausible number
-    /// rather than a row of slots.
     var placeholder: String {
-        let slots = template.filter { $0 == Constants.digitSlot }.count
-        let repeats = slots / Constants.sampleDigits.count + 1
-        let sample = String(repeating: Constants.sampleDigits, count: repeats)
-
-        return prefix + filled(with: String(sample.prefix(slots)))
+        prefix + filled(with: String(repeating: Constants.emptySlot, count: slotCount))
     }
 
     func digitCount(in text: String) -> Int {
         digits(of: text).count
+    }
+
+    var slotCount: Int {
+        template.count { $0 == Constants.digitSlot }
+    }
+
+    func e164(from text: String) -> String {
+        "+" + apply(to: text).filter(\.isWholeNumber)
     }
 
     /// Where the caret belongs once `count` digits precede it. It has to be tracked by digits rather than by
@@ -67,21 +76,19 @@ struct TangemPayInputMask {
 private extension TangemPayInputMask {
     enum Constants {
         static let digitSlot: Character = "#"
-        static let sampleDigits = "8005553535"
+        static let emptySlot: Character = "_"
     }
 
     func digits(of text: String) -> String {
-        let body = text.hasPrefix(prefix) ? String(text.dropFirst(prefix.count)) : text
-        let digits = body.filter(\.isWholeNumber)
-        let prefixDigits = prefix.filter(\.isWholeNumber)
+        let entered = text.hasPrefix(prefix) ? String(text.dropFirst(prefix.count)) : text
+        let digits = entered.filter(\.isWholeNumber)
+        let countryCode = prefix.filter(\.isWholeNumber)
 
-        // A number carrying its own country code — typed, or pasted from Contacts as `+1 (800) 555-3535` —
-        // repeats the digits the prefix already shows. Dropping them is what keeps the two from stacking up.
-        guard !prefixDigits.isEmpty, digits.hasPrefix(prefixDigits) else {
+        guard digits.count > slotCount, digits.hasPrefix(countryCode) else {
             return digits
         }
 
-        return String(digits.dropFirst(prefixDigits.count))
+        return String(digits.dropFirst(countryCode.count))
     }
 
     func filled(with digits: String) -> String {

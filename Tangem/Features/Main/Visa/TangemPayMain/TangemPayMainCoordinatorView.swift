@@ -92,6 +92,9 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayReissueSheetViewModel.self) {
                 TangemPayReissuePopupView(viewModel: $0)
             }
+            .floatingSheetContent(for: TangemPayPlasticReissueSheetViewModel.self) {
+                TangemPayPlasticReissuePopupView(viewModel: $0)
+            }
             .floatingSheetContent(for: TangemPayWithdrawNoteSheetViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
@@ -105,6 +108,9 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
                 TangemPayIssueAdditionalCardCostPopupView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayStayOnPlusSheetViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayErrorRetryPopupViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
             .sheet(item: $coordinator.sendCoordinator) {
