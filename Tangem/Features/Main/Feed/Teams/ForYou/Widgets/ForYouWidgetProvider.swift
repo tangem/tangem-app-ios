@@ -9,9 +9,9 @@
 import Combine
 
 final class ForYouWidgetProvider {
-    private weak var router: FeedWidgetsRoutable?
+    private let router: any ForYouFeedRoutable
 
-    init(router: FeedWidgetsRoutable) {
+    init(router: any ForYouFeedRoutable) {
         self.router = router
     }
 }
@@ -24,6 +24,6 @@ extension ForYouWidgetProvider: FeedWidgetProvider {
     }
 
     func select() {
-        router?.openForYou()
+        router.openForYou()
     }
 }
