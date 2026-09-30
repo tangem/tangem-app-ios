@@ -22,14 +22,11 @@ enum TransferConfirmationFactory {
         analyticsLogger: any TangemPayOfframpAnalyticsLogger,
         output: @escaping (TransferConfirmationViewModel.Output) -> Void
     ) -> some View {
-        let options = optionsStore.state.options ?? .empty
-
-        return TransferConfirmationView(
+        TransferConfirmationView(
             viewModel: TransferConfirmationViewModel(
                 orderBuilder: orderBuilder,
                 sendUseCase: sendUseCase,
-                tokenItems: options.tokens,
-                railItems: options.rails,
+                options: optionsStore.state.options ?? .empty,
                 savedRecipient: savedRecipient,
                 title: Localization.tangempayWithdrawBankConfirmTitle,
                 sendButtonIcon: hasNFCInteraction ? Assets.tangemIcon : nil,

@@ -142,37 +142,47 @@ private extension TransferInputContentView {
     @ViewBuilder
     var railRow: some View {
         if let rail = state.rail {
-            SwiftUI.Button { action(.railTap) } label: {
-                HStack(spacing: .zero) {
-                    HStack(spacing: 12) {
-                        rail.icon.image
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: Constants.railIconSide, height: Constants.railIconSide)
-
-                        Text(rail.title)
-                            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-                    }
-
-                    Spacer()
-
-                    HStack(spacing: Constants.accessorySpacing) {
-                        HStack(spacing: 8) {
-                            Badge(label: rail.etaText, accessibilityLabel: nil)
-
-                            Text(rail.feeText)
-                                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-                        }
-
-                        chevron
-                    }
+            if state.isRailSelectable {
+                SwiftUI.Button { action(.railTap) } label: {
+                    railContent(rail, showsChevron: true)
                 }
-                .padding(.vertical, 12)
-                .padding(.horizontal, 16)
-                .background(DesignSystem.Color.bgSecondary)
-                .clipShape(Capsule(style: .circular))
+            } else {
+                railContent(rail, showsChevron: false)
             }
         }
+    }
+
+    func railContent(_ rail: TransferInputRailItem, showsChevron: Bool) -> some View {
+        HStack(spacing: .zero) {
+            HStack(spacing: 12) {
+                rail.icon.image
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: Constants.railIconSide, height: Constants.railIconSide)
+
+                Text(rail.title)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+            }
+
+            Spacer()
+
+            HStack(spacing: Constants.accessorySpacing) {
+                HStack(spacing: 8) {
+                    Badge(label: rail.etaText, accessibilityLabel: nil)
+
+                    Text(rail.feeText)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                }
+
+                if showsChevron {
+                    chevron
+                }
+            }
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .background(DesignSystem.Color.bgSecondary)
+        .clipShape(Capsule(style: .circular))
     }
 }
 
@@ -216,6 +226,7 @@ extension TransferInputContentView {
     struct State {
         let token: TransferInputTokenItem?
         let rail: TransferInputRailItem?
+        let isRailSelectable: Bool
         let amountErrorMessage: String?
         let isContinueEnabled: Bool
     }
@@ -251,12 +262,14 @@ private enum TransferInputPreview {
     static func state(
         token: TransferInputTokenItem? = TransferInputTokenItem.previewList[0],
         rail: TransferInputRailItem? = TransferInputRailItem.previewList.first,
+        isRailSelectable: Bool = true,
         amountErrorMessage: String? = nil,
         isContinueEnabled: Bool = false
     ) -> TransferInputContentView.State {
         TransferInputContentView.State(
             token: token,
             rail: rail,
+            isRailSelectable: isRailSelectable,
             amountErrorMessage: amountErrorMessage,
             isContinueEnabled: isContinueEnabled
         )
@@ -269,6 +282,17 @@ private enum TransferInputPreview {
 
 #Preview("Valid amount") {
     TransferInputPreview.make(amount: 500, state: TransferInputPreview.state(isContinueEnabled: true))
+}
+
+#Preview("Saved account") {
+    TransferInputPreview.make(
+        amount: 500,
+        state: TransferInputPreview.state(
+            rail: TransferInputRailItem.previewList[1],
+            isRailSelectable: false,
+            isContinueEnabled: true
+        )
+    )
 }
 
 #Preview("Out of range") {
