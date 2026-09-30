@@ -7,27 +7,32 @@
 //
 
 enum FeedWidgetsRegistry {
-    /// `canOpenHostScreens` — the feed sits on a screen it can hand a tap over to. A widget that exists only for
-    /// that hand-off is left out where there is none, rather than shown with nothing behind it.
-    static func makeProviders(router: FeedWidgetsRoutable, canOpenHostScreens: Bool) -> [FeedWidgetProvider] {
+    static func makeProviders(
+        context: FeedContext,
+        container: any FeedContainer,
+        host: FeedHostRoutable?,
+        widgetSheetPresenter: FeedWidgetSheetPresenter
+    ) -> [FeedWidgetProvider] {
+        let forYouRouter = ForYouFeedRouter(context: context)
+
         var providers: [FeedWidgetProvider] = [
-            ForYouWidgetProvider(router: router),
-            AddAccountWidgetProvider(router: router),
+            ForYouWidgetProvider(router: forYouRouter),
+            AddAccountWidgetProvider(router: AccountsFeedRouter(context: context, host: host, widgetSheetPresenter: widgetSheetPresenter)),
         ]
 
-        if canOpenHostScreens {
-            providers.append(TangemPayWidgetProvider(router: router))
+        if let host {
+            providers.append(TangemPayWidgetProvider(router: TangemPayFeedRouter(host: host)))
         }
 
-        providers.append(EarnWidgetProvider(router: router))
-        providers.append(ReferralWidgetProvider(router: router))
+        providers.append(EarnWidgetProvider(router: EarnWidgetRouter(navigation: context.navigation, forYouRouter: forYouRouter)))
+        providers.append(ReferralWidgetProvider(router: ReferralFeedRouter(context: context, widgetSheetPresenter: widgetSheetPresenter)))
 
         if FeatureProvider.isAvailable(.polymarket) {
-            providers.append(PolymarketWidgetProvider(router: router))
+            providers.append(PolymarketWidgetProvider(router: PredictionsFeedRouter(context: context, container: container)))
         }
 
         if FeatureProvider.isAvailable(.collectibles) {
-            providers.append(CollectiblesWidgetProvider(router: router))
+            providers.append(CollectiblesWidgetProvider(router: CollectiblesFeedRouter(context: context, widgetSheetPresenter: widgetSheetPresenter)))
         }
 
         return providers

@@ -13,10 +13,10 @@ final class TangemPayWidgetProvider {
     @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
 
     private let walletSelectionSubject = CurrentValueSubject<TangemPayWalletSelectionType?, Never>(nil)
-    private weak var router: FeedWidgetsRoutable?
+    private let router: any TangemPayFeedRoutable
     private var bag = Set<AnyCancellable>()
 
-    init(router: FeedWidgetsRoutable) {
+    init(router: any TangemPayFeedRoutable) {
         self.router = router
         bind()
     }
@@ -34,7 +34,7 @@ extension TangemPayWidgetProvider: FeedWidgetProvider {
     func select() {
         guard let walletSelection = walletSelectionSubject.value else { return }
 
-        router?.openTangemPay(.offer(walletSelection))
+        router.openTangemPay(.offer(walletSelection))
     }
 }
 

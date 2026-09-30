@@ -14,11 +14,11 @@ final class CollectiblesWidgetProvider {
 
     private let walletsSubject = CurrentValueSubject<[UserWalletModel], Never>([])
     private let regionStatusTask: Task<CollectiblesRegionStatus, Never>
-    private weak var router: FeedWidgetsRoutable?
+    private let router: any CollectiblesFeedRoutable
     private var bag = Set<AnyCancellable>()
 
     init(
-        router: FeedWidgetsRoutable,
+        router: any CollectiblesFeedRoutable,
         geoblockProvider: some CollectiblesGeoblockProvider = CollectiblesGeoblockMockProvider()
     ) {
         self.router = router
@@ -51,7 +51,7 @@ extension CollectiblesWidgetProvider: FeedWidgetProvider {
         runTask(in: self) { provider in
             let status = await provider.regionStatusTask.value
 
-            provider.router?.openCollectibles(wallets: wallets, isRegionRestricted: status == .restricted)
+            provider.router.openCollectibles(wallets: wallets, isRegionRestricted: status == .restricted)
         }
     }
 }

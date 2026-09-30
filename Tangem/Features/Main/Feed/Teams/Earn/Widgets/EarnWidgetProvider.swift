@@ -16,7 +16,7 @@ final class EarnWidgetProvider {
     private let earnProvider: MarketsWidgetEarnProvider = CommonMarketsWidgetEarnService(ethereumP2PFilter: CommonEarnEthereumP2PFilter())
     private let walletModelsAggregator: WalletModelsAggregator = CommonWalletModelsAggregator(accountScope: .personal)
     private let apyResolver = EarnApyResolver()
-    private weak var router: FeedWidgetsRoutable?
+    private let router: any EarnFeedWidgetRoutable
 
     private var holdings: [any WalletModel] = []
     private var featuredAPY: Decimal?
@@ -25,7 +25,7 @@ final class EarnWidgetProvider {
     private var bag = Set<AnyCancellable>()
     private var holdingsBag = Set<AnyCancellable>()
 
-    init(router: FeedWidgetsRoutable) {
+    init(router: any EarnFeedWidgetRoutable) {
         self.router = router
 
         bind()
@@ -52,9 +52,9 @@ extension EarnWidgetProvider: FeedWidgetProvider {
 
     func select() {
         if hasActivePosition {
-            router?.openForYou()
+            router.openForYou()
         } else {
-            router?.openEarn()
+            router.openEarn()
         }
     }
 }
