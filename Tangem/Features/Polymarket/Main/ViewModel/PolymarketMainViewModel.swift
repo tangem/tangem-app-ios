@@ -520,6 +520,11 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     @MainActor
+    func openSupportChat() {
+        coordinator?.openSupportChat()
+    }
+
+    @MainActor
     func openMyPositions(tab: PolymarketPositionsTab) {
         coordinator?.openMyPositions(
             tab: tab,

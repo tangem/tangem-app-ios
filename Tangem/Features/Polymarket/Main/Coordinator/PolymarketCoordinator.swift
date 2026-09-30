@@ -181,6 +181,13 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
         )
     }
 
+    @MainActor
+    func openSupportChat() {
+        guard let userWalletModel = options?.userWalletModel else { return }
+
+        sheet = .supportChat(SupportChatViewModel(input: PolymarketSupportChatInputFactory().makeInput(for: userWalletModel)))
+    }
+
     func openEventDetails(
         eventID: String,
         category: PolymarketCategory?,
@@ -492,10 +499,12 @@ extension PolymarketCoordinator {
 
     enum Sheet: Identifiable {
         case send(SendCoordinator)
+        case supportChat(SupportChatViewModel)
 
         var id: String {
             switch self {
             case .send: "send"
+            case .supportChat: "supportChat"
             }
         }
     }
