@@ -41,6 +41,12 @@ struct PriceChangeUtility {
     }
 
     func calculatePriceChangeStateBetween(currentPrice: Decimal, previousPrice: Decimal) -> PriceChangeView.State {
+        // A zero reference price (chart points for a token that had no market yet) has no meaningful percentage;
+        // dividing by it produced `NaN`, which the formatter rendered literally as "NaN %".
+        guard previousPrice != 0 else {
+            return .noData
+        }
+
         let priceChangePercentage = (currentPrice - previousPrice) / previousPrice * 100.0
 
         return convertToPriceChangeState(changePercent: priceChangePercentage)
