@@ -25,6 +25,10 @@ public protocol MobileWalletSdk {
     /// - Throws: An error if wallet import fails.
     func importWallet(entropy: Data, passphrase: String) throws -> UserWalletId
 
+    /// Derives the identifier a wallet with the given entropy and passphrase would have, without writing anything.
+    /// Lets callers check for an already stored wallet before `importWallet(entropy:passphrase:)` touches storage.
+    func walletId(entropy: Data, passphrase: String) throws -> UserWalletId
+
     /// Validates the authentication data for a mobile wallet and returns the wallet context.
     /// - Parameters:
     ///   - auth: The authentication data required to unlock the wallet.

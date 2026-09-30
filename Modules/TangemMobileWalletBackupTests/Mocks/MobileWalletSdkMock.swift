@@ -38,6 +38,10 @@ final class MobileWalletSdkMock: MobileWalletSdk {
         fatalError("Not supported")
     }
 
+    func walletId(entropy: Data, passphrase: String) throws -> UserWalletId {
+        fatalError("Not supported")
+    }
+
     func validate(auth: AuthenticationUnlockData, for walletID: UserWalletId) throws -> MobileWalletContext {
         fatalError("Not supported")
     }

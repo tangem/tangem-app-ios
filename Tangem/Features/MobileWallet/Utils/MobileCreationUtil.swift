@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemFoundation
+import TangemMobileWalletSdk
 import TangemSdk
 
 final class MobileCreationUtil {
@@ -22,6 +23,14 @@ final class MobileCreationUtil {
         hasMnemonicBackup: Bool,
         hasICloudBackup: Bool
     ) async throws -> UserWalletModel {
+        // Check for an existing wallet BEFORE `initializeWallet` writes anything: `importWallet` used to rewrite the
+        // stored wallet's keys first and only then this method noticed the duplicate.
+        let importedWalletId = try CommonMobileWalletSdk().walletId(entropy: mnemonic.getEntropy(), passphrase: passphrase ?? "")
+
+        guard !userWalletRepository.models.contains(where: { $0.userWalletId == importedWalletId }) else {
+            throw UserWalletRepositoryError.duplicateWalletAdded
+        }
+
         let walletInfo = try await MobileWalletInitializer().initializeWallet(
             parameters: WalletInitializerParameters(
                 mnemonic: mnemonic,
