@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 import TangemAssets
 
 struct MobileOnboardingImportICloudBackupView: View {
@@ -15,6 +16,7 @@ struct MobileOnboardingImportICloudBackupView: View {
 
     var body: some View {
         content
+            .screenCaptureProtection()
             .stepsFlowNavBar(title: viewModel.navigationTitle)
             .stepsFlowNavBar(leading: { navigationBackButton })
             .stepsFlowNavBar(backgroundColor: DesignSystem.Color.bgPrimary)
