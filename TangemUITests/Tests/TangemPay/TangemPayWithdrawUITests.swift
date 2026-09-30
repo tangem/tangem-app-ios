@@ -142,6 +142,34 @@ final class TangemPayWithdrawUITests: BaseTestCase {
         TangemPayMainScreen(app).verifyBalanceContains("$12.00")
     }
 
+    func testWithdrawEnabled_WhenOnlyOneNonPolygonNetworkIsWithdrawable() {
+        setAllureId(11645)
+
+        for (network, balanceState) in Constants.State.withdrawableOnlyOnNetwork {
+            XCTContext.runActivity(named: "Verify Withdraw with the withdrawable balance only on \(network.displayName)") { _ in
+                let paymentAccount = launchAndImportHotWallet(expressApiType: .mock, scenarios: [
+                    ScenarioConfig(name: Constants.Scenario.balance, initialState: balanceState),
+                    ScenarioConfig(name: Constants.Scenario.expressAssets, initialState: Constants.State.payWithdrawAllNetworks),
+                    ScenarioConfig(name: Constants.Scenario.history, initialState: Constants.State.emptyHistory),
+                    ScenarioConfig(name: Constants.Scenario.eligibilityChannels, initialState: Constants.State.withoutBankOfframp),
+                ])
+                .openTangemPay()
+                .waitForScreen()
+
+                paymentAccount
+                    .verifyBalanceContains(Constants.singleNetworkBalance)
+                    .verifyWithdrawEnabled()
+                    .tapWithdraw()
+                    .validateSwapScreenDisplayed()
+                    .waitFromTokenDisplayed(tokenSymbol: Constants.usdcSymbol)
+                    .tapFromTokenSelector()
+                    .verifyTokenCount(Constants.withdrawableTokenCount)
+                    .selectBalanceFilter(.all)
+                    .verifyTokenCount(Constants.enabledNetworkTokenCount)
+            }
+        }
+    }
+
     private func openWithdrawSwapScreen() -> SwapScreen {
         launchAndImportHotWalletWithRealPayAuthorization(expressApiType: .mock, scenarios: [
             ScenarioConfig(name: "bitcoin_utxo", initialState: "Started"),
@@ -199,13 +227,27 @@ private extension TangemPayWithdrawUITests {
     enum Constants {
         static let usdtBscContractAddress = "0x55d398326f99059ff775485246999027b3197955"
         static let bscChainId = 56
+        static let usdcSymbol = "USDC"
+        static let singleNetworkBalance = "$10.00"
+        static let withdrawableTokenCount = 1
+        static let enabledNetworkTokenCount = 2
 
         enum Scenario {
             static let eligibilityChannels = "tangem_pay_eligibility_channels"
+            static let balance = "tangem_pay_balance_update"
+            static let history = "tangem_pay_transaction_history"
+            static let expressAssets = "express_api_assets"
         }
 
         enum State {
             static let withoutBankOfframp = "Started"
+            static let emptyHistory = "InitialEmpty"
+            static let payWithdrawAllNetworks = "PayWithdrawAllNetworks"
+            static let withdrawableOnlyOnNetwork: [(TangemPayNetwork, String)] = [
+                (.bsc, "WithdrawableOnlyOnBsc"),
+                (.base, "WithdrawableOnlyOnBase"),
+                (.arbitrum, "WithdrawableOnlyOnArbitrum"),
+            ]
         }
 
         enum Endpoint {
