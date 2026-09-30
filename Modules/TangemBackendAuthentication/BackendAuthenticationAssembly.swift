@@ -27,7 +27,7 @@ public enum BackendAuthenticationAssembly {
     public static let submitUserWalletRegistration: SubmitUserWalletRegistrationUseCase =
         Self.makeSubmitUserWalletRegistrationUseCase()
 
-    public static let registerUserWallet: RegisterUserWalletUseCase = Self.makeRegisterUserWalletUseCase()
+    public static let registerMobileUserWallet: RegisterMobileUserWalletUseCase = Self.makeRegisterMobileUserWalletUseCase()
 
     public static let unregisterUserWallet: UnregisterUserWalletUseCase = Self.makeUnregisterUserWalletUseCase()
 
@@ -56,6 +56,7 @@ public extension BackendAuthenticationAssembly {
         let appPrivateKey: String
         let provider: MoyaProvider<BackendAuthenticationTarget>
         let userWalletProvider: @Sendable () -> MoyaProvider<UserWalletTarget>
+        let analyticsReporter: any BackendAuthenticationAnalyticsReporter
         let logger: Logger
 
         public init(
@@ -63,12 +64,14 @@ public extension BackendAuthenticationAssembly {
             appPrivateKey: String,
             provider: MoyaProvider<BackendAuthenticationTarget>,
             userWalletProvider: @escaping @Sendable @autoclosure () -> MoyaProvider<UserWalletTarget>,
+            analyticsReporter: some BackendAuthenticationAnalyticsReporter,
             logger: Logger
         ) {
             self.baseURL = baseURL
             self.appPrivateKey = appPrivateKey
             self.provider = provider
             self.userWalletProvider = userWalletProvider
+            self.analyticsReporter = analyticsReporter
             self.logger = logger
         }
     }
@@ -145,6 +148,7 @@ extension BackendAuthenticationAssembly {
             deviceKeyManager: Self.deviceKeyManager,
             nonceDecryptor: Self.nonceDecryptor,
             deviceMetadataProvider: DeviceMetadata.default,
+            analyticsReporter: Self.configuration.analyticsReporter,
             logger: Self.configuration.logger
         )
     }()
@@ -176,6 +180,7 @@ extension BackendAuthenticationAssembly {
             deviceKeyManager: Self.deviceKeyManager,
             nonceDecryptor: Self.nonceDecryptor,
             deviceMetadataProvider: DeviceMetadata.default,
+            analyticsReporter: Self.configuration.analyticsReporter,
             logger: Self.configuration.logger
         )
     }
@@ -207,13 +212,14 @@ extension BackendAuthenticationAssembly {
         )
     }
 
-    private static func makeRegisterUserWalletUseCase() -> RegisterUserWalletUseCase {
-        RegisterUserWalletUseCase(
+    private static func makeRegisterMobileUserWalletUseCase() -> RegisterMobileUserWalletUseCase {
+        RegisterMobileUserWalletUseCase(
             obtainNonce: obtainUserWalletRegistrationNonce.callAsFunction,
             attestUserWallet: { id, nonce, recoveryEnrollment, signer async throws(AttestUserWalletError) in
                 try await Self.attestUserWallet(id: id, nonce: nonce, recoveryEnrollment: recoveryEnrollment, signer: signer)
             },
             submitRegistration: submitUserWalletRegistration.callAsFunction,
+            analyticsReporter: configuration.analyticsReporter,
             logger: configuration.logger
         )
     }
