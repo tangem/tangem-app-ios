@@ -12,42 +12,19 @@ import TangemPay
 
 struct TangemPayTransactionDetailsRedesignedMapper {
     private let dateFormatter = DateFormatter(dateFormat: "MMM d yyyy")
-    private let amountFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.locale = Locale(identifier: "en_US")
-        formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 2
-        return formatter
-    }()
+    private let amountFormatter: TangemPayFiatAmountFormatter
+
+    init(amountFormatter: TangemPayFiatAmountFormatter = .init()) {
+        self.amountFormatter = amountFormatter
+    }
 
     func map(spend input: TangemPaySpendDisplayInput) -> TangemPayTransactionDetailsDisplayModel {
         let merchantName = input.enrichedMerchantName
             ?? input.merchantName
             ?? Localization.tangempayCardDetailsTitle
 
-        let isDeclined = input.status == .declined
-
-        let amount = if input.amount == 0 {
-            format(amount: .zero, currencyCode: input.currency)
-        } else {
-            formatNegated(
-                value: isDeclined ? input.authorizedAmount : input.amount,
-                currency: input.currency,
-                prefixFor: input.amount
-            )
-        }
-
-        let foreignAmount: String? = {
-            guard let localAmount = input.localAmount,
-                  let localCurrency = input.localCurrency,
-                  input.currency != localCurrency
-            else {
-                return nil
-            }
-            return formatNegated(value: localAmount, currency: localCurrency, prefixFor: input.amount)
-        }()
-
+        let amount = input.formattedAmount(using: amountFormatter)
+        let foreignAmount = input.formattedLocalAmount(using: amountFormatter)
         let amountSubtitle = foreignAmount.map { "\($0) \(AppConstants.dotSign) \(merchantName)" } ?? merchantName
 
         let category = input.merchantCategory?.nilIfEmpty
@@ -73,12 +50,11 @@ struct TangemPayTransactionDetailsRedesignedMapper {
     }
 
     func map(collateral input: TangemPayCollateralDisplayInput) -> TangemPayTransactionDetailsDisplayModel {
-        let prefix: String = input.amount > 0 ? .plusSign : .empty
-        return .init(
+        .init(
             headerTitle: input.isOutgoing ? Localization.tangemPayWithdrawal : Localization.tangemPayDeposit,
             headerSubtitle: formatDateTime(input.postedAt),
             icon: input.isOutgoing ? .withdrawal : .deposit,
-            amount: format(amount: input.amount, currencyCode: AppConstants.usdCurrencyCode, prefix: prefix),
+            amount: amountFormatter.formatSigned(input.amount, currencyCode: AppConstants.usdCurrencyCode),
             amountSubtitle: nil,
             status: nil,
             rows: [.init(title: Localization.tangemPayTransactionDetailsCategory, value: Localization.commonTransfer)],
@@ -91,7 +67,7 @@ struct TangemPayTransactionDetailsRedesignedMapper {
             headerTitle: Localization.tangemPayWithdrawal,
             headerSubtitle: formatDateTime(input.postedAt),
             icon: .withdrawal,
-            amount: format(amount: -input.amount, currencyCode: input.currency),
+            amount: amountFormatter.format(-input.amount, currencyCode: input.currency),
             amountSubtitle: nil,
             status: nil,
             rows: [.init(title: Localization.tangemPayTransactionDetailsCategory, value: Localization.commonTransfer)],
@@ -104,7 +80,7 @@ struct TangemPayTransactionDetailsRedesignedMapper {
             headerTitle: Localization.tangemPayFeeTitle,
             headerSubtitle: formatDateTime(input.postedAt),
             icon: .fee,
-            amount: format(amount: -input.amount, currencyCode: input.currency),
+            amount: amountFormatter.format(-input.amount, currencyCode: input.currency),
             amountSubtitle: input.description?.nilIfEmpty,
             status: nil,
             rows: [.init(title: Localization.tangemPayTransactionDetailsCategory, value: Localization.tangemPayFeeSubtitle)],
@@ -129,7 +105,7 @@ struct TangemPayTransactionDetailsRedesignedMapper {
 
             return .loaded(
                 .init(
-                    value: .amount(format(amount: amount, currencyCode: currency, prefix: amount > 0 ? .plusSign : .empty)),
+                    value: .amount(amountFormatter.formatSigned(amount, currencyCode: currency)),
                     subvalue: subvalue
                 )
             )
@@ -180,17 +156,6 @@ struct TangemPayTransactionDetailsRedesignedMapper {
         let day = dateFormatter.string(from: date)
         let time = date.formatted(date: .omitted, time: .shortened)
         return "\(day), \(time)"
-    }
-
-    private func format(amount: Decimal, currencyCode: String, prefix: String = "") -> String {
-        amountFormatter.currencySymbol = Locale.current.localizedCurrencySymbol(forCurrencyCode: currencyCode.uppercased())
-        let formatted = amountFormatter.format(number: amount)
-        return "\(prefix)\(formatted)"
-    }
-
-    private func formatNegated(value: Decimal, currency: String, prefixFor amount: Decimal) -> String {
-        let prefix: String = amount < 0 ? .plusSign : .empty
-        return format(amount: -value, currencyCode: currency, prefix: prefix)
     }
 }
 
