@@ -230,8 +230,9 @@ extension TangemPayPushPayload {
         using mapper: TangemPayTransactionDetailsMapper
     ) -> TangemPayTransactionDetailsDisplayModel? {
         switch body {
+        case .transactionSpendRefund(let spend):
+            mapper.map(spend: spend.displayInput(isRefund: true))
         case .transactionSpend(let spend),
-             .transactionSpendRefund(let spend),
              .declinedTopUp(let spend),
              .declinedReason1(let spend),
              .declinedReason2(let spend),
@@ -250,7 +251,7 @@ extension TangemPayPushPayload {
              .declinedReason15(let spend),
              .declinedReason16(let spend),
              .declinedReason17(let spend):
-            mapper.map(spend: spend.displayInput)
+            mapper.map(spend: spend.displayInput(isRefund: false))
         case .collateralWithdraw(let collateral):
             mapper.map(collateral: collateral.displayInput(isOutgoing: true))
         case .collateralDeposit(let collateral):
