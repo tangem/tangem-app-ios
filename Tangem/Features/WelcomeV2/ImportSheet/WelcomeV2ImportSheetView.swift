@@ -73,7 +73,7 @@ struct WelcomeV2ImportSheetView: View {
         )
         .styleType(.secondary(.default))
         .horizontalLayout(.infinity)
-        .size(.x14)
+        .size(.x12)
         .loading(.spinner(if: item.isLoading))
         .disabled(!item.isEnabled)
         .accessibilityIdentifier(rowAccessibilityIdentifier(for: item))
