@@ -221,6 +221,38 @@ struct StoryPlayerAnalyticsTests {
         #expect(finished == [nil])
     }
 
+    @Test
+    func heldLastSlideStaysOpenAndStepsBack() {
+        let spy = SpyStoriesAnalyticsProvider()
+        let clock = ManualProgressClock()
+        var finishedCount = 0
+        let player = Self.makePlayer(spy: spy, source: .main, holdsLastSlide: true, clock: clock, onFinished: { _, _ in
+            finishedCount += 1
+        })
+
+        player.start()
+        clock.advance(by: Self.slideDurationSeconds * 3)
+
+        #expect(player.currentIndex == 1)
+        #expect(finishedCount == 0)
+        #expect(spy.closed.isEmpty)
+
+        player.tapBackward()
+
+        #expect(player.currentIndex == 0)
+
+        clock.advance(by: Self.slideDurationSeconds + 1)
+
+        #expect(player.currentIndex == 1)
+
+        player.closeButtonTapped()
+
+        #expect(finishedCount == 1)
+        #expect(spy.closed.count == 1)
+        #expect(spy.closed.first?.exitReason == .closeButton)
+        #expect(spy.closed.first?.completed == true)
+    }
+
     // MARK: - Fixtures
 
     private static let slideDurationSeconds: Double = 10
@@ -230,6 +262,7 @@ struct StoryPlayerAnalyticsTests {
         spy: SpyStoriesAnalyticsProvider,
         source: StorySource,
         endBehavior: EndBehavior = .finish,
+        holdsLastSlide: Bool = false,
         clock: any ProgressClock,
         onAction: ((StoryActionV2) -> Void)? = nil,
         onFinished: @escaping (StoryExitReason, StoryActionV2?) -> Void = { _, _ in }
@@ -239,6 +272,7 @@ struct StoryPlayerAnalyticsTests {
             source: source,
             analytics: spy,
             clock: clock,
+            holdsLastSlide: holdsLastSlide,
             onAction: onAction,
             onFinished: onFinished
         )

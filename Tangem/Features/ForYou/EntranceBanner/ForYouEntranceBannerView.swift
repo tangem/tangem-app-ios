@@ -49,7 +49,7 @@ private extension ForYouEntranceBannerView {
 
     var background: some View {
         RoundedRectangle(cornerRadius: 24, style: .continuous)
-            .fill(DesignSystem.Color.bgOpaquePrimary)
+            .fill(DesignSystem.Color.bgTransparentPrimary)
             .overlay(
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
                     .strokeBorder(DesignSystem.Color.borderPrimary, lineWidth: 1)

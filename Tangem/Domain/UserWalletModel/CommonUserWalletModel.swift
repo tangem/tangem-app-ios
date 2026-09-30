@@ -16,6 +16,7 @@ import TangemNFT
 import TangemFoundation
 import TangemPay
 import TangemMobileWalletSdk
+import TangemCollectibles
 
 class CommonUserWalletModel {
     // MARK: Services

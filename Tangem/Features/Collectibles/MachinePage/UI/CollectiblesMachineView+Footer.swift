@@ -16,9 +16,10 @@ extension CollectiblesMachineView {
     struct Footer: View {
         let expectedValueText: String?
         let openButtonText: String
+        @Binding var isTurboModeOn: Bool
+        let onTurboModeInfoTap: () -> Void
 
-        @State private var isTurboModeOn = false
-
+        @ScaledMetric private var labelShimmerHeight: CGFloat = 12
         @ScaledMetric private var valueShimmerHeight: CGFloat = 20
 
         var body: some View {
@@ -44,15 +45,18 @@ private extension CollectiblesMachineView.Footer {
 
     var turboModeBlock: some View {
         VStack(alignment: .leading, spacing: Metrics.turboModeSpacing) {
-            HStack(spacing: Metrics.turboModeLabelSpacing) {
-                // [REDACTED_TODO_COMMENT]
-                Text(Localization.collectiblesMachineTurboMode)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+            SwiftUI.Button(action: onTurboModeInfoTap) {
+                HStack(spacing: Metrics.turboModeLabelSpacing) {
+                    Text(Localization.collectiblesMachineTurboMode)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
-                DesignSystem.Icons.Info.regular16.image
-                    .renderingMode(.template)
-                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+                    DesignSystem.Icons.Info.regular16.image
+                        .renderingMode(.template)
+                        .foregroundStyle(DesignSystem.Color.iconSecondary)
+                }
+                .expandingHitArea(by: Metrics.turboModeInfoHitAreaInset)
             }
+            .buttonStyle(.plain)
 
             Toggle("", isOn: $isTurboModeOn)
                 .labelsHidden()
@@ -64,20 +68,31 @@ private extension CollectiblesMachineView.Footer {
         }
     }
 
+    @ViewBuilder
     var expectedValueBlock: some View {
-        VStack(alignment: .trailing, spacing: Metrics.expectedValueSpacing) {
-            Text(Localization.collectiblesMachineExpectedValue)
-                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+        if let expectedValueText {
+            VStack(alignment: .trailing, spacing: Metrics.expectedValueSpacing) {
+                Text(Localization.collectiblesMachineExpectedValue)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
-            if let expectedValueText {
                 Text(expectedValueText)
                     .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
-            } else {
-                Shimmer()
-                    .frame(width: Metrics.valueShimmerWidth, height: valueShimmerHeight)
-                    .clipShape(Capsule())
+            }
+        } else {
+            VStack(alignment: .trailing, spacing: Metrics.expectedValueSpacing) {
+                shimmerBar(width: Metrics.labelShimmerWidth, height: labelShimmerHeight)
+                    .frame(height: Metrics.labelLineHeight)
+
+                shimmerBar(width: Metrics.valueShimmerWidth, height: valueShimmerHeight)
+                    .frame(height: Metrics.valueLineHeight)
             }
         }
+    }
+
+    func shimmerBar(width: CGFloat, height: CGFloat) -> some View {
+        Shimmer()
+            .frame(width: width, height: height)
+            .clipShape(Capsule())
     }
 
     var openButton: some View {
@@ -86,6 +101,7 @@ private extension CollectiblesMachineView.Footer {
             .styleType(.default)
             .horizontalLayout(.infinity)
             .size(.x12)
+            .disabled(expectedValueText == nil)
     }
 
     var background: some View {
@@ -112,13 +128,17 @@ private extension CollectiblesMachineView.Footer {
         static let topPadding: CGFloat = 16
         static let expectedValueSpacing: CGFloat = 2
         static let fadeHeight: CGFloat = 24
-        static let valueShimmerWidth: CGFloat = 72
+        static let labelShimmerWidth: CGFloat = 81
+        static let labelLineHeight: CGFloat = 16
+        static let valueShimmerWidth: CGFloat = 133
+        static let valueLineHeight: CGFloat = 24
 
         static let toggleWidth: CGFloat = 41
         static let toggleHeight: CGFloat = 25
 
         static let turboModeSpacing: CGFloat = 2
         static let turboModeLabelSpacing: CGFloat = 2
+        static let turboModeInfoHitAreaInset: CGFloat = 14
         static let toggleScale: CGFloat = 0.8
     }
 }
