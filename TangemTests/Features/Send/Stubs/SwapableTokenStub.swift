@@ -17,6 +17,8 @@ final class SwapableTokenStub: SendSwapableToken {
     private let validator: SendTransactionValidator?
     private let receiveDestination: SendReceiveTokenDestination?
     private let balanceProviders: BalanceProviders?
+    private let feeProvidersManager: (any TokenFeeProvidersManager)?
+    private let defaultAddress: String?
 
     let presentation: SendReceiveTokenPresentation?
 
@@ -33,6 +35,8 @@ final class SwapableTokenStub: SendSwapableToken {
         validator = transactionValidator
         receiveDestination = destination
         balanceProviders = nil
+        feeProvidersManager = nil
+        defaultAddress = nil
         presentation = nil
     }
 
@@ -43,7 +47,9 @@ final class SwapableTokenStub: SendSwapableToken {
         transactionValidator: SendTransactionValidator? = nil,
         destination: SendReceiveTokenDestination? = nil,
         balanceProviders: BalanceProviders? = nil,
-        presentation: SendReceiveTokenPresentation? = nil
+        presentation: SendReceiveTokenPresentation? = nil,
+        tokenFeeProvidersManager: (any TokenFeeProvidersManager)? = nil,
+        defaultAddress: String? = nil
     ) {
         inner = SendSourceTokenStub(tokenItem: tokenItem)
         self.sendingRestriction = sendingRestriction
@@ -52,6 +58,8 @@ final class SwapableTokenStub: SendSwapableToken {
         receiveDestination = destination
         self.balanceProviders = balanceProviders
         self.presentation = presentation
+        feeProvidersManager = tokenFeeProvidersManager
+        self.defaultAddress = defaultAddress
     }
 
     struct BalanceProviders {
@@ -76,7 +84,7 @@ final class SwapableTokenStub: SendSwapableToken {
     var id: WalletModelId { inner.id }
     var header: TokenHeader { inner.header }
     var feeTokenItem: TokenItem { inner.feeTokenItem }
-    var defaultAddressString: String { inner.defaultAddressString }
+    var defaultAddressString: String { defaultAddress ?? inner.defaultAddressString }
     var availableBalanceProvider: TokenBalanceProvider { balanceProviders?.available ?? inner.availableBalanceProvider }
     var fiatAvailableBalanceProvider: TokenBalanceProvider { balanceProviders?.fiatAvailable ?? inner.fiatAvailableBalanceProvider }
     var allowanceService: (any AllowanceService)? { inner.allowanceService }
@@ -115,7 +123,14 @@ final class SwapableTokenStub: SendSwapableToken {
     // MARK: - Unused in tests
 
     var tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider { fatalError("Unused in tests") }
-    var tokenFeeProvidersManager: any TokenFeeProvidersManager { fatalError("Unused in tests") }
+    var tokenFeeProvidersManager: any TokenFeeProvidersManager {
+        guard let feeProvidersManager else {
+            fatalError("Unused in tests")
+        }
+
+        return feeProvidersManager
+    }
+
     var transactionCreator: any SendTransactionCreator { fatalError("Unused in tests") }
     var balanceProvider: any BalanceProvider { fatalError("Unused in tests") }
     var analyticsLogger: any AnalyticsLogger { fatalError("Unused in tests") }
