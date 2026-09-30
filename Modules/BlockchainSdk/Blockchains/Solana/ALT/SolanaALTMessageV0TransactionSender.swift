@@ -127,6 +127,11 @@ private extension SolanaALTMessageV0TransactionSender {
         for instr in message.compiledInstructions {
             for (_, keyIdx) in instr.accountKeyIndexes.enumerated() {
                 let keyIndex = Int(keyIdx)
+
+                // Compiled-instruction indexes are dApp-controlled bytes; an out-of-range one must not
+                // trap here. `remapCompiledInstructions` throws for the same index, so skipping is safe.
+                guard oldAllKeys.indices.contains(keyIndex) else { continue }
+
                 let key = oldAllKeys[keyIndex]
 
                 guard altKeys.contains(key) else { continue }
@@ -166,8 +171,14 @@ private extension SolanaALTMessageV0TransactionSender {
     /// - Throws: If any key or programId cannot be found in the new key list.
     func remapCompiledInstructions(message: MessageV0, oldAllKeys: [PublicKey], newAllKeys: [PublicKey]) throws -> [MessageCompiledInstruction] {
         try message.compiledInstructions.enumerated().map { instrIdx, instr in
-            let newAccountKeyIndexes: [UInt8] = instr.accountKeyIndexes.compactMap { oldIdx in
+            let newAccountKeyIndexes: [UInt8] = try instr.accountKeyIndexes.compactMap { oldIdx in
                 let keyIndex = Int(oldIdx)
+
+                // dApp-controlled index; never subscript `oldAllKeys` without a bounds check.
+                guard oldAllKeys.indices.contains(keyIndex) else {
+                    throw Error.accountIndexOutOfRange
+                }
+
                 let origKey = oldAllKeys[keyIndex]
                 guard let idx = newAllKeys.firstIndex(of: origKey) else {
                     return nil
@@ -176,6 +187,11 @@ private extension SolanaALTMessageV0TransactionSender {
                 return UInt8(idx)
             }
             let programIdIndex = Int(instr.programIdIndex)
+
+            guard oldAllKeys.indices.contains(programIdIndex) else {
+                throw Error.accountIndexOutOfRange
+            }
+
             let origProgramIdKey = oldAllKeys[programIdIndex]
 
             guard let newProgramIdIndex = newAllKeys.firstIndex(of: origProgramIdKey) else {
@@ -216,7 +232,9 @@ private extension SolanaALTMessageV0TransactionSender {
             ptr.load(as: UInt32.self)
         }
 
-        let increasedBudget = UInt32(Int(currentBudget) * 120 / 100) // Increase by 20%
+        // Increase by 20%. `currentBudget` is dApp-controlled; compute in UInt64 and clamp so a value
+        // above ~3.58e9 can't overflow the `UInt32(_:)` conversion (Solana caps CU at 1.4M anyway).
+        let increasedBudget = UInt32(min(UInt64(currentBudget) * 120 / 100, UInt64(UInt32.max)))
         var increasedBudgetLE = increasedBudget.littleEndian
         let increasedBudgetBytes = Data(bytes: &increasedBudgetLE, count: MemoryLayout<UInt32>.size)
 
@@ -270,11 +288,15 @@ extension SolanaALTMessageV0TransactionSender {
     enum Error: UniversalError {
         /// Indicates that a required key was not found in static or any ALT table.
         case keyNotFoundInStaticOrAnyALT
+        /// A compiled instruction references an account / programId index outside the message's key list.
+        case accountIndexOutOfRange
 
         var errorCode: Int {
             switch self {
             case .keyNotFoundInStaticOrAnyALT:
                 return -1
+            case .accountIndexOutOfRange:
+                return -2
             }
         }
     }
