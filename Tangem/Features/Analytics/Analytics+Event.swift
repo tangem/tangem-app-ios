@@ -1083,5 +1083,6 @@ extension Analytics {
         // MARK: - Backend Authentication
 
         case userWalletRegistrationUnexpectedCurve = "[Backend Auth] Unexpected Wallet Curve"
+        case backendAuthNonceRequestTimeout = "[Backend Auth] Nonce Request Timeout"
     }
 }
