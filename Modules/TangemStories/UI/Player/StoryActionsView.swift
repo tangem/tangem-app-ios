@@ -25,7 +25,7 @@ struct StoryActionsView: View {
                     .iconEnd(action.icon)
                     .styleType(action.style == .primary ? .default : .secondary(.default))
                     .horizontalLayout(.infinity)
-                    .size(.x14)
+                    .size(.x12)
                 }
             }
             .padding(.horizontal, Layout.horizontalPadding)
