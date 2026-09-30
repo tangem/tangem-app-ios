@@ -7,8 +7,9 @@
 //
 
 import Foundation
-import Moya
 import Testing
+import Alamofire
+import Moya
 import TangemFoundation
 @testable import TangemBackendAuthentication
 
@@ -45,6 +46,34 @@ struct MoyaUserWalletRegistrationClientTests {
     @Test(arguments: StatusCodes.error)
     func requestCipheredNonceThrowsRequestNonceFailedOnErrorStatusCode(errorStatusCode: Int) async throws {
         let sut = try Self.makeSUT(statusCode: errorStatusCode)
+
+        let error = try await #require(throws: UserWalletRegistrationClientError.self) {
+            _ = try await sut.requestCipheredNonce(devicePublicKey: .fake)
+        }
+
+        guard case .requestNonceFailed = error else {
+            Issue.record("Expected .requestNonceFailed, got \(error)")
+            return
+        }
+    }
+
+    @Test
+    func requestCipheredNonceThrowsRequestNonceTimeoutOnTimeoutNetworkError() async throws {
+        let sut = try Self.makeSUT(networkError: AFError.timeoutFake)
+
+        let error = try await #require(throws: UserWalletRegistrationClientError.self) {
+            _ = try await sut.requestCipheredNonce(devicePublicKey: .fake)
+        }
+
+        guard case .requestNonceTimeout = error else {
+            Issue.record("Expected .requestNonceTimeout, got \(error)")
+            return
+        }
+    }
+
+    @Test
+    func requestCipheredNonceThrowsRequestNonceFailedOnNonTimeoutNetworkError() async throws {
+        let sut = try Self.makeSUT(networkError: AFError.notConnectedToInternetFake)
 
         let error = try await #require(throws: UserWalletRegistrationClientError.self) {
             _ = try await sut.requestCipheredNonce(devicePublicKey: .fake)
@@ -215,17 +244,44 @@ extension MoyaUserWalletRegistrationClientTests {
         responseBody: String = "",
         sourceLocation: SourceLocation = #_sourceLocation
     ) throws -> some UserWalletRegistrationClient {
-        let provider = MoyaProvider<UserWalletTarget>(
+        try makeSUT(
             endpointClosure: { target in
                 Endpoint.stub(target: target, statusCode: statusCode, responseBody: responseBody)
             },
+            nonceEndpointClosure: { target in
+                Endpoint.stub(target: target, statusCode: statusCode, responseBody: responseBody)
+            },
+            sourceLocation: sourceLocation
+        )
+    }
+
+    private static func makeSUT(
+        networkError: some Error,
+        sourceLocation: SourceLocation = #_sourceLocation
+    ) throws -> some UserWalletRegistrationClient {
+        try makeSUT(
+            endpointClosure: { target in
+                Endpoint.stub(target: target, sampleResponse: .networkError(networkError as NSError))
+            },
+            nonceEndpointClosure: { target in
+                Endpoint.stub(target: target, sampleResponse: .networkError(networkError as NSError))
+            },
+            sourceLocation: sourceLocation
+        )
+    }
+
+    private static func makeSUT(
+        endpointClosure: @escaping MoyaProvider<UserWalletTarget>.EndpointClosure,
+        nonceEndpointClosure: @escaping MoyaProvider<BackendAuthenticationTarget>.EndpointClosure,
+        sourceLocation: SourceLocation = #_sourceLocation
+    ) throws -> some UserWalletRegistrationClient {
+        let provider = MoyaProvider<UserWalletTarget>(
+            endpointClosure: endpointClosure,
             stubClosure: MoyaProvider.immediatelyStub
         )
 
         let nonceProvider = MoyaProvider<BackendAuthenticationTarget>(
-            endpointClosure: { target in
-                Endpoint.stub(target: target, statusCode: statusCode, responseBody: responseBody)
-            },
+            endpointClosure: nonceEndpointClosure,
             stubClosure: MoyaProvider.immediatelyStub
         )
 

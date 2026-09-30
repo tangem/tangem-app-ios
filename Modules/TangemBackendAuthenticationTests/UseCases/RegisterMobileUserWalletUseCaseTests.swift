@@ -1,5 +1,5 @@
 //
-//  RegisterUserWalletUseCaseTests.swift
+//  RegisterMobileUserWalletUseCaseTests.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,13 +12,14 @@ import TangemLogger
 @testable import TangemBackendAuthentication
 
 @Suite(.tags(.backendAuthentication))
-struct RegisterUserWalletUseCaseTests {
+struct RegisterMobileUserWalletUseCaseTests {
     @Test
-    func registerUserWalletObtainsNonceAttestsAndSubmitsRegistrationOnSuccess() async throws {
+    func registerMobileUserWalletObtainsNonceAttestsAndSubmitsRegistrationOnSuccess() async throws {
         let expectedID = UserWalletId.uniqueFake()
         let expectedNonce = UserWalletRegistrationNonce.fake
         let expectedRequest = UserWalletRegistrationRequest.fake
         let expectedSigner = SpyUserWalletRegistrationSigner()
+        let analyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
 
         let sut = makeSUT(
             obtainNonce: Self.obtainNonceMock(expectedID: expectedID, returnedNonce: expectedNonce),
@@ -28,14 +29,17 @@ struct RegisterUserWalletUseCaseTests {
                 expectedSigner: expectedSigner,
                 returnedRequest: expectedRequest
             ),
-            submitRegistration: Self.submitRegistrationMock(expectedRequest: expectedRequest)
+            submitRegistration: Self.submitRegistrationMock(expectedRequest: expectedRequest),
+            analyticsReporter: analyticsReporter
         )
 
         try await sut(id: expectedID, recoveryEnrollment: nil, signer: expectedSigner)
+
+        #expect(analyticsReporter.receivedMessages.isEmpty)
     }
 
     @Test
-    func registerUserWalletReturnsEarlyWhenNonceUnavailable() async throws {
+    func registerMobileUserWalletReturnsEarlyWhenNonceUnavailable() async throws {
         let anyUserWalletID = UserWalletId.uniqueFake()
 
         let sut = makeSUT(
@@ -48,7 +52,7 @@ struct RegisterUserWalletUseCaseTests {
     }
 
     @Test
-    func registerUserWalletReturnsEarlyWhenAttestationSkipped() async throws {
+    func registerMobileUserWalletReturnsEarlyWhenAttestationSkipped() async throws {
         let anyUserWalletID = UserWalletId.uniqueFake()
         let anyNonce = UserWalletRegistrationNonce.fake
         let anySigner = SpyUserWalletRegistrationSigner()
@@ -68,7 +72,7 @@ struct RegisterUserWalletUseCaseTests {
     }
 
     @Test
-    func registerUserWalletThrowsObtainNonceFailureWhenObtainNonceFails() async throws {
+    func registerMobileUserWalletThrowsObtainNonceFailureWhenObtainNonceFails() async throws {
         let expectedUnderlyingError = AnyTestError()
 
         let sut = makeSUT(
@@ -90,7 +94,32 @@ struct RegisterUserWalletUseCaseTests {
     }
 
     @Test
-    func registerUserWalletThrowsAttestUserWalletFailureWhenAttestationFails() async throws {
+    func registerMobileUserWalletReportsMobileUserWalletNonceTimeoutWhenObtainNonceTimesOut() async throws {
+        let analyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
+
+        let sut = makeSUT(
+            obtainNonce: { _ throws(ObtainUserWalletRegistrationNonceError) in
+                throw ObtainUserWalletRegistrationNonceError.clientFailure(.requestNonceTimeout)
+            },
+            attestUserWallet: Self.neverCalledAttestUserWalletMock(),
+            submitRegistration: Self.neverCalledSubmitRegistrationMock(),
+            analyticsReporter: analyticsReporter
+        )
+
+        let error = try await #require(throws: RegisterUserWalletError.self) {
+            try await sut(id: UserWalletId.fake, recoveryEnrollment: nil, signer: SpyUserWalletRegistrationSigner())
+        }
+
+        guard case .obtainNonceFailure(.clientFailure(.requestNonceTimeout)) = error else {
+            Issue.record("Expected .obtainNonceFailure(.clientFailure(.requestNonceTimeout)), got \(error)")
+            return
+        }
+
+        #expect(analyticsReporter.receivedMessages == [.reportMobileUserWalletNonceTimeout])
+    }
+
+    @Test
+    func registerMobileUserWalletThrowsAttestUserWalletFailureWhenAttestationFails() async throws {
         let anyUserWalletID = UserWalletId.uniqueFake()
         let expectedUnderlyingError = AnyTestError()
 
@@ -113,12 +142,13 @@ struct RegisterUserWalletUseCaseTests {
     }
 
     @Test
-    func registerUserWalletThrowsSubmitFailureWhenSubmitRegistrationFails() async throws {
+    func registerMobileUserWalletThrowsSubmitFailureWhenSubmitRegistrationFails() async throws {
         let expectedID = UserWalletId.uniqueFake()
         let expectedNonce = UserWalletRegistrationNonce.fake
         let expectedRequest = UserWalletRegistrationRequest.fake
         let expectedUnderlyingError = AnyTestError()
         let expectedSigner = SpyUserWalletRegistrationSigner()
+        let analyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
 
         let sut = makeSUT(
             obtainNonce: Self.obtainNonceMock(expectedID: expectedID, returnedNonce: expectedNonce),
@@ -131,7 +161,8 @@ struct RegisterUserWalletUseCaseTests {
             submitRegistration: { actualRequest throws(SubmitUserWalletRegistrationError) in
                 #expect(actualRequest == expectedRequest)
                 throw SubmitUserWalletRegistrationError.clientFailure(.registerFailed(underlying: expectedUnderlyingError))
-            }
+            },
+            analyticsReporter: analyticsReporter
         )
 
         let error = try await #require(throws: RegisterUserWalletError.self) {
@@ -142,21 +173,25 @@ struct RegisterUserWalletUseCaseTests {
             Issue.record("Expected .submitFailure(.clientFailure(.registerFailed)), got \(error)")
             return
         }
+
+        #expect(analyticsReporter.receivedMessages.isEmpty)
     }
 }
 
 // MARK: - Factory methods
 
-extension RegisterUserWalletUseCaseTests {
+extension RegisterMobileUserWalletUseCaseTests {
     private func makeSUT(
         obtainNonce: @escaping ObtainUserWalletRegistrationNonce,
         attestUserWallet: @escaping AttestUserWallet,
-        submitRegistration: @escaping SubmitUserWalletRegistration
-    ) -> RegisterUserWalletUseCase {
-        RegisterUserWalletUseCase(
+        submitRegistration: @escaping SubmitUserWalletRegistration,
+        analyticsReporter: some BackendAuthenticationAnalyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
+    ) -> RegisterMobileUserWalletUseCase {
+        RegisterMobileUserWalletUseCase(
             obtainNonce: obtainNonce,
             attestUserWallet: attestUserWallet,
             submitRegistration: submitRegistration,
+            analyticsReporter: analyticsReporter,
             logger: Logger(category: OSLogCategory(name: "Tests"))
         )
     }
