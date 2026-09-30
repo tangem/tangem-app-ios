@@ -89,7 +89,12 @@ struct PolymarketMainView: View {
             settings: .init(backgroundColor: .clear, horizontalPadding: Constants.horizontalPadding, height: Constants.navBarSettingsHeight),
             titleView: { titleView },
             leftButtons: { NavigationBarButton.back { viewModel.dismiss() } },
-            rightButtons: { PolymarketOverflowMenu(onHowItWorks: viewModel.openHowItWorks) }
+            rightButtons: {
+                PolymarketOverflowMenu(
+                    onHowItWorks: viewModel.openHowItWorks,
+                    onSupportChat: viewModel.openSupportChat
+                )
+            }
         )
         .environment(\.isRedesign, true)
     }

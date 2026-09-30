@@ -29,6 +29,9 @@ protocol PolymarketMainRoutable: AnyObject {
     @MainActor
     func openHowItWorks()
 
+    @MainActor
+    func openSupportChat()
+
     func openWithdraw()
 
     func openEventDetails(

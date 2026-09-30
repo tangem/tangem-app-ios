@@ -7,25 +7,34 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct SupportChatInputModel {
     let logsComposer: LogsComposer
     /// Wallet id passed to `usedeskMessenger.userIdentify` for user matching.
-    let userIdentifier: String?
+    let userWalletId: UserWalletId?
     /// Entry point the chat was opened from.
-    let source: Analytics.SupportChatSource
+    let source: SupportChatSource
     /// Optional flow context: sets the Usedesk source field and/or auto-sends a message.
-    let initialMessage: SupportInitialMessage?
+    let initialMessage: String?
 
     init(
         logsComposer: LogsComposer,
-        userIdentifier: String?,
-        source: Analytics.SupportChatSource,
-        initialMessage: SupportInitialMessage? = nil
+        userWalletId: UserWalletId?,
+        source: SupportChatSource,
+        initialMessage: String? = nil
     ) {
         self.logsComposer = logsComposer
-        self.userIdentifier = userIdentifier
+        self.userWalletId = userWalletId
         self.source = source
         self.initialMessage = initialMessage
+    }
+
+    var userIdentifier: String? {
+        userWalletId?.stringValue.lowercased()
+    }
+
+    var topic: SupportChatTopic? {
+        source.topic
     }
 }
