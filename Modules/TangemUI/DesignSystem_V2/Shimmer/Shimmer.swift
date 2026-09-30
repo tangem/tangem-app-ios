@@ -158,7 +158,7 @@ private struct ShimmerTextBlock: View {
     var body: some View {
         RatioWidth(ratio: style.widthRatio, alignment: alignment) {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .fill(DesignSystem.Color.bgOpaqueSecondary)
+                .fill(DesignSystem.Color.bgTransparentSecondary)
                 .mask { ShimmerShine() }
                 .frame(height: barHeight)
                 .padding(.vertical, verticalPadding)
@@ -206,7 +206,7 @@ private struct ShimmerCustomBlock: View {
         let scaledHeight = height.map { $0 * scale }
         let resolvedCornerRadius: CGFloat = cornerRadius ?? (scaledHeight.map { $0 / 2 } ?? 0)
         return RoundedRectangle(cornerRadius: resolvedCornerRadius, style: .continuous)
-            .fill(DesignSystem.Color.bgOpaqueSecondary)
+            .fill(DesignSystem.Color.bgTransparentSecondary)
             .mask { ShimmerShine() }
             .frame(width: scaledWidth, height: scaledHeight)
     }

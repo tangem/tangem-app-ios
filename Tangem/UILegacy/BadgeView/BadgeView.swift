@@ -31,7 +31,7 @@ struct BadgeView: View {
         case .accent:
             DesignSystem.Color.bgStatusInfoSubtle
         case .secondary:
-            DesignSystem.Color.bgOpaqueSecondary
+            DesignSystem.Color.bgTransparentSecondary
         case .warning:
             DesignSystem.Color.bgStatusWarningSubtle
         case .error:
