@@ -224,3 +224,9 @@ public extension Button {
         map { $0.accessibilityLabel = label }
     }
 }
+
+extension Button {
+    func iconSize(_ side: CGFloat) -> Self {
+        map { $0._iconSide = ScaledMetric(wrappedValue: side, relativeTo: .body) }
+    }
+}

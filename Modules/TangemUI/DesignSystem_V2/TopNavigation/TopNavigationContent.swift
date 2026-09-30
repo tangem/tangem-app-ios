@@ -180,6 +180,7 @@ struct TopNavigationActionButton: View {
         button(perform: perform)
             .styleType(.ghost)
             .size(size)
+            .iconSize(TopNavigationChromeMetrics.iconSize)
     }
 
     private func button(perform: @escaping () -> Void) -> TangemUI.Button {
@@ -257,6 +258,7 @@ private extension View {
 enum TopNavigationChromeMetrics {
     static let actionButtonSize: TangemUI.Button.Size = .x9
     static let chromeButtonSize: TangemUI.Button.Size = .x11
+    static let iconSize: CGFloat = 24
     static let actionSpacing: CGFloat = .unit(.x1)
     static let trailingGroupSpacing: CGFloat = .unit(.x2)
     static let capsuleEndPadding: CGFloat = 4
