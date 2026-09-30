@@ -73,7 +73,7 @@ struct JointAccountInviteMembersView: View {
 
     private var detailsAction: TopNavigation.Action {
         TopNavigation.Action(
-            icon: DesignSystem.Icons.DotsHorizontal.regular20,
+            icon: DesignSystem.Icons.DotsHorizontal.regular24,
             accessibilityLabel: Localization.commonMore,
             menu: [
                 TopNavigation.MenuItem(
