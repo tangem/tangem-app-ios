@@ -31,7 +31,7 @@ struct CryptoSearchView<Header: View>: View {
                 VStack(alignment: .leading, spacing: Constants.sectionSpacing) {
                     header
                     if let portfolio = viewModel.portfolio {
-                        section(title: Localization.marketsCommonMyPortfolio) {
+                        FeedSearchSection(title: Localization.marketsCommonMyPortfolio) {
                             CryptoSearchPortfolioView(viewModel: portfolio)
                                 .padding(.horizontal, Constants.horizontalPadding)
                         }
@@ -62,7 +62,7 @@ private extension CryptoSearchView {
             FeedSearchSkeletonView()
 
         case .results(let rows, let hasTokensUnderCap):
-            section(title: Localization.marketsCommonTitle) {
+            FeedSearchSection(title: Localization.marketsCommonTitle) {
                 CryptoSearchResultsView(
                     rows: rows,
                     onAppear: viewModel.onResultAppear,
@@ -82,16 +82,6 @@ private extension CryptoSearchView {
             TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.onRetry)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, Constants.errorVerticalInset)
-        }
-    }
-
-    func section(title: String, @ViewBuilder content: () -> some View) -> some View {
-        VStack(alignment: .leading, spacing: Constants.sectionHeaderSpacing) {
-            Text(title)
-                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
-                .padding(.horizontal, Constants.horizontalPadding)
-
-            content()
         }
     }
 
@@ -122,7 +112,6 @@ private enum Constants {
     static let contentID = "cryptoSearchContent"
     static let contentVerticalInset: CGFloat = 16
     static let sectionSpacing: CGFloat = 24
-    static let sectionHeaderSpacing: CGFloat = 16
     static let horizontalPadding: CGFloat = 16
     static let errorVerticalInset: CGFloat = 24
     static let noticeSpacing: CGFloat = 8
