@@ -74,6 +74,7 @@ extension Analytics {
         case manually = "Manually"
         case stories = "Stories"
         case deeplink = "Deeplink"
+        case predictions = "Predictions"
         case buy = "Buy"
         case sell = "Sell"
         case swap = "Swap"
