@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct MobileUnlockView: View {
     typealias ViewModel = MobileUnlockViewModel
@@ -38,6 +39,7 @@ private extension MobileUnlockView {
 
             Text(viewModel.title)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .accessibilityIdentifier(AuthAccessibilityIdentifiers.mobileUnlockTitle)
 
             OnboardingPinStackView(
                 maxDigits: viewModel.accessCodeLength,
