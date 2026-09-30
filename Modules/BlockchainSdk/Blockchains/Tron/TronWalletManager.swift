@@ -219,7 +219,14 @@ class TronWalletManager: BaseWalletManager, WalletManager {
             ? .zero
             : Double(chainParameters.dynamicEnergyIncreaseFactor) / Double(dynamicEnergyIncreaseFactorPrecision)
 
-        let conservativeEnergyFee = Int(Double(energyUse) * (1 + dynamicEnergyIncreaseFactor))
+        // `energyUse` is the node's `energy_used`; `Int(Double)` traps on a non-finite or out-of-range
+        // product. Saturate instead — an absurd fee is rejected by balance validation, not by a crash.
+        let paddedEnergyUse = Double(energyUse) * (1 + dynamicEnergyIncreaseFactor)
+        let conservativeEnergyFee: Int = if paddedEnergyUse.isFinite, paddedEnergyUse < Double(Int.max) {
+            Int(paddedEnergyUse)
+        } else {
+            Int.max
+        }
 
         return TronEnergyFeeData(
             energyFee: conservativeEnergyFee,
