@@ -202,7 +202,8 @@ private extension EthereumTransactionHistoryMapper {
                     return nil
                 }
 
-                let decimalValue = transfer.decimals.map { pow(10, $0) } ?? decimalValue
+                // Fall back to the token's own decimals, not the coin's 18 (as the Tron mapper does).
+                let decimalValue = transfer.decimals.map { pow(10, $0) } ?? token.decimalValue
                 let transactionAmount = value / decimalValue
 
                 let source = TransactionRecord.Source(
