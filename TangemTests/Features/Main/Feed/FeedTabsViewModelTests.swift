@@ -75,6 +75,7 @@ private final class PromotionNotificationsManagerStub: PromotionNotificationsMan
 
 private final class EarnRouterStub: EarnFeedRoutable {
     func routeOnTokenResolved(_ resolution: EarnTokenResolution, source: EarnOpportunitySource) {}
+    func openPortfolioToken(_ walletModel: any WalletModel) {}
     func openNetworksFilter() {}
     func openTypesFilter() {}
 }
