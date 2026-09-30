@@ -23,6 +23,14 @@ final class TangemPayMobileOnboardingScreen: ScreenBase<TangemPayMobileOnboardin
     }
 
     @discardableResult
+    func verifyNotDisplayed(for duration: TimeInterval = .conditional) -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay mobile onboarding screen does not open") { _ in
+            XCTAssertTrue(title.staysAbsent(for: duration), "Tangem Pay mobile onboarding screen should not open")
+            return self
+        }
+    }
+
+    @discardableResult
     func tapGetCard() -> MainScreen {
         XCTContext.runActivity(named: "Tap Get card button") { _ in
             getCardButton.waitAndTap()
