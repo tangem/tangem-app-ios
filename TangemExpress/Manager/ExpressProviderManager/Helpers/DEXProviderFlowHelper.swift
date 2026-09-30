@@ -203,6 +203,8 @@ extension DEXProviderFlowHelper {
         quote: ExpressQuote,
         data: ExpressTransactionData
     ) async throws -> ExpressProviderManagerState {
+        try ensureSwapTransactionType(data)
+
         let coinBalance = try pair.source.balanceProvider.getCoinBalance()
 
         if data.txValue > coinBalance {
@@ -261,6 +263,14 @@ extension DEXProviderFlowHelper {
         )
 
         return .dexPreview(.init(provider: provider, data: data, fee: fee, quote: quoteData))
+    }
+
+    /// The DEX flow is only entered for a `swap` quote, so `/exchange-data` must also be `swap` (S089).
+    /// The DEX states are dispatched directly from `dexPreview.data`, bypassing the check in `sendData`.
+    func ensureSwapTransactionType(_ data: ExpressTransactionData) throws {
+        guard data.transactionType == .swap else {
+            throw ExpressProviderError.transactionTypeMismatch
+        }
     }
 
     func mapError(_ error: Error, quote: ExpressQuote?, amountType: ExpressAmountType) -> ExpressProviderManagerState {
@@ -345,6 +355,8 @@ extension DEXProviderFlowHelper {
         data: ExpressTransactionData,
         approveData: RestrictionCheckResult.ApproveData
     ) async throws -> ExpressProviderManagerState {
+        try ensureSwapTransactionType(data)
+
         let coinBalance = try pair.source.balanceProvider.getCoinBalance()
 
         if data.txValue > coinBalance {
