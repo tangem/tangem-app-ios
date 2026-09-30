@@ -2991,7 +2991,7 @@
 "wc_custom_allowance_title" = "Custom allowance";
 "wc_dapp_disconnected" = "dApp disconnected";
 "wc_disconnect_all_alert_desc" = "All dApp sessions will be disconnected. Your wallet will no longer be linked to any dApps.";
-"wc_disconnect_all_alert_title" = "Disconect All dApps";
+"wc_disconnect_all_alert_title" = "Disconnect All dApps";
 "wc_disconnect_all" = "Disconnect all";
 "wc_errors_invalid_domain_subtitle" = "Prova a eseguire nuovamente l’associazione con un nuovo URI";
 "wc_errors_invalid_domain_title" = "Dominio dApp non valido";

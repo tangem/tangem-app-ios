@@ -128,7 +128,7 @@ final class WalletConnectViewModel: ObservableObject {
     }
 
     private func showDisconnectAllDAppsToast() {
-        WalletConnectModuleFactory.makeSuccessToast(with: Localization.wcDisconnectAllAlertTitle)
+        WalletConnectModuleFactory.makeSuccessToast(with: Localization.wcAllDappsDisconnected)
             .present(layout: .top(padding: 20), type: .temporary())
     }
 }
