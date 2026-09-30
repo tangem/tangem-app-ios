@@ -82,6 +82,10 @@ struct StellarAddressTests {
     @Test(arguments: [
         "GDWFc",
         "GDWFHядыфлвФЫВЗФЫВЛ++EÈ",
+        "GAB6EDWGWSRZUYUYCWXAFQFBHE5ZEJPDXCIMVZC3LH2C7IU35FTI2NOR", // last character changed (Q → R): checksum mismatch
+        "GAB6EDWGWSRZUYUYCWXAGQFBHE5ZEJPDXCIMVZC3LH2C7IU35FTI2NOQ", // one body character changed (F → G): checksum mismatch
+        "gab6edwgwsrzuyuycwxafqfbhe5zejpdxcimvzc3lh2c7iu35fti2noq", // lower-case: not a canonical StrKey
+        "SAB6EDWGWSRZUYUYCWXAFQFBHE5ZEJPDXCIMVZC3LH2C7IU35FTI2NOQ", // wrong version byte
     ])
     func invalidAddresses(addressHex: String) {
         [EllipticCurve.ed25519, .ed25519_slip0010].forEach {
