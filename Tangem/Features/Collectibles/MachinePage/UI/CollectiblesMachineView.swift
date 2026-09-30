@@ -109,10 +109,6 @@ private extension CollectiblesMachineView {
                 .padding(.vertical, Metrics.chipsContainerVerticalPadding)
 
             CollectiblesPrizePoolView(viewModel: viewModel.prizePoolViewModel)
-                .padding(.top, Metrics.sectionsGap)
-
-            PoweredBy()
-                .padding(.top, Metrics.poweredByTopPadding)
         }
         .padding(.horizontal, Metrics.horizontalPadding)
     }
@@ -235,7 +231,6 @@ extension CollectiblesMachineView {
 
         static let sectionHeaderVerticalPadding: CGFloat = 10
         static let sectionsGap: CGFloat = 24
-        static let poweredByTopPadding: CGFloat = 4
         static let failedMessageMinHeight: CGFloat = 220
     }
 }
