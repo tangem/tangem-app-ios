@@ -495,7 +495,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 return jointAccounts
                     .map { $0.jointAccountPendingOperationsProvider.pendingOperationsPublisher }
                     .combineLatest()
-                    .map { $0.flattened() }
+                    .map { $0.flattened().filter { $0.operation.status == .awaitingSignatures } }
                     .eraseToAnyPublisher()
             }
             .map { pendingOperations in
