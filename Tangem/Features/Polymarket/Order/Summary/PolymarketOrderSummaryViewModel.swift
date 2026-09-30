@@ -112,8 +112,7 @@ private extension PolymarketOrderSummaryViewModel {
     func place() {
         guard !isPlacing, let quote = model.state.quote.quote else { return }
 
-        guard let receivedAt = model.state.quoteReceivedAt,
-              Date().timeIntervalSince(receivedAt) <= Constants.maxQuoteAge else {
+        guard model.state.keepsQuote(at: Date()) else {
             reportStaleQuote()
             return
         }
@@ -372,14 +371,6 @@ private extension PolymarketOrderSummaryViewModel {
 private extension PolymarketOrderSummaryViewModel {
     enum PlacementAnomaly: Error {
         case matchedWithoutFill
-    }
-}
-
-// MARK: - Constants
-
-private extension PolymarketOrderSummaryViewModel {
-    enum Constants {
-        static let maxQuoteAge: TimeInterval = 30
     }
 }
 

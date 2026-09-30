@@ -214,11 +214,6 @@ final class PolymarketMainViewModel: ObservableObject {
 
                 guard !Task.isCancelled, let self else { return }
 
-                guard !isShowingLoadFailure else {
-                    stopContentRefresh()
-                    return
-                }
-
                 loadPositions()
                 await refreshVisibleEvents()
             }
@@ -330,10 +325,6 @@ final class PolymarketMainViewModel: ObservableObject {
         }
 
         positionsTask?.cancel()
-
-        if userInitiated {
-            startContentRefresh()
-        }
 
         let isSilentRound = positionsState == .failed && !userInitiated
 
@@ -476,18 +467,12 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     func retry() {
-        startContentRefresh()
-
         guard !categories.isEmpty else {
             load()
             return
         }
 
         fetchEvents()
-    }
-
-    var isShowingLoadFailure: Bool {
-        loadingState == .error || positionsState == .failed
     }
 
     func select(categoryID: Int?) {
