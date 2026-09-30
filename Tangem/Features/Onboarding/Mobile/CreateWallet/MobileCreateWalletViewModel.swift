@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 import TangemAssets
 import TangemLocalization
 import TangemMobileWalletSdk
@@ -16,6 +17,11 @@ import struct TangemUIUtils.AlertBinder
 final class MobileCreateWalletViewModel: ObservableObject {
     @Published var isCreating: Bool = false
     @Published var alert: AlertBinder?
+    /// Create is blocked while the optional passphrase is opted in but not yet typed twice identically.
+    @Published private(set) var isCreateButtonEnabled = true
+
+    /// Optional BIP-39 passphrase, off by default (see `OnboardingSeedPassphraseSetupViewModel`).
+    let passphraseSetupViewModel = OnboardingSeedPassphraseSetupViewModel(showsMobileUpgradeNote: true)
 
     let title = Localization.hwCreateTitle
     let createButtonTitle = Localization.onboardingCreateWalletButtonCreateWallet
@@ -32,6 +38,7 @@ final class MobileCreateWalletViewModel: ObservableObject {
     private let analyticsContextParams: Analytics.ContextParams = .custom(.mobileWallet)
 
     private var isAppeared = false
+    private var bag: Set<AnyCancellable> = []
 
     private let source: MobileCreateWalletSource
     private weak var coordinator: MobileCreateWalletRoutable?
@@ -45,6 +52,11 @@ final class MobileCreateWalletViewModel: ObservableObject {
         self.source = source
         self.coordinator = coordinator
         self.delegate = delegate
+
+        passphraseSetupViewModel.$isValid
+            .removeDuplicates()
+            .assign(to: \.isCreateButtonEnabled, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 }
 
@@ -70,6 +82,13 @@ extension MobileCreateWalletViewModel {
             return
         }
 
+        guard isCreateButtonEnabled else {
+            return
+        }
+
+        // Read once, up front: the fields are cleared if the user toggles the option off while we run.
+        let passphrase = passphraseSetupViewModel.resolvedPassphrase
+
         isCreating = true
         logCreateWalletTapAnalytics()
 
@@ -80,7 +99,7 @@ extension MobileCreateWalletViewModel {
                 let walletInfo = try await initializer.initializeWallet(
                     parameters: WalletInitializerParameters(
                         mnemonic: nil,
-                        passphrase: nil,
+                        passphrase: passphrase,
                         hasMnemonicBackup: false,
                         hasICloudBackup: false
                     )
@@ -107,7 +126,7 @@ extension MobileCreateWalletViewModel {
                 }
 
                 AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: newUserWalletModel.userWalletId)
-                viewModel.logWalletCreatedAnalytics()
+                viewModel.logWalletCreatedAnalytics(isWithPassphrase: passphrase != nil)
 
                 try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
 
@@ -226,11 +245,11 @@ private extension MobileCreateWalletViewModel {
         Analytics.log(.buttonCreateWallet, contextParams: analyticsContextParams)
     }
 
-    func logWalletCreatedAnalytics() {
+    func logWalletCreatedAnalytics(isWithPassphrase: Bool) {
         var params: [Analytics.ParameterKey: String] = [
             .creationType: Analytics.ParameterValue.walletCreationTypeNewSeed.rawValue,
             .seedLength: Constants.seedPhraseLength,
-            .passphrase: Analytics.ParameterValue.empty.rawValue,
+            .passphrase: isWithPassphrase ? Analytics.ParameterValue.full.rawValue : Analytics.ParameterValue.empty.rawValue,
             .source: source.analyticsParameterValue.rawValue,
         ]
 

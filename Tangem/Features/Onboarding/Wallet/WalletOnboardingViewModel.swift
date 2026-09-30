@@ -1140,8 +1140,13 @@ extension WalletOnboardingViewModel: OnboardingSeedPhraseGenerationDelegate {
                 secondWord: words[1],
                 seventhWord: words[6],
                 eleventhWord: words[10],
-                createWalletAction: { [weak self, mnemonic] in
-                    self?.createWalletOnPrimaryCard(using: mnemonic, mnemonicPassphrase: nil, walletCreationType: .newSeed)
+                allowsPassphrase: true,
+                createWalletAction: { [weak self, mnemonic] passphrase in
+                    self?.createWalletOnPrimaryCard(
+                        using: mnemonic,
+                        mnemonicPassphrase: passphrase,
+                        walletCreationType: .newSeed(isWithPassphrase: passphrase?.isEmpty == false)
+                    )
                 }
             )
         )
@@ -1176,15 +1181,18 @@ extension WalletOnboardingViewModel: SeedPhraseImportDelegate {
 extension WalletOnboardingViewModel {
     enum WalletCreationType {
         case privateKey
-        case newSeed
+        case newSeed(isWithPassphrase: Bool)
         case seedImport(length: Int, isWithPassphrase: Bool)
 
         var params: [Analytics.ParameterKey: String] {
             switch self {
             case .privateKey:
                 return [.creationType: Analytics.ParameterValue.walletCreationTypePrivateKey.rawValue]
-            case .newSeed:
-                return [.creationType: Analytics.ParameterValue.walletCreationTypeNewSeed.rawValue]
+            case .newSeed(let isWithPassphrase):
+                return [
+                    .creationType: Analytics.ParameterValue.walletCreationTypeNewSeed.rawValue,
+                    .passphrase: isWithPassphrase ? Analytics.ParameterValue.full.rawValue : Analytics.ParameterValue.empty.rawValue,
+                ]
             case .seedImport(let length, let isWithPassphrase):
                 return [
                     .creationType: Analytics.ParameterValue.walletCreationTypeSeedImport.rawValue,

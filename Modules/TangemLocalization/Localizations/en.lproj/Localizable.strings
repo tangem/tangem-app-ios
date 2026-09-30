@@ -1296,6 +1296,12 @@
 "onboarding_seed_intro_title" = "Use seed phrase";
 "onboarding_seed_mnemonic_invalid_checksum" = "Invalid seed phrase. Please check the word order.";
 "onboarding_seed_mnemonic_wrong_words" = "Invalid seed phrase. Please check your spelling.";
+"onboarding_seed_passphrase_setup_confirm_placeholder" = "Repeat the passphrase";
+"onboarding_seed_passphrase_setup_mismatch" = "The passphrases don’t match";
+"onboarding_seed_passphrase_setup_mobile_upgrade_note" = "A mobile wallet with a passphrase can’t be moved to a Tangem card later.";
+"onboarding_seed_passphrase_setup_toggle" = "Add a passphrase (advanced)";
+"onboarding_seed_passphrase_setup_warning_message" = "A passphrase is a second secret. Your seed phrase alone will not restore this wallet, and Tangem cannot recover a passphrase for you. Write it down and keep it apart from the seed phrase.";
+"onboarding_seed_passphrase_setup_warning_title" = "Lose the passphrase — lose the funds";
 "onboarding_seed_phrase_intro_legacy" = "Legacy";
 "onboarding_seed_screenshot_alert" = "For security reasons, taking screenshots of your seed phrase is disabled. The seed phrase is hidden to protect it from loss or unauthorized access.";
 "onboarding_seed_user_validation_message" = "To check whether you’ve written down your seed phrase correctly, please enter the 2nd, 7th and 11th words";
