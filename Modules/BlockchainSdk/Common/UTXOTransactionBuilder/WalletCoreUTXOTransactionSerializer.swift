@@ -83,15 +83,21 @@ extension WalletCoreUTXOTransactionSerializer: UTXOTransactionSerializer {
 
 private extension WalletCoreUTXOTransactionSerializer {
     func buildSigningInputInput(transaction: _Transaction) throws -> BitcoinSigningInput {
-        let utxo = transaction.preImage.inputs.map { input in
-            BitcoinUnspentTransaction.with {
+        let utxo = try transaction.preImage.inputs.map { input in
+            // Inputs are pre-filtered by `CommonUnspentOutputManager`, but never let a node-supplied
+            // `index` / `amount` reach the trapping `UInt32(_:)` / `Int64(_:)` initializers.
+            guard let index = UInt32(exactly: input.index), let amount = Int64(exactly: input.amount) else {
+                throw BlockchainSdkError.failedToBuildTx
+            }
+
+            return BitcoinUnspentTransaction.with {
                 $0.outPoint = .with {
                     $0.hash = Data(input.hash.reversed())
-                    $0.index = UInt32(input.index)
+                    $0.index = index
                     $0.sequence = sequence.value
                 }
 
-                $0.amount = Int64(input.amount)
+                $0.amount = amount
                 $0.script = input.script.data
             }
         }
