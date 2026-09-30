@@ -27,7 +27,17 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
 
     @Published
     var rootViewModel: YieldModuleActiveViewModel? = nil
+
+    private(set) var usesIncentiveDesign = false
+
+    /// Held weakly: the presenter owns the sheet, so the reference goes away with it however it was dismissed.
+    private weak var claimViewModel: YieldModuleClaimViewModel?
+
     private var handle: SafariHandle?
+
+    var isClaimSheetPresented: Bool {
+        claimViewModel != nil
+    }
 
     // MARK: - Init
 
@@ -39,6 +49,7 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
     // MARK: - Public Implementation
 
     func start(with options: Options) {
+        usesIncentiveDesign = options.usesIncentiveDesign
         rootViewModel = options.viewModel
     }
 
@@ -60,6 +71,19 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
         }
     }
 
+    func openClaimSheet(viewModel: YieldModuleClaimViewModel) {
+        Task { @MainActor [weak self] in
+            self?.claimViewModel = viewModel
+            self?.floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func closeClaimSheet() {
+        Task { @MainActor [weak self] in
+            self?.floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
     func openAboutApySheet(viewModel: YieldModuleAboutApyViewModel) {
         Task { @MainActor [weak self] in
             self?.floatingSheetPresenter.enqueue(sheet: viewModel)
@@ -78,25 +102,30 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
 
     func openFeeCurrency(walletModel: any WalletModel) {
         Task { @MainActor [weak self] in
-            self?.floatingSheetPresenter.removeActiveSheet()
+            self?.closePresentedSheets()
             self?.dismiss(with: .init(walletModel: walletModel))
         }
     }
 
     func closeBottomSheet() {
         Task { @MainActor [weak self] in
-            self?.floatingSheetPresenter.removeActiveSheet()
+            self?.closePresentedSheets()
         }
     }
 
     func dismiss() {
         Task { @MainActor [weak self] in
-            self?.floatingSheetPresenter.removeActiveSheet()
+            self?.closePresentedSheets()
             self?.dismiss(with: nil)
         }
     }
 
     // MARK: - Private Implementation
+
+    @MainActor
+    private func closePresentedSheets() {
+        floatingSheetPresenter.removeActiveSheet()
+    }
 
     @MainActor
     private func resumeBottomSheet() {
@@ -109,6 +138,7 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
 extension YieldModuleActiveCoordinator {
     struct Options {
         let viewModel: YieldModuleActiveViewModel
+        let usesIncentiveDesign: Bool
     }
 
     typealias DismissOptions = FeeCurrencyNavigatingDismissOption

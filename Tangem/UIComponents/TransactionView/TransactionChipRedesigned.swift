@@ -171,7 +171,7 @@ struct TransactionChipRedesigned: View {
         switch viewModel.icon.status {
         case .failed, .undefined: DesignSystem.Color.bgStatusErrorSubtle
         case .inProgress: DesignSystem.Color.bgStatusInfoSubtle
-        case .confirmed: DesignSystem.Color.bgOpaqueSecondary
+        case .confirmed: DesignSystem.Color.bgTransparentSecondary
         }
     }
 }

@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import SwiftUI
 import TangemStories
 
 @MainActor
@@ -20,13 +21,13 @@ extension CollectiblesCoordinator {
     }
 
     func closeStories() {
-        storiesViewModel = nil
+        overlayViewPresenter.dismiss()
     }
 
     private func presentStories() {
         let analytics = storiesAnalyticsProvider
 
-        storiesViewModel = CollectiblesStoriesViewModel(
+        let viewModel = CollectiblesStoriesViewModel(
             slides: CollectiblesStoriesView.Slide.content,
             engine: {
                 StoryPlayerViewModel(
@@ -34,9 +35,27 @@ extension CollectiblesCoordinator {
                     source: .collectibles,
                     analytics: analytics,
                     hapticPlayer: CommonStoryHapticPlayer(),
+                    holdsLastSlide: true,
                     onFinished: { _, _ in }
                 )
             }
         )
+
+        overlayViewPresenter.present(
+            OverlayView(
+                id: Constants.storiesOverlayID,
+                view: CollectiblesStoriesOverlayView(viewModel: viewModel, onDismiss: { [weak self] in self?.closeStories() }),
+                style: .fullScreenCover,
+                animated: false
+            )
+        )
+    }
+}
+
+// MARK: - Constants
+
+private extension CollectiblesCoordinator {
+    enum Constants {
+        static let storiesOverlayID = "collectibles_stories"
     }
 }

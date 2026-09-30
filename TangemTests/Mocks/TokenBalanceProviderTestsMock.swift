@@ -12,9 +12,11 @@ import Combine
 
 final class TokenBalanceProviderTestsMock: TokenBalanceProvider {
     private let balance: Decimal
+    private let formatted: String
 
-    init(balance: Decimal) {
+    init(balance: Decimal, formatted: String = "") {
         self.balance = balance
+        self.formatted = formatted
     }
 
     var balanceType: TokenBalanceType {
@@ -26,7 +28,7 @@ final class TokenBalanceProviderTestsMock: TokenBalanceProvider {
     }
 
     var formattedBalanceType: FormattedTokenBalanceType {
-        .loaded("")
+        .loaded(formatted)
     }
 
     var formattedBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> {

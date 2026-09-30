@@ -113,7 +113,7 @@ struct PulseView: View {
             .padding(.leading, 12)
             .padding(.trailing, 10)
             .frame(height: filterHeight)
-            .background(DesignSystem.Color.bgOpaqueSecondary, in: .capsule)
+            .background(DesignSystem.Color.bgTransparentSecondary, in: .capsule)
         }
         .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsIntervalButton(viewModel.selectedInterval.rawValue))
         .fixedSize(horizontal: true, vertical: false)
@@ -168,7 +168,7 @@ struct PulseView: View {
             .frame(minHeight: controlHeight)
             .background {
                 if isSelected {
-                    Capsule().fill(DesignSystem.Color.bgOpaqueSecondary)
+                    Capsule().fill(DesignSystem.Color.bgTransparentSecondary)
                 }
             }
     }

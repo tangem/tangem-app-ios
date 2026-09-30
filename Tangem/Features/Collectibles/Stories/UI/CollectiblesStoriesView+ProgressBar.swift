@@ -23,7 +23,7 @@ extension CollectiblesStoriesView {
 
         private func segment(at index: Int) -> some View {
             Capsule()
-                .fill(DesignSystem.Color.bgOpaqueSecondary)
+                .fill(DesignSystem.Color.bgTransparentSecondary)
                 .frame(width: Metrics.segmentWidth, height: Metrics.segmentHeight)
                 .overlay(alignment: .leading) {
                     Capsule()
