@@ -19,7 +19,7 @@ struct RealAssetsSearchView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Constants.sectionSpacing) {
                     if let portfolio = viewModel.portfolio {
-                        section(title: Localization.marketsCommonMyPortfolio) {
+                        FeedSearchSection(title: Localization.marketsCommonMyPortfolio) {
                             CryptoSearchPortfolioView(viewModel: portfolio)
                                 .padding(.horizontal, Constants.horizontalPadding)
                         }
@@ -50,7 +50,7 @@ private extension RealAssetsSearchView {
             FeedSearchSkeletonView()
 
         case .results(let rows):
-            section(title: FeedTabKind.realAssets.title) {
+            FeedSearchSection(title: FeedTabKind.realAssets.title) {
                 CryptoSearchResultsView(
                     rows: rows,
                     onAppear: viewModel.onResultAppear,
@@ -67,16 +67,6 @@ private extension RealAssetsSearchView {
                 .padding(.vertical, Constants.errorVerticalInset)
         }
     }
-
-    func section(title: String, @ViewBuilder content: () -> some View) -> some View {
-        VStack(alignment: .leading, spacing: Constants.sectionHeaderSpacing) {
-            Text(title)
-                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
-                .padding(.horizontal, Constants.horizontalPadding)
-
-            content()
-        }
-    }
 }
 
 // MARK: - Constants
@@ -86,7 +76,6 @@ private extension RealAssetsSearchView {
         static let contentID = "realAssetsSearchContent"
         static let contentVerticalInset: CGFloat = 16
         static let sectionSpacing: CGFloat = 24
-        static let sectionHeaderSpacing: CGFloat = 16
         static let horizontalPadding: CGFloat = 16
         static let errorVerticalInset: CGFloat = 24
     }

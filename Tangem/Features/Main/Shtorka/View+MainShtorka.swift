@@ -33,6 +33,7 @@ private struct MainShtorkaViewModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
+            .environment(\.mainShtorkaBottomInset, stateObject.mainContentBottomInset)
             // Read here rather than inside the sheet: the sheet's content ignores the bottom inset and a floating
             // sheet moves its own insets during transitions. On the main screen the values are the window's.
             .background {

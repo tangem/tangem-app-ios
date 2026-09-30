@@ -47,7 +47,10 @@ struct WelcomeV2View: View {
                     .padding(.vertical, 12)
                     .background {
                         LinearGradient(
-                            colors: [.clear, .black],
+                            stops: [
+                                Gradient.Stop(color: DesignSystem.Color.bgPrimary.opacity(0), location: 0.0),
+                                Gradient.Stop(color: DesignSystem.Color.bgPrimary, location: 0.78),
+                            ],
                             startPoint: .top,
                             endPoint: .bottom
                         )
@@ -70,50 +73,40 @@ struct WelcomeV2View: View {
         }
     }
 
-    /// Every scene is laid out at once so the block keeps the height of the tallest one
-    /// and the buttons below it don't jump while the texts fade.
+    /// All scenes are laid out at once (block keeps the tallest height, so buttons don't jump);
+    /// bottom alignment pins the text to the buttons.
     private var titleBlock: some View {
-        ZStack(alignment: .topLeading) {
+        ZStack(alignment: .bottomLeading) {
             ForEach(WelcomeV2Scene.allCases) { scene in
-                sceneText(scene)
-                    .opacity(viewModel.scene == scene ? 1 : 0)
+                WelcomeV2SceneText(scene: scene, isActive: viewModel.scene == scene)
                     .accessibilityHidden(viewModel.scene != scene)
             }
-        }
-        .animation(.easeInOut(duration: Constants.sceneFadeDuration), value: viewModel.scene)
-    }
-
-    private func sceneText(_ scene: WelcomeV2Scene) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(scene.title)
-                .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textStaticDarkPrimary)
-
-            Text(scene.subtitle)
-                .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textStaticDarkSecondary)
         }
     }
 
     private var bottomContainer: some View {
         VStack(spacing: 12) {
-            TangemUI.Button(
-                label: Localization.introductionButtonCreateWallet,
-                accessibilityLabel: nil,
-                action: viewModel.onCreateWalletTap
-            )
-            .styleType(.default)
-            .horizontalLayout(.infinity)
-            .size(.x14)
-            .accessibilityIdentifier(WelcomeV2AccessibilityIdentifiers.createWalletButton)
+            VStack(spacing: 8) {
+                TangemUI.Button(
+                    label: Localization.introductionButtonCreateWallet,
+                    accessibilityLabel: nil,
+                    action: viewModel.onCreateWalletTap
+                )
+                .styleType(.default)
+                .horizontalLayout(.infinity)
+                .size(.x12)
+                .accessibilityIdentifier(WelcomeV2AccessibilityIdentifiers.createWalletButton)
 
-            TangemUI.Button(
-                label: Localization.introductionButtonIHaveAWallet,
-                accessibilityLabel: nil,
-                action: viewModel.onExistingWalletTap
-            )
-            .styleType(.secondary(.default))
-            .horizontalLayout(.infinity)
-            .size(.x14)
-            .accessibilityIdentifier(WelcomeV2AccessibilityIdentifiers.existingWalletButton)
+                TangemUI.Button(
+                    label: Localization.introductionButtonIHaveAWallet,
+                    accessibilityLabel: nil,
+                    action: viewModel.onExistingWalletTap
+                )
+                .styleType(.secondary(.default))
+                .horizontalLayout(.infinity)
+                .size(.x12)
+                .accessibilityIdentifier(WelcomeV2AccessibilityIdentifiers.existingWalletButton)
+            }
 
             footer
                 .padding(.horizontal, 24)
@@ -124,7 +117,7 @@ struct WelcomeV2View: View {
         .frame(maxWidth: .infinity)
         .background {
             Rectangle()
-                .fill(Color.black)
+                .fill(DesignSystem.Color.bgPrimary)
                 .ignoresSafeArea(edges: .bottom)
         }
     }
@@ -158,15 +151,6 @@ struct WelcomeV2View: View {
         }
 
         return string
-    }
-}
-
-// MARK: - Constants
-
-private extension WelcomeV2View {
-    enum Constants {
-        /// Fits the pause between two episodes, so a scene is fully gone before the next one appears.
-        static let sceneFadeDuration: TimeInterval = 0.3
     }
 }
 

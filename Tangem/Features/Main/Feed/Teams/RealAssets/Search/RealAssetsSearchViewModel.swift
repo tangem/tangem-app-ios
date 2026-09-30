@@ -14,19 +14,19 @@ final class RealAssetsSearchViewModel: ObservableObject {
     @Published private(set) var query: String = ""
     @Published private(set) var portfolio: MarketsPortfolioTokenListViewModel?
     @Published private(set) var assets: AssetsState = .loading
+    @Published private var isVisible = false
 
     private let history: FeedSearchHistoryProvider
     private let assetsProvider: any FeedSearchProvider<MarketsTokenModel>
     private let router: any RealAssetsFeedRoutable
+    private let portfolioProvider: FeedSearchPortfolioProvider
 
-    private let walletModelsAggregator: WalletModelsAggregator = CommonWalletModelsAggregator()
     private let rowsProvider = MarketTokenRowsProvider(filterProvider: MarketsListDataFilterProvider(initialIntervalType: .day))
 
     private var rowViewModels: [String: MarketTokenItemViewModel] = [:]
     private var visibleResultIDs: Set<String> = []
 
     private var tokens: [MarketsTokenModel] = []
-    private var isVisible = false
     private var requestedQuery: String?
     private var loadedQuery: String?
     private var bag = Set<AnyCancellable>()
@@ -35,10 +35,12 @@ final class RealAssetsSearchViewModel: ObservableObject {
         query: AnyPublisher<String, Never>,
         history: FeedSearchHistoryProvider,
         router: any RealAssetsFeedRoutable,
-        assetsProvider: any FeedSearchProvider<MarketsTokenModel> = RealAssetsFeedSearchProvider()
+        assetsProvider: any FeedSearchProvider<MarketsTokenModel> = RealAssetsFeedSearchProvider(),
+        portfolioProvider: FeedSearchPortfolioProvider = FeedSearchPortfolioProvider()
     ) {
         self.history = history
         self.router = router
+        self.portfolioProvider = portfolioProvider
         self.assetsProvider = assetsProvider
 
         bind(to: query)
@@ -118,13 +120,13 @@ private extension RealAssetsSearchViewModel {
             }
             .store(in: &bag)
 
-        $query
-            .combineLatest(walletModelsAggregator.walletModelsPublisher)
-            .receiveOnMain()
+        portfolioProvider
+            .portfolioPublisher(query: $query, isVisible: $isVisible) { [weak self] walletModel in
+                self?.router.openPortfolioToken(walletModel)
+            }
             .withWeakCaptureOf(self)
-            .sink { viewModel, input in
-                let (query, walletModels) = input
-                viewModel.portfolio = viewModel.makePortfolio(query: query, walletModels: walletModels)
+            .sink { viewModel, portfolio in
+                viewModel.portfolio = portfolio
             }
             .store(in: &bag)
 
@@ -172,34 +174,6 @@ private extension RealAssetsSearchViewModel {
 
         loadedQuery = requestedQuery
         assetsProvider.search(requestedQuery)
-    }
-}
-
-// MARK: - Portfolio
-
-private extension RealAssetsSearchViewModel {
-    func makePortfolio(query: String, walletModels: [any WalletModel]) -> MarketsPortfolioTokenListViewModel? {
-        guard query.isNotEmpty else {
-            return nil
-        }
-
-        let matches = walletModels.filter { walletModel in
-            let item = walletModel.tokenItem
-            return item.name.caseInsensitiveContains(query) || item.currencySymbol.caseInsensitiveContains(query)
-        }
-
-        guard matches.isNotEmpty else {
-            return nil
-        }
-
-        let portfolio = MarketsPortfolioTokenListViewModel(
-            walletModels: matches,
-            dismissesOnSelect: false,
-            onSelect: { [weak self] walletModel in
-                self?.router.openPortfolioToken(walletModel)
-            }
-        )
-        return portfolio.sections.isEmpty ? nil : portfolio
     }
 }
 

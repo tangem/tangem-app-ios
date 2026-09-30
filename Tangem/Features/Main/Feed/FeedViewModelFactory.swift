@@ -14,9 +14,9 @@ struct FeedViewModelFactory {
     func makeViewModel(
         context: FeedContext,
         container: any FeedContainer,
-        widgetsRouter: FeedWidgetsRoutable,
-        canOpenHostScreens: Bool,
-        selection: FeedSelection?
+        host: FeedHostRoutable?,
+        selection: FeedSelection?,
+        widgetSheetPresenter: FeedWidgetSheetPresenter
     ) -> FeedViewModel {
         let searchBarViewModel = FeedSearchBarViewModel()
         let resultsQuery = CurrentValueSubject<String, Never>("")
@@ -48,8 +48,9 @@ struct FeedViewModelFactory {
             tabsViewModel: FeedTabsViewModel(tabs: tabs),
             widgetsViewModel: FeedWidgetsViewModel(
                 providers: FeedWidgetsRegistry.makeProviders(
-                    router: widgetsRouter,
-                    canOpenHostScreens: canOpenHostScreens
+                    context: context,
+                    host: host,
+                    widgetSheetPresenter: widgetSheetPresenter
                 ),
                 analytics: FeedWidgetsAnalytics(container: container)
             ),
