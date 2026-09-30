@@ -43,10 +43,10 @@ struct FeedCoordinatorView: CoordinatorView {
             }
 
             NavHolder()
-                .sheet(item: presentation(fullScreen: false), onDismiss: coordinator.accountFormDidDismiss) {
+                .sheet(item: presentation(fullScreen: false), onDismiss: coordinator.presentationDidDismiss) {
                     FeedDestinationView(destination: $0)
                 }
-                .fullScreenCover(item: presentation(fullScreen: true)) {
+                .fullScreenCover(item: presentation(fullScreen: true), onDismiss: coordinator.presentationDidDismiss) {
                     FeedDestinationView(destination: $0)
                 }
                 .floatingSheetContent(for: AddAccountTypeSelectorViewModel.self) {
