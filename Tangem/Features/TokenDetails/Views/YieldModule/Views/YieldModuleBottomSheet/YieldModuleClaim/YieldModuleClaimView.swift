@@ -120,7 +120,7 @@ struct YieldModuleClaimView: View {
             )
         }
         .defaultRoundedBackground(
-            with: DesignSystem.Color.bgOpaquePrimary,
+            with: DesignSystem.Color.bgTransparentPrimary,
             cornerRadius: Constants.cardCornerRadius
         )
     }

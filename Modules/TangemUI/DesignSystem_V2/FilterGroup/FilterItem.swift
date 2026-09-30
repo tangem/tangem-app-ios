@@ -46,7 +46,7 @@ public struct FilterItem: View, Setupable {
 
     private var placeholder: some View {
         Capsule()
-            .fill(DesignSystem.Color.bgOpaqueSecondary)
+            .fill(DesignSystem.Color.bgTransparentSecondary)
             .frame(width: Constants.shimmerWidth, height: height)
             .tangemShimmer()
             .environment(\.isShimmerActive, true)
@@ -156,7 +156,7 @@ private extension FilterItem {
                 .tangemMaterialSurface(in: Capsule(), style: isActive ? .inverted : .default)
         case .transparent:
             Capsule()
-                .fill(isActive ? DesignSystem.Color.bgInverse : DesignSystem.Color.bgOpaqueSecondary)
+                .fill(isActive ? DesignSystem.Color.bgInverse : DesignSystem.Color.bgTransparentSecondary)
         }
     }
 }

@@ -39,7 +39,7 @@ struct FeedProductCardView: View {
                     .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
             }
         } background: {
-            FeedWidgetBackground(defaultColor: DesignSystem.Color.bgOpaquePrimary)
+            FeedWidgetBackground(defaultColor: DesignSystem.Color.bgTransparentPrimary)
                 .overlay { FeedProductGlowView(color: appearance.color) }
         }
         .accessibilityElement(children: .combine)
@@ -57,7 +57,7 @@ private extension FeedProductCardView {
             .frame(size: CGSize(bothDimensions: accessoryIconSide))
             .foregroundStyle(DesignSystem.Color.iconSecondary)
             .frame(size: CGSize(bothDimensions: accessorySide))
-            .background(DesignSystem.Color.bgOpaquePrimary, in: Circle())
+            .background(DesignSystem.Color.bgTransparentPrimary, in: Circle())
             .accessibilityHidden(true)
     }
 }
