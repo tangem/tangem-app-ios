@@ -25,6 +25,7 @@ final class TransferInputViewModel: ObservableObject {
     let stepSubtitle: String?
     let tokenItems: [TransferInputTokenItem]
     let railItems: [TransferInputRailItem]
+    let isRailSelectable: Bool
 
     private let orderBuilder: TangemPayOfframpOrderBuilder
     private let analyticsLogger: any TangemPayOfframpAnalyticsLogger
@@ -53,6 +54,7 @@ final class TransferInputViewModel: ObservableObject {
         let options = optionsStore.state.options ?? .empty
         tokenItems = options.tokens
         railItems = options.rails
+        isRailSelectable = !orderBuilder.isRailLocked
 
         restore()
         applyDefaultSelection()
@@ -64,9 +66,14 @@ final class TransferInputViewModel: ObservableObject {
         TransferInputContentView.State(
             token: selectedToken,
             rail: selectedRailItem,
+            isRailSelectable: isRailSelectable,
             amountErrorMessage: amountState.errorMessage,
             isContinueEnabled: isContinueEnabled
         )
+    }
+
+    var canContinue: Bool {
+        isContinueEnabled
     }
 
     func handle(_ action: TransferInputContentView.Action) {
@@ -76,6 +83,8 @@ final class TransferInputViewModel: ObservableObject {
             analyticsLogger.logCoinSelectionSheetOpened()
             isTokenModalPresented = true
         case .railTap:
+            guard isRailSelectable else { return }
+
             analyticsLogger.logRailSelectorClicked()
             analyticsLogger.logRailSelectionSheetOpened()
             isRailModalPresented = true
@@ -191,7 +200,7 @@ private extension TransferInputViewModel {
     }
 
     func selectRail(_ rail: TangemPayBankAccountRail?) {
-        guard let rail, railItems.contains(where: { $0.rail == rail }) else { return }
+        guard isRailSelectable, let rail, railItems.contains(where: { $0.rail == rail }) else { return }
 
         if rail != selectedRail {
             analyticsLogger.logRailInSelectionSheetClicked()
