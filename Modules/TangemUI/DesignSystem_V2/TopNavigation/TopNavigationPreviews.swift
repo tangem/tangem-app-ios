@@ -261,9 +261,9 @@ extension TopNavigationShowcase {
             }
 
             let icons: [(icon: ImageType, label: String)] = [
-                (DesignSystem.Icons.Bell.regular20, "Notifications"),
-                (DesignSystem.Icons.Search.regular20, "Search"),
-                (DesignSystem.Icons.DotsVertical.regular20, "More"),
+                (DesignSystem.Icons.Bell.regular24, "Notifications"),
+                (DesignSystem.Icons.Search.regular24, "Search"),
+                (DesignSystem.Icons.DotsVertical.regular24, "More"),
             ]
 
             let selected = icons.prefix(actionCount).map { icon, label in
@@ -343,8 +343,8 @@ private struct TopNavigationGallery: View {
     var actionsHaveBackground = true
 
     private let actions: TopNavigation.Actions = .two(
-        TopNavigation.Action(icon: DesignSystem.Icons.Bell.regular20, accessibilityLabel: "Notifications") {},
-        TopNavigation.Action(icon: DesignSystem.Icons.Search.regular20, accessibilityLabel: "Search") {}
+        TopNavigation.Action(icon: DesignSystem.Icons.Bell.regular24, accessibilityLabel: "Notifications") {},
+        TopNavigation.Action(icon: DesignSystem.Icons.Search.regular24, accessibilityLabel: "Search") {}
     )
 
     var body: some View {

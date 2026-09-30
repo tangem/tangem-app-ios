@@ -17,9 +17,18 @@ struct EarnSearchView: View {
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                opportunitiesSection
-                    .id(Constants.contentID)
-                    .padding(.vertical, Constants.contentVerticalInset)
+                VStack(alignment: .leading, spacing: Constants.sectionSpacing) {
+                    if let portfolio = viewModel.portfolio {
+                        FeedSearchSection(title: Localization.marketsCommonMyPortfolio) {
+                            CryptoSearchPortfolioView(viewModel: portfolio)
+                                .padding(.horizontal, Constants.horizontalPadding)
+                        }
+                    }
+
+                    opportunitiesSection
+                }
+                .id(Constants.contentID)
+                .padding(.vertical, Constants.contentVerticalInset)
             }
             .scrollIndicators(.hidden)
             .onChange(of: viewModel.query) { _ in
@@ -54,18 +63,13 @@ private extension EarnSearchView {
     }
 
     func resultsSection(_ results: [EarnTokenItemViewModel]) -> some View {
-        VStack(alignment: .leading, spacing: Constants.sectionHeaderSpacing) {
-            Text(Localization.feedTabEarn)
-                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textTertiary)
-                .padding(.horizontal, Constants.horizontalPadding)
-
+        FeedSearchSection(title: FeedTabKind.earn.title) {
             LazyVStack(spacing: 0) {
                 ForEach(results) { result in
                     EarnTokenItemViewRedesign(viewModel: result)
                 }
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -74,8 +78,8 @@ private extension EarnSearchView {
 private extension EarnSearchView {
     enum Constants {
         static let contentID = "earnSearchContent"
-        static let contentVerticalInset: CGFloat = 8
-        static let sectionHeaderSpacing: CGFloat = 8
+        static let contentVerticalInset: CGFloat = 16
+        static let sectionSpacing: CGFloat = 24
         static let horizontalPadding: CGFloat = 16
         static let errorVerticalInset: CGFloat = 24
     }
