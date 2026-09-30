@@ -9,9 +9,13 @@ import Foundation
 import BlockchainSdk
 import TangemFoundation
 import TangemPay
+import TangemVisa
 
 protocol TangemPayOfframpOrderSigning {
-    func signature(for preSignature: TangemPayWithdrawPreSignature) async throws -> String
+    func signature(
+        for preSignature: TangemPayWithdrawPreSignature,
+        expecting expectation: TangemPayOfframpPreSignatureVerifier.Expectation
+    ) async throws -> String
 }
 
 struct CommonTangemPayOfframpOrderSigner {
@@ -27,13 +31,20 @@ struct CommonTangemPayOfframpOrderSigner {
 // MARK: - TangemPayOfframpOrderSigning
 
 extension CommonTangemPayOfframpOrderSigner: TangemPayOfframpOrderSigning {
-    func signature(for preSignature: TangemPayWithdrawPreSignature) async throws -> String {
+    func signature(
+        for preSignature: TangemPayWithdrawPreSignature,
+        expecting expectation: TangemPayOfframpPreSignatureVerifier.Expectation
+    ) async throws -> String {
         guard let walletPublicKey else {
             throw Error.walletPublicKeyNotFound
         }
 
-        guard preSignature.isHashConsistent else {
-            throw Error.hashMismatch
+        do {
+            try TangemPayOfframpPreSignatureVerifier(fiatItem: TangemPayUtilities.fiatItem)
+                .verify(preSignature, against: expectation)
+        } catch {
+            VisaLogger.error("Tangem Pay off-ramp withdraw data does not match the order", error: error)
+            throw error
         }
 
         let signatureInfo = try await signerFactory
@@ -50,6 +61,5 @@ extension CommonTangemPayOfframpOrderSigner: TangemPayOfframpOrderSigning {
 extension CommonTangemPayOfframpOrderSigner {
     enum Error: LocalizedError {
         case walletPublicKeyNotFound
-        case hashMismatch
     }
 }
