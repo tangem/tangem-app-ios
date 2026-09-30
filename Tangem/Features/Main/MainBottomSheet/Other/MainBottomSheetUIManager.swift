@@ -20,6 +20,7 @@ final class MainBottomSheetUIManager {
     private let footerSnapshotUpdateTriggerSubject: PassthroughSubject<Void, Never> = .init()
     private var pendingFooterSnapshotUpdateCompletions: [() -> Void] = []
     private var pendingShow: Task<Void, Error>?
+    private var pendingShowCompletions: [() -> Void] = []
 
     deinit {
         pendingShow?.cancel()
@@ -41,14 +42,21 @@ extension MainBottomSheetUIManager {
         isExpandedSubject.send(isExpanded)
     }
 
-    func show(after delay: TimeInterval = 0) {
+    /// `completion` runs once the sheet is asked for. A newer `show` carries it over; a `hide` that drops the
+    /// pending show runs it at once, since there is no sheet left to wait for.
+    func show(after delay: TimeInterval = 0, completion: (() -> Void)? = nil) {
         ensureOnMainQueue()
 
         pendingShow?.cancel()
         pendingShow = nil
 
+        if let completion {
+            pendingShowCompletions.append(completion)
+        }
+
         guard delay > 0 else {
             isShownSubject.send(true)
+            runPendingShowCompletions()
             return
         }
 
@@ -56,6 +64,7 @@ extension MainBottomSheetUIManager {
             try Task.checkCancellation()
             self?.pendingShow = nil
             self?.isShownSubject.send(true)
+            self?.runPendingShowCompletions()
         }
     }
 
@@ -65,6 +74,7 @@ extension MainBottomSheetUIManager {
         // Navigation can hide the sheet before its cold-start presentation has run.
         pendingShow?.cancel()
         pendingShow = nil
+        runPendingShowCompletions()
 
         guard isShown else {
             return
@@ -94,6 +104,14 @@ extension MainBottomSheetUIManager {
                 self.hasPendingSnapshotUpdate = false
             }
         }
+    }
+}
+
+private extension MainBottomSheetUIManager {
+    func runPendingShowCompletions() {
+        let completions = pendingShowCompletions
+        pendingShowCompletions.removeAll()
+        completions.forEach { $0() }
     }
 }
 
