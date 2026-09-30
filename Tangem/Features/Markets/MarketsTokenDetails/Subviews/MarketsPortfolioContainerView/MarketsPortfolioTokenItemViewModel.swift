@@ -37,7 +37,7 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     var isCustom: Bool { tokenIcon.isCustom }
     var customTokenColor: Color? { tokenIcon.customTokenColor }
     var hasError: Bool { missingDerivation || networkUnreachable }
-    var hasZeroBalance: Bool { tokenItemInfoProvider?.balance.value ?? 0 == 0 }
+    var hasZeroBalance: Bool { tokenItemInfoProvider.balance.value ?? 0 == 0 }
 
     var errorMessage: String? {
         // Don't forget to add check in trailing item in `TokenItemView` when adding new error here
@@ -61,7 +61,9 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
 
     // MARK: - Private Properties
 
-    private weak var tokenItemInfoProvider: TokenItemInfoProvider?
+    // Strong: the factory hands over a freshly created `DefaultTokenItemInfoProvider` that nobody else retains.
+    // Held weakly it was released right after `init`, so `hasZeroBalance` / `hasPendingTransactions` never updated.
+    private let tokenItemInfoProvider: TokenItemInfoProvider
     private weak var contextActionsProvider: MarketsPortfolioContextActionsProvider?
     private weak var contextActionsDelegate: MarketsPortfolioContextActionsDelegate?
 
@@ -116,7 +118,7 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     // MARK: - Private Implementation
 
     private func bind() {
-        tokenItemInfoProvider?
+        tokenItemInfoProvider
             .balancePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
@@ -124,7 +126,7 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
             })
             .store(in: &bag)
 
-        tokenItemInfoProvider?
+        tokenItemInfoProvider
             .balanceTypePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
@@ -132,7 +134,7 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
             })
             .store(in: &bag)
 
-        tokenItemInfoProvider?
+        tokenItemInfoProvider
             .fiatBalanceTypePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
@@ -140,7 +142,7 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
             })
             .store(in: &bag)
 
-        tokenItemInfoProvider?
+        tokenItemInfoProvider
             .actionsUpdatePublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
@@ -156,7 +158,7 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        tokenItemInfoProvider?.hasPendingTransactions
+        tokenItemInfoProvider.hasPendingTransactions
             .receive(on: DispatchQueue.main)
             .assign(to: \.hasPendingTransactions, on: self, ownership: .weak)
             .store(in: &bag)
