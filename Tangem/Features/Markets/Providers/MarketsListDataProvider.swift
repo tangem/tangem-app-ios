@@ -42,7 +42,9 @@ final class MarketsListDataProvider {
             return true
         }
 
-        return currentOffset <= totalTokensCount
+        // Mirrors `lastPage: currentOffset >= response.total` below; `<=` fired one extra, empty request when the
+        // total was a multiple of the page size and left the bottom loader spinning.
+        return currentOffset < totalTokensCount
     }
 
     // MARK: Private Properties
