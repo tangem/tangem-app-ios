@@ -19,14 +19,25 @@ struct WalletConnectV2PersonalSignHandler {
     private let walletModel: any WalletModel
     private let request: AnyCodable
 
+    /// The bytes that go under the `\u{19}Ethereum Signed Message:\n` prefix.
+    ///
+    /// Follows the `personal_sign` convention every other wallet (MetaMask / eth-sig-util `legacyToBuffer`)
+    /// implements: only a `0x`-prefixed hex string is raw bytes; anything else — including hex-looking
+    /// plain text such as `"deadbeef"` — is signed as UTF-8. The previous heuristic decoded any hex-parsable
+    /// text as bytes, so the signature Tangem produced for such a message did not verify on the dApp side.
     private var dataToSign: Data {
-        let hexData = Data(hex: message)
-        // If received message is not a hex string, then convert it to bytes
-        if hexData.isEmpty, !message.hasHexPrefix() {
-            return message.data(using: .utf8) ?? Data()
-        } else {
-            return hexData
+        guard message.hasHexPrefix() else {
+            return Data(message.utf8)
         }
+
+        let body = message.removeHexPrefix()
+        guard body.allSatisfy({ $0.isASCII && $0.isHexDigit }) else {
+            return Data(message.utf8)
+        }
+
+        // `toBuffer` left-pads an odd-length hex string with a zero nibble.
+        let evenBody = body.count.isMultiple(of: 2) ? body : "0" + body
+        return Data(hex: evenBody)
     }
 
     init(
@@ -77,7 +88,9 @@ extension WalletConnectV2PersonalSignHandler: WalletConnectMessageHandler {
     var method: WalletConnectMethod { .personalSign }
 
     var requestData: Data {
-        Data(hex: message)
+        // Expose exactly the bytes that are signed, so the "Contents" row and the Blockaid scan see the
+        // message text instead of an empty buffer for a plain-text message.
+        dataToSign
     }
 
     var rawTransaction: String? {
