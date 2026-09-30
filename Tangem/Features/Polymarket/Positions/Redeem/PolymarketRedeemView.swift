@@ -61,6 +61,7 @@ struct PolymarketRedeemView: View {
         VStack(spacing: 0) {
             if let investedText = viewModel.investedText {
                 TangemUI.Row(title: Localization.predictionPositionsInvested, value: investedText)
+                    .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
                     .showDivider(viewModel.profit != nil)
             }
 
