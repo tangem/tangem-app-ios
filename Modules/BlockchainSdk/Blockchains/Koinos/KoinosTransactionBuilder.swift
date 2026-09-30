@@ -40,7 +40,10 @@ class KoinosTransactionBuilder {
         let manaLimit = params.manaLimit
         let manaLimitSatoshi = (manaLimit * satoshi).roundedDecimalNumber.uint64Value
 
-        let nextNonce = currentNonce.nonce + 1
+        let (nextNonce, nonceOverflow) = currentNonce.nonce.addingReportingOverflow(1)
+        guard !nonceOverflow else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
 
         let operation = try Koinos_Protocol_operation.with {
             $0.callContract = try Koinos_Protocol_call_contract_operation.with {
