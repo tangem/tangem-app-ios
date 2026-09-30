@@ -128,6 +128,11 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
         }
 
         let orderBuilder = TangemPayOfframpOrderBuilder(recipient: recipient)
+
+        if let account = savedRecipient(for: recipient) {
+            orderBuilder.selectSaved(account)
+        }
+
         self.orderBuilder = orderBuilder
 
         let savedRecipientName = savedRecipientName(for: recipient)
@@ -429,7 +434,7 @@ private extension TangemPayOfframpCoordinator {
                 return
             }
 
-            transferInputViewModel = TransferInputFactory.makeViewModel(
+            let transferInputViewModel = TransferInputFactory.makeViewModel(
                 orderBuilder: orderBuilder,
                 optionsStore: optionsStore,
                 recipient: orderBuilder.recipient,
@@ -439,9 +444,13 @@ private extension TangemPayOfframpCoordinator {
                     self?.handle($0)
                 }
             )
+            self.transferInputViewModel = transferInputViewModel
 
             path.removeSubrange((index + 1)...)
-            path.append(.transferConfirmation)
+
+            if transferInputViewModel.canContinue {
+                path.append(.transferConfirmation)
+            }
         }
     }
 

@@ -122,7 +122,9 @@ final class PersonalDetailsViewModel: ObservableObject {
     }
 
     func onSuggestionTap(id: String) {
-        orderBuilder.selectSaved(bankAccountId: id)
+        guard let account = recipients.first(where: { $0.id == id }) else { return }
+
+        orderBuilder.selectSaved(account)
         output(.savedRecipientSelected)
     }
 

@@ -233,7 +233,7 @@ struct TangemPayOfframpOrderBuilderTests {
         builder.set(personalDetails: makePersonalDetails())
         builder.set(bankDetails: makeBankDetails())
 
-        builder.selectSaved(bankAccountId: "pa-2")
+        try builder.selectSaved(makeSavedAccount(id: "pa-2"))
 
         #expect(builder.personalDetails == nil)
         #expect(builder.bankDetails == nil)
@@ -246,14 +246,14 @@ struct TangemPayOfframpOrderBuilderTests {
         #expect(data["bank_account"] == nil)
     }
 
-    @Test("Picking a saved account keeps the amount, token and rail entered before")
+    @Test("Picking a saved account keeps the amount and token, and takes the account's rail")
     func selectSaved_keepsTransferInput() throws {
         let builder = makeBuilder(recipient: .newIndividual)
         builder.set(amount: Decimal(string: "18.02")!)
-        builder.set(rail: .wire)
+        builder.set(rail: .ach)
         builder.set(isThirdParty: false)
 
-        builder.selectSaved(bankAccountId: "pa-3")
+        try builder.selectSaved(makeSavedAccount(id: "pa-3", rail: "WIRE"))
 
         #expect(builder.recipient == .saved(bankAccountId: "pa-3"))
         #expect(builder.amount == Decimal(string: "18.02")!)
@@ -273,7 +273,7 @@ struct TangemPayOfframpOrderBuilderTests {
         builder.set(personalDetails: makePersonalDetails(name: .business(name: "Acme Inc")))
         builder.set(bankDetails: makeBankDetails())
 
-        builder.selectSaved(bankAccountId: "pa-4")
+        try builder.selectSaved(makeSavedAccount(id: "pa-4"))
 
         #expect(builder.isThirdParty == nil)
 
@@ -287,13 +287,62 @@ struct TangemPayOfframpOrderBuilderTests {
     func selectSaved_replacesPreviousSavedAccount() throws {
         let builder = makeBuilder(recipient: .saved(bankAccountId: "pa-1"))
 
-        builder.selectSaved(bankAccountId: "pa-5")
+        try builder.selectSaved(makeSavedAccount(id: "pa-5"))
 
         #expect(builder.recipient == .saved(bankAccountId: "pa-5"))
 
         let data = try dataObject(from: builder.buildOrderRequest())
 
         #expect(data["bank_account_id"] as? String == "pa-5")
+    }
+
+    @Test("A saved account without a rail leaves the rail empty")
+    func selectSaved_withoutRail_clearsRail() throws {
+        let builder = makeBuilder(recipient: .newIndividual)
+        builder.set(rail: .wire)
+
+        try builder.selectSaved(makeSavedAccount(id: "pa-6", rail: nil))
+
+        #expect(builder.rail == nil)
+    }
+
+    @Test("A saved account keeps a rail the client does not know")
+    func selectSaved_keepsUnknownRail() throws {
+        let builder = makeBuilder(recipient: .newIndividual)
+
+        try builder.selectSaved(makeSavedAccount(id: "pa-7", rail: "RTP"))
+
+        #expect(builder.rail == TangemPayBankAccountRail(rawValue: "RTP"))
+    }
+
+    @Test("The rail is locked only for a saved account")
+    func isRailLocked_followsRecipient() throws {
+        let builder = makeBuilder(recipient: .newIndividual)
+
+        #expect(!builder.isRailLocked)
+
+        try builder.selectSaved(makeSavedAccount(id: "pa-8"))
+
+        #expect(builder.isRailLocked)
+    }
+
+    @Test("Setting a rail is ignored for a saved account")
+    func setRail_isIgnoredForSavedAccount() throws {
+        let builder = makeBuilder(recipient: .newIndividual)
+        try builder.selectSaved(makeSavedAccount(id: "pa-9", rail: "ACH"))
+
+        builder.set(rail: .wire)
+
+        #expect(builder.rail == .ach)
+    }
+
+    @Test("Setting a rail is ignored when the wizard starts on a saved account")
+    func setRail_isIgnoredForSavedRecipient() {
+        let builder = makeBuilder(recipient: .saved(bankAccountId: "pa-10"))
+
+        builder.set(rail: .wire)
+
+        #expect(builder.rail == nil)
     }
 }
 
@@ -321,6 +370,19 @@ private extension TangemPayOfframpOrderBuilderTests {
         let object = try JSONSerialization.jsonObject(with: encoded)
         let root = try #require(object as? [String: Any])
         return try #require(root["data"] as? [String: Any])
+    }
+
+    func makeSavedAccount(id: String, rail: String? = "ACH") throws -> TangemPayBankAccountResponse {
+        var details: [String: Any] = [
+            "beneficiary": ["type": "INDIVIDUAL", "firstName": "John", "lastName": "Doe"],
+            "accountNumber": "1234567890",
+        ]
+        details["rail"] = rail
+
+        let json: [String: Any] = ["id": id, "details": details]
+        let data = try JSONSerialization.data(withJSONObject: json)
+
+        return try JSONDecoder().decode(TangemPayBankAccountResponse.self, from: data)
     }
 
     func makeToken() -> TangemPayOfframpTokenSelection {

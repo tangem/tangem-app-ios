@@ -21,8 +21,7 @@ final class TransferConfirmationViewModel: ObservableObject {
 
     private let orderBuilder: TangemPayOfframpOrderBuilder
     private let sendUseCase: TangemPayOffRampSendUseCase
-    private let tokenItems: [TransferInputTokenItem]
-    private let railItems: [TransferInputRailItem]
+    private let options: TangemPayOfframpOptionsStore.Options
     private let savedRecipient: TangemPayBankAccountResponse?
     private let sendButtonIcon: ImageType?
     private let analyticsLogger: any TangemPayOfframpAnalyticsLogger
@@ -31,8 +30,7 @@ final class TransferConfirmationViewModel: ObservableObject {
     init(
         orderBuilder: TangemPayOfframpOrderBuilder,
         sendUseCase: TangemPayOffRampSendUseCase,
-        tokenItems: [TransferInputTokenItem],
-        railItems: [TransferInputRailItem],
+        options: TangemPayOfframpOptionsStore.Options,
         savedRecipient: TangemPayBankAccountResponse?,
         title: String,
         sendButtonIcon: ImageType?,
@@ -41,22 +39,20 @@ final class TransferConfirmationViewModel: ObservableObject {
     ) {
         self.orderBuilder = orderBuilder
         self.sendUseCase = sendUseCase
-        self.tokenItems = tokenItems
-        self.railItems = railItems
+        self.options = options
         self.savedRecipient = savedRecipient
         self.title = title
         self.sendButtonIcon = sendButtonIcon
         self.analyticsLogger = analyticsLogger
         self.output = output
 
-        if orderBuilder.rail == nil, let rail = railItems.first?.rail {
+        if orderBuilder.rail == nil, let rail = options.defaultRail?.rail {
             orderBuilder.set(rail: rail)
         }
 
         contentState = Self.makeContentState(
             orderBuilder: orderBuilder,
-            tokenItems: tokenItems,
-            railItems: railItems,
+            options: options,
             savedRecipient: savedRecipient,
             sendButtonIcon: sendButtonIcon,
             isSending: false
@@ -68,8 +64,7 @@ final class TransferConfirmationViewModel: ObservableObject {
     func refresh() {
         contentState = Self.makeContentState(
             orderBuilder: orderBuilder,
-            tokenItems: tokenItems,
-            railItems: railItems,
+            options: options,
             savedRecipient: savedRecipient,
             sendButtonIcon: sendButtonIcon,
             isSending: isSending
@@ -87,6 +82,8 @@ final class TransferConfirmationViewModel: ObservableObject {
             output(.edit(target))
 
         case .railTap:
+            guard !orderBuilder.isRailLocked else { return }
+
             analyticsLogger.logRailSelectorClicked()
             output(.edit(.amount))
 
@@ -196,20 +193,20 @@ private extension TransferConfirmationViewModel {
 private extension TransferConfirmationViewModel {
     static func makeContentState(
         orderBuilder: TangemPayOfframpOrderBuilder,
-        tokenItems: [TransferInputTokenItem],
-        railItems: [TransferInputRailItem],
+        options: TangemPayOfframpOptionsStore.Options,
         savedRecipient: TangemPayBankAccountResponse?,
         sendButtonIcon: ImageType?,
         isSending: Bool
     ) -> TransferConfirmationContentView.State {
-        let token = selectedToken(orderBuilder: orderBuilder, tokenItems: tokenItems)
-        let rail = railItems.first { $0.rail == orderBuilder.rail }
+        let token = selectedToken(orderBuilder: orderBuilder, tokenItems: options.tokens)
+        let rail = options.rail(preferring: orderBuilder.rail)
 
         return TransferConfirmationContentView.State(
             balanceText: token?.balanceText ?? "",
             amountText: orderBuilder.amount.map(TangemPayOfframpAmountFormatter.format) ?? "",
             token: token,
             rail: rail,
+            isRailSelectable: !orderBuilder.isRailLocked,
             sections: sections(orderBuilder: orderBuilder, savedRecipient: savedRecipient),
             footerNote: footerNote(amount: orderBuilder.amount, rail: rail),
             sendButtonIcon: sendButtonIcon,
