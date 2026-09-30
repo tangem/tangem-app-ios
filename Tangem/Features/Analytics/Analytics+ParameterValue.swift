@@ -385,6 +385,13 @@ extension Analytics {
         case welcomeV2EntryNoWallets = "No Wallets"
         case welcomeV2EntryLastWalletForgotten = "Last Wallet Forgotten"
 
+        // MARK: - Backend Authentication
+
+        case backendAuthNonceTypeDevice = "Device"
+        case backendAuthNonceTypeAuthentication = "Authentication"
+        case backendAuthNonceTypeMobileWallet = "Mobile Wallet"
+        case backendAuthNonceTypeColdWallet = "Cold Wallet"
+
         // MARK: - Common
 
         static func toggleState(for boolean: Bool) -> ParameterValue {
