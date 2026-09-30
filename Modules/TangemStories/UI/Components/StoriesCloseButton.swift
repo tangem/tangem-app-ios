@@ -7,30 +7,17 @@
 //
 
 import SwiftUI
-import TangemAssets
+import TangemUI
 import TangemAccessibilityIdentifiers
 
 struct StoriesCloseButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            Assets.close.image
-                .resizable()
-                .frame(width: Layout.iconSize, height: Layout.iconSize)
-                .foregroundStyle(Colors.Icon.primary1)
-                .frame(width: Layout.buttonSize, height: Layout.buttonSize)
-                .background(Colors.Icon.constant.opacity(Layout.backgroundOpacity))
-                .clipShape(Circle())
-                .contentShape(Circle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityIdentifier(StoriesAccessibilityIdentifiers.closeButton)
-    }
-
-    private enum Layout {
-        static let iconSize: CGFloat = 14
-        static let buttonSize: CGFloat = 36
-        static let backgroundOpacity: Double = 0.18
+        // `redesigned()` makes the DS button use its 44pt system/glass rendering on every iOS version
+        // instead of the legacy 28pt circle.
+        NavigationBarButton.close(action: action)
+            .redesigned()
+            .accessibilityIdentifier(StoriesAccessibilityIdentifiers.closeButton)
     }
 }
