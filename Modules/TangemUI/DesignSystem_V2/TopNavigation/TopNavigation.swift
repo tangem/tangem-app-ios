@@ -120,7 +120,7 @@ public extension TopNavigation.Action {
         action: @escaping () -> Void
     ) -> TopNavigation.Action {
         TopNavigation.Action(
-            icon: DesignSystem.Icons.ChevronLeft.regular20,
+            icon: DesignSystem.Icons.ChevronLeft.regular24,
             accessibilityLabel: Localization.commonBack,
             accessibilityIdentifier: accessibilityIdentifier,
             action: action
@@ -132,7 +132,7 @@ public extension TopNavigation.Action {
         action: @escaping () -> Void
     ) -> TopNavigation.Action {
         TopNavigation.Action(
-            icon: DesignSystem.Icons.Cross.regular20,
+            icon: DesignSystem.Icons.Cross.regular24,
             accessibilityLabel: Localization.commonClose,
             accessibilityIdentifier: accessibilityIdentifier,
             action: action

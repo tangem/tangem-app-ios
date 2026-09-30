@@ -6,10 +6,22 @@
 //
 
 protocol FeedNavigation: AnyObject {
-    func push(_ destination: FeedDestination)
-    func pop()
+    var isAtRoot: Bool { get }
+    var isFeedPresented: Bool { get }
+    var presented: FeedDestination? { get }
 
-    func present(_ destination: FeedDestination)
+    func push(_ destination: FeedDestination)
+    func pushAfterSheetExpansion(_ destination: FeedDestination)
+    func pop()
+    func selectTab(_ kind: FeedTabKind)
+
+    func present(_ destination: FeedDestination, onDismiss: (() -> Void)?)
     func presentFullScreen(_ destination: FeedDestination, zoomingFrom source: FeedZoomSource)
     func dismissPresented()
+}
+
+extension FeedNavigation {
+    func present(_ destination: FeedDestination) {
+        present(destination, onDismiss: nil)
+    }
 }

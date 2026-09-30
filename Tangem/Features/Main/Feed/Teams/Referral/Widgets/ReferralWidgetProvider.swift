@@ -24,7 +24,7 @@ final class ReferralWidgetProvider {
         return formatter
     }()
 
-    private weak var router: FeedWidgetsRoutable?
+    private let router: any ReferralFeedRoutable
 
     private var wallets: [UserWalletModel] = []
     private var infos: [UserWalletId: ReferralProgramInfo] = [:]
@@ -34,7 +34,7 @@ final class ReferralWidgetProvider {
     private var bag = Set<AnyCancellable>()
     private var walletBag = Set<AnyCancellable>()
 
-    init(router: FeedWidgetsRoutable) {
+    init(router: any ReferralFeedRoutable) {
         self.router = router
 
         bind()
@@ -74,7 +74,7 @@ extension ReferralWidgetProvider: FeedWidgetProvider {
     }
 
     func select() {
-        router?.openReferral(
+        router.openReferral(
             candidates: candidatesSubject.value,
             candidatesPublisher: candidatesSubject.removeDuplicates().eraseToAnyPublisher(),
             resolveAvailableWallet: { [weak self] walletId in
