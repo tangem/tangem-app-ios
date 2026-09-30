@@ -27,7 +27,6 @@ struct MobileOnboardingICloudBackupView: View {
             .background(Appearance.backgroundColor)
             .onDisappear {
                 viewModel.onDisappear()
-                UIApplication.shared.endEditing()
             }
     }
 }
