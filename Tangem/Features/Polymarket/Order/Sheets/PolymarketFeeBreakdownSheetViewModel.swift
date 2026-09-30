@@ -104,17 +104,31 @@ private extension PolymarketFeeBreakdownSheetViewModel {
         init?(state: PolymarketOrderModel.State, intent: PolymarketOrderIntent) {
             guard let quote = state.quote.quote else { return nil }
 
-            let shares = PolymarketOrderFormatter.shares(quote.shares)
+            let shares = PolymarketOrderFormatter.shares(Self.captionShares(for: intent, quote: quote))
             let price = PolymarketPriceFormatter.cents(quote.averagePrice)
             let slippage = PolymarketSlippageFormatter.percentText(state.slippagePercent)
             let currency = PolymarketUtilities.collateralTokenItem.currencySymbol
 
             orderTitle = Self.title(for: intent)
             orderCaption = Self.caption(for: intent, shares: shares, price: price, currency: currency, slippage: slippage)
-            orderValue = PolymarketOrderFormatter.money(quote.notional)
+            orderValue = PolymarketOrderFormatter.money(Self.orderValue(for: intent, quote: quote))
             polymarketFee = PolymarketOrderFormatter.money(quote.fees.market)
             tangemBuilderFee = PolymarketOrderFormatter.money(quote.fees.builder)
             total = PolymarketOrderFormatter.money(quote.total)
+        }
+
+        static func orderValue(for intent: PolymarketOrderIntent, quote: PolymarketOrderQuote) -> Decimal {
+            switch intent {
+            case .buy: quote.notional
+            case .sell: quote.expectedExecutionAmount
+            }
+        }
+
+        static func captionShares(for intent: PolymarketOrderIntent, quote: PolymarketOrderQuote) -> Decimal {
+            switch intent {
+            case .buy: quote.expectedExecutionAmount
+            case .sell: quote.shares
+            }
         }
 
         static func title(for intent: PolymarketOrderIntent) -> String {
