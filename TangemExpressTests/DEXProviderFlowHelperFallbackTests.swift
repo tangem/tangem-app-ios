@@ -326,7 +326,7 @@ private extension DEXProviderFlowHelperFallbackTests {
 
 // MARK: - Doubles
 
-private final class AnalyticsLoggerSpy: AnalyticsLogger {
+final class AnalyticsLoggerSpy: AnalyticsLogger {
     private(set) var gasEstimationOverrideErrorCount = 0
 
     func bestProviderSelected(_ provider: ExpressAvailableProvider) {}
@@ -405,14 +405,15 @@ private struct TransactionValidatorStub: ExpressProviderTransactionValidator {
     func validateTransactionSize(data: String) -> Bool { true }
 }
 
-private struct DestinationWalletStub: ExpressDestinationWallet {
-    var currency: ExpressWalletCurrency { makeCurrency() }
+struct DestinationWalletStub: ExpressDestinationWallet {
+    var address: String? = "0xDestinationAddress"
+    var extraId: String?
+    var currency: ExpressWalletCurrency = makeCurrency()
+
     var coinCurrency: ExpressWalletCurrency { makeCurrency() }
-    var address: String? { "0xDestinationAddress" }
-    var extraId: String? { nil }
 }
 
-private final class SourceWalletStub: ExpressSourceWallet {
+final class SourceWalletStub: ExpressSourceWallet {
     let analyticsLogger: AnalyticsLogger
     private let _address: String?
     private let _allowanceProvider: AllowanceProvider?
