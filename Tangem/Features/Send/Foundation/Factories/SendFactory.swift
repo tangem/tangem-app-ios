@@ -16,6 +16,15 @@ struct SendFactory {
     func flowFactory(options: SendCoordinator.Options) -> any SendGenericFlowFactory {
         switch options.type {
         case .send(let sourceToken, let parameters):
+            if let policy = sourceToken.jointAccountPolicy {
+                return JointAccountSendFlowFactory(
+                    transferableToken: sourceToken,
+                    policy: policy,
+                    predefinedSendParameters: parameters,
+                    coordinatorSource: options.source
+                )
+            }
+
             return SendWithSwapFlowFactory(
                 sourceToken: sourceToken,
                 predefinedSendParameters: parameters,

@@ -1,4 +1,6 @@
+ATM / 12, 16, 20, 24, 28, 32 / Regular
 Address Polygon / 16, 20, 24 / Regular
+Airplane / 12, 16, 20, 24, 28, 32 / Regular
 Arrow Collapse / 16, 20, 24, 28 / Regular
 Arrow Down Left / 12, 16, 20, 24, 28 / Regular
 Arrow Down Right / 12, 16, 20, 24, 28 / Regular
@@ -14,6 +16,9 @@ Arrow Top Left / 12, 16, 20, 24, 28 / Regular
 Arrow Top Right / 12, 16, 20, 24, 28 / Regular
 Arrow Up Down / 16, 20, 24, 28 / Regular
 Arrow Up / 12, 16, 20, 24, 28, 32 / Regular
+At Sign / 12, 16, 20, 24, 28, 32 / Regular
+Automotive / 12, 16, 20, 24, 28, 32 / Regular
+Bag / 12, 16, 20, 24, 28, 32 / Regular
 Banknote Arrow Down / 16, 20, 24, 28 / Regular
 Banknote Arrow Horizontal / 16, 20, 24, 28 / Regular
 Banknote Wave / 16, 20, 24, 28 / Regular
@@ -21,12 +26,16 @@ Basketball / 16, 20, 24, 28 / Regular
 Bell Cross / 20, 24, 28 / Regular
 Bell / 20, 24, 28 / Regular
 Binoculars / 16, 20, 24, 28, 32 / Regular
+Bone / 12, 16, 20, 24, 28, 32 / Regular
+Book Opened / 12, 16, 20, 24, 28, 32 / Regular
 Box / 16, 20, 24, 28 / Regular
 Calculator / 16, 20, 24 / Regular
 Calendar / 16, 20, 24, 28 / Regular
+Capsule / 12, 16, 20, 24, 28, 32 / Regular
 Card Plus / 20, 24, 28, 32 / Regular
 Card / 12, 16, 20, 24 / Regular
 Cards Star / 16, 20, 24, 28 / Regular
+Chair / 12, 16, 20, 24, 28, 32 / Regular
 Chart Bar Vertical / 16, 20, 24, 28 / Regular
 Chart Line Vertical / 16, 20, 24, 28 / Regular
 Checkmark / 16, 20, 24, 28 / Regular
@@ -37,6 +46,7 @@ Chevron Expand / 16, 20, 24, 28 / Regular
 Chevron Left / 12, 16, 20, 24, 28, 32 / Regular
 Chevron Right / 12, 16, 20, 24, 28, 32 / Regular
 Chevron Up / 12, 16, 20, 24, 28, 32 / Regular
+Clapper Board / 12, 16, 20, 24, 28, 32 / Regular
 Clock / 12, 16, 20, 24, 28, 32 / Regular
 Cloud Exclamation / 12, 16, 20, 24, 28, 32 / Regular
 Cloud / 12, 16, 20, 24, 28, 32 / Filled & Regular
@@ -48,6 +58,7 @@ Control Checkmark / 20, 24 / Regular
 Control Circle / 20, 24 / Filled & Regular
 Control Indeterminate / 20, 24 / Regular
 Copy / 12, 16, 20, 24 / Regular
+Cream Bottle / 12, 16, 20, 24, 28, 32 / Regular
 Cross Circle / 16, 20, 24 / Filled
 Cross / 12, 16, 20, 24, 28, 32 / Regular
 Document / 12, 16, 20, 24 / Regular
@@ -60,24 +71,33 @@ Error / 16, 20, 24, 28 / Filled & Regular
 Eye Cross / 16, 20, 24, 28 / Regular
 Eye / 16, 20, 24, 28 / Regular
 Filter / 12, 16, 20, 24, 28, 32 / Regular
+Fork and Knife / 12, 16, 20, 24, 28, 32 / Regular
 Gamepad / 16, 20, 24, 28 / Regular
+Gas Station / 12, 16, 20, 24, 28, 32 / Regular
 Gauge / 20, 24 / Regular
+Gear / 12, 16, 20, 24, 28, 32 / Regular
+Gift / 12, 16, 20, 24, 28, 32 / Regular
 Globe / 16, 20, 24, 28 / Regular
 Government / 16, 20, 24, 28 / Regular
+Graduation Cap / 12, 16, 20, 24, 28, 32 / Regular
 Grid Plus / 16, 20, 24, 28 / Regular
 Grid / 16, 20, 24, 28 / Regular
+Hanger / 12, 16, 20, 24, 28, 32 / Regular
 Headphones Support / 12, 16, 20, 24 / Regular
 Heart Broken / 16, 20, 24, 28, 32 / Regular
 Heart / 16, 20, 24, 28, 32 / Filled & Regular
 Info / 16, 20, 24, 28, 32 / Regular
 Keyboard Down / 16, 20, 24 / Regular
 Keyboard Up / 16, 20, 24 / Regular
+Kids Bottle / 12, 16, 20, 24, 28, 32 / Regular
 Lightning / 20, 24, 28 / Regular
 Loading Spinner / 12, 16, 20, 24, 28, 32 / Regular
 Logo Apple / 16, 20, 24, 28, 32 / Regular
 Logo Tangem / 16, 20, 24, 28, 32 / Regular
 Magic Ball / 16, 20, 24, 28 / Regular
 Mail / 16, 20, 24 / Regular
+Mask / 12, 16, 20, 24, 28, 32 / Regular
+Monitor / 12, 16, 20, 24, 28, 32 / Regular
 Percent Backward / 20, 24, 28 / Regular
 Percent / 16, 20, 24, 28 / Regular
 Perps / 16, 20, 24, 28 / Regular
@@ -85,6 +105,7 @@ Pie Chart / 16, 20, 24, 28 / Regular
 Pincode / 16, 20, 24 / Regular
 QR / 16, 20, 24, 28 / Regular
 Rocket / 16, 20, 24, 28 / Regular
+Rose / 12, 16, 20, 24, 28, 32 / Regular
 Sack / 16, 20, 24, 28 / Regular
 Scan Face / 20, 24, 28 / Regular
 Scan Finger / 20, 24, 28 / Regular
@@ -94,6 +115,7 @@ Search / 16, 20, 24 / Regular
 Share Android / 16, 20, 24, 28 / Regular
 Share iOS / 16, 20, 24, 28 / Regular
 Shield Checkmark / 20, 24, 28 / Filled & Regular
+Shop / 12, 16, 20, 24, 28, 32 / Regular
 Sign Equal / 12, 16, 20, 24, 28, 32 / Regular
 Sign Minus / 12, 16, 20, 24, 28 / Regular
 Sign Plus / 12, 16, 20, 24, 28 / Regular
@@ -103,7 +125,10 @@ Stack / 12, 16, 20, 24, 28 / Regular
 Star / 16, 20, 24, 28 / Filled & Regular
 Success / 16, 20, 24, 28, 32 / Filled & Regular
 Sun / 16, 20, 24, 28 / Regular
+T-Shirt / 12, 16, 20, 24, 28, 32 / Regular
+Taxi / 12, 16, 20, 24, 28, 32 / Regular
 Theater / 16, 20, 24, 28 / Regular
+Train / 12, 16, 20, 24, 28, 32 / Regular
 Trash Bin / 12, 16, 20, 24, 28 / Regular
 Triangle Down / 12, 16, 20, 24, 28, 32 / Regular
 Triangle Up / 12, 16, 20, 24, 28, 32 / Regular

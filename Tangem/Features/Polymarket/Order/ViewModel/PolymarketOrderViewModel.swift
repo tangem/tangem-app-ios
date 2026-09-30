@@ -78,8 +78,6 @@ final class PolymarketOrderViewModel: ObservableObject {
             model.step(by: step)
         case .fractionTapped(let fraction):
             model.handleViewAction(.fractionSelected(fraction))
-        case .quoteRetryTapped:
-            model.handleViewAction(.quoteRetried)
         }
     }
 }
@@ -133,7 +131,6 @@ extension PolymarketOrderViewModel {
         case addFundsTapped
         case slippageTapped
         case fractionTapped(PolymarketAmountFraction)
-        case quoteRetryTapped
     }
 }
 
@@ -174,7 +171,14 @@ private extension PolymarketOrderViewModel {
         isAwaitingFunds = state.isAwaitingFunds
         isNextEnabled = gate.isPrimaryButtonEnabled
 
-        if let price = state.quote.quote?.averagePrice ?? state.bookPrice {
+        if state.quote.isFailed || (state.bookPriceFailure != nil && state.quote.quote == nil) {
+            marketRow = .make(
+                market: model.market,
+                outcome: model.outcome,
+                eventTitle: model.eventTitle,
+                isPriceUnavailable: true
+            )
+        } else if let price = state.quote.quote?.averagePrice ?? state.bookPrice {
             marketRow = .make(
                 market: model.market,
                 outcome: model.outcome,
@@ -185,6 +189,8 @@ private extension PolymarketOrderViewModel {
 
         if let quote = state.quote.quote {
             proceedsText = PolymarketOrderFormatter.money(quote.expectedExecutionAmount)
+        } else if proceedsText.isEmpty, !isAwaitingQuote {
+            proceedsText = .enDashSign
         }
 
         isProceedsStale = state.quote.quote == nil
@@ -192,6 +198,12 @@ private extension PolymarketOrderViewModel {
 
         if gate.notifications.contains(.marketClosed) {
             coordinator?.openMarketClosed()
+        }
+
+        switch state.bookPriceFailure {
+        case .marketClosed: coordinator?.openMarketClosed()
+        case .unreadable: coordinator?.openQuoteUnavailable()
+        case nil: break
         }
     }
 }
@@ -203,8 +215,9 @@ private extension PolymarketOrderViewModel {
         guard case .sell(let held) = intent else { return nil }
 
         let selling = PolymarketOrderFormatter.shares(state.enteredAmount ?? 0)
+        let total = PolymarketOrderFormatter.shares(state.balance ?? held)
 
-        return Localization.predictionCloseSellingOf(selling, PolymarketOrderFormatter.shares(held))
+        return Localization.predictionCloseSellingOf(selling, total)
     }
 
     static func makePayment(balance: Decimal?, intent: PolymarketOrderIntent) -> PolymarketOrderPaymentRow.Model? {

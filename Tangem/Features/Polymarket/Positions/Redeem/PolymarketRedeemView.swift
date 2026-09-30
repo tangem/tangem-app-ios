@@ -31,6 +31,7 @@ struct PolymarketRedeemView: View {
         .details { details }
         .overlay(alignment: .topTrailing) { closeButton }
         .toolbar(.hidden, for: .navigationBar)
+        .background(PolymarketPopGestureDisabler(isDisabled: viewModel.isClaiming))
         .alert(item: $viewModel.alert) { $0.alert }
         .onDisappear { viewModel.handleViewAction(.disappeared) }
     }
@@ -69,9 +70,8 @@ struct PolymarketRedeemView: View {
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
     private func profitRow(_ profit: PolymarketRedeemViewModel.Profit) -> some View {
-        TangemUI.Row(title: "Profit")
+        TangemUI.Row(title: Localization.predictionPositionResultProfit)
             .valueAccessory {
                 UtilPriceChange(value: profit.text, direction: profit.direction)
             }

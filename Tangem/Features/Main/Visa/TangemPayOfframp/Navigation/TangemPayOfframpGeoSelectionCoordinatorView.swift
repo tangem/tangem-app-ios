@@ -94,7 +94,7 @@ private extension TangemPayOfframpGeoSelectionCoordinatorView {
 private extension TangemPayOfframpGeoSelectionCoordinatorView {
     func handle(_ output: CountrySelectionViewModel.Output) {
         switch output {
-        case .selected(let country):
+        case .selected(let country, _):
             guard country.code == Constants.regionSelectionCountryCode else {
                 self.output(.country(country))
                 return
@@ -110,7 +110,7 @@ private extension TangemPayOfframpGeoSelectionCoordinatorView {
 
     func handle(_ output: RegionSelectionViewModel.Output) {
         switch output {
-        case .selected(let region):
+        case .selected(let region, _):
             if let pendingCountry {
                 self.output(.countryWithRegion(country: pendingCountry, region: region))
             } else {

@@ -39,7 +39,7 @@ struct TransactionDetailsOperationIconView: View {
         switch titleStyle {
         case .active: DesignSystem.Color.bgStatusInfoSubtle
         case .attention: DesignSystem.Color.bgStatusWarningSubtle
-        case .neutral: DesignSystem.Color.bgOpaqueSecondary
+        case .neutral: DesignSystem.Color.bgTransparentSecondary
         case .failed, .expired: DesignSystem.Color.bgStatusErrorSubtle
         }
     }
