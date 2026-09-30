@@ -350,18 +350,23 @@ private struct PolymarketBalanceStateBalanceProvider: TokenBalanceProvider {
 
 final class PolymarketAccountModelStub: PolymarketAccountModel {
     let id: PolymarketAccountId
-    let state: PolymarketAccountState?
+    var state: PolymarketAccountState?
+    let collateralTokenBalanceProvider: TokenBalanceProvider
+    let collateralTotalBalanceProvider: TokenBalanceProvider
 
-    init(userWalletId: UserWalletId = UserWalletId(value: Data([0x01, 0x02, 0x03])), state: PolymarketAccountState?) {
+    init(
+        userWalletId: UserWalletId = UserWalletId(value: Data([0x01, 0x02, 0x03])),
+        state: PolymarketAccountState?,
+        collateralTokenBalanceProvider: TokenBalanceProvider = TokenBalanceProviderTestsMock(balance: 0),
+        collateralTotalBalanceProvider: TokenBalanceProvider = TokenBalanceProviderTestsMock(balance: 0)
+    ) {
         id = PolymarketAccountId(userWalletId: userWalletId)
         self.state = state
+        self.collateralTokenBalanceProvider = collateralTokenBalanceProvider
+        self.collateralTotalBalanceProvider = collateralTotalBalanceProvider
     }
 
     var statePublisher: AnyPublisher<PolymarketAccountState?, Never> { .just(output: state) }
-
-    var collateralTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
-
-    var collateralTotalBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
 
     var fiatAvailableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
 
