@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemFoundation
+import TangemMacro
 
 @MainActor
 final class CollectiblesPrizePoolViewModel: ObservableObject {
@@ -62,6 +63,7 @@ final class CollectiblesPrizePoolViewModel: ObservableObject {
 // MARK: - State
 
 extension CollectiblesPrizePoolViewModel {
+    @CaseFlagable
     enum State {
         case loading
         case content([CollectiblesPrizeCard.Model])
