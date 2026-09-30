@@ -27,24 +27,26 @@ struct CommonExpressProviderTransactionValidator: ExpressProviderTransactionVali
     // MARK: - ExpressProviderTransactionValidator
 
     func validateTransactionSize(data: String) -> Bool {
-        do {
-            switch tokenItem.blockchain {
-            // This logic applies only to the Solana blockchain.
-            // For Solana, transaction data is expected to be Base64-encoded,
-            // so the string is decoded into Data using `Data(base64Encoded:)`.
-            // For other blockchains, the method’s behavior must be carefully extended,
-            // since the transaction data format and encoding may differ.
-            case .solana:
-                if let transactionData = Data(base64Encoded: data) {
-                    return try hardwareLimitationsUtil.canHandleTransaction(tokenItem, transaction: transactionData)
-                }
-
-                return true
-            default:
-                return true
+        switch tokenItem.blockchain {
+        // This logic applies only to the Solana blockchain.
+        // For Solana, transaction data is expected to be Base64-encoded,
+        // so the string is decoded into Data using `Data(base64Encoded:)`.
+        // For other blockchains, the method’s behavior must be carefully extended,
+        // since the transaction data format and encoding may differ.
+        case .solana:
+            // Fail closed: a payload that cannot be decoded, or whose size check throws, cannot be
+            // signed by the card anyway. Returning `true` here only let the Swap button through to a
+            // failure at NFC-signing time instead of disabling it up front.
+            guard let transactionData = Data(base64Encoded: data) else {
+                return false
             }
 
-        } catch {
+            do {
+                return try hardwareLimitationsUtil.canHandleTransaction(tokenItem, transaction: transactionData)
+            } catch {
+                return false
+            }
+        default:
             return true
         }
     }
