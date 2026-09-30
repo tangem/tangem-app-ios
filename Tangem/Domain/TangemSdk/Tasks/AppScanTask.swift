@@ -27,7 +27,7 @@ final class AppScanTask: CardSessionRunnable {
     let shouldAskForAccessCode: Bool
 
     private let shouldCheckAccessCode: Bool
-    private let userWalletRegistrar = CardUserWalletRegistrar()
+    private let userWalletRegistrar = CardUserWalletRegistrar(analyticsReporter: CommonBackendAuthenticationAnalyticsReporter())
     private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard?
     private var linkingCommand: StartPrimaryCardLinkingCommand?
