@@ -75,7 +75,7 @@ private extension DeeplinkSwapParametersResolver {
                 // Lowercased to match against the deeplink's already-lowercased token/network ids.
                 tokenId: walletModel.tokenItem.id?.lowercased(),
                 networkId: walletModel.tokenItem.blockchain.networkId.lowercased(),
-                accountId: Self.accountIdentifier(of: walletModel.account),
+                accountId: DeeplinkWalletModelLocator.accountIdentifier(of: walletModel.account),
                 fiatBalance: walletModel.fiatAvailableBalanceProvider.balanceType.value ?? 0,
                 isSwappable: expressAvailabilityProvider.swapState(for: walletModel.tokenItem) == .available
             )
@@ -101,13 +101,8 @@ private extension DeeplinkSwapParametersResolver {
     func existingAccountIds(in accountModelsManager: some AccountModelsManager) -> Set<String> {
         AccountModelsAggregator(.crypto, .joint)
             .models(from: accountModelsManager)
-            .compactMap { Self.accountIdentifier(of: $0) }
+            .compactMap { DeeplinkWalletModelLocator.accountIdentifier(of: $0) }
             .toSet()
-    }
-
-    /// - Note: Lowercased to match against the deeplink's already-lowercased identifiers.
-    static func accountIdentifier(of account: (any CryptoAccountModel)?) -> String? {
-        account?.id.rawValue.hexString.lowercased()
     }
 }
 

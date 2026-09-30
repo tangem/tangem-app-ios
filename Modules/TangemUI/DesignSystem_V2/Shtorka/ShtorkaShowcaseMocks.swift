@@ -286,7 +286,7 @@ struct ShtorkaMockBanner: View {
 
             ZStack {
                 Circle()
-                    .fill(DesignSystem.Color.bgOpaqueSecondary)
+                    .fill(DesignSystem.Color.bgTransparentSecondary)
 
                 Image(systemName: "xmark")
                     .font(.system(size: 10, weight: .semibold))

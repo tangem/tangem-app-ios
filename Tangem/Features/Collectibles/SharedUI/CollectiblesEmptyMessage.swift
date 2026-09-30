@@ -42,7 +42,7 @@ private extension CollectiblesEmptyMessage {
             .buttonStyle(.plain)
         } else {
             glyph(color: DesignSystem.Color.iconSecondary)
-                .background(DesignSystem.Color.bgOpaquePrimary, in: Circle())
+                .background(DesignSystem.Color.bgTransparentPrimary, in: Circle())
         }
     }
 

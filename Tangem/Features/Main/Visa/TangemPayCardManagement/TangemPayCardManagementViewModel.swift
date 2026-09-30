@@ -26,6 +26,7 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     )
     @Published private(set) var cardRenameViewModel: TangemPayCardRenameViewModel?
     @Published private(set) var closeCardRow: DefaultRowViewModel?
+    @Published private(set) var closeCardSubtitle: String?
     @Published private(set) var isLoadingReissueFee: Bool = false
     @Published var alert: AlertBinder?
     @Published var addToApplePayGuideViewModel: TangemPayAddToAppPayGuideViewModel?
@@ -490,6 +491,7 @@ private extension TangemPayCardManagementViewModel {
             self?.showCloseCardPopup()
         }
         closeCardRow = row(title: Localization.tangemPayCloseCardPopupPrimaryButtonTitle, isBusy: isBusy, action: action)
+        closeCardSubtitle = isOnlyCard ? Localization.tangemPayCloseCardDisabledLastCard : nil
     }
 
     func row(
@@ -671,7 +673,7 @@ private extension TangemPayFreezingState {
     }
 }
 
-// MARK: - Redesigned card management actions
+// MARK: - Card management actions
 
 extension TangemPayCardManagementViewModel {
     private var activatablePlasticCard: TangemPayCard? {
@@ -683,7 +685,7 @@ extension TangemPayCardManagementViewModel {
     }
 
     func onDetailsButton() {
-        currentRedesignedDetailsViewModel?.toggleVisibility()
+        currentDetailsViewModel?.toggleVisibility()
     }
 
     func onFreezeButton() {
@@ -720,7 +722,7 @@ extension TangemPayCardManagementViewModel {
         coordinator?.openSupport()
     }
 
-    private var currentRedesignedDetailsViewModel: TangemPayCardDetailsViewModel? {
+    private var currentDetailsViewModel: TangemPayCardDetailsViewModel? {
         selectedMultiCardDetailsViewModel
     }
 }

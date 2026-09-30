@@ -61,7 +61,7 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
         self.tangemPayAccount = tangemPayAccount
         self.userWalletId = userWalletId
         self.coordinator = coordinator
-        bindRedesigned()
+        bind()
     }
 
     func onAppear() {
@@ -132,16 +132,16 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
         }
     }
 
-    private func bindRedesigned() {
+    private func bind() {
         $pin
             .withWeakCaptureOf(self)
             .sink { viewModel, pin in
-                viewModel.handleRedesignedPinChange(pin)
+                viewModel.handlePinChange(pin)
             }
             .store(in: &bag)
     }
 
-    private func handleRedesignedPinChange(_ pin: String) {
+    private func handlePinChange(_ pin: String) {
         guard pin.count == pinCodeLength else {
             if !pin.isEmpty, errorMessage != nil {
                 errorMessage = nil
