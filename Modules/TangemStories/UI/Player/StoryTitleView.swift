@@ -15,7 +15,7 @@ struct StoryTitleView: View {
     let subtitle: String
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 8) {
             Text(title)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                 .lineLimit(3)
