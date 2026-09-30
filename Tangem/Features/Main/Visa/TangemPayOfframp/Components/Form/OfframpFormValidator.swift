@@ -51,7 +51,7 @@ private extension OfframpFormValidator {
     enum Constants {
         static let accountNumberPattern = "^[0-9]{4,17}$"
         static let routingNumberPattern = "^[0-9]{9}$"
-        static let postalCodePattern = "^[0-9]{5}(-[0-9]{4})?$"
+        static let postalCodePattern = "^[A-Za-z0-9][A-Za-z0-9 -]{1,8}[A-Za-z0-9]$"
         static let nameLengthLimit = 255
         static let addressLengthLimit = 100
     }
