@@ -149,9 +149,36 @@ final class AccountSelectorViewModel: ObservableObject {
                             viewModel.walletItems.append(contentsOf: wallets)
                             viewModel.accountsSections.append(contentsOf: accountsSections)
                         }
+
+                        viewModel.restoreWalletOrder()
                     }
                     .store(in: &bag)
             }
+    }
+
+    /// Each wallet's publisher removes and re-appends its own rows, so the wallet that emitted last ends up at the
+    /// bottom — and the initial order depends on which `accountModelsPublisher` completes first. Re-establish the
+    /// order of `userWalletModels` after every update (stable: rows of the same wallet keep their relative order).
+    private func restoreWalletOrder() {
+        let walletOrder = Dictionary(
+            userWalletModels.enumerated().map { ($1.userWalletId.stringValue, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
+        func stableSorted<T>(_ items: [T], walletId: (T) -> String) -> [T] {
+            items
+                .enumerated()
+                .sorted { lhs, rhs in
+                    let lhsOrder = walletOrder[walletId(lhs.element)] ?? .max
+                    let rhsOrder = walletOrder[walletId(rhs.element)] ?? .max
+                    return lhsOrder != rhsOrder ? lhsOrder < rhsOrder : lhs.offset < rhs.offset
+                }
+                .map(\.element)
+        }
+
+        walletItems = stableSorted(walletItems, walletId: \.id)
+        lockedWalletItems = stableSorted(lockedWalletItems, walletId: \.id)
+        accountsSections = stableSorted(accountsSections, walletId: \.walletId)
     }
 
     private func makeUpdatedSelectorData(
