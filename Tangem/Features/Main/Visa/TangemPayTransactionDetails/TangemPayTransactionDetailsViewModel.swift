@@ -37,7 +37,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
     private let userWalletId: UserWalletId
     private let customerId: String
     private let tangemPayAccount: TangemPayAccount?
-    private let redesignedMapper = TangemPayTransactionDetailsRedesignedMapper()
+    private let mapper = TangemPayTransactionDetailsMapper()
     private var cardLoadTask: Task<Void, Never>?
     private var cashbackLoadTask: Task<Void, Never>?
     private weak var coordinator: TangemPayTransactionDetailsRoutable?
@@ -117,9 +117,9 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
     private func makeDisplayModel(origin: Origin) -> TangemPayTransactionDetailsDisplayModel? {
         switch origin {
         case .history(let transaction):
-            return transaction.redesignedDisplayModel(using: redesignedMapper)
+            return transaction.displayModel(using: mapper)
         case .push(let payload):
-            return payload.redesignedDisplayModel(using: redesignedMapper)
+            return payload.displayModel(using: mapper)
         }
     }
 
@@ -215,7 +215,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
 
         do {
             let response = try await tangemPayAccount.getCashbackTransactionDetails(transactionId: transactionId)
-            cashbackRow = redesignedMapper.map(cashback: TangemPayTransactionCashback(response))
+            cashbackRow = mapper.map(cashback: TangemPayTransactionCashback(response))
         } catch {
             cashbackRow = .failed
             Analytics.log(.visaCashbackLoadingErrorShowed, contextParams: .userWallet(userWalletId))

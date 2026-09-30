@@ -120,6 +120,7 @@ struct PolymarketSearchView: View {
         VStack(spacing: Constants.placeholderSpacing) {
             icon.image
                 .renderingMode(.template)
+                .resizable()
                 .foregroundStyle(DesignSystem.Color.iconTertiary)
                 .frame(width: Constants.placeholderIconSide, height: Constants.placeholderIconSide)
 

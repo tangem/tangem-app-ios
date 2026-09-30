@@ -84,7 +84,7 @@ struct PolymarketOrderGateTests {
         #expect(gate.notifications == [.quoteUnavailable])
     }
 
-    @Test("A quote that never arrived offers a retry and holds the button")
+    @Test("A quote that never arrived says so on the screen and holds the button")
     func failedQuoteBlocks() {
         let gate = PolymarketOrderGate(state: .stub(quoteState: .failed(.network)), intent: Self.buyIntent)
 
@@ -236,13 +236,21 @@ struct PolymarketOrderGateTests {
         #expect(gate.amountCaption == .notEnoughLiquidity)
     }
 
-    @Test("Selling under the share minimum keeps the order placeable and unwarned")
-    func sellUnderTheShareMinimumStaysPlaceable() {
-        let state = PolymarketOrderModel.State.stub(quote: .stub(status: .belowMinOrderSize), enteredAmount: 1, balance: 1000)
+    @Test("Closing the whole position under the share minimum keeps the order placeable and unwarned")
+    func fullCloseUnderTheShareMinimumStaysPlaceable() {
+        let state = PolymarketOrderModel.State.stub(quote: .stub(status: .belowMinOrderSize), enteredAmount: 1000, balance: 1000)
         let gate = PolymarketOrderGate(state: state, intent: .sell(shares: 1000))
 
         #expect(gate.isPrimaryButtonEnabled)
         #expect(gate.notifications.isEmpty)
+    }
+
+    @Test("Selling part of a position under the share minimum is not placeable")
+    func partialSellUnderTheShareMinimumIsBlocked() {
+        let state = PolymarketOrderModel.State.stub(quote: .stub(status: .belowMinOrderSize), enteredAmount: 1, balance: 1000)
+        let gate = PolymarketOrderGate(state: state, intent: .sell(shares: 1000))
+
+        #expect(!gate.isPrimaryButtonEnabled)
     }
 
     @Test("A side with no floor to state reports none")
@@ -318,6 +326,11 @@ extension PolymarketOrderQuote {
         status: PolymarketQuoteStatus,
         shares: Decimal = 138,
         expectedExecutionAmount: Decimal = 140,
+        fees: PolymarketOrderFees = PolymarketOrderFees(
+            market: Decimal(string: "0.3")!,
+            builder: Decimal(string: "0.2")!,
+            total: Decimal(string: "0.5")!
+        ),
         total: Decimal = Decimal(string: "100.5")!,
         worstCasePrice: Decimal = Decimal(string: "0.735")!,
         minOrderSize: Decimal = 5,
@@ -332,11 +345,7 @@ extension PolymarketOrderQuote {
             expectedExecutionAmount: expectedExecutionAmount,
             averagePrice: Decimal(string: "0.72")!,
             worstCasePrice: worstCasePrice,
-            fees: PolymarketOrderFees(
-                market: Decimal(string: "0.3")!,
-                builder: Decimal(string: "0.2")!,
-                total: Decimal(string: "0.5")!
-            ),
+            fees: fees,
             total: total,
             builderCode: "0x00000000000000000000000000000000000000000000000000000000000000aa",
             minOrderSize: minOrderSize,

@@ -226,7 +226,7 @@ private extension EnvironmentValues {
 extension MessageBannerVariant {
     var background: Color {
         switch self {
-        case .default: DesignSystem.Color.bgOpaquePrimary
+        case .default: DesignSystem.Color.bgTransparentPrimary
         case .solid: DesignSystem.Color.bgTertiary
         case .success: DesignSystem.Color.bgStatusSuccessSubtle
         case .error: DesignSystem.Color.bgStatusErrorSubtle

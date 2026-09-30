@@ -14,4 +14,6 @@ import Combine
 /// so a subscription belongs to whoever subscribes rather than to the provider handing the publisher out.
 protocol JointAccountPendingOperationsProvider {
     var pendingOperationsPublisher: AnyPublisher<[JointAccountPendingOperation], Never> { get }
+
+    func requestFrequentUpdates() -> AnyCancellable
 }

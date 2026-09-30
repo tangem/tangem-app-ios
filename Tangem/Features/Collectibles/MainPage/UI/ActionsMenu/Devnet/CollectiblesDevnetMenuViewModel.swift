@@ -11,6 +11,7 @@ import class UIKit.UIPasteboard
 import TangemLocalization
 import TangemUI
 import TangemUIUtils
+import TangemCollectibles
 
 // [REDACTED_TODO_COMMENT]
 // in this folder; the rest of the app holds one property and two lines of view code.

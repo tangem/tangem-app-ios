@@ -81,6 +81,7 @@ struct PolymarketEventDetailsView: View {
                 }
                 .scaleEffect(barTitleScale, anchor: .leading)
                 .opacity(barTitleOpacity)
+                .accessibilityHidden(barTitleOpacity == 0)
                 .animation(Constants.handoffAnimation, value: titleTransferProgress)
             }
         }
@@ -139,6 +140,7 @@ struct PolymarketEventDetailsView: View {
             }
         }
         .opacity(pageContentOpacity)
+        .accessibilityHidden(pageContentOpacity == 0)
         .animation(Constants.handoffAnimation, value: titleTransferProgress)
         .padding(.horizontal, Constants.textHorizontalPadding)
         .padding(.vertical, Constants.headerVerticalPadding)
@@ -239,7 +241,7 @@ struct PolymarketEventDetailsView: View {
                 .lineLimit(1)
                 .padding(.horizontal, Constants.closedMarketsHorizontalPadding)
                 .frame(minWidth: Constants.closedMarketsMinWidth, minHeight: Constants.closedMarketsHeight)
-                .background(DesignSystem.Color.bgOpaquePrimary, in: Capsule())
+                .background(DesignSystem.Color.bgTransparentPrimary, in: Capsule())
         }
         .buttonStyle(.plain)
     }

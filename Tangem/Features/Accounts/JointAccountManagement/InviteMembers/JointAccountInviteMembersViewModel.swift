@@ -24,6 +24,7 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
     private weak var coordinator: JointAccountInviteMembersRoutable?
 
     private var bag = Set<AnyCancellable>()
+    private var frequentUpdatesSubscription: AnyCancellable?
 
     init(
         jointAccount: any JointAccountModel,
@@ -35,6 +36,14 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
         content = Self.makeContent(of: jointAccount, slots: jointAccount.jointAccountMembersService.slots)
 
         bind()
+    }
+
+    func onWillAppear() {
+        frequentUpdatesSubscription = jointAccount.jointAccountMembersService.requestFrequentUpdates()
+    }
+
+    func onWillDisappear() {
+        frequentUpdatesSubscription = nil
     }
 
     func onInviteTap(inviteURL: URL) {

@@ -26,4 +26,6 @@ protocol JointAccountMembersService {
     /// - Warning: The invites are kept by the device that was handed them and nowhere else, so a creator who
     /// reinstalls the app or restores the wallet elsewhere stops being told apart as one.
     var isCreatorDevice: Bool { get }
+
+    func requestFrequentUpdates() -> AnyCancellable
 }

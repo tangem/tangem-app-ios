@@ -289,7 +289,7 @@ private struct NewsPageContentView: View {
             .padding(.horizontal, 12)
             .frame(height: 36)
             .frame(minWidth: 46)
-            .background(DesignSystem.Color.bgOpaquePrimary, in: .capsule)
+            .background(DesignSystem.Color.bgTransparentPrimary, in: .capsule)
         }
         .buttonStyle(.plain)
         .frame(maxWidth: .infinity, alignment: .leading)

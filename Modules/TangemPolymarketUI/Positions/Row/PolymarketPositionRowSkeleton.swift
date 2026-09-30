@@ -28,16 +28,22 @@ public struct PolymarketPositionsSkeletonView: View {
 
 struct PolymarketPositionRowSkeleton: View {
     var body: some View {
-        HStack(alignment: .top, spacing: Constants.contentSpacing) {
-            VStack(alignment: .leading, spacing: Constants.titleSpacing) {
-                bar(width: Constants.titleWidth, height: Constants.titleHeight)
-                bar(width: Constants.subtitleWidth, height: Constants.titleHeight)
+        VStack(spacing: Constants.rootSpacing) {
+            title
 
-                HStack(spacing: Constants.footerSpacing) {
-                    bar(width: Constants.bubbleWidth, height: Constants.footerHeight)
-                    bar(width: Constants.changeWidth, height: Constants.footerHeight)
-                }
-                .padding(.top, Constants.footerTopPadding)
+            footer
+        }
+        .padding(Constants.padding)
+        .frame(maxWidth: .infinity)
+        .background(DesignSystem.Color.bgSecondary)
+        .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
+    }
+
+    private var title: some View {
+        HStack(spacing: Constants.contentSpacing) {
+            VStack(alignment: .leading, spacing: Constants.lineSpacing) {
+                bar(width: Constants.titleWidth, height: Constants.lineHeight)
+                bar(width: Constants.subtitleWidth, height: Constants.lineHeight)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -45,10 +51,17 @@ struct PolymarketPositionRowSkeleton: View {
                 .frame(width: Constants.avatarSide, height: Constants.avatarSide)
                 .clipShape(Circle())
         }
-        .padding(Constants.padding)
-        .frame(maxWidth: .infinity)
-        .background(DesignSystem.Color.bgSecondary)
-        .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
+    }
+
+    private var footer: some View {
+        HStack(spacing: Constants.footerSpacing) {
+            bar(width: Constants.bubbleWidth, height: Constants.footerHeight)
+            bar(width: Constants.changeWidth, height: Constants.footerHeight)
+
+            Spacer(minLength: Constants.footerSpacing)
+
+            bar(width: Constants.trailingWidth, height: Constants.footerHeight)
+        }
     }
 
     private func bar(width: CGFloat, height: CGFloat) -> some View {
@@ -66,20 +79,23 @@ private extension PolymarketPositionsSkeletonView {
     }
 }
 
+/// The row it stands in for is a two-line title beside a 40pt avatar, with the outcome bubble underneath,
+/// so the numbers here are the ones `TangemUI.Row` lays that out with.
 private extension PolymarketPositionRowSkeleton {
     enum Constants {
         static let padding: CGFloat = 16
         static let cornerRadius: CGFloat = 24
-        static let contentSpacing: CGFloat = 20
-        static let titleSpacing: CGFloat = 4
+        static let contentSpacing: CGFloat = 12
+        static let rootSpacing: CGFloat = 8
+        static let lineSpacing: CGFloat = 4
+        static let lineHeight: CGFloat = 18
         static let titleWidth: CGFloat = 160
         static let subtitleWidth: CGFloat = 128
-        static let titleHeight: CGFloat = 16
         static let footerSpacing: CGFloat = 8
-        static let footerTopPadding: CGFloat = 4
-        static let footerHeight: CGFloat = 20
+        static let footerHeight: CGFloat = 24
         static let bubbleWidth: CGFloat = 48
         static let changeWidth: CGFloat = 96
+        static let trailingWidth: CGFloat = 64
         static let avatarSide: CGFloat = 40
     }
 }

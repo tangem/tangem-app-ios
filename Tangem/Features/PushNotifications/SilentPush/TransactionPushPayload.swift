@@ -22,6 +22,7 @@ struct TransactionPushPayload {
     let userWalletId: String
     let derivationPath: String?
     let transactionId: String?
+    let accountId: String?
 
     /// Fails if any required field is missing or the `type` isn't a known transactional one.
     /// String values equal to `"null"` are treated as absent — the backend sends the literal
@@ -29,18 +30,11 @@ struct TransactionPushPayload {
     init?(userInfo: [AnyHashable: Any]) {
         let params = IncomingActionConstants.DeeplinkParams.self
 
-        let nonNullString: (String) -> String? = { key in
-            guard let value = userInfo[key] as? String, value != "null" else {
-                return nil
-            }
-            return value
-        }
-
         guard
-            let networkId = nonNullString(params.networkId),
-            let tokenId = nonNullString(params.tokenId),
-            let userWalletId = nonNullString(params.userWalletId),
-            let rawType = nonNullString(TokenDeeplink.Keys.type),
+            let networkId = userInfo.nonNullString(params.networkId),
+            let tokenId = userInfo.nonNullString(params.tokenId),
+            let userWalletId = userInfo.nonNullString(params.userWalletId),
+            let rawType = userInfo.nonNullString(TokenDeeplink.Keys.type),
             let type = IncomingActionConstants.DeeplinkType(rawValue: rawType)
         else {
             return nil
@@ -50,7 +44,8 @@ struct TransactionPushPayload {
         self.networkId = networkId
         self.tokenId = tokenId
         self.userWalletId = userWalletId
-        derivationPath = nonNullString(params.derivationPath)
-        transactionId = nonNullString(TokenDeeplink.Keys.transactionId)
+        derivationPath = userInfo.nonNullString(params.derivationPath)
+        transactionId = userInfo.nonNullString(TokenDeeplink.Keys.transactionId)
+        accountId = userInfo.nonNullString(params.accountId)?.lowercased()
     }
 }

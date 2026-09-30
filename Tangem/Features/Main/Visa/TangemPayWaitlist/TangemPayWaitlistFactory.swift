@@ -12,7 +12,7 @@ import TangemPay
 enum TangemPayWaitlistFactory {
     @MainActor
     static func makeView(
-        product: TangemPayWaitlistProduct,
+        product: TangemPayProduct,
         country: String,
         region: String?,
         output: @escaping (TangemPayWaitlistViewModel.Output) -> Void

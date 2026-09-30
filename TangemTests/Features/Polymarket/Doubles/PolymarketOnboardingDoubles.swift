@@ -307,6 +307,7 @@ final class PolymarketBalanceServiceSpy: PolymarketBalanceService {
     var fiatAvailableBalanceProvider: TokenBalanceProvider { balanceProvider }
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider { balanceProvider }
     var collateralTokenBalanceProvider: TokenBalanceProvider { balanceProvider }
+    var collateralTotalBalanceProvider: TokenBalanceProvider { balanceProvider }
 
     var state: PolymarketBalanceState? { updates.last }
 
@@ -349,16 +350,23 @@ private struct PolymarketBalanceStateBalanceProvider: TokenBalanceProvider {
 
 final class PolymarketAccountModelStub: PolymarketAccountModel {
     let id: PolymarketAccountId
-    let state: PolymarketAccountState?
+    var state: PolymarketAccountState?
+    let collateralTokenBalanceProvider: TokenBalanceProvider
+    let collateralTotalBalanceProvider: TokenBalanceProvider
 
-    init(userWalletId: UserWalletId = UserWalletId(value: Data([0x01, 0x02, 0x03])), state: PolymarketAccountState?) {
+    init(
+        userWalletId: UserWalletId = UserWalletId(value: Data([0x01, 0x02, 0x03])),
+        state: PolymarketAccountState?,
+        collateralTokenBalanceProvider: TokenBalanceProvider = TokenBalanceProviderTestsMock(balance: 0),
+        collateralTotalBalanceProvider: TokenBalanceProvider = TokenBalanceProviderTestsMock(balance: 0)
+    ) {
         id = PolymarketAccountId(userWalletId: userWalletId)
         self.state = state
+        self.collateralTokenBalanceProvider = collateralTokenBalanceProvider
+        self.collateralTotalBalanceProvider = collateralTotalBalanceProvider
     }
 
     var statePublisher: AnyPublisher<PolymarketAccountState?, Never> { .just(output: state) }
-
-    var collateralTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
 
     var fiatAvailableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
 
@@ -373,9 +381,11 @@ final class PolymarketAccountModelStub: PolymarketAccountModel {
 
 final class PolymarketAccountPresenceStoreStub: PolymarketAccountPresenceStore {
     private var known: Bool
+    private var positions: Bool
 
-    init(known: Bool = false) {
+    init(known: Bool = false, positions: Bool = false) {
         self.known = known
+        self.positions = positions
     }
 
     func hasAccount(userWalletId: UserWalletId) -> Bool {
@@ -386,8 +396,17 @@ final class PolymarketAccountPresenceStoreStub: PolymarketAccountPresenceStore {
         known = true
     }
 
+    func hadPositions(userWalletId: UserWalletId) -> Bool {
+        positions
+    }
+
+    func markPositionsExisted(for userWalletId: UserWalletId) {
+        positions = true
+    }
+
     func delete(userWalletId: UserWalletId) {
         known = false
+        positions = false
     }
 }
 

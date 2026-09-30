@@ -119,13 +119,20 @@ private final class JointAccountDependenciesFactoryStub: JointAccountDependencie
     ) -> JointAccountDependencies {
         callsCount.withLock { $0 += 1 }
 
+        let walletModelsManager = WalletModelsManagerMock()
+        let pendingOperationsProvider = JointAccountPendingOperationsProviderMock()
+
         return JointAccountDependencies(
             userTokensManager: UserTokensManagerMock(),
-            walletModelsManager: WalletModelsManagerMock(),
+            walletModelsManager: walletModelsManager,
             walletModelsFactoryInput: WalletModelsFactoryInputStub(),
             derivationManager: nil,
             operationsService: JointAccountOperationsServiceMock(),
-            pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
+            pendingOperationsProvider: pendingOperationsProvider,
+            finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
+                pendingOperationsProvider: pendingOperationsProvider,
+                walletModelsManager: walletModelsManager
+            ),
             membersService: JointAccountMembersServiceMock()
         )
     }

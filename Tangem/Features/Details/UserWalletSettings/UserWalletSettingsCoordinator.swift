@@ -50,6 +50,7 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
+    private var userWalletModel: InputOptions?
     private let hardwareUpgradeStoriesFlow = HardwareUpgradeStoriesFlow()
     private let isPresentedSubject = CurrentValueSubject<Bool, Never>(false)
     private var accountPendingNavigationSteps: [AccountPendingNavigationStep] = []
@@ -73,6 +74,7 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
     }
 
     func start(with userWalletModel: InputOptions) {
+        self.userWalletModel = userWalletModel
         rootViewModel = UserWalletSettingsViewModel(userWalletModel: userWalletModel, coordinator: self)
         bind()
     }
@@ -271,7 +273,11 @@ extension UserWalletSettingsCoordinator: AddAccountTypeSelectorRoutable {
         }
     }
 
-    func openJointAccountManagement(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
+    func openJointAccountManagement() {
+        guard let userWalletModel else {
+            return
+        }
+
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
 
@@ -282,14 +288,7 @@ extension UserWalletSettingsCoordinator: AddAccountTypeSelectorRoutable {
                 popToRootAction: popToRootAction
             )
 
-            coordinator.start(
-                with: .creation(
-                    JointAccountManagementCoordinator.CreationOptions(
-                        accountModelsManager: accountModelsManager,
-                        userWalletConfig: userWalletConfig
-                    )
-                )
-            )
+            coordinator.start(with: .creation(JointAccountManagementCoordinator.CreationOptions(userWalletModel: userWalletModel)))
 
             jointAccountManagementCoordinator = coordinator
         }
