@@ -167,10 +167,16 @@ final class TONTransactionBuilder {
             throw BlockchainSdkError.notImplemented
         }
 
+        // `sequenceNumber` comes from the node (or StakeKit) as an unbounded `Int`; a negative or
+        // >= 2^32 value would trap in `UInt32(_:)`. Fail the build instead of crashing the app.
+        guard let sequenceNumber = UInt32(exactly: sequenceNumber) else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+
         return TheOpenNetworkSigningInput.with {
             $0.messages = [transferMessage]
             $0.walletVersion = TheOpenNetworkWalletVersion.walletV4R2
-            $0.sequenceNumber = UInt32(sequenceNumber)
+            $0.sequenceNumber = sequenceNumber
             $0.expireAt = expireAt
             $0.publicKey = wallet.publicKey.blockchainKey
         }
