@@ -424,6 +424,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                     .map { [weak accountModel] isAccountVisible in isAccountVisible ? accountModel : nil }
                     .eraseToAnyPublisher()
             }
+            .receiveOnMain()
             .withWeakCaptureOf(self)
             .map { viewModel, accountModel -> AccountRowButtonViewModel? in
                 accountModel.map { accountModel in
@@ -434,7 +435,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                     }
                 }
             }
-            .receiveOnMain()
             .assign(to: &$polymarketAccountViewModel)
     }
 
