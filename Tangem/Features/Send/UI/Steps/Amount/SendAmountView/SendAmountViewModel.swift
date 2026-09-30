@@ -96,6 +96,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let interactor: SendAmountInteractor
     private let analyticsLogger: SendAmountAnalyticsLogger
     private let marketingBannerManager: MarketingBannerManager?
+    private let sendQRCodeService: (any SendQRCodeService)?
     private let providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>?
 
     @Published private var lastUpdateSource: ActiveAmountField?
@@ -124,7 +125,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         analyticsLogger: SendAmountAnalyticsLogger,
         marketingBannerManager: MarketingBannerManager? = nil,
         shouldStartFromTokensList: Bool,
-        providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil
+        providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil,
+        sendQRCodeService: (any SendQRCodeService)? = nil
     ) {
         sourceAmountField = AmountInputFieldModel(
             tokenItem: sourceToken.tokenItem,
@@ -137,6 +139,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         self.analyticsLogger = analyticsLogger
         self.marketingBannerManager = marketingBannerManager
         self.providerRateTypesPublisher = providerRateTypesPublisher
+        self.sendQRCodeService = sendQRCodeService
         sourceCurrencySymbol = sourceToken.tokenItem.currencySymbol
 
         sourceFieldBag = sourceAmountField.objectWillChange
@@ -321,6 +324,19 @@ private extension SendAmountViewModel {
         marketingBannerManager?.standaloneBannersPublisher
             .map { $0.nilIfEmpty }
             .assign(to: &$standaloneMarketingBanners)
+
+        // The destination step feeds the scanned address and memo; an `amount` parameter (BIP-21 / ERC-681)
+        // is already parsed by the service and belongs in this field. The parser returns it in crypto units.
+        sendQRCodeService?
+            .qrCodeAmount
+            .compactMap { $0 }
+            .withWeakCaptureOf(self)
+            .receive(on: DispatchQueue.main)
+            .sink { viewModel, cryptoAmount in
+                let amount = try? viewModel.interactor.update(sourceCryptoAmount: cryptoAmount)
+                viewModel.externalUpdate(amount: amount)
+            }
+            .store(in: &bag)
 
         sourceAmountField.$amountType
             .dropFirst()

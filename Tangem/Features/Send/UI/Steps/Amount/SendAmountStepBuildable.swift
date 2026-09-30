@@ -64,6 +64,8 @@ enum SendAmountStepBuilder {
         let analyticsLogger: any SendAmountAnalyticsLogger
         let marketingBannerManager: MarketingBannerManager?
         let providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>?
+        /// Shared with the destination step so an amount encoded in a scanned QR code reaches the amount field.
+        let sendQRCodeService: (any SendQRCodeService)?
 
         init(
             sendAmountValidator: any SendAmountValidator,
@@ -71,7 +73,8 @@ enum SendAmountStepBuilder {
             notificationService: (any SendAmountNotificationService)?,
             analyticsLogger: any SendAmountAnalyticsLogger,
             marketingBannerManager: MarketingBannerManager? = nil,
-            providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil
+            providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil,
+            sendQRCodeService: (any SendQRCodeService)? = nil
         ) {
             self.sendAmountValidator = sendAmountValidator
             self.amountModifier = amountModifier
@@ -79,6 +82,7 @@ enum SendAmountStepBuilder {
             self.analyticsLogger = analyticsLogger
             self.marketingBannerManager = marketingBannerManager
             self.providerRateTypesPublisher = providerRateTypesPublisher
+            self.sendQRCodeService = sendQRCodeService
         }
     }
 
@@ -117,7 +121,8 @@ enum SendAmountStepBuilder {
             analyticsLogger: dependencies.analyticsLogger,
             marketingBannerManager: dependencies.marketingBannerManager,
             shouldStartFromTokensList: shouldStartFromTokenList,
-            providerRateTypesPublisher: dependencies.providerRateTypesPublisher
+            providerRateTypesPublisher: dependencies.providerRateTypesPublisher,
+            sendQRCodeService: dependencies.sendQRCodeService
         )
 
         let step = SendAmountStep(
