@@ -115,7 +115,7 @@ private extension CollectiblesEntranceCardView {
 
     var background: some View {
         RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous)
-            .fill(DesignSystem.Color.bgOpaquePrimary)
+            .fill(DesignSystem.Color.bgTransparentPrimary)
             .overlay(glow)
             .clipShape(RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
             .overlay(

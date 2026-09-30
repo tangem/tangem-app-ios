@@ -78,6 +78,15 @@ private extension PulseTagFilterBottomSheetView {
                 .padding(.top, headerHeight + contentTopSpacing)
         }
         .scrollDismissesKeyboard(.interactively)
+        .frame(idealHeight: scrollIdealHeight)
+    }
+
+    var scrollIdealHeight: CGFloat? {
+        guard viewModel.loadingState == .loaded, viewModel.categoryItems.count > Constants.maxRowsToMeasure else {
+            return nil
+        }
+
+        return Constants.loadedIdealHeight
     }
 
     @ViewBuilder
@@ -94,7 +103,7 @@ private extension PulseTagFilterBottomSheetView {
     }
 
     var loadedContent: some View {
-        VStack(alignment: .leading, spacing: .zero) {
+        LazyVStack(alignment: .leading, spacing: .zero) {
             if !viewModel.featuredItems.isEmpty {
                 sectionTitle(Localization.commonFeatured)
 
@@ -110,10 +119,8 @@ private extension PulseTagFilterBottomSheetView {
             } else {
                 sectionTitle(Localization.marketCategories)
 
-                VStack(spacing: .zero) {
-                    ForEach(viewModel.categoryItems) { item in
-                        categoryRow(item)
-                    }
+                ForEach(viewModel.categoryItems) { item in
+                    categoryRow(item)
                 }
             }
         }
@@ -176,7 +183,7 @@ private extension PulseTagFilterBottomSheetView {
                 .padding(.horizontal, chipHorizontalPadding)
                 .padding(.vertical, chipVerticalPadding)
                 .background(
-                    isSelected ? DesignSystem.Color.bgInverse : DesignSystem.Color.bgOpaquePrimary,
+                    isSelected ? DesignSystem.Color.bgInverse : DesignSystem.Color.bgTransparentPrimary,
                     in: .capsule
                 )
         }
@@ -299,6 +306,8 @@ private extension PulseTagFilterBottomSheetView {
     enum Constants {
         static let skeletonChipCount = 5
         static let skeletonRowCount = 10
+        static let loadedIdealHeight: CGFloat = 10_000
+        static let maxRowsToMeasure = 50
     }
 }
 
