@@ -67,7 +67,7 @@ extension TangemPayTransactionStatusView {
             case .inProgress: DesignSystem.Color.bgStatusInfoSubtle
             case .completed: DesignSystem.Color.bgStatusSuccessSubtle
             case .rejected: DesignSystem.Color.bgStatusErrorSubtle
-            case .reversed: DesignSystem.Color.bgOpaquePrimary
+            case .reversed: DesignSystem.Color.bgTransparentPrimary
             }
         }
 
