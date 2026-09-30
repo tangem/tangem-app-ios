@@ -29,7 +29,7 @@ struct YieldModuleClaimRewardsSectionView: View {
             }
         }
         .defaultRoundedBackground(
-            with: DesignSystem.Color.bgOpaquePrimary,
+            with: DesignSystem.Color.bgTransparentPrimary,
             cornerRadius: Constants.cornerRadius
         )
     }
