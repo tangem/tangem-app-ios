@@ -395,9 +395,18 @@ var featureModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemCollectibles",
             dependencies: [
+                "BlockchainSdk",
                 .product(name: "SolanaSwift", package: "Solana.Swift"),
+                .product(name: "TangemSdk", package: "tangem-sdk-ios"),
+                "TangemFoundation",
+                "TangemLogger",
+                "TangemMacro",
+                "TangemMobileWalletSdk",
             ],
-            swiftSettings: .swift6StrictSettings
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
         ),
         .tangemTarget(
             name: "TangemPay",

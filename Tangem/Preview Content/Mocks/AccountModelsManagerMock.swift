@@ -193,6 +193,8 @@ extension AccountModelsManagerMock: AccountModelsManager {
         }
     }
 
+    func reloadAccountsFromRemote() async {}
+
     func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {
         let orderedIndicesKeyedByIdentifiers = orderedIdentifiers
             .enumerated()

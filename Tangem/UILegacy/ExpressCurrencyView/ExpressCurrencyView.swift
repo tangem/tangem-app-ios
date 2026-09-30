@@ -262,7 +262,7 @@ struct ChooseTokenPillView: View {
             EmptyView()
         } else {
             TimelineView(.animation) { context in
-                DesignSystem.Color.bgOpaqueSecondary
+                DesignSystem.Color.bgTransparentSecondary
                     .opacity(pulseOpacity(elapsed: context.date.timeIntervalSince(pulseStart)))
             }
         }

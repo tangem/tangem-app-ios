@@ -32,10 +32,16 @@ struct CollectiblesMachineView: View {
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if !viewModel.state.isFailed {
-                Footer(expectedValueText: expectedValueText, openButtonText: viewModel.openButtonText)
+                Footer(
+                    expectedValueText: expectedValueText,
+                    openButtonText: viewModel.openButtonText,
+                    isTurboModeOn: $viewModel.isTurboModeOn,
+                    onTurboModeInfoTap: viewModel.showTurboModeInfo
+                )
             }
         }
         .on(willAppear: viewModel.load, willDisappear: viewModel.stopPolling)
+        .collectiblesInfoSheet(viewModel: viewModel.turboModeInfoViewModel)
         .safeAreaInset(edge: .top, spacing: 0) { navigationBar }
     }
 }
@@ -102,8 +108,7 @@ private extension CollectiblesMachineView {
             detailChips(details)
                 .padding(.vertical, Metrics.chipsContainerVerticalPadding)
 
-            poweredBy
-                .padding(.top, Metrics.poweredByTopPadding)
+            CollectiblesPrizePoolView(viewModel: viewModel.prizePoolViewModel)
         }
         .padding(.horizontal, Metrics.horizontalPadding)
     }
@@ -168,11 +173,6 @@ private extension CollectiblesMachineView {
         .chipDecorated()
     }
 
-    var poweredBy: some View {
-        Text(Self.poweredByText)
-            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-    }
-
     // MARK: - Calculations
 
     var expectedValueText: String? {
@@ -190,25 +190,6 @@ private extension CollectiblesMachineView {
         // Absent from the mockup (no machine carries the tier yet); the gold-ish accent is the safe guess.
         case .legendary: DesignSystem.Color.bgAccentOrange
         }
-    }
-
-    static let poweredByText: AttributedString = {
-        let partner = Constants.partnerName
-        var text = AttributedString(Localization.collectiblesMachinePoweredBy(partner))
-
-        if let range = text.range(of: partner) {
-            text[range].foregroundColor = DesignSystem.Color.textPrimary
-        }
-
-        return text
-    }()
-}
-
-// MARK: - Constants
-
-private extension CollectiblesMachineView {
-    enum Constants {
-        static let partnerName = "Collector Crypt"
     }
 }
 
@@ -250,12 +231,20 @@ extension CollectiblesMachineView {
 
         static let sectionHeaderVerticalPadding: CGFloat = 10
         static let sectionsGap: CGFloat = 24
-        static let poweredByTopPadding: CGFloat = 4
         static let failedMessageMinHeight: CGFloat = 220
     }
 }
 
 // MARK: - Previews
+
+private struct PreviewPrizePoolProvider: CollectiblesPrizePoolProvider {
+    func load(machineID: String, page: Int) async throws -> CollectiblesPrizePoolPage {
+        let prizes = (1 ... 4).map { index in
+            CollectiblesPrize(id: "prize-\(index)", name: "Charizard \(index)", imageURL: nil, grade: "PSA 9", insuredValue: Decimal(1000 * index))
+        }
+        return CollectiblesPrizePoolPage(prizes: prizes, hasNext: false)
+    }
+}
 
 private struct PreviewMachineProvider: CollectiblesMachineProvider {
     func load(id: String) async throws -> CollectiblesMachine {
@@ -289,6 +278,7 @@ private struct PreviewMachineProvider: CollectiblesMachineProvider {
                     buybackRate: 0.85,
                     artworkURL: nil
                 ),
+                prizePoolProvider: PreviewPrizePoolProvider(),
                 provider: PreviewMachineProvider()
             ),
             onBack: {}

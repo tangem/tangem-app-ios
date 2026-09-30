@@ -20,6 +20,7 @@ public struct TokenRowShowcase: View {
     @State private var showCrypto = true
     @State private var showBubble = false
     @State private var bubbleHasIcon = true
+    @State private var bubbleHasChevron = false
     @State private var fiatState: BalanceStateOption = .loaded
     @State private var cryptoState: BalanceStateOption = .loaded
     @State private var isStale = false
@@ -160,13 +161,13 @@ public struct TokenRowShowcase: View {
     private var bubbleModel: TokenRowMessageBubble.Model {
         TokenRowMessageBubble.Model(
             text: overflow ? Self.longBubbleText : Self.bubbleText,
-            accent: accent,
+            variant: accent == .yield ? .success : .info,
             icon: bubbleHasIcon ? Self.bubbleIcon(for: accent) : nil,
-            onTap: { bubbleTapCount += 1 },
-            onClose: {
+            trailingAccessory: bubbleHasChevron ? .chevron : .close(action: {
                 closeCount += 1
                 withAnimation { showBubble = false }
-            }
+            }),
+            onTap: { bubbleTapCount += 1 }
         )
     }
 
@@ -239,6 +240,7 @@ public struct TokenRowShowcase: View {
 
                 if showBubble {
                     Toggle("bubble icon", isOn: $bubbleHasIcon)
+                    Toggle("bubble chevron", isOn: $bubbleHasChevron)
                 }
 
                 if titleAccessory == .reward || showBubble {

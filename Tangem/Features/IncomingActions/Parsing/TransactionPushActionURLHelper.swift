@@ -15,6 +15,7 @@ struct TransactionPushActionURLHelper: IncomingActionURLHelper {
     let userWalletId: String
     let derivationPath: String?
     let transactionId: String?
+    let accountId: String?
 
     func buildURL(scheme: IncomingActionScheme) -> URL {
         var components = URLComponents()
@@ -33,6 +34,10 @@ struct TransactionPushActionURLHelper: IncomingActionURLHelper {
 
         if let transactionId, transactionId.isNotEmpty {
             components.queryItems?.append(URLQueryItem(name: TokenDeeplink.Keys.transactionId, value: transactionId))
+        }
+
+        if let accountId, accountId.isNotEmpty {
+            components.queryItems?.append(URLQueryItem(name: IncomingActionConstants.DeeplinkParams.accountId, value: accountId))
         }
 
         guard let url = components.url else {

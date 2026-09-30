@@ -50,7 +50,7 @@ private extension PolymarketEntranceBannerView {
 
     var background: some View {
         RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous)
-            .fill(DesignSystem.Color.bgOpaquePrimary)
+            .fill(DesignSystem.Color.bgTransparentPrimary)
             .overlay(
                 RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous)
                     .strokeBorder(DesignSystem.Color.borderPrimary, lineWidth: Constants.borderWidth)

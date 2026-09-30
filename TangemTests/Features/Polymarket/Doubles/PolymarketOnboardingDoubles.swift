@@ -307,6 +307,7 @@ final class PolymarketBalanceServiceSpy: PolymarketBalanceService {
     var fiatAvailableBalanceProvider: TokenBalanceProvider { balanceProvider }
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider { balanceProvider }
     var collateralTokenBalanceProvider: TokenBalanceProvider { balanceProvider }
+    var collateralTotalBalanceProvider: TokenBalanceProvider { balanceProvider }
 
     var state: PolymarketBalanceState? { updates.last }
 
@@ -360,6 +361,8 @@ final class PolymarketAccountModelStub: PolymarketAccountModel {
 
     var collateralTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
 
+    var collateralTotalBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
+
     var fiatAvailableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
 
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
@@ -373,9 +376,11 @@ final class PolymarketAccountModelStub: PolymarketAccountModel {
 
 final class PolymarketAccountPresenceStoreStub: PolymarketAccountPresenceStore {
     private var known: Bool
+    private var positions: Bool
 
-    init(known: Bool = false) {
+    init(known: Bool = false, positions: Bool = false) {
         self.known = known
+        self.positions = positions
     }
 
     func hasAccount(userWalletId: UserWalletId) -> Bool {
@@ -386,8 +391,17 @@ final class PolymarketAccountPresenceStoreStub: PolymarketAccountPresenceStore {
         known = true
     }
 
+    func hadPositions(userWalletId: UserWalletId) -> Bool {
+        positions
+    }
+
+    func markPositionsExisted(for userWalletId: UserWalletId) {
+        positions = true
+    }
+
     func delete(userWalletId: UserWalletId) {
         known = false
+        positions = false
     }
 }
 

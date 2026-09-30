@@ -92,7 +92,7 @@ struct SendDestinationAddressView: View {
                 .padding(8)
                 .background {
                     Circle()
-                        .fill(DesignSystem.Color.bgOpaquePrimary)
+                        .fill(DesignSystem.Color.bgTransparentPrimary)
                 }
         }
         .accessibilityIdentifier(SendAccessibilityIdentifiers.scanQRButton)

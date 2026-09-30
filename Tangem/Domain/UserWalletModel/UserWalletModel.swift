@@ -12,6 +12,7 @@ import TangemSdk
 import TangemNFT
 import TangemFoundation
 import TangemPay
+import TangemCollectibles
 
 protocol UserWalletModel:
     MainHeaderSupplementInfoProvider,

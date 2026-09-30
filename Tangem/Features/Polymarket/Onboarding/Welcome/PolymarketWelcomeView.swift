@@ -62,6 +62,7 @@ struct PolymarketWelcomeView: View {
                 .clipped()
                 .overlay { heroTint }
                 .offset(y: -overscroll)
+                .accessibilityHidden(true)
         }
         .aspectRatio(Constants.heroAspectRatio, contentMode: .fit)
         .padding(.bottom, -heroContentOverlap(forWidth: containerWidth))
@@ -124,6 +125,7 @@ struct PolymarketWelcomeView: View {
                 .resizable()
                 .frame(width: Constants.highlightIconSize, height: Constants.highlightIconSize)
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
+                .accessibilityHidden(true)
 
             Spacer(minLength: Constants.highlightIconSpacing)
 
@@ -190,7 +192,7 @@ struct PolymarketWelcomeView: View {
             .styleType(.default)
             .size(.x12)
             .horizontalLayout(.infinity)
-            .loading(.spinner(if: viewModel.isRunning))
+            .loading(viewModel.stageMessage.map(TangemUI.Button.Loading.spinnerWithMessage))
         }
         .padding(.horizontal, Constants.horizontalPadding)
         .padding(.vertical, Constants.footerVerticalPadding)

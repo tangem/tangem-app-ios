@@ -154,7 +154,7 @@ private extension TransactionDetailsStatusBannerViewData.Kind {
                 indicator: .glyph(DesignSystem.Icons.Clock.regular20),
                 accent: DesignSystem.Color.iconTertiary,
                 title: DesignSystem.Color.textTertiary,
-                background: DesignSystem.Color.bgOpaqueSecondary
+                background: DesignSystem.Color.bgTransparentSecondary
             )
         case .attention:
             Appearance(

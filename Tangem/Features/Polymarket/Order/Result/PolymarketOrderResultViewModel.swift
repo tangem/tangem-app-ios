@@ -174,14 +174,14 @@ private extension PolymarketOrderResultViewModel {
     static func makeTitle(state: State, content: Content) -> String {
         switch state {
         case .placed:
-            let amount = PolymarketOrderFormatter.enteredAmount(content.filledAmount ?? content.orderedAmount)
+            let amount = PolymarketOrderFormatter.money(content.filledAmount ?? content.orderedAmount)
 
             return content.side == .sell
                 ? Localization.predictionCloseResultSoldTitle(amount)
                 : Localization.predictionPlaceResultPlacedTitle(amount)
         case .partiallyPlaced:
-            let filled = PolymarketOrderFormatter.enteredAmount(content.filledAmount)
-            let ordered = PolymarketOrderFormatter.enteredAmount(content.orderedAmount)
+            let filled = PolymarketOrderFormatter.money(content.filledAmount)
+            let ordered = PolymarketOrderFormatter.money(content.orderedAmount)
             return [
                 content.side == .sell ? Constants.partiallySoldTitle : Localization.predictionPlaceResultPartialTitle,
                 Localization.predictionPlaceResultPartialAmount(filled, ordered),
@@ -209,7 +209,7 @@ private extension PolymarketOrderResultViewModel {
             banner: makeBanner(state: state),
             market: content.market,
             tokensBoughtText: makeTokensBoughtText(state: state, content: content),
-            executionPriceText: content.executionPrice.map(PolymarketPriceFormatter.centsText),
+            executionPriceText: content.executionPrice.map { PolymarketPriceFormatter.centsText($0) },
             resolutionDateText: content.resolutionDate.map(PolymarketOrderResultFormatter.resolutionDate),
             tokensTitle: content.side == .sell
                 ? Constants.tokensSoldTitle
@@ -277,8 +277,7 @@ extension PolymarketOrderResultViewModel.State {
 
 private extension PolymarketOrderResultViewModel {
     enum Constants {
-        // [REDACTED_TODO_COMMENT]
-        static let viewPositionTitle = "View position"
+        static let viewPositionTitle = Localization.predictionPlaceResultViewPosition
         static let partiallySoldTitle = Localization.predictionCloseResultPartiallySoldTitle
         static let noLiquidityTitle = Localization.predictionCloseResultNoFillTitle
         static let tokensSoldTitle = Localization.predictionCloseResultTokensSold

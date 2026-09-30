@@ -9,6 +9,7 @@
 import Combine
 import CombineExt
 import Foundation
+import TangemLocalization
 import TangemStories
 
 extension StoryPlayerViewModel: CollectiblesStoriesEngine {
@@ -31,4 +32,23 @@ extension StoryPlayerViewModel: CollectiblesStoriesEngine {
     func setPaused(_ isPaused: Bool) {
         setPaused(isPaused, for: .hold)
     }
+
+    func close() {
+        closeButtonTapped()
+    }
+
+    func finish() {
+        finish(for: .collectiblesBrowsePacks)
+    }
+}
+
+// MARK: - Actions
+
+private extension StoryActionV2 {
+    static let collectiblesBrowsePacks = StoryActionV2(
+        id: "browse_packs",
+        label: Localization.collectiblesStoriesBrowsePacksButton,
+        style: .primary,
+        target: .close
+    )
 }

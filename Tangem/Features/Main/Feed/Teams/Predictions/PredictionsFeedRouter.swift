@@ -6,29 +6,48 @@
 //
 
 protocol PredictionsFeedRoutable: AnyObject {
-    func openPolymarketMain(wallet: UserWalletModel)
+    func openPolymarket(wallets: [UserWalletModel])
 }
 
 final class PredictionsFeedRouter: PredictionsFeedRoutable {
-    private weak var navigation: (any FeedNavigation)?
-    private weak var container: (any FeedContainer)?
-    private let popToRootAction: Action<PopToRootOptions>
+    private weak var host: (any FeedHostRoutable)?
+    private let widgetSheetPresenter: FeedWidgetSheetPresenter
 
-    init(context: FeedContext, container: any FeedContainer) {
-        navigation = context.navigation
-        self.container = container
-        popToRootAction = context.popToRootAction
+    init(host: (any FeedHostRoutable)?, widgetSheetPresenter: FeedWidgetSheetPresenter) {
+        self.host = host
+        self.widgetSheetPresenter = widgetSheetPresenter
     }
 
-    func openPolymarketMain(wallet: UserWalletModel) {
-        guard let navigation, navigation.isAtRoot else { return }
+    func openPolymarket(wallets: [UserWalletModel]) {
+        Task { @MainActor [weak self] in
+            guard let self, !widgetSheetPresenter.isPresenting else { return }
 
-        container?.expand()
-        let coordinator = PolymarketCoordinator(
-            dismissAction: { [weak self] in self?.navigation?.pop() },
-            popToRootAction: popToRootAction
+            if wallets.count > 1 {
+                presentWalletSelector(wallets)
+            } else if let wallet = wallets.first {
+                host?.openPolymarket(userWalletModel: wallet)
+            }
+        }
+    }
+}
+
+@MainActor
+private extension PredictionsFeedRouter {
+    func presentWalletSelector(_ wallets: [UserWalletModel]) {
+        let viewModel = PolymarketWalletSelectorViewModel(
+            userWalletModels: wallets,
+            onSelect: { [weak self] wallet in
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+
+                    widgetSheetPresenter.dismiss()
+                    host?.openPolymarket(userWalletModel: wallet)
+                }
+            },
+            onClose: { [weak self] in
+                Task { @MainActor [weak self] in self?.widgetSheetPresenter.dismiss() }
+            }
         )
-        coordinator.start(with: .init(userWalletModel: wallet))
-        navigation.push(.polymarket(coordinator))
+        widgetSheetPresenter.enqueue(viewModel)
     }
 }

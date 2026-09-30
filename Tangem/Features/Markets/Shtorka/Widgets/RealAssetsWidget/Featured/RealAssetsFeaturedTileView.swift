@@ -43,7 +43,7 @@ private extension RealAssetsFeaturedTileView {
         }
         .frame(width: tileWidth, alignment: .topLeading)
         .padding(RealAssetsFeaturedTileLayout.padding)
-        .background(DesignSystem.Color.bgOpaquePrimary, in: .rect(cornerRadius: RealAssetsFeaturedTileLayout.cornerRadius))
+        .background(DesignSystem.Color.bgTransparentPrimary, in: .rect(cornerRadius: RealAssetsFeaturedTileLayout.cornerRadius))
     }
 
     var icon: some View {
@@ -97,7 +97,7 @@ struct RealAssetsFeaturedTileSkeletonView: View {
         }
         .frame(width: tileWidth, alignment: .topLeading)
         .padding(RealAssetsFeaturedTileLayout.padding)
-        .background(DesignSystem.Color.bgOpaquePrimary, in: .rect(cornerRadius: RealAssetsFeaturedTileLayout.cornerRadius))
+        .background(DesignSystem.Color.bgTransparentPrimary, in: .rect(cornerRadius: RealAssetsFeaturedTileLayout.cornerRadius))
         .allowsHitTesting(false)
     }
 }

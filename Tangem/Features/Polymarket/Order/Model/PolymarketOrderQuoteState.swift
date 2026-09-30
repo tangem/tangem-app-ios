@@ -29,6 +29,12 @@ enum PolymarketOrderQuoteState: Equatable {
         return nil
     }
 
+    var isFailed: Bool {
+        if case .failed = self { return true }
+
+        return false
+    }
+
     var isLive: Bool {
         quote?.isLive ?? false
     }
@@ -49,6 +55,28 @@ enum PolymarketQuoteUnavailability: Equatable {
     case insufficientLiquidity
     case marketClosed
     case undefined
+}
+
+// MARK: - Book price
+
+enum PolymarketBookPriceFailure: Equatable {
+    case marketClosed
+    case unreadable
+
+    init?(error: Error) {
+        guard case PolymarketAPIError.http(let statusCode, _) = error else { return nil }
+
+        switch statusCode {
+        case Constants.noOrderBookStatusCode: self = .marketClosed
+        case Constants.invalidTokenStatusCode: self = .unreadable
+        default: return nil
+        }
+    }
+
+    private enum Constants {
+        static let noOrderBookStatusCode = 404
+        static let invalidTokenStatusCode = 400
+    }
 }
 
 // MARK: - Failure

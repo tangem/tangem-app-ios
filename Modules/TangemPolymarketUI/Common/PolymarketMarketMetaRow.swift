@@ -50,7 +50,7 @@ public struct PolymarketMarketMetaRow: View {
         }
         .padding(.horizontal, Constants.badgeInnerPadding)
         .frame(minHeight: Constants.badgeMinHeight)
-        .background(DesignSystem.Color.bgOpaquePrimary, in: Capsule())
+        .background(DesignSystem.Color.bgTransparentPrimary, in: Capsule())
     }
 
     private func volumeView(_ volume: Volume) -> some View {

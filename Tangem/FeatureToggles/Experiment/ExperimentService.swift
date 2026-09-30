@@ -14,6 +14,8 @@ import TangemFoundation
 import Experiment
 
 protocol ExperimentService {
+    var variantsPublisher: AnyPublisher<Void, Never> { get }
+
     func configure()
 
     func variant(_ key: ExperimentFeatureFlagKey) -> Variant?
@@ -37,6 +39,7 @@ final class CommonExperimentService {
     private var _client: ExperimentClient?
     private var bag: Set<AnyCancellable> = []
     private var refetchTask: Task<Void, Never>?
+    private let variantsSubject = PassthroughSubject<Void, Never>()
 
     // MARK: - Public Implementation
 
@@ -116,6 +119,8 @@ final class CommonExperimentService {
             try Task.checkCancellation()
 
             AppLogger.info("Experiments fetched for wallet \(ctx.userWalletId?.stringValue ?? "empty")")
+
+            variantsSubject.send()
         } catch is CancellationError {
             AppLogger.info("Experiment fetch cancelled for wallet \(ctx.userWalletId?.stringValue ?? "empty")")
         } catch {
@@ -127,6 +132,10 @@ final class CommonExperimentService {
 // MARK: - ExperimentService
 
 extension CommonExperimentService: ExperimentService {
+    var variantsPublisher: AnyPublisher<Void, Never> {
+        variantsSubject.eraseToAnyPublisher()
+    }
+
     func variant(_ key: ExperimentFeatureFlagKey) -> Variant? {
         _client?.variant(key.rawValue)
     }
