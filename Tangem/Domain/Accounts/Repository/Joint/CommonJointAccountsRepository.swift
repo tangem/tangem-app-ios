@@ -28,6 +28,11 @@ final class CommonJointAccountsRepository {
     private lazy var autoupdater = JointAccountsRepositoryAutoupdater(innerRepository: self, isJointAccountsAvailable: isJointAccountsAvailable)
     private var loadAccountsSubscription: AnyCancellable?
 
+    private let storageReadingQueue = DispatchQueue(
+        label: "com.tangem.CommonJointAccountsRepository.storageReadingQueue",
+        qos: .userInitiated
+    )
+
     /// - Note: The list is asked for often, and every asker gets the answer of the one request that actually goes out.
     private lazy var loadJointAccountsDebouncer = Debouncer<LoadResult>(interval: Constants.debounceInterval) { [weak self] completion in
         guard let self else {
@@ -43,7 +48,7 @@ final class CommonJointAccountsRepository {
     private lazy var storageDidUpdatePublisher: AnyPublisher<[StoredJointAccount], Never> = persistentStorage
         .didUpdatePublisher
         .prepend(()) // An initial value to trigger loading from storage
-        .receive(on: DispatchQueue.global(qos: .userInitiated))
+        .receive(on: storageReadingQueue)
         .withWeakCaptureOf(self)
         .map { repository, _ in repository.persistentStorage.getList() }
         .removeDuplicates()
@@ -55,7 +60,7 @@ final class CommonJointAccountsRepository {
     private lazy var invitesStorageDidUpdatePublisher: AnyPublisher<[StoredJointAccountInvites], Never> = invitesPersistentStorage
         .didUpdatePublisher
         .prepend(()) // An initial value to trigger loading from storage
-        .receive(on: DispatchQueue.global(qos: .userInitiated))
+        .receive(on: storageReadingQueue)
         .withWeakCaptureOf(self)
         .map { repository, _ in repository.invitesPersistentStorage.getList() }
         .removeDuplicates()
@@ -67,7 +72,7 @@ final class CommonJointAccountsRepository {
     private lazy var pendingOperationsStorageDidUpdatePublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> = pendingOperationsPersistentStorage
         .didUpdatePublisher
         .prepend(()) // An initial value to trigger loading from storage
-        .receive(on: DispatchQueue.global(qos: .userInitiated))
+        .receive(on: storageReadingQueue)
         .withWeakCaptureOf(self)
         .map { repository, _ in repository.pendingOperationsPersistentStorage.getList() }
         .removeDuplicates()
