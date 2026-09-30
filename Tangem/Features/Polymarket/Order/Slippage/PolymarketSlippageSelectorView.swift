@@ -95,7 +95,7 @@ struct PolymarketSlippageSelectorView: View {
                 .lineLimit(1)
                 .padding(.horizontal, Constants.presetHorizontalPadding)
                 .frame(minHeight: Constants.presetHeight)
-                .background(DesignSystem.Color.bgOpaquePrimary, in: Capsule())
+                .background(DesignSystem.Color.bgTransparentPrimary, in: Capsule())
         }
         .buttonStyle(.plain)
     }

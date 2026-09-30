@@ -101,6 +101,16 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
             }
             .eraseToAnyPublisher()
     }
+
+    var messageBubblePublisher: AnyPublisher<TokenItemViewModel.MessageBubble?, Never> {
+        walletModel
+            .jointOperationsAwaitingOwnSignaturePublisher
+            .map { operations -> TokenItemViewModel.MessageBubble? in
+                operations.first.map { .jointOperationAwaitingSignature($0) }
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
 }
 
 private extension DefaultTokenItemInfoProvider {

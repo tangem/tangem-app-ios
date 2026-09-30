@@ -197,6 +197,37 @@ struct CommonJointAccountsRepositoryTests {
 
         #expect(storage.accounts.count == 1)
     }
+
+    @Test("A screen asking for frequent updates gets them whatever state the accounts are in")
+    func frequentUpdatesAreGrantedToAScreen() {
+        let mode = Self.pollingMode(accounts: [Self.storedAccount(status: .active(safeAddress: Self.safeAddress))], frequentUpdatesRequestsCount: 1)
+
+        #expect(mode == .frequent)
+    }
+
+    @Test("An account waiting for members or activation is polled regularly", arguments: [JointAccountStatus.pending, .confirming(safeAddress: nil)])
+    func pendingAccountsArePolledRegularly(status: JointAccountStatus) {
+        let mode = Self.pollingMode(accounts: [Self.storedAccount(status: status)])
+
+        #expect(mode == .regular)
+    }
+
+    @Test("An operation in flight is polled regularly")
+    func pendingOperationsArePolledRegularly() {
+        let mode = Self.pollingMode(
+            pendingOperations: [StoredJointAccountPendingOperations(cryptoAccountId: Self.accountId, operations: [Self.operation()])],
+            accounts: [Self.storedAccount(status: .active(safeAddress: Self.safeAddress))]
+        )
+
+        #expect(mode == .regular)
+    }
+
+    @Test("Nothing is polled once every account has settled and no operation is in flight")
+    func settledAccountsAreNotPolled() {
+        let mode = Self.pollingMode(accounts: [Self.storedAccount(status: .active(safeAddress: Self.safeAddress))])
+
+        #expect(mode == .idle)
+    }
 }
 
 // MARK: - Helpers
@@ -233,6 +264,20 @@ private extension CommonJointAccountsRepositoryTests {
                 creatorName: "Alice"
             ),
             derivationIndex: 0
+        )
+    }
+
+    static let safeAddress = "0x8f3a1C5E7B9D0246A8C0E2B4D6F8A0C2E4B6c21b"
+
+    static func pollingMode(
+        pendingOperations: [StoredJointAccountPendingOperations] = [],
+        accounts: [StoredJointAccount],
+        frequentUpdatesRequestsCount: Int = 0
+    ) -> CommonJointAccountsRepository.JointAccountsRepositoryAutoupdater.PollingMode {
+        CommonJointAccountsRepository.JointAccountsRepositoryAutoupdater.pollingMode(
+            pendingOperations: pendingOperations,
+            accounts: accounts,
+            frequentUpdatesRequestsCount: frequentUpdatesRequestsCount
         )
     }
 

@@ -28,7 +28,7 @@ public struct ShtorkaSurface: View {
         let opacity = reportedOpacity ?? opacity
         ZStack {
             if tintsMaterial, colorScheme == .light {
-                DesignSystem.Color.bgOpaquePrimary.opacity(1 - opacity)
+                DesignSystem.Color.bgTransparentPrimary.opacity(1 - opacity)
             }
 
             DesignSystem.Color.bgPrimary.opacity(opacity)

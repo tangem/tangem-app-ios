@@ -31,7 +31,7 @@ struct EarnTokenTileSkeletonView: View {
         .frame(width: tileWidth, alignment: .topLeading)
         .padding(.bottom, 4)
         .defaultRoundedBackground(
-            with: DesignSystem.Color.bgOpaquePrimary,
+            with: DesignSystem.Color.bgTransparentPrimary,
             verticalPadding: 12,
             horizontalPadding: 12,
             cornerRadius: 24

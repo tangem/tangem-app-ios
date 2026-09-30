@@ -123,6 +123,8 @@ final class AppSettings {
     @AppStorageCompat(StorageType.polymarketHasAccount)
     var polymarketHasAccount: [String: Bool] = [:]
 
+    @AppStorageCompat(StorageType.polymarketHadPositions)
+    var polymarketHadPositions: [String: Bool] = [:]
     @AppStorageCompat(StorageType.collectiblesHasAccount)
     var collectiblesHasAccount: [String: Bool] = [:]
 
@@ -155,6 +157,9 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.tangemPayCachedCashbackSummary)
     var tangemPayCachedCashbackSummary: [String: String] = [:]
+
+    @AppStorageCompat(StorageType.tangemPayUnavailableRegion)
+    var tangemPayUnavailableRegion: [String: String] = [:]
 
     @AppStorageCompat(StorageType.jailbreakWarningWasShown)
     var jailbreakWarningWasShown: Bool = false

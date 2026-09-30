@@ -1,0 +1,210 @@
+//
+//  JointAccountOperationDetailsViewModelTests.swift
+//  TangemTests
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import Combine
+import SwiftUI
+import Testing
+import TangemFoundation
+import TangemLocalization
+import TangemUI
+@testable import Tangem
+
+@Suite("Tests for the joint operation details sheet following its operation")
+@MainActor
+struct JointAccountOperationDetailsViewModelTests {
+    private let updates = PassthroughSubject<JointAccountOperationDetailsViewModel.Update, Never>()
+    private let coordinator = RoutableSpy()
+    private let provider = PendingOperationsProviderSpy()
+
+    @Test("A new signature on the open operation reaches the sheet", .timeLimit(.minutes(1)))
+    func newSignatureIsShown() async throws {
+        let viewModel = makeViewModel()
+
+        updates.send(.content(makeContent(collectedSignaturesCount: 2)))
+
+        _ = try await viewModel.$content.first { $0.collectedSignaturesCount == 2 }.async()
+
+        #expect(viewModel.content.collectedSignaturesCount == 2)
+    }
+
+    @Test("An open signers screen follows the operation's signers and members", .timeLimit(.minutes(1)))
+    func openSignersScreenIsUpdated() async throws {
+        let viewModel = makeViewModel()
+        viewModel.handleViewAction(.openSigners)
+
+        guard case .signers(let signersViewModel) = viewModel.viewState else {
+            Issue.record("The signers screen did not open")
+            return
+        }
+
+        let signer = makeSigner(id: "0xsigner", answer: .signed(at: "12:00"))
+        updates.send(.content(makeContent(collectedSignaturesCount: 2, membersCount: 4, signers: [signer])))
+        await drainMainQueue()
+
+        #expect(signersViewModel.membersCount == 4)
+        #expect(signersViewModel.signers.map(\.id) == ["0xsigner"])
+    }
+
+    @Test("The sheet closes once the operation is no longer in flight", .timeLimit(.minutes(1)))
+    func finishedOperationClosesTheSheet() async throws {
+        let viewModel = makeViewModel()
+        viewModel.onAppear()
+
+        updates.send(.finished)
+
+        let closeCount = try await coordinator.closeCount.first { $0 > 0 }.async()
+
+        #expect(closeCount == 1)
+        withExtendedLifetime(viewModel) {}
+    }
+
+    @Test("A sheet still waiting in the queue closes once it shows, not the one on screen", .timeLimit(.minutes(1)))
+    func finishedOperationClosesTheSheetOnceItShows() async throws {
+        let viewModel = makeViewModel()
+
+        updates.send(.finished)
+        await drainMainQueue()
+
+        #expect(coordinator.closeCount.value == 0)
+
+        viewModel.onAppear()
+
+        #expect(coordinator.closeCount.value == 1)
+        #expect(provider.activeRequestsCount == 0)
+    }
+
+    @Test("An operation reported finished twice closes the sheet once", .timeLimit(.minutes(1)))
+    func finishedTwiceClosesOnce() async throws {
+        let viewModel = makeViewModel()
+        viewModel.onAppear()
+
+        updates.send(.finished)
+        updates.send(.finished)
+        await drainMainQueue()
+
+        #expect(coordinator.closeCount.value == 1)
+        #expect(provider.activeRequestsCount == 0)
+    }
+
+    @Test("An operation being sent can no longer be signed", .timeLimit(.minutes(1)))
+    func sendingOperationCannotBeSigned() async throws {
+        let viewModel = makeViewModel()
+
+        updates.send(.content(makeContent(collectedSignaturesCount: 3, isSending: true)))
+
+        _ = try await viewModel.$content.first { $0.isSending }.async()
+
+        #expect(viewModel.header.title == Localization.commonSending)
+        #expect(signButton(in: viewModel)?.isEnabled == false)
+        #expect(!viewModel.blocks.contains { if case .caption = $0 { true } else { false } })
+    }
+
+    @Test("Frequent updates are held only while the sheet is on screen")
+    func frequentUpdatesFollowVisibility() {
+        let viewModel = makeViewModel()
+
+        #expect(provider.activeRequestsCount == 0)
+
+        viewModel.onAppear()
+        #expect(provider.activeRequestsCount == 1)
+
+        viewModel.onDisappear()
+        #expect(provider.activeRequestsCount == 0)
+    }
+
+    // MARK: - Helpers
+
+    private func makeViewModel() -> JointAccountOperationDetailsViewModel {
+        JointAccountOperationDetailsViewModel(
+            tokenIconInfo: TokenIconInfo(
+                name: "Ethereum",
+                blockchainIconAsset: nil,
+                imageURL: nil,
+                isCustom: false,
+                customTokenColor: nil
+            ),
+            cryptoAmount: "–0.1 ETH",
+            fiatAmount: "$200",
+            recipient: "0xrecipient",
+            recipientBlockiesImage: nil,
+            networkFee: "~0.0005 ETH",
+            content: makeContent(collectedSignaturesCount: 1),
+            updatesPublisher: updates.eraseToAnyPublisher(),
+            pendingOperationsProvider: provider,
+            coordinator: coordinator,
+            sign: {}
+        )
+    }
+
+    private func makeContent(
+        collectedSignaturesCount: Int,
+        membersCount: Int = 3,
+        signers: [JointAccountSignerRow.ViewData] = [],
+        isSending: Bool = false
+    ) -> JointAccountOperationDetailsViewModel.Content {
+        JointAccountOperationDetailsViewModel.Content(
+            collectedSignaturesCount: collectedSignaturesCount,
+            requiredSignaturesCount: 3,
+            membersCount: membersCount,
+            signers: signers,
+            answer: .awaiting,
+            canSign: true,
+            isSending: isSending
+        )
+    }
+
+    private func makeSigner(id: String, answer: JointAccountSignerRow.Answer) -> JointAccountSignerRow.ViewData {
+        JointAccountSignerRow.ViewData(
+            id: id,
+            icon: AddressBookContactNameIconViewData(letter: "A", color: .blue),
+            name: "Alice",
+            answer: answer
+        )
+    }
+
+    private func drainMainQueue() async {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.main.async {
+                continuation.resume()
+            }
+        }
+    }
+
+    private func signButton(in viewModel: JointAccountOperationDetailsViewModel) -> TransactionDetailsActionButtonViewData? {
+        viewModel.blocks.lazy.compactMap { block in
+            if case .action(let data) = block { data } else { nil }
+        }.first
+    }
+}
+
+// MARK: - Spies
+
+private final class RoutableSpy: JointAccountOperationDetailsRoutable {
+    let closeCount = CurrentValueSubject<Int, Never>(0)
+
+    func closeOperationDetails() {
+        closeCount.value += 1
+    }
+}
+
+private final class PendingOperationsProviderSpy: JointAccountPendingOperationsProvider {
+    private(set) var activeRequestsCount = 0
+
+    var pendingOperationsPublisher: AnyPublisher<[JointAccountPendingOperation], Never> {
+        Empty().eraseToAnyPublisher()
+    }
+
+    func requestFrequentUpdates() -> AnyCancellable {
+        activeRequestsCount += 1
+
+        return AnyCancellable { [weak self] in
+            self?.activeRequestsCount -= 1
+        }
+    }
+}
