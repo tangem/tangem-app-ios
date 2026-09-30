@@ -89,6 +89,12 @@ private extension DynamicAddressesProvider {
 
         let derivationPath = helper.resolveDerivationPath(chain: chain)
         let nodes = derivationPath.nodes
+        // A derivation path shorter than chain/index (malformed / unexpected server-supplied path) would crash
+        // on the negative index below.
+        guard nodes.count >= 2 else {
+            return _defaultAddress
+        }
+
         let chainNode = nodes[nodes.count - 2]
         let addressNode = nodes[nodes.count - 1]
 
@@ -136,6 +142,10 @@ private extension DynamicAddressesProvider {
 
         let derivationPath = address.derivationPath
         let nodes = derivationPath.nodes
+        guard nodes.count >= 2 else {
+            throw BlockchainSdkError.failedToConvertPublicKey
+        }
+
         let chainNode = nodes[nodes.count - 2]
         let addressNode = nodes[nodes.count - 1]
 
