@@ -145,15 +145,24 @@ final class MainViewModel: ObservableObject {
         // being placed over the authorization or the launch (splash) screen, which is still fading out at this point.
         if shouldDelayBottomSheetVisibility {
             shouldDelayBottomSheetVisibility = false
-            mainBottomSheetUIManager.show(after: Constants.bottomSheetVisibilityColdStartDelay)
+
+            // A screen the deeplink opens before the sheet is up is taken down when the sheet arrives. The sheet picks
+            // the show up on the next main queue turn, so the handoff queues behind it. A show dropped by an early
+            // `hide()` completes at once, so the handoff still waits the fade-out from the auth screen.
+            let handoffDeadline = DispatchTime.now() + Constants.deeplinkHandoffDelay
+            mainBottomSheetUIManager.show(after: Constants.bottomSheetVisibilityColdStartDelay) { [weak self] in
+                DispatchQueue.main.asyncAfter(deadline: handoffDeadline) {
+                    self?.coordinator?.mainScreenDidAppear()
+                }
+            }
         } else {
             mainBottomSheetUIManager.show()
-        }
 
-        // A push into the stack while the screen is still fading in from the auth screen is lost, so the
-        // deeplink handoff waits the fade out.
-        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.deeplinkHandoffDelay) { [weak self] in
-            self?.coordinator?.mainScreenDidAppear()
+            // A push into the stack while the screen is still fading in from the auth screen is lost, so the
+            // deeplink handoff waits the fade out.
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.deeplinkHandoffDelay) { [weak self] in
+                self?.coordinator?.mainScreenDidAppear()
+            }
         }
     }
 
