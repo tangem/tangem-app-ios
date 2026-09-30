@@ -279,6 +279,10 @@ struct TangemPayCardManagementView: View {
                             } icon: {
                                 Image(systemName: "trash")
                             }
+
+                            if let subtitle = viewModel.closeCardSubtitle {
+                                Text(subtitle)
+                            }
                         }
                         .disabled(closeCardRow.action == nil)
                     }
