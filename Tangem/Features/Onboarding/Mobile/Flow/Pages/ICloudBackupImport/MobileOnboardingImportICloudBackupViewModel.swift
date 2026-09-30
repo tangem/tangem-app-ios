@@ -53,6 +53,7 @@ final class MobileOnboardingImportICloudBackupViewModel: ObservableObject {
     }
 
     private let passwordNotMatchedSubject = PassthroughSubject<Void, Never>()
+    private let passphraseNotMatchedSubject = PassthroughSubject<Void, Never>()
 
     private let dateFormatterCache = NSCacheWrapper<String, DateFormatter>()
     private let dateFormat = "MMMM d yyyy, h:mm a"
@@ -133,15 +134,28 @@ private extension MobileOnboardingImportICloudBackupViewModel {
             }
 
         let failedAttemptMatchingPublisher = passwordNotMatchedSubject.map { PasswordMatching.notMatched }
+        let failedPassphraseMatchingPublisher = passphraseNotMatchedSubject.map { PasswordMatching.passphraseNotMatched }
 
         passwordInputMatchingPublisher
-            .merge(with: failedAttemptMatchingPublisher)
+            .merge(with: failedAttemptMatchingPublisher, failedPassphraseMatchingPublisher)
             .receiveOnMain()
             .assign(to: &$passwordMatching)
     }
 
     func sendPasswordNotMatched() {
         passwordNotMatchedSubject.send()
+    }
+
+    func sendPassphraseNotMatched() {
+        passphraseNotMatchedSubject.send()
+    }
+
+    func matchesBackupWalletId(_ userWalletId: UserWalletId) -> Bool {
+        guard let backup else {
+            return false
+        }
+
+        return userWalletId == UserWalletId(value: Data(hexString: backup.metadata.walletId))
     }
 
     func initialSetup() {
@@ -198,6 +212,17 @@ private extension MobileOnboardingImportICloudBackupViewModel {
         do {
             await setupIsProcessing(true)
             let userWalletModel = try await createWallet(mnemonicWords: mnemonicWords, passphrase: passphrase)
+
+            // The backup password is verified, the passphrase is not: any string yields a valid, different wallet.
+            // The backup carries the id of the wallet it was made from — compare before adding anything, otherwise a
+            // typo silently restores an empty wallet and marks it as backed up in iCloud.
+            guard matchesBackupWalletId(userWalletModel.userWalletId) else {
+                MobileCleanupUtil.cleanMobileWallet(walletId: userWalletModel.userWalletId)
+                await setupIsProcessing(false)
+                sendPassphraseNotMatched()
+                return
+            }
+
             try await addWallet(userWalletModel: userWalletModel)
             await setupIsProcessing(false)
 
@@ -364,11 +389,13 @@ extension MobileOnboardingImportICloudBackupViewModel {
         case none
         case notDetermined
         case notMatched
+        case passphraseNotMatched
 
         var description: String? {
             switch self {
             case .none, .notDetermined: nil
             case .notMatched: Localization.hwCloudBackupRestoreWrongPassword
+            case .passphraseNotMatched: Localization.hwCloudBackupRestoreWrongPassphrase
             }
         }
 
@@ -376,7 +403,7 @@ extension MobileOnboardingImportICloudBackupViewModel {
             switch self {
             case .none: DesignSystem.Color.borderBrand
             case .notDetermined: DesignSystem.Color.borderTertiary
-            case .notMatched: DesignSystem.Color.borderStatusError
+            case .notMatched, .passphraseNotMatched: DesignSystem.Color.borderStatusError
             }
         }
     }
