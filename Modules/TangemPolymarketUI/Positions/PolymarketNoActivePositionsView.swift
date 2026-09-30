@@ -41,7 +41,7 @@ public struct PolymarketNoActivePositionsView: View {
             .frame(width: Constants.iconSide, height: Constants.iconSide)
             .foregroundStyle(DesignSystem.Color.iconSecondary)
             .frame(width: Constants.iconContainerSide, height: Constants.iconContainerSide)
-            .background(DesignSystem.Color.bgOpaqueSecondary, in: Circle())
+            .background(DesignSystem.Color.bgTransparentSecondary, in: Circle())
             .opacity(Constants.iconContainerOpacity)
     }
 }

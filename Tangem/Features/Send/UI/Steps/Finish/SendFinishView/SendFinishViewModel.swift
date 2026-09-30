@@ -28,6 +28,7 @@ class SendFinishViewModel: ObservableObject, Identifiable {
     @Published private(set) var addContactViewModel: SendAddContactFinishViewModel?
     @Published private(set) var stakingTargetsCompactViewModel: StakingTargetsCompactViewModel?
     @Published private(set) var sendFeeFinishViewModel: SendFeeFinishViewModel?
+    @Published private(set) var jointAccountSignaturesCompactViewModel: JointAccountSignaturesCompactViewModel?
 
     // Staking
 
@@ -50,6 +51,7 @@ class SendFinishViewModel: ObservableObject, Identifiable {
         sendFeeFinishViewModel: SendFeeFinishViewModel?,
         onrampAmountCompactViewModel: OnrampAmountCompactViewModel?,
         onrampStatusCompactViewModel: OnrampStatusCompactViewModel?,
+        jointAccountSignaturesCompactViewModel: JointAccountSignaturesCompactViewModel?,
         settings: Settings,
         headerTitleProvider: any SendFinishHeaderTitleProvider,
         analyticsLogger: SendFinishAnalyticsLogger,
@@ -63,6 +65,7 @@ class SendFinishViewModel: ObservableObject, Identifiable {
         self.sendFeeFinishViewModel = sendFeeFinishViewModel
         self.onrampAmountCompactViewModel = onrampAmountCompactViewModel
         self.onrampStatusCompactViewModel = onrampStatusCompactViewModel
+        self.jointAccountSignaturesCompactViewModel = jointAccountSignaturesCompactViewModel
         self.settings = settings
         self.headerTitleProvider = headerTitleProvider
         self.analyticsLogger = analyticsLogger

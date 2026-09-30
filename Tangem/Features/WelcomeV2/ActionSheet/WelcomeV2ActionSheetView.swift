@@ -103,7 +103,7 @@ private struct RowIcon: View {
             .frame(size: CGSize(bothDimensions: glyphSize))
             .foregroundStyle(DesignSystem.Color.iconPrimary)
             .frame(size: CGSize(bothDimensions: backdropSize))
-            .background(DesignSystem.Color.bgOpaquePrimary, in: Circle())
+            .background(DesignSystem.Color.bgTransparentPrimary, in: Circle())
             .accessibilityHidden(true)
     }
 }

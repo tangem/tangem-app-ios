@@ -181,6 +181,23 @@ struct PolymarketPlaceOrderWireFormatTests {
         }
     }
 
+    @Test("An order that never left the device is a definite failure, not an unknown outcome", arguments: [
+        URLError.Code.notConnectedToInternet,
+        .cannotFindHost,
+        .dnsLookupFailed,
+        .secureConnectionFailed,
+    ])
+    func unsentOrderIsFinal(_ code: URLError.Code) {
+        let error = CommonPolymarketCLOBService.placementError(from: .connection(underlying: URLError(code)))
+
+        #expect(!error.isAmbiguous)
+
+        guard case .notSent = error else {
+            Issue.record("Expected a not-sent failure, got \(error)")
+            return
+        }
+    }
+
     @Test("An outcome the device never learned is ambiguous, so the order is never offered twice", arguments: [
         PolymarketAPIError.connection(underlying: URLError(.timedOut)),
         PolymarketAPIError.http(statusCode: 502, problemDetail: nil),
