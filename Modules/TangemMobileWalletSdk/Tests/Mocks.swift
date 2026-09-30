@@ -75,6 +75,20 @@ final class MockedSecureEnclaveService: MobileWalletSecureEnclaveService {
     func delete(tag: String) {}
 }
 
+/// Simulates a Secure Enclave whose wrapping key has been purged (e.g. by turning the device passcode off):
+/// encryption still works (a fresh key is minted), but nothing wrapped with the old key can be unwrapped.
+final class MockedPurgedKeySecureEnclaveService: MobileWalletSecureEnclaveService {
+    func encryptData(_ data: Data, keyTag: String) throws -> Data {
+        Data(data.reversed())
+    }
+
+    func decryptData(_ data: Data, keyTag: String) throws -> Data {
+        throw MockedError.genericError
+    }
+
+    func delete(tag: String) {}
+}
+
 final class MockedBiometricsSecureEnclaveService: MobileWalletBiometricsSecureEnclaveService {
     func encryptData(_ data: Data, keyTag: String, context: LAContext?) throws -> Data {
         Data(data.reversed())

@@ -40,5 +40,8 @@ enum MobileAccessCodeState: Equatable {
     enum UnavailableState: Equatable {
         /// Wallet must be deleted.
         case needsToDelete
+        /// The access code is correct but the key storage (Secure Enclave wrapping key) cannot open the wallet.
+        /// No code the user can enter would help; the wallet has to be restored from its backup.
+        case keyStorageUnavailable
     }
 }
