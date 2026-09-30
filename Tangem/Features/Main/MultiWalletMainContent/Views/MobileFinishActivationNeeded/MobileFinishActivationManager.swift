@@ -117,19 +117,26 @@ final class MobileFinishActivationManager {
     ) {
         guard isActivationNeeded else { return }
 
-        isActivationNeeded = false
         activationSubscription = nil
 
         guard
             let observation,
             let userWalletModel = userWalletRepository.models[observation.userWalletId]
         else {
+            isActivationNeeded = false
             return
         }
 
-        if isMainAppeared, hasPositiveBalance, !hasMainDeepLink {
-            observation.activation(userWalletModel)
+        guard isMainAppeared, hasPositiveBalance, !hasMainDeepLink else {
+            // The prompt was not shown (e.g. a deep link opened another screen on top of Main),
+            // so keep the nudge and re-evaluate it the next time Main appears.
+            isSubscriptionNeeded = true
+            hasMainDeepLinkSubject.send(nil)
+            return
         }
+
+        isActivationNeeded = false
+        observation.activation(userWalletModel)
     }
 }
 
