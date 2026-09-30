@@ -128,6 +128,7 @@ private final class HistoryProviderStub: FeedSearchHistoryProvider {
 
 private final class RouterStub: EarnFeedRoutable {
     func routeOnTokenResolved(_ resolution: EarnTokenResolution, source: EarnOpportunitySource) {}
+    func openPortfolioToken(_ walletModel: any WalletModel) {}
     func openNetworksFilter() {}
     func openTypesFilter() {}
 }

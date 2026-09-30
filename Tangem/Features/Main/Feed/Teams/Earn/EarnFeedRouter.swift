@@ -6,29 +6,25 @@
 //
 
 import CoreGraphics
-import TangemFoundation
 import TangemUI
 
 protocol EarnFeedRoutable: AnyObject {
     func routeOnTokenResolved(_ resolution: EarnTokenResolution, source: EarnOpportunitySource)
+    func openPortfolioToken(_ walletModel: any WalletModel)
     func openNetworksFilter()
     func openTypesFilter()
 }
 
 final class EarnFeedRouter {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.floatingSheetPresentingStateProvider) private var sheetStateProvider: FloatingSheetPresentingStateProvider
     @Injected(\.earnDataFilterProvider) private var filterProvider: EarnDataFilterProvider
     @Injected(\.earnAnalyticsProvider) private var analyticsProvider: EarnAnalyticsProvider
 
-    private weak var navigation: (any FeedNavigation)?
-
-    private let popToRootAction: Action<PopToRootOptions>
+    private let portfolioTokenRouter: FeedPortfolioTokenRouter
 
     init(context: FeedContext) {
-        navigation = context.navigation
-        popToRootAction = context.popToRootAction
+        portfolioTokenRouter = FeedPortfolioTokenRouter(context: context)
     }
 }
 
@@ -40,8 +36,12 @@ extension EarnFeedRouter: EarnFeedRoutable {
         case .toAdd(let token, let userWalletModels):
             openAddToken(for: token, userWalletModels: userWalletModels, source: source)
         case .alreadyAdded(let walletModel, _):
-            openPortfolioToken(walletModel)
+            portfolioTokenRouter.push(walletModel)
         }
+    }
+
+    func openPortfolioToken(_ walletModel: any WalletModel) {
+        portfolioTokenRouter.open(walletModel)
     }
 
     func openNetworksFilter() {
@@ -90,37 +90,6 @@ private extension EarnFeedRouter {
     }
 }
 
-// MARK: - Portfolio token
-
-private extension EarnFeedRouter {
-    func openPortfolioToken(_ walletModel: any WalletModel) {
-        guard
-            let userWalletModel = userWalletRepository.models[walletModel.userWalletId],
-            let accountModel = walletModel.account
-        else {
-            return
-        }
-
-        let coordinator = TokenDetailsCoordinator(
-            dismissAction: { [weak self] _ in self?.navigation?.pop() },
-            popToRootAction: popToRootAction
-        )
-
-        coordinator.start(
-            with: .init(
-                userWalletInfo: userWalletModel.userWalletInfo,
-                keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
-                walletModelsManager: accountModel.walletModelsManager,
-                userTokensManager: accountModel.userTokensManager,
-                addressBookManager: userWalletModel.addressBookManager,
-                walletModel: walletModel,
-                presentSource: .markets
-            )
-        )
-        navigation?.push(.portfolioToken(coordinator))
-    }
-}
-
 // MARK: - Add token
 
 private extension EarnFeedRouter {
@@ -161,7 +130,7 @@ private extension EarnFeedRouter {
 
 extension EarnFeedRouter: EarnAddTokenRoutable {
     func presentTokenDetails(by walletModel: any WalletModel, with userWalletModel: UserWalletModel) {
-        openPortfolioToken(walletModel)
+        portfolioTokenRouter.push(walletModel)
     }
 
     func close() {

@@ -72,6 +72,7 @@ struct RealAssetsContentView: View {
             MarketsAccessibilityIdentifiers.marketsIntervalSegment(option.interval.rawValue)
         }
         .fixedSize(horizontal: true, vertical: false)
+        .id(viewModel.selectedInterval)
     }
 
     private var orderChips: some View {
