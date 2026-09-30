@@ -474,7 +474,10 @@ extension SendDestinationViewModel: SendDestinationAddressViewRoutable {
 
 extension SendDestinationViewModel: SendDestinationExternalUpdatableViewModel {
     func externalUpdate(address: SendDestination) {
-        destinationAddressViewModel.update(address: .init(string: address.value.transactionAddress, source: address.source))
+        // The text field must show what the user typed (e.g. an ENS name), not the resolved transaction address.
+        // Feeding the resolved address back into the field re-triggers `addressDidChanged`, which turns the
+        // destination into `.plain(resolved)` and drops both the name and the "resolved address" row.
+        destinationAddressViewModel.update(address: .init(string: address.value.typedAddress, source: address.source))
         destinationResolvedAddress = address.value.showableResolved
     }
 
