@@ -75,7 +75,9 @@ actor WalletConnectDAppSessionsExtender {
     private func extend(connectedDApp: WalletConnectConnectedDApp) async throws -> WalletConnectConnectedDApp {
         try await dAppSessionExtensionService.extendSession(withTopic: connectedDApp.session.topic)
 
-        let expiryDate = connectedDApp.session.expiryDate.advanced(by: Constants.extendedExpiryDateInSeconds)
+        // The relay sets the new expiry relative to *now*; counting from the stored expiry drifts by up to
+        // 7 days per extension, keeps really expired sessions in `nonExpiredDApps` and fails the next batch.
+        let expiryDate = currentDateProvider().advanced(by: Constants.extendedExpiryDateInSeconds)
         return connectedDApp.with(updatedExpiryDate: expiryDate)
     }
 
