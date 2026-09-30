@@ -75,7 +75,10 @@ class XRPTransactionBuilder {
 
     private func buildTransaction(from transaction: Transaction, partialPaymentAllowed: Bool) throws -> XRPTransaction {
         guard let account = account,
-              let sequence = (transaction.params as? XRPTransactionParams)?.sequence
+              let sequence = (transaction.params as? XRPTransactionParams)?.sequence,
+              // The node's `Sequence` is decoded as an unbounded `Int`; the XRPL binary serializer
+              // force-casts it to `UInt32` and would trap on a negative or >= 2^32 value.
+              UInt32(exactly: sequence) != nil
         else {
             throw BlockchainSdkError.failedToBuildTx
         }
@@ -119,6 +122,7 @@ class XRPTransactionBuilder {
     func buildTrustSetTransaction(from transaction: Transaction) throws -> XRPTransaction {
         guard let account = account,
               let sequence = (transaction.params as? XRPTransactionParams)?.sequence,
+              UInt32(exactly: sequence) != nil, // see `buildTransaction`
               case .token(let token) = transaction.amount.type
         else {
             throw BlockchainSdkError.failedToBuildTx
