@@ -71,12 +71,19 @@ final class NEARTransactionBuilder {
 
         let deposit = try depositPayload(from: transaction.amount)
 
+        // `currentNonce` comes from the node's `view_access_key`; `+ 1` traps at `UInt.max`.
+        let (nonce, overflow) = transactionParams.currentNonce.addingReportingOverflow(1)
+
+        guard !overflow else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+
         return NEARSigningInput.with { input in
             input.publicKey = transactionParams.publicKey.blockchainKey
             input.signerID = transaction.sourceAddress
             input.receiverID = transaction.destinationAddress
             input.blockHash = transactionParams.recentBlockHash.base58DecodedData
-            input.nonce = UInt64(transactionParams.currentNonce + 1)
+            input.nonce = UInt64(nonce)
             input.actions = [
                 NEARAction.with { action in
                     action.transfer = NEARTransfer.with { transfer in
