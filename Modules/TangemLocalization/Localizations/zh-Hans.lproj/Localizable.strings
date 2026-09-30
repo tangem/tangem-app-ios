@@ -1678,6 +1678,7 @@
 "send_enter_address_field_ens_name" = "Address, ENS or name";
 "send_enter_address_field_ens" = "ENS名称或地址";
 "send_enter_address_field" = "输入地址";
+"send_error_address_is_token_contract" = "Address is the token contract address";
 "send_error_address_same_as_wallet" = "地址与钱包地址相同";
 "send_error_dust_change" = "找零太小";
 "send_error_no_target_account" = "目标账户尚未创建。发送金额应为 %@ +费用或更多";

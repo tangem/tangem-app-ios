@@ -1678,6 +1678,7 @@
 "send_enter_address_field_ens_name" = "Endereço, ENS ou nome";
 "send_enter_address_field_ens" = "Nome ou endereço ENS";
 "send_enter_address_field" = "Insira o endereço";
+"send_error_address_is_token_contract" = "Address is the token contract address";
 "send_error_address_same_as_wallet" = "O endereço é o mesmo que o endereço da carteira.";
 "send_error_dust_change" = "A mudança é muito pequena.";
 "send_error_no_target_account" = "A conta de destino não foi criada. O valor a ser enviado deve ser %@ + taxa ou mais";
