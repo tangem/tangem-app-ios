@@ -30,13 +30,20 @@ struct MoyaSessionAuthenticationClient: SessionAuthenticationClient {
     }
 
     func requestCipheredNonce(devicePublicKey: DevicePublicKey) async throws(SessionAuthenticationClientError) -> String {
+        let requestBody = NonceDTO.Request(devicePublicKey: devicePublicKey.derRepresentation.base64EncodedString())
+        let target = BackendAuthenticationTarget(authenticationNonce: requestBody, baseURL: baseURL)
+
+        let response: Moya.Response
         do {
-            let requestBody = NonceDTO.Request(devicePublicKey: devicePublicKey.derRepresentation.base64EncodedString())
-            let target = BackendAuthenticationTarget(authenticationNonce: requestBody, baseURL: baseURL)
+            response = try await provider.request(target)
+        } catch {
+            throw error.isTimeout
+                ? SessionAuthenticationClientError.requestNonceTimeout
+                : SessionAuthenticationClientError.requestNonceFailed(underlying: error)
+        }
 
-            let response = try await provider.request(target)
+        do {
             let nonceResponse = try decoder.decode(NonceDTO.Response.self, from: response.data)
-
             return nonceResponse.cipheredNonce
         } catch {
             throw SessionAuthenticationClientError.requestNonceFailed(underlying: error)
