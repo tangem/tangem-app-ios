@@ -100,7 +100,9 @@ final class ChiaTransactionBuilder {
     /// - Returns: Sum value for transaction
     func getTransactionCost(amount: Amount) -> Int64 {
         let decimalAmount = (amount.value * blockchain.decimalValue).roundedDecimalNumber.int64Value
-        let decimalBalance = unspentCoins.map { $0.amount }.reduce(0, +)
+        // Node-supplied coin amounts; saturate on overflow so the (non-throwing) cost estimate
+        // degrades to "change exists" instead of trapping.
+        let decimalBalance = Self.checkedSum(unspentCoins.map { $0.amount }) ?? Int64.max
         let change = decimalBalance - decimalAmount
         let numberOfCoinsCreated: Int = change > 0 ? 2 : 1
 
@@ -110,12 +112,34 @@ final class ChiaTransactionBuilder {
     // MARK: - Private Implementation
 
     private func calculateChange(transaction: Transaction, unspentCoins: [ChiaCoin]) throws -> Int64 {
-        let fullAmount = unspentCoins.map { $0.amount }.reduce(0, +)
+        // Coin amounts come from the indexer; a set whose sum exceeds Int64.max must not trap
+        // (`reduce(0, +)` would) — fail the build instead.
+        guard let fullAmount = Self.checkedSum(unspentCoins.map { $0.amount }) else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+
         let transactionAmount = (transaction.amount.value * blockchain.decimalValue).roundedDecimalNumber.int64Value
         let transactionFeeAmount = (transaction.fee.amount.value * blockchain.decimalValue).roundedDecimalNumber.int64Value
         let changeAmount = fullAmount - (transactionAmount + transactionFeeAmount)
 
         return changeAmount
+    }
+
+    /// Sums `Int64` values, returning `nil` instead of trapping when the total overflows.
+    private static func checkedSum(_ values: [Int64]) -> Int64? {
+        var total: Int64 = 0
+
+        for value in values {
+            let (sum, overflow) = total.addingReportingOverflow(value)
+
+            guard !overflow else {
+                return nil
+            }
+
+            total = sum
+        }
+
+        return total
     }
 
     private func toChiaCoinSpends(change: Int64, destination: String, source: String, amount: Amount) throws -> [ChiaCoinSpend] {
