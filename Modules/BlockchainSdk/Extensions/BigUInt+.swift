@@ -47,6 +47,13 @@ public extension BigUInt {
         return result
     }
 
+    /// A `Decimal` that never traps. Unlike `Decimal(UInt64(self))`, it does not overflow for values above
+    /// `UInt64.max` — a fee/gas value that large (from a dApp or a misbehaving RPC) used to crash the app on
+    /// every fee refresh. Precision may be lost for such values, which is acceptable: the fee is unusable anyway.
+    var decimalOrClamped: Decimal {
+        decimal ?? Decimal(string: String(self)) ?? .greatestFiniteMagnitude
+    }
+
     private static var decimalFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
