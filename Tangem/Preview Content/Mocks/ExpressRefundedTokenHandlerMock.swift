@@ -8,9 +8,10 @@
 
 import Foundation
 import TangemExpress
+import TangemFoundation
 
 struct ExpressRefundedTokenHandlerMock: ExpressRefundedTokenHandler {
-    func handle(blockchainNetwork: BlockchainNetwork, expressCurrency: ExpressCurrency) async throws -> TokenItem {
+    func handle(blockchainNetwork: BlockchainNetwork, expressCurrency: ExpressCurrency, userWalletId: UserWalletId) async throws -> TokenItem {
         return .blockchain(.init(.polygon(testnet: false), derivationPath: nil))
     }
 }
