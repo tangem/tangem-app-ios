@@ -37,8 +37,6 @@ private extension CollectiblesPackCard.Artwork {
         ZStack {
             if case .success(let image) = loadingState {
                 glow(image)
-
-                groundShadow
             }
 
             KFImage(url)
@@ -88,15 +86,6 @@ private extension CollectiblesPackCard.Artwork {
             .allowsHitTesting(false)
     }
 
-    var groundShadow: some View {
-        Ellipse()
-            .fill(.black)
-            .frame(width: Metrics.shadowWidth * scale, height: Metrics.shadowHeight * scale)
-            .blur(radius: Metrics.shadowBlur * scale)
-            .opacity(Metrics.shadowOpacity)
-            .offset(y: Metrics.shadowOffset * scale)
-    }
-
     // MARK: - Calculations
 
     var scale: CGFloat {
@@ -120,11 +109,6 @@ private extension CollectiblesPackCard.Artwork {
         static let glowScale: CGFloat = 1.25
         static let glowBlur: CGFloat = 27
         static let glowOpacity: CGFloat = 0.55
-        static let shadowWidth: CGFloat = 80
-        static let shadowHeight: CGFloat = 24
-        static let shadowBlur: CGFloat = 10
-        static let shadowOpacity: CGFloat = 0.7
-        static let shadowOffset: CGFloat = 88
         static let placeholderCornerRadius: CGFloat = 12
         static let placeholderWidth: CGFloat = 116
         static let placeholderHeight: CGFloat = 169

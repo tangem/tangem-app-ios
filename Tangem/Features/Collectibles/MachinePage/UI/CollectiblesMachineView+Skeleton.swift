@@ -34,19 +34,12 @@ private extension CollectiblesMachineView.Skeleton {
 
     func section(chipsCount: Int) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            headingBar
+            CollectiblesMachineView.HeadingBar()
                 .padding(.vertical, CollectiblesMachineView.Metrics.sectionHeaderVerticalPadding)
 
             chipGrid(count: chipsCount)
                 .padding(.vertical, CollectiblesMachineView.Metrics.chipsContainerVerticalPadding)
         }
-    }
-
-    var headingBar: some View {
-        Shimmer()
-            .frame(width: Metrics.headingBarWidth, height: Metrics.headingBarHeight)
-            .clipShape(Capsule())
-            .frame(height: Metrics.headingLineHeight)
     }
 
     func chipGrid(count: Int) -> some View {
@@ -71,9 +64,6 @@ private extension CollectiblesMachineView.Skeleton {
         static let tierChipsCount = 4
         static let detailChipsCount = 2
         static let chipHeight: CGFloat = 72
-        static let headingBarWidth: CGFloat = 101
-        static let headingBarHeight: CGFloat = 12
-        static let headingLineHeight: CGFloat = 18
         static let poweredByTopPadding: CGFloat = 4
     }
 }

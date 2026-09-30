@@ -16,14 +16,30 @@ struct CollectiblesPrizePoolView: View {
     @ObservedObject var viewModel: CollectiblesPrizePoolViewModel
 
     var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            pool
+
+            poweredBy
+        }
+        .animation(.easeInOut(duration: 0.15), value: viewModel.state.isLoading)
+    }
+}
+
+private extension CollectiblesPrizePoolView {
+    // MARK: - View properties
+
+    @ViewBuilder
+    var pool: some View {
         switch viewModel.state {
         case .loading:
-            section { CollectiblesPrizeGrid.Skeleton() }
+            section(header: { CollectiblesMachineView.HeadingBar() }, content: { CollectiblesPrizeGrid.Skeleton() })
+                .padding(.top, CollectiblesMachineView.Metrics.sectionsGap)
         case .content(let models):
-            section {
+            section(header: { heading }) {
                 CollectiblesPrizeGrid(models: models, onLastItemAppear: viewModel.loadMore)
                 paginationFooter
             }
+            .padding(.top, CollectiblesMachineView.Metrics.sectionsGap)
         case .failed:
             // The mockup drops the section header along with the pool, the message stands on its own.
             CollectiblesEmptyMessage(
@@ -32,24 +48,36 @@ struct CollectiblesPrizePoolView: View {
                 onRetry: viewModel.retry
             )
             .frame(height: Metrics.messageHeight)
+            .padding(.top, CollectiblesMachineView.Metrics.sectionsGap)
         case .empty:
             EmptyView()
         }
     }
-}
 
-private extension CollectiblesPrizePoolView {
-    // MARK: - View properties
+    @ViewBuilder
+    var poweredBy: some View {
+        switch viewModel.state {
+        case .failed:
+            EmptyView()
+        case .loading, .content, .empty:
+            CollectiblesMachineView.PoweredBy()
+                .padding(.top, Metrics.poweredByTopPadding)
+        }
+    }
 
-    func section(@ViewBuilder content: () -> some View) -> some View {
+    func section(@ViewBuilder header: () -> some View, @ViewBuilder content: () -> some View) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(Localization.collectiblesMachinePrizePoolSection)
-                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
+            header()
                 .padding(.vertical, Metrics.headerVerticalPadding)
 
             content()
                 .padding(.top, Metrics.contentTopPadding)
         }
+    }
+
+    var heading: some View {
+        Text(Localization.collectiblesMachinePrizePoolSection)
+            .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
     }
 
     @ViewBuilder
@@ -73,6 +101,7 @@ private extension CollectiblesPrizePoolView {
 
 private extension CollectiblesPrizePoolView {
     enum Metrics {
+        static let poweredByTopPadding: CGFloat = 4
         static let headerVerticalPadding: CGFloat = 10
         static let contentTopPadding: CGFloat = 12
         static let paginationVerticalPadding: CGFloat = 16
