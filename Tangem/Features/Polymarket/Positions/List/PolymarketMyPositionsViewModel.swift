@@ -118,6 +118,8 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
     func refresh() async {
         guard loadingState != .loading, loadingState != .paginationLoading else { return }
 
+        loadingTask?.cancel()
+
         let tab = tab
 
         refreshTask = runTask(in: self) { @MainActor viewModel in
@@ -144,6 +146,7 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
 
     func reload() {
         loadingTask?.cancel()
+        refreshTask?.cancel()
         loaded = []
         seenIDs = []
         rows = []

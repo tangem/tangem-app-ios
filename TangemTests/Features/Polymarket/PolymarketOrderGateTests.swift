@@ -211,9 +211,16 @@ struct PolymarketOrderGateTests {
         #expect(Self.buyIntent.minAmount(from: quote) == Decimal(string: "3.675")!)
     }
 
-    @Test("Selling floors at one token, whatever the exchange asks for")
-    func sellFloorsAtOneToken() {
+    @Test("Selling floors at what the exchange asks for once that is above a token")
+    func sellFloorsAtTheExchangeMinimum() {
         let quote = PolymarketOrderQuote.stub(status: .full, minOrderSize: 5, minOrderAmount: 1)
+
+        #expect(PolymarketOrderIntent.sell(shares: 1000).minAmount(from: quote) == 5)
+    }
+
+    @Test("Selling floors at one token when the exchange asks for less")
+    func sellFloorsAtOneToken() {
+        let quote = PolymarketOrderQuote.stub(status: .full, minOrderSize: Decimal(string: "0.2")!, minOrderAmount: 1)
 
         #expect(PolymarketOrderIntent.sell(shares: 1000).minAmount(from: quote) == 1)
     }
@@ -284,6 +291,42 @@ struct PolymarketOrderGateTests {
     }
 }
 
+@MainActor
+@Suite("Polymarket quote age")
+struct PolymarketOrderQuoteAgeTests {
+    static let receivedAt = Date(timeIntervalSince1970: 1_000_000)
+
+    @Test("A quote younger than the ceiling outlives a failed refresh")
+    func freshQuoteSurvivesAFailedRefresh() {
+        let state = PolymarketOrderModel.State.stub(quote: .stub(status: .full), quoteReceivedAt: Self.receivedAt)
+        let moment = Self.receivedAt.addingTimeInterval(PolymarketOrderModel.maxQuoteAge)
+
+        #expect(state.keepsQuote(at: moment))
+    }
+
+    @Test("A quote older than the ceiling is dropped on a failed refresh")
+    func staleQuoteIsDroppedOnAFailedRefresh() {
+        let state = PolymarketOrderModel.State.stub(quote: .stub(status: .full), quoteReceivedAt: Self.receivedAt)
+        let moment = Self.receivedAt.addingTimeInterval(PolymarketOrderModel.maxQuoteAge + 1)
+
+        #expect(!state.keepsQuote(at: moment))
+    }
+
+    @Test("Without an answered quote there is nothing to keep")
+    func emptyQuoteIsNeverKept() {
+        let state = PolymarketOrderModel.State.stub(quoteState: .empty, quoteReceivedAt: Self.receivedAt)
+
+        #expect(!state.keepsQuote(at: Self.receivedAt))
+    }
+
+    @Test("A quote that never recorded its arrival is not kept")
+    func undatedQuoteIsNotKept() {
+        let state = PolymarketOrderModel.State.stub(quote: .stub(status: .full), quoteReceivedAt: nil)
+
+        #expect(!state.keepsQuote(at: Self.receivedAt))
+    }
+}
+
 // MARK: - Fixtures
 
 extension PolymarketOrderModel.State {
@@ -292,7 +335,8 @@ extension PolymarketOrderModel.State {
         enteredAmount: Decimal? = 100,
         minAmount: Decimal? = nil,
         balance: Decimal? = 30000,
-        geoblock: PolymarketGeoblockState = .allowed
+        geoblock: PolymarketGeoblockState = .allowed,
+        quoteReceivedAt: Date? = nil
     ) -> PolymarketOrderModel.State {
         var state = PolymarketOrderModel.State()
         state.quote = quoteState
@@ -300,6 +344,7 @@ extension PolymarketOrderModel.State {
         state.minAmount = minAmount
         state.balance = balance
         state.geoblock = geoblock
+        state.quoteReceivedAt = quoteReceivedAt
 
         return state
     }
@@ -309,14 +354,16 @@ extension PolymarketOrderModel.State {
         enteredAmount: Decimal? = 100,
         minAmount: Decimal? = nil,
         balance: Decimal? = 30000,
-        geoblock: PolymarketGeoblockState = .allowed
+        geoblock: PolymarketGeoblockState = .allowed,
+        quoteReceivedAt: Date? = nil
     ) -> PolymarketOrderModel.State {
         stub(
             quoteState: PolymarketOrderQuoteState(quote: quote),
             enteredAmount: enteredAmount,
             minAmount: minAmount,
             balance: balance,
-            geoblock: geoblock
+            geoblock: geoblock,
+            quoteReceivedAt: quoteReceivedAt
         )
     }
 }

@@ -64,7 +64,7 @@ extension PolymarketOrderIntent {
 
             return max(shareFloor, amountFloor)
         case .sell(let shares):
-            return min(Constants.wholeShare, shares)
+            return min(max(quote.minOrderSize, Constants.wholeShare), shares)
         }
     }
 }
