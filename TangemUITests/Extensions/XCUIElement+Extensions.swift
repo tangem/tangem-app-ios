@@ -80,6 +80,12 @@ extension XCUIElement {
         let expectation = XCTNSPredicateExpectation(predicate: predicate, object: self)
         return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
     }
+
+    func staysAbsent(for duration: TimeInterval) -> Bool {
+        let expectation = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == true"), object: self)
+        expectation.isInverted = true
+        return XCTWaiter().wait(for: [expectation], timeout: duration) == .completed
+    }
 }
 
 // MARK: UI actions
