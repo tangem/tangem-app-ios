@@ -18,6 +18,9 @@ extension PreserveRule {
     )
 }
 
+/// Patterns are regex literals rather than `RegexBuilder` compositions: the Swift 6.4.0 runtime shipped
+/// with iOS 27.0 corrupts a builder regex when a string literal is followed by an embedded regex that also
+/// starts with a literal, which made this rule match arbitrary text. `ChoiceOf` only alternates and is unaffected.
 private extension PreserveRule {
     static let walletConnectTypesPattern = Regex {
         ChoiceOf {
@@ -29,159 +32,102 @@ private extension PreserveRule {
     }
 
     /// [REDACTED_USERNAME], symKey is consider sensitive, so we only preserve first first part of the type.
-    static let walletConnectURI = Regex {
-        "WalletConnectURI("
-        property("topic")
-        property("version")
-        "symKey: "
-    }
+    static let walletConnectURI = #/(?s)WalletConnectURI\(topic: (?:(?!, ).)*, version: (?:(?!, ).)*, symKey: /#
 
-    static let session = Regex {
-        "Session("
-        property("topic")
-        property("pairingTopic")
-        property("peer", nextPropertyName: "requiredNamespaces")
-        property("requiredNamespaces", nextPropertyName: "namespaces")
-        property("namespaces", nextPropertyName: "sessionProperties")
-        property("sessionProperties")
-        property("scopedProperties")
-        "expiryDate: "
-        OneOrMore {
-            NegativeLookahead { ")" }
-            CharacterClass.any
-        }
-        ")"
-    }
+    // swiftformat:disable indent
+    // SwiftFormat misreads escaped brackets inside multi-line regex literals and breaks their indentation.
 
-    static let request = Regex {
-        "Request("
-        property("id")
-        property("topic")
-        property("method")
-        property("params", nextPropertyName: "chainId")
-        property("chainId")
-        "expiryTimestamp: "
-        ChoiceOf {
-            "nil"
-            Regex {
-                "Optional("
-                OneOrMore(.digit)
-                ")"
-            }
-            OneOrMore(.digit)
-        }
-        ")"
-    }
+    static let session = #/
+        (?s)
+        Session\(
+        topic:\ (?:(?!,\ ).)*
+        ,\ pairingTopic:\ (?:(?!,\ ).)*
+        ,\ peer:\ (?:(?!,\ requiredNamespaces:\ ).)*
+        ,\ requiredNamespaces:\ (?:(?!,\ namespaces:\ ).)*
+        ,\ namespaces:\ (?:(?!,\ sessionProperties:\ ).)*
+        ,\ sessionProperties:\ (?:(?!,\ ).)*
+        ,\ scopedProperties:\ (?:(?!,\ ).)*
+        ,\ expiryDate:\ (?:(?!\)).)+
+        \)
+        /#
 
-    static let proposal = Regex {
-        "Proposal("
-        property("id")
-        property("pairingTopic")
-        property("proposer", nextPropertyName: "requiredNamespaces")
-        property("requiredNamespaces", nextPropertyName: "optionalNamespaces")
-        property("optionalNamespaces", nextPropertyName: "sessionProperties")
-        property("sessionProperties", nextPropertyName: "scopedProperties")
-        property("scopedProperties", nextPropertyName: "requests")
-        property("requests", nextPropertyName: "proposal")
-        "proposal: "
-        proposalTail
-        ")"
-    }
+    static let request = #/
+        (?s)
+        Request\(
+        id:\ (?:(?!,\ ).)*
+        ,\ topic:\ (?:(?!,\ ).)*
+        ,\ method:\ (?:(?!,\ ).)*
+        ,\ params:\ (?:(?!,\ chainId:\ ).)*
+        ,\ chainId:\ (?:(?!,\ ).)*
+        ,\ expiryTimestamp:\ (?:nil|Optional\(\d+\)|\d+)
+        \)
+        /#
 
-    static let proposalTail = Regex {
-        "WalletConnectSign.SessionProposal("
-        property("relays", nextPropertyName: "proposer")
-        property("proposer", nextPropertyName: "requiredNamespaces")
-        property("requiredNamespaces", nextPropertyName: "optionalNamespaces")
-        property("optionalNamespaces", nextPropertyName: "sessionProperties")
-        property("sessionProperties", nextPropertyName: "scopedProperties")
-        property("scopedProperties", nextPropertyName: "expiryTimestamp")
-        property("expiryTimestamp", nextPropertyName: "requests")
-        "requests: "
-        ChoiceOf {
-            "nil"
-            Regex {
-                "Optional(WalletConnectSign.ProposalRequests(authentication: "
-                authenticationValue
-                "))"
-            }
-        }
-        ")"
-    }
-
-    static let authenticationValue = Regex {
-        ChoiceOf {
-            "nil"
-            Regex {
-                "Optional(["
-                Optionally {
-                    authPayloadValue
-                    ZeroOrMore {
-                        ", "
-                        authPayloadValue
-                    }
-                }
-                "])"
-            }
-        }
-    }
-
-    static let authPayloadValue = Regex {
-        "WalletConnectSign.AuthPayload("
-        property("domain", nextPropertyName: "aud")
-        property("aud", nextPropertyName: "version")
-        property("version", nextPropertyName: "nonce")
-        property("nonce", nextPropertyName: "chains")
-        property("chains", nextPropertyName: "type")
-        property("type", nextPropertyName: "iat")
-        property("iat", nextPropertyName: "nbf")
-        property("nbf", nextPropertyName: "exp")
-        property("exp", nextPropertyName: "statement")
-        property("statement", nextPropertyName: "requestId")
-        property("requestId", nextPropertyName: "resources")
-        property("resources", nextPropertyName: "signatureTypes")
-        "signatureTypes: "
-        ChoiceOf {
-            "nil"
-            OneOrMore {
-                NegativeLookahead { ")" }
-                CharacterClass.any
-            }
-        }
-        ")"
-    }
-
-    static func property(_ propertyName: Substring, suffix: some RegexComponent = ", ") -> Regex<Substring> {
-        Regex {
-            propertyName
-            ": "
-            ZeroOrMore {
-                NegativeLookahead {
-                    ", "
-                }
-                CharacterClass.any
-            }
-            suffix
-        }
-    }
-
-    static func property(
-        _ propertyName: Substring,
-        nextPropertyName: Substring,
-        suffix: some RegexComponent = ", "
-    ) -> Regex<Substring> {
-        Regex {
-            propertyName
-            ": "
-            ZeroOrMore {
-                NegativeLookahead {
-                    ", "
-                    nextPropertyName
-                    ": "
-                }
-                CharacterClass.any
-            }
-            suffix
-        }
-    }
+    static let proposal = #/
+        (?s)
+        Proposal\(
+        id:\ (?:(?!,\ ).)*
+        ,\ pairingTopic:\ (?:(?!,\ ).)*
+        ,\ proposer:\ (?:(?!,\ requiredNamespaces:\ ).)*
+        ,\ requiredNamespaces:\ (?:(?!,\ optionalNamespaces:\ ).)*
+        ,\ optionalNamespaces:\ (?:(?!,\ sessionProperties:\ ).)*
+        ,\ sessionProperties:\ (?:(?!,\ scopedProperties:\ ).)*
+        ,\ scopedProperties:\ (?:(?!,\ requests:\ ).)*
+        ,\ requests:\ (?:(?!,\ proposal:\ ).)*
+        ,\ proposal:\ WalletConnectSign\.SessionProposal\(
+            relays:\ (?:(?!,\ proposer:\ ).)*
+            ,\ proposer:\ (?:(?!,\ requiredNamespaces:\ ).)*
+            ,\ requiredNamespaces:\ (?:(?!,\ optionalNamespaces:\ ).)*
+            ,\ optionalNamespaces:\ (?:(?!,\ sessionProperties:\ ).)*
+            ,\ sessionProperties:\ (?:(?!,\ scopedProperties:\ ).)*
+            ,\ scopedProperties:\ (?:(?!,\ expiryTimestamp:\ ).)*
+            ,\ expiryTimestamp:\ (?:(?!,\ requests:\ ).)*
+            ,\ requests:\ (?:
+                nil
+                |
+                Optional\(WalletConnectSign\.ProposalRequests\(authentication:\ (?:
+                    nil
+                    |
+                    Optional\(\[
+                    (?:
+                        WalletConnectSign\.AuthPayload\(
+                        domain:\ (?:(?!,\ aud:\ ).)*
+                        ,\ aud:\ (?:(?!,\ version:\ ).)*
+                        ,\ version:\ (?:(?!,\ nonce:\ ).)*
+                        ,\ nonce:\ (?:(?!,\ chains:\ ).)*
+                        ,\ chains:\ (?:(?!,\ type:\ ).)*
+                        ,\ type:\ (?:(?!,\ iat:\ ).)*
+                        ,\ iat:\ (?:(?!,\ nbf:\ ).)*
+                        ,\ nbf:\ (?:(?!,\ exp:\ ).)*
+                        ,\ exp:\ (?:(?!,\ statement:\ ).)*
+                        ,\ statement:\ (?:(?!,\ requestId:\ ).)*
+                        ,\ requestId:\ (?:(?!,\ resources:\ ).)*
+                        ,\ resources:\ (?:(?!,\ signatureTypes:\ ).)*
+                        ,\ signatureTypes:\ (?:nil|(?:(?!\)).)+)
+                        \)
+                        (?:
+                            ,\ WalletConnectSign\.AuthPayload\(
+                            domain:\ (?:(?!,\ aud:\ ).)*
+                            ,\ aud:\ (?:(?!,\ version:\ ).)*
+                            ,\ version:\ (?:(?!,\ nonce:\ ).)*
+                            ,\ nonce:\ (?:(?!,\ chains:\ ).)*
+                            ,\ chains:\ (?:(?!,\ type:\ ).)*
+                            ,\ type:\ (?:(?!,\ iat:\ ).)*
+                            ,\ iat:\ (?:(?!,\ nbf:\ ).)*
+                            ,\ nbf:\ (?:(?!,\ exp:\ ).)*
+                            ,\ exp:\ (?:(?!,\ statement:\ ).)*
+                            ,\ statement:\ (?:(?!,\ requestId:\ ).)*
+                            ,\ requestId:\ (?:(?!,\ resources:\ ).)*
+                            ,\ resources:\ (?:(?!,\ signatureTypes:\ ).)*
+                            ,\ signatureTypes:\ (?:nil|(?:(?!\)).)+)
+                            \)
+                        )*
+                    )?
+                    \]\)
+                )\)\)
+            )
+            \)
+        \)
+        /#
+    // swiftformat:enable indent
 }
