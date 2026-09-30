@@ -12,8 +12,8 @@ import struct TangemUI.PriceChangeView
 
 struct TokenDetailsMarketPriceViewModel: Equatable {
     let title = Localization.marketsCommonMarketPrice
-    let subtitle: String
-    let priceChange: PriceChangeView.State
+    var subtitle: String
+    var priceChange: PriceChangeView.State
     var miniChartPoints: LoadingResult<[Double], Never>
     @IgnoredEquatable private(set) var action: () -> Void
 }
