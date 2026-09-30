@@ -10,6 +10,7 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayRegionUnavailableView: View {
     let onGotIt: () -> Void
@@ -27,6 +28,7 @@ struct TangemPayRegionUnavailableView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     Text(Localization.tangemPayUnavailableRegionTitle)
                         .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.regionUnavailableTitle)
 
                     Text(Localization.tangemPayUnavailableRegionDescription)
                         .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
@@ -47,6 +49,7 @@ struct TangemPayRegionUnavailableView: View {
             .size(.x12)
             .styleType(.default)
             .horizontalLayout(.infinity)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.regionUnavailableGotItButton)
             .padding(.horizontal, 16)
             .padding(.bottom, 12)
         }

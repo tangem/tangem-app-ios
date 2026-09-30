@@ -75,6 +75,14 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
         }
     }
 
+    @discardableResult
+    func waitForScreen() -> Self {
+        XCTContext.runActivity(named: "Wait for create wallet selector screen") { _ in
+            waitAndAssertTrue(createWalletButton, "Create wallet button should be displayed")
+            return self
+        }
+    }
+
     private func tapExistingWallet() {
         existingWalletButton.waitForStableFrame()
         existingWalletButton.waitAndTap()
