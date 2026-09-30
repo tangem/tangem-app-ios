@@ -41,6 +41,8 @@ protocol JointAccountsRepository {
     /// never reports them again.
     func loadJointAccountsFromRemote() async throws
 
+    func requestFrequentUpdates() -> AnyCancellable
+
     /// Derives the key the account is signed with, has the backend create it and stores what it reports back — the
     /// invites first, since this is the only moment they can be written down.
     func addNewJointAccount(withConfig config: JointAccountCreationConfig) async throws

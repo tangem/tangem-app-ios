@@ -27,4 +27,5 @@ protocol TokenItemInfoProvider: AnyObject {
 
     var leadingBadgePublisher: AnyPublisher<TokenItemViewModel.LeadingBadge?, Never> { get }
     var trailingBadgePublisher: AnyPublisher<TokenItemViewModel.TrailingBadge?, Never> { get }
+    var messageBubblePublisher: AnyPublisher<TokenItemViewModel.MessageBubble?, Never> { get }
 }

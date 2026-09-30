@@ -26,17 +26,17 @@ struct PolymarketOrderFractionTests {
         #expect(model.amountField.value == 100)
     }
 
-    @Test("A share of the balance is cut to what the collateral can express")
-    func fractionIsRoundedToCollateralPrecision() async throws {
+    @Test("A share of the balance is cut to the cent the field can spell")
+    func fractionIsRoundedToTheEnterablePrecision() async throws {
         let model = try await makeModel(balance: Decimal(string: "0.3333333")!)
 
         model.handleViewAction(.fractionSelected(.quarter))
 
-        #expect(model.state.enteredAmount == Decimal(string: "0.083333")!)
+        #expect(model.state.enteredAmount == Decimal(string: "0.08")!)
     }
 
-    @Test("Max leaves room for the fee the exchange adds on top")
-    func maxLeavesRoomForTheFee() async throws {
+    @Test("Max buys with nine tenths of the balance and leaves the rest untouched")
+    func maxIsNineTenthsOfTheBalance() async throws {
         let model = try await makeModel(balance: 201, quote: .stub(status: .full))
 
         model.handleViewAction(.screenAppeared)
@@ -46,7 +46,35 @@ struct PolymarketOrderFractionTests {
 
         model.handleViewAction(.fractionSelected(.max))
 
-        #expect(model.state.enteredAmount == 200)
+        #expect(model.state.enteredAmount == Decimal(string: "180.9")!)
+    }
+
+    @Test("A fee larger than the tenth Max holds back still caps what Max offers")
+    func maxLeavesRoomForAnOversizedFee() async throws {
+        let quote = PolymarketOrderQuote.stub(
+            status: .full,
+            fees: PolymarketOrderFees(market: 12, builder: 8, total: 20),
+            total: 120
+        )
+        let model = try await makeModel(balance: 120, quote: quote)
+
+        model.handleViewAction(.screenAppeared)
+        model.handleViewAction(.fractionSelected(.quarter))
+
+        try await settle { model.state.quote.quote != nil }
+
+        model.handleViewAction(.fractionSelected(.max))
+
+        #expect(model.state.enteredAmount == 100)
+    }
+
+    @Test("The nine tenths Max offers are cut to the cent the field can spell")
+    func maxIsRoundedToTheEnteredPrecision() async throws {
+        let model = try await makeModel(balance: Decimal(string: "0.3333333")!)
+
+        model.handleViewAction(.fractionSelected(.max))
+
+        #expect(model.state.enteredAmount == Decimal(string: "0.29")!)
     }
 
     @Test("A share of a position is cut to whole tokens")
@@ -79,13 +107,13 @@ struct PolymarketOrderFractionTests {
         #expect(model.state.enteredAmount == held)
     }
 
-    @Test("Without a quote to read the fee from, Max still offers the whole balance")
-    func maxWithoutAQuoteIsTheWholeBalance() async throws {
+    @Test("Without a quote to read the fee from, Max still offers nine tenths of the balance")
+    func maxWithoutAQuoteIsNineTenthsOfTheBalance() async throws {
         let model = try await makeModel(balance: 200)
 
         model.handleViewAction(.fractionSelected(.max))
 
-        #expect(model.state.enteredAmount == 200)
+        #expect(model.state.enteredAmount == 180)
     }
 
     @Test("A share too small to quote leaves the order without an amount")
@@ -95,7 +123,7 @@ struct PolymarketOrderFractionTests {
         model.handleViewAction(.fractionSelected(.quarter))
 
         #expect(model.state.enteredAmount == nil)
-        #expect(model.amountField.value == Decimal(string: "0.005")!)
+        #expect(model.amountField.value == 0)
     }
 }
 
@@ -135,11 +163,11 @@ private extension PolymarketOrderFractionTests {
     }
 }
 
-private extension PolymarketOutcome {
+extension PolymarketOutcome {
     static let fixture = PolymarketOutcome(assetId: "asset", title: "Yes", probability: Decimal(string: "0.55")!)
 }
 
-private extension PolymarketMarket {
+extension PolymarketMarket {
     static let fixture = PolymarketMarket(
         id: "market",
         conditionId: nil,

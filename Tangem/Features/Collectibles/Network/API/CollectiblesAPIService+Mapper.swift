@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 extension CollectiblesAPIService {
     enum Mapper {
@@ -41,12 +42,39 @@ extension CollectiblesAPIService {
                 tiers: mapTiers(of: machine)
             )
         }
+
+        static func mapToPrizePoolPage(_ response: CollectiblesDTO.MachineNftsResponse) -> CollectiblesPrizePoolPage {
+            CollectiblesPrizePoolPage(prizes: response.nfts.map(mapToPrize), hasNext: response.hasMore)
+        }
     }
 }
 
 // MARK: - Private logic
 
 private extension CollectiblesAPIService.Mapper {
+    static func mapToPrize(_ nft: CollectiblesDTO.MachineNft) -> CollectiblesPrize {
+        CollectiblesPrize(
+            id: nft.id,
+            name: nft.name,
+            imageURL: nft.image.flatMap(URL.init),
+            grade: mapToGrade(nft),
+            insuredValue: nft.insuredValue.map { $0 / Constants.centsScale }
+        )
+    }
+
+    /// The grader and the grade travel as separate fields and either may come empty rather than absent; the label
+    /// needs both, a company without a grade says nothing.
+    static func mapToGrade(_ nft: CollectiblesDTO.MachineNft) -> String? {
+        guard
+            let company = nft.gradingCompany?.trimmed().nilIfEmpty,
+            let grade = nft.gradeNum?.trimmed().nilIfEmpty
+        else {
+            return nil
+        }
+
+        return "\(company) \(grade)"
+    }
+
     static func mapToName(_ machine: CollectiblesDTO.Machine) -> String {
         machine.shortName.isEmpty ? machine.name : machine.shortName
     }
@@ -76,7 +104,7 @@ private extension CollectiblesAPIService.Mapper {
     }
 
     enum Constants {
-        /// Only `price` and `feeAmount` arrive in cents (`price: 5000` is $50);
+        /// `price`, `feeAmount` and `insured_value` arrive in cents (`price: 5000` is $50);
         /// `expectedValue` and `tierRanges` already come in whole dollars and are taken as they are.
         static let centsScale = Decimal(100)
         /// `instantBuybackPercent` is whole percent (85), the domain rate is a fraction (0.85).

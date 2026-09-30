@@ -71,6 +71,15 @@ struct PolymarketMainView: View {
         .submitLabel(.search)
         .padding(.horizontal, Constants.horizontalPadding)
         .padding(.vertical, Constants.searchFieldVerticalPadding)
+        .background(alignment: .bottom) {
+            Fade(position: .bottom)
+                .variant(.hard)
+                .blurred()
+                .padding(.top, -Constants.searchFadeOverhang)
+                // With the keyboard up there is nothing below to fill, and stretching would drag the
+                // scrim's opaque end under the keyboard, leaving the field on the transparent part.
+                .ignoresSafeArea(edges: viewModel.isSearchFieldActive ? [] : .bottom)
+        }
     }
 
     // MARK: - Navbar
@@ -80,7 +89,12 @@ struct PolymarketMainView: View {
             settings: .init(backgroundColor: .clear, horizontalPadding: Constants.horizontalPadding, height: Constants.navBarSettingsHeight),
             titleView: { titleView },
             leftButtons: { NavigationBarButton.back { viewModel.dismiss() } },
-            rightButtons: { PolymarketOverflowMenu(onHowItWorks: viewModel.openHowItWorks) }
+            rightButtons: {
+                PolymarketOverflowMenu(
+                    onHowItWorks: viewModel.openHowItWorks,
+                    onSupportChat: viewModel.openSupportChat
+                )
+            }
         )
         .environment(\.isRedesign, true)
     }
@@ -141,10 +155,8 @@ struct PolymarketMainView: View {
                     .padding(.top, Constants.bannerTopSpacing)
             }
 
-            if viewModel.showsPositions {
-                positionsSection
-                    .padding(.top, Constants.positionsTopSpacing)
-            }
+            positionsSection
+                .padding(.top, Constants.positionsTopSpacing)
 
             exploreEventsTitle
                 .padding(.top, Constants.headerSpacing)
@@ -157,13 +169,17 @@ struct PolymarketMainView: View {
     @ViewBuilder
     private var positionsSection: some View {
         switch viewModel.positionsState {
+        case .loading where viewModel.hadPositionsBefore || viewModel.isRetryingPositions:
+            positionsBlock {
+                PolymarketPositionsSkeletonView(rowCount: Constants.positionsSkeletonRowCount)
+            }
         case .loading:
             EmptyView()
         case .failed:
             positionsBlock {
                 PolymarketEmptyMessageView(
                     message: Localization.predictionPositionsLoadError,
-                    onRetry: viewModel.loadPositions
+                    onRetry: { viewModel.loadPositions(userInitiated: true) }
                 )
             }
         case .loaded(let models) where !models.isEmpty:
@@ -178,7 +194,7 @@ struct PolymarketMainView: View {
                     }
                 }
             }
-        case .loaded:
+        case .loaded where viewModel.hadPositionsBefore:
             positionsBlock {
                 VStack(spacing: Constants.positionsRowSpacing) {
                     PolymarketNoActivePositionsView()
@@ -188,6 +204,8 @@ struct PolymarketMainView: View {
                     }
                 }
             }
+        case .loaded:
+            EmptyView()
         }
     }
 
@@ -206,16 +224,22 @@ struct PolymarketMainView: View {
                 .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            if viewModel.hasFinishedPositions {
-                SwiftUI.Button { viewModel.openMyPositions(tab: .finished) } label: {
-                    Badge(label: Localization.predictionPositionsFinished, accessibilityLabel: nil)
-                        .size(.x9)
-                        .slotEnd(DesignSystem.Icons.ChevronRight.regular16)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(Localization.predictionPositionsFinished)
-            }
+            finishedPositionsButton
         }
+    }
+
+    /// The badge is taller than the title, so it holds its place instead of pushing the list down when it arrives.
+    private var finishedPositionsButton: some View {
+        SwiftUI.Button { viewModel.openMyPositions(tab: .finished) } label: {
+            Badge(label: Localization.predictionPositionsFinished, accessibilityLabel: nil)
+                .size(.x9)
+                .slotEnd(DesignSystem.Icons.ChevronRight.regular16)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Localization.predictionPositionsFinished)
+        .visible(viewModel.hasFinishedPositions)
+        .allowsHitTesting(viewModel.hasFinishedPositions)
+        .accessibilityHidden(!viewModel.hasFinishedPositions)
     }
 
     private var seeAllPositionsButton: some View {
@@ -262,6 +286,7 @@ struct PolymarketMainView: View {
                     .padding(.top, Constants.actionButtonsTopPadding)
             }
             .frame(maxWidth: .infinity)
+            .padding(.bottom, Constants.actionButtonsBottomPadding)
         }
     }
 
@@ -295,11 +320,13 @@ struct PolymarketMainView: View {
 
                         skeleton(width: Constants.skeletonActionTitleWidth, height: Constants.skeletonSelectorHeight)
                     }
+                    .frame(minWidth: Constants.actionWidth)
                 }
             }
             .padding(.top, Constants.actionButtonsTopPadding)
         }
         .frame(maxWidth: .infinity)
+        .padding(.bottom, Constants.actionButtonsBottomPadding)
     }
 
     private func skeleton(width: CGFloat, height: CGFloat, cornerRadius: CGFloat? = nil) -> some View {
@@ -328,8 +355,8 @@ struct PolymarketMainView: View {
             HStack(spacing: Constants.balanceSelectorSpacing) {
                 Text(viewModel.balanceMode == .total
                     ? Localization.predictionMainTotalBalance
-                    : Localization.tokenDetailsBalanceAvailable)
-                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
+                    : Localization.predictionMainAvailableBalance)
+                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
                     .id(viewModel.balanceMode)
                     .transition(.opacity)
 
@@ -337,7 +364,7 @@ struct PolymarketMainView: View {
                     .renderingMode(.template)
                     .resizable()
                     .frame(size: .init(bothDimensions: Constants.selectorIconSize))
-                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+                    .foregroundStyle(DesignSystem.Color.iconPrimary)
             }
         }
         .buttonStyle(.plain)
@@ -352,6 +379,7 @@ struct PolymarketMainView: View {
                 action: viewModel.onAddFundsTap,
                 reasonTapWhenDisabled: viewModel.onAddFundsTap
             )
+            .frame(minWidth: Constants.actionWidth)
             .disabled(viewModel.addFundsState != .available)
             .accessibilityIdentifier(PolymarketAccessibilityIdentifiers.addFundsButton)
 
@@ -361,6 +389,7 @@ struct PolymarketMainView: View {
                 action: viewModel.onWithdrawTap,
                 reasonTapWhenDisabled: viewModel.onWithdrawTap
             )
+            .frame(minWidth: Constants.actionWidth)
             .disabled(!viewModel.withdrawState.isAvailable)
             .accessibilityIdentifier(PolymarketAccessibilityIdentifiers.withdrawButton)
         }
@@ -387,7 +416,9 @@ struct PolymarketMainView: View {
 
                 eventsSection
             }
-            .padding(.top, navBarHeight)
+        }
+        .safeAreaInset(edge: .top, spacing: 0) {
+            Color.clear.frame(height: navBarHeight)
         }
         .coordinateSpace(name: Constants.scrollSpace)
         .refreshable { await viewModel.refresh() }
@@ -466,6 +497,7 @@ extension PolymarketMainView {
         static let contentSpacing: CGFloat = 12
         static let horizontalPadding: CGFloat = 16
         static let searchFieldVerticalPadding: CGFloat = 12
+        static let searchFadeOverhang: CGFloat = 16
         static let navBarTopPadding: CGFloat = 8
         static let navBarSettingsHeight: CGFloat = 56
         static let tabsVerticalPadding: CGFloat = 8
@@ -473,8 +505,9 @@ extension PolymarketMainView {
 
         static let positionsSpacing: CGFloat = 16
         static let positionsRowSpacing: CGFloat = 8
-        static let positionsTopSpacing: CGFloat = 24
-        static let headerTopPadding: CGFloat = 24
+        static let positionsTopSpacing: CGFloat = 52
+        static let positionsSkeletonRowCount = 3
+        static let headerTopPadding: CGFloat = 56
         static let headerSpacing: CGFloat = 40
         static let bannerTopSpacing: CGFloat = 24
         static let bannerIconSide: CGFloat = 20
@@ -492,8 +525,10 @@ extension PolymarketMainView {
         static let balanceSelectorSpacing: CGFloat = 4
         static let selectorIconSize: CGFloat = 16
         static let balanceModeAnimationDuration: TimeInterval = 0.2
-        static let actionButtonsSpacing: CGFloat = 24
-        static let actionButtonsTopPadding: CGFloat = 20
+        static let actionButtonsSpacing: CGFloat = 0
+        static let actionButtonsTopPadding: CGFloat = 28
+        static let actionButtonsBottomPadding: CGFloat = 24
+        static let actionWidth: CGFloat = 102
 
         static let eventsPlaceholderMinHeight: CGFloat = 320
     }

@@ -71,7 +71,7 @@ struct PolymarketFundingFlow {
     }
 
     func awaitWithdrawal() {
-        dependencies.fundsArrivalTracker.startAwaitingWithdrawal()
+        dependencies.fundsArrivalTracker.startAwaitingBalanceChange()
     }
 }
 
