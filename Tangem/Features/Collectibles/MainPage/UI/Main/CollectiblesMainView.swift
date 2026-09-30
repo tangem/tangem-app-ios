@@ -22,6 +22,7 @@ struct CollectiblesMainView: View {
     @State private var scrollHeight: CGFloat = 0
     @State private var topInset: CGFloat = 0
     @State private var tabsHeaderHeight: CGFloat = 0
+    @State private var accountHeight: CGFloat = 0
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -86,13 +87,26 @@ private extension CollectiblesMainView {
     }
 
     var catalogueScroll: some View {
-        ScrollView(showsIndicators: false) {
-            catalogue
-                .padding(.bottom, Metrics.contentBottomPadding)
+        ScrollViewReader { proxy in
+            ScrollView(showsIndicators: false) {
+                catalogue
+                    .padding(.bottom, Metrics.contentBottomPadding)
+                    .background(alignment: .top) {
+                        Color.clear
+                            .frame(height: Metrics.scrollAnchorHeight)
+                            .id(Constants.scrollAnchor)
+                    }
+                    .readGeometry(\.frame.minY, inCoordinateSpace: .named(Constants.scrollSpace)) {
+                        viewModel.updateScrollOffset(contentMinY: $0)
+                    }
+            }
+            .refreshable { await viewModel.refresh() }
+            .coordinateSpace(name: Constants.scrollSpace)
+            .readGeometry(\.size.height, bindTo: $scrollHeight)
+            .onChange(of: viewModel.selectedLoreID) { _ in
+                landOnPinnedTabs(proxy)
+            }
         }
-        .refreshable { await viewModel.refresh() }
-        .coordinateSpace(name: Constants.scrollSpace)
-        .readGeometry(\.size.height, bindTo: $scrollHeight)
     }
 
     var searchOverlay: some View {
@@ -115,6 +129,7 @@ private extension CollectiblesMainView {
                 balanceCoordinateSpace: .named(Constants.scrollSpace),
                 onBalanceMaxYChange: { viewModel.updateBalanceVisibility(balanceMaxY: $0) }
             )
+            .readGeometry(\.size.height, bindTo: $accountHeight)
 
             // Closes the gap to the tabs without touching the header itself, so its height never changes.
             Spacer(minLength: Metrics.tabsTopPadding - Metrics.pinnedTabsTopPadding)
@@ -152,16 +167,24 @@ private extension CollectiblesMainView {
     }
 
     var searchBar: some View {
-        Search(
-            text: $viewModel.searchQuery,
-            isActive: $viewModel.isSearchFieldFocused,
-            clearAction: { viewModel.searchQuery = "" },
-            cancelAction: viewModel.exitSearch
-        )
-        .placeholder(Localization.commonSearch)
-        .submitLabel(.search)
-        .autocorrectionDisabled()
-        .keyboardType(.alphabet)
+        HStack(spacing: Metrics.searchCloseButtonSpacing) {
+            Search(
+                text: $viewModel.searchQuery,
+                isActive: $viewModel.isSearchFieldFocused,
+                clearAction: { viewModel.searchQuery = "" }
+            )
+            .placeholder(Localization.commonSearch)
+            .showsCloseButton(false)
+            .submitLabel(.search)
+            .autocorrectionDisabled()
+            .keyboardType(.alphabet)
+
+            if viewModel.isSearching {
+                searchCloseButton
+                    .transition(.opacity)
+            }
+        }
+        .animation(Metrics.searchCloseButtonAnimation, value: viewModel.isSearching)
         .padding(.horizontal, Metrics.searchHorizontalPadding)
         .padding(.vertical, searchBarVerticalPadding)
         .background(alignment: .bottom) {
@@ -172,6 +195,34 @@ private extension CollectiblesMainView {
                 // With the keyboard up there is nothing below to fill, and stretching would drag the
                 // scrim's opaque end under the keyboard, leaving the field on the transparent part.
                 .ignoresSafeArea(edges: viewModel.isSearchFieldFocused ? [] : .bottom)
+        }
+    }
+
+    var searchCloseButton: some View {
+        TangemUI.Button(
+            icon: DesignSystem.Icons.Cross.regular20,
+            accessibilityLabel: Localization.commonCancel,
+            action: viewModel.exitSearch
+        )
+        .styleType(.material(.glass))
+        .size(.x11)
+    }
+}
+
+// MARK: - Actions
+
+private extension CollectiblesMainView {
+    func landOnPinnedTabs(_ proxy: ScrollViewProxy) {
+        let pinnedTabsOffset = accountHeight + Metrics.tabsTopPadding - Metrics.pinnedTabsTopPadding
+        let travel = scrollHeight - Metrics.scrollAnchorHeight
+
+        guard viewModel.scrollOffset > pinnedTabsOffset, travel > 0 else { return }
+
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+
+        withTransaction(transaction) {
+            proxy.scrollTo(Constants.scrollAnchor, anchor: UnitPoint(x: 0, y: -pinnedTabsOffset / travel))
         }
     }
 }
@@ -189,7 +240,7 @@ private extension CollectiblesMainView {
     }
 
     /// Sized so the scroll clamp itself lands a switched lore with the tabs pinned and the first card
-    /// `tabsToGridGap` below them, with no scroll command to misfire.
+    /// `tabsToGridGap` below them.
     var gridMinHeight: CGFloat {
         let landingCorrection = Metrics.gridTopPadding + Metrics.pinnedTabsBottomPadding - Metrics.tabsToGridGap
         return max(scrollHeight - tabsHeaderHeight - Metrics.contentBottomPadding + landingCorrection, 0)
@@ -223,7 +274,10 @@ private extension CollectiblesMainView {
         static let searchOverlayDismissDuration: TimeInterval = 0.3
         static let searchOverlayDismissFadeDuration: TimeInterval = 0.2
 
+        static let scrollAnchorHeight: CGFloat = 1
         static let searchHorizontalPadding: CGFloat = 16
+        static let searchCloseButtonSpacing: CGFloat = 8
+        static let searchCloseButtonAnimation: Animation = .timingCurve(0.8, 0, 0.2, 1, duration: 0.3)
         static let searchVerticalPadding: CGFloat = 8
         static let searchVerticalPaddingWithKeyboard: CGFloat = 12
         static let searchFadeOverhang: CGFloat = 16
@@ -231,6 +285,7 @@ private extension CollectiblesMainView {
 
     enum Constants {
         static let scrollSpace = "collectibles_main_scroll"
+        static let scrollAnchor = "collectibles_main_scroll_anchor"
     }
 }
 
