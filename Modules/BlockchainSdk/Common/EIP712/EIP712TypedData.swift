@@ -50,6 +50,18 @@ public struct EIP712TypedData: Codable {
     }
 }
 
+public enum EIP712TypedDataError: LocalizedError {
+    /// A field references a type that is neither an EIP-712 primitive nor defined in `types`
+    case unknownType(String)
+
+    public var errorDescription: String? {
+        switch self {
+        case .unknownType(let type):
+            return "EIP712TypedData: type '\(type)' is neither primitive nor defined in `types`"
+        }
+    }
+}
+
 public extension EIP712TypedData {
     /// Type hash for the primaryType of an `EIP712TypedData`
     var typeHash: Data {
@@ -105,6 +117,10 @@ public extension EIP712TypedData {
                 try valueTypes.forEach { field in
                     let typeToEncode = extractArrayTypeIfNeeded(from: field.type)
 
+                    guard isPrimitiveType(typeToEncode) || types[typeToEncode] != nil else {
+                        throw EIP712TypedDataError.unknownType(typeToEncode)
+                    }
+
                     if isPrimitiveType(typeToEncode) {
                         // We need to pass to `encodePrimitiveData` `field.type` instead of `typeToEncode` to properly handle array of primitives
                         guard let encodedPrimitive = try encodePrimitiveData(json: data[field.name], with: field.type) else {
@@ -130,7 +146,8 @@ private extension EIP712TypedData {
     func makeABIValue(data: JSON?, type: String) -> ABIValue? {
         let isArrayType = type.contains("[")
         if isArrayType, let values = data?.arrayValue {
-            let valueType = String(type.prefix(while: { $0 != "[" }))
+            // Drop only the outermost suffix so that nested arrays (`uint256[2][]`) are encoded level by level
+            let valueType = type.replacingOccurrences(of: Constants.arraySuffixPattern, with: "", options: .regularExpression)
             let abiValues = values.compactMap { makeABIValue(data: $0, type: valueType) }
             return .array(abiValues)
         } else if type == "string",
@@ -216,26 +233,20 @@ private extension EIP712TypedData {
         return found
     }
 
+    /// Strips every trailing array suffix, dynamic (`Item[]`) or fixed-size (`Item[2]`, `Item[2][]`), leaving the element type
     func extractArrayTypeIfNeeded(from type: String) -> String {
         var clearedType = type
-        let arraySuffix = "[]"
-        if clearedType.hasSuffix(arraySuffix) {
-            clearedType.removeLast(arraySuffix.count)
+        while let arraySuffixRange = clearedType.range(of: Constants.arraySuffixPattern, options: .regularExpression) {
+            clearedType.removeSubrange(arraySuffixRange)
         }
 
         return clearedType
     }
 
+    /// Exact match against the EIP-712 atomic and dynamic types; a struct named e.g. `stringData` or `intent` is not primitive.
+    /// The size suffix of `bytesN` / `uintN` / `intN` is validated later by `makeABIValue`.
     func isPrimitiveType(_ type: String) -> Bool {
-        let primitiveTypes = [
-            "address", "uint", "int", "bool", "bytes", "string",
-        ]
-
-        if primitiveTypes.contains(where: { type.starts(with: $0) }) {
-            return true
-        }
-
-        return false
+        return type.range(of: Constants.primitiveTypePattern, options: .regularExpression) != nil
     }
 
     func encodePrimitiveData(json: JSON?, with type: String) throws -> Data? {
@@ -257,6 +268,15 @@ private extension EIP712TypedData {
         var concatenated = Data()
         concatenated = hashedStructs.reduce(into: concatenated) { $0.append($1) }
         return concatenated.sha3(.keccak256)
+    }
+}
+
+private extension EIP712TypedData {
+    enum Constants {
+        /// A single trailing array suffix: `[]` or `[N]`
+        static let arraySuffixPattern = "\\[[0-9]*\\]$"
+        /// EIP-712 atomic (`address`, `bool`, `bytes1..32`, `uint8..256`, `int8..256`) and dynamic (`bytes`, `string`) types
+        static let primitiveTypePattern = "^(address|bool|string|bytes[0-9]*|u?int[0-9]*)$"
     }
 }
 
