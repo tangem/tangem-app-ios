@@ -34,7 +34,15 @@ public enum ENSResponseConverter {
             throw ParseError.invalidResult("Input too short")
         }
 
-        guard let offset = hexString.substring(from: 0, length: Constants.length).hexToInt() else {
+        // `offset` / `length` are attacker-controllable words from an `eth_call` result. Bound them
+        // against the payload size BEFORE any `* 2` / `+` arithmetic so a huge word can't overflow
+        // `Int` and trap; a value that can't index the payload is simply invalid.
+        let maxWord = hexString.count / 2
+
+        guard
+            let offset = hexString.substring(from: 0, length: Constants.length).hexToInt(),
+            offset >= 0, offset <= maxWord
+        else {
             throw ParseError.invalidOffset
         }
 
@@ -43,7 +51,10 @@ public enum ENSResponseConverter {
             throw ParseError.invalidResult("Data too short at offset")
         }
 
-        guard let length = hexString.substring(from: offsetIndex, length: Constants.length).hexToInt() else {
+        guard
+            let length = hexString.substring(from: offsetIndex, length: Constants.length).hexToInt(),
+            length >= 0, length <= maxWord
+        else {
             throw ParseError.invalidLength
         }
 
