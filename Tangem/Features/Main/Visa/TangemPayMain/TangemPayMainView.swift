@@ -120,6 +120,10 @@ struct TangemPayMainView: View {
                 }
 
                 cashbackSection
+
+                ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
+                    PendingExpressTransactionView(info: transactionInfo)
+                }
             }
         }
         .padding(.bottom, 8)
