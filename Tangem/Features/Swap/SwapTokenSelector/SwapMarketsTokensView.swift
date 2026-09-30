@@ -222,6 +222,6 @@ private struct SwapSourceFilteredOutEmptyView: View {
             .frame(width: 20, height: 20)
             .foregroundStyle(DesignSystem.Color.iconSecondary)
             .frame(width: 40, height: 40)
-            .background(DesignSystem.Color.bgOpaqueSecondary, in: Circle())
+            .background(DesignSystem.Color.bgTransparentSecondary, in: Circle())
     }
 }

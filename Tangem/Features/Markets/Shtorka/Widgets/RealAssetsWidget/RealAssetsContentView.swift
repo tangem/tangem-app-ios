@@ -96,7 +96,7 @@ struct RealAssetsContentView: View {
                 .padding(.horizontal, Layout.orderChipHorizontalPadding)
                 .padding(.vertical, Layout.orderChipVerticalPadding)
                 .background(
-                    isSelected ? DesignSystem.Color.bgInverse : DesignSystem.Color.bgOpaquePrimary,
+                    isSelected ? DesignSystem.Color.bgInverse : DesignSystem.Color.bgTransparentPrimary,
                     in: .capsule
                 )
         }
