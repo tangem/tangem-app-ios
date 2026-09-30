@@ -24,6 +24,7 @@ actor RenewSessionTokensUseCase {
 
     private let deviceMetadataProvider: () -> DeviceMetadata
     private let dateProvider: @Sendable () -> Date
+    private let analyticsReporter: any BackendAuthenticationAnalyticsReporter
     private let logger: Logger
 
     private var inFlightRenewalTask: Task<Result<SessionTokens, RenewSessionTokensError>, Never>?
@@ -39,6 +40,7 @@ actor RenewSessionTokensUseCase {
         nonceDecryptor: some NonceDecryptor,
         deviceMetadataProvider: @escaping @Sendable @autoclosure () -> DeviceMetadata,
         dateProvider: @escaping @Sendable @autoclosure () -> Date = Date.now,
+        analyticsReporter: some BackendAuthenticationAnalyticsReporter,
         logger: Logger
     ) {
         self.registerDevice = registerDevice
@@ -55,6 +57,7 @@ actor RenewSessionTokensUseCase {
 
         self.deviceMetadataProvider = deviceMetadataProvider
         self.dateProvider = dateProvider
+        self.analyticsReporter = analyticsReporter
         self.logger = logger
     }
 
@@ -214,6 +217,18 @@ extension RenewSessionTokensUseCase {
         do {
             return try await sessionAuthenticationClient.requestCipheredNonce(devicePublicKey: devicePublicKey)
         } catch {
+            switch error {
+            case .requestNonceTimeout:
+                analyticsReporter.reportAuthenticationNonceTimeout()
+
+            case .requestNonceFailed,
+                 .authenticateFailed,
+                 .authenticationRejected,
+                 .deviceRegistrationMissing,
+                 .refreshFailed:
+                break
+            }
+
             throw RenewSessionTokensError.clientFailure(error)
         }
     }
