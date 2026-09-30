@@ -170,6 +170,12 @@ extension CardSettingsViewModel {
             return
         }
 
+        // The row stays tappable while the SDK session runs; a second tap started another session that came
+        // back with `.busy` and its completion cleared the loader of the first one.
+        guard !isChangeAccessCodeLoading else {
+            return
+        }
+
         Analytics.log(.buttonChangeUserCode)
         isChangeAccessCodeLoading = true
         setupSecurityOptions()
