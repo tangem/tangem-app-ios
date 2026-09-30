@@ -80,6 +80,16 @@ class FilecoinWalletManager: BaseWalletManager, WalletManager {
                     throw BlockchainSdkError.failedToGetFee
                 }
 
+                // `gasFeeCap` / `gasPremium` are node-supplied decimal strings. `BigUInt(stringLiteral:)`
+                // traps on anything that is not a plain base-10 integer (e.g. "1.5", "1e3", empty),
+                // so parse with the failable initializer and fail the fee instead of crashing.
+                guard
+                    let gasFeeCap = BigUInt(gasInfo.gasFeeCap),
+                    let gasPremium = BigUInt(gasInfo.gasPremium)
+                else {
+                    throw BlockchainSdkError.failedToGetFee
+                }
+
                 let gasLimitDecimal = Decimal(gasInfo.gasLimit)
 
                 return [
@@ -91,8 +101,8 @@ class FilecoinWalletManager: BaseWalletManager, WalletManager {
                         ),
                         parameters: FilecoinFeeParameters(
                             gasLimit: gasInfo.gasLimit,
-                            gasFeeCap: BigUInt(stringLiteral: gasInfo.gasFeeCap),
-                            gasPremium: BigUInt(stringLiteral: gasInfo.gasPremium)
+                            gasFeeCap: gasFeeCap,
+                            gasPremium: gasPremium
                         )
                     ),
                 ]
