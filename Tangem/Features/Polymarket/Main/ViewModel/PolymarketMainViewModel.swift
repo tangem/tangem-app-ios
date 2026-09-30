@@ -310,48 +310,15 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     private func refreshActionStates() {
-        switch accountFundsReadiness {
-        case .loading:
-            addFundsState = .loading
-            withdrawState = .loading
+        let withdrawMinimum = PolymarketUSDAmount(usd: accountFundsReadiness.collateralMinCheckoutUSD).inToken()
+        let states = PolymarketMainActionStates(
+            readiness: accountFundsReadiness,
+            collateralBalance: collateralBalance,
+            withdrawMinimum: withdrawMinimum
+        )
 
-        case .ready(let readiness):
-            addFundsState = readiness.depositTargets.isEmpty ? .unavailable : .available
-            withdrawState = withdrawStateForPreparedAccount(readiness)
-
-        case .unavailable:
-            addFundsState = .unavailable
-            withdrawState = .unavailable(.accountUnavailable)
-        }
-    }
-
-    private func withdrawStateForPreparedAccount(_ readiness: PolymarketAccountFundsInteractor.Readiness) -> WithdrawState {
-        let minimum = PolymarketUSDAmount(usd: readiness.collateralMinCheckoutUSD).inToken()
-
-        switch collateralBalance {
-        case .loaded(let balance):
-            return withdrawState(forBalance: balance, minimum: minimum)
-        case .loading(.some(let cached)), .failure(.some(let cached)):
-            return withdrawState(forBalance: cached.balance, minimum: minimum)
-        case .loading:
-            return .loading
-        case .empty, .failure:
-            return .unavailable(.balanceUnavailable)
-        }
-    }
-
-    private func withdrawState(forBalance balance: Decimal, minimum: Decimal?) -> WithdrawState {
-        guard balance > 0 else {
-            return .unavailable(.emptyBalance)
-        }
-
-        guard let minimum, balance < minimum else {
-            return .available
-        }
-
-        let formatted = PolymarketOrderFormatter.money(minimum)
-
-        return .unavailable(.tooSmallBalance(minimumFormatted: formatted))
+        addFundsState = states.addFunds
+        withdrawState = states.withdraw
     }
 
     // MARK: - Positions
