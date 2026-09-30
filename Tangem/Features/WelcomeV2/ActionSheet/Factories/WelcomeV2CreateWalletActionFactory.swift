@@ -32,7 +32,7 @@ struct WelcomeV2CreateWalletActionFactory {
                     ),
                     WelcomeV2ActionSheetItem(
                         id: "mobile",
-                        icon: Assets.welcomeSeedActionIcon,
+                        icon: DesignSystem.Icons.WalletPlus.regular24,
                         title: Localization.introductionCreateWalletSeedPhraseTitle,
                         subtitle: Localization.introductionCreateWalletSeedPhraseDescription,
                         action: callbacks.onMobile
