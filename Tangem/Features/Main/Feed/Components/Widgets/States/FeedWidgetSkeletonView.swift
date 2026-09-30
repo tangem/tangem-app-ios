@@ -23,7 +23,7 @@ struct FeedWidgetSkeletonView: View {
                 Spacer(minLength: 0)
 
                 Circle()
-                    .fill(DesignSystem.Color.bgOpaquePrimary)
+                    .fill(DesignSystem.Color.bgTransparentPrimary)
                     .frame(size: CGSize(bothDimensions: accessorySide))
                     .offset(x: Constants.accessoryOffset, y: -Constants.accessoryOffset)
             }

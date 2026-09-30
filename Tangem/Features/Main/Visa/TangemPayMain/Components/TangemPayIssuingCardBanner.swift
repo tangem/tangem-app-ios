@@ -37,7 +37,7 @@ struct TangemPayIssuingCardBanner: View {
         .background {
             RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .fill(
-                    DesignSystem.Color.bgOpaqueSecondary
+                    DesignSystem.Color.bgTransparentSecondary
                         .shadow(.inner(color: .white.opacity(0.6), radius: 10))
                 )
         }

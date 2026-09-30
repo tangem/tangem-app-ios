@@ -173,7 +173,7 @@ private extension StatusScreenShowcase {
                 .frame(width: 40, height: 40)
 
             Circle()
-                .fill(DesignSystem.Color.bgOpaquePrimary)
+                .fill(DesignSystem.Color.bgTransparentPrimary)
                 .frame(width: 40, height: 40)
         }
     }
@@ -234,13 +234,13 @@ private extension StatusScreenShowcase {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 Circle()
-                    .fill(DesignSystem.Color.bgOpaquePrimary)
+                    .fill(DesignSystem.Color.bgTransparentPrimary)
                     .frame(width: 40, height: 40)
             }
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(DesignSystem.Color.bgOpaquePrimary)
+                    .fill(DesignSystem.Color.bgTransparentPrimary)
             )
         }
     }

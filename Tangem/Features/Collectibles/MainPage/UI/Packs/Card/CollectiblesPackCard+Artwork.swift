@@ -63,7 +63,7 @@ private extension CollectiblesPackCard.Artwork {
 
     var missingArtworkBadge: some View {
         Circle()
-            .fill(DesignSystem.Color.bgOpaquePrimary)
+            .fill(DesignSystem.Color.bgTransparentPrimary)
             .frame(size: CGSize(bothDimensions: Metrics.fallbackBadgeSize * scale))
             .overlay {
                 DesignSystem.Icons.Error.filled20.image

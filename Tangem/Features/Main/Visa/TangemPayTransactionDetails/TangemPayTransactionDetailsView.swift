@@ -237,7 +237,7 @@ private extension TangemPayTransactionDetailsView {
             .frame(width: 28, height: 28)
             .foregroundStyle(DesignSystem.Color.iconPrimary)
             .frame(width: 80, height: 80)
-            .background(DesignSystem.Color.bgOpaquePrimary, in: Circle())
+            .background(DesignSystem.Color.bgTransparentPrimary, in: Circle())
     }
 
     func rowsView(_ rows: [TangemPayTransactionDetailsDisplayModel.Row]) -> some View {

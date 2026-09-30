@@ -63,7 +63,7 @@ private extension CollectiblesPrizeCard {
 
     var missingImageBadge: some View {
         Circle()
-            .fill(DesignSystem.Color.bgOpaquePrimary)
+            .fill(DesignSystem.Color.bgTransparentPrimary)
             .frame(size: CGSize(bothDimensions: Metrics.fallbackBadgeSize))
             .overlay {
                 DesignSystem.Icons.Error.filled20.image

@@ -52,7 +52,7 @@ struct AddAccountTypeSelectorView: View {
             .renderingMode(.template)
             .foregroundStyle(DesignSystem.Color.iconPrimary)
             .padding(10)
-            .background(DesignSystem.Color.bgOpaqueSecondary)
+            .background(DesignSystem.Color.bgTransparentSecondary)
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 }

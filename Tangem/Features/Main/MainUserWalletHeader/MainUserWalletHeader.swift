@@ -53,7 +53,7 @@ struct MainUserWalletHeader: View {
 
     private var lockedBalance: some View {
         Capsule()
-            .fill(DesignSystem.Color.bgOpaqueSecondary)
+            .fill(DesignSystem.Color.bgTransparentSecondary)
             .frame(size: Sizes.balanceSkeletonSize * scaleFactor)
     }
 
