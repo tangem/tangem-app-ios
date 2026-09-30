@@ -34,6 +34,8 @@ class CommonSendNotificationManager {
     private let analyticsService: NotificationsAnalyticsService
     private let highNetworkFeeWarningCalculator = HighNetworkFeeWarningCalculator()
     private weak var delegate: NotificationTapDelegate?
+    /// The Tron token-fee warning is limited to three displays per install; count at most one per send flow.
+    private var didCountTronWithdrawalWarning = false
 
     init(
         userWalletId: UserWalletId,
@@ -213,12 +215,20 @@ private extension CommonSendNotificationManager {
         case .cardanoWillBeSendAlongToken, .reduceAmountBecauseFeeIsTooHigh:
             return true
         case .tronWillBeSendTokenFeeDescription:
-            if AppSettings.shared.tronWarningWithdrawTokenDisplayed < 3 {
-                AppSettings.shared.tronWarningWithdrawTokenDisplayed += 1
+            // The transaction is rebuilt on every keystroke and fee refresh, so this is evaluated many times
+            // per flow; consuming one of the three allowed displays on each rebuild burned them all within
+            // a single send. Count once per flow and keep showing the warning for the rest of it.
+            if didCountTronWithdrawalWarning {
                 return true
-            } else {
+            }
+
+            guard AppSettings.shared.tronWarningWithdrawTokenDisplayed < 3 else {
                 return false
             }
+
+            AppSettings.shared.tronWarningWithdrawTokenDisplayed += 1
+            didCountTronWithdrawalWarning = true
+            return true
         }
     }
 
@@ -349,6 +359,7 @@ private extension CommonSendNotificationManager {
 extension CommonSendNotificationManager: SendNotificationManager {
     func setup(input: SendNotificationManagerInput) {
         bag.removeAll()
+        didCountTronWithdrawalWarning = false
 
         bind(input: input)
     }
