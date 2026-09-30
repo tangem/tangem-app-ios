@@ -549,17 +549,15 @@ private extension TokenDetailsViewModel {
                     }
                     .store(in: &bag)
             } else {
+                // Wait for the batch that actually contains the target: the list is filtered and may be
+                // populated in several emissions, so completing on the first non-empty one could miss it.
                 $pendingExpressTransactions
-                    .filter { !$0.isEmpty }
+                    .compactMap { pendingTransactions in
+                        pendingTransactions.first { $0.id == pendingTransactionDetails.id }
+                    }
                     .prefix(1)
-                    .sink { [weak self] pendingTransactions in
-                        guard let self,
-                              let matchingTransaction = pendingTransactions.first(where: { $0.id == pendingTransactionDetails.id })
-                        else {
-                            return
-                        }
-
-                        didTapPendingExpressTransaction(id: matchingTransaction.id)
+                    .sink { [weak self] matchingTransaction in
+                        self?.didTapPendingExpressTransaction(id: matchingTransaction.id)
                     }
                     .store(in: &bag)
             }
