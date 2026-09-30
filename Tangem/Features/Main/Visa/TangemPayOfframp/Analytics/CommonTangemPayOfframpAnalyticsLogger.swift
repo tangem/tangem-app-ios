@@ -172,6 +172,7 @@ private extension TangemPayBankAccountRail {
         switch self {
         case .ach: "ACH"
         case .wire: "Wire"
+        default: rawValue
         }
     }
 }
