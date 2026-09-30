@@ -13,11 +13,9 @@ import TangemUI
 
 public struct PolymarketOrderNotificationsView: View {
     private let notifications: [PolymarketOrderNotification]
-    private let onRetry: (() -> Void)?
 
-    public init(notifications: [PolymarketOrderNotification], onRetry: (() -> Void)? = nil) {
+    public init(notifications: [PolymarketOrderNotification]) {
         self.notifications = notifications
-        self.onRetry = onRetry
     }
 
     public var body: some View {
@@ -43,21 +41,25 @@ public struct PolymarketOrderNotificationsView: View {
         switch notification {
         case .awaitingFunds:
             base.slotEnd { Loader().loaderSize(Constants.loaderSize) }
-        case .partialFill, .noLiquidity:
+        case .partialFill:
             base.slotEnd { infoIcon }
-        case .quoteUnavailable:
-            if let onRetry {
-                base.primaryButton(MessageBannerButton(title: Localization.commonRetry, action: onRetry))
-            } else {
-                base
-            }
-        case .belowMinOrder, .marketClosed, .regionRestricted:
+        case .noLiquidity:
+            base.slotEnd { warningIcon }
+        case .quoteUnavailable, .belowMinOrder, .marketClosed, .regionRestricted:
             base
         }
     }
 
     private var infoIcon: some View {
-        DesignSystem.Icons.Info.regular20.image
+        icon(DesignSystem.Icons.Info.regular20)
+    }
+
+    private var warningIcon: some View {
+        icon(DesignSystem.Icons.Warning.regular20)
+    }
+
+    private func icon(_ asset: ImageType) -> some View {
+        asset.image
             .renderingMode(.template)
             .resizable()
             .frame(width: Constants.infoIconSide, height: Constants.infoIconSide)

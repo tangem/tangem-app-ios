@@ -23,7 +23,7 @@ final class PolymarketRedeemViewModel: ObservableObject, Identifiable {
     private let position: PolymarketPosition
     private let outcome: Outcome
     private let redeemService: PolymarketRedeeming
-    private let onClaimed: () -> Void
+    private let onClaimed: (PolymarketPosition?) -> Void
     private weak var coordinator: PolymarketRedeemRoutable?
 
     private var claimTask: Task<Void, Never>?
@@ -31,7 +31,7 @@ final class PolymarketRedeemViewModel: ObservableObject, Identifiable {
     init(
         position: PolymarketPosition,
         redeemService: PolymarketRedeeming,
-        onClaimed: @escaping () -> Void,
+        onClaimed: @escaping (PolymarketPosition?) -> Void,
         coordinator: PolymarketRedeemRoutable
     ) {
         outcome = Outcome(position.settlement)
@@ -77,12 +77,12 @@ extension PolymarketRedeemViewModel {
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
     var title: String {
         switch outcome {
-        case .won: "You Won \(money(position.currentValue))"
-        case .split: "Split \(money(position.currentValue))"
-        case .lost: "Loss \(money(lostAmount))"
+        case .won: Localization.predictionPositionResultWonTitle(money(position.currentValue))
+        case .split: Localization.predictionPositionResultSplitTitle(money(position.currentValue))
+        case .lost: Localization.predictionPositionResultLossTitle(money(lostAmount))
+        // [REDACTED_TODO_COMMENT]
         case .undetermined: "Ready to claim \(money(position.currentValue))"
         }
     }
@@ -91,28 +91,23 @@ extension PolymarketRedeemViewModel {
         position.endDate.map { PolymarketOrderResultFormatter.resolutionDay($0) }
     }
 
-    // [REDACTED_TODO_COMMENT]
     var actionTitle: String {
-        guard isActionClaim else { return "Dismiss" }
+        guard isActionClaim else { return Localization.predictionPositionResultDismissAction }
 
-        return outcome.paysOut ? "Claim reward" : "Close position"
+        // [REDACTED_TODO_COMMENT]
+        return outcome.paysOut ? Localization.predictionPositionResultClaimAction : "Dismiss position"
     }
 
     var isActionClaim: Bool {
         position.isRedeemable
     }
 
-    // [REDACTED_TODO_COMMENT]
     var footerCaption: String? {
-        guard outcome.paysOut else {
-            guard isActionClaim else { return nil }
-
-            return "Nothing is paid out. Closing clears the worthless tokens from your balance."
-        }
+        guard outcome.paysOut else { return nil }
 
         return position.isRedeemable
             ? Localization.predictionPositionResultBalanceNote
-            : "The payout is not on chain yet. Check back in a few minutes."
+            : Localization.predictionPositionResultPayoutPendingNote
     }
 
     var marketRow: PolymarketOrderMarketRow.Model {
@@ -126,11 +121,13 @@ extension PolymarketRedeemViewModel {
     }
 
     var profit: Profit? {
-        guard outcome.paysOut, position.cashPnl != 0 else { return nil }
+        let displayed = PolymarketOrderFormatter.displayedMoney(position.cashPnl)
+
+        guard outcome.paysOut, displayed != 0 else { return nil }
 
         return Profit(
-            text: "\(signedMoney(position.cashPnl)) (\(percentFormatter.format(position.pnlRatio, option: .priceChange)))",
-            direction: position.cashPnl > 0 ? .positive : .negative
+            text: "\(signedMoney(position.cashPnl)) (\(Self.percentFormatter.format(position.pnlRatio, option: .priceChange)))",
+            direction: displayed > 0 ? .positive : .negative
         )
     }
 
@@ -162,14 +159,14 @@ private extension PolymarketRedeemViewModel {
 
                 guard !Task.isCancelled else { return }
 
-                viewModel.onClaimed()
+                viewModel.onClaimed(viewModel.position)
                 viewModel.coordinator?.closeRedeem()
             } catch is CancellationError {
                 return
             } catch {
                 guard !Task.isCancelled else { return }
 
-                viewModel.onClaimed()
+                viewModel.onClaimed(nil)
                 viewModel.alert = error.alertBinder
             }
         }
@@ -210,15 +207,13 @@ private extension PolymarketRedeemViewModel {
 // MARK: - Formatting
 
 private extension PolymarketRedeemViewModel {
-    var percentFormatter: PercentFormatter { PercentFormatter() }
+    static let percentFormatter = PercentFormatter()
 
     func money(_ value: Decimal) -> String {
         PolymarketOrderFormatter.money(value)
     }
 
     func signedMoney(_ value: Decimal) -> String {
-        let amount = money(abs(value))
-
-        return value < 0 ? "-\(amount)" : "+\(amount)"
+        PolymarketOrderFormatter.signedMoney(value)
     }
 }

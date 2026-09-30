@@ -26,6 +26,7 @@ struct YieldModuleRewardsBannerView: View {
     private var banner: MessageBanner<EmptyView, EmptyView, EmptyView> {
         MessageBanner(title: viewData.title, description: viewData.subtitle)
             .variant(.info)
+            .glowRing(.info)
     }
 
     private var claimButton: some View {

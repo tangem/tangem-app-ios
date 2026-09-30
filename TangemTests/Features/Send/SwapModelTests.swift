@@ -693,6 +693,7 @@ private final class PendingAccountModelsManagerStub: AccountModelsManager {
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] { [] }
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult { .none }
+    func reloadAccountsFromRemote() async {}
     func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {}
     func dispose() {}
     func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async {}

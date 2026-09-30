@@ -29,7 +29,7 @@ extension PolymarketMarketCard.Model {
                 PolymarketMarketCard.Outcome(
                     id: outcome.assetId,
                     title: outcome.title,
-                    priceText: PolymarketPriceFormatter.centsText(outcome.probability),
+                    priceText: PolymarketPriceFormatter.centsText(outcome.probability, isResolved: market.status == .closed),
                     style: PolymarketOutcomeStyle(outcomeIndex: index),
                     isEnabled: areOutcomesEnabled,
                     onSelect: { onSelectOutcome(outcome) }
