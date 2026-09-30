@@ -48,7 +48,10 @@ public extension String {
     }
 
     var isEvmAddress: Bool {
-        hasHexPrefix() && count == 42 && dropFirst(2).allSatisfy(\.isHexDigit)
+        // `Character.isHexDigit` is also true for the fullwidth compatibility forms (`０-９`, `ａ-ｆ`,
+        // `Ａ-Ｆ`), which the ASCII-only hex parsers downstream reject (yielding empty data). Only
+        // accept ASCII hex so "validates" always implies "encodes".
+        hasHexPrefix() && count == 42 && dropFirst(2).allSatisfy { $0.isASCII && $0.isHexDigit }
     }
 
     func stripLeadingZeroes() -> String {

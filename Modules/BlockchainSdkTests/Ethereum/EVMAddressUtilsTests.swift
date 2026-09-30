@@ -128,6 +128,8 @@ struct EVMAddressUtilsTests {
         "5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed", // no hex prefix
         "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAe", // 41 characters
         "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAedd", // 43 characters
+        "0xd8da6bf26964af9d7eed9e03e53415d37aa9604\u{FF15}", // fullwidth '５' (U+FF15): `Character.isHexDigit` is true, but it is not ASCII hex
+        "0xd8d\u{FF41}6bf26964af9d7eed9e03e53415d37aa96045", // fullwidth 'ａ' (U+FF41) mid-address
     ])
     func addressWithoutValidHexShapeIsRejected(address: String) {
         #expect(!EVMAddressUtils.isValidAddressHex(value: address))
