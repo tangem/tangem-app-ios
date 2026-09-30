@@ -14,11 +14,11 @@ final class AddAccountWidgetProvider {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let candidatesSubject = CurrentValueSubject<[FeedAccountCandidate], Never>([])
-    private weak var router: FeedWidgetsRoutable?
+    private let router: any AccountsFeedRoutable
     private var bag = Set<AnyCancellable>()
     private var walletsBag = Set<AnyCancellable>()
 
-    init(router: FeedWidgetsRoutable) {
+    init(router: any AccountsFeedRoutable) {
         self.router = router
         bind()
     }
@@ -34,7 +34,7 @@ extension AddAccountWidgetProvider: FeedWidgetProvider {
     }
 
     func select() {
-        router?.openAddAccount(candidates: candidatesSubject.value)
+        router.openAddAccount(candidates: candidatesSubject.value)
     }
 }
 
