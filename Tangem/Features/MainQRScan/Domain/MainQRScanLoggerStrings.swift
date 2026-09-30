@@ -16,7 +16,4 @@ enum MainQRScanLoggerStrings {
         return "QR URI for \(blockchain) contains unknown query parameters that may carry important data: [\(params)]"
     }
 
-    static func tronAmountTreatedAsRaw(rawValue: String) -> String {
-        "Tron QR amount '\(rawValue)' has no decimal point and exceeds threshold (\(MainQRParserConstants.tronRawAmountThreshold)), treating as raw integer (needs decimals shift)"
-    }
 }
