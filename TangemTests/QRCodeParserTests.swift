@@ -128,6 +128,23 @@ final class QRCodeParserTests: XCTestCase {
             parser: parser
         )
 
+        // Values containing `=` (base64 padding, `a=b`) must be kept whole, not dropped or truncated
+        testPositiveCase(
+            code: "bc1pw83rs5s75na2g7ec8yqgekr3ae209ye7ck2ftakjnh8tv3xzw8ls6wgt62?memo=YWJj=",
+            destination: "bc1pw83rs5s75na2g7ec8yqgekr3ae209ye7ck2ftakjnh8tv3xzw8ls6wgt62",
+            amount: nil,
+            memo: "YWJj=",
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "bc1pw83rs5s75na2g7ec8yqgekr3ae209ye7ck2ftakjnh8tv3xzw8ls6wgt62?message=a=b&amount=0.5",
+            destination: "bc1pw83rs5s75na2g7ec8yqgekr3ae209ye7ck2ftakjnh8tv3xzw8ls6wgt62",
+            amount: Amount(with: blockchain, value: 0.5),
+            memo: "a=b",
+            parser: parser
+        )
+
         // MARK: - Negative cases
 
         testNegativeCase(

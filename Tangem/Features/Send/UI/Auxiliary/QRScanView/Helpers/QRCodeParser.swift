@@ -105,7 +105,9 @@ struct QRCodeParser {
         return rawParametersString
             .split(separator: "&")
             .map { String($0) }
-            .map { $0.split(separator: "=") }
+            // Split on the first `=` only: values may legitimately contain `=` (base64 padding in a memo,
+            // `message=a=b`), and splitting on every one either dropped the parameter or truncated it.
+            .map { $0.split(separator: "=", maxSplits: 1) }
             .filter { $0.count == 2 }
             .map { parameter in
                 let name = String(parameter[0]).lowercased()
