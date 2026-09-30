@@ -11,3 +11,15 @@ enum TangemPayOfframpRecipient: Equatable {
     case newIndividual
     case newBusiness
 }
+
+// MARK: - Traits
+
+extension TangemPayOfframpRecipient {
+    var isSaved: Bool {
+        if case .saved = self {
+            return true
+        }
+
+        return false
+    }
+}
