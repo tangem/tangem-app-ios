@@ -25,6 +25,8 @@ final class CommonHotCryptoService {
     // MARK: - Private properties
 
     private var hotCryptoItemsSubject = CurrentValueSubject<[HotCryptoDTO.Response.HotToken], Never>([])
+    /// Currency the current `hotCryptoItemsSubject` prices are denominated in.
+    private var loadedCurrencyCode: String?
     private var currencyCodeBag: AnyCancellable?
     private var loadTask: Task<Void, Never>?
 
@@ -57,19 +59,47 @@ extension CommonHotCryptoService: HotCryptoService {
 
             do {
                 let fetchedHotCryptoItems = try await tangemApiService.loadHotCrypto(
-                    requestModel: .init(currency: AppSettings.shared.selectedCurrencyCode)
+                    requestModel: .init(currency: currencyCode)
                 )
 
                 guard !Task.isCancelled else { return }
 
+                loadedCurrencyCode = currencyCode
                 hotCryptoItemsSubject.send(fetchedHotCryptoItems.tokens)
-            } catch let error as TangemAPIError {
-                ActionButtonsAnalyticsService.hotTokenError(errorCode: String(error.code.rawValue))
-            } catch let error as MoyaError {
-                ActionButtonsAnalyticsService.hotTokenError(errorCode: String(error.response?.statusCode ?? 999))
             } catch {
-                ActionButtonsAnalyticsService.hotTokenError(errorCode: .unknown)
+                logLoadingError(error)
+                dropItemsIfCurrencyMismatch(requestedCurrencyCode: currencyCode)
             }
+        }
+    }
+}
+
+// MARK: - Private
+
+private extension CommonHotCryptoService {
+    /// The list is rendered with the *currently selected* currency code, so items priced in a previous
+    /// currency must not survive a failed reload for the new one.
+    func dropItemsIfCurrencyMismatch(requestedCurrencyCode: String) {
+        guard
+            !Task.isCancelled,
+            let loadedCurrencyCode,
+            loadedCurrencyCode != requestedCurrencyCode
+        else {
+            return
+        }
+
+        self.loadedCurrencyCode = nil
+        hotCryptoItemsSubject.send([])
+    }
+
+    func logLoadingError(_ error: Error) {
+        switch error {
+        case let error as TangemAPIError:
+            ActionButtonsAnalyticsService.hotTokenError(errorCode: String(error.code.rawValue))
+        case let error as MoyaError:
+            ActionButtonsAnalyticsService.hotTokenError(errorCode: String(error.response?.statusCode ?? 999))
+        default:
+            ActionButtonsAnalyticsService.hotTokenError(errorCode: .unknown)
         }
     }
 }
