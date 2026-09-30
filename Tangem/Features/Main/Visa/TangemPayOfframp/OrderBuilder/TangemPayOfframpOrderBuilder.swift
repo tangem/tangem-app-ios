@@ -22,6 +22,10 @@ final class TangemPayOfframpOrderBuilder {
     private(set) var personalDetails: TangemPayOfframpPersonalDetails?
     private(set) var bankDetails: TangemPayOfframpBankDetails?
 
+    var isRailLocked: Bool {
+        recipient.isSaved
+    }
+
     init(recipient: TangemPayOfframpRecipient) {
         self.recipient = recipient
 
@@ -39,6 +43,8 @@ final class TangemPayOfframpOrderBuilder {
     }
 
     func set(rail: TangemPayBankAccountRail) {
+        guard !isRailLocked else { return }
+
         self.rail = rail
     }
 
@@ -58,8 +64,9 @@ final class TangemPayOfframpOrderBuilder {
         self.bankDetails = bankDetails
     }
 
-    func selectSaved(bankAccountId: String) {
-        recipient = .saved(bankAccountId: bankAccountId)
+    func selectSaved(_ account: TangemPayBankAccountResponse) {
+        recipient = .saved(bankAccountId: account.id)
+        rail = account.details.rail
         isThirdParty = nil
         accountType = nil
         personalDetails = nil

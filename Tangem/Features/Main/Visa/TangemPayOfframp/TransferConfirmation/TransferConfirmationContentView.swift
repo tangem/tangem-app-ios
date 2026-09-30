@@ -106,12 +106,16 @@ private extension TransferConfirmationContentView {
     @ViewBuilder
     var railRow: some View {
         if let rail = state.rail {
-            SwiftUI.Button {
-                action(.railTap)
-            } label: {
+            if state.isRailSelectable {
+                SwiftUI.Button {
+                    action(.railTap)
+                } label: {
+                    railContent(rail)
+                }
+                .buttonStyle(.plain)
+            } else {
                 railContent(rail)
             }
-            .buttonStyle(.plain)
         }
     }
 
@@ -259,6 +263,7 @@ extension TransferConfirmationContentView {
         let amountText: String
         let token: TransferInputTokenItem?
         let rail: TransferInputRailItem?
+        let isRailSelectable: Bool
         let sections: [TransferConfirmationSection]
         let footerNote: String?
         let sendButtonIcon: ImageType?
@@ -324,6 +329,7 @@ private enum TransferConfirmationPreview {
             amountText: "$500",
             token: TransferInputTokenItem.previewList[0],
             rail: TransferInputRailItem.previewList[0],
+            isRailSelectable: true,
             sections: sections,
             footerNote: "You are sending $501 including a ACH fee of $1",
             sendButtonIcon: Assets.tangemIcon,
