@@ -147,7 +147,7 @@ extension PolymarketOrderModel {
     func step(by step: Int) {
         guard let balance = state.balance else { return }
 
-        let floor: Decimal = if case .sell = intent { min(Constants.minSellableShares, balance) } else { 0 }
+        let floor = sellFloor(balance: balance)
         let current = state.enteredAmount ?? floor
         let capped = min(max(current + Decimal(step), floor), balance)
         let stepped = capped == balance
@@ -302,13 +302,21 @@ private extension PolymarketOrderModel {
         apply(enteredAmount: quotable, debounced: false)
     }
 
+    func sellFloor(balance: Decimal) -> Decimal {
+        guard case .sell = intent else { return 0 }
+
+        let marketFloor = state.quote.quote?.minOrderSize ?? state.minAmount ?? Constants.minSellableShares
+
+        return min(max(marketFloor, Constants.minSellableShares), balance)
+    }
+
     func spendable(fraction: PolymarketAmountFraction, of balance: Decimal) -> Decimal {
         guard fraction == .max else {
             let share = (balance * fraction.multiplier).rounded(scale: intent.stepFractionDigits, roundingMode: .down)
 
             guard case .sell = intent else { return share }
 
-            return max(share, min(Constants.minSellableShares, balance))
+            return max(share, sellFloor(balance: balance))
         }
 
         if intent.maxOffersWholePosition {
@@ -494,9 +502,21 @@ private extension PolymarketOrderModel {
     }
 
     func handleQuoteFailure(_ error: Error) {
-        guard state.quote.quote == nil else { return }
+        guard !state.keepsQuote(at: Date()) else { return }
 
         state.quote = .failed(PolymarketOrderQuoteFailure(error: error))
+    }
+}
+
+extension PolymarketOrderModel {
+    nonisolated static let maxQuoteAge: TimeInterval = 30
+}
+
+extension PolymarketOrderModel.State {
+    func keepsQuote(at moment: Date) -> Bool {
+        guard quote.quote != nil, let quoteReceivedAt else { return false }
+
+        return moment.timeIntervalSince(quoteReceivedAt) <= PolymarketOrderModel.maxQuoteAge
     }
 }
 
