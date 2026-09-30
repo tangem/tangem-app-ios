@@ -240,6 +240,9 @@ private extension TransferModel {
             _isFeeIncluded.send(isFeeIncluded)
             _transaction.send(.success(transaction))
         case .failed(let error):
+            // Without a transaction there is nothing the fee could be subtracted from; leaving the previous `true`
+            // here kept the "fee will be subtracted" notification next to e.g. "insufficient funds".
+            _isFeeIncluded.send(false)
             _transaction.send(.failure(error))
         }
     }
