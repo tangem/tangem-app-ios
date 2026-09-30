@@ -108,6 +108,10 @@ extension TangemPayOfframpOptionsStore {
         var defaultRail: TransferInputRailItem? {
             rails.first
         }
+
+        func rail(preferring rail: TangemPayBankAccountRail?) -> TransferInputRailItem? {
+            rails.first { $0.rail == rail } ?? defaultRail
+        }
     }
 }
 
@@ -125,7 +129,7 @@ extension TangemPayOfframpOptionsStore {
             TransferInputRailItem(
                 rail: destination.rail,
                 icon: destination.rail.icon,
-                title: destination.fee.name?.nilIfEmpty ?? destination.rail.displayName,
+                title: destination.fee.name?.nilIfEmpty ?? destination.rail.rawValue,
                 etaText: etaText(for: destination.eta),
                 feeText: BalanceFormatter().formatFiatBalance(
                     destination.fee.amount,
@@ -236,20 +240,14 @@ private extension TangemPayOfframpOptionsStore {
     }
 }
 
-// MARK: - Rail display name
+// MARK: - Rail icon
 
 private extension TangemPayBankAccountRail {
-    var displayName: String {
-        switch self {
-        case .ach: "ACH"
-        case .wire: "FedWire"
-        }
-    }
-
     var icon: ImageType {
         switch self {
         case .ach: Assets.Visa.railAch
         case .wire: Assets.Visa.railFedwire
+        default: DesignSystem.Icons.BanknoteArrowHorizontal.regular24
         }
     }
 }

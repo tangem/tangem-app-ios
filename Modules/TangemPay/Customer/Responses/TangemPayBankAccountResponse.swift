@@ -32,7 +32,8 @@ public extension TangemPayBankAccountResponse {
         public init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             currency = try container.decodeIfPresent(String.self, forKey: .currency)
-            rail = try container.decodeIfPresent(String.self, forKey: .rail).flatMap(TangemPayBankAccountRail.init(rawValue:))
+            rail = try container.decodeIfPresent(TangemPayBankAccountRail.self, forKey: .rail)
+                .flatMap { $0.rawValue.isEmpty ? nil : $0 }
             thirdParty = try container.decodeIfPresent(Bool.self, forKey: .thirdParty)
             beneficiary = try container.decode(Beneficiary.self, forKey: .beneficiary)
             beneficiaryAddress = try container.decodeIfPresent(Address.self, forKey: .beneficiaryAddress)
@@ -93,9 +94,15 @@ public extension TangemPayBankAccountResponse {
 
 // MARK: - Enums
 
-public enum TangemPayBankAccountRail: String, Encodable {
-    case ach = "ACH"
-    case wire = "WIRE"
+public struct TangemPayBankAccountRail: RawRepresentable, Hashable, Codable, Sendable {
+    public let rawValue: String
+
+    public init(rawValue: String) {
+        self.rawValue = rawValue
+    }
+
+    public static let ach = TangemPayBankAccountRail(rawValue: "ACH")
+    public static let wire = TangemPayBankAccountRail(rawValue: "WIRE")
 }
 
 public enum TangemPayBankAccountBeneficiaryType: String, Encodable {
