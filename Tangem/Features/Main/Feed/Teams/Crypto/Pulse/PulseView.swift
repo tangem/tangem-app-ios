@@ -117,6 +117,7 @@ struct PulseView: View {
         }
         .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsIntervalButton(viewModel.selectedInterval.rawValue))
         .fixedSize(horizontal: true, vertical: false)
+        .id(viewModel.selectedInterval)
     }
 
     private var tagChip: some View {
