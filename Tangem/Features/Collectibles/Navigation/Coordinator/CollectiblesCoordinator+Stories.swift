@@ -35,6 +35,7 @@ extension CollectiblesCoordinator {
                     source: .collectibles,
                     analytics: analytics,
                     hapticPlayer: CommonStoryHapticPlayer(),
+                    holdsLastSlide: true,
                     onFinished: { _, _ in }
                 )
             }
