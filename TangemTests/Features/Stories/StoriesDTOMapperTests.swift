@@ -296,4 +296,11 @@ struct StoriesDTOMapperTests {
         let stories = try map(envelope(host: "https://h/", story: story(slides: slide)))
         #expect(stories.first?.slides.first?.hapticAtMs == [100, 200])
     }
+
+    @Test
+    func slidesAreOrderedByOrderFieldNotArrayPosition() throws {
+        let slides = "\(imageSlide("third", 3, path: "3.webp")), \(imageSlide("first", 1, path: "1.webp")), \(imageSlide("second", 2, path: "2.webp"))"
+        let stories = try map(envelope(story: story(slides: slides)))
+        #expect(stories.first?.slides.map(\.id) == ["first", "second", "third"])
+    }
 }
