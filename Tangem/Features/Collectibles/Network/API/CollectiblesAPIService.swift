@@ -49,7 +49,7 @@ extension CollectiblesAPIService: CollectiblesPacksProvider {
         let machinesRequest = CollectiblesDTO.MachinesRequest(
             categoryID: loreID,
             search: trimmedQuery.isEmpty ? nil : trimmedQuery,
-            limit: Constants.pageLimit,
+            limit: Constants.machinesPageLimit,
             cursor: cursor
         )
 
@@ -76,7 +76,7 @@ extension CollectiblesAPIService: CollectiblesMachineProvider {
 
 extension CollectiblesAPIService {
     func loadPrizePool(machineID: String, page: Int, userWalletID: String) async throws -> CollectiblesPrizePoolPage {
-        let nftsRequest = CollectiblesDTO.MachineNftsRequest(page: page, limit: Constants.pageLimit)
+        let nftsRequest = CollectiblesDTO.MachineNftsRequest(page: page, limit: Constants.prizePoolPageLimit)
         let target = CollectiblesAPITarget.Target.machineNfts(externalID: machineID, nftsRequest, userWalletID: userWalletID)
         let response: CollectiblesDTO.MachineNftsResponse = try await request(target)
 
@@ -138,6 +138,7 @@ private extension CollectiblesAPIService {
 
 private extension CollectiblesAPIService {
     enum Constants {
-        static let pageLimit = 50
+        static let machinesPageLimit = 20
+        static let prizePoolPageLimit = 50
     }
 }
