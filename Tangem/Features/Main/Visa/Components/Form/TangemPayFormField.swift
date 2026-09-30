@@ -84,8 +84,11 @@ extension TangemPayFormField.ID {
         case .email:
             .emailAddress
 
-        case .accountNumber, .routingNumber, .postalCode, .bankPostalCode:
+        case .accountNumber, .routingNumber:
             .numberPad
+
+        case .postalCode, .bankPostalCode:
+            .asciiCapable
 
         case .firstName, .lastName, .businessName, .countryCode, .region, .city, .line1, .line2,
              .bankName, .bankRegion, .bankCity, .bankLine1:
@@ -114,7 +117,10 @@ extension TangemPayFormField.ID {
              .bankName, .bankCity, .bankLine1:
             .words
 
-        case .email, .accountNumber, .routingNumber, .postalCode, .bankPostalCode:
+        case .postalCode, .bankPostalCode:
+            .characters
+
+        case .email, .accountNumber, .routingNumber:
             .never
         }
     }
