@@ -1,5 +1,5 @@
 //
-//  RegisterUserWalletUseCase.swift
+//  RegisterMobileUserWalletUseCase.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,22 +9,25 @@
 public import struct TangemFoundation.UserWalletId
 import struct TangemLogger.Logger
 
-public struct RegisterUserWalletUseCase: Sendable {
+public struct RegisterMobileUserWalletUseCase: Sendable {
     private let obtainNonce: ObtainUserWalletRegistrationNonce
     private let attestUserWallet: AttestUserWallet
     private let submitRegistration: SubmitUserWalletRegistration
 
+    private let analyticsReporter: any BackendAuthenticationAnalyticsReporter
     private let logger: Logger
 
     init(
         obtainNonce: @escaping ObtainUserWalletRegistrationNonce,
         attestUserWallet: @escaping AttestUserWallet,
         submitRegistration: @escaping SubmitUserWalletRegistration,
+        analyticsReporter: some BackendAuthenticationAnalyticsReporter,
         logger: Logger
     ) {
         self.obtainNonce = obtainNonce
         self.attestUserWallet = attestUserWallet
         self.submitRegistration = submitRegistration
+        self.analyticsReporter = analyticsReporter
         self.logger = logger
     }
 
@@ -50,6 +53,18 @@ public struct RegisterUserWalletUseCase: Sendable {
         do {
             return try await obtainNonce(id)
         } catch {
+            switch error {
+            case .clientFailure(.requestNonceTimeout):
+                analyticsReporter.reportMobileUserWalletNonceTimeout()
+
+            case .deviceRegistrationFailure,
+                 .deviceKeyFailure,
+                 .clientFailure,
+                 .nonceDecryptionFailure,
+                 .invalidDecryptedNonceEncoding:
+                break
+            }
+
             throw RegisterUserWalletError.obtainNonceFailure(error)
         }
     }

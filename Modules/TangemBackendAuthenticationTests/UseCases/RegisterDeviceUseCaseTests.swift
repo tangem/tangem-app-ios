@@ -47,13 +47,16 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
             appAttestationToken: expectedAppAttestationToken
         )
 
+        let analyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
+
         let sut = makeSUT(
             appAttestService: appAttestService,
             registrationClient: registrationClient,
             registrationStatusRepository: registrationStatusRepository,
             sessionTokensRepository: sessionTokensRepository,
             devicePrivateKeyRepository: devicePrivateKeyRepository,
-            nonceDecryptor: nonceDecryptor
+            nonceDecryptor: nonceDecryptor,
+            analyticsReporter: analyticsReporter
         )
 
         let sessionTokens = try await sut()
@@ -64,6 +67,7 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
         #expect(appAttestService.receivedMessages == [.generateAttestationToken(expectedDecryptedNonceBytes)])
         #expect(sessionTokensRepository.receivedMessages == [.persist(expectedSessionTokens)])
         #expect(registrationStatusRepository.receivedMessages == [.retrieve, .persist(isRegistered: true)])
+        #expect(analyticsReporter.receivedMessages.isEmpty)
     }
 
     @Test
@@ -160,6 +164,31 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
             Issue.record("Expected .clientFailure(.requestNonceFailed), got \(error)")
             return
         }
+    }
+
+    @Test
+    func registerDeviceReportsDeviceNonceTimeoutWhenRequestCipheredNonceTimesOut() async throws {
+        let registrationClient = SpyDeviceRegistrationClient()
+        registrationClient.requestCipheredNonceResult = Result.failure(.requestNonceTimeout)
+
+        let analyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
+
+        let sut = makeSUT(
+            registrationClient: registrationClient,
+            devicePrivateKeyRepository: .successStub,
+            analyticsReporter: analyticsReporter
+        )
+
+        let error = try await #require(throws: RegisterDeviceError.self) {
+            _ = try await sut()
+        }
+
+        guard case .clientFailure(.requestNonceTimeout) = error else {
+            Issue.record("Expected .clientFailure(.requestNonceTimeout), got \(error)")
+            return
+        }
+
+        #expect(analyticsReporter.receivedMessages == [.reportDeviceNonceTimeout])
     }
 
     @Test
@@ -293,13 +322,16 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
             appAttestationToken: expectedAppAttestationToken
         )
 
+        let analyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
+
         let sut = makeSUT(
             appAttestService: appAttestService,
             registrationClient: registrationClient,
             registrationStatusRepository: registrationStatusRepository,
             sessionTokensRepository: sessionTokensRepository,
             devicePrivateKeyRepository: devicePrivateKeyRepository,
-            nonceDecryptor: nonceDecryptor
+            nonceDecryptor: nonceDecryptor,
+            analyticsReporter: analyticsReporter
         )
 
         let error = try await #require(throws: RegisterDeviceError.self) {
@@ -316,6 +348,7 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
         #expect(appAttestService.receivedMessages == [.generateAttestationToken(expectedDecryptedNonceBytes)])
         #expect(sessionTokensRepository.receivedMessages == [.persist(expectedSessionTokens)])
         #expect(registrationStatusRepository.receivedMessages == [.retrieve, .persist(isRegistered: false)])
+        #expect(analyticsReporter.receivedMessages.isEmpty)
     }
 
     @Test
@@ -472,6 +505,7 @@ extension RegisterDeviceUseCaseTests {
         sessionTokensRepository: some SessionTokensRepository = SpySessionTokensRepository(),
         devicePrivateKeyRepository: some DevicePrivateKeyRepository = SpyDevicePrivateKeyRepository(),
         nonceDecryptor: some NonceDecryptor = SpyNonceDecryptor(),
+        analyticsReporter: some BackendAuthenticationAnalyticsReporter = SpyBackendAuthenticationAnalyticsReporter(),
         sourceLocation: SourceLocation = #_sourceLocation
     ) -> RegisterDeviceUseCase {
         trackForMemoryLeaks(
@@ -483,6 +517,7 @@ extension RegisterDeviceUseCaseTests {
                 deviceKeyManager: DeviceKeyManager(privateKeyRepository: devicePrivateKeyRepository),
                 nonceDecryptor: nonceDecryptor,
                 deviceMetadataProvider: DeviceMetadata.fake,
+                analyticsReporter: analyticsReporter,
                 logger: Logger(category: OSLogCategory(name: "Tests"))
             ),
             sourceLocation: sourceLocation

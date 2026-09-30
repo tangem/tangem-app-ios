@@ -7,6 +7,7 @@
 //
 
 enum SessionAuthenticationClientError: Error {
+    case requestNonceTimeout
     case requestNonceFailed(underlying: any Error)
 
     case authenticateFailed(underlying: any Error)

@@ -31,13 +31,20 @@ struct MoyaUserWalletRegistrationClient: UserWalletRegistrationClient {
     }
 
     func requestCipheredNonce(devicePublicKey: DevicePublicKey) async throws(UserWalletRegistrationClientError) -> String {
+        let requestBody = NonceDTO.Request(devicePublicKey: devicePublicKey.derRepresentation.base64EncodedString())
+        let target = BackendAuthenticationTarget(walletRegistrationNonce: requestBody, baseURL: baseURL)
+
+        let response: Moya.Response
         do {
-            let requestBody = NonceDTO.Request(devicePublicKey: devicePublicKey.derRepresentation.base64EncodedString())
-            let target = BackendAuthenticationTarget(walletRegistrationNonce: requestBody, baseURL: baseURL)
+            response = try await nonceProvider.request(target)
+        } catch {
+            throw error.isTimeout
+                ? UserWalletRegistrationClientError.requestNonceTimeout
+                : UserWalletRegistrationClientError.requestNonceFailed(underlying: error)
+        }
 
-            let response = try await nonceProvider.request(target)
+        do {
             let nonceResponse = try decoder.decode(NonceDTO.Response.self, from: response.data)
-
             return nonceResponse.cipheredNonce
         } catch {
             throw UserWalletRegistrationClientError.requestNonceFailed(underlying: error)
