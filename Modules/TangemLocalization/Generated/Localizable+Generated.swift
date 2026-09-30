@@ -2958,6 +2958,18 @@ public enum Localization {
   public static let onboardingSeedMnemonicInvalidChecksum = Localization.tr("Localizable", "onboarding_seed_mnemonic_invalid_checksum")
   /// Invalid seed phrase. Please check your spelling.
   public static let onboardingSeedMnemonicWrongWords = Localization.tr("Localizable", "onboarding_seed_mnemonic_wrong_words")
+  /// Repeat the passphrase
+  public static let onboardingSeedPassphraseSetupConfirmPlaceholder = Localization.tr("Localizable", "onboarding_seed_passphrase_setup_confirm_placeholder")
+  /// The passphrases don’t match
+  public static let onboardingSeedPassphraseSetupMismatch = Localization.tr("Localizable", "onboarding_seed_passphrase_setup_mismatch")
+  /// A mobile wallet with a passphrase can’t be moved to a Tangem card later.
+  public static let onboardingSeedPassphraseSetupMobileUpgradeNote = Localization.tr("Localizable", "onboarding_seed_passphrase_setup_mobile_upgrade_note")
+  /// Add a passphrase (advanced)
+  public static let onboardingSeedPassphraseSetupToggle = Localization.tr("Localizable", "onboarding_seed_passphrase_setup_toggle")
+  /// A passphrase is a second secret. Your seed phrase alone will not restore this wallet, and Tangem cannot recover a passphrase for you. Write it down and keep it apart from the seed phrase.
+  public static let onboardingSeedPassphraseSetupWarningMessage = Localization.tr("Localizable", "onboarding_seed_passphrase_setup_warning_message")
+  /// Lose the passphrase — lose the funds
+  public static let onboardingSeedPassphraseSetupWarningTitle = Localization.tr("Localizable", "onboarding_seed_passphrase_setup_warning_title")
   /// Legacy
   public static let onboardingSeedPhraseIntroLegacy = Localization.tr("Localizable", "onboarding_seed_phrase_intro_legacy")
   /// For security reasons, taking screenshots of your seed phrase is disabled. The seed phrase is hidden to protect it from loss or unauthorized access.
