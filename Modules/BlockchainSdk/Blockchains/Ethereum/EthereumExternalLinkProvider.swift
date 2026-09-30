@@ -13,22 +13,19 @@ struct EthereumExternalLinkProvider {
     private let baseURL: String
 
     init(isTestnet: Bool) {
-        baseURL = isTestnet ? "https://goerli.etherscan.io/" : "https://etherscan.io/"
+        // The SDK testnet is Sepolia (chain id 11155111); Goerli was shut down in 2024.
+        baseURL = isTestnet ? "https://sepolia.etherscan.io/" : "https://etherscan.io/"
         self.isTestnet = isTestnet
     }
 }
 
 extension EthereumExternalLinkProvider: ExternalLinkProvider {
     var testnetFaucetURL: URL? {
-        return URL(string: "https://goerlifaucet.com")
+        return URL(string: "https://www.alchemy.com/faucets/ethereum-sepolia")
     }
 
     func url(transaction hash: String) -> URL? {
-        if isTestnet {
-            return URL(string: "https://goerli.etherscan.io/tx/\(hash)")
-        }
-
-        return URL(string: "https://etherscan.io/tx/\(hash)")
+        URL(string: baseURL + "tx/\(hash)")
     }
 
     func url(address: String, contractAddress: String?) -> URL? {

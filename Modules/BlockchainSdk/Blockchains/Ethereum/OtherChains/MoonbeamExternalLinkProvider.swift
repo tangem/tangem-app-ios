@@ -38,6 +38,6 @@ struct MoonbeamExternalLinkProvider: ExternalLinkProvider {
 
 extension MoonbeamExternalLinkProvider: NFTExternalLinksProvider {
     func url(tokenAddress: String, tokenID: String, contractType: String) -> URL? {
-        URL(string: baseExplorerUrl + "nft/\(tokenAddress)/\(tokenID)")
+        URL(string: "\(baseExplorerUrl)/nft/\(tokenAddress)/\(tokenID)")
     }
 }
