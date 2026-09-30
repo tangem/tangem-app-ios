@@ -550,6 +550,11 @@ private extension CommonYieldModuleManager {
 
         let maxNetworkFeeToken = maxFeeNativeWei * coinPrice.price / tokenPrice.price
 
+        // A zero or missing token quote turns the division into NaN, which `mapToBigUInt` maps to 0.
+        guard tokenPrice.price > 0, !maxNetworkFeeToken.isNaN else {
+            throw YieldModuleError.maxNetworkFeeNotFound
+        }
+
         return EthereumUtils.mapToBigUInt(maxNetworkFeeToken)
     }
 
