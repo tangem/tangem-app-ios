@@ -14,10 +14,10 @@ final class PolymarketWidgetProvider {
     @Injected(\.polymarketAvailabilityProvider) private var availabilityProvider: PolymarketAvailabilityProvider
 
     private let walletsSubject = CurrentValueSubject<[UserWalletModel], Never>([])
-    private weak var router: FeedWidgetsRoutable?
+    private let router: any PredictionsFeedRoutable
     private var bag = Set<AnyCancellable>()
 
-    init(router: FeedWidgetsRoutable) {
+    init(router: any PredictionsFeedRoutable) {
         self.router = router
 
         bind()
@@ -40,7 +40,7 @@ extension PolymarketWidgetProvider: FeedWidgetProvider {
     }
 
     func select() {
-        router?.openPolymarket(wallets: walletsSubject.value)
+        router.openPolymarket(wallets: walletsSubject.value)
     }
 }
 

@@ -178,8 +178,8 @@ struct TokenDetailsView: View {
                 Menu {
                     dotsMenuContent
                 } label: {
-                    Image(systemName: "ellipsis")
-                        .font(.title2)
+                    DesignSystem.Icons.DotsHorizontal.regular24.image
+                        .renderingMode(.template)
                 }
             case .markets:
                 Menu(

@@ -45,6 +45,7 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     private lazy var cardDeactivatedBanner = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.cardDeactivatedNotification].firstMatch
     /// The banner stamps its identifier onto the elements inside it, so its button carries the same one.
     private lazy var removeAccountBannerButton = notificationBannerButton(TangemPayAccessibilityIdentifiers.cardDeactivatedNotification)
+    private lazy var cardDeactivatedBannerIcon = app.images[TangemPayAccessibilityIdentifiers.cardDeactivatedNotification].firstMatch
     private lazy var backButton = app.navigationBars.buttons.element(boundBy: 0)
     private lazy var applePayGuideBanner = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.addToApplePayGuideBanner].firstMatch
     private lazy var applePayGuideBannerCloseButton = app.buttons[TangemPayAccessibilityIdentifiers.addToApplePayGuideBannerCloseButton].firstMatch
@@ -278,6 +279,28 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
+    func verifyAccountClosedBannerDetails() -> Self {
+        XCTContext.runActivity(named: "Verify account closed banner shows its icon, texts and Remove account button") { _ in
+            waitAndAssertTrue(cardDeactivatedBanner, "Account closed banner should be displayed")
+            for text in [Self.accountClosedTitle, Constants.accountClosedSupportText] {
+                waitAndAssertTrue(
+                    cardDeactivatedBannerElement(labelContaining: text),
+                    "Account closed banner should read '\(text)'"
+                )
+            }
+            waitAndAssertTrue(cardDeactivatedBannerIcon, "Account closed banner should show the warning icon")
+            waitAndAssertTrue(
+                app.buttons
+                    .matching(identifier: TangemPayAccessibilityIdentifiers.cardDeactivatedNotification)
+                    .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, Self.removeAccountAlertButton))
+                    .firstMatch,
+                "Account closed banner should offer the '\(Self.removeAccountAlertButton)' button"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func tapRemoveAccountOnBanner() -> Self {
         XCTContext.runActivity(named: "Tap Remove account on the account closed banner") { _ in
             removeAccountBannerButton.waitAndTap()
@@ -419,6 +442,15 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
         XCTContext.runActivity(named: "Verify Withdraw button is disabled") { _ in
             waitAndAssertTrue(withdrawButton, "Withdraw button should be displayed")
             withdrawButton.waitForState(state: .disabled)
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyWithdrawEnabled() -> Self {
+        XCTContext.runActivity(named: "Verify Withdraw button is enabled") { _ in
+            waitAndAssertTrue(withdrawButton, "Withdraw button should be displayed")
+            XCTAssertTrue(withdrawButton.waitForState(state: .enabled), "Withdraw button should be enabled")
             return self
         }
     }
@@ -739,6 +771,13 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
             .matching(NSPredicate(format: "label == %@", label))
             .firstMatch
     }
+
+    private func cardDeactivatedBannerElement(labelContaining text: String) -> XCUIElement {
+        app.descendants(matching: .any)
+            .matching(identifier: TangemPayAccessibilityIdentifiers.cardDeactivatedNotification)
+            .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, text))
+            .firstMatch
+    }
 }
 
 enum TangemPayMainScreenElement: String, UIElement {
@@ -796,5 +835,6 @@ private extension TangemPayMainScreen {
         static let cashbackTitle = "Cashback"
         static let cashbackDeactivatedTitle = "Cashback deactivated"
         static let cashbackOpenAttempts = 3
+        static let accountClosedSupportText = "For questions about account, data or transaction history, please contact support"
     }
 }
