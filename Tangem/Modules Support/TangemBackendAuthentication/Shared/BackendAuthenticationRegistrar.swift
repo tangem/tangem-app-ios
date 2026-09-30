@@ -35,6 +35,7 @@ enum BackendAuthenticationRegistrar {
                         retrier: BackendAuthenticationAssembly.requestRetrier
                     )
                 ),
+                analyticsReporter: CommonBackendAuthenticationAnalyticsReporter(),
                 logger: BackendAuthLogger
             )
         )
@@ -225,7 +226,7 @@ extension BackendAuthenticationRegistrar {
 
         Task {
             do {
-                try await BackendAuthenticationAssembly.registerUserWallet(id: id, recoveryEnrollment: nil, signer: signer)
+                try await BackendAuthenticationAssembly.registerMobileUserWallet(id: id, recoveryEnrollment: nil, signer: signer)
                 BackendAuthLogger.info("Registered mobile wallet \(id.stringValue) \(trigger)")
             } catch {
                 BackendAuthLogger.error("Failed to register mobile wallet \(id.stringValue) \(trigger)", error: error)

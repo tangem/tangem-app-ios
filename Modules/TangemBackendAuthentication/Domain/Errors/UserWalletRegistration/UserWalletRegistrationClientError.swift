@@ -7,6 +7,7 @@
 //
 
 public enum UserWalletRegistrationClientError: Error {
+    case requestNonceTimeout
     case requestNonceFailed(underlying: any Error)
 
     case registerFailed(underlying: any Error)
