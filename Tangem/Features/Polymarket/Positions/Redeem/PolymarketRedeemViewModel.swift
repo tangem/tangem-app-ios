@@ -126,7 +126,7 @@ extension PolymarketRedeemViewModel {
         guard outcome.paysOut, displayed != 0 else { return nil }
 
         return Profit(
-            text: "\(signedMoney(position.cashPnl)) (\(Self.percentFormatter.format(position.pnlRatio, option: .priceChange)))",
+            text: "\(money(abs(displayed))) (\(Self.percentFormatter.format(position.pnlRatio, option: .priceChange)))",
             direction: displayed > 0 ? .positive : .negative
         )
     }
@@ -211,9 +211,5 @@ private extension PolymarketRedeemViewModel {
 
     func money(_ value: Decimal) -> String {
         PolymarketOrderFormatter.money(value)
-    }
-
-    func signedMoney(_ value: Decimal) -> String {
-        PolymarketOrderFormatter.signedMoney(value)
     }
 }
