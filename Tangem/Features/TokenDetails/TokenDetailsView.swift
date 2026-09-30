@@ -46,7 +46,7 @@ struct TokenDetailsView: View {
                 )
 
                 VStack(spacing: .zero) {
-                    if let jointOperationsSection = viewModel.jointOperationsAwaitingSignaturesSection {
+                    if let jointOperationsSection = viewModel.jointOperationsInFlightSection {
                         TransactionsListSectionView(
                             item: jointOperationsSection,
                             openTransactionDetailsAction: viewModel.openTransactionDetails

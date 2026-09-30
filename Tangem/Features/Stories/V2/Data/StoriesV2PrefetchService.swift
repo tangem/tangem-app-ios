@@ -17,7 +17,7 @@ final class StoriesV2PrefetchService {
 
     private var startupTask: Task<Void, Never>?
 
-    /// Detached so the app start is never blocked; cancellation reaches the downloads.
+    /// Detached so the app start is never blocked.
     func prefetchOnAppStart() {
         guard FeatureProvider.isAvailable(.storiesV2) else { return }
 

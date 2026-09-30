@@ -16,6 +16,7 @@ protocol PolymarketBalanceService {
     var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider { get }
     var collateralTokenBalanceProvider: TokenBalanceProvider { get }
+    var collateralTotalBalanceProvider: TokenBalanceProvider { get }
     var state: PolymarketBalanceState? { get }
 
     func update(_ state: PolymarketBalanceState)
@@ -68,7 +69,7 @@ final class CommonPolymarketBalanceService {
 
     lazy var fiatTotalTokenBalanceProvider: TokenBalanceProvider = FiatTokenBalanceProvider(
         input: fiatRateProvider,
-        cryptoBalanceProvider: totalBalanceProvider
+        cryptoBalanceProvider: collateralTotalBalanceProvider
     )
 
     lazy var collateralTokenBalanceProvider: TokenBalanceProvider = PolymarketAccountBalanceProvider(
@@ -78,7 +79,7 @@ final class CommonPolymarketBalanceService {
         balanceSubject: balanceSubject
     )
 
-    private lazy var totalBalanceProvider: TokenBalanceProvider = PolymarketAccountBalanceProvider(
+    lazy var collateralTotalBalanceProvider: TokenBalanceProvider = PolymarketAccountBalanceProvider(
         kind: .total,
         tokenItem: tokenItem,
         tokenBalancesRepository: tokenBalancesRepository,

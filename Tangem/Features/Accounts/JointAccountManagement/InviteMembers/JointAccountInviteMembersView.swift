@@ -11,6 +11,7 @@ import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 struct JointAccountInviteMembersView: View {
     @ObservedObject var viewModel: JointAccountInviteMembersViewModel
@@ -36,6 +37,8 @@ struct JointAccountInviteMembersView: View {
             }
         }
         .topNavigation(leading: .none, actions: actions, onClose: viewModel.onCloseTap)
+        .onWillAppear(perform: viewModel.onWillAppear)
+        .onWillDisappear(perform: viewModel.onWillDisappear)
         .alert(item: $viewModel.alert, content: { $0.alert })
         .confirmationDialog(
             Localization.accountDetailsArchiveJointDescription,
@@ -151,7 +154,7 @@ struct JointAccountInviteMembersView: View {
     private func freeSlotView(_ freeSlot: JointAccountInviteMembersViewModel.FreeSlotViewData) -> some View {
         JointAccountMemberRow(
             avatar: .emptySlot,
-            title: Localization.jointAccountInviteMembersNewMember,
+            title: Localization.jointAccountInviteMembersMember,
             subtitle: Localization.jointAccountInviteMembersNotInvited,
             accessory: accessory(for: freeSlot)
         )

@@ -54,7 +54,7 @@ private extension TangemPayCashbackInfoCard {
     var iconView: some View {
         ZStack {
             Circle()
-                .fill(DesignSystem.Color.bgOpaquePrimary)
+                .fill(DesignSystem.Color.bgTransparentPrimary)
 
             icon.image
                 .renderingMode(.template)

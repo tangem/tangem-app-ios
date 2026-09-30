@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 
 public struct PolymarketEmptyMessageView: View {
@@ -29,8 +30,11 @@ public struct PolymarketEmptyMessageView: View {
                     .foregroundStyle(DesignSystem.Color.iconInverse)
                     .frame(width: Constants.buttonSize, height: Constants.buttonSize)
                     .background(DesignSystem.Color.bgInverse, in: Circle())
+                    .frame(width: Constants.tapTargetSize, height: Constants.tapTargetSize)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(Localization.commonReload)
 
             Text(message)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
@@ -48,6 +52,7 @@ private extension PolymarketEmptyMessageView {
     enum Constants {
         static let spacing: CGFloat = 12
         static let buttonSize: CGFloat = 40
+        static let tapTargetSize: CGFloat = 44
         static let iconSize: CGFloat = 20
         static let horizontalPadding: CGFloat = 64
         static let verticalPadding: CGFloat = 48

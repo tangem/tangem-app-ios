@@ -24,22 +24,25 @@ extension PolymarketOrderIntent {
     }
 
     var fractionDigits: Int {
-        PolymarketCollateral.decimalCount
+        switch self {
+        case .buy: min(PolymarketCollateral.decimalCount, Constants.centFractionDigits)
+        case .sell: PolymarketCollateral.decimalCount
+        }
     }
 
     /// A sale is picked in whole tokens, but a holding is rarely a whole number, so Max still has to
     /// name the exact size and the field has to be able to show it.
     var stepFractionDigits: Int {
         switch self {
-        case .buy: PolymarketCollateral.decimalCount
+        case .buy: fractionDigits
         case .sell: 0
         }
     }
 
-    var deductsFeeFromMax: Bool {
+    var maxOffersWholePosition: Bool {
         switch self {
-        case .buy: true
-        case .sell: false
+        case .buy: false
+        case .sell: true
         }
     }
 
@@ -71,5 +74,6 @@ extension PolymarketOrderIntent {
 private extension PolymarketOrderIntent {
     enum Constants {
         static let wholeShare: Decimal = 1
+        static let centFractionDigits = 2
     }
 }
