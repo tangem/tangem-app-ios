@@ -44,7 +44,18 @@ struct LogSanitizerTests {
         _ = LogSanitizer.sanitize("any log", policy: policy)
 
         #expect(receivedPreserveIdentifiers == orderedRuleIdentifiers)
-        #expect(receivedRestoreIdentifiers == orderedRuleIdentifiers)
+        #expect(receivedRestoreIdentifiers == orderedRuleIdentifiers.reversed())
+    }
+
+    @Test
+    func shouldRestoreValuesPreservedInsideLaterRulePlaceholders() {
+        let innerRule = PreserveRule(placeholderPrefix: "INNER", pattern: Regex(verbatim: "safe-value"))
+        let outerRule = PreserveRule(placeholderPrefix: "OUTER", pattern: Regex(verbatim: "[__PRESERVE_RULE_INNER_0]"))
+        let policy = LogSanitizerPolicy(preserveRules: [innerRule, outerRule], redactRules: [])
+
+        let sanitized = LogSanitizer.sanitize("prefix [safe-value] suffix", policy: policy)
+
+        #expect(sanitized == "prefix [safe-value] suffix")
     }
 
     @Test(arguments: Self.randomIntegerIdentifiers)
