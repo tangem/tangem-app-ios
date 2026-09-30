@@ -23,7 +23,6 @@ struct MobileOnboardingImportICloudBackupView: View {
             .onAppear(perform: viewModel.onAppear)
             .onDisappear {
                 viewModel.onDisappear()
-                UIApplication.shared.endEditing()
             }
     }
 }
