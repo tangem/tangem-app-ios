@@ -120,6 +120,11 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
             walletModelsManager: walletModelsManager
         )
 
+        let finishedOperationsWalletUpdater = JointAccountFinishedOperationsWalletUpdater(
+            pendingOperationsProvider: pendingOperationsProvider,
+            walletModelsManager: walletModelsManager
+        )
+
         let operationsService = CommonJointAccountOperationsService(
             jointAccountsRepository: jointAccountsRepository,
             signerFactory: signerFactory
@@ -132,6 +137,7 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
             derivationManager: accountSpecificDerivationManager,
             operationsService: operationsService,
             pendingOperationsProvider: pendingOperationsProvider,
+            finishedOperationsWalletUpdater: finishedOperationsWalletUpdater,
             membersService: membersService
         )
     }

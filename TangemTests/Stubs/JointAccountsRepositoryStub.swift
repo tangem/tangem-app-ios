@@ -87,6 +87,10 @@ final class JointAccountsRepositoryStub: JointAccountsRepository {
         loadCallsCount.withLock { $0 += 1 }
     }
 
+    func requestFrequentUpdates() -> AnyCancellable {
+        AnyCancellable {}
+    }
+
     func addNewJointAccount(withConfig config: JointAccountCreationConfig) async throws {
         throw "Not called by these tests"
     }

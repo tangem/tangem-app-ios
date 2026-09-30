@@ -24,16 +24,17 @@ class SupportChatViewModel: ObservableObject, Identifiable {
 
     private let logsComposer: LogsComposer
     private let tokenStorage = SupportChatTokenStorage()
-    private let analyticsSource: Analytics.SupportChatSource
+    private let source: SupportChatSource
     private var loadTimeoutTask: Task<Void, Never>?
     private var reloadAttempts = 0
 
     init(input: SupportChatInputModel) {
         logsComposer = input.logsComposer
-        analyticsSource = input.source
+        source = input.source
         widgetHTML = SupportChatHTMLBuilder.makeWidgetHTML(
             userIdentifier: input.userIdentifier,
             savedToken: tokenStorage.loadValidToken(),
+            topic: input.topic,
             initialMessage: input.initialMessage
         )
         scheduleLoadTimeout()
@@ -44,7 +45,7 @@ class SupportChatViewModel: ObservableObject, Identifiable {
         loadTimeoutTask = nil
         guard !loadState.isSuccess else { return }
         loadState = .success(())
-        Analytics.log(.supportChatScreenOpened, params: [.source: analyticsSource.parameterValue])
+        Analytics.log(.supportChatScreenOpened, params: [.source: source.analyticsParameterValue])
     }
 
     func onClose() {

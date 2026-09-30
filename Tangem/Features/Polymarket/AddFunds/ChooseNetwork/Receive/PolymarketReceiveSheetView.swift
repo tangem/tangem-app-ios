@@ -128,7 +128,7 @@ private extension PolymarketReceiveSheetView {
             Spacer(minLength: 0)
         }
         .padding(16)
-        .background(DesignSystem.Color.bgStatusInfoSubtle, in: RoundedRectangle(cornerRadius: 16))
+        .background(DesignSystem.Color.bgStatusInfoSubtle, in: RoundedRectangle(cornerRadius: Constants.noticeCornerRadius, style: .continuous))
     }
 
     var addressBlock: some View {
@@ -178,7 +178,7 @@ private extension PolymarketReceiveSheetView {
                 .minimumScaleFactor(0.5)
                 .padding(4)
                 .frame(size: CGSize(bothDimensions: Constants.tokenIconSize))
-                .background(DesignSystem.Color.bgOpaquePrimary, in: Circle())
+                .background(DesignSystem.Color.bgTransparentPrimary, in: Circle())
         } else {
             IconView(
                 url: tokenIcon.url,
@@ -246,6 +246,7 @@ private extension PolymarketReceiveSheetView {
 
     enum Constants {
         static let tokenIconSize: CGFloat = 80
+        static let noticeCornerRadius: CGFloat = 16
         static let addressFont = DesignSystem.Font.subheadingMediumToken
     }
 }

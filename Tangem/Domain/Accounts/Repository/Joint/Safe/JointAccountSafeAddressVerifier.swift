@@ -11,9 +11,11 @@ import BlockchainSdk
 /// Checks the address the backend announces against the one the composition actually resolves to.
 /// - Warning: The announced address is what the funds of the account will live at, so it is never taken on trust.
 enum JointAccountSafeAddressVerifier {
-    /// - Returns: The address computed from the composition, which is what gets signed once it matches.
+    /// - Returns: The announced address, spelled as the backend spells it, which is what gets signed once it matches.
     /// - Note: Every supported master copy is tried, since which one the backend deploys is still open — the
     /// announced address is what picks between them.
+    /// - Note: The backend compares the activation config with the one it holds character by character, so a
+    /// checksummed copy of a lowercase address would not match it.
     static func confirm(
         announcedAddress: String,
         owners: [String],
@@ -35,7 +37,7 @@ enum JointAccountSafeAddressVerifier {
             }
 
             if computedAddress.caseInsensitiveCompare(announcedAddress) == .orderedSame {
-                return computedAddress
+                return announcedAddress
             }
         }
 

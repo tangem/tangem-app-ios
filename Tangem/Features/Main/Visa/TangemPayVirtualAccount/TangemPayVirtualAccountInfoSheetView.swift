@@ -67,7 +67,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
     private var icon: some View {
         HStack(spacing: -16) {
             Circle()
-                .fill(DesignSystem.Color.bgOpaquePrimary)
+                .fill(DesignSystem.Color.bgTransparentPrimary)
                 .frame(width: 80, height: 80)
                 .overlay {
                     Circle().strokeBorder(DesignSystem.Color.borderSecondary, lineWidth: 1)
