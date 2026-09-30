@@ -172,6 +172,13 @@ class StellarTransactionBuilder {
             throw BlockchainSdkError.failedToBuildTx
         }
 
+        // The account sequence is Horizon-supplied; `sequence + 1` traps at `Int64.max`.
+        let (nextSequence, overflow) = sequence.addingReportingOverflow(1)
+
+        guard !overflow else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+
         // Extended the interval from 2 minutes to 5 to make sure the transaction lives longer
         // and has more chance of getting through when the network is under heavy load
         let halfIntervalSeconds: UInt64 = 150
@@ -182,7 +189,7 @@ class StellarTransactionBuilder {
         let cond: PreconditionsXDR = useTimebounds ? .time(TimeBoundsXDR(minTime: minTime, maxTime: maxTime)) : .none
         let tx = TransactionXDR(
             sourceAccount: sourceKeyPair.publicKey,
-            seqNum: sequence + 1,
+            seqNum: nextSequence,
             cond: cond,
             memo: memo.toXDR(),
             operations: [xdrOperation]
