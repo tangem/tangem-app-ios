@@ -14,8 +14,21 @@ import TangemBackendAuthentication
 actor CardUserWalletRegistrar {
     private typealias NonceTask = Task<Void, Never>
 
+    private let analyticsReporter: CommonBackendAuthenticationAnalyticsReporter
+
     private var nonceTask: NonceTask?
-    private var obtainedNonce: UserWalletRegistrationNonce?
+    private var nonceResult: Result<UserWalletRegistrationNonce?, ObtainUserWalletRegistrationNonceError>?
+
+    private var obtainedNonce: UserWalletRegistrationNonce? {
+        guard case .some(.success(let nonce)) = nonceResult else {
+            return nil
+        }
+        return nonce
+    }
+
+    init(analyticsReporter: CommonBackendAuthenticationAnalyticsReporter) {
+        self.analyticsReporter = analyticsReporter
+    }
 
     deinit {
         BackendAuthLogger.debug(self, "deinit")
@@ -53,7 +66,7 @@ actor CardUserWalletRegistrar {
                 let signer = CardUserWalletRegistrationSigner(session: session, walletPublicKey: walletPublicKey)
                 let userWalletId = UserWalletId(with: walletPublicKey)
 
-                let nonce = await self.obtainedNonce // Just an actor hop, no actual await here
+                let nonce = await self.nonceForRegistration() // Just an actor hop, no actual await here
 
                 if let nonce {
                     // No request means the user wallet is already registered
@@ -118,9 +131,10 @@ actor CardUserWalletRegistrar {
     }
 
     private func store(_ result: Result<UserWalletRegistrationNonce?, ObtainUserWalletRegistrationNonceError>) {
+        nonceResult = result
+
         switch result {
-        case .success(.some(let nonce)):
-            obtainedNonce = nonce
+        case .success(.some):
             BackendAuthLogger.info("Obtained user wallet registration nonce")
 
         // nil: the user wallet is already registered
@@ -130,6 +144,35 @@ actor CardUserWalletRegistrar {
         case .failure(let error):
             BackendAuthLogger.error("Failed to obtain user wallet registration nonce", error: error)
         }
+    }
+
+    private func nonceForRegistration() -> UserWalletRegistrationNonce? {
+        if let obtainedNonce {
+            return obtainedNonce
+        }
+
+        reportNonceTimeoutIfNeeded()
+        return nil
+    }
+
+    private func reportNonceTimeoutIfNeeded() {
+        let isTimeout: Bool
+
+        switch nonceResult {
+        case .none:
+            let nonceFetchIsStillInProgress = nonceTask != nil
+            isTimeout = nonceFetchIsStillInProgress
+
+        case .some(.failure(.clientFailure(.requestNonceTimeout))):
+            isTimeout = true
+
+        case .some(.failure), .some(.success):
+            isTimeout = false
+        }
+
+        guard isTimeout else { return }
+
+        analyticsReporter.reportColdUserWalletNonceTimeout()
     }
 
     private nonisolated func shouldRegisterWallet(for card: Card) -> Bool {

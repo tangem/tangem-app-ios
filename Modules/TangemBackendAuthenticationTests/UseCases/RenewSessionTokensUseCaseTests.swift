@@ -69,12 +69,15 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
         let expectedDecryptedNonceBytes = Data("some decrypted nonce".utf8)
         nonceDecryptor.decryptResult = Result.success(expectedDecryptedNonceBytes)
 
+        let analyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
+
         let sut = makeSUT(
             appAttestService: appAttestService,
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
             devicePrivateKeyRepository: .successStub,
-            nonceDecryptor: nonceDecryptor
+            nonceDecryptor: nonceDecryptor,
+            analyticsReporter: analyticsReporter
         )
 
         let actualSessionTokens = try await sut()
@@ -87,6 +90,7 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
         #expect(nonceDecryptor.receivedMessages == [.decrypt(expectedCipheredNonce)])
         #expect(appAttestService.receivedMessages == [.generateAttestationToken(expectedDecryptedNonceBytes)])
         #expect(tokensRepository.receivedMessages == [.retrieve, .persist(expectedSessionTokens)])
+        #expect(analyticsReporter.receivedMessages.isEmpty)
     }
 
     @Test
@@ -297,6 +301,35 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
 
         #expect(authenticationClient.receivedMessages == [.requestCipheredNonce])
         #expect(tokensRepository.receivedMessages == [.retrieve])
+    }
+
+    @Test
+    func renewSessionTokensReportsAuthenticationNonceTimeoutWhenRequestCipheredNonceTimesOut() async throws {
+        let authenticationClient = SpySessionAuthenticationClient()
+        authenticationClient.requestCipheredNonceResult = Result.failure(.requestNonceTimeout)
+
+        let tokensRepository = SpySessionTokensRepository()
+        tokensRepository.retrieveResult = Result.success(nil)
+
+        let analyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
+
+        let sut = makeSUT(
+            sessionAuthenticationClient: authenticationClient,
+            sessionTokensRepository: tokensRepository,
+            devicePrivateKeyRepository: .successStub,
+            analyticsReporter: analyticsReporter
+        )
+
+        let actualError = try await #require(throws: RenewSessionTokensError.self) {
+            _ = try await sut()
+        }
+
+        guard case .clientFailure(.requestNonceTimeout) = actualError else {
+            Issue.record("Expected .clientFailure(.requestNonceTimeout), got \(actualError)")
+            return
+        }
+
+        #expect(analyticsReporter.receivedMessages == [.reportAuthenticationNonceTimeout])
     }
 
     @Test
@@ -558,12 +591,15 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
         let expectedDecryptedNonceBytes = Data("some decrypted nonce".utf8)
         nonceDecryptor.decryptResult = Result.success(expectedDecryptedNonceBytes)
 
+        let analyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
+
         let sut = makeSUT(
             appAttestService: appAttestService,
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
             devicePrivateKeyRepository: .successStub,
-            nonceDecryptor: nonceDecryptor
+            nonceDecryptor: nonceDecryptor,
+            analyticsReporter: analyticsReporter
         )
 
         let actualError = try await #require(throws: RenewSessionTokensError.self) {
@@ -582,6 +618,7 @@ final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
         #expect(nonceDecryptor.receivedMessages == [.decrypt(expectedCipheredNonce)])
         #expect(appAttestService.receivedMessages == [.generateAttestationToken(expectedDecryptedNonceBytes)])
         #expect(tokensRepository.receivedMessages == [.retrieve, .persist(expectedSessionTokens)])
+        #expect(analyticsReporter.receivedMessages.isEmpty)
     }
 
     @Test
@@ -710,6 +747,7 @@ extension RenewSessionTokensUseCaseTests {
         devicePrivateKeyRepository: some DevicePrivateKeyRepository = SpyDevicePrivateKeyRepository(),
         nonceDecryptor: some NonceDecryptor = SpyNonceDecryptor(),
         dateProvider: @escaping @autoclosure @Sendable () -> Date = Date.now,
+        analyticsReporter: some BackendAuthenticationAnalyticsReporter = SpyBackendAuthenticationAnalyticsReporter(),
         sourceLocation: SourceLocation = #_sourceLocation
     ) -> RenewSessionTokensUseCase {
         trackForMemoryLeaks(
@@ -724,6 +762,7 @@ extension RenewSessionTokensUseCaseTests {
                 nonceDecryptor: nonceDecryptor,
                 deviceMetadataProvider: DeviceMetadata.fake,
                 dateProvider: dateProvider(),
+                analyticsReporter: analyticsReporter,
                 logger: Logger(category: OSLogCategory(name: "Tests"))
             ),
             sourceLocation: sourceLocation

@@ -21,6 +21,7 @@ public actor RegisterDeviceUseCase {
     private let nonceDecryptor: any NonceDecryptor
 
     private let deviceMetadataProvider: @Sendable () -> DeviceMetadata
+    private let analyticsReporter: any BackendAuthenticationAnalyticsReporter
     private let logger: Logger
 
     private var inFlightRegistrationTask: Task<Result<SessionTokens?, RegisterDeviceError>, Never>?
@@ -33,6 +34,7 @@ public actor RegisterDeviceUseCase {
         deviceKeyManager: DeviceKeyManager,
         nonceDecryptor: some NonceDecryptor,
         deviceMetadataProvider: @escaping @Sendable @autoclosure () -> DeviceMetadata,
+        analyticsReporter: some BackendAuthenticationAnalyticsReporter,
         logger: Logger
     ) {
         self.appAttestService = appAttestService
@@ -44,6 +46,7 @@ public actor RegisterDeviceUseCase {
         self.nonceDecryptor = nonceDecryptor
 
         self.deviceMetadataProvider = deviceMetadataProvider
+        self.analyticsReporter = analyticsReporter
         self.logger = logger
     }
 
@@ -139,6 +142,14 @@ public actor RegisterDeviceUseCase {
         do {
             return try await registrationClient.requestCipheredNonce(devicePublicKey: devicePublicKey)
         } catch {
+            switch error {
+            case .requestNonceTimeout:
+                analyticsReporter.reportDeviceNonceTimeout()
+
+            case .requestNonceFailed, .registerFailed, .alreadyRegistered:
+                break
+            }
+
             throw RegisterDeviceError.clientFailure(error)
         }
     }
