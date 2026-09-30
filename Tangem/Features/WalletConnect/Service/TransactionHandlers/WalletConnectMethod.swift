@@ -38,6 +38,11 @@ enum WalletConnectMethod: String {
     case signPsbt
     case signMessage
 
+    // MARK: - TRON
+
+    case tronSignTransaction = "tron_signTransaction"
+    case tronSignMessage = "tron_signMessage"
+
     var trimmedPrefixValue: String {
         switch self {
         case .personalSign:
@@ -66,6 +71,10 @@ enum WalletConnectMethod: String {
             "signAllTransactions"
         case .sendTransfer, .getAccountAddresses, .signPsbt, .signMessage:
             rawValue
+        case .tronSignTransaction:
+            "signTransaction"
+        case .tronSignMessage:
+            "signMessage"
         }
     }
 }

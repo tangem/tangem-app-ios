@@ -12,4 +12,6 @@ enum WalletConnectSupportedNamespace: String {
     case solana
     /// Bitcoin namespace
     case bip122
+    /// Tron namespace, https://docs.reown.com/advanced/multichain/rpc-reference/tron-rpc
+    case tron
 }

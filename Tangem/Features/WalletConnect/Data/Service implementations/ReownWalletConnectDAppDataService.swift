@@ -57,6 +57,10 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
             blockchainCAIPNamespace: Self.bitcoinCAIPNamespace,
             from: reownSessionProposal
         )
+        let specificTronCAIPReference = Self.parseSpecificBlockchainCAIPReference(
+            blockchainCAIPNamespace: Self.tronCAIPNamespace,
+            from: reownSessionProposal
+        )
 
         let dAppDomain = try WalletConnectDAppSessionProposalMapper.mapDomainURL(
             from: reownSessionProposal,
@@ -84,6 +88,8 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
                         specificSolanaCAIPReference
                     case Self.bitcoinDomainNetworkID:
                         specificBitcoinCAIPReference
+                    case Self.tronDomainNetworkID:
+                        specificTronCAIPReference
                     default:
                         nil
                     }
@@ -214,6 +220,8 @@ extension ReownWalletConnectDAppDataService {
     private static let bitcoinDomainNetworkID = BlockchainSdk.Blockchain.bitcoin(testnet: false).networkId
     private static let solanaCAIPNamespace = WalletConnectSupportedNamespace.solana.rawValue
     private static let bitcoinCAIPNamespace = WalletConnectSupportedNamespace.bip122.rawValue
+    private static let tronDomainNetworkID = BlockchainSdk.Blockchain.tron(testnet: false).networkId
+    private static let tronCAIPNamespace = WalletConnectSupportedNamespace.tron.rawValue
 
     private static let unsupportedDAppHosts = [
         "dydx.trade",

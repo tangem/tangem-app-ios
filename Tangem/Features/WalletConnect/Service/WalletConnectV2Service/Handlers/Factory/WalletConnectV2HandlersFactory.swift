@@ -178,6 +178,26 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
                 accountId: accountId
             )
+
+        // MARK: - Tron
+
+        case .tronSignTransaction:
+            return try WalletConnectTronSignTransactionHandler(
+                request: params,
+                blockchainId: blockchainNetworkID,
+                signer: CommonWalletConnectSigner(signer: signer),
+                wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                accountId: accountId
+            )
+
+        case .tronSignMessage:
+            return try WalletConnectTronSignMessageHandler(
+                request: params,
+                blockchainId: blockchainNetworkID,
+                signer: CommonWalletConnectSigner(signer: signer),
+                wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                accountId: accountId
+            )
         }
     }
 

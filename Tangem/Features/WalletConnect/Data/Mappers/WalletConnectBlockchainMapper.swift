@@ -52,6 +52,17 @@ enum WalletConnectBlockchainMapper {
             )
         }
 
+        if case .tron = domainBlockchain, let tronReownReferences = domainBlockchain.wcChainID, !tronReownReferences.isEmpty {
+            guard FeatureProvider.isAvailable(.walletConnectTron) else {
+                return nil
+            }
+
+            return ReownWalletKit.Blockchain(
+                namespace: WalletConnectSupportedNamespace.tron.rawValue,
+                reference: preferredCAIPReference ?? tronReownReferences[0]
+            )
+        }
+
         return nil
     }
 
@@ -63,6 +74,8 @@ enum WalletConnectBlockchainMapper {
             return true
         case .some(.bip122):
             return FeatureProvider.isAvailable(.walletConnectBitcoin)
+        case .some(.tron):
+            return FeatureProvider.isAvailable(.walletConnectTron)
         }
     }
 }
