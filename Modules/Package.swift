@@ -492,6 +492,7 @@ var unitTestsModules: [PackageDescription.Target] {
             name: "TangemNFTTests",
             dependencies: [
                 "TangemNFT",
+                "TangemNetworkUtils",
             ]
         ),
         .tangemTestTarget(

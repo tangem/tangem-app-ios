@@ -103,6 +103,9 @@ public final class MoralisEVMNFTNetworkService {
                         description: error.localizedDescription
                     )
                 )
+                // The failed page is reported as a partial result; retrying it here with the same cursor
+                // would spin forever on a persistent failure (rate limit, timeout, cancellation).
+                break
             }
 
         } while cursor != nil
