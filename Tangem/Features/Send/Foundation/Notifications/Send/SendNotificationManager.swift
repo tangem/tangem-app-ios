@@ -143,15 +143,17 @@ private extension CommonSendNotificationManager {
     func updateNetworkFeeUnreachable(error: Error?) {
         switch error {
         case .none:
-            hideAllNotification { $0.isNetworkFeeUnreachable }
+            // `accountNotActivated` is shown from this same path, so it has to be cleared here too.
+            hideAllNotification { $0.isNetworkFeeUnreachable || $0.isAccountNotActivated }
         case .some(SuiError.oneSuiCoinIsRequiredForTokenTransaction):
             updateNotification(error: error)
         case .some(BlockchainSdkError.accountNotActivated):
             show(notification: .accountNotActivated(assetName: tokenItem.name))
         case .some(TokenFeeProviderError.notEnoughBalanceForFee),
              .some(TokenFeeProviderError.notEnoughGaslessFeeBalance):
-            hideAllNotification { $0.isNetworkFeeUnreachable }
+            hideAllNotification { $0.isNetworkFeeUnreachable || $0.isAccountNotActivated }
         case .some:
+            hideAllNotification { $0.isAccountNotActivated }
             show(notification: .networkFeeUnreachable)
         }
     }
@@ -330,7 +332,8 @@ private extension CommonSendNotificationManager {
     }
 
     func hideAllValidationErrorEvent() {
-        hideAllNotification { $0.isValidationErrorEvent }
+        // The Sui "one coin is required" banner is shown from the validation-error path and cleared with it.
+        hideAllNotification { $0.isValidationErrorEvent || $0.isOneSuiCoinIsRequiredForTokenTransaction }
     }
 
     func hideAllNotification(where shouldBeRemoved: (SendNotificationEvent) -> Bool) {
