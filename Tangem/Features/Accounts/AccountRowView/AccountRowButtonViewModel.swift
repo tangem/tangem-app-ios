@@ -137,16 +137,24 @@ private extension AccountRowButtonViewModel {
         func resolve(accountModel: any TangemPayAccountModel) {}
 
         func resolve(accountModel: any PolymarketAccountModel) {
-            accountModel
-                .fiatTotalTokenBalanceProvider
-                .formattedBalanceTypePublisher
-                .map { LoadableBalanceViewStateBuilder().build(type: $0) }
-                .receiveOnMain()
-                .withWeakCaptureOf(viewModel)
-                .sink { vm, balanceState in
-                    vm.trailingBalanceState = balanceState
-                }
-                .store(in: &viewModel.bag)
+            Publishers.CombineLatest(
+                accountModel.statePublisher,
+                accountModel.fiatTotalTokenBalanceProvider.formattedBalanceTypePublisher
+            )
+            .receiveOnMain()
+            .withWeakCaptureOf(viewModel)
+            .sink { vm, tuple in
+                let (accountState, balanceType) = tuple
+                let needsReconnect = accountState == .syncNeeded
+
+                vm.trailingBalanceState = Self.polymarketBalanceState(type: balanceType, needsReconnect: needsReconnect)
+                vm.updateSubtitleState(
+                    // [REDACTED_TODO_COMMENT]
+                    description: needsReconnect ? "Reconnect required" : "",
+                    balanceState: .empty
+                )
+            }
+            .store(in: &viewModel.bag)
         }
 
         func resolve(accountModel: any CollectiblesAccountModel) {
@@ -160,6 +168,28 @@ private extension AccountRowButtonViewModel {
                     vm.trailingBalanceState = balanceState
                 }
                 .store(in: &viewModel.bag)
+        }
+
+        private static func polymarketBalanceState(
+            type: FormattedTokenBalanceType,
+            needsReconnect: Bool
+        ) -> LoadableBalanceView.State {
+            let state = LoadableBalanceViewStateBuilder().build(type: type, icon: .leading)
+
+            if case .failed(let text, _) = state {
+                return .failed(cached: text, icon: .leading)
+            }
+
+            guard needsReconnect else { return state }
+
+            switch state {
+            case .loaded(let text), .loading(.some(let text)):
+                return .failed(cached: text, icon: .leading)
+            case .loading(.none):
+                return .failed(cached: .string(.enDashSign), icon: .leading)
+            case .failed:
+                return state
+            }
         }
     }
 }
