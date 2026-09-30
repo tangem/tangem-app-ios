@@ -89,9 +89,19 @@ class CosmosWalletManager: BaseWalletManager, WalletManager {
                         let gasMultiplier = self.cosmosChain.gasMultiplier
                         let feeMultiplier = self.cosmosChain.feeMultiplier
 
-                        let gas = estimatedGas * gasMultiplier
+                        // A malicious / broken node can return a gasUsed that overflows these UInt64 arithmetic
+                        // and Double -> UInt64 steps and traps the app on every fee refresh; fail the fee instead.
+                        let (gas, gasOverflow) = estimatedGas.multipliedReportingOverflow(by: gasMultiplier)
+                        guard !gasOverflow else {
+                            throw BlockchainSdkError.failedToGetFee
+                        }
 
-                        var feeValueInSmallestDenomination = UInt64(Double(gas) * gasPrices[index] * feeMultiplier)
+                        let rawFee = Double(gas) * gasPrices[index] * feeMultiplier
+                        guard rawFee.isFinite, rawFee >= 0, rawFee < Double(UInt64.max) else {
+                            throw BlockchainSdkError.failedToGetFee
+                        }
+
+                        var feeValueInSmallestDenomination = UInt64(rawFee)
                         if let tax = self.tax(for: amount) {
                             feeValueInSmallestDenomination += tax
                         }
