@@ -16,7 +16,7 @@ final class HederaWalletManager: BaseWalletManager {
     fileprivate typealias AssociatedTokens = Set<String>
 
     private let networkService: HederaNetworkService
-    private let transactionBuilder: HederaTransactionBuilder
+    let transactionBuilder: HederaTransactionBuilder
     private let dataStorage: BlockchainDataStorage
     private let accountCreator: AccountCreator
 

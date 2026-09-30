@@ -178,6 +178,35 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
                 accountId: accountId
             )
+
+        // MARK: - Hedera (HIP-820)
+
+        case .hederaSignAndExecuteTransaction, .hederaSignTransaction:
+            return try WalletConnectHederaTransactionHandler(
+                mode: action == .hederaSignAndExecuteTransaction ? .signAndExecute : .signOnly,
+                request: params,
+                blockchainId: blockchainNetworkID,
+                signer: signer,
+                wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                accountId: accountId
+            )
+
+        case .hederaSignMessage:
+            return try WalletConnectHederaSignMessageHandler(
+                request: params,
+                blockchainId: blockchainNetworkID,
+                signer: signer,
+                wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                accountId: accountId
+            )
+
+        case .hederaGetNodeAddresses:
+            return try WalletConnectHederaGetNodeAddressesHandler(
+                request: params,
+                blockchainId: blockchainNetworkID,
+                wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                accountId: accountId
+            )
         }
     }
 

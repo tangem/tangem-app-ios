@@ -52,6 +52,17 @@ enum WalletConnectBlockchainMapper {
             )
         }
 
+        if case .hedera = domainBlockchain, let hederaReownReferences = domainBlockchain.wcChainID, !hederaReownReferences.isEmpty {
+            guard FeatureProvider.isAvailable(.walletConnectHedera) else {
+                return nil
+            }
+
+            return ReownWalletKit.Blockchain(
+                namespace: WalletConnectSupportedNamespace.hedera.rawValue,
+                reference: preferredCAIPReference ?? hederaReownReferences[0]
+            )
+        }
+
         return nil
     }
 
@@ -63,6 +74,8 @@ enum WalletConnectBlockchainMapper {
             return true
         case .some(.bip122):
             return FeatureProvider.isAvailable(.walletConnectBitcoin)
+        case .some(.hedera):
+            return FeatureProvider.isAvailable(.walletConnectHedera)
         }
     }
 }

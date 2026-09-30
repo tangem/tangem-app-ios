@@ -13,6 +13,7 @@ enum Feature: String, Hashable, CaseIterable {
     case visa // [REDACTED_TODO_COMMENT]
     case exchangeOnlyWithinSingleAddress
     case walletConnectBitcoin
+    case walletConnectHedera
     case gaslessYieldFee
     case usdtRevokeGaslessFee
     case tronGasless
@@ -55,6 +56,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .visa: return "Visa"
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
         case .walletConnectBitcoin: return "WalletConnect Bitcoin"
+        case .walletConnectHedera: return "WalletConnect Hedera"
         case .gaslessYieldFee: return "TWI-1327_smart_gas_support_for_tokens_in_yield_mode"
         case .usdtRevokeGaslessFee: return "USDT Revoke Gasless Fee"
         case .tronGasless: return "TWI-1259_tron_gasless"
@@ -97,6 +99,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .visa: return .unspecified
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .walletConnectBitcoin: return .unspecified
+        case .walletConnectHedera: return .unspecified
         case .gaslessYieldFee: return .version("6.3")
         case .usdtRevokeGaslessFee: return .unspecified
         case .tronGasless: return .version("6.3")

@@ -71,6 +71,8 @@ extension WalletModel {
 
     var defaultAddressString: String { defaultAddress.value }
 
+    var hederaExternalTransactionProcessor: HederaExternalTransactionProcessor? { nil }
+
     func exploreURL(for address: String) -> URL? {
         return exploreURL(for: address, token: nil)
     }
@@ -213,6 +215,8 @@ protocol WalletModelDependenciesProvider {
     var compiledTransactionSender: CompiledTransactionSender? { get }
     var bitcoinPsbtSwapSender: BitcoinPsbtSwapSender? { get }
     var tronTransactionFeeProvider: TronTransactionFeeProvider? { get }
+    /// HIP-820 (WalletConnect) support of the Hedera wallet manager; `nil` for every other network.
+    var hederaExternalTransactionProcessor: HederaExternalTransactionProcessor? { get }
     var tronAllowanceProvider: TronAllowanceProvider? { get }
     var tronTransactionDataBuilder: TronTransactionDataBuilder? { get }
     var tronAccountActivationStateProvider: TronAccountActivationStateProvider? { get }

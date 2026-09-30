@@ -12,4 +12,6 @@ enum WalletConnectSupportedNamespace: String {
     case solana
     /// Bitcoin namespace
     case bip122
+    /// Hedera namespace (HIP-820), https://docs.reown.com/advanced/multichain/rpc-reference/hedera-rpc
+    case hedera
 }

@@ -23,6 +23,9 @@ extension BlockchainSdk.Blockchain {
             let mainnetIds = ["000000000019d6689c085ae165831e93"]
             let testnetIds = ["000000000933ea01ad0ee984209779ba"]
             return isTestnet ? testnetIds : mainnetIds
+        case .hedera:
+            // HIP-30 network names are the CAIP-2 references: `hedera:mainnet`, `hedera:testnet`.
+            return isTestnet ? ["testnet"] : ["mainnet"]
         default:
             guard let chainId, isEvm else { return nil }
 

@@ -38,6 +38,13 @@ enum WalletConnectMethod: String {
     case signPsbt
     case signMessage
 
+    // MARK: - Hedera (HIP-820)
+
+    case hederaSignAndExecuteTransaction = "hedera_signAndExecuteTransaction"
+    case hederaSignTransaction = "hedera_signTransaction"
+    case hederaSignMessage = "hedera_signMessage"
+    case hederaGetNodeAddresses = "hedera_getNodeAddresses"
+
     var trimmedPrefixValue: String {
         switch self {
         case .personalSign:
@@ -66,6 +73,14 @@ enum WalletConnectMethod: String {
             "signAllTransactions"
         case .sendTransfer, .getAccountAddresses, .signPsbt, .signMessage:
             rawValue
+        case .hederaSignAndExecuteTransaction:
+            "signAndExecuteTransaction"
+        case .hederaSignTransaction:
+            "signTransaction"
+        case .hederaSignMessage:
+            "signMessage"
+        case .hederaGetNodeAddresses:
+            "getNodeAddresses"
         }
     }
 }
@@ -73,7 +88,7 @@ enum WalletConnectMethod: String {
 extension WalletConnectMethod {
     var isSendTransaction: Bool {
         switch self {
-        case .sendTransaction, .sendTransfer:
+        case .sendTransaction, .sendTransfer, .hederaSignAndExecuteTransaction:
             true
         default:
             false

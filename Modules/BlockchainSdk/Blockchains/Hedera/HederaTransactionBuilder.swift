@@ -13,12 +13,12 @@ import TangemSdk
 import TangemFoundation
 
 final class HederaTransactionBuilder {
-    private let publicKey: Data
-    private let curve: EllipticCurve
+    let publicKey: Data
+    let curve: EllipticCurve
     private let isTestnet: Bool
-    private let timeout: TimeInterval
+    let timeout: TimeInterval
 
-    private lazy var client: Client = isTestnet
+    lazy var client: Client = isTestnet
         ? Client.forTestnetWithImmediateUpdate(plaintextOnly: true)
         : Client.forMainnetWithImmediateUpdate(plaintextOnly: true)
 
@@ -202,12 +202,12 @@ extension HederaTransactionBuilder {
 
     /// Auxiliary type that hides all implementation details (including dependency on `Hedera iOS SDK`).
     struct CompiledTransaction {
-        private let curve: EllipticCurve
-        private let timeout: TimeInterval
-        private let client: Hiero.Client
-        private let innerTransaction: Hiero.Transaction
+        let curve: EllipticCurve
+        let timeout: TimeInterval
+        let client: Hiero.Client
+        let innerTransaction: Hiero.Transaction
 
-        fileprivate init(
+        init(
             curve: EllipticCurve,
             timeout: TimeInterval,
             client: Hiero.Client,

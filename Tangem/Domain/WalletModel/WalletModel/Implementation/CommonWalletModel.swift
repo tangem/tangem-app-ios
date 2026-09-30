@@ -664,6 +664,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
         walletManager as? TronTransactionFeeProvider
     }
 
+    var hederaExternalTransactionProcessor: HederaExternalTransactionProcessor? {
+        walletManager as? HederaExternalTransactionProcessor
+    }
+
     var tronAllowanceProvider: TronAllowanceProvider? {
         walletManager as? TronAllowanceProvider
     }
