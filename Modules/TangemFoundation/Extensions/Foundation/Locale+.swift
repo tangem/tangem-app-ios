@@ -59,12 +59,23 @@ public extension Locale {
     static let enLanguageCode = "en"
     static let ruLanguageCode = "ru"
     static let byLanguageCode = "by"
+    /// ISO 639-1 code for Belarusian (`by` above is the country code and never appears as a language subtag).
+    static let beLanguageCode = "be"
 }
 
 public extension Locale {
     static func webLanguageCode() -> String {
-        switch deviceLanguageCode() {
-        case ruLanguageCode, byLanguageCode:
+        webLanguageCode(deviceLanguage: deviceLanguageCode())
+    }
+
+    /// Maps a device language identifier (`ru`, `ru-RU`, `zh-Hans-CN`, …) to the language the web resources are served in.
+    /// Only the language subtag is compared: `AppleLanguages` entries normally carry a region (`ru-RU`), which used to
+    /// miss the `ru` case and send every Russian-speaking user to the English resources.
+    static func webLanguageCode(deviceLanguage: String) -> String {
+        let languageSubtag = deviceLanguage.split(separator: "-").first.map(String.init) ?? deviceLanguage
+
+        switch languageSubtag.lowercased() {
+        case ruLanguageCode, byLanguageCode, beLanguageCode:
             return ruLanguageCode
         default:
             return enLanguageCode
