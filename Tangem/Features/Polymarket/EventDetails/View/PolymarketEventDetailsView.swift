@@ -241,7 +241,7 @@ struct PolymarketEventDetailsView: View {
                 .lineLimit(1)
                 .padding(.horizontal, Constants.closedMarketsHorizontalPadding)
                 .frame(minWidth: Constants.closedMarketsMinWidth, minHeight: Constants.closedMarketsHeight)
-                .background(DesignSystem.Color.bgOpaquePrimary, in: Capsule())
+                .background(DesignSystem.Color.bgTransparentPrimary, in: Capsule())
         }
         .buttonStyle(.plain)
     }

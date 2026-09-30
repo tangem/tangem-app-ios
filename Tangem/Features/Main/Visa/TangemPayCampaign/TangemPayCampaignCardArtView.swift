@@ -58,7 +58,7 @@ struct TangemPayCampaignCardArtView: View {
             }
         } else {
             // Kingfisher never reports a failure for a missing URL, so there is nothing to retry here.
-            DesignSystem.Color.bgOpaqueSecondary
+            DesignSystem.Color.bgTransparentSecondary
         }
     }
 
@@ -78,7 +78,7 @@ struct TangemPayCampaignCardArtView: View {
     }
 
     private var failure: some View {
-        DesignSystem.Color.bgOpaqueSecondary
+        DesignSystem.Color.bgTransparentSecondary
             .overlay {
                 SwiftUI.Button {
                     didFail = false
@@ -89,7 +89,7 @@ struct TangemPayCampaignCardArtView: View {
                         .foregroundStyle(DesignSystem.Color.iconPrimary)
                         .frame(size: CGSize(bothDimensions: Constants.retryIconSide))
                         .padding(Constants.retryIconPadding)
-                        .background(DesignSystem.Color.bgOpaquePrimary, in: .circle)
+                        .background(DesignSystem.Color.bgTransparentPrimary, in: .circle)
                 }
                 .accessibilityLabel(Localization.commonReload)
             }
