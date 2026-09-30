@@ -589,6 +589,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         coordinator?.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
     }
 
+    private func tokenItemMessageBubbleTapped(_ messageBubble: TokenItemViewModel.MessageBubble) {
+        switch messageBubble {
+        case .jointOperationAwaitingSignature(let pendingOperation):
+            coordinator?.openJointAccountOperationDetails(pendingOperation: pendingOperation)
+        }
+    }
+
     private func makeYieldApyBadgeTapAction(walletModel: any WalletModel) -> ((TokenItem) -> Void)? {
         guard let yieldManager = walletModel.yieldModuleManager,
               let factory = makeYieldModuleFlowFactory(walletModel: walletModel, manager: yieldManager)
@@ -863,7 +870,8 @@ extension MultiWalletMainContentViewModel: MultiWalletMainContentItemViewModelFa
             from: sectionItem,
             contextActionsProvider: self,
             contextActionsDelegate: self,
-            tapAction: weakify(self, forFunction: MultiWalletMainContentViewModel.tokenItemTapped(_:))
+            tapAction: weakify(self, forFunction: MultiWalletMainContentViewModel.tokenItemTapped(_:)),
+            messageBubbleTapAction: weakify(self, forFunction: MultiWalletMainContentViewModel.tokenItemMessageBubbleTapped(_:))
         )
     }
 }
