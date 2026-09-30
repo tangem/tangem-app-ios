@@ -14,8 +14,7 @@ public struct TangemPayBankOfframpOptionsResponse: Decodable {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         sources = try container.decodeIfPresent([Source].self, forKey: .sources) ?? []
-        destinations = (try container.decodeIfPresent([DecodedDestination].self, forKey: .destinations) ?? [])
-            .compactMap(\.destination)
+        destinations = try container.decodeIfPresent([Destination].self, forKey: .destinations) ?? []
     }
 
     enum CodingKeys: String, CodingKey {
@@ -43,16 +42,10 @@ public extension TangemPayBankOfframpOptionsResponse {
 // MARK: - Destination
 
 public extension TangemPayBankOfframpOptionsResponse {
-    struct Destination {
+    struct Destination: Decodable {
         public let rail: TangemPayBankAccountRail
         public let fee: Fee
         public let eta: ETA
-
-        init(rail: TangemPayBankAccountRail, fee: Fee, eta: ETA) {
-            self.rail = rail
-            self.fee = fee
-            self.eta = eta
-        }
     }
 
     struct Fee: Decodable {
@@ -66,37 +59,5 @@ public extension TangemPayBankOfframpOptionsResponse {
     struct ETA: Decodable {
         public let minDays: Int
         public let maxDays: Int
-    }
-}
-
-// MARK: - Rail tolerance
-
-private extension TangemPayBankOfframpOptionsResponse {
-    struct DecodedDestination: Decodable {
-        let destination: Destination?
-
-        init(from decoder: any Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-
-            guard
-                let rail = try container.decodeIfPresent(String.self, forKey: .rail)
-                .flatMap(TangemPayBankAccountRail.init(rawValue:))
-            else {
-                destination = nil
-                return
-            }
-
-            destination = Destination(
-                rail: rail,
-                fee: try container.decode(Fee.self, forKey: .fee),
-                eta: try container.decode(ETA.self, forKey: .eta)
-            )
-        }
-
-        enum CodingKeys: String, CodingKey {
-            case rail
-            case fee
-            case eta
-        }
     }
 }
