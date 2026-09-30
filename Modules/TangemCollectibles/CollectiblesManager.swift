@@ -118,10 +118,16 @@ extension CollectiblesManager: CollectiblesOnboarder {
             let resolved = try await resolveState()
             update(state: resolved)
 
+            if performedSteps.isEmpty, resolved != .coldOwnerNotDerived {
+                CollectiblesLogger.debug("create account: -> Solana address of the key stored locally, derivation skipped")
+            }
+
             let step: OnboardingStep
 
             switch resolved {
             case .ready:
+                let outcome = performedSteps.isEmpty ? "nothing to do" : "set up in this run"
+                CollectiblesLogger.debug("create account: the account is ready to use, \(outcome)")
                 await refreshBalance(for: resolved)
                 return
             case .coldOwnerNotDerived:
@@ -132,6 +138,7 @@ extension CollectiblesManager: CollectiblesOnboarder {
             // Recovery is not caught here: a vault already on chain means the same deterministic address was
             // funded before, and its balance outlived the install that derived it.
             case .notOnboarded where performedSteps.contains(.deriveColdKey):
+                CollectiblesLogger.debug("create account: stopping, top up the Solana address with devnet SOL and tap again")
                 throw OnboardingError.coldOwnerNeedsFunding
             case .notOnboarded:
                 step = .deployVault
@@ -146,6 +153,8 @@ extension CollectiblesManager: CollectiblesOnboarder {
             // A step can land and still resolve back to the state that asked for it — an RPC that has not
             // caught up with a transaction it already accepted. Repeating it would spend the tap twice.
             guard performedSteps.insert(step).inserted else {
+                CollectiblesLogger.debug("create account: \(step) landed, waiting for the chain to catch up")
+
                 guard try await waitForState(until: { $0 != resolved }) else {
                     throw OnboardingError.stepDidNotAdvance(step)
                 }
@@ -347,7 +356,16 @@ private extension CollectiblesManager {
 
     /// The head of the chain: until this key exists nothing else has an address.
     func deriveColdKey() async throws {
-        try await coldKeyInteractorFactory.makeInteractor().derive()
+        CollectiblesLogger.debug("create account: -> No locally stored Solana address, deriving it")
+
+        do {
+            try await coldKeyInteractorFactory.makeInteractor().derive()
+        } catch {
+            CollectiblesLogger.debug("ownerDeriver: failed, error=\(error)")
+            throw error
+        }
+
+        CollectiblesLogger.debug("ownerDeriver: Solana address was derived and saved")
 
         // [REDACTED_TODO_COMMENT]
         if let coldOwner = coldOwnerProvider.coldOwnerKey()?.blockchainKey {
@@ -358,16 +376,46 @@ private extension CollectiblesManager {
     /// Generates only when there is none to read; discarding a key that still works belongs to
     /// `rotateSessionKey()`.
     func ensureSessionKey() async throws -> Data {
-        if let sessionKey = try await sessionKeySigner.publicKey() {
-            return sessionKey
+        let storedSessionKey: Data?
+
+        do {
+            storedSessionKey = try await sessionKeySigner.publicKey()
+        } catch {
+            CollectiblesLogger.debug("hotDelegate: reading the stored hot session key failed, error=\(error)")
+            throw error
         }
 
-        return try await sessionKeySigner.generateKey()
+        if let storedSessionKey {
+            CollectiblesLogger.debug("hotDelegate: is a hot session key stored on the phone -> Yes, reusing it")
+            return storedSessionKey
+        }
+
+        CollectiblesLogger.debug("hotDelegate: is a hot session key stored on the phone -> No, generating one")
+
+        do {
+            let sessionKey = try await sessionKeySigner.generateKey()
+            CollectiblesLogger.debug("hotDelegate: hot session key generated")
+            return sessionKey
+        } catch {
+            CollectiblesLogger.debug("hotDelegate: provision failed, error=\(error)")
+            throw error
+        }
     }
 
     /// One transaction carries the vault and the account it receives USDC on, so they either both exist or
     /// neither does.
     func deployVault() async throws {
+        CollectiblesLogger.debug("vault: does the User Account PDA exist on chain? -> No, creating the User Account PDA (init_vault)")
+
+        do {
+            try await sendInitVault()
+        } catch {
+            CollectiblesLogger.debug("vault: init_vault failed: \(error)")
+            throw error
+        }
+    }
+
+    func sendInitVault() async throws {
         let coldKey = try coldKey()
         let coldOwner = coldKey.blockchainKey
         let sessionKey = try await ensureSessionKey()
@@ -396,12 +444,23 @@ private extension CollectiblesManager {
         )
 
         let signature = try await broadcast(coldKey: coldKey, instructions: [initVault, createVaultUsdc])
-        CollectiblesLogger.debug("Vault deployed, transaction \(signature ?? Constants.landedEarlier)")
+        CollectiblesLogger.debug("vault: init_vault sent, PDA=\(vaultAddress), signature=\(signature ?? Constants.landedEarlier)")
     }
 
     /// Points a vault that names an unknown session key back at the one this phone holds — the exit from a
     /// reinstall. Caps stay as the chain holds them.
     func pointVaultAtHeldSessionKey() async throws {
+        CollectiblesLogger.debug("vault: is the hot key the same as in the User Account PDA? -> No or unreadable on the phone, updating the key in the PDA (update_vault)")
+
+        do {
+            try await sendUpdateVault()
+        } catch {
+            CollectiblesLogger.debug("vault: update_vault failed: \(error)")
+            throw error
+        }
+    }
+
+    func sendUpdateVault() async throws {
         let coldKey = try coldKey()
         let sessionKey = try await ensureSessionKey()
 
@@ -414,8 +473,9 @@ private extension CollectiblesManager {
             dailyCap: nil
         )
 
+        let vaultAddress = try program.vaultAddress(coldOwner: coldKey.blockchainKey)
         let signature = try await broadcast(coldKey: coldKey, instructions: [instruction])
-        CollectiblesLogger.debug("Session key rotated, transaction \(signature ?? Constants.landedEarlier)")
+        CollectiblesLogger.debug("vault: update_vault sent, PDA=\(vaultAddress), signature=\(signature ?? Constants.landedEarlier)")
     }
 
     /// A node serves the transaction it accepted before it serves the account that transaction created, so the
