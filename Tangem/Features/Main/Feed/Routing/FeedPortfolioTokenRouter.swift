@@ -9,7 +9,7 @@
 import TangemFoundation
 
 final class FeedPortfolioTokenRouter {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    private let ownerResolver = WalletModelOwnerResolver()
 
     private weak var navigation: (any FeedNavigation)?
 
@@ -21,32 +21,59 @@ final class FeedPortfolioTokenRouter {
     }
 
     func open(_ walletModel: any WalletModel) {
-        guard
-            let userWalletModel = userWalletRepository.models[walletModel.userWalletId],
-            let accountModel = walletModel.account
-        else {
+        guard let owner = ownerResolver.resolve(walletModel) else {
             return
         }
 
+        let coordinator = makeCoordinator(
+            for: owner,
+            dismissAction: { [weak navigation] _ in navigation?.dismissPresented() }
+        )
+
+        navigation?.presentFullScreen(
+            .portfolioToken(coordinator),
+            zoomingFrom: .portfolioToken(walletID: owner.walletModel.userWalletId, accountID: owner.account.id, tokenID: owner.walletModel.id)
+        )
+    }
+
+    func push(_ walletModel: any WalletModel) {
+        guard let owner = ownerResolver.resolve(walletModel) else {
+            return
+        }
+
+        let coordinator = makeCoordinator(
+            for: owner,
+            dismissAction: { [weak navigation] _ in navigation?.pop() }
+        )
+
+        navigation?.push(.portfolioToken(coordinator))
+    }
+}
+
+// MARK: - Private
+
+private extension FeedPortfolioTokenRouter {
+    func makeCoordinator(
+        for owner: WalletModelOwner,
+        dismissAction: @escaping Action<Void>
+    ) -> TokenDetailsCoordinator {
         let coordinator = TokenDetailsCoordinator(
-            dismissAction: { [weak navigation] _ in navigation?.dismissPresented() },
+            dismissAction: dismissAction,
             popToRootAction: popToRootAction
         )
 
         coordinator.start(
             with: .init(
-                userWalletInfo: userWalletModel.userWalletInfo,
-                keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
-                walletModelsManager: accountModel.walletModelsManager,
-                userTokensManager: accountModel.userTokensManager,
-                addressBookManager: userWalletModel.addressBookManager,
-                walletModel: walletModel,
+                userWalletInfo: owner.userWalletModel.userWalletInfo,
+                keysDerivingInteractor: owner.userWalletModel.keysDerivingInteractor,
+                walletModelsManager: owner.account.walletModelsManager,
+                userTokensManager: owner.account.userTokensManager,
+                addressBookManager: owner.userWalletModel.addressBookManager,
+                walletModel: owner.walletModel,
                 presentSource: .markets
             )
         )
-        navigation?.presentFullScreen(
-            .portfolioToken(coordinator),
-            zoomingFrom: .portfolioToken(walletID: walletModel.userWalletId, accountID: accountModel.id, tokenID: walletModel.id)
-        )
+
+        return coordinator
     }
 }
