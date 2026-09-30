@@ -33,6 +33,8 @@ struct IncomingURLValidatorTests {
             URL(string: "tangem://wc?uri=wc%3Aa4f57e0493f84cfc7168a91579a18c5d9587dd1dd2d40efbe1cd916570399710%402%3Frelay-protocol%3Dirn%26symKey%3D57285434b30502b8991753225668f667e7c529926f007cec30652861ac11d8a4%26expiryTimestamp%3D1750166958")!,
             URL(string: "tangem://wc")!,
             URL(string: "tangem://onramp")!,
+            URL(string: "https://tangem.onelink.me/abcd?deep_link_value=tpay_mobileonboard&af_dp=tangem%3A%2F%2F")!,
+            URL(string: "https://tangem.com/pay-app?deep_link_value=tpay_mobileonboard")!,
         ]
     )
     func acceptsCorrectURLs(validURL: URL) {
@@ -57,6 +59,10 @@ struct IncomingURLValidatorTests {
             URL(string: "https://tangem.com.evil.com/hack")!,
             URL(string: "https://app.tangem.com.evil.com")!,
             URL(string: "tangem.com.foo.bar")!,
+            URL(string: "https://evil.example/landing?deep_link_value=tpay_mobileonboard")!, // query value alone must not bypass the host allow-list
+            URL(string: "https://tangem.onelink.me.evil.example/?deep_link_value=tpay_mobileonboard")!,
+            URL(string: "http://tangem.onelink.me/abcd?deep_link_value=tpay_mobileonboard")!,
+            URL(string: "fishing://x?deep_link_value=tpay_mobileonboard")!,
         ]
     )
     func rejectsInvalidDeeplinkLikeURLs(invalidURL: URL) {
