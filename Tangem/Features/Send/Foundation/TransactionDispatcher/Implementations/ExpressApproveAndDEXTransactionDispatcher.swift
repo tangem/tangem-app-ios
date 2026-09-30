@@ -111,9 +111,7 @@ extension ExpressApproveAndDEXTransactionDispatcher: TransactionDispatcher {
 
 private extension ExpressApproveAndDEXTransactionDispatcher {
     func buildSwapTransaction(data: ExpressTransactionData, fee: BSDKFee) async throws -> BSDKTransaction {
-        guard let txData = data.txData else {
-            throw DEXTransactionDispatcherError.transactionDataForSwapOperationNotFound
-        }
+        let callData = try data.evmSwapCallData()
 
         let amount = BSDKAmount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: data.txValue)
         return try await transactionCreator.createTransaction(
@@ -121,7 +119,7 @@ private extension ExpressApproveAndDEXTransactionDispatcher {
             fee: fee,
             destinationAddress: data.destinationAddress,
             contractAddress: data.destinationAddress,
-            params: EthereumTransactionParams(data: Data(hexString: txData))
+            params: EthereumTransactionParams(data: callData)
         )
     }
 

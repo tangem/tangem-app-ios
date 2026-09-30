@@ -82,9 +82,7 @@ extension ExpressDEXTransactionDispatcher: TransactionDispatcher {
 
 private extension ExpressDEXTransactionDispatcher {
     func buildTransaction(data: ExpressTransactionData, fee: BSDKFee) async throws -> BSDKTransaction {
-        guard let txData = data.txData else {
-            throw DEXTransactionDispatcherError.transactionDataForSwapOperationNotFound
-        }
+        let callData = try data.evmSwapCallData()
 
         let amount = BSDKAmount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: data.txValue)
         let transaction = try await transactionCreator.createTransaction(
@@ -93,7 +91,7 @@ private extension ExpressDEXTransactionDispatcher {
             destinationAddress: data.destinationAddress,
             contractAddress: data.destinationAddress,
             // In EVM-like blockchains we should add the txData to the transaction
-            params: EthereumTransactionParams(data: Data(hexString: txData))
+            params: EthereumTransactionParams(data: callData)
         )
 
         return transaction
@@ -170,6 +168,31 @@ extension ExpressDEXTransactionDispatcher {
                 params: TronTransactionParams(transactionType: .transfer, memo: transfer.memo)
             )
         }
+    }
+}
+
+// MARK: - EVM call data
+
+extension ExpressTransactionData {
+    /// `Data(hexString:)` returns empty data for any non-hex character and promotes a trailing nibble to a byte,
+    /// so a malformed `txData` would silently turn the swap into a bare value transfer to the router.
+    func evmSwapCallData() throws -> Data {
+        guard let txData else {
+            throw DEXTransactionDispatcherError.transactionDataForSwapOperationNotFound
+        }
+
+        let hex = txData.removeHexPrefix()
+        let isASCIIHex = hex.utf8.allSatisfy { byte in
+            (UInt8(ascii: "0") ... UInt8(ascii: "9")).contains(byte)
+                || (UInt8(ascii: "a") ... UInt8(ascii: "f")).contains(byte)
+                || (UInt8(ascii: "A") ... UInt8(ascii: "F")).contains(byte)
+        }
+
+        guard !hex.isEmpty, hex.utf8.count.isMultiple(of: 2), isASCIIHex else {
+            throw DEXTransactionDispatcherError.transactionDataForSwapOperationNotFound
+        }
+
+        return Data(hexString: hex)
     }
 }
 
