@@ -30,6 +30,8 @@ public enum TangemPayAccessibilityIdentifiers {
     // MARK: - Onboarding (offer) screen
 
     public static let onboardingGetCardButton = "\(prefix)OnboardingGetCardButton"
+    public static let regionUnavailableTitle = "\(prefix)RegionUnavailableTitle"
+    public static let regionUnavailableGotItButton = "\(prefix)RegionUnavailableGotItButton"
 
     // MARK: - Mobile onboarding screen
 
