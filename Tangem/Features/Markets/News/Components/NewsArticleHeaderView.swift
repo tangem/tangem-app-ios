@@ -57,7 +57,7 @@ struct NewsArticleHeaderView: View {
             .lineLimit(1)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(DesignSystem.Color.bgOpaquePrimary, in: Capsule())
+            .background(DesignSystem.Color.bgTransparentPrimary, in: Capsule())
     }
 
     private var scoreAndTimeLine: some View {

@@ -75,7 +75,7 @@ struct RealAssetsCategoryChipView: View {
 
     private var backgroundColor: Color {
         switch style {
-        case .expandable: DesignSystem.Color.bgOpaqueSecondary
+        case .expandable: DesignSystem.Color.bgTransparentSecondary
         case .selected: DesignSystem.Color.bgInverse
         }
     }

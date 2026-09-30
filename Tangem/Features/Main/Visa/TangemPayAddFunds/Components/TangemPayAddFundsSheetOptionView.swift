@@ -17,19 +17,17 @@ struct TangemPayAddFundsSheetOptionView: View {
     let action: () -> Void
 
     var body: some View {
-        redesignedBody
+        content
     }
 }
 
-// MARK: - Redesigned
-
 private extension TangemPayAddFundsSheetOptionView {
-    var redesignedBody: some View {
+    var content: some View {
         Button(action: action) {
             HStack(spacing: 12) {
-                redesignedIcon
+                icon
 
-                redesignedTitleView
+                titleView
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 12)
@@ -37,8 +35,8 @@ private extension TangemPayAddFundsSheetOptionView {
         .accessibilityIdentifier(option.accessibilityIdentifier)
     }
 
-    var redesignedIcon: some View {
-        option.redesignedIcon.image
+    var icon: some View {
+        option.icon.image
             .renderingMode(.template)
             .resizable()
             .frame(width: 20, height: 20)
@@ -47,7 +45,7 @@ private extension TangemPayAddFundsSheetOptionView {
             .background(DesignSystem.Color.bgStatusInfoSubtle, in: Circle())
     }
 
-    var redesignedTitleView: some View {
+    var titleView: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(option.title)
                 .font(token: DesignSystem.Font.subheadingMediumToken)
@@ -85,7 +83,7 @@ extension TangemPayAddFundsSheetOptionView {
             }
         }
 
-        var redesignedIcon: ImageType {
+        var icon: ImageType {
             switch self {
             case .receive: Assets.Visa.grid
             case .swap: DesignSystem.Icons.LogoTangem.regular20

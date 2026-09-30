@@ -37,7 +37,7 @@ final class PolymarketFundsArrivalTracker: ObservableObject {
         openWindow()
     }
 
-    func startAwaitingWithdrawal() {
+    func startAwaitingBalanceChange() {
         openWindow()
     }
 }

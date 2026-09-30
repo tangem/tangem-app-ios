@@ -176,6 +176,7 @@ private extension PolymarketEventCard {
         // [REDACTED_TODO_COMMENT]
         static let activePredictsLabel = "In your active predicts"
 
+        // [REDACTED_TODO_COMMENT]
         static func outcomesLabel(_ count: Int) -> String {
             "+\(count) Outcomes"
         }

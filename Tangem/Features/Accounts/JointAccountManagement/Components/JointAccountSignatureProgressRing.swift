@@ -43,7 +43,7 @@ struct JointAccountSignatureProgressRing: View {
         return Circle()
             .trim(from: CGFloat(index) * share + gap / 2, to: CGFloat(index + 1) * share - gap / 2)
             .stroke(
-                index < clampedCount ? DesignSystem.Color.iconStatusWarning : DesignSystem.Color.bgOpaqueSecondary,
+                index < clampedCount ? DesignSystem.Color.iconStatusWarning : DesignSystem.Color.bgTransparentSecondary,
                 style: StrokeStyle(lineWidth: Metrics.lineWidth, lineCap: .round, lineJoin: .round)
             )
             // The trim starts at three o'clock, and the stroke is centred on the path
