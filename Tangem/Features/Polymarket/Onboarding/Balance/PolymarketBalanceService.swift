@@ -62,38 +62,50 @@ struct PolymarketBalance {
 }
 
 final class CommonPolymarketBalanceService {
-    lazy var fiatAvailableBalanceProvider: TokenBalanceProvider = FiatTokenBalanceProvider(
-        input: fiatRateProvider,
-        cryptoBalanceProvider: collateralTokenBalanceProvider
-    )
+    let fiatAvailableBalanceProvider: TokenBalanceProvider
+    let fiatTotalTokenBalanceProvider: TokenBalanceProvider
+    let collateralTokenBalanceProvider: TokenBalanceProvider
+    let collateralTotalBalanceProvider: TokenBalanceProvider
 
-    lazy var fiatTotalTokenBalanceProvider: TokenBalanceProvider = FiatTokenBalanceProvider(
-        input: fiatRateProvider,
-        cryptoBalanceProvider: collateralTotalBalanceProvider
-    )
+    private let fiatRateProvider: FiatRateProvider
 
-    lazy var collateralTokenBalanceProvider: TokenBalanceProvider = PolymarketAccountBalanceProvider(
-        kind: .available,
-        tokenItem: tokenItem,
-        tokenBalancesRepository: tokenBalancesRepository,
-        balanceSubject: balanceSubject
-    )
-
-    lazy var collateralTotalBalanceProvider: TokenBalanceProvider = PolymarketAccountBalanceProvider(
-        kind: .total,
-        tokenItem: tokenItem,
-        tokenBalancesRepository: tokenBalancesRepository,
-        balanceSubject: balanceSubject
-    )
-
-    private lazy var fiatRateProvider: FiatRateProvider = CommonFiatRateProvider(tokenItem: tokenItem)
-
-    private let tokenItem = PolymarketUtilities.collateralTokenItem
     private let tokenBalancesRepository: TokenBalancesRepository
-    private let balanceSubject = CurrentValueSubject<PolymarketBalanceState?, Never>(nil)
+    private let balanceSubject: CurrentValueSubject<PolymarketBalanceState?, Never>
 
     init(tokenBalancesRepository: TokenBalancesRepository) {
+        let tokenItem = PolymarketUtilities.collateralTokenItem
+        let balanceSubject = CurrentValueSubject<PolymarketBalanceState?, Never>(nil)
+        let fiatRateProvider = CommonFiatRateProvider(tokenItem: tokenItem)
+
+        let collateralTokenBalanceProvider = PolymarketAccountBalanceProvider(
+            kind: .available,
+            tokenItem: tokenItem,
+            tokenBalancesRepository: tokenBalancesRepository,
+            balanceSubject: balanceSubject
+        )
+
+        let collateralTotalBalanceProvider = PolymarketAccountBalanceProvider(
+            kind: .total,
+            tokenItem: tokenItem,
+            tokenBalancesRepository: tokenBalancesRepository,
+            balanceSubject: balanceSubject
+        )
+
         self.tokenBalancesRepository = tokenBalancesRepository
+        self.balanceSubject = balanceSubject
+        self.fiatRateProvider = fiatRateProvider
+        self.collateralTokenBalanceProvider = collateralTokenBalanceProvider
+        self.collateralTotalBalanceProvider = collateralTotalBalanceProvider
+
+        fiatAvailableBalanceProvider = FiatTokenBalanceProvider(
+            input: fiatRateProvider,
+            cryptoBalanceProvider: collateralTokenBalanceProvider
+        )
+
+        fiatTotalTokenBalanceProvider = FiatTokenBalanceProvider(
+            input: fiatRateProvider,
+            cryptoBalanceProvider: collateralTotalBalanceProvider
+        )
     }
 }
 
