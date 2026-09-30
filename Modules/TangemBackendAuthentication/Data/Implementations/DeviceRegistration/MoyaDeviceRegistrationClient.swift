@@ -23,13 +23,20 @@ struct MoyaDeviceRegistrationClient: DeviceRegistrationClient {
     }
 
     func requestCipheredNonce(devicePublicKey: DevicePublicKey) async throws(DeviceRegistrationClientError) -> String {
+        let requestBody = NonceDTO.Request(devicePublicKey: devicePublicKey.derRepresentation.base64EncodedString())
+        let target = BackendAuthenticationTarget(deviceRegistrationNonce: requestBody, baseURL: baseURL)
+
+        let response: Moya.Response
         do {
-            let requestBody = NonceDTO.Request(devicePublicKey: devicePublicKey.derRepresentation.base64EncodedString())
-            let target = BackendAuthenticationTarget(deviceRegistrationNonce: requestBody, baseURL: baseURL)
+            response = try await provider.request(target)
+        } catch {
+            throw error.isTimeout
+                ? DeviceRegistrationClientError.requestNonceTimeout
+                : DeviceRegistrationClientError.requestNonceFailed(underlying: error)
+        }
 
-            let response = try await provider.request(target)
+        do {
             let nonceResponse = try decoder.decode(NonceDTO.Response.self, from: response.data)
-
             return nonceResponse.cipheredNonce
         } catch {
             throw DeviceRegistrationClientError.requestNonceFailed(underlying: error)

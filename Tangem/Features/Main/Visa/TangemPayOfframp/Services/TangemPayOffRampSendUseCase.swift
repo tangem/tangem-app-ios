@@ -167,7 +167,13 @@ private extension TangemPayOffRampSendUseCase {
         do {
             let withdrawData = try await awaitSignatureStep(orderId: orderId, request: request)
             let payload = TangemPayWithdrawPreSignature(withdrawData)
-            return try await orderSigner.signature(for: payload)
+
+            guard let expectation = TangemPayOfframpPreSignatureVerifier.Expectation(request: request) else {
+                VisaLogger.warning("Tangem Pay off-ramp order \(orderId) request lacks the amount, network or asset")
+                throw SendError.generic
+            }
+
+            return try await orderSigner.signature(for: payload, expecting: expectation)
         } catch {
             await cancelOrder(id: orderId)
             reset()
