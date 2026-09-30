@@ -855,6 +855,7 @@ private extension TangemPayMainViewModel {
 
         pendingExpressTransactionsManager
             .pendingTransactionsPublisher
+            .map { Array($0.suffix(Constants.maxVisibleSwaps)) }
             .map { [weak self] transactions in
                 PendingExpressTransactionsConverter()
                     .convertToTokenDetailsPendingTxInfo(transactions) { [weak self] id in
@@ -1137,6 +1138,14 @@ private extension TangemPayMainViewModel {
             tokenItem: tokenItem,
             pendingTransactionsManager: pendingExpressTransactionsManager
         )
+    }
+}
+
+// MARK: - Constants
+
+private extension TangemPayMainViewModel {
+    enum Constants {
+        static let maxVisibleSwaps = 2
     }
 }
 
