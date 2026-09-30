@@ -25,9 +25,6 @@ struct MobileOnboardingAccessCodeView: View {
             )
             .background(Color.clear.alert(item: $viewModel.alert) { $0.alert })
             .onFirstAppear(perform: viewModel.onFirstAppear)
-            .onDisappear {
-                UIApplication.shared.endEditing()
-            }
             .animation(.default, value: viewModel.state)
     }
 }
