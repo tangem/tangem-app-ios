@@ -1189,7 +1189,8 @@
 "markets_real_assets_interval_day" = "日";
 "markets_real_assets_interval_month" = "月";
 "markets_real_assets_interval_week" = "周";
-"markets_real_assets_region_restriction_description" = "股票、ETF、债券，这些在 %1$@ 不支持";
+"markets_real_assets_region_restriction_description_region" = "股票、ETF、债券，这些在 %1$@ 不支持";
+"markets_real_assets_region_restriction_description" = "Stocks, ETFs, Bonds — they're not supported in your region";
 "markets_real_assets_region_restriction_title" = "您所在地区不支持此功能";
 "markets_real_assets_sector_xstocks_communication" = "通信服务";
 "markets_real_assets_sector_xstocks_consumer" = "消费品";
@@ -3180,6 +3181,7 @@
 "warning_hedera_token_association_not_enough_hbar_message" = "%@不够。请为您的 Hedera 账户充值以关联此代币";
 "warning_incomplete_backup_notification_message" = "我们发现，由于您的设备NFC模块存在问题，或者将卡片轻触手机的方式不正确，导致卡片激活流程未能正常完成。请联系我们的客服团队以获取更多详情。";
 "warning_incomplete_backup_notification_title" = "必须采取行动。不要用你的钱包！";
+"warning_ios_deprecation_ended_message" = "对 iOS %1$@ 的支持已于 %2$@终止。要继续接收应用程序更新并确保完整功能，请更新至最新版本的 iOS。";
 "warning_ios_deprecation_message" = "对 iOS %1$@ 的支持将于 %2$@终止。要继续接收应用程序更新并确保完整功能，请更新至最新版本的 iOS。";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "您确定要取消交易吗？取消后您将无法再次尝试交易。";
 "warning_kaspa_unfinished_token_transaction_message" = "您金额为 %1$@ %2$@ 的交易未完成。您可以再次尝试完成交易。";
