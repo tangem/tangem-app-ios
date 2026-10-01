@@ -132,6 +132,12 @@ private extension TransferConfirmationViewModel {
         }
     }
 
+    func retryPlaceOrder() {
+        perform { [sendUseCase] in
+            try await sendUseCase.retryPlaceOrder()
+        }
+    }
+
     func retrySignature() {
         perform { [sendUseCase] in
             try await sendUseCase.retrySignature()
@@ -163,6 +169,13 @@ private extension TransferConfirmationViewModel {
         case .cancelled:
             isSending = false
             refresh()
+
+        case .placeOrderRetryable:
+            analyticsLogger.logSendErrorScreenOpened()
+            output(.failed(
+                model: TransferFailedStatusModelMapper.model(for: error),
+                onRetry: { [weak self] in self?.retryPlaceOrder() }
+            ))
 
         case .signatureSubmission(canRetry: true):
             analyticsLogger.logSendErrorScreenOpened()
