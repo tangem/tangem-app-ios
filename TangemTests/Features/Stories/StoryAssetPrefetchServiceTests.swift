@@ -44,8 +44,7 @@ struct StoryAssetPrefetchServiceTests {
     }
 
     /// A story pulls megabytes of video slide by slide, so a cancelled walk must not start the next
-    /// download — and the cache cannot report the cancellation itself, since a failed download is
-    /// just a miss to it.
+    /// download.
     @Test
     func cancellationStopsTheWalkBeforeTheCache() async {
         let cache = StubAssetCache()
@@ -72,6 +71,26 @@ struct StoryAssetPrefetchServiceTests {
         #expect(requested.isEmpty)
     }
 
+    @Test
+    func cancellationBetweenTheAssetsOfASlideStopsTheWalk() async {
+        let cache = StubAssetCache(cancelsCallerOnRequest: true)
+        let service = StoryAssetPrefetchService(cache: cache)
+
+        let task = Task {
+            try await service.prefetch(
+                story(assetChecksum: "sha256:a", posterChecksum: "sha256:p"),
+                includeFullAssets: true
+            )
+        }
+
+        await #expect(throws: CancellationError.self) {
+            _ = try await task.value
+        }
+
+        let requested = await cache.requestedChecksums
+        #expect(requested == ["sha256:p"])
+    }
+
     // MARK: - Helpers
 
     private func story(assetChecksum: String, posterChecksum: String) -> StoryV2 {
@@ -96,8 +115,19 @@ struct StoryAssetPrefetchServiceTests {
 private actor StubAssetCache: StoryAssetCaching {
     private(set) var requestedChecksums: [String] = []
 
-    func localURL(remoteURL url: URL, checksum: String) async -> URL? {
+    private let cancelsCallerOnRequest: Bool
+
+    init(cancelsCallerOnRequest: Bool = false) {
+        self.cancelsCallerOnRequest = cancelsCallerOnRequest
+    }
+
+    func localURL(remoteURL url: URL, checksum: String) async throws -> URL {
         requestedChecksums.append(checksum)
+
+        if cancelsCallerOnRequest {
+            withUnsafeCurrentTask { $0?.cancel() }
+        }
+
         return URL(fileURLWithPath: "/local/\(checksum)")
     }
 }

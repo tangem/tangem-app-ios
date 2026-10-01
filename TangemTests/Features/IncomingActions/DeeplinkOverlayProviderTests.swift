@@ -39,6 +39,7 @@ struct DeeplinkOverlayProviderTests {
              .onboardVisa,
              .payApp,
              .jointAccountInvite,
+             .jointAccount,
              .token,
              .feed,
              .support:
@@ -71,6 +72,7 @@ struct DeeplinkOverlayProviderTests {
         .onboardVisa(OnboardVisaDeeplink(deeplinkString: nil)),
         .payApp(PayAppDeeplink(deeplinkString: "https://tangem.com/pay-app?id=1")),
         .jointAccountInvite(JointAccountInviteDeeplink(inviteId: "B15CF4AC")),
+        .jointAccount(JointAccountDeeplink(entry: .members, userWalletId: "wallet", accountId: "BA910A77")),
         .token(TokenDeeplink(tokenId: "ethereum", networkId: "ethereum")),
         .feed(FeedDeeplink(section: nil, category: nil, type: nil)),
         .tangemPayAccount(TangemPayAccountDeeplink(screen: nil, userWalletId: nil)),

@@ -24,4 +24,12 @@ struct HardwareUpgradeStoriesResolver {
 
         return experimentService.isOn(.hardwareUpgradeStories, variant: .treatment)
     }
+
+    func shouldPrefetchStories() -> Bool {
+        guard FeatureProvider.isAvailable(.hardwareUpgradeStories) else {
+            return false
+        }
+
+        return experimentService.isOnWithoutExposure(.hardwareUpgradeStories, variant: .treatment)
+    }
 }

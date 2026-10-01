@@ -18,7 +18,8 @@ struct GeoSelectionContentView: View {
     let highlightedSectionTitle: String?
     let allSectionTitle: String?
     let hasFlags: Bool
-    let onItemTap: (String) -> Void
+    var loadingItemId: String?
+    let onItemTap: (_ id: String, _ isHighlighted: Bool) -> Void
 
     var body: some View {
         content
@@ -57,7 +58,7 @@ private extension GeoSelectionContentView {
             ) {
                 if let highlighted = sections.highlighted {
                     Section {
-                        row(highlighted)
+                        row(highlighted, isHighlighted: true)
                     } header: {
                         if let highlightedSectionTitle {
                             header(highlightedSectionTitle)
@@ -67,7 +68,7 @@ private extension GeoSelectionContentView {
 
                 Section {
                     ForEach(sections.all) { item in
-                        row(item)
+                        row(item, isHighlighted: false)
                     }
                 } header: {
                     if sections.all.isNotEmpty, let allSectionTitle {
@@ -76,17 +77,28 @@ private extension GeoSelectionContentView {
                 }
             }
         }
+        .allowsHitTesting(loadingItemId == nil)
     }
 
     @ViewBuilder
-    func row(_ item: GeoSelectionItem) -> some View {
+    func row(_ item: GeoSelectionItem, isHighlighted: Bool) -> some View {
         if hasFlags {
             Row(title: item.title)
                 .start { CountryFlagView(url: item.flagURL) }
-                .onTap { onItemTap(item.id) }
+                .end { loader(for: item) }
+                .onTap { onItemTap(item.id, isHighlighted) }
         } else {
             Row(title: item.title)
-                .onTap { onItemTap(item.id) }
+                .end { loader(for: item) }
+                .onTap { onItemTap(item.id, isHighlighted) }
+        }
+    }
+
+    @ViewBuilder
+    func loader(for item: GeoSelectionItem) -> some View {
+        if item.id == loadingItemId {
+            Loader()
+                .loaderSize(.size20)
         }
     }
 
@@ -168,7 +180,7 @@ private extension GeoSelectionContentView {
         highlightedSectionTitle: nil,
         allSectionTitle: nil,
         hasFlags: true,
-        onItemTap: { _ in }
+        onItemTap: { _, _ in }
     )
 }
 
@@ -183,7 +195,7 @@ private extension GeoSelectionContentView {
         highlightedSectionTitle: "Selected country",
         allSectionTitle: "Change country",
         hasFlags: true,
-        onItemTap: { _ in }
+        onItemTap: { _, _ in }
     )
 }
 
@@ -198,7 +210,20 @@ private extension GeoSelectionContentView {
         highlightedSectionTitle: "Selected state",
         allSectionTitle: "Select another state",
         hasFlags: false,
-        onItemTap: { _ in }
+        onItemTap: { _, _ in }
+    )
+}
+
+#Preview("Item loading") {
+    GeoSelectionContentView(
+        state: .success(
+            GeoSelectionSections(highlighted: nil, all: GeoSelectionItem.previewCountries)
+        ),
+        highlightedSectionTitle: nil,
+        allSectionTitle: nil,
+        hasFlags: true,
+        loadingItemId: GeoSelectionItem.previewCountries[1].id,
+        onItemTap: { _, _ in }
     )
 }
 
@@ -208,7 +233,7 @@ private extension GeoSelectionContentView {
         highlightedSectionTitle: "Selected country",
         allSectionTitle: "Change country",
         hasFlags: true,
-        onItemTap: { _ in }
+        onItemTap: { _, _ in }
     )
 }
 
@@ -218,7 +243,7 @@ private extension GeoSelectionContentView {
         highlightedSectionTitle: "Selected country",
         allSectionTitle: "Change country",
         hasFlags: true,
-        onItemTap: { _ in }
+        onItemTap: { _, _ in }
     )
 }
 
@@ -228,7 +253,7 @@ private extension GeoSelectionContentView {
         highlightedSectionTitle: "Selected country",
         allSectionTitle: "Change country",
         hasFlags: true,
-        onItemTap: { _ in }
+        onItemTap: { _, _ in }
     )
 }
 #endif

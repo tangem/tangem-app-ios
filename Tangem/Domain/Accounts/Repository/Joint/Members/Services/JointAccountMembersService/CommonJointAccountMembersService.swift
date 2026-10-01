@@ -53,6 +53,10 @@ extension CommonJointAccountMembersService: JointAccountMembersService {
         // [REDACTED_TODO_COMMENT]
         jointAccountsRepository.jointAccountsInvites.first(by: cryptoAccountId) != nil
     }
+
+    func requestFrequentUpdates() -> AnyCancellable {
+        jointAccountsRepository.requestFrequentUpdates()
+    }
 }
 
 // MARK: - Private

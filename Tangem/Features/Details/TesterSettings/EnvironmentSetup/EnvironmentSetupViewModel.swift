@@ -218,9 +218,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     self?.coordinator?.openAddressesInfo()
                 }
             ),
-            DefaultRowViewModel(title: "Design System Demo", action: { [weak self] in
-                self?.coordinator?.openDesignSystemDemo()
-            }),
+        ] + designSystemDemoRows + [
             DefaultRowViewModel(title: "Stories V2 Demo", action: { [weak self] in
                 self?.coordinator?.openStoriesV2Demo()
             }),
@@ -311,6 +309,18 @@ final class EnvironmentSetupViewModel: ObservableObject {
             .lowercased()
             .replacingOccurrences(of: "_", with: " ")
             .replacingOccurrences(of: "-", with: " ")
+    }
+
+    private var designSystemDemoRows: [DefaultRowViewModel] {
+        #if INTERNAL || DEBUG
+        return [
+            DefaultRowViewModel(title: "Design System Demo", action: { [weak self] in
+                self?.coordinator?.openDesignSystemDemo()
+            }),
+        ]
+        #else
+        return []
+        #endif
     }
 
     private func updateApplicationUid() {

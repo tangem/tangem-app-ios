@@ -31,10 +31,17 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
     @Published var destination: Destination?
     @Published var sheet: Sheet?
 
+    @Published var positionDetailsCoordinator: PolymarketPositionDetailsCoordinator?
+
     private var placementService: PolymarketOrderPlacementService?
+    private var account: PolymarketOrderAccount?
+    private weak var positionBuilder: PolymarketOrderFlowBuilder?
+    private var regionWarningAction: (() -> Void)?
+    private var placedAction: (@MainActor (PolymarketOrderIndexing) -> Void)?
     private var addFundsAction: (() -> Void)?
     private var indexingTask: PolymarketOrderIndexing?
     private var isMarketClosedPresented = false
+    private var isQuoteUnavailablePresented = false
 
     // MARK: - Init
 
@@ -48,6 +55,10 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         placementService = options.placementService
+        account = options.account
+        positionBuilder = options.positionBuilder
+        regionWarningAction = options.onRegionWarning
+        placedAction = options.onPlaced
         addFundsAction = options.onAddFunds
 
         Task { @MainActor in
@@ -73,11 +84,11 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
 
 extension PolymarketOrderCoordinator: PolymarketOrderRoutable {
     func closeOrder() {
-        dismiss(with: indexingTask.map { DismissPayload(indexing: $0, position: nil) })
+        dismiss(with: DismissPayload(position: nil))
     }
 
     func returnToMain() {
-        dismiss(with: indexingTask.map { DismissPayload(indexing: $0, position: nil, returnsToMain: true) })
+        dismiss(with: DismissPayload(position: nil, returnsToMain: true))
     }
 
     func openAddFunds() {
@@ -98,8 +109,35 @@ extension PolymarketOrderCoordinator: PolymarketOrderRoutable {
         ))
     }
 
+    @MainActor
+    func openQuoteUnavailable() {
+        guard !isQuoteUnavailablePresented else { return }
+
+        isQuoteUnavailablePresented = true
+
+        floatingSheetPresenter.enqueue(sheet: PolymarketRegionRestrictionViewModel.quoteUnavailable(
+            onClose: { [weak self] in
+                self?.floatingSheetPresenter.removeActiveSheet()
+                self?.closeOrder()
+            }
+        ))
+    }
+
     func openPosition(_ position: PolymarketPosition) {
-        dismiss(with: indexingTask.map { DismissPayload(indexing: $0, position: position) })
+        guard let positionBuilder else {
+            dismiss(with: DismissPayload(position: position))
+            return
+        }
+
+        positionDetailsCoordinator = positionBuilder.makePositionDetails(
+            position: position,
+            onOrderPlaced: { [weak self] indexing in
+                self?.indexingTask = indexing
+                self?.placedAction?(indexing)
+            },
+            onRegionWarning: { [weak self] in self?.regionWarningAction?() },
+            onClose: { [weak self] in self?.returnToMain() }
+        )
     }
 
     func openSlippageSelector(percent: Decimal, onConfirm: @escaping (Decimal) -> Void) {
@@ -115,6 +153,7 @@ extension PolymarketOrderCoordinator: PolymarketOrderRoutable {
 
         destination = .summary(PolymarketOrderSummaryViewModel(
             model: model,
+            account: account,
             placementService: placementService,
             coordinator: self
         ))
@@ -160,8 +199,9 @@ extension PolymarketOrderCoordinator: PolymarketOrderSummaryRoutable {
 
     @MainActor
     func openResult(state: PolymarketOrderResultViewModel.State, content: PolymarketOrderResultViewModel.Content) {
-        if state != .noFill {
-            indexingTask = model?.awaitIndexing()
+        if state != .noFill, let indexing = model?.awaitIndexing() {
+            indexingTask = indexing
+            placedAction?(indexing)
         }
 
         destination = .result(PolymarketOrderResultViewModel(
@@ -206,7 +246,6 @@ extension PolymarketOrderCoordinator {
 
 extension PolymarketOrderCoordinator {
     struct DismissPayload {
-        let indexing: PolymarketOrderIndexing
         let position: PolymarketPosition?
         var returnsToMain = false
     }
@@ -216,12 +255,16 @@ extension PolymarketOrderCoordinator {
         let outcome: PolymarketOutcome
         let eventTitle: String
         let walletId: String
+        let account: PolymarketOrderAccount?
         let intent: PolymarketOrderIntent
         let geoblockStateProvider: PolymarketGeoblockStateProvider
         let placementService: PolymarketOrderPlacementService
         let positionsService: PolymarketPositionsService
         let clobService: PolymarketCLOBService
         let isAwaitingFundsPublisher: AnyPublisher<Bool, Never>
+        let positionBuilder: PolymarketOrderFlowBuilder?
+        let onPlaced: @MainActor (PolymarketOrderIndexing) -> Void
+        let onRegionWarning: () -> Void
         let onAddFunds: () -> Void
     }
 }

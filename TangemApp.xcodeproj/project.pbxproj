@@ -2105,6 +2105,7 @@
 					config_dev.json,
 					README.md,
 					"*/CardMocks/*",
+					"*/DesignSystemDemo/*",
 					coinsListResponse.json,
 					coinsResponse.json,
 					earnNetworks.json,
@@ -4597,7 +4598,7 @@
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = 5.2.3;
+				version = 5.2.4;
 			};
 		};
 		B6911ACA302D45550010A7FA /* XCRemoteSwiftPackageReference "swift-protobuf-binaries" */ = {

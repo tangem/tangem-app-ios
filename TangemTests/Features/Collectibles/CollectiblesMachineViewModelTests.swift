@@ -121,6 +121,7 @@ private extension CollectiblesMachineViewModelTests {
     ) -> SUT {
         let sut = SUT(
             pack: Self.pack(),
+            prizePoolProvider: PrizePoolProviderStub(),
             provider: provider ?? MachineProviderStub(results: [.success(Self.machine())]),
             pollInterval: pollInterval
         )
@@ -198,6 +199,13 @@ private extension CollectiblesMachineViewModelTests {
 }
 
 // MARK: - Stubs
+
+/// The pool is not under test here, an empty page keeps its view model quiet.
+private struct PrizePoolProviderStub: CollectiblesPrizePoolProvider {
+    func load(machineID: String, page: Int) async throws -> CollectiblesPrizePoolPage {
+        CollectiblesPrizePoolPage(prizes: [], hasNext: false)
+    }
+}
 
 @MainActor
 private final class MachineProviderStub: CollectiblesMachineProvider {

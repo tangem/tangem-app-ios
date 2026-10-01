@@ -298,10 +298,12 @@ extension EVMCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
                 suffix: Constants.gweiSuffix,
                 isEditable: true,
                 textFieldViewModel: maxFeePerGasTextField,
-                amountAlternativePublisher: AnyPublisher.just(output: nil)
-            ) { [weak self] focused in
-                self?.onMaxFeePerGasChanged(focused)
-            }
+                amountAlternativePublisher: AnyPublisher.just(output: nil),
+                onFocusChanged: { [weak self] focused in
+                    self?.onMaxFeePerGasChanged(focused)
+                },
+                accessibilityIdentifier: FeeAccessibilityIdentifiers.customFeeMaxFeePerGasField
+            )
 
             let priorityFeeRowViewModel = FeeSelectorCustomFeeRowViewModel(
                 title: Localization.sendCustomEvmPriorityFee,

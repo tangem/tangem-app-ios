@@ -36,8 +36,8 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
     private let origin: Origin
     private let userWalletId: UserWalletId
     private let customerId: String
-    private let tangemPayAccount: TangemPayAccount?
-    private let redesignedMapper = TangemPayTransactionDetailsRedesignedMapper()
+    private let accountProvider: (() async -> TangemPayAccount?)?
+    private let mapper = TangemPayTransactionDetailsMapper()
     private var cardLoadTask: Task<Void, Never>?
     private var cashbackLoadTask: Task<Void, Never>?
     private weak var coordinator: TangemPayTransactionDetailsRoutable?
@@ -62,13 +62,13 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
         origin: Origin,
         userWalletId: UserWalletId,
         customerId: String,
-        tangemPayAccount: TangemPayAccount? = nil,
+        accountProvider: (() async -> TangemPayAccount?)?,
         coordinator: TangemPayTransactionDetailsRoutable
     ) {
         self.origin = origin
         self.userWalletId = userWalletId
         self.customerId = customerId
-        self.tangemPayAccount = tangemPayAccount
+        self.accountProvider = accountProvider
         self.coordinator = coordinator
 
         title = "\(displayData.date) \(AppConstants.dotSign) \(displayData.time)"
@@ -109,7 +109,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
             origin: .history(transaction),
             userWalletId: userWalletId,
             customerId: customerId,
-            tangemPayAccount: tangemPayAccount,
+            accountProvider: { tangemPayAccount },
             coordinator: coordinator
         )
     }
@@ -117,9 +117,9 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
     private func makeDisplayModel(origin: Origin) -> TangemPayTransactionDetailsDisplayModel? {
         switch origin {
         case .history(let transaction):
-            return transaction.redesignedDisplayModel(using: redesignedMapper)
+            return transaction.displayModel(using: mapper)
         case .push(let payload):
-            return payload.redesignedDisplayModel(using: redesignedMapper)
+            return payload.displayModel(using: mapper)
         }
     }
 
@@ -183,22 +183,44 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
     }
 
     private var merchantTransactionId: String? {
-        guard case .history(let transaction) = origin,
-              case .merchant = transaction.record.displayRecord,
-              tangemPayAccount != nil
-        else {
+        guard accountProvider != nil else {
             return nil
         }
 
-        return transaction.id
+        switch origin {
+        case .history(let transaction):
+            guard case .merchant = transaction.record.displayRecord else {
+                return nil
+            }
+            return transaction.id
+        case .push(let payload):
+            return payload.spendTransactionId
+        }
+    }
+
+    @MainActor
+    private func resolveAccount() async -> TangemPayAccount? {
+        guard let accountProvider else {
+            return nil
+        }
+
+        return await accountProvider()
     }
 
     @MainActor
     private func loadCard(transactionId: String) async {
-        guard let tangemPayAccount else { return }
+        guard let account = await resolveAccount() else {
+            cardRow = .failed
+            return
+        }
 
         do {
-            let response = try await tangemPayAccount.getTransaction(transactionId: transactionId)
+            let response = try await account.getTransaction(transactionId: transactionId)
+
+            if case .push = origin {
+                displayModel = response.displayModel(using: mapper)
+            }
+
             if case .merchant(let merchant) = response.record.displayRecord, let cardNumberEnd = merchant.cardNumberEnd {
                 cardRow = .loaded(cardNumberEnd: cardNumberEnd, cardName: merchant.cardDisplayName)
             } else {
@@ -211,11 +233,14 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
 
     @MainActor
     private func loadCashback(transactionId: String) async {
-        guard let tangemPayAccount else { return }
+        guard let account = await resolveAccount() else {
+            cashbackRow = .failed
+            return
+        }
 
         do {
-            let response = try await tangemPayAccount.getCashbackTransactionDetails(transactionId: transactionId)
-            cashbackRow = redesignedMapper.map(cashback: TangemPayTransactionCashback(response))
+            let response = try await account.getCashbackTransactionDetails(transactionId: transactionId)
+            cashbackRow = mapper.map(cashback: TangemPayTransactionCashback(response))
         } catch {
             cashbackRow = .failed
             Analytics.log(.visaCashbackLoadingErrorShowed, contextParams: .userWallet(userWalletId))

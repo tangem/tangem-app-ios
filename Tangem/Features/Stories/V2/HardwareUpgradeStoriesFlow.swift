@@ -16,8 +16,7 @@ import TangemStories
 /// A reference type because one tap has to see that an earlier one is still loading.
 final class HardwareUpgradeStoriesFlow {
     @Injected(\.storiesV2Presenter) private var presenter: any StoriesV2Presenter
-    @Injected(\.storiesV2RemoteStore) private var remoteStore: StoriesV2RemoteStore
-    @Injected(\.storiesV2AssetPrefetchService) private var assetPrefetchService: StoryAssetPrefetchService
+    @Injected(\.storiesV2PrefetchService) private var prefetchService: StoriesV2PrefetchService
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
 
@@ -104,8 +103,7 @@ final class HardwareUpgradeStoriesFlow {
         loadTask.withLock { $0 = task }
     }
 
-    /// Stops a load nobody is waiting for any more; the several megabytes of video it pulls are
-    /// worth abandoning as soon as the screen that asked for them goes away.
+    /// Stops the flow from presenting a story nobody waits for.
     func cancel() {
         loadTask.withLock { $0?.cancel() }
     }
@@ -116,12 +114,6 @@ final class HardwareUpgradeStoriesFlow {
 private extension HardwareUpgradeStoriesFlow {
     /// Assets are expected to be warm from the app-start prefetch; a cold cache downloads them here.
     func loadStory() async throws -> StoryV2? {
-        let stories = try await remoteStore.stories(slugs: [StoriesV2StoryID.hardwareUpgrade.rawValue])
-
-        guard let story = stories.first else {
-            return nil
-        }
-
-        return try await assetPrefetchService.prefetch(story)
+        try await prefetchService.prefetchStory(.hardwareUpgrade)
     }
 }

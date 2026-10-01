@@ -12,6 +12,10 @@ import TangemFoundation
 protocol PolymarketAccountPresenceStore {
     func hasAccount(userWalletId: UserWalletId) -> Bool
     func markAccountExists(for userWalletId: UserWalletId)
+
+    func hadPositions(userWalletId: UserWalletId) -> Bool
+    func markPositionsExisted(for userWalletId: UserWalletId)
+
     func delete(userWalletId: UserWalletId)
 }
 
@@ -19,14 +23,35 @@ protocol PolymarketAccountPresenceStore {
 
 extension AppSettings: PolymarketAccountPresenceStore {
     func hasAccount(userWalletId: UserWalletId) -> Bool {
-        polymarketHasAccount[userWalletId.stringValue, default: false]
+        polymarketHasAccount[accountKey(for: userWalletId), default: false]
     }
 
     func markAccountExists(for userWalletId: UserWalletId) {
-        polymarketHasAccount[userWalletId.stringValue] = true
+        polymarketHasAccount[accountKey(for: userWalletId)] = true
+    }
+
+    func hadPositions(userWalletId: UserWalletId) -> Bool {
+        polymarketHadPositions[positionsKey(for: userWalletId), default: false]
+    }
+
+    func markPositionsExisted(for userWalletId: UserWalletId) {
+        polymarketHadPositions[positionsKey(for: userWalletId)] = true
     }
 
     func delete(userWalletId: UserWalletId) {
-        polymarketHasAccount[userWalletId.stringValue] = nil
+        polymarketHasAccount[accountKey(for: userWalletId)] = nil
+        polymarketHadPositions[positionsKey(for: userWalletId)] = nil
+    }
+}
+
+// MARK: - Private implementation
+
+private extension AppSettings {
+    func accountKey(for userWalletId: UserWalletId) -> String {
+        userWalletId.hashedStringValue(message: StorageType.polymarketHasAccount.rawValue)
+    }
+
+    func positionsKey(for userWalletId: UserWalletId) -> String {
+        userWalletId.hashedStringValue(message: StorageType.polymarketHadPositions.rawValue)
     }
 }

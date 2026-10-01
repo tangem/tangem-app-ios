@@ -25,6 +25,7 @@ private extension PolymarketOrderSummaryViewModel {
     static func preview(outcomeIndex: Int) -> PolymarketOrderSummaryViewModel {
         PolymarketOrderSummaryViewModel(
             model: .preview(outcomeIndex: outcomeIndex),
+            account: nil,
             placementService: PolymarketOrderPlacementServiceStub(),
             coordinator: nil
         )

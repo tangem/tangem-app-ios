@@ -24,6 +24,8 @@ final class PolymarketFeeBreakdownSheetViewModel: ObservableObject, Identifiable
     @Published private(set) var total: String
     @Published private(set) var isRefreshing = false
 
+    let currencyCode = PolymarketUtilities.collateralTokenItem.currencySymbol
+
     // MARK: - Dependencies
 
     private let model: PolymarketOrderModel
@@ -102,31 +104,50 @@ private extension PolymarketFeeBreakdownSheetViewModel {
         init?(state: PolymarketOrderModel.State, intent: PolymarketOrderIntent) {
             guard let quote = state.quote.quote else { return nil }
 
-            let shares = PolymarketOrderFormatter.shares(quote.shares)
-            let price = PolymarketPriceFormatter.centsText(quote.averagePrice)
+            let shares = PolymarketOrderFormatter.shares(Self.captionShares(for: intent, quote: quote))
+            let price = PolymarketPriceFormatter.cents(quote.averagePrice)
             let slippage = PolymarketSlippageFormatter.percentText(state.slippagePercent)
+            let currency = PolymarketUtilities.collateralTokenItem.currencySymbol
 
-            // [REDACTED_TODO_COMMENT]
             orderTitle = Self.title(for: intent)
-            orderCaption = "\(Self.verb(for: intent)) \(shares) shares at \(price) each. Final shares count (and corresponding pUSD amount executed) may vary within your \(slippage) slippage limit, depending on what this market can match."
-            orderValue = PolymarketOrderFormatter.money(quote.notional)
+            orderCaption = Self.caption(for: intent, shares: shares, price: price, currency: currency, slippage: slippage)
+            orderValue = PolymarketOrderFormatter.money(Self.orderValue(for: intent, quote: quote))
             polymarketFee = PolymarketOrderFormatter.money(quote.fees.market)
             tangemBuilderFee = PolymarketOrderFormatter.money(quote.fees.builder)
             total = PolymarketOrderFormatter.money(quote.total)
         }
 
+        static func orderValue(for intent: PolymarketOrderIntent, quote: PolymarketOrderQuote) -> Decimal {
+            switch intent {
+            case .buy: quote.notional
+            case .sell: quote.expectedExecutionAmount
+            }
+        }
+
+        static func captionShares(for intent: PolymarketOrderIntent, quote: PolymarketOrderQuote) -> Decimal {
+            switch intent {
+            case .buy: quote.expectedExecutionAmount
+            case .sell: quote.shares
+            }
+        }
+
         static func title(for intent: PolymarketOrderIntent) -> String {
             switch intent {
-            // [REDACTED_TODO_COMMENT]
-            case .buy: "Prediction order"
+            case .buy: Localization.predictionFeeSheetOrder
             case .sell: Localization.predictionCloseTitle
             }
         }
 
-        static func verb(for intent: PolymarketOrderIntent) -> String {
+        static func caption(
+            for intent: PolymarketOrderIntent,
+            shares: String,
+            price: String,
+            currency: String,
+            slippage: String
+        ) -> String {
             switch intent {
-            case .buy: "Buying"
-            case .sell: "Selling"
+            case .buy: Localization.predictionFeeSheetBuyDescription(shares, price, currency, slippage)
+            case .sell: Localization.predictionFeeSheetSellDescription(shares, price, currency, slippage)
             }
         }
 

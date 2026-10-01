@@ -63,23 +63,30 @@ struct PolymarketFeeBreakdownSheetView: View {
     }
 
     private var orderRow: some View {
-        TangemUI.Row(
-            title: viewModel.orderTitle,
-            subtitle: viewModel.orderCaption,
-            value: viewModel.orderValue
-        )
-        .subtitleLineLimit(nil)
-        .valueLineLimit(1)
-        .verticalAlignment(.top)
-        .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
-        .showDivider()
+        TangemUI.Row(title: viewModel.orderTitle, subtitle: viewModel.orderCaption)
+            .valueAccessory { money(viewModel.orderValue) }
+            .contentLead(.end)
+            .subtitleLineLimit(nil)
+            .verticalAlignment(.top)
+            .showDivider()
     }
 
     private func breakdownRow(title: String, value: String, showsDivider: Bool) -> some View {
-        let row = TangemUI.Row(title: title, value: value)
-            .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
+        let row = TangemUI.Row(title: title)
+            .valueAccessory { money(value) }
 
         return showsDivider ? row.showDivider() : row
+    }
+
+    private func money(_ text: String) -> some View {
+        HStack(spacing: Constants.valueSpacing) {
+            Badge(label: viewModel.currencyCode, accessibilityLabel: nil)
+                .size(.x6)
+
+            Text(text)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+                .lineLimit(1)
+        }
     }
 }
 
@@ -92,11 +99,11 @@ private extension PolymarketFeeBreakdownSheetView {
         static let toolbarBottomPadding: CGFloat = 16
         static let rowsTopPadding: CGFloat = 12
         static let compactHeight: CGFloat = 360
+        static let valueSpacing: CGFloat = 8
 
-        // [REDACTED_TODO_COMMENT]
-        static let polymarketFeeTitle = "Polymarket Fee"
-        static let tangemBuilderFeeTitle = "Tangem Builder Fee"
-        static let totalTitle = "Total"
+        static let polymarketFeeTitle = Localization.predictionFeeSheetPolymarketFee
+        static let tangemBuilderFeeTitle = Localization.predictionFeeSheetBuilderFee
+        static let totalTitle = Localization.predictionFeeSheetTotal
     }
 }
 
