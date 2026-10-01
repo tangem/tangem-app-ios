@@ -100,6 +100,19 @@ public enum TangemAPIType: String, CaseIterable, Codable {
         }
     }
 
+    public var referralApiBaseUrl: URL {
+        switch self {
+        case .prod:
+            return URL(string: "https://api.tangem.org/api/referral/v1")!
+        case .dev:
+            return URL(string: "https://api.tests-d.com/api/referral/v1")!
+        case .stage:
+            return URL(string: "https://api.tests-s.com/api/referral/v1")!
+        case .mock:
+            return URL(string: "\(WireMockEnvironment.baseURL)/api/referral/v1")!
+        }
+    }
+
     public var tangemComBaseUrl: URL {
         switch self {
         case .prod:
