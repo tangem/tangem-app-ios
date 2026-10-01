@@ -17,20 +17,13 @@ import TangemUIUtils
 struct PulseTagFilterBottomSheetView: View {
     @ObservedObject private var viewModel: PulseTagFilterBottomSheetViewModel
 
-    @State private var headerHeight: CGFloat = 0
-
     @ScaledMetric private var contentHorizontalPadding: CGFloat = 16
-    @ScaledMetric private var headerVerticalPadding: CGFloat = 12
-    @ScaledMetric private var headerSpacing: CGFloat = 12
     @ScaledMetric private var contentTopSpacing: CGFloat = 12
-    @ScaledMetric private var footerPadding: CGFloat = 16
-    @ScaledMetric private var footerButtonSpacing: CGFloat = 8
     @ScaledMetric private var sectionTitleVerticalPadding: CGFloat = 8
     @ScaledMetric private var sectionSpacing: CGFloat = 24
     @ScaledMetric private var rowVerticalPadding: CGFloat = 12
     @ScaledMetric private var rowCounterSpacing: CGFloat = 12
     @ScaledMetric private var rowTrailingSpacing: CGFloat = 2
-    @ScaledMetric private var radioIconSide: CGFloat = 20
     @ScaledMetric private var chipSpacing: CGFloat = 4
     @ScaledMetric private var chipsTopPadding: CGFloat = 8
     @ScaledMetric private var chipHorizontalPadding: CGFloat = 12
@@ -49,46 +42,18 @@ struct PulseTagFilterBottomSheetView: View {
     }
 
     var body: some View {
-        VStack(spacing: .zero) {
-            ZStack(alignment: .top) {
-                scrollContent
-                header
-            }
-
-            if viewModel.showsFooter {
-                footer
-                    .padding(footerPadding)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-            }
-        }
-        .background(DesignSystem.Color.bgPrimary)
-        .onAppear(perform: viewModel.onViewAppear)
-        .animation(.easeInOut(duration: 0.2), value: viewModel.loadingState)
-        .animation(.easeInOut(duration: 0.2), value: viewModel.showsFooter)
+        content
+            .padding(.horizontal, contentHorizontalPadding)
+            .padding(.top, contentTopSpacing)
+            .onAppear(perform: viewModel.onViewAppear)
+            .onDisappear(perform: viewModel.onViewDisappear)
+            .animation(.easeInOut(duration: 0.2), value: viewModel.loadingState)
     }
 }
 
 // MARK: - Subviews
 
 private extension PulseTagFilterBottomSheetView {
-    var scrollContent: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            content
-                .padding(.horizontal, contentHorizontalPadding)
-                .padding(.top, headerHeight + contentTopSpacing)
-        }
-        .scrollDismissesKeyboard(.interactively)
-        .frame(idealHeight: scrollIdealHeight)
-    }
-
-    var scrollIdealHeight: CGFloat? {
-        guard viewModel.loadingState == .loaded, viewModel.categoryItems.count > Constants.maxRowsToMeasure else {
-            return nil
-        }
-
-        return Constants.loadedIdealHeight
-    }
-
     @ViewBuilder
     var content: some View {
         switch viewModel.loadingState {
@@ -125,32 +90,6 @@ private extension PulseTagFilterBottomSheetView {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    var header: some View {
-        HStack(spacing: headerSpacing) {
-            Search(text: $viewModel.searchText)
-                .placeholder(Localization.commonSearch)
-                .showsCloseButton(false)
-                .textFieldAccessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsPulseTagFilterSearchField)
-
-            closeButton
-        }
-        .padding(.horizontal, contentHorizontalPadding)
-        .padding(.vertical, headerVerticalPadding)
-        .background(DesignSystem.Color.bgPrimary)
-        .readGeometry { headerHeight = $0.frame.height }
-    }
-
-    var closeButton: some View {
-        TangemUI.Button(
-            icon: DesignSystem.Icons.Cross.regular20,
-            accessibilityLabel: Localization.commonClose,
-            action: viewModel.close
-        )
-        .size(.x9)
-        .styleType(.secondary(.default))
-        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsPulseTagFilterCloseButton)
     }
 
     func sectionTitle(_ title: String) -> some View {
@@ -224,24 +163,10 @@ private extension PulseTagFilterBottomSheetView {
     }
 
     func radioIcon(isSelected: Bool) -> some View {
-        Group {
-            if isSelected {
-                Assets.checkmark20.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .foregroundStyle(DesignSystem.Color.iconStaticDark)
-                    .background(DesignSystem.Color.iconAccentBlue, in: .circle)
-            } else {
-                Assets.circleOutline20.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .foregroundStyle(DesignSystem.Color.borderTertiary)
-            }
-        }
-        .frame(size: .init(bothDimensions: radioIconSide))
-        .animation(.easeInOut(duration: 0.2), value: isSelected)
+        TangemUI.Checkmark(checked: isSelected, action: {})
+            .expandsHitArea(false)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
     }
 
     var skeleton: some View {
@@ -274,29 +199,45 @@ private extension PulseTagFilterBottomSheetView {
             .frame(width: width, height: height)
             .clipShape(.capsule)
     }
+}
 
-    var footer: some View {
-        VStack(spacing: footerButtonSpacing) {
-            TangemUI.Button(
-                label: AttributedString(Localization.commonReset),
-                accessibilityLabel: Localization.commonReset,
-                action: viewModel.reset
-            )
-            .size(.x12)
-            .styleType(.secondary(.default))
-            .horizontalLayout(.infinity)
-            .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsPulseTagFilterResetButton)
+// MARK: - Header
 
-            TangemUI.Button(
-                label: AttributedString(Localization.commonApply),
-                accessibilityLabel: Localization.commonApply,
-                action: viewModel.apply
-            )
-            .size(.x12)
-            .styleType(.default)
-            .horizontalLayout(.infinity)
-            .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsPulseTagFilterApplyButton)
+struct PulseTagFilterHeaderView: View {
+    @ObservedObject var viewModel: PulseTagFilterBottomSheetViewModel
+
+    @ScaledMetric private var horizontalPadding: CGFloat = 16
+    @ScaledMetric private var verticalPadding: CGFloat = 12
+    @ScaledMetric private var spacing: CGFloat = 12
+
+    var body: some View {
+        HStack(spacing: spacing) {
+            Search(text: $viewModel.searchText)
+                .placeholder(Localization.commonSearch)
+                .showsCloseButton(false)
+                .textFieldAccessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsPulseTagFilterSearchField)
+
+            FeedModalCloseButton(action: viewModel.close)
+                .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsPulseTagFilterCloseButton)
         }
+        .padding(.horizontal, horizontalPadding)
+        .padding(.vertical, verticalPadding)
+    }
+}
+
+// MARK: - Footer
+
+struct PulseTagFilterFooterView: View {
+    @ObservedObject var viewModel: PulseTagFilterBottomSheetViewModel
+
+    var body: some View {
+        FilterFooterView(
+            isVisible: viewModel.showsFooter,
+            onReset: viewModel.reset,
+            onApply: viewModel.apply,
+            resetAccessibilityIdentifier: MarketsAccessibilityIdentifiers.marketsPulseTagFilterResetButton,
+            applyAccessibilityIdentifier: MarketsAccessibilityIdentifiers.marketsPulseTagFilterApplyButton
+        )
     }
 }
 
@@ -306,8 +247,6 @@ private extension PulseTagFilterBottomSheetView {
     enum Constants {
         static let skeletonChipCount = 5
         static let skeletonRowCount = 10
-        static let loadedIdealHeight: CGFloat = 10_000
-        static let maxRowsToMeasure = 50
     }
 }
 
