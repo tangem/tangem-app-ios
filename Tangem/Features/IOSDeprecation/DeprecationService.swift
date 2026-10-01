@@ -9,12 +9,12 @@
 import UIKit
 
 class DeprecationService {
-    private let firstSupportedSystemVersion = "16.0"
+    private static let firstSupportedSystemVersion = "18.0"
     private let systemVersion = UIDevice.current.systemVersion
 
     private let daysBetweenWarnings = 7
-    private let permanentSystemDeprecationWarningDate = DateComponents(calendar: Calendar(identifier: .gregorian), year: 2025, month: 8, day: 1).date!
-    private let systemDeprecationDate = DateComponents(calendar: Calendar(identifier: .gregorian), year: 2026, month: 1, day: 1).date!
+    private let permanentSystemDeprecationWarningDate = DateComponents(calendar: Calendar(identifier: .gregorian), year: 2026, month: 11, day: 1).date!
+    private let systemDeprecationDate = DateComponents(calendar: Calendar(identifier: .gregorian), year: 2027, month: 1, day: 1).date!
 
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -23,7 +23,11 @@ class DeprecationService {
     }()
 
     private var systemDeprecated: Bool {
-        systemVersion < firstSupportedSystemVersion
+        Self.isSystemDeprecated(systemVersion)
+    }
+
+    static func isSystemDeprecated(_ systemVersion: String) -> Bool {
+        systemVersion.compare(firstSupportedSystemVersion, options: .numeric) == .orderedAscending
     }
 
     private var systemDeprecationWarning: GeneralNotificationEvent? {
@@ -35,7 +39,8 @@ class DeprecationService {
         guard currentDate < permanentSystemDeprecationWarningDate else {
             return .systemDeprecationPermanent(
                 version: systemVersion,
-                date: dateFormatter.string(from: systemDeprecationDate)
+                date: dateFormatter.string(from: systemDeprecationDate),
+                hasEnded: currentDate >= systemDeprecationDate
             )
         }
 
