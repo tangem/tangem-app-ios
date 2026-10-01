@@ -81,6 +81,7 @@ struct PolymarketEventDetailsView: View {
                 }
                 .scaleEffect(barTitleScale, anchor: .leading)
                 .opacity(barTitleOpacity)
+                .accessibilityHidden(barTitleOpacity == 0)
                 .animation(Constants.handoffAnimation, value: titleTransferProgress)
             }
         }
@@ -139,6 +140,7 @@ struct PolymarketEventDetailsView: View {
             }
         }
         .opacity(pageContentOpacity)
+        .accessibilityHidden(pageContentOpacity == 0)
         .animation(Constants.handoffAnimation, value: titleTransferProgress)
         .padding(.horizontal, Constants.textHorizontalPadding)
         .padding(.vertical, Constants.headerVerticalPadding)

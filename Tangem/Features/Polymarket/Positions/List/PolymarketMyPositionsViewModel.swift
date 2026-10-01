@@ -41,6 +41,7 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
 
     private var loaded: [Row] = []
     private var seenIDs: Set<String> = []
+    private var positionsGoneLocally: Set<String> = []
     private var offset = 0
     private var hasNext = false
     private var loadingTask: Task<Void, Never>?
@@ -78,6 +79,14 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
         }
     }
 
+    func claimed(_ position: PolymarketPosition?) {
+        if let position {
+            positionsGoneLocally.insert(position.id)
+        }
+
+        reload()
+    }
+
     func refreshInPlace() {
         guard loadingState != .loading, loadingState != .paginationLoading else { return }
 
@@ -88,7 +97,14 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
                 let page = try await viewModel.page(for: tab, offset: 0)
                 try Task.checkCancellation()
 
-                guard tab == viewModel.tab, !viewModel.loaded.isEmpty else { return }
+                guard tab == viewModel.tab else { return }
+
+                guard !viewModel.loaded.isEmpty else {
+                    viewModel.offset = 0
+                    viewModel.append(page)
+                    viewModel.settle()
+                    return
+                }
 
                 viewModel.replaceLoaded(with: page.rows)
             } catch {
@@ -99,8 +115,38 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
         }
     }
 
+    func refresh() async {
+        guard loadingState != .loading, loadingState != .paginationLoading else { return }
+
+        loadingTask?.cancel()
+
+        let tab = tab
+
+        refreshTask = runTask(in: self) { @MainActor viewModel in
+            do {
+                let page = try await viewModel.page(for: tab, offset: 0)
+                try Task.checkCancellation()
+
+                guard tab == viewModel.tab else { return }
+
+                viewModel.loaded = []
+                viewModel.seenIDs = []
+                viewModel.offset = 0
+                viewModel.append(page)
+                viewModel.settle()
+            } catch {
+                guard !error.isCancellationError else { return }
+
+                PolymarketLogger.error("Failed to refresh the positions list", error: error)
+            }
+        }
+
+        await refreshTask?.value
+    }
+
     func reload() {
         loadingTask?.cancel()
+        refreshTask?.cancel()
         loaded = []
         seenIDs = []
         rows = []
@@ -180,7 +226,9 @@ private extension PolymarketMyPositionsViewModel {
                 limit: Constants.pageSize,
                 offset: offset
             )
-            return Page(rows: page.positions.map(Row.open), receivedCount: page.receivedCount, hasNext: page.hasNext)
+            let rows = page.positions.filter { !$0.isEmptied && !positionsGoneLocally.contains($0.id) }.map(Row.open)
+
+            return Page(rows: rows, receivedCount: page.receivedCount, hasNext: page.hasNext)
         case .finished:
             let page = try await positionsService.closedPositions(
                 sort: .closedAt,
@@ -262,7 +310,7 @@ extension PolymarketMyPositionsViewModel {
 
         switch row {
         case .open(let position) where position.isRedeemable || position.settlement?.isResolved == true:
-            coordinator?.openRedeem(position: position, onClaimed: { [weak self] in self?.reload() })
+            coordinator?.openRedeem(position: position, onClaimed: { [weak self] claimed in self?.claimed(claimed) })
         case .open(let position):
             coordinator?.openPositionDetails(
                 position: position,
