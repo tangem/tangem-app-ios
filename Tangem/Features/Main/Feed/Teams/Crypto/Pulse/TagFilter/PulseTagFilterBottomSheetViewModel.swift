@@ -8,10 +8,9 @@
 
 import Foundation
 import TangemFoundation
-import protocol TangemUI.FloatingSheetContentViewModel
 
 @MainActor
-final class PulseTagFilterBottomSheetViewModel: ObservableObject, FloatingSheetContentViewModel {
+final class PulseTagFilterBottomSheetViewModel: ObservableObject {
     @Published private(set) var loadingState: LoadingState = .loading
     @Published private(set) var selectedTagID: String?
     @Published private(set) var featuredItems: [Item] = []
@@ -61,6 +60,11 @@ final class PulseTagFilterBottomSheetViewModel: ObservableObject, FloatingSheetC
         guard loadingTask == nil, snapshot == nil else { return }
 
         load()
+    }
+
+    func onViewDisappear() {
+        loadingTask?.cancel()
+        loadingTask = nil
     }
 
     func retry() {
