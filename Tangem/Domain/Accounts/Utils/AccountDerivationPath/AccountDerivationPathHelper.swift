@@ -190,20 +190,6 @@ struct AccountDerivationPathHelper {
     }
 }
 
-// MARK: - Static Helpers
-
-extension AccountDerivationPathHelper {
-    /// Filters a set of blockchains to include only those that support multiple accounts.
-    /// Some blockchains don't support custom derivation paths and multiple accounts.
-    /// - Parameter blockchains: The set of blockchains to filter
-    /// - Returns: A set of blockchains that support multiple accounts
-    static func filterBlockchainsSupportingAccounts(_ blockchains: Set<Blockchain>) -> Set<Blockchain> {
-        blockchains.filter { blockchain in
-            AccountDerivationPathHelper(blockchain: blockchain).areAccountsAvailableForBlockchain()
-        }
-    }
-}
-
 // MARK: - Error
 
 extension AccountDerivationPathHelper {

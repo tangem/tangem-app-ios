@@ -101,6 +101,23 @@ struct JointAccountDerivationPathBuilderTests {
         }
     }
 
+    @Test("An EVM network outside the supported ones is turned away, though the path could be made for it")
+    func unsupportedEVMNetworkIsTurnedAway() throws {
+        let gnosis = Blockchain.gnosis
+        let ownPath = try DerivationPath(rawPath: "m/44'/60'/888888'/0/3")
+
+        #expect(throws: AccountDerivationPathError.jointAccountsUnavailableForBlockchain(gnosis.displayName)) {
+            try builder.validateDerivationPath(ownPath, for: gnosis)
+        }
+    }
+
+    @Test("A testnet of a supported network passes the validation just like its mainnet")
+    func supportedNetworksTestnetPassesValidation() throws {
+        let ownPath = try DerivationPath(rawPath: "m/44'/60'/888888'/0/3")
+
+        try builder.validateDerivationPath(ownPath, for: .polygon(testnet: true))
+    }
+
     @Test("A path too short to name an account is reported as such")
     func shortPathIsReported() throws {
         let shortPath = try DerivationPath(rawPath: "m/44'/60'")

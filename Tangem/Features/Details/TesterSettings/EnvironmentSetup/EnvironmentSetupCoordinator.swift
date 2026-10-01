@@ -26,7 +26,9 @@ final class EnvironmentSetupCoordinator: CoordinatorObject {
 
     @Published var supportedBlockchainsPreferencesViewModel: SupportedBlockchainsPreferencesViewModel?
     @Published var addressesInfoViewModel: AddressesInfoViewModel?
-    @Published var designSystemDemoCoordinator: DesignSystemDemoCoordinator?
+    #if INTERNAL || DEBUG
+    @Published var designSystemDemoViewModel: DesignSystemDemoViewModel?
+    #endif
     @Published var storiesV2DemoViewModel: StoriesV2DemoViewModel?
     @Published var silentPushTesterViewModel: SilentPushTesterViewModel?
 
@@ -84,18 +86,11 @@ extension EnvironmentSetupCoordinator: EnvironmentSetupRoutable {
         silentPushTesterViewModel = SilentPushTesterViewModel()
     }
 
+    #if INTERNAL || DEBUG
     func openDesignSystemDemo() {
-        designSystemDemoCoordinator = .init(
-            dismissAction: { [weak self] _ in
-                self?.designSystemDemoCoordinator = nil
-            },
-            popToRootAction: { [weak self] _ in
-                self?.designSystemDemoCoordinator = nil
-            }
-        )
-
-        designSystemDemoCoordinator?.start(with: ())
+        designSystemDemoViewModel = DesignSystemDemoViewModel()
     }
+    #endif
 
     func openStoriesV2Demo() {
         storiesV2DemoViewModel = StoriesV2DemoViewModel()

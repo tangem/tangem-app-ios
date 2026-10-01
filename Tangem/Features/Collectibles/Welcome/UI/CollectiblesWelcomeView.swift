@@ -37,6 +37,7 @@ struct CollectiblesWelcomeView: View {
             )
         }
         .environment(\.isRedesign, true)
+        .toolbar(.hidden, for: .navigationBar)
         .alert(item: $viewModel.alert, content: \.alert)
     }
 }

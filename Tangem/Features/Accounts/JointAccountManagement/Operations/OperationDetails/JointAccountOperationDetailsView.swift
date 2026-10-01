@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemFoundation
 import TangemUI
 
 /// What one operation of a joint account will actually do, for the member deciding whether to sign it.
@@ -18,8 +19,12 @@ struct JointAccountOperationDetailsView: View {
     @ObservedObject var viewModel: JointAccountOperationDetailsViewModel
 
     var body: some View {
-        content
-            .alert(item: $viewModel.alert) { $0.alert }
+        VStack(spacing: .zero) {
+            content
+        }
+        .alert(item: $viewModel.alert) { $0.alert }
+        .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDisappear)
     }
 
     @ViewBuilder
@@ -52,8 +57,14 @@ struct JointAccountOperationDetailsView: View {
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
 }
 
+#Preview("Sending to the network") {
+    JointAccountOperationDetailsView(viewModel: .preview(answer: .signed, isSending: true))
+        .frame(maxHeight: .infinity, alignment: .bottom)
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+}
+
 private extension JointAccountOperationDetailsViewModel {
-    static func preview(answer: Answer) -> JointAccountOperationDetailsViewModel {
+    static func preview(answer: Answer, isSending: Bool = false) -> JointAccountOperationDetailsViewModel {
         JointAccountOperationDetailsViewModel(
             tokenIconInfo: TokenIconInfo(
                 name: "Ethereum",
@@ -67,25 +78,30 @@ private extension JointAccountOperationDetailsViewModel {
             recipient: "33Bd321fS2p2o8Bk7mQwXeATkLQ3B36Yv2p210xxdSga21412B",
             recipientBlockiesImage: nil,
             networkFee: "~0.00056 ETH",
-            collectedSignaturesCount: 1,
-            requiredSignaturesCount: 3,
-            membersCount: 5,
-            signers: [
-                .init(
-                    id: "0x1",
-                    icon: .init(letter: "I", color: CompositeIconColorPalette.color(for: .azure)),
-                    name: "Isaac",
-                    answer: .created(at: "15:34")
-                ),
-                .init(
-                    id: "0x2",
-                    icon: .init(letter: "O", color: CompositeIconColorPalette.color(for: .mexicanPink)),
-                    name: "Olivia",
-                    answer: .waiting
-                ),
-            ],
-            answer: answer,
-            canSign: true,
+            content: .init(
+                collectedSignaturesCount: 1,
+                requiredSignaturesCount: 3,
+                membersCount: 5,
+                signers: [
+                    .init(
+                        id: "0x1",
+                        icon: .init(letter: "I", color: CompositeIconColorPalette.color(for: .azure)),
+                        name: "Isaac",
+                        answer: .created(at: "15:34")
+                    ),
+                    .init(
+                        id: "0x2",
+                        icon: .init(letter: "O", color: CompositeIconColorPalette.color(for: .mexicanPink)),
+                        name: "Olivia",
+                        answer: .waiting
+                    ),
+                ],
+                answer: answer,
+                canSign: true,
+                isSending: isSending
+            ),
+            updatesPublisher: .empty,
+            pendingOperationsProvider: nil,
             coordinator: nil,
             sign: {}
         )

@@ -15,6 +15,7 @@ protocol PolymarketOrderFlowBuilder: AnyObject {
         outcome: PolymarketOutcome,
         eventTitle: String,
         request: PolymarketOrderRequest,
+        pushesPlacedPosition: Bool,
         onPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
         onOpenPosition: @escaping (PolymarketPosition) -> Void,
         onClose: @escaping () -> Void
@@ -24,7 +25,6 @@ protocol PolymarketOrderFlowBuilder: AnyObject {
         position: PolymarketPosition,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
         onRegionWarning: @escaping () -> Void,
-        onOpenPosition: @escaping (PolymarketPosition) -> Void,
         onClose: @escaping Action<Void>
     ) -> PolymarketPositionDetailsCoordinator
 

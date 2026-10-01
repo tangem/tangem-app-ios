@@ -119,7 +119,7 @@ private enum UsedeskWebViewConstants {
         viewModel: SupportChatViewModel(
             input: SupportChatInputModel(
                 logsComposer: LogsComposer(infoProvider: BaseDataCollector()),
-                userIdentifier: nil,
+                userWalletId: nil,
                 source: .settings
             )
         )

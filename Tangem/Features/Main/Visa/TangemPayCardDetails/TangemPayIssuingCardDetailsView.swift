@@ -2,59 +2,30 @@
 //  TangemPayIssuingCardDetailsView.swift
 //  TangemApp
 //
+//  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
 import TangemAssets
-import TangemLocalization
-import TangemUI
 
 struct TangemPayIssuingCardDetailsView: View {
+    let isGhost: Bool
+
     var body: some View {
-        VStack {
-            HStack(alignment: .top) {
-                HStack(alignment: .center, spacing: 6) {
-                    Image(systemName: "cloud.fill")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(height: 10)
-                        .foregroundColor(Colors.Text.constantWhite)
-
-                    Text(Localization.tangempayDigitalCard)
-                        .style(Fonts.Bold.footnote, color: Colors.Text.constantWhite)
-                }
-                .padding(.top, 4)
-
-                Spacer()
-
-                Assets.Visa.platinumLogo.image
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(height: 38)
+        cardArt.image
+            .resizable()
+            .aspectRatio(Constants.plasticCardStandardWidthToHeightRatio, contentMode: .fit)
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
+                    .allowsHitTesting(false)
             }
+    }
 
-            Spacer()
-        }
-        .padding(16)
-        .aspectRatio(Constants.plasticCardStandardWidthToHeightRatio, contentMode: .fit)
-        .background(
-            Assets.Visa.cardOverlay.image
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-        )
-        .background(Color.Tangem.Visa.cardDetailBackground, in: RoundedRectangle(cornerRadius: 14))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-        .overlay {
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(
-                    LinearGradient(stops: [
-                        .init(color: Colors.Stroke.primary.opacity(0.1), location: 0),
-                        .init(color: Colors.Stroke.primary, location: 1),
-                    ], startPoint: .bottomLeading, endPoint: .topTrailing),
-                    lineWidth: 2
-                )
-        }
+    private var cardArt: ImageType {
+        isGhost ? Assets.Visa.cardGhost : Assets.Visa.cardIssuing
     }
 }
 
@@ -62,4 +33,16 @@ private extension TangemPayIssuingCardDetailsView {
     enum Constants {
         static let plasticCardStandardWidthToHeightRatio = 1.586
     }
+}
+
+// MARK: - Previews
+
+#Preview {
+    VStack(spacing: 16) {
+        TangemPayIssuingCardDetailsView(isGhost: false)
+        TangemPayIssuingCardDetailsView(isGhost: true)
+    }
+    .padding(16)
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(DesignSystem.Color.bgPrimary)
 }

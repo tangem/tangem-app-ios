@@ -55,10 +55,16 @@ private extension PolymarketOrderGate {
         guard let status = state.quote.quote?.status else { return false }
 
         if case .sell = intent, status == .belowMinOrderSize {
-            return true
+            return isWholePosition(state: state)
         }
 
         return status == .belowMinOrderAmount || status.isPlaceable
+    }
+
+    static func isWholePosition(state: PolymarketOrderModel.State) -> Bool {
+        guard let entered = state.enteredAmount, let balance = state.balance else { return false }
+
+        return entered >= balance
     }
 
     static func notifications(state: PolymarketOrderModel.State, intent: PolymarketOrderIntent) -> [PolymarketOrderNotification] {
