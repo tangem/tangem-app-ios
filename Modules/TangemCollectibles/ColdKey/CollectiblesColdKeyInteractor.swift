@@ -9,15 +9,23 @@
 public import Foundation
 public import BlockchainSdk
 
-/// Every ceremony the vault's cold owner key takes part in. Both derive the key and persist the result, so
-/// they belong to one object — split across two, they would answer "which key" separately and drift apart.
-public protocol CollectiblesColdKeyInteractor {
-    /// Persists what it derives, so the tap it costs is paid once per wallet.
-    func derive() async throws
-
+public protocol CollectiblesColdKeySigner {
     /// - Parameter coldKey: the key `message` was compiled around. A signature from any other key would be
     ///   broadcast and rejected, so implementations check rather than assume.
     func sign(message: Data, coldKey: Wallet.PublicKey) async throws -> Data
+}
+
+public protocol CollectiblesColdKeySessionWork {
+    associatedtype Output
+
+    func run(signer: any CollectiblesColdKeySigner) async throws -> Output
+}
+
+/// Every ceremony the vault's cold owner key takes part in. Deriving the key and signing with it belong to one
+/// object, which hands the narrower `CollectiblesColdKeySigner` into the session it opens — implemented by two
+/// objects, they would answer "which key" separately and drift apart.
+public protocol CollectiblesColdKeyInteractor: CollectiblesColdKeySigner {
+    func derive<Work: CollectiblesColdKeySessionWork>(andRun work: Work) async throws -> Work.Output
 }
 
 public protocol CollectiblesColdKeyInteractorProvider: AnyObject {
@@ -28,7 +36,7 @@ public protocol CollectiblesColdKeyInteractorProvider: AnyObject {
 public struct UnavailableCollectiblesColdKeyInteractor: CollectiblesColdKeyInteractor {
     public init() {}
 
-    public func derive() async throws {
+    public func derive<Work: CollectiblesColdKeySessionWork>(andRun work: Work) async throws -> Work.Output {
         throw "This wallet cannot derive the collectibles account's key"
     }
 
