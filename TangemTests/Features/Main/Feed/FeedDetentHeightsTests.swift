@@ -25,7 +25,7 @@ struct FeedDetentHeightsTests {
         sut.report(widgets: 180)
         sut.report(tabChips: 36)
 
-        #expect(sut.detents.medium == .height(290))
+        #expect(sut.detents.medium == .height(298))
     }
 
     @Test("Transient zero measurements keep the last measured detents")
@@ -68,7 +68,7 @@ struct FeedDetentHeightsTests {
         sut.report(tabChips: 40)
 
         // Search block, widgets, tab spacing, tabs, and bottom inset.
-        #expect(detents.last?.medium == .height(338))
+        #expect(detents.last?.medium == .height(346))
     }
 
     @Test("Chips spacing is dropped while the chips are not measured")
@@ -81,7 +81,7 @@ struct FeedDetentHeightsTests {
         sut.report(searchBar: 70)
         sut.report(widgets: 180)
 
-        #expect(detents.last?.medium == .height(282))
+        #expect(detents.last?.medium == .height(290))
     }
 
     @Test("Bottom safe area is taken out of the medium detent")
@@ -95,7 +95,7 @@ struct FeedDetentHeightsTests {
         sut.report(widgets: 180)
         sut.report(safeArea: EdgeInsets(top: 59, leading: 0, bottom: 34, trailing: 0))
 
-        #expect(detents.last?.medium == .height(248))
+        #expect(detents.last?.medium == .height(256))
     }
 
     @Test("Repeated measurements are published once")
@@ -226,7 +226,7 @@ struct FeedDetentHeightsTests {
     private func makeMeasuredHeights() -> FeedDetentHeights {
         let sut = FeedDetentHeights()
         sut.report(searchBar: 84)
-        sut.report(widgets: 100)
+        sut.report(widgets: 92)
         sut.report(window: 1016)
         return sut
     }
