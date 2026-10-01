@@ -18,7 +18,11 @@ final class CollectiblesMachineViewModel: ObservableObject {
     private let provider: any CollectiblesMachineProvider
     private let pollInterval: Duration
 
+    let prizePoolViewModel: CollectiblesPrizePoolViewModel
+
     private(set) var pollingTask: Task<Void, Never>?
+
+    let turboModeInfoViewModel = CollectiblesInfoSheetViewModel(model: .turboMode)
 
     // MARK: - Publishers
 
@@ -28,11 +32,14 @@ final class CollectiblesMachineViewModel: ObservableObject {
     @Published private(set) var openButtonText: String
 
     @Published private(set) var state: State = .loading
+    /// A purchase parameter, not a setting: it lives as long as the screen and rides along into the order.
+    @Published var isTurboModeOn = false
 
     // MARK: - Init
 
     init(
         pack: CollectiblesPack,
+        prizePoolProvider: any CollectiblesPrizePoolProvider,
         provider: any CollectiblesMachineProvider = CollectiblesAPIService(),
         pollInterval: Duration = Constants.defaultPollInterval
     ) {
@@ -42,6 +49,7 @@ final class CollectiblesMachineViewModel: ObservableObject {
         machineID = pack.id
         self.provider = provider
         self.pollInterval = pollInterval
+        prizePoolViewModel = CollectiblesPrizePoolViewModel(machineID: pack.id, provider: prizePoolProvider)
     }
 
     deinit {
@@ -51,6 +59,8 @@ final class CollectiblesMachineViewModel: ObservableObject {
     // MARK: - Methods
 
     func load() {
+        prizePoolViewModel.load()
+
         guard pollingTask == nil else { return }
 
         startPolling()
@@ -66,6 +76,10 @@ final class CollectiblesMachineViewModel: ObservableObject {
 
         state = .loading
         startPolling()
+    }
+
+    func showTurboModeInfo() {
+        turboModeInfoViewModel.present()
     }
 }
 

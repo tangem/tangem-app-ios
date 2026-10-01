@@ -57,7 +57,8 @@ extension TransactionPushPortfolioUpdater: SilentPushNotificationHandling {
             in: userWalletModel,
             tokenId: payload.tokenId,
             networkId: payload.networkId,
-            derivation: payload.derivationPath
+            derivation: payload.derivationPath,
+            accountId: payload.accountId
         ) {
             guard !userWalletRepository.isLocked else {
                 return
@@ -66,6 +67,11 @@ extension TransactionPushPortfolioUpdater: SilentPushNotificationHandling {
             walletModel.startUpdateTask()
             return
         }
+
+        if let accountId = payload.accountId, !walletModelLocator.hasAccount(withId: accountId, in: userWalletModel) {
+            return
+        }
+
         // The token is missing locally; sync the token list and refresh once it appears.
         runTask(in: self) { updater in
             await updater.syncTokensAndUpdateIfFound(payload: payload, userWalletModel: userWalletModel)
@@ -88,6 +94,7 @@ private extension TransactionPushPortfolioUpdater {
             tokenId: payload.tokenId,
             networkId: payload.networkId,
             derivation: payload.derivationPath,
+            accountId: payload.accountId,
             timeout: Constants.walletModelAppearanceTimeout
         )
 

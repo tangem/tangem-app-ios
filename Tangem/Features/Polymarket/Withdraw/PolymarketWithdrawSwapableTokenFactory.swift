@@ -52,6 +52,7 @@ struct PolymarketWithdrawSwapableTokenFactory: SendSwapableTokenFactory {
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config),
             confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
             isTangemPayAccount: false,
+            jointAccountPolicy: nil,
             tokenItem: tokenItem,
             fiatItem: makeFiatItem(),
             address: source.depositWalletAddress,

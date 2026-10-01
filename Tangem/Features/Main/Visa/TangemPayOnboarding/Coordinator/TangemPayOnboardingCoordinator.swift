@@ -8,12 +8,16 @@
 
 import SwiftUI
 import TangemFoundation
+import TangemLocalization
+import TangemPay
+import TangemUI
 
 protocol TangemPayOnboardingRoutable: AnyObject {
     func openWalletSelector(
         from: [UserWalletModel],
         onSelect: @escaping (UserWalletModel) -> Void
     )
+    func openResidency(onAvailable: @escaping () -> Void)
 }
 
 final class TangemPayOnboardingCoordinator: CoordinatorObject {
@@ -24,6 +28,11 @@ final class TangemPayOnboardingCoordinator: CoordinatorObject {
     let popToRootAction: Action<PopToRootOptions>
 
     @Published private(set) var rootViewModel: TangemPayOnboardingViewModel?
+    @Published var residencyCoordinator: TangemPayResidencyCoordinator?
+
+    private lazy var geoStore = TangemPayGeoStore(
+        repository: CommonTangemPayGeoRepository()
+    )
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -34,6 +43,8 @@ final class TangemPayOnboardingCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        prefetchCountriesIfNeeded()
+
         rootViewModel = .init(
             source: options.source,
             availableSelection: options.availableSelection,
@@ -65,6 +76,37 @@ extension TangemPayOnboardingCoordinator: TangemPayOnboardingRoutable {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: walletSelectorViewModel)
         }
+    }
+
+    func openResidency(onAvailable: @escaping () -> Void) {
+        let dismissAction: Action<TangemPayResidencyCoordinator.DismissOptions?> = { [weak self] options in
+            self?.residencyCoordinator = nil
+
+            switch options {
+            case .available:
+                onAvailable()
+
+            case .joinedWaitlist:
+                self?.dismiss(with: ())
+                Toast(view: SuccessToast(text: Localization.tangempayWaitlistJoinedMessage))
+                    .present(layout: .top(padding: 12), type: .temporary())
+
+            case .closed, .none:
+                self?.dismiss(with: ())
+            }
+        }
+
+        let coordinator = TangemPayResidencyCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: .init(product: .paymentAccount, geoStore: geoStore))
+        residencyCoordinator = coordinator
+    }
+
+    private func prefetchCountriesIfNeeded() {
+        guard FeatureProvider.isAvailable(.tangemPayChooseCountry) else {
+            return
+        }
+
+        geoStore.loadCountries()
     }
 
     private func dismissActiveSheet() {

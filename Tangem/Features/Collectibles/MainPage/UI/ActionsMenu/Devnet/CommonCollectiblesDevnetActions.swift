@@ -19,7 +19,7 @@ final class CommonCollectiblesDevnetActions {
     private let accountModel: any CollectiblesAccountModel
     private let coldOwnerProvider: any CollectiblesColdOwnerProvider
     private let coldKeyInteractorFactory: CollectiblesColdKeyInteractorFactory
-    private let serviceProvider = CollectiblesChainServiceProvider()
+    private let serviceProvider = CommonCollectiblesChainServiceProvider()
     private let sessionKeyStore: any CollectiblesSessionKeyWalletStore = CommonCollectiblesSessionKeyWalletStore()
 
     private var userWalletId: UserWalletId { accountModel.id.userWalletId }
@@ -28,9 +28,9 @@ final class CommonCollectiblesDevnetActions {
         self.accountModel = accountModel
         coldOwnerProvider = CommonCollectiblesColdOwnerProvider(
             keysRepository: userWalletModel.keysRepository,
-            config: userWalletModel.config
+            derivationStyle: userWalletModel.config.derivationStyle
         )
-        coldKeyInteractorFactory = CollectiblesColdKeyInteractorFactory(userWalletModel: userWalletModel)
+        coldKeyInteractorFactory = CommonCollectiblesColdKeyInteractorFactory(interactorProvider: userWalletModel)
     }
 }
 

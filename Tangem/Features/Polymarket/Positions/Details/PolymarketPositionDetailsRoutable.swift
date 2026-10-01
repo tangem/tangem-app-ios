@@ -14,11 +14,20 @@ protocol PolymarketPositionDetailsRoutable: AnyObject {
 
     func openRegionWarning()
 
+    @MainActor
+    func openMarketClosed()
+
     func openOrder(
         market: PolymarketMarket,
         outcome: PolymarketOutcome,
         eventTitle: String,
         request: PolymarketOrderRequest,
         onPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
+    )
+
+    func openEventDetails(
+        eventID: String,
+        category: PolymarketCategory?,
+        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
     )
 }

@@ -92,7 +92,8 @@ extension TransactionDisplayModel {
         legacyName: String,
         addressDestination: String?,
         subtitleOwner: TransactionViewModel.SubtitleOwner?,
-        expressSubtitle: ExpressSubtitle?
+        expressSubtitle: ExpressSubtitle?,
+        isPendingSignature: Bool = false
     ) -> TransactionDisplayModel {
         TransactionDisplayModel(
             title: title(
@@ -101,7 +102,8 @@ extension TransactionDisplayModel {
                 isOutgoing: isOutgoing,
                 isFromYieldContract: isFromYieldContract,
                 legacyName: legacyName,
-                subtitleOwner: subtitleOwner
+                subtitleOwner: subtitleOwner,
+                isPendingSignature: isPendingSignature
             ),
             subtitle: subtitle(
                 transactionType: transactionType,
@@ -137,9 +139,12 @@ extension TransactionDisplayModel {
         isOutgoing: Bool,
         isFromYieldContract: Bool,
         legacyName: String,
-        subtitleOwner: TransactionViewModel.SubtitleOwner?
+        subtitleOwner: TransactionViewModel.SubtitleOwner?,
+        isPendingSignature: Bool = false
     ) -> TitleContent {
         switch transactionType {
+        case .transfer where isPendingSignature:
+            return .plain(Localization.commonSend)
         case .transfer, .gaslessTransfer:
             return transferTitle(isOutgoing: isOutgoing, status: status, subtitleOwner: subtitleOwner)
         case .gaslessTransactionFee, .networkFee:
