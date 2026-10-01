@@ -15,10 +15,7 @@ protocol RealAssetsFeedRoutable: AnyObject {
 }
 
 final class RealAssetsFeedRouter {
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
-
     private weak var navigation: (any FeedNavigation)?
-    private weak var categoryFilter: MarketsRealAssetsFilterBottomSheetViewModel?
 
     private let popToRootAction: Action<PopToRootOptions>
     private let portfolioTokenRouter: FeedPortfolioTokenRouter
@@ -49,20 +46,12 @@ extension RealAssetsFeedRouter: RealAssetsFeedRoutable {
 
     func openCategoryFilter(with input: RealAssetsCategoryFilterInput) {
         Task { @MainActor [weak self] in
-            guard let self, categoryFilter == nil else {
-                return
-            }
-
             let viewModel = MarketsRealAssetsFilterBottomSheetViewModel(
                 input: input,
-                onDismiss: { [weak self] in
-                    self?.categoryFilter = nil
-                    self?.floatingSheetPresenter.removeActiveSheet()
-                }
+                onDismiss: { [weak self] in self?.navigation?.dismissModal() }
             )
 
-            categoryFilter = viewModel
-            floatingSheetPresenter.enqueue(sheet: viewModel)
+            self?.navigation?.presentModal(.realAssetsCategoryFilter(viewModel))
         }
     }
 }

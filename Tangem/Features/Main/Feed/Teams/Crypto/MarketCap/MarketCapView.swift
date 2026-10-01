@@ -48,7 +48,7 @@ struct MarketCapView: View {
                         .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
                         .skeletonable(isShown: isLoading, size: Constants.capSkeletonSize)
 
-                    PriceChangeView(state: content.priceChange, useRedesignColors: true)
+                    priceChange(content.priceChange)
                 }
             }
 
@@ -57,6 +57,27 @@ struct MarketCapView: View {
             }
         }
         .padding(.horizontal, 16)
+    }
+
+    @ViewBuilder
+    private func priceChange(_ state: PriceChangeView.State) -> some View {
+        let direction: UtilPriceChange.Direction = switch state.changeType {
+        case .positive: .positive
+        case .negative: .negative
+        case .neutral, nil: .neutral
+        }
+
+        switch state {
+        case .loaded(_, let text):
+            UtilPriceChange(value: text, direction: direction)
+                .typography(DesignSystem.Font.headingSmallToken)
+        case .loadingCached(_, let text):
+            UtilPriceChange(value: text, direction: direction)
+                .typography(DesignSystem.Font.headingSmallToken)
+                .updating()
+        default:
+            PriceChangeView(state: state, useRedesignColors: true)
+        }
     }
 
     private var infoButton: some View {
