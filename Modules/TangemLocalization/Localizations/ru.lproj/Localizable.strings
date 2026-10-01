@@ -1008,7 +1008,7 @@
 "joint_account_coming_soon_title" = "Скоро в общих аккаунтах";
 "joint_account_invite_invalid_subtitle" = "Проверьте, что открыли правильную ссылку, или попросите создателя аккаунта отправить её ещё раз";
 "joint_account_invite_invalid_title" = "Ссылка-приглашение недействительна";
-"joint_account_invite_load_failed_subtitle" = "Не удалось загрузить приглашение.\nНажмите, чтобы обновить";
+"joint_account_invite_load_failed_subtitle" = "Не удалось загрузить страницу приглашения.\nНажмите, чтобы обновить";
 "joint_account_invite_members_creator" = "Создатель";
 "joint_account_invite_members_invite" = "Пригласить";
 "joint_account_invite_members_member_info" = "Об участнике";
@@ -1016,13 +1016,13 @@
 "joint_account_invite_members_new_member" = "Новый участник";
 "joint_account_invite_members_not_invited" = "Не приглашён";
 "joint_account_invite_members_other_members" = "Другие участники";
-"joint_account_invite_members_safety_first_point_subtitle" = "Любой, кто её откроет, сможет вступить и подписывать. Отправляйте её только нужному человеку и никогда не публикуйте";
-"joint_account_invite_members_safety_first_point_title" = "Ссылка — это ключ";
+"joint_account_invite_members_safety_first_point_subtitle" = "Любой, кто откроет ссылку, сможет вступить и подписывать. Отправляйте её только нужному человеку и никогда не публикуйте";
+"joint_account_invite_members_safety_first_point_title" = "Ссылка как ключ";
 "joint_account_invite_members_safety_second_point_subtitle" = "Каждый участник может подтверждать транзакции вместе с остальными. Приглашайте только тех, кому доверяете";
 "joint_account_invite_members_safety_second_point_title" = "Соподписанты могут распоряжаться средствами";
 "joint_account_invite_members_safety_sheet_title" = "Безопасная отправка приглашений";
 "joint_account_invite_members_safety_subtitle" = "Любой, у кого есть ссылка, может вступить и подписывать. Отправляйте её только тем, кому доверяете";
-"joint_account_invite_members_safety_third_point_subtitle" = "Когда кто-то вступит, убедитесь, что адрес принадлежит нужному человеку — сверьте его с ним напрямую";
+"joint_account_invite_members_safety_third_point_subtitle" = "Когда кто-то присоединится, убедитесь, что адрес принадлежит нужному человеку: сверьте его напрямую с участником";
 "joint_account_invite_members_safety_third_point_title" = "Проверьте, кто вступил";
 "joint_account_invite_members_safety_title" = "Делитесь приглашениями безопасно";
 "joint_account_invite_members_subtitle" = "Присоединились %1$@ из %2$@, включая вас";
@@ -1035,7 +1035,7 @@
 "joint_account_join_invalid_link_title" = "Ссылка-приглашение недействительна";
 "joint_account_join_load_failed" = "Не удалось загрузить страницу приглашения. Нажмите, чтобы обновить";
 "joint_account_join_subtitle_value" = "%1$@ из %2$@ участников";
-"joint_account_join_subtitle" = "Это общий аккаунт. Для каждой транзакции из него потребуется подпись %1$@";
+"joint_account_join_subtitle" = "Это общий аккаунт. Для каждой транзакции из него нужны подписи: %1$@";
 "joint_account_join_success_message" = "Аккаунт добавлен";
 "joint_account_join_title" = "Вас пригласили в аккаунт «%1$@»";
 "joint_account_join_to_account_btn_text" = "Вступить в аккаунт";
@@ -1044,9 +1044,9 @@
 "joint_account_members_role_you" = "Вы";
 "joint_account_members_signers_subtitle" = "Для подтверждения операций";
 "joint_account_members_signers_title" = "Нужно подписей";
-"joint_account_members_subtitle_helper_part" = " %1$@ of %2$@ to sign";
-"joint_account_members_subtitle_main_part" = "Укажите, сколько человек будет в аккаунте. Каждая транзакция требует %1$@. Изменить это позже нельзя";
-"joint_account_members_subtitle" = "Укажите, сколько человек будет в аккаунте. Каждая транзакция требует подписи %1$@ из %2$@. Изменить это позже нельзя";
+"joint_account_members_subtitle_helper_part" = " %1$@ из %2$@ участников";
+"joint_account_members_subtitle_main_part" = "Укажите, сколько человек будет пользоваться аккаунтом. Каждую транзакцию должны подписать%1$@. Позже это изменить нельзя";
+"joint_account_members_subtitle" = "Укажите, сколько человек будет пользоваться аккаунтом. Каждую транзакцию должны подписать %1$@ из %2$@ участников. Позже это изменить нельзя";
 "joint_account_members_title" = "Участники";
 "joint_account_members_total_subtitle" = "Максимум %1$@ человек, включая вас";
 "joint_account_members_total_title" = "Всего участников";
@@ -1062,7 +1062,7 @@
 "joint_account_onboarding_members_title" = "До %1$@ участников";
 "joint_account_onboarding_shared_description" = "Используйте его с друзьями, семьёй или партнёрами.";
 "joint_account_onboarding_shared_title" = "Общий аккаунт.";
-"joint_account_onboarding_subtitle" = "Простой способ управлять криптовалютой вместе — для личных или бизнес-задач";
+"joint_account_onboarding_subtitle" = "Простой способ вместе управлять криптовалютой для личных и бизнес-задач";
 "joint_account_pending_transaction_message" = "Проверьте и подпишите операцию";
 "joint_account_send_blocked_subtitle" = "Отправка заблокирована по соображениям безопасности. Обратитесь в поддержку";
 "joint_account_send_blocked_title" = "Отправка заблокирована";
@@ -1189,7 +1189,8 @@
 "markets_real_assets_interval_day" = "День";
 "markets_real_assets_interval_month" = "Месяц";
 "markets_real_assets_interval_week" = "Неделя";
-"markets_real_assets_region_restriction_description" = "Акции, ETF и облигации недоступны в Великобритании и США";
+"markets_real_assets_region_restriction_description_region" = "Акции, ETF и облигации недоступны в %1$@";
+"markets_real_assets_region_restriction_description" = "Stocks, ETFs, Bonds — they're not supported in your region";
 "markets_real_assets_region_restriction_title" = "Недоступно в вашем регионе";
 "markets_real_assets_sector_xstocks_communication" = "Услуги связи";
 "markets_real_assets_sector_xstocks_consumer" = "Потребительский сектор";
@@ -3180,6 +3181,7 @@
 "warning_hedera_token_association_not_enough_hbar_message" = "Недостаточно %@. Пополните ваш аккаунт Hedera для ассоциации этого токена";
 "warning_incomplete_backup_notification_message" = "Мы обнаружили, что процесс активации карты не завершен должным образом из-за проблем с NFC-модулем устройства или неправильного прикладывания карт к телефону. Пожалуйста, обратитесь в службу поддержки для уточнения деталей.";
 "warning_incomplete_backup_notification_title" = "Требуется действие. Не используйте кошелек!";
+"warning_ios_deprecation_ended_message" = "Поддержка iOS %1$@ прекращена %2$@. Чтобы продолжать получать обновления приложения и обеспечить полную работоспособность, обновите iOS до последней версии.";
 "warning_ios_deprecation_message" = "Поддержка iOS %1$@ завершится %2$@. Чтобы продолжать получать обновления приложения и обеспечить полную работоспособность, обновите iOS до последней версии.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Вы уверены что хотите отменить эту транзакцию? Вы не сможете отправить ее еще раз";
 "warning_kaspa_unfinished_token_transaction_message" = "Ваша транзакция %1$@ %2$@ не была завершена. Вы можете попробовать отправить ее еще раз.";
