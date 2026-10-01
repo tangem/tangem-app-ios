@@ -223,6 +223,7 @@ final class SendStakingableTokenStub: SendStakingableToken {
     var tangemIconProvider: any TangemIconProvider { StakingTangemIconProviderStub() }
     var confirmTransactionPolicy: any ConfirmTransactionPolicy { StakingConfirmTransactionPolicyStub() }
     var isTangemPayAccount: Bool { false }
+    var jointAccountPolicy: JointAccountPolicy? { nil }
 
     var transactionCreator: SendTransactionCreator { SendTransactionCreatorStub() }
 }

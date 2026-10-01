@@ -14,10 +14,13 @@ import TangemFoundation
 import Experiment
 
 protocol ExperimentService {
+    var variantsPublisher: AnyPublisher<Void, Never> { get }
+
     func configure()
 
     func variant(_ key: ExperimentFeatureFlagKey) -> Variant?
     func isOn(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool
+    func isOnWithoutExposure(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool
 }
 
 final class CommonExperimentService {
@@ -37,6 +40,7 @@ final class CommonExperimentService {
     private var _client: ExperimentClient?
     private var bag: Set<AnyCancellable> = []
     private var refetchTask: Task<Void, Never>?
+    private let variantsSubject = PassthroughSubject<Void, Never>()
 
     // MARK: - Public Implementation
 
@@ -70,6 +74,16 @@ final class CommonExperimentService {
                 manager.setContext(for: userWalletId)
             }
             .store(in: &bag)
+    }
+
+    private func configuredClient(for key: ExperimentFeatureFlagKey) -> ExperimentClient? {
+        guard let client = _client else {
+            AppLogger.warning("Experiment \(key.rawValue) read before configure(), answering as not enrolled")
+            assertionFailure("Experiment \(key.rawValue) read before configure()")
+            return nil
+        }
+
+        return client
     }
 
     private func setContext(for userWalletId: UserWalletId?) {
@@ -116,6 +130,8 @@ final class CommonExperimentService {
             try Task.checkCancellation()
 
             AppLogger.info("Experiments fetched for wallet \(ctx.userWalletId?.stringValue ?? "empty")")
+
+            variantsSubject.send()
         } catch is CancellationError {
             AppLogger.info("Experiment fetch cancelled for wallet \(ctx.userWalletId?.stringValue ?? "empty")")
         } catch {
@@ -127,12 +143,26 @@ final class CommonExperimentService {
 // MARK: - ExperimentService
 
 extension CommonExperimentService: ExperimentService {
+    var variantsPublisher: AnyPublisher<Void, Never> {
+        variantsSubject.eraseToAnyPublisher()
+    }
+
     func variant(_ key: ExperimentFeatureFlagKey) -> Variant? {
-        _client?.variant(key.rawValue)
+        guard let client = configuredClient(for: key) else { return nil }
+
+        return client.variant(key.rawValue)
+    }
+
+    func isOnWithoutExposure(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool {
+        guard let client = configuredClient(for: key) else { return false }
+
+        return client.all()[key.rawValue]?.value == variant.rawValue
     }
 
     func isOn(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool {
-        _client?.variant(key.rawValue).value == variant.rawValue
+        guard let client = configuredClient(for: key) else { return false }
+
+        return client.variant(key.rawValue).value == variant.rawValue
     }
 }
 

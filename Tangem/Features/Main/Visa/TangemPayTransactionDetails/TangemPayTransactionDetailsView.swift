@@ -18,8 +18,10 @@ struct TangemPayTransactionDetailsView: View {
 
     var body: some View {
         if let displayModel = viewModel.displayModel {
-            redesignedBody(displayModel)
+            content(displayModel)
         } else {
+            // Logically it's dead code since TangemPayTransactionDeeplinkResponder will drop cases where displayModel is not being built.
+            // But to safely remove it we need to move TangemPayTransactionDetailsDisplayModel into init params of ViewModel.
             legacyBody
         }
     }
@@ -111,15 +113,15 @@ struct TangemPayTransactionDetailsView: View {
     }
 }
 
-// MARK: - Redesigned
+// MARK: - Content
 
 private extension TangemPayTransactionDetailsView {
-    func redesignedBody(_ model: TangemPayTransactionDetailsDisplayModel) -> some View {
+    func content(_ model: TangemPayTransactionDetailsDisplayModel) -> some View {
         VStack(spacing: 0) {
-            redesignedHeader(title: model.headerTitle, subtitle: model.headerSubtitle)
+            header(title: model.headerTitle, subtitle: model.headerSubtitle)
 
             ScrollView {
-                redesignedScrollableContent(model)
+                scrollableContent(model)
             }
             .scrollBounceBehavior(.basedOnSize)
 
@@ -141,9 +143,9 @@ private extension TangemPayTransactionDetailsView {
         }
     }
 
-    func redesignedScrollableContent(_ model: TangemPayTransactionDetailsDisplayModel) -> some View {
+    func scrollableContent(_ model: TangemPayTransactionDetailsDisplayModel) -> some View {
         VStack(spacing: 12) {
-            redesignedIcon(model.icon)
+            iconView(model.icon)
                 .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsIcon)
 
             VStack(spacing: 8) {
@@ -170,7 +172,7 @@ private extension TangemPayTransactionDetailsView {
             VStack(spacing: 0) {
                 cardRowView
                 cashbackRowView
-                redesignedRows(model.rows)
+                rowsView(model.rows)
             }
         }
         .padding(.horizontal, 16)
@@ -178,7 +180,7 @@ private extension TangemPayTransactionDetailsView {
         .padding(.bottom, 8)
     }
 
-    func redesignedHeader(title: String, subtitle: String) -> some View {
+    func header(title: String, subtitle: String) -> some View {
         ZStack {
             VStack(spacing: 4) {
                 Text(title)
@@ -208,7 +210,7 @@ private extension TangemPayTransactionDetailsView {
     }
 
     @ViewBuilder
-    func redesignedIcon(_ icon: TangemPayTransactionDetailsDisplayModel.Icon) -> some View {
+    func iconView(_ icon: TangemPayTransactionDetailsDisplayModel.Icon) -> some View {
         switch icon {
         case .merchantLogo(let url?):
             IconView(
@@ -217,17 +219,17 @@ private extension TangemPayTransactionDetailsView {
                 cornerRadius: 80 / 2
             )
         case .merchantLogo(nil):
-            redesignedGenericIcon(Assets.Visa.otherTransaction)
+            genericIconView(Assets.Visa.otherTransaction)
         case .withdrawal:
-            redesignedGenericIcon(DesignSystem.Icons.ArrowUp.regular24)
+            genericIconView(DesignSystem.Icons.ArrowUp.regular24)
         case .deposit:
-            redesignedGenericIcon(DesignSystem.Icons.ArrowDown.regular24)
+            genericIconView(DesignSystem.Icons.ArrowDown.regular24)
         case .fee:
-            redesignedGenericIcon(DesignSystem.Icons.PercentBackward.regular24)
+            genericIconView(DesignSystem.Icons.PercentBackward.regular24)
         }
     }
 
-    func redesignedGenericIcon(_ icon: ImageType) -> some View {
+    func genericIconView(_ icon: ImageType) -> some View {
         icon.image
             .renderingMode(.template)
             .resizable()
@@ -238,7 +240,7 @@ private extension TangemPayTransactionDetailsView {
             .background(DesignSystem.Color.bgTransparentPrimary, in: Circle())
     }
 
-    func redesignedRows(_ rows: [TangemPayTransactionDetailsDisplayModel.Row]) -> some View {
+    func rowsView(_ rows: [TangemPayTransactionDetailsDisplayModel.Row]) -> some View {
         VStack(spacing: 0) {
             ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
                 Row(title: row.title, value: row.value)

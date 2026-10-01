@@ -29,6 +29,7 @@ import Foundation
 /// `109` - Onramp `Onramp+UniversalError`
 /// `110` - MobileWallet `MobileWallet+UniversalError`
 /// `111` - SocialAuthentication `SocialAuthError`
+/// `112` - Polymarket `Polymarket+UniversalError`
 public protocol UniversalError: LocalizedError {
     var errorCode: Int { get }
 }

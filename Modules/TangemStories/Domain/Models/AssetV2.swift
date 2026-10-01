@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct AssetV2: Equatable {
+public struct AssetV2: Equatable, Sendable {
     public let type: AssetType
     public let contentMode: StoryContentMode
     public let durationMs: Int
@@ -44,13 +44,13 @@ public struct AssetV2: Equatable {
     }
 }
 
-public enum AssetType: String, Equatable {
+public enum AssetType: String, Equatable, Sendable {
     case video
     case lottie
     case image
 }
 
-public enum StoryContentMode: String, Equatable {
+public enum StoryContentMode: String, Equatable, Sendable {
     case cover
     case contain
 }
