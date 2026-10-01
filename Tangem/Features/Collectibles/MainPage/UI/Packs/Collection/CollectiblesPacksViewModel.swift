@@ -217,7 +217,10 @@ private extension CollectiblesPacksViewModel {
     func fetch() async {
         guard !Task.isCancelled else { return }
 
-        if !state.isContentLoaded {
+        switch state {
+        case .content, .empty:
+            break
+        case .idle, .loading, .failed:
             state = .loading
         }
 
