@@ -31,10 +31,10 @@ struct TransferFailedStatusView: View {
             actionTitle: Localization.commonClose,
             action: onClose
         )
-        .appearance(.warning)
+        .appearance(model.style.appearance)
         .assetSlot {
             StatusIcon(model.style.glyph)
-                .tint(DesignSystem.Color.iconStatusWarning)
+                .tint(model.style.tint)
         }
     }
 }
@@ -52,16 +52,31 @@ extension TransferFailedStatusView {
     enum Style {
         case generic
         case unavailableRegion
+        case technicalIssue
     }
 }
 
 // MARK: - Appearance
 
 private extension TransferFailedStatusView.Style {
+    var appearance: StatusScreenAppearance {
+        switch self {
+        case .generic, .unavailableRegion: .warning
+        case .technicalIssue: .error
+        }
+    }
+
     var glyph: StatusIcon.Glyph {
         switch self {
         case .generic: .warning
-        case .unavailableRegion: .heartBroken
+        case .unavailableRegion, .technicalIssue: .heartBroken
+        }
+    }
+
+    var tint: Color {
+        switch self {
+        case .generic, .unavailableRegion: DesignSystem.Color.iconStatusWarning
+        case .technicalIssue: DesignSystem.Color.iconStatusError
         }
     }
 }
@@ -88,6 +103,18 @@ private extension TransferFailedStatusView.Style {
             style: .generic
         ),
         onRetry: nil,
+        onClose: {}
+    )
+}
+
+#Preview("Technical issue") {
+    TransferFailedStatusView(
+        model: TransferFailedStatusView.Model(
+            title: "Unable to perform the operation",
+            description: "Please try again later.",
+            style: .technicalIssue
+        ),
+        onRetry: {},
         onClose: {}
     )
 }
