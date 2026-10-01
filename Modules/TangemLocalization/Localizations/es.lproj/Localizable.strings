@@ -1189,7 +1189,8 @@
 "markets_real_assets_interval_day" = "Día";
 "markets_real_assets_interval_month" = "Mes";
 "markets_real_assets_interval_week" = "Semana";
-"markets_real_assets_region_restriction_description" = "Las acciones, los ETF y los bonos no están disponibles en el Reino Unido ni en EE. UU.";
+"markets_real_assets_region_restriction_description_region" = "Las acciones, los ETF y los bonos no están disponibles en el Reino Unido ni en EE. UU.";
+"markets_real_assets_region_restriction_description" = "Stocks, ETFs, Bonds — they're not supported in your region";
 "markets_real_assets_region_restriction_title" = "No disponible en su región";
 "markets_real_assets_sector_xstocks_communication" = "Servicios de Comunicación";
 "markets_real_assets_sector_xstocks_consumer" = "Consumidor";
@@ -3180,6 +3181,7 @@
 "warning_hedera_token_association_not_enough_hbar_message" = "No hay suficiente %@. Recargue su cuenta de Hedera para asociar este token";
 "warning_incomplete_backup_notification_message" = "Hemos detectado que el proceso de activación de la tarjeta no se ha completado correctamente debido a problemas con el módulo NFC de su dispositivo o a que no ha acercado la tarjeta al teléfono de forma adecuada. Póngase en contacto con nuestro equipo de soporte para obtener más información.";
 "warning_incomplete_backup_notification_title" = "Es necesario actuar. ¡No use su billetera!";
+"warning_ios_deprecation_ended_message" = "La compatibilidad con iOS %1$@ finalizó el %2$@. Para seguir recibiendo actualizaciones de la app y garantizar su funcionamiento completo, actualiza a la última versión de iOS.";
 "warning_ios_deprecation_message" = "La compatibilidad con iOS %1$@ finalizará el %2$@. Para seguir recibiendo actualizaciones de la app y garantizar su funcionamiento completo, actualiza a la última versión de iOS.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "¿Está seguro de que desea cancelar la transacción? No podrá volver a reintentarlo.";
 "warning_kaspa_unfinished_token_transaction_message" = "Su transacción con un importe de %1$@ %2$@ no se ha completado. Puede volver a intentarlo para completarla.";

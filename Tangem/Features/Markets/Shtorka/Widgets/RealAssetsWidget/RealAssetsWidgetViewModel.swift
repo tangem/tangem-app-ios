@@ -10,7 +10,6 @@ import Foundation
 import Combine
 import CombineExt
 import TangemFoundation
-import TangemLocalization
 
 final class RealAssetsWidgetViewModel: ObservableObject {
     // MARK: - Published Properties
@@ -36,17 +35,6 @@ final class RealAssetsWidgetViewModel: ObservableObject {
 
     var isRegionRestrictionBannerVisible: Bool {
         categorySelection?.category.restricted ?? false
-    }
-
-    var regionRestrictionDescription: String? {
-        guard
-            let country = categoriesSnapshot?.country,
-            let regionName = Locale(identifier: Locale.appLanguageCode).localizedString(forRegionCode: country)
-        else {
-            return nil
-        }
-
-        return Localization.marketsRealAssetsRegionRestrictionDescription(regionName)
     }
 
     var headerLoadingState: MarketsCommonWidgetHeaderLoadingState {
