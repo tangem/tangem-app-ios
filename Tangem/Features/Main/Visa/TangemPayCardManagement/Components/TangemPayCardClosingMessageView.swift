@@ -18,7 +18,7 @@ struct TangemPayCardClosingMessageView: View {
                 .renderingMode(.template)
                 .foregroundStyle(DesignSystem.Color.iconSecondary)
                 .frame(size: .init(bothDimensions: 40))
-                .background(DesignSystem.Color.bgOpaquePrimary)
+                .background(DesignSystem.Color.bgTransparentPrimary)
                 .clipShape(Circle())
 
             VStack(spacing: 4) {

@@ -18,7 +18,7 @@ struct TangemPayAddCardView: View {
                 width: 56,
                 height: 40
             )
-            .background(DesignSystem.Color.bgOpaquePrimary)
+            .background(DesignSystem.Color.bgTransparentPrimary)
             .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
     }
 }
