@@ -136,7 +136,7 @@ private extension TransferInputViewModel {
     func applyMaxAmount() {
         guard selectedRailItem != nil, let availableAmount else { return }
 
-        amountFieldViewModel.update(value: availableAmount)
+        amountFieldViewModel.update(value: min(availableAmount, TransferInputValidator.maxAmount))
         revalidate()
     }
 
@@ -257,10 +257,17 @@ private extension TransferInputViewModel {
     func revalidate() {
         let amount = amountFieldViewModel.value
 
-        amountState = Self.validate(amount: amount, available: availableAmount)
+        defer {
+            logAmountEnteredIfNeeded(amount: amount)
+            logInsufficientFundsIfNeeded()
+        }
 
-        logAmountEnteredIfNeeded(amount: amount)
-        logInsufficientFundsIfNeeded()
+        guard let amount, amount > 0, let availableAmount else {
+            amountState = .empty
+            return
+        }
+
+        amountState = TransferInputValidator.validate(amount: amount, available: availableAmount)
     }
 
     func logAmountEnteredIfNeeded(amount: Decimal?) {
@@ -283,28 +290,6 @@ private extension TransferInputViewModel {
     }
 }
 
-// MARK: - Validation
-
-private extension TransferInputViewModel {
-    static func validate(amount: Decimal?, available: Decimal?) -> TransferInputAmountState {
-        guard let amount, amount > 0, let available else {
-            return .empty
-        }
-
-        if amount > available {
-            return .notEnoughFunds
-        }
-
-        if amount < Constants.minAmount {
-            return available >= Constants.minAmount
-                ? .outOfRange(min: Constants.minAmount, max: available)
-                : .notEnoughFunds
-        }
-
-        return .valid
-    }
-}
-
 // MARK: - Output
 
 extension TransferInputViewModel {
@@ -318,7 +303,6 @@ extension TransferInputViewModel {
 
 extension TransferInputViewModel {
     enum Constants {
-        static let minAmount: Decimal = 1
         static let fractionDigits = 2
     }
 }
