@@ -7,9 +7,8 @@
 //
 
 import TangemLocalization
-import TangemUI
 
-final class MarketCapInfoBottomSheetViewModel: FloatingSheetContentViewModel {
+final class MarketCapInfoBottomSheetViewModel {
     let subject: MarketCapInfoSubject
     let closeAction: () -> Void
 
