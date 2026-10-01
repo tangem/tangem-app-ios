@@ -16,11 +16,7 @@ protocol CryptoFeedRoutable: AnyObject {
 }
 
 final class CryptoFeedRouter {
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
-    @Injected(\.floatingSheetPresentingStateProvider) private var sheetStateProvider: FloatingSheetPresentingStateProvider
-
     private weak var navigation: (any FeedNavigation)?
-    private weak var tagFilter: PulseTagFilterBottomSheetViewModel?
 
     private let popToRootAction: Action<PopToRootOptions>
     private let portfolioTokenRouter: FeedPortfolioTokenRouter
@@ -47,38 +43,22 @@ extension CryptoFeedRouter: CryptoFeedRoutable {
 
     func openPulseTagFilter(with input: PulseTagFilterInput) {
         Task { @MainActor [weak self] in
-            guard let self, tagFilter == nil else {
-                return
-            }
-
             let viewModel = PulseTagFilterBottomSheetViewModel(
                 input: input,
-                onDismiss: { [weak self] in
-                    self?.tagFilter = nil
-                    self?.floatingSheetPresenter.removeActiveSheet()
-                }
+                onDismiss: { [weak self] in self?.navigation?.dismissModal() }
             )
 
-            tagFilter = viewModel
-            floatingSheetPresenter.enqueue(sheet: viewModel)
+            self?.navigation?.presentModal(.pulseTagFilter(viewModel))
         }
     }
 
     func openMarketCapInfo(subject: MarketCapInfoSubject) {
-        Task { @MainActor [weak self] in
-            guard let self, !sheetStateProvider.hasPresentedSheet else {
-                return
-            }
+        let viewModel = MarketCapInfoBottomSheetViewModel(
+            subject: subject,
+            closeAction: { [weak self] in self?.navigation?.dismissModal() }
+        )
 
-            let viewModel = MarketCapInfoBottomSheetViewModel(
-                subject: subject,
-                closeAction: { [weak self] in
-                    self?.floatingSheetPresenter.removeActiveSheet()
-                }
-            )
-
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
+        navigation?.presentModal(.marketCapInfo(viewModel))
     }
 
     func openPortfolioToken(_ walletModel: any WalletModel) {
