@@ -18,6 +18,7 @@ struct CollectiblesAPITarget: Moya.TargetType {
         case categories
         case machines(CollectiblesDTO.MachinesRequest)
         case machine(externalID: String)
+        case machineNfts(externalID: String, CollectiblesDTO.MachineNftsRequest, userWalletID: String)
         case generateTx(CollectiblesDTO.GenerateTxRequest, userWalletID: String)
         case submitTx(CollectiblesDTO.SubmitTxRequest, userWalletID: String)
     }
@@ -27,6 +28,7 @@ struct CollectiblesAPITarget: Moya.TargetType {
         case .categories: "api/v1/machine/categories"
         case .machines: "api/v1/machine/machines"
         case .machine(let externalID): "api/v1/machine/\(externalID)"
+        case .machineNfts(let externalID, _, _): "api/v1/machine/\(externalID)/nfts"
         case .generateTx: "api/v1/collectible/generateTx"
         case .submitTx: "api/v1/collectible/submitTx"
         }
@@ -34,7 +36,7 @@ struct CollectiblesAPITarget: Moya.TargetType {
 
     var method: Moya.Method {
         switch target {
-        case .categories, .machines, .machine: .get
+        case .categories, .machines, .machine, .machineNfts: .get
         case .generateTx, .submitTx: .post
         }
     }
@@ -43,6 +45,7 @@ struct CollectiblesAPITarget: Moya.TargetType {
         switch target {
         case .categories, .machine: .requestPlain
         case .machines(let request): .requestParameters(request, encoding: URLEncoding.queryString)
+        case .machineNfts(_, let request, _): .requestParameters(request, encoding: URLEncoding.queryString)
         case .generateTx(let request, _): .requestJSONEncodable(request)
         case .submitTx(let request, _): .requestJSONEncodable(request)
         }
@@ -51,7 +54,7 @@ struct CollectiblesAPITarget: Moya.TargetType {
     var headers: [String: String]? {
         switch target {
         case .categories, .machines, .machine: nil
-        case .generateTx(_, let userWalletID), .submitTx(_, let userWalletID): ["user-id": userWalletID]
+        case .machineNfts(_, _, let userWalletID), .generateTx(_, let userWalletID), .submitTx(_, let userWalletID): ["user-id": userWalletID]
         }
     }
 }
