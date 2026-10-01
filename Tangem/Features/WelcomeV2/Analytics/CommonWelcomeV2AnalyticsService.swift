@@ -57,6 +57,14 @@ final class CommonWelcomeV2AnalyticsService: WelcomeV2AnalyticsProvider {
         Analytics.log(.introductionProcessButtonSignInWithCard)
     }
 
+    func logImportExistingWalletButton() {
+        Analytics.log(
+            event: .introductionProcessButtonImportExistingWallet,
+            params: [.productType: Analytics.ProductType.mobileWallet.rawValue],
+            contextParams: .empty
+        )
+    }
+
     func logImportWalletRequest(hasCloudBackup: Bool) {
         Analytics.log(
             .importWalletRequest,
