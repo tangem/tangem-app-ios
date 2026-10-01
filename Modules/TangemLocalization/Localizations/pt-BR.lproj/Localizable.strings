@@ -1297,7 +1297,7 @@
 "markets_tooltip_title" = "Adicionar tokens";
 "markets_tooltip_v2_title" = "Adicionar mais tokens";
 "mcp_connection_failed" = "Não foi possível conectar";
-"mcp_connection_request_agent_can" = "This agent will be able to";
+"mcp_connection_request_agent_can" = "Este agente poderá";
 "mcp_connection_request_can_view_balance" = "Visualizar saldos e atividade";
 "mcp_connection_request_notifications_description" = "Você receberá uma notificação para aprovar cada transação. Sem as notificações, o agente não poderá se conectar.";
 "mcp_connection_success_description" = "%@ agora pode visualizar seus saldos e solicitar aprovações de transações. Revogue o acesso a qualquer momento em Conexões.";
@@ -2029,10 +2029,10 @@
 "social_login_restoring_wallet" = "Restoring your wallet";
 "social_login_toast_wallet_added" = "Wallet added";
 "social_login_toast_wallet_created" = "Wallet created";
-"social_wallet_delete_anyway" = "Delete anyway";
-"social_wallet_delete_attention_description" = "This wallet will be permanently removed from your device and %@ account";
+"social_wallet_delete_anyway" = "Excluir mesmo assim";
+"social_wallet_delete_attention_description" = "Esta carteira será removida permanentemente do seu dispositivo e da conta %@";
 "social_wallet_delete_description" = "This wallet will be permanently removed from the app, and your %@ account will no longer be linked to it. Back up your seed phrase first - otherwise you'll permanently lose access to any crypto it holds.";
-"social_wallet_delete_error_description" = "We couldn't delete this wallet. Please try again";
+"social_wallet_delete_error_description" = "Não foi possível excluir esta carteira. Por favor, tente novamente";
 "social_wallet_delete_title" = "Delete wallet?";
 "social_wallet_log_out_description" = "You can always sign in at any time.";
 "social_wallet_log_out_title" = "Are you sure you want to log out?";
