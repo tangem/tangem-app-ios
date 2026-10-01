@@ -13,13 +13,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>человек</string>
+        <string>%li человек</string>
         <key>few</key>
-        <string>человека</string>
+        <string>%li человека</string>
         <key>many</key>
-        <string>человек</string>
+        <string>%li человек</string>
         <key>other</key>
-        <string>человека</string>
+        <string>%li человека</string>
       </dict>
     </dict>
     <key>address_book_addresses</key>

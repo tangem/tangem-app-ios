@@ -2715,6 +2715,7 @@
 "tangempay_temporarily_unavailable" = "Tangem Pay暂时无法使用。";
 "tangempay_title" = "Tangem Pay";
 "tangempay_topup_bank_transfer_body" = "通过 ACH/Wire 从银行账户接收美元";
+"tangempay_topup_bank_transfer_pending_body" = "Creating your banking details...";
 "tangempay_topup_bank_transfer_title" = "从银行账户";
 "tangempay_topup_receive_body_multichain" = "将 USDC 或 USDT 发送至您账户的地址";
 "tangempay_topup_receive_body" = "將 USDC Polygon 發送至您帳戶地址";
