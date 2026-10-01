@@ -15,6 +15,7 @@ public struct TangemMessageBubbleShowcase: View {
     @State private var variant: TangemMessageBubble.Variant = .success
     @State private var text: String = "Description"
     @State private var hasIcon = true
+    @State private var hasChevron = false
     @State private var isDarkMode = false
     @State private var isRightToLeft = false
     @State private var frameWidth: CGFloat = 200
@@ -51,9 +52,10 @@ public struct TangemMessageBubbleShowcase: View {
 
     @ViewBuilder
     private var bubble: some View {
-        TangemMessageBubble(text: text, onClose: {})
+        TangemMessageBubble(text: text)
             .variant(variant)
             .icon(hasIcon ? DesignSystem.Icons.ChartLineVertical.regular16 : nil)
+            .trailingAccessory(hasChevron ? .chevron : .close(action: {}))
             .accessibilityIdentifier("messageBubble")
     }
 
@@ -76,6 +78,7 @@ public struct TangemMessageBubbleShowcase: View {
                 }
 
                 Toggle("Icon", isOn: $hasIcon)
+                Toggle("Chevron", isOn: $hasChevron)
                 Toggle("Dark mode", isOn: $isDarkMode)
                 Toggle("Right-to-left", isOn: $isRightToLeft)
 

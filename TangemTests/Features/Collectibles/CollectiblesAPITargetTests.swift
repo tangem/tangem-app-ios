@@ -31,11 +31,12 @@ final class CollectiblesAPITargetTests {
         #expect(makeTarget(.submitTx(Self.submitTxRequest, userWalletID: "wallet-1")).method == .post)
     }
 
-    @Test("Only the transaction calls carry the user-id header")
+    @Test("Only the calls the backend scopes to a wallet carry the user-id header")
     func userIDHeader() {
         #expect(makeTarget(.categories).headers == nil)
         #expect(makeTarget(.machines(.init())).headers == nil)
         #expect(makeTarget(.machine(externalID: "pokemon_50")).headers == nil)
+        #expect(makeTarget(.machineNfts(externalID: "pokemon_50", .init(page: 1, limit: 50), userWalletID: "wallet-3")).headers == ["user-id": "wallet-3"])
         #expect(makeTarget(.generateTx(Self.generateTxRequest, userWalletID: "wallet-1")).headers == ["user-id": "wallet-1"])
         #expect(makeTarget(.submitTx(Self.submitTxRequest, userWalletID: "wallet-2")).headers == ["user-id": "wallet-2"])
     }

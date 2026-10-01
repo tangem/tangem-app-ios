@@ -8,7 +8,9 @@
 
 import Combine
 import TangemFoundation
+import TangemUIUtils
 import Foundation
+import UIKit
 
 @MainActor
 final class CollectiblesMainViewModel: ObservableObject {
@@ -21,6 +23,8 @@ final class CollectiblesMainViewModel: ObservableObject {
 
     private var pendingCatalogueSync: Task<Void, Never>?
 
+    private(set) var scrollOffset: CGFloat = 0
+
     // MARK: - Publishers
 
     @Published var searchQuery = ""
@@ -32,6 +36,7 @@ final class CollectiblesMainViewModel: ObservableObject {
     @Published private(set) var accountBalanceText = ""
 
     @Published private(set) var isSearching = false
+    @Published private(set) var selectedLoreID: String?
 
     /// Search blanks the account block in place, so the bar carries the balance there from the start.
     var showsBalanceInNavigationBar: Bool {
@@ -61,7 +66,10 @@ final class CollectiblesMainViewModel: ObservableObject {
         )
         searchResultsViewModel = CollectiblesPacksViewModel(
             model: CollectiblesPacksModel(provider: catalogueProvider),
-            packSelectionHandler: openMachine
+            packSelectionHandler: { pack in
+                UIApplication.shared.endEditing()
+                openMachine(pack)
+            }
         )
     }
 
@@ -108,6 +116,10 @@ final class CollectiblesMainViewModel: ObservableObject {
         if scrolledAway != isBalanceScrolledAway {
             isBalanceScrolledAway = scrolledAway
         }
+    }
+
+    func updateScrollOffset(contentMinY: CGFloat) {
+        scrollOffset = -contentMinY
     }
 
     func updatePinnedState(tabsMinY: CGFloat) {
@@ -162,6 +174,7 @@ private extension CollectiblesMainViewModel {
             let loreID = tab.kind.loreID
             guard loreID != currentLoreID else { continue }
             currentLoreID = loreID
+            selectedLoreID = loreID
 
             packsViewModel.reload(loreID: loreID)
             searchResultsViewModel.reset(loreID: loreID)

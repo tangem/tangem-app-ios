@@ -41,7 +41,6 @@ final class PolymarketOrderModel: ObservableObject {
     private var quoteTask: Task<Void, Never>?
     private var heldSharesTask: Task<Decimal?, Never>?
     private var visibleScreens = 0
-    private var failureClock = PolymarketQuoteFailureClock(gracePeriod: Constants.failureGracePeriod)
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Init
@@ -130,8 +129,6 @@ final class PolymarketOrderModel: ObservableObject {
             apply(fraction: fraction)
         case .slippageSelected(let percent):
             apply(slippagePercent: percent)
-        case .quoteRetried:
-            restartQuoteLoop(debounced: false)
         }
     }
 }
@@ -150,7 +147,7 @@ extension PolymarketOrderModel {
     func step(by step: Int) {
         guard let balance = state.balance else { return }
 
-        let floor: Decimal = if case .sell = intent { min(Constants.minSellableShares, balance) } else { 0 }
+        let floor = sellFloor(balance: balance)
         let current = state.enteredAmount ?? floor
         let capped = min(max(current + Decimal(step), floor), balance)
         let stepped = capped == balance
@@ -163,8 +160,19 @@ extension PolymarketOrderModel {
 
         guard quotable != state.enteredAmount else { return }
 
-        state.enteredAmount = quotable
-        restartQuoteLoop(debounced: false)
+        apply(enteredAmount: quotable, debounced: false)
+    }
+
+    /// A quote answers one amount, so it has to stop counting the moment the amount changes. Both are moved in a
+    /// single mutation, otherwise the old answer is published against the new amount for one pass and the gate
+    /// reads it as a verdict on what the user has just typed.
+    func apply(enteredAmount: Decimal?, debounced: Bool) {
+        var updated = state
+        updated.enteredAmount = enteredAmount
+        updated.quote = .empty
+        state = updated
+
+        restartQuoteLoop(debounced: debounced)
     }
 
     struct State: Equatable {
@@ -177,6 +185,7 @@ extension PolymarketOrderModel {
         var geoblock: PolymarketGeoblockState = .unknown
         var isAwaitingFunds = false
         var bookPrice: Decimal?
+        var bookPriceFailure: PolymarketBookPriceFailure?
 
         var isBelowMinAmount: Bool {
             guard let enteredAmount, let minAmount else { return false }
@@ -194,7 +203,6 @@ extension PolymarketOrderModel {
         case screenDisappeared
         case fractionSelected(PolymarketAmountFraction)
         case slippageSelected(Decimal)
-        case quoteRetried
     }
 }
 
@@ -211,8 +219,7 @@ private extension PolymarketOrderModel {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { model, amount in
-                model.state.enteredAmount = amount
-                model.restartQuoteLoop(debounced: true)
+                model.apply(enteredAmount: amount, debounced: true)
             }
 
             .store(in: &bag)
@@ -292,8 +299,15 @@ private extension PolymarketOrderModel {
 
         guard quotable != state.enteredAmount else { return }
 
-        state.enteredAmount = quotable
-        restartQuoteLoop(debounced: false)
+        apply(enteredAmount: quotable, debounced: false)
+    }
+
+    func sellFloor(balance: Decimal) -> Decimal {
+        guard case .sell = intent else { return 0 }
+
+        let marketFloor = state.quote.quote?.minOrderSize ?? state.minAmount ?? Constants.minSellableShares
+
+        return min(max(marketFloor, Constants.minSellableShares), balance)
     }
 
     func spendable(fraction: PolymarketAmountFraction, of balance: Decimal) -> Decimal {
@@ -302,14 +316,17 @@ private extension PolymarketOrderModel {
 
             guard case .sell = intent else { return share }
 
-            return max(share, min(Constants.minSellableShares, balance))
+            return max(share, sellFloor(balance: balance))
         }
 
-        guard intent.deductsFeeFromMax else {
+        if intent.maxOffersWholePosition {
             return balance
         }
 
-        return (balance / (1 + feeRate)).rounded(scale: intent.fractionDigits, roundingMode: .down)
+        let share = balance * Constants.maxShareOfBalance
+        let feeCeiling = balance / (1 + feeRate)
+
+        return min(share, feeCeiling).rounded(scale: intent.fractionDigits, roundingMode: .down)
     }
 
     var feeRate: Decimal {
@@ -350,8 +367,16 @@ private extension PolymarketOrderModel {
     func applyHeldShares(_ size: Decimal?) {
         guard case .sell = intent, let size, size != state.balance else { return }
 
+        let heldWholePosition = state.enteredAmount == state.balance
+
         state.balance = size
-        preselectWholePositionIfNeeded()
+
+        guard heldWholePosition || (state.enteredAmount ?? 0) > size else {
+            preselectWholePositionIfNeeded()
+            return
+        }
+
+        select(amount: size)
     }
 
     static func heldPosition(
@@ -412,7 +437,6 @@ private extension PolymarketOrderModel {
     func suspendQuoteLoop() {
         quoteTask?.cancel()
         quoteTask = nil
-        failureClock.reset()
     }
 
     var pollInterval: TimeInterval {
@@ -425,11 +449,19 @@ private extension PolymarketOrderModel {
 
             guard !Task.isCancelled else { return }
 
-            state.bookPrice = price
+            var updated = state
+            updated.bookPrice = price
+            updated.bookPriceFailure = nil
+            state = updated
         } catch {
             guard !Task.isCancelled, !error.isCancellationError else { return }
 
             PolymarketLogger.error("Order book price request failed", error: error)
+
+            guard let failure = PolymarketBookPriceFailure(error: error) else { return }
+
+            state.bookPriceFailure = failure
+            suspendQuoteLoop()
         }
     }
 
@@ -452,10 +484,11 @@ private extension PolymarketOrderModel {
             let quote = try await apiProvider.orderQuote(request: request)
             guard !Task.isCancelled else { return }
 
-            failureClock.reset()
-            state.minAmount = intent.minAmount(from: quote)
-            state.quote = PolymarketOrderQuoteState(quote: quote)
-            state.quoteReceivedAt = Date()
+            var updated = state
+            updated.minAmount = intent.minAmount(from: quote)
+            updated.quote = PolymarketOrderQuoteState(quote: quote)
+            updated.quoteReceivedAt = Date()
+            state = updated
 
             if quote.status == .marketClosed {
                 suspendQuoteLoop()
@@ -469,9 +502,21 @@ private extension PolymarketOrderModel {
     }
 
     func handleQuoteFailure(_ error: Error) {
-        guard failureClock.shouldSurfaceFailure(hasQuote: state.quote.quote != nil) else { return }
+        guard !state.keepsQuote(at: Date()) else { return }
 
         state.quote = .failed(PolymarketOrderQuoteFailure(error: error))
+    }
+}
+
+extension PolymarketOrderModel {
+    nonisolated static let maxQuoteAge: TimeInterval = 30
+}
+
+extension PolymarketOrderModel.State {
+    func keepsQuote(at moment: Date) -> Bool {
+        guard quote.quote != nil, let quoteReceivedAt else { return false }
+
+        return moment.timeIntervalSince(quoteReceivedAt) <= PolymarketOrderModel.maxQuoteAge
     }
 }
 
@@ -481,8 +526,8 @@ private extension PolymarketOrderModel {
     enum Constants {
         static let minQuotableAmount: Decimal = 0.01
         static let minSellableShares: Decimal = 1
+        static let maxShareOfBalance: Decimal = 0.9
         static let debounce: TimeInterval = 0.5
         static let pollInterval: TimeInterval = 3
-        static let failureGracePeriod: TimeInterval = 30
     }
 }
