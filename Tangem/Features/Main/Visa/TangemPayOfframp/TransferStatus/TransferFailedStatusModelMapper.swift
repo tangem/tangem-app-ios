@@ -18,6 +18,13 @@ enum TransferFailedStatusModelMapper {
                 style: .unavailableRegion
             )
 
+        case .placeOrderRetryable:
+            TransferFailedStatusView.Model(
+                title: Localization.tangempayWithdrawBankErrorGeneralTitle,
+                description: Localization.commonTryAgainLater,
+                style: .technicalIssue
+            )
+
         case .signatureSubmission, .cancelled, .generic:
             TransferFailedStatusView.Model(
                 title: Localization.tangempayWithdrawBankErrorGeneralTitle,
