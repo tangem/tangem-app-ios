@@ -2105,6 +2105,7 @@
 					config_dev.json,
 					README.md,
 					"*/CardMocks/*",
+					"*/DesignSystemDemo/*",
 					coinsListResponse.json,
 					coinsResponse.json,
 					earnNetworks.json,
