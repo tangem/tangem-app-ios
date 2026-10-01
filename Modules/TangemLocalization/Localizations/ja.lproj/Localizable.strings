@@ -1189,7 +1189,8 @@
 "markets_real_assets_interval_day" = "日";
 "markets_real_assets_interval_month" = "月";
 "markets_real_assets_interval_week" = "週";
-"markets_real_assets_region_restriction_description" = "%1$@では株式、ETF、債券はサポートされていません";
+"markets_real_assets_region_restriction_description_region" = "%1$@では株式、ETF、債券はサポートされていません";
+"markets_real_assets_region_restriction_description" = "Stocks, ETFs, Bonds — they're not supported in your region";
 "markets_real_assets_region_restriction_title" = "お住まいの地域では利用できません";
 "markets_real_assets_sector_xstocks_communication" = "コミュニケーション・サービス";
 "markets_real_assets_sector_xstocks_consumer" = "消費財";
@@ -3180,6 +3181,7 @@
 "warning_hedera_token_association_not_enough_hbar_message" = "%@が不足しています。このトークンを関連付けるには、Hederaアカウントに資金を追加してください。";
 "warning_incomplete_backup_notification_message" = "カードの有効化が正常に完了していないことが判明しました。原因として、お使いの端末のNFC機能の不具合、またはカードをスマートフォンに正しくかざせていない可能性があります。詳しくはサポートまでお問い合わせください。";
 "warning_incomplete_backup_notification_title" = "対応が必要です。ウォレットは使用しないでください。";
+"warning_ios_deprecation_ended_message" = "iOS %1$@ のサポートは %2$@ に終了しました。アプリのアップデートを引き続き受け取り、すべての機能を利用するために、iOS を最新バージョンにアップデートしてください。";
 "warning_ios_deprecation_message" = "iOS %1$@ のサポートは %2$@ に終了します。アプリのアップデートを引き続き受け取り、すべての機能を利用するために、iOS を最新バージョンにアップデートしてください。";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "取引をキャンセルしてもよろしいですか? 取引を再試行することはできません";
 "warning_kaspa_unfinished_token_transaction_message" = "%1$@ %2$@の取引が完了しませんでした。もう一度試して完了してください。";
