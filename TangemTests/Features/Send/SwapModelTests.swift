@@ -140,8 +140,11 @@ final class SwapModelTests: LeakTrackingTestSuite {
 
         // Stands in for the update task that `stopAutoupdating()` cancels while it is
         // suspended on `expressManager.getAmountType()` inside `updateComplementaryAmount`.
+        let gate = TestGate()
+        await manager.holdAmountTypeReads(behind: gate)
         let task = Task { try await sut.updateComplementaryAmount(state: state) }
         task.cancel()
+        gate.open()
 
         await #expect(throws: CancellationError.self) { try await task.value }
         // The receive amount stays empty: the late quote never reaches the finish screen.
@@ -326,6 +329,38 @@ final class SwapModelTests: LeakTrackingTestSuite {
 
         #expect(sut.receiveToken.value?.tokenItem == receive.tokenItem)
     }
+
+    // MARK: - Transfer destination
+
+    @Test("A transfer pair is addressed to the receive token's own address, for the fee and for the transaction alike")
+    func transferIsAddressedToTheReceiveToken() async throws {
+        let usdc = TokenItem.accountToken(symbol: "USDC", contract: "0xUSDC")
+        let zeroFee = Fee(Amount(with: usdc.blockchain, type: usdc.amountType, value: 0))
+        let feeManager = TokenFeeProvidersManagerMock(
+            feeProvider: TokenFeeProviderStub(
+                feeTokenItem: usdc,
+                initialFee: TokenFee(option: .market, tokenItem: usdc, value: .success(zeroFee))
+            )
+        )
+        let source = SwapableTokenStub(
+            tokenItem: usdc,
+            transactionValidator: SendTransactionValidatorStub(),
+            tokenFeeProvidersManager: feeManager
+        )
+        let receive = SwapableTokenStub(tokenItem: usdc, defaultAddress: "0xBridge")
+        let sut = makeSUT(sourceToken: source, receiveToken: receive)
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+
+        let state = try await sut.mapToReadyToTransferState()
+
+        guard case .readyToTransfer(let transfer) = state else {
+            Issue.record("Expected a transfer ready to go, got \(state)")
+            return
+        }
+
+        #expect(transfer.destination == "0xBridge")
+        #expect(feeManager.updateInputCalls == [.common(amount: 1, destination: "0xBridge")])
+    }
 }
 
 // MARK: - Helpers
@@ -437,8 +472,21 @@ private actor ExpressManagerStub: ExpressManager {
     private var isHeldUpdateReleased = false
     private var heldContinuation: CheckedContinuation<Void, Never>?
 
+    private var amountTypeReadGate: TestGate?
+
     func getCurrentPair() -> ExpressManagerSwappingPair? { currentPair }
-    func getAmountType() -> ExpressAmountType? { amountType }
+
+    func getAmountType() async -> ExpressAmountType? {
+        if let amountTypeReadGate {
+            await amountTypeReadGate.wait()
+        }
+
+        return amountType
+    }
+
+    func holdAmountTypeReads(behind gate: TestGate) {
+        amountTypeReadGate = gate
+    }
 
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerState {
         currentPair = pair
@@ -693,6 +741,7 @@ private final class PendingAccountModelsManagerStub: AccountModelsManager {
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] { [] }
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult { .none }
+    func reloadAccountsFromRemote() async {}
     func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {}
     func dispose() {}
     func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async {}

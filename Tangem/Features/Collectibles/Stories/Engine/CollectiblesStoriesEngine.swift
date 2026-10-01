@@ -18,6 +18,8 @@ protocol CollectiblesStoriesEngine: AnyObject {
     func showNextSlide()
     func showPreviousSlide()
     func setPaused(_ isPaused: Bool)
+    func close()
+    func finish()
 }
 
 // MARK: - Async API

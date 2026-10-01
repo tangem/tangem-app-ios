@@ -11,6 +11,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemStaking
 import TangemVisa
+import TangemPolymarket
 
 protocol EmailDataCollector: LogFileProvider {}
 
@@ -175,6 +176,18 @@ struct SendScreenDataCollector: EmailDataCollector {
 
 struct DetailsFeedbackDataCollector: EmailDataCollector {
     var logData: Data? {
+        formatData(makeWalletsData(from: data))
+    }
+
+    private let data: [DetailsFeedbackData]
+
+    init(data: [DetailsFeedbackData]) {
+        self.data = data
+    }
+}
+
+private extension EmailDataCollector {
+    func makeWalletsData(from data: [DetailsFeedbackData]) -> [EmailCollectedData] {
         var dataToFormat: [EmailCollectedData] = []
 
         for dataItem in data {
@@ -207,13 +220,7 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
             dataToFormat.append(.separator(.dashes))
         }
 
-        return formatData(dataToFormat)
-    }
-
-    private let data: [DetailsFeedbackData]
-
-    init(data: [DetailsFeedbackData]) {
-        self.data = data
+        return dataToFormat
     }
 }
 
@@ -396,5 +403,72 @@ struct TangemPayKYCDeclinedDataCollector: EmailDataCollector {
         }
 
         return stringBuilder.data(using: .utf8)
+    }
+}
+
+// MARK: - Polymarket
+
+struct PolymarketSupportDataCollector: EmailDataCollector {
+    let accountModel: (any PolymarketAccountModel)?
+    let depositWalletAddressDerivation: DepositWalletAddressDerivation
+    let walletsData: [DetailsFeedbackData]
+
+    var logData: Data? {
+        formatData(makeAccountData() + [.separator(.dashes)] + makeWalletsData(from: walletsData))
+    }
+}
+
+extension PolymarketSupportDataCollector {
+    enum DepositWalletAddressDerivation {
+        case derived(address: String)
+        case ownerAddressUnavailable
+        case derivationFailed(PolymarketDepositWalletError)
+    }
+}
+
+private extension PolymarketSupportDataCollector {
+    func makeAccountData() -> [EmailCollectedData] {
+        let depositWalletAddressData = EmailCollectedData(
+            type: .polymarket(.depositWalletAddress),
+            data: describe(depositWalletAddressDerivation)
+        )
+
+        guard let accountModel else {
+            return [EmailCollectedData(type: .polymarket(.accountState), data: Constants.noAccount), depositWalletAddressData]
+        }
+
+        return [
+            EmailCollectedData(type: .polymarket(.accountState), data: accountModel.state.map { String(describing: $0) } ?? Constants.notLoaded),
+            depositWalletAddressData,
+            EmailCollectedData(type: .polymarket(.availableBalance), data: describe(accountModel.collateralTokenBalanceProvider.balanceType)),
+            EmailCollectedData(type: .polymarket(.totalBalance), data: describe(accountModel.collateralTotalBalanceProvider.balanceType)),
+        ]
+    }
+
+    func describe(_ balance: TokenBalanceType) -> String {
+        switch balance {
+        case .loaded(let value): value.description
+        case .loading(let cached): "loading" + describe(cached)
+        case .failure(let cached): "failed" + describe(cached)
+        case .empty(let reason): "empty (\(reason))"
+        }
+    }
+
+    func describe(_ cached: TokenBalanceType.Cached?) -> String {
+        cached.map { ", cached \($0.balance) at \($0.date.ISO8601Format())" } ?? ""
+    }
+
+    func describe(_ derivation: DepositWalletAddressDerivation) -> String {
+        switch derivation {
+        case .derived(let address): address
+        case .ownerAddressUnavailable: Constants.ownerAddressUnavailable
+        case .derivationFailed(let error): "[derivation failed: \(error)]"
+        }
+    }
+
+    enum Constants {
+        static let noAccount = "[no account]"
+        static let notLoaded = "[not loaded]"
+        static let ownerAddressUnavailable = "[owner address unavailable]"
     }
 }

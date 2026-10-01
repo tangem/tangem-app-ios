@@ -15,6 +15,8 @@ struct PolymarketPositionDetailsCoordinatorView: CoordinatorView {
 
     var body: some View {
         content
+            .navigationBarBackButtonHidden(true)
+            .toolbar(.hidden, for: .navigationBar)
             .navigationLinks(links)
     }
 
@@ -22,7 +24,6 @@ struct PolymarketPositionDetailsCoordinatorView: CoordinatorView {
     private var content: some View {
         if let viewModel = coordinator.rootViewModel {
             PolymarketPositionDetailsScreen(viewModel: viewModel)
-                .background(FeedPopGestureEnabler())
         }
     }
 
@@ -32,6 +33,8 @@ struct PolymarketPositionDetailsCoordinatorView: CoordinatorView {
                 switch destination {
                 case .order(let coordinator):
                     PolymarketOrderCoordinatorView(coordinator: coordinator)
+                case .eventDetails(let coordinator):
+                    PolymarketEventDetailsCoordinatorView(coordinator: coordinator)
                 }
             }
     }
