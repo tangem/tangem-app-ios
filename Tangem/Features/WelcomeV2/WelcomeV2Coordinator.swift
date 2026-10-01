@@ -340,7 +340,10 @@ private extension WelcomeV2Coordinator {
                     self?.analytics.logSignInWithCardButton()
                     self?.dismissSheetThenScanHardwareWallet()
                 },
-                onImport: weakify(self, forFunction: WelcomeV2Coordinator.presentImportWalletIfAvailable),
+                onImport: { [weak self] in
+                    self?.analytics.logImportExistingWalletButton()
+                    self?.presentImportWalletIfAvailable()
+                },
                 onClose: { [weak self] in
                     self?.logVisibleSheetDismissed(reason: .welcomeV2DismissCloseButton)
                     self?.dismissSheet()

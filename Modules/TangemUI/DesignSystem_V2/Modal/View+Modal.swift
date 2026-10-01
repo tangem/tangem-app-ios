@@ -76,6 +76,26 @@ public extension View {
             footer: footer
         ))
     }
+
+    func modal<Item: Identifiable, Header: View, Content: View, Footer: View>(
+        item: Binding<Item?>,
+        size: @escaping (Item) -> ModalSize = { _ in .flexible },
+        contentLayout: ModalContentLayout = .scrollable,
+        onDismiss: (() -> Void)? = nil,
+        @ViewBuilder header: @escaping (Item) -> Header,
+        @ViewBuilder content: @escaping (Item) -> Content,
+        @ViewBuilder footer: @escaping (Item) -> Footer
+    ) -> some View {
+        modifier(ItemModalPresentationModifier(
+            item: item,
+            size: size,
+            contentLayout: contentLayout,
+            onDismiss: onDismiss,
+            header: header,
+            bodyContent: content,
+            footer: footer
+        ))
+    }
 }
 
 private struct ModalPresentationModifier<Header: View, BodyContent: View, Footer: View>: ViewModifier {
@@ -95,6 +115,32 @@ private struct ModalPresentationModifier<Header: View, BodyContent: View, Footer
             Modal(size: size, contentLayout: contentLayout, navigation: navigation, header: header, content: bodyContent, footer: footer)
                 .dynamicTypeSize(dynamicTypeSize)
                 .modifier(SheetScrollTouchModifier())
+        }
+    }
+}
+
+private struct ItemModalPresentationModifier<Item: Identifiable, Header: View, BodyContent: View, Footer: View>: ViewModifier {
+    @Binding var item: Item?
+    let size: (Item) -> ModalSize
+    let contentLayout: ModalContentLayout
+    let onDismiss: (() -> Void)?
+    let header: (Item) -> Header
+    let bodyContent: (Item) -> BodyContent
+    let footer: (Item) -> Footer
+
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    func body(content: Content) -> some View {
+        content.sheet(item: $item, onDismiss: onDismiss) { item in
+            Modal(
+                size: size(item),
+                contentLayout: contentLayout,
+                header: { header(item) },
+                content: { bodyContent(item) },
+                footer: { footer(item) }
+            )
+            .dynamicTypeSize(dynamicTypeSize)
+            .modifier(SheetScrollTouchModifier())
         }
     }
 }

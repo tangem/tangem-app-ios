@@ -24,6 +24,7 @@ final class FeedCoordinator: CoordinatorObject {
 
     @Published var presented: FeedDestination?
     @Published var cover: FeedCover?
+    @Published private(set) var modal: FeedModal?
 
     private(set) var container: (any FeedContainer)?
 
@@ -156,6 +157,19 @@ extension FeedCoordinator: FeedNavigation {
         cover = nil
     }
 
+    func presentModal(_ modal: FeedModal) {
+        guard self.modal == nil else {
+            return
+        }
+
+        endEditing()
+        self.modal = modal
+    }
+
+    func dismissModal() {
+        modal = nil
+    }
+
     /// Resign before leaving the feed, otherwise UIKit restores the search field as first responder on the way back.
     private func endEditing() {
         UIApplication.shared.endEditing()
@@ -196,13 +210,14 @@ private extension FeedCoordinator {
     /// itself: once it is gone, the screens it held go with it instead of living on until the main screen is rebuilt.
     func dropRoutes() {
         pendingDestination = nil
-        guard path.isNotEmpty || presented != nil || cover != nil else {
+        guard path.isNotEmpty || presented != nil || cover != nil || modal != nil else {
             return
         }
 
         withTransaction(.withoutAnimations()) {
             path.removeAll()
             dismissPresented()
+            modal = nil
             rootViewModel?.searchViewModel.reset()
         }
     }
