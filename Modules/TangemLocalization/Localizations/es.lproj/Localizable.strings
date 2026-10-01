@@ -1189,7 +1189,7 @@
 "markets_real_assets_interval_day" = "Día";
 "markets_real_assets_interval_month" = "Mes";
 "markets_real_assets_interval_week" = "Semana";
-"markets_real_assets_region_restriction_description_region" = "Las acciones, los ETF y los bonos no están disponibles en el Reino Unido ni en EE. UU.";
+"markets_real_assets_region_restriction_description_region" = "Las acciones, los ETF y los bonos no están disponibles en %1$@";
 "markets_real_assets_region_restriction_description" = "Stocks, ETFs, Bonds — they're not supported in your region";
 "markets_real_assets_region_restriction_title" = "No disponible en su región";
 "markets_real_assets_sector_xstocks_communication" = "Servicios de Comunicación";
