@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 import UIKit
 import TangemAssets
 import TangemFoundation
@@ -22,6 +23,8 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     @Published var alert: AlertBinder?
     @Published private(set) var isSigning = false
     @Published private(set) var viewState: ViewState = .details
+    @Published private(set) var content: Content
+    @Published private(set) var answer: Answer
 
     let tokenIconInfo: TokenIconInfo
     /// Written out for display, and taken from the payload's own `value` rather than from a field on the response.
@@ -33,23 +36,16 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     /// reason to redo it on every recomputation.
     let recipientBlockiesImage: UIImage?
     let networkFee: String
-    /// Includes the initiator's signature, so it is never zero for an operation that exists.
-    let collectedSignaturesCount: Int
-    /// How many of the members have to sign for the operation to go through.
-    let requiredSignaturesCount: Int
-    /// Everyone on the account. Kept apart from the threshold because the copy needs both: the progress line
-    /// counts the answers against the roster, while the footer names the threshold against it.
-    let membersCount: Int
-    /// Every member of the account with where they stand on the operation, laid out ahead of the tap that opens
-    /// them: the sheet reads an operation as it was handed over and does not follow it any further.
-    let signers: [JointAccountSignerRow.ViewData]
 
-    @Published private(set) var answer: Answer
-
-    private let canSign: Bool
     private let sign: () async throws -> Void
+    private let pendingOperationsProvider: (any JointAccountPendingOperationsProvider)?
     private weak var coordinator: JointAccountOperationDetailsRoutable?
     private var signTask: Task<Void, Never>?
+    private var isFinished = false
+    private var isOnScreen = false
+    private var isClosing = false
+    private var updatesSubscription: AnyCancellable?
+    private var frequentUpdatesSubscription: AnyCancellable?
 
     init(
         tokenIconInfo: TokenIconInfo,
@@ -58,40 +54,42 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         recipient: String,
         recipientBlockiesImage: UIImage?,
         networkFee: String,
-        collectedSignaturesCount: Int,
-        requiredSignaturesCount: Int,
-        membersCount: Int,
-        signers: [JointAccountSignerRow.ViewData],
-        answer: Answer,
-        canSign: Bool,
+        content: Content,
+        updatesPublisher: AnyPublisher<Update, Never>,
+        pendingOperationsProvider: (any JointAccountPendingOperationsProvider)?,
         coordinator: JointAccountOperationDetailsRoutable?,
         sign: @escaping () async throws -> Void
     ) {
-        self.canSign = canSign
-        self.sign = sign
-        self.signers = signers
         self.tokenIconInfo = tokenIconInfo
         self.cryptoAmount = cryptoAmount
         self.fiatAmount = fiatAmount
         self.recipient = recipient
         self.recipientBlockiesImage = recipientBlockiesImage
         self.networkFee = networkFee
-        self.collectedSignaturesCount = collectedSignaturesCount
-        self.requiredSignaturesCount = requiredSignaturesCount
-        self.membersCount = membersCount
-        self.answer = answer
+        self.content = content
+        answer = content.answer
+        self.sign = sign
+        self.pendingOperationsProvider = pendingOperationsProvider
         self.coordinator = coordinator
+
+        bind(updatesPublisher: updatesPublisher)
     }
 
-    /// Neutral icon and title by design: the warning-coloured line under the title is what says the operation is
-    /// still waiting, and repeating that in the title would say it twice.
+    /// While signatures are collected the icon and title stay neutral by design: the warning-coloured line under the
+    /// title is what says the operation is still waiting, and repeating that in the title would say it twice.
     var header: TransactionDetailsHeaderViewData {
-        TransactionDetailsHeaderViewData(
-            title: Localization.commonSend,
-            titleStyle: .neutral,
-            date: Localization.transactionHistoryPending,
-            subtitleStyle: .warning,
-            operationIcon: TransactionViewIconViewData(type: .transfer, status: .confirmed, isOutgoing: true),
+        let isSending = content.isSending
+
+        return TransactionDetailsHeaderViewData(
+            title: isSending ? Localization.commonSending : Localization.commonSend,
+            titleStyle: isSending ? .active : .neutral,
+            date: isSending ? Localization.jointOperationSendingToNetwork : Localization.transactionHistoryPending,
+            subtitleStyle: isSending ? .secondary : .warning,
+            operationIcon: TransactionViewIconViewData(
+                type: .transfer,
+                status: isSending ? .inProgress : .confirmed,
+                isOutgoing: true
+            ),
             iconGlyph: nil,
             menuSections: []
         )
@@ -108,10 +106,26 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         ].compactMap { $0 }
     }
 
+    func onAppear() {
+        isOnScreen = true
+        closeIfFinished()
+
+        guard !isClosing else {
+            return
+        }
+
+        frequentUpdatesSubscription = pendingOperationsProvider?.requestFrequentUpdates()
+    }
+
+    func onDisappear() {
+        isOnScreen = false
+        frequentUpdatesSubscription = nil
+    }
+
     func handleViewAction(_ action: TransactionDetailsViewModel.ViewAction) {
         switch action {
         case .close:
-            coordinator?.closeOperationDetails()
+            close()
         case .signOperation:
             signOperation()
         case .openSigners:
@@ -122,13 +136,67 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     }
 }
 
+// MARK: - Updates
+
+private extension JointAccountOperationDetailsViewModel {
+    func bind(updatesPublisher: AnyPublisher<Update, Never>) {
+        updatesSubscription = updatesPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, update in
+                viewModel.apply(update)
+            }
+    }
+
+    func apply(_ update: Update) {
+        switch update {
+        case .content(let content):
+            isFinished = false
+            updateContent(content)
+        case .finished:
+            isFinished = true
+            closeIfFinished()
+        }
+    }
+
+    func updateContent(_ content: Content) {
+        self.content = content
+
+        if answer == .awaiting, !isSigning {
+            answer = content.answer
+        }
+
+        if case .signers(let signersViewModel) = viewState {
+            signersViewModel.update(membersCount: content.membersCount, signers: content.signers)
+        }
+    }
+
+    func closeIfFinished() {
+        guard isFinished, isOnScreen, !isSigning else {
+            return
+        }
+
+        close()
+    }
+
+    func close() {
+        guard !isClosing else {
+            return
+        }
+
+        isClosing = true
+        frequentUpdatesSubscription = nil
+        coordinator?.closeOperationDetails()
+    }
+}
+
 // MARK: - Signers
 
 private extension JointAccountOperationDetailsViewModel {
     func openSigners() {
         let viewModel = JointAccountSignersViewModel(
-            membersCount: membersCount,
-            signers: signers,
+            membersCount: content.membersCount,
+            signers: content.signers,
             coordinator: self
         )
 
@@ -144,7 +212,7 @@ extension JointAccountOperationDetailsViewModel: JointAccountSignersRoutable {
     }
 
     func closeSigners() {
-        coordinator?.closeOperationDetails()
+        close()
     }
 }
 
@@ -172,9 +240,18 @@ private extension JointAccountOperationDetailsViewModel {
         isSigning = false
         signTask = nil
 
+        guard !isFinished else {
+            closeIfFinished()
+            return
+        }
+
         guard let error else {
             answer = .signed
             return
+        }
+
+        if answer == .awaiting {
+            answer = content.answer
         }
 
         guard !error.isCancellationError else {
@@ -221,9 +298,9 @@ private extension JointAccountOperationDetailsViewModel {
     var signaturesBlock: TransactionDetailsBlock {
         .signatures(
             TransactionDetailsSignaturesViewData(
-                title: Localization.jointOperationSignaturesProgress(collectedSignaturesCount, membersCount),
-                collectedCount: collectedSignaturesCount,
-                membersCount: membersCount
+                title: Localization.jointOperationSignaturesProgress(content.collectedSignaturesCount, content.membersCount),
+                collectedCount: content.collectedSignaturesCount,
+                membersCount: content.membersCount
             )
         )
     }
@@ -256,15 +333,19 @@ private extension JointAccountOperationDetailsViewModel {
     }
 
     var signTitle: String {
+        guard !content.isSending else {
+            return answer == .signed ? Localization.jointOperationSigned : Localization.commonSign
+        }
+
         switch answer {
-        case .awaiting: Localization.commonSign
-        case .signed: Localization.jointOperationSigned
-        case .declined: Localization.jointOperationDeclined
+        case .awaiting: return Localization.commonSign
+        case .signed: return Localization.jointOperationSigned
+        case .declined: return Localization.jointOperationDeclined
         }
     }
 
     var isSignEnabled: Bool {
-        guard canSign else {
+        guard content.canSign, !content.isSending else {
             return false
         }
 
@@ -276,14 +357,21 @@ private extension JointAccountOperationDetailsViewModel {
 
     /// A member who declined is told the operation is not dead: the others can still reach the threshold without
     /// them, which is the whole point of a threshold below the member count.
-    var footerBlock: TransactionDetailsBlock {
+    var footerBlock: TransactionDetailsBlock? {
+        guard !content.isSending else {
+            return nil
+        }
+
+        let requiredSignaturesCount = content.requiredSignaturesCount
+        let membersCount = content.membersCount
+
         switch answer {
         case .awaiting:
-            .caption(Localization.jointOperationAutoSendsFooter(requiredSignaturesCount, membersCount))
+            return .caption(Localization.jointOperationAutoSendsFooter(requiredSignaturesCount, membersCount))
         case .signed:
-            .caption(Localization.jointOperationSignedFooter(requiredSignaturesCount, membersCount))
+            return .caption(Localization.jointOperationSignedFooter(requiredSignaturesCount, membersCount))
         case .declined:
-            .caption(Localization.jointOperationDeclinedFooter(requiredSignaturesCount, membersCount))
+            return .caption(Localization.jointOperationDeclinedFooter(requiredSignaturesCount, membersCount))
         }
     }
 }
@@ -311,5 +399,26 @@ extension JointAccountOperationDetailsViewModel {
         case awaiting
         case signed
         case declined
+    }
+
+    struct Content {
+        /// Includes the initiator's signature, so it is never zero for an operation that exists.
+        let collectedSignaturesCount: Int
+        /// How many of the members have to sign for the operation to go through.
+        let requiredSignaturesCount: Int
+        /// Everyone on the account. Kept apart from the threshold because the copy needs both: the progress line
+        /// counts the answers against the roster, while the footer names the threshold against it.
+        let membersCount: Int
+        /// Every member of the account with where they stand on the operation, laid out ahead of the tap that opens
+        /// them.
+        let signers: [JointAccountSignerRow.ViewData]
+        let answer: Answer
+        let canSign: Bool
+        let isSending: Bool
+    }
+
+    enum Update {
+        case content(Content)
+        case finished
     }
 }

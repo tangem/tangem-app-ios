@@ -204,23 +204,22 @@ public extension TangemStory {
         public var thirdPage: Page
         public var fourthPage: Page
 
-        // [REDACTED_TODO_COMMENT]
         public static let initialWithoutImages = PolymarketOnboardingStoryData(
             firstPage: Page(
-                title: "How to read a prediction",
-                subtitle: "An Event (like the FIFA World Cup) holds Markets — the possible outcomes (France to win, Brazil to win…). Each outcome has a price in cents, and that price is the crowd's odds: 65¢ ≈ a 65% chance."
+                title: Localization.predictionOnboardingStoryFirstTitle,
+                subtitle: Localization.predictionOnboardingStoryFirstSubtitle
             ),
             secondPage: Page(
-                title: "Win = $1, lose = $0",
-                subtitle: "Every share is a token tied to one outcome. When the event settles, winning shares are worth $1 each and losing shares $0. Your profit is the gap between what you paid and that final value."
+                title: Localization.predictionOnboardingStorySecondTitle,
+                subtitle: Localization.predictionOnboardingStorySecondSubtitle
             ),
             thirdPage: Page(
-                title: "Built for live markets",
-                subtitle: "During live events, prices move by the second. Tangem lets you set how much price movement you'll accept (slippage), so your order still goes through when the odds shift fast."
+                title: Localization.predictionOnboardingStoryThirdTitle,
+                subtitle: Localization.predictionOnboardingStoryThirdSubtitle
             ),
             fourthPage: Page(
-                title: "Track it from your home screen",
-                subtitle: "Open predictions appear right on your main screen. Even after an event settles, Tangem keeps the position there so you can tap to acknowledge your win or loss — nothing clears without you seeing it."
+                title: Localization.predictionOnboardingStoryFourthTitle,
+                subtitle: Localization.predictionOnboardingStoryFourthSubtitle
             )
         )
     }

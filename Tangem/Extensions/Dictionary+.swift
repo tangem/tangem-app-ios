@@ -15,6 +15,16 @@ extension Dictionary {
     }
 }
 
+extension Dictionary where Key == AnyHashable, Value == Any {
+    func nonNullString(_ key: String) -> String? {
+        guard let value = self[key] as? String, value != "null" else {
+            return nil
+        }
+
+        return value
+    }
+}
+
 extension Dictionary where Key == Analytics.ParameterKey, Value == String {
     mutating func enrich(with params: [Analytics.ParameterKey: String]) {
         merge(params, uniquingKeysWith: { old, _ in old })

@@ -49,7 +49,6 @@ struct FeedViewModelFactory {
             widgetsViewModel: FeedWidgetsViewModel(
                 providers: FeedWidgetsRegistry.makeProviders(
                     context: context,
-                    container: container,
                     host: host,
                     widgetSheetPresenter: widgetSheetPresenter
                 ),

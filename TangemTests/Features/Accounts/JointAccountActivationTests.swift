@@ -19,11 +19,12 @@ struct JointAccountActivationTests {
     /// property of a suite is.
     private let delegate = JointAccountModelDelegateMock()
 
-    @Test("The activation carries the composition the app worked out for itself rather than the announced address")
+    @Test("The activation carries the checked composition, with the address spelled as the backend announced it")
     func activationCarriesTheCheckedComposition() async throws {
         let cryptoAccount = CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in })
         let account = makeJointAccount(
-            // The backend keeps the address in lower case, the app signs over the checksummed form
+            // The backend keeps the address in lower case and compares the config it holds character by character,
+            // so the app signs over that spelling rather than the checksummed form it computes
             status: .confirming(safeAddress: Constants.announcedSafeAddress.lowercased()),
             members: Constants.fullComposition,
             cryptoAccount: cryptoAccount
@@ -34,7 +35,7 @@ struct JointAccountActivationTests {
         let config = try #require(delegate.activationConfigs.first)
 
         #expect(delegate.activationConfigs.count == 1)
-        #expect(config.safeAddress == Constants.announcedSafeAddress)
+        #expect(config.safeAddress == Constants.announcedSafeAddress.lowercased())
         #expect(config.creatorAddress == Constants.owners[0])
         #expect(config.derivationIndex == Constants.derivationIdentity.derivationIndex)
         #expect(config.cryptoAccountId == cryptoAccount.id.rawValue.hexString)
