@@ -54,7 +54,7 @@ struct ChooseNetworkView: View {
 
     private var noResultsView: some View {
         VStack(spacing: 8) {
-            DesignSystem.Color.bgOpaquePrimary
+            DesignSystem.Color.bgTransparentPrimary
                 .frame(width: 48, height: 48)
                 .overlay {
                     DesignSystem.Icons.Search.regular24.image
