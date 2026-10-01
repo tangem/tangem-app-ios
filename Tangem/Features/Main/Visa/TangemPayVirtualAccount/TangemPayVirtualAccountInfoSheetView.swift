@@ -54,7 +54,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
 
             texts
 
-            VStack(spacing: viewModel.state == .failed ? 10 : 24) {
+            VStack(spacing: viewModel.state == .failed ? 10 : 12) {
                 feeSection
 
                 banner
@@ -104,7 +104,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
     private var texts: some View {
         VStack(spacing: 8) {
             Text(Localization.tangempayBankTransferIntroTitle)
-                .font(token: DesignSystem.Font.headingMediumToken)
+                .font(token: DesignSystem.Font.headingSmallToken)
                 .foregroundStyle(DesignSystem.Color.textPrimary)
 
             Text(Localization.tangempayBankTransferIntroSubtitle)
@@ -132,7 +132,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
         let showsAch = isLoading || achFee != nil
         let showsFedwire = isLoading || fedwireFee != nil
 
-        return VStack(spacing: 12) {
+        return VStack(spacing: 0) {
             HStack(spacing: 0) {
                 Text(Localization.tangempayBankTransferFeeHeader)
                     .font(token: DesignSystem.Font.subheadingMediumToken)
@@ -140,6 +140,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
 
                 Spacer(minLength: 0)
             }
+            .padding(.vertical, 8)
 
             if showsAch {
                 feeRow(title: Localization.tangempayBankTransferFeeAch, value: achFee, fee: .ach)
@@ -147,7 +148,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
 
             if showsAch, showsFedwire {
                 DesignSystem.Color.borderSecondary
-                    .frame(height: 2)
+                    .frame(height: 1)
             }
 
             if showsFedwire {
@@ -184,7 +185,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
             if let value {
                 Text(verbatim: value)
                     .font(token: DesignSystem.Font.bodyMediumToken)
-                    .foregroundStyle(DesignSystem.Color.textPrimary)
+                    .foregroundStyle(DesignSystem.Color.textSecondary)
                     .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountFeeValue(fee))
             }
         }
@@ -194,10 +195,11 @@ struct TangemPayVirtualAccountInfoSheetView: View {
                     .variant(.text(style: .body, alignment: .trailing))
             }
         }
+        .padding(.vertical, 12)
     }
 
     private var banner: some View {
-        HStack(alignment: .center, spacing: 8) {
+        HStack(alignment: .top, spacing: 8) {
             DesignSystem.Icons.Info.regular20.image
                 .renderingMode(.template)
                 .resizable()
@@ -211,8 +213,8 @@ struct TangemPayVirtualAccountInfoSheetView: View {
 
             Spacer(minLength: 0)
         }
-        .padding(12)
-        .background(DesignSystem.Color.bgStatusInfoSubtle, in: RoundedRectangle(cornerRadius: 14))
+        .padding(16)
+        .background(DesignSystem.Color.bgStatusInfoSubtle, in: RoundedRectangle(cornerRadius: 16))
     }
 
     private var footer: some View {
@@ -223,7 +225,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
                 action: viewModel.showDetails
             )
             .styleType(.default)
-            .size(.x14)
+            .size(.x12)
             .horizontalLayout(.infinity)
             .loading(.spinner(if: viewModel.isLoading))
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountShowDetailsButton)
@@ -241,7 +243,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
                     .padding(.horizontal, SizeUnit.x3.value)
             }
         }
-        .padding(.top, 24)
+        .padding(.top, 28)
     }
 }
 
