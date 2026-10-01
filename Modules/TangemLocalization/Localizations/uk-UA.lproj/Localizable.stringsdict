@@ -13,9 +13,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li person</string>
+        <string>%li людина</string>
+        <key>few</key>
+        <string>%li людини</string>
+        <key>many</key>
+        <string>%li людей</string>
         <key>other</key>
-        <string>%li people</string>
+        <string>%li людини</string>
       </dict>
     </dict>
     <key>address_book_addresses</key>
