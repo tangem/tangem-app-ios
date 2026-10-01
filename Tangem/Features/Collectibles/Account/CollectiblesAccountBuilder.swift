@@ -42,16 +42,31 @@ struct CollectiblesAccountBuilder {
             tokenBalancesRepository: CommonTokenBalancesRepository(userWalletId: userWalletId)
         )
 
+        let coldOwnerProvider = CommonCollectiblesColdOwnerProvider(
+            keysRepository: keysRepository,
+            derivationStyle: config.derivationStyle
+        )
+        let sessionKeySigner = CommonCollectiblesSessionKeySigner(userWalletId: userWalletId)
+        let transactionSender = CollectiblesColdKeyTransactionSender(serviceProvider: serviceProvider)
+
+        let onboardingInteractor = CollectiblesOnboardingInteractor(
+            coldOwnerProvider: coldOwnerProvider,
+            sessionKeySigner: sessionKeySigner,
+            configReader: chainReader,
+            coldKeyInteractorFactory: coldKeyInteractorFactory,
+            transactionSender: transactionSender
+        )
+
         let manager = CollectiblesManager(
             userWalletId: userWalletId,
-            coldOwnerProvider: CommonCollectiblesColdOwnerProvider(keysRepository: keysRepository, derivationStyle: config.derivationStyle),
+            coldOwnerProvider: coldOwnerProvider,
             vaultReader: chainReader,
-            configReader: chainReader,
             vaultUsdcReader: chainReader,
             balanceUpdater: balanceService,
-            sessionKeySigner: CommonCollectiblesSessionKeySigner(userWalletId: userWalletId),
+            sessionKeySigner: sessionKeySigner,
             coldKeyInteractorFactory: coldKeyInteractorFactory,
-            serviceProvider: serviceProvider,
+            transactionSender: transactionSender,
+            onboardingInteractor: onboardingInteractor,
             presenceStore: StoredCollectiblesAccountPresenceStore.appSettings()
         )
 
