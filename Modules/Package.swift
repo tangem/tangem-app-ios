@@ -425,6 +425,18 @@ var featureModules: [PackageDescription.Target] {
             ]
         ),
         .tangemTarget(
+            name: "TangemDesignSystemShowcase",
+            dependencies: [
+                "Kingfisher",
+                "TangemAssets",
+                "TangemFoundation",
+                "TangemLocalization",
+                "TangemUI",
+                "TangemUIUtils",
+            ],
+            swiftSettings: .swift6StrictSettings
+        ),
+        .tangemTarget(
             name: "TangemStories",
             dependencies: [
                 "Kingfisher",
