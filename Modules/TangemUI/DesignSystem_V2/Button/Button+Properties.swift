@@ -178,7 +178,7 @@ public extension Button {
 
         var backgroundColor: Color {
             switch self {
-            case .default: DesignSystem.Color.bgOpaquePrimary
+            case .default: DesignSystem.Color.bgTransparentPrimary
             case .error: DesignSystem.Color.bgStatusErrorSubtle
             case .info: DesignSystem.Color.bgStatusInfoSubtle
             }
