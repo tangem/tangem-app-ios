@@ -36,6 +36,7 @@ final class FakeTangemApiService: TangemApiService {
 
     var loadMarketingCampaignsHandler: ((MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response)?
     var loadPromotionCampaignsHandler: ((String) async throws -> [BannerPromotion.Response.Promotion])?
+    var loadPromoCampaignsHandler: ((PromoCampaignsDTO.Request) async throws -> [PromoCampaignsDTO.Promotion])?
     var loadYieldBoostPromotionStatusHandler: ((String) async throws -> YieldBoostPromotionDTO.Response)?
     var registerForPromotionCampaignHandler: ((PromotionRegistrationDTO.Request) async throws -> PromotionRegistrationDTO.Response)?
 
@@ -119,6 +120,14 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func hidePromotion(request: PromotionsDTO.Hide.Request) async throws -> PromotionsDTO.Hide.Response {
+        throw "Not implemented"
+    }
+
+    func loadPromoCampaigns(request: PromoCampaignsDTO.Request) async throws -> [PromoCampaignsDTO.Promotion] {
+        if let handler = loadPromoCampaignsHandler {
+            return try await handler(request)
+        }
+
         throw "Not implemented"
     }
 
