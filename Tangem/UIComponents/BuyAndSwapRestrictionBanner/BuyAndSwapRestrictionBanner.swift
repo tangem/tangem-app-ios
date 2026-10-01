@@ -33,7 +33,7 @@ struct BuyAndSwapRestrictionBanner: View {
             .renderingMode(.template)
             .resizable()
             .frame(size: CGSize(bothDimensions: iconSize))
-            .foregroundStyle(DesignSystem.Color.iconSecondary)
+            .foregroundStyle(DesignSystem.Color.iconPrimary)
             .accessibilityHidden(true)
     }
 }

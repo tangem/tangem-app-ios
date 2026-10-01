@@ -16,7 +16,7 @@ enum FeedConstants {
     static let scrollAnchorHeight: CGFloat = 1
     static let widgetsAnchorID = "feedWidgetsRow"
     static let widgetsToTabsSpacing: CGFloat = 16
-    static let chipsBottomInset: CGFloat = 16
+    static let chipsBottomInset: CGFloat = 24
 
     static var usesFloatingSheet: Bool {
         if #available(iOS 26.0, *) {
