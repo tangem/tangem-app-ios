@@ -14,3 +14,13 @@ public import BlockchainSdk
 public protocol CollectiblesColdOwnerProvider: AnyObject {
     func coldOwnerKey() -> Wallet.PublicKey?
 }
+
+extension CollectiblesColdOwnerProvider {
+    func requiredColdOwnerKey() throws -> Wallet.PublicKey {
+        guard let coldOwnerKey = coldOwnerKey() else {
+            throw CollectiblesOnboardingError.coldKeyNotDerived
+        }
+
+        return coldOwnerKey
+    }
+}
