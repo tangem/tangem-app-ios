@@ -68,7 +68,7 @@ private extension PulseTagFilterBottomSheetView {
     }
 
     var loadedContent: some View {
-        VStack(alignment: .leading, spacing: .zero) {
+        LazyVStack(alignment: .leading, spacing: .zero) {
             if !viewModel.featuredItems.isEmpty {
                 sectionTitle(Localization.commonFeatured)
 
@@ -84,10 +84,8 @@ private extension PulseTagFilterBottomSheetView {
             } else {
                 sectionTitle(Localization.marketCategories)
 
-                VStack(spacing: .zero) {
-                    ForEach(viewModel.categoryItems) { item in
-                        categoryRow(item)
-                    }
+                ForEach(viewModel.categoryItems) { item in
+                    categoryRow(item)
                 }
             }
         }

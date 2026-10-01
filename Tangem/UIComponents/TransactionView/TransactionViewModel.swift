@@ -190,7 +190,8 @@ struct TransactionViewModel: Hashable, Identifiable {
                 isOutgoing: isOutgoing
             ),
             subtitleOwner: subtitleOwner,
-            expressSubtitle: expressSubtitle
+            expressSubtitle: expressSubtitle,
+            isPendingSignature: isPendingSignature
         )
     }
 
