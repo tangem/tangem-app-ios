@@ -20,6 +20,7 @@ final class TangemPayOffRampSendUseCase {
     private var reloadedBankAccountId: String?
     private var sendTask: Task<SendResult, Error>?
     private var signatureRetryContext: SignatureRetryContext?
+    private var placeOrderRetryContext: PlaceOrderRetryContext?
 
     init(
         orderService: some TangemPayOfframpOrderService,
@@ -32,11 +33,37 @@ final class TangemPayOffRampSendUseCase {
     }
 
     func send(request: TangemPayPlaceOrderRequest) async throws -> SendResult {
+        try await run(request: request, idempotencyKey: UUID().uuidString)
+    }
+
+    func retryPlaceOrder() async throws -> SendResult {
+        guard let context = placeOrderRetryContext else {
+            throw SendError.generic
+        }
+
+        placeOrderRetryContext = nil
+
+        return try await run(request: context.request, idempotencyKey: context.idempotencyKey)
+    }
+
+    func retrySignature() async throws -> SendResult {
+        guard let context = signatureRetryContext else {
+            throw SendError.generic
+        }
+
+        signatureRetryContext = nil
+
+        return try await submitSignature(context: context, canRetry: false)
+    }
+}
+
+// MARK: - Run
+
+private extension TangemPayOffRampSendUseCase {
+    func run(request: TangemPayPlaceOrderRequest, idempotencyKey: String) async throws -> SendResult {
         if let sendTask {
             return try await sendTask.value
         }
-
-        let idempotencyKey = UUID().uuidString
 
         let task = Task {
             let order = try await placeOrder(request: request, idempotencyKey: idempotencyKey)
@@ -61,16 +88,6 @@ final class TangemPayOffRampSendUseCase {
 
         return try await task.value
     }
-
-    func retrySignature() async throws -> SendResult {
-        guard let context = signatureRetryContext else {
-            throw SendError.generic
-        }
-
-        signatureRetryContext = nil
-
-        return try await submitSignature(context: context, canRetry: false)
-    }
 }
 
 // MARK: - Place Order
@@ -86,6 +103,12 @@ private extension TangemPayOffRampSendUseCase {
             order = try await orderService.placeOrder(request: request, idempotencyKey: idempotencyKey)
         } catch {
             VisaLogger.error("Failed to place Tangem Pay off-ramp order", error: error)
+
+            if Self.isRetryable(error) {
+                placeOrderRetryContext = PlaceOrderRetryContext(request: request, idempotencyKey: idempotencyKey)
+                throw SendError.placeOrderRetryable
+            }
+
             reset()
             throw Self.placeOrderError(error)
         }
@@ -102,6 +125,19 @@ private extension TangemPayOffRampSendUseCase {
         return apiError.apiErrorCode == TangemPayAPIError.Code.bankOfframpUnsupportedConfiguration
             ? .unavailableRegion
             : .generic
+    }
+
+    static func isRetryable(_ error: any Error) -> Bool {
+        guard let apiError = error as? TangemPayAPIServiceError else {
+            return false
+        }
+
+        switch apiError {
+        case .moyaError, .serverError:
+            return true
+        case .unauthorized, .apiError, .decodingError:
+            return false
+        }
     }
 }
 
@@ -239,6 +275,7 @@ private extension TangemPayOffRampSendUseCase {
     func reset() {
         reloadedBankAccountId = nil
         signatureRetryContext = nil
+        placeOrderRetryContext = nil
     }
 }
 
@@ -251,9 +288,14 @@ extension TangemPayOffRampSendUseCase {
     }
 }
 
-// MARK: - Signature retry context
+// MARK: - Retry contexts
 
 private extension TangemPayOffRampSendUseCase {
+    struct PlaceOrderRetryContext {
+        let request: TangemPayPlaceOrderRequest
+        let idempotencyKey: String
+    }
+
     struct SignatureRetryContext {
         let orderId: String
         let signature: String
@@ -267,6 +309,7 @@ private extension TangemPayOffRampSendUseCase {
 extension TangemPayOffRampSendUseCase {
     enum SendError: LocalizedError {
         case unavailableRegion
+        case placeOrderRetryable
         case signatureSubmission(canRetry: Bool)
         case cancelled
         case generic
