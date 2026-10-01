@@ -40,12 +40,13 @@ final class CommonCollectiblesColdKeyInteractor {
 // MARK: - CollectiblesColdKeyInteractor protocol conformance
 
 extension CommonCollectiblesColdKeyInteractor: CollectiblesColdKeyInteractor {
-    /// Standalone because the chain cannot be read until this key exists — the vault's address derives from it.
-    func derive() async throws {
-        let derivations = try await keysDeriving
-            .deriveKeys(derivations: [try seedKey(): [CollectiblesAccountKeyPath.derivationPath]])
+    func derive<Work: CollectiblesColdKeySessionWork>(andRun work: Work) async throws -> Work.Output {
+        guard keysDeriving.requiresCard else {
+            try await deriveLocally()
+            return try await work.run(signer: self)
+        }
 
-        keysRepository.update(derivations: derivations)
+        return try await deriveInSession(andRun: work)
     }
 
     func sign(message: Data, coldKey: Wallet.PublicKey) async throws -> Data {
@@ -53,33 +54,35 @@ extension CommonCollectiblesColdKeyInteractor: CollectiblesColdKeyInteractor {
             return try await signWithHeldKey(message: message, coldKey: coldKey)
         }
 
-        return try await deriveAndSign(message: message, coldOwner: coldKey.blockchainKey)
+        return try await deriveInSession(andRun: SignWork(message: message, coldKey: coldKey))
     }
 }
 
 // MARK: - Private implementation
 
 private extension CommonCollectiblesColdKeyInteractor {
-    /// Re-derives a key already held — free inside the session the signature needs, and it restores a lost copy.
-    func deriveAndSign(message: Data, coldOwner: Data) async throws -> Data {
-        let task = CollectiblesDeriveAndSignTask(seedKey: try seedKey(), message: message)
+    func deriveLocally() async throws {
+        let derivations = try await keysDeriving
+            .deriveKeys(derivations: [try seedKey(): [CollectiblesAccountKeyPath.derivationPath]])
+
+        keysRepository.update(derivations: derivations)
+    }
+
+    func deriveInSession<Work: CollectiblesColdKeySessionWork>(andRun work: Work) async throws -> Work.Output {
+        let task = DeriveAndRunTask(seedKey: try seedKey(), keysRepository: keysRepository, work: work)
             .withUserWalletRegistration()
         let tangemSdk = config.makeTangemSdk()
 
-        let response: CollectiblesDeriveAndSignTask.Response = try await withCheckedThrowingContinuation { continuation in
-            tangemSdk.startSession(with: task, filter: config.cardSessionFilter) { result in
-                withExtendedLifetime(task) {}
-                continuation.resume(with: result)
+        do {
+            return try await withCheckedThrowingContinuation { continuation in
+                tangemSdk.startSession(with: task, filter: config.cardSessionFilter) { result in
+                    withExtendedLifetime(task) {}
+                    continuation.resume(with: result)
+                }
             }
+        } catch TangemSdkError.underlying(let error) {
+            throw error
         }
-
-        guard response.coldOwner == coldOwner else {
-            throw ColdKeyError.coldOwnerMismatch
-        }
-
-        keysRepository.update(derivations: response.derivationResult)
-
-        return response.signature
     }
 
     func signWithHeldKey(message: Data, coldKey: Wallet.PublicKey) async throws -> Data {
@@ -95,10 +98,112 @@ private extension CommonCollectiblesColdKeyInteractor {
     }
 }
 
+// MARK: - Card session
+
+private final class DeriveAndRunTask<Work: CollectiblesColdKeySessionWork>: CardSessionRunnable {
+    typealias Response = Work.Output
+
+    private let seedKey: Data
+    private let keysRepository: KeysRepository
+    private let work: Work
+    private let derivationPath = CollectiblesAccountKeyPath.derivationPath
+
+    init(seedKey: Data, keysRepository: KeysRepository, work: Work) {
+        self.seedKey = seedKey
+        self.keysRepository = keysRepository
+        self.work = work
+    }
+
+    func run(in session: CardSession, completion: @escaping CompletionResult<Response>) {
+        runTask(in: self, priority: .userInitiated) { task in
+            let timeout = CommonCollectiblesColdKeyInteractor.Constants.sessionTimeout
+
+            do {
+                let response = try await Task.run(withTimeout: timeout) {
+                    try await task.runInternal(in: session)
+                }
+                completion(.success(response))
+            } catch let error as TaskTimeoutError {
+                CollectiblesLogger.error("Cold key session work did not finish within \(timeout)", error: error)
+                completion(.failure(.nfcTimeout))
+            } catch {
+                completion(.failure(task.sessionError(from: error)))
+            }
+        }
+    }
+
+    private func runInternal(in session: CardSession) async throws -> Response {
+        let derivationResult = try await DeriveMultipleWalletPublicKeysTask(
+            [seedKey: [derivationPath]],
+            shouldFailIfNothingDerived: true
+        )
+        .run(in: session)
+
+        guard let extendedPublicKey = derivationResult[seedKey]?[derivationPath] else {
+            throw CommonCollectiblesColdKeyInteractor.ColdKeyError.keyNotDerived
+        }
+
+        keysRepository.update(derivations: derivationResult)
+
+        let signer = SessionSigner(
+            session: session,
+            seedKey: seedKey,
+            derivationPath: derivationPath,
+            coldOwner: extendedPublicKey.publicKey
+        )
+
+        return try await work.run(signer: signer)
+    }
+
+    private func sessionError(from error: Error) -> TangemSdkError {
+        guard let coldKeyError = error as? CommonCollectiblesColdKeyInteractor.ColdKeyError else {
+            return error.toTangemSdkError()
+        }
+
+        CollectiblesLogger.error("cold key session failed", error: coldKeyError)
+        return .unknownError
+    }
+}
+
+private struct SignWork: CollectiblesColdKeySessionWork {
+    let message: Data
+    let coldKey: Wallet.PublicKey
+
+    func run(signer: any CollectiblesColdKeySigner) async throws -> Data {
+        try await signer.sign(message: message, coldKey: coldKey)
+    }
+}
+
+private struct SessionSigner: CollectiblesColdKeySigner {
+    let session: CardSession
+    let seedKey: Data
+    let derivationPath: DerivationPath
+    let coldOwner: Data
+
+    func sign(message: Data, coldKey: Wallet.PublicKey) async throws -> Data {
+        guard coldKey.blockchainKey == coldOwner else {
+            throw CommonCollectiblesColdKeyInteractor.ColdKeyError.coldOwnerMismatch
+        }
+
+        return try await SignHashCommand(hash: message, walletPublicKey: seedKey, derivationPath: derivationPath)
+            .run(in: session)
+            .signature
+    }
+}
+
 // MARK: - Error
 
 private extension CommonCollectiblesColdKeyInteractor {
     enum ColdKeyError: Error {
         case coldOwnerMismatch
+        case keyNotDerived
+    }
+}
+
+// MARK: - Constants
+
+private extension CommonCollectiblesColdKeyInteractor {
+    enum Constants {
+        static let sessionTimeout: Duration = .seconds(20)
     }
 }
