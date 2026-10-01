@@ -2017,7 +2017,7 @@
 "social_login_creating_wallet" = "So erstellen Sie Ihre Wallet";
 "social_login_error_account_linked" = "Dieses „ %@ “-Konto ist bereits mit einer anderen Geldbörse verknüpft.";
 "social_login_error_backup_not_saved" = "Die Sicherung konnte nicht gespeichert werden – stellen Sie sicher, dass Ihr Cloud-Speicher verfügbar ist, und versuchen Sie es erneut";
-"social_login_error_cloud_access_description" = "Stellen Sie sicher, dass Tangem Zugriff auf Ihre %@hat, und versuchen Sie es dann erneut.";
+"social_login_error_cloud_access_description" = "Stellen Sie sicher, dass Tangem Zugriff auf Ihre %@ hat, und versuchen Sie es dann erneut.";
 "social_login_error_cloud_access_title" = "Die Wallet konnte nicht wiederhergestellt werden";
 "social_login_error_generic" = "Es ist ein Fehler aufgetreten. Bitte versuche es erneut.";
 "social_login_error_no_account" = "Fügen Sie diesem Gerät ein „ %@ “-Konto hinzu, um fortzufahren.";
