@@ -18,9 +18,9 @@ final class SendFeeSelectorScreen: ScreenBase<SendFeeSelectorElement> {
     // MARK: - Bitcoin Custom Fee Fields
 
     private lazy var maxFeeField = app.textFields[FeeAccessibilityIdentifiers.customFeeMaxFeeField]
+    private lazy var maxFeePerGasField = app.textFields[FeeAccessibilityIdentifiers.customFeeMaxFeePerGasField]
     private lazy var satoshiPerByteField = app.textFields[FeeAccessibilityIdentifiers.customFeeSatoshiPerByteField]
     private lazy var nonceField = app.textFields[FeeAccessibilityIdentifiers.customFeeNonceField]
-    private lazy var feeUpToField = app.textFields[FeeAccessibilityIdentifiers.customFeeTotalAmountField]
 
     @discardableResult
     func waitForDisplay(cryptoSymbol: String, fiatSymbol: String, includeCustom: Bool = true) -> Self {
@@ -118,11 +118,10 @@ final class SendFeeSelectorScreen: ScreenBase<SendFeeSelectorElement> {
     @discardableResult
     func setLowCustomFee() -> Self {
         XCTContext.runActivity(named: "Set low custom fee") { _ in
-            waitAndAssertTrue(feeUpToField, "Fee up to field should exist")
-            feeUpToField.waitAndTap()
-            feeUpToField.typeText(XCUIKeyboardKey.delete.rawValue)
-            feeUpToField.typeText(XCUIKeyboardKey.delete.rawValue)
-            feeUpToField.typeText("2")
+            waitAndAssertTrue(maxFeePerGasField, "Max fee field should exist")
+            maxFeePerGasField.waitAndTap()
+            clearTextBySelectingAll(element: maxFeePerGasField)
+            maxFeePerGasField.typeText("1")
         }
         return self
     }
@@ -130,12 +129,10 @@ final class SendFeeSelectorScreen: ScreenBase<SendFeeSelectorElement> {
     @discardableResult
     func setHighCustomFee() -> Self {
         XCTContext.runActivity(named: "Set high custom fee") { _ in
-            waitAndAssertTrue(feeUpToField, "Fee up to field should exist")
-            feeUpToField.waitAndTap()
-            feeUpToField.typeText(XCUIKeyboardKey.delete.rawValue)
-            feeUpToField.typeText(XCUIKeyboardKey.delete.rawValue)
-            feeUpToField.typeText(XCUIKeyboardKey.delete.rawValue)
-            feeUpToField.typeText("3")
+            waitAndAssertTrue(maxFeePerGasField, "Max fee field should exist")
+            maxFeePerGasField.waitAndTap()
+            clearTextBySelectingAll(element: maxFeePerGasField)
+            maxFeePerGasField.typeText("1000")
         }
         return self
     }

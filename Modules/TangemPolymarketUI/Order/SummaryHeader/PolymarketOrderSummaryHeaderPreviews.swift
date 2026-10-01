@@ -47,7 +47,7 @@ private extension PolymarketOrderSummaryHeader.Model {
     ) -> Self {
         Self(
             accountName: "Polymarket account",
-            accountIcon: Assets.Polymarket.logo,
+            accountIcon: Assets.Polymarket.accountAvatar,
             balanceText: "Balance: 30,000 USDC",
             amountText: amountText,
             toWin: toWin,
