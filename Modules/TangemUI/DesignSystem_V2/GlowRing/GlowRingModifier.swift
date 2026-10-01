@@ -192,14 +192,3 @@ private extension GlowRingModifier {
         return CGFloat(progress < 0.5 ? progress * 2 : 2 - progress * 2)
     }
 }
-
-// MARK: - Previews
-
-#Preview {
-    ZStack {
-        Color(white: 0.04).ignoresSafeArea()
-        Color.clear
-            .frame(width: 400, height: 200)
-            .glowRing()
-    }
-}
