@@ -524,12 +524,6 @@ final class TangemPayMainViewModel: ObservableObject {
         )
     }
 
-    func smallCardState(for card: TangemPayCard) -> TangemPaySmallCardView.State {
-        if card.isClosing { return .closing }
-        if card.isReissuing { return .replacing }
-        return .issued(cardNumberEnd: card.cardNumberEnd)
-    }
-
     // MARK: - Shared
 
     func openAddToApplePayGuide() {
@@ -861,6 +855,7 @@ private extension TangemPayMainViewModel {
 
         pendingExpressTransactionsManager
             .pendingTransactionsPublisher
+            .map { Array($0.suffix(Constants.maxVisibleSwaps)) }
             .map { [weak self] transactions in
                 PendingExpressTransactionsConverter()
                     .convertToTokenDetailsPendingTxInfo(transactions) { [weak self] id in
@@ -1143,6 +1138,14 @@ private extension TangemPayMainViewModel {
             tokenItem: tokenItem,
             pendingTransactionsManager: pendingExpressTransactionsManager
         )
+    }
+}
+
+// MARK: - Constants
+
+private extension TangemPayMainViewModel {
+    enum Constants {
+        static let maxVisibleSwaps = 2
     }
 }
 

@@ -256,13 +256,12 @@ extension PolymarketWithdrawTransactionService {
             switch self {
             case .withdrawInProgress, .amountNotRepresentable, .calldataMismatch, .notSigned, .preparationFailed:
                 Localization.sendWithSwapSomethingWentWrong
-            // [REDACTED_TODO_COMMENT]
             case .destinationAssetUnavailable:
-                "Polymarket is not accepting USDC on Polygon right now. Please try again later."
+                Localization.predictionWithdrawErrorAssetUnavailable
             case .bridgeAddressUnavailable:
-                "Polymarket did not hand out an address for this withdrawal. Please try again."
+                Localization.predictionWithdrawErrorAddressUnavailable
             case .transferFailed:
-                "The transfer did not go through. Nothing left your account, and you can try again."
+                Localization.predictionWithdrawStatusFailedDescription
             case .refused(let error):
                 Self.message(for: error)
             }
@@ -273,21 +272,18 @@ extension PolymarketWithdrawTransactionService {
 // MARK: - What the backend's answers mean to a person
 
 private extension PolymarketWithdrawTransactionService.Error {
-    // [REDACTED_TODO_COMMENT]
     static func message(for error: PolymarketWithdrawError) -> String {
         switch error {
         case .conflict:
-            "Polymarket cannot accept this withdrawal yet. If another one is still running, wait for it to finish and try again."
+            Localization.predictionWithdrawInProgressMessage
         case .foreignDepositWallet:
-            "This Polymarket account does not belong to this wallet."
-        case .notFound:
-            "There is no record of this withdrawal."
+            Localization.predictionWithdrawErrorForeignAccount
         case .relayerRejected:
-            "Polymarket refused to relay the withdrawal. Please try again."
+            Localization.predictionWithdrawErrorRejected
         case .upstreamUnavailable:
-            "Polymarket is unreachable right now. Try again in a few minutes."
-        case .unauthorized, .badRequest, .cancelled, .other:
-            "The withdrawal could not be sent. Please try again."
+            Localization.predictionClaimErrorUnavailable
+        case .notFound, .unauthorized, .badRequest, .cancelled, .other:
+            Localization.predictionWithdrawErrorGeneric
         }
     }
 }

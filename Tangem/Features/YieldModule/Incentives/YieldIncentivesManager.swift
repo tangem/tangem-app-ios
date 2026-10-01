@@ -10,13 +10,20 @@ import Foundation
 import TangemFoundation
 
 protocol YieldIncentivesManager: AnyObject {
-    /// Never throws — incentive failures must not degrade base Yield Mode; `nil` means nothing to show.
-    func incentives(forceRefresh: Bool) async -> YieldIncentivesRewardsSummary?
+    /// Served from a short-lived cache unless `forceRefresh`; `nil` means there is nothing to show.
+    /// A failed load is reported rather than answered with whatever the cache happens to hold — the claim
+    /// is gated on this data, and a surface that may keep showing stale rewards decides that for itself.
+    func incentives(forceRefresh: Bool) async throws -> YieldIncentivesRewardsSummary?
+    func claimHistory(forceRefresh: Bool) async throws -> [YieldClaimHistoryEntry]?
 }
 
 extension YieldIncentivesManager {
-    func incentives() async -> YieldIncentivesRewardsSummary? {
-        await incentives(forceRefresh: false)
+    func incentives() async throws -> YieldIncentivesRewardsSummary? {
+        try await incentives(forceRefresh: false)
+    }
+
+    func claimHistory() async throws -> [YieldClaimHistoryEntry]? {
+        try await claimHistory(forceRefresh: false)
     }
 }
 
@@ -27,39 +34,59 @@ actor CommonYieldIncentivesManager: YieldIncentivesManager {
     private let userAddress: String
 
     private var lastFetch: (summary: YieldIncentivesRewardsSummary?, startedAt: Date)?
-    private let fetchProcessor = SingleTaskProcessor<YieldIncentivesRewardsSummary?, Never>()
+    private let fetchProcessor = SingleTaskProcessor<YieldIncentivesRewardsSummary?, Error>()
+
+    private var lastHistoryFetch: (entries: [YieldClaimHistoryEntry]?, startedAt: Date)?
+    private let historyFetchProcessor = SingleTaskProcessor<[YieldClaimHistoryEntry]?, Error>()
 
     init(chainId: Int, userAddress: String) {
         self.chainId = chainId
         self.userAddress = userAddress
     }
 
-    func incentives(forceRefresh: Bool) async -> YieldIncentivesRewardsSummary? {
+    func incentives(forceRefresh: Bool) async throws -> YieldIncentivesRewardsSummary? {
         // A request already in flight may have left before the event the refresh is forced for, so it runs its own.
         if forceRefresh {
-            return await fetch(startedAt: Date())
+            return try await fetch()
         }
 
         if let lastFetch, Date().timeIntervalSince(lastFetch.startedAt) < Constants.cacheWindow {
             return lastFetch.summary
         }
 
-        return await fetchProcessor.execute { [weak self] in
-            await self?.fetch(startedAt: Date()) ?? nil
+        return try await fetchProcessor.execute { [weak self] in
+            try await self?.fetch() ?? nil
         }
     }
 
-    private func fetch(startedAt: Date) async -> YieldIncentivesRewardsSummary? {
-        do {
-            let summary = try await yieldModuleNetworkManager.fetchIncentives(chainId: chainId, userAddress: userAddress)
-            store(summary, startedAt: startedAt)
-            return summary
-        } catch {
-            AppLogger.error("Failed to load yield incentives", error: error)
-
-            // Not cached, so the next call retries; the previous data keeps an open surface from going empty.
-            return lastFetch?.summary
+    func claimHistory(forceRefresh: Bool) async throws -> [YieldClaimHistoryEntry]? {
+        if forceRefresh {
+            return try await fetchHistory()
         }
+
+        if let lastHistoryFetch, Date().timeIntervalSince(lastHistoryFetch.startedAt) < Constants.historyCacheWindow {
+            return lastHistoryFetch.entries
+        }
+
+        return try await historyFetchProcessor.execute { [weak self] in
+            try await self?.fetchHistory() ?? nil
+        }
+    }
+
+    private func fetch() async throws -> YieldIncentivesRewardsSummary? {
+        let startedAt = Date()
+        let summary = try await yieldModuleNetworkManager.fetchIncentives(chainId: chainId, userAddress: userAddress)
+        store(summary, startedAt: startedAt)
+
+        return summary
+    }
+
+    private func fetchHistory() async throws -> [YieldClaimHistoryEntry]? {
+        let startedAt = Date()
+        let entries = try await yieldModuleNetworkManager.fetchClaimHistory(chainId: chainId, userAddress: userAddress)
+        storeHistory(entries, startedAt: startedAt)
+
+        return entries
     }
 
     private func store(_ summary: YieldIncentivesRewardsSummary?, startedAt: Date) {
@@ -69,10 +96,19 @@ actor CommonYieldIncentivesManager: YieldIncentivesManager {
 
         lastFetch = (summary, startedAt)
     }
+
+    private func storeHistory(_ entries: [YieldClaimHistoryEntry]?, startedAt: Date) {
+        guard lastHistoryFetch.map({ $0.startedAt <= startedAt }) ?? true else {
+            return
+        }
+
+        lastHistoryFetch = (entries, startedAt)
+    }
 }
 
 private extension CommonYieldIncentivesManager {
     enum Constants {
         static let cacheWindow: TimeInterval = 30
+        static let historyCacheWindow: TimeInterval = 60
     }
 }

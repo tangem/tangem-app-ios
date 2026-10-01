@@ -27,7 +27,6 @@ struct TangemPayWaitlistView: View {
             action: handle
         )
         .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
-        .onChange(of: focusedField, perform: viewModel.focusedFieldDidChange(to:))
         .alert(item: $viewModel.alert) { $0.alert }
     }
 }

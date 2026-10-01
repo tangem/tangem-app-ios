@@ -15,7 +15,7 @@ import Moya
 @Suite("Polymarket positions value target")
 struct PolymarketPositionsValueTargetTests {
     private let baseURL = URL(string: "https://data-api.polymarket.com")!
-    private let depositWalletAddress = "0x0414510dff186394a272341071ba2feeddf40a25"
+    private let depositWalletAddress = "0xdef0000000000000000000000000000000000005"
 
     private var target: PolymarketPositionsValueTarget {
         PolymarketPositionsValueTarget(baseURL: baseURL, depositWalletAddress: depositWalletAddress)

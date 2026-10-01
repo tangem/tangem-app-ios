@@ -18,7 +18,7 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
     }
 
     var tangemPayDetailsEntrypointEligibleWalletSelectionPublisher: AnyPublisher<TangemPayWalletSelectionType?, Never> {
-        tangemPayEligibleWalletSelectionPublisher(for: .details)
+        tangemPayEligibleWalletSelectionPublisher(for: .details, requiresDistributionChannel: !isChooseCountryEnabled)
     }
 
     @Injected(\.userWalletRepository)
@@ -71,6 +71,10 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
             .map { $0 && $1 }
     }
 
+    private var isChooseCountryEnabled: Bool {
+        FeatureProvider.isAvailable(.tangemPayChooseCountry)
+    }
+
     private let availabilityService: TangemPayAvailabilityService
     private var bag = Set<AnyCancellable>()
 
@@ -109,7 +113,7 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
     var tangemPayFeedCardEntrypointEligibleWalletSelectionPublisher: AnyPublisher<TangemPayWalletSelectionType?, Never> {
         Publishers
             .CombineLatest(
-                tangemPayEligibleWalletSelectionPublisher(for: .banner),
+                tangemPayEligibleWalletSelectionPublisher(for: .banner, requiresDistributionChannel: !isChooseCountryEnabled),
                 currentWalletModelsContainPaeraCustomers
             )
             .map { walletSelection, currentWalletModelsContainPaeraCustomers in
@@ -149,11 +153,12 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
     }
 
     private func tangemPayEligibleWalletSelectionPublisher(
-        for distributionChannel: TangemPayDistributionChannel
+        for distributionChannel: TangemPayDistributionChannel,
+        requiresDistributionChannel: Bool = true
     ) -> AnyPublisher<TangemPayWalletSelectionType?, Never> {
         let isDistributionChannelEligible = AppSettings.shared
             .$tangemPayEligibleDistributionChannels
-            .map { $0.contains(distributionChannel.rawValue) }
+            .map { !requiresDistributionChannel || $0.contains(distributionChannel.rawValue) }
 
         return Publishers
             .CombineLatest(

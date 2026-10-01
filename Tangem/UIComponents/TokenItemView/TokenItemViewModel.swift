@@ -37,6 +37,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 
     @Published var leadingBadge: LeadingBadge?
     @Published var trailingBadge: TrailingBadge?
+    @Published private(set) var messageBubble: MessageBubble?
 
     let tokenItem: TokenItem
 
@@ -72,6 +73,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     private weak var contextActionsDelegate: TokenItemContextActionDelegate?
 
     private let tokenTapped: (WalletModelId) -> Void
+    private let messageBubbleTapped: (MessageBubble) -> Void
 
     init(
         id: WalletModelId,
@@ -80,7 +82,8 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         infoProvider: some TokenItemInfoProvider,
         contextActionsProvider: TokenItemContextActionsProvider,
         contextActionsDelegate: TokenItemContextActionDelegate,
-        tokenTapped: @escaping (WalletModelId) -> Void
+        tokenTapped: @escaping (WalletModelId) -> Void,
+        messageBubbleTapped: @escaping (MessageBubble) -> Void = { _ in }
     ) {
         self.id = id
         self.tokenIcon = tokenIcon
@@ -89,6 +92,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         self.contextActionsProvider = contextActionsProvider
         self.contextActionsDelegate = contextActionsDelegate
         self.tokenTapped = tokenTapped
+        self.messageBubbleTapped = messageBubbleTapped
 
         loadableTokenBalanceViewStateBuilder = .init()
         balanceCrypto = loadableTokenBalanceViewStateBuilder.build(type: infoProvider.balanceType)
@@ -105,6 +109,12 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 
     func didTapContextAction(_ actionType: TokenActionType) {
         contextActionsDelegate?.didTapContextAction(actionType, for: self)
+    }
+
+    func didTapMessageBubble() {
+        guard let messageBubble else { return }
+
+        messageBubbleTapped(messageBubble)
     }
 
     private func bind() {
@@ -163,6 +173,12 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             .trailingBadgePublisher
             .receiveOnMain()
             .assign(to: \.trailingBadge, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        infoProvider
+            .messageBubblePublisher
+            .receiveOnMain()
+            .assign(to: \.messageBubble, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -223,6 +239,10 @@ extension TokenItemViewModel {
 
     enum TrailingBadge {
         case isApproveNeeded
+    }
+
+    enum MessageBubble: Equatable {
+        case jointOperationAwaitingSignature(JointAccountPendingOperation)
     }
 }
 
