@@ -18,7 +18,7 @@ struct AccountDetailsCoordinatorView: View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
                 AccountDetailsView(viewModel: rootViewModel)
-                    .navigationTitle(Localization.accountDetailsTitle)
+                    .navigationTitle(rootViewModel.title)
                     .padding(.horizontal, 16)
                     .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
                     .navigationLinks(links)
@@ -37,6 +37,9 @@ struct AccountDetailsCoordinatorView: View {
 
     private var sheets: some View {
         NavHolder()
+            .fullScreenCover(item: $coordinator.jointAccountManagementCoordinator) {
+                JointAccountManagementCoordinatorView(coordinator: $0)
+            }
             .sheet(item: $coordinator.editAccountViewModel) { viewModel in
                 NavigationStack {
                     AccountFormView(viewModel: viewModel)
