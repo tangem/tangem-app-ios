@@ -16,6 +16,7 @@ public enum AccountsAccessibilityIdentifiers {
 
     /// Manage tokens button on Account Details screen.
     public static let accountDetailsManageTokensButton = "accountDetailsManageTokensButton"
+    public static let accountDetailsJointMembersButton = "accountDetailsJointMembersButton"
 
     // MARK: - Account Form
 
