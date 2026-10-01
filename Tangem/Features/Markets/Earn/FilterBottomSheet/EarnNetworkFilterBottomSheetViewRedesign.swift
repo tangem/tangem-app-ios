@@ -14,13 +14,6 @@ import TangemLocalization
 struct EarnNetworkFilterBottomSheetViewRedesign: View {
     @ObservedObject private var viewModel: EarnNetworkFilterBottomSheetViewModel
 
-    @ScaledMetric private var contentSpacing: CGFloat = 12
-    @ScaledMetric private var contentTitleTopPadding: CGFloat = 16
-    @ScaledMetric private var allOptionVerticalPadding: CGFloat = 22
-    @ScaledMetric private var markIconSide: CGFloat = 20
-    @ScaledMetric private var footerPadding: CGFloat = 16
-    @ScaledMetric private var footerButtonSpacing: CGFloat = 8
-
     init(viewModel: EarnNetworkFilterBottomSheetViewModel) {
         self.viewModel = viewModel
     }
@@ -29,23 +22,21 @@ struct EarnNetworkFilterBottomSheetViewRedesign: View {
         EarnFilterBottomSheetLayout(
             title: viewModel.title,
             onClose: viewModel.onCloseTap,
-            content: { content },
-            footer: {
-                if viewModel.isFooterVisible {
-                    footer
-                        .padding(footerPadding)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
-            }
+            content: { EarnNetworkFilterContentView(viewModel: viewModel) },
+            footer: { EarnNetworkFilterFooterView(viewModel: viewModel) }
         )
         .animation(.easeInOut(duration: 0.2), value: viewModel.isFooterVisible)
     }
 }
 
-// MARK: - Subviews
+struct EarnNetworkFilterContentView: View {
+    @ObservedObject var viewModel: EarnNetworkFilterBottomSheetViewModel
 
-private extension EarnNetworkFilterBottomSheetViewRedesign {
-    var content: some View {
+    @ScaledMetric private var contentSpacing: CGFloat = 12
+    @ScaledMetric private var contentTitleTopPadding: CGFloat = 16
+    @ScaledMetric private var allOptionVerticalPadding: CGFloat = 22
+
+    var body: some View {
         VStack(spacing: contentSpacing) {
             TabNavigation(data: viewModel.scopes, selection: viewModel.scopeBinding)
                 .variant(.transparent)
@@ -72,11 +63,11 @@ private extension EarnNetworkFilterBottomSheetViewRedesign {
         }
     }
 
-    var rows: [Row] {
+    private var rows: [Row] {
         [.all] + viewModel.networkRowInputs.map { .network($0) }
     }
 
-    var allOption: some View {
+    private var allOption: some View {
         SwiftUI.Button(action: viewModel.onAllOptionTap) {
             HStack(spacing: .zero) {
                 Text(Localization.commonAll)
@@ -84,50 +75,33 @@ private extension EarnNetworkFilterBottomSheetViewRedesign {
 
                 Spacer()
 
-                Group {
-                    if viewModel.isAllOptionSelected {
-                        Assets.checkmark20.image
-                            .renderingMode(.template)
-                            .resizable()
-                            .scaledToFit()
-                            .foregroundStyle(DesignSystem.Color.iconStaticDark)
-                            .background(DesignSystem.Color.iconAccentBlue, in: .circle)
-                    }
-                }
-                .frame(width: markIconSide, height: markIconSide)
+                TangemUI.Checkmark(checked: viewModel.isAllOptionSelected, action: {})
+                    .expandsHitArea(false)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
             }
             .padding(.vertical, allOptionVerticalPadding)
             .contentShape(.rect)
         }
         .accessibilityAddTraits(viewModel.isAllOptionSelected ? .isSelected : [])
     }
+}
 
-    var footer: some View {
-        VStack(spacing: footerButtonSpacing) {
-            TangemUI.Button(
-                label: AttributedString(Localization.commonReset),
-                accessibilityLabel: Localization.commonReset,
-                action: viewModel.onResetTap
-            )
-            .size(.x12)
-            .styleType(.secondary(.default))
-            .horizontalLayout(.infinity)
+struct EarnNetworkFilterFooterView: View {
+    @ObservedObject var viewModel: EarnNetworkFilterBottomSheetViewModel
 
-            TangemUI.Button(
-                label: AttributedString(Localization.commonApply),
-                accessibilityLabel: Localization.commonApply,
-                action: viewModel.onApplyTap
-            )
-            .size(.x12)
-            .styleType(.default)
-            .horizontalLayout(.infinity)
-        }
+    var body: some View {
+        FilterFooterView(
+            isVisible: viewModel.isFooterVisible,
+            onReset: viewModel.onResetTap,
+            onApply: viewModel.onApplyTap
+        )
     }
 }
 
 // MARK: - Row
 
-private extension EarnNetworkFilterBottomSheetViewRedesign {
+private extension EarnNetworkFilterContentView {
     enum Row: Identifiable {
         case all
         case network(EarnNetworkFilterNetworkRowInput)
