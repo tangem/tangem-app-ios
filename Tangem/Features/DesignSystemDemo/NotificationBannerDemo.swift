@@ -73,7 +73,7 @@ private extension NotificationBannerCatalogView {
             .lowSignatures(count: 3),
             .legacyDerivation,
             .systemDeprecationTemporary,
-            .systemDeprecationPermanent(version: "5.0", date: "01.01.2026"),
+            .systemDeprecationPermanent(version: "5.0", date: "01.01.2026", hasEnded: false),
             .missingDerivation(numberOfNetworks: 2, icon: .trailing(Assets.tangemIcon), hasNFCInteraction: true),
             .missingBackup,
             .supportedOnlySingleCurrencyWallet,
