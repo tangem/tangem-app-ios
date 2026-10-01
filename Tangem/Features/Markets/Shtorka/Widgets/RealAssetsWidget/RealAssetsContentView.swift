@@ -115,7 +115,7 @@ struct RealAssetsContentView: View {
     private var regionRestrictionBanner: some View {
         MessageBanner(
             title: Localization.marketsRealAssetsRegionRestrictionTitle,
-            description: Localization.marketsRealAssetsRegionRestrictionDescription
+            description: viewModel.regionRestrictionDescription
         )
         .variant(.warning)
         .glowRing(.warning)
