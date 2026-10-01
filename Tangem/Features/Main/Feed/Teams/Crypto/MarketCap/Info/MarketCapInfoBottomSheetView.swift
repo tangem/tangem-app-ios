@@ -8,7 +8,6 @@
 
 import SwiftUI
 import TangemAssets
-import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -16,68 +15,54 @@ struct MarketCapInfoBottomSheetView: View {
     let viewModel: MarketCapInfoBottomSheetViewModel
 
     var body: some View {
-        VStack(spacing: 0) {
-            header
-
-            ScrollView {
-                VStack(spacing: Constants.contentSpacing) {
-                    if let reading = viewModel.reading {
-                        self.reading(reading)
-                    }
-
-                    Text(viewModel.descriptionText)
-                        .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
-                        .infinityFrame(axis: .horizontal, alignment: .leading)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(.horizontal, Constants.horizontalPadding)
-                .padding(.bottom, Constants.bottomPadding)
+        VStack(spacing: Constants.contentSpacing) {
+            if let reading = viewModel.reading {
+                self.reading(reading)
+            } else {
+                Text(viewModel.title)
+                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+                    .infinityFrame(axis: .horizontal)
             }
-            .scrollBounceBehavior(.basedOnSize)
+
+            Text(description)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
+                .tint(DesignSystem.Color.textAccentBlue)
+                .infinityFrame(axis: .horizontal, alignment: .leading)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .floatingSheetConfiguration { config in
-            config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
-            config.backgroundInteractionBehavior = .tapToDismiss
-            config.verticalSwipeBehavior = .init(target: .sheet, threshold: 100)
+        .padding(.horizontal, Constants.horizontalPadding)
+        .padding(.top, Constants.topPadding)
+        .padding(.bottom, Constants.bottomPadding)
+    }
+
+    private var description: AttributedString {
+        var text = AttributedString(viewModel.descriptionText)
+
+        if let range = text.range(of: Constants.sourceHost) {
+            text[range].link = Constants.sourceURL
         }
+
+        return text
     }
 }
 
 // MARK: - View Components
 
 private extension MarketCapInfoBottomSheetView {
-    var header: some View {
-        BottomSheetHeaderView(
-            title: viewModel.title,
-            trailing: {
-                TangemUI.Button(
-                    icon: DesignSystem.Icons.Cross.regular20,
-                    accessibilityLabel: Localization.commonClose,
-                    action: viewModel.closeAction
-                )
-                .size(.x9)
-                .styleType(.secondary(.default))
-            }
-        )
-        .titleFont(DesignSystem.Font.bodyMediumToken.font)
-        .titleColor(DesignSystem.Color.textPrimary)
-        .padding(.horizontal, Constants.horizontalPadding)
-        .padding(.top, Constants.headerTopPadding)
-        .environment(\.isRedesign, true)
-    }
-
     func reading(_ metric: MarketCapViewModel.Metric) -> some View {
-        VStack(spacing: Constants.readingSpacing) {
-            Text(metric.value)
-                .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
+        VStack(spacing: Constants.contentSpacing) {
+            VStack(spacing: Constants.readingSpacing) {
+                Text(verbatim: "\(viewModel.title) – \(metric.value)")
+                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textSecondary)
 
-            Text(metric.status)
-                .style(DesignSystem.Font.bodyMediumToken, color: metric.appearance.textColor)
+                Text(metric.status)
+                    .style(DesignSystem.Font.headingSmallToken, color: metric.appearance.textColor)
+            }
 
             MarketIndexScaleView(progress: metric.progress, size: .big)
-                .padding(.top, Constants.scaleTopPadding)
                 .padding(.horizontal, Constants.scaleHorizontalPadding)
         }
+        .multilineTextAlignment(.center)
         .infinityFrame(axis: .horizontal)
     }
 }
@@ -87,11 +72,12 @@ private extension MarketCapInfoBottomSheetView {
 private extension MarketCapInfoBottomSheetView {
     enum Constants {
         static let horizontalPadding: CGFloat = 16
-        static let bottomPadding: CGFloat = 16
-        static let headerTopPadding: CGFloat = 12
-        static let contentSpacing: CGFloat = 24
+        static let topPadding: CGFloat = 16
+        static let bottomPadding: CGFloat = 40
+        static let contentSpacing: CGFloat = 40
         static let readingSpacing: CGFloat = 4
-        static let scaleTopPadding: CGFloat = 20
         static let scaleHorizontalPadding: CGFloat = 12
+        static let sourceHost = "coinmarketcap.com"
+        static let sourceURL = URL(string: "https://coinmarketcap.com")
     }
 }

@@ -18,6 +18,9 @@ protocol FeedNavigation: AnyObject {
     func present(_ destination: FeedDestination, onDismiss: (() -> Void)?)
     func presentFullScreen(_ destination: FeedDestination, zoomingFrom source: FeedZoomSource)
     func dismissPresented()
+
+    func presentModal(_ modal: FeedModal)
+    func dismissModal()
 }
 
 extension FeedNavigation {

@@ -17,15 +17,16 @@ struct RealAssetsContentView: View {
     @ObservedObject var viewModel: RealAssetsWidgetViewModel
 
     @ScaledMetric private var bannerIconSize: CGFloat = 20
+    @ScaledMetric(relativeTo: .subheadline) private var orderChipHeight: CGFloat = 36
 
     var body: some View {
         VStack(alignment: .leading, spacing: Layout.contentSpacing) {
             if let featuredViewModel = viewModel.featuredViewModel {
                 RealAssetsFeaturedView(viewModel: featuredViewModel)
+                    .padding(.horizontal, Layout.contentHorizontalPadding)
             }
 
             filters
-                .padding(.horizontal, Layout.contentHorizontalPadding)
 
             if viewModel.isRegionRestrictionBannerVisible {
                 regionRestrictionBanner
@@ -54,6 +55,7 @@ struct RealAssetsContentView: View {
 
                     intervalDropDown
                 }
+                .padding(.horizontal, Layout.contentHorizontalPadding)
 
                 orderChips
             }
@@ -76,10 +78,13 @@ struct RealAssetsContentView: View {
     }
 
     private var orderChips: some View {
-        HStack(spacing: Layout.orderChipSpacing) {
-            ForEach(viewModel.orderOptions) { order in
-                orderChip(order)
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: Layout.orderChipSpacing) {
+                ForEach(viewModel.orderOptions) { order in
+                    orderChip(order)
+                }
             }
+            .padding(.horizontal, Layout.contentHorizontalPadding)
         }
         .animation(.spring, value: viewModel.selectedOrder)
     }
@@ -91,15 +96,17 @@ struct RealAssetsContentView: View {
             Text(order.realAssetsNameLocalized)
                 .style(
                     DesignSystem.Font.subheadingMediumToken,
-                    color: isSelected ? DesignSystem.Color.textInversePrimary : DesignSystem.Color.textPrimary
+                    color: isSelected ? DesignSystem.Color.textPrimary : DesignSystem.Color.textSecondary
                 )
                 .lineLimit(1)
                 .padding(.horizontal, Layout.orderChipHorizontalPadding)
-                .padding(.vertical, Layout.orderChipVerticalPadding)
-                .background(
-                    isSelected ? DesignSystem.Color.bgInverse : DesignSystem.Color.bgTransparentPrimary,
-                    in: .capsule
-                )
+                .frame(minHeight: orderChipHeight)
+                .contentShape(.capsule)
+                .background {
+                    if isSelected {
+                        Capsule().fill(DesignSystem.Color.bgTransparentSecondary)
+                    }
+                }
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
@@ -117,7 +124,7 @@ struct RealAssetsContentView: View {
                 .renderingMode(.template)
                 .resizable()
                 .frame(width: bannerIconSize, height: bannerIconSize)
-                .foregroundStyle(DesignSystem.Color.iconSecondary)
+                .foregroundStyle(DesignSystem.Color.iconPrimary)
         }
     }
 
@@ -162,7 +169,6 @@ private extension RealAssetsContentView {
         static let skeletonRowsCount = 5
         static let orderChipSpacing: CGFloat = 4
         static let orderChipHorizontalPadding: CGFloat = 12
-        static let orderChipVerticalPadding: CGFloat = 8
     }
 }
 

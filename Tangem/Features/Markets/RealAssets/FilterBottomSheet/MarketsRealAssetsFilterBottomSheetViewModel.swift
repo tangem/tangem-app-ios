@@ -39,8 +39,14 @@ final class MarketsRealAssetsFilterBottomSheetViewModel: ObservableObject, Float
         return [allItem] + sectorItems
     }
 
+    var showsFooter: Bool {
+        selectedCategoryID != initialCategoryID || selectedSectorID != initialSectorID
+    }
+
     private let defaultCategoryID: Int?
     private let defaultSectorID: Int?
+    private let initialCategoryID: Int?
+    private let initialSectorID: Int?
     private let onApply: (RealAssetsCategorySelection) -> Void
     private let dismissAction: () -> Void
 
@@ -58,6 +64,8 @@ final class MarketsRealAssetsFilterBottomSheetViewModel: ObservableObject, Float
         let selectedIDs = Self.validatedIDs(of: input.selection, in: sortedCategories) ?? defaultIDs
         selectedCategoryID = selectedIDs.categoryID
         selectedSectorID = selectedIDs.sectorID
+        initialCategoryID = selectedIDs.categoryID
+        initialSectorID = selectedIDs.sectorID
     }
 
     func isSelected(category: MarketsDTO.Categories.Category) -> Bool {

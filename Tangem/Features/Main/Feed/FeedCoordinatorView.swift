@@ -56,6 +56,7 @@ struct FeedCoordinatorView: CoordinatorView {
                     FeedReferralWalletSelectorView(viewModel: $0)
                 }
         }
+        .modifier(FeedModalPresentation(coordinator: coordinator))
     }
 
     private func presentation(fullScreen: Bool) -> Binding<FeedDestination?> {

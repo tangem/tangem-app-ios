@@ -14,6 +14,7 @@ public struct UtilPriceChange: View, Setupable {
     private let value: String
     private let direction: Direction
     private var isUpdating: Bool = false
+    private var typography: TangemTypographyToken = DesignSystem.Font.captionMediumToken
     private var accessibilityIdentifier: String?
     private var accessibilityLabel: String?
 
@@ -29,7 +30,7 @@ public struct UtilPriceChange: View, Setupable {
             marker
 
             Text(value)
-                .style(DesignSystem.Font.captionMediumToken, color: direction.textColor)
+                .style(typography, color: direction.textColor)
                 .lineLimit(1)
         }
         .tangemShimmer()
@@ -54,6 +55,10 @@ public struct UtilPriceChange: View, Setupable {
 public extension UtilPriceChange {
     func updating(_ isUpdating: Bool = true) -> Self {
         map { $0.isUpdating = isUpdating }
+    }
+
+    func typography(_ typography: TangemTypographyToken) -> Self {
+        map { $0.typography = typography }
     }
 
     func accessibilityIdentifier(_ accessibilityIdentifier: String) -> Self {
