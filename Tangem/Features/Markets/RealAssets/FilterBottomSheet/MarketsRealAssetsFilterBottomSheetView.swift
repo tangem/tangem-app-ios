@@ -216,7 +216,7 @@ private extension MarketsRealAssetsFilterBottomSheetView {
                 .padding(.horizontal, chipHorizontalPadding)
                 .padding(.vertical, chipVerticalPadding)
                 .background(
-                    isSelected ? DesignSystem.Color.bgInverse : DesignSystem.Color.bgOpaquePrimary,
+                    isSelected ? DesignSystem.Color.bgInverse : DesignSystem.Color.bgTransparentPrimary,
                     in: .capsule
                 )
         }

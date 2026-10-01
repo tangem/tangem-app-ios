@@ -17,7 +17,7 @@ struct TangemPayCardIssuingMessageView: View {
                 .renderingMode(.template)
                 .foregroundStyle(DesignSystem.Color.iconSecondary)
                 .frame(width: 40, height: 40)
-                .background(DesignSystem.Color.bgOpaquePrimary)
+                .background(DesignSystem.Color.bgTransparentPrimary)
                 .clipShape(Circle())
 
             VStack(spacing: 4) {
