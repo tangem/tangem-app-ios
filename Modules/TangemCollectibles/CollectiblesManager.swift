@@ -19,13 +19,13 @@ public final class CollectiblesManager {
 
     private let coldOwnerProvider: any CollectiblesColdOwnerProvider
     private let vaultReader: any CollectiblesVaultReader
-    private let configReader: any CollectiblesConfigReader
     private let vaultUsdcReader: any CollectiblesVaultUsdcReader
     private let balanceUpdater: any CollectiblesBalanceUpdater
     private let sessionKeySigner: any CollectiblesSessionKeySigner
     private let coldKeyInteractorFactory: any CollectiblesColdKeyInteractorFactory
-    private let serviceProvider: any CollectiblesChainServiceProvider
     private let presenceStore: any CollectiblesAccountPresenceStore
+    private let transactionSender: CollectiblesColdKeyTransactionSender
+    private let onboardingInteractor: CollectiblesOnboardingInteractor
 
     private let stateSubject = CurrentValueSubject<CollectiblesState, Never>(.unresolved)
 
@@ -35,23 +35,23 @@ public final class CollectiblesManager {
         userWalletId: UserWalletId,
         coldOwnerProvider: any CollectiblesColdOwnerProvider,
         vaultReader: any CollectiblesVaultReader,
-        configReader: any CollectiblesConfigReader,
         vaultUsdcReader: any CollectiblesVaultUsdcReader,
         balanceUpdater: any CollectiblesBalanceUpdater,
         sessionKeySigner: any CollectiblesSessionKeySigner,
         coldKeyInteractorFactory: any CollectiblesColdKeyInteractorFactory,
-        serviceProvider: any CollectiblesChainServiceProvider,
+        transactionSender: CollectiblesColdKeyTransactionSender,
+        onboardingInteractor: CollectiblesOnboardingInteractor,
         presenceStore: any CollectiblesAccountPresenceStore
     ) {
         self.userWalletId = userWalletId
         self.coldOwnerProvider = coldOwnerProvider
         self.vaultReader = vaultReader
-        self.configReader = configReader
         self.vaultUsdcReader = vaultUsdcReader
         self.balanceUpdater = balanceUpdater
         self.sessionKeySigner = sessionKeySigner
         self.coldKeyInteractorFactory = coldKeyInteractorFactory
-        self.serviceProvider = serviceProvider
+        self.transactionSender = transactionSender
+        self.onboardingInteractor = onboardingInteractor
         self.presenceStore = presenceStore
 
         runTask { [weak self] in
@@ -112,7 +112,7 @@ extension CollectiblesManager: CollectiblesOnboarder {
     /// the loop the agreed onboarding flow is drawn as. Every step reads before it writes, so an interrupted
     /// run is resumed by calling this again rather than repaired.
     public func onboard() async throws {
-        var performedSteps: Set<OnboardingStep> = []
+        var performedSteps: Set<CollectiblesOnboardingInteractor.OnboardingStep> = []
 
         while true {
             let resolved = try await resolveState()
@@ -122,47 +122,26 @@ extension CollectiblesManager: CollectiblesOnboarder {
                 CollectiblesLogger.debug("create account: -> Solana address of the key stored locally, derivation skipped")
             }
 
-            let step: OnboardingStep
-
-            switch resolved {
-            case .ready:
+            guard let step = try onboardingInteractor.onboardingStep(for: resolved) else {
                 let outcome = performedSteps.isEmpty ? "nothing to do" : "set up in this run"
                 CollectiblesLogger.debug("create account: the account is ready to use, \(outcome)")
                 await refreshBalance(for: resolved)
                 return
-            case .coldOwnerNotDerived:
-                step = .deriveColdKey
-            // [REDACTED_TODO_COMMENT]
-            // is one whose cold owner address came into existence a step ago and holds nothing, so the deploy
-            // it needs to pay for cannot succeed yet. Stop for the tester to fund the address just logged.
-            // Recovery is not caught here: a vault already on chain means the same deterministic address was
-            // funded before, and its balance outlived the install that derived it.
-            case .notOnboarded where performedSteps.contains(.deriveColdKey):
-                CollectiblesLogger.debug("create account: stopping, top up the Solana address with devnet SOL and tap again")
-                throw OnboardingError.coldOwnerNeedsFunding
-            case .notOnboarded:
-                step = .deployVault
-            case .rekeyRequired:
-                step = .pointVaultAtHeldSessionKey
-            case .unresolved:
-                // `resolveState` answers with a resolved case or throws; this is only ever the value
-                // published before the first resolve finishes
-                throw OnboardingError.stateUnresolved
             }
 
             // A step can land and still resolve back to the state that asked for it — an RPC that has not
             // caught up with a transaction it already accepted. Repeating it would spend the tap twice.
-            guard performedSteps.insert(step).inserted else {
-                CollectiblesLogger.debug("create account: \(step) landed, waiting for the chain to catch up")
+            guard !performedSteps.contains(step) else {
+                CollectiblesLogger.debug("create account: \(step.logName) landed, waiting for the chain to catch up")
 
                 guard try await waitForState(until: { $0 != resolved }) else {
-                    throw OnboardingError.stepDidNotAdvance(step)
+                    throw CollectiblesOnboardingError.stepDidNotAdvance(step)
                 }
 
                 continue
             }
 
-            try await perform(step)
+            performedSteps.formUnion(try await onboardingInteractor.perform(step, resolveState: resolveState))
         }
     }
 }
@@ -204,7 +183,7 @@ extension CollectiblesManager {
     /// Both caps go together: the program checks `0 < per_spin_cap <= daily_cap` on the combined state, so
     /// changing one can fail against the value stored for the other.
     public func updateCaps(perSpinCap: UInt64, dailyCap: UInt64) async throws {
-        let coldKey = try coldKey()
+        let coldKey = try coldOwnerProvider.requiredColdOwnerKey()
 
         let program = try CollectiblesVaultProgram(programId: CollectiblesChainEnvironment.programId)
 
@@ -215,8 +194,14 @@ extension CollectiblesManager {
             dailyCap: dailyCap
         )
 
-        let signature = try await broadcast(coldKey: coldKey, instructions: [instruction])
-        CollectiblesLogger.debug("Caps updated, transaction \(signature ?? Constants.landedEarlier)")
+        let signed = try await transactionSender.sign(
+            [instruction],
+            coldKey: coldKey,
+            blockhash: try await transactionSender.fetchLatestBlockhash(),
+            signer: coldKeyInteractorFactory.makeInteractor()
+        )
+        let signature = try await transactionSender.broadcast(signed)
+        CollectiblesLogger.debug("Caps updated, transaction \(signature ?? "landed by an earlier attempt")")
 
         // Reads are finalized, so a resolve right after the write still answers with the replaced caps
         let applied = try await waitForState { state in
@@ -332,151 +317,6 @@ private extension CollectiblesManager {
     var isMarkedLocally: Bool {
         presenceStore.contains(userWalletId)
     }
-}
-
-// MARK: - Onboarding steps
-
-private extension CollectiblesManager {
-    enum OnboardingStep: Hashable {
-        case deriveColdKey
-        case deployVault
-        case pointVaultAtHeldSessionKey
-    }
-
-    func perform(_ step: OnboardingStep) async throws {
-        switch step {
-        case .deriveColdKey:
-            try await deriveColdKey()
-        case .deployVault:
-            try await deployVault()
-        case .pointVaultAtHeldSessionKey:
-            try await pointVaultAtHeldSessionKey()
-        }
-    }
-
-    /// The head of the chain: until this key exists nothing else has an address.
-    func deriveColdKey() async throws {
-        CollectiblesLogger.debug("create account: -> No locally stored Solana address, deriving it")
-
-        do {
-            try await coldKeyInteractorFactory.makeInteractor().derive()
-        } catch {
-            CollectiblesLogger.debug("ownerDeriver: failed, error=\(error)")
-            throw error
-        }
-
-        CollectiblesLogger.debug("ownerDeriver: Solana address was derived and saved")
-
-        // [REDACTED_TODO_COMMENT]
-        if let coldOwner = coldOwnerProvider.coldOwnerKey()?.blockchainKey {
-            CollectiblesLogger.debug("Cold owner derived (top up with devnet SOL): \(coldOwner.base58EncodedString)")
-        }
-    }
-
-    /// Generates only when there is none to read; discarding a key that still works belongs to
-    /// `rotateSessionKey()`.
-    func ensureSessionKey() async throws -> Data {
-        let storedSessionKey: Data?
-
-        do {
-            storedSessionKey = try await sessionKeySigner.publicKey()
-        } catch {
-            CollectiblesLogger.debug("hotDelegate: reading the stored hot session key failed, error=\(error)")
-            throw error
-        }
-
-        if let storedSessionKey {
-            CollectiblesLogger.debug("hotDelegate: is a hot session key stored on the phone -> Yes, reusing it")
-            return storedSessionKey
-        }
-
-        CollectiblesLogger.debug("hotDelegate: is a hot session key stored on the phone -> No, generating one")
-
-        do {
-            let sessionKey = try await sessionKeySigner.generateKey()
-            CollectiblesLogger.debug("hotDelegate: hot session key generated")
-            return sessionKey
-        } catch {
-            CollectiblesLogger.debug("hotDelegate: provision failed, error=\(error)")
-            throw error
-        }
-    }
-
-    /// One transaction carries the vault and the account it receives USDC on, so they either both exist or
-    /// neither does.
-    func deployVault() async throws {
-        CollectiblesLogger.debug("vault: does the User Account PDA exist on chain? -> No, creating the User Account PDA (init_vault)")
-
-        do {
-            try await sendInitVault()
-        } catch {
-            CollectiblesLogger.debug("vault: init_vault failed: \(error)")
-            throw error
-        }
-    }
-
-    func sendInitVault() async throws {
-        let coldKey = try coldKey()
-        let coldOwner = coldKey.blockchainKey
-        let sessionKey = try await ensureSessionKey()
-
-        let program = try CollectiblesVaultProgram(programId: CollectiblesChainEnvironment.programId)
-        let usdcMint = try await configReader.configInfo().usdcMint
-
-        let vaultAddress = try program.vaultAddress(coldOwner: coldOwner)
-        let vaultUsdcAddress = try program.vaultUsdcAddress(coldOwner: coldOwner, usdcMint: usdcMint)
-        CollectiblesLogger.debug("Cold owner (top up with devnet SOL): \(coldOwner.base58EncodedString)")
-        CollectiblesLogger.debug("Vault address: \(vaultAddress)")
-        CollectiblesLogger.debug("Vault USDC address: \(vaultUsdcAddress)")
-
-        let initVault = try program.initVaultInstruction(
-            coldOwner: coldOwner,
-            payer: coldOwner,
-            sessionKey: sessionKey,
-            perSpinCap: CollectiblesChainEnvironment.initialPerSpinCap,
-            dailyCap: CollectiblesChainEnvironment.initialDailyCap
-        )
-
-        let createVaultUsdc = try program.createVaultUsdcInstruction(
-            payer: coldOwner,
-            coldOwner: coldOwner,
-            usdcMint: usdcMint
-        )
-
-        let signature = try await broadcast(coldKey: coldKey, instructions: [initVault, createVaultUsdc])
-        CollectiblesLogger.debug("vault: init_vault sent, PDA=\(vaultAddress), signature=\(signature ?? Constants.landedEarlier)")
-    }
-
-    /// Points a vault that names an unknown session key back at the one this phone holds — the exit from a
-    /// reinstall. Caps stay as the chain holds them.
-    func pointVaultAtHeldSessionKey() async throws {
-        CollectiblesLogger.debug("vault: is the hot key the same as in the User Account PDA? -> No or unreadable on the phone, updating the key in the PDA (update_vault)")
-
-        do {
-            try await sendUpdateVault()
-        } catch {
-            CollectiblesLogger.debug("vault: update_vault failed: \(error)")
-            throw error
-        }
-    }
-
-    func sendUpdateVault() async throws {
-        let coldKey = try coldKey()
-        let sessionKey = try await ensureSessionKey()
-
-        let program = try CollectiblesVaultProgram(programId: CollectiblesChainEnvironment.programId)
-
-        let instruction = try program.updateVaultInstruction(
-            coldOwner: coldKey.blockchainKey,
-            sessionKey: sessionKey,
-            perSpinCap: nil,
-            dailyCap: nil
-        )
-
-        let vaultAddress = try program.vaultAddress(coldOwner: coldKey.blockchainKey)
-        let signature = try await broadcast(coldKey: coldKey, instructions: [instruction])
-        CollectiblesLogger.debug("vault: update_vault sent, PDA=\(vaultAddress), signature=\(signature ?? Constants.landedEarlier)")
-    }
 
     /// A node serves the transaction it accepted before it serves the account that transaction created, so the
     /// read right after a write is as likely to be early as to be the truth. A failed read costs an attempt
@@ -492,61 +332,12 @@ private extension CollectiblesManager {
 
         return false
     }
-
-    func coldKey() throws -> Wallet.PublicKey {
-        guard let coldKey = coldOwnerProvider.coldOwnerKey() else {
-            throw OnboardingError.coldKeyNotDerived
-        }
-
-        return coldKey
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    /// `nil` when the node already held the transaction: an earlier attempt reached the chain and only its
-    /// response was lost. Nothing here has to tell "seen before" apart from "applied" — the loop resolves
-    /// again after every step, and a change that never landed shows up as a state that did not advance.
-    func broadcast(coldKey: Wallet.PublicKey, instructions: [CollectiblesInstruction]) async throws -> String? {
-        do {
-            return try await serviceProvider.service().sendSelfPaid(
-                instructions: instructions.map(Self.rawInstruction),
-                feePayer: coldKey.blockchainKey
-            ) { message in
-                try await coldKeyInteractorFactory.makeInteractor().sign(message: message, coldKey: coldKey)
-            }
-        } catch let sendError as SolanaSendError {
-            switch sendError {
-            case .alreadyProcessed:
-                return nil
-            case .programError(let code, let logs):
-                CollectiblesLogger.debug("Program rejected the transaction, code \(code)\n\(logs.joined(separator: "\n"))")
-                throw CollectiblesProgramRejection(rawValue: code) ?? sendError
-            }
-        }
-    }
-
-    static func rawInstruction(_ instruction: CollectiblesInstruction) -> SolanaRawInstruction {
-        SolanaRawInstruction(
-            programId: instruction.programId,
-            accounts: instruction.accounts.map {
-                .init(address: $0.address, isSigner: $0.isSigner, isWritable: $0.isWritable)
-            },
-            data: instruction.data
-        )
-    }
 }
 
-// MARK: - Error
+// MARK: - Constants
 
 private extension CollectiblesManager {
-    enum OnboardingError: Error {
-        case coldKeyNotDerived
-        case coldOwnerNeedsFunding
-        case stateUnresolved
-        case stepDidNotAdvance(OnboardingStep)
-    }
-
     enum Constants {
-        static let landedEarlier = "landed by an earlier attempt"
         static let stateAdvanceAttempts = 5
         static let stateAdvanceInterval: Duration = .seconds(2)
     }

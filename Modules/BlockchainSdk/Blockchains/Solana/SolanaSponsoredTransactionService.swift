@@ -54,31 +54,73 @@ public final class SolanaSponsoredTransactionService {
         feePayer: Data,
         sign: (Data) async throws -> Data
     ) async throws -> String {
+        let transaction = try makeSelfPaidTransaction(
+            instructions: instructions,
+            feePayer: feePayer,
+            blockhash: try await latestBlockhash()
+        )
+        let signature = try await sign(transaction.message)
+
+        return try await send(
+            serializedTransaction: try transaction.serialized(signature: signature),
+            startSendingTimestamp: transaction.blockhashFetchedAt
+        )
+    }
+
+    public func latestBlockhash() async throws -> SolanaBlockhash {
+        let fetchedAt = Date()
+
+        return SolanaBlockhash(value: try await networkService.getLatestBlockhash(), fetchedAt: fetchedAt)
+    }
+
+    public func makeSelfPaidTransaction(
+        instructions: [SolanaRawInstruction],
+        feePayer: Data,
+        blockhash: SolanaBlockhash
+    ) throws -> SolanaSelfPaidTransaction {
         guard let feePayerKey = PublicKey(data: feePayer), feePayer.count == PublicKey.LENGTH else {
             throw BlockchainSdkError.failedToConvertPublicKey
         }
 
-        let blockhashFetchedAt = Date()
-        let blockhash = try await networkService.getLatestBlockhash()
-
-        let transaction = SolanaSwift.Transaction.empty(feePayer: feePayerKey, recentBlockhash: blockhash)
+        let transaction = SolanaSwift.Transaction.empty(feePayer: feePayerKey, recentBlockhash: blockhash.value)
         for instruction in instructions {
             _ = transaction.add(try instruction.transactionInstruction())
         }
 
         // Compiling is a pure function of the instructions, the payer and the blockhash, so the bytes handed
         // out here are the same ones `serialize` signs off on — nothing may touch the transaction in between
-        let message = try transaction.serializeMessage().get()
-        let signature = try await sign(message)
-
-        try transaction.addSignature(.init(signature: signature, publicKey: feePayerKey)).get()
-
-        let serializedTransaction = try transaction.serialize().get()
-
-        return try await broadcast(
-            base64SerializedTransaction: serializedTransaction.base64EncodedString(),
-            startSendingTimestamp: blockhashFetchedAt
+        return SolanaSelfPaidTransaction(
+            transaction: transaction,
+            feePayer: feePayerKey,
+            message: try transaction.serializeMessage().get(),
+            blockhashFetchedAt: blockhash.fetchedAt
         )
+    }
+}
+
+public struct SolanaBlockhash {
+    public let value: String
+    public let fetchedAt: Date
+}
+
+public struct SolanaSelfPaidTransaction {
+    public let message: Data
+    public let blockhashFetchedAt: Date
+
+    private let transaction: SolanaSwift.Transaction
+    private let feePayer: PublicKey
+
+    init(transaction: SolanaSwift.Transaction, feePayer: PublicKey, message: Data, blockhashFetchedAt: Date) {
+        self.transaction = transaction
+        self.feePayer = feePayer
+        self.message = message
+        self.blockhashFetchedAt = blockhashFetchedAt
+    }
+
+    public func serialized(signature: Data) throws -> Data {
+        try transaction.addSignature(.init(signature: signature, publicKey: feePayer)).get()
+
+        return try transaction.serialize().get()
     }
 }
 
