@@ -16,6 +16,12 @@ import TangemFoundation
 enum WalletModelTransactionHistoryPublisherFactory {
     @Injected(\.transactionHistoryAuxDataRepository) private static var auxDataRepository: TransactionHistoryAuxDataRepository
 
+    private static let fallbackMappingQueue = DispatchQueue(
+        label: "com.tangem.WalletModelTransactionHistoryPublisherFactory.fallbackMappingQueue",
+        qos: .userInitiated,
+        target: .global(qos: .userInitiated)
+    )
+
     static func makeTransactionHistoryPublisher(
         transactionHistoryPublisher: some Publisher<WalletModelTransactionHistoryState, Never>,
         featuresPublisher: some Publisher<[WalletModelFeature], Never>,
@@ -87,13 +93,8 @@ enum WalletModelTransactionHistoryPublisherFactory {
             )
             .withLatestFrom(walletModelAddressesPublisher) { ($0.0, $0.1, $1) }
 
-        let mergeInput = if let provider {
-            combinedInput.receive(on: provider.mappingQueue).eraseToAnyPublisher()
-        } else {
-            combinedInput.eraseToAnyPublisher()
-        }
-
-        return mergeInput
+        return combinedInput
+            .receive(on: provider?.mappingQueue ?? fallbackMappingQueue)
             .map { transactionHistoryState, records, walletModelAddresses in
                 let merger = TransactionHistoryExpressDataMerger(
                     walletModelAddresses: walletModelAddresses,
