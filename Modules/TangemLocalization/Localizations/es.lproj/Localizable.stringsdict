@@ -13,7 +13,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>[ %i] persona</string>
+        <string>%li persona</string>
         <key>other</key>
         <string>%li personas</string>
       </dict>
