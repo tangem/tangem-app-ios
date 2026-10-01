@@ -153,6 +153,27 @@ struct PulseTagFilterBottomSheetViewModelTests {
         #expect(!gate.withLock { $0 })
     }
 
+    @Test("Swiping the sheet away mid-load cancels the request without dismissing again")
+    func disappearCancelsLoad() async throws {
+        let gate = OSAllocatedUnfairLock(initialState: false)
+        let dismissCount = OSAllocatedUnfairLock(initialState: 0)
+        let provider = StubGeckoCategoriesProvider(delay: .milliseconds(200)) {
+            gate.withLock { $0 = true }
+            return .success(snapshot(country: "US"))
+        }
+        let viewModel = makeViewModel(provider: provider, onDismiss: { dismissCount.withLock { $0 += 1 } })
+
+        viewModel.onViewAppear()
+        viewModel.onViewDisappear()
+
+        try await Task.sleep(for: .milliseconds(400))
+
+        #expect(viewModel.loadingState == .loading)
+        #expect(viewModel.categoryItems.isEmpty)
+        #expect(!gate.withLock { $0 })
+        #expect(dismissCount.withLock { $0 } == 0)
+    }
+
     @Test("An empty category list counts as a failure, and retry loads again")
     func emptyListFailsAndRetryReloads() async {
         let calls = OSAllocatedUnfairLock(initialState: 0)
