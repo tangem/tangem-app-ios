@@ -23,6 +23,7 @@ protocol WelcomeV2AnalyticsProvider {
     func logHardwareWalletButton()
     func logMobileWalletButton()
     func logSignInWithCardButton()
+    func logImportExistingWalletButton()
     func logImportWalletRequest(hasCloudBackup: Bool)
 
     func logButtonScanCard()
