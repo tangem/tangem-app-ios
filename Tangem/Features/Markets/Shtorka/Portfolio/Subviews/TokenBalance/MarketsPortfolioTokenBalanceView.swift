@@ -65,7 +65,7 @@ private extension MarketsPortfolioTokenBalanceView {
 
     func skeletonView(size: CGSize) -> some View {
         Capsule(style: .continuous)
-            .fill(DesignSystem.Color.bgOpaqueSecondary)
+            .fill(DesignSystem.Color.bgTransparentSecondary)
             .frame(size: size)
     }
 }

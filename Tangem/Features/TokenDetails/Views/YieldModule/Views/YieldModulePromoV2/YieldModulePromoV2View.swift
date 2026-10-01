@@ -114,7 +114,7 @@ struct YieldModulePromoV2View: View {
                 text: Localization.yieldModulePromoScreenVariableRateInfoV2,
                 textColor: DesignSystem.Color.textSecondary,
                 iconColor: DesignSystem.Color.iconSecondary,
-                backgroundColor: DesignSystem.Color.bgOpaquePrimary
+                backgroundColor: DesignSystem.Color.bgTransparentPrimary
             )
         }
         .padding(.vertical, -Constants.pillTouchPadding)

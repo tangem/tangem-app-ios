@@ -53,7 +53,7 @@ private extension JointAccountMemberCircle.State {
     var backgroundColor: Color {
         switch self {
         case .active: DesignSystem.Color.bgStatusInfoSubtle
-        case .filled: DesignSystem.Color.bgOpaquePrimary
+        case .filled: DesignSystem.Color.bgTransparentPrimary
         case .empty: .clear
         }
     }

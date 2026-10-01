@@ -178,7 +178,7 @@ private extension PolymarketReceiveSheetView {
                 .minimumScaleFactor(0.5)
                 .padding(4)
                 .frame(size: CGSize(bothDimensions: Constants.tokenIconSize))
-                .background(DesignSystem.Color.bgOpaquePrimary, in: Circle())
+                .background(DesignSystem.Color.bgTransparentPrimary, in: Circle())
         } else {
             IconView(
                 url: tokenIcon.url,

@@ -134,7 +134,7 @@ private extension GlowRingShowcase {
 
     func cardBackground(cornerRadius: CGFloat) -> some View {
         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-            .fill(DesignSystem.Color.bgOpaquePrimary)
+            .fill(DesignSystem.Color.bgTransparentPrimary)
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .strokeBorder(DesignSystem.Color.borderPrimary, lineWidth: 1)

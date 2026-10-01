@@ -206,7 +206,7 @@ struct PolymarketOrderView: View {
         SwiftUI.Button(action: action) {
             label()
                 .frame(minWidth: minWidth, minHeight: Constants.controlSide)
-                .background(DesignSystem.Color.bgOpaquePrimary, in: Capsule())
+                .background(DesignSystem.Color.bgTransparentPrimary, in: Capsule())
                 .contentShape(.capsule)
         }
         .buttonStyle(.plain)

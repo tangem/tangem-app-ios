@@ -90,7 +90,7 @@ struct SegmentedControlContent<Tag: Hashable>: View {
             travelObserver
         }
         .padding(SegmentedControlMetrics.trackPadding)
-        .background(Capsule().fill(DesignSystem.Color.bgOpaquePrimary))
+        .background(Capsule().fill(DesignSystem.Color.bgTransparentPrimary))
     }
 
     private var pill: some View {

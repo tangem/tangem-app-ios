@@ -35,7 +35,7 @@ struct AddressBlockiesIconView: View {
                 .interpolation(.none)
                 .resizable()
         } else {
-            DesignSystem.Color.bgOpaquePrimary
+            DesignSystem.Color.bgTransparentPrimary
         }
     }
 }
@@ -49,7 +49,7 @@ struct AddressIconPlaceholderView: View {
 
     var body: some View {
         Circle()
-            .fill(DesignSystem.Color.bgOpaquePrimary)
+            .fill(DesignSystem.Color.bgTransparentPrimary)
             .frame(width: size, height: size)
     }
 }
