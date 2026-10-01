@@ -13,9 +13,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li person</string>
+        <string>%li personne</string>
         <key>other</key>
-        <string>%li people</string>
+        <string>%li personnes</string>
       </dict>
     </dict>
     <key>address_book_addresses</key>
@@ -205,9 +205,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li member</string>
+        <string>%li membre</string>
         <key>other</key>
-        <string>%li members</string>
+        <string>%li membres</string>
       </dict>
     </dict>
     <key>manage_tokens_number_of_wallets_ios</key>
