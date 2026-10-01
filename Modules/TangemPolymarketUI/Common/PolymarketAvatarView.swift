@@ -35,7 +35,7 @@ public struct PolymarketAvatarView: View {
                     .resizable()
                     .scaledToFill()
             } else {
-                DesignSystem.Color.bgOpaquePrimary
+                DesignSystem.Color.bgTransparentPrimary
             }
         }
         .frame(width: side, height: side)

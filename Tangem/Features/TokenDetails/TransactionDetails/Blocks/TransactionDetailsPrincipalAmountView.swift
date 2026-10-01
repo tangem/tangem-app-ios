@@ -53,7 +53,7 @@ struct TransactionDetailsPrincipalAmountView: View {
             .frame(size: CGSize(bothDimensions: iconSide))
             .foregroundStyle(DesignSystem.Color.iconPrimary)
             .frame(size: CGSize(bothDimensions: iconContainerSide))
-            .background(DesignSystem.Color.bgOpaquePrimary, in: Circle())
+            .background(DesignSystem.Color.bgTransparentPrimary, in: Circle())
     }
 }
 
