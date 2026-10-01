@@ -93,7 +93,7 @@ private extension TangemPayCashbackBanner {
     var indicatorView: some View {
         ZStack {
             Circle()
-                .fill(DesignSystem.Color.bgOpaquePrimary)
+                .fill(DesignSystem.Color.bgTransparentPrimary)
 
             indicatorContent
         }

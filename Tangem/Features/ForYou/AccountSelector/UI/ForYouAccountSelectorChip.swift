@@ -45,7 +45,7 @@ struct ForYouAccountSelectorChip: View {
 private extension ForYouAccountSelectorChip {
     var defaultChip: some View {
         Button(action: onOpen) {
-            pill(fill: DesignSystem.Color.bgOpaquePrimary, hasShadow: false) {
+            pill(fill: DesignSystem.Color.bgTransparentPrimary, hasShadow: false) {
                 HStack(spacing: Constants.spacing) {
                     Text(Localization.commonAllAccounts)
                         .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
