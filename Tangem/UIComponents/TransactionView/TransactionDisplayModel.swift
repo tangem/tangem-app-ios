@@ -277,14 +277,15 @@ extension TransactionDisplayModel {
         return addressDestination.map(Subtitle.text)
     }
 
-    /// The Yield Mode enable/disable chips are label-only, so they take neither the yield copy nor the
+    /// The Yield Mode enable/disable and staking chips are label-only, so they take neither the yield copy nor the
     /// counterparty every other type falls back to.
     private static func isSubtitleSuppressed(transactionType: TransactionViewModel.TransactionType) -> Bool {
         switch transactionType {
-        case .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin:
+        case .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin,
+             .stake, .unstake, .vote, .restake, .withdraw:
             return true
         case .yieldSend, .yieldTopup, .yieldInit, .yieldDeploy, .yieldReactivate,
-             .transfer, .swap, .onramp, .stake, .unstake, .vote, .restake, .withdraw,
+             .transfer, .swap, .onramp,
              .claimRewards, .approve, .operation, .unknownOperation,
              .gaslessTransactionFee, .gaslessTransfer, .networkFee, .tangemPay:
             return false
