@@ -27,7 +27,7 @@ struct RedesignedSelectorReceiveAssetsDomainItemView: View {
             buttonView
         }
         .padding(16)
-        .background(DesignSystem.Color.bgOpaquePrimary)
+        .background(DesignSystem.Color.bgTransparentPrimary)
         .cornerRadiusContinuous(24)
     }
 

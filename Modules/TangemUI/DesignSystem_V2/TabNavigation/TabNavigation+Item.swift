@@ -92,7 +92,7 @@ struct TabSelectionPill: View {
             Color.clear
                 .tangemMaterialSurface(in: Capsule())
         case .transparent:
-            Capsule().fill(DesignSystem.Color.bgOpaqueSecondary)
+            Capsule().fill(DesignSystem.Color.bgTransparentSecondary)
         }
     }
 }
@@ -124,7 +124,7 @@ struct TabItemPlaceholder: View {
 
     var body: some View {
         Capsule()
-            .fill(DesignSystem.Color.bgOpaqueSecondary)
+            .fill(DesignSystem.Color.bgTransparentSecondary)
             .frame(width: Constants.placeholderWidth, height: height)
             .tangemShimmer()
     }
