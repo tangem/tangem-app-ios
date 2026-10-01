@@ -501,6 +501,18 @@ extension CommonAccountModelsManager: AccountModelsManager {
         }
     }
 
+    func reloadAccountsFromRemote() async {
+        async let accountsLoad: Void = refreshCryptoAccounts()
+
+        do {
+            try await jointAccountsRepository.loadJointAccountsFromRemote()
+        } catch {
+            AccountsLogger.error("Failed to reload the joint accounts of user wallet \(userWalletId)", error: error)
+        }
+
+        await accountsLoad
+    }
+
     func acceptTangemPayOffer(
         authorizingInteractor: any TangemPayAuthorizing
     ) async throws(TangemPayAuthorizationError) {
