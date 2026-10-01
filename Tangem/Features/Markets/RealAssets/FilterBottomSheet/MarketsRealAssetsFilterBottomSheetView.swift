@@ -22,18 +22,7 @@ struct MarketsRealAssetsFilterBottomSheetView: View {
 
     @ScaledMetric private var contentHorizontalPadding: CGFloat = 16
     @ScaledMetric private var contentTopSpacing: CGFloat = 12
-    @ScaledMetric private var footerPadding: CGFloat = 16
-    @ScaledMetric private var footerButtonSpacing: CGFloat = 8
     @ScaledMetric private var bottomFadeHeight: CGFloat = 40
-    @ScaledMetric private var sectionTitleVerticalPadding: CGFloat = 8
-    @ScaledMetric private var sectionSpacing: CGFloat = 24
-    @ScaledMetric private var rowVerticalPadding: CGFloat = 18
-    @ScaledMetric private var rowCounterSpacing: CGFloat = 12
-    @ScaledMetric private var radioIconSide: CGFloat = 20
-    @ScaledMetric private var chipSpacing: CGFloat = 4
-    @ScaledMetric private var chipsTopPadding: CGFloat = 8
-    @ScaledMetric private var chipHorizontalPadding: CGFloat = 12
-    @ScaledMetric private var chipVerticalPadding: CGFloat = 8
 
     init(viewModel: MarketsRealAssetsFilterBottomSheetViewModel) {
         self.viewModel = viewModel
@@ -46,8 +35,7 @@ struct MarketsRealAssetsFilterBottomSheetView: View {
                 header
             }
 
-            footer
-                .padding(footerPadding)
+            MarketsRealAssetsFilterFooterView(viewModel: viewModel)
         }
         .background(DesignSystem.Color.bgPrimary)
     }
@@ -72,9 +60,10 @@ private final class ScrollFrames {
 private extension MarketsRealAssetsFilterBottomSheetView {
     var scrollContent: some View {
         ScrollView(.vertical, showsIndicators: false) {
-            content
+            MarketsRealAssetsFilterContentView(viewModel: viewModel)
                 .padding(.horizontal, contentHorizontalPadding)
                 .padding(.top, headerHeight + contentTopSpacing)
+                .padding(.bottom, contentHorizontalPadding)
                 .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
                     frames.content = $0
                     updateBottomFade()
@@ -95,26 +84,6 @@ private extension MarketsRealAssetsFilterBottomSheetView {
             .opacity(showBottomFade ? 1 : 0)
             .animation(.easeInOut(duration: 0.2), value: showBottomFade)
         }
-    }
-
-    var content: some View {
-        VStack(alignment: .leading, spacing: .zero) {
-            sectionTitle(Localization.commonType)
-
-            ForEach(viewModel.categories) { category in
-                categoryRow(category)
-            }
-
-            if !viewModel.sectorChipItems.isEmpty {
-                sectionTitle(Localization.marketsRealAssetsFilterSectorsTitle)
-                    .padding(.top, sectionSpacing)
-
-                sectorChips
-                    .padding(.top, chipsTopPadding)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .animation(.easeInOut(duration: 0.2), value: viewModel.selectedCategoryID)
     }
 
     var header: some View {
@@ -138,115 +107,6 @@ private extension MarketsRealAssetsFilterBottomSheetView {
         .size(.x9)
         .styleType(.secondary(.default))
         .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsRealAssetsFilterCloseButton)
-    }
-
-    func sectionTitle(_ title: String) -> some View {
-        Text(title)
-            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-            .padding(.vertical, sectionTitleVerticalPadding)
-    }
-
-    func categoryRow(_ category: MarketsDTO.Categories.Category) -> some View {
-        let isSelected = viewModel.isSelected(category: category)
-
-        return SwiftUI.Button(action: { viewModel.select(category: category) }) {
-            HStack(spacing: rowCounterSpacing) {
-                Text(MarketsCategoryLocalizer.title(for: category))
-                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-                    .lineLimit(1)
-
-                Spacer(minLength: .zero)
-
-                Text(Localization.commonAssetsCount(category.tokensCount))
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                    .lineLimit(1)
-                    .fixedSize(horizontal: true, vertical: false)
-
-                radioIcon(isSelected: isSelected)
-            }
-            .padding(.vertical, rowVerticalPadding)
-            .contentShape(.rect)
-        }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsRealAssetsFilterCategoryOption(category.code))
-    }
-
-    func radioIcon(isSelected: Bool) -> some View {
-        Group {
-            if isSelected {
-                Assets.checkmark20.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .foregroundStyle(DesignSystem.Color.iconStaticDark)
-                    .background(DesignSystem.Color.iconAccentBlue, in: .circle)
-            } else {
-                Assets.circleOutline20.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .foregroundStyle(DesignSystem.Color.borderTertiary)
-            }
-        }
-        .frame(width: radioIconSide, height: radioIconSide)
-    }
-
-    var sectorChips: some View {
-        HorizontalFlowLayout(
-            items: viewModel.sectorChipItems,
-            alignment: .leading,
-            horizontalSpacing: chipSpacing,
-            verticalSpacing: chipSpacing
-        ) { item in
-            sectorChip(item)
-        }
-    }
-
-    func sectorChip(_ item: MarketsRealAssetsFilterBottomSheetViewModel.SectorChipItem) -> some View {
-        let isSelected = viewModel.isSelected(sectorID: item.sectorID)
-
-        return SwiftUI.Button(action: { viewModel.select(sectorID: item.sectorID) }) {
-            Text(item.title)
-                .style(
-                    DesignSystem.Font.subheadingMediumToken,
-                    color: isSelected ? DesignSystem.Color.textInversePrimary : DesignSystem.Color.textPrimary
-                )
-                .lineLimit(1)
-                .padding(.horizontal, chipHorizontalPadding)
-                .padding(.vertical, chipVerticalPadding)
-                .background(
-                    isSelected ? DesignSystem.Color.bgInverse : DesignSystem.Color.bgTransparentPrimary,
-                    in: .capsule
-                )
-        }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsRealAssetsFilterSectorChip(item.id))
-    }
-
-    var footer: some View {
-        VStack(spacing: footerButtonSpacing) {
-            TangemUI.Button(
-                label: AttributedString(Localization.commonReset),
-                accessibilityLabel: Localization.commonReset,
-                action: viewModel.reset
-            )
-            .size(.x12)
-            .styleType(.secondary(.default))
-            .horizontalLayout(.infinity)
-            .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsRealAssetsFilterResetButton)
-
-            TangemUI.Button(
-                label: AttributedString(Localization.commonApply),
-                accessibilityLabel: Localization.commonApply,
-                action: viewModel.apply
-            )
-            .size(.x12)
-            .styleType(.default)
-            .horizontalLayout(.infinity)
-            .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsRealAssetsFilterApplyButton)
-        }
     }
 }
 

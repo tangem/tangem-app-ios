@@ -18,7 +18,6 @@ struct EarnNetworkFilterSelectedRowView<ID: Hashable>: View {
     @ScaledMetric private var verticalPadding: CGFloat = 16
     @ScaledMetric private var subtitleSpacing: CGFloat = 2
     @ScaledMetric private var horizontalMinLength: CGFloat = 4
-    @ScaledMetric private var iconSide: CGFloat = 20
 
     private var isSelected: Bool {
         selection.isActive(compare: data.id).wrappedValue
@@ -36,6 +35,7 @@ struct EarnNetworkFilterSelectedRowView<ID: Hashable>: View {
             .padding(.vertical, verticalPadding)
             .contentShape(Rectangle())
         }
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 
@@ -56,22 +56,9 @@ private extension EarnNetworkFilterSelectedRowView {
     }
 
     var icon: some View {
-        Group {
-            if isSelected {
-                Assets.checkmark20.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .foregroundStyle(DesignSystem.Color.iconStaticDark)
-                    .background(DesignSystem.Color.iconAccentBlue, in: .circle)
-            } else {
-                Assets.circleOutline20.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .foregroundStyle(DesignSystem.Color.borderTertiary)
-            }
-        }
-        .frame(width: iconSide, height: iconSide)
+        TangemUI.Checkmark(checked: isSelected, action: {})
+            .expandsHitArea(false)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
     }
 }
