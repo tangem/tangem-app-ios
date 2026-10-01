@@ -20,7 +20,7 @@ public enum GlowRingSize: Sendable, Hashable {
 extension GlowRingSize {
     typealias BorderLayer = GlowRingModifier.Config.BorderLayer
 
-    var cornerRadius: CGFloat {
+    public var cornerRadius: CGFloat {
         switch self {
         case .card(let cornerRadius): cornerRadius
         case .fullscreen(let cornerRadius): cornerRadius ?? Self.screenRadius
