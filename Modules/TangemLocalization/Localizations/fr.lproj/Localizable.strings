@@ -2715,6 +2715,7 @@
 "tangempay_temporarily_unavailable" = "Tangem Pay est temporairement indisponible";
 "tangempay_title" = "Tangem Pay";
 "tangempay_topup_bank_transfer_body" = "Recevoir des USD depuis un compte bancaire via ACH/Wire";
+"tangempay_topup_bank_transfer_pending_body" = "Creating your banking details...";
 "tangempay_topup_bank_transfer_title" = "Depuis un compte bancaire";
 "tangempay_topup_receive_body_multichain" = "Envoyez des USDC ou USDT à l'adresse de votre compte";
 "tangempay_topup_receive_body" = "Envoyez USDC Polygon à l'adresse de votre compte";
