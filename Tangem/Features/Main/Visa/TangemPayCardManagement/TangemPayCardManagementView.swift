@@ -226,6 +226,10 @@ struct TangemPayCardManagementView: View {
         _ details: TangemPayCardManagementViewModel.ContentState.Details
     ) -> some View {
         VStack(spacing: 24) {
+            if details.showsAddToAppleWalletButton {
+                TangemPayAddToAppleWalletButton(action: viewModel.addToAppleWallet)
+            }
+
             TangemPayCardActionButtonsView(
                 isFrozen: details.freezingState.isFrozen,
                 actionsDisabled: details.freezingState.isFreezingUnfreezingInProgress,
@@ -248,6 +252,7 @@ struct TangemPayCardManagementView: View {
                 }
             }
         }
+        .animation(.easeInOut, value: details.showsAddToAppleWalletButton)
     }
 
     @ToolbarContentBuilder
