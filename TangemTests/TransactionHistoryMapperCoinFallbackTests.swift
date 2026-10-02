@@ -62,13 +62,20 @@ struct TransactionHistoryMapperCoinFallbackTests {
     }
 
     @Test(
-        "The fee for a Yield-module call says it paid for Yield mode",
-        arguments: ["yieldDeploy", "yieldEnter", "yieldInit", "yieldReactivate", "yieldTopup", "yieldWithdraw"]
+        "The fee for a Yield-module call names the Yield mode operation it paid for",
+        arguments: [
+            ("yieldEnter", Localization.transactionHistoryFeeForYieldModeActivation),
+            ("yieldTopup", Localization.transactionHistoryFeeForYieldModeTopUp),
+            ("yieldWithdraw", Localization.transactionHistoryFeeForYieldModeDeactivation),
+            ("yieldDeploy", Localization.transactionHistoryFeeForYieldModeDeployment),
+            ("yieldInit", Localization.transactionHistoryFeeForYieldModeInitialization),
+            ("yieldReactivate", Localization.transactionHistoryFeeForYieldModeReactivation),
+        ]
     )
-    func theFeeForAYieldCallIsForYieldMode(methodName: String) {
+    func theFeeForAYieldCallNamesItsOperation(methodName: String, expectedSubtitle: String) {
         let viewModel = makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: methodName))
 
-        #expect(viewModel.display.subtitle == .text(Localization.transactionHistoryFeeForOperationName(Localization.commonYieldModeInline)))
+        #expect(viewModel.display.subtitle == .text(expectedSubtitle))
     }
 
     /// The aggregator takes its cut of the same token, so the details have to add up everything that left the wallet.
