@@ -21,7 +21,7 @@ struct RecentRecipientsContentView: View {
             LazyVStack(spacing: .zero, pinnedViews: [.sectionHeaders]) {
                 Section {
                     ForEach(recipients) { recipient in
-                        Row(title: recipient.name, subtitle: recipient.accountNumber)
+                        Row(title: recipient.name, subtitle: recipient.subtitle)
                             .start { monogram(recipient.monogram) }
                             .onTap { onRecipientTap(recipient.id) }
                     }

@@ -9,6 +9,7 @@
 import Combine
 import Foundation
 import TangemFoundation
+import TangemLocalization
 import TangemPay
 
 final class RecentRecipientsViewModel: ObservableObject {
@@ -72,13 +73,23 @@ final class RecentRecipientsViewModel: ObservableObject {
 
     private static func makeItem(from bankAccount: TangemPayBankAccountResponse) -> RecentRecipientItem {
         let name = TangemPayRecipientNameFormatter.name(for: bankAccount, style: .full)
+        let accountNumber = bankAccount.details.accountNumber
 
         return RecentRecipientItem(
             id: bankAccount.id,
             monogram: TangemPayRecipientNameFormatter.monogram(for: name),
             name: name,
-            accountNumber: bankAccount.details.accountNumber
+            accountNumber: accountNumber,
+            subtitle: makeSubtitle(accountNumber: accountNumber, isBusiness: bankAccount.details.beneficiary.type == .business)
         )
+    }
+
+    private static func makeSubtitle(accountNumber: String, isBusiness: Bool) -> String {
+        guard isBusiness else {
+            return accountNumber
+        }
+
+        return "\(accountNumber) \(AppConstants.dotSign) \(Localization.tangempayWithdrawBankRecipientBusiness)"
     }
 }
 
