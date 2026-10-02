@@ -56,7 +56,8 @@ final class TangemPayMobileOnboardingViewModel: ObservableObject {
                         mnemonic: nil,
                         passphrase: nil,
                         hasMnemonicBackup: false,
-                        hasICloudBackup: false
+                        hasICloudBackup: false,
+                        hasSocialLogin: false
                     )
                 )
 
