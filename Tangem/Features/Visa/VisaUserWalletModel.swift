@@ -620,6 +620,12 @@ extension VisaUserWalletModel: UserWalletSerializable {
     }
 }
 
+extension VisaUserWalletModel: PromoCampaignIdentityProviding {
+    var promoCampaignIdentity: PromoCampaignIdentity {
+        WalletInfo.cardWallet(cardInfo).promoCampaignIdentity
+    }
+}
+
 extension VisaUserWalletModel: AssociatedCardIdsProvider {
     var associatedCardIds: Set<String> {
         cardInfo.associatedCardIds
