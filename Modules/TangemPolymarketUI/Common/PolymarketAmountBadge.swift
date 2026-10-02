@@ -117,11 +117,6 @@ public extension PolymarketAmountBadge {
         PolymarketAmountBadge(state: state, appearance: .info, label: Localization.predictionPlaceToWin)
     }
 
-    // [REDACTED_TODO_COMMENT]
-    static func willReceive(state: State) -> PolymarketAmountBadge {
-        PolymarketAmountBadge(state: state, appearance: .info, label: { "You will receive: \($0)" })
-    }
-
     static func payout(state: State) -> PolymarketAmountBadge {
         PolymarketAmountBadge(state: state, appearance: .info, label: Localization.predictionPositionsPayout)
     }

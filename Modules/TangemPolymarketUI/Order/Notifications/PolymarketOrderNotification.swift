@@ -62,16 +62,16 @@ extension PolymarketOrderNotification {
     var variant: MessageBannerVariant {
         switch self {
         case .awaitingFunds: .info
-        case .partialFill: .default
-        case .noLiquidity, .belowMinOrder, .marketClosed, .regionRestricted, .quoteUnavailable: .error
+        case .partialFill, .noLiquidity: .default
+        case .belowMinOrder, .marketClosed, .regionRestricted, .quoteUnavailable: .error
         }
     }
 
     var glowRing: GlowRingAppearance? {
         switch self {
         case .awaitingFunds: nil
-        case .partialFill: .warning
-        case .noLiquidity, .belowMinOrder, .marketClosed, .regionRestricted, .quoteUnavailable: .error
+        case .partialFill, .noLiquidity: .warning
+        case .belowMinOrder, .marketClosed, .regionRestricted, .quoteUnavailable: .error
         }
     }
 }
