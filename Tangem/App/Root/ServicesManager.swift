@@ -211,6 +211,7 @@ extension CommonServicesManager: ServicesManager {
 
         TangemLoggerConfigurator().initialize()
         TangemPayMocksConfigurator().initialize()
+        TangemPayAppleWalletConfigurator().initialize()
 
         recordStartAppUsageDate()
         isFirstLaunch = recordAppLaunch() == 0
