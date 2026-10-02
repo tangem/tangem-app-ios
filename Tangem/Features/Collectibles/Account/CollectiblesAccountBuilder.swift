@@ -57,6 +57,13 @@ struct CollectiblesAccountBuilder {
             transactionSender: transactionSender
         )
 
+        let purchaseTransactionDispatcher = CollectiblesPurchaseTransactionDispatcher(
+            coldOwnerProvider: coldOwnerProvider,
+            configReader: chainReader,
+            sessionKeySigner: sessionKeySigner,
+            transactionSender: transactionSender
+        )
+
         let manager = CollectiblesManager(
             userWalletId: userWalletId,
             coldOwnerProvider: coldOwnerProvider,
@@ -67,6 +74,7 @@ struct CollectiblesAccountBuilder {
             coldKeyInteractorFactory: coldKeyInteractorFactory,
             transactionSender: transactionSender,
             onboardingInteractor: onboardingInteractor,
+            purchaseTransactionDispatcher: purchaseTransactionDispatcher,
             presenceStore: StoredCollectiblesAccountPresenceStore.appSettings()
         )
 

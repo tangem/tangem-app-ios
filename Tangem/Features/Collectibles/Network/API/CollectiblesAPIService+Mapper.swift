@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemCollectibles
 import TangemFoundation
 
 extension CollectiblesAPIService {
@@ -46,12 +47,58 @@ extension CollectiblesAPIService {
         static func mapToPrizePoolPage(_ response: CollectiblesDTO.MachineNftsResponse) -> CollectiblesPrizePoolPage {
             CollectiblesPrizePoolPage(prizes: response.nfts.map(mapToPrize), hasNext: response.hasMore)
         }
+
+        static func mapToGeneratedPurchase(
+            _ response: CollectiblesDTO.GeneratePurchaseTxResponse
+        ) throws -> CollectiblesGeneratedPurchase {
+            let txData = response.txData
+
+            return CollectiblesGeneratedPurchase(
+                txID: response.txID,
+                purchase: CollectiblesPackPurchase(
+                    memo: txData.memo,
+                    usdcMint: txData.fromContractAddress,
+                    amount: try mapToBaseUnits(txData.fromAmount),
+                    feeAmount: try mapToBaseUnits(txData.feeAmount)
+                )
+            )
+        }
+
+        static func mapToPurchaseStatus(
+            _ transaction: CollectiblesDTO.PurchaseTransaction
+        ) -> CollectiblesPurchaseStatus {
+            switch transaction.status {
+            case "created": .created
+            case "waiting-tx-hash": .waitingTxHash
+            case "purchase-tx-hash": .purchaseTxHash
+            case "waiting-for-payment": .waitingForPayment
+            case "expired": .expired
+            case "pack-purchased": .packPurchased
+            case "pack-opening-error": .packOpeningError
+            case "refunded": .refunded
+            case "auto-buybacked": .autoBuybacked
+            case "pack-opened": .packOpened
+            case "nft-received": .nftReceived
+            case "manually-buybacked": .manuallyBuybacked
+            case "paused": .paused
+            default: .unknown(transaction.status)
+            }
+        }
     }
 }
 
 // MARK: - Private logic
 
 private extension CollectiblesAPIService.Mapper {
+    static func mapToBaseUnits(_ amount: String) throws -> UInt64 {
+        guard let value = UInt64(amount) else {
+            let context = DecodingError.Context(codingPath: [], debugDescription: "Not a base-unit amount: \(amount)")
+            throw CollectiblesAPIService.Error.decoding(.dataCorrupted(context))
+        }
+
+        return value
+    }
+
     static func mapToPrize(_ nft: CollectiblesDTO.MachineNft) -> CollectiblesPrize {
         CollectiblesPrize(
             id: nft.id,
