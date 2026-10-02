@@ -39,6 +39,13 @@ extension PolymarketOrderIntent {
         }
     }
 
+    func floor(balance: Decimal) -> Decimal {
+        switch self {
+        case .buy: 0
+        case .sell: min(Constants.wholeShare, balance)
+        }
+    }
+
     var maxOffersWholePosition: Bool {
         switch self {
         case .buy: false
@@ -64,7 +71,7 @@ extension PolymarketOrderIntent {
 
             return max(shareFloor, amountFloor)
         case .sell(let shares):
-            return min(max(quote.minOrderSize, Constants.wholeShare), shares)
+            return min(Constants.wholeShare, shares)
         }
     }
 }

@@ -75,7 +75,9 @@ struct PolymarketOrderView: View {
                 }
             }
 
-            PolymarketOrderNotificationsView(notifications: viewModel.notifications)
+            PolymarketOrderNotificationsView(notifications: viewModel.notifications) {
+                viewModel.handleViewAction(.retryQuoteTapped)
+            }
 
             PolymarketOrderSlippageRow(
                 valueText: viewModel.slippageText,
@@ -164,27 +166,40 @@ struct PolymarketOrderView: View {
 
     private var sellControls: some View {
         HStack(spacing: Constants.sellControlsSpacing) {
-            ForEach(viewModel.amountFractions, id: \.self) { fraction in
-                sellControl(minWidth: Constants.chipMinWidth) {
-                    Text(fraction.title)
+            ForEach(viewModel.amountFractions) { option in
+                sellControl(
+                    minWidth: Constants.chipMinWidth,
+                    isEnabled: viewModel.areFractionsEnabled && option.isEnabled
+                ) {
+                    Text(option.fraction.title)
                         .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                         .lineLimit(1)
                 } action: {
-                    viewModel.handleViewAction(.fractionTapped(fraction))
+                    viewModel.handleViewAction(.fractionTapped(option.fraction))
                 }
                 .frame(maxWidth: .infinity)
             }
 
-            stepButton(DesignSystem.Icons.SignMinus.regular20, step: -1, label: Constants.decreaseAccessibilityLabel)
+            stepButton(
+                DesignSystem.Icons.SignMinus.regular20,
+                step: -1,
+                label: Constants.decreaseAccessibilityLabel,
+                isEnabled: viewModel.canDecreaseAmount
+            )
 
-            stepButton(DesignSystem.Icons.SignPlus.regular20, step: 1, label: Constants.increaseAccessibilityLabel)
+            stepButton(
+                DesignSystem.Icons.SignPlus.regular20,
+                step: 1,
+                label: Constants.increaseAccessibilityLabel,
+                isEnabled: viewModel.canIncreaseAmount
+            )
         }
         .padding(.horizontal, Constants.horizontalPadding)
         .padding(.bottom, Constants.sellControlsBottomPadding)
     }
 
-    private func stepButton(_ icon: ImageType, step: Int, label: String) -> some View {
-        sellControl(minWidth: Constants.controlSide) {
+    private func stepButton(_ icon: ImageType, step: Int, label: String, isEnabled: Bool) -> some View {
+        sellControl(minWidth: Constants.controlSide, isEnabled: isEnabled) {
             icon.image
                 .renderingMode(.template)
                 .resizable()
@@ -199,6 +214,7 @@ struct PolymarketOrderView: View {
 
     private func sellControl(
         minWidth: CGFloat,
+        isEnabled: Bool,
         @ViewBuilder label: () -> some View,
         action: @escaping () -> Void
     ) -> some View {
@@ -209,6 +225,9 @@ struct PolymarketOrderView: View {
                 .contentShape(.capsule)
         }
         .buttonStyle(.plain)
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1 : Constants.disabledControlOpacity)
+        .allowsHitTesting(isEnabled)
     }
 
     // MARK: - Keyboard bar
@@ -217,7 +236,7 @@ struct PolymarketOrderView: View {
     private var keyboardBar: some View {
         if isAmountFocused {
             PolymarketAmountFractionChips(
-                fractions: viewModel.amountFractions,
+                fractions: viewModel.amountFractions.filter(\.isEnabled).map(\.fraction),
                 focused: $isAmountFocused,
                 onSelect: { viewModel.handleViewAction(.fractionTapped($0)) }
             )
@@ -258,6 +277,7 @@ private extension PolymarketOrderView {
         static let amountMinTextScale: CGFloat = 0.5
         static let horizontalPadding: CGFloat = 16
         static let sellControlsSpacing: CGFloat = 4
+        static let disabledControlOpacity: CGFloat = 0.4
         static let chipMinWidth: CGFloat = 56
         // [REDACTED_TODO_COMMENT]
         static let decreaseAccessibilityLabel = "Decrease"
