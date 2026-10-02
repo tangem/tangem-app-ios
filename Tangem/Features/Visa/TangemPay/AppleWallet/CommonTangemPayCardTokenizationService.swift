@@ -9,10 +9,18 @@
 import Foundation
 import MeaPushProvisioning
 import PassKit
+import TangemVisa
 
 final class CommonTangemPayCardTokenizationService: TangemPayCardTokenizationService {
     var isAvailable: Bool {
-        PKPaymentAuthorizationViewController.canMakePayments() && PKAddPaymentPassViewController.canAddPaymentPass()
+        let canMakePayments = PKPaymentAuthorizationViewController.canMakePayments()
+        let canAddPaymentPass = PKAddPaymentPassViewController.canAddPaymentPass()
+
+        if !canMakePayments || !canAddPaymentPass {
+            VisaLogger.info("Apple Wallet unavailable, canMakePayments: \(canMakePayments), canAddPaymentPass: \(canAddPaymentPass)")
+        }
+
+        return canMakePayments && canAddPaymentPass
     }
 
     func passActivationState(cardNumberEnd: String) -> PKSecureElementPass.PassActivationState? {
