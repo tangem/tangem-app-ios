@@ -132,9 +132,9 @@ private extension TransferConfirmationViewModel {
         }
     }
 
-    func retryPlaceOrder() {
+    func retry() {
         perform { [sendUseCase] in
-            try await sendUseCase.retryPlaceOrder()
+            try await sendUseCase.retry()
         }
     }
 
@@ -170,23 +170,27 @@ private extension TransferConfirmationViewModel {
             isSending = false
             refresh()
 
-        case .placeOrderRetryable:
+        case .retryable:
             analyticsLogger.logSendErrorScreenOpened()
             output(.failed(
                 model: TransferFailedStatusModelMapper.model(for: error),
-                onRetry: { [weak self] in self?.retryPlaceOrder() }
+                onRetry: { [weak self] in self?.retry() },
+                onClose: { [sendUseCase] in
+                    Task { await sendUseCase.abandonRetry() }
+                }
             ))
 
         case .signatureSubmission(canRetry: true):
             analyticsLogger.logSendErrorScreenOpened()
             output(.failed(
                 model: TransferFailedStatusModelMapper.model(for: error),
-                onRetry: { [weak self] in self?.retrySignature() }
+                onRetry: { [weak self] in self?.retrySignature() },
+                onClose: nil
             ))
 
         case .unavailableRegion, .generic, .signatureSubmission:
             analyticsLogger.logSendErrorScreenOpened()
-            output(.failed(model: TransferFailedStatusModelMapper.model(for: error), onRetry: nil))
+            output(.failed(model: TransferFailedStatusModelMapper.model(for: error), onRetry: nil, onClose: nil))
         }
     }
 
@@ -273,7 +277,7 @@ extension TransferConfirmationViewModel {
     enum Output {
         case edit(TransferConfirmationEditTarget)
         case sent(TransferSuccessStatusView.Model)
-        case failed(model: TransferFailedStatusView.Model, onRetry: (() -> Void)?)
+        case failed(model: TransferFailedStatusView.Model, onRetry: (() -> Void)?, onClose: (() -> Void)?)
         case close
     }
 }
