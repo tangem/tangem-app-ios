@@ -110,7 +110,8 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
         let membersService = CommonJointAccountMembersService(
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
-            jointAccountsRepository: jointAccountsRepository
+            jointAccountsRepository: jointAccountsRepository,
+            keysProvider: keysRepository
         )
 
         let pendingOperationsProvider = CommonJointAccountPendingOperationsProvider(
