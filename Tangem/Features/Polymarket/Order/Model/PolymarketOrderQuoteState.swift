@@ -13,7 +13,7 @@ enum PolymarketOrderQuoteState: Equatable {
     case empty
     case loading
     case content(PolymarketOrderQuote)
-    case unavailable(PolymarketQuoteUnavailability)
+    case unavailable(PolymarketQuoteUnavailability, quote: PolymarketOrderQuote?)
     case failed(PolymarketOrderQuoteFailure)
 
     var isAwaitingQuote: Bool {
@@ -29,6 +29,15 @@ enum PolymarketOrderQuoteState: Equatable {
         return nil
     }
 
+    var expectedExecutionAmount: Decimal? {
+        switch self {
+        case .content(let quote), .unavailable(.insufficientLiquidity, .some(let quote)):
+            quote.expectedExecutionAmount
+        case .empty, .loading, .failed, .unavailable:
+            nil
+        }
+    }
+
     var isFailed: Bool {
         if case .failed = self { return true }
 
@@ -41,9 +50,9 @@ enum PolymarketOrderQuoteState: Equatable {
 
     init(quote: PolymarketOrderQuote) {
         switch quote.status {
-        case .insufficientLiquidity: self = .unavailable(.insufficientLiquidity)
-        case .marketClosed: self = .unavailable(.marketClosed)
-        case .undefined: self = .unavailable(.undefined)
+        case .insufficientLiquidity: self = .unavailable(.insufficientLiquidity, quote: quote)
+        case .marketClosed: self = .unavailable(.marketClosed, quote: quote)
+        case .undefined: self = .unavailable(.undefined, quote: quote)
         case .full, .partial, .belowMinOrderSize, .belowMinOrderAmount: self = .content(quote)
         }
     }

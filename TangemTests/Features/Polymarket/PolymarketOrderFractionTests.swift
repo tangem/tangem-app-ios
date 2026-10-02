@@ -127,6 +127,141 @@ struct PolymarketOrderFractionTests {
     }
 }
 
+// MARK: - Stepper bounds
+
+@MainActor
+@Suite("Polymarket amount steppers")
+struct PolymarketOrderStepperTests {
+    @Test("A sale opens on the whole position, so only the minus can move")
+    func saleOpensAtTheTop() async throws {
+        let model = try await makeModel(balance: 10, intent: .sell(shares: 10))
+
+        #expect(model.state.enteredAmount == 10)
+        #expect(!model.gate.canStepUp)
+        #expect(model.gate.canStepDown)
+    }
+
+    @Test("A step moves by one token and keeps the fractional tail")
+    func stepKeepsTheFractionalTail() async throws {
+        let held = Decimal(string: "5.5")!
+        let model = try await makeModel(balance: held, intent: .sell(shares: held))
+
+        model.step(by: -1)
+
+        #expect(model.state.enteredAmount == Decimal(string: "4.5")!)
+    }
+
+    @Test("The minus stops at one token, never in between")
+    func minusStopsAtOneToken() async throws {
+        let held = Decimal(string: "5.5")!
+        let model = try await makeModel(balance: held, intent: .sell(shares: held))
+
+        for _ in 0 ..< 5 {
+            model.step(by: -1)
+        }
+
+        #expect(model.state.enteredAmount == 1)
+        #expect(!model.gate.canStepDown)
+        #expect(model.gate.canStepUp)
+    }
+
+    @Test("The plus climbs in whole tokens and lands on the whole position")
+    func plusClimbsToTheWholePosition() async throws {
+        let held = Decimal(string: "5.5")!
+        let model = try await makeModel(balance: held, intent: .sell(shares: held))
+
+        for _ in 0 ..< 5 {
+            model.step(by: -1)
+        }
+
+        model.step(by: 1)
+        #expect(model.state.enteredAmount == 2)
+
+        for _ in 0 ..< 4 {
+            model.step(by: 1)
+        }
+
+        #expect(model.state.enteredAmount == held)
+        #expect(!model.gate.canStepUp)
+    }
+
+    @Test("A position smaller than a token cannot be stepped at all")
+    func dustPositionHasNoSteps() async throws {
+        let dust = Decimal(string: "0.4")!
+        let model = try await makeModel(balance: dust, intent: .sell(shares: dust))
+
+        #expect(model.state.enteredAmount == dust)
+        #expect(!model.gate.canStepUp)
+        #expect(!model.gate.canStepDown)
+    }
+
+    @Test("A purchase with an empty field can only step up")
+    func purchaseStartsEmpty() async throws {
+        let model = try await makeModel(balance: 200)
+
+        #expect(model.state.enteredAmount == nil)
+        #expect(model.gate.canStepUp)
+        #expect(!model.gate.canStepDown)
+    }
+
+    @Test("Without a balance neither stepper is offered")
+    func noBalanceOffersNoSteps() {
+        let model = PolymarketOrderModel(
+            market: .fixture,
+            outcome: .fixture,
+            eventTitle: "Fixture event",
+            intent: .buy(balance: .just(output: nil)),
+            apiProvider: PolymarketAPIProviderStub(),
+            geoblockStateProvider: PolymarketGeoblockStateProviderStub(),
+            positionsService: nil,
+            clobService: PolymarketCLOBServiceStub(),
+            isAwaitingFundsPublisher: .just(output: false),
+            collateralBalancePublisher: .just(output: nil)
+        )
+
+        #expect(!model.gate.canStepUp)
+        #expect(!model.gate.canStepDown)
+    }
+}
+
+// MARK: - Fixtures
+
+private extension PolymarketOrderStepperTests {
+    func makeModel(
+        balance: Decimal,
+        intent: PolymarketOrderIntent? = nil
+    ) async throws -> PolymarketOrderModel {
+        let model = PolymarketOrderModel(
+            market: .fixture,
+            outcome: .fixture,
+            eventTitle: "Fixture event",
+            intent: intent ?? .buy(balance: .just(output: balance)),
+            apiProvider: PolymarketAPIProviderStub(),
+            geoblockStateProvider: PolymarketGeoblockStateProviderStub(),
+            positionsService: nil,
+            clobService: PolymarketCLOBServiceStub(),
+            isAwaitingFundsPublisher: .just(output: false),
+            collateralBalancePublisher: .just(output: balance)
+        )
+
+        try await settle { model.state.balance != nil }
+
+        return model
+    }
+
+    func settle(until isSatisfied: () -> Bool) async throws {
+        for _ in 0 ..< 100 {
+            if isSatisfied() {
+                return
+            }
+
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        Issue.record("The model did not settle in time")
+    }
+}
+
 // MARK: - Fixtures
 
 private extension PolymarketOrderFractionTests {
@@ -144,7 +279,8 @@ private extension PolymarketOrderFractionTests {
             geoblockStateProvider: PolymarketGeoblockStateProviderStub(),
             positionsService: nil,
             clobService: PolymarketCLOBServiceStub(),
-            isAwaitingFundsPublisher: .just(output: false)
+            isAwaitingFundsPublisher: .just(output: false),
+            collateralBalancePublisher: .just(output: balance)
         )
 
         try await settle { model.state.balance != nil }
@@ -186,4 +322,18 @@ extension PolymarketMarket {
         orderIndex: nil,
         outcomes: [.fixture]
     )
+}
+
+// MARK: - Fixtures
+
+private extension PolymarketOrderModel {
+    var gate: PolymarketOrderGate {
+        PolymarketOrderGate(state: state, intent: intent)
+    }
+}
+
+private extension PolymarketOrderGate {
+    func isFractionSelectable(_ fraction: PolymarketAmountFraction) -> Bool {
+        selectableFractions.contains(fraction)
+    }
 }

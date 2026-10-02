@@ -13,7 +13,7 @@ import TangemPolymarketUI
 extension PolymarketMarketCard.Model {
     static func make(
         market: PolymarketMarket,
-        title: String? = nil,
+        title: String?,
         fallbackImageURL: URL? = nil,
         predictedText: String? = nil,
         areOutcomesEnabled: Bool = true,
@@ -21,7 +21,7 @@ extension PolymarketMarketCard.Model {
     ) -> Self {
         Self(
             id: market.id,
-            title: title ?? market.groupItemTitle ?? market.title,
+            title: title,
             volumeText: market.volume.map(volumeFormatter.formatMarketCap) ?? BalanceFormatter.defaultEmptyBalanceString,
             imageURL: market.imageURL ?? market.iconURL ?? fallbackImageURL,
             predictedText: predictedText,
