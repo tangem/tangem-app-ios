@@ -2302,6 +2302,7 @@
 "tangem_pay_transaction_declined_notification_text" = "Банк відхилив цей запит на транзакцію.";
 "tangem_pay_transaction_details_cashback_below_min" = "Мін. сума транзакції";
 "tangem_pay_transaction_details_cashback_cap_reached" = "Досягнуто місячний ліміт";
+"tangem_pay_transaction_details_cashback_compliance_risk" = "Compliance risk";
 "tangem_pay_transaction_details_cashback_mcc_excluded" = "MCC виключено";
 "tangem_pay_transaction_details_cashback_none" = "—";
 "tangem_pay_transaction_details_cashback_refund" = "Повернення покупки";
@@ -2732,6 +2733,8 @@
 "tangempay_va_available_to_deposit_day" = "Лимит на день:";
 "tangempay_va_banking_details_error_description" = "Спробуйте ще раз або зверніться до служби підтримки, якщо проблема повториться";
 "tangempay_va_banking_details_error_title" = "Не вдалося завантажити банківські реквізити";
+"tangempay_va_banner_failed_description" = "Please try again or contact support if the issue persists";
+"tangempay_va_banner_failed_title" = "Failed to create banking details";
 "tangempay_va_limit_resetting_everyday" = "Ліміт оновлюється щодня";
 "tangempay_visa_benefits" = "Переваги Visa";
 "tangempay_waitlist_description" = "We'll email you the moment it's available in your region";
