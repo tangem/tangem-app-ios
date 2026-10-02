@@ -73,7 +73,11 @@ final class TangemPayDailyLimitScreen: ScreenBase<TangemPayDailyLimitScreenEleme
         XCTContext.runActivity(named: "Clear and enter amount '\(amount)'") { _ in
             waitAndAssertTrue(amountField, "Amount field should be displayed")
             clearText(element: amountField)
-            typeWithFocus(into: amountField, text: amount)
+            typeReliably(element: amountField, text: amount)
+            XCTAssertTrue(
+                amountField.waitForValue(timeout: .quick) { $0.filter(\.isNumber) == amount },
+                "Amount field should contain '\(amount)', actual: '\(amountField.getValue())'"
+            )
             return self
         }
     }

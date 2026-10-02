@@ -150,6 +150,64 @@ final class TangemPayMultipleCardsUITests: BaseTestCase {
             .verifyTangemPayTileSubtitle("3 cards")
     }
 
+    func testActiveOrderAtLaunch_ShowsProgressScreen() {
+        setAllureId(10014)
+        wireMockClient.resetRequestJournalSync()
+
+        let mainScreen = launchAndImportHotWallet(scenarios: [
+            ScenarioConfig(name: Constants.Scenario.balance, initialState: Constants.State.initialBalance),
+            ScenarioConfig(name: Constants.Scenario.issueOrder, initialState: Constants.State.started),
+            ScenarioConfig(name: Constants.Scenario.issueOrders, initialState: Constants.State.activeOrder),
+        ])
+
+        mainScreen
+            .openTangemPay()
+            .waitForScreen()
+            .verifyIssuingCardBanner()
+            .verifyAddCardDisabled()
+            .tapIssuingCard()
+            .verifyIssuingInProgress()
+
+        XCTContext.runActivity(named: "Verify active orders were looked up at launch") { _ in
+            XCTAssertGreaterThan(orderLookupRequestCount(), 0, "The app should look up active orders at launch")
+        }
+    }
+
+    func testIssueCardWithActiveOrder_DoesNotPlaceNewOrder() {
+        setAllureId(10008)
+
+        let mainScreen = launchAndImportHotWallet(scenarios: [
+            ScenarioConfig(name: Constants.Scenario.balance, initialState: Constants.State.initialBalance),
+            ScenarioConfig(name: Constants.Scenario.issueOrder, initialState: Constants.State.started),
+            ScenarioConfig(name: Constants.Scenario.issueOrders, initialState: Constants.State.empty),
+        ])
+
+        let issueCardSheet = mainScreen
+            .openTangemPay()
+            .waitForScreen()
+            .verifyBalanceContains(Constants.initialBalance)
+            .tapAddCard()
+            .waitForScreen()
+            .selectVirtual()
+            .waitForSheet()
+            .verifyContent(feeValue: Constants.issueFee)
+
+        wireMockClient.setScenarioStateSync(Constants.Scenario.issueOrders, state: Constants.State.activeOrder)
+        wireMockClient.resetRequestJournalSync()
+
+        let paymentAccount = issueCardSheet
+            .tapIssueCard()
+            .verifyIssuingCardBanner()
+
+        XCTContext.runActivity(named: "Verify the existing order was reused instead of placing a new one") { _ in
+            XCTAssertEqual(placeOrderRequestCount(), 0, "Confirming the issue with an active order should not place a new order")
+        }
+
+        paymentAccount
+            .tapIssuingCard()
+            .verifyIssuingInProgress()
+    }
+
     private func issueCard(from mainScreen: MainScreen, cardsStateAfterIssue: String) -> MainScreen {
         let paymentAccount = mainScreen
             .openTangemPay()
@@ -171,5 +229,37 @@ final class TangemPayMultipleCardsUITests: BaseTestCase {
         return paymentAccount
             .waitForIssuingCardBannerHidden()
             .tapBack()
+    }
+
+    private func placeOrderRequestCount() -> Int {
+        wireMockClient.requestCountSync(method: "POST", urlPathPattern: Constants.Endpoint.order)
+    }
+
+    private func orderLookupRequestCount() -> Int {
+        wireMockClient.requestCountSync(method: "GET", urlPathPattern: Constants.Endpoint.order)
+    }
+}
+
+private extension TangemPayMultipleCardsUITests {
+    enum Constants {
+        static let initialBalance = "$10.00"
+        static let issueFee = "$1.00"
+
+        enum Scenario {
+            static let balance = "tangem_pay_balance_update"
+            static let issueOrder = "tangem_pay_card_issue_order"
+            static let issueOrders = "tangem_pay_card_issue_orders"
+        }
+
+        enum State {
+            static let initialBalance = "InitialBalance"
+            static let started = "Started"
+            static let empty = "Empty"
+            static let activeOrder = "ActiveOrder"
+        }
+
+        enum Endpoint {
+            static let order = "/bff-v2/v1/order"
+        }
     }
 }
