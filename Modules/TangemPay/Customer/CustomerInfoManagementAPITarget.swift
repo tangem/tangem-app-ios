@@ -30,6 +30,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/balance"
         case .getCardDetails(let cardId, _):
             "customer/card/\(cardId)/details"
+        case .getCardProcessorDetails(let cardId):
+            "customer/card/\(cardId)/processor/details"
         case .freeze:
             "customer/card/freeze"
         case .unfreeze:
@@ -118,7 +120,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getBankCredentials,
              .getBankAccounts,
              .getBankOfframpOptions,
-             .getEligibility:
+             .getEligibility,
+             .getCardProcessorDetails:
             .get
 
         case .placeOrder,
@@ -165,7 +168,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getCashbackPromotions,
              .getCashbackAccrualsDocs,
              .getCashbackTransactionDetails,
-             .getEligibility:
+             .getEligibility,
+             .getCardProcessorDetails:
             return .requestPlain
 
         case .getCustomerOffers(let deeplinkValue):
@@ -286,6 +290,7 @@ extension CustomerInfoManagementAPITarget {
         case getBalance
 
         case getCardDetails(cardId: String, sessionId: String)
+        case getCardProcessorDetails(cardId: String)
         case closeCard(cardId: String)
         case getPin(cardId: String, sessionId: String)
         case setPin(cardId: String, pin: String, sessionId: String, iv: String)
