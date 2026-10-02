@@ -17,8 +17,8 @@ struct MarketIndexScaleView: View {
 
         var indicatorSide: CGFloat {
             switch self {
-            case .small: 10
-            case .big: 12
+            case .small: 8
+            case .big: 10
             }
         }
 
@@ -53,6 +53,7 @@ struct MarketIndexScaleView: View {
                 Circle()
                     .fill(DesignSystem.Color.iconPrimary)
                     .frame(size: CGSize(bothDimensions: indicatorSide))
+                    .shadow(color: Constants.indicatorShadowColor, radius: Constants.indicatorShadowRadius)
                     .offset(x: proxy.size.width * progress.clampedToUnitInterval - indicatorSide / 2)
             }
         }
@@ -60,16 +61,22 @@ struct MarketIndexScaleView: View {
     }
 
     private static let gradient = LinearGradient(
-        colors: [
-            DesignSystem.Color.iconAccentRed,
-            DesignSystem.Color.iconAccentOrange,
-            DesignSystem.Color.iconAccentYellow,
-            DesignSystem.Color.iconAccentGreen,
-            DesignSystem.Color.iconAccentBlue,
+        stops: [
+            .init(color: DesignSystem.Color.bgStatusError, location: 0.2),
+            .init(color: DesignSystem.Color.bgStatusWarning, location: 0.4),
+            .init(color: DesignSystem.Color.bgAccentGreen, location: 0.6),
+            .init(color: DesignSystem.Color.bgStatusInfo, location: 0.8),
         ],
         startPoint: .leading,
         endPoint: .trailing
     )
+}
+
+private extension MarketIndexScaleView {
+    enum Constants {
+        static let indicatorShadowColor = Color.black.opacity(0.25)
+        static let indicatorShadowRadius: CGFloat = 2
+    }
 }
 
 // MARK: - Appearance colour
