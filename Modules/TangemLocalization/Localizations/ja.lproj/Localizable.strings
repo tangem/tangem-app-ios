@@ -2302,6 +2302,7 @@
 "tangem_pay_transaction_declined_notification_text" = "銀行がこの取引リクエストを拒否しました。";
 "tangem_pay_transaction_details_cashback_below_min" = "最低取引額は です";
 "tangem_pay_transaction_details_cashback_cap_reached" = "月間上限に達しました";
+"tangem_pay_transaction_details_cashback_compliance_risk" = "Compliance risk";
 "tangem_pay_transaction_details_cashback_mcc_excluded" = "MCC対象外";
 "tangem_pay_transaction_details_cashback_none" = "—";
 "tangem_pay_transaction_details_cashback_refund" = "購入の返品";
@@ -2732,6 +2733,8 @@
 "tangempay_va_available_to_deposit_day" = "1日あたりの入金可能額：";
 "tangempay_va_banking_details_error_description" = "再度お試しいただくか、問題が解決しない場合はサポートにお問い合わせください";
 "tangempay_va_banking_details_error_title" = "銀行情報を読み込めませんでした";
+"tangempay_va_banner_failed_description" = "Please try again or contact support if the issue persists";
+"tangempay_va_banner_failed_title" = "Failed to create banking details";
 "tangempay_va_limit_resetting_everyday" = "上限は毎日リセットされます";
 "tangempay_visa_benefits" = "Visa特典";
 "tangempay_waitlist_description" = "We'll email you the moment it's available in your region";
