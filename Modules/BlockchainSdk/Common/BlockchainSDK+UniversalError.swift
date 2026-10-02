@@ -331,6 +331,16 @@ extension SolanaBSDKError: UniversalError {
             102010103
         case .invalidCompactU16:
             102010104
+        case .invalidBlockhashLength:
+            102010105
+        case .unsupportedMessageVersion:
+            102010106
+        case .durableNonceTransaction:
+            102010107
+        case .unexpectedTransactionMutation:
+            102010108
+        case .programIdOutsideStaticKeys:
+            102010109
         }
     }
 }
