@@ -317,7 +317,8 @@ private extension PersonalDetailsViewModel {
             TangemPayFormField(
                 id: .postalCode,
                 title: Localization.tangempayOrderDataPostalCode,
-                placeholder: "0000"
+                placeholder: "0000",
+                countryCode: country?.code
             ),
         ]
     }
@@ -401,6 +402,14 @@ private extension PersonalDetailsViewModel {
         }
 
         logFieldFilledIfNeeded(.countryCode)
+
+        updateField(.postalCode) {
+            $0.countryCode = selected.code
+
+            if !$0.text.trimmed().isEmpty {
+                $0.error = $0.currentError
+            }
+        }
 
         guard didChange else { return }
 
