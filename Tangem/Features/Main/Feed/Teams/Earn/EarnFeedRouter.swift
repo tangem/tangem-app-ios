@@ -17,7 +17,6 @@ protocol EarnFeedRoutable: AnyObject {
 
 final class EarnFeedRouter {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
-    @Injected(\.floatingSheetPresentingStateProvider) private var sheetStateProvider: FloatingSheetPresentingStateProvider
     @Injected(\.earnDataFilterProvider) private var filterProvider: EarnDataFilterProvider
     @Injected(\.earnAnalyticsProvider) private var analyticsProvider: EarnAnalyticsProvider
 
@@ -65,31 +64,18 @@ extension EarnFeedRouter: EarnFeedRoutable {
 
     func openTypesFilter() {
         Task { @MainActor [weak self] in
-            guard let self, !sheetStateProvider.hasPresentedSheet else {
+            guard let self else {
                 return
             }
 
             let viewModel = EarnTypeFilterBottomSheetViewModel(
                 filterProvider: filterProvider,
                 analyticsProvider: analyticsProvider,
-                onDismiss: { [weak self] in self?.dismissFilterSheet() }
+                onDismiss: { [weak self] in self?.navigation?.dismissModal() }
             )
 
-            present(filterSheet: viewModel)
+            navigation?.presentModal(.earnTypeFilter(viewModel))
         }
-    }
-}
-
-// MARK: - Filter sheets
-
-@MainActor
-private extension EarnFeedRouter {
-    func present(filterSheet viewModel: some FloatingSheetContentViewModel) {
-        floatingSheetPresenter.enqueue(sheet: viewModel)
-    }
-
-    func dismissFilterSheet() {
-        floatingSheetPresenter.removeActiveSheet()
     }
 }
 

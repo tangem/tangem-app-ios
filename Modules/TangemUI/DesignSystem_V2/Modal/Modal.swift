@@ -23,6 +23,9 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
     @State private var contentHeight: CGFloat = 0
     @State private var footerHeight: CGFloat = 0
     @State private var navigationBarHeight: CGFloat = 0
+    @State private var keyboardAwareBottomInset: CGFloat = 0
+    @State private var homeIndicatorInset: CGFloat = 0
+    @State private var isContentScrolled = false
 
     init(
         size: ModalSize = .flexible,
@@ -68,7 +71,8 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
 
     private var layout: some View {
         GeometryReader { geometry in
-            let scrollsSheet = contentLayout != .intrinsic && headerHeight + 48 + footerHeight > geometry.size.height
+            let scrollsSheet = contentLayout != .intrinsic
+                && headerHeight + Metrics.minContentHeight + footerBlockHeight + contentBottomInset > geometry.size.height
 
             // Keep one content tree so keyboard and Dynamic Type changes preserve focus and local state.
             ScrollView(contentLayout == .intrinsic || scrollsSheet ? .vertical : []) {
@@ -87,13 +91,24 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
                     }
                     .fixedSize(horizontal: false, vertical: true)
                     .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { footerHeight = $0 }
+                    .padding(.bottom, footerBottomInset)
                 }
                 .frame(maxWidth: .infinity, alignment: .top)
             }
             .scrollBounceBehavior(.basedOnSize)
             .scrollDismissesKeyboard(.interactively)
         }
+        .ignoresSafeArea(.container, edges: .bottom)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background {
+            Color.clear
+                .onGeometryChange(for: CGFloat.self, of: \.safeAreaInsets.bottom) { keyboardAwareBottomInset = $0 }
+        }
+        .background {
+            Color.clear
+                .ignoresSafeArea(.keyboard)
+                .onGeometryChange(for: CGFloat.self, of: \.safeAreaInsets.bottom) { homeIndicatorInset = $0 }
+        }
         .onGeometryChange(for: CGFloat.self, of: \.safeAreaInsets.top) { topInset in
             if navigation != nil, topInset > 0 {
                 navigationBarHeight = topInset
@@ -112,9 +127,19 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .fixedSize(horizontal: false, vertical: true)
                 .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { contentHeight = $0 }
+                .onGeometryChange(for: Bool.self) {
+                    $0.frame(in: .named(ModalCoordinateSpace.content)).minY < 0
+                } action: { isContentScrolled = $0 }
+                .padding(.bottom, contentBottomInset)
             }
+            .coordinateSpace(name: ModalCoordinateSpace.content)
             .scrollBounceBehavior(.basedOnSize)
             .scrollDismissesKeyboard(.interactively)
+            .reverseMask(alignment: .top) {
+                if isContentScrolled {
+                    FeedTopFade()
+                }
+            }
         case .intrinsic:
             VStack(alignment: .leading, spacing: 0) {
                 content
@@ -122,15 +147,39 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .fixedSize(horizontal: false, vertical: true)
             .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { contentHeight = $0 }
-            .frame(minHeight: 48, maxHeight: .infinity, alignment: .top)
+            .padding(.bottom, contentBottomInset)
+            .frame(minHeight: Metrics.minContentHeight, maxHeight: .infinity, alignment: .top)
         case .fill:
             content
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .safeAreaInset(edge: .bottom, spacing: 0) {
+                    Color.clear.frame(height: contentBottomInset)
+                }
         }
     }
 
+    private var isKeyboardVisible: Bool {
+        keyboardAwareBottomInset > homeIndicatorInset
+    }
+
+    private var bottomInset: CGFloat {
+        isKeyboardVisible ? 0 : homeIndicatorInset
+    }
+
+    private var footerBottomInset: CGFloat {
+        footerHeight > 0 ? bottomInset : 0
+    }
+
+    private var contentBottomInset: CGFloat {
+        footerHeight > 0 ? 0 : bottomInset
+    }
+
+    private var footerBlockHeight: CGFloat {
+        footerHeight + footerBottomInset
+    }
+
     private var idealHeight: CGFloat {
-        return ceil(navigationBarHeight + headerHeight + max(48, contentHeight) + footerHeight)
+        return ceil(navigationBarHeight + headerHeight + max(Metrics.minContentHeight, contentHeight) + footerHeight)
     }
 
     private var measuredHeight: CGFloat? {
@@ -147,16 +196,17 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
     private func bodyHeight(availableHeight: CGFloat, scrollsSheet: Bool) -> CGFloat {
         if contentLayout == .intrinsic {
             // Intrinsic content keeps its natural height while the sheet catches up with content changes.
-            let remainingHeight = size == .full ? availableHeight - headerHeight - footerHeight : 0
-            return max(48, contentHeight, remainingHeight)
+            let remainingHeight = size == .full ? availableHeight - headerHeight - footerBlockHeight : 0
+            return max(Metrics.minContentHeight, contentHeight + contentBottomInset, remainingHeight)
         }
 
         if scrollsSheet {
             // A caller-owned scroll view must leave room to drag the outer sheet to its header and footer.
-            return max(48, contentLayout == .fill ? availableHeight / 2 : contentHeight)
+            let fillHeight = (availableHeight - bottomInset) / 2 + contentBottomInset
+            return max(Metrics.minContentHeight, contentLayout == .fill ? fillHeight : contentHeight + contentBottomInset)
         }
 
-        return max(48, availableHeight - headerHeight - footerHeight)
+        return max(Metrics.minContentHeight, availableHeight - headerHeight - footerBlockHeight)
     }
 
     private var cornerRadius: CGFloat? {
@@ -166,4 +216,16 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
             36
         }
     }
+}
+
+private extension Modal {
+    enum Metrics {
+        static var minContentHeight: CGFloat { 48 }
+    }
+}
+
+// MARK: - Content fade
+
+private enum ModalCoordinateSpace {
+    static let content = "ModalContent"
 }
