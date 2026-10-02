@@ -62,6 +62,16 @@ final class CollectiblesDevnetMenuViewModel: ObservableObject {
         }
     }
 
+    func onCopyPurchaseFeePayerAddressTap() {
+        do {
+            UIPasteboard.general.string = try actions.purchaseFeePayerAddress()
+            Self.present(SuccessToast(text: Localization.commonValueCopied))
+        } catch {
+            CollectiblesLogger.error("Devnet: the purchase fee payer address could not be read", error: error)
+            Self.present(WarningToast(text: Localization.commonSomethingWentWrong))
+        }
+    }
+
     func onCloseAccountTap() {
         guard Self.closeTask == nil else {
             return

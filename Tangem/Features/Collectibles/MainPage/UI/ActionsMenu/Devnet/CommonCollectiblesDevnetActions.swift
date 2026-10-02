@@ -50,6 +50,14 @@ extension CommonCollectiblesDevnetActions: CollectiblesDevnetActions {
         try coldOwnerKey().blockchainKey.base58EncodedString
     }
 
+    func purchaseFeePayerAddress() throws -> String {
+        guard case .ready(let vault) = accountModel.state else {
+            throw DevnetActionError.vaultNotReady
+        }
+
+        return vault.sessionKey.base58EncodedString
+    }
+
     /// Closes the vault alone, which is all a tester needs to run the onboarding twice. The USDC account is
     /// left behind: reclaiming its rent takes `close_token_account`, and that one needs a live vault, so it
     /// only becomes callable again after a vault is deployed for the same owner.
@@ -139,6 +147,7 @@ private extension CommonCollectiblesDevnetActions {
 
     enum DevnetActionError: Error {
         case coldKeyNotDerived
+        case vaultNotReady
     }
 
     enum Constants {
