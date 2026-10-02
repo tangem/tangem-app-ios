@@ -54,17 +54,17 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
             waitForFieldEnabled(field)
 
             // [REDACTED_INFO]: the field resigns focus on swap-state re-renders, so clear, refocus and retype until it sticks.
-            for attempt in 0 ..< 8 {
-                if attempt > 0 || !field.hasFocus {
-                    field.tap()
+            for _ in 0 ..< 8 {
+                guard focusFromAmountField(field) else {
+                    continue
                 }
-                let length = field.getValue().count
+                let length = enteredFromAmountLength(field)
                 if length > 0 {
                     field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: length))
                 }
                 // A swap-state re-render can resign focus between clearing and typing; refocus so typeText won't throw.
-                if !field.hasFocus {
-                    field.tap()
+                guard fromAmountFieldHasKeyboardFocus() || focusFromAmountField(field) else {
+                    continue
                 }
                 field.typeText(amount)
                 if field.waitForValue(timeout: .quick, where: { $0.filter { $0.isNumber || $0 == "." } == expectedDigits }) {
@@ -689,6 +689,27 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     }
 
     @discardableResult
+    func verifyFinishScreenNotOpened(within timeout: TimeInterval) -> Self {
+        XCTContext.runActivity(named: "Verify finish screen is not opened while the transaction is pending") { _ in
+            let finishHeader = app.staticTexts[SendAccessibilityIdentifiers.finishHeader]
+            XCTAssertFalse(finishHeader.waitForExistence(timeout: timeout), "Finish screen should not be opened before the transaction hash arrives")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForErrorAlert() -> Self {
+        XCTContext.runActivity(named: "Assert error alert is shown and finish screen is not opened") { _ in
+            let alert = app.alerts[Constants.errorAlertTitle].firstMatch
+            waitAndAssertTrue(alert, "Error alert should be displayed")
+            waitAndAssertTrue(alert.buttons[Constants.errorAlertButton].firstMatch, "Error alert should offer the OK button")
+            let finishHeader = app.staticTexts[SendAccessibilityIdentifiers.finishHeader]
+            XCTAssertFalse(finishHeader.exists, "Finish screen should not be opened after a withdrawal error")
+        }
+        return self
+    }
+
+    @discardableResult
     func waitForSendErrorAlert() -> Self {
         XCTContext.runActivity(named: "Assert transaction error alert is shown and finish screen is not opened") { _ in
             let alert = app.alerts.firstMatch
@@ -798,6 +819,28 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
             .completed,
             "From amount field should become enabled"
         )
+    }
+
+    private func focusFromAmountField(_ field: XCUIElement) -> Bool {
+        waitForFieldEnabled(field)
+        field.tap()
+        return fromAmountFieldHasKeyboardFocus() || focusedFromAmountField.waitForExistence(timeout: Constants.keyboardFocusTimeout)
+    }
+
+    private func enteredFromAmountLength(_ field: XCUIElement) -> Int {
+        let value = field.getValue()
+        return value == field.placeholderValue ? 0 : value.count
+    }
+
+    private func fromAmountFieldHasKeyboardFocus() -> Bool {
+        focusedFromAmountField.exists
+    }
+
+    private var focusedFromAmountField: XCUIElement {
+        app.textFields
+            .matching(identifier: SwapAccessibilityIdentifiers.fromAmountTextField)
+            .matching(NSPredicate(format: "hasKeyboardFocus == true"))
+            .firstMatch
     }
 
     private func editableFromAmountField() -> XCUIElement {
@@ -943,5 +986,13 @@ enum SwapScreenElement: String, UIElement {
         case .confirmButton:
             return SwapAccessibilityIdentifiers.confirmButton
         }
+    }
+}
+
+private extension SwapScreen {
+    enum Constants {
+        static let errorAlertTitle = "Error"
+        static let errorAlertButton = "OK"
+        static let keyboardFocusTimeout: TimeInterval = 3
     }
 }

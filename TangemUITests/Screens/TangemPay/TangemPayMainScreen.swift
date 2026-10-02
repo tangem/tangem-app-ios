@@ -124,6 +124,15 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
+    func verifyAddCardDisabled() -> Self {
+        XCTContext.runActivity(named: "Verify add card button is disabled") { _ in
+            waitAndAssertTrue(addCardButton, "Add card button should be displayed")
+            XCTAssertTrue(addCardButton.waitForState(state: .disabled), "Add card button should be disabled while a card is being issued")
+            return self
+        }
+    }
+
+    @discardableResult
     func tapIssuingCard() -> TangemPayCardDetailsScreen {
         XCTContext.runActivity(named: "Tap the card being issued to open its screen") { _ in
             issuingCardButton.waitAndTap()
