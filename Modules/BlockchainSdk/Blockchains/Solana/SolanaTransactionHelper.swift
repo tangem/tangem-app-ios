@@ -66,6 +66,37 @@ public struct SolanaTransactionHelper {
         return signedTransaction
     }
 
+    public func replaceRecentBlockhash(_ blockhash: Data, in transaction: Data) throws -> Data {
+        guard blockhash.count == Constants.blockhashLength else {
+            throw SolanaBSDKError.invalidBlockhashLength
+        }
+
+        let layout = try messageLayout(of: transaction)
+
+        guard !layout.usesDurableNonce else {
+            throw SolanaBSDKError.durableNonceTransaction
+        }
+
+        var patched = transaction
+        let start = patched.startIndex + layout.blockhashOffset
+        patched.replaceSubrange(start ..< start + Constants.blockhashLength, with: blockhash)
+        return patched
+    }
+
+    public func assertDiffersOnlyInRecentBlockhash(original: Data, patched: Data) throws {
+        guard original.count == patched.count else {
+            throw SolanaBSDKError.unexpectedTransactionMutation
+        }
+
+        let offset = try messageLayout(of: original).blockhashOffset
+        let tailOffset = offset + Constants.blockhashLength
+
+        guard original.prefix(offset).elementsEqual(patched.prefix(offset)),
+              original.dropFirst(tailOffset).elementsEqual(patched.dropFirst(tailOffset)) else {
+            throw SolanaBSDKError.unexpectedTransactionMutation
+        }
+    }
+
     /// Reads the required-signer public keys from a serialized `message`: the first `numRequiredSignatures` static
     /// account keys, in order, capped by `maxSigners` (the actual number of signature slots) and by the account
     /// count so a malformed header can't point past the real signers. Uses a bounds-checked reader that throws on
@@ -93,6 +124,65 @@ public struct SolanaTransactionHelper {
         return try (0 ..< signerCount).map { _ in
             Data(try reader.read(count: Constants.publicKeyLength))
         }
+    }
+
+    private func messageLayout(of transaction: Data) throws -> MessageLayout {
+        let bytes: [UInt8] = transaction.bytes
+        var reader = BinaryReader(bytes: bytes)
+
+        let signatureSlotCount = try reader.decodeLength()
+        for _ in 0 ..< signatureSlotCount {
+            _ = try reader.read(count: Constants.signatureLength)
+        }
+
+        let messageStart = bytes.count - reader.remainBytes
+        guard messageStart < bytes.count else {
+            throw SolanaBSDKError.transactionIsEmpty
+        }
+
+        let isVersioned = bytes[messageStart] & Constants.versionedMessageMask != 0
+        if isVersioned {
+            guard bytes[messageStart] & ~Constants.versionedMessageMask == Constants.supportedMessageVersion else {
+                throw SolanaBSDKError.unsupportedMessageVersion
+            }
+
+            _ = try reader.read()
+        }
+
+        _ = try reader.read(count: Constants.messageHeaderLength)
+
+        let accountCount = try readCompactU16(from: &reader)
+        let accountKeys = try (0 ..< accountCount).map { _ in
+            Data(try reader.read(count: Constants.publicKeyLength))
+        }
+
+        let blockhashOffset = bytes.count - reader.remainBytes
+        _ = try reader.read(count: Constants.blockhashLength)
+
+        return MessageLayout(
+            blockhashOffset: blockhashOffset,
+            usesDurableNonce: try firstInstructionAdvancesNonce(from: &reader, accountKeys: accountKeys)
+        )
+    }
+
+    private func firstInstructionAdvancesNonce(from reader: inout BinaryReader, accountKeys: [Data]) throws -> Bool {
+        guard try readCompactU16(from: &reader) > 0 else {
+            return false
+        }
+
+        let programIdIndex = Int(try reader.read())
+        _ = try reader.read(count: try readCompactU16(from: &reader))
+        let instructionData = Data(try reader.read(count: try readCompactU16(from: &reader)))
+
+        guard accountKeys.indices.contains(programIdIndex) else {
+            throw SolanaBSDKError.programIdOutsideStaticKeys
+        }
+
+        guard accountKeys[programIdIndex] == Constants.systemProgramKey else {
+            return false
+        }
+
+        return instructionData.prefix(Constants.instructionDiscriminatorLength) == Constants.advanceNonceAccountDiscriminator
     }
 
     public func isTransactionMessage(_ data: Data) -> Bool {
@@ -188,12 +278,21 @@ extension SolanaTransactionHelper {
         case long
     }
 
+    private struct MessageLayout {
+        let blockhashOffset: Int
+        let usesDurableNonce: Bool
+    }
+
     private enum Constants {
         static let signatureLength: Int = 64
         static let publicKeyLength: Int = 32
         static let blockhashLength: Int = 32
+        static let messageHeaderLength: Int = 3
         static let versionedMessageMask: UInt8 = 0x80
         static let supportedMessageVersion: UInt8 = 0
+        static let instructionDiscriminatorLength: Int = 4
+        static let systemProgramKey = Data(repeating: 0, count: publicKeyLength)
+        static let advanceNonceAccountDiscriminator = Data([0x04, 0x00, 0x00, 0x00])
 
         /// Maximum APDU payload size in bytes.
         ///
