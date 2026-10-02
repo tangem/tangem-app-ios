@@ -21,7 +21,17 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
     @Published private(set) var totalFiatBalance: LoadableBalanceView.State
     @Published private(set) var priceChange: PriceChangeView.State
 
-    var tokensCount: String { Localization.commonTokensCount(rawTokensCount) }
+    var tokensCount: String {
+        let tokensCount = Localization.commonTokensCount(rawTokensCount)
+
+        guard let jointAccount = accountModel as? any JointAccountModel, jointAccount.status.isActive else {
+            return tokensCount
+        }
+
+        let membersCount = Localization.jointAccountMembersCount(jointAccount.policy.membersCount)
+        return "\(tokensCount) \(AppConstants.dotSign) \(membersCount)"
+    }
+
     var isEmptyContent: Bool { rawTokensCount == 0 }
 
     // MARK: - Private properties
