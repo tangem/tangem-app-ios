@@ -263,6 +263,12 @@ extension LockedUserWalletModel: UserWalletSerializable {
     }
 }
 
+extension LockedUserWalletModel: PromoCampaignIdentityProviding {
+    var promoCampaignIdentity: PromoCampaignIdentity {
+        userWallet.walletInfo.promoCampaignIdentity
+    }
+}
+
 extension LockedUserWalletModel: AssociatedCardIdsProvider {
     var associatedCardIds: Set<String> {
         switch userWallet.walletInfo {
