@@ -2302,6 +2302,7 @@
 "tangem_pay_transaction_declined_notification_text" = "Die Bank hat diese Transaktionsanfrage abgelehnt.";
 "tangem_pay_transaction_details_cashback_below_min" = "Versand ab";
 "tangem_pay_transaction_details_cashback_cap_reached" = "Monatslimit erreicht";
+"tangem_pay_transaction_details_cashback_compliance_risk" = "Compliance risk";
 "tangem_pay_transaction_details_cashback_mcc_excluded" = "MCC ausgeschlossen";
 "tangem_pay_transaction_details_cashback_none" = "—";
 "tangem_pay_transaction_details_cashback_refund" = "Rückgabe des Kaufs";
@@ -2732,6 +2733,8 @@
 "tangempay_va_available_to_deposit_day" = "Täglich zur Einzahlung verfügbar:";
 "tangempay_va_banking_details_error_description" = "Bitte versuche es später erneut. Sollte das Problem weiterhin bestehen, kontaktiere bitte unseren Support. Wir helfen Dir gerne bei der Lösung.";
 "tangempay_va_banking_details_error_title" = "Die Bankdaten konnten nicht geladen werden";
+"tangempay_va_banner_failed_description" = "Please try again or contact support if the issue persists";
+"tangempay_va_banner_failed_title" = "Failed to create banking details";
 "tangempay_va_limit_resetting_everyday" = "Das Limit wird jeden Tag zurückgesetzt";
 "tangempay_visa_benefits" = "Visavorteile";
 "tangempay_waitlist_description" = "Wir benachrichtigen Sie per E-Mail, sobald es in Ihrer Region verfügbar ist.";
