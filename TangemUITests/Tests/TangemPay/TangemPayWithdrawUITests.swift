@@ -170,7 +170,80 @@ final class TangemPayWithdrawUITests: BaseTestCase {
         }
     }
 
-    private func openWithdrawSwapScreen() -> SwapScreen {
+    func testWithdraw_WithdrawDataFails_ShowsError() {
+        setAllureId(9605)
+
+        confirmBitcoinWithdraw(withdrawState: Constants.State.withdrawDataError)
+            .waitForErrorAlert()
+
+        XCTContext.runActivity(named: "Verify the withdrawal stopped before submitting") { _ in
+            XCTAssertEqual(withdrawDataRequestCount(), 1, "Withdrawal data should be requested once")
+            XCTAssertEqual(withdrawRequestCount(), 0, "Withdrawal should not be submitted without signing data")
+            XCTAssertEqual(exchangeSentRequestCount(), 0, "Failed withdrawal should not be reported to Express")
+        }
+    }
+
+    func testWithdraw_WithdrawFailsAfterSigning_ShowsError() {
+        setAllureId(9606)
+
+        confirmBitcoinWithdraw(withdrawState: Constants.State.withdrawError)
+            .waitForErrorAlert()
+
+        XCTContext.runActivity(named: "Verify the signed withdrawal was submitted and failed") { _ in
+            XCTAssertEqual(withdrawDataRequestCount(), 1, "Withdrawal data should be requested once")
+            XCTAssertEqual(withdrawRequestCount(), 1, "Signed withdrawal should be submitted once")
+            XCTAssertEqual(orderRequestCount(), 0, "Failed withdrawal should not poll the order")
+            XCTAssertEqual(exchangeSentRequestCount(), 0, "Failed withdrawal should not be reported to Express")
+        }
+    }
+
+    func testWithdraw_StaysOnSwapUntilTransactionHashArrives() {
+        setAllureId(9660)
+
+        confirmBitcoinWithdraw(withdrawState: Constants.State.orderPendingFirstPoll)
+            .verifyFinishScreenNotOpened(within: Constants.pendingOrderObservationTime)
+
+        XCTContext.runActivity(named: "Verify the order is being polled while the Swap screen stays open") { _ in
+            XCTAssertGreaterThan(orderRequestCount(), 0, "The order should already be polled while the transaction hash is missing")
+        }
+
+        SwapScreen(app).validateSwapScreenDisplayed()
+        SendFinishScreen(app).waitForDisplay()
+
+        XCTContext.runActivity(named: "Verify the order was polled until the transaction hash arrived") { _ in
+            XCTAssertEqual(
+                orderRequestCount(),
+                Constants.pollsUntilTransactionHash,
+                "The order should be polled again after each response without a transaction hash"
+            )
+        }
+    }
+
+    func testWithdraw_TransactionHashNotReceivedAfterFiveAttempts_ShowsError() {
+        setAllureId(9659)
+
+        confirmBitcoinWithdraw(withdrawState: Constants.State.orderWithoutHash)
+            .waitForErrorAlert()
+
+        XCTContext.runActivity(named: "Verify the order was polled the maximum number of times") { _ in
+            XCTAssertEqual(orderRequestCount(), Constants.maxOrderPollAttempts, "The order should be polled exactly five times")
+            XCTAssertEqual(exchangeSentRequestCount(), 0, "Withdrawal without a transaction hash should not be reported to Express")
+        }
+    }
+
+    private func confirmBitcoinWithdraw(withdrawState: String) -> SwapScreen {
+        let swapScreen = openWithdrawSwapScreen(extraScenarios: [
+            ScenarioConfig(name: Constants.Scenario.withdraw, initialState: withdrawState),
+        ])
+        .chooseTokenFromEmptySelector(Constants.bitcoinName)
+        .enterFromAmount(Constants.withdrawAmount)
+
+        wireMockClient.resetRequestJournalSync()
+        swapScreen.confirmSwap()
+        return swapScreen
+    }
+
+    private func openWithdrawSwapScreen(extraScenarios: [ScenarioConfig] = []) -> SwapScreen {
         launchAndImportHotWalletWithRealPayAuthorization(expressApiType: .mock, scenarios: [
             ScenarioConfig(name: "bitcoin_utxo", initialState: "Started"),
             ScenarioConfig(name: "express_api_assets", initialState: "BitcoinExchangeEnabled"),
@@ -179,12 +252,12 @@ final class TangemPayWithdrawUITests: BaseTestCase {
             ScenarioConfig(name: "tangem_pay_transaction_history", initialState: "InitialEmpty"),
             // Without BANK_OFFRAMP among the eligible channels the Withdraw button keeps opening the swap flow.
             ScenarioConfig(name: Constants.Scenario.eligibilityChannels, initialState: Constants.State.withoutBankOfframp),
-        ])
-        .openTangemPay()
-        .waitForScreen()
-        .verifyBalanceContains("$10.00")
-        .tapWithdraw()
-        .validateSwapScreenDisplayed()
+        ] + extraScenarios)
+            .openTangemPay()
+            .waitForScreen()
+            .verifyBalanceContains("$10.00")
+            .tapWithdraw()
+            .validateSwapScreenDisplayed()
     }
 
     private func openMultiNetworkWithdrawSwapScreen() -> SwapScreen {
@@ -206,6 +279,18 @@ final class TangemPayWithdrawUITests: BaseTestCase {
 
     private func exchangeSentRequestCount() -> Int {
         wireMockClient.requestCountSync(method: "POST", urlPathPattern: Constants.Endpoint.exchangeSentPattern)
+    }
+
+    private func withdrawDataRequestCount() -> Int {
+        wireMockClient.requestCountSync(method: "POST", urlPathPattern: Constants.Endpoint.withdrawData)
+    }
+
+    private func withdrawRequestCount() -> Int {
+        wireMockClient.requestCountSync(method: "POST", urlPathPattern: Constants.Endpoint.withdraw)
+    }
+
+    private func orderRequestCount() -> Int {
+        wireMockClient.requestCountSync(method: "GET", urlPathPattern: Constants.Endpoint.withdrawOrder)
     }
 
     private func onlyWithdrawRequestBody() -> [String: Any] {
@@ -231,18 +316,28 @@ private extension TangemPayWithdrawUITests {
         static let singleNetworkBalance = "$10.00"
         static let withdrawableTokenCount = 1
         static let enabledNetworkTokenCount = 2
+        static let bitcoinName = "Bitcoin"
+        static let withdrawAmount = "5"
+        static let pollsUntilTransactionHash = 4
+        static let pendingOrderObservationTime: TimeInterval = 7
+        static let maxOrderPollAttempts = 5
 
         enum Scenario {
             static let eligibilityChannels = "tangem_pay_eligibility_channels"
             static let balance = "tangem_pay_balance_update"
             static let history = "tangem_pay_transaction_history"
             static let expressAssets = "express_api_assets"
+            static let withdraw = "tangem_pay_withdraw"
         }
 
         enum State {
             static let withoutBankOfframp = "Started"
             static let emptyHistory = "InitialEmpty"
             static let payWithdrawAllNetworks = "PayWithdrawAllNetworks"
+            static let withdrawDataError = "WithdrawDataError"
+            static let withdrawError = "WithdrawError"
+            static let orderPendingFirstPoll = "OrderPendingFirstPoll"
+            static let orderWithoutHash = "OrderWithoutHash"
             static let withdrawableOnlyOnNetwork: [(TangemPayNetwork, String)] = [
                 (.bsc, "WithdrawableOnlyOnBsc"),
                 (.base, "WithdrawableOnlyOnBase"),
@@ -254,6 +349,8 @@ private extension TangemPayWithdrawUITests {
             /// CEX withdraw submits via Express, not /customer/card/withdraw; assert single swap submission on this endpoint.
             static let exchangeSentPattern = "/v1/exchange-sent"
             static let withdraw = "/bff-v2/v1/customer/card/withdraw"
+            static let withdrawData = "/bff-v2/v1/customer/card/withdraw/data"
+            static let withdrawOrder = "/bff-v2/v1/order/mock-tangempay-withdraw-order-001"
         }
     }
 }

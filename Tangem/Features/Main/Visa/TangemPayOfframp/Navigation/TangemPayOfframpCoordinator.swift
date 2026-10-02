@@ -371,12 +371,17 @@ extension TangemPayOfframpCoordinator {
         case .sent(let model):
             successStatusModel = model
 
-        case .failed(let model, let onRetry):
-            failedStatus = FailedStatus(model: model, onRetry: onRetry)
+        case .failed(let model, let onRetry, let onClose):
+            failedStatus = FailedStatus(model: model, onRetry: onRetry, onClose: onClose)
 
         case .close:
             dismiss(with: nil)
         }
+    }
+
+    func closeFailedStatus() {
+        failedStatus?.onClose?()
+        dismiss(with: nil)
     }
 
     func retryAfterFailedStatus() {
@@ -397,6 +402,7 @@ extension TangemPayOfframpCoordinator {
         let id = UUID()
         let model: TransferFailedStatusView.Model
         let onRetry: (() -> Void)?
+        let onClose: (() -> Void)?
 
         var canRetry: Bool {
             onRetry != nil

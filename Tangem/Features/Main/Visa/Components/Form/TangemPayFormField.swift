@@ -16,6 +16,7 @@ struct TangemPayFormField: Identifiable {
     var text = ""
     var error: Error?
     var onSelect: (() -> Void)?
+    var countryCode: String?
 
     enum ID: Hashable {
         case email
@@ -68,7 +69,7 @@ extension TangemPayFormField {
     }
 
     var currentError: Error? {
-        OfframpFormValidator.error(for: id, in: text)
+        OfframpFormValidator.error(for: id, in: text, countryCode: countryCode)
     }
 }
 

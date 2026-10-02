@@ -50,12 +50,20 @@ private extension EarnTypeFilterBottomSheetViewRedesign {
 
     var content: some View {
         ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: .zero) {
-                ForEach(viewModel.listOptionViewModel) { data in
-                    EarnNetworkFilterSelectedRowView(data: data, selection: $viewModel.currentSelection)
-                }
-            }
+            EarnTypeFilterContentView(viewModel: viewModel)
         }
         .scrollBounceBehavior(.basedOnSize)
+    }
+}
+
+struct EarnTypeFilterContentView: View {
+    @ObservedObject var viewModel: EarnTypeFilterBottomSheetViewModel
+
+    var body: some View {
+        VStack(spacing: .zero) {
+            ForEach(viewModel.listOptionViewModel) { data in
+                EarnNetworkFilterSelectedRowView(data: data, selection: $viewModel.currentSelection)
+            }
+        }
     }
 }
