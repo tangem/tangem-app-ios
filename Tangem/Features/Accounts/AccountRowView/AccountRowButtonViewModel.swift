@@ -25,6 +25,7 @@ final class AccountRowButtonViewModel: Identifiable, ObservableObject {
     @Published private(set) var trailingBalanceState: LoadableBalanceView.State?
 
     let isDisabled: Bool
+    let nameBadge: String?
 
     // MARK: - Private Properties
 
@@ -39,10 +40,12 @@ final class AccountRowButtonViewModel: Identifiable, ObservableObject {
     init(
         accountModel: any BaseAccountModel,
         availability: AccountAvailability = .available,
+        nameBadge: String? = nil,
         onTap: @escaping () -> Void
     ) {
         self.accountModel = accountModel
         self.availability = availability
+        self.nameBadge = nameBadge
         self.onTap = onTap
 
         id = accountModel.id.toAnyHashable()
