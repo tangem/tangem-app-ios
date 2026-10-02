@@ -20,6 +20,7 @@ public struct CollectiblesVaultProgram {
         case invalidAccountData
         case invalidCaps
         case impossibleVaultAccount
+        case invalidPurchase
     }
 
     public static let devnetProgramId = "29agFEruMu2jedVwnDgKPuq7ejmTiB7sEqzdhufQQS9u"
@@ -117,6 +118,8 @@ public struct CollectiblesVaultProgram {
 
         return CollectiblesConfigInfo(
             usdcMint: config.usdcMint,
+            collectiblesUsdcAccount: config.collectiblesUsdcAccount,
+            feeUsdcAccount: config.feeUsdcAccount,
             minFeeBps: config.minFeeBps,
             maxFeeBps: config.maxFeeBps
         )
@@ -306,6 +309,45 @@ public struct CollectiblesVaultProgram {
         )
     }
 
+    public func purchasePackInstruction(
+        coldOwner: Data,
+        sessionKey: Data,
+        config: CollectiblesConfigInfo,
+        amount: UInt64,
+        feeAmount: UInt64,
+        memo: String
+    ) throws -> CollectiblesInstruction {
+        guard
+            coldOwner.count == PublicKey.LENGTH, let coldOwnerKey = PublicKey(data: coldOwner),
+            sessionKey.count == PublicKey.LENGTH, let sessionKeyKey = PublicKey(data: sessionKey),
+            config.usdcMint.count == PublicKey.LENGTH, let mintKey = PublicKey(data: config.usdcMint),
+            config.collectiblesUsdcAccount.count == PublicKey.LENGTH,
+            let collectiblesUsdcKey = PublicKey(data: config.collectiblesUsdcAccount),
+            config.feeUsdcAccount.count == PublicKey.LENGTH, let feeUsdcKey = PublicKey(data: config.feeUsdcAccount)
+        else {
+            throw ProgramError.invalidPublicKey
+        }
+
+        let data = try Self.purchasePackInstructionData(amount: amount, feeAmount: feeAmount, memo: memo)
+        let vault = try vaultPDA(coldOwner: coldOwnerKey)
+        let vaultUsdc = try Self.associatedTokenAddress(owner: vault, mint: mintKey)
+
+        return CollectiblesInstruction(
+            programId: programId.base58EncodedString,
+            accounts: [
+                .init(address: try configPDA().base58EncodedString, isSigner: false, isWritable: false),
+                .init(address: vault.base58EncodedString, isSigner: false, isWritable: true),
+                .init(address: sessionKeyKey.base58EncodedString, isSigner: true, isWritable: false),
+                .init(address: mintKey.base58EncodedString, isSigner: false, isWritable: false),
+                .init(address: vaultUsdc.base58EncodedString, isSigner: false, isWritable: true),
+                .init(address: collectiblesUsdcKey.base58EncodedString, isSigner: false, isWritable: true),
+                .init(address: feeUsdcKey.base58EncodedString, isSigner: false, isWritable: true),
+                .init(address: PublicKey.tokenProgramId.base58EncodedString, isSigner: false, isWritable: false),
+            ],
+            data: data
+        )
+    }
+
     // MARK: - Instruction data
 
     static func initVaultInstructionData(sessionKey: Data, perSpinCap: UInt64, dailyCap: UInt64) throws -> Data {
@@ -343,6 +385,20 @@ public struct CollectiblesVaultProgram {
         data.appendBorshOption(perSpinCap)
         data.appendBorshOption(dailyCap)
 
+        return data
+    }
+
+    static func purchasePackInstructionData(amount: UInt64, feeAmount: UInt64, memo: String) throws -> Data {
+        let memoBytes = Data(memo.utf8)
+
+        guard amount > 0, !memoBytes.isEmpty, memoBytes.count <= Constants.maxMemoLength else {
+            throw ProgramError.invalidPurchase
+        }
+
+        var data = instructionDiscriminator("purchase_pack")
+        data.appendLittleEndian(amount)
+        data.appendLittleEndian(feeAmount)
+        data.appendBorshString(memoBytes)
         return data
     }
 
@@ -469,13 +525,21 @@ public extension CollectiblesVaultProgram {
 
         /// - Parameter feeAmount: the backend's `fee_amount` — the program checks the caps against `amount + fee_amount`.
         static func fitsCaps(amount: UInt64, feeAmount: UInt64, vault: Vault, now: Date) -> Bool {
-            let (total, overflow) = amount.addingReportingOverflow(feeAmount)
+            fitsCaps(
+                amount: amount,
+                feeAmount: feeAmount,
+                perSpinCap: vault.perSpinCap,
+                remainingToday: remainingToday(vault: vault, now: now)
+            )
+        }
 
-            guard !overflow else {
-                return false
-            }
-
-            return total <= vault.perSpinCap && total <= remainingToday(vault: vault, now: now)
+        static func fitsCaps(amount: UInt64, feeAmount: UInt64, vault: CollectiblesVaultInfo, now: Date) -> Bool {
+            fitsCaps(
+                amount: amount,
+                feeAmount: feeAmount,
+                perSpinCap: vault.perSpinCap,
+                remainingToday: vault.remainingToday(now: now)
+            )
         }
 
         public static func feeCorridor(amount: UInt64, config: CollectiblesConfigInfo) -> ClosedRange<UInt64> {
@@ -489,6 +553,21 @@ public extension CollectiblesVaultProgram {
         /// before the spin is signed.
         public static func fitsFeeCorridor(amount: UInt64, feeAmount: UInt64, config: CollectiblesConfigInfo) -> Bool {
             feeCorridor(amount: amount, config: config).contains(feeAmount)
+        }
+
+        private static func fitsCaps(
+            amount: UInt64,
+            feeAmount: UInt64,
+            perSpinCap: UInt64,
+            remainingToday: UInt64
+        ) -> Bool {
+            let (total, overflow) = amount.addingReportingOverflow(feeAmount)
+
+            guard !overflow else {
+                return false
+            }
+
+            return total <= perSpinCap && total <= remainingToday
         }
 
         /// `amount * bps / 10_000` without the overflow the intermediate product hits for large amounts.
@@ -510,6 +589,7 @@ private extension CollectiblesVaultProgram {
         /// `CreateIdempotent` in the associated token program; `0` is the plain `Create`.
         static let createIdempotentInstructionTag: UInt8 = 1
         static let tokenAccountLength = 165
+        static let maxMemoLength = 256
     }
 }
 
@@ -572,6 +652,11 @@ private struct CollectiblesAccountReader {
 private extension Data {
     mutating func appendLittleEndian(_ value: UInt64) {
         Swift.withUnsafeBytes(of: value.littleEndian) { append(contentsOf: $0) }
+    }
+
+    mutating func appendBorshString(_ bytes: Data) {
+        Swift.withUnsafeBytes(of: UInt32(bytes.count).littleEndian) { append(contentsOf: $0) }
+        append(bytes)
     }
 
     mutating func appendBorshOption(_ value: Data?) {
