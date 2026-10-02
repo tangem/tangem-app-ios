@@ -12,4 +12,9 @@ enum SolanaBSDKError: Error {
     case signerPublicKeyNotFound
     case invalidSignatureLength
     case invalidCompactU16
+    case invalidBlockhashLength
+    case unsupportedMessageVersion
+    case durableNonceTransaction
+    case unexpectedTransactionMutation
+    case programIdOutsideStaticKeys
 }
