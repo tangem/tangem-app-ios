@@ -37,10 +37,14 @@ struct TransactionHistoryMapperCoinFallbackTests {
         ] as [String?]
     )
     func aCoinTransactionThatMovedNoCoinIsTheFee(methodName: String?) {
-        let viewModel = makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: methodName))
+        let sut = makeSUT(isToken: false)
+        let record = makeRecord(methodName: methodName)
+        let viewModel = sut.mapTransactionViewModel(record)
 
         #expect(viewModel.display.title.fullText == Localization.commonNetworkFeeTitle)
         #expect(viewModel.amount.amount.hasSuffix(BalanceFormatter().formatCryptoBalance(Self.feeValue, currencyCode: "ETH")))
+        // The details sheet converts this value to fiat, so it has to be the fee too, not the zero transfer.
+        #expect(sut.displayedAmountValue(from: record) == Self.feeValue)
     }
 
     @Test("The fee for a send says it paid for sending", arguments: ["transfer", "yieldSend"])

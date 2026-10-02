@@ -22,7 +22,7 @@ struct TransactionHistoryMapperUTXOAmountTests {
             outputs: [(Self.recipient, dec("0.00100000")), (Self.changeAddress, dec("0.00099442"))]
         )
 
-        #expect(makeSUT().transferAmountValue(from: record) == dec("0.001"))
+        #expect(makeSUT().displayedAmountValue(from: record) == dec("0.001"))
     }
 
     @Test("Everything sent to others counts, however many outputs it took")
@@ -32,7 +32,7 @@ struct TransactionHistoryMapperUTXOAmountTests {
             outputs: [(Self.recipient, dec("0.003")), ("bc1qother", dec("0.002")), (Self.owner, dec("0.00499"))]
         )
 
-        #expect(makeSUT().transferAmountValue(from: record) == dec("0.005"))
+        #expect(makeSUT().displayedAmountValue(from: record) == dec("0.005"))
     }
 
     /// With nothing leaving the wallet, the fee is all the transaction cost, and it is still worth showing.
@@ -43,7 +43,7 @@ struct TransactionHistoryMapperUTXOAmountTests {
             outputs: [(Self.changeAddress, dec("0.00199"))]
         )
 
-        #expect(makeSUT().transferAmountValue(from: record) == dec("0.00001"))
+        #expect(makeSUT().displayedAmountValue(from: record) == dec("0.00001"))
     }
 
     @Test("An incoming UTXO transaction shows what reached the wallet")
@@ -54,7 +54,7 @@ struct TransactionHistoryMapperUTXOAmountTests {
             isOutgoing: false
         )
 
-        #expect(makeSUT().transferAmountValue(from: record) == dec("0.004"))
+        #expect(makeSUT().displayedAmountValue(from: record) == dec("0.004"))
     }
 }
 
