@@ -10,7 +10,8 @@ import Testing
 @testable import Tangem
 
 /// The history decides what a transaction is by the name the shipped method list gives its id: the gasless fee
-/// matcher looks for `gaslessTransaction`, the transfer classifier for the Yield-mode pair. Renaming any of them
+/// matcher looks for `gaslessTransaction`, the transfer classifier for the Yield-mode pair, the coin fee row for the
+/// Yield-module call it names in its subtitle. Renaming any of them
 /// in `contract_methods.json` silently changes what the history shows, so the names are pinned here.
 @Suite("Contract method names the transaction history relies on")
 struct ContractMethodNamesPinTests {
@@ -22,7 +23,11 @@ struct ContractMethodNamesPinTests {
             ("0xf9b181bf", "gaslessTransaction"),
             ("0x0779afe6", "yieldSend"),
             ("0x79be55f7", "yieldEnter"),
+            ("0xb9de6a93", "yieldTopup"),
             ("0xc65e6dcf", "yieldWithdraw"),
+            ("0xcbeda14c", "yieldDeploy"),
+            ("0xebd4b81c", "yieldInit"),
+            ("0xc478e956", "yieldReactivate"),
         ]
     )
     func methodIsNamed(id: String, name: String) {
