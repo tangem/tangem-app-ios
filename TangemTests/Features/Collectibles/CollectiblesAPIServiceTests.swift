@@ -47,12 +47,12 @@ struct CollectiblesAPIServiceTests {
 
         let pack = try #require(page.packs.first)
         #expect(pack.id == "pokemon_50")
-        #expect(pack.name == "PKMN 50")
+        #expect(pack.machine.name == "PKMN 50")
         #expect(pack.loreID == "pokemon")
-        #expect(pack.price == 50)
+        #expect(pack.machine.price == 50)
         #expect(pack.currencyCode == "USD")
-        #expect(pack.buybackRate == Decimal(string: "0.85"))
-        #expect(pack.artworkURL == URL(string: "https://example.com/pack.png"))
+        #expect(pack.machine.buybackRate == Decimal(string: "0.85"))
+        #expect(pack.machine.artworkURL == URL(string: "https://example.com/pack.png"))
     }
 
     @Test("Forwards the cursor and surfaces the page envelope")
@@ -112,7 +112,7 @@ struct CollectiblesAPIServiceTests {
 
     @Test("An inverted value range is dropped and the tier keeps its odds")
     func dropsInvertedValueRange() async throws {
-        let json = Self.machineJSON(commonRange: #"{"start":60,"end":30}"#)
+        let json = Self.machineJSON(commonRange: #"{"start":6000,"end":3000}"#)
         CollectiblesStubURLProtocol.responses = [Data(json.utf8)]
 
         let machine = try await makeSUT().load(id: "pokemon_50")
@@ -206,15 +206,15 @@ private extension CollectiblesAPIServiceTests {
 
     static func machineJSON(
         externalId: String = "pokemon_50",
-        commonRange: String = #"{"start":30,"end":60}"#
+        commonRange: String = #"{"start":3000,"end":6000}"#
     ) -> String {
         #"""
         {"id":"01a03802-433f-7ae5-a996-f981048a0a18","externalId":"\#(externalId)","name":"Elite Pokémon Gacha Pack",
         "shortName":"PKMN 50","price":5000,"instantBuybackPercent":85,"lowThreshold":50,
         "odds":{"common":80,"rare":4,"epic":1,"legendary":null},
-        "tierRanges":{"common":\#(commonRange),"rare":{"start":110,"end":250},"epic":{"start":250,"end":5001},"legendary":null},
+        "tierRanges":{"common":\#(commonRange),"rare":{"start":11000,"end":25000},"epic":{"start":25000,"end":500100},"legendary":null},
         "stock":{"common":214,"rare":383,"epic":200,"legendary":null},
-        "expectedValue":54.5,"image":"https://example.com/pack.png","categoryId":"pokemon","contains":1,
+        "expectedValue":5450,"image":"https://example.com/pack.png","categoryId":"pokemon","contains":1,
         "fee":200,"feeAmount":100,"createdAt":"2026-08-25T08:21:07.518119Z","updatedAt":"2026-09-07T04:34:30.860676Z"}
         """#
     }
