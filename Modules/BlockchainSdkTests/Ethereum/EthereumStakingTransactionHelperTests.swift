@@ -134,8 +134,7 @@ private extension EthereumStakingTransactionHelperTests {
             type: nil,
             status: nil,
             stepIndex: 1,
-            target: nil,
-            solanaBlockhashDate: nil
+            target: nil
         )
     }
 }

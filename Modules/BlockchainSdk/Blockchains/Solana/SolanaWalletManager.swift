@@ -315,12 +315,12 @@ extension SolanaWalletManager: RentExtemptionRestrictable {
 
 extension SolanaWalletManager: ThenProcessable {}
 
-// MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
+// MARK: - StakeKitTransactionSender, StakingTransactionsBuilder
 
-extension SolanaWalletManager: StakeKitTransactionSender, StakingTransactionsBuilder, StakeKitTransactionDataProvider {
+extension SolanaWalletManager: StakeKitTransactionSender, StakingTransactionsBuilder {
     struct RawTransactionData: CustomStringConvertible {
         let serializedData: String
-        let blockhashDate: Date
+        let blockhashFetchedAt: Date
 
         var description: String {
             serializedData
@@ -329,26 +329,41 @@ extension SolanaWalletManager: StakeKitTransactionSender, StakingTransactionsBui
 
     typealias RawTransaction = RawTransactionData
 
-    func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
-        let transactionData = Data(hex: transaction.unsignedData)
-        let prepared = try transactionHelper.removeSignaturesPlaceholders(from: transactionData)
-        return prepared.transaction
-    }
-
-    func prepareDataForSend(transaction: StakeKitTransaction, signature: SignatureInfo) throws -> RawTransaction {
-        let signedTransaction = try transactionHelper.addSignature(
-            signature.signature,
-            transaction: Data(hex: transaction.unsignedData)
-        )
-
-        guard let solanaBlockhashDate = transaction.solanaBlockhashDate else {
+    func buildRawTransactions<T: StakingTransaction>(
+        from transactions: [T],
+        publicKey: Wallet.PublicKey,
+        signer: any TransactionSigner
+    ) async throws -> [RawTransaction] {
+        guard let transactions = transactions as? [StakeKitTransaction] else {
             throw BlockchainSdkError.failedToBuildTx
         }
 
-        return RawTransactionData(
-            serializedData: signedTransaction,
-            blockhashDate: solanaBlockhashDate
-        )
+        let blockhashFetchedAt = Date()
+        let blockhash = Data(Base58.decode(try await networkService.getLatestBlockhash()))
+        try Task.checkCancellation()
+
+        let patchedTransactions: [Data] = try transactions.map { transaction in
+            let original = Data(hex: transaction.unsignedData)
+            let patched = try transactionHelper.replaceRecentBlockhash(blockhash, in: original)
+            try transactionHelper.assertDiffersOnlyInRecentBlockhash(original: original, patched: patched)
+            return patched
+        }
+
+        let hashes = try patchedTransactions.map {
+            try transactionHelper.removeSignaturesPlaceholders(from: $0).transaction
+        }
+
+        let signatures: [SignatureInfo] = try await signer.sign(
+            hashes: hashes,
+            walletPublicKey: publicKey
+        ).async()
+
+        return try zip(patchedTransactions, signatures).map { patched, signature in
+            RawTransactionData(
+                serializedData: try transactionHelper.addSignature(signature.signature, transaction: patched),
+                blockhashFetchedAt: blockhashFetchedAt
+            )
+        }
     }
 }
 
@@ -356,7 +371,7 @@ extension SolanaWalletManager: StakeKitTransactionDataBroadcaster {
     func broadcast(rawTransaction: RawTransaction) async throws -> String {
         try await networkService.sendRaw(
             base64serializedTransaction: rawTransaction.serializedData,
-            startSendingTimestamp: rawTransaction.blockhashDate
+            startSendingTimestamp: rawTransaction.blockhashFetchedAt
         ).async()
     }
 }
