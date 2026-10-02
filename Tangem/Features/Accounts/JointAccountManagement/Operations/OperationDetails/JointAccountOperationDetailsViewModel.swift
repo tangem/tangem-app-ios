@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import SwiftUI
 import UIKit
 import TangemAssets
 import TangemFoundation
@@ -37,6 +38,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     let recipientBlockiesImage: UIImage?
     let networkFee: String
 
+    private let hasNFCInteraction: Bool
     private let sign: () async throws -> Void
     private let pendingOperationsProvider: (any JointAccountPendingOperationsProvider)?
     private weak var coordinator: JointAccountOperationDetailsRoutable?
@@ -54,6 +56,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         recipient: String,
         recipientBlockiesImage: UIImage?,
         networkFee: String,
+        hasNFCInteraction: Bool,
         content: Content,
         updatesPublisher: AnyPublisher<Update, Never>,
         pendingOperationsProvider: (any JointAccountPendingOperationsProvider)?,
@@ -66,6 +69,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         self.recipient = recipient
         self.recipientBlockiesImage = recipientBlockiesImage
         self.networkFee = networkFee
+        self.hasNFCInteraction = hasNFCInteraction
         self.content = content
         answer = content.answer
         self.sign = sign
@@ -91,7 +95,12 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
                 isOutgoing: true
             ),
             iconGlyph: nil,
-            menuSections: []
+            menuSections: [
+                .init(
+                    id: Constants.addressMenuSectionID,
+                    actions: [TransactionDetailsMenuFactory.copyAddressAction(for: recipient)]
+                ),
+            ]
         )
     }
 
@@ -130,6 +139,8 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
             signOperation()
         case .openSigners:
             openSigners()
+        case .copy(let value, let toast, _):
+            copy(value, toast: toast)
         default:
             break
         }
@@ -201,6 +212,22 @@ private extension JointAccountOperationDetailsViewModel {
         )
 
         viewState = .signers(viewModel)
+    }
+}
+
+// MARK: - Copying
+
+private extension JointAccountOperationDetailsViewModel {
+    func copy(_ value: String, toast text: String) {
+        UIPasteboard.general.string = value
+        FeedbackGenerator.selectionChanged()
+
+        Toast(
+            view: TangemSnackbar(title: text)
+                .icon(DesignSystem.Icons.Checkmark.regular20)
+                .iconColor(Color.Tangem.Graphic.Status.accent)
+        )
+        .present(layout: .top(padding: 14), type: .temporary())
     }
 }
 
@@ -323,7 +350,7 @@ private extension JointAccountOperationDetailsViewModel {
         .action(
             TransactionDetailsActionButtonViewData(
                 title: signTitle,
-                icon: isSignEnabled ? DesignSystem.Icons.LogoTangem.regular20 : nil,
+                icon: (isSignEnabled && hasNFCInteraction) ? DesignSystem.Icons.LogoTangem.regular20 : nil,
                 style: .default,
                 action: .signOperation,
                 isBusy: isSigning,
@@ -381,6 +408,7 @@ private extension JointAccountOperationDetailsViewModel {
 private extension JointAccountOperationDetailsViewModel {
     enum Constants {
         static let networkFeeRowID = "joint_operation_network_fee"
+        static let addressMenuSectionID = "joint_operation_address"
     }
 }
 
