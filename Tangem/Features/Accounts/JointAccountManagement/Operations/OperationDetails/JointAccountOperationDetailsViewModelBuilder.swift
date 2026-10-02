@@ -35,6 +35,7 @@ struct JointAccountOperationDetailsViewModelBuilder {
             recipient: pendingOperation.destination,
             recipientBlockiesImage: AddressIconProvider.makeBlockiesImage(address: pendingOperation.destination),
             networkFee: networkFee(of: pendingOperation),
+            hasNFCInteraction: pendingOperation.wallet.account?.jointAccountOperationsService.hasNFCInteraction ?? false,
             content: content(of: pendingOperation),
             updatesPublisher: updatesPublisher(of: pendingOperation.operation.id, provider: provider),
             pendingOperationsProvider: provider,
