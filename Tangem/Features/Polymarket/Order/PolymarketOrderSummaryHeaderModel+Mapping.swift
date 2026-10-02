@@ -15,18 +15,20 @@ import TangemPolymarketUI
 extension PolymarketOrderSummaryHeader.Model {
     static func make(
         account: PolymarketOrderAccount?,
+        sourceTitle: String,
         amountText: String,
         balanceText: String,
         toWin: PolymarketAmountBadge.State?,
-        isProceeds: Bool
+        caption: String?
     ) -> Self {
         Self(
             accountName: account?.name ?? Localization.predictionPlaceSummaryAccount,
             accountIcon: account?.icon ?? Assets.Polymarket.accountAvatar,
+            sourceTitle: sourceTitle,
             balanceText: balanceText,
             amountText: amountText,
             toWin: toWin,
-            isProceeds: isProceeds,
+            caption: caption,
             tokenIconInfo: TokenIconInfoBuilder().build(from: PolymarketUtilities.collateralTokenItem, isCustom: false)
         )
     }
