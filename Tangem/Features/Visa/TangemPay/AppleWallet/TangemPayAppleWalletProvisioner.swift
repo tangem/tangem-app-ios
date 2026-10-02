@@ -9,6 +9,7 @@
 import Foundation
 import PassKit
 import TangemPay
+import TangemVisa
 
 enum TangemPayAppleWalletProvisioningError: Error {
     case missingCardSecret
@@ -27,15 +28,27 @@ final class TangemPayAppleWalletProvisioner {
     }
 
     @MainActor
-    func isEligible(_ card: TangemPayCard, customerState: VisaCustomerInfoResponse.CustomerState) async -> Bool {
-        guard tokenizationService.isAvailable,
+    func isEligible(_ card: TangemPayCard, cardIndex: Int, customerState: VisaCustomerInfoResponse.CustomerState) async -> Bool {
+        let isAvailable = tokenizationService.isAvailable
+
+        guard isAvailable,
               customerState == .active,
               card.productInstance.status == .active,
               !card.isAwaitingActivation else {
+            VisaLogger.info(
+                "Apple Wallet button hidden for card #\(cardIndex): tokenization available: \(isAvailable), "
+                    + "customer state: \(customerState), card status: \(card.productInstance.status), "
+                    + "awaiting activation: \(card.isAwaitingActivation)"
+            )
             return false
         }
 
-        return await passActivationStates(for: card).contains { $0?.requiresUserAction ?? true }
+        let passStates = await passActivationStates(for: card)
+        let isEligible = passStates.contains { $0?.requiresUserAction ?? true }
+        let passStatesDescription = passStates.map { $0?.logDescription ?? "missing" }.joined(separator: ", ")
+        VisaLogger.info("Apple Wallet button \(isEligible ? "shown" : "hidden") for card #\(cardIndex), passes: [\(passStatesDescription)]")
+
+        return isEligible
     }
 
     @MainActor
@@ -109,6 +122,19 @@ extension PKSecureElementPass.PassActivationState {
             false
         @unknown default:
             false
+        }
+    }
+}
+
+private extension PKSecureElementPass.PassActivationState {
+    var logDescription: String {
+        switch self {
+        case .activated: "activated"
+        case .requiresActivation: "requiresActivation"
+        case .activating: "activating"
+        case .suspended: "suspended"
+        case .deactivated: "deactivated"
+        @unknown default: "unknown(\(rawValue))"
         }
     }
 }

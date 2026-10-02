@@ -134,8 +134,9 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     }
 
     func addToAppleWallet() {
-        guard let card = currentCard else { return }
-        appleWalletInteractor.addToWallet(card: card)
+        let cards = tangemPayAccount.cards
+        guard let cardIndex = cards.firstIndex(where: { $0.cardId == selectedCardId }) else { return }
+        appleWalletInteractor.addToWallet(card: cards[cardIndex], cardIndex: cardIndex)
     }
 
     func dismissAddToApplePayGuideBanner() {
@@ -353,8 +354,8 @@ private extension TangemPayCardManagementViewModel {
         .withWeakCaptureOf(self)
         .asyncMap { viewModel, input -> Bool in
             let (isAvailable, (selectedCardId, customerState, cards, _)) = input
-            guard isAvailable, let card = cards.first(where: { $0.cardId == selectedCardId }) else { return false }
-            return await viewModel.appleWalletInteractor.isEligible(card, customerState: customerState)
+            guard isAvailable, let cardIndex = cards.firstIndex(where: { $0.cardId == selectedCardId }) else { return false }
+            return await viewModel.appleWalletInteractor.isEligible(cards[cardIndex], cardIndex: cardIndex, customerState: customerState)
         }
         .prepend(false)
         .eraseToAnyPublisher()

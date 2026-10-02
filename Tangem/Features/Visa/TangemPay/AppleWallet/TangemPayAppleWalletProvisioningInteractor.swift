@@ -43,15 +43,15 @@ final class TangemPayAppleWalletProvisioningInteractor {
     }
 
     @MainActor
-    func isEligible(_ card: TangemPayCard, customerState: VisaCustomerInfoResponse.CustomerState) async -> Bool {
-        await provisioner.isEligible(card, customerState: customerState)
+    func isEligible(_ card: TangemPayCard, cardIndex: Int, customerState: VisaCustomerInfoResponse.CustomerState) async -> Bool {
+        await provisioner.isEligible(card, cardIndex: cardIndex, customerState: customerState)
     }
 
     func refresh() {
         refreshSubject.send(())
     }
 
-    func addToWallet(card: TangemPayCard) {
+    func addToWallet(card: TangemPayCard, cardIndex: Int) {
         guard !isInProgress else { return }
 
         Analytics.log(.visaScreenAddToWalletClicked, contextParams: .userWallet(userWalletId))
@@ -59,24 +59,30 @@ final class TangemPayAppleWalletProvisioningInteractor {
         isInProgress = true
 
         runTask(in: self) { interactor in
-            await interactor.performAddToWallet(card: card)
+            await interactor.performAddToWallet(card: card, cardIndex: cardIndex)
         }
     }
 }
 
 private extension TangemPayAppleWalletProvisioningInteractor {
     @MainActor
-    func performAddToWallet(card: TangemPayCard) async {
+    func performAddToWallet(card: TangemPayCard, cardIndex: Int) async {
         guard await provisioner.isMissingPass(card: card) else {
-            if !provisioner.presentPassIfActivationRequired(card: card) {
+            if provisioner.presentPassIfActivationRequired(card: card) {
+                VisaLogger.info("Apple Wallet pass for card #\(cardIndex) requires activation, opening it in Wallet")
+            } else {
+                VisaLogger.info("Apple Wallet pass for card #\(cardIndex) exists on all devices, showing verification alert")
                 alertSubject.send(.verificationRequiredAlert)
             }
             isInProgress = false
             return
         }
 
+        VisaLogger.info("Apple Wallet provisioning started for card #\(cardIndex)")
+
         do {
             let activationState = try await provisioner.addToWallet(card: card)
+            VisaLogger.info("Apple Wallet provisioning done for card #\(cardIndex), needs action: \(activationState.requiresUserAction)")
             if activationState.requiresUserAction {
                 alertSubject.send(.verificationRequiredAlert)
             }
@@ -90,6 +96,7 @@ private extension TangemPayAppleWalletProvisioningInteractor {
 
     func handle(_ error: TangemPayAppleWalletProvisioningError) {
         if case .passKit(let passKitError) = error, passKitError.isPassKitCancellationError {
+            VisaLogger.info("Apple Wallet provisioning cancelled")
             return
         }
 
