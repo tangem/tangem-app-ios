@@ -284,8 +284,17 @@ extension TransactionViewModel {
 
     enum NetworkFeePurpose: Hashable {
         case sending
-        case yieldMode
+        case yieldMode(YieldModeOperation)
         case operation
+    }
+
+    enum YieldModeOperation: Hashable {
+        case activation
+        case topUp
+        case deactivation
+        case deployment
+        case initialization
+        case reactivation
     }
 
     struct StakingTarget: Hashable {
