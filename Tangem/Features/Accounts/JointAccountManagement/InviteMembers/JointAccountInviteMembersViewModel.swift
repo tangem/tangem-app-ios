@@ -174,6 +174,7 @@ private extension JointAccountInviteMembersViewModel {
     /// whose invite links and activate button no longer lead anywhere.
     static func makeContent(of jointAccount: any JointAccountModel, slots: [JointAccountSlot]) -> Content {
         let isCreatorDevice = jointAccount.jointAccountMembersService.isCreatorDevice
+        let ownAddress = jointAccount.jointAccountMembersService.ownAddress
 
         let members = slots.enumerated().compactMap { index, slot -> MemberViewData? in
             guard case .member(let member) = slot else {
@@ -187,7 +188,7 @@ private extension JointAccountInviteMembersViewModel {
                     letter: member.name.prefix(1).uppercased(),
                     color: CompositeIconColorPalette.color(for: iconColor(at: index))
                 ),
-                role: role(of: member, isCreatorDevice: isCreatorDevice)
+                role: role(of: member, ownAddress: ownAddress, isCreatorDevice: isCreatorDevice)
             )
         }
 
@@ -208,22 +209,31 @@ private extension JointAccountInviteMembersViewModel {
             canArchive: isCreatorDevice
         )
     }
-
-    static func role(of member: JointAccountMember, isCreatorDevice: Bool) -> String {
-        switch member.role {
-        case .creator where isCreatorDevice:
-            return "\(Localization.jointAccountMembersRoleYou) \(AppConstants.dotSign) \(Localization.jointAccountInviteMembersCreator)"
-        case .creator:
-            return Localization.jointAccountInviteMembersCreator
-        case .member:
-            return Localization.jointAccountMembersRoleJoined
-        }
-    }
 }
 
 // MARK: - Member appearance
 
 extension JointAccountInviteMembersViewModel {
+    static func role(of member: JointAccountMember, ownAddress: String?, isCreatorDevice: Bool) -> String {
+        let isOwn: Bool
+        if let ownAddress {
+            isOwn = member.address.caseInsensitiveEquals(to: ownAddress)
+        } else {
+            isOwn = member.role == .creator && isCreatorDevice
+        }
+
+        switch (member.role, isOwn) {
+        case (.creator, true):
+            return "\(Localization.jointAccountMembersRoleYou) \(AppConstants.dotSign) \(Localization.jointAccountInviteMembersCreator)"
+        case (.creator, false):
+            return Localization.jointAccountInviteMembersCreator
+        case (.member, true):
+            return Localization.jointAccountMembersRoleYou
+        case (.member, false):
+            return Localization.jointAccountMembersRoleJoined
+        }
+    }
+
     /// Taken by the slot rather than by the member, so that two members of one account never share a colour.
     static func iconColor(at index: Int) -> CompositeIconColor {
         let colors = CompositeIconColor.allCases
