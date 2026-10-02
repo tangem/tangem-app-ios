@@ -2302,6 +2302,7 @@
 "tangem_pay_transaction_declined_notification_text" = "银行拒绝了这项交易请求。";
 "tangem_pay_transaction_details_cashback_below_min" = "最低交易金额为";
 "tangem_pay_transaction_details_cashback_cap_reached" = "已达月度上限";
+"tangem_pay_transaction_details_cashback_compliance_risk" = "Compliance risk";
 "tangem_pay_transaction_details_cashback_mcc_excluded" = "MCC 已排除";
 "tangem_pay_transaction_details_cashback_none" = "—";
 "tangem_pay_transaction_details_cashback_refund" = "购买退款";
@@ -2732,6 +2733,8 @@
 "tangempay_va_available_to_deposit_day" = "每日可存入金额：";
 "tangempay_va_banking_details_error_description" = "请重试，如果问题仍然存在，请联系客服";
 "tangempay_va_banking_details_error_title" = "无法加载银行信息";
+"tangempay_va_banner_failed_description" = "Please try again or contact support if the issue persists";
+"tangempay_va_banner_failed_title" = "Failed to create banking details";
 "tangempay_va_limit_resetting_everyday" = "限额每日重置";
 "tangempay_visa_benefits" = "Visa 权益";
 "tangempay_waitlist_description" = "We'll email you the moment it's available in your region";
