@@ -20,6 +20,7 @@ struct TangemPayMainView: View {
     @StateObject private var elasticContainerModel: TangemElasticContainerModel
     @State private var headerHeightRatio: CGFloat = 1
     @State private var visibleBodyHeight: CGFloat = 0
+    @State private var headerHeight: CGFloat = 0
     @State private var cardsRowWidth: CGFloat = 0
 
     init(viewModel: TangemPayMainViewModel) {
@@ -41,9 +42,9 @@ struct TangemPayMainView: View {
                 TangemElasticContainer(viewModel: elasticContainerModel, content: collapsingHeader)
                     .opacity(headerOpacity)
                     .animation(.default, value: headerHeightRatio)
+                    .readGeometry(\.size.height, bindTo: $headerHeight)
 
                 transactionList
-                    .frame(maxWidth: .infinity, minHeight: visibleBodyHeight, alignment: .top)
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
@@ -132,14 +133,22 @@ struct TangemPayMainView: View {
     @ViewBuilder
     private var transactionList: some View {
         if !viewModel.isDeactivated {
-            TransactionsListViewRedesigned(
-                state: viewModel.tangemPayTransactionHistoryState,
-                exploreAction: nil,
-                openTransactionDetailsAction: { viewModel.openTransactionDetails(id: $0.hash) },
-                reloadButtonAction: viewModel.reloadHistory,
-                isReloadButtonBusy: false,
-                fetchMore: viewModel.fetchNextTransactionHistoryPage()
-            )
+            switch viewModel.tangemPayTransactionHistoryState {
+            case .error:
+                TangemPayTransactionHistoryErrorView(reloadAction: viewModel.reloadHistory)
+                    .frame(maxWidth: .infinity, minHeight: max(0, visibleBodyHeight - headerHeight), alignment: .center)
+                    .frame(maxWidth: .infinity, minHeight: visibleBodyHeight, alignment: .top)
+            case .loading, .loaded, .notSupported:
+                TransactionsListViewRedesigned(
+                    state: viewModel.tangemPayTransactionHistoryState,
+                    exploreAction: nil,
+                    openTransactionDetailsAction: { viewModel.openTransactionDetails(id: $0.hash) },
+                    reloadButtonAction: viewModel.reloadHistory,
+                    isReloadButtonBusy: false,
+                    fetchMore: viewModel.fetchNextTransactionHistoryPage()
+                )
+                .frame(maxWidth: .infinity, minHeight: visibleBodyHeight, alignment: .top)
+            }
         }
     }
 
