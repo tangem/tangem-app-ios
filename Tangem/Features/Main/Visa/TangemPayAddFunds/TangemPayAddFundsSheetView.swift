@@ -30,7 +30,12 @@ private extension TangemPayAddFundsSheetView {
         .padding(.horizontal, 16)
         .padding(.bottom, 16)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+            if FeatureProvider.isAvailable(.tangemPayOnrampV2) {
+                configuration.sheetBackgroundColor = .clear
+                configuration.sheetBackgroundMaterial = .default
+            } else {
+                configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+            }
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
     }
