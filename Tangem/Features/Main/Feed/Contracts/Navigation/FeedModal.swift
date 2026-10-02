@@ -10,6 +10,7 @@ enum FeedModal: Identifiable {
     case marketCapInfo(MarketCapInfoBottomSheetViewModel)
     case realAssetsCategoryFilter(MarketsRealAssetsFilterBottomSheetViewModel)
     case earnNetworkFilter(EarnNetworkFilterBottomSheetViewModel)
+    case earnTypeFilter(EarnTypeFilterBottomSheetViewModel)
 
     var id: ObjectIdentifier {
         switch self {
@@ -17,6 +18,7 @@ enum FeedModal: Identifiable {
         case .marketCapInfo(let viewModel): ObjectIdentifier(viewModel)
         case .realAssetsCategoryFilter(let viewModel): ObjectIdentifier(viewModel)
         case .earnNetworkFilter(let viewModel): ObjectIdentifier(viewModel)
+        case .earnTypeFilter(let viewModel): ObjectIdentifier(viewModel)
         }
     }
 
@@ -37,6 +39,11 @@ enum FeedModal: Identifiable {
 
     var earnNetworkFilter: EarnNetworkFilterBottomSheetViewModel? {
         guard case .earnNetworkFilter(let viewModel) = self else { return nil }
+        return viewModel
+    }
+
+    var earnTypeFilter: EarnTypeFilterBottomSheetViewModel? {
+        guard case .earnTypeFilter(let viewModel) = self else { return nil }
         return viewModel
     }
 }
