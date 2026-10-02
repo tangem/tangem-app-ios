@@ -141,7 +141,7 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
                 TransferFailedStatusView(
                     model: status.model,
                     onRetry: status.canRetry ? { [weak coordinator] in coordinator?.retryAfterFailedStatus() } : nil,
-                    onClose: { [weak coordinator] in coordinator?.dismiss(with: nil) }
+                    onClose: { [weak coordinator] in coordinator?.closeFailedStatus() }
                 )
             }
     }
