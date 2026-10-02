@@ -11,6 +11,7 @@ struct RecentRecipientItem: Identifiable {
     let monogram: String
     let name: String
     let accountNumber: String
+    let subtitle: String
 }
 
 // MARK: - Previews
@@ -22,19 +23,22 @@ extension RecentRecipientItem {
             id: "company",
             monogram: "A",
             name: "Company LLC",
-            accountNumber: "1234567890"
+            accountNumber: "1234567890",
+            subtitle: "1234567890 • Business"
         ),
         RecentRecipientItem(
             id: "johny",
             monogram: "D",
             name: "Johny Johnson",
-            accountNumber: "9087654321"
+            accountNumber: "9087654321",
+            subtitle: "9087654321"
         ),
         RecentRecipientItem(
             id: "svetlana-ivanova",
             monogram: "S",
             name: "Svetlana Ivanova",
-            accountNumber: "5647382910"
+            accountNumber: "5647382910",
+            subtitle: "5647382910"
         ),
     ]
 }

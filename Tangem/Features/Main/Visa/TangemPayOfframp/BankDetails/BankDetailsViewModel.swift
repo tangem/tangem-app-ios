@@ -173,7 +173,8 @@ private extension BankDetailsViewModel {
             TangemPayFormField(
                 id: .bankPostalCode,
                 title: Localization.tangempayOrderDataPostalCode,
-                placeholder: "0000"
+                placeholder: "0000",
+                countryCode: TangemPayOfframpOrderBuilder.bankCountryCode
             ),
         ]
         .map { field in
