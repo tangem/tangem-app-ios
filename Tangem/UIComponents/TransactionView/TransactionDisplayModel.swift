@@ -259,8 +259,8 @@ extension TransactionDisplayModel {
             switch purpose {
             case .sending:
                 return .text(Localization.transactionHistoryFeeForSending)
-            case .yieldMode:
-                return .text(Localization.transactionHistoryFeeForOperationName(Localization.commonYieldModeInline))
+            case .yieldMode(let operation):
+                return .text(yieldModeFeeSubtitle(for: operation))
             case .operation:
                 return .text(Localization.transactionHistoryFeeForOperation)
             }
@@ -275,6 +275,17 @@ extension TransactionDisplayModel {
         }
 
         return addressDestination.map(Subtitle.text)
+    }
+
+    private static func yieldModeFeeSubtitle(for operation: TransactionViewModel.YieldModeOperation) -> String {
+        switch operation {
+        case .activation: Localization.transactionHistoryFeeForYieldModeActivation
+        case .topUp: Localization.transactionHistoryFeeForYieldModeTopUp
+        case .deactivation: Localization.transactionHistoryFeeForYieldModeDeactivation
+        case .deployment: Localization.transactionHistoryFeeForYieldModeDeployment
+        case .initialization: Localization.transactionHistoryFeeForYieldModeInitialization
+        case .reactivation: Localization.transactionHistoryFeeForYieldModeReactivation
+        }
     }
 
     /// The Yield Mode enable/disable and staking chips are label-only, so they take neither the yield copy nor the
