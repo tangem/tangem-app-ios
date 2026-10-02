@@ -410,6 +410,12 @@ extension CommonUserWalletModel: AnalyticsContextDataProvider {
     }
 }
 
+extension CommonUserWalletModel: PromoCampaignIdentityProviding {
+    var promoCampaignIdentity: PromoCampaignIdentity {
+        walletInfo.promoCampaignIdentity
+    }
+}
+
 extension CommonUserWalletModel: UserWalletSerializable {
     func serializePublic() -> StoredUserWallet {
         let name = name.isEmpty ? config.defaultName : name
