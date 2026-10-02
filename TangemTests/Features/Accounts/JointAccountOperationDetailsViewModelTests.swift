@@ -105,6 +105,19 @@ struct JointAccountOperationDetailsViewModelTests {
         #expect(!viewModel.blocks.contains { if case .caption = $0 { true } else { false } })
     }
 
+    @Test("The card icon on Sign is shown only to a wallet that signs with a card")
+    func signIconFollowsTheSigner() {
+        #expect(signButton(in: makeViewModel(hasNFCInteraction: true))?.icon != nil)
+        #expect(signButton(in: makeViewModel(hasNFCInteraction: false))?.icon == nil)
+    }
+
+    @Test("The header menu copies the full recipient address")
+    func headerMenuCopiesRecipient() {
+        let actions = makeViewModel().header.menuSections.flatMap(\.actions).map(\.action)
+
+        #expect(actions == [.copy(value: "0xrecipient", toast: Localization.walletNotificationAddressCopied, kind: .address)])
+    }
+
     @Test("Frequent updates are held only while the sheet is on screen")
     func frequentUpdatesFollowVisibility() {
         let viewModel = makeViewModel()
@@ -120,7 +133,7 @@ struct JointAccountOperationDetailsViewModelTests {
 
     // MARK: - Helpers
 
-    private func makeViewModel() -> JointAccountOperationDetailsViewModel {
+    private func makeViewModel(hasNFCInteraction: Bool = true) -> JointAccountOperationDetailsViewModel {
         JointAccountOperationDetailsViewModel(
             tokenIconInfo: TokenIconInfo(
                 name: "Ethereum",
@@ -134,6 +147,7 @@ struct JointAccountOperationDetailsViewModelTests {
             recipient: "0xrecipient",
             recipientBlockiesImage: nil,
             networkFee: "~0.0005 ETH",
+            hasNFCInteraction: hasNFCInteraction,
             content: makeContent(collectedSignaturesCount: 1),
             updatesPublisher: updates.eraseToAnyPublisher(),
             pendingOperationsProvider: provider,

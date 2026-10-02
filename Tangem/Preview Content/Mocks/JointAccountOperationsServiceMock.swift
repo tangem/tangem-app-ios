@@ -10,6 +10,8 @@ import Foundation
 import BlockchainSdk
 
 struct JointAccountOperationsServiceMock: JointAccountOperationsService {
+    var hasNFCInteraction = false
+
     func createOperation(transaction: BSDKTransaction, in wallet: JointAccountWallet) async throws -> JointAccountOperation {
         throw CancellationError()
     }
