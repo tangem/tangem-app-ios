@@ -84,22 +84,9 @@ extension CollectiblesAPIService {
     }
 }
 
-// MARK: - Pack opening
-
-extension CollectiblesAPIService {
-    // [REDACTED_TODO_COMMENT]
-    func generatePackTransaction(_ request: CollectiblesDTO.GenerateTxRequest, userWalletID: String) async throws -> CollectiblesDTO.GenerateTxResponse {
-        try await self.request(.generateTx(request, userWalletID: userWalletID))
-    }
-
-    func submitPackTransaction(_ request: CollectiblesDTO.SubmitTxRequest, userWalletID: String) async throws -> CollectiblesDTO.SubmitTxResponse {
-        try await self.request(.submitTx(request, userWalletID: userWalletID))
-    }
-}
-
 // MARK: - Networking
 
-private extension CollectiblesAPIService {
+extension CollectiblesAPIService {
     func request<T: Decodable>(_ target: CollectiblesAPITarget.Target) async throws -> T {
         let request = CollectiblesAPITarget(baseURL: baseURL, target: target)
 

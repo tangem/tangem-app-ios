@@ -123,50 +123,6 @@ struct CollectiblesAPIServiceTests {
         #expect(common.odds == Decimal(string: "0.8"))
     }
 
-    // MARK: - Pack opening
-
-    @Test("generateTx: posts the body with the user-id header and decodes the unsigned transaction")
-    func generatesTransaction() async throws {
-        CollectiblesStubURLProtocol.responses = [Data(#"{"id":"tx-1","txData":"AAEC"}"#.utf8)]
-
-        let request = CollectiblesDTO.GenerateTxRequest(fromAddress: "owner", collectibleType: "pokemon_50", toAddress: "cold")
-        let response = try await makeSUT().generatePackTransaction(request, userWalletID: "wallet-1")
-
-        #expect(response.id == "tx-1")
-        #expect(response.txData == "AAEC")
-
-        let sent = try #require(CollectiblesStubURLProtocol.requests.first)
-        let sentPath = try #require(sent.url?.path)
-        #expect(sent.httpMethod == "POST")
-        #expect(sentPath.hasSuffix("api/v1/collectible/generateTx"))
-        #expect(sent.value(forHTTPHeaderField: "user-id") == "wallet-1")
-
-        let body = try Self.jsonBody(CollectiblesStubURLProtocol.bodies.first)
-        #expect(body["fromAddress"] as? String == "owner")
-        #expect(body["collectibleType"] as? String == "pokemon_50")
-        #expect(body["toAddress"] as? String == "cold")
-        #expect(body["turboMode"] == nil)
-    }
-
-    @Test("submitTx: posts the signed transaction with the user-id header and decodes the id")
-    func submitsTransaction() async throws {
-        CollectiblesStubURLProtocol.responses = [Data(#"{"id":"tx-1"}"#.utf8)]
-
-        let response = try await makeSUT().submitPackTransaction(.init(signedTxData: "c2lnbmVk"), userWalletID: "wallet-1")
-
-        #expect(response.id == "tx-1")
-
-        let sent = try #require(CollectiblesStubURLProtocol.requests.first)
-        let sentPath = try #require(sent.url?.path)
-        #expect(sent.httpMethod == "POST")
-        #expect(sentPath.hasSuffix("api/v1/collectible/submitTx"))
-        #expect(sent.value(forHTTPHeaderField: "user-id") == "wallet-1")
-
-        let body = try Self.jsonBody(CollectiblesStubURLProtocol.bodies.first)
-        #expect(body["signedTxData"] as? String == "c2lnbmVk")
-        #expect(body.count == 1)
-    }
-
     // MARK: - Headers
 
     @Test("Production header composition reaches the wire: session-id, platform and version")
