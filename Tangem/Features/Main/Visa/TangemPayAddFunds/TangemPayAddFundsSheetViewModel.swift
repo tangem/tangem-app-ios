@@ -27,16 +27,21 @@ final class TangemPayAddFundsSheetViewModel: ObservableObject, FloatingSheetCont
         swapParameters = input.swapParameters
         networks = input.networks
 
-        options = (input.isBankTransferAvailable ? [.bankTransfer] : []) + [.swap, .receive]
-
-        self.coordinator = coordinator
-
-        if options.contains(.bankTransfer) {
+        var options: [TangemPayAddFundsSheetOptionView.Option] = [.swap, .receive]
+        if input.isBankTransferAvailable {
+            options.append(.bankTransfer(pending: input.isBankTransferPending))
             Analytics.log(.visaVATopupButtonShowed, contextParams: .userWallet(userWalletInfo.id))
         }
+
+        self.options = options
+        self.coordinator = coordinator
     }
 
     func userDidTapOption(option: TangemPayAddFundsSheetOptionView.Option) {
+        guard !option.isPending else {
+            return
+        }
+
         switch option {
         case .swap:
             Analytics.log(.visaScreenButtonVisaSwap, analyticsSystems: .all, contextParams: .userWallet(userWalletInfo.id))
@@ -68,6 +73,7 @@ extension TangemPayAddFundsSheetViewModel {
         let address: String
         let swapParameters: PredefinedSwapParameters
         let isBankTransferAvailable: Bool
+        let isBankTransferPending: Bool
         let networks: [TangemPayBalance.Network]
     }
 }
