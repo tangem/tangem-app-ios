@@ -7,11 +7,20 @@
 //
 
 import XCTest
-import TangemAccessibilityIdentifiers
 
-final class TangemPayVirtualAccountSuccessScreen: ScreenBase<TangemPayVirtualAccountSuccessScreenElement> {
-    private lazy var title = staticText(.title)
-    private lazy var closeButton = button(.closeButton)
+final class TangemPayVirtualAccountSuccessScreen: Screen {
+    let app: XCUIApplication
+
+    private lazy var title = app.staticTexts
+        .matching(NSPredicate(format: "label == %@", Constants.title))
+        .firstMatch
+    private lazy var closeButton = app.buttons
+        .matching(NSPredicate(format: "label == %@", Constants.closeButton))
+        .firstMatch
+
+    init(_ app: XCUIApplication) {
+        self.app = app
+    }
 
     @discardableResult
     func waitForScreen() -> Self {
@@ -30,16 +39,9 @@ final class TangemPayVirtualAccountSuccessScreen: ScreenBase<TangemPayVirtualAcc
     }
 }
 
-enum TangemPayVirtualAccountSuccessScreenElement: String, UIElement {
-    case title
-    case closeButton
-
-    var accessibilityIdentifier: String {
-        switch self {
-        case .title:
-            TangemPayAccessibilityIdentifiers.virtualAccountSuccessTitle
-        case .closeButton:
-            TangemPayAccessibilityIdentifiers.virtualAccountSuccessCloseButton
-        }
+private extension TangemPayVirtualAccountSuccessScreen {
+    enum Constants {
+        static let title = "Preparing your banking details"
+        static let closeButton = "Close"
     }
 }
