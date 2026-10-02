@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import TangemVisa
 
 protocol TangemPayAppleWalletProvisioningAvailabilityProvider {
     var isAvailable: Bool { get }
@@ -29,7 +30,14 @@ struct CommonTangemPayAppleWalletProvisioningAvailabilityProvider: TangemPayAppl
             .map { _ in isAvailable }
             .prepend(isAvailable)
             .removeDuplicates()
+            .handleEvents(receiveOutput: logAvailability)
             .eraseToAnyPublisher()
+    }
+
+    private func logAvailability(_ isAvailable: Bool) {
+        let isToggleOn = FeatureProvider.isAvailable(.tangemPayAppleWalletProvisioning)
+        let variant = experimentService.variant(.tangemPayAppleWalletProvisioning)?.value ?? "none"
+        VisaLogger.info("Apple Wallet provisioning available: \(isAvailable), toggle: \(isToggleOn), experiment variant: \(variant)")
     }
 }
 
