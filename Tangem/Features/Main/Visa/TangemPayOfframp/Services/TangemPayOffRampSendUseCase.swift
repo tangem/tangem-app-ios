@@ -20,7 +20,7 @@ final class TangemPayOffRampSendUseCase {
     private var reloadedBankAccountId: String?
     private var sendTask: Task<SendResult, Error>?
     private var signatureRetryContext: SignatureRetryContext?
-    private var placeOrderRetryContext: PlaceOrderRetryContext?
+    private var retryContext: RetryContext?
 
     init(
         orderService: some TangemPayOfframpOrderService,
@@ -36,14 +36,33 @@ final class TangemPayOffRampSendUseCase {
         try await run(request: request, idempotencyKey: UUID().uuidString)
     }
 
-    func retryPlaceOrder() async throws -> SendResult {
-        guard let context = placeOrderRetryContext else {
+    func retry() async throws -> SendResult {
+        guard let context = retryContext else {
             throw SendError.generic
         }
 
-        placeOrderRetryContext = nil
+        retryContext = nil
 
-        return try await run(request: context.request, idempotencyKey: context.idempotencyKey)
+        switch context {
+        case .placeOrder(let request, let idempotencyKey):
+            return try await run(request: request, idempotencyKey: idempotencyKey)
+
+        case .awaitSignature(let order):
+            return try await perform { [self] in
+                try await completeOrder(order)
+            }
+        }
+    }
+
+    func abandonRetry() async {
+        let context = retryContext
+        reset()
+
+        guard case .awaitSignature(let order) = context else {
+            return
+        }
+
+        await cancelOrder(id: order.id)
     }
 
     func retrySignature() async throws -> SendResult {
@@ -61,24 +80,38 @@ final class TangemPayOffRampSendUseCase {
 
 private extension TangemPayOffRampSendUseCase {
     func run(request: TangemPayPlaceOrderRequest, idempotencyKey: String) async throws -> SendResult {
+        try await perform { [self] in
+            let order = try await placeOrder(request: request, idempotencyKey: idempotencyKey)
+
+            return try await completeOrder(PlacedOrder(
+                id: order.id,
+                request: request,
+                idempotencyKey: idempotencyKey,
+                createdAt: order.createdAt ?? Date()
+            ))
+        }
+    }
+
+    func completeOrder(_ order: PlacedOrder) async throws -> SendResult {
+        let signature = try await prepareSignature(order: order)
+
+        let context = SignatureRetryContext(
+            orderId: order.id,
+            signature: signature,
+            idempotencyKey: order.idempotencyKey,
+            createdAt: order.createdAt
+        )
+        signatureRetryContext = context
+
+        return try await submitSignature(context: context, canRetry: true)
+    }
+
+    func perform(_ operation: @escaping @MainActor () async throws -> SendResult) async throws -> SendResult {
         if let sendTask {
             return try await sendTask.value
         }
 
-        let task = Task {
-            let order = try await placeOrder(request: request, idempotencyKey: idempotencyKey)
-            let signature = try await prepareSignature(orderId: order.id, request: request)
-
-            let context = SignatureRetryContext(
-                orderId: order.id,
-                signature: signature,
-                idempotencyKey: idempotencyKey,
-                createdAt: order.createdAt ?? Date()
-            )
-            signatureRetryContext = context
-
-            return try await submitSignature(context: context, canRetry: true)
-        }
+        let task = Task { try await operation() }
 
         sendTask = task
 
@@ -104,13 +137,15 @@ private extension TangemPayOffRampSendUseCase {
         } catch {
             VisaLogger.error("Failed to place Tangem Pay off-ramp order", error: error)
 
-            if Self.isRetryable(error) {
-                placeOrderRetryContext = PlaceOrderRetryContext(request: request, idempotencyKey: idempotencyKey)
-                throw SendError.placeOrderRetryable
+            let sendError = Self.placeOrderError(error)
+
+            if case .generic = sendError, Self.isRetryable(error) {
+                retryContext = .placeOrder(request: request, idempotencyKey: idempotencyKey)
+                throw SendError.retryable
             }
 
             reset()
-            throw Self.placeOrderError(error)
+            throw sendError
         }
 
         reloadRecipientsIfNeeded(order, request: request)
@@ -133,9 +168,9 @@ private extension TangemPayOffRampSendUseCase {
         }
 
         switch apiError {
-        case .moyaError, .serverError:
+        case .moyaError, .serverError, .apiError:
             return true
-        case .unauthorized, .apiError, .decodingError:
+        case .unauthorized, .decodingError:
             return false
         }
     }
@@ -174,7 +209,10 @@ private extension TangemPayOffRampSendUseCase {
                 switch order.status {
                 case .new, .processing:
                     break
-                case .completed, .canceled, .undefined:
+                case .canceled:
+                    VisaLogger.warning("Tangem Pay off-ramp order \(orderId) was canceled before the signature step")
+                    throw PollingFailure.orderCanceled
+                case .completed, .undefined:
                     VisaLogger.warning(
                         "Tangem Pay off-ramp order \(orderId) reached the terminal status \(order.status.rawValue)"
                     )
@@ -183,6 +221,11 @@ private extension TangemPayOffRampSendUseCase {
 
             case .failure(let error):
                 VisaLogger.error("Failed to poll Tangem Pay off-ramp order \(orderId)", error: error)
+
+                if Self.isRetryable(error) {
+                    throw PollingFailure.technical
+                }
+
                 throw SendError.generic
             }
 
@@ -199,19 +242,26 @@ private extension TangemPayOffRampSendUseCase {
 // MARK: - Signing
 
 private extension TangemPayOffRampSendUseCase {
-    func prepareSignature(orderId: String, request: TangemPayPlaceOrderRequest) async throws -> String {
+    func prepareSignature(order: PlacedOrder) async throws -> String {
         do {
-            let withdrawData = try await awaitSignatureStep(orderId: orderId, request: request)
+            let withdrawData = try await awaitSignatureStep(orderId: order.id, request: order.request)
             let payload = TangemPayWithdrawPreSignature(withdrawData)
 
-            guard let expectation = TangemPayOfframpPreSignatureVerifier.Expectation(request: request) else {
-                VisaLogger.warning("Tangem Pay off-ramp order \(orderId) request lacks the amount, network or asset")
+            guard let expectation = TangemPayOfframpPreSignatureVerifier.Expectation(request: order.request) else {
+                VisaLogger.warning("Tangem Pay off-ramp order \(order.id) request lacks the amount, network or asset")
                 throw SendError.generic
             }
 
             return try await orderSigner.signature(for: payload, expecting: expectation)
+        } catch PollingFailure.technical {
+            retryContext = .awaitSignature(order)
+            throw SendError.retryable
+        } catch PollingFailure.orderCanceled {
+            reset()
+            retryContext = .placeOrder(request: order.request, idempotencyKey: UUID().uuidString)
+            throw SendError.retryable
         } catch {
-            await cancelOrder(id: orderId)
+            await cancelOrder(id: order.id)
             reset()
             throw Self.signatureStepError(error)
         }
@@ -275,7 +325,7 @@ private extension TangemPayOffRampSendUseCase {
     func reset() {
         reloadedBankAccountId = nil
         signatureRetryContext = nil
-        placeOrderRetryContext = nil
+        retryContext = nil
     }
 }
 
@@ -291,9 +341,16 @@ extension TangemPayOffRampSendUseCase {
 // MARK: - Retry contexts
 
 private extension TangemPayOffRampSendUseCase {
-    struct PlaceOrderRetryContext {
+    enum RetryContext {
+        case placeOrder(request: TangemPayPlaceOrderRequest, idempotencyKey: String)
+        case awaitSignature(PlacedOrder)
+    }
+
+    struct PlacedOrder {
+        let id: String
         let request: TangemPayPlaceOrderRequest
         let idempotencyKey: String
+        let createdAt: Date
     }
 
     struct SignatureRetryContext {
@@ -309,10 +366,19 @@ private extension TangemPayOffRampSendUseCase {
 extension TangemPayOffRampSendUseCase {
     enum SendError: LocalizedError {
         case unavailableRegion
-        case placeOrderRetryable
+        case retryable
         case signatureSubmission(canRetry: Bool)
         case cancelled
         case generic
+    }
+}
+
+// MARK: - Polling failure
+
+private extension TangemPayOffRampSendUseCase {
+    enum PollingFailure: Error {
+        case technical
+        case orderCanceled
     }
 }
 
