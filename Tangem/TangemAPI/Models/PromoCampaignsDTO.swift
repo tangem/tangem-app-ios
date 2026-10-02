@@ -27,6 +27,15 @@ extension PromoCampaignsDTO.Request {
         case mobile
         case card
     }
+
+    init(wallet: PromoCampaignWallet, language: String) {
+        switch wallet.identity {
+        case .card(let batchId):
+            self.init(walletId: wallet.userWalletId.stringValue, walletType: .card, batchId: batchId, language: language)
+        case .mobile:
+            self.init(walletId: wallet.userWalletId.stringValue, walletType: .mobile, batchId: nil, language: language)
+        }
+    }
 }
 
 // MARK: - Response
