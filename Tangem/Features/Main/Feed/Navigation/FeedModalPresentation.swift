@@ -39,7 +39,7 @@ struct FeedModalPresentation: ViewModifier {
 
     private func size(for modal: FeedModal) -> ModalSize {
         switch modal {
-        case .marketCapInfo: .flexible
+        case .marketCapInfo, .earnTypeFilter: .flexible
         case .pulseTagFilter, .realAssetsCategoryFilter, .earnNetworkFilter: .full
         }
     }
@@ -54,6 +54,8 @@ struct FeedModalPresentation: ViewModifier {
         case .realAssetsCategoryFilter(let viewModel):
             FeedModalHeaderView(title: Localization.marketsRealAssetsFilterTitle, onClose: viewModel.close)
         case .earnNetworkFilter(let viewModel):
+            FeedModalHeaderView(title: viewModel.title, onClose: viewModel.onCloseTap)
+        case .earnTypeFilter(let viewModel):
             FeedModalHeaderView(title: viewModel.title, onClose: viewModel.onCloseTap)
         }
     }
@@ -71,6 +73,10 @@ struct FeedModalPresentation: ViewModifier {
         case .earnNetworkFilter(let viewModel):
             EarnNetworkFilterContentView(viewModel: viewModel)
                 .padding(.horizontal, Constants.horizontalPadding)
+        case .earnTypeFilter(let viewModel):
+            EarnTypeFilterContentView(viewModel: viewModel)
+                .padding(.horizontal, Constants.horizontalPadding)
+                .padding(.bottom, Constants.bottomPadding)
         }
     }
 
@@ -79,7 +85,7 @@ struct FeedModalPresentation: ViewModifier {
         switch modal {
         case .pulseTagFilter(let viewModel):
             PulseTagFilterFooterView(viewModel: viewModel)
-        case .marketCapInfo:
+        case .marketCapInfo, .earnTypeFilter:
             EmptyView()
         case .realAssetsCategoryFilter(let viewModel):
             MarketsRealAssetsFilterFooterView(viewModel: viewModel)
@@ -92,6 +98,7 @@ struct FeedModalPresentation: ViewModifier {
 private extension FeedModalPresentation {
     enum Constants {
         static let horizontalPadding: CGFloat = 16
+        static let bottomPadding: CGFloat = 16
     }
 }
 

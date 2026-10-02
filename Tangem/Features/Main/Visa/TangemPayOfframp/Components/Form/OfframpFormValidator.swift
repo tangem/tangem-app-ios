@@ -12,7 +12,8 @@ import TangemFoundation
 enum OfframpFormValidator {
     static func error(
         for id: TangemPayFormField.ID,
-        in text: String
+        in text: String,
+        countryCode: String?
     ) -> TangemPayFormField.Error? {
         let value = text.trimmed()
 
@@ -31,7 +32,7 @@ enum OfframpFormValidator {
             return matches(value, Constants.routingNumberPattern) ? nil : .routingNumber
 
         case .postalCode, .bankPostalCode:
-            return matches(value, Constants.postalCodePattern) ? nil : .invalidFormat
+            return matches(value, postalCodePattern(for: countryCode)) ? nil : .invalidFormat
 
         case .countryCode:
             return nil
@@ -51,13 +52,21 @@ private extension OfframpFormValidator {
     enum Constants {
         static let accountNumberPattern = "^[0-9]{4,17}$"
         static let routingNumberPattern = "^[0-9]{9}$"
-        static let postalCodePattern = "^[A-Za-z0-9][A-Za-z0-9 -]{1,8}[A-Za-z0-9]$"
+        static let usPostalCodePattern = "^[0-9]{5}(-[0-9]{4})?$"
+        static let internationalPostalCodePattern = "^[A-Za-z0-9][A-Za-z0-9 -]{1,8}[A-Za-z0-9]$"
+        static let usCountryCode = "US"
         static let nameLengthLimit = 255
         static let addressLengthLimit = 100
     }
 
     static func matches(_ value: String, _ pattern: String) -> Bool {
         value.range(of: pattern, options: .regularExpression) != nil
+    }
+
+    static func postalCodePattern(for countryCode: String?) -> String {
+        countryCode == Constants.usCountryCode
+            ? Constants.usPostalCodePattern
+            : Constants.internationalPostalCodePattern
     }
 
     static func textError(in value: String, lengthLimit: Int) -> TangemPayFormField.Error? {

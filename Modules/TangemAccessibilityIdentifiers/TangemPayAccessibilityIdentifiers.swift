@@ -148,6 +148,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let addToApplePayGuideBannerCloseButton = "\(prefix)AddToApplePayGuideBannerCloseButton"
     public static let addToApplePayGuideContainer = "\(prefix)AddToApplePayGuideContainer"
     public static let addToApplePayGuideCloseButton = "\(prefix)AddToApplePayGuideCloseButton"
+    public static let addToAppleWalletButton = "\(prefix)AddToAppleWalletButton"
 
     // MARK: - Card management
 
