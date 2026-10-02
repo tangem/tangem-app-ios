@@ -31,14 +31,13 @@ struct CollectiblesMachineView: View {
         .infinityFrame()
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            if !viewModel.state.isFailed {
-                Footer(
-                    expectedValueText: expectedValueText,
-                    openButtonText: viewModel.openButtonText,
-                    isTurboModeOn: $viewModel.isTurboModeOn,
-                    onTurboModeInfoTap: viewModel.showTurboModeInfo
-                )
-            }
+            Footer(
+                expectedValueText: viewModel.details.expectedValueText,
+                openButtonText: viewModel.openButtonText,
+                isTurboModeOn: $viewModel.isTurboModeOn,
+                onTurboModeInfoTap: viewModel.showTurboModeInfo,
+                onOpenTap: viewModel.openOrder
+            )
         }
         .on(willAppear: viewModel.load, willDisappear: viewModel.stopPolling)
         .collectiblesInfoSheet(viewModel: viewModel.turboModeInfoViewModel)
@@ -78,21 +77,8 @@ private extension CollectiblesMachineView {
             .frame(width: Metrics.packSize.width, height: Metrics.packSize.height)
     }
 
-    @ViewBuilder
     var content: some View {
-        switch viewModel.state {
-        case .loading:
-            Skeleton()
-        case .content(let details):
-            sections(details)
-        case .failed:
-            CollectiblesEmptyMessage(
-                icon: DesignSystem.Icons.ArrowRefresh.regular20,
-                message: Localization.collectiblesMachineLoadError,
-                onRetry: viewModel.retry
-            )
-            .frame(minHeight: Metrics.failedMessageMinHeight)
-        }
+        sections(viewModel.details)
     }
 
     func sections(_ details: CollectiblesMachineViewModel.Details) -> some View {
@@ -175,12 +161,6 @@ private extension CollectiblesMachineView {
 
     // MARK: - Calculations
 
-    var expectedValueText: String? {
-        guard case .content(let details) = viewModel.state else { return nil }
-
-        return details.expectedValueText
-    }
-
     func dotColor(of tier: CollectiblesMachine.Tier) -> Color {
         switch tier {
         case .common: DesignSystem.Color.bgAccentNeutral
@@ -231,7 +211,6 @@ extension CollectiblesMachineView {
 
         static let sectionHeaderVerticalPadding: CGFloat = 10
         static let sectionsGap: CGFloat = 24
-        static let failedMessageMinHeight: CGFloat = 220
     }
 }
 
@@ -247,21 +226,24 @@ private struct PreviewPrizePoolProvider: CollectiblesPrizePoolProvider {
 }
 
 private struct PreviewMachineProvider: CollectiblesMachineProvider {
+    static let machine = CollectiblesMachine(
+        name: "Elite pack",
+        artworkURL: nil,
+        price: 50,
+        platformFee: 1,
+        cardsPerPack: 1,
+        buybackRate: 0.85,
+        expectedValue: 53.95,
+        tiers: [
+            .init(tier: .common, odds: 0.8, valueRange: 15 ... 40),
+            .init(tier: .uncommon, odds: 0.15, valueRange: 60 ... 110),
+            .init(tier: .rare, odds: 0.04, valueRange: 110 ... 250),
+            .init(tier: .epic, odds: 0.01, valueRange: 250 ... 5001),
+        ]
+    )
+
     func load(id: String) async throws -> CollectiblesMachine {
-        CollectiblesMachine(
-            name: "Elite pack",
-            artworkURL: nil,
-            price: 50,
-            cardsPerPack: 1,
-            buybackRate: 0.85,
-            expectedValue: 53.95,
-            tiers: [
-                .init(tier: .common, odds: 0.8, valueRange: 15 ... 40),
-                .init(tier: .uncommon, odds: 0.15, valueRange: 60 ... 110),
-                .init(tier: .rare, odds: 0.04, valueRange: 110 ... 250),
-                .init(tier: .epic, odds: 0.01, valueRange: 250 ... 5001),
-            ]
-        )
+        Self.machine
     }
 }
 
@@ -271,13 +253,11 @@ private struct PreviewMachineProvider: CollectiblesMachineProvider {
             viewModel: CollectiblesMachineViewModel(
                 pack: CollectiblesPack(
                     id: "pokemon_50",
-                    name: "Elite pack",
                     loreID: "pokemon",
-                    price: 50,
                     currencyCode: "USD",
-                    buybackRate: 0.85,
-                    artworkURL: nil
+                    machine: PreviewMachineProvider.machine
                 ),
+                routable: nil,
                 prizePoolProvider: PreviewPrizePoolProvider(),
                 provider: PreviewMachineProvider()
             ),

@@ -61,6 +61,10 @@ private extension CollectiblesCoordinatorView {
             .navigation(item: $coordinator.machineViewModel) { viewModel in
                 CollectiblesMachineView(viewModel: viewModel, onBack: coordinator.closeMachine)
                     .toolbar(.hidden, for: .navigationBar)
+                    .navigation(item: $coordinator.confirmOrderViewModel) { viewModel in
+                        CollectiblesConfirmOrderView(viewModel: viewModel, onBack: coordinator.closeConfirmOrder)
+                            .toolbar(.hidden, for: .navigationBar)
+                    }
             }
     }
 }
