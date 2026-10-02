@@ -78,6 +78,7 @@ private extension JointAccountOperationDetailsViewModel {
             recipient: "33Bd321fS2p2o8Bk7mQwXeATkLQ3B36Yv2p210xxdSga21412B",
             recipientBlockiesImage: nil,
             networkFee: "~0.00056 ETH",
+            hasNFCInteraction: true,
             content: .init(
                 collectedSignaturesCount: 1,
                 requiredSignaturesCount: 3,

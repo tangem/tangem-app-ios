@@ -32,6 +32,10 @@ struct CommonJointAccountOperationsService {
 // MARK: - JointAccountOperationsService protocol conformance
 
 extension CommonJointAccountOperationsService: JointAccountOperationsService {
+    var hasNFCInteraction: Bool {
+        signerFactory.makeSigner().hasNFCInteraction
+    }
+
     /// Every check comes before the signature, so that a member is not asked for one that would be turned away.
     func createOperation(transaction: BSDKTransaction, in wallet: JointAccountWallet) async throws -> JointAccountOperation {
         guard let feeParameters = transaction.fee.parameters as? SafeTransactionFeeParameters else {
