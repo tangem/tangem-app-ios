@@ -14,13 +14,11 @@ import TangemUIUtils
 
 extension CollectiblesMachineView {
     struct Footer: View {
-        let expectedValueText: String?
+        let expectedValueText: String
         let openButtonText: String
         @Binding var isTurboModeOn: Bool
         let onTurboModeInfoTap: () -> Void
-
-        @ScaledMetric private var labelShimmerHeight: CGFloat = 12
-        @ScaledMetric private var valueShimmerHeight: CGFloat = 20
+        let onOpenTap: () -> Void
 
         var body: some View {
             VStack(spacing: Metrics.verticalSpacing) {
@@ -68,40 +66,21 @@ private extension CollectiblesMachineView.Footer {
         }
     }
 
-    @ViewBuilder
     var expectedValueBlock: some View {
-        if let expectedValueText {
-            VStack(alignment: .trailing, spacing: Metrics.expectedValueSpacing) {
-                Text(Localization.collectiblesMachineExpectedValue)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+        VStack(alignment: .trailing, spacing: Metrics.expectedValueSpacing) {
+            Text(Localization.collectiblesMachineExpectedValue)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
-                Text(expectedValueText)
-                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
-            }
-        } else {
-            VStack(alignment: .trailing, spacing: Metrics.expectedValueSpacing) {
-                shimmerBar(width: Metrics.labelShimmerWidth, height: labelShimmerHeight)
-                    .frame(height: Metrics.labelLineHeight)
-
-                shimmerBar(width: Metrics.valueShimmerWidth, height: valueShimmerHeight)
-                    .frame(height: Metrics.valueLineHeight)
-            }
+            Text(expectedValueText)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
         }
     }
 
-    func shimmerBar(width: CGFloat, height: CGFloat) -> some View {
-        Shimmer()
-            .frame(width: width, height: height)
-            .clipShape(Capsule())
-    }
-
     var openButton: some View {
-        // [REDACTED_TODO_COMMENT]
-        TangemUI.Button(label: openButtonText, accessibilityLabel: nil, action: {})
+        TangemUI.Button(label: openButtonText, accessibilityLabel: nil, action: onOpenTap)
             .styleType(.default)
             .horizontalLayout(.infinity)
             .size(.x12)
-            .disabled(expectedValueText == nil)
     }
 
     var background: some View {
@@ -128,10 +107,6 @@ private extension CollectiblesMachineView.Footer {
         static let topPadding: CGFloat = 16
         static let expectedValueSpacing: CGFloat = 2
         static let fadeHeight: CGFloat = 24
-        static let labelShimmerWidth: CGFloat = 81
-        static let labelLineHeight: CGFloat = 16
-        static let valueShimmerWidth: CGFloat = 133
-        static let valueLineHeight: CGFloat = 24
 
         static let toggleWidth: CGFloat = 41
         static let toggleHeight: CGFloat = 25

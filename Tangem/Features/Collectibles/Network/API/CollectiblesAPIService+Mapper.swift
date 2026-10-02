@@ -23,12 +23,9 @@ extension CollectiblesAPIService {
         static func mapToPack(_ machine: CollectiblesDTO.Machine) -> CollectiblesPack {
             CollectiblesPack(
                 id: machine.externalId,
-                name: mapToName(machine),
                 loreID: machine.categoryId,
-                price: machine.price / Constants.centsScale,
                 currencyCode: AppConstants.usdCurrencyCode,
-                buybackRate: Decimal(machine.instantBuybackPercent) / Constants.percentScale,
-                artworkURL: machine.image.flatMap(URL.init)
+                machine: mapToMachine(machine)
             )
         }
 
@@ -37,9 +34,10 @@ extension CollectiblesAPIService {
                 name: mapToName(machine),
                 artworkURL: machine.image.flatMap(URL.init),
                 price: machine.price / Constants.centsScale,
+                platformFee: machine.feeAmount / Constants.centsScale,
                 cardsPerPack: machine.contains,
                 buybackRate: Decimal(machine.instantBuybackPercent) / Constants.percentScale,
-                expectedValue: machine.expectedValue,
+                expectedValue: machine.expectedValue / Constants.centsScale,
                 tiers: mapTiers(of: machine)
             )
         }
@@ -147,12 +145,12 @@ private extension CollectiblesAPIService.Mapper {
     static func mapValueRange(_ range: CollectiblesDTO.Machine.TierRange?) -> ClosedRange<Decimal>? {
         guard let range, range.start <= range.end else { return nil }
 
-        return Decimal(range.start) ... Decimal(range.end)
+        return Decimal(range.start) / Constants.centsScale ... Decimal(range.end) / Constants.centsScale
     }
 
     enum Constants {
-        /// `price`, `feeAmount` and `insured_value` arrive in cents (`price: 5000` is $50);
-        /// `expectedValue` and `tierRanges` already come in whole dollars and are taken as they are.
+        /// `price`, `feeAmount`, `expectedValue`, `tierRanges` and `insured_value` arrive in cents
+        /// (`price: 5000` is $50).
         static let centsScale = Decimal(100)
         /// `instantBuybackPercent` is whole percent (85), the domain rate is a fraction (0.85).
         static let percentScale = Decimal(100)
