@@ -674,13 +674,18 @@ private extension TransactionHistoryMapper {
         case .transfer,
              .yieldSend:
             return .sending
-        case .yieldDeploy,
-             .yieldEnterCoin,
-             .yieldInit,
-             .yieldReactivate,
-             .yieldTopup,
-             .yieldWithdrawCoin:
-            return .yieldMode
+        case .yieldEnterCoin:
+            return .yieldMode(.activation)
+        case .yieldTopup:
+            return .yieldMode(.topUp)
+        case .yieldWithdrawCoin:
+            return .yieldMode(.deactivation)
+        case .yieldDeploy:
+            return .yieldMode(.deployment)
+        case .yieldInit:
+            return .yieldMode(.initialization)
+        case .yieldReactivate:
+            return .yieldMode(.reactivation)
         case .unknownOperation:
             return .operation
         case .swap,
