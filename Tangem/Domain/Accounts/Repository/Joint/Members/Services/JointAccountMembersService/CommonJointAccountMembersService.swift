@@ -9,21 +9,27 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemSdk
 
 /// Reads the account's composition off the wallet's store of joint accounts and invites, matched by the account's
 /// identifier.
 struct CommonJointAccountMembersService {
     private let cryptoAccountId: String
+    private let derivationPath: DerivationPath
     private let jointAccountsRepository: JointAccountsRepository
+    private let keysProvider: KeysProvider
     private let inviteLinkBuilder = JointAccountInviteLinkBuilder()
 
     init(
         userWalletId: UserWalletId,
         derivationIdentity: CryptoAccountDerivationIdentity,
-        jointAccountsRepository: JointAccountsRepository
+        jointAccountsRepository: JointAccountsRepository,
+        keysProvider: KeysProvider
     ) {
         self.jointAccountsRepository = jointAccountsRepository
+        self.keysProvider = keysProvider
         cryptoAccountId = CryptoAccountModelId(userWalletId: userWalletId, derivationIdentity: derivationIdentity).rawValue.hexString
+        derivationPath = JointAccountKeyPath.derivationPath(forAccountAtIndex: derivationIdentity.derivationIndex)
     }
 }
 
@@ -52,6 +58,10 @@ extension CommonJointAccountMembersService: JointAccountMembersService {
         // handed no invites and holds a record all the same
         // [REDACTED_TODO_COMMENT]
         jointAccountsRepository.jointAccountsInvites.first(by: cryptoAccountId) != nil
+    }
+
+    var ownAddress: String? {
+        try? JointAccountDerivationUtils.storedDerivedKey(at: derivationPath, in: keysProvider)?.address
     }
 
     func requestFrequentUpdates() -> AnyCancellable {

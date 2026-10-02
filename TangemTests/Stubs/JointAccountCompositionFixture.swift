@@ -41,11 +41,15 @@ enum JointAccountCompositionFixture {
         return makeMembersService(repository: repository)
     }
 
-    static func makeMembersService(repository: JointAccountsRepository) -> CommonJointAccountMembersService {
+    static func makeMembersService(
+        repository: JointAccountsRepository,
+        keysProvider: KeysProvider = KeysRepositoryTestsMock(keys: [])
+    ) -> CommonJointAccountMembersService {
         CommonJointAccountMembersService(
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
-            jointAccountsRepository: repository
+            jointAccountsRepository: repository,
+            keysProvider: keysProvider
         )
     }
 

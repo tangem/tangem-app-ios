@@ -42,6 +42,38 @@ struct JointAccountInviteMembersViewModelTests {
         #expect(memberSide.content.members.first?.role == Localization.jointAccountInviteMembersCreator)
     }
 
+    @Test("The row of this wallet's own address says You, whether it created the account or joined it")
+    func ownRowIsToldByAddress() {
+        let bob = member(name: "Bob", inviteId: "AA")
+
+        #expect(role(of: bob, ownAddress: bob.address.uppercased()) == Localization.jointAccountMembersRoleYou)
+        #expect(role(of: creator, ownAddress: bob.address) == Localization.jointAccountInviteMembersCreator)
+        #expect(role(of: creator, ownAddress: creator.address.uppercased()).contains(Localization.jointAccountMembersRoleYou))
+        #expect(role(of: bob, ownAddress: creator.address, isCreatorDevice: true) == Localization.jointAccountMembersRoleJoined)
+    }
+
+    @Test("A member of an account not yet activated finds their own row by the address the members service derives")
+    func joinerOwnRowOfPendingAccount() {
+        let bob = member(name: "Bob", inviteId: "AA")
+        let membersService = JointAccountMembersServiceMock(
+            slots: [.member(creator), .member(bob), .empty(invite: nil)],
+            ownAddress: bob.address
+        )
+
+        let viewModel = makeViewModel(membersCount: 3, membersService: membersService)
+
+        #expect(viewModel.content.members.map(\.role) == [Localization.jointAccountInviteMembersCreator, Localization.jointAccountMembersRoleYou])
+    }
+
+    @Test("Without an address of its own, the wallet holding the invites still tells the creator's row apart")
+    func ownRowFallsBackToInvites() {
+        let bob = member(name: "Bob", inviteId: "AA")
+
+        #expect(role(of: creator, ownAddress: nil, isCreatorDevice: true).contains(Localization.jointAccountMembersRoleYou))
+        #expect(role(of: creator, ownAddress: nil) == Localization.jointAccountInviteMembersCreator)
+        #expect(role(of: bob, ownAddress: nil, isCreatorDevice: true) == Localization.jointAccountMembersRoleJoined)
+    }
+
     @Test("A slot somebody was invited into is a member rather than an invitation waiting to be sent")
     func joinedMemberIsNotAFreeSlot() {
         let viewModel = makeViewModel(
@@ -121,6 +153,10 @@ struct JointAccountInviteMembersViewModelTests {
 
     private func member(name: String, inviteId: String) -> JointAccountMember {
         JointAccountMember(name: name, address: "0x\(name)", role: .member(inviteId: inviteId))
+    }
+
+    private func role(of member: JointAccountMember, ownAddress: String?, isCreatorDevice: Bool = false) -> String {
+        JointAccountInviteMembersViewModel.role(of: member, ownAddress: ownAddress, isCreatorDevice: isCreatorDevice)
     }
 
     /// - Parameter inviteIds: Nil on a wallet that was handed no invites at all, which is anyone's but the creator's.
