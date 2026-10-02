@@ -319,6 +319,15 @@ final class TangemPayMainViewModel: ObservableObject {
         return tangemPayAccount.hasVirtualAccount || isEligibleForVirtualAccount
     }
 
+    private var isBankTransferPending: Bool {
+        guard FeatureProvider.isAvailable(.tangemPayOnrampV2),
+              case .preparing = tangemPayAccount.virtualAccountEntry else {
+            return false
+        }
+
+        return true
+    }
+
     private var isEligibleForVirtualAccount: Bool {
         isEligible(for: .visaVirtualAccount)
     }
@@ -406,6 +415,7 @@ final class TangemPayMainViewModel: ObservableObject {
                         address: depositAddress,
                         swapParameters: swapParameters,
                         isBankTransferAvailable: isBankTransferAvailable,
+                        isBankTransferPending: isBankTransferPending,
                         networks: tangemPayAccount.networks
                     )
                 )
