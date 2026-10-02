@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemFoundation
 import TangemLocalization
 import TangemUI
 import TangemUIUtils
@@ -77,47 +78,67 @@ public struct PolymarketEventCard: View {
         }
     }
 
+    @ViewBuilder
     private func marketRow(_ row: Row) -> some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(row.title)
-                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
+        if let title = row.title {
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
 
-                Text(row.subtitle)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
+                    if let subtitle = row.subtitle {
+                        Text(subtitle)
+                            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityElement(children: .combine)
+
+                outcomeButtons(row, areWide: false)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .accessibilityElement(children: .combine)
-
-            outcomeButtons(row)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+        } else {
+            outcomeButtons(row, areWide: true)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
     }
 
-    private func outcomeButtons(_ row: Row) -> some View {
+    private func outcomeButtons(_ row: Row, areWide: Bool) -> some View {
         HStack(spacing: 4) {
             ForEach(row.outcomes) { outcome in
-                outcomeButton(outcome)
+                outcomeButton(outcome, isWide: areWide)
             }
         }
     }
 
-    private func outcomeButton(_ outcome: Outcome) -> some View {
+    private func outcomeButton(_ outcome: Outcome, isWide: Bool) -> some View {
         Button(action: outcome.onSelect) {
-            Text(outcome.title)
-                .style(DesignSystem.Font.bodyMediumToken, color: outcome.style.foregroundColor)
-                .lineLimit(1)
-                .padding(.horizontal, 14)
-                .frame(minWidth: 56, minHeight: 36)
-                .background(outcome.style.backgroundColor, in: Capsule())
+            HStack(spacing: Constants.outcomeSpacing) {
+                Text(outcome.title)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+
+                if let priceText = outcome.priceText {
+                    Text(Constants.priceSeparator + priceText)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+                        .layoutPriority(1)
+                }
+            }
+            .style(DesignSystem.Font.bodyMediumToken, color: outcome.style.foregroundColor)
+            .padding(.horizontal, 14)
+            .frame(minWidth: 56, minHeight: 36)
+            .frame(maxWidth: isWide ? .infinity : nil)
+            .background(outcome.style.backgroundColor, in: Capsule())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(outcome.title)
+        .accessibilityLabel(outcome.priceText.map { "\(outcome.title) \($0)" } ?? outcome.title)
     }
 
     private var rowDivider: some View {
@@ -170,6 +191,8 @@ public struct PolymarketEventCard: View {
 private extension PolymarketEventCard {
     enum Constants {
         static let cornerRadius: CGFloat = 24
+        static let outcomeSpacing: CGFloat = 4
+        static let priceSeparator = String.bulletSign + " "
 
         static let volumePrefix = Localization.predictionEventTotalVolume
 

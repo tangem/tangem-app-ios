@@ -60,7 +60,8 @@ private extension PolymarketOrderAmountEntryTests {
             geoblockStateProvider: PolymarketGeoblockStateProviderStub(),
             positionsService: nil,
             clobService: PolymarketCLOBServiceStub(),
-            isAwaitingFundsPublisher: .just(output: false)
+            isAwaitingFundsPublisher: .just(output: false),
+            collateralBalancePublisher: .just(output: 200)
         )
 
         try await settle { model.state.balance != nil }
