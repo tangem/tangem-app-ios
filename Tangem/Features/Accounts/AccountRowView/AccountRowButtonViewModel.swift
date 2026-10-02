@@ -23,6 +23,7 @@ final class AccountRowButtonViewModel: Identifiable, ObservableObject {
     @Published private(set) var iconData: AccountIconView.ViewData
     @Published private(set) var subtitleState: SubtitleState = .none
     @Published private(set) var trailingBalanceState: LoadableBalanceView.State?
+    @Published private(set) var isBalanceUnavailable = false
 
     let isDisabled: Bool
     let nameBadge: String?
@@ -150,6 +151,7 @@ private extension AccountRowButtonViewModel {
                 let (accountState, balanceType) = tuple
                 let needsReconnect = accountState == .syncNeeded
 
+                vm.isBalanceUnavailable = needsReconnect
                 vm.trailingBalanceState = Self.polymarketBalanceState(type: balanceType, needsReconnect: needsReconnect)
                 vm.updateSubtitleState(
                     // [REDACTED_TODO_COMMENT]
@@ -176,23 +178,14 @@ private extension AccountRowButtonViewModel {
         private static func polymarketBalanceState(
             type: FormattedTokenBalanceType,
             needsReconnect: Bool
-        ) -> LoadableBalanceView.State {
+        ) -> LoadableBalanceView.State? {
+            guard !needsReconnect else { return nil }
+
             let state = LoadableBalanceViewStateBuilder().build(type: type, icon: .leading)
 
-            if case .failed(let text, _) = state {
-                return .failed(cached: text, icon: .leading)
-            }
+            guard case .failed(let text, _) = state else { return state }
 
-            guard needsReconnect else { return state }
-
-            switch state {
-            case .loaded(let text), .loading(.some(let text)):
-                return .failed(cached: text, icon: .leading)
-            case .loading(.none):
-                return .failed(cached: .string(.enDashSign), icon: .leading)
-            case .failed:
-                return state
-            }
+            return .failed(cached: text, icon: .leading)
         }
     }
 }

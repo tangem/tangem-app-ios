@@ -122,6 +122,7 @@ extension PolymarketDestinationFactory: PolymarketOrderFlowBuilder {
             positionsService: dependencies.positionsService,
             clobService: dependencies.clobService,
             isAwaitingFundsPublisher: dependencies.fundsArrivalTracker.$isAwaitingFunds.eraseToAnyPublisher(),
+            collateralBalancePublisher: dependencies.balanceProvider.collateralBalancePublisher.map(\.value).eraseToAnyPublisher(),
             positionBuilder: pushesPlacedPosition ? self : nil,
             onPlaced: onPlaced,
             onRegionWarning: onRegionWarning,

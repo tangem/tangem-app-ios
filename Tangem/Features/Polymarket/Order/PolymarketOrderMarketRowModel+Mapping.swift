@@ -18,16 +18,21 @@ extension PolymarketOrderMarketRow.Model {
         outcome: PolymarketOutcome,
         eventTitle: String,
         averagePrice: Decimal? = nil,
+        entryPrice: Decimal? = nil,
         isPriceUnavailable: Bool = false
     ) -> Self {
         let ownTitle = market.title.nilIfEmpty ?? market.groupItemTitle?.nilIfEmpty
         let price = isPriceUnavailable ? nil : averagePrice ?? outcome.probability
+        let entry = isPriceUnavailable ? nil : entryPrice
+        let priceText = PolymarketPriceFormatter.centsText(entry ?? price)
+        let nextPriceText = entry.map { _ in PolymarketPriceFormatter.centsText(price) }
 
         return Self(
             question: ownTitle ?? eventTitle,
             imageURL: market.imageURL ?? market.iconURL,
             outcomeTitle: outcome.title,
-            outcomePriceText: PolymarketPriceFormatter.centsText(price),
+            outcomePriceText: priceText,
+            outcomeNextPriceText: nextPriceText == priceText ? nil : nextPriceText,
             outcomeStyle: PolymarketOutcomeStyle(
                 outcomeIndex: market.outcomes.firstIndex { $0.assetId == outcome.assetId } ?? 0
             )

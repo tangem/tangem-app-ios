@@ -71,7 +71,8 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
                 geoblockStateProvider: options.geoblockStateProvider,
                 positionsService: options.positionsService,
                 clobService: options.clobService,
-                isAwaitingFundsPublisher: options.isAwaitingFundsPublisher
+                isAwaitingFundsPublisher: options.isAwaitingFundsPublisher,
+                collateralBalancePublisher: options.collateralBalancePublisher
             )
 
             self.model = model
@@ -262,6 +263,7 @@ extension PolymarketOrderCoordinator {
         let positionsService: PolymarketPositionsService
         let clobService: PolymarketCLOBService
         let isAwaitingFundsPublisher: AnyPublisher<Bool, Never>
+        let collateralBalancePublisher: AnyPublisher<Decimal?, Never>
         let positionBuilder: PolymarketOrderFlowBuilder?
         let onPlaced: @MainActor (PolymarketOrderIndexing) -> Void
         let onRegionWarning: () -> Void

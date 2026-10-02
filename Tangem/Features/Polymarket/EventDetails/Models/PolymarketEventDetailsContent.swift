@@ -85,7 +85,7 @@ extension PolymarketEventDetailsContent {
     ) -> PolymarketMarketCard.Model {
         .make(
             market: market,
-            title: title(for: market, in: event),
+            title: market.listLabel,
             fallbackImageURL: event.iconURL ?? event.imageURL,
             areOutcomesEnabled: areOutcomesEnabled,
             onSelectOutcome: { onSelectOutcome(market, $0) }
@@ -108,13 +108,6 @@ extension PolymarketEventDetailsContent {
             text: MappingConstants.percentFormatter.format(ratio, option: .priceChange),
             type: PriceChangeView.ChangeType(from: ratio)
         )
-    }
-
-    private static func title(for market: PolymarketMarket, in event: PolymarketEvent) -> String {
-        switch event.displayMode {
-        case .groupedOutcomes: market.groupItemTitle ?? market.title
-        case .plainMarkets: market.title
-        }
     }
 }
 

@@ -88,9 +88,7 @@ private extension PolymarketOrderResultViewModel {
                 filledAmount: 2000,
                 tokensBought: 500,
                 resolutionDate: Date().addingTimeInterval(60 * 60 * 24 * 365),
-                executionPrice: Decimal(string: "0.42"),
-                side: .buy,
-                feeText: "$1.40"
+                side: .buy
             ),
             coordinator: nil
         )

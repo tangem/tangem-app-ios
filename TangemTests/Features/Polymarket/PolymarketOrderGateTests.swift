@@ -62,7 +62,7 @@ struct PolymarketOrderGateTests {
 
     @Test("A market that stopped taking orders blocks the flow")
     func closedMarketBlocks() {
-        let gate = PolymarketOrderGate(state: .stub(quoteState: .unavailable(.marketClosed)), intent: Self.buyIntent)
+        let gate = PolymarketOrderGate(state: .stub(quoteState: .unavailable(.marketClosed, quote: nil)), intent: Self.buyIntent)
 
         #expect(!gate.isPrimaryButtonEnabled)
         #expect(gate.notifications == [.marketClosed])
@@ -70,7 +70,7 @@ struct PolymarketOrderGateTests {
 
     @Test("An empty book blocks the flow and says why")
     func emptyBookBlocks() {
-        let gate = PolymarketOrderGate(state: .stub(quoteState: .unavailable(.insufficientLiquidity)), intent: Self.buyIntent)
+        let gate = PolymarketOrderGate(state: .stub(quoteState: .unavailable(.insufficientLiquidity, quote: nil)), intent: Self.buyIntent)
 
         #expect(!gate.isPrimaryButtonEnabled)
         #expect(gate.notifications == [.noLiquidity])
@@ -78,7 +78,7 @@ struct PolymarketOrderGateTests {
 
     @Test("A status this build cannot read is offered as a retry, not as a verdict")
     func undefinedStatusBlocks() {
-        let gate = PolymarketOrderGate(state: .stub(quoteState: .unavailable(.undefined)), intent: Self.buyIntent)
+        let gate = PolymarketOrderGate(state: .stub(quoteState: .unavailable(.undefined, quote: nil)), intent: Self.buyIntent)
 
         #expect(!gate.isPrimaryButtonEnabled)
         #expect(gate.notifications == [.quoteUnavailable])
@@ -211,36 +211,44 @@ struct PolymarketOrderGateTests {
         #expect(Self.buyIntent.minAmount(from: quote) == Decimal(string: "3.675")!)
     }
 
-    @Test("Selling floors at what the exchange asks for once that is above a token")
-    func sellFloorsAtTheExchangeMinimum() {
-        let quote = PolymarketOrderQuote.stub(status: .full, minOrderSize: 5, minOrderAmount: 1)
-
-        #expect(PolymarketOrderIntent.sell(shares: 1000).minAmount(from: quote) == 5)
-    }
-
-    @Test("Selling floors at one token when the exchange asks for less")
+    @Test("Selling floors at one token, whatever the exchange asks of a purchase")
     func sellFloorsAtOneToken() {
-        let quote = PolymarketOrderQuote.stub(status: .full, minOrderSize: Decimal(string: "0.2")!, minOrderAmount: 1)
+        let quote = PolymarketOrderQuote.stub(status: .full, minOrderSize: 5, minOrderAmount: 1)
 
         #expect(PolymarketOrderIntent.sell(shares: 1000).minAmount(from: quote) == 1)
     }
 
-    @Test("A position smaller than a token floors at everything it holds")
-    func sellFloorsAtTheWholePositionWhenItIsTiny() {
+    @Test("A position smaller than a token floors at everything it holds, so dust is sellable")
+    func sellOfDustFloorsAtTheWholePosition() {
         let quote = PolymarketOrderQuote.stub(status: .full, minOrderSize: 5, minOrderAmount: 1)
         let held = Decimal(string: "0.4")!
 
         #expect(PolymarketOrderIntent.sell(shares: held).minAmount(from: quote) == held)
     }
 
-    @Test("An empty book on a sale is said under the amount, not in the notifications")
-    func sellWithoutABookCaptionsTheAmount() {
-        let state = PolymarketOrderModel.State.stub(quoteState: .unavailable(.insufficientLiquidity))
+    @Test("An empty book on a sale is banned in the same banner as on a purchase")
+    func sellWithoutABookBanners() {
+        let state = PolymarketOrderModel.State.stub(quoteState: .unavailable(.insufficientLiquidity, quote: nil))
         let gate = PolymarketOrderGate(state: state, intent: .sell(shares: 1000))
 
         #expect(!gate.isPrimaryButtonEnabled)
-        #expect(gate.notifications.isEmpty)
-        #expect(gate.amountCaption == .notEnoughLiquidity)
+        #expect(gate.notifications == [.noLiquidity])
+        #expect(gate.amountCaption == nil)
+    }
+
+    @Test("An empty book still reports what the exchange would pay for the sale")
+    func sellWithoutABookKeepsTheQuotedAmount() {
+        let quote = PolymarketOrderQuote.stub(status: .insufficientLiquidity, expectedExecutionAmount: 42)
+        let state = PolymarketOrderModel.State.stub(quote: quote)
+
+        #expect(state.quote.expectedExecutionAmount == 42)
+    }
+
+    @Test("A closed market states no amount at all")
+    func closedMarketReportsNoAmount() {
+        let state = PolymarketOrderModel.State.stub(quote: .stub(status: .marketClosed))
+
+        #expect(state.quote.expectedExecutionAmount == nil)
     }
 
     @Test("Closing the whole position under the share minimum keeps the order placeable and unwarned")
@@ -252,12 +260,27 @@ struct PolymarketOrderGateTests {
         #expect(gate.notifications.isEmpty)
     }
 
-    @Test("Selling part of a position under the share minimum is not placeable")
-    func partialSellUnderTheShareMinimumIsBlocked() {
+    @Test("Selling a part of a position under the share minimum is placeable too")
+    func partialSellUnderTheShareMinimumStaysPlaceable() {
         let state = PolymarketOrderModel.State.stub(quote: .stub(status: .belowMinOrderSize), enteredAmount: 1, balance: 1000)
         let gate = PolymarketOrderGate(state: state, intent: .sell(shares: 1000))
 
-        #expect(!gate.isPrimaryButtonEnabled)
+        #expect(gate.isPrimaryButtonEnabled)
+        #expect(gate.notifications.isEmpty)
+    }
+
+    @Test("Selling a whole dust position is placeable")
+    func dustSellIsPlaceable() {
+        let dust = Decimal(string: "0.05")!
+        let state = PolymarketOrderModel.State.stub(
+            quote: .stub(status: .belowMinOrderSize),
+            enteredAmount: dust,
+            minAmount: dust,
+            balance: dust
+        )
+        let gate = PolymarketOrderGate(state: state, intent: .sell(shares: dust))
+
+        #expect(gate.isPrimaryButtonEnabled)
     }
 
     @Test("A side with no floor to state reports none")
@@ -296,16 +319,16 @@ struct PolymarketOrderGateTests {
 struct PolymarketOrderQuoteAgeTests {
     static let receivedAt = Date(timeIntervalSince1970: 1_000_000)
 
-    @Test("A quote younger than the ceiling outlives a failed refresh")
-    func freshQuoteSurvivesAFailedRefresh() {
+    @Test("A quote younger than the ceiling is still good enough to place")
+    func freshQuoteCanBePlaced() {
         let state = PolymarketOrderModel.State.stub(quote: .stub(status: .full), quoteReceivedAt: Self.receivedAt)
         let moment = Self.receivedAt.addingTimeInterval(PolymarketOrderModel.maxQuoteAge)
 
         #expect(state.keepsQuote(at: moment))
     }
 
-    @Test("A quote older than the ceiling is dropped on a failed refresh")
-    func staleQuoteIsDroppedOnAFailedRefresh() {
+    @Test("A quote older than the ceiling is refused at placement")
+    func staleQuoteCannotBePlaced() {
         let state = PolymarketOrderModel.State.stub(quote: .stub(status: .full), quoteReceivedAt: Self.receivedAt)
         let moment = Self.receivedAt.addingTimeInterval(PolymarketOrderModel.maxQuoteAge + 1)
 
