@@ -35,15 +35,32 @@ public struct CollectiblesColdKeyTransactionSender {
         try await makeTransaction(instructions, feePayer: coldKey.blockchainKey, blockhash: blockhash).signed(by: signer, coldKey: coldKey)
     }
 
+    func sign(
+        _ instructions: [CollectiblesInstruction],
+        feePayer: Data,
+        blockhash: SolanaBlockhash,
+        signer: (Data) async throws -> Data
+    ) async throws -> SignedTransaction {
+        let transaction = try makeTransaction(instructions, feePayer: feePayer, blockhash: blockhash)
+        return SignedTransaction(transaction: transaction, signature: try await signer(transaction.message))
+    }
+
     // [REDACTED_TODO_COMMENT]
     /// `nil` when the node already held the transaction: an earlier attempt reached the chain and only its
     /// response was lost. Nothing here has to tell "seen before" apart from "applied" — the loop resolves
     /// again after every step, and a change that never landed shows up as a state that did not advance.
     func broadcast(_ signed: SignedTransaction) async throws -> String? {
+        try await broadcast(
+            serializedTransaction: try signed.serialized(),
+            startSendingTimestamp: signed.transaction.blockhashFetchedAt
+        )
+    }
+
+    func broadcast(serializedTransaction: Data, startSendingTimestamp: Date) async throws -> String? {
         do {
             return try await serviceProvider.service().send(
-                serializedTransaction: try signed.serialized(),
-                startSendingTimestamp: signed.transaction.blockhashFetchedAt
+                serializedTransaction: serializedTransaction,
+                startSendingTimestamp: startSendingTimestamp
             )
         } catch let sendError as SolanaSendError {
             return try signature(after: sendError)
