@@ -304,7 +304,21 @@ private struct PreviewCatalogueProvider: CollectiblesLoresProvider, Collectibles
 
     func load(loreID: String?, query: String, cursor: String?) async throws -> CollectiblesPacksPage {
         let packs = (1 ... 6).map { index in
-            CollectiblesPack(id: "pack-\(index)", name: "Elite \(index)", loreID: "pokemon", price: Decimal(50 * index), currencyCode: "USD", buybackRate: 0.85, artworkURL: nil)
+            CollectiblesPack(
+                id: "pack-\(index)",
+                loreID: "pokemon",
+                currencyCode: "USD",
+                machine: CollectiblesMachine(
+                    name: "Elite \(index)",
+                    artworkURL: nil,
+                    price: Decimal(50 * index),
+                    platformFee: 1,
+                    cardsPerPack: 1,
+                    buybackRate: 0.85,
+                    expectedValue: Decimal(55 * index),
+                    tiers: []
+                )
+            )
         }
         return CollectiblesPacksPage(packs: packs, hasNext: false, cursor: nil)
     }

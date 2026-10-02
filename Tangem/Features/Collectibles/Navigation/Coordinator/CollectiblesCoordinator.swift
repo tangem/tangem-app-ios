@@ -34,6 +34,7 @@ final class CollectiblesCoordinator: CoordinatorObject {
 
     @Published private(set) var state: ViewState?
     @Published var machineViewModel: CollectiblesMachineViewModel?
+    @Published var confirmOrderViewModel: CollectiblesConfirmOrderViewModel?
 
     // MARK: - Init
 
@@ -69,6 +70,10 @@ final class CollectiblesCoordinator: CoordinatorObject {
     func closeMachine() {
         machineViewModel = nil
     }
+
+    func closeConfirmOrder() {
+        confirmOrderViewModel = nil
+    }
 }
 
 // MARK: - Routables
@@ -85,6 +90,7 @@ extension CollectiblesCoordinator: CollectiblesMainRoutable {
 
         machineViewModel = CollectiblesMachineViewModel(
             pack: pack,
+            routable: self,
             prizePoolProvider: CommonCollectiblesPrizePoolProvider(userWalletID: userWalletID)
         )
     }
@@ -100,6 +106,20 @@ extension CollectiblesCoordinator: CollectiblesMainRoutable {
         Task { @MainActor in
             mailPresenter.present(viewModel: mailViewModel)
         }
+    }
+}
+
+extension CollectiblesCoordinator: CollectiblesMachineRoutable {
+    func openConfirmOrder(machineID: String, machine: CollectiblesMachine, isTurboModeOn: Bool) {
+        guard confirmOrderViewModel == nil, let accountModel else { return }
+
+        confirmOrderViewModel = CollectiblesConfirmOrderViewModel(
+            machineID: machineID,
+            machine: machine,
+            isTurboModeOn: isTurboModeOn,
+            usdcBalanceProvider: accountModel.usdcTokenBalanceProvider,
+            refreshBalance: accountModel.refreshState
+        )
     }
 }
 
