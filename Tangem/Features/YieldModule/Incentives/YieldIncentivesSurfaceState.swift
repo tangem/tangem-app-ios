@@ -12,13 +12,11 @@ import Foundation
 enum YieldIncentivesSurfaceState: Equatable {
     case none
     case apyOverlayOnly
-    /// Pending rewards only — no Claim CTA and no invented USD value.
-    case pendingOnly
     /// Claimable but below the backend recommendation threshold — the Claim CTA stays disabled.
     case belowThreshold
     /// A supported claimable reward is recommended; fresh calldata still gates the actual signing.
     case claimAvailable
-    /// Duplicate claim actions stay disabled until the result is reconciled.
+    /// Claimable rewards still listed while a submitted claim is reconciled — duplicate claim actions stay disabled.
     case claimInFlight
 
     static func make(
@@ -30,23 +28,18 @@ enum YieldIncentivesSurfaceState: Equatable {
             return .none
         }
 
-        if isClaimInFlight {
-            return .claimInFlight
-        }
-
         guard let summary else {
             return .apyOverlayOnly
         }
 
         if !summary.claimableRewards.isEmpty {
+            if isClaimInFlight {
+                return .claimInFlight
+            }
+
             return summary.isClaimRecommended ? .claimAvailable : .belowThreshold
         }
 
-        if !summary.pendingRewards.isEmpty {
-            return .pendingOnly
-        }
-
-        // Only unsupported or zero-amount rewards — nothing claimable or pending to surface.
         return .apyOverlayOnly
     }
 }
