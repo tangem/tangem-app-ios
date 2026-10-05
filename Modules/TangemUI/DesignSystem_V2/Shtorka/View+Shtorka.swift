@@ -9,6 +9,7 @@
 import SwiftUI
 import Combine
 import TangemAssets
+import TangemUIUtils
 
 public extension View {
     func shtorka<Content: View>(
@@ -74,9 +75,16 @@ private struct ShtorkaBackgroundModifier: ViewModifier {
     let size: ShtorkaSize
     let expansionProgress: AnyPublisher<CGFloat, Never>
 
+    @Environment(\.displayScale) private var displayScale
+
     @ViewBuilder
     func body(content: Content) -> some View {
-        if #available(iOS 26.0, *) {
+        if #available(iOS 26.1, *) {
+            // With the system glass a sheet released on its way to full jumps back by ~20pt, so it draws its own glass.
+            filled(content)
+                .background { glass }
+                .presentationGlassHidden()
+        } else if #available(iOS 26.0, *) {
             filled(content)
         } else {
             filled(content)
@@ -96,6 +104,24 @@ private struct ShtorkaBackgroundModifier: ViewModifier {
                 )
                 .ignoresSafeArea()
             }
+    }
+
+    @available(iOS 26.0, *)
+    private var glass: some View {
+        Color.clear
+            .glassEffect(.regular, in: ConcentricRectangle())
+            .padding(glassInset)
+            .ignoresSafeArea()
+    }
+
+    /// On iOS 27 the glass outlines its edge, and the sheet clips that outline unless the glass is a pixel smaller.
+    /// iOS 26 draws a bright rim there instead, which an inset would turn into a dark line.
+    private var glassInset: CGFloat {
+        if #available(iOS 27.0, *) {
+            return 1 / displayScale
+        }
+
+        return 0
     }
 }
 
