@@ -7,6 +7,8 @@
 //
 
 import Combine
+import SwiftUI
+import TangemAssets
 import TangemFoundation
 
 /// Performs the account creation for `AccountFormView`: a concrete implementation defines which kind of
@@ -21,6 +23,8 @@ protocol AccountFormViewCreator {
     /// Whether the form explains under the name field which ordinal number the account takes, and so which
     /// derivation it gets.
     var showsAccountIndexDescription: Bool { get }
+
+    var backgroundColor: Color { get }
 
     /// Archived + active accounts, the form shows it as the ordinal number of the account being created.
     var totalAccountsCountPublisher: AnyPublisher<Int, Never> { get }
@@ -37,6 +41,7 @@ protocol AccountFormViewCreator {
 extension AccountFormViewCreator {
     var initialAccountName: String { "" }
     var showsAccountIndexDescription: Bool { true }
+    var backgroundColor: Color { Colors.Background.tertiary }
 
     var walletPublisher: AnyPublisher<AccountFormWallet?, Never> {
         .just(output: nil)

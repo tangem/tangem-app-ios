@@ -179,13 +179,10 @@ extension JointAccountJoinCoordinator: JointAccountJoinRoutable {
 extension JointAccountJoinCoordinator: JointAccountJoinConfirmationRoutable {
     func confirmJoin(userWalletModel: any UserWalletModel, preview: JointAccountInvitePreview) {
         Task { @MainActor [weak self] in
-            guard let self else {
-                return
-            }
+            self?.floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: Constants.sheetDismissalDelay)
 
-            floatingSheetPresenter.removeActiveSheet()
-
-            openMemberName(userWalletModel: userWalletModel, preview: preview)
+            self?.openMemberName(userWalletModel: userWalletModel, preview: preview)
         }
     }
 
@@ -223,5 +220,13 @@ extension JointAccountJoinCoordinator: JointAccountMemberDetailsRoutable {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension JointAccountJoinCoordinator {
+    enum Constants {
+        static let sheetDismissalDelay: Duration = .milliseconds(400)
     }
 }

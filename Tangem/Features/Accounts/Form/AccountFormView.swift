@@ -37,7 +37,7 @@ struct AccountFormView: View {
             overlayButtonView
         }
         .padding(.horizontal, 16)
-        .background(Colors.Background.tertiary)
+        .background(viewModel.backgroundColor)
         .navigationTitle(viewModel.title)
         .navigationBarTitleDisplayMode(.inline)
         .withCloseButton(placement: .topBarTrailing, style: .icon) {
