@@ -41,6 +41,9 @@ extension JointAccountJoinMemberNameHelper: JointAccountMemberNameHelper {
     /// Nothing is gathered before this step in the join flow, so leaving costs the user only the typed name.
     var hasUnsavedChanges: Bool { false }
 
+    /// The join flow has no earlier step to return to, so there is nowhere to keep the name.
+    func keepDraft(name: String) {}
+
     func submit(name: String) async throws(AccountEditError) {
         let context = JointAccountJoinContext(
             inviteId: inviteId,
