@@ -84,6 +84,25 @@ struct RatingProviderCacheDecoratorTests {
         #expect(await spy.checkCalls.count == 2)
     }
 
+    @Test("Answers synchronously only once the answer is known", arguments: [nil, 4])
+    func answersSynchronouslyOnceKnown(rating: Int?) async throws {
+        let existing = rating.map { ExistingRating(rating: $0, feedback: nil) }
+        let provider = RatingProviderBlockingStub()
+        let sut = SUT(decoratee: provider)
+
+        #expect(sut.cachedStatus(for: Self.transactionId) == .unknown)
+
+        async let check = sut.checkExisting(for: Self.transactionId)
+        await provider.waitForCall()
+
+        #expect(sut.cachedStatus(for: Self.transactionId) == .unknown)
+
+        await provider.release(with: existing)
+        _ = try await check
+
+        #expect(sut.cachedStatus(for: Self.transactionId) == existing.map(RatingStatus.rated) ?? .notRated)
+    }
+
     // MARK: - Submit
 
     @Test("Remembers the rating it has just sent")
@@ -94,6 +113,7 @@ struct RatingProviderCacheDecoratorTests {
         let result = try await sut.checkExisting(for: Self.transactionId)
 
         #expect(result == ExistingRating(rating: 5, feedback: "Great"))
+        #expect(sut.cachedStatus(for: Self.transactionId) == .rated(ExistingRating(rating: 5, feedback: "Great")))
         #expect(await spy.checkCalls.isEmpty)
     }
 
@@ -170,6 +190,10 @@ private actor RatingProviderBlockingStub: RatingProvider {
     private var isReleased = false
     private var waiters: [CheckedContinuation<ExistingRating?, Never>] = []
     private var callObservers: [CheckedContinuation<Void, Never>] = []
+
+    nonisolated func cachedStatus(for transactionId: String) -> RatingStatus {
+        .unknown
+    }
 
     func checkExisting(for transactionId: String) async throws -> ExistingRating? {
         callsCount += 1

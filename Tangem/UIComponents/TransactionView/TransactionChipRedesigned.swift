@@ -96,7 +96,15 @@ struct TransactionChipRedesigned: View {
     }
 
     private var isOperationGlyphVisible: Bool {
-        viewModel.transactionType != .approve
+        viewModel.transactionType != .approve && !isProviderChip
+    }
+
+    private var isProviderChip: Bool {
+        if case .provider = display.subtitle {
+            return true
+        }
+
+        return false
     }
 
     private func iconImage(_ image: Image) -> some View {
@@ -137,6 +145,9 @@ struct TransactionChipRedesigned: View {
         switch display.subtitle {
         case .owner(let direction, let owner) where isCounterpartyVisible:
             TransactionSubtitleView(direction: direction, owner: owner, isAddressEmphasized: true)
+
+        case .provider(let direction) where isCounterpartyVisible:
+            TransactionProviderSubtitleView(direction: direction)
 
         case .owner, .text, .express, .provider, .none:
             EmptyView()
@@ -181,7 +192,10 @@ struct TransactionChipRedesigned: View {
 #if DEBUG
 
 private enum ChipPreviewFixture {
-    static let types: [TransactionViewModel.TransactionType] = [.stake, .unstake, .approve, .yieldEnter, .yieldWithdraw]
+    static let types: [TransactionViewModel.TransactionType] = [
+        .stake, .unstake, .approve,
+        .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin, .yieldTopup, .yieldSend,
+    ]
     static let statuses: [TransactionViewModel.Status] = [.inProgress, .confirmed, .failed]
 
     static let combinations: [TransactionViewModel] = types.flatMap { type in
@@ -194,10 +208,10 @@ private enum ChipPreviewFixture {
                 amount: "2,350.00 USDT",
                 value: "2,350.00",
                 currencyCode: "USDT",
-                isOutgoing: true,
+                isOutgoing: type != .yieldSend,
                 transactionType: type,
                 status: status,
-                isFromYieldContract: false
+                isFromYieldContract: type == .yieldSend
             )
         }
     }

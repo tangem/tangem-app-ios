@@ -27,6 +27,10 @@ actor RatingProviderSpy: RatingProvider {
 
     // MARK: - RatingProvider
 
+    nonisolated func cachedStatus(for transactionId: String) -> RatingStatus {
+        .unknown
+    }
+
     func checkExisting(for transactionId: String) async throws -> ExistingRating? {
         checkCalls.append(transactionId)
         return try checkResult.get()

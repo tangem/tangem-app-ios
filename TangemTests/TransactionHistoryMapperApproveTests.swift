@@ -46,7 +46,7 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
 
             #expect(viewModel.amount.currencyCode == "USDC")
             #expect(viewModel.amount.value == formatted)
-            #expect(viewModel.amount.amountWithCurrencyCode == formatted + " USDC")
+            #expect(viewModel.amount.amountWithCurrencyCode == "28.00\u{a0}USDC")
         }
 
         @Test("A revoke of an unresolved token goes without a symbol rather than 'Unknown' or the viewed currency")
@@ -93,7 +93,7 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
 
             #expect(viewModel.amount.currencyCode == "USDC")
             #expect(viewModel.amount.value == formatted)
-            #expect(viewModel.amount.amountWithCurrencyCode == formatted + " USDC")
+            #expect(viewModel.amount.amountWithCurrencyCode == "1,000.00\u{a0}USDC")
         }
 
         @Test(

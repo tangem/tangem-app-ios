@@ -113,20 +113,44 @@ extension TransactionDisplayModel {
                 subtitleOwner: subtitleOwner,
                 expressSubtitle: expressSubtitle
             ),
-            style: isChipStyle(transactionType: transactionType) ? .chip : .row
+            style: isChipStyle(
+                transactionType: transactionType,
+                isOutgoing: isOutgoing,
+                isFromYieldContract: isFromYieldContract
+            ) ? .chip : .row
         )
     }
 
-    /// Supply, Withdraw and the contract lifecycle calls are full rows; the rest of the taxonomy is
-    /// described in the header of `TransactionChipRedesigned`.
-    private static func isChipStyle(transactionType: TransactionViewModel.TransactionType) -> Bool {
+    private static func isChipStyle(
+        transactionType: TransactionViewModel.TransactionType,
+        isOutgoing: Bool,
+        isFromYieldContract: Bool
+    ) -> Bool {
         switch transactionType {
-        case .stake, .unstake, .vote, .restake, .withdraw,
-             .approve,
-             .yieldEnter, .yieldEnterCoin,
-             .yieldWithdraw, .yieldWithdrawCoin:
+        case .stake, .unstake, .restake, .approve:
             return true
-        case .yieldSend, .yieldTopup, .yieldInit, .yieldDeploy, .yieldReactivate,
+        case .vote, .withdraw,
+             .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin, .yieldTopup, .yieldSend,
+             .yieldInit, .yieldDeploy, .yieldReactivate,
+             .transfer, .swap, .onramp, .claimRewards, .operation, .unknownOperation,
+             .gaslessTransactionFee, .gaslessTransfer, .networkFee, .tangemPay:
+            return isLabelOnlyChip(transactionType: transactionType, isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract)
+        }
+    }
+
+    static func isLabelOnlyChip(
+        transactionType: TransactionViewModel.TransactionType,
+        isOutgoing: Bool,
+        isFromYieldContract: Bool
+    ) -> Bool {
+        switch transactionType {
+        case .vote, .withdraw,
+             .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin, .yieldTopup:
+            return true
+        case .yieldSend:
+            return !transactionType.isTransferLikeYieldSend(isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract)
+        case .stake, .unstake, .restake, .approve,
+             .yieldInit, .yieldDeploy, .yieldReactivate,
              .transfer, .swap, .onramp, .claimRewards, .operation, .unknownOperation,
              .gaslessTransactionFee, .gaslessTransfer, .networkFee, .tangemPay:
             return false

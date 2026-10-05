@@ -42,6 +42,7 @@ final class TokenDetailsCoordinator: CoordinatorObject {
 
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     private var safariHandle: SafariHandle?
+    private var transactionDetailsPresentationTask: Task<Void, Never>?
 
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -142,19 +143,36 @@ extension TokenDetailsCoordinator {
 
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
     func openTransactionDetails(_ data: TransactionDetailsRouteData) {
-        Task { @MainActor in
-            let viewModel = TransactionDetailsViewModel(
-                id: data.id,
-                walletModel: data.walletModel,
-                userWalletInfo: data.userWalletInfo,
-                isAccountsMode: data.isAccountsMode,
-                addressBookManager: data.addressBookManager,
-                addressBookAnalyticsLogger: CommonAddressBookAnalyticsLogger(),
-                routable: self
-            )
+        guard transactionDetailsPresentationTask == nil else { return }
+
+        transactionDetailsPresentationTask = Task { @MainActor [weak self] in
+            guard let viewModel = self?.makeTransactionDetailsViewModel(data) else { return }
+
+            await viewModel.prepareForPresentation()
+
+            guard !Task.isCancelled, let self else { return }
 
             floatingSheetPresenter.enqueue(sheet: viewModel)
+            transactionDetailsPresentationTask = nil
         }
+    }
+
+    func cancelTransactionDetailsPresentation() {
+        transactionDetailsPresentationTask?.cancel()
+        transactionDetailsPresentationTask = nil
+    }
+
+    @MainActor
+    private func makeTransactionDetailsViewModel(_ data: TransactionDetailsRouteData) -> TransactionDetailsViewModel {
+        TransactionDetailsViewModel(
+            id: data.id,
+            walletModel: data.walletModel,
+            userWalletInfo: data.userWalletInfo,
+            isAccountsMode: data.isAccountsMode,
+            addressBookManager: data.addressBookManager,
+            addressBookAnalyticsLogger: CommonAddressBookAnalyticsLogger(),
+            routable: self
+        )
     }
 
     func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation) {
