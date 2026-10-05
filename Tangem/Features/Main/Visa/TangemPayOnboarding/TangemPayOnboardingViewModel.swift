@@ -16,6 +16,8 @@ enum TangemPayOnboardingSource {
 }
 
 final class TangemPayOnboardingViewModel: ObservableObject {
+    @Injected(\.tangemPayOnboardingAnalytics) private var analytics: TangemPayOnboardingAnalyticsService
+
     let closeOfferScreen: @MainActor () -> Void
     @MainActor @Published private(set) var tangemPayOfferViewModel: TangemPayOfferViewModel?
     @MainActor @Published private(set) var screenVersion: TangemPayOnboardingScreenVersion = .v1
@@ -78,10 +80,12 @@ final class TangemPayOnboardingViewModel: ObservableObject {
 
     @MainActor
     func onOfferAppear() {
-        let event: Analytics.Event = screenVersion == .v2
-            ? .visaOnboardingVisaNewOnboardingPageOpened
-            : .visaOnboardingVisaActivationScreenOpened
-        Analytics.log(event, analyticsSystems: .all)
+        switch screenVersion {
+        case .v2:
+            analytics.logNewOnboardingScreenOpened()
+        case .v1:
+            analytics.logOfferScreenOpened()
+        }
     }
 
     @MainActor
