@@ -16,6 +16,7 @@ struct YieldModuleActiveCoordinatorView: View {
             if let viewModel = coordinator.rootViewModel {
                 if coordinator.usesIncentiveDesign {
                     YieldModuleActiveContentV2View(viewModel: viewModel)
+                        .interactiveDismissDisabled()
                 } else {
                     YieldModuleActiveContentView(viewModel: viewModel)
                 }

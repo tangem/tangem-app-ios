@@ -15,12 +15,7 @@ struct YieldModuleRewardsBannerView: View {
     let claimAction: () -> Void
 
     var body: some View {
-        switch viewData.claimAvailability {
-        case .hidden:
-            banner
-        case .available, .disabled:
-            banner.slotEnd { claimButton }
-        }
+        banner.slotEnd { claimButton }
     }
 
     private var banner: MessageBanner<EmptyView, EmptyView, EmptyView> {
@@ -48,7 +43,6 @@ extension YieldModuleRewardsBannerView {
         enum ClaimAvailability: Equatable {
             case available
             case disabled
-            case hidden
         }
 
         let title: String
