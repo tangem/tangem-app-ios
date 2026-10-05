@@ -50,6 +50,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     @Published var pendingExpressTxStatusBottomSheet: PendingExpressTxStatusBottomSheetViewModel?
     @Published var virtualAccountSuccessViewModel: TangemPayVirtualAccountSuccessViewModel?
     @Published var virtualAccountOnboardingViewModel: TangemPayVirtualAccountInfoSheetViewModel?
+    @Published var virtualAccountDetailsViewModel: TangemPayVirtualAccountDetailsViewModel?
     @Published var cashbackDetailViewModel: TangemPayCashbackDetailViewModel?
     @Published var activateCardViewModel: TangemPayActivateCardViewModel?
 
@@ -735,6 +736,17 @@ private extension TangemPayMainCoordinator {
         .present(layout: .top(padding: 12), type: .temporary())
     }
 
+    @MainActor
+    func openVirtualAccountDetails(credentials: TangemPayBankCredentialsResponse, tangemPayAccount: TangemPayAccount) {
+        virtualAccountDetailsViewModel = TangemPayVirtualAccountDetailsViewModel(
+            credentials: credentials,
+            tangemPayAccount: tangemPayAccount,
+            onClose: { [weak self] in
+                self?.virtualAccountDetailsViewModel = nil
+            }
+        )
+    }
+
     func openVirtualAccountPreparingPopup() {
         Task { @MainActor in
             let viewModel = TangemPayVirtualAccountPreparingPopupViewModel(coordinator: self)
@@ -794,6 +806,11 @@ extension TangemPayMainCoordinator: TangemPayVirtualAccountInfoSheetRoutable {
     func virtualAccountDidLoadBankCredentials(_ credentials: TangemPayBankCredentialsResponse) {
         Task { @MainActor in
             await dismissVirtualAccountInfo()
+
+            if FeatureProvider.isAvailable(.tangemPayOnrampV2), let tangemPayAccount = options?.tangemPayAccount {
+                openVirtualAccountDetails(credentials: credentials, tangemPayAccount: tangemPayAccount)
+                return
+            }
 
             let viewModel = TangemPayVirtualAccountBankDetailsViewModel(credentials: credentials, coordinator: self)
             floatingSheetPresenter.enqueue(sheet: viewModel)
