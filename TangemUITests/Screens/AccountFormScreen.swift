@@ -29,12 +29,14 @@ final class AccountFormScreen: ScreenBase<AccountFormScreenElement> {
     func clearNameAndType(_ name: String) -> Self {
         XCTContext.runActivity(named: "Clear name and type: '\(name)'") { _ in
             scrollToElement(nameInput)
-            let clearButton = app.buttons["Clear text"].firstMatch
             if !nameInput.hasFocus {
                 nameInput.tap()
             }
+            let clearButton = app.buttons["Clear text"].firstMatch
             if clearButton.exists {
                 clearButton.tap()
+            } else {
+                selectAllAndDeleteName()
             }
             typeReliably(element: nameInput, text: name)
             dismissKeyboard()
@@ -176,6 +178,27 @@ final class AccountFormScreen: ScreenBase<AccountFormScreenElement> {
             XCTAssertTrue(messageText.exists, "Alert should contain message '\(expectedMessage)'")
 
             return self
+        }
+    }
+
+    private func selectAllAndDeleteName() {
+        guard let value = nameInput.value as? String, !value.isEmpty else {
+            return
+        }
+
+        nameInput.press(forDuration: 1.0)
+
+        let selectAllMenuItem = app.menuItems["Select All"].firstMatch
+        let selectAllButton = app.buttons["Select All"].firstMatch
+
+        if selectAllMenuItem.waitForExistence(timeout: .robustUIUpdate) {
+            selectAllMenuItem.tap()
+            nameInput.typeText(XCUIKeyboardKey.delete.rawValue)
+        } else if selectAllButton.waitForExistence(timeout: .robustUIUpdate) {
+            selectAllButton.tap()
+            nameInput.typeText(XCUIKeyboardKey.delete.rawValue)
+        } else {
+            nameInput.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: value.count))
         }
     }
 }
