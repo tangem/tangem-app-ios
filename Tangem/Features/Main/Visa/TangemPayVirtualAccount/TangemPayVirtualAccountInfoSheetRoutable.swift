@@ -10,6 +10,7 @@ import TangemPay
 
 @MainActor
 protocol TangemPayVirtualAccountInfoSheetRoutable: AnyObject {
+    func virtualAccountInfoSheetDidTapShowDetails(isFirstTime: Bool)
     func virtualAccountInfoSheetDidCreateOrder()
     func virtualAccountDidLoadBankCredentials(_ credentials: TangemPayBankCredentialsResponse)
     func virtualAccountInfoSheetDidFailToLoadBankCredentials(productInstanceId: String)

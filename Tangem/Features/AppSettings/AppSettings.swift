@@ -6,6 +6,7 @@
 //  Copyright © 2020 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import TangemPay
 
@@ -145,6 +146,9 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.tangemPayVirtualAccountConditionsShown)
     var tangemPayVirtualAccountConditionsShown: Bool = false
+
+    @AppStorageCompat(StorageType.tangemPayVirtualAccountCreationFailedForCustomerWalletId)
+    var tangemPayVirtualAccountCreationFailedForCustomerWalletId: [String: Bool] = [:]
 
     @AppStorageCompat(StorageType.tangemPayCachedLocalState)
     var tangemPayCachedLocalState: [String: String] = [:]
@@ -302,6 +306,19 @@ extension AppSettings: TangemPayCustomerInfoCacheStorage {
     }
 }
 
+extension AppSettings: TangemPayVirtualAccountCreationFailureStorage {
+    func virtualAccountCreationFailedPublisher(customerWalletId: String) -> AnyPublisher<Bool, Never> {
+        $tangemPayVirtualAccountCreationFailedForCustomerWalletId
+            .map { $0[customerWalletId, default: false] }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    func setVirtualAccountCreationFailed(_ isFailed: Bool, customerWalletId: String) {
+        tangemPayVirtualAccountCreationFailedForCustomerWalletId[customerWalletId] = isFailed ? true : nil
+    }
+}
+
 extension AppSettings: TangemPayCashbackCacheStorage {
     func cachedCashbackSummary(customerWalletId: String) -> TangemPayCashbackSummaryResponse? {
         guard let jsonString = tangemPayCachedCashbackSummary[customerWalletId],
@@ -370,6 +387,7 @@ extension AppSettings: TangemPayStorageCleaner {
         tangemPayIsKYCHiddenForCustomerWalletId[customerWalletId] = nil
         tangemPayIsDisabledForCustomerWalletId[customerWalletId] = nil
         tangemPayCashbackBlockedBannerDismissedForCustomerWalletId[customerWalletId] = nil
+        tangemPayVirtualAccountCreationFailedForCustomerWalletId[customerWalletId] = nil
         tangemPayCachedLocalState[customerWalletId] = nil
         tangemPayCachedTransactionHistory[customerWalletId] = nil
         tangemPayCachedCashbackSummary[customerWalletId] = nil
