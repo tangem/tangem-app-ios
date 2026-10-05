@@ -396,7 +396,7 @@ private final class MyPositionsRoutableSpy: PolymarketMyPositionsRoutable {
     }
 
     @MainActor
-    func openRedeem(position: PolymarketPosition, onClaimed: @escaping () -> Void) {
+    func openRedeem(position: PolymarketPosition, onClaimed: @escaping (PolymarketPosition?) -> Void) {
         opened.withLock { $0.redeemed.append(position) }
     }
 }

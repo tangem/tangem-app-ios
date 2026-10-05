@@ -18,61 +18,21 @@ final class CollectiblesAPITargetTests {
         #expect(makeTarget(.categories).path == "api/v1/machine/categories")
         #expect(makeTarget(.machines(.init())).path == "api/v1/machine/machines")
         #expect(makeTarget(.machine(externalID: "pokemon_50")).path == "api/v1/machine/pokemon_50")
-        #expect(makeTarget(.generateTx(Self.generateTxRequest, userWalletID: "wallet-1")).path == "api/v1/collectible/generateTx")
-        #expect(makeTarget(.submitTx(Self.submitTxRequest, userWalletID: "wallet-1")).path == "api/v1/collectible/submitTx")
     }
 
-    @Test("Catalogue is read with GET, transactions are sent with POST")
+    @Test("Catalogue is read with GET")
     func methods() {
         #expect(makeTarget(.categories).method == .get)
         #expect(makeTarget(.machines(.init())).method == .get)
         #expect(makeTarget(.machine(externalID: "pokemon_50")).method == .get)
-        #expect(makeTarget(.generateTx(Self.generateTxRequest, userWalletID: "wallet-1")).method == .post)
-        #expect(makeTarget(.submitTx(Self.submitTxRequest, userWalletID: "wallet-1")).method == .post)
     }
 
-    @Test("Only the transaction calls carry the user-id header")
+    @Test("Only the calls the backend scopes to a wallet carry the user-id header")
     func userIDHeader() {
         #expect(makeTarget(.categories).headers == nil)
         #expect(makeTarget(.machines(.init())).headers == nil)
         #expect(makeTarget(.machine(externalID: "pokemon_50")).headers == nil)
-        #expect(makeTarget(.generateTx(Self.generateTxRequest, userWalletID: "wallet-1")).headers == ["user-id": "wallet-1"])
-        #expect(makeTarget(.submitTx(Self.submitTxRequest, userWalletID: "wallet-2")).headers == ["user-id": "wallet-2"])
-    }
-
-    @Test("generateTx: body carries the addresses and the machine, turbo mode is omitted when absent")
-    func generateTxBody() throws {
-        let body = try jsonBody(makeTarget(.generateTx(Self.generateTxRequest, userWalletID: "wallet-1")).task)
-
-        #expect(body["fromAddress"] as? String == "owner")
-        #expect(body["collectibleType"] as? String == "pokemon_50")
-        #expect(body["toAddress"] as? String == "cold")
-        #expect(body["turboMode"] == nil)
-        #expect(body.count == 3)
-    }
-
-    @Test("generateTx: turbo mode is nested with its flag and buyback address")
-    func generateTxTurboModeBody() throws {
-        let request = CollectiblesDTO.GenerateTxRequest(
-            fromAddress: "owner",
-            collectibleType: "pokemon_50",
-            toAddress: "cold",
-            turboMode: .init(enabled: true, buybackAddress: "buyback")
-        )
-
-        let body = try jsonBody(makeTarget(.generateTx(request, userWalletID: "wallet-1")).task)
-        let turboMode = try #require(body["turboMode"] as? [String: Any])
-
-        #expect(turboMode["enabled"] as? Bool == true)
-        #expect(turboMode["buybackAddress"] as? String == "buyback")
-    }
-
-    @Test("submitTx: body carries the signed transaction only")
-    func submitTxBody() throws {
-        let body = try jsonBody(makeTarget(.submitTx(Self.submitTxRequest, userWalletID: "wallet-1")).task)
-
-        #expect(body["signedTxData"] as? String == "c2lnbmVk")
-        #expect(body.count == 1)
+        #expect(makeTarget(.machineNfts(externalID: "pokemon_50", .init(page: 1, limit: 50), userWalletID: "wallet-3")).headers == ["user-id": "wallet-3"])
     }
 
     @Test("machines: empty request sends no query")
@@ -134,9 +94,6 @@ private extension CollectiblesAPITargetTests {
         }
         return body
     }
-
-    static let generateTxRequest = CollectiblesDTO.GenerateTxRequest(fromAddress: "owner", collectibleType: "pokemon_50", toAddress: "cold")
-    static let submitTxRequest = CollectiblesDTO.SubmitTxRequest(signedTxData: "c2lnbmVk")
 
     enum TestError: Error { case notRequestParameters, notJSONEncodable, notJSONObject }
 }

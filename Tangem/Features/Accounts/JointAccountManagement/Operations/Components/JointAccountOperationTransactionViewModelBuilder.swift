@@ -51,7 +51,7 @@ struct JointAccountOperationTransactionViewModelBuilder {
             status: .inProgress,
             isFromYieldContract: false,
             subtitleOwner: subtitleOwnerResolver?.resolve(address: destination, blockchain: tokenItem.blockchain),
-            isPendingSignature: true
+            isPendingSignature: operation.status == .awaitingSignatures
         )
     }
 

@@ -89,7 +89,8 @@ class IncomingActionsTests: XCTestCase {
             tokenId: "ethereum",
             userWalletId: "7AFC37E5D8BB0C5F29C0D5FD7835A63CC6A87DA00DD8B72BBBDA5C8CF4AACA0E",
             derivationPath: "m/44'/0'/0'/0/0",
-            transactionId: nil
+            transactionId: nil,
+            accountId: nil
         )
 
         XCTAssertEqual(helper.buildURL(scheme: .withoutRedirectUniversalLink).absoluteString, "tangem://token?network_id=ethereum&token_id=ethereum&user_wallet_id=7AFC37E5D8BB0C5F29C0D5FD7835A63CC6A87DA00DD8B72BBBDA5C8CF4AACA0E&type=income_transaction&derivation_path=m/44'/0'/0'/0/0")
@@ -102,7 +103,8 @@ class IncomingActionsTests: XCTestCase {
             tokenId: "ethereum",
             userWalletId: "7AFC37E5D8BB0C5F29C0D5FD7835A63CC6A87DA00DD8B72BBBDA5C8CF4AACA0E",
             derivationPath: "m/44'/0'/0'/0/0",
-            transactionId: "9244b376"
+            transactionId: "9244b376",
+            accountId: nil
         )
 
         XCTAssertEqual(helper.buildURL(scheme: .withoutRedirectUniversalLink).absoluteString, "tangem://token?network_id=ethereum&token_id=ethereum&user_wallet_id=7AFC37E5D8BB0C5F29C0D5FD7835A63CC6A87DA00DD8B72BBBDA5C8CF4AACA0E&type=onramp_status_update&derivation_path=m/44'/0'/0'/0/0&transaction_id=9244b376")

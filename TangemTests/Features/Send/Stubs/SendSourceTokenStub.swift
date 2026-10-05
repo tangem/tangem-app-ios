@@ -60,6 +60,7 @@ class SendSourceTokenStub: SendSourceToken {
     var tangemIconProvider: any TangemIconProvider { TangemIconProviderStub() }
     var confirmTransactionPolicy: any ConfirmTransactionPolicy { ConfirmTransactionPolicyStub() }
     var isTangemPayAccount: Bool { false }
+    var jointAccountPolicy: JointAccountPolicy? { nil }
 }
 
 // MARK: - TokenBalanceProvider

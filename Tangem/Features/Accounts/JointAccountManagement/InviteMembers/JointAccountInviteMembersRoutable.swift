@@ -18,5 +18,5 @@ protocol JointAccountInviteMembersRoutable: AnyObject {
     func openMemberDetails(name: String, address: String, accentColor: Color)
     /// - Parameter onConfirm: Run when the sheet is confirmed, since activating needs what the screen holds rather
     /// than what the flow does.
-    func openActivationConfirmation(onConfirm: @escaping () -> Void)
+    func openActivationConfirmation(hasNFCInteraction: Bool, onConfirm: @escaping () -> Void)
 }
