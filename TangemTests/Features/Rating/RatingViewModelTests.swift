@@ -60,6 +60,19 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
         #expect(sut.isVisible == true)
     }
 
+    @Test("Takes an answer already in memory as is, without loading", arguments: [nil, 4])
+    func takesCachedAnswer(rating: Int?) async throws {
+        let spy = RatingProviderSpy()
+        await spy.setCheckResult(.success(rating.map { ExistingRating(rating: $0, feedback: nil) }))
+        let provider = RatingProviderCacheDecorator(decoratee: spy)
+        _ = try await provider.checkExisting(for: "tx_test")
+
+        let sut = makeSUT(ratingProvider: provider)
+
+        #expect(sut.state == rating.map(RatingViewModel.State.rated) ?? .unrated)
+        #expect(await spy.checkCalls.count == 1)
+    }
+
     @Test("Loads exactly once, without an explicit trigger")
     func loadsOnce() async {
         let spy = RatingProviderSpy()
@@ -416,6 +429,22 @@ private extension RatingViewModelTests {
         userWalletIdHash: String = "test_wallet_hash",
         txUrl: String? = "https://example.com/tx"
     ) -> RatingViewModel {
+        makeSUT(
+            ratingProvider: spy,
+            externalTxId: externalTxId,
+            providerName: providerName,
+            userWalletIdHash: userWalletIdHash,
+            txUrl: txUrl
+        )
+    }
+
+    func makeSUT(
+        ratingProvider: RatingProvider,
+        externalTxId: String = "tx_test",
+        providerName: String = "TestProvider",
+        userWalletIdHash: String = "test_wallet_hash",
+        txUrl: String? = "https://example.com/tx"
+    ) -> RatingViewModel {
         let transaction = RatingModel.Transaction(
             transactionId: externalTxId,
             providerName: providerName,
@@ -423,7 +452,7 @@ private extension RatingViewModelTests {
         )
 
         let model = RatingModel(
-            ratingProvider: spy,
+            ratingProvider: ratingProvider,
             transaction: transaction,
             userWalletIdHash: userWalletIdHash
         )
@@ -431,7 +460,7 @@ private extension RatingViewModelTests {
         let presenter = RatingFeedbackPresenterSpy()
         feedbackPresenter = presenter
 
-        let viewModel = RatingViewModel(model: model, feedbackPresenter: presenter)
+        let viewModel = RatingViewModel(model: model, feedbackPresenter: presenter, showsSkeleton: true)
         return trackForMemoryLeaks(viewModel)
     }
 }
