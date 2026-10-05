@@ -11,15 +11,22 @@ public import SwiftUI
 @MainActor
 public struct DemoEntry: Identifiable {
     public let title: String
+    public let version: DSVersion?
     public let section: Section
     private let content: @MainActor () -> AnyView
 
     public var id: String { "\(section.title)/\(title)" }
 
-    public init<Content: View>(_ title: String, section: Section, @ViewBuilder content: @escaping @MainActor () -> Content) {
+    public init<Content: View>(
+        _ title: String,
+        version: DSVersion? = nil,
+        section: Section,
+        @ViewBuilder content: @escaping @MainActor () -> Content
+    ) {
         self.title = title
+        self.version = version
         self.section = section
-        self.content = { AnyView(content()) }
+        self.content = { AnyView(content().environment(\.dsShowcaseVersion, version)) }
     }
 
     public func makeView() -> AnyView {
@@ -39,4 +46,8 @@ public extension DemoEntry {
             }
         }
     }
+}
+
+extension EnvironmentValues {
+    @Entry var dsShowcaseVersion: DSVersion?
 }
