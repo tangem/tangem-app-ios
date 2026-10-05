@@ -25,13 +25,17 @@ struct TransactionHistoryMapperYieldTests {
         #expect(makeSUT(isToken: false).mapTransactionViewModel(makeYieldRecord(method: "yieldWithdraw")).display.style == .chip)
     }
 
-    @Test("Operations that move a balance or touch the contract are full rows")
-    func balanceMovingOperationsAreRows() {
-        #expect(makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldTopup")).display.style == .row)
+    @Test("Supply and Withdraw are chips")
+    func supplyAndWithdrawAreChips() {
+        #expect(makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldTopup")).display.style == .chip)
+        #expect(makeSUT().mapTransactionViewModel(makeWithdrawRecord()).display.style == .chip)
+    }
+
+    @Test("Contract lifecycle calls are full rows")
+    func contractLifecycleCallsAreRows() {
         #expect(makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldDeploy")).display.style == .row)
         #expect(makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldInit")).display.style == .row)
         #expect(makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldReactivate")).display.style == .row)
-        #expect(makeSUT().mapTransactionViewModel(makeWithdrawRecord()).display.style == .row)
     }
 
     // MARK: - Amount and subtitle suppression
@@ -54,10 +58,10 @@ struct TransactionHistoryMapperYieldTests {
         #expect(makeSUT(isToken: true).mapTransactionViewModel(makeYieldRecord(method: "yieldEnter")).amount.formattedAmount == nil)
     }
 
-    @Test("Supply and Withdraw show their amount in the redesigned row")
-    func supplyAndWithdrawShowAmount() {
-        #expect(makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldTopup")).amount.displayValue != nil)
-        #expect(makeSUT().mapTransactionViewModel(makeWithdrawRecord()).amount.displayValue != nil)
+    @Test("The Supply and Withdraw chips carry no amount")
+    func supplyAndWithdrawChipsHaveNoAmount() {
+        #expect(makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldTopup")).amount.displayValue == nil)
+        #expect(makeSUT().mapTransactionViewModel(makeWithdrawRecord()).amount.displayValue == nil)
     }
 
     // MARK: - Type-driven sign
