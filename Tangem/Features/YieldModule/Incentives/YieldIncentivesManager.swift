@@ -78,7 +78,7 @@ actor CommonYieldIncentivesManager: YieldIncentivesManager {
         let summary = try await yieldModuleNetworkManager.fetchIncentives(chainId: chainId, userAddress: userAddress)
         store(summary, startedAt: startedAt)
 
-        return summary
+        return lastFetch?.summary
     }
 
     private func fetchHistory() async throws -> [YieldClaimHistoryEntry]? {
@@ -86,7 +86,7 @@ actor CommonYieldIncentivesManager: YieldIncentivesManager {
         let entries = try await yieldModuleNetworkManager.fetchClaimHistory(chainId: chainId, userAddress: userAddress)
         storeHistory(entries, startedAt: startedAt)
 
-        return entries
+        return lastHistoryFetch?.entries
     }
 
     private func store(_ summary: YieldIncentivesRewardsSummary?, startedAt: Date) {

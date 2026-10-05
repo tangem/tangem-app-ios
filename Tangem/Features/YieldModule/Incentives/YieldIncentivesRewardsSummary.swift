@@ -12,21 +12,14 @@ struct YieldIncentivesRewardsSummary: Equatable {
     let moduleAddress: String
     let rewards: [YieldIncentiveReward]
     let lastUpdatedAt: Date
+    let isClaimRecommended: Bool
 
     var claimableRewards: [YieldIncentiveReward] {
         rewards.filter(\.isClaimable)
     }
 
-    var pendingRewards: [YieldIncentiveReward] {
-        rewards.filter(\.hasPending)
-    }
-
     var totalClaimableNetUsd: Decimal {
         claimableRewards.reduce(0) { $0 + $1.estimatedNetValueUsd }
-    }
-
-    var isClaimRecommended: Bool {
-        claimableRewards.contains(where: \.claimRecommended)
     }
 }
 
@@ -39,7 +32,8 @@ extension YieldIncentivesRewardsSummary {
         self.init(
             moduleAddress: moduleAddress,
             rewards: dto.rewards.map(YieldIncentiveReward.init(dto:)),
-            lastUpdatedAt: dto.lastUpdatedAt
+            lastUpdatedAt: dto.lastUpdatedAt,
+            isClaimRecommended: dto.claimRecommended
         )
     }
 }

@@ -188,6 +188,11 @@ final class YieldModuleActiveViewModel: ObservableObject {
 
     // MARK: - Public Implementation
 
+    @MainActor
+    func onPullToRefresh() async {
+        await refreshIncentives(forceRefresh: true)
+    }
+
     func openReadMore() {
         let url = readMoreURL
         Task { @MainActor [weak self] in
@@ -275,7 +280,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
     }
 
     @MainActor
-    private func refreshIncentives() async {
+    private func refreshIncentives(forceRefresh: Bool = false) async {
         hasActiveIncentiveCampaign = await yieldManagerInteractor.hasActiveIncentiveCampaign()
 
         guard !Task.isCancelled else {
@@ -286,7 +291,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
 
         do {
             summary = hasActiveIncentiveCampaign
-                ? try await yieldManagerInteractor.getIncentivesSummary()
+                ? try await yieldManagerInteractor.getIncentivesSummary(forceRefresh: forceRefresh)
                 : nil
         } catch {
             // A load that failed says nothing about the rewards, so the banner keeps whatever it already shows.
@@ -316,8 +321,8 @@ final class YieldModuleActiveViewModel: ObservableObject {
     }
 
     /// The claim outlives the sheet it was started from, so the screen learns about it from the tracker
-    /// rather than from a callback the dismissed sheet may never get to make. Both terminal events arrive
-    /// right after the tracker forced its own rewards read, so the refreshes below are served from it.
+    /// rather than from a callback the dismissed sheet may never get to make. Nothing reads the rewards on the
+    /// way here any more, so the settled event asks for them itself.
     private func handleClaimEvent(_ event: YieldIncentivesClaimTracker.Event) {
         Task { @MainActor [weak self] in
             guard let self else { return }
@@ -326,14 +331,8 @@ final class YieldModuleActiveViewModel: ObservableObject {
             case .submitted:
                 await updateRewardsBanner(summary: incentivesSummary)
 
-            case .confirmed:
-                Toast(view: SuccessToast(text: Localization.yieldModuleClaimSuccessToast))
-                    .present(layout: .top(padding: 14), type: .temporary())
-
-                await refreshIncentives()
-
-            case .unresolved:
-                await refreshIncentives()
+            case .settled:
+                await refreshIncentives(forceRefresh: true)
             }
         }
     }
@@ -579,13 +578,6 @@ private extension YieldModuleActiveViewModel {
         case .none, .apyOverlayOnly:
             return nil
 
-        case .pendingOnly:
-            return YieldModuleRewardsBannerView.ViewData(
-                title: Localization.yieldModuleRewardsBannerPendingTitle,
-                subtitle: Localization.yieldModuleRewardsBannerPendingSubtitle(formatPendingAmounts(summary.pendingRewards)),
-                claimAvailability: .hidden
-            )
-
         case .belowThreshold:
             return YieldModuleRewardsBannerView.ViewData(
                 title: Localization.yieldModuleRewardsBannerTitle(formatClaimableTotal(summary)),
@@ -605,13 +597,5 @@ private extension YieldModuleActiveViewModel {
     func formatClaimableTotal(_ summary: YieldIncentivesRewardsSummary) -> String {
         // Backend USD estimates are always USD, regardless of the app's display currency.
         BalanceFormatter().formatFiatBalance(summary.totalClaimableNetUsd, currencyCode: AppConstants.usdCurrencyCode)
-    }
-
-    func formatPendingAmounts(_ rewards: [YieldIncentiveReward]) -> String {
-        let formatter = YieldIncentiveAmountFormatter()
-
-        return rewards
-            .compactMap { formatter.format(baseUnits: $0.pendingAmount, decimals: $0.decimals, symbol: $0.symbol) }
-            .joined(separator: ", ")
     }
 }

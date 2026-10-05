@@ -13,13 +13,15 @@ import TangemLocalization
 
 struct YieldModuleClaimViewDataMapper {
     private let blockchain: Blockchain
+    private let storage: YieldModuleClaimViewData.Storage?
 
     private let iconInfoBuilder = TokenIconInfoBuilder()
     private let amountFormatter = YieldIncentiveAmountFormatter()
     private let balanceFormatter = BalanceFormatter()
 
-    init(blockchain: Blockchain) {
+    init(blockchain: Blockchain, storage: YieldModuleClaimViewData.Storage?) {
         self.blockchain = blockchain
+        self.storage = storage
     }
 
     func map(summary: YieldIncentivesRewardsSummary) -> YieldModuleClaimViewData {
@@ -35,6 +37,7 @@ struct YieldModuleClaimViewDataMapper {
             return YieldModuleClaimViewData.Section(
                 id: destination.rawValue,
                 title: title(for: destination),
+                storage: destination == .owner ? storage : nil,
                 rewards: rewards.map(makeClaimableReward)
             )
         }
@@ -46,18 +49,37 @@ struct YieldModuleClaimViewDataMapper {
                 YieldModuleClaimViewData.Section(
                     id: YieldIncentiveReward.Destination.unsupported.rawValue,
                     title: title(for: .unsupported),
+                    storage: nil,
                     rewards: unclaimableRewards.map(makeUnclaimableReward)
                 )
             )
         }
 
-        return YieldModuleClaimViewData(
+        let data = YieldModuleClaimViewData(
             total: balanceFormatter.formatFiatBalance(summary.totalClaimableNetUsd, currencyCode: AppConstants.usdCurrencyCode),
             sections: sections
         )
+
+        return data
     }
 
-    func serviceFeeRate(for summary: YieldIncentivesRewardsSummary) -> String? {
+    func mapSuccess(summary: YieldIncentivesRewardsSummary) -> YieldModuleClaimSuccessViewData {
+        YieldModuleClaimSuccessViewData(
+            total: balanceFormatter.formatFiatBalance(summary.totalClaimableNetUsd, currencyCode: AppConstants.usdCurrencyCode)
+        )
+    }
+
+    func mapServiceFee(amountUsd: Decimal, summary: YieldIncentivesRewardsSummary) -> String {
+        let amount = balanceFormatter.formatFiatBalance(amountUsd, currencyCode: AppConstants.usdCurrencyCode)
+
+        guard let rate = serviceFeeRate(for: summary) else {
+            return amount
+        }
+
+        return Constants.serviceFeeFormat(rate, amount)
+    }
+
+    private func serviceFeeRate(for summary: YieldIncentivesRewardsSummary) -> String? {
         let rates = Set(summary.claimableRewards.map(\.serviceFeeRateBps))
 
         // A single shared rate is the only one that can be stated for the claim as a whole.
@@ -123,5 +145,9 @@ private extension YieldModuleClaimViewDataMapper {
     enum Constants {
         static let claimableDestinationsOrder: [YieldIncentiveReward.Destination] = [.owner, .aave, .module]
         static let bpsInWhole: Decimal = 10_000
+
+        static func serviceFeeFormat(_ rate: String, _ amount: String) -> String {
+            "(\(rate)) \(amount)"
+        }
     }
 }
