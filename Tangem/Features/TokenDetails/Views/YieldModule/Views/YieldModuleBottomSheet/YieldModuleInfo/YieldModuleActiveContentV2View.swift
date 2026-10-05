@@ -47,7 +47,9 @@ struct YieldModuleActiveContentV2View: View {
                 bottomSection
             }
         }
-        .scrollBounceBehavior(.basedOnSize)
+        .refreshable {
+            await viewModel.onPullToRefresh()
+        }
         .padding(.horizontal, 16)
         .padding(.top, 2)
         .safeAreaInset(edge: .top) {
