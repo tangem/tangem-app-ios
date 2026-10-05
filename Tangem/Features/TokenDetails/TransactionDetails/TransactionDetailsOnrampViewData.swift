@@ -70,20 +70,19 @@ struct TransactionDetailsOnrampViewData: TransactionDetailsOperationViewData {
 
     /// The paid amount is never signed, in any state.
     private var paidAmountText: String {
-        Localization.transactionHistoryDetailPageAmountValue(paid.amount, paid.symbol)
+        TransactionDetailsAmountTextBuilder.build(paid.amount, symbol: paid.symbol) ?? BalanceFormatter.defaultEmptyBalanceString
     }
 
     /// A deal that never settled delivered nothing, so a bare dash stands in for the figure the provider promised.
     private var receivedAmountText: String {
-        guard stage != .unsuccessful, let amount = received.amount?.nilIfEmpty else {
+        guard
+            stage != .unsuccessful,
+            let amountText = TransactionDetailsAmountTextBuilder.build(received.amount, symbol: received.symbol, sign: receivedPrefix)
+        else {
             return BalanceFormatter.defaultEmptyBalanceString
         }
 
-        guard let prefix = receivedPrefix else {
-            return Localization.transactionHistoryDetailPageAmountValue(amount, received.symbol)
-        }
-
-        return Localization.transactionHistoryDetailPageAmountSignedValue(prefix, amount, received.symbol)
+        return amountText
     }
 
     /// Mirrors the history row's sign, which keys off the same stage — the two surfaces must not disagree

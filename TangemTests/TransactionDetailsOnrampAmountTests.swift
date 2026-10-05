@@ -21,14 +21,14 @@ struct TransactionDetailsOnrampAmountTests {
     func inProgressReceivedAmountIsEstimated() throws {
         let legs = try #require(makeViewData(stage: .inProgress, receivedAmount: "1800").legs)
 
-        #expect(legs.to.amountText == "\(AppConstants.tildeSign) 1800 POL")
+        #expect(legs.to.amountText == "~\u{a0}1800\u{a0}POL")
     }
 
     @Test("Finished signs the received amount as a delivery")
     func finishedReceivedAmountIsSigned() throws {
         let legs = try #require(makeViewData(stage: .finished, receivedAmount: "1800").legs)
 
-        #expect(legs.to.amountText == "\(AppConstants.plusSign) 1800 POL")
+        #expect(legs.to.amountText == "+\u{a0}1800\u{a0}POL")
     }
 
     @Test("A settled top-up with no known amount falls back to a dash", arguments: [nil, ""] as [String?])
@@ -49,7 +49,7 @@ struct TransactionDetailsOnrampAmountTests {
     func paidAmountIsNeverSigned(stage: TransactionDetailsOperationStage) throws {
         let legs = try #require(makeViewData(stage: stage, receivedAmount: "1800").legs)
 
-        #expect(legs.from.amountText == "100 EUR")
+        #expect(legs.from.amountText == "100\u{a0}EUR")
     }
 
     @Test("Neither leg carries a fiat value", arguments: stages)

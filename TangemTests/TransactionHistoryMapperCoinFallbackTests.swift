@@ -93,7 +93,7 @@ struct TransactionHistoryMapperCoinFallbackTests {
 
         let viewModel = makeSUT(isToken: false).mapTransactionViewModel(record)
 
-        #expect(sentTokens(of: viewModel)?.amount == BalanceFormatter().formatCryptoBalance(21, currencyCode: "USDT"))
+        #expect(sentTokens(of: viewModel)?.amount == "21.00\u{a0}USDT")
         #expect(viewModel.display.subtitle == .text(Localization.transactionHistoryFeeForOperation))
     }
 
@@ -104,6 +104,28 @@ struct TransactionHistoryMapperCoinFallbackTests {
             tokenTransfers: [
                 makeTokenTransfer(from: Self.walletAddress, amount: 262_500),
                 makeTokenTransfer(from: Self.walletAddress, amount: 1, contract: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"),
+            ]
+        )
+
+        let viewModel = makeSUT(isToken: false).mapTransactionViewModel(record)
+
+        #expect(viewModel.transactionType.isNetworkFee)
+        #expect(sentTokens(of: viewModel) == nil)
+    }
+
+    /// The contract is one no stub registers: this suite reads the process-global aux data repository while the
+    /// `TransactionHistoryAuxDataRepositoryDependentTests` ones swap it, and a resolved token brings its own ticker.
+    @Test("A fee whose token has an empty ticker names no amount rather than a bare number")
+    func emptyTickerLeavesTheFeeUnnamed() {
+        let record = makeRecord(
+            methodName: nil,
+            tokenTransfers: [
+                makeTokenTransfer(
+                    from: Self.walletAddress,
+                    amount: 262_500,
+                    symbol: "",
+                    contract: "0x000000000000000000000000000000000000dEaD"
+                ),
             ]
         )
 
@@ -215,6 +237,7 @@ struct TransactionHistoryMapperCoinFallbackTests {
     private func makeTokenTransfer(
         from source: String,
         amount: Decimal,
+        symbol: String = "USDT",
         contract: String = "0xdAC17F958D2ee523a2206206994597C13D831ec7"
     ) -> TransactionRecord.TokenTransfer {
         .init(
@@ -222,7 +245,7 @@ struct TransactionHistoryMapperCoinFallbackTests {
             destination: "0xRecipient",
             amount: amount,
             name: "Tether",
-            symbol: "USDT",
+            symbol: symbol,
             decimals: 6,
             contract: contract
         )

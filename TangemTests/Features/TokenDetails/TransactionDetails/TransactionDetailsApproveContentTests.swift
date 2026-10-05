@@ -41,7 +41,7 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
 
             #expect(single.caption == Localization.transactionHistoryApprovedAmount)
             #expect(single.amountText == transaction.amount.amountWithCurrencyCode)
-            #expect(single.amountText == BalanceFormatter().formatDecimal(1234.5678) + " USDT")
+            #expect(single.amountText == "1,234.5678\u{a0}USDT")
             #expect(data.counterparty == nil)
         }
 
