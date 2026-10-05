@@ -17,6 +17,11 @@ struct RatingProviderCacheDecorator: RatingProvider {
         self.decoratee = decoratee
     }
 
+    func cachedStatus(for transactionId: String) -> RatingStatus {
+        guard case .known(let rating) = entries({ $0[transactionId] }) else { return .unknown }
+        return rating.map(RatingStatus.rated) ?? .notRated
+    }
+
     func checkExisting(for transactionId: String) async throws -> ExistingRating? {
         switch entry(for: transactionId) {
         case .known(let rating):
