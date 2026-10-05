@@ -35,6 +35,11 @@ final class SurveySparrowRatingProvider: RatingProvider {
 
     // MARK: - Public methods
 
+    /// SurveySparrow is only ever asked over the network; answers kept in memory are RatingProviderCacheDecorator's
+    func cachedStatus(for transactionId: String) -> RatingStatus {
+        .unknown
+    }
+
     func checkExisting(for transactionId: String) async throws -> ExistingRating? {
         guard let rating = keys.swapRating else { return nil }
         guard let url = Self.makeURL(domain: keys.domain) else {
