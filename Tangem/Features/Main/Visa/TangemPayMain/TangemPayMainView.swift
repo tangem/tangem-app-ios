@@ -20,6 +20,7 @@ struct TangemPayMainView: View {
     @StateObject private var elasticContainerModel: TangemElasticContainerModel
     @State private var headerHeightRatio: CGFloat = 1
     @State private var visibleBodyHeight: CGFloat = 0
+    @State private var headerHeight: CGFloat = 0
     @State private var cardsRowWidth: CGFloat = 0
 
     init(viewModel: TangemPayMainViewModel) {
@@ -32,20 +33,18 @@ struct TangemPayMainView: View {
     }
 
     var body: some View {
-        redesignedBody
+        content
     }
 
-    // MARK: - Redesign
-
-    private var redesignedBody: some View {
+    private var content: some View {
         RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject, contentSettings: .simpleContent) {
             VStack(spacing: 0) {
-                TangemElasticContainer(viewModel: elasticContainerModel, content: redesignedCollapsingHeader)
-                    .opacity(redesignedHeaderOpacity)
+                TangemElasticContainer(viewModel: elasticContainerModel, content: collapsingHeader)
+                    .opacity(headerOpacity)
                     .animation(.default, value: headerHeightRatio)
+                    .readGeometry(\.size.height, bindTo: $headerHeight)
 
-                redesignedTransactionList
-                    .frame(maxWidth: .infinity, minHeight: visibleBodyHeight, alignment: .top)
+                transactionList
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
@@ -60,18 +59,18 @@ struct TangemPayMainView: View {
         .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.alert) { $0.alert }
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar { redesignedToolbar }
+        .toolbar { toolbarContent }
         .translucentNavigationBar()
         .redesigned()
     }
 
-    private var redesignedHeaderOpacity: CGFloat {
+    private var headerOpacity: CGFloat {
         clamp(2 * headerHeightRatio - 1, min: 0, max: 1)
     }
 
-    private var redesignedCollapsingHeader: some View {
+    private var collapsingHeader: some View {
         VStack(spacing: 28) {
-            redesignedHeader
+            header
 
             VStack(spacing: 8) {
                 PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
@@ -84,15 +83,19 @@ struct TangemPayMainView: View {
                 }
 
                 if viewModel.shouldDisplayAddToApplePayGuide {
-                    redesignedAddToApplePayBanner
+                    addToApplePayBanner
                 }
 
                 if let contactSupportButton = viewModel.contactSupportMessageBannerButton {
                     failedToIssueCardBanner(contactSupportButton: contactSupportButton)
                 }
 
+                if let virtualAccountBannerState = viewModel.virtualAccountBannerState {
+                    virtualAccountBanner(state: virtualAccountBannerState)
+                }
+
                 if viewModel.hasIssuingEntry, !viewModel.isAwaitingDeposit {
-                    TangemPayIssuingCardBannerRedesigned()
+                    TangemPayIssuingCardBanner()
                         .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.issuingCardBanner)
                 }
 
@@ -122,26 +125,38 @@ struct TangemPayMainView: View {
                 }
 
                 cashbackSection
+
+                ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
+                    PendingExpressTransactionView(info: transactionInfo)
+                }
             }
         }
         .padding(.bottom, 8)
     }
 
     @ViewBuilder
-    private var redesignedTransactionList: some View {
+    private var transactionList: some View {
         if !viewModel.isDeactivated {
-            TransactionsListViewRedesigned(
-                state: viewModel.tangemPayTransactionHistoryState,
-                exploreAction: nil,
-                openTransactionDetailsAction: { viewModel.openTransactionDetails(id: $0.hash) },
-                reloadButtonAction: viewModel.reloadHistory,
-                isReloadButtonBusy: false,
-                fetchMore: viewModel.fetchNextTransactionHistoryPage()
-            )
+            switch viewModel.tangemPayTransactionHistoryState {
+            case .error:
+                TangemPayTransactionHistoryErrorView(reloadAction: viewModel.reloadHistory)
+                    .frame(maxWidth: .infinity, minHeight: max(0, visibleBodyHeight - headerHeight), alignment: .center)
+                    .frame(maxWidth: .infinity, minHeight: visibleBodyHeight, alignment: .top)
+            case .loading, .loaded, .notSupported:
+                TransactionsListViewRedesigned(
+                    state: viewModel.tangemPayTransactionHistoryState,
+                    exploreAction: nil,
+                    openTransactionDetailsAction: { viewModel.openTransactionDetails(id: $0.hash) },
+                    reloadButtonAction: viewModel.reloadHistory,
+                    isReloadButtonBusy: false,
+                    fetchMore: viewModel.fetchNextTransactionHistoryPage()
+                )
+                .frame(maxWidth: .infinity, minHeight: visibleBodyHeight, alignment: .top)
+            }
         }
     }
 
-    private var redesignedHeader: some View {
+    private var header: some View {
         VStack(spacing: 24) {
             VStack(spacing: 4) {
                 TangemPayBalanceView(state: viewModel.balance, isError: viewModel.isBalanceNegative)
@@ -156,7 +171,7 @@ struct TangemPayMainView: View {
                 }
             }
 
-            redesignedCardsRow
+            cardsRow
 
             TangemPayActionButtonsView(
                 actionButtonsDisabled: viewModel.actionButtonsDisabled,
@@ -217,6 +232,38 @@ struct TangemPayMainView: View {
         .primaryButton(contactSupportButton)
     }
 
+    @ViewBuilder
+    private func virtualAccountBanner(state: TangemPayMainViewModel.VirtualAccountBannerState) -> some View {
+        switch state {
+        case .creating:
+            MessageBanner(
+                title: Localization.tangempayBankTransferCreatingTitle,
+                description: Localization.tangempayBankTransferCreatingDescription
+            )
+            .slotEnd {
+                DesignSystem.Icons.Clock.regular20.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Color.iconPrimary)
+            }
+
+        case .failed:
+            MessageBanner(
+                title: Localization.tangempayVaBannerFailedTitle,
+                description: Localization.tangempayVaBannerFailedDescription
+            )
+            .variant(.error)
+            .slotStart {
+                DesignSystem.Icons.Error.regular20.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Color.iconPrimary)
+            }
+            .closeButton(
+                accessibilityLabel: Localization.commonClose,
+                action: viewModel.dismissVirtualAccountFailedBanner
+            )
+        }
+    }
+
     private var inactiveBadge: some View {
         Badge(label: Localization.tangempayStatusInactive, accessibilityLabel: nil)
             .size(.x6)
@@ -226,11 +273,11 @@ struct TangemPayMainView: View {
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountInactiveBadge)
     }
 
-    private var redesignedCardsRow: some View {
+    private var cardsRow: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(viewModel.cardEntries) { entry in
-                    redesignedCardEntryButton(for: entry)
+                    cardEntryButton(for: entry)
                 }
 
                 SwiftUI.Button(action: viewModel.tapAddCard) {
@@ -248,13 +295,13 @@ struct TangemPayMainView: View {
     }
 
     @ViewBuilder
-    private func redesignedCardEntryButton(for entry: TangemPayCardEntry) -> some View {
+    private func cardEntryButton(for entry: TangemPayCardEntry) -> some View {
         switch entry {
         case .issued(let card):
             SwiftUI.Button {
                 viewModel.openCardManagement(entry: entry)
             } label: {
-                TangemPaySmallCardViewRedesigned(
+                TangemPaySmallCardView(
                     state: card.isReissuing || card.isClosing
                         ? .replacing
                         : .issued(
@@ -272,21 +319,21 @@ struct TangemPayMainView: View {
             SwiftUI.Button {
                 viewModel.openCardManagement(entry: entry)
             } label: {
-                TangemPaySmallCardViewRedesigned(state: entry.isGhost ? .ghost : .issuing)
+                TangemPaySmallCardView(state: entry.isGhost ? .ghost : .issuing)
             }
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountIssuingCardButton)
         }
     }
 
-    private var redesignedAddToApplePayBanner: some View {
-        TangemPayAddToApplePayBannerRedesigned(
+    private var addToApplePayBanner: some View {
+        TangemPayAddToApplePayBanner(
             openAction: viewModel.openAddToApplePayGuide,
             closeAction: viewModel.dismissAddToApplePayGuideBanner
         )
     }
 
     @ToolbarContentBuilder
-    private var redesignedToolbar: some ToolbarContent {
+    private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .principal) {
             VStack(spacing: 4) {
                 Text(Localization.tangempayPaymentAccount)

@@ -23,6 +23,8 @@ protocol YieldModuleNetworkManager {
     func fetchChartData(tokenContractAddress: String, chainId: Int) async throws -> YieldChartData
     func fetchAprHistory(tokenContractAddress: String, chainId: Int, days: Int) async throws -> [YieldIncentiveAprPoint]
     func fetchIncentives(chainId: Int, userAddress: String) async throws -> YieldIncentivesRewardsSummary?
+    func fetchClaimCalldata(chainId: Int, userAddress: String) async throws -> YieldClaimCalldata
+    func fetchClaimHistory(chainId: Int, userAddress: String) async throws -> [YieldClaimHistoryEntry]?
     func activate(tokenContractAddress: String, walletAddress: String, chainId: Int, userWalletId: String) async throws
     func deactivate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws
     func sendTransactionEvent(txHash: String, operation: YieldModuleOperation, userAddress: String?) async
@@ -158,6 +160,18 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
         let incentives = try await yieldModuleAPIService.getIncentives(chainId: chainId, userAddress: userAddress)
 
         return incentives.flatMap(YieldIncentivesRewardsSummary.init(dto:))
+    }
+
+    func fetchClaimCalldata(chainId: Int, userAddress: String) async throws -> YieldClaimCalldata {
+        let calldata = try await yieldModuleAPIService.getClaimCalldata(chainId: chainId, userAddress: userAddress)
+
+        return YieldClaimCalldata(dto: calldata)
+    }
+
+    func fetchClaimHistory(chainId: Int, userAddress: String) async throws -> [YieldClaimHistoryEntry]? {
+        let history = try await yieldModuleAPIService.getClaimHistory(chainId: chainId, userAddress: userAddress)
+
+        return history?.claims.map(YieldClaimHistoryEntry.init(dto:))
     }
 
     private static let aprHistoryDateFormatter: DateFormatter = {
@@ -308,6 +322,7 @@ private struct YieldModuleNetworkManagerKey: InjectionKey {
                     additionalPlugins: [
                         DeviceInfoPlugin(),
                         YieldModuleAuthorizationPlugin(),
+                        CachePolicyPlugin(),
                     ]
                 ),
                 yieldModuleAPIType: apiType,

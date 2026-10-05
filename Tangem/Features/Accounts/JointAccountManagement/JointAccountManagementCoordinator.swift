@@ -12,6 +12,7 @@ import SwiftUI
 
 final class JointAccountManagementCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Navigation actions
 
@@ -59,8 +60,8 @@ extension JointAccountManagementCoordinator {
     }
 
     struct CreationOptions {
-        let accountModelsManager: any AccountModelsManager
-        let userWalletConfig: UserWalletConfig
+        /// The wallet the flow starts in — the form step lets the user pick another one to create the account in.
+        let userWalletModel: any UserWalletModel
     }
 }
 
@@ -119,14 +120,14 @@ extension JointAccountManagementCoordinator: JointAccountOnboardingRoutable {
             return
         }
 
-        let creationHelper = JointAccountCreationHelper(
-            userWalletConfig: creationOptions.userWalletConfig,
-            accountModelsManager: creationOptions.accountModelsManager
-        )
-        let creator = JointAccountFormViewCreator(
-            accountModelsManager: creationOptions.accountModelsManager,
-            creationHelper: creationHelper
-        )
+        let creationHelper = JointAccountCreationHelper(userWalletModel: creationOptions.userWalletModel)
+
+        // A single wallet leaves nothing to choose, so the form shows no wallet row at all
+        let onWalletTap: (() -> Void)? = selectableUserWalletModels.count > 1
+            ? { [weak self] in self?.openWalletSelection(creationHelper: creationHelper) }
+            : nil
+
+        let creator = JointAccountFormViewCreator(creationHelper: creationHelper, onWalletTap: onWalletTap)
 
         let viewModel = AccountFormViewModel(flowType: .create(creator: creator), coordinator: self)
         path.append(.accountForm(viewModel: viewModel))
@@ -208,7 +209,7 @@ extension JointAccountManagementCoordinator: JointAccountInviteMembersRoutable {
     }
 
     func shareInvite(url: URL) {
-        AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [url.absoluteString], applicationActivities: nil))
     }
 
     func openInviteSafety() {
@@ -230,10 +231,14 @@ extension JointAccountManagementCoordinator: JointAccountInviteMembersRoutable {
         }
     }
 
-    func openActivationConfirmation(onConfirm: @escaping () -> Void) {
+    func openActivationConfirmation(hasNFCInteraction: Bool, onConfirm: @escaping () -> Void) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(
-                sheet: JointAccountActivationConfirmationViewModel(onConfirm: onConfirm, coordinator: self)
+                sheet: JointAccountActivationConfirmationViewModel(
+                    hasNFCInteraction: hasNFCInteraction,
+                    onConfirm: onConfirm,
+                    coordinator: self
+                )
             )
         }
     }
@@ -262,6 +267,37 @@ extension JointAccountManagementCoordinator: JointAccountMemberDetailsRoutable {
     func closeMemberDetails() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - Wallet selection
+
+private extension JointAccountManagementCoordinator {
+    /// The wallets a joint account can be created in — the same condition that decides whether a wallet offers
+    /// to add an account at all.
+    var selectableUserWalletModels: [any UserWalletModel] {
+        UserWalletModelsProvider
+            .available(from: userWalletRepository.models)
+            .filter(\.accountModelsManager.canAddCryptoAccounts)
+    }
+
+    func openWalletSelection(creationHelper: JointAccountCreationHelper) {
+        Task { @MainActor in
+            let accountSelectorViewModel = AccountSelectorViewModel(
+                userWalletModels: selectableUserWalletModels,
+                preferredDisplayMode: .wallets
+            ) { [weak self] selectedCell in
+                creationHelper.update(userWalletModel: selectedCell.userWalletModel)
+                self?.floatingSheetPresenter.removeActiveSheet()
+            }
+
+            floatingSheetPresenter.enqueue(
+                sheet: JointAccountWalletSelectionViewModel(
+                    accountSelectorViewModel: accountSelectorViewModel,
+                    close: floatingSheetPresenter.removeActiveSheet
+                )
+            )
         }
     }
 }

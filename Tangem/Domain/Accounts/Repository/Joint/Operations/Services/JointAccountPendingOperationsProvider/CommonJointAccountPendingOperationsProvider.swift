@@ -106,6 +106,10 @@ extension CommonJointAccountPendingOperationsProvider: JointAccountPendingOperat
         .removeDuplicates()
         .eraseToAnyPublisher()
     }
+
+    func requestFrequentUpdates() -> AnyCancellable {
+        jointAccountsRepository.requestFrequentUpdates()
+    }
 }
 
 // MARK: - Auxiliary types

@@ -47,12 +47,12 @@ struct CollectiblesAPIServiceTests {
 
         let pack = try #require(page.packs.first)
         #expect(pack.id == "pokemon_50")
-        #expect(pack.name == "PKMN 50")
+        #expect(pack.machine.name == "PKMN 50")
         #expect(pack.loreID == "pokemon")
-        #expect(pack.price == 50)
+        #expect(pack.machine.price == 50)
         #expect(pack.currencyCode == "USD")
-        #expect(pack.buybackRate == Decimal(string: "0.85"))
-        #expect(pack.artworkURL == URL(string: "https://example.com/pack.png"))
+        #expect(pack.machine.buybackRate == Decimal(string: "0.85"))
+        #expect(pack.machine.artworkURL == URL(string: "https://example.com/pack.png"))
     }
 
     @Test("Forwards the cursor and surfaces the page envelope")
@@ -112,7 +112,7 @@ struct CollectiblesAPIServiceTests {
 
     @Test("An inverted value range is dropped and the tier keeps its odds")
     func dropsInvertedValueRange() async throws {
-        let json = Self.machineJSON(commonRange: #"{"start":60,"end":30}"#)
+        let json = Self.machineJSON(commonRange: #"{"start":6000,"end":3000}"#)
         CollectiblesStubURLProtocol.responses = [Data(json.utf8)]
 
         let machine = try await makeSUT().load(id: "pokemon_50")
@@ -121,50 +121,6 @@ struct CollectiblesAPIServiceTests {
         #expect(common.tier == .common)
         #expect(common.valueRange == nil)
         #expect(common.odds == Decimal(string: "0.8"))
-    }
-
-    // MARK: - Pack opening
-
-    @Test("generateTx: posts the body with the user-id header and decodes the unsigned transaction")
-    func generatesTransaction() async throws {
-        CollectiblesStubURLProtocol.responses = [Data(#"{"id":"tx-1","txData":"AAEC"}"#.utf8)]
-
-        let request = CollectiblesDTO.GenerateTxRequest(fromAddress: "owner", collectibleType: "pokemon_50", toAddress: "cold")
-        let response = try await makeSUT().generatePackTransaction(request, userWalletID: "wallet-1")
-
-        #expect(response.id == "tx-1")
-        #expect(response.txData == "AAEC")
-
-        let sent = try #require(CollectiblesStubURLProtocol.requests.first)
-        let sentPath = try #require(sent.url?.path)
-        #expect(sent.httpMethod == "POST")
-        #expect(sentPath.hasSuffix("api/v1/collectible/generateTx"))
-        #expect(sent.value(forHTTPHeaderField: "user-id") == "wallet-1")
-
-        let body = try Self.jsonBody(CollectiblesStubURLProtocol.bodies.first)
-        #expect(body["fromAddress"] as? String == "owner")
-        #expect(body["collectibleType"] as? String == "pokemon_50")
-        #expect(body["toAddress"] as? String == "cold")
-        #expect(body["turboMode"] == nil)
-    }
-
-    @Test("submitTx: posts the signed transaction with the user-id header and decodes the id")
-    func submitsTransaction() async throws {
-        CollectiblesStubURLProtocol.responses = [Data(#"{"id":"tx-1"}"#.utf8)]
-
-        let response = try await makeSUT().submitPackTransaction(.init(signedTxData: "c2lnbmVk"), userWalletID: "wallet-1")
-
-        #expect(response.id == "tx-1")
-
-        let sent = try #require(CollectiblesStubURLProtocol.requests.first)
-        let sentPath = try #require(sent.url?.path)
-        #expect(sent.httpMethod == "POST")
-        #expect(sentPath.hasSuffix("api/v1/collectible/submitTx"))
-        #expect(sent.value(forHTTPHeaderField: "user-id") == "wallet-1")
-
-        let body = try Self.jsonBody(CollectiblesStubURLProtocol.bodies.first)
-        #expect(body["signedTxData"] as? String == "c2lnbmVk")
-        #expect(body.count == 1)
     }
 
     // MARK: - Headers
@@ -250,15 +206,15 @@ private extension CollectiblesAPIServiceTests {
 
     static func machineJSON(
         externalId: String = "pokemon_50",
-        commonRange: String = #"{"start":30,"end":60}"#
+        commonRange: String = #"{"start":3000,"end":6000}"#
     ) -> String {
         #"""
         {"id":"01a03802-433f-7ae5-a996-f981048a0a18","externalId":"\#(externalId)","name":"Elite Pokémon Gacha Pack",
         "shortName":"PKMN 50","price":5000,"instantBuybackPercent":85,"lowThreshold":50,
         "odds":{"common":80,"rare":4,"epic":1,"legendary":null},
-        "tierRanges":{"common":\#(commonRange),"rare":{"start":110,"end":250},"epic":{"start":250,"end":5001},"legendary":null},
+        "tierRanges":{"common":\#(commonRange),"rare":{"start":11000,"end":25000},"epic":{"start":25000,"end":500100},"legendary":null},
         "stock":{"common":214,"rare":383,"epic":200,"legendary":null},
-        "expectedValue":54.5,"image":"https://example.com/pack.png","categoryId":"pokemon","contains":1,
+        "expectedValue":5450,"image":"https://example.com/pack.png","categoryId":"pokemon","contains":1,
         "fee":200,"feeAmount":100,"createdAt":"2026-08-25T08:21:07.518119Z","updatedAt":"2026-09-07T04:34:30.860676Z"}
         """#
     }

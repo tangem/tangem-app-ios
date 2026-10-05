@@ -32,7 +32,7 @@ struct JointAccountMemberRow: View {
         case .member(let viewData):
             AddressBookContactNameIconView(viewData: viewData, size: Constants.avatarDiameter)
         case .emptySlot:
-            JointAccountMemberCircle(state: .empty, diameter: Constants.avatarDiameter)
+            JointAccountMemberCircle(state: .vacant, diameter: Constants.avatarDiameter)
         }
     }
 

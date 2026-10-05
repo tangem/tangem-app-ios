@@ -219,7 +219,10 @@ final class UserSettingsAccountsViewModel: ObservableObject {
                 return cached
             }
 
-            let viewModel = AccountRowButtonViewModel(accountModel: account) { [weak self] in
+            let viewModel = AccountRowButtonViewModel(
+                accountModel: account,
+                nameBadge: account is any JointAccountModel ? Localization.commonJoint : nil
+            ) { [weak self] in
                 self?.onTapAccount(account: account)
             }
             let accountRow = AccountRow(viewModel: viewModel, accountModel: account)

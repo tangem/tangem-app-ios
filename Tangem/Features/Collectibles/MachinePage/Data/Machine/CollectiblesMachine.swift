@@ -12,6 +12,7 @@ struct CollectiblesMachine {
     let name: String
     let artworkURL: URL?
     let price: Decimal
+    let platformFee: Decimal
     let cardsPerPack: Int?
     let buybackRate: Decimal
     /// Average card value in dollars; drifts in near-real time as the stock changes.

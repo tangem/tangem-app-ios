@@ -9,6 +9,9 @@
 enum AccountDetailsActionsProvider {
     static func getAvailableActions(for account: any BaseAccountModel) -> [AccountDetailsViewModel.Action] {
         switch account {
+        case is any JointAccountModel:
+            return [.archive, .manageTokens]
+
         case let cryptoAccount as any CryptoAccountModel:
             return [
                 .edit,

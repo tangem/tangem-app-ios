@@ -54,12 +54,18 @@ private extension CollectiblesPacksViewModelTests {
         ["pokemon_50", "pokemon_250"].map { id in
             CollectiblesPack(
                 id: id,
-                name: id.uppercased(),
                 loreID: "pokemon",
-                price: 50,
                 currencyCode: "USD",
-                buybackRate: 0.85,
-                artworkURL: nil
+                machine: CollectiblesMachine(
+                    name: id.uppercased(),
+                    artworkURL: nil,
+                    price: 50,
+                    platformFee: 1,
+                    cardsPerPack: 1,
+                    buybackRate: 0.85,
+                    expectedValue: 55,
+                    tiers: []
+                )
             )
         }
     }

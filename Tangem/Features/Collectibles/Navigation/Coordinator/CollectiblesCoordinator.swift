@@ -11,6 +11,7 @@ import Foundation
 import BlockchainSdk
 import TangemFoundation
 import TangemStories
+import TangemCollectibles
 
 final class CollectiblesCoordinator: CoordinatorObject {
     // MARK: - Properties
@@ -18,11 +19,13 @@ final class CollectiblesCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.storiesAnalyticsProvider) var storiesAnalyticsProvider: any StoriesAnalyticsProvider
+    @Injected(\.overlayViewPresenter) var overlayViewPresenter: any OverlayViewPresenter
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
     private var accountModel: (any CollectiblesAccountModel)?
+    private var userWalletID = ""
 
     // [REDACTED_TODO_COMMENT]
     private var devnetUserWalletModel: (any UserWalletModel)?
@@ -31,7 +34,7 @@ final class CollectiblesCoordinator: CoordinatorObject {
 
     @Published private(set) var state: ViewState?
     @Published var machineViewModel: CollectiblesMachineViewModel?
-    @Published var storiesViewModel: CollectiblesStoriesViewModel?
+    @Published var confirmOrderViewModel: CollectiblesConfirmOrderViewModel?
 
     // MARK: - Init
 
@@ -44,6 +47,7 @@ final class CollectiblesCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         accountModel = options.accountModel
+        userWalletID = options.userWalletModel.userWalletId.stringValue
         devnetUserWalletModel = options.userWalletModel
 
         switch options.destination {
@@ -66,6 +70,10 @@ final class CollectiblesCoordinator: CoordinatorObject {
     func closeMachine() {
         machineViewModel = nil
     }
+
+    func closeConfirmOrder() {
+        confirmOrderViewModel = nil
+    }
 }
 
 // MARK: - Routables
@@ -80,7 +88,11 @@ extension CollectiblesCoordinator: CollectiblesMainRoutable {
     func openMachine(for pack: CollectiblesPack) {
         guard machineViewModel == nil else { return }
 
-        machineViewModel = CollectiblesMachineViewModel(pack: pack)
+        machineViewModel = CollectiblesMachineViewModel(
+            pack: pack,
+            routable: self,
+            prizePoolProvider: CommonCollectiblesPrizePoolProvider(userWalletID: userWalletID)
+        )
     }
 
     func openSupport() {
@@ -94,6 +106,20 @@ extension CollectiblesCoordinator: CollectiblesMainRoutable {
         Task { @MainActor in
             mailPresenter.present(viewModel: mailViewModel)
         }
+    }
+}
+
+extension CollectiblesCoordinator: CollectiblesMachineRoutable {
+    func openConfirmOrder(machineID: String, machine: CollectiblesMachine, isTurboModeOn: Bool) {
+        guard confirmOrderViewModel == nil, let accountModel else { return }
+
+        confirmOrderViewModel = CollectiblesConfirmOrderViewModel(
+            machineID: machineID,
+            machine: machine,
+            isTurboModeOn: isTurboModeOn,
+            usdcBalanceProvider: accountModel.usdcTokenBalanceProvider,
+            refreshBalance: accountModel.refreshState
+        )
     }
 }
 

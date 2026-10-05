@@ -19,7 +19,7 @@ final class CommonCollectiblesDevnetActions {
     private let accountModel: any CollectiblesAccountModel
     private let coldOwnerProvider: any CollectiblesColdOwnerProvider
     private let coldKeyInteractorFactory: CollectiblesColdKeyInteractorFactory
-    private let serviceProvider = CollectiblesChainServiceProvider()
+    private let serviceProvider = CommonCollectiblesChainServiceProvider()
     private let sessionKeyStore: any CollectiblesSessionKeyWalletStore = CommonCollectiblesSessionKeyWalletStore()
 
     private var userWalletId: UserWalletId { accountModel.id.userWalletId }
@@ -28,9 +28,9 @@ final class CommonCollectiblesDevnetActions {
         self.accountModel = accountModel
         coldOwnerProvider = CommonCollectiblesColdOwnerProvider(
             keysRepository: userWalletModel.keysRepository,
-            config: userWalletModel.config
+            derivationStyle: userWalletModel.config.derivationStyle
         )
-        coldKeyInteractorFactory = CollectiblesColdKeyInteractorFactory(userWalletModel: userWalletModel)
+        coldKeyInteractorFactory = CommonCollectiblesColdKeyInteractorFactory(interactorProvider: userWalletModel)
     }
 }
 
@@ -48,6 +48,14 @@ extension CommonCollectiblesDevnetActions: CollectiblesDevnetActions {
 
     func feePayerAddress() throws -> String {
         try coldOwnerKey().blockchainKey.base58EncodedString
+    }
+
+    func purchaseFeePayerAddress() throws -> String {
+        guard case .ready(let vault) = accountModel.state else {
+            throw DevnetActionError.vaultNotReady
+        }
+
+        return vault.sessionKey.base58EncodedString
     }
 
     /// Closes the vault alone, which is all a tester needs to run the onboarding twice. The USDC account is
@@ -139,6 +147,7 @@ private extension CommonCollectiblesDevnetActions {
 
     enum DevnetActionError: Error {
         case coldKeyNotDerived
+        case vaultNotReady
     }
 
     enum Constants {

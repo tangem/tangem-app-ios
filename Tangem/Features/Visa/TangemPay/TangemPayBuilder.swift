@@ -130,6 +130,7 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
             orderResolver: orderResolver,
             feeRepository: feeRepository,
             cashbackCacheStorage: AppSettings.shared,
+            virtualAccountCreationFailureStorage: AppSettings.shared,
             account: account,
             accountRemover: accountRemover
         )

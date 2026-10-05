@@ -8,14 +8,14 @@
 
 public struct TangemPayJoinWaitlistRequest: Encodable {
     public let email: String
-    public let product: TangemPayWaitlistProduct
+    public let product: TangemPayProduct
     public let country: String
     public let region: String?
     public let marketingConsent: Bool
 
     public init(
         email: String,
-        product: TangemPayWaitlistProduct,
+        product: TangemPayProduct,
         country: String,
         region: String?,
         marketingConsent: Bool

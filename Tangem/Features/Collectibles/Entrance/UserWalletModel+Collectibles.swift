@@ -7,10 +7,15 @@
 //
 
 import Foundation
+import TangemCollectibles
 
 extension UserWalletModel {
     var isCollectiblesEligible: Bool {
-        !isUserWalletLocked && config.hasFeature(.multiCurrency)
+        guard !isUserWalletLocked, config.hasFeature(.multiCurrency), config.hasFeature(.hdWallets) else {
+            return false
+        }
+
+        return (try? keysRepository.masterKey(curve: CollectiblesAccountKeyPath.curve(for: config.derivationStyle))) != nil
     }
 
     func collectiblesAccountModel() -> (any CollectiblesAccountModel)? {

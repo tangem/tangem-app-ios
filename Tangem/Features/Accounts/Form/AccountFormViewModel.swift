@@ -25,6 +25,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     @Published var selectedIcon: GridItemImage<AccountModel.CompositeIcon.Name>
     @Published var alert: AlertBinder?
     @Published var isLoading: Bool = false
+    @Published private(set) var wallet: AccountFormWallet?
     @Published private var totalAccountsCount: Int = 0
 
     // MARK: - Static state
@@ -36,7 +37,11 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         case .edit(let account):
             return account.resolve(using: DescriptionResolver())
 
-        case .create:
+        case .create(let creator):
+            guard creator.showsAccountIndexDescription else {
+                return nil
+            }
+
             return Localization.accountFormAccountIndex(totalAccountsCount)
         }
     }
@@ -133,6 +138,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         initialStateSnapshot = StateSnapshot(name: accountName, color: selectedColor, image: selectedIcon)
 
         setupDescription()
+        setupWallet()
     }
 
     deinit {
@@ -252,6 +258,12 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         }
     }
 
+    func onWalletTap() {
+        guard case .create(let creator) = flowType else { return }
+
+        creator.handleWalletTap()
+    }
+
     func onClose() {
         let currentSnapshot = StateSnapshot(name: trimmedAccountName, color: selectedColor, image: selectedIcon)
 
@@ -335,6 +347,14 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         creator.totalAccountsCountPublisher
             .receiveOnMain()
             .assign(to: &$totalAccountsCount)
+    }
+
+    private func setupWallet() {
+        guard case .create(let creator) = flowType else { return }
+
+        creator.walletPublisher
+            .receiveOnMain()
+            .assign(to: &$wallet)
     }
 
     private static func gridItemImageKind(from accountIconName: AccountModel.CompositeIcon.Name) -> GridItemImageKind {

@@ -23,7 +23,8 @@ extension PolymarketOrderModel {
             geoblockStateProvider: PolymarketOrderPreviewGeoblockStateProvider(),
             positionsService: nil,
             clobService: PolymarketOnboardingServicesFactory.makeDefault().makeCLOBService(),
-            isAwaitingFundsPublisher: .just(output: false)
+            isAwaitingFundsPublisher: .just(output: false),
+            collateralBalancePublisher: .just(output: Decimal(30000))
         )
     }
 }

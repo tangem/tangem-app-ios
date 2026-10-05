@@ -20,6 +20,8 @@ struct AccountDetailsView: View {
         VStack(spacing: 24) {
             accountSection
 
+            jointAccountMembersSection
+
             manageTokensSection
 
             supportedNetworksHint
@@ -86,6 +88,28 @@ struct AccountDetailsView: View {
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, 14)
+        }
+    }
+
+    @ViewBuilder
+    private var jointAccountMembersSection: some View {
+        if let membersText = viewModel.jointAccountMembersText {
+            SwiftUI.Button(action: viewModel.openJointAccountMembers) {
+                HStack(spacing: 8) {
+                    Text(Localization.jointAccountMembersTitle)
+                        .style(Fonts.Regular.callout, color: Colors.Text.primary1)
+
+                    Spacer()
+
+                    Text(membersText)
+                        .style(Fonts.Regular.callout, color: Colors.Text.tertiary)
+
+                    Assets.chevronRight.image
+                        .foregroundColor(Colors.Icon.informative)
+                }
+                .defaultRoundedBackground(with: Colors.Background.action)
+            }
+            .accessibilityIdentifier(AccountsAccessibilityIdentifiers.accountDetailsJointMembersButton)
         }
     }
 

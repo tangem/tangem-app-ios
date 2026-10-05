@@ -39,11 +39,22 @@ public struct PolymarketMarketCard: View {
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 
+    @ViewBuilder
     private var header: some View {
+        if let model {
+            if let title = model.title {
+                headerRow(title: title)
+            }
+        } else {
+            headerRow(title: nil)
+        }
+    }
+
+    private func headerRow(title: String?) -> some View {
         HStack(alignment: .top, spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
-                if let model {
-                    Text(model.title)
+                if let title {
+                    Text(title)
                         .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                         .lineLimit(Constants.titleLineLimit)
                         .fixedSize(horizontal: false, vertical: true)
@@ -58,6 +69,10 @@ public struct PolymarketMarketCard: View {
             avatar
         }
         .padding(16)
+    }
+
+    private var showsHeader: Bool {
+        model.map { $0.title != nil } ?? true
     }
 
     @ViewBuilder
@@ -108,7 +123,7 @@ public struct PolymarketMarketCard: View {
                 }
             }
         }
-        .padding(.top, 8)
+        .padding(.top, showsHeader ? Constants.buttonsTopPadding : 16)
         .padding(.horizontal, 16)
         .padding(.bottom, 16)
     }
@@ -145,6 +160,7 @@ private extension PolymarketMarketCard {
         static let labelHorizontalPadding: CGFloat = 8
         static let priceSeparator = String.bulletSign + " "
         static let metaSpacing: CGFloat = 4
+        static let buttonsTopPadding: CGFloat = 8
         static let predictedPadding: CGFloat = 4
         static let predictedMinHeight: CGFloat = 16
     }

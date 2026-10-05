@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 import TangemFoundation
 @testable import Tangem
 
@@ -40,11 +41,15 @@ enum JointAccountCompositionFixture {
         return makeMembersService(repository: repository)
     }
 
-    static func makeMembersService(repository: JointAccountsRepository) -> CommonJointAccountMembersService {
+    static func makeMembersService(
+        repository: JointAccountsRepository,
+        keysProvider: KeysProvider = KeysRepositoryTestsMock(keys: [])
+    ) -> CommonJointAccountMembersService {
         CommonJointAccountMembersService(
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
-            jointAccountsRepository: repository
+            jointAccountsRepository: repository,
+            keysProvider: keysProvider
         )
     }
 
@@ -66,6 +71,32 @@ enum JointAccountCompositionFixture {
                     inviteId: member.role.inviteId
                 )
             }
+        )
+    }
+
+    static func pendingOperationsRecord(operations: [JointAccountOperation]) -> StoredJointAccountPendingOperations {
+        StoredJointAccountPendingOperations(cryptoAccountId: caseFlippedCryptoAccountId, operations: operations)
+    }
+
+    static func coinTransfer(id: String = "coin", status: JointAccountOperationStatus = .awaitingSignatures) -> JointAccountOperation {
+        JointAccountOperation(
+            id: id,
+            chainId: 1,
+            safeTransaction: SafeTransaction(
+                to: "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c",
+                value: 1_000_000_000_000_000,
+                data: Data(),
+                operation: 0,
+                safeTxGas: 0,
+                baseGas: 100_000,
+                gasPrice: 1_000_000_000,
+                gasToken: SafeGasToken.coinGasTokenRawValue,
+                refundReceiver: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
+                nonce: 0
+            ),
+            status: status,
+            initiator: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
+            signatures: []
         )
     }
 

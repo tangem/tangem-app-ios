@@ -24,6 +24,22 @@ enum JointAccountDerivationUtils {
         return JointAccountDerivedKey(address: address.value, publicKey: publicKey)
     }
 
+    /// Reads the keys anew on every call: `KeyInfo` is a value, so a copy taken before
+    /// `update(derivations:)` never gains the key that was just derived.
+    static func storedDerivedKey(at derivationPath: DerivationPath, in keysProvider: KeysProvider) throws -> JointAccountDerivedKey? {
+        let masterKey = try keysProvider.masterKey(curve: JointAccountKeyPath.blockchain.curve)
+
+        guard let extendedPublicKey = masterKey.derivedKeys[derivationPath] else {
+            return nil
+        }
+
+        guard let seedKey = masterKey.publicKey else {
+            throw KeysProviderError.masterKeyNotFound
+        }
+
+        return try makeDerivedKey(seedKey: seedKey, derivationPath: derivationPath, extendedPublicKey: extendedPublicKey)
+    }
+
     /// The form the endpoint canonicalises what it receives into, and verifies the signature against — RFC 8785, whose
     /// property ordering and escaping this encoder already produces.
     /// - Warning: Pinned against the vector shared with the other platforms by `JointAccountSignedPayloadTests`; a

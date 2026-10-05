@@ -344,6 +344,7 @@ private final class SendSwapableTokenStub: SendSwapableToken {
     var tangemIconProvider: any TangemIconProvider { inner.tangemIconProvider }
     var confirmTransactionPolicy: any ConfirmTransactionPolicy { inner.confirmTransactionPolicy }
     var isTangemPayAccount: Bool { inner.isTangemPayAccount }
+    var jointAccountPolicy: JointAccountPolicy? { inner.jointAccountPolicy }
 
     // MARK: - Unused in tests
 

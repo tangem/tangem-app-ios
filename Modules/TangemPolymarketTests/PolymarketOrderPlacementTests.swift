@@ -181,6 +181,23 @@ struct PolymarketPlaceOrderWireFormatTests {
         }
     }
 
+    @Test("An order that never left the device is a definite failure, not an unknown outcome", arguments: [
+        URLError.Code.notConnectedToInternet,
+        .cannotFindHost,
+        .dnsLookupFailed,
+        .secureConnectionFailed,
+    ])
+    func unsentOrderIsFinal(_ code: URLError.Code) {
+        let error = CommonPolymarketCLOBService.placementError(from: .connection(underlying: URLError(code)))
+
+        #expect(!error.isAmbiguous)
+
+        guard case .notSent = error else {
+            Issue.record("Expected a not-sent failure, got \(error)")
+            return
+        }
+    }
+
     @Test("An outcome the device never learned is ambiguous, so the order is never offered twice", arguments: [
         PolymarketAPIError.connection(underlying: URLError(.timedOut)),
         PolymarketAPIError.http(statusCode: 502, problemDetail: nil),
@@ -237,6 +254,92 @@ private extension PolymarketPlaceOrderWireFormatTests {
         signature: "0xdeadbeef",
         isNegRisk: false
     )
+}
+
+@Suite("PolymarketOrderPlacement fill")
+struct PolymarketOrderPlacementFillTests {
+    @Test("A purchase that received no shares counts as unfilled")
+    func buyWithoutTakenSharesIsUnfilled() {
+        let placement = PolymarketOrderPlacement.stub(makingAmount: 72, takingAmount: 0)
+
+        #expect(placement.isMatchedWithoutFill(side: .buy))
+    }
+
+    @Test("A sale that gave away no shares counts as unfilled")
+    func sellWithoutGivenSharesIsUnfilled() {
+        let placement = PolymarketOrderPlacement.stub(makingAmount: 0, takingAmount: 72)
+
+        #expect(placement.isMatchedWithoutFill(side: .sell))
+    }
+
+    @Test("A sale that gave away shares is filled even though the taken leg is the money")
+    func sellWithGivenSharesIsFilled() {
+        let placement = PolymarketOrderPlacement.stub(makingAmount: 100, takingAmount: 72)
+
+        #expect(!placement.isMatchedWithoutFill(side: .sell))
+    }
+
+    @Test("A purchase that took shares is filled even though the given leg is the money")
+    func buyWithTakenSharesIsFilled() {
+        let placement = PolymarketOrderPlacement.stub(makingAmount: 72, takingAmount: 100)
+
+        #expect(!placement.isMatchedWithoutFill(side: .buy))
+    }
+
+    @Test("An order the exchange never matched is not judged on its legs")
+    func unmatchedOrderIsNotUnfilled() {
+        let placement = PolymarketOrderPlacement.stub(status: .delayed, makingAmount: 0, takingAmount: 0)
+
+        #expect(!placement.isMatchedWithoutFill(side: .sell))
+        #expect(!placement.isMatchedWithoutFill(side: .buy))
+    }
+
+    @Test("A sale that moved shares is a fill, whatever the money leg says")
+    func sellWithoutProceedsIsStillAFill() {
+        let placement = PolymarketOrderPlacement.stub(makingAmount: 100, takingAmount: 0)
+
+        #expect(!placement.isMatchedWithoutFill(side: .sell))
+    }
+
+    @Test("An order with both legs filled is not an anomaly")
+    func fullyFilledOrderIsClean() {
+        let placement = PolymarketOrderPlacement.stub(makingAmount: 100, takingAmount: 72)
+
+        #expect(!placement.isMatchedWithoutFill(side: .sell))
+        #expect(!placement.isMatchedWithoutFill(side: .buy))
+    }
+
+    @Test("The money leg is read from the side that holds it")
+    func filledMoneyFollowsTheSide() {
+        let placement = PolymarketOrderPlacement.stub(makingAmount: 100, takingAmount: 72)
+
+        #expect(placement.filledMoney(side: .buy) == 100)
+        #expect(placement.filledMoney(side: .sell) == 72)
+    }
+
+    @Test("The shares leg is read from the side that holds it")
+    func filledSharesFollowTheSide() {
+        let placement = PolymarketOrderPlacement.stub(makingAmount: 100, takingAmount: 72)
+
+        #expect(placement.filledShares(side: .buy) == 72)
+        #expect(placement.filledShares(side: .sell) == 100)
+    }
+}
+
+extension PolymarketOrderPlacement {
+    static func stub(
+        status: PolymarketOrderPlacementStatus = .matched,
+        makingAmount: Decimal?,
+        takingAmount: Decimal?
+    ) -> PolymarketOrderPlacement {
+        PolymarketOrderPlacement(
+            orderId: "0xorder",
+            status: status,
+            makingAmount: makingAmount,
+            takingAmount: takingAmount,
+            transactionHashes: []
+        )
+    }
 }
 
 extension PolymarketOrderQuote {

@@ -58,29 +58,3 @@ private enum Constants {
 extension EnvironmentValues {
     @Entry var filterItemVariant: FilterItemVariant = .material
 }
-
-// MARK: - Previews
-
-#Preview {
-    VStack(alignment: .leading, spacing: 20) {
-        ForEach(FilterItemVariant.allCases, id: \.self) { variant in
-            VStack(alignment: .leading, spacing: 8) {
-                Text(String(describing: variant))
-                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
-                    .padding(.horizontal, 16)
-
-                FilterGroup {
-                    FilterItem(.active(value: "Value")) {}
-                        .onClear {}
-                    FilterItem(.active(value: "Value", counter: 1)) {}
-                        .onClear {}
-                    FilterItem(.inactive(label: "Label")) {}
-                    FilterItem(.loading) {}
-                }
-                .variant(variant)
-            }
-        }
-    }
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .background(DesignSystem.Color.bgPrimary)
-}

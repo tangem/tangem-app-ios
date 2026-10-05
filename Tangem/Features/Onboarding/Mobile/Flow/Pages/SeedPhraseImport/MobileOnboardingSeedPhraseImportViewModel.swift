@@ -81,7 +81,8 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
                     mnemonic: mnemonic,
                     passphrase: passphrase,
                     hasMnemonicBackup: true,
-                    hasICloudBackup: false
+                    hasICloudBackup: false,
+                    hasSocialLogin: false
                 )
 
                 AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWalletModel.userWalletId)

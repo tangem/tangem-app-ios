@@ -41,6 +41,8 @@ protocol AccountModelsManager: AccountModelsReordering, DisposableEntity {
 
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult
 
+    func reloadAccountsFromRemote() async
+
     func acceptTangemPayOffer(authorizingInteractor: TangemPayAuthorizing) async throws(TangemPayAuthorizationError)
 
     /// Same as `acceptTangemPayOffer`, but the campaign's card issue order is placed before KYC so that the

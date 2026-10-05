@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct SlideContentView: View {
     @ObservedObject var vm: SlidePlayerViewModel
@@ -35,7 +36,7 @@ struct SlideContentView: View {
             ZStack {
                 SlideImageView(url: vm.slide.asset.posterURL, contentMode: contentMode)
 
-                VideoSlideView(player: vm.player, contentMode: contentMode)
+                VideoPlayerView(player: vm.player, contentMode: contentMode == .cover ? .fill : .fit)
             }
         }
     }
