@@ -22,8 +22,21 @@ struct CollectiblesConfirmOrderView: View {
     @State private var packPose: PackPose = .resting
     @State private var isPackHidden = false
     @State private var isOrderHidden = false
+    @State private var isRevealShown = false
 
     var body: some View {
+        ZStack {
+            order
+
+            reveal
+        }
+    }
+}
+
+// MARK: - Order
+
+private extension CollectiblesConfirmOrderView {
+    var order: some View {
         VStack(spacing: 0) {
             GeometryReader { proxy in
                 artwork(in: proxy.size)
@@ -36,7 +49,12 @@ struct CollectiblesConfirmOrderView: View {
                 .animation(Launch.rowsExit, value: isOrderHidden)
         }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
-        .safeAreaInset(edge: .top, spacing: 0) { navigationBar }
+        .safeAreaInset(edge: .top, spacing: 0) {
+            navigationBar
+                .opacity(isRevealShown ? 0 : 1)
+                .allowsHitTesting(!isRevealShown)
+                .animation(Launch.navigationBarFade, value: isRevealShown)
+        }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             approveButton
                 .offset(y: orderExitOffset)
@@ -135,6 +153,14 @@ private extension CollectiblesConfirmOrderView {
         viewModel.buttonState == .balanceLoading
     }
 
+    @ViewBuilder
+    var reveal: some View {
+        if isRevealShown, let revealViewModel = viewModel.revealViewModel {
+            CollectiblesPackRevealView(viewModel: revealViewModel, onBack: onBack, onKeep: onBack)
+                .transition(.opacity.animation(Launch.revealVideoAppearance))
+        }
+    }
+
     var isButtonEnabled: Bool {
         viewModel.buttonState == .approve || viewModel.buttonState == .balanceUnavailable
     }
@@ -161,6 +187,7 @@ private extension CollectiblesConfirmOrderView {
 
         guard !reduceMotion else {
             isPackHidden = true
+            isRevealShown = true
             return
         }
 
@@ -174,6 +201,14 @@ private extension CollectiblesConfirmOrderView {
 
         packPose = .launched
         isPackHidden = true
+
+        do {
+            try await Task.sleep(for: Launch.launchDuration)
+        } catch {
+            return
+        }
+
+        isRevealShown = true
     }
 }
 

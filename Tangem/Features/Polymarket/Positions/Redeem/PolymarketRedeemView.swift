@@ -31,7 +31,7 @@ struct PolymarketRedeemView: View {
         .details { details }
         .overlay(alignment: .topTrailing) { closeButton }
         .toolbar(.hidden, for: .navigationBar)
-        .background(PolymarketPopGestureDisabler(isDisabled: viewModel.isClaiming))
+        .background(PopGestureDisabler(isDisabled: viewModel.isClaiming))
         .alert(item: $viewModel.alert) { $0.alert }
         .onDisappear { viewModel.handleViewAction(.disappeared) }
     }
