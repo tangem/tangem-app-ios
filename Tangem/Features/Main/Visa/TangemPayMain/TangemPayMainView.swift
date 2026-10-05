@@ -90,6 +90,10 @@ struct TangemPayMainView: View {
                     failedToIssueCardBanner(contactSupportButton: contactSupportButton)
                 }
 
+                if let virtualAccountBannerState = viewModel.virtualAccountBannerState {
+                    virtualAccountBanner(state: virtualAccountBannerState)
+                }
+
                 if viewModel.hasIssuingEntry, !viewModel.isAwaitingDeposit {
                     TangemPayIssuingCardBanner()
                         .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.issuingCardBanner)
@@ -226,6 +230,38 @@ struct TangemPayMainView: View {
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
         }
         .primaryButton(contactSupportButton)
+    }
+
+    @ViewBuilder
+    private func virtualAccountBanner(state: TangemPayMainViewModel.VirtualAccountBannerState) -> some View {
+        switch state {
+        case .creating:
+            MessageBanner(
+                title: Localization.tangempayBankTransferCreatingTitle,
+                description: Localization.tangempayBankTransferCreatingDescription
+            )
+            .slotEnd {
+                DesignSystem.Icons.Clock.regular20.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Color.iconPrimary)
+            }
+
+        case .failed:
+            MessageBanner(
+                title: Localization.tangempayVaBannerFailedTitle,
+                description: Localization.tangempayVaBannerFailedDescription
+            )
+            .variant(.error)
+            .slotStart {
+                DesignSystem.Icons.Error.regular20.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Color.iconPrimary)
+            }
+            .closeButton(
+                accessibilityLabel: Localization.commonClose,
+                action: viewModel.dismissVirtualAccountFailedBanner
+            )
+        }
     }
 
     private var inactiveBadge: some View {
