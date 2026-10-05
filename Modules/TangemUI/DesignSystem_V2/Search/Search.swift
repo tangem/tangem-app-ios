@@ -41,6 +41,7 @@ public struct Search: View, Setupable {
     var placeholderText: String = .empty
     var showsCloseButton: Bool = true
     var interactiveGlass: Bool = true
+    var prefersInset: Bool = false
     var containerAccessibilityIdentifier: String?
     var textFieldAccessibilityIdentifier: String?
     var clearButtonAccessibilityIdentifier: String?
@@ -110,7 +111,7 @@ private extension Search {
             .padding(.horizontal, Constants.fieldHorizontalPadding)
             .frame(height: fieldHeight)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .tangemMaterialSurface(in: Capsule(), interactive: interactiveGlass)
+            .tangemMaterialSurface(in: Capsule(), interactive: interactiveGlass, prefersInset: prefersInset)
             .contentShape(Capsule())
             .onTapGesture(perform: onFieldTap)
             .accessibilityElement(children: .contain)

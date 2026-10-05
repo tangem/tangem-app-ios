@@ -15,6 +15,7 @@ public extension View {
         isPresented: Binding<Bool>,
         size: ModalSize = .flexible,
         contentLayout: ModalContentLayout = .scrollable,
+        dragIndicator: Visibility = .visible,
         title: String,
         subtitle: String? = nil,
         leading: TopNavigation.LeadingPolicy = .none,
@@ -28,6 +29,7 @@ public extension View {
             isPresented: isPresented,
             size: size,
             contentLayout: contentLayout,
+            dragIndicator: dragIndicator,
             navigation: ModalNavigation(title: title, subtitle: subtitle, leading: leading, actions: actions, onClose: onClose),
             onDismiss: onDismiss,
             header: { EmptyView() },
@@ -40,6 +42,7 @@ public extension View {
         isPresented: Binding<Bool>,
         size: ModalSize = .flexible,
         contentLayout: ModalContentLayout = .scrollable,
+        dragIndicator: Visibility = .visible,
         onDismiss: (() -> Void)? = nil,
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder footer: @escaping () -> Footer = { EmptyView() }
@@ -48,6 +51,7 @@ public extension View {
             isPresented: isPresented,
             size: size,
             contentLayout: contentLayout,
+            dragIndicator: dragIndicator,
             onDismiss: onDismiss,
             header: { EmptyView() },
             content: content,
@@ -60,6 +64,7 @@ public extension View {
         isPresented: Binding<Bool>,
         size: ModalSize = .flexible,
         contentLayout: ModalContentLayout = .scrollable,
+        dragIndicator: Visibility = .visible,
         onDismiss: (() -> Void)? = nil,
         @ViewBuilder header: @escaping () -> Header,
         @ViewBuilder content: @escaping () -> Content,
@@ -69,6 +74,7 @@ public extension View {
             isPresented: isPresented,
             size: size,
             contentLayout: contentLayout,
+            dragIndicator: dragIndicator,
             navigation: nil,
             onDismiss: onDismiss,
             header: header,
@@ -102,6 +108,7 @@ private struct ModalPresentationModifier<Header: View, BodyContent: View, Footer
     @Binding var isPresented: Bool
     let size: ModalSize
     let contentLayout: ModalContentLayout
+    let dragIndicator: Visibility
     let navigation: ModalNavigation?
     let onDismiss: (() -> Void)?
     let header: () -> Header
@@ -112,9 +119,17 @@ private struct ModalPresentationModifier<Header: View, BodyContent: View, Footer
 
     func body(content: Content) -> some View {
         content.sheet(isPresented: $isPresented, onDismiss: onDismiss) {
-            Modal(size: size, contentLayout: contentLayout, navigation: navigation, header: header, content: bodyContent, footer: footer)
-                .dynamicTypeSize(dynamicTypeSize)
-                .modifier(SheetScrollTouchModifier())
+            Modal(
+                size: size,
+                contentLayout: contentLayout,
+                dragIndicator: dragIndicator,
+                navigation: navigation,
+                header: header,
+                content: bodyContent,
+                footer: footer
+            )
+            .dynamicTypeSize(dynamicTypeSize)
+            .modifier(SheetScrollTouchModifier())
         }
     }
 }
