@@ -60,6 +60,7 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     private var safariHandle: SafariHandle?
 
     private var isDeeplinkMode: Bool = false
+    private var tokenId: String?
 
     private var isRestrictedForCountry: Bool = false
 
@@ -80,6 +81,7 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     func start(with options: Options) {
         presentationStyle = options.style
         isDeeplinkMode = options.isDeeplinkMode
+        tokenId = options.info.id
         isRestrictedForCountry = options.info.restrictedForCountry ?? false
         rootViewModel = .init(
             tokenInfo: options.info,
@@ -806,6 +808,11 @@ extension MarketsTokenDetailsCoordinator: NewsDetailsRoutable {
     }
 
     func openTokenDetails(_ token: MarketsTokenModel) {
+        guard token.id != tokenId else {
+            dismissNewsDetails()
+            return
+        }
+
         let coordinator = MarketsTokenDetailsCoordinator(
             dismissAction: { [weak self] _ in
                 self?.newsRelatedTokenDetailsCoordinator = nil
