@@ -45,7 +45,6 @@ enum Feature: String, Hashable, CaseIterable {
     case payBundleIntroduction
     case hideMarketingBannersWithSystem
     case tangemPayOnrampV2
-    case tangemPayAppleWalletProvisioning
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -87,7 +86,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .payBundleIntroduction: return "TWI-1728_pay_bundle_introduction"
         case .hideMarketingBannersWithSystem: return "TWI-1841_hide_marketing_banners_while_system"
         case .tangemPayOnrampV2: return "TWI-1753_tangem_pay_onramp_v2"
-        case .tangemPayAppleWalletProvisioning: return "TWI-1062_apple_wallet_push_provisioning"
         }
     }
 
@@ -129,7 +127,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .payBundleIntroduction: return .unspecified
         case .hideMarketingBannersWithSystem: return .unspecified
         case .tangemPayOnrampV2: return .version("6.5")
-        case .tangemPayAppleWalletProvisioning: return .unspecified
         }
     }
 }

@@ -15,11 +15,9 @@ enum ExperimentFeatureFlagKey: String {
     case onboardingPushNotificationDoubleAsk = "twi_1403_onboarding_push_notification_double_ask"
     case mainPushNotificationDoubleAsk = "twi_1403_main_push_notification_double_ask"
     case hardwareUpgradeStories = "twi_1357_main_hardware_upgrade_stories"
-    case tangemPayAppleWalletProvisioning = "push_provisioning_tpay"
 }
 
 enum ExperimentFeatureVariantKey: String {
     case treatment
     case control
-    case pushProvisioningOn = "pushprovisioning_on"
 }

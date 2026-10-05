@@ -40,7 +40,6 @@ extension TangemPayCardManagementViewModel {
             let freezingState: TangemPayFreezingState
             let dailyLimitState: TangemPayDailyLimitState?
             let showsAddToApplePayGuide: Bool
-            let showsAddToAppleWalletButton: Bool
         }
 
         enum Footer {
