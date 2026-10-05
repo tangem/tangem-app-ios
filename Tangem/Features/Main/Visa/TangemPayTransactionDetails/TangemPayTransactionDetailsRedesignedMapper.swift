@@ -167,6 +167,7 @@ struct TangemPayTransactionDetailsRedesignedMapper {
         case .mcc: Localization.tangemPayTransactionDetailsCashbackMccExcluded
         case .monthlyCap: Localization.tangemPayTransactionDetailsCashbackCapReached
         case .belowMin: Localization.tangemPayTransactionDetailsCashbackBelowMin
+        case .complianceRisk: Localization.tangemPayTransactionDetailsCashbackComplianceRisk
         }
     }
 
