@@ -13,6 +13,7 @@ import TangemFoundation
 struct TopNavigationModifier<Slot: View>: ViewModifier {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.topNavigationDrawsBarBackground) private var drawsBarBackground
 
     private let contentPosition: TopNavigation.ContentPosition
     private let leadingPolicy: TopNavigation.LeadingPolicy
@@ -49,9 +50,15 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
         min(dynamicTypeSize, TopNavigationChromeMetrics.maxDynamicTypeSize)
     }
 
+    @ViewBuilder
     func body(content: Content) -> some View {
-        navigation(content)
-            .translucentNavigationBar()
+        if drawsBarBackground {
+            navigation(content)
+                .translucentNavigationBar()
+        } else {
+            navigation(content)
+                .clearNavigationBar()
+        }
     }
 
     private func navigation(_ content: Content) -> some View {
@@ -189,4 +196,21 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
     private func barHosted<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
         content().dynamicTypeSize(barDynamicTypeSize)
     }
+}
+
+private extension View {
+    @ViewBuilder
+    func clearNavigationBar() -> some View {
+        if #available(iOS 26.0, *) {
+            scrollEdgeEffectHidden(true, for: .top)
+                .toolbarBackground(.hidden, for: .navigationBar)
+        } else {
+            toolbarBackground(.hidden, for: .navigationBar)
+        }
+    }
+}
+
+extension EnvironmentValues {
+    /// Cleared by a container that hosts the navigation stack on its own surface and fades its content itself.
+    @Entry var topNavigationDrawsBarBackground = true
 }

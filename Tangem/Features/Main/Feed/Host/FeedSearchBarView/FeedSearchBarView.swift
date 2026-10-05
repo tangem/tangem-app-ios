@@ -61,6 +61,8 @@ struct FeedSearchBarView: View {
             Search(text: $viewModel.query, isActive: $isFocused, onFocusChanged: focusDidChange)
                 .placeholder(Localization.marketsSearchTitlePlaceholder)
                 .showsCloseButton(false)
+                .interactiveGlass(false)
+                .prefersInset(sheetSize.isNonFullFeedSheet)
                 .containerAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketFieldContainer)
                 .textFieldAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketField)
                 .clearButtonAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketClearButton)
