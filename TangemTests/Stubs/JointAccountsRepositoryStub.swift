@@ -77,6 +77,10 @@ final class JointAccountsRepositoryStub: JointAccountsRepository {
         invitesSubject.eraseToAnyPublisher()
     }
 
+    var jointAccountsPendingOperations: [StoredJointAccountPendingOperations] {
+        pendingOperationsSubject.value
+    }
+
     var jointAccountsPendingOperationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> {
         pendingOperationsSubject.eraseToAnyPublisher()
     }
