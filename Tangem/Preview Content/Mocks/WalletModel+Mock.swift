@@ -21,6 +21,7 @@ extension CommonWalletModel {
         let mobileWalletInfo = MobileWalletInfo(
             hasMnemonicBackup: false,
             hasICloudBackup: false,
+            hasSocialLogin: false,
             accessCodeStatus: .none,
             keys: []
         )

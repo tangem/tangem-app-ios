@@ -60,7 +60,7 @@ final class CommonServicesManager {
     @Injected(\.walletCardsBackupReportService) private var walletCardsBackupReportService: WalletCardsBackupReportService
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
-    private let storyDataPrefetchService: StoryDataPrefetchService
+    private let storiesPrefetchManager: StoriesPrefetchManager
     private let pushNotificationEventsLogger: PushNotificationsEventsLogger
     private let mobileAccessCodeCleaner: MobileAccessCodeCleaner
     private let customerIOWrapper: CustomerIOWrapper
@@ -70,7 +70,7 @@ final class CommonServicesManager {
 
     init() {
         stakingPendingHashesSender = StakingDependenciesFactory().makePendingHashesSender()
-        storyDataPrefetchService = StoryDataPrefetchService()
+        storiesPrefetchManager = StoriesPrefetchManager()
         pushNotificationEventsLogger = PushNotificationsEventsLogger()
         mobileAccessCodeCleaner = MobileAccessCodeCleaner()
         customerIOWrapper = CustomerIOWrapper()
@@ -231,8 +231,7 @@ extension CommonServicesManager: ServicesManager {
         pushNotificationsInteractor.initialize()
         stakingPendingHashesSender?.sendHashesIfNeeded()
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
-        storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
-        storyDataPrefetchService.prefetchStoryIfNeeded(.yieldFirstActivationAPYBoostStory)
+        storiesPrefetchManager.prefetch(for: .appStart)
         geoEligibilityService.initialize()
         // The OTel resource carries the country, and it is fixed once the pipeline starts
         openTelemetryWrapper.configure()

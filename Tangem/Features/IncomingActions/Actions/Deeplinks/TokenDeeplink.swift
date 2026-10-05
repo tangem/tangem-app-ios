@@ -9,7 +9,7 @@ import Foundation
 
 private typealias Shared = IncomingActionConstants.DeeplinkParams
 
-/// `tangem://token?token_id&network_id[&user_wallet_id&derivation_path&type&transaction_id]`
+/// `tangem://token?token_id&network_id[&user_wallet_id&derivation_path&account_id&type&transaction_id]`
 struct TokenDeeplink: HostNamedDeeplink, Equatable {
     static let host = "token"
 
@@ -17,6 +17,8 @@ struct TokenDeeplink: HostNamedDeeplink, Equatable {
     let networkId: String
     let userWalletId: String?
     let derivationPath: String?
+    let accountId: String?
+    let isJointTransaction: Bool
     let statusUpdate: StatusUpdate?
 
     var action: DeeplinkNavigationAction { .token(self) }
@@ -26,12 +28,16 @@ struct TokenDeeplink: HostNamedDeeplink, Equatable {
         networkId: String,
         userWalletId: String? = nil,
         derivationPath: String? = nil,
+        accountId: String? = nil,
+        isJointTransaction: Bool = false,
         statusUpdate: StatusUpdate? = nil
     ) {
         self.tokenId = tokenId
         self.networkId = networkId
         self.userWalletId = userWalletId
         self.derivationPath = derivationPath
+        self.accountId = accountId
+        self.isJointTransaction = isJointTransaction
         self.statusUpdate = statusUpdate
     }
 }
@@ -46,6 +52,7 @@ extension TokenDeeplink {
         enum Kind {
             case onramp
             case swap
+            case jointOperation
         }
     }
 }
@@ -66,17 +73,17 @@ extension TokenDeeplink {
         networkId = try query.required(Shared.networkId, lowercased: true)
         userWalletId = query.unchecked(Shared.userWalletId)
         derivationPath = query.unchecked(Shared.derivationPath)
+        accountId = query.unchecked(Shared.accountId, lowercased: true)?.nilIfEmpty
 
-        guard
-            let type = query.unchecked(Keys.type).flatMap(IncomingActionConstants.DeeplinkType.init(rawValue:)),
-            let kind = StatusUpdate.Kind(type)
-        else {
+        let type = query.unchecked(Keys.type).flatMap(IncomingActionConstants.DeeplinkType.init(rawValue:))
+        isJointTransaction = type == .jointTx || type == .jointTxSent
+
+        guard let type, let kind = StatusUpdate.Kind(type) else {
             statusUpdate = nil
             return
         }
 
-        // A status link points at one transaction of one derived address, and can't be opened without either.
-        guard derivationPath != nil else {
+        guard derivationPath != nil || kind == .jointOperation else {
             throw DeeplinkQuery.ValidationError.missingValue(key: Shared.derivationPath)
         }
 
@@ -95,7 +102,9 @@ private extension TokenDeeplink.StatusUpdate.Kind {
             self = .onramp
         case .swapStatusUpdate:
             self = .swap
-        case .incomeTransaction:
+        case .jointTx:
+            self = .jointOperation
+        case .incomeTransaction, .jointTxSent:
             return nil
         }
     }
@@ -123,6 +132,7 @@ extension TokenDeeplink {
             tokenId: tokenId,
             networkId: networkId,
             derivationPath: derivationPath,
+            accountId: accountId,
             syncingTokenList: true
         )
 
@@ -131,6 +141,10 @@ extension TokenDeeplink {
             walletModel: target.walletModel
         ).isTokenInteractionAvailable() else {
             return nil
+        }
+
+        if statusUpdate?.kind == .jointOperation {
+            target.walletModel.account?.userTokensManager.sync {}
         }
 
         return target
@@ -146,6 +160,7 @@ extension TokenDeeplink {
         switch statusUpdate.kind {
         case .onramp: type = .onramp
         case .swap: type = .swap
+        case .jointOperation: type = .jointOperation
         }
 
         return PendingTransactionDetails(type: type, id: statusUpdate.transactionId)

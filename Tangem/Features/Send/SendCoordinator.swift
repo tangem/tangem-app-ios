@@ -197,9 +197,9 @@ extension SendCoordinator: SendRoutable {
     func openSwapSupportSelection(with dataCollector: EmailDataCollector, recipient: String, chatDataCollector: ChatDataCollector) {
         let chatInput = SupportChatInputModel(
             logsComposer: LogsComposer(infoProvider: dataCollector),
-            userIdentifier: chatDataCollector.userIdentifier,
+            userWalletId: chatDataCollector.userWalletId,
             source: .swap,
-            initialMessage: .swap(message: chatDataCollector.message)
+            initialMessage: chatDataCollector.message
         )
 
         openSupportTypeSelection(
