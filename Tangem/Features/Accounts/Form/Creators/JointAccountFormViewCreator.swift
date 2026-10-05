@@ -7,6 +7,8 @@
 //
 
 import Combine
+import SwiftUI
+import TangemAssets
 import TangemLocalization
 
 struct JointAccountFormViewCreator {
@@ -35,6 +37,8 @@ extension JointAccountFormViewCreator: AccountFormViewCreator {
     /// Derivation is a matter of the wallet's own accounts; a joint account is not one of them and says nothing
     /// about it.
     var showsAccountIndexDescription: Bool { false }
+
+    var backgroundColor: Color { DesignSystem.Color.bgPrimary }
 
     /// - Note: The joint accounts are counted apart from the wallet's own ones, and it is their count the form shows
     /// as the ordinal number of the account being created. Follows the wallet selection, since the ordinal number
