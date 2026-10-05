@@ -87,6 +87,7 @@ public struct FloatingSheetView: View {
         if let renderedViewModel, let sheetContent = registry.view(for: renderedViewModel) {
             FloatingSheetLayout(maxHeight: sheetMaxHeight(proxy)) {
                 sheetContent
+                    .animation(sheetContentConfiguration.animatesContentWithKeyboard ? .keyboard : nil, value: keyboardHeight)
                     .transaction { transaction in
                         guard !transaction.disablesAnimations else { return }
                         transaction.animation = nil

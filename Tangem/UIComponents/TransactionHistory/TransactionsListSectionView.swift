@@ -59,6 +59,7 @@ struct TransactionsListRowView: View {
 
     var body: some View {
         SwiftUI.Button {
+            FeedbackGenerator.soft()
             openTransactionDetailsAction(viewModel)
         } label: {
             switch viewModel.display.style {
