@@ -145,6 +145,9 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .fullScreenCover(item: $coordinator.virtualAccountOnboardingViewModel) {
                 TangemPayVirtualAccountInfoContainerView(viewModel: $0)
             }
+            .fullScreenCover(item: $coordinator.virtualAccountDetailsViewModel) {
+                TangemPayVirtualAccountDetailsView(viewModel: $0)
+            }
             .fullScreenCover(item: $coordinator.cashbackDetailViewModel) {
                 TangemPayCashbackDetailView(viewModel: $0)
             }
