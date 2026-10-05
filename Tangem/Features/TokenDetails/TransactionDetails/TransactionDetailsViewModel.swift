@@ -35,6 +35,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
     @Published private var ratingViewModel: RatingViewModel?
     @Published private var isRatingCardVisible = false
+    @Published private var isRatingResolving = false
     @Published private var isSuccessBannerDismissed = false
 
     private let walletModel: any WalletModel
@@ -117,6 +118,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
             return
         }
 
+        isRatingResolving = true
         ratingSetupTask = Task { [weak self] in
             await self?.makeRatingViewModel(for: transaction)
         }
@@ -131,6 +133,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
         guard let providerName = resolvedName else {
             ratingSetupTask = nil
+            isRatingResolving = false
             return
         }
 
@@ -144,10 +147,12 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
                 ),
                 userWalletIdHash: userWalletIdHash
             ),
-            feedbackPresenter: self
+            feedbackPresenter: self,
+            showsSkeleton: false
         )
 
         ratingViewModel.isCardVisiblePublisher.assign(to: &$isRatingCardVisible)
+        ratingViewModel.$state.map { $0 == .loading }.removeDuplicates().assign(to: &$isRatingResolving)
         self.ratingViewModel = ratingViewModel
     }
 
@@ -257,10 +262,10 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         enrichedRecordPublisher
             .withWeakCaptureOf(self)
             .sink { viewModel, output in
+                viewModel.setupRatingViewModel(for: output.reduced.content)
                 viewModel.record = output.record
                 viewModel.header = output.reduced.header
                 viewModel.content = output.reduced.content
-                viewModel.setupRatingViewModel(for: output.reduced.content)
                 viewModel.analyticsLogger.recordUpdated(output.record, transaction: output.transaction)
             }
             .store(in: &bag)
@@ -292,7 +297,25 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
             .store(in: &bag)
     }
 
-    // MARK: - Actions
+    // MARK: - Presentation
+
+    /// Delay for sheet opening - needed for calculate and render content with real size
+    func prepareForPresentation() async {
+        let readiness = $content
+            .combineLatest($isRatingResolving)
+            .map { content, isRatingResolving in content != nil && !isRatingResolving }
+            .first(where: { $0 })
+            .timeout(Constants.presentationReadinessTimeout, scheduler: DispatchQueue.main)
+            .replaceEmpty(with: false)
+
+        guard let isReadyInTime = try? await readiness.async() else {
+            return
+        }
+
+        if isReadyInTime {
+            isPresentationSettled = true
+        }
+    }
 
     func waitForPresentationToSettle() async {
         do {
@@ -303,6 +326,8 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
         isPresentationSettled = true
     }
+
+    // MARK: - Actions
 
     func handleViewAction(_ action: ViewAction) {
         switch action {
@@ -510,6 +535,7 @@ extension TransactionDetailsViewModel {
 private extension TransactionDetailsViewModel {
     enum Constants {
         static let presentationSettleDelay: Duration = .milliseconds(450)
+        static let presentationReadinessTimeout: DispatchQueue.SchedulerTimeType.Stride = .seconds(1)
     }
 }
 
