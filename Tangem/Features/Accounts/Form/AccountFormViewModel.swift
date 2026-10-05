@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -184,6 +185,15 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             Localization.commonSave
         case .create(let creator):
             creator.mainButtonTitle
+        }
+    }
+
+    var backgroundColor: Color {
+        switch flowType {
+        case .edit:
+            Colors.Background.tertiary
+        case .create(let creator):
+            creator.backgroundColor
         }
     }
 
