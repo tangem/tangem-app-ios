@@ -13,8 +13,7 @@ final class SendCommonNotificationUITests: BaseTestCase {
     private let ethTokenName = "Ethereum"
     private let destination = "0x24298f15b837E5851925E18439490859e0c1F1ee"
 
-    /// [REDACTED_INFO] Send: It is not possible to paste an amount into the input field
-    func skipped_testNotificationDisplayed_WhenCustomFeeLowerThanSlow() throws {
+    func testNotificationDisplayed_WhenCustomFeeLowerThanSlow() throws {
         setAllureId(4293)
 
         prepareSendFlow()
@@ -46,8 +45,7 @@ final class SendCommonNotificationUITests: BaseTestCase {
             .waitForSendButtonEnabled()
     }
 
-    /// [REDACTED_INFO] Send: It is not possible to paste an amount into the input field
-    func skipped_testNotificationDisplayed_WhenCustomFeeIsHigh() throws {
+    func testNotificationDisplayed_WhenCustomFeeIsHigh() throws {
         setAllureId(4294)
 
         prepareSendFlow()

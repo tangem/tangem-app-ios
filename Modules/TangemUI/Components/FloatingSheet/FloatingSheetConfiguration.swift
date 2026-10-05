@@ -13,6 +13,7 @@ public struct FloatingSheetConfiguration: Equatable {
     public var maxHeightFraction: CGFloat
     public var sheetFrameUpdateAnimation: Animation?
     public var sheetBackgroundColor: Color
+    public var sheetBackgroundMaterial: TangemMaterialStyle?
     public var backgroundInteractionBehavior: BackgroundInteractionBehavior
     public var verticalSwipeBehavior: VerticalSwipeBehavior?
     public var keyboardHandlingEnabled: Bool
@@ -21,6 +22,7 @@ public struct FloatingSheetConfiguration: Equatable {
         maxHeightFraction: 0.8,
         sheetFrameUpdateAnimation: nil,
         sheetBackgroundColor: Colors.Background.tertiary,
+        sheetBackgroundMaterial: nil,
         backgroundInteractionBehavior: .consumeTouches,
         verticalSwipeBehavior: nil,
         keyboardHandlingEnabled: true

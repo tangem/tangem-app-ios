@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemFoundation
+import TangemCollectibles
 import TangemLocalization
 
 /// Assembles the collectibles account model for one wallet. Takes factories rather than the wallet model:
@@ -17,13 +18,13 @@ struct CollectiblesAccountBuilder {
     private let userWalletId: UserWalletId
     private let config: UserWalletConfig
     private let keysRepository: KeysRepository
-    private let coldKeyInteractorFactory: CollectiblesColdKeyInteractorFactory
+    private let coldKeyInteractorFactory: any CollectiblesColdKeyInteractorFactory
 
     init(
         userWalletId: UserWalletId,
         config: UserWalletConfig,
         keysRepository: KeysRepository,
-        coldKeyInteractorFactory: CollectiblesColdKeyInteractorFactory
+        coldKeyInteractorFactory: any CollectiblesColdKeyInteractorFactory
     ) {
         self.userWalletId = userWalletId
         self.config = config
@@ -34,23 +35,53 @@ struct CollectiblesAccountBuilder {
     func buildAccountModel() -> any CollectiblesAccountModel {
         // One provider for the whole model, so the vault read, the config read and every send share the
         // service this wallet already built rather than each resolving the endpoint again
-        let serviceProvider = CollectiblesChainServiceProvider()
+        let serviceProvider = CommonCollectiblesChainServiceProvider()
         let chainReader = CommonCollectiblesChainReader(serviceProvider: serviceProvider)
 
-        return CollectiblesManager(
-            id: CollectiblesAccountId(userWalletId: userWalletId),
-            name: Localization.collectiblesMainTitle,
-            coldOwnerProvider: CommonCollectiblesColdOwnerProvider(keysRepository: keysRepository, config: config),
-            vaultReader: chainReader,
+        let balanceService = CommonCollectiblesBalanceService(
+            tokenBalancesRepository: CommonTokenBalancesRepository(userWalletId: userWalletId)
+        )
+
+        let coldOwnerProvider = CommonCollectiblesColdOwnerProvider(
+            keysRepository: keysRepository,
+            derivationStyle: config.derivationStyle
+        )
+        let sessionKeySigner = CommonCollectiblesSessionKeySigner(userWalletId: userWalletId)
+        let transactionSender = CollectiblesColdKeyTransactionSender(serviceProvider: serviceProvider)
+
+        let onboardingInteractor = CollectiblesOnboardingInteractor(
+            coldOwnerProvider: coldOwnerProvider,
+            sessionKeySigner: sessionKeySigner,
             configReader: chainReader,
-            vaultUsdcReader: chainReader,
-            balanceService: CommonCollectiblesBalanceService(
-                tokenBalancesRepository: CommonTokenBalancesRepository(userWalletId: userWalletId)
-            ),
-            sessionKeySigner: CommonCollectiblesSessionKeySigner(userWalletId: userWalletId),
             coldKeyInteractorFactory: coldKeyInteractorFactory,
-            serviceProvider: serviceProvider,
-            presenceStore: AppSettingsCollectiblesAccountPresenceStore()
+            transactionSender: transactionSender
+        )
+
+        let purchaseTransactionDispatcher = CollectiblesPurchaseTransactionDispatcher(
+            coldOwnerProvider: coldOwnerProvider,
+            configReader: chainReader,
+            sessionKeySigner: sessionKeySigner,
+            transactionSender: transactionSender
+        )
+
+        let manager = CollectiblesManager(
+            userWalletId: userWalletId,
+            coldOwnerProvider: coldOwnerProvider,
+            vaultReader: chainReader,
+            vaultUsdcReader: chainReader,
+            balanceUpdater: balanceService,
+            sessionKeySigner: sessionKeySigner,
+            coldKeyInteractorFactory: coldKeyInteractorFactory,
+            transactionSender: transactionSender,
+            onboardingInteractor: onboardingInteractor,
+            purchaseTransactionDispatcher: purchaseTransactionDispatcher,
+            presenceStore: StoredCollectiblesAccountPresenceStore.appSettings()
+        )
+
+        return CommonCollectiblesAccountModel(
+            manager: manager,
+            name: Localization.collectiblesMainTitle,
+            balanceService: balanceService
         )
     }
 }
