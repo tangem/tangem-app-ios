@@ -68,17 +68,12 @@ final class ReferralFeedRouter: ReferralFeedRoutable {
                 return
             }
 
-            let selector = FeedReferralWalletSelectorViewModel(
+            widgetSheetPresenter.presentReferralWalletSelector(
                 candidates: candidates,
-                candidatesPublisher: candidatesPublisher,
-                onSelect: { [weak self] walletId in
-                    Task { @MainActor [weak self] in
-                        self?.openReferral(for: walletId, resolveAvailableWallet: resolveAvailableWallet, onDismiss: onDismiss)
-                    }
-                },
-                close: { [weak self] in self?.widgetSheetPresenter.dismiss() }
-            )
-            widgetSheetPresenter.enqueue(selector)
+                candidatesPublisher: candidatesPublisher
+            ) { [weak self] walletId in
+                self?.openReferral(for: walletId, resolveAvailableWallet: resolveAvailableWallet, onDismiss: onDismiss)
+            }
         }
     }
 }
