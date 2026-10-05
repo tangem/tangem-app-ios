@@ -57,6 +57,7 @@ class YieldSupplyContractAddressFactory {
             .base(testnet: false),
             .bsc(testnet: false),
             .polygon(testnet: false),
+            .monad(testnet: false),
         ]
     }
 }
@@ -125,7 +126,7 @@ extension YieldSupplyContractAddressFactory {
 
         /// Monad carries a test deployment on mainnet, not a production one.
         static let monadAddresses = YieldSupplyContractAddresses(
-            processorContractAddress: "0xfC77aa39E8ad776d4d31c4174F66b89d3363DEe4",
+            processorContractAddress: "0x9002A6fC37B8f5916C4ddAD92001394C967011D6",
             factoryContractAddress: "0xd2806fF93F5776FeA2F0c4863c56669Ec972525d",
             swapExecutionRegistryContractAddress: "0x833C25c0D4Cb2A36A70ea8F3dE1D20C5B2973fC3",
         )
