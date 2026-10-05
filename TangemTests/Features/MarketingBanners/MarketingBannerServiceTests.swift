@@ -14,64 +14,54 @@ import Testing
 @testable import Tangem
 
 @Suite("MarketingBannerService amount filter", .tags(.marketingBanners))
-final class MarketingBannerServiceAmountFilterTests: LeakTrackingTestSuite {
+struct MarketingBannerServiceAmountFilterTests {
     private typealias Fixtures = MarketingCampaignsFixtures
-
-    private func makeSUT() -> MarketingBannerService {
-        trackForMemoryLeaks(MarketingBannerService(language: "en"))
-    }
 
     @Test("Campaign without bounds passes for any amount, including unknown")
     func noBoundsPassesForAnyAmount() {
-        let sut = makeSUT()
         let campaign = Fixtures.makeCampaign(minAmount: nil, maxAmount: nil)
 
-        #expect(sut.satisfiesAmount(campaign, usd: nil))
-        #expect(sut.satisfiesAmount(campaign, usd: Decimal(string: "0.01")!))
-        #expect(sut.satisfiesAmount(campaign, usd: Decimal(string: "1000000")!))
+        #expect(MarketingBannerService.satisfiesAmount(campaign, usd: nil))
+        #expect(MarketingBannerService.satisfiesAmount(campaign, usd: Decimal(string: "0.01")!))
+        #expect(MarketingBannerService.satisfiesAmount(campaign, usd: Decimal(string: "1000000")!))
     }
 
     @Test("Bounded campaign is hidden when the amount is unknown")
     func boundsWithUnknownAmountFails() {
-        let sut = makeSUT()
-
-        #expect(!sut.satisfiesAmount(Fixtures.makeCampaign(minAmount: Decimal(string: "100")!), usd: nil))
-        #expect(!sut.satisfiesAmount(Fixtures.makeCampaign(maxAmount: Decimal(string: "500")!), usd: nil))
+        #expect(!MarketingBannerService.satisfiesAmount(Fixtures.makeCampaign(minAmount: Decimal(string: "100")!), usd: nil))
+        #expect(!MarketingBannerService.satisfiesAmount(Fixtures.makeCampaign(maxAmount: Decimal(string: "500")!), usd: nil))
     }
 
     @Test("Min bound is inclusive")
     func minBoundIsInclusive() {
-        let sut = makeSUT()
         let campaign = Fixtures.makeCampaign(minAmount: Decimal(string: "100")!)
 
-        #expect(!sut.satisfiesAmount(campaign, usd: Decimal(string: "99.99")!))
-        #expect(sut.satisfiesAmount(campaign, usd: Decimal(string: "100")!))
-        #expect(sut.satisfiesAmount(campaign, usd: Decimal(string: "100.01")!))
+        #expect(!MarketingBannerService.satisfiesAmount(campaign, usd: Decimal(string: "99.99")!))
+        #expect(MarketingBannerService.satisfiesAmount(campaign, usd: Decimal(string: "100")!))
+        #expect(MarketingBannerService.satisfiesAmount(campaign, usd: Decimal(string: "100.01")!))
     }
 
     @Test("Max bound is inclusive")
     func maxBoundIsInclusive() {
-        let sut = makeSUT()
         let campaign = Fixtures.makeCampaign(maxAmount: Decimal(string: "500")!)
 
-        #expect(sut.satisfiesAmount(campaign, usd: Decimal(string: "499.99")!))
-        #expect(sut.satisfiesAmount(campaign, usd: Decimal(string: "500")!))
-        #expect(!sut.satisfiesAmount(campaign, usd: Decimal(string: "500.01")!))
+        #expect(MarketingBannerService.satisfiesAmount(campaign, usd: Decimal(string: "499.99")!))
+        #expect(MarketingBannerService.satisfiesAmount(campaign, usd: Decimal(string: "500")!))
+        #expect(!MarketingBannerService.satisfiesAmount(campaign, usd: Decimal(string: "500.01")!))
     }
 
     @Test("Both bounds form an inclusive range")
     func bothBoundsFormInclusiveRange() {
-        let sut = makeSUT()
         let campaign = Fixtures.makeCampaign(
             minAmount: Decimal(string: "100")!,
             maxAmount: Decimal(string: "500")!
         )
 
-        #expect(!sut.satisfiesAmount(campaign, usd: Decimal(string: "50")!))
-        #expect(sut.satisfiesAmount(campaign, usd: Decimal(string: "100")!))
-        #expect(sut.satisfiesAmount(campaign, usd: Decimal(string: "300")!))
-        #expect(sut.satisfiesAmount(campaign, usd: Decimal(string: "500")!))
-        #expect(!sut.satisfiesAmount(campaign, usd: Decimal(string: "501")!))
+        #expect(!MarketingBannerService.satisfiesAmount(campaign, usd: Decimal(string: "50")!))
+        #expect(MarketingBannerService.satisfiesAmount(campaign, usd: Decimal(string: "100")!))
+        #expect(MarketingBannerService.satisfiesAmount(campaign, usd: Decimal(string: "300")!))
+        #expect(MarketingBannerService.satisfiesAmount(campaign, usd: Decimal(string: "500")!))
+        #expect(!MarketingBannerService.satisfiesAmount(campaign, usd: Decimal(string: "501")!))
     }
 }
 
