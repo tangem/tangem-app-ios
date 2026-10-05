@@ -39,18 +39,12 @@ extension CommonJointAccountsNetworkService: JointAccountsNetworkService {
         return try mapper.mapToCreationResult(from: response)
     }
 
-    func getJointAccounts() async throws -> JointAccountsRemoteState {
-        let knownETag = eTagStorage.loadETag(for: .jointAccounts(walletId: userWalletId))
-
+    func getJointAccounts(knownETag: String?) async throws -> JointAccountsRemoteState {
         guard let (eTag, response) = try await tangemApiService.getJointAccounts(walletId: userWalletId.stringValue, knownETag: knownETag) else {
             return .notModified
         }
 
-        if let eTag {
-            eTagStorage.saveETag(eTag, for: .jointAccounts(walletId: userWalletId))
-        }
-
-        return try .changed(mapper.mapToJointAccounts(from: response))
+        return try .changed(mapper.mapToJointAccounts(from: response), eTag: eTag)
     }
 
     func getInvitePreview(inviteId: String) async throws -> JointAccountInvitePreview {

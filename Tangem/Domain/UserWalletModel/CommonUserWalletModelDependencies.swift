@@ -205,6 +205,7 @@ private extension CommonUserWalletModelDependencies {
             persistentStorage: CommonJointAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue),
             invitesPersistentStorage: CommonJointAccountsInvitesPersistentStorage(storageIdentifier: userWalletId.stringValue),
             pendingOperationsPersistentStorage: CommonJointAccountsPendingOperationsPersistentStorage(storageIdentifier: userWalletId.stringValue),
+            eTagStorage: InjectedValues[\.eTagStorage],
             isJointAccountsAvailable: FeatureProvider.isAvailable(.jointAccounts)
         )
 
