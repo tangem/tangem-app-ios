@@ -16,14 +16,26 @@ public enum TangemMaterialStyle: Sendable, Hashable {
 }
 
 public extension View {
+    /// - Parameter prefersInset: Draws a flat inset fill instead of glass on iOS 26, which renders glass laid over
+    ///   a sheet's own glass almost invisibly. iOS 27 and versions below 26 ignore it.
     func tangemMaterialSurface(
         in shape: some InsettableShape,
         style: TangemMaterialStyle = .default,
         isVisible: Bool = true,
         interactive: Bool = false,
-        shadow: TangemShadowToken? = DesignSystem.Shadow.button
+        shadow: TangemShadowToken? = DesignSystem.Shadow.button,
+        prefersInset: Bool = false
     ) -> some View {
-        modifier(MaterialSurface(shape: shape, style: style, isVisible: isVisible, interactive: interactive, shadow: shadow))
+        modifier(
+            MaterialSurface(
+                shape: shape,
+                style: style,
+                isVisible: isVisible,
+                interactive: interactive,
+                shadow: shadow,
+                prefersInset: prefersInset
+            )
+        )
     }
 }
 
@@ -33,25 +45,43 @@ struct MaterialSurface<S: InsettableShape>: ViewModifier {
     let isVisible: Bool
     let interactive: Bool
     let shadow: TangemShadowToken?
+    let prefersInset: Bool
 
     @ViewBuilder
     func body(content: Content) -> some View {
-        if #available(iOS 26.0, *) {
-            content
-                .glassEffect(
-                    isVisible
-                        ? .regular
-                        .tint(glassTint)
-                        .interactive(interactive)
-                        : .identity,
-                    in: shape
-                )
-                .background { glassShadow }
-                .animation(.default, value: isVisible)
+        if #available(iOS 27.0, *) {
+            glass(content)
+        } else if #available(iOS 26.0, *) {
+            // One view tree for both, so switching to the inset animates instead of rebuilding the content.
+            glass(content, drawsGlass: !prefersInset)
+                .background { inset }
+                .animation(.default, value: prefersInset)
         } else {
             fallback(content)
                 .animation(.default, value: isVisible)
         }
+    }
+
+    @available(iOS 26.0, *)
+    private func glass(_ content: some View, drawsGlass: Bool = true) -> some View {
+        content
+            .glassEffect(
+                isVisible && drawsGlass
+                    ? .regular
+                    .tint(glassTint)
+                    .interactive(interactive)
+                    : .identity,
+                in: shape
+            )
+            .background { glassShadow.opacity(drawsGlass ? 1 : 0) }
+            .animation(.default, value: isVisible)
+    }
+
+    private var inset: some View {
+        shape
+            .fill(DesignSystem.Color.bgTransparentPrimary)
+            .opacity(isVisible && prefersInset ? 1 : 0)
+            .animation(.default, value: isVisible)
     }
 
     @ViewBuilder
