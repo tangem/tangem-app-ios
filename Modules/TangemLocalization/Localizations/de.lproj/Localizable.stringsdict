@@ -210,6 +210,22 @@
         <string>Mitglieder</string>
       </dict>
     </dict>
+    <key>joint_account_send_signatures_required_banner</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%1$li signature required</string>
+        <key>other</key>
+        <string>%1$li signatures required</string>
+      </dict>
+    </dict>
     <key>manage_tokens_number_of_wallets_ios</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
