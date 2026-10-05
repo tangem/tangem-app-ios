@@ -269,6 +269,12 @@ extension UserWalletSettingsCoordinator: AddAccountTypeSelectorRoutable {
     func openCryptoAccountForm(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+
+            guard !AccountModelUtils.isAccountsLimitReached(for: .crypto, in: accountModelsManager.accountModels) else {
+                handleAccountsLimitReached()
+                return
+            }
+
             addNewAccount(accountModelsManager: accountModelsManager, userWalletConfig: userWalletConfig)
         }
     }
@@ -280,6 +286,13 @@ extension UserWalletSettingsCoordinator: AddAccountTypeSelectorRoutable {
 
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+
+            let accountModels = userWalletModel.accountModelsManager.accountModels
+
+            guard !AccountModelUtils.isAccountsLimitReached(for: .joint, in: accountModels) else {
+                handleAccountsLimitReached()
+                return
+            }
 
             let coordinator = JointAccountManagementCoordinator(
                 dismissAction: { [weak self] in

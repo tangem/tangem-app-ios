@@ -150,8 +150,10 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     // MARK: - View Data Factory
 
     private func makeAddNewAccountButtonViewData(from accountModels: [AccountModel]) -> AddListItemButton.ViewData {
-        let accountCount = accountModels.cryptoAccountsCount
-        let isLimitReached = accountCount >= AccountModelUtils.maxNumberOfAccounts
+        let isCryptoLimitReached = AccountModelUtils.isAccountsLimitReached(for: .crypto, in: accountModels)
+        let canAddJointAccount = FeatureProvider.isAvailable(.jointAccounts)
+            && !AccountModelUtils.isAccountsLimitReached(for: .joint, in: accountModels)
+        let isLimitReached = isCryptoLimitReached && !canAddJointAccount
         let buttonState = makeAddNewAccountButtonState(isLimitReached: isLimitReached)
 
         return AddListItemButton.ViewData(
