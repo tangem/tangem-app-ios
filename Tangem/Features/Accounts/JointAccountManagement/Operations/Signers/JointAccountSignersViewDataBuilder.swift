@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemFoundation
+import TangemLocalization
 
 /// Puts into words where every member of an account stands on one operation.
 ///
@@ -21,13 +22,11 @@ struct JointAccountSignersViewDataBuilder {
         return formatter
     }()
 
-    private static let answerDateFormatter: ISO8601DateFormatter = {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    private static let dayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate("d MMMM")
         return formatter
     }()
-
-    private static let answerDateFallbackFormatter = ISO8601DateFormatter()
 
     func build(pendingOperation: JointAccountPendingOperation) -> [JointAccountSignerRow.ViewData] {
         let operation = pendingOperation.operation
@@ -79,8 +78,11 @@ private extension JointAccountSignersViewDataBuilder {
     }
 
     func time(of signature: JointAccountOperation.Signature) -> String {
-        let date = Self.answerDateFormatter.date(from: signature.at) ?? Self.answerDateFallbackFormatter.date(from: signature.at)
+        guard let date = RelativeDateFormatter.shared.parseDate(from: signature.at) else {
+            return ""
+        }
 
-        return date.map(Self.timeFormatter.string(from:)) ?? ""
+        let day = Calendar.current.isDateInToday(date) ? Localization.commonToday : Self.dayFormatter.string(from: date)
+        return "\(Self.timeFormatter.string(from: date)), \(day)"
     }
 }
