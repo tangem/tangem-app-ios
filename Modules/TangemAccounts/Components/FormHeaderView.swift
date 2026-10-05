@@ -117,7 +117,7 @@ public extension FormHeaderView {
         let enforcesMaxLength: Bool
         let nameMinimumScaleFactor: CGFloat
 
-        public static let accounts = Style(cornerRadius: 14, contentVerticalPadding: 20, avatarBottomPadding: 34, titleColor: Colors.Text.tertiary, titleBottomPadding: 0, isAvatarCircular: false, enforcesMaxLength: true, nameMinimumScaleFactor: 0.5)
+        public static let accounts = Style(cornerRadius: 14, contentVerticalPadding: 20, avatarBottomPadding: 28, titleColor: Colors.Text.tertiary, titleBottomPadding: 4, isAvatarCircular: false, enforcesMaxLength: true, nameMinimumScaleFactor: 0.5)
         public static let addressBook = Style(cornerRadius: 24, contentVerticalPadding: 36, avatarBottomPadding: 28, titleColor: Colors.Text.secondary, titleBottomPadding: 4, isAvatarCircular: true, enforcesMaxLength: false, nameMinimumScaleFactor: 1)
     }
 }

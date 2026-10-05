@@ -5,7 +5,9 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
+import TangemFoundation
 import TangemVisa
 
 /// Shows the transaction a payment push points at as a floating sheet, from wherever the user is.
@@ -31,15 +33,22 @@ extension TangemPayTransactionDeeplinkResponder: IncomingActionResponder {
             return false
         }
 
-        let viewModel = TangemPayTransactionDetailsViewModel(
-            displayData: displayData,
-            origin: .push(payload),
-            userWalletId: userWalletModel.userWalletId,
-            customerId: payload.customerId,
-            coordinator: self
-        )
+        Task { @MainActor [weak self] in
+            guard let self else { return }
 
-        Task { @MainActor [floatingSheetPresenter] in
+            let accountProvider: (() async -> TangemPayAccount?)? = RTCUtil.isRootedDevice
+                ? nil
+                : { [weak self] in await self?.resolveAccount(for: userWalletModel) }
+
+            let viewModel = TangemPayTransactionDetailsViewModel(
+                displayData: displayData,
+                origin: .push(payload),
+                userWalletId: userWalletModel.userWalletId,
+                customerId: payload.customerId,
+                accountProvider: accountProvider,
+                coordinator: self
+            )
+
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
 
@@ -68,5 +77,36 @@ extension TangemPayTransactionDeeplinkResponder: TangemPayTransactionDetailsRout
             floatingSheetPresenter.removeActiveSheet()
             mailPresenter.present(viewModel: mailViewModel)
         }
+    }
+}
+
+// MARK: - Private
+
+@MainActor
+private extension TangemPayTransactionDeeplinkResponder {
+    func resolveAccount(for userWalletModel: any UserWalletModel) async -> TangemPayAccount? {
+        guard let accountModel = AccountModelsAggregator(.tangemPay).model(from: userWalletModel.accountModelsManager) else {
+            return nil
+        }
+
+        if let account = accountModel.state?.tangemPayAccount ?? accountModel.lastKnownTangemPayAccount {
+            return account
+        }
+
+        let state = try? await accountModel.statePublisher
+            .filter { $0.tangemPayAccount != nil }
+            .timeout(.seconds(Constants.tangemPayStateTimeout), scheduler: DispatchQueue.main)
+            .receiveOnMain()
+            .async()
+
+        return state?.tangemPayAccount
+    }
+}
+
+// MARK: - Constants
+
+private extension TangemPayTransactionDeeplinkResponder {
+    enum Constants {
+        static let tangemPayStateTimeout: TimeInterval = 10
     }
 }

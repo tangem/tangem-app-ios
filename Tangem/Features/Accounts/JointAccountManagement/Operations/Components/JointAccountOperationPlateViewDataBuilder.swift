@@ -13,6 +13,7 @@ import TangemLocalization
 /// Words an unfinished operation the way the main screen's plate shows it.
 struct JointAccountOperationPlateViewDataBuilder {
     private let balanceFormatter = BalanceFormatter()
+    private let signersResolver = JointAccountOperationSignersResolver()
 
     /// - Note: An amount this version cannot state is shown the way an unknown balance is, rather than costing the
     /// operation its plate.
@@ -29,9 +30,14 @@ struct JointAccountOperationPlateViewDataBuilder {
         let formattedAmount = balanceFormatter.formatCryptoBalance(amount, tokenItem: pendingOperation.tokenItem)
         let destination = AddressFormatter(address: pendingOperation.destination).truncated()
 
+        let tokenName = pendingOperation.tokenItem.name
+        let title = signersResolver.ownAnswer(of: pendingOperation) == .created
+            ? Localization.jointOperationBannerTitleOwn(tokenName)
+            : Localization.jointOperationBannerTitle(initiatorName, tokenName)
+
         return JointAccountOperationPlate.ViewData(
             id: operation.id,
-            title: Localization.jointOperationBannerTitle(initiatorName, pendingOperation.tokenItem.name),
+            title: title,
             subtitle: Localization.jointOperationBannerSubtitle(formattedAmount, destination),
             collectedSignaturesCount: operation.signatures.filter { $0.state == .signed }.count,
             requiredSignaturesCount: account?.policy.signersCount ?? 0,
