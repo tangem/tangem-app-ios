@@ -143,6 +143,23 @@ struct CommonJointAccountPendingOperationsProviderTests {
         withExtendedLifetime(subscription) {}
     }
 
+    @Test("The snapshot answers right away with what the publisher would emit")
+    func snapshotAnswersWhatThePublisherWouldEmit() async throws {
+        let account = makeJointAccount()
+        let sut = try Self.makeSUT(
+            records: [Self.record(operations: [Self.coinTransfer(), Self.tokenTransfer()])],
+            walletModels: [
+                Self.makeWalletModel(tokenItem: Self.coin, account: account),
+                Self.makeWalletModel(tokenItem: Self.token, account: account),
+            ]
+        ).provider
+
+        let emitted = try await sut.pendingOperationsPublisher.async()
+
+        #expect(sut.pendingOperations == emitted)
+        #expect(sut.pendingOperations.map(\.operation.id) == ["coin", "token"])
+    }
+
     @Test("The listing dropping an operation ends it here too")
     func operationGoesWithItsRecord() throws {
         let account = makeJointAccount()

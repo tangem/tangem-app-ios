@@ -28,6 +28,8 @@ protocol JointAccountsRepository {
     /// the invites it was handed are written then and never again.
     var jointAccountsInvitesPublisher: AnyPublisher<[StoredJointAccountInvites], Never> { get }
 
+    var jointAccountsPendingOperations: [StoredJointAccountPendingOperations] { get }
+
     /// - Note: Kept apart from the accounts as well: an operation moves on its own occasions — a co-signer answers,
     /// the relayer executes — and none of them is a change to the account it belongs to.
     var jointAccountsPendingOperationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> { get }
