@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import TangemLocalization
 import TangemUI
 
 final class JointAccountJoinCoordinator: CoordinatorObject {
@@ -209,6 +210,9 @@ extension JointAccountJoinCoordinator: JointAccountMemberNameRoutable {
 extension JointAccountJoinCoordinator: JointAccountJoinMemberNameRoutable {
     func closeJoinedAccount() {
         dismiss()
+
+        Toast(view: SuccessToast(text: Localization.jointAccountJoinSuccessMessage))
+            .present(layout: .top(padding: 24), type: .temporary(interval: 4))
     }
 }
 
