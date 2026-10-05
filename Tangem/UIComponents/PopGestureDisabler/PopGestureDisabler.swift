@@ -1,5 +1,5 @@
 //
-//  PolymarketPopGestureDisabler.swift
+//  PopGestureDisabler.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,19 +9,19 @@
 import SwiftUI
 import UIKit
 
-struct PolymarketPopGestureDisabler: UIViewControllerRepresentable {
+struct PopGestureDisabler: UIViewControllerRepresentable {
     var isDisabled = true
 
-    func makeUIViewController(context: Context) -> PolymarketPopGestureController {
-        PolymarketPopGestureController()
+    func makeUIViewController(context: Context) -> PopGestureDisablingController {
+        PopGestureDisablingController()
     }
 
-    func updateUIViewController(_ controller: PolymarketPopGestureController, context: Context) {
+    func updateUIViewController(_ controller: PopGestureDisablingController, context: Context) {
         controller.isDisabled = isDisabled
     }
 }
 
-final class PolymarketPopGestureController: UIViewController {
+final class PopGestureDisablingController: UIViewController {
     var isDisabled = true {
         didSet { setPopGesture(enabled: !isDisabled) }
     }
