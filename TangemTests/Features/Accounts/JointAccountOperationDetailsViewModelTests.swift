@@ -210,6 +210,8 @@ private final class RoutableSpy: JointAccountOperationDetailsRoutable {
 private final class PendingOperationsProviderSpy: JointAccountPendingOperationsProvider {
     private(set) var activeRequestsCount = 0
 
+    var pendingOperations: [JointAccountPendingOperation] { [] }
+
     var pendingOperationsPublisher: AnyPublisher<[JointAccountPendingOperation], Never> {
         Empty().eraseToAnyPublisher()
     }

@@ -96,6 +96,10 @@ final class CommonJointAccountPendingOperationsProvider {
 // MARK: - JointAccountPendingOperationsProvider protocol conformance
 
 extension CommonJointAccountPendingOperationsProvider: JointAccountPendingOperationsProvider {
+    var pendingOperations: [JointAccountPendingOperation] {
+        pendingOperations(in: jointAccountsRepository.jointAccountsPendingOperations, walletModels: walletModelsManager.walletModels)
+    }
+
     var pendingOperationsPublisher: AnyPublisher<[JointAccountPendingOperation], Never> {
         Publishers.CombineLatest(
             jointAccountsRepository.jointAccountsPendingOperationsPublisher,

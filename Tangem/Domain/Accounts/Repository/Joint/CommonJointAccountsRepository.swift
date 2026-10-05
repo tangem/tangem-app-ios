@@ -129,6 +129,10 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
         invitesStorageDidUpdatePublisher
     }
 
+    var jointAccountsPendingOperations: [StoredJointAccountPendingOperations] {
+        pendingOperationsPersistentStorage.getList()
+    }
+
     var jointAccountsPendingOperationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> {
         pendingOperationsStorageDidUpdatePublisher
     }
