@@ -42,6 +42,7 @@ class CommonWalletModel {
     private let tokenBalancesRepository: TokenBalancesRepository
     private let walletManager: WalletManager
     private let _stakingManager: StakingManager?
+    private let isYieldModuleSupported: Bool
     private lazy var _yieldModuleManager = makeYieldModuleManager()
     private let _transactionHistoryService: TransactionHistoryService?
     private let _receiveAddressService: ReceiveAddressService
@@ -78,6 +79,7 @@ class CommonWalletModel {
         tokenItem: TokenItem,
         walletManager: WalletManager,
         stakingManager: StakingManager?,
+        isYieldModuleSupported: Bool,
         featureManager: WalletModelFeaturesManager,
         transactionHistoryUpdater: TransactionHistoryUpdater,
         transactionHistoryService: TransactionHistoryService?,
@@ -91,6 +93,7 @@ class CommonWalletModel {
         self.featureManager = featureManager
         self.transactionHistoryUpdater = transactionHistoryUpdater
         _stakingManager = stakingManager
+        self.isYieldModuleSupported = isYieldModuleSupported
         _transactionHistoryService = transactionHistoryService
         _receiveAddressService = receiveAddressService
         self.tokenItem = tokenItem
@@ -571,7 +574,8 @@ extension CommonWalletModel: WalletModelHelpers {
     }
 
     func makeYieldModuleManager() -> (YieldModuleManager & YieldModuleManagerUpdater)? {
-        guard case .token(let token, _) = tokenItem,
+        guard isYieldModuleSupported,
+              case .token(let token, _) = tokenItem,
               let yieldSupplyService = walletManager.yieldSupplyService,
               let ethereumNetworkProvider
         else {

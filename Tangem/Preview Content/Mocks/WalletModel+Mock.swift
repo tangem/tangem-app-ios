@@ -35,6 +35,7 @@ extension CommonWalletModel {
             tokenItem: tokenItem,
             walletManager: EthereumWalletManagerMock(),
             stakingManager: StakingManagerMock(),
+            isYieldModuleSupported: true,
             featureManager: WalletModelFeaturesManagerMock(),
             transactionHistoryUpdater: TransactionHistoryUpdater(),
             transactionHistoryService: nil,
