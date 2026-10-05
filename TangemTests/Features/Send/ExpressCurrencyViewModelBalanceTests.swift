@@ -17,6 +17,7 @@ private let tokenBalanceText = "12.34 pUSD"
 private let fiatBalanceText = "$12.34"
 
 @Suite("ExpressCurrencyViewModel balance denomination")
+@MainActor
 struct ExpressCurrencyViewModelBalanceTests {
     @Test("An account denominated in its own token shows the token balance")
     func tokenDenominationShowsTheTokenBalance() async {
@@ -92,8 +93,13 @@ private extension ExpressCurrencyViewModelBalanceTests {
     }
 
     func settledBalance(of viewModel: ExpressCurrencyViewModel) async -> LoadableBalanceView.State? {
+        let balanceStates = viewModel.$state
+            .map(\.balanceState)
+            .subscribe(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+
         let states = await awaitEmissions(
-            of: { viewModel.$state.map(\.balanceState).eraseToAnyPublisher() },
+            of: { balanceStates },
             where: { $0.contains(where: isProvidedBalance) }
         )
 
