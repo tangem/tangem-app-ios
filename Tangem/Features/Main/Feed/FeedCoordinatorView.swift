@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -49,11 +50,9 @@ struct FeedCoordinatorView: CoordinatorView {
                 .fullScreenCover(item: presentation(fullScreen: true), onDismiss: coordinator.presentationDidDismiss) {
                     FeedDestinationView(destination: $0)
                 }
+                .modifier(FeedWalletSelectorModal(presenter: coordinator.widgetSheetPresenter))
                 .floatingSheetContent(for: AddAccountTypeSelectorViewModel.self) {
                     AddAccountTypeSelectorView(viewModel: $0)
-                }
-                .floatingSheetContent(for: FeedReferralWalletSelectorViewModel.self) {
-                    FeedReferralWalletSelectorView(viewModel: $0)
                 }
         }
         .modifier(FeedModalPresentation(coordinator: coordinator))
@@ -73,5 +72,28 @@ struct FeedCoordinatorView: CoordinatorView {
                 coordinator.dismissPresented()
             }
         )
+    }
+}
+
+private struct FeedWalletSelectorModal: ViewModifier {
+    @ObservedObject var presenter: FeedWidgetSheetPresenter
+
+    func body(content: Content) -> some View {
+        content.modal(
+            isPresented: $presenter.isWalletSelectorPresented,
+            contentLayout: .intrinsic,
+            dragIndicator: .hidden,
+            title: Localization.commonChooseWallet,
+            onDismiss: presenter.walletSelectorDidDismiss
+        ) {
+            switch presenter.walletSelector {
+            case .accounts(let viewModel):
+                AccountSelectorView(viewModel: viewModel, style: .modal)
+            case .referral(let viewModel):
+                FeedReferralWalletSelectorView(viewModel: viewModel)
+            case nil:
+                EmptyView()
+            }
+        }
     }
 }

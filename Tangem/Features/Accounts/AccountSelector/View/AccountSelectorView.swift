@@ -215,7 +215,7 @@ private extension AccountSelectorView {
                 }
             }
         }
-        .background(Color.Tangem.Surface.level3)
+        .background(style.cardBackground)
         .cornerRadiusContinuous(Redesigned.cornerRadius)
     }
 
@@ -228,7 +228,7 @@ private extension AccountSelectorView {
                     .disabled(true)
             }
         }
-        .background(Color.Tangem.Surface.level3)
+        .background(style.cardBackground)
         .cornerRadiusContinuous(Redesigned.cornerRadius)
     }
 
@@ -280,6 +280,7 @@ extension AccountSelectorView {
     struct Style {
         let contentInsets: EdgeInsets
         fileprivate let kind: Kind
+        fileprivate var cardBackground = Color.Tangem.Surface.level3
 
         fileprivate enum Kind {
             case legacy
@@ -299,6 +300,12 @@ extension AccountSelectorView {
         static let addTokenRedesigned = Style(
             contentInsets: .init(),
             kind: .addTokenRedesigned
+        )
+
+        static let modal = Style(
+            contentInsets: .init(),
+            kind: .addTokenRedesigned,
+            cardBackground: DesignSystem.Color.bgTransparentOnMaterialPrimary
         )
     }
 }
