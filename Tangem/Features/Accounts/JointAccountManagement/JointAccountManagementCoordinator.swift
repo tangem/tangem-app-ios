@@ -274,12 +274,13 @@ extension JointAccountManagementCoordinator: JointAccountMemberDetailsRoutable {
 // MARK: - Wallet selection
 
 private extension JointAccountManagementCoordinator {
-    /// The wallets a joint account can be created in — the same condition that decides whether a wallet offers
-    /// to add an account at all.
+    /// The wallets a joint account can be created in — the ones that offer to add an account at all and still have
+    /// room for a joint one.
     var selectableUserWalletModels: [any UserWalletModel] {
         UserWalletModelsProvider
             .available(from: userWalletRepository.models)
             .filter(\.accountModelsManager.canAddCryptoAccounts)
+            .filter { !AccountModelUtils.isAccountsLimitReached(for: .joint, in: $0.accountModelsManager.accountModels) }
     }
 
     func openWalletSelection(creationHelper: JointAccountCreationHelper) {

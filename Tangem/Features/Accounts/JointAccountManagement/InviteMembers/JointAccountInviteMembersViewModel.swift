@@ -128,9 +128,10 @@ private extension JointAccountInviteMembersViewModel {
             return
         }
 
-        // The members are gathered, which is all this screen was for
-        // [REDACTED_TODO_COMMENT]
         coordinator?.closeInviteMembers()
+
+        Toast(view: SuccessToast(text: Localization.jointAccountActivatedSnackbar))
+            .present(layout: .top(padding: Constants.toastTopPadding), type: .temporary(interval: Constants.toastInterval))
     }
 
     @MainActor
