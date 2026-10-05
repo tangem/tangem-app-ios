@@ -125,6 +125,26 @@ struct TransactionHistoryMapperYieldTests {
         }
     }
 
+    // MARK: - Gasless send
+
+    @Test("An Aave payout of a batched gasless send is a Withdraw, like the one of a plain send")
+    func gaslessPayoutFromAaveIsWithdraw() {
+        let record = makeRecord(type: .contractMethodName(name: "gaslessTransaction"), isOutgoing: false, isFromYieldContract: true)
+
+        let viewModel = makeSUT().mapTransactionViewModel(record)
+
+        #expect(viewModel.display.title.fullText == Localization.transactionHistoryWithdrawn)
+        #expect(viewModel.display.subtitle == .provider(direction: .incoming))
+        #expect(viewModel.amount.value.hasPrefix(AppConstants.minusSign))
+    }
+
+    @Test("A gasless transfer that does not come from Aave is still received")
+    func gaslessTransferFromElsewhereIsReceived() {
+        let record = makeRecord(type: .contractMethodName(name: "gaslessTransaction"), isOutgoing: false)
+
+        #expect(title(record) == Localization.commonReceived)
+    }
+
     // MARK: - Status-aware titles
 
     @Test("Withdraw follows its status")

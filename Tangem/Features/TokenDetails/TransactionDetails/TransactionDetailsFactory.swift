@@ -98,7 +98,7 @@ enum TransactionDetailsFactory {
                     record: record,
                     context: context,
                     counterpartyLabel: nil,
-                    ignoringDirection: true
+                    ignoringDirection: !GaslessTransactionFeeMatcher.isExecutorCall(record.type)
                 ))
             }
 

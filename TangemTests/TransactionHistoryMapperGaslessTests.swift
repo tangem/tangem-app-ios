@@ -218,19 +218,72 @@ final class TransactionHistoryMapperGaslessTests {
         )
         #expect(historyItems.flatMap(\.items).map(\.hash) == ["0xCompensationHash"])
     }
+
+    @Test("Tron gasless compensation in the token history is the network fee")
+    func tronGaslessCompensationInTokenHistory_isNetworkFee() {
+        let viewModel = makeSUT().mapTransactionViewModel(Self.makeTronCompensationRecord(isOutgoing: true))
+
+        #expect(viewModel.name == Localization.gaslessTransactionFee)
+        #expect(viewModel.display.title.fullText == Localization.commonNetworkFeeTitle)
+    }
+
+    @Test("Only what the wallet pays the Tron collector is a fee")
+    func tronCollectorTransfer_isFeeOnlyWhenPaidByTheWallet() {
+        let incoming = Self.makeTronCompensationRecord(isOutgoing: false)
+
+        #expect(makeSUT().mapTransactionViewModel(incoming).name != Localization.gaslessTransactionFee)
+    }
+
+    @Test("The coin history sees the Tron compensation as a call to the token contract, not as a gasless fee")
+    func tronCompensationInCoinHistory_isNotGaslessFee() {
+        let contractCall = TransactionRecord(
+            hash: "0xCompensationHash",
+            index: 0,
+            source: .single(.init(address: Self.walletAddress, amount: 0)),
+            destination: .single(.init(address: .contract("TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"), amount: 0)),
+            fee: Fee(Amount(type: .coin, currencySymbol: "TRX", value: 1, decimals: 6)),
+            status: .confirmed,
+            isOutgoing: true,
+            type: .transfer,
+            date: Date(),
+            tokenTransfers: [],
+            nonce: nil
+        )
+
+        #expect(makeSUT(isToken: false).mapTransactionViewModel(contractCall).name != Localization.gaslessTransactionFee)
+    }
 }
 
 // MARK: - Helpers
 
 private extension TransactionHistoryMapperGaslessTests {
-    func makeSUT() -> Tangem.TransactionHistoryMapper {
+    func makeSUT(isToken: Bool = true) -> Tangem.TransactionHistoryMapper {
         Tangem.TransactionHistoryMapper(
             currencySymbol: "USDT",
             blockchain: .ethereum(testnet: false),
             addressesProvider: StubTransactionHistoryAddressesProvider(walletAddresses: [Self.walletAddress]),
             showSign: true,
-            isToken: true,
+            isToken: isToken,
             stakingNetwork: .ethereum
+        )
+    }
+
+    /// A plain TRC20 transfer between the wallet and the Tron collector, the shape the compensation arrives in.
+    static func makeTronCompensationRecord(isOutgoing: Bool) -> TransactionRecord {
+        let collector = "TSWsmaEDgWaE2VsP9tCBGh5GbBRbrdHSuZ"
+
+        return TransactionRecord(
+            hash: "0xCompensationHash",
+            index: 0,
+            source: .single(.init(address: isOutgoing ? walletAddress : collector, amount: 1)),
+            destination: .single(.init(address: .user(isOutgoing ? collector : walletAddress), amount: 1)),
+            fee: Fee(Amount(type: .coin, currencySymbol: "TRX", value: 0, decimals: 6)),
+            status: .confirmed,
+            isOutgoing: isOutgoing,
+            type: .transfer,
+            date: Date(),
+            tokenTransfers: [],
+            nonce: nil
         )
     }
 
