@@ -725,20 +725,22 @@ private extension TransactionHistoryMapper {
         }
 
         guard
-            let symbol = resolvedToken?.currencySymbol ?? first.symbol,
+            let symbol = (resolvedToken?.currencySymbol ?? first.symbol)?.trimmed().nilIfEmpty,
             let decimals = resolvedToken?.decimalCount ?? first.decimals
         else {
             return nil
         }
 
         let amount = sent.reduce(Decimal.zero) { $0 + $1.amount } / pow(10, decimals)
+
+        guard let amountText = TransactionDetailsAmountTextBuilder.build(balanceFormatter.formatDecimal(amount), symbol: symbol) else {
+            return nil
+        }
+
         let tokenItem = resolvedToken ?? makeTokenItem(for: first, symbol: symbol, decimals: decimals)
         let iconInfo = TokenIconInfoBuilder().build(from: tokenItem, isCustom: resolvedToken == nil)
 
-        return .init(
-            amount: balanceFormatter.formatCryptoBalance(amount, currencyCode: symbol),
-            iconInfo: iconInfo
-        )
+        return .init(amount: amountText, iconInfo: iconInfo)
     }
 
     func makeTokenItem(
@@ -777,12 +779,13 @@ private extension TransactionHistoryMapper {
         sign: String = "",
         redesignedSign: String? = nil
     ) -> FormattedAmount {
-        let magnitude = balanceFormatter.formatDecimal(amount)
+        let formattedAmount = balanceFormatter.formatDecimal(amount)
+        let redesignedSign = redesignedSign ?? sign
 
         return FormattedAmount(
             legacy: sign + balanceFormatter.formatCryptoBalance(amount, currencyCode: symbol),
-            redesigned: (redesignedSign ?? sign) + magnitude,
-            withCurrencyCode: (redesignedSign ?? sign) + (symbol.isEmpty ? magnitude : magnitude + " " + symbol)
+            redesigned: redesignedSign + formattedAmount,
+            withCurrencyCode: TransactionDetailsAmountTextBuilder.build(formattedAmount, symbol: symbol, sign: redesignedSign) ?? formattedAmount
         )
     }
 }
