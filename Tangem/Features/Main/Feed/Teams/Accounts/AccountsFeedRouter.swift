@@ -59,7 +59,7 @@ extension AccountsFeedRouter: AddAccountTypeSelectorRoutable {
     func openCryptoAccountForm(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
         Task { @MainActor in
             guard let navigation, navigation.presented == nil,
-                  validateAccountLimit(accountModelsManager: accountModelsManager) else { return }
+                  validateAccountLimit(for: .crypto, accountModelsManager: accountModelsManager) else { return }
 
             widgetSheetPresenter.dismiss()
 
@@ -76,7 +76,7 @@ extension AccountsFeedRouter: AddAccountTypeSelectorRoutable {
     func openJointAccountManagement() {
         Task { @MainActor in
             guard let navigation, navigation.presented == nil, let accountCreationWallet,
-                  validateAccountLimit(accountModelsManager: accountCreationWallet.accountModelsManager) else { return }
+                  validateAccountLimit(for: .joint, accountModelsManager: accountCreationWallet.accountModelsManager) else { return }
 
             widgetSheetPresenter.dismiss()
 
@@ -120,9 +120,8 @@ extension AccountsFeedRouter: AccountFormViewModelRoutable {
 
 @MainActor
 private extension AccountsFeedRouter {
-    func validateAccountLimit(accountModelsManager: any AccountModelsManager) -> Bool {
-        let accountsCount = AccountModelsAggregator(.crypto, .joint).models(from: accountModelsManager).count
-        guard accountsCount < AccountModelUtils.maxNumberOfAccounts else {
+    func validateAccountLimit(for accountType: AccountType, accountModelsManager: any AccountModelsManager) -> Bool {
+        guard !AccountModelUtils.isAccountsLimitReached(for: accountType, in: accountModelsManager.accountModels) else {
             alertPresenter.present(alert: AccountEditErrorAlertBuilder.makeAlert(for: .tooManyAccounts))
             return false
         }
