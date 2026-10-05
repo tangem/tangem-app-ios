@@ -17,6 +17,8 @@ struct RatingFeedbackBottomSheetView: View {
     @ObservedObject var viewModel: RatingFeedbackBottomSheetViewModel
 
     @FocusState private var isFocused: Bool
+    @State private var isKeyboardShown = false
+    @State private var actionAfterKeyboardHides: Action?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -44,8 +46,16 @@ struct RatingFeedbackBottomSheetView: View {
         .floatingSheetConfiguration { config in
             config.backgroundInteractionBehavior = .tapToDismiss
             config.sheetFrameUpdateAnimation = .contentFrameUpdate
+            config.animatesContentWithKeyboard = true
         }
         .task(openKeyboard)
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+            isKeyboardShown = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardDidHideNotification)) { _ in
+            isKeyboardShown = false
+            runActionAfterKeyboardHides()
+        }
         .onDisappear {
             viewModel.dismiss()
         }
@@ -59,7 +69,7 @@ private extension RatingFeedbackBottomSheetView {
     @Sendable
     func openKeyboard() async {
         do {
-            try await Task.sleep(for: .milliseconds(350))
+            try await Task.sleep(for: Constants.keyboardOpeningDelay)
         } catch {
             return
         }
@@ -67,13 +77,39 @@ private extension RatingFeedbackBottomSheetView {
         UIApplication.shared.makeOverlayWindowKey()
         isFocused = true
     }
+
+    func perform(_ action: Action) {
+        guard isKeyboardShown else {
+            run(action)
+            return
+        }
+
+        actionAfterKeyboardHides = action
+        isFocused = false
+    }
+
+    func runActionAfterKeyboardHides() {
+        guard let action = actionAfterKeyboardHides else { return }
+
+        actionAfterKeyboardHides = nil
+        run(action)
+    }
+
+    func run(_ action: Action) {
+        switch action {
+        case .close:
+            viewModel.dismiss()
+        case .submit:
+            Task { await viewModel.submit() }
+        }
+    }
 }
 
 private extension RatingFeedbackBottomSheetView {
     // MARK: - Subviews
 
     var header: some View {
-        NavigationBarButton.close(action: viewModel.dismiss)
+        NavigationBarButton.close(action: { perform(.close) })
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding(.trailing, 16)
             .padding(.top, 16)
@@ -135,18 +171,37 @@ private extension RatingFeedbackBottomSheetView {
             isLoading: viewModel.isSubmitting,
             isDisabled: !viewModel.isSubmitEnabled
         ) {
-            Task {
-                await viewModel.submit()
-            }
+            perform(.submit)
         }
         .accessibilityIdentifier(RatingAccessibilityIdentifiers.submitFeedbackButton)
+    }
+}
+
+// MARK: - Action
+
+private extension RatingFeedbackBottomSheetView {
+    enum Action {
+        case close
+        case submit
+    }
+}
+
+// MARK: - Constants
+
+private extension RatingFeedbackBottomSheetView {
+    enum Constants {
+        static let contentFrameUpdateDuration: TimeInterval = 0.5
+        static let keyboardOpeningDelay: Duration = .seconds(contentFrameUpdateDuration) + .milliseconds(100)
     }
 }
 
 // MARK: - Content transition
 
 private extension Animation {
-    static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
+    static let contentFrameUpdate = Animation.curve(
+        .easeInOutRefined,
+        duration: RatingFeedbackBottomSheetView.Constants.contentFrameUpdateDuration
+    )
 }
 
 // MARK: - Keyboard support for FloatingSheet
