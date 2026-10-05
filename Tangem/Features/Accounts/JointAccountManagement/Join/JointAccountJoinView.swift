@@ -215,7 +215,7 @@ private struct JointAccountsNetworkServicePreviewStub: JointAccountsNetworkServi
         throw CancellationError()
     }
 
-    func getJointAccounts() async throws -> JointAccountsRemoteState { .changed([]) }
+    func getJointAccounts(knownETag: String?) async throws -> JointAccountsRemoteState { .changed([], eTag: nil) }
 
     func getInvitePreview(inviteId: String) async throws -> JointAccountInvitePreview {
         JointAccountInvitePreview(

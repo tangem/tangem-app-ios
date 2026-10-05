@@ -23,6 +23,7 @@ final class CommonJointAccountsRepository {
     private let persistentStorage: JointAccountsPersistentStorage
     private let invitesPersistentStorage: JointAccountsInvitesPersistentStorage
     private let pendingOperationsPersistentStorage: JointAccountsPendingOperationsPersistentStorage
+    private let eTagStorage: ETagStorage
     private let isJointAccountsAvailable: Bool
 
     private lazy var autoupdater = JointAccountsRepositoryAutoupdater(innerRepository: self, isJointAccountsAvailable: isJointAccountsAvailable)
@@ -87,6 +88,7 @@ final class CommonJointAccountsRepository {
         persistentStorage: JointAccountsPersistentStorage,
         invitesPersistentStorage: JointAccountsInvitesPersistentStorage,
         pendingOperationsPersistentStorage: JointAccountsPendingOperationsPersistentStorage,
+        eTagStorage: ETagStorage,
         isJointAccountsAvailable: Bool
     ) {
         self.userWalletId = userWalletId
@@ -95,6 +97,7 @@ final class CommonJointAccountsRepository {
         self.persistentStorage = persistentStorage
         self.invitesPersistentStorage = invitesPersistentStorage
         self.pendingOperationsPersistentStorage = pendingOperationsPersistentStorage
+        self.eTagStorage = eTagStorage
         self.isJointAccountsAvailable = isJointAccountsAvailable
 
         // Eager initialization of these lazy properties to ensure that there are no race conditions
@@ -305,10 +308,14 @@ private extension CommonJointAccountsRepository {
     }
 
     func loadJointAccountsFromServerAsync() async throws {
-        let remoteState = try await networkService.getJointAccounts()
+        let eTagKey = ETagStorageKey.jointAccounts(walletId: userWalletId)
+        let hasStoredAccounts = persistentStorage.getList().isNotEmpty
+        let knownETag = hasStoredAccounts ? eTagStorage.loadETag(for: eTagKey) : nil
+
+        let remoteState = try await networkService.getJointAccounts(knownETag: knownETag)
         try Task.checkCancellation()
 
-        guard case .changed(let remoteJointAccounts) = remoteState else {
+        guard case .changed(let remoteJointAccounts, let eTag) = remoteState else {
             // Nothing is written: the storage already holds this very list, and rewriting it would only wake
             // every subscriber for nothing
             JointAccountsLogger.debug("The joint accounts have not changed since they were last read")
@@ -322,9 +329,15 @@ private extension CommonJointAccountsRepository {
         let accounts = remoteJointAccounts.map(StoredJointAccount.init(remote:))
         let pendingOperations = remoteJointAccounts.compactMap(StoredJointAccountPendingOperations.init(remote:))
 
+        eTagStorage.clearETag(for: eTagKey)
+
         // The operations go first, so that an account arriving in the list finds what is in flight for it already there
         try pendingOperationsPersistentStorage.replace(with: pendingOperations)
         try persistentStorage.replace(with: accounts)
+
+        if let eTag {
+            eTagStorage.saveETag(eTag, for: eTagKey)
+        }
     }
 }
 
