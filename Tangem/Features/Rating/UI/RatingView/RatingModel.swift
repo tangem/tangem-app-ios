@@ -29,6 +29,10 @@ struct RatingModel: Sendable {
 
     // MARK: - Public Methods
 
+    func cachedStatus() -> RatingStatus {
+        ratingProvider.cachedStatus(for: transaction.transactionId)
+    }
+
     /// Returns existing rating if already rated, nil otherwise
     func checkExisting() async throws -> Int? {
         try await ratingProvider.checkExisting(for: transaction.transactionId)?.rating
