@@ -25,6 +25,7 @@ final class AccountDetailsViewModel: ObservableObject {
 
     @Published private(set) var accountName: String = ""
     @Published private(set) var accountIcon: AccountModel.Icon = .composite(AccountModelUtils.UI.newAccountIcon())
+    @Published private(set) var jointAccountMembersText: String?
     @Published var alert: AlertBinder?
     @Published var archiveAccountDialogPresented = false
 
@@ -33,6 +34,7 @@ final class AccountDetailsViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let account: any BaseAccountModel
+    private let jointAccount: (any JointAccountModel)?
     private let accountModelsManager: AccountModelsManager
     private weak var coordinator: AccountDetailsRoutable?
 
@@ -48,6 +50,7 @@ final class AccountDetailsViewModel: ObservableObject {
         coordinator: AccountDetailsRoutable
     ) {
         self.account = account
+        jointAccount = account as? any JointAccountModel
         self.accountModelsManager = accountModelsManager
         self.coordinator = coordinator
         actions = AccountDetailsActionsProvider.getAvailableActions(for: account)
@@ -62,6 +65,10 @@ final class AccountDetailsViewModel: ObservableObject {
     }
 
     // MARK: - View data
+
+    var title: String {
+        jointAccount == nil ? Localization.accountDetailsTitle : Localization.commonJointAccount
+    }
 
     var accountIconViewData: AccountIconView.ViewData {
         AccountModelUtils.UI.iconViewData(icon: accountIcon, accountName: accountName)
@@ -121,6 +128,12 @@ final class AccountDetailsViewModel: ObservableObject {
         coordinator?.openSupportedNetworks()
     }
 
+    func openJointAccountMembers() {
+        guard let jointAccount else { return }
+
+        coordinator?.openJointAccountMembers(jointAccount: jointAccount)
+    }
+
     func openManageTokens() {
         Analytics.log(event: .accountSettingsButtonManageTokens, params: getAccountAnalyticsParameters())
         coordinator?.manageTokens()
@@ -153,11 +166,40 @@ final class AccountDetailsViewModel: ObservableObject {
             .withWeakCaptureOf(self)
             .sink { vm, _ in vm.applySnapshot() }
             .store(in: &bag)
+
+        bindJointAccountMembers()
     }
 
     private func applySnapshot() {
         accountName = account.name
         accountIcon = account.icon.erased
+    }
+
+    private func bindJointAccountMembers() {
+        guard let jointAccount else { return }
+
+        Publishers.CombineLatest(
+            jointAccount.didChangePublisher.prepend(()),
+            jointAccount.jointAccountMembersService.slotsPublisher
+        )
+        .map { _, slots in Self.makeMembersText(status: jointAccount.status, slots: slots) }
+        .receiveOnMain()
+        .assign(to: &$jointAccountMembersText)
+    }
+
+    private static func makeMembersText(status: JointAccountStatus, slots: [JointAccountSlot]) -> String? {
+        guard slots.isNotEmpty else {
+            return nil
+        }
+
+        switch status {
+        case .pending:
+            return Localization.accountDetailsJointMembersProgress(slots.members.count, slots.count)
+        case .confirming, .active:
+            return Localization.accountDetailsJointMembersCount(slots.count)
+        case .cancelled, .unknown:
+            return nil
+        }
     }
 
     private func getAccountAnalyticsParameters() -> [Analytics.ParameterKey: String] {

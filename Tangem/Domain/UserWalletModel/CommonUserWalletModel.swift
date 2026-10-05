@@ -16,6 +16,7 @@ import TangemNFT
 import TangemFoundation
 import TangemPay
 import TangemMobileWalletSdk
+import TangemCollectibles
 
 class CommonUserWalletModel {
     // MARK: Services
@@ -406,6 +407,12 @@ extension CommonUserWalletModel: TotalBalanceProvider {
 extension CommonUserWalletModel: AnalyticsContextDataProvider {
     var analyticsContextData: AnalyticsContextData {
         walletInfo.analyticsContextData
+    }
+}
+
+extension CommonUserWalletModel: PromoCampaignIdentityProviding {
+    var promoCampaignIdentity: PromoCampaignIdentity {
+        walletInfo.promoCampaignIdentity
     }
 }
 

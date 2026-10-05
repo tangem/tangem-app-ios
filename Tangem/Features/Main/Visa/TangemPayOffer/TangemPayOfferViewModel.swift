@@ -48,6 +48,17 @@ final class TangemPayOfferViewModel: ObservableObject {
     func getCard() {
         Analytics.log(.visaOnboardingButtonVisaGetCard, analyticsSystems: .all)
 
+        guard FeatureProvider.isAvailable(.tangemPayChooseCountry) else {
+            selectWalletAndAcceptOffer()
+            return
+        }
+
+        coordinator?.openResidency { [weak self] in
+            self?.selectWalletAndAcceptOffer()
+        }
+    }
+
+    func selectWalletAndAcceptOffer() {
         switch walletSelectionType {
         case .single(let id):
             guard

@@ -221,7 +221,7 @@ struct MarketsMainView: View {
                         .padding(.horizontal, 16)
                         .padding(.bottom, Layout.Widgets.verticalContentSpacing)
 
-                        if FeatureProvider.isAvailable(.polymarket) {
+                        if viewModel.isPolymarketAvailable {
                             SwiftUI.Button(action: viewModel.onPolymarketEntranceTap) {
                                 PolymarketEntranceBannerView()
                             }

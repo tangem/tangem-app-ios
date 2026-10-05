@@ -45,11 +45,14 @@ enum IncomingActionConstants {
         static let derivationPath = "derivation_path"
         static let id = "id"
         static let promoCode = "promo_code"
+        static let accountId = "account_id"
     }
 
     enum DeeplinkType: String {
         case incomeTransaction = "income_transaction"
         case onrampStatusUpdate = "onramp_status_update"
         case swapStatusUpdate = "swap_status_update"
+        case jointTxSent = "joint_tx_sent"
+        case jointTx = "joint_tx"
     }
 }

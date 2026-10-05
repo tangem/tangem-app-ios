@@ -16,10 +16,8 @@ struct CollectiblesCoordinatorView: CoordinatorView {
 
     var body: some View {
         content
-            .toolbar(.hidden, for: .navigationBar)
             .background(FeedPopGestureEnabler())
             .navigationLinks(links)
-            .overlay(stories)
     }
 }
 
@@ -58,18 +56,15 @@ private extension CollectiblesCoordinatorView {
         }
     }
 
-    @ViewBuilder
-    var stories: some View {
-        if let viewModel = coordinator.storiesViewModel {
-            CollectiblesStoriesOverlayView(viewModel: viewModel, onDismiss: coordinator.closeStories)
-        }
-    }
-
     var links: some View {
         NavHolder()
             .navigation(item: $coordinator.machineViewModel) { viewModel in
                 CollectiblesMachineView(viewModel: viewModel, onBack: coordinator.closeMachine)
                     .toolbar(.hidden, for: .navigationBar)
+                    .navigation(item: $coordinator.confirmOrderViewModel) { viewModel in
+                        CollectiblesConfirmOrderView(viewModel: viewModel, onBack: coordinator.closeConfirmOrder)
+                            .toolbar(.hidden, for: .navigationBar)
+                    }
             }
     }
 }

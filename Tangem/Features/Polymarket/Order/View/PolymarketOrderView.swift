@@ -75,10 +75,9 @@ struct PolymarketOrderView: View {
                 }
             }
 
-            PolymarketOrderNotificationsView(
-                notifications: viewModel.notifications,
-                onRetry: { viewModel.handleViewAction(.quoteRetryTapped) }
-            )
+            PolymarketOrderNotificationsView(notifications: viewModel.notifications) {
+                viewModel.handleViewAction(.retryQuoteTapped)
+            }
 
             PolymarketOrderSlippageRow(
                 valueText: viewModel.slippageText,
@@ -129,6 +128,7 @@ struct PolymarketOrderView: View {
                 placeholderColor: DesignSystem.Color.textTertiary
             ))
             .alignment(.center)
+            .minTextScale(Constants.amountMinTextScale)
             .focused($isAmountFocused)
     }
 
@@ -166,27 +166,40 @@ struct PolymarketOrderView: View {
 
     private var sellControls: some View {
         HStack(spacing: Constants.sellControlsSpacing) {
-            ForEach(viewModel.amountFractions, id: \.self) { fraction in
-                sellControl(minWidth: Constants.chipMinWidth) {
-                    Text(fraction.title)
+            ForEach(viewModel.amountFractions) { option in
+                sellControl(
+                    minWidth: Constants.chipMinWidth,
+                    isEnabled: viewModel.areFractionsEnabled && option.isEnabled
+                ) {
+                    Text(option.fraction.title)
                         .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                         .lineLimit(1)
                 } action: {
-                    viewModel.handleViewAction(.fractionTapped(fraction))
+                    viewModel.handleViewAction(.fractionTapped(option.fraction))
                 }
                 .frame(maxWidth: .infinity)
             }
 
-            stepButton(DesignSystem.Icons.SignMinus.regular20, step: -1)
+            stepButton(
+                DesignSystem.Icons.SignMinus.regular20,
+                step: -1,
+                label: Constants.decreaseAccessibilityLabel,
+                isEnabled: viewModel.canDecreaseAmount
+            )
 
-            stepButton(DesignSystem.Icons.SignPlus.regular20, step: 1)
+            stepButton(
+                DesignSystem.Icons.SignPlus.regular20,
+                step: 1,
+                label: Constants.increaseAccessibilityLabel,
+                isEnabled: viewModel.canIncreaseAmount
+            )
         }
         .padding(.horizontal, Constants.horizontalPadding)
         .padding(.bottom, Constants.sellControlsBottomPadding)
     }
 
-    private func stepButton(_ icon: ImageType, step: Int) -> some View {
-        sellControl(minWidth: Constants.controlSide) {
+    private func stepButton(_ icon: ImageType, step: Int, label: String, isEnabled: Bool) -> some View {
+        sellControl(minWidth: Constants.controlSide, isEnabled: isEnabled) {
             icon.image
                 .renderingMode(.template)
                 .resizable()
@@ -196,10 +209,12 @@ struct PolymarketOrderView: View {
             viewModel.handleViewAction(.stepTapped(step))
         }
         .frame(width: Constants.controlSide)
+        .accessibilityLabel(label)
     }
 
     private func sellControl(
         minWidth: CGFloat,
+        isEnabled: Bool,
         @ViewBuilder label: () -> some View,
         action: @escaping () -> Void
     ) -> some View {
@@ -210,6 +225,9 @@ struct PolymarketOrderView: View {
                 .contentShape(.capsule)
         }
         .buttonStyle(.plain)
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1 : Constants.disabledControlOpacity)
+        .allowsHitTesting(isEnabled)
     }
 
     // MARK: - Keyboard bar
@@ -218,7 +236,7 @@ struct PolymarketOrderView: View {
     private var keyboardBar: some View {
         if isAmountFocused {
             PolymarketAmountFractionChips(
-                fractions: viewModel.amountFractions,
+                fractions: viewModel.amountFractions.filter(\.isEnabled).map(\.fraction),
                 focused: $isAmountFocused,
                 onSelect: { viewModel.handleViewAction(.fractionTapped($0)) }
             )
@@ -230,7 +248,10 @@ struct PolymarketOrderView: View {
         TangemUI.Button(
             label: viewModel.nextButtonTitle,
             accessibilityLabel: viewModel.nextButtonTitle,
-            action: { viewModel.handleViewAction(.nextTapped) }
+            action: {
+                isAmountFocused = false
+                viewModel.handleViewAction(.nextTapped)
+            }
         )
         .styleType(.default)
         .size(.x12)
@@ -253,9 +274,16 @@ private extension Animation {
 private extension PolymarketOrderView {
     enum Constants {
         static let topBarTopPadding: CGFloat = 8
+        static let amountMinTextScale: CGFloat = 0.5
         static let horizontalPadding: CGFloat = 16
         static let sellControlsSpacing: CGFloat = 4
+        static let disabledControlOpacity: CGFloat = 0.4
         static let chipMinWidth: CGFloat = 56
+        // [REDACTED_TODO_COMMENT]
+        static let decreaseAccessibilityLabel = "Decrease"
+        // [REDACTED_TODO_COMMENT]
+        static let increaseAccessibilityLabel = "Increase"
+
         static let controlSide: CGFloat = 36
         static let stepIconSide: CGFloat = 20
         static let proceedsSkeletonWidth: CGFloat = 140

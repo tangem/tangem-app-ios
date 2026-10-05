@@ -35,6 +35,7 @@ protocol SendSourceToken: SendReceiveToken {
 
     /// Whether the source token belongs to a Tangem Pay (Visa Payment) account.
     var isTangemPayAccount: Bool { get }
+    var jointAccountPolicy: JointAccountPolicy? { get }
 }
 
 extension SendSourceToken {

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemCollectibles
 import Combine
 import TangemAssets
 import TangemSdk
@@ -259,6 +260,12 @@ extension LockedUserWalletModel: UserWalletSerializable {
         // Replacing this with some dummy data may lead to overwrite real data on the disk, therefore do not return anything here.
         // Locked wallets should not be serialized, so this function should not be called, calling this method is a programmer error.
         preconditionFailure("'\(#function)' should not be called for locked wallets")
+    }
+}
+
+extension LockedUserWalletModel: PromoCampaignIdentityProviding {
+    var promoCampaignIdentity: PromoCampaignIdentity {
+        userWallet.walletInfo.promoCampaignIdentity
     }
 }
 

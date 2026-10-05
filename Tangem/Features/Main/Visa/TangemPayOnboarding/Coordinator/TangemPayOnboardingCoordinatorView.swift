@@ -18,5 +18,8 @@ struct TangemPayOnboardingCoordinatorView: CoordinatorView {
                 TangemPayOnboardingView(viewModel: rootViewModel)
             }
         }
+        .fullScreenCover(item: $coordinator.residencyCoordinator) {
+            TangemPayResidencyCoordinatorView(coordinator: $0)
+        }
     }
 }

@@ -55,7 +55,7 @@ final class TangemPayVirtualAccountInfoSheetViewModel: ObservableObject, Floatin
         guard !isLoading else { return }
         isLoading = true
 
-        Analytics.log(isFirstTimeConditions ? .visaVATopupShowDetailsFirstTimeClicked : .visaVATopupShowDetailsClicked)
+        coordinator?.virtualAccountInfoSheetDidTapShowDetails(isFirstTime: isFirstTimeConditions)
 
         switch tangemPayAccount.virtualAccountEntry {
         case .active(let productInstanceId):
