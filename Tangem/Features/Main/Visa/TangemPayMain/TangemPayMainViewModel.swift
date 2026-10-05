@@ -220,8 +220,6 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.tangemPayAssembly) private var tangemPayAssembly: TangemPayAssembly
-    @Injected(\.tangemPayAppleWalletProvisioningAvailabilityProvider)
-    private var appleWalletAvailabilityProvider: TangemPayAppleWalletProvisioningAvailabilityProvider
 
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
@@ -920,15 +918,13 @@ private extension TangemPayMainViewModel {
             .receiveOnMain()
             .assign(to: &$cardEntries)
 
-        Publishers.CombineLatest4(
+        Publishers.CombineLatest3(
             AppSettings.shared.$tangemPayShowAddToApplePayGuide,
             tangemPayAccount.statePublisher,
-            tangemPayAccount.cardsPublisher,
-            appleWalletAvailabilityProvider.isAvailablePublisher
+            tangemPayAccount.cardsPublisher
         )
-        .map { showGuide, customerState, cards, isAppleWalletProvisioningAvailable in
-            !isAppleWalletProvisioningAvailable
-                && PKPaymentAuthorizationViewController.canMakePayments()
+        .map { showGuide, customerState, cards in
+            PKPaymentAuthorizationViewController.canMakePayments()
                 && customerState == .active
                 && showGuide
                 && cards.contains { $0.productInstance.status == .active }
