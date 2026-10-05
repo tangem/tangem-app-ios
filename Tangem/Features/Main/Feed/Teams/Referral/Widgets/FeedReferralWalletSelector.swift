@@ -9,10 +9,10 @@ import SwiftUI
 import Combine
 import TangemAssets
 import TangemFoundation
-import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
-final class FeedReferralWalletSelectorViewModel: ObservableObject, FloatingSheetContentViewModel {
+final class FeedReferralWalletSelectorViewModel: ObservableObject {
     struct Row: Identifiable {
         let item: WalletSelectorItemViewModel
         let isAvailable: Bool
@@ -21,16 +21,13 @@ final class FeedReferralWalletSelectorViewModel: ObservableObject, FloatingSheet
     }
 
     @Published private(set) var rows: [Row]
-    let close: () -> Void
     private var candidatesSubscription: AnyCancellable?
 
     init(
         candidates: [FeedReferralWalletCandidate],
         candidatesPublisher: AnyPublisher<[FeedReferralWalletCandidate], Never>,
-        onSelect: @escaping (UserWalletId) -> Void,
-        close: @escaping () -> Void
+        onSelect: @escaping (UserWalletId) -> Void
     ) {
-        self.close = close
         rows = Self.makeRows(candidates: candidates, onSelect: onSelect)
 
         candidatesSubscription = candidatesPublisher
@@ -64,43 +61,28 @@ struct FeedReferralWalletSelectorView: View {
     @ObservedObject var viewModel: FeedReferralWalletSelectorViewModel
 
     var body: some View {
-        FloatingSheetContentWithHeader(
-            headerConfig: .init(
-                title: Localization.commonChooseWallet,
-                backAction: nil,
-                closeAction: viewModel.close
-            )
-        ) {
-            VStack(spacing: 0) {
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: 0) {
-                        ForEach(viewModel.rows) { row in
-                            WalletSelectorItemView(viewModel: row.item)
-                                .buttonStyle(.plain)
-                                .disabled(!row.isAvailable)
-                                .opacity(row.isAvailable ? 1 : 0.5)
-                                .saturation(row.isAvailable ? 1 : 0)
-                        }
-                    }
-                }
-                .scrollBounceBehavior(.basedOnSize)
-
-                TangemUI.Button(
-                    label: AttributedString(Localization.commonCancel),
-                    accessibilityLabel: Localization.commonCancel,
-                    action: viewModel.close
-                )
-                .styleType(.secondary(.default))
-                .size(.x12)
-                .horizontalLayout(.infinity)
-                .padding(.top, 12)
+        VStack(spacing: 0) {
+            ForEach(viewModel.rows) { row in
+                WalletSelectorItemView(viewModel: row.item)
+                    .buttonStyle(.plain)
+                    .padding(.horizontal, Constants.cellHorizontalPadding)
+                    .disabled(!row.isAvailable)
+                    .opacity(row.isAvailable ? 1 : 0.5)
+                    .saturation(row.isAvailable ? 1 : 0)
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 12)
         }
-        .floatingSheetConfiguration { config in
-            config.sheetBackgroundColor = DesignSystem.Color.bgPrimary
-            config.backgroundInteractionBehavior = .tapToDismiss
-        }
+        .background(DesignSystem.Color.bgTransparentOnMaterialPrimary)
+        .cornerRadiusContinuous(Constants.cornerRadius)
+        .padding(Constants.padding)
+    }
+}
+
+// MARK: - Constants
+
+private extension FeedReferralWalletSelectorView {
+    enum Constants {
+        static let padding: CGFloat = 16
+        static let cornerRadius: CGFloat = 20
+        static let cellHorizontalPadding: CGFloat = 14
     }
 }

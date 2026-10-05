@@ -11,12 +11,14 @@ import SwiftUI
 struct Modal<Header: View, Content: View, Footer: View>: View {
     private let size: ModalSize
     private let contentLayout: ModalContentLayout
+    private let dragIndicator: Visibility
     private let navigation: ModalNavigation?
     private let header: Header
     private let content: Content
     private let footer: Footer
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.dismiss) private var dismiss
 
     @State private var headerHeight: CGFloat = 0
@@ -30,6 +32,7 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
     init(
         size: ModalSize = .flexible,
         contentLayout: ModalContentLayout = .scrollable,
+        dragIndicator: Visibility = .visible,
         navigation: ModalNavigation? = nil,
         @ViewBuilder header: () -> Header = { EmptyView() },
         @ViewBuilder content: () -> Content,
@@ -37,6 +40,7 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
     ) {
         self.size = size
         self.contentLayout = contentLayout
+        self.dragIndicator = dragIndicator
         self.navigation = navigation
         self.header = header()
         self.content = content()
@@ -47,7 +51,7 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
         Group {
             if let navigation {
                 NavigationStack {
-                    layout
+                    barLayout
                         .topNavigation(
                             title: navigation.title,
                             subtitle: navigation.subtitle,
@@ -57,6 +61,7 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
                             onClose: navigation.onClose ?? { dismiss() }
                         )
                 }
+                .environment(\.topNavigationDrawsBarBackground, false)
             } else {
                 layout
             }
@@ -64,56 +69,119 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
         .modifier(ModalDetentModifier(size: size, contentLayout: contentLayout, height: measuredHeight))
         .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 1), value: idealHeight)
         .presentationCornerRadius(cornerRadius)
-        .presentationDragIndicator(.visible)
+        .presentationDragIndicator(dragIndicator)
         .modifier(ModalBackgroundModifier(size: size))
         .presentationBackgroundInteraction(.disabled)
     }
 
     private var layout: some View {
-        GeometryReader { geometry in
+        readingInsets(GeometryReader { geometry in
             let scrollsSheet = contentLayout != .intrinsic
                 && headerHeight + Metrics.minContentHeight + footerBlockHeight + contentBottomInset > geometry.size.height
 
             // Keep one content tree so keyboard and Dynamic Type changes preserve focus and local state.
             ScrollView(contentLayout == .intrinsic || scrollsSheet ? .vertical : []) {
                 VStack(spacing: 0) {
-                    VStack(spacing: 0) {
-                        header
-                    }
-                    .fixedSize(horizontal: false, vertical: true)
-                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { headerHeight = $0 }
+                    headerBlock
 
                     bodyContent
                         .frame(height: bodyHeight(availableHeight: geometry.size.height, scrollsSheet: scrollsSheet))
 
-                    VStack(spacing: 0) {
-                        footer
-                    }
-                    .fixedSize(horizontal: false, vertical: true)
-                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { footerHeight = $0 }
-                    .padding(.bottom, footerBottomInset)
+                    footerBlock
                 }
                 .frame(maxWidth: .infinity, alignment: .top)
             }
             .scrollBounceBehavior(.basedOnSize)
             .scrollDismissesKeyboard(.interactively)
-        }
-        .ignoresSafeArea(.container, edges: .bottom)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background {
-            Color.clear
-                .onGeometryChange(for: CGFloat.self, of: \.safeAreaInsets.bottom) { keyboardAwareBottomInset = $0 }
-        }
-        .background {
-            Color.clear
-                .ignoresSafeArea(.keyboard)
-                .onGeometryChange(for: CGFloat.self, of: \.safeAreaInsets.bottom) { homeIndicatorInset = $0 }
-        }
-        .onGeometryChange(for: CGFloat.self, of: \.safeAreaInsets.top) { topInset in
-            if navigation != nil, topInset > 0 {
-                navigationBarHeight = topInset
+        })
+    }
+
+    /// The scroll view runs right under the navigation bar, so the content scrolls under `barFade`.
+    private var barLayout: some View {
+        readingInsets(
+            VStack(spacing: 0) {
+                headerBlock
+
+                barBody
+
+                footerBlock
             }
+        )
+        .overlay(alignment: .top) {
+            barFade
         }
+    }
+
+    @ViewBuilder
+    private var barBody: some View {
+        switch contentLayout {
+        case .scrollable, .intrinsic:
+            ScrollView(.vertical) {
+                VStack(alignment: .leading, spacing: 0) {
+                    content
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .fixedSize(horizontal: false, vertical: true)
+                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { contentHeight = $0 }
+                .padding(.bottom, contentBottomInset)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+            .scrollDismissesKeyboard(.interactively)
+        case .fill:
+            content
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .safeAreaInset(edge: .bottom, spacing: 0) {
+                    Color.clear.frame(height: contentBottomInset)
+                }
+                .scrollBounceBehavior(.basedOnSize)
+                .scrollDismissesKeyboard(.interactively)
+        }
+    }
+
+    /// Stays on: tinted with the surface color, it blends into the bare surface and only shows over scrolled content.
+    private var barFade: some View {
+        Fade(position: .top)
+            .blurred(!reduceTransparency)
+            .backgroundColor(ModalSurface.fill(isExpanded: size == .full, reduceTransparency: reduceTransparency))
+            .frame(height: navigationBarHeight)
+            .ignoresSafeArea(edges: .top)
+    }
+
+    private var headerBlock: some View {
+        VStack(spacing: 0) {
+            header
+        }
+        .fixedSize(horizontal: false, vertical: true)
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { headerHeight = $0 }
+    }
+
+    private var footerBlock: some View {
+        VStack(spacing: 0) {
+            footer
+        }
+        .fixedSize(horizontal: false, vertical: true)
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { footerHeight = $0 }
+        .padding(.bottom, footerBottomInset)
+    }
+
+    private func readingInsets(_ layout: some View) -> some View {
+        layout
+            .ignoresSafeArea(.container, edges: .bottom)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .background {
+                Color.clear
+                    .onGeometryChange(for: CGFloat.self, of: \.safeAreaInsets.bottom) { keyboardAwareBottomInset = $0 }
+            }
+            .background {
+                Color.clear
+                    .ignoresSafeArea(.keyboard)
+                    .onGeometryChange(for: CGFloat.self, of: \.safeAreaInsets.bottom) { homeIndicatorInset = $0 }
+            }
+            .onGeometryChange(for: CGFloat.self, of: \.safeAreaInsets.top) { topInset in
+                if navigation != nil, topInset > 0 {
+                    navigationBarHeight = topInset
+                }
+            }
     }
 
     @ViewBuilder

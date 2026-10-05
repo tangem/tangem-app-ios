@@ -46,6 +46,7 @@ private struct MainShtorkaCollapsedContentModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .opacity(isCollapsed ? 0 : 1)
+            .animation(.easeInOut(duration: 0.2), value: isCollapsed)
             .allowsHitTesting(!isCollapsed)
             .accessibilityHidden(isCollapsed)
     }
