@@ -84,6 +84,8 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @Published private(set) var contactSupportMessageBannerButton: MessageBannerButton?
 
+    @Published private(set) var virtualAccountBannerState: VirtualAccountBannerState?
+
     @Published private(set) var currentPlanState: CurrentPlanState = .unknown
 
     lazy var cardDeactivatedNotificationInput: NotificationViewInput? = tangemPayAccount.isDeactivated
@@ -423,6 +425,10 @@ final class TangemPayMainViewModel: ObservableObject {
                 )
             }
         )
+    }
+
+    func dismissVirtualAccountFailedBanner() {
+        tangemPayAccount.dismissVirtualAccountCreationFailure()
     }
 
     // MARK: - Multi-card
@@ -819,6 +825,15 @@ private extension TangemPayMainViewModel {
     }
 }
 
+// MARK: - VirtualAccountBannerState
+
+extension TangemPayMainViewModel {
+    enum VirtualAccountBannerState: Equatable {
+        case creating
+        case failed
+    }
+}
+
 // MARK: - SystemDowngradeBanner
 
 extension TangemPayMainViewModel {
@@ -897,6 +912,8 @@ private extension TangemPayMainViewModel {
         bindInlineNotifications()
 
         bindFailedToIssueCardBanner()
+
+        bindVirtualAccountBanner()
 
         bindMultiCard()
     }
@@ -992,6 +1009,28 @@ private extension TangemPayMainViewModel {
                 return [viewModel.makeInlineNotification(for: event)]
             }
             .assign(to: &$inlineNotifications)
+    }
+
+    func bindVirtualAccountBanner() {
+        guard FeatureProvider.isAvailable(.tangemPayOnrampV2) else { return }
+
+        Publishers.CombineLatest(
+            tangemPayAccount.virtualAccountEntryPublisher,
+            tangemPayAccount.virtualAccountCreationFailedPublisher
+        )
+        .map { entry, isCreationFailed -> VirtualAccountBannerState? in
+            switch entry {
+            case .preparing:
+                return .creating
+            case .none where isCreationFailed:
+                return .failed
+            case .none, .active:
+                return nil
+            }
+        }
+        .removeDuplicates()
+        .receiveOnMain()
+        .assign(to: &$virtualAccountBannerState)
     }
 
     func bindFailedToIssueCardBanner() {
