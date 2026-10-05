@@ -15,7 +15,10 @@ import TangemFoundation
 final class JointAccountMemberNameViewModel: ObservableObject {
     @Published var alert: AlertBinder?
     @Published var name: String {
-        didSet { validate(name: name.trimmed()) }
+        didSet {
+            validate(name: name.trimmed())
+            helper.keepDraft(name: name)
+        }
     }
 
     var submitButtonTitle: String { helper.submitButtonTitle }
