@@ -26,6 +26,12 @@ public enum AccountsAccessibilityIdentifiers {
     /// Main action button on the account form screen (Add account / Save).
     public static let accountFormMainButton = "accountFormMainButton"
 
+    public static let feedAddAccountBanner = "feedAddAccountBanner"
+
+    public static let addAccountTypeSelectorCryptoAccountButton = "addAccountTypeSelectorCryptoAccountButton"
+
+    public static let addAccountTypeSelectorJointAccountButton = "addAccountTypeSelectorJointAccountButton"
+
     // MARK: - Wallet Settings
 
     /// "Add account" button in wallet settings accounts section.
