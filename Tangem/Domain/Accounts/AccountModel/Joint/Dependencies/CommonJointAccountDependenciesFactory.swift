@@ -86,7 +86,8 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
         let walletModelsFactory = walletModelsFactoryProvider.makeWalletModelsFactory(
             blockchainSettingsUpdater: blockchainSettingsUpdater,
             userTokensManager: userTokensManager,
-            isSafe: true
+            isSafe: true,
+            isEarnSupported: false
         )
         let wrappedWalletModelsFactory = WalletModelsFactoryWrapper(innerFactory: walletModelsFactory)
 
