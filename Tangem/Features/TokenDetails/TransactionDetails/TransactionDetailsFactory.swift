@@ -98,7 +98,6 @@ enum TransactionDetailsFactory {
                     record: record,
                     context: context,
                     counterpartyLabel: nil,
-                    amountText: transaction.amount.amountWithCurrencyCode,
                     ignoringDirection: true
                 ))
             }
@@ -173,13 +172,12 @@ enum TransactionDetailsFactory {
         isFailed: Bool,
         caption: String?,
         fiatText: String?,
-        icon: TransactionDetailsTokensViewData.Single.Icon,
-        amountText: String? = nil
+        icon: TransactionDetailsTokensViewData.Single.Icon
     ) -> TransactionDetailsTokensViewData {
         TransactionDetailsTokensViewData(
             icon: icon,
             caption: caption,
-            amountText: amountText ?? transaction.amount.amount,
+            amountText: transaction.amount.amountWithCurrencyCode,
             fiatText: fiatText,
             isAmountStrikethrough: isFailed
         )
@@ -194,7 +192,6 @@ enum TransactionDetailsFactory {
         record: TransactionRecord,
         context: TransactionDetailsContext,
         counterpartyLabel: String?,
-        amountText: String? = nil,
         ignoringDirection: Bool
     ) -> TransactionDetailsGenericOperationViewData {
         .init(
@@ -203,8 +200,7 @@ enum TransactionDetailsFactory {
                 isFailed: isFailed(record: record),
                 caption: nil,
                 fiatText: nil,
-                icon: .token(context.tokenIconInfo),
-                amountText: amountText
+                icon: .token(context.tokenIconInfo)
             ),
             // On-chain operations don't get a live status banner (that's an Express-only transition)
             statusBanner: nil,
@@ -250,8 +246,7 @@ enum TransactionDetailsFactory {
                 isFailed: isFailed,
                 caption: Localization.transactionHistoryApprovedAmount,
                 fiatText: nil,
-                icon: approvedTokenIcon(for: record, context: context),
-                amountText: transaction.amount.amountWithCurrencyCode
+                icon: approvedTokenIcon(for: record, context: context)
             ),
             statusBanner: isFailed ? nil : highRiskBanner(for: record),
             principalAmount: nil,
