@@ -28,7 +28,8 @@ final class FeedCoordinator: CoordinatorObject {
 
     private(set) var container: (any FeedContainer)?
 
-    private let widgetSheetPresenter = FeedWidgetSheetPresenter()
+    let widgetSheetPresenter = FeedWidgetSheetPresenter()
+
     private var pendingDestination: FeedDestination?
     private var presentationDismissAction: (() -> Void)?
     private var pendingPresentationDismissActions: [() -> Void] = []
@@ -190,7 +191,8 @@ private extension FeedCoordinator {
 
                 // Keep search behind a child screen so Back can restore it after the sheet expands.
                 guard size != .full, coordinator.path.isEmpty,
-                      coordinator.presented == nil, coordinator.cover == nil else { return }
+                      coordinator.presented == nil, coordinator.cover == nil,
+                      coordinator.widgetSheetPresenter.walletSelector == nil else { return }
 
                 coordinator.rootViewModel?.resetSavedScrollPositions()
                 coordinator.rootViewModel?.searchViewModel.reset()
@@ -210,7 +212,7 @@ private extension FeedCoordinator {
     /// itself: once it is gone, the screens it held go with it instead of living on until the main screen is rebuilt.
     func dropRoutes() {
         pendingDestination = nil
-        guard path.isNotEmpty || presented != nil || cover != nil || modal != nil else {
+        guard path.isNotEmpty || presented != nil || cover != nil || modal != nil || widgetSheetPresenter.walletSelector != nil else {
             return
         }
 
@@ -218,6 +220,7 @@ private extension FeedCoordinator {
             path.removeAll()
             dismissPresented()
             modal = nil
+            widgetSheetPresenter.dropWalletSelector()
             rootViewModel?.searchViewModel.reset()
         }
     }

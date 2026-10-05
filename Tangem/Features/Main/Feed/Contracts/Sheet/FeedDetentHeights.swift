@@ -118,7 +118,9 @@ private extension FeedDetentHeights {
     }
 
     func updateContentVisibility() {
-        let isCollapsed = sheetHeight <= collapsed + 1
+        // Two thresholds, so the settling spring cannot flip the content back and forth.
+        let margin = isContentCollapsed ? Constants.expandingMargin : Constants.collapsingMargin
+        let isCollapsed = sheetHeight <= collapsed + margin
         if isCollapsed != isContentCollapsed {
             isContentCollapsed = isCollapsed
         }
@@ -150,5 +152,7 @@ private extension FeedDetentHeights {
 private extension FeedDetentHeights {
     enum Constants {
         static let surfaceFadeCompletion: CGFloat = 0.9
+        static let collapsingMargin: CGFloat = 24
+        static let expandingMargin: CGFloat = 40
     }
 }
