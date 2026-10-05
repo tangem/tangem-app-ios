@@ -12,10 +12,6 @@ import BlockchainSdk
 /// must not — the gasless fee and the legs of a Yield contract. Both are recognized on their own terms, a swap
 /// only by what Express reports about the whole transaction, so leaving them in would let the swap claim them
 /// as its content.
-///
-/// What is taken out keeps a row of its own: the fee the relayer charged is not part of what the user moved,
-/// and entering Yield mode, leaving it or withdrawing from Aave are operations the history names in their own
-/// words.
 struct TransactionHistoryTransferClassifier {
     private let smartContractMethodMapper: SmartContractMethodMapper
     private let gaslessFeeMatcher: GaslessTransactionFeeMatcher
@@ -30,27 +26,22 @@ struct TransactionHistoryTransferClassifier {
 
     func classify(
         _ records: [TransactionRecord]
-    ) -> (standalone: [TransactionRecord], mergeable: [TransactionRecord]) {
+    ) -> (standalone: [TransactionRecord], mergeable: [TransactionRecord], gaslessFees: [TransactionRecord]) {
         var standalone: [TransactionRecord] = []
         var mergeable: [TransactionRecord] = []
+        var gaslessFees: [TransactionRecord] = []
 
         for record in records {
-            if isTakenOutOfTheMerge(record) {
+            if gaslessFeeMatcher.isNetworkFeeTransfer(record) {
+                gaslessFees.append(record)
+            } else if record.isFromYieldContract || isYieldModeSwitch(record) {
                 standalone.append(record)
             } else {
                 mergeable.append(record)
             }
         }
 
-        return (standalone: standalone, mergeable: mergeable)
-    }
-
-    private func isTakenOutOfTheMerge(_ record: TransactionRecord) -> Bool {
-        if gaslessFeeMatcher.isNetworkFeeTransfer(record) {
-            return true
-        }
-
-        return record.isFromYieldContract || isYieldModeSwitch(record)
+        return (standalone: standalone, mergeable: mergeable, gaslessFees: gaslessFees)
     }
 
     private func isYieldModeSwitch(_ record: TransactionRecord) -> Bool {

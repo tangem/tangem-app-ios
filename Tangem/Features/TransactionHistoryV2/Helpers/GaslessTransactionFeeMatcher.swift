@@ -7,13 +7,9 @@
 
 import Foundation
 import BlockchainSdk
+import TangemFoundation
 
 /// Recognizes the transfer that pays for a gasless transaction.
-///
-/// The relayer takes its cut as one more token transfer inside the very transaction it sponsors, so nothing in
-/// the record itself marks it as a fee — only the executor method paired with the collector it pays tells it
-/// from the transfer the user meant to make. Both halves are required: `send` moves tokens into Yield mode just
-/// as well, and it is the collector on the other end that makes such a transfer a fee.
 struct GaslessTransactionFeeMatcher {
     private let smartContractMethodMapper: SmartContractMethodMapper
 
@@ -31,6 +27,10 @@ struct GaslessTransactionFeeMatcher {
     }
 
     func isNetworkFeeTransfer(_ record: TransactionRecord) -> Bool {
+        if isTronCompensation(record) {
+            return true
+        }
+
         guard isGaslessMethod(record.type) else {
             return false
         }
@@ -39,16 +39,40 @@ struct GaslessTransactionFeeMatcher {
             || serviceFeeRecipientAddress.map(record.hasDestination(address:)) == true
     }
 
-    private func isGaslessMethod(_ type: TransactionRecord.TransactionType) -> Bool {
+    static func isExecutorCall(_ type: TransactionRecord.TransactionType) -> Bool {
         switch type {
         case .contractMethodIdentifier(let id):
-            return smartContractMethodMapper.getName(for: id) == Constants.mappedGaslessMethodName
-                || Constants.methodIds.contains { $0.caseInsensitiveCompare(id) == .orderedSame }
+            return Constants.executorMethodIds.contains { $0.caseInsensitiveEquals(to: id) }
         case .contractMethodName(let name):
             return name == Constants.mappedGaslessMethodName
         case .transfer, .staking, .approve:
             return false
         }
+    }
+
+    private func isGaslessMethod(_ type: TransactionRecord.TransactionType) -> Bool {
+        if Self.isExecutorCall(type) {
+            return true
+        }
+
+        guard case .contractMethodIdentifier(let id) = type else {
+            return false
+        }
+
+        return smartContractMethodMapper.getName(for: id) == Constants.mappedGaslessMethodName
+            || Constants.yieldSendMethodId.caseInsensitiveEquals(to: id)
+    }
+
+    private func isTronCompensation(_ record: TransactionRecord) -> Bool {
+        guard
+            record.isOutgoing,
+            case .transfer = record.type,
+            case .single(let destination) = record.destination
+        else {
+            return false
+        }
+
+        return Constants.tronFeeRecipientAddresses.contains(destination.address.string)
     }
 }
 
@@ -61,13 +85,18 @@ private extension GaslessTransactionFeeMatcher {
             "0xAf722F46145fbb106379d506ED3a5B96f110c8E5",
         ]
 
-        static let methodIds = [
+        static let executorMethodIds = [
             "0x6234d42b",
             "0x4b072692",
             "0xf9b181bf",
-            "0x0779afe6",
         ]
 
+        static let yieldSendMethodId = "0x0779afe6"
+
         static let mappedGaslessMethodName = "gaslessTransaction"
+
+        static let tronFeeRecipientAddresses = [
+            "TSWsmaEDgWaE2VsP9tCBGh5GbBRbrdHSuZ",
+        ]
     }
 }
