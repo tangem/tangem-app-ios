@@ -624,6 +624,21 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func addNewSingleCurrencyWallet(name: CardMockAccessibilityIdentifiers, walletName: String) -> Self {
+        XCTContext.runActivity(named: "Add new single-currency wallet: \(name.rawValue)") { _ in
+            openDetails()
+                .tapAddNewWallet()
+                .tapHardwareWallet()
+
+            selectMockCardFromScannerAlert(name: name)
+
+            let header = app.staticTexts[walletName].firstMatch
+            waitAndAssertTrue(header, "Single-currency wallet '\(walletName)' should be selected after adding")
+            return self
+        }
+    }
+
+    @discardableResult
     func forgetWallet(_ name: String) -> DetailsScreen {
         XCTContext.runActivity(named: "Forget wallet \(name)") { _ in
             openDetails()
