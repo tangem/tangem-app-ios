@@ -231,10 +231,14 @@ extension JointAccountManagementCoordinator: JointAccountInviteMembersRoutable {
         }
     }
 
-    func openActivationConfirmation(onConfirm: @escaping () -> Void) {
+    func openActivationConfirmation(hasNFCInteraction: Bool, onConfirm: @escaping () -> Void) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(
-                sheet: JointAccountActivationConfirmationViewModel(onConfirm: onConfirm, coordinator: self)
+                sheet: JointAccountActivationConfirmationViewModel(
+                    hasNFCInteraction: hasNFCInteraction,
+                    onConfirm: onConfirm,
+                    coordinator: self
+                )
             )
         }
     }
