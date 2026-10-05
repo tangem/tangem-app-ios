@@ -16,7 +16,9 @@
         "identifier" : "5D3F77C124BF56D800E8695B",
         "name" : "Tangem"
       }
-    ]
+    ],
+    "language" : "en",
+    "region" : "US"
   },
   "testTargets" : [
     {

@@ -175,7 +175,7 @@ struct TransactionHistoryMapperYieldTests {
     func sheetAmountTickerFollowsTheNumber() {
         let viewModel = makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldEnter"))
 
-        #expect(viewModel.amount.amountWithCurrencyCode == "\(BalanceFormatter().formatDecimal(2)) ETH")
+        #expect(viewModel.amount.amountWithCurrencyCode == "2.00\u{a0}ETH")
     }
 
     @Test("The details sheet signs Supply and Withdraw the same way the row does")
@@ -183,8 +183,8 @@ struct TransactionHistoryMapperYieldTests {
         let supply = makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldTopup"))
         let withdraw = makeSUT().mapTransactionViewModel(makeWithdrawRecord())
 
-        #expect(supply.amount.amountWithCurrencyCode == "\(AppConstants.plusSign)\(BalanceFormatter().formatDecimal(2)) ETH")
-        #expect(withdraw.amount.amountWithCurrencyCode == "\(AppConstants.minusSign)\(BalanceFormatter().formatDecimal(2)) ETH")
+        #expect(supply.amount.amountWithCurrencyCode == "+\u{a0}2.00\u{a0}ETH")
+        #expect(withdraw.amount.amountWithCurrencyCode == "−\u{a0}2.00\u{a0}ETH")
     }
 
     // MARK: - Approve
