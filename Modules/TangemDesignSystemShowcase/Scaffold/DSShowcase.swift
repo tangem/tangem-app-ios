@@ -23,6 +23,8 @@ struct DSShowcase<Controls: View, Stage: View, Matrix: View>: View {
     @State private var mode: Mode = .live
     @State private var environment: DSShowcaseEnvironment
 
+    @Environment(\.dsShowcaseVersion) private var version
+
     init(
         _ title: String,
         layout: DSShowcaseLayout = .scroll,
@@ -68,6 +70,15 @@ struct DSShowcase<Controls: View, Stage: View, Matrix: View>: View {
             .background(DesignSystem.Color.bgSecondary.ignoresSafeArea())
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                if let version {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Text(verbatim: "v\(version)")
+                            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                            .monospacedDigit()
+                    }
+                }
+            }
     }
 
     @ViewBuilder

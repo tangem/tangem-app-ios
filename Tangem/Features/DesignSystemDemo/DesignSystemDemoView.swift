@@ -46,10 +46,14 @@ struct DesignSystemDemoView: View {
                 .padding(.horizontal, 4)
 
             ForEach(section.entries) { entry in
-                MainButton(title: entry.title) {
+                MainButton(title: listTitle(entry)) {
                     selectedEntry = entry
                 }
             }
         }
+    }
+
+    private func listTitle(_ entry: DemoEntry) -> String {
+        entry.version.map { "\(entry.title)  v\($0)" } ?? entry.title
     }
 }
