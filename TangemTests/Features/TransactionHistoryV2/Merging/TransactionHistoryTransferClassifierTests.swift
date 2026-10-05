@@ -23,9 +23,10 @@ struct TransactionHistoryTransferClassifierTests {
     func everyGaslessMethodPayingACollectorIsExtracted(methodId: String) {
         let fee = transfer(index: 0, from: Self.owner, to: Self.knownCollector, amount: 1, methodId: methodId)
 
-        let (standalone, mergeable) = makeClassifier().classify([fee])
+        let (standalone, mergeable, gaslessFees) = makeClassifier().classify([fee])
 
-        #expect(standalone == [fee])
+        #expect(gaslessFees == [fee])
+        #expect(standalone.isEmpty)
         #expect(mergeable.isEmpty)
     }
 
@@ -36,7 +37,7 @@ struct TransactionHistoryTransferClassifierTests {
     func everyKnownCollectorIsRecognized(collector: String) {
         let fee = transfer(index: 0, from: Self.owner, to: collector, amount: 1, methodId: Self.gaslessMethodId)
 
-        #expect(makeClassifier().classify([fee]).standalone == [fee])
+        #expect(makeClassifier().classify([fee]).gaslessFees == [fee])
     }
 
     @Test("A collector deployed after the release still gets recognized once the service names it")
@@ -46,18 +47,19 @@ struct TransactionHistoryTransferClassifierTests {
         let extractedWithoutService = makeClassifier(serviceFeeRecipientAddress: nil).classify([fee])
         let extractedWithService = makeClassifier(serviceFeeRecipientAddress: Self.serviceCollector).classify([fee])
 
-        #expect(extractedWithoutService.standalone.isEmpty)
-        #expect(extractedWithService.standalone == [fee])
+        #expect(extractedWithoutService.gaslessFees.isEmpty)
+        #expect(extractedWithService.gaslessFees == [fee])
     }
 
-    @Test("The fee keeps a row of its own, the transfer it paid for is merged without it")
+    @Test("The fee is set aside, the transfer it paid for is merged without it")
     func theFeeIsTakenOutOfTheTransaction() {
         let payment = transfer(index: 0, from: Self.owner, to: Self.pool, amount: 10, methodId: Self.gaslessMethodId)
         let fee = transfer(index: 1, from: Self.owner, to: Self.knownCollector, amount: 1, methodId: Self.gaslessMethodId)
 
-        let (standalone, mergeable) = makeClassifier().classify([payment, fee])
+        let (standalone, mergeable, gaslessFees) = makeClassifier().classify([payment, fee])
 
-        #expect(standalone == [fee])
+        #expect(gaslessFees == [fee])
+        #expect(standalone.isEmpty)
         #expect(mergeable == [payment])
     }
 
@@ -74,10 +76,21 @@ struct TransactionHistoryTransferClassifierTests {
         )
         let plainTransferToACollector = transfer(index: 1, from: Self.owner, to: Self.knownCollector, amount: 1)
 
-        let (standalone, mergeable) = makeClassifier().classify([gaslessTransferElsewhere, plainTransferToACollector])
+        let (standalone, mergeable, gaslessFees) = makeClassifier().classify([gaslessTransferElsewhere, plainTransferToACollector])
 
+        #expect(gaslessFees.isEmpty)
         #expect(standalone.isEmpty)
         #expect(mergeable == [gaslessTransferElsewhere, plainTransferToACollector])
+    }
+
+    /// The relayer sends what goes through the executor and pays its gas, while the Yield module's `send` is signed
+    /// and paid for by the wallet even when a gasless fee is taken from it.
+    @Test(
+        "Only a call through the executor was sent and paid for by the relayer",
+        arguments: zip(["0x6234d42b", "0x4b072692", "0xf9b181bf", "0x0779afe6"], [true, true, true, false])
+    )
+    func onlyTheExecutorIsRelayed(methodId: String, isExecutorCall: Bool) {
+        #expect(GaslessTransactionFeeMatcher.isExecutorCall(.contractMethodIdentifier(id: methodId)) == isExecutorCall)
     }
 
     // MARK: - Yield mode
@@ -91,7 +104,7 @@ struct TransactionHistoryTransferClassifierTests {
         let yieldModeSwitch = transfer(index: 0, from: Self.owner, to: Self.aave, amount: 5, methodId: methodId)
         let ordinaryCall = transfer(index: 1, from: Self.owner, to: Self.pool, amount: 5, methodId: "0xe21fd0e9")
 
-        let (standalone, mergeable) = makeClassifier().classify([yieldModeSwitch, ordinaryCall])
+        let (standalone, mergeable, _) = makeClassifier().classify([yieldModeSwitch, ordinaryCall])
 
         #expect(standalone == [yieldModeSwitch])
         #expect(mergeable == [ordinaryCall])
@@ -102,7 +115,7 @@ struct TransactionHistoryTransferClassifierTests {
         let withdrawal = transfer(index: 0, from: Self.aave, to: Self.owner, amount: 20, isFromYieldContract: true)
         let payment = transfer(index: 1, from: Self.owner, to: Self.pool, amount: 20)
 
-        let (standalone, mergeable) = makeClassifier().classify([withdrawal, payment])
+        let (standalone, mergeable, _) = makeClassifier().classify([withdrawal, payment])
 
         #expect(standalone == [withdrawal])
         #expect(mergeable == [payment])
@@ -110,13 +123,13 @@ struct TransactionHistoryTransferClassifierTests {
 
     // MARK: - Wiring
 
-    @Test("The history that reaches the screen folds the gasless transaction and keeps its fee beside it")
+    @Test("The history that reaches the screen folds the gasless transaction into one row that carries its fee")
     func theMergeRoutineFoldsAGaslessTransaction() throws {
-        let token = ExpressMergeTestDataFactory.ethereumToken
+        let token = ExpressMergeTestDataFactory.ethereumUSDTToken
         let merger = ExpressMergeTestDataFactory.makeMerger(
             currentToken: token,
             ownerAddress: Self.owner,
-            feeTokenItem: token
+            feeTokenItem: ExpressMergeTestDataFactory.ethereumToken
         )
 
         let output = merger.merge(
@@ -129,13 +142,73 @@ struct TransactionHistoryTransferClassifierTests {
             onrampTransactions: []
         )
 
-        #expect(output.count == 2)
-
-        let folded = try #require(output.first { !$0.hasDestination(address: Self.knownCollector) })
+        let folded = try #require(output.singleElement)
         #expect(try #require(folded.source.sources.singleElement).amount == 15)
+        #expect(folded.fee.amount.value == 1)
+        #expect(folded.fee.amount.currencySymbol == "USDT")
+    }
 
-        let fee = try #require(output.first { $0.hasDestination(address: Self.knownCollector) })
-        #expect(try #require(fee.destination.destinations.singleElement).amount == 1)
+    /// Paying the fee in a token other than the one sent leaves nothing but the fee in this token's history.
+    @Test("A fee its transaction left alone in the history keeps a row of its own")
+    func aLoneGaslessFeeKeepsItsRow() throws {
+        let token = ExpressMergeTestDataFactory.ethereumUSDTToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: Self.owner,
+            feeTokenItem: ExpressMergeTestDataFactory.ethereumToken
+        )
+        let fee = transfer(index: 0, from: Self.owner, to: Self.knownCollector, amount: 1, methodId: Self.gaslessMethodId)
+
+        let output = merger.merge(bsdkTransactions: [fee], exchangeTransactions: [], onrampTransactions: [])
+
+        #expect(output == [fee])
+    }
+
+    /// A gasless send from Yield mode withdraws both what it sends and what it pays from Aave, all in one
+    /// transaction: the send row carries the fee, and each withdrawal stays a row of its own.
+    @Test("A gasless send from Yield mode is the send with its fee and the withdrawals that funded it")
+    func aGaslessYieldSendKeepsItsWithdrawalsAndCarriesItsFee() throws {
+        let token = ExpressMergeTestDataFactory.ethereumUSDTToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: Self.owner,
+            feeTokenItem: ExpressMergeTestDataFactory.ethereumToken
+        )
+        let sendWithdrawal = transfer(
+            index: 0,
+            from: Self.aave,
+            to: Self.owner,
+            amount: 0.03,
+            methodId: Self.gaslessMethodId,
+            isFromYieldContract: true
+        )
+        let send = transfer(index: 1, from: Self.owner, to: Self.pool, amount: 0.03, methodId: Self.gaslessMethodId)
+        let feeWithdrawal = transfer(
+            index: 2,
+            from: Self.aave,
+            to: Self.owner,
+            amount: 0.087865,
+            methodId: Self.gaslessMethodId,
+            isFromYieldContract: true
+        )
+        let fee = transfer(index: 3, from: Self.owner, to: Self.knownCollector, amount: 0.022519, methodId: Self.gaslessMethodId)
+
+        let output = merger.merge(
+            bsdkTransactions: [sendWithdrawal, send, feeWithdrawal, fee],
+            exchangeTransactions: [],
+            onrampTransactions: []
+        )
+
+        #expect(output.count == 3)
+        #expect(!output.contains { $0.hasDestination(address: Self.knownCollector) })
+
+        let sendRow = try #require(output.first { $0.isOutgoing })
+        #expect(sendRow.fee.amount.value == 0.022519)
+        #expect(sendRow.fee.amount.currencySymbol == "USDT")
+
+        let withdrawals = output.filter(\.isFromYieldContract)
+        #expect(withdrawals.count == 2)
+        #expect(withdrawals.allSatisfy { $0.fee == ExpressMergeTestDataFactory.ethereumToken.zeroFee })
     }
 
     /// The money a withdrawal frees is spent by the very transaction that freed it, so folding the two together
