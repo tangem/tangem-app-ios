@@ -88,6 +88,7 @@ extension CommonWalletModel {
             tokenItem: tokenItem,
             walletManager: walletManager,
             stakingManager: StakingManagerMock(),
+            isYieldModuleSupported: true,
             featureManager: WalletModelFeaturesManagerMock(),
             transactionHistoryUpdater: TransactionHistoryUpdater(),
             transactionHistoryService: PreviewTransactionHistoryService(records: history),
