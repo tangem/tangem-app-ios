@@ -12,7 +12,6 @@ import TangemPay
 final class CommonTangemPayAssembly: TangemPayAssembly {
     let customerWalletAddressAndSavedTokensResolver: TangemPayCustomerWalletAddressAndSavedTokensResolver
         = CommonTangemPayCustomerWalletAddressAndSavedTokensResolver()
-    let cardTokenizationService: TangemPayCardTokenizationService = CommonTangemPayCardTokenizationService()
 
     func makeCardDetailsRepository(for card: TangemPayCard) -> TangemPayCardDetailsRepository {
         CommonTangemPayCardDetailsRepository(card: card)
