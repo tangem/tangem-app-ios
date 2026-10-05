@@ -42,7 +42,6 @@ enum Feature: String, Hashable, CaseIterable {
     case tangemPayCustomCards
     case mcp
     case tangemPayChooseCountry
-    case tangemPayAppleWalletProvisioning
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -81,7 +80,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayCustomCards: return "TWI-1727_tangem_pay_custom_cards"
         case .mcp: return "TWI-1721_mcp"
         case .tangemPayChooseCountry: return "TWI-1771_choose_country"
-        case .tangemPayAppleWalletProvisioning: return "TWI-1062_apple_wallet_push_provisioning"
         }
     }
 
@@ -120,7 +118,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayCustomCards: return .version("6.4")
         case .mcp: return .unspecified
         case .tangemPayChooseCountry: return .version("6.5")
-        case .tangemPayAppleWalletProvisioning: return .unspecified
         }
     }
 }

@@ -22,12 +22,7 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     @Published var selectedCardId: String?
 
     @Published private(set) var contentState: ContentState = .details(
-        ContentState.Details(
-            freezingState: .unavailable,
-            dailyLimitState: nil,
-            showsAddToApplePayGuide: false,
-            showsAddToAppleWalletButton: false
-        )
+        ContentState.Details(freezingState: .unavailable, dailyLimitState: nil, showsAddToApplePayGuide: false)
     )
     @Published private(set) var cardRenameViewModel: TangemPayCardRenameViewModel?
     @Published private(set) var closeCardRow: DefaultRowViewModel?
@@ -43,10 +38,6 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     private let tangemPayAccount: TangemPayAccount
     @Injected(\.tangemPayAssembly) private var tangemPayAssembly: TangemPayAssembly
     private lazy var biometryAuthorizer: TangemPayBiometryAuthorizer = tangemPayAssembly.makeBiometryAuthorizer()
-    private lazy var appleWalletInteractor = TangemPayAppleWalletProvisioningInteractor(
-        userWalletId: userWalletInfo.id,
-        tokenizationService: tangemPayAssembly.cardTokenizationService
-    )
     private weak var coordinator: TangemPayCardManagementRoutable?
 
     private var bag = Set<AnyCancellable>()
@@ -63,9 +54,6 @@ final class TangemPayCardManagementViewModel: ObservableObject {
 
     private var selectionAnchor: SelectionAnchor?
     private var shouldOpenActivation: Bool
-
-    @Injected(\.tangemPayAppleWalletProvisioningAvailabilityProvider)
-    private var appleWalletAvailabilityProvider: TangemPayAppleWalletProvisioningAvailabilityProvider
 
     init(
         userWalletInfo: UserWalletInfo,
@@ -88,8 +76,7 @@ final class TangemPayCardManagementViewModel: ObservableObject {
             selectedCardId: initialEntry.id,
             renameViewModel: nil,
             lifecycle: initialEntry.card.map(makeLifecycle(for:)),
-            showsAddToApplePayGuide: false,
-            showsAddToAppleWalletButton: false
+            showsAddToApplePayGuide: false
         )
 
         bindMultiCard()
@@ -97,7 +84,6 @@ final class TangemPayCardManagementViewModel: ObservableObject {
 
     func onAppear() {
         Analytics.log(.visaCardManagementScreenOpened, contextParams: .userWallet(userWalletInfo.id))
-        appleWalletInteractor.refresh()
 
         if shouldOpenActivation {
             shouldOpenActivation = false
@@ -131,12 +117,6 @@ final class TangemPayCardManagementViewModel: ObservableObject {
             ),
             coordinator: self
         )
-    }
-
-    func addToAppleWallet() {
-        let cards = tangemPayAccount.cards
-        guard let cardIndex = cards.firstIndex(where: { $0.cardId == selectedCardId }) else { return }
-        appleWalletInteractor.addToWallet(card: cards[cardIndex], cardIndex: cardIndex)
     }
 
     func dismissAddToApplePayGuideBanner() {
@@ -228,29 +208,20 @@ private extension TangemPayCardManagementViewModel {
             $cardRenameViewModel,
             selectedCardLifecyclePublisher
         )
-        .combineLatest(addToApplePayGuidePublisher, addToAppleWalletButtonPublisher)
+        .combineLatest(addToApplePayGuidePublisher)
         .withWeakCaptureOf(self)
         .map { viewModel, input in
-            let ((entries, selectedCardId, renameViewModel, lifecycle), showsAddToApplePayGuide, showsAddToAppleWalletButton) = input
+            let ((entries, selectedCardId, renameViewModel, lifecycle), showsAddToApplePayGuide) = input
             return viewModel.makeContentState(
                 entries: entries,
                 selectedCardId: selectedCardId,
                 renameViewModel: renameViewModel,
                 lifecycle: lifecycle,
-                showsAddToApplePayGuide: showsAddToApplePayGuide,
-                showsAddToAppleWalletButton: showsAddToAppleWalletButton
+                showsAddToApplePayGuide: showsAddToApplePayGuide
             )
         }
         .receiveOnMain()
         .assign(to: &$contentState)
-
-        appleWalletInteractor.alertPublisher
-            .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, alert in
-                viewModel.alert = alert
-            }
-            .store(in: &bag)
 
         selectedCardFreezingPublisher
             .receiveOnMain()
@@ -327,37 +298,15 @@ private extension TangemPayCardManagementViewModel {
     }
 
     var addToApplePayGuidePublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest3(
+        Publishers.CombineLatest(
             AppSettings.shared.$tangemPayShowAddToApplePayGuide,
-            tangemPayAccount.statePublisher,
-            appleWalletAvailabilityProvider.isAvailablePublisher
+            tangemPayAccount.statePublisher
         )
-        .map { showGuide, customerState, isAppleWalletProvisioningAvailable in
-            !isAppleWalletProvisioningAvailable
-                && PKPaymentAuthorizationViewController.canMakePayments()
+        .map { showGuide, customerState in
+            PKPaymentAuthorizationViewController.canMakePayments()
                 && customerState == .active
                 && showGuide
         }
-        .eraseToAnyPublisher()
-    }
-
-    var addToAppleWalletButtonPublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest(
-            appleWalletAvailabilityProvider.isAvailablePublisher,
-            Publishers.CombineLatest4(
-                $selectedCardId,
-                tangemPayAccount.statePublisher,
-                tangemPayAccount.cardsPublisher,
-                appleWalletInteractor.refreshPublisher
-            )
-        )
-        .withWeakCaptureOf(self)
-        .asyncMap { viewModel, input -> Bool in
-            let (isAvailable, (selectedCardId, customerState, cards, _)) = input
-            guard isAvailable, let cardIndex = cards.firstIndex(where: { $0.cardId == selectedCardId }) else { return false }
-            return await viewModel.appleWalletInteractor.isEligible(cards[cardIndex], cardIndex: cardIndex, customerState: customerState)
-        }
-        .prepend(false)
         .eraseToAnyPublisher()
     }
 
@@ -389,8 +338,7 @@ private extension TangemPayCardManagementViewModel {
         selectedCardId: String?,
         renameViewModel: TangemPayCardRenameViewModel?,
         lifecycle: CardLifecycle?,
-        showsAddToApplePayGuide: Bool,
-        showsAddToAppleWalletButton: Bool
+        showsAddToApplePayGuide: Bool
     ) -> ContentState {
         if let renameViewModel {
             return .renaming(renameViewModel)
@@ -418,8 +366,7 @@ private extension TangemPayCardManagementViewModel {
             ContentState.Details(
                 freezingState: lifecycle?.freezingState ?? .unavailable,
                 dailyLimitState: lifecycle?.dailyLimitState,
-                showsAddToApplePayGuide: showsAddToApplePayGuide,
-                showsAddToAppleWalletButton: showsAddToAppleWalletButton
+                showsAddToApplePayGuide: showsAddToApplePayGuide
             )
         )
     }
