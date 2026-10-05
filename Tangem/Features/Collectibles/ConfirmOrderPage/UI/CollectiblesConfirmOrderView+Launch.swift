@@ -48,6 +48,7 @@ extension CollectiblesConfirmOrderView {
 
     enum Launch {
         static let dipDuration: Duration = .milliseconds(260)
+        static let launchDuration: Duration = .milliseconds(460)
         static let exitOffset: CGFloat = 120
 
         static let dip: Animation = .timingCurve(0.4, 0, 1, 1, duration: 0.26)
@@ -55,5 +56,7 @@ extension CollectiblesConfirmOrderView {
         static let packFade: Animation = .linear(duration: 0.276).delay(0.184)
         static let buttonExit: Animation = .timingCurve(0.4, 0, 1, 1, duration: 0.32)
         static let rowsExit: Animation = buttonExit.delay(0.09)
+        static let revealVideoAppearance: Animation = .easeIn(duration: 0.2)
+        static let navigationBarFade: Animation = .easeInOut(duration: 0.2)
     }
 }

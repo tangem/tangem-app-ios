@@ -30,6 +30,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     // MARK: - Publishers
 
     @Published private(set) var buttonState: ButtonState = .balanceLoading
+    @Published private(set) var revealViewModel: CollectiblesPackRevealViewModel?
 
     // MARK: - Init
 
@@ -80,6 +81,11 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         Task { [weak self] in
             // [REDACTED_TODO_COMMENT]
             try await Task.sleep(for: .seconds(1.5))
+            // [REDACTED_TODO_COMMENT]
+            self?.revealViewModel = CollectiblesPackRevealViewModel(
+                videoURL: Bundle.main.url(forResource: "CollectiblesPackReveal", withExtension: "mp4"),
+                prize: .sample
+            )
             self?.orderPhase = .generated
             self?.updateButtonState()
         }

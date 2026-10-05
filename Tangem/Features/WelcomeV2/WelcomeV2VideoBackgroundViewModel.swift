@@ -8,6 +8,7 @@
 
 import AVFoundation
 import Combine
+import TangemUI
 
 final class WelcomeV2VideoBackgroundViewModel: ObservableObject {
     @Injected(\.welcomeV2AnalyticsProvider) private var analytics: WelcomeV2AnalyticsProvider
@@ -61,7 +62,7 @@ final class WelcomeV2VideoBackgroundViewModel: ObservableObject {
             return
         }
 
-        activateAmbientAudioSessionOnce()
+        AmbientAudioSession.configure()
 
         let item = AVPlayerItem(url: videoURL)
         let queuePlayer = AVQueuePlayer(playerItem: item)
@@ -78,22 +79,6 @@ final class WelcomeV2VideoBackgroundViewModel: ObservableObject {
 
         timeObserver = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
             self?.playbackTimeSubject.send(time.seconds)
-        }
-    }
-
-    private static var ambientConfigured = false
-
-    /// Muting the player is not enough: starting it activates the session under the default
-    /// `.soloAmbient` category, which stops whatever the user is already listening to. The
-    /// background video is silent by design, so it has no claim on the audio route.
-    private func activateAmbientAudioSessionOnce() {
-        guard !Self.ambientConfigured else { return }
-
-        do {
-            try AVAudioSession.sharedInstance().setCategory(.ambient, options: [.mixWithOthers])
-            Self.ambientConfigured = true
-        } catch {
-            // Left unlatched so the next appearance tries again instead of playing under `.soloAmbient`.
         }
     }
 
