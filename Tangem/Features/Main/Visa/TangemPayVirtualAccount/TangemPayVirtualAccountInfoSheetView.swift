@@ -116,86 +116,13 @@ struct TangemPayVirtualAccountInfoSheetView: View {
         .padding(.horizontal, 16)
     }
 
-    @ViewBuilder
     private var feeSection: some View {
-        switch viewModel.state {
-        case .loading:
-            feeList(achFee: nil, fedwireFee: nil, isLoading: true)
-        case .loaded(let achFee, let fedwireFee):
-            feeList(achFee: achFee, fedwireFee: fedwireFee, isLoading: false)
-        case .failed:
-            feeErrorBanner
-        }
-    }
-
-    private func feeList(achFee: String?, fedwireFee: String?, isLoading: Bool) -> some View {
-        let showsAch = isLoading || achFee != nil
-        let showsFedwire = isLoading || fedwireFee != nil
-
-        return VStack(spacing: 0) {
-            HStack(spacing: 0) {
-                Text(Localization.tangempayBankTransferFeeHeader)
-                    .font(token: DesignSystem.Font.subheadingMediumToken)
-                    .foregroundStyle(DesignSystem.Color.textSecondary)
-
-                Spacer(minLength: 0)
-            }
-            .padding(.vertical, 8)
-
-            if showsAch {
-                feeRow(title: Localization.tangempayBankTransferFeeAch, value: achFee, fee: .ach)
-            }
-
-            if showsAch, showsFedwire {
-                DesignSystem.Color.borderSecondary
-                    .frame(height: 1)
-            }
-
-            if showsFedwire {
-                feeRow(title: Localization.tangempayBankTransferFeeFedwire, value: fedwireFee, fee: .fedwire)
-            }
-        }
-        .padding(.horizontal, 16)
-    }
-
-    private var feeErrorBanner: some View {
-        MessageBanner(
-            title: Localization.tangempayBankTransferFeeErrorTitle,
-            description: Localization.tangempayBankTransferFeeErrorSubtitle
+        TangemPayVirtualAccountFeeListView(
+            header: Localization.tangempayBankTransferFeeHeader,
+            state: viewModel.state,
+            rowsHorizontalPadding: 16,
+            reload: viewModel.reloadFees
         )
-        .variant(.error)
-        .slotEnd {
-            DesignSystem.Icons.ArrowRefresh.regular20.image
-                .renderingMode(.template)
-                .foregroundStyle(DesignSystem.Color.iconPrimary)
-        }
-        .onTap(viewModel.reloadFees)
-        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountFeeErrorBanner)
-    }
-
-    private func feeRow(title: String, value: String?, fee: TangemPayAccessibilityIdentifiers.VirtualAccountFee) -> some View {
-        HStack(spacing: 0) {
-            Text(verbatim: title)
-                .font(token: DesignSystem.Font.bodyMediumToken)
-                .foregroundStyle(DesignSystem.Color.textPrimary)
-                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountFeeTitle(fee))
-
-            Spacer(minLength: 0)
-
-            if let value {
-                Text(verbatim: value)
-                    .font(token: DesignSystem.Font.bodyMediumToken)
-                    .foregroundStyle(DesignSystem.Color.textSecondary)
-                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountFeeValue(fee))
-            }
-        }
-        .overlay(alignment: .trailing) {
-            if value == nil {
-                Shimmer()
-                    .variant(.text(style: .body, alignment: .trailing))
-            }
-        }
-        .padding(.vertical, 12)
     }
 
     private var banner: some View {
