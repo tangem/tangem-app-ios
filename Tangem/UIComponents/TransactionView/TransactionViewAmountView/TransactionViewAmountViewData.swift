@@ -74,37 +74,21 @@ struct TransactionViewAmountViewData: Hashable {
         }
     }
 
-    /// Numeric value for the redesigned chip. Deliberately decoupled from `formattedAmount`, which the legacy
-    /// row reads: the Yield Mode enable/disable chips are label-only, while Supply and Withdraw show a number
-    /// the legacy row keeps hiding.
+    /// Numeric value for the redesigned row and chip. Deliberately decoupled from `formattedAmount`, which the
+    /// legacy row reads: label-only chips carry none, while the legacy row still shows the amount of the
+    /// coin-variant enable and disable.
     var displayValue: String? {
-        switch type {
-        case .yieldEnter, .yieldEnterCoin,
-             .yieldWithdraw, .yieldWithdrawCoin,
-             .vote, .withdraw:
+        if TransactionDisplayModel.isLabelOnlyChip(transactionType: type, isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract) {
             return nil
+        }
+
         // No crypto reaches the wallet on a top-up that never settled, so the row states no amount at all
         // rather than striking through the figure the provider once promised.
-        case .onramp where status == .failed:
+        if case .onramp = type, status == .failed {
             return nil
-        case .yieldSend, .yieldTopup,
-             .yieldReactivate, .yieldDeploy, .yieldInit,
-             .gaslessTransactionFee,
-             .networkFee,
-             .transfer,
-             .gaslessTransfer,
-             .swap,
-             .onramp,
-             .operation,
-             .unknownOperation,
-             .stake,
-             .unstake,
-             .claimRewards,
-             .restake,
-             .tangemPay,
-             .approve:
-            return value
         }
+
+        return value
     }
 
     var amountColor: Color {
