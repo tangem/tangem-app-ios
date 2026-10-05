@@ -16,13 +16,13 @@ struct TransactionDetailsView: View {
     private let blocksSpacing: CGFloat = 12
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .top) {
             if let feedback = viewModel.presentedFeedback {
                 RatingFeedbackBottomSheetView(viewModel: feedback)
-                    .transition(.content)
+                    .transition(.feedback)
             } else {
                 detailsContent
-                    .transition(.content)
+                    .transition(.details)
             }
         }
         .animation(.contentFrameUpdate, value: viewModel.presentedFeedback == nil)
@@ -142,10 +142,12 @@ private extension Animation {
 }
 
 private extension AnyTransition {
-    static let content = AnyTransition.asymmetric(
+    static let details = AnyTransition.asymmetric(
         insertion: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3).delay(0.2)),
-        removal: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3))
+        removal: .identity
     )
+
+    static let feedback = AnyTransition.opacity.animation(.curve(.easeInOutRefined, duration: 0.3))
 }
 
 // MARK: - Previews

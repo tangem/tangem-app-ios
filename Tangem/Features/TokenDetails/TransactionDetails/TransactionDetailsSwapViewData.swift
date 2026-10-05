@@ -100,17 +100,10 @@ struct TransactionDetailsSwapViewData: TransactionDetailsOperationViewData {
     /// hides it, so we never render a partial value like "+ETH" or "+100". The prefix (sign / "~") is an
     /// optional decoration: a leg without one (e.g. failed) still shows its amount unsigned.
     private func amountText(prefix: String?, leg: Leg) -> String? {
-        guard
-            let amount = leg.amount.nilIfEmpty,
-            let symbol = leg.symbol?.nilIfEmpty
-        else {
+        guard let symbol = leg.symbol?.trimmed().nilIfEmpty else {
             return nil
         }
 
-        guard let prefix = prefix?.nilIfEmpty else {
-            return Localization.transactionHistoryDetailPageAmountValue(amount, symbol)
-        }
-
-        return Localization.transactionHistoryDetailPageAmountSignedValue(prefix, amount, symbol)
+        return TransactionDetailsAmountTextBuilder.build(leg.amount, symbol: symbol, sign: prefix)
     }
 }
