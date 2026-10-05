@@ -13,14 +13,9 @@ import BlurSwiftUI
 struct ModalBackgroundModifier: ViewModifier {
     let size: ModalSize
 
-    @ViewBuilder
     func body(content: Content) -> some View {
-        if #available(iOS 26.0, *) {
-            content
-        } else {
-            content.presentationBackground {
-                ModalSurface(isExpanded: size == .full)
-            }
+        content.presentationBackground {
+            ModalSurface(isExpanded: size == .full)
         }
     }
 }
@@ -38,17 +33,34 @@ struct ModalSurface: View {
 
     @ViewBuilder
     private var surface: some View {
-        if isExpanded {
-            DesignSystem.Color.bgPrimary
-        } else if reduceTransparency {
-            DesignSystem.Color.materialModalFillSolid
+        if isExpanded || reduceTransparency {
+            Self.fill(isExpanded: isExpanded, reduceTransparency: reduceTransparency)
+        } else if #available(iOS 26.0, *) {
+            DesignSystem.Color.materialModalTintGlass
         } else {
             VariableBlur(direction: .down)
                 .maximumBlurRadius(32)
                 .dimmingTintColor(nil)
                 .dimmingAlpha(.constant(alpha: 0))
                 .dimmingOvershoot(nil)
-                .overlay { DesignSystem.Color.materialModalFillBlur }
+                .overlay { Self.fill(isExpanded: false, reduceTransparency: false) }
         }
+    }
+
+    /// The color the surface lays over the sheet's glass on iOS 26 and later, and over its own blur below.
+    static func fill(isExpanded: Bool, reduceTransparency: Bool) -> Color {
+        if isExpanded {
+            return DesignSystem.Color.bgPrimary
+        }
+
+        if reduceTransparency {
+            return DesignSystem.Color.materialModalFillSolid
+        }
+
+        if #available(iOS 26.0, *) {
+            return DesignSystem.Color.materialModalTintGlass
+        }
+
+        return DesignSystem.Color.materialModalFillBlur
     }
 }

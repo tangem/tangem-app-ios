@@ -18,6 +18,7 @@ struct MarketsTokenDetailsView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.mainWindowSize) private var mainWindowSize
     @Environment(\.mainShtorkaSize) private var sheetSize
+    @Environment(\.mainShtorkaContentIsCollapsed) private var isContentCollapsed
 
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
 
@@ -113,7 +114,7 @@ struct MarketsTokenDetailsView: View {
 
     @ViewBuilder
     private var sheetNavigationBar: some View {
-        if sheetSize.isCollapsedFeedSheet {
+        if isContentCollapsed {
             HStack(spacing: 0) {
                 redesignedBackButton
                     .readGeometry(\.size.width, bindTo: $headerLeadingWidth)
@@ -231,13 +232,13 @@ struct MarketsTokenDetailsView: View {
             tokenName: viewModel.tokenName,
             price: viewModel.price,
             state: navigationBarTitleState,
-            spacing: sheetSize.isCollapsedFeedSheet ? 4 : 0,
+            spacing: isContentCollapsed ? 4 : 0,
             fadesOverflow: sheetSize.isFeedSheet
         )
     }
 
     private var navigationBarTitleState: MarketsNavigationBarTitle.State {
-        guard !sheetSize.isCollapsedFeedSheet,
+        guard !isContentCollapsed,
               sheetSize.isFeedSheet || viewModel.overlayContentHidingProgress > 0 else {
             return MarketsNavigationBarTitle.State(
                 priceOpacity: 1,

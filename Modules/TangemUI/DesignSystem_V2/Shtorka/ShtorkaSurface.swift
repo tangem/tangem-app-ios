@@ -27,13 +27,22 @@ public struct ShtorkaSurface: View {
     public var body: some View {
         let opacity = reportedOpacity ?? opacity
         ZStack {
-            if tintsMaterial, colorScheme == .light {
-                DesignSystem.Color.bgTransparentPrimary.opacity(1 - opacity)
+            if tintsMaterial {
+                materialTint.opacity(1 - opacity)
             }
 
             DesignSystem.Color.bgPrimary.opacity(opacity)
         }
         // Drag updates stay in the surface; they must not invalidate the sheet's content graph.
         .onReceive(expansionProgress) { reportedOpacity = $0 }
+    }
+
+    @ViewBuilder
+    private var materialTint: some View {
+        if #available(iOS 26.0, *) {
+            DesignSystem.Color.materialModalTintGlass
+        } else if colorScheme == .light {
+            DesignSystem.Color.bgTransparentPrimary
+        }
     }
 }
