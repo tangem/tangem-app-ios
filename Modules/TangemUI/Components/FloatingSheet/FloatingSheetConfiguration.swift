@@ -17,6 +17,7 @@ public struct FloatingSheetConfiguration: Equatable {
     public var backgroundInteractionBehavior: BackgroundInteractionBehavior
     public var verticalSwipeBehavior: VerticalSwipeBehavior?
     public var keyboardHandlingEnabled: Bool
+    public var animatesContentWithKeyboard: Bool
 
     static let `default` = FloatingSheetConfiguration(
         maxHeightFraction: 0.8,
@@ -25,7 +26,8 @@ public struct FloatingSheetConfiguration: Equatable {
         sheetBackgroundMaterial: nil,
         backgroundInteractionBehavior: .consumeTouches,
         verticalSwipeBehavior: nil,
-        keyboardHandlingEnabled: true
+        keyboardHandlingEnabled: true,
+        animatesContentWithKeyboard: false
     )
 }
 
