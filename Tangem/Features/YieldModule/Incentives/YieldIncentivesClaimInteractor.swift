@@ -11,8 +11,6 @@ import Combine
 import BlockchainSdk
 import TangemFoundation
 
-/// Owner-signed claim of the Merkl incentive rewards. Every attempt starts from fresh calldata,
-/// and only one claim may be in flight until its outcome is reconciled.
 actor YieldIncentivesClaimInteractor {
     @Injected(\.yieldModuleNetworkManager) private var yieldModuleNetworkManager: YieldModuleNetworkManager
 
@@ -22,6 +20,12 @@ actor YieldIncentivesClaimInteractor {
     private let transactionDispatcher: TransactionDispatcher
     private let tracker: YieldIncentivesClaimTracker
     private let validator = YieldClaimCalldataValidator()
+
+    private enum Constants {
+        /// Bounds how stale the Merkl proof may be, so it tracks the distributor's rollover cadence rather
+        /// than the fee — the owner already agreed to the fee the sheet showed.
+        static let preparationValidity: TimeInterval = 120
+    }
 
     var isClaimInFlight: Bool {
         get async { await tracker.isClaimInFlight }
@@ -63,14 +67,16 @@ actor YieldIncentivesClaimInteractor {
             summary: summary,
             to: validated.to,
             data: validated.data,
-            fee: fee
+            fee: fee,
+            preparedAt: Date()
         )
     }
 
-    /// The earlier `prepare` result only shapes the confirmation sheet — the submitted transaction
-    /// is built from calldata fetched right here, and its fresh recommendation overrides the earlier
-    /// one. No automatic retries.
-    func claim(confirmedFee: Decimal?, isFeeCovered: (Amount) -> Bool) async throws -> String {
+    func claim(prepared: PreparedClaim, isFeeCovered: (Amount) -> Bool) async throws -> SubmittedClaim {
+        guard Date().timeIntervalSince(prepared.preparedAt) < Constants.preparationValidity else {
+            throw ClaimError.preparationExpired
+        }
+
         guard await tracker.beginClaim() else {
             throw ClaimError.claimAlreadyInFlight
         }
@@ -78,15 +84,8 @@ actor YieldIncentivesClaimInteractor {
         let transaction: BSDKTransaction
 
         do {
-            let prepared = try await prepare()
-
-            // The sheet checked the fee it displayed; this one is the fee the card is about to sign.
             guard isFeeCovered(prepared.fee.totalFeeAmount) else {
                 throw ClaimError.insufficientFee
-            }
-
-            if let confirmedFee, prepared.fee.totalFeeAmount.value > confirmedFee {
-                throw ClaimError.feeIncreased
             }
 
             transaction = try await manager.makeClaimTransaction(to: prepared.to, data: prepared.data, fee: prepared.fee)
@@ -108,11 +107,11 @@ actor YieldIncentivesClaimInteractor {
             await tracker.claimSubmitted { [manager] in
                 await manager.awaitPendingTransactionCleared(
                     transactionHash: transactionHash,
-                    timeout: YieldIncentivesClaimTracker.reconciliationWindow
+                    timeout: YieldIncentivesClaimTracker.Constants.settlementWindow
                 )
             }
 
-            return transactionHash
+            return SubmittedClaim(transactionHash: transactionHash, preparation: prepared)
         } catch {
             // A declined signature is the only failure certain to have left the transaction unsent; by the time
             // anything else surfaces it is wrapped past recognition, so the rewards decide instead of the error.
@@ -194,12 +193,18 @@ actor YieldIncentivesClaimInteractor {
 }
 
 extension YieldIncentivesClaimInteractor {
+    struct SubmittedClaim {
+        let transactionHash: String
+        let preparation: PreparedClaim
+    }
+
     struct PreparedClaim {
         let calldata: YieldClaimCalldata
         let summary: YieldIncentivesRewardsSummary
         let to: String
         let data: Data
         let fee: YieldTransactionFee
+        let preparedAt: Date
     }
 
     enum ClaimError: Error {
@@ -208,7 +213,7 @@ extension YieldIncentivesClaimInteractor {
         case rewardsUnavailable
         case moduleUnavailable
         case insufficientFee
-        case feeIncreased
+        case preparationExpired
         /// The submission may already have reached a node; the tracker decides its outcome.
         case submissionUnresolved
     }

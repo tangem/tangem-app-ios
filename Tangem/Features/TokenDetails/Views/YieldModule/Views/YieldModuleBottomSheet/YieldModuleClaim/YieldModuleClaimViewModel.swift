@@ -9,6 +9,7 @@
 import Foundation
 import TangemLocalization
 import TangemUI
+import TangemMacro
 
 final class YieldModuleClaimViewModel: ObservableObject {
     // MARK: - Injected
@@ -21,16 +22,17 @@ final class YieldModuleClaimViewModel: ObservableObject {
     let tangemIconProvider: TangemIconProvider
     let confirmTransactionPolicy: ConfirmTransactionPolicy
 
+    var feeCurrencySymbol: String {
+        walletModel.feeTokenItem.currencySymbol
+    }
+
     // MARK: - Published
 
     @Published
-    private(set) var viewData: YieldModuleClaimViewData
+    private(set) var viewState: ViewState
 
     @Published
     private(set) var serviceFeeState: YieldFeeSectionState = .init()
-
-    @Published
-    private(set) var serviceFeeNote: String?
 
     @Published
     private(set) var networkFeeState: YieldFeeSectionState = .init()
@@ -44,10 +46,6 @@ final class YieldModuleClaimViewModel: ObservableObject {
     @Published
     private(set) var isActionButtonAvailable = false
 
-    var buttonTitle: String {
-        Localization.yieldModuleClaimButtonTitle(viewData.total)
-    }
-
     // MARK: - Dependencies
 
     private let walletModel: any WalletModel
@@ -58,7 +56,7 @@ final class YieldModuleClaimViewModel: ObservableObject {
     private lazy var feeFormatter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
     private let mapper: YieldModuleClaimViewDataMapper
     private var prepareTask: Task<Void, Never>?
-    private var shownFee: ShownFee?
+    private var preparedClaim: YieldIncentivesClaimInteractor.PreparedClaim?
 
     // MARK: - Init
 
@@ -78,8 +76,11 @@ final class YieldModuleClaimViewModel: ObservableObject {
         self.tangemIconProvider = tangemIconProvider
         self.confirmTransactionPolicy = confirmTransactionPolicy
 
-        mapper = YieldModuleClaimViewDataMapper(blockchain: walletModel.tokenItem.blockchain)
-        viewData = mapper.map(summary: summary)
+        mapper = YieldModuleClaimViewDataMapper(
+            blockchain: walletModel.tokenItem.blockchain,
+            storage: Self.resolveStorage(for: walletModel)
+        )
+        viewState = .claim(mapper.map(summary: summary))
 
         start()
     }
@@ -87,7 +88,7 @@ final class YieldModuleClaimViewModel: ObservableObject {
     // MARK: - Public Implementation
 
     func onClaimTap() {
-        guard let shownFee else {
+        guard let preparedClaim else {
             return
         }
 
@@ -97,15 +98,15 @@ final class YieldModuleClaimViewModel: ObservableObject {
             defer { self?.isProcessingRequest = false }
 
             do {
-                let submitted = try await self?.claimInteractor.claim(confirmedFee: shownFee.confirmedValue) { amount in
+                let submitted = try await self?.claimInteractor.claim(prepared: preparedClaim) { amount in
                     amount.value <= walletModel.getFeeCurrencyBalance()
                 }
 
-                guard submitted != nil else {
+                guard let self, let submitted else {
                     return
                 }
 
-                self?.coordinator?.closeClaimSheet()
+                viewState = .success(mapper.mapSuccess(summary: submitted.preparation.summary))
             } catch let error where error.isCancellationError {
                 // Rewards stay untouched, and the sheet keeps the prepared state.
             } catch YieldIncentivesClaimInteractor.ClaimError.submissionUnresolved {
@@ -118,7 +119,15 @@ final class YieldModuleClaimViewModel: ObservableObject {
     }
 
     func onCloseTap() {
+        guard !isProcessingRequest else {
+            return
+        }
+
         coordinator?.closeClaimSheet()
+    }
+
+    func onToTokenTap() {
+        coordinator?.dismiss()
     }
 
     // MARK: - Private Implementation
@@ -149,8 +158,7 @@ final class YieldModuleClaimViewModel: ObservableObject {
     private func setLoadingState() {
         isActionButtonAvailable = false
         notification = nil
-        shownFee = nil
-        serviceFeeNote = nil
+        preparedClaim = nil
         serviceFeeState = serviceFeeState.withFeeState(.loading)
         networkFeeState = networkFeeState.withFeeState(.loading)
     }
@@ -166,9 +174,13 @@ final class YieldModuleClaimViewModel: ObservableObject {
                 return
             }
 
-            viewData = mapper.map(summary: prepared.summary)
-            serviceFeeState = serviceFeeState.withFeeState(.loaded(text: makeServiceFeeText(for: prepared)))
-            serviceFeeNote = mapper.serviceFeeRate(for: prepared.summary).map(Localization.yieldModuleClaimServiceFeeNote)
+            viewState = .claim(mapper.map(summary: prepared.summary))
+            serviceFeeState = serviceFeeState.withFeeState(
+                .loaded(text: mapper.mapServiceFee(
+                    amountUsd: prepared.calldata.totalEstimatedServiceFeeUsd,
+                    summary: prepared.summary
+                ))
+            )
             networkFeeState = networkFeeState.withFeeState(.loaded(text: feeText))
 
             let isFeeCovered = feeValue <= walletModel.getFeeCurrencyBalance()
@@ -177,7 +189,7 @@ final class YieldModuleClaimViewModel: ObservableObject {
                 notification = makeNotEnoughFeeNotification()
             }
 
-            shownFee = ShownFee(value: feeValue, shownAt: Date())
+            preparedClaim = prepared
             isActionButtonAvailable = isFeeCovered
         } catch {
             guard !Task.isCancelled else {
@@ -185,7 +197,6 @@ final class YieldModuleClaimViewModel: ObservableObject {
             }
 
             serviceFeeState = serviceFeeState.withFeeState(.noData)
-            serviceFeeNote = nil
             networkFeeState = networkFeeState.withFeeState(.noData)
             notification = isDeferredClaim(error: error) ? makeRewardsUnavailableNotification() : makeFeeErrorNotification()
         }
@@ -205,20 +216,33 @@ final class YieldModuleClaimViewModel: ObservableObject {
             return
         }
 
-        if case YieldIncentivesClaimInteractor.ClaimError.feeIncreased = claimError {
+        if case YieldIncentivesClaimInteractor.ClaimError.preparationExpired = claimError {
             refresh()
-            alertPresenter.present(alert: AlertBuilder.makeOkGotItAlert(message: Localization.sendNotificationHighFeeTitle))
             return
         }
 
         alertPresenter.present(alert: AlertBuilder.makeOkErrorAlert(message: Localization.yieldModuleClaimErrorMessage))
     }
 
-    private func makeServiceFeeText(for prepared: YieldIncentivesClaimInteractor.PreparedClaim) -> String {
-        BalanceFormatter().formatFiatBalance(
-            prepared.calldata.totalEstimatedServiceFeeUsd,
-            currencyCode: AppConstants.usdCurrencyCode
-        )
+    private static func resolveStorage(for walletModel: any WalletModel) -> YieldModuleClaimViewData.Storage? {
+        let userWalletRepository: UserWalletRepository = InjectedValues[\.userWalletRepository]
+
+        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == walletModel.userWalletId }) else {
+            return nil
+        }
+
+        let provider = TokenHeaderProvider(userWalletName: userWalletModel.name, account: walletModel.account)
+
+        switch provider.makeHeader() {
+        case .account(let name, let icon):
+            return .account(name: name, icon: icon)
+
+        case .wallet(let name, hasOnlyOneWallet: false):
+            return .wallet(name: name)
+
+        case .wallet(_, hasOnlyOneWallet: true):
+            return nil
+        }
     }
 
     private func isDeferredClaim(error: Error) -> Bool {
@@ -229,7 +253,7 @@ final class YieldModuleClaimViewModel: ObservableObject {
         switch claimError {
         case .validationFailed, .rewardsUnavailable, .moduleUnavailable:
             return true
-        case .claimAlreadyInFlight, .insufficientFee, .feeIncreased, .submissionUnresolved:
+        case .claimAlreadyInFlight, .insufficientFee, .preparationExpired, .submissionUnresolved:
             return false
         }
     }
@@ -239,20 +263,13 @@ final class YieldModuleClaimViewModel: ObservableObject {
 
 extension YieldModuleClaimViewModel: FloatingSheetContentViewModel {}
 
-// MARK: - Shown Fee
+// MARK: - View State
 
-private extension YieldModuleClaimViewModel {
-    struct ShownFee {
-        let value: Decimal
-        let shownAt: Date
-
-        var confirmedValue: Decimal? {
-            Date().timeIntervalSince(shownAt) < Constants.feeRelevanceInterval ? nil : value
-        }
-    }
-
-    enum Constants {
-        static let feeRelevanceInterval: TimeInterval = 60
+extension YieldModuleClaimViewModel {
+    @CaseFlagable
+    enum ViewState: Equatable {
+        case claim(YieldModuleClaimViewData)
+        case success(YieldModuleClaimSuccessViewData)
     }
 }
 
