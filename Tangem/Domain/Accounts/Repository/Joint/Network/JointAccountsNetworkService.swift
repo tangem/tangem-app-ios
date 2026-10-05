@@ -22,9 +22,9 @@ protocol JointAccountsNetworkService {
 
     /// Every joint account the wallet takes part in, except the archived ones. The composition changes inside other
     /// people's wallets, which leaves no trace on this one, so the list is asked about often.
-    /// - Returns: `.notModified` when the list is what it was when last read — the endpoint says so by the tag of the
-    /// last answer, which the service keeps and sends back — so that nothing is written over what is stored.
-    func getJointAccounts() async throws -> JointAccountsRemoteState
+    /// - Returns: `.notModified` when the list is what it was when `knownETag` was handed out — the caller keeps the
+    /// tag of the answer it has stored and sends it back — so that nothing is written over what is stored.
+    func getJointAccounts(knownETag: String?) async throws -> JointAccountsRemoteState
 
     /// - Throws: `.notFound` when there is no such invite, and `.conflict` when it has been spent or this wallet
     /// already holds a slot of the account it invites to.
@@ -58,7 +58,7 @@ protocol JointAccountsNetworkService {
 enum JointAccountsRemoteState {
     /// The list is what it was when it was last read, so nothing came back with the answer.
     case notModified
-    case changed([RemoteJointAccount])
+    case changed([RemoteJointAccount], eTag: String?)
 }
 
 struct JointAccountCreationResult {

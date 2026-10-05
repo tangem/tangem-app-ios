@@ -198,6 +198,68 @@ struct CommonJointAccountsRepositoryTests {
         #expect(storage.accounts.count == 1)
     }
 
+    @Test("The tag of a read is kept once its list is stored")
+    func aStoredListKeepsItsETag() async throws {
+        let storage = JointAccountsPersistentStorageStub(accounts: [])
+        let eTagStorage = JointAccountsETagStorageStub()
+        let networkService = JointAccountsNetworkServiceStub(jointAccounts: [Self.remoteAccount()])
+        let sut = Self.makeSUT(networkService: networkService, storage: storage, eTagStorage: eTagStorage)
+
+        try await sut.loadJointAccountsFromRemote()
+
+        #expect(eTagStorage.eTag == JointAccountsNetworkServiceStub.listingETag)
+    }
+
+    @Test("A list that failed to be stored leaves no tag behind, the earlier one included, so the next read is answered in full rather than with a 304")
+    func aListThatFailedToBeStoredKeepsNoETag() async throws {
+        let storage = JointAccountsPersistentStorageStub(accounts: [Self.storedAccount()], replaceError: TestError.failedToWrite)
+        let eTagStorage = JointAccountsETagStorageStub(eTag: "earlier-etag")
+        let networkService = JointAccountsNetworkServiceStub(jointAccounts: [Self.remoteAccount(status: .confirming(safeAddress: Self.safeAddress))])
+        let sut = Self.makeSUT(networkService: networkService, storage: storage, eTagStorage: eTagStorage)
+
+        await #expect(throws: TestError.failedToWrite) {
+            try await sut.loadJointAccountsFromRemote()
+        }
+
+        #expect(eTagStorage.eTag == nil)
+    }
+
+    @Test("A read cancelled after its answer arrived keeps no tag of that answer, so the answer it never stored cannot be confirmed with a 304")
+    func aCancelledReadKeepsNoETag() async throws {
+        let storage = JointAccountsPersistentStorageStub(accounts: [Self.storedAccount()])
+        let eTagStorage = JointAccountsETagStorageStub()
+        let networkService = JointAccountsNetworkServiceStub(
+            jointAccounts: [Self.remoteAccount(status: .confirming(safeAddress: Self.safeAddress))],
+            suspendedFirstAnswer: .changed([Self.remoteAccount(status: .active(safeAddress: Self.safeAddress))], eTag: "cancelled-etag")
+        )
+        let sut = Self.makeSUT(networkService: networkService, storage: storage, eTagStorage: eTagStorage)
+
+        let cancelledRead = Task { try await sut.loadJointAccountsFromRemote() }
+        await networkService.waitForFirstRequest()
+
+        try await sut.loadJointAccountsFromRemote()
+        networkService.answerFirstRequest()
+
+        await #expect(throws: CancellationError.self) {
+            try await cancelledRead.value
+        }
+
+        #expect(eTagStorage.eTag == JointAccountsNetworkServiceStub.listingETag)
+        #expect(storage.accounts.first?.status == .confirming(safeAddress: Self.safeAddress))
+    }
+
+    @Test("A wallet with nothing stored reads the list in full, so a tag that outlived the storage cannot answer it with a 304", arguments: [false, true])
+    func theKnownETagIsSentOnlyOverAStoredList(hasStoredAccounts: Bool) async throws {
+        let storage = JointAccountsPersistentStorageStub(accounts: hasStoredAccounts ? [Self.storedAccount()] : [])
+        let eTagStorage = JointAccountsETagStorageStub(eTag: "known-etag")
+        let networkService = JointAccountsNetworkServiceStub(answersUnchanged: true)
+        let sut = Self.makeSUT(networkService: networkService, storage: storage, eTagStorage: eTagStorage)
+
+        try await sut.loadJointAccountsFromRemote()
+
+        #expect(networkService.sentKnownETags == [hasStoredAccounts ? "known-etag" : nil])
+    }
+
     @Test("A screen asking for frequent updates gets them whatever state the accounts are in")
     func frequentUpdatesAreGrantedToAScreen() {
         let mode = Self.pollingMode(accounts: [Self.storedAccount(status: .active(safeAddress: Self.safeAddress))], frequentUpdatesRequestsCount: 1)
@@ -241,6 +303,7 @@ private extension CommonJointAccountsRepositoryTests {
         storage: JointAccountsPersistentStorage,
         invitesStorage: JointAccountsInvitesPersistentStorage = JointAccountsInvitesPersistentStorageStub(),
         pendingOperationsStorage: JointAccountsPendingOperationsPersistentStorage = JointAccountsPendingOperationsPersistentStorageStub(),
+        eTagStorage: ETagStorage = JointAccountsETagStorageStub(),
         isJointAccountsAvailable: Bool = true
     ) -> CommonJointAccountsRepository {
         CommonJointAccountsRepository(
@@ -250,6 +313,7 @@ private extension CommonJointAccountsRepositoryTests {
             persistentStorage: storage,
             invitesPersistentStorage: invitesStorage,
             pendingOperationsPersistentStorage: pendingOperationsStorage,
+            eTagStorage: eTagStorage,
             isJointAccountsAvailable: isJointAccountsAvailable
         )
     }
@@ -346,35 +410,72 @@ private extension CommonJointAccountsRepositoryTests {
 
     enum TestError: Error, Equatable {
         case failedToRead
+        case failedToWrite
     }
 }
 
 // MARK: - Test doubles
 
 private final class JointAccountsNetworkServiceStub: JointAccountsNetworkService {
+    static let listingETag = "listing-etag"
+
     private let state = OSAllocatedUnfairLock(initialState: State())
+    private let (firstRequestArrived, firstRequestArrivedContinuation) = AsyncStream<Void>.makeStream()
 
     var getJointAccountsCallsCount: Int {
         state.withLock(\.getJointAccountsCallsCount)
     }
 
-    init(jointAccounts: [RemoteJointAccount] = [], answersUnchanged: Bool = false, error: Error? = nil) {
+    var sentKnownETags: [String?] {
+        state.withLock(\.sentKnownETags)
+    }
+
+    init(
+        jointAccounts: [RemoteJointAccount] = [],
+        answersUnchanged: Bool = false,
+        error: Error? = nil,
+        suspendedFirstAnswer: JointAccountsRemoteState? = nil
+    ) {
         state.withLock {
             $0.jointAccounts = jointAccounts
             $0.answersUnchanged = answersUnchanged
             $0.error = error
+            $0.suspendedFirstAnswer = suspendedFirstAnswer
         }
     }
 
-    func getJointAccounts() async throws -> JointAccountsRemoteState {
-        try state.withLock { state in
-            state.getJointAccountsCallsCount += 1
+    func waitForFirstRequest() async {
+        for await _ in firstRequestArrived {
+            return
+        }
+    }
 
+    func answerFirstRequest() {
+        state.withLock { $0.firstRequestContinuation.take() }?.resume()
+    }
+
+    func getJointAccounts(knownETag: String?) async throws -> JointAccountsRemoteState {
+        let suspendedAnswer = state.withLock { state -> JointAccountsRemoteState? in
+            state.getJointAccountsCallsCount += 1
+            state.sentKnownETags.append(knownETag)
+            return state.getJointAccountsCallsCount == 1 ? state.suspendedFirstAnswer : nil
+        }
+
+        if let suspendedAnswer {
+            await withCheckedContinuation { continuation in
+                state.withLock { $0.firstRequestContinuation = continuation }
+                firstRequestArrivedContinuation.yield()
+            }
+
+            return suspendedAnswer
+        }
+
+        return try state.withLock { state in
             if let error = state.error {
                 throw error
             }
 
-            return state.answersUnchanged ? .notModified : .changed(state.jointAccounts)
+            return state.answersUnchanged ? .notModified : .changed(state.jointAccounts, eTag: Self.listingETag)
         }
     }
 
@@ -413,6 +514,35 @@ private extension JointAccountsNetworkServiceStub {
         var answersUnchanged = false
         var error: Error?
         var getJointAccountsCallsCount = 0
+        var sentKnownETags: [String?] = []
+        var suspendedFirstAnswer: JointAccountsRemoteState?
+        var firstRequestContinuation: CheckedContinuation<Void, Never>?
+    }
+}
+
+private final class JointAccountsETagStorageStub: ETagStorage {
+    private let eTagLock: OSAllocatedUnfairLock<String?>
+
+    var eTag: String? {
+        eTagLock.withLock { $0 }
+    }
+
+    init(eTag: String? = nil) {
+        eTagLock = OSAllocatedUnfairLock(initialState: eTag)
+    }
+
+    func initialize() {}
+
+    func loadETag(for key: ETagStorageKey) -> String? {
+        eTag
+    }
+
+    func saveETag(_ eTag: String, for key: ETagStorageKey) {
+        eTagLock.withLock { $0 = eTag }
+    }
+
+    func clearETag(for key: ETagStorageKey) {
+        eTagLock.withLock { $0 = nil }
     }
 }
 
@@ -473,8 +603,11 @@ private final class JointAccountsPersistentStorageStub: JointAccountsPersistentS
         didUpdateSubject.eraseToAnyPublisher()
     }
 
-    init(accounts: [StoredJointAccount]) {
+    private let replaceError: Error?
+
+    init(accounts: [StoredJointAccount], replaceError: Error? = nil) {
         accountsLock = OSAllocatedUnfairLock(initialState: accounts)
+        self.replaceError = replaceError
     }
 
     func getList() -> [StoredJointAccount] {
@@ -494,6 +627,10 @@ private final class JointAccountsPersistentStorageStub: JointAccountsPersistentS
     }
 
     func replace(with accounts: [StoredJointAccount]) throws {
+        if let replaceError {
+            throw replaceError
+        }
+
         accountsLock.withLock { $0 = accounts }
         didUpdateSubject.send()
     }
