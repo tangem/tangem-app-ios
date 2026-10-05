@@ -54,6 +54,7 @@ struct JointAccountActivationConfirmationView: View {
                 accessibilityLabel: Localization.commonActivate,
                 action: viewModel.onActivateTap
             )
+            .iconEnd(viewModel.hasNFCInteraction ? DesignSystem.Icons.LogoTangem.regular24 : nil)
             .styleType(.default)
             .size(.x12)
             .horizontalLayout(.infinity)
@@ -84,7 +85,7 @@ private extension JointAccountActivationConfirmationView {
 
 #Preview {
     JointAccountActivationConfirmationView(
-        viewModel: JointAccountActivationConfirmationViewModel(onConfirm: {}, coordinator: nil)
+        viewModel: JointAccountActivationConfirmationViewModel(hasNFCInteraction: true, onConfirm: {}, coordinator: nil)
     )
     .frame(maxHeight: .infinity, alignment: .bottom)
     .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())

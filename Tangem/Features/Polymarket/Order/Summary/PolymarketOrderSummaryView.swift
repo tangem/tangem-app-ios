@@ -54,10 +54,7 @@ struct PolymarketOrderSummaryView: View {
                 onFeeTap: viewModel.isFeeBreakdownAvailable ? { viewModel.handleViewAction(.feeTapped) } : nil
             )
 
-            PolymarketOrderNotificationsView(
-                notifications: viewModel.notifications,
-                onRetry: { viewModel.handleViewAction(.quoteRetryTapped) }
-            )
+            PolymarketOrderNotificationsView(notifications: viewModel.notifications)
         }
         .horizontalPadding(Constants.horizontalPadding)
         .padding(.top, Constants.contentTopPadding)

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemFoundation
 import TangemUIUtils
 
@@ -82,6 +83,18 @@ struct FeedWidgetsView: View {
                 card.contentShape(.rect)
             }
             .buttonStyle(.plain)
+            .accessibilityIdentifier(accessibilityIdentifier(for: widget))
+        }
+    }
+
+    private func accessibilityIdentifier(for widget: FeedWidget) -> String? {
+        switch widget {
+        case .addAccount:
+            AccountsAccessibilityIdentifiers.feedAddAccountBanner
+        case .forYou:
+            MainAccessibilityIdentifiers.feedForYouWidget
+        case .startEarning, .tangemPay, .referFriend, .polymarket, .collectibles:
+            nil
         }
     }
 

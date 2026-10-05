@@ -91,7 +91,8 @@ final class SilentPushTesterViewModel: ObservableObject {
             tokenId: effectiveTokenId,
             userWalletId: userWalletId,
             derivationPath: derivationPath.nilIfEmpty,
-            transactionId: transactionId.nilIfEmpty
+            transactionId: transactionId.nilIfEmpty,
+            accountId: nil
         )
 
         let url = helper.buildURL(scheme: .withoutRedirectUniversalLink)

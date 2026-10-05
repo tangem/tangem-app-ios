@@ -84,6 +84,8 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @Published private(set) var contactSupportMessageBannerButton: MessageBannerButton?
 
+    @Published private(set) var virtualAccountBannerState: VirtualAccountBannerState?
+
     @Published private(set) var currentPlanState: CurrentPlanState = .unknown
 
     lazy var cardDeactivatedNotificationInput: NotificationViewInput? = tangemPayAccount.isDeactivated
@@ -319,6 +321,15 @@ final class TangemPayMainViewModel: ObservableObject {
         return tangemPayAccount.hasVirtualAccount || isEligibleForVirtualAccount
     }
 
+    private var isBankTransferPending: Bool {
+        guard FeatureProvider.isAvailable(.tangemPayOnrampV2),
+              case .preparing = tangemPayAccount.virtualAccountEntry else {
+            return false
+        }
+
+        return true
+    }
+
     private var isEligibleForVirtualAccount: Bool {
         isEligible(for: .visaVirtualAccount)
     }
@@ -406,11 +417,16 @@ final class TangemPayMainViewModel: ObservableObject {
                         address: depositAddress,
                         swapParameters: swapParameters,
                         isBankTransferAvailable: isBankTransferAvailable,
+                        isBankTransferPending: isBankTransferPending,
                         networks: tangemPayAccount.networks
                     )
                 )
             }
         )
+    }
+
+    func dismissVirtualAccountFailedBanner() {
+        tangemPayAccount.dismissVirtualAccountCreationFailure()
     }
 
     // MARK: - Multi-card
@@ -522,12 +538,6 @@ final class TangemPayMainViewModel: ObservableObject {
                 _ = try await tangemPayAccount.issueAdditionalCard()
             }
         )
-    }
-
-    func smallCardState(for card: TangemPayCard) -> TangemPaySmallCardView.State {
-        if card.isClosing { return .closing }
-        if card.isReissuing { return .replacing }
-        return .issued(cardNumberEnd: card.cardNumberEnd)
     }
 
     // MARK: - Shared
@@ -813,6 +823,15 @@ private extension TangemPayMainViewModel {
     }
 }
 
+// MARK: - VirtualAccountBannerState
+
+extension TangemPayMainViewModel {
+    enum VirtualAccountBannerState: Equatable {
+        case creating
+        case failed
+    }
+}
+
 // MARK: - SystemDowngradeBanner
 
 extension TangemPayMainViewModel {
@@ -861,6 +880,7 @@ private extension TangemPayMainViewModel {
 
         pendingExpressTransactionsManager
             .pendingTransactionsPublisher
+            .map { Array($0.suffix(Constants.maxVisibleSwaps)) }
             .map { [weak self] transactions in
                 PendingExpressTransactionsConverter()
                     .convertToTokenDetailsPendingTxInfo(transactions) { [weak self] id in
@@ -890,6 +910,8 @@ private extension TangemPayMainViewModel {
         bindInlineNotifications()
 
         bindFailedToIssueCardBanner()
+
+        bindVirtualAccountBanner()
 
         bindMultiCard()
     }
@@ -983,6 +1005,28 @@ private extension TangemPayMainViewModel {
                 return [viewModel.makeInlineNotification(for: event)]
             }
             .assign(to: &$inlineNotifications)
+    }
+
+    func bindVirtualAccountBanner() {
+        guard FeatureProvider.isAvailable(.tangemPayOnrampV2) else { return }
+
+        Publishers.CombineLatest(
+            tangemPayAccount.virtualAccountEntryPublisher,
+            tangemPayAccount.virtualAccountCreationFailedPublisher
+        )
+        .map { entry, isCreationFailed -> VirtualAccountBannerState? in
+            switch entry {
+            case .preparing:
+                return .creating
+            case .none where isCreationFailed:
+                return .failed
+            case .none, .active:
+                return nil
+            }
+        }
+        .removeDuplicates()
+        .receiveOnMain()
+        .assign(to: &$virtualAccountBannerState)
     }
 
     func bindFailedToIssueCardBanner() {
@@ -1143,6 +1187,14 @@ private extension TangemPayMainViewModel {
             tokenItem: tokenItem,
             pendingTransactionsManager: pendingExpressTransactionsManager
         )
+    }
+}
+
+// MARK: - Constants
+
+private extension TangemPayMainViewModel {
+    enum Constants {
+        static let maxVisibleSwaps = 2
     }
 }
 
