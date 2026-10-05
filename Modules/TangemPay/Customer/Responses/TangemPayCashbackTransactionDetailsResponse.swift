@@ -28,6 +28,7 @@ public extension TangemPayCashbackTransactionDetailsResponse {
         case mccExcluded = "mcc_excluded"
         case belowMin = "below-min"
         case monthlyCapReached = "monthly_cap_reached"
+        case complianceRisk = "compliance_risk"
         case undefined
 
         public init(from decoder: Decoder) throws {

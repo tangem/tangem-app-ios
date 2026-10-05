@@ -67,6 +67,7 @@ struct TangemPayTransactionCashbackTests {
             ("mcc_excluded", .mcc),
             ("below-min", .belowMin),
             ("monthly_cap_reached", .monthlyCap),
+            ("compliance_risk", .complianceRisk),
         ]
     )
     func exclusionReason_mapsToOwnCase(
