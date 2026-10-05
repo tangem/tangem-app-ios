@@ -72,7 +72,9 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
             return
         }
 
-        coordinator?.openActivationConfirmation { [weak self] in
+        let hasNFCInteraction = jointAccount.jointAccountOperationsService.hasNFCInteraction
+
+        coordinator?.openActivationConfirmation(hasNFCInteraction: hasNFCInteraction) { [weak self] in
             self?.activate()
         }
     }
