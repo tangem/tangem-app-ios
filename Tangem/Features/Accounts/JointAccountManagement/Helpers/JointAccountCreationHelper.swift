@@ -35,6 +35,10 @@ final class JointAccountCreationHelper {
         state.withLock { $0.membersData?.membersCount }
     }
 
+    var signersCount: Int? {
+        state.withLock { $0.membersData?.signersCount }
+    }
+
     var creatorName: String? {
         state.withLock { $0.creatorName }
     }
