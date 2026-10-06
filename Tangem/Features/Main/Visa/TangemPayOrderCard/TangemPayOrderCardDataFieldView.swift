@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -33,6 +34,7 @@ struct TangemPayOrderCardDataFieldView: View {
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .opacity(field.error == nil ? 0 : 1)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.orderCardDataFieldError("\(field.id)"))
         }
     }
 
