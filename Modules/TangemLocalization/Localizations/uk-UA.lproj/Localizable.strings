@@ -322,6 +322,7 @@
 "common_approved" = "Схвалено";
 "common_approving" = "Схвалення";
 "common_attention" = "Увага";
+"common_auto" = "Auto";
 "common_available_networks" = "Доступні мережі";
 "common_back" = "Назад";
 "common_backup_error" = "Backup Error";
@@ -360,6 +361,7 @@
 "common_custom" = "Власна";
 "common_day" = "день";
 "common_decline" = "Decline";
+"common_default" = "Default";
 "common_delete" = "Видалити";
 "common_disable" = "Вимкнути";
 "common_disabled" = "Вимкнуто";
@@ -488,6 +490,7 @@
 "common_share" = "Поділитися";
 "common_sign" = "Підписати";
 "common_skip" = "Пропустити";
+"common_slippage" = "Slippage";
 "common_something_went_wrong" = "Щось пішло не так";
 "common_stake" = "Застейкати";
 "common_staked" = "Застейкано";
@@ -997,6 +1000,7 @@
 "introduction_stories_two_subtitle" = "Використовуйте будь-яку картку для доступу до гаманця";
 "introduction_stories_two_title" = "Один гаманець, кілька карток";
 "introduction_subtitle" = "Одне безпечне місце для всіх ваших активів";
+"introduction_terms_of_service_consent" = "By continuing, you agree with %@";
 "introduction_terms_of_service" = "Умовами використання";
 "introduction_title" = "Зберігайте всі свої активи";
 "jailbreak_warning_message" = "Пристрої з джейлбрейком вважаються менш безпечними. Ваші дані можуть бути піддані додатковим ризикам.";
@@ -1031,6 +1035,7 @@
 "joint_account_invite_members_title" = "Запросіть учасників";
 "joint_account_invite_members_to_join" = "Запросіть учасників до акаунта";
 "joint_account_invite_members_waiting_title" = "Очікуємо на учасників";
+"joint_account_invite_share_title" = "Invite to %@";
 "joint_account_join_confirm_sheet_subtitle" = "Усі учасники акаунта мають спільний баланс. Інші учасники можуть розпоряджатися коштами без вашого схвалення, якщо зберуть достатньо підписів";
 "joint_account_join_confirm_sheet_title" = "Ви приєднуєтеся до спільного акаунта";
 "joint_account_join_invalid_link_subtitle" = "Перевірте, чи відкрили правильне посилання, або попросіть творця акаунта надіслати його ще раз";
@@ -2208,7 +2213,10 @@
 "support_selector_view_chat_button" = "Відкрити чат";
 "support_selector_view_email_button" = "Відкрити пошту";
 "swap_approve_description" = "Підтверджуючи, ви дозволяєте смартконтракту використовувати ваші токени в майбутніх транзакціях.";
+"swap_custom_slippage_info" = "Slippage can't be customized with this provider and may reach up to %@ in rare cases";
 "swap_detailed_mode" = "Детальний режим";
+"swap_exchange_rates_info_text" = "displayed include the service provider’s fee";
+"swap_exchange_rates_info_title" = "Exchange rates";
 "swap_fixed_rate" = "Фіксований курс";
 "swap_give_permission_fee_footer" = "Мережа стягує комісію за схвалення токену за підтвердження, що саме ви дозволяєте використовувати ваш токен для обміну.";
 "swap_in_progress" = "Обмін у процесі";
@@ -2216,6 +2224,10 @@
 "swap_search_tooltip_description" = "Шукайте будь-який токен, навіть якщо його ще немає у вашому списку.";
 "swap_search_tooltip_title" = "Використовуйте пошук, щоб знайти потрібне";
 "swap_simple_mode" = "Простий режим";
+"swap_slippage_error" = "Unsupported amount";
+"swap_slippage_info_text" = "is the difference between the expected and actual execution price caused by market price or liquidity changes";
+"swap_slippage_warning_text" = "Swap may fail if the slippage threshold is hit";
+"swap_slippage_warning_title" = "Slippage is set %@";
 "swap_story_fifth_subtitle" = "Надійна підтримка 24/7, щоб ваші фінансові операції були швидкими та надійними!";
 "swap_story_fifth_title" = "Цілодобова підтримка";
 "swap_story_first_subtitle_v2" = "Обмінюйте крипту прямо в Tangem\nНіяких зайвих переказів\nНе потрібно відправляти кошти на біржі";
@@ -2328,6 +2340,9 @@
 "tangempay_account_deactivated_message_subtitle" = "З питань щодо даних або історії транзакцій зверніться до служби підтримки";
 "tangempay_account_deactivated_message_title" = "Ваш обліковий запис було закрито";
 "tangempay_account_unable_to_use_rooted" = "Заборонено використовувати на root-пристроях";
+"tangempay_action_required_description" = "To continue, we need a bit more information from you. This usually takes a couple of minutes";
+"tangempay_action_required_primary_btn" = "Сontinue verification";
+"tangempay_action_required_title" = "Action required";
 "tangempay_apple_wallet_add_failed_message" = "Try another device or contact support";
 "tangempay_apple_wallet_add_failed_title" = "Could Not Add Card";
 "tangempay_apple_wallet_verification_required_message" = "Complete verification in Wallet";

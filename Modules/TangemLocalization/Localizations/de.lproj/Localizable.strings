@@ -322,6 +322,7 @@
 "common_approved" = "Genehmigt";
 "common_approving" = "Genehmigen";
 "common_attention" = "Achtung";
+"common_auto" = "Auto";
 "common_available_networks" = "Verfügbare Netzwerke";
 "common_back" = "Zurück";
 "common_backup_error" = "Sicherungsfehler";
@@ -360,6 +361,7 @@
 "common_custom" = "Eigen";
 "common_day" = "Tag";
 "common_decline" = "Abgelehnt";
+"common_default" = "Default";
 "common_delete" = "Entfernen";
 "common_disable" = "Deaktivieren";
 "common_disabled" = "Deaktiviert";
@@ -488,6 +490,7 @@
 "common_share" = "Teilen";
 "common_sign" = "Signieren";
 "common_skip" = "Überspringen";
+"common_slippage" = "Slippage";
 "common_something_went_wrong" = "Etwas ist schiefgelaufen.";
 "common_stake" = "Staken";
 "common_staked" = "Einsatz";
@@ -997,6 +1000,7 @@
 "introduction_stories_two_subtitle" = "Verwenden Sie eine Ihrer Karten, um auf Ihre Wallet zuzugreifen.";
 "introduction_stories_two_title" = "Eine Wallet, mehrere Karten";
 "introduction_subtitle" = "Ein sicherer Ort für alles, was dir gehört";
+"introduction_terms_of_service_consent" = "By continuing, you agree with %@";
 "introduction_terms_of_service" = "Nutzungsbedingungen";
 "introduction_title" = "Alle deine Assets an einem Ort";
 "jailbreak_warning_message" = "Geräte mit Jailbreak gelten als weniger sicher. Deine Daten können zusätzlichen Risiken ausgesetzt sein.";
@@ -1031,6 +1035,7 @@
 "joint_account_invite_members_title" = "Einladen";
 "joint_account_invite_members_to_join" = "Lade Mitglieder ein, beizutreten";
 "joint_account_invite_members_waiting_title" = "Warten auf Mitglieder";
+"joint_account_invite_share_title" = "Invite to %@";
 "joint_account_join_confirm_sheet_subtitle" = "Alle Kontoinhaber teilen sich ein gemeinsames Guthaben. Jedes Mitglied kann das Guthaben jederzeit ausgeben oder abheben – auch ohne Ihre Zustimmung";
 "joint_account_join_confirm_sheet_title" = "Sie treten einem gemeinsam genutzten Konto bei";
 "joint_account_join_invalid_link_subtitle" = "Überprüfen Sie, ob Sie den vollständigen Link geöffnet haben, oder bitten Sie den Kontoinhaber, ihn erneut zu senden.";
@@ -2208,7 +2213,10 @@
 "support_selector_view_chat_button" = "Chat öffnen";
 "support_selector_view_email_button" = "Mail öffnen";
 "swap_approve_description" = "Durch die Genehmigung erlaubst Du dem Smart Contract, Deine Token in zukünftigen Transaktionen zu verwenden.";
+"swap_custom_slippage_info" = "Slippage can't be customized with this provider and may reach up to %@ in rare cases";
 "swap_detailed_mode" = "Detaillierter Modus";
+"swap_exchange_rates_info_text" = "displayed include the service provider’s fee";
+"swap_exchange_rates_info_title" = "Exchange rates";
 "swap_fixed_rate" = "Fester Zinssatz";
 "swap_give_permission_fee_footer" = "Das Netzwerk erhebt eine Token-Genehmigungsgebühr, um zu überprüfen, ob Sie die Verwendung Ihres Tokens für den Swap genehmigen.";
 "swap_in_progress" = "Tausch läuft";
@@ -2216,6 +2224,10 @@
 "swap_search_tooltip_description" = "Suche nach einem beliebigen Token, auch wenn es noch nicht in deiner Liste ist.";
 "swap_search_tooltip_title" = "Nutzen Sie die Suche, um zu finden, was Sie benötigen.";
 "swap_simple_mode" = "Einfacher Modus";
+"swap_slippage_error" = "Unsupported amount";
+"swap_slippage_info_text" = "is the difference between the expected and actual execution price caused by market price or liquidity changes";
+"swap_slippage_warning_text" = "Swap may fail if the slippage threshold is hit";
+"swap_slippage_warning_title" = "Slippage is set %@";
 "swap_story_fifth_subtitle" = "Vertraue auf den rund um die Uhr verfügbaren Support bei allen Problemen";
 "swap_story_fifth_title" = "Immer für Dich da";
 "swap_story_first_subtitle_v2" = "Tauschen Sie Kryptowährungen direkt in Tangem\nkeine zusätzlichen Überweisungen\nkeine Verschiebung von Geldern zu Börsen";
@@ -2328,6 +2340,9 @@
 "tangempay_account_deactivated_message_subtitle" = "Bei Fragen zu Ihrem Konto, Ihren Daten oder Ihrem Transaktionsverlauf wenden Sie sich bitte an den Support";
 "tangempay_account_deactivated_message_title" = "Ihr Konto wurde geschlossen";
 "tangempay_account_unable_to_use_rooted" = "Auf gerooteten Geräten nicht nutzbar.";
+"tangempay_action_required_description" = "To continue, we need a bit more information from you. This usually takes a couple of minutes";
+"tangempay_action_required_primary_btn" = "Сontinue verification";
+"tangempay_action_required_title" = "Action required";
 "tangempay_apple_wallet_add_failed_message" = "Versuchen Sie es mit einem anderen Gerät oder kontaktieren Sie den Support.";
 "tangempay_apple_wallet_add_failed_title" = "Karte konnte nicht hinzugefügt werden";
 "tangempay_apple_wallet_verification_required_message" = "Vollständige Verifizierung in der Wallet";
