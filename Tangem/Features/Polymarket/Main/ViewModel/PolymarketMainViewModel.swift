@@ -455,9 +455,45 @@ final class PolymarketMainViewModel: ObservableObject {
         }
     }
 
+    // MARK: - View actions
+
+    @MainActor
+    func handleViewAction(_ action: ViewAction) {
+        switch action {
+        case .close:
+            dismiss()
+        case .openHowItWorks:
+            openHowItWorks()
+        case .openSupportChat:
+            openSupportChat()
+        case .cancelSearch:
+            exitSearch()
+        case .onTabsMove(let minY, let navBarHeight):
+            updatePinnedState(tabsMinY: minY, navBarHeight: navBarHeight)
+        case .toggleBalanceMode:
+            onBalanceModeTap()
+        case .openAddFunds:
+            onAddFundsTap()
+        case .openWithdraw:
+            onWithdrawTap()
+        case .openPositionDetails(let id):
+            openPosition(id: id)
+        case .openMyPositions(let tab):
+            openMyPositions(tab: tab)
+        case .retryPositions:
+            loadPositions(userInitiated: true)
+        case .openEventDetails(let id):
+            openEventDetails(eventID: id)
+        case .retryEvents:
+            retry()
+        case .loadNextPage, .retryNextPage:
+            loadMore()
+        }
+    }
+
     // MARK: - Actions
 
-    func load() {
+    private func load() {
         loadingTask?.cancel()
 
         cache = [:]
@@ -471,7 +507,7 @@ final class PolymarketMainViewModel: ObservableObject {
         }
     }
 
-    func retry() {
+    private func retry() {
         guard !categories.isEmpty else {
             load()
             return
@@ -480,7 +516,7 @@ final class PolymarketMainViewModel: ObservableObject {
         fetchEvents()
     }
 
-    func select(categoryID: Int?) {
+    private func select(categoryID: Int?) {
         guard selectedCategoryID != categoryID else { return }
 
         loadingTask?.cancel()
@@ -494,28 +530,28 @@ final class PolymarketMainViewModel: ObservableObject {
         }
     }
 
-    func loadMore() {
+    private func loadMore() {
         guard hasNext, loadingState != .paginationLoading else { return }
 
         fetchEvents(more: true)
     }
 
-    func dismiss() {
+    private func dismiss() {
         coordinator?.dismiss()
     }
 
     @MainActor
-    func openHowItWorks() {
+    private func openHowItWorks() {
         coordinator?.openHowItWorks()
     }
 
     @MainActor
-    func openSupportChat() {
+    private func openSupportChat() {
         coordinator?.openSupportChat()
     }
 
     @MainActor
-    func openMyPositions(tab: PolymarketPositionsTab) {
+    private func openMyPositions(tab: PolymarketPositionsTab) {
         coordinator?.openMyPositions(
             tab: tab,
             onOrderPlaced: { [weak self] indexing in self?.orderPlaced(awaiting: indexing) },
@@ -523,14 +559,14 @@ final class PolymarketMainViewModel: ObservableObject {
         )
     }
 
-    func onBalanceModeTap() {
+    private func onBalanceModeTap() {
         guard canSwitchBalanceMode else { return }
 
         balanceMode = balanceMode == .total ? .available : .total
         updateBalance()
     }
 
-    func onAddFundsTap() {
+    private func onAddFundsTap() {
         guard !isRegionRestricted else {
             coordinator?.openRegionWarning()
             return
@@ -549,7 +585,7 @@ final class PolymarketMainViewModel: ObservableObject {
         }
     }
 
-    func onWithdrawTap() {
+    private func onWithdrawTap() {
         guard !isRegionRestricted else {
             coordinator?.openRegionWarning()
             return
@@ -594,18 +630,18 @@ final class PolymarketMainViewModel: ObservableObject {
         }
     }
 
-    func exitSearch() {
+    private func exitSearch() {
         isSearching = false
         isSearchFieldActive = false
         searchQuery = ""
         search.reset()
     }
 
-    func openEventDetails(eventID: String) {
+    private func openEventDetails(eventID: String) {
         openEventDetails(eventID: eventID, category: selectedCategory)
     }
 
-    func updatePinnedState(tabsMinY: CGFloat, navBarHeight: CGFloat) {
+    private func updatePinnedState(tabsMinY: CGFloat, navBarHeight: CGFloat) {
         let pinned = tabsMinY <= navBarHeight
         if pinned != isTabsPinned {
             isTabsPinned = pinned
@@ -877,6 +913,26 @@ private extension PolymarketMainViewModel {
 }
 
 extension PolymarketMainViewModel {
+    enum ViewAction {
+        case close
+        case openHowItWorks
+        case openSupportChat
+        case cancelSearch
+        case onTabsMove(minY: CGFloat, navBarHeight: CGFloat)
+        case toggleBalanceMode
+        case openAddFunds
+        case openWithdraw
+        case openPositionDetails(id: String)
+        case openMyPositions(PolymarketPositionsTab)
+        case retryPositions
+        case openEventDetails(id: String)
+        case retryEvents
+        case loadNextPage
+        case retryNextPage
+    }
+}
+
+extension PolymarketMainViewModel {
     enum BalanceMode {
         case available
         case total
@@ -929,7 +985,7 @@ private extension PolymarketMainViewModel {
 // MARK: - Positions
 
 extension PolymarketMainViewModel {
-    func openPosition(id: String) {
+    private func openPosition(id: String) {
         guard let position = openPositions.first(where: { $0.id == id }) else { return }
 
         guard !position.isRedeemable, position.settlement?.isResolved != true else {

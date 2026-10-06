@@ -165,20 +165,20 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
 
     func handleViewAction(_ action: ViewAction) {
         switch action {
-        case .closeTapped:
+        case .close:
             loadingTask?.cancel()
             coordinator?.closeMyPositions()
-        case .retryTapped:
+        case .retry:
             reload()
-        case .filterSelected(let filter):
+        case .selectFilter(let filter):
             guard self.filter != filter, canChangeFilter else { return }
 
             self.filter = filter
             applyFilter()
             continueAfterFilterChange()
-        case .loadMore:
+        case .loadNextPage, .retryNextPage:
             loadMore()
-        case .rowTapped(let id):
+        case .openPositionDetails(let id):
             openPosition(id: id)
         }
     }
@@ -402,11 +402,12 @@ extension PolymarketMyPositionsViewModel {
     }
 
     enum ViewAction {
-        case closeTapped
-        case retryTapped
-        case filterSelected(PolymarketPositionTypeFilter)
-        case loadMore
-        case rowTapped(String)
+        case close
+        case retry
+        case selectFilter(PolymarketPositionTypeFilter)
+        case loadNextPage
+        case retryNextPage
+        case openPositionDetails(id: String)
     }
 }
 

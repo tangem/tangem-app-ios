@@ -70,7 +70,7 @@ final class PolymarketOrderResultViewModel: ObservableObject, Identifiable {
     }
 
     var action: ViewAction {
-        canViewPosition ? .viewPositionTapped : .toMainTapped
+        canViewPosition ? .openPositionDetails : .returnToMain
     }
 
     var isActionDisabled: Bool {
@@ -89,9 +89,9 @@ final class PolymarketOrderResultViewModel: ObservableObject, Identifiable {
 
     func handleViewAction(_ action: ViewAction) {
         switch action {
-        case .toMainTapped:
+        case .returnToMain:
             coordinator?.returnToMain()
-        case .viewPositionTapped:
+        case .openPositionDetails:
             guard let position else { return }
 
             coordinator?.openPosition(position)
@@ -120,8 +120,8 @@ extension PolymarketOrderResultViewModel {
     }
 
     enum ViewAction {
-        case toMainTapped
-        case viewPositionTapped
+        case returnToMain
+        case openPositionDetails
     }
 }
 

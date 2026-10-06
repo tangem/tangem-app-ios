@@ -43,13 +43,13 @@ final class PolymarketRedeemViewModel: ObservableObject, Identifiable {
 
     func handleViewAction(_ action: ViewAction) {
         switch action {
-        case .primaryTapped:
+        case .performPrimaryAction:
             isActionClaim ? claim() : coordinator?.closeRedeem()
-        case .closeTapped:
+        case .close:
             guard !isClaiming else { return }
 
             coordinator?.closeRedeem()
-        case .disappeared:
+        case .onDisappear:
             claimTask?.cancel()
             claimTask = nil
         }
@@ -60,9 +60,9 @@ final class PolymarketRedeemViewModel: ObservableObject, Identifiable {
 
 extension PolymarketRedeemViewModel {
     enum ViewAction {
-        case primaryTapped
-        case closeTapped
-        case disappeared
+        case performPrimaryAction
+        case close
+        case onDisappear
     }
 }
 

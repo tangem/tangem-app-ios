@@ -24,7 +24,7 @@ struct PolymarketMyPositionsView: View {
         VStack(spacing: 0) {
             PolymarketTopBar(
                 title: Localization.predictionPositionsTitle,
-                onBack: { viewModel.handleViewAction(.closeTapped) }
+                onBack: { viewModel.handleViewAction(.close) }
             )
             .padding(.top, Constants.topBarTopPadding)
 
@@ -86,7 +86,7 @@ struct PolymarketMyPositionsView: View {
         Picker(
             selection: Binding(
                 get: { viewModel.filter },
-                set: { viewModel.handleViewAction(.filterSelected($0)) }
+                set: { viewModel.handleViewAction(.selectFilter($0)) }
             )
         ) {
             ForEach(viewModel.filters) { filter in
@@ -105,7 +105,7 @@ struct PolymarketMyPositionsView: View {
         case .error:
             PolymarketEmptyMessageView(
                 message: Localization.predictionPositionsLoadError,
-                onRetry: { viewModel.handleViewAction(.retryTapped) }
+                onRetry: { viewModel.handleViewAction(.retry) }
             )
         case .empty:
             emptyState
@@ -120,7 +120,7 @@ struct PolymarketMyPositionsView: View {
 
     private var rows: some View {
         ForEach(viewModel.rows) { model in
-            PolymarketPositionRow(model: model) { viewModel.handleViewAction(.rowTapped(model.id)) }
+            PolymarketPositionRow(model: model) { viewModel.handleViewAction(.openPositionDetails(id: model.id)) }
         }
     }
 
@@ -136,7 +136,7 @@ struct PolymarketMyPositionsView: View {
         case .loaded:
             Color.clear
                 .frame(height: Constants.paginationTriggerHeight)
-                .onAppear { viewModel.handleViewAction(.loadMore) }
+                .onAppear { viewModel.handleViewAction(.loadNextPage) }
         case .paginationLoading:
             Loader()
                 .frame(maxWidth: .infinity)
@@ -144,7 +144,7 @@ struct PolymarketMyPositionsView: View {
         case .paginationError:
             TangemUnableToLoadDataView(
                 isButtonBusy: false,
-                retryButtonAction: { viewModel.handleViewAction(.loadMore) }
+                retryButtonAction: { viewModel.handleViewAction(.retryNextPage) }
             )
             .frame(maxWidth: .infinity)
             .padding(.vertical, Constants.paginationVerticalPadding)

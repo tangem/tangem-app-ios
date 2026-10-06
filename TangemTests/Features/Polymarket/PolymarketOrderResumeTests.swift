@@ -140,7 +140,7 @@ private extension PolymarketOrderResumeTests {
 
         try await settle { model.state.balance != nil }
 
-        model.handleViewAction(.screenAppeared)
+        model.handleViewAction(.onAppear)
 
         if let enteredAmount {
             model.apply(enteredAmount: enteredAmount, debounced: false)

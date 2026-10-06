@@ -43,9 +43,30 @@ final class PolymarketWelcomeViewModel: ObservableObject {
     }
 }
 
-// MARK: - Actions
+// MARK: - View actions
 
 extension PolymarketWelcomeViewModel {
+    func handleViewAction(_ action: ViewAction) {
+        switch action {
+        case .startOnboarding:
+            onStartTap()
+        case .close:
+            onCloseTap()
+        case .openLegalTerms(let url):
+            onLegalTermsTap(url: url)
+        }
+    }
+
+    enum ViewAction {
+        case startOnboarding
+        case close
+        case openLegalTerms(URL)
+    }
+}
+
+// MARK: - Actions
+
+private extension PolymarketWelcomeViewModel {
     func onStartTap() {
         guard !isRunning else { return }
 

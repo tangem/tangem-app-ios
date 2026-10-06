@@ -43,7 +43,7 @@ private extension PolymarketWelcomeViewModel {
         )
 
         if !progress.isEmpty {
-            viewModel.onStartTap()
+            viewModel.handleViewAction(.startOnboarding)
         }
 
         return viewModel

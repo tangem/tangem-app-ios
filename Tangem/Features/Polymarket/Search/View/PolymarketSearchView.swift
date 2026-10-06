@@ -41,7 +41,7 @@ struct PolymarketSearchView: View {
                 subtitle: Localization.predictionSearchEmptySubtitle
             )
         case .error:
-            PolymarketEmptyMessageView(message: Localization.predictionMainEventsLoadError, onRetry: viewModel.retry)
+            PolymarketEmptyMessageView(message: Localization.predictionMainEventsLoadError, onRetry: { viewModel.handleViewAction(.retry) })
                 .frame(maxHeight: .infinity)
         case .loaded, .allDataLoaded, .paginationLoading, .paginationError:
             results
@@ -84,7 +84,7 @@ struct PolymarketSearchView: View {
         ForEach(viewModel.eventCards, id: \.id) { model in
             PolymarketEventCard(model: model)
                 .contentShape(.rect)
-                .onTapGesture { viewModel.openEventDetails(eventID: model.id) }
+                .onTapGesture { viewModel.handleViewAction(.openEventDetails(id: model.id)) }
                 .padding(.horizontal, Constants.horizontalPadding)
         }
     }
@@ -96,11 +96,11 @@ struct PolymarketSearchView: View {
         switch viewModel.state {
         case .loaded:
             paginationLoader
-                .onAppear { viewModel.loadMore() }
+                .onAppear { viewModel.handleViewAction(.loadNextPage) }
         case .paginationLoading:
             paginationLoader
         case .paginationError:
-            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.loadMore)
+            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: { viewModel.handleViewAction(.retryNextPage) })
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, Constants.paginationVerticalPadding)
         case .prompt, .loading, .noResults, .error, .allDataLoaded:

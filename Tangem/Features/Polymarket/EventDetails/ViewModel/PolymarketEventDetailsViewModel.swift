@@ -59,9 +59,30 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
         pollingTask?.cancel()
     }
 
+    // MARK: - View actions
+
+    func handleViewAction(_ action: ViewAction) {
+        switch action {
+        case .onAppear:
+            isVisible = true
+            updatePolling(refreshingNow: true)
+        case .onDisappear:
+            isVisible = false
+            updatePolling(refreshingNow: false)
+        case .close:
+            dismiss()
+        case .retry:
+            load()
+        case .toggleClosedMarkets:
+            toggleClosedMarkets()
+        case .expandDescription:
+            expandDescription()
+        }
+    }
+
     // MARK: - Actions
 
-    func load() {
+    private func load() {
         loadingTask?.cancel()
         stopPolling()
         state = .loading
@@ -79,18 +100,8 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
         }
     }
 
-    func dismiss() {
+    private func dismiss() {
         coordinator?.dismissEventDetails()
-    }
-
-    func onWillAppear() {
-        isVisible = true
-        updatePolling(refreshingNow: true)
-    }
-
-    func onWillDisappear() {
-        isVisible = false
-        updatePolling(refreshingNow: false)
     }
 
     private func bindApplicationState() {
@@ -118,11 +129,11 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
         pollingTask = nil
     }
 
-    func expandDescription() {
+    private func expandDescription() {
         isDescriptionExpanded = true
     }
 
-    func toggleClosedMarkets() {
+    private func toggleClosedMarkets() {
         isClosedMarketsExpanded.toggle()
     }
 
@@ -203,6 +214,17 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
 }
 
 // MARK: - State
+
+extension PolymarketEventDetailsViewModel {
+    enum ViewAction {
+        case onAppear
+        case onDisappear
+        case close
+        case retry
+        case toggleClosedMarkets
+        case expandDescription
+    }
+}
 
 extension PolymarketEventDetailsViewModel {
     enum State {

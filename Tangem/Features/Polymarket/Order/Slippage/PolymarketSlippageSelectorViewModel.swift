@@ -30,14 +30,28 @@ final class PolymarketSlippageSelectorViewModel: ObservableObject {
         apply(percent: percent)
     }
 
-    func select(preset: Preset) {
-        apply(percent: preset.percent)
+    func handleViewAction(_ action: ViewAction) {
+        switch action {
+        case .selectPreset(let preset):
+            apply(percent: preset.percent)
+        case .confirm:
+            confirm()
+        }
     }
 
-    func confirm() {
+    private func confirm() {
         guard let percent = fieldViewModel.value, PolymarketSlippage.accepts(percent) else { return }
 
         onConfirm(percent)
+    }
+}
+
+// MARK: - ViewAction
+
+extension PolymarketSlippageSelectorViewModel {
+    enum ViewAction {
+        case selectPreset(Preset)
+        case confirm
     }
 }
 
