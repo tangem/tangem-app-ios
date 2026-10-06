@@ -201,6 +201,7 @@ struct TangemPayCardManagementView: View {
             .size(.x12)
             .styleType(.secondary(.default))
             .horizontalLayout(.infinity)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.plasticContactSupportButton)
 
             TangemUI.Button(
                 label: AttributedString(Localization.tangempayCardDetailsActivate),
@@ -210,6 +211,7 @@ struct TangemPayCardManagementView: View {
             .size(.x12)
             .styleType(.default)
             .horizontalLayout(.infinity)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.plasticActivateCardButton)
         }
         .padding(.horizontal, Constants.plasticFooterHorizontalPadding)
         .padding(.vertical, Constants.plasticFooterVerticalPadding)
