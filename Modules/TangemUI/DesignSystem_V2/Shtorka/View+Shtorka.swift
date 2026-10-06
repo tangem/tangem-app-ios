@@ -86,19 +86,31 @@ private struct ShtorkaBackgroundModifier: ViewModifier {
                 .presentationGlassHidden()
         } else if #available(iOS 26.0, *) {
             filled(content)
-        } else {
-            filled(content)
-                .presentationBackground(.ultraThinMaterial)
+        } else if #available(iOS 18.0, *) {
+            materialFilled(content)
+        } else if #available(iOS 17.0, *) {
+            // With any `presentationBackground` iOS 17 never finishes laying out this sheet, so the material gives way
+            // to the solid fill.
+            filled(content, tintsMaterial: false)
+                .background { DesignSystem.Color.materialModalFillSolid.ignoresSafeArea() }
                 .presentationCornerRadius(Constants.cornerRadius)
+        } else {
+            materialFilled(content)
         }
     }
 
-    private func filled(_ content: Content) -> some View {
+    private func materialFilled(_ content: Content) -> some View {
+        filled(content)
+            .presentationBackground(.ultraThinMaterial)
+            .presentationCornerRadius(Constants.cornerRadius)
+    }
+
+    private func filled(_ content: Content, tintsMaterial: Bool = true) -> some View {
         content
             .containerCornerRadius(Constants.cornerRadius)
             .background {
                 ShtorkaSurface(
-                    tintsMaterial: true,
+                    tintsMaterial: tintsMaterial,
                     opacity: size == .full ? 1 : 0,
                     expansionProgress: expansionProgress
                 )
