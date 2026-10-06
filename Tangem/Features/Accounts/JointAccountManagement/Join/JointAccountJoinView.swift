@@ -42,6 +42,7 @@ struct JointAccountJoinView: View {
                 )
             }
         }
+        .ignoresSafeArea(.keyboard)
     }
 
     private func invite(_ content: JointAccountJoinViewModel.Content) -> some View {

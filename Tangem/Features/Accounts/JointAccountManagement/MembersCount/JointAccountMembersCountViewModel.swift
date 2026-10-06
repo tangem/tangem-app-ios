@@ -8,6 +8,9 @@
 
 import Combine
 import Foundation
+import SwiftUI
+import TangemAssets
+import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 
 final class JointAccountMembersCountViewModel: ObservableObject {
@@ -28,6 +31,8 @@ final class JointAccountMembersCountViewModel: ObservableObject {
     var memberStates: [JointAccountMemberCircle.State] { members() }
     var membersCountRange: ClosedRange<Int> { Constants.membersCountRange }
     var signersCountRange: ClosedRange<Int> { Constants.minimumSignersCount ... membersCount }
+
+    var subtitle: AttributedString { makeSubtitle() }
 
     private let creationHelper: JointAccountCreationHelper
     private weak var coordinator: JointAccountMembersCountRoutable?
@@ -63,6 +68,20 @@ final class JointAccountMembersCountViewModel: ObservableObject {
 // MARK: - Private
 
 private extension JointAccountMembersCountViewModel {
+    func makeSubtitle() -> AttributedString {
+        let signersCount = String(signersCount)
+        let membersCount = String(membersCount)
+        let signersPart = Localization.jointAccountMembersSubtitleHelperPart(signersCount, membersCount).trimmed()
+        var subtitle = AttributedString(Localization.jointAccountMembersSubtitle(signersCount, membersCount))
+
+        if let range = subtitle.range(of: signersPart) {
+            subtitle[range].foregroundColor = DesignSystem.Color.textPrimary
+            return subtitle
+        }
+
+        return subtitle
+    }
+
     func keepDraft() {
         creationHelper.update(membersCount: membersCount, signersCount: signersCount)
     }
