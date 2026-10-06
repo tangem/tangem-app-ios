@@ -226,7 +226,7 @@ private final class JointAccountInviteMembersRoutableSpy: JointAccountInviteMemb
 
     func closeInviteMembers() {}
 
-    func shareInvite(url: URL) {}
+    func shareInvite(url: URL, accountName: String) {}
 
     func openInviteSafety() {}
 
