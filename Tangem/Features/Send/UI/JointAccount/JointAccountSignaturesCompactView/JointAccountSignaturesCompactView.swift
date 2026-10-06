@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import TangemAssets
 import TangemLocalization
 import TangemUI
 
@@ -16,17 +15,12 @@ struct JointAccountSignaturesCompactView: View {
 
     var body: some View {
         MessageBanner(
-            title: Localization.jointAccountSendSignaturesRequired(viewModel.policy.signersCount, viewModel.policy.membersCount),
+            title: Localization.jointAccountSendSignaturesRequiredBanner(viewModel.policy.signersCount),
             description: viewModel.includesSetupFee
                 ? Localization.jointAccountSendSendsAutomaticallySetupFee
                 : Localization.jointAccountSendSendsAutomatically
         )
         .variant(.default)
         .glowRing(.warning)
-        .slotEnd {
-            DesignSystem.Icons.Document.regular20.image
-                .renderingMode(.template)
-                .foregroundStyle(DesignSystem.Color.iconStatusWarning)
-        }
     }
 }
