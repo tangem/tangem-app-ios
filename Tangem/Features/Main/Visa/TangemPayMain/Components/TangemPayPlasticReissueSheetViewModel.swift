@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemUI
 import TangemAssets
 import TangemFoundation
@@ -45,6 +46,10 @@ final class TangemPayPlasticReissueSheetViewModel: ObservableObject, FloatingShe
             size: .default,
             action: dismiss
         )
+    }
+
+    var primaryButtonAccessibilityIdentifier: String? {
+        TangemPayAccessibilityIdentifiers.plasticReissueSheetConfirmButton
     }
 
     var infoRows: [TangemPayOrderCardInfoRow] {
