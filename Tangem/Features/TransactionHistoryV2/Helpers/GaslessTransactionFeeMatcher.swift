@@ -26,6 +26,14 @@ struct GaslessTransactionFeeMatcher {
         self.serviceFeeRecipientAddress = serviceFeeRecipientAddress
     }
 
+    static func isFeeCoveredByTronResources(of record: TransactionRecord, on blockchain: Blockchain) -> Bool {
+        guard case .tron = blockchain else {
+            return false
+        }
+
+        return record.fee.amount.value.isZero
+    }
+
     func isNetworkFeeTransfer(_ record: TransactionRecord) -> Bool {
         if isTronCompensation(record) {
             return true

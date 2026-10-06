@@ -65,8 +65,19 @@ final class NoopTransactionDetailsRoutable: TransactionDetailsRoutable {
 extension CommonWalletModel {
     /// Builds a wallet model backed by a `PreviewTransactionHistoryService` seeded with `history`, mirroring
     /// `CommonWalletModel.mockETH` but with a live history service instead of `nil`.
-    static func previewWalletModel(history: [TransactionRecord], token: Token? = nil) -> CommonWalletModel {
+    static func previewWalletModel(
+        history: [TransactionRecord],
+        token: Token? = nil,
+        blockchain: Blockchain = .ethereum(testnet: false)
+    ) -> CommonWalletModel {
         let walletManager = EthereumWalletManagerMock()
+        walletManager.wallet = Wallet(
+            blockchain: blockchain,
+            publicKey: walletManager.wallet.publicKey,
+            addressesProvider: CommonAddressesProvider(
+                defaultAddress: PlainAddress(value: walletManager.wallet.address, type: .default)
+            )
+        )
         let blockchain = walletManager.wallet.blockchain
         let derivationPath = walletManager.wallet.publicKey.derivationPath
         let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
