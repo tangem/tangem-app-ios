@@ -43,6 +43,19 @@ struct IncomingActionParserTests {
         #expect(parser.parseIncomingURL(url) != nil)
     }
 
+    @Test(
+        "A Tangem Pay onboarding link from an attribution domain opens onboarding",
+        arguments: [
+            "https://tangem.onelink.me/abcd?deep_link_value=tpay_mobileonboard",
+            "https://join.tangem.com/MsTz?af_xp=social&pid=marketing&c=tpay_mobileonboard&deep_link_value=tpay_mobileonboard&af_dp=tangem%3A%2F%2F",
+        ]
+    )
+    func tangemPayOnboardingLink(urlString: String) throws {
+        let url = try #require(URL(string: urlString))
+
+        #expect(parser.parseIncomingURL(url) == .navigation(.onboardVisa(OnboardVisaDeeplink(deeplinkString: nil))))
+    }
+
     /// Our own scheme is not a blockchain one whatever case it is written in. Reading it as one is worse than
     /// reading nothing: the link would ask for a card scan instead of the screen it names.
     @Test("A push carrying a link under the deeplink key is read as that link")
