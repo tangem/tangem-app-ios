@@ -1031,6 +1031,7 @@
 "joint_account_invite_members_title" = "Convidar membros";
 "joint_account_invite_members_to_join" = "Convide membros para participar";
 "joint_account_invite_members_waiting_title" = "Aguardando membros";
+"joint_account_invite_share_title" = "Invite to %@";
 "joint_account_join_confirm_sheet_subtitle" = "Todos os membros desta conta compartilham o mesmo saldo. Outros membros podem movimentar os fundos sem a sua aprovação quando obtiverem assinaturas suficientes";
 "joint_account_join_confirm_sheet_title" = "Você está entrando em uma conta compartilhada";
 "joint_account_join_invalid_link_subtitle" = "Verifique se você abriu o link correto ou peça ao criador da conta para enviá-lo novamente";
@@ -2328,6 +2329,9 @@
 "tangempay_account_deactivated_message_subtitle" = "Para dúvidas sobre sua conta, dados ou histórico de transações, entre em contato com o suporte";
 "tangempay_account_deactivated_message_title" = "Sua conta foi encerrada";
 "tangempay_account_unable_to_use_rooted" = "Não é possível usar em dispositivos com root.";
+"tangempay_action_required_description" = "To continue, we need a bit more information from you. This usually takes a couple of minutes";
+"tangempay_action_required_primary_btn" = "Сontinue verification";
+"tangempay_action_required_title" = "Action required";
 "tangempay_apple_wallet_add_failed_message" = "Tente usar outro dispositivo ou entre em contato com o suporte";
 "tangempay_apple_wallet_add_failed_title" = "Não foi possível adicionar o cartão";
 "tangempay_apple_wallet_verification_required_message" = "Conclua a verificação na carteira";
@@ -2468,7 +2472,7 @@
 "tangempay_cashback_accruals_calc_title" = "Como calculamos o cashback?";
 "tangempay_cashback_accruals_exceptions_description" = "No momento, pagamentos presenciais na maquininha em lojas físicas na UE não acumulam cashback. Ele também não é válido para saques, quase-moeda, recargas de celular, serviços públicos e outras categorias específicas.";
 "tangempay_cashback_accruals_exceptions_title" = "Exceções";
-"tangempay_cashback_accruals_pay_description" = "Do dia 2 ao dia 5 do próximo mês";
+"tangempay_cashback_accruals_pay_description" = "Até o dia 10 do mês seguinte, após a verificação da conformidade das transações com as regras do programa de cashback";
 "tangempay_cashback_accruals_pay_title" = "Como pagamos o cashback?";
 "tangempay_cashback_accruals_subtitle" = "Limites e exceções";
 "tangempay_cashback_accruals_title" = "Valores acumulados";
@@ -2477,7 +2481,7 @@
 "tangempay_cashback_additional_until" = "Até %1$@";
 "tangempay_cashback_deactivated_description" = "Isso ocorreu devido à detecção de atividade suspeita. Entre em contato com o suporte para saber mais";
 "tangempay_cashback_deactivated_title" = "Cashback desativado";
-"tangempay_cashback_deposit_banner" = "Cashback %1$@ referente a %2$@ será depositado até %3$@";
+"tangempay_cashback_deposit_banner" = "Cashback %1$@ referente a %2$@ será depositado até %3$@ após a verificação";
 "tangempay_cashback_deposited_on" = "Será depositado em %1$@";
 "tangempay_cashback_details_cap" = "%1$@ máximo por mês";
 "tangempay_cashback_details_eu_excluded" = "Por enquanto, não há cashback para compras presenciais em estabelecimentos comerciais da UE.";
@@ -2580,7 +2584,7 @@
 "tangempay_kyc_rejected_description" = "Desculpe, não foi possível verificar.";
 "tangempay_kyc_rejected" = "Rejeitado";
 "tangempay_main_select_plan" = "Selecionar plano";
-"tangempay_maximum_cards_issued_description" = "Você pode ter até 3 cartões. Exclua um para adicionar um novo.";
+"tangempay_maximum_cards_issued_description" = "Exclua um para adicionar um novo";
 "tangempay_maximum_cards_issued_for_plan_description" = "Atualize seu plano para ter mais cartões";
 "tangempay_maximum_cards_issued_for_plan_title" = "Limite de cartões atingido para este plano";
 "tangempay_maximum_cards_issued_for_plan_upgrade_btn" = "Atualizar plano";

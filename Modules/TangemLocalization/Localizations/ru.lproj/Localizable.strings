@@ -1031,6 +1031,7 @@
 "joint_account_invite_members_title" = "Пригласите участников";
 "joint_account_invite_members_to_join" = "Пригласите участников в аккаунт";
 "joint_account_invite_members_waiting_title" = "Ожидаем участников";
+"joint_account_invite_share_title" = "Invite to %@";
 "joint_account_join_confirm_sheet_subtitle" = "У всех участников аккаунта общий баланс. Другие участники могут распоряжаться средствами без вашего согласия, если соберут достаточно подписей";
 "joint_account_join_confirm_sheet_title" = "Вы вступаете в общий аккаунт";
 "joint_account_join_invalid_link_subtitle" = "Проверьте, что открыли правильную ссылку, или попросите создателя аккаунта отправить её ещё раз";
@@ -2328,6 +2329,9 @@
 "tangempay_account_deactivated_message_subtitle" = "По вопросам данных или истории транзакций, обратитесь в поддержку";
 "tangempay_account_deactivated_message_title" = "Аккаунт закрыт";
 "tangempay_account_unable_to_use_rooted" = "Запрещено использовать на root-устройствах";
+"tangempay_action_required_description" = "To continue, we need a bit more information from you. This usually takes a couple of minutes";
+"tangempay_action_required_primary_btn" = "Сontinue verification";
+"tangempay_action_required_title" = "Action required";
 "tangempay_apple_wallet_add_failed_message" = "Try another device or contact support";
 "tangempay_apple_wallet_add_failed_title" = "Could Not Add Card";
 "tangempay_apple_wallet_verification_required_message" = "Complete verification in Wallet";
@@ -2468,7 +2472,7 @@
 "tangempay_cashback_accruals_calc_title" = "Как мы рассчитываем кэшбэк?";
 "tangempay_cashback_accruals_exceptions_description" = "Пока не начисляем кэшбэк за покупки в офлайн-магазинах в ЕС. Также кэшбэка не будет за снятие наличных, квази-кэш операции, оплату мобильной связи, госуслуги и некоторые другие категории";
 "tangempay_cashback_accruals_exceptions_title" = "Исключения";
-"tangempay_cashback_accruals_pay_description" = "Со 2 по 5 число следующего месяца";
+"tangempay_cashback_accruals_pay_description" = "До 10-го числа следующего месяца, после проверки транзакций на соответствие правилам программы кешбэка";
 "tangempay_cashback_accruals_pay_title" = "Как мы выплачиваем кэшбэк?";
 "tangempay_cashback_accruals_subtitle" = "Лимиты и исключения";
 "tangempay_cashback_accruals_title" = "Как начисляем";
@@ -2477,7 +2481,7 @@
 "tangempay_cashback_additional_until" = "До %1$@";
 "tangempay_cashback_deactivated_description" = "Это произошло из-за подозрительной активности. Обратитесь в поддержку";
 "tangempay_cashback_deactivated_title" = "Кэшбэк деактивирован";
-"tangempay_cashback_deposit_banner" = "Кэшбэк %1$@ за %2$@ зачислим на счёт до %3$@";
+"tangempay_cashback_deposit_banner" = "Кэшбэк %1$@ за %2$@ выплатим до %3$@ после валидации покупок";
 "tangempay_cashback_deposited_on" = "Зачислим на счёт %1$@";
 "tangempay_cashback_details_cap" = "Максимум %1$@ в месяц";
 "tangempay_cashback_details_eu_excluded" = "Пока не начисляем кэшбэк за офлайн-покупки у продавцов из ЕС";
@@ -2580,7 +2584,7 @@
 "tangempay_kyc_rejected_description" = "Извините, мы не смогли подтвердить";
 "tangempay_kyc_rejected" = "Отклонено";
 "tangempay_main_select_plan" = "Выбрать тариф";
-"tangempay_maximum_cards_issued_description" = "Вы можете иметь до 3 карт. Удалите одну, чтобы добавить новую.";
+"tangempay_maximum_cards_issued_description" = "Удалите одну, чтобы добавить новую";
 "tangempay_maximum_cards_issued_for_plan_description" = "Перейдите на более высокий тариф, чтобы иметь больше карт";
 "tangempay_maximum_cards_issued_for_plan_title" = "Достигнут лимит карт для этого тарифа";
 "tangempay_maximum_cards_issued_for_plan_upgrade_btn" = "Улучшить тариф";
