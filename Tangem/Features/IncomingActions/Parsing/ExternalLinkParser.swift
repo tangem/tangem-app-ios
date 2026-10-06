@@ -12,10 +12,10 @@ import Foundation
 /// keeps it out of the ordered list so it can't be moved in front of a parser that owns a page.
 struct ExternalLinkParser: IncomingActionURLParser {
     func parse(_ url: URL) -> IncomingAction? {
-        // The attribution domain has no page of its own to show, and what it forwards to is a redirect that
+        // The attribution domains have no page of their own to show, and what they forward to is a redirect that
         // would send the user back out of the app.
         guard case .path(let domain, _)? = DeeplinkURL(url: url)?.kind,
-              domain != IncomingActionConstants.attributionHost else {
+              !IncomingActionConstants.attributionHosts.contains(domain) else {
             return nil
         }
 
