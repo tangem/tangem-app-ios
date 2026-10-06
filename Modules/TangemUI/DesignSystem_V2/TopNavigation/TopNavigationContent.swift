@@ -169,6 +169,8 @@ struct TopNavigationActionButton: View {
                 styledButton(perform: {})
                     .allowsHitTesting(false)
             }
+            .menuStyle(.button)
+            .buttonStyle(.plain)
             .ifLet(action.accessibilityLabel) { view, label in
                 view.accessibilityLabel(Text(label))
             }
