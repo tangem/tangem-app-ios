@@ -1031,6 +1031,7 @@
 "joint_account_invite_members_title" = "Invite members";
 "joint_account_invite_members_to_join" = "Invite members to join";
 "joint_account_invite_members_waiting_title" = "Waiting for members";
+"joint_account_invite_share_title" = "Invite to %@";
 "joint_account_join_confirm_sheet_subtitle" = "This account has its own shared balance, separate from your personal funds. Members can manage the funds together, and some transactions may be approved without you.";
 "joint_account_join_confirm_sheet_title" = "You're joining a shared account";
 "joint_account_join_invalid_link_subtitle" = "Check that you opened the correct link, or ask the account creator to send it again";
@@ -2328,6 +2329,9 @@
 "tangempay_account_deactivated_message_subtitle" = "如需查詢帳戶、資料或交易記錄，請聯絡客服支援";
 "tangempay_account_deactivated_message_title" = "您的帳戶已被關閉";
 "tangempay_account_unable_to_use_rooted" = "無法在已取得 root 權限的裝置上使用";
+"tangempay_action_required_description" = "To continue, we need a bit more information from you. This usually takes a couple of minutes";
+"tangempay_action_required_primary_btn" = "Сontinue verification";
+"tangempay_action_required_title" = "Action required";
 "tangempay_apple_wallet_add_failed_message" = "Try another device or contact support";
 "tangempay_apple_wallet_add_failed_title" = "Could Not Add Card";
 "tangempay_apple_wallet_verification_required_message" = "Complete verification in Wallet";
@@ -2468,7 +2472,7 @@
 "tangempay_cashback_accruals_calc_title" = "我們如何計算現金回饋？";
 "tangempay_cashback_accruals_exceptions_description" = "暫不支援歐盟實體店消費回饋。提款、類現金交易、話費加值、政府服務等部分類別亦不適用回饋。";
 "tangempay_cashback_accruals_exceptions_title" = "例外情況";
-"tangempay_cashback_accruals_pay_description" = "下月 2 日至 5 日";
+"tangempay_cashback_accruals_pay_description" = "交易經核查符合回饋計畫規則後,於下月10日前發放";
 "tangempay_cashback_accruals_pay_title" = "我們如何支付現金回饋？";
 "tangempay_cashback_accruals_subtitle" = "限額與例外情況";
 "tangempay_cashback_accruals_title" = "累計";
@@ -2477,7 +2481,7 @@
 "tangempay_cashback_additional_until" = "至 %1$@";
 "tangempay_cashback_deactivated_description" = "由於偵測到可疑行為，我們已停用此功能。請聯絡客服了解詳情";
 "tangempay_cashback_deactivated_title" = "現金回饋已停用";
-"tangempay_cashback_deposit_banner" = "%2$@ 的現金回饋 %1$@ 將於 %3$@ 前存入";
+"tangempay_cashback_deposit_banner" = "%2$@ 的 %1$@ 回饋將在審核後於 %3$@ 前入帳";
 "tangempay_cashback_deposited_on" = "將於 %1$@ 存入";
 "tangempay_cashback_details_cap" = "每月最高 %1$@";
 "tangempay_cashback_details_eu_excluded" = "暫不支援歐盟實體店消費回饋";
@@ -2580,7 +2584,7 @@
 "tangempay_kyc_rejected_description" = "抱歉，我們無法驗證";
 "tangempay_kyc_rejected" = "已拒絕";
 "tangempay_main_select_plan" = "選擇方案";
-"tangempay_maximum_cards_issued_description" = "您最多可以持有 3 張卡片。刪除一張即可新增卡片。";
+"tangempay_maximum_cards_issued_description" = "刪除一張即可新增卡片";
 "tangempay_maximum_cards_issued_for_plan_description" = "升級方案以取得更多卡片";
 "tangempay_maximum_cards_issued_for_plan_title" = "該方案的卡片數量已達上限";
 "tangempay_maximum_cards_issued_for_plan_upgrade_btn" = "升級方案";

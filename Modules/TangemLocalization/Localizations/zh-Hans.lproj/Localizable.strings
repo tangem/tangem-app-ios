@@ -1031,6 +1031,7 @@
 "joint_account_invite_members_title" = "邀请成员";
 "joint_account_invite_members_to_join" = "邀请成员加入";
 "joint_account_invite_members_waiting_title" = "等待成员";
+"joint_account_invite_share_title" = "Invite to %@";
 "joint_account_join_confirm_sheet_subtitle" = "该账户中的所有成员共用一个余额。其他成员在收集到足够签名后，无需您的批准即可调拨资金。";
 "joint_account_join_confirm_sheet_title" = "您正在加入一个共享帐户";
 "joint_account_join_invalid_link_subtitle" = "请确认您打开的是正确的链接，或者请账号创建者重新发送一次";
@@ -2328,6 +2329,9 @@
 "tangempay_account_deactivated_message_subtitle" = "如需咨询账户、数据或交易记录，请联系支持团队";
 "tangempay_account_deactivated_message_title" = "您的账户已被关闭";
 "tangempay_account_unable_to_use_rooted" = "无法在已root的设备上使用";
+"tangempay_action_required_description" = "To continue, we need a bit more information from you. This usually takes a couple of minutes";
+"tangempay_action_required_primary_btn" = "Сontinue verification";
+"tangempay_action_required_title" = "Action required";
 "tangempay_apple_wallet_add_failed_message" = "Try another device or contact support";
 "tangempay_apple_wallet_add_failed_title" = "Could Not Add Card";
 "tangempay_apple_wallet_verification_required_message" = "Complete verification in Wallet";
@@ -2468,7 +2472,7 @@
 "tangempay_cashback_accruals_calc_title" = "我们如何计算返现？";
 "tangempay_cashback_accruals_exceptions_description" = "暂不支持欧盟线下门店消费返现。提现、准现金交易、话费充值、政务缴费等部分特定类别同样不参与返现。";
 "tangempay_cashback_accruals_exceptions_title" = "例外情况";
-"tangempay_cashback_accruals_pay_description" = "下月 2 日至 5 日";
+"tangempay_cashback_accruals_pay_description" = "交易经核查符合返现计划规则后,于下月10日前发放";
 "tangempay_cashback_accruals_pay_title" = "我们如何支付返现？";
 "tangempay_cashback_accruals_subtitle" = "限额与例外情况";
 "tangempay_cashback_accruals_title" = "累计";
@@ -2477,7 +2481,7 @@
 "tangempay_cashback_additional_until" = "至 %1$@";
 "tangempay_cashback_deactivated_description" = "由于检测到可疑行为，我们已停用此功能。请联系客服了解详情";
 "tangempay_cashback_deactivated_title" = "返现已停用";
-"tangempay_cashback_deposit_banner" = "%2$@ 的返现 %1$@ 将于 %3$@ 前存入";
+"tangempay_cashback_deposit_banner" = "%2$@ 的 %1$@ 返现将在审核后于 %3$@ 前到账";
 "tangempay_cashback_deposited_on" = "将于 %1$@ 存入";
 "tangempay_cashback_details_cap" = "每月最高 %1$@";
 "tangempay_cashback_details_eu_excluded" = "暂不支持欧盟线下门店消费返现";
@@ -2580,7 +2584,7 @@
 "tangempay_kyc_rejected_description" = "抱歉，我们无法验证";
 "tangempay_kyc_rejected" = "已拒绝";
 "tangempay_main_select_plan" = "选择套餐";
-"tangempay_maximum_cards_issued_description" = "您最多可以添加 3 张卡片。删除一张即可添加新卡片。";
+"tangempay_maximum_cards_issued_description" = "删除一张卡即可添加新卡";
 "tangempay_maximum_cards_issued_for_plan_description" = "升级套餐以获得更多卡片";
 "tangempay_maximum_cards_issued_for_plan_title" = "该套餐的卡片数量已达上限";
 "tangempay_maximum_cards_issued_for_plan_upgrade_btn" = "升级套餐";
