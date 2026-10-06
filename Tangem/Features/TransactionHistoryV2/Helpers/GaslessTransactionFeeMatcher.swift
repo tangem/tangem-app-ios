@@ -35,8 +35,15 @@ struct GaslessTransactionFeeMatcher {
             return false
         }
 
-        return Constants.knownFeeRecipientAddresses.contains { record.hasDestination(address: $0) }
-            || serviceFeeRecipientAddress.map(record.hasDestination(address:)) == true
+        return record.destination.destinations.contains { isFeeRecipient($0.address.string) }
+    }
+
+    func feeTokenTransfers(of record: TransactionRecord) -> [TransactionRecord.TokenTransfer] {
+        guard Self.isExecutorCall(record.type) else {
+            return []
+        }
+
+        return record.tokenTransfers.filter { isFeeRecipient($0.destination) }
     }
 
     static func isExecutorCall(_ type: TransactionRecord.TransactionType) -> Bool {
@@ -61,6 +68,11 @@ struct GaslessTransactionFeeMatcher {
 
         return smartContractMethodMapper.getName(for: id) == Constants.mappedGaslessMethodName
             || Constants.yieldSendMethodId.caseInsensitiveEquals(to: id)
+    }
+
+    private func isFeeRecipient(_ address: String) -> Bool {
+        Constants.knownFeeRecipientAddresses.contains { $0.caseInsensitiveEquals(to: address) }
+            || serviceFeeRecipientAddress?.caseInsensitiveEquals(to: address) == true
     }
 
     private func isTronCompensation(_ record: TransactionRecord) -> Bool {
