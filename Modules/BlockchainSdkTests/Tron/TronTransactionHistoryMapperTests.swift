@@ -8,6 +8,7 @@
 
 import Foundation
 @testable import BlockchainSdk
+import TangemFoundation
 import Testing
 
 struct TronTransactionHistoryMapperTests {
@@ -268,7 +269,257 @@ struct TronTransactionHistoryMapperTests {
         #expect(records[0].source == .single(.init(address: walletAddress, amount: 19)))
     }
 
+    // MARK: - Contract calls in the coin history
+
+    @Test("A TRC20 transfer is a plain transfer, whichever field carries the contract type", arguments: [
+        TransactionFixtureContractType.integer,
+        .chainExtraData,
+    ])
+    func trc20TransferIsATransfer(contractType: TransactionFixtureContractType) throws {
+        let record = try mapCoinContractCall(calldata: transferCalldata, contractType: contractType)
+
+        #expect(record.type == .transfer)
+    }
+
+    @Test("Any other contract call keeps its selector", arguments: [
+        TransactionFixtureContractType.integer,
+        .chainExtraData,
+    ])
+    func otherContractCallKeepsItsSelector(contractType: TransactionFixtureContractType) throws {
+        let approveCalldata = "0x095ea7b3" + transferCalldata.dropFirst(10)
+
+        let record = try mapCoinContractCall(calldata: approveCalldata, contractType: contractType)
+
+        #expect(record.type == .contractMethodIdentifier(id: "0x095ea7b3"))
+    }
+
+    @Test("A selector Blockbook parsed wins over the raw call data")
+    func parsedSelectorWinsOverRawCallData() throws {
+        let record = try mapCoinContractCall(
+            calldata: transferCalldata,
+            parsedMethodId: "0x12345678",
+            contractType: .chainExtraData
+        )
+
+        #expect(record.type == .contractMethodIdentifier(id: "0x12345678"))
+    }
+
+    @Test("A selector Blockbook parsed without its hex prefix is still recognized")
+    func parsedSelectorWithoutHexPrefixIsRecognized() throws {
+        let record = try mapCoinContractCall(
+            calldata: transferCalldata,
+            parsedMethodId: "a9059cbb",
+            contractType: .chainExtraData
+        )
+
+        #expect(record.type == .transfer)
+    }
+
+    @Test("A contract call without call data keeps the type it had", arguments: [
+        TransactionFixtureContractType.integer,
+        .chainExtraData,
+    ])
+    func contractCallWithoutCallDataKeepsItsType(contractType: TransactionFixtureContractType) throws {
+        let record = try mapCoinContractCall(calldata: nil, contractType: contractType)
+
+        switch contractType {
+        case .integer:
+            #expect(record.type == .contractMethodIdentifier(id: "TriggerSmartContract"))
+        case .chainExtraData:
+            #expect(record.type == .transfer)
+        }
+    }
+
+    @Test("A contract call is addressed to the contract, whichever field carries the contract type", arguments: [
+        TransactionFixtureContractType.integer,
+        .chainExtraData,
+    ])
+    func contractCallIsAddressedToTheContract(contractType: TransactionFixtureContractType) throws {
+        let record = try mapCoinContractCall(calldata: transferCalldata, contractType: contractType)
+
+        #expect(record.destination == .single(.init(address: .contract(usdtContract), amount: 0)))
+    }
+
+    @Test("A TRC20 transfer Blockbook reported without its token transfer gets one from the call data")
+    func trc20TransferWithoutTokenTransfersIsDecoded() throws {
+        let record = try mapCoinContractCall(calldata: transferCalldata, contractType: .chainExtraData)
+
+        #expect(record.tokenTransfers == [
+            TransactionRecord.TokenTransfer(
+                source: walletAddress,
+                destination: otherAddress,
+                amount: 1_000_000,
+                name: nil,
+                symbol: "USDT",
+                decimals: 6,
+                contract: usdtContract
+            ),
+        ])
+    }
+
+    @Test("The token transfers Blockbook reported win over the call data")
+    func reportedTokenTransfersWinOverCallData() throws {
+        let reported = BlockBookAddressResponse.TokenTransfer(
+            type: "TRC20",
+            from: walletAddress,
+            to: "TJRyWwFs9wTFGZg3JbrVriFbNfCug5tDeC",
+            contract: usdtContract,
+            token: nil,
+            name: "Tether USD",
+            symbol: "USDT",
+            decimals: 6,
+            value: "5"
+        )
+
+        let record = try mapCoinContractCall(calldata: transferCalldata, contractType: .chainExtraData, tokenTransfers: [reported])
+
+        #expect(record.tokenTransfers.map(\.amount) == [5])
+    }
+
+    // MARK: - A NowNodes response
+
+    @Test("TRC20 transfers from a NowNodes response are transfers to the contract, with the fee the wallet paid")
+    func trc20TransfersFromANowNodesResponse() throws {
+        let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
+        let response = try JSONDecoder().decode(BlockBookAddressResponse.self, from: Data(nowNodesTRC20Response.utf8))
+
+        let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
+
+        #expect(records.map(\.hash) == ["paidtransfer", "gaslesscompensation", "gaslesstransfer"])
+        #expect(records.allSatisfy { $0.type == .transfer && $0.isOutgoing })
+        #expect(records.allSatisfy { $0.destination == .single(.init(address: .contract(usdtContract), amount: 0)) })
+        #expect(records.map(\.fee.amount.value) == [Decimal(string: "6.4285")!, 0, 0])
+        #expect(records.map { $0.tokenTransfers.map(\.destination) } == [
+            [otherAddress],
+            ["TSWsmaEDgWaE2VsP9tCBGh5GbBRbrdHSuZ"],
+            [otherAddress],
+        ])
+    }
+
     // MARK: - Helpers
+
+    private var nowNodesTRC20Response: String {
+        let transactions = [
+            nowNodesTRC20Transaction(
+                txid: "paidtransfer",
+                recipient: otherAddress,
+                rawAmount: "46000000",
+                calldata: "0xa9059cbb000000000000000000000041a346f2bd7d43a5d90b7c57a18196be96b2840e61"
+                    + "0000000000000000000000000000000000000000000000000000000002bde780",
+                totalFee: "6428500"
+            ),
+            nowNodesTRC20Transaction(
+                txid: "gaslesscompensation",
+                recipient: "TSWsmaEDgWaE2VsP9tCBGh5GbBRbrdHSuZ",
+                rawAmount: "2115586",
+                calldata: "0xa9059cbb000000000000000000000041b57f44d21cac5218c0a86b8758dc65427d3530c6"
+                    + "0000000000000000000000000000000000000000000000000000000000204802",
+                totalFee: nil
+            ),
+            nowNodesTRC20Transaction(
+                txid: "gaslesstransfer",
+                recipient: otherAddress,
+                rawAmount: "2000000",
+                calldata: "0xa9059cbb000000000000000000000041a346f2bd7d43a5d90b7c57a18196be96b2840e61"
+                    + "00000000000000000000000000000000000000000000000000000000001e8480",
+                totalFee: nil
+            ),
+        ]
+
+        return """
+        {
+          "page": 1, "totalPages": 1, "itemsOnPage": 100, "address": "\(walletAddress)", "balance": "12535259",
+          "unconfirmedBalance": "0", "unconfirmedTxs": 0, "txs": 3, "nonTokenTxs": 0,
+          "transactions": [\(transactions.joined(separator: ","))],
+          "tokens": [{ "type": "TRC20", "name": "Tether USD", "contract": "\(usdtContract)", "transfers": 3, "symbol": "USDT", "decimals": 6 }]
+        }
+        """
+    }
+
+    private func nowNodesTRC20Transaction(
+        txid: String,
+        recipient: String,
+        rawAmount: String,
+        calldata: String,
+        totalFee: String?
+    ) -> String {
+        let fee = totalFee.map { #", "totalFee": "\#($0)""# } ?? ""
+
+        return """
+        {
+          "txid": "\(txid)",
+          "vin": [{ "n": 0, "addresses": ["\(walletAddress)"], "isAddress": true, "isOwn": true }],
+          "vout": [{ "value": "0", "n": 0, "addresses": ["\(usdtContract)"], "isAddress": true }],
+          "blockHash": "00000000052bb957a71f916362e60782f100db7e3a0c0a212235c107c61be88f", "blockHeight": 86751575,
+          "confirmations": 91972, "blockTime": 1790927343, "value": "0", "fees": "0",
+          "chainExtraData": {
+            "payloadType": "tron",
+            "payload": { "contractType": "TriggerSmartContract", "operation": "contractCall", "bandwidthUsage": "345"\(fee) }
+          },
+          "tokenTransfers": [{
+            "type": "TRC20", "standard": "TRC20", "from": "\(walletAddress)", "to": "\(recipient)",
+            "contract": "\(usdtContract)", "name": "Tether USD", "symbol": "USDT", "decimals": 6, "value": "\(rawAmount)"
+          }],
+          "ethereumSpecific": {
+            "type": 1, "createdContract": "\(usdtContract)", "status": 1, "nonce": 0, "gasLimit": 0,
+            "data": "\(calldata)", "parsedData": { "methodId": "0xa9059cbb", "name": "" }
+          }
+        }
+        """
+    }
+
+    private var usdtContract: String { "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t" }
+
+    private var transferCalldata: String {
+        "0xa9059cbb" + String(repeating: "00", count: 11) + "41a346f2bd7d43a5d90b7c57a18196be96b2840e61"
+            + String(repeating: "0", count: 59) + "f4240"
+    }
+
+    private func mapCoinContractCall(
+        calldata: String?,
+        parsedMethodId: String? = nil,
+        contractType: TransactionFixtureContractType,
+        tokenTransfers: [BlockBookAddressResponse.TokenTransfer]? = nil
+    ) throws -> TransactionRecord {
+        let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
+        let transaction = BlockBookAddressResponse.Transaction(
+            fromAddress: walletAddress,
+            toAddress: usdtContract,
+            value: "0",
+            fees: "345000",
+            contractType: contractType == .integer ? 31 : nil,
+            contractName: contractType == .integer ? "TriggerSmartContract" : nil,
+            chainExtraData: contractType == .chainExtraData ? makeChainExtraData(contractType: "TriggerSmartContract") : nil,
+            tokenTransfers: tokenTransfers,
+            ethereumSpecific: .init(
+                status: .ok,
+                nonce: nil,
+                gasLimit: nil,
+                gasUsed: nil,
+                gasPrice: nil,
+                data: calldata,
+                parsedData: parsedMethodId.map { .init(methodId: $0, name: "") }
+            )
+        )
+        let usdt = BlockBookAddressResponse.Token(
+            type: "TRC20",
+            id: nil,
+            name: usdtContract,
+            contract: usdtContract,
+            transfers: 1,
+            symbol: "USDT",
+            decimals: 6,
+            balance: nil
+        )
+
+        let records = try mapper.mapToTransactionRecords(
+            makeResponse(transactions: [transaction], tokens: [usdt]),
+            walletAddress: walletAddress,
+            amountType: .coin
+        )
+
+        return try #require(records.singleElement)
+    }
 
     /// Maps a single coin transaction whose integer `contract_type` is absent (so the type is taken
     /// from `chainExtraData`) and returns its resolved transaction type.
@@ -305,7 +556,10 @@ struct TronTransactionHistoryMapperTests {
         )
     }
 
-    private func makeResponse(transactions: [BlockBookAddressResponse.Transaction]) -> BlockBookAddressResponse {
+    private func makeResponse(
+        transactions: [BlockBookAddressResponse.Transaction],
+        tokens: [BlockBookAddressResponse.Token]? = nil
+    ) -> BlockBookAddressResponse {
         BlockBookAddressResponse(
             page: 1,
             totalPages: 1,
@@ -317,12 +571,17 @@ struct TronTransactionHistoryMapperTests {
             txs: transactions.count,
             nonTokenTxs: nil,
             transactions: transactions,
-            tokens: nil
+            tokens: tokens
         )
     }
 }
 
 // MARK: - Test fixtures
+
+enum TransactionFixtureContractType {
+    case integer
+    case chainExtraData
+}
 
 private extension BlockBookAddressResponse.Transaction {
     init(
@@ -337,6 +596,7 @@ private extension BlockBookAddressResponse.Transaction {
         voteList: [String: Int]? = nil,
         chainExtraData: BlockBookAddressResponse.ChainExtraData? = nil,
         tokenTransfers: [BlockBookAddressResponse.TokenTransfer]? = nil,
+        ethereumSpecific: BlockBookAddressResponse.EthereumSpecific? = nil,
         tronTXReceipt: BlockBookAddressResponse.TronTXReceipt? = .init(status: .ok)
     ) {
         self.init(
@@ -355,7 +615,7 @@ private extension BlockBookAddressResponse.Transaction {
             fees: fees,
             hex: nil,
             tokenTransfers: tokenTransfers,
-            ethereumSpecific: nil,
+            ethereumSpecific: ethereumSpecific,
             chainExtraData: chainExtraData,
             tronTXReceipt: tronTXReceipt,
             fromAddress: fromAddress,
