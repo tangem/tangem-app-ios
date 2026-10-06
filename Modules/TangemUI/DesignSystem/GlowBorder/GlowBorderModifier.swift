@@ -58,7 +58,7 @@ private extension GlowBorderModifier {
                 let diagonal = hypot(geometry.size.width, geometry.size.height)
 
                 TimelineView(.animation) { context in
-                    let elapsed = context.date.timeIntervalSinceReferenceDate
+                    let elapsed = GlowAnimationClock.shared.time(at: context.date)
 
                     GlowGradientOverlay(colors: effect.glowColors, cornerRadius: cornerRadius)
                         .equatable()
