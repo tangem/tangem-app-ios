@@ -191,9 +191,9 @@
 "bitcoin_promo_no_address_title" = "ビットコインアドレスが必要です";
 "bitcoin_promo_no_address" = "ボーナスを受け取るにはビットコインアドレスが必要です。ウォレットにビットコインアドレスを追加し、再度アクティベーションをお試しください。";
 "button_start_backup_process" = "バックアップ処理を開始する";
-"buy_swap_region_restriction_description_region" = "Buy and swap are currently not available in your region: %@";
+"buy_swap_region_restriction_description_region" = "お住まいの地域では現在、購入とスワップをご利用いただけません：%@";
 "buy_swap_region_restriction_description" = "Buy and swap are currently not available in your region";
-"buy_swap_region_restriction_title" = "Regional restrictions";
+"buy_swap_region_restriction_title" = "地域制限";
 "buy_token_description" = "銀行カードまたはその他の支払い方法を使用する";
 "card_reset_alert_finish_message" = "すべてのTangemデバイスがリセットされました。ウォレットのアップグレードを続行できます。";
 "card_reset_alert_finish_ok_button" = "もう一度アップグレードしてください";
@@ -517,7 +517,7 @@
 "common_transfer" = "送金";
 "common_transferred" = "送金済み";
 "common_try_again_later" = "しばらくしてからもう一度お試しください";
-"common_type" = "Type";
+"common_type" = "種類";
 "common_understand_continue" = "理解して続行";
 "common_understand" = "わかりました";
 "common_unknown_error" = "エラーが発生しました。もう一度お試しください。";
@@ -618,7 +618,7 @@
 "dynamic_addresses_receive_badge" = "動的アドレス";
 "dynamic_addresses_unavailability_reason_pending_transaction_send" = "ネットワーク%@で保留中の取引が完了すると、ダイナミックアドレスを管理できるようになります。";
 "dynamic_addresses" = "動的アドレス";
-"earn_assets" = "Earn assets";
+"earn_assets" = "運用資産";
 "earn_best_opportunities" = "おすすめ";
 "earn_clear_filter" = "絞り込みを解除";
 "earn_empty" = "リストは現在更新中のため、一時的に空になっています。しばらくしてからご確認ください。";
@@ -738,9 +738,9 @@
 "feed_search_recent_title" = "Recent";
 "feed_search_show_all_user_assets" = "すべて表示";
 "feed_search_show_less_user_assets" = "表示を減らす";
-"feed_tab_crypto" = "Crypto";
-"feed_tab_earn" = "Earn";
-"feed_tab_rwa" = "Real assets";
+"feed_tab_crypto" = "暗号資産";
+"feed_tab_earn" = "運用";
+"feed_tab_rwa" = "リアルアセット";
 "feed_trending_now" = "いま話題";
 "feedback_preface_rate_negative" = "どのような機能が不足しているかを教えください。解決できるよう尽力致します。";
 "feedback_preface_scan_failed" = "お持ちのカードまたはリングについて教えてください";
@@ -1139,7 +1139,7 @@
 "manage_tokens_toast_portfolio_updated" = "ポートフォリオが更新されました";
 "manage_tokens_wallet_selector_title" = "ウォレットを選択";
 "manage_tokens_wallet_support_only_one_network_title" = "ウォレットは複数のネットワークをサポートしていません。";
-"market_categories" = "Categories";
+"market_categories" = "カテゴリー";
 "market_chart_ai_total" = "AI Total:";
 "market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
 "market_chart_bubble_no_amount" = "トークンなし\n/資産価値";
@@ -2339,6 +2339,7 @@
 "tangempay_bank_transfer_details_daily_deposits" = "Daily deposits";
 "tangempay_bank_transfer_details_fee_header" = "Deposit methods and fees";
 "tangempay_bank_transfer_details_limitations" = "Limitations";
+"tangempay_bank_transfer_failed_title" = "Failed to create banking details";
 "tangempay_bank_transfer_fee_ach" = "ACH";
 "tangempay_bank_transfer_fee_error_subtitle" = "タップして再読み込み";
 "tangempay_bank_transfer_fee_error_title" = "手数料情報の読み込みエラー";
