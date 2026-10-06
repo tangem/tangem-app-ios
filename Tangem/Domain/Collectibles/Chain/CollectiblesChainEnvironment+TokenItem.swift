@@ -17,11 +17,15 @@ extension CollectiblesChainEnvironment {
     ///
     /// The cold owner's derivation path is what keeps the balance cache entry off an ordinary USDC wallet model's.
     static var usdcTokenItem: TokenItem {
+        usdcTokenItem(mint: Constants.usdcMintAddress)
+    }
+
+    static func usdcTokenItem(mint: String) -> TokenItem {
         TokenItem.token(
             Token(
                 name: Constants.usdcName,
                 symbol: Constants.usdcSymbol,
-                contractAddress: Constants.usdcMintAddress,
+                contractAddress: mint,
                 decimalCount: Constants.usdcDecimalCount,
                 id: Constants.usdcCurrencyId,
                 metadata: .fungibleTokenMetadata
