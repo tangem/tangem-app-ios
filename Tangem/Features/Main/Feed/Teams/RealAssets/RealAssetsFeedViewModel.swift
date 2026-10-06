@@ -80,6 +80,14 @@ final class RealAssetsFeedViewModel: ObservableObject {
 
 extension RealAssetsFeedViewModel: RealAssetsWidgetRoutable {
     func openMarketsTokenDetails(for tokenInfo: MarketsTokenModel) {
+        Analytics.log(
+            event: .marketsChartScreenOpened,
+            params: [
+                .source: Analytics.ParameterValue.main.rawValue,
+                .token: tokenInfo.symbol.uppercased(),
+            ]
+        )
+
         router.openToken(tokenInfo)
     }
 

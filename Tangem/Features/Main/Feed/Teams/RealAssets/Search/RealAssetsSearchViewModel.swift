@@ -235,6 +235,15 @@ private extension RealAssetsSearchViewModel {
 
             let model = tokens.first { $0.id == model.id } ?? model
             history.save(query: query)
+
+            Analytics.log(
+                event: .marketsChartScreenOpened,
+                params: [
+                    .source: Analytics.ParameterValue.market.rawValue,
+                    .token: model.symbol.uppercased(),
+                ]
+            )
+
             router.openToken(model)
         }
 
