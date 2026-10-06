@@ -16,6 +16,12 @@ import TangemAccessibilityIdentifiers
 struct TangemPayOfferViewV2: View {
     @ObservedObject var viewModel: TangemPayOfferViewModel
 
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var isBundleIntroductionEnabled: Bool {
+        FeatureProvider.isAvailable(.payBundleIntroduction)
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
@@ -25,7 +31,9 @@ struct TangemPayOfferViewV2: View {
                     textSection
                     featureGrid
                         .padding(.bottom, 24)
-                    faqSection
+                    if !isBundleIntroductionEnabled {
+                        faqSection
+                    }
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, -112)
@@ -41,7 +49,11 @@ struct TangemPayOfferViewV2: View {
         .sheet(item: $viewModel.termsFeesAndLimitsViewModel) {
             WebViewContainer(viewModel: $0)
         }
+        .sheet(item: $viewModel.legalDocumentViewModel) {
+            WebViewContainer(viewModel: $0)
+        }
         .alert(item: $viewModel.alert) { $0.alert }
+        .environment(\.colorScheme, isBundleIntroductionEnabled ? .dark : colorScheme)
     }
 
     private var heroBackground: some View {
@@ -177,20 +189,59 @@ struct TangemPayOfferViewV2: View {
     }
 
     private var footer: some View {
+        VStack(spacing: 12) {
+            if isBundleIntroductionEnabled {
+                legalLine
+            }
+
+            getCardButton
+        }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 12)
+    }
+
+    private var getCardButton: some View {
         TangemUI.Button(
             label: Localization.tangempayOnboardingGetCardButtonText,
             accessibilityLabel: nil
         ) {
             viewModel.getCard()
         }
-        .iconEnd(DesignSystem.Icons.LogoTangem.regular24)
+        .iconEnd(isBundleIntroductionEnabled ? nil : DesignSystem.Icons.LogoTangem.regular24)
         .styleType(.default)
         .horizontalLayout(.infinity)
         .loading(.spinner(if: viewModel.isLoading))
         .size(.x12)
-        .padding(.horizontal, 16)
-        .padding(.bottom, 12)
         .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.onboardingGetCardButton)
+    }
+
+    private var legalLine: some View {
+        Text(legalAttributedString)
+            .multilineTextAlignment(.center)
+            .environment(\.openURL, OpenURLAction { url in
+                viewModel.openLegalDocument(url: url)
+                return .handled
+            })
+    }
+
+    private var legalAttributedString: AttributedString {
+        let terms = Localization.introductionTermsOfService
+        let privacy = Localization.commonPrivacyPolicy
+        var string = AttributedString(Localization.introductionLegal(terms, privacy))
+        string.setFontStyle(DesignSystem.Font.captionMediumToken)
+        string.foregroundColor = DesignSystem.Color.textSecondary
+
+        if let range = string.range(of: terms) {
+            string[range].foregroundColor = DesignSystem.Color.textPrimary
+            string[range].link = AppConstants.tosURL
+        }
+
+        if let range = string.range(of: privacy) {
+            string[range].foregroundColor = DesignSystem.Color.textPrimary
+            string[range].link = AppConstants.privacyPolicyURL
+        }
+
+        return string
     }
 }
 
