@@ -58,12 +58,13 @@ struct TransactionHistoryExpressDataMerger {
         exchangeTransactions: [ExchangeTransaction],
         onrampTransactions: [OnrampTransaction]
     ) -> [TransactionRecord] {
+        let gaslessFeeMatcher = GaslessTransactionFeeMatcher(
+            smartContractMethodMapper: smartContractMethodMapper,
+            serviceFeeRecipientAddress: gaslessTransactionsNetworkManager.cachedFeeRecipientAddress
+        )
         let classifier = TransactionHistoryTransferClassifier(
             smartContractMethodMapper: smartContractMethodMapper,
-            gaslessFeeMatcher: GaslessTransactionFeeMatcher(
-                smartContractMethodMapper: smartContractMethodMapper,
-                serviceFeeRecipientAddress: gaslessTransactionsNetworkManager.cachedFeeRecipientAddress
-            )
+            gaslessFeeMatcher: gaslessFeeMatcher
         )
         let (standaloneTransactions, bsdkTransactions, gaslessFees) = classifier.classify(incomingBSDKTransactions)
 
@@ -195,7 +196,12 @@ struct TransactionHistoryExpressDataMerger {
             isEvm: isEvm
         )
 
-        let rows = gaslessFeeAttacher.attach(gaslessFees, to: transferCollapser.collapse(output))
+        let paidOutput = gaslessFeeAttacher.replacingRelayerGas(
+            in: output,
+            matchedBy: gaslessFeeMatcher,
+            auxDataRepository: auxDataRepository
+        )
+        let rows = gaslessFeeAttacher.attach(gaslessFees, to: transferCollapser.collapse(paidOutput))
 
         return sortedRecords(rows + standaloneTransactions)
     }

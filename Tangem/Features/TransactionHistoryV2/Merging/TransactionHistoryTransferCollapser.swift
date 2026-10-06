@@ -130,7 +130,11 @@ private extension TransactionHistoryTransferCollapser {
     func foldedType(anchor: TransactionRecord, delta: Decimal) -> TransactionRecord.TransactionType {
         switch anchor.type {
         case .contractMethodIdentifier, .contractMethodName:
-            return delta.isZero ? .contractMethodName(name: nil) : .transfer
+            guard !delta.isZero else {
+                return .contractMethodName(name: nil)
+            }
+
+            return GaslessTransactionFeeMatcher.isExecutorCall(anchor.type) ? anchor.type : .transfer
         case .transfer, .approve, .staking:
             return anchor.type
         }
