@@ -99,6 +99,7 @@ private extension WalletModelJointAccountPendingTransactionsTests {
             tokenItem: coin,
             walletManager: EthereumWalletManagerMock(),
             stakingManager: nil,
+            isYieldModuleSupported: false,
             featureManager: WalletModelFeaturesManagerMock(),
             transactionHistoryUpdater: TransactionHistoryUpdater(),
             transactionHistoryService: nil,
