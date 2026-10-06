@@ -29,6 +29,18 @@ struct ExpressManagerMapperTests {
         #expect(item.source.currency != destinationCurrency)
     }
 
+    @Test("The request slippage travels into the quote and data items")
+    func slippageTravelsIntoItems() throws {
+        let pair = makePair(sourceAddress: "0xSource", destination: DestinationWalletStub(currency: destinationCurrency))
+        let request = makeRequest(slippage: Decimal(string: "0.01"))
+
+        let quoteItem = mapper.makeExpressSwappableItem(pair: pair, request: request, providerId: "provider", providerType: .dex)
+        let dataItem = try mapper.makeExpressSwappableDataItem(pair: pair, request: request, providerId: "provider", providerType: .dex)
+
+        #expect(quoteItem.slippage == Decimal(string: "0.01"))
+        #expect(dataItem.slippage == Decimal(string: "0.01"))
+    }
+
     @Test("A destination without an address cannot become a data item")
     func destinationWithoutAddressIsRefused() {
         let pair = makePair(sourceAddress: "0xSource", destination: DestinationWalletStub(address: nil))
@@ -70,12 +82,13 @@ private extension ExpressManagerMapperTests {
         )
     }
 
-    func makeRequest() -> ExpressManagerSwappingPairRequest {
+    func makeRequest(slippage: Decimal? = nil) -> ExpressManagerSwappingPairRequest {
         ExpressManagerSwappingPairRequest(
             amountType: .from(1),
             rateType: .float,
             approvePolicy: .specified,
             operationType: .swap,
+            slippage: slippage,
             quotesLoadingPerformanceTracker: nil
         )
     }

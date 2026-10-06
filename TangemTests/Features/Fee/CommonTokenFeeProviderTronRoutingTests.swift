@@ -160,7 +160,8 @@ struct CommonTokenFeeProvidersManagerCEXRoutingTests {
             estimatedGasLimit: nil,
             externalTxId: nil,
             externalTxURL: nil,
-            payInAddress: ""
+            payInAddress: "",
+            slippage: nil
         )))
 
         #expect(loader.receivedAmount == 10)
