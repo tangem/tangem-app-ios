@@ -64,6 +64,10 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
         balanceService.usdcTokenBalanceProvider
     }
 
+    var vaultUsdcStatePublisher: AnyPublisher<CollectiblesVaultUsdcState, Never> {
+        manager.vaultUsdcStatePublisher
+    }
+
     func update(name: String) {
         guard name != nameSubject.value else {
             return
@@ -74,6 +78,10 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
 
     func refreshState() async {
         await manager.refreshState()
+    }
+
+    func awaitDeposit() async {
+        await manager.awaitDeposit()
     }
 
     func onboard() async throws {

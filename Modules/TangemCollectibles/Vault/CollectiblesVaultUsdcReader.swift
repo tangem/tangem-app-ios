@@ -8,7 +8,7 @@
 
 public import Foundation
 
-/// Chain read of the vault's USDC balance in base units. A token account that does not exist reads as zero.
+/// Chain read of the vault's USDC balance in base units. A token account that does not exist reads as a `nil` account.
 public protocol CollectiblesVaultUsdcReader: AnyObject {
-    func usdcBalance(coldOwner: Data) async throws -> UInt64
+    func usdcAccount(coldOwner: Data) async throws -> CollectiblesVaultUsdcInfo
 }

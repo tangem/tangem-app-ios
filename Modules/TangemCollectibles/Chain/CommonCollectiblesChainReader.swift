@@ -56,20 +56,24 @@ extension CommonCollectiblesChainReader: CollectiblesConfigReader {
 // MARK: - CollectiblesVaultUsdcReader protocol conformance
 
 extension CommonCollectiblesChainReader: CollectiblesVaultUsdcReader {
-    public func usdcBalance(coldOwner: Data) async throws -> UInt64 {
+    public func usdcAccount(coldOwner: Data) async throws -> CollectiblesVaultUsdcInfo {
         let program = try CollectiblesVaultProgram(programId: CollectiblesChainEnvironment.programId)
         let usdcMint = try await configInfo().usdcMint
         let address = try program.vaultUsdcAddress(coldOwner: coldOwner, usdcMint: usdcMint)
-
         guard let account = try await serviceProvider.service().account(address: address) else {
-            return 0
+            return CollectiblesVaultUsdcInfo(account: nil, balance: 0)
         }
 
-        return try program.vaultUsdcBalance(
+        let balance = try program.vaultUsdcBalance(
             coldOwner: coldOwner,
             usdcMint: usdcMint,
             accountOwner: account.owner,
             accountData: account.data
+        )
+
+        return CollectiblesVaultUsdcInfo(
+            account: CollectiblesVaultUsdcAccount(address: address, mint: usdcMint.base58EncodedString),
+            balance: balance
         )
     }
 }

@@ -29,8 +29,10 @@ public final class CollectiblesManager {
     private let purchaseTransactionDispatcher: CollectiblesPurchaseTransactionDispatcher
 
     private let stateSubject = CurrentValueSubject<CollectiblesState, Never>(.unresolved)
+    private let vaultUsdcStateSubject = CurrentValueSubject<CollectiblesVaultUsdcState, Never>(.loading)
+    private let lastVaultUsdcBalance = OSAllocatedUnfairLock<UInt64?>(initialState: nil)
 
-    private let refreshProcessor = SingleTaskProcessor<Void, Never>()
+    private let refreshProcessor = SingleTaskProcessor<Bool, Never>()
     private let purchaseSigningTasks = OSAllocatedUnfairLock<[String: Task<CollectiblesSignedPurchase, any Error>]>(
         initialState: [:]
     )
@@ -93,21 +95,35 @@ public extension CollectiblesManager {
     /// Concurrent callers await the same resolve rather than each starting their own — independent reads can
     /// land out of order and publish a stale vault snapshot last.
     func refreshState() async {
-        await refreshProcessor.execute { [weak self] in
-            guard let self else {
-                return
-            }
-
-            do {
-                let state = try await resolveState()
-                update(state: state)
-                await refreshBalance(for: state)
-            } catch {
-                // A read that failed says nothing about the vault, so the last resolved state stands
-                CollectiblesLogger.error("State resolve failed, keeping the last known state", error: error)
-                balanceUpdater.update(.failed(error))
-            }
+        let joinedSilentRound = await refresh(silent: false)
+        guard joinedSilentRound else {
+            return
         }
+
+        await refresh(silent: false)
+    }
+}
+
+// MARK: - Top-up
+
+public extension CollectiblesManager {
+    var vaultUsdcStatePublisher: AnyPublisher<CollectiblesVaultUsdcState, Never> {
+        vaultUsdcStateSubject
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    func awaitDeposit() async {
+        let baseline = lastVaultUsdcBalance.withLock { $0 } ?? 0
+
+        let polling = PollingSequence(
+            interval: Constants.depositPollInterval,
+            request: { [weak self] in await self?.refresh(silent: true) }
+        )
+
+        _ = await polling
+            .prefix(Constants.depositPollAttempts)
+            .first { _ in (lastVaultUsdcBalance.withLock { $0 } ?? 0) > baseline }
     }
 }
 
@@ -131,7 +147,7 @@ extension CollectiblesManager: CollectiblesOnboarder {
             guard let step = try onboardingInteractor.onboardingStep(for: resolved) else {
                 let outcome = performedSteps.isEmpty ? "nothing to do" : "set up in this run"
                 CollectiblesLogger.debug("create account: the account is ready to use, \(outcome)")
-                await refreshBalance(for: resolved)
+                await refreshBalance(for: resolved, silent: false)
                 return
             }
 
@@ -321,23 +337,74 @@ private extension CollectiblesManager {
         return .ready(vault)
     }
 
+    @discardableResult
+    func refresh(silent: Bool) async -> Bool {
+        await refreshProcessor.execute { [weak self] in
+            guard let self else {
+                return silent
+            }
+
+            do {
+                let state = try await resolveState()
+                update(state: state)
+                await refreshBalance(for: state, silent: silent)
+            } catch {
+                // A read that failed says nothing about the vault, so the last resolved state stands
+                CollectiblesLogger.error("State resolve failed, keeping the last known state", error: error)
+
+                if !silent {
+                    publishFailure(error)
+                }
+            }
+
+            return silent
+        }
+    }
+
     /// Only a state that names a vault has an account to read: without one there is nowhere for USDC to be,
     /// which is not the same answer as a balance of zero.
-    func refreshBalance(for state: CollectiblesState) async {
+    func refreshBalance(for state: CollectiblesState, silent: Bool) async {
         guard state.isAccountVisible, let coldOwner = coldOwnerProvider.coldOwnerKey()?.blockchainKey else {
+            vaultUsdcStateSubject.send(.missing)
             balanceUpdater.update(.unavailable)
             return
         }
 
-        balanceUpdater.update(.loading)
+        if !silent {
+            balanceUpdater.update(.loading)
+
+            if vaultUsdcStateSubject.value == .failed {
+                vaultUsdcStateSubject.send(.loading)
+            }
+        }
 
         do {
-            let balance = try await vaultUsdcReader.usdcBalance(coldOwner: coldOwner)
-            balanceUpdater.update(.loaded(balance))
+            publish(try await vaultUsdcReader.usdcAccount(coldOwner: coldOwner))
         } catch {
             CollectiblesLogger.error("Vault balance read failed", error: error)
-            balanceUpdater.update(.failed(error))
+
+            if !silent {
+                publishFailure(error)
+            }
         }
+    }
+
+    func publishFailure(_ error: Error) {
+        if vaultUsdcStateSubject.value == .loading {
+            vaultUsdcStateSubject.send(.failed)
+        }
+
+        balanceUpdater.update(.failed(error))
+    }
+
+    func publish(_ info: CollectiblesVaultUsdcInfo) {
+        if info.account == nil {
+            CollectiblesLogger.warning("Vault USDC account is missing, top-up stays unavailable")
+        }
+
+        lastVaultUsdcBalance.withLock { $0 = info.balance }
+        vaultUsdcStateSubject.send(info.account.map { CollectiblesVaultUsdcState.ready($0) } ?? .missing)
+        balanceUpdater.update(.loaded(info.balance))
     }
 
     func update(state: CollectiblesState) {
@@ -414,6 +481,8 @@ private extension CollectiblesManager {
     enum Constants {
         static let stateAdvanceAttempts = 5
         static let stateAdvanceInterval: Duration = .seconds(2)
+        static let depositPollAttempts = 18
+        static let depositPollInterval: TimeInterval = 5
     }
 }
 
