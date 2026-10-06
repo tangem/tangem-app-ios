@@ -170,6 +170,8 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
 
     private(set) var balanceCalls = 0
 
+    var queuedPriceResults: [Result<Decimal, Error>] = []
+
     private let balanceResult: Result<Decimal, Error>
     private let deriveResult: Result<PolymarketL2Credentials, Error>
     private let createResult: Result<PolymarketL2Credentials, Error>
@@ -185,7 +187,9 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
     }
 
     func price(tokenId: String, side: PolymarketOrderSide) async throws -> Decimal {
-        0
+        guard !queuedPriceResults.isEmpty else { return 0 }
+
+        return try queuedPriceResults.removeFirst().get()
     }
 
     func createCredentials(authHeaders: PolymarketCLOBAuthHeaders) async throws -> PolymarketL2Credentials {
@@ -476,6 +480,8 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
     private(set) var searchRequests: [PolymarketSearchRequest] = []
     private(set) var quoteRequests: [PolymarketOrderQuoteRequest] = []
 
+    var queuedQuoteResults: [Result<PolymarketOrderQuote, Error>] = []
+
     private var searchResults: [Result<PolymarketSearchResult, Error>]
     private let quoteResult: PolymarketOrderQuote?
 
@@ -515,6 +521,10 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
 
     func orderQuote(request: PolymarketOrderQuoteRequest) async throws -> PolymarketOrderQuote {
         quoteRequests.append(request)
+
+        if !queuedQuoteResults.isEmpty {
+            return try queuedQuoteResults.removeFirst().get()
+        }
 
         guard let quoteResult else {
             throw PolymarketDepositWalletServiceStub.StubError()
