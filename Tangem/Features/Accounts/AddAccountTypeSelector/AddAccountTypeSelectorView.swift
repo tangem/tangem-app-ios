@@ -23,28 +23,51 @@ struct AddAccountTypeSelectorView: View {
                 closeButtonAction: viewModel.onCloseTap
             )
 
-            VStack(spacing: 8) {
-                Row(title: Localization.commonCryptoAccount, subtitle: Localization.addCryptoAccountSubtitle)
-                    .subtitleLineLimit(nil)
-                    .start { iconView(DesignSystem.Icons.User.regular20) }
-                    .onTap(viewModel.onCryptoAccountTap)
-                    .background(DesignSystem.Color.bgTertiary)
-                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-
-                Row(title: Localization.commonJointAccount, subtitle: Localization.addJointAccountSubtitle)
-                    .subtitleLineLimit(nil)
-                    .start { iconView(DesignSystem.Icons.Users.regular20) }
-                    .onTap(viewModel.onJointAccountTap)
-                    .background(DesignSystem.Color.bgTertiary)
-                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-            }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 20)
+            AddAccountTypeSelectorContentView(viewModel: viewModel)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 20)
         }
         .floatingSheetConfiguration {
             $0.sheetBackgroundColor = DesignSystem.Color.bgSecondary
             $0.backgroundInteractionBehavior = .tapToDismiss
         }
+    }
+}
+
+struct AddAccountTypeSelectorContentView: View {
+    @ObservedObject var viewModel: AddAccountTypeSelectorViewModel
+    private let style: Style
+
+    init(viewModel: AddAccountTypeSelectorViewModel, style: Style = .cards) {
+        self.viewModel = viewModel
+        self.style = style
+    }
+
+    var body: some View {
+        VStack(spacing: style.rowSpacing) {
+            row(
+                title: Localization.commonCryptoAccount,
+                subtitle: Localization.addCryptoAccountSubtitle,
+                icon: DesignSystem.Icons.User.regular20,
+                action: viewModel.onCryptoAccountTap
+            )
+
+            row(
+                title: Localization.commonJointAccount,
+                subtitle: Localization.addJointAccountSubtitle,
+                icon: DesignSystem.Icons.Users.regular20,
+                action: viewModel.onJointAccountTap
+            )
+        }
+    }
+
+    private func row(title: String, subtitle: String, icon: ImageType, action: @escaping () -> Void) -> some View {
+        Row(title: title, subtitle: subtitle)
+            .subtitleLineLimit(nil)
+            .start { iconView(icon) }
+            .onTap(action)
+            .background(style.rowBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 
     private func iconView(_ icon: ImageType) -> some View {
@@ -52,8 +75,43 @@ struct AddAccountTypeSelectorView: View {
             .renderingMode(.template)
             .foregroundStyle(DesignSystem.Color.iconPrimary)
             .padding(10)
-            .background(DesignSystem.Color.bgTransparentSecondary)
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .background(style.iconBackground)
+            .clipShape(RoundedRectangle(cornerRadius: style.iconCornerRadius, style: .continuous))
+    }
+}
+
+extension AddAccountTypeSelectorContentView {
+    enum Style {
+        case cards
+        case modal
+
+        fileprivate var rowSpacing: CGFloat {
+            switch self {
+            case .cards: 8
+            case .modal: 0
+            }
+        }
+
+        fileprivate var rowBackground: Color {
+            switch self {
+            case .cards: DesignSystem.Color.bgTertiary
+            case .modal: .clear
+            }
+        }
+
+        fileprivate var iconBackground: Color {
+            switch self {
+            case .cards: DesignSystem.Color.bgTransparentSecondary
+            case .modal: DesignSystem.Color.bgTransparentOnMaterialPrimary
+            }
+        }
+
+        fileprivate var iconCornerRadius: CGFloat {
+            switch self {
+            case .cards: 8
+            case .modal: 12
+            }
+        }
     }
 }
 
