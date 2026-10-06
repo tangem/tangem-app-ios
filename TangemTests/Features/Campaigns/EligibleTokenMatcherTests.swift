@@ -23,7 +23,7 @@ struct EligibleTokenMatcherTests {
     @Test("Token matches on networkId and contract address regardless of address casing")
     func matchesCaseInsensitively() {
         let isEligible = EligibleTokenMatcher.make(from: [
-            Fixtures.makeToken(tokenAddress: "0xA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48", networkId: "ethereum"),
+            Fixtures.makeEligibleToken(tokenAddress: "0xA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48", networkId: "ethereum"),
         ])
 
         #expect(isEligible(usdcOnEthereum))
@@ -32,7 +32,7 @@ struct EligibleTokenMatcherTests {
     @Test("Same contract address on a different network does not match")
     func differentNetworkDoesNotMatch() {
         let isEligible = EligibleTokenMatcher.make(from: [
-            Fixtures.makeToken(networkId: "polygon-pos"),
+            Fixtures.makeEligibleToken(networkId: "polygon-pos"),
         ])
 
         #expect(!isEligible(usdcOnEthereum))
@@ -41,7 +41,7 @@ struct EligibleTokenMatcherTests {
     @Test("Different contract address on the same network does not match")
     func differentContractAddressDoesNotMatch() {
         let isEligible = EligibleTokenMatcher.make(from: [
-            Fixtures.makeToken(tokenAddress: "0x123456", networkId: "ethereum"),
+            Fixtures.makeEligibleToken(tokenAddress: "0x123456", networkId: "ethereum"),
         ])
 
         #expect(!isEligible(usdcOnEthereum))
@@ -50,7 +50,7 @@ struct EligibleTokenMatcherTests {
     @Test("Coin without a contract address never matches")
     func coinNeverMatches() {
         let isEligible = EligibleTokenMatcher.make(from: [
-            Fixtures.makeToken(networkId: "ethereum"),
+            Fixtures.makeEligibleToken(networkId: "ethereum"),
         ])
 
         #expect(!isEligible(ethereumCoin))
@@ -67,8 +67,8 @@ struct EligibleTokenMatcherTests {
     @Test("Any matching token in the list is enough")
     func anyMatchingTokenIsEnough() {
         let isEligible = EligibleTokenMatcher.make(from: [
-            Fixtures.makeToken(tokenAddress: "0x123456", networkId: "solana"),
-            Fixtures.makeToken(networkId: "ethereum"),
+            Fixtures.makeEligibleToken(tokenAddress: "0x123456", networkId: "solana"),
+            Fixtures.makeEligibleToken(networkId: "ethereum"),
         ])
 
         #expect(isEligible(usdcOnEthereum))
