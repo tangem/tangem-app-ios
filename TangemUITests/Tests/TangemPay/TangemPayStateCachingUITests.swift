@@ -74,6 +74,28 @@ final class TangemPayStateCachingUITests: BaseTestCase {
         .verifyRenewSessionButton()
     }
 
+    func testMainScreenKeepsCachedKycInProgress_WhenCustomerRequestFails() {
+        setAllureId(9586)
+
+        launchAndImportHotWallet(
+            scenarios: [ScenarioConfig(name: Constants.Scenario.kycStatus, initialState: Constants.State.kycInProgress)]
+        )
+        .verifyTangemPayTileShowsKycInProgress()
+        .openTangemPayKycStatusSheet()
+        .waitForSheet()
+        .close()
+        .verifyTangemPayTileShowsKycInProgress()
+
+        relaunchKeepingState(scenarios: [
+            ScenarioConfig(name: Constants.Scenario.kycStatus, initialState: Constants.State.kycInProgress),
+            ScenarioConfig(name: Self.sessionScenario, initialState: Self.serviceUnavailableState),
+        ])
+        .verifyTangemPayTileShowsKycInProgress()
+        .verifyTangemPayTileCachedIcon()
+        .verifyTangemPayTileSubtitle(doesNotContain: Constants.issuingCardSubtitle)
+        .verifyTangemPayTileHasNoBalance()
+    }
+
     private func warmUpCacheAndRelaunch(sessionState: String) -> MainScreen {
         launchAndImportHotWallet(
             scenarios: [
@@ -91,5 +113,19 @@ final class TangemPayStateCachingUITests: BaseTestCase {
             ScenarioConfig(name: Self.sessionScenario, initialState: sessionState),
             ScenarioConfig(name: Self.historyScenario, initialState: "HistoryError"),
         ])
+    }
+}
+
+private extension TangemPayStateCachingUITests {
+    enum Constants {
+        static let issuingCardSubtitle = "Issuing your card"
+
+        enum Scenario {
+            static let kycStatus = "tangem_pay_kyc_status"
+        }
+
+        enum State {
+            static let kycInProgress = "InProgress"
+        }
     }
 }
