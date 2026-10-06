@@ -29,7 +29,7 @@ struct PressableRow<Label: View, Accessory: View>: View {
 
     var body: some View {
         button
-            .overlay(alignment: .bottom) { accessory }
+            .overlay(alignment: .bottomLeading) { accessory }
     }
 }
 

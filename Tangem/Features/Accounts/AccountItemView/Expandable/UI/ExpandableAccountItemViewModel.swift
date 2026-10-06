@@ -20,6 +20,7 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
     @Published private(set) var iconData: AccountIconView.ViewData
     @Published private(set) var totalFiatBalance: LoadableBalanceView.State
     @Published private(set) var priceChange: PriceChangeView.State
+    @Published private(set) var hasOperationsInFlight = false
 
     var tokensCount: String {
         let tokensCount = Localization.commonTokensCount(rawTokensCount)
@@ -122,6 +123,16 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
                 Self.mapToPriceChangeState(rate: rate, using: viewModel.priceChangeUtility)
             }
             .assign(to: &$priceChange)
+
+        if let jointAccount = accountModel as? any JointAccountModel {
+            jointAccount
+                .jointAccountPendingOperationsProvider
+                .pendingOperationsPublisher
+                .map { operations in operations.contains { $0.operation.status.isInFlight } }
+                .removeDuplicates()
+                .receiveOnMain()
+                .assign(to: &$hasOperationsInFlight)
+        }
 
         stateStorage
             .didUpdatePublisher
