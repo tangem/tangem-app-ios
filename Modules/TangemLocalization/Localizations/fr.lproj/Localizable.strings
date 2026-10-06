@@ -2339,6 +2339,7 @@
 "tangempay_bank_transfer_details_daily_deposits" = "Daily deposits";
 "tangempay_bank_transfer_details_fee_header" = "Deposit methods and fees";
 "tangempay_bank_transfer_details_limitations" = "Limitations";
+"tangempay_bank_transfer_failed_title" = "Failed to create banking details";
 "tangempay_bank_transfer_fee_ach" = "ACH";
 "tangempay_bank_transfer_fee_error_subtitle" = "Appuyez pour recharger";
 "tangempay_bank_transfer_fee_error_title" = "Erreur de chargement des frais";
@@ -2467,7 +2468,7 @@
 "tangempay_cashback_accruals_calc_title" = "Comment calculons-nous le cashback ?";
 "tangempay_cashback_accruals_exceptions_description" = "Temporairement, le cashback n’est pas disponible pour les paiements sans contact en magasin dans l’UE. Il ne s’applique pas non plus aux retraits, au quasi-cash, aux recharges mobiles, aux services publics et à certaines autres catégories.";
 "tangempay_cashback_accruals_exceptions_title" = "Exceptions";
-"tangempay_cashback_accruals_pay_description" = "Du 2 au 5 du mois suivant";
+"tangempay_cashback_accruals_pay_description" = "Avant le 10 du mois suivant, après vérification de la conformité des transactions aux règles du programme de cashback";
 "tangempay_cashback_accruals_pay_title" = "Comment versons-nous le cashback ?";
 "tangempay_cashback_accruals_subtitle" = "Limites et exceptions";
 "tangempay_cashback_accruals_title" = "Cumuls";
@@ -2476,7 +2477,7 @@
 "tangempay_cashback_additional_until" = "Jusqu'au %1$@";
 "tangempay_cashback_deactivated_description" = "Suite à une activité suspecte. Contactez le support";
 "tangempay_cashback_deactivated_title" = "Cashback désactivé";
-"tangempay_cashback_deposit_banner" = "Cashback %1$@ pour %2$@ versé avant le %3$@";
+"tangempay_cashback_deposit_banner" = "Cashback %1$@ pour %2$@ versé avant le %3$@, après vérification";
 "tangempay_cashback_deposited_on" = "Versé le %1$@";
 "tangempay_cashback_details_cap" = "%1$@ max/mois";
 "tangempay_cashback_details_eu_excluded" = "Temporairement, le cashback n’est pas disponible pour les paiements sans contact en magasin dans l’UE";
@@ -2579,7 +2580,7 @@
 "tangempay_kyc_rejected_description" = "Désolé, nous n'avons pas pu vérifier";
 "tangempay_kyc_rejected" = "Refusé";
 "tangempay_main_select_plan" = "Sélectionner un forfait";
-"tangempay_maximum_cards_issued_description" = "Vous pouvez avoir jusqu'à 3 cartes. Supprimez une carte pour pouvoir en ajouter une nouvelle.";
+"tangempay_maximum_cards_issued_description" = "Supprimez une carte pour pouvoir en ajouter une nouvelle";
 "tangempay_maximum_cards_issued_for_plan_description" = "Passez à un forfait supérieur pour plus de cartes";
 "tangempay_maximum_cards_issued_for_plan_title" = "Limite de cartes atteinte pour ce forfait";
 "tangempay_maximum_cards_issued_for_plan_upgrade_btn" = "Forfait supérieur";
