@@ -1012,7 +1012,7 @@
 "joint_account_invite_load_failed_subtitle" = "Die Einladungsseite konnte nicht geladen werden.\nZum Neuladen tippen";
 "joint_account_invite_members_creator" = "Urheber";
 "joint_account_invite_members_invite" = "Einladen";
-"joint_account_invite_members_invited" = "Invited";
+"joint_account_invite_members_invited" = "Eingeladen";
 "joint_account_invite_members_member_info" = "Mitgliederdaten";
 "joint_account_invite_members_member" = "Mitglied";
 "joint_account_invite_members_new_member" = "Neues Mitglied";
@@ -2339,6 +2339,7 @@
 "tangempay_bank_transfer_details_daily_deposits" = "Tägliche Einzahlungen";
 "tangempay_bank_transfer_details_fee_header" = "Einzahlungsmethoden und Gebühren";
 "tangempay_bank_transfer_details_limitations" = "Einschränkungen";
+"tangempay_bank_transfer_failed_title" = "Fehler beim Erstellen der Bankdaten";
 "tangempay_bank_transfer_fee_ach" = "ACH";
 "tangempay_bank_transfer_fee_error_subtitle" = "Zum Neuladen tippen";
 "tangempay_bank_transfer_fee_error_title" = "Fehler beim Laden der Gebühreninformationen";
@@ -2467,7 +2468,7 @@
 "tangempay_cashback_accruals_calc_title" = "Wie berechnen wir Cashback?";
 "tangempay_cashback_accruals_exceptions_description" = "Aktuell gibt es kein Cashback für Kartenzahlungen am Terminal vor Ort in der EU. Kein Cashback gilt zudem für Bargeldabhebungen, Quasi-Cash, Mobilfunkaufladungen, Behördendienste und bestimmte weitere Kategorien.";
 "tangempay_cashback_accruals_exceptions_title" = "Ausnahmen";
-"tangempay_cashback_accruals_pay_description" = "Vom 2. bis zum 5. des nächsten Monats";
+"tangempay_cashback_accruals_pay_description" = "Bis zum 10. des Folgemonats, nachdem die Transaktionen auf Einhaltung der Cashback-Regeln geprüft wurden";
 "tangempay_cashback_accruals_pay_title" = "Wie erfolgt die Auszahlung von Cashback?";
 "tangempay_cashback_accruals_subtitle" = "Grenzen und Ausnahmen";
 "tangempay_cashback_accruals_title" = "Abgrenzungen";
@@ -2476,7 +2477,7 @@
 "tangempay_cashback_additional_until" = "Bis %1$@";
 "tangempay_cashback_deactivated_description" = "Dies geschah aufgrund Ihres verdächtigen Verhaltens. Wenden Sie sich an den Support, um mehr zu erfahren.";
 "tangempay_cashback_deactivated_title" = "Cashback deaktiviert";
-"tangempay_cashback_deposit_banner" = "Der Cashback- %1$@ -Betrag für %2$@ wird bis zum %3$@";
+"tangempay_cashback_deposit_banner" = "Cashback %1$@ für %2$@ wird nach Prüfung bis zum %3$@ gutgeschrieben";
 "tangempay_cashback_deposited_on" = "Wird eingezahlt am %1$@";
 "tangempay_cashback_details_cap" = "%1$@ maximal pro Monat";
 "tangempay_cashback_details_eu_excluded" = "Aktuell gibt es kein Cashback für Kartenzahlungen am Terminal vor Ort in der EU";
@@ -2579,7 +2580,7 @@
 "tangempay_kyc_rejected_description" = "Leider konnten wir Ihre Identität";
 "tangempay_kyc_rejected" = "Abgelehnt";
 "tangempay_main_select_plan" = "Tarif auswählen";
-"tangempay_maximum_cards_issued_description" = "Du kannst bis zu 3 Karten haben. Lösche eine, um eine neue Karte hinzuzufügen.";
+"tangempay_maximum_cards_issued_description" = "Lösche eine, um eine neue Karte hinzuzufügen";
 "tangempay_maximum_cards_issued_for_plan_description" = "Upgrade-Plan für mehr Karten";
 "tangempay_maximum_cards_issued_for_plan_title" = "Das Kartenlimit für diesen Tarif wurde erreicht";
 "tangempay_maximum_cards_issued_for_plan_upgrade_btn" = "Upgrade-Plan";
