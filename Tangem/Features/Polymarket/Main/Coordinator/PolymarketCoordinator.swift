@@ -155,6 +155,7 @@ private extension PolymarketCoordinator {
 
         viewState = .main(
             viewModel: dependencies.makeMainViewModel(routable: self),
+            balanceBlock: dependencies.makeBalanceBlockViewModel(routable: self),
             destinationFactory: PolymarketDestinationFactory(
                 dependencies: dependencies,
                 onAddFunds: { [weak self] in self?.openAddFunds() },
@@ -166,9 +167,9 @@ private extension PolymarketCoordinator {
     }
 }
 
-// MARK: - PolymarketMainRoutable
+// MARK: - PolymarketMainRoutable, PolymarketBalanceBlockRoutable
 
-extension PolymarketCoordinator: PolymarketMainRoutable {
+extension PolymarketCoordinator: PolymarketMainRoutable, PolymarketBalanceBlockRoutable {
     func dismiss() {
         dismissAction(())
     }
@@ -193,7 +194,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
         category: PolymarketCategory?,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
     ) {
-        guard case .main(_, let destinationFactory, _) = viewState else { return }
+        guard case .main(_, _, let destinationFactory, _) = viewState else { return }
 
         destination = .eventDetails(destinationFactory.makeEventDetailsCoordinator(
             eventID: eventID,
@@ -224,7 +225,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
             return
         }
 
-        guard case .main(_, let destinationFactory, _) = viewState else { return }
+        guard case .main(_, _, let destinationFactory, _) = viewState else { return }
 
         destination = .positionDetails(destinationFactory.makePositionDetails(
             position: position,
@@ -241,7 +242,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
         request: PolymarketOrderRequest,
         onPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
     ) {
-        guard case .main(_, let destinationFactory, _) = viewState else { return }
+        guard case .main(_, _, let destinationFactory, _) = viewState else { return }
 
         destination = .order(destinationFactory.makeOrderCoordinator(
             market: market,
@@ -263,7 +264,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
         onClaimed: @escaping (PolymarketPosition?) -> Void
     ) {
-        guard case .main(_, let destinationFactory, _) = viewState else { return }
+        guard case .main(_, _, let destinationFactory, _) = viewState else { return }
 
         destination = .myPositions(
             destinationFactory.makeMyPositions(
@@ -293,7 +294,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
 
     func openAddFunds() {
         Task { @MainActor [weak self] in
-            guard let self, addFundsSheet == nil, case .main(_, _, let fundingFlow) = viewState else { return }
+            guard let self, addFundsSheet == nil, case .main(_, _, _, let fundingFlow) = viewState else { return }
 
             guard !fundingFlow.isRegionBlocked else {
                 openRegionWarning()
@@ -312,7 +313,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
     }
 
     func openWithdraw() {
-        guard case .main(_, _, let fundingFlow) = viewState else { return }
+        guard case .main(_, _, _, let fundingFlow) = viewState else { return }
 
         runTask(in: self) { coordinator in
             do {
@@ -409,7 +410,7 @@ private extension PolymarketCoordinator {
     }
 
     func startAwaitingDispatchedOperation() {
-        guard let operation = dispatchedOperation, case .main(_, _, let fundingFlow) = viewState else { return }
+        guard let operation = dispatchedOperation, case .main(_, _, _, let fundingFlow) = viewState else { return }
 
         dispatchedOperation = nil
 
@@ -479,6 +480,7 @@ extension PolymarketCoordinator {
         case welcome(PolymarketWelcomeViewModel)
         case main(
             viewModel: PolymarketMainViewModel,
+            balanceBlock: PolymarketBalanceBlockViewModel,
             destinationFactory: PolymarketDestinationFactory,
             fundingFlow: PolymarketFundingFlow
         )

@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemPolymarketUI
 import TangemUI
@@ -16,6 +15,7 @@ import TangemUIUtils
 
 struct PolymarketMainView: View {
     @ObservedObject var viewModel: PolymarketMainViewModel
+    let balanceBlock: PolymarketBalanceBlockViewModel
 
     @State private var navBarHeight: CGFloat = 0
 
@@ -35,7 +35,6 @@ struct PolymarketMainView: View {
         }
         .safeAreaInset(edge: .bottom, spacing: 0) { searchField }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
-        .bindAlert($viewModel.alert)
     }
 
     // MARK: - Top bar
@@ -142,7 +141,7 @@ struct PolymarketMainView: View {
 
     private var header: some View {
         VStack(spacing: 0) {
-            balanceBlock
+            PolymarketBalanceBlockView(viewModel: balanceBlock)
 
             if viewModel.isRegionRestricted {
                 regionRestrictionBanner
@@ -272,129 +271,6 @@ struct PolymarketMainView: View {
             .accessibilityHidden(true)
     }
 
-    @ViewBuilder
-    private var balanceBlock: some View {
-        if isBalanceLoading {
-            balanceBlockSkeleton
-        } else {
-            VStack(spacing: Constants.balanceSpacing) {
-                balanceSelector
-
-                balanceAmount
-
-                actionButtons
-                    .padding(.top, Constants.actionButtonsTopPadding)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.bottom, Constants.actionButtonsBottomPadding)
-        }
-    }
-
-    private var isBalanceLoading: Bool {
-        if case .loading(.none) = viewModel.balance {
-            return true
-        }
-
-        return false
-    }
-
-    private var balanceBlockSkeleton: some View {
-        VStack(spacing: Constants.balanceSpacing) {
-            skeleton(width: Constants.skeletonSelectorWidth, height: Constants.skeletonSelectorHeight)
-
-            skeleton(
-                width: Constants.skeletonAmountWidth,
-                height: Constants.skeletonAmountHeight,
-                cornerRadius: Constants.skeletonAmountHeight / 2
-            )
-            .padding(.vertical, Constants.balanceSpacing)
-
-            HStack(spacing: Constants.actionButtonsSpacing) {
-                ForEach(0 ..< Constants.skeletonActionCount, id: \.self) { _ in
-                    VStack(spacing: Constants.skeletonActionSpacing) {
-                        skeleton(
-                            width: TangemMainActionButton.Size.buttonSide,
-                            height: TangemMainActionButton.Size.buttonSide,
-                            cornerRadius: TangemMainActionButton.Size.buttonSide / 2
-                        )
-
-                        skeleton(width: Constants.skeletonActionTitleWidth, height: Constants.skeletonSelectorHeight)
-                    }
-                    .frame(minWidth: Constants.actionWidth)
-                }
-            }
-            .padding(.top, Constants.actionButtonsTopPadding)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.bottom, Constants.actionButtonsBottomPadding)
-    }
-
-    private func skeleton(width: CGFloat, height: CGFloat, cornerRadius: CGFloat? = nil) -> some View {
-        Shimmer()
-            .frame(width: width, height: height)
-            .clipShape(.rect(cornerRadius: cornerRadius ?? height / 2, style: .continuous))
-    }
-
-    private var balanceAmount: some View {
-        LoadableBalanceView(
-            state: viewModel.balance,
-            style: .init(font: DesignSystem.Font.displayMediumToken, textColor: DesignSystem.Color.textPrimary),
-            loader: .init(size: Constants.balanceLoaderSize)
-        )
-        .padding(.trailing, Constants.balanceAmountTrailingPadding)
-        .id(viewModel.balanceMode)
-        .transition(.opacity)
-    }
-
-    private var balanceSelector: some View {
-        SwiftUI.Button {
-            withAnimation(.easeInOut(duration: Constants.balanceModeAnimationDuration)) {
-                viewModel.handleViewAction(.toggleBalanceMode)
-            }
-        } label: {
-            HStack(spacing: Constants.balanceSelectorSpacing) {
-                Text(viewModel.balanceMode == .total
-                    ? Localization.predictionMainTotalBalance
-                    : Localization.predictionMainAvailableBalance)
-                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
-                    .id(viewModel.balanceMode)
-                    .transition(.opacity)
-
-                DesignSystem.Icons.ChevronDoubleVertical.regular16.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .frame(size: .init(bothDimensions: Constants.selectorIconSize))
-                    .foregroundStyle(DesignSystem.Color.iconPrimary)
-            }
-        }
-        .buttonStyle(.plain)
-        .disabled(!viewModel.canSwitchBalanceMode)
-    }
-
-    private var actionButtons: some View {
-        HStack(spacing: Constants.actionButtonsSpacing) {
-            TangemMainActionButton(
-                title: Localization.commonAddFunds,
-                icon: Assets.DesignSystem.arrowDown,
-                action: { viewModel.handleViewAction(.openAddFunds) },
-                reasonTapWhenDisabled: { viewModel.handleViewAction(.openAddFunds) }
-            )
-            .frame(minWidth: Constants.actionWidth)
-            .disabled(viewModel.addFundsState != .available)
-            .accessibilityIdentifier(PolymarketAccessibilityIdentifiers.addFundsButton)
-
-            TangemMainActionButton(
-                title: Localization.predictionMainWithdraw,
-                icon: Assets.DesignSystem.arrowUp,
-                action: { viewModel.handleViewAction(.openWithdraw) },
-                reasonTapWhenDisabled: { viewModel.handleViewAction(.openWithdraw) }
-            )
-            .frame(minWidth: Constants.actionWidth)
-            .disabled(!viewModel.withdrawState.isAvailable)
-            .accessibilityIdentifier(PolymarketAccessibilityIdentifiers.withdrawButton)
-        }
-    }
-
     private var exploreEventsTitle: some View {
         Text(Localization.predictionMainExploreEvents)
             .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
@@ -511,24 +387,6 @@ extension PolymarketMainView {
         static let headerSpacing: CGFloat = 40
         static let bannerTopSpacing: CGFloat = 24
         static let bannerIconSide: CGFloat = 20
-        static let balanceSpacing: CGFloat = 4
-        static let balanceAmountTrailingPadding: CGFloat = 4
-        static let balanceLoaderSize = CGSize(width: 160, height: 40)
-
-        static let skeletonSelectorWidth: CGFloat = 150
-        static let skeletonSelectorHeight: CGFloat = 12
-        static let skeletonAmountWidth: CGFloat = 170
-        static let skeletonAmountHeight: CGFloat = 44
-        static let skeletonActionCount = 2
-        static let skeletonActionSpacing: CGFloat = 8
-        static let skeletonActionTitleWidth: CGFloat = 64
-        static let balanceSelectorSpacing: CGFloat = 4
-        static let selectorIconSize: CGFloat = 16
-        static let balanceModeAnimationDuration: TimeInterval = 0.2
-        static let actionButtonsSpacing: CGFloat = 0
-        static let actionButtonsTopPadding: CGFloat = 28
-        static let actionButtonsBottomPadding: CGFloat = 24
-        static let actionWidth: CGFloat = 102
 
         static let eventsPlaceholderMinHeight: CGFloat = 320
     }

@@ -140,7 +140,7 @@ private extension PolymarketPositionDetailsViewModel {
     func onOrderTap(_ side: PolymarketOrderSide) {
         guard orderTask == nil else { return }
 
-        guard geoblockStateProvider.state != .blocked else {
+        guard !geoblockStateProvider.state.isBlocked else {
             coordinator?.openRegionWarning()
             return
         }

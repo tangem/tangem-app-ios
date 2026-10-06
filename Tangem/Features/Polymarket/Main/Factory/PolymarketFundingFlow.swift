@@ -13,7 +13,7 @@ struct PolymarketFundingFlow {
     let dependencies: PolymarketMainDependencies
 
     var isRegionBlocked: Bool {
-        dependencies.geoblockStateProvider.state == .blocked
+        dependencies.geoblockStateProvider.state.isBlocked
     }
 
     func makeAddFundsSheet(

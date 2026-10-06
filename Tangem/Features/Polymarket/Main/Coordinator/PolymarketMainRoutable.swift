@@ -11,7 +11,6 @@ import TangemPolymarket
 
 protocol PolymarketMainRoutable: AnyObject {
     func dismiss()
-
     func openRegionWarning()
 
     @MainActor
@@ -21,8 +20,6 @@ protocol PolymarketMainRoutable: AnyObject {
         onClaimed: @escaping (PolymarketPosition?) -> Void
     )
 
-    func openAddFunds()
-
     @MainActor
     func openRedeem(position: PolymarketPosition, onClaimed: @escaping (PolymarketPosition?) -> Void)
 
@@ -31,8 +28,6 @@ protocol PolymarketMainRoutable: AnyObject {
 
     @MainActor
     func openSupportChat()
-
-    func openWithdraw()
 
     func openEventDetails(
         eventID: String,
