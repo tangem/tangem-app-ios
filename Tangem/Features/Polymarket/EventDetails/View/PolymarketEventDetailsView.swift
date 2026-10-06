@@ -33,8 +33,8 @@ struct PolymarketEventDetailsView: View {
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
         .background(FeedPopGestureEnabler())
-        .onWillAppear(perform: viewModel.onWillAppear)
-        .onWillDisappear(perform: viewModel.onWillDisappear)
+        .onWillAppear { viewModel.handleViewAction(.onAppear) }
+        .onWillDisappear { viewModel.handleViewAction(.onDisappear) }
     }
 
     // MARK: - Top bar
@@ -60,7 +60,7 @@ struct PolymarketEventDetailsView: View {
     }
 
     private var backButton: some View {
-        NavigationBarButton.back(action: viewModel.dismiss)
+        NavigationBarButton.back { viewModel.handleViewAction(.close) }
             .accessibilityLabel(Localization.commonBack)
     }
 
@@ -97,7 +97,7 @@ struct PolymarketEventDetailsView: View {
                 .padding(.top, barHeight)
 
         case .failed(let failure):
-            PolymarketEmptyMessageView(message: failure.message, onRetry: viewModel.load)
+            PolymarketEmptyMessageView(message: failure.message, onRetry: { viewModel.handleViewAction(.retry) })
                 .frame(maxHeight: .infinity)
 
         case .content(let content):
@@ -234,7 +234,7 @@ struct PolymarketEventDetailsView: View {
 
     private func closedMarketsToggle(count: Int) -> some View {
         SwiftUI.Button {
-            withAnimation { viewModel.toggleClosedMarkets() }
+            withAnimation { viewModel.handleViewAction(.toggleClosedMarkets) }
         } label: {
             Text("\(Localization.predictionDetailsClosedMarkets) (\(count))")
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
@@ -256,7 +256,7 @@ struct PolymarketEventDetailsView: View {
                     PolymarketExpandableDescription(
                         text: description,
                         isExpanded: viewModel.isDescriptionExpanded,
-                        onReadMore: viewModel.expandDescription
+                        onReadMore: { viewModel.handleViewAction(.expandDescription) }
                     )
                     .padding(.horizontal, Constants.textHorizontalPadding)
                     .padding(.top, Constants.descriptionTopPadding)

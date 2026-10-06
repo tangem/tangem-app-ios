@@ -26,8 +26,8 @@ struct PolymarketOrderView: View {
         VStack(spacing: 0) {
             PolymarketTopBar(
                 title: viewModel.screenTitle,
-                onBack: viewModel.showsBack ? { viewModel.handleViewAction(.closeTapped) } : nil,
-                onClose: { viewModel.handleViewAction(.closeTapped) }
+                onBack: viewModel.showsBack ? { viewModel.handleViewAction(.close) } : nil,
+                onClose: { viewModel.handleViewAction(.close) }
             )
             .padding(.top, Constants.topBarTopPadding)
 
@@ -35,8 +35,8 @@ struct PolymarketOrderView: View {
         }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .safeAreaInset(edge: .bottom, spacing: .zero) { bottomContainer }
-        .onWillAppear { viewModel.handleViewAction(.appeared) }
-        .onWillDisappear { viewModel.handleViewAction(.disappeared) }
+        .onWillAppear { viewModel.handleViewAction(.onAppear) }
+        .onWillDisappear { viewModel.handleViewAction(.onDisappear) }
     }
 
     // MARK: - Bottom
@@ -58,7 +58,7 @@ struct PolymarketOrderView: View {
             PolymarketOrderAmountBlock(
                 title: viewModel.amountTitle,
                 payment: viewModel.payment,
-                onAddFunds: viewModel.isAddFundsAvailable ? { viewModel.handleViewAction(.addFundsTapped) } : nil
+                onAddFunds: viewModel.isAddFundsAvailable ? { viewModel.handleViewAction(.openAddFunds) } : nil
             ) {
                 VStack(spacing: Constants.captionSpacing) {
                     if viewModel.isAmountEditable {
@@ -76,12 +76,12 @@ struct PolymarketOrderView: View {
             }
 
             PolymarketOrderNotificationsView(notifications: viewModel.notifications) {
-                viewModel.handleViewAction(.retryQuoteTapped)
+                viewModel.handleViewAction(.retryQuote)
             }
 
             PolymarketOrderSlippageRow(
                 valueText: viewModel.slippageText,
-                onTap: { viewModel.handleViewAction(.slippageTapped) }
+                onTap: { viewModel.handleViewAction(.openSlippage) }
             )
             .background(DesignSystem.Color.bgSecondary)
             .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
@@ -175,7 +175,7 @@ struct PolymarketOrderView: View {
                         .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                         .lineLimit(1)
                 } action: {
-                    viewModel.handleViewAction(.fractionTapped(option.fraction))
+                    viewModel.handleViewAction(.selectFraction(option.fraction))
                 }
                 .frame(maxWidth: .infinity)
             }
@@ -206,7 +206,7 @@ struct PolymarketOrderView: View {
                 .frame(width: Constants.stepIconSide, height: Constants.stepIconSide)
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
         } action: {
-            viewModel.handleViewAction(.stepTapped(step))
+            viewModel.handleViewAction(.step(step))
         }
         .frame(width: Constants.controlSide)
         .accessibilityLabel(label)
@@ -238,7 +238,7 @@ struct PolymarketOrderView: View {
             PolymarketAmountFractionChips(
                 fractions: viewModel.amountFractions.filter(\.isEnabled).map(\.fraction),
                 focused: $isAmountFocused,
-                onSelect: { viewModel.handleViewAction(.fractionTapped($0)) }
+                onSelect: { viewModel.handleViewAction(.selectFraction($0)) }
             )
             .transition(.opacity)
         }
@@ -250,7 +250,7 @@ struct PolymarketOrderView: View {
             accessibilityLabel: viewModel.nextButtonTitle,
             action: {
                 isAmountFocused = false
-                viewModel.handleViewAction(.nextTapped)
+                viewModel.handleViewAction(.openSummary)
             }
         )
         .styleType(.default)

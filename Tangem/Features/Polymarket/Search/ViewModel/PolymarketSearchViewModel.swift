@@ -51,9 +51,39 @@ final class PolymarketSearchViewModel: ObservableObject {
     }
 }
 
-// MARK: - Actions
+// MARK: - View actions
 
 extension PolymarketSearchViewModel {
+    func handleViewAction(_ action: ViewAction) {
+        switch action {
+        case .openEventDetails(let id):
+            openEventDetails(eventID: id)
+        case .retry:
+            retry()
+        case .loadNextPage, .retryNextPage:
+            loadMore()
+        }
+    }
+
+    func reset() {
+        searchTask?.cancel()
+        query = ""
+        activeQuery = ""
+        resetResults()
+        state = .prompt
+    }
+
+    enum ViewAction {
+        case openEventDetails(id: String)
+        case retry
+        case loadNextPage
+        case retryNextPage
+    }
+}
+
+// MARK: - Actions
+
+private extension PolymarketSearchViewModel {
     func loadMore() {
         guard hasNext, state != .paginationLoading, !activeQuery.isEmpty else { return }
 
@@ -64,14 +94,6 @@ extension PolymarketSearchViewModel {
         guard !activeQuery.isEmpty else { return }
 
         search(query: activeQuery)
-    }
-
-    func reset() {
-        searchTask?.cancel()
-        query = ""
-        activeQuery = ""
-        resetResults()
-        state = .prompt
     }
 
     func openEventDetails(eventID: String) {

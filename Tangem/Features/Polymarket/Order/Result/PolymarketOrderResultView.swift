@@ -52,7 +52,7 @@ struct PolymarketOrderResultView: View {
 
         guard let secondaryActionTitle = viewModel.secondaryActionTitle else { return screen }
 
-        return screen.secondaryAction(title: secondaryActionTitle) { viewModel.handleViewAction(.toMainTapped) }
+        return screen.secondaryAction(title: secondaryActionTitle) { viewModel.handleViewAction(.returnToMain) }
     }
 }
 
