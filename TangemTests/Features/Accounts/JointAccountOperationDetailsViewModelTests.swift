@@ -131,9 +131,35 @@ struct JointAccountOperationDetailsViewModelTests {
         #expect(provider.activeRequestsCount == 0)
     }
 
+    @Test("A signature that fails tells the member so", .timeLimit(.minutes(1)))
+    func failedSignatureShowsAnAlert() async throws {
+        let viewModel = makeViewModel(sign: { throw JointOperationError.maliciousOperation })
+
+        viewModel.handleViewAction(.signOperation)
+
+        _ = try await viewModel.$alert.first { $0 != nil }.async()
+
+        #expect(viewModel.alert != nil)
+    }
+
+    @Test("An operation Blockaid flags as malicious is named so, and nothing else is")
+    func signingErrorAlertTellsMaliciousApart() {
+        let malicious = JointAccountOperationSigningErrorAlert(error: JointOperationError.maliciousOperation)
+        let unchecked = JointAccountOperationSigningErrorAlert(error: JointOperationError.securityCheckUnavailable)
+
+        #expect(malicious.title == Localization.jointOperationMaliciousTitle)
+        #expect(malicious.message == Localization.jointOperationMaliciousSubtitle)
+        #expect(malicious.buttonText == Localization.commonClose)
+        #expect(unchecked.title == Localization.commonSomethingWentWrong)
+        #expect(unchecked.message == Localization.accountGenericErrorDialogMessage)
+    }
+
     // MARK: - Helpers
 
-    private func makeViewModel(hasNFCInteraction: Bool = true) -> JointAccountOperationDetailsViewModel {
+    private func makeViewModel(
+        hasNFCInteraction: Bool = true,
+        sign: @escaping () async throws -> Void = {}
+    ) -> JointAccountOperationDetailsViewModel {
         JointAccountOperationDetailsViewModel(
             tokenIconInfo: TokenIconInfo(
                 name: "Ethereum",
@@ -152,7 +178,7 @@ struct JointAccountOperationDetailsViewModelTests {
             updatesPublisher: updates.eraseToAnyPublisher(),
             pendingOperationsProvider: provider,
             coordinator: coordinator,
-            sign: {}
+            sign: sign
         )
     }
 

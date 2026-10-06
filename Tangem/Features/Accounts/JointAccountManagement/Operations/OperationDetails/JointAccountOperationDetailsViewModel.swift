@@ -286,11 +286,7 @@ private extension JointAccountOperationDetailsViewModel {
         }
 
         JointAccountsLogger.error("Failed to sign a joint account operation", error: error)
-        alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
-            title: Localization.commonSomethingWentWrong,
-            message: Localization.accountGenericErrorDialogMessage,
-            buttonText: Localization.commonOk
-        )
+        alert = JointAccountOperationSigningErrorAlert(error: error).alertBinder
     }
 }
 
