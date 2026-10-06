@@ -70,6 +70,15 @@ struct WelcomeV2View: View {
                 .frame(height: 24)
 
             Spacer()
+
+            TangemUI.Button(
+                label: Localization.introductionButtonBuyTangem,
+                accessibilityLabel: nil,
+                action: viewModel.onBuyTangemTap
+            )
+            .styleType(.material(.glass))
+            .size(.x11)
+            .accessibilityIdentifier(WelcomeV2AccessibilityIdentifiers.buyTangemButton)
         }
     }
 

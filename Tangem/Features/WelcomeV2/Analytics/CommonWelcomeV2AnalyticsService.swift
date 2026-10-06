@@ -121,6 +121,10 @@ final class CommonWelcomeV2AnalyticsService: WelcomeV2AnalyticsProvider {
         Analytics.log(.basicButtonBuy, params: [.source: .stories])
     }
 
+    func logButtonBuyTangem() {
+        Analytics.log(.introductionProcessButtonBuyTangem)
+    }
+
     func logShopScreenOpened() {
         Analytics.log(.shopScreenOpened)
     }
