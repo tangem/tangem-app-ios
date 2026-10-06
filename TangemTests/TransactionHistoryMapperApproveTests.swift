@@ -25,23 +25,13 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
         /// Mixed-case on purpose: the lookup must normalize it the way the aux data cache keys its tokens.
         private static let usdcContract = "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
 
-        private let previousAuxDataRepository: TransactionHistoryAuxDataRepository
         private let auxDataRepository = TransactionHistoryAuxDataRepositoryStub()
-
-        init() {
-            previousAuxDataRepository = InjectedValues[\.transactionHistoryAuxDataRepository]
-            InjectedValues[\.transactionHistoryAuxDataRepository] = auxDataRepository
-        }
-
-        deinit {
-            InjectedValues[\.transactionHistoryAuxDataRepository] = previousAuxDataRepository
-        }
 
         // MARK: - Formatting
 
         @Test("A limited allowance is denominated in the approved token, with the ticker after the number")
-        func limitedAllowanceTakesTokenSymbol() {
-            let viewModel = map(makeApproveRecord(symbol: "USDC", allowance: .limited(28)))
+        func limitedAllowanceTakesTokenSymbol() async {
+            let viewModel = await withStubbedDependencies { map(makeApproveRecord(symbol: "USDC", allowance: .limited(28))) }
             let formatted = BalanceFormatter().formatDecimal(28)
 
             #expect(viewModel.amount.currencyCode == "USDC")
@@ -50,16 +40,16 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
         }
 
         @Test("A revoke of an unresolved token goes without a symbol rather than 'Unknown' or the viewed currency")
-        func revokeOfUnresolvedTokenHasNoSymbol() {
-            let viewModel = map(makeApproveRecord(symbol: nil, allowance: .revoked))
+        func revokeOfUnresolvedTokenHasNoSymbol() async {
+            let viewModel = await withStubbedDependencies { map(makeApproveRecord(symbol: nil, allowance: .revoked)) }
 
             #expect(viewModel.amount.currencyCode.isEmpty)
             #expect(viewModel.amount.value == BalanceFormatter().formatDecimal(0))
         }
 
         @Test("An unscaled allowance of an unresolved token shows no amount instead of the transaction's zero coin value")
-        func unscaledAllowanceOfUnresolvedTokenHasNoAmount() {
-            let viewModel = map(makeApproveRecord(symbol: nil, allowance: .unscaled(1_000_000_000)))
+        func unscaledAllowanceOfUnresolvedTokenHasNoAmount() async {
+            let viewModel = await withStubbedDependencies { map(makeApproveRecord(symbol: nil, allowance: .unscaled(1_000_000_000))) }
 
             #expect(viewModel.transactionType == .approve)
             #expect(viewModel.amount.value.isEmpty)
@@ -72,10 +62,10 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
             "A revoke of a token the provider didn't know is denominated in the found token",
             .enabled(if: FeatureProvider.isAvailable(.transactionHistoryV2))
         )
-        func revokeTakesFoundTokenSymbol() {
+        func revokeTakesFoundTokenSymbol() async {
             registerUSDC()
 
-            let viewModel = map(makeApproveRecord(symbol: nil, allowance: .revoked))
+            let viewModel = await withStubbedDependencies { map(makeApproveRecord(symbol: nil, allowance: .revoked)) }
 
             #expect(viewModel.amount.currencyCode == "USDC")
             #expect(viewModel.amount.value == BalanceFormatter().formatDecimal(0))
@@ -85,10 +75,10 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
             "An unscaled allowance is scaled by the found token's decimals, not the coin's",
             .enabled(if: FeatureProvider.isAvailable(.transactionHistoryV2))
         )
-        func unscaledAllowanceIsScaledByFoundToken() {
+        func unscaledAllowanceIsScaledByFoundToken() async {
             registerUSDC()
 
-            let viewModel = map(makeApproveRecord(symbol: nil, allowance: .unscaled(1_000_000_000)))
+            let viewModel = await withStubbedDependencies { map(makeApproveRecord(symbol: nil, allowance: .unscaled(1_000_000_000))) }
             let formatted = BalanceFormatter().formatDecimal(1000)
 
             #expect(viewModel.amount.currencyCode == "USDC")
@@ -100,10 +90,10 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
             "An unscaled allowance is scaled even when the provider reported the symbol, keeping that symbol",
             .enabled(if: FeatureProvider.isAvailable(.transactionHistoryV2))
         )
-        func unscaledAllowanceWithProviderSymbolIsScaled() {
+        func unscaledAllowanceWithProviderSymbolIsScaled() async {
             registerUSDC()
 
-            let viewModel = map(makeApproveRecord(symbol: "USDC.e", allowance: .unscaled(1_000_000_000)))
+            let viewModel = await withStubbedDependencies { map(makeApproveRecord(symbol: "USDC.e", allowance: .unscaled(1_000_000_000))) }
 
             #expect(viewModel.amount.currencyCode == "USDC.e")
             #expect(viewModel.amount.value == BalanceFormatter().formatDecimal(1000))
@@ -113,8 +103,8 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
             "Looks the token up by the normalized destination contract on the viewed network",
             .enabled(if: FeatureProvider.isAvailable(.transactionHistoryV2))
         )
-        func lookupUsesNormalizedContract() {
-            _ = map(makeApproveRecord(symbol: nil, allowance: .revoked))
+        func lookupUsesNormalizedContract() async {
+            await withStubbedDependencies { _ = map(makeApproveRecord(symbol: nil, allowance: .revoked)) }
 
             #expect(auxDataRepository.requestedCurrencies == [Self.usdcCurrency])
         }
@@ -123,10 +113,10 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
             "A complete approve from the provider is formatted as is without a lookup",
             .enabled(if: FeatureProvider.isAvailable(.transactionHistoryV2))
         )
-        func completeApproveSkipsLookup() {
+        func completeApproveSkipsLookup() async {
             registerUSDC()
 
-            let viewModel = map(makeApproveRecord(symbol: "USDT", allowance: .limited(28)))
+            let viewModel = await withStubbedDependencies { map(makeApproveRecord(symbol: "USDT", allowance: .limited(28))) }
 
             #expect(viewModel.amount.currencyCode == "USDT")
             #expect(auxDataRepository.requestedCurrencies.isEmpty)
@@ -137,6 +127,15 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
 // MARK: - Helpers
 
 private extension TransactionHistoryAuxDataRepositoryDependentTests.TransactionHistoryMapperApproveTests {
+    func withStubbedDependencies<T>(_ operation: () throws -> T) async rethrows -> T {
+        try await InjectedDependenciesIsolation.shared.run {
+            let previousAuxDataRepository = InjectedValues[\.transactionHistoryAuxDataRepository]
+            InjectedValues[\.transactionHistoryAuxDataRepository] = auxDataRepository
+            defer { InjectedValues[\.transactionHistoryAuxDataRepository] = previousAuxDataRepository }
+            return try operation()
+        }
+    }
+
     static var usdcCurrency: ExpressCurrency {
         ExpressCurrency(contractAddress: usdcContract.lowercased(), network: blockchain.networkId)
     }

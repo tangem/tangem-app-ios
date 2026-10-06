@@ -17,6 +17,17 @@ struct TransactionHistoryGaslessFeeAttacher {
         self.currentToken = currentToken
     }
 
+    func replacingRelayerGas(
+        in records: [TransactionRecord],
+        matchedBy feeMatcher: GaslessTransactionFeeMatcher,
+        auxDataRepository: TransactionHistoryAuxDataRepository
+    ) -> [TransactionRecord] {
+        records.map { record in
+            fee(paidWith: feeMatcher.feeTokenTransfers(of: record), auxDataRepository: auxDataRepository)
+                .map(record.withFee) ?? record
+        }
+    }
+
     func attach(_ gaslessFees: [TransactionRecord], to rows: [TransactionRecord]) -> [TransactionRecord] {
         guard gaslessFees.isNotEmpty else {
             return rows
@@ -38,6 +49,34 @@ struct TransactionHistoryGaslessFeeAttacher {
         }
 
         return rows + unattachedFees
+    }
+
+    private func fee(
+        paidWith transfers: [TransactionRecord.TokenTransfer],
+        auxDataRepository: TransactionHistoryAuxDataRepository
+    ) -> Fee? {
+        // All transfers here already go to a collector; if they are in different tokens, there is no single fee to show
+        guard
+            let transfer = transfers.first,
+            let contract = transfer.contract,
+            transfers.allSatisfy({ $0.contract?.caseInsensitiveEquals(to: contract) == true })
+        else {
+            return nil
+        }
+
+        let rawAmount = transfers.reduce(Decimal.zero) { $0 + $1.amount }
+
+        if let tokenItem = auxDataRepository.cryptoCurrency(forContract: contract, blockchain: currentToken.blockchain) {
+            let value = rawAmount / pow(Decimal(10), tokenItem.decimalCount)
+            return Fee(Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: value))
+        }
+
+        guard let symbol = transfer.symbol, let decimals = transfer.decimals else {
+            return nil
+        }
+
+        let token = Token(name: transfer.name ?? symbol, symbol: symbol, contractAddress: contract, decimalCount: decimals)
+        return Fee(Amount(with: token, value: rawAmount / pow(Decimal(10), decimals)))
     }
 
     private func payingRowIndices(in rows: [TransactionRecord]) -> [String: Int] {

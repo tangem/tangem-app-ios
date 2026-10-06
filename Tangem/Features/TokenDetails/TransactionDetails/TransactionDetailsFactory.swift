@@ -826,13 +826,12 @@ enum TransactionDetailsFactory {
         return balanceFormatter.formatFiatBalance(fiat)
     }
 
-    /// The fee is shown only for outgoing operations, unless the caller knows the wallet paid it even though
-    /// the record reads as incoming. Synthetic Express records never show one either way.
     private static func networkFee(from record: TransactionRecord, ignoringDirection: Bool) -> String? {
         guard
             record.isOutgoing || ignoringDirection,
             // Hide network fee for synthetic Express records
-            !ExpressSyntheticTxHelper.isSyntheticIdentifier(record.hash)
+            !ExpressSyntheticTxHelper.isSyntheticIdentifier(record.hash),
+            !(GaslessTransactionFeeMatcher.isExecutorCall(record.type) && record.fee.amount.type == .coin)
         else {
             return nil
         }
