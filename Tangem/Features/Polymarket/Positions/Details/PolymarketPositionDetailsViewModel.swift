@@ -56,11 +56,20 @@ final class PolymarketPositionDetailsViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
     }
 
-    func onCloseTap() {
+    func handleViewAction(_ action: ViewAction) {
+        switch action {
+        case .close:
+            onCloseTap()
+        case .onDisappear:
+            onDisappear()
+        }
+    }
+
+    private func onCloseTap() {
         coordinator?.closePositionDetails()
     }
 
-    func onDisappear() {
+    private func onDisappear() {
         orderTask?.cancel()
         orderTask = nil
         loadingSide = nil
@@ -68,6 +77,15 @@ final class PolymarketPositionDetailsViewModel: ObservableObject, Identifiable {
 
     deinit {
         refreshTask?.cancel()
+    }
+}
+
+// MARK: - ViewAction
+
+extension PolymarketPositionDetailsViewModel {
+    enum ViewAction {
+        case close
+        case onDisappear
     }
 }
 

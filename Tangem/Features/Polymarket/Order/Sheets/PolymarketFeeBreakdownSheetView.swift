@@ -113,8 +113,8 @@ private extension PolymarketFeeBreakdownSheetView {
 private extension PolymarketFeeBreakdownSheetViewModel {
     static func preview() -> PolymarketFeeBreakdownSheetViewModel {
         let model = PolymarketOrderModel.preview(outcomeIndex: 0)
-        model.handleViewAction(.screenAppeared)
-        model.handleViewAction(.fractionSelected(.half))
+        model.handleViewAction(.onAppear)
+        model.handleViewAction(.selectFraction(.half))
 
         return PolymarketFeeBreakdownSheetViewModel(model: model)
     }

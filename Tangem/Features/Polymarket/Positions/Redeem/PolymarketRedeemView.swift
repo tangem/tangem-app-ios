@@ -22,7 +22,7 @@ struct PolymarketRedeemView: View {
             title: viewModel.title,
             description: viewModel.description,
             actionTitle: viewModel.actionTitle,
-            action: { viewModel.handleViewAction(.primaryTapped) }
+            action: { viewModel.handleViewAction(.performPrimaryAction) }
         )
         .appearance(viewModel.appearance)
         .actionIcon(viewModel.isActionClaim ? DesignSystem.Icons.LogoTangem.regular24 : nil)
@@ -33,14 +33,14 @@ struct PolymarketRedeemView: View {
         .toolbar(.hidden, for: .navigationBar)
         .background(PopGestureDisabler(isDisabled: viewModel.isClaiming))
         .alert(item: $viewModel.alert) { $0.alert }
-        .onDisappear { viewModel.handleViewAction(.disappeared) }
+        .onDisappear { viewModel.handleViewAction(.onDisappear) }
     }
 
     private var closeButton: some View {
         TangemUI.Button(
             icon: DesignSystem.Icons.Cross.regular20,
             accessibilityLabel: Localization.commonClose,
-            action: { viewModel.handleViewAction(.closeTapped) }
+            action: { viewModel.handleViewAction(.close) }
         )
         .size(.x11)
         .styleType(.material(.glass))

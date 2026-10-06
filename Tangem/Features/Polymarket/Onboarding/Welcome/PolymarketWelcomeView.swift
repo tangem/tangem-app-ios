@@ -42,7 +42,7 @@ struct PolymarketWelcomeView: View {
     @ViewBuilder
     private var closeButton: some View {
         if !viewModel.isRunning {
-            NavigationBarButton.close(action: viewModel.onCloseTap)
+            NavigationBarButton.close { viewModel.handleViewAction(.close) }
                 .padding(.trailing, Constants.horizontalPadding)
                 .padding(.top, Constants.closeButtonTopPadding)
         }
@@ -181,12 +181,12 @@ struct PolymarketWelcomeView: View {
 
     private var footer: some View {
         VStack(spacing: Constants.footerSpacing) {
-            PolymarketLegalLine(notice: viewModel.copy.legalNotice, onTermsTap: viewModel.onLegalTermsTap(url:))
+            PolymarketLegalLine(notice: viewModel.copy.legalNotice, onTermsTap: { viewModel.handleViewAction(.openLegalTerms($0)) })
 
             TangemUI.Button(
                 label: viewModel.copy.actionTitle,
                 accessibilityLabel: nil,
-                action: viewModel.onStartTap
+                action: { viewModel.handleViewAction(.startOnboarding) }
             )
             .iconEnd(Assets.Polymarket.logo)
             .styleType(.default)

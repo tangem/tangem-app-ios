@@ -77,21 +77,21 @@ final class PolymarketOrderSummaryViewModel: ObservableObject {
 
     func handleViewAction(_ action: ViewAction) {
         switch action {
-        case .appeared, .disappeared:
+        case .onAppear, .onDisappear:
             break
-        case .backTapped:
+        case .goBack:
             guard !isPlacing else { return }
 
             coordinator?.closeSummary()
-        case .closeTapped:
+        case .close:
             guard !isPlacing else { return }
 
             coordinator?.closeOrder()
-        case .placeTapped:
+        case .placeOrder:
             place()
-        case .feeTapped:
+        case .openFeeBreakdown:
             openFeeBreakdown()
-        case .legalTermsTapped(let url):
+        case .openLegalTerms(let url):
             coordinator?.openLegalTerms(url: url)
         }
     }
@@ -101,13 +101,13 @@ final class PolymarketOrderSummaryViewModel: ObservableObject {
 
 extension PolymarketOrderSummaryViewModel {
     enum ViewAction {
-        case appeared
-        case disappeared
-        case backTapped
-        case closeTapped
-        case placeTapped
-        case feeTapped
-        case legalTermsTapped(URL)
+        case onAppear
+        case onDisappear
+        case goBack
+        case close
+        case placeOrder
+        case openFeeBreakdown
+        case openLegalTerms(URL)
     }
 }
 

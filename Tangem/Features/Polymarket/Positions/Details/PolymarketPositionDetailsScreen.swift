@@ -16,8 +16,8 @@ struct PolymarketPositionDetailsScreen: View {
     @ObservedObject var viewModel: PolymarketPositionDetailsViewModel
 
     var body: some View {
-        PolymarketPositionDetailsView(model: viewModel.model) { viewModel.onCloseTap() }
-            .onWillDisappear { viewModel.onDisappear() }
+        PolymarketPositionDetailsView(model: viewModel.model) { viewModel.handleViewAction(.close) }
+            .onWillDisappear { viewModel.handleViewAction(.onDisappear) }
             .alert(item: $viewModel.alert) { $0.alert }
             .sheet(item: $viewModel.hint) { hint in
                 PolymarketPositionHintSheetView(model: hint)
