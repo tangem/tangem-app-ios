@@ -61,6 +61,8 @@ final class YieldModuleActiveViewModel: ObservableObject {
 
     private var incentivesSummary: YieldIncentivesRewardsSummary?
     private var hasActiveIncentiveCampaign = false
+    private var hasOfferedClaimBeforeWithdrawal = false
+    private var isResolvingWithdrawalClaim = false
     private var maxFee: String?
 
     // MARK: - Promo State
@@ -153,11 +155,32 @@ final class YieldModuleActiveViewModel: ObservableObject {
     }
 
     func onShowStopEarningSheet() {
-        coordinator?.openBottomSheet(
-            viewModel: transactionFlowFactory.makeTransactionViewModel(
-                action: .stop(tokenName: walletModel.tokenItem.name)
+        Task { @MainActor [weak self] in
+            guard let self, !isResolvingWithdrawalClaim, coordinator?.isClaimSheetPresented == false else {
+                return
+            }
+
+            isResolvingWithdrawalClaim = true
+            defer { isResolvingWithdrawalClaim = false }
+
+            let claimViewModel = await makeClaimBeforeWithdrawalViewModel()
+
+            guard coordinator?.isClaimSheetPresented == false else {
+                return
+            }
+
+            if let claimViewModel {
+                hasOfferedClaimBeforeWithdrawal = true
+                coordinator?.openClaimSheet(viewModel: claimViewModel)
+                return
+            }
+
+            coordinator?.openBottomSheet(
+                viewModel: transactionFlowFactory.makeTransactionViewModel(
+                    action: .stop(tokenName: walletModel.tokenItem.name)
+                )
             )
-        )
+        }
     }
 
     func onPromoBonusTap() {
@@ -318,6 +341,31 @@ final class YieldModuleActiveViewModel: ObservableObject {
         )
 
         rewardsBannerData = makeRewardsBannerData(surfaceState: surfaceState, summary: summary)
+    }
+
+    @MainActor
+    private func makeClaimBeforeWithdrawalViewModel() async -> YieldModuleClaimViewModel? {
+        guard !hasOfferedClaimBeforeWithdrawal else {
+            return nil
+        }
+
+        let isClaimInFlight = await claimInteractor?.isClaimInFlight ?? false
+
+        guard let incentivesSummary else {
+            return nil
+        }
+
+        let surfaceState = YieldIncentivesSurfaceState.make(
+            campaignActive: hasActiveIncentiveCampaign,
+            summary: incentivesSummary,
+            isClaimInFlight: isClaimInFlight
+        )
+
+        guard surfaceState == .claimAvailable else {
+            return nil
+        }
+
+        return transactionFlowFactory.makeClaimViewModel(summary: incentivesSummary)
     }
 
     /// The claim outlives the sheet it was started from, so the screen learns about it from the tracker

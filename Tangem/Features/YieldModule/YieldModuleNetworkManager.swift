@@ -149,7 +149,6 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
                 YieldIncentiveAprPoint(
                     date: $0,
                     baseApy: point.baseApy / 100,
-                    rewardsApr: point.rewardsApr / 100,
                     totalApyEst: point.totalApyEst / 100
                 )
             }

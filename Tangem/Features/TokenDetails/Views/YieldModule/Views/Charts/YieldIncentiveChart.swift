@@ -34,11 +34,11 @@ struct YieldIncentiveChart: View {
                 .cornerRadius(Constants.barCornerRadius)
                 .foregroundStyle(DesignSystem.Color.bgBrand)
 
-                if bar.rewardsApr > 0 {
+                if bar.rewardsCap > 0 {
                     BarMark(
                         x: .value("Index", bar.index),
                         yStart: .value("Base APY", bar.baseApy + capGap),
-                        yEnd: .value("Total APY", bar.baseApy + capGap + bar.rewardsApr),
+                        yEnd: .value("Total APY", bar.baseApy + capGap + bar.rewardsCap),
                         width: .fixed(Constants.barWidth)
                     )
                     .cornerRadius(Constants.barCornerRadius)
@@ -156,7 +156,7 @@ struct YieldIncentiveChart: View {
 
     private var dataPeak: Double {
         let barsPeak = makeBars().reduce(0.0) { peak, bar in
-            max(peak, bar.baseApy + bar.rewardsApr)
+            max(peak, bar.baseApy + bar.rewardsCap)
         }
 
         return max(barsPeak, averageApy.map { NSDecimalNumber(decimal: $0).doubleValue } ?? 0)
@@ -164,14 +164,14 @@ struct YieldIncentiveChart: View {
 
     private func makeBars() -> [Bar] {
         guard let data else {
-            return (0 ..< Constants.skeletonBarsCount).map { Bar(index: $0, baseApy: 0, rewardsApr: 0) }
+            return (0 ..< Constants.skeletonBarsCount).map { Bar(index: $0, baseApy: 0, totalApy: 0) }
         }
 
         return data.baseApyData.enumerated().map { index, baseApy in
             Bar(
                 index: index,
                 baseApy: baseApy / 100,
-                rewardsApr: (data.rewardsAprData[safe: index] ?? 0) / 100
+                totalApy: (data.totalApyData[safe: index] ?? baseApy) / 100
             )
         }
     }
@@ -196,7 +196,9 @@ private extension YieldIncentiveChart {
 
         let index: Int
         let baseApy: Double
-        let rewardsApr: Double
+        let totalApy: Double
+
+        var rewardsCap: Double { max(0, totalApy - baseApy) }
     }
 }
 
@@ -229,7 +231,7 @@ private extension YieldIncentiveChart {
     YieldIncentiveChart(
         data: YieldIncentiveChartData(
             baseApyData: (0 ..< 28).map { 3.5 + Double($0 % 5) * 0.4 },
-            rewardsAprData: [],
+            totalApyData: [],
             xTicks: [0: "Jan", 14: "Feb"],
             averageApy: 4.3
         )
@@ -238,10 +240,12 @@ private extension YieldIncentiveChart {
 }
 
 #Preview("Merkl total") {
+    let baseApyData = (0 ..< 28).map { 4.0 + Double($0 % 4) * 0.3 }
+
     YieldIncentiveChart(
         data: YieldIncentiveChartData(
-            baseApyData: (0 ..< 28).map { 4.0 + Double($0 % 4) * 0.3 },
-            rewardsAprData: (0 ..< 28).map { 11.0 + Double($0 % 6) * 0.8 },
+            baseApyData: baseApyData,
+            totalApyData: baseApyData.enumerated().map { index, baseApy in baseApy + 11.0 + Double(index % 6) * 0.8 },
             xTicks: [0: "Jan", 14: "Feb"],
             averageApy: 17.4
         )
