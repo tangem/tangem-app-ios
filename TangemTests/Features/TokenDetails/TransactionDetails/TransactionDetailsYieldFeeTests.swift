@@ -19,28 +19,22 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
         private static let walletAddress = "0xwallet"
         private static let aToken = "0xA4D94019934D8333Ef880ABFFbF2FDd611C762BD"
 
-        private let previousAuxDataRepository: TransactionHistoryAuxDataRepository
         private let auxDataRepository = TransactionHistoryAuxDataRepositoryStub()
 
-        init() {
-            previousAuxDataRepository = InjectedValues[\.transactionHistoryAuxDataRepository]
-            InjectedValues[\.transactionHistoryAuxDataRepository] = auxDataRepository
-        }
-
-        deinit {
-            InjectedValues[\.transactionHistoryAuxDataRepository] = previousAuxDataRepository
-        }
-
         @Test("The wallet's own Yield-mode send shows the fee it paid on the withdrawal it made")
-        func aWithdrawalTheWalletSentShowsItsFee() throws {
-            let content = try #require(makeContent(methodName: "yieldSend"))
+        func aWithdrawalTheWalletSentShowsItsFee() async throws {
+            let content = try await withStubbedDependencies {
+                try #require(makeContent(methodName: "yieldSend"))
+            }
 
             #expect(content.info?.rows.contains { $0.id == "networkFee" } == true)
         }
 
         @Test("A gasless send shows no fee on the withdrawal: its gas was paid by the relayer")
-        func aWithdrawalTheRelayerSentShowsNoFee() throws {
-            let content = try #require(makeContent(methodName: "gaslessTransaction"))
+        func aWithdrawalTheRelayerSentShowsNoFee() async throws {
+            let content = try await withStubbedDependencies {
+                try #require(makeContent(methodName: "gaslessTransaction"))
+            }
 
             #expect(content.info?.rows.contains { $0.id == "networkFee" } != true)
         }
@@ -50,6 +44,15 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
 // MARK: - Helpers
 
 private extension TransactionHistoryAuxDataRepositoryDependentTests.TransactionDetailsYieldFeeTests {
+    func withStubbedDependencies<T>(_ operation: () throws -> T) async rethrows -> T {
+        try await InjectedDependenciesIsolation.shared.run {
+            let previousAuxDataRepository = InjectedValues[\.transactionHistoryAuxDataRepository]
+            InjectedValues[\.transactionHistoryAuxDataRepository] = auxDataRepository
+            defer { InjectedValues[\.transactionHistoryAuxDataRepository] = previousAuxDataRepository }
+            return try operation()
+        }
+    }
+
     func makeContent(methodName: String) -> TransactionDetailsGenericOperationViewData? {
         let record = TransactionRecord(
             hash: "0xwithdrawal",
