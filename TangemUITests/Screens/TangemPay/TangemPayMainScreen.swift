@@ -116,6 +116,20 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
+    func verifyCardFrozenIndicator(cardId: String) -> Self {
+        XCTContext.runActivity(named: "Verify card '\(cardId)' shows the frozen indicator") { _ in
+            let card = cardButton(cardId: cardId)
+            waitAndAssertTrue(card, timeout: .networkRequest, "Card '\(cardId)' should be displayed on Payment account")
+            waitAndAssertTrue(
+                card.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.paymentAccountCardFrozenIcon].firstMatch,
+                timeout: .networkRequest,
+                "Card '\(cardId)' should show the frozen indicator"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func tapAddCard() -> TangemPayOrderCardTypeScreen {
         XCTContext.runActivity(named: "Tap add card button to issue an additional card") { _ in
             addCardButton.waitAndTap()
@@ -548,6 +562,18 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
                 transactionRowElement(identifier: TxHistoryAccessibilityIdentifiers.transactionItem(key: Self.tangemPayKey), label: name),
                 timeout: .networkRequest,
                 "Transaction row '\(name)' should be displayed"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTransactionRowNotDisplayed(name: String) -> Self {
+        XCTContext.runActivity(named: "Verify transaction row '\(name)' is not displayed") { _ in
+            XCTAssertTrue(
+                transactionRowElement(identifier: TxHistoryAccessibilityIdentifiers.transactionItem(key: Self.tangemPayKey), label: name)
+                    .staysAbsent(for: .conditional),
+                "Transaction row '\(name)' should not be displayed"
             )
             return self
         }

@@ -32,6 +32,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let onboardingGetCardButton = "\(prefix)OnboardingGetCardButton"
     public static let regionUnavailableTitle = "\(prefix)RegionUnavailableTitle"
     public static let regionUnavailableGotItButton = "\(prefix)RegionUnavailableGotItButton"
+    public static let walletSelectorTitle = "\(prefix)WalletSelectorTitle"
 
     // MARK: - Mobile onboarding screen
 
@@ -51,6 +52,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let paymentAccountToolbarTitle = "\(prefix)PaymentAccountToolbarTitle"
     public static let paymentAccountToolbarSubtitle = "\(prefix)PaymentAccountToolbarSubtitle"
     public static let paymentAccountBalance = "\(prefix)PaymentAccountBalance"
+    public static let paymentAccountCardFrozenIcon = "\(prefix)PaymentAccountCardFrozenIcon"
     public static let addFundsButton = "\(prefix)AddFundsButton"
     public static let withdrawButton = "\(prefix)WithdrawButton"
     public static let moreActionsButton = "\(prefix)MoreActionsButton"
