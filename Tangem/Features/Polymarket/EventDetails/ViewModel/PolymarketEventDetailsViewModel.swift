@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 import SwiftUI
 import TangemFoundation
 import TangemLocalization
@@ -30,6 +31,9 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
     private var loadingTask: Task<Void, Never>?
     private var pollingTask: Task<Void, Never>?
     private var hasReportedStaleData = false
+    private var isVisible = false
+    private var isInBackground = false
+    private let appStateObserver = PolymarketAppStateObserver()
 
     init(
         eventID: String,
@@ -46,6 +50,7 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
         self.onOrderPlaced = onOrderPlaced
         self.coordinator = coordinator
 
+        bindApplicationState()
         load()
     }
 
@@ -58,14 +63,14 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
 
     func load() {
         loadingTask?.cancel()
-        pollingTask?.cancel()
+        stopPolling()
         state = .loading
 
         loadingTask = runTask(in: self) { @MainActor viewModel in
             do {
                 let event = try await viewModel.event()
                 viewModel.state = .content(viewModel.makeContent(from: event))
-                viewModel.startPolling()
+                viewModel.updatePolling(refreshingNow: false)
             } catch {
                 guard !error.isCancellationError else { return }
 
@@ -78,13 +83,37 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
         coordinator?.dismissEventDetails()
     }
 
-    func resumePolling() {
-        guard pollingTask == nil, case .content = state else { return }
-
-        startPolling()
+    func onWillAppear() {
+        isVisible = true
+        updatePolling(refreshingNow: true)
     }
 
-    func stopPolling() {
+    func onWillDisappear() {
+        isVisible = false
+        updatePolling(refreshingNow: false)
+    }
+
+    private func bindApplicationState() {
+        appStateObserver.start { [weak self] isInBackground in
+            guard let self else { return }
+
+            self.isInBackground = isInBackground
+            updatePolling(refreshingNow: true)
+        }
+    }
+
+    private func updatePolling(refreshingNow: Bool) {
+        guard isVisible, !isInBackground, case .content = state else {
+            stopPolling()
+            return
+        }
+
+        guard pollingTask == nil else { return }
+
+        startPolling(refreshingNow: refreshingNow)
+    }
+
+    private func stopPolling() {
         pollingTask?.cancel()
         pollingTask = nil
     }
@@ -99,8 +128,12 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
 
     // MARK: - Loading
 
-    private func startPolling() {
+    private func startPolling(refreshingNow: Bool = false) {
         pollingTask = Task { @MainActor [weak self] in
+            if refreshingNow {
+                await self?.refreshContent()
+            }
+
             while !Task.isCancelled {
                 try? await Task.sleep(nanoseconds: Constants.pollInterval)
 
