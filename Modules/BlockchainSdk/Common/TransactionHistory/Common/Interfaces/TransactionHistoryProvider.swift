@@ -23,8 +23,6 @@ public protocol TransactionHistoryProvider: CustomStringConvertible {
 public extension TransactionHistoryProvider {
     func shouldBeIncludedInHistory(amountType: Amount.AmountType, record: TransactionRecord) -> Bool {
         switch amountType {
-        case .coin where record.type == .transfer:
-            break
         case .coin, .reserve, .feeResource:
             return true
         case .token:

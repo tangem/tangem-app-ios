@@ -7,6 +7,7 @@
 
 import Foundation
 import Testing
+import TangemFoundation
 import TangemLocalization
 @testable import BlockchainSdk
 @testable import Tangem
@@ -18,7 +19,11 @@ import TangemLocalization
 struct TransactionHistoryMapperCoinFallbackTests {
     private static let walletAddress = "0xWalletAddress"
     private static let contractAddress = "0xContractAddress"
-    private static let feeValue = Decimal(string: "0.00003936")!
+    private static var feeValue: Decimal {
+        get throws {
+            try #require(Decimal(stringValue: "0.00003936"))
+        }
+    }
 
     /// A token transfer and a Yield-module call reach the coin history only because the wallet paid their gas;
     /// a call the wallet cannot name has nothing else to show either.
@@ -36,27 +41,28 @@ struct TransactionHistoryMapperCoinFallbackTests {
             "yieldTopup",
         ] as [String?]
     )
-    func aCoinTransactionThatMovedNoCoinIsTheFee(methodName: String?) {
+    func aCoinTransactionThatMovedNoCoinIsTheFee(methodName: String?) throws {
         let sut = makeSUT(isToken: false)
-        let record = makeRecord(methodName: methodName)
+        let record = try makeRecord(methodName: methodName)
         let viewModel = sut.mapTransactionViewModel(record)
+        let feeValue = try Self.feeValue
 
         #expect(viewModel.display.title.fullText == Localization.commonNetworkFeeTitle)
-        #expect(viewModel.amount.amount.hasSuffix(BalanceFormatter().formatCryptoBalance(Self.feeValue, currencyCode: "ETH")))
+        #expect(viewModel.amount.amount.hasSuffix(BalanceFormatter().formatCryptoBalance(feeValue, currencyCode: "ETH")))
         // The details sheet converts this value to fiat, so it has to be the fee too, not the zero transfer.
-        #expect(sut.displayedAmountValue(from: record) == Self.feeValue)
+        #expect(sut.displayedAmountValue(from: record) == feeValue)
     }
 
     @Test("The fee for a send says it paid for sending", arguments: ["transfer", "yieldSend"])
-    func theFeeForASendIsForSending(methodName: String) {
-        let viewModel = makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: methodName))
+    func theFeeForASendIsForSending(methodName: String) throws {
+        let viewModel = try makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: methodName))
 
         #expect(viewModel.display.subtitle == .text(Localization.transactionHistoryFeeForSending))
     }
 
     @Test("The fee for a call the wallet cannot name says it paid for an operation")
-    func theFeeForAnUnnamedCallIsForAnOperation() {
-        let viewModel = makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: nil))
+    func theFeeForAnUnnamedCallIsForAnOperation() throws {
+        let viewModel = try makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: nil))
 
         #expect(viewModel.display.subtitle == .text(Localization.transactionHistoryFeeForOperation))
     }
@@ -72,8 +78,8 @@ struct TransactionHistoryMapperCoinFallbackTests {
             ("yieldReactivate", Localization.transactionHistoryFeeForYieldModeReactivation),
         ]
     )
-    func theFeeForAYieldCallNamesItsOperation(methodName: String, expectedSubtitle: String) {
-        let viewModel = makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: methodName))
+    func theFeeForAYieldCallNamesItsOperation(methodName: String, expectedSubtitle: String) throws {
+        let viewModel = try makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: methodName))
 
         #expect(viewModel.display.subtitle == .text(expectedSubtitle))
     }
@@ -81,8 +87,8 @@ struct TransactionHistoryMapperCoinFallbackTests {
     /// The aggregator takes its cut of the same token, so the details have to add up everything that left the wallet.
     /// The provider reports the amounts raw, so reading them takes the token's decimals.
     @Test("The fee names the tokens that moved for the details, while the row keeps its plain subtitle")
-    func theFeeNamesWhatItPaidFor() {
-        let record = makeRecord(
+    func theFeeNamesWhatItPaidFor() throws {
+        let record = try makeRecord(
             methodName: nil,
             tokenTransfers: [
                 makeTokenTransfer(from: Self.walletAddress, amount: 262_500),
@@ -98,8 +104,8 @@ struct TransactionHistoryMapperCoinFallbackTests {
     }
 
     @Test("A transaction that moved several tokens has no single amount to name")
-    func severalTokensLeaveTheFeeUnnamed() {
-        let record = makeRecord(
+    func severalTokensLeaveTheFeeUnnamed() throws {
+        let record = try makeRecord(
             methodName: nil,
             tokenTransfers: [
                 makeTokenTransfer(from: Self.walletAddress, amount: 262_500),
@@ -116,8 +122,8 @@ struct TransactionHistoryMapperCoinFallbackTests {
     /// The contract is one no stub registers: this suite reads the process-global aux data repository while the
     /// `TransactionHistoryAuxDataRepositoryDependentTests` ones swap it, and a resolved token brings its own ticker.
     @Test("A fee whose token has an empty ticker names no amount rather than a bare number")
-    func emptyTickerLeavesTheFeeUnnamed() {
-        let record = makeRecord(
+    func emptyTickerLeavesTheFeeUnnamed() throws {
+        let record = try makeRecord(
             methodName: nil,
             tokenTransfers: [
                 makeTokenTransfer(
@@ -136,15 +142,15 @@ struct TransactionHistoryMapperCoinFallbackTests {
     }
 
     @Test("The same call on a token screen keeps its operation row")
-    func unnamedTokenCallStaysAnOperation() {
-        let viewModel = makeSUT(isToken: true).mapTransactionViewModel(makeRecord(methodName: nil))
+    func unnamedTokenCallStaysAnOperation() throws {
+        let viewModel = try makeSUT(isToken: true).mapTransactionViewModel(makeRecord(methodName: nil))
 
         #expect(viewModel.display.title.fullText == Localization.transactionHistoryOperation)
     }
 
     @Test("A coin call the wallet can name keeps that name")
-    func namedCoinCallKeepsItsName() {
-        let viewModel = makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: "multicall"))
+    func namedCoinCallKeepsItsName() throws {
+        let viewModel = try makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: "multicall"))
 
         #expect(viewModel.display.title.fullText == "Multicall")
     }
@@ -159,8 +165,8 @@ struct TransactionHistoryMapperCoinFallbackTests {
             ("withdrawRewardsPOL", .claimRewards),
         ]
     )
-    func stakingCallKeepsItsRow(methodName: String, expectedType: TransactionViewModel.TransactionType) {
-        let viewModel = makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: methodName))
+    func stakingCallKeepsItsRow(methodName: String, expectedType: TransactionViewModel.TransactionType) throws {
+        let viewModel = try makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: methodName))
 
         #expect(viewModel.transactionType == expectedType)
     }
@@ -180,38 +186,45 @@ struct TransactionHistoryMapperCoinFallbackTests {
             "yieldTopup",
         ] as [String?]
     )
-    func aFeeRowIsNeverSuggested(methodName: String?) {
-        let record = makeRecord(methodName: methodName, destination: .user(Self.contractAddress))
+    func aFeeRowIsNeverSuggested(methodName: String?) throws {
+        let record = try makeRecord(methodName: methodName, destination: .user(Self.contractAddress))
 
         #expect(makeSUT(isToken: false).mapSuggestedRecord(record) == nil)
     }
 
     @Test("A coin transfer that moved coin to a person is still suggested")
-    func aCoinTransferToAPersonIsSuggested() {
-        let record = makeRecord(methodName: nil, amount: 1, type: .transfer, destination: .user("0xRecipient"))
+    func aCoinTransferToAPersonIsSuggested() throws {
+        let record = try makeRecord(methodName: nil, amount: 1, type: .transfer, destination: .user("0xRecipient"))
 
         #expect(makeSUT(isToken: false).mapSuggestedRecord(record)?.address == "0xRecipient")
     }
 
+    @Test("A zero-value token transfer is not suggested")
+    func aZeroValueTokenTransferIsNotSuggested() throws {
+        let record = try makeRecord(methodName: nil, type: .transfer, destination: .user("0xRecipient"))
+
+        #expect(makeSUT(isToken: true).mapSuggestedRecord(record) == nil)
+    }
+
     /// The coin history names a token transfer a transfer of its own, and the wallet only paid its gas.
     @Test("A token transfer the coin history reports as a transfer is shown as the fee it cost")
-    func aTransferTypedRecordIsTheFee() {
-        let record = makeRecord(methodName: nil, type: .transfer)
+    func aTransferTypedRecordIsTheFee() throws {
+        let record = try makeRecord(methodName: nil, type: .transfer)
 
         #expect(makeSUT(isToken: false).mapTransactionViewModel(record).display.title.fullText == Localization.commonNetworkFeeTitle)
     }
 
     /// An incoming transaction cost the wallet nothing, so its fee is someone else's.
     @Test("An incoming transaction that moved no coin keeps its own row")
-    func anIncomingTransactionKeepsItsRow() {
-        let record = makeRecord(methodName: nil, isOutgoing: false)
+    func anIncomingTransactionKeepsItsRow() throws {
+        let record = try makeRecord(methodName: nil, isOutgoing: false)
 
         #expect(makeSUT(isToken: false).mapTransactionViewModel(record).display.title.fullText == Localization.transactionHistoryOperation)
     }
 
     @Test("A coin call that did move coin keeps its own row")
-    func aCallThatMovedCoinKeepsItsRow() {
-        let viewModel = makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: nil, amount: 1))
+    func aCallThatMovedCoinKeepsItsRow() throws {
+        let viewModel = try makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: nil, amount: 1))
 
         #expect(viewModel.display.title.fullText == Localization.transactionHistoryOperation)
     }
@@ -259,8 +272,8 @@ struct TransactionHistoryMapperCoinFallbackTests {
         type: TransactionRecord.TransactionType? = nil,
         destination: TransactionRecord.Destination.Address? = nil,
         tokenTransfers: [TransactionRecord.TokenTransfer] = []
-    ) -> TransactionRecord {
-        TransactionRecord(
+    ) throws -> TransactionRecord {
+        try TransactionRecord(
             hash: "0xHash",
             index: 0,
             source: .single(.init(address: isOutgoing ? Self.walletAddress : Self.contractAddress, amount: amount)),

@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemFoundation
 
 protocol SendDestinationTransactionHistoryProvider {
     var transactionHistoryPublisher: AnyPublisher<[SendDestinationSuggestedTransactionRecord], Never> { get }
@@ -48,8 +49,9 @@ extension CommonSendDestinationTransactionHistoryProvider: SendDestinationTransa
 
                 return items
                     .compactMap { provider.transactionHistoryMapper.mapSuggestedRecord($0) }
-                    .prefix(Constants.numberOfRecentTransactions)
                     .sorted { $0.date > $1.date }
+                    .prefix(Constants.numberOfRecentTransactions)
+                    .toArray()
             }
             .eraseToAnyPublisher()
     }
