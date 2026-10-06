@@ -86,7 +86,8 @@ private extension ExpressAPIMapperRegionRestrictionTests {
             quoteId: "quote-id",
             expiredAt: nil,
             txType: nil,
-            isRestricted: isRestricted
+            isRestricted: isRestricted,
+            slippage: nil
         )
     }
 

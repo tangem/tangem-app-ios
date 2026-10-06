@@ -90,6 +90,7 @@ private extension ExpressAvailableProvider {
             rateType: rateType,
             approvePolicy: request.approvePolicy,
             operationType: pair.source.operationType,
+            slippage: provider.isCustomSlippageSupported ? request.slippage : nil,
             quotesLoadingPerformanceTracker: request.quotesLoadingPerformanceTracker
         )
     }
@@ -114,6 +115,7 @@ extension ExpressAvailableProvider: CustomStringConvertible {
 struct ExpressAvailableProviderUpdatingRequest {
     let amountType: ExpressAmountType?
     let approvePolicy: ApprovePolicy
+    let slippage: Decimal?
     let quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker?
 }
 

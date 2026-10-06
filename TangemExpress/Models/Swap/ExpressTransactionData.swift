@@ -46,6 +46,7 @@ public struct ExpressTransactionData {
     public let externalTxURL: URL?
     /// Original Express pay-in address when the executable transaction destination is rewritten locally.
     public let payInAddress: String
+    public let slippage: Decimal?
 
     public init(
         requestId: String,
@@ -62,7 +63,8 @@ public struct ExpressTransactionData {
         estimatedGasLimit: Int?,
         externalTxId: String?,
         externalTxURL: URL?,
-        payInAddress: String
+        payInAddress: String,
+        slippage: Decimal?
     ) {
         self.requestId = requestId
         self.fromAmount = fromAmount
@@ -79,5 +81,6 @@ public struct ExpressTransactionData {
         self.externalTxId = externalTxId
         self.externalTxURL = externalTxURL
         self.payInAddress = payInAddress
+        self.slippage = slippage
     }
 }
