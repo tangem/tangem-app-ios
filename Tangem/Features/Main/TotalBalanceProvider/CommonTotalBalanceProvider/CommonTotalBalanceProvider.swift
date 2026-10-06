@@ -97,7 +97,7 @@ private extension CommonTotalBalanceProvider {
             .withWeakCaptureOf(self)
             .flatMapLatest { provider, accountModel -> AnyPublisher<TotalBalanceState, Never> in
                 Publishers
-                    .CombineLatest(accountModel.statePublisher, accountModel.fiatAvailableBalanceProvider.balanceTypePublisher)
+                    .CombineLatest(accountModel.statePublisher, accountModel.fiatTotalTokenBalanceProvider.balanceTypePublisher)
                     .withWeakCaptureOf(provider)
                     .map { provider, tuple in
                         let (state, balanceType) = tuple
