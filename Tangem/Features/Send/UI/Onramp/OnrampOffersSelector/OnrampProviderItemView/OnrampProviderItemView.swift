@@ -85,6 +85,7 @@ struct OnrampProviderItemView: View {
                     .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.paymentMethod.id))
 
                 OnrampAmountBadge(badge: amount.badge)
+                    .accessibilityIdentifier(OnrampAccessibilityIdentifiers.bestRateBadge(id: viewModel.paymentMethod.id))
             }
         }
     }
@@ -100,6 +101,7 @@ struct OnrampProviderItemView: View {
 
                 Text(providers.providersFormatted)
                     .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
+                    .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerCount(id: viewModel.paymentMethod.id))
             }
             .padding(4)
             .overlay(
@@ -116,6 +118,7 @@ struct OnrampProviderItemView: View {
 
                 Text(providers.timeFormatted)
                     .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
+                    .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerTime(id: viewModel.paymentMethod.id))
             }
             .padding(4)
             .overlay(

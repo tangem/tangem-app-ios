@@ -26,8 +26,11 @@ final class SwapCommonUITests: BaseTestCase {
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
 
+        // The source token's chevron/selector is present even from this entry, contradicting the ticket's "can't be changed" claim.
         swapScreen
             .waitFromTokenDisplayed(tokenSymbol: fromTokenSymbol)
+            .waitForFromBalanceDisplayed()
+            .waitForFromFiatAmountDisplayed()
 
         swapScreen
             .tapToTokenSelector()
@@ -37,7 +40,9 @@ final class SwapCommonUITests: BaseTestCase {
         swapScreen
             .enterFromAmount("1")
             .waitForFromAmountValue("1")
+            .validateReceivedAmount()
             .clearFromAmount()
+            .waitForConfirmButtonDisabled()
 
         swapScreen
             .waitForSwapTokensButtonDisplayed()
@@ -93,7 +98,14 @@ final class SwapCommonUITests: BaseTestCase {
     func testSwapTokensSwitch() {
         setAllureId(5162)
 
-        launchApp(tangemApiType: .mock)
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            scenarios: [
+                ScenarioConfig(name: "polygon_pos_to_pairs", initialState: "DexProvider"),
+                ScenarioConfig(name: "exchange_quote_ethereum_polygon", initialState: "Native"),
+            ]
+        )
 
         let swapScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -108,11 +120,26 @@ final class SwapCommonUITests: BaseTestCase {
             .waitToTokenDisplayed(tokenSymbol: receiveTokenSymbol)
 
         swapScreen
+            .enterFromAmount("1")
+            .validateReceivedAmount()
+            .assertFeeCurrencySymbol(fromTokenSymbol)
+            .waitForSwapTokensButtonEnabled()
+
+        let initialReceiveAmount = swapScreen.captureReceiveAmount()
+
+        swapScreen
             .tapSwapTokensButton()
 
         swapScreen
             .waitFromTokenDisplayed(tokenSymbol: receiveTokenSymbol)
             .waitToTokenDisplayed(tokenSymbol: fromTokenSymbol)
+            .waitForSwapTokensButtonEnabled()
+
+        swapScreen
+            .enterFromAmount("0.1")
+            .validateReceivedAmount()
+            .assertReceiveAmount(notEquals: initialReceiveAmount)
+            .assertFeeCurrencySymbol(receiveTokenSymbol)
     }
 
     func testPredefinedPercentButtons() {
