@@ -276,11 +276,20 @@ extension WelcomeV2Coordinator: WelcomeV2Routable {
         legalViewModel = WelcomeV2LegalViewModel(document: document)
     }
 
-    func openShop(url: URL) {
+    func openBuyTangem() {
+        openShop(url: TangemShopUrlBuilder().url(utmCampaign: .welcome), entry: .welcomeButton)
+    }
+
+    func openShop(url: URL, entry: ShopEntry) {
         // The story stays up behind the shop, so its button is still tappable while the browser opens.
         guard !isShopPresented else { return }
 
-        analytics.logButtonBuy()
+        switch entry {
+        case .welcomeButton:
+            analytics.logButtonBuyTangem()
+        case .stories:
+            analytics.logButtonBuy()
+        }
         analytics.logShopScreenOpened()
         isShopPresented = true
 
@@ -307,6 +316,15 @@ extension WelcomeV2Coordinator: WelcomeV2Routable {
         cancelPendingTasks()
         reportWelcomeStoryExit()
         dismiss(with: .onboarding(input))
+    }
+}
+
+// MARK: - Types
+
+extension WelcomeV2Coordinator {
+    enum ShopEntry {
+        case welcomeButton
+        case stories
     }
 }
 
@@ -599,7 +617,7 @@ private extension WelcomeV2Coordinator {
             // Https-only, defense in depth: this action is built locally by our own factory,
             // so the host allowlist applied to remote stories is not needed here.
             guard let url = URL(string: raw), url.scheme?.lowercased() == "https" else { return }
-            openShop(url: url)
+            openShop(url: url, entry: .stories)
         case .screen, .deeplink, .close:
             break
         }
