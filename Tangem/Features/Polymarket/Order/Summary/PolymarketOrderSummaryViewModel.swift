@@ -311,7 +311,9 @@ private extension PolymarketOrderSummaryViewModel {
         header = Self.makeHeader(state: state, intent: model.intent, account: account)
         feeText = Self.makeFeeText(state: state)
 
-        if let quote = state.quote.quote {
+        if state.quote.isResuming {
+            marketRow = marketRow.settling(nextPriceText: nil, isLoading: true)
+        } else if let quote = state.quote.quote {
             marketRow = .make(
                 market: model.market,
                 outcome: model.outcome,
@@ -319,6 +321,8 @@ private extension PolymarketOrderSummaryViewModel {
                 averagePrice: quote.averagePrice,
                 entryPrice: model.entryPriceForVote
             )
+        } else if marketRow.isOutcomeNextPriceLoading {
+            marketRow = marketRow.settling(nextPriceText: nil, isLoading: false)
         }
         slippageText = PolymarketSlippageFormatter.rowText(state.slippagePercent)
         notifications = gate.notifications

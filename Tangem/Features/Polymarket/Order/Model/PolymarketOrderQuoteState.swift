@@ -12,15 +12,22 @@ import TangemPolymarket
 enum PolymarketOrderQuoteState: Equatable {
     case empty
     case loading
+    case resuming(hiddenFailuresLeft: Int)
     case content(PolymarketOrderQuote)
     case unavailable(PolymarketQuoteUnavailability, quote: PolymarketOrderQuote?)
     case failed(PolymarketOrderQuoteFailure)
 
     var isAwaitingQuote: Bool {
         switch self {
-        case .empty, .loading: true
+        case .empty, .loading, .resuming: true
         case .content, .unavailable, .failed: false
         }
+    }
+
+    var isResuming: Bool {
+        if case .resuming = self { return true }
+
+        return false
     }
 
     var quote: PolymarketOrderQuote? {
@@ -33,7 +40,7 @@ enum PolymarketOrderQuoteState: Equatable {
         switch self {
         case .content(let quote), .unavailable(.insufficientLiquidity, .some(let quote)):
             quote.expectedExecutionAmount
-        case .empty, .loading, .failed, .unavailable:
+        case .empty, .loading, .resuming, .failed, .unavailable:
             nil
         }
     }
