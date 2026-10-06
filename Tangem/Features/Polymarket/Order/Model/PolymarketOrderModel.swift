@@ -119,22 +119,26 @@ final class PolymarketOrderModel: ObservableObject {
 
     func handleViewAction(_ action: ViewAction) {
         switch action {
-        case .screenAppeared:
+        case .onAppear:
             visibleScreens += 1
 
             if visibleScreens == 1 {
                 restartQuoteLoop(debounced: false)
             }
-        case .screenDisappeared:
+        case .onDisappear:
             visibleScreens = max(0, visibleScreens - 1)
 
             if visibleScreens == 0 {
                 suspendQuoteLoop()
             }
-        case .fractionSelected(let fraction):
+        case .selectFraction(let fraction):
             apply(fraction: fraction)
-        case .slippageSelected(let percent):
+        case .selectSlippage(let percent):
             apply(slippagePercent: percent)
+        case .step(let step):
+            self.step(by: step)
+        case .retryQuote:
+            restartQuoteLoop(debounced: false)
         }
     }
 }
@@ -156,7 +160,7 @@ extension PolymarketOrderModel {
         return state.entryPrice
     }
 
-    func step(by step: Int) {
+    private func step(by step: Int) {
         guard let balance = state.balance else { return }
 
         let floor = intent.floor(balance: balance)
@@ -173,10 +177,6 @@ extension PolymarketOrderModel {
         guard quotable != state.enteredAmount else { return }
 
         apply(enteredAmount: quotable, debounced: false)
-    }
-
-    func retryQuote() {
-        restartQuoteLoop(debounced: false)
     }
 
     /// A quote answers one amount, so it has to stop counting the moment the amount changes. Both are moved in a
@@ -218,10 +218,12 @@ extension PolymarketOrderModel {
 
 extension PolymarketOrderModel {
     enum ViewAction {
-        case screenAppeared
-        case screenDisappeared
-        case fractionSelected(PolymarketAmountFraction)
-        case slippageSelected(Decimal)
+        case onAppear
+        case onDisappear
+        case selectFraction(PolymarketAmountFraction)
+        case selectSlippage(Decimal)
+        case step(Int)
+        case retryQuote
     }
 }
 
