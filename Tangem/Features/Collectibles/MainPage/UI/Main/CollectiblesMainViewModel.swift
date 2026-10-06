@@ -51,14 +51,14 @@ final class CollectiblesMainViewModel: ObservableObject {
 
     init(
         routable: (any CollectiblesMainRoutable)?,
-        accountModel: (any CollectiblesBalanceSource)?,
+        accountModel: (any CollectiblesBalanceSource & CollectiblesVaultUsdcAccountProvider)?,
         catalogueProvider: any CollectiblesLoresProvider & CollectiblesPacksProvider = CollectiblesAPIService()
     ) {
         let openMachine: (CollectiblesPack) -> Void = { [weak routable] pack in
             routable?.openMachine(for: pack)
         }
 
-        accountViewModel = CollectiblesAccountViewModel(accountModel: accountModel)
+        accountViewModel = CollectiblesAccountViewModel(accountModel: accountModel, routable: routable)
         loreTabsViewModel = CollectiblesLoreTabsViewModel(provider: catalogueProvider)
         packsViewModel = CollectiblesPacksViewModel(
             model: CollectiblesPacksModel(provider: catalogueProvider),

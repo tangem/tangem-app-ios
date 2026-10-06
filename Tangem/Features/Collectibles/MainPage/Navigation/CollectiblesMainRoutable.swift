@@ -7,6 +7,6 @@
 //
 
 @MainActor
-protocol CollectiblesMainRoutable: CollectiblesActionsMenuRoutable {
+protocol CollectiblesMainRoutable: CollectiblesActionsMenuRoutable, CollectiblesAccountRoutable {
     func openMachine(for pack: CollectiblesPack)
 }
