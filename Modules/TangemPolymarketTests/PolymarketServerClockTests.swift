@@ -1,6 +1,6 @@
 //
 //  PolymarketServerClockTests.swift
-//  TangemTests
+//  TangemPolymarketTests
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
@@ -8,8 +8,7 @@
 
 import Foundation
 import Testing
-import TangemPolymarket
-@testable import Tangem
+@testable import TangemPolymarket
 
 @Suite("PolymarketServerClock")
 struct PolymarketServerClockTests {
