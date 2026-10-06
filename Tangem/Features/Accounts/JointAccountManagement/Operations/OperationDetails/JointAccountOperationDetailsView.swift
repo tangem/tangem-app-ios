@@ -101,7 +101,7 @@ private extension JointAccountOperationDetailsViewModel {
                 canSign: true,
                 isSending: isSending
             ),
-            updatesPublisher: .empty,
+            contentPublisher: .empty,
             pendingOperationsProvider: nil,
             coordinator: nil,
             sign: {}
