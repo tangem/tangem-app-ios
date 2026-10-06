@@ -588,6 +588,15 @@ struct TangemApiTarget: TargetType {
             return nil
         }
     }
+
+    var validationType: ValidationType {
+        switch type {
+        case .promoCampaigns:
+            return .successCodes
+        default:
+            return .none
+        }
+    }
 }
 
 extension TangemApiTarget {
