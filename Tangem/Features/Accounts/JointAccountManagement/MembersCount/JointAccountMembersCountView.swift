@@ -33,32 +33,16 @@ struct JointAccountMembersCountView: View {
         .translucentNavigationBar()
         .alert(item: $viewModel.alert, content: { $0.alert })
         .safeAreaInset(edge: .bottom) { footer }
+        .ignoresSafeArea(.keyboard)
     }
 
     private var titleView: some View {
         JointAccountHeaderTitle(
             title: AttributedString(Localization.jointAccountMembersTitle),
-            subtitle: subtitle
+            subtitle: viewModel.subtitle
         )
         .padding(.top, 12)
         .padding(.horizontal, 8)
-    }
-
-    private var subtitle: AttributedString {
-        let signersCount = String(viewModel.signersCount)
-        let membersCount = String(viewModel.membersCount)
-        var subtitle = AttributedString(Localization.jointAccountMembersSubtitle(signersCount, membersCount))
-
-        for count in Set([signersCount, membersCount]) {
-            var searchStart = subtitle.startIndex
-
-            while let range = subtitle[searchStart...].range(of: count) {
-                subtitle[range].foregroundColor = DesignSystem.Color.textPrimary
-                searchStart = range.upperBound
-            }
-        }
-
-        return subtitle
     }
 
     private var membersView: some View {

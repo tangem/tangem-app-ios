@@ -39,6 +39,7 @@ struct JointAccountOnboardingView: View {
         }
         .translucentNavigationBar()
         .safeAreaInset(edge: .bottom) { footer }
+        .ignoresSafeArea(.keyboard)
     }
 
     /// The artwork carries the avatars alone, on transparency: the backdrop it sits on is a plain gradient, and
