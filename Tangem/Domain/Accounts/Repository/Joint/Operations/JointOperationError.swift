@@ -25,6 +25,8 @@ enum JointOperationError: LocalizedError, Equatable {
     case unsupportedOperationForm
     /// The fee was not quoted as a Safe operation, so there are no gas terms to sign.
     case missingFeeParameters
+    case maliciousOperation
+    case securityCheckUnavailable
 
     var errorDescription: String? {
         switch self {
@@ -38,6 +40,8 @@ enum JointOperationError: LocalizedError, Equatable {
         case .compositionMismatch: "The Safe's owners or threshold differ from the account's members"
         case .unsupportedOperationForm: "This operation form is not supported"
         case .missingFeeParameters: "The fee carries no Safe operation terms"
+        case .maliciousOperation: "The operation was flagged as malicious"
+        case .securityCheckUnavailable: "The operation could not be checked for security"
         }
     }
 }
