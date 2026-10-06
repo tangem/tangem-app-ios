@@ -118,7 +118,7 @@ private extension PolymarketOrderGate {
             break
         }
 
-        if state.geoblock == .blocked {
+        if state.geoblock.isBlocked {
             notifications.append(.regionRestricted)
         }
 
