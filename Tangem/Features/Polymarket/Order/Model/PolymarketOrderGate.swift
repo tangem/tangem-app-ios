@@ -114,7 +114,7 @@ private extension PolymarketOrderGate {
             }
         case .failed:
             notifications.append(.quoteUnavailable)
-        case .empty, .loading:
+        case .empty, .loading, .resuming:
             break
         }
 
