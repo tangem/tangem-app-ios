@@ -25,12 +25,14 @@ class SupportChatViewModel: ObservableObject, Identifiable {
     private let logsComposer: LogsComposer
     private let tokenStorage = SupportChatTokenStorage()
     private let source: SupportChatSource
+    private let analyticsContextParams: Analytics.ContextParams
     private var loadTimeoutTask: Task<Void, Never>?
     private var reloadAttempts = 0
 
     init(input: SupportChatInputModel) {
         logsComposer = input.logsComposer
         source = input.source
+        analyticsContextParams = input.analyticsContextParams
         widgetHTML = SupportChatHTMLBuilder.makeWidgetHTML(
             userIdentifier: input.userIdentifier,
             savedToken: tokenStorage.loadValidToken(),
@@ -45,11 +47,15 @@ class SupportChatViewModel: ObservableObject, Identifiable {
         loadTimeoutTask = nil
         guard !loadState.isSuccess else { return }
         loadState = .success(())
-        Analytics.log(.supportChatScreenOpened, params: [.source: source.analyticsParameterValue])
+        Analytics.log(
+            .supportChatScreenOpened,
+            params: [.source: source.analyticsParameterValue],
+            contextParams: analyticsContextParams
+        )
     }
 
     func onClose() {
-        Analytics.log(.supportChatScreenClosed)
+        Analytics.log(.supportChatScreenClosed, contextParams: analyticsContextParams)
     }
 
     func saveSessionToken(_ token: String) {
@@ -96,7 +102,7 @@ class SupportChatViewModel: ObservableObject, Identifiable {
             scheduleLoadTimeout()
         } else {
             loadState = .failure(SupportChatError.failedToLoad)
-            Analytics.log(.supportChatScreenError)
+            Analytics.log(.supportChatScreenError, contextParams: analyticsContextParams)
         }
     }
 

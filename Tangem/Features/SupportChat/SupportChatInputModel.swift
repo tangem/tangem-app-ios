@@ -37,4 +37,8 @@ struct SupportChatInputModel {
     var topic: SupportChatTopic? {
         source.topic
     }
+
+    var analyticsContextParams: Analytics.ContextParams {
+        userWalletId.map { .userWallet($0) } ?? .empty
+    }
 }

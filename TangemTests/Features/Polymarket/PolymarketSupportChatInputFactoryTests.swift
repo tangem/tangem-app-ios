@@ -26,6 +26,22 @@ struct PolymarketSupportChatInputFactoryTests {
         }
     }
 
+    @Test("Chat analytics carry the wallet Polymarket runs on, not the selected one")
+    func reportsAnalyticsForThePolymarketWallet() async {
+        let environment = InjectedEnvironment()
+
+        await environment.run {
+            let input = PolymarketSupportChatInputFactory().makeInput(for: environment.otherWallet)
+
+            guard case .userWallet(let userWalletId) = input.analyticsContextParams else {
+                Issue.record("Expected the analytics context of a specific wallet, got \(input.analyticsContextParams)")
+                return
+            }
+
+            #expect(userWalletId == environment.otherWallet.userWalletId)
+        }
+    }
+
     @Test("The chat says it came from Polymarket to analytics and to Usedesk")
     func marksTheSourceAndTopic() async {
         let environment = InjectedEnvironment()
