@@ -31,6 +31,10 @@ struct TransactionDetailsContext {
         tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
     }
 
+    var blockchain: Blockchain {
+        walletModel.tokenItem.blockchain
+    }
+
     var networkIconAsset: ImageType {
         NetworkImageProvider().provide(by: walletModel.tokenItem.blockchain, filled: true)
     }

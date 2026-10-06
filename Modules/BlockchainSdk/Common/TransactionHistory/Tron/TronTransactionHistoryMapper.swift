@@ -81,7 +81,7 @@ final class TronTransactionHistoryMapper {
         )
 
         let destination = TransactionRecord.Destination(
-            address: transaction.isContractInteraction ? .contract(destinationAddress) : .user(destinationAddress),
+            address: isContractInteraction(transaction) ? .contract(destinationAddress) : .user(destinationAddress),
             amount: transactionAmount
         )
 
@@ -90,6 +90,14 @@ final class TronTransactionHistoryMapper {
             destination: destination,
             isOutgoing: isOutgoing
         )
+    }
+
+    private func isContractInteraction(_ transaction: BlockBookAddressResponse.Transaction) -> Bool {
+        if let contractType = transaction.contractType {
+            return contractType != TronContractType.transferContractType.rawValue
+        }
+
+        return transaction.chainExtraData.flatMap(extraDataContractType(from:)) == .triggerSmartContract
     }
 
     private static func votes(of transaction: BlockBookAddressResponse.Transaction) -> [Vote] {
@@ -196,7 +204,8 @@ final class TronTransactionHistoryMapper {
         transactionInfos: [TransactionInfo],
         amountType: Amount.AmountType,
         fees: Decimal,
-        votes: [Vote]
+        votes: [Vote],
+        tokens: [BlockBookAddressResponse.Token]?
     ) -> [TransactionRecord] {
         // Nownodes appends `0x` prefixes to TRON txids, so we have to strip these prefixes
         let hash = transaction.txid.removeHexPrefix()
@@ -204,7 +213,7 @@ final class TronTransactionHistoryMapper {
         let date = Date(timeIntervalSince1970: TimeInterval(transaction.blockTime))
         let status = status(transaction)
         let type = transactionType(transaction, amountType: amountType, votes: votes)
-        let tokenTransfers = tokenTransfers(transaction)
+        let tokenTransfers = tokenTransfers(transaction, tokens: tokens)
 
         return transactionInfos.map { transactionInfo in
             let index = transactionIndicesCounter[hash, default: 0]
@@ -283,13 +292,15 @@ final class TronTransactionHistoryMapper {
             // type via the `chainExtraData` payload. Fall back to that payload in such cases.
             guard let contractTypeInt = transaction.contractType,
                   let contractType = TronContractType(rawValue: contractTypeInt) else {
-                return transactionType(from: transaction.chainExtraData, votes: votes)
+                return transactionType(fromChainExtraDataOf: transaction, votes: votes)
             }
 
             switch contractType {
             case .transferContractType,
                  .transferAssetContractType:
                 return .transfer
+            case .triggerSmartContractType:
+                return contractCallType(transaction) ?? .contractMethodIdentifier(id: transaction.contractName ?? .unknown)
             case .voteWitnessContractType:
                 return .staking(type: .vote, target: votes.first?.witness)
             case .withdrawExpireUnfreezeContractType:
@@ -312,19 +323,21 @@ final class TronTransactionHistoryMapper {
     /// Extracts the coin transaction type from the `chainExtraData` payload, which NowNodes started
     /// delivering instead of the integer `contract_type` field. The contract type arrives as a string.
     private func transactionType(
-        from chainExtraData: BlockBookAddressResponse.ChainExtraData?,
+        fromChainExtraDataOf transaction: BlockBookAddressResponse.Transaction,
         votes: [Vote]
     ) -> TransactionRecord.TransactionType {
         guard
-            let chainExtraData,
+            let chainExtraData = transaction.chainExtraData,
             let contractType = extraDataContractType(from: chainExtraData)
         else {
             return .transfer
         }
 
         switch contractType {
-        case .transferContract, .triggerSmartContract:
+        case .transferContract:
             return .transfer
+        case .triggerSmartContract:
+            return contractCallType(transaction) ?? .transfer
         case .voteWitnessContract:
             return .staking(type: .vote, target: votes.first?.witness)
         case .withdrawBalanceContract:
@@ -344,6 +357,18 @@ final class TronTransactionHistoryMapper {
             return .transfer
             #endif
         }
+    }
+
+    private func contractCallType(_ transaction: BlockBookAddressResponse.Transaction) -> TransactionRecord.TransactionType? {
+        guard let methodId = transaction.ethereumSpecific?.methodId else {
+            return nil
+        }
+
+        if methodId.caseInsensitiveEquals(to: TransferERC20TokenMethod.methodId) {
+            return .transfer
+        }
+
+        return .contractMethodIdentifier(id: methodId)
     }
 
     private func contractType(_ transaction: BlockBookAddressResponse.Transaction) -> TronContractType? {
@@ -367,8 +392,13 @@ final class TronTransactionHistoryMapper {
         return TronChainExtraDataContractType(rawValue: rawContractType ?? .unknown)
     }
 
-    private func tokenTransfers(_ transaction: BlockBookAddressResponse.Transaction) -> [TransactionRecord.TokenTransfer] {
-        let tokenTransfers = transaction.tokenTransfers ?? []
+    private func tokenTransfers(
+        _ transaction: BlockBookAddressResponse.Transaction,
+        tokens: [BlockBookAddressResponse.Token]?
+    ) -> [TransactionRecord.TokenTransfer] {
+        guard let tokenTransfers = transaction.tokenTransfers?.nilIfEmpty else {
+            return decodedTokenTransfer(transaction, tokens: tokens).map { [$0] } ?? []
+        }
 
         return tokenTransfers.map { transfer -> TransactionRecord.TokenTransfer in
             let amount = Decimal(stringValue: transfer.value) ?? 0
@@ -382,6 +412,33 @@ final class TronTransactionHistoryMapper {
                 contract: transfer.compat.contract
             )
         }
+    }
+
+    private func decodedTokenTransfer(
+        _ transaction: BlockBookAddressResponse.Transaction,
+        tokens: [BlockBookAddressResponse.Token]?
+    ) -> TransactionRecord.TokenTransfer? {
+        guard
+            let calldata = transaction.ethereumSpecific?.data,
+            let transfer = TronTokenTransferCallData(calldata: calldata),
+            let amount = Decimal(stringValue: transfer.amount.description),
+            let source = transaction.sourceAddress,
+            let contract = transaction.destinationAddress
+        else {
+            return nil
+        }
+
+        let token = tokens?.first { $0.matching(contractAddress: contract) }
+
+        return TransactionRecord.TokenTransfer(
+            source: source,
+            destination: transfer.recipient,
+            amount: amount,
+            name: nil,
+            symbol: token?.symbol,
+            decimals: token?.decimals,
+            contract: contract
+        )
     }
 }
 
@@ -426,7 +483,8 @@ extension TronTransactionHistoryMapper: TransactionHistoryMapper {
                             transactionInfos: [transactionInfo],
                             amountType: amountType,
                             fees: fees,
-                            votes: votes
+                            votes: votes,
+                            tokens: response.tokens
                         )
                     }
                 case .token(let token):
@@ -448,7 +506,8 @@ extension TronTransactionHistoryMapper: TransactionHistoryMapper {
                             transactionInfos: outgoingTransactionInfos + incomingTransactionInfos,
                             amountType: amountType,
                             fees: fees,
-                            votes: votes
+                            votes: votes,
+                            tokens: response.tokens
                         )
                     }
                 }
@@ -591,11 +650,6 @@ private extension BlockBookAddressResponse.Token {
 }
 
 private extension BlockBookAddressResponse.Transaction {
-    var isContractInteraction: Bool {
-        contractType != nil
-            && contractType != TronTransactionHistoryMapper.TronContractType.transferContractType.rawValue
-    }
-
     /// NowNodes changed the Tron Blockbook API contract: the dedicated `fromAddress`/`toAddress` fields
     /// may now be absent, in which case the addresses are delivered via the `vin`/`vout` arrays (as in
     /// other Blockbook-based networks like Bitcoin or Ethereum). Fall back to those fields when the
