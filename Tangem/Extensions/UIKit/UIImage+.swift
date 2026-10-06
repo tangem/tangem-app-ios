@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import TangemFoundation
 
 extension UIImage {
     /// https://www.hackingwithswift.com/example-code/media/how-to-read-the-average-color-of-a-uiimage-using-ciareaaverage
@@ -27,5 +28,17 @@ extension UIImage {
         let averageBlue = CGFloat(bitmap[2]) / 255
 
         return (averageRed + averageGreen + averageBlue) / 3.0
+    }
+}
+
+// MARK: - App icon
+
+extension UIImage {
+    static var appIcon: UIImage? {
+        guard let iconFiles: [String] = InfoDictionaryUtils.bundlePrimaryIconFiles.value(), let iconName = iconFiles.last else {
+            return nil
+        }
+
+        return UIImage(named: iconName)
     }
 }
