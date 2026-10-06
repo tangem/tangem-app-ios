@@ -2339,6 +2339,7 @@
 "tangempay_bank_transfer_details_daily_deposits" = "Daily deposits";
 "tangempay_bank_transfer_details_fee_header" = "Deposit methods and fees";
 "tangempay_bank_transfer_details_limitations" = "Limitations";
+"tangempay_bank_transfer_failed_title" = "Failed to create banking details";
 "tangempay_bank_transfer_fee_ach" = "ACH";
 "tangempay_bank_transfer_fee_error_subtitle" = "Tocca per ricaricare";
 "tangempay_bank_transfer_fee_error_title" = "Errore nel caricamento delle commissioni";
@@ -2467,7 +2468,7 @@
 "tangempay_cashback_accruals_calc_title" = "Come calcoliamo il cashback?";
 "tangempay_cashback_accruals_exceptions_description" = "Il cashback non è attualmente attivo per i pagamenti su POS nei negozi fisici nell’UE. Non si applica inoltre a prelievi, quasi-cash, ricariche telefoniche, servizi della PA e altre categorie selezionate.";
 "tangempay_cashback_accruals_exceptions_title" = "Eccezioni";
-"tangempay_cashback_accruals_pay_description" = "Dal 2 al 5 del mese successivo";
+"tangempay_cashback_accruals_pay_description" = "Entro il 10 del mese successivo, dopo la verifica della conformità delle transazioni al regolamento del programma cashback";
 "tangempay_cashback_accruals_pay_title" = "Come paghiamo il cashback?";
 "tangempay_cashback_accruals_subtitle" = "Limiti ed eccezioni";
 "tangempay_cashback_accruals_title" = "Accantonamenti";
@@ -2476,7 +2477,7 @@
 "tangempay_cashback_additional_until" = "Fino al %1$@";
 "tangempay_cashback_deactivated_description" = "A causa di attività sospetta. Contatta l'assistenza";
 "tangempay_cashback_deactivated_title" = "Cashback disattivato";
-"tangempay_cashback_deposit_banner" = "Cashback %1$@ per %2$@ accreditato entro il %3$@";
+"tangempay_cashback_deposit_banner" = "Cashback %1$@ per %2$@ accreditato entro il %3$@ dopo la verifica";
 "tangempay_cashback_deposited_on" = "Accreditato il %1$@";
 "tangempay_cashback_details_cap" = "%1$@ max/mese";
 "tangempay_cashback_details_eu_excluded" = "Il cashback non è attualmente attivo per i pagamenti su POS nei negozi fisici nell’UE";
@@ -2579,7 +2580,7 @@
 "tangempay_kyc_rejected_description" = "Spiacenti, non siamo riusciti a verificare";
 "tangempay_kyc_rejected" = "Rifiutato";
 "tangempay_main_select_plan" = "Seleziona piano";
-"tangempay_maximum_cards_issued_description" = "Massimo 3 carte. Eliminane una per aggiungerne una nuova.";
+"tangempay_maximum_cards_issued_description" = "Eliminane una per aggiungerne una nuova";
 "tangempay_maximum_cards_issued_for_plan_description" = "Passa a un piano superiore per più carte";
 "tangempay_maximum_cards_issued_for_plan_title" = "Limite di carte raggiunto per questo piano";
 "tangempay_maximum_cards_issued_for_plan_upgrade_btn" = "Piano superiore";
