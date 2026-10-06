@@ -92,6 +92,35 @@ struct DEXProviderFlowHelperFallbackTests {
         #expect(preview.approveData.approveFee == approveLeg)
     }
 
+    @Test(
+        "The preview quote takes the slippage from the exchange data and falls back to the quote one",
+        arguments: [
+            (Decimal(string: "0.02"), Decimal(string: "0.01"), Decimal(string: "0.02")),
+            (nil, Decimal(string: "0.01"), Decimal(string: "0.01")),
+            (nil, nil, nil),
+        ]
+    )
+    func readyToApproveAndSwap_previewQuoteSlippage(dataSlippage: Decimal?, quoteSlippage: Decimal?, expected: Decimal?) async throws {
+        let feeProvider = FeeProviderStub(
+            combinedResult: .success(ApproveWithSwapFee(total: zeroFee(), approve: zeroFee())),
+            approveFee: zeroFee()
+        )
+        let sut = makeSUT(feeProvider: feeProvider, analyticsLogger: AnalyticsLoggerSpy())
+
+        let state = try await sut.readyToApproveAndSwap(
+            request: makeRequest(),
+            quote: makeQuote(slippage: quoteSlippage),
+            data: makeData(slippage: dataSlippage),
+            approveData: makeApproveData()
+        )
+
+        guard case .dexWithApprovePreview(let preview) = state else {
+            Issue.record("Expected .dexWithApprovePreview, got \(state)")
+            return
+        }
+        #expect(preview.quote.slippage == expected)
+    }
+
     // MARK: - Allowance routing (checkRestriction)
 
     /// Flag ON + a resolvable owner address: a plain permissionRequired allowance enters the approve-with-swap flow.
@@ -271,7 +300,8 @@ private extension DEXProviderFlowHelperFallbackTests {
             termsOfUse: nil,
             privacyPolicy: nil,
             recommended: nil,
-            slippage: nil
+            slippage: nil,
+            isCustomSlippageSupported: false
         )
     }
 
@@ -281,15 +311,16 @@ private extension DEXProviderFlowHelperFallbackTests {
             rateType: .float,
             approvePolicy: .specified,
             operationType: .swap,
+            slippage: nil,
             quotesLoadingPerformanceTracker: nil
         )
     }
 
-    func makeQuote(allowanceContract: String? = nil) -> ExpressQuote {
-        ExpressQuote(fromAmount: .zero, expectAmount: .zero, allowanceContract: allowanceContract, quoteId: nil, txType: nil, isRestricted: false)
+    func makeQuote(allowanceContract: String? = nil, slippage: Decimal? = nil) -> ExpressQuote {
+        ExpressQuote(fromAmount: .zero, expectAmount: .zero, allowanceContract: allowanceContract, quoteId: nil, txType: nil, isRestricted: false, slippage: slippage)
     }
 
-    func makeData(txValue: Decimal = .zero, estimatedGasLimit: Int? = nil) -> ExpressTransactionData {
+    func makeData(txValue: Decimal = .zero, estimatedGasLimit: Int? = nil, slippage: Decimal? = nil) -> ExpressTransactionData {
         ExpressTransactionData(
             requestId: "",
             fromAmount: .zero,
@@ -305,7 +336,8 @@ private extension DEXProviderFlowHelperFallbackTests {
             estimatedGasLimit: estimatedGasLimit,
             externalTxId: nil,
             externalTxURL: nil,
-            payInAddress: ""
+            payInAddress: "",
+            slippage: slippage
         )
     }
 
@@ -335,7 +367,7 @@ final class AnalyticsLoggerSpy: AnalyticsLogger {
     func logExpressAPIError(_ error: ExpressAPIError, provider: ExpressProvider, paymentMethod: OnrampPaymentMethod) {}
 }
 
-private final class FeeProviderStub: ExpressFeeProvider {
+final class FeeProviderStub: ExpressFeeProvider {
     let supportsGasBasedFeeEstimate: Bool
 
     private let combinedResult: Result<ApproveWithSwapFee, Error>
@@ -387,7 +419,7 @@ private struct AllowanceProviderStub: AllowanceProvider {
     }
 }
 
-private final class FeeProviderFactoryStub: ExpressFeeProviderFactory {
+final class FeeProviderFactoryStub: ExpressFeeProviderFactory {
     func makeExpressFeeProvider() -> any ExpressFeeProvider {
         FeeProviderStub(
             combinedResult: .failure(StubError.notImplemented),
@@ -446,13 +478,13 @@ final class SourceWalletStub: ExpressSourceWallet {
     }
 }
 
-private final class ExpressAPIProviderStub: ExpressAPIProvider {
+final class ExpressAPIProviderStub: ExpressAPIProvider {
     func assets(currencies: Set<ExpressWalletCurrency>) async throws -> [ExpressAsset] { [] }
     func pairs(from: Set<ExpressWalletCurrency>, to: Set<ExpressWalletCurrency>) async throws -> [ExpressPair] { [] }
     func providers(branches: [ExpressBranch]) async throws -> [ExpressProvider] { [] }
 
     func exchangeQuote(item: ExpressSwappableQuoteItem) async throws -> ExpressQuote {
-        ExpressQuote(fromAmount: .zero, expectAmount: .zero, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false)
+        ExpressQuote(fromAmount: .zero, expectAmount: .zero, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false, slippage: nil)
     }
 
     func exchangeData(item: ExpressSwappableDataItem) async throws -> ExpressTransactionData {
@@ -471,7 +503,8 @@ private final class ExpressAPIProviderStub: ExpressAPIProvider {
             estimatedGasLimit: nil,
             externalTxId: nil,
             externalTxURL: nil,
-            payInAddress: ""
+            payInAddress: "",
+            slippage: nil
         )
     }
 
@@ -545,7 +578,7 @@ private final class ExpressAPIProviderStub: ExpressAPIProvider {
     }
 }
 
-private enum StubError: Error {
+enum StubError: Error {
     case notImplemented
     case estimateFailed
 }

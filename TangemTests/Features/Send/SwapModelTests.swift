@@ -484,6 +484,8 @@ private actor ExpressManagerStub: ExpressManager {
         return amountType
     }
 
+    func getSlippage() -> Decimal? { nil }
+
     func holdAmountTypeReads(behind gate: TestGate) {
         amountTypeReadGate = gate
     }
@@ -535,6 +537,10 @@ private actor ExpressManagerStub: ExpressManager {
         state()
     }
 
+    func update(slippage: Decimal?) async -> ExpressManagerState {
+        state()
+    }
+
     func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState {
         state()
     }
@@ -569,7 +575,8 @@ private actor ExpressManagerStub: ExpressManager {
             estimatedGasLimit: nil,
             externalTxId: nil,
             externalTxURL: nil,
-            payInAddress: ""
+            payInAddress: "",
+            slippage: nil
         )
     }
 }
