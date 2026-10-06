@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct YieldIncentivesRewardsSummary: Equatable {
     let moduleAddress: String
@@ -25,7 +26,7 @@ struct YieldIncentivesRewardsSummary: Equatable {
 
 extension YieldIncentivesRewardsSummary {
     init?(dto: YieldModuleDTO.Response.IncentivesInfo) {
-        guard let moduleAddress = dto.moduleAddress, !dto.rewards.isEmpty else {
+        guard let moduleAddress = dto.moduleAddress?.nilIfEmpty, !dto.rewards.isEmpty else {
             return nil
         }
 
