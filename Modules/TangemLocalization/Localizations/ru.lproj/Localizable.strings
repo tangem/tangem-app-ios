@@ -191,9 +191,9 @@
 "bitcoin_promo_no_address_title" = "Требуется Bitcoin-адрес";
 "bitcoin_promo_no_address" = "Для зачисления бонуса нужен Bitcoin-адрес. Добавьте его в портфель и повторите активацию.";
 "button_start_backup_process" = "Начать резервное копирование";
-"buy_swap_region_restriction_description_region" = "Buy and swap are currently not available in your region: %@";
+"buy_swap_region_restriction_description_region" = "Покупка и обмен сейчас недоступны в вашем регионе: %@";
 "buy_swap_region_restriction_description" = "Buy and swap are currently not available in your region";
-"buy_swap_region_restriction_title" = "Regional restrictions";
+"buy_swap_region_restriction_title" = "Региональные ограничения";
 "buy_token_description" = "Используйте банковскую карту или другие методы оплаты";
 "card_reset_alert_finish_message" = "Все устройства Tangem были сброшены. Теперь вы можете продолжить апгрейд кошелька.";
 "card_reset_alert_finish_ok_button" = "Обновить";
@@ -517,7 +517,7 @@
 "common_transfer" = "Перевод";
 "common_transferred" = "Переведено";
 "common_try_again_later" = "Пожалуйста, попробуйте позже";
-"common_type" = "Type";
+"common_type" = "Тип";
 "common_understand_continue" = "Я понимаю, продолжить";
 "common_understand" = "Я понял";
 "common_unknown_error" = "Произошла ошибка. Пожалуйста, попробуйте снова.";
@@ -618,7 +618,7 @@
 "dynamic_addresses_receive_badge" = "Динамический адрес";
 "dynamic_addresses_unavailability_reason_pending_transaction_send" = "Управление динамическими адресами станет доступно после подтверждения транзакций в сети %@";
 "dynamic_addresses" = "Динамические адреса";
-"earn_assets" = "Earn assets";
+"earn_assets" = "Активы для заработка";
 "earn_best_opportunities" = "Лучшие возможности";
 "earn_clear_filter" = "Очистить фильтр";
 "earn_empty" = "Список временно пуст — он обновляется. Пожалуйста, зайдите чуть позже.";
@@ -738,9 +738,9 @@
 "feed_search_recent_title" = "Recent";
 "feed_search_show_all_user_assets" = "Показать все";
 "feed_search_show_less_user_assets" = "Скрыть";
-"feed_tab_crypto" = "Crypto";
-"feed_tab_earn" = "Earn";
-"feed_tab_rwa" = "Real assets";
+"feed_tab_crypto" = "Криптовалюты";
+"feed_tab_earn" = "Заработок";
+"feed_tab_rwa" = "Реальные активы";
 "feed_trending_now" = "В тренде";
 "feedback_preface_rate_negative" = "Расскажите, каких функций вам не хватает, и мы постараемся вам помочь.";
 "feedback_preface_scan_failed" = "Скажите, пожалуйста, какая у вас карта или кольцо?";
@@ -1139,7 +1139,7 @@
 "manage_tokens_toast_portfolio_updated" = "Ваш портфель был обновлен";
 "manage_tokens_wallet_selector_title" = "Выберите кошелек";
 "manage_tokens_wallet_support_only_one_network_title" = "Кошелёк не поддерживает более одной сети";
-"market_categories" = "Categories";
+"market_categories" = "Категории";
 "market_chart_ai_total" = "AI Total:";
 "market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
 "market_chart_bubble_no_amount" = "Нет токенов \n/ стоимости активов";
@@ -2339,6 +2339,7 @@
 "tangempay_bank_transfer_details_daily_deposits" = "Daily deposits";
 "tangempay_bank_transfer_details_fee_header" = "Deposit methods and fees";
 "tangempay_bank_transfer_details_limitations" = "Limitations";
+"tangempay_bank_transfer_failed_title" = "Failed to create banking details";
 "tangempay_bank_transfer_fee_ach" = "ACH";
 "tangempay_bank_transfer_fee_error_subtitle" = "Нажмите, чтобы обновить";
 "tangempay_bank_transfer_fee_error_title" = "Не удалось загрузить информацию о комиссии";

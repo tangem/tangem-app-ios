@@ -2339,6 +2339,7 @@
 "tangempay_bank_transfer_details_daily_deposits" = "Daily deposits";
 "tangempay_bank_transfer_details_fee_header" = "Deposit methods and fees";
 "tangempay_bank_transfer_details_limitations" = "Limitations";
+"tangempay_bank_transfer_failed_title" = "Failed to create banking details";
 "tangempay_bank_transfer_fee_ach" = "ACH";
 "tangempay_bank_transfer_fee_error_subtitle" = "Appuyez pour recharger";
 "tangempay_bank_transfer_fee_error_title" = "Erreur de chargement des frais";
