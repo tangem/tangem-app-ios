@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import SwiftUI
 import Testing
 import TangemFoundation
 import TangemLocalization
@@ -146,25 +145,6 @@ struct JointAccountInviteMembersViewModelTests {
         withExtendedLifetime(viewModel) {}
     }
 
-    @Test("Activating opens the confirmation with the signer's own way of signing", arguments: [true, false])
-    func activationConfirmationKnowsTheSigner(hasNFCInteraction: Bool) {
-        let coordinator = JointAccountInviteMembersRoutableSpy()
-        let viewModel = makeViewModel(
-            membersCount: 2,
-            membersService: JointAccountCompositionFixture.makeMembersService(
-                membersCount: 2,
-                members: [creator],
-                inviteIds: ["AA"]
-            ),
-            hasNFCInteraction: hasNFCInteraction,
-            coordinator: coordinator
-        )
-
-        viewModel.onActivateTap()
-
-        #expect(coordinator.activationConfirmationNFCInteractions == [hasNFCInteraction])
-    }
-
     // MARK: - Helpers
 
     private var creator: JointAccountMember {
@@ -197,16 +177,14 @@ struct JointAccountInviteMembersViewModelTests {
 
     private func makeViewModel(
         membersCount: Int,
-        membersService: any JointAccountMembersService,
-        hasNFCInteraction: Bool = false,
-        coordinator: JointAccountInviteMembersRoutable? = nil
+        membersService: any JointAccountMembersService
     ) -> JointAccountInviteMembersViewModel {
         let jointAccount = CommonJointAccountModel(
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
             derivationIdentity: JointAccountCompositionFixture.derivationIdentity,
             accountPolicy: JointAccountPolicy(membersCount: membersCount, signersCount: 2),
             accountStatus: .pending,
-            operationsService: JointAccountOperationsServiceMock(hasNFCInteraction: hasNFCInteraction),
+            operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             membersService: membersService,
             delegate: delegate
@@ -214,25 +192,7 @@ struct JointAccountInviteMembersViewModelTests {
 
         return JointAccountInviteMembersViewModel(
             jointAccount: jointAccount,
-            coordinator: coordinator
+            coordinator: nil
         )
-    }
-}
-
-// MARK: - Doubles
-
-private final class JointAccountInviteMembersRoutableSpy: JointAccountInviteMembersRoutable {
-    private(set) var activationConfirmationNFCInteractions: [Bool] = []
-
-    func closeInviteMembers() {}
-
-    func shareInvite(url: URL, accountName: String) {}
-
-    func openInviteSafety() {}
-
-    func openMemberDetails(name: String, address: String, accentColor: Color) {}
-
-    func openActivationConfirmation(hasNFCInteraction: Bool, onConfirm: @escaping () -> Void) {
-        activationConfirmationNFCInteractions.append(hasNFCInteraction)
     }
 }
