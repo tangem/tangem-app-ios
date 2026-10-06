@@ -1012,7 +1012,7 @@
 "joint_account_invite_load_failed_subtitle" = "Die Einladungsseite konnte nicht geladen werden.\nZum Neuladen tippen";
 "joint_account_invite_members_creator" = "Urheber";
 "joint_account_invite_members_invite" = "Einladen";
-"joint_account_invite_members_invited" = "Invited";
+"joint_account_invite_members_invited" = "Eingeladen";
 "joint_account_invite_members_member_info" = "Mitgliederdaten";
 "joint_account_invite_members_member" = "Mitglied";
 "joint_account_invite_members_new_member" = "Neues Mitglied";
@@ -2339,6 +2339,7 @@
 "tangempay_bank_transfer_details_daily_deposits" = "Tägliche Einzahlungen";
 "tangempay_bank_transfer_details_fee_header" = "Einzahlungsmethoden und Gebühren";
 "tangempay_bank_transfer_details_limitations" = "Einschränkungen";
+"tangempay_bank_transfer_failed_title" = "Fehler beim Erstellen der Bankdaten";
 "tangempay_bank_transfer_fee_ach" = "ACH";
 "tangempay_bank_transfer_fee_error_subtitle" = "Zum Neuladen tippen";
 "tangempay_bank_transfer_fee_error_title" = "Fehler beim Laden der Gebühreninformationen";
