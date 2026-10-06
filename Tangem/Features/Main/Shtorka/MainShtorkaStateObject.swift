@@ -97,6 +97,10 @@ final class MainShtorkaStateObject: ObservableObject {
     func report(sheetHeight height: CGFloat) {
         heights.report(sheetHeight: height)
     }
+
+    func stopFollowingBottomSheet() {
+        bag.removeAll()
+    }
 }
 
 // MARK: - Visibility
