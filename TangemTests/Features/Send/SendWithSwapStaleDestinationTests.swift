@@ -349,6 +349,7 @@ private actor TransferExpressManagerStub: ExpressManager {
 
     func getCurrentPair() -> ExpressManagerSwappingPair? { currentPair }
     func getAmountType() -> ExpressAmountType? { amountType }
+    func getSlippage() -> Decimal? { nil }
 
     func hold(amountUpdatesUntil gate: TestGate) {
         amountUpdateGate = gate
@@ -366,6 +367,7 @@ private actor TransferExpressManagerStub: ExpressManager {
     }
 
     func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState { .transfer }
+    func update(slippage: Decimal?) async -> ExpressManagerState { .transfer }
     func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState { .transfer }
     func update(type: ExpressManagerUpdatingType) async -> ExpressManagerState { .transfer }
 

@@ -22,6 +22,15 @@ struct ExpressAPIMapperExchangeDataTests {
         #expect(data.payInAddress == payInAddress)
     }
 
+    @Test("The applied exchange-data slippage comes back as a fraction")
+    func appliedSlippageIsMappedToFraction() throws {
+        let mapper = makeMapper(details: makeDetails(payoutAddress: requestedPayoutAddress))
+
+        let data = try mapper.mapToExpressTransactionData(item: makeItem(), request: makeRequest(), response: makeResponse(slippage: 50))
+
+        #expect(data.slippage == Decimal(string: "0.005"))
+    }
+
     @Test("A payout address other than the requested one is refused before any transaction is built")
     func foreignPayoutAddressIsRefused() {
         let mapper = makeMapper(details: makeDetails(payoutAddress: "0x000000000000000000000000000000000000dEaD"))
@@ -130,11 +139,12 @@ private extension ExpressAPIMapperExchangeDataTests {
             toExtraId: toExtraId,
             refundAddress: sourceAddress,
             refundExtraId: nil,
-            partnerOperationType: ExpressOperationType.swap.rawValue
+            partnerOperationType: ExpressOperationType.swap.rawValue,
+            slippage: nil
         )
     }
 
-    func makeResponse() -> ExpressDTO.Swap.ExchangeData.Response {
+    func makeResponse(slippage: Decimal? = nil) -> ExpressDTO.Swap.ExchangeData.Response {
         ExpressDTO.Swap.ExchangeData.Response(
             txId: "tx-1",
             fromAmount: "1000000",
@@ -143,7 +153,8 @@ private extension ExpressAPIMapperExchangeDataTests {
             toDecimals: 6,
             txDetailsJson: "{}",
             signature: "",
-            payTill: nil
+            payTill: nil,
+            slippage: slippage
         )
     }
 
@@ -161,7 +172,8 @@ private extension ExpressAPIMapperExchangeDataTests {
             rateType: .float,
             providerInfo: .init(id: "provider", type: .dex),
             operationType: .swap,
-            quoteId: nil
+            quoteId: nil,
+            slippage: nil
         )
     }
 }

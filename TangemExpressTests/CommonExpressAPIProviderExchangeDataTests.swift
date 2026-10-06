@@ -54,7 +54,8 @@ private extension CommonExpressAPIProviderExchangeDataTests {
             rateType: .float,
             providerInfo: .init(id: "provider", type: .cex),
             operationType: .swap,
-            quoteId: nil
+            quoteId: nil,
+            slippage: nil
         )
     }
 }
@@ -83,7 +84,8 @@ private final class ExpressAPIServiceSpy: ExpressAPIService {
             toDecimals: 6,
             txDetailsJson: "{}",
             signature: "",
-            payTill: nil
+            payTill: nil,
+            slippage: nil
         )
     }
 

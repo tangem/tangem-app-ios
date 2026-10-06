@@ -17,6 +17,7 @@ public struct ExpressSwappableQuoteItem {
     public let rateType: ExpressProviderRateType
     public let providerInfo: ProviderInfo
     public let sourceAmountScale: Decimal?
+    public let slippage: Decimal?
 
     public var amount: Decimal {
         amountType.amount
