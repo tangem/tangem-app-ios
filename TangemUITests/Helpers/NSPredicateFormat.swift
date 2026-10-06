@@ -13,6 +13,7 @@ enum NSPredicateFormat: String {
     case disabled = "isEnabled == 0"
     case hittable = "isHittable == 1"
     case notHittable = "isHittable == 0"
+    case selected = "isSelected == 1"
     case labelContains = "label CONTAINS[c] %@"
     case identifierContains = "identifier CONTAINS %@"
     case labelBeginsWith = "label BEGINSWITH %@"

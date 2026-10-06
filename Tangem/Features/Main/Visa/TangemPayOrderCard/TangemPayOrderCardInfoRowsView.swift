@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 
@@ -21,6 +22,7 @@ struct TangemPayOrderCardInfoRowsView: View {
                     .contentLead(.start)
                     .showDivider(index < rows.count - 1)
                     .disabled(row.isDimmed)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.orderCardInfoRow("\(row.id)"))
             }
         }
     }
