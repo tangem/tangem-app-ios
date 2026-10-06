@@ -17,8 +17,8 @@ final class WalletConnectDisconnectDAppUseCase {
 
     // [REDACTED_TODO_COMMENT]
     func callAsFunction(_ connectedDApp: WalletConnectConnectedDApp) async throws {
-        async let disconnectDApp: () = try await disconnectDAppService.disconnect(with: connectedDApp.session.topic)
-        async let removeDAppFromCache: () = try await connectedDAppRepository.deleteDApp(with: connectedDApp.session.topic)
+        async let disconnectDApp: Void = try await disconnectDAppService.disconnect(with: connectedDApp.session.topic)
+        async let removeDAppFromCache: Void = try await connectedDAppRepository.deleteDApp(with: connectedDApp.session.topic)
 
         try? await disconnectDApp
         try await removeDAppFromCache
