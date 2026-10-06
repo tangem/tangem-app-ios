@@ -201,7 +201,7 @@ enum CampaignsFixtures {
     }
 
     static func makeBannerData(
-        tokens: [BannerPromotion.Response.Token] = [PromotionCampaignsFixtures.makeToken()],
+        tokens: [CampaignEligibleToken] = [PromotionCampaignsFixtures.makeEligibleToken()],
         start: Date = Date().addingTimeInterval(-.day),
         end: Date = Date().addingTimeInterval(.day),
         status: BannerPromotion.Response.Status = .active,
