@@ -58,6 +58,7 @@ struct NewsPagerView: View {
                         .padding(.bottom, 8)
                 }
                 .opacity(sheetSize.isFeedSheet ? 1 : viewModel.overlayContentHidingProgress)
+                .hiddenWhileCollapsed()
             }
         }
         .background(backgroundColor.ignoresSafeArea())
@@ -105,7 +106,9 @@ struct NewsPagerView: View {
                     startPoint: .top,
                     endPoint: .bottom
                 )
-                .frame(height: 200)
+                // Capped rather than fixed: while the sheet is dragged low its detent is still full, and a fixed
+                // height would push the screen past the sheet and its header above the top edge.
+                .frame(maxHeight: 200)
                 .ignoresSafeArea(.container, edges: .bottom)
             }
         }

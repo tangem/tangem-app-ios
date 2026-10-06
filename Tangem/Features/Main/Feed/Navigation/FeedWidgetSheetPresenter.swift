@@ -15,14 +15,14 @@ final class FeedWidgetSheetPresenter: ObservableObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.floatingSheetPresentingStateProvider) private var sheetStateProvider: FloatingSheetPresentingStateProvider
 
-    @Published private(set) var walletSelector: WalletSelector?
-    @Published var isWalletSelectorPresented = false
+    @Published private(set) var selector: WidgetSelector?
+    @Published var isSelectorPresented = false
 
     private weak var presentedWidgetSheet: AnyObject?
-    private var walletSelectionCompletion: (@MainActor () -> Void)?
+    private var selectionCompletion: (@MainActor () -> Void)?
     private var bag = Set<AnyCancellable>()
 
-    var isPresenting: Bool { presentedWidgetSheet != nil || walletSelector != nil }
+    var isPresenting: Bool { presentedWidgetSheet != nil || selector != nil }
 
     init() {
         sheetStateProvider
@@ -36,18 +36,19 @@ final class FeedWidgetSheetPresenter: ObservableObject {
             .store(in: &bag)
     }
 
-    /// Closes the wallet selector without going on to the chosen wallet.
-    func dropWalletSelector() {
-        walletSelectionCompletion = nil
-        isWalletSelectorPresented = false
-        walletSelector = nil
+    /// Closes the selector without going on to the next screen.
+    func dropSelector() {
+        selectionCompletion = nil
+        isSelectorPresented = false
+        selector = nil
     }
 }
 
 extension FeedWidgetSheetPresenter {
-    enum WalletSelector {
+    enum WidgetSelector {
         case accounts(AccountSelectorViewModel)
         case referral(FeedReferralWalletSelectorViewModel)
+        case accountType(AddAccountTypeSelectorViewModel)
     }
 }
 
@@ -59,7 +60,7 @@ extension FeedWidgetSheetPresenter {
             preferredDisplayMode: .wallets
         ) { [weak self] selection in
             Task { @MainActor [weak self] in
-                self?.completeWalletSelection { onSelect(selection.userWalletModel) }
+                self?.completeSelection { onSelect(selection.userWalletModel) }
             }
         }
         present(.accounts(viewModel))
@@ -75,17 +76,31 @@ extension FeedWidgetSheetPresenter {
             candidatesPublisher: candidatesPublisher
         ) { [weak self] walletId in
             Task { @MainActor [weak self] in
-                self?.completeWalletSelection { onSelect(walletId) }
+                self?.completeSelection { onSelect(walletId) }
             }
         }
         present(.referral(viewModel))
     }
 
-    func walletSelectorDidDismiss() {
-        let completion = walletSelectionCompletion
-        walletSelectionCompletion = nil
-        walletSelector = nil
-        isWalletSelectorPresented = false
+    func presentAccountTypeSelector(_ viewModel: AddAccountTypeSelectorViewModel) {
+        present(.accountType(viewModel))
+    }
+
+    /// Closes the selector and opens the next screen once it is gone, or right away when no selector is shown.
+    func dismissSelector(then next: @escaping @MainActor () -> Void = {}) {
+        guard selector != nil else {
+            next()
+            return
+        }
+
+        completeSelection(next)
+    }
+
+    func selectorDidDismiss() {
+        let completion = selectionCompletion
+        selectionCompletion = nil
+        selector = nil
+        isSelectorPresented = false
         completion?()
     }
 
@@ -102,19 +117,19 @@ extension FeedWidgetSheetPresenter {
 
 @MainActor
 private extension FeedWidgetSheetPresenter {
-    func present(_ selector: WalletSelector) {
-        guard walletSelector == nil else { return }
+    func present(_ selector: WidgetSelector) {
+        guard self.selector == nil else { return }
 
         UIApplication.shared.endEditing()
-        walletSelector = selector
-        isWalletSelectorPresented = true
+        self.selector = selector
+        isSelectorPresented = true
     }
 
-    func completeWalletSelection(_ completion: @escaping @MainActor () -> Void) {
-        guard isWalletSelectorPresented else { return }
+    func completeSelection(_ completion: @escaping @MainActor () -> Void) {
+        guard isSelectorPresented else { return }
 
         // The next screen waits until the Modal has finished dismissing.
-        walletSelectionCompletion = completion
-        isWalletSelectorPresented = false
+        selectionCompletion = completion
+        isSelectorPresented = false
     }
 }

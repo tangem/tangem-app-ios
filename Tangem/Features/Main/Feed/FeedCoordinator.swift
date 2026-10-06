@@ -192,7 +192,7 @@ private extension FeedCoordinator {
                 // Keep search behind a child screen so Back can restore it after the sheet expands.
                 guard size != .full, coordinator.path.isEmpty,
                       coordinator.presented == nil, coordinator.cover == nil,
-                      coordinator.widgetSheetPresenter.walletSelector == nil else { return }
+                      coordinator.widgetSheetPresenter.selector == nil else { return }
 
                 coordinator.rootViewModel?.resetSavedScrollPositions()
                 coordinator.rootViewModel?.searchViewModel.reset()
@@ -212,7 +212,7 @@ private extension FeedCoordinator {
     /// itself: once it is gone, the screens it held go with it instead of living on until the main screen is rebuilt.
     func dropRoutes() {
         pendingDestination = nil
-        guard path.isNotEmpty || presented != nil || cover != nil || modal != nil || widgetSheetPresenter.walletSelector != nil else {
+        guard path.isNotEmpty || presented != nil || cover != nil || modal != nil || widgetSheetPresenter.selector != nil else {
             return
         }
 
@@ -220,7 +220,7 @@ private extension FeedCoordinator {
             path.removeAll()
             dismissPresented()
             modal = nil
-            widgetSheetPresenter.dropWalletSelector()
+            widgetSheetPresenter.dropSelector()
             rootViewModel?.searchViewModel.reset()
         }
     }
