@@ -779,6 +779,42 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func verifyVisibleTangemPayTile(subtitle: String, balance: String) -> Self {
+        XCTContext.runActivity(named: "Verify visible Tangem Pay tile shows '\(subtitle)' and balance '\(balance)'") { _ in
+            let tile = visibleTangemPayTile(subtitle: subtitle)
+            let balanceText = tile.staticTexts
+                .matching(identifier: TangemPayAccessibilityIdentifiers.mainScreenTileBalance)
+                .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, balance))
+                .firstMatch
+            waitAndAssertTrue(balanceText, timeout: .networkRequest, "Visible Tangem Pay tile should show balance '\(balance)'")
+            return self
+        }
+    }
+
+    func openVisibleTangemPay(subtitle: String) -> TangemPayMainScreen {
+        XCTContext.runActivity(named: "Open Tangem Pay from the visible tile showing '\(subtitle)'") { _ in
+            visibleTangemPayTile(subtitle: subtitle).waitAndTap()
+            return TangemPayMainScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyTangemPayTileSubtitle(doesNotContain unexpectedSubstring: String) -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile subtitle does not contain '\(unexpectedSubstring)'") { _ in
+            scrollToElement(tangemPayTile)
+            waitAndAssertTrue(tangemPayTile, timeout: .networkRequest, "Tangem Pay tile should be displayed on main screen")
+            let subtitle = tangemPayTile.staticTexts
+                .matching(NSPredicate(format: "label CONTAINS[c] %@", unexpectedSubstring))
+                .firstMatch
+            XCTAssertTrue(
+                subtitle.staysAbsent(for: .conditional),
+                "Tangem Pay tile subtitle should not contain '\(unexpectedSubstring)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func verifyTangemPayTileNotVisible() -> Self {
         XCTContext.runActivity(named: "Verify Tangem Pay tile is not displayed on main screen") { _ in
             // The tile is absent from the start here, so the main screen has to be rendered before asserting.
@@ -1363,6 +1399,17 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             }
 
         return !networkHeaders.isEmpty
+    }
+
+    private func visibleTangemPayTile(subtitle: String) -> XCUIElement {
+        let tile = app.buttons
+            .matching(identifier: TangemPayAccessibilityIdentifiers.mainScreenTile)
+            .containing(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, subtitle))
+            .firstMatch
+        waitAndAssertTrue(tile, timeout: .networkRequest, "Tangem Pay tile showing '\(subtitle)' should exist")
+        scrollToElement(tile)
+        XCTAssertTrue(tile.waitForState(state: .hittable), "Tangem Pay tile showing '\(subtitle)' should be on the visible wallet page")
+        return tile
     }
 
     private func tapTangemPayTile() {
