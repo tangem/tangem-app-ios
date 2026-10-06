@@ -18,6 +18,8 @@ struct CollectiblesCoordinatorView: CoordinatorView {
         content
             .background(FeedPopGestureEnabler())
             .navigationLinks(links)
+            .background(funds)
+            .floatingSheetContent(for: ReceiveMainViewModel.self, viewBuilder: ReceiveMainView.init)
     }
 }
 
@@ -66,5 +68,12 @@ private extension CollectiblesCoordinatorView {
                             .toolbar(.hidden, for: .navigationBar)
                     }
             }
+    }
+
+    @ViewBuilder
+    var funds: some View {
+        if let fundsCoordinator = coordinator.fundsCoordinator {
+            FundsCoordinatorView(coordinator: fundsCoordinator)
+        }
     }
 }

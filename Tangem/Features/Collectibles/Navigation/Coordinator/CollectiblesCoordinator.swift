@@ -30,6 +30,8 @@ final class CollectiblesCoordinator: CoordinatorObject {
     // [REDACTED_TODO_COMMENT]
     private var devnetUserWalletModel: (any UserWalletModel)?
 
+    private(set) var fundsCoordinator: FundsCoordinator?
+
     // MARK: - Publishers
 
     @Published private(set) var state: ViewState?
@@ -50,12 +52,8 @@ final class CollectiblesCoordinator: CoordinatorObject {
         userWalletID = options.userWalletModel.userWalletId.stringValue
         devnetUserWalletModel = options.userWalletModel
 
-        switch options.destination {
-        case .welcome:
-            state = .welcome(CollectiblesWelcomeViewModel(routable: self, onboarder: accountModel))
-        case .main:
-            Task { @MainActor [weak self] in self?.openMain() }
-        }
+        startFundsCoordinator(with: options)
+        open(options.destination)
     }
 
     @MainActor
@@ -120,6 +118,33 @@ extension CollectiblesCoordinator: CollectiblesMachineRoutable {
             usdcBalanceProvider: accountModel.usdcTokenBalanceProvider,
             refreshBalance: accountModel.refreshState
         )
+    }
+}
+
+// MARK: - Private logic
+
+private extension CollectiblesCoordinator {
+    func startFundsCoordinator(with options: Options) {
+        guard let accountModel = options.accountModel else {
+            return
+        }
+
+        let coordinator = FundsCoordinator(dismissAction: {}, popToRootAction: popToRootAction)
+        coordinator.start(with: .init(
+            accountModel: accountModel,
+            userWalletInfo: options.userWalletModel.userWalletInfo,
+            walletModelsProvider: MainScreenUIOrderedWalletModelsProvider(userWalletModel: options.userWalletModel)
+        ))
+        fundsCoordinator = coordinator
+    }
+
+    func open(_ destination: Options.Destination) {
+        switch destination {
+        case .welcome:
+            state = .welcome(CollectiblesWelcomeViewModel(routable: self, onboarder: accountModel))
+        case .main:
+            Task { @MainActor [weak self] in self?.openMain() }
+        }
     }
 }
 
