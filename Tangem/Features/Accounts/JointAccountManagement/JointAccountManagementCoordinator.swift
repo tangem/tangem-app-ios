@@ -208,8 +208,10 @@ extension JointAccountManagementCoordinator: JointAccountInviteMembersRoutable {
         dismiss()
     }
 
-    func shareInvite(url: URL) {
-        AppPresenter.shared.show(UIActivityViewController(activityItems: [url.absoluteString], applicationActivities: nil))
+    func shareInvite(url: URL, accountName: String) {
+        let itemSource = JointAccountInviteActivityItemSource(url: url, accountName: accountName)
+
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [itemSource], applicationActivities: nil))
     }
 
     func openInviteSafety() {
