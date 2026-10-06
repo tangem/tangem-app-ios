@@ -107,6 +107,19 @@ struct TransactionHistoryTransferCollapserTests {
         #expect(try #require(movedNothing.singleElement).type == .unknownOperation)
     }
 
+    /// The relayer sent such a transaction and paid its gas, and the details tell that gas from the wallet's own
+    /// fee only by the executor call.
+    @Test("A folded call through the gasless executor still says the relayer sent it")
+    func aFoldedGaslessCallKeepsItsExecutor() throws {
+        let executorCall = TransactionRecord.TransactionType.contractMethodIdentifier(id: "0x4b072692")
+        let collapsed = makeCollapser().collapse([
+            transfer(index: 0, from: Self.owner, to: Self.pool, amount: 2, type: executorCall),
+            transfer(index: 1, from: Self.pool, to: Self.owner, amount: 1, type: executorCall),
+        ])
+
+        #expect(try #require(collapsed.singleElement).type == executorCall)
+    }
+
     @Test("The fee belongs to the transaction, so folding must not add it up per transfer")
     func theFeeIsNotSummed() throws {
         let feeValue = try #require(Decimal(stringValue: "0.01"))

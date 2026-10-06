@@ -164,6 +164,85 @@ struct TransactionHistoryTransferClassifierTests {
         #expect(output == [fee])
     }
 
+    /// The relayer pays the gas of what it sends, so the native fee on the record was never the wallet's; what the
+    /// wallet paid is the transfer to the collector, which only the transaction's token transfers still show.
+    @Test("A transfer whose gasless fee was paid in another token carries that fee instead of the relayer's gas")
+    func aFeePaidInAnotherTokenIsTheFeeOfTheTransfer() throws {
+        let token = ExpressMergeTestDataFactory.ethereumUSDTToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: Self.owner,
+            feeTokenItem: ExpressMergeTestDataFactory.ethereumToken
+        )
+        let payment = transfer(
+            index: 0,
+            from: Self.owner,
+            to: Self.pool,
+            amount: 10,
+            methodId: Self.gaslessMethodId,
+            tokenTransfers: [Self.usdtTransfer(amount: 10_000_000), Self.usdcFeeTransfer(amount: 37287)]
+        )
+
+        let output = merger.merge(bsdkTransactions: [payment], exchangeTransactions: [], onrampTransactions: [])
+
+        let row = try #require(output.singleElement)
+        #expect(row.fee.amount.currencySymbol == "USDC")
+        #expect(row.fee.amount.value == Decimal(string: "0.037287"))
+    }
+
+    /// Folding names the row a plain transfer, which no longer says the relayer sent it.
+    @Test("Every transfer to a collector adds to the fee, wherever it sits among the transaction's transfers")
+    func everyCollectorTransferAddsToTheFee() throws {
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: ExpressMergeTestDataFactory.ethereumUSDTToken,
+            ownerAddress: Self.owner,
+            feeTokenItem: ExpressMergeTestDataFactory.ethereumToken
+        )
+        let payment = transfer(
+            index: 0,
+            from: Self.owner,
+            to: Self.pool,
+            amount: 10,
+            methodId: Self.gaslessMethodId,
+            tokenTransfers: [
+                Self.usdcFeeTransfer(amount: 30000),
+                Self.usdtTransfer(amount: 10_000_000),
+                Self.usdcFeeTransfer(amount: 7287),
+            ]
+        )
+
+        let output = merger.merge(bsdkTransactions: [payment], exchangeTransactions: [], onrampTransactions: [])
+
+        let row = try #require(output.singleElement)
+        #expect(row.fee.amount.currencySymbol == "USDC")
+        #expect(row.fee.amount.value == Decimal(string: "0.037287"))
+    }
+
+    @Test("A folded transfer whose gasless fee was paid in another token carries that fee too")
+    func aFoldedTransferCarriesAFeePaidInAnotherToken() throws {
+        let token = ExpressMergeTestDataFactory.ethereumUSDTToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: Self.owner,
+            feeTokenItem: ExpressMergeTestDataFactory.ethereumToken
+        )
+        let tokenTransfers = [Self.usdtTransfer(amount: 10_000_000), Self.usdtTransfer(amount: 5_000_000), Self.usdcFeeTransfer(amount: 37287)]
+
+        let output = merger.merge(
+            bsdkTransactions: [
+                transfer(index: 0, from: Self.owner, to: Self.pool, amount: 10, methodId: Self.gaslessMethodId, tokenTransfers: tokenTransfers),
+                transfer(index: 1, from: Self.owner, to: Self.pool, amount: 5, methodId: Self.gaslessMethodId, tokenTransfers: tokenTransfers),
+            ],
+            exchangeTransactions: [],
+            onrampTransactions: []
+        )
+
+        let folded = try #require(output.singleElement)
+        #expect(folded.isFolded)
+        #expect(folded.fee.amount.currencySymbol == "USDC")
+        #expect(folded.fee.amount.value == Decimal(string: "0.037287"))
+    }
+
     /// A gasless send from Yield mode withdraws both what it sends and what it pays from Aave, all in one
     /// transaction: the send row carries the fee, and each withdrawal stays a row of its own.
     @Test("A gasless send from Yield mode is the send with its fee and the withdrawals that funded it")
@@ -249,6 +328,30 @@ private extension TransactionHistoryTransferClassifierTests {
     static let gaslessMethodId = "0x6234d42b"
     static let hash = "0xHash"
 
+    static func usdcFeeTransfer(amount: Decimal) -> TransactionRecord.TokenTransfer {
+        .init(
+            source: owner,
+            destination: knownCollector,
+            amount: amount,
+            name: "USD Coin",
+            symbol: "USDC",
+            decimals: 6,
+            contract: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+        )
+    }
+
+    static func usdtTransfer(amount: Decimal) -> TransactionRecord.TokenTransfer {
+        .init(
+            source: owner,
+            destination: pool,
+            amount: amount,
+            name: "Tether USD",
+            symbol: "USDT",
+            decimals: 6,
+            contract: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+        )
+    }
+
     func makeClassifier(serviceFeeRecipientAddress: String? = nil) -> TransactionHistoryTransferClassifier {
         let smartContractMethodMapper = StubClassifierSmartContractMethodMapper()
 
@@ -268,7 +371,8 @@ private extension TransactionHistoryTransferClassifierTests {
         to: String,
         amount: Decimal,
         methodId: String? = nil,
-        isFromYieldContract: Bool = false
+        isFromYieldContract: Bool = false,
+        tokenTransfers: [TransactionRecord.TokenTransfer] = []
     ) -> TransactionRecord {
         let type: TransactionRecord.TransactionType = methodId.map { .contractMethodIdentifier(id: $0) } ?? .transfer
 
@@ -282,7 +386,7 @@ private extension TransactionHistoryTransferClassifierTests {
             isOutgoing: from == Self.owner,
             type: type,
             date: ExpressMergeTestDataFactory.baseDate,
-            tokenTransfers: [],
+            tokenTransfers: tokenTransfers,
             isFromYieldContract: isFromYieldContract,
             nonce: nil
         )
