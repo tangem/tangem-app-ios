@@ -72,10 +72,10 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
             return
         }
 
-        let hasNFCInteraction = jointAccount.jointAccountOperationsService.hasNFCInteraction
+        isActivating = true
 
-        coordinator?.openActivationConfirmation(hasNFCInteraction: hasNFCInteraction) { [weak self] in
-            self?.activate()
+        runTask(in: self) { viewModel in
+            await viewModel.performActivation()
         }
     }
 
@@ -105,15 +105,6 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
 // MARK: - Private
 
 private extension JointAccountInviteMembersViewModel {
-    @MainActor
-    func activate() {
-        isActivating = true
-
-        runTask(in: self) { viewModel in
-            await viewModel.performActivation()
-        }
-    }
-
     @MainActor
     func performActivation() async {
         defer { isActivating = false }

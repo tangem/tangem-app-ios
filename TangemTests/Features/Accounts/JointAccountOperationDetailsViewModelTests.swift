@@ -18,7 +18,7 @@ import TangemUI
 @Suite("Tests for the joint operation details sheet following its operation")
 @MainActor
 struct JointAccountOperationDetailsViewModelTests {
-    private let updates = PassthroughSubject<JointAccountOperationDetailsViewModel.Update, Never>()
+    private let updates = PassthroughSubject<JointAccountOperationDetailsViewModel.Content, Never>()
     private let coordinator = RoutableSpy()
     private let provider = PendingOperationsProviderSpy()
 
@@ -26,7 +26,7 @@ struct JointAccountOperationDetailsViewModelTests {
     func newSignatureIsShown() async throws {
         let viewModel = makeViewModel()
 
-        updates.send(.content(makeContent(collectedSignaturesCount: 2)))
+        updates.send(makeContent(collectedSignaturesCount: 2))
 
         _ = try await viewModel.$content.first { $0.collectedSignaturesCount == 2 }.async()
 
@@ -44,49 +44,33 @@ struct JointAccountOperationDetailsViewModelTests {
         }
 
         let signer = makeSigner(id: "0xsigner", answer: .signed(at: "12:00"))
-        updates.send(.content(makeContent(collectedSignaturesCount: 2, membersCount: 4, signers: [signer])))
+        updates.send(makeContent(collectedSignaturesCount: 2, membersCount: 4, signers: [signer]))
         await drainMainQueue()
 
         #expect(signersViewModel.membersCount == 4)
         #expect(signersViewModel.signers.map(\.id) == ["0xsigner"])
     }
 
-    @Test("The sheet closes once the operation is no longer in flight", .timeLimit(.minutes(1)))
-    func finishedOperationClosesTheSheet() async throws {
+    @Test("The sheet stays open once this member has signed", .timeLimit(.minutes(1)))
+    func ownSignatureKeepsTheSheetOpen() async throws {
         let viewModel = makeViewModel()
         viewModel.onAppear()
 
-        updates.send(.finished)
+        viewModel.handleViewAction(.signOperation)
 
-        let closeCount = try await coordinator.closeCount.first { $0 > 0 }.async()
-
-        #expect(closeCount == 1)
-        withExtendedLifetime(viewModel) {}
-    }
-
-    @Test("A sheet still waiting in the queue closes once it shows, not the one on screen", .timeLimit(.minutes(1)))
-    func finishedOperationClosesTheSheetOnceItShows() async throws {
-        let viewModel = makeViewModel()
-
-        updates.send(.finished)
-        await drainMainQueue()
+        _ = try await viewModel.$answer.first { $0 == .signed }.async()
 
         #expect(coordinator.closeCount.value == 0)
-
-        viewModel.onAppear()
-
-        #expect(coordinator.closeCount.value == 1)
-        #expect(provider.activeRequestsCount == 0)
+        #expect(provider.activeRequestsCount == 1)
     }
 
-    @Test("An operation reported finished twice closes the sheet once", .timeLimit(.minutes(1)))
-    func finishedTwiceClosesOnce() async throws {
+    @Test("Closing the sheet twice closes it once")
+    func closingTwiceClosesOnce() {
         let viewModel = makeViewModel()
         viewModel.onAppear()
 
-        updates.send(.finished)
-        updates.send(.finished)
-        await drainMainQueue()
+        viewModel.handleViewAction(.close)
+        viewModel.handleViewAction(.close)
 
         #expect(coordinator.closeCount.value == 1)
         #expect(provider.activeRequestsCount == 0)
@@ -96,7 +80,7 @@ struct JointAccountOperationDetailsViewModelTests {
     func sendingOperationCannotBeSigned() async throws {
         let viewModel = makeViewModel()
 
-        updates.send(.content(makeContent(collectedSignaturesCount: 3, isSending: true)))
+        updates.send(makeContent(collectedSignaturesCount: 3, isSending: true))
 
         _ = try await viewModel.$content.first { $0.isSending }.async()
 
@@ -175,7 +159,7 @@ struct JointAccountOperationDetailsViewModelTests {
             networkFee: "~0.0005 ETH",
             hasNFCInteraction: hasNFCInteraction,
             content: makeContent(collectedSignaturesCount: 1),
-            updatesPublisher: updates.eraseToAnyPublisher(),
+            contentPublisher: updates.eraseToAnyPublisher(),
             pendingOperationsProvider: provider,
             coordinator: coordinator,
             sign: sign
