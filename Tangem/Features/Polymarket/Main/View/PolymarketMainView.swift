@@ -65,7 +65,7 @@ struct PolymarketMainView: View {
             text: $viewModel.searchQuery,
             isActive: $viewModel.isSearchFieldActive,
             clearAction: { viewModel.searchQuery = "" },
-            cancelAction: viewModel.exitSearch
+            cancelAction: { viewModel.handleViewAction(.cancelSearch) }
         )
         .placeholder(Localization.commonSearch)
         .submitLabel(.search)
@@ -88,11 +88,11 @@ struct PolymarketMainView: View {
         NavigationBar(
             settings: .init(backgroundColor: .clear, horizontalPadding: Constants.horizontalPadding, height: Constants.navBarSettingsHeight),
             titleView: { titleView },
-            leftButtons: { NavigationBarButton.back { viewModel.dismiss() } },
+            leftButtons: { NavigationBarButton.back { viewModel.handleViewAction(.close) } },
             rightButtons: {
                 PolymarketOverflowMenu(
-                    onHowItWorks: viewModel.openHowItWorks,
-                    onSupportChat: viewModel.openSupportChat
+                    onHowItWorks: { viewModel.handleViewAction(.openHowItWorks) },
+                    onSupportChat: { viewModel.handleViewAction(.openSupportChat) }
                 )
             }
         )
@@ -179,14 +179,14 @@ struct PolymarketMainView: View {
             positionsBlock {
                 PolymarketEmptyMessageView(
                     message: Localization.predictionPositionsLoadError,
-                    onRetry: { viewModel.loadPositions(userInitiated: true) }
+                    onRetry: { viewModel.handleViewAction(.retryPositions) }
                 )
             }
         case .loaded(let models) where !models.isEmpty:
             positionsBlock {
                 VStack(spacing: Constants.positionsRowSpacing) {
                     ForEach(models) { model in
-                        PolymarketPositionRow(model: model) { viewModel.openPosition(id: model.id) }
+                        PolymarketPositionRow(model: model) { viewModel.handleViewAction(.openPositionDetails(id: model.id)) }
                     }
 
                     if viewModel.hasMorePositions {
@@ -230,7 +230,7 @@ struct PolymarketMainView: View {
 
     /// The badge is taller than the title, so it holds its place instead of pushing the list down when it arrives.
     private var finishedPositionsButton: some View {
-        SwiftUI.Button { viewModel.openMyPositions(tab: .finished) } label: {
+        SwiftUI.Button { viewModel.handleViewAction(.openMyPositions(.finished)) } label: {
             Badge(label: Localization.predictionPositionsFinished, accessibilityLabel: nil)
                 .size(.x9)
                 .slotEnd(DesignSystem.Icons.ChevronRight.regular16)
@@ -246,7 +246,7 @@ struct PolymarketMainView: View {
         TangemUI.Button(
             label: Localization.predictionPositionsViewAllActive,
             accessibilityLabel: nil,
-            action: { viewModel.openMyPositions(tab: .active) }
+            action: { viewModel.handleViewAction(.openMyPositions(.active)) }
         )
         .size(.x9)
         .styleType(.secondary(.default))
@@ -349,7 +349,7 @@ struct PolymarketMainView: View {
     private var balanceSelector: some View {
         SwiftUI.Button {
             withAnimation(.easeInOut(duration: Constants.balanceModeAnimationDuration)) {
-                viewModel.onBalanceModeTap()
+                viewModel.handleViewAction(.toggleBalanceMode)
             }
         } label: {
             HStack(spacing: Constants.balanceSelectorSpacing) {
@@ -376,8 +376,8 @@ struct PolymarketMainView: View {
             TangemMainActionButton(
                 title: Localization.commonAddFunds,
                 icon: Assets.DesignSystem.arrowDown,
-                action: viewModel.onAddFundsTap,
-                reasonTapWhenDisabled: viewModel.onAddFundsTap
+                action: { viewModel.handleViewAction(.openAddFunds) },
+                reasonTapWhenDisabled: { viewModel.handleViewAction(.openAddFunds) }
             )
             .frame(minWidth: Constants.actionWidth)
             .disabled(viewModel.addFundsState != .available)
@@ -386,8 +386,8 @@ struct PolymarketMainView: View {
             TangemMainActionButton(
                 title: Localization.predictionMainWithdraw,
                 icon: Assets.DesignSystem.arrowUp,
-                action: viewModel.onWithdrawTap,
-                reasonTapWhenDisabled: viewModel.onWithdrawTap
+                action: { viewModel.handleViewAction(.openWithdraw) },
+                reasonTapWhenDisabled: { viewModel.handleViewAction(.openWithdraw) }
             )
             .frame(minWidth: Constants.actionWidth)
             .disabled(!viewModel.withdrawState.isAvailable)
@@ -410,7 +410,7 @@ struct PolymarketMainView: View {
                 header
 
                 tabsRow
-                    .readGeometry(inCoordinateSpace: .named(Constants.scrollSpace)) { viewModel.updatePinnedState(tabsMinY: $0.frame.minY, navBarHeight: navBarHeight) }
+                    .readGeometry(inCoordinateSpace: .named(Constants.scrollSpace)) { viewModel.handleViewAction(.onTabsMove(minY: $0.frame.minY, navBarHeight: navBarHeight)) }
                     .opacity(viewModel.isTabsPinned ? 0 : 1)
                     .allowsHitTesting(!viewModel.isTabsPinned)
 
@@ -443,13 +443,13 @@ struct PolymarketMainView: View {
         ForEach(viewModel.eventCards, id: \.id) { model in
             PolymarketEventCard(model: model)
                 .contentShape(.rect)
-                .onTapGesture { viewModel.openEventDetails(eventID: model.id) }
+                .onTapGesture { viewModel.handleViewAction(.openEventDetails(id: model.id)) }
                 .padding(.horizontal, Constants.horizontalPadding)
         }
     }
 
     private var failedState: some View {
-        PolymarketEmptyMessageView(message: Localization.predictionMainEventsLoadError, onRetry: viewModel.retry)
+        PolymarketEmptyMessageView(message: Localization.predictionMainEventsLoadError, onRetry: { viewModel.handleViewAction(.retryEvents) })
     }
 
     private var noResultsState: some View {
@@ -474,7 +474,7 @@ struct PolymarketMainView: View {
 
     private var paginationTrigger: some View {
         paginationLoader
-            .onAppear { viewModel.loadMore() }
+            .onAppear { viewModel.handleViewAction(.loadNextPage) }
     }
 
     private var paginationLoader: some View {
@@ -484,7 +484,7 @@ struct PolymarketMainView: View {
     }
 
     private var paginationRetry: some View {
-        TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.loadMore)
+        TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: { viewModel.handleViewAction(.retryNextPage) })
             .frame(maxWidth: .infinity)
             .padding(.vertical, Constants.paginationVerticalPadding)
     }
