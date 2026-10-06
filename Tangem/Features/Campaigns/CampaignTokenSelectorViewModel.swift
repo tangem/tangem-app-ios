@@ -18,12 +18,12 @@ final class CampaignTokenSelectorViewModel: ObservableObject, Identifiable {
     @Published private(set) var eligibleTokenRows: [EligibleTokenRowViewData] = []
     @Published private(set) var addTokenFlowViewModel: AddTokenFlowRedesignedViewModel?
 
-    private let eligibleTokens: [BannerPromotion.Response.Token]
+    private let eligibleTokens: [CampaignEligibleToken]
     private let onSelect: (TokenSelectorItem) -> Void
     private let onClose: () -> Void
 
     init(
-        eligibleTokens: [BannerPromotion.Response.Token],
+        eligibleTokens: [CampaignEligibleToken],
         initiallyExpandedAccount: TokenSelectorViewModel.InitiallyExpandedAccount?,
         onSelect: @escaping (TokenSelectorItem) -> Void,
         onClose: @escaping () -> Void
