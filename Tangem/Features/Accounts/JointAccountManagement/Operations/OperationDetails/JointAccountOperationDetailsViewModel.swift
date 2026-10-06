@@ -43,8 +43,6 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     private let pendingOperationsProvider: (any JointAccountPendingOperationsProvider)?
     private weak var coordinator: JointAccountOperationDetailsRoutable?
     private var signTask: Task<Void, Never>?
-    private var isFinished = false
-    private var isOnScreen = false
     private var isClosing = false
     private var updatesSubscription: AnyCancellable?
     private var frequentUpdatesSubscription: AnyCancellable?
@@ -58,7 +56,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         networkFee: String,
         hasNFCInteraction: Bool,
         content: Content,
-        updatesPublisher: AnyPublisher<Update, Never>,
+        contentPublisher: AnyPublisher<Content, Never>,
         pendingOperationsProvider: (any JointAccountPendingOperationsProvider)?,
         coordinator: JointAccountOperationDetailsRoutable?,
         sign: @escaping () async throws -> Void
@@ -76,7 +74,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         self.pendingOperationsProvider = pendingOperationsProvider
         self.coordinator = coordinator
 
-        bind(updatesPublisher: updatesPublisher)
+        bind(contentPublisher: contentPublisher)
     }
 
     /// While signatures are collected the icon and title stay neutral by design: the warning-coloured line under the
@@ -116,18 +114,10 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     }
 
     func onAppear() {
-        isOnScreen = true
-        closeIfFinished()
-
-        guard !isClosing else {
-            return
-        }
-
         frequentUpdatesSubscription = pendingOperationsProvider?.requestFrequentUpdates()
     }
 
     func onDisappear() {
-        isOnScreen = false
         frequentUpdatesSubscription = nil
     }
 
@@ -150,24 +140,13 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
 // MARK: - Updates
 
 private extension JointAccountOperationDetailsViewModel {
-    func bind(updatesPublisher: AnyPublisher<Update, Never>) {
-        updatesSubscription = updatesPublisher
+    func bind(contentPublisher: AnyPublisher<Content, Never>) {
+        updatesSubscription = contentPublisher
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { viewModel, update in
-                viewModel.apply(update)
+            .sink { viewModel, content in
+                viewModel.updateContent(content)
             }
-    }
-
-    func apply(_ update: Update) {
-        switch update {
-        case .content(let content):
-            isFinished = false
-            updateContent(content)
-        case .finished:
-            isFinished = true
-            closeIfFinished()
-        }
     }
 
     func updateContent(_ content: Content) {
@@ -180,14 +159,6 @@ private extension JointAccountOperationDetailsViewModel {
         if case .signers(let signersViewModel) = viewState {
             signersViewModel.update(membersCount: content.membersCount, signers: content.signers)
         }
-    }
-
-    func closeIfFinished() {
-        guard isFinished, isOnScreen, !isSigning else {
-            return
-        }
-
-        close()
     }
 
     func close() {
@@ -266,11 +237,6 @@ private extension JointAccountOperationDetailsViewModel {
     func finishSigning(with error: (any Error)?) {
         isSigning = false
         signTask = nil
-
-        guard !isFinished else {
-            closeIfFinished()
-            return
-        }
 
         guard let error else {
             answer = .signed
@@ -439,10 +405,5 @@ extension JointAccountOperationDetailsViewModel {
         let answer: Answer
         let canSign: Bool
         let isSending: Bool
-    }
-
-    enum Update {
-        case content(Content)
-        case finished
     }
 }
