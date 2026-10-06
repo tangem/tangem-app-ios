@@ -14,6 +14,7 @@ import TangemAccounts
 import TangemFoundation
 import TangemLocalization
 import TangemAssets
+import TangemAccessibilityIdentifiers
 import struct TangemUIUtils.AlertBinder
 
 final class AccountDetailsViewModel: ObservableObject {
@@ -23,18 +24,22 @@ final class AccountDetailsViewModel: ObservableObject {
 
     // MARK: - State
 
+    @Published private(set) var title: String = ""
     @Published private(set) var accountName: String = ""
     @Published private(set) var accountIcon: AccountModel.Icon = .composite(AccountModelUtils.UI.newAccountIcon())
-    @Published private(set) var jointAccountMembersText: String?
+    @Published private(set) var managementRowViewModels: [DefaultRowViewModel] = []
+    @Published private(set) var supportedNetworksHint: AttributedString?
+    @Published private(set) var archiveRowViewModel: DefaultRowViewModel?
     @Published var alert: AlertBinder?
     @Published var archiveAccountDialogPresented = false
 
-    @Published private(set) var archivingState: ArchivingState?
+    @Published private(set) var archivingState: ArchivingState? {
+        didSet { updateArchiveRow() }
+    }
 
     // MARK: - Dependencies
 
     private let account: any BaseAccountModel
-    private let jointAccount: (any JointAccountModel)?
     private let accountModelsManager: AccountModelsManager
     private weak var coordinator: AccountDetailsRoutable?
 
@@ -50,14 +55,14 @@ final class AccountDetailsViewModel: ObservableObject {
         coordinator: AccountDetailsRoutable
     ) {
         self.account = account
-        jointAccount = account as? any JointAccountModel
         self.accountModelsManager = accountModelsManager
         self.coordinator = coordinator
+
         actions = AccountDetailsActionsProvider.getAvailableActions(for: account)
         archivingState = actions.contains(.archive) ? .readyToBeArchived : nil
 
+        setupView()
         bind()
-        applySnapshot()
     }
 
     deinit {
@@ -65,10 +70,6 @@ final class AccountDetailsViewModel: ObservableObject {
     }
 
     // MARK: - View data
-
-    var title: String {
-        jointAccount == nil ? Localization.accountDetailsTitle : Localization.commonJointAccount
-    }
 
     var accountIconViewData: AccountIconView.ViewData {
         AccountModelUtils.UI.iconViewData(icon: accountIcon, accountName: accountName)
@@ -78,12 +79,8 @@ final class AccountDetailsViewModel: ObservableObject {
         actions.contains(.edit)
     }
 
-    var canManageTokens: Bool {
-        actions.contains(.manageTokens)
-    }
-
-    var isSupportedNetworksHintVisible: Bool {
-        account is any JointAccountModel
+    var isArchivingInProgress: Bool {
+        archivingState == .archivingInProgress
     }
 
     // MARK: - Methods
@@ -129,7 +126,9 @@ final class AccountDetailsViewModel: ObservableObject {
     }
 
     func openJointAccountMembers() {
-        guard let jointAccount else { return }
+        guard let jointAccount = account as? any JointAccountModel else {
+            return
+        }
 
         coordinator?.openJointAccountMembers(jointAccount: jointAccount)
     }
@@ -139,35 +138,43 @@ final class AccountDetailsViewModel: ObservableObject {
         coordinator?.manageTokens()
     }
 
-    func getArchivingButtonTitle(from state: ArchivingState) -> String {
-        switch state {
-        case .archivingInProgress:
-            Localization.accountDetailsArchiving
-        case .readyToBeArchived:
-            Localization.accountDetailsArchive
+    // MARK: - Setup
+
+    private func setupView() {
+        applySnapshot()
+        updateArchiveRow()
+
+        switch account {
+        case is any JointAccountModel:
+            title = Localization.commonJointAccount
+            supportedNetworksHint = makeSupportedNetworksHint()
+        default:
+            title = Localization.accountDetailsTitle
+            managementRowViewModels = makeManagementRowViewModels(membersText: nil)
         }
     }
-
-    func getArchivingButtonColor(from state: ArchivingState) -> Color {
-        switch state {
-        case .archivingInProgress:
-            Colors.Text.disabled
-
-        case .readyToBeArchived:
-            Colors.Text.warning
-        }
-    }
-
-    // MARK: - Private
 
     private func bind() {
         account.didChangePublisher
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { vm, _ in vm.applySnapshot() }
+            .sink { viewModel, _ in viewModel.applySnapshot() }
             .store(in: &bag)
 
-        bindJointAccountMembers()
+        if let jointAccount = account as? any JointAccountModel {
+            bindJointAccountMembers(of: jointAccount)
+        }
+    }
+
+    private func bindJointAccountMembers(of jointAccount: any JointAccountModel) {
+        jointAccount.didChangePublisher.prepend(())
+            .combineLatest(jointAccount.jointAccountMembersService.slotsPublisher)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .map { $0.makeMembersText(status: jointAccount.status, slots: $1.1) }
+            .withWeakCaptureOf(self)
+            .map { $0.makeManagementRowViewModels(membersText: $1) }
+            .assign(to: &$managementRowViewModels)
     }
 
     private func applySnapshot() {
@@ -175,19 +182,72 @@ final class AccountDetailsViewModel: ObservableObject {
         accountIcon = account.icon.erased
     }
 
-    private func bindJointAccountMembers() {
-        guard let jointAccount else { return }
-
-        Publishers.CombineLatest(
-            jointAccount.didChangePublisher.prepend(()),
-            jointAccount.jointAccountMembersService.slotsPublisher
-        )
-        .map { _, slots in Self.makeMembersText(status: jointAccount.status, slots: slots) }
-        .receiveOnMain()
-        .assign(to: &$jointAccountMembersText)
+    private func updateArchiveRow() {
+        archiveRowViewModel = archivingState.map { makeArchiveRowViewModel(state: $0) }
     }
 
-    private static func makeMembersText(status: JointAccountStatus, slots: [JointAccountSlot]) -> String? {
+    // MARK: - Factories
+
+    private func makeManagementRowViewModels(membersText: String?) -> [DefaultRowViewModel] {
+        var rowViewModels: [DefaultRowViewModel] = []
+
+        if let membersText {
+            let jointAccountMembersRowViewModel = DefaultRowViewModel(
+                title: Localization.jointAccountMembersTitle,
+                detailsType: .text(membersText),
+                accessibilityIdentifier: AccountsAccessibilityIdentifiers.accountDetailsJointMembersButton,
+                action: { [weak self] in self?.openJointAccountMembers() }
+            )
+
+            rowViewModels.append(jointAccountMembersRowViewModel)
+        }
+
+        if actions.contains(.manageTokens) {
+            let manageTokensRowViewModel = DefaultRowViewModel(
+                title: Localization.addTokensTitle,
+                accessibilityIdentifier: AccountsAccessibilityIdentifiers.accountDetailsManageTokensButton,
+                action: { [weak self] in self?.openManageTokens() }
+            )
+
+            rowViewModels.append(manageTokensRowViewModel)
+        }
+
+        return rowViewModels
+    }
+
+    private func makeArchiveRowViewModel(state: ArchivingState) -> DefaultRowViewModel {
+        switch state {
+        case .readyToBeArchived:
+            DefaultRowViewModel(
+                title: Localization.accountDetailsArchive,
+                accessibilityIdentifier: AccountsAccessibilityIdentifiers.accountDetailsArchiveButton,
+                action: { [weak self] in self?.showShouldArchiveDialog() }
+            )
+        case .archivingInProgress:
+            DefaultRowViewModel(
+                title: Localization.accountDetailsArchiving,
+                detailsType: .loader,
+                accessibilityIdentifier: AccountsAccessibilityIdentifiers.accountDetailsArchiveButton
+            )
+        }
+    }
+
+    private func makeSupportedNetworksHint() -> AttributedString {
+        let moreInfo = Localization.jointAccountMoreInfo
+        var hint = AttributedString(Localization.jointAccountSettingsNetworksInfo + " " + moreInfo)
+        hint.font = Fonts.Regular.caption1
+        hint.foregroundColor = Colors.Text.tertiary
+
+        if let range = hint.range(of: moreInfo) {
+            hint[range].foregroundColor = Colors.Text.accent
+            // Tap on "link" will handle as navigation
+            hint[range].link = URL(string: "about:blank")
+        }
+
+        return hint
+    }
+
+    private func makeMembersText(status: JointAccountStatus, slots: [JointAccountSlot]) -> String? {
         guard slots.isNotEmpty else {
             return nil
         }
