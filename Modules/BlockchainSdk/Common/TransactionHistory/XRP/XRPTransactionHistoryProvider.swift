@@ -46,8 +46,6 @@ final class XRPTransactionHistoryProvider: TransactionHistoryProvider {
         }
 
         switch amountType {
-        case .coin where record.type == .transfer:
-            break
         case .coin, .reserve, .feeResource:
             return true
         case .token:
