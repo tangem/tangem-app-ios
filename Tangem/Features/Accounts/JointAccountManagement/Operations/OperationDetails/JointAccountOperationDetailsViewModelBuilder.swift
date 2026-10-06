@@ -37,7 +37,7 @@ struct JointAccountOperationDetailsViewModelBuilder {
             networkFee: networkFee(of: pendingOperation),
             hasNFCInteraction: pendingOperation.wallet.account?.jointAccountOperationsService.hasNFCInteraction ?? false,
             content: content(of: pendingOperation),
-            updatesPublisher: updatesPublisher(of: pendingOperation.operation.id, provider: provider),
+            contentPublisher: contentPublisher(of: pendingOperation.operation.id, provider: provider),
             pendingOperationsProvider: provider,
             coordinator: coordinator,
             sign: { try await pendingOperation.sign() }
@@ -62,25 +62,19 @@ private extension JointAccountOperationDetailsViewModelBuilder {
         )
     }
 
-    func updatesPublisher(
+    func contentPublisher(
         of operationId: String,
         provider: (any JointAccountPendingOperationsProvider)?
-    ) -> AnyPublisher<JointAccountOperationDetailsViewModel.Update, Never> {
+    ) -> AnyPublisher<JointAccountOperationDetailsViewModel.Content, Never> {
         guard let provider else {
             return .empty
         }
 
         return provider
             .pendingOperationsPublisher
-            .map { operations in operations.first { $0.operation.id == operationId } }
+            .compactMap { operations in operations.first { $0.operation.id == operationId } }
             .removeDuplicates()
-            .map { pendingOperation in
-                guard let pendingOperation, pendingOperation.operation.status.isInFlight else {
-                    return .finished
-                }
-
-                return .content(content(of: pendingOperation))
-            }
+            .map { pendingOperation in content(of: pendingOperation) }
             .eraseToAnyPublisher()
     }
 
