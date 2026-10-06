@@ -18,6 +18,7 @@ import TangemStaking
 class CommonWalletModelsManager {
     private let walletManagersRepository: WalletManagersRepository
     private let walletModelsFactory: WalletModelsFactory
+    private let transactionHistoryUpdater: TransactionHistoryUpdater
     private let derivationPathBuilder: any AccountDerivationPathBuilder
 
     /// We need to keep optional array to track state when wallet models array wasn't able to initialize
@@ -40,10 +41,12 @@ class CommonWalletModelsManager {
     init(
         walletManagersRepository: WalletManagersRepository,
         walletModelsFactory: WalletModelsFactory,
+        transactionHistoryUpdater: TransactionHistoryUpdater,
         derivationPathBuilder: any AccountDerivationPathBuilder
     ) {
         self.walletManagersRepository = walletManagersRepository
         self.walletModelsFactory = walletModelsFactory
+        self.transactionHistoryUpdater = transactionHistoryUpdater
         self.derivationPathBuilder = derivationPathBuilder
     }
 
@@ -119,6 +122,7 @@ class CommonWalletModelsManager {
                     await Self.updateAllInternal(
                         silent: false,
                         walletModels: walletModelsToAdd,
+                        transactionHistoryUpdater: manager.transactionHistoryUpdater,
                         shouldTrackUpdate: &manager.shouldTrackWalletModelsUpdate
                     )
                 }
@@ -136,6 +140,7 @@ class CommonWalletModelsManager {
     private static func updateAllInternal(
         silent: Bool,
         walletModels: [any WalletModel],
+        transactionHistoryUpdater: TransactionHistoryUpdater,
         shouldTrackUpdate: inout Bool
     ) async {
         var token: PerformanceMetricToken?
@@ -149,10 +154,11 @@ class CommonWalletModelsManager {
         // Therefore, n=5 is a reasonable limit for concurrent network requests (as for now)
         let maxConcurrentUpdates = 5
         let count = walletModels.count
-        // [REDACTED_TODO_COMMENT]
-        let options: WalletModelUpdateOptions = FeatureProvider.isAvailable(.transactionHistoryV2) ? .full : .balances
+        let options: WalletModelUpdateOptions = FeatureProvider.isAvailable(.transactionHistoryV2) ? [.balances, .expressTransactionHistory] : .balances
         // Single token shared across the batch of all wallet models, so all updates belong to the same cycle
         let updateToken = UUID()
+
+        await transactionHistoryUpdater.beginBatchUpdate(updateToken: updateToken)
 
         await withTaskGroup(of: Void.self) { group in
             for index in 0 ..< count {
@@ -172,6 +178,8 @@ class CommonWalletModelsManager {
             }
             await group.waitForAll()
         }
+
+        await transactionHistoryUpdater.endBatchUpdate(updateToken: updateToken)
 
         PerformanceTracker.endTracking(
             token: token,
@@ -216,7 +224,12 @@ extension CommonWalletModelsManager: WalletModelsManager {
             shouldSkipUpdateOnInitialWalletModelsCreation.withLock { $0 = false }
         }
 
-        await Self.updateAllInternal(silent: silent, walletModels: walletModelsSnapshot, shouldTrackUpdate: &shouldTrackWalletModelsUpdate)
+        await Self.updateAllInternal(
+            silent: silent,
+            walletModels: walletModelsSnapshot,
+            transactionHistoryUpdater: transactionHistoryUpdater,
+            shouldTrackUpdate: &shouldTrackWalletModelsUpdate
+        )
     }
 }
 

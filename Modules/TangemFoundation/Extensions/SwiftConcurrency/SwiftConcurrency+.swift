@@ -90,7 +90,7 @@ public func runTask<T>(
 ) async throws -> Task<T, Error> {
     Task {
         async let update = code()
-        async let minimumWaitingTime: () = Task.sleep(for: .seconds(time))
+        async let minimumWaitingTime: Void = Task.sleep(for: .seconds(time))
 
         let (result, _) = try await (update, minimumWaitingTime)
 

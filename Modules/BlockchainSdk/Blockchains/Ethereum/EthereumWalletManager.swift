@@ -58,7 +58,7 @@ class EthereumWalletManager: BaseWalletManager, WalletManager, EthereumTransacti
                 tokens: cardTokens
             ).async()
 
-            async let pendingTransactions: () = pendingTransactionsManager.syncPendingTransactions()
+            async let pendingTransactions: Void = pendingTransactionsManager.syncPendingTransactions()
 
             try await updateWallet(
                 with: infoAndTokens,

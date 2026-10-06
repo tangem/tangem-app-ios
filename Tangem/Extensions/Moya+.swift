@@ -9,39 +9,6 @@
 import Foundation
 import Moya
 
-protocol CachePolicyProvider {
-    var cachePolicy: URLRequest.CachePolicy { get }
-}
-
-class CachePolicyPlugin: PluginType {
-    func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
-        if let cachePolicyGettable = target as? CachePolicyProvider {
-            var mutableRequest = request
-            mutableRequest.cachePolicy = cachePolicyGettable.cachePolicy
-            return mutableRequest
-        }
-
-        return request
-    }
-}
-
-protocol TimeoutIntervalProvider {
-    var timeoutInterval: TimeInterval? { get }
-}
-
-class TimeoutIntervalPlugin: PluginType {
-    func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
-        if let timeoutIntervalProvider = target as? TimeoutIntervalProvider,
-           let timeoutInterval = timeoutIntervalProvider.timeoutInterval {
-            var mutableRequest = request
-            mutableRequest.timeoutInterval = timeoutInterval
-            return mutableRequest
-        }
-
-        return request
-    }
-}
-
 extension Response {
     func filterResponseThrowingTangemAPIError(allowRedirectCodes: Bool) throws -> Moya.Response {
         let filteredResponse: Response

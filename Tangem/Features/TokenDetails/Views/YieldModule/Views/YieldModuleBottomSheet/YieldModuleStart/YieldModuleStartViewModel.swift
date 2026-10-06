@@ -226,9 +226,9 @@ final class YieldModuleStartViewModel: ObservableObject {
             do {
                 let feeParameters = try await yieldManagerInteractor.getCurrentFeeParameters()
 
-                async let networkFee: () = fetchNetworkFee()
-                async let minimalAmount: () = fetchMinimalAmount(feeParameters: feeParameters)
-                async let estimatedAndMaximumFee: () = fetchEstimatedAndMaximumFee(feeParameters: feeParameters)
+                async let networkFee: Void = fetchNetworkFee()
+                async let minimalAmount: Void = fetchMinimalAmount(feeParameters: feeParameters)
+                async let estimatedAndMaximumFee: Void = fetchEstimatedAndMaximumFee(feeParameters: feeParameters)
 
                 _ = await (networkFee, minimalAmount, estimatedAndMaximumFee)
             } catch {

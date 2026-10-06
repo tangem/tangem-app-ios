@@ -28,7 +28,12 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
         targetConfiguration: EtherscanTransactionHistoryTarget.Configuration
     ) {
         self.mapper = mapper
-        networkProvider = .init(configuration: .init(logOptions: .verbose))
+        networkProvider = .init(
+            configuration: networkConfiguration,
+            additionalPlugins: [
+                CachePolicyPlugin(),
+            ]
+        )
         self.targetConfiguration = targetConfiguration
     }
 
