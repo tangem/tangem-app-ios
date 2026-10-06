@@ -198,7 +198,7 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
     }
 
     private func selectOutcome(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {
-        guard geoblockStateProvider.state != .blocked else {
+        guard !geoblockStateProvider.state.isBlocked else {
             coordinator?.openRegionWarning()
             return
         }

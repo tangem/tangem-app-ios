@@ -1,5 +1,5 @@
 //
-//  PolymarketMainActionStates.swift
+//  PolymarketBalanceBlockActionStates.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,9 +8,9 @@
 
 import Foundation
 
-struct PolymarketMainActionStates: Equatable {
-    let addFunds: PolymarketMainViewModel.ActionState
-    let withdraw: PolymarketMainViewModel.WithdrawState
+struct PolymarketBalanceBlockActionStates: Equatable {
+    let addFunds: PolymarketBalanceBlockViewModel.ActionState
+    let withdraw: PolymarketBalanceBlockViewModel.WithdrawState
 
     init(
         readiness: PolymarketAccountFundsInteractor.State,
@@ -35,11 +35,11 @@ struct PolymarketMainActionStates: Equatable {
 
 // MARK: - Private implementation
 
-private extension PolymarketMainActionStates {
+private extension PolymarketBalanceBlockActionStates {
     static func withdrawState(
         collateralBalance: TokenBalanceType,
         minimum: Decimal?
-    ) -> PolymarketMainViewModel.WithdrawState {
+    ) -> PolymarketBalanceBlockViewModel.WithdrawState {
         switch collateralBalance {
         case .loaded(let balance):
             return withdrawState(forBalance: balance, minimum: minimum)
@@ -52,7 +52,7 @@ private extension PolymarketMainActionStates {
         }
     }
 
-    static func withdrawState(forBalance balance: Decimal, minimum: Decimal?) -> PolymarketMainViewModel.WithdrawState {
+    static func withdrawState(forBalance balance: Decimal, minimum: Decimal?) -> PolymarketBalanceBlockViewModel.WithdrawState {
         guard balance > 0 else {
             return .unavailable(.emptyBalance)
         }
