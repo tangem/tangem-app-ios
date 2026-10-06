@@ -7,8 +7,10 @@
 //
 
 import Foundation
+import TangemFoundation
+import TangemLocalization
 
-enum JointOperationError: LocalizedError, Equatable {
+enum JointOperationError: UniversalError, Equatable {
     case accountUnavailable
     case walletUnavailable
     /// Only an activated account has the address the operation is signed for.
@@ -32,16 +34,33 @@ enum JointOperationError: LocalizedError, Equatable {
         switch self {
         case .accountUnavailable: "The joint account is no longer available"
         case .walletUnavailable: "The wallet of the joint account is no longer available"
-        case .accountNotActive: "The joint account is not active"
+        case .accountNotActive: Localization.jointAccountSendNotActivatedSubtitle
         case .unsupportedNetwork: "The joint account does not operate in this network"
-        case .networkBusy: "The network already has an operation in flight"
-        case .safeStateChanged: "The Safe changed since the fee was quoted"
-        case .operationSuperseded: "The Safe has moved past this operation"
-        case .compositionMismatch: "The Safe's owners or threshold differ from the account's members"
+        case .networkBusy: Localization.jointAccountSendOperationInProgressSubtitle
+        case .safeStateChanged: Localization.jointAccountSendNetworkChangedSubtitle
+        case .operationSuperseded: Localization.jointAccountSendNetworkChangedSubtitle
+        case .compositionMismatch: Localization.jointAccountSendBlockedSubtitle
         case .unsupportedOperationForm: "This operation form is not supported"
         case .missingFeeParameters: "The fee carries no Safe operation terms"
-        case .maliciousOperation: "The operation was flagged as malicious"
+        case .maliciousOperation: Localization.jointOperationMaliciousSubtitle
         case .securityCheckUnavailable: "The operation could not be checked for security"
+        }
+    }
+
+    var errorCode: Int {
+        switch self {
+        case .accountUnavailable: 100013000
+        case .walletUnavailable: 100013001
+        case .accountNotActive: 100013002
+        case .unsupportedNetwork: 100013003
+        case .networkBusy: 100013004
+        case .safeStateChanged: 100013005
+        case .operationSuperseded: 100013006
+        case .compositionMismatch: 100013007
+        case .unsupportedOperationForm: 100013008
+        case .missingFeeParameters: 100013009
+        case .maliciousOperation: 100013010
+        case .securityCheckUnavailable: 100013011
         }
     }
 }
