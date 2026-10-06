@@ -15,6 +15,7 @@ struct TangemPayOnboardingLinkParserTests {
         "The link asks for onboarding, from any domain of ours",
         arguments: [
             "https://tangem.onelink.me/abcd?deep_link_value=tpay_mobileonboard",
+            "https://join.tangem.com/MsTz?af_xp=social&pid=marketing&c=tpay_mobileonboard&deep_link_value=tpay_mobileonboard&af_dp=tangem%3A%2F%2F",
             "https://app.tangem.com/abcd?deep_link_value=tpay_mobileonboard",
         ]
     )
