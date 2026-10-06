@@ -222,6 +222,35 @@ struct TransactionHistoryMapperCoinFallbackTests {
         #expect(makeSUT(isToken: false).mapTransactionViewModel(record).display.title.fullText == Localization.transactionHistoryOperation)
     }
 
+    @Test("A Tron token transfer that cost no fee keeps its own row")
+    func aTronTransferThatCostNoFeeKeepsItsRow() throws {
+        let record = try makeRecord(
+            methodName: nil,
+            type: .transfer,
+            fee: 0,
+            tokenTransfers: [makeTokenTransfer(from: Self.walletAddress, amount: 1_000_000)]
+        )
+
+        let viewModel = makeSUT(isToken: false, blockchain: .tron(testnet: false)).mapTransactionViewModel(record)
+
+        #expect(viewModel.transactionType == .transfer)
+        #expect(viewModel.display.title.fullText != Localization.commonNetworkFeeTitle)
+    }
+
+    @Test("A token transfer that cost no fee outside Tron is still the fee row")
+    func aTransferThatCostNoFeeOutsideTronIsTheFee() throws {
+        let record = try makeRecord(methodName: nil, type: .transfer, fee: 0)
+
+        #expect(makeSUT(isToken: false).mapTransactionViewModel(record).transactionType.isNetworkFee)
+    }
+
+    @Test("A Tron token transfer that cost no fee is never suggested as a recipient")
+    func aTronTransferThatCostNoFeeIsNeverSuggested() throws {
+        let record = try makeRecord(methodName: nil, type: .transfer, fee: 0)
+
+        #expect(makeSUT(isToken: false, blockchain: .tron(testnet: false)).mapSuggestedRecord(record) == nil)
+    }
+
     @Test("A coin call that did move coin keeps its own row")
     func aCallThatMovedCoinKeepsItsRow() throws {
         let viewModel = try makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: nil, amount: 1))
@@ -236,10 +265,10 @@ struct TransactionHistoryMapperCoinFallbackTests {
         return sent
     }
 
-    private func makeSUT(isToken: Bool) -> Tangem.TransactionHistoryMapper {
+    private func makeSUT(isToken: Bool, blockchain: Blockchain = .ethereum(testnet: false)) -> Tangem.TransactionHistoryMapper {
         Tangem.TransactionHistoryMapper(
             currencySymbol: "ETH",
-            blockchain: .ethereum(testnet: false),
+            blockchain: blockchain,
             addressesProvider: StubCoinFallbackAddressesProvider(walletAddresses: [Self.walletAddress]),
             showSign: true,
             isToken: isToken,
@@ -271,9 +300,12 @@ struct TransactionHistoryMapperCoinFallbackTests {
         isOutgoing: Bool = true,
         type: TransactionRecord.TransactionType? = nil,
         destination: TransactionRecord.Destination.Address? = nil,
+        fee: Decimal? = nil,
         tokenTransfers: [TransactionRecord.TokenTransfer] = []
     ) throws -> TransactionRecord {
-        try TransactionRecord(
+        let fee = try fee ?? Self.feeValue
+
+        return TransactionRecord(
             hash: "0xHash",
             index: 0,
             source: .single(.init(address: isOutgoing ? Self.walletAddress : Self.contractAddress, amount: amount)),
@@ -281,7 +313,7 @@ struct TransactionHistoryMapperCoinFallbackTests {
                 address: destination ?? (isOutgoing ? .contract(Self.contractAddress) : .user(Self.walletAddress)),
                 amount: amount
             )),
-            fee: Fee(Amount(type: .coin, currencySymbol: "ETH", value: Self.feeValue, decimals: 18)),
+            fee: Fee(Amount(type: .coin, currencySymbol: "ETH", value: fee, decimals: 18)),
             status: .confirmed,
             isOutgoing: isOutgoing,
             type: type ?? .contractMethodName(name: methodName),

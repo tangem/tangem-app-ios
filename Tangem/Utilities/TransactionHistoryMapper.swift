@@ -658,7 +658,11 @@ private extension TransactionHistoryMapper {
             return type
         }
 
-        guard record.isOutgoing, transferAmountValue(from: record).isZero else {
+        guard
+            record.isOutgoing,
+            transferAmountValue(from: record).isZero,
+            !GaslessTransactionFeeMatcher.isFeeCoveredByTronResources(of: record, on: blockchain)
+        else {
             return type
         }
 
