@@ -218,7 +218,8 @@ private extension CommonTokenFeeProvidersManagerTronDEXTests {
             estimatedGasLimit: nil,
             externalTxId: nil,
             externalTxURL: nil,
-            payInAddress: ""
+            payInAddress: "",
+            slippage: nil
         )
     }
 }

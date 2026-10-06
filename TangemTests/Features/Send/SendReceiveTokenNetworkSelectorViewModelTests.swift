@@ -242,7 +242,8 @@ private extension SendReceiveTokenNetworkSelectorViewModelTests {
             termsOfUse: nil,
             privacyPolicy: nil,
             recommended: nil,
-            slippage: nil
+            slippage: nil,
+            isCustomSlippageSupported: false
         )
     }
 

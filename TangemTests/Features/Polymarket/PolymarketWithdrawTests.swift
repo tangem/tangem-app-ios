@@ -705,7 +705,8 @@ private extension PolymarketWithdrawTransactionDispatcherTests {
             estimatedGasLimit: nil,
             externalTxId: nil,
             externalTxURL: nil,
-            payInAddress: otherAddress
+            payInAddress: otherAddress,
+            slippage: nil
         )
     }
 }
