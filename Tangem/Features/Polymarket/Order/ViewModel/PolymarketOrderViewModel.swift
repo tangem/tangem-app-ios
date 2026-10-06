@@ -70,24 +70,24 @@ final class PolymarketOrderViewModel: ObservableObject {
 
     func handleViewAction(_ action: ViewAction) {
         switch action {
-        case .appeared:
-            model.handleViewAction(.screenAppeared)
-        case .disappeared:
-            model.handleViewAction(.screenDisappeared)
-        case .closeTapped:
+        case .onAppear:
+            model.handleViewAction(.onAppear)
+        case .onDisappear:
+            model.handleViewAction(.onDisappear)
+        case .close:
             coordinator?.closeOrder()
-        case .nextTapped:
+        case .openSummary:
             coordinator?.openSummary(model: model)
-        case .addFundsTapped:
+        case .openAddFunds:
             coordinator?.openAddFunds()
-        case .slippageTapped:
+        case .openSlippage:
             openSlippageSelector()
-        case .stepTapped(let step):
-            model.step(by: step)
-        case .fractionTapped(let fraction):
-            model.handleViewAction(.fractionSelected(fraction))
-        case .retryQuoteTapped:
-            model.retryQuote()
+        case .step(let step):
+            model.handleViewAction(.step(step))
+        case .selectFraction(let fraction):
+            model.handleViewAction(.selectFraction(fraction))
+        case .retryQuote:
+            model.handleViewAction(.retryQuote)
         }
     }
 }
@@ -140,15 +140,15 @@ extension PolymarketOrderViewModel {
     }
 
     enum ViewAction {
-        case stepTapped(Int)
-        case appeared
-        case disappeared
-        case closeTapped
-        case nextTapped
-        case addFundsTapped
-        case slippageTapped
-        case fractionTapped(PolymarketAmountFraction)
-        case retryQuoteTapped
+        case step(Int)
+        case onAppear
+        case onDisappear
+        case close
+        case openSummary
+        case openAddFunds
+        case openSlippage
+        case selectFraction(PolymarketAmountFraction)
+        case retryQuote
     }
 }
 
@@ -157,7 +157,7 @@ extension PolymarketOrderViewModel {
 private extension PolymarketOrderViewModel {
     func openSlippageSelector() {
         coordinator?.openSlippageSelector(percent: model.state.slippagePercent) { [weak self] percent in
-            self?.model.handleViewAction(.slippageSelected(percent))
+            self?.model.handleViewAction(.selectSlippage(percent))
         }
     }
 }

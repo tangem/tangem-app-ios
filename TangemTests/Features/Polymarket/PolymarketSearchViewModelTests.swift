@@ -85,7 +85,7 @@ struct PolymarketSearchViewModelTests {
         sut.query = "uzbekistan"
         try await Self.settle(sut) { $0.state == .loaded }
 
-        sut.loadMore()
+        sut.handleViewAction(.loadNextPage)
         try await Self.settle(sut) { $0.state == .allDataLoaded }
 
         #expect(provider.searchRequests.map(\.page) == [1, 2])
@@ -103,7 +103,7 @@ struct PolymarketSearchViewModelTests {
         sut.query = "uzbekistan"
         try await Self.settle(sut) { $0.state == .loaded }
 
-        sut.loadMore()
+        sut.handleViewAction(.loadNextPage)
         try await Self.settle(sut) { $0.state == .allDataLoaded }
 
         #expect(sut.eventCards.map(\.id) == ["a", "b", "c"])
@@ -117,7 +117,7 @@ struct PolymarketSearchViewModelTests {
         sut.query = "uzbekistan"
         try await Self.settle(sut) { $0.state == .allDataLoaded }
 
-        sut.loadMore()
+        sut.handleViewAction(.loadNextPage)
 
         #expect(provider.searchRequests.count == 1)
     }
@@ -134,10 +134,10 @@ struct PolymarketSearchViewModelTests {
         sut.query = "uzbekistan"
         try await Self.settle(sut) { $0.state == .error }
 
-        sut.retry()
+        sut.handleViewAction(.retry)
         try await Self.settle(sut) { $0.state == .loaded }
 
-        sut.loadMore()
+        sut.handleViewAction(.loadNextPage)
         try await Self.settle(sut) { $0.state == .paginationError }
 
         #expect(sut.eventCards.map(\.id) == ["a"])
@@ -167,7 +167,7 @@ struct PolymarketSearchViewModelTests {
         sut.query = "uzbekistan"
         try await Self.settle(sut) { $0.state == .allDataLoaded }
 
-        sut.openEventDetails(eventID: "a")
+        sut.handleViewAction(.openEventDetails(id: "a"))
 
         #expect(coordinator.openedEventIDs == ["a"])
     }
