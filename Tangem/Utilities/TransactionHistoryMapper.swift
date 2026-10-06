@@ -331,6 +331,16 @@ struct TransactionHistoryMapper {
             return nil
         }
 
+        // For a UTXO send to self, `transferAmountValue` returns the fee rather than zero - therefore we can't use it
+        let sentAmount = blockchain.isUTXO
+            ? amountSentToOthers(in: record) ?? .zero
+            : transferAmountValue(from: record)
+
+        // Zero-value transfers (and sends to the wallet's own addresses as a side effect) aren't worth suggesting
+        guard !sentAmount.isZero else {
+            return nil
+        }
+
         // Only for user's address
         guard case .user(let address) = interactionAddress(from: record, transactionType: type) else {
             return nil
