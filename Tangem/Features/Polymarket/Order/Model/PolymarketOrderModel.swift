@@ -36,6 +36,7 @@ final class PolymarketOrderModel: ObservableObject {
     private let isAwaitingFundsPublisher: AnyPublisher<Bool, Never>
     private let collateralBalancePublisher: AnyPublisher<Decimal?, Never>
     private let delayProvider: PollDelayProvider
+    private let notificationCenter: NotificationCenter
 
     // MARK: - Private state
 
@@ -57,7 +58,8 @@ final class PolymarketOrderModel: ObservableObject {
         clobService: PolymarketCLOBService,
         isAwaitingFundsPublisher: AnyPublisher<Bool, Never>,
         collateralBalancePublisher: AnyPublisher<Decimal?, Never>,
-        delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
+        delayProvider: PollDelayProvider = TaskSleepPollDelayProvider(),
+        notificationCenter: NotificationCenter = .default
     ) {
         self.market = market
         self.outcome = outcome
@@ -70,6 +72,7 @@ final class PolymarketOrderModel: ObservableObject {
         self.isAwaitingFundsPublisher = isAwaitingFundsPublisher
         self.collateralBalancePublisher = collateralBalancePublisher
         self.delayProvider = delayProvider
+        self.notificationCenter = notificationCenter
 
         amountField = DecimalNumberTextFieldViewModel(maximumFractionDigits: intent.fractionDigits)
 
@@ -201,6 +204,7 @@ extension PolymarketOrderModel {
         var isAwaitingFunds = false
         var bookPrice: Decimal?
         var bookPriceFailure: PolymarketBookPriceFailure?
+        var isBookPriceResuming = false
 
         var isBelowMinAmount: Bool {
             guard let enteredAmount, let minAmount else { return false }
@@ -278,7 +282,7 @@ private extension PolymarketOrderModel {
             }
             .store(in: &bag)
 
-        NotificationCenter.default
+        notificationCenter
             .publisher(for: UIApplication.didEnterBackgroundNotification)
             .receiveOnMain()
             .withWeakCaptureOf(self)
@@ -287,14 +291,14 @@ private extension PolymarketOrderModel {
             }
             .store(in: &bag)
 
-        NotificationCenter.default
+        notificationCenter
             .publisher(for: UIApplication.willEnterForegroundNotification)
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { model, _ in
                 guard model.visibleScreens > 0 else { return }
 
-                model.restartQuoteLoop(debounced: false)
+                model.restartQuoteLoop(debounced: false, resuming: true)
             }
             .store(in: &bag)
     }
@@ -414,9 +418,15 @@ private extension PolymarketOrderModel {
 // MARK: - Quote loop
 
 private extension PolymarketOrderModel {
-    func restartQuoteLoop(debounced: Bool) {
+    func restartQuoteLoop(debounced: Bool, resuming: Bool = false) {
         quoteTask?.cancel()
-        state.quote = .empty
+
+        var updated = state
+        updated.quote = resuming && state.enteredAmount != nil
+            ? .resuming(hiddenFailuresLeft: Constants.hiddenTransientFailuresOnResume)
+            : .empty
+        updated.isBookPriceResuming = resuming && state.enteredAmount == nil
+        state = updated
 
         guard visibleScreens > 0 else {
             quoteTask = nil
@@ -469,6 +479,7 @@ private extension PolymarketOrderModel {
             var updated = state
             updated.bookPrice = price
             updated.bookPriceFailure = nil
+            updated.isBookPriceResuming = false
             state = updated
         } catch {
             guard !Task.isCancelled, !error.isCancellationError else { return }
@@ -477,7 +488,10 @@ private extension PolymarketOrderModel {
 
             guard let failure = PolymarketBookPriceFailure(error: error) else { return }
 
-            state.bookPriceFailure = failure
+            var updated = state
+            updated.bookPriceFailure = failure
+            updated.isBookPriceResuming = false
+            state = updated
             suspendQuoteLoop()
         }
     }
@@ -519,6 +533,13 @@ private extension PolymarketOrderModel {
     }
 
     func handleQuoteFailure(_ error: Error) {
+        if case .resuming(let hiddenFailuresLeft) = state.quote,
+           hiddenFailuresLeft > 0,
+           (error as? PolymarketAPIError)?.isTransient == true {
+            state.quote = .resuming(hiddenFailuresLeft: hiddenFailuresLeft - 1)
+            return
+        }
+
         state.quote = .failed(PolymarketOrderQuoteFailure(error: error))
     }
 }
@@ -543,5 +564,6 @@ private extension PolymarketOrderModel {
         static let maxShareOfBalance: Decimal = 0.9
         static let debounce: TimeInterval = 0.5
         static let pollInterval: TimeInterval = 3
+        static let hiddenTransientFailuresOnResume = 1
     }
 }

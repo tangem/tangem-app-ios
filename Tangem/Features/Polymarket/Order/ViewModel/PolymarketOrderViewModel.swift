@@ -179,13 +179,13 @@ private extension PolymarketOrderViewModel {
 
     func update(with state: PolymarketOrderModel.State) {
         let gate = PolymarketOrderGate(state: state, intent: model.intent)
-        let isAwaitingQuote = state.enteredAmount != nil && state.quote.isAwaitingQuote
+        let keepsPreviousHints = state.enteredAmount != nil && state.quote.isAwaitingQuote && !state.quote.isResuming
 
         payment = Self.makePayment(balance: state.balance, intent: model.intent)
         slippageText = PolymarketSlippageFormatter.rowText(state.slippagePercent)
-        amountCaption = makeAmountCaption(gate.amountCaption) ?? (isAwaitingQuote ? amountCaption : nil)
+        amountCaption = makeAmountCaption(gate.amountCaption) ?? (keepsPreviousHints ? amountCaption : nil)
         amountFractions = Self.makeAmountFractions(balance: state.balance, selectable: gate.selectableFractions)
-        notifications = gate.notifications.isEmpty && isAwaitingQuote ? notifications : gate.notifications
+        notifications = gate.notifications.isEmpty && keepsPreviousHints ? notifications : gate.notifications
         isAwaitingFunds = state.isAwaitingFunds
         isNextEnabled = gate.isPrimaryButtonEnabled
 
@@ -197,7 +197,9 @@ private extension PolymarketOrderViewModel {
         canDecreaseAmount = isAdjustable && gate.canStepDown
         canIncreaseAmount = isAdjustable && gate.canStepUp
 
-        if state.quote.isFailed || (state.bookPriceFailure != nil && state.quote.quote == nil) {
+        if state.quote.isResuming || state.isBookPriceResuming {
+            marketRow = marketRow.settling(nextPriceText: nil, isLoading: true)
+        } else if state.quote.isFailed || (state.bookPriceFailure != nil && state.quote.quote == nil) {
             marketRow = .make(
                 market: model.market,
                 outcome: model.outcome,
@@ -212,9 +214,13 @@ private extension PolymarketOrderViewModel {
                 averagePrice: price,
                 entryPrice: model.entryPriceForVote
             )
+        } else if marketRow.isOutcomeNextPriceLoading {
+            marketRow = marketRow.settling(nextPriceText: nil, isLoading: false)
         }
 
-        if let expectedExecutionAmount = state.quote.expectedExecutionAmount {
+        if state.quote.isResuming {
+            proceedsText = ""
+        } else if let expectedExecutionAmount = state.quote.expectedExecutionAmount {
             proceedsText = PolymarketOrderFormatter.money(expectedExecutionAmount)
         } else if state.enteredAmount != nil, !state.quote.isAwaitingQuote {
             proceedsText = .enDashSign
