@@ -14,7 +14,7 @@ enum EligibleTokenMatcher {
         let contractAddress: String
     }
 
-    static func make(from tokens: [BannerPromotion.Response.Token]) -> (TokenItem) -> Bool {
+    static func make(from tokens: [CampaignEligibleToken]) -> (TokenItem) -> Bool {
         let keys = Set(tokens.map { Key(networkId: $0.networkId, contractAddress: $0.tokenAddress.lowercased()) })
 
         return { tokenItem in
