@@ -17,19 +17,14 @@ struct AccountDetailsView: View {
     @ObservedObject var viewModel: AccountDetailsViewModel
 
     var body: some View {
-        VStack(spacing: 24) {
+        GroupedScrollView(contentType: .plain(spacing: 20)) {
             accountSection
 
-            jointAccountMembersSection
-
-            manageTokensSection
-
-            supportedNetworksHint
+            managementSection
 
             archiveAccountSection
-
-            Spacer()
         }
+        .horizontalPadding(0)
         .alert(item: $viewModel.alert) { $0.alert }
         .onFirstAppear(perform: viewModel.onFirstAppear)
     }
@@ -73,101 +68,29 @@ struct AccountDetailsView: View {
         .defaultRoundedBackground(with: Colors.Background.action)
     }
 
-    @ViewBuilder
-    private var supportedNetworksHint: some View {
-        if viewModel.isSupportedNetworksHintVisible {
-            HStack(spacing: 4) {
-                Text(Localization.jointAccountSettingsNetworksInfo)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-
-                SwiftUI.Button(action: viewModel.openSupportedNetworks) {
-                    Text(Localization.jointAccountMoreInfo)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.accent)
-                }
-
-                Spacer(minLength: 0)
+    private var managementSection: some View {
+        GroupedSection(viewModel.managementRowViewModels) {
+            DefaultRowView(viewModel: $0)
+        } footer: {
+            if let supportedNetworksHint = viewModel.supportedNetworksHint {
+                Text(supportedNetworksHint)
+                    .environment(\.openURL, OpenURLAction { _ in
+                        viewModel.openSupportedNetworks()
+                        return .handled
+                    })
             }
-            .padding(.horizontal, 14)
         }
+        .backgroundColor(Colors.Background.action)
     }
 
-    @ViewBuilder
-    private var jointAccountMembersSection: some View {
-        if let membersText = viewModel.jointAccountMembersText {
-            SwiftUI.Button(action: viewModel.openJointAccountMembers) {
-                HStack(spacing: 8) {
-                    Text(Localization.jointAccountMembersTitle)
-                        .style(Fonts.Regular.callout, color: Colors.Text.primary1)
-
-                    Spacer()
-
-                    Text(membersText)
-                        .style(Fonts.Regular.callout, color: Colors.Text.tertiary)
-
-                    Assets.chevronRight.image
-                        .foregroundColor(Colors.Icon.informative)
-                }
-                .defaultRoundedBackground(with: Colors.Background.action)
-            }
-            .accessibilityIdentifier(AccountsAccessibilityIdentifiers.accountDetailsJointMembersButton)
-        }
-    }
-
-    @ViewBuilder
-    private var manageTokensSection: some View {
-        if viewModel.canManageTokens {
-            SwiftUI.Button(action: viewModel.openManageTokens) {
-                HStack(spacing: 0) {
-                    Text(Localization.addTokensTitle)
-                        .style(Fonts.Regular.callout, color: Colors.Text.primary1)
-
-                    Spacer()
-
-                    Assets.chevronRight.image
-                        .foregroundColor(Colors.Icon.informative)
-                }
-                .defaultRoundedBackground(with: Colors.Background.action)
-            }
-            .accessibilityIdentifier(AccountsAccessibilityIdentifiers.accountDetailsManageTokensButton)
-        }
-    }
-
-    @ViewBuilder
     private var archiveAccountSection: some View {
-        switch viewModel.archivingState {
-        case .none:
-            EmptyView()
-
-        case .some(let state):
-            VStack(alignment: .leading, spacing: 8) {
-                makeArchivingSectionContent(from: state)
-
-                Text(Localization.accountDetailsArchiveDescription)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    .padding(.leading, 14)
-            }
+        GroupedSection(viewModel.archiveRowViewModel) {
+            DefaultRowView(viewModel: $0)
+                .appearance(viewModel.isArchivingInProgress ? .disabledDestructiveButton : .destructiveButton)
+        } footer: {
+            DefaultFooterView(Localization.accountDetailsArchiveDescription)
         }
-    }
-
-    private func makeArchivingSectionContent(from state: AccountDetailsViewModel.ArchivingState) -> some View {
-        SwiftUI.Button(action: viewModel.showShouldArchiveDialog) {
-            HStack(spacing: 0) {
-                Text(viewModel.getArchivingButtonTitle(from: state))
-                    .style(Fonts.Regular.callout, color: viewModel.getArchivingButtonColor(from: state))
-
-                Spacer()
-
-                if state == .archivingInProgress {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: Color.Tangem.Graphic.Neutral.quaternary))
-                        .fixedSize()
-                }
-            }
-            .frame(minHeight: 20)
-        }
-        .disabled(state == .archivingInProgress)
-        .accessibilityIdentifier(AccountsAccessibilityIdentifiers.accountDetailsArchiveButton)
-        .defaultRoundedBackground(with: Colors.Background.action)
+        .backgroundColor(Colors.Background.action)
         .animation(.default, value: viewModel.archivingState)
         .confirmationDialog(
             Localization.accountDetailsArchiveDescription,
