@@ -136,7 +136,7 @@ private extension JointAccountJoinViewModel {
         state = Self.isInviteRejected(loadingError) ? .invalidInvite : .loadFailed(isRetrying: false)
     }
 
-    /// The endpoint turns the wallet away with these two when the invite is spent, revoked or never existed —
+    /// The endpoint turns the wallet away with these when the invite is malformed, spent, revoked or never existed —
     /// retrying would only ask the same question again.
     static func isInviteRejected(_ error: Error) -> Bool {
         guard let apiError = error as? TangemAPIError else {
@@ -144,7 +144,7 @@ private extension JointAccountJoinViewModel {
         }
 
         switch apiError.code {
-        case .notFound, .conflict:
+        case .badRequest, .notFound, .conflict:
             return true
         default:
             return false
