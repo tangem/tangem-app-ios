@@ -13,14 +13,17 @@ import struct TangemUIUtils.AlertBinder
 final class JointAccountMembersCountViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
-    /// The screen opens on the smallest composition there is, and on every one of its members having to sign, so
-    /// that whatever the creator leaves untouched is the strictest account rather than a middling one.
-    @Published var membersCount: Int = Constants.membersCountRange.lowerBound {
+    /// The screen first opens on the smallest composition there is, and on every one of its members having to sign, so
+    /// that whatever the creator leaves untouched is the strictest account rather than a middling one. Coming back to
+    /// it opens the composition chosen before.
+    @Published var membersCount: Int {
         // A composition can't require more signatures than it has members
         didSet { signersCount = min(signersCount, membersCount) }
     }
 
-    @Published var signersCount: Int = Constants.membersCountRange.lowerBound
+    @Published var signersCount: Int {
+        didSet { keepDraft() }
+    }
 
     var memberStates: [JointAccountMemberCircle.State] { members() }
     var membersCountRange: ClosedRange<Int> { Constants.membersCountRange }
@@ -35,10 +38,13 @@ final class JointAccountMembersCountViewModel: ObservableObject {
     ) {
         self.creationHelper = creationHelper
         self.coordinator = coordinator
+        let membersCount = creationHelper.membersCount ?? Constants.membersCountRange.lowerBound
+        _membersCount = Published(initialValue: membersCount)
+        _signersCount = Published(initialValue: min(creationHelper.signersCount ?? membersCount, membersCount))
     }
 
     func onContinueTap() {
-        creationHelper.update(membersCount: membersCount, signersCount: signersCount)
+        keepDraft()
         coordinator?.continueMembersCount(creationHelper: creationHelper)
     }
 
@@ -57,6 +63,10 @@ final class JointAccountMembersCountViewModel: ObservableObject {
 // MARK: - Private
 
 private extension JointAccountMembersCountViewModel {
+    func keepDraft() {
+        creationHelper.update(membersCount: membersCount, signersCount: signersCount)
+    }
+
     func members() -> [JointAccountMemberCircle.State] {
         (0 ..< Constants.membersCountRange.upperBound).map { index -> JointAccountMemberCircle.State in
             switch index {
