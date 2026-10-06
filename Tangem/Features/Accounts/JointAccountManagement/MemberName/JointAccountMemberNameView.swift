@@ -34,9 +34,7 @@ struct JointAccountMemberNameView: View {
         .translucentNavigationBar()
         .alert(item: $viewModel.alert, content: { $0.alert })
         .safeAreaInset(edge: .bottom) { footer }
-        .onAppear {
-            isNameFocused = true
-        }
+        .focusOnAppear($isNameFocused)
     }
 
     private var titleView: some View {
