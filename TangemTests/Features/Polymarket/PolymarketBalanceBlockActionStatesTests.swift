@@ -1,5 +1,5 @@
 //
-//  PolymarketMainActionStatesTests.swift
+//  PolymarketBalanceBlockActionStatesTests.swift
 //  TangemTests
 //
 //  Copyright © 2026 Tangem AG. All rights reserved.
@@ -10,8 +10,8 @@ import Testing
 import TangemPolymarket
 @testable import Tangem
 
-@Suite("Polymarket main screen action buttons")
-struct PolymarketMainActionStatesTests {
+@Suite("Polymarket balance block action buttons")
+struct PolymarketBalanceBlockActionStatesTests {
     @Test("Until the account is prepared both buttons wait")
     func bothButtonsWaitWhileTheAccountIsPreparing() {
         let states = makeStates(readiness: .loading, balance: .loaded(10))
@@ -105,7 +105,7 @@ struct PolymarketMainActionStatesTests {
 
 // MARK: - Fixtures
 
-private extension PolymarketMainActionStatesTests {
+private extension PolymarketBalanceBlockActionStatesTests {
     var target: PolymarketAccountFundsInteractor.DepositTarget {
         PolymarketAccountFundsInteractor.DepositTarget(
             entry: PolymarketDepositAssetCatalog.usdcOnPolygon,
@@ -131,7 +131,7 @@ private extension PolymarketMainActionStatesTests {
         readiness: PolymarketAccountFundsInteractor.State,
         balance: TokenBalanceType,
         minimum: Decimal? = 2
-    ) -> PolymarketMainActionStates {
-        PolymarketMainActionStates(readiness: readiness, collateralBalance: balance, withdrawMinimum: minimum)
+    ) -> PolymarketBalanceBlockActionStates {
+        PolymarketBalanceBlockActionStates(readiness: readiness, collateralBalance: balance, withdrawMinimum: minimum)
     }
 }
