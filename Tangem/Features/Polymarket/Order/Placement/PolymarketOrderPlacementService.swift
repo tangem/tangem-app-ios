@@ -93,16 +93,18 @@ private extension CommonPolymarketOrderPlacementService {
         credentials: PolymarketL2Credentials,
         ownerAddress: String
     ) async throws -> PolymarketOrderPlacement {
-        let deadline = Date().addingTimeInterval(Constants.settlementTimeout)
+        var budget = Constants.settlementBudget
 
-        while Date() < deadline {
-            try await Task.sleep(nanoseconds: Constants.pollIntervalNanoseconds)
+        while budget > .zero {
+            try await Task.sleep(for: Constants.pollInterval)
             try Task.checkCancellation()
 
+            let readStart = ContinuousClock.now
             let record: PolymarketOrderRecord
 
             do {
                 record = try await placer.order(id: orderId, credentials: credentials, ownerAddress: ownerAddress)
+                budget -= Constants.pollInterval + min(readStart.duration(to: .now), Constants.maxReadCost)
             } catch is CancellationError {
                 throw CancellationError()
             } catch {
@@ -128,7 +130,8 @@ private extension CommonPolymarketOrderPlacementService {
     }
 
     enum Constants {
-        static let pollIntervalNanoseconds: UInt64 = 10 * NSEC_PER_SEC
-        static let settlementTimeout: TimeInterval = 30
+        static let pollInterval: Duration = .seconds(10)
+        static let settlementBudget: Duration = .seconds(30)
+        static let maxReadCost: Duration = .seconds(10)
     }
 }
