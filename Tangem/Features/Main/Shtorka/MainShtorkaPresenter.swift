@@ -29,6 +29,10 @@ final class MainShtorkaPresenter {
         content = Content(state: state, feed: feed)
     }
 
+    deinit {
+        content?.state.stopFollowingBottomSheet()
+    }
+
     /// Brings the sheet up on the feed the link asks for. The legacy shtorka has no sections to be pointed at,
     /// so it is raised as it is.
     func open(selection: FeedSelection) {
