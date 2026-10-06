@@ -20,7 +20,7 @@ struct PolymarketOrderFractionTests {
     func chipMovesTheOrder() async throws {
         let model = try await makeModel(balance: 200)
 
-        model.handleViewAction(.fractionSelected(.half))
+        model.handleViewAction(.selectFraction(.half))
 
         #expect(model.state.enteredAmount == 100)
         #expect(model.amountField.value == 100)
@@ -30,7 +30,7 @@ struct PolymarketOrderFractionTests {
     func fractionIsRoundedToTheEnterablePrecision() async throws {
         let model = try await makeModel(balance: Decimal(string: "0.3333333")!)
 
-        model.handleViewAction(.fractionSelected(.quarter))
+        model.handleViewAction(.selectFraction(.quarter))
 
         #expect(model.state.enteredAmount == Decimal(string: "0.08")!)
     }
@@ -39,12 +39,12 @@ struct PolymarketOrderFractionTests {
     func maxIsNineTenthsOfTheBalance() async throws {
         let model = try await makeModel(balance: 201, quote: .stub(status: .full))
 
-        model.handleViewAction(.screenAppeared)
-        model.handleViewAction(.fractionSelected(.quarter))
+        model.handleViewAction(.onAppear)
+        model.handleViewAction(.selectFraction(.quarter))
 
         try await settle { model.state.quote.quote != nil }
 
-        model.handleViewAction(.fractionSelected(.max))
+        model.handleViewAction(.selectFraction(.max))
 
         #expect(model.state.enteredAmount == Decimal(string: "180.9")!)
     }
@@ -58,12 +58,12 @@ struct PolymarketOrderFractionTests {
         )
         let model = try await makeModel(balance: 120, quote: quote)
 
-        model.handleViewAction(.screenAppeared)
-        model.handleViewAction(.fractionSelected(.quarter))
+        model.handleViewAction(.onAppear)
+        model.handleViewAction(.selectFraction(.quarter))
 
         try await settle { model.state.quote.quote != nil }
 
-        model.handleViewAction(.fractionSelected(.max))
+        model.handleViewAction(.selectFraction(.max))
 
         #expect(model.state.enteredAmount == 100)
     }
@@ -72,7 +72,7 @@ struct PolymarketOrderFractionTests {
     func maxIsRoundedToTheEnteredPrecision() async throws {
         let model = try await makeModel(balance: Decimal(string: "0.3333333")!)
 
-        model.handleViewAction(.fractionSelected(.max))
+        model.handleViewAction(.selectFraction(.max))
 
         #expect(model.state.enteredAmount == Decimal(string: "0.29")!)
     }
@@ -82,7 +82,7 @@ struct PolymarketOrderFractionTests {
         let held = Decimal(string: "23.8")!
         let model = try await makeModel(balance: held, intent: .sell(shares: held))
 
-        model.handleViewAction(.fractionSelected(.half))
+        model.handleViewAction(.selectFraction(.half))
 
         #expect(model.state.enteredAmount == 11)
     }
@@ -92,7 +92,7 @@ struct PolymarketOrderFractionTests {
         let held = Decimal(string: "23.8")!
         let model = try await makeModel(balance: held, intent: .sell(shares: held))
 
-        model.handleViewAction(.fractionSelected(.max))
+        model.handleViewAction(.selectFraction(.max))
 
         #expect(model.state.enteredAmount == held)
     }
@@ -102,7 +102,7 @@ struct PolymarketOrderFractionTests {
         let held = Decimal(string: "0.4")!
         let model = try await makeModel(balance: held, intent: .sell(shares: held))
 
-        model.handleViewAction(.fractionSelected(.max))
+        model.handleViewAction(.selectFraction(.max))
 
         #expect(model.state.enteredAmount == held)
     }
@@ -111,7 +111,7 @@ struct PolymarketOrderFractionTests {
     func maxWithoutAQuoteIsNineTenthsOfTheBalance() async throws {
         let model = try await makeModel(balance: 200)
 
-        model.handleViewAction(.fractionSelected(.max))
+        model.handleViewAction(.selectFraction(.max))
 
         #expect(model.state.enteredAmount == 180)
     }
@@ -120,7 +120,7 @@ struct PolymarketOrderFractionTests {
     func aShareBelowTheFloorIsNotQuoted() async throws {
         let model = try await makeModel(balance: Decimal(string: "0.02")!)
 
-        model.handleViewAction(.fractionSelected(.quarter))
+        model.handleViewAction(.selectFraction(.quarter))
 
         #expect(model.state.enteredAmount == nil)
         #expect(model.amountField.value == 0)
@@ -146,7 +146,7 @@ struct PolymarketOrderStepperTests {
         let held = Decimal(string: "5.5")!
         let model = try await makeModel(balance: held, intent: .sell(shares: held))
 
-        model.step(by: -1)
+        model.handleViewAction(.step(-1))
 
         #expect(model.state.enteredAmount == Decimal(string: "4.5")!)
     }
@@ -157,7 +157,7 @@ struct PolymarketOrderStepperTests {
         let model = try await makeModel(balance: held, intent: .sell(shares: held))
 
         for _ in 0 ..< 5 {
-            model.step(by: -1)
+            model.handleViewAction(.step(-1))
         }
 
         #expect(model.state.enteredAmount == 1)
@@ -171,14 +171,14 @@ struct PolymarketOrderStepperTests {
         let model = try await makeModel(balance: held, intent: .sell(shares: held))
 
         for _ in 0 ..< 5 {
-            model.step(by: -1)
+            model.handleViewAction(.step(-1))
         }
 
-        model.step(by: 1)
+        model.handleViewAction(.step(1))
         #expect(model.state.enteredAmount == 2)
 
         for _ in 0 ..< 4 {
-            model.step(by: 1)
+            model.handleViewAction(.step(1))
         }
 
         #expect(model.state.enteredAmount == held)
