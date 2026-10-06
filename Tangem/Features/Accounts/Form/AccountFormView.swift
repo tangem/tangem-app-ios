@@ -52,10 +52,8 @@ struct AccountFormView: View {
             // See https://stackoverflow.com/questions/70510596 and https://stackoverflow.com/questions/78763987 for more details
             UIResponder.current?.resignFirstResponder()
         }
-        .onAppear {
-            viewModel.onAppear()
-            isNameFocused = true
-        }
+        .onAppear(perform: viewModel.onAppear)
+        .focusOnAppear($isNameFocused, onlyOnce: true)
         .onChange(of: viewModel.selectedColor) { _ in
             isNameFocused = false
         }
