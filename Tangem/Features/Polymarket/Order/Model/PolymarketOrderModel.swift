@@ -36,7 +36,7 @@ final class PolymarketOrderModel: ObservableObject {
     private let isAwaitingFundsPublisher: AnyPublisher<Bool, Never>
     private let collateralBalancePublisher: AnyPublisher<Decimal?, Never>
     private let delayProvider: PollDelayProvider
-    private let notificationCenter: NotificationCenter
+    private let appStateObserver: PolymarketAppStateObserver
 
     // MARK: - Private state
 
@@ -72,7 +72,7 @@ final class PolymarketOrderModel: ObservableObject {
         self.isAwaitingFundsPublisher = isAwaitingFundsPublisher
         self.collateralBalancePublisher = collateralBalancePublisher
         self.delayProvider = delayProvider
-        self.notificationCenter = notificationCenter
+        appStateObserver = PolymarketAppStateObserver(notificationCenter: notificationCenter)
 
         amountField = DecimalNumberTextFieldViewModel(maximumFractionDigits: intent.fractionDigits)
 
@@ -282,25 +282,15 @@ private extension PolymarketOrderModel {
             }
             .store(in: &bag)
 
-        notificationCenter
-            .publisher(for: UIApplication.didEnterBackgroundNotification)
-            .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { model, _ in
-                model.suspendQuoteLoop()
-            }
-            .store(in: &bag)
+        appStateObserver.start { [weak self] isInBackground in
+            guard let self else { return }
 
-        notificationCenter
-            .publisher(for: UIApplication.willEnterForegroundNotification)
-            .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { model, _ in
-                guard model.visibleScreens > 0 else { return }
-
-                model.restartQuoteLoop(debounced: false, resuming: true)
+            if isInBackground {
+                suspendQuoteLoop()
+            } else if visibleScreens > 0 {
+                restartQuoteLoop(debounced: false, resuming: true)
             }
-            .store(in: &bag)
+        }
     }
 }
 

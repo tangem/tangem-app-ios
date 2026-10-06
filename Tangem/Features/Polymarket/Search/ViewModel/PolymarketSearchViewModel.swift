@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import UIKit
 import TangemFoundation
 import TangemPolymarket
 import TangemPolymarketUI
@@ -29,6 +30,8 @@ final class PolymarketSearchViewModel: ObservableObject {
 
     private var searchTask: Task<Void, Never>?
     private var refreshTask: Task<Void, Never>?
+    private var visibleResultsRefreshTask: Task<Void, Never>?
+    private let appStateObserver = PolymarketAppStateObserver()
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -44,6 +47,7 @@ final class PolymarketSearchViewModel: ObservableObject {
 
     deinit {
         refreshTask?.cancel()
+        visibleResultsRefreshTask?.cancel()
     }
 }
 
@@ -86,6 +90,17 @@ private extension PolymarketSearchViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, query in viewModel.handle(settled: query) }
             .store(in: &bag)
+
+        appStateObserver.start { [weak self] isInBackground in
+            guard let self else { return }
+
+            if isInBackground {
+                stopRefreshing()
+            } else {
+                refreshVisibleResults()
+                startRefreshing()
+            }
+        }
     }
 
     func handle(settled query: String) {
@@ -145,18 +160,27 @@ private extension PolymarketSearchViewModel {
         }
     }
 
+    func stopRefreshing() {
+        refreshTask?.cancel()
+        refreshTask = nil
+        visibleResultsRefreshTask?.cancel()
+        visibleResultsRefreshTask = nil
+    }
+
     func refreshVisibleResults() {
         guard events.isNotEmpty, !activeQuery.isEmpty, state != .loading, state != .paginationLoading else { return }
 
         let query = activeQuery
 
-        Task { @MainActor [weak self] in
+        visibleResultsRefreshTask?.cancel()
+        visibleResultsRefreshTask = Task { @MainActor [weak self] in
             guard let self else { return }
 
             do {
                 let result = try await apiProvider.search(
                     request: PolymarketSearchRequest(query: query, limit: Constants.pageSize, page: Constants.firstPage)
                 )
+                try Task.checkCancellation()
 
                 guard query == activeQuery else { return }
 
