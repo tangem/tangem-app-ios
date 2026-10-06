@@ -75,6 +75,7 @@ final class PolymarketMainViewModel: ObservableObject {
     private var balanceRefreshTask: Task<Void, Never>?
     private var accountFundsPreparationTask: Task<Void, Never>?
     private var searchBag: Set<AnyCancellable> = []
+    private let appStateObserver = PolymarketAppStateObserver()
     private var bag: Set<AnyCancellable> = []
 
     private var events: [PolymarketEvent] = []
@@ -84,6 +85,7 @@ final class PolymarketMainViewModel: ObservableObject {
     private var loadingTask: Task<Void, Never>?
     private var positionsTask: Task<Void, Never>?
     private var contentRefreshTask: Task<Void, Never>?
+    private var isInBackground = false
     private var orderTask: Task<Void, Never>?
     private var claimTask: Task<Void, Never>?
     private var openPositions: [PolymarketPosition] = []
@@ -125,6 +127,7 @@ final class PolymarketMainViewModel: ObservableObject {
         orderTask?.cancel()
         claimTask?.cancel()
         balanceRefreshTask?.cancel()
+        contentRefreshTask?.cancel()
         accountFundsPreparationTask?.cancel()
     }
 
@@ -155,6 +158,8 @@ final class PolymarketMainViewModel: ObservableObject {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
+                guard !viewModel.isInBackground else { return }
+
                 viewModel.balanceRefreshTask?.cancel()
                 viewModel.startBalanceRefresh()
             }
@@ -179,36 +184,36 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     private func bindApplicationState() {
-        NotificationCenter.default
-            .publisher(for: UIApplication.didEnterBackgroundNotification)
-            .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, _ in
-                viewModel.stopBalanceRefresh()
-                viewModel.stopContentRefresh()
-            }
-            .store(in: &bag)
+        appStateObserver.start { [weak self] isInBackground in
+            guard let self else { return }
 
-        NotificationCenter.default
-            .publisher(for: UIApplication.willEnterForegroundNotification)
-            .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, _ in
-                viewModel.startBalanceRefresh()
-                viewModel.startContentRefresh()
+            self.isInBackground = isInBackground
+
+            if isInBackground {
+                stopBalanceRefresh()
+                stopContentRefresh()
+            } else {
+                startBalanceRefresh()
+                startContentRefresh(refreshingNow: true)
             }
-            .store(in: &bag)
+        }
     }
 
     private func stopContentRefresh() {
         contentRefreshTask?.cancel()
         contentRefreshTask = nil
+        positionsTask?.cancel()
     }
 
-    private func startContentRefresh() {
+    private func startContentRefresh(refreshingNow: Bool = false) {
         contentRefreshTask?.cancel()
 
         contentRefreshTask = Task { @MainActor [weak self] in
+            if refreshingNow, let self {
+                loadPositions()
+                await refreshVisibleEvents()
+            }
+
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(Constants.contentRefreshInterval))
 

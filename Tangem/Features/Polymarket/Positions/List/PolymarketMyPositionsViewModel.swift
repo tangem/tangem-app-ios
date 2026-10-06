@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Combine
 import TangemFoundation
 import TangemLocalization
 import TangemPolymarket
@@ -48,6 +49,8 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
     private var orderTask: Task<Void, Never>?
     private var refreshTask: Task<Void, Never>?
     private var pollingTask: Task<Void, Never>?
+    private let appStateObserver = PolymarketAppStateObserver()
+    private var bag: Set<AnyCancellable> = []
 
     init(
         tab: PolymarketPositionsTab,
@@ -60,6 +63,7 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
 
         reload()
         startRefreshing()
+        bindApplicationState()
     }
 
     deinit {
@@ -260,6 +264,25 @@ private extension PolymarketMyPositionsViewModel {
         loaded = loaded.map { byID[$0.id] ?? $0 }
 
         applyFilter()
+    }
+
+    func bindApplicationState() {
+        appStateObserver.start { [weak self] isInBackground in
+            guard let self else { return }
+
+            if isInBackground {
+                stopRefreshing()
+            } else {
+                refreshInPlace()
+                startRefreshing()
+            }
+        }
+    }
+
+    func stopRefreshing() {
+        pollingTask?.cancel()
+        pollingTask = nil
+        refreshTask?.cancel()
     }
 
     func startRefreshing() {

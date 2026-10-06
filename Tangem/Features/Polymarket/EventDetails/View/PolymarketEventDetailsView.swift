@@ -33,8 +33,8 @@ struct PolymarketEventDetailsView: View {
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
         .background(FeedPopGestureEnabler())
-        .onWillAppear(perform: viewModel.resumePolling)
-        .onWillDisappear(perform: viewModel.stopPolling)
+        .onWillAppear(perform: viewModel.onWillAppear)
+        .onWillDisappear(perform: viewModel.onWillDisappear)
     }
 
     // MARK: - Top bar
