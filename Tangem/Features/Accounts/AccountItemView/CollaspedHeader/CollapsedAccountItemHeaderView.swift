@@ -19,6 +19,7 @@ struct CollapsedAccountItemHeaderView: View {
     let totalFiatBalance: LoadableBalanceView.State
     let priceChange: PriceChangeView.State
     let currencyCode: String?
+    var hasOperationsInFlight = false
     let iconGeometryEffect: GeometryEffectPropertiesModel
     let iconBackgroundGeometryEffect: GeometryEffectPropertiesModel
     let nameGeometryEffect: GeometryEffectPropertiesModel
@@ -27,6 +28,11 @@ struct CollapsedAccountItemHeaderView: View {
 
     /// Horizontal offset for positioning the invisible matchedGeometryEffect anchor point.
     @ScaledMetric private var geometryEffectAnchorOffset: CGFloat = 20
+
+    @ScaledMetric private var pendingIndicatorSide: CGFloat = 20
+    @ScaledMetric private var pendingIndicatorGlyphSize: CGFloat = 10
+    @ScaledMetric private var pendingIndicatorBorderWidth: CGFloat = 2
+    @ScaledMetric private var pendingIndicatorOffset: CGFloat = 4
 
     private var balanceLoaderStyle: LoadableBalanceView.LoaderStyle {
         LoadableBalanceView.LoaderStyle(
@@ -53,6 +59,12 @@ struct CollapsedAccountItemHeaderView: View {
                     iconGeometryEffect: iconGeometryEffect,
                     backgroundGeometryEffect: iconBackgroundGeometryEffect
                 )
+                .overlay(alignment: .bottomTrailing) {
+                    if hasOperationsInFlight {
+                        pendingOperationIndicator
+                            .offset(x: pendingIndicatorOffset, y: pendingIndicatorOffset)
+                    }
+                }
             },
             primaryLeadingView: {
                 HStack(spacing: geometryEffectAnchorOffset) {
@@ -100,6 +112,23 @@ struct CollapsedAccountItemHeaderView: View {
         )
         .linesSpacing(lineSpacing)
         .padding(contentPadding)
+    }
+
+    private var pendingOperationIndicator: some View {
+        Circle()
+            .fill(DesignSystem.Color.bgStatusWarningSubtle)
+            .overlay {
+                DesignSystem.Icons.Clock.regular12.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: pendingIndicatorGlyphSize, height: pendingIndicatorGlyphSize)
+                    .foregroundStyle(DesignSystem.Color.iconStatusWarning)
+            }
+            .overlay {
+                Circle().strokeBorder(DesignSystem.Color.bgSecondary, lineWidth: pendingIndicatorBorderWidth)
+            }
+            .frame(width: pendingIndicatorSide, height: pendingIndicatorSide)
     }
 }
 
