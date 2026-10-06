@@ -353,24 +353,26 @@ final class PolymarketAccountModelStub: PolymarketAccountModel {
     var state: PolymarketAccountState?
     let collateralTokenBalanceProvider: TokenBalanceProvider
     let collateralTotalBalanceProvider: TokenBalanceProvider
+    let fiatAvailableBalanceProvider: TokenBalanceProvider
+    let fiatTotalTokenBalanceProvider: TokenBalanceProvider
 
     init(
         userWalletId: UserWalletId = UserWalletId(value: Data([0x01, 0x02, 0x03])),
         state: PolymarketAccountState?,
         collateralTokenBalanceProvider: TokenBalanceProvider = TokenBalanceProviderTestsMock(balance: 0),
-        collateralTotalBalanceProvider: TokenBalanceProvider = TokenBalanceProviderTestsMock(balance: 0)
+        collateralTotalBalanceProvider: TokenBalanceProvider = TokenBalanceProviderTestsMock(balance: 0),
+        fiatAvailableBalanceProvider: TokenBalanceProvider = TokenBalanceProviderTestsMock(balance: 0),
+        fiatTotalTokenBalanceProvider: TokenBalanceProvider = TokenBalanceProviderTestsMock(balance: 0)
     ) {
         id = PolymarketAccountId(userWalletId: userWalletId)
         self.state = state
         self.collateralTokenBalanceProvider = collateralTokenBalanceProvider
         self.collateralTotalBalanceProvider = collateralTotalBalanceProvider
+        self.fiatAvailableBalanceProvider = fiatAvailableBalanceProvider
+        self.fiatTotalTokenBalanceProvider = fiatTotalTokenBalanceProvider
     }
 
     var statePublisher: AnyPublisher<PolymarketAccountState?, Never> { .just(output: state) }
-
-    var fiatAvailableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
-
-    var fiatTotalTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
 
     func refreshState(scope: PolymarketBalanceRefreshScope) async {}
 
