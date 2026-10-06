@@ -50,10 +50,7 @@ struct FeedCoordinatorView: CoordinatorView {
                 .fullScreenCover(item: presentation(fullScreen: true), onDismiss: coordinator.presentationDidDismiss) {
                     FeedDestinationView(destination: $0)
                 }
-                .modifier(FeedWalletSelectorModal(presenter: coordinator.widgetSheetPresenter))
-                .floatingSheetContent(for: AddAccountTypeSelectorViewModel.self) {
-                    AddAccountTypeSelectorView(viewModel: $0)
-                }
+                .modifier(FeedWidgetSelectorModal(presenter: coordinator.widgetSheetPresenter))
         }
         .modifier(FeedModalPresentation(coordinator: coordinator))
     }
@@ -75,25 +72,34 @@ struct FeedCoordinatorView: CoordinatorView {
     }
 }
 
-private struct FeedWalletSelectorModal: ViewModifier {
+private struct FeedWidgetSelectorModal: ViewModifier {
     @ObservedObject var presenter: FeedWidgetSheetPresenter
 
     func body(content: Content) -> some View {
         content.modal(
-            isPresented: $presenter.isWalletSelectorPresented,
+            isPresented: $presenter.isSelectorPresented,
             contentLayout: .intrinsic,
             dragIndicator: .hidden,
-            title: Localization.commonChooseWallet,
-            onDismiss: presenter.walletSelectorDidDismiss
+            title: title,
+            onDismiss: presenter.selectorDidDismiss
         ) {
-            switch presenter.walletSelector {
+            switch presenter.selector {
             case .accounts(let viewModel):
                 AccountSelectorView(viewModel: viewModel, style: .modal)
             case .referral(let viewModel):
                 FeedReferralWalletSelectorView(viewModel: viewModel)
+            case .accountType(let viewModel):
+                AddAccountTypeSelectorContentView(viewModel: viewModel, style: .modal)
             case nil:
                 EmptyView()
             }
+        }
+    }
+
+    private var title: String {
+        switch presenter.selector {
+        case .accountType: Localization.accountFormTitleCreate
+        case .accounts, .referral, nil: Localization.commonChooseWallet
         }
     }
 }
