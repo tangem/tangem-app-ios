@@ -88,7 +88,7 @@ private extension GlowRingModifier {
             // Throttled: the rotation is slow (full turn ≈ 24s), so 30fps looks identical to the
             // default "as fast as possible" while drawing a fraction of the frames. Paused off-screen.
             TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: isPaused)) { timeline in
-                let t = timeline.date.timeIntervalSinceReferenceDate
+                let t = GlowAnimationClock.shared.time(at: timeline.date)
                 canvasContent(width: w, height: h, phase: phaseAngle(at: t), mix: morphMix(at: t))
             }
         }
