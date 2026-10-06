@@ -13,6 +13,7 @@ public enum WelcomeV2AccessibilityIdentifiers {
 
     public static let createWalletButton = "\(prefix)CreateWalletButton"
     public static let existingWalletButton = "\(prefix)ExistingWalletButton"
+    public static let buyTangemButton = "\(prefix)BuyTangemButton"
 
     /// Shared by both action sheets: only one of them is presented at a time.
     public static let actionSheetHardwareRow = "\(prefix)ActionSheetHardwareRow"

@@ -37,6 +37,7 @@ protocol WelcomeV2AnalyticsProvider {
     func logCardSignIn(userWalletModel: UserWalletModel)
 
     func logButtonBuy()
+    func logButtonBuyTangem()
     func logShopScreenOpened()
 }
 
