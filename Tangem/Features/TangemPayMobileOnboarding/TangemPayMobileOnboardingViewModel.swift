@@ -15,6 +15,7 @@ protocol TangemPayMobileOnboardingRoutable: AnyObject {
     func openMain(userWalletModel: UserWalletModel)
     func openTermsFeesAndLimits()
     func openTos()
+    func openLegalDocument(url: URL)
 }
 
 final class TangemPayMobileOnboardingViewModel: ObservableObject {
@@ -104,6 +105,10 @@ final class TangemPayMobileOnboardingViewModel: ObservableObject {
     func onTermsTap() {
         analytics.logTermsTapped()
         coordinator?.openTermsFeesAndLimits()
+    }
+
+    func openLegalDocument(url: URL) {
+        coordinator?.openLegalDocument(url: url)
     }
 
     func onTosTap() {
