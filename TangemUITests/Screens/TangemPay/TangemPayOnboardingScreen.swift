@@ -43,6 +43,14 @@ final class TangemPayOnboardingScreen: Screen {
     }
 
     @discardableResult
+    func tapGetCardExpectingWalletSelector() -> TangemPayWalletSelectorSheet {
+        XCTContext.runActivity(named: "Tap Get card button and expect wallet selection") { _ in
+            getCardButton.waitAndTap()
+            return TangemPayWalletSelectorSheet(app)
+        }
+    }
+
+    @discardableResult
     func tapGetCardExpectingUnlock() -> MobileUnlockScreen {
         XCTContext.runActivity(named: "Tap Get card button and expect wallet unlock") { _ in
             getCardButton.waitAndTap()
