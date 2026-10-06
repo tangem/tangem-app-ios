@@ -191,9 +191,9 @@
 "bitcoin_promo_no_address_title" = "Потрібна Bitcoin-адреса";
 "bitcoin_promo_no_address" = "Для зарахування бонусу потрібна Bitcoin-адреса. Додайте її до портфеля та повторіть активацію.";
 "button_start_backup_process" = "Почніть процес резервного копіювання";
-"buy_swap_region_restriction_description_region" = "Buy and swap are currently not available in your region: %@";
+"buy_swap_region_restriction_description_region" = "Купівля та обмін наразі недоступні у вашому регіоні: %@";
 "buy_swap_region_restriction_description" = "Buy and swap are currently not available in your region";
-"buy_swap_region_restriction_title" = "Regional restrictions";
+"buy_swap_region_restriction_title" = "Регіональні обмеження";
 "buy_token_description" = "Використовуйте банківську картку або інші способи оплати";
 "card_reset_alert_finish_message" = "Всі пристрої Tangem було скинуто. Тепер ви можете продовжити оновлення гаманця.";
 "card_reset_alert_finish_ok_button" = "Оновити ще раз";
@@ -517,7 +517,7 @@
 "common_transfer" = "Переказ";
 "common_transferred" = "Переказано";
 "common_try_again_later" = "Будь ласка, спробуйте пізніше";
-"common_type" = "Type";
+"common_type" = "Тип";
 "common_understand_continue" = "Я розумію, продовжити";
 "common_understand" = "Я зрозумів";
 "common_unknown_error" = "Виникла помилка. Будь ласка, спробуйте ще раз.";
@@ -618,7 +618,7 @@
 "dynamic_addresses_receive_badge" = "Динамічна адреса";
 "dynamic_addresses_unavailability_reason_pending_transaction_send" = "Керування динамічними адресами стане доступним після підтвердження транзакцій у мережі %@";
 "dynamic_addresses" = "Динамічні адреси";
-"earn_assets" = "Earn assets";
+"earn_assets" = "Активи для заробітку";
 "earn_best_opportunities" = "Найкращі можливості";
 "earn_clear_filter" = "Очистити фільтр";
 "earn_empty" = "Список тимчасово порожній, оскільки триває оновлення. Спробуйте ще раз за мить.";
@@ -738,9 +738,9 @@
 "feed_search_recent_title" = "Recent";
 "feed_search_show_all_user_assets" = "Показати всі";
 "feed_search_show_less_user_assets" = "Сховати";
-"feed_tab_crypto" = "Crypto";
-"feed_tab_earn" = "Earn";
-"feed_tab_rwa" = "Real assets";
+"feed_tab_crypto" = "Криптовалюти";
+"feed_tab_earn" = "Заробіток";
+"feed_tab_rwa" = "Реальні активи";
 "feed_trending_now" = "В тренді";
 "feedback_preface_rate_negative" = "Розкажіть, яких функцій вам не вистачає, і ми спробуємо вам допомогти.";
 "feedback_preface_scan_failed" = "Розкажіть, будь ласка, яку картку або кільце ви маєте?";
@@ -1139,7 +1139,7 @@
 "manage_tokens_toast_portfolio_updated" = "Ваше портфоліо оновлено";
 "manage_tokens_wallet_selector_title" = "Оберіть гаманець";
 "manage_tokens_wallet_support_only_one_network_title" = "Гаманець не підтримує більше однієї мережі";
-"market_categories" = "Categories";
+"market_categories" = "Категорії";
 "market_chart_ai_total" = "AI Total:";
 "market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
 "market_chart_bubble_no_amount" = "Немає токенів \n/ вартості активів";
@@ -2339,6 +2339,7 @@
 "tangempay_bank_transfer_details_daily_deposits" = "Daily deposits";
 "tangempay_bank_transfer_details_fee_header" = "Deposit methods and fees";
 "tangempay_bank_transfer_details_limitations" = "Limitations";
+"tangempay_bank_transfer_failed_title" = "Failed to create banking details";
 "tangempay_bank_transfer_fee_ach" = "ACH";
 "tangempay_bank_transfer_fee_error_subtitle" = "Натисніть, щоб оновити";
 "tangempay_bank_transfer_fee_error_title" = "Не вдалося завантажити інформацію про комісію";
