@@ -278,6 +278,13 @@ private extension TokenSelectorViewModelsMapper {
                     action: { self.output?.userDidSelect(item: item) }
                 )
 
+            case .unavailable(reason: .unavailableForSell(let sellState)):
+                TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                    presenter: alertPresenter,
+                    sellStatus: sellState,
+                    action: { self.output?.userDidSelect(item: item) }
+                )
+
             case .available, .unavailable:
                 output?.userDidSelect(item: item)
             }

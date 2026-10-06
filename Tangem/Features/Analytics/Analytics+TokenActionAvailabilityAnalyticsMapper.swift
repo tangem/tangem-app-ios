@@ -105,7 +105,7 @@ struct TokenActionAvailabilityAnalyticsMapper {
             return Analytics.ParameterValue.oldCard
         case .hasOnlyCachedBalance:
             return Analytics.ParameterValue.caching
-        case .unavailable:
+        case .unavailable, .jointAccountsComingSoon:
             return Analytics.ParameterValue.unavailable
         case .demo:
             return Analytics.ParameterValue.demo

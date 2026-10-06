@@ -64,6 +64,7 @@ extension TokenSelectorItem.AvailabilityType {
         case .unavailable(.unavailableForSwap(.noAddress)): true
         case .unavailable(.unavailableForSwap(.swapState(.customToken))): true
         case .unavailable(.unavailableForSwap(.swapState)): false
+        case .unavailable(.unavailableForSell(.jointAccountsComingSoon)): false
         case .unavailable(.unavailableForOnramp), .unavailable(.unavailableForSell), .unavailable(.unavailableForSend): true
         }
     }
@@ -73,7 +74,7 @@ extension TokenSelectorItemViewModel {
     enum DisabledReason {
         case unavailableForSwap(SwapUnavailabilityReason)
         case unavailableForOnramp
-        case unavailableForSell
+        case unavailableForSell(TokenActionAvailabilityProvider.SellActionAvailabilityStatus)
         case unavailableForSend
     }
 
