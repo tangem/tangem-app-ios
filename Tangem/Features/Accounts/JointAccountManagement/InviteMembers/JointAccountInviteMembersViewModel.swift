@@ -47,7 +47,7 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
     }
 
     func onInviteTap(inviteURL: URL) {
-        coordinator?.shareInvite(url: inviteURL)
+        coordinator?.shareInvite(url: inviteURL, accountName: jointAccount.name)
     }
 
     func onSafetyBannerTap() {
