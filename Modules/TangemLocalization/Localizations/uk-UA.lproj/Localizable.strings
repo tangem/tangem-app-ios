@@ -322,6 +322,7 @@
 "common_approved" = "Схвалено";
 "common_approving" = "Схвалення";
 "common_attention" = "Увага";
+"common_auto" = "Auto";
 "common_available_networks" = "Доступні мережі";
 "common_back" = "Назад";
 "common_backup_error" = "Backup Error";
@@ -360,6 +361,7 @@
 "common_custom" = "Власна";
 "common_day" = "день";
 "common_decline" = "Decline";
+"common_default" = "Default";
 "common_delete" = "Видалити";
 "common_disable" = "Вимкнути";
 "common_disabled" = "Вимкнуто";
@@ -488,6 +490,7 @@
 "common_share" = "Поділитися";
 "common_sign" = "Підписати";
 "common_skip" = "Пропустити";
+"common_slippage" = "Slippage";
 "common_something_went_wrong" = "Щось пішло не так";
 "common_stake" = "Застейкати";
 "common_staked" = "Застейкано";
@@ -997,6 +1000,7 @@
 "introduction_stories_two_subtitle" = "Використовуйте будь-яку картку для доступу до гаманця";
 "introduction_stories_two_title" = "Один гаманець, кілька карток";
 "introduction_subtitle" = "Одне безпечне місце для всіх ваших активів";
+"introduction_terms_of_service_consent" = "By continuing, you agree with %@";
 "introduction_terms_of_service" = "Умовами використання";
 "introduction_title" = "Зберігайте всі свої активи";
 "jailbreak_warning_message" = "Пристрої з джейлбрейком вважаються менш безпечними. Ваші дані можуть бути піддані додатковим ризикам.";
@@ -1040,7 +1044,7 @@
 "joint_account_join_subtitle_value" = "%1$@ із %2$@ учасників";
 "joint_account_join_subtitle" = "Це спільний акаунт. Для кожної транзакції з нього потрібні підписи: %1$@";
 "joint_account_join_success_message" = "Акаунт додано";
-"joint_account_join_title" = "Вас запросили до акаунта «%1$@»";
+"joint_account_join_title" = "Вас запросили до акаунта %1$@";
 "joint_account_join_to_account_btn_text" = "Приєднатися до акаунта";
 "joint_account_members_progress" = "%1$@ із %2$@ учасників";
 "joint_account_members_role_joined" = "Приєднався/приєдналася";
@@ -1087,7 +1091,7 @@
 "joint_account_send_slot_busy_title" = "Уже є незавершена операція";
 "joint_account_settings_networks_info" = "Цей акаунт працює лише в підтримуваних мережах.";
 "joint_account_waiting_activation" = "Очікує активації";
-"joint_operation_auto_sends_footer" = "Надішлеться автоматично, коли підпишуть %1$@ із %2$@ учасників";
+"joint_operation_auto_sends_footer" = "Надішлеться автоматично, коли підпишуть %1$@ із %2$@ учасників";
 "joint_operation_banner_subtitle" = "%1$@ → %2$@";
 "joint_operation_banner_title_own" = "Ви хочете надіслати %1$@";
 "joint_operation_banner_title" = "%1$@ хоче надіслати %2$@";
@@ -1097,7 +1101,7 @@
 "joint_operation_decline_alert_message" = "Інші учасники побачать ваше рішення. Підписати цю транзакцію пізніше буде неможливо";
 "joint_operation_decline_alert_title" = "Відхилити цю транзакцію?";
 "joint_operation_declined_at" = "Відхилено %@";
-"joint_operation_declined_footer" = "Ви відхилили. Інші ще можуть зібрати %1$@ із %2$@ підписів";
+"joint_operation_declined_footer" = "Ви відхилили. Інші ще можуть зібрати %1$@ із %2$@ підписів";
 "joint_operation_declined" = "Відхилено";
 "joint_operation_delete_alert_message" = "Транзакцію буде скасовано для всіх учасників. Зібрані підписи буде видалено";
 "joint_operation_delete_alert_title" = "Видалити цю транзакцію?";
@@ -1108,7 +1112,7 @@
 "joint_operation_sent_footer" = "Підписано %1$@ із %2$@ і надіслано в мережу";
 "joint_operation_signatures_progress" = "Підписи: %1$@ із %2$@";
 "joint_operation_signed_at" = "Підписано %@";
-"joint_operation_signed_footer" = "Надішлеться автоматично, коли підпишуть %1$@ із %2$@";
+"joint_operation_signed_footer" = "Надішлеться автоматично, коли підпишуть %1$@ із %2$@";
 "joint_operation_signed" = "Підписано";
 "joint_operation_signers_title" = "Підписанти";
 "joint_operation_signing_blocked_subtitle" = "Підписання заблоковано з міркувань безпеки. Зверніться до служби підтримки";
@@ -2209,7 +2213,10 @@
 "support_selector_view_chat_button" = "Відкрити чат";
 "support_selector_view_email_button" = "Відкрити пошту";
 "swap_approve_description" = "Підтверджуючи, ви дозволяєте смартконтракту використовувати ваші токени в майбутніх транзакціях.";
+"swap_custom_slippage_info" = "Slippage can't be customized with this provider and may reach up to %@ in rare cases";
 "swap_detailed_mode" = "Детальний режим";
+"swap_exchange_rates_info_text" = "displayed include the service provider’s fee";
+"swap_exchange_rates_info_title" = "Exchange rates";
 "swap_fixed_rate" = "Фіксований курс";
 "swap_give_permission_fee_footer" = "Мережа стягує комісію за схвалення токену за підтвердження, що саме ви дозволяєте використовувати ваш токен для обміну.";
 "swap_in_progress" = "Обмін у процесі";
@@ -2217,6 +2224,10 @@
 "swap_search_tooltip_description" = "Шукайте будь-який токен, навіть якщо його ще немає у вашому списку.";
 "swap_search_tooltip_title" = "Використовуйте пошук, щоб знайти потрібне";
 "swap_simple_mode" = "Простий режим";
+"swap_slippage_error" = "Unsupported amount";
+"swap_slippage_info_text" = "is the difference between the expected and actual execution price caused by market price or liquidity changes";
+"swap_slippage_warning_text" = "Swap may fail if the slippage threshold is hit";
+"swap_slippage_warning_title" = "Slippage is set %@";
 "swap_story_fifth_subtitle" = "Надійна підтримка 24/7, щоб ваші фінансові операції були швидкими та надійними!";
 "swap_story_fifth_title" = "Цілодобова підтримка";
 "swap_story_first_subtitle_v2" = "Обмінюйте крипту прямо в Tangem\nНіяких зайвих переказів\nНе потрібно відправляти кошти на біржі";
@@ -2883,6 +2894,7 @@
 "transaction_history_approve_high_risk_subtitle" = "You're connected. Funds may be at risk. Consider revoking access.";
 "transaction_history_approve_high_risk_title" = "High Risk";
 "transaction_history_approved_amount" = "Approved amount";
+"transaction_history_claiming_incentive_rewards" = "Claiming incentive rewards";
 "transaction_history_claiming_reward" = "Отримання нагороди";
 "transaction_history_contract_address" = "контракт: %@";
 "transaction_history_detail_page_amount_signed_value" = "%1@ %2@ %3@";
@@ -2903,6 +2915,7 @@
 "transaction_history_fee_for_yield_mode_top_up" = "For Yield mode top-up";
 "transaction_history_fee_sending_asset" = "Send %%image%% %@";
 "transaction_history_from_inline_address" = "від: %%image%% %@";
+"transaction_history_incentive_rewards_claimed" = "Incentive rewards claimed";
 "transaction_history_multiple_addresses" = "Кілька адрес";
 "transaction_history_not_supported_description" = "Історія транзакцій наразі не підтримується для цього блокчейну. Але не хвилюйтеся, ми працюємо над цим! А поки можете перевірити це в оглядачі.";
 "transaction_history_operation" = "Операція";
@@ -2914,6 +2927,7 @@
 "transaction_history_status_claiming_rewards" = "Claiming rewards";
 "transaction_history_status_disabling_yield_mode_failed" = "Disabling Yield mode failed";
 "transaction_history_status_enabling_yield_mode_failed" = "Enabling Yield mode failed";
+"transaction_history_status_incentive_rewards_claim_failed" = "Claiming of incentive rewards failed";
 "transaction_history_status_receive_failed" = "Receive failed";
 "transaction_history_status_restaking_rewards" = "Restaking rewards";
 "transaction_history_status_rewards_claim_failed" = "Rewards claim failed";
