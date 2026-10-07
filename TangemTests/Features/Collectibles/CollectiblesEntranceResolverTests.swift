@@ -95,9 +95,15 @@ private final class CollectiblesAccountModelStub: CollectiblesAccountModel {
 
     func onboard() async throws {}
 
+    var vaultUsdcStatePublisher: AnyPublisher<CollectiblesVaultUsdcState, Never> {
+        Just(.loading).eraseToAnyPublisher()
+    }
+
     func refreshState() async {
         refreshCount += 1
     }
+
+    func awaitDeposit() async {}
 }
 
 private extension CollectiblesVaultInfo {

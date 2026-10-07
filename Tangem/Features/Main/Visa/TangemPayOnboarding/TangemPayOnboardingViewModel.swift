@@ -16,28 +16,31 @@ enum TangemPayOnboardingSource {
 }
 
 final class TangemPayOnboardingViewModel: ObservableObject {
-    @Injected(\.experimentService) private var experimentService: ExperimentService
+    @Injected(\.tangemPayOnboardingAnalytics) private var analytics: TangemPayOnboardingAnalyticsService
 
     let closeOfferScreen: @MainActor () -> Void
     @MainActor @Published private(set) var tangemPayOfferViewModel: TangemPayOfferViewModel?
-    @MainActor @Published private(set) var showNewOnboarding = false
+    @MainActor @Published private(set) var screenVersion: TangemPayOnboardingScreenVersion = .v1
     @MainActor @Published private(set) var regionUnavailable = false
 
     private let source: TangemPayOnboardingSource
     private let availableSelection: TangemPayWalletSelectionType
     private let availabilityService: TangemPayAvailabilityService
+    private let screenVersionProvider: TangemPayOnboardingScreenVersionProvider
     private weak var coordinator: TangemPayOnboardingRoutable?
 
     init(
         source: TangemPayOnboardingSource,
         availableSelection: TangemPayWalletSelectionType,
         availabilityService: TangemPayAvailabilityService = TangemPayAvailabilityServiceBuilder().build(),
+        screenVersionProvider: TangemPayOnboardingScreenVersionProvider = CommonTangemPayOnboardingScreenVersionProvider(),
         coordinator: TangemPayOnboardingRoutable?,
         closeOfferScreen: @escaping @MainActor () -> Void
     ) {
         self.source = source
         self.availableSelection = availableSelection
         self.availabilityService = availabilityService
+        self.screenVersionProvider = screenVersionProvider
         self.coordinator = coordinator
         self.closeOfferScreen = closeOfferScreen
     }
@@ -61,7 +64,12 @@ final class TangemPayOnboardingViewModel: ObservableObject {
                     makeOffer()
                 } catch TangemPayOnboardingError.invalidDeeplink {
                     try? await minimumLoaderShowingTimeTask.value
-                    showRegionUnavailable()
+
+                    if FeatureProvider.isAvailable(.tangemPayChooseCountry) {
+                        closeOfferScreen()
+                    } else {
+                        showRegionUnavailable()
+                    }
                 } catch {
                     try? await minimumLoaderShowingTimeTask.value
                     closeOfferScreen()
@@ -72,15 +80,17 @@ final class TangemPayOnboardingViewModel: ObservableObject {
 
     @MainActor
     func onOfferAppear() {
-        let event: Analytics.Event = showNewOnboarding
-            ? .visaOnboardingVisaNewOnboardingPageOpened
-            : .visaOnboardingVisaActivationScreenOpened
-        Analytics.log(event, analyticsSystems: .all)
+        switch screenVersion {
+        case .v2:
+            analytics.logNewOnboardingScreenOpened()
+        case .v1:
+            analytics.logOfferScreenOpened()
+        }
     }
 
     @MainActor
     private func makeOffer() {
-        showNewOnboarding = experimentService.variant(.tangemPayOnboardingVariant)?.value == OnboardingVariant.on.rawValue
+        screenVersion = screenVersionProvider.screenVersion()
         tangemPayOfferViewModel = TangemPayOfferViewModel(
             walletSelectionType: availableSelection,
             closeOfferScreen: closeOfferScreen,
@@ -105,11 +115,6 @@ final class TangemPayOnboardingViewModel: ObservableObject {
 }
 
 private extension TangemPayOnboardingViewModel {
-    enum OnboardingVariant: String {
-        case on = "newonboard_on"
-        case off = "newonboard_off"
-    }
-
     enum TangemPayOnboardingError: Error {
         case invalidDeeplink
         case offerIsNotAvailable

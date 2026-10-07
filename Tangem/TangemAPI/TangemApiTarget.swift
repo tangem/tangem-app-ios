@@ -24,6 +24,8 @@ struct TangemApiTarget: TargetType {
             AppEnvironment.current.activatePromoCodeBaseUrl
         case .promotion, .yieldBoostPromotionStatus, .promotionRegistration:
             AppEnvironment.current.apiBaseUrlv2
+        case .promoCampaigns:
+            AppEnvironment.current.referralApiBaseUrl
         case .stories:
             // The backend example requests `/api/v2/stories` — same gateway `/api` segment
             // as notification preferences; revert to `apiBaseUrlv2` if BE drops it.
@@ -102,6 +104,8 @@ struct TangemApiTarget: TargetType {
             return "/promotion/yield-apr-boost/status"
         case .promotionRegistration:
             return "/promotion/registrations"
+        case .promoCampaigns:
+            return "/promotion"
         case .loadPromotions:
             return "/banner/displays"
         case .hidePromotion(let request):
@@ -248,6 +252,7 @@ struct TangemApiTarget: TargetType {
              .getUserWalletTokens,
              .loadReferralProgramInfo,
              .promotion,
+             .promoCampaigns,
              .yieldBoostPromotionStatus,
              .loadPromotions,
              .marketingCampaigns,
@@ -336,6 +341,8 @@ struct TangemApiTarget: TargetType {
         case .participateInReferralProgram(let requestData):
             return .requestParameters(requestData)
         case .promotion(let request):
+            return .requestParameters(request)
+        case .promoCampaigns(let request):
             return .requestParameters(request)
         case .yieldBoostPromotionStatus(let request):
             return .requestParameters(request)
@@ -524,6 +531,7 @@ struct TangemApiTarget: TargetType {
              .participateInReferralProgram,
              .createAccount,
              .promotion,
+             .promoCampaigns,
              .yieldBoostPromotionStatus,
              .promotionRegistration,
              .loadPromotions,
@@ -580,6 +588,15 @@ struct TangemApiTarget: TargetType {
             return nil
         }
     }
+
+    var validationType: ValidationType {
+        switch type {
+        case .promoCampaigns:
+            return .successCodes
+        default:
+            return .none
+        }
+    }
 }
 
 extension TangemApiTarget {
@@ -600,6 +617,7 @@ extension TangemApiTarget {
         case activatePromoCode(requestModel: PromoCodeActivationDTO.Request)
 
         case promotion(request: BannerPromotion.Request)
+        case promoCampaigns(request: PromoCampaignsDTO.Request)
         case yieldBoostPromotionStatus(request: YieldBoostPromotionDTO.Request)
         case promotionRegistration(request: PromotionRegistrationDTO.Request)
 
@@ -779,6 +797,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .participateInReferralProgram,
              .createAccount,
              .promotion,
+             .promoCampaigns,
              .promotionRegistration,
              .loadPromotions,
              .hidePromotion,

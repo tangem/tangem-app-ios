@@ -43,8 +43,7 @@ extension ExpressCEXTransactionDispatcher: TransactionDispatcher {
         }
 
         let transaction = try await buildTransaction(data: data, fee: fee)
-        let result = try await transferTransactionDispatcher.send(transaction: .transfer(transaction))
-        return result
+        return try await transferTransactionDispatcher.send(transaction: .transfer(transaction))
     }
 }
 

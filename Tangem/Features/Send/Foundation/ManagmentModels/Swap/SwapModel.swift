@@ -35,6 +35,7 @@ final class SwapModel {
     private let _receiveAmount: CurrentValueSubject<SendAmount?, Never>
 
     private let _providersState = CurrentValueSubject<ProvidersState, Never>(.idle)
+    private let _slippage = CurrentValueSubject<SwapSlippage, Never>(.auto)
 
     private let _transactionTime = PassthroughSubject<Date?, Never>()
     private let _transactionURL = PassthroughSubject<URL?, Never>()
@@ -242,6 +243,10 @@ extension SwapModel {
 
     func update(source wallet: SendSwapableToken) {
         ExpressLogger.info("Will update source to \(wallet.tokenItem)")
+
+        if wallet.tokenItem != _sourceToken.value.value?.tokenItem {
+            _slippage.send(.auto)
+        }
         _sourceToken.send(.success(wallet))
         resolveDestinationTokenIfNeeded(for: wallet)
         swappingPairDidChange()
@@ -249,6 +254,16 @@ extension SwapModel {
 
     func update(receive wallet: SendReceiveToken) {
         ExpressLogger.info("Will update receive to \(wallet.tokenItem)")
+
+        if let previousTokenItem = _receiveToken.value.value?.tokenItem,
+           previousTokenItem.currencyId != wallet.tokenItem.currencyId,
+           let receiveAmount = _receiveAmount.value {
+            _receiveAmount.send(equivalent(of: receiveAmount, from: previousTokenItem, to: wallet.tokenItem))
+        }
+
+        if wallet.tokenItem != _receiveToken.value.value?.tokenItem {
+            _slippage.send(.auto)
+        }
         _receiveToken.send(.success(wallet))
         swappingPairDidChange()
     }
@@ -293,17 +308,37 @@ private extension SwapModel {
         }
     }
 
+    func ensureSlippageSynchronized() async {
+        let slippage = _slippage.value.expressSlippage
+
+        guard let source = _sourceToken.value.value,
+              let destination = _receiveToken.value.value,
+              await isExpressPairCurrent(source: source, destination: destination),
+              await expressManager.getSlippage() != slippage else {
+            return
+        }
+
+        _ = await expressManager.update(slippage: slippage)
+    }
+
+    func isExpressPairCurrent(source: SendSwapableToken, destination: SendReceiveToken) async -> Bool {
+        guard let currentPair = await expressManager.getCurrentPair() else {
+            return false
+        }
+
+        return currentPair.source.currency == source.currency
+            && currentPair.source.address == source.address
+            && currentPair.destination.currency == destination.currency
+            && currentPair.destination.address == destination.address
+    }
+
     func ensurePairSynchronized() async throws {
         guard let source = _sourceToken.value.value,
               let destination = _receiveToken.value.value else {
             return
         }
 
-        if let currentPair = await expressManager.getCurrentPair(),
-           currentPair.source.currency == source.currency,
-           currentPair.source.address == source.address,
-           currentPair.destination.currency == destination.currency,
-           currentPair.destination.address == destination.address {
+        if await isExpressPairCurrent(source: source, destination: destination) {
             return
         }
 
@@ -325,6 +360,7 @@ private extension SwapModel {
     func updateTask(
         loadingType: @escaping (ExpressManager) async -> LoadingType?,
         immediateLoadingType: LoadingType? = nil,
+        syncsSlippage: Bool = true,
         block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerState
     ) {
         // Invalidated before the loading transition and the first `await`: resolving the loading type reaches
@@ -338,6 +374,10 @@ private extension SwapModel {
 
         let task = runTask(in: self) { @MainActor input in
             do {
+                if syncsSlippage {
+                    await input.ensureSlippageSynchronized()
+                }
+
                 if let trustlineProvidersState = try await input.destinationTrustlineRestrictedProvidersState() {
                     await input.clearComplementaryAmount()
                     return input.update(providersState: trustlineProvidersState, builtFrom: revision)
@@ -351,6 +391,10 @@ private extension SwapModel {
 
                 let state = try await block(input.expressManager)
                 try Task.checkCancellation()
+
+                let appliedSlippage = await SwapSlippage(expressSlippage: input.expressManager.getSlippage())
+                try Task.checkCancellation()
+                input._slippage.send(appliedSlippage)
 
                 guard let state = input.balanceRestrictionHandler.dexOnlyAdjustedState(state) else {
                     return await input.fallbackToLegacyBalanceRestriction(revision: revision)
@@ -959,6 +1003,32 @@ extension SwapModel {
         return estimate.rounded(scale: target.decimalCount, roundingMode: .down)
     }
 
+    private func equivalent(of amount: SendAmount, from source: TokenItem, to target: TokenItem) -> SendAmount? {
+        switch amount.type {
+        case .typical(.some(let crypto), _):
+            guard let sourceCurrencyId = source.currencyId,
+                  let estimate = localQuoteEstimate(crypto: crypto, fromCurrencyId: sourceCurrencyId, to: target),
+                  estimate > 0 else {
+                return nil
+            }
+
+            return makeSendAmount(crypto: estimate, currencyId: target.currencyId)
+
+        case .alternative(.some(let fiat), _):
+            guard let targetCurrencyId = target.currencyId,
+                  let crypto = balanceConverter.convertToCryptoFrom(fiatValue: fiat, currencyId: targetCurrencyId)?
+                  .rounded(scale: target.decimalCount, roundingMode: .down),
+                  crypto > 0 else {
+                return nil
+            }
+
+            return SendAmount(type: .alternative(fiat: fiat, crypto: crypto))
+
+        case .typical, .alternative:
+            return nil
+        }
+    }
+
     func makeSendAmount(crypto: Decimal, currencyId: String?) -> SendAmount {
         let fiat = currencyId.flatMap { balanceConverter.convertToFiat(crypto, currencyId: $0) }
         return SendAmount(type: .typical(crypto: crypto, fiat: fiat))
@@ -1003,6 +1073,39 @@ extension SwapModel {
         default:
             return
         }
+    }
+
+    func cexDepositFee(
+        provider: ExpressAvailableProvider,
+        data: ExpressTransactionData,
+        preview: PreviewCEXState,
+        source: SendSwapableToken
+    ) async throws -> BSDKFee {
+        let manager = try provider.getTokenFeeProvidersManager()
+        let shownFee = try manager.selectedTokenFee.value.get()
+        guard shownFee.parameters is TronGaslessFeeParameters else {
+            return shownFee
+        }
+
+        let quotedFee = try await manager.transactionFee(data: .cex(data: data))
+        let sameFeeCurrency = quotedFee.amount.type == shownFee.amount.type
+            && quotedFee.amount.currencySymbol == shownFee.amount.currencySymbol
+        guard sameFeeCurrency, quotedFee.amount.value <= shownFee.amount.value else {
+            try await rejectIncreasedCEXFee(quotedFee, preview: preview, source: source)
+            throw TransactionDispatcherResult.Error.informationRelevanceServiceFeeWasIncreased
+        }
+
+        return quotedFee
+    }
+
+    private func rejectIncreasedCEXFee(_ fee: BSDKFee, preview: PreviewCEXState, source: SendSwapableToken) async throws {
+        let amount = makeAmount(value: preview.quote.fromAmount, tokenItem: source.tokenItem)
+        guard let restriction = try await validate(amount: amount, fee: fee, quote: preview.quote),
+              case .loaded(let expressState, .previewCEX) = _providersState.value else {
+            return
+        }
+
+        _providersState.send(.loaded(expressState, state: .restriction(restriction, quote: preview.quote)))
     }
 
     func send() async throws -> TransactionDispatcherResult {
@@ -1050,8 +1153,9 @@ extension SwapModel {
                 analyticsLogger.logSwapButtonSwap()
 
                 let data = try await expressManager.requestData()
+                let fee = try await cexDepositFee(provider: selected, data: data, preview: previewCEX, source: source)
                 let dispatcher = source.transactionDispatcherProvider.makeCEXTransactionDispatcher()
-                let result = try await dispatcher.send(transaction: .cex(data: data, fee: previewCEX.fee))
+                let result = try await dispatcher.send(transaction: .cex(data: data, fee: fee))
                 analyticsLogger.logSwapTransactionSent(result: result)
 
                 await notifyExpressAboutTransactionDidSent(source: source, data: data, result: result)
@@ -1059,7 +1163,7 @@ extension SwapModel {
                     source: source,
                     receive: receive,
                     provider: selected.provider,
-                    fee: previewCEX.fee,
+                    fee: fee,
                     data: data,
                     result: result
                 )
@@ -1585,6 +1689,31 @@ extension SwapModel: SendSwapProvidersOutput {
     }
 }
 
+// MARK: - SwapSlippageInput, SwapSlippageOutput
+
+extension SwapModel: SwapSlippageInput, SwapSlippageOutput {
+    var slippage: SwapSlippage {
+        _slippage.value
+    }
+
+    var slippagePublisher: AnyPublisher<SwapSlippage, Never> {
+        _slippage.eraseToAnyPublisher()
+    }
+
+    func userDidSet(slippage: SwapSlippage) {
+        guard slippage != _slippage.value else {
+            return
+        }
+
+        _slippage.send(slippage)
+
+        updateTask(loadingType: { _ in nil }, immediateLoadingType: .rates, syncsSlippage: false) { [weak self] expressManager in
+            try Task.checkCancellation()
+            return await expressManager.update(slippage: self?._slippage.value.expressSlippage)
+        }
+    }
+}
+
 // MARK: - SwapApproveInput
 
 extension SwapModel: SwapApproveInput {
@@ -1656,9 +1785,13 @@ extension SwapModel: SendFeeInput {
         Publishers.CombineLatest(
             _providersState.filter { $0.filter(loading: [.fee]) },
             tokenFeeProvidersManagerPublisher
+                .flatMapLatest { manager in
+                    manager.selectedFeeProviderPublisher
+                        .flatMapLatest { $0.selectedTokenFeePublisher }
+                }
         )
         .withWeakCaptureOf(self)
-        .compactMap { $0.mapToSelectedFee(providersState: $1.0, tokenFeeProvidersManager: $1.1) }
+        .compactMap { $0.mapToSelectedFee(providersState: $1.0, fee: $1.1) }
         .eraseToAnyPublisher()
     }
 
@@ -1680,20 +1813,13 @@ extension SwapModel: SendFeeInput {
             .eraseToAnyPublisher()
     }
 
-    private func mapToSelectedFee(providersState: ProvidersState, tokenFeeProvidersManager: TokenFeeProvidersManager) -> TokenFee? {
+    private func mapToSelectedFee(providersState: ProvidersState, fee: TokenFee) -> TokenFee? {
         switch providersState {
         case .loading(.fee):
-            return TokenFee(
-                option: tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee.option,
-                tokenItem: tokenFeeProvidersManager.selectedFeeProvider.feeTokenItem,
-                value: .loading
-            )
+            return TokenFee(option: fee.option, tokenItem: fee.tokenItem, value: .loading)
 
-        case .loaded(.swap(.some(let selected), _), _):
-            return try? selected.getTokenFeeProvidersManager().selectedFeeProvider.selectedTokenFee
-
-        case .loaded(.transfer, _):
-            return tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee
+        case .loaded(.swap(.some, _), _), .loaded(.transfer, _):
+            return fee
 
         default:
             return nil

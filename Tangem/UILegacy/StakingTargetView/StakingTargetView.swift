@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct StakingTargetView: View {
     private let data: StakingTargetViewData
@@ -29,12 +30,15 @@ struct StakingTargetView: View {
             SwiftUI.Button(action: { selection?.isActive(compare: data.address).toggle() }) {
                 content
             }
+            .accessibilityIdentifier(StakingAccessibilityIdentifiers.stakingTargetsButton(name: data.name))
         case .balance(_, .some(let action)):
             SwiftUI.Button(action: action) {
                 content
             }
+            .accessibilityIdentifier(StakingAccessibilityIdentifiers.stakingTargetsButton(name: data.name))
         case .none, .balance:
             content
+                .accessibilityIdentifier(StakingAccessibilityIdentifiers.stakingTargetsButton(name: data.name))
         }
     }
 

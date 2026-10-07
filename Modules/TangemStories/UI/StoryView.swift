@@ -31,7 +31,7 @@ public struct StoryView: View {
                             .gesture(longTapGesture)
                             .highPriorityGesture(shortTapGesture(proxy))
                     }
-                    .accessibilityIdentifier(StoriesAccessibilityIdentifiers.storyContainer)
+                    .accessibilityIdentifier(StoriesAccessibilityIdentifiers.storyContainer(page: viewModel.visiblePageIndex))
 
                 overlayElements
             }

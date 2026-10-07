@@ -62,6 +62,26 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     }
 
     @discardableResult
+    func tapValidatorBlock() -> StakingTargetsScreen {
+        XCTContext.runActivity(named: "Tap validator block to open the validator list") { _ in
+            waitAndAssertTrue(validatorBlock, "Validator block should exist")
+            validatorBlock.waitAndTap()
+        }
+        return StakingTargetsScreen(app)
+    }
+
+    @discardableResult
+    func assertValidatorName(_ expected: String) -> Self {
+        XCTContext.runActivity(named: "Assert validator block shows '\(expected)'") { _ in
+            XCTAssertTrue(
+                waitForValidatorLabel(containing: expected, timeout: .robustUIUpdate),
+                "Validator block should show '\(expected)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
     func tapSendButton() -> SendFinishScreen {
         XCTContext.runActivity(named: "Tap Send button on Summary screen") { _ in
             if finishButton.exists {
@@ -88,6 +108,22 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
                 XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
                 .completed,
                 "Crypto amount should contain '\(expectedAmount)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertFiatAmountDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert a fiat amount is displayed on the summary") { _ in
+            waitAndAssertTrue(amountBlock, "Amount block should exist")
+
+            let predicate = NSPredicate(format: "label CONTAINS %@", "$")
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: amountBlock)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Amount block should display a fiat value but was '\(amountBlock.label)'"
             )
         }
         return self
@@ -287,6 +323,15 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
             )
         }
         return self
+    }
+
+    private func waitForValidatorLabel(containing text: String, timeout: TimeInterval) -> Bool {
+        let predicate = NSPredicate { _, _ in
+            let button = self.app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Validator")).firstMatch
+            return button.exists && button.label.contains(text)
+        }
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
     }
 }
 

@@ -22,11 +22,10 @@ final class ApproveViewModel: ObservableObject {
     let subtitle: String
 
     @Published var menuRowViewModel: DefaultMenuRowViewModel<BSDKApprovePolicy>?
-    @Published var selectedAction: BSDKApprovePolicy
+    @Published var selectedPolicy: BSDKApprovePolicy
     @Published var feeCompactViewModel: FeeCompactViewModel?
 
-    @Published var isLoading = false
-    @Published var mainButtonIsDisabled = false
+    @Published private(set) var state: State = .idle
     @Published var errorAlert: AlertBinder?
 
     let tangemIconProvider: TangemIconProvider
@@ -39,6 +38,9 @@ final class ApproveViewModel: ObservableObject {
     private let interactor: ApproveInteractor
     private weak var coordinator: ApproveCoordinating?
 
+    private let isUpdatingPolicySubject = CurrentValueSubject<Bool, Never>(false)
+    private let isSendingSubject = CurrentValueSubject<Bool, Never>(false)
+    private var policyUpdateTask: Task<Void, Never>?
     private var bag: Set<AnyCancellable> = []
 
     init(input: Input) {
@@ -47,7 +49,7 @@ final class ApproveViewModel: ObservableObject {
 
         tokenItem = input.settings.tokenItem
 
-        selectedAction = input.settings.selectedPolicy
+        selectedPolicy = input.interactor.approveInteractorState.policy
         title = input.settings.title
         subtitle = input.settings.subtitle
         feeFooterText = input.settings.feeFooterText
@@ -77,6 +79,10 @@ final class ApproveViewModel: ObservableObject {
     }
 
     func didTapApprove() {
+        guard !state.isMainButtonDisabled else {
+            return
+        }
+
         sendApproveTransaction()
     }
 
@@ -133,60 +139,121 @@ private extension ApproveViewModel {
             supportFeeSelectionPublisher: Empty(completeImmediately: true).eraseToAnyPublisher()
         )
 
+        Publishers.CombineLatest3(approveFeePublisher, isUpdatingPolicySubject, isSendingSubject)
+            .map { tokenFee, isUpdatingPolicy, isSending in
+                State(tokenFee: tokenFee, isUpdatingPolicy: isUpdatingPolicy, isSending: isSending)
+            }
+            .assign(to: &$state)
+
         approveFeePublisher
+            .compactMap(\.value.error)
             .withWeakCaptureOf(self)
-            .sink { viewModel, tokenFee in
-                viewModel.updateView(tokenFee: tokenFee)
+            .sink { viewModel, error in
+                viewModel.errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
             }
             .store(in: &bag)
 
-        $selectedAction
+        $selectedPolicy
             .dropFirst()
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { viewModel, policy in
-                viewModel.interactor.updateApprovePolicy(policy: policy)
+                viewModel.updateApprovePolicy(policy)
             }
             .store(in: &bag)
     }
 
-    func updateView(tokenFee: TokenFee) {
-        switch tokenFee.value {
-        case .success:
-            isLoading = false
-            mainButtonIsDisabled = false
-        case .loading:
-            isLoading = true
-            mainButtonIsDisabled = false
-        case .failure(let error):
-            errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
-            isLoading = false
-            mainButtonIsDisabled = true
+    func updateApprovePolicy(_ policy: BSDKApprovePolicy) {
+        policyUpdateTask?.cancel()
+
+        guard policy != interactor.approveInteractorState.policy else {
+            isUpdatingPolicySubject.send(false)
+            return
+        }
+
+        isUpdatingPolicySubject.send(true)
+        policyUpdateTask = runTask(in: self) { @MainActor viewModel in
+            do {
+                try await viewModel.interactor.updateApprovePolicy(policy: policy)
+                try Task.checkCancellation()
+                viewModel.isUpdatingPolicySubject.send(false)
+            } catch {
+                guard !Task.isCancelled else {
+                    return
+                }
+
+                ExpressLogger.error(error: error)
+                viewModel.isUpdatingPolicySubject.send(false)
+                viewModel.selectedPolicy = viewModel.interactor.approveInteractorState.policy
+                viewModel.errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+            }
         }
     }
 
     func sendApproveTransaction() {
-        mainButtonIsDisabled = true
-        isLoading = true
+        isSendingSubject.send(true)
 
-        runTask(in: self) { viewModel in
+        runTask(in: self) { @MainActor viewModel in
             do {
                 try await viewModel.interactor.sendApproveTransaction()
                 try await Task.sleep(for: .seconds(0.3))
-                await viewModel.didSendApproveTransaction()
+                viewModel.didSendApproveTransaction()
             } catch TransactionDispatcherResult.Error.userCancelled {
-                await runOnMain {
-                    viewModel.mainButtonIsDisabled = false
-                    viewModel.isLoading = false
-                }
+                viewModel.isSendingSubject.send(false)
             } catch {
                 ExpressLogger.error(error: error)
-                await runOnMain {
-                    viewModel.mainButtonIsDisabled = false
-                    viewModel.isLoading = false
-                    viewModel.errorAlert = .init(title: Localization.commonError, message: error.localizedDescription)
-                }
+                viewModel.isSendingSubject.send(false)
+                viewModel.errorAlert = .init(title: Localization.commonError, message: error.localizedDescription)
             }
+        }
+    }
+}
+
+// MARK: - State
+
+extension ApproveViewModel {
+    enum State: Equatable {
+        case idle
+        case loadingFee
+        case feeUnavailable
+        case updatingPolicy
+        case sending
+
+        init(tokenFee: TokenFee, isUpdatingPolicy: Bool, isSending: Bool) {
+            switch (isSending, isUpdatingPolicy, tokenFee.value) {
+            case (true, _, _):
+                self = .sending
+            case (_, true, _):
+                self = .updatingPolicy
+            case (_, _, .success):
+                self = .idle
+            case (_, _, .loading):
+                self = .loadingFee
+            case (_, _, .failure):
+                self = .feeUnavailable
+            }
+        }
+
+        var isLoading: Bool {
+            switch self {
+            case .loadingFee, .updatingPolicy, .sending:
+                return true
+            case .idle, .feeUnavailable:
+                return false
+            }
+        }
+
+        var isMainButtonDisabled: Bool {
+            switch self {
+            case .feeUnavailable, .updatingPolicy, .sending:
+                return true
+            case .idle, .loadingFee:
+                return false
+            }
+        }
+
+        var isContentLocked: Bool {
+            self == .sending
         }
     }
 }
@@ -204,7 +271,6 @@ extension ApproveViewModel {
         let subtitle: String
         let feeFooterText: String
         let tokenItem: TokenItem
-        let selectedPolicy: BSDKApprovePolicy
         let tangemIconProvider: TangemIconProvider
     }
 }

@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import TangemFoundation
 
@@ -17,27 +18,40 @@ final class JointAccountCreationHelper {
     }
 
     var tangemIconProvider: TangemIconProvider {
-        CommonTangemIconProvider(config: userWalletConfig)
+        CommonTangemIconProvider(config: userWalletModel.config)
+    }
+
+    /// The wallet the account is created in. Stays changeable while the flow runs — the form step lets the user
+    /// pick another one.
+    var userWalletModel: any UserWalletModel {
+        userWalletModelSubject.value
+    }
+
+    var userWalletModelPublisher: AnyPublisher<any UserWalletModel, Never> {
+        userWalletModelSubject.eraseToAnyPublisher()
     }
 
     var membersCount: Int? {
         state.withLock { $0.membersData?.membersCount }
     }
 
+    var signersCount: Int? {
+        state.withLock { $0.membersData?.signersCount }
+    }
+
     var creatorName: String? {
         state.withLock { $0.creatorName }
     }
 
-    private let userWalletConfig: UserWalletConfig
-    private let accountModelsManager: AccountModelsManager
+    private let userWalletModelSubject: CurrentValueSubject<any UserWalletModel, Never>
     private let state = OSAllocatedUnfairLock(initialState: State())
 
-    init(
-        userWalletConfig: UserWalletConfig,
-        accountModelsManager: AccountModelsManager
-    ) {
-        self.userWalletConfig = userWalletConfig
-        self.accountModelsManager = accountModelsManager
+    init(userWalletModel: any UserWalletModel) {
+        userWalletModelSubject = CurrentValueSubject(userWalletModel)
+    }
+
+    func update(userWalletModel: any UserWalletModel) {
+        userWalletModelSubject.send(userWalletModel)
     }
 
     func update(name: String, icon: AccountModel.CompositeIcon) {
@@ -63,6 +77,7 @@ final class JointAccountCreationHelper {
             throw .unknownError(Error.incompleteCreationContext)
         }
 
+        let accountModelsManager = userWalletModel.accountModelsManager
         let creationResult = try await accountModelsManager.addJointAccount(context: .creation(context))
 
         let jointAccountModel = await AccountModelsManagerAccountCreationHelper(accountModelsManager: accountModelsManager)

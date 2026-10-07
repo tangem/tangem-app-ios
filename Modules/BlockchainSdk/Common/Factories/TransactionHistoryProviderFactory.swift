@@ -27,7 +27,7 @@ public struct TransactionHistoryProviderFactory {
     }
 
     // [REDACTED_TODO_COMMENT]
-    public func makeProvider(for blockchain: Blockchain, isToken: Bool) -> TransactionHistoryProvider? {
+    public func makeProvider(for blockchain: Blockchain, isToken: Bool, isSafe: Bool = false) -> TransactionHistoryProvider? {
         // Transaction history is only supported on the mainnet
         guard !blockchain.isTestnet else {
             return nil
@@ -72,7 +72,7 @@ public struct TransactionHistoryProviderFactory {
              .arbitrum:
             return EthereumTransactionHistoryProvider(
                 blockBookProvider: networkAssembly.makeBlockBookUTXOProvider(with: input, for: .nowNodes),
-                mapper: EthereumTransactionHistoryMapper(blockchain: blockchain)
+                mapper: EthereumTransactionHistoryMapper(blockchain: blockchain, isSafe: isSafe)
             )
         case .tron:
             return TronTransactionHistoryProvider(
@@ -100,7 +100,7 @@ public struct TransactionHistoryProviderFactory {
             }
 
             return EtherscanTransactionHistoryProvider(
-                mapper: EtherscanTransactionHistoryMapper(blockchain: blockchain),
+                mapper: EtherscanTransactionHistoryMapper(blockchain: blockchain, isSafe: isSafe),
                 networkConfiguration: input.tangemProviderConfig,
                 targetConfiguration: .etherscan(
                     chainId: chainId,
@@ -131,6 +131,12 @@ public struct TransactionHistoryProviderFactory {
                 mapper: EtherscanTransactionHistoryMapper(blockchain: blockchain),
                 networkConfiguration: input.tangemProviderConfig,
                 targetConfiguration: .electroneum
+            )
+        case .onyx:
+            return EtherscanTransactionHistoryProvider(
+                mapper: EtherscanTransactionHistoryMapper(blockchain: blockchain),
+                networkConfiguration: input.tangemProviderConfig,
+                targetConfiguration: .onyx
             )
         case .algorand(_, let isTestnet):
             let node: NodeInfo

@@ -9,7 +9,7 @@
 import Foundation
 import TangemAssets
 
-public struct StoryActionV2: Equatable {
+public struct StoryActionV2: Equatable, Sendable {
     public let id: String
     public let label: String
     public let style: ActionStyle
@@ -26,12 +26,12 @@ public struct StoryActionV2: Equatable {
     }
 }
 
-public enum ActionStyle: String, Equatable {
+public enum ActionStyle: String, Equatable, Sendable {
     case primary
     case secondary
 }
 
-public enum ActionTarget: Equatable {
+public enum ActionTarget: Equatable, Sendable {
     case screen(String)
     case web(String)
     case deeplink(String)

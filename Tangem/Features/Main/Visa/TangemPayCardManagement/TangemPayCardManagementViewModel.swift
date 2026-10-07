@@ -22,10 +22,16 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     @Published var selectedCardId: String?
 
     @Published private(set) var contentState: ContentState = .details(
-        ContentState.Details(freezingState: .unavailable, dailyLimitState: nil, showsAddToApplePayGuide: false)
+        ContentState.Details(
+            freezingState: .unavailable,
+            dailyLimitState: nil,
+            showsAddToApplePayGuide: false,
+            showsAddToAppleWalletButton: false
+        )
     )
     @Published private(set) var cardRenameViewModel: TangemPayCardRenameViewModel?
     @Published private(set) var closeCardRow: DefaultRowViewModel?
+    @Published private(set) var closeCardSubtitle: String?
     @Published private(set) var isLoadingReissueFee: Bool = false
     @Published var alert: AlertBinder?
     @Published var addToApplePayGuideViewModel: TangemPayAddToAppPayGuideViewModel?
@@ -38,6 +44,10 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     private let tangemPayAccount: TangemPayAccount
     @Injected(\.tangemPayAssembly) private var tangemPayAssembly: TangemPayAssembly
     private lazy var biometryAuthorizer: TangemPayBiometryAuthorizer = tangemPayAssembly.makeBiometryAuthorizer()
+    private lazy var appleWalletInteractor = TangemPayAppleWalletProvisioningInteractor(
+        userWalletId: userWalletInfo.id,
+        tokenizationService: tangemPayAssembly.cardTokenizationService
+    )
     private weak var coordinator: TangemPayCardManagementRoutable?
 
     private var bag = Set<AnyCancellable>()
@@ -54,6 +64,9 @@ final class TangemPayCardManagementViewModel: ObservableObject {
 
     private var selectionAnchor: SelectionAnchor?
     private var shouldOpenActivation: Bool
+
+    @Injected(\.tangemPayAppleWalletProvisioningAvailabilityProvider)
+    private var appleWalletAvailabilityProvider: TangemPayAppleWalletProvisioningAvailabilityProvider
 
     init(
         userWalletInfo: UserWalletInfo,
@@ -76,7 +89,8 @@ final class TangemPayCardManagementViewModel: ObservableObject {
             selectedCardId: initialEntry.id,
             renameViewModel: nil,
             lifecycle: initialEntry.card.map(makeLifecycle(for:)),
-            showsAddToApplePayGuide: false
+            showsAddToApplePayGuide: false,
+            showsAddToAppleWalletButton: false
         )
 
         bindMultiCard()
@@ -84,6 +98,7 @@ final class TangemPayCardManagementViewModel: ObservableObject {
 
     func onAppear() {
         Analytics.log(.visaCardManagementScreenOpened, contextParams: .userWallet(userWalletInfo.id))
+        appleWalletInteractor.refresh()
 
         if shouldOpenActivation {
             shouldOpenActivation = false
@@ -117,6 +132,12 @@ final class TangemPayCardManagementViewModel: ObservableObject {
             ),
             coordinator: self
         )
+    }
+
+    func addToAppleWallet() {
+        let cards = tangemPayAccount.cards
+        guard let cardIndex = cards.firstIndex(where: { $0.cardId == selectedCardId }) else { return }
+        appleWalletInteractor.addToWallet(card: cards[cardIndex], cardIndex: cardIndex)
     }
 
     func dismissAddToApplePayGuideBanner() {
@@ -208,20 +229,29 @@ private extension TangemPayCardManagementViewModel {
             $cardRenameViewModel,
             selectedCardLifecyclePublisher
         )
-        .combineLatest(addToApplePayGuidePublisher)
+        .combineLatest(addToApplePayGuidePublisher, addToAppleWalletButtonPublisher)
         .withWeakCaptureOf(self)
         .map { viewModel, input in
-            let ((entries, selectedCardId, renameViewModel, lifecycle), showsAddToApplePayGuide) = input
+            let ((entries, selectedCardId, renameViewModel, lifecycle), showsAddToApplePayGuide, showsAddToAppleWalletButton) = input
             return viewModel.makeContentState(
                 entries: entries,
                 selectedCardId: selectedCardId,
                 renameViewModel: renameViewModel,
                 lifecycle: lifecycle,
-                showsAddToApplePayGuide: showsAddToApplePayGuide
+                showsAddToApplePayGuide: showsAddToApplePayGuide,
+                showsAddToAppleWalletButton: showsAddToAppleWalletButton
             )
         }
         .receiveOnMain()
         .assign(to: &$contentState)
+
+        appleWalletInteractor.alertPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, alert in
+                viewModel.alert = alert
+            }
+            .store(in: &bag)
 
         selectedCardFreezingPublisher
             .receiveOnMain()
@@ -298,15 +328,39 @@ private extension TangemPayCardManagementViewModel {
     }
 
     var addToApplePayGuidePublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest(
+        let isAppleWalletProvisioningAvailable = appleWalletAvailabilityProvider.isAvailable
+
+        return Publishers.CombineLatest(
             AppSettings.shared.$tangemPayShowAddToApplePayGuide,
             tangemPayAccount.statePublisher
         )
         .map { showGuide, customerState in
-            PKPaymentAuthorizationViewController.canMakePayments()
+            !isAppleWalletProvisioningAvailable
+                && PKPaymentAuthorizationViewController.canMakePayments()
                 && customerState == .active
                 && showGuide
         }
+        .eraseToAnyPublisher()
+    }
+
+    var addToAppleWalletButtonPublisher: AnyPublisher<Bool, Never> {
+        guard appleWalletAvailabilityProvider.isAvailable else {
+            return Just(false).eraseToAnyPublisher()
+        }
+
+        return Publishers.CombineLatest4(
+            $selectedCardId,
+            tangemPayAccount.statePublisher,
+            tangemPayAccount.cardsPublisher,
+            appleWalletInteractor.refreshPublisher
+        )
+        .withWeakCaptureOf(self)
+        .asyncMap { viewModel, input -> Bool in
+            let (selectedCardId, customerState, cards, _) = input
+            guard let cardIndex = cards.firstIndex(where: { $0.cardId == selectedCardId }) else { return false }
+            return await viewModel.appleWalletInteractor.isEligible(cards[cardIndex], cardIndex: cardIndex, customerState: customerState)
+        }
+        .prepend(false)
         .eraseToAnyPublisher()
     }
 
@@ -338,7 +392,8 @@ private extension TangemPayCardManagementViewModel {
         selectedCardId: String?,
         renameViewModel: TangemPayCardRenameViewModel?,
         lifecycle: CardLifecycle?,
-        showsAddToApplePayGuide: Bool
+        showsAddToApplePayGuide: Bool,
+        showsAddToAppleWalletButton: Bool
     ) -> ContentState {
         if let renameViewModel {
             return .renaming(renameViewModel)
@@ -366,7 +421,8 @@ private extension TangemPayCardManagementViewModel {
             ContentState.Details(
                 freezingState: lifecycle?.freezingState ?? .unavailable,
                 dailyLimitState: lifecycle?.dailyLimitState,
-                showsAddToApplePayGuide: showsAddToApplePayGuide
+                showsAddToApplePayGuide: showsAddToApplePayGuide,
+                showsAddToAppleWalletButton: showsAddToAppleWalletButton
             )
         )
     }
@@ -490,6 +546,7 @@ private extension TangemPayCardManagementViewModel {
             self?.showCloseCardPopup()
         }
         closeCardRow = row(title: Localization.tangemPayCloseCardPopupPrimaryButtonTitle, isBusy: isBusy, action: action)
+        closeCardSubtitle = isOnlyCard ? Localization.tangemPayCloseCardDisabledLastCard : nil
     }
 
     func row(
@@ -671,7 +728,7 @@ private extension TangemPayFreezingState {
     }
 }
 
-// MARK: - Redesigned card management actions
+// MARK: - Card management actions
 
 extension TangemPayCardManagementViewModel {
     private var activatablePlasticCard: TangemPayCard? {
@@ -683,7 +740,7 @@ extension TangemPayCardManagementViewModel {
     }
 
     func onDetailsButton() {
-        currentRedesignedDetailsViewModel?.toggleVisibility()
+        currentDetailsViewModel?.toggleVisibility()
     }
 
     func onFreezeButton() {
@@ -720,7 +777,7 @@ extension TangemPayCardManagementViewModel {
         coordinator?.openSupport()
     }
 
-    private var currentRedesignedDetailsViewModel: TangemPayCardDetailsViewModel? {
+    private var currentDetailsViewModel: TangemPayCardDetailsViewModel? {
         selectedMultiCardDetailsViewModel
     }
 }

@@ -180,11 +180,13 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     func onAppear() {
         logScreenOpenedAnalytics()
         deeplinkHandler.beginHandlingIncomingActions()
+        startJointFrequentUpdates()
     }
 
     func onDisappear() {
         deeplinkHandler.endHandlingIncomingActions()
         coordinator?.cancelTransactionDetailsPresentation()
+        stopJointFrequentUpdates()
     }
 
     func onFirstAppear() {
@@ -539,6 +541,18 @@ private extension TokenDetailsViewModel {
         .filter { $0.items.isNotEmpty }
     }
 
+    private func bindJointOperationDetails(operationId: String) {
+        jointOperationsInFlightPublisher
+            .compactMap { operations in operations.first { $0.operation.id == operationId } }
+            .timeout(.seconds(Constants.jointOperationAppearanceTimeout), scheduler: DispatchQueue.main)
+            .prefix(1)
+            .receiveOnMain()
+            .sink { [weak self] pendingOperation in
+                self?.coordinator?.openJointAccountOperationDetails(pendingOperation: pendingOperation)
+            }
+            .store(in: &bag)
+    }
+
     private func bind() {
         marketingBannerManager.standaloneBannersPublisher
             .map { $0.nilIfEmpty }
@@ -555,7 +569,9 @@ private extension TokenDetailsViewModel {
             .store(in: &bag)
 
         if let pendingTransactionDetails {
-            if FeatureProvider.isAvailable(.transactionHistoryV2) {
+            if pendingTransactionDetails.type == .jointOperation {
+                bindJointOperationDetails(operationId: pendingTransactionDetails.id)
+            } else if FeatureProvider.isAvailable(.transactionHistoryV2) {
                 walletModel.transactionHistoryPublisher
                     .compactMap { state -> TransactionRecord? in
                         guard case .loaded(let records) = state else { return nil }
@@ -886,6 +902,14 @@ extension TokenDetailsViewModel: TokenDetailsBalanceDataProvider {
 // MARK: - TokenDetailsActionsRoutable
 
 extension TokenDetailsViewModel: TokenDetailsActionsRoutable {}
+
+// MARK: - Constants
+
+private extension TokenDetailsViewModel {
+    enum Constants {
+        static let jointOperationAppearanceTimeout: TimeInterval = 10
+    }
+}
 
 extension TokenDetailsViewModel {
     func makeYieldModuleFlowFactory(manager: YieldModuleManager) -> YieldModuleFlowFactory? {
