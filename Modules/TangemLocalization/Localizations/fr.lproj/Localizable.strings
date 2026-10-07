@@ -322,6 +322,7 @@
 "common_approved" = "Approved";
 "common_approving" = "Approving";
 "common_attention" = "Attention";
+"common_auto" = "Auto";
 "common_available_networks" = "Réseaux disponibles";
 "common_back" = "Retour";
 "common_backup_error" = "Backup Error";
@@ -360,6 +361,7 @@
 "common_custom" = "Personnalisé";
 "common_day" = "jour";
 "common_decline" = "Decline";
+"common_default" = "Default";
 "common_delete" = "Supprimer";
 "common_disable" = "Désactiver";
 "common_disabled" = "Désactivé";
@@ -488,6 +490,7 @@
 "common_share" = "Partager";
 "common_sign" = "Signez";
 "common_skip" = "Passer";
+"common_slippage" = "Slippage";
 "common_something_went_wrong" = "Une erreur s'est produite.";
 "common_stake" = "Stake";
 "common_staked" = "Staked";
@@ -997,6 +1000,7 @@
 "introduction_stories_two_subtitle" = "Utilisez n'importe laquelle de vos cartes pour accéder à votre wallet";
 "introduction_stories_two_title" = "Un wallet, plusieurs cartes";
 "introduction_subtitle" = "Un espace unique et sécurisé pour tout ce que vous possédez";
+"introduction_terms_of_service_consent" = "By continuing, you agree with %@";
 "introduction_terms_of_service" = "Conditions d'utilisation";
 "introduction_title" = "Stockez tous vos actifs";
 "jailbreak_warning_message" = "Les appareils jailbreakés sont considérés comme moins sécurisés. Vos données peuvent être exposées à des risques supplémentaires.";
@@ -2209,7 +2213,10 @@
 "support_selector_view_chat_button" = "Accéder au chat";
 "support_selector_view_email_button" = "Ouvrir un email";
 "swap_approve_description" = "En approuvant, vous autorisez le contrat intelligent à utiliser vos jetons dans de futures transactions.";
+"swap_custom_slippage_info" = "Slippage can't be customized with this provider and may reach up to %@ in rare cases";
 "swap_detailed_mode" = "Mode détaillé";
+"swap_exchange_rates_info_text" = "displayed include the service provider’s fee";
+"swap_exchange_rates_info_title" = "Exchange rates";
 "swap_fixed_rate" = "Taux fixe";
 "swap_give_permission_fee_footer" = "Le réseau facturera des frais d'approbation de jeton pour vérifier que vous autorisez l'utilisation de votre jeton pour l'échange.";
 "swap_in_progress" = "Échange en cours";
@@ -2217,6 +2224,10 @@
 "swap_search_tooltip_description" = "Recherchez n’importe quel token, même s’il ne figure pas encore dans votre liste.";
 "swap_search_tooltip_title" = "Utilisez la recherche pour trouver ce dont vous avez besoin.";
 "swap_simple_mode" = "Mode simplifié";
+"swap_slippage_error" = "Unsupported amount";
+"swap_slippage_info_text" = "is the difference between the expected and actual execution price caused by market price or liquidity changes";
+"swap_slippage_warning_text" = "Swap may fail if the slippage threshold is hit";
+"swap_slippage_warning_title" = "Slippage is set %@";
 "swap_story_fifth_subtitle" = "Ayez confiance en notre assistance 24 heures sur 24 pour vous aider à résoudre tous vos problèmes";
 "swap_story_fifth_title" = "Assistance 24 heures sur 24";
 "swap_story_first_subtitle_v2" = "Échangez des cryptos directement dans Tangem\nSans transferts supplémentaires\nSans envoyer vos fonds vers un échange";
@@ -2883,6 +2894,7 @@
 "transaction_history_approve_high_risk_subtitle" = "You're connected. Funds may be at risk. Consider revoking access.";
 "transaction_history_approve_high_risk_title" = "High Risk";
 "transaction_history_approved_amount" = "Approved amount";
+"transaction_history_claiming_incentive_rewards" = "Claiming incentive rewards";
 "transaction_history_claiming_reward" = "Réclamation de récompense";
 "transaction_history_contract_address" = "contrat : %@";
 "transaction_history_detail_page_amount_signed_value" = "%1@ %2@ %3@";
@@ -2903,6 +2915,7 @@
 "transaction_history_fee_for_yield_mode_top_up" = "For Yield mode top-up";
 "transaction_history_fee_sending_asset" = "Send %%image%% %@";
 "transaction_history_from_inline_address" = "from: %%image%% %@";
+"transaction_history_incentive_rewards_claimed" = "Incentive rewards claimed";
 "transaction_history_multiple_addresses" = "Adresses multiples";
 "transaction_history_not_supported_description" = "L'historique des transactions n'est actuellement pas pris en charge pour cette blockchain. Mais ne vous inquiétez pas, nous y travaillons ! En attendant, vous pouvez le vérifier dans l'explorateur.";
 "transaction_history_operation" = "Opération";
@@ -2914,6 +2927,7 @@
 "transaction_history_status_claiming_rewards" = "Claiming rewards";
 "transaction_history_status_disabling_yield_mode_failed" = "Disabling Yield mode failed";
 "transaction_history_status_enabling_yield_mode_failed" = "Enabling Yield mode failed";
+"transaction_history_status_incentive_rewards_claim_failed" = "Claiming of incentive rewards failed";
 "transaction_history_status_receive_failed" = "Receive failed";
 "transaction_history_status_restaking_rewards" = "Restaking rewards";
 "transaction_history_status_rewards_claim_failed" = "Rewards claim failed";
