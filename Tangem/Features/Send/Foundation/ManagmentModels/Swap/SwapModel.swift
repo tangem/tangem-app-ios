@@ -35,6 +35,7 @@ final class SwapModel {
     private let _receiveAmount: CurrentValueSubject<SendAmount?, Never>
 
     private let _providersState = CurrentValueSubject<ProvidersState, Never>(.idle)
+    private let _slippage = CurrentValueSubject<SwapSlippage, Never>(.auto)
 
     private let _transactionTime = PassthroughSubject<Date?, Never>()
     private let _transactionURL = PassthroughSubject<URL?, Never>()
@@ -242,6 +243,10 @@ extension SwapModel {
 
     func update(source wallet: SendSwapableToken) {
         ExpressLogger.info("Will update source to \(wallet.tokenItem)")
+
+        if wallet.tokenItem != _sourceToken.value.value?.tokenItem {
+            _slippage.send(.auto)
+        }
         _sourceToken.send(.success(wallet))
         resolveDestinationTokenIfNeeded(for: wallet)
         swappingPairDidChange()
@@ -256,6 +261,9 @@ extension SwapModel {
             _receiveAmount.send(equivalent(of: receiveAmount, from: previousTokenItem, to: wallet.tokenItem))
         }
 
+        if wallet.tokenItem != _receiveToken.value.value?.tokenItem {
+            _slippage.send(.auto)
+        }
         _receiveToken.send(.success(wallet))
         swappingPairDidChange()
     }
@@ -300,17 +308,37 @@ private extension SwapModel {
         }
     }
 
+    func ensureSlippageSynchronized() async {
+        let slippage = _slippage.value.expressSlippage
+
+        guard let source = _sourceToken.value.value,
+              let destination = _receiveToken.value.value,
+              await isExpressPairCurrent(source: source, destination: destination),
+              await expressManager.getSlippage() != slippage else {
+            return
+        }
+
+        _ = await expressManager.update(slippage: slippage)
+    }
+
+    func isExpressPairCurrent(source: SendSwapableToken, destination: SendReceiveToken) async -> Bool {
+        guard let currentPair = await expressManager.getCurrentPair() else {
+            return false
+        }
+
+        return currentPair.source.currency == source.currency
+            && currentPair.source.address == source.address
+            && currentPair.destination.currency == destination.currency
+            && currentPair.destination.address == destination.address
+    }
+
     func ensurePairSynchronized() async throws {
         guard let source = _sourceToken.value.value,
               let destination = _receiveToken.value.value else {
             return
         }
 
-        if let currentPair = await expressManager.getCurrentPair(),
-           currentPair.source.currency == source.currency,
-           currentPair.source.address == source.address,
-           currentPair.destination.currency == destination.currency,
-           currentPair.destination.address == destination.address {
+        if await isExpressPairCurrent(source: source, destination: destination) {
             return
         }
 
@@ -332,6 +360,7 @@ private extension SwapModel {
     func updateTask(
         loadingType: @escaping (ExpressManager) async -> LoadingType?,
         immediateLoadingType: LoadingType? = nil,
+        syncsSlippage: Bool = true,
         block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerState
     ) {
         // Invalidated before the loading transition and the first `await`: resolving the loading type reaches
@@ -345,6 +374,10 @@ private extension SwapModel {
 
         let task = runTask(in: self) { @MainActor input in
             do {
+                if syncsSlippage {
+                    await input.ensureSlippageSynchronized()
+                }
+
                 if let trustlineProvidersState = try await input.destinationTrustlineRestrictedProvidersState() {
                     await input.clearComplementaryAmount()
                     return input.update(providersState: trustlineProvidersState, builtFrom: revision)
@@ -358,6 +391,10 @@ private extension SwapModel {
 
                 let state = try await block(input.expressManager)
                 try Task.checkCancellation()
+
+                let appliedSlippage = await SwapSlippage(expressSlippage: input.expressManager.getSlippage())
+                try Task.checkCancellation()
+                input._slippage.send(appliedSlippage)
 
                 guard let state = input.balanceRestrictionHandler.dexOnlyAdjustedState(state) else {
                     return await input.fallbackToLegacyBalanceRestriction(revision: revision)
@@ -1648,6 +1685,31 @@ extension SwapModel: SendSwapProvidersOutput {
     func userDidSelect(provider: ExpressAvailableProvider) {
         updateTask(loadingType: .provider) { expressManager in
             await expressManager.updateSelectedProvider(provider: provider)
+        }
+    }
+}
+
+// MARK: - SwapSlippageInput, SwapSlippageOutput
+
+extension SwapModel: SwapSlippageInput, SwapSlippageOutput {
+    var slippage: SwapSlippage {
+        _slippage.value
+    }
+
+    var slippagePublisher: AnyPublisher<SwapSlippage, Never> {
+        _slippage.eraseToAnyPublisher()
+    }
+
+    func userDidSet(slippage: SwapSlippage) {
+        guard slippage != _slippage.value else {
+            return
+        }
+
+        _slippage.send(slippage)
+
+        updateTask(loadingType: { _ in nil }, immediateLoadingType: .rates, syncsSlippage: false) { [weak self] expressManager in
+            try Task.checkCancellation()
+            return await expressManager.update(slippage: self?._slippage.value.expressSlippage)
         }
     }
 }
