@@ -46,9 +46,9 @@ final class CollectiblesPrizePoolViewModel: ObservableObject {
     }
 
     func retry() {
-        guard case .failed = state else { return }
+        guard case .failed(isRetrying: false) = state else { return }
 
-        state = .loading
+        state = .failed(isRetrying: true)
         fetch(page: Constants.firstPage)
     }
 
@@ -67,8 +67,7 @@ extension CollectiblesPrizePoolViewModel {
     enum State {
         case loading
         case content([CollectiblesPrizeCard.Model])
-        case empty
-        case failed
+        case failed(isRetrying: Bool)
     }
 
     enum PaginationState {
@@ -121,13 +120,14 @@ private extension CollectiblesPrizePoolViewModel {
         }
 
         paginationState = loaded.hasNext ? .ready : .none
-        state = prizes.isEmpty ? .empty : .content(prizes.map(Mapper.map))
+        state = prizes.isEmpty ? .failed(isRetrying: false) : .content(prizes.map(Mapper.map))
     }
 
     func fail() {
-        if case .loading = state {
-            state = .failed
-        } else {
+        switch state {
+        case .loading, .failed:
+            state = .failed(isRetrying: false)
+        case .content:
             paginationState = .failed
         }
     }
