@@ -322,6 +322,7 @@
 "common_approved" = "Approved";
 "common_approving" = "Approving";
 "common_attention" = "Attention";
+"common_auto" = "Auto";
 "common_available_networks" = "Available networks";
 "common_back" = "Back";
 "common_backup_error" = "Backup Error";
@@ -360,6 +361,7 @@
 "common_custom" = "Custom";
 "common_day" = "day";
 "common_decline" = "Decline";
+"common_default" = "Default";
 "common_delete" = "Rimuovere";
 "common_disable" = "Disable";
 "common_disabled" = "Disabled";
@@ -488,6 +490,7 @@
 "common_share" = "Share";
 "common_sign" = "Sign";
 "common_skip" = "Skip";
+"common_slippage" = "Slippage";
 "common_something_went_wrong" = "Something went wrong";
 "common_stake" = "Stake";
 "common_staked" = "Staked";
@@ -997,6 +1000,7 @@
 "introduction_stories_two_subtitle" = "Use any of your cards to access your wallet";
 "introduction_stories_two_title" = "One wallet, multiple cards";
 "introduction_subtitle" = "One secure place for everything you own";
+"introduction_terms_of_service_consent" = "By continuing, you agree with %@";
 "introduction_terms_of_service" = "Terms of service";
 "introduction_title" = "Store all your assets";
 "jailbreak_warning_message" = "Devices with jailbreak are considered less secure. Your data may be exposed to additional risks.";
@@ -1087,7 +1091,7 @@
 "joint_account_send_slot_busy_title" = "Operation already in progress";
 "joint_account_settings_networks_info" = "This account works only in the supported networks.";
 "joint_account_waiting_activation" = "Waiting for activation";
-"joint_operation_auto_sends_footer" = "Auto-sends once %1$@ of %2$@ members sign";
+"joint_operation_auto_sends_footer" = "Auto-sends once %1$@ of %2$@ members sign";
 "joint_operation_banner_subtitle" = "%1$@ → %2$@";
 "joint_operation_banner_title_own" = "You want to send %1$@";
 "joint_operation_banner_title" = "%1$@ wants to send %2$@";
@@ -1097,7 +1101,7 @@
 "joint_operation_decline_alert_message" = "Other members will see your decision. You won't be able to sign it later";
 "joint_operation_decline_alert_title" = "Decline this transaction?";
 "joint_operation_declined_at" = "Declined at %@";
-"joint_operation_declined_footer" = "You declined. Others can still reach %1$@ of %2$@";
+"joint_operation_declined_footer" = "You declined. Others can still reach %1$@ of %2$@";
 "joint_operation_declined" = "Declined";
 "joint_operation_delete_alert_message" = "The transaction will be cancelled for all members. Collected signatures will be discarded";
 "joint_operation_delete_alert_title" = "Delete this transaction?";
@@ -1108,7 +1112,7 @@
 "joint_operation_sent_footer" = "Signed by %1$@ of %2$@ and sent to the network";
 "joint_operation_signatures_progress" = "Signatures %1$@ of %2$@";
 "joint_operation_signed_at" = "Signed at %@";
-"joint_operation_signed_footer" = "Sends automatically after %1$@ of %2$@ sign";
+"joint_operation_signed_footer" = "Sends automatically after %1$@ of %2$@ sign";
 "joint_operation_signed" = "Signed";
 "joint_operation_signers_title" = "Signers";
 "joint_operation_signing_blocked_subtitle" = "Signing is blocked for security reasons. Please contact support";
@@ -2209,7 +2213,10 @@
 "support_selector_view_chat_button" = "Open chat";
 "support_selector_view_email_button" = "Open mail";
 "swap_approve_description" = "By approving, you allow the smart contract to use your tokens in future transactions.";
+"swap_custom_slippage_info" = "Slippage can't be customized with this provider and may reach up to %@ in rare cases";
 "swap_detailed_mode" = "Detailed mode";
+"swap_exchange_rates_info_text" = "displayed include the service provider’s fee";
+"swap_exchange_rates_info_title" = "Exchange rates";
 "swap_fixed_rate" = "Fixed Rate";
 "swap_give_permission_fee_footer" = "The network will charge a token approval fee to verify that you are authorizing the use of your token for the swap.";
 "swap_in_progress" = "Swap in progress";
@@ -2217,6 +2224,10 @@
 "swap_search_tooltip_description" = "Search for any token, even if it’s not in your list yet.";
 "swap_search_tooltip_title" = "Use search to find what you need";
 "swap_simple_mode" = "Simple mode";
+"swap_slippage_error" = "Unsupported amount";
+"swap_slippage_info_text" = "is the difference between the expected and actual execution price caused by market price or liquidity changes";
+"swap_slippage_warning_text" = "Swap may fail if the slippage threshold is hit";
+"swap_slippage_warning_title" = "Slippage is set %@";
 "swap_story_fifth_subtitle" = "Feel confident with round-the-clock support to help with any issues";
 "swap_story_fifth_title" = "Always Here";
 "swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers\nNo moving funds to exchanges";
@@ -2883,6 +2894,7 @@
 "transaction_history_approve_high_risk_subtitle" = "You're connected. Funds may be at risk. Consider revoking access.";
 "transaction_history_approve_high_risk_title" = "High Risk";
 "transaction_history_approved_amount" = "Approved amount";
+"transaction_history_claiming_incentive_rewards" = "Claiming incentive rewards";
 "transaction_history_claiming_reward" = "Claiming reward";
 "transaction_history_contract_address" = "contract: %@";
 "transaction_history_detail_page_amount_signed_value" = "%1@ %2@ %3@";
@@ -2903,6 +2915,7 @@
 "transaction_history_fee_for_yield_mode_top_up" = "For Yield mode top-up";
 "transaction_history_fee_sending_asset" = "Send %%image%% %@";
 "transaction_history_from_inline_address" = "from: %%image%% %@";
+"transaction_history_incentive_rewards_claimed" = "Incentive rewards claimed";
 "transaction_history_multiple_addresses" = "Multiple addresses";
 "transaction_history_not_supported_description" = "Transaction history is currently not supported for this blockchain. But don't worry, we're working on it! In the meantime you can check it in the explorer.";
 "transaction_history_operation" = "Operation";
@@ -2914,6 +2927,7 @@
 "transaction_history_status_claiming_rewards" = "Claiming rewards";
 "transaction_history_status_disabling_yield_mode_failed" = "Disabling Yield mode failed";
 "transaction_history_status_enabling_yield_mode_failed" = "Enabling Yield mode failed";
+"transaction_history_status_incentive_rewards_claim_failed" = "Claiming of incentive rewards failed";
 "transaction_history_status_receive_failed" = "Receive failed";
 "transaction_history_status_restaking_rewards" = "Restaking rewards";
 "transaction_history_status_rewards_claim_failed" = "Rewards claim failed";
