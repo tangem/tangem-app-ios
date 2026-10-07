@@ -8,6 +8,7 @@
 
 import Foundation
 import Testing
+import UIKit
 import TangemTestKit
 @testable import Tangem
 
@@ -33,7 +34,7 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
         let provider = MachineProviderStub(results: [.success(Self.machine())])
         let sut = makeSUT(provider: provider)
 
-        sut.load()
+        sut.onWillAppear()
         await Task.yield()
         await stopPolling(sut)
 
@@ -45,7 +46,7 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
         let provider = MachineProviderStub(results: [.success(Self.machine(name: "Repriced pack", price: 55))])
         let sut = makeSUT(provider: provider, pollInterval: .milliseconds(10))
 
-        sut.load()
+        sut.onWillAppear()
         await waitUntil { sut.title == "Repriced pack" }
         await stopPolling(sut)
 
@@ -58,10 +59,10 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
         let provider = MachineProviderStub(results: [.success(Self.machine())])
         let sut = makeSUT(provider: provider)
 
-        sut.load()
+        sut.onWillAppear()
 
         let runningLoop = sut.pollingTask
-        sut.load()
+        sut.onWillAppear()
 
         // Identity rather than the call count: a second loop would be cancelled before it ever reached the provider
         #expect(sut.pollingTask == runningLoop)
@@ -78,12 +79,56 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
         ])
         let sut = makeSUT(provider: provider, pollInterval: .milliseconds(10))
 
-        sut.load()
+        sut.onWillAppear()
         // The loop is sequential, so a third call proves the second one's failure was handled to the end.
         await waitUntil { provider.loadCallsCount >= 3 }
         await stopPolling(sut)
 
         #expect(sut.details.tiers.map(\.tier) == [.common, .rare, .epic])
+    }
+
+    @Test("Going to the background stops the polling loop")
+    func backgroundStopsPolling() async {
+        let notificationCenter = NotificationCenter()
+        let sut = makeSUT(notificationCenter: notificationCenter)
+
+        sut.onWillAppear()
+        await waitUntil { notificationCenter.post(.didEnterBackground) && sut.pollingTask == nil }
+
+        #expect(sut.pollingTask == nil)
+    }
+
+    @Test("Returning to the foreground fetches at once and resumes polling")
+    func foregroundFetchesAndResumes() async {
+        let notificationCenter = NotificationCenter()
+        let provider = MachineProviderStub(results: [.success(Self.machine(name: "Fresh pack"))])
+        let sut = makeSUT(provider: provider, notificationCenter: notificationCenter)
+
+        sut.onWillAppear()
+        await waitUntil { notificationCenter.post(.didEnterBackground) && sut.pollingTask == nil }
+        await waitUntil { notificationCenter.post(.willEnterForeground) && sut.title == "Fresh pack" }
+
+        #expect(provider.loadCallsCount == 1)
+        #expect(sut.pollingTask != nil)
+
+        await stopPolling(sut)
+    }
+
+    @Test("Returning to the foreground off the screen leaves polling stopped")
+    func foregroundOffScreenKeepsPollingStopped() async {
+        let notificationCenter = NotificationCenter()
+        let provider = MachineProviderStub(results: [.success(Self.machine())])
+        let sut = makeSUT(provider: provider, notificationCenter: notificationCenter)
+
+        sut.onWillAppear()
+        await stopPolling(sut)
+        for _ in 0 ..< 10 {
+            notificationCenter.post(.willEnterForeground)
+            await Task.yield()
+        }
+
+        #expect(sut.pollingTask == nil)
+        #expect(provider.loadCallsCount == 0)
     }
 }
 
@@ -92,14 +137,16 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
 private extension CollectiblesMachineViewModelTests {
     func makeSUT(
         provider: (any CollectiblesMachineProvider)? = nil,
-        pollInterval: Duration = .seconds(60)
+        pollInterval: Duration = .seconds(60),
+        notificationCenter: NotificationCenter = NotificationCenter()
     ) -> SUT {
         let sut = SUT(
             pack: Self.pack(),
             routable: nil,
             prizePoolProvider: PrizePoolProviderStub(),
             provider: provider ?? MachineProviderStub(results: [.success(Self.machine())]),
-            pollInterval: pollInterval
+            pollInterval: pollInterval,
+            notificationCenter: notificationCenter
         )
         return trackForMemoryLeaks(sut)
     }
@@ -135,7 +182,7 @@ private extension CollectiblesMachineViewModelTests {
     /// Waits for the loop to unwind so the leak check does not race the in-flight request.
     func stopPolling(_ sut: SUT) async {
         let task = sut.pollingTask
-        sut.stopPolling()
+        sut.onWillDisappear()
         await task?.value
     }
 
@@ -197,5 +244,21 @@ private final class MachineProviderStub: CollectiblesMachineProvider {
 
         let result = results.count > 1 ? results.removeFirst() : results[0]
         return try result.get()
+    }
+}
+
+private extension NotificationCenter {
+    enum AppEvent {
+        case didEnterBackground
+        case willEnterForeground
+    }
+
+    @discardableResult
+    func post(_ event: AppEvent) -> Bool {
+        switch event {
+        case .didEnterBackground: post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+        case .willEnterForeground: post(name: UIApplication.willEnterForegroundNotification, object: nil)
+        }
+        return true
     }
 }

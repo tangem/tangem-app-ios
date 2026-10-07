@@ -24,12 +24,14 @@ extension CommonCollectiblesPurchaseProvider: CollectiblesPurchaseGenerator {
     func generate(
         machineID: String,
         fromAddress: String,
-        toAddress: String
+        toAddress: String,
+        turboMode: CollectiblesTurboMode
     ) async throws -> CollectiblesGeneratedPurchase {
         try await service.generatePurchase(
             machineID: machineID,
             fromAddress: fromAddress,
             toAddress: toAddress,
+            turboMode: turboMode,
             userWalletID: userWalletID
         )
     }
