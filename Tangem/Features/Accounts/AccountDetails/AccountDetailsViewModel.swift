@@ -45,9 +45,12 @@ final class AccountDetailsViewModel: ObservableObject {
 
     // MARK: - Internal state
 
-    private let actions: [Action]
     private var archiveAccountTask: Task<Void, Never>?
     private var bag = Set<AnyCancellable>()
+
+    private var actions: [Action] {
+        AccountDetailsActionsProvider.getAvailableActions(for: account)
+    }
 
     init(
         account: any BaseAccountModel,
@@ -58,7 +61,6 @@ final class AccountDetailsViewModel: ObservableObject {
         self.accountModelsManager = accountModelsManager
         self.coordinator = coordinator
 
-        actions = AccountDetailsActionsProvider.getAvailableActions(for: account)
         archivingState = actions.contains(.archive) ? .readyToBeArchived : nil
 
         setupView()
@@ -147,7 +149,6 @@ final class AccountDetailsViewModel: ObservableObject {
         switch account {
         case is any JointAccountModel:
             title = Localization.commonJointAccount
-            supportedNetworksHint = makeSupportedNetworksHint()
         default:
             title = Localization.accountDetailsTitle
             managementRowViewModels = makeManagementRowViewModels(membersText: nil)
@@ -167,6 +168,12 @@ final class AccountDetailsViewModel: ObservableObject {
     }
 
     private func bindJointAccountMembers(of jointAccount: any JointAccountModel) {
+        jointAccount.didChangePublisher.prepend(())
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .map { viewModel, _ in viewModel.actions.contains(.manageTokens) ? viewModel.makeSupportedNetworksHint() : nil }
+            .assign(to: &$supportedNetworksHint)
+
         jointAccount.didChangePublisher.prepend(())
             .combineLatest(jointAccount.jointAccountMembersService.slotsPublisher)
             .receiveOnMain()
