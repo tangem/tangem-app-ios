@@ -37,6 +37,10 @@ final class PromoCampaignViewModel: ObservableObject, FloatingSheetContentViewMo
         campaign.content.title
     }
 
+    var subtitle: String? {
+        campaign.content.subtitle
+    }
+
     var imageURL: URL? {
         campaign.content.imageURL
     }
