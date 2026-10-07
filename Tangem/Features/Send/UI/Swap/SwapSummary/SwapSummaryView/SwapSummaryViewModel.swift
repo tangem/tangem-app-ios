@@ -17,6 +17,7 @@ import TangemFoundation
 final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var swapAmountViewModel: SwapAmountViewModel
     @Published private(set) var swapSummaryProviderViewModel: SwapSummaryProviderViewModel
+    @Published private(set) var swapSummarySlippageViewModel: SwapSummarySlippageViewModel
     @Published private(set) var feeCompactViewModel: SendFeeCompactViewModel
 
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
@@ -58,6 +59,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         analyticsLogger: SendSummaryAnalyticsLogger,
         swapAmountViewModel: SwapAmountViewModel,
         swapSummaryProviderViewModel: SwapSummaryProviderViewModel,
+        swapSummarySlippageViewModel: SwapSummarySlippageViewModel,
         feeCompactViewModel: SendFeeCompactViewModel,
         sourceTokenInput: SendSourceTokenInput,
         formVariantResolver: SwapFormVariantResolver = SwapFormVariantResolver()
@@ -68,6 +70,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         self.analyticsLogger = analyticsLogger
         self.swapAmountViewModel = swapAmountViewModel
         self.swapSummaryProviderViewModel = swapSummaryProviderViewModel
+        self.swapSummarySlippageViewModel = swapSummarySlippageViewModel
         self.feeCompactViewModel = feeCompactViewModel
         self.formVariantResolver = formVariantResolver
         formVariant = formVariantResolver.currentVariant()
