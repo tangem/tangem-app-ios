@@ -43,8 +43,7 @@ struct JointAccountSignatureMarks: View {
     }
 
     private func mark(isCollected: Bool, hasCutout: Bool) -> some View {
-        Circle()
-            .fill(isCollected ? DesignSystem.Color.bgStatusWarning : DesignSystem.Color.iconTertiary)
+        markFill(isCollected: isCollected)
             .overlay {
                 // Every mark but the leading one is partly covered, and a row of clipped checkmarks reads worse
                 // than a plain fill — so only the front one carries it
@@ -59,6 +58,18 @@ struct JointAccountSignatureMarks: View {
             }
             .frame(width: markSide, height: markSide)
             .mask { markShape(hasCutout: hasCutout) }
+    }
+
+    @ViewBuilder
+    private func markFill(isCollected: Bool) -> some View {
+        if isCollected {
+            Circle()
+                .fill(DesignSystem.Color.bgStatusWarning)
+        } else {
+            Circle()
+                .fill(DesignSystem.Color.bgTransparentSecondary)
+                .background(Circle().fill(DesignSystem.Color.bgStatusWarningSubtle))
+        }
     }
 
     /// Bites a crescent out of the mark where the one in front of it overlaps, leaving a gap of whatever the row is
