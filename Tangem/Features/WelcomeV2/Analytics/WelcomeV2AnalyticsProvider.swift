@@ -18,6 +18,7 @@ protocol WelcomeV2AnalyticsProvider {
     func logCreateWalletButton()
     func logIHaveWalletButton()
     func logCreateWalletIntroScreenOpened()
+    func logIHaveWalletIntroScreenOpened()
     func logSheetDismissed(sheet: Analytics.ParameterValue, reason: Analytics.ParameterValue)
 
     func logHardwareWalletButton()
