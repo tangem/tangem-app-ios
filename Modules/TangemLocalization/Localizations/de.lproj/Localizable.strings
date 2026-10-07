@@ -1574,9 +1574,11 @@
 "prediction_add_funds_notification_limits_title" = "Einzahlungslimits";
 "prediction_add_funds_receive_body" = "Schicken %1$@ aus einer anderen Wallet, Mindestbetrag %2$@";
 "prediction_add_funds_receive_subtitle" = "Senden Sie USDC über das Polygon-Netzwerk an Ihr Polymarket-Konto.";
+"prediction_add_funds_receive_title" = "From another wallet or exchange";
 "prediction_add_funds_subtitle" = "%1$@ auf %2$@";
 "prediction_add_funds_swap_body" = "Tausche einen Token, den du bereits hältst";
 "prediction_add_funds_swap_subtitle" = "Nutzen Sie Kryptowährung in Ihrer Tangem-Wallet, um Ihr Polymarket-Konto aufzuladen";
+"prediction_add_funds_swap_title" = "From your Tangem Wallet";
 "prediction_balance_total" = "Gesamtsaldo";
 "prediction_balance_withdraw" = "Abheben";
 "prediction_claim_error_failed" = "Die Abbuchung wurde nicht ausgeführt. Es wurde kein Betrag von Ihrem Konto abgebucht, und Sie können es erneut versuchen.";
@@ -1623,7 +1625,7 @@
 "prediction_main_empty_positions_title" = "Sie haben keine aktiven Vorhersagen.";
 "prediction_main_events_load_error" = "Ereignisse konnten nicht geladen werden.\nZum Neuladen tippen";
 "prediction_main_explore_events" = "Veranstaltungen entdecken";
-"prediction_main_subtitle" = "USDC im Polygon-Netzwerk";
+"prediction_main_subtitle" = "US Dollars";
 "prediction_main_title" = "Prognosen";
 "prediction_main_total_balance" = "Gesamtsaldo";
 "prediction_main_withdraw" = "Abheben";
@@ -3484,6 +3486,7 @@
 "yield_module_incentive_chart_powered_by_description" = "Ein Kampagnensponsor finanziert zusätzliche Belohnungstoken, die über Merkl verteilt werden.\nAnreize können enden, und die Preise für Belohnungstoken können sich ändern.\nDer angezeigte APY beinhaltet Anreizprämien nach Abzug der Servicegebühr von Tangem.";
 "yield_module_incentive_chart_powered_by_title" = "Unterstützt von Merkl";
 "yield_module_incentive_chart_sheet_title" = "Anreizbasierte Rendite";
+"yield_module_incentives_provider" = "Merkl";
 "yield_module_main_screen_promo_banner_message" = "Aktiviere %1$@%% Jahreszins auf Dein Guthaben";
 "yield_module_main_view_approve_notification_description" = "Die Genehmigung für Deine Token im Yield-Modus wurde widerrufen. Öffne den Token, um die Berechtigung erneut zu erteilen.";
 "yield_module_main_view_approve_notification_title" = "Token-Genehmigung erforderlich";
