@@ -30,4 +30,23 @@ struct CampaignEligibleTokenMapper {
             decimals: token.decimals
         )
     }
+
+    func mapToTokenItem(_ token: CampaignEligibleToken, using tokenItemMapper: TokenItemMapper) -> TokenItem? {
+        guard let tokenId = token.tokenId, let decimals = token.decimals else {
+            return nil
+        }
+
+        let network = NetworkModel(
+            networkId: token.networkId,
+            contractAddress: token.tokenAddress,
+            decimalCount: decimals
+        )
+
+        return tokenItemMapper.mapToTokenItem(
+            id: tokenId,
+            name: token.tokenName,
+            symbol: token.tokenSymbol,
+            network: network
+        )
+    }
 }

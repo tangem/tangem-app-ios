@@ -12,8 +12,9 @@ import BlockchainSdk
 
 struct UserTokensManagerMock: UserTokensManager {
     var containsTokenItem = false
+    var userTokenItems: [TokenItem] = []
 
-    var userTokens: [TokenItem] { [] }
+    var userTokens: [TokenItem] { userTokenItems }
 
     var userTokensPublisher: AnyPublisher<[TokenItem], Never> { .just(output: userTokens) }
 
