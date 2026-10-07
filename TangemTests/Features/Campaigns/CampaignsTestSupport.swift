@@ -61,17 +61,20 @@ final class CampaignUserWalletModelStub: UserWalletModelMock {
     private let isLocked: Bool
     private let stubbedConfig: UserWalletConfig
     private let userTokensManager: UserTokensManager
+    private let walletModelsManager: WalletModelsManager
 
     init(
         walletIdSeed: String,
         isLocked: Bool = false,
         config: UserWalletConfig = UserWalletConfigStub(),
-        userTokensManager: UserTokensManager = UserTokensManagerMock()
+        userTokensManager: UserTokensManager = UserTokensManagerMock(),
+        walletModelsManager: WalletModelsManager = WalletModelsManagerMock()
     ) {
         id = UserWalletId(value: Data(walletIdSeed.utf8))
         self.isLocked = isLocked
         stubbedConfig = config
         self.userTokensManager = userTokensManager
+        self.walletModelsManager = walletModelsManager
     }
 
     override var userWalletId: UserWalletId { id }
@@ -82,6 +85,7 @@ final class CampaignUserWalletModelStub: UserWalletModelMock {
         AccountModelsManagerStub(
             account: CryptoAccountModelMock(
                 isMainAccount: true,
+                walletModelsManager: walletModelsManager,
                 userTokensManager: userTokensManager,
                 onArchive: { _ in }
             )
