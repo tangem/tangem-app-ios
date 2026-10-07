@@ -64,6 +64,34 @@ struct PolymarketFundsArrivalTrackerTests {
         #expect(!sut.isAwaitingFunds)
     }
 
+    @Test("A deposit that landed before the wait started raises no banner")
+    func aDepositLandedBeforeTheWaitRaisesNoBanner() {
+        let balance = CurrentValueSubject<Decimal?, Never>(10)
+        let sut = makeSUT(balance: balance)
+        let dispatched = sut.currentBalance
+
+        balance.send(60)
+        sut.startAwaitingFunds(since: dispatched)
+
+        #expect(!sut.isAwaitingFunds)
+        #expect(!sut.isBalanceChangeExpected)
+    }
+
+    @Test("A deposit still on its way is awaited against the balance at dispatch")
+    func aDepositOnItsWayIsAwaitedAgainstTheDispatchBalance() async {
+        let balance = CurrentValueSubject<Decimal?, Never>(10)
+        let sut = makeSUT(balance: balance)
+
+        sut.startAwaitingFunds(since: sut.currentBalance)
+
+        #expect(sut.isAwaitingFunds)
+
+        balance.send(60)
+        await drainMain()
+
+        #expect(!sut.isAwaitingFunds)
+    }
+
     @Test("A deposit that never lands is given up on")
     func anUnlandedDepositTimesOut() async throws {
         let sut = makeSUT(delayProvider: InstantPollDelayProvider())
