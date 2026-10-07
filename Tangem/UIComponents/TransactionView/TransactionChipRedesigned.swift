@@ -11,6 +11,7 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 /// Compact chip used for technical transactions (Staking, Approve, Yield Mode) per the Phase 1
 /// redesign spec. Hosts the same title + amount + subtitle composition as the full row, just
@@ -24,6 +25,8 @@ struct TransactionChipRedesigned: View {
 
     private var display: TransactionDisplayModel { viewModel.display }
 
+    private var transactionKey: String { viewModel.transactionType.accessibilityIdentifierKey }
+
     var body: some View {
         HStack(spacing: .unit(.x1)) {
             leadingIcon
@@ -32,6 +35,7 @@ struct TransactionChipRedesigned: View {
                 SensitiveText(builder: failedApproveTitle, sensitive: failedApproveAmount)
                     .style(DesignSystem.Font.captionMediumToken, color: titleColor)
                     .lineLimit(1)
+                    .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionItem(key: transactionKey))
             } else {
                 titleView
 
@@ -120,6 +124,7 @@ struct TransactionChipRedesigned: View {
         Text(attributedTitle)
             .style(DesignSystem.Font.captionMediumToken, color: titleColor)
             .lineLimit(1)
+            .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionItem(key: transactionKey))
     }
 
     private var attributedTitle: AttributedString {
