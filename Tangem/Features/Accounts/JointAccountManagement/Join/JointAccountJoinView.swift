@@ -74,7 +74,8 @@ struct JointAccountJoinView: View {
     }
 
     private func accountIcon(_ content: JointAccountJoinViewModel.Content) -> some View {
-        AccountIconView(data: content.accountIconViewData, settings: .extraLargeSized)
+        AccountIconView(data: content.accountIconViewData)
+            .settings(.extraLargeSized)
             .overlay(accountIconHighlight)
             .clipShape(accountIconShape)
             .overlay {
@@ -108,7 +109,7 @@ struct JointAccountJoinView: View {
         VStack(alignment: .leading, spacing: .zero) {
             JointAccountHeaderTitle(title: content.title, subtitle: content.subtitle)
                 .padding(.vertical, Constants.titleVerticalPadding)
-                .padding(.horizontal, Constants.mainContentHorizontalPadding)
+                .padding(.horizontal, Constants.titleHorizontalPadding)
 
             rows(content)
         }
@@ -179,8 +180,8 @@ private extension JointAccountJoinView {
         static let accountIconHighlightOpacity: CGFloat = 0.2
 
         static let contentHorizontalPadding: CGFloat = 16
-        static let mainContentHorizontalPadding: CGFloat = 8
         static let titleVerticalPadding: CGFloat = 12
+        static let titleHorizontalPadding: CGFloat = 16
 
         static let walletValueSpacing: CGFloat = 4
         static let walletThumbnailSize = CGSize(bothDimensions: 20)
