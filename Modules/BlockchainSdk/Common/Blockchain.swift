@@ -118,6 +118,7 @@ public indirect enum Blockchain: Equatable, Hashable {
     case adi(testnet: Bool)
     case electroneum(testnet: Bool)
     case arc(testnet: Bool)
+    case onyx(testnet: Bool)
 
     public var isTestnet: Bool {
         switch self {
@@ -183,7 +184,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .plasma(let testnet),
              .adi(let testnet),
              .electroneum(let testnet),
-             .arc(let testnet):
+             .arc(let testnet),
+             .onyx(let testnet):
             return testnet
         case .litecoin,
              .ducatus,
@@ -374,6 +376,7 @@ public indirect enum Blockchain: Equatable, Hashable {
              .adi,
              .electroneum,
              .arc,
+             .onyx,
              .seiEvm:
             return 18
         case .cardano,
@@ -601,6 +604,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "ETN"
         case .arc:
             return "USDC"
+        case .onyx:
+            return "XCN"
         }
     }
 
@@ -717,6 +722,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "Electroneum" + testnetSuffix
         case .arc:
             return "Arc" + testnetSuffix
+        case .onyx:
+            return "Onyx" + testnetSuffix
         default:
             var name = "\(self)".capitalizingFirstLetter()
             if let index = name.firstIndex(of: "(") {
@@ -1020,6 +1027,7 @@ public extension Blockchain {
         case .adi: return isTestnet ? 99999 : 36900
         case .electroneum: return isTestnet ? 5201420 : 52014
         case .arc: return isTestnet ? 5042002 : 5042
+        case .onyx: return isTestnet ? 8901 : 327
         case .seiEvm: return isTestnet ? 1328 : 1329
         default:
             return nil
@@ -1116,6 +1124,7 @@ public extension Blockchain {
         case .adi: return false // eth_feeHistory respond without reward field, further logic produces error
         case .electroneum: return true
         case .arc: return true
+        case .onyx: return false // eth_feeHistory baseFeePerGas is zeroes
         case .seiEvm: return true
         default:
             assertionFailure("Don't forget about evm here")
@@ -1291,6 +1300,7 @@ extension Blockchain: Codable {
         case .adi: return "adi-token"
         case .electroneum: return "electroneum"
         case .arc: return "arc"
+        case .onyx: return "onyx"
         }
     }
 
@@ -1415,6 +1425,7 @@ extension Blockchain: Codable {
         case "adi-token": self = .adi(testnet: isTestnet)
         case "electroneum": self = .electroneum(testnet: isTestnet)
         case "arc": self = .arc(testnet: isTestnet)
+        case "onyx": self = .onyx(testnet: isTestnet)
         default:
             throw BlockchainSdkError.decodingFailed
         }
@@ -1742,6 +1753,11 @@ private extension Blockchain {
             case .network: return "arc"
             case .coin: return "usd-coin"
             }
+        case .onyx:
+            switch type {
+            case .network: return "onyx"
+            case .coin: return "chain-2"
+            }
         }
     }
 
@@ -1816,6 +1832,7 @@ extension Blockchain {
              .adi,
              .electroneum,
              .arc,
+             .onyx,
              .seiEvm:
             return EthereumWalletAssembly()
         case .optimism,

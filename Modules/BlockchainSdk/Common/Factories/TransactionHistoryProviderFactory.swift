@@ -132,6 +132,12 @@ public struct TransactionHistoryProviderFactory {
                 networkConfiguration: input.tangemProviderConfig,
                 targetConfiguration: .electroneum
             )
+        case .onyx:
+            return EtherscanTransactionHistoryProvider(
+                mapper: EtherscanTransactionHistoryMapper(blockchain: blockchain),
+                networkConfiguration: input.tangemProviderConfig,
+                targetConfiguration: .onyx
+            )
         case .algorand(_, let isTestnet):
             let node: NodeInfo
             if isTestnet {
