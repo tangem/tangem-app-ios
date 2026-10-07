@@ -14,16 +14,6 @@ protocol PolymarketMainRoutable: AnyObject {
     func openRegionWarning()
 
     @MainActor
-    func openMyPositions(
-        tab: PolymarketPositionsTab,
-        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
-        onClaimed: @escaping (PolymarketPosition?) -> Void
-    )
-
-    @MainActor
-    func openRedeem(position: PolymarketPosition, onClaimed: @escaping (PolymarketPosition?) -> Void)
-
-    @MainActor
     func openHowItWorks()
 
     @MainActor
@@ -34,8 +24,6 @@ protocol PolymarketMainRoutable: AnyObject {
         category: PolymarketCategory?,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
     )
-
-    func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void)
 
     func openOrder(
         market: PolymarketMarket,

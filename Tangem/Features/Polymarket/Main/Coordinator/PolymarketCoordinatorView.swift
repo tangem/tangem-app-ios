@@ -35,8 +35,8 @@ struct PolymarketCoordinatorView: CoordinatorView {
         switch coordinator.viewState {
         case .welcome(let viewModel):
             PolymarketWelcomeView(viewModel: viewModel)
-        case .main(let viewModel, let balanceBlock, _, _):
-            PolymarketMainView(viewModel: viewModel, balanceBlock: balanceBlock)
+        case .main(let viewModel, let balanceBlock, let positionsBlock, _, _):
+            PolymarketMainView(viewModel: viewModel, balanceBlock: balanceBlock, positionsBlock: positionsBlock)
         case nil:
             EmptyView()
         }
