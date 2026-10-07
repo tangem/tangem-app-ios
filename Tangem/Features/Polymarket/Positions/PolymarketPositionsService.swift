@@ -67,6 +67,7 @@ struct CommonPolymarketPositionsService {
 extension CommonPolymarketPositionsService: PolymarketPositionsService {
     func activePositions(limit: Int) async throws -> PolymarketPositionsPage {
         var collected: [PolymarketPosition] = []
+        var seenIDs: Set<String> = []
         var received = 0
         var offset = 0
         var hasNext = false
@@ -74,7 +75,11 @@ extension CommonPolymarketPositionsService: PolymarketPositionsService {
         for _ in 0 ..< Constants.activePageScans {
             let page = try await openPositions(sort: .endDate, ascending: true, limit: limit, offset: offset)
 
-            collected += page.positions.filter(\.isWorthShowing)
+            for position in page.positions where position.isWorthShowing && !seenIDs.contains(position.id) {
+                seenIDs.insert(position.id)
+                collected.append(position)
+            }
+
             received += page.receivedCount
             offset += page.receivedCount
             hasNext = page.hasNext || page.receivedCount == limit
