@@ -1574,7 +1574,7 @@
 "prediction_add_funds_notification_limits_title" = "Limites de depósito";
 "prediction_add_funds_receive_body" = "Enviar %1$@ de outra carteira, mínimo de %2$@";
 "prediction_add_funds_receive_subtitle" = "Envie USDC pela rede Polygon para sua conta da Polymarket";
-"prediction_add_funds_receive_title" = "From another wallet or exchange";
+"prediction_add_funds_receive_title" = "De outra carteira ou exchange";
 "prediction_add_funds_subtitle" = "%1$@ em %2$@";
 "prediction_add_funds_swap_body" = "Trocar um token que você já possui";
 "prediction_add_funds_swap_subtitle" = "Use criptomoedas da sua carteira Tangem para adicionar fundos à sua conta da Polymarket";

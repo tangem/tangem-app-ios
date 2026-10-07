@@ -81,7 +81,6 @@ enum WalletModelTransactionHistoryPublisherFactory {
             .just(output: [])
         }
 
-        // [REDACTED_TODO_COMMENT]
         let combinedInput = originalTransactionHistoryPublisher
             .combineLatest(
                 expressRecords,

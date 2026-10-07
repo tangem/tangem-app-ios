@@ -94,6 +94,7 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
         let walletModelsManager = CommonWalletModelsManager(
             walletManagersRepository: walletManagersRepository,
             walletModelsFactory: wrappedWalletModelsFactory,
+            transactionHistoryUpdater: walletModelsFactoryProvider.transactionHistoryUpdater,
             derivationPathBuilder: derivationPathBuilder
         )
 

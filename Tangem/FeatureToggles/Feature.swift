@@ -81,7 +81,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .storiesV2: return "TWI-1713_stories_v2"
         case .hardwareUpgradeStories: return "TWI-1357_hardware_upgrade_stories"
         case .jointAccountsGaslessTokenFee: return "[REDACTED_INFO]_joint_accounts_gasless_token_fee"
-        case .tronGaslessActivation: return "[REDACTED_INFO]_tron_gasless_activation"
+        case .tronGaslessActivation: return "TWI-1783_tron_gasless_account_activation_enabled"
         case .merklIncentives: return "TWI-1520_merkl_incentives"
         case .tangemPayCustomCards: return "TWI-1727_tangem_pay_custom_cards"
         case .mcp: return "TWI-1721_mcp"
@@ -125,7 +125,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .storiesV2: return .version("6.4")
         case .hardwareUpgradeStories: return .unspecified
         case .jointAccountsGaslessTokenFee: return .unspecified
-        case .tronGaslessActivation: return .unspecified
+        case .tronGaslessActivation: return .version("6.4")
         case .merklIncentives: return .unspecified
         case .tangemPayCustomCards: return .version("6.4")
         case .mcp: return .unspecified

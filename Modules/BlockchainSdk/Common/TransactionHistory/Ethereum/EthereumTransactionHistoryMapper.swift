@@ -269,10 +269,7 @@ private extension EthereumTransactionHistoryMapper {
         _ transaction: BlockBookAddressResponse.Transaction,
         tokensByContract: [String: BlockBookAddressResponse.Token]
     ) -> TransactionRecord.TransactionType {
-        let ethereumSpecific = transaction.ethereumSpecific
-        let methodId = ethereumSpecific?.parsedData?.methodId ?? methodIdFromRawData(ethereumSpecific?.data)
-
-        guard let methodId = methodId else {
+        guard let methodId = transaction.ethereumSpecific?.methodId else {
             return .transfer
         }
 
@@ -285,26 +282,7 @@ private extension EthereumTransactionHistoryMapper {
             return .transfer
         }
 
-        // MethodId is empty for the coin transfers
-        if methodId.isEmpty {
-            return .transfer
-        }
-
         return .contractMethodIdentifier(id: methodId)
-    }
-
-    func methodIdFromRawData(_ rawData: String?) -> String? {
-        // EVM method name has a length of 4 bytes
-        let methodIdLength = 8
-
-        guard
-            let methodId = rawData?.removeHexPrefix().prefix(methodIdLength),
-            methodId.count == methodIdLength
-        else {
-            return nil
-        }
-
-        return String(methodId).addHexPrefix()
     }
 
     func approve(

@@ -52,6 +52,7 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     /// Type-agnostic: the banner is a plain container, not guaranteed to surface as a specific element type.
     private lazy var issuingCardBanner = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.issuingCardBanner].firstMatch
     private lazy var issuingCardButton = button(.issuingCardButton)
+    private lazy var plasticDeliveryActivateButton = button(.plasticDeliveryActivateButton)
     private lazy var currentPlanMenuItem = button(.currentPlanMenuItem)
     /// Type-agnostic: the badge is a plain container, not guaranteed to surface as a specific element type.
     private lazy var inactiveBadge = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.paymentAccountInactiveBadge].firstMatch
@@ -116,6 +117,20 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
+    func verifyCardFrozenIndicator(cardId: String) -> Self {
+        XCTContext.runActivity(named: "Verify card '\(cardId)' shows the frozen indicator") { _ in
+            let card = cardButton(cardId: cardId)
+            waitAndAssertTrue(card, timeout: .networkRequest, "Card '\(cardId)' should be displayed on Payment account")
+            waitAndAssertTrue(
+                card.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.paymentAccountCardFrozenIcon].firstMatch,
+                timeout: .networkRequest,
+                "Card '\(cardId)' should show the frozen indicator"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func tapAddCard() -> TangemPayOrderCardTypeScreen {
         XCTContext.runActivity(named: "Tap add card button to issue an additional card") { _ in
             addCardButton.waitAndTap()
@@ -137,6 +152,27 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
         XCTContext.runActivity(named: "Tap the card being issued to open its screen") { _ in
             issuingCardButton.waitAndTap()
             return TangemPayCardDetailsScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyPlasticDeliveryBanner() -> Self {
+        XCTContext.runActivity(named: "Verify the plastic card delivery banner") { _ in
+            let banner = app.descendants(matching: .any)
+                .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, Constants.plasticDeliveryBannerTitle))
+                .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, Constants.plasticDeliveryBannerDescription))
+                .firstMatch
+            waitAndAssertTrue(banner, timeout: .networkRequest, "Plastic card delivery banner should be displayed")
+            waitAndAssertTrue(plasticDeliveryActivateButton, timeout: .networkRequest, "Activate card should be displayed on the delivery banner")
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapActivateCardOnDeliveryBanner() -> TangemPayActivateCardScreen {
+        XCTContext.runActivity(named: "Tap Activate card on the delivery banner") { _ in
+            plasticDeliveryActivateButton.waitAndTap()
+            return TangemPayActivateCardScreen(app).waitForScreen()
         }
     }
 
@@ -554,6 +590,18 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
+    func verifyTransactionRowNotDisplayed(name: String) -> Self {
+        XCTContext.runActivity(named: "Verify transaction row '\(name)' is not displayed") { _ in
+            XCTAssertTrue(
+                transactionRowElement(identifier: TxHistoryAccessibilityIdentifiers.transactionItem(key: Self.tangemPayKey), label: name)
+                    .staysAbsent(for: .conditional),
+                "Transaction row '\(name)' should not be displayed"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func verifyTransactionRow(name: String, amount: String, category: String) -> Self {
         verifyTransactionRow(name: name)
 
@@ -804,6 +852,7 @@ enum TangemPayMainScreenElement: String, UIElement {
     case cashbackBannerTitle
     case cashbackBannerSubtitle
     case cashbackMenuItem
+    case plasticDeliveryActivateButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -835,6 +884,8 @@ enum TangemPayMainScreenElement: String, UIElement {
             TangemPayAccessibilityIdentifiers.cashbackBannerSubtitle
         case .cashbackMenuItem:
             TangemPayAccessibilityIdentifiers.cashbackMenuItem
+        case .plasticDeliveryActivateButton:
+            TangemPayAccessibilityIdentifiers.plasticDeliveryBannerActivateButton
         }
     }
 }
@@ -845,5 +896,7 @@ private extension TangemPayMainScreen {
         static let cashbackDeactivatedTitle = "Cashback deactivated"
         static let cashbackOpenAttempts = 3
         static let accountClosedSupportText = "For questions about account, data or transaction history, please contact support"
+        static let plasticDeliveryBannerTitle = "Your card on it's way for delivery"
+        static let plasticDeliveryBannerDescription = "Activate it when arrived"
     }
 }
