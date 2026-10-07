@@ -16,6 +16,7 @@ struct SwapSummaryFeeSectionView: View {
     @ObservedObject var slippageViewModel: SwapSummarySlippageViewModel
     @ObservedObject var feeViewModel: SendFeeCompactViewModel
     let showsSlippage: Bool
+    let slippageTapAction: () -> Void
     let feeTapAction: () -> Void
 
     private var isSlippageVisible: Bool {
@@ -23,21 +24,10 @@ struct SwapSummaryFeeSectionView: View {
     }
 
     var body: some View {
-        if slippageViewModel.isCustomSlippageAvailable {
-            groupedSection
-        } else {
-            SendFeeCompactView(viewModel: feeViewModel, tapAction: feeTapAction)
-                .accessibilityElement(children: .combine)
-                .accessibilityIdentifier(SwapAccessibilityIdentifiers.feeBlock)
-        }
-    }
-
-    @ViewBuilder
-    private var groupedSection: some View {
         if isSlippageVisible || feeViewModel.feeCompactViewIsVisible {
             VStack(spacing: .zero) {
                 if isSlippageVisible {
-                    SwapSummarySlippageView()
+                    SwapSummarySlippageView(viewModel: slippageViewModel, tapAction: slippageTapAction)
 
                     if feeViewModel.feeCompactViewIsVisible {
                         Separator(color: Colors.Stroke.primary)

@@ -49,8 +49,8 @@ struct SwapSummarySlippageViewModelTests {
     @Test("Hides the row once the loading provider fails")
     func hidesAfterLoadingFails() async throws {
         let input = SwapProvidersInputStub(selected: .loading)
-        let viewModel = SwapSummarySlippageViewModel(swapProvidersInput: input, isCustomSlippageAvailable: true)
-        let recorder = VisibilityRecorder(viewModel: viewModel)
+        let viewModel = SwapSummarySlippageViewModel(swapProvidersInput: input, slippageInput: SlippageInputStub())
+        let recorder = ValueRecorder(publisher: viewModel.$isVisible)
 
         input.selectedSubject.send(.failure(StubError()))
         try await recorder.waitForValues(count: 2)
@@ -58,15 +58,34 @@ struct SwapSummarySlippageViewModelTests {
         #expect(recorder.values == [true, false])
     }
 
-    @Test("Stays hidden while the feature is off")
-    func hiddenWhenFeatureIsOff() async {
+    @Test("Shows Auto until a custom slippage is set, then the formatted value")
+    func showsCustomSlippage() async throws {
+        let input = SwapProvidersInputStub(selected: .loading)
+        let slippageInput = SlippageInputStub()
+        let viewModel = SwapSummarySlippageViewModel(
+            swapProvidersInput: input,
+            slippageInput: slippageInput,
+            percentFormatter: PercentFormatter(locale: Locale(identifier: "en_US"))
+        )
+        let recorder = ValueRecorder(publisher: viewModel.$value)
+
+        slippageInput.subject.send(.custom(0.0015))
+        try await recorder.waitForValues(count: 2)
+
+        #expect(recorder.values == [.auto, .custom("0.15%")])
+    }
+
+    @Test("Allows editing only once the provider has loaded")
+    func editableOnlyWhenLoaded() async throws {
         let provider = ExpressAvailableProviderFixture.make(state: .idle)
-        let input = SwapProvidersInputStub(selected: .success(provider))
+        let input = SwapProvidersInputStub(selected: .loading)
+        let viewModel = SwapSummarySlippageViewModel(swapProvidersInput: input, slippageInput: SlippageInputStub())
+        let recorder = ValueRecorder(publisher: viewModel.$isEditable)
 
-        let viewModel = SwapSummarySlippageViewModel(swapProvidersInput: input, isCustomSlippageAvailable: false)
-        await Task.yield()
+        input.selectedSubject.send(.success(provider))
+        try await recorder.waitForValues(count: 2)
 
-        #expect(!viewModel.isVisible)
+        #expect(recorder.values == [false, true])
     }
 }
 
@@ -77,8 +96,8 @@ private extension SwapSummarySlippageViewModelTests {
 
     func resolveVisibility(selected: LoadingResult<ExpressAvailableProvider, any Error>?) async throws -> Bool {
         let input = SwapProvidersInputStub(selected: selected)
-        let viewModel = SwapSummarySlippageViewModel(swapProvidersInput: input, isCustomSlippageAvailable: true)
-        let recorder = VisibilityRecorder(viewModel: viewModel)
+        let viewModel = SwapSummarySlippageViewModel(swapProvidersInput: input, slippageInput: SlippageInputStub())
+        let recorder = ValueRecorder(publisher: viewModel.$isVisible)
 
         try await recorder.waitForValues(count: 1)
 
@@ -91,12 +110,12 @@ private extension SwapSummarySlippageViewModelTests {
 }
 
 @MainActor
-private final class VisibilityRecorder {
-    private(set) var values: [Bool] = []
+private final class ValueRecorder<Value> {
+    private(set) var values: [Value] = []
     private var cancellable: AnyCancellable?
 
-    init(viewModel: SwapSummarySlippageViewModel) {
-        cancellable = viewModel.$isVisible
+    init(publisher: Published<Value>.Publisher) {
+        cancellable = publisher
             .dropFirst()
             .sink { [weak self] in self?.values.append($0) }
     }
@@ -106,13 +125,20 @@ private final class VisibilityRecorder {
 
         while values.count < count {
             guard ContinuousClock.now < deadline else {
-                Issue.record("Timed out waiting for \(count) visibility values, got \(values)")
+                Issue.record("Timed out waiting for \(count) values, got \(values)")
                 return
             }
 
             try await Task.sleep(for: .milliseconds(10))
         }
     }
+}
+
+private final class SlippageInputStub: SwapSlippageInput {
+    let subject = CurrentValueSubject<SwapSlippage, Never>(.auto)
+
+    var slippage: SwapSlippage { subject.value }
+    var slippagePublisher: AnyPublisher<SwapSlippage, Never> { subject.eraseToAnyPublisher() }
 }
 
 private final class SwapProvidersInputStub: SendSwapProvidersInput {

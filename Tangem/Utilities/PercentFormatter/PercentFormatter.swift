@@ -101,6 +101,12 @@ extension PercentFormatter.Option {
         suffix: PercentFormatter.Suffix(value: "%")
     )
 
+    static let customSlippage = PercentFormatter.Option(
+        fractionDigits: .init(min: 0, max: 2),
+        prefix: .empty,
+        suffix: PercentFormatter.Suffix(value: "%")
+    )
+
     static let yield = PercentFormatter.Option(fractionDigits: .two, prefix: .empty, suffix: .yield)
     static let yieldEmptySuffix = PercentFormatter.Option(fractionDigits: .one, prefix: .empty, suffix: .empty)
     static let yieldPromo = PercentFormatter.Option(fractionDigits: .one, prefix: .empty, suffix: .yield)
