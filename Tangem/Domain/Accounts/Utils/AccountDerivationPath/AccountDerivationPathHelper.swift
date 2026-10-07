@@ -182,6 +182,7 @@ struct AccountDerivationPathHelper {
              .adi,
              .electroneum,
              .arc,
+             .publicMasterpiece,
              .onyx,
              .seiEvm:
             return true
