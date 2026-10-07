@@ -62,6 +62,7 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
     private weak var addFundsSheet: PolymarketAddFundsSheetViewModel?
     private var sheetDismissSubscription: AnyCancellable?
     private var dispatchedOperation: FundingOperation?
+    private var dispatchedBalance: Decimal?
 
     // MARK: - Init
 
@@ -402,23 +403,32 @@ private extension PolymarketCoordinator {
             with: .init(
                 type: .swap(parameters),
                 source: .main,
-                onTransactionDispatched: { [weak self] in self?.dispatchedOperation = operation }
+                onTransactionDispatched: { [weak self] in self?.transactionDispatched(operation) }
             )
         )
 
         sendCoordinator = coordinator
     }
 
+    func transactionDispatched(_ operation: FundingOperation) {
+        dispatchedOperation = operation
+
+        dispatchedBalance = viewState?.fundingFlow?.currentBalance
+    }
+
     func startAwaitingDispatchedOperation() {
+        let baseline = dispatchedBalance
+        dispatchedBalance = nil
+
         guard let operation = dispatchedOperation, let fundingFlow = viewState?.fundingFlow else { return }
 
         dispatchedOperation = nil
 
         switch operation {
         case .deposit:
-            fundingFlow.awaitDeposit()
+            fundingFlow.awaitDeposit(since: baseline)
         case .withdrawal:
-            fundingFlow.awaitWithdrawal()
+            fundingFlow.awaitWithdrawal(since: baseline)
         }
     }
 }
