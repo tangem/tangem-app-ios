@@ -19,20 +19,31 @@ struct JointAccountHeaderTitle: View {
     }
 
     init(title: AttributedString, subtitle: AttributedString) {
-        self.title = title
-        self.subtitle = subtitle
+        self.title = title.mergeForegroundColor(DesignSystem.Color.textPrimary)
+        self.subtitle = subtitle.mergeForegroundColor(DesignSystem.Color.textSecondary)
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(token: DesignSystem.Font.headingMediumToken)
-                .foregroundStyle(DesignSystem.Color.textPrimary)
 
             Text(subtitle)
                 .font(token: DesignSystem.Font.subheadingMediumToken)
-                .foregroundStyle(DesignSystem.Color.textSecondary)
         }
         .infinityFrame(axis: .horizontal, alignment: .leading)
+    }
+}
+
+// MARK: - Default color
+
+private extension AttributedString {
+    func mergeForegroundColor(_ color: Color) -> AttributedString {
+        var container = AttributeContainer()
+        container.foregroundColor = color
+
+        var string = self
+        string.mergeAttributes(container, mergePolicy: .keepCurrent)
+        return string
     }
 }

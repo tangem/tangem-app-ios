@@ -23,8 +23,10 @@ final class AccountRowButtonViewModel: Identifiable, ObservableObject {
     @Published private(set) var iconData: AccountIconView.ViewData
     @Published private(set) var subtitleState: SubtitleState = .none
     @Published private(set) var trailingBalanceState: LoadableBalanceView.State?
+    @Published private(set) var isBalanceUnavailable = false
 
     let isDisabled: Bool
+    let nameBadge: String?
 
     // MARK: - Private Properties
 
@@ -39,10 +41,12 @@ final class AccountRowButtonViewModel: Identifiable, ObservableObject {
     init(
         accountModel: any BaseAccountModel,
         availability: AccountAvailability = .available,
+        nameBadge: String? = nil,
         onTap: @escaping () -> Void
     ) {
         self.accountModel = accountModel
         self.availability = availability
+        self.nameBadge = nameBadge
         self.onTap = onTap
 
         id = accountModel.id.toAnyHashable()
@@ -137,16 +141,25 @@ private extension AccountRowButtonViewModel {
         func resolve(accountModel: any TangemPayAccountModel) {}
 
         func resolve(accountModel: any PolymarketAccountModel) {
-            accountModel
-                .fiatAvailableBalanceProvider
-                .formattedBalanceTypePublisher
-                .map { LoadableBalanceViewStateBuilder().build(type: $0) }
-                .receiveOnMain()
-                .withWeakCaptureOf(viewModel)
-                .sink { vm, balanceState in
-                    vm.trailingBalanceState = balanceState
-                }
-                .store(in: &viewModel.bag)
+            Publishers.CombineLatest(
+                accountModel.statePublisher,
+                accountModel.fiatTotalTokenBalanceProvider.formattedBalanceTypePublisher
+            )
+            .receiveOnMain()
+            .withWeakCaptureOf(viewModel)
+            .sink { vm, tuple in
+                let (accountState, balanceType) = tuple
+                let needsReconnect = accountState == .syncNeeded
+
+                vm.isBalanceUnavailable = needsReconnect
+                vm.trailingBalanceState = Self.polymarketBalanceState(type: balanceType, needsReconnect: needsReconnect)
+                vm.updateSubtitleState(
+                    // [REDACTED_TODO_COMMENT]
+                    description: needsReconnect ? "Reconnect required" : "",
+                    balanceState: .empty
+                )
+            }
+            .store(in: &viewModel.bag)
         }
 
         func resolve(accountModel: any CollectiblesAccountModel) {
@@ -160,6 +173,19 @@ private extension AccountRowButtonViewModel {
                     vm.trailingBalanceState = balanceState
                 }
                 .store(in: &viewModel.bag)
+        }
+
+        private static func polymarketBalanceState(
+            type: FormattedTokenBalanceType,
+            needsReconnect: Bool
+        ) -> LoadableBalanceView.State? {
+            guard !needsReconnect else { return nil }
+
+            let state = LoadableBalanceViewStateBuilder().build(type: type, icon: .leading)
+
+            guard case .failed(let text, _) = state else { return state }
+
+            return .failed(cached: text, icon: .leading)
         }
     }
 }

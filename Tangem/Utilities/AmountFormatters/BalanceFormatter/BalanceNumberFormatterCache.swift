@@ -35,11 +35,11 @@ enum BalanceNumberFormatterCache {
         }
     }
 
-    static func decimalFormatter(formattingOptions: BalanceFormattingOptions) -> NumberFormatter {
+    static func decimalFormatter(locale: Locale = .current, formattingOptions: BalanceFormattingOptions) -> NumberFormatter {
         cachedFormatter(
-            key: CacheKey(kind: .decimal, localeIdentifier: Locale.current.identifier, currencyCode: nil, formattingOptions: formattingOptions)
+            key: CacheKey(kind: .decimal, localeIdentifier: locale.identifier, currencyCode: nil, formattingOptions: formattingOptions)
         ) {
-            BalanceFormatter().makeDecimalFormatter(formattingOptions: formattingOptions)
+            BalanceFormatter().makeDecimalFormatter(locale: locale, formattingOptions: formattingOptions)
         }
     }
 

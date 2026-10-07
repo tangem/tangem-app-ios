@@ -43,11 +43,7 @@ extension CommonYieldModuleAPIService: YieldModuleAPIService {
     func getIncentiveYieldMarkets(
         chainIDs: [String]?
     ) async throws -> YieldModuleDTO.Response.MarketsInfo {
-        let enveloped: YieldModuleDTO.Enveloped<YieldModuleDTO.Response.MarketsInfo> = try await request(
-            for: .incentiveMarkets(chains: chainIDs),
-            decoder: decoder
-        )
-        return enveloped.result
+        try await request(for: .incentiveMarkets(chains: chainIDs), decoder: decoder)
     }
 
     func getIncentives(
@@ -57,16 +53,26 @@ extension CommonYieldModuleAPIService: YieldModuleAPIService {
         try await incentivesRequest(for: .incentives(chainId: chainId, userAddress: userAddress))
     }
 
+    func getClaimCalldata(
+        chainId: Int,
+        userAddress: String
+    ) async throws -> YieldModuleDTO.Response.ClaimCalldata {
+        try await request(for: .claimCalldata(chainId: chainId, userAddress: userAddress), decoder: decoder)
+    }
+
+    func getClaimHistory(
+        chainId: Int,
+        userAddress: String
+    ) async throws -> YieldModuleDTO.Response.ClaimHistory? {
+        try await incentivesRequest(for: .claimHistory(chainId: chainId, userAddress: userAddress))
+    }
+
     func getAprHistory(
         chainId: Int,
         tokenAddress: String,
         days: Int
     ) async throws -> YieldModuleDTO.Response.AprHistory {
-        let enveloped: YieldModuleDTO.Enveloped<YieldModuleDTO.Response.AprHistory> = try await request(
-            for: .aprHistory(chainId: chainId, tokenAddress: tokenAddress, days: days),
-            decoder: decoder
-        )
-        return enveloped.result
+        try await request(for: .aprHistory(chainId: chainId, tokenAddress: tokenAddress, days: days), decoder: decoder)
     }
 
     func getTokenPositionInfo(
@@ -158,12 +164,7 @@ private extension CommonYieldModuleAPIService {
             return nil
         }
 
-        let enveloped: YieldModuleDTO.Enveloped<T> = try response.mapAPIResponseThrowingTangemAPIError(
-            allowRedirectCodes: false,
-            decoder: decoder
-        )
-
-        return enveloped.result
+        return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: false, decoder: decoder)
     }
 
     enum Constants {

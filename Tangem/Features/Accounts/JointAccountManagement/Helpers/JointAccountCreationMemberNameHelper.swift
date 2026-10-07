@@ -32,6 +32,10 @@ extension JointAccountCreationMemberNameHelper: JointAccountMemberNameHelper {
 
     var hasUnsavedChanges: Bool { creationHelper.hasUnsavedChanges }
 
+    func keepDraft(name: String) {
+        creationHelper.update(creatorName: name)
+    }
+
     func submit(name: String) async throws(AccountEditError) {
         creationHelper.update(creatorName: name)
         let jointAccount = try await creationHelper.createAccount()

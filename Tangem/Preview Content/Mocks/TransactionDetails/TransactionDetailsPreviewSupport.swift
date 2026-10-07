@@ -97,6 +97,7 @@ extension CommonWalletModel {
         let mobileWalletInfo = MobileWalletInfo(
             hasMnemonicBackup: false,
             hasICloudBackup: false,
+            hasSocialLogin: false,
             accessCodeStatus: .none,
             keys: []
         )
@@ -110,6 +111,7 @@ extension CommonWalletModel {
             tokenItem: tokenItem,
             walletManager: walletManager,
             stakingManager: StakingManagerMock(),
+            isYieldModuleSupported: true,
             featureManager: WalletModelFeaturesManagerMock(),
             transactionHistoryUpdater: TransactionHistoryUpdater(),
             transactionHistoryService: transactionHistoryService,

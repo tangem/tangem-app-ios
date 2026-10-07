@@ -19,7 +19,7 @@ final class CampaignTokenSelectorViewModelTests: LeakTrackingTestSuite {
     @Test("Add-token rows map the eligible backend token")
     func rowsMapEligibleBackendToken() async throws {
         try await withSelectedWallet {
-            let sut = makeSUT(eligibleTokens: [Fixtures.makeToken()])
+            let sut = makeSUT(eligibleTokens: [Fixtures.makeEligibleToken()])
 
             let row = try #require(sut.eligibleTokenRows.first)
             #expect(sut.eligibleTokenRows.count == 1)
@@ -34,8 +34,8 @@ final class CampaignTokenSelectorViewModelTests: LeakTrackingTestSuite {
     func tokensWithoutIdOrDecimalsAreDropped() async {
         await withSelectedWallet {
             let sut = makeSUT(eligibleTokens: [
-                Fixtures.makeToken(tokenId: nil),
-                Fixtures.makeToken(decimals: nil),
+                Fixtures.makeEligibleToken(tokenId: nil),
+                Fixtures.makeEligibleToken(decimals: nil),
             ])
 
             #expect(sut.eligibleTokenRows.isEmpty)
@@ -45,7 +45,7 @@ final class CampaignTokenSelectorViewModelTests: LeakTrackingTestSuite {
     @Test("Tokens already added to the wallet produce no add-token rows")
     func alreadyAddedTokensAreExcluded() async {
         await withSelectedWallet(userTokensManager: UserTokensManagerMock(containsTokenItem: true)) {
-            let sut = makeSUT(eligibleTokens: [Fixtures.makeToken()])
+            let sut = makeSUT(eligibleTokens: [Fixtures.makeEligibleToken()])
 
             #expect(sut.eligibleTokenRows.isEmpty)
         }
@@ -54,7 +54,7 @@ final class CampaignTokenSelectorViewModelTests: LeakTrackingTestSuite {
     @Test("Without a selected wallet there are no add-token rows")
     func noSelectedWalletProducesNoRows() async {
         await withInjectedCampaignDependencies(FakeTangemApiService(), userWalletRepository: FakeUserWalletRepository(models: [])) {
-            let sut = makeSUT(eligibleTokens: [Fixtures.makeToken()])
+            let sut = makeSUT(eligibleTokens: [Fixtures.makeEligibleToken()])
 
             #expect(sut.eligibleTokenRows.isEmpty)
         }
@@ -90,7 +90,7 @@ final class CampaignTokenSelectorViewModelTests: LeakTrackingTestSuite {
 
 private extension CampaignTokenSelectorViewModelTests {
     func makeSUT(
-        eligibleTokens: [BannerPromotion.Response.Token],
+        eligibleTokens: [CampaignEligibleToken],
         onSelect: @escaping (TokenSelectorItem) -> Void = { _ in },
         onClose: @escaping () -> Void = {}
     ) -> CampaignTokenSelectorViewModel {

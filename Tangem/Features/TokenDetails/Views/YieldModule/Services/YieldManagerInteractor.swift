@@ -78,16 +78,15 @@ actor YieldManagerInteractor {
 
     func getApyBreakdown() -> YieldApyBreakdown? {
         guard let marketInfo = manager.state?.marketInfo,
-              let rewardsApr = marketInfo.incentive?.rewardsApr,
-              rewardsApr > 0 else {
+              let rewardsApr = marketInfo.incentive?.rewardsApr else {
             return nil
         }
 
         return YieldApyBreakdown(baseApy: marketInfo.apy, rewardsApr: rewardsApr)
     }
 
-    func getIncentivesSummary() async -> YieldIncentivesRewardsSummary? {
-        await manager.incentivesManager?.incentives()
+    func getIncentivesSummary(forceRefresh: Bool = false) async throws -> YieldIncentivesRewardsSummary? {
+        try await manager.incentivesManager?.incentives(forceRefresh: forceRefresh)
     }
 
     func getMaxFeeNative() -> Decimal? {

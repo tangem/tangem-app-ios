@@ -153,6 +153,8 @@ extension CoinType {
              .adi,
              .electroneum,
              .arc,
+             .publicMasterpiece,
+             .onyx,
              .seiEvm:
             // Blockchains that are not in WalletCore yet
             return nil

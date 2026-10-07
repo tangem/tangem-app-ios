@@ -23,6 +23,7 @@ import TangemFoundation
 // `010` - WalletModelError
 // `011` - CommonUserTokensManager.Error
 // `012` - CloreMigrationSigningError
+// `013` - JointOperationError
 
 extension CommonError: UniversalError {
     var errorCode: Int {
