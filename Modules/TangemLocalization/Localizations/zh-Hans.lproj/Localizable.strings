@@ -322,6 +322,7 @@
 "common_approved" = "已批准";
 "common_approving" = "批准";
 "common_attention" = "请注意";
+"common_auto" = "Auto";
 "common_available_networks" = "可用网络";
 "common_back" = "返回";
 "common_backup_error" = "Backup Error";
@@ -360,6 +361,7 @@
 "common_custom" = "定制";
 "common_day" = "天";
 "common_decline" = "Decline";
+"common_default" = "Default";
 "common_delete" = "删除";
 "common_disable" = "禁用";
 "common_disabled" = "已禁用";
@@ -488,6 +490,7 @@
 "common_share" = "分享";
 "common_sign" = "签名";
 "common_skip" = "跳过";
+"common_slippage" = "Slippage";
 "common_something_went_wrong" = "出问题了";
 "common_stake" = "质押";
 "common_staked" = "已质押";
@@ -997,6 +1000,7 @@
 "introduction_stories_two_subtitle" = "用任意一张卡片访问您的钱包";
 "introduction_stories_two_title" = "一个钱包，多张卡片";
 "introduction_subtitle" = "您所有资产的安全之所";
+"introduction_terms_of_service_consent" = "By continuing, you agree with %@";
 "introduction_terms_of_service" = "服务条款";
 "introduction_title" = "存储您的所有资产";
 "jailbreak_warning_message" = "越狱设备安全性较低，您的数据可能面临额外的风险。";
@@ -1012,7 +1016,7 @@
 "joint_account_invite_load_failed_subtitle" = "无法加载邀请页面。\n点击重新加载";
 "joint_account_invite_members_creator" = "创建者";
 "joint_account_invite_members_invite" = "邀请";
-"joint_account_invite_members_invited" = "Invited";
+"joint_account_invite_members_invited" = "已邀请";
 "joint_account_invite_members_member_info" = "成员信息";
 "joint_account_invite_members_member" = "成员";
 "joint_account_invite_members_new_member" = "新成员";
@@ -1031,7 +1035,7 @@
 "joint_account_invite_members_title" = "邀请成员";
 "joint_account_invite_members_to_join" = "邀请成员加入";
 "joint_account_invite_members_waiting_title" = "等待成员";
-"joint_account_invite_share_title" = "Invite to %@";
+"joint_account_invite_share_title" = "邀请参加 %@";
 "joint_account_join_confirm_sheet_subtitle" = "该账户中的所有成员共用一个余额。其他成员在收集到足够签名后，无需您的批准即可调拨资金。";
 "joint_account_join_confirm_sheet_title" = "您正在加入一个共享帐户";
 "joint_account_join_invalid_link_subtitle" = "请确认您打开的是正确的链接，或者请账号创建者重新发送一次";
@@ -2209,7 +2213,10 @@
 "support_selector_view_chat_button" = "打开聊天";
 "support_selector_view_email_button" = "打开邮件";
 "swap_approve_description" = "批准后，您即允许智能合约在未来的交易中使用您的代币。";
+"swap_custom_slippage_info" = "Slippage can't be customized with this provider and may reach up to %@ in rare cases";
 "swap_detailed_mode" = "详细模式";
+"swap_exchange_rates_info_text" = "displayed include the service provider’s fee";
+"swap_exchange_rates_info_title" = "Exchange rates";
 "swap_fixed_rate" = "固定利率";
 "swap_give_permission_fee_footer" = "网络将收取代币批准费，以验证您是否授权使用您的代币进行兑换。";
 "swap_in_progress" = "兑换中";
@@ -2217,6 +2224,10 @@
 "swap_search_tooltip_description" = "搜索任何代币，即使它还不在你的列表中。";
 "swap_search_tooltip_title" = "使用搜索查找所需内容";
 "swap_simple_mode" = "简易模式";
+"swap_slippage_error" = "Unsupported amount";
+"swap_slippage_info_text" = "is the difference between the expected and actual execution price caused by market price or liquidity changes";
+"swap_slippage_warning_text" = "Swap may fail if the slippage threshold is hit";
+"swap_slippage_warning_title" = "Slippage is set %@";
 "swap_story_fifth_subtitle" = "我们提供全天候支持，让您安心无忧，任何问题都能得到帮助。";
 "swap_story_fifth_title" = "永远在这里";
 "swap_story_first_subtitle_v2" = "在 Tangem 直接兑换加密货币\n无需额外转账\n无需将资金转移到其他交易所";
@@ -2883,6 +2894,7 @@
 "transaction_history_approve_high_risk_subtitle" = "You're connected. Funds may be at risk. Consider revoking access.";
 "transaction_history_approve_high_risk_title" = "High Risk";
 "transaction_history_approved_amount" = "Approved amount";
+"transaction_history_claiming_incentive_rewards" = "Claiming incentive rewards";
 "transaction_history_claiming_reward" = "领取奖励";
 "transaction_history_contract_address" = "合约： %@";
 "transaction_history_detail_page_amount_signed_value" = "%1@ %2@ %3@";
@@ -2903,6 +2915,7 @@
 "transaction_history_fee_for_yield_mode_top_up" = "For Yield mode top-up";
 "transaction_history_fee_sending_asset" = "Send %%image%% %@";
 "transaction_history_from_inline_address" = "%%image%%%@";
+"transaction_history_incentive_rewards_claimed" = "Incentive rewards claimed";
 "transaction_history_multiple_addresses" = "多个地址";
 "transaction_history_not_supported_description" = "本区块链目前不支持交易历史记录。不过不用担心，我们正在努力！在此期间，您可以在资源管理器中查看。";
 "transaction_history_operation" = "操作";
@@ -2914,6 +2927,7 @@
 "transaction_history_status_claiming_rewards" = "Claiming rewards";
 "transaction_history_status_disabling_yield_mode_failed" = "Disabling Yield mode failed";
 "transaction_history_status_enabling_yield_mode_failed" = "Enabling Yield mode failed";
+"transaction_history_status_incentive_rewards_claim_failed" = "Claiming of incentive rewards failed";
 "transaction_history_status_receive_failed" = "Receive failed";
 "transaction_history_status_restaking_rewards" = "Restaking rewards";
 "transaction_history_status_rewards_claim_failed" = "Rewards claim failed";

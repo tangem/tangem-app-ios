@@ -322,6 +322,7 @@
 "common_approved" = "承認済み";
 "common_approving" = "承認中";
 "common_attention" = "注意";
+"common_auto" = "Auto";
 "common_available_networks" = "利用可能なネットワーク";
 "common_back" = "戻る";
 "common_backup_error" = "バックアップエラー";
@@ -360,6 +361,7 @@
 "common_custom" = "設定";
 "common_day" = "日";
 "common_decline" = "Decline";
+"common_default" = "Default";
 "common_delete" = "削除";
 "common_disable" = "無効にする";
 "common_disabled" = "無効";
@@ -488,6 +490,7 @@
 "common_share" = "共有";
 "common_sign" = "署名";
 "common_skip" = "スキップ";
+"common_slippage" = "Slippage";
 "common_something_went_wrong" = "問題が発生しました";
 "common_stake" = "ステーキング";
 "common_staked" = "ステーキング済み";
@@ -997,6 +1000,7 @@
 "introduction_stories_two_subtitle" = "どのカードからでもウォレットにアクセス可能";
 "introduction_stories_two_title" = "ひとつのウォレット、複数のカード";
 "introduction_subtitle" = "すべての資産を安全にひとつの場所で";
+"introduction_terms_of_service_consent" = "By continuing, you agree with %@";
 "introduction_terms_of_service" = "利用規約";
 "introduction_title" = "すべての資産をまとめる";
 "jailbreak_warning_message" = "ジェイルブレイクされた端末はセキュリティが低いと判断されます。データが追加のリスクにさらされる可能性があります。";
@@ -2209,7 +2213,10 @@
 "support_selector_view_chat_button" = "チャットを開く";
 "support_selector_view_email_button" = "メールを開く";
 "swap_approve_description" = "承認すると、このスマートコントラクトが今後の取引でトークンを利用できるようになります。";
+"swap_custom_slippage_info" = "Slippage can't be customized with this provider and may reach up to %@ in rare cases";
 "swap_detailed_mode" = "詳細モード";
+"swap_exchange_rates_info_text" = "displayed include the service provider’s fee";
+"swap_exchange_rates_info_title" = "Exchange rates";
 "swap_fixed_rate" = "固定レート";
 "swap_give_permission_fee_footer" = "ネットワークは、あなたがトークンのスワップを承認していることを確認するために、トークン承認手数料を請求します。";
 "swap_in_progress" = "スワップ中";
@@ -2217,6 +2224,10 @@
 "swap_search_tooltip_description" = "どのトークンでも検索できます。まだ一覧に表示されていないものでも検索可能です。";
 "swap_search_tooltip_title" = "必要なものは検索して見つけましょう。";
 "swap_simple_mode" = "シンプルモード";
+"swap_slippage_error" = "Unsupported amount";
+"swap_slippage_info_text" = "is the difference between the expected and actual execution price caused by market price or liquidity changes";
+"swap_slippage_warning_text" = "Swap may fail if the slippage threshold is hit";
+"swap_slippage_warning_title" = "Slippage is set %@";
 "swap_story_fifth_subtitle" = "24時間体制のサポートであらゆる問題に対応します。";
 "swap_story_fifth_title" = "いつもここに";
 "swap_story_first_subtitle_v2" = "Tangem内で暗号資産を直接交換できます\n追加の送金は不要\n取引所に資金を移す必要もありません";
@@ -2883,6 +2894,7 @@
 "transaction_history_approve_high_risk_subtitle" = "You're connected. Funds may be at risk. Consider revoking access.";
 "transaction_history_approve_high_risk_title" = "High Risk";
 "transaction_history_approved_amount" = "Approved amount";
+"transaction_history_claiming_incentive_rewards" = "Claiming incentive rewards";
 "transaction_history_claiming_reward" = "報酬受け取り中";
 "transaction_history_contract_address" = "コントラクト: %@";
 "transaction_history_detail_page_amount_signed_value" = "%1@ %2@ %3@";
@@ -2903,6 +2915,7 @@
 "transaction_history_fee_for_yield_mode_top_up" = "For Yield mode top-up";
 "transaction_history_fee_sending_asset" = "Send %%image%% %@";
 "transaction_history_from_inline_address" = "%%image%% %@ から";
+"transaction_history_incentive_rewards_claimed" = "Incentive rewards claimed";
 "transaction_history_multiple_addresses" = "複数のアドレス";
 "transaction_history_not_supported_description" = "現在、このブロックチェーンでは取引履歴はサポートされていません。しかしご心配なく！弊社で対応中です。その間、エクスプローラーで確認することができます。";
 "transaction_history_operation" = "処理";
@@ -2914,6 +2927,7 @@
 "transaction_history_status_claiming_rewards" = "Claiming rewards";
 "transaction_history_status_disabling_yield_mode_failed" = "Disabling Yield mode failed";
 "transaction_history_status_enabling_yield_mode_failed" = "Enabling Yield mode failed";
+"transaction_history_status_incentive_rewards_claim_failed" = "Claiming of incentive rewards failed";
 "transaction_history_status_receive_failed" = "Receive failed";
 "transaction_history_status_restaking_rewards" = "Restaking rewards";
 "transaction_history_status_rewards_claim_failed" = "Rewards claim failed";
