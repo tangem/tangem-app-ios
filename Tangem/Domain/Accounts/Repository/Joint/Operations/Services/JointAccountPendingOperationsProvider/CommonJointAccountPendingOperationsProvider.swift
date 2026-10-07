@@ -96,6 +96,10 @@ final class CommonJointAccountPendingOperationsProvider {
 // MARK: - JointAccountPendingOperationsProvider protocol conformance
 
 extension CommonJointAccountPendingOperationsProvider: JointAccountPendingOperationsProvider {
+    var pendingOperations: [JointAccountPendingOperation] {
+        pendingOperations(in: jointAccountsRepository.jointAccountsPendingOperations, walletModels: walletModelsManager.walletModels)
+    }
+
     var pendingOperationsPublisher: AnyPublisher<[JointAccountPendingOperation], Never> {
         Publishers.CombineLatest(
             jointAccountsRepository.jointAccountsPendingOperationsPublisher,
@@ -105,6 +109,10 @@ extension CommonJointAccountPendingOperationsProvider: JointAccountPendingOperat
         .map { $0.pendingOperations(in: $1.0, walletModels: $1.1) }
         .removeDuplicates()
         .eraseToAnyPublisher()
+    }
+
+    func requestFrequentUpdates() -> AnyCancellable {
+        jointAccountsRepository.requestFrequentUpdates()
     }
 }
 

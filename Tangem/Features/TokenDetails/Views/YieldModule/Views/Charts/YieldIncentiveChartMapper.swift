@@ -25,7 +25,7 @@ struct YieldIncentiveChartMapper {
 
         return YieldIncentiveChartData(
             baseApyData: points.map { NSDecimalNumber(decimal: $0.baseApy * 100).doubleValue },
-            rewardsAprData: points.map { NSDecimalNumber(decimal: $0.rewardsApr * 100).doubleValue },
+            totalApyData: totals,
             xTicks: makeTicks(dates: points.map(\.date), period: period),
             averageApy: averageApy
         )

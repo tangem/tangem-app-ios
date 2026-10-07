@@ -25,7 +25,7 @@ struct TokenSelectorItemSellAvailabilityProvider: TokenSelectorItemAvailabilityP
 
         return switch availabilityProvider.sellAvailability {
         case .available: .available
-        default: .unavailable(reason: .unavailableForSell)
+        case let sellState: .unavailable(reason: .unavailableForSell(sellState))
         }
     }
 }

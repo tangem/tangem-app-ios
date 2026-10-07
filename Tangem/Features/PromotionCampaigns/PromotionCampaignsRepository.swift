@@ -10,7 +10,7 @@ import Foundation
 import TangemFoundation
 
 struct CampaignBannerData {
-    let eligibleTokens: [BannerPromotion.Response.Token]
+    let eligibleTokens: [CampaignEligibleToken]
     let startDate: Date
     let endDate: Date
     let campaignStatus: BannerPromotion.Response.Status
@@ -35,8 +35,10 @@ actor PromotionCampaignsRepository {
             return nil
         }
 
+        let tokenMapper = CampaignEligibleTokenMapper()
+
         return CampaignBannerData(
-            eligibleTokens: promotion.all.tokens,
+            eligibleTokens: promotion.all.tokens.map { tokenMapper.map($0) },
             startDate: promotion.all.timeline.start,
             endDate: promotion.all.timeline.end,
             campaignStatus: promotion.all.status,

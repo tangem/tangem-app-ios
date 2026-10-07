@@ -90,6 +90,8 @@ struct DerivationConfigV3: DerivationConfig {
              .adi,
              .electroneum,
              .arc,
+             .publicMasterpiece,
+             .onyx,
              .seiEvm:
             return "m/44'/60'/0'/0/0"
         case .ethereumClassic:

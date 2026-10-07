@@ -25,7 +25,7 @@ struct TangemPayPopupView<ViewModel: TangemPayPopupViewModel, AdditionalContent:
     }
 
     var body: some View {
-        redesignedBody
+        content
     }
 }
 
@@ -36,7 +36,7 @@ extension TangemPayPopupView where AdditionalContent == EmptyView {
 }
 
 private extension TangemPayPopupView {
-    var redesignedBody: some View {
+    var content: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
                 Spacer(minLength: 0)

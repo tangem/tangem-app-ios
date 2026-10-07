@@ -81,6 +81,8 @@ public struct AddressServiceFactory {
              .adi,
              .electroneum,
              .arc,
+             .publicMasterpiece,
+             .onyx,
              .seiEvm:
             return EVMAddressService()
         case .rsk:

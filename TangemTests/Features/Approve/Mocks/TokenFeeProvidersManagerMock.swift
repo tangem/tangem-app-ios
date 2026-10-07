@@ -20,10 +20,14 @@ final class TokenFeeProvidersManagerMock: TokenFeeProvidersManager {
 
     var supportsGasBasedFeeEstimate: Bool = true
     var estimatedFeeResult: Result<Fee, Error>?
+    var transactionFeeResult: Result<Fee, Error>?
+    private(set) var transactionFeeDataCalls: [ExpressTransactionDataType] = []
 
     private(set) var updateInputCalls: [TokenFeeProviderInputData] = []
     private(set) var updateFeesCalls: Int = 0
     private(set) var updateSelectedFeeProviderCalls: [TokenItem] = []
+
+    var updateFeesGate: TestGate?
 
     // MARK: - Init
 
@@ -52,7 +56,10 @@ final class TokenFeeProvidersManagerMock: TokenFeeProvidersManager {
     @discardableResult
     func updateFees() -> Task<Void, Never> {
         updateFeesCalls += 1
-        return Task {}
+        let gate = updateFeesGate
+        return Task {
+            await gate?.wait()
+        }
     }
 
     func updateSelectedFeeProvider(feeTokenItem: TokenItem) {
@@ -86,7 +93,12 @@ final class TokenFeeProvidersManagerMock: TokenFeeProvidersManager {
     }
 
     func transactionFee(data: ExpressTransactionDataType) async throws -> Fee {
-        fatalError("Not used in tests")
+        transactionFeeDataCalls.append(data)
+        guard let transactionFeeResult else {
+            fatalError("Not used in tests")
+        }
+
+        return try transactionFeeResult.get()
     }
 
     func transactionFee(data: ExpressTransactionDataType, allowanceOverride: AllowanceOverride, approveData: ApproveTransactionData) async throws -> ApproveWithSwapFee {

@@ -27,6 +27,10 @@ struct PolymarketAccountBuilder {
         self.areHDWalletsSupported = areHDWalletsSupported
     }
 
+    func hasAccount() -> Bool {
+        AppSettings.shared.hasAccount(userWalletId: userWalletId)
+    }
+
     func buildAccountModel() -> any PolymarketAccountModel {
         let services = PolymarketOnboardingServicesFactory.makeDefault()
 

@@ -51,4 +51,5 @@ class SendRoutableMock: SendRoutable {
     func closeFeeSelector() {}
     func openFeeSelectorLearnMoreURL(_ url: URL) {}
     func openSwapTokenSelector(swapTokenSelectorViewModelBuilder: SwapTokenSelectorViewModelBuilder, direction: SwapTokenSelectorViewModel.SwapDirection) {}
+    func openSwapSlippageSelector(slippageSelectorBuilder: SwapSlippageSelectorBuilder) {}
 }

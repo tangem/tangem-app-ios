@@ -99,6 +99,8 @@ final class ForYouAccountsManagerStub: AccountModelsManager {
         throw .tooManyAccounts
     }
 
+    func reloadAccountsFromRemote() async {}
+
     func acceptTangemPayOffer(authorizingInteractor: TangemPayAuthorizing) async {}
     func acceptTangemPayCampaignOffer(authorizingInteractor: TangemPayAuthorizing, campaignKey: String) async {}
     func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {}

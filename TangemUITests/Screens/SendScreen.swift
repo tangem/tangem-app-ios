@@ -128,6 +128,22 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         return self
     }
 
+    /// The receive field should show the converted (destination-currency) value, not a literal copy of the source amount.
+    @discardableResult
+    func waitForReceiveAmountConverted(from sourceAmount: String) -> Self {
+        XCTContext.runActivity(named: "Validate receive amount is converted from source amount '\(sourceAmount)'") { _ in
+            let isConverted = receiveAmountTextField.waitForValue(timeout: .robustUIUpdate) { value in
+                let digits = value.filter { $0.isNumber }
+                return !digits.isEmpty && digits.contains { $0 != "0" } && value != sourceAmount
+            }
+            XCTAssertTrue(
+                isConverted,
+                "Receive amount should be a non-zero value converted from '\(sourceAmount)', but was '\(receiveAmountTextField.getValue())'"
+            )
+        }
+        return self
+    }
+
     @discardableResult
     func tapDestinationField() -> Self {
         _ = XCTContext.runActivity(named: "Tap destination field") { _ in

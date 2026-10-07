@@ -42,6 +42,9 @@ public struct PolymarketPositionDetailsView: View {
 
                 VStack(spacing: Constants.groupSpacing) {
                     PolymarketMarketCard(model: model.market)
+                        .onTapGesture {
+                            model.openEventDetails()
+                        }
 
                     PolymarketPositionStatsGrid(tiles: model.stats)
                 }
@@ -90,6 +93,7 @@ public extension PolymarketPositionDetailsView {
         public let stats: [PolymarketPositionStatTile.Model]
         public let rows: [PolymarketDetailsRowsBlock.Row]
         public let notice: PolymarketPositionNotice?
+        public let openEventDetails: () -> Void
         public let secondaryAction: Action?
         public let primaryAction: Action?
 
@@ -99,6 +103,7 @@ public extension PolymarketPositionDetailsView {
             stats: [PolymarketPositionStatTile.Model],
             rows: [PolymarketDetailsRowsBlock.Row],
             notice: PolymarketPositionNotice? = nil,
+            openEventDetails: @escaping () -> Void,
             secondaryAction: Action?,
             primaryAction: Action?
         ) {
@@ -107,6 +112,7 @@ public extension PolymarketPositionDetailsView {
             self.stats = stats
             self.rows = rows
             self.notice = notice
+            self.openEventDetails = openEventDetails
             self.secondaryAction = secondaryAction
             self.primaryAction = primaryAction
         }
