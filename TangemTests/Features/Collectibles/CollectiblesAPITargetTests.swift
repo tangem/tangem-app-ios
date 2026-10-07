@@ -66,6 +66,47 @@ final class CollectiblesAPITargetTests {
         #expect(parameters["cursor"] as? String == "next")
         #expect(parameters.count == 4)
     }
+
+    @Test("generate-purchase-tx: Turbo mode is sent as a nested object")
+    func generatePurchaseTurboMode() throws {
+        let request = CollectiblesDTO.GeneratePurchaseTxRequest(
+            fromAddress: "from",
+            machineID: "pokemon_50",
+            toAddress: "to",
+            turboMode: CollectiblesDTO.TurboMode(enabled: true, buybackAddress: "buyback")
+        )
+
+        let body = try jsonObject(request)
+        let turboMode = body["turboMode"] as? [String: Any]
+
+        #expect(turboMode?["enabled"] as? Bool == true)
+        #expect(turboMode?["buybackAddress"] as? String == "buyback")
+    }
+
+    @Test("Turbo off sends no turboMode, Turbo on sends an enabled one with its address")
+    func turboModeMapping() {
+        let off = CollectiblesAPIService.Mapper.mapToTurboMode(.off)
+        let on = CollectiblesAPIService.Mapper.mapToTurboMode(.on(buybackAddress: "buyback"))
+
+        #expect(off == nil)
+        #expect(on?.enabled == true)
+        #expect(on?.buybackAddress == "buyback")
+    }
+
+    @Test("generate-purchase-tx: no Turbo mode leaves the key out")
+    func generatePurchaseWithoutTurboMode() throws {
+        let request = CollectiblesDTO.GeneratePurchaseTxRequest(
+            fromAddress: "from",
+            machineID: "pokemon_50",
+            toAddress: "to",
+            turboMode: nil
+        )
+
+        let body = try jsonObject(request)
+
+        #expect(body["turboMode"] == nil)
+        #expect(body["machineId"] as? String == "pokemon_50")
+    }
 }
 
 // MARK: - Helpers
@@ -73,6 +114,11 @@ final class CollectiblesAPITargetTests {
 private extension CollectiblesAPITargetTests {
     func makeTarget(_ target: CollectiblesAPITarget.Target) -> CollectiblesAPITarget {
         CollectiblesAPITarget(baseURL: URL(string: "https://example.com")!, target: target)
+    }
+
+    func jsonObject(_ request: some Encodable) throws -> [String: Any] {
+        let data = try JSONEncoder().encode(request)
+        return try JSONSerialization.jsonObject(with: data) as? [String: Any] ?? [:]
     }
 
     func queryParameters(_ task: Moya.Task) throws -> [String: Any] {
