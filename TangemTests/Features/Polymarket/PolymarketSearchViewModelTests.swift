@@ -20,7 +20,7 @@ struct PolymarketSearchViewModelTests {
         let sut = Self.makeSUT(provider: provider)
 
         sut.query = "uz"
-        try await Self.drain()
+        try await drain()
 
         #expect(provider.searchRequests.isEmpty)
 
@@ -220,12 +220,6 @@ private extension PolymarketSearchViewModelTests {
         Issue.record("The search never settled, last state \(sut.state)")
     }
 
-    static func drain() async throws {
-        for _ in 0 ..< Constants.drainAttempts {
-            try await Task.sleep(nanoseconds: Constants.settleInterval)
-        }
-    }
-
     static func page(events: [PolymarketEvent], hasNext: Bool) -> PolymarketSearchResult {
         PolymarketSearchResult(events: events, page: nil, total: events.count, hasNext: hasNext)
     }
@@ -276,7 +270,6 @@ private extension PolymarketSearchViewModelTests {
 
     enum Constants {
         static let settleAttempts = 200
-        static let drainAttempts = 20
         static let settleInterval: UInt64 = 5_000_000
     }
 }
