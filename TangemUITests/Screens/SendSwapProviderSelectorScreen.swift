@@ -27,19 +27,37 @@ final class SendSwapProviderSelectorScreen: ScreenBase<SendSwapProviderSelectorE
     @discardableResult
     func assertAllProvidersCEX() -> Self {
         XCTContext.runActivity(named: "Assert all providers are CEX type") { _ in
+            XCTAssertTrue(waitForAllProviders(ofType: "CEX"), "All provider rows should be CEX type")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertAllProvidersDEX() -> Self {
+        XCTContext.runActivity(named: "Assert all providers are DEX type") { _ in
+            XCTAssertTrue(waitForAllProviders(ofType: "DEX"), "All provider rows should be DEX type")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertProvidersIncludeBothTypes() -> Self {
+        XCTContext.runActivity(named: "Assert the default (unfiltered) list includes both CEX and DEX providers") { _ in
             let rowPredicate = NSPredicate(format: "identifier BEGINSWITH %@", "sendSwapProviderSelectorRow_")
             let rows = app.buttons.matching(rowPredicate)
             let count = rows.count
             XCTAssertGreaterThan(count, 0, "At least one provider row should exist")
 
+            var hasCEX = false
+            var hasDEX = false
             for i in 0 ..< count {
-                let row = rows.element(boundBy: i)
-                let label = row.label
-                XCTAssertTrue(
-                    label.contains("CEX"),
-                    "Provider row \(i) should contain 'CEX' type but label was '\(label)'"
-                )
+                let label = rows.element(boundBy: i).label
+                hasCEX = hasCEX || label.contains("CEX")
+                hasDEX = hasDEX || label.contains("DEX")
             }
+
+            XCTAssertTrue(hasCEX, "Default provider list should include at least one CEX provider")
+            XCTAssertTrue(hasDEX, "Default provider list should include at least one DEX provider")
         }
         return self
     }
@@ -126,6 +144,22 @@ final class SendSwapProviderSelectorScreen: ScreenBase<SendSwapProviderSelectorE
             closeButton.waitAndTap()
         }
         return SendSummaryScreen(app)
+    }
+
+    private func waitForAllProviders(ofType type: String) -> Bool {
+        let rowPredicate = NSPredicate(format: "identifier BEGINSWITH %@", "sendSwapProviderSelectorRow_")
+        let predicate = NSPredicate { _, _ in
+            let rows = self.app.buttons.matching(rowPredicate)
+            let count = rows.count
+            guard count > 0 else { return false }
+
+            for i in 0 ..< count where !rows.element(boundBy: i).label.contains(type) {
+                return false
+            }
+            return true
+        }
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
+        return XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate) == .completed
     }
 }
 

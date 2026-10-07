@@ -205,9 +205,15 @@ final class SwapCommonUITests: BaseTestCase {
             .assertFilterDisplayed("all")
             .assertFilterDisplayed("cex")
             .assertFilterDisplayed("dex")
+            .assertProvidersIncludeBothTypes()
+
+        providerSelector
+            .selectFilter("cex")
+            .assertAllProvidersCEX()
 
         providerSelector
             .selectFilter("dex")
+            .assertAllProvidersDEX()
             .selectProviderReturningToSwap(name: "1Inch")
             .verifyProviderName(contains: "1Inch")
     }
