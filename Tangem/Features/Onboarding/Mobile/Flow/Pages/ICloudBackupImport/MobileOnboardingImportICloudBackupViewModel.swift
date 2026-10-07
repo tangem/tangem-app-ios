@@ -320,11 +320,18 @@ private extension MobileOnboardingImportICloudBackupViewModel {
 @MainActor
 private extension MobileOnboardingImportICloudBackupViewModel {
     func close() {
+        resignInput()
         delegate?.onBackupClose()
     }
 
     func didImportBackup(userWalletModel: UserWalletModel) {
+        resignInput()
         delegate?.didImportBackup(userWalletModel: userWalletModel)
+    }
+
+    func resignInput() {
+        isInputResponder = false
+        UIApplication.shared.endEditing()
     }
 }
 
