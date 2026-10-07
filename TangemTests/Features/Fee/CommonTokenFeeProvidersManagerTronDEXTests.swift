@@ -183,6 +183,26 @@ struct CommonTokenFeeProvidersManagerTronDEXTests {
 
         #expect(provider.setupCalls.isEmpty)
     }
+
+    @Test("transactionFee for a CEX deposit quotes the amount that will be sent")
+    func transactionFee_cex_quotesTxValueAndDepositAddress() async throws {
+        let loadedFee = BSDKFee(BSDKAmount(with: .tron(testnet: false), value: 1))
+        let provider = makeProvider(loadedFee: loadedFee)
+        let sut = CommonTokenFeeProvidersManager(feeProviders: [provider], initialSelectedProvider: provider, ownerAddress: nil)
+        let depositAddress = "TCEXDepositAddress"
+
+        let result = try await sut.transactionFee(data: .cex(data: makeExpressTransactionData(
+            destinationAddress: depositAddress,
+            fromAmount: 99,
+            txValue: 10,
+            txData: nil,
+            transactionType: .send
+        )))
+
+        #expect(provider.setupCalls == [.common(amount: 10, destination: depositAddress)])
+        #expect(provider.updateFeesCallCount == 1)
+        #expect(result.amount.value == 1)
+    }
 }
 
 // MARK: - Helpers
@@ -199,16 +219,18 @@ private extension CommonTokenFeeProvidersManagerTronDEXTests {
 
     func makeExpressTransactionData(
         destinationAddress: String = "TU3ymitEKCWQFtASkEeHaPb8NfZcJtCHLt",
+        fromAmount: Decimal = .zero,
         txValue: Decimal = .zero,
         txData: String?,
-        extraDestinationId: String? = nil
+        extraDestinationId: String? = nil,
+        transactionType: ExpressTransactionType = .swap
     ) -> ExpressTransactionData {
         ExpressTransactionData(
             requestId: "",
-            fromAmount: .zero,
+            fromAmount: fromAmount,
             toAmount: .zero,
             expressTransactionId: "",
-            transactionType: .swap,
+            transactionType: transactionType,
             sourceAddress: "TRbRnXcKrA9bkx1nnP3Z6pLJ2SDPdwRnBW",
             destinationAddress: destinationAddress,
             extraDestinationId: extraDestinationId,
