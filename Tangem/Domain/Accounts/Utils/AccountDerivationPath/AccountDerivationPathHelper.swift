@@ -182,6 +182,7 @@ struct AccountDerivationPathHelper {
              .adi,
              .electroneum,
              .arc,
+             .onyx,
              .seiEvm:
             return true
         case .chia:

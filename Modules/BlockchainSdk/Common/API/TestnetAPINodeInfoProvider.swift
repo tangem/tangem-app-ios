@@ -324,6 +324,10 @@ struct TestnetAPINodeInfoProvider {
             return [
                 .init(url: URL(string: "https://rpc.testnet.arc.io")!),
             ]
+        case .onyx:
+            return [
+                .init(url: URL(string: "https://rpc.testnet.goliath.net/")!),
+            ]
         case .seiEvm:
             return [
                 .init(url: URL(string: "https://evm-rpc-testnet.sei-apis.com/")!),
