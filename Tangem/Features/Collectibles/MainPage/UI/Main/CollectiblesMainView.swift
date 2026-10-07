@@ -271,8 +271,8 @@ private extension CollectiblesMainView {
         static let searchResultsTopPadding: CGFloat = 28
         static let contentBottomPadding: CGFloat = 24
         static let searchOverlayTravel: CGFloat = 40
-        static let searchOverlayDismissDuration: TimeInterval = 0.3
-        static let searchOverlayDismissFadeDuration: TimeInterval = 0.2
+        static let searchOverlayDismissDuration: TimeInterval = 0.36
+        static let searchOverlayDismissFadeDuration: TimeInterval = 0.28
 
         static let scrollAnchorHeight: CGFloat = 1
         static let searchHorizontalPadding: CGFloat = 16

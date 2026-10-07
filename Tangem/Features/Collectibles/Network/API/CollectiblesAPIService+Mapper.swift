@@ -20,6 +20,13 @@ extension CollectiblesAPIService {
             return CollectiblesLoreCatalogue(lores: lores, totalPacksCount: response.totalMachinesQuantity)
         }
 
+        static func mapToTurboMode(_ turboMode: CollectiblesTurboMode) -> CollectiblesDTO.TurboMode? {
+            switch turboMode {
+            case .off: nil
+            case .on(let buybackAddress): CollectiblesDTO.TurboMode(enabled: true, buybackAddress: buybackAddress)
+            }
+        }
+
         static func mapToPack(_ machine: CollectiblesDTO.Machine) -> CollectiblesPack {
             CollectiblesPack(
                 id: machine.externalId,

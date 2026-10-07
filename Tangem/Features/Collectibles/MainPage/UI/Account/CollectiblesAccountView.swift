@@ -19,7 +19,7 @@ struct CollectiblesAccountView: View {
     let onBalanceMaxYChange: (CGFloat) -> Void
 
     @ScaledMetric private var balanceLoaderWidth: CGFloat = 190
-    @ScaledMetric private var balanceLoaderHeight: CGFloat = 40
+    @ScaledMetric private var balanceLoaderHeight: CGFloat = 52
 
     @ScaledMetric(relativeTo: DesignSystem.Font.bodyMediumToken.relativeTo)
     private var collectionTitleBarHeight: CGFloat = 20

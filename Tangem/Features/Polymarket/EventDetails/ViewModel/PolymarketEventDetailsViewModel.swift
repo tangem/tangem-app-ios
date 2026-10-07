@@ -33,7 +33,7 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
     private var hasReportedStaleData = false
     private var isVisible = false
     private var isInBackground = false
-    private let appStateObserver = PolymarketAppStateObserver()
+    private let appStateObserver = AppStateObserver()
 
     init(
         eventID: String,

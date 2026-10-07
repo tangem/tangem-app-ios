@@ -12,6 +12,7 @@ protocol CollectiblesPurchaseGenerator {
     func generate(
         machineID: String,
         fromAddress: String,
-        toAddress: String
+        toAddress: String,
+        turboMode: CollectiblesTurboMode
     ) async throws -> CollectiblesGeneratedPurchase
 }

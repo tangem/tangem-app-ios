@@ -13,12 +13,14 @@ extension CollectiblesAPIService {
         machineID: String,
         fromAddress: String,
         toAddress: String,
+        turboMode: CollectiblesTurboMode,
         userWalletID: String
     ) async throws -> CollectiblesGeneratedPurchase {
         let generateRequest = CollectiblesDTO.GeneratePurchaseTxRequest(
             fromAddress: fromAddress,
             machineID: machineID,
-            toAddress: toAddress
+            toAddress: toAddress,
+            turboMode: Mapper.mapToTurboMode(turboMode)
         )
         let response: CollectiblesDTO.GeneratePurchaseTxResponse = try await request(
             .generatePurchaseTx(generateRequest, userWalletID: userWalletID)

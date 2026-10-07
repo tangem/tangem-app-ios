@@ -13,7 +13,7 @@ import TangemFoundation
 final class PolymarketBalanceRefresher {
     private let balanceProvider: PolymarketBalanceProvider
     private let fundsArrivalTracker: PolymarketFundsArrivalTracker
-    private let appStateObserver = PolymarketAppStateObserver()
+    private let appStateObserver = AppStateObserver()
 
     private var loopTask: Task<Void, Never>?
     private var isInBackground = false

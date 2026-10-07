@@ -17,9 +17,11 @@ final class CollectiblesMachineViewModel: ObservableObject {
     private let machineID: String
     private let provider: any CollectiblesMachineProvider
     private let pollInterval: Duration
+    private let appStateObserver: AppStateObserver
     private weak var routable: (any CollectiblesMachineRoutable)?
 
     private var machine: CollectiblesMachine
+    private var isOnScreen = false
 
     let prizePoolViewModel: CollectiblesPrizePoolViewModel
 
@@ -45,7 +47,8 @@ final class CollectiblesMachineViewModel: ObservableObject {
         routable: (any CollectiblesMachineRoutable)?,
         prizePoolProvider: any CollectiblesPrizePoolProvider,
         provider: any CollectiblesMachineProvider = CollectiblesAPIService(),
-        pollInterval: Duration = Constants.defaultPollInterval
+        pollInterval: Duration = Constants.defaultPollInterval,
+        notificationCenter: NotificationCenter = .default
     ) {
         title = pack.machine.name
         artworkURL = pack.machine.artworkURL
@@ -57,6 +60,11 @@ final class CollectiblesMachineViewModel: ObservableObject {
         self.provider = provider
         self.pollInterval = pollInterval
         prizePoolViewModel = CollectiblesPrizePoolViewModel(machineID: pack.id, provider: prizePoolProvider)
+        appStateObserver = AppStateObserver(notificationCenter: notificationCenter)
+
+        appStateObserver.start { [weak self] isInBackground in
+            self?.updateAppActivity(isActive: !isInBackground)
+        }
     }
 
     deinit {
@@ -65,7 +73,8 @@ final class CollectiblesMachineViewModel: ObservableObject {
 
     // MARK: - Methods
 
-    func load() {
+    func onWillAppear() {
+        isOnScreen = true
         prizePoolViewModel.load()
 
         guard pollingTask == nil else { return }
@@ -73,9 +82,9 @@ final class CollectiblesMachineViewModel: ObservableObject {
         startPolling()
     }
 
-    func stopPolling() {
-        pollingTask?.cancel()
-        pollingTask = nil
+    func onWillDisappear() {
+        isOnScreen = false
+        cancelPolling()
     }
 
     func openOrder() {
@@ -115,12 +124,16 @@ private extension CollectiblesMachineViewModel {
         return Localization.collectiblesMachineOpenButton(amount)
     }
 
-    func startPolling() {
+    func startPolling(fetchesImmediately: Bool = false) {
         pollingTask?.cancel()
 
         let interval = pollInterval
 
         pollingTask = Task { @MainActor [weak self] in
+            if fetchesImmediately {
+                await self?.fetch()
+            }
+
             while !Task.isCancelled {
                 do {
                     try await Task.sleep(for: interval)
@@ -131,6 +144,24 @@ private extension CollectiblesMachineViewModel {
                 await self?.fetch()
             }
         }
+    }
+
+    func cancelPolling() {
+        pollingTask?.cancel()
+        pollingTask = nil
+    }
+
+    func updateAppActivity(isActive: Bool) {
+        guard isOnScreen else { return }
+
+        guard isActive else {
+            cancelPolling()
+            return
+        }
+
+        guard pollingTask == nil else { return }
+
+        startPolling(fetchesImmediately: true)
     }
 
     func applyHeader(from machine: CollectiblesMachine) {
@@ -162,7 +193,7 @@ private extension CollectiblesMachineViewModel {
 extension CollectiblesMachineViewModel {
     enum Constants {
         /// The backend syncs machines with the partner every ~10 seconds; the ask is a 10-20 s refresh.
-        static let defaultPollInterval: Duration = .seconds(15)
+        static let defaultPollInterval: Duration = .seconds(10)
         /// The account spends USDC, while the values on the screen stay in dollars.
         static let paymentCurrencyCode = "USDC"
     }

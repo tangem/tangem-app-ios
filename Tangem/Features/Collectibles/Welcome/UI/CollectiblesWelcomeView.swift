@@ -135,7 +135,7 @@ private extension CollectiblesWelcomeView {
 
         static let contentHorizontalPadding: CGFloat = 24
         static let contentTopPadding: CGFloat = 12
-        static let contentBottomPadding: CGFloat = 24
+        static let contentBottomPadding: CGFloat = 18
 
         static let benefitsTopPadding: CGFloat = 36
         static let faqTopPadding: CGFloat = 24

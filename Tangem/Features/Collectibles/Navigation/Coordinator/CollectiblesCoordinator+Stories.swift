@@ -12,8 +12,7 @@ import TangemStories
 @MainActor
 extension CollectiblesCoordinator {
     func openStories() {
-        openMain()
-        presentStories()
+        presentStories(onShown: { [weak self] in self?.openMainIfNeeded() })
     }
 
     func openHowItWorks() {
@@ -21,10 +20,17 @@ extension CollectiblesCoordinator {
     }
 
     func closeStories() {
+        openMainIfNeeded()
         overlayViewPresenter.dismiss()
     }
 
-    private func presentStories() {
+    private func openMainIfNeeded() {
+        guard case .welcome = state else { return }
+
+        openMain()
+    }
+
+    private func presentStories(onShown: @escaping () -> Void = {}) {
         let analytics = storiesAnalyticsProvider
 
         let viewModel = CollectiblesStoriesViewModel(
@@ -44,7 +50,11 @@ extension CollectiblesCoordinator {
         overlayViewPresenter.present(
             OverlayView(
                 id: Constants.storiesOverlayID,
-                view: CollectiblesStoriesOverlayView(viewModel: viewModel, onDismiss: { [weak self] in self?.closeStories() }),
+                view: CollectiblesStoriesOverlayView(
+                    viewModel: viewModel,
+                    onShown: onShown,
+                    onDismiss: { [weak self] in self?.closeStories() }
+                ),
                 style: .fullScreenCover,
                 animated: false
             )

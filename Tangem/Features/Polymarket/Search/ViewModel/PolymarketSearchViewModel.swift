@@ -31,7 +31,7 @@ final class PolymarketSearchViewModel: ObservableObject {
     private var searchTask: Task<Void, Never>?
     private var refreshTask: Task<Void, Never>?
     private var visibleResultsRefreshTask: Task<Void, Never>?
-    private let appStateObserver = PolymarketAppStateObserver()
+    private let appStateObserver = AppStateObserver()
     private var bag: Set<AnyCancellable> = []
 
     init(

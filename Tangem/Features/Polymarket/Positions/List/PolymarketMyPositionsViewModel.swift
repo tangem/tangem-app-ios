@@ -49,7 +49,7 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
     private var orderTask: Task<Void, Never>?
     private var refreshTask: Task<Void, Never>?
     private var pollingTask: Task<Void, Never>?
-    private let appStateObserver = PolymarketAppStateObserver()
+    private let appStateObserver = AppStateObserver()
     private var bag: Set<AnyCancellable> = []
 
     init(
