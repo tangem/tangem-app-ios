@@ -17,7 +17,6 @@ import TangemFoundation
 final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var swapAmountViewModel: SwapAmountViewModel
     @Published private(set) var swapSummaryProviderViewModel: SwapSummaryProviderViewModel
-    @Published private(set) var swapSummarySlippageViewModel: SwapSummarySlippageViewModel
     @Published private(set) var feeCompactViewModel: SendFeeCompactViewModel
 
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
@@ -42,6 +41,8 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var formVariant: SwapFormVariant
     @Published var shouldAnimateBestRateBadge: Bool = true
 
+    let swapSummarySlippageViewModel: SwapSummarySlippageViewModel?
+
     var mainButtonIsLoading: Bool { isActionInProcessing }
 
     private let interactor: SwapSummaryInteractor
@@ -59,7 +60,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         analyticsLogger: SendSummaryAnalyticsLogger,
         swapAmountViewModel: SwapAmountViewModel,
         swapSummaryProviderViewModel: SwapSummaryProviderViewModel,
-        swapSummarySlippageViewModel: SwapSummarySlippageViewModel,
+        swapSummarySlippageViewModel: SwapSummarySlippageViewModel?,
         feeCompactViewModel: SendFeeCompactViewModel,
         sourceTokenInput: SendSourceTokenInput,
         formVariantResolver: SwapFormVariantResolver = SwapFormVariantResolver()
@@ -124,6 +125,10 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 
     func userDidTapFee() {
         router?.summaryStepRequestEditFee()
+    }
+
+    func userDidTapSlippage() {
+        router?.summaryStepRequestEditSlippage()
     }
 
     func userDidTapAmountFraction(_ fraction: SwapAmountFraction) {

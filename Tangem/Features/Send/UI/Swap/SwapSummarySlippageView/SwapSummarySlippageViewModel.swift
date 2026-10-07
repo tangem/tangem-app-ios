@@ -7,20 +7,19 @@
 //
 
 import Combine
+import Foundation
 import TangemFoundation
 
 final class SwapSummarySlippageViewModel: ObservableObject {
     @Published private(set) var isVisible = false
+    @Published private(set) var isEditable = false
+    @Published private(set) var value: Value = .auto
 
-    let isCustomSlippageAvailable: Bool
-
-    init(swapProvidersInput: SendSwapProvidersInput, isCustomSlippageAvailable: Bool) {
-        self.isCustomSlippageAvailable = isCustomSlippageAvailable
-
-        guard isCustomSlippageAvailable else {
-            return
-        }
-
+    init(
+        swapProvidersInput: SendSwapProvidersInput,
+        slippageInput: SwapSlippageInput,
+        percentFormatter: PercentFormatter = PercentFormatter()
+    ) {
         swapProvidersInput.selectedExpressProviderPublisher
             .map { provider in
                 switch provider {
@@ -31,5 +30,31 @@ final class SwapSummarySlippageViewModel: ObservableObject {
             .removeDuplicates()
             .receiveOnMain()
             .assign(to: &$isVisible)
+
+        swapProvidersInput.selectedExpressProviderPublisher
+            .map { $0?.value != nil }
+            .removeDuplicates()
+            .receiveOnMain()
+            .assign(to: &$isEditable)
+
+        slippageInput.slippagePublisher
+            .map { [percentFormatter] slippage in
+                switch slippage {
+                case .auto: .auto
+                case .custom(let value): .custom(percentFormatter.format(value, option: .customSlippage))
+                }
+            }
+            .removeDuplicates()
+            .receiveOnMain()
+            .assign(to: &$value)
+    }
+}
+
+// MARK: - Value
+
+extension SwapSummarySlippageViewModel {
+    enum Value: Hashable {
+        case auto
+        case custom(String)
     }
 }

@@ -380,6 +380,16 @@ extension SendCoordinator: SwapRoutable {
             marketsTokenAdditionRouter: marketsTokenAdditionCoordinator
         )
     }
+
+    func openSwapSlippageSelector(slippageSelectorBuilder: SwapSlippageSelectorBuilder) {
+        guard let viewModel = slippageSelectorBuilder.makeSlippageSelector() else {
+            return
+        }
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
 }
 
 // MARK: - SwapTokenSelectorRoutable
