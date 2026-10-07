@@ -162,7 +162,7 @@ struct PolymarketSearchBlockViewModelTests {
     @Test("Choosing a result opens the event details")
     func choosingResultOpensEventDetails() async throws {
         let provider = PolymarketAPIProviderStub(searchResults: [.success(Self.page(events: [Self.event(id: "a")], hasNext: false))])
-        let routable = PolymarketSearchBlockRoutableSpy()
+        let routable = PolymarketEventOpeningRoutableSpy()
         let sut = Self.makeSUT(provider: provider, routable: routable)
 
         sut.isFieldActive = true
@@ -183,7 +183,7 @@ struct PolymarketSearchBlockViewModelTests {
         let market = Self.market(id: "m1", outcomes: [outcome])
         let event = Self.event(id: "a", markets: [market])
         let provider = PolymarketAPIProviderStub(searchResults: [.success(Self.page(events: [event], hasNext: false))])
-        let routable = PolymarketSearchBlockRoutableSpy()
+        let routable = PolymarketEventOpeningRoutableSpy()
         let sut = Self.makeSUT(provider: provider, routable: routable)
 
         sut.isFieldActive = true
@@ -207,7 +207,7 @@ struct PolymarketSearchBlockViewModelTests {
         let outcome = PolymarketOutcome(assetId: "yes", title: "Yes", probability: 0.42)
         let event = Self.event(id: "a", markets: [Self.market(id: "m1", outcomes: [outcome])])
         let provider = PolymarketAPIProviderStub(searchResults: [.success(Self.page(events: [event], hasNext: false))])
-        let routable = PolymarketSearchBlockRoutableSpy()
+        let routable = PolymarketEventOpeningRoutableSpy()
         let tracker = PolymarketFundsArrivalTracker(balancePublisher: Empty().eraseToAnyPublisher())
         let sut = Self.makeSUT(provider: provider, routable: routable, fundsArrivalTracker: tracker)
 
@@ -225,7 +225,7 @@ struct PolymarketSearchBlockViewModelTests {
     @Test("An order placed from event details opened in search expects a balance change")
     func orderFromSearchedEventExpectsBalanceChange() async throws {
         let provider = PolymarketAPIProviderStub(searchResults: [.success(Self.page(events: [Self.event(id: "a")], hasNext: false))])
-        let routable = PolymarketSearchBlockRoutableSpy()
+        let routable = PolymarketEventOpeningRoutableSpy()
         let tracker = PolymarketFundsArrivalTracker(balancePublisher: Empty().eraseToAnyPublisher())
         let sut = Self.makeSUT(provider: provider, routable: routable, fundsArrivalTracker: tracker)
 
@@ -244,7 +244,7 @@ struct PolymarketSearchBlockViewModelTests {
         let outcome = PolymarketOutcome(assetId: "yes", title: "Yes", probability: 0.42)
         let event = Self.event(id: "a", markets: [Self.market(id: "m1", outcomes: [outcome])])
         let provider = PolymarketAPIProviderStub(searchResults: [.success(Self.page(events: [event], hasNext: false))])
-        let routable = PolymarketSearchBlockRoutableSpy()
+        let routable = PolymarketEventOpeningRoutableSpy()
         let sut = Self.makeSUT(provider: provider, routable: routable, isRegionRestricted: true)
 
         sut.query = "uzbekistan"
@@ -284,7 +284,7 @@ struct PolymarketSearchBlockViewModelTests {
 private extension PolymarketSearchBlockViewModelTests {
     static func makeSUT(
         provider: PolymarketAPIProvider,
-        routable: PolymarketSearchBlockRoutableSpy = PolymarketSearchBlockRoutableSpy.ignored,
+        routable: PolymarketEventOpeningRoutableSpy = PolymarketEventOpeningRoutableSpy.ignored,
         isRegionRestricted: Bool = false,
         fundsArrivalTracker: PolymarketFundsArrivalTracker = PolymarketFundsArrivalTracker(balancePublisher: Empty().eraseToAnyPublisher())
     ) -> PolymarketSearchBlockViewModel {

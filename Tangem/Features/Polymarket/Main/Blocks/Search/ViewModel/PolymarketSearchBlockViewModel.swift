@@ -31,7 +31,7 @@ final class PolymarketSearchBlockViewModel: ObservableObject {
     private let activityHandler: PolymarketMainActivityHandler
     private let isRegionRestricted: () -> Bool
     private let debounceInterval: DispatchQueue.SchedulerTimeType.Stride
-    private weak var routable: PolymarketSearchBlockRoutable?
+    private weak var routable: PolymarketEventOpeningRoutable?
 
     private var events: [PolymarketEvent] = []
     private var activeQuery = ""
@@ -48,7 +48,7 @@ final class PolymarketSearchBlockViewModel: ObservableObject {
         apiProvider: PolymarketAPIProvider,
         activityHandler: PolymarketMainActivityHandler,
         isRegionRestricted: @escaping () -> Bool,
-        routable: PolymarketSearchBlockRoutable,
+        routable: PolymarketEventOpeningRoutable,
         debounceInterval: DispatchQueue.SchedulerTimeType.Stride = .milliseconds(Constants.debounceMilliseconds)
     ) {
         self.apiProvider = apiProvider

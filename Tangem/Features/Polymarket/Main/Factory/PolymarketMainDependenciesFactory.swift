@@ -73,46 +73,17 @@ struct PolymarketMainDependencies {
         MainScreenUIOrderedWalletModelsProvider(userWalletModel: userWalletModel)
     }
 
-    func makeMainViewModel(routable: PolymarketMainRoutable) -> PolymarketMainViewModel {
+    @MainActor
+    func makeMainViewModel(routable: PolymarketMainScreenRoutable) -> PolymarketMainViewModel {
         PolymarketMainViewModel(
-            apiProvider: apiProvider,
+            balanceViewModel: makeBalanceBlockViewModel(routable: routable),
+            positionsViewModel: makePositionsBlockViewModel(routable: routable),
+            searchViewModel: makeSearchBlockViewModel(routable: routable),
+            eventsViewModel: makeEventsBlockViewModel(routable: routable),
             geoblockStateProvider: geoblockStateProvider,
             fundsArrivalTracker: fundsArrivalTracker,
             refreshCenter: refreshCenter,
-            activityHandler: activityHandler,
             coordinator: routable
-        )
-    }
-
-    func makeBalanceBlockViewModel(routable: PolymarketBalanceBlockRoutable) -> PolymarketBalanceBlockViewModel {
-        PolymarketBalanceBlockViewModel(
-            balanceProvider: balanceProvider,
-            accountFundsInteractor: accountFundsInteractor,
-            fundsArrivalTracker: fundsArrivalTracker,
-            isRegionRestricted: { [geoblockStateProvider] in geoblockStateProvider.state.isBlocked },
-            refreshCenter: refreshCenter,
-            routable: routable
-        )
-    }
-
-    @MainActor
-    func makePositionsBlockViewModel(routable: PolymarketPositionsBlockRoutable) -> PolymarketPositionsBlockViewModel {
-        PolymarketPositionsBlockViewModel(
-            positionsService: positionsService,
-            presenceStore: AppSettings.shared,
-            userWalletId: userWalletModel.userWalletId,
-            refreshCenter: refreshCenter,
-            activityHandler: activityHandler,
-            routable: routable
-        )
-    }
-
-    func makeSearchBlockViewModel(routable: PolymarketSearchBlockRoutable) -> PolymarketSearchBlockViewModel {
-        PolymarketSearchBlockViewModel(
-            apiProvider: apiProvider,
-            activityHandler: activityHandler,
-            isRegionRestricted: { [geoblockStateProvider] in geoblockStateProvider.state.isBlocked },
-            routable: routable
         )
     }
 
@@ -130,6 +101,56 @@ struct PolymarketMainDependencies {
             userWalletInfo: userWalletModel.userWalletInfo,
             walletModelsProvider: walletModelsProvider,
             accountModel: accountModel
+        )
+    }
+}
+
+// MARK: - Main screen blocks
+
+private extension PolymarketMainDependencies {
+    var isRegionRestricted: () -> Bool {
+        { [geoblockStateProvider] in geoblockStateProvider.state.isBlocked }
+    }
+
+    func makeBalanceBlockViewModel(routable: PolymarketBalanceBlockRoutable) -> PolymarketBalanceBlockViewModel {
+        PolymarketBalanceBlockViewModel(
+            balanceProvider: balanceProvider,
+            accountFundsInteractor: accountFundsInteractor,
+            fundsArrivalTracker: fundsArrivalTracker,
+            isRegionRestricted: isRegionRestricted,
+            refreshCenter: refreshCenter,
+            routable: routable
+        )
+    }
+
+    @MainActor
+    func makePositionsBlockViewModel(routable: PolymarketPositionsBlockRoutable) -> PolymarketPositionsBlockViewModel {
+        PolymarketPositionsBlockViewModel(
+            positionsService: positionsService,
+            presenceStore: AppSettings.shared,
+            userWalletId: userWalletModel.userWalletId,
+            refreshCenter: refreshCenter,
+            activityHandler: activityHandler,
+            routable: routable
+        )
+    }
+
+    func makeSearchBlockViewModel(routable: PolymarketEventOpeningRoutable) -> PolymarketSearchBlockViewModel {
+        PolymarketSearchBlockViewModel(
+            apiProvider: apiProvider,
+            activityHandler: activityHandler,
+            isRegionRestricted: isRegionRestricted,
+            routable: routable
+        )
+    }
+
+    func makeEventsBlockViewModel(routable: PolymarketEventOpeningRoutable) -> PolymarketEventsBlockViewModel {
+        PolymarketEventsBlockViewModel(
+            apiProvider: apiProvider,
+            refreshCenter: refreshCenter,
+            activityHandler: activityHandler,
+            isRegionRestricted: isRegionRestricted,
+            routable: routable
         )
     }
 }

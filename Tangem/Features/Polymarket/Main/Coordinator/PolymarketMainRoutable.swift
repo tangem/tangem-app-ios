@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemPolymarket
 
 protocol PolymarketMainRoutable: AnyObject {
     func dismiss()
@@ -18,18 +17,9 @@ protocol PolymarketMainRoutable: AnyObject {
 
     @MainActor
     func openSupportChat()
-
-    func openEventDetails(
-        eventID: String,
-        category: PolymarketCategory?,
-        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
-    )
-
-    func openOrder(
-        market: PolymarketMarket,
-        outcome: PolymarketOutcome,
-        eventTitle: String,
-        request: PolymarketOrderRequest,
-        onPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
-    )
 }
+
+typealias PolymarketMainScreenRoutable = PolymarketMainRoutable
+    & PolymarketBalanceBlockRoutable
+    & PolymarketPositionsBlockRoutable
+    & PolymarketEventOpeningRoutable
