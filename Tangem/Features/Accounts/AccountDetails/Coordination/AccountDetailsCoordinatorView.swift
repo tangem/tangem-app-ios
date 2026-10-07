@@ -33,13 +33,13 @@ struct AccountDetailsCoordinatorView: View {
             .navigation(item: $coordinator.manageTokensCoordinator) {
                 ManageTokensCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.jointAccountManagementCoordinator) {
+                JointAccountManagementCoordinatorView(coordinator: $0, dismissStyle: .back)
+            }
     }
 
     private var sheets: some View {
         NavHolder()
-            .fullScreenCover(item: $coordinator.jointAccountManagementCoordinator) {
-                JointAccountManagementCoordinatorView(coordinator: $0)
-            }
             .sheet(item: $coordinator.editAccountViewModel) { viewModel in
                 NavigationStack {
                     AccountFormView(viewModel: viewModel)

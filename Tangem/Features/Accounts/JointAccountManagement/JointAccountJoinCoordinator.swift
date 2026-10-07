@@ -28,6 +28,10 @@ final class JointAccountJoinCoordinator: CoordinatorObject {
 
     @Published var path: [Step] = []
 
+    // MARK: - Child coordinators
+
+    @Published var jointAccountManagementCoordinator: JointAccountManagementCoordinator?
+
     // MARK: - Dependencies
 
     private var options: Options?
@@ -69,6 +73,24 @@ final class JointAccountJoinCoordinator: CoordinatorObject {
                 coordinator: self
             )
         }
+    }
+}
+
+// MARK: - Private
+
+private extension JointAccountJoinCoordinator {
+    func openMembers(of jointAccount: any JointAccountModel) {
+        let coordinator = JointAccountManagementCoordinator(
+            dismissAction: { [weak self] in self?.dismiss() },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .members(jointAccount: jointAccount))
+        jointAccountManagementCoordinator = coordinator
+    }
+
+    func showJoinSuccessToast() {
+        Toast(view: SuccessToast(text: Localization.jointAccountJoinSuccessMessage))
+            .present(layout: .top(padding: 24), type: .temporary(interval: 4))
     }
 }
 
@@ -169,11 +191,14 @@ extension JointAccountJoinCoordinator: JointAccountMemberNameRoutable {
 // MARK: - JointAccountJoinMemberNameRoutable
 
 extension JointAccountJoinCoordinator: JointAccountJoinMemberNameRoutable {
+    func openJoinedAccount(jointAccount: any JointAccountModel) {
+        openMembers(of: jointAccount)
+        showJoinSuccessToast()
+    }
+
     func closeJoinedAccount() {
         dismiss()
-
-        Toast(view: SuccessToast(text: Localization.jointAccountJoinSuccessMessage))
-            .present(layout: .top(padding: 24), type: .temporary(interval: 4))
+        showJoinSuccessToast()
     }
 }
 
