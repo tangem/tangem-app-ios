@@ -161,6 +161,7 @@ enum NFTChainConverter {
              .adi,
              .electroneum,
              .arc,
+             .onyx,
              .seiEvm:
             return nil
         }
