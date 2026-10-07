@@ -18,35 +18,31 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
         private static let walletAddress = "TJRyWwFs9wTFGZg3JbrVriFbNfCug5tDeC"
         private static let contractAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
 
-        private let previousAuxDataRepository: TransactionHistoryAuxDataRepository
         private let auxDataRepository = TransactionHistoryAuxDataRepositoryStub()
 
-        init() {
-            previousAuxDataRepository = InjectedValues[\.transactionHistoryAuxDataRepository]
-            InjectedValues[\.transactionHistoryAuxDataRepository] = auxDataRepository
-        }
-
-        deinit {
-            InjectedValues[\.transactionHistoryAuxDataRepository] = previousAuxDataRepository
-        }
-
         @Test("A Tron transaction that cost no fee shows no network fee", arguments: [Decimal.zero, 1])
-        func aZeroTronFeeIsNotShown(movedCoin: Decimal) throws {
-            let content = try #require(makeContent(fee: 0, movedCoin: movedCoin, blockchain: Self.tron))
+        func aZeroTronFeeIsNotShown(movedCoin: Decimal) async throws {
+            let content = try await withStubbedDependencies {
+                try #require(makeContent(fee: 0, movedCoin: movedCoin, blockchain: Self.tron))
+            }
 
             #expect(content.info?.rows.contains { $0.id == "networkFee" } != true)
         }
 
         @Test("A zero fee outside Tron is still shown")
-        func aZeroFeeOutsideTronIsShown() throws {
-            let content = try #require(makeContent(fee: 0, movedCoin: 1, blockchain: .ethereum(testnet: false)))
+        func aZeroFeeOutsideTronIsShown() async throws {
+            let content = try await withStubbedDependencies {
+                try #require(makeContent(fee: 0, movedCoin: 1, blockchain: .ethereum(testnet: false)))
+            }
 
             #expect(content.info?.rows.contains { $0.id == "networkFee" } == true)
         }
 
         @Test("A transfer that cost a fee shows it")
-        func aFeeIsShown() throws {
-            let content = try #require(makeContent(fee: 0.345, movedCoin: 1, blockchain: Self.tron))
+        func aFeeIsShown() async throws {
+            let content = try await withStubbedDependencies {
+                try #require(makeContent(fee: 0.345, movedCoin: 1, blockchain: Self.tron))
+            }
 
             #expect(content.info?.rows.contains { $0.id == "networkFee" } == true)
         }
@@ -56,6 +52,15 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
 // MARK: - Helpers
 
 private extension TransactionHistoryAuxDataRepositoryDependentTests.TransactionDetailsZeroFeeTests {
+    func withStubbedDependencies<T>(_ operation: () throws -> T) async rethrows -> T {
+        try await InjectedDependenciesIsolation.shared.run {
+            let previousAuxDataRepository = InjectedValues[\.transactionHistoryAuxDataRepository]
+            InjectedValues[\.transactionHistoryAuxDataRepository] = auxDataRepository
+            defer { InjectedValues[\.transactionHistoryAuxDataRepository] = previousAuxDataRepository }
+            return try operation()
+        }
+    }
+
     func makeContent(fee: Decimal, movedCoin: Decimal, blockchain: Blockchain) -> TransactionDetailsGenericOperationViewData? {
         let record = TransactionRecord(
             hash: "trc20transfer",

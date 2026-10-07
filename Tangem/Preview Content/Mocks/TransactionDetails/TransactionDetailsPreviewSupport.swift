@@ -70,6 +70,18 @@ extension CommonWalletModel {
         token: Token? = nil,
         blockchain: Blockchain = .ethereum(testnet: false)
     ) -> CommonWalletModel {
+        previewWalletModel(
+            transactionHistoryService: PreviewTransactionHistoryService(records: history),
+            token: token,
+            blockchain: blockchain
+        )
+    }
+
+    static func previewWalletModel(
+        transactionHistoryService: TransactionHistoryService,
+        token: Token? = nil,
+        blockchain: Blockchain = .ethereum(testnet: false)
+    ) -> CommonWalletModel {
         let walletManager = EthereumWalletManagerMock()
         walletManager.wallet = Wallet(
             blockchain: blockchain,
@@ -100,7 +112,7 @@ extension CommonWalletModel {
             stakingManager: StakingManagerMock(),
             featureManager: WalletModelFeaturesManagerMock(),
             transactionHistoryUpdater: TransactionHistoryUpdater(),
-            transactionHistoryService: PreviewTransactionHistoryService(records: history),
+            transactionHistoryService: transactionHistoryService,
             receiveAddressService: DummyReceiveAddressService(addressInfos: []),
             sendAvailabilityProvider: sendAvailabilityProvider,
             tokenBalancesRepository: TokenBalancesRepositoryMock(),
