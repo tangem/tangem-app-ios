@@ -580,15 +580,37 @@ final class PolymarketGeoblockStateProviderStub: PolymarketGeoblockStateProvider
 
 // MARK: - Search routing
 
-final class PolymarketSearchRoutableSpy: PolymarketSearchRoutable {
-    private(set) var openedEventIDs: [String] = []
-    private(set) var openedOutcomes: [(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String)] = []
+final class PolymarketSearchBlockRoutableSpy: PolymarketSearchBlockRoutable {
+    static let ignored = PolymarketSearchBlockRoutableSpy()
 
-    func openEventDetailsFromSearch(eventID: String) {
-        openedEventIDs.append(eventID)
+    private(set) var openedEventIDs: [String] = []
+    private(set) var openedOutcomes: [(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String, isBuy: Bool)] = []
+    private(set) var openedEventCategories: [PolymarketCategory?] = []
+    private(set) var regionWarningOpenings = 0
+    private(set) var lastOnPlaced: (@MainActor (PolymarketOrderIndexing) -> Void)?
+
+    func openRegionWarning() {
+        regionWarningOpenings += 1
     }
 
-    func openOrderFromSearch(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {
-        openedOutcomes.append((market, outcome, eventTitle))
+    func openEventDetails(
+        eventID: String,
+        category: PolymarketCategory?,
+        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
+    ) {
+        openedEventIDs.append(eventID)
+        openedEventCategories.append(category)
+        lastOnPlaced = onOrderPlaced
+    }
+
+    func openOrder(
+        market: PolymarketMarket,
+        outcome: PolymarketOutcome,
+        eventTitle: String,
+        request: PolymarketOrderRequest,
+        onPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
+    ) {
+        openedOutcomes.append((market, outcome, eventTitle, request.side == .buy))
+        lastOnPlaced = onPlaced
     }
 }
