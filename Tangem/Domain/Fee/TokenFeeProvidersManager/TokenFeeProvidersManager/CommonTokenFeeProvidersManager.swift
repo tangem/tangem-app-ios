@@ -176,7 +176,7 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
         switch (data, blockchain) {
         case (.cex(let data), _):
             update(
-                input: .cex(amount: data.fromAmount, destination: data.destinationAddress)
+                input: .common(amount: data.txValue, destination: data.destinationAddress)
             )
 
             await updateFees().value
