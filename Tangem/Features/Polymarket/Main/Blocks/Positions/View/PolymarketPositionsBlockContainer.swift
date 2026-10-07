@@ -23,7 +23,7 @@ struct PolymarketPositionsBlockContainer<Content: View>: View {
 
             content
         }
-        .padding(.horizontal, Constants.horizontalPadding)
+        .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
         .padding(.top, Constants.topSpacing)
     }
 }
@@ -61,5 +61,4 @@ private extension PolymarketPositionsBlockContainer {
 private enum Constants {
     static let topSpacing: CGFloat = 52
     static let spacing: CGFloat = 16
-    static let horizontalPadding: CGFloat = 16
 }
