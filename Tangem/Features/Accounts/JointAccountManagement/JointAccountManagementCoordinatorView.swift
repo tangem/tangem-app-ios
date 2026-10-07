@@ -11,20 +11,31 @@ import SwiftUI
 struct JointAccountManagementCoordinatorView: View {
     @ObservedObject var coordinator: JointAccountManagementCoordinator
 
+    var dismissStyle: JointAccountInviteMembersView.DismissStyle = .close
+
     var body: some View {
-        NavigationStack(path: $coordinator.path) {
-            ZStack {
-                switch coordinator.root {
-                case .onboarding(let viewModel, _):
-                    JointAccountOnboardingView(viewModel: viewModel)
-                case .inviteMembers(let viewModel):
-                    JointAccountInviteMembersView(viewModel: viewModel)
-                case nil:
-                    EmptyView()
-                }
+        switch dismissStyle {
+        case .close:
+            NavigationStack(path: $coordinator.path) {
+                root
+                    // Attached outside of the root switch so that the destination is registered before any step gets pushed
+                    .navigationDestination(for: JointAccountManagementCoordinator.Step.self) { destination(for: $0) }
             }
-            // Attached outside of the root switch so that the destination is registered before any step gets pushed
-            .navigationDestination(for: JointAccountManagementCoordinator.Step.self) { destination(for: $0) }
+        case .back:
+            root
+        }
+    }
+
+    private var root: some View {
+        ZStack {
+            switch coordinator.root {
+            case .onboarding(let viewModel, _):
+                JointAccountOnboardingView(viewModel: viewModel)
+            case .inviteMembers(let viewModel):
+                JointAccountInviteMembersView(viewModel: viewModel, dismissStyle: dismissStyle)
+            case nil:
+                EmptyView()
+            }
         }
     }
 
@@ -38,7 +49,7 @@ struct JointAccountManagementCoordinatorView: View {
         case .memberName(let viewModel):
             JointAccountMemberNameView(viewModel: viewModel)
         case .inviteMembers(let viewModel):
-            JointAccountInviteMembersView(viewModel: viewModel)
+            JointAccountInviteMembersView(viewModel: viewModel, dismissStyle: .close)
         }
     }
 }
