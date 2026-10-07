@@ -17,6 +17,7 @@ public struct NavigationHeader<L: View, P: View, T: View>: View {
     private let trailingContent: T
 
     private var backgroundBottomInset: CGFloat = 0
+    private var backgroundColor: Color?
 
     public init(
         @ViewBuilder leadingContent: () -> L,
@@ -47,6 +48,7 @@ public struct NavigationHeader<L: View, P: View, T: View>: View {
             VariableBlur(direction: .down)
                 .maximumBlurRadius(coversContentBelow ? NavigationHeaderConstants.extendedBlurRadius : NavigationHeaderConstants.blurRadius)
                 .blurStartingInset(startingInset)
+                .dimmingTintColor(overriding: backgroundColor)
                 .dimmingAlpha(.constant(alpha: 0.5))
                 .dimmingOvershoot(nil)
                 .dimmingStartingInset(startingInset)
@@ -57,12 +59,22 @@ public struct NavigationHeader<L: View, P: View, T: View>: View {
     }
 }
 
+private extension VariableBlur {
+    func dimmingTintColor(overriding color: Color?) -> VariableBlur {
+        color.map { dimmingTintColor($0) } ?? self
+    }
+}
+
 // MARK: - Setupable
 
 extension NavigationHeader: Setupable {
     /// Extends the backdrop below the navigation controls, so content pinned under them is covered too.
     public func backgroundBottomInset(_ inset: CGFloat) -> Self {
         map { $0.backgroundBottomInset = inset }
+    }
+
+    public func backgroundColor(_ color: Color) -> Self {
+        map { $0.backgroundColor = color }
     }
 }
 
