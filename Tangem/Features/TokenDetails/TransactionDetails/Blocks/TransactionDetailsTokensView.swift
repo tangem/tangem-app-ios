@@ -290,18 +290,9 @@ private struct DashedDivider: View {
     let color: Color
 
     var body: some View {
-        Line()
+        HorizontalLine()
             .stroke(color, style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
             .frame(height: 1)
-    }
-
-    private struct Line: Shape {
-        func path(in rect: CGRect) -> Path {
-            var path = Path()
-            path.move(to: CGPoint(x: rect.minX, y: rect.midY))
-            path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
-            return path
-        }
     }
 }
 
