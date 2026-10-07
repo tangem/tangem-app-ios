@@ -1,5 +1,5 @@
 //
-//  PolymarketSearchView.swift
+//  PolymarketSearchResultsView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -13,8 +13,8 @@ import TangemPolymarketUI
 import TangemUI
 import TangemUIUtils
 
-struct PolymarketSearchView: View {
-    @ObservedObject var viewModel: PolymarketSearchViewModel
+struct PolymarketSearchResultsView: View {
+    @ObservedObject var viewModel: PolymarketSearchBlockViewModel
 
     var body: some View {
         content
@@ -140,7 +140,7 @@ struct PolymarketSearchView: View {
 
 // MARK: - Constants
 
-private extension PolymarketSearchView {
+private extension PolymarketSearchResultsView {
     enum Constants {
         static let horizontalPadding: CGFloat = 16
         static let contentSpacing: CGFloat = 12
