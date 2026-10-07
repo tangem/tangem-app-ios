@@ -15,6 +15,10 @@ struct PolymarketMainDependenciesFactory {
         let walletId = userWalletModel.userWalletId.stringValue
         let apiProvider = PolymarketAPIProviderFactory().makeProvider(walletId: walletId)
         let balanceProvider = CommonPolymarketBalanceProvider(userWalletModel: userWalletModel)
+        let fundsArrivalTracker = PolymarketFundsArrivalTracker(
+            balancePublisher: balanceProvider.collateralBalancePublisher.map(\.value).eraseToAnyPublisher()
+        )
+        let refreshCenter = PolymarketMainRefreshCenter()
 
         return PolymarketMainDependencies(
             userWalletModel: userWalletModel,
@@ -29,9 +33,9 @@ struct PolymarketMainDependenciesFactory {
             clobService: PolymarketOnboardingServicesFactory.makeDefault().makeCLOBService(),
             redeemService: PolymarketRedeemFactory().makeService(for: userWalletModel),
             withdrawContext: PolymarketWithdrawFactory().makeContext(for: userWalletModel),
-            fundsArrivalTracker: PolymarketFundsArrivalTracker(
-                balancePublisher: balanceProvider.collateralBalancePublisher.map(\.value).eraseToAnyPublisher()
-            )
+            fundsArrivalTracker: fundsArrivalTracker,
+            refreshCenter: refreshCenter,
+            activityHandler: PolymarketMainActivityHandler(fundsArrivalTracker: fundsArrivalTracker, refreshCenter: refreshCenter)
         )
     }
 }
@@ -50,7 +54,8 @@ struct PolymarketMainDependencies {
     let redeemService: PolymarketRedeeming
     let withdrawContext: PolymarketWithdrawContext
     let fundsArrivalTracker: PolymarketFundsArrivalTracker
-    let refreshCenter = PolymarketMainRefreshCenter()
+    let refreshCenter: PolymarketMainRefreshCenter
+    let activityHandler: PolymarketMainActivityHandler
 
     var walletId: String {
         userWalletModel.userWalletId.stringValue
@@ -72,10 +77,9 @@ struct PolymarketMainDependencies {
         PolymarketMainViewModel(
             apiProvider: apiProvider,
             geoblockStateProvider: geoblockStateProvider,
-            positionsService: positionsService,
             fundsArrivalTracker: fundsArrivalTracker,
-            userWalletId: userWalletModel.userWalletId,
             refreshCenter: refreshCenter,
+            activityHandler: activityHandler,
             coordinator: routable
         )
     }
@@ -87,6 +91,18 @@ struct PolymarketMainDependencies {
             fundsArrivalTracker: fundsArrivalTracker,
             isRegionRestricted: { [geoblockStateProvider] in geoblockStateProvider.state.isBlocked },
             refreshCenter: refreshCenter,
+            routable: routable
+        )
+    }
+
+    @MainActor
+    func makePositionsBlockViewModel(routable: PolymarketPositionsBlockRoutable) -> PolymarketPositionsBlockViewModel {
+        PolymarketPositionsBlockViewModel(
+            positionsService: positionsService,
+            presenceStore: AppSettings.shared,
+            userWalletId: userWalletModel.userWalletId,
+            refreshCenter: refreshCenter,
+            activityHandler: activityHandler,
             routable: routable
         )
     }
