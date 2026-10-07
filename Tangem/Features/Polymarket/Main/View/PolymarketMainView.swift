@@ -16,6 +16,7 @@ import TangemUIUtils
 struct PolymarketMainView: View {
     @ObservedObject var viewModel: PolymarketMainViewModel
     let balanceBlock: PolymarketBalanceBlockViewModel
+    let positionsBlock: PolymarketPositionsBlockViewModel
 
     @State private var navBarHeight: CGFloat = 0
 
@@ -154,101 +155,12 @@ struct PolymarketMainView: View {
                     .padding(.top, Constants.bannerTopSpacing)
             }
 
-            positionsSection
-                .padding(.top, Constants.positionsTopSpacing)
+            PolymarketPositionsBlockView(viewModel: positionsBlock)
 
             exploreEventsTitle
                 .padding(.top, Constants.headerSpacing)
         }
         .padding(.top, Constants.headerTopPadding)
-    }
-
-    // MARK: - My Predictions
-
-    @ViewBuilder
-    private var positionsSection: some View {
-        switch viewModel.positionsState {
-        case .loading where viewModel.hadPositionsBefore || viewModel.isRetryingPositions:
-            positionsBlock {
-                PolymarketPositionsSkeletonView(rowCount: Constants.positionsSkeletonRowCount)
-            }
-        case .loading:
-            EmptyView()
-        case .failed:
-            positionsBlock {
-                PolymarketEmptyMessageView(
-                    message: Localization.predictionPositionsLoadError,
-                    onRetry: { viewModel.handleViewAction(.retryPositions) }
-                )
-            }
-        case .loaded(let models) where !models.isEmpty:
-            positionsBlock {
-                VStack(spacing: Constants.positionsRowSpacing) {
-                    ForEach(models) { model in
-                        PolymarketPositionRow(model: model) { viewModel.handleViewAction(.openPositionDetails(id: model.id)) }
-                    }
-
-                    if viewModel.hasMorePositions {
-                        seeAllPositionsButton
-                    }
-                }
-            }
-        case .loaded where viewModel.hadPositionsBefore:
-            positionsBlock {
-                VStack(spacing: Constants.positionsRowSpacing) {
-                    PolymarketNoActivePositionsView()
-
-                    if viewModel.hasMorePositions {
-                        seeAllPositionsButton
-                    }
-                }
-            }
-        case .loaded:
-            EmptyView()
-        }
-    }
-
-    private func positionsBlock(@ViewBuilder content: () -> some View) -> some View {
-        VStack(spacing: Constants.positionsSpacing) {
-            positionsHeader
-
-            content()
-        }
-        .padding(.horizontal, Constants.horizontalPadding)
-    }
-
-    private var positionsHeader: some View {
-        HStack(spacing: Constants.positionsSpacing) {
-            Text(Localization.predictionPositionsMainTitle)
-                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            finishedPositionsButton
-        }
-    }
-
-    /// The badge is taller than the title, so it holds its place instead of pushing the list down when it arrives.
-    private var finishedPositionsButton: some View {
-        SwiftUI.Button { viewModel.handleViewAction(.openMyPositions(.finished)) } label: {
-            Badge(label: Localization.predictionPositionsFinished, accessibilityLabel: nil)
-                .size(.x9)
-                .slotEnd(DesignSystem.Icons.ChevronRight.regular16)
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(Localization.predictionPositionsFinished)
-        .visible(viewModel.hasFinishedPositions)
-        .allowsHitTesting(viewModel.hasFinishedPositions)
-        .accessibilityHidden(!viewModel.hasFinishedPositions)
-    }
-
-    private var seeAllPositionsButton: some View {
-        TangemUI.Button(
-            label: Localization.predictionPositionsViewAllActive,
-            accessibilityLabel: nil,
-            action: { viewModel.handleViewAction(.openMyPositions(.active)) }
-        )
-        .size(.x9)
-        .styleType(.secondary(.default))
     }
 
     private var regionRestrictionBanner: some View {
@@ -379,10 +291,6 @@ extension PolymarketMainView {
         static let tabsVerticalPadding: CGFloat = 8
         static let paginationVerticalPadding: CGFloat = 20
 
-        static let positionsSpacing: CGFloat = 16
-        static let positionsRowSpacing: CGFloat = 8
-        static let positionsTopSpacing: CGFloat = 52
-        static let positionsSkeletonRowCount = 3
         static let headerTopPadding: CGFloat = 56
         static let headerSpacing: CGFloat = 40
         static let bannerTopSpacing: CGFloat = 24

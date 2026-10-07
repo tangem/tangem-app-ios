@@ -75,14 +75,4 @@ private extension PolymarketOrderAmountEntryTests {
         field.textFieldTextBinding.value = text.replacingOccurrences(of: ".", with: separator)
         field.sanitize()
     }
-
-    func settle(until isSatisfied: () -> Bool) async throws {
-        for _ in 0 ..< 200 {
-            if isSatisfied() { return }
-
-            try await Task.sleep(nanoseconds: 10_000_000)
-        }
-
-        Issue.record("The order model never settled")
-    }
 }

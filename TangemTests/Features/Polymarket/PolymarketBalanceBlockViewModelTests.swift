@@ -20,7 +20,7 @@ struct PolymarketBalanceBlockViewModelTests {
     func restrictedRegionWinsOverUnavailableAddFunds() async throws {
         let context = Self.makeSUT(isRegionRestricted: true)
 
-        try await Self.settle { context.sut.addFundsState == .unavailable }
+        try await settle { context.sut.addFundsState == .unavailable }
 
         context.sut.handleViewAction(.openAddFunds)
 
@@ -33,7 +33,7 @@ struct PolymarketBalanceBlockViewModelTests {
     func unavailableAddFundsShowsAlert() async throws {
         let context = Self.makeSUT(isRegionRestricted: false)
 
-        try await Self.settle { context.sut.addFundsState == .unavailable }
+        try await settle { context.sut.addFundsState == .unavailable }
 
         context.sut.handleViewAction(.openAddFunds)
 
@@ -45,11 +45,11 @@ struct PolymarketBalanceBlockViewModelTests {
     func accountFundsRefreshSkipsBalance() async throws {
         let context = Self.makeSUT()
 
-        try await Self.settle { context.configuration.callCount == 1 && context.balanceProvider.refreshCount == 1 }
+        try await settle { context.configuration.callCount == 1 && context.balanceProvider.refreshCount == 1 }
 
         await context.refreshCenter.refresh(.accountFunds)
 
-        try await Self.settle { context.configuration.callCount == 2 }
+        try await settle { context.configuration.callCount == 2 }
         #expect(context.balanceProvider.refreshCount == 1)
     }
 
@@ -57,12 +57,12 @@ struct PolymarketBalanceBlockViewModelTests {
     func balanceRefreshSkipsPreparation() async throws {
         let context = Self.makeSUT()
 
-        try await Self.settle { context.configuration.callCount == 1 && context.balanceProvider.refreshCount == 1 }
+        try await settle { context.configuration.callCount == 1 && context.balanceProvider.refreshCount == 1 }
 
         await context.refreshCenter.refresh(.balance)
 
         #expect(context.balanceProvider.refreshCount == 2)
-        try await Self.drain()
+        try await drain()
         #expect(context.configuration.callCount == 1)
     }
 
@@ -70,12 +70,12 @@ struct PolymarketBalanceBlockViewModelTests {
     func fullRefreshDoesBoth() async throws {
         let context = Self.makeSUT()
 
-        try await Self.settle { context.configuration.callCount == 1 && context.balanceProvider.refreshCount == 1 }
+        try await settle { context.configuration.callCount == 1 && context.balanceProvider.refreshCount == 1 }
 
         await context.refreshCenter.refresh(.full)
 
         #expect(context.balanceProvider.refreshCount == 2)
-        try await Self.settle { context.configuration.callCount == 2 }
+        try await settle { context.configuration.callCount == 2 }
     }
 }
 
@@ -118,28 +118,6 @@ private extension PolymarketBalanceBlockViewModelTests {
             refreshCenter: refreshCenter,
             routable: routable
         )
-    }
-
-    static func settle(until isSatisfied: () -> Bool) async throws {
-        for _ in 0 ..< Constants.settleAttempts {
-            if isSatisfied() { return }
-
-            try await Task.sleep(nanoseconds: Constants.settleInterval)
-        }
-
-        Issue.record("The balance block never settled")
-    }
-
-    static func drain() async throws {
-        for _ in 0 ..< Constants.drainAttempts {
-            try await Task.sleep(nanoseconds: Constants.settleInterval)
-        }
-    }
-
-    enum Constants {
-        static let settleAttempts = 200
-        static let drainAttempts = 20
-        static let settleInterval: UInt64 = 5_000_000
     }
 }
 
