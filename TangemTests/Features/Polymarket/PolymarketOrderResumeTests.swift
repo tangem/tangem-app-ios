@@ -162,16 +162,6 @@ private extension PolymarketOrderResumeTests {
 
         return Resumed(model: model, api: api, clob: clob, log: log)
     }
-
-    func settle(until isSatisfied: () -> Bool) async throws {
-        for _ in 0 ..< 300 {
-            if isSatisfied() { return }
-
-            try await Task.sleep(nanoseconds: 10_000_000)
-        }
-
-        Issue.record("The order model never settled")
-    }
 }
 
 // MARK: - Doubles
