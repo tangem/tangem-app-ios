@@ -45,5 +45,10 @@ struct DerivationTests {
         #expect(arc.derivationPath(for: legacy)?.rawPath == "m/44'/5042'/0'/0/0")
         #expect(arc.derivationPath(for: new)?.rawPath == "m/44'/60'/0'/0/0")
         #expect(arc.derivationPath(for: .v3)?.rawPath == "m/44'/60'/0'/0/0")
+
+        let onyx: Blockchain = .onyx(testnet: false)
+        #expect(onyx.derivationPath(for: legacy)?.rawPath == "m/44'/60'/0'/0/0")
+        #expect(onyx.derivationPath(for: new)?.rawPath == "m/44'/60'/0'/0/0")
+        #expect(onyx.derivationPath(for: .v3)?.rawPath == "m/44'/60'/0'/0/0")
     }
 }
