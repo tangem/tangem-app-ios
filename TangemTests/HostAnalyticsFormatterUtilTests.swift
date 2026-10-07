@@ -605,6 +605,11 @@ final class HostAnalyticsFormatterUtilTests: XCTestCase {
             // electroneum
             "https://rpc.ankr.com/electroneum",
             "https://rpc.electroneum.com/",
+            // public-masterpiece
+            "https://node1.pmtchain.com/",
+            "https://node2.pmtchain.com/",
+            "https://node3.pmtchain.com/",
+            "https://node4.pmtchain.com/",
             // arc
             "https://rpc.mainnet.arc.io/",
             "https://rpc.testnet.arc.io/",

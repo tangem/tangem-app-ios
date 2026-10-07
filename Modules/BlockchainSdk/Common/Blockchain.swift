@@ -118,6 +118,7 @@ public indirect enum Blockchain: Equatable, Hashable {
     case adi(testnet: Bool)
     case electroneum(testnet: Bool)
     case arc(testnet: Bool)
+    case publicMasterpiece
     case onyx(testnet: Bool)
 
     public var isTestnet: Bool {
@@ -212,7 +213,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .xodex,
              .clore,
              .fact0rn,
-             .arbitrumNova:
+             .arbitrumNova,
+             .publicMasterpiece:
             return false
         case .stellar(_, let testnet),
              .hedera(_, let testnet),
@@ -376,6 +378,7 @@ public indirect enum Blockchain: Equatable, Hashable {
              .adi,
              .electroneum,
              .arc,
+             .publicMasterpiece,
              .onyx,
              .seiEvm:
             return 18
@@ -604,6 +607,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "ETN"
         case .arc:
             return "USDC"
+        case .publicMasterpiece:
+            return "PMT"
         case .onyx:
             return "XCN"
         }
@@ -722,6 +727,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "Electroneum" + testnetSuffix
         case .arc:
             return "Arc" + testnetSuffix
+        case .publicMasterpiece:
+            return "Public Masterpiece"
         case .onyx:
             return "Onyx" + testnetSuffix
         default:
@@ -811,7 +818,8 @@ public indirect enum Blockchain: Equatable, Hashable {
     public var canHandleTokens: Bool {
         switch self {
         case .taraxa,
-             .energyWebEVM:
+             .energyWebEVM,
+             .publicMasterpiece:
             return false
         case .binance,
              .solana,
@@ -1027,6 +1035,7 @@ public extension Blockchain {
         case .adi: return isTestnet ? 99999 : 36900
         case .electroneum: return isTestnet ? 5201420 : 52014
         case .arc: return isTestnet ? 5042002 : 5042
+        case .publicMasterpiece: return 290290
         case .onyx: return isTestnet ? 8901 : 327
         case .seiEvm: return isTestnet ? 1328 : 1329
         default:
@@ -1124,6 +1133,7 @@ public extension Blockchain {
         case .adi: return false // eth_feeHistory respond without reward field, further logic produces error
         case .electroneum: return true
         case .arc: return true
+        case .publicMasterpiece: return true
         case .onyx: return false // eth_feeHistory baseFeePerGas is zeroes
         case .seiEvm: return true
         default:
@@ -1300,6 +1310,7 @@ extension Blockchain: Codable {
         case .adi: return "adi-token"
         case .electroneum: return "electroneum"
         case .arc: return "arc"
+        case .publicMasterpiece: return "public-masterpiece"
         case .onyx: return "onyx"
         }
     }
@@ -1425,6 +1436,7 @@ extension Blockchain: Codable {
         case "adi-token": self = .adi(testnet: isTestnet)
         case "electroneum": self = .electroneum(testnet: isTestnet)
         case "arc": self = .arc(testnet: isTestnet)
+        case "public-masterpiece": self = .publicMasterpiece
         case "onyx": self = .onyx(testnet: isTestnet)
         default:
             throw BlockchainSdkError.decodingFailed
@@ -1753,6 +1765,11 @@ private extension Blockchain {
             case .network: return "arc"
             case .coin: return "usd-coin"
             }
+        case .publicMasterpiece:
+            switch type {
+            case .network: return "public-masterpiece"
+            case .coin: return "public-meme-token"
+            }
         case .onyx:
             switch type {
             case .network: return "onyx"
@@ -1832,6 +1849,7 @@ extension Blockchain {
              .adi,
              .electroneum,
              .arc,
+             .publicMasterpiece,
              .onyx,
              .seiEvm:
             return EthereumWalletAssembly()
