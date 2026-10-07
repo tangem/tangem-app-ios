@@ -21,6 +21,7 @@ struct DSShowcase<Controls: View, Stage: View, Matrix: View>: View {
     private let hasMatrix: Bool
 
     @State private var mode: Mode = .live
+    @State private var isControlsExpanded = false
     @State private var environment: DSShowcaseEnvironment
 
     @Environment(\.dsShowcaseVersion) private var version
@@ -104,11 +105,8 @@ struct DSShowcase<Controls: View, Stage: View, Matrix: View>: View {
                     .showcaseEnvironment(environment)
 
                 if hasControls {
-                    ScrollView {
-                        controlsPanel
-                            .padding(16)
-                    }
-                    .frame(maxHeight: 280)
+                    collapsibleControlsPanel
+                        .padding(16)
                 }
             }
         case (_, .matrix):
@@ -161,14 +159,29 @@ struct DSShowcase<Controls: View, Stage: View, Matrix: View>: View {
     @ViewBuilder
     private var controlsPanel: some View {
         if hasControls {
-            VStack(alignment: .leading, spacing: 12) {
-                controls
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(16)
-            .background(DesignSystem.Color.bgPrimary)
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            controlsStack
+                .showcasePanel()
         }
+    }
+
+    private var collapsibleControlsPanel: some View {
+        DisclosureGroup(isExpanded: $isControlsExpanded) {
+            ScrollView {
+                controlsStack
+                    .padding(.top, 12)
+            }
+            .frame(maxHeight: 240)
+        } label: {
+            DSShowcaseRowTitle("Controls")
+        }
+        .showcasePanel()
+    }
+
+    private var controlsStack: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            controls
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -274,9 +287,15 @@ private struct DSShowcaseEnvironmentPanel: View {
                     .lineLimit(1)
             }
         }
-        .padding(16)
-        .background(DesignSystem.Color.bgPrimary)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .showcasePanel()
+    }
+}
+
+private extension View {
+    func showcasePanel() -> some View {
+        padding(16)
+            .background(DesignSystem.Color.bgPrimary)
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 }
 #endif
