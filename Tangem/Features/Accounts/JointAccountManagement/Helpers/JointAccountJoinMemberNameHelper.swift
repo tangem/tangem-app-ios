@@ -51,13 +51,20 @@ extension JointAccountJoinMemberNameHelper: JointAccountMemberNameHelper {
             memberName: name
         )
 
-        // The identity the slot was taken under is of no use here: the flow closes and the account arrives with the list
-        _ = try await userWalletModel.accountModelsManager.joinJointAccount(context: context)
+        let accountModelsManager = userWalletModel.accountModelsManager
+        let joinResult = try await accountModelsManager.joinJointAccount(context: context)
+
+        let creationHelper = AccountModelsManagerAccountCreationHelper(accountModelsManager: accountModelsManager)
+        let jointAccount = await creationHelper.createdJointAccountModel(with: joinResult.derivationIdentity)
 
         let routable = routable
 
         await MainActor.run {
-            routable?.closeJoinedAccount()
+            if let jointAccount {
+                routable?.openJoinedAccount(jointAccount: jointAccount)
+            } else {
+                routable?.closeJoinedAccount()
+            }
         }
     }
 }
@@ -65,6 +72,6 @@ extension JointAccountJoinMemberNameHelper: JointAccountMemberNameHelper {
 // MARK: - Routable
 
 protocol JointAccountJoinMemberNameRoutable: AnyObject {
-    /// Leaves the flow once the slot is taken — the account shows up in the wallet on its own.
+    func openJoinedAccount(jointAccount: any JointAccountModel)
     func closeJoinedAccount()
 }
