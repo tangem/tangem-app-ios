@@ -35,19 +35,49 @@ final class CollectiblesPacksViewModelTests: LeakTrackingTestSuite {
 
         #expect(selectedPack == nil)
     }
+
+    @Test("A pull-to-refresh keeps the shown packs until the new page arrives", .timeLimit(.minutes(1)))
+    func refreshKeepsPacksWhilePending() async {
+        let provider = SuspendingPacksProvider()
+        let sut = makeSUT(provider: provider)
+
+        let refresh = Task { await sut.refresh() }
+        await waitUntil { provider.loadCallsCount == 1 }
+
+        #expect(sut.state.isContentLoaded)
+
+        provider.resume(with: CollectiblesPacksPage(packs: [Self.packs()[0]], hasNext: false, cursor: nil))
+        await refresh.value
+
+        guard case .content(let models) = sut.state else {
+            Issue.record("Expected the refreshed packs, got \(sut.state)")
+            return
+        }
+
+        #expect(models.map(\.id) == ["pokemon_50"])
+    }
 }
 
 // MARK: - Helpers
 
 private extension CollectiblesPacksViewModelTests {
-    func makeSUT(packSelectionHandler: @escaping (CollectiblesPack) -> Void) -> SUT {
+    func makeSUT(
+        provider: any CollectiblesPacksProvider = PacksProviderStub(),
+        packSelectionHandler: @escaping (CollectiblesPack) -> Void = { _ in }
+    ) -> SUT {
         let sut = SUT(
-            model: CollectiblesPacksModel(provider: PacksProviderStub()),
+            model: CollectiblesPacksModel(provider: provider),
             packSelectionHandler: packSelectionHandler
         )
         sut.show(CollectiblesPacksModel.Snapshot(packs: Self.packs(), cursor: nil, hasMore: false))
 
         return trackForMemoryLeaks(sut)
+    }
+
+    func waitUntil(_ condition: @MainActor () -> Bool) async {
+        for _ in 0 ..< 100 where !condition() {
+            await Task.yield()
+        }
     }
 
     static func packs() -> [CollectiblesPack] {
@@ -76,5 +106,23 @@ private extension CollectiblesPacksViewModelTests {
 private struct PacksProviderStub: CollectiblesPacksProvider {
     func load(loreID: String?, query: String, cursor: String?) async throws -> CollectiblesPacksPage {
         throw URLError(.unsupportedURL)
+    }
+}
+
+@MainActor
+private final class SuspendingPacksProvider: CollectiblesPacksProvider {
+    private(set) var loadCallsCount = 0
+
+    private var continuation: CheckedContinuation<CollectiblesPacksPage, any Error>?
+
+    func load(loreID: String?, query: String, cursor: String?) async throws -> CollectiblesPacksPage {
+        loadCallsCount += 1
+
+        return try await withCheckedThrowingContinuation { continuation = $0 }
+    }
+
+    func resume(with page: CollectiblesPacksPage) {
+        continuation?.resume(returning: page)
+        continuation = nil
     }
 }

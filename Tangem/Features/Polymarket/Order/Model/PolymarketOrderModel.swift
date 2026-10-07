@@ -36,7 +36,7 @@ final class PolymarketOrderModel: ObservableObject {
     private let isAwaitingFundsPublisher: AnyPublisher<Bool, Never>
     private let collateralBalancePublisher: AnyPublisher<Decimal?, Never>
     private let delayProvider: PollDelayProvider
-    private let appStateObserver: PolymarketAppStateObserver
+    private let appStateObserver: AppStateObserver
 
     // MARK: - Private state
 
@@ -72,7 +72,7 @@ final class PolymarketOrderModel: ObservableObject {
         self.isAwaitingFundsPublisher = isAwaitingFundsPublisher
         self.collateralBalancePublisher = collateralBalancePublisher
         self.delayProvider = delayProvider
-        appStateObserver = PolymarketAppStateObserver(notificationCenter: notificationCenter)
+        appStateObserver = AppStateObserver(notificationCenter: notificationCenter)
 
         amountField = DecimalNumberTextFieldViewModel(maximumFractionDigits: intent.fractionDigits)
 

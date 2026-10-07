@@ -39,7 +39,7 @@ struct CollectiblesMachineView: View {
                 onOpenTap: viewModel.openOrder
             )
         }
-        .on(willAppear: viewModel.load, willDisappear: viewModel.stopPolling)
+        .on(willAppear: viewModel.onWillAppear, willDisappear: viewModel.onWillDisappear)
         .collectiblesInfoSheet(viewModel: viewModel.turboModeInfoViewModel)
         .safeAreaInset(edge: .top, spacing: 0) { navigationBar }
     }
@@ -73,7 +73,7 @@ private extension CollectiblesMachineView {
     }
 
     var artwork: some View {
-        CollectiblesPackCard.Artwork(url: viewModel.artworkURL, packSize: Metrics.packSize)
+        CollectiblesPackCard.Artwork(url: viewModel.artworkURL, packSize: Metrics.packSize, hasFailureCard: true)
             .frame(width: Metrics.packSize.width, height: Metrics.packSize.height)
     }
 
@@ -85,7 +85,7 @@ private extension CollectiblesMachineView {
         VStack(alignment: .leading, spacing: 0) {
             sectionHeader(Localization.collectiblesMachineValueAndOddsSection)
 
-            tierGrid(details.tiers)
+            tierList(details.tiers)
                 .padding(.vertical, Metrics.chipsContainerVerticalPadding)
 
             sectionHeader(Localization.collectiblesMachineDetailsSection)
@@ -93,6 +93,9 @@ private extension CollectiblesMachineView {
 
             detailChips(details)
                 .padding(.vertical, Metrics.chipsContainerVerticalPadding)
+
+            PoweredBy()
+                .padding(.top, Metrics.poweredByTopPadding)
 
             CollectiblesPrizePoolView(viewModel: viewModel.prizePoolViewModel)
         }
@@ -105,8 +108,8 @@ private extension CollectiblesMachineView {
             .padding(.vertical, Metrics.sectionHeaderVerticalPadding)
     }
 
-    func tierGrid(_ tiers: [CollectiblesMachineViewModel.TierChip]) -> some View {
-        LazyVGrid(columns: Metrics.chipColumns, alignment: .leading, spacing: Metrics.chipSpacing) {
+    func tierList(_ tiers: [CollectiblesMachineViewModel.TierChip]) -> some View {
+        VStack(spacing: Metrics.chipSpacing) {
             ForEach(tiers) { chip in
                 tierChip(chip)
             }
@@ -208,6 +211,7 @@ extension CollectiblesMachineView {
         static let chipCornerRadius: CGFloat = 20
         static let tierDotSize: CGFloat = 14
         static let chipsContainerVerticalPadding: CGFloat = 8
+        static let poweredByTopPadding: CGFloat = 4
 
         static let sectionHeaderVerticalPadding: CGFloat = 10
         static let sectionsGap: CGFloat = 24

@@ -59,7 +59,7 @@ private extension CollectiblesMachineView.Footer {
             Toggle("", isOn: $isTurboModeOn)
                 .labelsHidden()
                 .accessibilityLabel(Localization.collectiblesMachineTurboMode)
-                .tint(DesignSystem.Color.bgBrand)
+                .tint(DesignSystem.Color.bgStatusInfo)
                 .fixedSize()
                 .scaleEffect(Metrics.toggleScale, anchor: .leading)
                 .frame(width: Metrics.toggleWidth, height: Metrics.toggleHeight, alignment: .leading)
