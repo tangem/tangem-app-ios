@@ -191,9 +191,9 @@
 "bitcoin_promo_no_address_title" = "Se requiere una dirección de Bitcoin";
 "bitcoin_promo_no_address" = "Se requiere una dirección de Bitcoin para recibir el bono. Añade una a tu billetera y vuelve a intentar la activación.";
 "button_start_backup_process" = "Iniciar proceso de backup";
-"buy_swap_region_restriction_description_region" = "Buy and swap are currently not available in your region: %@";
+"buy_swap_region_restriction_description_region" = "Actualmente, la compra y el intercambio no están disponibles en su región: %@";
 "buy_swap_region_restriction_description" = "Buy and swap are currently not available in your region";
-"buy_swap_region_restriction_title" = "Regional restrictions";
+"buy_swap_region_restriction_title" = "Restricciones regionales";
 "buy_token_description" = "Utilice una tarjeta bancaria u otros métodos de pago";
 "card_reset_alert_finish_message" = "Se han restablecido todos sus dispositivos Tangem. Ya puede seguir actualizando su billetera.";
 "card_reset_alert_finish_ok_button" = "Actualizar de nuevo";
@@ -322,6 +322,7 @@
 "common_approved" = "Aprobado";
 "common_approving" = "Aprobando";
 "common_attention" = "Atención";
+"common_auto" = "Auto";
 "common_available_networks" = "Redes disponibles";
 "common_back" = "Atrás";
 "common_backup_error" = "Error de copia de seguridad";
@@ -359,7 +360,8 @@
 "common_crypto_account" = "Cuenta de criptomonedas";
 "common_custom" = "Personalizado";
 "common_day" = "day";
-"common_decline" = "Decline";
+"common_decline" = "Rechazar";
+"common_default" = "Default";
 "common_delete" = "Suprimir";
 "common_disable" = "Desactivar";
 "common_disabled" = "Desactivado";
@@ -488,6 +490,7 @@
 "common_share" = "Compartir";
 "common_sign" = "Firme";
 "common_skip" = "Saltar";
+"common_slippage" = "Slippage";
 "common_something_went_wrong" = "Algo salió mal";
 "common_stake" = "Stake";
 "common_staked" = "En staking";
@@ -618,7 +621,7 @@
 "dynamic_addresses_receive_badge" = "Dirección dinámica";
 "dynamic_addresses_unavailability_reason_pending_transaction_send" = "La gestión dinámica de direcciones estará disponible una vez que se completen las transacciones pendientes en la red. %@ está completo";
 "dynamic_addresses" = "Direcciones dinámicas";
-"earn_assets" = "Earn assets";
+"earn_assets" = "Ganar activos";
 "earn_best_opportunities" = "Las mejores oportunidades";
 "earn_clear_filter" = "Limpiar filtro";
 "earn_empty" = "La lista está temporalmente vacía porque se está actualizando. Vuelva a consultarla en un momento.";
@@ -738,9 +741,9 @@
 "feed_search_recent_title" = "Recent";
 "feed_search_show_all_user_assets" = "Mostrar todo";
 "feed_search_show_less_user_assets" = "Mostrar menos";
-"feed_tab_crypto" = "Crypto";
-"feed_tab_earn" = "Earn";
-"feed_tab_rwa" = "Real assets";
+"feed_tab_crypto" = "Cripto";
+"feed_tab_earn" = "Ganar";
+"feed_tab_rwa" = "Activos reales";
 "feed_trending_now" = "De actualidad";
 "feedback_preface_rate_negative" = "Cuéntenos qué funciones echa de menos y trataremos de ayudarle.";
 "feedback_preface_scan_failed" = "Por favor, díganos qué tarjeta o anillo tiene";
@@ -997,6 +1000,7 @@
 "introduction_stories_two_subtitle" = "Usa cualquiera de tus tarjetas para acceder a tu wallet";
 "introduction_stories_two_title" = "Una wallet, varias tarjetas";
 "introduction_subtitle" = "Un lugar seguro para todas tus pertenencias.";
+"introduction_terms_of_service_consent" = "By continuing, you agree with %@";
 "introduction_terms_of_service" = "Términos del servicio";
 "introduction_title" = "Guarda todos tus activos";
 "jailbreak_warning_message" = "Los dispositivos con jailbreak se consideran menos seguros. Sus datos podrían estar expuestos a riesgos adicionales.";
@@ -1012,7 +1016,7 @@
 "joint_account_invite_load_failed_subtitle" = "No se pudo cargar la página de invitación.\nPulse para refrescar.";
 "joint_account_invite_members_creator" = "Creador";
 "joint_account_invite_members_invite" = "Invitar";
-"joint_account_invite_members_invited" = "Invited";
+"joint_account_invite_members_invited" = "Invitado";
 "joint_account_invite_members_member_info" = "Información del miembro";
 "joint_account_invite_members_member" = "Miembro";
 "joint_account_invite_members_new_member" = "Nuevo miembro";
@@ -1031,7 +1035,7 @@
 "joint_account_invite_members_title" = "Invitar miembros";
 "joint_account_invite_members_to_join" = "Invite a los miembros a unirse";
 "joint_account_invite_members_waiting_title" = "Esperando miembros";
-"joint_account_invite_share_title" = "Invite to %@";
+"joint_account_invite_share_title" = "Invitar a %@";
 "joint_account_join_confirm_sheet_subtitle" = "Todos los titulares de esta cuenta comparten un mismo saldo. Los demás miembros pueden transferir los fondos sin su autorización una vez que se hayan reunido las firmas suficientes.";
 "joint_account_join_confirm_sheet_title" = "Se está uniendo a una cuenta compartida.";
 "joint_account_join_invalid_link_subtitle" = "Compruebe que ha abierto el enlace correcto o pídale al creador de la cuenta que se lo envíe de nuevo.";
@@ -1097,7 +1101,7 @@
 "joint_operation_decline_alert_message" = "Los demás miembros verán tu decisión. No podrás firmarla más tarde.";
 "joint_operation_decline_alert_title" = "¿Rechazar esta transacción?";
 "joint_operation_declined_at" = "Rechazado en %@";
-"joint_operation_declined_footer" = "Rechazó. Otros aún pueden llegar a %1$@ de %2$@";
+"joint_operation_declined_footer" = "Rechazó. Otros aún pueden llegar a %1$@ de %2$@";
 "joint_operation_declined" = "Rechazada";
 "joint_operation_delete_alert_message" = "La transacción se cancelará para todos los miembros. Las firmas recogidas se descartarán.";
 "joint_operation_delete_alert_title" = "¿Eliminar esta transacción?";
@@ -1140,7 +1144,7 @@
 "manage_tokens_toast_portfolio_updated" = "Su portafolio ha sido actualizada";
 "manage_tokens_wallet_selector_title" = "Elegir wallet";
 "manage_tokens_wallet_support_only_one_network_title" = "La billetera no admite más de una red";
-"market_categories" = "Categories";
+"market_categories" = "Categorías";
 "market_chart_ai_total" = "Total de IA:";
 "market_chart_ask_for_ai_summary_button" = "Solicitar resumen de IA";
 "market_chart_bubble_no_amount" = "Sin tokens \n/ valor de activos";
@@ -1193,7 +1197,7 @@
 "markets_real_assets_interval_month" = "Mes";
 "markets_real_assets_interval_week" = "Semana";
 "markets_real_assets_region_restriction_description_region" = "Las acciones, los ETF y los bonos no están disponibles en %1$@";
-"markets_real_assets_region_restriction_description" = "Stocks, ETFs, Bonds — they're not supported in your region";
+"markets_real_assets_region_restriction_description" = "Acciones, ETF, bonos: no están disponibles en su región";
 "markets_real_assets_region_restriction_title" = "No disponible en su región";
 "markets_real_assets_sector_xstocks_communication" = "Servicios de Comunicación";
 "markets_real_assets_sector_xstocks_consumer" = "Consumidor";
@@ -2209,7 +2213,10 @@
 "support_selector_view_chat_button" = "Abrir chat";
 "support_selector_view_email_button" = "Abrir correo";
 "swap_approve_description" = "Al aprobar, permites que el contrato inteligente use tus tokens en futuras transacciones.";
+"swap_custom_slippage_info" = "Slippage can't be customized with this provider and may reach up to %@ in rare cases";
 "swap_detailed_mode" = "Modo detallado";
+"swap_exchange_rates_info_text" = "displayed include the service provider’s fee";
+"swap_exchange_rates_info_title" = "Exchange rates";
 "swap_fixed_rate" = "Tasa Fija";
 "swap_give_permission_fee_footer" = "La red cobrará una tasa de aprobación del token para verificar que usted autoriza el uso de su token para el intercambio.";
 "swap_in_progress" = "Intercambio en curso";
@@ -2217,6 +2224,10 @@
 "swap_search_tooltip_description" = "Busque cualquier token, incluso si aún no está en su lista.";
 "swap_search_tooltip_title" = "Utilice la búsqueda para encontrar lo que necesite";
 "swap_simple_mode" = "Modo sencillo";
+"swap_slippage_error" = "Unsupported amount";
+"swap_slippage_info_text" = "is the difference between the expected and actual execution price caused by market price or liquidity changes";
+"swap_slippage_warning_text" = "Swap may fail if the slippage threshold is hit";
+"swap_slippage_warning_title" = "Slippage is set %@";
 "swap_story_fifth_subtitle" = "Siéntase seguro con una asistencia permanente que le ayudará con cualquier problema";
 "swap_story_fifth_title" = "Siempre aquí";
 "swap_story_first_subtitle_v2" = "Intercambie criptos directamente en Tangem\nSin transferencias adicionales\nSin mover fondos a exchanges";
@@ -2883,6 +2894,7 @@
 "transaction_history_approve_high_risk_subtitle" = "You're connected. Funds may be at risk. Consider revoking access.";
 "transaction_history_approve_high_risk_title" = "High Risk";
 "transaction_history_approved_amount" = "Approved amount";
+"transaction_history_claiming_incentive_rewards" = "Claiming incentive rewards";
 "transaction_history_claiming_reward" = "Reclamar recompensa";
 "transaction_history_contract_address" = "contacto: %@";
 "transaction_history_detail_page_amount_signed_value" = "%1@ %2@ %3@";
@@ -2903,6 +2915,7 @@
 "transaction_history_fee_for_yield_mode_top_up" = "For Yield mode top-up";
 "transaction_history_fee_sending_asset" = "Send %%image%% %@";
 "transaction_history_from_inline_address" = "de: %%imagen%% %@";
+"transaction_history_incentive_rewards_claimed" = "Incentive rewards claimed";
 "transaction_history_multiple_addresses" = "Múltiples direcciones";
 "transaction_history_not_supported_description" = "El historial de transacciones no está soportado actualmente para esta blockchain. Pero no se preocupe, ¡estamos trabajando en ello! Mientras tanto, puede consultarlo en el explorador.";
 "transaction_history_operation" = "Operación";
@@ -2914,6 +2927,7 @@
 "transaction_history_status_claiming_rewards" = "Claiming rewards";
 "transaction_history_status_disabling_yield_mode_failed" = "Disabling Yield mode failed";
 "transaction_history_status_enabling_yield_mode_failed" = "Enabling Yield mode failed";
+"transaction_history_status_incentive_rewards_claim_failed" = "Claiming of incentive rewards failed";
 "transaction_history_status_receive_failed" = "Receive failed";
 "transaction_history_status_restaking_rewards" = "Restaking rewards";
 "transaction_history_status_rewards_claim_failed" = "Rewards claim failed";
