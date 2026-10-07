@@ -10,6 +10,7 @@ import Foundation
 
 struct PromoCampaignContent: Equatable {
     let title: String
+    let subtitle: String?
     let imageURL: URL?
     let blocks: [Block]
     let learnMoreLink: Link?
@@ -24,7 +25,7 @@ extension PromoCampaignContent {
     }
 
     enum Block: Equatable {
-        case text(String)
+        case text(title: String?, text: String, link: Link?)
         case highlight(title: String?, text: String)
         case items(title: String?, items: [Item])
         case table(Table)

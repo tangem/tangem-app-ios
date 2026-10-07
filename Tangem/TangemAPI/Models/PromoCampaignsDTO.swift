@@ -83,6 +83,7 @@ extension PromoCampaignsDTO {
 extension PromoCampaignsDTO {
     struct Content: Decodable {
         let campaignName: String
+        let campaignDescription: String?
         @LossyArray private(set) var publicDescription: [ContentBlock]
         let publicImage: URL?
         let learnMoreLink: Link?
@@ -133,7 +134,22 @@ extension PromoCampaignsDTO {
     }
 
     struct TextBlock: Decodable {
+        let title: String?
         let text: String
+        let link: Link?
+
+        private enum CodingKeys: String, CodingKey {
+            case title
+            case text
+            case link
+        }
+
+        init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            title = try container.decodeIfPresent(String.self, forKey: .title)
+            text = try container.decode(String.self, forKey: .text)
+            link = try? container.decodeIfPresent(Link.self, forKey: .link)
+        }
     }
 
     struct HighlightBlock: Decodable {

@@ -84,6 +84,33 @@ struct PromoCampaignsDTODecodingTests {
         #expect(after.text == "After")
     }
 
+    @Test("A text block keeps its title and link, and a link it cannot read costs only the link")
+    func textBlockTitleAndLink() throws {
+        let blocks = try decodeBlocks(
+            """
+            [
+              { "type": "text", "title": "Max payout and limits", "text": "Payout arrives weekly", "link": { "text": "Learn more", "url": "https://tangem.com/campaigns/example_campaign" } },
+              { "type": "text", "text": "Empty url", "link": { "text": "Learn more", "url": "" } },
+              { "type": "text", "text": "No link text", "link": { "url": "https://tangem.com" } }
+            ]
+            """
+        )
+
+        #expect(blocks.count == 3)
+
+        guard case .text(let linked) = blocks[0], case .text(let emptyURL) = blocks[1], case .text(let noLinkText) = blocks[2] else {
+            Issue.record("Expected three text blocks")
+            return
+        }
+
+        #expect(linked.title == "Max payout and limits")
+        #expect(linked.link?.text == "Learn more")
+        #expect(linked.link?.url == URL(string: "https://tangem.com/campaigns/example_campaign"))
+        #expect(emptyURL.text == "Empty url")
+        #expect(emptyURL.link == nil)
+        #expect(noLinkText.link == nil)
+    }
+
     @Test("A known block missing a required field is dropped rather than failing the campaign")
     func malformedKnownBlockIsDropped() throws {
         let blocks = try decodeBlocks(

@@ -38,7 +38,7 @@ struct PromoCampaignContentMapperTests {
         #expect(content.termsLink == .init(title: "Terms and conditions", url: URL(string: "https://tangem.com/campaigns/example_campaign/terms")!))
 
         #expect(content.blocks == [
-            .text("Stake from 100 USDT and get cashback"),
+            .text(title: nil, text: "Stake from 100 USDT and get cashback", link: nil),
             .items(title: "Cashback and amounts", items: [
                 .init(label: "From $10K", value: "0.10%"),
                 .init(label: "Weekly bonus", value: "USDT\u{00A0}5"),
@@ -67,7 +67,54 @@ struct PromoCampaignContentMapperTests {
             """
         )
 
-        #expect(content.blocks == [.text("Kept")])
+        #expect(content.blocks == [.text(title: nil, text: "Kept", link: nil)])
+    }
+
+    @Test("The reworked contract brings a subtitle and text blocks with a title and a trailing link")
+    func reworkedContract() throws {
+        let content = try map(
+            blocks: """
+            [
+              { "type": "text", "title": "Max payout and limits", "text": "Payout arrives weekly", "link": { "text": "Learn more", "url": "https://tangem.com/campaigns/example_campaign" } },
+              { "type": "text", "title": "", "text": "No title", "link": { "text": "", "url": "https://tangem.com/campaigns/example_campaign" } }
+            ]
+            """,
+            links: """
+            "campaignDescription": "Earn cashback on every swap from $10K",
+            "tncLink": { "text": "Terms and conditions", "url": "https://tangem.com/campaigns/example_campaign/terms" },
+            """
+        )
+
+        #expect(content.subtitle == "Earn cashback on every swap from $10K")
+        #expect(content.blocks == [
+            .text(
+                title: "Max payout and limits",
+                text: "Payout arrives weekly",
+                link: .init(title: "Learn more", url: URL(string: "https://tangem.com/campaigns/example_campaign")!)
+            ),
+            .text(title: nil, text: "No title", link: nil),
+        ])
+    }
+
+    @Test("The global learn-more link gives way to the links the text blocks carry")
+    func blockLinksReplaceGlobalLearnMore() throws {
+        let content = try map(
+            blocks: """
+            [{ "type": "text", "text": "Payout arrives weekly", "link": { "text": "Learn more", "url": "https://tangem.com/campaigns/example_campaign" } }]
+            """
+        )
+
+        #expect(content.learnMoreLink == nil)
+        #expect(content.blocks == [
+            .text(title: nil, text: "Payout arrives weekly", link: .init(title: "Learn more", url: URL(string: "https://tangem.com/campaigns/example_campaign")!)),
+        ])
+    }
+
+    @Test("An empty campaign description is treated as no subtitle")
+    func emptyDescriptionIsNoSubtitle() throws {
+        let content = try map(blocks: "[]", links: #""campaignDescription": "","#)
+
+        #expect(content.subtitle == nil)
     }
 
     @Test("An empty title is treated as no title")
@@ -196,6 +243,7 @@ struct PromoCampaignContentMapperTests {
     func missingLinks() throws {
         let content = try map(blocks: "[]", links: "")
 
+        #expect(content.subtitle == nil)
         #expect(content.learnMoreLink == nil)
         #expect(content.termsLink == nil)
         #expect(content.imageURL == nil)
