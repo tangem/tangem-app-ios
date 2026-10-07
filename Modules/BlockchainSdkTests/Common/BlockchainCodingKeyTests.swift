@@ -102,6 +102,26 @@ struct BlockchainCodingKeyTests {
     }
 
     @Test
+    func publicMasterpieceConfiguration() {
+        let blockchain = Blockchain.publicMasterpiece
+
+        #expect(blockchain.chainId == 290290)
+        #expect(blockchain.isTestnet == false)
+        #expect(blockchain.networkId == "public-masterpiece")
+        #expect(blockchain.coinId == "public-meme-token")
+        #expect(blockchain.currencySymbol == "PMT")
+        #expect(blockchain.decimalCount == 18)
+        #expect(blockchain.displayName == "Public Masterpiece")
+        #expect(blockchain.supportsEIP1559)
+        #expect(blockchain.canHandleTokens == false)
+
+        let links = ExternalLinkProviderFactory().makeProvider(for: blockchain)
+        #expect(links.url(transaction: "hash")?.absoluteString == "https://pmtscan.com/tx/hash")
+        #expect(links.url(address: "address", contractAddress: nil)?.absoluteString == "https://pmtscan.com/address/address")
+        #expect(links.testnetFaucetURL == nil)
+    }
+
+    @Test
     func onyxConfiguration() {
         let mainnet = Blockchain.onyx(testnet: false)
         let testnet = Blockchain.onyx(testnet: true)

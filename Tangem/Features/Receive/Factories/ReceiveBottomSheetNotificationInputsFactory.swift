@@ -152,6 +152,7 @@ struct ReceiveBottomSheetNotificationInputsFactory {
              (_, .adi),
              (_, .electroneum),
              (_, .arc),
+             (_, .publicMasterpiece),
              (_, .onyx),
              (_, .seiEvm):
             // No additional notifications for these blockchains

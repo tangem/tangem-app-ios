@@ -132,6 +132,7 @@ struct CustomTokenContractAddressConverter {
              .adi,
              .electroneum,
              .arc,
+             .publicMasterpiece,
              .onyx,
              .seiEvm,
              .hedera:
