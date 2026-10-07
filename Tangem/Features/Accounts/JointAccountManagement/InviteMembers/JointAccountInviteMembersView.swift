@@ -40,15 +40,6 @@ struct JointAccountInviteMembersView: View {
         .onWillAppear(perform: viewModel.onWillAppear)
         .onWillDisappear(perform: viewModel.onWillDisappear)
         .alert(item: $viewModel.alert, content: { $0.alert })
-        .confirmationDialog(
-            Localization.accountDetailsArchiveJointDescription,
-            isPresented: $viewModel.isArchiveConfirmationPresented,
-            titleVisibility: .visible
-        ) {
-            SwiftUI.Button(Localization.accountDetailsArchive, role: .destructive) {
-                viewModel.onArchiveConfirmTap()
-            }
-        }
     }
 
     /// The menu holds nothing but archiving, so a member who cannot archive gets no menu rather than an empty one.
@@ -82,7 +73,7 @@ struct JointAccountInviteMembersView: View {
                 TopNavigation.MenuItem(
                     title: Localization.accountDetailsArchive,
                     role: .destructive,
-                    action: viewModel.onArchiveTap
+                    action: { viewModel.onArchiveTap() }
                 ),
             ]
         )
