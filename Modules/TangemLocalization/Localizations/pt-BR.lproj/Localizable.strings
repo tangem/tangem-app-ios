@@ -1574,9 +1574,11 @@
 "prediction_add_funds_notification_limits_title" = "Limites de depósito";
 "prediction_add_funds_receive_body" = "Enviar %1$@ de outra carteira, mínimo de %2$@";
 "prediction_add_funds_receive_subtitle" = "Envie USDC pela rede Polygon para sua conta da Polymarket";
+"prediction_add_funds_receive_title" = "From another wallet or exchange";
 "prediction_add_funds_subtitle" = "%1$@ em %2$@";
 "prediction_add_funds_swap_body" = "Trocar um token que você já possui";
 "prediction_add_funds_swap_subtitle" = "Use criptomoedas da sua carteira Tangem para adicionar fundos à sua conta da Polymarket";
+"prediction_add_funds_swap_title" = "From your Tangem Wallet";
 "prediction_balance_total" = "Saldo total";
 "prediction_balance_withdraw" = "Sacar";
 "prediction_claim_error_failed" = "O resgate não foi concluído. Nenhum valor saiu da conta, e você pode tentar novamente.";
@@ -1623,7 +1625,7 @@
 "prediction_main_empty_positions_title" = "Você não tem previsões ativas";
 "prediction_main_events_load_error" = "Falha ao carregar os eventos.\nToque para recarregar";
 "prediction_main_explore_events" = "Explorar eventos";
-"prediction_main_subtitle" = "USDC na rede Polygon";
+"prediction_main_subtitle" = "US Dollars";
 "prediction_main_title" = "Previsões";
 "prediction_main_total_balance" = "Saldo Total";
 "prediction_main_withdraw" = "Sacar";
@@ -3484,6 +3486,7 @@
 "yield_module_incentive_chart_powered_by_description" = "O patrocinador da campanha fornece tokens de recompensa adicionais, distribuídos pelo Merkl.\nOs incentivos podem terminar, e os preços dos tokens de recompensa podem variar.\nO APY exibido inclui as recompensas de incentivo após a dedução da taxa de serviço da Tangem.";
 "yield_module_incentive_chart_powered_by_title" = "Desenvolvido por Merkl";
 "yield_module_incentive_chart_sheet_title" = "Rendimento incentivado";
+"yield_module_incentives_provider" = "Merkl";
 "yield_module_main_screen_promo_banner_message" = "Habilitar %1$@%% APY sobre o seu saldo";
 "yield_module_main_view_approve_notification_description" = "A aprovação do seu token no Modo Yield foi revogada. Abra o token para conceder permissão novamente.";
 "yield_module_main_view_approve_notification_title" = "É necessária a aprovação do token.";
