@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import SwiftUI
 import TangemFoundation
 import TangemLocalization
 import TangemUI
@@ -18,7 +19,6 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
     @Published private(set) var isActivating = false
     @Published var alert: AlertBinder?
     @Published private(set) var isArchiving = false
-    @Published var isArchiveConfirmationPresented = false
 
     private let jointAccount: any JointAccountModel
     private weak var coordinator: JointAccountInviteMembersRoutable?
@@ -79,8 +79,16 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
         }
     }
 
+    @MainActor
     func onArchiveTap() {
-        isArchiveConfirmationPresented = true
+        alert = AlertBuilder.makeAlert(
+            title: Localization.accountDetailsArchive,
+            message: Localization.accountDetailsArchiveJointDescription,
+            primaryButton: .cancel(),
+            secondaryButton: .destructive(Text(Localization.accountDetailsArchive)) { [weak self] in
+                self?.onArchiveConfirmTap()
+            }
+        )
     }
 
     @MainActor
