@@ -18,17 +18,7 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
         private static let blockchain = Blockchain.ethereum(testnet: false)
         private static let validator = "0x1111111111111111111111111111111111111111"
 
-        private let previousAuxDataRepository: TransactionHistoryAuxDataRepository
         private let auxDataRepository = TransactionHistoryAuxDataRepositoryStub()
-
-        init() {
-            previousAuxDataRepository = InjectedValues[\.transactionHistoryAuxDataRepository]
-            InjectedValues[\.transactionHistoryAuxDataRepository] = auxDataRepository
-        }
-
-        deinit {
-            InjectedValues[\.transactionHistoryAuxDataRepository] = previousAuxDataRepository
-        }
 
         @Test(
             "Masks the network fee when balances are hidden",
@@ -41,8 +31,10 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
                 .vote,
             ]
         )
-        func networkFeeIsSensitive(stakingType: TransactionRecord.TransactionType.StakingTransactionType) throws {
-            let rows = try #require(makeContent(stakingType: stakingType)?.info?.rows)
+        func networkFeeIsSensitive(stakingType: TransactionRecord.TransactionType.StakingTransactionType) async throws {
+            let rows = try await withStubbedDependencies {
+                try #require(makeContent(stakingType: stakingType)?.info?.rows)
+            }
             let feeRow = try #require(rows.first { $0.id == "networkFee" })
 
             guard case .sensitiveText = feeRow.content else {
@@ -56,6 +48,15 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
 // MARK: - Helpers
 
 private extension TransactionHistoryAuxDataRepositoryDependentTests.TransactionDetailsStakingContentTests {
+    func withStubbedDependencies<T>(_ operation: () throws -> T) async rethrows -> T {
+        try await InjectedDependenciesIsolation.shared.run {
+            let previousAuxDataRepository = InjectedValues[\.transactionHistoryAuxDataRepository]
+            InjectedValues[\.transactionHistoryAuxDataRepository] = auxDataRepository
+            defer { InjectedValues[\.transactionHistoryAuxDataRepository] = previousAuxDataRepository }
+            return try operation()
+        }
+    }
+
     func makeContent(stakingType: TransactionRecord.TransactionType.StakingTransactionType) -> TransactionDetailsGenericOperationViewData? {
         let record = TransactionRecord(
             hash: "0xstaking",

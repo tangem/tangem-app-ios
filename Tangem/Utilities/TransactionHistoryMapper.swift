@@ -331,13 +331,18 @@ struct TransactionHistoryMapper {
             return nil
         }
 
-        // Only for user's address
-        guard case .user(let address) = interactionAddress(from: record, transactionType: type) else {
+        // For a UTXO send to self, `transferAmountValue` returns the fee rather than zero - therefore we can't use it
+        let sentAmount = blockchain.isUTXO
+            ? amountSentToOthers(in: record) ?? .zero
+            : transferAmountValue(from: record)
+
+        // Zero-value transfers (and sends to the wallet's own addresses as a side effect) aren't worth suggesting
+        guard !sentAmount.isZero else {
             return nil
         }
 
-        // Tron gasless compensation is a plain TRC20 transfer to our fee address, and users picked it from Recents
-        guard !Self.tronGaslessFeeRecipientAddresses.contains(where: { $0.caseInsensitiveEquals(to: address) }) else {
+        // Only for user's address
+        guard case .user(let address) = interactionAddress(from: record, transactionType: type) else {
             return nil
         }
 
@@ -355,12 +360,6 @@ struct TransactionHistoryMapper {
             dateFormatted: dateFormatted
         )
     }
-}
-
-private extension TransactionHistoryMapper {
-    static let tronGaslessFeeRecipientAddresses = [
-        "TSWsmaEDgWaE2VsP9tCBGh5GbBRbrdHSuZ",
-    ]
 }
 
 // MARK: - TransactionHistoryMapper
@@ -638,6 +637,7 @@ private extension TransactionHistoryMapper {
         case "yieldSend": .yieldSend
         case "yieldDeploy": .yieldDeploy
         case "yieldInit": .yieldInit
+        case "gaslessTransaction" where transactionRecord.isFromYieldContract: .yieldSend
         case "gaslessTransaction": .gaslessTransfer
         case .none: .unknownOperation
         case .some(let name): .operation(name: name.capitalizingFirstLetter())
@@ -658,7 +658,11 @@ private extension TransactionHistoryMapper {
             return type
         }
 
-        guard record.isOutgoing, transferAmountValue(from: record).isZero else {
+        guard
+            record.isOutgoing,
+            transferAmountValue(from: record).isZero,
+            !GaslessTransactionFeeMatcher.isFeeCoveredByTronResources(of: record, on: blockchain)
+        else {
             return type
         }
 

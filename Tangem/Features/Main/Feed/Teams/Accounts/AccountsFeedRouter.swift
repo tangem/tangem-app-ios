@@ -61,15 +61,18 @@ extension AccountsFeedRouter: AddAccountTypeSelectorRoutable {
             guard let navigation, navigation.presented == nil,
                   validateAccountLimit(for: .crypto, accountModelsManager: accountModelsManager) else { return }
 
-            widgetSheetPresenter.dismiss()
+            widgetSheetPresenter.dismissSelector { [weak self] in
+                guard let self else { return }
+                guard let navigation = self.navigation, navigation.presented == nil else { return }
 
-            let viewModel = AccountFormViewModel(
-                flowType: .create(creator: CryptoAccountFormViewCreator(accountModelsManager: accountModelsManager)),
-                coordinator: self
-            )
-            navigation.present(.accountForm(viewModel), onDismiss: { [weak self] in
-                self?.accountFormDidDismiss()
-            })
+                let viewModel = AccountFormViewModel(
+                    flowType: .create(creator: CryptoAccountFormViewCreator(accountModelsManager: accountModelsManager)),
+                    coordinator: self
+                )
+                navigation.present(.accountForm(viewModel), onDismiss: { [weak self] in
+                    self?.accountFormDidDismiss()
+                })
+            }
         }
     }
 
@@ -78,23 +81,26 @@ extension AccountsFeedRouter: AddAccountTypeSelectorRoutable {
             guard let navigation, navigation.presented == nil, let accountCreationWallet,
                   validateAccountLimit(for: .joint, accountModelsManager: accountCreationWallet.accountModelsManager) else { return }
 
-            widgetSheetPresenter.dismiss()
+            widgetSheetPresenter.dismissSelector { [weak self] in
+                guard let self else { return }
+                guard let navigation = self.navigation, navigation.presented == nil else { return }
 
-            let coordinator = JointAccountManagementCoordinator(
-                dismissAction: { [weak self] _ in
-                    guard let navigation = self?.navigation, case .jointAccount = navigation.presented else { return }
+                let coordinator = JointAccountManagementCoordinator(
+                    dismissAction: { [weak self] _ in
+                        guard let navigation = self?.navigation, case .jointAccount = navigation.presented else { return }
 
-                    navigation.dismissPresented()
-                },
-                popToRootAction: popToRootAction
-            )
-            coordinator.start(with: .creation(.init(userWalletModel: accountCreationWallet)))
-            navigation.present(.jointAccount(coordinator))
+                        navigation.dismissPresented()
+                    },
+                    popToRootAction: popToRootAction
+                )
+                coordinator.start(with: .creation(.init(userWalletModel: accountCreationWallet)))
+                navigation.present(.jointAccount(coordinator))
+            }
         }
     }
 
     func dismissAddAccountTypeSelector() {
-        Task { @MainActor in widgetSheetPresenter.dismiss() }
+        Task { @MainActor in widgetSheetPresenter.dismissSelector() }
     }
 }
 
@@ -147,7 +153,7 @@ private extension AccountsFeedRouter {
             // The feed records the entry tap before presenting the selector.
             shouldLogAddAccountTap: false
         )
-        widgetSheetPresenter.enqueue(viewModel)
+        widgetSheetPresenter.presentAccountTypeSelector(viewModel)
     }
 }
 
