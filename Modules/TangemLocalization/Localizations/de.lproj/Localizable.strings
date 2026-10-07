@@ -361,7 +361,7 @@
 "common_custom" = "Eigen";
 "common_day" = "Tag";
 "common_decline" = "Abgelehnt";
-"common_default" = "Default";
+"common_default" = "Standard";
 "common_delete" = "Entfernen";
 "common_disable" = "Deaktivieren";
 "common_disabled" = "Deaktiviert";
@@ -1035,7 +1035,7 @@
 "joint_account_invite_members_title" = "Einladen";
 "joint_account_invite_members_to_join" = "Lade Mitglieder ein, beizutreten";
 "joint_account_invite_members_waiting_title" = "Warten auf Mitglieder";
-"joint_account_invite_share_title" = "Invite to %@";
+"joint_account_invite_share_title" = "Einladung zu %@";
 "joint_account_join_confirm_sheet_subtitle" = "Alle Kontoinhaber teilen sich ein gemeinsames Guthaben. Jedes Mitglied kann das Guthaben jederzeit ausgeben oder abheben – auch ohne Ihre Zustimmung";
 "joint_account_join_confirm_sheet_title" = "Sie treten einem gemeinsam genutzten Konto bei";
 "joint_account_join_invalid_link_subtitle" = "Überprüfen Sie, ob Sie den vollständigen Link geöffnet haben, oder bitten Sie den Kontoinhaber, ihn erneut zu senden.";
@@ -1574,9 +1574,11 @@
 "prediction_add_funds_notification_limits_title" = "Einzahlungslimits";
 "prediction_add_funds_receive_body" = "Schicken %1$@ aus einer anderen Wallet, Mindestbetrag %2$@";
 "prediction_add_funds_receive_subtitle" = "Senden Sie USDC über das Polygon-Netzwerk an Ihr Polymarket-Konto.";
+"prediction_add_funds_receive_title" = "From another wallet or exchange";
 "prediction_add_funds_subtitle" = "%1$@ auf %2$@";
 "prediction_add_funds_swap_body" = "Tausche einen Token, den du bereits hältst";
 "prediction_add_funds_swap_subtitle" = "Nutzen Sie Kryptowährung in Ihrer Tangem-Wallet, um Ihr Polymarket-Konto aufzuladen";
+"prediction_add_funds_swap_title" = "From your Tangem Wallet";
 "prediction_balance_total" = "Gesamtsaldo";
 "prediction_balance_withdraw" = "Abheben";
 "prediction_claim_error_failed" = "Die Abbuchung wurde nicht ausgeführt. Es wurde kein Betrag von Ihrem Konto abgebucht, und Sie können es erneut versuchen.";
@@ -1623,7 +1625,7 @@
 "prediction_main_empty_positions_title" = "Sie haben keine aktiven Vorhersagen.";
 "prediction_main_events_load_error" = "Ereignisse konnten nicht geladen werden.\nZum Neuladen tippen";
 "prediction_main_explore_events" = "Veranstaltungen entdecken";
-"prediction_main_subtitle" = "USDC im Polygon-Netzwerk";
+"prediction_main_subtitle" = "US Dollars";
 "prediction_main_title" = "Prognosen";
 "prediction_main_total_balance" = "Gesamtsaldo";
 "prediction_main_withdraw" = "Abheben";
@@ -2213,10 +2215,10 @@
 "support_selector_view_chat_button" = "Chat öffnen";
 "support_selector_view_email_button" = "Mail öffnen";
 "swap_approve_description" = "Durch die Genehmigung erlaubst Du dem Smart Contract, Deine Token in zukünftigen Transaktionen zu verwenden.";
-"swap_custom_slippage_info" = "Slippage can't be customized with this provider and may reach up to %@ in rare cases";
+"swap_custom_slippage_info" = "Der Slippage lässt sich bei diesem Anbieter nicht individuell anpassen und kann in seltenen Fällen bis zu %@ betragen.";
 "swap_detailed_mode" = "Detaillierter Modus";
-"swap_exchange_rates_info_text" = "displayed include the service provider’s fee";
-"swap_exchange_rates_info_title" = "Exchange rates";
+"swap_exchange_rates_info_text" = "Die angezeigten Beträge beinhalten die Gebühr des Dienstanbieters.";
+"swap_exchange_rates_info_title" = "Wechselkurse";
 "swap_fixed_rate" = "Fester Zinssatz";
 "swap_give_permission_fee_footer" = "Das Netzwerk erhebt eine Token-Genehmigungsgebühr, um zu überprüfen, ob Sie die Verwendung Ihres Tokens für den Swap genehmigen.";
 "swap_in_progress" = "Tausch läuft";
@@ -2224,10 +2226,10 @@
 "swap_search_tooltip_description" = "Suche nach einem beliebigen Token, auch wenn es noch nicht in deiner Liste ist.";
 "swap_search_tooltip_title" = "Nutzen Sie die Suche, um zu finden, was Sie benötigen.";
 "swap_simple_mode" = "Einfacher Modus";
-"swap_slippage_error" = "Unsupported amount";
-"swap_slippage_info_text" = "is the difference between the expected and actual execution price caused by market price or liquidity changes";
-"swap_slippage_warning_text" = "Swap may fail if the slippage threshold is hit";
-"swap_slippage_warning_title" = "Slippage is set %@";
+"swap_slippage_error" = "Nicht unterstützter Betrag";
+"swap_slippage_info_text" = "ist die Differenz zwischen dem erwarteten und dem tatsächlichen Ausführungskurs, die durch Marktpreis- oder Liquiditätsänderungen verursacht wird";
+"swap_slippage_warning_text" = "Der Swap kann fehlschlagen, wenn der Slippage-Grenzwert erreicht wird";
+"swap_slippage_warning_title" = "Die Slippage ist festgelegt %@";
 "swap_story_fifth_subtitle" = "Vertraue auf den rund um die Uhr verfügbaren Support bei allen Problemen";
 "swap_story_fifth_title" = "Immer für Dich da";
 "swap_story_first_subtitle_v2" = "Tauschen Sie Kryptowährungen direkt in Tangem\nkeine zusätzlichen Überweisungen\nkeine Verschiebung von Geldern zu Börsen";
@@ -2340,9 +2342,9 @@
 "tangempay_account_deactivated_message_subtitle" = "Bei Fragen zu Ihrem Konto, Ihren Daten oder Ihrem Transaktionsverlauf wenden Sie sich bitte an den Support";
 "tangempay_account_deactivated_message_title" = "Ihr Konto wurde geschlossen";
 "tangempay_account_unable_to_use_rooted" = "Auf gerooteten Geräten nicht nutzbar.";
-"tangempay_action_required_description" = "To continue, we need a bit more information from you. This usually takes a couple of minutes";
-"tangempay_action_required_primary_btn" = "Сontinue verification";
-"tangempay_action_required_title" = "Action required";
+"tangempay_action_required_description" = "Um fortzufahren, benötigen wir noch ein paar weitere Angaben von Ihnen. Das dauert in der Regel ein paar Minuten.";
+"tangempay_action_required_primary_btn" = "Fortsetzung der Überprüfung";
+"tangempay_action_required_title" = "Handlungsbedarf erforderlich";
 "tangempay_apple_wallet_add_failed_message" = "Versuchen Sie es mit einem anderen Gerät oder kontaktieren Sie den Support.";
 "tangempay_apple_wallet_add_failed_title" = "Karte konnte nicht hinzugefügt werden";
 "tangempay_apple_wallet_verification_required_message" = "Vollständige Verifizierung in der Wallet";
@@ -2894,6 +2896,7 @@
 "transaction_history_approve_high_risk_subtitle" = "Sie sind verbunden. Es besteht möglicherweise ein Risiko für Ihre Geldmittel. Erwägen Sie, den Zugriff zu widerrufen.";
 "transaction_history_approve_high_risk_title" = "Hohes Risiko";
 "transaction_history_approved_amount" = "Genehmigter Betrag";
+"transaction_history_claiming_incentive_rewards" = "Claiming incentive rewards";
 "transaction_history_claiming_reward" = "Belohnung einfordern";
 "transaction_history_contract_address" = "Vertrag: %@";
 "transaction_history_detail_page_amount_signed_value" = "%1@ %2@ %3@";
@@ -2914,6 +2917,7 @@
 "transaction_history_fee_for_yield_mode_top_up" = "Für den Yield-Modus-Aufladevorgang";
 "transaction_history_fee_sending_asset" = "Schicken %%Bild%% %@";
 "transaction_history_from_inline_address" = "aus: %%image%% %@";
+"transaction_history_incentive_rewards_claimed" = "Incentive rewards claimed";
 "transaction_history_multiple_addresses" = "Mehrere Adressen";
 "transaction_history_not_supported_description" = "Die Transaktionshistorie wird für diese Blockchain derzeit nicht verfügbar. Aber keine Sorge, wir arbeiten daran! In der Zwischenzeit kannst du es im Explorer überprüfen.";
 "transaction_history_operation" = "Operation";
@@ -2925,6 +2929,7 @@
 "transaction_history_status_claiming_rewards" = "Prämien einfordern";
 "transaction_history_status_disabling_yield_mode_failed" = "Das Deaktivieren des Yield-Modus ist fehlgeschlagen";
 "transaction_history_status_enabling_yield_mode_failed" = "Die Aktivierung des Yield-Modus ist fehlgeschlagen";
+"transaction_history_status_incentive_rewards_claim_failed" = "Claiming of incentive rewards failed";
 "transaction_history_status_receive_failed" = "Empfang fehlgeschlagen";
 "transaction_history_status_restaking_rewards" = "Retaking-Belohnungen";
 "transaction_history_status_rewards_claim_failed" = "Prämienanspruch fehlgeschlagen";
@@ -3481,6 +3486,7 @@
 "yield_module_incentive_chart_powered_by_description" = "Ein Kampagnensponsor finanziert zusätzliche Belohnungstoken, die über Merkl verteilt werden.\nAnreize können enden, und die Preise für Belohnungstoken können sich ändern.\nDer angezeigte APY beinhaltet Anreizprämien nach Abzug der Servicegebühr von Tangem.";
 "yield_module_incentive_chart_powered_by_title" = "Unterstützt von Merkl";
 "yield_module_incentive_chart_sheet_title" = "Anreizbasierte Rendite";
+"yield_module_incentives_provider" = "Merkl";
 "yield_module_main_screen_promo_banner_message" = "Aktiviere %1$@%% Jahreszins auf Dein Guthaben";
 "yield_module_main_view_approve_notification_description" = "Die Genehmigung für Deine Token im Yield-Modus wurde widerrufen. Öffne den Token, um die Berechtigung erneut zu erteilen.";
 "yield_module_main_view_approve_notification_title" = "Token-Genehmigung erforderlich";
