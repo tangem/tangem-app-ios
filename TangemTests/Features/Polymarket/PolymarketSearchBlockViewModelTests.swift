@@ -1,11 +1,12 @@
 //
-//  PolymarketSearchViewModelTests.swift
+//  PolymarketSearchBlockViewModelTests.swift
 //  TangemTests
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import Testing
 import TangemPolymarket
@@ -13,7 +14,7 @@ import TangemPolymarket
 
 @Suite("Polymarket search")
 @MainActor
-struct PolymarketSearchViewModelTests {
+struct PolymarketSearchBlockViewModelTests {
     @Test("A query shorter than three characters never reaches the backend")
     func shortQueryIsNotSearched() async throws {
         let provider = PolymarketAPIProviderStub(searchResults: [.success(Self.page(events: [], hasNext: false))])
@@ -161,15 +162,19 @@ struct PolymarketSearchViewModelTests {
     @Test("Choosing a result opens the event details")
     func choosingResultOpensEventDetails() async throws {
         let provider = PolymarketAPIProviderStub(searchResults: [.success(Self.page(events: [Self.event(id: "a")], hasNext: false))])
-        let coordinator = PolymarketSearchRoutableSpy()
-        let sut = Self.makeSUT(provider: provider, coordinator: coordinator)
+        let routable = PolymarketSearchBlockRoutableSpy()
+        let sut = Self.makeSUT(provider: provider, routable: routable)
 
+        sut.isFieldActive = true
         sut.query = "uzbekistan"
         try await Self.settle(sut) { $0.state == .allDataLoaded }
 
         sut.handleViewAction(.openEventDetails(id: "a"))
 
-        #expect(coordinator.openedEventIDs == ["a"])
+        #expect(routable.openedEventIDs == ["a"])
+        #expect(routable.openedEventCategories == [nil])
+        #expect(!sut.isFieldActive)
+        #expect(sut.isSearching)
     }
 
     @Test("Choosing an outcome on a result opens the order, not the event")
@@ -178,8 +183,69 @@ struct PolymarketSearchViewModelTests {
         let market = Self.market(id: "m1", outcomes: [outcome])
         let event = Self.event(id: "a", markets: [market])
         let provider = PolymarketAPIProviderStub(searchResults: [.success(Self.page(events: [event], hasNext: false))])
-        let coordinator = PolymarketSearchRoutableSpy()
-        let sut = Self.makeSUT(provider: provider, coordinator: coordinator)
+        let routable = PolymarketSearchBlockRoutableSpy()
+        let sut = Self.makeSUT(provider: provider, routable: routable)
+
+        sut.isFieldActive = true
+        sut.query = "uzbekistan"
+        try await Self.settle(sut) { $0.state == .allDataLoaded }
+
+        let selected = try #require(sut.eventCards.first?.rows.first?.outcomes.first)
+        selected.onSelect()
+
+        #expect(!sut.isFieldActive)
+        #expect(sut.isSearching)
+        #expect(routable.openedEventIDs.isEmpty)
+        #expect(routable.openedOutcomes.map(\.market.id) == ["m1"])
+        #expect(routable.openedOutcomes.map(\.outcome.assetId) == ["yes"])
+        #expect(routable.openedOutcomes.map(\.eventTitle) == ["a"])
+        #expect(routable.openedOutcomes.map(\.isBuy) == [true])
+    }
+
+    @Test("An order placed from search expects a balance change")
+    func orderFromSearchExpectsBalanceChange() async throws {
+        let outcome = PolymarketOutcome(assetId: "yes", title: "Yes", probability: 0.42)
+        let event = Self.event(id: "a", markets: [Self.market(id: "m1", outcomes: [outcome])])
+        let provider = PolymarketAPIProviderStub(searchResults: [.success(Self.page(events: [event], hasNext: false))])
+        let routable = PolymarketSearchBlockRoutableSpy()
+        let tracker = PolymarketFundsArrivalTracker(balancePublisher: Empty().eraseToAnyPublisher())
+        let sut = Self.makeSUT(provider: provider, routable: routable, fundsArrivalTracker: tracker)
+
+        sut.query = "uzbekistan"
+        try await Self.settle(sut) { $0.state == .allDataLoaded }
+
+        let selected = try #require(sut.eventCards.first?.rows.first?.outcomes.first)
+        selected.onSelect()
+        routable.lastOnPlaced?(Task { nil })
+
+        #expect(tracker.isBalanceChangeExpected)
+        withExtendedLifetime(sut) {}
+    }
+
+    @Test("An order placed from event details opened in search expects a balance change")
+    func orderFromSearchedEventExpectsBalanceChange() async throws {
+        let provider = PolymarketAPIProviderStub(searchResults: [.success(Self.page(events: [Self.event(id: "a")], hasNext: false))])
+        let routable = PolymarketSearchBlockRoutableSpy()
+        let tracker = PolymarketFundsArrivalTracker(balancePublisher: Empty().eraseToAnyPublisher())
+        let sut = Self.makeSUT(provider: provider, routable: routable, fundsArrivalTracker: tracker)
+
+        sut.query = "uzbekistan"
+        try await Self.settle(sut) { $0.state == .allDataLoaded }
+
+        sut.handleViewAction(.openEventDetails(id: "a"))
+        routable.lastOnPlaced?(Task { nil })
+
+        #expect(tracker.isBalanceChangeExpected)
+        withExtendedLifetime(sut) {}
+    }
+
+    @Test("Choosing an outcome in a restricted region opens the region warning instead of the order")
+    func choosingOutcomeInRestrictedRegionOpensWarning() async throws {
+        let outcome = PolymarketOutcome(assetId: "yes", title: "Yes", probability: 0.42)
+        let event = Self.event(id: "a", markets: [Self.market(id: "m1", outcomes: [outcome])])
+        let provider = PolymarketAPIProviderStub(searchResults: [.success(Self.page(events: [event], hasNext: false))])
+        let routable = PolymarketSearchBlockRoutableSpy()
+        let sut = Self.makeSUT(provider: provider, routable: routable, isRegionRestricted: true)
 
         sut.query = "uzbekistan"
         try await Self.settle(sut) { $0.state == .allDataLoaded }
@@ -187,29 +253,56 @@ struct PolymarketSearchViewModelTests {
         let selected = try #require(sut.eventCards.first?.rows.first?.outcomes.first)
         selected.onSelect()
 
-        #expect(coordinator.openedEventIDs.isEmpty)
-        #expect(coordinator.openedOutcomes.map(\.market.id) == ["m1"])
-        #expect(coordinator.openedOutcomes.map(\.outcome.assetId) == ["yes"])
-        #expect(coordinator.openedOutcomes.map(\.eventTitle) == ["a"])
+        #expect(routable.openedOutcomes.isEmpty)
+        #expect(routable.regionWarningOpenings == 1)
+        withExtendedLifetime(sut) {}
+    }
+
+    @Test("Cancelling leaves the search and drops the query and the results")
+    func cancellingLeavesTheSearch() async throws {
+        let provider = PolymarketAPIProviderStub(searchResults: [.success(Self.page(events: [Self.event(id: "a")], hasNext: false))])
+        let sut = Self.makeSUT(provider: provider)
+
+        sut.isFieldActive = true
+        sut.query = "uzbekistan"
+        try await Self.settle(sut) { $0.state == .allDataLoaded }
+
+        #expect(sut.isSearching)
+
+        sut.handleViewAction(.cancel)
+
+        #expect(!sut.isSearching)
+        #expect(!sut.isFieldActive)
+        #expect(sut.query.isEmpty)
+        #expect(sut.eventCards.isEmpty)
+        #expect(sut.state == .prompt)
     }
 }
 
 // MARK: - Fixtures
 
-private extension PolymarketSearchViewModelTests {
+private extension PolymarketSearchBlockViewModelTests {
     static func makeSUT(
         provider: PolymarketAPIProvider,
-        coordinator: PolymarketSearchRoutableSpy? = nil
-    ) -> PolymarketSearchViewModel {
-        let viewModel = PolymarketSearchViewModel(apiProvider: provider, debounceInterval: .zero)
-        viewModel.coordinator = coordinator
-
-        return viewModel
+        routable: PolymarketSearchBlockRoutableSpy = PolymarketSearchBlockRoutableSpy.ignored,
+        isRegionRestricted: Bool = false,
+        fundsArrivalTracker: PolymarketFundsArrivalTracker = PolymarketFundsArrivalTracker(balancePublisher: Empty().eraseToAnyPublisher())
+    ) -> PolymarketSearchBlockViewModel {
+        PolymarketSearchBlockViewModel(
+            apiProvider: provider,
+            activityHandler: PolymarketMainActivityHandler(
+                fundsArrivalTracker: fundsArrivalTracker,
+                refreshCenter: PolymarketMainRefreshCenter()
+            ),
+            isRegionRestricted: { isRegionRestricted },
+            routable: routable,
+            debounceInterval: .zero
+        )
     }
 
     static func settle(
-        _ sut: PolymarketSearchViewModel,
-        until isSatisfied: (PolymarketSearchViewModel) -> Bool
+        _ sut: PolymarketSearchBlockViewModel,
+        until isSatisfied: (PolymarketSearchBlockViewModel) -> Bool
     ) async throws {
         for _ in 0 ..< Constants.settleAttempts {
             if isSatisfied(sut) { return }
