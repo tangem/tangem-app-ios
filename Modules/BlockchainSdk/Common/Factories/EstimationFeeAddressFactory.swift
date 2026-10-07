@@ -106,6 +106,7 @@ struct EstimationFeeAddressFactory {
              .adi,
              .electroneum,
              .arc,
+             .publicMasterpiece,
              .onyx:
             return "0x52bb4012854f808CF9BAbd855e44E506dAf6C077"
         case .ethereumClassic:
