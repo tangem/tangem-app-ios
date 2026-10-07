@@ -17,21 +17,28 @@ struct CommonJointAccountOperationsService {
     private let jointAccountsRepository: JointAccountsRepository
     private let signerFactory: TangemSignerFactory
     private let compositionVerifier: JointAccountCompositionVerifier
+    private let blockaidGate: JointOperationBlockaidGate
 
     init(
         jointAccountsRepository: JointAccountsRepository,
         signerFactory: TangemSignerFactory,
-        compositionVerifier: JointAccountCompositionVerifier = JointAccountCompositionVerifier()
+        compositionVerifier: JointAccountCompositionVerifier = JointAccountCompositionVerifier(),
+        blockaidGate: JointOperationBlockaidGate = CommonJointOperationBlockaidGate()
     ) {
         self.jointAccountsRepository = jointAccountsRepository
         self.signerFactory = signerFactory
         self.compositionVerifier = compositionVerifier
+        self.blockaidGate = blockaidGate
     }
 }
 
 // MARK: - JointAccountOperationsService protocol conformance
 
 extension CommonJointAccountOperationsService: JointAccountOperationsService {
+    var hasNFCInteraction: Bool {
+        signerFactory.makeSigner().hasNFCInteraction
+    }
+
     /// Every check comes before the signature, so that a member is not asked for one that would be turned away.
     func createOperation(transaction: BSDKTransaction, in wallet: JointAccountWallet) async throws -> JointAccountOperation {
         guard let feeParameters = transaction.fee.parameters as? SafeTransactionFeeParameters else {
@@ -73,6 +80,7 @@ extension CommonJointAccountOperationsService: JointAccountOperationsService {
         let state = try await safeOperationsService.getSafeState()
         try verify(state: state, account: account)
         try ensureIsNext(operation, at: state)
+        try await ensureIsNotMalicious(operation, in: wallet, safeAddress: account.safeAddress, at: state)
 
         let hash = operation.safeTransaction.signHash(chainId: operation.chainId, safeAddress: account.safeAddress)
         let signature = try await sign(hash: hash, walletPublicKey: wallet.publicKey)
@@ -94,6 +102,23 @@ extension CommonJointAccountOperationsService: JointAccountOperationsService {
             id: operation.id,
             forCryptoAccountId: account.cryptoAccountId
         )
+    }
+}
+
+// MARK: - Blockaid
+
+extension CommonJointAccountOperationsService {
+    static func ensureSigningIsAllowed(by verdict: JointOperationBlockaidVerdict, isDeployed: Bool) throws {
+        switch verdict {
+        case .safe:
+            return
+        case .unknown where !isDeployed:
+            return
+        case .malicious:
+            throw JointOperationError.maliciousOperation
+        case .unknown, .unavailable:
+            throw JointOperationError.securityCheckUnavailable
+        }
     }
 }
 
@@ -153,6 +178,18 @@ private extension CommonJointAccountOperationsService {
         guard state.nonce == operation.safeTransaction.nonce else {
             throw JointOperationError.operationSuperseded
         }
+    }
+
+    func ensureIsNotMalicious(_ operation: JointAccountOperation, in wallet: JointAccountWallet, safeAddress: String, at state: SafeContractState) async throws {
+        let verdict = await blockaidGate.verdict(
+            on: operation,
+            safeAddress: safeAddress,
+            ownerAddress: JointAccountOperationSignersResolver().ownAddress(of: wallet),
+            blockchain: wallet.tokenItem.blockchain
+        )
+
+        try Task.checkCancellation()
+        try Self.ensureSigningIsAllowed(by: verdict, isDeployed: state.isDeployed)
     }
 
     /// A deployment that happened since the quote changes `baseGas`, so the fee has to be quoted again rather than

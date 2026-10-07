@@ -17,7 +17,7 @@ extension FloatingSheetRegistry {
                 headerConfig: .init(
                     title: Localization.commonChooseWallet,
                     backAction: nil,
-                    closeAction: viewModel.onCloseTap
+                    closeAction: { viewModel.handleViewAction(.close) }
                 ),
                 content: {
                     AccountSelectorView(viewModel: viewModel.accountSelectorViewModel)

@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import SwiftUI
 import TangemFoundation
 import TangemLocalization
 import TangemUI
@@ -18,12 +19,12 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
     @Published private(set) var isActivating = false
     @Published var alert: AlertBinder?
     @Published private(set) var isArchiving = false
-    @Published var isArchiveConfirmationPresented = false
 
     private let jointAccount: any JointAccountModel
     private weak var coordinator: JointAccountInviteMembersRoutable?
 
     private var bag = Set<AnyCancellable>()
+    private var frequentUpdatesSubscription: AnyCancellable?
 
     init(
         jointAccount: any JointAccountModel,
@@ -37,8 +38,16 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
         bind()
     }
 
+    func onWillAppear() {
+        frequentUpdatesSubscription = jointAccount.jointAccountMembersService.requestFrequentUpdates()
+    }
+
+    func onWillDisappear() {
+        frequentUpdatesSubscription = nil
+    }
+
     func onInviteTap(inviteURL: URL) {
-        coordinator?.shareInvite(url: inviteURL)
+        coordinator?.shareInvite(url: inviteURL, accountName: jointAccount.name)
     }
 
     func onSafetyBannerTap() {
@@ -63,13 +72,23 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
             return
         }
 
-        coordinator?.openActivationConfirmation { [weak self] in
-            self?.activate()
+        isActivating = true
+
+        runTask(in: self) { viewModel in
+            await viewModel.performActivation()
         }
     }
 
+    @MainActor
     func onArchiveTap() {
-        isArchiveConfirmationPresented = true
+        alert = AlertBuilder.makeAlert(
+            title: Localization.accountDetailsArchive,
+            message: Localization.accountDetailsArchiveJointDescription,
+            primaryButton: .cancel(),
+            secondaryButton: .destructive(Text(Localization.accountDetailsArchive)) { [weak self] in
+                self?.onArchiveConfirmTap()
+            }
+        )
     }
 
     @MainActor
@@ -95,15 +114,6 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
 
 private extension JointAccountInviteMembersViewModel {
     @MainActor
-    func activate() {
-        isActivating = true
-
-        runTask(in: self) { viewModel in
-            await viewModel.performActivation()
-        }
-    }
-
-    @MainActor
     func performActivation() async {
         defer { isActivating = false }
 
@@ -117,9 +127,10 @@ private extension JointAccountInviteMembersViewModel {
             return
         }
 
-        // The members are gathered, which is all this screen was for
-        // [REDACTED_TODO_COMMENT]
         coordinator?.closeInviteMembers()
+
+        Toast(view: SuccessToast(text: Localization.jointAccountActivatedSnackbar))
+            .present(layout: .top(padding: Constants.toastTopPadding), type: .temporary(interval: Constants.toastInterval))
     }
 
     @MainActor
@@ -165,6 +176,7 @@ private extension JointAccountInviteMembersViewModel {
     /// whose invite links and activate button no longer lead anywhere.
     static func makeContent(of jointAccount: any JointAccountModel, slots: [JointAccountSlot]) -> Content {
         let isCreatorDevice = jointAccount.jointAccountMembersService.isCreatorDevice
+        let ownAddress = jointAccount.jointAccountMembersService.ownAddress
 
         let members = slots.enumerated().compactMap { index, slot -> MemberViewData? in
             guard case .member(let member) = slot else {
@@ -178,7 +190,7 @@ private extension JointAccountInviteMembersViewModel {
                     letter: member.name.prefix(1).uppercased(),
                     color: CompositeIconColorPalette.color(for: iconColor(at: index))
                 ),
-                role: role(of: member, isCreatorDevice: isCreatorDevice)
+                role: role(of: member, ownAddress: ownAddress, isCreatorDevice: isCreatorDevice)
             )
         }
 
@@ -192,22 +204,25 @@ private extension JointAccountInviteMembersViewModel {
             return FreeSlotViewData(id: index, invite: invite)
         }
 
+        let status = jointAccount.status
+        let isCollecting = status.isPending || status.isConfirming
+
         return Content(
+            title: title(isCollecting: isCollecting, isCreatorDevice: isCreatorDevice),
+            isCollecting: isCollecting,
+            isSafetyBannerVisible: isCreatorDevice && status.isPending,
             members: members,
             freeSlots: freeSlots,
             isActivationAvailable: jointAccount.canActivate,
-            canArchive: isCreatorDevice
+            canArchive: isCollecting
         )
     }
 
-    static func role(of member: JointAccountMember, isCreatorDevice: Bool) -> String {
-        switch member.role {
-        case .creator where isCreatorDevice:
-            return "\(Localization.jointAccountMembersRoleYou) \(AppConstants.dotSign) \(Localization.jointAccountInviteMembersCreator)"
-        case .creator:
-            return Localization.jointAccountInviteMembersCreator
-        case .member:
-            return Localization.jointAccountMembersRoleJoined
+    static func title(isCollecting: Bool, isCreatorDevice: Bool) -> String {
+        switch (isCollecting, isCreatorDevice) {
+        case (false, _): Localization.jointAccountMembersTitle
+        case (true, true): Localization.jointAccountInviteMembersTitle
+        case (true, false): Localization.jointAccountInviteMembersWaitingTitle
         }
     }
 }
@@ -215,6 +230,26 @@ private extension JointAccountInviteMembersViewModel {
 // MARK: - Member appearance
 
 extension JointAccountInviteMembersViewModel {
+    static func role(of member: JointAccountMember, ownAddress: String?, isCreatorDevice: Bool) -> String {
+        let isOwn: Bool
+        if let ownAddress {
+            isOwn = member.address.caseInsensitiveEquals(to: ownAddress)
+        } else {
+            isOwn = member.role == .creator && isCreatorDevice
+        }
+
+        switch (member.role, isOwn) {
+        case (.creator, true):
+            return "\(Localization.jointAccountMembersRoleYou) \(AppConstants.dotSign) \(Localization.jointAccountInviteMembersCreator)"
+        case (.creator, false):
+            return Localization.jointAccountInviteMembersCreator
+        case (.member, true):
+            return Localization.jointAccountMembersRoleYou
+        case (.member, false):
+            return Localization.jointAccountMembersRoleJoined
+        }
+    }
+
     /// Taken by the slot rather than by the member, so that two members of one account never share a colour.
     static func iconColor(at index: Int) -> CompositeIconColor {
         let colors = CompositeIconColor.allCases
@@ -227,11 +262,13 @@ extension JointAccountInviteMembersViewModel {
 
 extension JointAccountInviteMembersViewModel {
     struct Content {
+        let title: String
+        let isCollecting: Bool
+        let isSafetyBannerVisible: Bool
         /// The taken slots, in the order they were taken, the creator first.
         let members: [MemberViewData]
         let freeSlots: [FreeSlotViewData]
         let isActivationAvailable: Bool
-        /// Offered on the creator's device alone — see `JointAccountMembersService.isCreatorDevice`.
         let canArchive: Bool
 
         var joinedMembersCount: Int { members.count }

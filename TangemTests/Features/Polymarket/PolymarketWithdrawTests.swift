@@ -440,6 +440,32 @@ struct PolymarketWithdrawTransactionDispatcherTests {
 
         #expect(withdrawing.calls.isEmpty)
     }
+
+    @Test("A refusal reaches the send flow as a failed transaction, keeping its message and carrying a code")
+    func reportsARefusalAsAFailedTransaction() async throws {
+        let refusal = PolymarketWithdrawTransactionService.Error.refused(.conflict(detail: nil))
+        let sut = try makeSUT(withdrawing: WithdrawingSpy(failure: refusal))
+
+        do {
+            _ = try await sut.send(transaction: .transfer(makeTransfer(amount: 12.5, destination: recipientAddress)))
+            Issue.record("The refusal was swallowed")
+        } catch TransactionDispatcherResult.Error.sendTxError(_, let error) {
+            #expect(error.localizedDescription == refusal.localizedDescription)
+            #expect(error.errorCode == 112001004)
+        }
+    }
+
+    @Test("A cancelled withdrawal is reported as the user's cancellation, so no alert is shown")
+    func reportsACancellationAsUserCancelled() async throws {
+        let sut = try makeSUT(withdrawing: WithdrawingSpy(failure: CancellationError()))
+
+        do {
+            _ = try await sut.send(transaction: .transfer(makeTransfer(amount: 12.5, destination: recipientAddress)))
+            Issue.record("The cancellation was swallowed")
+        } catch let error as TransactionDispatcherResult.Error {
+            #expect(error.isUserCancelled)
+        }
+    }
 }
 
 // MARK: - Errors and states off the wire
@@ -679,7 +705,8 @@ private extension PolymarketWithdrawTransactionDispatcherTests {
             estimatedGasLimit: nil,
             externalTxId: nil,
             externalTxURL: nil,
-            payInAddress: otherAddress
+            payInAddress: otherAddress,
+            slippage: nil
         )
     }
 }
@@ -769,9 +796,18 @@ private final class WithdrawingSpy: PolymarketWithdrawing {
     var calls: [Call] { state.withLock { $0 } }
 
     private let state = OSAllocatedUnfairLock(initialState: [Call]())
+    private let failure: Error?
+
+    init(failure: Error? = nil) {
+        self.failure = failure
+    }
 
     func withdraw(amount: Decimal, to recipientAddress: String) async throws -> PolymarketWithdrawRecord {
         state.withLock { $0.append(Call(amount: amount, recipientAddress: recipientAddress)) }
+
+        if let failure {
+            throw failure
+        }
 
         return PolymarketWithdrawRecord(transactionId: transactionId, state: .confirmed, transactionHash: nil)
     }

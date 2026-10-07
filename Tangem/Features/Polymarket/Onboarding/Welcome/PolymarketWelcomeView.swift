@@ -42,7 +42,7 @@ struct PolymarketWelcomeView: View {
     @ViewBuilder
     private var closeButton: some View {
         if !viewModel.isRunning {
-            NavigationBarButton.close(action: viewModel.onCloseTap)
+            NavigationBarButton.close { viewModel.handleViewAction(.close) }
                 .padding(.trailing, Constants.horizontalPadding)
                 .padding(.top, Constants.closeButtonTopPadding)
         }
@@ -62,6 +62,7 @@ struct PolymarketWelcomeView: View {
                 .clipped()
                 .overlay { heroTint }
                 .offset(y: -overscroll)
+                .accessibilityHidden(true)
         }
         .aspectRatio(Constants.heroAspectRatio, contentMode: .fit)
         .padding(.bottom, -heroContentOverlap(forWidth: containerWidth))
@@ -124,6 +125,7 @@ struct PolymarketWelcomeView: View {
                 .resizable()
                 .frame(width: Constants.highlightIconSize, height: Constants.highlightIconSize)
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
+                .accessibilityHidden(true)
 
             Spacer(minLength: Constants.highlightIconSpacing)
 
@@ -179,18 +181,18 @@ struct PolymarketWelcomeView: View {
 
     private var footer: some View {
         VStack(spacing: Constants.footerSpacing) {
-            PolymarketLegalLine(notice: viewModel.copy.legalNotice, onTermsTap: viewModel.onLegalTermsTap(url:))
+            PolymarketLegalLine(notice: viewModel.copy.legalNotice, onTermsTap: { viewModel.handleViewAction(.openLegalTerms($0)) })
 
             TangemUI.Button(
                 label: viewModel.copy.actionTitle,
                 accessibilityLabel: nil,
-                action: viewModel.onStartTap
+                action: { viewModel.handleViewAction(.startOnboarding) }
             )
             .iconEnd(Assets.Polymarket.logo)
             .styleType(.default)
             .size(.x12)
             .horizontalLayout(.infinity)
-            .loading(.spinner(if: viewModel.isRunning))
+            .loading(viewModel.stageMessage.map(TangemUI.Button.Loading.spinnerWithMessage))
         }
         .padding(.horizontal, Constants.horizontalPadding)
         .padding(.vertical, Constants.footerVerticalPadding)

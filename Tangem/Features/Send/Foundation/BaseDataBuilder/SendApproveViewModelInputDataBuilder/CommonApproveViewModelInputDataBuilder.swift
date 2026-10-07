@@ -51,7 +51,6 @@ private extension CommonApproveViewModelInputDataBuilder {
 
         let interactor = ApproveInteractor(
             approveInteractorState: approveInteractorState,
-            initialPolicy: flowInput.selectedPolicy,
             approveAmount: flowInput.approveAmount,
             allowanceService: allowanceService,
             approveTransactionDispatcher: approveTransactionDispatcher,
@@ -65,7 +64,6 @@ private extension CommonApproveViewModelInputDataBuilder {
             subtitle: flowInput.localization.subtitle,
             feeFooterText: flowInput.localization.feeFooterText,
             tokenItem: flowInput.sourceToken.tokenItem,
-            selectedPolicy: flowInput.selectedPolicy,
             tangemIconProvider: flowInput.sourceToken.tangemIconProvider
         )
 

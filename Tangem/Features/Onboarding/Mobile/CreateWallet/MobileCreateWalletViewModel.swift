@@ -83,7 +83,8 @@ extension MobileCreateWalletViewModel {
                         mnemonic: nil,
                         passphrase: nil,
                         hasMnemonicBackup: false,
-                        hasICloudBackup: false
+                        hasICloudBackup: false,
+                        hasSocialLogin: false
                     )
                 )
 

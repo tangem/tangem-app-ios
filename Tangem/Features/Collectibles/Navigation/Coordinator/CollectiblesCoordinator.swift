@@ -11,6 +11,7 @@ import Foundation
 import BlockchainSdk
 import TangemFoundation
 import TangemStories
+import TangemCollectibles
 
 final class CollectiblesCoordinator: CoordinatorObject {
     // MARK: - Properties
@@ -18,20 +19,24 @@ final class CollectiblesCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.storiesAnalyticsProvider) var storiesAnalyticsProvider: any StoriesAnalyticsProvider
+    @Injected(\.overlayViewPresenter) var overlayViewPresenter: any OverlayViewPresenter
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
     private var accountModel: (any CollectiblesAccountModel)?
+    private var userWalletID = ""
 
     // [REDACTED_TODO_COMMENT]
     private var devnetUserWalletModel: (any UserWalletModel)?
+
+    private(set) var fundsCoordinator: FundsCoordinator?
 
     // MARK: - Publishers
 
     @Published private(set) var state: ViewState?
     @Published var machineViewModel: CollectiblesMachineViewModel?
-    @Published var storiesViewModel: CollectiblesStoriesViewModel?
+    @Published var confirmOrderViewModel: CollectiblesConfirmOrderViewModel?
 
     // MARK: - Init
 
@@ -44,14 +49,11 @@ final class CollectiblesCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         accountModel = options.accountModel
+        userWalletID = options.userWalletModel.userWalletId.stringValue
         devnetUserWalletModel = options.userWalletModel
 
-        switch options.destination {
-        case .welcome:
-            state = .welcome(CollectiblesWelcomeViewModel(routable: self, onboarder: accountModel))
-        case .main:
-            Task { @MainActor [weak self] in self?.openMain() }
-        }
+        startFundsCoordinator(with: options)
+        open(options.destination)
     }
 
     @MainActor
@@ -65,6 +67,10 @@ final class CollectiblesCoordinator: CoordinatorObject {
 
     func closeMachine() {
         machineViewModel = nil
+    }
+
+    func closeConfirmOrder() {
+        confirmOrderViewModel = nil
     }
 }
 
@@ -80,7 +86,11 @@ extension CollectiblesCoordinator: CollectiblesMainRoutable {
     func openMachine(for pack: CollectiblesPack) {
         guard machineViewModel == nil else { return }
 
-        machineViewModel = CollectiblesMachineViewModel(pack: pack)
+        machineViewModel = CollectiblesMachineViewModel(
+            pack: pack,
+            routable: self,
+            prizePoolProvider: CommonCollectiblesPrizePoolProvider(userWalletID: userWalletID)
+        )
     }
 
     func openSupport() {
@@ -93,6 +103,47 @@ extension CollectiblesCoordinator: CollectiblesMainRoutable {
 
         Task { @MainActor in
             mailPresenter.present(viewModel: mailViewModel)
+        }
+    }
+}
+
+extension CollectiblesCoordinator: CollectiblesMachineRoutable {
+    func openConfirmOrder(machineID: String, machine: CollectiblesMachine, isTurboModeOn: Bool) {
+        guard confirmOrderViewModel == nil, let accountModel else { return }
+
+        confirmOrderViewModel = CollectiblesConfirmOrderViewModel(
+            machineID: machineID,
+            machine: machine,
+            isTurboModeOn: isTurboModeOn,
+            usdcBalanceProvider: accountModel.usdcTokenBalanceProvider,
+            refreshBalance: accountModel.refreshState
+        )
+    }
+}
+
+// MARK: - Private logic
+
+private extension CollectiblesCoordinator {
+    func startFundsCoordinator(with options: Options) {
+        guard let accountModel = options.accountModel else {
+            return
+        }
+
+        let coordinator = FundsCoordinator(dismissAction: {}, popToRootAction: popToRootAction)
+        coordinator.start(with: .init(
+            accountModel: accountModel,
+            userWalletInfo: options.userWalletModel.userWalletInfo,
+            walletModelsProvider: MainScreenUIOrderedWalletModelsProvider(userWalletModel: options.userWalletModel)
+        ))
+        fundsCoordinator = coordinator
+    }
+
+    func open(_ destination: Options.Destination) {
+        switch destination {
+        case .welcome:
+            state = .welcome(CollectiblesWelcomeViewModel(routable: self, onboarder: accountModel))
+        case .main:
+            Task { @MainActor [weak self] in self?.openMain() }
         }
     }
 }
