@@ -36,6 +36,10 @@ extension CommonTangemPayAvailabilityService: TangemPayAvailabilityService {
         try await request(for: .getEligibility)
     }
 
+    func checkEligibility(product: TangemPayProduct, country: String, region: String?) async throws -> TangemPayEligibilityCheckResponse {
+        try await request(for: .checkEligibility(product: product, country: country, region: region))
+    }
+
     func validateDeeplink(deeplinkString: String) async throws -> ValidateDeeplinkResponse {
         try await request(for: .validateDeeplink(deeplinkString: deeplinkString))
     }

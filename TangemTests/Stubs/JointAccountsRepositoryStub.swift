@@ -77,6 +77,10 @@ final class JointAccountsRepositoryStub: JointAccountsRepository {
         invitesSubject.eraseToAnyPublisher()
     }
 
+    var jointAccountsPendingOperations: [StoredJointAccountPendingOperations] {
+        pendingOperationsSubject.value
+    }
+
     var jointAccountsPendingOperationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> {
         pendingOperationsSubject.eraseToAnyPublisher()
     }
@@ -85,6 +89,10 @@ final class JointAccountsRepositoryStub: JointAccountsRepository {
 
     func loadJointAccountsFromRemote() async throws {
         loadCallsCount.withLock { $0 += 1 }
+    }
+
+    func requestFrequentUpdates() -> AnyCancellable {
+        AnyCancellable {}
     }
 
     func addNewJointAccount(withConfig config: JointAccountCreationConfig) async throws {

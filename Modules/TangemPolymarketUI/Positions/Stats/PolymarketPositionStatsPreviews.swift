@@ -40,7 +40,7 @@ private struct PolymarketPositionStatsShowcase: View {
 private extension [PolymarketPositionStatTile.Model] {
     static let winning: [PolymarketPositionStatTile.Model] = [
         .init(id: "size", caption: "Qty of Tokens", value: "1,250.00"),
-        .init(id: "price", caption: "Position Price Changes", value: "64¢ → 71¢"),
+        .init(id: "price", caption: "Position Price Changes", value: "64.2¢ → 71.8¢"),
         .init(id: "unrealized", caption: "Unrealized PnL", value: "+ $87.50", tone: .positive, onHintTap: {}),
         .init(id: "realized", caption: "Realized Profit", value: "+ $420.00", tone: .positive, onHintTap: {}),
     ]

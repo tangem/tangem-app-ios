@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import AVFoundation
 import Lottie
+import TangemUI
 
 @MainActor
 public final class SlidePlayerViewModel: ObservableObject, Identifiable {
@@ -301,7 +302,7 @@ public final class SlidePlayerViewModel: ObservableObject, Identifiable {
     // MARK: - Video path
 
     private func setupVideoPlayer(url: URL) {
-        StoryAudioSession.activateAmbientOnce()
+        AmbientAudioSession.configure()
 
         let player = makePlayer(url: url)
         self.player = player

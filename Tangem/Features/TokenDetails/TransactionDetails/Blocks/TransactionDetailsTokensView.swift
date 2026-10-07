@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAccounts
 import TangemAssets
 import TangemUI
@@ -172,11 +173,13 @@ struct TransactionDetailsTokensView: View {
     private func pairCard(from: TransactionDetailsTokensViewData.Leg, to: TransactionDetailsTokensViewData.Leg) -> some View {
         VStack(spacing: 2) {
             legRow(from)
+                .accessibilityIdentifier(TransactionDetailsAccessibilityIdentifiers.tokensLeg(id: "from"))
 
             DashedDivider(color: DesignSystem.Color.borderSecondary)
                 .padding(.horizontal, 16)
 
             legRow(to)
+                .accessibilityIdentifier(TransactionDetailsAccessibilityIdentifiers.tokensLeg(id: "to"))
         }
         .padding(.vertical, 4)
         .background(
@@ -287,18 +290,9 @@ private struct DashedDivider: View {
     let color: Color
 
     var body: some View {
-        Line()
+        HorizontalLine()
             .stroke(color, style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
             .frame(height: 1)
-    }
-
-    private struct Line: Shape {
-        func path(in rect: CGRect) -> Path {
-            var path = Path()
-            path.move(to: CGPoint(x: rect.minX, y: rect.midY))
-            path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
-            return path
-        }
     }
 }
 

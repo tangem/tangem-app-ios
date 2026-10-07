@@ -35,19 +35,18 @@ private extension CollectiblesPackCard.Skeleton {
 
     var details: some View {
         VStack(alignment: .leading, spacing: CollectiblesPackCard.Metrics.detailsSpacing) {
-            bar(width: Metrics.titleWidth, height: Metrics.titleHeight)
+            textLine
 
-            HStack(spacing: CollectiblesPackCard.Metrics.priceSpacing) {
-                bar(width: Metrics.priceWidth, height: Metrics.badgeHeight)
-                bar(width: Metrics.badgeWidth, height: Metrics.badgeHeight)
-            }
+            textLine
         }
     }
 
-    func bar(width: CGFloat, height: CGFloat) -> some View {
+    var textLine: some View {
         Shimmer()
-            .frame(width: width, height: height)
+            .frame(width: Metrics.barWidth, height: Metrics.barHeight)
             .clipShape(Capsule())
+            .frame(height: Metrics.lineHeight)
+            .infinityFrame(axis: .horizontal, alignment: .leading)
     }
 }
 
@@ -55,11 +54,9 @@ private extension CollectiblesPackCard.Skeleton {
 
 private extension CollectiblesPackCard.Skeleton {
     enum Metrics {
-        static let titleWidth: CGFloat = 96
-        static let titleHeight: CGFloat = 14
-        static let priceWidth: CGFloat = 28
-        static let badgeWidth: CGFloat = 90
-        static let badgeHeight: CGFloat = 16
+        static let barWidth: CGFloat = 72
+        static let barHeight: CGFloat = 14
+        static let lineHeight: CGFloat = 18
     }
 }
 

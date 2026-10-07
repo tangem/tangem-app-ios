@@ -197,9 +197,9 @@ extension SendCoordinator: SendRoutable {
     func openSwapSupportSelection(with dataCollector: EmailDataCollector, recipient: String, chatDataCollector: ChatDataCollector) {
         let chatInput = SupportChatInputModel(
             logsComposer: LogsComposer(infoProvider: dataCollector),
-            userIdentifier: chatDataCollector.userIdentifier,
+            userWalletId: chatDataCollector.userWalletId,
             source: .swap,
-            initialMessage: .swap(message: chatDataCollector.message)
+            initialMessage: chatDataCollector.message
         )
 
         openSupportTypeSelection(
@@ -379,6 +379,16 @@ extension SendCoordinator: SwapRoutable {
             marketsTokensViewModel: marketsTokensViewModel,
             marketsTokenAdditionRouter: marketsTokenAdditionCoordinator
         )
+    }
+
+    func openSwapSlippageSelector(slippageSelectorBuilder: SwapSlippageSelectorBuilder) {
+        guard let viewModel = slippageSelectorBuilder.makeSlippageSelector() else {
+            return
+        }
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 }
 
