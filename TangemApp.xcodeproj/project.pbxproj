@@ -74,12 +74,14 @@
 		C2A96C052F7EE114001D0602 /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = C2A96BF72F7EE114001D0602 /* Intents.intentdefinition */; };
 		C2B5B4FF2F59DD9200C89C89 /* SurveySparrowSdk in Frameworks */ = {isa = PBXBuildFile; productRef = C2B5B4FE2F59DD9200C89C89 /* SurveySparrowSdk */; };
 		C2FC44072F3E66F900A61EAB /* TangemTestKit in Frameworks */ = {isa = PBXBuildFile; productRef = C2FC44062F3E66F900A61EAB /* TangemTestKit */; };
+		DB295F94E7E0ACF9B6C83BE2 /* MeaPushProvisioning in Frameworks */ = {isa = PBXBuildFile; productRef = 5971D71556D0B998E91934E7 /* MeaPushProvisioning */; };
 		DC2756452F8E70FC00BCE38E /* GoogleService-Info-Internal.plist in Resources */ = {isa = PBXBuildFile; fileRef = DC2756442F8E70FC00BCE38E /* GoogleService-Info-Internal.plist */; };
 		DC2CA0DD2EF069BC00C10344 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DC2CA0DC2EF069BC00C10344 /* CryptoSwift */; };
 		DCB616E52CB39AE100BE4481 /* WalletConnect in Frameworks */ = {isa = PBXBuildFile; productRef = DCB616E42CB39AE100BE4481 /* WalletConnect */; };
 		DCB616E72CB3A63800BE4481 /* ReownWalletKit in Frameworks */ = {isa = PBXBuildFile; productRef = DCB616E62CB3A63800BE4481 /* ReownWalletKit */; };
 		DCED46532EF04FD20021AC0D /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DCED46522EF04FD20021AC0D /* CryptoSwift */; };
 		DCED46552EF04FDB0021AC0D /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DCED46542EF04FDB0021AC0D /* CryptoSwift */; };
+		DFCFB2F12F502F160068A3B2 /* mea_config in Resources */ = {isa = PBXBuildFile; fileRef = DFCFB2F02F502F160068A3B2 /* mea_config */; };
 		EF9E299D2B4F0C9100418559 /* TangemExpress.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF9E29932B4F0C8800418559 /* TangemExpress.framework */; };
 		EF9E29A82B4F0C9900418559 /* TangemExpress.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF9E29932B4F0C8800418559 /* TangemExpress.framework */; };
 		EF9E29A92B4F0C9900418559 /* TangemExpress.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EF9E29932B4F0C8800418559 /* TangemExpress.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -249,6 +251,7 @@
 		DC17CE472FAA5FD300DFB221 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Intents.strings"; sourceTree = "<group>"; };
 		DC17CE482FAA5FF000DFB221 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Intents.strings"; sourceTree = "<group>"; };
 		DC2756442F8E70FC00BCE38E /* GoogleService-Info-Internal.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-Internal.plist"; sourceTree = "<group>"; };
+		DFCFB2F02F502F160068A3B2 /* mea_config */ = {isa = PBXFileReference; lastKnownFileType = file; name = mea_config; path = Tangem/Resources/mea_config; sourceTree = SOURCE_ROOT; };
 		EF9E29932B4F0C8800418559 /* TangemExpress.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TangemExpress.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF9E299C2B4F0C8D00418559 /* TangemExpressTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemExpressTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EFEE23882BFF62D50099917E /* TangemStaking.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TangemStaking.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -309,6 +312,7 @@
 				App/AppEnvironmentConfig/Info.plist,
 				App/AppEnvironmentConfig/Internal.xcconfig,
 				App/AppEnvironmentConfig/Production.xcconfig,
+				Resources/mea_config,
 			);
 			target = 5D3F77C124BF56D800E8695B /* Tangem */;
 		};
@@ -375,6 +379,7 @@
 				B6E27FA52DFD1CAC00B29813 /* TangemModules in Frameworks */,
 				5DAC0888251391D900B73E8B /* CoreNFC.framework in Frameworks */,
 				B099338A2B5517EC00240CDB /* TangemVisa.framework in Frameworks */,
+				DB295F94E7E0ACF9B6C83BE2 /* MeaPushProvisioning in Frameworks */,
 				3075F0D02DCA6B430094B4C7 /* Kingfisher in Frameworks */,
 				B6DDDE782CF39158008DEA94 /* CombineExt in Frameworks */,
 				DCED46532EF04FD20021AC0D /* CryptoSwift in Frameworks */,
@@ -510,6 +515,7 @@
 				2D1553692FEC18DB00BF1F88 /* TangemNotificationServiceExtension */,
 				5D3F77C324BF56D800E8695B /* Products */,
 				2E5061A84512B23CCB5F2E17 /* Frameworks */,
+				DFCFB2F02F502F160068A3B2 /* mea_config */,
 			);
 			sourceTree = "<group>";
 		};
@@ -669,6 +675,7 @@
 				B6FF157D2F8F2A6E000C63B6 /* BigInt */,
 				B6457BCF2F9120CA00C91066 /* TangemMacro */,
 				B6DBDE492F97790F00885068 /* Hiero */,
+				5971D71556D0B998E91934E7 /* MeaPushProvisioning */,
 				B605DFA03012E35F00366B0D /* TangemFirebaseDynamicShim */,
 				B625C4A430137E6F00B25A74 /* GRDB */,
 				B6911ACB302D45550010A7FA /* SwiftProtobuf */,
@@ -1006,6 +1013,7 @@
 				B625C4A330137E6F00B25A74 /* XCRemoteSwiftPackageReference "GRDB.swift" */,
 				B6911ACA302D45550010A7FA /* XCRemoteSwiftPackageReference "swift-protobuf-binaries" */,
 				B6911ACD302D457E0010A7FA /* XCRemoteSwiftPackageReference "grpc-swift" */,
+				53E22B46099D1FE81938511E /* XCRemoteSwiftPackageReference "mea-wallet-binaries-ios" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -1047,6 +1055,7 @@
 				C2A96C042F7EE114001D0602 /* Intents.strings in Resources */,
 				2DF2B17430233C29009B888D /* ios_cio_config.json in Resources */,
 				C21C40D12F7D778F00CF1555 /* providers_order.json in Resources */,
+				DFCFB2F12F502F160068A3B2 /* mea_config in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1407,6 +1416,11 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+				);
+				OTHER_SWIFT_FLAGS = (
+					"$(inherited)",
+					"-Xcc",
+					"-Wno-incomplete-umbrella",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1776,6 +1790,11 @@
 					"-weak_framework",
 					"\"SwiftUI\"",
 				);
+				OTHER_SWIFT_FLAGS = (
+					"$(inherited)",
+					"-Xcc",
+					"-Wno-incomplete-umbrella",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_MODULE_NAME = Tangem;
 				PRODUCT_NAME = "$(inherited)";
@@ -1909,6 +1928,11 @@
 					"\"CryptoKit\"",
 					"-weak_framework",
 					"\"SwiftUI\"",
+				);
+				OTHER_SWIFT_FLAGS = (
+					"$(inherited)",
+					"-Xcc",
+					"-Wno-incomplete-umbrella",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_MODULE_NAME = Tangem;
@@ -2191,6 +2215,11 @@
 					"-weak_framework",
 					"\"SwiftUI\"",
 				);
+				OTHER_SWIFT_FLAGS = (
+					"$(inherited)",
+					"-Xcc",
+					"-Wno-incomplete-umbrella",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_MODULE_NAME = Tangem;
 				PRODUCT_NAME = "$(inherited)";
@@ -2257,6 +2286,11 @@
 					"-weak_framework",
 					"\"SwiftUI\"",
 				);
+				OTHER_SWIFT_FLAGS = (
+					"$(inherited)",
+					"-Xcc",
+					"-Wno-incomplete-umbrella",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_MODULE_NAME = Tangem;
 				PRODUCT_NAME = "$(inherited)";
@@ -2283,6 +2317,11 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				OTHER_SWIFT_FLAGS = (
+					"$(inherited)",
+					"-Xcc",
+					"-Wno-incomplete-umbrella",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -2306,6 +2345,11 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+				);
+				OTHER_SWIFT_FLAGS = (
+					"$(inherited)",
+					"-Xcc",
+					"-Wno-incomplete-umbrella",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3470,6 +3514,11 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				OTHER_SWIFT_FLAGS = (
+					"$(inherited)",
+					"-Xcc",
+					"-Wno-incomplete-umbrella",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -4545,6 +4594,14 @@
 				minimumVersion = 8.7.0;
 			};
 		};
+		53E22B46099D1FE81938511E /* XCRemoteSwiftPackageReference "mea-wallet-binaries-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:tangem-developments/mea-wallet-binaries-ios.git";
+			requirement = {
+				kind = exactVersion;
+				version = 2.0.0;
+			};
+		};
 		B0776C352DA69090004A8765 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/airbnb/lottie-spm.git";
@@ -4756,6 +4813,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 3075F0CE2DCA6B3A0094B4C7 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		5971D71556D0B998E91934E7 /* MeaPushProvisioning */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 53E22B46099D1FE81938511E /* XCRemoteSwiftPackageReference "mea-wallet-binaries-ios" */;
+			productName = MeaPushProvisioning;
 		};
 		798508AD2DF1AF9100388668 /* TangemModules */ = {
 			isa = XCSwiftPackageProductDependency;
