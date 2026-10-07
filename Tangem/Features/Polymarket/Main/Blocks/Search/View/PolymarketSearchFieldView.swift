@@ -23,7 +23,7 @@ struct PolymarketSearchFieldView: View {
         )
         .placeholder(Localization.commonSearch)
         .submitLabel(.search)
-        .padding(.horizontal, Constants.horizontalPadding)
+        .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
         .padding(.vertical, Constants.verticalPadding)
         .background(alignment: .bottom) {
             Fade(position: .bottom)
@@ -41,7 +41,6 @@ struct PolymarketSearchFieldView: View {
 
 private extension PolymarketSearchFieldView {
     enum Constants {
-        static let horizontalPadding: CGFloat = 16
         static let verticalPadding: CGFloat = 12
         static let fadeOverhang: CGFloat = 16
     }
