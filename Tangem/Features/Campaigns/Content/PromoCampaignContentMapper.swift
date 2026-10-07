@@ -18,12 +18,21 @@ struct PromoCampaignContentMapper {
 
     func map(_ content: PromoCampaignsDTO.Content, payoutTokens: [PromoCampaignsDTO.PayoutToken]) -> PromoCampaignContent {
         let tokenSymbols = Set(payoutTokens.map(\.tokenSymbol))
+        let blocks = content.publicDescription.compactMap { mapBlock($0, tokenSymbols: tokenSymbols) }
+        let hasBlockLink = blocks.contains { block in
+            if case .text(_, _, .some) = block {
+                return true
+            }
+
+            return false
+        }
 
         return PromoCampaignContent(
             title: content.campaignName,
+            subtitle: content.campaignDescription?.nilIfEmpty,
             imageURL: content.publicImage,
-            blocks: content.publicDescription.compactMap { mapBlock($0, tokenSymbols: tokenSymbols) },
-            learnMoreLink: content.learnMoreLink.flatMap(mapLink),
+            blocks: blocks,
+            learnMoreLink: hasBlockLink ? nil : content.learnMoreLink.flatMap(mapLink),
             termsLink: content.tncLink.flatMap(mapLink),
             actionButtonTitle: content.actionButtonName
         )
@@ -36,7 +45,7 @@ private extension PromoCampaignContentMapper {
     func mapBlock(_ block: PromoCampaignsDTO.ContentBlock, tokenSymbols: Set<String>) -> PromoCampaignContent.Block? {
         switch block {
         case .text(let block):
-            return block.text.nilIfEmpty.map(PromoCampaignContent.Block.text)
+            return block.text.nilIfEmpty.map { .text(title: block.title?.nilIfEmpty, text: $0, link: block.link.flatMap(mapLink)) }
         case .highlight(let block):
             return block.text.nilIfEmpty.map { .highlight(title: block.title?.nilIfEmpty, text: $0) }
         case .block(let block):

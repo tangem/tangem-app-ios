@@ -262,7 +262,7 @@ struct PromoCampaignsRepositoryTests {
         #expect(campaign.name == "summer_staking_2026")
         #expect(campaign.isEnrolled)
         #expect(campaign.content.title == "Summer staking bonus")
-        #expect(campaign.content.blocks == [.text("Stake from 100 USDT")])
+        #expect(campaign.content.blocks == [.text(title: nil, text: "Stake from 100 USDT", link: nil)])
         #expect(campaign.content.actionButtonTitle == "Join")
         #expect(campaign.isPayoutNeeded)
         #expect(campaign.payoutTokens == [
@@ -406,6 +406,7 @@ private final class CampaignsLoaderStub: PromoCampaignsLoading {
         isEnrolled: false,
         content: PromoCampaignContent(
             title: "Summer staking bonus",
+            subtitle: nil,
             imageURL: nil,
             blocks: [],
             learnMoreLink: nil,
