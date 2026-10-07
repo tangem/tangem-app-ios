@@ -322,6 +322,7 @@
 "common_approved" = "Aprovado";
 "common_approving" = "Aprovando";
 "common_attention" = "Atenção";
+"common_auto" = "Automático";
 "common_available_networks" = "Redes disponíveis";
 "common_back" = "Voltar";
 "common_backup_error" = "Erro de backup";
@@ -360,6 +361,7 @@
 "common_custom" = "Personalizado";
 "common_day" = "dia";
 "common_decline" = "Recusar";
+"common_default" = "Padrão";
 "common_delete" = "Excluir";
 "common_disable" = "Desativar";
 "common_disabled" = "Desabilitado";
@@ -488,6 +490,7 @@
 "common_share" = "Compartilhar";
 "common_sign" = "Assine";
 "common_skip" = "Pular";
+"common_slippage" = "Slippage";
 "common_something_went_wrong" = "Algo deu errado";
 "common_stake" = "Stake";
 "common_staked" = "Estacado";
@@ -997,6 +1000,7 @@
 "introduction_stories_two_subtitle" = "Use qualquer um dos seus cartões para acessar sua carteira";
 "introduction_stories_two_title" = "Uma carteira, vários cartões";
 "introduction_subtitle" = "Um único lugar seguro para tudo o que é seu";
+"introduction_terms_of_service_consent" = "Ao continuar, você concorda com %@";
 "introduction_terms_of_service" = "Termos de serviço";
 "introduction_title" = "Armazene todos os seus ativos";
 "jailbreak_warning_message" = "Dispositivos com jailbreak são considerados menos seguros. Seus dados podem estar expostos a riscos adicionais.";
@@ -1031,7 +1035,7 @@
 "joint_account_invite_members_title" = "Convidar membros";
 "joint_account_invite_members_to_join" = "Convide membros para participar";
 "joint_account_invite_members_waiting_title" = "Aguardando membros";
-"joint_account_invite_share_title" = "Invite to %@";
+"joint_account_invite_share_title" = "Convite para %@";
 "joint_account_join_confirm_sheet_subtitle" = "Todos os membros desta conta compartilham o mesmo saldo. Outros membros podem movimentar os fundos sem a sua aprovação quando obtiverem assinaturas suficientes";
 "joint_account_join_confirm_sheet_title" = "Você está entrando em uma conta compartilhada";
 "joint_account_join_invalid_link_subtitle" = "Verifique se você abriu o link correto ou peça ao criador da conta para enviá-lo novamente";
@@ -2209,7 +2213,10 @@
 "support_selector_view_chat_button" = "Abra o chat";
 "support_selector_view_email_button" = "Abra o e-mail";
 "swap_approve_description" = "Ao aprovar, você permite que o contrato inteligente utilize seus tokens em transações futuras.";
+"swap_custom_slippage_info" = "O slippage não pode ser personalizado com este provedor e, em casos raros, pode chegar a %@";
 "swap_detailed_mode" = "Modo detalhado";
+"swap_exchange_rates_info_text" = "As taxas de câmbio exibidas incluem a taxa do provedor de serviços";
+"swap_exchange_rates_info_title" = "Taxas de câmbio";
 "swap_fixed_rate" = "Taxa fixa";
 "swap_give_permission_fee_footer" = "A rede cobrará uma taxa de aprovação de token para verificar se você está autorizando o uso do seu token para a troca.";
 "swap_in_progress" = "Troca em andamento";
@@ -2217,6 +2224,10 @@
 "swap_search_tooltip_description" = "Pesquise qualquer token, mesmo que ele ainda não esteja na sua lista.";
 "swap_search_tooltip_title" = "Use a busca para encontrar o que você precisa.";
 "swap_simple_mode" = "Modo simples";
+"swap_slippage_error" = "Valor não compatível";
+"swap_slippage_info_text" = "é a diferença entre o preço de execução esperado e o preço de execução efetivo causada por alterações no preço de mercado ou na liquidez";
+"swap_slippage_warning_text" = "A troca pode falhar se o limite de slippage for atingido";
+"swap_slippage_warning_title" = "Slippage definido como %@";
 "swap_story_fifth_subtitle" = "Sinta-se seguro com o suporte disponível 24 horas por dia, 7 dias por semana, para ajudá-lo com qualquer problema.";
 "swap_story_fifth_title" = "Sempre aqui";
 "swap_story_first_subtitle_v2" = "Troque criptomoedas diretamente na Tangem\nSem transferências adicionais\nSem movimentação de fundos para corretoras";
@@ -2329,9 +2340,9 @@
 "tangempay_account_deactivated_message_subtitle" = "Para dúvidas sobre sua conta, dados ou histórico de transações, entre em contato com o suporte";
 "tangempay_account_deactivated_message_title" = "Sua conta foi encerrada";
 "tangempay_account_unable_to_use_rooted" = "Não é possível usar em dispositivos com root.";
-"tangempay_action_required_description" = "To continue, we need a bit more information from you. This usually takes a couple of minutes";
-"tangempay_action_required_primary_btn" = "Сontinue verification";
-"tangempay_action_required_title" = "Action required";
+"tangempay_action_required_description" = "Para continuar, precisamos de mais algumas informações suas. Isso normalmente leva alguns minutos.";
+"tangempay_action_required_primary_btn" = "Continuar a verificação";
+"tangempay_action_required_title" = "Ação necessária";
 "tangempay_apple_wallet_add_failed_message" = "Tente usar outro dispositivo ou entre em contato com o suporte";
 "tangempay_apple_wallet_add_failed_title" = "Não foi possível adicionar o cartão";
 "tangempay_apple_wallet_verification_required_message" = "Conclua a verificação na carteira";
@@ -2883,6 +2894,7 @@
 "transaction_history_approve_high_risk_subtitle" = "Você está conectado. Seus fundos podem estar em risco. Considere revogar o acesso.";
 "transaction_history_approve_high_risk_title" = "Alto Risco";
 "transaction_history_approved_amount" = "Valor Aprovado";
+"transaction_history_claiming_incentive_rewards" = "Claiming incentive rewards";
 "transaction_history_claiming_reward" = "Reivindicar recompensa";
 "transaction_history_contract_address" = "contrato: %@";
 "transaction_history_detail_page_amount_signed_value" = "%1@ %2@ %3@";
@@ -2903,6 +2915,7 @@
 "transaction_history_fee_for_yield_mode_top_up" = "Para o reforço do modo de rendimento";
 "transaction_history_fee_sending_asset" = "Enviar %%image%%%@";
 "transaction_history_from_inline_address" = "de: %%image%% %@";
+"transaction_history_incentive_rewards_claimed" = "Incentive rewards claimed";
 "transaction_history_multiple_addresses" = "Vários endereços";
 "transaction_history_not_supported_description" = "O histórico de transações ainda não é suportado nesta blockchain. Mas não se preocupe, estamos trabalhando nisso! Enquanto isso, você pode conferir no explorador.";
 "transaction_history_operation" = "Operação";
@@ -2914,6 +2927,7 @@
 "transaction_history_status_claiming_rewards" = "Resgatando as recompensas";
 "transaction_history_status_disabling_yield_mode_failed" = "Não foi possível desativar o modo de rendimento";
 "transaction_history_status_enabling_yield_mode_failed" = "Não foi possível ativar o modo de rendimento";
+"transaction_history_status_incentive_rewards_claim_failed" = "Claiming of incentive rewards failed";
 "transaction_history_status_receive_failed" = "Falha ao receber";
 "transaction_history_status_restaking_rewards" = "Recompensas de restaking";
 "transaction_history_status_rewards_claim_failed" = "Falha ao resgatar as recompensas";
