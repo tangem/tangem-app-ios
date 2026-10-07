@@ -388,6 +388,63 @@ final class SwapModelTests: LeakTrackingTestSuite {
         #expect(amount == nil)
     }
 
+    // MARK: - Custom slippage
+
+    @Test("A source token change resets the custom slippage")
+    func sourceChangeResetsCustomSlippage() {
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(tokenItem: .accountToken(symbol: "USDC", contract: "0xUSDC")),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false))
+        )
+
+        sut.userDidSet(slippage: .custom(0.005))
+        sut.update(source: SwapableTokenStub(tokenItem: .accountToken(symbol: "USDT", contract: "0xUSDT")))
+
+        #expect(sut.slippage == .auto)
+    }
+
+    @Test("A receive token change resets the custom slippage")
+    func receiveChangeResetsCustomSlippage() {
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false))
+        )
+
+        sut.userDidSet(slippage: .custom(0.005))
+        sut.update(receive: ReceiveTokenStub(blockchain: .polygon(testnet: false)))
+
+        #expect(sut.slippage == .auto)
+    }
+
+    @Test("A token change leaves the reset slippage to the pair update instead of requoting the outgoing pair")
+    func tokenChangeSkipsSlippageSyncForOutgoingPair() async throws {
+        let manager = ExpressManagerStub()
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            expressManager: manager,
+            pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager)
+        )
+        let recorder = SwapProvidersStateRecorder(sut)
+
+        var baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        baseline = recorder.count
+        sut.userDidSet(slippage: .custom(0.005))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+        #expect(await manager.getSlippage() == 0.005)
+
+        baseline = recorder.count
+        sut.update(receive: ReceiveTokenStub(blockchain: .polygon(testnet: false)))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        #expect(await manager.updateSlippageCallCount == 1)
+        #expect(await manager.getSlippage() == nil)
+        #expect(sut.slippage == .auto)
+    }
+
     // MARK: - Transfer destination
 
     @Test("A transfer pair is addressed to the receive token's own address, for the fee and for the transaction alike")
@@ -575,7 +632,9 @@ private actor ExpressManagerStub: ExpressManager {
     private(set) var currentPair: ExpressManagerSwappingPair?
     private var selectedProvider: ExpressAvailableProvider?
     private var amountType: ExpressAmountType?
+    private var slippage: Decimal?
     private(set) var updateAmountTypeCallCount = 0
+    private(set) var updateSlippageCallCount = 0
 
     private var errorOnNextAmountUpdate: Error?
     private var isHoldingNextAmountUpdate = false
@@ -594,7 +653,7 @@ private actor ExpressManagerStub: ExpressManager {
         return amountType
     }
 
-    func getSlippage() -> Decimal? { nil }
+    func getSlippage() -> Decimal? { slippage }
 
     func holdAmountTypeReads(behind gate: TestGate) {
         amountTypeReadGate = gate
@@ -603,6 +662,7 @@ private actor ExpressManagerStub: ExpressManager {
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerState {
         currentPair = pair
         amountType = nil
+        slippage = nil
         return state()
     }
 
@@ -648,7 +708,9 @@ private actor ExpressManagerStub: ExpressManager {
     }
 
     func update(slippage: Decimal?) async -> ExpressManagerState {
-        state()
+        updateSlippageCallCount += 1
+        self.slippage = slippage
+        return state()
     }
 
     func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState {
