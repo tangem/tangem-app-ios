@@ -77,7 +77,7 @@ struct PolymarketSearchResultsView: View {
         Text(Localization.predictionSearchResultsTitle)
             .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textTertiary)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, Constants.horizontalPadding)
+            .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
     }
 
     private var eventCards: some View {
@@ -85,7 +85,7 @@ struct PolymarketSearchResultsView: View {
             PolymarketEventCard(model: model)
                 .contentShape(.rect)
                 .onTapGesture { viewModel.handleViewAction(.openEventDetails(id: model.id)) }
-                .padding(.horizontal, Constants.horizontalPadding)
+                .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
         }
     }
 
@@ -142,7 +142,6 @@ struct PolymarketSearchResultsView: View {
 
 private extension PolymarketSearchResultsView {
     enum Constants {
-        static let horizontalPadding: CGFloat = 16
         static let contentSpacing: CGFloat = 12
         static let contentVerticalPadding: CGFloat = 12
         static let paginationVerticalPadding: CGFloat = 16
