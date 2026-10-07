@@ -105,12 +105,15 @@ struct SwapSummaryView: View {
 
     @ViewBuilder
     private var feeSectionView: some View {
-        SendFeeCompactView(viewModel: viewModel.feeCompactViewModel, tapAction: {
-            keyboardActive = false
-            viewModel.userDidTapFee()
-        })
-        .accessibilityElement(children: .combine)
-        .accessibilityIdentifier(SwapAccessibilityIdentifiers.feeBlock)
+        SwapSummaryFeeSectionView(
+            slippageViewModel: viewModel.swapSummarySlippageViewModel,
+            feeViewModel: viewModel.feeCompactViewModel,
+            showsSlippage: viewModel.formVariant == .detailed,
+            feeTapAction: {
+                keyboardActive = false
+                viewModel.userDidTapFee()
+            }
+        )
     }
 
     private var informationSection: some View {

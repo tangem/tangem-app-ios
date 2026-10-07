@@ -15,6 +15,7 @@ extension SwapSummaryStepBuildable {
     func makeSwapSummaryStep(
         swapAmountViewModel: SwapAmountViewModel,
         swapSummaryProviderViewModel: SwapSummaryProviderViewModel,
+        swapSummarySlippageViewModel: SwapSummarySlippageViewModel,
         feeCompactViewModel: SendFeeCompactViewModel
     ) -> SwapSummaryStepBuilder.ReturnValue {
         SwapSummaryStepBuilder.make(
@@ -22,6 +23,7 @@ extension SwapSummaryStepBuildable {
             dependencies: summaryDependencies,
             swapAmountViewModel: swapAmountViewModel,
             swapSummaryProviderViewModel: swapSummaryProviderViewModel,
+            swapSummarySlippageViewModel: swapSummarySlippageViewModel,
             feeCompactViewModel: feeCompactViewModel
         )
     }
@@ -53,6 +55,7 @@ enum SwapSummaryStepBuilder {
         dependencies: Dependencies,
         swapAmountViewModel: SwapAmountViewModel,
         swapSummaryProviderViewModel: SwapSummaryProviderViewModel,
+        swapSummarySlippageViewModel: SwapSummarySlippageViewModel,
         feeCompactViewModel: SendFeeCompactViewModel,
     ) -> ReturnValue {
         let interactor = CommonSwapSummaryInteractor(
@@ -71,6 +74,7 @@ enum SwapSummaryStepBuilder {
             analyticsLogger: dependencies.analyticsLogger,
             swapAmountViewModel: swapAmountViewModel,
             swapSummaryProviderViewModel: swapSummaryProviderViewModel,
+            swapSummarySlippageViewModel: swapSummarySlippageViewModel,
             feeCompactViewModel: feeCompactViewModel,
             sourceTokenInput: io.sourceTokenInput
         )
