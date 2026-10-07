@@ -59,6 +59,21 @@ class CommonWalletModel {
     private lazy var _rate: CurrentValueSubject<WalletModelRate, Never> = .init(.loading(cached: quotesRepository.quote(for: tokenItem)))
 
     private let transactionHistoryUpdateTrigger: PassthroughSubject<Void, Never> = .init()
+
+    private lazy var _transactionHistoryPublisher = ThreadSafeLazy<AnyPublisher<WalletModelTransactionHistoryState, Never>> { [unowned self] in
+        WalletModelTransactionHistoryPublisherFactory
+            .makeTransactionHistoryPublisher(
+                transactionHistoryPublisher: transactionHistoryState(),
+                featuresPublisher: featureManager.featuresPublisher,
+                walletModelId: id,
+                walletPublisher: walletManager.walletPublisher,
+                tokenItem: tokenItem,
+                feeTokenItem: feeTokenItem
+            )
+            .share(replay: 1)
+            .eraseToAnyPublisher()
+    }
+
     private var bag = Set<AnyCancellable>()
 
     private var amountType: Amount.AmountType {
@@ -735,14 +750,7 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
 
     /// Listen tx history changes
     var transactionHistoryPublisher: AnyPublisher<WalletModelTransactionHistoryState, Never> {
-        WalletModelTransactionHistoryPublisherFactory.makeTransactionHistoryPublisher(
-            transactionHistoryPublisher: transactionHistoryState(),
-            featuresPublisher: featureManager.featuresPublisher,
-            walletModelId: id,
-            walletPublisher: walletManager.walletPublisher,
-            tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem
-        )
+        _transactionHistoryPublisher.value
     }
 
     var hasPendingTransactions: Bool {
