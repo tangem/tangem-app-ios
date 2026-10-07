@@ -248,18 +248,6 @@ private extension PolymarketOrderStepperTests {
 
         return model
     }
-
-    func settle(until isSatisfied: () -> Bool) async throws {
-        for _ in 0 ..< 100 {
-            if isSatisfied() {
-                return
-            }
-
-            try await Task.sleep(nanoseconds: 10_000_000)
-        }
-
-        Issue.record("The model did not settle in time")
-    }
 }
 
 // MARK: - Fixtures
@@ -286,16 +274,6 @@ private extension PolymarketOrderFractionTests {
         try await settle { model.state.balance != nil }
 
         return model
-    }
-
-    func settle(until isSatisfied: () -> Bool) async throws {
-        for _ in 0 ..< 200 {
-            if isSatisfied() { return }
-
-            try await Task.sleep(nanoseconds: 10_000_000)
-        }
-
-        Issue.record("The order model never settled")
     }
 }
 
