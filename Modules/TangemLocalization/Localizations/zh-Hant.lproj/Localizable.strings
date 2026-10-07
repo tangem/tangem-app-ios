@@ -1566,7 +1566,7 @@
 "organize_tokens_ungroup" = "Ungroup";
 "prediction_account_open_detailed_view" = "Open detailed view";
 "prediction_account_subtitle" = "Add funds & start predict";
-"prediction_account_title" = "Prediction account";
+"prediction_account_title" = "Predictions account";
 "prediction_account_unavailable" = "Couldn't connect to your prediction account. Refresh or reopen this screen.";
 "prediction_add_funds_error_description" = "Couldn't load deposit details. Refresh or re-enter this screen.";
 "prediction_add_funds_max_receive_amount_title" = "The amount to receive must not exceed %@";
@@ -1574,9 +1574,11 @@
 "prediction_add_funds_notification_limits_title" = "Deposit limits";
 "prediction_add_funds_receive_body" = "Send %1$@ from another wallet, minimum %2$@";
 "prediction_add_funds_receive_subtitle" = "Send USDC on the Polygon network to your Polymarket account";
+"prediction_add_funds_receive_title" = "From another wallet or exchange";
 "prediction_add_funds_subtitle" = "%1$@ on %2$@";
 "prediction_add_funds_swap_body" = "Exchange a token you already hold";
 "prediction_add_funds_swap_subtitle" = "Use crypto in your Tangem wallet to top up your Polymarket account";
+"prediction_add_funds_swap_title" = "From your Tangem Wallet";
 "prediction_balance_total" = "Total Balance";
 "prediction_balance_withdraw" = "Withdraw";
 "prediction_claim_error_failed" = "The claim did not go through. Nothing left your account, and you can try again.";
@@ -1623,7 +1625,7 @@
 "prediction_main_empty_positions_title" = "You don’t have active predictions";
 "prediction_main_events_load_error" = "Failed to load events.\nTap to reload";
 "prediction_main_explore_events" = "Explore Events";
-"prediction_main_subtitle" = "USDC on Polygon network";
+"prediction_main_subtitle" = "US Dollars";
 "prediction_main_title" = "Predictions";
 "prediction_main_total_balance" = "Total Balance";
 "prediction_main_withdraw" = "Withdraw";
@@ -2341,7 +2343,7 @@
 "tangempay_account_deactivated_message_title" = "您的帳戶已被關閉";
 "tangempay_account_unable_to_use_rooted" = "無法在已取得 root 權限的裝置上使用";
 "tangempay_action_required_description" = "To continue, we need a bit more information from you. This usually takes a couple of minutes";
-"tangempay_action_required_primary_btn" = "Сontinue verification";
+"tangempay_action_required_primary_btn" = "Continue verification";
 "tangempay_action_required_title" = "Action required";
 "tangempay_apple_wallet_add_failed_message" = "Try another device or contact support";
 "tangempay_apple_wallet_add_failed_title" = "Could Not Add Card";
@@ -3484,6 +3486,7 @@
 "yield_module_incentive_chart_powered_by_description" = "A campaign sponsor funds extra reward tokens, distributed through Merkl.\nIncentives may end, and reward token prices can change.\nThe displayed APY includes incentive rewards after Tangem's service fee.";
 "yield_module_incentive_chart_powered_by_title" = "Powered by Merkl";
 "yield_module_incentive_chart_sheet_title" = "Incentivized yield";
+"yield_module_incentives_provider" = "Merkl";
 "yield_module_main_screen_promo_banner_message" = "Enable %1$@%% APY on your balance";
 "yield_module_main_view_approve_notification_description" = "Approval for your token in Yield Mode has been revoked. Open the token to grant permission again.";
 "yield_module_main_view_approve_notification_title" = "Token approval needed";
