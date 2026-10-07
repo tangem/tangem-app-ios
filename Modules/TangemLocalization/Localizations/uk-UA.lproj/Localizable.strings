@@ -1044,7 +1044,7 @@
 "joint_account_join_subtitle_value" = "%1$@ із %2$@ учасників";
 "joint_account_join_subtitle" = "Це спільний акаунт. Для кожної транзакції з нього потрібні підписи: %1$@";
 "joint_account_join_success_message" = "Акаунт додано";
-"joint_account_join_title" = "Вас запросили до акаунта «%1$@»";
+"joint_account_join_title" = "Вас запросили до акаунта %1$@";
 "joint_account_join_to_account_btn_text" = "Приєднатися до акаунта";
 "joint_account_members_progress" = "%1$@ із %2$@ учасників";
 "joint_account_members_role_joined" = "Приєднався/приєдналася";
@@ -1052,7 +1052,7 @@
 "joint_account_members_signers_subtitle" = "Для підтвердження операцій";
 "joint_account_members_signers_title" = "Потрібно підписів";
 "joint_account_members_subtitle_helper_part" = " %1$@ із %2$@ учасників";
-"joint_account_members_subtitle_main_part" = "Вкажіть, скільки людей користуватимуться акаунтом. Кожну транзакцію мають підписати%1$@. Пізніше це змінити не можна";
+"joint_account_members_subtitle_main_part" = "Вкажіть, скільки людей користуватимуться акаунтом. Кожну транзакцію мають підписати %1$@. Пізніше це змінити не можна";
 "joint_account_members_subtitle" = "Вкажіть, скільки людей користуватимуться акаунтом. Кожну транзакцію мають підписати %1$@ із %2$@ учасників. Пізніше це змінити не можна";
 "joint_account_members_title" = "Учасники";
 "joint_account_members_total_subtitle" = "Щонайбільше %1$@ осіб, включно з вами";
@@ -1091,7 +1091,7 @@
 "joint_account_send_slot_busy_title" = "Уже є незавершена операція";
 "joint_account_settings_networks_info" = "Цей акаунт працює лише в підтримуваних мережах.";
 "joint_account_waiting_activation" = "Очікує активації";
-"joint_operation_auto_sends_footer" = "Надішлеться автоматично, коли підпишуть %1$@ із %2$@ учасників";
+"joint_operation_auto_sends_footer" = "Надішлеться автоматично, коли підпишуть %1$@ із %2$@ учасників";
 "joint_operation_banner_subtitle" = "%1$@ → %2$@";
 "joint_operation_banner_title_own" = "Ви хочете надіслати %1$@";
 "joint_operation_banner_title" = "%1$@ хоче надіслати %2$@";
@@ -1101,7 +1101,7 @@
 "joint_operation_decline_alert_message" = "Інші учасники побачать ваше рішення. Підписати цю транзакцію пізніше буде неможливо";
 "joint_operation_decline_alert_title" = "Відхилити цю транзакцію?";
 "joint_operation_declined_at" = "Відхилено %@";
-"joint_operation_declined_footer" = "Ви відхилили. Інші ще можуть зібрати %1$@ із %2$@ підписів";
+"joint_operation_declined_footer" = "Ви відхилили. Інші ще можуть зібрати %1$@ із %2$@ підписів";
 "joint_operation_declined" = "Відхилено";
 "joint_operation_delete_alert_message" = "Транзакцію буде скасовано для всіх учасників. Зібрані підписи буде видалено";
 "joint_operation_delete_alert_title" = "Видалити цю транзакцію?";
@@ -1112,7 +1112,7 @@
 "joint_operation_sent_footer" = "Підписано %1$@ із %2$@ і надіслано в мережу";
 "joint_operation_signatures_progress" = "Підписи: %1$@ із %2$@";
 "joint_operation_signed_at" = "Підписано %@";
-"joint_operation_signed_footer" = "Надішлеться автоматично, коли підпишуть %1$@ із %2$@";
+"joint_operation_signed_footer" = "Надішлеться автоматично, коли підпишуть %1$@ із %2$@";
 "joint_operation_signed" = "Підписано";
 "joint_operation_signers_title" = "Підписанти";
 "joint_operation_signing_blocked_subtitle" = "Підписання заблоковано з міркувань безпеки. Зверніться до служби підтримки";
@@ -1566,7 +1566,7 @@
 "organize_tokens_ungroup" = "Список";
 "prediction_account_open_detailed_view" = "Open detailed view";
 "prediction_account_subtitle" = "Add funds & start predict";
-"prediction_account_title" = "Prediction account";
+"prediction_account_title" = "Predictions account";
 "prediction_account_unavailable" = "Couldn't connect to your prediction account. Refresh or reopen this screen.";
 "prediction_add_funds_error_description" = "Couldn't load deposit details. Refresh or re-enter this screen.";
 "prediction_add_funds_max_receive_amount_title" = "The amount to receive must not exceed %@";
@@ -1574,9 +1574,11 @@
 "prediction_add_funds_notification_limits_title" = "Deposit limits";
 "prediction_add_funds_receive_body" = "Send %1$@ from another wallet, minimum %2$@";
 "prediction_add_funds_receive_subtitle" = "Send USDC on the Polygon network to your Polymarket account";
+"prediction_add_funds_receive_title" = "From another wallet or exchange";
 "prediction_add_funds_subtitle" = "%1$@ on %2$@";
 "prediction_add_funds_swap_body" = "Exchange a token you already hold";
 "prediction_add_funds_swap_subtitle" = "Use crypto in your Tangem wallet to top up your Polymarket account";
+"prediction_add_funds_swap_title" = "From your Tangem Wallet";
 "prediction_balance_total" = "Total Balance";
 "prediction_balance_withdraw" = "Withdraw";
 "prediction_claim_error_failed" = "The claim did not go through. Nothing left your account, and you can try again.";
@@ -1623,7 +1625,7 @@
 "prediction_main_empty_positions_title" = "You don’t have active predictions";
 "prediction_main_events_load_error" = "Failed to load events.\nTap to reload";
 "prediction_main_explore_events" = "Explore Events";
-"prediction_main_subtitle" = "USDC on Polygon network";
+"prediction_main_subtitle" = "US Dollars";
 "prediction_main_title" = "Predictions";
 "prediction_main_total_balance" = "Total Balance";
 "prediction_main_withdraw" = "Withdraw";
@@ -2341,7 +2343,7 @@
 "tangempay_account_deactivated_message_title" = "Ваш обліковий запис було закрито";
 "tangempay_account_unable_to_use_rooted" = "Заборонено використовувати на root-пристроях";
 "tangempay_action_required_description" = "To continue, we need a bit more information from you. This usually takes a couple of minutes";
-"tangempay_action_required_primary_btn" = "Сontinue verification";
+"tangempay_action_required_primary_btn" = "Continue verification";
 "tangempay_action_required_title" = "Action required";
 "tangempay_apple_wallet_add_failed_message" = "Try another device or contact support";
 "tangempay_apple_wallet_add_failed_title" = "Could Not Add Card";
@@ -2894,6 +2896,7 @@
 "transaction_history_approve_high_risk_subtitle" = "You're connected. Funds may be at risk. Consider revoking access.";
 "transaction_history_approve_high_risk_title" = "High Risk";
 "transaction_history_approved_amount" = "Approved amount";
+"transaction_history_claiming_incentive_rewards" = "Claiming incentive rewards";
 "transaction_history_claiming_reward" = "Отримання нагороди";
 "transaction_history_contract_address" = "контракт: %@";
 "transaction_history_detail_page_amount_signed_value" = "%1@ %2@ %3@";
@@ -2914,6 +2917,7 @@
 "transaction_history_fee_for_yield_mode_top_up" = "For Yield mode top-up";
 "transaction_history_fee_sending_asset" = "Send %%image%% %@";
 "transaction_history_from_inline_address" = "від: %%image%% %@";
+"transaction_history_incentive_rewards_claimed" = "Incentive rewards claimed";
 "transaction_history_multiple_addresses" = "Кілька адрес";
 "transaction_history_not_supported_description" = "Історія транзакцій наразі не підтримується для цього блокчейну. Але не хвилюйтеся, ми працюємо над цим! А поки можете перевірити це в оглядачі.";
 "transaction_history_operation" = "Операція";
@@ -2925,6 +2929,7 @@
 "transaction_history_status_claiming_rewards" = "Claiming rewards";
 "transaction_history_status_disabling_yield_mode_failed" = "Disabling Yield mode failed";
 "transaction_history_status_enabling_yield_mode_failed" = "Enabling Yield mode failed";
+"transaction_history_status_incentive_rewards_claim_failed" = "Claiming of incentive rewards failed";
 "transaction_history_status_receive_failed" = "Receive failed";
 "transaction_history_status_restaking_rewards" = "Restaking rewards";
 "transaction_history_status_rewards_claim_failed" = "Rewards claim failed";
@@ -3481,6 +3486,7 @@
 "yield_module_incentive_chart_powered_by_description" = "A campaign sponsor funds extra reward tokens, distributed through Merkl.\nIncentives may end, and reward token prices can change.\nThe displayed APY includes incentive rewards after Tangem's service fee.";
 "yield_module_incentive_chart_powered_by_title" = "Powered by Merkl";
 "yield_module_incentive_chart_sheet_title" = "Incentivized yield";
+"yield_module_incentives_provider" = "Merkl";
 "yield_module_main_screen_promo_banner_message" = "Отримуй до %1$@ APY на свій баланс";
 "yield_module_main_view_approve_notification_description" = "Дозвіл для вашого токена в режимі Yield було відкликано. Відкрийте токен, щоб надати дозвіл знову.";
 "yield_module_main_view_approve_notification_title" = "Потрібний дозвіл для токену";
