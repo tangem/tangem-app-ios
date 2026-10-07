@@ -17,6 +17,7 @@ struct PolymarketMainView: View {
     @ObservedObject var viewModel: PolymarketMainViewModel
     let balanceBlock: PolymarketBalanceBlockViewModel
     let positionsBlock: PolymarketPositionsBlockViewModel
+    let searchBlock: PolymarketSearchBlockViewModel
 
     @State private var navBarHeight: CGFloat = 0
 
@@ -27,14 +28,9 @@ struct PolymarketMainView: View {
 
             topBar
 
-            if viewModel.isSearching {
-                DesignSystem.Color.bgPrimary
-                    .ignoresSafeArea()
-
-                PolymarketSearchView(viewModel: viewModel.search)
-            }
+            PolymarketSearchBlockView(viewModel: searchBlock)
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) { searchField }
+        .safeAreaInset(edge: .bottom, spacing: 0) { PolymarketSearchFieldView(viewModel: searchBlock) }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
     }
 
@@ -55,30 +51,6 @@ struct PolymarketMainView: View {
                 .blurred()
                 .backgroundColor(DesignSystem.Color.bgPrimary)
                 .ignoresSafeArea(edges: .top)
-        }
-    }
-
-    // MARK: - Search
-
-    private var searchField: some View {
-        Search(
-            text: $viewModel.searchQuery,
-            isActive: $viewModel.isSearchFieldActive,
-            clearAction: { viewModel.searchQuery = "" },
-            cancelAction: { viewModel.handleViewAction(.cancelSearch) }
-        )
-        .placeholder(Localization.commonSearch)
-        .submitLabel(.search)
-        .padding(.horizontal, Constants.horizontalPadding)
-        .padding(.vertical, Constants.searchFieldVerticalPadding)
-        .background(alignment: .bottom) {
-            Fade(position: .bottom)
-                .variant(.hard)
-                .blurred()
-                .padding(.top, -Constants.searchFadeOverhang)
-                // With the keyboard up there is nothing below to fill, and stretching would drag the
-                // scrim's opaque end under the keyboard, leaving the field on the transparent part.
-                .ignoresSafeArea(edges: viewModel.isSearchFieldActive ? [] : .bottom)
         }
     }
 
@@ -284,8 +256,6 @@ extension PolymarketMainView {
 
         static let contentSpacing: CGFloat = 12
         static let horizontalPadding: CGFloat = 16
-        static let searchFieldVerticalPadding: CGFloat = 12
-        static let searchFadeOverhang: CGFloat = 16
         static let navBarTopPadding: CGFloat = 8
         static let navBarSettingsHeight: CGFloat = 56
         static let tabsVerticalPadding: CGFloat = 8

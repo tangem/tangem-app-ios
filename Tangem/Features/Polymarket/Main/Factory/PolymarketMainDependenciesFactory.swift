@@ -107,6 +107,15 @@ struct PolymarketMainDependencies {
         )
     }
 
+    func makeSearchBlockViewModel(routable: PolymarketSearchBlockRoutable) -> PolymarketSearchBlockViewModel {
+        PolymarketSearchBlockViewModel(
+            apiProvider: apiProvider,
+            activityHandler: activityHandler,
+            isRegionRestricted: { [geoblockStateProvider] in geoblockStateProvider.state.isBlocked },
+            routable: routable
+        )
+    }
+
     func makeOrderIntent(for request: PolymarketOrderRequest) -> PolymarketOrderIntent {
         switch request {
         case .buy:
