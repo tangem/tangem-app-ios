@@ -17,14 +17,12 @@ struct TangemPayPinCheckView: View {
     @ObservedObject var viewModel: TangemPayPinCheckViewModel
 
     var body: some View {
-        redesignedBody
+        content
     }
 }
 
-// MARK: - Redesigned
-
 private extension TangemPayPinCheckView {
-    var redesignedBody: some View {
+    var content: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
                 Spacer(minLength: 0)
@@ -51,12 +49,12 @@ private extension TangemPayPinCheckView {
                 }
                 .multilineTextAlignment(.center)
 
-                redesignedPinContent
+                pinContent
             }
             .padding(.top, 32)
             .padding(.horizontal, 16)
 
-            redesignedChangePinButton
+            changePinButton
         }
         .screenCaptureProtection()
         .frame(maxWidth: .infinity)
@@ -66,7 +64,7 @@ private extension TangemPayPinCheckView {
         }
     }
 
-    var redesignedPinContent: some View {
+    var pinContent: some View {
         Color.clear
             .frame(height: 64)
             .overlay {
@@ -87,7 +85,7 @@ private extension TangemPayPinCheckView {
             }
     }
 
-    var redesignedChangePinButton: some View {
+    var changePinButton: some View {
         TangemUI.Button(
             label: AttributedString(Localization.tangempayChangePinCode),
             accessibilityLabel: Localization.tangempayChangePinCode,

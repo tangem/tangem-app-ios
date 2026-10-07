@@ -233,6 +233,13 @@ extension Analytics {
 
         case title = "Title"
 
+        // MARK: - Tangem Pay Residency
+
+        case country
+        case ifSuggested = "if_suggested"
+        case residencyState = "state"
+        case residencyResult = "result"
+
         // MARK: - For You
 
         case info = "Info"

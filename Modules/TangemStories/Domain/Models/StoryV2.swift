@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct StoryV2: Identifiable, Equatable {
+public struct StoryV2: Identifiable, Equatable, Sendable {
     public let id: String
     public let language: String
     public let placements: [StoryPlacement]
@@ -50,12 +50,12 @@ public struct StoryV2: Identifiable, Equatable {
     }
 }
 
-public enum EndBehavior: String, Equatable {
+public enum EndBehavior: String, Equatable, Sendable {
     case finish
     case loop
 }
 
-public enum ContentOrigin: String, Equatable {
+public enum ContentOrigin: String, Equatable, Sendable {
     case bundled
     case remote
 }

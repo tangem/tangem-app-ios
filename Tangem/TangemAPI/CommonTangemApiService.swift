@@ -13,18 +13,34 @@ import Moya
 import BlockchainSdk
 import TangemFoundation
 import TangemNetworkUtils
+import TangemBackendAuthentication
+import class Alamofire.Interceptor
+import protocol Alamofire.RequestInterceptor
 
 final class CommonTangemApiService {
-    private let provider = TangemProvider<TangemApiTarget>(
-        configuration: TangemProviderConfiguration(logOptions: .verbose),
-        additionalPlugins: [
-            CachePolicyPlugin(),
-            TimeoutIntervalPlugin(),
-            DeviceInfoPlugin(),
-            TangemNetworkAnalyticsPlugin(),
-            TangemApiAuthorizationPlugin(),
-        ]
+    // [REDACTED_TODO_COMMENT]
+    private let provider: TangemProvider<TangemApiTarget> = CommonTangemApiService.makeProvider(requestInterceptor: nil)
+
+    private let protectedProvider: TangemProvider<TangemApiTarget> = CommonTangemApiService.makeProvider(
+        requestInterceptor: Interceptor(
+            adapter: BackendAuthenticationAssembly.requestAdapter,
+            retrier: BackendAuthenticationAssembly.requestRetrier
+        )
     )
+
+    private static func makeProvider(requestInterceptor: (any RequestInterceptor)?) -> TangemProvider<TangemApiTarget> {
+        TangemProvider<TangemApiTarget>(
+            configuration: TangemProviderConfiguration(logOptions: .verbose),
+            additionalPlugins: [
+                CachePolicyPlugin(),
+                TimeoutIntervalPlugin(),
+                DeviceInfoPlugin(),
+                TangemNetworkAnalyticsPlugin(),
+                TangemApiAuthorizationPlugin(),
+            ],
+            requestInterceptor: requestInterceptor
+        )
+    }
 
     private let coinsQueue = DispatchQueue(label: "coins_request_queue", qos: .default)
     private let currenciesQueue = DispatchQueue(label: "currencies_request_queue", qos: .default)
@@ -45,6 +61,16 @@ final class CommonTangemApiService {
 
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)
+
+            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: false, decoder: decoder)
+        }
+    }
+
+    private func requestProtected<D: Decodable>(for type: TangemApiTarget.TargetType, decoder: JSONDecoder) async throws -> D {
+        let target = TangemApiTarget(type: type)
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await protectedProvider.asyncRequest(target)
 
             return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: false, decoder: decoder)
         }
@@ -263,6 +289,13 @@ extension CommonTangemApiService: TangemApiService {
 
     func hidePromotion(request: PromotionsDTO.Hide.Request) async throws -> PromotionsDTO.Hide.Response {
         try await self.request(for: .hidePromotion(request: request))
+    }
+
+    // MARK: - Promo campaigns
+
+    func loadPromoCampaigns(request: PromoCampaignsDTO.Request) async throws -> [PromoCampaignsDTO.Promotion] {
+        let response: PromoCampaignsDTO.Response = try await requestProtected(for: .promoCampaigns(request: request), decoder: decoder)
+        return response.promotions
     }
 
     // MARK: - Yield Boost Promotion

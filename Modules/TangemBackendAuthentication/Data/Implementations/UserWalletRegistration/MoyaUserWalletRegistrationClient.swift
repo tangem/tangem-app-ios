@@ -77,8 +77,14 @@ struct MoyaUserWalletRegistrationClient: UserWalletRegistrationClient {
         }
     }
 
-    func unregister(id: UserWalletId) async throws(UserWalletRegistrationClientError) -> SessionTokens {
-        let requestBody = UnregisterWalletDTO.Request(walletId: id.value.base64EncodedString())
+    func unregister(
+        id: UserWalletId,
+        shouldEraseSocialLoginData: Bool
+    ) async throws(UserWalletRegistrationClientError) -> SessionTokens {
+        let requestBody = UnregisterWalletDTO.Request(
+            walletId: id.value.base64EncodedString(),
+            eraseData: shouldEraseSocialLoginData
+        )
         let target = UserWalletTarget(unregisterWallet: requestBody, baseURL: baseURL)
 
         let response: Moya.Response

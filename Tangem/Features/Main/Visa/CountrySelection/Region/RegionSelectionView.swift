@@ -23,7 +23,8 @@ struct RegionSelectionView: View {
             highlightedSectionTitle: viewModel.configuration.highlight?.sectionTitle,
             allSectionTitle: viewModel.configuration.highlight?.allSectionTitle,
             hasFlags: false,
-            onItemTap: viewModel.onItemTap(id:)
+            loadingItemId: viewModel.loadingItemId,
+            onItemTap: viewModel.onItemTap(id:isHighlighted:)
         )
         .tangemSearchable(text: $viewModel.searchText, prompt: Localization.commonSearch)
         .autocorrectionDisabled()

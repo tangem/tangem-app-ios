@@ -6,34 +6,26 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import TangemUI
 import SwiftUI
 
 @MainActor
-final class CollectiblesGeoblockViewModel: ObservableObject, FloatingSheetContentViewModel {
+final class CollectiblesGeoblockViewModel: ObservableObject {
     // MARK: - Properties
 
     private let provider: any CollectiblesGeoblockProvider
-    private let floatingSheetPresenter: FloatingSheetPresenter
 
     private var status: CollectiblesRegionStatus?
+
+    let restrictionsSheetViewModel = CollectiblesInfoSheetViewModel(model: .regionRestrictions)
 
     var isRestricted: Bool {
         status == .restricted
     }
 
-    // MARK: - Publishers
-
-    @Published var isRestrictionsPresented = false
-
     // MARK: - Init
 
-    init(
-        provider: some CollectiblesGeoblockProvider = CollectiblesGeoblockMockProvider(),
-        floatingSheetPresenter: FloatingSheetPresenter = InjectedValues[\.floatingSheetPresenter]
-    ) {
+    init(provider: some CollectiblesGeoblockProvider = CollectiblesGeoblockMockProvider()) {
         self.provider = provider
-        self.floatingSheetPresenter = floatingSheetPresenter
     }
 
     // MARK: - Methods
@@ -47,20 +39,6 @@ final class CollectiblesGeoblockViewModel: ObservableObject, FloatingSheetConten
     }
 
     func presentRestrictions() {
-        guard #available(iOS 26.0, *) else {
-            floatingSheetPresenter.enqueue(sheet: self)
-            return
-        }
-
-        isRestrictionsPresented = true
-    }
-
-    func close() {
-        guard isRestrictionsPresented else {
-            floatingSheetPresenter.removeActiveSheet()
-            return
-        }
-
-        isRestrictionsPresented = false
+        restrictionsSheetViewModel.present()
     }
 }

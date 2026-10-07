@@ -113,6 +113,10 @@ protocol TangemApiService: AnyObject {
     func loadPromotions(request: PromotionsDTO.Load.Request) async throws -> PromotionsDTO.Load.Response
     func hidePromotion(request: PromotionsDTO.Hide.Request) async throws -> PromotionsDTO.Hide.Response
 
+    // MARK: - Promo campaigns
+
+    func loadPromoCampaigns(request: PromoCampaignsDTO.Request) async throws -> [PromoCampaignsDTO.Promotion]
+
     // MARK: - Yield Boost Promotion
 
     func loadPromotionCampaigns(userWalletId: String) async throws -> [BannerPromotion.Response.Promotion]

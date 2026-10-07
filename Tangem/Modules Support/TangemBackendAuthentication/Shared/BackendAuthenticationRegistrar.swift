@@ -69,7 +69,7 @@ enum BackendAuthenticationRegistrar {
 
         Task {
             do {
-                try await BackendAuthenticationAssembly.unregisterUserWallet(id: id)
+                try await BackendAuthenticationAssembly.unregisterUserWallet(id: id, shouldEraseSocialLoginData: false)
                 BackendAuthLogger.info("Unregistered user wallet \(id.stringValue)")
             } catch {
                 BackendAuthLogger.error("Failed to unregister user wallet \(id.stringValue)", error: error)

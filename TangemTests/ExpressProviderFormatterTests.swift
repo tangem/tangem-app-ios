@@ -79,7 +79,8 @@ struct ExpressProviderFormatterBadgeTests {
             termsOfUse: nil,
             privacyPolicy: nil,
             recommended: nil,
-            slippage: nil
+            slippage: nil,
+            isCustomSlippageSupported: false
         )
 
         let context = ExpressProviderFlowContext(
@@ -256,7 +257,7 @@ struct ExpressAvailableProviderBestDEXTests {
 
     private func makeProvider(id: String, type: ExpressProviderType, expectAmount: Decimal) -> ExpressAvailableProvider {
         let provider = expressProvider(id: id, type: type)
-        let quote = ExpressQuote(fromAmount: 1, expectAmount: expectAmount, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false)
+        let quote = ExpressQuote(fromAmount: 1, expectAmount: expectAmount, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false, slippage: nil)
         let fee = Fee(Amount(type: .coin, currencySymbol: "ETH", value: 0, decimals: 18))
         let state = ExpressProviderManagerState.cexPreview(.init(provider: provider, subtractFee: 0, quote: quote, fee: fee))
         return availableProvider(provider: provider, state: state)
@@ -269,7 +270,7 @@ struct ExpressAvailableProviderBestDEXTests {
 
     private func makePermissionRequiredProvider(id: String, type: ExpressProviderType, expectAmount: Decimal) -> ExpressAvailableProvider {
         let provider = expressProvider(id: id, type: type)
-        let quote = ExpressQuote(fromAmount: 1, expectAmount: expectAmount, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false)
+        let quote = ExpressQuote(fromAmount: 1, expectAmount: expectAmount, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false, slippage: nil)
         let fee = Fee(Amount(type: .coin, currencySymbol: "ETH", value: 0, decimals: 18))
         let state = ExpressProviderManagerState.permissionRequired(.init(
             provider: provider,
@@ -292,7 +293,8 @@ struct ExpressAvailableProviderBestDEXTests {
             termsOfUse: nil,
             privacyPolicy: nil,
             recommended: nil,
-            slippage: nil
+            slippage: nil,
+            isCustomSlippageSupported: false
         )
     }
 

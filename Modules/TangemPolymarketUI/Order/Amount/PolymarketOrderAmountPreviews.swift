@@ -39,7 +39,7 @@ private struct PolymarketOrderAmountShowcase: View {
 
 private extension PolymarketOrderPaymentRow.Model {
     static let empty = Self(tokenIconInfo: .preview, symbol: "pUSD", balanceText: "$0,00")
-    static let funded = Self(tokenIconInfo: .preview, symbol: "pUSD", balanceText: "30,000 USDT")
+    static let funded = Self(tokenIconInfo: .preview, symbol: "pUSD", balanceText: "$30,000")
 }
 
 // MARK: - Previews

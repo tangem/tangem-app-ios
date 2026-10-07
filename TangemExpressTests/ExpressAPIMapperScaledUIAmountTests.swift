@@ -76,7 +76,8 @@ private extension ExpressAPIMapperScaledUIAmountTests {
             rateType: .float,
             providerInfo: ExpressSwappableDataItem.ProviderInfo(id: "changenow", type: .cex),
             operationType: .swap,
-            quoteId: nil
+            quoteId: nil,
+            slippage: nil
         )
     }
 }

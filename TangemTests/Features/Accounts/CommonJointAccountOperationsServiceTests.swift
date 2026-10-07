@@ -206,6 +206,47 @@ struct CommonJointAccountOperationsServiceTests {
         #expect(context.repository.signedOperations.isEmpty)
     }
 
+    @Test("An operation Blockaid flags as malicious is not signed")
+    func maliciousOperationIsNotSigned() async throws {
+        let context = try makeContext(blockaidVerdict: .malicious)
+
+        await #expect(throws: JointOperationError.maliciousOperation) {
+            try await context.sut.signOperation(Self.operation(), in: context.wallet)
+        }
+        #expect(context.signer.signedHashes.isEmpty)
+        #expect(context.repository.signedOperations.isEmpty)
+    }
+
+    @Test("An operation Blockaid could not check is not signed", .timeLimit(.minutes(1)))
+    func uncheckedOperationIsNotSigned() async throws {
+        let context = try makeContext(blockaidVerdict: .unavailable)
+
+        await #expect(throws: JointOperationError.securityCheckUnavailable) {
+            try await context.sut.signOperation(Self.operation(), in: context.wallet)
+        }
+        #expect(context.signer.signedHashes.isEmpty)
+        #expect(context.repository.signedOperations.isEmpty)
+    }
+
+    @Test("Only a Safe Blockaid can't read yet is signed without a verdict", arguments: [
+        (JointOperationBlockaidVerdict.safe, true, nil),
+        (.safe, false, nil),
+        (.unknown, false, nil),
+        (.unknown, true, JointOperationError.securityCheckUnavailable),
+        (.unavailable, false, .securityCheckUnavailable),
+        (.unavailable, true, .securityCheckUnavailable),
+        (.malicious, false, .maliciousOperation),
+        (.malicious, true, .maliciousOperation),
+    ])
+    func verdictDecidesTheSigning(verdict: JointOperationBlockaidVerdict, isDeployed: Bool, expected: JointOperationError?) {
+        do {
+            try CommonJointAccountOperationsService.ensureSigningIsAllowed(by: verdict, isDeployed: isDeployed)
+            #expect(expected == nil)
+        } catch {
+            #expect(error as? JointOperationError == expected)
+        }
+    }
+
     // MARK: - Declining
 
     @Test("A decline names the operation and the account it belongs to, and carries nothing else")
@@ -244,7 +285,8 @@ private extension CommonJointAccountOperationsServiceTests {
         state: SafeContractState? = .deployed(nonce: Constants.nonce, owners: Constants.members, threshold: 2),
         innerCall: SafeInnerCall = Constants.innerCall,
         pendingOperations: [JointAccountOperation] = [],
-        registeredOperation: JointAccountOperation? = nil
+        registeredOperation: JointAccountOperation? = nil,
+        blockaidVerdict: JointOperationBlockaidVerdict = .safe
     ) throws -> Context {
         let account = makeAccount(status: accountStatus)
         let walletModel = WalletModelTestsMock(
@@ -265,7 +307,8 @@ private extension CommonJointAccountOperationsServiceTests {
         let userWalletModel = UserWalletModelDouble(signer: signer)
         let sut = CommonJointAccountOperationsService(
             jointAccountsRepository: repository,
-            signerFactory: TangemSignerFactory(userWalletModel: userWalletModel)
+            signerFactory: TangemSignerFactory(userWalletModel: userWalletModel),
+            blockaidGate: JointOperationBlockaidGateStub(verdict: blockaidVerdict)
         )
 
         return Context(
@@ -422,6 +465,14 @@ private final class TangemSignerDouble: TangemSigner {
 
     func sign(dataToSign: [SignData], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], Error> {
         sign(hashes: dataToSign.flatMap(\.hashes), walletPublicKey: walletPublicKey)
+    }
+}
+
+private struct JointOperationBlockaidGateStub: JointOperationBlockaidGate {
+    let verdict: JointOperationBlockaidVerdict
+
+    func verdict(on operation: JointAccountOperation, safeAddress: String, ownerAddress: String?, blockchain: Blockchain) async -> JointOperationBlockaidVerdict {
+        verdict
     }
 }
 

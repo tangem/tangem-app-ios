@@ -10,6 +10,10 @@ import Foundation
 import TangemFoundation
 
 /// Rules for the name the other members of a joint account see a member by.
+///
+/// - Note: Every character is allowed — real names carry hyphens, apostrophes and diacritics, and the name is never
+/// normalised anyway, because it goes into the payload the card signs. Validation is a boolean gate on emptiness and
+/// length only, the same as on Android.
 struct JointAccountMemberNameValidator {
     static let maxLength = 25
 
@@ -22,10 +26,6 @@ struct JointAccountMemberNameValidator {
         guard name.count <= Self.maxLength else {
             throw .tooLong
         }
-
-        guard name.allSatisfy(\.isAllowedInMemberName) else {
-            throw .unsupportedCharacters
-        }
     }
 }
 
@@ -35,27 +35,5 @@ extension JointAccountMemberNameValidator {
     enum ValidationError: Error, Equatable {
         case empty
         case tooLong
-        case unsupportedCharacters
-    }
-}
-
-// MARK: - Allowed characters
-
-private extension Character {
-    var isAllowedInMemberName: Bool {
-        isLetter || isNumber || isWhitespace || isEmoji
-    }
-
-    /// `isEmoji` on its own is also true for plain digits and `#`, hence the check for the emoji presentation
-    /// and for the variation selector that turns a text glyph into an emoji one.
-    private var isEmoji: Bool {
-        unicodeScalars.contains { $0.properties.isEmojiPresentation || $0.properties.isEmojiModifierBase }
-            || unicodeScalars.contains { $0.value == Constants.emojiVariationSelector }
-    }
-}
-
-private extension Character {
-    enum Constants {
-        static let emojiVariationSelector: UInt32 = 0xFE0F
     }
 }

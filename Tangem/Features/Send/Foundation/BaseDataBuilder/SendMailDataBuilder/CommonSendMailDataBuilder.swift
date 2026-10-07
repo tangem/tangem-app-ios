@@ -76,7 +76,7 @@ private extension CommonSendMailDataBuilder {
         }
 
         return SwapChatDataCollector(
-            userIdentifier: sourceToken.userWalletInfo.id.stringValue.lowercased(),
+            userWalletId: sourceToken.userWalletInfo.id,
             fromAddress: expressTransaction.sourceAddress ?? sourceToken.defaultAddressString,
             sentToken: sourceToken.tokenItem.currencySymbol,
             toAddress: expressTransaction.destinationAddress,

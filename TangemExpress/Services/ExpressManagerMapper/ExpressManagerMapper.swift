@@ -21,7 +21,8 @@ struct ExpressManagerMapper {
             amountType: request.amountType,
             rateType: request.rateType,
             providerInfo: .init(id: providerId, type: providerType),
-            sourceAmountScale: pair.sourceAmountScale
+            sourceAmountScale: pair.sourceAmountScale,
+            slippage: request.slippage
         )
     }
 
@@ -61,7 +62,8 @@ struct ExpressManagerMapper {
             rateType: request.rateType,
             providerInfo: .init(id: providerId, type: providerType),
             operationType: request.operationType,
-            quoteId: quoteId
+            quoteId: quoteId,
+            slippage: request.slippage
         )
     }
 }

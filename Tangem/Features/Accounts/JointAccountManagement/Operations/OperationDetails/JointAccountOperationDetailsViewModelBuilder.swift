@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import Combine
+import TangemFoundation
 
 /// Reads an unfinished operation into the sheet that asks a member to sign it.
 ///
@@ -23,8 +25,7 @@ struct JointAccountOperationDetailsViewModelBuilder {
         pendingOperation: JointAccountPendingOperation,
         coordinator: JointAccountOperationDetailsRoutable?
     ) -> JointAccountOperationDetailsViewModel {
-        let operation = pendingOperation.operation
-        let account = pendingOperation.wallet.account
+        let provider = pendingOperation.wallet.account?.jointAccountPendingOperationsProvider
         let tokenItem = pendingOperation.tokenItem
 
         return JointAccountOperationDetailsViewModel(
@@ -34,12 +35,10 @@ struct JointAccountOperationDetailsViewModelBuilder {
             recipient: pendingOperation.destination,
             recipientBlockiesImage: AddressIconProvider.makeBlockiesImage(address: pendingOperation.destination),
             networkFee: networkFee(of: pendingOperation),
-            collectedSignaturesCount: operation.signatures.filter { $0.state == .signed }.count,
-            requiredSignaturesCount: account?.policy.signersCount ?? 0,
-            membersCount: account?.jointAccountMembersService.slots.members.count ?? 0,
-            signers: signersBuilder.build(pendingOperation: pendingOperation),
-            answer: answer(of: pendingOperation),
-            canSign: signersResolver.canSign(pendingOperation),
+            hasNFCInteraction: pendingOperation.wallet.account?.jointAccountOperationsService.hasNFCInteraction ?? false,
+            content: content(of: pendingOperation),
+            contentPublisher: contentPublisher(of: pendingOperation.operation.id, provider: provider),
+            pendingOperationsProvider: provider,
             coordinator: coordinator,
             sign: { try await pendingOperation.sign() }
         )
@@ -49,6 +48,36 @@ struct JointAccountOperationDetailsViewModelBuilder {
 // MARK: - Private
 
 private extension JointAccountOperationDetailsViewModelBuilder {
+    func content(of pendingOperation: JointAccountPendingOperation) -> JointAccountOperationDetailsViewModel.Content {
+        let account = pendingOperation.wallet.account
+
+        return JointAccountOperationDetailsViewModel.Content(
+            collectedSignaturesCount: pendingOperation.operation.signatures.filter { $0.state == .signed }.count,
+            requiredSignaturesCount: account?.policy.signersCount ?? 0,
+            membersCount: account?.jointAccountMembersService.slots.members.count ?? 0,
+            signers: signersBuilder.build(pendingOperation: pendingOperation),
+            answer: answer(of: pendingOperation),
+            canSign: signersResolver.canSign(pendingOperation),
+            isSending: pendingOperation.operation.status == .pending
+        )
+    }
+
+    func contentPublisher(
+        of operationId: String,
+        provider: (any JointAccountPendingOperationsProvider)?
+    ) -> AnyPublisher<JointAccountOperationDetailsViewModel.Content, Never> {
+        guard let provider else {
+            return .empty
+        }
+
+        return provider
+            .pendingOperationsPublisher
+            .compactMap { operations in operations.first { $0.operation.id == operationId } }
+            .removeDuplicates()
+            .map { pendingOperation in content(of: pendingOperation) }
+            .eraseToAnyPublisher()
+    }
+
     func answer(of pendingOperation: JointAccountPendingOperation) -> JointAccountOperationDetailsViewModel.Answer {
         switch signersResolver.ownAnswer(of: pendingOperation) {
         case .signed, .created: .signed
@@ -85,9 +114,16 @@ private extension JointAccountOperationDetailsViewModelBuilder {
     }
 
     func networkFee(of pendingOperation: JointAccountPendingOperation) -> String {
-        balanceFormatter.formatCryptoBalance(
-            pendingOperation.fee?.value,
-            tokenItem: .blockchain(pendingOperation.tokenItem.blockchainNetwork)
+        guard let fee = pendingOperation.fee?.value else {
+            return BalanceFormatter.defaultEmptyBalanceString
+        }
+
+        let formattedFee = balanceFormatter.formatCryptoBalance(
+            fee,
+            currencyCode: pendingOperation.tokenItem.blockchain.currencySymbol,
+            formattingOptions: .sendCryptoFeeFormattingOptions
         )
+
+        return fee > 0 ? AppConstants.tildeSign + formattedFee : formattedFee
     }
 }

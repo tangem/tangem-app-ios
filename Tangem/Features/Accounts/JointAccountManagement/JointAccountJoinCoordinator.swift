@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import TangemLocalization
 import TangemUI
 
 final class JointAccountJoinCoordinator: CoordinatorObject {
@@ -26,6 +27,10 @@ final class JointAccountJoinCoordinator: CoordinatorObject {
     @Published private(set) var rootViewModel: JointAccountJoinViewModel?
 
     @Published var path: [Step] = []
+
+    // MARK: - Child coordinators
+
+    @Published var jointAccountManagementCoordinator: JointAccountManagementCoordinator?
 
     // MARK: - Dependencies
 
@@ -74,22 +79,18 @@ final class JointAccountJoinCoordinator: CoordinatorObject {
 // MARK: - Private
 
 private extension JointAccountJoinCoordinator {
-    func openMemberName(userWalletModel: any UserWalletModel, preview: JointAccountInvitePreview) {
-        guard let options else {
-            return
-        }
-
-        let viewModel = JointAccountMemberNameViewModel(
-            helper: JointAccountJoinMemberNameHelper(
-                inviteId: options.inviteId,
-                signedConfig: preview.config,
-                userWalletModel: userWalletModel,
-                routable: self
-            ),
-            coordinator: self
+    func openMembers(of jointAccount: any JointAccountModel) {
+        let coordinator = JointAccountManagementCoordinator(
+            dismissAction: { [weak self] in self?.dismiss() },
+            popToRootAction: popToRootAction
         )
+        coordinator.start(with: .members(jointAccount: jointAccount))
+        jointAccountManagementCoordinator = coordinator
+    }
 
-        path.append(.memberName(viewModel: viewModel))
+    func showJoinSuccessToast() {
+        Toast(view: SuccessToast(text: Localization.jointAccountJoinSuccessMessage))
+            .present(layout: .top(padding: 24), type: .temporary(interval: 4))
     }
 }
 
@@ -161,38 +162,21 @@ extension JointAccountJoinCoordinator: JointAccountJoinRoutable {
     }
 
     func continueJoin(userWalletModel: any UserWalletModel, preview: JointAccountInvitePreview) {
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(
-                sheet: JointAccountJoinConfirmationViewModel(
-                    userWalletModel: userWalletModel,
-                    preview: preview,
-                    coordinator: self
-                )
-            )
+        guard let options else {
+            return
         }
-    }
-}
 
-// MARK: - JointAccountJoinConfirmationRoutable
+        let viewModel = JointAccountMemberNameViewModel(
+            helper: JointAccountJoinMemberNameHelper(
+                inviteId: options.inviteId,
+                signedConfig: preview.config,
+                userWalletModel: userWalletModel,
+                routable: self
+            ),
+            coordinator: self
+        )
 
-extension JointAccountJoinCoordinator: JointAccountJoinConfirmationRoutable {
-    func confirmJoin(userWalletModel: any UserWalletModel, preview: JointAccountInvitePreview) {
-        Task { @MainActor [weak self] in
-            guard let self else {
-                return
-            }
-
-            floatingSheetPresenter.removeActiveSheet()
-
-            openMemberName(userWalletModel: userWalletModel, preview: preview)
-        }
-    }
-
-    /// Backing out leaves the picked wallet alone — the user stays on the invite screen with it still selected.
-    func cancelJoin() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+        path.append(.memberName(viewModel: viewModel))
     }
 }
 
@@ -207,8 +191,14 @@ extension JointAccountJoinCoordinator: JointAccountMemberNameRoutable {
 // MARK: - JointAccountJoinMemberNameRoutable
 
 extension JointAccountJoinCoordinator: JointAccountJoinMemberNameRoutable {
+    func openJoinedAccount(jointAccount: any JointAccountModel) {
+        openMembers(of: jointAccount)
+        showJoinSuccessToast()
+    }
+
     func closeJoinedAccount() {
         dismiss()
+        showJoinSuccessToast()
     }
 }
 

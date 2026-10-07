@@ -137,6 +137,26 @@ struct ExitFee: YieldTransactionFee {
     }
 }
 
+struct ClaimFee: YieldTransactionFee {
+    let fee: Fee
+
+    init(fees: [Fee]) throws {
+        guard fees.count == 1 else {
+            throw YieldModuleError.feeNotFound
+        }
+
+        fee = fees[0]
+    }
+
+    var totalFeeAmount: Amount {
+        fee.amount
+    }
+
+    var maxFeePerGas: BigUInt? {
+        (fee.parameters as? EthereumFeeParameters)?.maximumFeePerGas
+    }
+}
+
 struct ApproveFee: YieldTransactionFee {
     let fee: Fee
 

@@ -37,24 +37,24 @@ struct JointAccountInviteSafetyView: View {
     private var points: some View {
         VStack(spacing: Constants.pointSpacing) {
             pointView(
-                icon: DesignSystem.Icons.Lightning.regular24,
+                icon: DesignSystem.Icons.Lightning.regular20,
                 title: Localization.jointAccountInviteMembersSafetyFirstPointTitle,
                 message: Localization.jointAccountInviteMembersSafetyFirstPointSubtitle
             )
 
             pointView(
-                icon: DesignSystem.Icons.Eye.regular24,
+                icon: DesignSystem.Icons.Eye.regular20,
                 title: Localization.jointAccountInviteMembersSafetySecondPointTitle,
                 message: Localization.jointAccountInviteMembersSafetySecondPointSubtitle
             )
 
             pointView(
-                icon: DesignSystem.Icons.Info.regular24,
+                icon: DesignSystem.Icons.Info.regular20,
                 title: Localization.jointAccountInviteMembersSafetyThirdPointTitle,
                 message: Localization.jointAccountInviteMembersSafetyThirdPointSubtitle
             )
         }
-        .padding(.horizontal, Constants.horizontalPadding)
+        .padding(.horizontal, Constants.pointsHorizontalPadding)
         .padding(.vertical, Constants.pointsVerticalPadding)
     }
 
@@ -71,10 +71,10 @@ struct JointAccountInviteSafetyView: View {
 
             VStack(alignment: .leading, spacing: Constants.pointTextSpacing) {
                 Text(title)
-                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
                 Text(message)
-                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             }
             .multilineTextAlignment(.leading)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -98,8 +98,9 @@ struct JointAccountInviteSafetyView: View {
 private extension JointAccountInviteSafetyView {
     enum Constants {
         static let horizontalPadding: CGFloat = 16
-        static let pointsVerticalPadding: CGFloat = 4
-        static let pointSpacing: CGFloat = 20
+        static let pointsHorizontalPadding: CGFloat = 24
+        static let pointsVerticalPadding: CGFloat = 22
+        static let pointSpacing: CGFloat = 24
         static let pointIconSpacing: CGFloat = 12
         static let pointTextSpacing: CGFloat = 2
         static let pointIconBackgroundSize = CGSize(bothDimensions: 40)

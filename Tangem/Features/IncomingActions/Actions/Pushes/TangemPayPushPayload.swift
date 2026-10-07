@@ -231,3 +231,35 @@ extension TangemPayPushPayload {
         }
     }
 }
+
+// MARK: - Transaction id
+
+extension TangemPayPushPayload {
+    var spendTransactionId: String? {
+        switch body {
+        case .transactionSpend(let spend),
+             .transactionSpendRefund(let spend),
+             .declinedTopUp(let spend),
+             .declinedReason1(let spend),
+             .declinedReason2(let spend),
+             .declinedReason3(let spend),
+             .declinedReason4(let spend),
+             .declinedReason5(let spend),
+             .declinedReason6(let spend),
+             .declinedReason7(let spend),
+             .declinedReason8(let spend),
+             .declinedReason9(let spend),
+             .declinedReason10(let spend),
+             .declinedReason11(let spend),
+             .declinedReason12(let spend),
+             .declinedReason13(let spend),
+             .declinedReason14(let spend),
+             .declinedReason15(let spend),
+             .declinedReason16(let spend),
+             .declinedReason17(let spend):
+            spend.transactionId
+        case .collateralWithdraw, .collateralDeposit, .cardReady, .thresholdTopUp:
+            nil
+        }
+    }
+}

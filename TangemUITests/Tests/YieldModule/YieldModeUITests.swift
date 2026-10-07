@@ -124,6 +124,17 @@ final class YieldModeUITests: BaseTestCase {
             .tapToken(Constants.usdc)
             .waitForYieldEnabledBlock()
             .assertYieldApyDisplayed()
+            .waitForTransaction(key: Constants.txYieldEnter)
+
+        let ethereumScreen = tokenScreen
+            .goBackToMain()
+            .tapToken(Constants.ethereum)
+
+        pullToRefresh()
+
+        ethereumScreen
+            .waitForTransactionSubtitle(contains: Constants.yieldActivationFeeSubtitle)
+            .waitForTransactionSubtitle(contains: Constants.yieldReactivationFeeSubtitle)
     }
 
     func testCloseActiveLanding() {
@@ -167,6 +178,7 @@ final class YieldModeUITests: BaseTestCase {
 
     private enum Constants {
         static let usdc = "USDC"
+        static let ethereum = "Ethereum"
 
         static let portfolioScenario = "user_tokens_api"
         static let portfolioYieldUsdc = "YieldUSDCEthereum"
@@ -184,5 +196,8 @@ final class YieldModeUITests: BaseTestCase {
         static let yieldExited = "Exited"
 
         static let txReceived = "transfer"
+        static let txYieldEnter = "yieldEnter"
+        static let yieldActivationFeeSubtitle = "For Yield mode activation"
+        static let yieldReactivationFeeSubtitle = "For Yield mode reactivation"
     }
 }

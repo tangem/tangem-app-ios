@@ -33,7 +33,7 @@ struct TangemPayOrderCardDataField: Identifiable {
         case phone
     }
 
-    enum Error {
+    enum Error: Equatable {
         case required
         case invalid
         case nonLatin
@@ -53,7 +53,7 @@ extension TangemPayOrderCardDataField {
         mask.flatMap(TangemPayInputMask.init)
     }
 
-    /// The error the field would report right now; `error` is the one currently shown, set on focus loss.
+    /// The error the field would report right now; `error` is the one currently shown.
     var currentError: Error? {
         guard isEditable else {
             return nil
@@ -71,7 +71,7 @@ extension TangemPayOrderCardDataField {
         case .nameOnCard:
             return TangemPayOrderFormValidator.isEmbossCharsetValid(value) ? nil : .nonLatin
         default:
-            return TangemPayOrderFormValidator.isAddressCharsetValid(value) ? nil : .nonLatin
+            return TangemPayOrderFormValidator.isShippingCharsetValid(value) ? nil : .nonLatin
         }
     }
 }

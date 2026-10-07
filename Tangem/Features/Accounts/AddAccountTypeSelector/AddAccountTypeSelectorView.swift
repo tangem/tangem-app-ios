@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -49,6 +50,7 @@ struct AddAccountTypeSelectorContentView: View {
                 title: Localization.commonCryptoAccount,
                 subtitle: Localization.addCryptoAccountSubtitle,
                 icon: DesignSystem.Icons.User.regular20,
+                accessibilityIdentifier: AccountsAccessibilityIdentifiers.addAccountTypeSelectorCryptoAccountButton,
                 action: viewModel.onCryptoAccountTap
             )
 
@@ -56,18 +58,26 @@ struct AddAccountTypeSelectorContentView: View {
                 title: Localization.commonJointAccount,
                 subtitle: Localization.addJointAccountSubtitle,
                 icon: DesignSystem.Icons.Users.regular20,
+                accessibilityIdentifier: AccountsAccessibilityIdentifiers.addAccountTypeSelectorJointAccountButton,
                 action: viewModel.onJointAccountTap
             )
         }
     }
 
-    private func row(title: String, subtitle: String, icon: ImageType, action: @escaping () -> Void) -> some View {
+    private func row(
+        title: String,
+        subtitle: String,
+        icon: ImageType,
+        accessibilityIdentifier: String,
+        action: @escaping () -> Void
+    ) -> some View {
         Row(title: title, subtitle: subtitle)
             .subtitleLineLimit(nil)
             .start { iconView(icon) }
             .onTap(action)
             .background(style.rowBackground)
             .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .accessibilityIdentifier(accessibilityIdentifier)
     }
 
     private func iconView(_ icon: ImageType) -> some View {

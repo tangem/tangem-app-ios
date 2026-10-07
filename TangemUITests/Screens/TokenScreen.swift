@@ -44,6 +44,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     private lazy var totalBalance = staticText(.totalBalance)
     private lazy var availableBalance = staticText(.availableBalance)
     private lazy var stakingBalance = staticText(.stakingBalance)
+    private lazy var stakingBalanceCrypto = app.staticTexts.matching(identifier: TokenAccessibilityIdentifiers.stakingBalance).element(boundBy: 1)
 
     private lazy var pendingSwapHistoryItem = app.staticTexts[
         TxHistoryAccessibilityIdentifiers.transactionItem(key: Constants.swapTransactionKey)
@@ -274,6 +275,13 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         }
     }
 
+    func getStakingBalanceCrypto() -> String {
+        XCTContext.runActivity(named: "Get staking balance crypto value") { _ in
+            waitAndAssertTrue(stakingBalanceCrypto, "Staking balance crypto element should exist")
+            return stakingBalanceCrypto.label
+        }
+    }
+
     // MARK: - Action Buttons Validation Methods
 
     @discardableResult
@@ -445,6 +453,17 @@ extension TokenScreen {
             let item = app.staticTexts[TxHistoryAccessibilityIdentifiers.transactionItem(key: key)].firstMatch
             scrollToElement(item)
             waitAndAssertTrue(item, "Transaction '\(key)' should be displayed in history")
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitForTransactionSubtitle(contains text: String) -> Self {
+        XCTContext.runActivity(named: "Wait for a transaction subtitle containing '\(text)'") { _ in
+            let predicate = NSPredicate(format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "txHistoryTransactionSubtitle_", text)
+            let subtitle = app.staticTexts.matching(predicate).firstMatch
+            scrollToElement(subtitle)
+            waitAndAssertTrue(subtitle, "A transaction subtitle containing '\(text)' should be displayed in history")
             return self
         }
     }

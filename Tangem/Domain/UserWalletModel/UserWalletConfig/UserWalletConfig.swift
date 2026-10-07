@@ -60,6 +60,9 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var userWalletAccessCodeStatus: UserWalletAccessCodeStatus { get }
 
+    /// Whether the wallet was created through social login. Fixed at creation time.
+    var hasSocialLogin: Bool { get }
+
     var productType: Analytics.ProductType { get }
 
     var cardHeaderImage: ImageType? { get }
@@ -102,6 +105,10 @@ extension UserWalletConfig {
 
     var userWalletAccessCodeStatus: UserWalletAccessCodeStatus {
         .none
+    }
+
+    var hasSocialLogin: Bool {
+        false
     }
 
     var emailConfig: EmailConfig? {

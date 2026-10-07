@@ -17,16 +17,34 @@ final class SwapUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock, expressApiType: .mock)
 
-        CreateWalletSelectorScreen(app)
+        let swapScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapSwapButton()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
             .chooseReceiveToken("Ethereum")
+
+        swapScreen
             .enterFromAmount(amountToEnter)
             .waitForFeeCalculation()
             .validateReceivedAmount()
+
+        swapScreen
+            .tapFeeBlock()
+            .waitForFeeSelectorToAppear()
+            .waitForFeeOptionSelected(.normal)
+            .waitForFeeOptionNotSelected(.priority)
+            .selectFeeOption(.normal)
+            .validateFeeChanged()
+
+        let initialReceiveAmount = swapScreen.captureReceiveAmount()
+
+        swapScreen
+            .enterFromAmount("10")
+            .waitForFeeAmountDisplayed()
+            .validateReceivedAmount()
+            .assertReceiveAmount(notEquals: initialReceiveAmount)
     }
 
     func testChangeCommissionType_receivedAmountChanged() {
@@ -34,20 +52,35 @@ final class SwapUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock, expressApiType: .mock)
 
-        CreateWalletSelectorScreen(app)
+        let swapScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapSwapButton()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
             .chooseReceiveToken("Ethereum")
+
+        swapScreen
             .enterFromAmount(amountToEnter)
             .waitForFeeCalculation()
+            .validateReceivedAmount()
+
+        swapScreen
             .tapFeeBlock()
             .waitForFeeSelectorToAppear()
+            .waitForFeeOptionSelected(.normal)
+            .waitForFeeOptionNotSelected(.priority)
+            .assertFeeOptionsHaveDifferentFees()
             .selectFeeOption(.priority)
             .validateFeeChanged()
-            .validateReceivedAmount()
+
+        swapScreen
+            .tapFeeBlock()
+            .waitForFeeSelectorToAppear()
+            .waitForFeeOptionSelected(.priority)
+            .waitForFeeOptionNotSelected(.normal)
+            .selectFeeOption(.normal)
+            .validateFeeChanged()
     }
 
     func testSwapNoInternet_showConnectionError() {

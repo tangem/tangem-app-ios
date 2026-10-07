@@ -24,8 +24,8 @@ struct PolymarketOrderSummaryView: View {
         VStack(spacing: 0) {
             PolymarketTopBar(
                 title: viewModel.screenTitle,
-                onBack: { viewModel.handleViewAction(.backTapped) },
-                onClose: { viewModel.handleViewAction(.closeTapped) }
+                onBack: { viewModel.handleViewAction(.goBack) },
+                onClose: { viewModel.handleViewAction(.close) }
             )
             .padding(.top, Constants.topBarTopPadding)
 
@@ -34,9 +34,9 @@ struct PolymarketOrderSummaryView: View {
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
         .safeAreaInset(edge: .bottom, spacing: .zero) { footer }
-        .onWillAppear { viewModel.handleViewAction(.appeared) }
+        .onWillAppear { viewModel.handleViewAction(.onAppear) }
         .bindAlert($viewModel.alert)
-        .onWillDisappear { viewModel.handleViewAction(.disappeared) }
+        .onWillDisappear { viewModel.handleViewAction(.onDisappear) }
     }
 
     // MARK: - Content
@@ -51,13 +51,10 @@ struct PolymarketOrderSummaryView: View {
                 currencyCode: viewModel.currencyCode,
                 feeText: viewModel.feeText,
                 slippageText: viewModel.slippageText,
-                onFeeTap: viewModel.isFeeBreakdownAvailable ? { viewModel.handleViewAction(.feeTapped) } : nil
+                onFeeTap: viewModel.isFeeBreakdownAvailable ? { viewModel.handleViewAction(.openFeeBreakdown) } : nil
             )
 
-            PolymarketOrderNotificationsView(
-                notifications: viewModel.notifications,
-                onRetry: { viewModel.handleViewAction(.quoteRetryTapped) }
-            )
+            PolymarketOrderNotificationsView(notifications: viewModel.notifications)
         }
         .horizontalPadding(Constants.horizontalPadding)
         .padding(.top, Constants.contentTopPadding)
@@ -68,7 +65,7 @@ struct PolymarketOrderSummaryView: View {
 
     private var footer: some View {
         VStack(spacing: Constants.footerSpacing) {
-            PolymarketLegalLine { viewModel.handleViewAction(.legalTermsTapped($0)) }
+            PolymarketLegalLine { viewModel.handleViewAction(.openLegalTerms($0)) }
 
             placeButton
         }
@@ -85,7 +82,7 @@ struct PolymarketOrderSummaryView: View {
         TangemUI.Button(
             label: viewModel.primaryActionTitle,
             accessibilityLabel: viewModel.primaryActionTitle,
-            action: { viewModel.handleViewAction(.placeTapped) }
+            action: { viewModel.handleViewAction(.placeOrder) }
         )
         .iconEnd(DesignSystem.Icons.LogoTangem.regular24)
         .styleType(.default)

@@ -88,7 +88,7 @@ struct PolymarketSlippageSelectorView: View {
 
     private func presetChip(_ preset: PolymarketSlippageSelectorViewModel.Preset) -> some View {
         SwiftUI.Button {
-            viewModel.select(preset: preset)
+            viewModel.handleViewAction(.selectPreset(preset))
         } label: {
             Text(preset.title)
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
@@ -111,7 +111,7 @@ struct PolymarketSlippageSelectorView: View {
         TangemUI.Button(
             label: Localization.commonConfirm,
             accessibilityLabel: Localization.commonConfirm,
-            action: viewModel.confirm
+            action: { viewModel.handleViewAction(.confirm) }
         )
         .styleType(.default)
         .size(.x12)

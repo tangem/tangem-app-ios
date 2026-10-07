@@ -70,6 +70,8 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         throw .unknownError(NSError.dummy)
     }
 
+    func reloadAccountsFromRemote() async {}
+
     func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {
         throw NSError.dummy
     }

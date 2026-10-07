@@ -17,9 +17,21 @@ protocol CollectiblesBalanceSource: AnyObject {
     func refreshState() async
 }
 
+protocol CollectiblesVaultUsdcAccountProvider: AnyObject {
+    var vaultUsdcStatePublisher: AnyPublisher<CollectiblesVaultUsdcState, Never> { get }
+}
+
+protocol CollectiblesDepositAwaiter: AnyObject {
+    func awaitDeposit() async
+}
+
 /// Refines `CollectiblesOnboarder`: the account model owns the vault's state, so it is also what walks that
 /// state to `.ready` — the alternative is a second object deciding the same three questions from its own reads.
-protocol CollectiblesAccountModel: BaseAccountModel, CollectiblesOnboarder, CollectiblesBalanceSource
+protocol CollectiblesAccountModel: BaseAccountModel,
+    CollectiblesOnboarder,
+    CollectiblesBalanceSource,
+    CollectiblesVaultUsdcAccountProvider,
+    CollectiblesDepositAwaiter
     where Icon == AccountModel.StandaloneIcon, ID == CollectiblesAccountId {
     var state: CollectiblesState { get }
     var statePublisher: AnyPublisher<CollectiblesState, Never> { get }

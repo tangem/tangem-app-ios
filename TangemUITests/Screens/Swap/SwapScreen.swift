@@ -147,11 +147,46 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     }
 
     @discardableResult
+    func assertFeeOptionsHaveDifferentFees() -> Self {
+        XCTContext.runActivity(named: "Assert Market and Fast fee options show different fee amounts") { _ in
+            XCTAssertTrue(normalFeeOption.waitForExistence(timeout: .robustUIUpdate), "Normal/Market fee option should exist")
+            XCTAssertTrue(priorityFeeOption.waitForExistence(timeout: .robustUIUpdate), "Priority/Fast fee option should exist")
+            // The rounded fiat summary can be identical for both options; the open row label carries the crypto amount too.
+            XCTAssertNotEqual(
+                normalFeeOption.label,
+                priorityFeeOption.label,
+                "Market and Fast fee options should show different fee amounts"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
     func selectFeeOption(_ option: FeeOptionType) -> Self {
         XCTContext.runActivity(named: "Select \(option.rawValue) fee option") { _ in
             let targetButton = option == .normal ? normalFeeOption : priorityFeeOption
             XCTAssertTrue(targetButton.waitForExistence(timeout: .robustUIUpdate), "\(option.rawValue) fee option should exist")
             targetButton.tap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForFeeOptionSelected(_ option: FeeOptionType) -> Self {
+        XCTContext.runActivity(named: "Validate \(option.rawValue) fee option is selected") { _ in
+            let targetButton = option == .normal ? normalFeeOption : priorityFeeOption
+            let indicator = targetButton.descendants(matching: .any)[FeeAccessibilityIdentifiers.feeOptionSelectedIndicator]
+            waitAndAssertTrue(indicator, "\(option.rawValue) fee option should be selected")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForFeeOptionNotSelected(_ option: FeeOptionType) -> Self {
+        XCTContext.runActivity(named: "Validate \(option.rawValue) fee option is not selected") { _ in
+            let targetButton = option == .normal ? normalFeeOption : priorityFeeOption
+            let indicator = targetButton.descendants(matching: .any)[FeeAccessibilityIdentifiers.feeOptionSelectedIndicator]
+            XCTAssertTrue(indicator.waitForNonExistence(timeout: .robustUIUpdate), "\(option.rawValue) fee option should not be selected")
         }
         return self
     }
@@ -770,6 +805,36 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     }
 
     @discardableResult
+    func waitForFromBalanceDisplayed() -> Self {
+        XCTContext.runActivity(named: "Validate 'You swap' section displays a balance") { _ in
+            // Excludes the fiat amount (which also matches a bare digit check) so a missing balance can't hide behind it.
+            let balance = fromContainerElements()
+                .matching(NSPredicate(format: "label MATCHES %@ AND NOT (label CONTAINS %@)", ".*[0-9].*", "$"))
+                .firstMatch
+            waitAndAssertTrue(balance, "A balance value should be displayed in the 'You swap' section")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForFromFiatAmountDisplayed() -> Self {
+        XCTContext.runActivity(named: "Validate 'You swap' section displays a fiat amount") { _ in
+            let fiatAmount = fromContainerElements().matching(NSPredicate(format: "label CONTAINS %@", "$")).firstMatch
+            waitAndAssertTrue(fiatAmount, "A fiat amount should be displayed in the 'You swap' section")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForSwapTokensButtonEnabled() -> Self {
+        XCTContext.runActivity(named: "Validate swap tokens (reverse) button is enabled") { _ in
+            waitAndAssertTrue(swapTokensButton, "Swap tokens button should exist")
+            swapTokensButton.waitForState(state: .enabled)
+        }
+        return self
+    }
+
+    @discardableResult
     func waitForFromAmountIsNotZero() -> Self {
         XCTContext.runActivity(named: "Validate from amount is greater than zero") { _ in
             let field = editableFromAmountField()
@@ -819,6 +884,13 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
             .completed,
             "From amount field should become enabled"
         )
+    }
+
+    /// Balance/fiat/symbol elements share the `fromAmountTextField` identifier with the editable field itself, excluded here.
+    private func fromContainerElements() -> XCUIElementQuery {
+        app.descendants(matching: .any)
+            .matching(identifier: SwapAccessibilityIdentifiers.fromAmountTextField)
+            .matching(NSPredicate(format: "elementType != %d", XCUIElement.ElementType.textField.rawValue))
     }
 
     private func focusFromAmountField(_ field: XCUIElement) -> Bool {
@@ -901,6 +973,43 @@ extension SwapScreen {
             waitAndAssertTrue(receiveAmountValue, "Receive amount should be present")
             let isEqual = waitForCondition(timeout: .robustUIUpdate) { self.receiveAmountValue.label == expected }
             XCTAssertTrue(isEqual, "Receive amount should remain '\(expected)' but was '\(receiveAmountValue.label)'")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertReceiveAmount(notEquals unexpected: String) -> Self {
+        XCTContext.runActivity(named: "Assert the received amount is not '\(unexpected)'") { _ in
+            waitAndAssertTrue(receiveAmountValue, "Receive amount should be present")
+            let isDifferent = waitForCondition(timeout: .robustUIUpdate) {
+                let label = self.receiveAmountValue.label
+                guard label != unexpected else { return false }
+                let digits = label.filter { $0.isNumber }
+                return !digits.isEmpty && digits.contains { $0 != "0" }
+            }
+            XCTAssertTrue(
+                isDifferent,
+                "Receive amount should have recalculated to a non-zero value different from '\(unexpected)', but was '\(receiveAmountValue.label)'"
+            )
+        }
+        return self
+    }
+
+    func captureFeeAmount() -> String {
+        XCTContext.runActivity(named: "Capture the network fee amount") { _ in
+            let feeAmountText = app.staticTexts[SendAccessibilityIdentifiers.networkFeeAmount].firstMatch
+            waitAndAssertTrue(feeAmountText, "Network fee amount should be present to capture")
+            return feeAmountText.label
+        }
+    }
+
+    @discardableResult
+    func assertFeeAmount(notEquals unexpected: String) -> Self {
+        XCTContext.runActivity(named: "Assert the network fee amount is not '\(unexpected)'") { _ in
+            let feeAmountText = app.staticTexts[SendAccessibilityIdentifiers.networkFeeAmount].firstMatch
+            waitAndAssertTrue(feeAmountText, "Network fee amount should be present")
+            let isDifferent = waitForCondition(timeout: .robustUIUpdate) { feeAmountText.label != unexpected }
+            XCTAssertTrue(isDifferent, "Network fee amount should differ from '\(unexpected)'")
         }
         return self
     }

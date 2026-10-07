@@ -13,8 +13,8 @@ import struct TangemFoundation.UserWalletId
 
 @Suite(.tags(.backendAuthentication))
 struct UnregisterUserWalletUseCaseTests {
-    @Test
-    func unregisterUserWalletUnregistersAndPersistsTokensOnSuccess() async throws {
+    @Test(arguments: [true, false])
+    func unregisterUserWalletUnregistersAndPersistsTokensOnSuccess(shouldEraseSocialLoginData: Bool) async throws {
         let expectedID = UserWalletId.uniqueFake()
 
         let registrationClient = SpyUserWalletRegistrationClient()
@@ -32,9 +32,9 @@ struct UnregisterUserWalletUseCaseTests {
             sessionTokensRepository: sessionTokensRepository
         )
 
-        try await sut(id: expectedID)
+        try await sut(id: expectedID, shouldEraseSocialLoginData: shouldEraseSocialLoginData)
 
-        #expect(registrationClient.receivedMessages == [.unregister(expectedID)])
+        #expect(registrationClient.receivedMessages == [.unregister(expectedID, shouldEraseSocialLoginData: shouldEraseSocialLoginData)])
         #expect(sessionTokensRepository.receivedMessages == [.persist(expectedSessionTokens)])
         #expect(registrationStatusRepository.receivedMessages == [.remove(expectedID)])
     }
@@ -55,7 +55,7 @@ struct UnregisterUserWalletUseCaseTests {
             sessionTokensRepository: sessionTokensRepository
         )
 
-        try await sut(id: expectedID)
+        try await sut(id: expectedID, shouldEraseSocialLoginData: false)
 
         #expect(sessionTokensRepository.receivedMessages.isEmpty)
         #expect(registrationStatusRepository.receivedMessages == [.remove(expectedID)])
@@ -74,7 +74,7 @@ struct UnregisterUserWalletUseCaseTests {
         let sut = makeSUT(registrationClient: registrationClient, registrationStatusRepository: registrationStatusRepository)
 
         let error = try await #require(throws: UnregisterUserWalletError.self) {
-            try await sut(id: expectedID)
+            try await sut(id: expectedID, shouldEraseSocialLoginData: false)
         }
 
         guard case .clientFailure(.unregisterFailed(underlying: expectedUnderlyingError)) = error else {
@@ -105,7 +105,7 @@ struct UnregisterUserWalletUseCaseTests {
         )
 
         let error = try await #require(throws: UnregisterUserWalletError.self) {
-            try await sut(id: expectedID)
+            try await sut(id: expectedID, shouldEraseSocialLoginData: false)
         }
 
         guard case .repositoryFailure(.encodingFailed) = error else {
@@ -113,7 +113,7 @@ struct UnregisterUserWalletUseCaseTests {
             return
         }
 
-        #expect(registrationClient.receivedMessages == [.unregister(expectedID)])
+        #expect(registrationClient.receivedMessages == [.unregister(expectedID, shouldEraseSocialLoginData: false)])
         #expect(sessionTokensRepository.receivedMessages == [.persist(expectedSessionTokens)])
         #expect(registrationStatusRepository.receivedMessages.isEmpty)
     }

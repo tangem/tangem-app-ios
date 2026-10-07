@@ -7,10 +7,13 @@
 
 import Foundation
 
-/// Rain rejects what it cannot print: the shipping address keeps Latin accents, the embossed name is ASCII.
 enum TangemPayOrderFormValidator {
     static func isEmbossCharsetValid(_ value: String) -> Bool {
         isValid(value, disallowing: Constants.disallowedEmboss)
+    }
+
+    static func isShippingCharsetValid(_ value: String) -> Bool {
+        isValid(value, disallowing: Constants.disallowedShipping)
     }
 
     static func isAddressCharsetValid(_ value: String) -> Bool {
@@ -21,6 +24,7 @@ enum TangemPayOrderFormValidator {
 private extension TangemPayOrderFormValidator {
     enum Constants {
         static let disallowedEmboss = "[^A-Za-z0-9 .,/#'()&-]"
+        static let disallowedShipping = "[^A-Za-z0-9 /.,'():-]"
         static let disallowedAddress = "[^\\p{IsLatin}\\p{M}0-9 .,/#'()&-]"
     }
 

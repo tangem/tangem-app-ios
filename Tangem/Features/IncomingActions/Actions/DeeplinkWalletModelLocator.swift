@@ -52,7 +52,7 @@ struct DeeplinkWalletModelLocator {
 
         guard
             let userWalletModel,
-            let walletModel = findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: derivationPath)
+            let walletModel = findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: derivationPath, accountId: nil)
         else {
             return nil
         }
@@ -67,18 +67,23 @@ struct DeeplinkWalletModelLocator {
         tokenId: String,
         networkId: String,
         derivationPath: String?,
+        accountId: String?,
         syncingTokenList: Bool
     ) async -> Target? {
         guard let userWalletModel = findUserWalletModel(userWalletModelId: userWalletId) else {
             return nil
         }
 
-        if let walletModel = findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: derivationPath) {
+        if let walletModel = findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: derivationPath, accountId: accountId) {
             return Target(walletModel: walletModel, userWalletModel: userWalletModel)
         }
 
         guard syncingTokenList else {
             return nil
+        }
+
+        if let accountId, !hasAccount(withId: accountId, in: userWalletModel) {
+            await userWalletModel.accountModelsManager.reloadAccountsFromRemote()
         }
 
         await syncUserTokens(
@@ -96,6 +101,7 @@ struct DeeplinkWalletModelLocator {
             tokenId: tokenId,
             networkId: networkId,
             derivation: derivationPath,
+            accountId: accountId,
             timeout: Constants.walletModelAppearanceTimeout
         )
 
@@ -106,9 +112,24 @@ struct DeeplinkWalletModelLocator {
         in userWalletModel: any UserWalletModel,
         tokenId: String,
         networkId: String,
-        derivation: String?
+        derivation: String?,
+        accountId: String?
     ) -> (any WalletModel)? {
         var walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
+
+        if let accountId = accountId?.nilIfEmpty {
+            let accountWalletModels = walletModels.filter { Self.accountIdentifier(of: $0.account) == accountId }
+
+            if let walletModel = findWalletModel(in: accountWalletModels, tokenId: tokenId, networkId: networkId, derivation: derivation) {
+                return walletModel
+            }
+
+            guard derivation != nil else {
+                return nil
+            }
+
+            return findWalletModel(in: accountWalletModels, tokenId: tokenId, networkId: networkId, derivation: nil)
+        }
 
         // If derivation is missing, prefer main account's wallet model - this is why we sort them here
         walletModels.sort { first, second in
@@ -149,6 +170,40 @@ struct DeeplinkWalletModelLocator {
     }
 }
 
+// MARK: - Accounts
+
+extension DeeplinkWalletModelLocator {
+    static func accountIdentifier(of account: (any CryptoAccountModel)?) -> String? {
+        account?.id.rawValue.hexString.lowercased()
+    }
+
+    func hasAccount(withId accountId: String, in userWalletModel: any UserWalletModel) -> Bool {
+        AccountModelsAggregator(.crypto, .joint)
+            .models(from: userWalletModel.accountModelsManager)
+            .contains { (account: any CryptoAccountModel) in Self.accountIdentifier(of: account) == accountId }
+    }
+
+    func findJointAccount(withId accountId: String, in userWalletModel: any UserWalletModel) async -> (any JointAccountModel)? {
+        if let account = await waitForAccount(withId: accountId, in: userWalletModel) {
+            return account as? any JointAccountModel
+        }
+
+        await userWalletModel.accountModelsManager.reloadAccountsFromRemote()
+
+        return await waitForAccount(withId: accountId, in: userWalletModel) as? any JointAccountModel
+    }
+
+    private func waitForAccount(withId accountId: String, in userWalletModel: any UserWalletModel) async -> (any CryptoAccountModel)? {
+        try? await AccountModelsAggregator(.crypto, .joint)
+            .modelsPublisher(from: userWalletModel.accountModelsManager)
+            .compactMap { (accounts: [any CryptoAccountModel]) in
+                accounts.first { Self.accountIdentifier(of: $0) == accountId }
+            }
+            .timeout(.seconds(Constants.accountAppearanceTimeout), scheduler: DispatchQueue.main)
+            .async()
+    }
+}
+
 // MARK: - Token list sync
 
 extension DeeplinkWalletModelLocator {
@@ -160,12 +215,13 @@ extension DeeplinkWalletModelLocator {
         tokenId: String,
         networkId: String,
         derivation: String?,
+        accountId: String?,
         timeout: TimeInterval
     ) async -> (any WalletModel)? {
         return try? await AccountWalletModelsAggregator
             .walletModelsPublisher(from: userWalletModel.accountModelsManager)
             .compactMap { [self] _ in
-                findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: derivation)
+                findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: derivation, accountId: accountId)
             }
             .timeout(.seconds(timeout), scheduler: DispatchQueue.main)
             .async()
@@ -277,6 +333,8 @@ private extension DeeplinkWalletModelLocator {
 
         /// Upper bound for waiting on the matching wallet model to be created after the token list sync.
         static let walletModelAppearanceTimeout: TimeInterval = 5
+
+        static let accountAppearanceTimeout: TimeInterval = 3
 
         /// Maximum number of per-account token-list syncs running concurrently.
         static let maxConcurrentSyncs = 5

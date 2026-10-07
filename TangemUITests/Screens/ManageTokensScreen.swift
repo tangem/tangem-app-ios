@@ -237,6 +237,21 @@ final class ManageTokensScreen: ScreenBase<ManageTokensScreenElement> {
         }
     }
 
+    @discardableResult
+    func verifyScreenIsDisplayed() -> Self {
+        XCTContext.runActivity(named: "Verify 'Manage tokens' screen is displayed") { _ in
+            waitAndAssertTrue(searchField, "'Manage tokens' screen should be displayed")
+            return self
+        }
+    }
+
+    func goBackToMain() -> MainScreen {
+        XCTContext.runActivity(named: "Go back to Main screen") { _ in
+            app.navigationBars.buttons["Back"].waitAndTap()
+            return MainScreen(app)
+        }
+    }
+
     func goBackToAccountSettings() -> AccountSettingsScreen {
         XCTContext.runActivity(named: "Go back to Account settings") { _ in
             app.navigationBars.buttons["Account"].waitAndTap()

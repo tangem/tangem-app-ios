@@ -30,6 +30,12 @@ struct SendWithSwapFinishHeaderTitleProvider: SendFinishHeaderTitleProvider {
     var title: String { Localization.sentTransactionSentTitle }
 }
 
+// MARK: - Joint account
+
+struct JointAccountFinishHeaderTitleProvider: SendFinishHeaderTitleProvider {
+    var title: String { Localization.commonInProgress }
+}
+
 // MARK: - Swap
 
 struct SwapFinishHeaderTitleProvider: SendFinishHeaderTitleProvider {

@@ -74,6 +74,7 @@ struct PendingJointAccountItemView: View {
                 PriceChangeView(
                     state: viewModel.priceChange,
                     showSkeletonWhenLoading: false,
+                    showIconForNeutral: false,
                     useRedesignColors: true
                 )
             }

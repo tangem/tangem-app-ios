@@ -16,6 +16,7 @@ public enum AccountsAccessibilityIdentifiers {
 
     /// Manage tokens button on Account Details screen.
     public static let accountDetailsManageTokensButton = "accountDetailsManageTokensButton"
+    public static let accountDetailsJointMembersButton = "accountDetailsJointMembersButton"
 
     // MARK: - Account Form
 
@@ -24,6 +25,12 @@ public enum AccountsAccessibilityIdentifiers {
 
     /// Main action button on the account form screen (Add account / Save).
     public static let accountFormMainButton = "accountFormMainButton"
+
+    public static let feedAddAccountBanner = "feedAddAccountBanner"
+
+    public static let addAccountTypeSelectorCryptoAccountButton = "addAccountTypeSelectorCryptoAccountButton"
+
+    public static let addAccountTypeSelectorJointAccountButton = "addAccountTypeSelectorJointAccountButton"
 
     // MARK: - Wallet Settings
 

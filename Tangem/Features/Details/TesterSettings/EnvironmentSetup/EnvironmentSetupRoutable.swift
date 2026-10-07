@@ -13,7 +13,9 @@ protocol EnvironmentSetupRoutable: AnyObject {
     func openStakingBlockchainsPreferences()
     func openNFTBlockchainsPreferences()
     func openAddressesInfo()
+    #if INTERNAL || DEBUG
     func openDesignSystemDemo()
+    #endif
     func openStoriesV2Demo()
     func openSparrowSurveyClassicDemo(withToken token: String)
     func openSparrowSurveyChatDemo(withToken token: String)

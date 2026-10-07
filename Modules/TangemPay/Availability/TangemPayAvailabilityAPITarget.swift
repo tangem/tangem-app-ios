@@ -22,6 +22,8 @@ struct TangemPayAvailabilityAPITarget: TargetType {
         switch target {
         case .getEligibility:
             return "eligibility/channels"
+        case .checkEligibility:
+            return "eligibility/check"
         case .validateDeeplink:
             return "deeplink/validate"
         case .isPaeraCustomer(let customerWalletId):
@@ -33,7 +35,7 @@ struct TangemPayAvailabilityAPITarget: TargetType {
 
     var method: Moya.Method {
         switch target {
-        case .getEligibility, .isPaeraCustomer, .getImages:
+        case .getEligibility, .checkEligibility, .isPaeraCustomer, .getImages:
             return .get
         case .validateDeeplink:
             return .post
@@ -50,6 +52,9 @@ struct TangemPayAvailabilityAPITarget: TargetType {
         case .getImages(let deeplinkValue):
             let requestData = TangemPayImagesRequest(deeplinkValue: deeplinkValue)
             return .requestParameters(requestData)
+        case .checkEligibility(let product, let country, let region):
+            let requestData = TangemPayEligibilityCheckRequest(product: product, country: country, region: region)
+            return .requestParameters(requestData)
         }
     }
 
@@ -62,6 +67,7 @@ extension TangemPayAvailabilityAPITarget {
     enum Target {
         /// Checks Tangem Pay offer availability for user
         case getEligibility
+        case checkEligibility(product: TangemPayProduct, country: String, region: String?)
         case validateDeeplink(deeplinkString: String)
         case isPaeraCustomer(customerWalletId: String)
         case getImages(deeplinkValue: String)

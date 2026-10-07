@@ -15,12 +15,12 @@ private struct PolymarketOrderDetailsShowcase: View {
         ScrollView {
             VStack(spacing: Constants.sectionSpacing) {
                 section("Summary, both rows read only") {
-                    PolymarketOrderDetailsBlock(currencyCode: "USDT", feeText: "$1.40", slippageText: "Default 0,25%")
+                    PolymarketOrderDetailsBlock(currencyCode: "pUSD", feeText: "$1.40", slippageText: "Default 0,25%")
                 }
 
                 section("Amount form, slippage opens the picker") {
                     PolymarketOrderDetailsBlock(
-                        currencyCode: "USDT",
+                        currencyCode: "pUSD",
                         feeText: "$1.40",
                         slippageText: "0,5%",
                         onSlippageTap: {}

@@ -21,8 +21,7 @@ final class BannersUITests: BaseTestCase {
             .waitForBrowserOpened()
     }
 
-    /// Banner is still displayed after a wallet is added; app relaunch is required.
-    func skipped_testBanners_noteBannerIsNotDisplayIfWalletAdded() {
+    func testBanners_noteBannerIsNotDisplayIfWalletAdded() {
         setAllureId(4027)
         let secondWallet = "Wallet"
 

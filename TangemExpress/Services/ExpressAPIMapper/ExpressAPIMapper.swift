@@ -20,6 +20,10 @@ struct ExpressAPIMapper {
         ExpressDTO.Currency(contractAddress: currency.contractAddress, network: currency.network)
     }
 
+    func mapToSlippageBasisPoints(fraction: Decimal) -> Int {
+        (fraction * Constants.basisPointsPerUnit).intValue(roundingMode: .plain)
+    }
+
     // MARK: - Swap
 
     func mapToExpressCurrency(currency: ExpressDTO.Currency) -> ExpressCurrency {
@@ -59,7 +63,8 @@ struct ExpressAPIMapper {
             termsOfUse: provider.termsOfUse.flatMap(URL.init(string:)),
             privacyPolicy: provider.privacyPolicy.flatMap(URL.init(string:)),
             recommended: provider.recommended,
-            slippage: provider.slippage.map { $0 / 100 }
+            slippage: provider.slippage.map(mapToSlippageFraction(percent:)),
+            isCustomSlippageSupported: provider.isCustomSlippageSupported ?? false
         )
     }
 
@@ -81,7 +86,8 @@ struct ExpressAPIMapper {
             allowanceContract: response.allowanceContract,
             quoteId: response.quoteId,
             txType: response.txType.flatMap { ExpressTransactionType(rawValue: $0) },
-            isRestricted: (response.isRestricted ?? false) && featureFlags.isRegionRestrictionsEnabled
+            isRestricted: (response.isRestricted ?? false) && featureFlags.isRegionRestrictionsEnabled,
+            slippage: response.slippage.map(mapToSlippageFraction(basisPoints:))
         )
     }
 
@@ -142,7 +148,8 @@ struct ExpressAPIMapper {
             estimatedGasLimit: txDetails.gas.flatMap(Int.init),
             externalTxId: txDetails.externalTxId,
             externalTxURL: txDetails.externalTxUrl.flatMap(URL.init(string:)),
-            payInAddress: txDetails.txTo
+            payInAddress: txDetails.txTo,
+            slippage: response.slippage.map(mapToSlippageFraction(basisPoints:))
         )
     }
 
@@ -519,6 +526,23 @@ struct ExpressAPIMapper {
         }
 
         return currency
+    }
+
+    private func mapToSlippageFraction(basisPoints: Decimal) -> Decimal {
+        basisPoints / Constants.basisPointsPerUnit
+    }
+
+    private func mapToSlippageFraction(percent: Decimal) -> Decimal {
+        percent / Constants.percentPerUnit
+    }
+}
+
+// MARK: - Constants
+
+private extension ExpressAPIMapper {
+    enum Constants {
+        static let basisPointsPerUnit: Decimal = 10_000
+        static let percentPerUnit: Decimal = 100
     }
 }
 

@@ -261,10 +261,14 @@ private extension TransactionViewRedesigned {
     var isFailed: Bool { viewModel.icon.status == .failed }
 
     var nameColor: Color {
+        if viewModel.isPendingSignature {
+            return .Tangem.Text.Neutral.primary
+        }
+
         switch viewModel.icon.status {
-        case .failed, .undefined: .Tangem.Text.Status.warning
-        case .inProgress: .Tangem.Text.Status.accent
-        case .confirmed: .Tangem.Text.Neutral.primary
+        case .failed, .undefined: return .Tangem.Text.Status.warning
+        case .inProgress: return .Tangem.Text.Status.accent
+        case .confirmed: return .Tangem.Text.Neutral.primary
         }
     }
 

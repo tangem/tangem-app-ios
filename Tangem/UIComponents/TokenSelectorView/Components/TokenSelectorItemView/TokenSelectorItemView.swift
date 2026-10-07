@@ -85,6 +85,8 @@ struct TokenSelectorItemView: View {
                 Text(Localization.commonComingSoon)
             case .unavailable(.unavailableForSwap):
                 Text(Localization.tokensListUnavailableToSwapSourceHeader)
+            case .unavailable(.unavailableForSell(.jointAccountsComingSoon)):
+                Text(Localization.commonComingSoon)
             case .unavailable(.unavailableForSell):
                 Text(Localization.tokensListUnavailableToSellHeader)
             case .unavailable(.unavailableForSend):

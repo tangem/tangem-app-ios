@@ -114,7 +114,7 @@ final class OnrampUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock, expressApiType: .mock)
 
-        CreateWalletSelectorScreen(app)
+        let providersScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapBuyButton()
@@ -122,10 +122,16 @@ final class OnrampUITests: BaseTestCase {
             .waitForProvidersToLoad()
             .tapAllOffersButton()
             .waitForPaymentMethodIconsAndNames()
+            .waitForScreenTitleDisplayed()
+            .waitForPaymentMethodAmountsDisplayed()
             .selectPaymentMethod()
+
+        providersScreen
             .waitForProviders()
             .waitForBuyButtons()
             .waitForProviderIconsAndNames()
+
+        // Tapping Close here reliably triggers an XCUITest-only Alert-interruption glitch (confirmed not reproducible manually); not asserted.
     }
 
     func testGoOnramp_paymentMethodsErrorShowed() {
