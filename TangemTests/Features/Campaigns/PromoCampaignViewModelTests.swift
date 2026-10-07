@@ -228,8 +228,9 @@ private extension PromoCampaignViewModelTests {
             isEnrolled: false,
             content: PromoCampaignContent(
                 title: "Enroll in Whale Swap Cashback",
+                subtitle: nil,
                 imageURL: nil,
-                blocks: [.text("Earn cashback on every swap from $10K")],
+                blocks: [.text(title: nil, text: "Earn cashback on every swap from $10K", link: nil)],
                 learnMoreLink: nil,
                 termsLink: PromoCampaignContent.Link(title: "Whale Swap Cashback Terms", url: termsURL),
                 actionButtonTitle: "Enroll"
