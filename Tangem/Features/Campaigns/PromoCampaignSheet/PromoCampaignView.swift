@@ -40,6 +40,10 @@ struct PromoCampaignView: View {
                 .padding(.top, Constants.contentTopOffset)
             }
         }
+        .environment(\.openURL, OpenURLAction { url in
+            viewModel.open(url)
+            return .handled
+        })
         .scrollBounceBehavior(.basedOnSize)
         .scrollIndicators(.hidden)
         .overlay(alignment: .topTrailing) {
@@ -92,12 +96,20 @@ struct PromoCampaignView: View {
     // MARK: - Title
 
     private var title: some View {
-        Text(viewModel.title)
-            .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
-            .fixedSize(horizontal: false, vertical: true)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 16)
-            .accessibilityAddTraits(.isHeader)
+        VStack(alignment: .leading, spacing: 4) {
+            Text(viewModel.title)
+                .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityAddTraits(.isHeader)
+
+            if let subtitle = viewModel.subtitle {
+                Text(subtitle)
+                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 16)
     }
 
     // MARK: - Selected token
@@ -194,6 +206,7 @@ private extension PromoCampaign {
             isEnrolled: false,
             content: PromoCampaignContent(
                 title: "Enroll in Whale Swap Cashback",
+                subtitle: "Earn cashback on every swap from $10K until the end of July",
                 imageURL: nil,
                 blocks: [
                     .items(title: "Cashback and amounts", items: [
@@ -206,9 +219,13 @@ private extension PromoCampaign {
                         headers: [],
                         rows: [["Per swap", "$500"], ["Per wallet per swap", "$10K"]]
                     )),
-                    .text("Stable coin into stablecoin swaps are excluded. Payout arrives weekly in USDT or USDC address of your choice."),
+                    .text(
+                        title: "Max payout and limits",
+                        text: "Stable coin into stablecoin swaps are excluded. Payout arrives weekly in USDT or USDC address of your choice.",
+                        link: .init(title: "Learn more", url: URL(string: "https://tangem.com")!)
+                    ),
                 ],
-                learnMoreLink: .init(title: "Learn more", url: URL(string: "https://tangem.com")!),
+                learnMoreLink: nil,
                 termsLink: .init(title: "Whale Swap Cashback Terms", url: URL(string: "https://tangem.com")!),
                 actionButtonTitle: "Enroll"
             ),
