@@ -608,6 +608,10 @@ final class HostAnalyticsFormatterUtilTests: XCTestCase {
             // arc
             "https://rpc.mainnet.arc.io/",
             "https://rpc.testnet.arc.io/",
+            // onyx
+            "https://rpc.onyx.org/",
+            "https://rpc-onyx.chain.com/",
+            "https://rpc.testnet.goliath.net/",
             // sei-v2
             "https://sei-evm-rpc.stakeme.pro/",
             "https://evm-rpc.sei-apis.com/",
