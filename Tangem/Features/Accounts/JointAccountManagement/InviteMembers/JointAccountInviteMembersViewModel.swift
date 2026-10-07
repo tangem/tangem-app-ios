@@ -204,12 +204,26 @@ private extension JointAccountInviteMembersViewModel {
             return FreeSlotViewData(id: index, invite: invite)
         }
 
+        let status = jointAccount.status
+        let isCollecting = status.isPending || status.isConfirming
+
         return Content(
+            title: title(isCollecting: isCollecting, isCreatorDevice: isCreatorDevice),
+            isCollecting: isCollecting,
+            isSafetyBannerVisible: isCreatorDevice && status.isPending,
             members: members,
             freeSlots: freeSlots,
             isActivationAvailable: jointAccount.canActivate,
-            canArchive: isCreatorDevice
+            canArchive: isCollecting
         )
+    }
+
+    static func title(isCollecting: Bool, isCreatorDevice: Bool) -> String {
+        switch (isCollecting, isCreatorDevice) {
+        case (false, _): Localization.jointAccountMembersTitle
+        case (true, true): Localization.jointAccountInviteMembersTitle
+        case (true, false): Localization.jointAccountInviteMembersWaitingTitle
+        }
     }
 }
 
@@ -248,11 +262,13 @@ extension JointAccountInviteMembersViewModel {
 
 extension JointAccountInviteMembersViewModel {
     struct Content {
+        let title: String
+        let isCollecting: Bool
+        let isSafetyBannerVisible: Bool
         /// The taken slots, in the order they were taken, the creator first.
         let members: [MemberViewData]
         let freeSlots: [FreeSlotViewData]
         let isActivationAvailable: Bool
-        /// Offered on the creator's device alone — see `JointAccountMembersService.isCreatorDevice`.
         let canArchive: Bool
 
         var joinedMembersCount: Int { members.count }
