@@ -19,4 +19,5 @@ struct Promotion: Hashable {
     let buttonEnabled: Bool
     let buttonText: String?
     let dismissable: Bool
+    let campaignId: Int?
 }
