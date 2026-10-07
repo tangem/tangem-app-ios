@@ -481,6 +481,13 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
     private(set) var quoteRequests: [PolymarketOrderQuoteRequest] = []
 
     var queuedQuoteResults: [Result<PolymarketOrderQuote, Error>] = []
+    var categoryList: [PolymarketCategory] = []
+    var queuedCategoryResults: [Result<[PolymarketCategory], Error>] = []
+    var slowEventCategories: Set<Int> = []
+
+    static let slowEventsDelay: UInt64 = 200_000_000
+    var eventPages: [EventsPageKey: PolymarketEventsPage] = [:]
+    private(set) var eventsRequests: [PolymarketEventsRequest] = []
 
     private var searchResults: [Result<PolymarketSearchResult, Error>]
     private let quoteResult: PolymarketOrderQuote?
@@ -503,10 +510,28 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
         return try searchResults.removeFirst().get()
     }
 
-    func categories(locale: String?) async throws -> [PolymarketCategory] { [] }
+    func categories(locale: String?) async throws -> [PolymarketCategory] {
+        if !queuedCategoryResults.isEmpty {
+            return try queuedCategoryResults.removeFirst().get()
+        }
+
+        return categoryList
+    }
 
     func events(request: PolymarketEventsRequest) async throws -> PolymarketEventsPage {
-        PolymarketEventsPage(events: [], cursor: nil, hasNext: false)
+        eventsRequests.append(request)
+
+        if let category = request.category, slowEventCategories.contains(category) {
+            try await Task.sleep(nanoseconds: Self.slowEventsDelay)
+        }
+
+        return eventPages[EventsPageKey(category: request.category, cursor: request.cursor)]
+            ?? PolymarketEventsPage(events: [], cursor: nil, hasNext: false)
+    }
+
+    struct EventsPageKey: Hashable {
+        let category: Int?
+        let cursor: String?
     }
 
     func event(id: String) async throws -> PolymarketEvent {
@@ -578,10 +603,10 @@ final class PolymarketGeoblockStateProviderStub: PolymarketGeoblockStateProvider
     func refresh() {}
 }
 
-// MARK: - Search routing
+// MARK: - Event opening routing
 
-final class PolymarketSearchBlockRoutableSpy: PolymarketSearchBlockRoutable {
-    static let ignored = PolymarketSearchBlockRoutableSpy()
+final class PolymarketEventOpeningRoutableSpy: PolymarketEventOpeningRoutable {
+    static let ignored = PolymarketEventOpeningRoutableSpy()
 
     private(set) var openedEventIDs: [String] = []
     private(set) var openedOutcomes: [(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String, isBuy: Bool)] = []
