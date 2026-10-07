@@ -27,11 +27,6 @@ final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var isTabsPinned = false
     @Published private(set) var isRegionRestricted = false
     @Published private(set) var isAwaitingFunds = false
-    @Published private(set) var isSearching = false
-    @Published var isSearchFieldActive = false
-    @Published var searchQuery = ""
-
-    let search: PolymarketSearchViewModel
 
     private(set) var categoryTabs: [PolymarketCategoryTab] = []
 
@@ -49,7 +44,6 @@ final class PolymarketMainViewModel: ObservableObject {
     private let activityHandler: PolymarketMainActivityHandler
     private weak var coordinator: PolymarketMainRoutable?
 
-    private var searchBag: Set<AnyCancellable> = []
     private let poller = PolymarketForegroundPoller(interval: Constants.contentRefreshInterval)
     private var bag: Set<AnyCancellable> = []
 
@@ -69,32 +63,15 @@ final class PolymarketMainViewModel: ObservableObject {
     ) {
         self.apiProvider = apiProvider
         self.geoblockStateProvider = geoblockStateProvider
-        search = PolymarketSearchViewModel(apiProvider: apiProvider)
         self.fundsArrivalTracker = fundsArrivalTracker
         self.refreshCenter = refreshCenter
         self.activityHandler = activityHandler
         self.coordinator = coordinator
-        search.coordinator = self
 
-        bindSearch()
         bindGeoblockState()
         bindFundsArrival()
         poller.start(onTick: { [weak self] in await self?.refreshVisibleEvents() })
         load()
-    }
-
-    private func bindSearch() {
-        $searchQuery
-            .removeDuplicates()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, query in viewModel.search.query = query }
-            .store(in: &searchBag)
-
-        $isSearchFieldActive
-            .filter { $0 }
-            .withWeakCaptureOf(self)
-            .sink { viewModel, _ in viewModel.isSearching = true }
-            .store(in: &searchBag)
     }
 
     private func bindFundsArrival() {
@@ -146,8 +123,6 @@ final class PolymarketMainViewModel: ObservableObject {
             openHowItWorks()
         case .openSupportChat:
             openSupportChat()
-        case .cancelSearch:
-            exitSearch()
         case .onTabsMove(let minY, let navBarHeight):
             updatePinnedState(tabsMinY: minY, navBarHeight: navBarHeight)
         case .openEventDetails(let id):
@@ -217,17 +192,6 @@ final class PolymarketMainViewModel: ObservableObject {
     @MainActor
     private func openSupportChat() {
         coordinator?.openSupportChat()
-    }
-
-    private func exitSearch() {
-        isSearching = false
-        isSearchFieldActive = false
-        searchQuery = ""
-        search.reset()
-    }
-
-    private func openEventDetails(eventID: String) {
-        openEventDetails(eventID: eventID, category: selectedCategory)
     }
 
     private func updatePinnedState(tabsMinY: CGFloat, navBarHeight: CGFloat) {
@@ -373,12 +337,12 @@ final class PolymarketMainViewModel: ObservableObject {
         return fresh.count
     }
 
-    private func openEventDetails(eventID: String, category: PolymarketCategory?) {
+    private func openEventDetails(eventID: String) {
         let activityHandler = activityHandler
 
         coordinator?.openEventDetails(
             eventID: eventID,
-            category: category,
+            category: selectedCategory,
             onOrderPlaced: { [weak activityHandler] indexing in activityHandler?.orderPlaced(awaiting: indexing) }
         )
     }
@@ -444,7 +408,6 @@ extension PolymarketMainViewModel {
         case close
         case openHowItWorks
         case openSupportChat
-        case cancelSearch
         case onTabsMove(minY: CGFloat, navBarHeight: CGFloat)
         case openEventDetails(id: String)
         case retryEvents
@@ -498,19 +461,5 @@ extension PolymarketMainViewModel {
         }
 
         await blocks
-    }
-}
-
-// MARK: - PolymarketSearchRoutable protocol conformance
-
-extension PolymarketMainViewModel: PolymarketSearchRoutable {
-    func openEventDetailsFromSearch(eventID: String) {
-        isSearchFieldActive = false
-        openEventDetails(eventID: eventID, category: nil)
-    }
-
-    func openOrderFromSearch(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {
-        isSearchFieldActive = false
-        selectOutcome(market: market, outcome: outcome, eventTitle: eventTitle)
     }
 }

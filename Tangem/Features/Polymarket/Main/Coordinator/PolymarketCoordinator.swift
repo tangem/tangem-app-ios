@@ -158,6 +158,7 @@ private extension PolymarketCoordinator {
             viewModel: dependencies.makeMainViewModel(routable: self),
             balanceBlock: dependencies.makeBalanceBlockViewModel(routable: self),
             positionsBlock: dependencies.makePositionsBlockViewModel(routable: self),
+            searchBlock: dependencies.makeSearchBlockViewModel(routable: self),
             destinationFactory: PolymarketDestinationFactory(
                 dependencies: dependencies,
                 onAddFunds: { [weak self] in self?.openAddFunds() },
@@ -169,9 +170,12 @@ private extension PolymarketCoordinator {
     }
 }
 
-// MARK: - PolymarketMainRoutable, PolymarketBalanceBlockRoutable, PolymarketPositionsBlockRoutable
+// MARK: - PolymarketMainRoutable, PolymarketBalanceBlockRoutable, PolymarketPositionsBlockRoutable, PolymarketSearchBlockRoutable
 
-extension PolymarketCoordinator: PolymarketMainRoutable, PolymarketBalanceBlockRoutable, PolymarketPositionsBlockRoutable {
+extension PolymarketCoordinator: PolymarketMainRoutable,
+    PolymarketBalanceBlockRoutable,
+    PolymarketPositionsBlockRoutable,
+    PolymarketSearchBlockRoutable {
     func dismiss() {
         dismissAction(())
     }
@@ -196,7 +200,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable, PolymarketBalanceBlockR
         category: PolymarketCategory?,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
     ) {
-        guard case .main(_, _, _, let destinationFactory, _) = viewState else { return }
+        guard case .main(_, _, _, _, let destinationFactory, _) = viewState else { return }
 
         destination = .eventDetails(destinationFactory.makeEventDetailsCoordinator(
             eventID: eventID,
@@ -227,7 +231,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable, PolymarketBalanceBlockR
             return
         }
 
-        guard case .main(_, _, _, let destinationFactory, _) = viewState else { return }
+        guard case .main(_, _, _, _, let destinationFactory, _) = viewState else { return }
 
         destination = .positionDetails(destinationFactory.makePositionDetails(
             position: position,
@@ -244,7 +248,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable, PolymarketBalanceBlockR
         request: PolymarketOrderRequest,
         onPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
     ) {
-        guard case .main(_, _, _, let destinationFactory, _) = viewState else { return }
+        guard case .main(_, _, _, _, let destinationFactory, _) = viewState else { return }
 
         destination = .order(destinationFactory.makeOrderCoordinator(
             market: market,
@@ -266,7 +270,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable, PolymarketBalanceBlockR
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
         onClaimed: @escaping (PolymarketPosition?) -> Void
     ) {
-        guard case .main(_, _, _, let destinationFactory, _) = viewState else { return }
+        guard case .main(_, _, _, _, let destinationFactory, _) = viewState else { return }
 
         destination = .myPositions(
             destinationFactory.makeMyPositions(
@@ -296,7 +300,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable, PolymarketBalanceBlockR
 
     func openAddFunds() {
         Task { @MainActor [weak self] in
-            guard let self, addFundsSheet == nil, case .main(_, _, _, _, let fundingFlow) = viewState else { return }
+            guard let self, addFundsSheet == nil, case .main(_, _, _, _, _, let fundingFlow) = viewState else { return }
 
             guard !fundingFlow.isRegionBlocked else {
                 openRegionWarning()
@@ -315,7 +319,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable, PolymarketBalanceBlockR
     }
 
     func openWithdraw() {
-        guard case .main(_, _, _, _, let fundingFlow) = viewState else { return }
+        guard case .main(_, _, _, _, _, let fundingFlow) = viewState else { return }
 
         runTask(in: self) { coordinator in
             do {
@@ -412,7 +416,7 @@ private extension PolymarketCoordinator {
     }
 
     func startAwaitingDispatchedOperation() {
-        guard let operation = dispatchedOperation, case .main(_, _, _, _, let fundingFlow) = viewState else { return }
+        guard let operation = dispatchedOperation, case .main(_, _, _, _, _, let fundingFlow) = viewState else { return }
 
         dispatchedOperation = nil
 
@@ -484,6 +488,7 @@ extension PolymarketCoordinator {
             viewModel: PolymarketMainViewModel,
             balanceBlock: PolymarketBalanceBlockViewModel,
             positionsBlock: PolymarketPositionsBlockViewModel,
+            searchBlock: PolymarketSearchBlockViewModel,
             destinationFactory: PolymarketDestinationFactory,
             fundingFlow: PolymarketFundingFlow
         )

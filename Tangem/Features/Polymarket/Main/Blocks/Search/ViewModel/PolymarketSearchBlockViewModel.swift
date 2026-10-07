@@ -1,5 +1,5 @@
 //
-//  PolymarketSearchViewModel.swift
+//  PolymarketSearchBlockViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -13,15 +13,25 @@ import TangemFoundation
 import TangemPolymarket
 import TangemPolymarketUI
 
-final class PolymarketSearchViewModel: ObservableObject {
+final class PolymarketSearchBlockViewModel: ObservableObject {
     @Published var query = ""
+    @Published var isFieldActive = false {
+        didSet {
+            if isFieldActive {
+                isSearching = true
+            }
+        }
+    }
+
+    @Published private(set) var isSearching = false
     @Published private(set) var eventCards: [PolymarketEventCard.Model] = []
     @Published private(set) var state: State = .prompt
 
-    weak var coordinator: PolymarketSearchRoutable?
-
     private let apiProvider: PolymarketAPIProvider
+    private let activityHandler: PolymarketMainActivityHandler
+    private let isRegionRestricted: () -> Bool
     private let debounceInterval: DispatchQueue.SchedulerTimeType.Stride
+    private weak var routable: PolymarketSearchBlockRoutable?
 
     private var events: [PolymarketEvent] = []
     private var activeQuery = ""
@@ -36,9 +46,15 @@ final class PolymarketSearchViewModel: ObservableObject {
 
     init(
         apiProvider: PolymarketAPIProvider,
+        activityHandler: PolymarketMainActivityHandler,
+        isRegionRestricted: @escaping () -> Bool,
+        routable: PolymarketSearchBlockRoutable,
         debounceInterval: DispatchQueue.SchedulerTimeType.Stride = .milliseconds(Constants.debounceMilliseconds)
     ) {
         self.apiProvider = apiProvider
+        self.activityHandler = activityHandler
+        self.isRegionRestricted = isRegionRestricted
+        self.routable = routable
         self.debounceInterval = debounceInterval
 
         bind()
@@ -53,9 +69,13 @@ final class PolymarketSearchViewModel: ObservableObject {
 
 // MARK: - View actions
 
-extension PolymarketSearchViewModel {
+extension PolymarketSearchBlockViewModel {
     func handleViewAction(_ action: ViewAction) {
         switch action {
+        case .clearQuery:
+            query = ""
+        case .cancel:
+            exitSearch()
         case .openEventDetails(let id):
             openEventDetails(eventID: id)
         case .retry:
@@ -65,15 +85,9 @@ extension PolymarketSearchViewModel {
         }
     }
 
-    func reset() {
-        searchTask?.cancel()
-        query = ""
-        activeQuery = ""
-        resetResults()
-        state = .prompt
-    }
-
     enum ViewAction {
+        case clearQuery
+        case cancel
         case openEventDetails(id: String)
         case retry
         case loadNextPage
@@ -83,7 +97,17 @@ extension PolymarketSearchViewModel {
 
 // MARK: - Actions
 
-private extension PolymarketSearchViewModel {
+private extension PolymarketSearchBlockViewModel {
+    func exitSearch() {
+        searchTask?.cancel()
+        isSearching = false
+        isFieldActive = false
+        query = ""
+        activeQuery = ""
+        resetResults()
+        state = .prompt
+    }
+
     func loadMore() {
         guard hasNext, state != .paginationLoading, !activeQuery.isEmpty else { return }
 
@@ -97,13 +121,40 @@ private extension PolymarketSearchViewModel {
     }
 
     func openEventDetails(eventID: String) {
-        coordinator?.openEventDetailsFromSearch(eventID: eventID)
+        isFieldActive = false
+
+        let activityHandler = activityHandler
+
+        routable?.openEventDetails(
+            eventID: eventID,
+            category: nil,
+            onOrderPlaced: { [weak activityHandler] indexing in activityHandler?.orderPlaced(awaiting: indexing) }
+        )
+    }
+
+    func openOrder(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {
+        isFieldActive = false
+
+        guard !isRegionRestricted() else {
+            routable?.openRegionWarning()
+            return
+        }
+
+        let activityHandler = activityHandler
+
+        routable?.openOrder(
+            market: market,
+            outcome: outcome,
+            eventTitle: eventTitle,
+            request: .buy,
+            onPlaced: { [weak activityHandler] indexing in activityHandler?.orderPlaced(awaiting: indexing) }
+        )
     }
 }
 
 // MARK: - Query
 
-private extension PolymarketSearchViewModel {
+private extension PolymarketSearchBlockViewModel {
     func bind() {
         $query
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
@@ -141,7 +192,7 @@ private extension PolymarketSearchViewModel {
 
 // MARK: - Search
 
-private extension PolymarketSearchViewModel {
+private extension PolymarketSearchBlockViewModel {
     func search(query: String, more: Bool = false, emptyPages: Int = 0) {
         searchTask?.cancel()
 
@@ -259,7 +310,7 @@ private extension PolymarketSearchViewModel {
             category: nil,
             isInActivePredicts: false,
             onSelectOutcome: { [weak self] market, outcome in
-                self?.coordinator?.openOrderFromSearch(market: market, outcome: outcome, eventTitle: event.title)
+                self?.openOrder(market: market, outcome: outcome, eventTitle: event.title)
             }
         )
     }
@@ -267,7 +318,7 @@ private extension PolymarketSearchViewModel {
 
 // MARK: - State
 
-extension PolymarketSearchViewModel {
+extension PolymarketSearchBlockViewModel {
     enum State: Equatable {
         case prompt
         case loading
@@ -282,7 +333,7 @@ extension PolymarketSearchViewModel {
 
 // MARK: - Constants
 
-private extension PolymarketSearchViewModel {
+private extension PolymarketSearchBlockViewModel {
     enum Constants {
         static let debounceMilliseconds = 500
         static let minQueryLength = 3
