@@ -16,7 +16,12 @@ struct CollectiblesPacksView: View {
     @ObservedObject var viewModel: CollectiblesPacksViewModel
 
     var body: some View {
-        content.task(viewModel.load)
+        ZStack(alignment: .top) {
+            content
+        }
+        .animation(.easeInOut(duration: Constants.appearanceDuration), value: viewModel.state.isLoading)
+        .animation(.easeInOut(duration: Constants.appearanceDuration), value: viewModel.loreID)
+        .task(viewModel.load)
     }
 }
 
@@ -39,6 +44,7 @@ private extension CollectiblesPacksView {
                 )
                 paginationFooter
             }
+            .id(viewModel.loreID)
         case .empty(let hasQuery):
             CollectiblesEmptyMessage(
                 icon: hasQuery ? DesignSystem.Icons.Binoculars.regular20 : DesignSystem.Icons.Stack.regular20,
@@ -66,9 +72,12 @@ private extension CollectiblesPacksView {
                 .infinityFrame(axis: .horizontal)
                 .padding(.vertical, Constants.paginationVerticalPadding)
         case .failed:
-            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.loadMore)
-                .infinityFrame(axis: .horizontal)
-                .padding(.vertical, Constants.paginationVerticalPadding)
+            CollectiblesEmptyMessage(
+                icon: DesignSystem.Icons.ArrowRefresh.regular20,
+                message: Localization.marketsLoadingErrorTitle,
+                onRetry: viewModel.loadMore,
+                verticalPadding: Constants.paginationVerticalPadding
+            )
         }
     }
 }
@@ -88,6 +97,7 @@ private extension CollectiblesPacksView {
         static let skeletonCellsCount = 4
         static let messageMinHeight: CGFloat = 320
         static let paginationVerticalPadding: CGFloat = 16
+        static let appearanceDuration: TimeInterval = 0.3
     }
 }
 

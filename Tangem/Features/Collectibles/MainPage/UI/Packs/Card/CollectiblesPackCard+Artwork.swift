@@ -17,6 +17,7 @@ extension CollectiblesPackCard {
     struct Artwork: View {
         let url: URL?
         let packSize: CGSize
+        var hasFailureCard = false
 
         @State private var loadingState: LoadingResult<Image, any Error> = .loading
 
@@ -24,7 +25,7 @@ extension CollectiblesPackCard {
             if let url {
                 remoteArtwork(url)
             } else {
-                missingArtworkBadge
+                failureView
             }
         }
     }
@@ -44,7 +45,7 @@ private extension CollectiblesPackCard.Artwork {
                 .cancelOnDisappear(true)
                 .fade(duration: Constants.fadeDuration)
                 .cacheOriginalImage()
-                .onFailureView { missingArtworkBadge }
+                .onFailureView { failureView }
                 .onSuccess { loadingState = .success(Image(uiImage: $0.image)) }
                 .onFailure { loadingState = .failure($0) }
                 .aspectRatio(contentMode: .fit)
@@ -61,15 +62,29 @@ private extension CollectiblesPackCard.Artwork {
             .clipShape(RoundedRectangle(cornerRadius: Metrics.placeholderCornerRadius * scale, style: .continuous))
     }
 
+    @ViewBuilder
+    var failureView: some View {
+        if hasFailureCard {
+            missingArtworkBadge
+                .frame(width: Metrics.placeholderWidth * scale, height: Metrics.placeholderHeight * scale)
+                .background(
+                    DesignSystem.Color.bgSecondary,
+                    in: RoundedRectangle(cornerRadius: Metrics.placeholderCornerRadius * scale, style: .continuous)
+                )
+        } else {
+            missingArtworkBadge
+        }
+    }
+
     var missingArtworkBadge: some View {
         Circle()
             .fill(DesignSystem.Color.bgTransparentPrimary)
-            .frame(size: CGSize(bothDimensions: Metrics.fallbackBadgeSize * scale))
+            .frame(size: CGSize(bothDimensions: Metrics.fallbackBadgeSize))
             .overlay {
                 DesignSystem.Icons.Error.filled20.image
                     .renderingMode(.template)
                     .resizable()
-                    .frame(size: CGSize(bothDimensions: Metrics.fallbackGlyphSize * scale))
+                    .frame(size: CGSize(bothDimensions: Metrics.fallbackGlyphSize))
                     .foregroundStyle(DesignSystem.Color.iconTertiary)
             }
             .accessibilityHidden(true)

@@ -95,7 +95,7 @@ private extension CollectiblesConfirmOrderView {
     func artwork(in size: CGSize) -> some View {
         let packSize = Self.packSize(in: size)
 
-        return CollectiblesPackCard.Artwork(url: viewModel.artworkURL, packSize: packSize)
+        return CollectiblesPackCard.Artwork(url: viewModel.artworkURL, packSize: packSize, hasFailureCard: true)
             .frame(width: packSize.width, height: packSize.height)
             .scaleEffect(packPose.scale)
             .rotationEffect(packPose.rotation)

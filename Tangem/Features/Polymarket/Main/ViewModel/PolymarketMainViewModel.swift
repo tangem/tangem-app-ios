@@ -57,7 +57,7 @@ final class PolymarketMainViewModel: ObservableObject {
     private weak var coordinator: PolymarketMainRoutable?
 
     private var searchBag: Set<AnyCancellable> = []
-    private let appStateObserver = PolymarketAppStateObserver()
+    private let appStateObserver = AppStateObserver()
     private var bag: Set<AnyCancellable> = []
 
     private var events: [PolymarketEvent] = []
