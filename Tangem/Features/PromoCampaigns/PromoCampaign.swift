@@ -8,8 +8,11 @@
 
 import Foundation
 
-struct PromoCampaign: Hashable {
+struct PromoCampaign: Equatable {
     let id: Int
     let name: String
     let isEnrolled: Bool
+    let content: PromoCampaignContent
+    let isPayoutNeeded: Bool
+    let payoutTokens: [CampaignEligibleToken]
 }
