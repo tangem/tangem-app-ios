@@ -214,7 +214,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
 
         isReloadingTransactionHistory = true
-        updateTask = walletModel.startUpdateTask(silent: false)
+        updateTask = walletModel.startUpdateTask()
 
         // Wait while task is finished
         await updateTask?.value

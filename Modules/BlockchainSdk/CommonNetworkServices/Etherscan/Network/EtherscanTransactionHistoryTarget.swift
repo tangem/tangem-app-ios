@@ -154,3 +154,12 @@ extension EtherscanTransactionHistoryTarget: TargetTypeLogConvertible {
         false
     }
 }
+
+// MARK: - CachePolicyProvider protocol conformance
+
+extension EtherscanTransactionHistoryTarget: CachePolicyProvider {
+    /// Etherscan V2 API erroneously marks only failures as cacheable, not the actual responses - which breaks our retry logic.
+    var cachePolicy: URLRequest.CachePolicy {
+        .reloadIgnoringLocalAndRemoteCacheData
+    }
+}

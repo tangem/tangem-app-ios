@@ -155,6 +155,14 @@ final class PulseViewModel: ObservableObject {
     }
 
     func onSelectToken(_ token: MarketsTokenModel) {
+        Analytics.log(
+            event: .marketsChartScreenOpened,
+            params: [
+                .source: Analytics.ParameterValue.main.rawValue,
+                .token: token.symbol.uppercased(),
+            ]
+        )
+
         router.openToken(token)
     }
 

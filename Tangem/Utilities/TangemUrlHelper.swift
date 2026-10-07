@@ -31,6 +31,7 @@ enum TangemUrlHelper {
         switch utmCampaign {
         case .users: "users"
         case .prospect: "prospect"
+        case .welcome: "welcome"
         case .backup: "backup"
         case .upgrade: "upgrade"
         case .articles: "articles"
@@ -42,6 +43,7 @@ enum TangemUTM {
     enum Campaign {
         case users
         case prospect
+        case welcome
         case backup
         case upgrade
         case articles
