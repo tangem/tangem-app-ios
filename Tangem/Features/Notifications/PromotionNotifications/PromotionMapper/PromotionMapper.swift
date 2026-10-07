@@ -27,7 +27,8 @@ enum PromotionMapper {
             deeplink: dto.deeplink,
             buttonEnabled: dto.buttonEnabled ?? false,
             buttonText: dto.buttonText,
-            dismissable: dto.dismissable ?? false
+            dismissable: dto.dismissable ?? false,
+            campaignId: dto.campaignId
         )
     }
 }

@@ -42,6 +42,12 @@ enum Feature: String, Hashable, CaseIterable {
     case tangemPayCustomCards
     case mcp
     case tangemPayChooseCountry
+    case payBundleIntroduction
+    case hideMarketingBannersWithSystem
+    case tangemPayOnrampV2
+    case promoCampaignsV2
+    case tangemPayAppleWalletProvisioning
+    case customSlippage
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -80,6 +86,12 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayCustomCards: return "TWI-1727_tangem_pay_custom_cards"
         case .mcp: return "TWI-1721_mcp"
         case .tangemPayChooseCountry: return "TWI-1771_choose_country"
+        case .payBundleIntroduction: return "TWI-1728_pay_bundle_introduction"
+        case .hideMarketingBannersWithSystem: return "TWI-1841_hide_marketing_banners_while_system"
+        case .tangemPayOnrampV2: return "TWI-1753_tangem_pay_onramp_v2"
+        case .promoCampaignsV2: return "TWI-1705_promo_campaigns_v2"
+        case .tangemPayAppleWalletProvisioning: return "TWI-1062_apple_wallet_push_provisioning"
+        case .customSlippage: return "TWI-1674_custom_slippage"
         }
     }
 
@@ -118,6 +130,12 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayCustomCards: return .version("6.4")
         case .mcp: return .unspecified
         case .tangemPayChooseCountry: return .version("6.5")
+        case .payBundleIntroduction: return .unspecified
+        case .hideMarketingBannersWithSystem: return .unspecified
+        case .tangemPayOnrampV2: return .version("6.5")
+        case .promoCampaignsV2: return .unspecified
+        case .tangemPayAppleWalletProvisioning: return .unspecified
+        case .customSlippage: return .unspecified
         }
     }
 }

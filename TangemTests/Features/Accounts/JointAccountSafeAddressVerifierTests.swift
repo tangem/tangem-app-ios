@@ -27,8 +27,9 @@ struct JointAccountSafeAddressVerifierTests {
     }
 
     /// The backend keeps addresses in lower case while the app computes the checksummed form, so the two are never
-    /// compared as strings.
-    @Test("The letter case the address is announced in does not decide whether it matches")
+    /// compared as strings — and the backend's spelling is what gets signed, since it compares the config it holds
+    /// character by character.
+    @Test("The letter case the address is announced in does not decide whether it matches, and is kept")
     func announcedAddressIsMatchedRegardlessOfCase() throws {
         let address = try JointAccountSafeAddressVerifier.confirm(
             announcedAddress: "0x9295a5836685c5f5f42242f9b64d23e46f8c259f",
@@ -36,7 +37,7 @@ struct JointAccountSafeAddressVerifierTests {
             threshold: 2
         )
 
-        #expect(address == "0x9295a5836685C5F5f42242f9B64d23E46F8c259F")
+        #expect(address == "0x9295a5836685c5f5f42242f9b64d23e46f8c259f")
     }
 
     @Test("An address the composition does not resolve to is refused")

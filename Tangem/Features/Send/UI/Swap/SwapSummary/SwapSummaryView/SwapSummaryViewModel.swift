@@ -41,6 +41,8 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var formVariant: SwapFormVariant
     @Published var shouldAnimateBestRateBadge: Bool = true
 
+    let swapSummarySlippageViewModel: SwapSummarySlippageViewModel?
+
     var mainButtonIsLoading: Bool { isActionInProcessing }
 
     private let interactor: SwapSummaryInteractor
@@ -58,6 +60,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         analyticsLogger: SendSummaryAnalyticsLogger,
         swapAmountViewModel: SwapAmountViewModel,
         swapSummaryProviderViewModel: SwapSummaryProviderViewModel,
+        swapSummarySlippageViewModel: SwapSummarySlippageViewModel?,
         feeCompactViewModel: SendFeeCompactViewModel,
         sourceTokenInput: SendSourceTokenInput,
         formVariantResolver: SwapFormVariantResolver = SwapFormVariantResolver()
@@ -68,6 +71,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         self.analyticsLogger = analyticsLogger
         self.swapAmountViewModel = swapAmountViewModel
         self.swapSummaryProviderViewModel = swapSummaryProviderViewModel
+        self.swapSummarySlippageViewModel = swapSummarySlippageViewModel
         self.feeCompactViewModel = feeCompactViewModel
         self.formVariantResolver = formVariantResolver
         formVariant = formVariantResolver.currentVariant()
@@ -121,6 +125,10 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 
     func userDidTapFee() {
         router?.summaryStepRequestEditFee()
+    }
+
+    func userDidTapSlippage() {
+        router?.summaryStepRequestEditSlippage()
     }
 
     func userDidTapAmountFraction(_ fraction: SwapAmountFraction) {

@@ -22,6 +22,7 @@ final class TangemPayOfferViewModel: ObservableObject {
     @Published private(set) var isLoading = false
     @Published var alert: AlertBinder?
     @Published var termsFeesAndLimitsViewModel: WebViewContainerViewModel?
+    @Published var legalDocumentViewModel: WebViewContainerViewModel?
 
     var getCardButtonIcon: MainButton.Icon? {
         if let model = userWalletRepository.models.first, userWalletRepository.models.count == 1 {
@@ -48,6 +49,17 @@ final class TangemPayOfferViewModel: ObservableObject {
     func getCard() {
         Analytics.log(.visaOnboardingButtonVisaGetCard, analyticsSystems: .all)
 
+        guard FeatureProvider.isAvailable(.tangemPayChooseCountry) else {
+            selectWalletAndAcceptOffer()
+            return
+        }
+
+        coordinator?.openResidency { [weak self] in
+            self?.selectWalletAndAcceptOffer()
+        }
+    }
+
+    func selectWalletAndAcceptOffer() {
         switch walletSelectionType {
         case .single(let id):
             guard
@@ -103,6 +115,14 @@ final class TangemPayOfferViewModel: ObservableObject {
 
         termsFeesAndLimitsViewModel = .init(
             url: AppConstants.tangemPayTermsAndLimitsURL,
+            title: "",
+            withCloseButton: true
+        )
+    }
+
+    func openLegalDocument(url: URL) {
+        legalDocumentViewModel = .init(
+            url: url,
             title: "",
             withCloseButton: true
         )

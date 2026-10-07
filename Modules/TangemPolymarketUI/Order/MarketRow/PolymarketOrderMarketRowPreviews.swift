@@ -41,7 +41,7 @@ private extension PolymarketOrderMarketRow.Model {
         question: String = "Will Bitcoin hit $150k?",
         imageURL: URL? = stubImageURL,
         outcomeTitle: String = "Yes",
-        outcomePriceText: String = "62¢",
+        outcomePriceText: String = "62.3¢",
         outcomeStyle: PolymarketOutcomeStyle = .affirmative
     ) -> Self {
         Self(
@@ -57,7 +57,7 @@ private extension PolymarketOrderMarketRow.Model {
 
     static let affirmativeStub = stub()
 
-    static let negativeStub = stub(outcomeTitle: "No", outcomePriceText: "38¢", outcomeStyle: .negative)
+    static let negativeStub = stub(outcomeTitle: "No", outcomePriceText: "37.7¢", outcomeStyle: .negative)
 
     static let longQuestionStub = stub(
         question: "Will the Federal Reserve cut interest rates by at least 50 basis points before the end of 2026?"

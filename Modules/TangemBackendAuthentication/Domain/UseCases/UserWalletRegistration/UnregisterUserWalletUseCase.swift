@@ -23,8 +23,11 @@ public struct UnregisterUserWalletUseCase: Sendable {
         self.sessionTokensRepository = sessionTokensRepository
     }
 
-    public func callAsFunction(id: UserWalletId) async throws(UnregisterUserWalletError) {
-        let sessionTokens = try await unregisterUserWallet(id: id)
+    public func callAsFunction(
+        id: UserWalletId,
+        shouldEraseSocialLoginData: Bool
+    ) async throws(UnregisterUserWalletError) {
+        let sessionTokens = try await unregisterUserWallet(id: id, shouldEraseSocialLoginData: shouldEraseSocialLoginData)
 
         if let sessionTokens {
             try await persist(sessionTokens: sessionTokens)
@@ -33,9 +36,12 @@ public struct UnregisterUserWalletUseCase: Sendable {
         await registrationStatusRepository.remove(registeredID: id)
     }
 
-    private func unregisterUserWallet(id: UserWalletId) async throws(UnregisterUserWalletError) -> SessionTokens? {
+    private func unregisterUserWallet(
+        id: UserWalletId,
+        shouldEraseSocialLoginData: Bool
+    ) async throws(UnregisterUserWalletError) -> SessionTokens? {
         do {
-            return try await registrationClient.unregister(id: id)
+            return try await registrationClient.unregister(id: id, shouldEraseSocialLoginData: shouldEraseSocialLoginData)
         } catch UserWalletRegistrationClientError.wasNotRegistered {
             return nil
         } catch {

@@ -14,6 +14,8 @@ protocol JointAccountMemberNameHelper {
     /// Whether leaving the step would throw away what earlier steps of the flow gathered.
     var hasUnsavedChanges: Bool { get }
 
+    func keepDraft(name: String)
+
     /// Owns the whole operation, card session included — the button keeps spinning until this returns.
     func submit(name: String) async throws(AccountEditError)
 }

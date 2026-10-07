@@ -131,7 +131,7 @@ struct YieldModuleActiveContentView: View {
                 .padding(.bottom, 8)
                 .padding(.horizontal, -16)
 
-            YieldModuleEarnInfoChartContainer(state: viewModel.chartState)
+            YieldModuleEarnInfoChartContainer(kind: .legacy, state: viewModel.chartState)
 
             if let promoBonusText = viewModel.promoBonusText {
                 Separator(color: Colors.Stroke.primary)

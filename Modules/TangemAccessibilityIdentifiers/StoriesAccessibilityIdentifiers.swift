@@ -13,4 +13,8 @@ public enum StoriesAccessibilityIdentifiers {
     public static let getStartedButton = "storiesGetStartedButton"
     public static let closeButton = "storiesCloseButton"
     public static let storyContainer = "storiesContainer"
+
+    public static func storyContainer(page: Int) -> String {
+        "\(storyContainer)_\(page)"
+    }
 }

@@ -324,6 +324,10 @@ struct TestnetAPINodeInfoProvider {
             return [
                 .init(url: URL(string: "https://rpc.testnet.arc.io")!),
             ]
+        case .onyx:
+            return [
+                .init(url: URL(string: "https://rpc.testnet.goliath.net/")!),
+            ]
         case .seiEvm:
             return [
                 .init(url: URL(string: "https://evm-rpc-testnet.sei-apis.com/")!),
@@ -333,7 +337,7 @@ struct TestnetAPINodeInfoProvider {
              .xrp, .ducatus, .tezos, .dogecoin, .solana, .kusama, .dash, .gnosis,
              .terraV1, .terraV2, .cronos, .octa, .playa3ullGames, .radiant, .joystream,
              .bittensor, .internetComputer, .filecoin, .energyWebX, .canxium, .xodex, .clore,
-             .fact0rn, .gonka, .arbitrumNova:
+             .fact0rn, .gonka, .arbitrumNova, .publicMasterpiece:
             return nil
         }
     }

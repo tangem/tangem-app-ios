@@ -42,6 +42,7 @@ struct JointAccountJoinView: View {
                 )
             }
         }
+        .ignoresSafeArea(.keyboard)
     }
 
     private func invite(_ content: JointAccountJoinViewModel.Content) -> some View {
@@ -49,14 +50,17 @@ struct JointAccountJoinView: View {
             glow(content)
 
             VStack(spacing: .zero) {
-                accountIcon(content)
-                    .infinityFrame()
+                accountIcon(content).infinityFrame()
 
-                self.content(content)
+                VStack(spacing: .zero) {
+                    mainContent(content)
+
+                    footer
+                }
+                .padding(.horizontal, Constants.contentHorizontalPadding)
             }
         }
         .topNavigation(leading: .none, onClose: viewModel.onCloseTap)
-        .safeAreaInset(edge: .bottom) { footer }
     }
 
     private func glow(_ content: JointAccountJoinViewModel.Content) -> some View {
@@ -70,7 +74,8 @@ struct JointAccountJoinView: View {
     }
 
     private func accountIcon(_ content: JointAccountJoinViewModel.Content) -> some View {
-        AccountIconView(data: content.accountIconViewData, settings: .extraLargeSized)
+        AccountIconView(data: content.accountIconViewData)
+            .settings(.extraLargeSized)
             .overlay(accountIconHighlight)
             .clipShape(accountIconShape)
             .overlay {
@@ -100,83 +105,62 @@ struct JointAccountJoinView: View {
         )
     }
 
-    private func content(_ content: JointAccountJoinViewModel.Content) -> some View {
+    private func mainContent(_ content: JointAccountJoinViewModel.Content) -> some View {
         VStack(alignment: .leading, spacing: .zero) {
             JointAccountHeaderTitle(title: content.title, subtitle: content.subtitle)
-                .padding(.horizontal, Constants.titleHorizontalPadding)
                 .padding(.vertical, Constants.titleVerticalPadding)
+                .padding(.horizontal, Constants.titleHorizontalPadding)
 
             rows(content)
-                .padding(.horizontal, Constants.rowsHorizontalPadding)
-        }
-    }
-
-    private func rows(_ content: JointAccountJoinViewModel.Content) -> some View {
-        VStack(spacing: .zero) {
-            creatorRow(content)
-
-            if content.isWalletSelectionAvailable {
-                walletRow
-            }
-        }
-    }
-
-    private func creatorRow(_ content: JointAccountJoinViewModel.Content) -> some View {
-        Row(title: Localization.jointAccountInviteMembersCreator, value: content.creatorName)
-            .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
-            .valueAccessory {
-                icon(DesignSystem.Icons.Info.regular20, color: DesignSystem.Color.iconSecondary)
-            }
-            .showDivider(content.isWalletSelectionAvailable)
-            .onTap(viewModel.onCreatorInfoTap)
-    }
-
-    private var walletRow: some View {
-        Row(title: Localization.commonWallet)
-            .valueAccessory { walletValue }
-            .onTap(viewModel.onWalletTap)
-    }
-
-    private var walletValue: some View {
-        HStack(spacing: Constants.walletValueSpacing) {
-            walletImage
-
-            Text(viewModel.walletName)
-                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
-                .lineLimit(1)
-
-            icon(DesignSystem.Icons.ChevronDown.regular16, color: DesignSystem.Color.iconSecondary)
         }
     }
 
     @ViewBuilder
-    private var walletImage: some View {
-        if let walletImage = viewModel.walletImage {
-            walletImage.image
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(size: Constants.walletImageSize)
-        }
+    private func rows(_ content: JointAccountJoinViewModel.Content) -> some View {
+        Row(title: Localization.jointAccountInviteMembersCreator, value: content.creatorName)
+            .contentLead(.end)
+            .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
+            .valueAccessory {
+                DesignSystem.Icons.Info.regular20.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+            }
+            .showDivider(true)
+            .onTap(viewModel.onCreatorInfoTap)
+
+        Row(title: Localization.commonWallet)
+            .contentLead(.end)
+            .valueAccessory {
+                HStack(spacing: Constants.walletValueSpacing) {
+                    if let walletThumbnailType = viewModel.walletThumbnailType {
+                        MiniatureWalletView(type: walletThumbnailType)
+                            .frame(size: Constants.walletThumbnailSize)
+                    }
+
+                    Text(viewModel.walletName)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+                        .lineLimit(1)
+
+                    if content.isWalletSelectionAvailable {
+                        DesignSystem.Icons.ChevronDown.regular16.image
+                            .renderingMode(.template)
+                            .foregroundStyle(DesignSystem.Color.iconSecondary)
+                    }
+                }
+            }
+            .if(content.isWalletSelectionAvailable) {
+                $0.onTap(viewModel.onWalletTap)
+            }
     }
 
     private var footer: some View {
-        TangemUI.Button(
-            label: Localization.commonContinue,
-            accessibilityLabel: nil
-        ) {
+        TangemUI.Button(label: Localization.commonContinue, accessibilityLabel: nil) {
             viewModel.onContinueTap()
         }
         .styleType(.default)
         .horizontalLayout(.infinity)
         .size(.x12)
-        .padding(.horizontal, Constants.footerHorizontalPadding)
-        .padding(.bottom, Constants.footerBottomPadding)
-    }
-
-    private func icon(_ imageType: ImageType, color: Color) -> some View {
-        imageType.image
-            .renderingMode(.template)
-            .foregroundStyle(color)
+        .padding(.vertical, Constants.footerVerticalPadding)
     }
 }
 
@@ -195,15 +179,14 @@ private extension JointAccountJoinView {
         static let accountIconBorderWidth: CGFloat = 2
         static let accountIconHighlightOpacity: CGFloat = 0.2
 
-        static let titleHorizontalPadding: CGFloat = 24
+        static let contentHorizontalPadding: CGFloat = 16
         static let titleVerticalPadding: CGFloat = 12
-        static let rowsHorizontalPadding: CGFloat = 8
+        static let titleHorizontalPadding: CGFloat = 16
 
         static let walletValueSpacing: CGFloat = 4
-        static let walletImageSize = CGSize(bothDimensions: 20)
+        static let walletThumbnailSize = CGSize(bothDimensions: 20)
 
-        static let footerHorizontalPadding: CGFloat = 16
-        static let footerBottomPadding: CGFloat = 12
+        static let footerVerticalPadding: CGFloat = 12
     }
 }
 
@@ -215,7 +198,7 @@ private struct JointAccountsNetworkServicePreviewStub: JointAccountsNetworkServi
         throw CancellationError()
     }
 
-    func getJointAccounts() async throws -> JointAccountsRemoteState { .changed([]) }
+    func getJointAccounts(knownETag: String?) async throws -> JointAccountsRemoteState { .changed([], eTag: nil) }
 
     func getInvitePreview(inviteId: String) async throws -> JointAccountInvitePreview {
         JointAccountInvitePreview(

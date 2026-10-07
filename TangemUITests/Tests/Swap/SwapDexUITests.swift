@@ -21,7 +21,7 @@ final class SwapDexUITests: BaseTestCase {
                 ScenarioConfig(name: "quotes_api", initialState: "PolygonUSDC"),
                 ScenarioConfig(name: "express_api_assets", initialState: "BitcoinExchangeEnabled"),
                 ScenarioConfig(name: "ethereum_from_pairs", initialState: "DexProvider"),
-                ScenarioConfig(name: "exchange_status_provider", initialState: "OneInch"),
+                ScenarioConfig(name: "exchange_status_provider", initialState: "OneInchFinished"),
             ]
         )
 
@@ -41,9 +41,24 @@ final class SwapDexUITests: BaseTestCase {
             .tapCloseButton()
             .waitForPendingExpressTransaction()
 
-        tokenScreen
+        // The swap status shown on the details screen comes from the transaction history list, not /v1/exchange-status.
+        wireMockClient.setScenarioStateSync("exchange_history", state: "SwapFinished")
+        pullToRefresh()
+
+        let detailsSheet = tokenScreen
             .tapPendingExpressTransaction()
             .waitForDisplay()
             .assertProviderTitle(contains: "1Inch")
+
+        detailsSheet
+            .assertHeaderDateDisplayed()
+            .assertHeaderTitle(contains: "Swapped")
+            .assertLegAmountDisplayed(legId: "from")
+            .assertLegAmountDisplayed(legId: "to")
+            .assertRateRowDisplayed()
+
+        detailsSheet
+            .tapProviderRow()
+            .waitForBrowserOpened()
     }
 }
