@@ -57,6 +57,7 @@ struct JointAccountInviteMembersView: View {
             accessibilityLabel: Localization.jointAccountActivationAccountButtonTitle,
             action: viewModel.onActivateTap
         )
+        .iconEnd(DesignSystem.Icons.LogoTangem.regular20)
         .styleType(.default)
         .size(.x12)
         .horizontalLayout(.infinity)
