@@ -23,10 +23,12 @@ struct JointAccountSendTransactionSummaryDescriptionBuilder {
 
 extension JointAccountSendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDescriptionBuilder {
     func makeDescription(amount: Decimal, fee: TokenFee) -> AttributedString? {
-        let amountInFiat = tokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(amount, currencyId: $0) }
-        let feeInFiat = fee.tokenItem.currencyId.flatMap { currencyId in
-            fee.value.value.flatMap { BalanceConverter().convertToFiat($0.amount.value, currencyId: currencyId) }
+        guard let feeValue = fee.value.value else {
+            return nil
         }
+
+        let amountInFiat = tokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(amount, currencyId: $0) }
+        let feeInFiat = fee.tokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(feeValue.amount.value, currencyId: $0) }
 
         var totalInFiat: Decimal? = nil
 

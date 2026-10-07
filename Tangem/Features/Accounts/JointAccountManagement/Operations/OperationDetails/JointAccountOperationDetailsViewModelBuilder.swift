@@ -114,9 +114,16 @@ private extension JointAccountOperationDetailsViewModelBuilder {
     }
 
     func networkFee(of pendingOperation: JointAccountPendingOperation) -> String {
-        balanceFormatter.formatCryptoBalance(
-            pendingOperation.fee?.value,
-            tokenItem: .blockchain(pendingOperation.tokenItem.blockchainNetwork)
+        guard let fee = pendingOperation.fee?.value else {
+            return BalanceFormatter.defaultEmptyBalanceString
+        }
+
+        let formattedFee = balanceFormatter.formatCryptoBalance(
+            fee,
+            currencyCode: pendingOperation.tokenItem.blockchain.currencySymbol,
+            formattingOptions: .sendCryptoFeeFormattingOptions
         )
+
+        return fee > 0 ? AppConstants.tildeSign + formattedFee : formattedFee
     }
 }
