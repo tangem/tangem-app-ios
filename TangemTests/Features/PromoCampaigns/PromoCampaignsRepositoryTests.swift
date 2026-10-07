@@ -235,20 +235,46 @@ struct PromoCampaignsRepositoryTests {
         #expect(loader.requestedWallets.isEmpty)
     }
 
-    @Test("The mapper keeps the campaign id, name and enrollment")
+    @Test("The mapper keeps the campaign identity, enrollment, content and payout tokens")
     func mapperKeepsIdentityAndEnrollment() throws {
         let json = """
         {
           "id": 42,
           "name": "summer_staking_2026",
           "alreadyEnrolled": true,
-          "content": { "campaignName": "Summer staking bonus", "publicDescription": [], "actionButtonName": "Join" },
-          "properties": { "payoutNeeded": false, "matchMode": "strict" }
+          "content": {
+            "campaignName": "Summer staking bonus",
+            "publicDescription": [{ "type": "text", "text": "Stake from 100 USDT" }],
+            "actionButtonName": "Join"
+          },
+          "properties": {
+            "payoutNeeded": true,
+            "payoutTokens": [{ "tokenAddress": "0xdac17f958d2ee523a2206206994597c13d831ec7", "networkId": "ethereum", "tokenSymbol": "USDT", "tokenName": "Tether", "tokenId": "tether", "decimals": 6 }],
+            "matchMode": "strict"
+          }
         }
         """
         let dto = try JSONDecoder().decode(PromoCampaignsDTO.Promotion.self, from: Data(json.utf8))
 
-        #expect(PromoCampaignMapper().mapToPromoCampaign(from: dto) == PromoCampaign(id: 42, name: "summer_staking_2026", isEnrolled: true))
+        let campaign = PromoCampaignMapper().mapToPromoCampaign(from: dto)
+
+        #expect(campaign.id == 42)
+        #expect(campaign.name == "summer_staking_2026")
+        #expect(campaign.isEnrolled)
+        #expect(campaign.content.title == "Summer staking bonus")
+        #expect(campaign.content.blocks == [.text("Stake from 100 USDT")])
+        #expect(campaign.content.actionButtonTitle == "Join")
+        #expect(campaign.isPayoutNeeded)
+        #expect(campaign.payoutTokens == [
+            CampaignEligibleToken(
+                tokenId: "tether",
+                tokenAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+                tokenSymbol: "USDT",
+                tokenName: "Tether",
+                networkId: "ethereum",
+                decimals: 6
+            ),
+        ])
     }
 }
 
@@ -374,7 +400,21 @@ private final class WalletsProviderStub: PromoCampaignWalletsProviding {
 }
 
 private final class CampaignsLoaderStub: PromoCampaignsLoading {
-    static let campaign = PromoCampaign(id: 42, name: "summer_staking_2026", isEnrolled: false)
+    static let campaign = PromoCampaign(
+        id: 42,
+        name: "summer_staking_2026",
+        isEnrolled: false,
+        content: PromoCampaignContent(
+            title: "Summer staking bonus",
+            imageURL: nil,
+            blocks: [],
+            learnMoreLink: nil,
+            termsLink: nil,
+            actionButtonTitle: "Join"
+        ),
+        isPayoutNeeded: false,
+        payoutTokens: []
+    )
 
     private let error: any Error
     private let state: OSAllocatedUnfairLock<State>
