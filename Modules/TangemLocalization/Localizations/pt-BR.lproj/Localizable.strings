@@ -1000,7 +1000,7 @@
 "introduction_stories_two_subtitle" = "Use qualquer um dos seus cartões para acessar sua carteira";
 "introduction_stories_two_title" = "Uma carteira, vários cartões";
 "introduction_subtitle" = "Um único lugar seguro para tudo o que é seu";
-"introduction_terms_of_service_consent" = "By continuing, you agree with %@";
+"introduction_terms_of_service_consent" = "Ao continuar, você concorda com %@";
 "introduction_terms_of_service" = "Termos de serviço";
 "introduction_title" = "Armazene todos os seus ativos";
 "jailbreak_warning_message" = "Dispositivos com jailbreak são considerados menos seguros. Seus dados podem estar expostos a riscos adicionais.";
@@ -1574,9 +1574,11 @@
 "prediction_add_funds_notification_limits_title" = "Limites de depósito";
 "prediction_add_funds_receive_body" = "Enviar %1$@ de outra carteira, mínimo de %2$@";
 "prediction_add_funds_receive_subtitle" = "Envie USDC pela rede Polygon para sua conta da Polymarket";
+"prediction_add_funds_receive_title" = "De outra carteira ou exchange";
 "prediction_add_funds_subtitle" = "%1$@ em %2$@";
 "prediction_add_funds_swap_body" = "Trocar um token que você já possui";
 "prediction_add_funds_swap_subtitle" = "Use criptomoedas da sua carteira Tangem para adicionar fundos à sua conta da Polymarket";
+"prediction_add_funds_swap_title" = "From your Tangem Wallet";
 "prediction_balance_total" = "Saldo total";
 "prediction_balance_withdraw" = "Sacar";
 "prediction_claim_error_failed" = "O resgate não foi concluído. Nenhum valor saiu da conta, e você pode tentar novamente.";
@@ -1623,7 +1625,7 @@
 "prediction_main_empty_positions_title" = "Você não tem previsões ativas";
 "prediction_main_events_load_error" = "Falha ao carregar os eventos.\nToque para recarregar";
 "prediction_main_explore_events" = "Explorar eventos";
-"prediction_main_subtitle" = "USDC na rede Polygon";
+"prediction_main_subtitle" = "US Dollars";
 "prediction_main_title" = "Previsões";
 "prediction_main_total_balance" = "Saldo Total";
 "prediction_main_withdraw" = "Sacar";
@@ -2894,6 +2896,7 @@
 "transaction_history_approve_high_risk_subtitle" = "Você está conectado. Seus fundos podem estar em risco. Considere revogar o acesso.";
 "transaction_history_approve_high_risk_title" = "Alto Risco";
 "transaction_history_approved_amount" = "Valor Aprovado";
+"transaction_history_claiming_incentive_rewards" = "Claiming incentive rewards";
 "transaction_history_claiming_reward" = "Reivindicar recompensa";
 "transaction_history_contract_address" = "contrato: %@";
 "transaction_history_detail_page_amount_signed_value" = "%1@ %2@ %3@";
@@ -2914,6 +2917,7 @@
 "transaction_history_fee_for_yield_mode_top_up" = "Para o reforço do modo de rendimento";
 "transaction_history_fee_sending_asset" = "Enviar %%image%%%@";
 "transaction_history_from_inline_address" = "de: %%image%% %@";
+"transaction_history_incentive_rewards_claimed" = "Incentive rewards claimed";
 "transaction_history_multiple_addresses" = "Vários endereços";
 "transaction_history_not_supported_description" = "O histórico de transações ainda não é suportado nesta blockchain. Mas não se preocupe, estamos trabalhando nisso! Enquanto isso, você pode conferir no explorador.";
 "transaction_history_operation" = "Operação";
@@ -2925,6 +2929,7 @@
 "transaction_history_status_claiming_rewards" = "Resgatando as recompensas";
 "transaction_history_status_disabling_yield_mode_failed" = "Não foi possível desativar o modo de rendimento";
 "transaction_history_status_enabling_yield_mode_failed" = "Não foi possível ativar o modo de rendimento";
+"transaction_history_status_incentive_rewards_claim_failed" = "Claiming of incentive rewards failed";
 "transaction_history_status_receive_failed" = "Falha ao receber";
 "transaction_history_status_restaking_rewards" = "Recompensas de restaking";
 "transaction_history_status_rewards_claim_failed" = "Falha ao resgatar as recompensas";
@@ -3481,6 +3486,7 @@
 "yield_module_incentive_chart_powered_by_description" = "O patrocinador da campanha fornece tokens de recompensa adicionais, distribuídos pelo Merkl.\nOs incentivos podem terminar, e os preços dos tokens de recompensa podem variar.\nO APY exibido inclui as recompensas de incentivo após a dedução da taxa de serviço da Tangem.";
 "yield_module_incentive_chart_powered_by_title" = "Desenvolvido por Merkl";
 "yield_module_incentive_chart_sheet_title" = "Rendimento incentivado";
+"yield_module_incentives_provider" = "Merkl";
 "yield_module_main_screen_promo_banner_message" = "Habilitar %1$@%% APY sobre o seu saldo";
 "yield_module_main_view_approve_notification_description" = "A aprovação do seu token no Modo Yield foi revogada. Abra o token para conceder permissão novamente.";
 "yield_module_main_view_approve_notification_title" = "É necessária a aprovação do token.";

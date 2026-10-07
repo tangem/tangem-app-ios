@@ -205,7 +205,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li member</string>
+        <string>%li miembro</string>
         <key>other</key>
         <string>%li miembros</string>
       </dict>
@@ -221,9 +221,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%1$li signature required</string>
+        <string>%1$li firma requerida</string>
         <key>other</key>
-        <string>%1$li signatures required</string>
+        <string>%1$li firmas requeridas</string>
       </dict>
     </dict>
     <key>manage_tokens_number_of_wallets_ios</key>
