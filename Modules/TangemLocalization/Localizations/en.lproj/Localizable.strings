@@ -1091,7 +1091,7 @@
 "joint_account_send_slot_busy_title" = "Operation already in progress";
 "joint_account_settings_networks_info" = "This account works only in the supported networks.";
 "joint_account_waiting_activation" = "Waiting for activation";
-"joint_operation_auto_sends_footer" = "Auto-sends once %1$@ of %2$@ members sign";
+"joint_operation_auto_sends_footer" = "Auto-sends once %1$@ of %2$@ members sign";
 "joint_operation_banner_subtitle" = "%1$@ → %2$@";
 "joint_operation_banner_title_own" = "You want to send %1$@";
 "joint_operation_banner_title" = "%1$@ wants to send %2$@";
@@ -1101,7 +1101,7 @@
 "joint_operation_decline_alert_message" = "Other members will see your decision. You won't be able to sign it later";
 "joint_operation_decline_alert_title" = "Decline this transaction?";
 "joint_operation_declined_at" = "Declined at %@";
-"joint_operation_declined_footer" = "You declined. Others can still reach %1$@ of %2$@";
+"joint_operation_declined_footer" = "You declined. Others can still reach %1$@ of %2$@";
 "joint_operation_declined" = "Declined";
 "joint_operation_delete_alert_message" = "The transaction will be cancelled for all members. Collected signatures will be discarded";
 "joint_operation_delete_alert_title" = "Delete this transaction?";
@@ -1112,7 +1112,7 @@
 "joint_operation_sent_footer" = "Signed by %1$@ of %2$@ and sent to the network";
 "joint_operation_signatures_progress" = "Signatures %1$@ of %2$@";
 "joint_operation_signed_at" = "Signed at %@";
-"joint_operation_signed_footer" = "Sends automatically after %1$@ of %2$@ sign";
+"joint_operation_signed_footer" = "Sends automatically after %1$@ of %2$@ sign";
 "joint_operation_signed" = "Signed";
 "joint_operation_signers_title" = "Signers";
 "joint_operation_signing_blocked_subtitle" = "Signing is blocked for security reasons. Please contact support";
@@ -1566,7 +1566,7 @@
 "organize_tokens_ungroup" = "Ungroup";
 "prediction_account_open_detailed_view" = "Open detailed view";
 "prediction_account_subtitle" = "Add funds & start predict";
-"prediction_account_title" = "Prediction account";
+"prediction_account_title" = "Predictions account";
 "prediction_account_unavailable" = "Couldn't connect to your prediction account. Refresh or reopen this screen.";
 "prediction_add_funds_error_description" = "Couldn't load deposit details. Refresh or re-enter this screen.";
 "prediction_add_funds_max_receive_amount_title" = "The amount to receive must not exceed %@";
@@ -1574,9 +1574,11 @@
 "prediction_add_funds_notification_limits_title" = "Deposit limits";
 "prediction_add_funds_receive_body" = "Send %1$@ from another wallet, minimum %2$@";
 "prediction_add_funds_receive_subtitle" = "Send USDC on the Polygon network to your Polymarket account";
+"prediction_add_funds_receive_title" = "From another wallet or exchange";
 "prediction_add_funds_subtitle" = "%1$@ on %2$@";
 "prediction_add_funds_swap_body" = "Exchange a token you already hold";
 "prediction_add_funds_swap_subtitle" = "Use crypto in your Tangem wallet to top up your Polymarket account";
+"prediction_add_funds_swap_title" = "From your Tangem Wallet";
 "prediction_balance_total" = "Total Balance";
 "prediction_balance_withdraw" = "Withdraw";
 "prediction_claim_error_failed" = "The claim did not go through. Nothing left your account, and you can try again.";
@@ -1623,7 +1625,7 @@
 "prediction_main_empty_positions_title" = "You don’t have active predictions";
 "prediction_main_events_load_error" = "Failed to load events.\nTap to reload";
 "prediction_main_explore_events" = "Explore Events";
-"prediction_main_subtitle" = "USDC on Polygon network";
+"prediction_main_subtitle" = "US Dollars";
 "prediction_main_title" = "Predictions";
 "prediction_main_total_balance" = "Total Balance";
 "prediction_main_withdraw" = "Withdraw";
@@ -2341,7 +2343,7 @@
 "tangempay_account_deactivated_message_title" = "Your account has been closed";
 "tangempay_account_unable_to_use_rooted" = "Unable to use on rooted device";
 "tangempay_action_required_description" = "To continue, we need a bit more information from you. This usually takes a couple of minutes";
-"tangempay_action_required_primary_btn" = "Сontinue verification";
+"tangempay_action_required_primary_btn" = "Continue verification";
 "tangempay_action_required_title" = "Action required";
 "tangempay_apple_wallet_add_failed_message" = "Try another device or contact support";
 "tangempay_apple_wallet_add_failed_title" = "Could Not Add Card";
@@ -2894,6 +2896,7 @@
 "transaction_history_approve_high_risk_subtitle" = "You're connected. Funds may be at risk. Consider revoking access.";
 "transaction_history_approve_high_risk_title" = "High Risk";
 "transaction_history_approved_amount" = "Approved amount";
+"transaction_history_claiming_incentive_rewards" = "Claiming incentive rewards";
 "transaction_history_claiming_reward" = "Claiming reward";
 "transaction_history_contract_address" = "contract: %@";
 "transaction_history_detail_page_amount_signed_value" = "%1@ %2@ %3@";
@@ -2914,6 +2917,7 @@
 "transaction_history_fee_for_yield_mode_top_up" = "For Yield mode top-up";
 "transaction_history_fee_sending_asset" = "Send %%image%% %@";
 "transaction_history_from_inline_address" = "from: %%image%% %@";
+"transaction_history_incentive_rewards_claimed" = "Incentive rewards claimed";
 "transaction_history_multiple_addresses" = "Multiple addresses";
 "transaction_history_not_supported_description" = "Transaction history is currently not supported for this blockchain. But don't worry, we're working on it! In the meantime you can check it in the explorer.";
 "transaction_history_operation" = "Operation";
@@ -2925,6 +2929,7 @@
 "transaction_history_status_claiming_rewards" = "Claiming rewards";
 "transaction_history_status_disabling_yield_mode_failed" = "Disabling Yield mode failed";
 "transaction_history_status_enabling_yield_mode_failed" = "Enabling Yield mode failed";
+"transaction_history_status_incentive_rewards_claim_failed" = "Claiming of incentive rewards failed";
 "transaction_history_status_receive_failed" = "Receive failed";
 "transaction_history_status_restaking_rewards" = "Restaking rewards";
 "transaction_history_status_rewards_claim_failed" = "Rewards claim failed";
@@ -3481,6 +3486,7 @@
 "yield_module_incentive_chart_powered_by_description" = "A campaign sponsor funds extra reward tokens, distributed through Merkl.\nIncentives may end, and reward token prices can change.\nThe displayed APY includes incentive rewards after Tangem's service fee.";
 "yield_module_incentive_chart_powered_by_title" = "Powered by Merkl";
 "yield_module_incentive_chart_sheet_title" = "Incentivized yield";
+"yield_module_incentives_provider" = "Merkl";
 "yield_module_main_screen_promo_banner_message" = "Enable %1$@%% APY on your balance";
 "yield_module_main_view_approve_notification_description" = "Approval for your token in Yield Mode has been revoked. Open the token to grant permission again.";
 "yield_module_main_view_approve_notification_title" = "Token approval needed";
