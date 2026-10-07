@@ -49,6 +49,10 @@ final class WelcomeV2ViewModel: ObservableObject {
         coordinator?.openExistingWallet()
     }
 
+    func onBuyTangemTap() {
+        coordinator?.openBuyTangem()
+    }
+
     func onLegalLinkTap(_ url: URL) {
         let document = WelcomeV2LegalDocument(url: url)
         analytics.logLegalOpened(document: document.analyticsValue)

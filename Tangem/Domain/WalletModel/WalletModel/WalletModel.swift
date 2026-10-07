@@ -152,8 +152,19 @@ struct WalletModelUpdateOptions: OptionSet {
     let rawValue: Int
 
     static let balances = WalletModelUpdateOptions(rawValue: 1 << 0)
-    static let transactionHistory = WalletModelUpdateOptions(rawValue: 1 << 1)
-    static let full: WalletModelUpdateOptions = [.balances, .transactionHistory]
+
+    @available(*, unavailable, renamed: "onChainTransactionHistory")
+    static let transactionHistory: WalletModelUpdateOptions = .onChainTransactionHistory
+
+    static let onChainTransactionHistory = WalletModelUpdateOptions(rawValue: 1 << 1)
+
+    static let expressTransactionHistory = WalletModelUpdateOptions(rawValue: 1 << 2)
+
+    static let full: WalletModelUpdateOptions = [
+        .balances,
+        .onChainTransactionHistory,
+        .expressTransactionHistory,
+    ]
 }
 
 // MARK: - WalletModelBalancesProvider

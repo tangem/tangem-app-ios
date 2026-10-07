@@ -99,7 +99,7 @@ final class RatingViewModel: ObservableObject {
     private func load() async {
         guard state == .loading else { return }
 
-        async let minimumDelay: () = Task.sleep(for: showsSkeleton ? Constants.minimumSkeletonDuration : .zero)
+        async let minimumDelay: Void = Task.sleep(for: showsSkeleton ? Constants.minimumSkeletonDuration : .zero)
         let existingRating = try? await model.checkExisting()
         _ = try? await minimumDelay
 

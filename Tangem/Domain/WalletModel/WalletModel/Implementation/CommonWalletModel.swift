@@ -60,6 +60,21 @@ class CommonWalletModel {
     private lazy var _rate: CurrentValueSubject<WalletModelRate, Never> = .init(.loading(cached: quotesRepository.quote(for: tokenItem)))
 
     private let transactionHistoryUpdateTrigger: PassthroughSubject<Void, Never> = .init()
+
+    private lazy var _transactionHistoryPublisher = ThreadSafeLazy<AnyPublisher<WalletModelTransactionHistoryState, Never>> { [unowned self] in
+        WalletModelTransactionHistoryPublisherFactory
+            .makeTransactionHistoryPublisher(
+                transactionHistoryPublisher: transactionHistoryState(),
+                featuresPublisher: featureManager.featuresPublisher,
+                walletModelId: id,
+                walletPublisher: walletManager.walletPublisher,
+                tokenItem: tokenItem,
+                feeTokenItem: feeTokenItem
+            )
+            .share(replay: 1)
+            .eraseToAnyPublisher()
+    }
+
     private var bag = Set<AnyCancellable>()
 
     private var amountType: Amount.AmountType {
@@ -395,30 +410,50 @@ extension CommonWalletModel: WalletModelUpdater {
         let logger = AppLogger.tag("WalletModelUpdater")
         logger.info(self, "Start update with token '\(updateToken)'")
 
-        async let balancesUpdate: () = {
-            if options.contains(.balances) {
-                if !silent { await updateState(.loading) }
-
-                async let update: () = walletManager.update()
-                async let quotes: () = loadQuotes()
-                async let staking: ()? = _stakingManager?.updateState(loadActions: true, source: stakingUpdateSource)
-
-                _ = await (update, quotes, staking)
-                await _receiveAddressService.update(with: wallet.addresses)
-                await walletManagerDidUpdate()
+        @Sendable
+        func updateBalancesIfNeeded() async {
+            guard options.contains(.balances) else {
+                return
             }
-        }()
 
-        async let transactionHistoryUpdate: () = {
-            if options.contains(.transactionHistory) {
-                await _transactionHistoryService?.clearHistory()
-
-                await updateTransactionHistory(updateToken: updateToken)
+            if !silent {
+                await updateState(.loading)
             }
-        }()
+
+            async let update: Void = walletManager.update()
+            async let quotes: Void = loadQuotes()
+            async let staking: Void? = _stakingManager?.updateState(loadActions: true, source: stakingUpdateSource)
+
+            _ = await (update, quotes, staking)
+            await _receiveAddressService.update(with: wallet.addresses)
+            await walletManagerDidUpdate()
+        }
+
+        @Sendable
+        func updateOnChainTransactionHistoryIfNeeded() async {
+            guard options.contains(.onChainTransactionHistory) else {
+                return
+            }
+
+            await _transactionHistoryService?.clearHistory()
+            await updateBSDKTransactionHistory()
+        }
+
+        @Sendable
+        func updateExpressTransactionHistoryIfNeeded() async {
+            guard options.contains(.expressTransactionHistory) else {
+                return
+            }
+
+            await updateV2TransactionHistory(updateToken: updateToken)
+        }
+
+        async let balancesUpdate: Void = updateBalancesIfNeeded()
+        async let onChainTransactionHistoryUpdate: Void = updateOnChainTransactionHistoryIfNeeded()
+        async let expressTransactionHistoryUpdate: Void = updateExpressTransactionHistoryIfNeeded()
 
         // Keep parallel updating
-        _ = await (balancesUpdate, transactionHistoryUpdate)
+        _ = await (balancesUpdate, onChainTransactionHistoryUpdate, expressTransactionHistoryUpdate)
 
         logger.info(self, "Update with token '\(updateToken)' finished with state '\(walletManager.state)'")
     }
@@ -719,14 +754,7 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
 
     /// Listen tx history changes
     var transactionHistoryPublisher: AnyPublisher<WalletModelTransactionHistoryState, Never> {
-        WalletModelTransactionHistoryPublisherFactory.makeTransactionHistoryPublisher(
-            transactionHistoryPublisher: transactionHistoryState(),
-            featuresPublisher: featureManager.featuresPublisher,
-            walletModelId: id,
-            walletPublisher: walletManager.walletPublisher,
-            tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem
-        )
+        _transactionHistoryPublisher.value
     }
 
     var hasPendingTransactions: Bool {

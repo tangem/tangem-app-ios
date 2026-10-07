@@ -237,6 +237,7 @@ private extension MobileOnboardingICloudBackupViewModel {
 
             switch error {
             case WalletBackupStorageError.storageUnavailable:
+                await resignPasswordInput()
                 await delegate?.onICloudUnavailable()
             default:
                 await showFailedBackupCreationAlert()
@@ -418,12 +419,19 @@ private extension MobileOnboardingICloudBackupViewModel {
 @MainActor
 private extension MobileOnboardingICloudBackupViewModel {
     func complete(savedCredential: WebCredentialUtil.SavedCredential?) {
+        resignPasswordInput()
         delegate?.onICloudBackupComplete(savedCredential: savedCredential)
     }
 
     func close() {
+        resignPasswordInput()
         logScreenClosedAnalytics()
         delegate?.onICloudBackupClose()
+    }
+
+    func resignPasswordInput() {
+        isPasswordResponder = false
+        UIApplication.shared.endEditing()
     }
 }
 

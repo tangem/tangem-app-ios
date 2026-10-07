@@ -21,21 +21,11 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
         private static let usdtContract = "0xdAC17F958D2ee523a2206206994597C13D831ec7"
         private static let spender = "0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE"
 
-        private let previousAuxDataRepository: TransactionHistoryAuxDataRepository
         private let auxDataRepository = TransactionHistoryAuxDataRepositoryStub()
 
-        init() {
-            previousAuxDataRepository = InjectedValues[\.transactionHistoryAuxDataRepository]
-            InjectedValues[\.transactionHistoryAuxDataRepository] = auxDataRepository
-        }
-
-        deinit {
-            InjectedValues[\.transactionHistoryAuxDataRepository] = previousAuxDataRepository
-        }
-
         @Test("Shows the approved amount with the ticker after the number, whatever the locale")
-        func amountPutsTickerAfterNumber() throws {
-            let (transaction, content) = makeContent()
+        func amountPutsTickerAfterNumber() async throws {
+            let (transaction, content) = await withStubbedDependencies { makeContent() }
             let data = try #require(content)
             let single = try #require(data.tokens?.single)
 
@@ -46,7 +36,7 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
         }
 
         @Test("Resolves the icon of an approved token outside the account among the tokens known on the network")
-        func iconOfTokenOutsideAccountIsResolved() throws {
+        func iconOfTokenOutsideAccountIsResolved() async throws {
             let usdt = TokenItem.token(
                 Token(name: "Tether", symbol: "USDT", contractAddress: Self.usdtContract, decimalCount: 6),
                 BlockchainNetwork(Self.blockchain, derivationPath: nil)
@@ -56,14 +46,18 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
                 for: ExpressCurrency(contractAddress: Self.usdtContract.lowercased(), network: Self.blockchain.networkId)
             )
 
-            let single = try #require(makeContent().content?.tokens?.single)
+            let single = try await withStubbedDependencies {
+                try #require(makeContent().content?.tokens?.single)
+            }
 
             #expect(single.icon == .token(TokenIconInfoBuilder().build(from: usdt, isCustom: false)))
         }
 
         @Test("Falls back to the network icon when the approved token can't be resolved")
-        func iconOfUnresolvedTokenFallsBackToNetwork() throws {
-            let single = try #require(makeContent().content?.tokens?.single)
+        func iconOfUnresolvedTokenFallsBackToNetwork() async throws {
+            let single = try await withStubbedDependencies {
+                try #require(makeContent().content?.tokens?.single)
+            }
 
             #expect(single.icon == .unresolved(network: NetworkImageProvider().provide(by: Self.blockchain, filled: true)))
         }
@@ -73,6 +67,15 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
 // MARK: - Helpers
 
 private extension TransactionHistoryAuxDataRepositoryDependentTests.TransactionDetailsApproveContentTests {
+    func withStubbedDependencies<T>(_ operation: () throws -> T) async rethrows -> T {
+        try await InjectedDependenciesIsolation.shared.run {
+            let previousAuxDataRepository = InjectedValues[\.transactionHistoryAuxDataRepository]
+            InjectedValues[\.transactionHistoryAuxDataRepository] = auxDataRepository
+            defer { InjectedValues[\.transactionHistoryAuxDataRepository] = previousAuxDataRepository }
+            return try operation()
+        }
+    }
+
     func makeContent() -> (transaction: TransactionViewModel, content: TransactionDetailsGenericOperationViewData?) {
         let record = makeApproveRecord()
         let walletModel = CommonWalletModel.previewWalletModel(history: [record])

@@ -212,6 +212,7 @@ struct TangemPayMainView: View {
                 state.activatableCard.map { card in
                     MessageBannerButton(
                         title: Localization.tangempayCardDetailsActivate,
+                        accessibilityIdentifier: TangemPayAccessibilityIdentifiers.plasticDeliveryBannerActivateButton,
                         action: { viewModel.onActivateCardBannerButton(card: card) }
                     )
                 }

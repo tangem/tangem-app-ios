@@ -22,9 +22,15 @@ struct TangemPayCampaignLinkParserTests {
     private let parser = TangemPayCampaignLinkParser()
     private let campaignKey = "tpay_for_harvard123"
 
-    @Test("The campaign key is the whole deep_link_value, prefix included")
-    func campaignLinkIsParsed() throws {
-        let url = try #require(URL(string: "https://tangem.com/marketing?deep_link_value=\(campaignKey)"))
+    @Test(
+        "The campaign key is the whole deep_link_value, prefix included",
+        arguments: [
+            "https://tangem.com/marketing",
+            "https://join.tangem.com/abcd",
+        ]
+    )
+    func campaignLinkIsParsed(link: String) throws {
+        let url = try #require(URL(string: "\(link)?deep_link_value=\(campaignKey)"))
 
         #expect(TangemPayCampaignLinkParser.matches(url))
         #expect(parser.parse(url) == .navigation(.payCustomCard(PayCustomCardDeeplink(campaignKey: campaignKey))))

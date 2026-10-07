@@ -15,6 +15,16 @@ import TangemFoundation
 /// them reach the same provider, so without this every wallet model would trigger its own sync.
 actor TransactionHistoryUpdater {
     private var scheduledUpdateTokens: Set<AnyHashable> = []
+    private var activeBatchUpdateTokens: Set<AnyHashable> = []
+
+    func beginBatchUpdate(updateToken: AnyHashable) {
+        activeBatchUpdateTokens.insert(updateToken)
+    }
+
+    func endBatchUpdate(updateToken: AnyHashable) {
+        activeBatchUpdateTokens.remove(updateToken)
+        scheduledUpdateTokens.remove(updateToken)
+    }
 
     func updateHistoryIfNeeded(
         featuresPublisher: some Publisher<[WalletModelFeature], Never>,
@@ -47,7 +57,11 @@ actor TransactionHistoryUpdater {
                 await transactionHistoryProvider.syncInitial()
                 await transactionHistoryProvider.syncDelta()
 
-                scheduledUpdateTokens.remove(updateToken)
+                // Removing the update token only if there is no in-flight batch update for this token;
+                // Otherwise, the token is removed in `endBatchUpdate(updateToken:)`
+                if !activeBatchUpdateTokens.contains(updateToken) {
+                    scheduledUpdateTokens.remove(updateToken)
+                }
             }
         } catch {
             // [REDACTED_TODO_COMMENT]

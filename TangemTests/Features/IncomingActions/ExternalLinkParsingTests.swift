@@ -102,6 +102,8 @@ struct ExternalLinkParsingTests {
         arguments: [
             "https://tangem.onelink.me/abcd",
             "https://tangem.onelink.me/abcd?deep_link_value=something_else",
+            "https://join.tangem.com/abcd",
+            "https://join.tangem.com/abcd?deep_link_value=something_else",
         ]
     )
     func attributionLinksAreNotPages(urlString: String) throws {

@@ -98,7 +98,7 @@ enum TransactionDetailsFactory {
                     record: record,
                     context: context,
                     counterpartyLabel: nil,
-                    ignoringDirection: true
+                    ignoringDirection: !GaslessTransactionFeeMatcher.isExecutorCall(record.type)
                 ))
             }
 
@@ -207,7 +207,7 @@ enum TransactionDetailsFactory {
             // and the "for sending X" block
             principalAmount: nil,
             counterparty: counterpartyLabel.flatMap { counterparty(for: transaction, label: $0) },
-            info: networkFeeInfo(from: record, ignoringDirection: ignoringDirection),
+            info: networkFeeInfo(from: record, on: context.blockchain, ignoringDirection: ignoringDirection),
             action: nil
         )
     }
@@ -228,7 +228,7 @@ enum TransactionDetailsFactory {
             statusBanner: stakingStatusBanner(for: transaction, record: record),
             principalAmount: nil,
             counterparty: nil,
-            info: stakingInfo(for: transaction, record: record),
+            info: stakingInfo(for: transaction, record: record, context: context),
             action: nil
         )
     }
@@ -251,7 +251,7 @@ enum TransactionDetailsFactory {
             statusBanner: isFailed ? nil : highRiskBanner(for: record),
             principalAmount: nil,
             counterparty: nil,
-            info: networkFeeInfo(from: record, ignoringDirection: false),
+            info: networkFeeInfo(from: record, on: context.blockchain, ignoringDirection: false),
             action: nil
         )
     }
@@ -273,7 +273,8 @@ enum TransactionDetailsFactory {
 
     private static func stakingInfo(
         for transaction: TransactionViewModel,
-        record: TransactionRecord
+        record: TransactionRecord,
+        context: TransactionDetailsContext
     ) -> TransactionDetailsInfoSectionViewData? {
         var rows: [TransactionDetailsInfoSectionViewData.Row] = []
 
@@ -281,7 +282,7 @@ enum TransactionDetailsFactory {
             rows.append(TransactionDetailsInfoSectionViewData.Row(id: "validator", title: Localization.stakingValidator, content: validatorContent(for: target)))
         }
 
-        if let fee = networkFee(from: record, ignoringDirection: false) {
+        if let fee = networkFee(from: record, on: context.blockchain, ignoringDirection: false) {
             rows.append(.init(id: "networkFee", title: Localization.commonNetworkFeeTitle, content: .sensitiveText(fee)))
         }
 
@@ -370,7 +371,7 @@ enum TransactionDetailsFactory {
                 caption: stage.caption
             ),
             statusBanner: nil,
-            info: networkFeeInfo(from: record, ignoringDirection: true),
+            info: networkFeeInfo(from: record, on: context.blockchain, ignoringDirection: true),
             action: nil
         )
     }
@@ -415,7 +416,7 @@ enum TransactionDetailsFactory {
             statusBanner: refund?.banner ?? swapStatusBanner(exchange.status, isLongRunning: isLongRunning),
             provider: provider(info.provider, fallbackId: exchange.providerId, externalURL: exchange.externalTx?.url),
             rate: swapRate(fromAmount: sourceAmount, fromToken: fromToken, toAmount: destinationAmount, toToken: toToken),
-            networkFee: networkFee(from: record, ignoringDirection: false),
+            networkFee: networkFee(from: record, on: context.blockchain, ignoringDirection: false),
             action: refund?.action ?? action(for: exchange.status, isLongRunning: isLongRunning, externalURL: exchange.externalTx?.url),
             ratingTransaction: ratingTransaction(for: exchange, providerName: info.provider?.name)
         )
@@ -698,7 +699,7 @@ enum TransactionDetailsFactory {
             statusBanner: nil,
             principalAmount: nil,
             counterparty: counterparty(for: transaction, label: counterpartyLabel(for: transaction)),
-            info: networkFeeInfo(from: record, ignoringDirection: false),
+            info: networkFeeInfo(from: record, on: context.blockchain, ignoringDirection: false),
             action: nil
         )
     }
@@ -826,13 +827,13 @@ enum TransactionDetailsFactory {
         return balanceFormatter.formatFiatBalance(fiat)
     }
 
-    /// The fee is shown only for outgoing operations, unless the caller knows the wallet paid it even though
-    /// the record reads as incoming. Synthetic Express records never show one either way.
-    private static func networkFee(from record: TransactionRecord, ignoringDirection: Bool) -> String? {
+    private static func networkFee(from record: TransactionRecord, on blockchain: Blockchain, ignoringDirection: Bool) -> String? {
         guard
             record.isOutgoing || ignoringDirection,
             // Hide network fee for synthetic Express records
-            !ExpressSyntheticTxHelper.isSyntheticIdentifier(record.hash)
+            !ExpressSyntheticTxHelper.isSyntheticIdentifier(record.hash),
+            !(GaslessTransactionFeeMatcher.isExecutorCall(record.type) && record.fee.amount.type == .coin),
+            !GaslessTransactionFeeMatcher.isFeeCoveredByTronResources(of: record, on: blockchain)
         else {
             return nil
         }
@@ -843,9 +844,10 @@ enum TransactionDetailsFactory {
 
     private static func networkFeeInfo(
         from record: TransactionRecord,
+        on blockchain: Blockchain,
         ignoringDirection: Bool
     ) -> TransactionDetailsInfoSectionViewData? {
-        guard let fee = networkFee(from: record, ignoringDirection: ignoringDirection) else {
+        guard let fee = networkFee(from: record, on: blockchain, ignoringDirection: ignoringDirection) else {
             return nil
         }
 

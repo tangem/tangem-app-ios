@@ -17,44 +17,96 @@ import TangemFoundation
 struct TransactionHistoryMapperUTXOAmountTests {
     @Test("An outgoing UTXO transaction shows what the recipient got, not the fee on top of it")
     func outgoingAmountExcludesTheFee() throws {
-        let record = makeRecord(
-            inputs: [(Self.owner, dec("0.00200000"))],
-            outputs: [(Self.recipient, dec("0.00100000")), (Self.changeAddress, dec("0.00099442"))]
+        let record = try makeRecord(
+            inputs: [(Self.owner, #require(Decimal(stringValue: "0.00200000")))],
+            outputs: [
+                (Self.recipient, #require(Decimal(stringValue: "0.00100000"))),
+                (Self.changeAddress, #require(Decimal(stringValue: "0.00099442"))),
+            ]
         )
+        let expectedAmount = try #require(Decimal(stringValue: "0.001"))
 
-        #expect(makeSUT().displayedAmountValue(from: record) == dec("0.001"))
+        #expect(makeSUT().displayedAmountValue(from: record) == expectedAmount)
     }
 
     @Test("Everything sent to others counts, however many outputs it took")
     func outgoingAmountSumsEveryOutsideOutput() throws {
-        let record = makeRecord(
-            inputs: [(Self.owner, dec("0.01"))],
-            outputs: [(Self.recipient, dec("0.003")), ("bc1qother", dec("0.002")), (Self.owner, dec("0.00499"))]
+        let record = try makeRecord(
+            inputs: [(Self.owner, #require(Decimal(stringValue: "0.01")))],
+            outputs: [
+                (Self.recipient, #require(Decimal(stringValue: "0.003"))),
+                ("bc1qother", #require(Decimal(stringValue: "0.002"))),
+                (Self.owner, #require(Decimal(stringValue: "0.00499"))),
+            ]
         )
+        let expectedAmount = try #require(Decimal(stringValue: "0.005"))
 
-        #expect(makeSUT().displayedAmountValue(from: record) == dec("0.005"))
+        #expect(makeSUT().displayedAmountValue(from: record) == expectedAmount)
     }
 
     /// With nothing leaving the wallet, the fee is all the transaction cost, and it is still worth showing.
     @Test("A transfer between the wallet's own addresses still shows what it cost")
     func transferToItselfShowsTheFee() throws {
-        let record = makeRecord(
-            inputs: [(Self.owner, dec("0.002"))],
-            outputs: [(Self.changeAddress, dec("0.00199"))]
+        let record = try makeRecord(
+            inputs: [(Self.owner, #require(Decimal(stringValue: "0.002")))],
+            outputs: [(Self.changeAddress, #require(Decimal(stringValue: "0.00199")))]
         )
+        let expectedAmount = try #require(Decimal(stringValue: "0.00001"))
 
-        #expect(makeSUT().displayedAmountValue(from: record) == dec("0.00001"))
+        #expect(makeSUT().displayedAmountValue(from: record) == expectedAmount)
     }
 
     @Test("An incoming UTXO transaction shows what reached the wallet")
     func incomingAmountIsWhatTheWalletReceived() throws {
-        let record = makeRecord(
-            inputs: [("bc1qsender", dec("0.01"))],
-            outputs: [(Self.owner, dec("0.004")), ("bc1qsenderchange", dec("0.00599"))],
+        let record = try makeRecord(
+            inputs: [("bc1qsender", #require(Decimal(stringValue: "0.01")))],
+            outputs: [
+                (Self.owner, #require(Decimal(stringValue: "0.004"))),
+                ("bc1qsenderchange", #require(Decimal(stringValue: "0.00599"))),
+            ],
             isOutgoing: false
         )
+        let expectedAmount = try #require(Decimal(stringValue: "0.004"))
 
-        #expect(makeSUT().displayedAmountValue(from: record) == dec("0.004"))
+        #expect(makeSUT().displayedAmountValue(from: record) == expectedAmount)
+    }
+
+    // MARK: - Recents
+
+    @Test("An outgoing UTXO payment suggests its recipient")
+    func outgoingPaymentIsSuggested() throws {
+        let record = try makeRecord(
+            inputs: [(Self.owner, #require(Decimal(stringValue: "0.002")))],
+            outputs: [
+                (Self.recipient, #require(Decimal(stringValue: "0.001"))),
+                (Self.changeAddress, #require(Decimal(stringValue: "0.00099"))),
+            ]
+        )
+
+        #expect(makeSUT().mapSuggestedRecord(record)?.address == Self.recipient)
+    }
+
+    @Test("A UTXO transfer to the wallet's own address is not suggested, even though it cost a fee")
+    func transferToItselfIsNotSuggested() throws {
+        let record = try makeRecord(
+            inputs: [(Self.owner, #require(Decimal(stringValue: "0.002")))],
+            outputs: [(Self.changeAddress, #require(Decimal(stringValue: "0.00199")))]
+        )
+
+        #expect(makeSUT().mapSuggestedRecord(record) == nil)
+    }
+
+    @Test("A zero-value UTXO output is not suggested")
+    func zeroValueOutputIsNotSuggested() throws {
+        let record = try makeRecord(
+            inputs: [(Self.owner, #require(Decimal(stringValue: "0.002")))],
+            outputs: [
+                (Self.recipient, 0),
+                (Self.changeAddress, #require(Decimal(stringValue: "0.00199"))),
+            ]
+        )
+
+        #expect(makeSUT().mapSuggestedRecord(record) == nil)
     }
 }
 
@@ -76,17 +128,18 @@ private extension TransactionHistoryMapperUTXOAmountTests {
         )
     }
 
+    /// Like the UTXO history mapper, reports a lone input or output as `.single`.
     func makeRecord(
         inputs: [(address: String, amount: Decimal)],
         outputs: [(address: String, amount: Decimal)],
         isOutgoing: Bool = true
-    ) -> TransactionRecord {
-        TransactionRecord(
+    ) throws -> TransactionRecord {
+        try TransactionRecord(
             hash: "0xHash",
             index: 0,
-            source: .multiple(inputs.map { .init(address: $0.address, amount: $0.amount) }),
-            destination: .multiple(outputs.map { .init(address: .user($0.address), amount: $0.amount) }),
-            fee: Fee(Amount(with: .bitcoin(testnet: false), value: dec("0.00000558"))),
+            source: .from(inputs.map { .init(address: $0.address, amount: $0.amount) }),
+            destination: .from(outputs.map { .init(address: .user($0.address), amount: $0.amount) }),
+            fee: Fee(Amount(with: .bitcoin(testnet: false), value: #require(Decimal(stringValue: "0.00000558")))),
             status: .confirmed,
             isOutgoing: isOutgoing,
             type: .transfer,
@@ -94,10 +147,6 @@ private extension TransactionHistoryMapperUTXOAmountTests {
             tokenTransfers: [],
             nonce: nil
         )
-    }
-
-    func dec(_ string: String) -> Decimal {
-        Decimal(stringValue: string)!
     }
 }
 

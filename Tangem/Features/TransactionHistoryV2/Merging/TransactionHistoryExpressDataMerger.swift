@@ -24,6 +24,7 @@ struct TransactionHistoryExpressDataMerger {
     private let isEvm: Bool
     private let isUTXO: Bool
     private let syntheticTransactionFactory: TransactionHistorySyntheticTransactionFactory
+    private let gaslessFeeAttacher: TransactionHistoryGaslessFeeAttacher
 
     // MARK: - Init
 
@@ -46,6 +47,8 @@ struct TransactionHistoryExpressDataMerger {
             currentToken: currentToken,
             feeTokenItem: feeTokenItem
         )
+
+        gaslessFeeAttacher = TransactionHistoryGaslessFeeAttacher(currentToken: currentToken)
     }
 
     // MARK: - Merge routine
@@ -55,14 +58,15 @@ struct TransactionHistoryExpressDataMerger {
         exchangeTransactions: [ExchangeTransaction],
         onrampTransactions: [OnrampTransaction]
     ) -> [TransactionRecord] {
+        let gaslessFeeMatcher = GaslessTransactionFeeMatcher(
+            smartContractMethodMapper: smartContractMethodMapper,
+            serviceFeeRecipientAddress: gaslessTransactionsNetworkManager.cachedFeeRecipientAddress
+        )
         let classifier = TransactionHistoryTransferClassifier(
             smartContractMethodMapper: smartContractMethodMapper,
-            gaslessFeeMatcher: GaslessTransactionFeeMatcher(
-                smartContractMethodMapper: smartContractMethodMapper,
-                serviceFeeRecipientAddress: gaslessTransactionsNetworkManager.cachedFeeRecipientAddress
-            )
+            gaslessFeeMatcher: gaslessFeeMatcher
         )
-        let (standaloneTransactions, bsdkTransactions) = classifier.classify(incomingBSDKTransactions)
+        let (standaloneTransactions, bsdkTransactions, gaslessFees) = classifier.classify(incomingBSDKTransactions)
 
         var bsdkTransactionsGroupedByHash: [String?: [TransactionRecord]] = bsdkTransactions.grouped(by: \.hash)
         var output: [TransactionRecord] = []
@@ -192,7 +196,14 @@ struct TransactionHistoryExpressDataMerger {
             isEvm: isEvm
         )
 
-        return sortedRecords(transferCollapser.collapse(output) + standaloneTransactions)
+        let paidOutput = gaslessFeeAttacher.replacingRelayerGas(
+            in: output,
+            matchedBy: gaslessFeeMatcher,
+            auxDataRepository: auxDataRepository
+        )
+        let rows = gaslessFeeAttacher.attach(gaslessFees, to: transferCollapser.collapse(paidOutput))
+
+        return sortedRecords(rows + standaloneTransactions)
     }
 
     // MARK: - Leg claiming (Exchange)
@@ -665,10 +676,6 @@ private extension TransactionRecord {
     @inline(__always)
     var normalizedDate: Date {
         date ?? .distantPast
-    }
-
-    var destinationAmountValue: Decimal {
-        destination.destinations.reduce(0) { $0 + $1.amount }
     }
 
     func destinationAmount(

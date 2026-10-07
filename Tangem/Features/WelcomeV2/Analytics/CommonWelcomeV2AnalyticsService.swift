@@ -38,6 +38,10 @@ final class CommonWelcomeV2AnalyticsService: WelcomeV2AnalyticsProvider {
         )
     }
 
+    func logIHaveWalletIntroScreenOpened() {
+        Analytics.log(.introductionProcessIHaveWalletIntroScreenOpened)
+    }
+
     func logSheetDismissed(sheet: Analytics.ParameterValue, reason: Analytics.ParameterValue) {
         Analytics.log(
             .introductionProcessSheetDismissed,
@@ -119,6 +123,10 @@ final class CommonWelcomeV2AnalyticsService: WelcomeV2AnalyticsProvider {
 
     func logButtonBuy() {
         Analytics.log(.basicButtonBuy, params: [.source: .stories])
+    }
+
+    func logButtonBuyTangem() {
+        Analytics.log(.introductionProcessButtonBuyTangem)
     }
 
     func logShopScreenOpened() {

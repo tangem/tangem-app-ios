@@ -20,99 +20,106 @@ final class OnrampModelUnsupportedTokenTests: LeakTrackingTestSuite {
 
     private let tokenItem: TokenItem = .blockchain(BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil))
 
-    /// `InjectedValues` is process-global mutable state; snapshot it on setup and restore on teardown
-    /// so the stub never leaks into other tests (avoids order-dependent flakiness).
-    private let originalExpressProvider: ExpressAvailabilityProvider
-
-    override init() {
-        originalExpressProvider = InjectedValues[\.expressAvailabilityProvider]
-        super.init()
-    }
-
-    deinit {
-        InjectedValues[\.expressAvailabilityProvider] = originalExpressProvider
-    }
-
     // MARK: - unsupportedTokenPublisher
 
     @Test("onramp .unavailable → token only when resolved (.updated)")
-    func unavailableResolvedReturnsToken() {
-        #expect(firstUnsupportedToken(onramp: .unavailable, state: .updated) == tokenItem)
-        // `.unavailable` during `.updating` may be a stale cache value that the in-flight load flips — stay silent.
-        #expect(firstUnsupportedToken(onramp: .unavailable, state: .updating) == nil)
+    func unavailableResolvedReturnsToken() async {
+        await withIsolatedExpressAvailabilityProvider {
+            #expect(firstUnsupportedToken(onramp: .unavailable, state: .updated) == tokenItem)
+            // `.unavailable` during `.updating` may be a stale cache value that the in-flight load flips — stay silent.
+            #expect(firstUnsupportedToken(onramp: .unavailable, state: .updating) == nil)
+        }
     }
 
     @Test(".notLoaded is unknown, not unsupported — nil even when the global state is .updated")
-    func notLoadedUpdatedReturnsNil() {
-        // Keying the notice off a stale/foreign global `.updated` while this token is still `.notLoaded`
-        // would false-show "not supported" for a token that may resolve as supported.
-        #expect(firstUnsupportedToken(onramp: .notLoaded, state: .updated) == nil)
+    func notLoadedUpdatedReturnsNil() async {
+        await withIsolatedExpressAvailabilityProvider {
+            // Keying the notice off a stale/foreign global `.updated` while this token is still `.notLoaded`
+            // would false-show "not supported" for a token that may resolve as supported.
+            #expect(firstUnsupportedToken(onramp: .notLoaded, state: .updated) == nil)
+        }
     }
 
     @Test(".notLoaded while still loading → nil")
-    func notLoadedUpdatingReturnsNil() {
-        #expect(firstUnsupportedToken(onramp: .notLoaded, state: .updating) == nil)
+    func notLoadedUpdatingReturnsNil() async {
+        await withIsolatedExpressAvailabilityProvider {
+            #expect(firstUnsupportedToken(onramp: .notLoaded, state: .updating) == nil)
+        }
     }
 
     @Test(".notLoaded after a failed load → nil (handled by the refresh notice instead)")
-    func notLoadedFailedReturnsNil() {
-        #expect(firstUnsupportedToken(onramp: .notLoaded, state: .failed(error: URLError(.badServerResponse))) == nil)
+    func notLoadedFailedReturnsNil() async {
+        await withIsolatedExpressAvailabilityProvider {
+            #expect(firstUnsupportedToken(onramp: .notLoaded, state: .failed(error: URLError(.badServerResponse))) == nil)
+        }
     }
 
     @Test("onramp .available → nil")
-    func availableReturnsNil() {
-        #expect(firstUnsupportedToken(onramp: .available, state: .updated) == nil)
+    func availableReturnsNil() async {
+        await withIsolatedExpressAvailabilityProvider {
+            #expect(firstUnsupportedToken(onramp: .available, state: .updated) == nil)
+        }
     }
 
     // MARK: - Analytics fires once
 
     @Test("Notice - Buy Not Supported fires exactly once for a resolved unsupported token")
-    func analyticsFiresOnceForUnsupported() {
-        let (sut, _, analytics) = makeSUT(onramp: .unavailable, state: .updated)
+    func analyticsFiresOnceForUnsupported() async {
+        await withIsolatedExpressAvailabilityProvider {
+            let (sut, _, analytics) = makeSUT(onramp: .unavailable, state: .updated)
 
-        withExtendedLifetime(sut) {
-            #expect(analytics.count == 1)
+            withExtendedLifetime(sut) {
+                #expect(analytics.count == 1)
+            }
         }
     }
 
     @Test("Notice - Buy Not Supported does not fire for a not-loaded token even when the global state is .updated")
-    func analyticsDoesNotFireForNotLoadedToken() {
-        // A stale global `.updated` (e.g. from another token's batch) must not log a token that may still
-        // resolve as supported once its own /assets load completes — analytics fires only on `.unavailable`.
-        let (sut, _, analytics) = makeSUT(onramp: .notLoaded, state: .updated)
+    func analyticsDoesNotFireForNotLoadedToken() async {
+        await withIsolatedExpressAvailabilityProvider {
+            // A stale global `.updated` (e.g. from another token's batch) must not log a token that may still
+            // resolve as supported once its own /assets load completes — analytics fires only on `.unavailable`.
+            let (sut, _, analytics) = makeSUT(onramp: .notLoaded, state: .updated)
 
-        withExtendedLifetime(sut) {
-            #expect(analytics.isEmpty)
+            withExtendedLifetime(sut) {
+                #expect(analytics.isEmpty)
+            }
         }
     }
 
     @Test("Notice - Buy Not Supported does not fire for a supported token")
-    func analyticsDoesNotFireForAvailable() {
-        let (sut, _, analytics) = makeSUT(onramp: .available, state: .updated)
+    func analyticsDoesNotFireForAvailable() async {
+        await withIsolatedExpressAvailabilityProvider {
+            let (sut, _, analytics) = makeSUT(onramp: .available, state: .updated)
 
-        withExtendedLifetime(sut) {
-            #expect(analytics.isEmpty)
+            withExtendedLifetime(sut) {
+                #expect(analytics.isEmpty)
+            }
         }
     }
 
     @Test("Notice - Buy Not Supported does not fire while availability is unresolved")
-    func analyticsDoesNotFireWhileUnresolved() {
-        let (loadingSUT, _, loadingAnalytics) = makeSUT(onramp: .notLoaded, state: .updating)
-        let (failedSUT, _, failedAnalytics) = makeSUT(onramp: .notLoaded, state: .failed(error: URLError(.badServerResponse)))
+    func analyticsDoesNotFireWhileUnresolved() async {
+        await withIsolatedExpressAvailabilityProvider {
+            let (loadingSUT, _, loadingAnalytics) = makeSUT(onramp: .notLoaded, state: .updating)
+            let (failedSUT, _, failedAnalytics) = makeSUT(onramp: .notLoaded, state: .failed(error: URLError(.badServerResponse)))
 
-        withExtendedLifetime((loadingSUT, failedSUT)) {
-            #expect(loadingAnalytics.isEmpty)
-            #expect(failedAnalytics.isEmpty)
+            withExtendedLifetime((loadingSUT, failedSUT)) {
+                #expect(loadingAnalytics.isEmpty)
+                #expect(failedAnalytics.isEmpty)
+            }
         }
     }
 
     @Test("Notice - Buy Not Supported does not fire on `.unavailable` while still updating")
-    func analyticsDoesNotFireForUnavailableWhileUpdating() {
-        // A stale cached `.unavailable` during `.updating` may flip to `.available` once the in-flight load completes.
-        let (sut, _, analytics) = makeSUT(onramp: .unavailable, state: .updating)
+    func analyticsDoesNotFireForUnavailableWhileUpdating() async {
+        await withIsolatedExpressAvailabilityProvider {
+            // A stale cached `.unavailable` during `.updating` may flip to `.available` once the in-flight load completes.
+            let (sut, _, analytics) = makeSUT(onramp: .unavailable, state: .updating)
 
-        withExtendedLifetime(sut) {
-            #expect(analytics.isEmpty)
+            withExtendedLifetime(sut) {
+                #expect(analytics.isEmpty)
+            }
         }
     }
 }
@@ -120,6 +127,14 @@ final class OnrampModelUnsupportedTokenTests: LeakTrackingTestSuite {
 // MARK: - Helpers
 
 private extension OnrampModelUnsupportedTokenTests {
+    func withIsolatedExpressAvailabilityProvider<T>(_ operation: () throws -> T) async rethrows -> T {
+        try await InjectedDependenciesIsolation.shared.run {
+            let previousProvider = InjectedValues[\.expressAvailabilityProvider]
+            defer { InjectedValues[\.expressAvailabilityProvider] = previousProvider }
+            return try operation()
+        }
+    }
+
     func firstUnsupportedToken(onramp: TokenItemExpressState, state: ExpressAvailabilityUpdateState) -> TokenItem? {
         let (sut, _, _) = makeSUT(onramp: onramp, state: state)
 

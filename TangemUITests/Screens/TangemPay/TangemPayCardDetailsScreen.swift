@@ -28,6 +28,8 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     private lazy var copyExpirationButton = button(.cardDetailsCopyExpiration)
     private lazy var copyCvcButton = button(.cardDetailsCopyCvc)
     private lazy var applePayGuideBanner = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.addToApplePayGuideBanner].firstMatch
+    private lazy var plasticContactSupportButton = button(.plasticContactSupportButton)
+    private lazy var plasticActivateButton = button(.plasticActivateCardButton)
     /// Type-agnostic: the issuing message is a plain container, not guaranteed to surface as a specific element type.
     private lazy var cardIssuingMessage = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.cardIssuingMessage].firstMatch
 
@@ -234,6 +236,58 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
             waitAndAssertTrue(app.staticTexts[Constants.issuingTitle].firstMatch, "Issuing title should be displayed")
             waitAndAssertTrue(app.staticTexts[Constants.issuingDescription].firstMatch, "Issuing description should be displayed")
             return self
+        }
+    }
+
+    @discardableResult
+    func verifyPlasticDeliveryState(email: String) -> Self {
+        XCTContext.runActivity(named: "Verify the plastic card delivery state") { _ in
+            let message = app.staticTexts
+                .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, Constants.plasticDeliveryMessage))
+                .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, email))
+                .firstMatch
+            waitAndAssertTrue(message, timeout: .networkRequest, "Plastic delivery message with '\(email)' should be displayed")
+            waitAndAssertTrue(plasticContactSupportButton, "Contact support should be displayed for the plastic card")
+            XCTAssertTrue(plasticContactSupportButton.waitForState(state: .hittable, for: .networkRequest), "Contact support should be available")
+            XCTAssertTrue(plasticActivateButton.waitForState(state: .hittable, for: .networkRequest), "Activate card should be available")
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapActivatePlasticCard() -> TangemPayActivateCardScreen {
+        XCTContext.runActivity(named: "Tap Activate card on the plastic card screen") { _ in
+            plasticActivateButton.waitAndTap()
+            return TangemPayActivateCardScreen(app).waitForScreen()
+        }
+    }
+
+    @discardableResult
+    func verifyPlasticActivating() -> Self {
+        XCTContext.runActivity(named: "Verify the plastic card is being activated") { _ in
+            waitAndAssertTrue(
+                app.staticTexts[Constants.plasticActivatingTitle].firstMatch,
+                timeout: .networkRequest,
+                "'\(Constants.plasticActivatingTitle)' should be displayed"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitForPlasticCardActivated() -> Self {
+        XCTContext.runActivity(named: "Wait for the plastic card to be activated") { _ in
+            waitAndAssertTrue(changePinRow, timeout: .robustUIUpdate, "Card actions should be displayed once the plastic card is activated")
+            XCTAssertTrue(plasticActivateButton.waitForNonExistence(timeout: .conditional), "Activate card should be gone once the plastic card is activated")
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapReplacePlasticCard() -> TangemPayPlasticReissueSheet {
+        XCTContext.runActivity(named: "Open Replace card for the plastic card") { _ in
+            openReplaceCardFromMoreMenu()
+            return TangemPayPlasticReissueSheet(app).waitForSheet()
         }
     }
 
@@ -457,6 +511,8 @@ enum TangemPayCardDetailsScreenElement: String, UIElement {
     case cardDetailsCopyNumber
     case cardDetailsCopyExpiration
     case cardDetailsCopyCvc
+    case plasticContactSupportButton
+    case plasticActivateCardButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -490,6 +546,10 @@ enum TangemPayCardDetailsScreenElement: String, UIElement {
             TangemPayAccessibilityIdentifiers.cardDetailsCopyExpiration
         case .cardDetailsCopyCvc:
             TangemPayAccessibilityIdentifiers.cardDetailsCopyCvc
+        case .plasticContactSupportButton:
+            TangemPayAccessibilityIdentifiers.plasticContactSupportButton
+        case .plasticActivateCardButton:
+            TangemPayAccessibilityIdentifiers.plasticActivateCardButton
         }
     }
 }
@@ -502,5 +562,7 @@ private extension TangemPayCardDetailsScreen {
         static let issuingDescription = "Usually takes up to 5 minutes. In rare cases, up to 48 hours."
         static let closeCardTitle = "Close card"
         static let closingInProgressText = "Closing your card"
+        static let plasticDeliveryMessage = "Your card on it's way for delivery. You will get email with updates from logistic company on"
+        static let plasticActivatingTitle = "Activating your physical card"
     }
 }
