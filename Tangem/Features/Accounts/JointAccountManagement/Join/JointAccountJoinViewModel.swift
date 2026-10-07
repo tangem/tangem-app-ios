@@ -11,12 +11,13 @@ import SwiftUI
 import TangemAccounts
 import TangemAssets
 import TangemLocalization
+import TangemUI
 
 @MainActor
 final class JointAccountJoinViewModel: ObservableObject {
     @Published private(set) var state: State = .loading
     @Published private(set) var walletName: String = ""
-    @Published private(set) var walletImage: ImageValue?
+    @Published private(set) var walletThumbnailType: ThumbnailWalletViewType?
 
     private var selectedUserWalletModel: (any UserWalletModel)?
     private var availableUserWalletModels: [any UserWalletModel] = []
@@ -115,8 +116,7 @@ private extension JointAccountJoinViewModel {
         }
 
         availableUserWalletModels = available
-        selectedUserWalletModel = userWalletModel
-        walletName = userWalletModel.name
+        select(userWalletModel: userWalletModel)
 
         state = .loaded(
             Content(
@@ -128,17 +128,15 @@ private extension JointAccountJoinViewModel {
                 isWalletSelectionAvailable: available.count > 1
             )
         )
-
-        loadWalletImage()
     }
 
     func handle(loadingError: Error) {
-        state = Self.isInviteRejected(loadingError) ? .invalidInvite : .loadFailed(isRetrying: false)
+        state = isInviteRejected(loadingError) ? .invalidInvite : .loadFailed(isRetrying: false)
     }
 
     /// The endpoint turns the wallet away with these when the invite is malformed, spent, revoked or never existed —
     /// retrying would only ask the same question again.
-    static func isInviteRejected(_ error: Error) -> Bool {
+    func isInviteRejected(_ error: Error) -> Bool {
         guard let apiError = error as? TangemAPIError else {
             return false
         }
@@ -158,26 +156,7 @@ private extension JointAccountJoinViewModel {
     func select(userWalletModel: any UserWalletModel) {
         selectedUserWalletModel = userWalletModel
         walletName = userWalletModel.name
-        walletImage = nil
-
-        loadWalletImage()
-    }
-
-    func loadWalletImage() {
-        guard let userWalletModel = selectedUserWalletModel else {
-            return
-        }
-
-        Task { [weak self] in
-            let image = await userWalletModel.walletImageProvider.loadSmallImage()
-
-            // A wallet picked while this one was still loading keeps its own icon
-            guard let self, selectedUserWalletModel?.userWalletId == userWalletModel.userWalletId else {
-                return
-            }
-
-            walletImage = image
-        }
+        walletThumbnailType = userWalletModel.config.walletThumbnailType
     }
 
     static func makeAccountIconViewData(config: JointAccountSignedConfig) -> AccountIconView.ViewData {
