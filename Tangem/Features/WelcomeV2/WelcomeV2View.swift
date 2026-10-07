@@ -70,6 +70,15 @@ struct WelcomeV2View: View {
                 .frame(height: 24)
 
             Spacer()
+
+            TangemUI.Button(
+                label: Localization.introductionButtonBuyTangem,
+                accessibilityLabel: nil,
+                action: viewModel.onBuyTangemTap
+            )
+            .styleType(.material(.glass))
+            .size(.x11)
+            .accessibilityIdentifier(WelcomeV2AccessibilityIdentifiers.buyTangemButton)
         }
     }
 
@@ -133,8 +142,7 @@ struct WelcomeV2View: View {
 
     private var footerAttributedString: AttributedString {
         let terms = Localization.introductionTermsOfService
-        let privacy = Localization.commonPrivacyPolicy
-        var string = AttributedString(Localization.introductionLegal(terms, privacy))
+        var string = AttributedString(Localization.introductionTermsOfServiceConsent(terms))
         string.setFontStyle(DesignSystem.Font.captionMediumToken)
         string.foregroundColor = DesignSystem.Color.textStaticDarkSecondary
 
@@ -142,12 +150,6 @@ struct WelcomeV2View: View {
             string[range].foregroundColor = DesignSystem.Color.textStaticDarkPrimary
             string[range].font = Font.system(size: 12, weight: .semibold)
             string[range].link = WelcomeV2LegalDocument.termsOfService.url
-        }
-
-        if let range = string.range(of: privacy) {
-            string[range].foregroundColor = DesignSystem.Color.textStaticDarkPrimary
-            string[range].font = Font.system(size: 12, weight: .semibold)
-            string[range].link = WelcomeV2LegalDocument.privacyPolicy.url
         }
 
         return string

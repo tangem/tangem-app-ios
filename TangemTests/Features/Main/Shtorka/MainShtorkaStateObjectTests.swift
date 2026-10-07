@@ -99,6 +99,22 @@ struct MainShtorkaStateObjectTests {
             #expect(await waitUntilConditionMet { stateObject.isPresented })
         }
     }
+
+    @Test("A state its session has left behind no longer follows the shared bottom sheet")
+    func stoppedStateIgnoresBottomSheet() async {
+        await withCleanEnvironment { stateObject in
+            let manager = InjectedValues[\.mainBottomSheetUIManager]
+            stateObject.stopFollowingBottomSheet()
+
+            manager.show()
+            try? await ContinuousClock().sleep(for: .milliseconds(100))
+            #expect(!stateObject.isPresented)
+
+            stateObject.expand()
+            try? await ContinuousClock().sleep(for: .milliseconds(100))
+            #expect(!manager.isExpanded)
+        }
+    }
 }
 
 // MARK: - Environment
