@@ -29,6 +29,16 @@ struct CommonJointOperationBlockaidGateTests {
         #expect(await verdict(with: service) == expected)
     }
 
+    @Test("A scan that could not simulate a Safe not yet deployed is read, and gives no verdict")
+    func undeployedSafeScanGivesNoVerdict() async throws {
+        let json = #"""
+        {"validation":{"status":"Error","result_type":"Error","error":"Simulation Error: Failed to get safe owners","description":"","reason":"","features":[]},"simulation":{"status":"Error","error":"Failed to get safe owners","params":{"block_tag":"latest","chain":"ethereum"},"address_details":{}},"block":"95115494","chain":"polygon","account_address":"0xAA0066cC6D0fd2d108296F5B87aA03824737661c"}
+        """#
+        let service = BlockaidAPIServiceStub(response: try Self.response(json: json))
+
+        #expect(await verdict(with: service) == .unknown)
+    }
+
     @Test("A validation that did not succeed gives no verdict")
     func failedValidationIsUnknown() async throws {
         let service = BlockaidAPIServiceStub(response: try Self.response(validation: #"{"status": "Error", "result_type": "Benign"}"#))
@@ -111,8 +121,11 @@ private extension CommonJointOperationBlockaidGateTests {
 
     static func response(validation: String?) throws -> BlockaidDTO.EvmScan.Response {
         let validationField = validation.map { #", "validation": \#($0)"# } ?? ""
-        let json = #"{"chain": "polygon"\#(validationField)}"#
 
+        return try response(json: #"{"chain": "polygon"\#(validationField)}"#)
+    }
+
+    static func response(json: String) throws -> BlockaidDTO.EvmScan.Response {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
 
