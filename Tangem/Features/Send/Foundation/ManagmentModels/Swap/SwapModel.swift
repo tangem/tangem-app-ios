@@ -249,6 +249,13 @@ extension SwapModel {
 
     func update(receive wallet: SendReceiveToken) {
         ExpressLogger.info("Will update receive to \(wallet.tokenItem)")
+
+        if let previousTokenItem = _receiveToken.value.value?.tokenItem,
+           previousTokenItem.currencyId != wallet.tokenItem.currencyId,
+           let receiveAmount = _receiveAmount.value {
+            _receiveAmount.send(equivalent(of: receiveAmount, from: previousTokenItem, to: wallet.tokenItem))
+        }
+
         _receiveToken.send(.success(wallet))
         swappingPairDidChange()
     }
@@ -957,6 +964,32 @@ extension SwapModel {
         }
 
         return estimate.rounded(scale: target.decimalCount, roundingMode: .down)
+    }
+
+    private func equivalent(of amount: SendAmount, from source: TokenItem, to target: TokenItem) -> SendAmount? {
+        switch amount.type {
+        case .typical(.some(let crypto), _):
+            guard let sourceCurrencyId = source.currencyId,
+                  let estimate = localQuoteEstimate(crypto: crypto, fromCurrencyId: sourceCurrencyId, to: target),
+                  estimate > 0 else {
+                return nil
+            }
+
+            return makeSendAmount(crypto: estimate, currencyId: target.currencyId)
+
+        case .alternative(.some(let fiat), _):
+            guard let targetCurrencyId = target.currencyId,
+                  let crypto = balanceConverter.convertToCryptoFrom(fiatValue: fiat, currencyId: targetCurrencyId)?
+                  .rounded(scale: target.decimalCount, roundingMode: .down),
+                  crypto > 0 else {
+                return nil
+            }
+
+            return SendAmount(type: .alternative(fiat: fiat, crypto: crypto))
+
+        case .typical, .alternative:
+            return nil
+        }
     }
 
     func makeSendAmount(crypto: Decimal, currencyId: String?) -> SendAmount {
