@@ -120,20 +120,21 @@ private extension FeedDetentHeights {
     func updateContentVisibility() {
         // Two thresholds, so the settling spring cannot flip the content back and forth.
         let margin = isContentCollapsed ? Constants.expandingMargin : Constants.collapsingMargin
-        let isCollapsed = sheetHeight <= collapsed + margin
+        // A dragged floating sheet reaches down through its floating gap, so count from the window's bottom edge.
+        let isCollapsed = sheetHeight <= collapsedBottomInset + margin
         if isCollapsed != isContentCollapsed {
             isContentCollapsed = isCollapsed
         }
     }
 
     func syncDetents() {
-        updateContentVisibility()
-        expansionProgress = makeExpansionProgress()
         // Reserve the collapsed sheet and its floating gap without moving the wallet content during a drag.
         let bottomInset = collapsed + (FeedConstants.usesFloatingSheet ? safeArea.bottom : 0)
         if collapsedBottomInset != bottomInset {
             collapsedBottomInset = bottomInset
         }
+        updateContentVisibility()
+        expansionProgress = makeExpansionProgress()
         // A collapsed floating sheet sits above the home indicator; an edge-attached one extends through the safe area.
         let collapsedSafeArea = FeedConstants.usesFloatingSheet ? 0 : safeArea.bottom
         let collapsedHeight = max(0, collapsed - collapsedSafeArea)
