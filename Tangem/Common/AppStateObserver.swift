@@ -1,5 +1,5 @@
 //
-//  PolymarketAppStateObserver.swift
+//  AppStateObserver.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import UIKit
 
-final class PolymarketAppStateObserver {
+final class AppStateObserver {
     private let notificationCenter: NotificationCenter
     private var task: Task<Void, Never>?
 
