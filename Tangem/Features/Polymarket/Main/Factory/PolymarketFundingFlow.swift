@@ -66,12 +66,16 @@ struct PolymarketFundingFlow {
             .make(withdrawingFrom: source, receiveToken: receiveToken)
     }
 
-    func awaitDeposit() {
-        dependencies.fundsArrivalTracker.startAwaitingFunds()
+    var currentBalance: Decimal? {
+        dependencies.fundsArrivalTracker.currentBalance
     }
 
-    func awaitWithdrawal() {
-        dependencies.fundsArrivalTracker.startAwaitingBalanceChange()
+    func awaitDeposit(since baseline: Decimal?) {
+        dependencies.fundsArrivalTracker.startAwaitingFunds(since: baseline)
+    }
+
+    func awaitWithdrawal(since baseline: Decimal?) {
+        dependencies.fundsArrivalTracker.startAwaitingBalanceChange(since: baseline)
     }
 }
 
