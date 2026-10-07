@@ -659,6 +659,12 @@ extension SendAmountViewModel {
             isApproximate: isApproximate
         )
 
+        if pendingReverseRecalculation, lastUpdateSource == .receive, case .failure(SendAmountError.noAmount) = amount {
+            pendingReverseRecalculation = false
+            field.updateAmountsUI(amount: nil)
+            _ = interactor.update(receiveAmount: nil)
+        }
+
         // Update destination fields from external amount
         if case .success(let sendAmount) = amount {
             if pendingReverseRecalculation {
@@ -669,7 +675,13 @@ extension SendAmountViewModel {
                 // recalculation below uses the fiat-equivalent value for the new token
                 field.updateAmountsUI(amount: sendAmount)
 
-                let receiveValue = field.cryptoTextFieldViewModel.value
+                let receiveValue: Decimal? = switch field.amountType {
+                case .crypto:
+                    field.cryptoTextFieldViewModel.value
+                case .fiat:
+                    field.fiatTextFieldViewModel.value
+                }
+
                 _ = interactor.update(receiveAmount: receiveValue)
             } else if lastUpdateSource == .receive {
                 // When the user edited the destination (To) field, only update fiat/alternative
