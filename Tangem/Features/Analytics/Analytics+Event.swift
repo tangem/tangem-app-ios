@@ -24,6 +24,7 @@ extension Analytics {
         case buttonBuyCards = "[Introduction Process] Button - Buy Cards"
         case introductionProcessButtonScanCard = "[Introduction Process] Button - Scan Card"
         case introductionProcessCreateWalletIntroScreenOpened = "[Introduction Process] Create Wallet Intro Screen Opened"
+        case introductionProcessIHaveWalletIntroScreenOpened = "[Introduction Process] I Have Wallet Intro Screen Opened"
         case introductionProcessButtonCreateNewWallet = "[Introduction Process] Button - Create New Wallet"
         case introductionProcessButtonAddExistingWallet = "[Introduction Process] Button - Add Existing Wallet"
         case introductionProcessOpened = "[Introduction Process] Introduction Process Screen Opened"
