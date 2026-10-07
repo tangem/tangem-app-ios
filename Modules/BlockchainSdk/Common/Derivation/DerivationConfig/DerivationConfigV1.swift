@@ -63,6 +63,7 @@ struct DerivationConfigV1: DerivationConfig {
              .plasma,
              .robinhood,
              .adi,
+             .publicMasterpiece,
              .onyx:
             return "m/44'/60'/0'/0/0"
         case .ethereumClassic:
