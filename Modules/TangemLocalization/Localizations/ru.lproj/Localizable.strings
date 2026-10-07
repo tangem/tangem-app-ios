@@ -322,6 +322,7 @@
 "common_approved" = "Одобрено";
 "common_approving" = "Одобрение";
 "common_attention" = "Внимание";
+"common_auto" = "Auto";
 "common_available_networks" = "Доступные сети";
 "common_back" = "Назад";
 "common_backup_error" = "Backup Error";
@@ -359,7 +360,8 @@
 "common_crypto_account" = "Crypto account";
 "common_custom" = "Свое";
 "common_day" = "день";
-"common_decline" = "Decline";
+"common_decline" = "Отклонить";
+"common_default" = "Default";
 "common_delete" = "Удалить";
 "common_disable" = "Отключить";
 "common_disabled" = "Отключено";
@@ -488,6 +490,7 @@
 "common_share" = "Поделиться";
 "common_sign" = "Подписать";
 "common_skip" = "Пропустить";
+"common_slippage" = "Slippage";
 "common_something_went_wrong" = "Что-то пошло не так";
 "common_stake" = "Застейкать";
 "common_staked" = "Застейкано";
@@ -997,6 +1000,7 @@
 "introduction_stories_two_subtitle" = "Используйте любую карту для доступа к кошельку";
 "introduction_stories_two_title" = "Один кошелёк, несколько карт";
 "introduction_subtitle" = "Одно безопасное место для всех ваших активов";
+"introduction_terms_of_service_consent" = "By continuing, you agree with %@";
 "introduction_terms_of_service" = "Условиями использования";
 "introduction_title" = "Храните все свои активы";
 "jailbreak_warning_message" = "Устройства с джейлбрейком считаются менее безопасными. Ваши данные могут быть подвержены дополнительным рискам.";
@@ -1012,7 +1016,7 @@
 "joint_account_invite_load_failed_subtitle" = "Не удалось загрузить страницу приглашения.\nНажмите, чтобы обновить";
 "joint_account_invite_members_creator" = "Создатель";
 "joint_account_invite_members_invite" = "Пригласить";
-"joint_account_invite_members_invited" = "Invited";
+"joint_account_invite_members_invited" = "Приглашён";
 "joint_account_invite_members_member_info" = "Об участнике";
 "joint_account_invite_members_member" = "Участник";
 "joint_account_invite_members_new_member" = "Новый участник";
@@ -1031,7 +1035,7 @@
 "joint_account_invite_members_title" = "Пригласите участников";
 "joint_account_invite_members_to_join" = "Пригласите участников в аккаунт";
 "joint_account_invite_members_waiting_title" = "Ожидаем участников";
-"joint_account_invite_share_title" = "Invite to %@";
+"joint_account_invite_share_title" = "Пригласите в %@";
 "joint_account_join_confirm_sheet_subtitle" = "У всех участников аккаунта общий баланс. Другие участники могут распоряжаться средствами без вашего согласия, если соберут достаточно подписей";
 "joint_account_join_confirm_sheet_title" = "Вы вступаете в общий аккаунт";
 "joint_account_join_invalid_link_subtitle" = "Проверьте, что открыли правильную ссылку, или попросите создателя аккаунта отправить её ещё раз";
@@ -1040,7 +1044,7 @@
 "joint_account_join_subtitle_value" = "%1$@ из %2$@ участников";
 "joint_account_join_subtitle" = "Это общий аккаунт. Для каждой транзакции из него нужны подписи: %1$@";
 "joint_account_join_success_message" = "Аккаунт добавлен";
-"joint_account_join_title" = "Вас пригласили в аккаунт «%1$@»";
+"joint_account_join_title" = "Вас пригласили в аккаунт %1$@";
 "joint_account_join_to_account_btn_text" = "Вступить в аккаунт";
 "joint_account_members_progress" = "%1$@ из %2$@ участников";
 "joint_account_members_role_joined" = "Вступил(а)";
@@ -1087,7 +1091,7 @@
 "joint_account_send_slot_busy_title" = "Уже есть незавершённая операция";
 "joint_account_settings_networks_info" = "Этот аккаунт работает только в поддерживаемых сетях.";
 "joint_account_waiting_activation" = "Ожидает активации";
-"joint_operation_auto_sends_footer" = "Отправится автоматически, когда подпишут %1$@ из %2$@ участников";
+"joint_operation_auto_sends_footer" = "Отправится автоматически, когда подпишут %1$@ из %2$@ участников";
 "joint_operation_banner_subtitle" = "%1$@ → %2$@";
 "joint_operation_banner_title_own" = "Вы хотите отправить %1$@";
 "joint_operation_banner_title" = "%1$@ хочет отправить %2$@";
@@ -1097,7 +1101,7 @@
 "joint_operation_decline_alert_message" = "Другие участники увидят ваше решение. Позже подписать транзакцию будет нельзя";
 "joint_operation_decline_alert_title" = "Отклонить транзакцию?";
 "joint_operation_declined_at" = "Отклонено %@";
-"joint_operation_declined_footer" = "Вы отклонили. Остальные ещё могут набрать %1$@ из %2$@";
+"joint_operation_declined_footer" = "Вы отклонили. Остальные ещё могут набрать %1$@ из %2$@";
 "joint_operation_declined" = "Отклонено";
 "joint_operation_delete_alert_message" = "Транзакция будет отменена для всех участников. Собранные подписи будут удалены";
 "joint_operation_delete_alert_title" = "Удалить транзакцию?";
@@ -1108,7 +1112,7 @@
 "joint_operation_sent_footer" = "Подписано %1$@ из %2$@ и отправлено в сеть";
 "joint_operation_signatures_progress" = "Подписи: %1$@ из %2$@";
 "joint_operation_signed_at" = "Подписано %@";
-"joint_operation_signed_footer" = "Отправится автоматически, когда подпишут %1$@ из %2$@";
+"joint_operation_signed_footer" = "Отправится автоматически, когда подпишут %1$@ из %2$@";
 "joint_operation_signed" = "Подписано";
 "joint_operation_signers_title" = "Подписанты";
 "joint_operation_signing_blocked_subtitle" = "Подписание заблокировано по соображениям безопасности. Обратитесь в поддержку";
@@ -2209,7 +2213,10 @@
 "support_selector_view_chat_button" = "Открыть чат";
 "support_selector_view_email_button" = "Открыть почту";
 "swap_approve_description" = "Подтверждая, вы разрешаете смарт-контракту использовать ваши токены в будущих транзакциях.";
+"swap_custom_slippage_info" = "Slippage can't be customized with this provider and may reach up to %@ in rare cases";
 "swap_detailed_mode" = "Детальный режим";
+"swap_exchange_rates_info_text" = "displayed include the service provider’s fee";
+"swap_exchange_rates_info_title" = "Exchange rates";
 "swap_fixed_rate" = "Фиксированный курс";
 "swap_give_permission_fee_footer" = "Комиссия сети за одобрение токена будет взиматься за подтверждение того, что именно вы разрешаете использовать ваш токен для обмена.";
 "swap_in_progress" = "Обмен в процессе";
@@ -2217,6 +2224,10 @@
 "swap_search_tooltip_description" = "Найдите любой токен, даже если его ещё нет в вашем списке";
 "swap_search_tooltip_title" = "Используйте поиск, чтобы найти то, что вам нужно.";
 "swap_simple_mode" = "Простой режим";
+"swap_slippage_error" = "Unsupported amount";
+"swap_slippage_info_text" = "is the difference between the expected and actual execution price caused by market price or liquidity changes";
+"swap_slippage_warning_text" = "Swap may fail if the slippage threshold is hit";
+"swap_slippage_warning_title" = "Slippage is set %@";
 "swap_story_fifth_subtitle" = "Чувствуйте уверенность с круглосуточной поддержкой, готовой помочь в любой ситуации!";
 "swap_story_fifth_title" = "Круглосуточная поддержка";
 "swap_story_first_subtitle_v2" = "Обменивайте крипту прямо в Tangem\nНикаких лишних переводов\nНе нужно отправлять средства на биржи";
@@ -2883,6 +2894,7 @@
 "transaction_history_approve_high_risk_subtitle" = "You're connected. Funds may be at risk. Consider revoking access.";
 "transaction_history_approve_high_risk_title" = "High Risk";
 "transaction_history_approved_amount" = "Approved amount";
+"transaction_history_claiming_incentive_rewards" = "Claiming incentive rewards";
 "transaction_history_claiming_reward" = "Получение награды";
 "transaction_history_contract_address" = "контракт: %@";
 "transaction_history_detail_page_amount_signed_value" = "%1@ %2@ %3@";
@@ -2903,6 +2915,7 @@
 "transaction_history_fee_for_yield_mode_top_up" = "For Yield mode top-up";
 "transaction_history_fee_sending_asset" = "Send %%image%% %@";
 "transaction_history_from_inline_address" = "от: %%image%% %@";
+"transaction_history_incentive_rewards_claimed" = "Incentive rewards claimed";
 "transaction_history_multiple_addresses" = "Несколько адресов";
 "transaction_history_not_supported_description" = "История транзакций в настоящее время не поддерживается для этого блокчейна. Но не волнуйтесь, мы работаем над этим! А пока вы можете проверить ее в обозревателе.";
 "transaction_history_operation" = "Операция";
@@ -2914,6 +2927,7 @@
 "transaction_history_status_claiming_rewards" = "Claiming rewards";
 "transaction_history_status_disabling_yield_mode_failed" = "Disabling Yield mode failed";
 "transaction_history_status_enabling_yield_mode_failed" = "Enabling Yield mode failed";
+"transaction_history_status_incentive_rewards_claim_failed" = "Claiming of incentive rewards failed";
 "transaction_history_status_receive_failed" = "Receive failed";
 "transaction_history_status_restaking_rewards" = "Restaking rewards";
 "transaction_history_status_rewards_claim_failed" = "Rewards claim failed";
