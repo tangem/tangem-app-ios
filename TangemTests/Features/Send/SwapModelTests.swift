@@ -330,6 +330,64 @@ final class SwapModelTests: LeakTrackingTestSuite {
         #expect(sut.receiveToken.value?.tokenItem == receive.tokenItem)
     }
 
+    // MARK: - Receive token replacement
+
+    @Test("A crypto receive amount keeps its fiat value in the replacing token ([REDACTED_INFO])")
+    func receiveTokenReplacementConvertsCryptoAmount() async throws {
+        let amount = try await receiveAmountAfterReplacement(
+            entered: SendAmount(type: .typical(crypto: 0.1, fiat: 400)),
+            prices: ["svs-previous-coin": 4000, "svs-new-coin": 100_000]
+        )
+
+        #expect(amount?.crypto == 0.004)
+    }
+
+    @Test("A fiat receive amount stays the same fiat value in the replacing token")
+    func receiveTokenReplacementKeepsEnteredFiat() async throws {
+        let amount = try await receiveAmountAfterReplacement(
+            entered: SendAmount(type: .alternative(fiat: 50, crypto: 0.0125)),
+            prices: ["svs-previous-coin": 4000, "svs-new-coin": 100_000]
+        )
+
+        #expect(amount?.fiat == 50)
+        #expect(amount?.crypto == 0.0005)
+    }
+
+    @Test("The same asset on another network keeps the entered receive amount")
+    func receiveNetworkChangeKeepsAmount() async throws {
+        let amount = try await receiveAmountAfterReplacement(
+            entered: SendAmount(type: .typical(crypto: 100, fiat: 100)),
+            previous: makeQuotedTokenItem(currencyId: "svs-stable-coin", blockchain: .ethereum(testnet: false)),
+            replacing: makeQuotedTokenItem(currencyId: "svs-stable-coin", blockchain: .polygon(testnet: false)),
+            prices: ["svs-stable-coin": 1]
+        )
+
+        #expect(amount?.crypto == 100)
+    }
+
+    @Test("A destination-only update of the same receive token keeps the entered amount")
+    func sameReceiveTokenUpdateKeepsAmount() async throws {
+        let tokenItem = makeQuotedTokenItem(currencyId: "svs-previous-coin")
+        let amount = try await receiveAmountAfterReplacement(
+            entered: SendAmount(type: .typical(crypto: 0.1, fiat: 400)),
+            previous: tokenItem,
+            replacing: tokenItem,
+            prices: [:]
+        )
+
+        #expect(amount?.crypto == 0.1)
+    }
+
+    @Test("Without a price for the replacing token the old receive amount is not carried over")
+    func receiveTokenReplacementWithoutPriceDropsAmount() async throws {
+        let amount = try await receiveAmountAfterReplacement(
+            entered: SendAmount(type: .typical(crypto: 0.1, fiat: 400)),
+            prices: ["svs-previous-coin": 4000]
+        )
+
+        #expect(amount == nil)
+    }
+
     // MARK: - Transfer destination
 
     @Test("A transfer pair is addressed to the receive token's own address, for the fee and for the transaction alike")
@@ -402,6 +460,58 @@ private extension SwapModelTests {
         )
 
         return model
+    }
+
+    func makeQuotedTokenItem(currencyId: String, blockchain: Blockchain = .ethereum(testnet: false)) -> TokenItem {
+        let token = Token(
+            name: currencyId,
+            symbol: currencyId.uppercased(),
+            contractAddress: "0x\(currencyId)",
+            decimalCount: 18,
+            id: currencyId
+        )
+
+        return .token(token, BlockchainNetwork(blockchain, derivationPath: nil))
+    }
+
+    func receiveAmountAfterReplacement(
+        entered: SendAmount,
+        previous: TokenItem? = nil,
+        replacing: TokenItem? = nil,
+        prices: [String: Decimal]
+    ) async throws -> SendAmount? {
+        try await InjectedDependenciesIsolation.shared.run {
+            let previousRepository = try injectQuotes(prices)
+            defer { InjectedValues.setTokenQuotesRepository(previousRepository) }
+
+            let sut = makeSUT(
+                sourceToken: SwapableTokenStub(blockchain: .polygon(testnet: false)),
+                receiveToken: SwapableTokenStub(tokenItem: previous ?? makeQuotedTokenItem(currencyId: "svs-previous-coin"))
+            )
+            sut.update(receiveAmount: entered)
+
+            sut.update(receive: SwapableTokenStub(tokenItem: replacing ?? makeQuotedTokenItem(currencyId: "svs-new-coin")))
+
+            return sut.receiveAmount.value
+        }
+    }
+
+    func injectQuotes(_ prices: [String: Decimal]) throws -> TokenQuotesRepository & TokenQuotesRepositoryUpdater {
+        let quotes = prices.reduce(into: Quotes()) { quotes, entry in
+            quotes[entry.key] = TokenQuote(
+                currencyId: entry.key,
+                price: entry.value,
+                priceUsd: entry.value,
+                priceChange24h: nil,
+                priceChange7d: nil,
+                priceChange30d: nil,
+                currencyCode: "USD"
+            )
+        }
+
+        let previous = try #require(InjectedValues[\.quotesRepository] as? TokenQuotesRepository & TokenQuotesRepositoryUpdater)
+        InjectedValues.setTokenQuotesRepository(MockTokenQuotesRepository(quotes: quotes))
+        return previous
     }
 
     /// Waits for a state published *after* `baseline` that satisfies `predicate`. Capturing the baseline
