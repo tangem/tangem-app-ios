@@ -9,6 +9,7 @@
 import SwiftUI
 import Kingfisher
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct TangemPaySmallCardView: View {
     enum State {
@@ -72,6 +73,7 @@ struct TangemPaySmallCardView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 12, height: 12)
                     .foregroundStyle(.white)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountCardFrozenIcon)
             } else if !isPhysical {
                 Image(systemName: "cloud.fill")
                     .resizable()

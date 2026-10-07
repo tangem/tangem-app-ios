@@ -32,6 +32,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let onboardingGetCardButton = "\(prefix)OnboardingGetCardButton"
     public static let regionUnavailableTitle = "\(prefix)RegionUnavailableTitle"
     public static let regionUnavailableGotItButton = "\(prefix)RegionUnavailableGotItButton"
+    public static let walletSelectorTitle = "\(prefix)WalletSelectorTitle"
 
     // MARK: - Mobile onboarding screen
 
@@ -51,6 +52,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let paymentAccountToolbarTitle = "\(prefix)PaymentAccountToolbarTitle"
     public static let paymentAccountToolbarSubtitle = "\(prefix)PaymentAccountToolbarSubtitle"
     public static let paymentAccountBalance = "\(prefix)PaymentAccountBalance"
+    public static let paymentAccountCardFrozenIcon = "\(prefix)PaymentAccountCardFrozenIcon"
     public static let addFundsButton = "\(prefix)AddFundsButton"
     public static let withdrawButton = "\(prefix)WithdrawButton"
     public static let moreActionsButton = "\(prefix)MoreActionsButton"
@@ -199,6 +201,29 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let paymentAccountIssuingCardButton = "\(prefix)PaymentAccountIssuingCardButton"
     public static let issuingCardBanner = "\(prefix)IssuingCardBanner"
     public static let cardIssuingMessage = "\(prefix)CardIssuingMessage"
+
+    public static let orderCardBackgroundBasic = "\(prefix)OrderCardBackgroundBasic"
+    public static let orderCardBackgroundPlus = "\(prefix)OrderCardBackgroundPlus"
+    public static let orderCardDataOrderButton = "\(prefix)OrderCardDataOrderButton"
+    public static let plasticDeliveryBannerActivateButton = "\(prefix)PlasticDeliveryBannerActivateButton"
+    public static let plasticContactSupportButton = "\(prefix)PlasticContactSupportButton"
+    public static let plasticActivateCardButton = "\(prefix)PlasticActivateCardButton"
+    public static let plasticReissueSheetConfirmButton = "\(prefix)PlasticReissueSheetConfirmButton"
+
+    public static func orderCardTab(_ type: String) -> String {
+        "\(prefix)OrderCardTab_\(type)"
+    }
+
+    public static func orderCardInfoRow(_ row: String) -> String {
+        "\(prefix)OrderCardInfoRow_\(row)"
+    }
+
+    public static func orderCardDataFieldError(_ field: String) -> String {
+        "\(prefix)OrderCardDataFieldError_\(field)"
+    }
+
+    public static let activateCardHint = "\(prefix)ActivateCardHint"
+    public static let activateCardContinueButton = "\(prefix)ActivateCardContinueButton"
 
     // MARK: - Transaction details
 

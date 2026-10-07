@@ -300,17 +300,16 @@ private extension TokenDetailsView {
         }
 
         private func makeMarketsNavigation(content: Content) -> some View {
-            VStack(spacing: 0) {
-                NavigationHeader(
-                    leadingContent: { leadingContent },
-                    principalContent: { principalContent },
-                    trailingContent: { trailingContent }
-                )
-                .padding(.bottom, .unit(.x4))
-                .background(backgroundColor)
-
-                content
-            }
+            content
+                .safeAreaInset(edge: .top, spacing: 16) {
+                    NavigationHeader(
+                        leadingContent: { leadingContent },
+                        principalContent: { principalContent },
+                        trailingContent: { trailingContent }
+                    )
+                    .backgroundColor(backgroundColor)
+                    .contentShape(.rect)
+                }
         }
     }
 }

@@ -12,21 +12,23 @@ enum IncomingActionConstants {
     static let tangemHost = "tangem.com"
     static let tangemDomain = "https://tangem.com"
 
-    /// Where AppsFlyer serves our links from. A link from it is as much ours as one from our own domain, but
-    /// the domain itself holds nothing to read: it forwards, so a link naming nothing has nothing to show.
-    static let attributionHost = "tangem.onelink.me"
+    /// Where AppsFlyer serves our links from. A link from them is as much ours as one from our own domain, but
+    /// the domains themselves hold nothing to read: they forward, so a link naming nothing has nothing to show.
+    static let attributionHosts: Set<String> = [
+        "tangem.onelink.me",
+        "join.tangem.com",
+    ]
 
     /// The domains a link is accepted from, whichever destination it names. The app claims them in its
     /// entitlements, so nothing else can reach it as a link of ours.
-    static let supportedExternalLinkHosts: Set<String> = [
+    static let supportedExternalLinkHosts: Set<String> = Set([
         "tangem.com",
         "www.tangem.com",
         "buy.tangem.com",
         "app.tangem.com",
         "tangem.surveysparrow.com",
         "feedback.tangem.com",
-        attributionHost,
-    ]
+    ]).union(attributionHosts)
 
     static let appScheme = "tangem://"
     static let ndefPath = "ndef"
