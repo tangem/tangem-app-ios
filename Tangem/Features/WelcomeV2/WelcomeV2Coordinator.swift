@@ -352,6 +352,7 @@ private extension WelcomeV2Coordinator {
     }
 
     func presentExistingWallet() {
+        analytics.logIHaveWalletIntroScreenOpened()
         actionSheetViewModel = WelcomeV2ExistingWalletActionFactory().make(
             callbacks: .init(
                 onHardware: { [weak self] in
