@@ -219,6 +219,8 @@ public struct ExternalLinkProviderFactory {
             return ElectroneumExternalLinkProvider(isTestnet: isTestnet)
         case .arc:
             return ArcExternalLinkProvider(isTestnet: isTestnet)
+        case .onyx:
+            return OnyxExternalLinkProvider(isTestnet: isTestnet)
         case .seiEvm:
             return SeiEvmExternalLinkProvider(isTestnet: isTestnet)
         }
