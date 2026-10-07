@@ -91,14 +91,24 @@ final class SendViaSwapUITests: BaseTestCase {
 
         let assetsScenario = ScenarioConfig(
             name: "express_api_assets",
-            initialState: "BitcoinExchangeEnabled"
+            initialState: "BitcoinExchangeEnabledWithXRP"
+        )
+
+        let coinsScenario = ScenarioConfig(
+            name: "coins_api",
+            initialState: "WithXRP"
+        )
+
+        let quotesScenario = ScenarioConfig(
+            name: "quotes_api",
+            initialState: "Ripple"
         )
 
         launchApp(
             tangemApiType: .mock,
             expressApiType: .mock,
             clearStorage: true,
-            scenarios: [bitcoinBalanceScenario, assetsScenario]
+            scenarios: [bitcoinBalanceScenario, assetsScenario, coinsScenario, quotesScenario]
         )
 
         // Open Bitcoin token and navigate to Send screen
@@ -110,18 +120,17 @@ final class SendViaSwapUITests: BaseTestCase {
             .waitForConvertButton()
             .tapConvertButton()
 
-        // Search for Ethereum token and select it with network
         sendScreen
-            .enterTokenSearch("Ethereum")
-            .waitForReceiveToken(name: Constants.ethereumTokenName)
-            .tapReceiveToken(name: Constants.ethereumTokenName)
-            .tapReceiveNetworkOption(name: "Ethereum")
+            .enterTokenSearch("XRP")
+            .waitForReceiveToken(name: Constants.xrpReceiveTokenName)
+            .tapReceiveToken(name: Constants.xrpReceiveTokenName)
+            .tapReceiveNetworkOption(name: Constants.xrpTokenName)
 
         // Fill amount and destination, proceed to Summary
         let summaryScreen = sendScreen
-            .enterReceiveAmount(Constants.sendAmount)
+            .enterReceiveAmount(Constants.xrpReceiveAmount)
             .tapNextButton()
-            .enterDestination(Constants.ethereumAddress)
+            .enterDestination(Constants.xrpAddress)
             .tapNextButtonToSummary()
             .waitForDisplay(checkValidatorBlock: false)
 
