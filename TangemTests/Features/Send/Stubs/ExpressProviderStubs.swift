@@ -60,7 +60,10 @@ struct ExpressFeeProviderDummy: ExpressFeeProvider {
 enum ExpressAvailableProviderFixture {
     /// Builds a provider whose state maps to a loaded swap state, so a test can drive `SwapModel` into the
     /// states that arm autoupdating.
-    static func make(state: ExpressProviderManagerState) -> ExpressAvailableProvider {
+    static func make(
+        state: ExpressProviderManagerState,
+        expressFeeProvider: ExpressFeeProvider = ExpressFeeProviderDummy()
+    ) -> ExpressAvailableProvider {
         let provider = ExpressProvider(
             id: "provider",
             name: "Provider",
@@ -78,7 +81,7 @@ enum ExpressAvailableProviderFixture {
             provider: provider,
             pair: ExpressManagerSwappingPair(source: ExpressWalletDummy(), destination: ExpressWalletDummy()),
             rateType: .float,
-            expressFeeProvider: ExpressFeeProviderDummy(),
+            expressFeeProvider: expressFeeProvider,
             expressAPIProvider: ExpressAPIProviderStub(),
             mapper: ExpressManagerMapper(),
             featureFlags: ExpressFeatureFlags()
