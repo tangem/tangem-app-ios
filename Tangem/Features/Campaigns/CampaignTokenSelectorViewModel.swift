@@ -111,27 +111,11 @@ private extension CampaignTokenSelectorViewModel {
         }
 
         let mapper = TokenItemMapper(supportedBlockchains: userWalletModel.config.supportedBlockchains)
+        let eligibleTokenMapper = CampaignEligibleTokenMapper()
         let accounts = AccountModelsAggregator(.crypto, .joint).models(from: userWalletModel.accountModelsManager)
 
         eligibleTokenRows = eligibleTokens.compactMap { token in
-            guard let tokenId = token.tokenId, let decimals = token.decimals else {
-                return nil
-            }
-
-            let network = NetworkModel(
-                networkId: token.networkId,
-                contractAddress: token.tokenAddress,
-                decimalCount: decimals
-            )
-
-            let tokenItem = mapper.mapToTokenItem(
-                id: tokenId,
-                name: token.tokenName,
-                symbol: token.tokenSymbol,
-                network: network
-            )
-
-            guard let tokenItem else {
+            guard let tokenItem = eligibleTokenMapper.mapToTokenItem(token, using: mapper) else {
                 return nil
             }
 
