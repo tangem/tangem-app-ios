@@ -564,7 +564,7 @@ extension SendAmountViewModel {
         isApproximate: Bool
     ) {
         let isFirstSelection = currentDestinationToken == nil
-        let tokenDidChange = currentDestinationToken?.tokenItem.id != token.tokenItem.id
+        let tokenDidChange = currentDestinationToken?.tokenItem != token.tokenItem
         currentDestinationToken = token
 
         let field = destinationAmountField ?? createDestinationAmountField(for: token, tokenIconInfo: iconInfo)
