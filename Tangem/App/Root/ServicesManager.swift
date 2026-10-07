@@ -58,6 +58,7 @@ final class CommonServicesManager {
     @Injected(\.forceUpdateService) private var forceUpdateService: ForceUpdateService
     @Injected(\.appDatabase) private var appDatabase: AppDatabase
     @Injected(\.walletCardsBackupReportService) private var walletCardsBackupReportService: WalletCardsBackupReportService
+    @Injected(\.promoCampaignsRepository) private var promoCampaignsRepository: PromoCampaignsProviding
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storiesPrefetchManager: StoriesPrefetchManager
@@ -267,6 +268,8 @@ extension CommonServicesManager: ServicesManager {
         if isFirstLaunch {
             await KeychainCleaner.cleanAllData()
         }
+
+        promoCampaignsRepository.initialize()
 
         Task {
             await BackendAuthenticationRegistrar.registerDevice()
