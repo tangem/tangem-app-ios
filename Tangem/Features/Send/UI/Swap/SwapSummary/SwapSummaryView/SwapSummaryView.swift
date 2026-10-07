@@ -105,15 +105,31 @@ struct SwapSummaryView: View {
 
     @ViewBuilder
     private var feeSectionView: some View {
-        SwapSummaryFeeSectionView(
-            slippageViewModel: viewModel.swapSummarySlippageViewModel,
-            feeViewModel: viewModel.feeCompactViewModel,
-            showsSlippage: viewModel.formVariant == .detailed,
-            feeTapAction: {
-                keyboardActive = false
-                viewModel.userDidTapFee()
-            }
-        )
+        if let slippageViewModel = viewModel.swapSummarySlippageViewModel {
+            SwapSummaryFeeSectionView(
+                slippageViewModel: slippageViewModel,
+                feeViewModel: viewModel.feeCompactViewModel,
+                showsSlippage: viewModel.formVariant == .detailed,
+                slippageTapAction: {
+                    keyboardActive = false
+                    viewModel.userDidTapSlippage()
+                },
+                feeTapAction: {
+                    keyboardActive = false
+                    viewModel.userDidTapFee()
+                }
+            )
+        } else {
+            SendFeeCompactView(
+                viewModel: viewModel.feeCompactViewModel,
+                tapAction: {
+                    keyboardActive = false
+                    viewModel.userDidTapFee()
+                }
+            )
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier(SwapAccessibilityIdentifiers.feeBlock)
+        }
     }
 
     private var informationSection: some View {
