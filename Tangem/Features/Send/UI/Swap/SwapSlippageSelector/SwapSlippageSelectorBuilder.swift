@@ -7,17 +7,16 @@
 //
 
 struct SwapSlippageSelectorBuilder {
-    let swapProvidersInput: any SendSwapProvidersInput
     let slippageInput: any SwapSlippageInput
     let slippageOutput: any SwapSlippageOutput
 
     func makeSlippageSelector() -> SwapSlippageSelectorViewModel? {
-        guard let provider = swapProvidersInput.selectedExpressProvider?.value else {
+        guard let provider = slippageInput.slippageProvider else {
             return nil
         }
 
         return SwapSlippageSelectorViewModel(
-            provider: provider.provider,
+            provider: provider,
             slippage: slippageInput.slippage,
             output: slippageOutput
         )

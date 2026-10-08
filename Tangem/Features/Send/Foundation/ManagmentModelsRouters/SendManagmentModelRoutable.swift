@@ -24,6 +24,7 @@ protocol SendWithSwapModelRoutable: TransferModelRoutable {
 protocol SwapModelRoutable: TransferModelRoutable {
     func performSwapAction()
     func openTokenDetails(userWalletId: UserWalletId, tokenItem: TokenItem)
+    func openSlippageSelector()
 }
 
 /// Uses for connect `StakingModel` -> `SendViewModel(Base)`

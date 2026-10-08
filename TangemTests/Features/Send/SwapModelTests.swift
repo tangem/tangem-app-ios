@@ -390,6 +390,119 @@ final class SwapModelTests: LeakTrackingTestSuite {
 
     // MARK: - Custom slippage
 
+    @Test("The slippage sheet keeps its provider through a fee refresh but not through a quote reload")
+    func slippageProviderFollowsReloadKind() async throws {
+        let manager = ExpressManagerStub()
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            expressManager: manager,
+            pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager)
+        )
+        let recorder = SwapProvidersStateRecorder(sut)
+        let defaultSlippage = Decimal(string: "0.003")!
+
+        var baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        await manager.setSelectedProvider(ExpressAvailableProviderFixture.make(
+            state: .restriction(.tooBigAmount(100, currencySymbol: "ETH"), quote: nil),
+            slippage: defaultSlippage,
+            isCustomSlippageSupported: true
+        ))
+        baseline = recorder.count
+        sut.actualizeInformation()
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        #expect(sut.slippageProvider?.slippage == defaultSlippage)
+
+        baseline = recorder.count
+        sut.actualizeInformation()
+
+        #expect(sut.slippageProvider == nil)
+
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        #expect(sut.slippageProvider?.slippage == defaultSlippage)
+
+        baseline = recorder.count
+        sut.userDidFinishSelection(feeTokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)), feeOption: .market)
+
+        let isLoadingFee = if case .loading(.fee) = recorder.latest { true } else { false }
+        #expect(isLoadingFee)
+        #expect(sut.slippageProvider?.slippage == defaultSlippage)
+
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        await manager.holdNextAmountUpdate()
+        baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 2, fiat: nil)))
+        _ = try await waitForNewState(recorder, since: baseline) { state in
+            if case .loading = state { true } else { false }
+        }
+
+        #expect(sut.slippageProvider == nil)
+
+        await manager.releaseHeldAmountUpdate()
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        #expect(sut.slippageProvider?.slippage == defaultSlippage)
+
+        sut.update(receive: ReceiveTokenStub(blockchain: .polygon(testnet: false)))
+
+        #expect(sut.slippageProvider == nil)
+    }
+
+    @Test("Choosing another provider hands the slippage sheet the new provider right away")
+    func providerSelectionReplacesSlippageProvider() async throws {
+        let manager = ExpressManagerStub()
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            expressManager: manager,
+            pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager)
+        )
+        let recorder = SwapProvidersStateRecorder(sut)
+        let quotedState: ExpressProviderManagerState = .restriction(.tooBigAmount(100, currencySymbol: "ETH"), quote: nil)
+        let first = ExpressAvailableProviderFixture.make(state: quotedState, slippage: Decimal(string: "0.003"), isCustomSlippageSupported: true)
+        let second = ExpressAvailableProviderFixture.make(state: quotedState, slippage: Decimal(string: "0.01"), isCustomSlippageSupported: false)
+
+        var baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        await manager.setSelectedProvider(first)
+        baseline = recorder.count
+        sut.actualizeInformation()
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        #expect(sut.slippageProvider?.isCustomSlippageSupported == true)
+
+        baseline = recorder.count
+        sut.userDidSelect(provider: second)
+
+        #expect(sut.slippageProvider?.isCustomSlippageSupported == false)
+
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        #expect(sut.slippageProvider?.isCustomSlippageSupported == false)
+    }
+
+    @Test("Tapping the low slippage warning asks the router to open the slippage sheet")
+    func editSlippageNotificationOpensSelector() {
+        let router = SwapModelRouterSpy()
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false))
+        )
+        sut.router = router
+
+        sut.didTapNotification(with: 0, action: .editSlippage)
+
+        #expect(router.slippageSelectorOpenings == 1)
+    }
+
     @Test("A source token change resets the custom slippage")
     func sourceChangeResetsCustomSlippage() {
         let sut = makeSUT(
@@ -616,6 +729,19 @@ private extension SwapModelTests {
 
 // MARK: - Stubs
 
+private final class SwapModelRouterSpy: SwapModelRoutable {
+    private(set) var slippageSelectorOpenings = 0
+
+    func openNetworkCurrency() {}
+    func openApproveSheet() {}
+    func performSwapAction() {}
+    func openTokenDetails(userWalletId: UserWalletId, tokenItem: TokenItem) {}
+
+    func openSlippageSelector() {
+        slippageSelectorOpenings += 1
+    }
+}
+
 /// Records every arming so a test can fire a tick that a later arming has already superseded.
 private final class ManualAutoupdatingTimer: AutoupdatingTimerSetup {
     private let state = OSAllocatedUnfairLock(initialState: [() -> Void]())
@@ -714,7 +840,8 @@ private actor ExpressManagerStub: ExpressManager {
     }
 
     func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState {
-        state()
+        selectedProvider = provider
+        return state()
     }
 
     func update(type: ExpressManagerUpdatingType) async -> ExpressManagerState {

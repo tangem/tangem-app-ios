@@ -24,6 +24,7 @@ public enum SwapAccessibilityIdentifiers {
     // Fee section
     public static let feeBlock = "swapFeeBlock"
     public static let slippageBlock = "swapSlippageBlock"
+    public static let editSlippageButton = "swapEditSlippageButton"
     public static let tangemCommissionLabel = "swapTangemCommissionLabel"
 
     /// Fee selector elements
