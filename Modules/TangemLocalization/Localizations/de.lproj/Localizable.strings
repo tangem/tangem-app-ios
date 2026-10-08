@@ -2828,7 +2828,7 @@
 "tangempay_withdraw_hub_title" = "Abheben";
 "tangempay_withdraw_hub_to_business_account" = "An das Geschäftskonto";
 "tangempay_withdraw_hub_to_personal_account" = "Zum persönlichen Konto";
-"tangempay_withdraw_hub_within_portfolio" = "Innerhalb Ihres Portfolios";
+"tangempay_withdraw_hub_within_portfolio" = "Innerhalb Ihres Tangem Wallet";
 "tangempay_withdrawal_note_description" = "Gelder aus erstatteten Käufen werden nicht auf Ihr On-Chain-Guthaben zurückerstattet und stehen nicht für Abhebungen zur Verfügung, bleiben aber auf Ihrem Kartenguthaben für Einkäufe verfügbar";
 "tangempay_withdrawal_note_title" = "Bitte beachten Sie";
 "tangempay_your_balance" = "Ihr Guthaben";
