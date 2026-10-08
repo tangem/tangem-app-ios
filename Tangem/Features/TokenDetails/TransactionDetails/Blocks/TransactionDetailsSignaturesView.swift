@@ -14,7 +14,7 @@ struct TransactionDetailsSignaturesViewData: Equatable {
     let title: String
     /// Includes the initiator's own signature, so an operation that exists never reads zero.
     let collectedCount: Int
-    let membersCount: Int
+    let requiredCount: Int
 }
 
 /// The progress of a joint account operation towards the signatures it needs, and the way to see who has answered.
@@ -31,8 +31,8 @@ struct TransactionDetailsSignaturesView: View {
             }
             .end {
                 JointAccountSignatureMarks(
-                    signedMembersCount: data.collectedCount,
-                    totalMembersCount: data.membersCount
+                    collectedCount: data.collectedCount,
+                    requiredCount: data.requiredCount
                 )
             }
             .onTap(onTap)
