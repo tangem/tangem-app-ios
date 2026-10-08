@@ -99,9 +99,7 @@ extension StakeFactory {
             analyticsLogger: analyticsLogger,
             autoupdatingTimer: autoupdatingTimer,
             initialAmount: makeInitialAmount(stepPlan: stepPlan),
-            initialTarget: makeInitialTarget(stepPlan: stepPlan),
-            // A flow with no editable amount and no validator to pick has nothing to wait for.
-            shouldUpdateStateInitially: !stepPlan.amount.isEditable && !stepPlan.hasValidatorSelection
+            initialTarget: makeInitialTarget(stepPlan: stepPlan)
         )
     }
 
