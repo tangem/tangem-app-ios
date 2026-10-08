@@ -74,6 +74,7 @@ actor CommonTransactionHistoryAuxDataRepository {
                 cache = cacheFromStorage
                 syncCache { $0 = cacheFromStorage }
                 cacheState = .loaded
+                subscribers.yield()
             } catch {
                 TransactionHistoryLogger.error(error: "Failed to populate cache from storage: \(error)")
                 cacheState = .failed
@@ -534,7 +535,7 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
         .multicast(
             with: self,
             onSubscribe: { repository, id, continuation in
-                repository.subscribers.subscribe(id: id, continuation: continuation)
+                repository.subscribers.subscribe(id: id, continuation: continuation, currentValue: ())
             },
             onUnsubscribe: { repository, id in
                 repository.subscribers.unsubscribe(id: id)
