@@ -39,6 +39,7 @@ struct TangemPayMobileOnboardingView: View {
         TangemPayOnboardingContentView(
             showsFAQ: false,
             showsLegalLine: true,
+            usesBundleIntroductionLayout: true,
             getCardIcon: nil,
             titleAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.mobileOnboardingTitle,
             getCardButtonAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.mobileOnboardingGetCardButton,
