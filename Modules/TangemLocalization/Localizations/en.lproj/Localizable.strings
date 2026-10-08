@@ -1000,7 +1000,7 @@
 "introduction_stories_two_subtitle" = "Use any of your cards to access your wallet";
 "introduction_stories_two_title" = "One wallet, multiple cards";
 "introduction_subtitle" = "One secure place for everything you own";
-"introduction_terms_of_service_consent" = "By continuing, you agree with %@";
+"introduction_terms_of_service_consent" = "By continuing, you agree to the %@";
 "introduction_terms_of_service" = "Terms of service";
 "introduction_title" = "Store all your assets";
 "jailbreak_warning_message" = "Devices with jailbreak are considered less secure. Your data may be exposed to additional risks.";
@@ -2607,8 +2607,8 @@
 "tangempay_newonboard_body" = "Spend crypto anywhere — no banks, no middlemen, no exchanges. The power of self-custody meets everyday payments.";
 "tangempay_newonboard_bottomleft_body" = "Buy online and via Apple Pay";
 "tangempay_newonboard_bottomleft_title" = "Accepted worldwide";
-"tangempay_newonboard_bottomright_body" = "USD to USDC 1:1; flat $1 fee";
-"tangempay_newonboard_bottomright_title" = "Recieve ACH transfers";
+"tangempay_newonboard_bottomright_body" = "Via ACH or Wire";
+"tangempay_newonboard_bottomright_title" = "Get and send bank transfers";
 "tangempay_newonboard_Q1_body" = "Top up your payment account with USDT or USDC on any network with zero fees. On Ethereum, Base, Polygon, BSC, and Arbitrum, you’ll also get a 1:1 rate.";
 "tangempay_newonboard_Q1_title" = "What crypto can I spend?";
 "tangempay_newonboard_Q2_body" = "Yes – to operate a regulated Visa card, identity verification is mandatory. Verification is handled by Sumsub (compliance partner).";
