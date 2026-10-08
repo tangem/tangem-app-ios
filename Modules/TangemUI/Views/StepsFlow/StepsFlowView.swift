@@ -103,6 +103,7 @@ private extension StepsFlowView {
     func stepView(_ step: StepsFlowStep) -> some View {
         StepsFlowContent(
             step: step,
+            isActive: step.id == viewModel.currentStepId,
             onTitle: { viewModel.update(stepId: step.id, title: $0) },
             onLeadingItem: { viewModel.update(stepId: step.id, leadingItem: $0) },
             onTrailingItem: { viewModel.update(stepId: step.id, trailingItem: $0) },
