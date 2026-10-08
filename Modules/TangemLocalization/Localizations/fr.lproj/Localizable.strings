@@ -191,9 +191,9 @@
 "bitcoin_promo_no_address_title" = "Adresse Bitcoin requise";
 "bitcoin_promo_no_address" = "Une adresse Bitcoin est nécessaire pour recevoir le bonus. Veuillez en ajouter une à votre portefeuille et réessayer l'activation.";
 "button_start_backup_process" = "Démarrer le processus de sauvegarde";
-"buy_swap_region_restriction_description_region" = "Buy and swap are currently not available in your region: %@";
+"buy_swap_region_restriction_description_region" = "L'achat et l'échange ne sont actuellement pas disponibles dans votre région : %@";
 "buy_swap_region_restriction_description" = "Buy and swap are currently not available in your region";
-"buy_swap_region_restriction_title" = "Regional restrictions";
+"buy_swap_region_restriction_title" = "Restrictions régionales";
 "buy_token_description" = "Utilisez une carte bancaire ou d'autres moyens de paiement";
 "card_reset_alert_finish_message" = "Tous les appareils Tangem ont été réinitialisés. Vous pouvez maintenant continuer à mettre à jour votre portefeuille.";
 "card_reset_alert_finish_ok_button" = "Mettre de nouveau à jour";
@@ -520,7 +520,7 @@
 "common_transfer" = "Transfert";
 "common_transferred" = "Transféré";
 "common_try_again_later" = "Veuillez réessayer plus tard.";
-"common_type" = "Type";
+"common_type" = "Saisir";
 "common_understand_continue" = "Je comprends, continuer.";
 "common_understand" = "Je comprends";
 "common_unknown_error" = "Il y avait une erreur. Veuillez réessayer.";
@@ -621,7 +621,7 @@
 "dynamic_addresses_receive_badge" = "Adresse dynamique";
 "dynamic_addresses_unavailability_reason_pending_transaction_send" = "Dynamic addresses management will be available once the pending transaction(s) in network %@ is complete";
 "dynamic_addresses" = "Dynamic addresses";
-"earn_assets" = "Earn assets";
+"earn_assets" = "Actifs à rendement";
 "earn_best_opportunities" = "Meilleures opportunités";
 "earn_clear_filter" = "Effacer le filtre";
 "earn_empty" = "The list is temporarily empty as it’s being refreshed. Check back in a moment.";
@@ -742,8 +742,8 @@
 "feed_search_show_all_user_assets" = "Show All";
 "feed_search_show_less_user_assets" = "Show less";
 "feed_tab_crypto" = "Crypto";
-"feed_tab_earn" = "Earn";
-"feed_tab_rwa" = "Real assets";
+"feed_tab_earn" = "Rendement";
+"feed_tab_rwa" = "Actifs réels";
 "feed_trending_now" = "Tendances actuelles";
 "feedback_preface_rate_negative" = "Dites-nous quelles fonctions vous manquent, et nous essaierons de vous aider.";
 "feedback_preface_scan_failed" = "Veuillez nous dire quelle carte vous avez";
@@ -1016,7 +1016,7 @@
 "joint_account_invite_load_failed_subtitle" = "Échec du chargement de la page d'invitation.\nAppuyez pour la recharger";
 "joint_account_invite_members_creator" = "Créateur";
 "joint_account_invite_members_invite" = "Inviter";
-"joint_account_invite_members_invited" = "Invited";
+"joint_account_invite_members_invited" = "Invité";
 "joint_account_invite_members_member_info" = "Informations sur le membre";
 "joint_account_invite_members_member" = "Membre";
 "joint_account_invite_members_new_member" = "Nouveau membre";
@@ -1035,7 +1035,7 @@
 "joint_account_invite_members_title" = "Inviter des membres";
 "joint_account_invite_members_to_join" = "Inviter des membres à rejoindre";
 "joint_account_invite_members_waiting_title" = "En attente de membres";
-"joint_account_invite_share_title" = "Invite to %@";
+"joint_account_invite_share_title" = "Inviter à %@";
 "joint_account_join_confirm_sheet_subtitle" = "Tous les membres de ce compte partagent un solde commun. Les autres membres peuvent déplacer les fonds sans votre approbation dès qu'ils réunissent suffisamment de signatures";
 "joint_account_join_confirm_sheet_title" = "Vous rejoignez un compte partagé";
 "joint_account_join_invalid_link_subtitle" = "Vérifiez que vous avez ouvert le bon lien, ou demandez au créateur du compte de vous le renvoyer";
@@ -1144,7 +1144,7 @@
 "manage_tokens_toast_portfolio_updated" = "Votre portfolio a été mis à jour";
 "manage_tokens_wallet_selector_title" = "Choisissez un portefeuille";
 "manage_tokens_wallet_support_only_one_network_title" = "Le portefeuille ne prend pas en charge plus d'un réseau";
-"market_categories" = "Categories";
+"market_categories" = "Catégories";
 "market_chart_ai_total" = "AI Total:";
 "market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
 "market_chart_bubble_no_amount" = "Aucun token \n/ aucune valeur";
