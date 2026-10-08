@@ -42,12 +42,12 @@ extension CollectiblesAPIService {
         return Mapper.mapToPurchaseStatus(transaction)
     }
 
-    func loadPurchaseStatus(txID: String, userWalletID: String) async throws -> CollectiblesPurchaseStatus {
+    func loadPurchaseStatus(txID: String, userWalletID: String) async throws -> CollectiblesPurchaseTransaction {
         let transaction: CollectiblesDTO.PurchaseTransaction = try await request(
-            .purchaseStatus(.init(txID: txID), userWalletID: userWalletID)
+            .purchaseStatus(.init(txID: txID, includeNftWon: true), userWalletID: userWalletID)
         )
 
-        return Mapper.mapToPurchaseStatus(transaction)
+        return Mapper.mapToPurchaseTransaction(transaction)
     }
 
     func openPack(txID: String, userWalletID: String) async throws -> CollectiblesPurchaseStatus {

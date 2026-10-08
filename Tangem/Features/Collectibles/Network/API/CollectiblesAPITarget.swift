@@ -50,7 +50,8 @@ struct CollectiblesAPITarget: Moya.TargetType {
         case .categories, .machine: .requestPlain
         case .machines(let request): .requestParameters(request, encoding: URLEncoding.queryString)
         case .machineNfts(_, let request, _): .requestParameters(request, encoding: URLEncoding.queryString)
-        case .purchaseStatus(let request, _): .requestParameters(request, encoding: URLEncoding.queryString)
+        case .purchaseStatus(let request, _):
+            .requestParameters(request, encoding: URLEncoding(destination: .queryString, boolEncoding: .literal))
         case .generatePurchaseTx(let request, _): .requestJSONEncodable(request)
         case .purchaseTxSent(let request, _): .requestJSONEncodable(request)
         case .openPack(let request, _): .requestJSONEncodable(request)
