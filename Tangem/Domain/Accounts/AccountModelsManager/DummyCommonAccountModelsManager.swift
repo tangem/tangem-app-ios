@@ -80,6 +80,12 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
 
     func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async throws(TangemPayAuthorizationError) {}
 
+    func authorizeTangemPayOfferForResidency(
+        authorizingInteractor: any TangemPayAuthorizing
+    ) async throws(TangemPayAuthorizationError) -> (any TangemPayResidencyInteractor)? {
+        nil
+    }
+
     func acceptTangemPayCampaignOffer(
         authorizingInteractor: any TangemPayAuthorizing,
         campaignKey: String

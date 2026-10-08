@@ -111,8 +111,8 @@ private extension TangemPayWaitlistViewModel {
         TangemPayJoinWaitlistRequest(
             email: email,
             product: product,
-            country: country,
-            region: region,
+            countryCode: country,
+            regionCode: region,
             marketingConsent: isMarketingConsentOn
         )
     }

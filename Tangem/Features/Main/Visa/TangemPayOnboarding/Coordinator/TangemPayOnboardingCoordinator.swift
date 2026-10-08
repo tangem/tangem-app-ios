@@ -11,13 +11,14 @@ import TangemFoundation
 import TangemLocalization
 import TangemPay
 import TangemUI
+import TangemVisa
 
 protocol TangemPayOnboardingRoutable: AnyObject {
     func openWalletSelector(
         from: [UserWalletModel],
         onSelect: @escaping (UserWalletModel) -> Void
     )
-    func openResidency(onAvailable: @escaping () -> Void)
+    func openResidency(interactor: any TangemPayResidencyInteractor)
 }
 
 final class TangemPayOnboardingCoordinator: CoordinatorObject {
@@ -29,6 +30,8 @@ final class TangemPayOnboardingCoordinator: CoordinatorObject {
 
     @Published private(set) var rootViewModel: TangemPayOnboardingViewModel?
     @Published var residencyCoordinator: TangemPayResidencyCoordinator?
+
+    private var kycLaunchTask: Task<Void, Never>?
 
     private lazy var geoStore = TangemPayGeoStore(
         repository: CommonTangemPayGeoRepository()
@@ -42,17 +45,27 @@ final class TangemPayOnboardingCoordinator: CoordinatorObject {
         self.popToRootAction = popToRootAction
     }
 
+    deinit {
+        kycLaunchTask?.cancel()
+    }
+
     func start(with options: Options) {
         prefetchCountriesIfNeeded()
 
-        rootViewModel = .init(
-            source: options.source,
-            availableSelection: options.availableSelection,
-            coordinator: self,
-            closeOfferScreen: { [weak self] in
-                self?.dismiss(with: ())
-            }
-        )
+        switch options.entry {
+        case .offer(let source, let availableSelection):
+            rootViewModel = .init(
+                source: source,
+                availableSelection: availableSelection,
+                coordinator: self,
+                closeOfferScreen: { [weak self] in
+                    self?.dismiss(with: ())
+                }
+            )
+
+        case .residency(let interactor):
+            openResidency(interactor: interactor)
+        }
     }
 }
 
@@ -78,27 +91,60 @@ extension TangemPayOnboardingCoordinator: TangemPayOnboardingRoutable {
         }
     }
 
-    func openResidency(onAvailable: @escaping () -> Void) {
+    func openResidency(interactor: any TangemPayResidencyInteractor) {
         let dismissAction: Action<TangemPayResidencyCoordinator.DismissOptions?> = { [weak self] options in
-            self?.residencyCoordinator = nil
-
             switch options {
             case .available:
-                onAvailable()
+                self?.launchKYC(interactor: interactor)
 
             case .joinedWaitlist:
+                self?.kycLaunchTask?.cancel()
                 self?.dismiss(with: ())
                 Toast(view: SuccessToast(text: Localization.tangempayWaitlistJoinedMessage))
                     .present(layout: .top(padding: 12), type: .temporary())
 
             case .closed, .none:
+                self?.kycLaunchTask?.cancel()
                 self?.dismiss(with: ())
             }
         }
 
         let coordinator = TangemPayResidencyCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: .init(product: .paymentAccount, geoStore: geoStore))
+        coordinator.start(with: .init(product: .paymentAccount, geoStore: geoStore, interactor: interactor))
         residencyCoordinator = coordinator
+    }
+
+    private func launchKYC(interactor: any TangemPayResidencyInteractor) {
+        guard kycLaunchTask == nil else {
+            return
+        }
+
+        kycLaunchTask = runTask { [weak self] in
+            do {
+                try await interactor.launchKYC { [weak self] in
+                    await self?.dismissOnMain()
+                }
+            } catch {
+                guard !Task.isCancelled else {
+                    return
+                }
+
+                VisaLogger.error("Failed to launch Tangem Pay KYC after the residency step", error: error)
+                await self?.dismissAfterKYCLaunchFailure()
+            }
+        }
+    }
+
+    @MainActor
+    private func dismissOnMain() {
+        dismiss(with: ())
+    }
+
+    @MainActor
+    private func dismissAfterKYCLaunchFailure() {
+        dismiss(with: ())
+        Toast(view: WarningToast(text: Localization.commonSomethingWentWrong))
+            .present(layout: .top(padding: 20), type: .temporary())
     }
 
     private func prefetchCountriesIfNeeded() {
@@ -118,8 +164,20 @@ extension TangemPayOnboardingCoordinator: TangemPayOnboardingRoutable {
 
 extension TangemPayOnboardingCoordinator {
     struct Options {
-        let source: TangemPayOnboardingSource
-        let availableSelection: TangemPayWalletSelectionType
+        let entry: Entry
+
+        init(source: TangemPayOnboardingSource, availableSelection: TangemPayWalletSelectionType) {
+            entry = .offer(source: source, availableSelection: availableSelection)
+        }
+
+        init(residencyInteractor: any TangemPayResidencyInteractor) {
+            entry = .residency(residencyInteractor)
+        }
+    }
+
+    enum Entry {
+        case offer(source: TangemPayOnboardingSource, availableSelection: TangemPayWalletSelectionType)
+        case residency(any TangemPayResidencyInteractor)
     }
 
     typealias DismissOptions = Void
