@@ -14,12 +14,14 @@ struct TangemPayOnboardingCoordinatorView: CoordinatorView {
 
     var body: some View {
         ZStack {
-            if let rootViewModel = coordinator.rootViewModel {
+            if let residencyCoordinator = coordinator.residencyCoordinator {
+                TangemPayResidencyCoordinatorView(coordinator: residencyCoordinator)
+                    .transition(.opacity)
+            } else if let rootViewModel = coordinator.rootViewModel {
                 TangemPayOnboardingView(viewModel: rootViewModel)
+                    .transition(.opacity)
             }
         }
-        .fullScreenCover(item: $coordinator.residencyCoordinator) {
-            TangemPayResidencyCoordinatorView(coordinator: $0)
-        }
+        .animation(.default, value: coordinator.residencyCoordinator?.id)
     }
 }
