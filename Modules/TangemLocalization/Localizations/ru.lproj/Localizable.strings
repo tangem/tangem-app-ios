@@ -1000,7 +1000,7 @@
 "introduction_stories_two_subtitle" = "Используйте любую карту для доступа к кошельку";
 "introduction_stories_two_title" = "Один кошелёк, несколько карт";
 "introduction_subtitle" = "Одно безопасное место для всех ваших активов";
-"introduction_terms_of_service_consent" = "By continuing, you agree with %@";
+"introduction_terms_of_service_consent" = "Продолжая, вы соглашаетесь с %@";
 "introduction_terms_of_service" = "Условиями использования";
 "introduction_title" = "Храните все свои активы";
 "jailbreak_warning_message" = "Устройства с джейлбрейком считаются менее безопасными. Ваши данные могут быть подвержены дополнительным рискам.";
@@ -2607,8 +2607,8 @@
 "tangempay_newonboard_body" = "Тратьте крипту где угодно — без банков, бирж и посредников. Сила self-custody для повседневных платежей.";
 "tangempay_newonboard_bottomleft_body" = "Онлайн и c Apple Pay";
 "tangempay_newonboard_bottomleft_title" = "Принимается везде";
-"tangempay_newonboard_bottomright_body" = "USD в USDC 1:1; фикс.комиссия $1";
-"tangempay_newonboard_bottomright_title" = "Получайте ACH-переводы";
+"tangempay_newonboard_bottomright_body" = "Переводы по ACH/Wire";
+"tangempay_newonboard_bottomright_title" = "Получайте и отправляйте";
 "tangempay_newonboard_Q1_body" = "Пополняйте платёжный аккаунт USDT или USDC в любой сети без комиссии. В сетях Ethereum, Base, Polygon, BSC и Arbitrum также действует курс 1:1.";
 "tangempay_newonboard_Q1_title" = "Какую крипту можно тратить?";
 "tangempay_newonboard_Q2_body" = "Да, для использования регулируемой карты Visa необходимо пройти проверку личности. Верификацию проводит наш комплаенс-партнёр Sumsub.";
