@@ -98,7 +98,7 @@ struct TangemPayVirtualAccountBankDetailsView: View {
                 .foregroundStyle(DesignSystem.Color.iconStatusInfo)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(verbatim: "\(Localization.tangempayVaAvailableToDepositDay) \(Constants.dailyDepositLimit)")
+                Text(verbatim: "\(Localization.tangempayVaAvailableToDepositDay) \(viewModel.dailyDepositLimit)")
                     .font(token: DesignSystem.Font.subheadingMediumToken)
                     .foregroundStyle(DesignSystem.Color.textPrimary)
                     .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountDepositLimitTitle)
@@ -126,11 +126,5 @@ struct TangemPayVirtualAccountBankDetailsView: View {
         .size(.x14)
         .horizontalLayout(.infinity)
         .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountBankDetailsShareButton)
-    }
-}
-
-private extension TangemPayVirtualAccountBankDetailsView {
-    enum Constants {
-        static let dailyDepositLimit = "$10,000"
     }
 }
