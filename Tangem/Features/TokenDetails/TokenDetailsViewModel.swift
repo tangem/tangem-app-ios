@@ -200,7 +200,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .yieldBoostPromoLater,
              .openGetTangemPay,
              .closeGetTangemPay,
-             .removeTangemPayAccount:
+             .removeTangemPayAccount,
+             .editSlippage:
             break
         case .openFeeCurrency:
             coordinator?.proceedFeeCurrencyNavigatingDismissOption(
