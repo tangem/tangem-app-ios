@@ -162,8 +162,8 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayCachedCashbackSummary)
     var tangemPayCachedCashbackSummary: [String: String] = [:]
 
-    @AppStorageCompat(StorageType.tangemPayUnavailableRegion)
-    var tangemPayUnavailableRegion: [String: String] = [:]
+    @AppStorageCompat(StorageType.tangemPayResidencyStatus)
+    var tangemPayResidencyStatus: [String: String] = [:]
 
     @AppStorageCompat(StorageType.jailbreakWarningWasShown)
     var jailbreakWarningWasShown: Bool = false
