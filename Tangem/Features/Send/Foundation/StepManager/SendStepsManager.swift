@@ -26,12 +26,18 @@ protocol SendStepsManager {
     func performContinue()
     func performFinish()
 
+    func openSlippageSelector()
+
     func set(output: SendStepsManagerOutput)
 }
 
 extension SendStepsManager {
     func resetFlow() {
         assertionFailure("Reset flow not implemented")
+    }
+
+    func openSlippageSelector() {
+        assertionFailure("Open slippage selector not implemented")
     }
 
     func performNext() {

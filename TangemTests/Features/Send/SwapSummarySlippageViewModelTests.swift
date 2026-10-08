@@ -75,17 +75,21 @@ struct SwapSummarySlippageViewModelTests {
         #expect(recorder.values == [.auto, .custom("0.15%")])
     }
 
-    @Test("Allows editing only once the provider has loaded")
-    func editableOnlyWhenLoaded() async throws {
-        let provider = ExpressAvailableProviderFixture.make(state: .idle)
-        let input = SwapProvidersInputStub(selected: .loading)
-        let viewModel = SwapSummarySlippageViewModel(swapProvidersInput: input, slippageInput: SlippageInputStub())
+    @Test("Allows editing exactly while the sheet has a provider to open with")
+    func editableFollowsSlippageProvider() async throws {
+        let provider = ExpressAvailableProviderFixture.make(state: .idle).provider
+        let slippageInput = SlippageInputStub()
+        let viewModel = SwapSummarySlippageViewModel(
+            swapProvidersInput: SwapProvidersInputStub(selected: .loading),
+            slippageInput: slippageInput
+        )
         let recorder = ValueRecorder(publisher: viewModel.$isEditable)
 
-        input.selectedSubject.send(.success(provider))
-        try await recorder.waitForValues(count: 2)
+        slippageInput.providerSubject.send(provider)
+        slippageInput.providerSubject.send(nil)
+        try await recorder.waitForValues(count: 3)
 
-        #expect(recorder.values == [false, true])
+        #expect(recorder.values == [false, true, false])
     }
 }
 
@@ -136,9 +140,12 @@ private final class ValueRecorder<Value> {
 
 private final class SlippageInputStub: SwapSlippageInput {
     let subject = CurrentValueSubject<SwapSlippage, Never>(.auto)
+    let providerSubject = CurrentValueSubject<ExpressProvider?, Never>(nil)
 
     var slippage: SwapSlippage { subject.value }
     var slippagePublisher: AnyPublisher<SwapSlippage, Never> { subject.eraseToAnyPublisher() }
+    var slippageProvider: ExpressProvider? { providerSubject.value }
+    var slippageProviderPublisher: AnyPublisher<ExpressProvider?, Never> { providerSubject.eraseToAnyPublisher() }
 }
 
 private final class SwapProvidersInputStub: SendSwapProvidersInput {
