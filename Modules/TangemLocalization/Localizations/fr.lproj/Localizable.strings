@@ -1000,7 +1000,7 @@
 "introduction_stories_two_subtitle" = "Utilisez n'importe laquelle de vos cartes pour accéder à votre wallet";
 "introduction_stories_two_title" = "Un wallet, plusieurs cartes";
 "introduction_subtitle" = "Un espace unique et sécurisé pour tout ce que vous possédez";
-"introduction_terms_of_service_consent" = "By continuing, you agree with %@";
+"introduction_terms_of_service_consent" = "En continuant, vous acceptez les %@";
 "introduction_terms_of_service" = "Conditions d'utilisation";
 "introduction_title" = "Stockez tous vos actifs";
 "jailbreak_warning_message" = "Les appareils jailbreakés sont considérés comme moins sécurisés. Vos données peuvent être exposées à des risques supplémentaires.";
@@ -2607,8 +2607,8 @@
 "tangempay_newonboard_body" = "Dépensez vos cryptos partout — sans banque, sans intermédiaire, sans exchange. La self-custody au service des paiements du quotidien.";
 "tangempay_newonboard_bottomleft_body" = "Paiement en ligne et via Apple Pay";
 "tangempay_newonboard_bottomleft_title" = "Acceptée partout";
-"tangempay_newonboard_bottomright_body" = "USD → USDC 1:1 ; frais fixe 1 $";
-"tangempay_newonboard_bottomright_title" = "Virements ACH";
+"tangempay_newonboard_bottomright_body" = "Des virements ACH/Wire";
+"tangempay_newonboard_bottomright_title" = "Recevoir et envoyer";
 "tangempay_newonboard_Q1_body" = "Approvisionnez votre compte de paiement en USDT ou USDC sur n’importe quel réseau, sans frais. Sur Ethereum, Base, Polygon, BSC et Arbitrum, vous bénéficiez aussi d’un taux de change de 1:1.";
 "tangempay_newonboard_Q1_title" = "Quelles cryptos puis-je dépenser ?";
 "tangempay_newonboard_Q2_body" = "Oui, la vérification d’identité est requise pour utiliser une carte Visa réglementée. Elle est assurée par notre partenaire de conformité, Sumsub.";
