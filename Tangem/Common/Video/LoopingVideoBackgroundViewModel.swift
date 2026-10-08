@@ -8,6 +8,7 @@
 
 import AVFoundation
 import Combine
+import UIKit
 import TangemUI
 
 final class LoopingVideoBackgroundViewModel: ObservableObject {
@@ -15,6 +16,7 @@ final class LoopingVideoBackgroundViewModel: ObservableObject {
 
     private let provider: LoopingVideoBackgroundProvider
     private var looper: AVPlayerLooper?
+    private var autoplayPreferenceObserver: AnyCancellable?
 
     init(provider: LoopingVideoBackgroundProvider) {
         self.provider = provider
@@ -24,10 +26,13 @@ final class LoopingVideoBackgroundViewModel: ObservableObject {
         if player == nil {
             startPlayback()
         }
-        player?.play()
+
+        observeAutoplayPreference()
+        applyAutoplayPreference()
     }
 
     func stop() {
+        autoplayPreferenceObserver = nil
         player?.pause()
         looper?.disableLooping()
         looper = nil
@@ -49,5 +54,24 @@ final class LoopingVideoBackgroundViewModel: ObservableObject {
 
         player = queuePlayer
         looper = AVPlayerLooper(player: queuePlayer, templateItem: item)
+    }
+
+    private func observeAutoplayPreference() {
+        guard autoplayPreferenceObserver == nil else { return }
+
+        autoplayPreferenceObserver = NotificationCenter.default
+            .publisher(for: UIAccessibility.videoAutoplayStatusDidChangeNotification)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.applyAutoplayPreference()
+            }
+    }
+
+    private func applyAutoplayPreference() {
+        if UIAccessibility.isVideoAutoplayEnabled {
+            player?.play()
+        } else {
+            player?.pause()
+        }
     }
 }
