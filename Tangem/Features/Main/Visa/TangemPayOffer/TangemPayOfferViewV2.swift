@@ -25,6 +25,7 @@ struct TangemPayOfferViewV2: View {
         TangemPayOnboardingContentView(
             showsFAQ: !isBundleIntroductionEnabled,
             showsLegalLine: isBundleIntroductionEnabled,
+            usesBundleIntroductionLayout: isBundleIntroductionEnabled,
             getCardIcon: isBundleIntroductionEnabled ? nil : DesignSystem.Icons.LogoTangem.regular24,
             titleAccessibilityIdentifier: nil,
             getCardButtonAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.onboardingGetCardButton,
