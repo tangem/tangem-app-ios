@@ -26,7 +26,7 @@ struct WalletBackupFormatV1: WalletBackupFormat {
         var key = try keyDerivator.deriveKey(password: Self.canonicalPassword(password), params: kdfParams)
         defer { key.secureErase() }
 
-        var plaintext = try encodePayload(payload)
+        var plaintext = try WalletBackupPayloadDTO.encode(payload)
         defer { plaintext.secureErase() }
 
         let version = WalletBackupFormatVersion.v1
@@ -37,7 +37,7 @@ struct WalletBackupFormatV1: WalletBackupFormat {
         // the version also prevents relabeling a file to route it through legacy parsing.
         let additionalData = Self.additionalData(version: version, backupID: backupID)
         let sealedBox = try cryptor.encrypt(plaintext, key: key, additionalData: additionalData)
-        let createdAt = Self.iso8601Formatter.string(from: Date())
+        let createdAt = WalletBackupDateFormatter.iso8601.string(from: Date())
 
         return File(
             version: version,
@@ -63,7 +63,7 @@ struct WalletBackupFormatV1: WalletBackupFormat {
             fileName: fileName,
             walletName: file.name,
             walletId: file.walletId,
-            createdAt: Self.iso8601Formatter.date(from: file.createdAt)
+            createdAt: WalletBackupDateFormatter.iso8601.date(from: file.createdAt)
         )
 
         return MobileWalletBackup(
@@ -113,7 +113,7 @@ struct WalletBackupFormatV1: WalletBackupFormat {
         var payloadData = try cryptor.decrypt(sealedBox, key: key, additionalData: additionalData)
         defer { payloadData.secureErase() }
 
-        return try decodePayload(payloadData)
+        return try WalletBackupPayloadDTO.decode(payloadData)
     }
 }
 
@@ -133,48 +133,6 @@ private extension WalletBackupFormatV1.File.KDFParams {
     }
 }
 
-// MARK: - Payload serialization
-
-private extension WalletBackupFormatV1 {
-    /// Canonical plaintext schema of v1 files. Backups created today are restored by
-    /// future app versions — this schema must keep decoding forever.
-    struct PayloadDTO: Codable {
-        let mnemonic: String
-        let passphraseRequired: PassphraseRequirement
-    }
-
-    enum PassphraseRequirement: Int, Codable {
-        case notRequired = 0
-        case required = 1
-    }
-
-    func encodePayload(_ payload: any WalletBackupPayload) throws -> Data {
-        let dto = PayloadDTO(
-            mnemonic: payload.mnemonicWords.joined(separator: " "),
-            passphraseRequired: payload.requiresPassphrase ? .required : .notRequired
-        )
-        do {
-            return try WalletBackupJSONCodec.encode(dto)
-        } catch {
-            // The underlying error is dropped on purpose — it can embed the plaintext.
-            throw WalletBackupEncodingError.payloadEncodingFailed
-        }
-    }
-
-    func decodePayload(_ payloadData: Data) throws -> CommonWalletBackupPayload {
-        do {
-            let dto = try WalletBackupJSONCodec.decode(PayloadDTO.self, from: payloadData)
-            return CommonWalletBackupPayload(
-                mnemonicWords: dto.mnemonic.split(separator: " ").map(String.init),
-                requiresPassphrase: requiresPassphrase(from: dto)
-            )
-        } catch {
-            // The underlying error is dropped on purpose — it can embed the plaintext.
-            throw WalletBackupDecodingError.payloadDecodingFailed
-        }
-    }
-}
-
 // MARK: - Private implementation
 
 private extension WalletBackupFormatV1 {
@@ -183,13 +141,6 @@ private extension WalletBackupFormatV1 {
             return try WalletBackupJSONCodec.decode(File.self, from: fileData)
         } catch {
             throw WalletBackupDecodingError.decodingFailed(error)
-        }
-    }
-
-    func requiresPassphrase(from dto: PayloadDTO) -> Bool {
-        switch dto.passphraseRequired {
-        case .required: true
-        case .notRequired: false
         }
     }
 
@@ -210,6 +161,4 @@ private extension WalletBackupFormatV1 {
     static func additionalData(version: WalletBackupFormatVersion, backupID: String) -> Data {
         Data("\(version.rawValue).\(backupID)".utf8)
     }
-
-    static let iso8601Formatter = ISO8601DateFormatter()
 }
