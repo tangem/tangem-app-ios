@@ -19,6 +19,8 @@ protocol TangemPayAccountRoutable: AnyObject {
     func openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
     func openTangemPayMainView(tangemPayAccount: TangemPayAccount)
     func openTangemPaySelectPlan(tariffPlanSelector: any TangemPayTariffPlanSelector)
+    func openTangemPayResidency(interactor: any TangemPayResidencyInteractor)
+    func openTangemPayRegionUnavailablePopup(region: TangemPayUnavailableRegion, interactor: any TangemPayResidencyInteractor)
 }
 
 final class TangemPayAccountViewModel: ObservableObject {
@@ -60,6 +62,10 @@ final class TangemPayAccountViewModel: ObservableObject {
             }
         case .kycRequired(let tangemPayKYCInteractor):
             router?.openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
+        case .residencyRequired(let interactor):
+            router?.openTangemPayResidency(interactor: interactor)
+        case .regionUnavailable(let region, let interactor):
+            router?.openTangemPayRegionUnavailablePopup(region: region, interactor: interactor)
         case .kycDeclined(let tangemPayKYCInteractor):
             router?.openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
         case .failedToIssueCard(let tangemPayAccount),
@@ -92,6 +98,8 @@ private extension TangemPayAccountViewModel {
                     .just(output: .unavailable(cached: viewModel.makeCachedDisplayData()))
                 case .kycRequired:
                     .just(output: .kycInProgress)
+                case .residencyRequired, .regionUnavailable:
+                    .just(output: .actionRequired)
                 case .kycDeclined:
                     .just(output: .kycDeclined)
                 case .failedToIssueCard:
@@ -149,6 +157,12 @@ private extension TangemPayAccountViewModel {
         case .kycRequired:
             CachedDisplayData(
                 subtitle: Localization.tangempayKycInProgress,
+                trailing: .empty
+            )
+
+        case .actionRequired:
+            CachedDisplayData(
+                subtitle: Localization.moneyAccountMainStatusActionRequired,
                 trailing: .empty
             )
 
@@ -210,6 +224,7 @@ extension TangemPayAccountViewModel {
     enum ViewState {
         case skeleton
         case kycInProgress
+        case actionRequired
         case kycDeclined
         case issuingYourCard
         case failedToIssueCard
@@ -225,6 +240,8 @@ extension TangemPayAccountViewModel {
             switch self {
             case .kycInProgress:
                 Localization.tangempayKycInProgress
+            case .actionRequired:
+                Localization.moneyAccountMainStatusActionRequired
             case .issuingYourCard:
                 Localization.tangempayIssuingYourCard
             case .failedToIssueCard:
@@ -252,7 +269,7 @@ extension TangemPayAccountViewModel {
 
         var isFullyVisible: Bool {
             switch self {
-            case .kycInProgress, .issuingYourCard, .failedToIssueCard, .normal, .skeleton, .kycDeclined, .cardDeactivated, .replacingCard, .planSelectNeeded:
+            case .kycInProgress, .actionRequired, .issuingYourCard, .failedToIssueCard, .normal, .skeleton, .kycDeclined, .cardDeactivated, .replacingCard, .planSelectNeeded:
                 true
             case .syncNeeded(let cached), .unavailable(let cached):
                 cached != nil
@@ -265,11 +282,18 @@ extension TangemPayAccountViewModel {
             switch self {
             case .unavailable(let cached), .syncNeeded(let cached):
                 return cached != nil
-            case .skeleton, .normal, .kycInProgress, .kycDeclined,
+            case .skeleton, .normal, .kycInProgress, .actionRequired, .kycDeclined,
                  .issuingYourCard, .failedToIssueCard, .rootedDevice,
                  .replacingCard, .cardDeactivated, .planSelectNeeded:
                 return false
             }
+        }
+
+        var isSubtitleHighlighted: Bool {
+            if case .actionRequired = self {
+                return true
+            }
+            return false
         }
 
         var isSkeleton: Bool {
