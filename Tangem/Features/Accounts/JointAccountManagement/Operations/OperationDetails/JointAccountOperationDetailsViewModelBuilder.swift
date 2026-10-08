@@ -45,23 +45,9 @@ struct JointAccountOperationDetailsViewModelBuilder {
     }
 }
 
-// MARK: - Private
+// MARK: - Following the listing
 
-private extension JointAccountOperationDetailsViewModelBuilder {
-    func content(of pendingOperation: JointAccountPendingOperation) -> JointAccountOperationDetailsViewModel.Content {
-        let account = pendingOperation.wallet.account
-
-        return JointAccountOperationDetailsViewModel.Content(
-            collectedSignaturesCount: pendingOperation.operation.signatures.filter { $0.state == .signed }.count,
-            requiredSignaturesCount: account?.policy.signersCount ?? 0,
-            membersCount: account?.jointAccountMembersService.slots.members.count ?? 0,
-            signers: signersBuilder.build(pendingOperation: pendingOperation),
-            answer: answer(of: pendingOperation),
-            canSign: signersResolver.canSign(pendingOperation),
-            isSending: pendingOperation.operation.status == .pending
-        )
-    }
-
+extension JointAccountOperationDetailsViewModelBuilder {
     func contentPublisher(
         of operationId: String,
         provider: (any JointAccountPendingOperationsProvider)?
@@ -76,6 +62,32 @@ private extension JointAccountOperationDetailsViewModelBuilder {
             .removeDuplicates()
             .map { pendingOperation in content(of: pendingOperation) }
             .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - Private
+
+private extension JointAccountOperationDetailsViewModelBuilder {
+    func content(of pendingOperation: JointAccountPendingOperation) -> JointAccountOperationDetailsViewModel.Content {
+        let account = pendingOperation.wallet.account
+
+        return JointAccountOperationDetailsViewModel.Content(
+            collectedSignaturesCount: pendingOperation.operation.signatures.filter { $0.state == .signed }.count,
+            requiredSignaturesCount: account?.policy.signersCount ?? 0,
+            membersCount: account?.jointAccountMembersService.slots.members.count ?? 0,
+            signers: signersBuilder.build(pendingOperation: pendingOperation),
+            answer: answer(of: pendingOperation),
+            canSign: signersResolver.canSign(pendingOperation),
+            status: status(of: pendingOperation)
+        )
+    }
+
+    func status(of pendingOperation: JointAccountPendingOperation) -> JointAccountOperationDetailsViewModel.Status {
+        switch pendingOperation.operation.status {
+        case .pending: .sending
+        case .executed: .sent(at: Date())
+        case .awaitingSignatures, .failed, .cancelled, .unknown: .awaitingSignatures
+        }
     }
 
     func answer(of pendingOperation: JointAccountPendingOperation) -> JointAccountOperationDetailsViewModel.Answer {
