@@ -88,7 +88,6 @@ enum WalletModelTransactionHistoryPublisherFactory {
                     .stream {
                         auxDataRepository.didLoadAuxData
                     }
-                    .prepend(()) // Emit an initial value in case the aux data is already cached and no updates are coming
             )
             .withLatestFrom(walletModelAddressesPublisher) { ($0.0, $0.1, $1) }
 
