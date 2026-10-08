@@ -1000,7 +1000,7 @@
 "introduction_stories_two_subtitle" = "Use any of your cards to access your wallet";
 "introduction_stories_two_title" = "One wallet, multiple cards";
 "introduction_subtitle" = "One secure place for everything you own";
-"introduction_terms_of_service_consent" = "By continuing, you agree with %@";
+"introduction_terms_of_service_consent" = "By continuing, you agree to the %@";
 "introduction_terms_of_service" = "Terms of service";
 "introduction_title" = "Store all your assets";
 "jailbreak_warning_message" = "Devices with jailbreak are considered less secure. Your data may be exposed to additional risks.";
@@ -2607,8 +2607,8 @@
 "tangempay_newonboard_body" = "Spendi crypto ovunque — senza banche, senza intermediari, senza exchange. La self-custody incontra i pagamenti di ogni giorno.";
 "tangempay_newonboard_bottomleft_body" = "Acquista online e con Apple Pay";
 "tangempay_newonboard_bottomleft_title" = "Accettata ovunque";
-"tangempay_newonboard_bottomright_body" = "USD → USDC 1:1; 1 $ fissa";
-"tangempay_newonboard_bottomright_title" = "Ricevi bonifici ACH";
+"tangempay_newonboard_bottomright_body" = "Bonifici ACH/Wire";
+"tangempay_newonboard_bottomright_title" = "Ricevere e inviare";
 "tangempay_newonboard_Q1_body" = "Ricarica il tuo conto di pagamento con USDT o USDC su qualsiasi rete, senza commissioni. Su Ethereum, Base, Polygon, BSC e Arbitrum, il tasso di cambio è anche 1:1.";
 "tangempay_newonboard_Q1_title" = "Quali crypto posso spendere?";
 "tangempay_newonboard_Q2_body" = "Sì, per utilizzare una carta Visa regolamentata è richiesta la verifica dell’identità. La verifica è gestita dal nostro partner di conformità, Sumsub.";

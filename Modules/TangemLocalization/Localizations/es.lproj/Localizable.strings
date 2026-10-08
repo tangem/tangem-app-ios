@@ -1000,7 +1000,7 @@
 "introduction_stories_two_subtitle" = "Usa cualquiera de tus tarjetas para acceder a tu wallet";
 "introduction_stories_two_title" = "Una wallet, varias tarjetas";
 "introduction_subtitle" = "Un lugar seguro para todas tus pertenencias.";
-"introduction_terms_of_service_consent" = "By continuing, you agree with %@";
+"introduction_terms_of_service_consent" = "Al continuar, acepta las %@";
 "introduction_terms_of_service" = "Términos del servicio";
 "introduction_title" = "Guarda todos tus activos";
 "jailbreak_warning_message" = "Los dispositivos con jailbreak se consideran menos seguros. Sus datos podrían estar expuestos a riesgos adicionales.";
@@ -2607,8 +2607,8 @@
 "tangempay_newonboard_body" = "Gasta cripto en cualquier lugar — sin bancos, sin intermediarios y sin exchanges. El poder de la autocustodia unido a los pagos del día a día.";
 "tangempay_newonboard_bottomleft_body" = "Compra online y con Apple Pay";
 "tangempay_newonboard_bottomleft_title" = "En todo el mundo";
-"tangempay_newonboard_bottomright_body" = "USD→USDC 1:1; comisión 1 USD";
-"tangempay_newonboard_bottomright_title" = "Recibe transferencias ACH";
+"tangempay_newonboard_bottomright_body" = "Transferencias ACH/Wire";
+"tangempay_newonboard_bottomright_title" = "Recibir y enviar";
 "tangempay_newonboard_Q1_body" = "Recarga tu cuenta de pagos con USDT o USDC desde cualquier red y sin comisiones. En Ethereum, Base, Polygon, BSC y Arbitrum, también tendrás una tasa de 1:1.";
 "tangempay_newonboard_Q1_title" = "¿Qué cripto puedo gastar?";
 "tangempay_newonboard_Q2_body" = "Sí, se requiere una verificación de identidad para usar una tarjeta Visa regulada. La verificación la realiza Sumsub, nuestro socio de cumplimiento normativo.";
