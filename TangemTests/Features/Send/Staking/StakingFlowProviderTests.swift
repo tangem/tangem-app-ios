@@ -341,6 +341,32 @@ struct StakingFlowProviderTests {
         #expect(ready.fee == 2)
     }
 
+    @Test("P2P unstake stays partial when the vault has no room left for new deposits")
+    func p2pUnstakeFromFullVaultStaysPartial() {
+        let fullVault = StakingTargetInfo.stub(preferred: false, status: .full)
+        let provider = EthereumP2PStakingFlowProvider(
+            action: StakingAction(amount: 7, targetType: .target(fullVault), type: .unstake),
+            stages: makeStages()
+        )
+
+        #expect(provider.stepPlan.amount == .editable(preset: 7))
+        #expect(provider.stepPlan.summarySettings.amountEditableType == .editable)
+    }
+
+    // MARK: - Partial unstake gating
+
+    @Test("Unstake from a validator that disallows partial unstake is fixed to the whole position")
+    func unstakeFromDisallowingTargetIsFixed() {
+        let disabledValidator = StakingTargetInfo.stub(preferred: false, allowsPartialUnstake: false)
+        let provider = SolanaStakingFlowProvider(
+            action: StakingAction(amount: 7, targetType: .target(disabledValidator), type: .unstake),
+            stages: makeStages(),
+            preflightValidator: nil
+        )
+
+        #expect(provider.stepPlan.amount == .fixed(7))
+    }
+
     // MARK: - reconcileBuiltFee
 
     @Test("A built fee above a fee-included estimate re-states the flow to re-confirm")

@@ -139,7 +139,8 @@ private extension StakingYieldInfo {
                 rewardType: .apy,
                 rewardRate: 0.05,
                 status: limit != nil ? .active : .full,
-                maximumStakeAmount: limit
+                maximumStakeAmount: limit,
+                allowsPartialUnstake: true
             )
         }
         return StakingYieldInfo(

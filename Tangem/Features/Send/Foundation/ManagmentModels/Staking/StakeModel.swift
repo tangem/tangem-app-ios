@@ -72,8 +72,7 @@ final class StakeModel {
         analyticsLogger: StakeModelAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
         initialAmount: SendAmount?,
-        initialTarget: LoadingResult<StakingTargetInfo, Never>,
-        shouldUpdateStateInitially: Bool
+        initialTarget: LoadingResult<StakingTargetInfo, Never>
     ) {
         self.provider = provider
         self.sendSourceToken = sendSourceToken
@@ -87,7 +86,7 @@ final class StakeModel {
 
         bind()
 
-        if shouldUpdateStateInitially {
+        if initialAmount != nil, !provider.stepPlan.hasValidatorSelection {
             updateState()
         }
     }
@@ -104,6 +103,7 @@ private extension StakeModel {
             .store(in: &bag)
 
         _selectedTarget
+            .dropFirst()
             .compactMap { $0.value }
             .withWeakCaptureOf(self)
             .sink { model, _ in model.updateState() }
