@@ -22,6 +22,7 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 @available(iOS, deprecated: 100000, message: "Avoid adding another derived class. Rethink your architectural decisions.")
 class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Injected(\.storyAvailabilityService) private var storyAvailabilityService: any StoryAvailabilityService
+    @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
     @Injected(\.cryptoAccountsGlobalStateProvider)
     private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
 
@@ -65,6 +66,16 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private var jointFrequentUpdatesSubscription: AnyCancellable?
 
     private var blockchainNetwork: BlockchainNetwork { walletModel.tokenItem.blockchainNetwork }
+
+    private var expressAvailabilityReloader: TokenExpressAvailabilityReloader {
+        TokenExpressAvailabilityReloader(
+            expressAvailabilityProvider: expressAvailabilityProvider,
+            tokenItem: walletModel.tokenItem,
+            userWalletId: userWalletInfo.id,
+            shouldLoadExpressAvailability: userWalletInfo.config.isFeatureVisible(.swapping)
+                || userWalletInfo.config.isFeatureVisible(.exchange)
+        )
+    }
 
     private var amountType: Amount.AmountType { walletModel.tokenItem.amountType }
 
@@ -214,7 +225,10 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
 
         isReloadingTransactionHistory = true
-        updateTask = walletModel.startUpdateTask()
+        updateTask = Task { [expressAvailabilityReloader, walletModel] in
+            await expressAvailabilityReloader.reloadIfNeeded()
+            await walletModel.startUpdateTask().value
+        }
 
         // Wait while task is finished
         await updateTask?.value
@@ -247,6 +261,8 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             // We should reset transaction history to initial state here
             await viewModel.walletModel.clearHistory()
             await MainActor.run { viewModel.isReloadingTransactionHistory = true }
+            // The history merges Express records only for tokens with loaded Express availability
+            await viewModel.expressAvailabilityReloader.reloadIfNeeded()
             await viewModel.performLoadHistory()
         }
     }

@@ -16,6 +16,8 @@ struct MobileOnboardingAccessCodeView: View {
 
     @ObservedObject var viewModel: ViewModel
 
+    @Environment(\.stepsFlowStepIsActive) private var isActive
+
     var body: some View {
         content
             .stepsFlowNavBar(title: viewModel.navigationTitle)
@@ -40,7 +42,7 @@ private extension MobileOnboardingAccessCodeView {
             OnboardingPinStackView(
                 maxDigits: viewModel.codeLength,
                 handleKeyboard: false,
-                isDisabled: false,
+                isDisabled: !isActive,
                 accessibilityIdentifier: OnboardingAccessibilityIdentifiers.accessCodeInputField,
                 pinText: viewModel.code
             )
