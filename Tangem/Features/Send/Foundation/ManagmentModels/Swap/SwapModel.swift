@@ -36,6 +36,7 @@ final class SwapModel {
 
     private let _providersState = CurrentValueSubject<ProvidersState, Never>(.idle)
     private let _slippage = CurrentValueSubject<SwapSlippage, Never>(.auto)
+    private let _slippageProvider = CurrentValueSubject<ExpressProvider?, Never>(nil)
 
     private let _transactionTime = PassthroughSubject<Date?, Never>()
     private let _transactionURL = PassthroughSubject<URL?, Never>()
@@ -246,6 +247,7 @@ extension SwapModel {
 
         if wallet.tokenItem != _sourceToken.value.value?.tokenItem {
             _slippage.send(.auto)
+            _slippageProvider.send(nil)
         }
         _sourceToken.send(.success(wallet))
         resolveDestinationTokenIfNeeded(for: wallet)
@@ -263,6 +265,7 @@ extension SwapModel {
 
         if wallet.tokenItem != _receiveToken.value.value?.tokenItem {
             _slippage.send(.auto)
+            _slippageProvider.send(nil)
         }
         _receiveToken.send(.success(wallet))
         swappingPairDidChange()
@@ -432,6 +435,16 @@ private extension SwapModel {
 
         logErrorIfNeeded(providersState: providersState)
         _providersState.send(providersState)
+        updateSlippageProvider(providersState: providersState)
+    }
+
+    private func updateSlippageProvider(providersState: ProvidersState) {
+        switch providersState {
+        case .loading(.provider), .loading(.autoupdate), .loading(.fee):
+            return
+        default:
+            _slippageProvider.send(mapToLoadingExpressAvailableProvider(providersState: providersState)?.value?.provider)
+        }
     }
 
     private func refreshDexOnlyProvidersMode() async throws {
@@ -1683,6 +1696,8 @@ extension SwapModel: SendSwapProvidersInput {
 
 extension SwapModel: SendSwapProvidersOutput {
     func userDidSelect(provider: ExpressAvailableProvider) {
+        _slippageProvider.send(provider.provider)
+
         updateTask(loadingType: .provider) { expressManager in
             await expressManager.updateSelectedProvider(provider: provider)
         }
@@ -1698,6 +1713,14 @@ extension SwapModel: SwapSlippageInput, SwapSlippageOutput {
 
     var slippagePublisher: AnyPublisher<SwapSlippage, Never> {
         _slippage.eraseToAnyPublisher()
+    }
+
+    var slippageProvider: ExpressProvider? {
+        _slippageProvider.value
+    }
+
+    var slippageProviderPublisher: AnyPublisher<ExpressProvider?, Never> {
+        _slippageProvider.eraseToAnyPublisher()
     }
 
     func userDidSet(slippage: SwapSlippage) {
@@ -2154,6 +2177,8 @@ extension SwapModel: NotificationTapDelegate {
             reloadRates()
         case .givePermission:
             router?.openApproveSheet()
+        case .editSlippage:
+            router?.openSlippageSelector()
         case .addTokenTrustline:
             openDestinationTokenDetails()
         case .generateAddresses,

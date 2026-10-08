@@ -128,7 +128,8 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
             sourceTokenInput: swapModel,
             receiveTokenInput: swapModel,
             sendFeeInput: swapModel,
-            swapModelStateProvider: swapModel
+            swapModelStateProvider: swapModel,
+            slippageInput: swapModel
         )
 
         // Logger setup

@@ -98,6 +98,10 @@ extension CommonSwapStepsManager: SendStepsManager {
     func performFinish() {
         next(step: finishStep)
     }
+
+    func openSlippageSelector() {
+        summaryStepRequestEditSlippage()
+    }
 }
 
 // MARK: - SwapSummaryStepRoutable

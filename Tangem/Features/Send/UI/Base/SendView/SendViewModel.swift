@@ -356,6 +356,10 @@ extension SendViewModel: SwapModelRoutable {
         let feeCurrency = FeeCurrencyNavigatingDismissOption(userWalletId: userWalletId, tokenItem: tokenItem)
         coordinator?.openFeeCurrency(feeCurrency: feeCurrency)
     }
+
+    func openSlippageSelector() {
+        stepsManager.openSlippageSelector()
+    }
 }
 
 // MARK: - SendStepsManagerOutput

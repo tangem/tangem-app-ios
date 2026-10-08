@@ -75,6 +75,7 @@ enum NotificationButtonActionType: Identifiable {
     case addFunds
     case openAppStore
     case removeTangemPayAccount
+    case editSlippage
 
     var id: Int {
         switch self {
@@ -119,6 +120,7 @@ enum NotificationButtonActionType: Identifiable {
         case .addFunds: "addFunds".hashValue
         case .openAppStore: "openAppStore".hashValue
         case .removeTangemPayAccount: "removeTangemPayAccount".hashValue
+        case .editSlippage: "editSlippage".hashValue
         }
     }
 
@@ -154,7 +156,7 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.warningButtonReallyCool
         case .swap:
             return Localization.tokenSwapPromotionButton
-        case .empty:
+        case .empty, .editSlippage:
             return ""
         case .backupErrorSupport:
             return Localization.commonContactSupport
@@ -229,6 +231,7 @@ enum NotificationButtonActionType: Identifiable {
              .openFeedbackMail,
              .openAppStoreReview,
              .empty,
+             .editSlippage,
              .backupErrorSupport,
              .openCurrency,
              .addTokenTrustline,
@@ -259,6 +262,7 @@ enum NotificationButtonActionType: Identifiable {
         case .generateAddresses,
              .openAppStoreReview,
              .empty,
+             .editSlippage,
              .unlock,
              .renewTangemPaySession,
              .openMobileUpgrade,

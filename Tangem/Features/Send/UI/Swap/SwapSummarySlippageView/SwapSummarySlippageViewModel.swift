@@ -31,8 +31,8 @@ final class SwapSummarySlippageViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: &$isVisible)
 
-        swapProvidersInput.selectedExpressProviderPublisher
-            .map { $0?.value != nil }
+        slippageInput.slippageProviderPublisher
+            .map { $0 != nil }
             .removeDuplicates()
             .receiveOnMain()
             .assign(to: &$isEditable)

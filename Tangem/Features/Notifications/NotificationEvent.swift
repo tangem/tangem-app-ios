@@ -21,6 +21,7 @@ protocol NotificationEvent: Identifiable {
     var severity: NotificationView.Severity { get }
     var isDismissable: Bool { get }
     var buttonAction: NotificationButtonAction? { get }
+    var tapAction: NotificationButtonActionType? { get }
     // [REDACTED_TODO_COMMENT]
     var analyticsEvent: Analytics.Event? { get }
     var analyticsParams: [Analytics.ParameterKey: String] { get }
@@ -161,6 +162,8 @@ extension NotificationEvent {
             return nil
         }
     }
+
+    var tapAction: NotificationButtonActionType? { nil }
 
     var bannerKind: NotificationBannerKind? { nil }
     var bannerVariant: MessageBannerVariant? { nil }

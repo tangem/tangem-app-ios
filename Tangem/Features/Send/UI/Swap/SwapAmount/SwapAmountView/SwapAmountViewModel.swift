@@ -16,6 +16,7 @@ protocol SwapAmountCompactRoutable: AnyObject {
     func userDidTapChangeSourceTokenButton(receiveToken: SendSourceToken?)
     func userDidTapSwapSourceAndReceiveTokensButton()
     func userDidTapChangeReceiveTokenButton(sourceToken: SendSourceToken?)
+    func userDidTapEditSlippage()
 }
 
 final class SwapAmountViewModel: ObservableObject, Identifiable {
@@ -30,6 +31,8 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     @Published private(set) var isInputDisabled: Bool = true
     @Published private(set) var receiveExpressCurrencyViewModel: ExpressCurrencyViewModel
     @Published private(set) var receiveCryptoAmountState: LoadableTextView.State = .initialized
+    @Published private(set) var isEditSlippageAvailable: Bool = false
+    @Published private(set) var isEditSlippageEnabled: Bool = false
 
     let isPairReversalEnabled: Bool
 
@@ -220,8 +223,20 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         update(sourceCalculationType: sourceCalculationType == .crypto ? .fiat : .crypto)
     }
 
+    func userDidTapEditSlippage() {
+        router?.userDidTapEditSlippage()
+    }
+
     func update(isReceiveFiatHidden: Bool) {
         receiveExpressCurrencyViewModel.update(isFiatAmountHidden: isReceiveFiatHidden)
+    }
+
+    func update(isEditSlippageAvailable: Bool) {
+        self.isEditSlippageAvailable = isEditSlippageAvailable
+    }
+
+    func update(isEditSlippageEnabled: Bool) {
+        self.isEditSlippageEnabled = isEditSlippageEnabled
     }
 }
 
