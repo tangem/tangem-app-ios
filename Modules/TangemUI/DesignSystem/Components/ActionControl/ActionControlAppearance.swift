@@ -13,7 +13,7 @@ public enum ActionControlAppearance {
     static let dimmedOpacity: CGFloat = 0.4
 
     public static func contentColor(isEnabled: Bool) -> Color {
-        isEnabled ? Color.Tangem.Text.Neutral.primary : Color.Tangem.Text.Status.disabled
+        isEnabled ? DesignSystem.Color.textPrimary : DesignSystem.Color.textTertiary
     }
 }
 
