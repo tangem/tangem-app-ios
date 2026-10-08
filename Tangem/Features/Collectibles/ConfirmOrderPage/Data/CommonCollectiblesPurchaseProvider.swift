@@ -48,7 +48,7 @@ extension CommonCollectiblesPurchaseProvider: CollectiblesPurchaseSentReporter {
 // MARK: - CollectiblesPurchaseStatusProvider protocol conformance
 
 extension CommonCollectiblesPurchaseProvider: CollectiblesPurchaseStatusProvider {
-    func load(txID: String) async throws -> CollectiblesPurchaseStatus {
+    func load(txID: String) async throws -> CollectiblesPurchaseTransaction {
         try await service.loadPurchaseStatus(txID: txID, userWalletID: userWalletID)
     }
 }

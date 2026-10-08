@@ -45,7 +45,8 @@ extension CollectiblesAPIService {
                 cardsPerPack: machine.contains,
                 buybackRate: Decimal(machine.instantBuybackPercent) / Constants.percentScale,
                 expectedValue: machine.expectedValue / Constants.centsScale,
-                tiers: mapTiers(of: machine)
+                tiers: mapTiers(of: machine),
+                openingVideoURL: machine.videoOpenPack.flatMap(URL.init)
             )
         }
 
@@ -69,13 +70,22 @@ extension CollectiblesAPIService {
             )
         }
 
+        static func mapToPurchaseTransaction(
+            _ transaction: CollectiblesDTO.PurchaseTransaction
+        ) -> CollectiblesPurchaseTransaction {
+            CollectiblesPurchaseTransaction(
+                status: mapToPurchaseStatus(transaction),
+                wonCard: transaction.nftWon.map(mapToWonCard)
+            )
+        }
+
         static func mapToPurchaseStatus(
             _ transaction: CollectiblesDTO.PurchaseTransaction
         ) -> CollectiblesPurchaseStatus {
             switch transaction.status {
             case "created": .created
             case "waiting-tx-hash": .waitingTxHash
-            case "purchase-tx-hash": .purchaseTxHash
+            case "purchase-tx-hash", "purchase-tx-sent": .purchaseTxHash
             case "waiting-for-payment": .waitingForPayment
             case "expired": .expired
             case "pack-purchased": .packPurchased
@@ -102,6 +112,21 @@ private extension CollectiblesAPIService.Mapper {
         }
 
         return value
+    }
+
+    static func mapToWonCard(_ nft: CollectiblesDTO.NftWon) -> CollectiblesWonCard {
+        CollectiblesWonCard(
+            imageFrontURL: nft.imageFront.flatMap(URL.init),
+            imageBackURL: nft.imageBack.flatMap(URL.init),
+            gradingCompany: nft.gradingCompany?.trimmed().nilIfEmpty,
+            grade: nft.theGrade?.trimmed().nilIfEmpty,
+            gradingID: nft.gradingID?.trimmed().nilIfEmpty,
+            rarity: nft.rarity.flatMap(CollectiblesMachine.Tier.init),
+            year: nft.year?.trimmed().nilIfEmpty,
+            set: nft.set?.trimmed().nilIfEmpty,
+            serialNumber: nft.serialNumber?.trimmed().nilIfEmpty,
+            insuredValue: nft.insuredValue.map { $0 / Constants.centsScale }
+        )
     }
 
     static func mapToPrize(_ nft: CollectiblesDTO.MachineNft) -> CollectiblesPrize {

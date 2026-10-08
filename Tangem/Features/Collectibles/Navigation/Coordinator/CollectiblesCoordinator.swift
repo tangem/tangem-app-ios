@@ -108,14 +108,15 @@ extension CollectiblesCoordinator: CollectiblesMainRoutable {
 }
 
 extension CollectiblesCoordinator: CollectiblesMachineRoutable {
-    func openConfirmOrder(machineID: String, machine: CollectiblesMachine, isTurboModeOn: Bool) {
+    // [REDACTED_TODO_COMMENT]
+    func openConfirmOrder(machineID: String, machine: CollectiblesMachine, isTurboModeOn _: Bool) {
         guard confirmOrderViewModel == nil, let accountModel else { return }
 
         confirmOrderViewModel = CollectiblesConfirmOrderViewModel(
             machineID: machineID,
             machine: machine,
-            isTurboModeOn: isTurboModeOn,
             usdcBalanceProvider: accountModel.usdcTokenBalanceProvider,
+            purchaseInteractor: accountModel.purchaseInteractor,
             refreshBalance: accountModel.refreshState
         )
     }

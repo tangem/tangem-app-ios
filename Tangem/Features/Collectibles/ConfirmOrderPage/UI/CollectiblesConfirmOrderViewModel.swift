@@ -16,13 +16,18 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     // MARK: - Properties
 
     private let machineID: String
-    private let isTurboModeOn: Bool
+    private let price: Decimal
+    private let platformFee: Decimal
     private let total: Decimal
+    private let buybackRate: Decimal
+    private let openingVideoURL: URL?
+    private let purchaseInteractor: any CollectiblesPackPurchaseInteractor
     private let refreshBalance: () async -> Void
 
     private var balanceState: BalanceState = .loading
     private var orderPhase: OrderPhase = .idle
     private var bag = Set<AnyCancellable>()
+    private var errorDismissTask: Task<Void, Error>?
 
     let artworkURL: URL?
     let rows: [OrderRow]
@@ -31,19 +36,24 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
 
     @Published private(set) var buttonState: ButtonState = .balanceLoading
     @Published private(set) var revealViewModel: CollectiblesPackRevealViewModel?
+    @Published private(set) var errorMessage: String?
 
     // MARK: - Init
 
     init(
         machineID: String,
         machine: CollectiblesMachine,
-        isTurboModeOn: Bool,
         usdcBalanceProvider: any TokenBalanceProvider,
+        purchaseInteractor: any CollectiblesPackPurchaseInteractor,
         refreshBalance: @escaping () async -> Void
     ) {
         self.machineID = machineID
-        self.isTurboModeOn = isTurboModeOn
+        price = machine.price
+        platformFee = machine.platformFee
         total = machine.price + machine.platformFee
+        buybackRate = machine.buybackRate
+        openingVideoURL = machine.openingVideoURL
+        self.purchaseInteractor = purchaseInteractor
         self.refreshBalance = refreshBalance
         artworkURL = machine.artworkURL
         rows = [
@@ -75,20 +85,36 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     func approve() {
         guard buttonState == .approve else { return }
 
+        dismissError()
         orderPhase = .generating
         updateButtonState()
 
-        Task { [weak self] in
+        Task { [weak self, purchaseInteractor, machineID, price, platformFee, refreshBalance] in
+            let result: Result<CollectiblesWonCard, any Error>
+
+            do {
+                let wonCard = try await purchaseInteractor.purchase(
+                    machineID: machineID,
+                    price: price,
+                    platformFee: platformFee,
+                    turboMode: .off,
+                    onStep: { [weak self] step in self?.apply(step) }
+                )
+                result = .success(wonCard)
+            } catch {
+                result = .failure(error)
+            }
+
             // [REDACTED_TODO_COMMENT]
-            try await Task.sleep(for: .seconds(1.5))
-            // [REDACTED_TODO_COMMENT]
-            self?.revealViewModel = CollectiblesPackRevealViewModel(
-                videoURL: Bundle.main.url(forResource: "CollectiblesPackReveal", withExtension: "mp4"),
-                prize: .sample
-            )
-            self?.orderPhase = .generated
-            self?.updateButtonState()
+            self?.handlePurchaseResult(result)
+            await refreshBalance()
         }
+    }
+
+    func dismissError() {
+        errorDismissTask?.cancel()
+        errorDismissTask = nil
+        errorMessage = nil
     }
 
     func retryBalance() {
@@ -118,6 +144,8 @@ extension CollectiblesConfirmOrderViewModel {
         case approve
         case notEnoughFunds
         case generating
+        case confirming
+        case opening
         case packGenerated
     }
 }
@@ -128,6 +156,8 @@ private extension CollectiblesConfirmOrderViewModel {
     enum OrderPhase {
         case idle
         case generating
+        case confirming
+        case opening
         case generated
     }
 
@@ -146,10 +176,57 @@ private extension CollectiblesConfirmOrderViewModel {
             .map(Self.balanceState(from:))
             .receive(on: DispatchQueue.main)
             .sink { [weak self] balanceState in
-                self?.balanceState = balanceState
-                self?.updateButtonState()
+                self?.update(balanceState: balanceState)
             }
             .store(in: &bag)
+    }
+
+    func update(balanceState newState: BalanceState) {
+        if case .loading = newState, case .known = balanceState {
+            return
+        }
+
+        balanceState = newState
+        updateButtonState()
+    }
+
+    func apply(_ step: CollectiblesPackPurchaseStep) {
+        switch step {
+        case .generating: orderPhase = .generating
+        case .confirming: orderPhase = .confirming
+        case .opening: orderPhase = .opening
+        }
+
+        updateButtonState()
+    }
+
+    func handlePurchaseResult(_ result: Result<CollectiblesWonCard, any Error>) {
+        switch result {
+        case .success(let wonCard):
+            let bundledVideoURL = Bundle.main.url(forResource: "CollectiblesPackReveal", withExtension: "mp4")
+            revealViewModel = CollectiblesPackRevealViewModel(
+                videoURL: openingVideoURL ?? bundledVideoURL,
+                prize: CollectiblesPackRevealView.Prize(wonCard: wonCard, buybackRate: buybackRate)
+            )
+            orderPhase = .generated
+        case .failure(let error):
+            CollectiblesLogger.error("Collectibles pack \(machineID) purchase failed", error: error)
+            orderPhase = .idle
+            showError()
+        }
+
+        updateButtonState()
+    }
+
+    func showError() {
+        errorMessage = Localization.commonSomethingWentWrong
+
+        errorDismissTask?.cancel()
+        errorDismissTask = Task { [weak self] in
+            try await Task.sleep(for: Constants.errorDisplayDuration)
+            self?.errorMessage = nil
+            self?.errorDismissTask = nil
+        }
     }
 
     func updateButtonState() {
@@ -159,8 +236,19 @@ private extension CollectiblesConfirmOrderViewModel {
         case .generating:
             buttonState = .generating
             return
+        case .confirming:
+            buttonState = .confirming
+            return
+        case .opening:
+            buttonState = .opening
+            return
         case .generated:
             buttonState = .packGenerated
+            return
+        }
+
+        if purchaseInteractor.hasUnfinishedPurchase(machineID: machineID) {
+            buttonState = .approve
             return
         }
 
@@ -180,5 +268,13 @@ private extension CollectiblesConfirmOrderViewModel {
         case .loading: .loading
         case .failure, .empty: .unavailable
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension CollectiblesConfirmOrderViewModel {
+    enum Constants {
+        static let errorDisplayDuration: Duration = .seconds(3)
     }
 }
