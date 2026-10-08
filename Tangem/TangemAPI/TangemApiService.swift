@@ -116,6 +116,7 @@ protocol TangemApiService: AnyObject {
     // MARK: - Promo campaigns
 
     func loadPromoCampaigns(request: PromoCampaignsDTO.Request) async throws -> [PromoCampaignsDTO.Promotion]
+    func enrollInPromoCampaign(id: Int, request: PromoCampaignEnrollmentDTO.Request) async throws -> PromoCampaignEnrollmentDTO.Response
 
     // MARK: - Yield Boost Promotion
 
