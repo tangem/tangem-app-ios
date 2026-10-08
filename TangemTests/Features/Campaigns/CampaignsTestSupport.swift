@@ -224,3 +224,16 @@ enum CampaignsFixtures {
 private extension TimeInterval {
     static let day: TimeInterval = 86400
 }
+
+enum PromoCampaignEnrollmentFixtures {
+    static func wallet(name: String, hasPayout: Bool) -> PromoCampaignEnrollmentWallet {
+        PromoCampaignEnrollmentWallet(
+            name: name,
+            subtitle: "3 cards • $4,496.75",
+            imageProvider: CardImageProviderMock(),
+            payout: hasPayout ? PromoCampaignEnrollmentWallet.Payout(
+                address: "0x33Bd321f9a0c4e1b7d2E5f8a6C3b21412B"
+            ) : nil
+        )
+    }
+}
