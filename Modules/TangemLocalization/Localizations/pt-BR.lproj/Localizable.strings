@@ -2828,7 +2828,7 @@
 "tangempay_withdraw_hub_title" = "Sacar";
 "tangempay_withdraw_hub_to_business_account" = "Para conta empresarial";
 "tangempay_withdraw_hub_to_personal_account" = "Para conta pessoal";
-"tangempay_withdraw_hub_within_portfolio" = "Na sua carteira";
+"tangempay_withdraw_hub_within_portfolio" = "Na sua Tangem Wallet";
 "tangempay_withdrawal_note_description" = "Os fundos de compras reembolsadas não serão devolvidos ao seu saldo na blockchain nem estarão disponíveis para saque, mas permanecerão no saldo do seu cartão para compras futuras";
 "tangempay_withdrawal_note_title" = "Observe";
 "tangempay_your_balance" = "Seu saldo";
