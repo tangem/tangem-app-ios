@@ -15,6 +15,10 @@ import class Alamofire.RetryPolicy
 protocol PromoCampaignsProviding {
     func initialize()
     func campaignsPublisher(for userWalletId: UserWalletId) -> AnyPublisher<[PromoCampaign], Never>
+    @MainActor
+    func reloadCampaigns(for userWalletIds: [UserWalletId])
+    @MainActor
+    func removeCampaign(withId campaignId: Int)
 }
 
 final class PromoCampaignsRepository {
@@ -25,6 +29,7 @@ final class PromoCampaignsRepository {
     private let retryInterval: (_ retryAttempt: Int) -> UInt64
     private let campaignsSubject = CurrentValueSubject<[UserWalletId: [PromoCampaign]], Never>([:])
     private let requestedWallets = OSAllocatedUnfairLock(initialState: RequestedWallets())
+    private let removedCampaignIds = OSAllocatedUnfairLock(initialState: Set<Int>())
     private var walletsSubscription: AnyCancellable?
 
     init(
@@ -65,6 +70,30 @@ extension PromoCampaignsRepository: PromoCampaignsProviding {
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
+
+    @MainActor
+    func reloadCampaigns(for userWalletIds: [UserWalletId]) {
+        guard isEnabled() else {
+            return
+        }
+
+        let userWalletIds = Set(userWalletIds)
+        let wallets = walletsProvider.wallets.filter { userWalletIds.contains($0.userWalletId) }
+        let loads = requestedWallets.withLock { $0.startReloading(wallets) }
+
+        load(loads)
+    }
+
+    @MainActor
+    func removeCampaign(withId campaignId: Int) {
+        removedCampaignIds.withLock { _ = $0.insert(campaignId) }
+
+        let campaigns = campaignsSubject.value.mapValues { $0.filter { $0.id != campaignId } }
+
+        if campaigns != campaignsSubject.value {
+            campaignsSubject.value = campaigns
+        }
+    }
 }
 
 // MARK: - Private
@@ -82,6 +111,10 @@ private extension PromoCampaignsRepository {
     func loadCampaigns(forNewWalletsAmong wallets: [PromoCampaignWallet]) {
         let loads = requestedWallets.withLock { $0.startLoading(newWalletsAmong: wallets) }
 
+        load(loads)
+    }
+
+    func load(_ loads: [Load]) {
         guard loads.isNotEmpty else {
             return
         }
@@ -150,7 +183,8 @@ private extension PromoCampaignsRepository {
             return
         }
 
-        campaignsSubject.value[result.load.wallet.userWalletId] = campaigns
+        let removedIds = removedCampaignIds.withLock { $0 }
+        campaignsSubject.value[result.load.wallet.userWalletId] = campaigns.filter { !removedIds.contains($0.id) }
     }
 }
 
@@ -183,6 +217,12 @@ private extension PromoCampaignsRepository {
                 .filter { inFlight[$0.userWalletId] == nil && loaded[$0.userWalletId] == nil }
                 .map { Load(wallet: $0) }
 
+            loads.forEach { inFlight[$0.wallet.userWalletId] = $0 }
+            return loads
+        }
+
+        mutating func startReloading(_ wallets: [PromoCampaignWallet]) -> [Load] {
+            let loads = wallets.map { Load(wallet: $0) }
             loads.forEach { inFlight[$0.wallet.userWalletId] = $0 }
             return loads
         }

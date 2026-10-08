@@ -298,6 +298,10 @@ extension CommonTangemApiService: TangemApiService {
         return response.promotions
     }
 
+    func enrollInPromoCampaign(id: Int, request: PromoCampaignEnrollmentDTO.Request) async throws -> PromoCampaignEnrollmentDTO.Response {
+        try await requestProtected(for: .promoCampaignEnrollment(id: id, request: request), decoder: decoder)
+    }
+
     // MARK: - Yield Boost Promotion
 
     func loadPromotionCampaigns(userWalletId: String) async throws -> [BannerPromotion.Response.Promotion] {

@@ -235,6 +235,74 @@ struct PromoCampaignsRepositoryTests {
         #expect(loader.requestedWallets.isEmpty)
     }
 
+    @Test("Reloading a wallet already loaded asks about it again and publishes the fresh answer")
+    func reloadRefreshesLoadedWallet() async throws {
+        let loader = CampaignsLoaderStub()
+        let sut = makeSUT(wallets: WalletsProviderStub([mobileWallet(walletA), mobileWallet(walletB)]), loader: loader)
+
+        sut.initialize()
+        try await waitForCampaigns(sut, userWalletId: walletA)
+        try await waitForCampaigns(sut, userWalletId: walletB)
+
+        loader.respond(with: [PromoCampaignFixtures.makeCampaign(id: CampaignsLoaderStub.campaign.id, isEnrolled: true)])
+        await sut.reloadCampaigns(for: [walletA])
+
+        try await waitUntil { currentCampaigns(sut, userWalletId: walletA).first?.isEnrolled == true }
+        #expect(loader.requestedWallets.filter { $0.userWalletId == walletA }.count == 2)
+        #expect(loader.requestedWallets.filter { $0.userWalletId == walletB }.count == 1)
+    }
+
+    @Test("A removed campaign disappears from every wallet")
+    func removedCampaignDisappearsEverywhere() async throws {
+        let sut = makeSUT(wallets: WalletsProviderStub([mobileWallet(walletA), mobileWallet(walletB)]), loader: CampaignsLoaderStub())
+
+        sut.initialize()
+        try await waitForCampaigns(sut, userWalletId: walletA)
+        try await waitForCampaigns(sut, userWalletId: walletB)
+
+        await sut.removeCampaign(withId: CampaignsLoaderStub.campaign.id)
+
+        #expect(currentCampaigns(sut, userWalletId: walletA).isEmpty)
+        #expect(currentCampaigns(sut, userWalletId: walletB).isEmpty)
+    }
+
+    @Test("Reloading a wallet that has left the list asks nothing about it")
+    func reloadSkipsRemovedWallet() async throws {
+        let loader = CampaignsLoaderStub()
+        let wallets = WalletsProviderStub([mobileWallet(walletA), mobileWallet(walletB)])
+        let sut = makeSUT(wallets: wallets, loader: loader)
+
+        sut.initialize()
+        try await waitForCampaigns(sut, userWalletId: walletA)
+        try await waitForCampaigns(sut, userWalletId: walletB)
+
+        wallets.set([mobileWallet(walletA)])
+        try await waitUntil { currentCampaigns(sut, userWalletId: walletB).isEmpty }
+        await sut.reloadCampaigns(for: [walletB])
+        try await Task.sleep(nanoseconds: Constants.settleInterval)
+
+        #expect(loader.requestedWallets.filter { $0.userWalletId == walletB }.count == 1)
+        #expect(currentCampaigns(sut, userWalletId: walletB).isEmpty)
+    }
+
+    @Test("A removed campaign stays removed when a load started before the removal lands")
+    func removedCampaignStaysRemoved() async throws {
+        let loader = CampaignsLoaderStub(gatedWalletIds: [walletB])
+        let sut = makeSUT(wallets: WalletsProviderStub([mobileWallet(walletA), mobileWallet(walletB)]), loader: loader)
+
+        sut.initialize()
+        try await waitForCampaigns(sut, userWalletId: walletA)
+        try await loader.waitForRequests(count: 2)
+
+        await sut.removeCampaign(withId: CampaignsLoaderStub.campaign.id)
+        loader.openGate()
+        try await Task.sleep(nanoseconds: Constants.settleInterval)
+
+        #expect(currentCampaigns(sut, userWalletId: walletA).isEmpty)
+        #expect(currentCampaigns(sut, userWalletId: walletB).isEmpty)
+        #expect(loader.requestedWallets.filter { $0.userWalletId == walletB }.count == 1)
+    }
+
     @Test("The mapper keeps the campaign identity, enrollment, content and payout tokens")
     func mapperKeepsIdentityAndEnrollment() throws {
         let json = """
@@ -265,6 +333,7 @@ struct PromoCampaignsRepositoryTests {
         #expect(campaign.content.blocks == [.text(title: nil, text: "Stake from 100 USDT", link: nil)])
         #expect(campaign.content.actionButtonTitle == "Join")
         #expect(campaign.isPayoutNeeded)
+        #expect(campaign.matchMode == .strict)
         #expect(campaign.payoutTokens == [
             CampaignEligibleToken(
                 tokenId: "tether",
@@ -414,7 +483,8 @@ private final class CampaignsLoaderStub: PromoCampaignsLoading {
             actionButtonTitle: "Join"
         ),
         isPayoutNeeded: false,
-        payoutTokens: []
+        payoutTokens: [],
+        matchMode: .strict
     )
 
     private let error: any Error
@@ -460,11 +530,15 @@ private final class CampaignsLoaderStub: PromoCampaignsLoading {
             throw error
         }
 
-        return [Self.campaign]
+        return state.withLock { $0.campaigns }
     }
 
     func stopFailing() {
         state.withLock { $0.failures = [:] }
+    }
+
+    func respond(with campaigns: [PromoCampaign]) {
+        state.withLock { $0.campaigns = campaigns }
     }
 
     func openGate() {
@@ -494,5 +568,6 @@ private final class CampaignsLoaderStub: PromoCampaignsLoading {
         var failures: [UserWalletId: Int]
         var gatedWalletIds: Set<UserWalletId>
         var waiters: [CheckedContinuation<Void, Never>] = []
+        var campaigns: [PromoCampaign] = [CampaignsLoaderStub.campaign]
     }
 }
