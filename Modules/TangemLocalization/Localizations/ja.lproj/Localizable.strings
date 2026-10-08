@@ -1000,7 +1000,7 @@
 "introduction_stories_two_subtitle" = "どのカードからでもウォレットにアクセス可能";
 "introduction_stories_two_title" = "ひとつのウォレット、複数のカード";
 "introduction_subtitle" = "すべての資産を安全にひとつの場所で";
-"introduction_terms_of_service_consent" = "By continuing, you agree with %@";
+"introduction_terms_of_service_consent" = "続行すると、以下に同意したものとみなされます %@";
 "introduction_terms_of_service" = "利用規約";
 "introduction_title" = "すべての資産をまとめる";
 "jailbreak_warning_message" = "ジェイルブレイクされた端末はセキュリティが低いと判断されます。データが追加のリスクにさらされる可能性があります。";
@@ -1016,7 +1016,7 @@
 "joint_account_invite_load_failed_subtitle" = "招待ページを読み込めませんでした。\nタップして再読み込みしてください";
 "joint_account_invite_members_creator" = "クリエイター";
 "joint_account_invite_members_invite" = "招待する";
-"joint_account_invite_members_invited" = "Invited";
+"joint_account_invite_members_invited" = "招待済み";
 "joint_account_invite_members_member_info" = "メンバー情報";
 "joint_account_invite_members_member" = "メンバー";
 "joint_account_invite_members_new_member" = "新しいメンバー";
@@ -1035,7 +1035,7 @@
 "joint_account_invite_members_title" = "メンバーを招待";
 "joint_account_invite_members_to_join" = "メンバーを招待して参加してもらう";
 "joint_account_invite_members_waiting_title" = "メンバーの参加待ち";
-"joint_account_invite_share_title" = "Invite to %@";
+"joint_account_invite_share_title" = "%@に招待";
 "joint_account_join_confirm_sheet_subtitle" = "このアカウントでは、全員が1つの残高を共有します。メンバーは誰でも、あなたの承認なしでも、いつでも資金を使用または出金できます";
 "joint_account_join_confirm_sheet_title" = "共有アカウントに参加しようとしています";
 "joint_account_join_invalid_link_subtitle" = "正しいリンクを開いたことを確認するか、アカウント作成者に再送を依頼してください";
@@ -2607,8 +2607,8 @@
 "tangempay_newonboard_body" = "銀行なし、中間業者なし、取引所なしで、どこでも暗号資産を使えます。セルフカストディの力を、日常の支払いに。";
 "tangempay_newonboard_bottomleft_body" = "オンライン決済や Apple Pay に対応";
 "tangempay_newonboard_bottomleft_title" = "世界中で使える";
-"tangempay_newonboard_bottomright_body" = "USD→USDC 1:1; 手数料 $1";
-"tangempay_newonboard_bottomright_title" = "ACH送金を受け取る";
+"tangempay_newonboard_bottomright_body" = "ACHまたはWire経由";
+"tangempay_newonboard_bottomright_title" = "銀行振込の受取・送金";
 "tangempay_newonboard_Q1_body" = "どのネットワークのUSDT・USDCでも、手数料無料で支払い口座にチャージできます。Ethereum、Base、Polygon、BSC、Arbitrumでは、1:1のレートも適用されます。";
 "tangempay_newonboard_Q1_title" = "どの暗号資産を使えますか？";
 "tangempay_newonboard_Q2_body" = "はい。規制対象のVisaカードを利用するには、本人確認が必要です。本人確認は、コンプライアンスパートナーであるSumsubが担当します。";
