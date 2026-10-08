@@ -147,6 +147,7 @@ struct SendView: View {
         } label: {
             NavbarDotsImage()
         }
+        .accessibilityIdentifier(SendAccessibilityIdentifiers.formVariantMenuButton)
     }
 
     @ViewBuilder
