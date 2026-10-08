@@ -924,5 +924,6 @@ private final class PendingAccountModelsManagerStub: AccountModelsManager {
     func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {}
     func dispose() {}
     func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async {}
+    func authorizeTangemPayOfferForResidency(authorizingInteractor: any TangemPayAuthorizing) async -> (any TangemPayResidencyInteractor)? { nil }
     func acceptTangemPayCampaignOffer(authorizingInteractor: any TangemPayAuthorizing, campaignKey: String) async {}
 }
