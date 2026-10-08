@@ -1578,7 +1578,7 @@
 "prediction_add_funds_subtitle" = "%1$@ em %2$@";
 "prediction_add_funds_swap_body" = "Trocar um token que você já possui";
 "prediction_add_funds_swap_subtitle" = "Use criptomoedas da sua carteira Tangem para adicionar fundos à sua conta da Polymarket";
-"prediction_add_funds_swap_title" = "From your Tangem Wallet";
+"prediction_add_funds_swap_title" = "Da sua carteira Tangem";
 "prediction_balance_total" = "Saldo total";
 "prediction_balance_withdraw" = "Sacar";
 "prediction_claim_error_failed" = "O resgate não foi concluído. Nenhum valor saiu da conta, e você pode tentar novamente.";
@@ -2828,7 +2828,7 @@
 "tangempay_withdraw_hub_title" = "Sacar";
 "tangempay_withdraw_hub_to_business_account" = "Para conta empresarial";
 "tangempay_withdraw_hub_to_personal_account" = "Para conta pessoal";
-"tangempay_withdraw_hub_within_portfolio" = "Na sua carteira";
+"tangempay_withdraw_hub_within_portfolio" = "Na sua Tangem Wallet";
 "tangempay_withdrawal_note_description" = "Os fundos de compras reembolsadas não serão devolvidos ao seu saldo na blockchain nem estarão disponíveis para saque, mas permanecerão no saldo do seu cartão para compras futuras";
 "tangempay_withdrawal_note_title" = "Observe";
 "tangempay_your_balance" = "Seu saldo";
@@ -2896,7 +2896,7 @@
 "transaction_history_approve_high_risk_subtitle" = "Você está conectado. Seus fundos podem estar em risco. Considere revogar o acesso.";
 "transaction_history_approve_high_risk_title" = "Alto Risco";
 "transaction_history_approved_amount" = "Valor Aprovado";
-"transaction_history_claiming_incentive_rewards" = "Claiming incentive rewards";
+"transaction_history_claiming_incentive_rewards" = "Reivindicando recompensas de incentivo";
 "transaction_history_claiming_reward" = "Reivindicar recompensa";
 "transaction_history_contract_address" = "contrato: %@";
 "transaction_history_detail_page_amount_signed_value" = "%1@ %2@ %3@";
@@ -2917,7 +2917,7 @@
 "transaction_history_fee_for_yield_mode_top_up" = "Para o reforço do modo de rendimento";
 "transaction_history_fee_sending_asset" = "Enviar %%image%%%@";
 "transaction_history_from_inline_address" = "de: %%image%% %@";
-"transaction_history_incentive_rewards_claimed" = "Incentive rewards claimed";
+"transaction_history_incentive_rewards_claimed" = "Recompensas de incentivo reivindicadas";
 "transaction_history_multiple_addresses" = "Vários endereços";
 "transaction_history_not_supported_description" = "O histórico de transações ainda não é suportado nesta blockchain. Mas não se preocupe, estamos trabalhando nisso! Enquanto isso, você pode conferir no explorador.";
 "transaction_history_operation" = "Operação";
@@ -2929,7 +2929,7 @@
 "transaction_history_status_claiming_rewards" = "Resgatando as recompensas";
 "transaction_history_status_disabling_yield_mode_failed" = "Não foi possível desativar o modo de rendimento";
 "transaction_history_status_enabling_yield_mode_failed" = "Não foi possível ativar o modo de rendimento";
-"transaction_history_status_incentive_rewards_claim_failed" = "Claiming of incentive rewards failed";
+"transaction_history_status_incentive_rewards_claim_failed" = "Não foi possível reivindicar as recompensas de incentivo";
 "transaction_history_status_receive_failed" = "Falha ao receber";
 "transaction_history_status_restaking_rewards" = "Recompensas de restaking";
 "transaction_history_status_rewards_claim_failed" = "Falha ao resgatar as recompensas";
