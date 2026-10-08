@@ -40,6 +40,7 @@ struct TangemPayVirtualAccountOnboardingView: View {
         TangemUI.Button(icon: DesignSystem.Icons.Cross.regular20, accessibilityLabel: nil, action: viewModel.close)
             .size(.x11)
             .styleType(.material(.glass))
+            .disabled(viewModel.isLoading)
             .padding(.top, 8)
             .padding(.trailing, 16)
     }
