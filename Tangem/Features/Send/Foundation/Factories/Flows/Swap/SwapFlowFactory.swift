@@ -117,7 +117,8 @@ extension SwapFlowFactory: SendGenericFlowFactory {
             sourceTokenInput: swapModel,
             receiveTokenInput: swapModel,
             sendFeeInput: swapModel,
-            swapModelStateProvider: swapModel
+            swapModelStateProvider: swapModel,
+            slippageInput: swapModel
         )
 
         // Logger setup
@@ -141,7 +142,6 @@ extension SwapFlowFactory: SendGenericFlowFactory {
             feeSelectorBuilder: fee.feeSelectorBuilder,
             providersSelector: providers.selector,
             slippageSelectorBuilder: SwapSlippageSelectorBuilder(
-                swapProvidersInput: swapModel,
                 slippageInput: swapModel,
                 slippageOutput: swapModel
             ),

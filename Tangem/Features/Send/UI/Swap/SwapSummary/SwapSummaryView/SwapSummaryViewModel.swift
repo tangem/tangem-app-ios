@@ -50,6 +50,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     private let marketingBannerManager: SwapMarketingBannerManager
     private let analyticsLogger: SendSummaryAnalyticsLogger
     private let formVariantResolver: SwapFormVariantResolver
+    private var bag: Set<AnyCancellable> = []
 
     weak var router: SwapSummaryStepRoutable?
 
@@ -155,6 +156,10 @@ extension SwapSummaryViewModel: SwapAmountCompactRoutable {
     func userDidTapChangeReceiveTokenButton(sourceToken: SendSourceToken?) {
         router?.summaryStepRequestEditReceiveToken(sourceToken: sourceToken?.walletTokenItem)
     }
+
+    func userDidTapEditSlippage() {
+        userDidTapSlippage()
+    }
 }
 
 // MARK: - SwapSummaryProviderRoutable
@@ -173,6 +178,20 @@ private extension SwapSummaryViewModel {
             .transactionDescription
             .receiveOnMain()
             .assign(to: &$transactionDescription)
+
+        if let swapSummarySlippageViewModel {
+            Publishers.CombineLatest($formVariant, swapSummarySlippageViewModel.$isVisible)
+                .map { variant, isVisible in variant == .simple && isVisible }
+                .removeDuplicates()
+                .withWeakCaptureOf(self)
+                .sink { $0.swapAmountViewModel.update(isEditSlippageAvailable: $1) }
+                .store(in: &bag)
+
+            swapSummarySlippageViewModel.$isEditable
+                .withWeakCaptureOf(self)
+                .sink { $0.swapAmountViewModel.update(isEditSlippageEnabled: $1) }
+                .store(in: &bag)
+        }
 
         interactor
             .isMaxAmountButtonHiddenPublisher
