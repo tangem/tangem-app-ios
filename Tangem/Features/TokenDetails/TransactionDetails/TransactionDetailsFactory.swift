@@ -24,7 +24,7 @@ enum TransactionDetailsFactory {
 
     private static let balanceFormatter = BalanceFormatter()
     private static let balanceConverter = BalanceConverter()
-    private static let headerDateFormatter: DateFormatter = {
+    static let headerDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .short

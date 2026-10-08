@@ -19,12 +19,9 @@ struct JointAccountOperationDetailsView: View {
     @ObservedObject var viewModel: JointAccountOperationDetailsViewModel
 
     var body: some View {
-        VStack(spacing: .zero) {
-            content
-        }
-        .alert(item: $viewModel.alert) { $0.alert }
-        .onAppear(perform: viewModel.onAppear)
-        .onDisappear(perform: viewModel.onDisappear)
+        content
+            .onAppear(perform: viewModel.onAppear)
+            .onDisappear(perform: viewModel.onDisappear)
     }
 
     @ViewBuilder
@@ -58,13 +55,19 @@ struct JointAccountOperationDetailsView: View {
 }
 
 #Preview("Sending to the network") {
-    JointAccountOperationDetailsView(viewModel: .preview(answer: .signed, isSending: true))
+    JointAccountOperationDetailsView(viewModel: .preview(answer: .signed, status: .sending))
+        .frame(maxHeight: .infinity, alignment: .bottom)
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+}
+
+#Preview("Sent to the network") {
+    JointAccountOperationDetailsView(viewModel: .preview(answer: .signed, status: .sent(at: Date())))
         .frame(maxHeight: .infinity, alignment: .bottom)
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
 }
 
 private extension JointAccountOperationDetailsViewModel {
-    static func preview(answer: Answer, isSending: Bool = false) -> JointAccountOperationDetailsViewModel {
+    static func preview(answer: Answer, status: Status = .awaitingSignatures) -> JointAccountOperationDetailsViewModel {
         JointAccountOperationDetailsViewModel(
             tokenIconInfo: TokenIconInfo(
                 name: "Ethereum",
@@ -99,7 +102,7 @@ private extension JointAccountOperationDetailsViewModel {
                 ],
                 answer: answer,
                 canSign: true,
-                isSending: isSending
+                status: status
             ),
             contentPublisher: .empty,
             pendingOperationsProvider: nil,
