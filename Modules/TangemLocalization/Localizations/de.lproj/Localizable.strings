@@ -1000,7 +1000,7 @@
 "introduction_stories_two_subtitle" = "Verwenden Sie eine Ihrer Karten, um auf Ihre Wallet zuzugreifen.";
 "introduction_stories_two_title" = "Eine Wallet, mehrere Karten";
 "introduction_subtitle" = "Ein sicherer Ort für alles, was dir gehört";
-"introduction_terms_of_service_consent" = "By continuing, you agree with %@";
+"introduction_terms_of_service_consent" = "Wenn Sie fortfahren, erklären Sie sich damit einverstanden, dass %@";
 "introduction_terms_of_service" = "Nutzungsbedingungen";
 "introduction_title" = "Alle deine Assets an einem Ort";
 "jailbreak_warning_message" = "Geräte mit Jailbreak gelten als weniger sicher. Deine Daten können zusätzlichen Risiken ausgesetzt sein.";
@@ -1574,11 +1574,11 @@
 "prediction_add_funds_notification_limits_title" = "Einzahlungslimits";
 "prediction_add_funds_receive_body" = "Schicken %1$@ aus einer anderen Wallet, Mindestbetrag %2$@";
 "prediction_add_funds_receive_subtitle" = "Senden Sie USDC über das Polygon-Netzwerk an Ihr Polymarket-Konto.";
-"prediction_add_funds_receive_title" = "From another wallet or exchange";
+"prediction_add_funds_receive_title" = "Von einer anderen Wallet oder Börse";
 "prediction_add_funds_subtitle" = "%1$@ auf %2$@";
 "prediction_add_funds_swap_body" = "Tausche einen Token, den du bereits hältst";
 "prediction_add_funds_swap_subtitle" = "Nutzen Sie Kryptowährung in Ihrer Tangem-Wallet, um Ihr Polymarket-Konto aufzuladen";
-"prediction_add_funds_swap_title" = "From your Tangem Wallet";
+"prediction_add_funds_swap_title" = "Aus Ihrer Tangem Wallet";
 "prediction_balance_total" = "Gesamtsaldo";
 "prediction_balance_withdraw" = "Abheben";
 "prediction_claim_error_failed" = "Die Abbuchung wurde nicht ausgeführt. Es wurde kein Betrag von Ihrem Konto abgebucht, und Sie können es erneut versuchen.";
@@ -1625,7 +1625,7 @@
 "prediction_main_empty_positions_title" = "Sie haben keine aktiven Vorhersagen.";
 "prediction_main_events_load_error" = "Ereignisse konnten nicht geladen werden.\nZum Neuladen tippen";
 "prediction_main_explore_events" = "Veranstaltungen entdecken";
-"prediction_main_subtitle" = "US Dollars";
+"prediction_main_subtitle" = "US-Dollar";
 "prediction_main_title" = "Prognosen";
 "prediction_main_total_balance" = "Gesamtsaldo";
 "prediction_main_withdraw" = "Abheben";
@@ -2828,7 +2828,7 @@
 "tangempay_withdraw_hub_title" = "Abheben";
 "tangempay_withdraw_hub_to_business_account" = "An das Geschäftskonto";
 "tangempay_withdraw_hub_to_personal_account" = "Zum persönlichen Konto";
-"tangempay_withdraw_hub_within_portfolio" = "Innerhalb Ihres Portfolios";
+"tangempay_withdraw_hub_within_portfolio" = "Innerhalb Ihres Tangem Wallet";
 "tangempay_withdrawal_note_description" = "Gelder aus erstatteten Käufen werden nicht auf Ihr On-Chain-Guthaben zurückerstattet und stehen nicht für Abhebungen zur Verfügung, bleiben aber auf Ihrem Kartenguthaben für Einkäufe verfügbar";
 "tangempay_withdrawal_note_title" = "Bitte beachten Sie";
 "tangempay_your_balance" = "Ihr Guthaben";
@@ -2896,7 +2896,7 @@
 "transaction_history_approve_high_risk_subtitle" = "Sie sind verbunden. Es besteht möglicherweise ein Risiko für Ihre Geldmittel. Erwägen Sie, den Zugriff zu widerrufen.";
 "transaction_history_approve_high_risk_title" = "Hohes Risiko";
 "transaction_history_approved_amount" = "Genehmigter Betrag";
-"transaction_history_claiming_incentive_rewards" = "Claiming incentive rewards";
+"transaction_history_claiming_incentive_rewards" = "Anspruch auf Prämien";
 "transaction_history_claiming_reward" = "Belohnung einfordern";
 "transaction_history_contract_address" = "Vertrag: %@";
 "transaction_history_detail_page_amount_signed_value" = "%1@ %2@ %3@";
@@ -2917,7 +2917,7 @@
 "transaction_history_fee_for_yield_mode_top_up" = "Für den Yield-Modus-Aufladevorgang";
 "transaction_history_fee_sending_asset" = "Schicken %%Bild%% %@";
 "transaction_history_from_inline_address" = "aus: %%image%% %@";
-"transaction_history_incentive_rewards_claimed" = "Incentive rewards claimed";
+"transaction_history_incentive_rewards_claimed" = "Inanspruchgenommene Prämien";
 "transaction_history_multiple_addresses" = "Mehrere Adressen";
 "transaction_history_not_supported_description" = "Die Transaktionshistorie wird für diese Blockchain derzeit nicht verfügbar. Aber keine Sorge, wir arbeiten daran! In der Zwischenzeit kannst du es im Explorer überprüfen.";
 "transaction_history_operation" = "Operation";
@@ -2929,7 +2929,7 @@
 "transaction_history_status_claiming_rewards" = "Prämien einfordern";
 "transaction_history_status_disabling_yield_mode_failed" = "Das Deaktivieren des Yield-Modus ist fehlgeschlagen";
 "transaction_history_status_enabling_yield_mode_failed" = "Die Aktivierung des Yield-Modus ist fehlgeschlagen";
-"transaction_history_status_incentive_rewards_claim_failed" = "Claiming of incentive rewards failed";
+"transaction_history_status_incentive_rewards_claim_failed" = "Die Inanspruchnahme der Leistungsprämien ist fehlgeschlagen.";
 "transaction_history_status_receive_failed" = "Empfang fehlgeschlagen";
 "transaction_history_status_restaking_rewards" = "Retaking-Belohnungen";
 "transaction_history_status_rewards_claim_failed" = "Prämienanspruch fehlgeschlagen";
