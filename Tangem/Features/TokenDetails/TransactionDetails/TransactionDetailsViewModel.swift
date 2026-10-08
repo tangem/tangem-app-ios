@@ -224,7 +224,6 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
             .stream { [auxDataRepository] in
                 auxDataRepository.didLoadAuxData
             }
-            .prepend(())
 
         let enrichedRecordPublisher = recordPublisher
             .combineLatest(

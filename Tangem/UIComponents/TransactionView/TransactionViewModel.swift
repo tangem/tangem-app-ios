@@ -16,15 +16,12 @@ import TangemMacro
 import TangemUI
 
 struct TransactionViewModel: Hashable, Identifiable {
-    let id: ViewModelId
+    let id: TransactionRecord.ID
     let icon: TransactionViewIconViewData
     let amount: TransactionViewAmountViewData
 
-    /// The stable record identity behind this row — used to look the record up in the history stream.
-    var recordID: TransactionRecord.ID { id.id }
-
-    var hash: String { recordID.hash }
-    var index: Int { recordID.index }
+    var hash: String { id.hash }
+    var index: Int { id.index }
 
     /// Resolved at construction time by the `SubtitleOwnerResolver` for records that have a
     /// single resolvable counterparty. `nil` for legacy callers that don't run resolution.
@@ -148,7 +145,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         cashback: Cashback? = nil,
         isPendingSignature: Bool = false
     ) {
-        id = ViewModelId(id: TransactionRecord.ID(hash: hash, index: index), statusRawValue: status.rawValue)
+        id = TransactionRecord.ID(hash: hash, index: index)
         icon = TransactionViewIconViewData(
             type: transactionType,
             status: status,
@@ -261,12 +258,6 @@ struct TransactionViewModel: Hashable, Identifiable {
 }
 
 extension TransactionViewModel {
-    /// An opaque unique identity for use with the `Identifiable` protocol.
-    struct ViewModelId: Hashable {
-        fileprivate let id: TransactionRecord.ID
-        fileprivate let statusRawValue: String
-    }
-
     enum InteractionAddressType: Hashable {
         case user(_ address: String)
         case contract(_ address: String)

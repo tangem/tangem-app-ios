@@ -150,7 +150,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
         coordinator?.openTransactionDetails(
             TransactionDetailsRouteData(
-                id: transaction.recordID,
+                id: transaction.id,
                 walletModel: walletModel,
                 userWalletInfo: userWalletInfo,
                 isAccountsMode: isAccountsMode,
