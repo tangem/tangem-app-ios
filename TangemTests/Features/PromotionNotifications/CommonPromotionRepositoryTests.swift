@@ -393,6 +393,10 @@ private final class PromoCampaignsProviderStub: PromoCampaignsProviding {
             .eraseToAnyPublisher()
     }
 
+    func reloadCampaigns(for userWalletIds: [UserWalletId]) {}
+
+    func removeCampaign(withId campaignId: Int) {}
+
     func send(_ campaigns: [PromoCampaign], for userWalletId: UserWalletId) {
         subject.value[userWalletId] = campaigns
     }

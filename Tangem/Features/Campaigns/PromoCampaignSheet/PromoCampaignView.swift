@@ -230,7 +230,8 @@ private extension PromoCampaign {
                 actionButtonTitle: "Enroll"
             ),
             isPayoutNeeded: isPayoutNeeded,
-            payoutTokens: []
+            payoutTokens: [],
+            matchMode: .strict
         )
     }
 }
