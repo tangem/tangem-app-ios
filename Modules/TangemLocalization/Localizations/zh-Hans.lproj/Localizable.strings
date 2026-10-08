@@ -1000,7 +1000,7 @@
 "introduction_stories_two_subtitle" = "用任意一张卡片访问您的钱包";
 "introduction_stories_two_title" = "一个钱包，多张卡片";
 "introduction_subtitle" = "您所有资产的安全之所";
-"introduction_terms_of_service_consent" = "By continuing, you agree with %@";
+"introduction_terms_of_service_consent" = "如继续，即表示您同意以下条款：%@";
 "introduction_terms_of_service" = "服务条款";
 "introduction_title" = "存储您的所有资产";
 "jailbreak_warning_message" = "越狱设备安全性较低，您的数据可能面临额外的风险。";
@@ -2607,8 +2607,8 @@
 "tangempay_newonboard_body" = "随时随地花加密资产——无需银行、无需中介、无需交易所。自托管的自由，结合日常支付体验。";
 "tangempay_newonboard_bottomleft_body" = "可在线支付，也支持 Apple Pay";
 "tangempay_newonboard_bottomleft_title" = "全球受理";
-"tangempay_newonboard_bottomright_body" = "美元 1:1 兑换 USDC；固定费用 1 美元";
-"tangempay_newonboard_bottomright_title" = "接收 ACH 转账";
+"tangempay_newonboard_bottomright_body" = "通过 ACH 或电汇";
+"tangempay_newonboard_bottomright_title" = "接收和发送银行转账";
 "tangempay_newonboard_Q1_body" = "使用任意网络的 USDT 或 USDC 为您的支付账户充值，零手续费。在 Ethereum、Base、Polygon、BSC 和 Arbitrum 网络上，还可享受 1:1 汇率。";
 "tangempay_newonboard_Q1_title" = "我可以花哪些加密资产？";
 "tangempay_newonboard_Q2_body" = "是的，使用受监管的 Visa 卡需完成身份验证。身份验证由我们的合规合作伙伴 Sumsub 提供。";
