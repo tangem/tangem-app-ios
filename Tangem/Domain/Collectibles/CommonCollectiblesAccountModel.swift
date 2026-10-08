@@ -68,6 +68,24 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
         manager.vaultUsdcStatePublisher
     }
 
+    @MainActor
+    var purchaseInteractor: any CollectiblesPackPurchaseInteractor {
+        let interactor = CollectiblesPackPurchaseInteractorStore.interactor(for: manager.userWalletId) {
+            let provider = CommonCollectiblesPurchaseProvider(userWalletID: manager.userWalletId.stringValue)
+
+            return CommonCollectiblesPackPurchaseInteractor(
+                generator: provider,
+                signer: manager,
+                sentReporter: provider,
+                statusProvider: provider,
+                opener: provider
+            )
+        }
+        interactor.update(signer: manager)
+
+        return interactor
+    }
+
     func update(name: String) {
         guard name != nameSubject.value else {
             return
@@ -88,3 +106,7 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
         try await manager.onboard()
     }
 }
+
+// MARK: - CollectiblesPurchaseSigner
+
+extension CollectiblesManager: CollectiblesPurchaseSigner {}

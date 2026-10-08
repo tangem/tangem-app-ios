@@ -14,7 +14,7 @@ extension CollectiblesPackRevealView {
         let imageURL: URL?
         let gradeText: String
         let serialText: String
-        let rarityTitle: String
+        let rarityTitle: String?
         let badgeAppearance: BadgeAppearance
         let glow: GlowRingAppearance
         let name: String
@@ -27,17 +27,45 @@ extension CollectiblesPackRevealView {
 
 // [REDACTED_TODO_COMMENT]
 extension CollectiblesPackRevealView.Prize {
-    static let sample = CollectiblesPackRevealView.Prize(
-        imageURL: URL(string: "https://d1xpxki1g4htqu.cloudfront.net/LkmgD1iqL7MVEb9zEUiTe96bFy4ndWn2VA5d7Hlypuw"),
-        gradeText: "PSA • GEM-MT 10",
-        serialText: "#00000000",
-        rarityTitle: "Uncommon pull",
-        badgeAppearance: .success,
-        glow: .success,
-        name: "2024 Series One",
-        number: "#216",
-        subtitle: "Market value $62.00 · Insured",
-        keepTitle: "Keep card",
-        sellBackTitle: "Sell back for $55.80"
-    )
+    init(wonCard: CollectiblesWonCard, buybackRate: Decimal) {
+        let rarity = wonCard.rarity
+        let buybackValue = wonCard.insuredValue.map { $0 * buybackRate }
+
+        self.init(
+            imageURL: wonCard.imageFrontURL,
+            gradeText: [wonCard.gradingCompany, wonCard.grade].compactMap { $0 }.joined(separator: " • "),
+            serialText: wonCard.gradingID.map { "#\($0)" } ?? "",
+            rarityTitle: rarity.map { "\($0.rawValue.capitalized) pull" },
+            badgeAppearance: rarity.map(Self.badgeAppearance(of:)) ?? .neutral,
+            glow: rarity.map(Self.glow(of:)) ?? .info,
+            name: [wonCard.year, wonCard.set].compactMap { $0 }.joined(separator: " "),
+            number: wonCard.serialNumber.map { "#\($0)" } ?? "",
+            subtitle: wonCard.insuredValue.map { "Market value \(Self.formatDollars($0)) · Insured" } ?? "",
+            keepTitle: "Keep card",
+            sellBackTitle: buybackValue.map { "Sell back for \(Self.formatDollars($0))" } ?? "Sell back"
+        )
+    }
+}
+
+private extension CollectiblesPackRevealView.Prize {
+    static func badgeAppearance(of rarity: CollectiblesMachine.Tier) -> BadgeAppearance {
+        switch rarity {
+        case .common: .neutral
+        case .uncommon: .success
+        case .rare: .info
+        case .epic, .legendary: .warning
+        }
+    }
+
+    static func glow(of rarity: CollectiblesMachine.Tier) -> GlowRingAppearance {
+        switch rarity {
+        case .common, .rare: .info
+        case .uncommon: .success
+        case .epic, .legendary: .magic
+        }
+    }
+
+    static func formatDollars(_ value: Decimal) -> String {
+        CollectiblesPriceFormatter.format(value, formattingOptions: .defaultFiatFormattingOptions)
+    }
 }

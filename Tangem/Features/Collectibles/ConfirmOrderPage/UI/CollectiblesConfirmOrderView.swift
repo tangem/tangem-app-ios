@@ -30,6 +30,7 @@ struct CollectiblesConfirmOrderView: View {
 
             reveal
         }
+        .overlay(alignment: .top) { errorSnackbar }
     }
 }
 
@@ -130,6 +131,7 @@ private extension CollectiblesConfirmOrderView {
             .size(.x12)
             .loading(isButtonLoading ? .spinner : nil)
             .disabled(!isButtonEnabled)
+            .id(buttonLabel)
             .padding(.horizontal, Metrics.horizontalPadding)
             .padding(.top, Metrics.buttonTopPadding)
             .background(DesignSystem.Color.bgPrimary.ignoresSafeArea(edges: .bottom))
@@ -141,9 +143,13 @@ private extension CollectiblesConfirmOrderView {
             Localization.collectiblesConfirmOrderNotEnoughFundsButton
         case .balanceUnavailable:
             Localization.commonRetry
-        case .generating, .packGenerated:
-            // [REDACTED_TODO_COMMENT]
+        // [REDACTED_TODO_COMMENT]
+        case .generating:
             "Generating pack..."
+        case .confirming:
+            "Confirming transaction..."
+        case .opening, .packGenerated:
+            "Opening pack..."
         case .balanceLoading, .approve:
             Localization.collectiblesConfirmOrderApproveButton
         }
@@ -151,6 +157,23 @@ private extension CollectiblesConfirmOrderView {
 
     var isButtonLoading: Bool {
         viewModel.buttonState == .balanceLoading
+    }
+
+    @ViewBuilder
+    var errorSnackbar: some View {
+        if let errorMessage = viewModel.errorMessage {
+            TangemSnackbar(title: errorMessage)
+                .icon(DesignSystem.Icons.Error.filled20)
+                .iconColor(DesignSystem.Color.iconStatusError)
+                .padding(.top, Metrics.errorTopPadding)
+                .padding(.horizontal, Metrics.horizontalPadding)
+                .onTapGesture(perform: viewModel.dismissError)
+                .transition(
+                    .move(edge: .top)
+                        .combined(with: .opacity)
+                        .animation(.easeInOut(duration: Metrics.errorAnimationDuration))
+                )
+        }
     }
 
     @ViewBuilder
@@ -223,5 +246,7 @@ private extension CollectiblesConfirmOrderView {
         static let rowsHorizontalPadding: CGFloat = 8
         static let rowsBottomPadding: CGFloat = 16
         static let buttonTopPadding: CGFloat = 8
+        static let errorTopPadding: CGFloat = 8
+        static let errorAnimationDuration: TimeInterval = 0.25
     }
 }
