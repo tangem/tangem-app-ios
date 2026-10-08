@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import CombineExt
 import TangemFoundation
+import TangemLocalization
 
 final class RealAssetsWidgetViewModel: ObservableObject {
     // MARK: - Published Properties
@@ -35,6 +36,14 @@ final class RealAssetsWidgetViewModel: ObservableObject {
 
     var isRegionRestrictionBannerVisible: Bool {
         categorySelection?.category.restricted ?? false
+    }
+
+    var regionRestrictionDescription: String {
+        guard let regionName = categoriesSnapshot?.country.flatMap(Self.localizedRegionName(for:)) else {
+            return Localization.marketsRealAssetsRegionRestrictionDescription
+        }
+
+        return Localization.marketsRealAssetsRegionRestrictionDescriptionRegion(regionName)
     }
 
     var headerLoadingState: MarketsCommonWidgetHeaderLoadingState {
@@ -228,6 +237,10 @@ private extension RealAssetsWidgetViewModel {
         MarketsDefaultCategoryResolver
             .resolve(from: snapshot.selectableCategories, regionCode: snapshot.country)
             .map { RealAssetsCategorySelection(category: $0) }
+    }
+
+    static func localizedRegionName(for code: String) -> String? {
+        Locale(identifier: Locale.appLanguageCode).localizedString(forRegionCode: code)
     }
 
     func makeFeaturedViewModel(from snapshot: MarketsCategoriesSnapshot) {
