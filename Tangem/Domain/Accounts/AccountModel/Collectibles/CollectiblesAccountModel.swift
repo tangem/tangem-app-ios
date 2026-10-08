@@ -25,13 +25,30 @@ protocol CollectiblesDepositAwaiter: AnyObject {
     func awaitDeposit() async
 }
 
+protocol CollectiblesPurchaseSigner: AnyObject {
+    var purchaseAddresses: CollectiblesPurchaseAddresses? { get }
+
+    func signPurchase(
+        _ purchase: CollectiblesPackPurchase,
+        confirmedPrice: CollectiblesConfirmedPrice
+    ) async throws -> CollectiblesSignedPurchase
+
+    func sendPurchase(_ signedPurchase: CollectiblesSignedPurchase) async throws(CollectiblesPurchaseError)
+}
+
+protocol CollectiblesPackPurchaseInteractorProvider: AnyObject {
+    @MainActor
+    var purchaseInteractor: any CollectiblesPackPurchaseInteractor { get }
+}
+
 /// Refines `CollectiblesOnboarder`: the account model owns the vault's state, so it is also what walks that
 /// state to `.ready` — the alternative is a second object deciding the same three questions from its own reads.
 protocol CollectiblesAccountModel: BaseAccountModel,
     CollectiblesOnboarder,
     CollectiblesBalanceSource,
     CollectiblesVaultUsdcAccountProvider,
-    CollectiblesDepositAwaiter
+    CollectiblesDepositAwaiter,
+    CollectiblesPackPurchaseInteractorProvider
     where Icon == AccountModel.StandaloneIcon, ID == CollectiblesAccountId {
     var state: CollectiblesState { get }
     var statePublisher: AnyPublisher<CollectiblesState, Never> { get }
