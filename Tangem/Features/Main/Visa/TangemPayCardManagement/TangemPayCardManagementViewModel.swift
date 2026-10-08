@@ -417,12 +417,14 @@ private extension TangemPayCardManagementViewModel {
             return .reissuing
         }
 
+        let freezingState = lifecycle?.freezingState ?? .unavailable
+
         return .details(
             ContentState.Details(
-                freezingState: lifecycle?.freezingState ?? .unavailable,
+                freezingState: freezingState,
                 dailyLimitState: lifecycle?.dailyLimitState,
-                showsAddToApplePayGuide: showsAddToApplePayGuide,
-                showsAddToAppleWalletButton: showsAddToAppleWalletButton
+                showsAddToApplePayGuide: showsAddToApplePayGuide && !freezingState.shouldDisableActionButtons,
+                showsAddToAppleWalletButton: showsAddToAppleWalletButton && !freezingState.shouldDisableActionButtons
             )
         )
     }
