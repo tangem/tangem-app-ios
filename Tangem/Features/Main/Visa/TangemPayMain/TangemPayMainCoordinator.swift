@@ -791,15 +791,18 @@ extension TangemPayMainCoordinator: TangemPayVirtualAccountInfoSheetRoutable {
 
     func virtualAccountInfoSheetDidCreateOrder() {
         Task { @MainActor in
-            let isOnboardingScreen = virtualAccountOnboardingViewModel != nil
-
-            await dismissVirtualAccountInfo()
-
-            if isOnboardingScreen {
-                showVirtualAccountRequestSentToast()
-            } else {
+            guard FeatureProvider.isAvailable(.tangemPayOnrampV2) else {
+                await dismissVirtualAccountInfo()
                 virtualAccountSuccessViewModel = TangemPayVirtualAccountSuccessViewModel(coordinator: self)
+                return
             }
+
+            if virtualAccountOnboardingViewModel != nil {
+                virtualAccountOnboardingViewModel = nil
+                try? await Task.sleep(for: .seconds(0.5))
+            }
+
+            showVirtualAccountRequestSentToast()
         }
     }
 
