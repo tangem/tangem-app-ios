@@ -61,4 +61,79 @@ final class SwapDexUITests: BaseTestCase {
             .tapProviderRow()
             .waitForBrowserOpened()
     }
+
+    func testSuccessfulSwapEndToEnd() {
+        setAllureId(11523)
+
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            clearStorage: true,
+            scenarios: [
+                ScenarioConfig(name: "user_tokens_api", initialState: "HotWalletSvS"),
+                ScenarioConfig(name: "quotes_api", initialState: "PolygonUSDC"),
+                ScenarioConfig(name: "express_api_assets", initialState: "BitcoinExchangeEnabled"),
+                ScenarioConfig(name: "ethereum_from_pairs", initialState: "DexProvider"),
+            ]
+        )
+
+        let swapScreen = importHotWallet()
+            .tapToken(Constants.fromTokenName)
+            .waitForNonZeroTotalBalance()
+            .tapSwapButton()
+            .closeStoriesIfNeeded()
+            .validateSwapScreenDisplayed()
+
+        swapScreen
+            .selectFormVariant(Constants.detailedMode)
+            .waitFromTokenDisplayed(tokenSymbol: Constants.fromTokenSymbol)
+            .assertReceiveTokenNotSelected()
+            .assertFromAmountIsZero()
+            .assertFromFiatAmountIsZero()
+            .assertReceiveAmountIsZero()
+            .assertReceiveFiatAmountIsZero()
+
+        swapScreen
+            .chooseReceiveToken(Constants.receiveTokenName)
+            .waitToTokenDisplayed(tokenSymbol: Constants.receiveTokenSymbol)
+            .assertAmountFractionsDisplayed()
+            .enterFromAmount(Constants.inputAmount)
+            .waitForFromAmountValue(Constants.inputAmount)
+            .waitForFromFiatAmountDisplayed()
+            .assertReceiveAmountIsNotZero()
+            .verifyProviderName(contains: Constants.providerName)
+            .assertNetworkFeeBlockDisplayed()
+            .confirmSwap()
+
+        SendFinishScreen(app)
+            .waitForDisplay()
+            .assertHeaderTitle(Constants.swapInProgressTitle)
+            .assertTransactionTimeDisplayed()
+            .assertSwapSourceAmount(containsLabels: [[Constants.fromTokenSymbol, Constants.inputAmount], [Constants.fiatSign]])
+            .assertSwapDestinationAmount(containsLabels: [[Constants.approximateSign, Constants.receiveTokenSymbol], [Constants.fiatSign]])
+            .assertSwapProviderLogoDisplayed()
+            .assertSwapProvider(containsLabels: [[Constants.providerName], [Constants.providerType], [Constants.rateSign]])
+            .assertNetworkFee(containsLabels: [[Constants.marketFeeTitle], [Constants.feeCoinSymbol], [Constants.fiatSign]])
+            .assertExploreButtonDisplayed()
+            .assertCloseButtonDisplayed()
+    }
+}
+
+private extension SwapDexUITests {
+    enum Constants {
+        static let fromTokenName = "POL (ex-MATIC)"
+        static let fromTokenSymbol = "POL"
+        static let receiveTokenName = "Ethereum"
+        static let receiveTokenSymbol = "ETH"
+        static let inputAmount = "50"
+        static let providerName = "1Inch"
+        static let providerType = "DEX"
+        static let detailedMode = "Detailed mode"
+        static let swapInProgressTitle = "Swap in progress"
+        static let marketFeeTitle = "Market"
+        static let feeCoinSymbol = "ETH"
+        static let fiatSign = "$"
+        static let approximateSign = "~"
+        static let rateSign = "≈"
+    }
 }

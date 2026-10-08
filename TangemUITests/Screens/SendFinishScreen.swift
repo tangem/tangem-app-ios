@@ -76,6 +76,75 @@ final class SendFinishScreen: ScreenBase<SendFinishScreenElement> {
         }
     }
 
+    @discardableResult
+    func assertTransactionTimeDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert the operation date and time are displayed") { _ in
+            waitAndAssertTrue(transactionTime, "Transaction date and time should be displayed")
+            XCTAssertTrue(
+                transactionTime.label.contains { $0.isNumber },
+                "Transaction date and time should contain digits, but was '\(transactionTime.label)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertSwapSourceAmount(containsLabels labels: [[String]]) -> Self {
+        XCTContext.runActivity(named: "Assert the send block contains \(labels)") { _ in
+            assertBlock(SendAccessibilityIdentifiers.finishSourceAmountBlock, containsLabels: labels, blockName: "Send")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertSwapDestinationAmount(containsLabels labels: [[String]]) -> Self {
+        XCTContext.runActivity(named: "Assert the receive block contains \(labels)") { _ in
+            assertBlock(SendAccessibilityIdentifiers.finishDestinationAmountBlock, containsLabels: labels, blockName: "Receive")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertSwapProvider(containsLabels labels: [[String]]) -> Self {
+        XCTContext.runActivity(named: "Assert the provider block contains \(labels)") { _ in
+            assertBlock(SendAccessibilityIdentifiers.finishProviderBlock, containsLabels: labels, blockName: "Provider")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertSwapProviderLogoDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert the provider logo is displayed") { _ in
+            let logo = app.images.matching(identifier: SendAccessibilityIdentifiers.finishProviderBlock).firstMatch
+            waitAndAssertTrue(logo, "Provider logo should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertNetworkFee(containsLabels labels: [[String]]) -> Self {
+        XCTContext.runActivity(named: "Assert the network fee block contains \(labels)") { _ in
+            assertBlock(SendAccessibilityIdentifiers.networkFeeBlock, containsLabels: labels, blockName: "Network fee")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertExploreButtonDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert 'Explore' button is displayed") { _ in
+            waitAndAssertTrue(exploreButton, "Explore button should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertCloseButtonDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert 'Close' button is displayed") { _ in
+            waitAndAssertTrue(closeButton, "Close button should be displayed")
+            return self
+        }
+    }
+
     func closeToStakingDetails() -> StakingDetailsScreen {
         XCTContext.runActivity(named: "Tap Close and return to staking details") { _ in
             waitAndAssertTrue(closeButton, "Close button should exist")
@@ -85,6 +154,18 @@ final class SendFinishScreen: ScreenBase<SendFinishScreenElement> {
                 "Send finish screen should be dismissed before returning to staking details"
             )
             return StakingDetailsScreen(app)
+        }
+    }
+
+    private func assertBlock(_ identifier: String, containsLabels expectedLabels: [[String]], blockName: String) {
+        let blockTexts = app.staticTexts.matching(identifier: identifier)
+        waitAndAssertTrue(blockTexts.firstMatch, "\(blockName) block should be displayed")
+        let labels = blockTexts.allElementsBoundByIndex.map(\.label)
+        for parts in expectedLabels {
+            XCTAssertTrue(
+                labels.contains { label in parts.allSatisfy { label.contains($0) } },
+                "\(blockName) block should have a text containing \(parts), but had \(labels)"
+            )
         }
     }
 }

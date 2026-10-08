@@ -138,4 +138,8 @@ public enum SendAccessibilityIdentifiers {
     public static let finishExploreButton = "sendFinishExploreButton"
     public static let finishShareButton = "sendFinishShareButton"
     public static let finishAmountValue = "sendFinishAmountValue"
+    public static let finishSourceAmountBlock = "sendFinishSourceAmountBlock"
+    public static let finishDestinationAmountBlock = "sendFinishDestinationAmountBlock"
+    public static let finishProviderBlock = "sendFinishProviderBlock"
+    public static let formVariantMenuButton = "sendFormVariantMenuButton"
 }
