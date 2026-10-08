@@ -24,7 +24,7 @@ struct TransactionsListSectionView: View {
                 TransactionsListSectionHeaderView(title: item.header)
             }
 
-            ForEach(item.items) { cellItem in
+            ForEach(item.items, id: \.self) { cellItem in
                 TransactionsListRowView(
                     viewModel: cellItem,
                     openTransactionDetailsAction: openTransactionDetailsAction
