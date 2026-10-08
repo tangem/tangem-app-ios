@@ -168,6 +168,19 @@ extension CollectiblesManager: CollectiblesOnboarder {
     }
 }
 
+// MARK: - Purchase
+
+public extension CollectiblesManager {
+    var purchaseAddresses: CollectiblesPurchaseAddresses? {
+        guard case .ready(let vault) = state, let coldOwner = coldOwnerProvider.coldOwnerKey()?.blockchainKey else {
+            return nil
+        }
+
+        // [REDACTED_TODO_COMMENT]
+        return CollectiblesPurchaseAddresses(payer: vault.vaultAddress, prizeRecipient: coldOwner.base58EncodedString)
+    }
+}
+
 // MARK: - Session-key operations (no card tap)
 
 extension CollectiblesManager {
@@ -217,7 +230,7 @@ extension CollectiblesManager {
         return signedPurchase
     }
 
-    public func sendPurchase(_ signedPurchase: CollectiblesSignedPurchase) async throws {
+    public func sendPurchase(_ signedPurchase: CollectiblesSignedPurchase) async throws(CollectiblesPurchaseError) {
         try await purchaseTransactionDispatcher.send(signedPurchase)
     }
 
@@ -479,7 +492,7 @@ private extension CollectiblesManager {
 
 private extension CollectiblesManager {
     enum Constants {
-        static let stateAdvanceAttempts = 5
+        static let stateAdvanceAttempts = 10
         static let stateAdvanceInterval: Duration = .seconds(2)
         static let depositPollAttempts = 18
         static let depositPollInterval: TimeInterval = 5
