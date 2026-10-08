@@ -16,6 +16,7 @@ struct StepsFlowContent: View {
     @State private var isLoading: Bool = false
 
     let step: StepsFlowStep
+    let isActive: Bool
     let onTitle: (String?) -> Void
     let onLeadingItem: (StepsFlowNavBarItem?) -> Void
     let onTrailingItem: (StepsFlowNavBarItem?) -> Void
@@ -24,6 +25,7 @@ struct StepsFlowContent: View {
 
     var body: some View {
         content
+            .environment(\.stepsFlowStepIsActive, isActive)
             .onPreferenceChange(StepsFlowNavTitlePreferenceKey.self) { title in
                 self.title = title
                 onTitle(title)
