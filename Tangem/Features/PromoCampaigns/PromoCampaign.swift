@@ -15,4 +15,12 @@ struct PromoCampaign: Equatable {
     let content: PromoCampaignContent
     let isPayoutNeeded: Bool
     let payoutTokens: [CampaignEligibleToken]
+    let matchMode: MatchMode
+}
+
+extension PromoCampaign {
+    enum MatchMode: Equatable {
+        case strict
+        case linkedWallet
+    }
 }

@@ -24,7 +24,7 @@ struct TangemApiTarget: TargetType {
             AppEnvironment.current.activatePromoCodeBaseUrl
         case .promotion, .yieldBoostPromotionStatus, .promotionRegistration:
             AppEnvironment.current.apiBaseUrlv2
-        case .promoCampaigns:
+        case .promoCampaigns, .promoCampaignEnrollment:
             AppEnvironment.current.referralApiBaseUrl
         case .stories:
             // The backend example requests `/api/v2/stories` — same gateway `/api` segment
@@ -106,6 +106,8 @@ struct TangemApiTarget: TargetType {
             return "/promotion/registrations"
         case .promoCampaigns:
             return "/promotion"
+        case .promoCampaignEnrollment(let id, _):
+            return "/promotion/\(id)/registrations"
         case .loadPromotions:
             return "/banner/displays"
         case .hidePromotion(let request):
@@ -310,7 +312,8 @@ struct TangemApiTarget: TargetType {
              .bindWalletsByCode,
              .syncAddressBooks,
              .subscribeToPriceAlerts,
-             .promotionRegistration:
+             .promotionRegistration,
+             .promoCampaignEnrollment:
             return .post
         case .unsubscribeFromPriceAlerts:
             return .delete
@@ -344,6 +347,8 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(request)
         case .promoCampaigns(let request):
             return .requestParameters(request)
+        case .promoCampaignEnrollment(_, let request):
+            return .requestJSONEncodable(request)
         case .yieldBoostPromotionStatus(let request):
             return .requestParameters(request)
         case .promotionRegistration(let request):
@@ -532,6 +537,7 @@ struct TangemApiTarget: TargetType {
              .createAccount,
              .promotion,
              .promoCampaigns,
+             .promoCampaignEnrollment,
              .yieldBoostPromotionStatus,
              .promotionRegistration,
              .loadPromotions,
@@ -591,7 +597,7 @@ struct TangemApiTarget: TargetType {
 
     var validationType: ValidationType {
         switch type {
-        case .promoCampaigns:
+        case .promoCampaigns, .promoCampaignEnrollment:
             return .successCodes
         default:
             return .none
@@ -618,6 +624,7 @@ extension TangemApiTarget {
 
         case promotion(request: BannerPromotion.Request)
         case promoCampaigns(request: PromoCampaignsDTO.Request)
+        case promoCampaignEnrollment(id: Int, request: PromoCampaignEnrollmentDTO.Request)
         case yieldBoostPromotionStatus(request: YieldBoostPromotionDTO.Request)
         case promotionRegistration(request: PromotionRegistrationDTO.Request)
 
@@ -787,7 +794,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .activateJointAccount,
              .createJointAccountOperation,
              .signJointAccountOperation,
-             .rejectJointAccountOperation:
+             .rejectJointAccountOperation,
+             .promoCampaignEnrollment:
             return false
         case .geo,
              .features,

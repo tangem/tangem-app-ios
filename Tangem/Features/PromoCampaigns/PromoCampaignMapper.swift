@@ -21,7 +21,21 @@ struct PromoCampaignMapper {
             isEnrolled: dto.alreadyEnrolled,
             content: contentMapper.map(dto.content, payoutTokens: payoutTokens),
             isPayoutNeeded: dto.properties.payoutNeeded,
-            payoutTokens: payoutTokens.map(tokenMapper.map)
+            payoutTokens: payoutTokens.map(tokenMapper.map),
+            matchMode: mapToMatchMode(dto.properties.matchMode)
         )
+    }
+}
+
+// MARK: - Private
+
+private extension PromoCampaignMapper {
+    func mapToMatchMode(_ matchMode: PromoCampaignsDTO.MatchMode) -> PromoCampaign.MatchMode {
+        switch matchMode {
+        case .strict:
+            return .strict
+        case .linkedWallet:
+            return .linkedWallet
+        }
     }
 }

@@ -236,7 +236,8 @@ private extension PromoCampaignViewModelTests {
                 actionButtonTitle: "Enroll"
             ),
             isPayoutNeeded: isPayoutNeeded,
-            payoutTokens: payoutTokens ?? (isPayoutNeeded ? [PromotionCampaignsFixtures.makeEligibleToken()] : [])
+            payoutTokens: payoutTokens ?? (isPayoutNeeded ? [PromotionCampaignsFixtures.makeEligibleToken()] : []),
+            matchMode: .strict
         )
     }
 }
