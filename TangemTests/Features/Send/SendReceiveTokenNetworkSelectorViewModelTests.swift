@@ -180,47 +180,49 @@ private extension SendReceiveTokenNetworkSelectorViewModelTests {
         isSwapAvailable: Bool = true,
         timeout: TimeInterval = 10
     ) async throws -> SendReceiveTokenNetworkSelectorViewModel.ViewState {
-        let previousRepository = InjectedValues[\.swapRepository]
-        InjectedValues[\.swapRepository] = repository
-        defer { InjectedValues[\.swapRepository] = previousRepository }
+        return try await InjectedDependenciesIsolation.shared.run {
+            let previousRepository = InjectedValues[\.swapRepository]
+            InjectedValues[\.swapRepository] = repository
+            defer { InjectedValues[\.swapRepository] = previousRepository }
 
-        let swapableSourceToken = SendSwapableTokenStub(
-            sourceToken: sourceToken,
-            supportedProvidersFilter: supportedProvidersFilter,
-            isSwapAvailable: isSwapAvailable
-        )
+            let swapableSourceToken = SendSwapableTokenStub(
+                sourceToken: sourceToken,
+                supportedProvidersFilter: supportedProvidersFilter,
+                isSwapAvailable: isSwapAvailable
+            )
 
-        // The view model holds these weakly — keep them alive for the whole load
-        let sourceTokenInput = SendSourceTokenInputStub(token: swapableSourceToken)
-        let receiveTokenOutput = SendReceiveTokenOutputDummy()
-        let router = SendReceiveTokenNetworkSelectorRoutableDummy()
+            // The view model holds these weakly — keep them alive for the whole load
+            let sourceTokenInput = SendSourceTokenInputStub(token: swapableSourceToken)
+            let receiveTokenOutput = SendReceiveTokenOutputDummy()
+            let router = SendReceiveTokenNetworkSelectorRoutableDummy()
 
-        let viewModel = SendReceiveTokenNetworkSelectorViewModel(
-            sourceTokenInput: sourceTokenInput,
-            receiveTokenOutput: receiveTokenOutput,
-            networks: networks,
-            coin: coin,
-            userWalletInfo: sourceToken.userWalletInfo,
-            analyticsLogger: SendReceiveTokensListAnalyticsLoggerDummy(),
-            router: router
-        )
+            let viewModel = SendReceiveTokenNetworkSelectorViewModel(
+                sourceTokenInput: sourceTokenInput,
+                receiveTokenOutput: receiveTokenOutput,
+                networks: networks,
+                coin: coin,
+                userWalletInfo: sourceToken.userWalletInfo,
+                analyticsLogger: SendReceiveTokensListAnalyticsLoggerDummy(),
+                router: router
+            )
 
-        defer { withExtendedLifetime((sourceTokenInput, receiveTokenOutput, router)) {} }
+            defer { withExtendedLifetime((sourceTokenInput, receiveTokenOutput, router)) {} }
 
-        let states = AsyncStream<SendReceiveTokenNetworkSelectorViewModel.ViewState> { continuation in
-            let cancellable = viewModel.$state.sink { state in
-                continuation.yield(state)
-            }
-            continuation.onTermination = { _ in cancellable.cancel() }
-        }
-
-        return try await Task.run(withTimeout: .seconds(timeout)) {
-            for await state in states {
-                if case .loading = state { continue }
-                return state
+            let states = AsyncStream<SendReceiveTokenNetworkSelectorViewModel.ViewState> { continuation in
+                let cancellable = viewModel.$state.sink { state in
+                    continuation.yield(state)
+                }
+                continuation.onTermination = { _ in cancellable.cancel() }
             }
 
-            throw TimeoutError()
+            return try await Task.run(withTimeout: .seconds(timeout)) {
+                for await state in states {
+                    if case .loading = state { continue }
+                    return state
+                }
+
+                throw TimeoutError()
+            }
         }
     }
 
