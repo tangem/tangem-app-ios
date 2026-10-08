@@ -42,7 +42,7 @@ final class TangemPayVirtualAccountDetailsViewModel: ObservableObject, Identifia
         ]
         .filter { !$0.value.isEmpty }
 
-        contentState = .init(rows: rows, fees: .loading, dailyDepositLimit: Constants.dailyDepositLimit)
+        contentState = .init(rows: rows, fees: .loading, dailyDepositLimit: TangemPayDepositLimitFormatter.format(credentials.depositLimit))
 
         Analytics.log(.visaVATopupBankingDetailsShowed)
 
@@ -112,13 +112,5 @@ final class TangemPayVirtualAccountDetailsViewModel: ObservableObject, Identifia
         formatter.minimumFractionDigits = 0
         formatter.maximumFractionDigits = 2
         return formatter.string(from: fee.amount as NSDecimalNumber) ?? "\(fee.amount) \(fee.currency)"
-    }
-}
-
-// MARK: - Constants
-
-private extension TangemPayVirtualAccountDetailsViewModel {
-    enum Constants {
-        static let dailyDepositLimit = "$10,000"
     }
 }
