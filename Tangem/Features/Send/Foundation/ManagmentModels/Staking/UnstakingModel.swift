@@ -440,9 +440,7 @@ extension UnstakingModel {
         guard case .target(let targetInfo) = initialAction.targetType else {
             return false
         }
-        // disable partial unstake for disabled validators,
-        // preferred == false means it's disabled in admin tool
-        guard targetInfo.preferred else { return false }
+        guard targetInfo.allowsPartialUnstake else { return false }
 
         return switch tokenItem.blockchain {
         case .ton, .cardano: false // ton and cardano do not support partial unstake
