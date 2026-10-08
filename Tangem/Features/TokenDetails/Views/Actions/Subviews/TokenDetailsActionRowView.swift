@@ -14,18 +14,18 @@ import TangemUIUtils
 struct TokenDetailsActionRowView: View {
     let item: TokenDetailsActionRowItem
 
-    @ScaledMetric(wrappedValue: .unit(.x10)) private var iconContainerSize: CGFloat
-    @ScaledMetric(wrappedValue: .unit(.x5)) private var iconSize: CGFloat
-    @ScaledMetric(wrappedValue: .unit(.x6)) private var chevronSize: CGFloat
-    @ScaledMetric(wrappedValue: .unit(.x4)) private var horizontalPadding: CGFloat
-    @ScaledMetric(wrappedValue: .unit(.x3)) private var verticalPadding: CGFloat
+    @ScaledMetric private var iconContainerSize: CGFloat = 40
+    @ScaledMetric private var iconSize: CGFloat = 20
+    @ScaledMetric private var chevronSize: CGFloat = 24
+    @ScaledMetric private var horizontalPadding: CGFloat = 16
+    @ScaledMetric private var verticalPadding: CGFloat = 12
 
     private var subtitleColor: Color {
-        item.isAvailable ? .Tangem.Text.Neutral.secondary : .Tangem.Text.Status.disabled
+        item.isAvailable ? DesignSystem.Color.textSecondary : DesignSystem.Color.textTertiary
     }
 
     private var chevronColor: Color {
-        item.isAvailable ? .Tangem.Graphic.Neutral.secondary : .Tangem.Graphic.Neutral.quaternary
+        item.isAvailable ? DesignSystem.Color.iconSecondary : DesignSystem.Color.iconTertiary
     }
 
     var body: some View {
@@ -40,8 +40,8 @@ struct TokenDetailsActionRowView: View {
             .padding(.vertical, verticalPadding)
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(.rect)
-            .background(Color.Tangem.Surface.level3)
-            .cornerRadiusContinuous(.unit(.x5))
+            .background(DesignSystem.Color.bgSecondary)
+            .cornerRadiusContinuous(20)
         }
         .buttonStyle(.plain)
         .disabled(!item.isAvailable)
@@ -51,13 +51,13 @@ struct TokenDetailsActionRowView: View {
     private var iconView: some View {
         ZStack {
             Circle()
-                .fill(Color.Tangem.Markers.backgroundTintedBlue)
+                .fill(DesignSystem.Color.bgStatusInfoSubtle)
 
             item.icon.image
                 .renderingMode(.template)
                 .resizable()
                 .scaledToFit()
-                .foregroundStyle(Color.Tangem.Markers.iconBlue)
+                .foregroundStyle(DesignSystem.Color.iconAccentBlue)
                 .frame(width: iconSize, height: iconSize)
         }
         .frame(width: iconContainerSize, height: iconContainerSize)
@@ -67,7 +67,7 @@ struct TokenDetailsActionRowView: View {
     private var titleView: some View {
         Text(item.title)
             .style(
-                Font.Tangem.Body16.medium,
+                DesignSystem.Font.bodyMediumToken,
                 color: ActionControlAppearance.contentColor(isEnabled: item.isAvailable)
             )
             .lineLimit(1)
@@ -77,7 +77,7 @@ struct TokenDetailsActionRowView: View {
     private var subtitleView: some View {
         if let subtitle = item.subtitle {
             Text(subtitle)
-                .style(Font.Tangem.Caption12.semibold, color: subtitleColor)
+                .style(DesignSystem.Font.captionMediumToken, color: subtitleColor)
                 .lineLimit(1)
         } else {
             EmptyView()
