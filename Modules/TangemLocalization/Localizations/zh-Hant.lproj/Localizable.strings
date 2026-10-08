@@ -1000,7 +1000,7 @@
 "introduction_stories_two_subtitle" = "用任意一張卡片存取您的錢包";
 "introduction_stories_two_title" = "一個錢包，多張卡片";
 "introduction_subtitle" = "您所有資產的安全之所";
-"introduction_terms_of_service_consent" = "By continuing, you agree with %@";
+"introduction_terms_of_service_consent" = "By continuing, you agree to the %@";
 "introduction_terms_of_service" = "服務條款";
 "introduction_title" = "儲存您的所有資產";
 "jailbreak_warning_message" = "Devices with jailbreak are considered less secure. Your data may be exposed to additional risks.";
@@ -2607,8 +2607,8 @@
 "tangempay_newonboard_body" = "隨時隨地花用加密資產——無需銀行、無需中介、無需交易所。自我託管的掌控力，結合日常支付。";
 "tangempay_newonboard_bottomleft_body" = "可線上付款，也支援 Apple Pay";
 "tangempay_newonboard_bottomleft_title" = "全球受理";
-"tangempay_newonboard_bottomright_body" = "美元 1:1 兌換 USDC；固定費用 1 美元";
-"tangempay_newonboard_bottomright_title" = "接收 ACH 轉帳";
+"tangempay_newonboard_bottomright_body" = "透過 ACH 或電匯";
+"tangempay_newonboard_bottomright_title" = "接收和發送銀行轉帳";
 "tangempay_newonboard_Q1_body" = "使用任何網路的 USDT 或 USDC 為您的支付帳戶加值，零手續費。在 Ethereum、Base、Polygon、BSC 和 Arbitrum 網路上，還可享有 1:1 匯率。";
 "tangempay_newonboard_Q1_title" = "我可以使用哪些加密資產消費？";
 "tangempay_newonboard_Q2_body" = "是的，使用受監管的 Visa 卡須完成身分驗證。身分驗證由我們的合規合作夥伴 Sumsub 提供。";
