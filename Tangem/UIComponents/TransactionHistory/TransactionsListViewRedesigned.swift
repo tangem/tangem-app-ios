@@ -68,7 +68,7 @@ struct TransactionsListViewRedesigned: View {
                         TransactionsListSectionHeaderView(title: sectionItem.header)
                     }
 
-                    ForEach(sectionItem.items) { cellItem in
+                    ForEach(sectionItem.items, id: \.self) { cellItem in
                         TransactionsListRowView(
                             viewModel: cellItem,
                             openTransactionDetailsAction: openTransactionDetailsAction
