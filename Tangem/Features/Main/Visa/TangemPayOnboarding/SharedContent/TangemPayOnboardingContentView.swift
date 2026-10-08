@@ -2,6 +2,7 @@
 //  TangemPayOnboardingContentView.swift
 //  TangemApp
 //
+//  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
@@ -15,6 +16,7 @@ import TangemAccessibilityIdentifiers
 struct TangemPayOnboardingContentView: View {
     let showsFAQ: Bool
     let showsLegalLine: Bool
+    let usesBundleIntroductionLayout: Bool
     let getCardIcon: ImageType?
     let titleAccessibilityIdentifier: String?
     let getCardButtonAccessibilityIdentifier: String
@@ -22,7 +24,97 @@ struct TangemPayOnboardingContentView: View {
     let onGetCard: () -> Void
     let onLegalLinkTap: (URL) -> Void
 
+    @StateObject private var videoViewModel = LoopingVideoBackgroundViewModel(
+        provider: TangemPayOnboardingVideoProvider()
+    )
+
+    @State private var scroll = TangemPayOnboardingScrollState()
+
     var body: some View {
+        if usesBundleIntroductionLayout {
+            bundleLayout
+        } else {
+            scrollLayout
+        }
+    }
+
+    // MARK: - Bundle layout (pinned video backdrop, parallax scroll)
+
+    private var bundleLayout: some View {
+        GeometryReader { proxy in
+            let safeArea = proxy.safeAreaInsets
+            let screenHeight = proxy.size.height + safeArea.top + safeArea.bottom
+            let heroHeight = (screenHeight * Constants.heroHeightRatio).rounded()
+
+            ZStack(alignment: .top) {
+                TangemPayOnboardingBackdrop(scroll: scroll, videoViewModel: videoViewModel)
+
+                bundleScrollContent(heroHeight: heroHeight, safeAreaBottom: safeArea.bottom)
+            }
+        }
+        .background(DesignSystem.Color.bgPrimary)
+    }
+
+    private func bundleScrollContent(heroHeight: CGFloat, safeAreaBottom: CGFloat) -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                textSection
+
+                featureGrid
+                    .padding(.top, 36)
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, heroHeight)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(alignment: .top) {
+                TangemPayOnboardingSheetBackground(heroHeight: heroHeight)
+            }
+            .onGeometryChange(for: CGFloat.self) { geometry in
+                geometry.frame(in: .named(Constants.scrollCoordinateSpace)).minY
+            } action: { minY in
+                scroll.offset = -minY
+            }
+        }
+        .scrollIndicators(.hidden)
+        .coordinateSpace(name: Constants.scrollCoordinateSpace)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            bundleBottomPanel(safeAreaBottom: safeAreaBottom)
+        }
+        .ignoresSafeArea(.container, edges: .top)
+    }
+
+    private func bundleBottomPanel(safeAreaBottom: CGFloat) -> some View {
+        VStack(spacing: 0) {
+            LinearGradient(
+                colors: [DesignSystem.Color.bgPrimary.opacity(0), DesignSystem.Color.bgPrimary],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(height: 24)
+            .allowsHitTesting(false)
+
+            VStack(spacing: 12) {
+                if showsLegalLine {
+                    legalLine
+                }
+
+                getCardButton
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, bundlePanelBottomPadding(safeAreaBottom: safeAreaBottom))
+            .frame(maxWidth: .infinity)
+            .background(DesignSystem.Color.bgPrimary)
+        }
+    }
+
+    private func bundlePanelBottomPadding(safeAreaBottom: CGFloat) -> CGFloat {
+        safeAreaBottom > 0 ? Constants.buttonBottomInset - safeAreaBottom : Constants.buttonBottomInsetWithoutHomeIndicator
+    }
+
+    // MARK: - Scroll layout (static hero, scrollable, FAQ)
+
+    private var scrollLayout: some View {
         ScrollView {
             VStack(spacing: 0) {
                 heroBackground
@@ -68,6 +160,8 @@ struct TangemPayOnboardingContentView: View {
                     .aspectRatio(contentMode: .fit)
             }
     }
+
+    // MARK: - Shared content
 
     private var textSection: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -235,5 +329,14 @@ struct TangemPayOnboardingContentView: View {
         }
 
         return string
+    }
+}
+
+private extension TangemPayOnboardingContentView {
+    enum Constants {
+        static let heroHeightRatio: CGFloat = 0.58
+        static let buttonBottomInset: CGFloat = 32
+        static let buttonBottomInsetWithoutHomeIndicator: CGFloat = 16
+        static let scrollCoordinateSpace = "TangemPayOnboardingScroll"
     }
 }
