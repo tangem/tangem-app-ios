@@ -18,6 +18,7 @@ final class TransactionHistoryAuxDataRepositoryStub: TransactionHistoryAuxDataRe
     private struct State {
         var tokens: [ExpressCurrency: TokenItem] = [:]
         var requestedCurrencies: [ExpressCurrency] = []
+        var didLoadAuxDataContinuations: [AsyncStream<Void>.Continuation] = []
     }
 
     private let state = OSAllocatedUnfairLock(initialState: State())
@@ -31,7 +32,10 @@ final class TransactionHistoryAuxDataRepositoryStub: TransactionHistoryAuxDataRe
     }
 
     var didLoadAuxData: AsyncStream<Void> {
-        AsyncStream { $0.finish() }
+        let (stream, continuation) = AsyncStream<Void>.makeStream()
+        continuation.yield()
+        state.withLock { $0.didLoadAuxDataContinuations.append(continuation) }
+        return stream
     }
 
     func provider(id: ExpressProvider.Id, branch: ExpressBranch) -> ExpressProvider? { nil }
