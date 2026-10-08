@@ -80,6 +80,35 @@ final class SendSwapProviderSelectorScreen: ScreenBase<SendSwapProviderSelectorE
         return self
     }
 
+    @discardableResult
+    func assertProviderUnavailable(name: String) -> Self {
+        XCTContext.runActivity(named: "Assert provider '\(name)' is listed as not available") { _ in
+            let row = providerRow(name: name)
+            waitAndAssertTrue(row, "Provider row '\(name)' should exist")
+            let isUnavailable = NSPredicate(format: "label CONTAINS %@", Constants.notAvailableBadge)
+            let expectation = XCTNSPredicateExpectation(predicate: isUnavailable, object: row)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Provider '\(name)' should be marked '\(Constants.notAvailableBadge)', but row label was '\(row.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertProviderAvailable(name: String) -> Self {
+        XCTContext.runActivity(named: "Assert provider '\(name)' is listed as available") { _ in
+            let row = providerRow(name: name)
+            waitAndAssertTrue(row, "Provider row '\(name)' should exist")
+            XCTAssertFalse(
+                row.label.contains(Constants.notAvailableBadge),
+                "Provider '\(name)' should be available, but row label was '\(row.label)'"
+            )
+        }
+        return self
+    }
+
     // MARK: - Selection
 
     @discardableResult
@@ -138,12 +167,27 @@ final class SendSwapProviderSelectorScreen: ScreenBase<SendSwapProviderSelectorE
     }
 
     @discardableResult
+    func selectProviderAndWaitForClose(name: String) -> SwapScreen {
+        XCTContext.runActivity(named: "Select provider '\(name)' and wait for the provider sheet to close") { _ in
+            let row = providerRow(name: name)
+            waitAndAssertTrue(row, "Provider row '\(name)' should exist")
+            row.tap()
+            XCTAssertTrue(row.waitForNonExistence(timeout: .robustUIUpdate), "Provider sheet should close after selecting '\(name)'")
+        }
+        return SwapScreen(app)
+    }
+
+    @discardableResult
     func close() -> SendSummaryScreen {
         XCTContext.runActivity(named: "Close provider selector") { _ in
             let closeButton = app.buttons[CommonUIAccessibilityIdentifiers.closeButton].firstMatch
             closeButton.waitAndTap()
         }
         return SendSummaryScreen(app)
+    }
+
+    private func providerRow(name: String) -> XCUIElement {
+        app.buttons[SendAccessibilityIdentifiers.swapProviderSelectorRow(name: name)].firstMatch
     }
 
     private func waitForAllProviders(ofType type: String) -> Bool {
@@ -171,5 +215,11 @@ enum SendSwapProviderSelectorElement: String, UIElement {
         case .placeholder:
             return "sendSwapProviderSelectorPlaceholder"
         }
+    }
+}
+
+private extension SendSwapProviderSelectorScreen {
+    enum Constants {
+        static let notAvailableBadge = "Not available"
     }
 }
