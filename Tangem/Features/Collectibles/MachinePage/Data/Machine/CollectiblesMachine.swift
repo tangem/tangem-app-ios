@@ -19,6 +19,7 @@ struct CollectiblesMachine {
     let expectedValue: Decimal
     /// Only the tiers this machine actually carries, in rarity order.
     let tiers: [TierStats]
+    var openingVideoURL: URL?
 }
 
 extension CollectiblesMachine {

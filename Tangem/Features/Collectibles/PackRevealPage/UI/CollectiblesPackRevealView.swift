@@ -143,9 +143,11 @@ private extension CollectiblesPackRevealView {
 
     var details: some View {
         VStack(spacing: Metrics.detailsSpacing) {
-            Badge(label: viewModel.prize.rarityTitle, accessibilityLabel: nil)
-                .appearance(viewModel.prize.badgeAppearance)
-                .slotStart(DesignSystem.Icons.Dot.filled12)
+            if let rarityTitle = viewModel.prize.rarityTitle {
+                Badge(label: rarityTitle, accessibilityLabel: nil)
+                    .appearance(viewModel.prize.badgeAppearance)
+                    .slotStart(DesignSystem.Icons.Dot.filled12)
+            }
 
             VStack(spacing: Metrics.titleSpacing) {
                 (

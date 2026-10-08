@@ -9,5 +9,5 @@
 import Foundation
 
 protocol CollectiblesPurchaseStatusProvider {
-    func load(txID: String) async throws -> CollectiblesPurchaseStatus
+    func load(txID: String) async throws -> CollectiblesPurchaseTransaction
 }
