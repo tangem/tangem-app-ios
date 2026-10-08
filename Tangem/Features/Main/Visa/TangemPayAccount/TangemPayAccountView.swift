@@ -57,7 +57,7 @@ private struct TangemPayAccountTile: View {
         case .failedToIssueCard:
             stateRow(subtitle: state.subtitle, trailing: .warningIcon)
 
-        case .kycInProgress, .kycDeclined, .issuingYourCard, .rootedDevice, .planSelectNeeded:
+        case .kycInProgress, .actionRequired, .kycDeclined, .issuingYourCard, .rootedDevice, .planSelectNeeded:
             stateRow(subtitle: state.subtitle, trailing: .none)
 
         case .syncNeeded(let cached), .unavailable(let cached):
@@ -127,7 +127,10 @@ private struct TangemPayAccountTile: View {
 
     private func subtitleText(_ text: String) -> some View {
         Text(text)
-            .style(TangemRowConstants.Style.Subtitle.font, color: TangemRowConstants.Style.Subtitle.color)
+            .style(
+                TangemRowConstants.Style.Subtitle.font,
+                color: state.isSubtitleHighlighted ? Color.Tangem.Text.Status.attention : TangemRowConstants.Style.Subtitle.color
+            )
             .lineLimit(1)
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.mainScreenTileSubtitle)
     }

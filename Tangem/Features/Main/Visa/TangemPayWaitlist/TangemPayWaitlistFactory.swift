@@ -15,6 +15,7 @@ enum TangemPayWaitlistFactory {
         product: TangemPayProduct,
         country: String,
         region: String?,
+        service: TangemPayWaitlistService,
         output: @escaping (TangemPayWaitlistViewModel.Output) -> Void
     ) -> some View {
         TangemPayWaitlistView(
@@ -22,7 +23,7 @@ enum TangemPayWaitlistFactory {
                 product: product,
                 country: country,
                 region: region,
-                service: TangemPayWaitlistServiceBuilder().build(),
+                service: service,
                 output: output
             )
         )

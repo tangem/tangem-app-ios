@@ -525,11 +525,32 @@ extension CommonAccountModelsManager: AccountModelsManager {
             authorizingInteractor: authorizingInteractor,
             showSyncInProgress: false
         )
-        guard case .kycRequired = tangemPayManager.state else {
+        guard tangemPayManager.state?.isKYCRequired == true else {
             return
         }
 
         await launchKYCAndWait()
+    }
+
+    func authorizeTangemPayOfferForResidency(
+        authorizingInteractor: any TangemPayAuthorizing
+    ) async throws(TangemPayAuthorizationError) -> (any TangemPayResidencyInteractor)? {
+        try await tangemPayManager.authorizeWithCustomerWallet(
+            authorizingInteractor: authorizingInteractor,
+            showSyncInProgress: false
+        )
+
+        guard tangemPayManager.state?.isKYCRequired == true else {
+            return nil
+        }
+
+        tangemPayManager.beginResidency()
+
+        guard case .residencyRequired(let residencyInteractor) = tangemPayManager.state else {
+            return nil
+        }
+
+        return residencyInteractor
     }
 
     func acceptTangemPayCampaignOffer(
@@ -550,12 +571,14 @@ extension CommonAccountModelsManager: AccountModelsManager {
         let stateAfterAuthorization = tangemPayManager.state
 
         switch stateAfterAuthorization {
-        case .kycRequired, .planSelectNeeded:
+        case .kycRequired, .residencyRequired, .regionUnavailable, .planSelectNeeded:
             do {
                 try await tangemPayManager.placeCampaignCardIssueOrder(campaignKey: campaignKey)
             } catch {
                 throw .order(error)
             }
+
+            tangemPayManager.completeResidency(.eligible)
         case .tangemPayAccount, .cardDeactivated, .failedToIssueCard:
             throw .accountAlreadyExists
         case .kycDeclined, .unavailable, .syncNeeded, .syncInProgress, .loading, .none:
@@ -566,7 +589,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
             throw .unexpectedState
         }
 
-        guard case .kycRequired = tangemPayManager.state else {
+        guard tangemPayManager.state?.isKYCRequired == true else {
             return
         }
 
