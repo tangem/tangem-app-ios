@@ -24,6 +24,8 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openCloreMigration(walletModel: any WalletModel)
     func openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
     func openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
+    func openTangemPayResidency(interactor: any TangemPayResidencyInteractor)
+    func openTangemPayRegionUnavailablePopup(region: TangemPayUnavailableRegion, interactor: any TangemPayResidencyInteractor)
     func openTangemPayFailedToIssueCardPopup(userWalletModel: UserWalletModel)
     func openTangemPayMainView(
         userWalletInfo: UserWalletInfo,

@@ -842,6 +842,14 @@ extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
         coordinator?.openTangemPayFailedToIssueCardPopup(userWalletModel: userWalletModel)
     }
 
+    func openTangemPayResidency(interactor: any TangemPayResidencyInteractor) {
+        coordinator?.openTangemPayResidency(interactor: interactor)
+    }
+
+    func openTangemPayRegionUnavailablePopup(region: TangemPayUnavailableRegion, interactor: any TangemPayResidencyInteractor) {
+        coordinator?.openTangemPayRegionUnavailablePopup(region: region, interactor: interactor)
+    }
+
     func openTangemPayMainView(tangemPayAccount: TangemPayAccount) {
         coordinator?.openTangemPayMainView(
             userWalletInfo: userWalletModel.userWalletInfo,

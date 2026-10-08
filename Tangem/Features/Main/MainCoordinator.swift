@@ -17,6 +17,7 @@ import TangemFoundation
 import TangemUI
 import TangemMobileWalletSdk
 import TangemPay
+import TangemLocalization
 
 final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     let dismissAction: Action<Void>
@@ -63,6 +64,8 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var tangemPayMainCoordinator: TangemPayMainCoordinator?
     @Published var tangemPaySelectPlanCoordinator: TangemPaySelectPlanCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
+    @Published var tangemPayWaitlist: TangemPayWaitlistPresentation?
+    @Published var tangemPayWaitlistPrivacyPolicyViewModel: WebViewContainerViewModel?
     @Published var tangemPayCampaignCoordinator: TangemPayCampaignCoordinator?
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
     @Published var mainQRScanFlowCoordinator: MainQRScanFlowCoordinator?
@@ -427,6 +430,27 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
+    func openTangemPayResidency(interactor: any TangemPayResidencyInteractor) {
+        let dismissAction: Action<TangemPayOnboardingCoordinator.DismissOptions?> = { [weak self] _ in
+            self?.tangemPayOnboardingCoordinator = nil
+        }
+
+        let coordinator = TangemPayOnboardingCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: .init(residencyInteractor: interactor))
+        tangemPayOnboardingCoordinator = coordinator
+    }
+
+    func openTangemPayRegionUnavailablePopup(region: TangemPayUnavailableRegion, interactor: any TangemPayResidencyInteractor) {
+        Task { @MainActor in
+            let viewModel = TangemPayRegionUnavailablePopupViewModel(
+                region: region,
+                interactor: interactor,
+                coordinator: self
+            )
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openTangemPayFailedToIssueCardPopup(userWalletModel: UserWalletModel) {
         Task { @MainActor in
             let viewModel = TangemPayFailedToIssueCardSheetViewModel(
@@ -578,6 +602,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     /// the second presentation rather than queueing it — leaving a coordinator no view will ever clear.
     private var isPresentingOverMain: Bool {
         tangemPayOnboardingCoordinator != nil
+            || tangemPayWaitlist != nil
             || mainQRScanFlowCoordinator != nil
             || jointAccountManagementCoordinator != nil
             || sendCoordinator != nil
@@ -594,6 +619,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     private var presentationSlotChanges: AnyPublisher<Void, Never> {
         let slots: [AnyPublisher<Void, Never>] = [
             $tangemPayOnboardingCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
+            $tangemPayWaitlist.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $mainQRScanFlowCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $jointAccountManagementCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $sendCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
@@ -1017,6 +1043,7 @@ extension MainCoordinator {
         static let tooltipAnimationDelay: Double = 1.5
         static let tangemPayPlanActivationNavigationDelay: TimeInterval = 0.6
         static let tangemPayCampaignPresentationDelay: TimeInterval = 0.35
+        static let tangemPayWaitlistPresentationDelay: TimeInterval = 0.5
     }
 }
 
@@ -1033,6 +1060,56 @@ extension MainCoordinator: TangemPayKYCDeclinedRoutable {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
+    }
+}
+
+// MARK: - TangemPayRegionUnavailableRoutable
+
+extension MainCoordinator: TangemPayRegionUnavailableRoutable {
+    func closeTangemPayRegionUnavailablePopup() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func openTangemPayWaitlist(region: TangemPayUnavailableRegion, interactor: any TangemPayResidencyInteractor) {
+        let analyticsLogger = CommonTangemPayResidencyAnalyticsLogger()
+        analyticsLogger.logJoinWaitlistTapped()
+
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(Constants.tangemPayWaitlistPresentationDelay))
+            tangemPayWaitlist = TangemPayWaitlistPresentation(region: region, service: interactor.waitlistService)
+            analyticsLogger.logWaitlistScreenOpened()
+        }
+    }
+
+    func handleTangemPayWaitlist(_ output: TangemPayWaitlistViewModel.Output) {
+        switch output {
+        case .joined:
+            CommonTangemPayResidencyAnalyticsLogger().logWaitlistSaved()
+            tangemPayWaitlist = nil
+            Toast(view: SuccessToast(text: Localization.tangempayWaitlistJoinedMessage))
+                .present(layout: .top(padding: 12), type: .temporary())
+
+        case .openPrivacyPolicy(let url):
+            tangemPayWaitlistPrivacyPolicyViewModel = WebViewContainerViewModel(url: url, title: "", withCloseButton: true)
+
+        case .close:
+            tangemPayWaitlist = nil
+        }
+    }
+
+    func closeTangemPayWaitlist() {
+        tangemPayWaitlist = nil
+    }
+}
+
+extension MainCoordinator {
+    struct TangemPayWaitlistPresentation: Identifiable {
+        let id = UUID()
+        let region: TangemPayUnavailableRegion
+        let service: TangemPayWaitlistService
     }
 }
 
@@ -1154,6 +1231,10 @@ extension MainCoordinator: FeedHostRoutable {
             openGetTangemPay(availableSelection: availableSelection)
         case .kycRequired(let tangemPayKYCInteractor):
             openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
+        case .residencyRequired(let interactor):
+            openTangemPayResidency(interactor: interactor)
+        case .regionUnavailable(let region, let interactor):
+            openTangemPayRegionUnavailablePopup(region: region, interactor: interactor)
         case .kycDeclined(let tangemPayKYCInteractor):
             openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
         case .selectPlan(let tariffPlanSelector, let userWalletModel):

@@ -73,18 +73,22 @@ private extension TangemPayResidencyCoordinatorView {
 
         case .unavailableRegion:
             TangemPayUnavailableRegionView(output: { [weak coordinator] in coordinator?.handle($0) })
-                .topNavigation(leading: .none)
+                .topNavigation(
+                    leading: .none,
+                    onClose: { [weak coordinator] in coordinator?.close() }
+                )
         }
     }
 
     @ViewBuilder
     var waitlist: some View {
-        if let unavailableRegion = coordinator.unavailableRegion {
+        if let unavailableRegion = coordinator.unavailableRegion, let interactor = coordinator.interactor {
             NavigationStack {
                 TangemPayWaitlistFactory.makeView(
                     product: coordinator.product,
                     country: unavailableRegion.country,
                     region: unavailableRegion.region,
+                    service: interactor.waitlistService,
                     output: { [weak coordinator] in coordinator?.handle($0) }
                 )
                 .topNavigation(

@@ -53,7 +53,11 @@ struct TangemPayAvailabilityAPITarget: TargetType {
             let requestData = TangemPayImagesRequest(deeplinkValue: deeplinkValue)
             return .requestParameters(requestData)
         case .checkEligibility(let product, let country, let region):
-            let requestData = TangemPayEligibilityCheckRequest(product: product, country: country, region: region)
+            let requestData = TangemPayEligibilityCheckRequest(
+                product: product,
+                countryCode: country,
+                regionCode: region
+            )
             return .requestParameters(requestData)
         }
     }

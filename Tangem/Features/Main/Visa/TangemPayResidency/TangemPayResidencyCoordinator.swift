@@ -26,9 +26,10 @@ final class TangemPayResidencyCoordinator: CoordinatorObject {
 
     private(set) var product: TangemPayProduct = .paymentAccount
     private(set) var geoStore: TangemPayGeoStore?
+    private(set) var unavailableRegion: TangemPayUnavailableRegion?
+    private(set) var interactor: (any TangemPayResidencyInteractor)?
 
     private let availabilityService: TangemPayAvailabilityService
-    private let unavailableRegionStorage: TangemPayUnavailableRegionStorage
     private let analyticsLogger: TangemPayResidencyAnalyticsLogger
 
     private var selectedCountry: TangemPayGeoCountry?
@@ -36,10 +37,6 @@ final class TangemPayResidencyCoordinator: CoordinatorObject {
 
     var loadingItemIdPublisher: AnyPublisher<String?, Never> {
         $loadingItemId.eraseToAnyPublisher()
-    }
-
-    var unavailableRegion: TangemPayUnavailableRegion? {
-        unavailableRegionStorage.unavailableRegion(for: product)
     }
 
     required init(
@@ -50,7 +47,6 @@ final class TangemPayResidencyCoordinator: CoordinatorObject {
         self.popToRootAction = popToRootAction
 
         availabilityService = TangemPayAvailabilityServiceBuilder().build()
-        unavailableRegionStorage = AppSettings.shared
         analyticsLogger = CommonTangemPayResidencyAnalyticsLogger()
     }
 
@@ -61,6 +57,7 @@ final class TangemPayResidencyCoordinator: CoordinatorObject {
     func start(with options: Options) {
         product = options.product
         geoStore = options.geoStore
+        interactor = options.interactor
         analyticsLogger.logCountrySelectScreenOpened()
     }
 
@@ -108,6 +105,8 @@ extension TangemPayResidencyCoordinator {
         case .selectAnotherRegion:
             analyticsLogger.logSelectAnotherRegionTapped()
             selectedCountry = nil
+            unavailableRegion = nil
+            interactor?.beginResidency()
             path = []
             analyticsLogger.logCountrySelectScreenOpened()
 
@@ -174,10 +173,12 @@ private extension TangemPayResidencyCoordinator {
     ) {
         guard response.available else {
             analyticsLogger.logEligibilityCheckResult(isEligible: false, country: country, region: region)
-            unavailableRegionStorage.setUnavailableRegion(
-                TangemPayUnavailableRegion(country: response.country, region: response.region),
-                for: product
+            let unavailableRegion = TangemPayUnavailableRegion(
+                country: response.countryCode,
+                region: response.regionCode
             )
+            self.unavailableRegion = unavailableRegion
+            interactor?.completeResidency(.unavailable(unavailableRegion))
             path.append(.unavailableRegion)
             analyticsLogger.logRegionNotAvailableScreenOpened()
             return
@@ -190,7 +191,9 @@ private extension TangemPayResidencyCoordinator {
         }
 
         analyticsLogger.logEligibilityCheckResult(isEligible: true, country: country, region: region)
-        unavailableRegionStorage.clearUnavailableRegion(for: product)
+        unavailableRegion = nil
+        loadingItemId = region?.code ?? country.code
+        interactor?.completeResidency(.eligible)
         dismiss(with: .available)
     }
 
@@ -212,6 +215,7 @@ extension TangemPayResidencyCoordinator {
     struct Options {
         let product: TangemPayProduct
         let geoStore: TangemPayGeoStore
+        let interactor: any TangemPayResidencyInteractor
     }
 
     enum DismissOptions {
