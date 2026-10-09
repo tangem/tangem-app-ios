@@ -152,7 +152,7 @@ struct SwapSlippageSelectorViewModelTests {
         }
     }
 
-    @Test("Explains a provider without custom slippage and leaves the slippage alone")
+    @Test("Explains a provider without custom slippage and confirms Auto")
     func notCustomizable() {
         let output = SlippageOutputSpy()
         let viewModel = makeViewModel(defaultSlippage: 0.035, isCustomSlippageSupported: false, output: output)
@@ -166,7 +166,7 @@ struct SwapSlippageSelectorViewModelTests {
 
         #expect(maxSlippage == "3.5%")
         #expect(viewModel.isConfirmEnabled)
-        #expect(output.slippages.isEmpty)
+        #expect(output.slippages == [.auto])
     }
 }
 

@@ -15,6 +15,7 @@ protocol SwapSlippageInput: AnyObject {
     var slippagePublisher: AnyPublisher<SwapSlippage, Never> { get }
     var slippageProvider: ExpressProvider? { get }
     var slippageProviderPublisher: AnyPublisher<ExpressProvider?, Never> { get }
+    var isCustomSlippageResetPublisher: AnyPublisher<Bool, Never> { get }
 }
 
 protocol SwapSlippageOutput: AnyObject {

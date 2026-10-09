@@ -158,7 +158,7 @@ extension CommonSwapNotificationManager {
               let provider,
               provider.isCustomSlippageSupported,
               let defaultSlippage = provider.slippage,
-              customSlippage < SwapSlippageSelectorViewModel.Bounds(defaultSlippage: defaultSlippage).warningThreshold else {
+              customSlippage < SwapSlippageBounds(defaultSlippage: defaultSlippage).warningThreshold else {
             return []
         }
 

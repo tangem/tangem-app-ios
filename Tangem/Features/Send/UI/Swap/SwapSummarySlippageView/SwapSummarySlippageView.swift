@@ -33,7 +33,7 @@ struct SwapSummarySlippageView: View {
             title: "Slippage",
             trailingView: {
                 Text(valueText)
-                    .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.body, color: valueColor)
             }
         )
         .shouldShowTrailingIcon(viewModel.isEditable)
@@ -46,6 +46,13 @@ struct SwapSummarySlippageView: View {
         switch viewModel.value {
         case .auto: "Auto"
         case .custom(let text): text
+        }
+    }
+
+    private var valueColor: Color {
+        switch viewModel.value {
+        case .auto(isHighlighted: true): Colors.Text.attention
+        case .auto, .custom: Colors.Text.tertiary
         }
     }
 }
