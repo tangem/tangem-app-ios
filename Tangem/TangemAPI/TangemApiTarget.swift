@@ -235,8 +235,6 @@ struct TangemApiTarget: TargetType {
             return "/news/\(requestModel.newsId)"
         case .newsCategories:
             return "/news/categories"
-        case .trendingNews:
-            return "/news/trending"
 
         // MARK: - Referral 2.0
         case .bindWalletsByCode:
@@ -288,7 +286,6 @@ struct TangemApiTarget: TargetType {
              .newsList,
              .newsDetails,
              .newsCategories,
-             .trendingNews,
              .applicationVersions:
             return .get
         case .saveUserWalletTokensV2,
@@ -480,19 +477,6 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(parameters: requestModel.parameters, encoding: URLEncoding.default)
         case .newsCategories:
             return .requestPlain
-        case .trendingNews(let limit, let lang):
-            var parameters = [String: Any]()
-            if let lang {
-                parameters["lang"] = lang
-            }
-
-            if let limit {
-                parameters["limit"] = limit
-            }
-            return .requestParameters(
-                parameters: parameters,
-                encoding: URLEncoding.default
-            )
         case .newsDetails(let requestModel):
             if let lang = requestModel.lang {
                 return .requestParameters(parameters: ["lang": lang], encoding: URLEncoding.default)
@@ -584,7 +568,6 @@ struct TangemApiTarget: TargetType {
              .subscribeToPriceAlerts,
              .unsubscribeFromPriceAlerts,
              .getPriceAlertsSubscriptions,
-             .trendingNews,
              .newsList,
              .newsDetails,
              .newsCategories,
@@ -716,7 +699,6 @@ extension TangemApiTarget {
 
         // MARK: - News Targets
 
-        case trendingNews(limit: Int?, lang: String?)
         case newsList(_ requestModel: NewsDTO.List.Request)
         case newsDetails(_ requestModel: NewsDTO.Details.Request)
         case newsCategories
@@ -727,7 +709,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .coinsCategories, .coinsGeckoCategories, .marketIndicators, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns, .getJointAccounts, .getJointAccountInvite, .stories:
+        case .geo, .features, .apiList, .quotes, .coinsList, .coinsCategories, .coinsGeckoCategories, .marketIndicators, .tokenMarketsDetails, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns, .getJointAccounts, .getJointAccountInvite, .stories:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -784,7 +766,6 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .newsList,
              .newsCategories,
              .newsDetails,
-             .trendingNews,
              .yieldBoostPromotionStatus,
              .bindWalletsByCode,
              .createJointAccount,

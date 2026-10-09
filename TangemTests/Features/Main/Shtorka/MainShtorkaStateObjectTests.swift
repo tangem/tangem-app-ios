@@ -92,7 +92,7 @@ struct MainShtorkaStateObjectTests {
             InjectedValues[\.mainBottomSheetUIManager].show()
             #expect(await waitUntilConditionMet { stateObject.isPresented })
 
-            InjectedValues[\.mainBottomSheetUIManager].hide(shouldUpdateFooterSnapshot: false)
+            InjectedValues[\.mainBottomSheetUIManager].hide()
             #expect(await waitUntilConditionMet { !stateObject.isPresented })
 
             InjectedValues[\.mainBottomSheetUIManager].show()
@@ -126,14 +126,14 @@ private extension MainShtorkaStateObjectTests {
         let manager = InjectedValues[\.mainBottomSheetUIManager]
         let presenter = InjectedValues[\.overlayViewPresenter]
 
-        manager.hide(shouldUpdateFooterSnapshot: false)
+        manager.hide()
         presenter.dismissAll()
 
         let stateObject = MainShtorkaStateObject()
 
         await body(stateObject)
 
-        manager.hide(shouldUpdateFooterSnapshot: false)
+        manager.hide()
         presenter.dismissAll()
     }
 }

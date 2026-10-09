@@ -16,11 +16,8 @@ private struct NorthernLightsBackgroundModifier: ViewModifier {
     static let pauseOpacityThreshold = 0.1
 
     @State private var renderer: NorthernLightsRenderer?
-    @State private var isOverlayContentExpanded = false
     @State private var isLowPowerModeEnabled = ProcessInfo.processInfo.isLowPowerModeEnabled
     @State private var appIsNotActive = false
-
-    @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
 
     func body(content: Content) -> some View {
         content
@@ -39,9 +36,6 @@ private struct NorthernLightsBackgroundModifier: ViewModifier {
             .task {
                 guard renderer == nil else { return }
                 renderer = await NorthernLightsRendererFactory.makeRenderer()
-            }
-            .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { state in
-                isOverlayContentExpanded = !state.isCollapsed
             }
             .onReceive(
                 NotificationCenter.default
@@ -66,7 +60,6 @@ private struct NorthernLightsBackgroundModifier: ViewModifier {
 
     private var isPaused: Bool {
         opacity <= Self.pauseOpacityThreshold
-            || isOverlayContentExpanded
             || isLowPowerModeEnabled
             || appIsNotActive
     }

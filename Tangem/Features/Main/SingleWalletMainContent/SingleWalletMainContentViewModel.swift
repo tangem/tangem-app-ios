@@ -23,8 +23,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     /// [REDACTED_INFO]: Remove when the redesign feature toggle is removed
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
 
-    private(set) lazy var bottomSheetFooterViewModel = MainBottomSheetFooterViewModel()
-
     // MARK: - Redesign
 
     /// [REDACTED_INFO]: This should be unwrapped from container once redesign toggle is deleted
