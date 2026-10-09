@@ -7,6 +7,7 @@
 //
 
 import TangemLocalization
+import TangemUI
 
 /// The member name step as the creation flow uses it: the name is the creator's own, and submitting it is the last
 /// thing the account needs to be created.
@@ -28,7 +29,7 @@ extension JointAccountCreationMemberNameHelper: JointAccountMemberNameHelper {
     /// Filled in when the step is returned to, so a name typed once does not have to be typed again.
     var initialName: String { creationHelper.creatorName ?? "" }
 
-    var tangemIconProvider: TangemIconProvider { creationHelper.tangemIconProvider }
+    var signingActionButtonType: SigningActionButtonViewType { creationHelper.signingActionButtonType }
 
     var hasUnsavedChanges: Bool { creationHelper.hasUnsavedChanges }
 
@@ -41,9 +42,10 @@ extension JointAccountCreationMemberNameHelper: JointAccountMemberNameHelper {
         let jointAccount = try await creationHelper.createAccount()
 
         let routable = routable
+        let userWalletConfig = creationHelper.userWalletModel.config
 
         await MainActor.run {
-            routable?.openInviteMembers(jointAccount: jointAccount)
+            routable?.openInviteMembers(jointAccount: jointAccount, userWalletConfig: userWalletConfig)
         }
     }
 }
@@ -51,5 +53,5 @@ extension JointAccountCreationMemberNameHelper: JointAccountMemberNameHelper {
 // MARK: - Routable
 
 protocol JointAccountCreationMemberNameRoutable: AnyObject {
-    func openInviteMembers(jointAccount: any JointAccountModel)
+    func openInviteMembers(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig)
 }

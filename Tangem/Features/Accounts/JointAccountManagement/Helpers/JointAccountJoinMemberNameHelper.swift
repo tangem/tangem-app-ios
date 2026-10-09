@@ -7,6 +7,7 @@
 //
 
 import TangemLocalization
+import TangemUI
 
 /// The member name step as the join flow uses it: the name introduces this wallet to an account somebody else made,
 /// and submitting it signs the invited terms and takes the slot.
@@ -36,7 +37,7 @@ extension JointAccountJoinMemberNameHelper: JointAccountMemberNameHelper {
 
     var initialName: String { "" }
 
-    var tangemIconProvider: TangemIconProvider { CommonTangemIconProvider(config: userWalletModel.config) }
+    var signingActionButtonType: SigningActionButtonViewType { SigningActionButtonViewTypeBuilder().build(config: userWalletModel.config) }
 
     /// Nothing is gathered before this step in the join flow, so leaving costs the user only the typed name.
     var hasUnsavedChanges: Bool { false }
@@ -61,7 +62,7 @@ extension JointAccountJoinMemberNameHelper: JointAccountMemberNameHelper {
 
         await MainActor.run {
             if let jointAccount {
-                routable?.openJoinedAccount(jointAccount: jointAccount)
+                routable?.openJoinedAccount(jointAccount: jointAccount, userWalletConfig: userWalletModel.config)
             } else {
                 routable?.closeJoinedAccount()
             }
@@ -72,6 +73,6 @@ extension JointAccountJoinMemberNameHelper: JointAccountMemberNameHelper {
 // MARK: - Routable
 
 protocol JointAccountJoinMemberNameRoutable: AnyObject {
-    func openJoinedAccount(jointAccount: any JointAccountModel)
+    func openJoinedAccount(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig)
     func closeJoinedAccount()
 }

@@ -38,7 +38,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     let recipientBlockiesImage: UIImage?
     let networkFee: String
 
-    private let hasNFCInteraction: Bool
+    private let signingActionButtonType: SigningActionButtonViewType
     private let sign: () async throws -> Void
     private let pendingOperationsProvider: (any JointAccountPendingOperationsProvider)?
     private weak var coordinator: JointAccountOperationDetailsRoutable?
@@ -54,7 +54,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         recipient: String,
         recipientBlockiesImage: UIImage?,
         networkFee: String,
-        hasNFCInteraction: Bool,
+        signingActionButtonType: SigningActionButtonViewType,
         content: Content,
         contentPublisher: AnyPublisher<Content, Never>,
         pendingOperationsProvider: (any JointAccountPendingOperationsProvider)?,
@@ -68,7 +68,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         self.recipient = recipient
         self.recipientBlockiesImage = recipientBlockiesImage
         self.networkFee = networkFee
-        self.hasNFCInteraction = hasNFCInteraction
+        self.signingActionButtonType = signingActionButtonType
         self.content = content
         answer = content.answer
         self.sign = sign
@@ -332,11 +332,12 @@ private extension JointAccountOperationDetailsViewModel {
         return .action(
             TransactionDetailsActionButtonViewData(
                 title: signTitle,
-                icon: (isSignEnabled && hasNFCInteraction) ? DesignSystem.Icons.LogoTangem.regular20 : nil,
+                icon: nil,
                 style: .default,
                 action: .signOperation,
                 isBusy: isSigning,
-                isEnabled: isSignEnabled
+                isEnabled: isSignEnabled,
+                signingType: signingActionButtonType
             )
         )
     }

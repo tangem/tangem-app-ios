@@ -24,7 +24,7 @@ extension JointAccountDeeplink: DeeplinkOverlayProviding {
                 dismissAction: { context.dismiss() },
                 popToRootAction: { _ in context.dismiss() }
             )
-            coordinator.start(with: .members(jointAccount: jointAccount))
+            coordinator.start(with: .members(jointAccount: jointAccount, userWalletConfig: userWalletModel.config))
 
             return context.cover(AnyView(JointAccountManagementCoordinatorView(coordinator: coordinator)))
         }

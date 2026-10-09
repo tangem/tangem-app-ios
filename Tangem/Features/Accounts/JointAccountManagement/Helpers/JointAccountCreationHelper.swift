@@ -9,6 +9,7 @@
 import Combine
 import Foundation
 import TangemFoundation
+import TangemUI
 
 /// - Note: Created by [REDACTED_AUTHOR]
 /// create the account.
@@ -17,8 +18,8 @@ final class JointAccountCreationHelper {
         state.withLock { $0.formData != nil || $0.membersData != nil || $0.creatorName != nil }
     }
 
-    var tangemIconProvider: TangemIconProvider {
-        CommonTangemIconProvider(config: userWalletModel.config)
+    var signingActionButtonType: SigningActionButtonViewType {
+        SigningActionButtonViewTypeBuilder().build(config: userWalletModel.config)
     }
 
     /// The wallet the account is created in. Stays changeable while the flow runs — the form step lets the user

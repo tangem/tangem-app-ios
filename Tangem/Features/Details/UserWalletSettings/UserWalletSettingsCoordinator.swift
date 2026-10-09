@@ -301,7 +301,7 @@ extension UserWalletSettingsCoordinator: AddAccountTypeSelectorRoutable {
                 popToRootAction: popToRootAction
             )
 
-            coordinator.start(with: .creation(JointAccountManagementCoordinator.CreationOptions(userWalletModel: userWalletModel)))
+            coordinator.start(with: .creation(JointAccountCreationHelper(userWalletModel: userWalletModel)))
 
             jointAccountManagementCoordinator = coordinator
         }

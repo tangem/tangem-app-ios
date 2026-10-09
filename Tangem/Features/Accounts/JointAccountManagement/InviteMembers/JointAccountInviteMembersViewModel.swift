@@ -17,8 +17,10 @@ import struct TangemUIUtils.AlertBinder
 final class JointAccountInviteMembersViewModel: ObservableObject {
     @Published private(set) var content: Content
     @Published private(set) var isActivating = false
-    @Published var alert: AlertBinder?
     @Published private(set) var isArchiving = false
+    @Published var alert: AlertBinder?
+
+    let signingActionButtonType: SigningActionButtonViewType
 
     private let jointAccount: any JointAccountModel
     private weak var coordinator: JointAccountInviteMembersRoutable?
@@ -28,10 +30,12 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
 
     init(
         jointAccount: any JointAccountModel,
+        userWalletConfig: UserWalletConfig,
         coordinator: JointAccountInviteMembersRoutable?
     ) {
         self.jointAccount = jointAccount
         self.coordinator = coordinator
+        signingActionButtonType = SigningActionButtonViewTypeBuilder().build(config: userWalletConfig)
 
         content = Self.makeContent(of: jointAccount, slots: jointAccount.jointAccountMembersService.slots)
 

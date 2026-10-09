@@ -11,6 +11,7 @@ import Combine
 import Testing
 import TangemFoundation
 import TangemLocalization
+import TangemUI
 @testable import Tangem
 
 @Suite("Tests for the rows the joint account composition is shown by")
@@ -255,6 +256,7 @@ struct JointAccountInviteMembersViewModelTests {
 
         return JointAccountInviteMembersViewModel(
             jointAccount: jointAccount,
+            userWalletConfig: UserWalletConfigStub(),
             coordinator: nil
         )
     }
