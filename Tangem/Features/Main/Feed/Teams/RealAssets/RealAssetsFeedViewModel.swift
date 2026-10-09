@@ -36,11 +36,8 @@ final class RealAssetsFeedViewModel: ObservableObject {
         }
 
         let viewModel = RealAssetsWidgetViewModel(
-            widgetType: .realAssets,
             categoriesProvider: categoriesProvider,
-            widgetsUpdateHandler: nil,
             quotesRepositoryUpdateHelper: CommonMarketsQuotesUpdateHelper(),
-            analyticsSection: .assets,
             coordinator: self
         )
 

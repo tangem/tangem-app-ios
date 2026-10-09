@@ -9,10 +9,6 @@ import SwiftUI
 
 extension FeedDeeplink: DeeplinkOverlayProviding {
     func makeOverlay(in context: DeeplinkOverlayContext) -> DeeplinkOverlayResult? {
-        guard FeatureProvider.isAvailable(.newShtorkaEnabled) else {
-            return nil
-        }
-
         let coordinator = FeedCoordinator(
             dismissAction: { context.dismiss() },
             popToRootAction: { _ in context.dismiss() }

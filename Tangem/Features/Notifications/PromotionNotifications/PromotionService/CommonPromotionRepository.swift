@@ -213,11 +213,7 @@ private extension CommonPromotionRepository {
 
     /// A feed placement costs a request only once its tab can appear at all.
     static var placementsToLoad: [PromotionPlacement] {
-        var placements: [PromotionPlacement] = [.main, .news, .paymentAccountMain]
-
-        guard FeatureProvider.isAvailable(.newShtorkaEnabled) else {
-            return placements
-        }
+        var placements: [PromotionPlacement] = [.main, .paymentAccountMain]
 
         placements.append(contentsOf: [.crypto, .earn])
 
