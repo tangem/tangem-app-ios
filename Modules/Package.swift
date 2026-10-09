@@ -341,8 +341,13 @@ var featureModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemSocialAuthentication",
             dependencies: [
+                .product(name: "Alamofire", package: "Alamofire"),
+                "Moya",
+                "TangemBackendAuthentication",
                 "TangemFoundation",
                 "TangemLogger",
+                "TangemMobileWalletBackup",
+                "TangemNetworkUtils",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
