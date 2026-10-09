@@ -69,7 +69,7 @@ final class TangemPayOrderCardDataViewModel: ObservableObject, Identifiable {
     func fieldDidChange(_ id: TangemPayOrderCardDataField.ID) {
         guard focusedFieldID == id else { return }
 
-        updateField(id) { $0.error = $0.currentError == .nonLatin ? .nonLatin : nil }
+        updateField(id) { $0.error = $0.liveError }
     }
 
     func placeOrder() {
