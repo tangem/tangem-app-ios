@@ -72,7 +72,25 @@ struct SwapSummarySlippageViewModelTests {
         slippageInput.subject.send(.custom(0.0015))
         try await recorder.waitForValues(count: 2)
 
-        #expect(recorder.values == [.auto, .custom("0.15%")])
+        #expect(recorder.values == [.auto(isHighlighted: false), .custom("0.15%")])
+    }
+
+    @Test("Highlights Auto after the custom slippage was reset")
+    func highlightsResetSlippage() async throws {
+        let slippageInput = SlippageInputStub()
+        slippageInput.subject.send(.custom(0.0015))
+        let viewModel = SwapSummarySlippageViewModel(
+            swapProvidersInput: SwapProvidersInputStub(selected: .loading),
+            slippageInput: slippageInput,
+            percentFormatter: PercentFormatter(locale: Locale(identifier: "en_US"))
+        )
+        let recorder = ValueRecorder(publisher: viewModel.$value)
+
+        slippageInput.resetSubject.send(true)
+        slippageInput.subject.send(.auto)
+        try await recorder.waitForValues(count: 2)
+
+        #expect(recorder.values == [.custom("0.15%"), .auto(isHighlighted: true)])
     }
 
     @Test("Allows editing exactly while the sheet has a provider to open with")
@@ -141,11 +159,13 @@ private final class ValueRecorder<Value> {
 private final class SlippageInputStub: SwapSlippageInput {
     let subject = CurrentValueSubject<SwapSlippage, Never>(.auto)
     let providerSubject = CurrentValueSubject<ExpressProvider?, Never>(nil)
+    let resetSubject = CurrentValueSubject<Bool, Never>(false)
 
     var slippage: SwapSlippage { subject.value }
     var slippagePublisher: AnyPublisher<SwapSlippage, Never> { subject.eraseToAnyPublisher() }
     var slippageProvider: ExpressProvider? { providerSubject.value }
     var slippageProviderPublisher: AnyPublisher<ExpressProvider?, Never> { providerSubject.eraseToAnyPublisher() }
+    var isCustomSlippageResetPublisher: AnyPublisher<Bool, Never> { resetSubject.eraseToAnyPublisher() }
 }
 
 private final class SwapProvidersInputStub: SendSwapProvidersInput {
