@@ -10,6 +10,6 @@ import Foundation
 
 enum PromoCampaignsAvailability {
     static var isEnabled: Bool {
-        FeatureProvider.isAvailable(.promoCampaignsV2) && FeatureProvider.isAvailable(.backendAuthentication)
+        FeatureProvider.isAvailable(.promoCampaignsV2)
     }
 }

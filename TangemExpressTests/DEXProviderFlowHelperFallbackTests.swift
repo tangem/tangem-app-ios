@@ -285,7 +285,7 @@ private extension DEXProviderFlowHelperFallbackTests {
             expressFeeProvider: feeProvider,
             expressAPIProvider: ExpressAPIProviderStub(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: false)
+            featureFlags: ExpressFeatureFlags()
         )
         return DEXProviderFlowHelper(context: context)
     }

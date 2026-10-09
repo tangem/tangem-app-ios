@@ -13,8 +13,7 @@ struct WelcomeOnboardingsHelper {
 
     func getStartupOnboarding() -> WelcomeStartupOnboarding? {
         // More specific than the generic Tangem Pay onboarding link, so it wins.
-        if FeatureProvider.isAvailable(.tangemPayCustomCards),
-           let campaignKey = TangemPayCampaignService().pendingCampaignKey {
+        if let campaignKey = TangemPayCampaignService().pendingCampaignKey {
             return .tangemPayCampaign(campaignKey: campaignKey)
         }
 
