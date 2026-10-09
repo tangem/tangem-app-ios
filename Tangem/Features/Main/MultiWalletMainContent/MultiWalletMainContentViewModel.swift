@@ -237,9 +237,24 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         isScannerBusy = true
         tangemPayAccountModel.renewSession(
             authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor,
-            completion: { [weak self] in
+            completion: { [weak self] authorizationError in
                 DispatchQueue.main.async {
-                    self?.isScannerBusy = false
+                    guard let self else { return }
+                    self.isScannerBusy = false
+
+                    guard let authorizationError,
+                          !authorizationError.isUserCancelled,
+                          self.userWalletModel.config.hasFeature(.nfcInteraction)
+                    else {
+                        return
+                    }
+
+                    self.error = AlertBinder(
+                        title: Localization.commonError,
+                        message: authorizationError.serverErrorStatusCode == nil
+                            ? Localization.commonUnknownError
+                            : Localization.commonServerUnavailable
+                    )
                 }
             }
         )
