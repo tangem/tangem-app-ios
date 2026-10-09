@@ -1,5 +1,5 @@
 //
-//  AppleSignInService.swift
+//  AppleSignInProvider.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,26 +7,26 @@
 //
 
 import AuthenticationServices
+import CryptoKit
 import Foundation
 import TangemFoundation
 
-public actor AppleSignInService {
+public actor AppleSignInProvider {
     public typealias PresentationAnchorProvider = @MainActor () -> ASPresentationAnchor
 
     private let presentationAnchorProvider: PresentationAnchorProvider
-    private let taskProcessor = SingleTaskProcessor<SocialAuthResult, SocialAuthError>()
+    private let taskProcessor = SingleTaskProcessor<SocialAuthCredentials, SocialAuthError>()
 
     public init(presentationAnchorProvider: @escaping PresentationAnchorProvider) {
         self.presentationAnchorProvider = presentationAnchorProvider
     }
 }
 
-// MARK: - SocialAuthProvider
+// MARK: - SocialAuthSignInProvider
 
-extension AppleSignInService: SocialAuthProvider {
-    public func signIn() async throws(SocialAuthError) -> SocialAuthResult {
+extension AppleSignInProvider: SocialAuthSignInProvider {
+    public func signIn(nonce: String) async throws(SocialAuthError) -> SocialAuthCredentials {
         try await taskProcessor.execute { [presentationAnchorProvider] () throws(SocialAuthError) in
-            let nonce = try AppleSignInNonce.randomNonceString()
             let session = AppleSignInSession(nonce: nonce, presentationAnchorProvider: presentationAnchorProvider)
 
             do {
@@ -44,24 +44,24 @@ extension AppleSignInService: SocialAuthProvider {
 
 private final class AppleSignInSession: NSObject {
     private let nonce: String
-    private let presentationAnchorProvider: AppleSignInService.PresentationAnchorProvider
-    private var continuation: CheckedContinuation<SocialAuthResult, Error>?
+    private let presentationAnchorProvider: AppleSignInProvider.PresentationAnchorProvider
+    private var continuation: CheckedContinuation<SocialAuthCredentials, Error>?
 
     private var controller: ASAuthorizationController?
     private var presentationAnchor: ASPresentationAnchor?
 
     init(
         nonce: String,
-        presentationAnchorProvider: @escaping AppleSignInService.PresentationAnchorProvider
+        presentationAnchorProvider: @escaping AppleSignInProvider.PresentationAnchorProvider
     ) {
         self.nonce = nonce
         self.presentationAnchorProvider = presentationAnchorProvider
     }
 
-    func authorize() async throws -> SocialAuthResult {
+    func authorize() async throws -> SocialAuthCredentials {
         let request = ASAuthorizationAppleIDProvider().createRequest()
         request.requestedScopes = [.email]
-        request.nonce = AppleSignInNonce.sha256(nonce)
+        request.nonce = hashedNonce(nonce)
 
         return try await withCheckedThrowingContinuation { continuation in
             self.continuation = continuation
@@ -76,6 +76,10 @@ private final class AppleSignInSession: NSObject {
                 controller.performRequests()
             }
         }
+    }
+
+    private func hashedNonce(_ nonce: String) -> String {
+        Data(SHA256.hash(data: Data(nonce.utf8))).base64EncodedString()
     }
 }
 
@@ -97,7 +101,10 @@ extension AppleSignInSession: ASAuthorizationControllerDelegate {
             return
         }
 
-        continuation?.resume(returning: SocialAuthResult(identityTokenData: tokenData, nonce: nonce))
+        continuation?.resume(returning: SocialAuthCredentials(
+            identityTokenData: tokenData,
+            nonce: nonce
+        ))
     }
 
     func authorizationController(
