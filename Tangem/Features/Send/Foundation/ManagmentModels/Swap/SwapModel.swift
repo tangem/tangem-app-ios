@@ -35,7 +35,7 @@ final class SwapModel {
     private let _receiveAmount: CurrentValueSubject<SendAmount?, Never>
 
     private let _providersState = CurrentValueSubject<ProvidersState, Never>(.idle)
-    private let _slippage = CurrentValueSubject<SwapSlippage, Never>(.auto)
+    private let slippageState = SwapSlippageState()
     private let _slippageProvider = CurrentValueSubject<ExpressProvider?, Never>(nil)
 
     private let _transactionTime = PassthroughSubject<Date?, Never>()
@@ -205,7 +205,12 @@ extension SwapModel {
     func update(sourceAmount: SendAmount?) {
         ExpressLogger.info("Will update source amount to \(sourceAmount as Any)")
 
-        update(amount: sourceAmount?.crypto.map { .from($0) })
+        let isAmountChanged = sourceAmount?.crypto != _sourceAmount.value?.crypto
+        if isAmountChanged {
+            slippageState.reset()
+        }
+
+        update(amount: sourceAmount?.crypto.map { .from($0) }, syncsSlippageBeforeRequest: !isAmountChanged)
 
         _sourceAmount.send(sourceAmount)
         if sourceAmount == nil {
@@ -216,7 +221,12 @@ extension SwapModel {
     func update(receiveAmount: SendAmount?) {
         ExpressLogger.info("Will update receive amount to \(receiveAmount as Any)")
 
-        update(amount: receiveAmount?.crypto.map { .to($0) })
+        let isAmountChanged = receiveAmount?.crypto != _receiveAmount.value?.crypto
+        if isAmountChanged {
+            slippageState.reset()
+        }
+
+        update(amount: receiveAmount?.crypto.map { .to($0) }, syncsSlippageBeforeRequest: !isAmountChanged)
 
         _receiveAmount.send(receiveAmount)
         if receiveAmount == nil {
@@ -224,12 +234,12 @@ extension SwapModel {
         }
     }
 
-    private func update(amount: ExpressAmountType?) {
+    private func update(amount: ExpressAmountType?, syncsSlippageBeforeRequest: Bool) {
         let loadingType: (ExpressManager) async -> LoadingType = { manager in
             await manager.getCurrentPair()?.isTransfer == true ? .fee : .rates
         }
 
-        updateTask(loadingType: loadingType) { [weak self] expressManager in
+        updateTask(loadingType: loadingType, syncsSlippageBeforeRequest: syncsSlippageBeforeRequest) { [weak self] expressManager in
             if amount != nil {
                 // Add some debounce
                 try await Task.sleep(for: .seconds(1))
@@ -246,7 +256,7 @@ extension SwapModel {
         ExpressLogger.info("Will update source to \(wallet.tokenItem)")
 
         if wallet.tokenItem != _sourceToken.value.value?.tokenItem {
-            _slippage.send(.auto)
+            slippageState.reset()
             _slippageProvider.send(nil)
         }
         _sourceToken.send(.success(wallet))
@@ -264,7 +274,7 @@ extension SwapModel {
         }
 
         if wallet.tokenItem != _receiveToken.value.value?.tokenItem {
-            _slippage.send(.auto)
+            slippageState.reset()
             _slippageProvider.send(nil)
         }
         _receiveToken.send(.success(wallet))
@@ -311,17 +321,26 @@ private extension SwapModel {
         }
     }
 
-    func ensureSlippageSynchronized() async {
-        let slippage = _slippage.value.expressSlippage
+    var currentSlippagePair: SwapSlippageState.Pair? {
+        guard let source = _sourceToken.value.value, let receive = _receiveToken.value.value else {
+            return nil
+        }
+
+        return SwapSlippageState.Pair(source: source.tokenItem, receive: receive.tokenItem)
+    }
+
+    @discardableResult
+    func ensureSlippageSynchronized() async -> ExpressManagerState? {
+        let slippage = slippageState.slippage.expressSlippage
 
         guard let source = _sourceToken.value.value,
               let destination = _receiveToken.value.value,
               await isExpressPairCurrent(source: source, destination: destination),
               await expressManager.getSlippage() != slippage else {
-            return
+            return nil
         }
 
-        _ = await expressManager.update(slippage: slippage)
+        return await expressManager.update(slippage: slippage)
     }
 
     func isExpressPairCurrent(source: SendSwapableToken, destination: SendReceiveToken) async -> Bool {
@@ -363,7 +382,7 @@ private extension SwapModel {
     func updateTask(
         loadingType: @escaping (ExpressManager) async -> LoadingType?,
         immediateLoadingType: LoadingType? = nil,
-        syncsSlippage: Bool = true,
+        syncsSlippageBeforeRequest: Bool = true,
         block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerState
     ) {
         // Invalidated before the loading transition and the first `await`: resolving the loading type reaches
@@ -377,7 +396,7 @@ private extension SwapModel {
 
         let task = runTask(in: self) { @MainActor input in
             do {
-                if syncsSlippage {
+                if syncsSlippageBeforeRequest {
                     await input.ensureSlippageSynchronized()
                 }
 
@@ -392,12 +411,17 @@ private extension SwapModel {
                     input.update(providersState: .loading(type))
                 }
 
-                let state = try await block(input.expressManager)
+                var state = try await block(input.expressManager)
                 try Task.checkCancellation()
 
-                let appliedSlippage = await SwapSlippage(expressSlippage: input.expressManager.getSlippage())
-                try Task.checkCancellation()
-                input._slippage.send(appliedSlippage)
+                if input.slippageState.shouldReset(for: state, pair: input.currentSlippagePair) {
+                    input.slippageState.reset()
+                }
+
+                if let synchronizedState = await input.ensureSlippageSynchronized() {
+                    state = synchronizedState
+                    try Task.checkCancellation()
+                }
 
                 guard let state = input.balanceRestrictionHandler.dexOnlyAdjustedState(state) else {
                     return await input.fallbackToLegacyBalanceRestriction(revision: revision)
@@ -1338,6 +1362,7 @@ extension SwapModel {
 // MARK: - Initial (pair) loading
 
 extension SwapModel {
+    @MainActor
     private func initialLoading() async {
         switch (_sourceToken.value, _receiveToken.value) {
         case (.success, .success):
@@ -1712,7 +1737,7 @@ extension SwapModel {
             return transactionSlippage
         }
 
-        guard provider.provider.isCustomSlippageSupported, case .custom(let value) = _slippage.value else {
+        guard provider.provider.isCustomSlippageSupported, case .custom(let value) = slippageState.slippage else {
             return provider.provider.slippage
         }
 
@@ -1724,11 +1749,11 @@ extension SwapModel {
 
 extension SwapModel: SwapSlippageInput, SwapSlippageOutput {
     var slippage: SwapSlippage {
-        _slippage.value
+        slippageState.slippage
     }
 
     var slippagePublisher: AnyPublisher<SwapSlippage, Never> {
-        _slippage.eraseToAnyPublisher()
+        slippageState.slippagePublisher
     }
 
     var slippageProvider: ExpressProvider? {
@@ -1737,6 +1762,10 @@ extension SwapModel: SwapSlippageInput, SwapSlippageOutput {
 
     var slippageProviderPublisher: AnyPublisher<ExpressProvider?, Never> {
         _slippageProvider.eraseToAnyPublisher()
+    }
+
+    var isCustomSlippageResetPublisher: AnyPublisher<Bool, Never> {
+        slippageState.isResetPublisher
     }
 
     func userDidOpenSlippageSelector() {
@@ -1751,15 +1780,13 @@ extension SwapModel: SwapSlippageInput, SwapSlippageOutput {
             analyticsLogger.logSwapCustomSlippageConfirmed(slippage: value)
         }
 
-        guard slippage != _slippage.value else {
+        guard slippageState.set(slippage, for: currentSlippagePair) else {
             return
         }
 
-        _slippage.send(slippage)
-
-        updateTask(loadingType: { _ in nil }, immediateLoadingType: .rates, syncsSlippage: false) { [weak self] expressManager in
+        updateTask(loadingType: { _ in nil }, immediateLoadingType: .rates, syncsSlippageBeforeRequest: false) { [weak self] expressManager in
             try Task.checkCancellation()
-            return await expressManager.update(slippage: self?._slippage.value.expressSlippage)
+            return await expressManager.update(slippage: self?.slippageState.slippage.expressSlippage)
         }
     }
 }

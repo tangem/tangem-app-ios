@@ -68,4 +68,5 @@ private final class SlippageInputStub: SwapSlippageInput {
     var slippage: SwapSlippage { .auto }
     var slippagePublisher: AnyPublisher<SwapSlippage, Never> { Just(.auto).eraseToAnyPublisher() }
     var slippageProviderPublisher: AnyPublisher<ExpressProvider?, Never> { Just(slippageProvider).eraseToAnyPublisher() }
+    var isCustomSlippageResetPublisher: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
 }
