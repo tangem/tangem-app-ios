@@ -219,6 +219,8 @@ private extension SwapSlippageSelectorViewModelTests {
 private final class SlippageOutputSpy: SwapSlippageOutput {
     private(set) var slippages: [SwapSlippage] = []
 
+    func userDidOpenSlippageSelector() {}
+
     func userDidSet(slippage: SwapSlippage) {
         slippages.append(slippage)
     }

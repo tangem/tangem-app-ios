@@ -1163,7 +1163,7 @@ extension SwapModel {
                 return result
 
             case .loaded(.swap(.some(let selected), _), .previewCEX(let previewCEX)):
-                analyticsLogger.logSwapButtonSwap()
+                analyticsLogger.logSwapButtonSwap(slippage: swapAnalyticsSlippage(provider: selected, transactionSlippage: nil))
 
                 let data = try await expressManager.requestData()
                 let fee = try await cexDepositFee(provider: selected, data: data, preview: previewCEX, source: source)
@@ -1184,7 +1184,7 @@ extension SwapModel {
                 return result
 
             case .loaded(.swap(.some(let selected), _), .readyToSwap(let readyToSwap)):
-                analyticsLogger.logSwapButtonSwap()
+                analyticsLogger.logSwapButtonSwap(slippage: swapAnalyticsSlippage(provider: selected, transactionSlippage: readyToSwap.data.slippage))
 
                 let dispatcher = source.transactionDispatcherProvider.makeDEXTransactionDispatcher()
                 let transaction: TransactionDispatcherTransactionType = .dex(data: readyToSwap.data, fee: readyToSwap.fee)
@@ -1200,7 +1200,7 @@ extension SwapModel {
                 )
 
             case .loaded(.swap(.some(let selected), _), .readyToApproveAndSwap(let readyToApproveAndSwap)):
-                analyticsLogger.logSwapButtonSwap()
+                analyticsLogger.logSwapButtonSwap(slippage: swapAnalyticsSlippage(provider: selected, transactionSlippage: readyToApproveAndSwap.data.slippage))
 
                 let approveData = try await makeApproveData(source: source, provider: selected)
                 let dispatcher = source.transactionDispatcherProvider.makeApproveAndDEXTransactionDispatcher()
@@ -1704,6 +1704,22 @@ extension SwapModel: SendSwapProvidersOutput {
     }
 }
 
+// MARK: - Swap analytics
+
+extension SwapModel {
+    func swapAnalyticsSlippage(provider: ExpressAvailableProvider, transactionSlippage: Decimal?) -> Decimal? {
+        if let transactionSlippage {
+            return transactionSlippage
+        }
+
+        guard provider.provider.isCustomSlippageSupported, case .custom(let value) = _slippage.value else {
+            return provider.provider.slippage
+        }
+
+        return value
+    }
+}
+
 // MARK: - SwapSlippageInput, SwapSlippageOutput
 
 extension SwapModel: SwapSlippageInput, SwapSlippageOutput {
@@ -1723,7 +1739,18 @@ extension SwapModel: SwapSlippageInput, SwapSlippageOutput {
         _slippageProvider.eraseToAnyPublisher()
     }
 
+    func userDidOpenSlippageSelector() {
+        analyticsLogger.logSwapSlippageSelectorOpened()
+    }
+
     func userDidSet(slippage: SwapSlippage) {
+        switch slippage {
+        case .auto:
+            analyticsLogger.logSwapCustomSlippageConfirmed(slippage: slippageProvider?.slippage)
+        case .custom(let value):
+            analyticsLogger.logSwapCustomSlippageConfirmed(slippage: value)
+        }
+
         guard slippage != _slippage.value else {
             return
         }

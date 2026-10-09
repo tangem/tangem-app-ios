@@ -503,6 +503,32 @@ final class SwapModelTests: LeakTrackingTestSuite {
         #expect(router.slippageSelectorOpenings == 1)
     }
 
+    @Test(
+        "The swap event reports the slippage the transaction goes out with",
+        arguments: [
+            (isSupported: true, slippage: SwapSlippage.custom(Decimal(string: "0.004")!), transaction: Decimal?.some (Decimal(string: "0.0045")!), expected: Decimal?.some (Decimal(string: "0.0045")!)),
+            (isSupported: true, slippage: SwapSlippage.custom(Decimal(string: "0.004")!), transaction: Decimal?.none, expected: Decimal?.some (Decimal(string: "0.004")!)),
+            (isSupported: true, slippage: SwapSlippage.auto, transaction: Decimal?.none, expected: Decimal?.some (Decimal(string: "0.003")!)),
+            (isSupported: false, slippage: SwapSlippage.custom(Decimal(string: "0.004")!), transaction: Decimal?.none, expected: Decimal?.some (Decimal(string: "0.003")!)),
+            (isSupported: false, slippage: SwapSlippage.custom(Decimal(string: "0.004")!), transaction: Decimal?.some (Decimal(string: "0.0045")!), expected: Decimal?.some (Decimal(string: "0.0045")!)),
+        ]
+    )
+    func swapAnalyticsSlippage(isSupported: Bool, slippage: SwapSlippage, transaction: Decimal?, expected: Decimal?) {
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false))
+        )
+        let provider = ExpressAvailableProviderFixture.make(
+            state: .idle,
+            slippage: Decimal(string: "0.003"),
+            isCustomSlippageSupported: isSupported
+        )
+
+        sut.userDidSet(slippage: slippage)
+
+        #expect(sut.swapAnalyticsSlippage(provider: provider, transactionSlippage: transaction) == expected)
+    }
+
     @Test("A source token change resets the custom slippage")
     func sourceChangeResetsCustomSlippage() {
         let sut = makeSUT(
