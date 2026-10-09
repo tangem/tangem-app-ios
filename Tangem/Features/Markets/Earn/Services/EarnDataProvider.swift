@@ -15,7 +15,6 @@ protocol EarnDataProvider: AnyObject {
     var mostlyUsedEventPublisher: AnyPublisher<EarnDataMostlyUsedEvent, Never> { get }
     var canFetchMore: Bool { get }
 
-    func applyMostlyUsedTokens(_ tokens: [EarnTokenModel])
     func refreshMostlyUsedTokens()
 
     func reset()

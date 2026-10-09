@@ -14,50 +14,17 @@ struct AppCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: AppCoordinator
     @ObservedObject var sensitiveTextVisibilityViewModel = SensitiveTextVisibilityViewModel.shared
 
-    @Injected(\.overlayContentContainer) private var overlayContentContainer: OverlayContentContainer
-    @Injected(\.viewHierarchySnapshotterInitializer) private var viewHierarchySnapshotterInitializer: ViewHierarchySnapshottingInitializable
-
-    @Environment(\.mainWindowSize) var mainWindowSize: CGSize
     @Namespace private var namespace
 
     var body: some View {
-        if FeatureProvider.isAvailable(.newShtorkaEnabled) {
-            content
-                .accentColor(Colors.Text.primary1)
-                .bottomSheet(
-                    item: $sensitiveTextVisibilityViewModel.informationHiddenBalancesViewModel,
-                    backgroundColor: Colors.Background.primary
-                ) {
-                    InformationHiddenBalancesView(viewModel: $0)
-                }
-        } else {
-            content
-                .accentColor(Colors.Text.primary1)
-                .overlayContentContainer(
-                    item: $coordinator.marketsCoordinator,
-                    overlayContentContainer: overlayContentContainer
-                ) { coordinator in
-                    let marketsCoordinatorView = MarketsCoordinatorView(coordinator: coordinator)
-                        .environment(\.mainWindowSize, mainWindowSize)
-
-                    let viewHierarchySnapshotter = ViewHierarchySnapshottingContainerViewController()
-                    viewHierarchySnapshotter.shouldPropagateOverriddenUserInterfaceStyleToChildren = true
-                    viewHierarchySnapshotterInitializer.set(viewHierarchySnapshotter)
-
-                    return UIAppearanceBoundaryContainerView(
-                        boundaryMarker: { viewHierarchySnapshotter },
-                        content: { marketsCoordinatorView }
-                    )
-                    // Ensures that this is a full-screen container and keyboard avoidance is disabled to mitigate [REDACTED_INFO]
-                    .ignoresSafeArea(.all, edges: .vertical)
-                }
-                .bottomSheet(
-                    item: $sensitiveTextVisibilityViewModel.informationHiddenBalancesViewModel,
-                    backgroundColor: Colors.Background.primary
-                ) {
-                    InformationHiddenBalancesView(viewModel: $0)
-                }
-        }
+        content
+            .accentColor(Colors.Text.primary1)
+            .bottomSheet(
+                item: $sensitiveTextVisibilityViewModel.informationHiddenBalancesViewModel,
+                backgroundColor: Colors.Background.primary
+            ) {
+                InformationHiddenBalancesView(viewModel: $0)
+            }
     }
 
     private var content: some View {

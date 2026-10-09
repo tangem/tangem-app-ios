@@ -12,8 +12,15 @@ import TangemUIUtils
 enum MarketsNavigationMetrics {
     static var pushedScreenCornerRadius: CGFloat {
         UIDevice.current.hasHomeScreenIndicator
-            ? RootViewControllerFactory.Constants.notchDevicesOverlayCornerRadius
-            : RootViewControllerFactory.Constants.notchlessDevicesOverlayCornerRadius
+            ? Constants.notchDevicesOverlayCornerRadius
+            : Constants.notchlessDevicesOverlayCornerRadius
+    }
+}
+
+private extension MarketsNavigationMetrics {
+    enum Constants {
+        static let notchDevicesOverlayCornerRadius = 24.0
+        static let notchlessDevicesOverlayCornerRadius = 16.0
     }
 }
 

@@ -14,8 +14,4 @@ extension UITraitCollection {
     static var isDarkMode: Bool {
         UITraitCollection.current.userInterfaceStyle == .dark
     }
-
-    var isDarkMode: Bool {
-        userInterfaceStyle == .dark
-    }
 }
