@@ -44,7 +44,6 @@ class TangemPayMainCoordinator: CoordinatorObject {
 
     // MARK: - Child view models (sheets)
 
-    @Published var addToApplePayGuideViewModel: TangemPayAddToAppPayGuideViewModel?
     @Published var tangemPayPinViewModel: TangemPayPinViewModel?
     @Published var tangemPayDailyLimitViewModel: TangemPayDailyLimitViewModel?
     @Published var pendingExpressTxStatusBottomSheet: PendingExpressTxStatusBottomSheetViewModel?
@@ -304,13 +303,6 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         )
     }
 
-    func openAddToApplePayGuide(viewModel: TangemPayCardDetailsViewModel) {
-        addToApplePayGuideViewModel = TangemPayAddToAppPayGuideViewModel(
-            tangemPayCardDetailsViewModel: viewModel,
-            coordinator: self
-        )
-    }
-
     func openTangemPayAddFundsSheet(input: TangemPayAddFundsSheetViewModel.Input) {
         let viewModel = TangemPayAddFundsSheetViewModel(input: input, coordinator: self)
         Task { @MainActor in
@@ -504,14 +496,6 @@ extension TangemPayMainCoordinator: TangemPayCloseCardSheetRoutable {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
-    }
-}
-
-// MARK: - TangemPayAddToAppPayGuideRoutable
-
-extension TangemPayMainCoordinator: TangemPayAddToAppPayGuideRoutable {
-    func closeAddToAppPayGuide() {
-        addToApplePayGuideViewModel = nil
     }
 }
 
