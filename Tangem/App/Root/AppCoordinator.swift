@@ -21,8 +21,7 @@ class AppCoordinator: CoordinatorObject {
     lazy var popToRootAction: Action<PopToRootOptions> = { [weak self] _ in
         guard let self else { return }
 
-        marketsCoordinator = nil
-        mainBottomSheetUIManager.hide(shouldUpdateFooterSnapshot: false)
+        mainBottomSheetUIManager.hide()
 
         let startupProcessor = StartupProcessor()
         if startupProcessor.shouldOpenAuthScreen {
@@ -37,22 +36,12 @@ class AppCoordinator: CoordinatorObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.appLockController) private var appLockController: AppLockController
-    @Injected(\.overlayContentContainer) private var overlayContentContainer: OverlayContentContainer
     @Injected(\.welcomeV2EntryReasonProvider) private var welcomeV2EntryReasonProvider: WelcomeV2EntryReasonProviding
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.servicesManager) private var servicesManager: ServicesManager
     @Injected(\.mailComposePresenter) private var mailComposePresenter: MailComposePresenter
 
     private let deeplinkResponders = AppSessionDeeplinkResponders()
-
-    // MARK: - Child coordinators
-
-    /// Published property, used by UI. `SwiftUI.Binding` API requires it to be writable,
-    /// but in fact this is a read-only binding since the UI never mutates it.
-    @Published var marketsCoordinator: MarketsCoordinator?
-
-    /// An ugly workaround due to navigation issues in SwiftUI on iOS 18 and above, see [REDACTED_INFO] for details.
-    @Published private(set) var isOverlayContentContainerShown = false
 
     // MARK: - View State
 
@@ -185,46 +174,7 @@ class AppCoordinator: CoordinatorObject {
         setState(.uncompleteBackup(uncompleteBackupCoordinator))
     }
 
-    /// - Note: The coordinator is set up only once and only when the feature toggle is enabled.
-    private func setupMainBottomSheetCoordinatorIfNeeded() {
-        guard marketsCoordinator == nil else {
-            return
-        }
-
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.marketsCoordinator = nil
-        }
-
-        let coordinator = MarketsCoordinator(
-            dismissAction: dismissAction,
-            popToRootAction: popToRootAction
-        )
-        coordinator.start(with: .init())
-        marketsCoordinator = coordinator
-    }
-
     private func bind() {
-        mainBottomSheetUIManager
-            .isShownPublisher
-            .filter { $0 }
-            .withWeakCaptureOf(self)
-            .sink { coordinator, _ in
-                coordinator.setupMainBottomSheetCoordinatorIfNeeded()
-            }
-            .store(in: &bag)
-
-        mainBottomSheetUIManager
-            .isShownPublisher
-            .assign(to: \.isOverlayContentContainerShown, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        $isOverlayContentContainerShown
-            .withWeakCaptureOf(self)
-            .sink { coordinator, isShown in
-                coordinator.overlayContentContainer.setOverlayHidden(!isShown)
-            }
-            .store(in: &bag)
-
         let cardSessionDidStartPublisher = NotificationCenter.default
             .publisher(for: .cardSessionDidStart)
             .map { _ in true }

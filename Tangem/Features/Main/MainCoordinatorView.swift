@@ -19,9 +19,6 @@ struct MainCoordinatorView: CoordinatorView {
 
     @Environment(\.requestReview) private var requestReview
 
-    @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
-    @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
-
     var body: some View {
         NavigationStack {
             ZStack {
@@ -37,20 +34,6 @@ struct MainCoordinatorView: CoordinatorView {
                 }
 
                 sheets
-            }
-            .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak coordinator] state in
-                mainBottomSheetUIManager.setExpanded(!state.isCollapsed)
-
-                if !state.isCollapsed {
-                    coordinator?.dismissMarketsTooltip()
-                } else {
-                    // Workaround: If you open the markets screen, add a token, and return to the main page, the frames break and no longer align with the tap zone.
-                    // [REDACTED_INFO]
-                    // https://forums.developer.apple.com/forums/thread/724598
-                    if let vc = UIApplication.topViewController as? OverlayContentContainerViewController {
-                        vc.resetContentFrame()
-                    }
-                }
             }
             .injectNavigationAssertionDelegate()
         }

@@ -2134,7 +2134,6 @@
 					coinsResponse.json,
 					earnNetworks.json,
 					earnTokens.json,
-					trendingNews.json,
 					walletUserWalletList.json,
 					notReferralMock.json,
 					referralMock.json,

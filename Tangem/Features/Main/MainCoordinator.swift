@@ -635,11 +635,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
         TangemPayCampaignService().clearPending()
 
-        // The shtorka presents the cover over itself, and hiding it would take the cover down with it.
-        if !FeatureProvider.isAvailable(.newShtorkaEnabled) {
-            mainBottomSheetUIManager.hide()
-        }
-
         let dismissAction: Action<TangemPayCampaignCoordinator.OutputOptions> = { [weak self] options in
             self?.tangemPayCampaignCoordinator = nil
 

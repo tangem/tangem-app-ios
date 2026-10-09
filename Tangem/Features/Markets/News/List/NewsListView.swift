@@ -16,8 +16,6 @@ import TangemFoundation
 struct NewsListView: View {
     @ObservedObject var viewModel: NewsListViewModel
 
-    @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
-
     var body: some View {
         VStack(spacing: 24) {
             navigationBar
@@ -37,15 +35,11 @@ struct NewsListView: View {
                             .allowsHitTesting(false)
                     }
             }
-            .opacity(viewModel.overlayContentHidingProgress)
         }
         .ignoresSafeArea(.container, edges: .bottom)
         .background(DesignSystem.Color.bgPrimary)
         .onFirstAppear { viewModel.handleViewAction(.onFirstAppear) }
         .onAppear { viewModel.handleViewAction(.onAppear) }
-        .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
-            viewModel?.onOverlayContentProgressChange(progress)
-        }
         .injectMarketsNavigationConfigurator()
     }
 

@@ -23,7 +23,6 @@ final class FakeTangemApiService: TangemApiService {
     var loadNewsListHandler: ((NewsDTO.List.Request) async throws -> NewsDTO.List.Response)?
     var loadNewsDetailsHandler: ((NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response)?
     var loadNewsCategoriesHandler: (() async throws -> NewsDTO.Categories.Response)?
-    var loadTrendingNewsHandler: ((Int?, String?) async throws -> TrendingNewsResponse)?
 
     // MARK: - Coins Handlers (Tests/Previews)
 
@@ -398,14 +397,6 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func getTokenPositionInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleDTO.Response.PositionInfo {
-        throw "Not implemented"
-    }
-
-    func loadTrendingNews(limit: Int?, lang: String?) async throws -> TrendingNewsResponse {
-        if let handler = loadTrendingNewsHandler {
-            return try await handler(limit, lang)
-        }
-
         throw "Not implemented"
     }
 
