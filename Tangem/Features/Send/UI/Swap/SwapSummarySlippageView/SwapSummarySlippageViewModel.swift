@@ -13,7 +13,7 @@ import TangemFoundation
 final class SwapSummarySlippageViewModel: ObservableObject {
     @Published private(set) var isVisible = false
     @Published private(set) var isEditable = false
-    @Published private(set) var value: Value = .auto
+    @Published private(set) var value: Value = .auto(isHighlighted: false)
 
     init(
         swapProvidersInput: SendSwapProvidersInput,
@@ -37,10 +37,10 @@ final class SwapSummarySlippageViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: &$isEditable)
 
-        slippageInput.slippagePublisher
-            .map { [percentFormatter] slippage in
+        Publishers.CombineLatest(slippageInput.slippagePublisher, slippageInput.isCustomSlippageResetPublisher)
+            .map { [percentFormatter] slippage, isReset in
                 switch slippage {
-                case .auto: .auto
+                case .auto: .auto(isHighlighted: isReset)
                 case .custom(let value): .custom(percentFormatter.format(value, option: .customSlippage))
                 }
             }
@@ -54,7 +54,7 @@ final class SwapSummarySlippageViewModel: ObservableObject {
 
 extension SwapSummarySlippageViewModel {
     enum Value: Hashable {
-        case auto
+        case auto(isHighlighted: Bool)
         case custom(String)
     }
 }

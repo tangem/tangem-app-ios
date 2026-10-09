@@ -100,6 +100,10 @@ extension CommonExpressManager: ExpressManager {
     }
 
     func update(amountType: ExpressAmountType?) async throws -> ExpressManagerState {
+        if amountType != _amountType {
+            _slippage = nil
+        }
+
         _amountType = amountType
 
         try await waitProvidersTaskIfNeeded()
