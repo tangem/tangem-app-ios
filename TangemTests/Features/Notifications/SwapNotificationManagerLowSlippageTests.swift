@@ -19,9 +19,9 @@ struct SwapNotificationManagerLowSlippageTests {
     func warnsBelowHalfDefault() throws {
         let sut = CommonSwapNotificationManager()
 
-        let event = try #require(sut.mapLowCustomSlippageEvent(selected: makeProvider(), state: quotedState, slippage: lowSlippage).first)
+        let event = try #require(sut.mapLowCustomSlippageEvent(sourceTokenItem: source, receiveTokenItem: receive, selected: makeProvider(), state: quotedState, slippage: lowSlippage).first)
 
-        guard case .lowCustomSlippage(let slippage) = event else {
+        guard case .lowCustomSlippage(let slippage, _) = event else {
             Issue.record("Expected .lowCustomSlippage, got \(event)")
             return
         }
@@ -33,53 +33,70 @@ struct SwapNotificationManagerLowSlippageTests {
     func noWarningAtOrAboveHalfDefault(customSlippage: Decimal) {
         let sut = CommonSwapNotificationManager()
 
-        #expect(sut.mapLowCustomSlippageEvent(selected: makeProvider(), state: quotedState, slippage: .custom(customSlippage)).isEmpty)
+        #expect(sut.mapLowCustomSlippageEvent(sourceTokenItem: source, receiveTokenItem: receive, selected: makeProvider(), state: quotedState, slippage: .custom(customSlippage)).isEmpty)
     }
 
     @Test("Does not warn on Auto")
     func noWarningOnAuto() {
         let sut = CommonSwapNotificationManager()
 
-        #expect(sut.mapLowCustomSlippageEvent(selected: makeProvider(), state: quotedState, slippage: .auto).isEmpty)
+        #expect(sut.mapLowCustomSlippageEvent(sourceTokenItem: source, receiveTokenItem: receive, selected: makeProvider(), state: quotedState, slippage: .auto).isEmpty)
     }
 
     @Test("Does not warn for a provider without custom slippage")
     func noWarningForUnsupportedProvider() {
         let sut = CommonSwapNotificationManager()
 
-        #expect(sut.mapLowCustomSlippageEvent(selected: makeProvider(isCustomSlippageSupported: false), state: quotedState, slippage: lowSlippage).isEmpty)
+        #expect(sut.mapLowCustomSlippageEvent(sourceTokenItem: source, receiveTokenItem: receive, selected: makeProvider(isCustomSlippageSupported: false), state: quotedState, slippage: lowSlippage).isEmpty)
     }
 
     @Test("Does not warn when the provider has no default slippage")
     func noWarningWithoutDefault() {
         let sut = CommonSwapNotificationManager()
 
-        #expect(sut.mapLowCustomSlippageEvent(selected: makeProvider(defaultSlippage: nil), state: quotedState, slippage: lowSlippage).isEmpty)
+        #expect(sut.mapLowCustomSlippageEvent(sourceTokenItem: source, receiveTokenItem: receive, selected: makeProvider(defaultSlippage: nil), state: quotedState, slippage: lowSlippage).isEmpty)
     }
 
     @Test("Does not warn without a selected provider")
     func noWarningWithoutProvider() {
         let sut = CommonSwapNotificationManager()
 
-        #expect(sut.mapLowCustomSlippageEvent(selected: nil, state: quotedState, slippage: lowSlippage).isEmpty)
+        #expect(sut.mapLowCustomSlippageEvent(sourceTokenItem: source, receiveTokenItem: receive, selected: nil, state: quotedState, slippage: lowSlippage).isEmpty)
     }
 
     @Test("Does not warn while the slippage sheet cannot open: without a quote or after a failed one")
     func noWarningWhenSheetCannotOpen() {
         let sut = CommonSwapNotificationManager()
 
-        #expect(sut.mapLowCustomSlippageEvent(selected: makeProvider(), state: .idle, slippage: lowSlippage).isEmpty)
+        #expect(sut.mapLowCustomSlippageEvent(sourceTokenItem: source, receiveTokenItem: receive, selected: makeProvider(), state: .idle, slippage: lowSlippage).isEmpty)
         #expect(sut.mapLowCustomSlippageEvent(
+            sourceTokenItem: source,
+            receiveTokenItem: receive,
             selected: makeProvider(),
             state: .requiredRefresh(occurredError: StubError(), quote: nil),
             slippage: lowSlippage
         ).isEmpty)
     }
 
+    @Test("The warning reports the threshold event with the slippage in percent and the swap pair")
+    func warningCarriesAnalytics() throws {
+        let sut = CommonSwapNotificationManager()
+
+        let event = try #require(sut.mapLowCustomSlippageEvent(sourceTokenItem: source, receiveTokenItem: receive, selected: makeProvider(), state: quotedState, slippage: lowSlippage).first)
+
+        #expect(event.analyticsEvent == .swapWarningCustomSlippageThreshold)
+        #expect(event.analyticsParams[.slippage] == "0.11")
+        #expect(event.analyticsParams[.sendToken] == source.currencySymbol)
+        #expect(event.analyticsParams[.sendBlockchain] == source.blockchain.displayName)
+        #expect(event.analyticsParams[.receiveToken] == receive.currencySymbol)
+        #expect(event.analyticsParams[.receiveBlockchain] == receive.blockchain.displayName)
+        #expect(!event.isOneShotAnalyticsEvent)
+    }
+
     @Test("Tapping the warning asks the notification delegate to edit the slippage")
     func warningTapRequestsSlippageEditing() throws {
         let sut = CommonSwapNotificationManager()
-        let event = try #require(sut.mapLowCustomSlippageEvent(selected: makeProvider(), state: quotedState, slippage: lowSlippage).first)
+        let event = try #require(sut.mapLowCustomSlippageEvent(sourceTokenItem: source, receiveTokenItem: receive, selected: makeProvider(), state: quotedState, slippage: lowSlippage).first)
         var tappedAction: NotificationButtonActionType?
 
         let input = NotificationsFactory().buildNotificationInput(for: event) { _, action in tappedAction = action }
@@ -102,6 +119,14 @@ struct SwapNotificationManagerLowSlippageTests {
 
 private extension SwapNotificationManagerLowSlippageTests {
     struct StubError: Error {}
+
+    var source: TokenItem {
+        .blockchain(.init(.ethereum(testnet: false), derivationPath: nil))
+    }
+
+    var receive: TokenItem {
+        .blockchain(.init(.polygon(testnet: false), derivationPath: nil))
+    }
 
     var quotedState: SwapModel.LoadedState {
         .restriction(.hasPendingTransaction, quote: nil)

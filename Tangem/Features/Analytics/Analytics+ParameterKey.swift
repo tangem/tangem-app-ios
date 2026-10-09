@@ -56,6 +56,7 @@ extension Analytics {
         case productType = "Product Type"
         case sendToken = "Send Token"
         case receiveToken = "Receive Token"
+        case slippage = "Slippage"
         case type = "Type"
         case signInType = "Sign in type"
         case balance = "Balance"

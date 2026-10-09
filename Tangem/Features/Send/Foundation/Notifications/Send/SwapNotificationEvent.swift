@@ -55,7 +55,7 @@ enum SwapNotificationEvent: Hashable {
     case customFeeWarning(CustomFeeWarning)
 
     case highNetworkFee
-    case lowCustomSlippage(slippage: String)
+    case lowCustomSlippage(slippage: String, analyticsParams: [Analytics.ParameterKey: String])
 }
 
 extension SwapNotificationEvent: NotificationEvent {
@@ -114,7 +114,7 @@ extension SwapNotificationEvent: NotificationEvent {
             return .string(Localization.swappingTradeTooLargeTitle)
         case .highNetworkFee:
             return .string(Localization.highFeeWarningTitle)
-        case .lowCustomSlippage(let slippage):
+        case .lowCustomSlippage(let slippage, _):
             // [REDACTED_TODO_COMMENT]
             return .string("Slippage is set \(slippage)")
         }
@@ -399,6 +399,8 @@ extension SwapNotificationEvent {
             .swapNoticeUnavailableToSwapPair
         case .regionRestricted:
             .swapNoticeGeoRestriction
+        case .lowCustomSlippage:
+            .swapWarningCustomSlippageThreshold
         case .longTimeAverageDuration:
             // Sending from in place PendingExpressTxStatusBottomSheetViewModel.swift
             nil
@@ -422,6 +424,8 @@ extension SwapNotificationEvent {
         case .notEnoughBalanceForSwapping(let params):
             params
         case .regionRestricted(let params):
+            params
+        case .lowCustomSlippage(_, let params):
             params
         default:
             [:]

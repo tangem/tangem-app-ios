@@ -18,5 +18,6 @@ protocol SwapSlippageInput: AnyObject {
 }
 
 protocol SwapSlippageOutput: AnyObject {
+    func userDidOpenSlippageSelector()
     func userDidSet(slippage: SwapSlippage)
 }

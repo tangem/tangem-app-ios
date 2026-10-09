@@ -672,7 +672,7 @@ extension CommonSendAnalyticsLogger: SendApproveAnalyticsLogger {
 // MARK: - SwapManagementModelAnalyticsLogger
 
 extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
-    func logSwapButtonSwap() {
+    func logSwapButtonSwap(slippage: Decimal?) {
         guard let sourceTokenItem else {
             return
         }
@@ -687,7 +687,19 @@ extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
             analyticsParameters[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
         }
 
+        analyticsParameters[.slippage] = slippage.map(SendAnalyticsHelper.makeAnalyticsSlippage)
+
         Analytics.log(event: .swapButtonSwap, params: analyticsParameters)
+    }
+
+    func logSwapSlippageSelectorOpened() {
+        Analytics.log(event: .swapButtonSlippage, params: buildSwapTokenParams())
+    }
+
+    func logSwapCustomSlippageConfirmed(slippage: Decimal?) {
+        var params = buildSwapTokenParams()
+        params[.slippage] = slippage.map(SendAnalyticsHelper.makeAnalyticsSlippage)
+        Analytics.log(event: .swapButtonConfirm, params: params)
     }
 
     func logSwapButtonTransfer() {
