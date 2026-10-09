@@ -32,7 +32,7 @@ protocol StakeModelAnalyticsLogger: StakingAnalyticsLogger {
     func logNoticeUninitializedAddress()
 }
 
-/// The single management model for the V2 staking flow.
+/// The single management model for the staking flow.
 ///
 /// Owns the shared Combine plumbing and the send pipeline; delegates all state computation, action
 /// building, and the flow shape to a per-network `StakingFlowProvider`. There are no per-flow subclasses.
@@ -303,8 +303,8 @@ extension StakeModel: StakeModelStateProvider {
     var enterSpendsAmount: Bool { provider.enterSpendsAmount }
 
     /// Drives the summary bottom-button label: `.approve` only while an approval is actually required,
-    /// otherwise the action's natural type (an in-progress approval keeps showing the action, matching
-    /// the legacy flow). The V2 `StakeStepsManager` subscribes to this.
+    /// otherwise the action's natural type (an in-progress approval keeps showing the action).
+    /// `StakeStepsManager` subscribes to this.
     var flowActionTypePublisher: AnyPublisher<SendFlowActionType, Never> {
         _state
             .withWeakCaptureOf(self)

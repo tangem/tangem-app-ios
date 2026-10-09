@@ -163,7 +163,7 @@ enum PendingActionMapperError: LocalizedError {
 
 extension PendingActionMapper {
     enum Action {
-        case single(UnstakingModel.Action)
-        case multiple([UnstakingModel.Action])
+        case single(StakingAction)
+        case multiple([StakingAction])
     }
 }

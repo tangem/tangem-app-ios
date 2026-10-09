@@ -1,5 +1,5 @@
 //
-//  StakingModelCancellationTests.swift
+//  StakeModelCancellationTests.swift
 //  TangemTests
 //
 //  Copyright © 2026 Tangem AG. All rights reserved.
@@ -14,16 +14,16 @@ import TangemTestKit
 @testable import TangemStaking
 @testable import Tangem
 
-@Suite("Staking models ignore cancelled fee updates")
-final class StakingModelCancellationTests: LeakTrackingTestSuite {
+@Suite("StakeModel ignores cancelled fee updates")
+final class StakeModelCancellationTests: LeakTrackingTestSuite {
     private let blockchain = Blockchain.solana(curve: .ed25519_slip0010, testnet: false)
 
     private var tokenItem: TokenItem { .blockchain(.init(blockchain, derivationPath: nil)) }
 
-    @Test("StakingSingleActionModel does not publish networkError when fee estimation is cancelled")
-    func singleActionModelIgnoresCancelledFeeEstimation() async throws {
+    @Test("StakeModel does not publish a network failure when fee estimation is cancelled", .timeLimit(.minutes(1)))
+    func ignoresCancelledFeeEstimation() async throws {
         let (estimationStarted, stakingManager) = makeHangingFirstCallStakingManager()
-        let model = makeSingleActionModel(stakingManager: stakingManager, preflightValidator: nil)
+        let model = makeModel(stakingManager: stakingManager, preflightValidator: nil)
         let recordedStates = recordStates(of: model.statePublisher)
 
         var estimationStartedIterator = estimationStarted.makeAsyncIterator()
@@ -34,17 +34,17 @@ final class StakingModelCancellationTests: LeakTrackingTestSuite {
         try await waitUntilReady(state: { model.state })
         try await Task.sleep(nanoseconds: 100_000_000)
 
-        assertNoErrorStates(in: recordedStates.states.withLock { $0 })
+        assertNoFailureStates(in: recordedStates.states.withLock { $0 })
         withExtendedLifetime(recordedStates.cancellable) {}
     }
 
-    @Test("StakingSingleActionModel does not publish stale preflight result from a cancelled task")
-    func singleActionModelIgnoresCancelledPreflight() async throws {
+    @Test("StakeModel does not publish a stale preflight result from a cancelled task", .timeLimit(.minutes(1)))
+    func ignoresCancelledPreflight() async throws {
         let stakingManager = StakingManagerStub()
         stakingManager.estimateFeeBody = { _ in 0.000005 }
 
         let (preflightStarted, preflightValidator) = makeHangingFirstCallPreflightValidator()
-        let model = makeSingleActionModel(stakingManager: stakingManager, preflightValidator: preflightValidator)
+        let model = makeModel(stakingManager: stakingManager, preflightValidator: preflightValidator)
         let recordedStates = recordStates(of: model.statePublisher)
 
         var preflightStartedIterator = preflightStarted.makeAsyncIterator()
@@ -55,58 +55,15 @@ final class StakingModelCancellationTests: LeakTrackingTestSuite {
         try await waitUntilReady(state: { model.state })
         try await Task.sleep(nanoseconds: 100_000_000)
 
-        assertNoErrorStates(in: recordedStates.states.withLock { $0 })
-        withExtendedLifetime(recordedStates.cancellable) {}
-    }
-
-    @Test("UnstakingModel does not publish networkError when fee estimation is cancelled")
-    func unstakingModelIgnoresCancelledFeeEstimation() async throws {
-        let (estimationStarted, stakingManager) = makeHangingFirstCallStakingManager()
-        let model = makeUnstakingModel(stakingManager: stakingManager, preflightValidator: nil)
-        let recordedStates = recordStates(of: model.statePublisher)
-
-        model.updateFees()
-
-        var estimationStartedIterator = estimationStarted.makeAsyncIterator()
-        await estimationStartedIterator.next()
-
-        model.updateFees()
-
-        try await waitUntilReady(state: { model.state })
-        try await Task.sleep(nanoseconds: 100_000_000)
-
-        assertNoErrorStates(in: recordedStates.states.withLock { $0 })
-        withExtendedLifetime(recordedStates.cancellable) {}
-    }
-
-    @Test("UnstakingModel does not publish stale preflight result from a cancelled task")
-    func unstakingModelIgnoresCancelledPreflight() async throws {
-        let stakingManager = StakingManagerStub()
-        stakingManager.estimateFeeBody = { _ in 0.000005 }
-
-        let (preflightStarted, preflightValidator) = makeHangingFirstCallPreflightValidator()
-        let model = makeUnstakingModel(stakingManager: stakingManager, preflightValidator: preflightValidator)
-        let recordedStates = recordStates(of: model.statePublisher)
-
-        model.updateFees()
-
-        var preflightStartedIterator = preflightStarted.makeAsyncIterator()
-        await preflightStartedIterator.next()
-
-        model.updateFees()
-
-        try await waitUntilReady(state: { model.state })
-        try await Task.sleep(nanoseconds: 100_000_000)
-
-        assertNoErrorStates(in: recordedStates.states.withLock { $0 })
+        assertNoFailureStates(in: recordedStates.states.withLock { $0 })
         withExtendedLifetime(recordedStates.cancellable) {}
     }
 }
 
 // MARK: - Assertions
 
-private extension StakingModelCancellationTests {
-    func assertNoErrorStates(in states: [UnstakingModel.State]) {
+private extension StakeModelCancellationTests {
+    func assertNoFailureStates(in states: [StakeFlowState]) {
         let hasReadyState = states.contains { state in
             if case .ready = state {
                 return true
@@ -117,11 +74,13 @@ private extension StakingModelCancellationTests {
 
         for state in states {
             switch state {
-            case .networkError(let error):
-                Issue.record("Cancelled task leaked networkError: \(error)")
-            case .validationError(let error, _):
-                Issue.record("Cancelled task leaked validationError: \(error)")
-            case .loading, .ready:
+            case .failure(.network(let error)):
+                Issue.record("Cancelled task leaked a network failure: \(error)")
+            case .failure(.transaction(let error, _, _)):
+                Issue.record("Cancelled task leaked a transaction failure: \(error)")
+            case .failure(.staking(let error)):
+                Issue.record("Cancelled task leaked a staking failure: \(error)")
+            case .loading, .ready, .prerequisite:
                 break
             }
         }
@@ -130,33 +89,31 @@ private extension StakingModelCancellationTests {
 
 // MARK: - Factories
 
-private extension StakingModelCancellationTests {
-    func makeSingleActionModel(
+private extension StakeModelCancellationTests {
+    func makeModel(
         stakingManager: StakingManager,
         preflightValidator: StakingPreflightValidator?
-    ) -> StakingSingleActionModel {
-        let model = StakingSingleActionModel(
+    ) -> StakeModel {
+        let sourceToken = makeSendSourceToken()
+        let action = StakingAction(amount: 0.02, targetType: .empty, type: .pending(.withdraw(passthroughs: [])))
+        let stages = StakeStagesResolver(
             stakingManager: stakingManager,
-            sendSourceToken: makeSendSourceToken(),
-            analyticsLogger: StakingSendAnalyticsLoggerMock(),
-            action: StakingAction(amount: 0.02, targetType: .empty, type: .pending(.withdraw(passthroughs: []))),
-            validationHandler: nil,
-            preflightValidator: preflightValidator
+            transactionValidator: sourceToken.transactionValidator,
+            feeIncludedCalculator: FeeIncludedCalculatorStub(),
+            accountInitializationService: nil,
+            tokenItem: sourceToken.tokenItem,
+            feeTokenItem: sourceToken.feeTokenItem
         )
-        return trackForMemoryLeaks(model)
-    }
 
-    func makeUnstakingModel(
-        stakingManager: StakingManager,
-        preflightValidator: StakingPreflightValidator?
-    ) -> UnstakingModel {
-        let model = UnstakingModel(
-            stakingManager: stakingManager,
-            sendSourceToken: makeSendSourceToken(),
-            analyticsLogger: StakingSendAnalyticsLoggerMock(),
-            action: StakingAction(amount: 1, targetType: .empty, type: .unstake),
+        let model = StakeModel(
+            provider: SolanaStakingFlowProvider(action: action, stages: stages, preflightValidator: preflightValidator),
+            sendSourceToken: sourceToken,
+            accountInitializationService: nil,
             validationHandler: nil,
-            preflightValidator: preflightValidator
+            analyticsLogger: StakeModelAnalyticsLoggerMock(),
+            autoupdatingTimer: AutoupdatingTimer(),
+            initialAmount: SendAmount(type: .typical(crypto: action.amount, fiat: nil)),
+            initialTarget: .loading
         )
         return trackForMemoryLeaks(model)
     }
@@ -172,8 +129,6 @@ private extension StakingModelCancellationTests {
         )
     }
 
-    /// The first call reports that it has started, then hangs until its task is cancelled
-    /// and throws the same error flavor URLSession produces for a cancelled request.
     func makeHangingFirstCallStakingManager() -> (started: AsyncStream<Void>, manager: StakingManagerStub) {
         let (started, startedContinuation) = AsyncStream<Void>.makeStream()
 
@@ -220,18 +175,18 @@ private extension StakingModelCancellationTests {
 
 // MARK: - Helpers
 
-private extension StakingModelCancellationTests {
+private extension StakeModelCancellationTests {
     func recordStates(
-        of publisher: AnyPublisher<UnstakingModel.State, Never>
-    ) -> (states: OSAllocatedUnfairLock<[UnstakingModel.State]>, cancellable: AnyCancellable) {
-        let states = OSAllocatedUnfairLock(initialState: [UnstakingModel.State]())
+        of publisher: AnyPublisher<StakeFlowState, Never>
+    ) -> (states: OSAllocatedUnfairLock<[StakeFlowState]>, cancellable: AnyCancellable) {
+        let states = OSAllocatedUnfairLock(initialState: [StakeFlowState]())
         let cancellable = publisher.sink { state in
             states.withLock { $0.append(state) }
         }
         return (states, cancellable)
     }
 
-    func waitUntilReady(state: () -> UnstakingModel.State) async throws {
+    func waitUntilReady(state: () -> StakeFlowState) async throws {
         for _ in 0 ..< 200 {
             if case .ready = state() {
                 return
