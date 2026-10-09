@@ -36,7 +36,7 @@ class AppCoordinator: CoordinatorObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.appLockController) private var appLockController: AppLockController
-    @Injected(\.welcomeV2EntryReasonProvider) private var welcomeV2EntryReasonProvider: WelcomeV2EntryReasonProviding
+    @Injected(\.welcomeEntryReasonProvider) private var welcomeEntryReasonProvider: WelcomeEntryReasonProviding
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.servicesManager) private var servicesManager: ServicesManager
     @Injected(\.mailComposePresenter) private var mailComposePresenter: MailComposePresenter
@@ -61,7 +61,7 @@ class AppCoordinator: CoordinatorObject {
     }
 
     func start(with options: AppCoordinator.Options = .default) {
-        welcomeV2EntryReasonProvider.startObserving()
+        welcomeEntryReasonProvider.startObserving()
 
         let startupProcessor = StartupProcessor()
         let startupOption = startupProcessor.getStartupOption()
@@ -127,7 +127,7 @@ class AppCoordinator: CoordinatorObject {
     }
 
     private func setupWelcome() {
-        let dismissAction: Action<WelcomeV2Coordinator.OutputOptions> = { [weak self] options in
+        let dismissAction: Action<WelcomeCoordinator.OutputOptions> = { [weak self] options in
             guard let self else { return }
 
             TangemPayCampaignService().clearPending()
@@ -140,9 +140,9 @@ class AppCoordinator: CoordinatorObject {
             }
         }
 
-        let welcomeV2Coordinator = WelcomeV2Coordinator(dismissAction: dismissAction)
-        welcomeV2Coordinator.start(with: .init())
-        setState(.welcomeV2(welcomeV2Coordinator))
+        let welcomeCoordinator = WelcomeCoordinator(dismissAction: dismissAction)
+        welcomeCoordinator.start(with: .init())
+        setState(.welcome(welcomeCoordinator))
     }
 
     private func setupAuth(unlockOnAppear: Bool) {
@@ -285,7 +285,7 @@ extension AppCoordinator {
 
 extension AppCoordinator {
     enum ViewState: Equatable {
-        case welcomeV2(WelcomeV2Coordinator)
+        case welcome(WelcomeCoordinator)
         case uncompleteBackup(UncompletedBackupCoordinator)
         case auth(AuthCoordinator)
         case main(MainCoordinator)
@@ -297,7 +297,7 @@ extension AppCoordinator {
 
         var shouldAddLockView: Bool {
             switch self {
-            case .auth, .welcomeV2, .launch, .jailbreakWarning, .forceUpdate:
+            case .auth, .welcome, .launch, .jailbreakWarning, .forceUpdate:
                 return false
             case .lock, .main, .onboarding, .uncompleteBackup:
                 return true
@@ -306,7 +306,7 @@ extension AppCoordinator {
 
         static func == (lhs: AppCoordinator.ViewState, rhs: AppCoordinator.ViewState) -> Bool {
             switch (lhs, rhs) {
-            case (.welcomeV2, .welcomeV2),
+            case (.welcome, .welcome),
                  (.uncompleteBackup, .uncompleteBackup),
                  (.auth, .auth),
                  (.main, .main),
