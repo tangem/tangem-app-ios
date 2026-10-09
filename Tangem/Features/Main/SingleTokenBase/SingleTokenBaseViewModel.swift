@@ -34,7 +34,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     @Published final var notifications = [NotificationBannerItem]()
 
-    @Published final var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
     @Published private(set) final var pendingTransactionViews: [TransactionViewModel] = []
     @Published private(set) final var miniChartData: LoadingResult<[Double], any Error> = .loading
 
@@ -113,11 +112,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     private var usdRatePublisher: AnyPublisher<Decimal?, Never> {
-        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
-            return .just(output: nil)
-        }
-
-        return walletModel.ratePublisher
+        walletModel.ratePublisher
             .map { $0.quote?.priceUsd }
             .prepend(nil)
             .removeDuplicates()
@@ -484,29 +479,6 @@ extension SingleTokenBaseViewModel {
             }
             .store(in: &bag)
 
-        pendingExpressTransactionsManager
-            .pendingTransactionsPublisher
-            .map {
-                $0.filter { transaction in
-                    // Don't show onramp's transaction with this statuses for SingleWallet and TokenDetails
-                    switch transaction.type {
-                    case .onramp:
-                        return ![.created, .expired, .paused].contains(transaction.transactionStatus)
-                    case .swap:
-                        return true
-                    }
-                }
-            }
-            .map { [weak self] transactions in
-                PendingExpressTransactionsConverter()
-                    .convertToTokenDetailsPendingTxInfo(transactions) { [weak self] id in
-                        self?.didTapPendingExpressTransaction(id: id)
-                    }
-            }
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.pendingExpressTransactions, on: self, ownership: .weak)
-            .store(in: &bag)
-
         storyAvailabilityService
             .availableStoriesPublisher
             .receive(on: DispatchQueue.main)
@@ -800,20 +772,6 @@ extension SingleTokenBaseViewModel {
         )
 
         present(exploreConfirmationDialog: viewModel)
-    }
-
-    final func didTapPendingExpressTransaction(id: String) {
-        let transactions = pendingExpressTransactionsManager.pendingTransactions
-
-        guard let transaction = transactions.first(where: { $0.expressTransactionId == id }) else {
-            return
-        }
-
-        tokenRouter.openPendingExpressTransactionDetails(
-            pendingTransaction: transaction,
-            tokenItem: walletModel.tokenItem,
-            pendingTransactionsManager: pendingExpressTransactionsManager
-        )
     }
 
     private func openAddressExplorer(for address: String) {

@@ -75,7 +75,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     // MARK: - Child view models
 
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
-    @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
 
     // MARK: - Helpers
 
@@ -607,7 +606,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             || actionButtonsBuyCoordinator != nil
             || actionButtonsSellCoordinator != nil
             || yieldModuleActiveCoordinator != nil
-            || pendingExpressTxStatusBottomSheetViewModel != nil
     }
 
     /// Changes to the slots `isPresentingOverMain` reads, so a campaign that a modal was covering gets
@@ -624,7 +622,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             $actionButtonsBuyCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $actionButtonsSellCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $yieldModuleActiveCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
-            $pendingExpressTxStatusBottomSheetViewModel.dropFirst().mapToVoid().eraseToAnyPublisher(),
         ]
 
         return Publishers.MergeMany(slots).eraseToAnyPublisher()
@@ -880,21 +877,6 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }
-
-    func openPendingExpressTransactionDetails(
-        pendingTransaction: PendingTransaction,
-        tokenItem: TokenItem,
-        userWalletInfo: UserWalletInfo,
-        pendingTransactionsManager: PendingExpressTransactionsManager
-    ) {
-        pendingExpressTxStatusBottomSheetViewModel = PendingExpressTxStatusBottomSheetViewModel(
-            pendingTransaction: pendingTransaction,
-            currentTokenItem: tokenItem,
-            userWalletInfo: userWalletInfo,
-            pendingTransactionsManager: pendingTransactionsManager,
-            router: self
-        )
-    }
 }
 
 // MARK: - SendFeeCurrencyNavigating
@@ -1013,23 +995,6 @@ extension MainCoordinator: ActionButtonsSellFlowRoutable {
 extension MainCoordinator: ActionButtonsSwapFlowRoutable {
     func openSwap(predefinedParameters: PredefinedSwapParameters) {
         openSwapFlow(parameters: predefinedParameters, source: .actionButtons)
-    }
-}
-
-// MARK: - PendingExpressTxStatusRoutable
-
-extension MainCoordinator: PendingExpressTxStatusRoutable {
-    func openURL(_ url: URL) {
-        safariManager.openURL(url)
-    }
-
-    func openRefundCurrency(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
-        pendingExpressTxStatusBottomSheetViewModel = nil
-        openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
-    }
-
-    func dismissPendingTxSheet() {
-        pendingExpressTxStatusBottomSheetViewModel = nil
     }
 }
 
