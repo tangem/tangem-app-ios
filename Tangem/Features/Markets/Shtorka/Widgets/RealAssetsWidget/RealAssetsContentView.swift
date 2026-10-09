@@ -18,6 +18,8 @@ struct RealAssetsContentView: View {
 
     @ScaledMetric private var bannerIconSize: CGFloat = 20
     @ScaledMetric(relativeTo: .subheadline) private var orderChipHeight: CGFloat = 36
+    @ScaledMetric private var intervalChipHeight: CGFloat = 36
+    @ScaledMetric private var intervalIconSize: CGFloat = 16
 
     var body: some View {
         VStack(alignment: .leading, spacing: Layout.contentSpacing) {
@@ -63,15 +65,29 @@ struct RealAssetsContentView: View {
     }
 
     private var intervalDropDown: some View {
-        TangemDropDown(
-            singleSelection: Binding(
-                get: { RealAssetsIntervalOption(interval: viewModel.selectedInterval) },
-                set: { viewModel.selectedInterval = $0.interval }
-            ),
-            in: viewModel.intervalOptions.map(RealAssetsIntervalOption.init)
-        )
-        .accessibilityIdentifier { option in
-            MarketsAccessibilityIdentifiers.marketsIntervalSegment(option.interval.rawValue)
+        TangemDropDown(items: viewModel.intervalOptions.map { interval in
+            TangemDropDownItem(
+                id: interval,
+                text: RealAssetsIntervalOption(interval: interval).text,
+                isChecked: interval == viewModel.selectedInterval,
+                accessibilityIdentifier: MarketsAccessibilityIdentifiers.marketsIntervalSegment(interval.rawValue),
+                action: { viewModel.selectedInterval = interval }
+            )
+        }) {
+            HStack(spacing: 4) {
+                Text(RealAssetsIntervalOption(interval: viewModel.selectedInterval).text)
+                    .lineLimit(1)
+
+                DesignSystem.Icons.ChevronDown.regular16.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .frame(width: intervalIconSize, height: intervalIconSize)
+            }
+            .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
+            .padding(.leading, 12)
+            .padding(.trailing, 10)
+            .frame(height: intervalChipHeight)
+            .background(DesignSystem.Color.bgTransparentSecondary, in: .capsule)
         }
         .fixedSize(horizontal: true, vertical: false)
         .id(viewModel.selectedInterval)
