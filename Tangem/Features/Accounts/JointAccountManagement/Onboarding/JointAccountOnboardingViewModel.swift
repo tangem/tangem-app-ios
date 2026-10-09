@@ -33,14 +33,16 @@ final class JointAccountOnboardingViewModel: ObservableObject {
         ),
     ]
 
+    private let creationHelper: JointAccountCreationHelper
     private weak var coordinator: JointAccountOnboardingRoutable?
 
-    init(coordinator: JointAccountOnboardingRoutable?) {
+    init(creationHelper: JointAccountCreationHelper, coordinator: JointAccountOnboardingRoutable?) {
+        self.creationHelper = creationHelper
         self.coordinator = coordinator
     }
 
     func onContinueTap() {
-        coordinator?.continueOnboarding()
+        coordinator?.continueOnboarding(creationHelper: creationHelper)
     }
 
     func onCloseTap() {

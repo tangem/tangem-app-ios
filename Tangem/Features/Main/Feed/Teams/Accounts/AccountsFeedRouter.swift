@@ -93,7 +93,7 @@ extension AccountsFeedRouter: AddAccountTypeSelectorRoutable {
                     },
                     popToRootAction: popToRootAction
                 )
-                coordinator.start(with: .creation(.init(userWalletModel: accountCreationWallet)))
+                coordinator.start(with: .creation(JointAccountCreationHelper(userWalletModel: accountCreationWallet)))
                 navigation.present(.jointAccount(coordinator))
             }
         }

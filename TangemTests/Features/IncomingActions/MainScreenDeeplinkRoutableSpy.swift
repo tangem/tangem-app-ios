@@ -63,7 +63,7 @@ final class MainScreenDeeplinkRoutableSpy: MainScreenDeeplinkRoutable {
         selectedUserWalletId = userWalletId
     }
 
-    func openJointAccountMembers(jointAccount: any JointAccountModel) {
+    func openJointAccountMembers(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig) {
         didOpenJointAccountMembers = true
     }
 
