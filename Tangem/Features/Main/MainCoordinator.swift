@@ -715,20 +715,21 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         collectiblesCoordinator = coordinator
     }
 
-    func openJointAccountMembers(jointAccount: any JointAccountModel) {
+    func openJointAccountMembers(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig) {
         let coordinator = JointAccountManagementCoordinator(
             dismissAction: { [weak self] in
                 self?.jointAccountManagementCoordinator = nil
             },
             popToRootAction: popToRootAction
         )
-        coordinator.start(with: .members(jointAccount: jointAccount))
+        coordinator.start(with: .members(jointAccount: jointAccount, userWalletConfig: userWalletConfig))
         jointAccountManagementCoordinator = coordinator
     }
 
-    func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation) {
+    func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation, userWalletInfo: UserWalletInfo) {
         let viewModel = JointAccountOperationDetailsViewModelBuilder().build(
             pendingOperation: pendingOperation,
+            userWalletInfo: userWalletInfo,
             coordinator: self
         )
 
