@@ -20,14 +20,19 @@ struct WithdrawHubContentView: View {
     let onAction: (WithdrawHubViewModel.ViewAction) -> Void
 
     var body: some View {
-        VStack(spacing: 24) {
-            swapSection
+        ScrollView {
+            VStack(spacing: 24) {
+                swapSection
 
-            accountsSection
+                accountsSection
 
-            Spacer()
+                Spacer()
+            }
+            .padding(.vertical, 12)
         }
-        .padding(.vertical, 12)
+        .scrollIndicators(.hidden)
+        .scrollBounceBehavior(.basedOnSize)
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
 
