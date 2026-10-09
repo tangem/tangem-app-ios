@@ -20,8 +20,6 @@ extension Analytics {
         case biometryFailed = "[Basic] Biometry Failed"
         case basicButtonBuy = "[Basic] Button - Buy"
 
-        case buttonTokensList = "[Introduction Process] Button - Tokens List"
-        case buttonBuyCards = "[Introduction Process] Button - Buy Cards"
         case introductionProcessButtonScanCard = "[Introduction Process] Button - Scan Card"
         case introductionProcessCreateWalletIntroScreenOpened = "[Introduction Process] Create Wallet Intro Screen Opened"
         case introductionProcessIHaveWalletIntroScreenOpened = "[Introduction Process] I Have Wallet Intro Screen Opened"

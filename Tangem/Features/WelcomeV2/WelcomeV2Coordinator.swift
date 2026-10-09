@@ -143,8 +143,6 @@ final class WelcomeV2Coordinator: CoordinatorObject {
         .store(in: &bag)
     }
 
-    /// V2 renders only the processor's deep links; the legacy welcome-onboarding steps (TOS + push soft-ask)
-    /// are intentionally skipped — V2's design doesn't replicate the old modal onboarding on top of welcome.
     private func render(_ state: WelcomeProcessor.State) {
         guard state.deepLink != nil else { return }
 
@@ -239,7 +237,10 @@ final class WelcomeV2Coordinator: CoordinatorObject {
 extension WelcomeV2Coordinator {
     struct Options {}
 
-    typealias OutputOptions = WelcomeCoordinator.OutputOptions
+    enum OutputOptions {
+        case main(UserWalletModel)
+        case onboarding(OnboardingInput)
+    }
 }
 
 // MARK: - Sheet dismissal
