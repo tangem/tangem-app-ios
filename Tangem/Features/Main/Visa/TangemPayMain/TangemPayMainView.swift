@@ -82,10 +82,6 @@ struct TangemPayMainView: View {
                     )
                 }
 
-                if viewModel.shouldDisplayAddToApplePayGuide {
-                    addToApplePayBanner
-                }
-
                 if let contactSupportButton = viewModel.contactSupportMessageBannerButton {
                     failedToIssueCardBanner(contactSupportButton: contactSupportButton)
                 }
@@ -324,13 +320,6 @@ struct TangemPayMainView: View {
             }
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountIssuingCardButton)
         }
-    }
-
-    private var addToApplePayBanner: some View {
-        TangemPayAddToApplePayBanner(
-            openAction: viewModel.openAddToApplePayGuide,
-            closeAction: viewModel.dismissAddToApplePayGuideBanner
-        )
     }
 
     @ToolbarContentBuilder
