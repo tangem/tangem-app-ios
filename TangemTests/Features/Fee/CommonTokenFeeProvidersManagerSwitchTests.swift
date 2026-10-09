@@ -474,29 +474,13 @@ struct WalletModelTokenFeeProvidersManagerProviderTronGaslessAvailabilityTests {
         )
     }
 
-    @Test(
-        "Non-activated Tron account exposes the sent token when gasless activation is available",
-        .enabled(if: FeatureProvider.isAvailable(.tronGaslessActivation))
-    )
+    @Test("Non-activated Tron account exposes the sent token when gasless activation is available")
     func nonActivatedAccountWithSupportedToken_exposesSentToken() async {
         await assertAvailableTokenAddresses(
             tokenAddress: feeTokenAddress,
             isAccountActivated: false,
             expectedAddresses: [feeTokenAddress],
             expectedMinimumBalance: 5
-        )
-    }
-
-    @Test(
-        "Non-activated Tron account hides gasless fees when activation is unavailable",
-        .enabled(if: !FeatureProvider.isAvailable(.tronGaslessActivation))
-    )
-    func nonActivatedAccountWithSupportedToken_hidesGaslessWhenActivationUnavailable() async {
-        await assertAvailableTokenAddresses(
-            tokenAddress: feeTokenAddress,
-            isAccountActivated: false,
-            expectedAddresses: [],
-            expectedMinimumBalance: nil
         )
     }
 

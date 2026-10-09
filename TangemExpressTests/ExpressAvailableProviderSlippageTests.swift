@@ -57,7 +57,7 @@ private extension ExpressAvailableProviderSlippageTests {
             ),
             expressAPIProvider: ExpressAPIProviderStub(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: false)
+            featureFlags: ExpressFeatureFlags()
         )
     }
 }

@@ -57,11 +57,6 @@ extension WalletModelTokenFeeProvidersManagerProvider {
                 return []
             }
 
-            if !FeatureProvider.isAvailable(.tronGaslessActivation),
-               walletModel.tronAccountActivationStateProvider?.isAccountActivated != true {
-                return []
-            }
-
             // Tron gasless supports only for the same token being sent.
             return gaslessTransactionsNetworkManager.availableTronFeeTokens
                 .filter { $0.address == contractAddress }
@@ -105,8 +100,7 @@ extension WalletModelTokenFeeProvidersManagerProvider {
     }
 
     func minimumRequiredGaslessFeeTokenBalance() -> Decimal? {
-        guard FeatureProvider.isAvailable(.tronGaslessActivation),
-              case .tron(testnet: false) = walletModel.tokenItem.blockchain,
+        guard case .tron(testnet: false) = walletModel.tokenItem.blockchain,
               walletModel.tronAccountActivationStateProvider?.isAccountActivated == false else {
             return nil
         }

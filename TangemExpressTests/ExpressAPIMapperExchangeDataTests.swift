@@ -94,7 +94,7 @@ private extension ExpressAPIMapperExchangeDataTests {
     func makeMapper(details: DecodedTransactionDetails) -> ExpressAPIMapper {
         ExpressAPIMapper(
             exchangeDataDecoder: CannedExchangeDataDecoderStub(details: details),
-            featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: false)
+            featureFlags: ExpressFeatureFlags()
         )
     }
 
