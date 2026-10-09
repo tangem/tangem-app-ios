@@ -17,6 +17,10 @@ final class SendFinishScreen: ScreenBase<SendFinishScreenElement> {
     private lazy var closeButton = button(.closeButton)
     private lazy var amountValue = staticText(.amountValue)
 
+    func isDisplayed(timeout: TimeInterval) -> Bool {
+        headerTitle.waitForExistence(timeout: timeout)
+    }
+
     @discardableResult
     func waitForDisplay() -> Self {
         XCTContext.runActivity(named: "Wait for display: Send Finish Screen") { _ in

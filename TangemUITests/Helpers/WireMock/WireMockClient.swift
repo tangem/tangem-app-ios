@@ -123,11 +123,19 @@ final class WireMockClient {
 
     /// Bodies of the journalled requests matching the given method and exact URL path, oldest first
     func findRequestBodies(method: String, urlPath: String) async throws -> [String] {
+        try await findRequestBodies(matching: WireMockFindRequestsRequest(method: method, urlPath: urlPath))
+    }
+
+    func findRequestBodies(method: String, urlPathPattern: String) async throws -> [String] {
+        try await findRequestBodies(matching: WireMockFindRequestsRequest(method: method, urlPathPattern: urlPathPattern))
+    }
+
+    private func findRequestBodies(matching query: WireMockFindRequestsRequest) async throws -> [String] {
         let url = URL(string: "\(baseURL)/__admin/requests/find")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try JSONEncoder().encode(WireMockFindRequestsRequest(method: method, urlPath: urlPath))
+        request.httpBody = try JSONEncoder().encode(query)
 
         let (data, response) = try await URLSession.shared.data(for: request)
 
@@ -152,6 +160,22 @@ final class WireMockClient {
     }
 
     // MARK: - Sync Wrappers for XCTest
+
+    func getScenarioStateSync(_ scenarioName: String) -> String? {
+        var state: String?
+        let expectation = XCTestExpectation(description: "Get scenario state")
+        Task {
+            do {
+                state = try await getScenarioState(scenarioName)
+                expectation.fulfill()
+            } catch {
+                XCTFail("Failed to get state of scenario \(scenarioName): \(error)")
+                expectation.fulfill()
+            }
+        }
+        XCTestCase().wait(for: [expectation], timeout: .networkRequest)
+        return state
+    }
 
     func resetAllScenariosSync() {
         let expectation = XCTestExpectation(description: "Reset all scenarios")
@@ -236,6 +260,22 @@ final class WireMockClient {
                 expectation.fulfill()
             } catch {
                 XCTFail("Failed to find requests for \(method) \(urlPath): \(error)")
+                expectation.fulfill()
+            }
+        }
+        XCTestCase().wait(for: [expectation], timeout: .networkRequest)
+        return bodies
+    }
+
+    func findRequestBodiesSync(method: String, urlPathPattern: String) -> [String] {
+        var bodies: [String] = []
+        let expectation = XCTestExpectation(description: "Find WireMock requests")
+        Task {
+            do {
+                bodies = try await findRequestBodies(method: method, urlPathPattern: urlPathPattern)
+                expectation.fulfill()
+            } catch {
+                XCTFail("Failed to find requests for \(method) \(urlPathPattern): \(error)")
                 expectation.fulfill()
             }
         }
