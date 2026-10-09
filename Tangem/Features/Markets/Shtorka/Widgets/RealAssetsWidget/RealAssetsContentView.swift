@@ -126,6 +126,7 @@ struct RealAssetsContentView: View {
                 .frame(width: bannerIconSize, height: bannerIconSize)
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
         }
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     @ViewBuilder
