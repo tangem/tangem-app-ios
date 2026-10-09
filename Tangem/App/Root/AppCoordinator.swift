@@ -138,7 +138,7 @@ class AppCoordinator: CoordinatorObject {
     }
 
     private func setupWelcome() {
-        let dismissAction: Action<WelcomeCoordinator.OutputOptions> = { [weak self] options in
+        let dismissAction: Action<WelcomeV2Coordinator.OutputOptions> = { [weak self] options in
             guard let self else { return }
 
             TangemPayCampaignService().clearPending()
@@ -151,15 +151,9 @@ class AppCoordinator: CoordinatorObject {
             }
         }
 
-        if FeatureProvider.isAvailable(.welcomeScreenV2) {
-            let welcomeV2Coordinator = WelcomeV2Coordinator(dismissAction: dismissAction)
-            welcomeV2Coordinator.start(with: .init())
-            setState(.welcomeV2(welcomeV2Coordinator))
-        } else {
-            let welcomeCoordinator = WelcomeCoordinator(dismissAction: dismissAction)
-            welcomeCoordinator.start(with: .init())
-            setState(.welcome(welcomeCoordinator))
-        }
+        let welcomeV2Coordinator = WelcomeV2Coordinator(dismissAction: dismissAction)
+        welcomeV2Coordinator.start(with: .init())
+        setState(.welcomeV2(welcomeV2Coordinator))
     }
 
     private func setupAuth(unlockOnAppear: Bool) {
@@ -341,7 +335,6 @@ extension AppCoordinator {
 
 extension AppCoordinator {
     enum ViewState: Equatable {
-        case welcome(WelcomeCoordinator)
         case welcomeV2(WelcomeV2Coordinator)
         case uncompleteBackup(UncompletedBackupCoordinator)
         case auth(AuthCoordinator)
@@ -354,7 +347,7 @@ extension AppCoordinator {
 
         var shouldAddLockView: Bool {
             switch self {
-            case .auth, .welcome, .welcomeV2, .launch, .jailbreakWarning, .forceUpdate:
+            case .auth, .welcomeV2, .launch, .jailbreakWarning, .forceUpdate:
                 return false
             case .lock, .main, .onboarding, .uncompleteBackup:
                 return true
@@ -363,8 +356,7 @@ extension AppCoordinator {
 
         static func == (lhs: AppCoordinator.ViewState, rhs: AppCoordinator.ViewState) -> Bool {
             switch (lhs, rhs) {
-            case (.welcome, .welcome),
-                 (.welcomeV2, .welcomeV2),
+            case (.welcomeV2, .welcomeV2),
                  (.uncompleteBackup, .uncompleteBackup),
                  (.auth, .auth),
                  (.main, .main),
