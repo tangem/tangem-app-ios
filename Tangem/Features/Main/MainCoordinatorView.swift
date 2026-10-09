@@ -190,11 +190,6 @@ struct MainCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .shtorkaCompatibleSheet(item: $coordinator.pendingExpressTxStatusBottomSheetViewModel) { viewModel in
-                PendingExpressTxStatusBottomSheetView(viewModel: viewModel)
-            }
-
-        NavHolder()
             .onChange(of: coordinator.isAppStoreReviewRequested) { newValue in
                 guard newValue else { return }
 

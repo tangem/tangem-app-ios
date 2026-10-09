@@ -12,10 +12,7 @@ import TangemLocalization
 @testable import BlockchainSdk
 @testable import Tangem
 
-@Suite(
-    "TransactionHistoryMapper coin fallback",
-    .enabled(if: FeatureProvider.isAvailable(.transactionHistoryV2))
-)
+@Suite("TransactionHistoryMapper coin fallback")
 struct TransactionHistoryMapperCoinFallbackTests {
     private static let walletAddress = "0xWalletAddress"
     private static let contractAddress = "0xContractAddress"

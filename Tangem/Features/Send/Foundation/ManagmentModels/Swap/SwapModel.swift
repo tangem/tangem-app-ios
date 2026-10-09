@@ -1348,10 +1348,6 @@ extension SwapModel {
     }
 
     func persistSentTransaction(_ txData: SentSwapTransactionData, source: SendSwapableToken) {
-        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
-            return
-        }
-
         // Fire-and-forget since we can't handle enriching errors anyway
         runTask {
             await source.transactionHistoryEnricher?.enrich(with: txData)
