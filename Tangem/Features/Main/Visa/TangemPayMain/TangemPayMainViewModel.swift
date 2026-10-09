@@ -7,7 +7,6 @@
 //
 
 import Combine
-import PassKit
 import SwiftUI
 import TangemAssets
 import TangemUI
@@ -66,7 +65,6 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     @Published private(set) var inlineNotifications: [NotificationViewInput] = []
-    @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
 
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var cardEntries: [TangemPayCardEntry] = []
@@ -221,9 +219,6 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
-    @Injected(\.tangemPayAssembly) private var tangemPayAssembly: TangemPayAssembly
-    @Injected(\.tangemPayAppleWalletProvisioningAvailabilityProvider)
-    private var appleWalletAvailabilityProvider: TangemPayAppleWalletProvisioningAvailabilityProvider
 
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
@@ -552,21 +547,6 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     // MARK: - Shared
-
-    func openAddToApplePayGuide() {
-        guard let card = tangemPayAccount.activeCards.first else { return }
-        Analytics.log(.visaScreenAddToWalletClicked, contextParams: .userWallet(userWalletInfo.id))
-        coordinator?.openAddToApplePayGuide(
-            viewModel: TangemPayCardDetailsViewModel(
-                userWalletId: userWalletInfo.id,
-                repository: tangemPayAssembly.makeCardDetailsRepository(for: card)
-            )
-        )
-    }
-
-    func dismissAddToApplePayGuideBanner() {
-        AppSettings.shared.tangemPayShowAddToApplePayGuide = false
-    }
 
     func logCashbackBannerImpression() {
         switch cashbackBannerImpression {
@@ -950,23 +930,6 @@ private extension TangemPayMainViewModel {
         tangemPayAccount.cardEntriesPublisher
             .receiveOnMain()
             .assign(to: &$cardEntries)
-
-        let isAppleWalletProvisioningAvailable = appleWalletAvailabilityProvider.isAvailable
-
-        Publishers.CombineLatest3(
-            AppSettings.shared.$tangemPayShowAddToApplePayGuide,
-            tangemPayAccount.statePublisher,
-            tangemPayAccount.cardsPublisher
-        )
-        .map { showGuide, customerState, cards in
-            !isAppleWalletProvisioningAvailable
-                && PKPaymentAuthorizationViewController.canMakePayments()
-                && customerState == .active
-                && showGuide
-                && cards.contains { $0.productInstance.status == .active }
-        }
-        .receiveOnMain()
-        .assign(to: &$shouldDisplayAddToApplePayGuide)
 
         tangemPayAccount.cardIssueFailureSignal
             .receiveOnMain()
