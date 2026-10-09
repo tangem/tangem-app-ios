@@ -118,12 +118,6 @@ extension NewsDTO.Categories {
     }
 }
 
-// MARK: - TrendingNewsResponse
-
-struct TrendingNewsResponse: Decodable {
-    let items: [NewsDTO.List.Item]
-}
-
 // MARK: - Like
 
 extension NewsDTO.Like {

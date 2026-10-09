@@ -7,8 +7,6 @@
 //
 
 private final class UIEnvironment {
-    let overlayContentAdapter = OverlayContentContainerViewControllerAdapter()
-    let viewHierarchySnapshottingAdapter = ViewHierarchySnapshottingContainerViewControllerAdapter()
     let floatingSheetViewModel = FloatingSheetViewModel()
     let alertPresenter = AlertPresenterViewModel()
     let shareActivitiesPresenter = ShareActivitiesViewModel()
@@ -23,38 +21,6 @@ private extension InjectedValues {
     var environment: UIEnvironment {
         get { Self[UIEnvironmentKey.self] }
         set { Self[UIEnvironmentKey.self] = newValue }
-    }
-}
-
-// MARK: - Overlay
-
-extension InjectedValues {
-    var overlayContentContainerInitializer: OverlayContentContainerInitializable {
-        environment.overlayContentAdapter
-    }
-
-    var overlayContentContainer: OverlayContentContainer {
-        environment.overlayContentAdapter
-    }
-
-    var overlayContentStateObserver: OverlayContentStateObserver {
-        environment.overlayContentAdapter
-    }
-
-    var overlayContentStateController: OverlayContentStateController {
-        environment.overlayContentAdapter
-    }
-}
-
-// MARK: - ViewHierarchySnapshotting
-
-extension InjectedValues {
-    var viewHierarchySnapshotter: ViewHierarchySnapshotting {
-        environment.viewHierarchySnapshottingAdapter
-    }
-
-    var viewHierarchySnapshotterInitializer: ViewHierarchySnapshottingInitializable {
-        environment.viewHierarchySnapshottingAdapter
     }
 }
 

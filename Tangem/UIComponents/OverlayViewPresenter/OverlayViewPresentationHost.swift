@@ -130,8 +130,7 @@ private extension OverlayViewPresentationHost {
     /// The shtorka is asked for but not yet presented from the root. A screen the root shows before it is taken down
     /// when SwiftUI puts the shtorka up, so it waits to go over the shtorka instead.
     func isShtorkaComingUp(over top: UIViewController) -> Bool {
-        FeatureProvider.isAvailable(.newShtorkaEnabled)
-            && mainBottomSheetUIManager.isShown
+        mainBottomSheetUIManager.isShown
             && top === UIApplication.mainWindow?.rootViewController
     }
 
