@@ -142,7 +142,13 @@ private extension CommonSwapNotificationManager {
 // MARK: - Providers state mapping
 
 extension CommonSwapNotificationManager {
-    func mapLowCustomSlippageEvent(selected: ExpressAvailableProvider?, state: SwapModel.LoadedState, slippage: SwapSlippage) -> [SwapNotificationEvent] {
+    func mapLowCustomSlippageEvent(
+        sourceTokenItem: TokenItem,
+        receiveTokenItem: TokenItem,
+        selected: ExpressAvailableProvider?,
+        state: SwapModel.LoadedState,
+        slippage: SwapSlippage
+    ) -> [SwapNotificationEvent] {
         let provider: ExpressProvider? = switch state {
         case .idle, .requiredRefresh: nil
         default: selected?.provider
@@ -156,7 +162,15 @@ extension CommonSwapNotificationManager {
             return []
         }
 
-        return [.lowCustomSlippage(slippage: percentFormatter.format(customSlippage, option: .customSlippage))]
+        let analyticsParams: [Analytics.ParameterKey: String] = [
+            .slippage: SendAnalyticsHelper.makeAnalyticsSlippage(customSlippage),
+            .sendToken: sourceTokenItem.currencySymbol,
+            .sendBlockchain: sourceTokenItem.blockchain.displayName,
+            .receiveToken: receiveTokenItem.currencySymbol,
+            .receiveBlockchain: receiveTokenItem.blockchain.displayName,
+        ]
+
+        return [.lowCustomSlippage(slippage: percentFormatter.format(customSlippage, option: .customSlippage), analyticsParams: analyticsParams)]
     }
 
     func mapToEvents(
@@ -192,7 +206,13 @@ extension CommonSwapNotificationManager {
             let events = mapLoadedStateEvents(source: source, receive: receive, provider: selected, state: state)
             return events
                 + mapHighNetworkFeeEvent(selectedFee: selectedFee)
-                + mapLowCustomSlippageEvent(selected: selected, state: state, slippage: slippage)
+                + mapLowCustomSlippageEvent(
+                    sourceTokenItem: source.tokenItem,
+                    receiveTokenItem: receive.tokenItem,
+                    selected: selected,
+                    state: state,
+                    slippage: slippage
+                )
 
         default:
             return []

@@ -15,6 +15,8 @@ struct SwapSlippageSelectorBuilder {
             return nil
         }
 
+        slippageOutput.userDidOpenSlippageSelector()
+
         return SwapSlippageSelectorViewModel(
             provider: provider,
             slippage: slippageInput.slippage,
