@@ -32,6 +32,24 @@ struct CommonExpressManagerSlippageTests {
         #expect(factory.spies["dex"]?.requests.map(\.slippage) == [nil])
     }
 
+    @Test("An amount change resets the slippage, repeating the same amount keeps it")
+    func amountChangeResetsSlippage() async throws {
+        let factory = ExpressProviderManagerFactorySpy()
+        let sut = makeSUT(providers: [makeProvider(id: "dex", isCustomSlippageSupported: true)], factory: factory)
+
+        _ = try await sut.update(pair: makePair(destinationSymbol: "USDT"))
+        _ = try await sut.update(amountType: .from(1))
+        _ = await sut.update(slippage: Self.slippage)
+        _ = try await sut.update(amountType: .from(1))
+
+        #expect(await sut.getSlippage() == Self.slippage)
+
+        _ = try await sut.update(amountType: .from(2))
+
+        #expect(await sut.getSlippage() == nil)
+        #expect(factory.spies["dex"]?.requests.last.map(\.slippage) == .some(nil))
+    }
+
     @Test("Only the providers that support a custom slippage reload their quotes")
     func onlySupportingProvidersReload() async throws {
         let factory = ExpressProviderManagerFactorySpy()
