@@ -14,10 +14,7 @@ public enum SocialAuthError: Error {
     case cancelled
     /// The provider returned a credential without a usable identity token.
     case invalidCredential
-    /// The system CSPRNG failed to produce nonce bytes.
-    case nonceGenerationFailed(status: OSStatus)
-    /// Any other provider failure. The wrapped error must never carry request payloads or
-    /// tokens (NFR-04) — map transport errors to dedicated cases instead of wrapping them here.
+    /// Any other provider failure.
     case authorizationFailed(underlying: Error)
 }
 
@@ -30,8 +27,6 @@ extension SocialAuthError: LocalizedError {
             "Sign-in was cancelled by the user"
         case .invalidCredential:
             "The identity provider returned an invalid credential"
-        case .nonceGenerationFailed(let status):
-            "Failed to generate a nonce (status: \(status))"
         case .authorizationFailed(let underlying):
             "Authorization failed: \(underlying.localizedDescription)"
         }
@@ -48,10 +43,8 @@ extension SocialAuthError: UniversalError {
             111001000
         case .invalidCredential:
             111001001
-        case .nonceGenerationFailed:
-            111001002
         case .authorizationFailed:
-            111001003
+            111001002
         }
     }
 }

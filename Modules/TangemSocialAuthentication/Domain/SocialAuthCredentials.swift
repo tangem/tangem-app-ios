@@ -1,5 +1,5 @@
 //
-//  SocialAuthResult.swift
+//  SocialAuthCredentials.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,11 +8,11 @@
 
 import Foundation
 
-public struct SocialAuthResult {
-    /// Social-login OIDC ID token (JWT) as raw bytes.
+public struct SocialAuthCredentials {
+    /// Social-login OIDC ID token.
     public let identityTokenData: Data
 
-    /// The raw one-time nonce.
+    /// Server-issued one-time nonce.
     public let nonce: String
 
     public var identityToken: String {
