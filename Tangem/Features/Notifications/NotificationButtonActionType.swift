@@ -42,6 +42,7 @@ enum NotificationButtonActionType: Identifiable {
     case reduceAmountTo(amount: Decimal, amountFormatted: String)
     case openLink(promotionLink: URL, buttonTitle: String)
     case openDeeplink(url: URL, buttonTitle: String)
+    case openPromoCampaign(buttonTitle: String)
     case swap
     case addHederaTokenAssociation
     case addTokenTrustline
@@ -90,6 +91,7 @@ enum NotificationButtonActionType: Identifiable {
         case .reduceAmountTo(let amount, let amountFormatted): "reduceAmountTo\(amount)\(amountFormatted)".hashValue
         case .openLink(let promotionLink, let buttonTitle): "openLink\(promotionLink)\(buttonTitle)".hashValue
         case .openDeeplink(let url, let buttonTitle): "openDeeplink\(url)\(buttonTitle)".hashValue
+        case .openPromoCampaign(let buttonTitle): "openPromoCampaign\(buttonTitle)".hashValue
         case .swap: "swap".hashValue
         case .addHederaTokenAssociation: "addHederaTokenAssociation".hashValue
         case .addTokenTrustline: "addTokenTrustline".hashValue
@@ -142,7 +144,7 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.sendNotificationLeaveButton(amountFormatted)
         case .openLink(_, let buttonTitle):
             return buttonTitle
-        case .openDeeplink(_, let buttonTitle):
+        case .openDeeplink(_, let buttonTitle), .openPromoCampaign(let buttonTitle):
             return buttonTitle
         case .addHederaTokenAssociation:
             return Localization.warningHederaMissingTokenAssociationButtonTitle
@@ -227,6 +229,7 @@ enum NotificationButtonActionType: Identifiable {
              .addHederaTokenAssociation,
              .openLink,
              .openDeeplink,
+             .openPromoCampaign,
              .stake,
              .openFeedbackMail,
              .openAppStoreReview,
@@ -282,6 +285,7 @@ enum NotificationButtonActionType: Identifiable {
              .leaveAmount,
              .openLink,
              .openDeeplink,
+             .openPromoCampaign,
              .stake,
              .openFeedbackMail,
              .openCurrency,

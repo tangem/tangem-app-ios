@@ -166,6 +166,7 @@ struct PromoCampaignView: View {
                 .styleType(.default)
                 .horizontalLayout(.infinity)
                 .size(.x12)
+                .loading(.spinner(if: viewModel.isEnrolling))
                 .disabled(!viewModel.isActionEnabled)
         }
         .padding(.horizontal, 16)
