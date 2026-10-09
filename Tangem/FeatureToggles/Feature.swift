@@ -23,7 +23,6 @@ enum Feature: String, Hashable, CaseIterable {
     case jointAccounts
     case ethPolLocalStakingValidation
     case yieldDexTransferDetection
-    case welcomeScreenV2
     case newShtorkaEnabled
     case collectibles
     case totalTokenBalanceV2
@@ -59,7 +58,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .jointAccounts: return "TWI-1611_joint_accounts"
         case .ethPolLocalStakingValidation: return "[REDACTED_INFO]_eth_pol_local_staking_validation"
         case .yieldDexTransferDetection: return "[REDACTED_INFO]_yield_dex_transfer_detection"
-        case .welcomeScreenV2: return "TWI-1747_welcome_screen_v2"
         case .newShtorkaEnabled: return "TWI-1608_new_shtorka_enabled"
         case .collectibles: return "TWI-1640_gacha_machine"
         case .totalTokenBalanceV2: return "[REDACTED_INFO]_total_token_balance_v2"
@@ -95,7 +93,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .jointAccounts: return .unspecified
         case .ethPolLocalStakingValidation: return .unspecified
         case .yieldDexTransferDetection: return .unspecified
-        case .welcomeScreenV2: return .version("6.4")
         case .newShtorkaEnabled: return .version("6.4")
         case .collectibles: return .unspecified
         case .totalTokenBalanceV2: return .unspecified

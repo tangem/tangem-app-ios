@@ -64,9 +64,6 @@ struct AppCoordinatorView: CoordinatorView {
         // We need stack to force transition animation work
         ZStack {
             switch coordinator.viewState {
-            case .welcome(let welcomeCoordinator):
-                WelcomeCoordinatorView(coordinator: welcomeCoordinator)
-                    .transition(.opacity.animation(.easeIn))
             case .welcomeV2(let welcomeV2Coordinator):
                 WelcomeV2CoordinatorView(coordinator: welcomeV2Coordinator)
                     .transition(.opacity.animation(.easeIn))
