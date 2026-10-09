@@ -191,10 +191,10 @@ extension TangemPayOfframpOptionsStore {
             )
         }
 
-        return sortedSymbolMajor(items)
+        return sortedForSelection(items)
     }
 
-    static func sortedSymbolMajor(_ items: [TransferInputTokenItem]) -> [TransferInputTokenItem] {
+    static func sortedForSelection(_ items: [TransferInputTokenItem]) -> [TransferInputTokenItem] {
         let canonicalSymbol = TangemPayUtilities.usdcTokenItem.currencySymbol
 
         var symbolRank: [String: Int] = [:]
@@ -205,6 +205,10 @@ extension TangemPayOfframpOptionsStore {
 
         return items.enumerated()
             .sorted { lhs, rhs in
+                guard lhs.element.isOfframpAvailable == rhs.element.isOfframpAvailable else {
+                    return lhs.element.isOfframpAvailable
+                }
+
                 let lhsIsCanonical = lhs.element.symbol == canonicalSymbol
                 let rhsIsCanonical = rhs.element.symbol == canonicalSymbol
 
