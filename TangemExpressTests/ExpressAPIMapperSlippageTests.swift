@@ -13,7 +13,7 @@ import Testing
 struct ExpressAPIMapperSlippageTests {
     private let mapper = ExpressAPIMapper(
         exchangeDataDecoder: StubExchangeDataDecoder(),
-        featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: false)
+        featureFlags: ExpressFeatureFlags()
     )
 
     @Test(

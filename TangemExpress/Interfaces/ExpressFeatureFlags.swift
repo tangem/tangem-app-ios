@@ -8,9 +8,5 @@
 import Foundation
 
 public struct ExpressFeatureFlags {
-    public let isRegionRestrictionsEnabled: Bool
-
-    public init(isRegionRestrictionsEnabled: Bool = false) {
-        self.isRegionRestrictionsEnabled = isRegionRestrictionsEnabled
-    }
+    public init() {}
 }

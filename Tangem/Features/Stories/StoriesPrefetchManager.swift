@@ -54,8 +54,6 @@ extension StoriesPrefetchManager.Step {
 
 private extension StoriesPrefetchManager {
     func prefetchStoriesV2(for step: Step) {
-        guard FeatureProvider.isAvailable(.storiesV2) else { return }
-
         let task = runTask(in: self, isDetached: true, priority: .medium) { manager in
             let stories = manager.storiesToPrefetch(for: step)
             guard !stories.isEmpty else { return }

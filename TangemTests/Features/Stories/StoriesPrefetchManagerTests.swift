@@ -68,7 +68,7 @@ struct StoriesPrefetchManagerTests {
     // MARK: - Helpers
 
     private static var areReleaseGatesOpen: Bool {
-        FeatureProvider.isAvailable(.storiesV2) && FeatureProvider.isAvailable(.hardwareUpgradeStories)
+        FeatureProvider.isAvailable(.hardwareUpgradeStories)
     }
 
     private func withExperiment(variant: ExperimentFeatureVariantKey?, _ operation: (StubExperimentService) -> Void) async {

@@ -105,7 +105,7 @@ struct ExpressProviderFormatterBadgeTests {
             expressFeeProvider: StubExpressFeeProvider(),
             expressAPIProvider: StubExpressAPIProvider(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: false)
+            featureFlags: ExpressFeatureFlags()
         )
 
         let available = ExpressAvailableProvider(
@@ -321,7 +321,7 @@ struct ExpressAvailableProviderBestDEXTests {
             expressFeeProvider: StubExpressFeeProvider(),
             expressAPIProvider: StubExpressAPIProvider(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: false)
+            featureFlags: ExpressFeatureFlags()
         )
 
         return ExpressAvailableProvider(context: context, manager: StubExpressProviderManager(state: state))

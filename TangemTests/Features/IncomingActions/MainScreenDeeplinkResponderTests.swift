@@ -182,10 +182,10 @@ private extension MainScreenDeeplinkResponderTests {
     }
 
     func withPendingCampaign(_ campaignKey: String?, _ body: () async -> Void) async {
-        let previousKey = AppSettings.shared.pendingTangemPayCampaignKey
-        AppSettings.shared.pendingTangemPayCampaignKey = campaignKey
+        let previousStorage = InjectedValues[\.tangemPayCampaignKeyStorage]
+        InjectedValues[\.tangemPayCampaignKeyStorage] = TangemPayCampaignKeyStorageStub(pendingCampaignKey: campaignKey)
 
-        defer { AppSettings.shared.pendingTangemPayCampaignKey = previousKey }
+        defer { InjectedValues[\.tangemPayCampaignKeyStorage] = previousStorage }
 
         await body()
     }

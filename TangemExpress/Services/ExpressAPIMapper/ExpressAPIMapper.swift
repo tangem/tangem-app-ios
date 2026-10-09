@@ -86,7 +86,7 @@ struct ExpressAPIMapper {
             allowanceContract: response.allowanceContract,
             quoteId: response.quoteId,
             txType: response.txType.flatMap { ExpressTransactionType(rawValue: $0) },
-            isRestricted: (response.isRestricted ?? false) && featureFlags.isRegionRestrictionsEnabled,
+            isRestricted: response.isRestricted ?? false,
             slippage: response.slippage.map(mapToSlippageFraction(basisPoints:))
         )
     }
@@ -231,7 +231,7 @@ struct ExpressAPIMapper {
             expectedAmount: toAmount,
             nativePaymentAvailable: response.nativePaymentAvailable ?? false,
             quoteId: response.quoteId,
-            isRestricted: (response.isRestricted ?? false) && featureFlags.isRegionRestrictionsEnabled
+            isRestricted: response.isRestricted ?? false
         )
     }
 

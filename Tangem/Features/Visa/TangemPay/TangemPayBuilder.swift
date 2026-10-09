@@ -33,8 +33,7 @@ final class TangemPayBuilder {
     private lazy var enrollmentStateFetcher = TangemPayEnrollmentStateFetcher(
         customerWalletId: customerWalletId,
         availabilityService: availabilityService,
-        customerService: customerService,
-        isCustomCardsEnabled: FeatureProvider.isAvailable(.tangemPayCustomCards)
+        customerService: customerService
     )
 
     private lazy var orderStatusPollingService = TangemPayOrderStatusPollingService(

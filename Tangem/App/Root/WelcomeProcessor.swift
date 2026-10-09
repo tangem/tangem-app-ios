@@ -63,19 +63,17 @@ final class WelcomeProcessor {
             }
             .store(in: &bag)
 
-        if FeatureProvider.isAvailable(.tangemPayCustomCards) {
-            AppSettings.shared.$pendingTangemPayCampaignKey
-                .compactMap { $0 }
-                .combineLatest(isIdle)
-                .filter { _, isIdle in isIdle }
-                .first()
-                .receiveOnMain()
-                .withWeakCaptureOf(self)
-                .sink { processor, input in
-                    processor.setDeepLink(.tangemPayCampaign(campaignKey: input.0))
-                }
-                .store(in: &bag)
-        }
+        TangemPayCampaignService().pendingCampaignKeyPublisher
+            .compactMap { $0 }
+            .combineLatest(isIdle)
+            .filter { _, isIdle in isIdle }
+            .first()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { processor, input in
+                processor.setDeepLink(.tangemPayCampaign(campaignKey: input.0))
+            }
+            .store(in: &bag)
     }
 
     /// The first deep link wins — they're mutually exclusive, so a later one shouldn't override the shown one.

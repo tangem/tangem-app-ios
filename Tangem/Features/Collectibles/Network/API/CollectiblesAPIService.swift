@@ -109,12 +109,8 @@ extension CollectiblesAPIService {
 // MARK: - Authentication
 
 private extension CollectiblesAPIService {
-    static var authenticationInterceptor: (any RequestInterceptor)? {
-        guard FeatureProvider.isAvailable(.backendAuthentication) else {
-            return nil
-        }
-
-        return Interceptor(
+    static var authenticationInterceptor: any RequestInterceptor {
+        Interceptor(
             adapter: BackendAuthenticationAssembly.requestAdapter,
             retrier: BackendAuthenticationAssembly.requestRetrier
         )
