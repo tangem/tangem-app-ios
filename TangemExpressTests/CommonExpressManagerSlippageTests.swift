@@ -120,7 +120,7 @@ private extension CommonExpressManagerSlippageTests {
             expressAPIProvider: ExpressAPIProviderStub(),
             expressProviderManagerFactory: factory,
             expressRepository: ExpressRepositoryStub(providers: providers),
-            featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: false)
+            featureFlags: ExpressFeatureFlags()
         )
     }
 
@@ -188,7 +188,7 @@ private final class ExpressProviderManagerFactorySpy: ExpressProviderManagerFact
             expressFeeProvider: FeeProviderFactoryStub().makeExpressFeeProvider(),
             expressAPIProvider: ExpressAPIProviderStub(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: false)
+            featureFlags: ExpressFeatureFlags()
         )
 
         return ExpressAvailableProvider(context: context, manager: spy)

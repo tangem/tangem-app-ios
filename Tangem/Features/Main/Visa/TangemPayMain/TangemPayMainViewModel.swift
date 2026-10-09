@@ -341,10 +341,6 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @MainActor
     private func isOfframpHubAvailable() async -> Bool {
-        guard FeatureProvider.isAvailable(.tangemPayOfframp) else {
-            return false
-        }
-
         if eligibleChannelsSubject.value == nil {
             await loadEligibility()
         }

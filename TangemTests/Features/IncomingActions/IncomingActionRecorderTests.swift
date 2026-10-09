@@ -37,19 +37,24 @@ struct IncomingActionRecorderTests {
         }
     }
 
-    @Test("The campaign an AppsFlyer link names is written down as pending", .enabled(if: FeatureProvider.isAvailable(.tangemPayCustomCards)))
+    @Test("The campaign an AppsFlyer link names is written down as pending")
     func savesTheCampaignKeyOnArrival() async {
         await withReferralService { _ in
-            let previousPendingKey = AppSettings.shared.pendingTangemPayCampaignKey
-            defer { AppSettings.shared.pendingTangemPayCampaignKey = previousPendingKey }
-            AppSettings.shared.pendingTangemPayCampaignKey = nil
+            let previousStorage = InjectedValues[\.tangemPayCampaignKeyStorage]
+            InjectedValues[\.tangemPayCampaignKeyStorage] = TangemPayCampaignKeyStorageStub()
+            defer { InjectedValues[\.tangemPayCampaignKeyStorage] = previousStorage }
 
             let recorder = IncomingActionRecorder()
             recorder.start()
 
+            let manager = InjectedValues[\.incomingActionManager]
+            let responder = CampaignReadingResponder()
+            manager.becomeFirstResponder(responder)
+            defer { manager.resignFirstResponder(responder) }
+
             handler.handleIncomingURL(Deeplink.campaign)
 
-            #expect(AppSettings.shared.pendingTangemPayCampaignKey == "tpay_for_harvard123")
+            #expect(responder.campaignKeyWhenAsked == "tpay_for_harvard123")
         }
     }
 
@@ -99,7 +104,12 @@ private extension IncomingActionRecorderTests {
             InjectedValues[\.referralService] = service
             InjectedValues[\.userWalletRepository] = FakeUserWalletRepository(models: [])
 
+            let manager = InjectedValues[\.incomingActionManager]
+            let chainEnd = ClaimingResponder()
+            manager.becomeFirstResponder(chainEnd)
+
             defer {
+                manager.resignFirstResponder(chainEnd)
                 InjectedValues[\.referralService] = previousService
                 InjectedValues[\.userWalletRepository] = previousRepository
             }
@@ -126,6 +136,24 @@ private final class ReferralReadingResponder: IncomingActionResponder {
     nonisolated func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
         MainActor.assumeIsolated {
             refcodeWhenAsked = InjectedValues[\.referralService].refcode
+            return true
+        }
+    }
+}
+
+private final class ClaimingResponder: IncomingActionResponder {
+    func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
+        true
+    }
+}
+
+@MainActor
+private final class CampaignReadingResponder: IncomingActionResponder {
+    private(set) var campaignKeyWhenAsked: String?
+
+    nonisolated func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
+        MainActor.assumeIsolated {
+            campaignKeyWhenAsked = TangemPayCampaignService().pendingCampaignKey
             return true
         }
     }
