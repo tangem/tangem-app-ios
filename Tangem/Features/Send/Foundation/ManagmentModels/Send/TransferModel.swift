@@ -657,6 +657,7 @@ extension TransferModel: NotificationTapDelegate {
              .stake,
              .openLink,
              .openDeeplink,
+             .openPromoCampaign,
              .swap,
              .openFeedbackMail,
              .openAppStoreReview,

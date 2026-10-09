@@ -229,6 +229,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .leaveAmount,
              .openLink,
              .openDeeplink,
+             .openPromoCampaign,
              .stake,
              .openFeedbackMail,
              .openAppStoreReview,

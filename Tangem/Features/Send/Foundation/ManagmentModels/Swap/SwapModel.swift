@@ -2190,6 +2190,7 @@ extension SwapModel: NotificationTapDelegate {
              .stake,
              .openLink,
              .openDeeplink,
+             .openPromoCampaign,
              .swap,
              .openFeedbackMail,
              .openAppStoreReview,
