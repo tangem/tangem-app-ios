@@ -8,7 +8,7 @@
 import Foundation
 import BlockchainSdk
 
-/// The unified state of the V2 staking flow, produced by a `StakingFlowProvider` and published by `StakeModel`.
+/// The unified state of the staking flow, produced by a `StakingFlowProvider` and published by `StakeModel`.
 ///
 /// Simple flows (unstake / restake / single action) only ever produce `loading` / `ready` / `failure`;
 /// the `prerequisite` case is reached only when a provider runs the corresponding stage, so there is no
@@ -67,7 +67,7 @@ enum StakePrerequisite {
     }
 }
 
-/// The ways the V2 staking flow can fail.
+/// The ways the staking flow can fail.
 ///
 /// The fee rides on `.transaction` alone: it is the only failure surfaced *after* fee estimation
 /// (the BlockchainSdk balance / dust / fee-coverage checks). `.staking` carries the yield's min/max
