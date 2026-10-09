@@ -1095,6 +1095,20 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
+    @discardableResult
+    func waitForTokenBalance(tokenName: String, toEqual expectedBalance: String) -> Self {
+        XCTContext.runActivity(named: "Wait for '\(tokenName)' balance to be '\(expectedBalance)'") { _ in
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            scrollTokensListToVisible(tokenElement(named: tokenName))
+            let balance = tokensList.staticTexts
+                .matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
+                .matching(NSPredicate(format: "label == %@", expectedBalance))
+                .firstMatch
+            waitAndAssertTrue(balance, timeout: .networkRequest, "'\(tokenName)' balance should be '\(expectedBalance)'")
+            return self
+        }
+    }
+
     func getTokenBalanceNumeric(tokenName: String, tokenIndex: Int = 0) -> Decimal {
         XCTContext.runActivity(named: "Get balance (numeric) for token: \(tokenName) at index: \(tokenIndex)") { _ in
             let label = getTokenBalance(tokenName: tokenName, tokenIndex: tokenIndex)
