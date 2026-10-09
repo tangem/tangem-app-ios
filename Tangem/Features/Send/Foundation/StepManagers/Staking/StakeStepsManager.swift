@@ -10,7 +10,7 @@ import Combine
 import TangemStaking
 import TangemLocalization
 
-/// The single V2 staking steps manager, replacing the four legacy per-flow managers. The step graph is
+/// The single staking steps manager. The step graph is
 /// derived from the flow shape — which optional steps exist (`amountStep` iff the amount is editable,
 /// `targetsStep` iff a validator is selectable) plus the action type. The approve/stake bottom-button
 /// toggle is driven by the model's `flowActionTypePublisher`.
@@ -112,8 +112,8 @@ extension StakeStepsManager: SendStepsManager {
         guard !currentStep().type.isFinish else { return false }
 
         // Summary-only actions (claim / withdraw / unlock / restake) carry no user input to discard, so
-        // they never prompt. Flows with an editable amount — plus full unstake, which legacy guarded the
-        // same way — prompt once the flow has reached the summary.
+        // they never prompt. Flows with an editable amount — plus full unstake — prompt once the flow has
+        // reached the summary.
         switch actionType {
         case .unstake:
             break

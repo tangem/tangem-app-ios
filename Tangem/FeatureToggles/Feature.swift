@@ -15,7 +15,6 @@ enum Feature: String, Hashable, CaseIterable {
     case walletConnectBitcoin
     case usdtRevokeGaslessFee
     case mobileWalletMultiCreation
-    case stakingFlowV2
     case priceAlertsSubscription
     case backup4cards
     case polymarket
@@ -50,7 +49,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .walletConnectBitcoin: return "WalletConnect Bitcoin"
         case .usdtRevokeGaslessFee: return "USDT Revoke Gasless Fee"
         case .mobileWalletMultiCreation: return "14278_Mobile_wallet_multi_creation"
-        case .stakingFlowV2: return "[REDACTED_INFO]_staking_flow_v2"
         case .priceAlertsSubscription: return "TWI-1603_price_alerts_subscription"
         case .backup4cards: return "[REDACTED_INFO]_backup_4_cards_fw8"
         case .polymarket: return "TWI-1576_polymarket"
@@ -85,7 +83,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .walletConnectBitcoin: return .unspecified
         case .usdtRevokeGaslessFee: return .unspecified
         case .mobileWalletMultiCreation: return .unspecified
-        case .stakingFlowV2: return .version("6.4")
         case .priceAlertsSubscription: return .unspecified
         case .backup4cards: return .unspecified
         case .polymarket: return .unspecified

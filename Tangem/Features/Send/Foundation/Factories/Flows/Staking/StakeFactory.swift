@@ -10,9 +10,8 @@ import TangemFoundation
 import TangemStaking
 import struct TangemUI.TokenIconInfo
 
-/// The single V2 staking flow factory, gated behind `Feature.stakingFlowV2`. Builds `StakeModel` over a
-/// per-network `StakingFlowProvider` and assembles the step graph from the provider's `stepPlan`,
-/// replacing the four legacy `*FlowFactory` types.
+/// The single staking flow factory. Builds `StakeModel` over a per-network `StakingFlowProvider` and
+/// assembles the step graph from the provider's `stepPlan`.
 class StakeFactory: StakingFlowDependenciesFactory {
     @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
     @Injected(\.keysManager) private var keysManager: KeysManager
@@ -25,10 +24,10 @@ class StakeFactory: StakingFlowDependenciesFactory {
     var actionType: StakingAction.ActionType { action.displayType }
 
     /// A stakeable token always has a staking item — the staking manager is built from it — so its
-    /// absence here is a programmer error (V2 was gated on for a token that can't stake).
+    /// absence here is a programmer error.
     private var stakingItem: StakingTokenItem {
         guard let item = stakingableToken.tokenItem.stakingTokenItem else {
-            preconditionFailure("stakingFlowV2 requires a token with a stakingTokenItem")
+            preconditionFailure("StakeFactory requires a token with a stakingTokenItem")
         }
         return item
     }

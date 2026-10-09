@@ -19,59 +19,6 @@ final class StakingNotificationManagerTests: LeakTrackingTestSuite {
     private let blockchain = Blockchain.solana(curve: .ed25519_slip0010, testnet: false)
     private let tonBlockchain = Blockchain.ton(curve: .ed25519_slip0010, testnet: false)
 
-    private var rentExemptionError: ValidationError {
-        .remainingAmountIsLessThanRentExemption(amount: .init(with: blockchain, value: Decimal(string: "0.00089088")!))
-    }
-
-    @Test("Withdraw info banner is shown while the fee is loading")
-    func withdrawInfoIsShownOnLoading() {
-        let (manager, stateSubject) = makeSUT()
-
-        stateSubject.send(.loading)
-
-        let events = stakingEvents(manager)
-        #expect(events.count == 1)
-        #expect(events.contains { $0.isWithdraw })
-    }
-
-    @Test("Rent exemption error replaces the withdraw info banner")
-    func rentExemptionErrorHidesWithdrawInfo() {
-        let (manager, stateSubject) = makeSUT()
-
-        stateSubject.send(.loading)
-        stateSubject.send(.validationError(rentExemptionError, fee: 0.000205))
-
-        let events = stakingEvents(manager)
-        #expect(events.count == 1)
-        #expect(!events.contains { $0.isWithdraw })
-        #expect(containsRentExemptionError(events))
-    }
-
-    @Test("Withdraw info banner is restored when the state becomes ready")
-    func withdrawInfoIsRestoredOnReady() {
-        let (manager, stateSubject) = makeSUT()
-
-        stateSubject.send(.loading)
-        stateSubject.send(.validationError(rentExemptionError, fee: 0.000205))
-        stateSubject.send(.ready(fee: 0.000205, stakesCount: nil))
-
-        let events = stakingEvents(manager)
-        #expect(events.contains { $0.isWithdraw })
-        #expect(!containsRentExemptionError(events))
-    }
-
-    @Test("Other validation errors keep the withdraw info banner")
-    func otherValidationErrorKeepsWithdrawInfo() {
-        let (manager, stateSubject) = makeSUT()
-
-        stateSubject.send(.loading)
-        stateSubject.send(.validationError(.totalExceedsBalance, fee: 0.000205))
-
-        let events = stakingEvents(manager)
-        #expect(events.contains { $0.isWithdraw })
-        #expect(events.count == 2)
-    }
-
     @Test("TON unstake notifications are ordered: extra reserve, positions status, unbonding period")
     func tonUnstakeNotificationsOrder() throws {
         let (manager, stateSubject) = makeSUT(
@@ -79,7 +26,7 @@ final class StakingNotificationManagerTests: LeakTrackingTestSuite {
             action: StakingAction(amount: 0.02, targetType: .empty, type: .unstake)
         )
 
-        stateSubject.send(.ready(fee: 0.05, stakesCount: 2))
+        stateSubject.send(.ready(.init(amount: 0.02, fee: 0.05, isFeeIncluded: false, stakesCount: 2)))
 
         let events = stakingEvents(manager)
         try #require(events.count == 3)
@@ -98,7 +45,7 @@ final class StakingNotificationManagerTests: LeakTrackingTestSuite {
             exitMinimumRequirement: 0.05
         )
 
-        stateSubject.send(.ready(fee: 0.05, stakesCount: 2))
+        stateSubject.send(.ready(.init(amount: 0.02, fee: 0.05, isFeeIncluded: false, stakesCount: 2)))
 
         let events = stakingEvents(manager)
         try #require(events.count == 4)
@@ -115,7 +62,7 @@ final class StakingNotificationManagerTests: LeakTrackingTestSuite {
             action: StakingAction(amount: 0.02, targetType: .empty, type: .unstake)
         )
 
-        stateSubject.send(.ready(fee: 0.000205, stakesCount: 2))
+        stateSubject.send(.ready(.init(amount: 0.02, fee: 0.000205, isFeeIncluded: false, stakesCount: 2)))
 
         let events = stakingEvents(manager)
         try #require(events.count == 1)
@@ -127,7 +74,7 @@ final class StakingNotificationManagerTests: LeakTrackingTestSuite {
     func tonWithdrawNotificationsOrder() throws {
         let (manager, stateSubject) = makeSUT(blockchain: tonBlockchain)
 
-        stateSubject.send(.ready(fee: 0.05, stakesCount: 2))
+        stateSubject.send(.ready(.init(amount: 0.02, fee: 0.05, isFeeIncluded: false, stakesCount: 2)))
 
         let events = stakingEvents(manager)
         try #require(events.count == 2)
@@ -136,27 +83,10 @@ final class StakingNotificationManagerTests: LeakTrackingTestSuite {
         #expect(events[1].isWithdraw)
     }
 
-    @Test("Coin exit fee-coverage failure shows the fee top-up banner with the Go-to-coin button")
-    func coinExitFeeCoverageFailureShowsTopUpBanner() throws {
+    @Test("Exit fee-coverage failure shows the fee top-up banner with the Go-to-coin button")
+    func exitFeeCoverageFailureShowsTopUpBanner() throws {
         let analyticsLogger = StakingSendAnalyticsLoggerMock()
-        let (manager, stateSubject) = makeSUT(analyticsLogger: analyticsLogger)
-
-        stateSubject.send(.validationError(feeExceedsBalanceError(isFeeCurrency: true), fee: 0.000205))
-
-        let events = stakingEvents(manager)
-        let topUpEvent = try #require(events.first { $0.isInsufficientFundsForFee })
-        #expect(hasOpenFeeCurrencyButton(topUpEvent))
-        #expect(title(of: topUpEvent) == Localization.warningBlockedFundsForFeeTitle)
-        #expect(!containsInsufficientBalance(events))
-        #expect(analyticsLogger.noticeNotEnoughFeeCalls == 1)
-        // The balance the validator compared the fee against, not a guess.
-        #expect(analyticsLogger.noticeNotEnoughFeeBalances == [0.0001])
-    }
-
-    @Test("V2 exit fee-coverage failure shows the fee top-up banner with the Go-to-coin button")
-    func v2ExitFeeCoverageFailureShowsTopUpBanner() throws {
-        let analyticsLogger = StakingSendAnalyticsLoggerMock()
-        let (manager, stateSubject) = makeV2SUT(
+        let (manager, stateSubject) = makeSUT(
             action: StakingAction(amount: 0.02, targetType: .empty, type: .unstake),
             analyticsLogger: analyticsLogger
         )
@@ -176,16 +106,16 @@ final class StakingNotificationManagerTests: LeakTrackingTestSuite {
     func tokenFeeCoverageFailureKeepsMappedEvent() {
         let (manager, stateSubject) = makeSUT()
 
-        stateSubject.send(.validationError(feeExceedsBalanceError(isFeeCurrency: false), fee: 0.000205))
+        stateSubject.send(.failure(.transaction(feeExceedsBalanceError(isFeeCurrency: false), fee: 0.000205, spendsAmount: false)))
 
         let events = stakingEvents(manager)
         #expect(containsInsufficientBalanceForFee(events))
         #expect(!events.contains { $0.isInsufficientFundsForFee })
     }
 
-    @Test("V2 enter fee-coverage failure keeps the generic insufficient-balance banner")
-    func v2EnterFeeCoverageFailureKeepsGenericEvent() {
-        let (manager, stateSubject) = makeV2SUT(
+    @Test("Enter fee-coverage failure keeps the generic insufficient-balance banner")
+    func enterFeeCoverageFailureKeepsGenericEvent() {
+        let (manager, stateSubject) = makeSUT(
             action: StakingAction(amount: 0.02, targetType: .empty, type: .stake)
         )
 
@@ -196,9 +126,9 @@ final class StakingNotificationManagerTests: LeakTrackingTestSuite {
         #expect(!events.contains { $0.isInsufficientFundsForFee })
     }
 
-    @Test("V2 fee-only enter validation shows the fee top-up banner on fee-coverage failure")
-    func v2FeeOnlyEnterFeeCoverageFailureShowsTopUpBanner() throws {
-        let (manager, stateSubject) = makeV2SUT(
+    @Test("Fee-only enter validation shows the fee top-up banner on fee-coverage failure")
+    func feeOnlyEnterFeeCoverageFailureShowsTopUpBanner() throws {
+        let (manager, stateSubject) = makeSUT(
             action: StakingAction(amount: 0.02, targetType: .empty, type: .stake)
         )
 
@@ -210,9 +140,9 @@ final class StakingNotificationManagerTests: LeakTrackingTestSuite {
         #expect(!containsInsufficientBalance(events))
     }
 
-    @Test("V2 enter that delegates in place shows the top-up banner for a StakeKit gas-reserve failure")
-    func v2FeeOnlyEnterGasReserveFailureShowsTopUpBanner() throws {
-        let (manager, stateSubject) = makeV2SUT(
+    @Test("Enter that delegates in place shows the top-up banner for a StakeKit gas-reserve failure")
+    func feeOnlyEnterGasReserveFailureShowsTopUpBanner() throws {
+        let (manager, stateSubject) = makeSUT(
             action: StakingAction(amount: 0.02, targetType: .empty, type: .stake),
             enterSpendsAmount: false
         )
@@ -225,9 +155,9 @@ final class StakingNotificationManagerTests: LeakTrackingTestSuite {
         #expect(!events.contains { $0.isInsufficientFundsForFeeReduceAmount })
     }
 
-    @Test("V2 enter that spends the amount keeps the reduce-amount banner for a StakeKit gas-reserve failure")
-    func v2EnterGasReserveFailureKeepsReduceAmountBanner() throws {
-        let (manager, stateSubject) = makeV2SUT(
+    @Test("Enter that spends the amount keeps the reduce-amount banner for a StakeKit gas-reserve failure")
+    func enterGasReserveFailureKeepsReduceAmountBanner() throws {
+        let (manager, stateSubject) = makeSUT(
             action: StakingAction(amount: 0.02, targetType: .empty, type: .stake)
         )
 
@@ -236,6 +166,22 @@ final class StakingNotificationManagerTests: LeakTrackingTestSuite {
         let events = stakingEvents(manager)
         #expect(events.contains { $0.isInsufficientFundsForFeeReduceAmount })
         #expect(!events.contains { $0.isInsufficientFundsForFee })
+    }
+
+    @Test("Rent-exemption failure replaces the fee-included and max-amount banners with the rent error")
+    func rentExemptionFailureHidesAmountRelatedBanners() {
+        let (manager, stateSubject) = makeSUT(
+            action: StakingAction(amount: 0.02, targetType: .empty, type: .stake)
+        )
+
+        stateSubject.send(.ready(.init(amount: 0.02, fee: 0.000205, isFeeIncluded: true, stakesCount: nil, amountToReduce: 0.001)))
+        #expect(containsAmountRelatedEvent(stakingEvents(manager)))
+
+        stateSubject.send(.failure(.transaction(rentExemptionError, fee: 0.000205, spendsAmount: true)))
+
+        let events = stakingEvents(manager)
+        #expect(!containsAmountRelatedEvent(events))
+        #expect(containsRentExemptionError(events))
     }
 
     @Test("Token-staked preflight fee failure shows the top-up banner with the send-style copy")
@@ -247,7 +193,7 @@ final class StakingNotificationManagerTests: LeakTrackingTestSuite {
         )
         let (manager, stateSubject) = makeSUT(tokenItem: tokenItem, feeTokenItem: coinItem)
 
-        stateSubject.send(.networkError(StakingPreflightError.insufficientFundsForFee(feeCurrencyBalance: .zero)))
+        stateSubject.send(.failure(.network(StakingPreflightError.insufficientFundsForFee(feeCurrencyBalance: .zero))))
 
         let events = stakingEvents(manager)
         let topUpEvent = try #require(events.first { $0.isInsufficientFundsForFee })
@@ -274,8 +220,9 @@ private extension StakingNotificationManagerTests {
         action: StakingAction = StakingAction(amount: 0.02, targetType: .empty, type: .pending(.withdraw(passthroughs: []))),
         stakedBalance: Decimal? = nil,
         exitMinimumRequirement: Decimal = .zero,
+        enterSpendsAmount: Bool = true,
         analyticsLogger: StakingSendAnalyticsLoggerMock = StakingSendAnalyticsLoggerMock()
-    ) -> (manager: CommonStakingNotificationManager, stateSubject: CurrentValueSubject<UnstakingModel.State, Never>) {
+    ) -> (manager: CommonStakingNotificationManager, stateSubject: CurrentValueSubject<StakeFlowState, Never>) {
         let coinItem = TokenItem.blockchain(.init(blockchain ?? self.blockchain, derivationPath: nil))
         let manager = CommonStakingNotificationManager(
             tokenItem: tokenItem ?? coinItem,
@@ -283,42 +230,15 @@ private extension StakingNotificationManagerTests {
             analyticsLogger: analyticsLogger
         )
 
-        let stateSubject = CurrentValueSubject<UnstakingModel.State, Never>(.loading)
-        let provider = UnstakingModelStateProviderStub(
-            stateSubject: stateSubject,
-            stakingAction: action,
-            stakedBalance: stakedBalance ?? action.amount
-        )
-        let input = StakingNotificationManagerInputStub(
-            stakingManagerStatePublisher: Just(makeStakedState(exitMinimumRequirement: exitMinimumRequirement)).eraseToAnyPublisher()
-        )
-
-        manager.setup(provider: provider, input: input)
-
-        return (trackForMemoryLeaks(manager), stateSubject)
-    }
-
-    func makeV2SUT(
-        action: StakingAction,
-        enterSpendsAmount: Bool = true,
-        analyticsLogger: StakingSendAnalyticsLoggerMock = StakingSendAnalyticsLoggerMock()
-    ) -> (manager: CommonStakingNotificationManager, stateSubject: CurrentValueSubject<StakeFlowState, Never>) {
-        let tokenItem = TokenItem.blockchain(.init(blockchain, derivationPath: nil))
-        let manager = CommonStakingNotificationManager(
-            tokenItem: tokenItem,
-            feeTokenItem: tokenItem,
-            analyticsLogger: analyticsLogger
-        )
-
         let stateSubject = CurrentValueSubject<StakeFlowState, Never>(.loading)
         let provider = StakeModelStateProviderStub(
             stateSubject: stateSubject,
             stakingAction: action,
-            stakedBalance: action.amount,
+            stakedBalance: stakedBalance ?? action.amount,
             enterSpendsAmount: enterSpendsAmount
         )
         let input = StakingNotificationManagerInputStub(
-            stakingManagerStatePublisher: Just(makeStakedState()).eraseToAnyPublisher()
+            stakingManagerStatePublisher: Just(makeStakedState(exitMinimumRequirement: exitMinimumRequirement)).eraseToAnyPublisher()
         )
 
         manager.setup(provider: provider, input: input)
@@ -359,6 +279,10 @@ private extension StakingNotificationManagerTests {
         manager.notificationInputs.compactMap { $0.settings.event as? StakingNotificationEvent }
     }
 
+    var rentExemptionError: ValidationError {
+        .remainingAmountIsLessThanRentExemption(amount: .init(with: blockchain, value: Decimal(string: "0.00089088")!))
+    }
+
     func containsRentExemptionError(_ events: [StakingNotificationEvent]) -> Bool {
         events.contains { event in
             guard case .validationErrorEvent(let validationErrorEvent) = event else {
@@ -369,6 +293,17 @@ private extension StakingNotificationManagerTests {
                 return true
             }
             return false
+        }
+    }
+
+    func containsAmountRelatedEvent(_ events: [StakingNotificationEvent]) -> Bool {
+        events.contains { event in
+            switch event {
+            case .feeWillBeSubtractFromSendingAmount, .maxAmountStaking:
+                true
+            default:
+                false
+            }
         }
     }
 
@@ -430,18 +365,6 @@ private extension StakingNotificationManagerTests {
 }
 
 // MARK: - Stubs
-
-private struct UnstakingModelStateProviderStub: UnstakingModelStateProvider {
-    let stateSubject: CurrentValueSubject<UnstakingModel.State, Never>
-    let stakingAction: UnstakingModel.Action
-    let stakedBalance: Decimal
-
-    var state: UnstakingModel.State { stateSubject.value }
-
-    var statePublisher: AnyPublisher<UnstakingModel.State, Never> {
-        stateSubject.eraseToAnyPublisher()
-    }
-}
 
 private struct StakeModelStateProviderStub: StakeModelStateProvider {
     let stateSubject: CurrentValueSubject<StakeFlowState, Never>
