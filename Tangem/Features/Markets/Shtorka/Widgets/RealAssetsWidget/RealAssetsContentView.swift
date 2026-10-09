@@ -184,7 +184,7 @@ private struct RealAssetsIntervalOption: TangemDropDownTextProvider {
 private extension MarketsPriceIntervalType {
     var realAssetsNameLocalized: String {
         switch self {
-        case .day: Localization.marketsRealAssetsIntervalDay
+        case .day: Localization.marketsSelectorInterval24hTitle
         case .week: Localization.marketsRealAssetsIntervalWeek
         case .month: Localization.marketsRealAssetsIntervalMonth
         default: tokenDetailsNameLocalized
