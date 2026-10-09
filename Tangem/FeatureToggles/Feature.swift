@@ -14,7 +14,6 @@ enum Feature: String, Hashable, CaseIterable {
     case exchangeOnlyWithinSingleAddress
     case walletConnectBitcoin
     case usdtRevokeGaslessFee
-    case transactionHistoryV2
     case mobileWalletMultiCreation
     case stakingFlowV2
     case priceAlertsSubscription
@@ -51,7 +50,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
         case .walletConnectBitcoin: return "WalletConnect Bitcoin"
         case .usdtRevokeGaslessFee: return "USDT Revoke Gasless Fee"
-        case .transactionHistoryV2: return "139_Transaction_History_V2"
         case .mobileWalletMultiCreation: return "14278_Mobile_wallet_multi_creation"
         case .stakingFlowV2: return "[REDACTED_INFO]_staking_flow_v2"
         case .priceAlertsSubscription: return "TWI-1603_price_alerts_subscription"
@@ -88,7 +86,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .walletConnectBitcoin: return .unspecified
         case .usdtRevokeGaslessFee: return .unspecified
-        case .transactionHistoryV2: return .version("6.4")
         case .mobileWalletMultiCreation: return .unspecified
         case .stakingFlowV2: return .version("6.4")
         case .priceAlertsSubscription: return .unspecified
