@@ -141,6 +141,10 @@ class AppCoordinator: CoordinatorObject {
         let dismissAction: Action<WelcomeCoordinator.OutputOptions> = { [weak self] options in
             guard let self else { return }
 
+            if FeatureProvider.isAvailable(.tangemPayCustomCards) {
+                TangemPayCampaignService().clearPending()
+            }
+
             switch options {
             case .main(let model):
                 openMain(with: model)
