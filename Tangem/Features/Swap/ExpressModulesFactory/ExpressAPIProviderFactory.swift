@@ -45,7 +45,7 @@ struct ExpressAPIProviderFactory {
             configuration: .defaultConfiguration,
             expressAPIType: expressAPIType,
             exchangeDataDecoder: exchangeDataDecoder,
-            featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: FeatureProvider.isAvailable(.expressGeoRestrictions))
+            featureFlags: ExpressFeatureFlags()
         )
     }
 }

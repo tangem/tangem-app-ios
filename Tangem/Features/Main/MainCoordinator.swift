@@ -540,12 +540,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     /// A deferred AppsFlyer link resolves after launch, and on a relaunch with a wallet already present the
     /// app never builds `WelcomeProcessor` — so the stored key has no other route onto the screen here.
     private func observePendingTangemPayCampaign() {
-        guard FeatureProvider.isAvailable(.tangemPayCustomCards) else {
-            return
-        }
-
-        let keyChanges: AnyPublisher<Void, Never> = AppSettings.shared
-            .$pendingTangemPayCampaignKey
+        let keyChanges: AnyPublisher<Void, Never> = TangemPayCampaignService()
+            .pendingCampaignKeyPublisher
             .mapToVoid()
             .receiveOnMain()
             .eraseToAnyPublisher()
