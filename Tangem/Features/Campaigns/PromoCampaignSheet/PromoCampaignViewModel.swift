@@ -14,7 +14,7 @@ import TangemLocalization
 import TangemUI
 
 protocol PromoCampaignRoutable: CampaignRoutable {
-    func enrollInPromoCampaign(_ campaign: PromoCampaign, payoutToken: TokenSelectorItem?)
+    func enrollInPromoCampaign(_ campaign: PromoCampaign, payoutToken: TokenSelectorItem?) -> Bool
 }
 
 final class PromoCampaignViewModel: ObservableObject, FloatingSheetContentViewModel {
@@ -24,6 +24,9 @@ final class PromoCampaignViewModel: ObservableObject, FloatingSheetContentViewMo
     @Published var tokenSelectorViewModel: CampaignTokenSelectorViewModel?
     @Published private(set) var selectedTokenRowViewModel: TokenSelectorItemViewModel?
     @Published private var selectedToken: TokenSelectorItem?
+    @Published private(set) var isEnrolling = false
+
+    private static let accountScope: CampaignAccountScope = .crypto
 
     private let campaign: PromoCampaign
     private weak var coordinator: PromoCampaignRoutable?
@@ -105,25 +108,34 @@ final class PromoCampaignViewModel: ObservableObject, FloatingSheetContentViewMo
     }
 
     func open(_ url: URL) {
+        guard !isEnrolling else {
+            return
+        }
+
         coordinator?.openLearnMore(url: url)
     }
 
     func performAction() {
-        guard isActionEnabled else {
+        guard isActionEnabled, !isEnrolling else {
             return
         }
 
         if isAwaitingPayoutToken {
             selectToken()
         } else {
-            coordinator?.enrollInPromoCampaign(campaign, payoutToken: selectedToken)
+            isEnrolling = coordinator?.enrollInPromoCampaign(campaign, payoutToken: selectedToken) ?? false
         }
     }
 
     func selectToken() {
+        guard !isEnrolling else {
+            return
+        }
+
         tokenSelectorViewModel = CampaignTokenSelectorViewModel(
             eligibleTokens: campaign.payoutTokens,
             initiallyExpandedAccount: userWalletRepository.selectedModel.flatMap { .onlyAccount(of: $0) },
+            accountScope: Self.accountScope,
             onSelect: { [weak self] item in
                 self?.handleSelectedToken(item)
             },
@@ -152,8 +164,8 @@ private extension PromoCampaignViewModel {
         let isEligible = EligibleTokenMatcher.make(from: campaign.payoutTokens)
 
         return userWalletRepository.models.contains { userWalletModel in
-            AccountModelsAggregator(.crypto, .joint(.active))
-                .models(from: userWalletModel.accountModelsManager)
+            Self.accountScope
+                .accounts(from: userWalletModel.accountModelsManager)
                 .contains { $0.walletModelsManager.walletModels.contains { isEligible($0.tokenItem) } }
         }
     }
@@ -165,7 +177,7 @@ private extension PromoCampaignViewModel {
 
         let tokenItemMapper = TokenItemMapper(supportedBlockchains: userWalletModel.config.supportedBlockchains)
         let eligibleTokenMapper = CampaignEligibleTokenMapper()
-        let accounts = AccountModelsAggregator(.crypto, .joint).models(from: userWalletModel.accountModelsManager)
+        let accounts = Self.accountScope.accounts(from: userWalletModel.accountModelsManager)
 
         return campaign.payoutTokens.contains { token in
             guard let tokenItem = eligibleTokenMapper.mapToTokenItem(token, using: tokenItemMapper) else {

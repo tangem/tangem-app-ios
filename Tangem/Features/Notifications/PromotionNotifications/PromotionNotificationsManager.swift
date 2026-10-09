@@ -24,6 +24,7 @@ class CommonPromotionNotificationsManager {
     private let placement: PromotionPlacement
 
     private var activePromotionSubscription: AnyCancellable?
+    private var promoCampaignCoordinator: PromoCampaignCoordinator?
 
     init(userWalletId: UserWalletId, placement: PromotionPlacement) {
         self.userWalletId = userWalletId
@@ -52,28 +53,13 @@ private extension CommonPromotionNotificationsManager {
         items.map { mapToPromotionNotificationEvent(item: $0) }
     }
 
-    func mapToPromotionNotificationEvent(item: Promotion) -> PromotionNotificationEvent {
-        let buttonAction: NotificationButtonAction? = {
-            guard item.buttonEnabled, let deeplink = item.deeplink else {
-                return nil
-            }
-
-            return NotificationButtonAction(.openDeeplink(
-                url: deeplink,
-                buttonTitle: item.buttonText ?? ""
-            ))
-        }()
-
-        return PromotionNotificationEvent(promotion: item, buttonAction: buttonAction)
-    }
-
     func mapToNotificationViewInputs(events: [PromotionNotificationEvent]) -> [NotificationViewInput] {
         events.map { mapToNotificationViewInput(event: $0) }
     }
 
     func mapToNotificationViewInput(event: PromotionNotificationEvent) -> NotificationViewInput {
         let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
-            self?.didTapNotification(with: id, action: action)
+            self?.didTapPromotion(event.promotion, notificationId: id, action: action)
 
             Analytics.log(event: .promotionBannerButtonClicked, params: event.analyticsParams)
         }
@@ -92,6 +78,28 @@ private extension CommonPromotionNotificationsManager {
     }
 }
 
+// MARK: - Mapping
+
+extension CommonPromotionNotificationsManager {
+    func mapToPromotionNotificationEvent(item: Promotion) -> PromotionNotificationEvent {
+        let buttonAction: NotificationButtonAction? = {
+            guard item.buttonEnabled else {
+                return nil
+            }
+
+            let buttonTitle = item.buttonText ?? ""
+
+            if item.campaignId != nil {
+                return NotificationButtonAction(.openPromoCampaign(buttonTitle: buttonTitle))
+            }
+
+            return item.deeplink.map { NotificationButtonAction(.openDeeplink(url: $0, buttonTitle: buttonTitle)) }
+        }()
+
+        return PromotionNotificationEvent(promotion: item, buttonAction: buttonAction)
+    }
+}
+
 // MARK: - Actions
 
 extension CommonPromotionNotificationsManager {
@@ -101,6 +109,31 @@ extension CommonPromotionNotificationsManager {
 
     func hide(promotion: Promotion) {
         Task { await promotionRepository.hidePromotion(userWalletId: userWalletId, displayId: promotion.id) }
+    }
+
+    private func didTapPromotion(_ promotion: Promotion, notificationId: NotificationViewId, action: NotificationButtonActionType) {
+        guard let campaignId = promotion.campaignId else {
+            didTapNotification(with: notificationId, action: action)
+            return
+        }
+
+        startPromoCampaignFlow(campaignId: campaignId)
+    }
+
+    private func startPromoCampaignFlow(campaignId: Int) {
+        if let promoCampaignCoordinator, !promoCampaignCoordinator.isStale {
+            return
+        }
+
+        let coordinator = PromoCampaignCoordinator(
+            dismissAction: { [weak self] _ in
+                self?.promoCampaignCoordinator = nil
+            },
+            popToRootAction: { _ in }
+        )
+
+        promoCampaignCoordinator = coordinator
+        coordinator.start(with: .init(campaignId: campaignId, userWalletId: userWalletId))
     }
 }
 
