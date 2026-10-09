@@ -38,6 +38,7 @@ struct TransferConfirmationContentView: View {
         .scrollIndicators(.hidden)
         .scrollBounceBehavior(.basedOnSize)
         .offrampBottomBar { bottomBar }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
 
