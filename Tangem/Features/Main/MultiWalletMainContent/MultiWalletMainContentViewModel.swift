@@ -491,7 +491,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                             return
                         }
 
-                        viewModel.coordinator?.openJointAccountMembers(jointAccount: pendingJointAccount)
+                        viewModel.coordinator?.openJointAccountMembers(jointAccount: pendingJointAccount, userWalletConfig: viewModel.userWalletModel.config)
                     }
                 }
             }
@@ -518,7 +518,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
                 return pendingOperations.map { pendingOperation in
                     builder.build(pendingOperation: pendingOperation) { [weak self] in
-                        self?.coordinator?.openJointAccountOperationDetails(pendingOperation: pendingOperation)
+                        guard let self else { return }
+
+                        coordinator?.openJointAccountOperationDetails(pendingOperation: pendingOperation, userWalletInfo: userWalletModel.userWalletInfo)
                     }
                 }
             }
@@ -607,7 +609,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private func tokenItemMessageBubbleTapped(_ messageBubble: TokenItemViewModel.MessageBubble) {
         switch messageBubble {
         case .jointOperationAwaitingSignature(let pendingOperation):
-            coordinator?.openJointAccountOperationDetails(pendingOperation: pendingOperation)
+            coordinator?.openJointAccountOperationDetails(pendingOperation: pendingOperation, userWalletInfo: userWalletModel.userWalletInfo)
         }
     }
 
