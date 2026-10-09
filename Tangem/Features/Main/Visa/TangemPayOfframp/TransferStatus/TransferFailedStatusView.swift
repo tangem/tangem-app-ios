@@ -60,24 +60,18 @@ extension TransferFailedStatusView {
 
 private extension TransferFailedStatusView.Style {
     var appearance: StatusScreenAppearance {
-        switch self {
-        case .generic, .unavailableRegion: .warning
-        case .technicalIssue: .error
-        }
+        return .warning
     }
 
     var glyph: StatusIcon.Glyph {
         switch self {
-        case .generic: .warning
-        case .unavailableRegion, .technicalIssue: .heartBroken
+        case .generic, .technicalIssue: .warning
+        case .unavailableRegion: .heartBroken
         }
     }
 
     var tint: Color {
-        switch self {
-        case .generic, .unavailableRegion: DesignSystem.Color.iconStatusWarning
-        case .technicalIssue: DesignSystem.Color.iconStatusError
-        }
+        return DesignSystem.Color.iconStatusWarning
     }
 }
 
