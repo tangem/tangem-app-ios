@@ -79,12 +79,12 @@ final class JointAccountJoinCoordinator: CoordinatorObject {
 // MARK: - Private
 
 private extension JointAccountJoinCoordinator {
-    func openMembers(of jointAccount: any JointAccountModel) {
+    func openMembers(of jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig) {
         let coordinator = JointAccountManagementCoordinator(
             dismissAction: { [weak self] in self?.dismiss() },
             popToRootAction: popToRootAction
         )
-        coordinator.start(with: .members(jointAccount: jointAccount))
+        coordinator.start(with: .members(jointAccount: jointAccount, userWalletConfig: userWalletConfig))
         jointAccountManagementCoordinator = coordinator
     }
 
@@ -191,8 +191,8 @@ extension JointAccountJoinCoordinator: JointAccountMemberNameRoutable {
 // MARK: - JointAccountJoinMemberNameRoutable
 
 extension JointAccountJoinCoordinator: JointAccountJoinMemberNameRoutable {
-    func openJoinedAccount(jointAccount: any JointAccountModel) {
-        openMembers(of: jointAccount)
+    func openJoinedAccount(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig) {
+        openMembers(of: jointAccount, userWalletConfig: userWalletConfig)
         showJoinSuccessToast()
     }
 

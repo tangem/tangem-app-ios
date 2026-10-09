@@ -239,7 +239,7 @@ private extension MainScreenDeeplinkResponder {
 
             switch deeplink.entry {
             case .members:
-                coordinator.openJointAccountMembers(jointAccount: jointAccount)
+                coordinator.openJointAccountMembers(jointAccount: jointAccount, userWalletConfig: userWalletModel.config)
             case .overview:
                 coordinator.expandAccount(jointAccount, userWalletId: userWalletModel.userWalletId)
             }
