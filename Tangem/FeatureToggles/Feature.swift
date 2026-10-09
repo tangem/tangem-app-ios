@@ -19,7 +19,6 @@ enum Feature: String, Hashable, CaseIterable {
     case stakingFlowV2
     case priceAlertsSubscription
     case backup4cards
-    case backendAuthentication
     case polymarket
     case walletCardsBackupReport
     case jointAccounts
@@ -28,18 +27,12 @@ enum Feature: String, Hashable, CaseIterable {
     case welcomeScreenV2
     case newShtorkaEnabled
     case collectibles
-    case openTelemetryMetrics
     case totalTokenBalanceV2
-    case expressGeoRestrictions
     case mobileSocialLogin
-    case tangemPayOfframp
     case realAssets
-    case storiesV2
     case hardwareUpgradeStories
     case jointAccountsGaslessTokenFee
-    case tronGaslessActivation
     case merklIncentives
-    case tangemPayCustomCards
     case mcp
     case tangemPayChooseCountry
     case payBundleIntroduction
@@ -63,7 +56,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .stakingFlowV2: return "[REDACTED_INFO]_staking_flow_v2"
         case .priceAlertsSubscription: return "TWI-1603_price_alerts_subscription"
         case .backup4cards: return "[REDACTED_INFO]_backup_4_cards_fw8"
-        case .backendAuthentication: return "[REDACTED_INFO]_backend_authentication"
         case .polymarket: return "TWI-1576_polymarket"
         case .walletCardsBackupReport: return "[REDACTED_INFO]_cardlinked_status_update_stage2"
         case .jointAccounts: return "TWI-1611_joint_accounts"
@@ -72,18 +64,12 @@ enum Feature: String, Hashable, CaseIterable {
         case .welcomeScreenV2: return "TWI-1747_welcome_screen_v2"
         case .newShtorkaEnabled: return "TWI-1608_new_shtorka_enabled"
         case .collectibles: return "TWI-1640_gacha_machine"
-        case .openTelemetryMetrics: return "TWI-1627_opentelemetry_metrics_mirroring"
         case .totalTokenBalanceV2: return "[REDACTED_INFO]_total_token_balance_v2"
-        case .expressGeoRestrictions: return "[REDACTED_INFO]_express_geo_restrictions"
         case .mobileSocialLogin: return "[REDACTED_INFO]_mobile_social_login"
-        case .tangemPayOfframp: return "TWI-1632_tangem_pay_offramp"
         case .realAssets: return "TWI-1477_real_assets_shelf"
-        case .storiesV2: return "TWI-1713_stories_v2"
         case .hardwareUpgradeStories: return "TWI-1357_hardware_upgrade_stories"
         case .jointAccountsGaslessTokenFee: return "[REDACTED_INFO]_joint_accounts_gasless_token_fee"
-        case .tronGaslessActivation: return "TWI-1783_tron_gasless_account_activation_enabled"
         case .merklIncentives: return "TWI-1520_merkl_incentives"
-        case .tangemPayCustomCards: return "TWI-1727_tangem_pay_custom_cards"
         case .mcp: return "TWI-1721_mcp"
         case .tangemPayChooseCountry: return "TWI-1771_choose_country"
         case .payBundleIntroduction: return "TWI-1728_pay_bundle_introduction"
@@ -107,7 +93,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .stakingFlowV2: return .version("6.4")
         case .priceAlertsSubscription: return .unspecified
         case .backup4cards: return .unspecified
-        case .backendAuthentication: return .version("6.4")
         case .polymarket: return .unspecified
         case .walletCardsBackupReport: return .unspecified
         case .jointAccounts: return .unspecified
@@ -116,18 +101,12 @@ enum Feature: String, Hashable, CaseIterable {
         case .welcomeScreenV2: return .version("6.4")
         case .newShtorkaEnabled: return .version("6.4")
         case .collectibles: return .unspecified
-        case .openTelemetryMetrics: return .version("6.4")
         case .totalTokenBalanceV2: return .unspecified
-        case .expressGeoRestrictions: return .version("6.4")
         case .mobileSocialLogin: return .unspecified
-        case .tangemPayOfframp: return .version("6.4")
         case .realAssets: return .unspecified
-        case .storiesV2: return .version("6.4")
         case .hardwareUpgradeStories: return .unspecified
         case .jointAccountsGaslessTokenFee: return .unspecified
-        case .tronGaslessActivation: return .version("6.4")
         case .merklIncentives: return .unspecified
-        case .tangemPayCustomCards: return .version("6.4")
         case .mcp: return .unspecified
         case .tangemPayChooseCountry: return .version("6.5")
         case .payBundleIntroduction: return .unspecified
