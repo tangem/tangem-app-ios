@@ -14,6 +14,7 @@ final class CampaignTokenSelectorViewModel: ObservableObject, Identifiable {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     let tokenSelectorViewModel: TokenSelectorViewModel
+    let accountScope: CampaignAccountScope
 
     @Published private(set) var eligibleTokenRows: [EligibleTokenRowViewData] = []
     @Published private(set) var addTokenFlowViewModel: AddTokenFlowRedesignedViewModel?
@@ -25,17 +26,19 @@ final class CampaignTokenSelectorViewModel: ObservableObject, Identifiable {
     init(
         eligibleTokens: [CampaignEligibleToken],
         initiallyExpandedAccount: TokenSelectorViewModel.InitiallyExpandedAccount?,
+        accountScope: CampaignAccountScope = .cryptoAndJoint,
         onSelect: @escaping (TokenSelectorItem) -> Void,
         onClose: @escaping () -> Void
     ) {
         self.eligibleTokens = eligibleTokens
+        self.accountScope = accountScope
         self.onSelect = onSelect
         self.onClose = onClose
 
         let isEligible = EligibleTokenMatcher.make(from: eligibleTokens)
         tokenSelectorViewModel = TokenSelectorViewModel.common(
             walletsProvider: FilteredTokenSelectorWalletsProvider(
-                base: .cryptoJointAccounts(),
+                base: accountScope.walletsProvider,
                 isIncluded: { isEligible($0.tokenItem) }
             ),
             availabilityProvider: AvailableTokenSelectorItemAvailabilityProvider(),
@@ -57,7 +60,8 @@ final class CampaignTokenSelectorViewModel: ObservableObject, Identifiable {
                 postAddBehavior: .executeAction { [weak self] _, _ in
                     self?.addTokenFlowViewModel = nil
                     self?.resolveTokensToAdd()
-                }
+                },
+                accountFilter: accountScope.addTokenAccountFilter
             )
 
             guard let viewModel = AddTokenFlowRedesignedViewModel(
@@ -112,7 +116,7 @@ private extension CampaignTokenSelectorViewModel {
 
         let mapper = TokenItemMapper(supportedBlockchains: userWalletModel.config.supportedBlockchains)
         let eligibleTokenMapper = CampaignEligibleTokenMapper()
-        let accounts = AccountModelsAggregator(.crypto, .joint).models(from: userWalletModel.accountModelsManager)
+        let accounts = accountScope.accounts(from: userWalletModel.accountModelsManager)
 
         eligibleTokenRows = eligibleTokens.compactMap { token in
             guard let tokenItem = eligibleTokenMapper.mapToTokenItem(token, using: mapper) else {

@@ -72,7 +72,7 @@ final class PromoCampaignEnrollmentResultViewModel: Identifiable {
         return wallet
     }
 
-    var enrolledWallets: [PromoCampaignEnrollmentWallet] {
+    var enrolledWallets: [PromoCampaignEnrolledWalletViewModel] {
         guard case .partiallyEnrolled(_, let enrolledWallets) = state else {
             return []
         }
@@ -98,7 +98,7 @@ extension PromoCampaignEnrollmentResultViewModel {
     enum State {
         case enrolled(campaignName: String, walletCount: Int)
         case alreadyEnrolled(campaignName: String, wallets: [PromoCampaignEnrollmentWallet])
-        case partiallyEnrolled(campaignName: String, enrolledWallets: [PromoCampaignEnrollmentWallet])
+        case partiallyEnrolled(campaignName: String, enrolledWallets: [PromoCampaignEnrolledWalletViewModel])
         case campaignUnavailable
         case temporarilyUnavailable
         case failed

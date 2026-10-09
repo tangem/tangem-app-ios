@@ -61,7 +61,7 @@ struct PromoCampaignEnrollmentResultView: View {
 
 #Preview("Partially enrolled") {
     PromoCampaignEnrollmentResultView(viewModel: .preview(
-        .partiallyEnrolled(campaignName: "Whale Swap Cashback", enrolledWallets: PromoCampaignEnrollmentWallet.previewWallets)
+        .partiallyEnrolled(campaignName: "Whale Swap Cashback", enrolledWallets: PromoCampaignEnrolledWalletViewModel.previewWallets)
     ))
 }
 
