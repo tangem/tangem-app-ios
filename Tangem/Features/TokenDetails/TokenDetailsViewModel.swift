@@ -61,10 +61,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         walletModel.tokenItem.token?.customTokenColor
     }
 
-    var showsPendingExpressTransactionsBlock: Bool {
-        !FeatureProvider.isAvailable(.transactionHistoryV2)
-    }
-
     let presentSource: TokenDetailsPresentSource
 
     private weak var coordinator: (any TokenDetailsRoutable)?
@@ -140,11 +136,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     func openTransactionDetails(_ transaction: TransactionViewModel) {
         if let jointOperation = jointOperation(for: transaction) {
             coordinator?.openJointAccountOperationDetails(pendingOperation: jointOperation, userWalletInfo: userWalletInfo)
-            return
-        }
-
-        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
-            openTransactionExplorer(transaction: transaction.hash)
             return
         }
 
@@ -522,11 +513,9 @@ private extension TokenDetailsViewModel {
             })
         }
 
-        if FeatureProvider.isAvailable(.transactionHistoryV2) {
-            items.append(DotsMenuItem(type: .explore) { [weak self] in
-                self?.openExplorer()
-            })
-        }
+        items.append(DotsMenuItem(type: .explore) { [weak self] in
+            self?.openExplorer()
+        })
 
         var destructiveItems: [DotsMenuItem] = []
 
@@ -575,7 +564,7 @@ private extension TokenDetailsViewModel {
         if let pendingTransactionDetails {
             if pendingTransactionDetails.type == .jointOperation {
                 bindJointOperationDetails(operationId: pendingTransactionDetails.id)
-            } else if FeatureProvider.isAvailable(.transactionHistoryV2) {
+            } else {
                 walletModel.transactionHistoryPublisher
                     .compactMap { state -> TransactionRecord? in
                         guard case .loaded(let records) = state else { return nil }
@@ -585,20 +574,6 @@ private extension TokenDetailsViewModel {
                     .receive(on: DispatchQueue.main)
                     .sink { [weak self] _ in
                         self?.openExpressTransactionDetails(expressTransactionId: pendingTransactionDetails.id)
-                    }
-                    .store(in: &bag)
-            } else {
-                $pendingExpressTransactions
-                    .filter { !$0.isEmpty }
-                    .prefix(1)
-                    .sink { [weak self] pendingTransactions in
-                        guard let self,
-                              let matchingTransaction = pendingTransactions.first(where: { $0.id == pendingTransactionDetails.id })
-                        else {
-                            return
-                        }
-
-                        didTapPendingExpressTransaction(id: matchingTransaction.id)
                     }
                     .store(in: &bag)
             }
