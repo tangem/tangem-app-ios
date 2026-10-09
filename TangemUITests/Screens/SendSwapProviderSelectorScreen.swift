@@ -109,6 +109,59 @@ final class SendSwapProviderSelectorScreen: ScreenBase<SendSwapProviderSelectorE
         return self
     }
 
+    @discardableResult
+    func waitForProviderQuote(name: String, containing fragment: String) -> Self {
+        XCTContext.runActivity(named: "Wait for provider '\(name)' quote containing '\(fragment)'") { _ in
+            let row = providerRow(name: name)
+            waitAndAssertTrue(row, "Provider row '\(name)' should exist")
+            let isLoaded = NSPredicate(format: "label CONTAINS %@", fragment)
+            let expectation = XCTNSPredicateExpectation(predicate: isLoaded, object: row)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .networkRequest),
+                .completed,
+                "Provider '\(name)' quote should contain '\(fragment)', but row label was '\(row.label)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertApproveSettingsButtonDisplayed(providerName: String) -> Self {
+        XCTContext.runActivity(named: "Assert approve settings button is displayed for '\(providerName)'") { _ in
+            waitAndAssertTrue(approveSettingsButton(providerName: providerName), "Approve settings button should be displayed for '\(providerName)'")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertApproveSettingsButtonNotDisplayed(providerName: String) -> Self {
+        XCTContext.runActivity(named: "Assert approve settings button is not displayed for '\(providerName)'") { _ in
+            waitAndAssertTrue(providerRow(name: providerName), "Provider row '\(providerName)' should exist")
+            XCTAssertFalse(
+                approveSettingsButton(providerName: providerName).exists,
+                "Approve settings button should not be displayed for '\(providerName)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertNoApproveSettingsButtons() -> Self {
+        XCTContext.runActivity(named: "Assert no provider has the approve settings button") { _ in
+            let prefix = SendAccessibilityIdentifiers.swapProviderSelectorApproveButton(name: "")
+            let predicate = NSPredicate(format: "identifier BEGINSWITH %@", prefix)
+            XCTAssertEqual(app.buttons.matching(predicate).count, 0, "No provider should have the approve settings button")
+            return self
+        }
+    }
+
+    func tapApproveSettings(providerName: String) -> SwapApproveSettingsScreen {
+        XCTContext.runActivity(named: "Tap approve settings button for '\(providerName)'") { _ in
+            approveSettingsButton(providerName: providerName).waitAndTap()
+            return SwapApproveSettingsScreen(app).waitForDisplay()
+        }
+    }
+
     // MARK: - Selection
 
     @discardableResult
@@ -188,6 +241,10 @@ final class SendSwapProviderSelectorScreen: ScreenBase<SendSwapProviderSelectorE
 
     private func providerRow(name: String) -> XCUIElement {
         app.buttons[SendAccessibilityIdentifiers.swapProviderSelectorRow(name: name)].firstMatch
+    }
+
+    private func approveSettingsButton(providerName: String) -> XCUIElement {
+        app.buttons[SendAccessibilityIdentifiers.swapProviderSelectorApproveButton(name: providerName)].firstMatch
     }
 
     private func waitForAllProviders(ofType type: String) -> Bool {
