@@ -63,10 +63,7 @@ struct SendFactory {
                 sellParameters: parameters
             )
 
-        // V2 staking (Feature.stakingFlowV2) — one factory for every staking action. When the toggle is
-        // off these `where` cases don't match and the flow falls through to the legacy cases below.
-        case .staking(let stakingableToken, let manager, let walletModelDependenciesProvider, _)
-            where FeatureProvider.isAvailable(.stakingFlowV2):
+        case .staking(let stakingableToken, let manager, let walletModelDependenciesProvider):
             return StakeFactory(
                 stakingableToken: stakingableToken,
                 manager: manager,
@@ -80,57 +77,14 @@ struct SendFactory {
                 walletModelDependenciesProvider: walletModelDependenciesProvider
             )
 
-        case .restaking(let stakingableToken, let manager, let action) where FeatureProvider.isAvailable(.stakingFlowV2):
-            return StakeFactory(stakingableToken: stakingableToken, manager: manager, action: action, walletModelDependenciesProvider: nil)
-
-        case .unstaking(let stakingableToken, let manager, let action) where FeatureProvider.isAvailable(.stakingFlowV2):
-            return StakeFactory(stakingableToken: stakingableToken, manager: manager, action: action, walletModelDependenciesProvider: nil)
-
-        case .stakingSingleAction(let stakingableToken, let manager, let action) where FeatureProvider.isAvailable(.stakingFlowV2):
-            return StakeFactory(stakingableToken: stakingableToken, manager: manager, action: action, walletModelDependenciesProvider: nil)
-
-        // Legacy staking flows (removed with the stakingFlowV2 toggle).
-
-        // We are using restaking flow here because it doesn't allow to edit amount
-        case .staking(let stakingableToken, let manager, _, let stakingParams) where !stakingParams.isStakingAmountEditable:
-            return RestakingFlowFactory(
-                stakingableToken: stakingableToken,
-                manager: manager,
-                // Default action with full available amount
-                action: StakingAction(
-                    amount: stakingableToken.availableBalanceProvider.balanceType.value ?? 0,
-                    targetType: .empty,
-                    type: .stake
-                )
-            )
-
-        case .staking(let stakingableToken, let manager, let walletModelDependenciesProvider, _):
-            return StakingFlowFactory(
-                stakingableToken: stakingableToken,
-                manager: manager,
-                walletModelDependenciesProvider: walletModelDependenciesProvider
-            )
-
         case .restaking(let stakingableToken, let manager, let action):
-            return RestakingFlowFactory(
-                stakingableToken: stakingableToken,
-                manager: manager,
-                action: action
-            )
+            return StakeFactory(stakingableToken: stakingableToken, manager: manager, action: action, walletModelDependenciesProvider: nil)
 
         case .unstaking(let stakingableToken, let manager, let action):
-            return UnstakingFlowFactory(
-                stakingableToken: stakingableToken,
-                manager: manager,
-                action: action
-            )
+            return StakeFactory(stakingableToken: stakingableToken, manager: manager, action: action, walletModelDependenciesProvider: nil)
 
         case .stakingSingleAction(let stakingableToken, let manager, let action):
-            return StakingSingleActionFlowFactory(
-                stakingableToken: stakingableToken,
-                manager: manager,
-                action: action
-            )
+            return StakeFactory(stakingableToken: stakingableToken, manager: manager, action: action, walletModelDependenciesProvider: nil)
 
         case .onramp(let sourceToken, let parameters):
             return OnrampFlowFactory(
