@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 import TangemAssets
 
 // MARK: - View
@@ -37,12 +38,15 @@ private extension WrappedHoldToConfirmButton {
         viewModel.state == .holding
     }
 
-    var labelTextColor: Color {
-        viewModel.isDisabled ? Colors.Text.disabled : Colors.Text.primary2
+    var isLoadingState: Bool {
+        viewModel.state == .loading
     }
 
-    var backgroundColor: Color {
-        viewModel.isDisabled ? Colors.Button.disabled : Colors.Button.primary
+    var acceptsTouches: Bool {
+        switch viewModel.state {
+        case .idle, .holding, .canceled: !viewModel.isDisabled
+        case .confirmed, .loading: false
+        }
     }
 
     var progressAnimation: Animation {
@@ -68,61 +72,45 @@ private extension WrappedHoldToConfirmButton {
 
 private extension WrappedHoldToConfirmButton {
     var content: some View {
-        label
-            .background(background)
-            .overlay(overlay)
-            // For iOS versions earlier than 18 there is issue using `scaleEffect` together
-            // with UIKit gestures: touch `ended` and `cancelled` events stop being delivered.
-            .if(isIOS18OrNewer) {
-                $0.scaleEffect(scaleFactor)
-            }
-            .animation(scaleAnimation, value: viewModel.state)
-    }
-
-    var label: some View {
-        Text(viewModel.labelTitle)
-            .transaction { $0.animation = nil }
-            .style(Fonts.Bold.callout, color: labelTextColor)
+        button
+            .overlay(progressBar)
+            .overlay(touchArea)
             .shake(
                 trigger: viewModel.shakeTrigger,
                 duration: viewModel.shakeDuration,
                 shakesPerUnit: 1,
                 travelDistance: 10
             )
-            .frame(height: 46)
-            .frame(maxWidth: .infinity)
+            // For iOS versions earlier than 18 there is issue using `scaleEffect` together
+            // with UIKit gestures: touch `ended` and `cancelled` events stop being delivered.
+            .if(isIOS18OrNewer) {
+                $0.scaleEffect(scaleFactor)
+            }
+            .animation(scaleAnimation, value: viewModel.state)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(viewModel.labelTitle))
+            .accessibilityHint(Text(configuration.cancelTitle))
+            .accessibilityAddTraits(.isButton)
+            .disabled(viewModel.isDisabled)
+    }
+
+    var button: some View {
+        Button(label: viewModel.labelTitle, accessibilityLabel: nil, action: {})
+            .styleType(.default)
+            .size(.x12)
+            .horizontalLayout(.infinity)
+            .loading(.spinner(if: isLoadingState))
+            .disabled(viewModel.isDisabled)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+            .transaction { $0.animation = nil }
     }
 
     @ViewBuilder
-    var overlay: some View {
-        switch viewModel.state {
-        case .idle, .holding, .canceled:
-            if viewModel.isDisabled {
-                EmptyView()
-            } else {
-                Color.clear.onTouches(perform: viewModel.onTouches)
-            }
-        case .loading:
-            loading
-        default:
-            EmptyView()
+    var touchArea: some View {
+        if acceptsTouches {
+            Color.clear.onTouches(perform: viewModel.onTouches)
         }
-    }
-
-    var background: some View {
-        ZStack(alignment: .leading) {
-            backgroundColor
-            progressBar
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-    }
-
-    var loading: some View {
-        ZStack {
-            backgroundColor
-            ProgressView().tint(Colors.Text.primary2)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
     var progressBar: some View {
@@ -132,5 +120,7 @@ private extension WrappedHoldToConfirmButton {
                 .frame(width: progressWidth(in: proxy))
                 .animation(progressAnimation, value: viewModel.state)
         }
+        .clipShape(Capsule())
+        .allowsHitTesting(false)
     }
 }

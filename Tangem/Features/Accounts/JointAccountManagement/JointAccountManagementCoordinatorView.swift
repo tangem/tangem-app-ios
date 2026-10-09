@@ -29,7 +29,7 @@ struct JointAccountManagementCoordinatorView: View {
     private var root: some View {
         ZStack {
             switch coordinator.root {
-            case .onboarding(let viewModel, _):
+            case .onboarding(let viewModel):
                 JointAccountOnboardingView(viewModel: viewModel)
             case .inviteMembers(let viewModel):
                 JointAccountInviteMembersView(viewModel: viewModel, dismissStyle: dismissStyle)

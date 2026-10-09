@@ -68,16 +68,13 @@ struct JointAccountInviteMembersView: View {
     }
 
     private var activateButton: some View {
-        TangemUI.Button(
-            label: Localization.jointAccountActivationAccountButtonTitle,
-            accessibilityLabel: Localization.jointAccountActivationAccountButtonTitle,
+        SigningActionButtonView(
+            type: viewModel.signingActionButtonType,
+            title: Localization.jointAccountActivationAccountButtonTitle,
+            isLoading: viewModel.isActivating,
+            isDisabled: false,
             action: viewModel.onActivateTap
         )
-        .iconEnd(DesignSystem.Icons.LogoTangem.regular20)
-        .styleType(.default)
-        .size(.x12)
-        .horizontalLayout(.infinity)
-        .loading(.spinner(if: viewModel.isActivating))
         .padding(.horizontal, Constants.activateButtonHorizontalPadding)
         .padding(.vertical, Constants.activateButtonVerticalPadding)
     }

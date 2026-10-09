@@ -139,7 +139,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     func openTransactionDetails(_ transaction: TransactionViewModel) {
         if let jointOperation = jointOperation(for: transaction) {
-            coordinator?.openJointAccountOperationDetails(pendingOperation: jointOperation)
+            coordinator?.openJointAccountOperationDetails(pendingOperation: jointOperation, userWalletInfo: userWalletInfo)
             return
         }
 
@@ -550,7 +550,9 @@ private extension TokenDetailsViewModel {
             .prefix(1)
             .receiveOnMain()
             .sink { [weak self] pendingOperation in
-                self?.coordinator?.openJointAccountOperationDetails(pendingOperation: pendingOperation)
+                guard let self else { return }
+
+                coordinator?.openJointAccountOperationDetails(pendingOperation: pendingOperation, userWalletInfo: userWalletInfo)
             }
             .store(in: &bag)
     }

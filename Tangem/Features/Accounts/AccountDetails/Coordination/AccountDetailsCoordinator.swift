@@ -90,6 +90,10 @@ extension AccountDetailsCoordinator: CryptoAccountDetailsRoutable {
     }
 
     func openJointAccountMembers(jointAccount: any JointAccountModel) {
+        guard let userWalletConfig = options?.userWalletConfig else {
+            return
+        }
+
         let coordinator = JointAccountManagementCoordinator(
             dismissAction: { [weak self] in
                 self?.jointAccountManagementCoordinator = nil
@@ -97,7 +101,7 @@ extension AccountDetailsCoordinator: CryptoAccountDetailsRoutable {
             },
             popToRootAction: popToRootAction
         )
-        coordinator.start(with: .members(jointAccount: jointAccount))
+        coordinator.start(with: .members(jointAccount: jointAccount, userWalletConfig: userWalletConfig))
         jointAccountManagementCoordinator = coordinator
     }
 }

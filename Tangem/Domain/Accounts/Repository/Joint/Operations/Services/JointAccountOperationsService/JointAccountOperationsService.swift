@@ -13,8 +13,6 @@ import BlockchainSdk
 /// - Note: Takes the operation and the wallet apart rather than a `JointAccountPendingOperation`, which is the pair
 /// the screens are handed and which reaches back here to act — see its `sign()` and `reject()`.
 protocol JointAccountOperationsService {
-    var hasNFCInteraction: Bool { get }
-
     /// - Returns: The operation as the backend registered it, with this member's signature already counted.
     func createOperation(transaction: BSDKTransaction, in wallet: JointAccountWallet) async throws -> JointAccountOperation
     func signOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet) async throws

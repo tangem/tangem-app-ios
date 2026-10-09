@@ -40,6 +40,6 @@ protocol MainScreenDeeplinkRoutable: AnyObject {
     )
     func openTangemPaySelectPlan(tariffPlanSelector: any TangemPayTariffPlanSelector, userWalletModel: any UserWalletModel)
     func selectWallet(userWalletId: UserWalletId)
-    func openJointAccountMembers(jointAccount: any JointAccountModel)
+    func openJointAccountMembers(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig)
     func expandAccount(_ jointAccount: any JointAccountModel, userWalletId: UserWalletId)
 }

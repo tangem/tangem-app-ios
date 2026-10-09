@@ -24,6 +24,7 @@ struct UserWalletConfigStub: UserWalletConfig {
     let generalNotificationEvents: [GeneralNotificationEvent] = []
     let isWalletsCreated: Bool = true
     var supportedBlockchains: Set<Blockchain> = []
+    var unavailableFeatures: Set<UserWalletFeature> = []
     let defaultBlockchains: [TokenItem] = []
     let persistentBlockchains: [TokenItem] = []
     let embeddedBlockchain: TokenItem? = nil
@@ -35,7 +36,10 @@ struct UserWalletConfigStub: UserWalletConfig {
     let cardSessionFilter: SessionFilter = .cardId("test")
     var contextBuilder: WalletCreationContextBuilder { fatalError("Not implemented for stub") }
 
-    func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability { .available }
+    func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
+        unavailableFeatures.contains(feature) ? .hidden : .available
+    }
+
     func makeAnyWalletFactory() -> AnyWalletFactory { AnyWalletFactoryStub() }
     func makeOnboardingStepsBuilder(backupService: BackupService) -> any OnboardingStepsBuilder { OnboardingStepsBuilderStub() }
     func makeBackupService() -> BackupService { GenericBackupServiceFactory(isAccessCodeSet: false, defaultBlockchains: []).makeBackupService() }

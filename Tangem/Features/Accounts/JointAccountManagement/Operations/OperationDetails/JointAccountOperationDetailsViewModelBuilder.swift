@@ -23,6 +23,7 @@ struct JointAccountOperationDetailsViewModelBuilder {
 
     func build(
         pendingOperation: JointAccountPendingOperation,
+        userWalletInfo: UserWalletInfo,
         coordinator: JointAccountOperationDetailsRoutable?
     ) -> JointAccountOperationDetailsViewModel {
         let provider = pendingOperation.wallet.account?.jointAccountPendingOperationsProvider
@@ -35,7 +36,7 @@ struct JointAccountOperationDetailsViewModelBuilder {
             recipient: pendingOperation.destination,
             recipientBlockiesImage: AddressIconProvider.makeBlockiesImage(address: pendingOperation.destination),
             networkFee: networkFee(of: pendingOperation),
-            hasNFCInteraction: pendingOperation.wallet.account?.jointAccountOperationsService.hasNFCInteraction ?? false,
+            signingActionButtonType: SigningActionButtonViewTypeBuilder().build(userWalletInfo: userWalletInfo),
             content: content(of: pendingOperation),
             contentPublisher: contentPublisher(of: pendingOperation.operation.id, provider: provider),
             pendingOperationsProvider: provider,

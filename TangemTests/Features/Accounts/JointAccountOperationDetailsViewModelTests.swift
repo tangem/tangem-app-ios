@@ -119,10 +119,13 @@ struct JointAccountOperationDetailsViewModelTests {
         #expect(viewModel.blocks.contains { if case .caption(let text) = $0 { text == Localization.jointOperationSentFooter(3, 3) } else { false } })
     }
 
-    @Test("The card icon on Sign is shown only to a wallet that signs with a card")
-    func signIconFollowsTheSigner() {
-        #expect(signButton(in: makeViewModel(hasNFCInteraction: true))?.icon != nil)
-        #expect(signButton(in: makeViewModel(hasNFCInteraction: false))?.icon == nil)
+    @Test("The Sign button is confirmed the way the wallet signs")
+    func signButtonFollowsTheSigner() {
+        let cardButton = signButton(in: makeViewModel(signingActionButtonType: .cardTap))
+        let holdButton = signButton(in: makeViewModel(signingActionButtonType: .holdToConfirm))
+
+        #expect(cardButton?.signingType == .cardTap)
+        #expect(holdButton?.signingType == .holdToConfirm)
     }
 
     @Test("The header menu copies the full recipient address")
@@ -181,7 +184,7 @@ struct JointAccountOperationDetailsViewModelTests {
     // MARK: - Helpers
 
     private func makeViewModel(
-        hasNFCInteraction: Bool = true,
+        signingActionButtonType: SigningActionButtonViewType = .cardTap,
         sign: @escaping () async throws -> Void = {}
     ) -> JointAccountOperationDetailsViewModel {
         JointAccountOperationDetailsViewModel(
@@ -197,7 +200,7 @@ struct JointAccountOperationDetailsViewModelTests {
             recipient: "0xrecipient",
             recipientBlockiesImage: nil,
             networkFee: "~0.0005 ETH",
-            hasNFCInteraction: hasNFCInteraction,
+            signingActionButtonType: signingActionButtonType,
             content: makeContent(collectedSignaturesCount: 1),
             contentPublisher: updates.eraseToAnyPublisher(),
             pendingOperationsProvider: provider,

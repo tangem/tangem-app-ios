@@ -175,9 +175,10 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         )
     }
 
-    func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation) {
+    func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation, userWalletInfo: UserWalletInfo) {
         let viewModel = JointAccountOperationDetailsViewModelBuilder().build(
             pendingOperation: pendingOperation,
+            userWalletInfo: userWalletInfo,
             coordinator: self
         )
 

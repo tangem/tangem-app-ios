@@ -9,8 +9,8 @@
 import Combine
 import Foundation
 import struct TangemUIUtils.AlertBinder
-import TangemAssets
 import TangemFoundation
+import TangemUI
 
 final class JointAccountMemberNameViewModel: ObservableObject {
     @Published var alert: AlertBinder?
@@ -30,9 +30,7 @@ final class JointAccountMemberNameViewModel: ObservableObject {
         validationError != nil && validationError != .empty
     }
 
-    var submitButtonIcon: ImageType? {
-        helper.tangemIconProvider.getMainButtonIcon()?.imageType
-    }
+    var submitButtonType: SigningActionButtonViewType { helper.signingActionButtonType }
 
     var submitButtonDisabled: Bool {
         validationError != nil

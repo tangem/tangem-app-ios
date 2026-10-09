@@ -154,6 +154,9 @@ private extension JointAccountOnboardingView {
 
 #Preview {
     JointAccountOnboardingView(
-        viewModel: JointAccountOnboardingViewModel(coordinator: nil)
+        viewModel: JointAccountOnboardingViewModel(
+            creationHelper: JointAccountCreationHelper(userWalletModel: FakeUserWalletModel.wallet3Cards),
+            coordinator: nil
+        )
     )
 }
