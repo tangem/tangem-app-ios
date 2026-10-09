@@ -279,14 +279,18 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
 
     func renewSession(
         authorizingInteractor: TangemPayAuthorizing,
-        completion: @escaping () -> Void
+        completion: @escaping (TangemPayAuthorizationError?) -> Void
     ) {
         runTask { [self] in
-            try? await authorizeWithCustomerWallet(
-                authorizingInteractor: authorizingInteractor,
-                showSyncInProgress: true
-            )
-            completion()
+            do {
+                try await authorizeWithCustomerWallet(
+                    authorizingInteractor: authorizingInteractor,
+                    showSyncInProgress: true
+                )
+                completion(nil)
+            } catch {
+                completion(error as? TangemPayAuthorizationError)
+            }
         }
     }
 

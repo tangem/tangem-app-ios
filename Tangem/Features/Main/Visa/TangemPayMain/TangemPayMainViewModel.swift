@@ -464,6 +464,15 @@ final class TangemPayMainViewModel: ObservableObject {
         )
     }
 
+    func showRenewSessionError(_ error: TangemPayAuthorizationError) {
+        alert = AlertBinder(
+            title: Localization.commonError,
+            message: error.serverErrorStatusCode == nil
+                ? Localization.commonUnknownError
+                : Localization.commonServerUnavailable
+        )
+    }
+
     func tapAddCard() {
         Analytics.log(.visaAddExtraCardClicked, contextParams: .userWallet(userWalletInfo.id))
 

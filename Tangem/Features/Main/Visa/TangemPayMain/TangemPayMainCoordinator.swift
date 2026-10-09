@@ -200,7 +200,18 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
 
         tangemPayAccountModel.renewSession(
             authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor,
-            completion: {}
+            completion: { [weak self] error in
+                guard let error,
+                      !error.isUserCancelled,
+                      userWalletModel.config.hasFeature(.nfcInteraction)
+                else {
+                    return
+                }
+
+                DispatchQueue.main.async {
+                    self?.rootViewModel?.showRenewSessionError(error)
+                }
+            }
         )
     }
 
