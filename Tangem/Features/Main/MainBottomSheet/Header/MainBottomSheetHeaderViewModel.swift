@@ -25,13 +25,9 @@ final class MainBottomSheetHeaderViewModel: ObservableObject {
 
     private var inputSubscription: AnyCancellable?
 
-    weak var delegate: MainBottomSheetHeaderViewModelDelegate?
-
     init() {
         bind()
     }
-
-    func onBottomSheetExpand(isTapGesture: Bool) {}
 
     func focusSearchBarAction() {
         inputShouldBecomeFocused = true
@@ -56,10 +52,6 @@ final class MainBottomSheetHeaderViewModel: ObservableObject {
 
     func focusChangedAction(_ focused: Bool) {
         syncWithInput(focused: focused)
-    }
-
-    func lostInputFocus() {
-        inputShouldBecomeFocused = false
     }
 
     private func bind() {

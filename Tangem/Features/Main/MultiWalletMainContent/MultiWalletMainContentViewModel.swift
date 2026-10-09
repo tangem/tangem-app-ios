@@ -54,8 +54,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     weak var delegate: MultiWalletMainContentDelegate?
 
-    private(set) lazy var bottomSheetFooterViewModel = MainBottomSheetFooterViewModel()
-
     @Published private(set) var actionButtonsViewModel: ActionButtonsViewModel?
 
     var isOrganizeTokensVisible: Bool {

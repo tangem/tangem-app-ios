@@ -714,10 +714,6 @@ extension CommonTangemApiService: TangemApiService {
 
     // MARK: - News Implementation
 
-    func loadTrendingNews(limit: Int?, lang: String?) async throws -> TrendingNewsResponse {
-        return try await request(for: .trendingNews(limit: limit, lang: lang), decoder: decoder)
-    }
-
     func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response {
         return try await request(for: .newsList(requestModel), decoder: decoder)
     }

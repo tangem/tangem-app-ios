@@ -20,8 +20,6 @@ struct MarketsTokenDetailsView: View {
     @Environment(\.mainShtorkaSize) private var sheetSize
     @Environment(\.mainShtorkaContentIsCollapsed) private var isContentCollapsed
 
-    @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
-
     @State private var headerHeight: CGFloat = .zero
     @State private var headerLeadingWidth: CGFloat = .zero
     @State private var headerTrailingWidth: CGFloat = .zero
@@ -34,12 +32,6 @@ struct MarketsTokenDetailsView: View {
 
     var body: some View {
         rootViewWithTitle
-            .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] state in
-                viewModel?.onOverlayContentStateChange(state)
-            }
-            .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
-                viewModel?.onOverlayContentProgressChange(progress)
-            }
             .background {
                 backgroundColor
                     .ignoresSafeArea(edges: .vertical)
@@ -238,8 +230,7 @@ struct MarketsTokenDetailsView: View {
     }
 
     private var navigationBarTitleState: MarketsNavigationBarTitle.State {
-        guard !isContentCollapsed,
-              sheetSize.isFeedSheet || viewModel.overlayContentHidingProgress > 0 else {
+        guard !isContentCollapsed else {
             return MarketsNavigationBarTitle.State(
                 priceOpacity: 1,
                 titleOffset: ScrollViewOffsetHandler.MarketsTokenDetailsConstants.maxTitleOffset
@@ -290,7 +281,6 @@ struct MarketsTokenDetailsView: View {
         .safeAreaInset(edge: .bottom, spacing: .zero) {
             portfolioBlock
         }
-        .opacity(sheetSize.isFeedSheet ? 1 : viewModel.overlayContentHidingProgress)
         .coordinateSpace(name: CoordinateSpaceName.scrollViewFrame)
         .bindAlert($viewModel.alert)
         .sheet(item: $viewModel.securityScoreDetailsViewModel) { detailsViewModel in
