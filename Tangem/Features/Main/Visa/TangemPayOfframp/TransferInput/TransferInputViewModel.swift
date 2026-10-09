@@ -62,8 +62,8 @@ final class TransferInputViewModel: ObservableObject {
         bind()
     }
 
-    var contentState: TransferInputContentView.State {
-        TransferInputContentView.State(
+    var contentState: TransferInputContentView.StateModel {
+        TransferInputContentView.StateModel(
             token: selectedToken,
             rail: selectedRailItem,
             isRailSelectable: isRailSelectable,
