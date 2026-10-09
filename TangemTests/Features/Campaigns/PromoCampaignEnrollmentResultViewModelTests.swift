@@ -74,8 +74,8 @@ final class PromoCampaignEnrollmentResultViewModelTests: LeakTrackingTestSuite {
     @Test("A partial enrollment lists the enrolled wallets")
     func partiallyEnrolled() {
         let sut = makeSUT(state: .partiallyEnrolled(campaignName: campaignName, enrolledWallets: [
-            PromoCampaignEnrollmentFixtures.wallet(name: "Main wallet", hasPayout: false),
-            PromoCampaignEnrollmentFixtures.wallet(name: "Multi Card", hasPayout: false),
+            PromoCampaignEnrollmentFixtures.enrolledWallet(name: "Main wallet"),
+            PromoCampaignEnrollmentFixtures.enrolledWallet(name: "Multi Card"),
         ]))
 
         #expect(sut.appearance == .success)
