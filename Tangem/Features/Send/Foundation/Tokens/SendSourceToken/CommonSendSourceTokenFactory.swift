@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemStaking
 
 struct CommonSendSourceTokenFactory {
     let userWalletInfo: UserWalletInfo
@@ -100,5 +101,5 @@ private extension CommonSendSourceTokenFactory {
 
 enum SendSourceTokenFactoryBalanceType {
     case available
-    case staked(action: UnstakingModel.Action)
+    case staked(action: StakingAction)
 }
