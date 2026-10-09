@@ -87,6 +87,71 @@ final class PromoCampaignViewModelTests: LeakTrackingTestSuite {
         }
     }
 
+    @Test("Enrolling puts the button into the loading state and ignores repeat taps")
+    func repeatTapWhileEnrolling() async {
+        await withSelectedWallet {
+            let (sut, coordinator) = makeSUTWithCoordinator(isPayoutNeeded: false)
+
+            #expect(!sut.isEnrolling)
+
+            sut.performAction()
+            sut.performAction()
+
+            #expect(sut.isEnrolling)
+            #expect(coordinator.enrollments.map(\.campaignId) == [42])
+        }
+    }
+
+    @Test("While enrolling, links and the token selector are ignored")
+    func linksAndTokenSelectorIgnoredWhileEnrolling() async {
+        await withSelectedWallet {
+            let (sut, coordinator) = makeSUTWithCoordinator(isPayoutNeeded: false)
+            sut.performAction()
+
+            sut.open(termsURL)
+            sut.selectToken()
+
+            #expect(coordinator.openedLearnMoreURLs.isEmpty)
+            #expect(sut.tokenSelectorViewModel == nil)
+        }
+    }
+
+    @Test("An enrollment the coordinator doesn't start leaves the button ready for another tap")
+    func rejectedEnrollmentIsNotLoading() async {
+        await withSelectedWallet {
+            let coordinator = PromoCampaignRoutableSpy(startsEnrollment: false)
+            let sut = makeSUT(isPayoutNeeded: false, coordinator: coordinator)
+
+            sut.performAction()
+            sut.performAction()
+
+            #expect(!sut.isEnrolling)
+            #expect(coordinator.enrollments.count == 2)
+        }
+    }
+
+    @Test("Without a coordinator the button doesn't get stuck loading")
+    func noCoordinatorIsNotLoading() async {
+        await withSelectedWallet {
+            let sut = makeSUT(isPayoutNeeded: false)
+
+            sut.performAction()
+
+            #expect(!sut.isEnrolling)
+        }
+    }
+
+    @Test("Opening the token selector doesn't put the button into the loading state")
+    func tokenSelectionIsNotEnrolling() async {
+        await withSelectedWallet {
+            let sut = makeSUT(isPayoutNeeded: true)
+
+            sut.performAction()
+
+            #expect(!sut.isEnrolling)
+        }
+    }
+
     @Test("A payout campaign without payout tokens disables the action")
     func payoutCampaignWithoutTokens() async {
         await withSelectedWallet {
@@ -125,6 +190,29 @@ final class PromoCampaignViewModelTests: LeakTrackingTestSuite {
             ))
 
             #expect(sut.isActionEnabled)
+        }
+    }
+
+    @Test("A payout token held only on a joint account doesn't enable the action")
+    func payoutTokenHeldOnJointAccount() async {
+        await withSelectedWallet(jointHeldTokens: [CampaignsFixtures.usdcOnEthereum]) {
+            let sut = trackForMemoryLeaks(PromoCampaignViewModel(
+                campaign: makeCampaign(isPayoutNeeded: true, payoutTokens: [PromotionCampaignsFixtures.makeEligibleToken(tokenId: nil)]),
+                coordinator: nil
+            ))
+
+            #expect(!sut.isActionEnabled)
+        }
+    }
+
+    @Test("The payout token selector leaves joint accounts out")
+    func tokenSelectorExcludesJointAccounts() async {
+        await withSelectedWallet {
+            let sut = makeSUT(isPayoutNeeded: true)
+
+            sut.selectToken()
+
+            #expect(sut.tokenSelectorViewModel?.accountScope == .crypto)
         }
     }
 
@@ -195,16 +283,24 @@ private extension PromoCampaignViewModelTests {
     func withSelectedWallet(
         userTokensManager: UserTokensManager = UserTokensManagerMock(),
         heldTokens: [TokenItem] = [],
+        jointHeldTokens: [TokenItem] = [],
         operation: () async throws -> Void
     ) async rethrows {
         let walletModelsManager = WalletModelsManagerTestsMock()
         walletModelsManager.walletModels = heldTokens.map { WalletModelTestsMock(tokenItem: $0, isEmpty: false) }
 
+        let jointWalletModelsManager = WalletModelsManagerTestsMock()
+        jointWalletModelsManager.walletModels = jointHeldTokens.map { WalletModelTestsMock(tokenItem: $0, isEmpty: false) }
+        let jointAccounts = jointHeldTokens.isEmpty
+            ? []
+            : [CampaignJointAccountFixtures.makeJointAccount(walletModelsManager: jointWalletModelsManager)]
+
         let wallet = CampaignUserWalletModelStub(
             walletIdSeed: "wallet-1",
             config: UserWalletConfigStub(supportedBlockchains: [.ethereum(testnet: false)]),
             userTokensManager: userTokensManager,
-            walletModelsManager: walletModelsManager
+            walletModelsManager: walletModelsManager,
+            jointAccounts: jointAccounts
         )
         let repository = FakeUserWalletRepository(models: [wallet])
         repository.selectedModel = wallet
@@ -255,6 +351,11 @@ private final class PromoCampaignRoutableSpy: PromoCampaignRoutable {
     }
 
     private let state = OSAllocatedUnfairLock(initialState: State())
+    private let startsEnrollment: Bool
+
+    init(startsEnrollment: Bool = true) {
+        self.startsEnrollment = startsEnrollment
+    }
 
     var closeCampaignCallCount: Int {
         state.withLock { $0.closeCampaignCallCount }
@@ -278,7 +379,8 @@ private final class PromoCampaignRoutableSpy: PromoCampaignRoutable {
 
     func presentErrorToast(with text: String) {}
 
-    func enrollInPromoCampaign(_ campaign: PromoCampaign, payoutToken: TokenSelectorItem?) {
+    func enrollInPromoCampaign(_ campaign: PromoCampaign, payoutToken: TokenSelectorItem?) -> Bool {
         state.withLock { $0.enrollments.append(Enrollment(campaignId: campaign.id, tokenItem: payoutToken?.tokenItem)) }
+        return startsEnrollment
     }
 }
