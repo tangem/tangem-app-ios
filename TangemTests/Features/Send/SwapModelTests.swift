@@ -622,6 +622,7 @@ final class SwapModelTests: LeakTrackingTestSuite {
         #expect(sut.swapAnalyticsSlippage(provider: provider, transactionSlippage: transaction) == expected)
     }
 
+    @MainActor
     @Test("A source token change resets the custom slippage")
     func sourceChangeResetsCustomSlippage() {
         let sut = makeSUT(
@@ -635,6 +636,7 @@ final class SwapModelTests: LeakTrackingTestSuite {
         #expect(sut.slippage == .auto)
     }
 
+    @MainActor
     @Test("A receive token change resets the custom slippage")
     func receiveChangeResetsCustomSlippage() {
         let sut = makeSUT(
