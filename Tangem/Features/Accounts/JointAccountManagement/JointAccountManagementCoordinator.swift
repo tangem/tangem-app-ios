@@ -36,17 +36,15 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         switch options {
-        case .creation(let creationOptions):
-            root = .onboarding(JointAccountOnboardingViewModel(coordinator: self), creationOptions)
+        case .creation(let creationHelper):
+            root = .onboarding(JointAccountOnboardingViewModel(creationHelper: creationHelper, coordinator: self))
 
-        case .members(let jointAccount):
-            // The account already exists, so the flow opens where the creation flow ends up
-            root = .inviteMembers(
-                JointAccountInviteMembersViewModel(
-                    jointAccount: jointAccount,
-                    coordinator: self
-                )
-            )
+        case .members(let jointAccount, let userWalletConfig):
+            root = .inviteMembers(JointAccountInviteMembersViewModel(
+                jointAccount: jointAccount,
+                userWalletConfig: userWalletConfig,
+                coordinator: self
+            ))
         }
     }
 }
@@ -55,13 +53,8 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
 
 extension JointAccountManagementCoordinator {
     enum Options {
-        case creation(CreationOptions)
-        case members(jointAccount: any JointAccountModel)
-    }
-
-    struct CreationOptions {
-        /// The wallet the flow starts in — the form step lets the user pick another one to create the account in.
-        let userWalletModel: any UserWalletModel
+        case creation(JointAccountCreationHelper)
+        case members(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig)
     }
 }
 
@@ -69,8 +62,7 @@ extension JointAccountManagementCoordinator {
 
 extension JointAccountManagementCoordinator {
     enum Root {
-        /// The options are carried by the step that needs them, so that they cannot outlive the flow they start.
-        case onboarding(JointAccountOnboardingViewModel, CreationOptions)
+        case onboarding(JointAccountOnboardingViewModel)
         case inviteMembers(JointAccountInviteMembersViewModel)
     }
 }
@@ -115,13 +107,7 @@ extension JointAccountManagementCoordinator: JointAccountOnboardingRoutable {
         dismiss()
     }
 
-    func continueOnboarding() {
-        guard case .onboarding(_, let creationOptions) = root else {
-            return
-        }
-
-        let creationHelper = JointAccountCreationHelper(userWalletModel: creationOptions.userWalletModel)
-
+    func continueOnboarding(creationHelper: JointAccountCreationHelper) {
         // A single wallet leaves nothing to choose, so the form shows no wallet row at all
         let onWalletTap: (() -> Void)? = selectableUserWalletModels.count > 1
             ? { [weak self] in self?.openWalletSelection(creationHelper: creationHelper) }
@@ -181,9 +167,10 @@ extension JointAccountManagementCoordinator: JointAccountMemberNameRoutable {
 // MARK: - JointAccountCreationMemberNameRoutable
 
 extension JointAccountManagementCoordinator: JointAccountCreationMemberNameRoutable {
-    func openInviteMembers(jointAccount: any JointAccountModel) {
+    func openInviteMembers(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig) {
         let viewModel = JointAccountInviteMembersViewModel(
             jointAccount: jointAccount,
+            userWalletConfig: userWalletConfig,
             coordinator: self
         )
 
