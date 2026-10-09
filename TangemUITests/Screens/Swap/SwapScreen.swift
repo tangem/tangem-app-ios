@@ -717,6 +717,19 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     }
 
     @discardableResult
+    func confirmSwapUntilFinishOpened(isNothingSent: () -> Bool) -> SendFinishScreen {
+        XCTContext.runActivity(named: "Confirm swap, repeating the hold only while nothing has been sent") { _ in
+            let finishScreen = SendFinishScreen(app)
+            for _ in 0 ..< Constants.confirmSwapAttempts {
+                confirmSwap()
+                if finishScreen.isDisplayed(timeout: .conditional) || !isNothingSent() || !holdConfirmButton.exists {
+                    break
+                }
+            }
+            return finishScreen.waitForDisplay()
+        }
+    }
+
     func confirmTransferAndOpenFinish() -> SendFinishScreen {
         XCTContext.runActivity(named: "Confirm transfer and open finish screen") { _ in
             confirmSwap()
@@ -1021,6 +1034,17 @@ extension SwapScreen {
             let badge = app.staticTexts[SendAccessibilityIdentifiers.networkFeeCurrencySymbol].firstMatch
             waitAndAssertTrue(badge, "Fee currency badge should exist")
             XCTAssertEqual(badge.label, symbol, "Network fee should be shown in '\(symbol)' but badge was '\(badge.label)'")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForFeeCurrencySymbol(_ symbol: String) -> Self {
+        XCTContext.runActivity(named: "Wait for the network fee to be shown in '\(symbol)'") { _ in
+            let badge = app.staticTexts[SendAccessibilityIdentifiers.networkFeeCurrencySymbol].firstMatch
+            waitAndAssertTrue(badge, "Fee currency badge should exist")
+            let isShown = waitForCondition(timeout: .networkRequest) { badge.label == symbol }
+            XCTAssertTrue(isShown, "Network fee should be shown in '\(symbol)' but badge was '\(badge.label)'")
         }
         return self
     }
@@ -1425,6 +1449,7 @@ private extension SwapScreen {
         static let errorAlertButton = "OK"
         static let keyboardFocusTimeout: TimeInterval = 3
         static let focusAttempts = 3
+        static let confirmSwapAttempts = 3
         static let fiatSign = "$"
         static let zeroPlaceholder = "0"
         static let tokenSelectorChevron = "chevronDownMini"

@@ -126,6 +126,11 @@ public enum SendAccessibilityIdentifiers {
         "sendSwapProviderTypeFilterChip_\(type)"
     }
 
+    public static let swapProviderSelectorTitle = "sendSwapProviderSelectorTitle"
+    public static let swapApproveDescription = "sendSwapApproveDescription"
+    public static let swapApprovePolicyRow = "sendSwapApprovePolicyRow"
+    public static let swapApproveConfirmButton = "sendSwapApproveConfirmButton"
+
     /// Token search in receive token list
     public static let receiveTokenSearchBar = "sendReceiveTokenSearchBar"
 
