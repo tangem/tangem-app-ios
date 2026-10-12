@@ -132,11 +132,6 @@ private extension PolymarketBalanceBlockViewModel {
     }
 
     func openWithdraw() {
-        guard !isRegionRestricted() else {
-            routable?.openRegionWarning()
-            return
-        }
-
         switch withdrawState {
         case .available:
             routable?.openWithdraw()

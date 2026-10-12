@@ -41,6 +41,32 @@ struct PolymarketBalanceBlockViewModelTests {
         #expect(context.sut.alert != nil)
     }
 
+    @Test("A restricted region does not stand between the user and their money: withdraw still opens")
+    func restrictedRegionStillOpensWithdraw() async throws {
+        let context = Self.makeSUT(isRegionRestricted: true, isAccountPrepared: true)
+
+        try await settle { context.sut.withdrawState == .available }
+
+        context.sut.handleViewAction(.openWithdraw)
+
+        #expect(context.routable.withdrawOpenings == 1)
+        #expect(context.routable.regionWarnings == 0)
+        #expect(context.sut.alert == nil)
+    }
+
+    @Test("In a restricted region an unavailable withdraw explains itself, not the region")
+    func restrictedRegionUnavailableWithdrawShowsAlert() async throws {
+        let context = Self.makeSUT(isRegionRestricted: true)
+
+        try await settle { context.sut.withdrawState == .unavailable(.accountUnavailable) }
+
+        context.sut.handleViewAction(.openWithdraw)
+
+        #expect(context.routable.withdrawOpenings == 0)
+        #expect(context.routable.regionWarnings == 0)
+        #expect(context.sut.alert != nil)
+    }
+
     @Test("An account funds refresh prepares them again without refreshing the balance")
     func accountFundsRefreshSkipsBalance() async throws {
         let context = Self.makeSUT()
@@ -85,24 +111,35 @@ private extension PolymarketBalanceBlockViewModelTests {
     struct Context {
         let sut: PolymarketBalanceBlockViewModel
         let balanceProvider: BalanceProviderSpy
-        let configuration: FailingConfigurationService
+        let configuration: ConfigurationServiceStub
         let refreshCenter: PolymarketMainRefreshCenter
         let routable: BalanceBlockRoutableSpy
     }
 
-    static func makeSUT(isRegionRestricted: Bool = false) -> Context {
+    static var readyWalletService: PolymarketDepositWalletServiceStub {
+        PolymarketDepositWalletServiceStub(
+            status: .readyToTrade,
+            depositWalletAddress: try! PolymarketDepositWalletDeriver.derive(
+                ownerAddress: PolymarketOwnerAddressProviderStub.ownerAddress
+            )
+        )
+    }
+
+    static func makeSUT(isRegionRestricted: Bool = false, isAccountPrepared: Bool = false) -> Context {
         let balanceProvider = BalanceProviderSpy()
-        let configuration = FailingConfigurationService()
+        let configuration = ConfigurationServiceStub(fails: !isAccountPrepared)
         let refreshCenter = PolymarketMainRefreshCenter()
         let routable = BalanceBlockRoutableSpy()
 
         let sut = PolymarketBalanceBlockViewModel(
             balanceProvider: balanceProvider,
             accountFundsInteractor: PolymarketAccountFundsInteractor(
-                bridgeService: FailingBridgeService(),
+                bridgeService: BridgeServiceStub(fails: !isAccountPrepared),
                 configurationService: configuration,
-                walletService: PolymarketDepositWalletServiceStub(),
-                ownerAddressProvider: PolymarketOwnerAddressProviderStub(),
+                walletService: isAccountPrepared ? Self.readyWalletService : PolymarketDepositWalletServiceStub(),
+                ownerAddressProvider: PolymarketOwnerAddressProviderStub(
+                    derived: isAccountPrepared ? PolymarketOwnerAddressProviderStub.ownerAddress : nil
+                ),
                 supportedBlockchains: []
             ),
             fundsArrivalTracker: PolymarketFundsArrivalTracker(balancePublisher: Empty().eraseToAnyPublisher()),
@@ -147,37 +184,67 @@ private final class BalanceProviderSpy: PolymarketBalanceProvider {
 
 private final class BalanceBlockRoutableSpy: PolymarketBalanceBlockRoutable {
     private(set) var addFundsOpenings = 0
+    private(set) var withdrawOpenings = 0
     private(set) var regionWarnings = 0
 
     func openAddFunds() {
         addFundsOpenings += 1
     }
 
-    func openWithdraw() {}
+    func openWithdraw() {
+        withdrawOpenings += 1
+    }
 
     func openRegionWarning() {
         regionWarnings += 1
     }
 }
 
-private final class FailingConfigurationService: PolymarketConfigurationService {
+private final class ConfigurationServiceStub: PolymarketConfigurationService {
     var callCount: Int { counter.withLock { $0 } }
 
+    private let fails: Bool
     private let counter = OSAllocatedUnfairLock(initialState: 0)
+
+    init(fails: Bool) {
+        self.fails = fails
+    }
 
     func builderCode() async throws -> String {
         counter.withLock { $0 += 1 }
-        throw BalanceBlockTestError.unavailable
+
+        if fails { throw BalanceBlockTestError.unavailable }
+
+        return "0x" + String(repeating: "0", count: 63) + "1"
     }
 }
 
-private struct FailingBridgeService: PolymarketBridgeService {
+private struct BridgeServiceStub: PolymarketBridgeService {
+    let fails: Bool
+
     func supportedAssets() async throws -> [PolymarketSupportedAsset] {
-        throw BalanceBlockTestError.unavailable
+        if fails { throw BalanceBlockTestError.unavailable }
+
+        return [
+            PolymarketSupportedAsset(
+                chainId: "137",
+                chainName: "Polygon",
+                family: .evm,
+                token: PolymarketSupportedAsset.Token(
+                    name: "USDC",
+                    symbol: "USDC",
+                    address: PolymarketUtilities.usdcContractAddress,
+                    decimalCount: 6
+                ),
+                minCheckoutUSD: 2
+            ),
+        ]
     }
 
     func fundingAddresses(forDepositWallet depositWalletAddress: String, builderCode: String) async throws -> PolymarketBridgeAddresses {
-        throw BalanceBlockTestError.unavailable
+        if fails { throw BalanceBlockTestError.unavailable }
+
+        return PolymarketBridgeAddresses(addresses: [.evm: "0x2222222222222222222222222222222222222222"])
     }
 
     func withdrawAddresses(
@@ -185,7 +252,9 @@ private struct FailingBridgeService: PolymarketBridgeService {
         route: PolymarketWithdrawRoute,
         builderCode: String
     ) async throws -> PolymarketBridgeAddresses {
-        throw BalanceBlockTestError.unavailable
+        if fails { throw BalanceBlockTestError.unavailable }
+
+        return PolymarketBridgeAddresses(addresses: [.evm: "0x2222222222222222222222222222222222222222"])
     }
 }
 
