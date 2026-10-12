@@ -168,6 +168,10 @@ final class YieldClaimIncentivesManagerStub: YieldIncentivesManager {
         state.withLock { $0.forceRefreshFlags }
     }
 
+    func setSummary(_ summary: YieldIncentivesRewardsSummary?) {
+        state.withLock { $0.summary = summary }
+    }
+
     init(summary: YieldIncentivesRewardsSummary? = YieldIncentivesFixtures.summary(), error: Error? = nil) {
         state.withLock {
             $0.summary = summary
@@ -214,11 +218,9 @@ final class YieldClaimManagerStub: YieldModuleManager {
         var feeResult: Result<YieldTransactionFee, Error> = .success(YieldIncentivesFixtures.claimFee())
         var transactionResult: Result<BSDKTransaction, Error> = .success(YieldIncentivesFixtures.transaction())
         var submitResult: Result<String, Error> = .success("0xclaimhash")
-        var pendingCleared = true
         var feeCalls: [SubmittedCall] = []
         var builtCalls: [SubmittedCall] = []
         var submittedTransactions: [BSDKTransaction] = []
-        var pendingWatchedHashes: [String] = []
     }
 
     let state: YieldModuleManagerStateInfo?
@@ -247,10 +249,6 @@ final class YieldClaimManagerStub: YieldModuleManager {
         lockedState.withLock { $0.submittedTransactions }
     }
 
-    var pendingWatchedHashes: [String] {
-        lockedState.withLock { $0.pendingWatchedHashes }
-    }
-
     func setFeeResult(_ result: Result<YieldTransactionFee, Error>) {
         lockedState.withLock { $0.feeResult = result }
     }
@@ -261,10 +259,6 @@ final class YieldClaimManagerStub: YieldModuleManager {
 
     func setSubmitResult(_ result: Result<String, Error>) {
         lockedState.withLock { $0.submitResult = result }
-    }
-
-    func setPendingCleared(_ cleared: Bool) {
-        lockedState.withLock { $0.pendingCleared = cleared }
     }
 
     var statePublisher: AnyPublisher<YieldModuleManagerStateInfo?, Never> { Just(state).eraseToAnyPublisher() }
@@ -299,17 +293,10 @@ final class YieldClaimManagerStub: YieldModuleManager {
         return try result.get()
     }
 
-    func awaitPendingTransactionCleared(transactionHash: String, timeout: TimeInterval) async -> Bool {
-        lockedState.withLock { state in
-            state.pendingWatchedHashes.append(transactionHash)
-            return state.pendingCleared
-        }
-    }
-
     func enterFee() async throws -> YieldTransactionFee { fatalError() }
     func enter(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String] { fatalError() }
     func exitFee() async throws -> YieldTransactionFee { fatalError() }
-    func exit(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String] { fatalError() }
+    func exit(fee: YieldTransactionFee, precedingTransaction: () async throws -> BSDKTransaction?, transactionDispatcher: TransactionDispatcher) async throws -> YieldExitResult { fatalError() }
     func approveFee() async throws -> YieldTransactionFee { fatalError() }
     func approve(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> String { fatalError() }
     func currentNetworkFeeParameters() async throws -> EthereumFeeParameters { fatalError() }
