@@ -79,8 +79,8 @@ private struct SearchableModifier: ViewModifier {
                 .placeholder(prompt)
                 .interactiveGlass(interactiveGlass)
                 .textFieldAccessibilityIdentifier(accessibilityIdentifier)
-                .padding(.horizontal, .unit(.x4))
-                .padding(.vertical, .unit(.x2))
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
         }
     }
 

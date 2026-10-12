@@ -17,30 +17,30 @@ struct TokenDetailsYieldView: View {
     @State private var badge: TokenDetailsYieldState.ActiveBadgeType?
     @State private var spinnerRotation: Double = 0
 
-    @ScaledMetric private var horizontalSpacing: CGFloat = .unit(.x2)
-    @ScaledMetric private var verticalSpacing: CGFloat = .unit(.x1)
-    @ScaledMetric private var padding: CGFloat = .unit(.x4)
-    @ScaledMetric private var borderWidth: CGFloat = .unit(.quarter)
+    @ScaledMetric private var horizontalSpacing: CGFloat = 8
+    @ScaledMetric private var verticalSpacing: CGFloat = 4
+    @ScaledMetric private var padding: CGFloat = 16
+    @ScaledMetric private var borderWidth: CGFloat = 1
 
-    @ScaledMetric private var iconDimension: CGFloat = .unit(.x10)
-    @ScaledMetric private var iconShadowOffsetY: CGFloat = .unit(.half)
+    @ScaledMetric private var iconDimension: CGFloat = 40
+    @ScaledMetric private var iconShadowOffsetY: CGFloat = 2
 
-    @ScaledMetric private var badgeDimension: CGFloat = .unit(.x4)
-    @ScaledMetric private var badgeSpacing: CGFloat = .unit(.x1)
+    @ScaledMetric private var badgeDimension: CGFloat = 16
+    @ScaledMetric private var badgeSpacing: CGFloat = 4
 
-    @ScaledMetric private var spinnerDimension: CGFloat = .unit(.x3)
-    @ScaledMetric private var spinnerSpacing: CGFloat = .unit(.half)
+    @ScaledMetric private var spinnerDimension: CGFloat = 12
+    @ScaledMetric private var spinnerSpacing: CGFloat = 2
 
-    @ScaledMetric private var promoVerticalSpacing: CGFloat = .unit(.x3)
+    @ScaledMetric private var promoVerticalSpacing: CGFloat = 12
 
-    @ScaledMetric private var skeletonTopWidth: CGFloat = .unit(.x16)
-    @ScaledMetric private var skeletonTopHeight: CGFloat = .unit(.x5)
-    @ScaledMetric private var skeletonBottomWidth: CGFloat = .unit(.x19)
-    @ScaledMetric private var skeletonBottomHeight: CGFloat = .unit(.x4)
+    @ScaledMetric private var skeletonTopWidth: CGFloat = 64
+    @ScaledMetric private var skeletonTopHeight: CGFloat = 20
+    @ScaledMetric private var skeletonBottomWidth: CGFloat = 76
+    @ScaledMetric private var skeletonBottomHeight: CGFloat = 16
 
-    private let cornerRadius: CGFloat = .unit(.x6)
-    private let blurRadius: CGFloat = .unit(.x5)
-    private let iconShadowBlurRadius: CGFloat = .unit(.x4)
+    private let cornerRadius: CGFloat = 24
+    private let blurRadius: CGFloat = 20
+    private let iconShadowBlurRadius: CGFloat = 16
 
     var body: some View {
         switch state {
@@ -302,7 +302,7 @@ private extension TokenDetailsYieldView {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(padding)
-        .background(Color.Tangem.Surface.level3, in: RoundedRectangle(cornerRadius: .unit(.x6)))
+        .background(Color.Tangem.Surface.level3, in: RoundedRectangle(cornerRadius: 24))
     }
 
     func skeletonView(width: CGFloat, height: CGFloat) -> some View {

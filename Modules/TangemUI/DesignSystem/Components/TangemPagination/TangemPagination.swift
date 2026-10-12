@@ -24,9 +24,9 @@ public struct TangemPagination: View {
         self.currentIndex = currentIndex
         self.maxVisibleDots = maxVisibleDots
         self.hasBackground = hasBackground
-        _spacing = ScaledMetric(wrappedValue: SizeUnit.x2.value)
-        _horizontalPadding = ScaledMetric(wrappedValue: SizeUnit.x3.value)
-        _verticalPadding = ScaledMetric(wrappedValue: SizeUnit.x3.value)
+        _spacing = ScaledMetric(wrappedValue: 8)
+        _horizontalPadding = ScaledMetric(wrappedValue: 12)
+        _verticalPadding = ScaledMetric(wrappedValue: 12)
     }
 
     public var body: some View {
