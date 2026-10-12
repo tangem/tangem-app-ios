@@ -93,6 +93,7 @@ Keyboard Up / 16, 20, 24 / Regular
 Kids Bottle / 12, 16, 20, 24, 28, 32 / Regular
 Lightning / 20, 24, 28 / Regular
 Loading Spinner / 12, 16, 20, 24, 28, 32 / Regular
+Lock / 12, 16, 20, 24, 28, 32 / Regular
 Logo Apple / 16, 20, 24, 28, 32 / Regular
 Logo Tangem / 16, 20, 24, 28, 32 / Regular
 Magic Ball / 16, 20, 24, 28 / Regular
@@ -132,11 +133,12 @@ Train / 12, 16, 20, 24, 28, 32 / Regular
 Trash Bin / 12, 16, 20, 24, 28 / Regular
 Triangle Down / 12, 16, 20, 24, 28, 32 / Regular
 Triangle Up / 12, 16, 20, 24, 28, 32 / Regular
+Unlock / 12, 16, 20, 24, 28, 32 / Regular
 User Plus / 16, 20, 24, 28 / Regular
 User / 12, 16, 20, 24, 28, 32 / Filled & Regular
 Users / 16, 20, 24, 28 / Filled & Regular
-Wallet Checkmark / 16, 20, 24, 28 / Regular
-Wallet Plus / 16, 20, 24, 28 / Regular
-Wallet / 16, 20, 24, 28 / Regular
+Wallet Checkmark / 12, 16, 20, 24, 28, 32 / Regular
+Wallet Plus / 12, 16, 20, 24, 28, 32 / Regular
+Wallet / 12, 16, 20, 24, 28, 32 / Regular
 Warning / 16, 20, 24, 28 / Filled & Regular
 Weather / 16, 20, 24, 28 / Regular
