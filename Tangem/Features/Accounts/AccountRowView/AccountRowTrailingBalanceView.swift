@@ -42,6 +42,6 @@ struct AccountRowTrailingBalanceView: View {
 private extension AccountRowTrailingBalanceView {
     enum Constants {
         static let loaderSize = CGSize(width: 70, height: 16)
-        static let iconSize: CGFloat = .unit(.x3)
+        static let iconSize: CGFloat = 12
     }
 }

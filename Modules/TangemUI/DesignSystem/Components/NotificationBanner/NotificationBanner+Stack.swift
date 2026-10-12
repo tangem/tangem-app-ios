@@ -15,7 +15,7 @@ public struct NotificationBannerStack<Item: Identifiable, Content: View>: View {
 
     private let maxVisible: Int
     private let scaleStep: CGFloat = 0.05
-    private let yOffsetStep: CGFloat = SizeUnit.x4.value
+    private let yOffsetStep: CGFloat = 16
     private let swipeThreshold: CGFloat = 0.45
 
     @State private var currentIndex: Int = 0
@@ -38,7 +38,7 @@ public struct NotificationBannerStack<Item: Identifiable, Content: View>: View {
     }
 
     public var body: some View {
-        VStack(spacing: SizeUnit.x5.value) {
+        VStack(spacing: 20) {
             ZStack {
                 ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                     let position = distanceFromTop(index)

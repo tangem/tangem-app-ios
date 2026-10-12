@@ -175,8 +175,8 @@ private extension MultiWalletNotificationBannerMapper {
         case .loadableIcon(let url):
             let icon = NotificationBanner.LoadableIcon(
                 url: url,
-                width: mapSizeUnit(from: messageIcon.size.width),
-                height: mapSizeUnit(from: messageIcon.size.height)
+                width: snapToGrid(messageIcon.size.width),
+                height: snapToGrid(messageIcon.size.height)
             )
             return .textWithLoadableIcon(.init(text: textOnly, icon: icon))
         default:
@@ -206,8 +206,8 @@ private extension MultiWalletNotificationBannerMapper {
         guard swapsLegacyGlyphs, Self.legacyWarningGlyphs.contains(imageType) else {
             return NotificationBanner.Icon(
                 imageType: imageType,
-                width: mapSizeUnit(from: messageIcon.size.width),
-                height: mapSizeUnit(from: messageIcon.size.height),
+                width: snapToGrid(messageIcon.size.width),
+                height: snapToGrid(messageIcon.size.height),
                 renderingMode: messageIcon.renderingMode,
                 color: messageIcon.color,
                 isLeading: messageIcon.isLeading
@@ -217,8 +217,8 @@ private extension MultiWalletNotificationBannerMapper {
         if case .critical = bannerKind {
             return NotificationBanner.Icon(
                 imageType: DesignSystem.Icons.Error.filled20,
-                width: .x5,
-                height: .x5,
+                width: 20,
+                height: 20,
                 renderingMode: .template,
                 color: DesignSystem.Color.iconStatusError,
                 isLeading: messageIcon.isLeading
@@ -227,39 +227,16 @@ private extension MultiWalletNotificationBannerMapper {
 
         return NotificationBanner.Icon(
             imageType: Assets.DesignSystem.attention,
-            width: .x5,
-            height: .x5,
+            width: 20,
+            height: 20,
             renderingMode: .template,
             color: DesignSystem.Color.iconStatusWarning,
             isLeading: messageIcon.isLeading
         )
     }
 
-    func mapSizeUnit(from dimension: CGFloat) -> SizeUnit {
-        let steps = Int((dimension / 4.0).rounded())
-
-        switch steps {
-        case ..<1: return .zero
-        case 1: return .x1
-        case 2: return .x2
-        case 3: return .x3
-        case 4: return .x4
-        case 5: return .x5
-        case 6: return .x6
-        case 7: return .x7
-        case 8: return .x8
-        case 9: return .x9
-        case 10: return .x10
-        case 11: return .x11
-        case 12: return .x12
-        case 13: return .x13
-        case 14: return .x14
-        case 15: return .x15
-        case 16: return .x16
-        case 17: return .x17
-        case 18: return .x18
-        default: return .x18
-        }
+    func snapToGrid(_ dimension: CGFloat) -> CGFloat {
+        min(max((dimension / 4).rounded(), 0), 18) * 4
     }
 
     func makeBannerAction(from input: NotificationViewInput) -> NotificationBanner.BannerAction {

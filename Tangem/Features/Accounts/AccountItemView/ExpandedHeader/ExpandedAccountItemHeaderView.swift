@@ -91,7 +91,7 @@ struct ExpandedAccountItemHeaderView: View {
                 .resizable()
                 .scaledToFit()
                 .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiaryConstant)
-                .frame(size: .init(bothDimensions: .unit(.x4)))
+                .frame(size: CGSize(bothDimensions: 16))
         }
         .padding(.horizontal, horizontalPadding)
         .padding(.top, 14.0)
@@ -149,7 +149,7 @@ struct ExpandedAccountItemHeaderView: View {
     }
 
     private var horizontalPadding: CGFloat {
-        .unit(.x3)
+        12
     }
 }
 
