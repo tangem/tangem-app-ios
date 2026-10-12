@@ -18,7 +18,7 @@ enum FeedTabKind {
     var title: String {
         switch self {
         case .crypto: Localization.feedTabCrypto
-        case .realAssets: Localization.marketsRealAssetsTitle
+        case .realAssets: Localization.feedTabRwa
         case .earn: Localization.feedTabEarn
         case .predictions: Localization.predictionMainTitle
         }
