@@ -18,6 +18,7 @@ struct NotificationBannerItem: NotificationBannerContainerItem, Equatable {
     let bannerType: NotificationBanner.BannerType
     let variant: MessageBannerVariant?
     let ring: NotificationBanner.Ring?
+    let textColors: MessageBannerOverrideTextColors
     let priority: NotificationBanner.Priority
     let stackableOverride: Bool?
     let accessibilityIdentifier: String?
@@ -42,6 +43,7 @@ private extension MultiWalletNotificationBannerMapper {
             bannerType: makeBannerType(from: input),
             variant: input.settings.event.bannerVariant,
             ring: input.settings.event.bannerRing,
+            textColors: input.settings.event.redesignedBannerContent?.textColors ?? .init(),
             priority: mapPriority(from: input),
             stackableOverride: stackableOverride(from: input),
             accessibilityIdentifier: input.settings.event.accessibilityIdentifier

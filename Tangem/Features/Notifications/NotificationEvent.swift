@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import TangemUI
+import TangemAssets
 import TangemAccessibilityIdentifiers
 
 protocol NotificationEvent: Identifiable {
@@ -44,11 +45,30 @@ struct RedesignedBannerContent {
     let title: NotificationView.Title?
     let description: String?
     let icon: NotificationView.MessageIcon?
+    let textColors: MessageBannerOverrideTextColors
 
-    init(title: NotificationView.Title? = nil, description: String? = nil, icon: NotificationView.MessageIcon? = nil) {
+    init(
+        title: NotificationView.Title? = nil,
+        description: String? = nil,
+        icon: NotificationView.MessageIcon? = nil,
+        textColors: MessageBannerOverrideTextColors = .init()
+    ) {
         self.title = title
         self.description = description
         self.icon = icon
+        self.textColors = textColors
+    }
+
+    static func mutedLine(_ text: String, icon: NotificationView.MessageIcon) -> RedesignedBannerContent {
+        var title = AttributedString(text)
+        title.setFontStyle(DesignSystem.Font.subheadingMediumToken)
+
+        return RedesignedBannerContent(
+            title: .attributed(title),
+            description: "",
+            icon: icon,
+            textColors: MessageBannerOverrideTextColors(title: DesignSystem.Color.textSecondary)
+        )
     }
 }
 

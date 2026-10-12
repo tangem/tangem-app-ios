@@ -28,10 +28,13 @@ extension MultiWalletNotificationEvent: NotificationEvent {
     var redesignedBannerContent: RedesignedBannerContent? {
         switch self {
         case .someTokenBalancesNotUpdated:
-            return RedesignedBannerContent(
-                title: .string(Localization.warningOutdatedDataTitle),
-                description: Localization.warningOutdatedDataMessage,
-                icon: NotificationView.MessageIcon(iconType: .image(Assets.DesignSystem.errorSync), renderingMode: .template)
+            return .mutedLine(
+                Localization.warningOutdatedDataMessage,
+                icon: NotificationView.MessageIcon(
+                    iconType: .image(Assets.DesignSystem.errorSync),
+                    renderingMode: .template,
+                    color: DesignSystem.Color.iconSecondary
+                )
             )
         case .someNetworksUnreachable:
             return nil
