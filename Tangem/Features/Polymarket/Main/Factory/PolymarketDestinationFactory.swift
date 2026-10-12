@@ -123,6 +123,7 @@ extension PolymarketDestinationFactory: PolymarketOrderFlowBuilder {
             clobService: dependencies.clobService,
             isAwaitingFundsPublisher: dependencies.fundsArrivalTracker.$isAwaitingFunds.eraseToAnyPublisher(),
             collateralBalancePublisher: dependencies.balanceProvider.collateralBalancePublisher.map(\.value).eraseToAnyPublisher(),
+            addFundsReadinessStream: dependencies.accountFundsInteractor.makeStateStream(),
             positionBuilder: pushesPlacedPosition ? self : nil,
             onPlaced: onPlaced,
             onRegionWarning: onRegionWarning,

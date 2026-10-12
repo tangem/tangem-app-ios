@@ -36,6 +36,7 @@ struct PolymarketOrderView: View {
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .safeAreaInset(edge: .bottom, spacing: .zero) { bottomContainer }
         .onWillAppear { viewModel.handleViewAction(.onAppear) }
+        .bindAlert($viewModel.alert)
         .onWillDisappear { viewModel.handleViewAction(.onDisappear) }
     }
 
@@ -58,7 +59,8 @@ struct PolymarketOrderView: View {
             PolymarketOrderAmountBlock(
                 title: viewModel.amountTitle,
                 payment: viewModel.payment,
-                onAddFunds: viewModel.isAddFundsAvailable ? { viewModel.handleViewAction(.openAddFunds) } : nil
+                isAddFundsEnabled: viewModel.isAddFundsEnabled,
+                onAddFunds: { viewModel.handleViewAction(.openAddFunds) }
             ) {
                 VStack(spacing: Constants.captionSpacing) {
                     if viewModel.isAmountEditable {

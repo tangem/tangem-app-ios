@@ -14,16 +14,16 @@ private struct PolymarketOrderAmountShowcase: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                PolymarketOrderAmountBlock(payment: .empty, onAddFunds: {}) {
+                PolymarketOrderAmountBlock(payment: .empty, isAddFundsEnabled: true, onAddFunds: {}) {
                     amount("$ 0")
                 }
 
-                PolymarketOrderAmountBlock(payment: .funded, onAddFunds: {}) {
+                PolymarketOrderAmountBlock(payment: .funded, isAddFundsEnabled: true, onAddFunds: {}) {
                     amount("$ 4,000")
                 }
 
-                PolymarketOrderAmountBlock(payment: .funded) {
-                    amount("$ 4,000")
+                PolymarketOrderAmountBlock(payment: .empty, isAddFundsEnabled: false, onAddFunds: {}) {
+                    amount("$ 0")
                 }
             }
             .padding(16)
