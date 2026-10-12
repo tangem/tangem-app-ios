@@ -19,7 +19,7 @@ struct RedesignedAccountSkeletonCardView: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            HStack(spacing: .unit(.x3)) {
+            HStack(spacing: 12) {
                 iconPlaceholder
 
                 makeSkeletonsStack(alignment: .leading)
@@ -29,7 +29,7 @@ struct RedesignedAccountSkeletonCardView: View {
 
             makeSkeletonsStack(alignment: .trailing)
         }
-        .padding(.unit(.x3))
+        .padding(12)
         .background(Color.Tangem.Surface.level3)
         .cornerRadiusContinuous(24)
         .environment(\.isSkeletonShimmerActive, isShimmerActive)
@@ -42,7 +42,7 @@ struct RedesignedAccountSkeletonCardView: View {
     }
 
     private func makeSkeletonsStack(alignment: HorizontalAlignment) -> some View {
-        VStack(alignment: alignment, spacing: .unit(.x1_5)) {
+        VStack(alignment: alignment, spacing: 6) {
             SkeletonView()
                 .frame(size: CGSize(width: 80, height: 16) * scaleFactor)
                 .clipShape(Capsule(style: .continuous))
@@ -69,11 +69,11 @@ extension RedesignedAccountSkeletonCardView: Setupable {
         Color.Tangem.Surface.level2
             .ignoresSafeArea()
 
-        VStack(spacing: .unit(.x2)) {
+        VStack(spacing: 8) {
             RedesignedAccountSkeletonCardView()
             RedesignedAccountSkeletonCardView()
             RedesignedAccountSkeletonCardView()
         }
-        .padding(.horizontal, .unit(.x3))
+        .padding(.horizontal, 12)
     }
 }

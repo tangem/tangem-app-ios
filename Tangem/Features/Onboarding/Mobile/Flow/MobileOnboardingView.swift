@@ -26,7 +26,7 @@ struct MobileOnboardingView: View {
     }
 
     private var navigationBarTopPadding: CGFloat {
-        isModallyPresented ? .unit(.x4) : 0
+        isModallyPresented ? 16 : 0
     }
 
     var body: some View {

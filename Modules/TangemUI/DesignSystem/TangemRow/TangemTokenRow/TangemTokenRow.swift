@@ -33,7 +33,7 @@ public struct TangemTokenRow: View {
     private var tokenIconView: some View {
         TokenIcon(
             tokenIconInfo: viewData.tokenIconInfo,
-            size: CGSize(width: SizeUnit.x10.value, height: SizeUnit.x10.value) * scaleFactor
+            size: CGSize(width: 40, height: 40) * scaleFactor
         )
         .saturation(viewData.hasMonochromeIcon ? 0 : 1)
     }
@@ -239,7 +239,7 @@ public struct TangemTokenRow: View {
                 textColor: Constants.Style.FiatBalance.integerColor
             ),
             loader: .init(
-                size: CGSize(width: SizeUnit.x10.value, height: SizeUnit.x3.value) * scaleFactor,
+                size: CGSize(width: 40, height: 12) * scaleFactor,
                 cornerRadiusStyle: .capsule
             ),
             accessibilityIdentifier: viewData.accessibilityIdentifiers?.fiatBalance
@@ -331,11 +331,11 @@ public struct TangemTokenRow: View {
     }
 
     private var cryptoLoaderSize: CGSize {
-        CGSize(width: SizeUnit.x10.value, height: SizeUnit.x3.value) * scaleFactor
+        CGSize(width: 40, height: 12) * scaleFactor
     }
 
     private var priceLoaderSize: CGSize {
-        CGSize(width: SizeUnit.x13.value, height: SizeUnit.x3.value) * scaleFactor
+        CGSize(width: 52, height: 12) * scaleFactor
     }
 }
 

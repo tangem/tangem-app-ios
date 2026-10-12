@@ -72,7 +72,7 @@ struct TransactionViewRedesigned: View {
     }
 
     private func warningView(_ warning: TransactionViewModel.Warning) -> some View {
-        HStack(spacing: .unit(.x3)) {
+        HStack(spacing: 12) {
             DesignSystem.Icons.Error.filled16.image
                 .renderingMode(.template)
                 .resizable()
@@ -87,7 +87,7 @@ struct TransactionViewRedesigned: View {
 
             Spacer(minLength: 0)
         }
-        .padding(.top, .unit(.x2))
+        .padding(.top, 8)
     }
 
     private func warningTitle(for warning: TransactionViewModel.Warning) -> String {
@@ -156,7 +156,7 @@ struct TransactionViewRedesigned: View {
     }
 
     private var nameView: some View {
-        HStack(spacing: .unit(.x2)) {
+        HStack(spacing: 8) {
             Text(display.title.fullText)
                 .style(Font.Tangem.Body16.medium, color: nameColor)
                 .lineLimit(1)
