@@ -175,9 +175,11 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
 
         switch (data, blockchain) {
         case (.cex(let data), _):
-            update(
-                input: .common(amount: data.txValue, destination: data.destinationAddress)
-            )
+            if FeatureProvider.isAvailable(.tronGaslessCEX) {
+                update(input: .common(amount: data.txValue, destination: data.destinationAddress))
+            } else {
+                update(input: .cex(amount: data.txValue, destination: data.destinationAddress))
+            }
 
             await updateFees().value
             let fee = try selectedFeeProvider.selectedTokenFee.value.get()
