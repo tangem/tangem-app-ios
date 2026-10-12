@@ -29,9 +29,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Adresse</string>
+        <string>%li Adresse</string>
         <key>other</key>
-        <string>Adressen</string>
+        <string>%li Adressen</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -61,9 +61,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Karte</string>
+        <string>%li Karte</string>
         <key>other</key>
-        <string>Karten\n</string>
+        <string>%li Karten</string>
       </dict>
     </dict>
     <key>common_assets_count</key>
@@ -98,70 +98,6 @@
         <string>Tage</string>
       </dict>
     </dict>
-    <key>common_days_time_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li Tag zuvor</string>
-        <key>other</key>
-        <string>%li Tage zuvor</string>
-      </dict>
-    </dict>
-    <key>common_hours</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>Stunde</string>
-        <key>other</key>
-        <string>Stunde</string>
-      </dict>
-    </dict>
-    <key>common_hours_time_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%liStunde her</string>
-        <key>other</key>
-        <string>%liStunden her</string>
-      </dict>
-    </dict>
-    <key>common_minutes_time_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%liMinute her</string>
-        <key>other</key>
-        <string>%liMinuten her</string>
-      </dict>
-    </dict>
     <key>common_networks_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -192,6 +128,22 @@
         <string>%li Token</string>
         <key>other</key>
         <string>%li Token</string>
+      </dict>
+    </dict>
+    <key>joint_account_join_signatures_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%liUnterschrift</string>
+        <key>other</key>
+        <string>%liUnterschriften</string>
       </dict>
     </dict>
     <key>joint_account_members_count</key>
@@ -226,22 +178,6 @@
         <string>THER %1$li Signaturen erforderlich</string>
       </dict>
     </dict>
-    <key>manage_tokens_number_of_wallets_ios</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%li von %#@total_wallets@</string>
-      <key>total_wallets</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li Wallet</string>
-        <key>other</key>
-        <string>%li Wallets</string>
-      </dict>
-    </dict>
     <key>markets_token_details_amount_exchanges</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -253,9 +189,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li börse</string>
+        <string>%li Börse</string>
         <key>other</key>
-        <string>%li börsen</string>
+        <string>%li Börsen</string>
       </dict>
     </dict>
     <key>markets_token_details_based_on_ratings</key>
@@ -269,41 +205,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Bewertung, basierend auf %li</string>
+        <string>Basierend auf %li Bewertung</string>
         <key>other</key>
-        <string>Bewertungen, basierend auf %li</string>
-      </dict>
-    </dict>
-    <key>news_published_hours_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%liStunde her</string>
-        <key>other</key>
-        <string>%liStunden her</string>
-      </dict>
-    </dict>
-    <key>news_published_minutes_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%liMinute her</string>
-        <key>other</key>
-        <string>%liMinuten her</string>
+        <string>Basierend auf %li Bewertungen</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>
@@ -349,22 +253,6 @@
         <string>%li NFTs</string>
       </dict>
     </dict>
-    <key>onboarding_address_sync_description</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>Adressen synchronisieren, um eine Adresse für das Netzwerk %li zu erhalten</string>
-        <key>other</key>
-        <string>Adressen synchronisieren, um eine Adresse für das Netzwerk %li zu erhalten</string>
-      </dict>
-    </dict>
     <key>onboarding_seed_generate_message_words_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -378,7 +266,7 @@
         <key>one</key>
         <string>.</string>
         <key>other</key>
-        <string>Schreibe diese %li-Wörter in der unten angegebenen Reihenfolge auf und bewahre sie an einem sicheren und geheimen Ort auf.</string>
+        <string>Schreibe diese %li Wörter in der unten angegebenen Reihenfolge auf und bewahre sie an einem sicheren und geheimen Ort auf.</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_words_count</key>
@@ -408,9 +296,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Anbieter</string>
+        <string>%li Anbieter</string>
         <key>other</key>
-        <string>Anbieter</string>
+        <string>%li Anbieter</string>
       </dict>
     </dict>
     <key>onramp_timing_days</key>
@@ -440,9 +328,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>EIN +%li Ergebnis</string>
+        <string>+%li Ergebnis</string>
         <key>other</key>
-        <string>EIN +%li Ergebnis</string>
+        <string>+%li Ergebnisse</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>
@@ -490,7 +378,7 @@
         <key>one</key>
         <string>%li Token ist mit dieser Adresse nicht kompatibel</string>
         <key>other</key>
-        <string>%li -Tokens sind mit dieser Adresse nicht kompatibel</string>
+        <string>%li Token sind mit dieser Adresse nicht kompatibel</string>
       </dict>
     </dict>
     <key>tangempay_cards_count</key>
@@ -520,7 +408,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Die Lieferung dauert bis zu %li Werktage</string>
+        <string>Die Lieferung dauert bis zu %li Werktag</string>
         <key>other</key>
         <string>Die Lieferung dauert bis zu %li Werktage</string>
       </dict>
@@ -552,9 +440,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Werktag</string>
+        <string>%li Werktag</string>
         <key>other</key>
-        <string>Werktage</string>
+        <string>%li Werktage</string>
       </dict>
     </dict>
     <key>top_assets_count</key>
@@ -568,9 +456,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Vermögenswert</string>
+        <string>Top %li Vermögenswert</string>
         <key>other</key>
-        <string>Vermögenswerte</string>
+        <string>Top %li Vermögenswerte</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
@@ -602,7 +490,7 @@
         <key>one</key>
         <string>Verwende deine Karte oder Ring, um eine Adresse für das %li-Netz zu erhalten</string>
         <key>other</key>
-        <string>Verwende deine Karte oder Ring, um mehrere Adressen für die %li-Netzwerke zu erhalten</string>
+        <string>Verwende deine Karte oder Ring, um Adressen für %li Netzwerke zu erhalten</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_no_nfc_message</key>
@@ -616,9 +504,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Adressen synchronisieren, um eine Adresse für das Netzwerk %li zu erhalten</string>
+        <string>Adressen synchronisieren, um eine Adresse für %li Netzwerk zu erhalten</string>
         <key>other</key>
-        <string>Adressen synchronisieren, um eine Adresse für das Netzwerk %li zu erhalten</string>
+        <string>Adressen synchronisieren, um Adressen für %li Netzwerke zu erhalten</string>
       </dict>
     </dict>
   </dict>

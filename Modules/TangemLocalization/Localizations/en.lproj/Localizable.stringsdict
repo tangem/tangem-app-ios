@@ -98,70 +98,6 @@
         <string>days</string>
       </dict>
     </dict>
-    <key>common_days_time_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li day ago</string>
-        <key>other</key>
-        <string>%li days ago</string>
-      </dict>
-    </dict>
-    <key>common_hours</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li hour</string>
-        <key>other</key>
-        <string>%li hours</string>
-      </dict>
-    </dict>
-    <key>common_hours_time_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%lih ago</string>
-        <key>other</key>
-        <string>%lih ago</string>
-      </dict>
-    </dict>
-    <key>common_minutes_time_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li minute ago</string>
-        <key>other</key>
-        <string>%li minutes ago</string>
-      </dict>
-    </dict>
     <key>common_networks_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -192,6 +128,22 @@
         <string>%li token</string>
         <key>other</key>
         <string>%li tokens</string>
+      </dict>
+    </dict>
+    <key>joint_account_join_signatures_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li signature</string>
+        <key>other</key>
+        <string>%li signatures</string>
       </dict>
     </dict>
     <key>joint_account_members_count</key>
@@ -226,22 +178,6 @@
         <string>%1$li signatures required</string>
       </dict>
     </dict>
-    <key>manage_tokens_number_of_wallets_ios</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%li of %#@total_wallets@</string>
-      <key>total_wallets</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li wallet</string>
-        <key>other</key>
-        <string>%li wallets</string>
-      </dict>
-    </dict>
     <key>markets_token_details_amount_exchanges</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -272,38 +208,6 @@
         <string>Based on %li rating</string>
         <key>other</key>
         <string>Based on %li ratings</string>
-      </dict>
-    </dict>
-    <key>news_published_hours_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%lih ago</string>
-        <key>other</key>
-        <string>%lih ago</string>
-      </dict>
-    </dict>
-    <key>news_published_minutes_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li minute ago</string>
-        <key>other</key>
-        <string>%li minutes ago</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>
@@ -347,22 +251,6 @@
         <string>%li NFT</string>
         <key>other</key>
         <string>%li NFTs</string>
-      </dict>
-    </dict>
-    <key>onboarding_address_sync_description</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>Your wallet contains %li token. To continue, please sync your addresses.</string>
-        <key>other</key>
-        <string>Your wallet contains %li tokens. To continue, please sync your addresses.</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>
