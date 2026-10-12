@@ -130,6 +130,25 @@ struct FloatingSheetViewModelTests {
         #expect(!sut.containsSheet(withId: dismissedSheet.id))
         #expect(sut.containsSheet(withId: nextSheet.id))
     }
+
+    @Test("A queued sheet's id is published only once the sheet becomes active")
+    func queuedSheetIdIsPublishedWhenActive() {
+        let sut = FloatingSheetViewModel()
+        let visibleSheet = SheetStub()
+        let queuedSheet = SheetStub()
+        var publishedIds: [String?] = []
+        let cancellable = sut.activeSheetIdPublisher.sink { publishedIds.append($0) }
+
+        sut.enqueue(sheet: visibleSheet)
+        sut.enqueue(sheet: queuedSheet)
+
+        #expect(!publishedIds.contains(queuedSheet.id))
+
+        sut.removeActiveSheet()
+
+        #expect(publishedIds == [nil, visibleSheet.id, queuedSheet.id])
+        cancellable.cancel()
+    }
 }
 
 private final class SheetStub: FloatingSheetContentViewModel {}
