@@ -30,7 +30,7 @@ struct PolymarketBalanceBlockActionStatesTests {
 
     @Test("A prepared account with something to deposit offers add funds")
     func addFundsIsOfferedWithDepositTargets() {
-        let states = makeStates(readiness: .ready(makeReadiness(targets: [target])), balance: .loaded(10))
+        let states = makeStates(readiness: .ready(makeReadiness(depositAvailability: .available([target]))), balance: .loaded(10))
 
         #expect(states.addFunds == .available)
         #expect(states.withdraw == .available)
@@ -38,7 +38,7 @@ struct PolymarketBalanceBlockActionStatesTests {
 
     @Test("A prepared account with nothing to deposit greys out add funds alone, withdraw still follows the balance")
     func addFundsIsWithheldWithoutDepositTargets() {
-        let states = makeStates(readiness: .ready(makeReadiness(targets: [])), balance: .loaded(10))
+        let states = makeStates(readiness: .ready(makeReadiness(depositAvailability: .unavailable)), balance: .loaded(10))
 
         #expect(states.addFunds == .unavailable)
         #expect(states.withdraw == .available)
@@ -116,14 +116,14 @@ private extension PolymarketBalanceBlockActionStatesTests {
     }
 
     var prepared: PolymarketAccountFundsInteractor.State {
-        .ready(makeReadiness(targets: [target]))
+        .ready(makeReadiness(depositAvailability: .available([target])))
     }
 
-    func makeReadiness(targets: [PolymarketAccountFundsInteractor.DepositTarget]) -> PolymarketAccountFundsInteractor.Readiness {
+    func makeReadiness(depositAvailability: PolymarketAccountFundsInteractor.DepositAvailability) -> PolymarketAccountFundsInteractor.Readiness {
         PolymarketAccountFundsInteractor.Readiness(
             depositWalletAddress: "0x1111111111111111111111111111111111111111",
-            depositTargets: targets,
-            collateralMinCheckoutUSD: 2
+            collateralMinCheckoutUSD: 2,
+            depositAvailability: depositAvailability
         )
     }
 
