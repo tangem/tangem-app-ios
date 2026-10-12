@@ -148,6 +148,19 @@ public extension TangemPayTransactionHistoryResponse {
         public let walletAddress: String?
         public let transactionHash: String?
         public let postedAt: Date
+        public let kind: CollateralKind?
+    }
+
+    enum CollateralKind: String, Codable, Equatable {
+        case deposit
+        case withdrawal
+        case cashback
+        case undefined
+
+        public init(from decoder: Decoder) throws {
+            let rawValue = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: rawValue.lowercased()) ?? .undefined
+        }
     }
 
     struct Payment: Codable, Equatable {
