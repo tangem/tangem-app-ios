@@ -92,17 +92,17 @@ enum Feature: String, Hashable, CaseIterable {
         case .totalTokenBalanceV2: return .unspecified
         case .mobileSocialLogin: return .unspecified
         case .realAssets: return .unspecified
-        case .hardwareUpgradeStories: return .unspecified
+        case .hardwareUpgradeStories: return .version("6.5")
         case .jointAccountsGaslessTokenFee: return .unspecified
-        case .merklIncentives: return .unspecified
+        case .merklIncentives: return .version("6.5")
         case .mcp: return .unspecified
         case .tangemPayChooseCountry: return .version("6.5")
         case .payBundleIntroduction: return .unspecified
-        case .hideMarketingBannersWithSystem: return .unspecified
+        case .hideMarketingBannersWithSystem: return .version("6.5")
         case .tangemPayOnrampV2: return .version("6.5")
-        case .promoCampaignsV2: return .unspecified
-        case .tangemPayAppleWalletProvisioning: return .unspecified
-        case .customSlippage: return .unspecified
+        case .promoCampaignsV2: return .version("6.5")
+        case .tangemPayAppleWalletProvisioning: return .version("6.5")
+        case .customSlippage: return .version("6.5")
         }
     }
 }
