@@ -12,6 +12,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemPolymarket
 import TangemPolymarketUI
+import TangemUIUtils
 
 @MainActor
 final class PolymarketOrderViewModel: ObservableObject {
@@ -30,6 +31,8 @@ final class PolymarketOrderViewModel: ObservableObject {
     @Published private(set) var canDecreaseAmount = false
     @Published private(set) var canIncreaseAmount = false
     @Published private(set) var areFractionsEnabled = false
+    @Published private(set) var isAddFundsEnabled = false
+    @Published var alert: AlertBinder?
 
     var isProceedsLoading: Bool {
         proceedsText.isEmpty
@@ -79,7 +82,7 @@ final class PolymarketOrderViewModel: ObservableObject {
         case .openSummary:
             coordinator?.openSummary(model: model)
         case .openAddFunds:
-            coordinator?.openAddFunds()
+            openAddFunds()
         case .openSlippage:
             openSlippageSelector()
         case .step(let step):
@@ -120,10 +123,6 @@ extension PolymarketOrderViewModel {
         if case .buy = model.intent { true } else { false }
     }
 
-    var isAddFundsAvailable: Bool {
-        if case .buy = model.intent { true } else { false }
-    }
-
     var showsBack: Bool {
         if case .sell = model.intent { true } else { false }
     }
@@ -155,6 +154,26 @@ extension PolymarketOrderViewModel {
 // MARK: - Navigation
 
 private extension PolymarketOrderViewModel {
+    func openAddFunds() {
+        guard !model.state.geoblock.isBlocked else {
+            coordinator?.openRegionWarning()
+            return
+        }
+
+        switch model.state.addFundsReadiness.addFundsAvailability {
+        case .available:
+            coordinator?.openAddFunds()
+        case .loading:
+            break
+        case .unavailable:
+            showAddFundsUnavailableAlert()
+        }
+    }
+
+    func showAddFundsUnavailableAlert() {
+        alert = AlertBuilder.makeOkGotItAlert(message: Localization.predictionAddFundsErrorDescription)
+    }
+
     func openSlippageSelector() {
         coordinator?.openSlippageSelector(percent: model.state.slippagePercent) { [weak self] percent in
             self?.model.handleViewAction(.selectSlippage(percent))
@@ -187,6 +206,7 @@ private extension PolymarketOrderViewModel {
         amountFractions = Self.makeAmountFractions(balance: state.balance, selectable: gate.selectableFractions)
         notifications = gate.notifications.isEmpty && keepsPreviousHints ? notifications : gate.notifications
         isAwaitingFunds = state.isAwaitingFunds
+        isAddFundsEnabled = state.addFundsReadiness.addFundsAvailability == .available
         isNextEnabled = gate.isPrimaryButtonEnabled
 
         let isTradable = model.market.isAcceptingOrders && !gate.notifications.contains(.marketClosed)

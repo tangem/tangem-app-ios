@@ -216,7 +216,8 @@ struct PolymarketOrderStepperTests {
             positionsService: nil,
             clobService: PolymarketCLOBServiceStub(),
             isAwaitingFundsPublisher: .just(output: false),
-            collateralBalancePublisher: .just(output: nil)
+            collateralBalancePublisher: .just(output: nil),
+            addFundsReadinessStream: AsyncStream { $0.yield(.unavailable); $0.finish() }
         )
 
         #expect(!model.gate.canStepUp)
@@ -241,7 +242,8 @@ private extension PolymarketOrderStepperTests {
             positionsService: nil,
             clobService: PolymarketCLOBServiceStub(),
             isAwaitingFundsPublisher: .just(output: false),
-            collateralBalancePublisher: .just(output: balance)
+            collateralBalancePublisher: .just(output: balance),
+            addFundsReadinessStream: AsyncStream { $0.yield(.unavailable); $0.finish() }
         )
 
         try await settle { model.state.balance != nil }
@@ -268,7 +270,8 @@ private extension PolymarketOrderFractionTests {
             positionsService: nil,
             clobService: PolymarketCLOBServiceStub(),
             isAwaitingFundsPublisher: .just(output: false),
-            collateralBalancePublisher: .just(output: balance)
+            collateralBalancePublisher: .just(output: balance),
+            addFundsReadinessStream: AsyncStream { $0.yield(.unavailable); $0.finish() }
         )
 
         try await settle { model.state.balance != nil }

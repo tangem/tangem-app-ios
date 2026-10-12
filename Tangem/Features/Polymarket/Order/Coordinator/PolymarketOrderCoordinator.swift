@@ -72,7 +72,8 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
                 positionsService: options.positionsService,
                 clobService: options.clobService,
                 isAwaitingFundsPublisher: options.isAwaitingFundsPublisher,
-                collateralBalancePublisher: options.collateralBalancePublisher
+                collateralBalancePublisher: options.collateralBalancePublisher,
+                addFundsReadinessStream: options.addFundsReadinessStream
             )
 
             self.model = model
@@ -94,6 +95,10 @@ extension PolymarketOrderCoordinator: PolymarketOrderRoutable {
 
     func openAddFunds() {
         addFundsAction?()
+    }
+
+    func openRegionWarning() {
+        regionWarningAction?()
     }
 
     @MainActor
@@ -264,6 +269,7 @@ extension PolymarketOrderCoordinator {
         let clobService: PolymarketCLOBService
         let isAwaitingFundsPublisher: AnyPublisher<Bool, Never>
         let collateralBalancePublisher: AnyPublisher<Decimal?, Never>
+        let addFundsReadinessStream: AsyncStream<PolymarketAccountFundsInteractor.State>
         let positionBuilder: PolymarketOrderFlowBuilder?
         let onPlaced: @MainActor (PolymarketOrderIndexing) -> Void
         let onRegionWarning: () -> Void

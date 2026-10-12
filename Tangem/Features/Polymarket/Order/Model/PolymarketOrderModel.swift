@@ -35,6 +35,7 @@ final class PolymarketOrderModel: ObservableObject {
     private let clobService: PolymarketCLOBService
     private let isAwaitingFundsPublisher: AnyPublisher<Bool, Never>
     private let collateralBalancePublisher: AnyPublisher<Decimal?, Never>
+    private let addFundsReadinessStream: AsyncStream<PolymarketAccountFundsInteractor.State>
     private let delayProvider: PollDelayProvider
     private let appStateObserver: AppStateObserver
 
@@ -42,6 +43,7 @@ final class PolymarketOrderModel: ObservableObject {
 
     private var quoteTask: Task<Void, Never>?
     private var heldSharesTask: Task<Decimal?, Never>?
+    private var addFundsReadinessTask: Task<Void, Never>?
     private var visibleScreens = 0
     private var bag: Set<AnyCancellable> = []
 
@@ -58,6 +60,7 @@ final class PolymarketOrderModel: ObservableObject {
         clobService: PolymarketCLOBService,
         isAwaitingFundsPublisher: AnyPublisher<Bool, Never>,
         collateralBalancePublisher: AnyPublisher<Decimal?, Never>,
+        addFundsReadinessStream: AsyncStream<PolymarketAccountFundsInteractor.State>,
         delayProvider: PollDelayProvider = TaskSleepPollDelayProvider(),
         notificationCenter: NotificationCenter = .default
     ) {
@@ -71,6 +74,7 @@ final class PolymarketOrderModel: ObservableObject {
         self.clobService = clobService
         self.isAwaitingFundsPublisher = isAwaitingFundsPublisher
         self.collateralBalancePublisher = collateralBalancePublisher
+        self.addFundsReadinessStream = addFundsReadinessStream
         self.delayProvider = delayProvider
         appStateObserver = AppStateObserver(notificationCenter: notificationCenter)
 
@@ -78,11 +82,13 @@ final class PolymarketOrderModel: ObservableObject {
 
         bind()
         readHeldShares()
+        observeAddFundsReadiness()
     }
 
     deinit {
         quoteTask?.cancel()
         heldSharesTask?.cancel()
+        addFundsReadinessTask?.cancel()
     }
 
     func awaitIndexing() -> PolymarketOrderIndexing {
@@ -202,6 +208,7 @@ extension PolymarketOrderModel {
         var slippagePercent: Decimal = PolymarketSlippage.defaultPercent
         var geoblock: PolymarketGeoblockState = .unknown
         var isAwaitingFunds = false
+        var addFundsReadiness: PolymarketAccountFundsInteractor.State = .loading
         var bookPrice: Decimal?
         var bookPriceFailure: PolymarketBookPriceFailure?
         var isBookPriceResuming = false
@@ -345,6 +352,18 @@ private extension PolymarketOrderModel {
         guard let quote = state.quote.quote, quote.notional > 0 else { return 0 }
 
         return quote.fees.total / quote.notional
+    }
+}
+
+// MARK: - Add funds readiness
+
+private extension PolymarketOrderModel {
+    func observeAddFundsReadiness() {
+        addFundsReadinessTask = Task { [weak self, addFundsReadinessStream] in
+            for await readiness in addFundsReadinessStream {
+                self?.state.addFundsReadiness = readiness
+            }
+        }
     }
 }
 

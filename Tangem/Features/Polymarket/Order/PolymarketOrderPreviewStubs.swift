@@ -24,9 +24,25 @@ extension PolymarketOrderModel {
             positionsService: nil,
             clobService: PolymarketOnboardingServicesFactory.makeDefault().makeCLOBService(),
             isAwaitingFundsPublisher: .just(output: false),
-            collateralBalancePublisher: .just(output: Decimal(30000))
+            collateralBalancePublisher: .just(output: Decimal(30000)),
+            addFundsReadinessStream: AsyncStream { $0.yield(.preview); $0.finish() }
         )
     }
+}
+
+extension PolymarketAccountFundsInteractor.State {
+    static let preview: Self = .ready(PolymarketAccountFundsInteractor.Readiness(
+        depositWalletAddress: "0x1111111111111111111111111111111111111111",
+        collateralMinCheckoutUSD: 2,
+        depositAvailability: .available([
+            PolymarketAccountFundsInteractor.DepositTarget(
+                entry: PolymarketDepositAssetCatalog.usdcOnPolygon,
+                tokenItem: PolymarketUtilities.usdcTokenItem,
+                minCheckoutUSD: 2,
+                fundingAddress: "0x2222222222222222222222222222222222222222"
+            ),
+        ])
+    ))
 }
 
 extension PolymarketMarket {
