@@ -17,6 +17,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var tokensList = otherElement(.tokensList)
     private lazy var organizeTokensButton = button(.organizeTokensButton)
     private lazy var addAndManageOrganizeRow = app.buttons[TokensManagementChooserAccessibilityIdentifiers.organizeTokensRow].firstMatch
+    private lazy var addAndManageAddTokensRow = app.buttons[TokensManagementChooserAccessibilityIdentifiers.addTokensRow].firstMatch
     private lazy var detailsButton = button(.detailsButton)
     private lazy var actionButtonsList = otherElement(.actionButtonsList)
     private lazy var headerCardImage = image(.headerCardImage)
@@ -32,12 +33,36 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var walletLockedNotificationUnlockButton = notificationBannerButton(MainAccessibilityIdentifiers.walletLockedNotification)
     private lazy var missingDerivationSynchronizeButton = notificationBannerButton(MainAccessibilityIdentifiers.missingDerivationNotification)
     private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
+    private lazy var shtorkaExpandButton = app.buttons[MainAccessibilityIdentifiers.shtorkaExpandButton].firstMatch
     private lazy var tangemPayTile = app.buttons[TangemPayAccessibilityIdentifiers.mainScreenTile].firstMatch
     private lazy var tangemPayTileBalance = app.staticTexts[TangemPayAccessibilityIdentifiers.mainScreenTileBalance].firstMatch
+    /// Type-agnostic: a decorative image inside a button is not guaranteed to stay an `Image` element.
+    private lazy var tangemPayTileCachedIcon = app.descendants(matching: .any)
+        .matching(identifier: TangemPayAccessibilityIdentifiers.mainScreenTileCachedIcon)
+        .firstMatch
     /// Type-agnostic: redesign and legacy notifications expose different element types.
     private lazy var getTangemPayBanner = app.descendants(matching: .any)
         .matching(identifier: TangemPayAccessibilityIdentifiers.getTangemPayBanner)
         .firstMatch
+    /// The banner identifier overrides the one its buttons carry, so the CTA is told apart by its label.
+    private lazy var getTangemPayBannerOpenButton = app.buttons
+        .matching(identifier: TangemPayAccessibilityIdentifiers.getTangemPayBanner)
+        .matching(NSPredicate(format: "label == %@", "Learn more"))
+        .firstMatch
+    private lazy var addTokensButton = app.buttons[MainAccessibilityIdentifiers.addTokensButton].firstMatch
+    private lazy var nftEntrypointRow = app.buttons[NFTAccessibilityIdentifiers.mainEntrypointRow].firstMatch
+    /// The promo banner merges its title and description into a single accessibility element, so they are
+    /// matched inside that element's label rather than by identifiers of their own.
+    private lazy var promoBannerTitle = elementContainingText("Discover Tangem Wallet")
+    /// Only the first line: the description carries a hard line break the accessibility label may fold.
+    private lazy var promoBannerBody = elementContainingText("Access 13,000+ cryptocurrencies")
+    private lazy var promoBannerButton = button(.walletPromoBannerButton)
+
+    private func elementContainingText(_ text: String) -> XCUIElement {
+        app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label CONTAINS %@", text))
+            .firstMatch
+    }
 
     @discardableResult
     func validate(cardType: CardMockAccessibilityIdentifiers) -> Self {
@@ -90,6 +115,66 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
+    @discardableResult
+    func verifyAddTokensButtonVisible() -> Self {
+        XCTContext.runActivity(named: "Verify 'Add tokens' button is visible") { _ in
+            waitAndAssertTrue(addTokensButton, "'Add tokens' button should exist")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTokensListDisplayed() -> Self {
+        XCTContext.runActivity(named: "Verify main screen tokens list is displayed") { _ in
+            waitAndAssertTrue(tokensList, "Main screen tokens list should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyMarketsSheetIsCollapsedOnMain() -> Self {
+        XCTContext.runActivity(named: "Verify collapsed 'Markets' sheet is visible on main") { _ in
+            let sheet = shtorkaExpandButton.waitForExistence(timeout: .conditional) ? shtorkaExpandButton : grabber
+            waitAndAssertTrue(sheet, "Collapsed 'Markets' sheet should be visible")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyPromoBannerTitleVisible() -> Self {
+        XCTContext.runActivity(named: "Verify 'Discover Tangem Wallet' banner title is visible") { _ in
+            waitAndAssertTrue(promoBannerTitle, "'Discover Tangem Wallet' banner title should be visible")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyPromoBannerBodyVisible() -> Self {
+        XCTContext.runActivity(named: "Verify 'Discover Tangem Wallet' banner body is visible") { _ in
+            waitAndAssertTrue(promoBannerBody, "'Discover Tangem Wallet' banner body should be visible")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyPromoBannerTitleIsNotVisible() -> Self {
+        XCTContext.runActivity(named: "Verify 'Discover Tangem Wallet' banner title is not visible") { _ in
+            XCTAssertFalse(
+                promoBannerTitle.waitForExistence(timeout: .conditional),
+                "Promo banner should NOT be visible"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapPromoBannerButton() -> Self {
+        XCTContext.runActivity(named: "Tap 'Get now with 10% off' button") { _ in
+            promoBannerButton.waitAndTap()
+            return self
+        }
+    }
+
     // MARK: - Organize Tokens Button Visibility
 
     @discardableResult
@@ -105,7 +190,10 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func verifyOrganizeTokensButtonNotVisible() -> Self {
         XCTContext.runActivity(named: "Verify organize tokens button is NOT visible") { _ in
-            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            // Single-currency cards have no `tokensList`; `detailsButton` is present on every main screen.
+            waitAndAssertTrue(detailsButton, "Main screen should be loaded")
+            // The button sits at the bottom of the scroll, so reach it before asserting absence to avoid a false pass.
+            scrollMainToBottom()
             XCTAssertFalse(
                 organizeTokensButton.waitForExistence(timeout: .conditional),
                 "Organize tokens button should NOT be visible on main screen"
@@ -212,6 +300,27 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
+    /// Opens Add & Manage and picks "Add tokens". Only a wallet with several accounts lands on the account picker.
+    @discardableResult
+    func openAddTokensAccountPicker() -> AccountSelectorSheet {
+        XCTContext.runActivity(named: "Open 'Add tokens' from the Add & Manage sheet") { _ in
+            // Scroll inside the tokens list — app-level swipes can grab the Markets sheet and cover the button.
+            XCTAssertTrue(
+                scrollTokensListToVisible(organizeTokensButton),
+                "Add & Manage button should be visible after scrolling tokens list; it is only rendered once an account holds at least two tokens"
+            )
+            XCTAssertTrue(
+                organizeTokensButton.waitAndTap(timeout: .robustUIUpdate),
+                "Should successfully tap Add & Manage button"
+            )
+
+            waitAndAssertTrue(addAndManageAddTokensRow, "'Add tokens' row should be shown in the Add & Manage sheet")
+            addAndManageAddTokensRow.waitAndTap()
+
+            return AccountSelectorSheet(app)
+        }
+    }
+
     @discardableResult
     func verifyTokenExists(_ tokenName: String) -> Self {
         XCTContext.runActivity(named: "Verify token '\(tokenName)' exists on main screen") { _ in
@@ -302,6 +411,29 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Wait developer card banner not exists") { _ in
             let bannerElement = app.staticTexts[MainAccessibilityIdentifiers.developerCardBanner]
             XCTAssertFalse(bannerElement.exists, "Developer card banner should not be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTokenCount(_ expectedCount: Int) -> Self {
+        XCTContext.runActivity(named: "Verify token count equals \(expectedCount)") { _ in
+            waitAndAssertTrue(detailsButton, "Main screen should be loaded")
+            // Multi-currency renders rows inside the on-screen `tokensList`; count there so titles from other
+            // wallet pages the redesign keeps mounted don't inflate the total. Single-currency has no such
+            // container (a single page is mounted), so fall back to app scope.
+            let scope: XCUIElement = tokensList.waitForExistence(timeout: .conditional) ? visibleTokensList() : app
+            let tokenTitles = scope.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
+            let expectation = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "count == %d", expectedCount),
+                object: tokenTitles
+            )
+            let result = XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate)
+            XCTAssertEqual(
+                result,
+                .completed,
+                "Expected \(expectedCount) token(s) on main screen, found \(tokenTitles.count)"
+            )
             return self
         }
     }
@@ -492,6 +624,15 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func forgetWallet(_ name: String) -> DetailsScreen {
+        XCTContext.runActivity(named: "Forget wallet \(name)") { _ in
+            openDetails()
+                .openWalletSettings(for: name)
+                .forgetWallet()
+        }
+    }
+
+    @discardableResult
     func openDetails() -> DetailsScreen {
         XCTContext.runActivity(named: "Open details screen") { _ in
             detailsButton.waitAndTap()
@@ -500,11 +641,37 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func verifyTangemPayTileVisible() -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile is visible on main screen") { _ in
+            scrollToElement(tangemPayTile)
+            waitAndAssertTrue(tangemPayTile, "Tangem Pay tile should be visible on main screen")
+            return self
+        }
+    }
+
+    @discardableResult
     func openTangemPay() -> TangemPayMainScreen {
         XCTContext.runActivity(named: "Open Tangem Pay from main screen") { _ in
-            scrollToElement(tangemPayTile)
-            tangemPayTile.waitAndTap()
+            tapTangemPayTile()
             return TangemPayMainScreen(app)
+        }
+    }
+
+    @discardableResult
+    func openTangemPaySelectPlan() -> TangemPaySelectPlanScreen {
+        XCTContext.runActivity(named: "Open Tangem Pay plan selection from main screen") { _ in
+            tapTangemPayTile()
+            return TangemPaySelectPlanScreen(app)
+        }
+    }
+
+    @discardableResult
+    func openNFT() -> NFTCollectionsScreen {
+        XCTContext.runActivity(named: "Open NFT collections from main screen") { _ in
+            waitAndAssertTrue(nftEntrypointRow, "NFT row should be displayed on main screen")
+            XCTAssertTrue(scrollTokensListToVisible(nftEntrypointRow), "NFT row should be visible after scrolling")
+            nftEntrypointRow.waitAndTap()
+            return NFTCollectionsScreen(app)
         }
     }
 
@@ -526,6 +693,46 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func verifyTangemPayTileSubtitle(_ expected: String) -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile subtitle contains '\(expected)'") { _ in
+            scrollToElement(tangemPayTile)
+            // The tile is a button and may fold its texts into a single label, so both the subtitle and the tile are matched.
+            let predicate = NSPredicate(
+                format: "(identifier == %@ OR identifier == %@) AND label CONTAINS[c] %@",
+                TangemPayAccessibilityIdentifiers.mainScreenTileSubtitle,
+                TangemPayAccessibilityIdentifiers.mainScreenTile,
+                expected
+            )
+            waitAndAssertTrue(
+                app.descendants(matching: .any).matching(predicate).firstMatch,
+                timeout: .networkRequest,
+                "Tangem Pay tile subtitle should contain '\(expected)'. Actual tile label: '\(tangemPayTile.label)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTangemPayTileCurrency(_ expected: String) -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile shows currency '\(expected)'") { _ in
+            scrollToElement(tangemPayTile)
+            // The tile is a button and may fold its texts into a single label, so both the currency and the tile are matched.
+            let predicate = NSPredicate(
+                format: "(identifier == %@ OR identifier == %@) AND label CONTAINS %@",
+                TangemPayAccessibilityIdentifiers.mainScreenTileCurrency,
+                TangemPayAccessibilityIdentifiers.mainScreenTile,
+                expected
+            )
+            waitAndAssertTrue(
+                app.descendants(matching: .any).matching(predicate).firstMatch,
+                timeout: .networkRequest,
+                "Tangem Pay tile should show currency '\(expected)'. Actual tile label: '\(tangemPayTile.label)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func verifyGetTangemPayBannerExists() -> Self {
         XCTContext.runActivity(named: "Verify Get Tangem Pay banner is displayed") { _ in
             waitAndAssertTrue(getTangemPayBanner, timeout: .networkRequest, "Get Tangem Pay banner should be displayed on main screen")
@@ -536,7 +743,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func tapGetTangemPayBanner() -> TangemPayOnboardingScreen {
         XCTContext.runActivity(named: "Tap Get Tangem Pay banner CTA") { _ in
             waitAndAssertTrue(getTangemPayBanner, timeout: .networkRequest, "Get Tangem Pay banner should be displayed on main screen")
-            app.buttons[TangemPayAccessibilityIdentifiers.getTangemPayBannerOpenButton].firstMatch.waitAndTap()
+            getTangemPayBannerOpenButton.waitAndTap()
             return TangemPayOnboardingScreen(app)
         }
     }
@@ -551,13 +758,90 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
-    func verifyTangemPayTileShowsKycInProgress() -> Self {
-        XCTContext.runActivity(named: "Verify Tangem Pay tile shows KYC in progress") { _ in
+    func verifyTangemPayTileCachedIcon() -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile shows the cached data icon") { _ in
             scrollToElement(tangemPayTile)
-            let kycStatusLabel = tangemPayTile.staticTexts["KYC in progress"].firstMatch
-            waitAndAssertTrue(kycStatusLabel, timeout: .networkRequest, "Tangem Pay tile should show KYC in progress status")
+            waitAndAssertTrue(tangemPayTileCachedIcon, timeout: .networkRequest, "Tangem Pay tile should show the cached data icon")
             return self
         }
+    }
+
+    @discardableResult
+    func verifyTangemPayTileSubtitle(contains expectedSubstring: String) -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile subtitle contains '\(expectedSubstring)'") { _ in
+            scrollToElement(tangemPayTile)
+            let subtitle = tangemPayTile.staticTexts
+                .matching(NSPredicate(format: "label CONTAINS[c] %@", expectedSubstring))
+                .firstMatch
+            waitAndAssertTrue(subtitle, timeout: .networkRequest, "Tangem Pay tile subtitle should contain '\(expectedSubstring)'")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyVisibleTangemPayTile(subtitle: String, balance: String) -> Self {
+        XCTContext.runActivity(named: "Verify visible Tangem Pay tile shows '\(subtitle)' and balance '\(balance)'") { _ in
+            let tile = visibleTangemPayTile(subtitle: subtitle)
+            let balanceText = tile.staticTexts
+                .matching(identifier: TangemPayAccessibilityIdentifiers.mainScreenTileBalance)
+                .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, balance))
+                .firstMatch
+            waitAndAssertTrue(balanceText, timeout: .networkRequest, "Visible Tangem Pay tile should show balance '\(balance)'")
+            return self
+        }
+    }
+
+    func openVisibleTangemPay(subtitle: String) -> TangemPayMainScreen {
+        XCTContext.runActivity(named: "Open Tangem Pay from the visible tile showing '\(subtitle)'") { _ in
+            visibleTangemPayTile(subtitle: subtitle).waitAndTap()
+            return TangemPayMainScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyTangemPayTileSubtitle(doesNotContain unexpectedSubstring: String) -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile subtitle does not contain '\(unexpectedSubstring)'") { _ in
+            scrollToElement(tangemPayTile)
+            waitAndAssertTrue(tangemPayTile, timeout: .networkRequest, "Tangem Pay tile should be displayed on main screen")
+            let subtitle = tangemPayTile.staticTexts
+                .matching(NSPredicate(format: "label CONTAINS[c] %@", unexpectedSubstring))
+                .firstMatch
+            XCTAssertTrue(
+                subtitle.staysAbsent(for: .conditional),
+                "Tangem Pay tile subtitle should not contain '\(unexpectedSubstring)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTangemPayTileNotVisible() -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile is not displayed on main screen") { _ in
+            // The tile is absent from the start here, so the main screen has to be rendered before asserting.
+            waitAndAssertTrue(tokensList, "Main screen should be displayed")
+            XCTAssertTrue(
+                tangemPayTile.waitForNonExistence(timeout: .conditional),
+                "Tangem Pay tile should not be displayed after the account is removed"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTangemPayTileHasNoBalance() -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile shows no balance") { _ in
+            scrollToElement(tangemPayTile)
+            XCTAssertTrue(
+                tangemPayTileBalance.waitForNonExistence(timeout: .conditional),
+                "Tangem Pay tile should not show a balance when there is no cached data"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTangemPayTileShowsKycInProgress() -> Self {
+        verifyTangemPayTileSubtitle(contains: "Verification in progress")
     }
 
     func openTangemPayKycStatusSheet() -> TangemPayKYCStatusSheet {
@@ -570,12 +854,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
 
     @discardableResult
     func verifyTangemPayTileShowsKycRejected() -> Self {
-        XCTContext.runActivity(named: "Verify Tangem Pay tile shows KYC rejected") { _ in
-            scrollToElement(tangemPayTile)
-            let kycStatusLabel = tangemPayTile.staticTexts["KYC rejected"].firstMatch
-            waitAndAssertTrue(kycStatusLabel, timeout: .networkRequest, "Tangem Pay tile should show KYC rejected status")
-            return self
-        }
+        verifyTangemPayTileSubtitle(contains: "Verification rejected")
     }
 
     func openTangemPayKycDeclinedSheet() -> TangemPayKYCDeclinedSheet {
@@ -629,6 +908,17 @@ final class MainScreen: ScreenBase<MainScreenElement> {
                 }
             }
 
+            return ContextMenuScreen(app)
+        }
+    }
+
+    func openTokenContextMenu(_ tokenName: String) -> ContextMenuScreen {
+        XCTContext.runActivity(named: "Open context menu for token: \(tokenName)") { _ in
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            let token = tokenElement(named: tokenName)
+            waitAndAssertTrue(token, "Token '\(tokenName)' should exist")
+            scrollTokensListToVisible(token)
+            token.pressEvenIfNotHittable(forDuration: 1.5)
             return ContextMenuScreen(app)
         }
     }
@@ -904,11 +1194,15 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
-    func openMarketsSheetWithSwipe() -> MarketsAndNewsScreen {
-        XCTContext.runActivity(named: "Open markets sheet with swipe up gesture") { _ in
+    func openMarketsSheet() -> MarketsAndNewsScreen {
+        XCTContext.runActivity(named: "Open markets sheet") { _ in
+            if shtorkaExpandButton.waitForExistence(timeout: .conditional) {
+                shtorkaExpandButton.waitAndTap()
+                return MarketsAndNewsScreen(app)
+            }
+
             waitAndAssertTrue(grabber)
 
-            // Swipe up on the grabber view
             let startPoint = grabber.coordinate(
                 withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
             let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: -300))
@@ -965,8 +1259,9 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         for _ in 0 ..< attempts {
             if hasVisibleFrame(element) {
                 let frame = element.frame
-                if grabber.exists, frame.maxY > grabber.frame.minY {
-                    let offset = min(frame.maxY - grabber.frame.minY + 50, app.frame.height)
+                let sheetTop = marketsSheetTop
+                if frame.maxY > sheetTop {
+                    let offset = min(frame.maxY - sheetTop + 50, app.frame.height)
                     scrollTokensList(byOffset: -offset)
                     continue
                 }
@@ -976,6 +1271,18 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
 
         return hasVisibleFrame(element)
+    }
+
+    private var marketsSheetTop: CGFloat {
+        if shtorkaExpandButton.exists {
+            return shtorkaExpandButton.frame.minY - Constants.shtorkaSearchBarInset
+        }
+
+        if grabber.exists {
+            return grabber.frame.minY
+        }
+
+        return app.frame.maxY
     }
 
     /// Avoids `.isHittable` because it aborts the test with "Activation point invalid" when a SwiftUI row is mid-animation.
@@ -991,8 +1298,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         // sheet peeking at the bottom, which pulls the sheet open and hides every token. Anchor on a real
         // visible token row so the list's scroll view captures the gesture, and keep both endpoints above the grabber.
         let screen = app.frame
-        let grabberTop = grabber.exists ? grabber.frame.minY : screen.maxY
-        let rows = visibleTokenRows(above: grabberTop)
+        let sheetTop = marketsSheetTop
+        let rows = visibleTokenRows(above: sheetTop)
 
         let anchorX: CGFloat
         let startY: CGFloat
@@ -1004,10 +1311,10 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             startY = row.frame.midY
         } else {
             anchorX = screen.midX
-            startY = min(screen.midY, grabberTop - 100)
+            startY = min(screen.midY, sheetTop - 100)
         }
 
-        let endY = min(max(startY + dy, screen.minY + 100), grabberTop - 20)
+        let endY = min(max(startY + dy, screen.minY + 100), sheetTop - 20)
         let origin = app.coordinate(withNormalizedOffset: .zero)
         let start = origin.withOffset(CGVector(dx: anchorX, dy: startY))
         let end = origin.withOffset(CGVector(dx: anchorX, dy: endY))
@@ -1015,11 +1322,11 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     /// Visible token rows above the Markets grabber, top-to-bottom, used as safe drag anchors.
-    private func visibleTokenRows(above grabberTop: CGFloat) -> [XCUIElement] {
+    private func visibleTokenRows(above sheetTop: CGFloat) -> [XCUIElement] {
         visibleTokensList().staticTexts
             .matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
             .allElementsBoundByIndex
-            .filter { hasVisibleFrame($0) && $0.frame.maxY < grabberTop }
+            .filter { hasVisibleFrame($0) && $0.frame.maxY < sheetTop }
             .sorted { $0.frame.minY < $1.frame.minY }
     }
 
@@ -1071,6 +1378,18 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTFail("\(actionName) unavailable alert did not appear after retrying taps")
     }
 
+    /// Scrolls the main screen toward the bottom, staying above the Markets grabber so the swipe doesn't pull the sheet open.
+    private func scrollMainToBottom(attempts: Int = 2) {
+        let screen = app.frame
+        let origin = app.coordinate(withNormalizedOffset: .zero)
+        for _ in 0 ..< attempts {
+            let startY = min(screen.midY, marketsSheetTop - 40)
+            let endY = max(screen.minY + 120, startY - 250)
+            origin.withOffset(CGVector(dx: screen.midX, dy: startY))
+                .press(forDuration: 0.1, thenDragTo: origin.withOffset(CGVector(dx: screen.midX, dy: endY)))
+        }
+    }
+
     private func isGrouped() -> Bool {
         let networkHeaders = tokensList.descendants(matching: .staticText)
             .allElementsBoundByIndex
@@ -1080,6 +1399,22 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             }
 
         return !networkHeaders.isEmpty
+    }
+
+    private func visibleTangemPayTile(subtitle: String) -> XCUIElement {
+        let tile = app.buttons
+            .matching(identifier: TangemPayAccessibilityIdentifiers.mainScreenTile)
+            .containing(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, subtitle))
+            .firstMatch
+        waitAndAssertTrue(tile, timeout: .networkRequest, "Tangem Pay tile showing '\(subtitle)' should exist")
+        scrollToElement(tile)
+        XCTAssertTrue(tile.waitForState(state: .hittable), "Tangem Pay tile showing '\(subtitle)' should be on the visible wallet page")
+        return tile
+    }
+
+    private func tapTangemPayTile() {
+        scrollToElement(tangemPayTile)
+        tangemPayTile.waitAndTap()
     }
 }
 
@@ -1096,6 +1431,7 @@ enum MainScreenElement: String, UIElement {
     case totalBalanceShimmer
     case missingDerivationNotification
     case walletLockedNotification
+    case walletPromoBannerButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -1123,6 +1459,8 @@ enum MainScreenElement: String, UIElement {
             MainAccessibilityIdentifiers.missingDerivationNotification
         case .walletLockedNotification:
             MainAccessibilityIdentifiers.walletLockedNotification
+        case .walletPromoBannerButton:
+            MainAccessibilityIdentifiers.walletPromoBannerButton
         }
     }
 }
@@ -1147,5 +1485,11 @@ extension MainScreen {
                 )
             }
         }
+    }
+}
+
+private extension MainScreen {
+    enum Constants {
+        static let shtorkaSearchBarInset: CGFloat = 16
     }
 }

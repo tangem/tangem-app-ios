@@ -37,6 +37,14 @@ final class CommonCryptoAccountsAuxiliaryDataStorage {
         }
     }
 
+    @Storage private var innerTotalJointAccountsCount: Int {
+        didSet {
+            if oldValue != innerTotalJointAccountsCount {
+                didChangeSubject.send()
+            }
+        }
+    }
+
     private let didChangeSubject = PassthroughSubject<Void, Never>()
 
     init(
@@ -51,6 +59,9 @@ final class CommonCryptoAccountsAuxiliaryDataStorage {
         )
         _innerTotalCryptoAccountsCount = .init(
             wrappedValue: 0, .init(forTotalCryptoAccountsCountWithStorageIdentifier: storageIdentifier)
+        )
+        _innerTotalJointAccountsCount = .init(
+            wrappedValue: 0, .init(forTotalJointAccountsCountWithStorageIdentifier: storageIdentifier)
         )
     }
 }
@@ -79,6 +90,11 @@ extension CommonCryptoAccountsAuxiliaryDataStorage: CryptoAccountsAuxiliaryDataS
         get { innerTotalCryptoAccountsCount }
         set { innerTotalCryptoAccountsCount = newValue }
     }
+
+    var totalJointAccountsCount: Int {
+        get { innerTotalJointAccountsCount }
+        set { innerTotalJointAccountsCount = newValue }
+    }
 }
 
 // MARK: - Auxiliary types
@@ -98,6 +114,10 @@ private struct Key: RawRepresentable {
     /// which is what it already held, so renaming the key would drop the value instead of migrating it.
     init(forTotalCryptoAccountsCountWithStorageIdentifier storageIdentifier: String) {
         rawValue = "CommonCryptoAccountsAuxiliaryDataStorage_totalAccountsCount_\(storageIdentifier)"
+    }
+
+    init(forTotalJointAccountsCountWithStorageIdentifier storageIdentifier: String) {
+        rawValue = "CommonCryptoAccountsAuxiliaryDataStorage_totalJointAccountsCount_\(storageIdentifier)"
     }
 
     init?(rawValue: String) {

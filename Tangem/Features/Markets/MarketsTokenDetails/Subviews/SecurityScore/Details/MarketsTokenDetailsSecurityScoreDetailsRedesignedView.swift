@@ -54,7 +54,7 @@ struct MarketsTokenDetailsSecurityScoreDetailsRedesignedView: View {
                     action: { viewModel.closeAction?() }
                 )
                 .size(.x9)
-                .styleType(.secondary)
+                .styleType(.secondary(.default))
             }
         )
         .titleFont(DesignSystem.Font.bodyMediumToken.font) // [REDACTED_INFO]: tracking deferred

@@ -36,6 +36,7 @@ protocol SendOnrampOffersAnalyticsLogger: SendOnrampProvidersAnalyticsLogger,
     func logOnrampBestRateClicked(provider: OnrampProvider)
 
     func logOnrampButtonAllOffers()
+    func logOnrampNoticeGeoRestriction(providerNames: [String])
 }
 
 // MARK: - Providers

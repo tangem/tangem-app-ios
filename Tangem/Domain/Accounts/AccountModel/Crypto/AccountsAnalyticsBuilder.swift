@@ -18,6 +18,6 @@ protocol AccountModelAnalyticsProviding {
 
 protocol AccountsAnalyticsBuilder {
     @discardableResult
-    func setDerivationIndex(_ index: Int) -> Self
+    func setDerivationIdentity(_ identity: CryptoAccountDerivationIdentity) -> Self
     func build() -> [Analytics.ParameterKey: String]
 }

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Moya
 import TangemNetworkUtils
 
 final class CommonYieldModuleAPIService {
@@ -37,6 +38,35 @@ extension CommonYieldModuleAPIService: YieldModuleAPIService {
         chainIDs: [String]?
     ) async throws -> YieldModuleDTO.Response.MarketsInfo {
         try await request(for: .markets(chains: chainIDs), decoder: decoder)
+    }
+
+    func getIncentiveYieldMarkets(
+        chainIDs: [String]?
+    ) async throws -> YieldModuleDTO.Response.MarketsInfo {
+        let enveloped: YieldModuleDTO.Enveloped<YieldModuleDTO.Response.MarketsInfo> = try await request(
+            for: .incentiveMarkets(chains: chainIDs),
+            decoder: decoder
+        )
+        return enveloped.result
+    }
+
+    func getIncentives(
+        chainId: Int,
+        userAddress: String
+    ) async throws -> YieldModuleDTO.Response.IncentivesInfo? {
+        try await incentivesRequest(for: .incentives(chainId: chainId, userAddress: userAddress))
+    }
+
+    func getAprHistory(
+        chainId: Int,
+        tokenAddress: String,
+        days: Int
+    ) async throws -> YieldModuleDTO.Response.AprHistory {
+        let enveloped: YieldModuleDTO.Enveloped<YieldModuleDTO.Response.AprHistory> = try await request(
+            for: .aprHistory(chainId: chainId, tokenAddress: tokenAddress, days: days),
+            decoder: decoder
+        )
+        return enveloped.result
     }
 
     func getTokenPositionInfo(
@@ -105,13 +135,38 @@ extension CommonYieldModuleAPIService: YieldModuleAPIService {
 
 private extension CommonYieldModuleAPIService {
     func request<T: Decodable>(for target: YieldModuleAPITarget.TargetType, decoder: JSONDecoder) async throws -> T {
-        let request = YieldModuleAPITarget(yieldModuleAPIType: yieldModuleAPIType, tangemAPIType: tangemAPIType, target: target)
-        let response = try await provider.asyncRequest(request)
-        return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: false, decoder: decoder)
+        try await response(for: target).mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: false, decoder: decoder)
     }
 
     func request(for target: YieldModuleAPITarget.TargetType) async throws {
+        _ = try await response(for: target)
+    }
+
+    func response(for target: YieldModuleAPITarget.TargetType) async throws -> Response {
         let request = YieldModuleAPITarget(yieldModuleAPIType: yieldModuleAPIType, tangemAPIType: tangemAPIType, target: target)
-        _ = try await provider.asyncRequest(request)
+
+        return try await provider.asyncRequest(request)
+    }
+
+    /// The incentive surfaces answer with `unsupportedChainStatusCode` when the chain carries no campaign support,
+    /// which the contract defines as a state rather than a failure. Endpoints that drive an action, claim calldata
+    /// above all, must keep reporting it as an error.
+    func incentivesRequest<T: Decodable>(for target: YieldModuleAPITarget.TargetType) async throws -> T? {
+        let response = try await response(for: target)
+
+        guard response.statusCode != Constants.unsupportedChainStatusCode else {
+            return nil
+        }
+
+        let enveloped: YieldModuleDTO.Enveloped<T> = try response.mapAPIResponseThrowingTangemAPIError(
+            allowRedirectCodes: false,
+            decoder: decoder
+        )
+
+        return enveloped.result
+    }
+
+    enum Constants {
+        static let unsupportedChainStatusCode = 400
     }
 }

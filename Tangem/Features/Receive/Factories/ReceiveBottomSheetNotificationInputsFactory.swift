@@ -16,7 +16,7 @@ struct ReceiveBottomSheetNotificationInputsFactory {
         let assetSymbol = switch flow {
         case .nft:
             Localization.detailsNftTitle
-        case .crypto:
+        case .crypto, .polymarketDeposit:
             tokenItem.currencySymbol
         }
 
@@ -35,6 +35,8 @@ struct ReceiveBottomSheetNotificationInputsFactory {
         ]
 
         switch (flow, tokenItem.blockchain) {
+        case (.polymarketDeposit, _):
+            return baseNotificationInputs
         case (.nft, .solana):
             return [
                 NotificationViewInput(

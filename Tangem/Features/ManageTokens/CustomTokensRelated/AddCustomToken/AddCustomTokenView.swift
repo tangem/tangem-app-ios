@@ -285,7 +285,7 @@ private struct TextInputWithTitle: View {
     let accountModelsManager = AccountModelsManagerMock()
     let context = CommonManageTokensContext(
         accountModelsManager: accountModelsManager,
-        currentAccount: accountModelsManager.cryptoAccountModels[0]
+        currentAccount: AccountModelsAggregator(.crypto, .joint).models(from: accountModelsManager)[0]
     )
 
     coordinator.start(with: .init(

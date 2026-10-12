@@ -25,19 +25,24 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
     @Injected(\.ratingProvider) private var ratingProvider: RatingProvider
     @Injected(\.transactionHistoryAuxDataRepository) private var auxDataRepository: TransactionHistoryAuxDataRepository
+    @Injected(\.cryptoAccountsGlobalStateProvider)
+    private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
 
     @Published private(set) var header: TransactionDetailsHeaderViewData?
     @Published private(set) var content: Content?
     @Published private(set) var presentedFeedback: RatingFeedbackBottomSheetViewModel?
+    @Published private(set) var isPresentationSettled = false
 
     @Published private var ratingViewModel: RatingViewModel?
     @Published private var isRatingCardVisible = false
+    @Published private var isRatingResolving = false
     @Published private var isSuccessBannerDismissed = false
 
     private let walletModel: any WalletModel
     private let userWalletId: UserWalletId
     private let userWalletIdHash: String
     private let context: TransactionDetailsContext
+    private let analyticsLogger: TransactionDetailsAnalyticsLogger
 
     private let addressBookAnalyticsLogger: AddressBookAnalyticsLogger
     private let addressBookWallet: AddressBookWallet
@@ -66,6 +71,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         userWalletId = userWalletInfo.id
         userWalletIdHash = userWalletInfo.id.hashedStringValue
         addressBookWallet = AddressBookWallet(wallet: userWalletInfo, addressBookManager: addressBookManager)
+        analyticsLogger = TransactionDetailsAnalyticsLogger(tokenItem: walletModel.tokenItem)
 
         let context = TransactionDetailsContext(
             walletModel: walletModel,
@@ -76,27 +82,21 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
         let mapper = TransactionHistoryMapper(
             currencySymbol: walletModel.tokenItem.currencySymbol,
+            blockchain: walletModel.tokenItem.blockchain,
             addressesProvider: walletModel,
             showSign: true,
-            isToken: walletModel.tokenItem.isToken
-        )
-        let resolver = SubtitleOwnerResolver(
-            blockchain: walletModel.tokenItem.blockchain,
-            currentUserWalletId: userWalletInfo.id,
-            isAccountsMode: isAccountsMode
+            isToken: walletModel.tokenItem.isToken,
+            stakingNetwork: walletModel.tokenItem.stakingTokenItem?.network
         )
 
         subscribe(
             id: id,
             transactionHistoryPublisher: walletModel.transactionHistoryPublisher,
-            contactsPublisher: addressBookWallet.addressBookPublisher,
+            contactsPublisher: AddressBookContactsAggregator.contactsPublisher(),
             syncStatePublisher: addressBookWallet.syncStatePublisher,
             context: context,
-            mapper: mapper,
-            resolver: resolver
+            mapper: mapper
         )
-
-        loadAddressBook() // Address book should be loaded as early as possible since it is empty by default
     }
 
     deinit {
@@ -118,6 +118,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
             return
         }
 
+        isRatingResolving = true
         ratingSetupTask = Task { [weak self] in
             await self?.makeRatingViewModel(for: transaction)
         }
@@ -132,6 +133,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
         guard let providerName = resolvedName else {
             ratingSetupTask = nil
+            isRatingResolving = false
             return
         }
 
@@ -145,10 +147,12 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
                 ),
                 userWalletIdHash: userWalletIdHash
             ),
-            feedbackPresenter: self
+            feedbackPresenter: self,
+            showsSkeleton: false
         )
 
         ratingViewModel.isCardVisiblePublisher.assign(to: &$isRatingCardVisible)
+        ratingViewModel.$state.map { $0 == .loading }.removeDuplicates().assign(to: &$isRatingResolving)
         self.ratingViewModel = ratingViewModel
     }
 
@@ -157,7 +161,13 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
         let blocks = Self.rawBlocks(for: content)
 
-        guard let ratingViewModel, isRatingCardVisible else { return blocks }
+        guard
+            let ratingViewModel,
+            isRatingCardVisible,
+            isPresentationSettled
+        else {
+            return blocks
+        }
 
         return blocks.flatMap { block in
             if case .tokens = block {
@@ -168,14 +178,26 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         }
     }
 
+    private var isAccountsMode: Bool {
+        cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
+    }
+
+    private func subtitleOwnerResolver(contacts: [AddressBookContact]) -> SubtitleOwnerResolver {
+        SubtitleOwnerResolver(
+            blockchain: walletModel.tokenItem.blockchain,
+            currentUserWalletId: userWalletId,
+            isAccountsMode: isAccountsMode,
+            contacts: contacts
+        )
+    }
+
     private func subscribe(
         id: TransactionRecord.ID,
         transactionHistoryPublisher: some Publisher<WalletModelTransactionHistoryState, Never>,
         contactsPublisher: some Publisher<[AddressBookContact], Never>,
         syncStatePublisher: some Publisher<AddressBookSyncState, Never>,
         context: TransactionDetailsContext,
-        mapper: TransactionHistoryMapper,
-        resolver: SubtitleOwnerResolver
+        mapper: TransactionHistoryMapper
     ) {
         let recordPublisher = transactionHistoryPublisher
             .compactMap { state -> TransactionRecord? in
@@ -194,22 +216,37 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
             }
             .removeDuplicates()
 
+        // The history publisher this sheet reads from already re-emits on `didLoadAuxData`, but `recordPublisher`
+        // above drops that emission: the record itself is unchanged when only the auxiliary data is. So an
+        // already-open sheet needs the signal directly to re-map, otherwise it keeps rendering the provider id or
+        // the raw staking address it was first built with.
+        let didLoadAuxDataPublisher = Publishers
+            .stream { [auxDataRepository] in
+                auxDataRepository.didLoadAuxData
+            }
+
         let enrichedRecordPublisher = recordPublisher
             .combineLatest(
                 contactsPublisher.removeDuplicates(),
-                syncStatePublisher.map(\.isSynced).removeDuplicates()
+                syncStatePublisher.map(\.isSynced).removeDuplicates(),
+                didLoadAuxDataPublisher
             )
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .map { viewModel, args in
-                let (record, contacts, isAddressBookSynced) = args
-                let transaction = mapper.mapTransactionViewModel(record, subtitleOwnerResolver: resolver)
+                let (record, contacts, isAddressBookSynced, _) = args
+                let transaction = mapper.mapTransactionViewModel(
+                    record,
+                    subtitleOwnerResolver: viewModel.subtitleOwnerResolver(contacts: contacts)
+                )
 
                 return (
                     record: record,
+                    transaction: transaction,
                     reduced: TransactionDetailsFactory.reduce(
                         transaction: transaction,
                         record: record,
+                        cryptoAmount: mapper.displayedAmountValue(from: record),
                         context: context,
                         addContactHelper: viewModel.makeAddContactHelper(
                             for: transaction,
@@ -224,10 +261,11 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         enrichedRecordPublisher
             .withWeakCaptureOf(self)
             .sink { viewModel, output in
+                viewModel.setupRatingViewModel(for: output.reduced.content)
                 viewModel.record = output.record
                 viewModel.header = output.reduced.header
                 viewModel.content = output.reduced.content
-                viewModel.setupRatingViewModel(for: output.reduced.content)
+                viewModel.analyticsLogger.recordUpdated(output.record, transaction: output.transaction)
             }
             .store(in: &bag)
 
@@ -258,26 +296,84 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
             .store(in: &bag)
     }
 
+    // MARK: - Presentation
+
+    /// Delay for sheet opening - needed for calculate and render content with real size
+    func prepareForPresentation() async {
+        let readiness = $content
+            .combineLatest($isRatingResolving)
+            .map { content, isRatingResolving in content != nil && !isRatingResolving }
+            .first(where: { $0 })
+            .timeout(Constants.presentationReadinessTimeout, scheduler: DispatchQueue.main)
+            .replaceEmpty(with: false)
+
+        guard let isReadyInTime = try? await readiness.async() else {
+            return
+        }
+
+        if isReadyInTime {
+            isPresentationSettled = true
+        }
+    }
+
+    func waitForPresentationToSettle() async {
+        do {
+            try await Task.sleep(for: Constants.presentationSettleDelay)
+        } catch {
+            return
+        }
+
+        isPresentationSettled = true
+    }
+
     // MARK: - Actions
 
     func handleViewAction(_ action: ViewAction) {
         switch action {
-        case .openURL(let url):
+        case .openURL(let url, let kind):
+            logAnalytics(for: kind)
             routable?.openTransactionDetailsURL(url)
         case .share:
+            analyticsLogger.logShare()
             share()
         case .close:
             routable?.closeTransactionDetails()
-        case .copy(let value, let toast):
+        case .copy(let value, let toast, let kind):
+            logAnalytics(for: kind)
             copy(value, toast: toast)
         case .openRefundToken:
+            analyticsLogger.logGoToToken()
             openRefundToken()
         case .addContact(let address):
             addContact(address: address)
+        case .openSigners, .signOperation:
+            // A sent transaction has no signatures left to collect — these reach the joint account sheet instead,
+            // which draws the same blocks over an operation that has not been sent yet
+            break
         #if INTERNAL || DEBUG
         case .debug:
             openDebug()
         #endif
+        }
+    }
+
+    private func logAnalytics(for kind: ViewAction.URLKind) {
+        switch kind {
+        case .explorer:
+            analyticsLogger.logExplore()
+        case .provider(let source):
+            analyticsLogger.logGoToProvider(source: source)
+        case .yieldProvider:
+            break
+        }
+    }
+
+    private func logAnalytics(for kind: ViewAction.CopyKind) {
+        switch kind {
+        case .address:
+            analyticsLogger.logCopyAddress()
+        case .transactionID:
+            analyticsLogger.logCopyTransactionID()
         }
     }
 
@@ -351,12 +447,6 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
     // MARK: - Address book support
 
-    private func loadAddressBook() {
-        runTask(in: self) { viewModel in
-            await viewModel.addressBookWallet.addressBookManager.load(silent: true)
-        }
-    }
-
     private func makeAddContactHelper(
         for transaction: TransactionViewModel,
         contacts: [AddressBookContact],
@@ -364,7 +454,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
     ) -> TransactionDetailsAddContactHelper {
         TransactionDetailsAddContactHelper(
             networkId: AddressBookNetworkID(walletModel.tokenItem.blockchain.networkId),
-            contacts: contacts,
+            contacts: contacts.filter { $0.walletId == userWalletId },
             isAddressBookSynced: isAddressBookSynced,
             transactionType: transaction.transactionType,
             interactionAddress: transaction.interactionAddress
@@ -372,7 +462,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
     }
 
     private func addContact(address: String) {
-        addressBookAnalyticsLogger.logAddContactTapped(userWalletId: userWalletId, source: .transactionDetails)
+        addressBookAnalyticsLogger.logAddContactTapped(source: .transactionDetails)
 
         // BSDK transactions don't carry memo information, so we can't prefill it - hence `nil`
         let entry = AddressBookEntryDraft(address: address, blockchain: walletModel.tokenItem.blockchain, memo: nil)
@@ -407,19 +497,44 @@ extension TransactionDetailsViewModel {
     }
 
     enum ViewAction: Equatable {
-        case openURL(URL)
+        case openURL(URL, kind: URLKind)
         case share
-        case copy(value: String, toast: String)
+        case copy(value: String, toast: String, kind: CopyKind)
         case openRefundToken
         case addContact(address: String)
         case close
+        /// Opens the list of who has answered a joint account operation. Meaningless for a sent transaction, which
+        /// has no signers to show — only the joint sheet ever sends it.
+        case openSigners
+        /// Adds this member's signature to a joint account operation. Sent by the joint sheet alone.
+        case signOperation
         #if INTERNAL || DEBUG
         case debug
         #endif
+
+        enum URLKind: Equatable {
+            case explorer
+            case provider(source: TransactionDetailsProviderNavigationSource)
+            case yieldProvider
+        }
+
+        enum CopyKind: Equatable {
+            case address
+            case transactionID
+        }
     }
 
     private enum RefundTokenError: Error {
         case targetNotResolved
+    }
+}
+
+// MARK: - Constants
+
+private extension TransactionDetailsViewModel {
+    enum Constants {
+        static let presentationSettleDelay: Duration = .milliseconds(450)
+        static let presentationReadinessTimeout: DispatchQueue.SchedulerTimeType.Stride = .seconds(1)
     }
 }
 

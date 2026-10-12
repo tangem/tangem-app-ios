@@ -14,20 +14,20 @@ final class CommonTransactionHistoryNetworkService<Record: TransactionHistoryRec
     /// - Parameter cursor: Opaque cursor for the next page.
     typealias PageFetcher = @Sendable (_ apiProvider: ExpressAPIProvider, _ cursor: Any?) async throws -> TransactionHistoryPage<Record>
 
-    private let apiProvider: ExpressAPIProvider
+    private let apiProviderFactory: TransactionHistoryAPIProviderFactory
     private let initialCursorStorage: TransactionHistoryCursorStorage
     private let deltaCursorStorage: TransactionHistoryCursorStorage
     private let initialPageFetcher: PageFetcher
     private let deltaPageFetcher: PageFetcher
 
     init(
-        apiProvider: ExpressAPIProvider,
+        apiProviderFactory: @escaping TransactionHistoryAPIProviderFactory,
         initialCursorStorage: TransactionHistoryCursorStorage,
         deltaCursorStorage: TransactionHistoryCursorStorage,
         initialPageFetcher: @escaping PageFetcher,
         deltaPageFetcher: @escaping PageFetcher
     ) {
-        self.apiProvider = apiProvider
+        self.apiProviderFactory = apiProviderFactory
         self.initialCursorStorage = initialCursorStorage
         self.deltaCursorStorage = deltaCursorStorage
         self.initialPageFetcher = initialPageFetcher
@@ -43,7 +43,7 @@ final class CommonTransactionHistoryNetworkService<Record: TransactionHistoryRec
         var cursor = await primaryCursorStorage.cursor() // Updated inside the loop after each page is processed, therefore `var`
 
         while !Task.isCancelled {
-            let page = try await pageFetcher(apiProvider, cursor)
+            let page = try await pageFetcher(apiProviderFactory(), cursor)
 
             TransactionHistoryLogger.debug(self, "Fetched page: \(page.records.count) record(s), hasMore: \(page.hasMore)")
 

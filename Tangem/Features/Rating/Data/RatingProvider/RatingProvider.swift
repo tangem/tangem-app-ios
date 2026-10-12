@@ -9,6 +9,7 @@
 import Foundation
 
 protocol RatingProvider: Sendable {
+    func cachedStatus(for transactionId: String) -> RatingStatus
     func checkExisting(for transactionId: String) async throws -> ExistingRating?
     func submit(request: RatingRequest) async throws
 }

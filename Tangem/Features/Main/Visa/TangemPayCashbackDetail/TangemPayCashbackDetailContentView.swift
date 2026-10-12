@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayCashbackDetailContentView: View {
     let state: TangemPayCashbackDetailState
@@ -66,10 +67,12 @@ private extension TangemPayCashbackDetailContentView {
             )
             .size(.x10)
             .styleType(.default)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackDetailReloadButton)
 
             Text(Localization.tangempayCashbackErrorTitle)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackDetailErrorTitle)
         }
     }
 }

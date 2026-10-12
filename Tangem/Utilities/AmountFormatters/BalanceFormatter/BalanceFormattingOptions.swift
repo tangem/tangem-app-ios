@@ -54,4 +54,15 @@ struct BalanceFormattingOptions: Hashable {
 
         return options
     }
+
+    static func cryptoRateFormattingOptions(decimalCount: Int) -> BalanceFormattingOptions {
+        var options = Self.defaultCryptoFormattingOptions
+        let fractionDigits = min(options.maxFractionDigits, decimalCount)
+
+        options.minFractionDigits = min(options.minFractionDigits, fractionDigits)
+        options.maxFractionDigits = fractionDigits
+        options.roundingType = .default(roundingMode: .down, scale: fractionDigits)
+
+        return options
+    }
 }

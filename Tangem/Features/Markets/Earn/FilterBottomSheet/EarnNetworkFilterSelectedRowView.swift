@@ -15,9 +15,9 @@ struct EarnNetworkFilterSelectedRowView<ID: Hashable>: View {
     let data: DefaultSelectableRowViewModel<ID>
     let selection: Binding<ID>
 
-    @ScaledMetric private var verticalPadding: CGFloat = 18
+    @ScaledMetric private var verticalPadding: CGFloat = 16
+    @ScaledMetric private var subtitleSpacing: CGFloat = 2
     @ScaledMetric private var horizontalMinLength: CGFloat = 4
-    @ScaledMetric private var iconSide: CGFloat = 20
 
     private var isSelected: Bool {
         selection.isActive(compare: data.id).wrappedValue
@@ -26,38 +26,39 @@ struct EarnNetworkFilterSelectedRowView<ID: Hashable>: View {
     var body: some View {
         SwiftUI.Button(action: { selection.isActive(compare: data.id).toggle() }) {
             HStack(spacing: 0) {
-                Text(data.title)
-                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                text
 
                 Spacer(minLength: horizontalMinLength)
 
                 icon
             }
             .padding(.vertical, verticalPadding)
+            .contentShape(Rectangle())
         }
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 
 // MARK: - Subviews
 
 private extension EarnNetworkFilterSelectedRowView {
-    var icon: some View {
-        Group {
-            if isSelected {
-                Assets.checkmark20.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .foregroundStyle(DesignSystem.Color.iconStaticDark)
-                    .background(DesignSystem.Color.iconAccentBlue, in: .circle)
-            } else {
-                Assets.circleOutline20.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .foregroundStyle(DesignSystem.Color.borderTertiary)
+    var text: some View {
+        VStack(alignment: .leading, spacing: subtitleSpacing) {
+            Text(data.title)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+
+            if let subtitle = data.subtitle {
+                Text(subtitle)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             }
         }
-        .frame(width: iconSide, height: iconSide)
+        .multilineTextAlignment(.leading)
+    }
+
+    var icon: some View {
+        TangemUI.Checkmark(checked: isSelected, action: {})
+            .expandsHitArea(false)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
     }
 }

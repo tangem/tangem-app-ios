@@ -35,9 +35,7 @@ extension CommonWalletModel {
             walletManager: EthereumWalletManagerMock(),
             stakingManager: StakingManagerMock(),
             featureManager: WalletModelFeaturesManagerMock(),
-            transactionHistoryUpdater: TransactionHistoryUpdater(
-                scheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage()
-            ),
+            transactionHistoryUpdater: TransactionHistoryUpdater(),
             transactionHistoryService: nil,
             receiveAddressService: DummyReceiveAddressService(addressInfos: []),
             sendAvailabilityProvider: sendAvailabilityProvider,

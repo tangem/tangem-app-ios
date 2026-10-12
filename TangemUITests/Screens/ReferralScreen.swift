@@ -17,15 +17,19 @@ final class ReferralScreen: ScreenBase<ReferralScreenElement> {
     private lazy var discountSection = staticText(.discountSection)
     private lazy var promoCodeTitle = staticText(.promoCodeTitle)
     private lazy var promoCodeValue = staticText(.promoCodeValue)
+    /// Type-agnostic: the row is composed of a button wrapper whose element type is not guaranteed.
+    private lazy var addressForRewardsAccountRow = app.descendants(matching: .any)
+        .matching(identifier: ReferralAccessibilityIdentifiers.addressForRewardsAccountRow)
+        .firstMatch
 
     @discardableResult
     func verifyReferralScreenDisplayed() -> Self {
         XCTContext.runActivity(named: "Validate Referral Screen") { _ in
-            XCTAssertTrue(title.waitForExistence(timeout: .robustUIUpdate))
-            XCTAssertTrue(currenciesSection.exists, "Currencies section elements should exist")
-            XCTAssertTrue(discountSection.exists, "Discount section elements should exist")
-            XCTAssertTrue(participateButton.exists, "Participate button should exist")
-            XCTAssertTrue(tosButton.exists, "TOS button should exist")
+            waitAndAssertTrue(title, "Referral screen title should exist")
+            waitAndAssertTrue(currenciesSection, "Currencies section elements should exist")
+            waitAndAssertTrue(discountSection, "Discount section elements should exist")
+            waitAndAssertTrue(participateButton, "Participate button should exist")
+            waitAndAssertTrue(tosButton, "TOS button should exist")
             return self
         }
     }
@@ -35,6 +39,15 @@ final class ReferralScreen: ScreenBase<ReferralScreenElement> {
         XCTContext.runActivity(named: "Validate 'Your personal code' title is displayed") { _ in
             waitAndAssertTrue(promoCodeTitle, "'Your personal code' title should be displayed")
             return self
+        }
+    }
+
+    @discardableResult
+    func openAccountSelector() -> AccountSelectorSheet {
+        XCTContext.runActivity(named: "Open account selector from the 'Address for rewards' block") { _ in
+            waitAndAssertTrue(addressForRewardsAccountRow, "Account row should be displayed in the 'Address for rewards' block")
+            addressForRewardsAccountRow.waitAndTap()
+            return AccountSelectorSheet(app)
         }
     }
 

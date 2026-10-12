@@ -13,10 +13,11 @@ import DGCharts
 import TangemUI
 
 /// A `YAxisRenderer` subclass that insets min/max grid lines to avoid overlapping axis labels,
-/// while the middle grid line spans full width.
+/// while the middle grid line is inset to the screen margins.
 final class InsetGridLineYAxisRenderer: YAxisRenderer {
     var labelOffset: CGFloat = 0.0
     var labelToLineSpacing: CGFloat = 4
+    var middleGridLineInset: CGFloat = 16
     var labelFont: UIFont = .preferredFont(forTextStyle: .caption2)
     var leftAxisFormatter: AxisValueFormatter?
     var rightAxisFormatter: AxisValueFormatter?
@@ -33,8 +34,8 @@ final class InsetGridLineYAxisRenderer: YAxisRenderer {
 
         guard isMinOrMax else {
             context.beginPath()
-            context.move(to: CGPoint(x: viewPortHandler.contentLeft, y: position.y))
-            context.addLine(to: CGPoint(x: viewPortHandler.contentRight, y: position.y))
+            context.move(to: CGPoint(x: viewPortHandler.contentLeft + middleGridLineInset, y: position.y))
+            context.addLine(to: CGPoint(x: viewPortHandler.contentRight - middleGridLineInset, y: position.y))
             context.strokePath()
             return
         }

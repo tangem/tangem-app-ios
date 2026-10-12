@@ -19,6 +19,8 @@ final class ReceiveTemplatesSheet: ScreenBase<ReceiveTemplatesSheetElement> {
     private lazy var showQRCodeButton = button(.showQRCodeButton)
     private lazy var segwitAddress = staticText(.segwitAddress)
     private lazy var closeButton = button(.closeButton)
+    private lazy var copyButton = button(.copyButton)
+    private lazy var shareButton = button(.shareButton)
 
     @discardableResult
     func validateShowQRCodeButtonDisplayed() -> Self {
@@ -39,6 +41,22 @@ final class ReceiveTemplatesSheet: ScreenBase<ReceiveTemplatesSheetElement> {
         XCTContext.runActivity(named: "Tap Show QR code button for \(type) address") { _ in
             showQRCodeButton(for: type).waitAndTap()
             return ReceiveQRCodeSheet(app)
+        }
+    }
+
+    @discardableResult
+    func verifyCopyAndShareButtonsDisplayed() -> Self {
+        XCTContext.runActivity(named: "Verify Copy and Share buttons are displayed") { _ in
+            waitAndAssertTrue(copyButton, "Copy button should be displayed")
+            waitAndAssertTrue(shareButton, "Share button should be displayed")
+            return self
+        }
+    }
+
+    func tapShare() -> ShareSheet {
+        XCTContext.runActivity(named: "Tap Share button on Receive sheet") { _ in
+            shareButton.waitAndTap()
+            return ShareSheet(app)
         }
     }
 
@@ -100,6 +118,8 @@ enum ReceiveTemplatesSheetElement: String, UIElement {
     case segwitAddress
     case legacyAddress
     case closeButton
+    case copyButton
+    case shareButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -115,6 +135,10 @@ enum ReceiveTemplatesSheetElement: String, UIElement {
             return ReceiveAccessibilityIdentifiers.legacyAddress
         case .closeButton:
             return CommonUIAccessibilityIdentifiers.closeButton
+        case .copyButton:
+            return ReceiveAccessibilityIdentifiers.copyButton
+        case .shareButton:
+            return ReceiveAccessibilityIdentifiers.shareButton
         }
     }
 }

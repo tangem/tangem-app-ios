@@ -93,14 +93,23 @@ extension CommonTangemApiService: TangemApiService {
             .eraseToAnyPublisher()
     }
 
-    func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String) async throws {
-        let target = TangemApiTarget(type: .saveUserWalletTokensV2(key: key, list: list))
+    func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String, revision: String) async throws -> String? {
+        let target = TangemApiTarget(type: .saveUserWalletTokensV2(key: key, list: list, revision: revision))
 
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)
+
+            // The optimistic-locking conflict is signalled purely by HTTP 412 (If-Match). Map it from the
+            // status before the body-driven error mapper, so a server error body can't mask the conflict.
+            if response.statusCode == TangemAPIError.ErrorCode.optimisticLockingFailed.rawValue {
+                throw TangemAPIError(code: .optimisticLockingFailed)
+            }
+
             // An empty response (just zero bytes, not "{}", "[{}]" or similar) can't be mapped
             // into the `EmptyGenericResponseDTO` DTO, therefore we just check for errors and status codes here
-            let _ = try response.filterResponseThrowingTangemAPIError(allowRedirectCodes: true)
+            let filteredResponse = try response.filterResponseThrowingTangemAPIError(allowRedirectCodes: true)
+
+            return filteredResponse.response?.value(forHTTPHeaderField: TangemAPIHeaders.eTag.rawValue)
         }
     }
 
@@ -240,6 +249,12 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .story(storyId))
     }
 
+    func loadStories(slugs: [String], language: String) async throws -> StoriesResponseDTO {
+        // Without this guard an empty list degrades to an unfiltered `GET /stories`.
+        guard !slugs.isEmpty else { return StoriesResponseDTO(storiesByPlacement: [:]) }
+        return try await request(for: .stories(slugs: slugs, language: language))
+    }
+
     // MARK: - Promotions
 
     func loadPromotions(request: PromotionsDTO.Load.Request) async throws -> PromotionsDTO.Load.Response {
@@ -306,6 +321,18 @@ extension CommonTangemApiService: TangemApiService {
 
     func loadCoinsList(requestModel: MarketsDTO.General.Request) async throws -> MarketsDTO.General.Response {
         return try await request(for: .coinsList(requestModel), decoder: decoder)
+    }
+
+    func loadCoinsCategories(requestModel: MarketsDTO.Categories.Request) async throws -> MarketsDTO.Categories.Response {
+        return try await request(for: .coinsCategories(requestModel), decoder: decoder)
+    }
+
+    func loadCoinsGeckoCategories(requestModel: MarketsDTO.GeckoCategories.Request) async throws -> MarketsDTO.GeckoCategories.Response {
+        return try await request(for: .coinsGeckoCategories(requestModel), decoder: decoder)
+    }
+
+    func loadMarketIndicators(requestModel: MarketsDTO.MarketIndicators.Request) async throws -> MarketsDTO.MarketIndicators.Response {
+        return try await request(for: .marketIndicators(requestModel), decoder: decoder)
     }
 
     func loadCoinsHistoryChartPreview(
@@ -518,18 +545,30 @@ extension CommonTangemApiService: TangemApiService {
 
     // MARK: - Joint accounts
 
-    func getJointAccounts(walletId: String) async throws -> JointAccountsDTO.List.Response {
-        let target = TangemApiTarget(type: .getJointAccounts(walletId: walletId))
+    func getJointAccounts(
+        walletId: String, knownETag: String?
+    ) async throws -> (eTag: String?, accounts: JointAccountsDTO.Response.JointAccounts)? {
+        let target = TangemApiTarget(type: .getJointAccounts(walletId: walletId, knownETag: knownETag))
 
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)
-            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
+            let filteredResponse = try response.filterResponseThrowingTangemAPIError(allowRedirectCodes: true)
+
+            // The list is what it was when the tag was issued, and there is no body to read
+            guard filteredResponse.statusCode != 304 else {
+                return nil
+            }
+
+            let eTag = filteredResponse.response?.value(forHTTPHeaderField: TangemAPIHeaders.eTag.rawValue)
+            let accounts = try filteredResponse.map(JointAccountsDTO.Response.JointAccounts.self, using: decoder)
+
+            return (eTag: eTag, accounts: accounts)
         }
     }
 
     func createJointAccount(
-        walletId: String, body: JointAccountsDTO.Create.Request
-    ) async throws -> JointAccountsDTO.Create.Response {
+        walletId: String, body: JointAccountsDTO.Request.Create
+    ) async throws -> JointAccountsDTO.Response.JointAccount {
         let target = TangemApiTarget(type: .createJointAccount(walletId: walletId, body: body))
 
         return try await withErrorLoggingPipeline(target: target) {
@@ -540,7 +579,7 @@ extension CommonTangemApiService: TangemApiService {
 
     func getJointAccountInvite(
         walletId: String, inviteId: String
-    ) async throws -> JointAccountsDTO.InvitePreview.Response {
+    ) async throws -> JointAccountsDTO.Response.InvitePreview {
         let target = TangemApiTarget(type: .getJointAccountInvite(walletId: walletId, inviteId: inviteId))
 
         return try await withErrorLoggingPipeline(target: target) {
@@ -550,8 +589,8 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func joinJointAccount(
-        walletId: String, body: JointAccountsDTO.Join.Request
-    ) async throws -> JointAccountsDTO.Join.Response {
+        walletId: String, body: JointAccountsDTO.Request.Join
+    ) async throws -> JointAccountsDTO.Response.JointAccount {
         let target = TangemApiTarget(type: .joinJointAccount(walletId: walletId, body: body))
 
         return try await withErrorLoggingPipeline(target: target) {
@@ -561,13 +600,53 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func activateJointAccount(
-        walletId: String, body: JointAccountsDTO.Activate.Request
-    ) async throws -> JointAccountsDTO.Activate.Response {
+        walletId: String, body: JointAccountsDTO.Request.Activate
+    ) async throws -> JointAccountsDTO.Response.JointAccount {
         let target = TangemApiTarget(type: .activateJointAccount(walletId: walletId, body: body))
 
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)
             return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
+        }
+    }
+
+    func createJointAccountOperation(
+        walletId: String, body: JointAccountsDTO.Request.CreateOperation
+    ) async throws -> JointAccountsDTO.Response.Operation {
+        let target = TangemApiTarget(type: .createJointAccountOperation(walletId: walletId, body: body))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
+        }
+    }
+
+    func signJointAccountOperation(
+        walletId: String, operationId: String, body: JointAccountsDTO.Request.SignOperation
+    ) async throws -> JointAccountsDTO.Response.Operation {
+        let target = TangemApiTarget(type: .signJointAccountOperation(walletId: walletId, operationId: operationId, body: body))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
+        }
+    }
+
+    func rejectJointAccountOperation(
+        walletId: String, operationId: String
+    ) async throws -> JointAccountsDTO.Response.Operation? {
+        let target = TangemApiTarget(type: .rejectJointAccountOperation(walletId: walletId, operationId: operationId))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            let filteredResponse = try response.filterResponseThrowingTangemAPIError(allowRedirectCodes: true)
+
+            // A 204 with no body answers the very reject that deleted the operation
+            guard filteredResponse.statusCode != 204 else {
+                return nil
+            }
+
+            return try filteredResponse.map(JointAccountsDTO.Response.Operation.self, using: decoder)
         }
     }
 

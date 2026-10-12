@@ -93,7 +93,7 @@ private extension PushNotificationsWarningView {
     PushNotificationsWarningView(
         viewModel: PushNotificationsWarningViewModel(
             permissionManager: PushNotificationsPermissionManagerStub(),
-            analyticsContext: PushNotificationsWarningAnalyticsContext(zone: .onboarding, variant: .control, walletId: nil),
+            analyticsContext: PushNotificationsWarningAnalyticsContext(zone: .onboarding, variant: .control),
             dismissAction: {}
         )
     )

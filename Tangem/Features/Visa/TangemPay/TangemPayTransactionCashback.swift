@@ -21,6 +21,7 @@ extension TangemPayTransactionCashback {
         case mcc
         case belowMin
         case monthlyCap
+        case complianceRisk
     }
 }
 
@@ -63,6 +64,8 @@ private extension TangemPayTransactionCashback.ExclusionReason {
             self = .belowMin
         case .monthlyCapReached:
             self = .monthlyCap
+        case .complianceRisk:
+            self = .complianceRisk
         case .undefined:
             return nil
         }

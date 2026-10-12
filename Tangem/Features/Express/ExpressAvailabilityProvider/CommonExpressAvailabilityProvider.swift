@@ -23,7 +23,7 @@ class CommonExpressAvailabilityProvider {
     private var loadingQueue = PassthroughSubject<QueueItem, Never>()
     private let lock = OSAllocatedUnfairLock()
     private var bag: Set<AnyCancellable> = []
-    private var apiProvider: ExpressAPIProvider?
+    private let apiProvider = OSAllocatedUnfairLock<(any ExpressAPIProvider)?>(uncheckedState: nil)
 
     init(
         storage: CachesDirectoryStorage = CachesDirectoryStorage(file: .cachedExpressAvailability),
@@ -189,7 +189,7 @@ private extension CommonExpressAvailabilityProvider {
     }
 
     func getApiProvider() throws -> ExpressAPIProvider {
-        guard let apiProvider else {
+        guard let apiProvider = apiProvider.withLockUnchecked({ $0 }) else {
             throw Error.providerNotCreated
         }
 
@@ -197,11 +197,18 @@ private extension CommonExpressAvailabilityProvider {
     }
 
     func makeApiProviderIfNeeded(userWalletId: String) {
-        guard apiProvider == nil else {
+        guard apiProvider.withLockUnchecked({ $0 == nil }) else {
             return
         }
 
-        apiProvider = apiProviderFactory(userWalletId)
+        let newApiProvider = apiProviderFactory(userWalletId)
+
+        apiProvider.withLockUnchecked { apiProvider in
+            // Another caller may have created the provider while this one was being built
+            if apiProvider == nil {
+                apiProvider = newApiProvider
+            }
+        }
     }
 }
 

@@ -45,8 +45,11 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     private lazy var availableBalance = staticText(.availableBalance)
     private lazy var stakingBalance = staticText(.stakingBalance)
 
-    /// Pending express transaction
-    private lazy var pendingExpressTransaction = button(.pendingExpressTransaction)
+    private lazy var pendingSwapHistoryItem = app.staticTexts[
+        TxHistoryAccessibilityIdentifiers.transactionItem(key: Constants.swapTransactionKey)
+    ].firstMatch
+
+    private lazy var marketingBanner = button(.marketingBanner)
 
     func hideToken(name: String) -> MainScreen {
         moreButton.tap()
@@ -176,9 +179,20 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     @discardableResult
     func waitForPendingExpressTransaction() -> Self {
         XCTContext.runActivity(named: "Wait for pending express transaction to appear") { _ in
-            waitAndAssertTrue(pendingExpressTransaction, "Pending express transaction should be displayed")
+            scrollToElement(pendingSwapHistoryItem)
+            waitAndAssertTrue(pendingSwapHistoryItem, "Pending swap should be displayed in history")
             return self
         }
+    }
+
+    @discardableResult
+    func tapPendingExpressTransaction() -> TransactionDetailsSheet {
+        XCTContext.runActivity(named: "Tap pending express transaction to open its details") { _ in
+            waitAndAssertTrue(pendingSwapHistoryItem, "Pending swap should be displayed in history")
+            scrollToElement(pendingSwapHistoryItem)
+            pendingSwapHistoryItem.waitAndTap()
+        }
+        return TransactionDetailsSheet(app)
     }
 
     @discardableResult
@@ -294,6 +308,56 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
                 "Transfer entry should not be visible when sending is unavailable"
             )
             return self
+        }
+    }
+
+    @discardableResult
+    func verifyCustomTokenIndicatorExists() -> Self {
+        XCTContext.runActivity(named: "Verify custom token indicator exists on token details") { _ in
+            // Gate on a details-only element first so the assertion runs on the details screen and can't be
+            // satisfied by a custom indicator from the main token list during/after navigation.
+            waitAndAssertTrue(tokenNameLabel, "Token details screen should be loaded")
+
+            let indicators = app.descendants(matching: .any)
+                .matching(NSPredicate(format: "identifier BEGINSWITH %@", MainAccessibilityIdentifiers.tokenCustomIndicatorPrefix))
+            // Require an on-screen match instead of `.firstMatch`, which could resolve to an off-screen indicator.
+            let appElement = app
+            let onScreen = NSPredicate { _, _ in
+                indicators.allElementsBoundByIndex.contains { element in
+                    let frame = element.frame
+                    return !frame.isNull && !frame.isInfinite && frame.width > 0
+                        && appElement.frame.contains(CGPoint(x: frame.midX, y: frame.midY))
+                }
+            }
+            let result = XCTWaiter().wait(
+                for: [XCTNSPredicateExpectation(predicate: onScreen, object: nil)],
+                timeout: .robustUIUpdate
+            )
+            XCTAssertEqual(result, .completed, "Custom token indicator should be displayed on token details screen")
+            return self
+        }
+    }
+
+    // MARK: - Marketing Banner Methods
+
+    @discardableResult
+    func verifyMarketingBannerDisplayed(text: String) -> Self {
+        XCTContext.runActivity(named: "Verify marketing banner with text '\(text)' is displayed") { _ in
+            waitAndAssertTrue(marketingBanner, timeout: .networkRequest, "Marketing banner should be displayed")
+            XCTAssertTrue(
+                marketingBanner.label.contains(text),
+                "Marketing banner should contain '\(text)' but was '\(marketingBanner.label)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapMarketingBanner() -> SwapStoriesScreen {
+        XCTContext.runActivity(named: "Tap marketing banner") { _ in
+            waitAndAssertTrue(marketingBanner, "Marketing banner should exist")
+            marketingBanner.waitAndTap()
+            return SwapStoriesScreen(app)
         }
     }
 
@@ -472,7 +536,7 @@ enum TokenScreenElement: String, UIElement {
     case sellButton
     case addFundsButton
     case transferButton
-    case pendingExpressTransaction
+    case marketingBanner
 
     var accessibilityIdentifier: String {
         switch self {
@@ -516,8 +580,15 @@ enum TokenScreenElement: String, UIElement {
             return ActionButtonsAccessibilityIdentifiers.addFundsButton
         case .transferButton:
             return ActionButtonsAccessibilityIdentifiers.transferButton
-        case .pendingExpressTransaction:
-            return TokenAccessibilityIdentifiers.pendingExpressTransaction
+        case .marketingBanner:
+            // Campaign id fixed by the `TokenDetailsSwapBanner` mock scenario state.
+            return MarketingBannerAccessibilityIdentifiers.standaloneBanner(id: 9001)
         }
+    }
+}
+
+private extension TokenScreen {
+    enum Constants {
+        static let swapTransactionKey = "swap"
     }
 }

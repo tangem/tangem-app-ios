@@ -16,6 +16,7 @@ final class YieldModulePromoViewModel {
     // MARK: - Dependencies
 
     private let walletModel: any WalletModel
+    private let availabilityProvider: TokenActionAvailabilityProvider
     private let yieldManagerInteractor: YieldManagerInteractor
     private let startFlowFactory: YieldStartFlowFactory
     private weak var coordinator: YieldModulePromoCoordinator?
@@ -38,6 +39,7 @@ final class YieldModulePromoViewModel {
 
     init(
         walletModel: any WalletModel,
+        userWalletInfo: UserWalletInfo,
         yieldManagerInteractor: YieldManagerInteractor,
         apy: Decimal,
         isApyBoostPromo: Bool,
@@ -46,6 +48,7 @@ final class YieldModulePromoViewModel {
         logger: YieldAnalyticsLogger
     ) {
         self.walletModel = walletModel
+        availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
         self.coordinator = coordinator
         self.yieldManagerInteractor = yieldManagerInteractor
         self.apy = apy
@@ -60,6 +63,17 @@ final class YieldModulePromoViewModel {
 
     func onInterestRateInfoTap() {
         coordinator?.openBottomSheet(viewModel: startFlowFactory.makeInterestRateInfoVewModel())
+    }
+
+    var continueButtonTitle: String {
+        switch availabilityProvider.yieldModuleAvailability {
+        case .available: Localization.commonContinue
+        case .jointAccountsComingSoon: Localization.commonComingSoon
+        }
+    }
+
+    var isContinueButtonDisabled: Bool {
+        !availabilityProvider.isYieldModuleAvailable
     }
 
     func onContinueTap() {

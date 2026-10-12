@@ -44,6 +44,10 @@ extension AppEnvironment {
         FeatureStorage.instance.tangemAPIType.apiBaseUrlv2WithGatewaySegment
     }
 
+    var backendAuthenticationBaseUrl: URL {
+        FeatureStorage.instance.tangemAPIType.backendAuthenticationBaseUrl
+    }
+
     var iconBaseUrl: URL {
         FeatureStorage.instance.tangemAPIType.iconBaseUrl
     }

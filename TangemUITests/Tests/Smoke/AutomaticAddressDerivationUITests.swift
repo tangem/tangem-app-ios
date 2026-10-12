@@ -46,10 +46,7 @@ final class AutomaticAddressDerivationUITests: BaseTestCase {
         launchApp()
 
         let mainScreen = CreateWalletSelectorScreen(app)
-            .skipStories()
-            .startWithMobileWallet()
-            .tapImportButton()
-            .tapRecoveryPhrase()
+            .importMobileWallet()
             .enterSeedPhrase(seedPhrase)
             .tapImportButton()
             .tapContinue()

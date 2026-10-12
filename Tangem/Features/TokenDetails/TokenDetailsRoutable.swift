@@ -13,6 +13,8 @@ protocol TokenDetailsRoutable: FeeCurrencyNavigating, CloreMigrationRoutable {
     func dismiss()
 
     func openTransactionDetails(_ data: TransactionDetailsRouteData)
+    func cancelTransactionDetailsPresentation()
+    func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation)
 
     func openYieldModulePromoView(apy: Decimal, isApyBoostPromo: Bool, factory: YieldModuleFlowFactory)
     func openYieldApyBoostStory(apy: Decimal, factory: YieldModuleFlowFactory)

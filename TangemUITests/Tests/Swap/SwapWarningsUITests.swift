@@ -165,6 +165,74 @@ final class SwapWarningsUITests: BaseTestCase {
             .waitForAlertAndDismiss()
     }
 
+    func testHighPriceImpactFromMainScreen() {
+        setAllureId(8964)
+
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            scenarios: [
+                ScenarioConfig(name: "quotes_api", initialState: "MediumPriceImpactMain"),
+                // The Markets widget refreshes prices via /v1/coins/list into the same quotes cache, clobbering quotesScenario's ETH price without this.
+                ScenarioConfig(name: "coins_list_api", initialState: "MediumPriceImpactMain"),
+            ]
+        )
+
+        let mainScreen = CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .waitForTotalBalanceShimmerToComplete()
+
+        let swapScreen = mainScreen
+            .tapMainSwap()
+            .closeStoriesIfNeeded()
+            .validateSwapScreenDisplayed()
+            .chooseSourceToken("Polygon")
+            .chooseReceiveToken("Ethereum")
+
+        swapScreen
+            .enterFromAmount("300")
+
+        swapScreen
+            .waitForNotificationShown(title: "High price impact")
+
+        swapScreen
+            .tapPriceChangeInfoButton()
+            .waitForAlertAndDismiss()
+    }
+
+    func testTradeTooLargeFromMainScreen() {
+        setAllureId(8965)
+
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            scenarios: [
+                ScenarioConfig(name: "quotes_api", initialState: "HighPriceImpact"),
+                // See testHighPriceImpactFromMainScreen for why this is needed alongside quotesScenario.
+                ScenarioConfig(name: "coins_list_api", initialState: "HighPriceImpact"),
+            ]
+        )
+
+        let mainScreen = CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .waitForTotalBalanceShimmerToComplete()
+
+        let swapScreen = mainScreen
+            .tapMainSwap()
+            .closeStoriesIfNeeded()
+            .validateSwapScreenDisplayed()
+            .chooseSourceToken("Polygon")
+            .chooseReceiveToken("Ethereum")
+
+        swapScreen
+            .enterFromAmount("300")
+            .waitForNotificationShown(title: "Trade too large")
+
+        swapScreen
+            .tapPriceChangeInfoButton()
+            .waitForAlertAndDismiss()
+    }
+
     // MARK: - Private
 
     private func prepareSwapSolanaFlow() -> SwapScreen {

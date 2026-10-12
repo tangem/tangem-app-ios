@@ -39,6 +39,9 @@ struct EnvironmentSetupCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.designSystemDemoCoordinator) {
                 DesignSystemDemoCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.storiesV2DemoViewModel) {
+                StoriesV2DemoView(viewModel: $0)
+            }
             .navigation(item: $coordinator.silentPushTesterViewModel) {
                 SilentPushTesterView(viewModel: $0)
             }

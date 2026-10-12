@@ -155,7 +155,7 @@ public struct ShimmerShowcase: View {
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(DesignSystem.Color.bgOpaquePrimary)
+            .background(DesignSystem.Color.bgTransparentPrimary)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
     }
@@ -173,7 +173,7 @@ public struct ShimmerShowcase: View {
                 }
             }
             .padding(16)
-            .background(DesignSystem.Color.bgOpaquePrimary)
+            .background(DesignSystem.Color.bgTransparentPrimary)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
     }

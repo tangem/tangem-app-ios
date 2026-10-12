@@ -99,6 +99,8 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     var descriptionCanBeShowed: Bool { !geoEligibilityService.isUK }
 
+    var isRestrictedForCountry: Bool { tokenInfo.restrictedForCountry ?? false }
+
     let presentationStyle: MarketsTokenDetailsPresentationStyle
 
     private var priceInfo: MarketsTokenDetailsPriceInfoHelper.PriceInfo? {
@@ -652,10 +654,6 @@ private extension MarketsTokenDetailsViewModel {
     }
 
     func makeTokenSummaryCardViewModel() {
-        guard FeatureProvider.isAvailable(.forYou) else {
-            return
-        }
-
         MainActor.assumeIsolated {
             let cardViewModel = MarketsTokenSummaryViewModel(symbol: tokenInfo.symbol) { [weak self] in
                 Task { @MainActor in

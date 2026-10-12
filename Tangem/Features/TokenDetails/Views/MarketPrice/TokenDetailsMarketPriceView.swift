@@ -97,7 +97,7 @@ struct TokenDetailsMarketPriceView: View {
             action: viewModel.action
         )
         .size(.x10)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
     }
 }
 

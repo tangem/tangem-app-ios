@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -195,6 +196,7 @@ private struct SwapSourceFilteredOutEmptyView: View {
                 Text(Localization.swapTokenSelectorEmptyFilteredMessage)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
                     .multilineTextAlignment(.center)
+                    .accessibilityIdentifier(SwapAccessibilityIdentifiers.tokenSelectorFilteredOutEmptyMessage)
             }
 
             TangemButton(
@@ -204,6 +206,7 @@ private struct SwapSourceFilteredOutEmptyView: View {
             .setStyleType(.secondary)
             .setSize(.x9)
             .fixedSize(horizontal: true, vertical: false)
+            .accessibilityIdentifier(SwapAccessibilityIdentifiers.tokenSelectorSeeAllButton)
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 48)
@@ -219,6 +222,6 @@ private struct SwapSourceFilteredOutEmptyView: View {
             .frame(width: 20, height: 20)
             .foregroundStyle(DesignSystem.Color.iconSecondary)
             .frame(width: 40, height: 40)
-            .background(DesignSystem.Color.bgOpaqueSecondary, in: Circle())
+            .background(DesignSystem.Color.bgTransparentSecondary, in: Circle())
     }
 }

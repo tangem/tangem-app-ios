@@ -11,6 +11,7 @@ import TangemUI
 import TangemUIUtils
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayCashbackInfoBanner: View {
     let banner: TangemPayCashbackDetailViewData.Banner
@@ -23,6 +24,7 @@ struct TangemPayCashbackInfoBanner: View {
 
             message
                 .style(DesignSystem.Font.subheadingMediumToken, color: textColor)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackDetailInfoBanner)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(16)

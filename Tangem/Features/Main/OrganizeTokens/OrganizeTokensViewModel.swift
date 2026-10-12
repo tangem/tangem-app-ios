@@ -76,9 +76,8 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             .throttle(for: 1.0, scheduler: DispatchQueue.main, latest: false)
             .share(replay: 1)
 
-        let cryptoAccountModelsPublisher = userWalletModel
-            .accountModelsManager
-            .cryptoAccountModelsPublisher
+        let cryptoAccountModelsPublisher = AccountModelsAggregator(.crypto, .joint)
+            .modelsPublisher(from: userWalletModel.accountModelsManager)
             .share(replay: 1)
 
         cryptoAccountModelsPublisher

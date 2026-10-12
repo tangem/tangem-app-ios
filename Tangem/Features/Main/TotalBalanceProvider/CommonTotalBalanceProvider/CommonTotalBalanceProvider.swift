@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import CombineExt
 import TangemPay
+import TangemPolymarket
 import TangemFoundation
 
 class CommonTotalBalanceProvider {
@@ -19,6 +20,7 @@ class CommonTotalBalanceProvider {
     private let analyticsLogger: TotalBalanceProviderAnalyticsLogger
 
     private let tangemPayTokenItem = TangemPayUtilities.usdcTokenItem
+    private let polymarketTokenItem = PolymarketUtilities.collateralTokenItem
     private let totalBalanceSubject: CurrentValueSubject<TotalBalanceState, Never> = .init(.loading(cached: .none))
     private var updateSubscription: AnyCancellable?
 
@@ -46,16 +48,16 @@ class CommonTotalBalanceProvider {
 
 private extension CommonTotalBalanceProvider {
     func bind() {
-        let crypto = accountModelsManager
-            .cryptoAccountModelsPublisher
+        let crypto = AccountModelsAggregator(.crypto, .joint)
+            .modelsPublisher(from: accountModelsManager)
             .flatMapLatest { cryptoAccountModels in
                 cryptoAccountModels
                     .map(\.fiatTotalBalanceProvider.totalBalancePublisher)
                     .combineLatest()
             }
 
-        let tangemPay = accountModelsManager
-            .tangemPayAccountModelPublisher
+        let tangemPay = AccountModelsAggregator(.tangemPay)
+            .modelPublisher(from: accountModelsManager)
             .withWeakCaptureOf(self)
             .flatMapLatest { provider, accountModel -> AnyPublisher<TotalBalanceState, Never> in
                 guard let accountModel else {
@@ -89,11 +91,35 @@ private extension CommonTotalBalanceProvider {
                     .eraseToAnyPublisher()
             }
 
-        updateSubscription = Publishers.CombineLatest(
+        let polymarket = AccountModelsAggregator(.polymarket)
+            .modelPublisher(from: accountModelsManager)
+            .compactMap { $0 }
+            .withWeakCaptureOf(self)
+            .flatMapLatest { provider, accountModel -> AnyPublisher<TotalBalanceState, Never> in
+                Publishers
+                    .CombineLatest(accountModel.statePublisher, accountModel.fiatAvailableBalanceProvider.balanceTypePublisher)
+                    .withWeakCaptureOf(provider)
+                    .map { provider, tuple in
+                        let (state, balanceType) = tuple
+
+                        guard state?.isAccountVisible == true else {
+                            return TotalBalanceState.loaded(balance: 0)
+                        }
+
+                        let balance = TokenBalanceTypesCombiner.Balance(item: provider.polymarketTokenItem, balance: balanceType)
+
+                        return provider.tokenBalanceTypesCombiner.mapToTotalBalance(balances: [balance])
+                    }
+                    .eraseToAnyPublisher()
+            }
+            .prepend(TotalBalanceState.loaded(balance: 0))
+
+        updateSubscription = Publishers.CombineLatest3(
             crypto,
-            tangemPay
+            tangemPay,
+            polymarket
         )
-        .map { $0 + [$1] }
+        .map { $0 + [$1, $2] }
         .withWeakCaptureOf(self)
         .map { $0.totalBalanceStatesCombiner.mapToTotalBalanceState(states: $1) }
         .assign(to: \.totalBalanceSubject.value, on: self, ownership: .weak)

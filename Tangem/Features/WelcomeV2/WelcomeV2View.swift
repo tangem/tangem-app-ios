@@ -8,7 +8,10 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
+import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct WelcomeV2View: View {
     @ObservedObject var viewModel: WelcomeV2ViewModel
@@ -44,7 +47,10 @@ struct WelcomeV2View: View {
                     .padding(.vertical, 12)
                     .background {
                         LinearGradient(
-                            colors: [.clear, .black],
+                            stops: [
+                                Gradient.Stop(color: DesignSystem.Color.bgPrimary.opacity(0), location: 0.0),
+                                Gradient.Stop(color: DesignSystem.Color.bgPrimary, location: 0.78),
+                            ],
                             startPoint: .top,
                             endPoint: .bottom
                         )
@@ -53,7 +59,7 @@ struct WelcomeV2View: View {
                 bottomContainer
             }
         }
-        .preferredColorScheme(.dark)
+        .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 
     private var navigationBar: some View {
@@ -64,32 +70,52 @@ struct WelcomeV2View: View {
                 .frame(height: 24)
 
             Spacer()
+
+            TangemUI.Button(
+                label: Localization.introductionButtonBuyTangem,
+                accessibilityLabel: nil,
+                action: viewModel.onBuyTangemTap
+            )
+            .styleType(.material(.glass))
+            .size(.x11)
+            .accessibilityIdentifier(WelcomeV2AccessibilityIdentifiers.buyTangemButton)
         }
     }
 
+    /// All scenes are laid out at once (block keeps the tallest height, so buttons don't jump);
+    /// bottom alignment pins the text to the buttons.
     private var titleBlock: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Store all your assets")
-                .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textStaticDarkPrimary)
-
-            Text("The only app you need\nto manage your finances")
-                .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textStaticDarkSecondary)
+        ZStack(alignment: .bottomLeading) {
+            ForEach(WelcomeV2Scene.allCases) { scene in
+                WelcomeV2SceneText(scene: scene, isActive: viewModel.scene == scene)
+                    .accessibilityHidden(viewModel.scene != scene)
+            }
         }
     }
 
     private var bottomContainer: some View {
         VStack(spacing: 12) {
-            MainButton(
-                title: "Create wallet",
-                style: .primary,
-                action: viewModel.onCreateWalletTap
-            )
+            VStack(spacing: 8) {
+                TangemUI.Button(
+                    label: Localization.introductionButtonCreateWallet,
+                    accessibilityLabel: nil,
+                    action: viewModel.onCreateWalletTap
+                )
+                .styleType(.default)
+                .horizontalLayout(.infinity)
+                .size(.x12)
+                .accessibilityIdentifier(WelcomeV2AccessibilityIdentifiers.createWalletButton)
 
-            MainButton(
-                title: "I have a wallet",
-                style: .secondary,
-                action: viewModel.onExistingWalletTap
-            )
+                TangemUI.Button(
+                    label: Localization.introductionButtonIHaveAWallet,
+                    accessibilityLabel: nil,
+                    action: viewModel.onExistingWalletTap
+                )
+                .styleType(.secondary(.default))
+                .horizontalLayout(.infinity)
+                .size(.x12)
+                .accessibilityIdentifier(WelcomeV2AccessibilityIdentifiers.existingWalletButton)
+            }
 
             footer
                 .padding(.horizontal, 24)
@@ -100,7 +126,7 @@ struct WelcomeV2View: View {
         .frame(maxWidth: .infinity)
         .background {
             Rectangle()
-                .fill(Color.black)
+                .fill(DesignSystem.Color.bgPrimary)
                 .ignoresSafeArea(edges: .bottom)
         }
     }
@@ -115,23 +141,15 @@ struct WelcomeV2View: View {
     }
 
     private var footerAttributedString: AttributedString {
-        let terms = "Terms of service"
-        let privacy = "Privacy Policy"
-        var string = AttributedString("By continuing, you agree with \(terms) and \(privacy)")
+        let terms = Localization.introductionTermsOfService
+        var string = AttributedString(Localization.introductionTermsOfServiceConsent(terms))
         string.setFontStyle(DesignSystem.Font.captionMediumToken)
         string.foregroundColor = DesignSystem.Color.textStaticDarkSecondary
 
         if let range = string.range(of: terms) {
             string[range].foregroundColor = DesignSystem.Color.textStaticDarkPrimary
             string[range].font = Font.system(size: 12, weight: .semibold)
-            string[range].link = AppConstants.tosURL
-        }
-
-        if let range = string.range(of: privacy) {
-            string[range].foregroundColor = DesignSystem.Color.textStaticDarkPrimary
-            string[range].font = Font.system(size: 12, weight: .semibold)
-            // [REDACTED_TODO_COMMENT]
-            string[range].link = URL(string: "about:blank")
+            string[range].link = WelcomeV2LegalDocument.termsOfService.url
         }
 
         return string

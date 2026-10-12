@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 extension GaslessTransactionsDTO.Request {
     struct TronEstimate: Encodable, Equatable {
@@ -21,6 +22,46 @@ extension GaslessTransactionsDTO.Request {
         let quoteId: String
         let signedCompensationTx: String
         let signedOriginalTx: String
+    }
+}
+
+extension GaslessTransactionsDTO.APIError {
+    /// Tron activation failures arrive as `TangemAPIError`, with the machine code in `message`.
+    struct TronActivation: LocalizedError {
+        let code: Code
+        let message: String?
+
+        var errorDescription: String? {
+            switch code {
+            case .activationRateLimited:
+                Localization.gaslessTronActivationAttemptsLimit
+            case .activationHalted:
+                Localization.gaslessTronActivationTryAgainLater
+            default:
+                message ?? code.rawValue
+            }
+        }
+
+        init?(apiError: TangemAPIError) {
+            guard let message = apiError.message, let code = Code(rawValue: message) else {
+                return nil
+            }
+
+            self.code = code
+            self.message = message
+        }
+
+        enum Code: String, CaseIterable {
+            case accountNotActivated = "TRON_ACCOUNT_NOT_ACTIVATED"
+            case activationBalanceTooLow = "TRON_ACTIVATION_BALANCE_TOO_LOW"
+            case activationRateLimited = "TRON_ACTIVATION_RATE_LIMITED"
+            case activationHalted = "TRON_ACTIVATION_HALTED"
+            case activationWalletIdRequired = "TRON_ACTIVATION_WALLET_ID_REQUIRED"
+            case activationInProgress = "TRON_ACTIVATION_IN_PROGRESS"
+            case activationFailed = "TRON_ACTIVATION_FAILED"
+            case activationRejected = "TRON_ACTIVATION_REJECTED"
+            case activationBudgetExceeded = "TRON_ACTIVATION_BUDGET_EXCEEDED"
+        }
     }
 }
 

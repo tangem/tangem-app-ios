@@ -9,37 +9,18 @@
 import SwiftUI
 import TangemAssets
 
-// MARK: - Showcase helpers
-
-private let showcaseStyleTypes: [Button.StyleType] = [
-    .brand,
-    .default,
-    .secondary,
-    .material(.glass),
-    .outline,
-    .ghost,
-    .positive,
-]
-
-private func styleTypeLabel(_ style: Button.StyleType) -> String {
-    switch style {
-    case .brand: "brand"
-    case .default: "default"
-    case .secondary: "secondary"
-    case .material: "material"
-    case .outline: "outline"
-    case .ghost: "ghost"
-    case .positive: "positive"
-    }
-}
-
 // MARK: - Showcase
 
 public struct ButtonShowcase: View {
-    @State private var styleType: Button.StyleType = .material(.glass)
+    @State private var styleKind: StyleKind = .material
+    @State private var material: Button.Material = .glass
+    @State private var appearance: Button.Appearance = .default
     @State private var size: Button.Size = .x12
     @State private var isEnabled: Bool = true
-    @State private var isLoading: Bool = false
+    @State private var loadingKind: LoadingKind = .none
+    @State private var loadingMessage: String = "Loading test"
+    @State private var simulatedLoadDuration: Double = 2
+    @State private var simulatedLoadTask: Task<Void, Never>?
     @State private var horizontalLayout: Button.HorizontalLayout = .intrinsic
     @State private var contentKind: ContentKind = .label
     @State private var iconStartEnabled = false
@@ -54,6 +35,55 @@ public struct ButtonShowcase: View {
         case label
         case longLabel
         case iconOnly
+    }
+
+    private enum StyleKind: String, CaseIterable {
+        case brand
+        case `default`
+        case secondary
+        case material
+        case outline
+        case ghost
+        case positive
+    }
+
+    private var styleType: Button.StyleType {
+        switch styleKind {
+        case .brand: .brand
+        case .default: .default
+        case .secondary: .secondary(appearance)
+        case .material: .material(material)
+        case .outline: .outline
+        case .ghost: .ghost
+        case .positive: .positive
+        }
+    }
+
+    private enum LoadingKind: String, CaseIterable {
+        case none
+        case spinner
+        case message
+    }
+
+    private var loading: Button.Loading? {
+        switch loadingKind {
+        case .none: nil
+        case .spinner: .spinner
+        case .message: .spinnerWithMessage(loadingMessage)
+        }
+    }
+
+    private func startSimulatedLoad() {
+        simulatedLoadTask?.cancel()
+        simulatedLoadTask = Task { @MainActor in
+            loadingKind = loadingKind == .none ? .message : loadingKind
+            try? await Task.sleep(for: .seconds(simulatedLoadDuration))
+
+            guard !Task.isCancelled else { return }
+
+            loadingKind = .none
+            simulatedLoadTask = nil
+        }
     }
 
     private static let dynamicTypeAllCases: [DynamicTypeSize] = Array(DynamicTypeSize.allCases)
@@ -78,9 +108,9 @@ public struct ButtonShowcase: View {
 
                 menuPickerRow(
                     title: "style",
-                    cases: showcaseStyleTypes,
-                    binding: stylePickerBinding,
-                    label: styleTypeLabel
+                    cases: StyleKind.allCases,
+                    binding: $styleKind,
+                    label: { $0.rawValue }
                 )
                 pickerRow(
                     title: "size",
@@ -89,8 +119,33 @@ public struct ButtonShowcase: View {
                     label: { String(describing: $0) }
                 )
                 Toggle("isEnabled", isOn: $isEnabled)
-                Toggle("isLoading", isOn: $isLoading)
                 Toggle("dark mode", isOn: $darkMode)
+                pickerRow(
+                    title: "loading",
+                    cases: LoadingKind.allCases,
+                    binding: $loadingKind,
+                    label: { $0.rawValue }
+                )
+
+                HStack(spacing: 8) {
+                    Text("loading message:").font(.caption)
+                    TextField("Enter loading message", text: $loadingMessage)
+                        .textFieldStyle(.roundedBorder)
+                }
+
+                HStack(spacing: 8) {
+                    SwiftUI.Button("simulate load") { startSimulatedLoad() }
+                        .buttonStyle(.bordered)
+                        .tint(.blue)
+
+                    Stepper(
+                        "\(simulatedLoadDuration, specifier: "%.1f")s",
+                        value: $simulatedLoadDuration,
+                        in: 0.5 ... 5,
+                        step: 0.5
+                    )
+                }
+
                 pickerRow(
                     title: "layout",
                     cases: Button.HorizontalLayout.allCases,
@@ -116,11 +171,20 @@ public struct ButtonShowcase: View {
                     in: 0 ... (Self.dynamicTypeAllCases.count - 1)
                 )
 
-                if case .material = styleType {
+                if styleKind == .material {
                     pickerRow(
                         title: "material",
                         cases: Button.Material.allCases,
-                        binding: materialPickerBinding,
+                        binding: $material,
+                        label: { String(describing: $0) }
+                    )
+                }
+
+                if styleKind == .secondary {
+                    pickerRow(
+                        title: "appearance",
+                        cases: Button.Appearance.allCases,
+                        binding: $appearance,
                         label: { String(describing: $0) }
                     )
                 }
@@ -190,41 +254,8 @@ public struct ButtonShowcase: View {
             .size(size)
             .styleType(styleType)
             .horizontalLayout(horizontalLayout)
-            .isLoading(isLoading)
+            .loading(loading)
             .disabled(!isEnabled)
-    }
-
-    /// Picker binding that normalises `.material(_)` to its canonical `showcaseStyleTypes`
-    /// representative so the picker's hash-based selection match never drifts when the
-    /// material sub-picker flips the associated tier.
-    private var stylePickerBinding: Binding<Button.StyleType> {
-        Binding(
-            get: {
-                if case .material = styleType { return .material(.glass) }
-                return styleType
-            },
-            set: { newValue in
-                // Tapping the "material" segment shouldn't reset the previously chosen tier.
-                if case .material = newValue, case .material(let current) = styleType {
-                    styleType = .material(current)
-                } else {
-                    styleType = newValue
-                }
-            }
-        )
-    }
-
-    /// Read/write Material binding extracted from the `.material(_)` case. Defaults to
-    /// `.glass` when the current variant is not material (the picker is hidden in that case
-    /// anyway).
-    private var materialPickerBinding: Binding<Button.Material> {
-        Binding(
-            get: {
-                if case .material(let m) = styleType { return m }
-                return .glass
-            },
-            set: { newValue in styleType = .material(newValue) }
-        )
     }
 
     private var materialBackdrop: some View {
@@ -273,108 +304,17 @@ public struct ButtonShowcase: View {
         HStack {
             Text(title).font(.caption)
             Spacer()
-            Picker(title, selection: binding) {
+            Menu {
                 ForEach(cases, id: \.self) { value in
-                    Text(label(value)).tag(value)
+                    SwiftUI.Button(label(value)) { binding.wrappedValue = value }
                 }
-            }
-            .pickerStyle(.menu)
-        }
-    }
-}
-
-// MARK: - Previews
-
-#Preview("Showcase") {
-    ButtonShowcase()
-}
-
-#Preview("All sizes — brand") {
-    VStack(spacing: 12) {
-        ForEach(Button.Size.allCases, id: \.self) { size in
-            Button(label: AttributedString("Button"), accessibilityLabel: nil, action: {})
-                .size(size)
-                .styleType(.brand)
-        }
-    }
-    .padding()
-}
-
-#Preview("All variants — x10") {
-    VStack(spacing: 12) {
-        ForEach(showcaseStyleTypes, id: \.self) { style in
-            Button(
-                label: AttributedString(styleTypeLabel(style)),
-                accessibilityLabel: nil,
-                action: {}
-            )
-            .size(.x10)
-            .styleType(style)
-        }
-    }
-    .padding()
-}
-
-#Preview("Icon-only — all sizes") {
-    HStack(spacing: 12) {
-        ForEach(Button.Size.allCases, id: \.self) { size in
-            Button(
-                icon: DesignSystem.Icons.ArrowDown.regular24,
-                accessibilityLabel: "Arrow down",
-                action: {}
-            )
-            .size(size)
-            .styleType(.brand)
-        }
-    }
-    .padding()
-}
-
-#Preview("States — x12 brand") {
-    VStack(spacing: 12) {
-        Button(label: AttributedString("Normal"), accessibilityLabel: nil, action: {})
-            .size(.x12)
-            .styleType(.brand)
-
-        Button(label: AttributedString("Disabled"), accessibilityLabel: nil, action: {})
-            .size(.x12)
-            .styleType(.brand)
-            .disabled(true)
-
-        Button(label: AttributedString("Loading"), accessibilityLabel: nil, action: {})
-            .size(.x12)
-            .styleType(.brand)
-            .isLoading(true)
-    }
-    .padding()
-}
-
-#Preview("Material variant — glass vs blur") {
-    VStack(spacing: 16) {
-        ForEach(Button.Material.allCases, id: \.self) { tier in
-            VStack(spacing: 8) {
-                Text(String(describing: tier)).font(.caption)
-                Button(
-                    label: AttributedString("Material \(String(describing: tier))"),
-                    accessibilityLabel: nil,
-                    action: {}
-                )
-                .size(.x10)
-                .styleType(.material(tier))
+            } label: {
+                Text(label(binding.wrappedValue))
+                    .foregroundStyle(Color.primary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.primary.opacity(0.1), in: Capsule())
             }
         }
     }
-    .padding()
-    .frame(maxWidth: .infinity)
-    .background(
-        LinearGradient(
-            colors: [
-                Color(red: 0.2, green: 0.5, blue: 0.95),
-                Color(red: 0.85, green: 0.3, blue: 0.6),
-                Color(red: 0.95, green: 0.7, blue: 0.2),
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-    )
 }

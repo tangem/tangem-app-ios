@@ -14,6 +14,7 @@ public enum AuthAccessibilityIdentifiers {
     public static let addWalletButton = "authAddWalletButton"
     public static let walletsList = "authWalletsList"
     public static let biometricsUnlockButton = "authBiometricsUnlockButton"
+    public static let mobileUnlockTitle = "authMobileUnlockTitle"
 
     public static let walletItemPrefix = "authWalletItem_"
 

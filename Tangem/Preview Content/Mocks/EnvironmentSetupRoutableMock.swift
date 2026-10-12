@@ -12,6 +12,7 @@ final class EnvironmentSetupRoutableMock: EnvironmentSetupRoutable {
     func openNFTBlockchainsPreferences() {}
     func openAddressesInfo() {}
     func openDesignSystemDemo() {}
+    func openStoriesV2Demo() {}
     func openSparrowSurveyClassicDemo(withToken: String) {}
     func openSparrowSurveyChatDemo(withToken: String) {}
     func openSparrowSurveyNPSDemo(withToken: String) {}

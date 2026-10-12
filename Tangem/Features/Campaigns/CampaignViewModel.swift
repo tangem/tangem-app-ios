@@ -88,6 +88,8 @@ final class CampaignViewModel: ObservableObject, FloatingSheetContentViewModel {
 
     private let cashbackPromoService: CashbackPromoService
     private let analyticsLogger: CampaignAnalyticsLogger?
+    /// A campaign that arrives all but instantly is better swapped in than held back behind a deliberate pause.
+    private let loadingFloor = LoadingStateFloor(skipThreshold: .milliseconds(100))
     private weak var coordinator: CampaignRoutable?
 
     private var campaign: CampaignBannerData?
@@ -202,21 +204,12 @@ final class CampaignViewModel: ObservableObject, FloatingSheetContentViewModel {
 private extension CampaignViewModel {
     func loadCampaign() {
         viewState = .loading
-
-        let loadingStartDate = Date()
+        loadingFloor.start()
 
         campaignLoadTask = runTask(in: self) { viewModel in
             let campaign = await viewModel.cashbackPromoService.campaign(id: viewModel.campaignId)
 
-            let elapsed = Date().timeIntervalSince(loadingStartDate)
-
-            if elapsed > Constants.skipLoadingStateThreshold {
-                let remainingDelay = Constants.minimumLoadingStateDuration - elapsed
-
-                if remainingDelay > 0 {
-                    try? await Task.sleep(for: .seconds(remainingDelay))
-                }
-            }
+            await viewModel.loadingFloor.wait()
 
             guard !Task.isCancelled else {
                 return
@@ -288,7 +281,7 @@ extension CampaignViewModel {
     func handleSelectedToken(_ item: TokenSelectorItem) {
         selectedToken = item
         selectedTokenRowViewModel = TokenSelectorItemViewModelBuilder(availabilityProvider: AvailableTokenSelectorItemAvailabilityProvider())
-            .mapToTokenSelectorItemViewModel(item: item, action: {})
+            .mapToTokenSelectorItemViewModel(item: item, action: { _ in })
         tokenSelectorViewModel = nil
 
         var transaction = Transaction()
@@ -306,15 +299,6 @@ extension CampaignViewModel {
     struct SelectedAccountViewData {
         let iconData: AccountIconView.ViewData
         let name: String
-    }
-}
-
-// MARK: - Constants
-
-private extension CampaignViewModel {
-    enum Constants {
-        static let skipLoadingStateThreshold: TimeInterval = 0.1
-        static let minimumLoadingStateDuration: TimeInterval = 0.5
     }
 }
 

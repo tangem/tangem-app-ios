@@ -23,6 +23,7 @@ final class RatingViewModel: ObservableObject {
     // MARK: - Properties
 
     private let model: RatingModel
+    private let showsSkeleton: Bool
     private var loadTask: Task<Void, Never>?
 
     var displayRating: Int {
@@ -32,6 +33,12 @@ final class RatingViewModel: ObservableObject {
         default:
             return selectedRating?.rawValue ?? 0
         }
+    }
+
+    var ratingSelectionHandler: ((Rating) -> Void)? {
+        guard state == .unrated, selectedRating == nil else { return nil }
+
+        return onRatingSelected
     }
 
     var isVisible: Bool {
@@ -64,10 +71,23 @@ final class RatingViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(model: RatingModel, feedbackPresenter: any RatingFeedbackPresenter) {
+    init(
+        model: RatingModel,
+        feedbackPresenter: any RatingFeedbackPresenter,
+        showsSkeleton: Bool
+    ) {
         self.model = model
         self.feedbackPresenter = feedbackPresenter
-        loadTask = Task { [weak self] in await self?.load() }
+        self.showsSkeleton = showsSkeleton
+
+        switch model.cachedStatus() {
+        case .notRated:
+            state = .unrated
+        case .rated(let existing):
+            state = .rated(existing.rating)
+        case .unknown:
+            loadTask = Task { [weak self] in await self?.load() }
+        }
     }
 
     deinit {
@@ -79,7 +99,7 @@ final class RatingViewModel: ObservableObject {
     private func load() async {
         guard state == .loading else { return }
 
-        async let minimumDelay: () = Task.sleep(for: .milliseconds(300))
+        async let minimumDelay: Void = Task.sleep(for: showsSkeleton ? Constants.minimumSkeletonDuration : .zero)
         let existingRating = try? await model.checkExisting()
         _ = try? await minimumDelay
 
@@ -146,6 +166,14 @@ final class RatingViewModel: ObservableObject {
         )
 
         feedbackPresenter?.present(feedbackViewModel)
+    }
+}
+
+// MARK: - Constants
+
+private extension RatingViewModel {
+    enum Constants {
+        static let minimumSkeletonDuration: Duration = .milliseconds(300)
     }
 }
 

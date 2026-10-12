@@ -13,9 +13,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li person</string>
+        <string>%li человек</string>
+        <key>few</key>
+        <string>%li человека</string>
+        <key>many</key>
+        <string>%li человек</string>
         <key>other</key>
-        <string>%li people</string>
+        <string>%li человека</string>
       </dict>
     </dict>
     <key>address_book_addresses</key>
@@ -56,6 +60,22 @@
         <string>%li устройств</string>
         <key>other</key>
         <string>%li устройств</string>
+      </dict>
+    </dict>
+    <key>collectibles_account_collection_cards_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li card</string>
+        <key>other</key>
+        <string>%li cards</string>
       </dict>
     </dict>
     <key>common_assets_count</key>
@@ -229,9 +249,33 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li member</string>
+        <string>%li участник</string>
+        <key>few</key>
+        <string>%li участника</string>
+        <key>many</key>
+        <string>%li участников</string>
         <key>other</key>
-        <string>%li members</string>
+        <string>%li участника</string>
+      </dict>
+    </dict>
+    <key>joint_account_send_signatures_required_banner</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Потребуется %1$li подпись</string>
+        <key>few</key>
+        <string>Потребуется %1$li подписи</string>
+        <key>many</key>
+        <string>Потребуется %1$li подписей</string>
+        <key>other</key>
+        <string>Потребуется %1$li подписи</string>
       </dict>
     </dict>
     <key>manage_tokens_number_of_wallets_ios</key>
@@ -652,13 +696,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Топ %li актив</string>
+        <string>%li крупнейший актив</string>
         <key>few</key>
-        <string>Топ %li актива</string>
+        <string>%li крупнейших актива</string>
         <key>many</key>
-        <string>Топ %li активов</string>
+        <string>%li крупнейших активов</string>
         <key>other</key>
-        <string>Top %li assets</string>
+        <string>%li крупнейших активов</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>

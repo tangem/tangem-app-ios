@@ -16,6 +16,9 @@ struct TangemPayCurrentPlanCoordinatorView: CoordinatorView {
         if let viewModel = coordinator.currentPlanViewModel {
             TangemPayCurrentPlanView(viewModel: viewModel)
                 .navigationLinks(links)
+                .sheet(item: $coordinator.termsAndLimitsViewModel) {
+                    WebViewContainer(viewModel: $0)
+                }
         }
     }
 

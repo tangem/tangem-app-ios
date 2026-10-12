@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemLocalization
 import TangemUI
 
@@ -13,23 +14,21 @@ struct TransactionDetailsOnrampViewData: TransactionDetailsOperationViewData {
     struct PaidLeg {
         let amount: String
         let symbol: String
-        let fiatPrice: String?
         let flagIconURL: URL?
         let isFlagLoading: Bool
     }
 
     struct ReceivedLeg {
         let destination: TransactionDetailsActor
-        let amount: String
+        /// The delivered amount, falling back to the one the provider promised. `nil` when neither is known.
+        let amount: String?
         let symbol: String
-        let fiatPrice: String?
         let tokenIconInfo: TokenIconInfo
     }
 
     let stage: TransactionDetailsOperationStage
     let paid: PaidLeg
     let received: ReceivedLeg
-    let isReceivedEstimated: Bool
     let statusBanner: TransactionDetailsStatusBannerViewData?
     let provider: TransactionDetailsProviderInfo?
     let rate: String?
@@ -37,22 +36,20 @@ struct TransactionDetailsOnrampViewData: TransactionDetailsOperationViewData {
     let action: TransactionDetailsActionButtonViewData?
 
     var tokensData: TransactionDetailsTokensViewData {
-        let isUnsuccessful = stage == .unsuccessful
-
-        return TransactionDetailsTokensViewData(
+        TransactionDetailsTokensViewData(
             from: .init(
                 direction: .init(label: Localization.txHistoryYouPaid, actor: nil),
                 icon: paid.isFlagLoading ? .loading : .image(url: paid.flagIconURL),
                 amountText: paidAmountText,
-                fiatText: paid.fiatPrice,
+                fiatText: nil,
                 isAmountStrikethrough: false
             ),
             to: .init(
                 direction: .init(label: Localization.commonTo, actor: received.destination),
                 icon: .token(received.tokenIconInfo),
                 amountText: receivedAmountText,
-                fiatText: isUnsuccessful ? nil : received.fiatPrice,
-                isAmountStrikethrough: isUnsuccessful
+                fiatText: nil,
+                isAmountStrikethrough: false
             )
         )
     }
@@ -73,14 +70,28 @@ struct TransactionDetailsOnrampViewData: TransactionDetailsOperationViewData {
 
     /// The paid amount is never signed, in any state.
     private var paidAmountText: String {
-        "\(paid.amount) \(paid.symbol)"
+        TransactionDetailsAmountTextBuilder.build(paid.amount, symbol: paid.symbol) ?? BalanceFormatter.defaultEmptyBalanceString
     }
 
+    /// A deal that never settled delivered nothing, so a bare dash stands in for the figure the provider promised.
     private var receivedAmountText: String {
-        let base = "\(received.amount) \(received.symbol)"
+        guard
+            stage != .unsuccessful,
+            let amountText = TransactionDetailsAmountTextBuilder.build(received.amount, symbol: received.symbol, sign: receivedPrefix)
+        else {
+            return BalanceFormatter.defaultEmptyBalanceString
+        }
+
+        return amountText
+    }
+
+    /// Mirrors the history row's sign, which keys off the same stage — the two surfaces must not disagree
+    /// about whether the figure is an estimate or a delivery.
+    private var receivedPrefix: String? {
         switch stage {
-        case .inProgress: return isReceivedEstimated ? "\(AppConstants.tildeSign) \(base)" : base
-        case .finished, .unsuccessful: return base
+        case .inProgress: AppConstants.tildeSign
+        case .finished: AppConstants.plusSign
+        case .unsuccessful: nil
         }
     }
 }

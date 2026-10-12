@@ -8,6 +8,8 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 extension RatingView {
     struct StarsView: View {
@@ -17,7 +19,7 @@ extension RatingView {
         var onRatingSelected: ((Rating) -> Void)?
 
         var body: some View {
-            HStack(spacing: 6.0) {
+            HStack(spacing: Constants.spacing) {
                 ForEach(Rating.allCases, id: \.self) { rating in
                     starView(for: rating)
                 }
@@ -26,37 +28,73 @@ extension RatingView {
 
         @ViewBuilder
         private func starView(for rating: Rating) -> some View {
-            let image = Assets.DesignSystem.ratingStarEmpty.image
-                .resizable()
-                .frame(width: 32.0, height: 32.0)
-                .foregroundStyle(color(for: rating))
-
             if let onRatingSelected {
                 Button {
                     onRatingSelected(rating)
                 } label: {
-                    image
+                    Self.starImage
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(StarPressStyle(isFilled: isFilled(rating), precedingStars: rating.rawValue - 1))
+                .accessibilityIdentifier(RatingAccessibilityIdentifiers.star(rating.rawValue))
             } else {
-                image
+                Self.starImage
+                    .foregroundStyle(isFilled(rating) ? DesignSystem.Color.iconAccentYellow : DesignSystem.Color.iconTertiary)
+                    .accessibilityIdentifier(RatingAccessibilityIdentifiers.star(rating.rawValue))
             }
         }
 
-        private func color(for rating: Rating) -> Color {
-            rating.rawValue <= displayRating ? Color.Tangem.Graphic.Status.attention : Color.Tangem.Field.backgroundFocused
+        static var starImage: some View {
+            Assets.DesignSystem.ratingStarEmpty.image
+                .resizable()
+                .frame(size: CGSize(bothDimensions: Constants.starSize))
+        }
+
+        private func isFilled(_ rating: Rating) -> Bool {
+            rating.rawValue <= displayRating
         }
     }
 }
 
-// MARK: - Previews
+// MARK: - Constants
 
-#Preview {
-    VStack(spacing: 20) {
-        RatingView.StarsView(displayRating: 0)
-        RatingView.StarsView(displayRating: 1)
-        RatingView.StarsView(displayRating: 3)
-        RatingView.StarsView(displayRating: 5)
+extension RatingView.StarsView {
+    enum Constants {
+        static let starSize: CGFloat = 32
+        static let spacing: CGFloat = 6
     }
-    .padding()
+}
+
+// MARK: - Press style
+
+private struct StarPressStyle: ButtonStyle {
+    typealias Constants = RatingView.StarsView.Constants
+
+    let isFilled: Bool
+    let precedingStars: Int
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(
+                configuration.isPressed || isFilled
+                    ? DesignSystem.Color.iconAccentYellow
+                    : DesignSystem.Color.iconTertiary
+            )
+            .overlay(alignment: .leading) {
+                if configuration.isPressed {
+                    precedingStarsView
+                }
+            }
+            .contentShape(Rectangle())
+    }
+
+    private var precedingStarsView: some View {
+        HStack(spacing: Constants.spacing) {
+            ForEach(0 ..< precedingStars, id: \.self) { _ in
+                RatingView.StarsView.starImage
+            }
+        }
+        .foregroundStyle(DesignSystem.Color.iconAccentYellow)
+        .offset(x: -CGFloat(precedingStars) * (Constants.starSize + Constants.spacing))
+        .allowsHitTesting(false)
+    }
 }

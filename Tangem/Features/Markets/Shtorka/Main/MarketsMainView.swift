@@ -214,28 +214,26 @@ struct MarketsMainView: View {
                         Color.clear
                             .frame(height: overlayHeight)
 
-                        if FeatureProvider.isAvailable(.forYou) {
-                            SwiftUI.Button(action: viewModel.onForYouBannerTap) {
-                                ForYouEntranceBannerView()
-                            }
-                            .buttonStyle(.plain)
-                            .padding(.horizontal, 16)
-                            .padding(.bottom, Layout.Widgets.verticalContentSpacing)
+                        SwiftUI.Button(action: viewModel.onForYouBannerTap) {
+                            ForYouEntranceBannerView()
                         }
+                        .buttonStyle(.plain)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, Layout.Widgets.verticalContentSpacing)
 
                         if FeatureProvider.isAvailable(.polymarket) {
                             SwiftUI.Button(action: viewModel.onPolymarketEntranceTap) {
-                                Text("Polymarket")
+                                PolymarketEntranceBannerView()
                             }
                             .buttonStyle(.plain)
                             .padding(.horizontal, 16)
                             .padding(.bottom, Layout.Widgets.verticalContentSpacing)
                         }
 
-                        if FeatureProvider.isAvailable(.gachaMachine) {
+                        if FeatureProvider.isAvailable(.collectibles) {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 8) {
-                                    GachaEntranceCardView.make(onOpenRequested: viewModel.openGacha)
+                                    CollectiblesEntranceCardView.make(onOpenRequested: viewModel.openCollectibles)
                                 }
                                 .padding(.horizontal, 16)
                             }
@@ -286,6 +284,8 @@ struct MarketsMainView: View {
             NewsWidgetView(viewModel: viewModel)
         case .earn(let viewModel):
             EarnWidgetView(viewModel: viewModel)
+        case .realAssets(let viewModel):
+            RealAssetsWidgetView(viewModel: viewModel)
         }
     }
 }

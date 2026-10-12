@@ -89,26 +89,37 @@ final class CampaignUserWalletModelStub: UserWalletModelMock {
     }
 }
 
-/// Serves a single canned crypto account.
 final class AccountModelsManagerStub: AccountModelsManager {
-    private let account: any CryptoAccountModel
+    private let accounts: [AccountModel]
 
-    init(account: any CryptoAccountModel) {
-        self.account = account
+    init(accounts: [AccountModel]) {
+        self.accounts = accounts
+    }
+
+    convenience init(account: any CryptoAccountModel) {
+        self.init(accounts: [.standard(.single(account))])
     }
 
     var canAddCryptoAccounts: Bool { false }
     var hasArchivedCryptoAccountsPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
     var hasSyncedWithRemotePublisher: AnyPublisher<Bool, Never> { .just(output: true) }
-    var accountModels: [AccountModel] { [.standard(.single(account))] }
+    var accountModels: [AccountModel] { accounts }
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { .just(output: accountModels) }
-    var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> { .just(output: 1) }
+    var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> {
+        .just(output: AccountModelsAggregator(.crypto, .joint).models(from: accounts).count)
+    }
 
-    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountOperationResult {
+    var totalJointAccountsCountPublisher: AnyPublisher<Int, Never> { .just(output: 0) }
+
+    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountCreationResult {
         throw .tooManyAccounts
     }
 
-    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) {
+    func addJointAccount(context: JointAccountCreationContextType) async throws(AccountEditError) -> AccountCreationResult {
+        throw .tooManyAccounts
+    }
+
+    func joinJointAccount(context: JointAccountJoinContext) async throws(AccountEditError) -> AccountCreationResult {
         throw .tooManyAccounts
     }
 
@@ -121,6 +132,7 @@ final class AccountModelsManagerStub: AccountModelsManager {
     }
 
     func acceptTangemPayOffer(authorizingInteractor: TangemPayAuthorizing) async {}
+    func acceptTangemPayCampaignOffer(authorizingInteractor: TangemPayAuthorizing, campaignKey: String) async {}
     func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {}
     func dispose() {}
 }

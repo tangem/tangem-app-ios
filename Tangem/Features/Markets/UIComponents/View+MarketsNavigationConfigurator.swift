@@ -9,6 +9,14 @@
 import SwiftUI
 import TangemUIUtils
 
+enum MarketsNavigationMetrics {
+    static var pushedScreenCornerRadius: CGFloat {
+        UIDevice.current.hasHomeScreenIndicator
+            ? RootViewControllerFactory.Constants.notchDevicesOverlayCornerRadius
+            : RootViewControllerFactory.Constants.notchlessDevicesOverlayCornerRadius
+    }
+}
+
 extension View {
     /// Configures the navigation controller for Markets-style presentation.
     ///
@@ -62,9 +70,7 @@ private final class MarketsViewNavigationControllerConfigurator: NSObject, UINav
     private let cornerRadius: CGFloat
 
     override init() {
-        cornerRadius = UIDevice.current.hasHomeScreenIndicator
-            ? RootViewControllerFactory.Constants.notchDevicesOverlayCornerRadius
-            : RootViewControllerFactory.Constants.notchlessDevicesOverlayCornerRadius
+        cornerRadius = MarketsNavigationMetrics.pushedScreenCornerRadius
     }
 
     func navigationController(

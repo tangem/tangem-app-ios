@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct StakeKitMapper {
     // MARK: - To DTO
@@ -371,6 +372,19 @@ struct StakeKitMapper {
             rewardRate: mapToRewardRate(validator: validator),
             status: mapToValidatorStatus(validator.status)
         )
+    }
+
+    func mapToStakingTargetSummaries(
+        from validators: [StakeKitDTO.Validator],
+        network: StakingNetworkType
+    ) -> [StakingTargetSummary] {
+        validators.compactMap { validator in
+            guard let name = validator.name?.trimmed().nilIfEmpty else {
+                return nil
+            }
+
+            return StakingTargetSummary(network: network, address: validator.address, name: name)
+        }
     }
 
     private func mapToRewardRate(validator: StakeKitDTO.Validator) -> Decimal {

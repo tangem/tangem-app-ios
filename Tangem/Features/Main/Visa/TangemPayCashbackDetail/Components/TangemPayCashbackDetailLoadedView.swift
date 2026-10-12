@@ -11,6 +11,7 @@ import TangemUI
 import TangemUIUtils
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayCashbackDetailLoadedView: View {
     let data: TangemPayCashbackDetailViewData
@@ -49,18 +50,22 @@ private extension TangemPayCashbackDetailLoadedView {
                     sensitive: formattedAmount
                 )
                 .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackDetailHeaderTitle)
 
                 if let payoutWindow {
                     Text(Localization.tangempayCashbackDepositedOn(payoutWindow))
                         .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackDetailHeaderSubtitle)
                 }
 
             case .empty:
                 Text(Localization.tangempayCashbackEmptyTitle)
                     .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackDetailHeaderTitle)
 
                 Text(Localization.tangempayCashbackEmptySubtitle)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackDetailHeaderSubtitle)
             }
         }
         .multilineTextAlignment(.center)
@@ -86,6 +91,7 @@ private extension TangemPayCashbackDetailLoadedView {
                     subtitle: rateCard.subtitle,
                     action: rateCardAction
                 )
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackDetailRateCard)
             }
 
             TangemPayCashbackInfoCard(
@@ -94,6 +100,7 @@ private extension TangemPayCashbackDetailLoadedView {
                 subtitle: Localization.tangempayCashbackAccrualsSubtitle,
                 action: accrualsCardAction
             )
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackDetailAccrualsCard)
         }
         .padding(.bottom, 16)
     }

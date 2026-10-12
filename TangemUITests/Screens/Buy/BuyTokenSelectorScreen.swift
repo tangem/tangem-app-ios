@@ -25,6 +25,22 @@ final class BuyTokenSelectorScreen: ScreenBase<BuyTokenSelectorScreenElement> {
     }
 
     @discardableResult
+    func verifyAccountVisible(_ accountName: String) -> Self {
+        XCTContext.runActivity(named: "Verify account '\(accountName)' is listed on Buy Token Selector screen") { _ in
+            assertTokenSelectorAccountVisible(accountName)
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyAccountNotVisible(_ accountName: String) -> Self {
+        XCTContext.runActivity(named: "Verify account '\(accountName)' is NOT listed on Buy Token Selector screen") { _ in
+            assertTokenSelectorAccountNotVisible(accountName)
+            return self
+        }
+    }
+
+    @discardableResult
     func tapCloseButton() -> MainScreen {
         XCTContext.runActivity(named: "Close Buy Token Selector screen") { _ in
             waitAndAssertTrue(closeButton, "Close button should exist on Buy Token Selector screen")

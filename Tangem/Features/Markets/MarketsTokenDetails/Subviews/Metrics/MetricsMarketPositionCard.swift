@@ -39,7 +39,7 @@ struct MetricsMarketPositionCard: View {
                         MetricsProgressBarWithDot(
                             progress: progress,
                             dotColor: DesignSystem.Color.iconPrimary,
-                            backgroundColor: DesignSystem.Color.bgOpaqueSecondary
+                            backgroundColor: DesignSystem.Color.bgTransparentSecondary
                         )
                     }
 

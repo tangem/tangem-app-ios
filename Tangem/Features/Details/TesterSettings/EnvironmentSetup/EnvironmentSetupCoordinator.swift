@@ -27,6 +27,7 @@ final class EnvironmentSetupCoordinator: CoordinatorObject {
     @Published var supportedBlockchainsPreferencesViewModel: SupportedBlockchainsPreferencesViewModel?
     @Published var addressesInfoViewModel: AddressesInfoViewModel?
     @Published var designSystemDemoCoordinator: DesignSystemDemoCoordinator?
+    @Published var storiesV2DemoViewModel: StoriesV2DemoViewModel?
     @Published var silentPushTesterViewModel: SilentPushTesterViewModel?
 
     required init(
@@ -94,6 +95,10 @@ extension EnvironmentSetupCoordinator: EnvironmentSetupRoutable {
         )
 
         designSystemDemoCoordinator?.start(with: ())
+    }
+
+    func openStoriesV2Demo() {
+        storiesV2DemoViewModel = StoriesV2DemoViewModel()
     }
 
     func openSparrowSurveyClassicDemo(withToken token: String) {

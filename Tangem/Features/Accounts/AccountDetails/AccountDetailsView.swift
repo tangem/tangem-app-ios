@@ -22,6 +22,8 @@ struct AccountDetailsView: View {
 
             manageTokensSection
 
+            supportedNetworksHint
+
             archiveAccountSection
 
             Spacer()
@@ -67,6 +69,24 @@ struct AccountDetailsView: View {
             }
         )
         .defaultRoundedBackground(with: Colors.Background.action)
+    }
+
+    @ViewBuilder
+    private var supportedNetworksHint: some View {
+        if viewModel.isSupportedNetworksHintVisible {
+            HStack(spacing: 4) {
+                Text(Localization.jointAccountSettingsNetworksInfo)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+
+                SwiftUI.Button(action: viewModel.openSupportedNetworks) {
+                    Text(Localization.jointAccountMoreInfo)
+                        .style(Fonts.Regular.caption1, color: Colors.Text.accent)
+                }
+
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 14)
+        }
     }
 
     @ViewBuilder

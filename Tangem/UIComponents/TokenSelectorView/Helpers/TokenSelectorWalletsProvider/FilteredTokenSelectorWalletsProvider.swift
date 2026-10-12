@@ -45,7 +45,8 @@ struct FilteredTokenSelectorWalletsProvider: TokenSelectorWalletsProvider {
         TokenSelectorAccount(
             account: account.account,
             itemsProvider: FilteredTokenSelectorItemsProvider(base: account.itemsProvider, isIncluded: isIncluded),
-            rateProvider: account.rateProvider
+            rateProvider: account.rateProvider,
+            currencyCode: account.currencyCode
         )
     }
 }

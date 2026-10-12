@@ -18,12 +18,14 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
     let primaryAction: PrimaryAction
     let title: String
     let options: [AddFundsOptionView.Option] = [.buy, .swap, .receive]
+    let isRestrictedForCountry: Bool
 
     var showsBackButton: Bool { onBack != nil }
 
     @Published private(set) var tokenInfoViewData: AddFundsTokenInfoView.ViewData
 
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
+    @Injected(\.cryptoAccountsGlobalStateProvider) private static var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
 
     private let walletModel: any WalletModel
     private let userWalletModel: any UserWalletModel
@@ -39,6 +41,7 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
         primaryAction = input.primaryAction
         walletModel = input.walletModel
         userWalletModel = input.userWalletModel
+        isRestrictedForCountry = input.isRestrictedForCountry
         onBack = input.onBack
         self.coordinator = coordinator
 
@@ -79,9 +82,16 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
             )
         case .swap:
             Analytics.log(.addFundsButtonSwap)
-            Task { @MainActor in
-                coordinator?.addFundsRequestSwap(walletModel: walletModel, userWalletModel: userWalletModel)
-            }
+            TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                presenter: alertPresenter,
+                swapStatus: availabilityProvider.swapAvailability,
+                action: { [weak self] in
+                    guard let self else { return }
+                    Task { @MainActor in
+                        self.coordinator?.addFundsRequestSwap(walletModel: self.walletModel, userWalletModel: self.userWalletModel)
+                    }
+                }
+            )
         case .receive:
             TokenActionAvailabilityAlertPresenter.presentOrProceed(
                 presenter: alertPresenter,
@@ -107,8 +117,8 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
         switch option {
         // `.exchange` is the config feature that gates buy/sell (onramp/offramp) — there is no separate
         // buy feature. Not to be confused with the `.exchange` token action, which is swap.
-        case .buy: userWalletModel.config.isFeatureVisible(.exchange)
-        case .swap: userWalletModel.config.isFeatureVisible(.swapping)
+        case .buy: userWalletModel.config.isFeatureVisible(.exchange) && !isRestrictedForCountry
+        case .swap: userWalletModel.config.isFeatureVisible(.swapping) && !isRestrictedForCountry
         case .receive: true
         }
     }
@@ -167,7 +177,7 @@ private extension AddFundsViewModel {
         walletModel: any WalletModel,
         userWalletModel: any UserWalletModel
     ) -> AddFundsTokenInfoView.Badge? {
-        let hasMultipleAccounts = userWalletModel.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
+        let hasMultipleAccounts = cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
 
         if hasMultipleAccounts, let account = walletModel.account {
             return .account(AddFundsTokenInfoView.AccountBadge(
@@ -197,6 +207,7 @@ extension AddFundsViewModel {
         let primaryAction: PrimaryAction
         let walletModel: any WalletModel
         let userWalletModel: any UserWalletModel
+        let isRestrictedForCountry: Bool
         let onBack: (() -> Void)?
 
         init(
@@ -204,12 +215,14 @@ extension AddFundsViewModel {
             primaryAction: PrimaryAction,
             walletModel: any WalletModel,
             userWalletModel: any UserWalletModel,
+            isRestrictedForCountry: Bool = false,
             onBack: (() -> Void)? = nil
         ) {
             self.mode = mode
             self.primaryAction = primaryAction
             self.walletModel = walletModel
             self.userWalletModel = userWalletModel
+            self.isRestrictedForCountry = isRestrictedForCountry
             self.onBack = onBack
         }
     }

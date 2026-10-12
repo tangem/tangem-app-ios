@@ -131,12 +131,6 @@ struct ApprovalInfo: Equatable {
     let isEditable: Bool
 }
 
-extension BigUInt {
-    static var maxUInt256: BigUInt {
-        return BigUInt(2).power(256) - 1
-    }
-}
-
 private extension String {
     func removeHexPrefix() -> String {
         if hasPrefix("0x") || hasPrefix("0X") {

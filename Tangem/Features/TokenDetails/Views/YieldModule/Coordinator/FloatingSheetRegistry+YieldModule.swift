@@ -17,5 +17,9 @@ extension FloatingSheetRegistry {
         register(YieldModuleTransactionViewModel.self) { viewModel in
             YieldModuleTransactionView(viewModel: viewModel)
         }
+
+        register(YieldModuleAboutApyViewModel.self) { viewModel in
+            YieldModuleAboutApyView(viewModel: viewModel)
+        }
     }
 }

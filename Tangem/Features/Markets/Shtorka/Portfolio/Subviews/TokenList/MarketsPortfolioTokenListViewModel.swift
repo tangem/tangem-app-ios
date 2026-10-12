@@ -14,8 +14,6 @@ import enum TangemUI.ThumbnailWalletViewType
 import struct TangemFoundation.UserWalletId
 
 final class MarketsPortfolioTokenListViewModel: ObservableObject {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
     @Published var sections: [WalletSection] = []
 
     let barTitle: String
@@ -30,6 +28,7 @@ final class MarketsPortfolioTokenListViewModel: ObservableObject {
         sections.contains(where: \.walletHasMultipleAccounts)
     }
 
+    private let ownerResolver = WalletModelOwnerResolver()
     private let onSelect: (any WalletModel) -> Void
     private let dismissesOnSelect: Bool
     private weak var coordinator: MarketsPortfolioTokenListRoutable?
@@ -42,7 +41,7 @@ final class MarketsPortfolioTokenListViewModel: ObservableObject {
         barTitle: String = Localization.marketsPortfolioBlockTitle,
         barSubtitle: String? = nil,
         onSelect: @escaping (any WalletModel) -> Void,
-        coordinator: MarketsPortfolioTokenListRoutable
+        coordinator: MarketsPortfolioTokenListRoutable? = nil
     ) {
         self.barTitle = barTitle
         self.barSubtitle = barSubtitle
@@ -69,16 +68,12 @@ private extension MarketsPortfolioTokenListViewModel {
         var sections: [WalletSection] = []
 
         for walletModel in walletModels {
-            guard let userWalletModel = userWalletRepository.models[walletModel.userWalletId] else {
+            guard let owner = ownerResolver.resolve(walletModel) else {
                 continue
             }
 
-            // `WalletModel.account` is a weak reference, so fall back to resolving the owning account
-            // from the wallet's account models to avoid silently dropping rows.
-            guard let account = walletModel.account ?? resolveAccount(for: walletModel, in: userWalletModel) else {
-                continue
-            }
-
+            let walletModel = owner.walletModel
+            let account = owner.account
             let walletSection = sections.first { $0.id == AnyHashable(walletModel.userWalletId) }
 
             if let walletSection {
@@ -91,7 +86,7 @@ private extension MarketsPortfolioTokenListViewModel {
             } else {
                 insert(
                     to: &sections,
-                    userWalletModel: userWalletModel,
+                    userWalletModel: owner.userWalletModel,
                     walletModel: walletModel,
                     account: account
                 )
@@ -191,17 +186,11 @@ private extension MarketsPortfolioTokenListViewModel {
             id: walletModel.userWalletId,
             title: userWalletModel.name,
             thumbnail: userWalletModel.config.walletThumbnailType,
-            walletHasMultipleAccounts: userWalletModel.accountModelsManager.cryptoAccountModels.count > 1,
+            walletHasMultipleAccounts: AccountModelsAggregator(.crypto, .joint).models(from: userWalletModel.accountModelsManager).count > 1,
             accounts: [account]
         )
 
         sections.append(section)
-    }
-
-    func resolveAccount(for walletModel: any WalletModel, in userWalletModel: any UserWalletModel) -> (any CryptoAccountModel)? {
-        userWalletModel.accountModelsManager.cryptoAccountModels.first { account in
-            account.walletModelsManager.walletModels.contains { $0.id == walletModel.id }
-        }
     }
 
     func makeTokenRow(walletModel: any WalletModel) -> TokenRow {
@@ -233,7 +222,7 @@ private extension MarketsPortfolioTokenListViewModel {
             onSelect(walletModel)
         }
 
-        return TokenRow(model: model, onTap: onTap)
+        return TokenRow(id: walletModel.id, model: model, onTap: onTap)
     }
 
     func makeNoAddressTokenRow(tokenItem: TokenItem) -> TokenRow {
@@ -249,7 +238,7 @@ private extension MarketsPortfolioTokenListViewModel {
             )
         )
 
-        return TokenRow(model: model, onTap: nil)
+        return TokenRow(id: WalletModelId(tokenItem: tokenItem), model: model, onTap: nil)
     }
 }
 
@@ -281,7 +270,8 @@ extension MarketsPortfolioTokenListViewModel {
         var tokenRows: [TokenRow]
     }
 
-    struct TokenRow {
+    struct TokenRow: Identifiable {
+        let id: WalletModelId
         let model: MarketsPortfolioTokenListRowViewModel
         let onTap: (() -> Void)?
     }

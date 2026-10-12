@@ -43,6 +43,7 @@ class TwinsFinalizeWalletCreationTask: CardSessionRunnable {
     }
 
     func readCard(in session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
+        // Unlike the nested derivation tasks, `prepare(_:)` is deliberately not invoked here — we don't register/authenticate Twin cards
         scanCommand = AppScanTask()
         scanCommand!.run(in: session, completion: completion)
     }

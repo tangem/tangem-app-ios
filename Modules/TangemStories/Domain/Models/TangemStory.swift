@@ -13,11 +13,22 @@ import enum TangemLocalization.Localization
 public enum TangemStory: Identifiable {
     case swap(SwapStoryData)
     case yieldFirstActivationAPYBoost(YieldFirstActivationAPYBoostStoryData)
+    case polymarketOnboarding(PolymarketOnboardingStoryData)
 
     public var id: TangemStory.ID {
         switch self {
         case .swap: .swap
         case .yieldFirstActivationAPYBoost: .yieldFirstActivationAPYBoost
+        case .polymarketOnboarding: .polymarketOnboarding
+        }
+    }
+
+    /// Only the artwork that is drawn to the very bottom of the page needs the home-indicator strip;
+    /// the rest keep their captions above it.
+    public var runsArtToTheBottomEdge: Bool {
+        switch self {
+        case .polymarketOnboarding: true
+        case .swap, .yieldFirstActivationAPYBoost: false
         }
     }
 
@@ -29,6 +40,7 @@ public enum TangemStory: Identifiable {
         switch self {
         case .swap(let data): return data.pages
         case .yieldFirstActivationAPYBoost(let data): return data.pages
+        case .polymarketOnboarding(let data): return data.pages
         }
     }
 
@@ -37,6 +49,7 @@ public enum TangemStory: Identifiable {
         switch self {
         case .swap: false
         case .yieldFirstActivationAPYBoost: true
+        case .polymarketOnboarding: false
         }
     }
 }
@@ -45,6 +58,7 @@ public extension TangemStory {
     enum ID: String, CaseIterable {
         case swap
         case yieldFirstActivationAPYBoost
+        case polymarketOnboarding
     }
 
     struct Image {
@@ -170,6 +184,62 @@ public extension TangemStory.YieldFirstActivationAPYBoostStoryData {
         case fourthPage
 
         var keyPath: WritableKeyPath<TangemStory.YieldFirstActivationAPYBoostStoryData, TangemStory.Page> {
+            switch self {
+            case .firstPage: \.firstPage
+            case .secondPage: \.secondPage
+            case .thirdPage: \.thirdPage
+            case .fourthPage: \.fourthPage
+            }
+        }
+    }
+}
+
+// MARK: - Polymarket onboarding story
+
+public extension TangemStory {
+    /// Adding or removing a page here requires the same change in `Property`, which drives the page order.
+    struct PolymarketOnboardingStoryData {
+        public var firstPage: Page
+        public var secondPage: Page
+        public var thirdPage: Page
+        public var fourthPage: Page
+
+        // [REDACTED_TODO_COMMENT]
+        public static let initialWithoutImages = PolymarketOnboardingStoryData(
+            firstPage: Page(
+                title: "How to read a prediction",
+                subtitle: "An Event (like the FIFA World Cup) holds Markets — the possible outcomes (France to win, Brazil to win…). Each outcome has a price in cents, and that price is the crowd's odds: 65¢ ≈ a 65% chance."
+            ),
+            secondPage: Page(
+                title: "Win = $1, lose = $0",
+                subtitle: "Every share is a token tied to one outcome. When the event settles, winning shares are worth $1 each and losing shares $0. Your profit is the gap between what you paid and that final value."
+            ),
+            thirdPage: Page(
+                title: "Built for live markets",
+                subtitle: "During live events, prices move by the second. Tangem lets you set how much price movement you'll accept (slippage), so your order still goes through when the odds shift fast."
+            ),
+            fourthPage: Page(
+                title: "Track it from your home screen",
+                subtitle: "Open predictions appear right on your main screen. Even after an event settles, Tangem keeps the position there so you can tap to acknowledge your win or loss — nothing clears without you seeing it."
+            )
+        )
+    }
+}
+
+extension TangemStory.PolymarketOnboardingStoryData: StoryPagesContainer {
+    public var pagesKeyPaths: [WritableKeyPath<TangemStory.PolymarketOnboardingStoryData, TangemStory.Page>] {
+        Property.allCases.map(\.keyPath)
+    }
+}
+
+public extension TangemStory.PolymarketOnboardingStoryData {
+    enum Property: CaseIterable {
+        case firstPage
+        case secondPage
+        case thirdPage
+        case fourthPage
+
+        var keyPath: WritableKeyPath<TangemStory.PolymarketOnboardingStoryData, TangemStory.Page> {
             switch self {
             case .firstPage: \.firstPage
             case .secondPage: \.secondPage

@@ -60,6 +60,7 @@ final class SwapModel {
     private let balanceRestrictionHandler: SwapBalanceRestrictionHandler
     private let sourceTokenResolver: (any SwapSourceTokenResolver)?
     private let destinationTokenResolver: (any SwapDestinationTokenResolver)?
+    private let onTransactionSent: ((SwapFlowConfiguration.SwapSentTransaction) -> Void)?
 
     private let balanceConverter = BalanceConverter()
     private var bag: Set<AnyCancellable> = []
@@ -79,6 +80,7 @@ final class SwapModel {
         balanceRestrictionFeatureChecker: SwapBalanceRestrictionFeatureChecker,
         sourceTokenResolver: (any SwapSourceTokenResolver)? = nil,
         destinationTokenResolver: (any SwapDestinationTokenResolver)? = nil,
+        onTransactionSent: ((SwapFlowConfiguration.SwapSentTransaction) -> Void)? = nil,
         shouldStartInitialLoading: Bool,
     ) {
         self.expressManager = expressManager
@@ -91,6 +93,7 @@ final class SwapModel {
         self.pairUpdateHandler = pairUpdateHandler
         self.sourceTokenResolver = sourceTokenResolver
         self.destinationTokenResolver = destinationTokenResolver
+        self.onTransactionSent = onTransactionSent
         balanceRestrictionHandler = SwapBalanceRestrictionHandler(checker: balanceRestrictionFeatureChecker)
 
         _sourceToken = .init(sourceToken.map { .success($0) } ?? .loading)
@@ -340,9 +343,7 @@ private extension SwapModel {
                     return input.update(providersState: trustlineProvidersState, builtFrom: revision)
                 }
 
-                if let restrictionProvidersState = try await input.hasSwapBalanceRestrictionProvidersState() {
-                    return input.update(providersState: restrictionProvidersState, builtFrom: revision)
-                }
+                try await input.refreshDexOnlyProvidersMode()
 
                 if let type = await loadingType(input.expressManager) {
                     input.update(providersState: .loading(type))
@@ -389,17 +390,12 @@ private extension SwapModel {
         _providersState.send(providersState)
     }
 
-    private func hasSwapBalanceRestrictionProvidersState() async throws -> ProvidersState? {
+    private func refreshDexOnlyProvidersMode() async throws {
         guard let sourceToken = sourceToken.value else {
-            return nil
+            return
         }
 
-        guard try await balanceRestrictionHandler.shouldHideProviders(for: sourceToken) else {
-            return nil
-        }
-
-        // For this kind of restriction we don't show any sign of providers.
-        return legacyBalanceRestrictionProvidersState()
+        try await balanceRestrictionHandler.refreshDexOnlyProvidersMode(for: sourceToken)
     }
 
     private func destinationTrustlineRestrictedProvidersState() async throws -> ProvidersState? {
@@ -472,7 +468,7 @@ private extension SwapModel {
             switch restriction {
             case .tooSmallAmountForSwapping, .notEnoughReceivedAmount:
                 analyticsLogger.logSwapErrorMinAmount(screen: screen)
-            case .tooBigAmountForSwapping:
+            case .tooBigAmountForSwapping, .tooMuchReceivedAmount:
                 analyticsLogger.logSwapErrorMaxAmount(screen: screen)
             case .notEnoughBalanceForSwapping, .notEnoughAmountForFee, .notEnoughAmountForTxValue, .validationError:
                 analyticsLogger.logSwapErrorInsufficientBalance(screen: screen)
@@ -724,11 +720,7 @@ extension SwapModel {
         let amount = makeAmount(value: dexPreview.quote.fromAmount, tokenItem: source.tokenItem)
         let quote = try await map(provider: provider.provider, quote: dexPreview.quote)
 
-        let isPsbtDexSwap = source.tokenItem.blockchain.isPsbtDexSwapSupported
-
-        let restriction = try await isPsbtDexSwap
-            ? validate(amount: amount)
-            : validate(amount: amount, fee: fee, quote: quote)
+        let restriction = try await validate(amount: amount, fee: fee, quote: quote, builtBy: .provider)
 
         if let restriction {
             return .restriction(restriction, quote: quote)
@@ -800,14 +792,19 @@ extension SwapModel {
         }
     }
 
-    func validate(amount: Amount, fee: Fee, quote: Quote) async throws -> RestrictionType? {
+    func validate(
+        amount: Amount,
+        fee: Fee,
+        quote: Quote,
+        builtBy: SendTransactionBuilder = .wallet
+    ) async throws -> RestrictionType? {
         if let restriction = try await validateExpectations(quote: quote) {
             return restriction
         }
 
         do {
             let source = try _sourceToken.value.get()
-            try source.transactionValidator.validate(amount: amount, fee: fee)
+            try source.transactionValidator.validate(amount: amount, fee: fee, builtBy: builtBy)
             // All good
             return nil
         } catch {
@@ -883,8 +880,17 @@ extension SwapModel {
         case .incompleteBackup:
             // Ignored here — the incomplete backup is confirmed when the user taps the `Swap` button.
             return nil
-        case .notEnoughReceivedAmount(let minAmount):
-            return .notEnoughReceivedAmount(minAmount: minAmount, tokenSymbol: destination.tokenItem.currencySymbol)
+        case .notEnoughReceivedAmount(let minAmount, let reason):
+            return .notEnoughReceivedAmount(
+                minAmount: minAmount,
+                tokenSymbol: destination.tokenItem.currencySymbol,
+                reason: reason
+            )
+        case .tooMuchReceivedAmount(let maxAmount):
+            return .tooMuchReceivedAmount(
+                maxAmount: maxAmount,
+                tokenSymbol: destination.tokenItem.currencySymbol
+            )
         case .requiresTrustline:
             return .trustlineRequired(destination: destination)
         }
@@ -986,7 +992,7 @@ extension SwapModel {
         switch restriction {
         case .incompleteBackup(let userWalletInfo):
             // Leaving for support drops the current attempt: `SendViewModel` ignores the cancellation silently.
-            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            try await withCheckedThrowingContinuation { continuation in
                 TokenActionAvailabilityAlertPresenter.presentOrProceed(
                     presenter: alertPresenter,
                     warning: .incompleteBackup(userWalletInfo),
@@ -1101,6 +1107,8 @@ extension SwapModel {
                 throw SwapModel.SwapModelError.transactionDataNotFound
             }
         }
+
+        onTransactionSent?(.init(source: source, receive: receive, result: result))
 
         _transactionTime.send(.now)
         _transactionURL.send(result.url)
@@ -2287,7 +2295,8 @@ extension SwapModel {
         case notEnoughAmountForFee(isFeeCurrency: Bool, feeCurrencyBalance: Decimal)
         case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool, feeCurrencyBalance: Decimal)
         case validationError(error: ValidationError)
-        case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String)
+        case notEnoughReceivedAmount(minAmount: ReceivedAmountThreshold, tokenSymbol: String, reason: NotEnoughReceivedAmountReason)
+        case tooMuchReceivedAmount(maxAmount: ReceivedAmountThreshold, tokenSymbol: String)
         case regionRestricted
         case trustlineRequired(destination: any SendSwapableToken)
     }

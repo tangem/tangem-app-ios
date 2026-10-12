@@ -7,24 +7,23 @@
 //
 
 import Foundation
-import TangemFoundation
 
 protocol AddressBookAnalyticsLogger {
-    func logContactListScreenOpened(userWalletId: UserWalletId?, source: AddressBookAnalyticsSource, contactsCount: Int)
-    func logAddContactTapped(userWalletId: UserWalletId?, source: AddressBookAnalyticsSource)
-    func logContactScreenOpened(userWalletId: UserWalletId?, contactId: String?)
+    func logContactListScreenOpened(source: AddressBookAnalyticsSource, contactsCount: Int)
+    func logAddContactTapped(source: AddressBookAnalyticsSource)
+    func logContactScreenOpened(contactId: String?)
     func logButtonSaveTo()
-    func logContactSaved(userWalletId: UserWalletId?, contactId: String, mode: AddressBookAnalyticsMode)
-    func logSaveErrorShown(userWalletId: UserWalletId?, contactId: String?, error: Error)
+    func logContactSaved(contactId: String, mode: AddressBookAnalyticsMode, source: AddressBookAnalyticsSource)
+    func logSaveErrorShown(contactId: String?, error: Error)
     func logAddressScreenOpened()
-    func logAddressInvalid(userWalletId: UserWalletId?, contactId: String?)
-    func logDuplicateNameErrorShown(userWalletId: UserWalletId?, contactId: String?)
-    func logAddressRemoved(userWalletId: UserWalletId?, contactId: String?)
-    func logContactDeleted(userWalletId: UserWalletId?, contactId: String?)
-    func logSendFlowWidgetShown(userWalletId: UserWalletId?)
-    func logContactSelected(userWalletId: UserWalletId?, contactId: String)
-    func logAddressSubstitutedInSend(userWalletId: UserWalletId?, contactId: String)
-    func logSelectAllNetworksTapped(userWalletId: UserWalletId?, action: AddressBookSelectAllAction)
+    func logAddressInvalid(contactId: String?)
+    func logDuplicateNameErrorShown(contactId: String?)
+    func logAddressRemoved(contactId: String?)
+    func logContactDeleted(contactId: String?)
+    func logSendFlowWidgetShown()
+    func logContactSelected(contactId: String)
+    func logAddressSubstitutedInSend(contactId: String)
+    func logSelectAllNetworksTapped(action: AddressBookSelectAllAction)
 }
 
 enum AddressBookAnalyticsMode {
@@ -70,7 +69,7 @@ enum AddressBookSelectAllAction {
 extension AddressBookAnalyticsLogger {
     /// A user-cancelled card scan is not a failure the user sees, and duplicate name/address saves surface as
     /// inline errors logged where they're shown — everything else maps to the generic save-error event.
-    func logSaveFailure(userWalletId: UserWalletId?, contactId: String?, error: Error) {
+    func logSaveFailure(contactId: String?, error: Error) {
         guard !error.isCancellationError else {
             return
         }
@@ -84,6 +83,6 @@ extension AddressBookAnalyticsLogger {
             }
         }
 
-        logSaveErrorShown(userWalletId: userWalletId, contactId: contactId, error: error)
+        logSaveErrorShown(contactId: contactId, error: error)
     }
 }

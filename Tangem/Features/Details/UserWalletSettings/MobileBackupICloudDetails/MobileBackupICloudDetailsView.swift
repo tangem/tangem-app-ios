@@ -80,7 +80,7 @@ private extension MobileBackupICloudDetailsView {
             accessibilityLabel: nil,
             action: viewModel.onRemoveTap
         )
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .size(.x12)
         .horizontalLayout(.infinity)
     }

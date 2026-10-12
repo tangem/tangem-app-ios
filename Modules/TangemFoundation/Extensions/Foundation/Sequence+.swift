@@ -76,6 +76,11 @@ public extension Sequence {
             return seen.insert(property).inserted ? property : nil
         }
     }
+
+    /// Just a shim for `Array(_:)`.
+    func toArray() -> [Element] {
+        Array(self)
+    }
 }
 
 // MARK: - Sequence + Hashable

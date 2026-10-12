@@ -60,6 +60,12 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
         }
     }
 
+    func openAboutApySheet(viewModel: YieldModuleAboutApyViewModel) {
+        Task { @MainActor [weak self] in
+            self?.floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openYieldApyBoostStory() {
         Task { @MainActor [tangemStoriesPresenter] in
             tangemStoriesPresenter.present(

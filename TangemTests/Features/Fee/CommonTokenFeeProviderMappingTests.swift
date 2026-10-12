@@ -31,14 +31,16 @@ struct CommonTokenFeeProviderMappingTests {
     private func makeProvider(
         feeTokenItem: TokenItem,
         balance: Decimal,
-        loader: any TokenFeeLoader = NoopFeeLoaderMock()
+        loader: any TokenFeeLoader = NoopFeeLoaderMock(),
+        minimumRequiredBalance: Decimal? = nil
     ) -> CommonTokenFeeProvider {
         CommonTokenFeeProvider(
             feeTokenItem: feeTokenItem,
             tokenFeeLoader: loader,
             customFeeProvider: nil,
             feeTokenItemBalanceProvider: MutableTokenBalanceProviderMock(balance: balance),
-            supportingOptions: .all
+            supportingOptions: .all,
+            minimumRequiredBalance: minimumRequiredBalance
         )
     }
 
@@ -64,6 +66,28 @@ struct CommonTokenFeeProviderMappingTests {
         let sut = makeProvider(feeTokenItem: nativeCoinFeeToken, balance: 1)
 
         #expect(!isNotEnoughBalanceForFee(sut.selectedTokenFee.value))
+    }
+
+    @Test("Balance below the configured minimum blocks fee-token usage")
+    func balanceBelowMinimumBlocksFeeTokenUsage() {
+        let sut = makeProvider(
+            feeTokenItem: gaslessTokenFeeToken,
+            balance: 4.99,
+            minimumRequiredBalance: 5
+        )
+
+        #expect(sut.usageAvailability == .minimumBalanceRequired(amount: 5, tokenItem: gaslessTokenFeeToken))
+    }
+
+    @Test("Balance equal to the configured minimum allows fee-token usage")
+    func balanceEqualToMinimumAllowsFeeTokenUsage() {
+        let sut = makeProvider(
+            feeTokenItem: gaslessTokenFeeToken,
+            balance: 5,
+            minimumRequiredBalance: 5
+        )
+
+        #expect(sut.usageAvailability == .available)
     }
 
     // MARK: - .notEnoughFeeBalance (gasless execution reverted, token balance below the gasless threshold)

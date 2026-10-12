@@ -47,7 +47,8 @@ final class CryptoAccountsNetworkMapper {
                     name: account.name,
                     icon: account.icon.iconName,
                     iconColor: account.icon.iconColor,
-                    derivation: account.derivationIndex
+                    derivation: account.derivationIdentity.derivationIndex,
+                    type: account.derivationIdentity.type.rawValue
                 )
             }
 
@@ -216,21 +217,25 @@ final class CryptoAccountsNetworkMapper {
                 iconColor: accountDTO.iconColor
             )
             let tokens = map(tokens: accountDTO.tokens)
-            let type = mapAccountType(from: accountDTO)
+            let type = mapAccountType(rawType: accountDTO.type)
 
             return StoredCryptoAccount(
                 derivationIndex: accountDTO.derivation,
+                type: type,
                 name: accountDTO.name,
                 icon: icon,
                 tokens: tokens,
                 grouping: grouping,
-                sorting: sorting,
-                type: type
+                sorting: sorting
             )
         }
 
         let legacyTokens = map(tokens: response.unassignedTokens)
-        let counters = mapCounters(from: response.wallet)
+        let counters = RemoteCryptoAccountsInfo.Counters(
+            archived: response.wallet.totalArchivedAccounts,
+            crypto: response.wallet.totalCryptoAccounts,
+            joint: response.wallet.totalJointAccounts
+        )
 
         return RemoteCryptoAccountsInfo(
             counters: counters,
@@ -288,29 +293,19 @@ final class CryptoAccountsNetworkMapper {
             .unique() // Additional uniqueness check for remote tokens (replicates old behavior)
     }
 
-    /// - Returns: Nil when the endpoint says nothing about the kind, or says something this version cannot place:
-    /// a record only ever claims a kind it was told or created with.
-    private func mapAccountType(from account: AccountsDTO.Response.Accounts.Account) -> AccountType? {
-        guard let rawType = account.type else {
-            return nil
+    private func mapAccountType(rawType: String?) -> AccountType {
+        guard let rawType else {
+            // Only the v2 endpoint provide a type; a legacy record is always consider as crypto account
+            return .crypto
         }
 
         guard let type = AccountType(rawValue: rawType) else {
-            AccountsLogger.warning("Leaving an account of unknown type '\(rawType)' without one")
-            return nil
+            let message = "Attempt to map an unknown account type '\(rawType)'"
+            AccountsLogger.error(error: message)
+            preconditionFailure(message)
         }
 
         return type
-    }
-
-    private func mapCounters(from wallet: AccountsDTO.Response.Accounts.Wallet) -> RemoteCryptoAccountsInfo.Counters {
-        // An answer from before the endpoint counted the types apart has only the whole total, which every account it
-        // counted was a crypto one of. The joint counter has nothing to stand in for it, hence no count over a wrong one
-        return RemoteCryptoAccountsInfo.Counters(
-            archived: wallet.totalArchivedAccounts,
-            crypto: wallet.totalCryptoAccounts ?? wallet.totalAccounts,
-            joint: wallet.totalJointAccounts
-        )
     }
 
     /// - Throws: `HDWalletError` if the derivation path is invalid.
@@ -409,7 +404,8 @@ final class CryptoAccountsNetworkMapper {
                 icon: icon,
                 tokensCount: archivedAccountDTO.totalTokens,
                 networksCount: archivedAccountDTO.totalNetworks,
-                derivationIndex: archivedAccountDTO.derivation
+                derivationIndex: archivedAccountDTO.derivation,
+                type: mapAccountType(rawType: archivedAccountDTO.type)
             )
         }
     }

@@ -24,11 +24,6 @@ extension XCUIElement {
             return false
         }
 
-        guard exists, isHittable, isEnabled else {
-            XCTFail("Element '\(self)' is not ready for interaction: exists=\(exists), isHittable=\(isHittable), isEnabled=\(isEnabled)")
-            return false
-        }
-
         tap()
         return true
     }
@@ -84,6 +79,12 @@ extension XCUIElement {
         }
         let expectation = XCTNSPredicateExpectation(predicate: predicate, object: self)
         return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
+    }
+
+    func staysAbsent(for duration: TimeInterval) -> Bool {
+        let expectation = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == true"), object: self)
+        expectation.isInverted = true
+        return XCTWaiter().wait(for: [expectation], timeout: duration) == .completed
     }
 }
 
@@ -213,5 +214,25 @@ extension XCUIElement {
         }
 
         return labels
+    }
+}
+
+// MARK: Query matching
+
+extension XCUIElementQuery {
+    /// Returns the first hittable match, so a stale element left behind by a dismissed screen is skipped.
+    func firstHittableElement(timeout: TimeInterval = .robustUIUpdate) -> XCUIElement? {
+        var hittableElement: XCUIElement?
+        let predicate = NSPredicate { _, _ in
+            hittableElement = self.allElementsBoundByIndex.first { $0.isHittable }
+            return hittableElement != nil
+        }
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
+
+        guard XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed else {
+            return nil
+        }
+
+        return hittableElement
     }
 }

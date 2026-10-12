@@ -33,7 +33,8 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
         ),
         shouldStartInitialLoading: true,
         sourceTokenResolver: sourceTokenResolver,
-        destinationTokenResolver: configuration.receiveTokenSelection.destinationResolver
+        destinationTokenResolver: configuration.receiveTokenSelection.destinationResolver,
+        onTransactionSent: configuration.onTransactionSent
     )
     lazy var notificationManager = makeSwapNotificationManager()
     lazy var marketingBannerManager = makeSwapMarketingBannerManager()
@@ -127,7 +128,8 @@ extension SwapFlowFactory: SendGenericFlowFactory {
             sourceWalletsProvider: configuration.sourceTokenSelection.walletsProvider,
             receiveWalletsProvider: configuration.receiveTokenSelection.walletsProvider,
             allowsSourceMarketsTokens: configuration.sourceTokenSelection.allowsMarketsTokens,
-            allowsReceiveMarketsTokens: configuration.receiveTokenSelection.allowsMarketsTokens
+            allowsReceiveMarketsTokens: configuration.receiveTokenSelection.allowsMarketsTokens,
+            offeredReceiveTokens: configuration.offeredReceiveTokens
         )
 
         let stepsManager = CommonSwapStepsManager(

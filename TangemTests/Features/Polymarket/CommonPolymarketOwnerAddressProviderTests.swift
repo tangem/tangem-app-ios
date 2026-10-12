@@ -138,7 +138,7 @@ private extension CommonPolymarketOwnerAddressProviderTests {
     ) -> CommonPolymarketOwnerAddressProvider {
         CommonPolymarketOwnerAddressProvider(
             keysRepository: repository,
-            keysDerivingInteractor: KeysDerivingTestsMock(result: result),
+            keysDerivingFactory: KeysDerivingFactoryTestsMock(result: result),
             areHDWalletsSupported: areHDWalletsSupported
         )
     }
@@ -171,5 +171,15 @@ private final class KeysDerivingTestsMock: KeysDeriving {
 
     func deriveKeys(derivations: [Data: [DerivationPath]], completion: @escaping (Result<DerivationResult, Error>) -> Void) {
         completion(result)
+    }
+}
+
+// MARK: - Doubles
+
+private struct KeysDerivingFactoryTestsMock: PolymarketKeysDerivingFactory {
+    let result: Result<DerivationResult, Error>
+
+    func makeInteractor() -> KeysDeriving {
+        KeysDerivingTestsMock(result: result)
     }
 }

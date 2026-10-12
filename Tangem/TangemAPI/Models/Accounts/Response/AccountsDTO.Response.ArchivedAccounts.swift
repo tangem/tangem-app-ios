@@ -17,6 +17,7 @@ extension AccountsDTO.Response {
             let icon: String
             let iconColor: String
             let derivation: Int
+            let type: String?
             let totalTokens: Int
             let totalNetworks: Int
         }

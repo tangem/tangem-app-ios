@@ -13,12 +13,14 @@ import struct TangemUIUtils.AlertBinder
 final class JointAccountMembersCountViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
-    @Published var membersCount: Int = 3 {
+    /// The screen opens on the smallest composition there is, and on every one of its members having to sign, so
+    /// that whatever the creator leaves untouched is the strictest account rather than a middling one.
+    @Published var membersCount: Int = Constants.membersCountRange.lowerBound {
         // A composition can't require more signatures than it has members
         didSet { signersCount = min(signersCount, membersCount) }
     }
 
-    @Published var signersCount: Int = 2
+    @Published var signersCount: Int = Constants.membersCountRange.lowerBound
 
     var memberStates: [JointAccountMemberCircle.State] { members() }
     var membersCountRange: ClosedRange<Int> { Constants.membersCountRange }

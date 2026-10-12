@@ -383,7 +383,7 @@ extension CommonVisaActivationManager: CardActivationTaskDelegate {
         signedAuthorizationChallenge: AttestCardKeyResponse,
         completion: @escaping (Result<Void, Error>) -> Void
     ) {
-        runTask(in: self, isDetached: false) { manager in
+        runTask(in: self) { manager in
             do {
                 guard let cardInput = manager.activationInput else {
                     throw VisaActivationError.alreadyActivated
@@ -406,7 +406,7 @@ extension CommonVisaActivationManager: CardActivationTaskDelegate {
     /// Requests an activation order from the BFF for taget wallet address
     /// - Parameter completion: Completion handler returning the activation order or an error.
     func getActivationOrder(walletAddress: String, completion: @escaping (Result<VisaCardAcceptanceOrderInfo, any Error>) -> Void) {
-        runTask(in: self, isDetached: false) { manager in
+        runTask(in: self) { manager in
             do {
                 guard let cardInput = manager.activationInput else {
                     throw VisaActivationError.alreadyActivated

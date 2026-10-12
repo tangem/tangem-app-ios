@@ -16,6 +16,8 @@ enum ExpressExchangeTransactionsTable: AppDatabaseTable {
         switch version {
         case .v1:
             try V1.register(in: database)
+        case .v2:
+            try V2.register(in: database)
         }
     }
 }
@@ -108,6 +110,27 @@ private extension ExpressExchangeTransactionsTable {
                     Columns.createdAt,
                 ]
             )
+        }
+    }
+
+    enum V2 {
+        static func register(in database: Database) throws {
+            try database.drop(indexOn: tableName, columns: [Columns.ownerAddress])
+            try database.drop(
+                indexOn: tableName,
+                columns: [Columns.fromNetwork, Columns.fromContract, Columns.ownerAddress]
+            )
+            try database.drop(
+                indexOn: tableName,
+                columns: [Columns.toNetwork, Columns.toContract, Columns.ownerAddress]
+            )
+
+            try database.alter(table: tableName) { table in
+                table.drop(column: Columns.ownerAddress)
+            }
+
+            try database.create(indexOn: tableName, columns: [Columns.fromNetwork, Columns.fromContract])
+            try database.create(indexOn: tableName, columns: [Columns.toNetwork, Columns.toContract])
         }
     }
 }

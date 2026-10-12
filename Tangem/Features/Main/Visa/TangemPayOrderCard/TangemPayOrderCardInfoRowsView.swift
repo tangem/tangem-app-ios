@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 
@@ -21,22 +22,23 @@ struct TangemPayOrderCardInfoRowsView: View {
                     .contentLead(.start)
                     .showDivider(index < rows.count - 1)
                     .disabled(row.isDimmed)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.orderCardInfoRow("\(row.id)"))
             }
         }
     }
 
     private func valueView(_ row: TangemPayOrderCardInfoRow) -> some View {
-        HStack(spacing: Constants.badgeSpacing) {
-            if let badge = row.badge {
-                Badge(label: badge.text, accessibilityLabel: nil)
-                    .size(.x4)
-                    .appearance(badge.appearance)
-            }
-
+        VStack(alignment: .trailing, spacing: Constants.badgeSpacing) {
             if let value = row.value {
                 Text(value)
                     .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
                     .lineLimit(1)
+            }
+
+            if let badge = row.badge {
+                Badge(label: badge.text, accessibilityLabel: nil)
+                    .size(.x4)
+                    .appearance(badge.appearance)
             }
         }
     }
@@ -44,6 +46,6 @@ struct TangemPayOrderCardInfoRowsView: View {
 
 private extension TangemPayOrderCardInfoRowsView {
     enum Constants {
-        static let badgeSpacing: CGFloat = 8
+        static let badgeSpacing: CGFloat = 2
     }
 }

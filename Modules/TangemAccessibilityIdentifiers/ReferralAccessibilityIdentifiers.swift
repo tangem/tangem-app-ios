@@ -21,4 +21,7 @@ public enum ReferralAccessibilityIdentifiers {
     // Personal promo code
     public static let promoCodeTitle = "referralPromoCodeTitle"
     public static let promoCodeValue = "referralPromoCodeValue"
+
+    /// Row in the "Address for rewards" block that opens the account picker
+    public static let addressForRewardsAccountRow = "referralAddressForRewardsAccountRow"
 }

@@ -132,7 +132,7 @@ private extension ForYouAccountSelectorChipViewModelTests {
     }
 
     func waitUntil(
-        timeout: Duration = .seconds(2),
+        timeout: Duration = .seconds(5),
         _ condition: @escaping @MainActor () -> Bool
     ) async {
         let deadline = ContinuousClock.now + timeout

@@ -17,16 +17,20 @@ struct EarnDetailViewRedesign: View {
 
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
 
+    @Environment(\.mainShtorkaSize) private var sheetSize
+
     @ScaledMetric private var contentSpacing: CGFloat = 16
-    @ScaledMetric private var sectionsSpacing: CGFloat = 40
-    @ScaledMetric private var sectionSpacing: CGFloat = 12
 
     var body: some View {
         content
+            .if(sheetSize.isFeedSheet) { view in
+                view
+                    .toolbar(.hidden, for: .navigationBar)
+                    .navigationBarBackButtonHidden()
+            }
             .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
                 viewModel?.onOverlayContentProgressChange(progress)
             }
-            .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 }
 
@@ -43,48 +47,9 @@ private extension EarnDetailViewRedesign {
 
     var scrollContent: some View {
         ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: sectionsSpacing) {
-                mostlyUsedSection
-                bestOpportunitiesSection
-            }
+            EarnContentView(viewModel: viewModel)
         }
         .opacity(viewModel.overlayContentHidingProgress)
-    }
-
-    var mostlyUsedSection: some View {
-        VStack(spacing: sectionSpacing) {
-            EarnDetailHeaderView(headerTitle: Localization.earnMostlyUsed)
-
-            EarnMostlyUsedView(
-                viewModels: viewModel.mostlyUsedViewModels,
-                onFourthItemAppeared: viewModel.onMostlyUsedScrolledToFourthItem
-            )
-        }
-    }
-
-    var bestOpportunitiesSection: some View {
-        VStack(spacing: sectionSpacing) {
-            EarnDetailHeaderView(headerTitle: Localization.earnBestOpportunities)
-
-            EarnFilterHeaderView(
-                isNetworksFilterEnabled: viewModel.isFilterInteractionEnabled,
-                isTypesFilterEnabled: true,
-                isLoading: viewModel.isFilterLoading,
-                networkFilterTitle: viewModel.selectedNetworkFilterTitle,
-                typesFilterTitle: viewModel.selectedFilterTypeTitle,
-                onNetworksTap: { viewModel.handleViewAction(.networksFilterTap) },
-                onTypesTap: { viewModel.handleViewAction(.typesFilterTap) }
-            )
-
-            EarnBestOpportunitiesListView(
-                loadingState: viewModel.listLoadingState,
-                tokenViewModels: viewModel.tokenViewModels,
-                retryAction: viewModel.onRetry,
-                fetchMoreAction: viewModel.fetchMore,
-                hasActiveFilters: viewModel.hasActiveFilters,
-                clearFilterAction: viewModel.clearFilters
-            )
-        }
     }
 
     var navigationBar: some View {

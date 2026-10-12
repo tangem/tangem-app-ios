@@ -229,9 +229,13 @@ private extension MarketsListDataProvider {
             offset: currentOffset,
             limit: limitPerPage,
             interval: filter.interval,
-            order: filter.order,
+            order: .init(filter.order),
             search: searchText,
-            showNetworks: loadNetworks
+            showNetworks: loadNetworks,
+            categoryId: filter.categoryId,
+            sectorId: filter.sectorId,
+            geckoCategoryId: filter.geckoCategoryId,
+            country: filter.country
         )
 
         AppLogger.tag("Markets").info("Loading market list tokens with request \(requestModel.parameters.debugDescription)")
@@ -244,10 +248,25 @@ extension MarketsListDataProvider {
     final class Filter: Hashable, Equatable {
         let interval: MarketsPriceIntervalType
         let order: MarketsListOrderType
+        let categoryId: Int?
+        let sectorId: Int?
+        let geckoCategoryId: String?
+        let country: String?
 
-        init(interval: MarketsPriceIntervalType = .day, order: MarketsListOrderType = .rating) {
+        init(
+            interval: MarketsPriceIntervalType = .day,
+            order: MarketsListOrderType = .rating,
+            categoryId: Int? = nil,
+            sectorId: Int? = nil,
+            geckoCategoryId: String? = nil,
+            country: String? = nil
+        ) {
             self.interval = interval
             self.order = order
+            self.categoryId = categoryId
+            self.sectorId = sectorId
+            self.geckoCategoryId = geckoCategoryId
+            self.country = country
         }
 
         // MARK: - Hashable
@@ -255,12 +274,21 @@ extension MarketsListDataProvider {
         func hash(into hasher: inout Hasher) {
             hasher.combine(interval.id)
             hasher.combine(order.rawValue)
+            hasher.combine(categoryId)
+            hasher.combine(sectorId)
+            hasher.combine(geckoCategoryId)
+            hasher.combine(country)
         }
 
         // MARK: - Equatable
 
         static func == (lhs: MarketsListDataProvider.Filter, rhs: MarketsListDataProvider.Filter) -> Bool {
-            lhs.hashValue == rhs.hashValue
+            lhs.interval == rhs.interval
+                && lhs.order == rhs.order
+                && lhs.categoryId == rhs.categoryId
+                && lhs.sectorId == rhs.sectorId
+                && lhs.geckoCategoryId == rhs.geckoCategoryId
+                && lhs.country == rhs.country
         }
     }
 }

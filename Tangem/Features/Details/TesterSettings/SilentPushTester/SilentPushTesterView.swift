@@ -18,6 +18,7 @@ struct SilentPushTesterView: View {
                 labeledField("network_id", text: $viewModel.networkId)
                 labeledField("token_id", text: $viewModel.tokenId)
                 labeledField("derivation_path", text: $viewModel.derivationPath)
+                labeledField("transaction_id", text: $viewModel.transactionId)
 
                 Picker("type", selection: $viewModel.selectedType) {
                     ForEach(viewModel.types, id: \.self) { type in

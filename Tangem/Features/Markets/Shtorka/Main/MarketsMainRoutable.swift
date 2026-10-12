@@ -8,8 +8,8 @@
 
 import Foundation
 
-protocol MarketsMainRoutable: AnyObject, MarketsRoutable, TopMarketWidgetRoutable, PulseMarketWidgetRoutable, NewsWidgetRoutable, EarnWidgetRoutable, MarketsTokenSearchRoutable {
+protocol MarketsMainRoutable: AnyObject, MarketsRoutable, TopMarketWidgetRoutable, PulseMarketWidgetRoutable, NewsWidgetRoutable, EarnWidgetRoutable, RealAssetsWidgetRoutable, MarketsTokenSearchRoutable {
     func openForYou()
-    func openPolymarket()
-    func openGacha(with options: GachaCoordinator.Options)
+    func openPolymarket(for userWalletModels: [any UserWalletModel])
+    func openCollectibles(with options: CollectiblesCoordinator.Options)
 }

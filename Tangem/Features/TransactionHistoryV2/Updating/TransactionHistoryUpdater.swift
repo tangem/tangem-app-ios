@@ -10,70 +10,57 @@ import Foundation
 import Combine
 import TangemFoundation
 
-final class TransactionHistoryUpdater {
-    private let scheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage
+/// Shared per user wallet: deduplicates transaction history v2 update triggers so the shared provider isn't
+/// re-synced more than once within a single update iteration. Wallet models are updated in batches and all of
+/// them reach the same provider, so without this every wallet model would trigger its own sync.
+actor TransactionHistoryUpdater {
+    private var scheduledUpdateTokens: Set<AnyHashable> = []
+    private var activeBatchUpdateTokens: Set<AnyHashable> = []
 
-    init(scheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage) {
-        self.scheduledUpdatesStorage = scheduledUpdatesStorage
+    func beginBatchUpdate(updateToken: AnyHashable) {
+        activeBatchUpdateTokens.insert(updateToken)
+    }
+
+    func endBatchUpdate(updateToken: AnyHashable) {
+        activeBatchUpdateTokens.remove(updateToken)
+        scheduledUpdateTokens.remove(updateToken)
     }
 
     func updateHistoryIfNeeded(
-        featuresPublisher: AnyPublisher<[WalletModelFeature], Never>,
+        featuresPublisher: some Publisher<[WalletModelFeature], Never>,
         updateToken: AnyHashable
     ) async {
         do {
-            let transactionHistoryProviders = try await featuresPublisher
+            let transactionHistoryProvider = try await featuresPublisher
                 .first() // [REDACTED_TODO_COMMENT]
-                .map { features in
-                    return features.compactMap { feature in
-                        switch feature {
-                        case .transactionHistory(let transactionHistoryProvider):
-                            return transactionHistoryProvider
-                        case .dynamicAddresses,
-                             .nft:
-                            return nil
-                        }
-                    }
-                }
                 .async()
+                .transactionHistoryProvider
 
-            guard transactionHistoryProviders.isNotEmpty else {
+            // The provider is absent when the feature is disabled or this token has no express support
+            guard let transactionHistoryProvider else {
+                return
+            }
+
+            // Update for this update iteration (determined by the `updateToken`) is already scheduled, skipping it
+            guard scheduledUpdateTokens.insert(updateToken).inserted else {
                 return
             }
 
             // `syncInitial`/`syncDelta` are run in a fire-and-forget manner, so the caller doesn't need to await them
-            Task { [scheduledUpdatesStorage] in
-                // But we need to await all `syncInitial`/`syncDelta` to perform the scheduled updates storage cleanup (`removeScheduledUpdate` calls)
-                let scheduledProviderIds = await withTaskGroup { taskGroup in
-                    var scheduledProviderIds: [AnyHashable] = []
+            // Bare `Task` is used here intentionally to mutate actor properties from the same actor context
+            Task {
+                // But we do await them here to mark this update iteration as completed only once it has
+                // actually finished syncing
 
-                    for provider in transactionHistoryProviders {
-                        let providerId = provider.id.toAnyHashable()
+                // Initial and delta syncs are mutually exclusive, and delta sync can start only after initial sync is completed,
+                // so we can safely trigger both types of syncs here without any additional checks/synchronization
+                await transactionHistoryProvider.syncInitial()
+                await transactionHistoryProvider.syncDelta()
 
-                        guard await scheduledUpdatesStorage.shouldScheduleUpdate(
-                            updateToken: updateToken,
-                            providerId: providerId
-                        ) else {
-                            // Update with this provider for this update iteration (determined by the `updateToken`) is already scheduled, skipping it
-                            continue
-                        }
-
-                        scheduledProviderIds.append(providerId)
-
-                        taskGroup.addTask {
-                            // Initial and delta syncs are mutually exclusive, and delta sync can start only after initial sync is completed,
-                            // so we can safely trigger both types of syncs here without any additional checks/synchronization
-                            await provider.syncInitial()
-                            await provider.syncDelta()
-                        }
-                    }
-
-                    return scheduledProviderIds
-                }
-
-                // Marking the providers as having completed their updates for this update iteration (determined by the `updateToken` and `providerId`)
-                for providerId in scheduledProviderIds {
-                    await scheduledUpdatesStorage.removeScheduledUpdate(updateToken: updateToken, providerId: providerId)
+                // Removing the update token only if there is no in-flight batch update for this token;
+                // Otherwise, the token is removed in `endBatchUpdate(updateToken:)`
+                if !activeBatchUpdateTokens.contains(updateToken) {
+                    scheduledUpdateTokens.remove(updateToken)
                 }
             }
         } catch {
@@ -86,7 +73,7 @@ final class TransactionHistoryUpdater {
 // MARK: - CustomStringConvertible protocol conformance
 
 extension TransactionHistoryUpdater: CustomStringConvertible {
-    var description: String {
+    nonisolated var description: String {
         objectDescription(self)
     }
 }

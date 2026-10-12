@@ -12,7 +12,7 @@ struct TransactionDetailsGenericOperationViewData {
     /// The main token amount block shown at the top. `nil` for operations without an amount (e.g. the generic "other" section).
     let tokens: TransactionDetailsTokensViewData?
 
-    /// Shown for in-progress / failed / just-received states; omitted for a plain confirmed operation.
+    /// Shown for in-progress / failed / just-received states, or to flag a risk (an unlimited approve); omitted otherwise.
     let statusBanner: TransactionDetailsStatusBannerViewData?
 
     /// The amount this operation was charged against (e.g. the fee's "For sending 120.03 USDT"). Absent otherwise.

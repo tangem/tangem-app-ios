@@ -46,6 +46,10 @@ public class OrderedWeakObjectsCollection<T> {
         }
     }
 
+    public func removeAll() {
+        mapTable.removeAllObjects()
+    }
+
     public func contains(_ delegate: T) -> Bool {
         return firstKey(delegate) != nil
     }

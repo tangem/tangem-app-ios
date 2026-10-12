@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemPay
+
 final class CommonTokenSelectorWalletsProvider {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
@@ -16,10 +18,10 @@ final class CommonTokenSelectorWalletsProvider {
     @Injected(\.tangemPayAccountGlobalStateProvider)
     private var tangemPayAccountGlobalStateProvider: TangemPayAccountGlobalStateProvider
 
-    private let accountModelFilter: ((AccountModel) -> Bool)?
+    private let aggregator: BaseAccountModelsAggregator
 
-    init(accountModelFilter: ((AccountModel) -> Bool)? = nil) {
-        self.accountModelFilter = accountModelFilter
+    init(_ aggregator: BaseAccountModelsAggregator) {
+        self.aggregator = aggregator
     }
 }
 
@@ -41,7 +43,7 @@ private extension CommonTokenSelectorWalletsProvider {
     func mapToTokenSelectorWallet(userWalletModel: any UserWalletModel) -> TokenSelectorWallet {
         let userWalletInfo = userWalletModel.userWalletInfo
         let accounts = mapToAccountType(
-            accountModels: userWalletModel.accountModelsManager.accountModels,
+            accountModels: aggregator.models(from: userWalletModel.accountModelsManager),
             userWalletInfo: userWalletInfo
         )
 
@@ -57,7 +59,12 @@ private extension CommonTokenSelectorWalletsProvider {
             cryptoAccount: cryptoAccount
         )
 
-        return TokenSelectorAccount(account: cryptoAccount, itemsProvider: itemsProvider, rateProvider: cryptoAccount.rateProvider)
+        return TokenSelectorAccount(
+            account: cryptoAccount,
+            itemsProvider: itemsProvider,
+            rateProvider: cryptoAccount.rateProvider,
+            currencyCode: nil
+        )
     }
 
     func mapToTokenSelectorAccount(
@@ -69,37 +76,35 @@ private extension CommonTokenSelectorWalletsProvider {
             tangemPayAccountModel: tangemPayAccountModel
         )
 
-        return TokenSelectorAccount(account: tangemPayAccountModel, itemsProvider: itemsProvider, rateProvider: nil)
+        return TokenSelectorAccount(
+            account: tangemPayAccountModel,
+            itemsProvider: itemsProvider,
+            rateProvider: nil,
+            currencyCode: TangemPayUtilities.fiatItem.currencyCode
+        )
     }
 
     func mapToAccountType(
-        accountModels: [AccountModel],
+        accountModels: [any BaseAccountModel],
         userWalletInfo: UserWalletInfo
     ) -> TokenSelectorWallet.AccountType {
-        let filteredAccountModels = accountModelFilter.map { filter in accountModels.filter(filter) } ?? accountModels
-
-        let items: [TokenSelectorAccount] = filteredAccountModels.flatMap { accountModel -> [TokenSelectorAccount] in
+        let items: [TokenSelectorAccount] = accountModels.compactMap { accountModel -> TokenSelectorAccount? in
             switch accountModel {
-            case .standard(.single(let account)):
-                [mapToTokenSelectorAccount(userWalletInfo: userWalletInfo, cryptoAccount: account)]
+            case let cryptoAccountModel as any CryptoAccountModel:
+                return mapToTokenSelectorAccount(userWalletInfo: userWalletInfo, cryptoAccount: cryptoAccountModel)
 
-            case .standard(.multiple(let accounts)):
-                accounts.map { mapToTokenSelectorAccount(userWalletInfo: userWalletInfo, cryptoAccount: $0) }
+            case let tangemPayAccountModel as any TangemPayAccountModel:
+                return mapToTokenSelectorAccount(userWalletInfo: userWalletInfo, tangemPayAccountModel: tangemPayAccountModel)
 
-            case .tangemPay(let tangemPayAccountModel):
-                [
-                    mapToTokenSelectorAccount(
-                        userWalletInfo: userWalletInfo,
-                        tangemPayAccountModel: tangemPayAccountModel
-                    ),
-                ]
-
-            case .polymarket:
-                []
+            default:
+                // A kind the selector let through and this one has no row for — the two are named together at the
+                // call site, so they part company only by mistake
+                assertionFailure("Unexpected account model kind: \(accountModel)")
+                return nil
             }
         }
 
-        let hasTangemPayInResults = filteredAccountModels.contains(where: \.isTangemPay)
+        let hasTangemPayInResults = accountModels.contains { $0 is any TangemPayAccountModel }
 
         switch cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() {
         case .single where hasTangemPayInResults:

@@ -13,6 +13,17 @@ protocol ReceiveTokenWithdrawNoticeInteractor {
     func markWithdrawalAlertShown(for tokenItem: TokenItem)
 }
 
+extension ReceiveTokenWithdrawNoticeInteractor {
+    static func noticeKey(for tokenItem: TokenItem) -> String {
+        switch tokenItem {
+        case .blockchain(let network):
+            "blockchain_\(network.blockchain.networkId)"
+        case .token(let token, let blockchainNetwork):
+            "token_\(token.contractAddress)_\(blockchainNetwork.blockchain.networkId)"
+        }
+    }
+}
+
 final class GeneralReceiveTokenWithdrawNoticeInteractor: ReceiveTokenWithdrawNoticeInteractor {
     // MARK: - Services
 
@@ -22,15 +33,7 @@ final class GeneralReceiveTokenWithdrawNoticeInteractor: ReceiveTokenWithdrawNot
     // MARK: - Public Implementation
 
     func shouldShowWithdrawalAlert(for tokenItem: TokenItem) -> Bool {
-        let objectRepresentable: String
-
-        switch tokenItem {
-        case .blockchain(let network):
-            objectRepresentable = "receive_shown_withdrawal_blockchain_\(network.blockchain.networkId)"
-        case .token(let token, let blockchainNetwork):
-            objectRepresentable = "receive_shown_withdrawal_token_\(token.contractAddress)_\(blockchainNetwork.blockchain.networkId)"
-        }
-
+        let objectRepresentable = Self.storedKey(for: tokenItem)
         let displayed = shownWithdrawalAlerts[objectRepresentable] ?? false
         shownWithdrawalAlerts[objectRepresentable] = true
 
@@ -38,20 +41,19 @@ final class GeneralReceiveTokenWithdrawNoticeInteractor: ReceiveTokenWithdrawNot
     }
 
     func markWithdrawalAlertShown(for tokenItem: TokenItem) {
-        let objectRepresentable: String
-
-        switch tokenItem {
-        case .blockchain(let network):
-            objectRepresentable = "receive_shown_withdrawal_blockchain_\(network.blockchain.networkId)"
-        case .token(let token, let blockchainNetwork):
-            objectRepresentable = "receive_shown_withdrawal_token_\(token.contractAddress)_\(blockchainNetwork.blockchain.networkId)"
-        }
-
-        shownWithdrawalAlerts[objectRepresentable] = true
+        shownWithdrawalAlerts[Self.storedKey(for: tokenItem)] = true
     }
 }
 
 private extension GeneralReceiveTokenWithdrawNoticeInteractor {
+    static func storedKey(for tokenItem: TokenItem) -> String {
+        Constants.keyPrefix + noticeKey(for: tokenItem)
+    }
+
+    enum Constants {
+        static let keyPrefix = "receive_shown_withdrawal_"
+    }
+
     enum StorageKeys: String, RawRepresentable {
         case shownWithdrawalAlerts = "receive_shown_withdrawal_token_alerts"
     }

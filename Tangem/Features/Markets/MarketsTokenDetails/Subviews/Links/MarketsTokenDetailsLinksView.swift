@@ -60,7 +60,7 @@ private extension MarketsTokenDetailsLinksView {
         )
         .iconStart(item.iconImageType)
         .size(.x8)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
     }
 }
 

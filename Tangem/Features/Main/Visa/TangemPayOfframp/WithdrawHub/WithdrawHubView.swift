@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -17,13 +18,16 @@ struct WithdrawHubView: View {
     var body: some View {
         WithdrawHubContentView(
             isWithinPortfolioLoading: viewModel.isWithinPortfolioLoading,
-            onWithinPortfolioTap: viewModel.onWithinPortfolioTap
+            recentTokens: viewModel.recentTokens,
+            recentAccounts: viewModel.recentAccounts,
+            isSeeAllAccountsVisible: viewModel.isSeeAllAccountsVisible,
+            bankTransferState: viewModel.bankTransferState,
+            onAction: viewModel.handleViewAction
         )
         .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
         .alert(item: $viewModel.alert) { $0.alert }
         .topNavigation(
-            // [REDACTED_TODO_COMMENT]
-            title: "Withdraw",
+            title: Localization.tangempayWithdrawHubTitle,
             leading: .none,
             onClose: viewModel.onCloseTap
         )

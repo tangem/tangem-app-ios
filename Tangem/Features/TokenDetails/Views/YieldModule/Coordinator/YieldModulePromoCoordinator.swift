@@ -28,7 +28,7 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
     let popToRootAction: Action<PopToRootOptions>
 
     @Published
-    var rootViewModel: YieldModulePromoViewModel? = nil
+    var root: Root? = nil
 
     // MARK: - Init
 
@@ -44,7 +44,7 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = options.viewModel
+        root = options.root
     }
 
     func openBottomSheet(viewModel: YieldModuleStartViewModel) {
@@ -82,7 +82,12 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
 
 extension YieldModulePromoCoordinator {
     struct Options {
-        let viewModel: YieldModulePromoViewModel
+        let root: Root
+    }
+
+    enum Root {
+        case legacy(YieldModulePromoViewModel)
+        case v2(YieldModulePromoV2ViewModel)
     }
 
     typealias DismissOptions = FeeCurrencyNavigatingDismissOption

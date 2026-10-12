@@ -112,13 +112,8 @@ extension TronTransactionHistoryProvider: TransactionHistoryProvider {
             return (response, totalPageCount)
         }
         .withWeakCaptureOf(self)
-        .handleEvents(receiveOutput: { historyProvider, input in
-            let (response, totalPageCount) = input
-            historyProvider.page = TransactionHistoryIndexPage(number: response.page ?? Constants.initialPageNumber)
-            historyProvider.totalPageCount = totalPageCount
-        })
         .tryMap { historyProvider, input in
-            let (response, _) = input
+            let (response, totalPageCount) = input
             let records = try historyProvider.mapper.mapToTransactionRecords(
                 response,
                 walletAddress: address,
@@ -130,6 +125,9 @@ extension TronTransactionHistoryProvider: TransactionHistoryProvider {
                     record: record
                 )
             }
+
+            historyProvider.page = TransactionHistoryIndexPage(number: response.page ?? Constants.initialPageNumber)
+            historyProvider.totalPageCount = totalPageCount
 
             return TransactionHistory.Response(records: records)
         }

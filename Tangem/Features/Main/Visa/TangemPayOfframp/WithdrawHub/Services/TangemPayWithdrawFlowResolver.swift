@@ -22,7 +22,17 @@ struct TangemPayWithdrawFlowResolver {
 
     @MainActor
     func resolve() async throws -> Outcome {
-        switch await fundingFlowBuilder.withdraw() {
+        try await resolve(await fundingFlowBuilder.withdraw())
+    }
+
+    @MainActor
+    func resolve(repeating target: TangemPayRecentOperationTarget) async throws -> Outcome {
+        try await resolve(await fundingFlowBuilder.withdraw(repeating: target))
+    }
+
+    @MainActor
+    private func resolve(_ resolution: TangemPayFundingFlowBuilder.WithdrawResolution) async throws -> Outcome {
+        switch resolution {
         case .unavailable:
             return .unavailable
 

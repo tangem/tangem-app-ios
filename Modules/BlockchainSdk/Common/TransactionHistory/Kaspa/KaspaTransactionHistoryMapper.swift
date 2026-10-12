@@ -55,7 +55,8 @@ final class KaspaTransactionHistoryMapper {
                     return nil
                 }
 
-                return TransactionRecord.Destination(address: .user(address), amount: amount)
+                // Each output carries its own amount; the transaction amount also holds the fee and the other outputs
+                return TransactionRecord.Destination(address: .user(address), amount: Decimal(output.amount ?? 0) / blockchain.decimalValue)
             }
 
             switch outputAddresses.count {
@@ -150,7 +151,7 @@ extension KaspaTransactionHistoryMapper: TransactionHistoryMapper {
                 index: 0,
                 source: source,
                 destination: destination,
-                fee: Fee(Amount(with: blockchain, value: Decimal(fee))),
+                fee: Fee(Amount(with: blockchain, value: Decimal(fee) / blockchain.decimalValue)),
                 status: transactionStatus,
                 isOutgoing: isOutgoing,
                 type: .transfer,

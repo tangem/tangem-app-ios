@@ -14,4 +14,5 @@ enum EarnOpportunitySource: String {
     case mostlyUsed = "Mostly Used"
     case bestOpportunity = "Best Opportunity"
     case forYou = "For You"
+    case search = "Search"
 }

@@ -12,14 +12,9 @@ import TangemLocalization
 struct PromocodeActivationView: View {
     @StateObject var viewModel: PromocodeActivationViewModel
 
-    init(promoCode: String, refcode: String?, campaign: String?, dismissAction: @escaping () -> Void) {
+    init(promoCode: String, dismissAction: @escaping () -> Void) {
         _viewModel = StateObject(
-            wrappedValue: PromocodeActivationViewModel(
-                promoCode: promoCode,
-                refcode: refcode,
-                campaign: campaign,
-                dismissAction: dismissAction
-            )
+            wrappedValue: PromocodeActivationViewModel(promoCode: promoCode, dismissAction: dismissAction)
         )
     }
 

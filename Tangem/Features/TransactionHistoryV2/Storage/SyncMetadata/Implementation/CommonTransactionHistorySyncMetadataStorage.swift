@@ -8,15 +8,16 @@
 
 import Foundation
 import TangemExpress
+import TangemFoundation
 import TangemAppDatabase
 
 struct CommonTransactionHistorySyncMetadataStorage {
     @Injected(\.appDatabase) private var appDatabase: AppDatabase
 
-    private let ownerAddress: String
+    private let userWalletId: UserWalletId
 
-    init(ownerAddress: String) {
-        self.ownerAddress = ownerAddress
+    init(userWalletId: UserWalletId) {
+        self.userWalletId = userWalletId
     }
 }
 
@@ -26,7 +27,7 @@ extension CommonTransactionHistorySyncMetadataStorage: TransactionHistorySyncMet
     func initialSyncCursor(for branch: ExpressBranch) async throws -> Any? {
         return try await appDatabase.databaseHandle.read { database in
             try ExpressSyncMetadataRecord
-                .filter(ownerAddress: ownerAddress, endpointType: branch.endpointType)
+                .filter(userWalletID: userWalletId.stringValue, endpointType: branch.endpointType)
                 .fetchOne(database)?
                 .archiveCursor
         }
@@ -39,7 +40,7 @@ extension CommonTransactionHistorySyncMetadataStorage: TransactionHistorySyncMet
             let archiveCursor = cursor as? String // [REDACTED_TODO_COMMENT]
 
             let updatedRecordsCount = try ExpressSyncMetadataRecord
-                .filter(ownerAddress: ownerAddress, endpointType: endpointType)
+                .filter(userWalletID: userWalletId.stringValue, endpointType: endpointType)
                 .updateAll(database) { record in
                     [
                         record.archiveCursor.set(to: archiveCursor),
@@ -53,7 +54,7 @@ extension CommonTransactionHistorySyncMetadataStorage: TransactionHistorySyncMet
             }
 
             try ExpressSyncMetadataRecord(
-                ownerAddress: ownerAddress,
+                userWalletID: userWalletId.stringValue,
                 endpointType: endpointType,
                 archiveCursor: archiveCursor,
                 deltaCursor: nil,
@@ -66,7 +67,7 @@ extension CommonTransactionHistorySyncMetadataStorage: TransactionHistorySyncMet
     func deltaSyncCursor(for branch: ExpressBranch) async throws -> Any? {
         return try await appDatabase.databaseHandle.read { database in
             try ExpressSyncMetadataRecord
-                .filter(ownerAddress: ownerAddress, endpointType: branch.endpointType)
+                .filter(userWalletID: userWalletId.stringValue, endpointType: branch.endpointType)
                 .fetchOne(database)?
                 .deltaCursor
         }
@@ -79,7 +80,7 @@ extension CommonTransactionHistorySyncMetadataStorage: TransactionHistorySyncMet
             let deltaCursor = cursor as? String // [REDACTED_TODO_COMMENT]
 
             let updatedRecordsCount = try ExpressSyncMetadataRecord
-                .filter(ownerAddress: ownerAddress, endpointType: endpointType)
+                .filter(userWalletID: userWalletId.stringValue, endpointType: endpointType)
                 .updateAll(database) { record in
                     [
                         record.deltaCursor.set(to: deltaCursor),
@@ -93,7 +94,7 @@ extension CommonTransactionHistorySyncMetadataStorage: TransactionHistorySyncMet
             }
 
             try ExpressSyncMetadataRecord(
-                ownerAddress: ownerAddress,
+                userWalletID: userWalletId.stringValue,
                 endpointType: endpointType,
                 archiveCursor: nil,
                 deltaCursor: deltaCursor,
@@ -107,7 +108,7 @@ extension CommonTransactionHistorySyncMetadataStorage: TransactionHistorySyncMet
         return try await appDatabase.databaseHandle.read { database in
             try ExpressSyncMetadataRecord
                 // There is no separate sync completion tracking for different branches, so any record will do
-                .filter(ownerAddress: ownerAddress)
+                .filter(userWalletID: userWalletId.stringValue)
                 .filter { $0.isInitialSyncDone }
                 .fetchCount(database) > 0
         }
@@ -121,7 +122,7 @@ extension CommonTransactionHistorySyncMetadataStorage: TransactionHistorySyncMet
             for branch in ExpressBranch.allCases {
                 let endpointType = branch.endpointType
                 let updatedRecordsCount = try ExpressSyncMetadataRecord
-                    .filter(ownerAddress: ownerAddress, endpointType: endpointType)
+                    .filter(userWalletID: userWalletId.stringValue, endpointType: endpointType)
                     .updateAll(database) { record in
                         [
                             record.isInitialSyncDone.set(to: isDone),
@@ -135,7 +136,7 @@ extension CommonTransactionHistorySyncMetadataStorage: TransactionHistorySyncMet
                 }
 
                 try ExpressSyncMetadataRecord(
-                    ownerAddress: ownerAddress,
+                    userWalletID: userWalletId.stringValue,
                     endpointType: endpointType,
                     archiveCursor: nil,
                     deltaCursor: nil,
@@ -149,7 +150,7 @@ extension CommonTransactionHistorySyncMetadataStorage: TransactionHistorySyncMet
     func clear() async throws {
         try await appDatabase.databaseHandle.write { database in
             _ = try ExpressSyncMetadataRecord
-                .filter(ownerAddress: ownerAddress)
+                .filter(userWalletID: userWalletId.stringValue)
                 .deleteAll(database)
         }
     }

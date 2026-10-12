@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayCashbackDetailView: View {
     @ObservedObject private var viewModel: TangemPayCashbackDetailViewModel
@@ -39,6 +40,7 @@ struct TangemPayCashbackDetailView: View {
                             .renderingMode(.template)
                             .foregroundStyle(DesignSystem.Color.iconPrimary)
                     }
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackDetailCloseButton)
                 }
             }
             .task {

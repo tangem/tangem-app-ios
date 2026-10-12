@@ -67,7 +67,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
     private var icon: some View {
         HStack(spacing: -16) {
             Circle()
-                .fill(DesignSystem.Color.bgOpaquePrimary)
+                .fill(DesignSystem.Color.bgTransparentPrimary)
                 .frame(width: 80, height: 80)
                 .overlay {
                     Circle().strokeBorder(DesignSystem.Color.borderSecondary, lineWidth: 1)
@@ -142,7 +142,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
             }
 
             if showsAch {
-                feeRow(title: Localization.tangempayBankTransferFeeAch, value: achFee)
+                feeRow(title: Localization.tangempayBankTransferFeeAch, value: achFee, fee: .ach)
             }
 
             if showsAch, showsFedwire {
@@ -151,7 +151,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
             }
 
             if showsFedwire {
-                feeRow(title: Localization.tangempayBankTransferFeeFedwire, value: fedwireFee)
+                feeRow(title: Localization.tangempayBankTransferFeeFedwire, value: fedwireFee, fee: .fedwire)
             }
         }
         .padding(.horizontal, 16)
@@ -169,13 +169,15 @@ struct TangemPayVirtualAccountInfoSheetView: View {
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
         }
         .onTap(viewModel.reloadFees)
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountFeeErrorBanner)
     }
 
-    private func feeRow(title: String, value: String?) -> some View {
+    private func feeRow(title: String, value: String?, fee: TangemPayAccessibilityIdentifiers.VirtualAccountFee) -> some View {
         HStack(spacing: 0) {
             Text(verbatim: title)
                 .font(token: DesignSystem.Font.bodyMediumToken)
                 .foregroundStyle(DesignSystem.Color.textPrimary)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountFeeTitle(fee))
 
             Spacer(minLength: 0)
 
@@ -183,6 +185,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
                 Text(verbatim: value)
                     .font(token: DesignSystem.Font.bodyMediumToken)
                     .foregroundStyle(DesignSystem.Color.textPrimary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountFeeValue(fee))
             }
         }
         .overlay(alignment: .trailing) {
@@ -222,7 +225,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
             .styleType(.default)
             .size(.x14)
             .horizontalLayout(.infinity)
-            .isLoading(viewModel.isLoading)
+            .loading(.spinner(if: viewModel.isLoading))
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountShowDetailsButton)
 
             if let agreementText = viewModel.agreementText {

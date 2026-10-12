@@ -19,13 +19,17 @@ final class AppOverlaysManager {
 
     @Injected(\.tangemStoriesViewModel) private var tangemStoriesViewModel: TangemStoriesViewModel
     @Injected(\.storyKingfisherImageCache) private var storyKingfisherImageCache: ImageCache
+    @Injected(\.storiesV2Presenter) private var storiesV2Presenter: any StoriesV2Presenter
 
     @Injected(\.appOverlaysDependencies.alertPresenterViewModel) private var alertPresenterViewModel: AlertPresenterViewModel
     @Injected(\.appOverlaysDependencies.floatingSheetViewModel) private var floatingSheetViewModel: FloatingSheetViewModel
     @Injected(\.appOverlaysDependencies.overlayShareActivitiesViewModel) private var shareActivitiesViewModel: ShareActivitiesViewModel
+    @Injected(\.appOverlaysDependencies.overlayViewPresenterViewModel) private var overlayViewPresenterViewModel: OverlayViewPresenterViewModel
 
     private var overlayWindow: UIWindow?
     private var storiesViewController: UIViewController?
+    private var storiesV2ViewController: UIViewController?
+    private var overlayPresentationHost: OverlayViewPresentationHost?
 
     private var cancellables: Set<AnyCancellable>
     private weak var mainWindow: MainWindow?
@@ -48,6 +52,11 @@ final class AppOverlaysManager {
             alertPresenterViewModel: alertPresenterViewModel
         )
 
+        overlayPresentationHost = OverlayViewPresentationHost(
+            viewModel: overlayViewPresenterViewModel,
+            sheetRegistry: sheetRegistry
+        )
+
         bindStories()
         bindActiveSheet()
         bindAppTheme()
@@ -60,8 +69,10 @@ final class AppOverlaysManager {
     func forceDismiss() {
         floatingSheetViewModel.removeAllSheets()
         floatingSheetViewModel.pauseSheetsDisplaying()
+        overlayViewPresenterViewModel.dismissAll()
 
         tangemStoriesViewModel.forceDismiss()
+        storiesV2Presenter.forceDismiss()
     }
 
     // MARK: - Private methods
@@ -71,6 +82,13 @@ final class AppOverlaysManager {
             .$state
             .sink { [weak self] state in
                 self?.handleNewStoriesState(state)
+            }
+            .store(in: &cancellables)
+
+        storiesV2Presenter
+            .playerPublisher
+            .sink { [weak self] player in
+                self?.handleNewStoriesV2Player(player)
             }
             .store(in: &cancellables)
 
@@ -151,6 +169,44 @@ final class AppOverlaysManager {
         hostingController.rootView = Self.makeStoriesHostView(for: state, imageCache: imageCache)
     }
 
+    private func handleNewStoriesV2Player(_ player: StoryPlayerViewModel?) {
+        guard let player else {
+            dismissStoriesV2ViewController()
+            return
+        }
+
+        // A story arriving while the root is busy — the previous one still dismissing, a V1 story or
+        // a share sheet up — is dropped, and handed back so the presenter does not keep reporting a
+        // player that nothing shows. Its caller still gets the destination. The slot is claimed only
+        // once the presentation actually starts, otherwise a refused story would hold it for the
+        // rest of the session.
+        guard
+            storiesV2ViewController == nil,
+            let rootViewController = overlayWindow?.rootViewController,
+            rootViewController.presentedViewController == nil
+        else {
+            storiesV2Presenter.releaseUnpresented(player)
+            return
+        }
+
+        let viewController = Self.makeStoriesV2ViewController(for: player)
+        storiesV2ViewController = viewController
+
+        rootViewController.present(viewController, animated: true)
+        // forces keyboard to hide if showing stories window
+        overlayWindow?.makeKey()
+    }
+
+    private func dismissStoriesV2ViewController() {
+        storiesV2ViewController?.dismiss(
+            animated: true,
+            completion: { [weak self] in
+                self?.storiesV2ViewController = nil
+                self?.restoreMainWindowKeyboardIfNeeded()
+            }
+        )
+    }
+
     private func dismissStoriesViewController() {
         storiesViewController?.dismiss(
             animated: true,
@@ -222,12 +278,39 @@ extension AppOverlaysManager {
         return containerViewController
     }
 
+    /// Nested in a plain container rather than presented directly, which keeps the safe area from
+    /// animating on presentation — same reason as the V1 stories controller above.
+    private static func makeStoriesV2ViewController(for player: StoryPlayerViewModel) -> UIViewController {
+        let containerViewController = UIViewController()
+        containerViewController.view.backgroundColor = .black
+        containerViewController.overrideUserInterfaceStyle = .dark
+        containerViewController.modalPresentationStyle = .fullScreen
+        containerViewController.modalTransitionStyle = .crossDissolve
+
+        let playerViewController = UIHostingController(rootView: StoryPlayerView(vm: player))
+
+        containerViewController.addChild(playerViewController)
+        containerViewController.view.addSubview(playerViewController.view)
+
+        playerViewController.view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            playerViewController.view.leadingAnchor.constraint(equalTo: containerViewController.view.leadingAnchor),
+            playerViewController.view.topAnchor.constraint(equalTo: containerViewController.view.topAnchor),
+            playerViewController.view.trailingAnchor.constraint(equalTo: containerViewController.view.trailingAnchor),
+            playerViewController.view.bottomAnchor.constraint(equalTo: containerViewController.view.bottomAnchor),
+        ])
+
+        playerViewController.didMove(toParent: containerViewController)
+
+        return containerViewController
+    }
+
     private static func makeStoriesHostView(for state: TangemStoriesViewModel.State, imageCache: ImageCache) -> StoriesHostView {
         StoriesHostView(
             viewModel: state.storiesHostViewModel,
             storyViews: state.storiesHostViewModel.storyViewModels.map { storyViewModel in
                 let pageViews = Self.makeStoryPages(for: state.activeStory, using: state.storiesHostViewModel, imageCache: imageCache)
-                    .map(StoryPageContainerView.init)
+                    .map { StoryPageContainerView(content: $0, ignoresBottomSafeArea: state.activeStory.runsArtToTheBottomEdge) }
 
                 return StoryView(viewModel: storyViewModel, pageViews: pageViews)
             }

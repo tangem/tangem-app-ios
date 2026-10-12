@@ -10,6 +10,7 @@ import Foundation
 import GRDB
 import TangemExpress
 import TangemFoundation
+import TangemStaking
 import TangemAppDatabase
 
 struct CommonTransactionHistoryAuxDataStorage {
@@ -149,6 +150,38 @@ extension CommonTransactionHistoryAuxDataStorage: TransactionHistoryAuxDataStora
 
             // [REDACTED_TODO_COMMENT]
             for record in records {
+                try record.upsert(database)
+            }
+        }
+    }
+
+    // MARK: Staking targets
+
+    func stakingTargets() async throws -> [TransactionHistoryAuxDataCachedValue<StakingTargetSummary>] {
+        return try await appDatabase.databaseHandle.read { database in
+            return try StakingTargetRecord
+                .fetchAll(database)
+                .compactMap { record in
+                    do {
+                        let target = try TransactionHistoryAuxDataMapper.mapToStakingTargetSummary(record)
+
+                        return TransactionHistoryAuxDataCachedValue(value: target, updatedAt: record.updatedAt)
+                    } catch {
+                        TransactionHistoryLogger.warning(
+                            "Skipping malformed staking target row \(record.networkID)/\(record.address): \(error)"
+                        )
+                        return nil
+                    }
+                }
+        }
+    }
+
+    func saveStakingTargets(_ targets: [StakingTargetSummary]) async throws {
+        try await appDatabase.databaseHandle.write { database in
+            let updatedAt = Date()
+
+            for target in targets {
+                let record = TransactionHistoryAuxDataMapper.mapToStakingTargetRecord(target, updatedAt: updatedAt)
                 try record.upsert(database)
             }
         }

@@ -16,7 +16,7 @@ import TangemFoundation
 protocol WalletModel:
     AnyObject, Identifiable, Hashable, CustomStringConvertible,
     AvailableTokenBalanceProviderInput, WalletModelBalancesProvider,
-    WalletModelHelpers, WalletModelFeesProvider, WalletModelDependenciesProvider,
+    WalletModelHelpers, WalletModelDependenciesProvider,
     WalletModelRentProvider, WalletModelUpdater, WalletModelTransactionHistoryProvider,
     WalletModelTransactionHistoryAddressesProvider, TransactionHistoryFetcher,
     StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider,
@@ -80,6 +80,10 @@ extension WalletModel {
         let converter = factory.makeConverter(for: tokenItem.blockchain)
         let convertedAddress = try? converter.convertToETHAddress(defaultAddressString)
         return convertedAddress ?? defaultAddressString
+    }
+
+    var isJointAccountParticipant: Bool {
+        account?.accountType == .joint
     }
 }
 
@@ -148,8 +152,19 @@ struct WalletModelUpdateOptions: OptionSet {
     let rawValue: Int
 
     static let balances = WalletModelUpdateOptions(rawValue: 1 << 0)
-    static let transactionHistory = WalletModelUpdateOptions(rawValue: 1 << 1)
-    static let full: WalletModelUpdateOptions = [.balances, .transactionHistory]
+
+    @available(*, unavailable, renamed: "onChainTransactionHistory")
+    static let transactionHistory: WalletModelUpdateOptions = .onChainTransactionHistory
+
+    static let onChainTransactionHistory = WalletModelUpdateOptions(rawValue: 1 << 1)
+
+    static let expressTransactionHistory = WalletModelUpdateOptions(rawValue: 1 << 2)
+
+    static let full: WalletModelUpdateOptions = [
+        .balances,
+        .onChainTransactionHistory,
+        .expressTransactionHistory,
+    ]
 }
 
 // MARK: - WalletModelBalancesProvider
@@ -186,13 +201,6 @@ protocol WalletModelHelpers {
     func exploreURL(for address: String, token: Token?) -> URL?
     func exploreTransactionURL(for hash: String) -> URL?
     func fulfillRequirements(signer: any TransactionSigner) -> AnyPublisher<Void, Error>
-}
-
-// MARK: - Fee
-
-protocol WalletModelFeesProvider {
-    var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder { get }
-    var customFeeProviderBuilder: CustomFeeProviderBuilder { get }
 }
 
 // MARK: - Dependencies
@@ -233,6 +241,10 @@ protocol WalletModelDependenciesProvider {
     var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? { get }
     var tronGaslessTransactionsBuilder: (any TronGaslessTransactionsBuilder)? { get }
     var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { get }
+
+    // MARK: - Safe
+
+    var safeWalletManagerOperationsService: SafeWalletManagerOperationsService? { get }
 }
 
 // MARK: - Tx history

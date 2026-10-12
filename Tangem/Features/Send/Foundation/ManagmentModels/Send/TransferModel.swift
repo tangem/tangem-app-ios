@@ -540,7 +540,15 @@ extension TransferModel: SendFeeInput {
 
 extension TransferModel: SendSummaryInput, SendSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
-        _transaction.map { $0?.value != nil }.eraseToAnyPublisher()
+        Publishers.CombineLatest(
+            _transaction,
+            _sourceToken.tokenFeeProvidersManager.selectedFeeTokenUsageAvailabilityPublisher
+        )
+        .map { transaction, availability in
+            transaction?.value != nil && availability.allowsFeePayment
+        }
+        .removeDuplicates()
+        .eraseToAnyPublisher()
     }
 
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> {
@@ -605,6 +613,10 @@ extension TransferModel: SendNotificationManagerInput {
 
     var selectedTokenFeePublisher: AnyPublisher<TokenFee, Never> {
         _sourceToken.tokenFeeProvidersManager.selectedTokenFeePublisher
+    }
+
+    var feeTokenUsageAvailabilityPublisher: AnyPublisher<FeeTokenUsageAvailability, Never> {
+        _sourceToken.tokenFeeProvidersManager.selectedFeeTokenUsageAvailabilityPublisher
     }
 
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> {

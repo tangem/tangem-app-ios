@@ -512,7 +512,7 @@ private extension TangemPayCardManagementViewModel {
         let onLoadingChange: (Bool) -> Void = { [weak self] in self?.isLoadingReissueFee = $0 }
         let onError: () -> Void = { [weak self] in self?.showReissueError() }
 
-        if FeatureProvider.isAvailable(.tangemPayPlastic), card.isPhysical {
+        if card.isPhysical {
             coordinator?.openPlasticCardReissueSheet(
                 userWalletId: userWalletInfo.id,
                 card: card,

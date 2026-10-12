@@ -12,6 +12,7 @@ import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemVisa
+import TangemAccessibilityIdentifiers
 
 protocol TangemPayCloseCardSheetRoutable: AnyObject {
     func closeCloseCardSheet()
@@ -42,6 +43,10 @@ final class TangemPayCloseCardSheetViewModel: ObservableObject, FloatingSheetCon
             isLoading: isLoading,
             action: confirm
         )
+    }
+
+    var primaryButtonAccessibilityIdentifier: String? {
+        TangemPayAccessibilityIdentifiers.closeCardSheetConfirmButton
     }
 
     var secondaryButton: MainButton.Settings? {

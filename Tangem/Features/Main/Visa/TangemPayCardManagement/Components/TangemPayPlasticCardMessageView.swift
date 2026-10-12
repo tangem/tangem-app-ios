@@ -20,7 +20,7 @@ struct TangemPayPlasticCardMessageView: View {
                 .renderingMode(.template)
                 .foregroundStyle(DesignSystem.Color.iconSecondary)
                 .frame(width: Constants.iconSize, height: Constants.iconSize)
-                .background(DesignSystem.Color.bgOpaquePrimary)
+                .background(DesignSystem.Color.bgTransparentPrimary)
                 .clipShape(Circle())
 
             message

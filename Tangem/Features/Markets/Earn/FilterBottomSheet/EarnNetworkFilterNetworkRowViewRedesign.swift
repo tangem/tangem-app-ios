@@ -18,7 +18,6 @@ struct EarnNetworkFilterNetworkRowViewRedesign: View {
     @ScaledMetric private var horizontalSpacing: CGFloat = 12
     @ScaledMetric private var textSpacing: CGFloat = 4
     @ScaledMetric private var networkIconSide: CGFloat = 40
-    @ScaledMetric private var markIconSide: CGFloat = 20
 
     private var isSelected: Bool {
         input.isSelected
@@ -29,6 +28,7 @@ struct EarnNetworkFilterNetworkRowViewRedesign: View {
             label
                 .padding(.vertical, verticalPadding)
         }
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 
@@ -60,16 +60,9 @@ private extension EarnNetworkFilterNetworkRowViewRedesign {
     }
 
     var icon: some View {
-        Group {
-            if isSelected {
-                Assets.checkmark20.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .foregroundStyle(DesignSystem.Color.iconStaticDark)
-                    .background(DesignSystem.Color.iconAccentBlue, in: .circle)
-            }
-        }
-        .frame(width: markIconSide, height: markIconSide)
+        TangemUI.Checkmark(checked: isSelected, action: {})
+            .expandsHitArea(false)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
     }
 }

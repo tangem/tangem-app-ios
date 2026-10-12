@@ -113,7 +113,7 @@ struct PendingTransactionRecordMapper {
 
         let type: PendingTransactionRecord.TransactionType = switch transaction.type {
         case .transfer: .transfer
-        case .contractMethodIdentifier, .contractMethodName: .operation
+        case .contractMethodIdentifier, .contractMethodName, .approve: .operation
         case .staking(_, let target): .stake(target: target)
         }
 

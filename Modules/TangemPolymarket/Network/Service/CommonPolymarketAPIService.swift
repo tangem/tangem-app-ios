@@ -14,12 +14,14 @@ import TangemNetworkUtils
 final class CommonPolymarketAPIService {
     private let provider: TangemProvider<PolymarketTarget>
     private let baseURL: URL
+    private let walletId: String
 
     private let decoder = JSONDecoder()
 
-    init(provider: TangemProvider<PolymarketTarget>, baseURL: URL) {
+    init(provider: TangemProvider<PolymarketTarget>, baseURL: URL, walletId: String) {
         self.provider = provider
         self.baseURL = baseURL
+        self.walletId = walletId
     }
 }
 
@@ -49,13 +51,29 @@ extension CommonPolymarketAPIService: PolymarketAPIService {
     func seriesEvents(seriesId: String) async throws -> PolymarketDTO.SeriesEventsResponse {
         try await request(.seriesEvents(seriesId: seriesId))
     }
+
+    func orderQuote(body: PolymarketDTO.OrderQuoteRequestBody) async throws -> PolymarketDTO.OrderQuoteResponse {
+        try await request(.orderQuote(body))
+    }
+
+    func positions(request positionsRequest: PolymarketPositionsRequest) async throws -> PolymarketDTO.PositionsResponse {
+        try await request(.positions(positionsRequest))
+    }
+
+    func closedPositions(request closedRequest: PolymarketClosedPositionsRequest) async throws -> PolymarketDTO.ClosedPositionsResponse {
+        try await request(.closedPositions(closedRequest))
+    }
+
+    func positionOutcome(request outcomeRequest: PolymarketPositionOutcomeRequest) async throws -> PolymarketDTO.PositionOutcomeResponse {
+        try await request(.positionOutcome(outcomeRequest))
+    }
 }
 
 // MARK: - Private
 
 private extension CommonPolymarketAPIService {
     func request<T: Decodable>(_ target: PolymarketTarget.Target) async throws -> T {
-        let request = PolymarketTarget(baseURL: baseURL, target: target)
+        let request = PolymarketTarget(baseURL: baseURL, walletId: walletId, target: target)
 
         do {
             let response = try await provider.requestPublisher(request).async()
@@ -76,7 +94,6 @@ private extension CommonPolymarketAPIService {
 extension CommonPolymarketAPIService {
     static func mapMoyaError(_ error: MoyaError, decoder: JSONDecoder) -> PolymarketAPIError {
         guard let response = error.response else {
-            // Forward the underlying transport error so cancellation / network codes stay inspectable.
             return .connection(underlying: error.underlyingError ?? error)
         }
 

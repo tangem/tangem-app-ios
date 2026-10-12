@@ -71,6 +71,10 @@ final class FloatingSheetViewModel: FloatingSheetPresenter, ObservableObject {
 // MARK: - FloatingSheetPresentingStateProvider
 
 extension FloatingSheetViewModel: FloatingSheetPresentingStateProvider {
+    var hasPresentedSheet: Bool {
+        activeSheet != nil
+    }
+
     var hasPresentedSheetPublisher: AnyPublisher<Bool, Never> {
         $activeSheet.map { $0 != nil }.eraseToAnyPublisher()
     }

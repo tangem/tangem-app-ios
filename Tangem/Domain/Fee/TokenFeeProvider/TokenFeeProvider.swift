@@ -16,6 +16,8 @@ protocol TokenFeeProvider {
     var balanceFeeTokenState: TokenBalanceType { get }
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { get }
     var formattedFeeTokenBalance: FormattedTokenBalanceType { get }
+    var usageAvailability: FeeTokenUsageAvailability { get }
+    var usageAvailabilityPublisher: AnyPublisher<FeeTokenUsageAvailability, Never> { get }
 
     var state: TokenFeeProviderState { get }
     var statePublisher: AnyPublisher<TokenFeeProviderState, Never> { get }
@@ -36,6 +38,14 @@ protocol TokenFeeProvider {
 // MARK: - TokenFeeProvider+
 
 extension TokenFeeProvider {
+    var usageAvailability: FeeTokenUsageAvailability {
+        .available
+    }
+
+    var usageAvailabilityPublisher: AnyPublisher<FeeTokenUsageAvailability, Never> {
+        .just(output: .available)
+    }
+
     var fees: [TokenFee] {
         state.loadedFees.map { key, value in
             TokenFee(option: key, tokenItem: feeTokenItem, value: .success(value))
@@ -62,6 +72,20 @@ extension [TokenFeeProvider] {
 
     subscript(feeTokenItem: TokenItem) -> TokenFeeProvider? {
         first { $0.feeTokenItem == feeTokenItem }
+    }
+}
+
+enum FeeTokenUsageAvailability: Equatable {
+    case available
+    case minimumBalanceRequired(amount: Decimal, tokenItem: TokenItem)
+
+    var allowsFeePayment: Bool {
+        switch self {
+        case .available:
+            return true
+        case .minimumBalanceRequired:
+            return false
+        }
     }
 }
 

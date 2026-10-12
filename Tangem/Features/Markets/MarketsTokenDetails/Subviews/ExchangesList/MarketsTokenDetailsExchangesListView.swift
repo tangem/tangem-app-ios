@@ -17,9 +17,11 @@ struct MarketsTokenDetailsExchangesListView: View {
     @ObservedObject var viewModel: MarketsTokenDetailsExchangesListViewModel
 
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.mainShtorkaSize) private var sheetSize
 
     @State private var isListContentObscured = false
     @State private var headerHeight: CGFloat = .zero
+    @State private var columnHeaderHeight: CGFloat = .zero
     @State private var safeArea: EdgeInsets = .init()
 
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
@@ -28,12 +30,20 @@ struct MarketsTokenDetailsExchangesListView: View {
         DesignSystem.Color.bgPrimary
     }
 
+    private var usesCustomNavigationBar: Bool {
+        sheetSize.isFeedSheet || viewModel.isMarketsSheetStyle
+    }
+
+    private var contentVisibility: Double {
+        sheetSize.isFeedSheet ? 1 : viewModel.overlayContentHidingProgress
+    }
+
     private let scrollViewContentTopInset = 14.0
     private let navigationBarTitle = Localization.marketsTokenDetailsExchangesTitle
 
     var body: some View {
         rootView
-            .if(!viewModel.isMarketsSheetStyle) { view in
+            .if(!usesCustomNavigationBar) { view in
                 view.navigationTitle(navigationBarTitle)
             }
             .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] state in
@@ -42,9 +52,20 @@ struct MarketsTokenDetailsExchangesListView: View {
             .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
                 viewModel?.onOverlayContentProgressChange(progress)
             }
-            .background(defaultBackgroundColor.ignoresSafeArea())
+            .background {
+                if !sheetSize.isNonFullFeedSheet {
+                    defaultBackgroundColor.ignoresSafeArea()
+                }
+            }
             .animation(.default, value: exchangeListAnimationValue)
-            .ignoresSafeArea(.container, edges: .top) // Without it, the content won't go into the safe area top zone on over-scroll
+            .if(!sheetSize.isFeedSheet) { view in
+                view.ignoresSafeArea(.container, edges: .top)
+            }
+            .if(usesCustomNavigationBar) { view in
+                view
+                    .toolbar(.hidden, for: .navigationBar)
+                    .navigationBarBackButtonHidden()
+            }
             .readGeometry(\.safeAreaInsets, bindTo: $safeArea)
             .onAppear(perform: viewModel.loadExchangesList)
     }
@@ -52,10 +73,21 @@ struct MarketsTokenDetailsExchangesListView: View {
     private var rootView: some View {
         ZStack(alignment: .top) {
             listContent
-                .opacity(viewModel.overlayContentHidingProgress)
+                .opacity(contentVisibility)
+                .hiddenWhileCollapsed()
 
             VStack(spacing: 0) {
-                if viewModel.isMarketsSheetStyle {
+                if sheetSize.isFeedSheet {
+                    NavigationHeader(
+                        leadingContent: { NavigationBarButton.back(action: viewModel.onBackButtonAction).redesigned() },
+                        principalContent: {
+                            Text(navigationBarTitle)
+                                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                        },
+                        trailingContent: { EmptyView() }
+                    )
+                    .backgroundBottomInset(sheetSize.isCollapsedFeedSheet ? 0 : columnHeaderHeight)
+                } else if viewModel.isMarketsSheetStyle {
                     MarketsNavigationBar(
                         title: navigationBarTitle,
                         onBackButtonAction: viewModel.onBackButtonAction
@@ -67,15 +99,19 @@ struct MarketsTokenDetailsExchangesListView: View {
                 }
 
                 header
-                    .opacity(viewModel.overlayContentHidingProgress)
+                    .opacity(contentVisibility)
+                    .hiddenWhileCollapsed()
+                    .readGeometry(\.size.height, bindTo: $columnHeaderHeight)
             }
             .background {
-                MarketsNavigationBarBackgroundView(
-                    backdropViewColor: defaultBackgroundColor,
-                    overlayContentHidingProgress: viewModel.overlayContentHidingProgress,
-                    isNavigationBarBackgroundBackdropViewHidden: viewModel.isNavigationBarBackgroundBackdropViewHidden,
-                    isListContentObscured: isListContentObscured
-                )
+                if !sheetSize.isFeedSheet {
+                    MarketsNavigationBarBackgroundView(
+                        backdropViewColor: defaultBackgroundColor,
+                        overlayContentHidingProgress: viewModel.overlayContentHidingProgress,
+                        isNavigationBarBackgroundBackdropViewHidden: viewModel.isNavigationBarBackgroundBackdropViewHidden,
+                        isListContentObscured: isListContentObscured
+                    )
+                }
             }
             .readGeometry(\.size.height, bindTo: $headerHeight)
             .infinityFrame(axis: .vertical, alignment: .top)

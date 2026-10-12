@@ -93,6 +93,7 @@ struct AddTokenConfirmView: View {
                 walletIcon
             }
         }
+        .accessibilityIdentifier(TokenAccessibilityIdentifiers.addTokenAccountSelectorRow)
     }
 
     private var networkSelectorRow: some View {

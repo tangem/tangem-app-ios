@@ -50,9 +50,6 @@ final class ForYouCoordinator: CoordinatorObject {
     /// Deferred until the summary sheet finishes dismissing, avoiding a sheet-over-sheet race (mirrors Markets).
     var tokenSummaryFollowUpAction: (@MainActor () -> Void)?
 
-    /// Held during yield handling.
-    var yieldDeeplinkRouter: YieldDeeplinkRouter?
-
     // MARK: - Init
 
     required init(

@@ -416,12 +416,12 @@
         "$type": "color",
         "$value": "{palette.neutral.70}"
       },
-      "opaque": {
+      "transparent": {
         "primary": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.bg.opaque.primary",
-              "iOS": "DesignSystem.Color.bgOpaquePrimary"
+              "Android": "TangemTheme.colors3.bg.transparent.primary",
+              "iOS": "DesignSystem.Color.bgTransparentPrimary"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -433,8 +433,8 @@
         "secondary": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.bg.opaque.secondary",
-              "iOS": "DesignSystem.Color.bgOpaqueSecondary"
+              "Android": "TangemTheme.colors3.bg.transparent.secondary",
+              "iOS": "DesignSystem.Color.bgTransparentSecondary"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -442,6 +442,34 @@
           },
           "$type": "color",
           "$value": "{palette.opaque.base-white.10}"
+        },
+        "on-material": {
+          "primary": {
+            "$extensions": {
+              "com.figma.codeSyntax": {
+                "Android": "TangemTheme.colors3.bg.transparent.onMaterial.primary",
+                "iOS": "DesignSystem.Color.bgTransparentOnMaterialPrimary"
+              },
+              "com.figma.scopes": [
+                "FRAME_FILL"
+              ]
+            },
+            "$type": "color",
+            "$value": "rgba({palette.neutral.80}, {opacity.60})"
+          },
+          "secondary": {
+            "$extensions": {
+              "com.figma.codeSyntax": {
+                "Android": "TangemTheme.colors3.bg.transparent.onMaterial.secondary",
+                "iOS": "DesignSystem.Color.bgTransparentOnMaterialSecondary"
+              },
+              "com.figma.scopes": [
+                "FRAME_FILL"
+              ]
+            },
+            "$type": "color",
+            "$value": "rgba({palette.neutral.80}, {opacity.80})"
+          }
         }
       },
       "status": {
@@ -656,6 +684,19 @@
           },
           "$type": "color",
           "$value": "{palette.opaque.base-white.10}"
+        },
+        "switch": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.special.switch",
+              "iOS": "DesignSystem.Color.bgSpecialSwitch"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.neutral.70}"
         }
       }
     },

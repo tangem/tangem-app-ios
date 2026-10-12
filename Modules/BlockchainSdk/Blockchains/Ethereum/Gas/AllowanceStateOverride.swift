@@ -135,7 +135,7 @@ public struct EthereumAccountOverride: Encodable, Hashable {
         owner: String,
         spender: String
     ) -> EthereumStateOverride {
-        let maxUInt256Hex = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        let maxUInt256Hex = String(BigUInt.maxUInt256, radix: 16).addHexPrefix()
         let stateDiff = AllowanceSlot.candidates.reduce(into: [String: String]()) { result, slot in
             let key = slot.storageKey(owner: owner, spender: spender)
             result["0x" + key.hex()] = maxUInt256Hex

@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import Combine
+@preconcurrency import Combine
 import TangemFoundation
 
 class CommonPromotionRepository {
@@ -16,7 +16,14 @@ class CommonPromotionRepository {
 
     typealias PromotionList = [PromotionPlacement: [Promotion]]
 
-    /// Cached promotions by user wallet id
+    private struct State {
+        var promotions: [UserWalletId: PromotionList] = [:]
+        var inFlightPromotionLoads: [UserWalletId: UUID] = [:]
+    }
+
+    private let state = OSAllocatedUnfairLock(initialState: State())
+    private let publishQueue = DispatchQueue(label: "com.tangem.CommonPromotionRepository.publish")
+
     private let promotionsSubject = CurrentValueSubject<[UserWalletId: PromotionList], Never>([:])
 
     private var selectedUserWalletId: UserWalletId? {
@@ -38,7 +45,6 @@ class CommonPromotionRepository {
             .eraseToAnyPublisher()
     }
 
-    private var loadPromotionTask: Task<Void, Never>?
     private var userWalletRepositoryEventSubscription: AnyCancellable?
 
     init() {
@@ -96,37 +102,85 @@ private extension CommonPromotionRepository {
     func updatePromotions(for userWalletId: UserWalletId, hasToRefresh: Bool) -> Task<Void, Never>? {
         let walletIdString = userWalletId.stringValue
         let redactedUserWalletId = "\(walletIdString.prefix(4))...\(walletIdString.suffix(4))"
-        let hasCache = promotionsSubject.value[userWalletId] != nil
+        let token = UUID()
 
-        guard hasToRefresh || !hasCache else {
+        let shouldLoad = state { state -> Bool in
+            guard hasToRefresh || state.promotions[userWalletId] == nil else {
+                return false
+            }
+
+            state.inFlightPromotionLoads[userWalletId] = token
+
+            return true
+        }
+
+        guard shouldLoad else {
             return nil
         }
 
-        loadPromotionTask?.cancel()
-        loadPromotionTask = runTask(in: self) { repository in
+        return runTask(in: self) { repository in
             PromotionsLogger.info("Start loading promotions for user wallet: \"\(redactedUserWalletId)\"")
 
-            async let mainPromotions = repository.loadPromotions(for: walletIdString, placement: .main)
-            async let newsPromotions = repository.loadPromotions(for: walletIdString, placement: .news)
-            async let paymentAccountPromotions = repository.loadPromotions(for: walletIdString, placement: .paymentAccountMain)
+            let promotions: PromotionList = await withTaskGroup(of: (PromotionPlacement, [Promotion]).self) { group in
+                for placement in Self.placementsToLoad {
+                    group.addTask {
+                        let promotions = await repository.loadPromotions(for: walletIdString, placement: placement)
+                        return (placement, promotions)
+                    }
+                }
 
-            let promotions: PromotionList = await [
-                .main: mainPromotions,
-                .news: newsPromotions,
-                .paymentAccountMain: paymentAccountPromotions,
-            ]
+                var loaded = PromotionList()
+                for await (placement, placementPromotions) in group {
+                    loaded[placement] = placementPromotions
+                }
+
+                return loaded
+            }
+
             PromotionsLogger.info("Finished loading promotions for user wallet: \"\(redactedUserWalletId)\". Promotions \(promotions.mapValues { $0.map(\.id) })")
 
-            if Task.isCancelled { return }
+            repository.store(promotions: promotions, for: userWalletId, token: token)
+        }
+    }
 
-            guard repository.promotionsSubject.value[userWalletId] != promotions else {
+    func store(promotions: PromotionList, for userWalletId: UserWalletId, token: UUID) {
+        state { state in
+            // A newer load has claimed the wallet since this one started, so its result is stale.
+            guard state.inFlightPromotionLoads[userWalletId] == token else {
                 return
             }
 
-            repository.promotionsSubject.value[userWalletId] = promotions
+            state.inFlightPromotionLoads[userWalletId] = nil
+
+            guard state.promotions[userWalletId] != promotions else {
+                return
+            }
+
+            state.promotions[userWalletId] = promotions
+
+            let snapshot = state.promotions
+            // Enqueued under the lock to keep FIFO order, but sent off it so downstream never runs while it's held.
+            publishQueue.async { [promotionsSubject] in
+                promotionsSubject.send(snapshot)
+            }
+        }
+    }
+
+    /// A feed placement costs a request only once its tab can appear at all.
+    static var placementsToLoad: [PromotionPlacement] {
+        var placements: [PromotionPlacement] = [.main, .news, .paymentAccountMain]
+
+        guard FeatureProvider.isAvailable(.newShtorkaEnabled) else {
+            return placements
         }
 
-        return loadPromotionTask
+        placements.append(contentsOf: [.crypto, .earn])
+
+        if FeatureProvider.isAvailable(.realAssets) {
+            placements.append(.realAssets)
+        }
+
+        return placements
     }
 
     func loadPromotions(for userWalletId: String, placement: PromotionPlacement) async -> [Promotion] {

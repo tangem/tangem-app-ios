@@ -51,7 +51,8 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
             let buttonFound = finishButton.waitForExistence(timeout: .quick) || holdFinishButton.waitForExistence(timeout: .robustUIUpdate)
             XCTAssertTrue(buttonFound, "Finish flow button should exists")
 
-            XCTAssertTrue(networkFeeBlock.exists, "Network fee block should be displayed")
+            // Fee loads independently of the button/title and can still be in flight once those appear, so this needs an actual wait.
+            waitAndAssertTrue(networkFeeBlock, "Network fee block should be displayed")
 
             if checkValidatorBlock {
                 XCTAssertTrue(validatorBlock.exists, "Validator block should be displayed")
@@ -371,6 +372,43 @@ extension SendSummaryScreen {
             waitAndAssertTrue(amount, "Amount to receive after the swap should be displayed on the summary")
             return self
         }
+    }
+
+    @discardableResult
+    func waitForNotificationShown(title: String) -> Self {
+        XCTContext.runActivity(named: "Wait for notification banner with title: '\(title)'") { _ in
+            let notificationTitle = app.staticTexts[CommonUIAccessibilityIdentifiers.notificationTitle].firstMatch
+            waitAndAssertTrue(notificationTitle, "Notification title should exist on the summary screen")
+
+            let predicate = NSPredicate(format: "label == %@", title)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: notificationTitle)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Notification title should eventually be '\(title)' but was '\(notificationTitle.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapPriceImpactInfoButton() -> Self {
+        XCTContext.runActivity(named: "Tap price impact info button") { _ in
+            let button = app.buttons[SendAccessibilityIdentifiers.priceImpactInfoButton].firstMatch
+            waitAndAssertTrue(button, "Price impact info button should exist")
+            button.waitAndTap()
+        }
+        return self
+    }
+
+    /// The info button opens a `.popover`, not a native alert — assert its tooltip text is displayed.
+    @discardableResult
+    func assertPriceImpactPopoverDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert price impact popover is displayed") { _ in
+            let popoverText = app.staticTexts[CommonUIAccessibilityIdentifiers.popoverText].firstMatch
+            waitAndAssertTrue(popoverText, "Price impact popover text should be displayed")
+        }
+        return self
     }
 
     @discardableResult

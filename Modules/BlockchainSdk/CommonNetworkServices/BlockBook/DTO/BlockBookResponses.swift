@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct BlockBookAddressResponse: Decodable {
     let page: Int?
@@ -231,6 +232,8 @@ extension BlockBookAddressResponse {
             let operation: String?
             let bandwidthUsage: String?
             let votes: [Vote]?
+            let claimedVoteReward: String?
+            let totalFee: String?
 
             struct Vote: Decodable {
                 let address: String?
@@ -297,5 +300,33 @@ struct BlockBookUnspentTxResponse: Decodable {
 struct BlockBookFeeRateResponse: Decodable {
     struct Result: Decodable {
         let feerate: Decimal
+    }
+}
+
+// MARK: - EthereumSpecific + methodId
+
+extension BlockBookAddressResponse.EthereumSpecific {
+    var methodId: String? {
+        let selectorHex = parsedData?.methodId ?? calldataSelectorHex
+        return selectorHex?.removeHexPrefix().nilIfEmpty?.addHexPrefix()
+    }
+
+    private var calldataSelectorHex: String? {
+        guard
+            let selectorHex = data?.removeHexPrefix().prefix(Constants.methodIdHexLength),
+            selectorHex.count == Constants.methodIdHexLength
+        else {
+            return nil
+        }
+
+        return String(selectorHex)
+    }
+}
+
+// MARK: - Constants
+
+private extension BlockBookAddressResponse.EthereumSpecific {
+    enum Constants {
+        static let methodIdHexLength = 8
     }
 }

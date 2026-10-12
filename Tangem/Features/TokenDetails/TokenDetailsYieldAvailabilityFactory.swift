@@ -76,7 +76,7 @@ private extension TokenDetailsYieldAvailabilityFactory {
         let state: YieldStatusViewModel.State = .active(
             isApproveRequired: info.isAllowancePermissionRequired,
             undepositedAmount: info.nonYieldModuleBalanceValue,
-            apy: marketInfo?.apy
+            apy: marketInfo?.effectiveApy
         )
 
         let vm = factory.makeYieldStatusViewModel(state: state) { [weak self] in
@@ -98,11 +98,13 @@ private extension TokenDetailsYieldAvailabilityFactory {
         marketInfo: YieldModuleMarketInfo?,
         factory: YieldModuleFlowFactory
     ) -> YieldModuleAvailability {
-        guard let apy = marketInfo?.apy else {
+        guard let marketInfo else {
             return .notApplicable
         }
 
         let isApyBoostPromo = promoStatus == .notStarted
+        // The boost banner and story multiply the base APY — the Merkl overlay must not leak into that math.
+        let apy = isApyBoostPromo ? marketInfo.apy : marketInfo.effectiveApy
         let style: YieldAvailableNotificationViewModel.Style = isApyBoostPromo ? .promo : .standard
 
         let learnMoreAction: (Decimal) -> Void = { [weak self] apy in

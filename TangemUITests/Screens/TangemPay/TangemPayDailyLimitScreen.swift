@@ -19,8 +19,12 @@ final class TangemPayDailyLimitScreen: ScreenBase<TangemPayDailyLimitScreenEleme
 
     private lazy var amountField = textField(.dailyLimitAmountField)
     private lazy var setLimitsButton = button(.dailyLimitSetButton)
-    private lazy var successTitle = staticText(.dailyLimitSuccessTitle)
-    private lazy var doneButton = button(.dailyLimitDoneButton)
+    private lazy var successTitle = app.staticTexts
+        .matching(NSPredicate(format: "label == %@", Constants.Success.title))
+        .firstMatch
+    private lazy var successCloseButton = app.buttons
+        .matching(NSPredicate(format: "label == %@", Constants.Success.closeButton))
+        .firstMatch
 
     @discardableResult
     func waitForScreen() -> Self {
@@ -69,7 +73,11 @@ final class TangemPayDailyLimitScreen: ScreenBase<TangemPayDailyLimitScreenEleme
         XCTContext.runActivity(named: "Clear and enter amount '\(amount)'") { _ in
             waitAndAssertTrue(amountField, "Amount field should be displayed")
             clearText(element: amountField)
-            typeWithFocus(into: amountField, text: amount)
+            typeReliably(element: amountField, text: amount)
+            XCTAssertTrue(
+                amountField.waitForValue(timeout: .quick) { $0.filter(\.isNumber) == amount },
+                "Amount field should contain '\(amount)', actual: '\(amountField.getValue())'"
+            )
             return self
         }
     }
@@ -104,9 +112,9 @@ final class TangemPayDailyLimitScreen: ScreenBase<TangemPayDailyLimitScreenEleme
     }
 
     @discardableResult
-    func tapDone() -> TangemPayCardDetailsScreen {
-        XCTContext.runActivity(named: "Tap Done on success screen") { _ in
-            doneButton.waitAndTap()
+    func tapSuccessClose() -> TangemPayCardDetailsScreen {
+        XCTContext.runActivity(named: "Tap Close on the daily limit success screen") { _ in
+            successCloseButton.waitAndTap()
             return TangemPayCardDetailsScreen(app)
         }
     }
@@ -140,8 +148,6 @@ final class TangemPayDailyLimitScreen: ScreenBase<TangemPayDailyLimitScreenEleme
 enum TangemPayDailyLimitScreenElement: String, UIElement {
     case dailyLimitAmountField
     case dailyLimitSetButton
-    case dailyLimitSuccessTitle
-    case dailyLimitDoneButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -149,10 +155,15 @@ enum TangemPayDailyLimitScreenElement: String, UIElement {
             TangemPayAccessibilityIdentifiers.dailyLimitAmountField
         case .dailyLimitSetButton:
             TangemPayAccessibilityIdentifiers.dailyLimitSetButton
-        case .dailyLimitSuccessTitle:
-            TangemPayAccessibilityIdentifiers.dailyLimitSuccessTitle
-        case .dailyLimitDoneButton:
-            TangemPayAccessibilityIdentifiers.dailyLimitDoneButton
+        }
+    }
+}
+
+private extension TangemPayDailyLimitScreen {
+    enum Constants {
+        enum Success {
+            static let title = "Daily limit is set"
+            static let closeButton = "Close"
         }
     }
 }

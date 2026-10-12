@@ -118,19 +118,20 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.offrampCoordinator) {
                 TangemPayOfframpCoordinatorView(coordinator: $0)
+                    .interactiveDismissDisabled()
             }
             .sheet(item: $coordinator.addToApplePayGuideViewModel) {
                 TangemPayAddToAppPayGuideView(viewModel: $0)
             }
             .sheet(item: $coordinator.tangemPayPinViewModel) {
                 TangemPayPinView(viewModel: $0)
+                    .presentationCornerRadius(24)
+                    .containerCornerRadius(24)
             }
             .sheet(item: $coordinator.tangemPayDailyLimitViewModel) {
                 TangemPayDailyLimitView(viewModel: $0)
                     .presentationCornerRadius(24)
-            }
-            .sheet(item: $coordinator.termsAndLimitsViewModel) {
-                WebViewContainer(viewModel: $0)
+                    .containerCornerRadius(24)
             }
             .bottomSheet(
                 item: $coordinator.pendingExpressTxStatusBottomSheet,

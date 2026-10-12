@@ -11,12 +11,20 @@ import Combine
 /// Performs the account creation for `AccountFormView`: a concrete implementation defines which kind of
 /// account is created and how the model of the created account is obtained.
 protocol AccountFormViewCreator {
+    var navigationTitle: String { get }
+    var mainButtonTitle: String { get }
+
+    /// The name the form opens with; empty means the user starts from a blank field.
+    var initialAccountName: String { get }
+
     /// Archived + active accounts, the form shows it as the ordinal number of the account being created.
     var totalAccountsCountPublisher: AnyPublisher<Int, Never> { get }
 
-    var mainButtonTitle: String { get }
+    func handleMainButtonTap(name: String, icon: AccountModel.CompositeIcon) async throws -> AccountFormOperationResult
+}
 
-    func handleMainButtonTap(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountFormOperationResult
+extension AccountFormViewCreator {
+    var initialAccountName: String { "" }
 }
 
 // MARK: - Auxiliary types

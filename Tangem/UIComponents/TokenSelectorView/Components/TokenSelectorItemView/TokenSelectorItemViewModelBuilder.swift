@@ -17,7 +17,7 @@ struct TokenSelectorItemViewModelBuilder {
 
     func mapToTokenSelectorItemViewModel(
         item: TokenSelectorItem,
-        action: @escaping () -> Void
+        action: @escaping (TokenSelectorItem.AvailabilityType) -> Void
     ) -> TokenSelectorItemViewModel {
         let availabilityTypePublisher: AnyPublisher<TokenSelectorItem.AvailabilityType, Never>
 

@@ -89,7 +89,7 @@ struct MetricsTradingVolumeCard: View {
                 MetricsProgressBar(
                     progress: liquidity,
                     foregroundColor: color,
-                    backgroundColor: DesignSystem.Color.bgOpaqueSecondary
+                    backgroundColor: DesignSystem.Color.bgTransparentSecondary
                 )
             }
 
@@ -216,7 +216,7 @@ struct MetricsCirculatingSupplyCard: View {
             MetricsProgressBar(
                 progress: supplyProgress,
                 foregroundColor: DesignSystem.Color.iconAccentBlue,
-                backgroundColor: DesignSystem.Color.bgOpaqueSecondary
+                backgroundColor: DesignSystem.Color.bgTransparentSecondary
             )
         }
     }

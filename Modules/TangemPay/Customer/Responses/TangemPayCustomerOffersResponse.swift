@@ -16,7 +16,7 @@ public struct TangemPayCustomerOffer: Decodable {
     public let images: [VisaCustomerInfoResponse.TariffPlan.Image]?
 
     public var mainImageURL: URL? {
-        images?.first { $0.type == .main }.flatMap { URL(string: $0.url) }
+        images?.mainImageURL
     }
 }
 
@@ -24,6 +24,7 @@ public enum TangemPayOfferType: String, Decodable {
     case cardIssueVirtualRain = "CARD_ISSUE_VIRTUAL_RAIN"
     case cardIssuePlasticRain = "CARD_ISSUE_PLASTIC_RAIN"
     case cardReissuePlasticRain = "CARD_REISSUE_PLASTIC_RAIN"
+    case cardIssueVirtualRainDeeplink = "CARD_ISSUE_VIRTUAL_RAIN_DEEPLINK"
     case undefined = "UNDEFINED"
 
     public init(from decoder: Decoder) throws {
@@ -33,6 +34,10 @@ public enum TangemPayOfferType: String, Decodable {
 
     public var isAdditionalCardIssue: Bool {
         self == .cardIssueVirtualRain
+    }
+
+    public var isCampaignCardIssue: Bool {
+        self == .cardIssueVirtualRainDeeplink
     }
 
     public var isPlastic: Bool {

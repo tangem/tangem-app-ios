@@ -117,7 +117,7 @@ final class TangemPayPinUITests: BaseTestCase {
     }
 
     func testCurrentPinRemainsDisplayedAfterAppMinimizeAndMaximize() {
-        setAllureId(9655)
+        setAllureId(10667)
 
         let pinCheckSheet = launchAndImportHotWallet(scenarios: [
             ScenarioConfig(name: pinScenario, initialState: "PinSet"),
@@ -177,7 +177,7 @@ final class TangemPayPinUITests: BaseTestCase {
         .waitForPinEntryScreen()
         .enterPin(validPin)
         .verifySuccessContent()
-        .tapDone()
+        .tapSuccessClose()
         .waitForScreen()
     }
 }

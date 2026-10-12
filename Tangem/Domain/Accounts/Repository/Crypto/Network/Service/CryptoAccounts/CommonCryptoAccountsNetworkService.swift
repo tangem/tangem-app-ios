@@ -166,11 +166,27 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
             do {
                 let (_, userTokensDTO) = mapper.map(request: cryptoAccounts)
 
-                try await tangemApiService.saveTokensV2(list: userTokensDTO, for: userWalletId.stringValue)
+                // Locked by the accounts revision, the way saving the accounts is: a joint account's token list is
+                // one list for every member, and without the lock two of them writing it overwrite each other
+                guard let revision = eTagStorage.loadETag(for: .accounts(walletId: userWalletId)) else {
+                    throw CryptoAccountsNetworkServiceError.missingRevision
+                }
+
+                let newRevision = try await tangemApiService.saveTokensV2(
+                    list: userTokensDTO,
+                    for: userWalletId.stringValue,
+                    revision: revision
+                )
+
+                if let newRevision {
+                    eTagStorage.saveETag(newRevision, for: .accounts(walletId: userWalletId))
+                }
             } catch let error as CryptoAccountsNetworkServiceError {
                 throw error // Just re-throw an original error
             } catch let error as TangemAPIError where error.code == .notFound {
                 throw CryptoAccountsNetworkServiceError.noAccountsCreated
+            } catch let error as TangemAPIError where error.code == .optimisticLockingFailed {
+                throw CryptoAccountsNetworkServiceError.inconsistentState
             } catch {
                 throw CryptoAccountsNetworkServiceError.underlyingError(error)
             }

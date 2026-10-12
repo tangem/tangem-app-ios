@@ -8,13 +8,15 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 import TangemLocalization
 
 final class CryptoAccountModelMock {
     typealias OnArchive = (_ cryptoAccountModel: CryptoAccountModelMock) -> Void
 
-    let id = AccountId()
+    let id: CryptoAccountModelId
     let isMainAccount: Bool
+    let accountType: AccountType
     let walletModelsManager: WalletModelsManager
     let totalBalanceProvider: TotalBalanceProvider
     let userTokensManager: UserTokensManager
@@ -43,12 +45,22 @@ final class CryptoAccountModelMock {
 
     init(
         isMainAccount: Bool,
+        accountType: AccountType = .crypto,
         walletModelsManager: WalletModelsManager = WalletModelsManagerMock(),
         totalBalanceProvider: TotalBalanceProvider = TotalBalanceProviderMock(),
         userTokensManager: UserTokensManager = UserTokensManagerMock(),
         onArchive: @escaping OnArchive
     ) {
+        // A wallet of its own per mock, so that two of them never answer to the same identifier
+        id = CryptoAccountModelId(
+            userWalletId: UserWalletId(value: .randomData(count: 32)),
+            derivationIdentity: CryptoAccountDerivationIdentity(
+                derivationIndex: isMainAccount ? AccountModelUtils.mainAccountDerivationIndex : 1,
+                type: accountType
+            )
+        )
         self.isMainAccount = isMainAccount
+        self.accountType = accountType
         self.walletModelsManager = walletModelsManager
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensManager = userTokensManager
@@ -59,18 +71,6 @@ final class CryptoAccountModelMock {
 // MARK: - Auxiliary types
 
 extension CryptoAccountModelMock {
-    struct AccountId: Hashable, AccountModelPersistentIdentifierConvertible {
-        let id = UUID()
-
-        var isMainAccount: Bool {
-            false
-        }
-
-        func toPersistentIdentifier() -> UUID {
-            id
-        }
-    }
-
     private struct AccountRateProviderStub: AccountRateProvider {
         var accountRate: AccountRate {
             return .loaded(
@@ -104,15 +104,24 @@ extension CryptoAccountModelMock: CryptoAccountModel {
         UserWalletModelMock()
     }
 
+    func archive() async throws(AccountArchivationError) {
+        onArchive(self)
+    }
+}
+
+// MARK: - AccountModelEditable protocol conformance
+
+extension CryptoAccountModelMock {
     @discardableResult
-    func edit(with editor: Editor) async throws(AccountEditError) -> Self {
-        let cryptoAccountModelMockEditor = CryptoAccountModelMockEditor(cryptoAccountModel: self)
-        editor(cryptoAccountModelMockEditor)
+    func edit(with editor: (_ editor: CryptoAccountModelMockEditor) -> Void) async throws(AccountEditError) -> Self {
+        editor(CryptoAccountModelMockEditor(cryptoAccountModel: self))
         return self
     }
 
-    func archive() async throws(AccountArchivationError) {
-        onArchive(self)
+    @discardableResult
+    func update(with editor: (_ editor: CryptoAccountModelMockEditor) -> Void) -> Self {
+        editor(CryptoAccountModelMockEditor(cryptoAccountModel: self))
+        return self
     }
 }
 
@@ -138,7 +147,8 @@ extension CryptoAccountModelMock: DisposableEntity {
 
 // MARK: - Auxiliary types
 
-private extension CryptoAccountModelMock {
+extension CryptoAccountModelMock {
+    /// Not private: a private type cannot be the witness for `Editor`.
     struct CryptoAccountModelMockEditor: AccountModelEditor {
         let cryptoAccountModel: CryptoAccountModelMock
 

@@ -14,51 +14,41 @@ import TangemLocalization
 
 @MainActor
 final class JointAccountJoinViewModel: ObservableObject {
-    let accountIconViewData: AccountIconView.ViewData
-    let title: AttributedString
-    let subtitle: AttributedString
-    let creatorName: String
-    let isWalletSelectionAvailable: Bool
-
-    @Published private(set) var walletName: String
+    @Published private(set) var state: State = .loading
+    @Published private(set) var walletName: String = ""
     @Published private(set) var walletImage: ImageValue?
 
-    private let preview: JointAccountInvitePreview
-    private let availableUserWalletModels: [any UserWalletModel]
-    private var selectedUserWalletModel: any UserWalletModel
+    private var selectedUserWalletModel: (any UserWalletModel)?
+    private var availableUserWalletModels: [any UserWalletModel] = []
+
+    private let inviteId: String
+    private let networkService: JointAccountsNetworkService
+    private let userWalletModels: [any UserWalletModel]
     private weak var coordinator: JointAccountJoinRoutable?
 
-    init?(
-        preview: JointAccountInvitePreview,
+    init(
+        inviteId: String,
+        networkService: JointAccountsNetworkService,
         userWalletModels: [any UserWalletModel],
         coordinator: JointAccountJoinRoutable?
     ) {
-        let availableUserWalletModels = UserWalletModelsProvider.available(from: userWalletModels)
-
-        guard let userWalletModel = UserWalletModelsProvider.default(from: availableUserWalletModels) else {
-            return nil
-        }
-
-        self.preview = preview
-        self.availableUserWalletModels = availableUserWalletModels
-        selectedUserWalletModel = userWalletModel
-        isWalletSelectionAvailable = availableUserWalletModels.count > 1
+        self.inviteId = inviteId
+        self.networkService = networkService
+        self.userWalletModels = userWalletModels
         self.coordinator = coordinator
 
-        accountIconViewData = Self.makeAccountIconViewData(config: preview.config)
-        title = Self.makeTitle(accountName: preview.config.name)
-        subtitle = Self.makeSubtitle(config: preview.config)
-        creatorName = preview.creator.name
-        walletName = userWalletModel.name
-
-        loadWalletImage()
+        loadInvite()
     }
 
     func onCreatorInfoTap() {
+        guard case .loaded(let content) = state else {
+            return
+        }
+
         coordinator?.openCreatorDetails(
-            name: preview.creator.name,
-            address: preview.creator.address,
-            accentColor: accountIconViewData.backgroundColor
+            name: content.preview.creator.name,
+            address: content.preview.creator.address,
+            accentColor: content.accountIconViewData.backgroundColor
         )
     }
 
@@ -75,11 +65,90 @@ final class JointAccountJoinViewModel: ObservableObject {
     }
 
     func onContinueTap() {
-        coordinator?.continueJoin(userWalletModel: selectedUserWalletModel)
+        guard case .loaded(let content) = state, let selectedUserWalletModel else {
+            return
+        }
+
+        coordinator?.continueJoin(userWalletModel: selectedUserWalletModel, preview: content.preview)
+    }
+
+    func onRetryTap() {
+        guard case .loadFailed(let isRetrying) = state, !isRetrying else {
+            return
+        }
+
+        state = .loadFailed(isRetrying: true)
+        loadInvite()
     }
 
     func onCloseTap() {
         coordinator?.closeJoin()
+    }
+}
+
+// MARK: - Loading
+
+private extension JointAccountJoinViewModel {
+    func loadInvite() {
+        Task { [weak self] in
+            guard let self else {
+                return
+            }
+
+            do {
+                let preview = try await networkService.getInvitePreview(inviteId: inviteId)
+                handle(preview: preview)
+            } catch {
+                handle(loadingError: error)
+            }
+        }
+    }
+
+    func handle(preview: JointAccountInvitePreview) {
+        let available = UserWalletModelsProvider.available(from: userWalletModels)
+
+        guard let userWalletModel = UserWalletModelsProvider.default(from: available) else {
+            // Every wallet is locked, so there is none to join with — offered a retry because unlocking one
+            // is what the user has to do anyway, and the invite itself is fine
+            state = .loadFailed(isRetrying: false)
+            return
+        }
+
+        availableUserWalletModels = available
+        selectedUserWalletModel = userWalletModel
+        walletName = userWalletModel.name
+
+        state = .loaded(
+            Content(
+                preview: preview,
+                accountIconViewData: Self.makeAccountIconViewData(config: preview.config),
+                title: Self.makeTitle(accountName: preview.config.name),
+                subtitle: Self.makeSubtitle(config: preview.config),
+                creatorName: preview.creator.name,
+                isWalletSelectionAvailable: available.count > 1
+            )
+        )
+
+        loadWalletImage()
+    }
+
+    func handle(loadingError: Error) {
+        state = Self.isInviteRejected(loadingError) ? .invalidInvite : .loadFailed(isRetrying: false)
+    }
+
+    /// The endpoint turns the wallet away with these two when the invite is spent, revoked or never existed —
+    /// retrying would only ask the same question again.
+    static func isInviteRejected(_ error: Error) -> Bool {
+        guard let apiError = error as? TangemAPIError else {
+            return false
+        }
+
+        switch apiError.code {
+        case .notFound, .conflict:
+            return true
+        default:
+            return false
+        }
     }
 }
 
@@ -95,13 +164,15 @@ private extension JointAccountJoinViewModel {
     }
 
     func loadWalletImage() {
-        let userWalletModel = selectedUserWalletModel
+        guard let userWalletModel = selectedUserWalletModel else {
+            return
+        }
 
         Task { [weak self] in
             let image = await userWalletModel.walletImageProvider.loadSmallImage()
 
             // A wallet picked while this one was still loading keeps its own icon
-            guard let self, selectedUserWalletModel.userWalletId == userWalletModel.userWalletId else {
+            guard let self, selectedUserWalletModel?.userWalletId == userWalletModel.userWalletId else {
                 return
             }
 
@@ -137,5 +208,27 @@ private extension JointAccountJoinViewModel {
         }
 
         return subtitle
+    }
+}
+
+// MARK: - State
+
+extension JointAccountJoinViewModel {
+    enum State {
+        case loading
+        case loaded(Content)
+        /// The link itself is no good — the only way out is to leave.
+        case invalidInvite
+        /// The invite may well be fine, so the user is offered another go at reading it.
+        case loadFailed(isRetrying: Bool)
+    }
+
+    struct Content {
+        let preview: JointAccountInvitePreview
+        let accountIconViewData: AccountIconView.ViewData
+        let title: AttributedString
+        let subtitle: AttributedString
+        let creatorName: String
+        let isWalletSelectionAvailable: Bool
     }
 }

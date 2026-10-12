@@ -9,6 +9,7 @@
 import Foundation
 import BlockchainSdk
 import TangemExpress
+import TangemStaking
 
 protocol TransactionHistoryAuxDataRepository: Sendable {
     var didLoadAuxData: AsyncStream<Void> { get }
@@ -31,13 +32,21 @@ protocol TransactionHistoryAuxDataRepository: Sendable {
 
     // MARK: Crypto currencies
 
+    /// - Precondition: The contract address of `currency` must be normalized using `TransactionHistoryAddressNormalizer`.
     /// - Note: Fires a background load on a cache miss.
     /// - Warning: The returned `TokenItem` has a `BlockchainNetwork` with no derivation path (`nil`). Callers that
     ///   need a derivation-correct item (e.g. to add the token to a wallet) must enrich it themselves.
     nonisolated func cryptoCurrency(for currency: ExpressCurrency, supportedBlockchains: Set<Blockchain>) -> TokenItem?
 
+    /// - Precondition: The contract address of `currency` must be normalized using `TransactionHistoryAddressNormalizer`.
     /// - Note: Fires (and awaits) a load on a cache miss.
     /// - Warning: The returned `TokenItem` has a `BlockchainNetwork` with no derivation path (`nil`). Callers that
     ///   need a derivation-correct item (e.g. to add the token to a wallet) must enrich it themselves.
     func cryptoCurrency(for currency: ExpressCurrency, supportedBlockchains: Set<Blockchain>) async -> TokenItem?
+
+    // MARK: Staking targets
+
+    /// - Precondition: `address` must be normalized using `TransactionHistoryAddressNormalizer`.
+    /// - Note: A plain cache read. Does not fires a background load on a cache miss.
+    nonisolated func stakingTarget(forAddress address: String, network: StakingNetworkType) -> StakingTargetSummary?
 }

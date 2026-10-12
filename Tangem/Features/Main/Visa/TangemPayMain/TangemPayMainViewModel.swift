@@ -18,10 +18,6 @@ import TangemPay
 import TangemVisa
 
 final class TangemPayMainViewModel: ObservableObject {
-    private var cashbackEnabled: Bool {
-        FeatureProvider.isAvailable(.tangemPayCashback)
-    }
-
     lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject { [weak self] in
         guard let self else { return }
 
@@ -90,8 +86,6 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @Published private(set) var currentPlanState: CurrentPlanState = .unknown
 
-    @Published private(set) var isVisaBenefitsAvailable = false
-
     lazy var cardDeactivatedNotificationInput: NotificationViewInput? = tangemPayAccount.isDeactivated
         ? NotificationsFactory().buildNotificationInput(
             for: TangemPayCardDeactivatedNotificationEvent(),
@@ -117,9 +111,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     var toolbarSubtitle: String {
-        FeatureProvider.isAvailable(.tangemPayMultichain)
-            ? Localization.tangempayMultinetwork
-            : Localization.tangempayUsdcOnPolygonNetwork
+        Localization.tangempayMultinetwork
     }
 
     var actionButtonsDisabled: Bool {
@@ -508,13 +500,6 @@ final class TangemPayMainViewModel: ObservableObject {
     private func openCardIssueIfOfferAvailable(cardType: TangemPayOrderCardType?) -> Bool {
         let virtualOffer = tangemPayAccount.additionalCardIssueOffer
 
-        guard FeatureProvider.isAvailable(.tangemPayPlastic) else {
-            guard let virtualOffer, let fee = virtualOffer.fee else { return false }
-
-            openIssueAdditionalCardCostPopup(offer: virtualOffer, fee: fee)
-            return true
-        }
-
         guard virtualOffer?.fee != nil || tangemPayAccount.plasticCardIssueOffer != nil else {
             return false
         }
@@ -596,7 +581,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @MainActor
     func openCashback() async {
-        guard cashbackEnabled, !isDeactivated else {
+        guard !isDeactivated else {
             return
         }
 
@@ -642,7 +627,13 @@ final class TangemPayMainViewModel: ObservableObject {
                 if await isOfframpHubAvailable() {
                     guard !Task.isCancelled else { return }
 
-                    coordinator?.openTangemPayOfframp()
+                    do {
+                        try await openOfframpHub()
+                    } catch is CancellationError {
+                        // Do nothing
+                    } catch {
+                        alert = error.alertBinder
+                    }
                     return
                 }
 
@@ -707,15 +698,6 @@ final class TangemPayMainViewModel: ObservableObject {
 
     func onSystemDowngradeBannerAppear() {
         Analytics.log(.visaTiersPlusCardsClosureWarningBannerShowed, contextParams: .userWallet(userWalletInfo.id))
-    }
-
-    func termsAndLimits() {
-        Analytics.log(.visaScreenTermsAndLimitsClicked, contextParams: .userWallet(userWalletInfo.id))
-        coordinator?.openTermsAndLimits()
-    }
-
-    func visaBenefits() {
-        coordinator?.openVisaBenefits()
     }
 
     func contactSupport() {
@@ -924,17 +906,6 @@ private extension TangemPayMainViewModel {
 
         tangemPayAccount.customerTariffPlanPublisher
             .map { plan in
-                guard let plan else {
-                    return false
-                }
-                return plan.tariffPlan.type != TangemPayAccount.basicTariffPlanType
-            }
-            .removeDuplicates()
-            .receiveOnMain()
-            .assign(to: &$isVisaBenefitsAvailable)
-
-        tangemPayAccount.customerTariffPlanPublisher
-            .map { plan in
                 plan.flatMap { Self.makeSystemDowngradeBanner(from: $0) }
             }
             .removeDuplicates()
@@ -981,24 +952,22 @@ private extension TangemPayMainViewModel {
             .receiveOnMain()
             .assign(to: &$awaitingDepositInfo)
 
-        if cashbackEnabled {
-            tangemPayAccount.cashbackPublisher
-                .receiveOnMain()
-                .assign(to: &$cashback)
-
-            let customerWalletId = userWalletInfo.id.stringValue
-
-            Publishers.CombineLatest(
-                tangemPayAccount.cashbackPublisher,
-                AppSettings.shared.$tangemPayCashbackBlockedBannerDismissedForCustomerWalletId
-            )
-            .map { cashback, dismissedByCustomerWalletId in
-                cashback == .blocked && !dismissedByCustomerWalletId[customerWalletId, default: false]
-            }
-            .removeDuplicates()
+        tangemPayAccount.cashbackPublisher
             .receiveOnMain()
-            .assign(to: &$isCashbackBlocked)
+            .assign(to: &$cashback)
+
+        let customerWalletId = userWalletInfo.id.stringValue
+
+        Publishers.CombineLatest(
+            tangemPayAccount.cashbackPublisher,
+            AppSettings.shared.$tangemPayCashbackBlockedBannerDismissedForCustomerWalletId
+        )
+        .map { cashback, dismissedByCustomerWalletId in
+            cashback == .blocked && !dismissedByCustomerWalletId[customerWalletId, default: false]
         }
+        .removeDuplicates()
+        .receiveOnMain()
+        .assign(to: &$isCashbackBlocked)
     }
 
     func bindInlineNotifications() {
@@ -1039,7 +1008,6 @@ private extension TangemPayMainViewModel {
 
     @MainActor
     func loadCashbackSummaryIfAvailable() async {
-        guard cashbackEnabled else { return }
         guard !isDeactivated else { return }
 
         isCashbackLoading = true
@@ -1129,6 +1097,22 @@ private extension TangemPayMainViewModel {
 // MARK: - Navigation
 
 private extension TangemPayMainViewModel {
+    @MainActor
+    func openOfframpHub() async throws {
+        let restriction = try await tangemPayAccount.withdrawAvailabilityProvider.restriction()
+
+        try Task.checkCancellation()
+
+        switch restriction {
+        case .none, .zeroWalletBalance:
+            coordinator?.openTangemPayOfframp()
+        case .hasPendingWithdrawOrder:
+            coordinator?.openTangemWithdrawInProgressSheet()
+        default:
+            alert = TokenActionAvailabilityAlertBuilder().alert(for: restriction)
+        }
+    }
+
     @MainActor
     func openWithdraw(swapParameters: PredefinedSwapParameters) async throws {
         let restriction = try await tangemPayAccount.withdrawAvailabilityProvider.restriction()

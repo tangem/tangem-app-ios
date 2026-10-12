@@ -29,11 +29,15 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
         userWalletInfo: UserWalletInfo,
         tangemPayAccount: TangemPayAccount,
         userWalletModel: UserWalletModel,
-        incomingAction: TangemPayIncomingActions?
+        openingAction: TangemPayOpeningAction?
     )
     func openTangemPaySelectPlan(
         tariffPlanSelector: any TangemPayTariffPlanSelector,
         userWalletModel: UserWalletModel
     )
     func openGetTangemPay(availableSelection: TangemPayWalletSelectionType)
+    func openPolymarket(userWalletModel: UserWalletModel)
+    func openCollectibles(with options: CollectiblesCoordinator.Options)
+    func openJointAccountMembers(jointAccount: any JointAccountModel)
+    func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation)
 }

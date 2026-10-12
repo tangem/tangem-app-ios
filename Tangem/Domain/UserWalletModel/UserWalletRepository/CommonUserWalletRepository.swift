@@ -10,6 +10,7 @@ import Foundation
 import LocalAuthentication
 import Combine
 import CryptoKit
+import TangemPolymarket
 import TangemSdk
 import TangemVisa
 import TangemLocalization
@@ -21,6 +22,8 @@ final class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
     @Injected(\.tangemPayAuthorizationTokensRepository)
     private var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
+    @Injected(\.tangemPayRecentOperationsStore)
+    private var tangemPayRecentOperationsStore: TangemPayRecentOperationsStore
 
     var shouldLockOnBackground: Bool {
         if isLocked {
@@ -65,8 +68,12 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private let userWalletEncryptionKeyStorage = UserWalletEncryptionKeyStorage()
     private let supportChatTokenStorage = SupportChatTokenStorage()
     private let polymarketCredentialsRepository = CommonPolymarketCredentialsRepository()
+    private let polymarketAccountPresenceStore: PolymarketAccountPresenceStore = AppSettings.shared
+    private let tangemPayStorageCleaner: TangemPayStorageCleaner = AppSettings.shared
     private let mobileWalletSdk = CommonMobileWalletSdk()
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
+    private let collectiblesSessionKeyWalletStore: any CollectiblesSessionKeyWalletStore = CommonCollectiblesSessionKeyWalletStore()
+    private let collectiblesAccountPresenceStore: any CollectiblesAccountPresenceStore = AppSettingsCollectiblesAccountPresenceStore()
     private var bag: Set<AnyCancellable> = .init()
 
     deinit {
@@ -204,7 +211,15 @@ final class CommonUserWalletRepository: UserWalletRepository {
                 Log.error("Failed to delete mobile sdk data: \(error.localizedDescription)")
             }
 
-            userWalletIds.forEach { polymarketCredentialsRepository.delete(userWalletId: $0) }
+            userWalletIds.forEach {
+                polymarketCredentialsRepository.delete(userWalletId: $0)
+                polymarketAccountPresenceStore.delete(userWalletId: $0)
+            }
+
+            modelsToDelete.forEach {
+                try? collectiblesSessionKeyWalletStore.deleteKey(for: $0)
+                collectiblesAccountPresenceStore.remove($0)
+            }
 
             let otherUserWallets = models.filter { $0.userWalletId != selectedUserWalletId }
 
@@ -251,13 +266,22 @@ final class CommonUserWalletRepository: UserWalletRepository {
             try? visaRefreshTokenRepository.deleteToken(visaRefreshTokenId: .cardId($0))
         }
         try? tangemPayAuthorizationTokensRepository.deleteTokens(customerWalletId: userWalletId.stringValue)
+        tangemPayRecentOperationsStore.clear(customerWalletId: userWalletId.stringValue)
+        tangemPayStorageCleaner.clear(customerWalletId: userWalletId.stringValue)
         polymarketCredentialsRepository.delete(userWalletId: userWalletId)
+        polymarketAccountPresenceStore.delete(userWalletId: userWalletId)
+        try? collectiblesSessionKeyWalletStore.deleteKey(for: userWalletId)
+        collectiblesAccountPresenceStore.remove(userWalletId)
 
         let removedModels = models.filter { $0.userWalletId == userWalletId }
         models.removeAll { $0.userWalletId == userWalletId }
         userWalletDataStorage.delete(userWalletId: userWalletId, updatedWallets: models.compactMap { $0.serializePublic() })
 
         try? mobileWalletSdk.delete(walletIDs: [userWalletId])
+
+        if let removedUserWallet = removedModels.first {
+            BackendAuthenticationRegistrar.unregisterUserWallet(removedUserWallet)
+        }
 
         sendEvent(.deleted(userWalletIds: [userWalletId], isRepositoryEmpty: models.isEmpty))
 
@@ -352,6 +376,10 @@ final class CommonUserWalletRepository: UserWalletRepository {
         models = unlockedModels
 
         replacedLockedModels.forEach { $0.dispose() }
+
+        unlockedModels
+            .filter { !$0.isUserWalletLocked && userWalletIds.contains($0.userWalletId) }
+            .forEach { BackendAuthenticationRegistrar.registerMobileWalletAfterBiometricUnlock($0, context: context) }
     }
 
     private func handleUnlock(context: LAContext) throws -> UserWalletModel {

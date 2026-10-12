@@ -88,7 +88,7 @@ private extension ForYouAddFundsTokenSelectorView {
             action: viewModel.close
         )
         .size(.x12)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .horizontalLayout(.infinity)
         .padding(16)
     }

@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemUI
@@ -52,10 +53,9 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         state.update(wallet: wallet, presentation: presentation, viewType: viewType)
 
         if case .success(let wallet as SendSourceToken) = wallet {
-            // An abstractly presented account has no token to denominate its balance in.
-            let balanceProvider = presentation == nil
-                ? wallet.availableBalanceProvider
-                : wallet.fiatAvailableBalanceProvider
+            let balanceProvider = presentation?.balanceDenomination == .fiat
+                ? wallet.fiatAvailableBalanceProvider
+                : wallet.availableBalanceProvider
 
             balanceStateCancellable = balanceProvider.formattedBalanceTypePublisher
                 .withWeakCaptureOf(self)
@@ -213,7 +213,7 @@ extension ExpressCurrencyViewModel {
             // (e.g. "USD") while keeping the account header and balance.
             if let presentation {
                 symbolState = .loaded(text: presentation.currencySymbol)
-                tokenIconState = .tangemPay
+                tokenIconState = .asset(presentation.icon)
             }
         }
     }
@@ -240,6 +240,7 @@ extension ExpressCurrencyViewModel {
         case notAvailable
         case tokenSelectionRequired
         case icon(TokenIconInfo)
-        case tangemPay
+        /// A funded account renders a fixed asset instead of a token icon.
+        case asset(ImageType)
     }
 }

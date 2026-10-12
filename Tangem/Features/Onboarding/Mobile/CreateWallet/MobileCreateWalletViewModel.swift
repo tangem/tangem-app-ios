@@ -24,6 +24,7 @@ final class MobileCreateWalletViewModel: ObservableObject {
     let navBarHeight: CGFloat = OnboardingLayoutConstants.navbarSize.height
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
     private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
 
@@ -109,11 +110,13 @@ extension MobileCreateWalletViewModel {
                 AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: newUserWalletModel.userWalletId)
                 viewModel.logWalletCreatedAnalytics()
 
+                BackendAuthenticationRegistrar.registerNewUnprotectedMobileWallet(newUserWalletModel)
                 try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
 
                 await runOnMain {
                     viewModel.isCreating = false
                     viewModel.logOnboardingFinishedAnalytics()
+                    viewModel.pushNotificationsInteractor.suppressAfterLoginRequestsInCurrentSession()
                     viewModel.delegate?.onCreateWallet(userWalletModel: newUserWalletModel)
                 }
             } catch {
@@ -132,11 +135,7 @@ extension MobileCreateWalletViewModel {
             return
         }
         runTask(in: self) { viewModel in
-            if FeatureProvider.isAvailable(.mobileWalletBackup) {
-                await viewModel.openImportWallet()
-            } else {
-                await viewModel.openImportWalletWithRecoveryPhrase()
-            }
+            await viewModel.openImportWallet()
         }
     }
 
@@ -153,16 +152,6 @@ extension MobileCreateWalletViewModel {
 private extension MobileCreateWalletViewModel {
     func openImportWallet() {
         coordinator?.openImportWallet()
-    }
-
-    func openImportWalletWithRecoveryPhrase() {
-        let source = MobileOnboardingFlowSource.importWallet
-        let input = MobileOnboardingInput(
-            flow: .walletImport(source: source),
-            shouldLogOnboardingStartedAnalytics: false
-        )
-        let options = OnboardingCoordinator.Options.mobileInput(input)
-        coordinator?.openOnboarding(options: options)
     }
 
     func close() {

@@ -26,7 +26,8 @@ struct FilteredTokenSelectorWalletsProviderTests {
         let account = TokenSelectorAccount(
             account: CryptoAccountModelMock(isMainAccount: true, onArchive: { _ in }),
             itemsProvider: ItemsProviderStub(items: [includedItem, excludedItem]),
-            rateProvider: nil
+            rateProvider: nil,
+            currencyCode: nil
         )
         let baseWallet = TokenSelectorWallet(wallet: includedItem.userWalletInfo, accounts: .multiple([account, account]))
         let provider = FilteredTokenSelectorWalletsProvider(
@@ -55,7 +56,8 @@ struct FilteredTokenSelectorWalletsProviderTests {
         let account = TokenSelectorAccount(
             account: CryptoAccountModelMock(isMainAccount: true, onArchive: { _ in }),
             itemsProvider: ItemsProviderStub(items: [excludedItem, includedItem]),
-            rateProvider: nil
+            rateProvider: nil,
+            currencyCode: nil
         )
         let baseWallet = TokenSelectorWallet(wallet: includedItem.userWalletInfo, accounts: .single(account))
         let provider = FilteredTokenSelectorWalletsProvider(
@@ -77,7 +79,8 @@ struct FilteredTokenSelectorWalletsProviderTests {
         let account = TokenSelectorAccount(
             account: CryptoAccountModelMock(isMainAccount: true, onArchive: { _ in }),
             itemsProvider: ItemsProviderStub(items: [includedItem]),
-            rateProvider: nil
+            rateProvider: nil,
+            currencyCode: nil
         )
         let baseWallet = TokenSelectorWallet(wallet: includedItem.userWalletInfo, accounts: .single(account))
         let provider = FilteredTokenSelectorWalletsProvider(

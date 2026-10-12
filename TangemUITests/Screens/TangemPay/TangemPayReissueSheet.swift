@@ -57,6 +57,15 @@ final class TangemPayReissueSheet: Screen {
     }
 
     @discardableResult
+    func verifyReplaceCardDisabled() -> Self {
+        XCTContext.runActivity(named: "Verify Replace card button is disabled") { _ in
+            waitAndAssertTrue(confirmButton, "Replace card confirm button should be displayed on reissue sheet")
+            confirmButton.waitForState(state: .disabled)
+            return self
+        }
+    }
+
+    @discardableResult
     func tapConfirm() -> TangemPayCardDetailsScreen {
         XCTContext.runActivity(named: "Tap Replace card confirm on reissue sheet") { _ in
             confirmButton.waitAndTap()

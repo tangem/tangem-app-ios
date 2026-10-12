@@ -46,4 +46,13 @@ public struct StakingBlockchainParams {
         default: true
         }
     }
+
+    /// Chains that delegate the whole balance report a staking balance that already covers the available
+    /// balance plus rewards, so the total is that staking balance rather than the sum of the two.
+    public var stakingBalanceRepresentsTotalBalance: Bool {
+        switch blockchain {
+        case .cardano: true
+        default: false
+        }
+    }
 }

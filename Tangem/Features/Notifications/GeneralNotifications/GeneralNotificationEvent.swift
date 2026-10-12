@@ -24,7 +24,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case lowSignatures(count: Int)
     case legacyDerivation
     case systemDeprecationTemporary
-    case systemDeprecationPermanent(version: String, date: String)
+    case systemDeprecationPermanent(version: String, date: String, hasEnded: Bool)
     case missingDerivation(numberOfNetworks: Int, icon: MainButton.Icon?, hasNFCInteraction: Bool)
     case walletLocked(hasNFCInteraction: Bool)
     case missingBackup
@@ -184,8 +184,10 @@ extension GeneralNotificationEvent: NotificationEvent {
             return Localization.warningManageTokensLegacyDerivationMessage
         case .systemDeprecationTemporary:
             return Localization.warningSystemUpdateMessage
-        case .systemDeprecationPermanent(let version, let dateString):
-            return Localization.warningIosDeprecationMessage(version, dateString)
+        case .systemDeprecationPermanent(let version, let dateString, let hasEnded):
+            return hasEnded
+                ? Localization.warningIosDeprecationEndedMessage(version, dateString)
+                : Localization.warningIosDeprecationMessage(version, dateString)
         case .missingDerivation(let numberOfNetworks, _, let hasNFCInteraction):
             if hasNFCInteraction {
                 return Localization.warningMissingDerivationMessage(numberOfNetworks)

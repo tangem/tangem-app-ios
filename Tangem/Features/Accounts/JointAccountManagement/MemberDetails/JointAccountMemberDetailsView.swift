@@ -74,7 +74,7 @@ struct JointAccountMemberDetailsView: View {
             action: viewModel.onCopyTap
         )
         .iconEnd(DesignSystem.Icons.Copy.regular20)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .size(.x9)
         .horizontalLayout(.intrinsic)
     }
@@ -85,7 +85,7 @@ struct JointAccountMemberDetailsView: View {
             accessibilityLabel: Localization.commonClose,
             action: viewModel.onCloseTap
         )
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .size(.x12)
         .horizontalLayout(.infinity)
     }

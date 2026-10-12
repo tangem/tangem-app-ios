@@ -13,7 +13,6 @@ import TangemNetworkUtils
 /// Input data for assembly wallet manager
 struct WalletManagerAssemblyInput {
     let wallet: Wallet
-    let pairPublicKey: Data?
     let blockchainSdkDependencies: BlockchainSdkDependencies
     let networkInput: NetworkProviderAssembly.Input
 }

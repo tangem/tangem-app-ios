@@ -53,14 +53,15 @@ final class YieldTokenItemPromoProvider {
             return []
         }
 
-        let yieldTokenAddresses = Set(yieldMarketInfo.map(\.tokenContractAddress))
+        // The backend serves lowercase addresses while the wallet stores EIP-55 — compare case-insensitively.
+        let yieldTokenAddresses = Set(yieldMarketInfo.map { $0.tokenContractAddress.lowercased() })
 
         let filtered = walletModels.filter { model in
             let isNotActive = model.yieldModuleManager?.state?.state.isNotActive ?? false
             let contract = model.tokenItem.contractAddress
 
             guard isNotActive, let contract else { return false }
-            return yieldTokenAddresses.contains(contract)
+            return yieldTokenAddresses.contains(contract.lowercased())
         }
 
         return filtered
@@ -114,7 +115,7 @@ final class YieldTokenItemPromoProvider {
             return publisher
         }
 
-        let marketsInfo = cachedMarkets.markets.map { YieldModuleMarketInfo(from: $0) }
+        let marketsInfo = cachedMarkets.markets.map(YieldModuleMarketInfo.init(from:))
 
         return publisher
             .prepend(marketsInfo)
@@ -164,7 +165,7 @@ extension YieldTokenItemPromoProvider: TokenItemPromoProvider {
                         promoProviderInput: promoProviderInput
                     ),
                     let contractAddress = selectedWalletModel.tokenItem.contractAddress,
-                    let apy = marketInfo.first(where: { $0.tokenContractAddress == contractAddress })?.apy
+                    let apy = marketInfo.first(where: { $0.tokenContractAddress.caseInsensitiveEquals(to: contractAddress) })?.effectiveApy
                 else {
                     return nil
                 }

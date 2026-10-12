@@ -11,6 +11,7 @@ import TangemUI
 import TangemUIUtils
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayCashbackAdditionalSection: View {
     let promotions: [TangemPayCashbackDetailViewData.AdditionalPromotion]
@@ -19,6 +20,7 @@ struct TangemPayCashbackAdditionalSection: View {
         VStack(alignment: .leading, spacing: 0) {
             Text(Localization.tangempayCashbackAdditionalTitle)
                 .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackAdditionalSectionTitle)
                 .padding(.vertical, 16)
 
             VStack(spacing: 12) {

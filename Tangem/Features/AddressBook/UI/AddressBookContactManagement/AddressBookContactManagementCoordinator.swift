@@ -44,18 +44,20 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
         let focusesNameOnFirstAppear: Bool
 
         switch options {
-        case .add(let addressBookWallet, let prefilledEntries):
+        case .add(let addressBookWallet, let prefilledEntries, let analyticsSource):
             interactor = CreateAddressBookContactManagementInteractor(
                 addressBookWallet: addressBookWallet,
                 prefilledEntries: prefilledEntries,
-                analyticsLogger: analyticsLogger
+                analyticsLogger: analyticsLogger,
+                analyticsSource: analyticsSource
             )
             focusesNameOnFirstAppear = prefilledEntries.isNotEmpty
-        case .edit(let contact, let addressBookWallet):
+        case .edit(let contact, let addressBookWallet, let analyticsSource):
             interactor = EditAddressBookContactManagementInteractor(
                 contact: contact,
                 initialAddressBookWallet: addressBookWallet,
-                analyticsLogger: analyticsLogger
+                analyticsLogger: analyticsLogger,
+                analyticsSource: analyticsSource
             )
             focusesNameOnFirstAppear = false
         }
@@ -74,8 +76,16 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
 
 extension AddressBookContactManagementCoordinator {
     enum Options {
-        case add(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft])
-        case edit(contact: AddressBookContact, addressBookWallet: AddressBookWallet)
+        case add(
+            addressBookWallet: AddressBookWallet,
+            prefilledEntries: [AddressBookEntryDraft],
+            analyticsSource: AddressBookAnalyticsSource
+        )
+        case edit(
+            contact: AddressBookContact,
+            addressBookWallet: AddressBookWallet,
+            analyticsSource: AddressBookAnalyticsSource
+        )
     }
 }
 

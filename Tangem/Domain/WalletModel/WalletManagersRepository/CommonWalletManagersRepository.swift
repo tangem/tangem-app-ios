@@ -17,6 +17,7 @@ class CommonWalletManagersRepository {
 
     private let keysProvider: KeysProvider
     private let userTokensManager: UserTokensManager
+    private let walletFactory: AnyWalletFactory
     private let walletManagerFactory: AnyWalletManagerFactory
 
     /// We need to keep optional dictionary to track state when wallet managers dictionary wasn't able to initialize
@@ -28,10 +29,12 @@ class CommonWalletManagersRepository {
     init(
         keysProvider: KeysProvider,
         userTokensManager: UserTokensManager,
+        walletFactory: AnyWalletFactory,
         walletManagerFactory: AnyWalletManagerFactory
     ) {
         self.keysProvider = keysProvider
         self.userTokensManager = userTokensManager
+        self.walletFactory = walletFactory
         self.walletManagerFactory = walletManagerFactory
         bind()
     }
@@ -107,9 +110,12 @@ class CommonWalletManagersRepository {
 
     private func makeWalletManager(blockchainNetwork: BlockchainNetwork, tokens: [Token], keys: [KeyInfo], apiList: APIList) -> WalletManager? {
         do {
-            return try walletManagerFactory.makeWalletManager(blockchainNetwork: blockchainNetwork, tokens: tokens, keys: keys, apiList: apiList)
-        } catch AnyWalletManagerFactoryError.noDerivation {
+            let wallet = try walletFactory.makeWallet(blockchainNetwork: blockchainNetwork, keys: keys)
+            return try walletManagerFactory.makeWalletManager(wallet: wallet, tokens: tokens, apiList: apiList)
+        } catch AnyWalletFactoryError.noDerivation {
             AppLogger.warning("‼️ No derivation for \(blockchainNetwork.blockchain.displayName)")
+        } catch AnyWalletFactoryError.accountAddressUnavailable {
+            AppLogger.warning("‼️ No account address for \(blockchainNetwork.blockchain.displayName)")
         } catch {
             AppLogger.error("‼️ Failed to create \(blockchainNetwork.blockchain.displayName)", error: error)
         }

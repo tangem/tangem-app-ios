@@ -58,7 +58,8 @@ final class TronTransactionHistoryMapper {
         from transaction: BlockBookAddressResponse.Transaction,
         sourceAddress: String,
         destinationAddress: String,
-        walletAddress: String
+        walletAddress: String,
+        votes: [Vote]
     ) -> TransactionInfo? {
         guard
             sourceAddress.caseInsensitiveEquals(to: walletAddress) || destinationAddress.caseInsensitiveEquals(to: walletAddress)
@@ -67,12 +68,11 @@ final class TronTransactionHistoryMapper {
             return nil
         }
 
-        guard let transactionValue = Decimal(string: transaction.value) else {
+        guard let transactionAmount = transactionAmount(of: transaction, votes: votes) else {
             BSDKLogger.error(error: "Transaction with invalid value \(transaction) received")
             return nil
         }
 
-        let transactionAmount = transactionValue / blockchain.decimalValue
         let isOutgoing = sourceAddress.caseInsensitiveEquals(to: walletAddress)
 
         let source = TransactionRecord.Source(
@@ -81,7 +81,7 @@ final class TronTransactionHistoryMapper {
         )
 
         let destination = TransactionRecord.Destination(
-            address: transaction.isContractInteraction ? .contract(destinationAddress) : .user(destinationAddress),
+            address: isContractInteraction(transaction) ? .contract(destinationAddress) : .user(destinationAddress),
             amount: transactionAmount
         )
 
@@ -92,17 +92,51 @@ final class TronTransactionHistoryMapper {
         )
     }
 
-    private func shouldInclude(_ transactionInfo: TransactionInfo, for amountType: Amount.AmountType) -> Bool {
-        guard case .coin = amountType else {
-            return true
+    private func isContractInteraction(_ transaction: BlockBookAddressResponse.Transaction) -> Bool {
+        if let contractType = transaction.contractType {
+            return contractType != TronContractType.transferContractType.rawValue
         }
 
-        // Outgoing transfers are always kept: they are user-initiated, even when the amount is dust.
-        if transactionInfo.isOutgoing {
-            return true
+        return transaction.chainExtraData.flatMap(extraDataContractType(from:)) == .triggerSmartContract
+    }
+
+    private static func votes(of transaction: BlockBookAddressResponse.Transaction) -> [Vote] {
+        if let votes = transaction.chainExtraData?.payload?.votes {
+            return votes.map { Vote(witness: $0.address, count: $0.count) }
         }
 
-        return transactionInfo.source.amount >= Constants.minimumCoinTransactionAmount
+        guard let voteList = transaction.voteList else {
+            return []
+        }
+
+        return voteList.sorted { $0.key < $1.key }.map { Vote(witness: $0.key, count: String($0.value)) }
+    }
+
+    private func transactionAmount(of transaction: BlockBookAddressResponse.Transaction, votes: [Vote]) -> Decimal? {
+        if votes.isNotEmpty {
+            // A vote is backed by one frozen TRX, so the counts arrive in whole TRX rather than in sun.
+            return votes.reduce(Decimal.zero) { total, vote in
+                total + (vote.count.flatMap { Decimal(string: $0) } ?? .zero)
+            }
+        }
+
+        let payload = transaction.chainExtraData?.payload
+
+        if let claimedReward = payload?.claimedVoteReward.flatMap({ Decimal(string: $0) }) {
+            return claimedReward / blockchain.decimalValue
+        }
+
+        return Decimal(string: transaction.value).map { $0 / blockchain.decimalValue }
+    }
+
+    /// Nownodes reports the transaction's own `fees` as zero for every Tron transaction and delivers the
+    /// charged amount in the contract payload instead, so the payload wins whenever it carries one.
+    private func transactionFee(of transaction: BlockBookAddressResponse.Transaction) -> Decimal? {
+        if let totalFee = transaction.chainExtraData?.payload?.totalFee, let fee = Decimal(stringValue: totalFee) {
+            return fee
+        }
+
+        return Decimal(stringValue: transaction.fees)
     }
 
     /// Extracts the transaction info for a `token` transfer.
@@ -169,15 +203,17 @@ final class TronTransactionHistoryMapper {
         transaction: BlockBookAddressResponse.Transaction,
         transactionInfos: [TransactionInfo],
         amountType: Amount.AmountType,
-        fees: Decimal
+        fees: Decimal,
+        votes: [Vote],
+        tokens: [BlockBookAddressResponse.Token]?
     ) -> [TransactionRecord] {
         // Nownodes appends `0x` prefixes to TRON txids, so we have to strip these prefixes
         let hash = transaction.txid.removeHexPrefix()
         let fee = Fee(Amount(with: blockchain, value: fees / blockchain.decimalValue))
         let date = Date(timeIntervalSince1970: TimeInterval(transaction.blockTime))
         let status = status(transaction)
-        let type = transactionType(transaction, amountType: amountType)
-        let tokenTransfers = tokenTransfers(transaction)
+        let type = transactionType(transaction, amountType: amountType, votes: votes)
+        let tokenTransfers = tokenTransfers(transaction, tokens: tokens)
 
         return transactionInfos.map { transactionInfo in
             let index = transactionIndicesCounter[hash, default: 0]
@@ -187,23 +223,20 @@ final class TronTransactionHistoryMapper {
                 switch type {
                 case .staking(let stakingType, _):
                     switch stakingType {
-                    case .stake, .unstake:
-                        // Freeze/unfreeze are self-transfers (source == destination == own address) carrying
-                        // the staked amount as the value. The displayed amount is computed downstream as
-                        // "sent − change returned to self", so a non-zero destination would net it to zero —
-                        // keep the destination address but zero its amount.
+                    case .stake, .unstake, .vote:
+                        // All three are self-addressed (source == destination == own address), and the displayed
+                        // amount is computed downstream as "sent − change returned to self". Leaving the staked
+                        // TRX — or, for a vote, the number of votes cast — on the destination would count it as
+                        // change and net the amount to zero, so the destination keeps its address and gives up
+                        // its amount.
                         return TransactionRecord.Destination(address: transactionInfo.destination.address, amount: 0)
-                    case .vote:
-                        // Votes move no TRX — both amounts are already zero.
-                        return transactionInfo.destination
                     case .withdraw, .claimRewards:
-                        // [REDACTED_TODO_COMMENT]
                         return transactionInfo.destination
                     case .restake:
                         // Never produced by this mapper: no TRON contract type maps to it.
                         return transactionInfo.destination
                     }
-                case .transfer, .contractMethodIdentifier, .contractMethodName:
+                case .transfer, .contractMethodIdentifier, .contractMethodName, .approve:
                     return transactionInfo.destination
                 }
             }()
@@ -250,7 +283,8 @@ final class TronTransactionHistoryMapper {
 
     private func transactionType(
         _ transaction: BlockBookAddressResponse.Transaction,
-        amountType: Amount.AmountType
+        amountType: Amount.AmountType,
+        votes: [Vote]
     ) -> TransactionRecord.TransactionType {
         switch amountType {
         case .coin:
@@ -258,20 +292,17 @@ final class TronTransactionHistoryMapper {
             // type via the `chainExtraData` payload. Fall back to that payload in such cases.
             guard let contractTypeInt = transaction.contractType,
                   let contractType = TronContractType(rawValue: contractTypeInt) else {
-                return transactionType(from: transaction.chainExtraData)
+                return transactionType(fromChainExtraDataOf: transaction, votes: votes)
             }
 
             switch contractType {
             case .transferContractType,
                  .transferAssetContractType:
                 return .transfer
+            case .triggerSmartContractType:
+                return contractCallType(transaction) ?? .contractMethodIdentifier(id: transaction.contractName ?? .unknown)
             case .voteWitnessContractType:
-                // voteList is a dictionary with validator addresses as keys,
-                // not sure if it's possible to have several validators inside,
-                // moreover there are no place to display more than one on UI,
-                // so we take first
-                let target = transaction.voteList?.keys.first
-                return .staking(type: .vote, target: target)
+                return .staking(type: .vote, target: votes.first?.witness)
             case .withdrawExpireUnfreezeContractType:
                 return .staking(type: .withdraw, target: nil)
             case .freezeBalanceV2ContractType:
@@ -292,21 +323,23 @@ final class TronTransactionHistoryMapper {
     /// Extracts the coin transaction type from the `chainExtraData` payload, which NowNodes started
     /// delivering instead of the integer `contract_type` field. The contract type arrives as a string.
     private func transactionType(
-        from chainExtraData: BlockBookAddressResponse.ChainExtraData?
+        fromChainExtraDataOf transaction: BlockBookAddressResponse.Transaction,
+        votes: [Vote]
     ) -> TransactionRecord.TransactionType {
         guard
-            let chainExtraData,
+            let chainExtraData = transaction.chainExtraData,
             let contractType = extraDataContractType(from: chainExtraData)
         else {
             return .transfer
         }
 
         switch contractType {
-        case .transferContract, .triggerSmartContract:
+        case .transferContract:
             return .transfer
+        case .triggerSmartContract:
+            return contractCallType(transaction) ?? .transfer
         case .voteWitnessContract:
-            let target = chainExtraData.payload?.votes?.first?.address
-            return .staking(type: .vote, target: target)
+            return .staking(type: .vote, target: votes.first?.witness)
         case .withdrawBalanceContract:
             return .staking(type: .claimRewards, target: nil)
         case .freezeBalanceV2Contract:
@@ -324,6 +357,18 @@ final class TronTransactionHistoryMapper {
             return .transfer
             #endif
         }
+    }
+
+    private func contractCallType(_ transaction: BlockBookAddressResponse.Transaction) -> TransactionRecord.TransactionType? {
+        guard let methodId = transaction.ethereumSpecific?.methodId else {
+            return nil
+        }
+
+        if methodId.caseInsensitiveEquals(to: TransferERC20TokenMethod.methodId) {
+            return .transfer
+        }
+
+        return .contractMethodIdentifier(id: methodId)
     }
 
     private func contractType(_ transaction: BlockBookAddressResponse.Transaction) -> TronContractType? {
@@ -347,8 +392,13 @@ final class TronTransactionHistoryMapper {
         return TronChainExtraDataContractType(rawValue: rawContractType ?? .unknown)
     }
 
-    private func tokenTransfers(_ transaction: BlockBookAddressResponse.Transaction) -> [TransactionRecord.TokenTransfer] {
-        let tokenTransfers = transaction.tokenTransfers ?? []
+    private func tokenTransfers(
+        _ transaction: BlockBookAddressResponse.Transaction,
+        tokens: [BlockBookAddressResponse.Token]?
+    ) -> [TransactionRecord.TokenTransfer] {
+        guard let tokenTransfers = transaction.tokenTransfers?.nilIfEmpty else {
+            return decodedTokenTransfer(transaction, tokens: tokens).map { [$0] } ?? []
+        }
 
         return tokenTransfers.map { transfer -> TransactionRecord.TokenTransfer in
             let amount = Decimal(stringValue: transfer.value) ?? 0
@@ -362,6 +412,33 @@ final class TronTransactionHistoryMapper {
                 contract: transfer.compat.contract
             )
         }
+    }
+
+    private func decodedTokenTransfer(
+        _ transaction: BlockBookAddressResponse.Transaction,
+        tokens: [BlockBookAddressResponse.Token]?
+    ) -> TransactionRecord.TokenTransfer? {
+        guard
+            let calldata = transaction.ethereumSpecific?.data,
+            let transfer = TronTokenTransferCallData(calldata: calldata),
+            let amount = Decimal(stringValue: transfer.amount.description),
+            let source = transaction.sourceAddress,
+            let contract = transaction.destinationAddress
+        else {
+            return nil
+        }
+
+        let token = tokens?.first { $0.matching(contractAddress: contract) }
+
+        return TransactionRecord.TokenTransfer(
+            source: source,
+            destination: transfer.recipient,
+            amount: amount,
+            name: nil,
+            symbol: token?.symbol,
+            decimals: token?.decimals,
+            contract: contract
+        )
     }
 }
 
@@ -380,12 +457,17 @@ extension TronTransactionHistoryMapper: TransactionHistoryMapper {
             .reduce(into: []) { partialResult, transaction in
                 guard
                     let sourceAddress = transaction.sourceAddress,
-                    let destinationAddress = transaction.destinationAddress,
-                    let fees = Decimal(stringValue: transaction.fees)
+                    let fees = transactionFee(of: transaction)
                 else {
                     BSDKLogger.error(error: "Transaction \(transaction) doesn't contain a required information")
                     return
                 }
+
+                // Operations that send nothing anywhere — voting for a witness, claiming rewards — carry no
+                // recipient in the Blockbook payload. They act on the account itself, so it stands in as the
+                // destination; requiring one would drop those transactions from the history entirely.
+                let destinationAddress = transaction.destinationAddress ?? walletAddress
+                let votes = Self.votes(of: transaction)
 
                 switch amountType {
                 case .coin, .reserve, .feeResource:
@@ -393,13 +475,16 @@ extension TronTransactionHistoryMapper: TransactionHistoryMapper {
                         from: transaction,
                         sourceAddress: sourceAddress,
                         destinationAddress: destinationAddress,
-                        walletAddress: walletAddress
-                    ), shouldInclude(transactionInfo, for: amountType) {
+                        walletAddress: walletAddress,
+                        votes: votes
+                    ) {
                         partialResult += mapToTransactionRecords(
                             transaction: transaction,
                             transactionInfos: [transactionInfo],
                             amountType: amountType,
-                            fees: fees
+                            fees: fees,
+                            votes: votes,
+                            tokens: response.tokens
                         )
                     }
                 case .token(let token):
@@ -420,7 +505,9 @@ extension TronTransactionHistoryMapper: TransactionHistoryMapper {
                             transaction: transaction,
                             transactionInfos: outgoingTransactionInfos + incomingTransactionInfos,
                             amountType: amountType,
-                            fees: fees
+                            fees: fees,
+                            votes: votes,
+                            tokens: response.tokens
                         )
                     }
                 }
@@ -467,6 +554,11 @@ private extension TronTransactionHistoryMapper {
         let source: TransactionRecord.Source
         let destination: TransactionRecord.Destination
         let isOutgoing: Bool
+    }
+
+    struct Vote {
+        let witness: String?
+        let count: String?
     }
 
     /// See https://github.com/tronprotocol/documentation/blob/master/English_Documentation/TRON_Virtual_Machine/TRC10_TRX_TRANSFER_INTRODUCTION_FOR_EXCHANGES.md
@@ -531,7 +623,6 @@ private extension TronTransactionHistoryMapper {
 
     enum Constants {
         static let tronPayloadType = "tron"
-        static let minimumCoinTransactionAmount: Decimal = 0.001
         static let excludedContractTypes: Set<TronContractType> = [
             TronContractType.accountCreateContractType,
             TronContractType.delegateResourceContractType,
@@ -559,11 +650,6 @@ private extension BlockBookAddressResponse.Token {
 }
 
 private extension BlockBookAddressResponse.Transaction {
-    var isContractInteraction: Bool {
-        contractType != nil
-            && contractType != TronTransactionHistoryMapper.TronContractType.transferContractType.rawValue
-    }
-
     /// NowNodes changed the Tron Blockbook API contract: the dedicated `fromAddress`/`toAddress` fields
     /// may now be absent, in which case the addresses are delivered via the `vin`/`vout` arrays (as in
     /// other Blockbook-based networks like Bitcoin or Ethereum). Fall back to those fields when the

@@ -316,5 +316,6 @@ private final class MockAddressProvider: P2PDelegatorAddressProvider {
 
 private struct MockYieldInfoProvider: StakingYieldInfoProvider {
     let yield: StakingYieldInfo
+    var stakingTargets: AsyncStream<[StakingTargetSummary]> { AsyncStream { $0.finish() } }
     func yieldInfo(for integrationId: String) async throws -> StakingYieldInfo { yield }
 }

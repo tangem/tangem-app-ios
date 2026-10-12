@@ -110,6 +110,7 @@ struct AddressBookContactMatcherTests {
             walletId: walletId,
             name: contactName,
             appearance: AddressBookContactAppearance(rawColor: "MexicanPink"),
+            createdAt: Date(),
             entries: AddressBookContactVerifiedEntries([entry])!
         )
     }
@@ -133,17 +134,11 @@ struct AddressBookContactMatcherTests {
             contactId: contactId,
             contactName: contactName,
             walletPublicKey: walletPublicKey,
-            verifier: AcceptingVerifier()
+            verifier: AcceptingAddressBookSignatureVerifier()
         )!
     }
 
     private func name(_ value: String) throws -> AddressBookContactName {
         try AddressBookContactNameValidator().validate(value)
     }
-}
-
-// MARK: - Test doubles
-
-private struct AcceptingVerifier: AddressBookSignatureVerifying {
-    func isSignatureValid(_ signature: Data, of digest: Data, walletPublicKey: Data) -> Bool { true }
 }

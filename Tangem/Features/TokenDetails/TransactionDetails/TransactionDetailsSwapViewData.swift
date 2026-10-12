@@ -14,6 +14,7 @@ struct TransactionDetailsSwapViewData: TransactionDetailsOperationViewData {
         let amount: String
         let symbol: String?
         let tokenIconInfo: TokenIconInfo?
+        let actor: TransactionDetailsActor?
     }
 
     struct RatingTransaction {
@@ -38,14 +39,20 @@ struct TransactionDetailsSwapViewData: TransactionDetailsOperationViewData {
     var tokensData: TransactionDetailsTokensViewData {
         TransactionDetailsTokensViewData(
             from: .init(
-                direction: .init(label: Localization.swappingFromTitleV2, actor: nil),
+                direction: .init(
+                    label: source.actor == nil ? Localization.swappingFromTitleV2 : Localization.commonFrom,
+                    actor: source.actor
+                ),
                 icon: icon(for: source),
                 amountText: sourceAmountText,
                 fiatText: nil,
                 isAmountStrikethrough: false
             ),
             to: .init(
-                direction: .init(label: destinationLabel, actor: nil),
+                direction: .init(
+                    label: destination.actor == nil ? Localization.swappingToTitle : Localization.commonTo,
+                    actor: destination.actor
+                ),
                 icon: icon(for: destination),
                 amountText: destinationAmountText,
                 fiatText: nil,
@@ -66,7 +73,7 @@ struct TransactionDetailsSwapViewData: TransactionDetailsOperationViewData {
         }
 
         if let networkFee {
-            rows.append(.init(id: "networkFee", title: Localization.commonNetworkFeeTitle, content: .text(networkFee)))
+            rows.append(.init(id: "networkFee", title: Localization.commonNetworkFeeTitle, content: .sensitiveText(networkFee)))
         }
 
         return rows.isEmpty ? nil : .init(rows: rows)
@@ -74,13 +81,6 @@ struct TransactionDetailsSwapViewData: TransactionDetailsOperationViewData {
 
     private func icon(for leg: Leg) -> TransactionDetailsTokensViewData.Leg.Icon {
         leg.tokenIconInfo.map { .token($0) } ?? .loading
-    }
-
-    private var destinationLabel: String {
-        switch stage {
-        case .inProgress: Localization.expressEstimatedAmount
-        case .finished, .unsuccessful: Localization.swappingToTitle
-        }
     }
 
     private var sourceAmountText: String? {
@@ -100,17 +100,10 @@ struct TransactionDetailsSwapViewData: TransactionDetailsOperationViewData {
     /// hides it, so we never render a partial value like "+ETH" or "+100". The prefix (sign / "~") is an
     /// optional decoration: a leg without one (e.g. failed) still shows its amount unsigned.
     private func amountText(prefix: String?, leg: Leg) -> String? {
-        guard
-            let amount = leg.amount.nilIfEmpty,
-            let symbol = leg.symbol?.nilIfEmpty
-        else {
+        guard let symbol = leg.symbol?.trimmed().nilIfEmpty else {
             return nil
         }
 
-        guard let prefix = prefix?.nilIfEmpty else {
-            return Localization.transactionHistoryDetailPageAmountValue(amount, symbol)
-        }
-
-        return Localization.transactionHistoryDetailPageAmountSignedValue(prefix, amount, symbol)
+        return TransactionDetailsAmountTextBuilder.build(leg.amount, symbol: symbol, sign: prefix)
     }
 }

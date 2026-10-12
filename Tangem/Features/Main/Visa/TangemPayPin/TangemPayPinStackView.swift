@@ -47,7 +47,7 @@ struct TangemPayPinStackView: View {
 
     private func box(at index: Int) -> some View {
         RoundedRectangle(cornerRadius: 16, style: .continuous)
-            .fill(DesignSystem.Color.bgOpaquePrimary)
+            .fill(DesignSystem.Color.bgTransparentPrimary)
             .frame(width: 56, height: 64)
             .overlay {
                 Text(digit(at: index))

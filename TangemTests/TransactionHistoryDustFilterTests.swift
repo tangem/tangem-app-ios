@@ -23,24 +23,14 @@ struct TransactionHistoryDustFilterTests {
 
     // MARK: - Filtering scope
 
-    @Test(arguments: anyDirectionTypes, [true, false])
-    func transferBelowThresholdIsDustWhicheverWayItMoved(
-        type: TransactionViewModel.TransactionType,
-        isOutgoing: Bool
-    ) {
-        let filter = TransactionHistoryDustFilter(usdRate: usdRate)
-
-        #expect(filter.isDust(amount: belowThreshold, isOutgoing: isOutgoing, transactionType: type))
-    }
-
-    @Test(arguments: incomingOnlyTypes)
+    @Test(arguments: filterableTypes)
     func incomingOperationBelowThresholdIsDust(type: TransactionViewModel.TransactionType) {
         let filter = TransactionHistoryDustFilter(usdRate: usdRate)
 
         #expect(filter.isDust(amount: belowThreshold, isOutgoing: false, transactionType: type))
     }
 
-    @Test(arguments: incomingOnlyTypes)
+    @Test(arguments: filterableTypes)
     func outgoingOperationIsShownHoweverSmall(type: TransactionViewModel.TransactionType) {
         let filter = TransactionHistoryDustFilter(usdRate: usdRate)
 
@@ -61,38 +51,38 @@ struct TransactionHistoryDustFilterTests {
 
     // MARK: - Threshold
 
-    @Test(arguments: [true, false])
-    func transferWorthExactlyTheThresholdIsShown(isOutgoing: Bool) {
+    @Test
+    func transferWorthExactlyTheThresholdIsShown() {
         let filter = TransactionHistoryDustFilter(usdRate: usdRate)
 
-        #expect(!filter.isDust(amount: atThreshold, isOutgoing: isOutgoing, transactionType: .transfer))
+        #expect(!filter.isDust(amount: atThreshold, isOutgoing: false, transactionType: .transfer))
     }
 
-    @Test(arguments: [true, false])
-    func transferAboveTheThresholdIsShown(isOutgoing: Bool) {
+    @Test
+    func transferAboveTheThresholdIsShown() {
         let filter = TransactionHistoryDustFilter(usdRate: usdRate)
 
-        #expect(!filter.isDust(amount: aboveThreshold, isOutgoing: isOutgoing, transactionType: .transfer))
+        #expect(!filter.isDust(amount: aboveThreshold, isOutgoing: false, transactionType: .transfer))
     }
 
     @Test
     func zeroAmountTransferIsDust() {
         let filter = TransactionHistoryDustFilter(usdRate: usdRate)
 
-        #expect(filter.isDust(amount: .zero, isOutgoing: true, transactionType: .transfer))
+        #expect(filter.isDust(amount: .zero, isOutgoing: false, transactionType: .transfer))
     }
 
     @Test
     func negativeAmountIsComparedByMagnitude() {
         let filter = TransactionHistoryDustFilter(usdRate: usdRate)
 
-        #expect(filter.isDust(amount: -belowThreshold, isOutgoing: true, transactionType: .transfer))
-        #expect(!filter.isDust(amount: -aboveThreshold, isOutgoing: true, transactionType: .transfer))
+        #expect(filter.isDust(amount: -belowThreshold, isOutgoing: false, transactionType: .transfer))
+        #expect(!filter.isDust(amount: -aboveThreshold, isOutgoing: false, transactionType: .transfer))
     }
 
     // MARK: - Unusable rates
 
-    @Test(arguments: anyDirectionTypes + incomingOnlyTypes)
+    @Test(arguments: filterableTypes)
     func missingRateDisablesFiltering(type: TransactionViewModel.TransactionType) {
         let filter = TransactionHistoryDustFilter(usdRate: nil)
 
@@ -109,10 +99,10 @@ struct TransactionHistoryDustFilterTests {
 
     // MARK: - Test arguments
 
-    private static var anyDirectionTypes: [TransactionViewModel.TransactionType] {
-        // Did you get a compilation error here? If so, add your new transaction type to one of the three lists
-        // below: `anyDirectionTypes` if the threshold applies whichever way the funds moved, `incomingOnlyTypes`
-        // if only received dust should be hidden, `neverFilteredTypes` if the threshold must not apply at all
+    private static var filterableTypes: [TransactionViewModel.TransactionType] {
+        // Did you get a compilation error here? If so, add your new transaction type to one of the two lists
+        // below: `filterableTypes` if received dust of this type should be hidden, `neverFilteredTypes` if the
+        // threshold must not apply at all
         switch TransactionViewModel.TransactionType.transfer {
         case .transfer: break
         case .gaslessTransfer: break
@@ -135,6 +125,7 @@ struct TransactionHistoryDustFilterTests {
         case .vote: break
         case .restake: break
         case .gaslessTransactionFee: break
+        case .networkFee: break
         case .operation: break
         case .unknownOperation: break
         case .tangemPay: break
@@ -143,11 +134,6 @@ struct TransactionHistoryDustFilterTests {
         return [
             .transfer,
             .gaslessTransfer,
-        ]
-    }
-
-    private static var incomingOnlyTypes: [TransactionViewModel.TransactionType] {
-        [
             .stake,
             .unstake,
             .withdraw,
@@ -172,6 +158,7 @@ struct TransactionHistoryDustFilterTests {
             .vote,
             .restake,
             .gaslessTransactionFee,
+            .networkFee(purpose: .sending, sent: nil),
             .operation(name: "Mint"),
             .unknownOperation,
             .tangemPay(.transfer(name: "Tangem Pay")),

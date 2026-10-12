@@ -176,6 +176,72 @@ struct HederaAddressTests {
         #expect(resolved.storageAddress == "0xf3dbceeeddc4bbd1b66492b66ec0b8ec317b511b")
         #expect(resolved.isERC20)
     }
+
+    @Test
+    func hederaHTSTokenTypeDetection() async throws {
+        let responseBody = #"{"custom_fees":{"fixed_fees":[],"fractional_fees":[]}}"#
+        let networkService = makeHederaNetworkService(
+            providerConfiguration: makeMockProviderConfiguration(statusCode: 200, body: responseBody),
+            baseURLOverride: try #require(URL(string: "https://unit-test.hedera"))
+        )
+
+        let tokenType = try await networkService.getTokenType(tokenAddress: "0.0.456858").async()
+
+        #expect(tokenType == .hts)
+    }
+
+    @Test
+    func hederaERC20TokenTypeDetection() async throws {
+        let responseBody = #"{"_status":{"messages":[{"message":"Not found"}]}}"#
+        let networkService = makeHederaNetworkService(
+            providerConfiguration: makeMockProviderConfiguration(statusCode: 404, body: responseBody),
+            baseURLOverride: try #require(URL(string: "https://unit-test.hedera"))
+        )
+
+        let tokenType = try await networkService.getTokenType(tokenAddress: "0.0.1055414").async()
+
+        #expect(tokenType == .erc20)
+    }
+
+    @Test
+    func hederaTokenTypeDetectionRejectsUnrelatedNotFoundResponse() async throws {
+        let responseBody = #"{"_status":{"messages":[{"message":"Account not found"}]}}"#
+        let networkService = makeHederaNetworkService(
+            providerConfiguration: makeMockProviderConfiguration(statusCode: 404, body: responseBody),
+            baseURLOverride: try #require(URL(string: "https://unit-test.hedera"))
+        )
+
+        await #expect(throws: (any Error).self) {
+            _ = try await networkService.getTokenType(tokenAddress: "0.0.1055414").async()
+        }
+    }
+
+    @Test
+    func hederaERC20MetadataResolutionFromContractId() async throws {
+        let evmAddress = "0x7fc8e36f6e8f222bb3d57d06c9f2c14e6a5392ef"
+        let providerConfiguration = makeMockProviderConfiguration(statusCode: 200, body: "{}")
+        MockURLProtocol.responseProvider = { request in
+            if request.url?.path.contains("/tokens/") == true {
+                let body = #"{"_status":{"messages":[{"message":"Not found"}]}}"#
+                return (404, Data(body.utf8))
+            }
+
+            let body = #"{"contract_id":"0.0.1055414","evm_address":"\#(evmAddress)"}"#
+            return (200, Data(body.utf8))
+        }
+
+        let networkService = makeHederaNetworkService(
+            providerConfiguration: providerConfiguration,
+            baseURLOverride: try #require(URL(string: "https://unit-test.hedera"))
+        )
+        let resolver = HederaTokenMetadataResolver(networkService: networkService)
+
+        let metadata = try await resolver.resolve(contractAddress: "0.0.1055414")
+
+        #expect(metadata.type == .erc20)
+        #expect(metadata.contractId == "0.0.1055414")
+        #expect(metadata.evmAddress == evmAddress)
+    }
 }
 
 private extension HederaAddressTests {
@@ -183,6 +249,21 @@ private extension HederaAddressTests {
         providerConfiguration: TangemProviderConfiguration,
         baseURLOverride: URL
     ) -> any ContractAddressResolver {
+        let networkService = makeHederaNetworkService(
+            providerConfiguration: providerConfiguration,
+            baseURLOverride: baseURLOverride
+        )
+
+        return HederaContractAddressResolver(
+            isTestnet: false,
+            networkService: networkService
+        )
+    }
+
+    func makeHederaNetworkService(
+        providerConfiguration: TangemProviderConfiguration,
+        baseURLOverride: URL
+    ) -> HederaNetworkService {
         let restProvider = HederaRESTNetworkProvider(
             targetConfiguration: NodeInfo(url: baseURLOverride),
             providerConfiguration: providerConfiguration
@@ -195,16 +276,13 @@ private extension HederaAddressTests {
             consensusProvider: consensusProvider,
             restProviders: [restProvider]
         )
-
-        return HederaContractAddressResolver(
-            isTestnet: false,
-            networkService: networkService
-        )
+        return networkService
     }
 
     func makeMockProviderConfiguration(statusCode: Int, body: String) -> TangemProviderConfiguration {
         MockURLProtocol.responseData = Data(body.utf8)
         MockURLProtocol.statusCode = statusCode
+        MockURLProtocol.responseProvider = nil
 
         let configuration = URLSessionConfiguration.ephemeral.copy() as! URLSessionConfiguration
         configuration.protocolClasses = [MockURLProtocol.self]
@@ -218,6 +296,7 @@ private extension HederaAddressTests {
 private final class MockURLProtocol: URLProtocol {
     nonisolated(unsafe) static var responseData = Data()
     nonisolated(unsafe) static var statusCode = 200
+    nonisolated(unsafe) static var responseProvider: ((URLRequest) -> (statusCode: Int, data: Data))?
 
     override class func canInit(with request: URLRequest) -> Bool {
         true
@@ -232,15 +311,19 @@ private final class MockURLProtocol: URLProtocol {
             return
         }
 
+        let responsePayload = Self.responseProvider?(request) ?? (
+            statusCode: Self.statusCode,
+            data: Self.responseData
+        )
         let response = HTTPURLResponse(
             url: url,
-            statusCode: Self.statusCode,
+            statusCode: responsePayload.statusCode,
             httpVersion: nil,
             headerFields: ["Content-Type": "application/json"]
         )!
 
         client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
-        client?.urlProtocol(self, didLoad: Self.responseData)
+        client?.urlProtocol(self, didLoad: responsePayload.data)
         client?.urlProtocolDidFinishLoading(self)
     }
 

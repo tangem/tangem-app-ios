@@ -16,9 +16,23 @@ import TangemUI
 /// title + subtitle + style. Baked once at `TransactionViewModel` construction so SwiftUI body
 /// re-evaluations don't re-run the matrix.
 struct TransactionDisplayModel: Hashable {
-    let title: String
+    let title: TitleContent
     let subtitle: Subtitle?
     let style: Style
+
+    /// Titles glued from two resources keep their halves apart, so the chip can paint the trailing one
+    /// with the primary colour without searching for it inside the finished string.
+    enum TitleContent: Hashable {
+        case plain(String)
+        case emphasizedSuffix(prefix: String, emphasized: String)
+
+        var fullText: String {
+            switch self {
+            case .plain(let text): text
+            case .emphasizedSuffix(let prefix, let emphasized): prefix + emphasized
+            }
+        }
+    }
 
     enum Style: Hashable {
         case row
@@ -33,6 +47,8 @@ struct TransactionDisplayModel: Hashable {
         /// Express (swap / onramp) counterparty: direction prefix + counterparty currency icon/symbol,
         /// and an optional "in [account/wallet]" segment when the counterparty leg lives elsewhere.
         case express(ExpressSubtitle)
+        /// Yield provider standing in for a counterparty — `to: ⬤ Aave` on Supply, `from:` on Withdraw.
+        case provider(direction: Direction)
     }
 
     /// Counterparty descriptor for an Express row subtitle (e.g. `to: POL in Family`).
@@ -48,6 +64,7 @@ struct TransactionDisplayModel: Hashable {
         let leading: Leading
         let symbol: String
         let owner: TransactionViewModel.SubtitleOwner?
+        let counterparty: TransactionViewModel.SubtitleOwner?
     }
 
     enum Direction: Hashable {
@@ -73,7 +90,6 @@ extension TransactionDisplayModel {
         isOutgoing: Bool,
         isFromYieldContract: Bool,
         legacyName: String,
-        amount: String,
         addressDestination: String?,
         subtitleOwner: TransactionViewModel.SubtitleOwner?,
         expressSubtitle: ExpressSubtitle?
@@ -91,7 +107,6 @@ extension TransactionDisplayModel {
                 transactionType: transactionType,
                 isOutgoing: isOutgoing,
                 isFromYieldContract: isFromYieldContract,
-                amount: amount,
                 addressDestination: addressDestination,
                 subtitleOwner: subtitleOwner,
                 expressSubtitle: expressSubtitle
@@ -110,17 +125,32 @@ extension TransactionDisplayModel {
         isFromYieldContract: Bool
     ) -> Bool {
         switch transactionType {
-        case .stake, .unstake, .vote, .restake, .withdraw,
-             .approve,
-             .yieldEnter, .yieldEnterCoin,
-             .yieldWithdraw, .yieldWithdrawCoin,
+        case .stake, .unstake, .restake, .approve:
+            return true
+        case .vote, .withdraw,
+             .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin, .yieldTopup, .yieldSend,
              .yieldInit, .yieldDeploy, .yieldReactivate,
-             .yieldTopup:
+             .transfer, .swap, .onramp, .claimRewards, .operation, .unknownOperation,
+             .gaslessTransactionFee, .gaslessTransfer, .networkFee, .tangemPay:
+            return isLabelOnlyChip(transactionType: transactionType, isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract)
+        }
+    }
+
+    static func isLabelOnlyChip(
+        transactionType: TransactionViewModel.TransactionType,
+        isOutgoing: Bool,
+        isFromYieldContract: Bool
+    ) -> Bool {
+        switch transactionType {
+        case .vote, .withdraw,
+             .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin, .yieldTopup:
             return true
         case .yieldSend:
             return !transactionType.isTransferLikeYieldSend(isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract)
-        case .transfer, .swap, .onramp, .claimRewards, .operation, .unknownOperation,
-             .gaslessTransactionFee, .gaslessTransfer, .tangemPay:
+        case .stake, .unstake, .restake, .approve,
+             .yieldInit, .yieldDeploy, .yieldReactivate,
+             .transfer, .swap, .onramp, .claimRewards, .operation, .unknownOperation,
+             .gaslessTransactionFee, .gaslessTransfer, .networkFee, .tangemPay:
             return false
         }
     }
@@ -132,12 +162,42 @@ extension TransactionDisplayModel {
         isFromYieldContract: Bool,
         legacyName: String,
         subtitleOwner: TransactionViewModel.SubtitleOwner?
-    ) -> String {
+    ) -> TitleContent {
         switch transactionType {
-        case .transfer:
+        case .transfer, .gaslessTransfer:
             return transferTitle(isOutgoing: isOutgoing, status: status, subtitleOwner: subtitleOwner)
+        case .gaslessTransactionFee, .networkFee:
+            return .plain(Localization.commonNetworkFeeTitle)
         case .yieldSend where transactionType.isTransferLikeYieldSend(isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract):
             return transferTitle(isOutgoing: isOutgoing, status: status, subtitleOwner: subtitleOwner)
+        case .yieldSend:
+            return statusTitle(
+                status: status,
+                progress: Localization.commonWithdrawing,
+                done: Localization.transactionHistoryWithdrawn,
+                failed: Localization.transactionHistoryStatusWithdrawFailed
+            )
+        case .yieldTopup:
+            return statusTitle(
+                status: status,
+                progress: Localization.commonSupplying,
+                done: Localization.transactionHistorySupplied,
+                failed: Localization.transactionHistoryStatusSupplyFailed
+            )
+        case .yieldEnter, .yieldEnterCoin:
+            return yieldModeTitle(
+                status: status,
+                state: .enabled,
+                progress: Localization.transactionHistoryEnablingYieldMode,
+                failed: Localization.transactionHistoryStatusEnablingYieldModeFailed
+            )
+        case .yieldWithdraw, .yieldWithdrawCoin:
+            return yieldModeTitle(
+                status: status,
+                state: .disabled,
+                progress: Localization.transactionHistoryDisablingYieldMode,
+                failed: Localization.transactionHistoryStatusDisablingYieldModeFailed
+            )
         case .swap:
             return statusTitle(
                 status: status,
@@ -188,7 +248,7 @@ extension TransactionDisplayModel {
                 failed: Localization.transactionHistoryStatusRewardsClaimFailed
             )
         default:
-            return legacyName
+            return .plain(legacyName)
         }
     }
 
@@ -196,21 +256,42 @@ extension TransactionDisplayModel {
         transactionType: TransactionViewModel.TransactionType,
         isOutgoing: Bool,
         isFromYieldContract: Bool,
-        amount: String,
         addressDestination: String?,
         subtitleOwner: TransactionViewModel.SubtitleOwner?,
         expressSubtitle: ExpressSubtitle?
     ) -> Subtitle? {
+        if isSubtitleSuppressed(transactionType: transactionType) {
+            return nil
+        }
+
         if let expressSubtitle {
             return .express(expressSubtitle)
         }
 
-        if let yieldText = yieldModeSubtitleText(
+        if let direction = yieldProviderDirection(
             transactionType: transactionType,
-            isFromYieldContract: isFromYieldContract,
-            amount: amount
+            isFromYieldContract: isFromYieldContract
         ) {
-            return .text(yieldText)
+            return .provider(direction: direction)
+        }
+
+        if case .claimRewards = transactionType {
+            return .text(Localization.transactionHistoryEarnedFromStake)
+        }
+
+        if case .networkFee(let purpose, _) = transactionType {
+            switch purpose {
+            case .sending:
+                return .text(Localization.transactionHistoryFeeForSending)
+            case .yieldMode(let operation):
+                return .text(yieldModeFeeSubtitle(for: operation))
+            case .operation:
+                return .text(Localization.transactionHistoryFeeForOperation)
+            }
+        }
+
+        if transactionType.isGaslessTransactionFee {
+            return .text(Localization.transactionHistoryFeeForSending)
         }
 
         if let owner = subtitleOwner {
@@ -220,20 +301,47 @@ extension TransactionDisplayModel {
         return addressDestination.map(Subtitle.text)
     }
 
-    private static func yieldModeSubtitleText(
-        transactionType: TransactionViewModel.TransactionType,
-        isFromYieldContract: Bool,
-        amount: String
-    ) -> String? {
+    private static func yieldModeFeeSubtitle(for operation: TransactionViewModel.YieldModeOperation) -> String {
+        switch operation {
+        case .activation: Localization.transactionHistoryFeeForYieldModeActivation
+        case .topUp: Localization.transactionHistoryFeeForYieldModeTopUp
+        case .deactivation: Localization.transactionHistoryFeeForYieldModeDeactivation
+        case .deployment: Localization.transactionHistoryFeeForYieldModeDeployment
+        case .initialization: Localization.transactionHistoryFeeForYieldModeInitialization
+        case .reactivation: Localization.transactionHistoryFeeForYieldModeReactivation
+        }
+    }
+
+    /// The Yield Mode enable/disable and staking chips are label-only, so they take neither the yield copy nor the
+    /// counterparty every other type falls back to.
+    private static func isSubtitleSuppressed(transactionType: TransactionViewModel.TransactionType) -> Bool {
         switch transactionType {
-        case .yieldEnter:
-            return Localization.yieldModuleTransactionEnterSubtitle(amount)
+        case .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin,
+             .stake, .unstake, .vote, .restake, .withdraw:
+            return true
+        case .yieldSend, .yieldTopup, .yieldInit, .yieldDeploy, .yieldReactivate,
+             .transfer, .swap, .onramp,
+             .claimRewards, .approve, .operation, .unknownOperation,
+             .gaslessTransactionFee, .gaslessTransfer, .networkFee, .tangemPay:
+            return false
+        }
+    }
+
+    /// Supply and Withdraw name the yield provider instead of an address — the funds go to Aave and come back from it.
+    private static func yieldProviderDirection(
+        transactionType: TransactionViewModel.TransactionType,
+        isFromYieldContract: Bool
+    ) -> Direction? {
+        switch transactionType {
         case .yieldTopup:
-            return Localization.yieldModuleTransactionTopupSubtitle(amount)
-        case .yieldWithdraw,
-             .yieldSend where isFromYieldContract:
-            return Localization.yieldModuleTransactionExitSubtitle(amount)
-        default:
+            return .outgoing
+        case .yieldSend where isFromYieldContract:
+            return .incoming
+        case .yieldSend, .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin,
+             .yieldInit, .yieldDeploy, .yieldReactivate,
+             .transfer, .swap, .onramp, .stake, .unstake, .vote, .restake, .withdraw,
+             .claimRewards, .approve, .operation, .unknownOperation,
+             .gaslessTransactionFee, .gaslessTransfer, .networkFee, .tangemPay:
             return nil
         }
     }
@@ -242,7 +350,7 @@ extension TransactionDisplayModel {
         isOutgoing: Bool,
         status: TransactionViewModel.Status,
         subtitleOwner: TransactionViewModel.SubtitleOwner?
-    ) -> String {
+    ) -> TitleContent {
         if subtitleOwner?.isOwnWallet == true {
             return statusTitle(
                 status: status,
@@ -255,28 +363,55 @@ extension TransactionDisplayModel {
         return directionalTitle(isOutgoing: isOutgoing, status: status)
     }
 
-    private static func directionalTitle(isOutgoing: Bool, status: TransactionViewModel.Status) -> String {
+    private static func directionalTitle(isOutgoing: Bool, status: TransactionViewModel.Status) -> TitleContent {
         switch (isOutgoing, status) {
         case (true, .failed):
-            return Localization.transactionHistoryStatusSendFailed
+            return .plain(Localization.transactionHistoryStatusSendFailed)
         case (false, .failed):
-            return Localization.transactionHistoryStatusReceiveFailed
+            return .plain(Localization.transactionHistoryStatusReceiveFailed)
         case (true, .inProgress):
-            return Localization.commonSending
+            return .plain(Localization.commonSending)
         case (false, .inProgress):
-            return Localization.commonReceiving
+            return .plain(Localization.commonReceiving)
         case (true, _):
-            return Localization.commonSent
+            return .plain(Localization.commonSent)
         case (false, _):
-            return Localization.commonReceived
+            return .plain(Localization.commonReceived)
         }
     }
 
-    private static func statusTitle(status: TransactionViewModel.Status, progress: String, done: String, failed: String) -> String {
+    private enum YieldModeState {
+        case enabled
+        case disabled
+
+        var word: String {
+            switch self {
+            case .enabled: Localization.commonEnabled
+            case .disabled: Localization.commonDisabled
+            }
+        }
+    }
+
+    /// The settled title is glued from two resources so the state word keeps its own capitalization while
+    /// the mode name stays the one shared with the rest of the app.
+    private static func yieldModeTitle(
+        status: TransactionViewModel.Status,
+        state: YieldModeState,
+        progress: String,
+        failed: String
+    ) -> TitleContent {
         switch status {
-        case .failed: failed
-        case .inProgress: progress
-        case .confirmed, .undefined: done
+        case .failed: .plain(failed)
+        case .inProgress: .plain(progress)
+        case .confirmed, .undefined: .emphasizedSuffix(prefix: Localization.commonYieldModeInline + " ", emphasized: state.word)
+        }
+    }
+
+    private static func statusTitle(status: TransactionViewModel.Status, progress: String, done: String, failed: String) -> TitleContent {
+        switch status {
+        case .failed: .plain(failed)
+        case .inProgress: .plain(progress)
+        case .confirmed, .undefined: .plain(done)
         }
     }
 }

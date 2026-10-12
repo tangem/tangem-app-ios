@@ -6,9 +6,11 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemMacro
 import TangemAccounts
 import TangemLocalization
 import TangemPay
+import TangemPolymarket
 import TangemExpress
 
 protocol TokenSelectorWalletsProvider {
@@ -18,8 +20,15 @@ protocol TokenSelectorWalletsProvider {
 // MARK: - Implementations
 
 extension TokenSelectorWalletsProvider where Self == CommonTokenSelectorWalletsProvider {
-    static func common() -> Self { .init() }
-    static func standardAccountsOnly() -> Self { .init(accountModelFilter: \.isStandard) }
+    static func cryptoJointTangemPayAccounts() -> Self {
+        CommonTokenSelectorWalletsProvider(.init(.crypto, .joint(.active), .tangemPay))
+    }
+
+    /// - Note: Only the joint accounts already operated: one still being put together holds no tokens, so it would
+    /// stand in the selector as a section with nothing to pick.
+    static func cryptoJointAccounts() -> Self {
+        CommonTokenSelectorWalletsProvider(.init(.crypto, .joint(.active)))
+    }
 }
 
 // MARK: - Wallet
@@ -42,6 +51,7 @@ struct TokenSelectorAccount {
     let account: any BaseAccountModel
     let itemsProvider: TokenSelectorAccountModelItemsProvider
     let rateProvider: (any AccountRateProvider)?
+    let currencyCode: String?
 }
 
 // MARK: - Account's items
@@ -60,6 +70,8 @@ struct TokenSelectorItem: Hashable, Identifiable {
             walletModel.tokenItem
         case .tangemPay(_, let accountToken, _):
             accountToken.tokenItem
+        case .polymarket:
+            PolymarketUtilities.usdcTokenItem
         }
     }
 
@@ -71,6 +83,11 @@ struct TokenSelectorItem: Hashable, Identifiable {
             accountToken.isAccountWide
                 ? tangemPayAccount.balancesProvider.totalTokenBalanceProvider
                 : tangemPayAccount.balancesProvider.availableBalanceProvider(for: accountToken)
+        case .polymarket(let source):
+            PolymarketWithdrawBalanceProvider(
+                base: source.accountModel.collateralTokenBalanceProvider,
+                tokenItem: PolymarketUtilities.usdcTokenItem
+            )
         }
     }
 
@@ -82,6 +99,8 @@ struct TokenSelectorItem: Hashable, Identifiable {
             accountToken.isAccountWide
                 ? tangemPayAccount.balancesProvider.fiatTotalTokenBalanceProvider
                 : tangemPayAccount.balancesProvider.fiatAvailableBalanceProvider(for: accountToken)
+        case .polymarket(let source):
+            source.accountModel.fiatAvailableBalanceProvider
         }
     }
 
@@ -110,6 +129,7 @@ struct TokenSelectorItem: Hashable, Identifiable {
 }
 
 extension TokenSelectorItem {
+    @CaseFlagable
     enum AvailabilityType {
         case available
         case unavailable(reason: TokenSelectorItemViewModel.DisabledReason)
@@ -118,11 +138,12 @@ extension TokenSelectorItem {
     enum Kind {
         case crypto(any WalletModel, any CryptoAccountModel)
         case tangemPay(TangemPayAccount, TangemPayAccountToken, any TangemPayAccountModel)
+        case polymarket(PolymarketWithdrawSource)
 
         var walletModel: (any WalletModel)? {
             switch self {
             case .crypto(let walletModel, _): walletModel
-            case .tangemPay: nil
+            case .tangemPay, .polymarket: nil
             }
         }
 
@@ -130,6 +151,7 @@ extension TokenSelectorItem {
             switch self {
             case .crypto(_, let account): account
             case .tangemPay(_, _, let account): account
+            case .polymarket(let source): source.accountModel
             }
         }
     }
@@ -164,6 +186,9 @@ extension TokenSelectorItem {
                 operationType: expressOperationType,
                 receiveTokenPresentation: .tangemPayAccount
             )
+
+        case .polymarket(let source):
+            PolymarketWithdrawSwapableTokenFactory(userWalletInfo: userWalletInfo, source: source)
         }
     }
 }

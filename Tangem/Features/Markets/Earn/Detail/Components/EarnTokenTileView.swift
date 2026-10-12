@@ -14,6 +14,8 @@ import TangemUIUtils
 struct EarnTokenTileView: View {
     let viewModel: EarnTokenItemViewModel
 
+    @ScaledMetric private var tileWidth: CGFloat = RedesignLayout.tileWidth
+
     var body: some View {
         redesignedContent
     }
@@ -29,7 +31,7 @@ struct EarnTokenTileView: View {
 
                 FixedSpacer(height: 22.0)
 
-                HStack(alignment: .firstBaselineCustom, spacing: 2) {
+                HStack(alignment: .firstBaselineCustom, spacing: RedesignLayout.textSpacing) {
                     Text(viewModel.name)
                         .lineLimit(1)
                         .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
@@ -41,14 +43,22 @@ struct EarnTokenTileView: View {
 
                 FixedSpacer(height: 4)
 
-                Text(viewModel.rateText)
-                    .lineLimit(1)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textAccentGreen)
+                HStack(spacing: RedesignLayout.textSpacing) {
+                    Text(viewModel.rateText)
+                        .lineLimit(1)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textAccentGreen)
+
+                    Text(viewModel.earnType.title)
+                        .lineLimit(1)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                }
             }
-            .frame(width: RedesignLayout.tileWidth, alignment: .topLeading)
+            .frame(width: tileWidth, alignment: .topLeading)
             .padding(.bottom, 4)
             .defaultRoundedBackground(
-                with: DesignSystem.Color.bgSecondary,
+                with: DesignSystem.Color.bgTransparentPrimary,
+                verticalPadding: RedesignLayout.verticalPadding,
+                horizontalPadding: RedesignLayout.horizontalPadding,
                 cornerRadius: RedesignLayout.cornerRadius
             )
         }
@@ -76,7 +86,43 @@ struct EarnTokenTileView: View {
 
 private extension EarnTokenTileView {
     enum RedesignLayout {
-        static let tileWidth: CGFloat = 150.0
+        static let tileWidth: CGFloat = 154.0
+        static let verticalPadding: CGFloat = 12.0
+        static let horizontalPadding: CGFloat = 12.0
+        static let textSpacing: CGFloat = 4.0
         static let cornerRadius: CGFloat = 24
     }
+}
+
+// MARK: - Previews
+
+#Preview {
+    func tile(name: String, symbol: String, networkId: String, rate: String, earnType: EarnType) -> EarnTokenTileView {
+        EarnTokenTileView(
+            viewModel: EarnTokenItemViewModel(
+                token: EarnTokenModel(
+                    id: symbol.lowercased(),
+                    name: name,
+                    symbol: symbol,
+                    imageUrl: nil,
+                    networkId: networkId,
+                    networkName: networkId.capitalized,
+                    blockchainIconAsset: nil,
+                    contractAddress: nil,
+                    decimalCount: nil,
+                    rateValue: 0,
+                    rateType: .apy,
+                    rateText: rate,
+                    earnType: earnType
+                ),
+                onTapAction: {}
+            )
+        )
+    }
+
+    return HStack(spacing: 8) {
+        tile(name: "Solana", symbol: "SOL", networkId: "solana", rate: "APY 19.44%", earnType: .staking)
+        tile(name: "Dai", symbol: "DAI", networkId: "ethereum", rate: "APY 5.00%", earnType: .yieldMode)
+    }
+    .padding()
 }

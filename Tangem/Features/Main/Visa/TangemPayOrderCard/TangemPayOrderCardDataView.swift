@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -101,13 +102,14 @@ struct TangemPayOrderCardDataView: View {
         .size(.x12)
         .styleType(.default)
         .horizontalLayout(.infinity)
-        .isLoading(viewModel.isPlacingOrder)
+        .loading(.spinner(if: viewModel.isPlacingOrder))
         .disabled(!viewModel.isOrderEnabled)
         .padding(.horizontal, Constants.footerHorizontalPadding)
         .padding(.vertical, Constants.footerVerticalPadding)
         .background(alignment: .bottom) {
             BottomFadeWithBlur(backgroundColor: DesignSystem.Color.bgPrimary)
         }
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.orderCardDataOrderButton)
     }
 }
 

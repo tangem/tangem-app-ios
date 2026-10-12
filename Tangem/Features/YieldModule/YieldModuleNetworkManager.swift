@@ -21,6 +21,8 @@ protocol YieldModuleNetworkManager {
 
     func fetchYieldTokenInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleTokenInfo
     func fetchChartData(tokenContractAddress: String, chainId: Int) async throws -> YieldChartData
+    func fetchAprHistory(tokenContractAddress: String, chainId: Int, days: Int) async throws -> [YieldIncentiveAprPoint]
+    func fetchIncentives(chainId: Int, userAddress: String) async throws -> YieldIncentivesRewardsSummary?
     func activate(tokenContractAddress: String, walletAddress: String, chainId: Int, userWalletId: String) async throws
     func deactivate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws
     func sendTransactionEvent(txHash: String, operation: YieldModuleOperation, userAddress: String?) async
@@ -36,6 +38,8 @@ final class CommonYieldModuleNetworkManager {
     private var bag = Set<AnyCancellable>()
 
     private let marketsSubject = CurrentValueSubject<[YieldModuleMarketInfo], Never>([])
+
+    private let inFlightMarketsUpdate = OSAllocatedUnfairLock<UUID?>(initialState: nil)
 
     init(
         yieldModuleAPIService: YieldModuleAPIService,
@@ -59,6 +63,7 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
         marketsSubject.eraseToAnyPublisher()
     }
 
+    /// Every call derives the same chain IDs from all user wallets, so the newest one subsumes the ones before it.
     func updateMarkets() {
         let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletRepository.models)
         let chainIDs = Set(
@@ -68,8 +73,33 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
             }
         )
 
-        Task { @MainActor in
-            let markets = await fetchMarkets(chainIDs: Array(chainIDs))
+        let token = UUID()
+        inFlightMarketsUpdate { $0 = token }
+
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            let (markets, freshResponse) = await fetchMarkets(chainIDs: Array(chainIDs))
+
+            // A newer request has been claimed since this one started, so its response is stale.
+            let isLatestRequest = inFlightMarketsUpdate { inFlightToken -> Bool in
+                guard inFlightToken == token else {
+                    return false
+                }
+
+                inFlightToken = nil
+
+                return true
+            }
+
+            guard isLatestRequest else {
+                return
+            }
+
+            if let freshResponse {
+                cacheMarkets(freshResponse)
+            }
+
             marketsSubject.send(markets)
         }
     }
@@ -103,6 +133,40 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
             xLabels: yieldModuleChartManager.makeMonthLabels(from: chartData.from, to: chartData.to, bucketsCount: chartData.data.count)
         )
     }
+
+    func fetchAprHistory(tokenContractAddress: String, chainId: Int, days: Int) async throws -> [YieldIncentiveAprPoint] {
+        let history = try await yieldModuleAPIService.getAprHistory(
+            chainId: chainId,
+            tokenAddress: tokenContractAddress,
+            days: days
+        )
+
+        // Points arrive in ascending date order and are plotted as is; unparseable dates are dropped.
+        return history.points.compactMap { point in
+            Self.aprHistoryDateFormatter.date(from: point.date).map {
+                YieldIncentiveAprPoint(
+                    date: $0,
+                    baseApy: point.baseApy / 100,
+                    rewardsApr: point.rewardsApr / 100,
+                    totalApyEst: point.totalApyEst / 100
+                )
+            }
+        }
+    }
+
+    func fetchIncentives(chainId: Int, userAddress: String) async throws -> YieldIncentivesRewardsSummary? {
+        let incentives = try await yieldModuleAPIService.getIncentives(chainId: chainId, userAddress: userAddress)
+
+        return incentives.flatMap(YieldIncentivesRewardsSummary.init(dto:))
+    }
+
+    private static let aprHistoryDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(identifier: "UTC")
+        return formatter
+    }()
 
     func activate(tokenContractAddress: String, walletAddress: String, chainId: Int, userWalletId: String) async throws {
         try await yieldModuleAPIService.activate(
@@ -181,37 +245,32 @@ private extension CommonYieldModuleNetworkManager {
             .store(in: &bag)
     }
 
-    func fetchMarkets(chainIDs: [String]) async -> [YieldModuleMarketInfo] {
+    /// Caching is left to the caller so that a superseded response cannot overwrite the cache after the newest one.
+    func fetchMarkets(
+        chainIDs: [String]
+    ) async -> (markets: [YieldModuleMarketInfo], freshResponse: YieldModuleDTO.Response.MarketsInfo?) {
+        let includeIncentive = FeatureProvider.isAvailable(.merklIncentives)
+
         do {
-            let response = try await yieldModuleAPIService.getYieldMarkets(chainIDs: chainIDs)
+            let response = includeIncentive
+                ? try await yieldModuleAPIService.getIncentiveYieldMarkets(chainIDs: chainIDs)
+                : try await yieldModuleAPIService.getYieldMarkets(chainIDs: chainIDs)
 
-            cacheMarkets(response)
-
-            return response.tokens.compactMap {
-                return YieldModuleMarketInfo(
-                    tokenContractAddress: $0.tokenAddress,
-                    apy: $0.apy / 100,
-                    isActive: $0.isActive,
-                    chainId: $0.chainId,
-                    maxFeeNative: $0.maxFeeNative,
-                    maxFeeUSD: $0.maxFeeUSD
-                )
+            let markets = response.tokens.map {
+                YieldModuleMarketInfo(dto: $0, includeIncentive: includeIncentive)
             }
+
+            return (markets, response)
         } catch {
+            AppLogger.error("Failed to load yield markets. Falling back to the cached markets.", error: error)
+
             guard let cachedMarkets = yieldMarketsRepository.markets() else {
-                return []
+                return ([], nil)
             }
 
-            return cachedMarkets.markets.compactMap {
-                return YieldModuleMarketInfo(
-                    tokenContractAddress: $0.tokenContractAddress,
-                    apy: $0.apy / 100,
-                    isActive: $0.isActive,
-                    chainId: $0.chainId,
-                    maxFeeNative: $0.maxFeeNative,
-                    maxFeeUSD: $0.maxFeeUSD
-                )
-            }
+            let markets = cachedMarkets.markets.map(YieldModuleMarketInfo.init(from:))
+
+            return (markets, nil)
         }
     }
 

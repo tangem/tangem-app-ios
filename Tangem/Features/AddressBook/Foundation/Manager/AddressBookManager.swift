@@ -19,12 +19,14 @@ import TangemFoundation
 protocol AddressBookManager: AnyObject {
     /// Verified contacts ready for display and the Send Flow. Invalid-signature entries are dropped; a
     /// contact whose every entry is invalid is omitted. Combine with `syncStatePublisher` to build the UI
-    /// load state.
+    /// load state. Subscribing to either publisher is what triggers a sync of the book.
     var contactsPublisher: AnyPublisher<[AddressBookContact], Never> { get }
-    /// The current verified contacts, read synchronously — the latest value of `contactsPublisher`.
+    /// The current verified contacts, read synchronously — the latest value of `contactsPublisher`. Does not
+    /// trigger a sync on its own.
     var contacts: [AddressBookContact] { get }
     var syncStatePublisher: AnyPublisher<AddressBookSyncState, Never> { get }
 
+    /// An explicit re-sync on top of the one subscribing already triggers — e.g. the Retry button.
     func load(silent: Bool) async
 
     @discardableResult

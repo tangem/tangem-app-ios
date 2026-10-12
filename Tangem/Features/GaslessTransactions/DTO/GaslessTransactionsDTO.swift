@@ -18,3 +18,7 @@ extension GaslessTransactionsDTO {
 extension GaslessTransactionsDTO {
     enum Response {}
 }
+
+extension GaslessTransactionsDTO {
+    enum APIError {}
+}

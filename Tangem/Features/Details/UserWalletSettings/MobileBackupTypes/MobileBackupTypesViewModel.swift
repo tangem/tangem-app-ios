@@ -208,13 +208,10 @@ private extension MobileBackupTypesViewModel {
     func logScreenOpenedAnalytics() {
         let statusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
 
-        var params: [Analytics.ParameterKey: Analytics.ParameterValue] = [
+        let params: [Analytics.ParameterKey: Analytics.ParameterValue] = [
             .backupManual: .affirmativeOrNegative(for: statusUtil.hasMnemonicBackup),
+            .backupCloud: statusUtil.hasICloudBackup ? .done : .incomplete,
         ]
-
-        if FeatureProvider.isAvailable(.mobileWalletBackup) {
-            params[.backupCloud] = statusUtil.hasICloudBackup ? .done : .incomplete
-        }
 
         Analytics.log(
             .walletSettingsBackupScreenOpened,

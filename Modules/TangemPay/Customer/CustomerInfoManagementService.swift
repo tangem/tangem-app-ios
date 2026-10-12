@@ -25,6 +25,12 @@ public protocol CustomerInfoManagementService: AnyObject {
         idempotencyKey: String
     ) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse
 
+    func sendBankOfframpSignature(
+        orderId: String,
+        signature: String,
+        idempotencyKey: String
+    ) async throws(TangemPayAPIServiceError)
+
     @discardableResult
     func updateCardDisplayName(cardId: String, _ displayName: String) async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.ProductInstance
 
@@ -57,7 +63,7 @@ public protocol CustomerInfoManagementService: AnyObject {
         statuses: [TangemPayOrderResponse.Status]
     ) async throws(TangemPayAPIServiceError) -> [TangemPayOrderResponse]
 
-    func getCustomerOffers() async throws(TangemPayAPIServiceError) -> TangemPayCustomerOffersResponse
+    func getCustomerOffers(deeplinkValue: String?) async throws(TangemPayAPIServiceError) -> TangemPayCustomerOffersResponse
 
     func getProductInstanceOffers(
         productInstanceId: String
@@ -78,6 +84,8 @@ public protocol CustomerInfoManagementService: AnyObject {
     func reissueCard(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayReissueCardResponse
 
     func getBankCredentials(productInstanceId: String) async throws(TangemPayAPIServiceError) -> TangemPayBankCredentialsResponse
+    func getBankAccounts() async throws(TangemPayAPIServiceError) -> [TangemPayBankAccountResponse]
+    func getBankOfframpOptions() async throws(TangemPayAPIServiceError) -> TangemPayBankOfframpOptionsResponse
     func loadEligibility() async throws(TangemPayAPIServiceError) -> TangemPayAvailabilityResponse
 
     func getCashbackSummary() async throws(TangemPayAPIServiceError) -> TangemPayCashbackSummaryResponse
@@ -98,7 +106,6 @@ final class CommonCustomerInfoManagementService {
     private let apiService: TangemPayAPIService<CustomerInfoManagementAPITarget>
 
     private let apiType: VisaAPIType
-    private let useNewTransactionsEndpoint: Bool
     private let encoder: JSONEncoder = {
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -107,12 +114,10 @@ final class CommonCustomerInfoManagementService {
 
     init(
         apiType: VisaAPIType,
-        useNewTransactionsEndpoint: Bool,
         authorizationTokenHandler: TangemPayAuthorizationTokensHandler,
         apiService: TangemPayAPIService<CustomerInfoManagementAPITarget>
     ) {
         self.apiType = apiType
-        self.useNewTransactionsEndpoint = useNewTransactionsEndpoint
         self.authorizationTokenHandler = authorizationTokenHandler
         self.apiService = apiService
     }
@@ -121,6 +126,18 @@ final class CommonCustomerInfoManagementService {
         try await authorizationTokenHandler.prepare()
 
         return try await apiService.request(
+            .init(
+                target: target,
+                apiType: apiType,
+                encoder: encoder
+            )
+        )
+    }
+
+    private func request(for target: CustomerInfoManagementAPITarget.Target) async throws(TangemPayAPIServiceError) {
+        try await authorizationTokenHandler.prepare()
+
+        try await apiService.request(
             .init(
                 target: target,
                 apiType: apiType,
@@ -172,19 +189,11 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
     }
 
     public func getTransactionHistory(limit: Int, cursor: String?) async throws(TangemPayAPIServiceError) -> TangemPayTransactionHistoryResponse {
-        try await request(
-            for: useNewTransactionsEndpoint
-                ? .getTransactionHistory(limit: limit, cursor: cursor)
-                : .getTransactionHistoryLegacy(limit: limit, cursor: cursor)
-        )
+        try await request(for: .getTransactionHistory(limit: limit, cursor: cursor))
     }
 
     public func getTransaction(transactionId: String) async throws(TangemPayAPIServiceError) -> TangemPayTransactionHistoryResponse.Transaction {
-        try await request(
-            for: useNewTransactionsEndpoint
-                ? .getTransaction(transactionId: transactionId)
-                : .getTransactionLegacy(transactionId: transactionId)
-        )
+        try await request(for: .getTransaction(transactionId: transactionId))
     }
 
     public func getWithdrawPreSignatureInfo(request: TangemPayWithdrawRequest) async throws(TangemPayAPIServiceError) -> TangemPayWithdrawPreSignature {
@@ -225,6 +234,20 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
         try await self.request(for: .placeOrder(request, idempotencyKey: idempotencyKey))
     }
 
+    public func sendBankOfframpSignature(
+        orderId: String,
+        signature: String,
+        idempotencyKey: String
+    ) async throws(TangemPayAPIServiceError) {
+        try await request(
+            for: .sendBankOfframpSignature(
+                orderId: orderId,
+                request: TangemPayOfframpSignatureRequest(signature: signature),
+                idempotencyKey: idempotencyKey
+            )
+        )
+    }
+
     public func getOrder(orderId: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {
         try await request(for: .getOrder(orderId: orderId))
     }
@@ -240,8 +263,8 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
         try await request(for: .findOrders(orderTypes: types, orderStatuses: statuses))
     }
 
-    public func getCustomerOffers() async throws(TangemPayAPIServiceError) -> TangemPayCustomerOffersResponse {
-        try await request(for: .getCustomerOffers)
+    public func getCustomerOffers(deeplinkValue: String?) async throws(TangemPayAPIServiceError) -> TangemPayCustomerOffersResponse {
+        try await request(for: .getCustomerOffers(deeplinkValue: deeplinkValue))
     }
 
     public func getProductInstanceOffers(
@@ -280,6 +303,14 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
 
     public func getBankCredentials(productInstanceId: String) async throws(TangemPayAPIServiceError) -> TangemPayBankCredentialsResponse {
         try await request(for: .getBankCredentials(productInstanceId: productInstanceId))
+    }
+
+    public func getBankAccounts() async throws(TangemPayAPIServiceError) -> [TangemPayBankAccountResponse] {
+        try await request(for: .getBankAccounts)
+    }
+
+    public func getBankOfframpOptions() async throws(TangemPayAPIServiceError) -> TangemPayBankOfframpOptionsResponse {
+        try await request(for: .getBankOfframpOptions)
     }
 
     public func loadEligibility() async throws(TangemPayAPIServiceError) -> TangemPayAvailabilityResponse {

@@ -153,8 +153,8 @@ final class SwapStoriesUITests: BaseTestCase {
         let storiesScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
-            .openMarketsSheetWithSwipe()
-            .tapSeeAll()
+            .openMarketsSheet()
+            .openTokenList()
             .openTokenDetails(ethereumTokenName)
             .tapAddFunds()
             .tapSwap()
@@ -249,8 +249,8 @@ final class SwapStoriesUITests: BaseTestCase {
         let marketsTokenDetailsScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
-            .openMarketsSheetWithSwipe()
-            .tapSeeAll()
+            .openMarketsSheet()
+            .openTokenList()
             .openTokenDetails(ethereumTokenName)
 
         marketsTokenDetailsScreen
@@ -268,8 +268,8 @@ final class SwapStoriesUITests: BaseTestCase {
         let marketsTokenDetailsScreenAfterRestart = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
-            .openMarketsSheetWithSwipe()
-            .tapSeeAll()
+            .openMarketsSheet()
+            .openTokenList()
             .openTokenDetails(ethereumTokenName)
 
         marketsTokenDetailsScreenAfterRestart

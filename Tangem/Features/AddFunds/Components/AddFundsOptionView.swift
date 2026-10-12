@@ -70,13 +70,13 @@ struct AddFundsOptionView: View {
     private var titleView: some View {
         Text(viewData.title)
             .style(.Tangem.Body16.medium.font, color: .Tangem.Text.Neutral.primary)
-            .lineLimit(1)
+            .multilineTextAlignment(.leading)
     }
 
     private var subtitleView: some View {
         Text(viewData.subtitle)
             .style(.Tangem.Caption12.semibold.font, color: .Tangem.Text.Neutral.primary)
-            .lineLimit(1)
+            .multilineTextAlignment(.leading)
     }
 
     private var chevronView: some View {

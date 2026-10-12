@@ -14,6 +14,11 @@ enum WalletModelFinder {
     @Injected(\.userWalletRepository)
     private static var userWalletRepository: UserWalletRepository
 
+    /// - Note: the lookup runs over `allAddresses` rather than `addresses`, because the latter drops everything
+    /// typed `AddressType.used` — on chains with dynamic addresses that is every address derived from the xpub,
+    /// leaving only the default one. Hiding them is right for the receive UI and wrong here: the counterparty of a
+    /// transfer the user made has spent from one of those addresses, so matching against `addresses` would never
+    /// recognize the wallet model as its owner.
     static func findMainWalletModel(address: String, networkId: String, isTestnet: Bool) throws -> Result {
         for userWalletModel in userWalletRepository.models {
             let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
@@ -23,7 +28,7 @@ enum WalletModelFinder {
                 return walletModel.isMainToken
                     && candidate.networkId == networkId
                     && candidate.isTestnet == isTestnet
-                    && walletModel.addresses.contains { $0.value.caseInsensitiveEquals(to: address) }
+                    && walletModel.allAddresses.contains { $0.value.caseInsensitiveEquals(to: address) }
             }) {
                 return Result(userWalletModel: userWalletModel, walletModel: walletModel)
             }

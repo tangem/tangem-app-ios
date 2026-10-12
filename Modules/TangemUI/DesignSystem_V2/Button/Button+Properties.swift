@@ -23,6 +23,30 @@ public extension Button {
     }
 }
 
+// MARK: - Loading
+
+public extension Button {
+    enum Loading: Hashable, Sendable {
+        case spinner
+        case spinnerWithMessage(String)
+
+        public static func spinner(if condition: Bool) -> Loading? {
+            condition ? .spinner : nil
+        }
+
+        public static func spinnerWithMessage(_ message: String, if condition: Bool) -> Loading? {
+            condition ? .spinnerWithMessage(message) : nil
+        }
+
+        var message: String? {
+            switch self {
+            case .spinner: nil
+            case .spinnerWithMessage(let message): message
+            }
+        }
+    }
+}
+
 // MARK: - Size
 
 public extension Button {
@@ -144,13 +168,46 @@ public extension Button {
     }
 }
 
+// MARK: - Appearance
+
+public extension Button {
+    enum Appearance: Hashable, Sendable, CaseIterable {
+        case `default`
+        case error
+        case info
+
+        var backgroundColor: Color {
+            switch self {
+            case .default: DesignSystem.Color.bgTransparentPrimary
+            case .error: DesignSystem.Color.bgStatusErrorSubtle
+            case .info: DesignSystem.Color.bgStatusInfoSubtle
+            }
+        }
+
+        var foregroundColor: Color {
+            switch self {
+            case .default: DesignSystem.Color.textPrimary
+            case .error: DesignSystem.Color.textStatusError
+            case .info: DesignSystem.Color.textStatusInfo
+            }
+        }
+
+        var pressOverlay: Color {
+            switch self {
+            case .default: DesignSystem.Color.interactionPressDefault
+            case .error, .info: DesignSystem.Color.interactionPressInverse
+            }
+        }
+    }
+}
+
 // MARK: - Style
 
 public extension Button {
     enum StyleType: Hashable, Sendable {
         case brand
         case `default`
-        case secondary
+        case secondary(Appearance)
         case material(Material)
         case outline
         case ghost
@@ -160,7 +217,7 @@ public extension Button {
             switch self {
             case .brand: DesignSystem.Color.bgBrand
             case .default: DesignSystem.Color.bgInverse
-            case .secondary: DesignSystem.Color.bgOpaquePrimary
+            case .secondary(let appearance): appearance.backgroundColor
             case .material: .clear
             case .outline: .clear
             case .ghost: .clear
@@ -176,7 +233,10 @@ public extension Button {
             case .default:
                 DesignSystem.Color.textInversePrimary
 
-            case .secondary, .material, .outline, .ghost:
+            case .secondary(let appearance):
+                appearance.foregroundColor
+
+            case .material, .outline, .ghost:
                 DesignSystem.Color.textPrimary
             }
         }
@@ -206,10 +266,28 @@ public extension Button {
             case .brand, .default, .positive:
                 DesignSystem.Color.interactionPressStaticLight
 
-            case .secondary, .material, .outline, .ghost:
+            case .secondary(let appearance):
+                appearance.pressOverlay
+
+            case .material, .outline, .ghost:
                 DesignSystem.Color.interactionPressDefault
             }
         }
+
+        var disabledStyle: DisabledStyle {
+            switch self {
+            case .brand, .default, .positive, .material:
+                .swapColors
+
+            case .secondary, .outline, .ghost:
+                .dim
+            }
+        }
+    }
+
+    enum DisabledStyle: Hashable, Sendable {
+        case swapColors
+        case dim
     }
 }
 

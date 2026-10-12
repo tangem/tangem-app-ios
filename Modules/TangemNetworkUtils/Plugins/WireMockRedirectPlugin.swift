@@ -18,7 +18,7 @@ import Moya
 ///
 /// This lets providers point at their real production URL while staying hermetic in UI tests, instead of
 /// baking the mock decision into the provider itself.
-public struct WireMockRedirectPlugin: PluginType {
+struct WireMockRedirectPlugin: PluginType {
     private static let wireMockRemoteHost = "wiremock.tests-d.com"
 
     /// Real third-party hosts whose mocks live under a host-prefixed path on the WireMock server.
@@ -30,7 +30,7 @@ public struct WireMockRedirectPlugin: PluginType {
 
     private let overrideComponents: URLComponents?
 
-    public init() {
+    init() {
         // Maestro passes launch arguments via UserDefaults, not ProcessInfo environment
         let url = ProcessInfo.processInfo.environment[WireMockEnvironment.baseURLKey]
             ?? UserDefaults.standard.string(forKey: WireMockEnvironment.baseURLKey)
@@ -41,7 +41,7 @@ public struct WireMockRedirectPlugin: PluginType {
         }
     }
 
-    public func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
+    func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
         guard let overrideComponents,
               let originalURL = request.url,
               let host = originalURL.host,

@@ -17,10 +17,14 @@ struct MarketsTokenDetailsView: View {
 
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.mainWindowSize) private var mainWindowSize
+    @Environment(\.mainShtorkaSize) private var sheetSize
+    @Environment(\.mainShtorkaContentIsCollapsed) private var isContentCollapsed
 
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
 
     @State private var headerHeight: CGFloat = .zero
+    @State private var headerLeadingWidth: CGFloat = .zero
+    @State private var headerTrailingWidth: CGFloat = .zero
     @State private var isListContentObscured = false
 
     @StateObject private var scrollOffsetHandler = ScrollViewOffsetHandler.marketTokenDetails(
@@ -41,6 +45,20 @@ struct MarketsTokenDetailsView: View {
                     .ignoresSafeArea(edges: .vertical)
             }
             .onAppear(perform: scrollOffsetHandler.onViewAppear)
+            .if(sheetSize.isFeedSheet) { view in
+                let content = view
+                    // The screen scrolls its own content instead of dragging the sheet it is pushed in.
+                    .presentationContentInteraction(.scrolls)
+                    .toolbar(.hidden, for: .navigationBar)
+
+                return Group {
+                    if #available(iOS 18.0, *) {
+                        content.containerBackground(.clear, for: .navigation)
+                    } else {
+                        content
+                    }
+                }
+            }
     }
 
     @ViewBuilder
@@ -66,6 +84,25 @@ struct MarketsTokenDetailsView: View {
     }
 
     private var rootView: some View {
+        Group {
+            if sheetSize.isFeedSheet {
+                ZStack(alignment: .top) {
+                    scrollView
+                        .hiddenWhileCollapsed()
+
+                    sheetNavigationBar
+                        .readGeometry(\.size.height, bindTo: $headerHeight)
+                }
+            } else {
+                legacyRootView
+            }
+        }
+        .animation(.curve(.easeInOutRefined, duration: 0.5), value: viewModel.portfolioBlockState.isVisible)
+        .animation(.curve(.easeInOutRefined, duration: 0.5), value: viewModel.isAddButtonVisible)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private var legacyRootView: some View {
         ZStack {
             scrollView
 
@@ -73,9 +110,45 @@ struct MarketsTokenDetailsView: View {
                 navigationBar
             }
         }
-        .animation(.curve(.easeInOutRefined, duration: 0.5), value: viewModel.portfolioBlockState.isVisible)
-        .animation(.curve(.easeInOutRefined, duration: 0.5), value: viewModel.isAddButtonVisible)
-        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    @ViewBuilder
+    private var sheetNavigationBar: some View {
+        if isContentCollapsed {
+            HStack(spacing: 0) {
+                redesignedBackButton
+                    .readGeometry(\.size.width, bindTo: $headerLeadingWidth)
+                Spacer(minLength: 8)
+                redesignedTrailingButtons
+                    .readGeometry(\.size.width, bindTo: $headerTrailingWidth)
+            }
+            .overlay(alignment: .center) {
+                sheetNavigationBarTitle
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 16)
+            .padding(.bottom, 12)
+        } else {
+            NavigationHeader(
+                leadingContent: {
+                    redesignedBackButton
+                        .readGeometry(\.size.width, bindTo: $headerLeadingWidth)
+                },
+                principalContent: {
+                    sheetNavigationBarTitle
+                },
+                trailingContent: {
+                    redesignedTrailingButtons
+                        .readGeometry(\.size.width, bindTo: $headerTrailingWidth)
+                }
+            )
+        }
+    }
+
+    private var sheetNavigationBarTitle: some View {
+        navigationBarTitle
+            .padding(.horizontal, max(headerLeadingWidth, headerTrailingWidth) + Constants.titleToButtonSpacing)
+            .allowsHitTesting(false)
     }
 
     private var navigationBar: some View {
@@ -101,16 +174,22 @@ struct MarketsTokenDetailsView: View {
 
     @ViewBuilder
     private var redesignedTrailingButtons: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: sheetSize.isFeedSheet ? 8 : 12) {
             if let priceAlertBellViewModel = viewModel.priceAlertBellViewModel {
                 PriceAlertBellView(viewModel: priceAlertBellViewModel)
+            }
+
+            if sheetSize.isFeedSheet {
+                redesignedShareButton
             }
 
             if viewModel.isMarketsSheetStyle, viewModel.isAddButtonVisible {
                 redesignedAddButton
             }
 
-            redesignedShareButton
+            if !sheetSize.isFeedSheet {
+                redesignedShareButton
+            }
         }
     }
 
@@ -152,13 +231,22 @@ struct MarketsTokenDetailsView: View {
         MarketsNavigationBarTitle(
             tokenName: viewModel.tokenName,
             price: viewModel.price,
-            state: viewModel.overlayContentHidingProgress > 0
-                ? scrollOffsetHandler.state
-                : MarketsNavigationBarTitle.State(
-                    priceOpacity: 1,
-                    titleOffset: ScrollViewOffsetHandler.MarketsTokenDetailsConstants.maxTitleOffset
-                )
+            state: navigationBarTitleState,
+            spacing: isContentCollapsed ? 4 : 0,
+            fadesOverflow: sheetSize.isFeedSheet
         )
+    }
+
+    private var navigationBarTitleState: MarketsNavigationBarTitle.State {
+        guard !isContentCollapsed,
+              sheetSize.isFeedSheet || viewModel.overlayContentHidingProgress > 0 else {
+            return MarketsNavigationBarTitle.State(
+                priceOpacity: 1,
+                titleOffset: ScrollViewOffsetHandler.MarketsTokenDetailsConstants.maxTitleOffset
+            )
+        }
+
+        return scrollOffsetHandler.state
     }
 
     private var scrollView: some View {
@@ -166,8 +254,10 @@ struct MarketsTokenDetailsView: View {
             VStack(alignment: .center, spacing: Constants.scrollViewVerticalPadding) {
                 // Using plain old overlay + dummy `Color.clear` spacer in the scroll view due to the buggy
                 // `safeAreaInset(edge:alignment:spacing:content:)` iOS 15+ API which has both layout and touch-handling issues
-                Color.clear
-                    .frame(height: headerHeight)
+                if !sheetSize.isFeedSheet {
+                    Color.clear
+                        .frame(height: headerHeight)
+                }
 
                 Group {
                     header
@@ -187,10 +277,9 @@ struct MarketsTokenDetailsView: View {
                     })
 
                 content
-                    .hidden(viewModel.allDataLoadFailed)
                     .transition(.opacity)
             }
-            .padding(.top, Constants.scrollViewContentTopInset)
+            .padding(.top, Constants.scrollViewContentTopInset + (sheetSize.isFeedSheet ? headerHeight : 0))
             .readContentOffset(inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame)) { contentOffset in
                 scrollOffsetHandler.contentOffsetSubject.send(contentOffset)
                 if viewModel.shouldShowPortfolioBlock {
@@ -201,7 +290,7 @@ struct MarketsTokenDetailsView: View {
         .safeAreaInset(edge: .bottom, spacing: .zero) {
             portfolioBlock
         }
-        .opacity(viewModel.overlayContentHidingProgress)
+        .opacity(sheetSize.isFeedSheet ? 1 : viewModel.overlayContentHidingProgress)
         .coordinateSpace(name: CoordinateSpaceName.scrollViewFrame)
         .bindAlert($viewModel.alert)
         .sheet(item: $viewModel.securityScoreDetailsViewModel) { detailsViewModel in
@@ -260,12 +349,12 @@ struct MarketsTokenDetailsView: View {
     }
 
     private var backgroundColor: Color {
-        return DesignSystem.Color.bgPrimary
+        !sheetSize.isNonFullFeedSheet ? DesignSystem.Color.bgPrimary : .clear
     }
 
     @ViewBuilder
     private var portfolioBlock: some View {
-        if viewModel.portfolioBlockState.isVisible {
+        if viewModel.portfolioBlockState.isVisible, !sheetSize.isNonFullFeedSheet {
             MarketsPortfolioBlockView(
                 state: viewModel.portfolioBlockState,
                 iconURL: viewModel.iconURL,
@@ -290,6 +379,7 @@ struct MarketsTokenDetailsView: View {
 
 private extension MarketsTokenDetailsView {
     enum Constants {
+        static let titleToButtonSpacing = 8.0
         static let chartHeight = 200.0
         static let scrollViewContentTopInset = 14.0
         static let scrollViewVerticalPadding = 16.0
@@ -329,6 +419,7 @@ private extension AnyTransition {
         isUnderMarketCapLimit: false,
         stakingOpportunities: nil,
         networks: nil,
+        restrictedForCountry: nil
     )
 
     return MarketsTokenDetailsView(viewModel: .init(

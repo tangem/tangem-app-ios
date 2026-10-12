@@ -42,7 +42,7 @@ class SendAddContactFinishViewModel: ObservableObject {
     }
 
     func userDidTapAddContact() {
-        analyticsLogger.logAddContactTapped(userWalletId: sourceToken.userWalletInfo.id, source: .sendFlow)
+        analyticsLogger.logAddContactTapped(source: .sendFlow)
 
         guard
             let destination = destinationInput?.destination,
@@ -76,15 +76,7 @@ private extension SendAddContactFinishViewModel {
     }
 
     func bind(destinationInput: SendDestinationInput) {
-        let contactsPublishers = userWalletRepository.models
-            .filter { !$0.isUserWalletLocked }
-            .map(\.addressBookManager.contactsPublisher)
-
-        guard contactsPublishers.isNotEmpty else {
-            return
-        }
-
-        let allContactsPublisher = contactsPublishers.combineLatest().map { $0.flattened() }
+        let allContactsPublisher = AddressBookContactsAggregator.contactsPublisher()
 
         Publishers
             .CombineLatest(destinationInput.destinationPublisher, allContactsPublisher)
@@ -103,9 +95,10 @@ private extension SendAddContactFinishViewModel {
     }
 
     func isSaved(address: String, contacts: [AddressBookContact]) -> Bool {
-        contacts.contains { contact in
-            contact.entries.caseInsensitiveContains(address: address, networkId: nil)
-        }
+        let finder = AddressBookContactFinder(contacts: contacts, walletId: sourceToken.userWalletInfo.id)
+        let networkId = AddressBookNetworkID(destinationBlockchain.networkId)
+
+        return finder.contact(address: address, networkId: networkId) != nil
     }
 
     func makeAddressBookWallet() -> AddressBookWallet? {
