@@ -19,12 +19,22 @@ actor YieldIncentivesClaimTracker {
     }
 
     enum Constants {
-        /// How long one round waits for the submitted transaction to leave the pending records.
-        static let settlementWindow: TimeInterval = 120
-        static let settlementRounds = 3
+        static let settlementPollInterval: TimeInterval = 15
+        static let settlementTimeout: TimeInterval = 360
     }
 
     private nonisolated let eventSubject = PassthroughSubject<Event, Never>()
+
+    private let pollInterval: TimeInterval
+    private let timeout: TimeInterval
+
+    init(
+        pollInterval: TimeInterval = Constants.settlementPollInterval,
+        timeout: TimeInterval = Constants.settlementTimeout
+    ) {
+        self.pollInterval = pollInterval
+        self.timeout = timeout
+    }
 
     private var settlementTask: Task<Void, Never>?
 
@@ -48,28 +58,34 @@ actor YieldIncentivesClaimTracker {
         isClaimInFlight = false
     }
 
-    /// `awaitingClearance` answers whether the submitted hash left the pending records.
-    func claimSubmitted(awaitingClearance: @escaping () async -> Bool) {
-        settle(awaitingClearance: awaitingClearance)
+    func claimSubmitted(isReflectedByBackend: @escaping () async -> Bool) {
+        settle(isReflectedByBackend: isReflectedByBackend)
     }
 
-    /// No hash to watch, so clearance is never reported and the guard is held for every round.
     func claimSubmissionUnresolved() {
-        settle {
-            try? await Task.sleep(for: .seconds(Constants.settlementWindow))
-            return false
-        }
+        settle { false }
     }
 
-    private func settle(awaitingClearance: @escaping () async -> Bool) {
+    private func settle(isReflectedByBackend: @escaping () async -> Bool) {
         eventSubject.send(.submitted)
+
+        let pollInterval = pollInterval
+        let timeout = timeout
 
         settlementTask?.cancel()
         settlementTask = Task { [weak self] in
-            for _ in 0 ..< Constants.settlementRounds {
-                if await awaitingClearance() {
+            let deadline = Date().addingTimeInterval(timeout)
+
+            while !Task.isCancelled, Date() < deadline {
+                if await isReflectedByBackend() {
                     break
                 }
+
+                try? await Task.sleep(for: .seconds(pollInterval))
+            }
+
+            guard !Task.isCancelled else {
+                return
             }
 
             await self?.finishSettlement()
@@ -77,6 +93,7 @@ actor YieldIncentivesClaimTracker {
     }
 
     private func finishSettlement() {
+        settlementTask = nil
         isClaimInFlight = false
         eventSubject.send(.settled)
     }
