@@ -110,6 +110,7 @@ struct SendSummaryView: View {
     private var descriptionView: some View {
         if let transactionDescription = viewModel.transactionDescription {
             Text(transactionDescription)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.summaryTransactionDescription)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
