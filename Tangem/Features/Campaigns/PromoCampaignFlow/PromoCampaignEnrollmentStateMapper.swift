@@ -24,7 +24,7 @@ struct PromoCampaignEnrollmentStateMapper {
             return .campaign(campaign)
         }
 
-        return .precheck(.alreadyEnrolled(campaignName: campaign.content.title, wallets: []))
+        return .alreadyEnrolled(campaign)
     }
 
     func mapToResultState(
@@ -55,6 +55,7 @@ struct PromoCampaignEnrollmentStateMapper {
 extension PromoCampaignEnrollmentStateMapper {
     enum Entry {
         case campaign(PromoCampaign)
+        case alreadyEnrolled(PromoCampaign)
         case precheck(PromoCampaignPrecheckViewModel.State)
     }
 }

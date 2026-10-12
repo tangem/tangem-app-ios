@@ -28,7 +28,8 @@ enum PromotionMapper {
             buttonEnabled: dto.buttonEnabled ?? false,
             buttonText: dto.buttonText,
             dismissable: dto.dismissable ?? false,
-            campaignId: dto.campaignId
+            campaignId: dto.campaignId,
+            campaignName: nil
         )
     }
 }
