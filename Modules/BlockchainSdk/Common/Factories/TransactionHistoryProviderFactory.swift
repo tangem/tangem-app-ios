@@ -85,6 +85,7 @@ public struct TransactionHistoryProviderFactory {
              .gnosis,
              .hyperliquidEVM,
              .mantle,
+             .monad,
              .moonbeam,
              .moonriver,
              .optimism,
