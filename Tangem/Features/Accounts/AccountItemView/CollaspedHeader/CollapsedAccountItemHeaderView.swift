@@ -43,11 +43,11 @@ struct CollapsedAccountItemHeaderView: View {
     }
 
     private var lineSpacing: CGFloat {
-        .unit(.x1)
+        4
     }
 
     private var contentPadding: CGFloat {
-        .unit(.x3)
+        12
     }
 
     var body: some View {
