@@ -29,10 +29,12 @@ struct PromotionNotificationEvent: NotificationEvent {
 
     var analyticsEvent: Analytics.Event? { nil }
     var analyticsParams: [Analytics.ParameterKey: String] {
-        [
+        var params: [Analytics.ParameterKey: String] = [
             .displayId: "\(promotion.id)",
             .placeholder: promotion.placeholder.rawValue,
         ]
+        params[.campaign] = promotion.campaignName
+        return params
     }
 
     var isOneShotAnalyticsEvent: Bool { false }

@@ -61,12 +61,25 @@ struct PromotionNotificationsManagerTests {
             #expect(event.buttonAction == nil)
         }
     }
+
+    @Test("A campaign banner reports its campaign, any other banner reports none")
+    func campaignBannerReportsCampaign() async {
+        await withInjectedDependencies {
+            let sut = CommonPromotionNotificationsManager(userWalletId: userWalletId, placement: .main)
+
+            let campaignEvent = sut.mapToPromotionNotificationEvent(item: makePromotion(campaignId: 7, campaignName: "campaign_7"))
+            let plainEvent = sut.mapToPromotionNotificationEvent(item: makePromotion(campaignId: nil))
+
+            #expect(campaignEvent.analyticsParams == [.displayId: "1", .placeholder: "main", .campaign: "campaign_7"])
+            #expect(plainEvent.analyticsParams == [.displayId: "1", .placeholder: "main"])
+        }
+    }
 }
 
 // MARK: - Helpers
 
 private extension PromotionNotificationsManagerTests {
-    func makePromotion(campaignId: Int?, deeplink: URL? = nil, buttonEnabled: Bool = true) -> Promotion {
+    func makePromotion(campaignId: Int?, campaignName: String? = nil, deeplink: URL? = nil, buttonEnabled: Bool = true) -> Promotion {
         Promotion(
             id: 1,
             placeholder: .main,
@@ -78,7 +91,8 @@ private extension PromotionNotificationsManagerTests {
             buttonEnabled: buttonEnabled,
             buttonText: "Open",
             dismissable: true,
-            campaignId: campaignId
+            campaignId: campaignId,
+            campaignName: campaignName
         )
     }
 

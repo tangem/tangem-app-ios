@@ -33,7 +33,8 @@ class FakePromotionNotificationsManager: PromotionNotificationsManager {
                 buttonEnabled: true,
                 buttonText: "Buy Now",
                 dismissable: true,
-                campaignId: nil
+                campaignId: nil,
+                campaignName: nil
             ),
             .init(
                 id: 2,
@@ -46,7 +47,8 @@ class FakePromotionNotificationsManager: PromotionNotificationsManager {
                 buttonEnabled: true,
                 buttonText: "Stake Now",
                 dismissable: true,
-                campaignId: nil
+                campaignId: nil,
+                campaignName: nil
             ),
         ]
 
