@@ -111,7 +111,7 @@ enum TransactionDetailsMenuFactory {
         case .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit,
              .yieldReactivate, .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin:
             return true
-        case .yieldSend, .stake, .unstake, .vote, .withdraw, .claimRewards, .restake,
+        case .incentiveClaim, .incentiveClaimCoin, .yieldSend, .stake, .unstake, .vote, .withdraw, .claimRewards, .restake,
              .approve, .gaslessTransactionFee, .gaslessTransfer, .networkFee, .operation, .unknownOperation,
              .transfer, .swap, .onramp, .tangemPay:
             return false

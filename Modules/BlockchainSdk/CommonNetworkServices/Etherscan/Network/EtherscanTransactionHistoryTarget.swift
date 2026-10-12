@@ -72,8 +72,6 @@ extension EtherscanTransactionHistoryTarget: TargetType {
         case .etherscan(let chainId, let apiKey, _):
             var parameters: [String: Any] = [
                 "module": "account",
-                "startblock": 0,
-                "endblock": 99999999,
                 "sort": "desc",
                 "chainid": chainId,
             ]
