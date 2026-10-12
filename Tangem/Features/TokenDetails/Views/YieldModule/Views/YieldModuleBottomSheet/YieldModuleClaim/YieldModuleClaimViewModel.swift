@@ -109,7 +109,7 @@ final class YieldModuleClaimViewModel: ObservableObject {
                 viewState = .success(mapper.mapSuccess(summary: submitted.preparation.summary))
             } catch let error where error.isCancellationError {
                 // Rewards stay untouched, and the sheet keeps the prepared state.
-            } catch YieldIncentivesClaimInteractor.ClaimError.submissionUnresolved {
+            } catch YieldIncentivesClaimInteractor.ClaimError.submissionUnresolved(_) {
                 // The claim may already be on its way, and the banner says so — an error would contradict it.
                 self?.coordinator?.closeClaimSheet()
             } catch {
@@ -250,12 +250,7 @@ final class YieldModuleClaimViewModel: ObservableObject {
             return false
         }
 
-        switch claimError {
-        case .validationFailed, .rewardsUnavailable, .moduleUnavailable:
-            return true
-        case .claimAlreadyInFlight, .insufficientFee, .preparationExpired, .submissionUnresolved:
-            return false
-        }
+        return claimError.isClaimNoLongerAvailable
     }
 }
 
