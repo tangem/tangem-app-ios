@@ -13,6 +13,7 @@ enum SupportChatSource {
     case swap
     case deeplink
     case polymarket
+    case socialLogin
 
     var analyticsParameterValue: Analytics.ParameterValue {
         switch self {
@@ -20,6 +21,7 @@ enum SupportChatSource {
         case .swap: .swap
         case .deeplink: .deeplink
         case .polymarket: .predictions
+        case .socialLogin: .socialLogin
         }
     }
 
@@ -27,6 +29,7 @@ enum SupportChatSource {
         switch self {
         case .swap: .swap
         case .polymarket: .polymarket
+        case .socialLogin: .socialLogin
         case .settings, .deeplink: nil
         }
     }

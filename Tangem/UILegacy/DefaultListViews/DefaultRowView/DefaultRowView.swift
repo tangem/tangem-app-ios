@@ -132,6 +132,7 @@ extension DefaultRowView {
         let hasVerticalPadding: Bool
         let leadingIcon: LeadingIcon?
 
+        static let plainButton = Appearance(isChevronVisible: false)
         static let destructiveButton = Appearance(isChevronVisible: false, textColor: Colors.Text.warning)
         static let disabledDestructiveButton = Appearance(isChevronVisible: false, textColor: Colors.Text.tertiary)
         static let accentButton = Appearance(isChevronVisible: false, textColor: Colors.Text.accent)
