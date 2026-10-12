@@ -250,7 +250,7 @@ extension EtherscanTransactionHistoryMapper: TransactionHistoryMapper {
 
                 let isTokenTransfer = transaction.contractAddress?.nilIfEmpty != nil
 
-                if !isTokenTransfer, transaction.functionName?.nilIfEmpty != nil {
+                if !isTokenTransfer, transaction.isContractInteraction {
                     return .contract(destinationAddress)
                 }
 
@@ -307,7 +307,9 @@ private extension EtherscanTransactionHistoryMapper {
 
 private extension EtherscanTransactionHistoryResult.Transaction {
     var isContractInteraction: Bool {
-        return contractAddress?.nilIfEmpty != nil || functionName?.nilIfEmpty != nil
+        return contractAddress?.nilIfEmpty != nil
+            || functionName?.nilIfEmpty != nil
+            || methodId?.removeHexPrefix().nilIfEmpty != nil
     }
 
     var isFromTransactionList: Bool {

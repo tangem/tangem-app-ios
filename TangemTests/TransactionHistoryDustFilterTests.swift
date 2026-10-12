@@ -110,6 +110,8 @@ struct TransactionHistoryDustFilterTests {
         case .unstake: break
         case .withdraw: break
         case .claimRewards: break
+        case .incentiveClaim: break
+        case .incentiveClaimCoin: break
         case .yieldEnter: break
         case .yieldEnterCoin: break
         case .yieldTopup: break
@@ -149,6 +151,8 @@ struct TransactionHistoryDustFilterTests {
 
     private static var neverFilteredTypes: [TransactionViewModel.TransactionType] {
         [
+            .incentiveClaim,
+            .incentiveClaimCoin,
             .yieldDeploy,
             .yieldInit,
             .yieldReactivate,

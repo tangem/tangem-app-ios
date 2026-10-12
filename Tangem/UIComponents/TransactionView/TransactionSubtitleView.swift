@@ -104,9 +104,11 @@ struct TransactionSubtitleView: View {
     }
 }
 
-/// Renders `to: ⬤ Aave` — the yield provider standing in for a counterparty on the Supply and Withdraw rows.
+/// Renders `to: ⬤ Aave` on Supply and Withdraw, `from: ⬤ Merkl` on an incentive claim — the yield provider
+/// standing in for a counterparty address.
 struct TransactionProviderSubtitleView: View {
     let direction: TransactionDisplayModel.Direction
+    let provider: TransactionDisplayModel.YieldProvider
     var accessibilityIdentifier: String? = nil
 
     @ScaledMetric private var glyphSize: CGFloat = 16
@@ -116,15 +118,29 @@ struct TransactionProviderSubtitleView: View {
             Text(direction.localizedPrefix)
                 .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
 
-            Assets.YieldModule.yieldModuleAaveLogo.image
+            logo
                 .resizable()
                 .frame(width: glyphSize, height: glyphSize)
                 .clipShape(Circle())
 
-            Text(Localization.yieldModuleProvider)
+            Text(name)
                 .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
                 .accessibilityIdentifier(accessibilityIdentifier)
         }
         .lineLimit(1)
+    }
+
+    private var logo: Image {
+        switch provider {
+        case .aave: Assets.YieldModule.yieldModuleAaveLogo.image
+        case .merkl: Assets.YieldModule.yieldModuleMerklLogo.image
+        }
+    }
+
+    private var name: String {
+        switch provider {
+        case .aave: Localization.yieldModuleProvider
+        case .merkl: Localization.yieldModuleIncentivesProvider
+        }
     }
 }
