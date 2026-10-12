@@ -85,7 +85,7 @@ struct PolymarketOrderSummaryView: View {
             action: { viewModel.handleViewAction(.placeOrder) }
         )
         .iconEnd(DesignSystem.Icons.LogoTangem.regular24)
-        .styleType(.default)
+        .styleType(.primary)
         .size(.x12)
         .horizontalLayout(.infinity)
         .loading(.spinner(if: viewModel.isPlacing))

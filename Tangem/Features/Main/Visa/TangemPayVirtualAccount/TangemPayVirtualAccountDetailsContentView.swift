@@ -166,7 +166,7 @@ private extension TangemPayVirtualAccountDetailsContentView {
             accessibilityLabel: Localization.commonShare,
             action: { action(.share) }
         )
-        .styleType(.default)
+        .styleType(.primary)
         .size(.x14)
         .horizontalLayout(.infinity)
     }

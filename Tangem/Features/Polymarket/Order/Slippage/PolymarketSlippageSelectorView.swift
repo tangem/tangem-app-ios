@@ -113,7 +113,7 @@ struct PolymarketSlippageSelectorView: View {
             accessibilityLabel: Localization.commonConfirm,
             action: { viewModel.handleViewAction(.confirm) }
         )
-        .styleType(.default)
+        .styleType(.primary)
         .size(.x12)
         .horizontalLayout(.infinity)
         .disabled(!viewModel.isConfirmEnabled)

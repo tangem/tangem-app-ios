@@ -80,7 +80,7 @@ private extension OfframpFormKeyboardToolbar {
             action: { action(.dismissKeyboard) }
         )
         .size(.x10)
-        .styleType(.default)
+        .styleType(.primary)
     }
 }
 
