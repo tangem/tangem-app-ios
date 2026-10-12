@@ -277,13 +277,16 @@ struct YieldIncentivesClaimInteractorTests {
     @Test("The submitted transaction is built from the payload the sheet showed")
     func submittedTransactionMatchesThePreparedPayload() async throws {
         let network = YieldClaimNetworkManagerStub()
-        let manager = YieldClaimManagerStub()
+        let incentives = YieldClaimIncentivesManagerStub()
+        let manager = YieldClaimManagerStub(incentivesManager: incentives)
         let tracker = YieldIncentivesClaimTracker()
         let recorder = ClaimEventRecorder(tracker: tracker)
 
         try await withInjectedYieldNetworkManager(network) {
             let sut = makeSUT(manager: manager, tracker: tracker)
             let prepared = Fixtures.preparedClaim()
+
+            incentives.setSummary(Fixtures.summary(isClaimRecommended: false))
 
             let submitted = try await sut.claim(prepared: prepared, isFeeCovered: { _ in true })
 
@@ -293,8 +296,103 @@ struct YieldIncentivesClaimInteractorTests {
 
             await recorder.waitForSettlement()
 
-            #expect(manager.pendingWatchedHashes == ["0xclaimhash"])
             #expect(recorder.events == [.submitted, .settled])
+        }
+    }
+
+    @Test("The guard outlives a mined claim until the backend stops offering the rewards")
+    func settlementWaitsForTheBackendRatherThanTheChain() async throws {
+        let network = YieldClaimNetworkManagerStub()
+        let incentives = YieldClaimIncentivesManagerStub()
+        let manager = YieldClaimManagerStub(incentivesManager: incentives)
+        let tracker = YieldIncentivesClaimTracker(pollInterval: 0.01, timeout: 30)
+        let recorder = ClaimEventRecorder(tracker: tracker)
+
+        try await withInjectedYieldNetworkManager(network) {
+            let sut = makeSUT(manager: manager, tracker: tracker)
+
+            _ = try await sut.claim(prepared: Fixtures.preparedClaim(), isFeeCovered: { _ in true })
+
+            let deadline = Date().addingTimeInterval(1)
+
+            while incentives.incentivesCallCount < 3, Date() < deadline {
+                try? await Task.sleep(for: .milliseconds(5))
+            }
+
+            #expect(await tracker.isClaimInFlight)
+
+            incentives.setSummary(Fixtures.summary(isClaimRecommended: false))
+
+            await recorder.waitForSettlement()
+
+            #expect(await !tracker.isClaimInFlight)
+        }
+    }
+
+    @Test("Rewards still recommended but already taken release the guard")
+    func settlementReleasesOnceEveryClaimedRewardIsGone() async throws {
+        let network = YieldClaimNetworkManagerStub()
+        let incentives = YieldClaimIncentivesManagerStub(
+            summary: Fixtures.summary(rewards: [Fixtures.reward(claimableAmount: 10)], isClaimRecommended: true)
+        )
+        let manager = YieldClaimManagerStub(incentivesManager: incentives)
+        let tracker = YieldIncentivesClaimTracker(pollInterval: 0.01, timeout: 30)
+        let recorder = ClaimEventRecorder(tracker: tracker)
+
+        try await withInjectedYieldNetworkManager(network) {
+            let sut = makeSUT(manager: manager, tracker: tracker)
+            let claimed = Fixtures.summary(rewards: [Fixtures.reward(claimableAmount: 100)])
+
+            _ = try await sut.claim(prepared: Fixtures.preparedClaim(summary: claimed), isFeeCovered: { _ in true })
+
+            await recorder.waitForSettlement()
+
+            #expect(recorder.events == [.submitted, .settled])
+            #expect(await !tracker.isClaimInFlight)
+        }
+    }
+
+    @Test("A reward the backend still offers holds the guard, however many others settled")
+    func settlementWaitsForEveryClaimedReward() async throws {
+        let otherToken = "0x1111111111111111111111111111111111111111"
+        let network = YieldClaimNetworkManagerStub()
+        let incentives = YieldClaimIncentivesManagerStub(
+            summary: Fixtures.summary(
+                rewards: [Fixtures.reward(rewardTokenAddress: otherToken, claimableAmount: 50)],
+                isClaimRecommended: true
+            )
+        )
+        let manager = YieldClaimManagerStub(incentivesManager: incentives)
+        let tracker = YieldIncentivesClaimTracker(pollInterval: 0.01, timeout: 30)
+        let recorder = ClaimEventRecorder(tracker: tracker)
+
+        try await withInjectedYieldNetworkManager(network) {
+            let sut = makeSUT(manager: manager, tracker: tracker)
+            let claimed = Fixtures.summary(rewards: [
+                Fixtures.reward(claimableAmount: 100),
+                Fixtures.reward(rewardTokenAddress: otherToken, claimableAmount: 50),
+            ])
+
+            _ = try await sut.claim(prepared: Fixtures.preparedClaim(summary: claimed), isFeeCovered: { _ in true })
+
+            let deadline = Date().addingTimeInterval(1)
+
+            while incentives.incentivesCallCount < 3, Date() < deadline {
+                try? await Task.sleep(for: .milliseconds(5))
+            }
+
+            #expect(await tracker.isClaimInFlight)
+
+            incentives.setSummary(
+                Fixtures.summary(
+                    rewards: [Fixtures.reward(rewardTokenAddress: otherToken, claimableAmount: 10)],
+                    isClaimRecommended: true
+                )
+            )
+
+            await recorder.waitForSettlement()
+
+            #expect(await !tracker.isClaimInFlight)
         }
     }
 
@@ -313,6 +411,23 @@ struct YieldIncentivesClaimInteractorTests {
             } throws: { isSameCase($0, as: .claimAlreadyInFlight) }
 
             #expect(manager.builtCalls.isEmpty)
+            #expect(await tracker.isClaimInFlight)
+        }
+    }
+
+    @Test("A leg that comes back without a hash keeps the guard rather than freeing it")
+    func claimLegWithoutHashKeepsTheGuardHeld() async {
+        let network = YieldClaimNetworkManagerStub()
+        let manager = YieldClaimManagerStub()
+        let tracker = YieldIncentivesClaimTracker(pollInterval: 0.5, timeout: 0.5)
+
+        await withInjectedYieldNetworkManager(network) {
+            let sut = makeSUT(manager: manager, tracker: tracker)
+
+            _ = try? await sut.makeClaimTransaction(prepared: Fixtures.preparedClaim(), isFeeCovered: { _ in true })
+            await sut.claimTransactionSubmitted(hash: nil, claimedAgainst: Fixtures.summary())
+
+            #expect(await tracker.isClaimInFlight)
         }
     }
 
@@ -339,14 +454,14 @@ struct YieldIncentivesClaimInteractorTests {
         let network = YieldClaimNetworkManagerStub()
         let manager = YieldClaimManagerStub()
         manager.setSubmitResult(.failure(YieldIncentivesTestError.network))
-        let tracker = YieldIncentivesClaimTracker()
+        let tracker = YieldIncentivesClaimTracker(pollInterval: 0.5, timeout: 0.5)
 
         await withInjectedYieldNetworkManager(network) {
             let sut = makeSUT(manager: manager, tracker: tracker)
 
             await #expect {
                 _ = try await sut.claim(prepared: Fixtures.preparedClaim(), isFeeCovered: { _ in true })
-            } throws: { isSameCase($0, as: .submissionUnresolved) }
+            } throws: { isSameCase($0, as: .submissionUnresolved(YieldIncentivesTestError.network)) }
 
             #expect(await tracker.isClaimInFlight)
         }

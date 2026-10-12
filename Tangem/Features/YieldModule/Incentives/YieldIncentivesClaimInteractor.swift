@@ -73,6 +73,23 @@ actor YieldIncentivesClaimInteractor {
     }
 
     func claim(prepared: PreparedClaim, isFeeCovered: (Amount) -> Bool) async throws -> SubmittedClaim {
+        let transaction = try await makeClaimTransaction(prepared: prepared, isFeeCovered: isFeeCovered)
+
+        do {
+            let transactionHash = try await manager.submitClaim(
+                transaction: transaction,
+                transactionDispatcher: transactionDispatcher
+            )
+
+            await claimTransactionSubmitted(hash: transactionHash, claimedAgainst: prepared.summary)
+
+            return SubmittedClaim(transactionHash: transactionHash, preparation: prepared)
+        } catch {
+            throw await claimTransactionFailed(error: error)
+        }
+    }
+
+    func makeClaimTransaction(prepared: PreparedClaim, isFeeCovered: (Amount) -> Bool) async throws -> BSDKTransaction {
         guard Date().timeIntervalSince(prepared.preparedAt) < Constants.preparationValidity else {
             throw ClaimError.preparationExpired
         }
@@ -81,50 +98,62 @@ actor YieldIncentivesClaimInteractor {
             throw ClaimError.claimAlreadyInFlight
         }
 
-        let transaction: BSDKTransaction
-
         do {
             guard isFeeCovered(prepared.fee.totalFeeAmount) else {
                 throw ClaimError.insufficientFee
             }
 
-            transaction = try await manager.makeClaimTransaction(to: prepared.to, data: prepared.data, fee: prepared.fee)
+            let transaction = try await manager.makeClaimTransaction(to: prepared.to, data: prepared.data, fee: prepared.fee)
 
             guard transaction.sourceAddress.caseInsensitiveEquals(to: userAddress) else {
                 throw ClaimError.moduleUnavailable
             }
+
+            return transaction
         } catch {
             await tracker.releaseClaim()
             throw error
         }
+    }
 
-        do {
-            let transactionHash = try await manager.submitClaim(
-                transaction: transaction,
-                transactionDispatcher: transactionDispatcher
-            )
-
-            await tracker.claimSubmitted { [manager] in
-                await manager.awaitPendingTransactionCleared(
-                    transactionHash: transactionHash,
-                    timeout: YieldIncentivesClaimTracker.Constants.settlementWindow
-                )
-            }
-
-            return SubmittedClaim(transactionHash: transactionHash, preparation: prepared)
-        } catch {
-            // A declined signature is the only failure certain to have left the transaction unsent; by the time
-            // anything else surfaces it is wrapped past recognition, so the rewards decide instead of the error.
-            if error.isCancellationError {
-                await tracker.releaseClaim()
-                throw error
-            }
-
-            AppLogger.error("Yield claim submission left unresolved", error: error)
+    func claimTransactionSubmitted(hash: String?, claimedAgainst summary: YieldIncentivesRewardsSummary) async {
+        guard hash != nil else {
             await tracker.claimSubmissionUnresolved()
-
-            throw ClaimError.submissionUnresolved
+            return
         }
+
+        await tracker.claimSubmitted { [self] in
+            await isClaimReflectedByBackend(claimedAgainst: summary)
+        }
+    }
+
+    private func isClaimReflectedByBackend(claimedAgainst summary: YieldIncentivesRewardsSummary) async -> Bool {
+        guard let fresh = try? await fetchSummary() else {
+            return false
+        }
+
+        guard fresh.isClaimRecommended else {
+            return true
+        }
+
+        return summary.claimableRewards.allSatisfy { claimed in
+            let remaining = fresh.claimableRewards
+                .first { $0.rewardTokenAddress.caseInsensitiveEquals(to: claimed.rewardTokenAddress) }
+
+            return (remaining?.claimableAmount ?? 0) < claimed.claimableAmount
+        }
+    }
+
+    func claimTransactionFailed(error: Error) async -> Error {
+        if error.isCancellationError {
+            await tracker.releaseClaim()
+            return error
+        }
+
+        AppLogger.error("Yield claim submission left unresolved", error: error)
+        await tracker.claimSubmissionUnresolved()
+
+        return ClaimError.submissionUnresolved(error)
     }
 
     /// Read through the shared manager so the sheet and the banner underneath cannot state different totals,
@@ -215,6 +244,17 @@ extension YieldIncentivesClaimInteractor {
         case insufficientFee
         case preparationExpired
         /// The submission may already have reached a node; the tracker decides its outcome.
-        case submissionUnresolved
+        case submissionUnresolved(Error)
+    }
+}
+
+extension YieldIncentivesClaimInteractor.ClaimError {
+    var isClaimNoLongerAvailable: Bool {
+        switch self {
+        case .validationFailed, .rewardsUnavailable, .moduleUnavailable:
+            return true
+        case .claimAlreadyInFlight, .insufficientFee, .preparationExpired, .submissionUnresolved:
+            return false
+        }
     }
 }
