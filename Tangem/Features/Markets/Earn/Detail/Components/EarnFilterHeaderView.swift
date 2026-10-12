@@ -7,86 +7,101 @@
 //
 
 import SwiftUI
-import TangemAssets
 import TangemUI
-import TangemLocalization
 
 struct EarnFilterHeaderView: View {
-    let isNetworksFilterEnabled: Bool
-    let isTypesFilterEnabled: Bool
+    let networksFilter: Filter
+    let typesFilter: Filter
     let isLoading: Bool
-    let networkFilterTitle: String
-    let typesFilterTitle: String
-    let onNetworksTap: () -> Void
-    let onTypesTap: () -> Void
 
-    @ScaledMetric private var horizontalPadding: CGFloat = 16
     @ScaledMetric private var filtersSpacing: CGFloat = 8
 
     var body: some View {
         HStack(spacing: .zero) {
-            filterButton(
-                title: networkFilterTitle,
-                action: onNetworksTap,
-                isLoading: isLoading,
-                isEnabled: isNetworksFilterEnabled
-            )
+            if isLoading {
+                ChipSkeleton()
+            } else {
+                filterChip(networksFilter)
+            }
 
             Spacer(minLength: filtersSpacing)
 
-            filterButton(
-                title: typesFilterTitle,
-                action: onTypesTap,
-                isLoading: false,
-                isEnabled: isTypesFilterEnabled
-            )
+            filterChip(typesFilter)
         }
-        .padding(.horizontal, horizontalPadding)
-        .padding(.vertical, .zero)
+        .padding(.horizontal, Layout.horizontalPadding)
     }
 
-    @ViewBuilder
-    private func filterButton(
-        title: String,
-        action: @escaping () -> Void,
-        isLoading: Bool,
-        isEnabled: Bool
-    ) -> some View {
-        filterButtonRedesign(
-            title: title,
-            action: action,
-            isLoading: isLoading,
-            isEnabled: isEnabled
+    private func filterChip(_ filter: Filter) -> some View {
+        RealAssetsCategoryChipView(
+            title: filter.title,
+            style: filter.isActive ? .selected : .expandable,
+            onTap: filter.onTap,
+            onClear: filter.onClear
         )
-    }
-
-    @ViewBuilder
-    private func filterButtonRedesign(
-        title: String,
-        action: @escaping () -> Void,
-        isLoading: Bool,
-        isEnabled: Bool
-    ) -> some View {
-        if isLoading {
-            ButtonSkeleton()
-        } else {
-            TangemUI.Button(
-                label: title,
-                accessibilityLabel: title,
-                action: action
-            )
-            .iconEnd(DesignSystem.Icons.ChevronDown.regular20)
-            .size(.x9)
-            .styleType(.secondary)
-            .isLoading(isLoading)
-            .disabled(!isEnabled)
-        }
+        .disabled(!filter.isEnabled)
     }
 }
 
-private struct ButtonSkeleton: View {
+// MARK: - Filter
+
+extension EarnFilterHeaderView {
+    struct Filter {
+        let title: String
+        let isActive: Bool
+        let isEnabled: Bool
+        let onTap: () -> Void
+        let onClear: () -> Void
+    }
+}
+
+// MARK: - Layout
+
+private extension EarnFilterHeaderView {
+    enum Layout {
+        static let horizontalPadding: CGFloat = 16.0
+    }
+}
+
+private struct ChipSkeleton: View {
+    @ScaledMetric private var width: CGFloat = 142
+    @ScaledMetric private var height: CGFloat = 36
+
     var body: some View {
         Shimmer()
-            .variant(.custom(width: 142, height: 36))
+            .variant(.custom(width: width, height: height, cornerRadius: height / 2))
+    }
+}
+
+// MARK: - Previews
+
+#Preview {
+    func filter(_ title: String, isActive: Bool = false, isEnabled: Bool = true) -> EarnFilterHeaderView.Filter {
+        EarnFilterHeaderView.Filter(title: title, isActive: isActive, isEnabled: isEnabled, onTap: {}, onClear: {})
+    }
+
+    return VStack(spacing: 16) {
+        EarnFilterHeaderView(
+            networksFilter: filter("All networks"),
+            typesFilter: filter("All types"),
+            isLoading: false
+        )
+
+        EarnFilterHeaderView(
+            networksFilter: filter("Solana", isActive: true),
+            typesFilter: filter("Staking", isActive: true),
+            isLoading: false
+        )
+
+        EarnFilterHeaderView(
+            networksFilter: filter("All networks"),
+            typesFilter: filter("Yield mode", isActive: true),
+            isLoading: true
+        )
+
+        EarnFilterHeaderView(
+            networksFilter: filter("All networks", isEnabled: false),
+            typesFilter: filter("All types"),
+            isLoading: false
+        )
     }
 }

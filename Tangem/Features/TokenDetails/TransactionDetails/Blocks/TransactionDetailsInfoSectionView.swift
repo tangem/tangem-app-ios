@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 import TangemUIUtils
@@ -20,8 +21,12 @@ struct TransactionDetailsInfoSectionViewData: Equatable {
         let content: Content
 
         enum Content: Equatable {
-            /// Rate / Network fee
+            /// A value that doesn't tell how much the user holds, like a market rate, so it stays readable
+            /// when balances are hidden.
             case text(String)
+            /// A value paid out of the user's own funds, so it's masked when balances are hidden.
+            case sensitiveText(String)
+            case address(String)
             /// Provider / Validator
             case link(Link)
         }
@@ -43,6 +48,7 @@ struct TransactionDetailsInfoSectionView: View {
         VStack(spacing: .zero) {
             ForEach(Array(data.rows.enumerated()), id: \.element.id) { index, row in
                 rowView(row, showsDivider: index != data.rows.count - 1)
+                    .accessibilityIdentifier(TransactionDetailsAccessibilityIdentifiers.infoRow(id: row.id))
             }
         }
     }
@@ -51,10 +57,13 @@ struct TransactionDetailsInfoSectionView: View {
     private func rowView(_ row: TransactionDetailsInfoSectionViewData.Row, showsDivider: Bool) -> some View {
         switch row.content {
         case .text(let value):
-            TangemUI.Row(title: row.title, value: value)
-                .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
+            plainValueRow(title: row.title, value: value, truncationMode: .tail, showsDivider: showsDivider)
+        case .address(let value):
+            plainValueRow(title: row.title, value: value, truncationMode: .middle, showsDivider: showsDivider)
+        case .sensitiveText(let value):
+            TangemUI.Row(title: row.title)
+                .valueAccessory { sensitiveValue(value) }
                 .contentLead(.start)
-                .valueLineLimit(1)
                 .showDivider(showsDivider)
         case .link(let link):
             TangemUI.Row(title: row.title)
@@ -65,6 +74,21 @@ struct TransactionDetailsInfoSectionView: View {
                     view.onTap { onAction(action) }
                 }
         }
+    }
+
+    private func plainValueRow(title: String, value: String, truncationMode: Text.TruncationMode, showsDivider: Bool) -> some View {
+        TangemUI.Row(title: title, value: value)
+            .overrideTextColors(RowOverrideTextColors(value: DesignSystem.Color.textSecondary))
+            .truncationModes(RowTruncationModes(value: truncationMode))
+            .contentLead(.start)
+            .valueLineLimit(1)
+            .showDivider(showsDivider)
+    }
+
+    private func sensitiveValue(_ value: String) -> some View {
+        SensitiveText(value)
+            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+            .lineLimit(1)
     }
 
     private func linkValue(_ link: TransactionDetailsInfoSectionViewData.Row.Link) -> some View {
@@ -101,7 +125,7 @@ struct TransactionDetailsInfoSectionView: View {
         data: .init(rows: [
             .init(id: "provider", title: "Provider", content: .link(.init(text: "Mercuryo", secondaryText: "DEX", action: .close))),
             .init(id: "rate", title: "Rate", content: .text("1,00 POL ≈ 0,07703936 USDT")),
-            .init(id: "networkFee", title: "Network fee", content: .text("0.00056 ETH")),
+            .init(id: "networkFee", title: "Network fee", content: .sensitiveText("0.00056 ETH")),
         ]),
         onAction: { _ in }
     )

@@ -108,7 +108,7 @@ final class CommonExperimentService {
                     if let error {
                         continuation.resume(throwing: error)
                     } else {
-                        continuation.resume(returning: ())
+                        continuation.resume()
                     }
                 }
             }

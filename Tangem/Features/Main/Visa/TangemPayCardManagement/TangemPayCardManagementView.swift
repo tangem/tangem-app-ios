@@ -73,7 +73,10 @@ struct TangemPayCardManagementView: View {
             centered { TangemPayPlasticCardMessageView(stage: plastic.messageStage, email: email) }
 
         case .issuing:
-            centered { TangemPayCardIssuingMessageView() }
+            centered {
+                TangemPayCardIssuingMessageView()
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardIssuingMessage)
+            }
 
         case .reissuing:
             TangemPayReplacingCardBanner()
@@ -196,8 +199,9 @@ struct TangemPayCardManagementView: View {
                 action: viewModel.onContactSupportButton
             )
             .size(.x12)
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .horizontalLayout(.infinity)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.plasticContactSupportButton)
 
             TangemUI.Button(
                 label: AttributedString(Localization.tangempayCardDetailsActivate),
@@ -207,6 +211,7 @@ struct TangemPayCardManagementView: View {
             .size(.x12)
             .styleType(.default)
             .horizontalLayout(.infinity)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.plasticActivateCardButton)
         }
         .padding(.horizontal, Constants.plasticFooterHorizontalPadding)
         .padding(.vertical, Constants.plasticFooterVerticalPadding)

@@ -32,16 +32,15 @@ struct TransactionDetailsOperationIconView: View {
     }
 
     private var glyph: Image {
-        glyphOverride?.image ?? data.icon
+        glyphOverride?.image ?? data.redesignedIcon
     }
 
     private var backgroundColor: Color {
         switch titleStyle {
         case .active: DesignSystem.Color.bgStatusInfoSubtle
         case .attention: DesignSystem.Color.bgStatusWarningSubtle
-        case .neutral: DesignSystem.Color.bgOpaqueSecondary
-        case .failed: DesignSystem.Color.bgStatusErrorSubtle
-        case .expired: DesignSystem.Color.bgOpaqueSecondary
+        case .neutral: DesignSystem.Color.bgTransparentSecondary
+        case .failed, .expired: DesignSystem.Color.bgStatusErrorSubtle
         }
     }
 
@@ -50,8 +49,7 @@ struct TransactionDetailsOperationIconView: View {
         case .active: DesignSystem.Color.iconStatusInfo
         case .attention: DesignSystem.Color.iconStatusWarning
         case .neutral: DesignSystem.Color.iconPrimary
-        case .failed: DesignSystem.Color.iconStatusError
-        case .expired: DesignSystem.Color.iconTertiary
+        case .failed, .expired: DesignSystem.Color.iconStatusError
         }
     }
 }

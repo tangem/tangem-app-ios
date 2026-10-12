@@ -40,7 +40,7 @@ struct TangemPayInsufficientFundsBanner: View {
                 action: buttonAction
             )
             .size(.x8)
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .horizontalLayout(.infinity)
             .accessibilityIdentifier(buttonAccessibilityIdentifier)
         }

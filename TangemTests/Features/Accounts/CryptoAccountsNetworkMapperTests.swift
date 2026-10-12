@@ -14,29 +14,46 @@ import Testing
 
 @Suite("Tests for how `CryptoAccountsNetworkMapper` reads account types and per-type counters")
 struct CryptoAccountsNetworkMapperTests {
-    @Test("An account is stored with the kind the endpoint gave it, and with none at all when it gave none it can place")
+    @Test("An account is stored with the kind the endpoint gave it, and a kind-less one as the wallet's own")
     func accountTypesAreMapped() throws {
         let info = try map(response: Fixtures.responseWithoutPerTypeCounters)
 
-        #expect(info.accounts.map(\.derivationIndex) == [0, 1, 2])
-        // A guessed kind for the first and the last would have the record claim what the endpoint never said
-        #expect(info.accounts.map(\.type) == [nil, .joint, nil])
+        #expect(info.accounts.map(\.derivationIdentity.derivationIndex) == [0, 1])
+        // A record from before the kinds existed names none and is one of the wallet's own accounts;
+        // an unknown kind is a contract violation and traps in the mapper, so there is no case for it here
+        #expect(info.accounts.map(\.derivationIdentity.type) == [.crypto, .joint])
     }
 
     @Test("Absent per-type counters stand in for the crypto one only, leaving the joint one with no count")
     func absentPerTypeCountersStandInForCryptoOnly() throws {
         let info = try map(response: Fixtures.responseWithoutPerTypeCounters)
 
+        #expect(info.counters.crypto == 2)
+        #expect(info.counters.joint == nil)
+    }
+
+    @Test("While the joint accounts feature is off, the whole total is the only count read, whatever else the answer carries")
+    func wholeTotalIsTheOnlyCountReadWhileTheFeatureIsOff() throws {
+        let info = try map(response: Fixtures.responseWithPerTypeCounters)
+
         #expect(info.counters.crypto == 3)
         #expect(info.counters.joint == nil)
     }
 
-    @Test("Per-type counters are taken as reported once the endpoint has them")
-    func reportedPerTypeCountersAreTaken() throws {
-        let info = try map(response: Fixtures.responseWithPerTypeCounters)
+    @Test("Without the joint accounts feature, an answer missing the whole total is turned away at decoding")
+    func wholeTotalIsRequiredWhileTheFeatureIsOff() {
+        // The decoding of `Wallet` expects the shape of the endpoint the feature decides, and unit tests
+        // run with the joint accounts feature off — so the v1 shape, with the whole total, is the expected one
+        #expect(throws: DecodingError.self) {
+            try map(response: Fixtures.responseWithoutTotalAccounts)
+        }
+    }
 
-        #expect(info.counters.crypto == 2)
-        #expect(info.counters.joint == 1)
+    @Test("An answer counting neither the accounts as a whole nor their kinds is turned away at decoding")
+    func answerCountingNeitherIsTurnedAway() {
+        #expect(throws: DecodingError.self) {
+            try map(response: Fixtures.responseWithoutAnyCounters)
+        }
     }
 
     @Test("No account tells the endpoint its kind, whatever it has stored: the v1 endpoint turns away a row that mentions one")
@@ -44,10 +61,9 @@ struct CryptoAccountsNetworkMapperTests {
         let rows = try map(request: [
             Fixtures.storedAccount(derivationIndex: 0, type: .crypto),
             Fixtures.storedAccount(derivationIndex: 1, type: .joint),
-            Fixtures.storedAccount(derivationIndex: 2, type: nil),
         ])
 
-        #expect(rows.count == 3)
+        #expect(rows.count == 2)
         #expect(rows.allSatisfy { !$0.keys.contains("type") })
     }
 }
@@ -68,7 +84,7 @@ private extension CryptoAccountsNetworkMapperTests {
         let externalParametersProvider = TokenListAddressesProviderStub()
         let mapper = CryptoAccountsNetworkMapper(
             supportedBlockchains: [],
-            remoteIdentifierBuilder: { "id-\($0.derivationIndex)" }
+            remoteIdentifierBuilder: { "id-\($0.derivationIdentity.derivationIndex)" }
         )
         mapper.externalParametersProvider = externalParametersProvider
 
@@ -94,13 +110,12 @@ private extension CryptoAccountsNetworkMapperTests {
             "version": 1,
             "group": "network",
             "sort": "manual",
-            "totalAccounts": 3,
+            "totalAccounts": 2,
             "totalArchivedAccounts": 0
           },
           "accounts": [
             { "id": "id-0", "name": "Main", "icon": "Star", "iconColor": "Azure", "derivation": 0, "tokens": [] },
-            { "id": "id-1", "name": "Family", "icon": "Star", "iconColor": "Azure", "derivation": 1, "type": "joint", "tokens": [] },
-            { "id": "id-2", "name": "Other", "icon": "Star", "iconColor": "Azure", "derivation": 2, "type": "shared", "tokens": [] }
+            { "id": "id-1", "name": "Family", "icon": "Star", "iconColor": "Azure", "derivation": 1, "type": "joint", "tokens": [] }
           ],
           "unassignedTokens": []
         }
@@ -122,15 +137,47 @@ private extension CryptoAccountsNetworkMapperTests {
         }
         """
 
-        static func storedAccount(derivationIndex: Int, type: AccountType?) -> StoredCryptoAccount {
+        /// The shape the endpoint answers in once it counts the kinds apart: each is named, and the total they used
+        /// to share is gone.
+        static let responseWithoutTotalAccounts = """
+        {
+          "wallet": {
+            "version": 1,
+            "group": "network",
+            "sort": "manual",
+            "totalArchivedAccounts": 0,
+            "totalCryptoAccounts": 2,
+            "totalJointAccounts": 1
+          },
+          "accounts": [],
+          "unassignedTokens": []
+        }
+        """
+
+        /// Neither shape: the joint counter alone says nothing about how many of the wallet's own accounts there are.
+        static let responseWithoutAnyCounters = """
+        {
+          "wallet": {
+            "version": 1,
+            "group": "network",
+            "sort": "manual",
+            "totalArchivedAccounts": 0,
+            "totalJointAccounts": 1
+          },
+          "accounts": [],
+          "unassignedTokens": []
+        }
+        """
+
+        static func storedAccount(derivationIndex: Int, type: AccountType) -> StoredCryptoAccount {
             StoredCryptoAccount(
                 derivationIndex: derivationIndex,
+                type: type,
                 name: "Account \(derivationIndex)",
                 icon: StoredCryptoAccount.Icon(iconName: "Star", iconColor: "Azure"),
                 tokens: [],
                 grouping: .none,
-                sorting: .manual,
-                type: type
+                sorting: .manual
             )
         }
     }

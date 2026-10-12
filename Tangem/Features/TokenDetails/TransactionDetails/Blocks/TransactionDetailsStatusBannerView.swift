@@ -20,7 +20,7 @@ struct TransactionDetailsStatusBannerViewData: Equatable {
         case success
         /// Red error glyph ("Failed"). Stays.
         case failed
-        /// Red clock ("Expired"). Stays.
+        /// Grey clock ("Expired"). Stays.
         case expired
         /// Red error glyph ("Refunded"). Stays.
         case refunded
@@ -76,55 +76,93 @@ struct TransactionDetailsStatusBannerView: View {
 
     @ViewBuilder
     private var indicator: some View {
-        switch data.kind {
+        switch appearance.indicator {
+        case .loader:
+            Loader()
+                .loaderSize(.size20)
+                .loaderColor(appearance.accent)
+        case .glyph(let image):
+            image.image
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .foregroundStyle(appearance.accent)
+        }
+    }
+
+    private var appearance: Appearance { data.kind.appearance }
+
+    private var titleColor: Color { appearance.title }
+
+    private var subtitleColor: Color { titleColor }
+
+    private var backgroundColor: Color { appearance.background }
+}
+
+// MARK: - Appearance
+
+extension TransactionDetailsStatusBannerView {
+    /// Indicator, tint, title and plate travel together so a kind cannot be styled half one way.
+    struct Appearance {
+        enum Indicator {
+            case loader
+            case glyph(ImageType)
+        }
+
+        let indicator: Indicator
+        let accent: Color
+        let title: Color
+        let background: Color
+    }
+}
+
+private extension TransactionDetailsStatusBannerViewData.Kind {
+    typealias Appearance = TransactionDetailsStatusBannerView.Appearance
+
+    var appearance: Appearance {
+        switch self {
         case .inProgress:
-            loader(color: DesignSystem.Color.iconStatusInfo)
+            Appearance(
+                indicator: .loader,
+                accent: DesignSystem.Color.iconStatusInfo,
+                title: DesignSystem.Color.textStatusInfo,
+                background: DesignSystem.Color.bgStatusInfoSubtle
+            )
         case .refunding:
-            loader(color: DesignSystem.Color.iconStatusWarning)
+            Appearance(
+                indicator: .loader,
+                accent: DesignSystem.Color.iconStatusWarning,
+                title: DesignSystem.Color.textStatusWarning,
+                background: DesignSystem.Color.bgStatusWarningSubtle
+            )
         case .success:
-            glyph(DesignSystem.Icons.Success.filled20, color: DesignSystem.Color.iconStatusSuccess)
+            Appearance(
+                indicator: .glyph(DesignSystem.Icons.Success.filled20),
+                accent: DesignSystem.Color.iconStatusSuccess,
+                title: DesignSystem.Color.textStatusSuccess,
+                background: DesignSystem.Color.bgStatusSuccessSubtle
+            )
         case .failed, .refunded, .refundInfo:
-            glyph(DesignSystem.Icons.Error.filled20, color: DesignSystem.Color.iconStatusError)
+            Appearance(
+                indicator: .glyph(DesignSystem.Icons.Error.filled20),
+                accent: DesignSystem.Color.iconStatusError,
+                title: DesignSystem.Color.textStatusError,
+                background: DesignSystem.Color.bgStatusErrorSubtle
+            )
         case .expired:
-            glyph(DesignSystem.Icons.Clock.regular20, color: DesignSystem.Color.iconStatusError)
+            Appearance(
+                indicator: .glyph(DesignSystem.Icons.Clock.regular20),
+                accent: DesignSystem.Color.iconTertiary,
+                title: DesignSystem.Color.textTertiary,
+                background: DesignSystem.Color.bgTransparentSecondary
+            )
         case .attention:
-            glyph(DesignSystem.Icons.Warning.filled20, color: DesignSystem.Color.iconStatusWarning)
-        }
-    }
-
-    private func loader(color: Color) -> some View {
-        Loader()
-            .loaderSize(.size20)
-            .loaderColor(color)
-    }
-
-    private func glyph(_ image: ImageType, color: Color) -> some View {
-        image.image
-            .renderingMode(.template)
-            .resizable()
-            .scaledToFit()
-            .foregroundStyle(color)
-    }
-
-    private var titleColor: Color {
-        switch data.kind {
-        case .inProgress: DesignSystem.Color.textStatusInfo
-        case .success: DesignSystem.Color.textStatusSuccess
-        case .failed, .expired, .refunded, .refundInfo: DesignSystem.Color.textStatusError
-        case .refunding, .attention: DesignSystem.Color.textStatusWarning
-        }
-    }
-
-    private var subtitleColor: Color {
-        titleColor
-    }
-
-    private var backgroundColor: Color {
-        switch data.kind {
-        case .inProgress: DesignSystem.Color.bgStatusInfoSubtle
-        case .success: DesignSystem.Color.bgStatusSuccessSubtle
-        case .failed, .expired, .refunded, .refundInfo: DesignSystem.Color.bgStatusErrorSubtle
-        case .refunding, .attention: DesignSystem.Color.bgStatusWarningSubtle
+            Appearance(
+                indicator: .glyph(DesignSystem.Icons.Warning.filled20),
+                accent: DesignSystem.Color.iconStatusWarning,
+                title: DesignSystem.Color.textStatusWarning,
+                background: DesignSystem.Color.bgStatusWarningSubtle
+            )
         }
     }
 }

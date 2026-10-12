@@ -129,15 +129,15 @@ extension CommonSendAnalyticsLogger: SendDestinationAnalyticsLogger {
     }
 
     func logAddressBookWidgetShown() {
-        addressBookAnalyticsLogger.logSendFlowWidgetShown(userWalletId: sendSourceTokenInput?.sourceToken.value?.userWalletInfo.id)
+        addressBookAnalyticsLogger.logSendFlowWidgetShown()
     }
 
     func logAddressBookContactSelected(_ contact: AddressBookContact) {
-        addressBookAnalyticsLogger.logContactSelected(userWalletId: contact.walletId, contactId: contact.id.stringValue)
+        addressBookAnalyticsLogger.logContactSelected(contactId: contact.id.stringValue)
     }
 
     func logAddressBookAddressSubstituted(_ contact: AddressBookContact) {
-        addressBookAnalyticsLogger.logAddressSubstitutedInSend(userWalletId: contact.walletId, contactId: contact.id.stringValue)
+        addressBookAnalyticsLogger.logAddressSubstitutedInSend(contactId: contact.id.stringValue)
     }
 
     func logSendAddressEntered(isAddressValid: Bool, addressSource: Analytics.DestinationAddressSource) {
@@ -348,7 +348,11 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
                 params[.sendToken] = sourceTokenItem.currencySymbol
                 params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
             }
-            Analytics.log(event: .sendSwapErrorInsufficientBalance, params: params)
+            Analytics.log(
+                event: .sendSwapErrorInsufficientBalance,
+                params: params,
+                otelParamOverrides: Analytics.otelCustomTokenOverrides(sendToken: sourceTokenItem)
+            )
         default:
             break
         }
@@ -661,7 +665,7 @@ extension CommonSendAnalyticsLogger: SendApproveAnalyticsLogger {
             .permissionType: permissionType.rawValue,
             .walletForm: signerType,
             .selectedHost: currentProviderHost,
-        ], analyticsSystems: .all)
+        ], analyticsSystems: .all, otelParamOverrides: Analytics.otelCustomTokenOverrides(token: tokenItem))
     }
 }
 
@@ -727,7 +731,15 @@ extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
             analyticsParameters[.feeAssetType] = Analytics.ParameterValue.feeAssetType(isGasless: isGasless).rawValue
         }
 
-        Analytics.log(event: .transactionSent, params: analyticsParameters, analyticsSystems: .all)
+        Analytics.log(
+            event: .transactionSent,
+            params: analyticsParameters,
+            analyticsSystems: .all,
+            otelParamOverrides: Analytics.otelCustomTokenOverrides(
+                token: sourceTokenItem,
+                feeToken: sendFeeInput?.selectedFee?.tokenItem
+            )
+        )
     }
 }
 
@@ -752,7 +764,16 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
     }
 
     func logExploreButton() {
-        Analytics.log(.sendButtonExplore)
+        switch sendType {
+        case .nft:
+            Analytics.log(.nftAssetExplore)
+        case .swap:
+            var params: [Analytics.ParameterKey: String] = [:]
+            params[.token] = sourceTokenItem?.currencySymbol
+            Analytics.log(event: .swapButtonExplore, params: params)
+        case .send, .sell:
+            Analytics.log(.sendButtonExplore)
+        }
     }
 
     private func logSendFinishScreenOpened(destinationDidResolved: Bool) {
@@ -985,7 +1006,12 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             params[.feeAssetType] = Analytics.ParameterValue.feeAssetType(isGasless: isGasless).rawValue
         }
 
-        Analytics.log(event: .transactionSent, params: params, analyticsSystems: .all)
+        Analytics.log(
+            event: .transactionSent,
+            params: params,
+            analyticsSystems: .all,
+            otelParamOverrides: Analytics.otelCustomTokenOverrides(token: tokenItem, feeToken: tokenFee?.tokenItem)
+        )
 
         switch amount?.type {
         case .none: break

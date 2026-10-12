@@ -63,9 +63,15 @@ struct AddressBookContactEntries<Entry: AddressBookEntry>: Hashable {
     }
 
     /// Pass a `networkId` to match the address only on that network, or `nil` to perform a loose matching across all networks.
-    func caseInsensitiveContains(address: String, networkId: AddressBookNetworkID?) -> Bool {
-        raw.contains { entry in
-            entry.address.caseInsensitiveEquals(to: address) && (networkId == nil || entry.networkId == networkId)
+    func contains(address: String, networkId: AddressBookNetworkID?) -> Bool {
+        let comparator = AddressComparator()
+
+        return raw.contains { entry in
+            guard networkId == nil || entry.networkId == networkId else {
+                return false
+            }
+
+            return comparator.addressesMatch(entry.address, address, blockchain: entry.blockchain)
         }
     }
 

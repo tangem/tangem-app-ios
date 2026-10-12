@@ -11,20 +11,21 @@ import TangemSdk
 import TangemFoundation
 import BlockchainSdk
 
+/// The dependencies of the wallet's own accounts; the joint ones have `CommonJointAccountDependenciesFactory`.
 struct CommonCryptoAccountDependenciesFactory {
-    typealias UserTokensRepositoryProvider = (_ derivationIndex: Int) -> UserTokensRepository
-
+    let userWalletId: UserWalletId
     /// A single instance per user wallet
     let derivationManager: DerivationManager?
     let derivationStyle: DerivationStyle?
     let keysRepository: KeysRepository
+    let cryptoAccountsRepository: CommonCryptoAccountsRepository
+    let walletFactory: AnyWalletFactory
     let walletManagerFactory: AnyWalletManagerFactory
     let existingCurves: [EllipticCurve]
     let persistentBlockchains: [TokenItem]
     let hardwareLimitationsUtil: HardwareLimitationsUtil
     let areHDWalletsSupported: Bool
     let shouldLoadExpressAvailability: Bool
-    let userTokensRepositoryProvider: UserTokensRepositoryProvider
     let walletModelsFactoryProvider: WalletModelsFactoryProvider
 }
 
@@ -32,20 +33,27 @@ struct CommonCryptoAccountDependenciesFactory {
 
 extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFactory {
     func makeDependencies(
-        forAccountWithDerivationIndex derivationIndex: Int,
-        userWalletId: UserWalletId
+        forAccountWithDerivationIdentity derivationIdentity: CryptoAccountDerivationIdentity
     ) -> CryptoAccountDependencies {
-        let derivationInfo = CommonUserTokensManager.DerivationInfo(
-            derivationIndex: derivationIndex,
-            derivationStyle: derivationStyle,
+        assert(
+            derivationIdentity.type == .crypto,
+            "CommonCryptoAccountDependenciesFactory is supposed to be used only for crypto account dependencies"
         )
 
-        let userTokensRepository = userTokensRepositoryProvider(derivationIndex)
+        let derivationPathBuilder = CryptoAccountDerivationPathBuilder(
+            derivationIndex: derivationIdentity.derivationIndex,
+            derivationStyle: derivationStyle
+        )
+
+        let userTokensRepository = UserTokensRepositoryAdapter(
+            innerRepository: cryptoAccountsRepository,
+            derivationIdentity: derivationIdentity
+        )
 
         let userTokensManager = CommonUserTokensManager(
             userWalletId: userWalletId,
             userTokensRepository: userTokensRepository,
-            derivationInfo: derivationInfo,
+            derivationPathBuilder: derivationPathBuilder,
             existingCurves: existingCurves,
             persistentBlockchains: persistentBlockchains,
             shouldLoadExpressAvailability: shouldLoadExpressAvailability,
@@ -55,6 +63,7 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
         let walletManagersRepository = CommonWalletManagersRepository(
             keysProvider: keysRepository,
             userTokensManager: userTokensManager,
+            walletFactory: walletFactory,
             walletManagerFactory: walletManagerFactory
         )
 
@@ -68,8 +77,8 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
         let walletModelsManager = CommonWalletModelsManager(
             walletManagersRepository: walletManagersRepository,
             walletModelsFactory: wrappedWalletModelsFactory,
-            derivationIndex: derivationIndex,
-            derivationStyle: derivationStyle
+            transactionHistoryUpdater: walletModelsFactoryProvider.transactionHistoryUpdater,
+            derivationPathBuilder: derivationPathBuilder
         )
 
         // A single instance per unique account, account-specific proxy for `derivationManager`
@@ -90,21 +99,5 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
             walletModelsFactoryInput: wrappedWalletModelsFactory,
             derivationManager: accountSpecificDerivationManager,
         )
-    }
-}
-
-// MARK: - Auxiliary types
-
-private extension CommonCryptoAccountDependenciesFactory {
-    struct CommonBlockchainSettingsUpdater: BlockchainSettingsUpdater {
-        let userTokensRepository: UserTokensRepository
-
-        func update(settings: BlockchainSettings?, for tokenItem: TokenItem) -> BlockchainNetwork {
-            let blockchainNetwork = tokenItem.blockchainNetwork.with(settings: settings)
-            userTokensRepository.performBatchUpdates { updater in
-                updater.updateBlockchainNetwork(blockchainNetwork, for: tokenItem)
-            }
-            return blockchainNetwork
-        }
     }
 }

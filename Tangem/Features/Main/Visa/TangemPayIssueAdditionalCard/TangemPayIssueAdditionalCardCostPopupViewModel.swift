@@ -7,6 +7,7 @@
 
 import Combine
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 import TangemUIUtils
@@ -57,6 +58,10 @@ final class TangemPayIssueAdditionalCardCostPopupViewModel: ObservableObject, Fl
 
     var addFundsButtonTitle: String {
         Localization.tangempayCardDetailsAddFunds
+    }
+
+    var primaryButtonAccessibilityIdentifier: String? {
+        TangemPayAccessibilityIdentifiers.issueAdditionalCardSheetConfirmButton
     }
 
     var primaryButton: MainButton.Settings {

@@ -38,8 +38,5 @@ private extension MobileOnboardingSeedPhraseValidationView {
     func userValidationView(_ userValidationViewModel: OnboardingSeedPhraseUserValidationViewModel) -> some View {
         OnboardingSeedPhraseUserValidationView(viewModel: userValidationViewModel)
             .onFirstAppear(perform: viewModel.onFirstAppear)
-            .onDisappear {
-                UIApplication.shared.endEditing()
-            }
     }
 }

@@ -65,12 +65,35 @@ final class NoopTransactionDetailsRoutable: TransactionDetailsRoutable {
 extension CommonWalletModel {
     /// Builds a wallet model backed by a `PreviewTransactionHistoryService` seeded with `history`, mirroring
     /// `CommonWalletModel.mockETH` but with a live history service instead of `nil`.
-    static func previewWalletModel(history: [TransactionRecord]) -> CommonWalletModel {
+    static func previewWalletModel(
+        history: [TransactionRecord],
+        token: Token? = nil,
+        blockchain: Blockchain = .ethereum(testnet: false)
+    ) -> CommonWalletModel {
+        previewWalletModel(
+            transactionHistoryService: PreviewTransactionHistoryService(records: history),
+            token: token,
+            blockchain: blockchain
+        )
+    }
+
+    static func previewWalletModel(
+        transactionHistoryService: TransactionHistoryService,
+        token: Token? = nil,
+        blockchain: Blockchain = .ethereum(testnet: false)
+    ) -> CommonWalletModel {
         let walletManager = EthereumWalletManagerMock()
+        walletManager.wallet = Wallet(
+            blockchain: blockchain,
+            publicKey: walletManager.wallet.publicKey,
+            addressesProvider: CommonAddressesProvider(
+                defaultAddress: PlainAddress(value: walletManager.wallet.address, type: .default)
+            )
+        )
         let blockchain = walletManager.wallet.blockchain
         let derivationPath = walletManager.wallet.publicKey.derivationPath
         let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
-        let tokenItem = TokenItem.blockchain(blockchainNetwork)
+        let tokenItem = token.map { TokenItem.token($0, blockchainNetwork) } ?? TokenItem.blockchain(blockchainNetwork)
         let mobileWalletInfo = MobileWalletInfo(
             hasMnemonicBackup: false,
             hasICloudBackup: false,
@@ -88,10 +111,8 @@ extension CommonWalletModel {
             walletManager: walletManager,
             stakingManager: StakingManagerMock(),
             featureManager: WalletModelFeaturesManagerMock(),
-            transactionHistoryUpdater: TransactionHistoryUpdater(
-                scheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage()
-            ),
-            transactionHistoryService: PreviewTransactionHistoryService(records: history),
+            transactionHistoryUpdater: TransactionHistoryUpdater(),
+            transactionHistoryService: transactionHistoryService,
             receiveAddressService: DummyReceiveAddressService(addressInfos: []),
             sendAvailabilityProvider: sendAvailabilityProvider,
             tokenBalancesRepository: TokenBalancesRepositoryMock(),

@@ -51,6 +51,7 @@ final class CommonServicesManager {
     @Injected(\.tokenSelectorStateStorage) private var tokenSelectorStateStorage: TokenSelectorStateStorage
     @Injected(\.gaslessTransactionsNetworkManager) private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
     @Injected(\.referralService) private var referralService: ReferralService
+    @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
     @Injected(\.mobileUpgradeBannerStorageManager) private var mobileUpgradeBannerStorageManager: MobileUpgradeBannerStorageManager
     @Injected(\.stakingTargetAmountLimitProvider) private var stakingTargetAmountLimitProvider: CommonStakingTargetAmountLimitProvider
     @Injected(\.silentPushHandlersStorage) private var silentPushHandlersStorage: SilentPushHandlersStorage
@@ -65,6 +66,7 @@ final class CommonServicesManager {
     private let customerIOWrapper: CustomerIOWrapper
 
     private var _initialized: Bool = false
+    private var isFirstLaunch = false
 
     init() {
         stakingPendingHashesSender = StakingDependenciesFactory().makePendingHashesSender()
@@ -142,6 +144,13 @@ final class CommonServicesManager {
             UITestsStorageCleaner.clearWalletData()
         }
 
+        // Stands in for the AppsFlyer callback, which never fires on internal/debug builds
+        if arguments.firstIndex(of: "-uitest-tangempay-mobile-onboarding") != nil {
+            TangemPayMobileOnboardingService().markOnboardingNeeded()
+        } else {
+            TangemPayMobileOnboardingService().markOnboardingShown()
+        }
+
         // Feature toggle overrides — reset previous overrides for deterministic UI test runs
         FeatureStorage.instance.availableFeatures = [:]
         applyFeatureToggleOverrides(from: arguments)
@@ -204,20 +213,16 @@ extension CommonServicesManager: ServicesManager {
         TangemPayMocksConfigurator().initialize()
 
         recordStartAppUsageDate()
-        let initialLaunches = recordAppLaunch()
-
-        if initialLaunches == 0 {
-            KeychainCleaner.cleanAllData()
-        }
+        isFirstLaunch = recordAppLaunch() == 0
 
         AmplitudeWrapper.shared.configure()
-        openTelemetryWrapper.configure()
         experimentService.configure()
         AppsFlyerWrapper.shared.configure(delegate: delegate)
         customerIOWrapper.configure()
 
         configureBlockchainSdkExceptionHandler()
 
+        BackendAuthenticationRegistrar.configure()
         silentPushHandlersStorage.initialize()
 
         sellService.initialize()
@@ -229,6 +234,8 @@ extension CommonServicesManager: ServicesManager {
         storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
         storyDataPrefetchService.prefetchStoryIfNeeded(.yieldFirstActivationAPYBoostStory)
         geoEligibilityService.initialize()
+        // The OTel resource carries the country, and it is fixed once the pipeline starts
+        openTelemetryWrapper.configure()
         wcService.initialize()
         eTagStorage.initialize()
         mobileAccessCodeCleaner.initialize()
@@ -236,8 +243,8 @@ extension CommonServicesManager: ServicesManager {
         tokenSelectorStateStorage.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
         gaslessTransactionsNetworkManager.initialize()
-        referralService.retryBindingIfNeeded()
         mobileUpgradeBannerStorageManager.initialize()
+        mobileFinishActivationManager.initialize()
         stakingTargetAmountLimitProvider.initialize()
         walletCardsBackupReportService.initialize()
         // Refresh the cached app-versions DTO once per session. Applied on the next launch.
@@ -251,7 +258,20 @@ extension CommonServicesManager: ServicesManager {
             return
         }
 
+        await UITestsStorageCleaner.clearKeychain()
+
         await userWalletRepository.initialize()
+
+        // A referral saved before there was a wallet is bound now that the wallets are known.
+        referralService.retryBindingIfNeeded()
+
+        if isFirstLaunch {
+            await KeychainCleaner.cleanAllData()
+        }
+
+        Task {
+            await BackendAuthenticationRegistrar.registerDevice()
+        }
 
         _initialized = true
     }
