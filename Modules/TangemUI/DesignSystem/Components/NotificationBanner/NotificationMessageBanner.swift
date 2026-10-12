@@ -154,7 +154,7 @@ private extension NotificationMessageBanner {
             .renderingMode(icon.renderingMode)
             .resizable()
             .aspectRatio(contentMode: .fit)
-            .frame(width: icon.width.value, height: icon.height.value)
+            .frame(width: icon.width, height: icon.height)
             .foregroundColor(icon.color)
     }
 

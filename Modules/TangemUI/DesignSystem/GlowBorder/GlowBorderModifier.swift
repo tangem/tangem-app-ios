@@ -41,8 +41,8 @@ struct GlowBorderModifier: ViewModifier {
 private extension GlowBorderModifier {
     func staticBorderOverlay(shape: RoundedRectangle) -> some View {
         shape
-            .strokeBorder(Color.Tangem.Border.Neutral.banner, lineWidth: SizeUnit.half.value)
-            .blur(radius: SizeUnit.x8.value)
+            .strokeBorder(Color.Tangem.Border.Neutral.banner, lineWidth: 2)
+            .blur(radius: 32)
             .drawingGroup()
             .clipShape(shape)
             .allowsHitTesting(false)
@@ -130,12 +130,12 @@ private struct GlowGradientOverlay: View, Equatable {
         ZStack {
             shape
                 .fill(gradient)
-                .blur(radius: SizeUnit.x10.value)
+                .blur(radius: 40)
                 .opacity(0.15)
 
             shape
-                .strokeBorder(gradient, lineWidth: SizeUnit.x2.value)
-                .blur(radius: SizeUnit.x6.value)
+                .strokeBorder(gradient, lineWidth: 8)
+                .blur(radius: 24)
         }
         .clipShape(shape)
     }
@@ -146,7 +146,7 @@ private struct GlowGradientOverlay: View, Equatable {
 public extension View {
     func glowBorder(
         effect: GlowBorderEffect,
-        cornerRadius: CGFloat = SizeUnit.x6.value
+        cornerRadius: CGFloat = 24
     ) -> some View {
         modifier(GlowBorderModifier(effect: effect, cornerRadius: cornerRadius))
     }

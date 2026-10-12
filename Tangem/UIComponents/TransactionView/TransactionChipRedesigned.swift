@@ -28,7 +28,7 @@ struct TransactionChipRedesigned: View {
     private var transactionKey: String { viewModel.transactionType.accessibilityIdentifierKey }
 
     var body: some View {
-        HStack(spacing: .unit(.x1)) {
+        HStack(spacing: 4) {
             leadingIcon
 
             if let failedApproveAmount {
@@ -48,8 +48,8 @@ struct TransactionChipRedesigned: View {
                 subtitleView
             }
         }
-        .padding(.horizontal, .unit(.x3))
-        .padding(.vertical, .unit(.x1))
+        .padding(.horizontal, 12)
+        .padding(.vertical, 4)
         .background(background)
         .clipShape(Capsule(style: .continuous))
         .fixedSize(horizontal: false, vertical: true)
@@ -223,7 +223,7 @@ private enum ChipPreviewFixture {
 }
 
 #Preview("Chip variants") {
-    VStack(spacing: .unit(.x2)) {
+    VStack(spacing: 8) {
         ForEach(Array(ChipPreviewFixture.combinations.enumerated()), id: \.offset) { _, model in
             TransactionChipRedesigned(viewModel: model)
         }
