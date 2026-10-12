@@ -213,6 +213,7 @@ struct TokenDetailsView: View {
                     bannerType: notification.bannerType,
                     variant: notification.variant,
                     ring: notification.ring,
+                    textColors: notification.textColors,
                     accessibilityIdentifier: notification.accessibilityIdentifier
                 )
             }
