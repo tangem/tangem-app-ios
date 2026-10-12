@@ -22,7 +22,7 @@ struct TangemPayTransactionHistoryErrorView: View {
                 action: reloadAction
             )
             .size(.x10)
-            .styleType(.default)
+            .styleType(.primary)
 
             Text(Localization.transactionHistoryErrorFailedToLoad)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)

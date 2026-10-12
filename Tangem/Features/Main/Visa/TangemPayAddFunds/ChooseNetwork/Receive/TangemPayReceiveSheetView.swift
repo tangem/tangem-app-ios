@@ -236,7 +236,7 @@ private extension TangemPayReceiveSheetView {
             )
             .iconEnd(DesignSystem.Icons.ShareIos.regular24)
             .size(.x12)
-            .styleType(.default)
+            .styleType(.primary)
             .horizontalLayout(.infinity)
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetShareButton)
         }

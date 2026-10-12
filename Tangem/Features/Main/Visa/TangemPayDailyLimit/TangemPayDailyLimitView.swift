@@ -73,7 +73,7 @@ private extension TangemPayDailyLimitView {
                     action: viewModel.submit
                 )
                 .size(.x12)
-                .styleType(.default)
+                .styleType(.primary)
                 .horizontalLayout(.infinity)
                 .loading(.spinner(if: viewModel.isLoading))
                 .disabled(!viewModel.isSubmitEnabled)

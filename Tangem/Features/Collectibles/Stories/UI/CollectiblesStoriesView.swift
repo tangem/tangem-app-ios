@@ -88,7 +88,7 @@ private extension CollectiblesStoriesView {
 
     var continueButton: some View {
         TangemUI.Button(label: viewModel.currentSlide.buttonTitle, accessibilityLabel: nil, action: viewModel.onContinueTap)
-            .styleType(.default)
+            .styleType(.primary)
             .horizontalLayout(.infinity)
             .size(.x12)
             .padding(.horizontal, 16)

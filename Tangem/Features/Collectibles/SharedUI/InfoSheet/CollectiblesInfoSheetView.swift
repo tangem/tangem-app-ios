@@ -90,7 +90,7 @@ private extension CollectiblesInfoSheetView {
 
     var footer: some View {
         TangemUI.Button(label: model.buttonTitle, accessibilityLabel: nil, action: onClose)
-            .styleType(.default)
+            .styleType(.primary)
             .horizontalLayout(.infinity)
             .size(.x12)
             .padding(.horizontal, Metrics.horizontalPadding)

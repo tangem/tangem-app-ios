@@ -30,7 +30,7 @@ struct YieldModuleRewardsBannerView: View {
             accessibilityLabel: Localization.commonClaim,
             action: claimAction
         )
-        .styleType(.default)
+        .styleType(.primary)
         .size(.x9)
         .disabled(viewData.claimAvailability == .disabled)
     }

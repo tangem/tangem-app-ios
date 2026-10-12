@@ -189,7 +189,7 @@ struct PolymarketWelcomeView: View {
                 action: { viewModel.handleViewAction(.startOnboarding) }
             )
             .iconEnd(Assets.Polymarket.logo)
-            .styleType(.default)
+            .styleType(.primary)
             .size(.x12)
             .horizontalLayout(.infinity)
             .loading(viewModel.stageMessage.map(TangemUI.Button.Loading.spinnerWithMessage))

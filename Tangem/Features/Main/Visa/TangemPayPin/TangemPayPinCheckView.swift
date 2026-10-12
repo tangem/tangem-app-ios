@@ -92,7 +92,7 @@ private extension TangemPayPinCheckView {
             action: viewModel.changePin
         )
         .size(.x12)
-        .styleType(.default)
+        .styleType(.primary)
         .horizontalLayout(.infinity)
         .disabled(!viewModel.isPinLoaded)
         .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.pinCheckChangeButton)
