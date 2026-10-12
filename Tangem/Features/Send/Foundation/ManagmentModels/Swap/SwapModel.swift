@@ -1005,6 +1005,40 @@ extension SwapModel {
         }
     }
 
+    func cexDepositFee(
+        provider: ExpressAvailableProvider,
+        data: ExpressTransactionData,
+        preview: PreviewCEXState,
+        source: SendSwapableToken
+    ) async throws -> BSDKFee {
+        let manager = try provider.getTokenFeeProvidersManager()
+        let shownFee = try manager.selectedTokenFee.value.get()
+        guard FeatureProvider.isAvailable(.tronGaslessCEX),
+              shownFee.parameters is TronGaslessFeeParameters else {
+            return shownFee
+        }
+
+        let quotedFee = try await manager.transactionFee(data: .cex(data: data))
+        let sameFeeCurrency = quotedFee.amount.type == shownFee.amount.type
+            && quotedFee.amount.currencySymbol == shownFee.amount.currencySymbol
+        guard sameFeeCurrency, quotedFee.amount.value <= shownFee.amount.value else {
+            try await rejectIncreasedCEXFee(quotedFee, preview: preview, source: source)
+            throw TransactionDispatcherResult.Error.informationRelevanceServiceFeeWasIncreased
+        }
+
+        return quotedFee
+    }
+
+    private func rejectIncreasedCEXFee(_ fee: BSDKFee, preview: PreviewCEXState, source: SendSwapableToken) async throws {
+        let amount = makeAmount(value: preview.quote.fromAmount, tokenItem: source.tokenItem)
+        guard let restriction = try await validate(amount: amount, fee: fee, quote: preview.quote),
+              case .loaded(let expressState, .previewCEX) = _providersState.value else {
+            return
+        }
+
+        _providersState.send(.loaded(expressState, state: .restriction(restriction, quote: preview.quote)))
+    }
+
     func send() async throws -> TransactionDispatcherResult {
         await awaitSettledProvidersUpdate()
         // The wait outlives cancellation of this send, so a superseded one stops before the dispatcher.
@@ -1050,8 +1084,9 @@ extension SwapModel {
                 analyticsLogger.logSwapButtonSwap()
 
                 let data = try await expressManager.requestData()
+                let fee = try await cexDepositFee(provider: selected, data: data, preview: previewCEX, source: source)
                 let dispatcher = source.transactionDispatcherProvider.makeCEXTransactionDispatcher()
-                let result = try await dispatcher.send(transaction: .cex(data: data, fee: previewCEX.fee))
+                let result = try await dispatcher.send(transaction: .cex(data: data, fee: fee))
                 analyticsLogger.logSwapTransactionSent(result: result)
 
                 await notifyExpressAboutTransactionDidSent(source: source, data: data, result: result)
@@ -1059,7 +1094,7 @@ extension SwapModel {
                     source: source,
                     receive: receive,
                     provider: selected.provider,
-                    fee: previewCEX.fee,
+                    fee: fee,
                     data: data,
                     result: result
                 )
@@ -1656,9 +1691,13 @@ extension SwapModel: SendFeeInput {
         Publishers.CombineLatest(
             _providersState.filter { $0.filter(loading: [.fee]) },
             tokenFeeProvidersManagerPublisher
+                .flatMapLatest { manager in
+                    manager.selectedFeeProviderPublisher
+                        .flatMapLatest { $0.selectedTokenFeePublisher }
+                }
         )
         .withWeakCaptureOf(self)
-        .compactMap { $0.mapToSelectedFee(providersState: $1.0, tokenFeeProvidersManager: $1.1) }
+        .compactMap { $0.mapToSelectedFee(providersState: $1.0, fee: $1.1) }
         .eraseToAnyPublisher()
     }
 
@@ -1680,20 +1719,13 @@ extension SwapModel: SendFeeInput {
             .eraseToAnyPublisher()
     }
 
-    private func mapToSelectedFee(providersState: ProvidersState, tokenFeeProvidersManager: TokenFeeProvidersManager) -> TokenFee? {
+    private func mapToSelectedFee(providersState: ProvidersState, fee: TokenFee) -> TokenFee? {
         switch providersState {
         case .loading(.fee):
-            return TokenFee(
-                option: tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee.option,
-                tokenItem: tokenFeeProvidersManager.selectedFeeProvider.feeTokenItem,
-                value: .loading
-            )
+            return TokenFee(option: fee.option, tokenItem: fee.tokenItem, value: .loading)
 
-        case .loaded(.swap(.some(let selected), _), _):
-            return try? selected.getTokenFeeProvidersManager().selectedFeeProvider.selectedTokenFee
-
-        case .loaded(.transfer, _):
-            return tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee
+        case .loaded(.swap(.some, _), _), .loaded(.transfer, _):
+            return fee
 
         default:
             return nil
