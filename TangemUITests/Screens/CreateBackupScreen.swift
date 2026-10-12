@@ -8,7 +8,6 @@
 
 import XCTest
 import TangemAccessibilityIdentifiers
-import TangemLocalization
 
 final class CreateBackupScreen: ScreenBase<CreateBackupScreenElement> {
     private lazy var title = staticText(.title)

@@ -91,7 +91,7 @@ class BaseTestCase: XCTestCase {
         arguments.append(contentsOf: extraLaunchArguments)
 
         // Pin locale/language so currency, number and date assertions don't depend on the simulator region.
-        arguments.append(contentsOf: ["-AppleLocale", "en_US", "-AppleLanguages", "(en)"])
+        arguments.append(contentsOf: UITestLocale.launchArguments)
 
         app.launchArguments = arguments
 
