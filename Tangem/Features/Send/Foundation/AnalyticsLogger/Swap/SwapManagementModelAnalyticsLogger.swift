@@ -13,6 +13,7 @@ protocol SwapManagementModelAnalyticsLogger {
     func logSwapButtonTransfer()
     func logSwapTransferModeSwitched()
     func logSwapTransactionSent(result: TransactionDispatcherResult)
+    func logTransferTransactionSent(result: TransactionDispatcherResult)
     func logSwapPreselectedTokenChanged(
         direction: Analytics.ParameterValue,
         preselectedSymbol: String,
