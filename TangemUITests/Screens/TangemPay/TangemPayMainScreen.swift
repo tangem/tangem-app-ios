@@ -64,7 +64,7 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
         .matching(NSPredicate(
             format: "identifier == %@ AND label CONTAINS %@",
             TangemPayAccessibilityIdentifiers.cashbackDeactivatedBanner,
-            Constants.cashbackDeactivatedTitle
+            Localization.tangempayCashbackDeactivatedTitle
         ))
         .firstMatch
     private lazy var cashbackDeactivatedGotItButton = notificationBannerButton(TangemPayAccessibilityIdentifiers.cashbackDeactivatedBanner)
@@ -724,8 +724,8 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     func verifyCashbackWidget(amount: String, month: String) -> Self {
         XCTContext.runActivity(named: "Verify the cashback widget shows \(amount) in \(month)") { _ in
             waitAndAssertTrue(cashbackBannerSubtitle, timeout: .networkRequest, "Cashback widget should be displayed")
-            XCTAssertEqual(cashbackBannerTitle.label, Constants.cashbackTitle, "Cashback widget title mismatch")
-            XCTAssertEqual(cashbackBannerSubtitle.label, "\(amount) in \(month)", "Cashback widget amount mismatch")
+            XCTAssertEqual(cashbackBannerTitle.label, Localization.tangempayCashbackTitle, "Cashback widget title mismatch")
+            XCTAssertEqual(cashbackBannerSubtitle.label, Localization.tangempayCashbackWidgetTitle(amount, month), "Cashback widget amount mismatch")
             return self
         }
     }
@@ -757,7 +757,7 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     func verifyCashbackMenuItem(month: String) -> Self {
         XCTContext.runActivity(named: "Verify the 'Cashback in \(month)' menu item below Current plan") { _ in
             waitAndAssertTrue(cashbackMenuItem, timeout: .networkRequest, "Cashback menu item should be displayed")
-            XCTAssertEqual(cashbackMenuItem.label, "Cashback in \(month)", "Cashback menu item title mismatch")
+            XCTAssertEqual(cashbackMenuItem.label, Localization.tangempayCashbackMenuItemTitle(month), "Cashback menu item title mismatch")
             waitAndAssertTrue(currentPlanMenuItem, "Current plan menu item should be displayed")
             XCTAssertGreaterThan(
                 cashbackMenuItem.frame.minY,
@@ -892,8 +892,6 @@ enum TangemPayMainScreenElement: String, UIElement {
 
 private extension TangemPayMainScreen {
     enum Constants {
-        static let cashbackTitle = "Cashback"
-        static let cashbackDeactivatedTitle = "Cashback deactivated"
         static let cashbackOpenAttempts = 3
         static let accountClosedSupportText = "For questions about account, data or transaction history, please contact support"
         static let plasticDeliveryBannerTitle = "Your card on it's way for delivery"
