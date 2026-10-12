@@ -321,6 +321,10 @@ extension Analytics {
         case createWalletIntro = "Create Wallet Intro"
         case addNewWallet = "Add New Wallet"
 
+        // MARK: - Social login
+
+        case socialLogin = "Social Login"
+
         case set = "Set"
         case changing = "Changing"
 
