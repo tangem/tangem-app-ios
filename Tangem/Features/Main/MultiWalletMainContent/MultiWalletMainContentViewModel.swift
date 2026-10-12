@@ -48,9 +48,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published private(set) var nftEntrypointViewModel: NFTEntrypointViewModel?
 
     @Published private(set) var tokenItemPromoBubbleViewModel: TokenItemPromoBubbleViewModel?
-    @Published private(set) var promotionNotificationsViewModel: PromotionNotificationsViewModel
 
-    @Published private(set) var notificationBannerItems: [NotificationBannerItem] = []
+    let mainNotificationsViewModel: MainNotificationsViewModel
 
     weak var delegate: MultiWalletMainContentDelegate?
 
@@ -79,7 +78,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    private let notificationBannerItemsProvider: NotificationBannerItemsProvider
     private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
     private let userWalletModel: UserWalletModel
     private let userWalletNotificationManager: NotificationManager
@@ -87,7 +85,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let tokensNotificationManager: NotificationManager
     private let promotionNotificationsManager: PromotionNotificationsManager
     private let tangemPayNotificationManager: NotificationManager
-    private let getTangemPayBannerNotificationManager: NotificationManager
     private let forceUpdateBannerNotificationManager: NotificationManager
     private let yieldApyBoostBannerNotificationManager: YieldAPYBoostBannerService
     private let tokenRouter: SingleTokenRoutable
@@ -119,14 +116,14 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         tokensNotificationManager: NotificationManager,
         promotionNotificationsManager: PromotionNotificationsManager,
         tangemPayNotificationManager: NotificationManager,
-        getTangemPayBannerNotificationManager: NotificationManager,
         yieldApyBoostBannerNotificationManager: YieldAPYBoostBannerService,
         forceUpdateBannerNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
         nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling,
         tokenRouter: SingleTokenRoutable,
         coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable & TokensManagementFlowRoutable)?,
-        tokenItemPromoProvider: TokenItemPromoProvider
+        tokenItemPromoProvider: TokenItemPromoProvider,
+        mainNotificationsViewModel: MainNotificationsViewModel
     ) {
         self.userWalletModel = userWalletModel
         self.userWalletNotificationManager = userWalletNotificationManager
@@ -134,7 +131,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.tokensNotificationManager = tokensNotificationManager
         self.promotionNotificationsManager = promotionNotificationsManager
         self.tangemPayNotificationManager = tangemPayNotificationManager
-        self.getTangemPayBannerNotificationManager = getTangemPayBannerNotificationManager
         self.yieldApyBoostBannerNotificationManager = yieldApyBoostBannerNotificationManager
         self.forceUpdateBannerNotificationManager = forceUpdateBannerNotificationManager
         self.rateAppController = rateAppController
@@ -142,27 +138,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.coordinator = coordinator
         self.nftFeatureLifecycleHandler = nftFeatureLifecycleHandler
         self.tokenItemPromoProvider = tokenItemPromoProvider
-
-        // Order defines display priority — force-update banner renders above the rest.
-        notificationBannerItemsProvider = NotificationBannerItemsProvider(
-            managers: [
-                forceUpdateBannerNotificationManager,
-                userWalletNotificationManager,
-                yieldApyBoostBannerNotificationManager,
-                tokensNotificationManager,
-                tangemPayNotificationManager,
-                getTangemPayBannerNotificationManager,
-            ]
-        )
+        self.mainNotificationsViewModel = mainNotificationsViewModel
 
         balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
             userWalletConfig: userWalletModel.config,
             walletModelsPublisher: AccountWalletModelsAggregator.walletModelsPublisher(from: userWalletModel.accountModelsManager),
             updatePublisher: userWalletModel.updatePublisher
-        )
-
-        promotionNotificationsViewModel = PromotionNotificationsViewModel(
-            promotionNotificationsManager: promotionNotificationsManager
         )
 
         sectionsProvider.configure(with: self)
@@ -208,6 +189,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         await promotionNotificationsManager.loadPromotions()
         await refreshActionButtonsData()
         await MultiWalletMainContentUpdater.scheduleUpdate(with: userWalletModel)
+        await MainActor.run { mainNotificationsViewModel.refresh() }
         await setIsUpdating(false)
     }
 
@@ -373,8 +355,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: \.tokensNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        notificationBannerItemsProvider.$items
-            .assign(to: &$notificationBannerItems)
+        bindMainNotificationsVisibility()
 
         rateAppController.bind(
             notificationsPublisher1: $notificationInputs,
@@ -387,6 +368,23 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         bindCollectiblesAccountRow()
         bindPendingJointAccountPlates()
         bindPendingJointAccountOperationPlates()
+    }
+
+    // MARK: - Main notifications visibility
+
+    private func bindMainNotificationsVisibility() {
+        let hasSystemCardPublisher = Publishers
+            .CombineLatest3($notificationInputs, $tokensNotificationInputs, $pendingJointAccountsOperationsViewData)
+            .map { notifications, tokensNotifications, jointOperations in
+                !notifications.isEmpty || !tokensNotifications.isEmpty || !jointOperations.isEmpty
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+
+        mainNotificationsViewModel.bindVisibility(
+            hasSystemCardPublisher: hasSystemCardPublisher,
+            balanceProvider: userWalletModel
+        )
     }
 
     private func setupTangemPayIfNeeded() {
