@@ -66,7 +66,7 @@ private extension TangemPayCashbackDetailContentView {
                 action: reloadAction
             )
             .size(.x10)
-            .styleType(.default)
+            .styleType(.primary)
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackDetailReloadButton)
 
             Text(Localization.tangempayCashbackErrorTitle)

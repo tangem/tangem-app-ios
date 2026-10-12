@@ -203,7 +203,7 @@ struct TangemPaySelectPlanView: View {
                 action: viewModel.select
             )
             .size(.x12)
-            .styleType(.default)
+            .styleType(.primary)
             .horizontalLayout(.infinity)
             .loading(.spinner(if: viewModel.isPlacingOrder))
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.selectPlanSelectButton)

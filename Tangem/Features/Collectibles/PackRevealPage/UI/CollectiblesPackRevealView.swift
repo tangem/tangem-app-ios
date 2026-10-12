@@ -187,7 +187,7 @@ private extension CollectiblesPackRevealView {
                 .size(.x12)
 
             TangemUI.Button(label: viewModel.prize.sellBackTitle, accessibilityLabel: nil, action: viewModel.sellBack)
-                .styleType(.default)
+                .styleType(.primary)
                 .iconEnd(DesignSystem.Icons.LogoTangem.regular24)
                 .horizontalLayout(.infinity)
                 .size(.x12)

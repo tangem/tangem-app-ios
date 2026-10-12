@@ -122,7 +122,7 @@ struct TangemPayVirtualAccountBankDetailsView: View {
             accessibilityLabel: Localization.commonShare,
             action: viewModel.share
         )
-        .styleType(.default)
+        .styleType(.primary)
         .size(.x14)
         .horizontalLayout(.infinity)
         .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountBankDetailsShareButton)

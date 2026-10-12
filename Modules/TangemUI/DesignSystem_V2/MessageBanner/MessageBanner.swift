@@ -174,7 +174,7 @@ private extension MessageBanner {
                 }
 
                 if let primaryButton = config.primaryButton {
-                    buttonView(primaryButton, styleType: .default)
+                    buttonView(primaryButton, styleType: .primary)
                 }
             }
         }

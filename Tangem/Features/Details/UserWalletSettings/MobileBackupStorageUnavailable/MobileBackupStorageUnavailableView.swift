@@ -74,7 +74,7 @@ private extension MobileBackupStorageUnavailableView {
             accessibilityLabel: nil,
             action: viewModel.onActionTap
         )
-        .styleType(.default)
+        .styleType(.primary)
         .horizontalLayout(.infinity)
         .size(.x12)
     }

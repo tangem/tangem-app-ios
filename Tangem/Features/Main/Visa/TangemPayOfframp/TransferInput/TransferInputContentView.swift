@@ -202,7 +202,7 @@ private extension TransferInputContentView {
             action: continueAction
         )
         .size(.x12)
-        .styleType(.default)
+        .styleType(.primary)
         .horizontalLayout(.infinity)
         .disabled(!state.isContinueEnabled || isContinuing)
     }

@@ -295,7 +295,7 @@ struct TangemPayOnboardingContentView: View {
             onGetCard()
         }
         .iconEnd(getCardIcon)
-        .styleType(.default)
+        .styleType(.primary)
         .horizontalLayout(.infinity)
         .loading(.spinner(if: isLoading))
         .size(.x12)

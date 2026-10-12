@@ -71,7 +71,7 @@ struct TangemPayCampaignIssueCardView: View {
             accessibilityLabel: nil,
             action: viewModel.issueCampaignCard
         )
-        .styleType(.default)
+        .styleType(.primary)
         .horizontalLayout(.infinity)
         .loading(.spinner(if: viewModel.isCTALoading))
         .size(.x12)

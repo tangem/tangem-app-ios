@@ -60,7 +60,7 @@ public struct PolymarketPositionDetailsView: View {
         HStack(spacing: Constants.groupSpacing) {
             actionButton(model.secondaryAction, styleType: .secondary(.default))
 
-            actionButton(model.primaryAction, styleType: .default)
+            actionButton(model.primaryAction, styleType: .primary)
         }
         .padding(.horizontal, Constants.horizontalPadding)
         .padding(.vertical, Constants.footerVerticalPadding)

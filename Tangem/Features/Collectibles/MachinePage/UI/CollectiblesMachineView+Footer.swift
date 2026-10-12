@@ -78,7 +78,7 @@ private extension CollectiblesMachineView.Footer {
 
     var openButton: some View {
         TangemUI.Button(label: openButtonText, accessibilityLabel: nil, action: onOpenTap)
-            .styleType(.default)
+            .styleType(.primary)
             .horizontalLayout(.infinity)
             .size(.x12)
     }

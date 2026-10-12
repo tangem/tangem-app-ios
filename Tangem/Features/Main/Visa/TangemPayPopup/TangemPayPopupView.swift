@@ -108,7 +108,7 @@ private extension TangemPayPopupView {
                     .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.popupSecondaryButton)
             }
 
-            button(viewModel.primaryButton, style: .default)
+            button(viewModel.primaryButton, style: .primary)
                 .accessibilityIdentifier(viewModel.primaryButtonAccessibilityIdentifier)
         }
     }

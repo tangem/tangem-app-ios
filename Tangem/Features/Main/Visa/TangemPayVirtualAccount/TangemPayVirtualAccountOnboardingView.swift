@@ -121,7 +121,7 @@ struct TangemPayVirtualAccountOnboardingView: View {
             }
 
             TangemUI.Button(label: Localization.commonContinue, accessibilityLabel: nil, action: viewModel.showDetails)
-                .styleType(.default)
+                .styleType(.primary)
                 .size(.x12)
                 .horizontalLayout(.infinity)
                 .loading(.spinner(if: viewModel.isLoading))

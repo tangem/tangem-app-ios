@@ -38,7 +38,7 @@ struct ButtonShowcase: View {
             case .material:
                 controls.picker("Material", $material)
                 controls.note("Switch the stage background to gradient to tell glass from blur.")
-            case .brand, .default, .outline, .ghost, .positive:
+            case .brand, .primary, .outline, .ghost, .success:
                 EmptyView()
             }
 
@@ -97,7 +97,7 @@ struct ButtonShowcase: View {
             }
 
             DSShowcaseGroup("Loading") {
-                DSShowcaseMatrix(rows: [LoadingKind.spinner, .message], columns: [StyleKind.brand, .default, .outline]) { loading, style in
+                DSShowcaseMatrix(rows: [LoadingKind.spinner, .message], columns: [StyleKind.brand, .primary, .outline]) { loading, style in
                     sampleButton(style: style.styleType(appearance: .default, material: .glass))
                         .loading(loading.loading(message: "Signing"))
                 }
@@ -169,22 +169,22 @@ struct ButtonShowcase: View {
 private extension ButtonShowcase {
     enum StyleKind: CaseIterable {
         case brand
-        case `default`
+        case primary
         case secondary
         case material
         case outline
         case ghost
-        case positive
+        case success
 
         func styleType(appearance: TangemUI.Button.Appearance, material: TangemUI.Button.Material) -> TangemUI.Button.StyleType {
             switch self {
             case .brand: .brand
-            case .default: .default
+            case .primary: .primary
             case .secondary: .secondary(appearance)
             case .material: .material(material)
             case .outline: .outline
             case .ghost: .ghost
-            case .positive: .positive
+            case .success: .success
             }
         }
     }
