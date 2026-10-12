@@ -483,6 +483,14 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
+    func tapWithdrawOpeningHub() -> TangemPayWithdrawHubScreen {
+        XCTContext.runActivity(named: "Tap Withdraw and expect the Withdraw hub") { _ in
+            withdrawButton.waitAndTap()
+            return TangemPayWithdrawHubScreen(app).waitForScreen()
+        }
+    }
+
+    @discardableResult
     func verifyWithdrawDisabled() -> Self {
         XCTContext.runActivity(named: "Verify Withdraw button is disabled") { _ in
             waitAndAssertTrue(withdrawButton, "Withdraw button should be displayed")
