@@ -42,6 +42,12 @@ enum TangemPayDisplayRecord {
     case fee(TangemPayTransactionHistoryResponse.Fee)
 }
 
+enum TangemPayCollateralKind {
+    case deposit
+    case withdrawal
+    case cashback
+}
+
 // MARK: - Projections
 
 extension TangemPayTransactionHistoryResponse.Record {
@@ -52,6 +58,17 @@ extension TangemPayTransactionHistoryResponse.Record {
         case .collateral(let collateral): .collateral(collateral)
         case .payment(let payment): .payment(payment)
         case .fee(let fee): .fee(fee)
+        }
+    }
+}
+
+extension TangemPayTransactionHistoryResponse.Collateral {
+    var resolvedKind: TangemPayCollateralKind {
+        switch kind {
+        case .deposit: .deposit
+        case .withdrawal: .withdrawal
+        case .cashback: .cashback
+        case .undefined, .none: amount < 0 ? .withdrawal : .deposit
         }
     }
 }

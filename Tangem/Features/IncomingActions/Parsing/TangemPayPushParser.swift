@@ -78,6 +78,8 @@ struct TangemPayPushParser {
             return parseCollateral(userInfo: userInfo).map(TangemPayPushPayload.Body.collateralWithdraw)
         case .collateralDeposit:
             return parseCollateral(userInfo: userInfo).map(TangemPayPushPayload.Body.collateralDeposit)
+        case .cashbackTopUp:
+            return parseCollateral(userInfo: userInfo).map(TangemPayPushPayload.Body.cashbackTopUp)
         case .thresholdTopUp:
             return .thresholdTopUp
         }
