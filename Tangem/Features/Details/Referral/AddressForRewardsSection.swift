@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAccounts
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 import TangemLocalization
 
 struct AddressForRewardsSection: View {
@@ -42,6 +43,7 @@ struct AddressForRewardsSection: View {
                 }
             )
             .padding(.top, 12)
+            .accessibilityIdentifier(ReferralAccessibilityIdentifiers.addressForRewardsAccountRow)
         }
         .roundedBackground(with: Colors.Background.primary, verticalPadding: 12, horizontalPadding: 14)
     }

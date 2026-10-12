@@ -14,9 +14,11 @@ import TangemFoundation
 
 final class JointAccountMemberNameViewModel: ObservableObject {
     @Published var alert: AlertBinder?
-    @Published var name: String = "" {
+    @Published var name: String {
         didSet { validate(name: name.trimmed()) }
     }
+
+    var submitButtonTitle: String { helper.submitButtonTitle }
 
     var nameMaxLength: Int { JointAccountMemberNameValidator.maxLength }
 
@@ -25,47 +27,49 @@ final class JointAccountMemberNameViewModel: ObservableObject {
         validationError != nil && validationError != .empty
     }
 
-    var createButtonIcon: ImageType? {
-        creationHelper.tangemIconProvider.getMainButtonIcon()?.imageType
+    var submitButtonIcon: ImageType? {
+        helper.tangemIconProvider.getMainButtonIcon()?.imageType
     }
 
-    var createButtonDisabled: Bool {
+    var submitButtonDisabled: Bool {
         validationError != nil
     }
 
     @Published private var validationError: JointAccountMemberNameValidator.ValidationError? = .empty
-    @Published private(set) var isCreating = false
+    @Published private(set) var isSubmitting = false
 
     private let nameValidator = JointAccountMemberNameValidator()
-    private let creationHelper: JointAccountCreationHelper
+    private let helper: any JointAccountMemberNameHelper
     private weak var coordinator: JointAccountMemberNameRoutable?
 
     init(
-        creationHelper: JointAccountCreationHelper,
+        helper: any JointAccountMemberNameHelper,
         coordinator: JointAccountMemberNameRoutable?
     ) {
-        self.creationHelper = creationHelper
+        self.helper = helper
         self.coordinator = coordinator
+
+        name = helper.initialName
+        validate(name: helper.initialName.trimmed())
     }
 
     @MainActor
-    func onCreateTap() {
+    func onSubmitTap() {
         // Raised here rather than inside the task: the task reaches the main actor a hop later, by which time a second
         // tap would already have passed this check
-        guard !isCreating else {
+        guard !isSubmitting else {
             return
         }
 
-        isCreating = true
-        creationHelper.update(creatorName: name.trimmed())
+        isSubmitting = true
 
         runTask(in: self) { viewModel in
-            await viewModel.createAccount()
+            await viewModel.submit()
         }
     }
 
     func onCloseTap() {
-        guard creationHelper.hasUnsavedChanges else {
+        guard helper.hasUnsavedChanges else {
             coordinator?.closeMemberName()
             return
         }
@@ -80,13 +84,12 @@ final class JointAccountMemberNameViewModel: ObservableObject {
 
 private extension JointAccountMemberNameViewModel {
     @MainActor
-    func createAccount() async {
-        defer { isCreating = false }
+    func submit() async {
+        defer { isSubmitting = false }
 
-        do {
-            try await creationHelper.createAccount()
-            coordinator?.openInviteMembers(creationHelper: creationHelper)
-        } catch .unknownError(let error) where error.isCancellationError {
+        do throws(AccountEditError) {
+            try await helper.submit(name: name.trimmed())
+        } catch .unknownError(let underlying) where underlying.isCancellationError {
             // The user backed out; the flow stays where it is, with nothing to report
         } catch {
             alert = AccountEditErrorAlertBuilder.makeAlert(for: error)

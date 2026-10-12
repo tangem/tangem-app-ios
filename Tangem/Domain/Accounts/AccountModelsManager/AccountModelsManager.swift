@@ -25,77 +25,36 @@ protocol AccountModelsManager: AccountModelsReordering, DisposableEntity {
     /// Archived + active
     var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> { get }
 
-    /// - Note: This method is also responsible for moving custom tokens into the newly created account if they have a matching derivation.
-    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountOperationResult
+    /// - Note: Counted apart from the wallet's own accounts, since the two take their derivation indices from
+    /// counters of their own.
+    var totalJointAccountsCountPublisher: AnyPublisher<Int, Never> { get }
 
-    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError)
+    /// - Note: This method is also responsible for moving custom tokens into the newly created account if they have a matching derivation.
+    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountCreationResult
+
+    func addJointAccount(context: JointAccountCreationContextType) async throws(AccountEditError) -> AccountCreationResult
+
+    /// Joins an account someone else created, taking up the slot the invite was issued for.
+    func joinJointAccount(context: JointAccountJoinContext) async throws(AccountEditError) -> AccountCreationResult
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo]
 
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult
 
     func acceptTangemPayOffer(authorizingInteractor: TangemPayAuthorizing) async throws(TangemPayAuthorizationError)
+
+    /// Same as `acceptTangemPayOffer`, but the campaign's card issue order is placed before KYC so that the
+    /// tariff plan selection screen never appears.
+    func acceptTangemPayCampaignOffer(
+        authorizingInteractor: TangemPayAuthorizing,
+        campaignKey: String
+    ) async throws(TangemPayCampaignOfferError)
 }
 
-// MARK: - Convenience extensions
-
-extension AccountModelsManager {
-    /// Returns all crypto account models from the `accountModels` property.
-    var cryptoAccountModels: [any CryptoAccountModel] {
-        return accountModels
-            .flatMap { accountModel -> [any CryptoAccountModel] in
-                switch accountModel {
-                case .standard(.single(let cryptoAccountModel)):
-                    return [cryptoAccountModel]
-                case .standard(.multiple(let cryptoAccountModels)):
-                    return cryptoAccountModels
-                case .tangemPay, .polymarket:
-                    return []
-                }
-            }
-    }
-
-    /// Returns all crypto account models from the `accountModelsPublisher` property.
-    var cryptoAccountModelsPublisher: AnyPublisher<[any CryptoAccountModel], Never> {
-        accountModelsPublisher.map { accountModels in
-            accountModels.flatMap { accountModel -> [any CryptoAccountModel] in
-                switch accountModel {
-                case .standard(.single(let cryptoAccountModel)): [cryptoAccountModel]
-                case .standard(.multiple(let cryptoAccountModels)): cryptoAccountModels
-                case .tangemPay, .polymarket: []
-                }
-            }
-        }
-        .eraseToAnyPublisher()
-    }
-
-    var tangemPayAccountModel: (any TangemPayAccountModel)? {
-        let tangemPayAccountModels = accountModels
-            .compactMap { accountModel in
-                if case .tangemPay(let model) = accountModel {
-                    return model
-                }
-                return nil
-            }
-        assert(tangemPayAccountModels.count < 2)
-        return tangemPayAccountModels.first
-    }
-
-    var tangemPayAccountModelPublisher: AnyPublisher<(any TangemPayAccountModel)?, Never> {
-        accountModelsPublisher
-            .map { accountModels -> (any TangemPayAccountModel)? in
-                let tangemPayAccountModels = accountModels
-                    .compactMap { accountModel -> (any TangemPayAccountModel)? in
-                        switch accountModel {
-                        case .standard, .polymarket:
-                            nil
-                        case .tangemPay(let model):
-                            model
-                        }
-                    }
-                assert(tangemPayAccountModels.count < 2)
-                return tangemPayAccountModels.first
-            }
-            .eraseToAnyPublisher()
-    }
+enum TangemPayCampaignOfferError: Error {
+    case authorization(TangemPayAuthorizationError)
+    case order(TangemPayCampaignOrderError)
+    /// Authorization revealed a Payment account the local state had hidden. Recoverable: resolve again.
+    case accountAlreadyExists
+    case unexpectedState
 }

@@ -60,11 +60,20 @@ public final class CommonOpenTelemetryMetricsService: OpenTelemetryMetricsServic
             .setInterval(timeInterval: configuration.exportInterval)
             .build()
 
-        let resource = Resource(attributes: [
+        // The dimensions shared by every metric live here rather than on each recording: they never
+        // change while the process runs, and the collector applies them to the whole batch.
+        var resourceAttributes: [String: AttributeValue] = [
             SemanticConventions.Service.name.rawValue: .string(configuration.serviceName),
             SemanticConventions.Service.version.rawValue: .string(configuration.serviceVersion),
             SemanticConventions.Deployment.environmentName.rawValue: .string(configuration.environment),
-        ])
+            SemanticConventions.Os.name.rawValue: .string(configuration.osName),
+            SemanticConventions.Os.version.rawValue: .string(configuration.osVersion),
+        ]
+
+        configuration.language.map { resourceAttributes[Constants.languageKey] = .string($0) }
+        configuration.countryCode.map { resourceAttributes[Constants.countryCodeKey] = .string($0) }
+
+        let resource = Resource(attributes: resourceAttributes)
 
         // `ViewRegistry.findViews()` only consults explicitly registered views — it never falls back
         // to the per-instrument defaults it builds in its own initializer. Without this catch-all
@@ -81,7 +90,7 @@ public final class CommonOpenTelemetryMetricsService: OpenTelemetryMetricsServic
             .setInstrumentationVersion(instrumentationVersion: Constants.scopeVersion)
             .build()
 
-        return Pipeline(provider: provider, meter: meter, exporter: exporter)
+        return Pipeline(provider: provider, meter: meter, exporter: exporter, resource: resource)
     }
 
     // MARK: - Recording
@@ -180,6 +189,8 @@ extension CommonOpenTelemetryMetricsService {
         let provider: MeterProviderSdk
         let meter: MeterSdk
         let exporter: MetricExporter
+        /// The SDK keeps the resource internal, so it is held here for the wiring tests to inspect.
+        let resource: Resource
 
         func flush() {
             _ = provider.forceFlush()
@@ -199,6 +210,8 @@ private extension CommonOpenTelemetryMetricsService {
         static let scopeName = "tangem.business"
         static let scopeVersion = "1"
         static let apiKeyHeader = "x-api-key"
+        static let languageKey = "language"
+        static let countryCodeKey = "country_code"
         static let storageDirectory = "OTLPPendingBatches"
         static let backgroundTaskName = "OTLPFlush"
     }

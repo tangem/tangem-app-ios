@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayPopupView<ViewModel: TangemPayPopupViewModel, AdditionalContent: View>: View {
     @ObservedObject var viewModel: ViewModel
@@ -42,6 +43,7 @@ private extension TangemPayPopupView {
                 TangemUI.Button(icon: DesignSystem.Icons.Cross.regular20, accessibilityLabel: Localization.commonClose, action: viewModel.dismiss)
                     .size(.x11)
                     .styleType(.material(.glass))
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.popupCloseButton)
             }
             .padding(.top, 16)
             .padding(.bottom, 16)
@@ -77,6 +79,7 @@ private extension TangemPayPopupView {
             .foregroundStyle(viewModel.iconStyle.iconColor)
             .frame(width: 80, height: 80)
             .background(viewModel.iconStyle.circleColor, in: Circle())
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.popupIcon)
     }
 
     var texts: some View {
@@ -101,7 +104,8 @@ private extension TangemPayPopupView {
     var buttons: some View {
         VStack(spacing: 8) {
             if let secondaryButton = viewModel.secondaryButton {
-                button(secondaryButton, style: .secondary)
+                button(secondaryButton, style: .secondary(.default))
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.popupSecondaryButton)
             }
 
             button(viewModel.primaryButton, style: .default)
@@ -118,7 +122,7 @@ private extension TangemPayPopupView {
         .size(.x12)
         .styleType(style)
         .horizontalLayout(.infinity)
-        .isLoading(settings.isLoading)
+        .loading(.spinner(if: settings.isLoading))
         .disabled(settings.isDisabled)
     }
 }

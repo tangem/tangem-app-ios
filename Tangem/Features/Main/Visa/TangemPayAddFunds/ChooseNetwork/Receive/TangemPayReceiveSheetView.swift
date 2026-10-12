@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -108,9 +109,11 @@ private extension TangemPayReceiveSheetView {
             VStack(alignment: .leading, spacing: 2) {
                 Text(viewModel.warningTitle)
                     .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetWarningTitle)
 
                 Text(Localization.receiveBottomSheetWarningMessageDescription)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetWarningDescription)
             }
             .fixedSize(horizontal: false, vertical: true)
 
@@ -133,9 +136,11 @@ private extension TangemPayReceiveSheetView {
                     Text(viewModel.heading)
                         .multilineTextAlignment(.center)
                         .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetHeading)
 
                     SUILabel(attributedAddress)
                         .animation(nil, value: viewModel.address)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetAddress)
                 }
 
                 copyButton
@@ -145,6 +150,7 @@ private extension TangemPayReceiveSheetView {
 
     func icon(for tokenIcon: TangemPayReceiveSheetViewModel.TokenIconViewData) -> some View {
         iconContent(for: tokenIcon)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetTokenIcon(symbol: tokenIcon.symbol))
             .overlay(Circle().strokeBorder(DesignSystem.Color.borderSecondary, lineWidth: 1))
             .networkIconOverlay(
                 imageAsset: tokenIcon.networkIcon,
@@ -164,7 +170,7 @@ private extension TangemPayReceiveSheetView {
                 .minimumScaleFactor(0.5)
                 .padding(4)
                 .frame(size: CGSize(bothDimensions: Constants.tokenIconSize))
-                .background(DesignSystem.Color.bgOpaquePrimary, in: Circle())
+                .background(DesignSystem.Color.bgTransparentPrimary, in: Circle())
         } else {
             IconView(
                 url: tokenIcon.url,
@@ -203,6 +209,7 @@ private extension TangemPayReceiveSheetView {
         .size(.x8)
         .styleType(.outline)
         .horizontalLayout(.intrinsic)
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetCopyButton)
     }
 
     var actionButtons: some View {
@@ -214,8 +221,9 @@ private extension TangemPayReceiveSheetView {
             )
             .iconEnd(DesignSystem.Icons.Qr.regular24)
             .size(.x12)
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .horizontalLayout(.infinity)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetShowQRButton)
 
             TangemUI.Button(
                 label: AttributedString(Localization.commonShare),
@@ -226,6 +234,7 @@ private extension TangemPayReceiveSheetView {
             .size(.x12)
             .styleType(.default)
             .horizontalLayout(.infinity)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetShareButton)
         }
     }
 

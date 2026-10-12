@@ -8,15 +8,13 @@
 
 import Foundation
 import Combine
-import CombineExt
 import TangemFoundation
 
 final class WalletModelTransactionHistoryFeatureManager {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
-    private let key: TransactionHistoryProviderKey
+    private let providerResolver: TransactionHistoryProviderResolver
     private let tokenItem: TokenItem
-    private let registry: TransactionHistoryProviderRegistry
     private let transactionHistoryProviderSubject = CurrentValueSubject<(any TransactionHistoryProviding)?, Never>(nil)
     private var transactionHistoryProviderSubscription: AnyCancellable?
 
@@ -29,13 +27,11 @@ final class WalletModelTransactionHistoryFeatureManager {
     }
 
     init(
-        key: TransactionHistoryProviderKey,
-        tokenItem: TokenItem,
-        registry: TransactionHistoryProviderRegistry
+        providerResolver: TransactionHistoryProviderResolver,
+        tokenItem: TokenItem
     ) {
-        self.key = key
+        self.providerResolver = providerResolver
         self.tokenItem = tokenItem
-        self.registry = registry
 
         bind()
     }
@@ -50,15 +46,9 @@ final class WalletModelTransactionHistoryFeatureManager {
             .withWeakCaptureOf(self)
             .map(\.0.isExpressSupported)
             .removeDuplicates()
-            .flatMapLatest { [registry, key] isExpressSupported -> AnyPublisher<(any TransactionHistoryProviding)?, Never> in
-                guard isExpressSupported else {
-                    return .just(output: nil)
-                }
-
-                return Future
-                    .async { await registry.provider(for: key) }
-                    .eraseToOptional()
-                    .eraseToAnyPublisher()
+            .withWeakCaptureOf(self)
+            .asyncMap { manager, isExpressSupported in
+                isExpressSupported ? await manager.providerResolver.provider() : nil
             }
             .withWeakCaptureOf(self)
             .sink { manager, provider in

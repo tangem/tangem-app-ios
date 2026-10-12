@@ -8,8 +8,11 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 public protocol StakingYieldInfoProvider {
+    var stakingTargets: AsyncStream<[StakingTargetSummary]> { get }
+
     func yieldInfo(for integrationId: String) async throws -> StakingYieldInfo
 }
 
@@ -20,6 +23,10 @@ public final actor CommonStakingYieldInfoProvider {
 
     private var yieldInfos = [String: CachedStakingYieldInfo]()
     private var loadingTasks = [String: Task<StakingYieldInfo, Error>]()
+
+    private var stakingTargetsKeyedByIntegrationId = [String: [StakingTargetSummary]]()
+    private var stakingTargetsSubscribers = AsyncStream<[StakingTargetSummary]>.MulticastSubscribers<UUID>()
+
     private var bag: Set<AnyCancellable> = []
 
     public init(
@@ -45,14 +52,39 @@ public final actor CommonStakingYieldInfoProvider {
             .store(in: &bag)
     }
 
-    func invalidateCache() {
+    private func invalidateCache() {
         loadingTasks.values.forEach { $0.cancel() }
         loadingTasks.removeAll()
         yieldInfos.removeAll()
     }
+
+    private func store(stakingTargets targets: [StakingTargetSummary], for integrationId: String) {
+        guard targets.isNotEmpty else {
+            return
+        }
+
+        stakingTargetsKeyedByIntegrationId[integrationId] = targets
+        stakingTargetsSubscribers.yield(stakingTargetsKeyedByIntegrationId.values.flattened())
+    }
 }
 
 extension CommonStakingYieldInfoProvider: StakingYieldInfoProvider {
+    public nonisolated var stakingTargets: AsyncStream<[StakingTargetSummary]> {
+        .multicast(
+            with: self,
+            onSubscribe: { provider, id, continuation in
+                provider.stakingTargetsSubscribers.subscribe(
+                    id: id,
+                    continuation: continuation,
+                    currentValue: provider.stakingTargetsKeyedByIntegrationId.values.flattened()
+                )
+            },
+            onUnsubscribe: { provider, id in
+                provider.stakingTargetsSubscribers.unsubscribe(id: id)
+            }
+        )
+    }
+
     public func yieldInfo(for integrationId: String) async throws -> StakingYieldInfo {
         // Check cache
         if let cached = yieldInfos[integrationId], !cached.isExpired {
@@ -66,13 +98,22 @@ extension CommonStakingYieldInfoProvider: StakingYieldInfoProvider {
 
         // Create new loading task
         let task = Task<StakingYieldInfo, Error> { [weak self] in
-            guard let self else { throw CancellationError() }
+            guard let self else {
+                throw CancellationError()
+            }
+
+            let result: StakingYieldFetchResult
+
             switch integrationId {
             case StakingIntegrationId.ethereumP2P.rawValue:
-                return try await p2pAPIProvider.yield(targetAmountLimitProvider: targetAmountLimitProvider)
+                result = try await p2pAPIProvider.yield(targetAmountLimitProvider: targetAmountLimitProvider)
             default:
-                return try await stakeKitAPIProvider.yield(integrationId: integrationId)
+                result = try await stakeKitAPIProvider.yield(integrationId: integrationId)
             }
+
+            await store(stakingTargets: result.targets, for: integrationId)
+
+            return result.yield
         }
 
         loadingTasks[integrationId] = task

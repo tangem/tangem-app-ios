@@ -11,18 +11,30 @@ import TangemNetworkUtils
 
 public struct PolymarketOnboardingServicesFactory {
     private let networkConfiguration: TangemProviderConfiguration
+    private let environment: () -> PolymarketBFFEnvironment
+    private let serverClock: PolymarketServerClock
 
-    public init(networkConfiguration: TangemProviderConfiguration) {
-        self.networkConfiguration = networkConfiguration
+    private var backendClockPlugins: [PolymarketServerClockPlugin] {
+        [PolymarketServerClockPlugin(serverClock: serverClock)]
     }
 
-    public func makeWalletService(baseURL: URL, headers: [APIHeaderKeyInfo]) -> PolymarketWalletService {
-        let provider = TangemProvider<PolymarketWalletTarget>(
+    public init(
+        networkConfiguration: TangemProviderConfiguration,
+        environment: @escaping () -> PolymarketBFFEnvironment,
+        serverClock: PolymarketServerClock
+    ) {
+        self.networkConfiguration = networkConfiguration
+        self.environment = environment
+        self.serverClock = serverClock
+    }
+
+    public func makeWalletService(walletId: String) -> PolymarketDepositWalletService {
+        let provider = TangemProvider<PolymarketDepositWalletTarget>(
             configuration: networkConfiguration,
-            additionalPlugins: [NetworkHeadersPlugin(networkHeaders: headers)]
+            additionalPlugins: backendClockPlugins
         )
 
-        return CommonPolymarketWalletService(provider: provider, baseURL: baseURL)
+        return CommonPolymarketDepositWalletService(provider: provider, environment: environment, walletId: walletId)
     }
 
     public func makeGeoblockService() -> PolymarketGeoblockService {
@@ -41,5 +53,52 @@ public struct PolymarketOnboardingServicesFactory {
         let provider = TangemProvider<PolymarketCLOBTarget>(configuration: networkConfiguration)
 
         return CommonPolymarketCLOBService(provider: provider, baseURL: PolymarketHost.clob)
+    }
+
+    public func makePositionsValueService() -> PolymarketPositionsValueService {
+        let provider = TangemProvider<PolymarketPositionsValueTarget>(configuration: networkConfiguration)
+
+        return CommonPolymarketPositionsValueService(provider: provider, baseURL: PolymarketHost.dataAPI)
+    }
+
+    public func makeConfigurationService(
+        walletId: String,
+        store: PolymarketBuilderCodeStore
+    ) -> PolymarketConfigurationService {
+        let provider = TangemProvider<PolymarketConfigurationTarget>(
+            configuration: networkConfiguration,
+            additionalPlugins: backendClockPlugins
+        )
+
+        return CommonPolymarketConfigurationService(
+            provider: provider,
+            environment: environment,
+            walletId: walletId,
+            store: store
+        )
+    }
+
+    public func makeWithdrawService(walletId: String) -> PolymarketWithdrawService {
+        let provider = TangemProvider<PolymarketWithdrawTarget>(
+            configuration: networkConfiguration,
+            additionalPlugins: backendClockPlugins
+        )
+
+        return CommonPolymarketWithdrawService(provider: provider, environment: environment, walletId: walletId)
+    }
+
+    public func makeRedeemService(walletId: String) -> PolymarketRedeemService {
+        let provider = TangemProvider<PolymarketRedeemTarget>(
+            configuration: networkConfiguration,
+            additionalPlugins: backendClockPlugins
+        )
+
+        return CommonPolymarketRedeemService(provider: provider, environment: environment, walletId: walletId)
+    }
+
+    public func makeBridgeService() -> PolymarketBridgeService {
+        let provider = TangemProvider<PolymarketBridgeTarget>(configuration: networkConfiguration)
+
+        return CommonPolymarketBridgeService(provider: provider, baseURL: PolymarketHost.bridge)
     }
 }

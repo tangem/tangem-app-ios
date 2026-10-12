@@ -18,6 +18,8 @@ class PushNotificationsInteractorMock: PushNotificationsInteractor {
 
     func postponeRequest(in flow: PushNotificationsPermissionRequestFlow) {}
 
+    func suppressAfterLoginRequestsInCurrentSession() {}
+
     func logRequest(in flow: PushNotificationsPermissionRequestFlow) {}
 
     func initialize() {}

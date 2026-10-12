@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import BlockchainSdk
 import TangemAccounts
 import TangemAssets
 import TangemLocalization
@@ -17,25 +18,50 @@ struct JointAccountJoinView: View {
     @ObservedObject var viewModel: JointAccountJoinViewModel
 
     var body: some View {
-        ZStack(alignment: .top) {
+        ZStack {
             DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
-            glow
+            switch viewModel.state {
+            case .loading:
+                ProgressView()
+
+            case .loaded(let content):
+                invite(content)
+
+            case .invalidInvite:
+                JointAccountInvalidInviteView(
+                    onCloseTap: viewModel.onCloseTap,
+                    onGotItTap: viewModel.onCloseTap
+                )
+
+            case .loadFailed(let isRetrying):
+                JointAccountInviteLoadFailedView(
+                    isRetrying: isRetrying,
+                    onCloseTap: viewModel.onCloseTap,
+                    onRetryTap: viewModel.onRetryTap
+                )
+            }
+        }
+    }
+
+    private func invite(_ content: JointAccountJoinViewModel.Content) -> some View {
+        ZStack(alignment: .top) {
+            glow(content)
 
             VStack(spacing: .zero) {
-                accountIcon
+                accountIcon(content)
                     .infinityFrame()
 
-                content
+                self.content(content)
             }
         }
         .topNavigation(leading: .none, onClose: viewModel.onCloseTap)
         .safeAreaInset(edge: .bottom) { footer }
     }
 
-    private var glow: some View {
+    private func glow(_ content: JointAccountJoinViewModel.Content) -> some View {
         RoundedRectangle(cornerRadius: Constants.glowCornerRadius, style: .continuous)
-            .fill(viewModel.accountIconViewData.backgroundColor)
+            .fill(content.accountIconViewData.backgroundColor)
             .frame(height: Constants.glowHeight)
             .padding(.horizontal, Constants.glowHorizontalPadding)
             .blur(radius: Constants.glowBlurRadius)
@@ -43,8 +69,8 @@ struct JointAccountJoinView: View {
             .offset(y: -Constants.glowHeight / 2)
     }
 
-    private var accountIcon: some View {
-        AccountIconView(data: viewModel.accountIconViewData, settings: .extraLargeSized)
+    private func accountIcon(_ content: JointAccountJoinViewModel.Content) -> some View {
+        AccountIconView(data: content.accountIconViewData, settings: .extraLargeSized)
             .overlay(accountIconHighlight)
             .clipShape(accountIconShape)
             .overlay {
@@ -74,34 +100,34 @@ struct JointAccountJoinView: View {
         )
     }
 
-    private var content: some View {
+    private func content(_ content: JointAccountJoinViewModel.Content) -> some View {
         VStack(alignment: .leading, spacing: .zero) {
-            JointAccountHeaderTitle(title: viewModel.title, subtitle: viewModel.subtitle)
+            JointAccountHeaderTitle(title: content.title, subtitle: content.subtitle)
                 .padding(.horizontal, Constants.titleHorizontalPadding)
                 .padding(.vertical, Constants.titleVerticalPadding)
 
-            rows
+            rows(content)
                 .padding(.horizontal, Constants.rowsHorizontalPadding)
         }
     }
 
-    private var rows: some View {
+    private func rows(_ content: JointAccountJoinViewModel.Content) -> some View {
         VStack(spacing: .zero) {
-            creatorRow
+            creatorRow(content)
 
-            if viewModel.isWalletSelectionAvailable {
+            if content.isWalletSelectionAvailable {
                 walletRow
             }
         }
     }
 
-    private var creatorRow: some View {
-        Row(title: Localization.jointAccountInviteMembersCreator, value: viewModel.creatorName)
+    private func creatorRow(_ content: JointAccountJoinViewModel.Content) -> some View {
+        Row(title: Localization.jointAccountInviteMembersCreator, value: content.creatorName)
             .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
             .valueAccessory {
                 icon(DesignSystem.Icons.Info.regular20, color: DesignSystem.Color.iconSecondary)
             }
-            .showDivider(viewModel.isWalletSelectionAvailable)
+            .showDivider(content.isWalletSelectionAvailable)
             .onTap(viewModel.onCreatorInfoTap)
     }
 
@@ -183,26 +209,61 @@ private extension JointAccountJoinView {
 
 // MARK: - Previews
 
+#if DEBUG
+private struct JointAccountsNetworkServicePreviewStub: JointAccountsNetworkService {
+    func createJointAccount(blob: JointAccountCreationBlob) async throws -> JointAccountCreationResult {
+        throw CancellationError()
+    }
+
+    func getJointAccounts() async throws -> JointAccountsRemoteState { .changed([]) }
+
+    func getInvitePreview(inviteId: String) async throws -> JointAccountInvitePreview {
+        JointAccountInvitePreview(
+            config: JointAccountSignedConfig(
+                name: "Family savings",
+                icon: AccountModel.CompositeIcon.Name.safe.rawValue,
+                iconColor: CompositeIconColor.candyGrapeFizz.rawValue,
+                membersCount: 5,
+                threshold: 2
+            ),
+            creator: JointAccountInvitePreview.Creator(
+                name: "Isaac",
+                address: "0xBef7B36845000000000000ac4e6752A9cE000000"
+            )
+        )
+    }
+
+    func joinJointAccount(blob: JointAccountJoinBlob) async throws -> RemoteJointAccount {
+        throw CancellationError()
+    }
+
+    func activateJointAccount(blob: JointAccountActivationBlob) async throws -> RemoteJointAccount {
+        throw CancellationError()
+    }
+
+    func createOperation(_ request: JointAccountOperationRequest) async throws -> JointAccountOperation {
+        throw CancellationError()
+    }
+
+    func signOperation(id: String, safeTransaction: SafeTransaction, signature: Data) async throws -> JointAccountOperation {
+        throw CancellationError()
+    }
+
+    func rejectOperation(id: String) async throws -> JointAccountOperation? {
+        throw CancellationError()
+    }
+}
+
 #Preview {
     NavigationStack {
         JointAccountJoinView(
             viewModel: JointAccountJoinViewModel(
-                preview: JointAccountInvitePreview(
-                    config: JointAccountSignedConfig(
-                        name: "Family savings",
-                        icon: AccountModel.CompositeIcon.Name.safe.rawValue,
-                        iconColor: CompositeIconColor.candyGrapeFizz.rawValue,
-                        membersCount: 5,
-                        threshold: 2
-                    ),
-                    creator: JointAccountInvitePreview.Creator(
-                        name: "Isaac",
-                        address: "0xBef7B36845000000000000ac4e6752A9cE000000"
-                    )
-                ),
+                inviteId: "preview-invite",
+                networkService: JointAccountsNetworkServicePreviewStub(),
                 userWalletModels: FakeUserWalletModel.allFakeWalletModels,
                 coordinator: nil
-            )!
+            )
         )
     }
 }
+#endif

@@ -21,7 +21,7 @@ struct ActionButtonView<ViewModel: ActionButtonViewModel>: View {
 
     var body: some View {
         content
-            .bindAlert($viewModel.alert)
+            .shtorkaCompatibleBindAlert($viewModel.alert)
             .frame(height: 34)
             .frame(maxWidth: .infinity)
             .background(Colors.Background.action)

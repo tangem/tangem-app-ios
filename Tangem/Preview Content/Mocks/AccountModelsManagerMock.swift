@@ -100,6 +100,10 @@ extension AccountModelsManagerMock: AccountModelsManager {
         totalCryptoAccountsCountSubject.eraseToAnyPublisher()
     }
 
+    var totalJointAccountsCountPublisher: AnyPublisher<Int, Never> {
+        .just(output: 0)
+    }
+
     var accountModels: [AccountModel] {
         accountModelsSubject.value
     }
@@ -108,7 +112,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
         accountModelsSubject.eraseToAnyPublisher()
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountOperationResult {
+    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountCreationResult {
         let cryptoAccount = CryptoAccountModelMock(
             isMainAccount: false,
             walletModelsManager: walletModelsManager
@@ -118,10 +122,25 @@ extension AccountModelsManagerMock: AccountModelsManager {
 
         cryptoAccountModels.append(cryptoAccount)
 
-        return .none
+        return AccountCreationResult(
+            operationResult: .none,
+            derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: cryptoAccountModels.count - 1, type: .crypto)
+        )
     }
 
-    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) {}
+    func addJointAccount(context: JointAccountCreationContextType) async throws(AccountEditError) -> AccountCreationResult {
+        AccountCreationResult(
+            operationResult: .none,
+            derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 0, type: .joint)
+        )
+    }
+
+    func joinJointAccount(context: JointAccountJoinContext) async throws(AccountEditError) -> AccountCreationResult {
+        AccountCreationResult(
+            operationResult: .none,
+            derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 0, type: .joint)
+        )
+    }
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
         try? await Task.sleep(for: .seconds(2)) // simulate network call
@@ -134,7 +153,8 @@ extension AccountModelsManagerMock: AccountModelsManager {
                 icon: .init(name: .allCases.randomElement()!, color: .allCases.randomElement()!),
                 tokensCount: 3,
                 networksCount: 1,
-                derivationIndex: 10
+                derivationIndex: 10,
+                type: .crypto
             ),
             ArchivedCryptoAccountInfo(
                 accountId: .init(rawValue: UUID().uuidString),
@@ -142,7 +162,8 @@ extension AccountModelsManagerMock: AccountModelsManager {
                 icon: .init(name: .allCases.randomElement()!, color: .allCases.randomElement()!),
                 tokensCount: 10,
                 networksCount: 10,
-                derivationIndex: 20
+                derivationIndex: 20,
+                type: .crypto
             ),
         ]
     }
@@ -150,7 +171,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult {
         do {
             let persistentConfig = info.toPersistentConfig()
-            let isMainAccount = AccountModelUtils.isMainAccount(persistentConfig.derivationIndex)
+            let isMainAccount = AccountModelUtils.isMainAccount(persistentConfig.derivationIdentity)
             let unarchivedCryptoAccount = CryptoAccountModelMock(
                 isMainAccount: isMainAccount
             ) { [weak self] cryptoAccountModel in
@@ -196,4 +217,9 @@ extension AccountModelsManagerMock: AccountModelsManager {
     func dispose() {}
 
     func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async throws(TangemPayAuthorizationError) {}
+
+    func acceptTangemPayCampaignOffer(
+        authorizingInteractor: any TangemPayAuthorizing,
+        campaignKey: String
+    ) async throws(TangemPayCampaignOfferError) {}
 }

@@ -103,6 +103,9 @@ Utilities/ds-core-generator/.npm-cache/
 # DS-Core icons xcassets — materialised at bootstrap from the vendored mirror
 Modules/TangemAssets/Assets/DSIcons.xcassets/DSIcons/
 
+# DS-Core Lottie animations — materialised at bootstrap from the vendored mirror
+Modules/TangemAssets/LottieAnimations/DSCore/
+
 # Claude Code local agent worktrees
 .claude/worktrees/
 

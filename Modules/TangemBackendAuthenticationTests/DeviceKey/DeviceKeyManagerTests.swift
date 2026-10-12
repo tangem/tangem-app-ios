@@ -41,6 +41,7 @@ final class DeviceKeyManagerTests: LeakTrackingTestSuite {
     @Test
     func privateKeyRepositoryIsAccessedExactlyOnceUnderConcurrentAccess() async throws {
         let spyPrivateKeyProvider = SpyDevicePrivateKeyRepository()
+        spyPrivateKeyProvider.retrieveResult = Result.success(StubDevicePrivateKey())
         let sut = makeSUT(privateKeyRepository: spyPrivateKeyProvider)
 
         async let first = sut.publicKey
@@ -72,7 +73,7 @@ final class DeviceKeyManagerTests: LeakTrackingTestSuite {
 
         #expect(repository.receivedMessages == [.retrieve])
 
-        let expectedPrivateKey = try StubDevicePrivateKey(publicKeyResult: .success(.stub), signResult: .success(.stub))
+        let expectedPrivateKey = StubDevicePrivateKey()
         repository.retrieveResult = .success(expectedPrivateKey)
 
         let recoveredPublicKey = try await sut.publicKey
@@ -84,12 +85,13 @@ final class DeviceKeyManagerTests: LeakTrackingTestSuite {
     @Test
     func publicKeyAccessPropagatesPublicKeyConstructionFailure() async throws {
         let rawPointFormatError = DevicePublicKey.RawPointFormatError.invalidLength(actual: 0)
-        let devicePrivateKey = try StubDevicePrivateKey(
-            publicKeyResult: .failure(rawPointFormatError),
-            signResult: .success(.stub)
-        )
+        var devicePrivateKey = StubDevicePrivateKey()
+        devicePrivateKey.publicKeyResult = Result.failure(rawPointFormatError)
 
-        let sut = makeSUT(privateKeyRepository: StubDevicePrivateKeyRepository(result: .success(devicePrivateKey)))
+        let privateKeyRepository = SpyDevicePrivateKeyRepository()
+        privateKeyRepository.retrieveResult = Result.success(devicePrivateKey)
+
+        let sut = makeSUT(privateKeyRepository: privateKeyRepository)
 
         let deviceKeyManagerError = try await #require(throws: DeviceKeyManagerError.self) {
             _ = try await sut.publicKey
@@ -103,12 +105,13 @@ final class DeviceKeyManagerTests: LeakTrackingTestSuite {
 
     @Test
     func signPropagatesSigningFailure() async throws {
-        let devicePrivateKey = try StubDevicePrivateKey(
-            publicKeyResult: .success(.stub),
-            signResult: .failure(SigningError.stub)
-        )
+        var devicePrivateKey = StubDevicePrivateKey()
+        devicePrivateKey.signResult = Result.failure(SigningError.stub)
 
-        let sut = makeSUT(privateKeyRepository: StubDevicePrivateKeyRepository(result: .success(devicePrivateKey)))
+        let privateKeyRepository = SpyDevicePrivateKeyRepository()
+        privateKeyRepository.retrieveResult = Result.success(devicePrivateKey)
+
+        let sut = makeSUT(privateKeyRepository: privateKeyRepository)
         let anyData = Data()
 
         let deviceKeyManagerError = try await #require(throws: DeviceKeyManagerError.self) {
@@ -126,9 +129,10 @@ final class DeviceKeyManagerTests: LeakTrackingTestSuite {
 
 extension DeviceKeyManagerTests {
     private func makeSUT(
-        privateKeyRepository: some DevicePrivateKeyRepository = FakeDevicePrivateKeyRepository()
+        privateKeyRepository: some DevicePrivateKeyRepository = FakeDevicePrivateKeyRepository(),
+        sourceLocation: SourceLocation = #_sourceLocation
     ) -> DeviceKeyManager {
-        trackForMemoryLeaks(DeviceKeyManager(privateKeyRepository: privateKeyRepository))
+        trackForMemoryLeaks(DeviceKeyManager(privateKeyRepository: privateKeyRepository), sourceLocation: sourceLocation)
     }
 }
 

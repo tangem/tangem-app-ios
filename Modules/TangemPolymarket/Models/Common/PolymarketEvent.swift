@@ -22,6 +22,7 @@ public struct PolymarketEvent: Hashable, Sendable {
     public let iconURL: URL?
 
     public let status: PolymarketEventStatus
+    public let isLive: Bool
     public let startDate: Date?
     public let endDate: Date?
 
@@ -49,6 +50,7 @@ public struct PolymarketEvent: Hashable, Sendable {
         imageURL: URL?,
         iconURL: URL?,
         status: PolymarketEventStatus,
+        isLive: Bool,
         startDate: Date?,
         endDate: Date?,
         volume: Decimal?,
@@ -67,6 +69,7 @@ public struct PolymarketEvent: Hashable, Sendable {
         self.imageURL = imageURL
         self.iconURL = iconURL
         self.status = status
+        self.isLive = isLive
         self.startDate = startDate
         self.endDate = endDate
         self.volume = volume

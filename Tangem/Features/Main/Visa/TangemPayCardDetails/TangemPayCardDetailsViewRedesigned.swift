@@ -214,7 +214,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
                 .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(DesignSystem.Color.bgOpaquePrimary, in: Capsule())
+                .background(DesignSystem.Color.bgTransparentPrimary, in: Capsule())
         }
         .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardDetailsShowButton)
     }
@@ -226,7 +226,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
             action: viewModel.toggleVisibility
         )
         .size(.x8)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardDetailsHideButton)
         .environment(\.colorScheme, .dark)
     }

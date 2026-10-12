@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -19,13 +20,17 @@ struct TangemPayCurrentPlanView: View {
         content
             .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                changePlanButton
+                bottomButtons
             }
             .alert(item: $viewModel.alert) { $0.alert }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbar }
             .translucentNavigationBar()
             .redesigned()
+            .environment(\.openURL, OpenURLAction { url in
+                viewModel.openURL(url)
+                return .handled
+            })
     }
 
     private var content: some View {
@@ -40,6 +45,7 @@ struct TangemPayCurrentPlanView: View {
                             action: viewModel.cancelTransition
                         )
                     )
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.currentPlanAwaitingDepositBanner)
                 }
 
                 if let banner = viewModel.downgradeBanner {
@@ -50,10 +56,12 @@ struct TangemPayCurrentPlanView: View {
                             action: viewModel.stayOnPlus
                         )
                     )
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.currentPlanDowngradeBanner)
                 }
 
                 if let feeChargedBannerText = viewModel.feeChargedBannerText {
                     TangemPayCurrentPlanInfoBanner(title: feeChargedBannerText)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.currentPlanFeeChargedBanner)
                 }
 
                 ForEach(viewModel.sections) { section in
@@ -72,19 +80,38 @@ struct TangemPayCurrentPlanView: View {
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 8)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.currentPlanSection(section.title))
 
             VStack(spacing: 0) {
                 ForEach(Array(section.rows.enumerated()), id: \.element.id) { index, row in
-                    Row(title: row.value, subtitle: row.label)
+                    Row(subtitle: row.label)
+                        .titleAccessory {
+                            Text(row.value)
+                                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                                .multilineTextAlignment(.leading)
+                        }
                         .lineOrder(.secondaryFirst)
-                        .titleLineLimit(nil)
                         .showDivider(index < section.rows.count - 1)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.currentPlanRow(row.label))
                 }
             }
             .background(DesignSystem.Color.bgSecondary)
             .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var bottomButtons: some View {
+        VStack(spacing: 10) {
+            changePlanButton
+
+            fullTermsButton
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(alignment: .bottom) {
+            BottomFadeWithBlur(backgroundColor: DesignSystem.Color.bgPrimary)
+        }
     }
 
     @ViewBuilder
@@ -98,12 +125,20 @@ struct TangemPayCurrentPlanView: View {
             .size(.x12)
             .styleType(.default)
             .horizontalLayout(.infinity)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(alignment: .bottom) {
-                BottomFadeWithBlur(backgroundColor: DesignSystem.Color.bgPrimary)
-            }
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.currentPlanChangeButton)
         }
+    }
+
+    private var fullTermsButton: some View {
+        TangemUI.Button(
+            label: AttributedString(Localization.tangempayCurrentPlanFullTerms),
+            accessibilityLabel: Localization.tangempayCurrentPlanFullTerms,
+            action: viewModel.openFullTerms
+        )
+        .size(.x12)
+        .styleType(.secondary(.default))
+        .horizontalLayout(.infinity)
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.currentPlanFullTermsButton)
     }
 
     @ToolbarContentBuilder
@@ -115,6 +150,7 @@ struct TangemPayCurrentPlanView: View {
 
                 Text(viewModel.planName)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.currentPlanName)
             }
         }
     }

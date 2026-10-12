@@ -91,7 +91,7 @@ enum LinkedMarketingBannerViewModelFactory {
     ) -> (() -> Void)? {
         switch banner.action {
         case .deeplink(let url):
-            return { _ = incomingActionHandler.handleIncomingURL(url) }
+            return { incomingActionHandler.handleIncomingURL(url) }
         case .none:
             return nil
         }

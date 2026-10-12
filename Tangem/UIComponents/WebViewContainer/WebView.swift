@@ -85,6 +85,8 @@ struct WebView: UIViewRepresentable {
     }
 
     class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler {
+        @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
+
         let urlActions: [String: (String) -> Void]
         var popupUrl: Binding<URL?>?
         var isLoading: Binding<Bool>?
@@ -131,6 +133,14 @@ struct WebView: UIViewRepresentable {
             }
 
             AppLogger.info("Start to find decide for url \(String(describing: requestURL.absoluteString))")
+
+            // A link of ours goes to the deeplink system, which validates and parses it like every other
+            // incoming link.
+            if requestURL.absoluteString.lowercased().starts(with: IncomingActionConstants.appScheme),
+               incomingActionHandler.handleIncomingURL(requestURL) {
+                decisionHandler(.cancel, preferences)
+                return
+            }
 
             let tangemURL = AppEnvironment.current.tangemComBaseUrl
 

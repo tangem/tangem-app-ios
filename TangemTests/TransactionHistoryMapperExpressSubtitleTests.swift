@@ -7,6 +7,7 @@
 
 import Foundation
 import Testing
+import TangemFoundation
 import BlockchainSdk
 @testable import Tangem
 @testable import TangemExpress
@@ -49,6 +50,30 @@ struct TransactionHistoryMapperExpressSubtitleTests {
         #expect(incomingModel.symbol == ExpressMergeTestDataFactory.ethereumToken.currencySymbol)
     }
 
+    @Test("After a Send&Swap to an outside address the row names nobody, while the recipient stays known for the details")
+    func sendAndSwapToAnOutsideAddress() {
+        let resolver = SubtitleOwnerResolver(
+            blockchain: .ethereum(testnet: false),
+            currentUserWalletId: UserWalletId(value: Data()),
+            isAccountsMode: false,
+            contacts: []
+        )
+
+        let viewModel = makeSUT().mapTransactionViewModel(swapRecord(isOutgoing: true), subtitleOwnerResolver: resolver)
+
+        guard case .express(let model)? = viewModel.display.subtitle else {
+            Issue.record("expected an express subtitle for a swap")
+            return
+        }
+        #expect(model.owner == nil)
+
+        guard case .unresolved(_, let fullAddress, _)? = model.counterparty else {
+            Issue.record("expected the pay-out address to resolve to an outside one")
+            return
+        }
+        #expect(fullAddress == "0xOut")
+    }
+
     @Test("Onramp subtitle shows the paid fiat with a `from:` prefix and no owner")
     func onrampSubtitleFiat() {
         let viewModel = makeSUT().mapTransactionViewModel(onrampRecord(status: .waitingForPayment, toActualAmount: nil))
@@ -83,12 +108,27 @@ struct TransactionHistoryMapperExpressSubtitleTests {
         #expect(!viewModel.amount.value.contains(AppConstants.plusSign))
     }
 
-    @Test("Finished onramp shows the settled amount without the `~` prefix and without a sign")
-    func onrampFinishedAmountHasNoTilde() {
+    @Test("Finished onramp shows the settled amount with a `+` and without the `~` prefix")
+    func onrampFinishedAmountIsSigned() {
         let viewModel = makeSUT().mapTransactionViewModel(onrampRecord(status: .finished, toActualAmount: 1))
-        #expect(!viewModel.amount.value.hasPrefix(AppConstants.tildeSign))
-        #expect(!viewModel.amount.value.contains(AppConstants.minusSign))
-        #expect(!viewModel.amount.value.contains(AppConstants.plusSign))
+        #expect(viewModel.amount.displayValue?.hasPrefix(AppConstants.plusSign) == true)
+        #expect(viewModel.amount.displayValue?.contains(AppConstants.tildeSign) == false)
+        #expect(viewModel.amount.displayValue?.contains(AppConstants.minusSign) == false)
+    }
+
+    @Test("A finished onramp is signed even when the provider never reported the delivered amount")
+    func onrampFinishedWithoutActualAmountIsStillSigned() {
+        let viewModel = makeSUT().mapTransactionViewModel(onrampRecord(status: .finished, toActualAmount: nil))
+        #expect(viewModel.amount.displayValue?.hasPrefix(AppConstants.plusSign) == true)
+        #expect(viewModel.amount.displayValue?.contains(AppConstants.tildeSign) == false)
+    }
+
+    @Test("An unsuccessful onramp shows no amount at all")
+    func onrampUnsuccessfulAmountIsHidden() {
+        for status in [OnrampTransactionStatus.expired, .failed, .refunded] {
+            let viewModel = makeSUT().mapTransactionViewModel(onrampRecord(status: status, toActualAmount: nil))
+            #expect(viewModel.amount.displayValue == nil)
+        }
     }
 }
 
@@ -98,9 +138,11 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
     func makeSUT() -> TransactionHistoryMapper {
         TransactionHistoryMapper(
             currencySymbol: "ETH",
+            blockchain: .ethereum(testnet: false),
             addressesProvider: StubExpressSubtitleAddressesProvider(walletAddresses: ["0xSource"]),
             showSign: true,
-            isToken: false
+            isToken: false,
+            stakingNetwork: .ethereum
         )
     }
 

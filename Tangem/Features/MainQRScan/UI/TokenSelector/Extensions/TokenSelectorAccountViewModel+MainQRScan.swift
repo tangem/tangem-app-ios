@@ -19,14 +19,14 @@ extension TokenSelectorAccountViewModel {
     }
 
     var compatibleItems: [TokenSelectorItemViewModel] {
-        items.filter { $0.disabledReason == nil }
+        items.filter(\.availabilityType.isAvailable)
     }
 
     var incompatibleItemsCount: Int {
-        items.count(where: { $0.disabledReason != nil })
+        items.count(where: \.availabilityType.isUnavailable)
     }
 
     var hasCompatibleItems: Bool {
-        items.contains(where: { $0.disabledReason == nil })
+        items.contains(where: \.availabilityType.isAvailable)
     }
 }

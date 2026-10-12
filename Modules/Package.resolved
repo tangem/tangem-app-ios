@@ -1,5 +1,5 @@
 {
-  "originHash" : "4d8c1a9e8d8fc018d5147a53fc3c503025e21d83bcc4a81157ae7f9086d390a0",
+  "originHash" : "a9c851b844036116b32389578a892e56e225758ee30f4bd5c896ee16107393f0",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -357,8 +357,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/Solana.Swift.git",
       "state" : {
-        "revision" : "493281fedf15f6a70a221c9e46803b17dfb8f8c6",
-        "version" : "1.2.0-tangem19"
+        "revision" : "ff8fad1c34dbe80f8c6aada1e3a88a37a9f2ae4b",
+        "version" : "1.2.0-tangem21"
       }
     },
     {
@@ -591,8 +591,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "9497dcf84fd763c149d0e3ff0a15e74162b356b8",
-        "version" : "5.1.5"
+        "revision" : "9b66a3143f5b17166c87800fea18fca5a972ade1",
+        "version" : "5.2.3"
       }
     },
     {

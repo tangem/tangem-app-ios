@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import Combine
 import TangemFoundation
 import TangemLocalization
@@ -26,7 +27,6 @@ final class AuthViewModel: ObservableObject {
 
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
     private var isBiometricsUtilAvailable: Bool {
         BiometricsUtil.isAvailable && AppSettings.shared.useBiometricAuthentication
@@ -54,14 +54,6 @@ extension AuthViewModel {
     func onFirstAppear() {
         logScreenOpenedAnalytics()
         setupInitialState()
-    }
-
-    func onAppear() {
-        incomingActionManager.becomeFirstResponder(self)
-    }
-
-    func onDisappear() {
-        incomingActionManager.resignFirstResponder(self)
     }
 
     func onScanTroubleshootingDialogDismiss() {
@@ -176,7 +168,6 @@ private extension AuthViewModel {
                 signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
                 await openMain(userWalletModel: userWalletModel)
             } catch {
-                incomingActionManager.discardIncomingAction()
                 await runOnMain {
                     alert = error.alertBinder
                 }
@@ -189,7 +180,6 @@ private extension AuthViewModel {
                 signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
                 await openMain(userWalletModel: userWalletModel)
             } catch {
-                incomingActionManager.discardIncomingAction()
                 await runOnMain {
                     alert = error.alertBinder
                 }
@@ -254,26 +244,36 @@ private extension AuthViewModel {
         }
     }
 
+    @MainActor
     func handleUnlockWithBiometryResult(error: Error) async {
-        incomingActionManager.discardIncomingAction()
+        await waitUntilApplicationIsActive()
 
-        await runOnMain {
-            switch state {
-            case .locked:
-                setup(state: makeWalletsState())
-                if !error.isCancellationError {
-                    alert = error.alertBinder
-                } else {
-                    unlockSingleProtectedMobileWalletIfNeeded()
-                }
-            case .wallets:
-                if !error.isCancellationError {
-                    alert = error.alertBinder
-                }
-            case .none:
-                break
+        switch state {
+        case .locked:
+            setup(state: makeWalletsState())
+            if !error.isCancellationError {
+                alert = error.alertBinder
+            } else {
+                unlockSingleProtectedMobileWalletIfNeeded()
             }
+        case .wallets:
+            if !error.isCancellationError {
+                alert = error.alertBinder
+            }
+        case .none:
+            break
         }
+    }
+
+    @MainActor
+    func waitUntilApplicationIsActive() async {
+        guard UIApplication.shared.applicationState != .active else {
+            return
+        }
+
+        _ = await NotificationCenter.default
+            .notifications(named: UIApplication.didBecomeActiveNotification)
+            .first { _ in true }
     }
 
     func unlockSingleProtectedMobileWalletIfNeeded() {
@@ -312,15 +312,12 @@ private extension AuthViewModel {
 
             switch result {
             case .error(let error) where error.isCancellationError:
-                viewModel.incomingActionManager.discardIncomingAction()
-
                 await runOnMain {
                     viewModel.isCardScanning = false
                 }
 
             case .error(let error):
                 viewModel.logScanCardAnalytics(error: error)
-                viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
                     viewModel.isCardScanning = false
@@ -329,7 +326,6 @@ private extension AuthViewModel {
 
             case .onboarding(let input, _):
                 viewModel.logScanCardOnboardingAnalytics(cardInput: input.cardInput)
-                viewModel.incomingActionManager.discardIncomingAction()
 
                 await MainActor.run {
                     viewModel.isCardScanning = false
@@ -338,7 +334,6 @@ private extension AuthViewModel {
 
             case .scanTroubleshooting:
                 viewModel.logScanCardTroubleshootingAnalytics()
-                viewModel.incomingActionManager.discardIncomingAction()
 
                 await MainActor.run {
                     viewModel.isCardScanning = false
@@ -368,8 +363,6 @@ private extension AuthViewModel {
                         throw UserWalletRepositoryError.cantUnlockWallet
                     }
                 } catch {
-                    viewModel.incomingActionManager.discardIncomingAction()
-
                     await runOnMain {
                         viewModel.isCardScanning = false
                         viewModel.alert = error.alertBinder
@@ -568,18 +561,5 @@ private extension AuthViewModel {
             params: [.source: analyticsCardScanSourceParameterValue],
             contextParams: analyticsContextParams
         )
-    }
-}
-
-// MARK: - IncomingActionResponder
-
-extension AuthViewModel: IncomingActionResponder {
-    func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
-        switch action {
-        case .start:
-            return true
-        default:
-            return false
-        }
     }
 }

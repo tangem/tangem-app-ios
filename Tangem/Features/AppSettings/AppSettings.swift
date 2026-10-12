@@ -120,6 +120,12 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayIsPaeraCustomer)
     var tangemPayIsPaeraCustomer: [String: Bool] = [:]
 
+    @AppStorageCompat(StorageType.polymarketHasAccount)
+    var polymarketHasAccount: [String: Bool] = [:]
+
+    @AppStorageCompat(StorageType.collectiblesHasAccount)
+    var collectiblesHasAccount: [String: Bool] = [:]
+
     @AppStorageCompat(StorageType.tangemPayIsDisabledForCustomerWalletId)
     var tangemPayIsDisabledForCustomerWalletId: [String: Bool] = [:]
 
@@ -182,6 +188,15 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.needsTangemPayMobileOnboarding)
     var needsTangemPayMobileOnboarding: Bool = false
+
+    @AppStorageCompat(StorageType.pendingTangemPayCampaignKey)
+    var pendingTangemPayCampaignKey: String? = nil
+
+    @AppStorageCompat(StorageType.geoIpRegionCode)
+    var geoIpRegionCode: String? = nil
+
+    @AppStorageCompat(StorageType.geoIpRegionCodeUpdateDate)
+    var geoIpRegionCodeUpdateDate: Date? = nil
 
     static let shared: AppSettings = .init()
 
@@ -339,5 +354,19 @@ extension AppSettings: TangemPayTransactionHistoryCacheStorage {
         }
 
         tangemPayCachedTransactionHistory[customerWalletId] = jsonString
+    }
+}
+
+extension AppSettings: TangemPayStorageCleaner {
+    func clear(customerWalletId: String) {
+        tangemPayCachedCustomerInfo[customerWalletId] = nil
+        tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId] = nil
+        tangemPayIsPaeraCustomer[customerWalletId] = nil
+        tangemPayIsKYCHiddenForCustomerWalletId[customerWalletId] = nil
+        tangemPayIsDisabledForCustomerWalletId[customerWalletId] = nil
+        tangemPayCashbackBlockedBannerDismissedForCustomerWalletId[customerWalletId] = nil
+        tangemPayCachedLocalState[customerWalletId] = nil
+        tangemPayCachedTransactionHistory[customerWalletId] = nil
+        tangemPayCachedCashbackSummary[customerWalletId] = nil
     }
 }

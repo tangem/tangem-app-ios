@@ -24,7 +24,6 @@ final class PushNotificationsMainViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let permissionManager: PushNotificationsPermissionManager
-    private let walletId: String?
 
     private lazy var permissionRequestViewModel = PushNotificationsPermissionRequestViewModel(
         permissionManager: permissionManager,
@@ -39,17 +38,15 @@ final class PushNotificationsMainViewModel: ObservableObject {
         permissionManager: permissionManager,
         analyticsContext: PushNotificationsWarningAnalyticsContext(
             zone: .main,
-            variant: isWarningViewAvailable ? .treatment : .control,
-            walletId: walletId
+            variant: isWarningViewAvailable ? .treatment : .control
         ),
         dismissAction: { [weak self] in
             self?.dismiss()
         }
     )
 
-    init(permissionManager: PushNotificationsPermissionManager, walletId: String?) {
+    init(permissionManager: PushNotificationsPermissionManager) {
         self.permissionManager = permissionManager
-        self.walletId = walletId
     }
 
     func start() {

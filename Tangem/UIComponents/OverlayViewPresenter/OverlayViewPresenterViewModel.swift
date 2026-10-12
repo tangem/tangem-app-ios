@@ -6,90 +6,47 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
-import SwiftUI
 
 final class OverlayViewPresenterViewModel: ObservableObject {
-    @Published private var presentationStack: [OverlayView] = []
-
-    func sheet(at depth: Int) -> Binding<OverlayView?> {
-        binding(at: depth, style: .sheet)
-    }
-
-    func fullScreenCover(at depth: Int) -> Binding<OverlayView?> {
-        binding(at: depth, style: .fullScreenCover)
-    }
+    /// The one screen shown over the app at a time. A newer one takes its place rather than piling on top: what
+    /// the presenter shows is the answer to the last thing asked of it, and the older screen has been answered.
+    @Published private(set) var presentedOverlay: OverlayView?
 }
 
 // MARK: - OverlayViewPresenter
 
 extension OverlayViewPresenterViewModel: OverlayViewPresenter {
     func present(_ view: OverlayView) {
-        presentIfPossible(view)
+        guard presentedOverlay?.id != view.id else {
+            AppLogger.debug("View with \(view.id) is already presented, not presenting again.")
+            return
+        }
+
+        presentedOverlay = view
     }
 
     func dismiss() {
-        hideTopView()
+        presentedOverlay = nil
+    }
+
+    func dismissAll() {
+        presentedOverlay = nil
     }
 }
 
-// MARK: - Private
+// MARK: - OverlayViewPresentingStateProvider
 
-private extension OverlayViewPresenterViewModel {
-    @MainActor
-    func presentIfPossible(_ view: OverlayView) {
-        guard !presentationStack.contains(where: { $0.id == view.id }) else {
-            AppLogger.debug("View with \(view.id) is already in the stack, not presenting again.")
-            return
-        }
-
-        if view.animated {
-            presentationStack.append(view)
-        } else {
-            withoutAnimations { presentationStack.append(view) }
-        }
+extension OverlayViewPresenterViewModel: OverlayViewPresentingStateProvider {
+    var isPresenting: Bool {
+        presentedOverlay != nil
     }
 
-    @MainActor
-    func hideTopView() {
-        guard let top = presentationStack.last else {
-            AppLogger.debug("Presentation stack is empty, nothing to dismiss.")
-            return
-        }
-
-        if top.animated {
-            presentationStack.removeLast()
-        } else {
-            withoutAnimations { presentationStack.removeLast() }
-        }
-    }
-
-    func binding(at depth: Int, style: OverlayView.PresentationStyle) -> Binding<OverlayView?> {
-        Binding(get: { [weak self] in
-            guard let item = self?.presentationStack[safe: depth] else {
-                return nil
-            }
-
-            return item.style == style ? item : nil
-        }, set: { [weak self] newValue in
-            guard let self, newValue == nil, let item = presentationStack[safe: depth], item.style == style else {
-                return
-            }
-
-            // Dropping all views above otherwise they lost parent
-            if item.animated {
-                presentationStack.removeSubrange(depth ..< presentationStack.count)
-            } else {
-                withoutAnimations {
-                    self.presentationStack.removeSubrange(depth ..< self.presentationStack.count)
-                }
-            }
-        })
-    }
-
-    func withoutAnimations(block: () -> Void) {
-        var transaction = Transaction()
-        transaction.disablesAnimations = true
-        withTransaction(transaction, block)
+    var isPresentingPublisher: AnyPublisher<Bool, Never> {
+        $presentedOverlay
+            .map { $0 != nil }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 }

@@ -52,9 +52,10 @@ final class AccountSelectorViewModel: ObservableObject {
         self.dropsLockedAccountSections = dropsLockedAccountSections
         self.onSelect = onSelect
 
-        let hasMultipleAccounts = userWalletModels.contains { userWalletModel in
-            userWalletModel.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
-        }
+        @Injected(\.cryptoAccountsGlobalStateProvider)
+        var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
+
+        let hasMultipleAccounts = cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
 
         displayMode = preferredDisplayMode ?? (hasMultipleAccounts ? .accounts : .wallets)
 
@@ -216,8 +217,9 @@ final class AccountSelectorViewModel: ObservableObject {
                 accountAvailability: accountAvailability
             )
 
-        case .tangemPay, .polymarket:
-            // Currently it's not possible to add tokens to TangemPay or Polymarket accounts
+        case .joint, .tangemPay, .polymarket, .collectibles:
+            // Token management for joint accounts hasn't shipped yet; TangemPay, Polymarket and Collectibles
+            // don't support adding tokens at all
             return nil
         }
     }
@@ -275,8 +277,9 @@ final class AccountSelectorViewModel: ObservableObject {
                 }
             )
 
-        case .tangemPay, .polymarket:
-            // Currently it's not possible to add tokens to TangemPay or Polymarket accounts
+        case .joint, .tangemPay, .polymarket, .collectibles:
+            // Token management for joint accounts hasn't shipped yet; TangemPay, Polymarket and Collectibles
+            // don't support adding tokens at all
             return nil
         }
     }

@@ -7,172 +7,58 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 import TangemUIUtils
-import TangemAccessibilityIdentifiers
 
 struct MarketTokenRowView: View {
     @ObservedObject var viewModel: MarketTokenItemViewModel
 
-    @ScaledMetric private var scaleFactor: CGFloat = 1
-    @ScaledMetric private var horizontalPadding: CGFloat = 12
-    @ScaledMetric private var verticalPadding: CGFloat = 12
-    @ScaledMetric private var chartSpacing: CGFloat = 12
-
     var body: some View {
-        SwiftUI.Button(action: { viewModel.didTapAction?() }) {
-            HStack(spacing: chartSpacing) {
-                TangemTwoLineRowLayout(
-                    icon: { iconView },
-                    primaryLeading: { nameAndSymbolView },
-                    primaryTrailing: { priceView },
-                    secondaryLeading: { marketInfoView },
-                    secondaryTrailing: { priceChangeView }
-                )
-
-                chartView
-            }
-            .padding(.horizontal, horizontalPadding)
-            .padding(.vertical, verticalPadding)
-            .contentShape(.rect)
-        }
-        .buttonStyle(.plain)
-        .accessibilityIdentifier(
-            MarketsAccessibilityIdentifiers.marketsListTokenItem(uniqueId: viewModel.name)
-        )
-    }
-
-    // MARK: - Subviews
-
-    private var iconView: some View {
-        TokenIconV2(
-            tokenIconInfo: .remote(name: viewModel.name, imageURL: viewModel.imageURL),
-            size: .size40
-        )
-        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenIcon)
-        // Adds +4pt on top of `TangemTwoLineRowLayout`'s shared icon spacing (8) to reach the
-        // 12pt icon ↔ name gap from the latest design review without forking the DS layout.
-        .padding(.trailing, 4)
-    }
-
-    private var nameAndSymbolView: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 4) {
-            Text(viewModel.name)
-                .lineLimit(1)
-                .truncationMode(.middle)
-                .style(TangemRowConstants.Style.Title.font, color: TangemRowConstants.Style.Title.color)
-                .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenNameLabel)
-
-            Text(viewModel.symbol)
-                .lineLimit(1)
-                .style(TangemRowConstants.Style.Subtitle.font, color: TangemRowConstants.Style.Subtitle.color)
-                .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenCurrencyLabel)
-        }
-    }
-
-    private var priceView: some View {
-        Text(viewModel.priceValueAttributed)
-            .lineLimit(1)
-            .blinkForegroundColor(
-                publisher: viewModel.$priceChangeAnimation,
-                positiveColor: DesignSystem.Color.textAccentBlue,
-                negativeColor: DesignSystem.Color.textAccentRed,
-                originalColor: DesignSystem.Color.textPrimary
+        TokenRowMarket(
+            .price(
+                icon: .remote(name: viewModel.name, imageURL: viewModel.imageURL),
+                title: viewModel.name,
+                ticker: viewModel.symbol,
+                rank: viewModel.marketRating,
+                capitalisation: viewModel.marketCap,
+                price: .loaded(viewModel.priceValue),
+                priceChange: priceChange,
+                graph: viewModel.charts,
+                onTap: { viewModel.didTapAction?() }
             )
-            .font(token: DesignSystem.Font.bodyMediumToken)
-            .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenPrice)
+        )
+        .accessibilityIdentifiers(
+            TokenRowMarket.AccessibilityIdentifiers(
+                name: MarketsAccessibilityIdentifiers.marketsListTokenNameLabel,
+                ticker: MarketsAccessibilityIdentifiers.marketsListTokenCurrencyLabel,
+                price: MarketsAccessibilityIdentifiers.marketsListTokenPrice,
+                priceChange: MarketsAccessibilityIdentifiers.marketsListTokenPriceChange,
+                capitalisation: MarketsAccessibilityIdentifiers.marketsListTokenMarketCap,
+                rank: MarketsAccessibilityIdentifiers.marketsListTokenRating,
+                icon: MarketsAccessibilityIdentifiers.marketsListTokenIcon,
+                graph: MarketsAccessibilityIdentifiers.marketsListTokenChart
+            )
+        )
+        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenItem(uniqueId: viewModel.name))
     }
 
-    private var marketInfoView: some View {
-        let rank = viewModel.marketRating.flatMap(Int.init)
-        let marketCapColor = rankColors(for: rank).textColor
-
-        return HStack(spacing: 4) {
-            if let marketRating = viewModel.marketRating, let rank {
-                rankBadgeView(rating: marketRating, rank: rank)
-                    .fixedSize()
-                    .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenRating)
-            }
-
-            Text(viewModel.marketCap)
-                .lineLimit(1)
-                .style(DesignSystem.Font.captionMediumToken, color: marketCapColor)
-                .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenMarketCap)
-
-            if let maxApy = viewModel.maxApy {
-                TangemBadge(text: maxApy, size: .x4)
-                    .type(.tinted)
-                    .color(.gray)
-            }
+    private var priceChange: TokenRowPriceChange? {
+        let direction: UtilPriceChange.Direction = switch viewModel.priceChangeState.changeType {
+        case .positive: .positive
+        case .negative: .negative
+        case .neutral, nil: .neutral
         }
-    }
 
-    private var priceChangeView: some View {
-        PriceChangeView(state: viewModel.priceChangeState, useRedesignColors: true)
-            .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenPriceChange)
-    }
-
-    @ViewBuilder
-    private var chartView: some View {
-        Group {
-            if let charts = viewModel.charts {
-                LineChartView(
-                    color: viewModel.priceChangeState.changeType?.color ?? DesignSystem.Color.textSecondary,
-                    data: charts
-                )
-            } else {
-                Color.clear
-                    .skeletonable(
-                        isShown: true,
-                        size: CGSize(width: chartSize.width, height: 12),
-                        radius: 4
-                    )
-            }
+        switch viewModel.priceChangeState {
+        case .loaded(_, let text):
+            return TokenRowPriceChange(value: text, direction: direction)
+        case .loadingCached(_, let text):
+            return TokenRowPriceChange(value: text, direction: direction, isUpdating: true)
+        default:
+            return nil
         }
-        .frame(size: chartSize, alignment: .center)
-        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenChart)
-    }
-
-    // MARK: - Rank Badge
-
-    private func rankBadgeView(rating: String, rank: Int) -> some View {
-        let colors = rankColors(for: rank)
-
-        return HStack(alignment: .center, spacing: .zero) {
-            Assets.DesignSystem.oliveLeft.image
-                .resizable()
-                .renderingMode(.template)
-                .frame(size: oliveSize)
-                .foregroundStyle(colors.oliveColor)
-
-            Text(rating)
-                .style(DesignSystem.Font.captionMediumToken, color: colors.textColor)
-
-            Assets.DesignSystem.oliveRight.image
-                .resizable()
-                .renderingMode(.template)
-                .frame(size: oliveSize)
-                .foregroundStyle(colors.oliveColor)
-        }
-    }
-
-    private func rankColors(for rank: Int?) -> (oliveColor: Color, textColor: Color) {
-        switch rank {
-        // [DS3] kept until new DS component lands
-        case 1: (oliveColor: .Tangem.Market.iconTop1, textColor: .Tangem.Market.textTop1)
-        case 2: (oliveColor: .Tangem.Market.iconTop2, textColor: .Tangem.Market.textTop2)
-        case 3: (oliveColor: .Tangem.Market.iconTop3, textColor: .Tangem.Market.textTop3)
-        default: (oliveColor: DesignSystem.Color.iconSecondary, textColor: DesignSystem.Color.textSecondary)
-        }
-    }
-
-    private var oliveSize: CGSize {
-        CGSize(width: 12, height: 16) * scaleFactor
-    }
-
-    private var chartSize: CGSize {
-        CGSize(width: 48, height: 24) * scaleFactor
     }
 }
 
@@ -192,7 +78,8 @@ private let previewTokens: [MarketsTokenModel] = [
         marketCap: 1_320_000_000_000,
         isUnderMarketCapLimit: false,
         stakingOpportunities: nil,
-        networks: nil
+        networks: nil,
+        restrictedForCountry: nil
     ),
     MarketsTokenModel(
         id: "ethereum",
@@ -205,7 +92,8 @@ private let previewTokens: [MarketsTokenModel] = [
         marketCap: 423_000_000_000,
         isUnderMarketCapLimit: false,
         stakingOpportunities: nil,
-        networks: nil
+        networks: nil,
+        restrictedForCountry: nil
     ),
     MarketsTokenModel(
         id: "solana",
@@ -218,7 +106,8 @@ private let previewTokens: [MarketsTokenModel] = [
         marketCap: 62_000_000_000,
         isUnderMarketCapLimit: false,
         stakingOpportunities: nil,
-        networks: nil
+        networks: nil,
+        restrictedForCountry: nil
     ),
 ]
 

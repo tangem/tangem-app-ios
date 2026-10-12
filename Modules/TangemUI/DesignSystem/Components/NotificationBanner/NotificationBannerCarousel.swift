@@ -15,6 +15,8 @@ public struct NotificationBannerCarousel<Item, BannerView: View>: View {
 
     private var hasClipShape: Bool = true
     private var paginationHasBackground: Bool = true
+    private var paginationSpacing: CGFloat = SizeUnit.x4.value
+    private var paginationMinHeight: CGFloat?
     private var currentIndexHasChanged: ((Int) -> Void)?
 
     @State private var currentIndex: Int = 0
@@ -43,7 +45,7 @@ public struct NotificationBannerCarousel<Item, BannerView: View>: View {
     private var content: some View {
         let wrappedItems = items.enumerated().map { IndexedItem(index: $0.offset, item: $0.element) }
 
-        return VStack(spacing: SizeUnit.x4.value) {
+        return VStack(spacing: paginationSpacing) {
             TangemCarousel(wrappedItems) { wrappedItem in
                 bannerView(wrappedItem.item)
                     .onGeometryChange(for: CGFloat.self, of: { $0.size.height }) { height in
@@ -76,6 +78,7 @@ public struct NotificationBannerCarousel<Item, BannerView: View>: View {
                     currentIndex: safeCurrentIndex,
                     hasBackground: paginationHasBackground
                 )
+                .frame(minHeight: paginationMinHeight)
                 .animation(nil, value: items.count)
             }
         }
@@ -150,6 +153,13 @@ extension NotificationBannerCarousel: Setupable {
 
     public func paginationHasBackground(_ background: Bool) -> Self {
         map { $0.paginationHasBackground = background }
+    }
+
+    public func paginationLayout(spacing: CGFloat, minHeight: CGFloat? = nil) -> Self {
+        map {
+            $0.paginationSpacing = spacing
+            $0.paginationMinHeight = minHeight
+        }
     }
 
     public func currentIndexHasChanged(_ changed: ((Int) -> Void)?) -> Self {

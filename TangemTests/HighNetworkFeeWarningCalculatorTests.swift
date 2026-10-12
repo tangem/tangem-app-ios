@@ -142,14 +142,22 @@ private extension HighNetworkFeeWarningCalculatorTests {
 
 // MARK: - Mock
 
-private final class MockTokenQuotesRepository: TokenQuotesRepository, TokenQuotesRepositoryUpdater {
-    var quotes: Quotes
+/// Installed as the app's quotes repository for the length of a test, which leaves it open to whatever else
+/// the test host is running: real services write quotes from their own threads, and an unguarded dictionary
+/// meeting one of those writes takes the whole host down.
+final class MockTokenQuotesRepository: TokenQuotesRepository, TokenQuotesRepositoryUpdater {
+    private let storedQuotes: OSAllocatedUnfairLock<Quotes>
+
+    var quotes: Quotes {
+        storedQuotes.withLock { $0 }
+    }
+
     var quotesPublisher: AnyPublisher<Quotes, Never> {
         Just(quotes).eraseToAnyPublisher()
     }
 
     init(quotes: Quotes) {
-        self.quotes = quotes
+        storedQuotes = OSAllocatedUnfairLock(initialState: quotes)
     }
 
     func quote(for currencyId: String) async throws -> TokenQuote {
@@ -169,8 +177,10 @@ private final class MockTokenQuotesRepository: TokenQuotesRepository, TokenQuote
     }
 
     func saveQuotes(_ quotes: [TokenQuote]) {
-        for quote in quotes {
-            self.quotes[quote.currencyId] = quote
+        storedQuotes.withLock { stored in
+            for quote in quotes {
+                stored[quote.currencyId] = quote
+            }
         }
     }
 }

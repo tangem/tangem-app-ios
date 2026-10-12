@@ -38,6 +38,7 @@ final class CommonETagStorage {
             for userWalletId in userWalletIds {
                 clearETag(for: .accounts(walletId: userWalletId))
                 clearETag(for: .addressBook(walletId: userWalletId))
+                clearETag(for: .jointAccounts(walletId: userWalletId))
             }
         default:
             break
@@ -75,6 +76,7 @@ private extension ETagStorageKey {
         switch self {
         case .accounts(let walletId): "CryptoAccountsETagStorage_\(walletId.stringValue)"
         case .addressBook(let walletId): "AddressBookETagStorage_\(walletId.stringValue)"
+        case .jointAccounts(let walletId): "JointAccountsETagStorage_\(walletId.stringValue)"
         }
     }
 }

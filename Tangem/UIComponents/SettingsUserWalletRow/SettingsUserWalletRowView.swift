@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemAccessibilityIdentifiers
@@ -70,41 +71,56 @@ struct SettingsUserWalletRowView: View {
 
     private var textViews: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(viewModel.name)
-                .lineLimit(1)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+            HStack(spacing: 4) {
+                Text(viewModel.name)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+
+                if viewModel.hasSeedPhrase {
+                    Badge(label: Localization.detailsWalletSeedBadge, accessibilityLabel: Localization.commonSeedPhrase)
+                        .size(.x4)
+                        .fixedSize(horizontal: true, vertical: false)
+                }
+            }
 
             HStack(spacing: 4) {
                 Text(viewModel.cardSetLabel)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .layoutPriority(1)
 
                 if viewModel.balanceState != .empty {
                     Text(AppConstants.dotSign)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
                     LoadableBalanceView(
                         state: viewModel.balanceState,
-                        style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
+                        style: .init(font: DesignSystem.Font.captionMediumToken, textColor: DesignSystem.Color.textSecondary),
                         loader: .init(size: CGSize(width: 40, height: 12))
                     )
                 }
             }
             .lineLimit(1)
+            .truncationMode(.tail)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
+
+// MARK: - Previews
 
 #Preview("SettingsUserWalletRowView") {
     let cardSetLabel = UserWalletModelMock().config.cardSetLabel
 
     ZStack {
-        Colors.Background.tertiary.ignoresSafeArea()
+        DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
         VStack {
             SettingsUserWalletRowView(
                 viewModel: .init(
                     name: "My wallet",
                     cardSetLabel: cardSetLabel,
+                    hasSeedPhrase: false,
                     isUserWalletBackupNeeded: false,
                     isUserWalletLocked: false,
                     userWalletUpdatePublisher: .just(output: .nameDidChange(name: "My wallet")),
@@ -118,6 +134,7 @@ struct SettingsUserWalletRowView: View {
                 viewModel: .init(
                     name: "My wallet",
                     cardSetLabel: cardSetLabel,
+                    hasSeedPhrase: true,
                     isUserWalletBackupNeeded: false,
                     isUserWalletLocked: false,
                     userWalletUpdatePublisher: .just(output: .nameDidChange(name: "My wallet")),
@@ -129,12 +146,13 @@ struct SettingsUserWalletRowView: View {
 
             SettingsUserWalletRowView(
                 viewModel: .init(
-                    name: "Old wallet",
+                    name: "This is my second wallet with a very long name",
                     cardSetLabel: cardSetLabel,
+                    hasSeedPhrase: true,
                     isUserWalletBackupNeeded: false,
                     isUserWalletLocked: false,
-                    userWalletUpdatePublisher: .just(output: .nameDidChange(name: "Old wallet")),
-                    totalBalancePublisher: .just(output: .loaded(balance: 96.75)),
+                    userWalletUpdatePublisher: .empty,
+                    totalBalancePublisher: .just(output: .loaded(balance: 123456789.99)),
                     walletImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )
@@ -144,6 +162,7 @@ struct SettingsUserWalletRowView: View {
                 viewModel: .init(
                     name: "Locked wallet",
                     cardSetLabel: cardSetLabel,
+                    hasSeedPhrase: false,
                     isUserWalletBackupNeeded: true,
                     isUserWalletLocked: true,
                     userWalletUpdatePublisher: .just(output: .nameDidChange(name: "Locked wallet")),

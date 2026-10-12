@@ -20,6 +20,7 @@ import struct TangemUIUtils.AlertBinder
 
 final class ReferralViewModel: ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.referralProgramInfoRepository) private var referralProgramInfoRepository: ReferralProgramInfoRepository
 
     @MainActor
     @Published var isProcessingRequest: Bool = false
@@ -143,6 +144,7 @@ final class ReferralViewModel: ObservableObject {
                 )
 
                 await MainActor.run { self.referralProgramInfo = referralProgramInfo }
+                referralProgramInfoRepository.store(referralProgramInfo, for: UserWalletId(value: userWalletId))
                 await updateViewState(accountModel: accountModel)
 
                 Analytics.log(.referralParticipateSuccessful)
@@ -193,10 +195,7 @@ final class ReferralViewModel: ObservableObject {
     @MainActor
     private func loadReferralInfo() async -> ReferralProgramInfo? {
         do {
-            return try await tangemApiService.loadReferralProgramInfo(
-                for: userWalletId.hexString,
-                expectedAwardsLimit: ReferralConstants.expectedAwardsFetchLimit
-            )
+            return try await referralProgramInfoRepository.loadInfo(for: UserWalletId(value: userWalletId))
         } catch {
             let referralError = ReferralError(error)
             let message = Localization.referralErrorFailedToLoadInfoWithReason(referralError.errorCode)
@@ -272,9 +271,11 @@ final class ReferralViewModel: ObservableObject {
         case (nil, .standard(let cryptoAccounts)):
             mapReadyToBecomeState(cryptoAccounts: cryptoAccounts)
 
-        case (_, .tangemPay), (_, .polymarket):
-            // The reward is USDT in Tron, and neither account type can hold it:
-            // TangemPay works only with USDC in Polygon, Polymarket only with its collateral there
+        case (_, .joint), (_, .tangemPay), (_, .polymarket), (_, .collectibles):
+            // Unreachable: the account model comes from `firstStandard()`. Ineligible on their own merits too —
+            // the reward is USDT in Tron, which TangemPay (USDC in Polygon only), Polymarket (its collateral there
+            // only) and Collectibles (USDC in Solana only) cannot hold, and a joint account is shared rather than the
+            // referring user's own
             break
         }
     }

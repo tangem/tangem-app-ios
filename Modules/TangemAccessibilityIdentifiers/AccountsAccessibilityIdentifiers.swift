@@ -58,6 +58,14 @@ public enum AccountsAccessibilityIdentifiers {
         "expandableAccount_\(accountName)"
     }
 
+    // MARK: - Pending Joint Account (Main Screen)
+
+    /// Plate of a joint account awaiting activation on the main screen.
+    /// Format: `pendingJointAccount_<accountName>`
+    public static func pendingJointAccountItem(accountName: String) -> String {
+        "pendingJointAccount_\(accountName)"
+    }
+
     // MARK: - Archived Account Row
 
     /// Token info subtitle in archived account row.

@@ -63,8 +63,7 @@ extension TangemPayCustomerInfoManagementServiceBuilder {
     init() {
         self = TangemPayCustomerInfoManagementServiceBuilder(
             apiType: FeatureStorage.instance.visaAPIType,
-            bffStaticToken: TangemPayUtilities.getBFFStaticToken(),
-            useNewTransactionsEndpoint: FeatureProvider.isAvailable(.tangemPayCashback)
+            bffStaticToken: TangemPayUtilities.getBFFStaticToken()
         )
     }
 }
@@ -75,6 +74,24 @@ extension TangemPayAvailabilityServiceBuilder {
             apiType: FeatureStorage.instance.visaAPIType,
             bffStaticToken: TangemPayUtilities.getBFFStaticToken(),
             paeraCustomerFlagRepository: AppSettings.shared
+        )
+    }
+}
+
+extension TangemPayGeoServiceBuilder {
+    init() {
+        self = TangemPayGeoServiceBuilder(
+            apiType: FeatureStorage.instance.visaAPIType,
+            bffStaticToken: TangemPayUtilities.getBFFStaticToken()
+        )
+    }
+}
+
+extension TangemPayWaitlistServiceBuilder {
+    init() {
+        self = TangemPayWaitlistServiceBuilder(
+            apiType: FeatureStorage.instance.visaAPIType,
+            bffStaticToken: TangemPayUtilities.getBFFStaticToken()
         )
     }
 }

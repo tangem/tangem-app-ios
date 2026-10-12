@@ -157,6 +157,7 @@ private extension TangemPayTransactionDetailsView {
                         .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsAmountSubtitle)
                 }
             }
             .padding(.top, 12)
@@ -234,7 +235,7 @@ private extension TangemPayTransactionDetailsView {
             .frame(width: 28, height: 28)
             .foregroundStyle(DesignSystem.Color.iconPrimary)
             .frame(width: 80, height: 80)
-            .background(DesignSystem.Color.bgOpaquePrimary, in: Circle())
+            .background(DesignSystem.Color.bgTransparentPrimary, in: Circle())
     }
 
     func redesignedRows(_ rows: [TangemPayTransactionDetailsDisplayModel.Row]) -> some View {
@@ -243,6 +244,7 @@ private extension TangemPayTransactionDetailsView {
                 Row(title: row.title, value: row.value)
                     .showDivider(rows.count == 1 || index < rows.count - 1)
                     .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
+                    .accessibilityIdentifier(row.accessibilityIdentifier)
             }
         }
     }
@@ -261,6 +263,7 @@ private extension TangemPayTransactionDetailsView {
                         shimmerLine(width: 84, token: DesignSystem.Font.captionMediumToken)
                     }
                     .showDivider()
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsCardRow)
             case .loaded(let cardNumberEnd, let cardName):
                 Row(
                     title: Localization.tangempayCommonCard,
@@ -270,12 +273,15 @@ private extension TangemPayTransactionDetailsView {
                 .verticalAlignment(.top)
                 .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
                 .showDivider()
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsCardRow)
             case .failed:
                 Row(title: Localization.tangempayCommonCard)
                     .valueAccessory {
                         errorLoadingAccessory(action: viewModel.retryCardLoad)
+                            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsCardRowRetryButton)
                     }
                     .showDivider()
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsCardRow)
             }
         }
     }
