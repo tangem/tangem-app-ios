@@ -20,4 +20,8 @@ enum PromoCampaignBannerMatcher {
 
         return !campaign.isEnrolled
     }
+
+    static func campaignName(campaignId: Int?, campaigns: [PromoCampaign]) -> String? {
+        campaignId.flatMap { campaignId in campaigns.first(where: { $0.id == campaignId })?.name }
+    }
 }
