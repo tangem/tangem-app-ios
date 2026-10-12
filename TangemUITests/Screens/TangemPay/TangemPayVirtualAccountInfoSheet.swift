@@ -92,11 +92,11 @@ final class TangemPayVirtualAccountInfoSheet: ScreenBase<TangemPayVirtualAccount
     }
 
     private func feeTitleText(_ fee: TangemPayAccessibilityIdentifiers.VirtualAccountFee) -> XCUIElement {
-        app.staticTexts[TangemPayAccessibilityIdentifiers.virtualAccountFeeTitle(fee)].firstMatch
+        app.staticTexts[TangemPayAccessibilityIdentifiers.virtualAccountFeeTitle(fee.rawValue)].firstMatch
     }
 
     private func feeValueText(_ fee: TangemPayAccessibilityIdentifiers.VirtualAccountFee) -> XCUIElement {
-        app.staticTexts[TangemPayAccessibilityIdentifiers.virtualAccountFeeValue(fee)].firstMatch
+        app.staticTexts[TangemPayAccessibilityIdentifiers.virtualAccountFeeValue(fee.rawValue)].firstMatch
     }
 }
 
