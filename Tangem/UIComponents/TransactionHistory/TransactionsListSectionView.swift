@@ -63,8 +63,8 @@ struct TransactionsListRowView: View {
             openTransactionDetailsAction(viewModel)
         } label: {
             switch viewModel.display.style {
-            case .chip:
-                TransactionChipRedesigned(viewModel: viewModel)
+            case .chip(let style):
+                TransactionChipRedesigned(viewModel: viewModel, style: style)
                     .padding(.vertical, 4)
             case .row:
                 TransactionViewRedesigned(viewModel: viewModel)
