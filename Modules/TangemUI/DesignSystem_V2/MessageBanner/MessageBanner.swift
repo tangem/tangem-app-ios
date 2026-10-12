@@ -139,13 +139,13 @@ private extension MessageBanner {
     var textColumn: some View {
         VStack(alignment: config.contentAlign.textStackAlignment, spacing: MessageBannerMetrics.textColumnSpacing) {
             Text(title)
-                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                .style(DesignSystem.Font.bodyMediumToken, color: config.overrideTextColors.title ?? DesignSystem.Color.textPrimary)
                 .lineLimit(config.titleLineLimit)
                 .multilineTextAlignment(config.contentAlign.textAlignment)
 
             if let description {
                 Text(description)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .style(DesignSystem.Font.captionMediumToken, color: config.overrideTextColors.description ?? DesignSystem.Color.textSecondary)
                     .lineLimit(config.descriptionLineLimit)
                     .multilineTextAlignment(config.contentAlign.textAlignment)
             }
